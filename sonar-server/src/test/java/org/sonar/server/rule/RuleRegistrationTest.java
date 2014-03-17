@@ -26,7 +26,9 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
@@ -35,6 +37,8 @@ import org.sonar.core.rule.RuleTagDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.server.qualityprofile.ProfilesManager;
 import org.sonar.server.startup.RegisterDebtModel;
+
+import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -58,9 +62,13 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   RuleTagDao ruleTagDao;
   ActiveRuleDao activeRuleDao;
   CharacteristicDao characteristicDao;
+  System2 system;
+  Date date = DateUtils.parseDateTime("2014-03-17T19:10:03+0100");
 
   @Before
   public void before() {
+    system = mock(System2.class);
+    when(system.now()).thenReturn(date.getTime());
     myBatis = getMyBatis();
     ruleDao = new RuleDao(myBatis);
     ruleTagDao = new RuleTagDao(myBatis);
@@ -68,7 +76,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
     ruleTagOperations = new RuleTagOperations(ruleTagDao, esRuleTags);
     characteristicDao = new CharacteristicDao(myBatis);
     task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RulesDefinition[]{new FakeRepository()}),
-      profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao, characteristicDao, mock(RegisterDebtModel.class));
+      profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao, characteristicDao, system);
   }
 
   @Test
@@ -149,6 +157,14 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
     task.start();
 
     checkTables("disable_deprecated_rules", EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT, "rules", "rules_parameters", "rules_rule_tags", "rule_tags");
+  }
+
+  @Test
+  public void not_disable_already_disabled_rules() {
+    setupData("not_disable_already_disabled_rules");
+    task.start();
+
+    checkTables("not_disable_already_disabled_rules", new String[]{"created_at", "note_data", "note_user_login", "note_created_at", "note_updated_at"}, "rules");
   }
 
   @Test

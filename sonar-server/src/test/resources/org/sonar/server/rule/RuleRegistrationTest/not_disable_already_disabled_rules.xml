@@ -1,0 +1,23 @@
+<dataset>
+
+  <characteristics id="2" kee="MEMORY_EFFICIENCY" name="Memory Efficiency" parent_id="1" characteristic_order="1" enabled="[true]"/>
+
+  <rules id="1" plugin_rule_key="deprecated-key" plugin_name="deprecated-repo" plugin_config_key="[null]" name="Deprecated" description="[null]"
+         status="REMOVED" priority="4" cardinality="SINGLE" parent_id="[null]"
+         characteristic_id="[null]" default_characteristic_id="[null]"
+         remediation_function="[null]" default_remediation_function="[null]"
+         remediation_factor="[null]" default_remediation_factor="[null]"
+         remediation_offset="[null]" default_remediation_offset="[null]"
+         effort_to_fix_l10n_key="[null]"
+         updated_at="2014-03-16"/>
+
+  <rules id="2" plugin_rule_key="deprecated" plugin_name="fake" plugin_config_key="[null]" name="Deprecated fake" description="[null]"
+         status="REMOVED" priority="4" cardinality="SINGLE" parent_id="[null]"
+         characteristic_id="[null]" default_characteristic_id="[null]"
+         remediation_function="[null]" default_remediation_function="[null]"
+         remediation_factor="[null]" default_remediation_factor="[null]"
+         remediation_offset="[null]" default_remediation_offset="[null]"
+         effort_to_fix_l10n_key="[null]"
+         updated_at="2014-03-16"/>
+
+</dataset>

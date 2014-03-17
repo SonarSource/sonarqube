@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.*;
@@ -69,15 +70,22 @@ public class RuleRegistration implements Startable {
   private final RuleTagOperations ruleTagOperations;
   private final ActiveRuleDao activeRuleDao;
   private final CharacteristicDao characteristicDao;
-  private final System2 system = System2.INSTANCE;
+  private final System2 system;
 
   /**
-   * @param registerTechnicalDebtModel used only to be started after init of the technical debt model
+   * @param registerDebtModel used only to be started after init of the technical debt model
    */
   public RuleRegistration(RuleDefinitionsLoader defLoader, ProfilesManager profilesManager,
                           RuleRegistry ruleRegistry, ESRuleTags esRuleTags, RuleTagOperations ruleTagOperations,
                           MyBatis myBatis, RuleDao ruleDao, RuleTagDao ruleTagDao, ActiveRuleDao activeRuleDao, CharacteristicDao characteristicDao,
-                          RegisterDebtModel registerTechnicalDebtModel) {
+                          RegisterDebtModel registerDebtModel) {
+    this(defLoader, profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao, characteristicDao, System2.INSTANCE);
+  }
+
+  @VisibleForTesting
+  RuleRegistration(RuleDefinitionsLoader defLoader, ProfilesManager profilesManager,
+                   RuleRegistry ruleRegistry, ESRuleTags esRuleTags, RuleTagOperations ruleTagOperations,
+                   MyBatis myBatis, RuleDao ruleDao, RuleTagDao ruleTagDao, ActiveRuleDao activeRuleDao, CharacteristicDao characteristicDao, System2 system) {
     this.defLoader = defLoader;
     this.profilesManager = profilesManager;
     this.ruleRegistry = ruleRegistry;
@@ -88,6 +96,7 @@ public class RuleRegistration implements Startable {
     this.ruleTagDao = ruleTagDao;
     this.activeRuleDao = activeRuleDao;
     this.characteristicDao = characteristicDao;
+    this.system = system;
   }
 
   @Override
@@ -402,7 +411,7 @@ public class RuleRegistration implements Startable {
       // Update copy of template rules from template
       if (ruleDto.getParentId() != null) {
         RuleDto parent = buffer.rulesById.get(ruleDto.getParentId());
-        if (parent != null && !parent.getStatus().equals(Rule.STATUS_REMOVED)) {
+        if (parent != null && !Rule.STATUS_REMOVED.equals(parent.getStatus())) {
           // TODO merge params and tags ?
           ruleDto.setLanguage(parent.getLanguage());
           ruleDto.setStatus(parent.getStatus());
@@ -416,7 +425,7 @@ public class RuleRegistration implements Startable {
           toBeRemoved = false;
         }
       }
-      if (toBeRemoved) {
+      if (toBeRemoved && !Rule.STATUS_REMOVED.equals(ruleDto.getStatus())) {
         // TODO log repository key
         LOG.info("Disable rule " + ruleDto.getRuleKey());
         ruleDto.setStatus(Rule.STATUS_REMOVED);
