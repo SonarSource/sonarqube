@@ -78,9 +78,14 @@ public class FileIndexer implements BatchComponent {
       // Index only provided files
       indexFiles(inputFileBuilder, fileSystem, progress, fileSystem.sourceFiles(), InputFile.Type.MAIN);
       indexFiles(inputFileBuilder, fileSystem, progress, fileSystem.testFiles(), InputFile.Type.TEST);
-    } else if (fileSystem.baseDir() != null) {
-      // index from basedir
-      indexDirectory(inputFileBuilder, fileSystem, progress, fileSystem.baseDir());
+    } else {
+      for (File mainDir : fileSystem.sourceDirs()) {
+        indexDirectory(inputFileBuilder, fileSystem, progress, mainDir, InputFile.Type.MAIN);
+      }
+      for (File testDir : fileSystem.testDirs()) {
+        indexDirectory(inputFileBuilder, fileSystem, progress, testDir, InputFile.Type.TEST);
+      }
+
     }
 
     // Remove files that have been removed since previous indexation
@@ -101,16 +106,13 @@ public class FileIndexer implements BatchComponent {
     }
   }
 
-  private void indexDirectory(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress status, File dirToIndex) {
+  private void indexDirectory(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress status, File dirToIndex, InputFile.Type type) {
     Collection<File> files = FileUtils.listFiles(dirToIndex, FILE_FILTER, DIR_FILTER);
-    for (File sourceFile : files) {
-      DefaultInputFile inputFile = inputFileBuilder.create(sourceFile);
+    for (File file : files) {
+      DefaultInputFile inputFile = inputFileBuilder.create(file);
       if (inputFile != null) {
-        if (exclusionFilters.accept(inputFile, InputFile.Type.MAIN)) {
-          indexFile(inputFileBuilder, fileSystem, status, inputFile, InputFile.Type.MAIN);
-        }
-        if (exclusionFilters.accept(inputFile, InputFile.Type.TEST)) {
-          indexFile(inputFileBuilder, fileSystem, status, inputFile, InputFile.Type.TEST);
+        if (exclusionFilters.accept(inputFile, type)) {
+          indexFile(inputFileBuilder, fileSystem, status, inputFile, type);
         }
       }
     }

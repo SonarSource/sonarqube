@@ -101,10 +101,6 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
 
   @Override
   public List<File> sourceDirs() {
-    if (sourceDirs.isEmpty()) {
-      // For backward compatibility with File::fromIOFile(file, sourceDirs) we need to always return something
-      return Arrays.asList(baseDir());
-    }
     return sourceDirs;
   }
 
