@@ -20,11 +20,13 @@
 package org.sonar.api.batch.rule.internal;
 
 import org.junit.Test;
+import org.sonar.api.batch.rule.DebtRemediationFunction;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.utils.Duration;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -46,6 +48,8 @@ public class RulesBuilderTest {
     newSquid1.setMetadata("foo=bar");
     newSquid1.setSeverity(Severity.CRITICAL);
     newSquid1.setStatus(RuleStatus.BETA);
+    newSquid1.setDebtCharacteristic("COMPILER");
+    newSquid1.setDebtRemediationFunction(DebtRemediationFunction.create(DebtRemediationFunction.Type.LINEAR_OFFSET, Duration.create(10), Duration.create(60)));
     newSquid1.addParam("min");
     newSquid1.addParam("max").setDescription("Maximum");
     // most simple rule
@@ -67,6 +71,11 @@ public class RulesBuilderTest {
     assertThat(squid1.metadata()).isEqualTo("foo=bar");
     assertThat(squid1.status()).isEqualTo(RuleStatus.BETA);
     assertThat(squid1.severity()).isEqualTo(Severity.CRITICAL);
+    assertThat(squid1.debtCharacteristic()).isEqualTo("COMPILER");
+    assertThat(squid1.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
+    assertThat(squid1.debtRemediationFunction().factor()).isEqualTo(Duration.create(10));
+    assertThat(squid1.debtRemediationFunction().offset()).isEqualTo(Duration.create(60));
+    assertThat(squid1.debtCharacteristic()).isEqualTo("COMPILER");
     assertThat(squid1.params()).hasSize(2);
     assertThat(squid1.param("min").key()).isEqualTo("min");
     assertThat(squid1.param("min").description()).isNull();
@@ -80,6 +89,8 @@ public class RulesBuilderTest {
     assertThat(squid2.metadata()).isNull();
     assertThat(squid2.status()).isEqualTo(RuleStatus.defaultStatus());
     assertThat(squid2.severity()).isEqualTo(Severity.defaultSeverity());
+    assertThat(squid2.debtCharacteristic()).isNull();
+    assertThat(squid2.debtRemediationFunction()).isNull();
     assertThat(squid2.params()).isEmpty();
   }
 

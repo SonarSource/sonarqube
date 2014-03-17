@@ -21,11 +21,10 @@ package org.sonar.api.batch.rule.internal;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.rule.RemediationFunction;
+import org.sonar.api.batch.rule.DebtRemediationFunction;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.utils.Duration;
 
 import javax.annotation.Nullable;
 
@@ -38,9 +37,8 @@ public class NewRule {
 
   final RuleKey key;
   Integer id;
-  String name, description, severity = DEFAULT_SEVERITY, metadata, characteristic;
-  RemediationFunction function;
-  Duration factor, offset;
+  String name, description, severity = DEFAULT_SEVERITY, metadata, debtCharacteristic;
+  DebtRemediationFunction debtRemediationFunction;
   RuleStatus status = RuleStatus.defaultStatus();
   Map<String, NewRuleParam> params = new HashMap<String, NewRuleParam>();
 
@@ -69,7 +67,7 @@ public class NewRule {
   }
 
   public NewRule setStatus(@Nullable RuleStatus s) {
-    this.status = (RuleStatus)ObjectUtils.defaultIfNull(s, RuleStatus.defaultStatus());
+    this.status = (RuleStatus) ObjectUtils.defaultIfNull(s, RuleStatus.defaultStatus());
     return this;
   }
 
@@ -78,23 +76,13 @@ public class NewRule {
     return this;
   }
 
-  public NewRule setCharacteristic(@Nullable String c) {
-    this.characteristic = c;
+  public NewRule setDebtCharacteristic(@Nullable String c) {
+    this.debtCharacteristic = c;
     return this;
   }
 
-  public NewRule setFunction(@Nullable RemediationFunction f) {
-    this.function = f;
-    return this;
-  }
-
-  public NewRule setFactor(@Nullable Duration f) {
-    this.factor = f;
-    return this;
-  }
-
-  public NewRule setOffset(@Nullable Duration o) {
-    this.offset = o;
+  public NewRule setDebtRemediationFunction(@Nullable DebtRemediationFunction f) {
+    this.debtRemediationFunction = f;
     return this;
   }
 

@@ -25,10 +25,10 @@ import com.google.common.collect.ListMultimap;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.rule.DebtRemediationFunction;
 import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.batch.rule.internal.NewRule;
 import org.sonar.api.batch.rule.internal.RulesBuilder;
-import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.technicaldebt.batch.Characteristic;
@@ -80,8 +80,8 @@ public class RulesProvider extends ProviderAdapter {
       // TODO should we set metadata ?
 
       if (ruleDto.hasCharacteristic()) {
-        newRule.setCharacteristic(characteristic(ruleDto, ruleKey, debtModel).key());
-        setFunction(ruleDto, newRule, ruleKey, durations);
+        newRule.setDebtCharacteristic(effectiveCharacteristic(ruleDto, ruleKey, debtModel).key());
+        newRule.setDebtRemediationFunction(effectiveFunction(ruleDto, ruleKey, newRule, durations));
       }
 
       for (RuleParamDto ruleParamDto : paramDtosByRuleId.get(ruleDto.getId())) {
@@ -92,27 +92,7 @@ public class RulesProvider extends ProviderAdapter {
     return rulesBuilder.build();
   }
 
-  private void setFunction(RuleDto ruleDto, NewRule newRule, RuleKey ruleKey, Durations durations) {
-    String function = ruleDto.getRemediationFunction();
-    String factor = ruleDto.getRemediationFactor();
-    String offset = ruleDto.getRemediationOffset();
-
-    String defaultFunction = ruleDto.getDefaultRemediationFunction();
-    String defaultFactor = ruleDto.getDefaultRemediationFactor();
-    String defaultOffset = ruleDto.getDefaultRemediationOffset();
-
-    if (function != null) {
-      newRule.setFunction(function(function, ruleKey));
-      newRule.setFactor(factor != null ? durations.decode(factor) : null);
-      newRule.setOffset(offset != null ? durations.decode(offset) : null);
-    } else {
-      newRule.setFunction(function(defaultFunction, ruleKey));
-      newRule.setFactor(defaultFactor != null ? durations.decode(defaultFactor) : null);
-      newRule.setOffset(defaultOffset != null ? durations.decode(defaultOffset) : null);
-    }
-  }
-
-  private Characteristic characteristic(RuleDto ruleDto, RuleKey ruleKey, TechnicalDebtModel debtModel) {
+  private Characteristic effectiveCharacteristic(RuleDto ruleDto, RuleKey ruleKey, TechnicalDebtModel debtModel) {
     Integer characteristicId = ruleDto.getCharacteristicId();
     Integer defaultCharacteristicId = ruleDto.getDefaultCharacteristicId();
     Integer effectiveCharacteristicId = characteristicId != null ? characteristicId : defaultCharacteristicId;
@@ -123,10 +103,22 @@ public class RulesProvider extends ProviderAdapter {
     return characteristic;
   }
 
-  private RemediationFunction function(@Nullable String function, RuleKey ruleKey) {
-    if (function == null) {
+  private DebtRemediationFunction effectiveFunction(RuleDto ruleDto, RuleKey ruleKey, NewRule newRule, Durations durations) {
+    String function = ruleDto.getRemediationFunction();
+    String defaultFunction = ruleDto.getDefaultRemediationFunction();
+    if (function != null) {
+      return createDebtRemediationFunction(function, ruleDto.getRemediationFactor(), ruleDto.getRemediationOffset(), durations);
+    } else if (defaultFunction != null) {
+      return createDebtRemediationFunction(ruleDto.getDefaultRemediationFunction(), ruleDto.getDefaultRemediationFactor(), ruleDto.getDefaultRemediationOffset(), durations);
+    } else {
       throw new IllegalStateException(String.format("Remediation function should not be null on rule '%s'", ruleKey));
     }
-    return RemediationFunction.valueOf(function);
   }
+
+  private DebtRemediationFunction createDebtRemediationFunction(String function, @Nullable String factor, @Nullable String offset, Durations durations) {
+    return DebtRemediationFunction.create(DebtRemediationFunction.Type.valueOf(function),
+      factor != null ? durations.decode(factor) : null,
+      offset != null ? durations.decode(offset) : null);
+  }
+
 }

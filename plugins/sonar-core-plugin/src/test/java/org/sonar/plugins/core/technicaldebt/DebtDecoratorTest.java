@@ -98,8 +98,8 @@ public class DebtDecoratorTest {
   public void before() throws Exception {
     when(perspectives.as(Issuable.class, resource)).thenReturn(issuable);
     RulesBuilder rulesBuilder = new RulesBuilder();
-    rulesBuilder.add(ruleKey1).setName("rule1").setCharacteristic("MEMORY_EFFICIENCY");
-    rulesBuilder.add(ruleKey2).setName("rule2").setCharacteristic("MODULARITY");
+    rulesBuilder.add(ruleKey1).setName("rule1").setDebtCharacteristic("MEMORY_EFFICIENCY");
+    rulesBuilder.add(ruleKey2).setName("rule2").setDebtCharacteristic("MODULARITY");
     rules = rulesBuilder.build();
 
     when(ruleFinder.findByKey(ruleKey1)).thenReturn(org.sonar.api.rules.Rule.create(ruleKey1.repository(), ruleKey1.rule()));

@@ -26,13 +26,13 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.batch.rule.DebtRemediationFunction;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.RulesBuilder;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RulePriority;
@@ -250,9 +250,8 @@ public class ModuleIssuesTest {
   public void set_debt_with_linear_function() throws Exception {
     ruleBuilder.add(SQUID_RULE_KEY)
       .setName(SQUID_RULE_NAME)
-      .setCharacteristic("COMPILER_RELATED_PORTABILITY")
-      .setFunction(RemediationFunction.LINEAR)
-      .setFactor(Duration.create(10L));
+      .setDebtCharacteristic("COMPILER_RELATED_PORTABILITY")
+      .setDebtRemediationFunction(DebtRemediationFunction.createLinear(Duration.create(10L)));
     activeRulesBuilder.activate(SQUID_RULE_KEY).setSeverity(Severity.INFO);
     initModuleIssues();
 
@@ -277,10 +276,8 @@ public class ModuleIssuesTest {
   public void set_debt_with_linear_with_offset_function() throws Exception {
     ruleBuilder.add(SQUID_RULE_KEY)
       .setName(SQUID_RULE_NAME)
-      .setCharacteristic("COMPILER_RELATED_PORTABILITY")
-      .setFunction(RemediationFunction.LINEAR_OFFSET)
-      .setFactor(Duration.create(10L))
-      .setOffset(Duration.create(25L));
+      .setDebtCharacteristic("COMPILER_RELATED_PORTABILITY")
+      .setDebtRemediationFunction(DebtRemediationFunction.createLinearWithOffset(Duration.create(10L), Duration.create(25L)));
     activeRulesBuilder.activate(SQUID_RULE_KEY).setSeverity(Severity.INFO);
     initModuleIssues();
 
@@ -305,9 +302,8 @@ public class ModuleIssuesTest {
   public void set_debt_with_constant_issue_function() throws Exception {
     ruleBuilder.add(SQUID_RULE_KEY)
       .setName(SQUID_RULE_NAME)
-      .setCharacteristic("COMPILER_RELATED_PORTABILITY")
-      .setFunction(RemediationFunction.CONSTANT_ISSUE)
-      .setOffset(Duration.create(10L));
+      .setDebtCharacteristic("COMPILER_RELATED_PORTABILITY")
+      .setDebtRemediationFunction(DebtRemediationFunction.createConstantPerIssue(Duration.create(10L)));
     activeRulesBuilder.activate(SQUID_RULE_KEY).setSeverity(Severity.INFO);
     initModuleIssues();
 
@@ -332,9 +328,8 @@ public class ModuleIssuesTest {
   public void fail_to_set_debt_with_constant_issue_function_when_effort_to_fix_is_set() throws Exception {
     ruleBuilder.add(SQUID_RULE_KEY)
       .setName(SQUID_RULE_NAME)
-      .setCharacteristic("COMPILER_RELATED_PORTABILITY")
-      .setFunction(RemediationFunction.CONSTANT_ISSUE)
-      .setOffset(Duration.create(25L));
+      .setDebtCharacteristic("COMPILER_RELATED_PORTABILITY")
+      .setDebtRemediationFunction(DebtRemediationFunction.createConstantPerIssue(Duration.create(25L)));
     activeRulesBuilder.activate(SQUID_RULE_KEY).setSeverity(Severity.INFO);
     initModuleIssues();
 

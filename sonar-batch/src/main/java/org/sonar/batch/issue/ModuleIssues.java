@@ -21,13 +21,9 @@ package org.sonar.batch.issue;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
-import org.sonar.api.batch.rule.ActiveRule;
-import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.rule.Rule;
-import org.sonar.api.batch.rule.Rules;
+import org.sonar.api.batch.rule.*;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.resources.Project;
-import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.Duration;
@@ -111,25 +107,25 @@ public class ModuleIssues {
     if (issue.severity() == null) {
       issue.setSeverity(activeRule.severity());
     }
-    if (rule.characteristic() != null) {
+    if (rule.debtCharacteristic() != null) {
       issue.setDebt(calculateDebt(rule, issue.effortToFix()));
     }
   }
 
   private Duration calculateDebt(Rule rule, @Nullable Double effortToFix) {
-    if (RemediationFunction.CONSTANT_ISSUE.equals(rule.function()) && effortToFix != null) {
+    DebtRemediationFunction function = rule.debtRemediationFunction();
+    if (DebtRemediationFunction.Type.CONSTANT_ISSUE.equals(function.type()) && effortToFix != null) {
       throw new IllegalArgumentException("Rule '" + rule.key() + "' can not use 'Constant/issue' remediation function " +
         "because this rule does not have a fixed remediation cost.");
     }
     Duration result = Duration.create(0);
-    Duration factor = rule.factor();
-    Duration offset = rule.offset();
+    Duration factor = function.factor();
+    Duration offset = function.offset();
 
     if (factor != null) {
       int effortToFixValue = Objects.firstNonNull(effortToFix, 1).intValue();
       result = factor.multiply(effortToFixValue);
     }
-
     if (offset != null) {
       result = result.add(offset);
     }

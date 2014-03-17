@@ -25,11 +25,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.batch.rule.DebtRemediationFunction;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.RuleParam;
 import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.config.Settings;
-import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
@@ -111,10 +111,8 @@ public class RulesProviderTest extends AbstractDaoTestCase {
     Rules rules = provider.provide(ruleDao, debtModel, durations);
 
     Rule rule = rules.find(RuleKey.of("checkstyle", "AvoidNull"));
-    assertThat(rule.characteristic()).isEqualTo("EFFICIENCY");
-    assertThat(rule.function()).isEqualTo(RemediationFunction.LINEAR_OFFSET);
-    assertThat(rule.factor()).isEqualTo(Duration.decode("5d", 8));
-    assertThat(rule.offset()).isEqualTo(Duration.decode("10h", 8));
+    assertThat(rule.debtCharacteristic()).isEqualTo("EFFICIENCY");
+    assertThat(rule.debtRemediationFunction()).isEqualTo(DebtRemediationFunction.createLinearWithOffset(Duration.decode("5d", 8), Duration.decode("10h", 8)));
   }
 
   @Test
@@ -124,10 +122,8 @@ public class RulesProviderTest extends AbstractDaoTestCase {
     Rules rules = provider.provide(ruleDao, debtModel, durations);
 
     Rule rule = rules.find(RuleKey.of("checkstyle", "AvoidNull"));
-    assertThat(rule.characteristic()).isEqualTo("PORTABILITY");
-    assertThat(rule.function()).isEqualTo(RemediationFunction.LINEAR);
-    assertThat(rule.factor()).isEqualTo(Duration.decode("2h", 8));
-    assertThat(rule.offset()).isNull();
+    assertThat(rule.debtCharacteristic()).isEqualTo("PORTABILITY");
+    assertThat(rule.debtRemediationFunction()).isEqualTo(DebtRemediationFunction.createLinear(Duration.decode("2h", 8)));
   }
 
   @Test
@@ -138,10 +134,8 @@ public class RulesProviderTest extends AbstractDaoTestCase {
 
     // As both default columns and user columns on debt are set, user debt columns should be used
     Rule rule = rules.find(RuleKey.of("checkstyle", "AvoidNull"));
-    assertThat(rule.characteristic()).isEqualTo("PORTABILITY");
-    assertThat(rule.function()).isEqualTo(RemediationFunction.LINEAR);
-    assertThat(rule.factor()).isEqualTo(Duration.decode("2h", 8));
-    assertThat(rule.offset()).isNull();
+    assertThat(rule.debtCharacteristic()).isEqualTo("PORTABILITY");
+    assertThat(rule.debtRemediationFunction()).isEqualTo(DebtRemediationFunction.createLinear(Duration.decode("2h", 8)));
   }
 
   @Test
@@ -152,10 +146,8 @@ public class RulesProviderTest extends AbstractDaoTestCase {
 
     // As both default columns and user columns on debt are set, user debt columns should be used
     Rule rule = rules.find(RuleKey.of("checkstyle", "AvoidNull"));
-    assertThat(rule.characteristic()).isEqualTo("PORTABILITY");
-    assertThat(rule.function()).isEqualTo(RemediationFunction.LINEAR);
-    assertThat(rule.factor()).isEqualTo(Duration.decode("2h", 8));
-    assertThat(rule.offset()).isNull();
+    assertThat(rule.debtCharacteristic()).isEqualTo("PORTABILITY");
+    assertThat(rule.debtRemediationFunction()).isEqualTo(DebtRemediationFunction.createLinear(Duration.decode("2h", 8)));
   }
 
   @Test
@@ -166,10 +158,8 @@ public class RulesProviderTest extends AbstractDaoTestCase {
 
     // As both default columns and user columns on debt are set, user debt columns should be used
     Rule rule = rules.find(RuleKey.of("checkstyle", "AvoidNull"));
-    assertThat(rule.characteristic()).isEqualTo("PORTABILITY");
-    assertThat(rule.function()).isEqualTo(RemediationFunction.LINEAR);
-    assertThat(rule.factor()).isEqualTo(Duration.decode("2h", 8));
-    assertThat(rule.offset()).isNull();
+    assertThat(rule.debtCharacteristic()).isEqualTo("PORTABILITY");
+    assertThat(rule.debtRemediationFunction()).isEqualTo(DebtRemediationFunction.createLinear(Duration.decode("2h", 8)));
   }
 
   @Test
@@ -179,10 +169,8 @@ public class RulesProviderTest extends AbstractDaoTestCase {
     Rules rules = provider.provide(ruleDao, debtModel, durations);
 
     Rule rule = rules.find(RuleKey.of("checkstyle", "AvoidNull"));
-    assertThat(rule.characteristic()).isNull();
-    assertThat(rule.function()).isNull();
-    assertThat(rule.factor()).isNull();
-    assertThat(rule.offset()).isNull();
+    assertThat(rule.debtCharacteristic()).isNull();
+    assertThat(rule.debtRemediationFunction()).isNull();
   }
 
   @Test

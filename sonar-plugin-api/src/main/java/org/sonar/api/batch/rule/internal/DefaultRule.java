@@ -20,12 +20,11 @@
 package org.sonar.api.batch.rule.internal;
 
 import com.google.common.collect.ImmutableMap;
+import org.sonar.api.batch.rule.DebtRemediationFunction;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.RuleParam;
-import org.sonar.api.rule.RemediationFunction;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.utils.Duration;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
@@ -38,10 +37,9 @@ public class DefaultRule implements Rule {
 
   private final RuleKey key;
   private final Integer id;
-  private final String name, severity, description, metadata, characteristic;
+  private final String name, severity, description, metadata, debtCharacteristic;
   private final RuleStatus status;
-  private final RemediationFunction function;
-  private final Duration factor, offset;
+  private final DebtRemediationFunction debtRemediationFunction;
 
   private final Map<String, RuleParam> params;
 
@@ -53,10 +51,8 @@ public class DefaultRule implements Rule {
     this.description = newRule.description;
     this.metadata = newRule.metadata;
     this.status = newRule.status;
-    this.characteristic = newRule.characteristic;
-    this.function = newRule.function;
-    this.factor = newRule.factor;
-    this.offset = newRule.offset;
+    this.debtCharacteristic = newRule.debtCharacteristic;
+    this.debtRemediationFunction = newRule.debtRemediationFunction;
 
     ImmutableMap.Builder<String, RuleParam> builder = ImmutableMap.builder();
     for (NewRuleParam newRuleParam : newRule.params.values()) {
@@ -101,23 +97,13 @@ public class DefaultRule implements Rule {
   }
 
   @Override
-  public String characteristic() {
-    return characteristic;
+  public String debtCharacteristic() {
+    return debtCharacteristic;
   }
 
   @Override
-  public RemediationFunction function() {
-    return function;
-  }
-
-  @Override
-  public Duration factor() {
-    return factor;
-  }
-
-  @Override
-  public Duration offset() {
-    return offset;
+  public DebtRemediationFunction debtRemediationFunction() {
+    return debtRemediationFunction;
   }
 
   @Override
