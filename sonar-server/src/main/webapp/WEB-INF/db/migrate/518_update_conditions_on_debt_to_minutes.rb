@@ -22,13 +22,13 @@
 # SonarQube 4.3
 # SONAR-4996
 #
-class UpdateAlertsOnDebtToMinutes < ActiveRecord::Migration
+class UpdateConditionsOnDebtToMinutes < ActiveRecord::Migration
 
   class Property < ActiveRecord::Base
 
   end
 
-  class Alert < ActiveRecord::Base
+  class QualityGateCondition < ActiveRecord::Base
 
   end
 
@@ -40,12 +40,12 @@ class UpdateAlertsOnDebtToMinutes < ActiveRecord::Migration
                                                                 'sqale_effort_to_grade_a', 'sqale_effort_to_grade_b', 'sqale_effort_to_grade_c', 'sqale_effort_to_grade_d',
                                                                 'blocker_remediation_cost', 'critical_remediation_cost', 'major_remediation_cost', 'minor_remediation_cost',
                                                                 'info_remediation_cost']])
-    alerts = Alert.all(:conditions => ['metric_id in (?)', metrics.map { |m| m.id } ])
+    conditions = QualityGateCondition.all(:conditions => ['metric_id in (?)', metrics.map { |m| m.id } ])
 
-    alerts.each do |alert|
-      alert.value_error = convert_days_to_minutes(alert.value_error.to_f, hours_in_day) unless alert.value_error.blank?
-      alert.value_warning = convert_days_to_minutes(alert.value_warning.to_f, hours_in_day) unless alert.value_warning.blank?
-      alert.save!
+    conditions.each do |condition|
+      condition.value_error = convert_days_to_minutes(condition.value_error.to_f, hours_in_day) unless condition.value_error.blank?
+      condition.value_warning = convert_days_to_minutes(condition.value_warning.to_f, hours_in_day) unless condition.value_warning.blank?
+      condition.save!
     end
   end
 
