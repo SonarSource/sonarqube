@@ -45,11 +45,9 @@ import java.util.Set;
  */
 public class FileIndexer implements BatchComponent {
 
-  private static final String FILE_IS_NOT_DECLARED_IN_MODULE_BASEDIR = "File '%s' is not declared in module basedir %s";
   private static final IOFileFilter DIR_FILTER = FileFilterUtils.and(HiddenFileFilter.VISIBLE, FileFilterUtils.notFileFilter(FileFilterUtils.prefixFileFilter(".")));
   private static final IOFileFilter FILE_FILTER = HiddenFileFilter.VISIBLE;
 
-  private final PathResolver pathResolver;
   private final List<InputFileFilter> filters;
   private final InputFileCache fileCache;
   private final Project module;
@@ -62,7 +60,6 @@ public class FileIndexer implements BatchComponent {
     this.exclusionFilters = exclusionFilters;
     this.inputFileBuilderFactory = inputFileBuilderFactory;
     this.fileCache = cache;
-    this.pathResolver = pathResolver;
     this.module = module;
   }
 
@@ -82,9 +79,14 @@ public class FileIndexer implements BatchComponent {
       // Index only provided files
       indexFiles(inputFileBuilder, fileSystem, progress, fileSystem.sourceFiles(), InputFile.Type.MAIN);
       indexFiles(inputFileBuilder, fileSystem, progress, fileSystem.testFiles(), InputFile.Type.TEST);
-    } else if (fileSystem.baseDir() != null) {
-      // index from basedir
-      indexDirectory(inputFileBuilder, fileSystem, progress, fileSystem.baseDir());
+    } else {
+      for (File mainDir : fileSystem.sourceDirs()) {
+        indexDirectory(inputFileBuilder, fileSystem, progress, mainDir, InputFile.Type.MAIN);
+      }
+      for (File testDir : fileSystem.testDirs()) {
+        indexDirectory(inputFileBuilder, fileSystem, progress, testDir, InputFile.Type.TEST);
+      }
+
     }
 
     // Remove files that have been removed since previous indexation
@@ -105,16 +107,13 @@ public class FileIndexer implements BatchComponent {
     }
   }
 
-  private void indexDirectory(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress status, File dirToIndex) {
+  private void indexDirectory(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress status, File dirToIndex, InputFile.Type type) {
     Collection<File> files = FileUtils.listFiles(dirToIndex, FILE_FILTER, DIR_FILTER);
-    for (File sourceFile : files) {
-      DefaultInputFile inputFile = inputFileBuilder.create(sourceFile);
+    for (File file : files) {
+      DefaultInputFile inputFile = inputFileBuilder.create(file);
       if (inputFile != null) {
-        if (exclusionFilters.accept(inputFile, InputFile.Type.MAIN)) {
-          indexFile(inputFileBuilder, fileSystem, status, inputFile, InputFile.Type.MAIN);
-        }
-        if (exclusionFilters.accept(inputFile, InputFile.Type.TEST)) {
-          indexFile(inputFileBuilder, fileSystem, status, inputFile, InputFile.Type.TEST);
+        if (exclusionFilters.accept(inputFile, type)) {
+          indexFile(inputFileBuilder, fileSystem, status, inputFile, type);
         }
       }
     }
