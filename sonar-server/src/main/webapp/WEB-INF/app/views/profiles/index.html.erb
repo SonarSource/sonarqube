@@ -22,7 +22,7 @@
     <% if profiles_administrator? %>
       <ul style="float: right" class="horizontal">
         <li class="marginleft10 add">
-          <a id="create-link-<%= language.getKey() -%>" href="<%= ApplicationController.root_context -%>/profiles/create_form?language=<%= language.getKey() -%>"
+          <a id="create-link-<%= language.getKey() -%>" href="<%= ApplicationController.root_context -%>/profiles/create_form?language=<%= u language.getKey() -%>"
              class="open-modal link-action"><%= message('create') -%></a>
         </li>
       </ul>
