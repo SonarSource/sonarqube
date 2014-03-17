@@ -3,7 +3,7 @@
 	 css_class = "widget color_#{m.alert_status}"
 	 if m.alert_status==Metric::TYPE_LEVEL_OK
 	   label = "<b>#{message('widget.alerts.no_alert')}</b>."
-	 elif m.alert_status==Metric::TYPE_LEVEL_WARN
+	 elsif m.alert_status==Metric::TYPE_LEVEL_WARN
      label = "<b>#{message('widget.alerts.warnings')}</b>#{h(m.alert_text)}."
 	 else
 	   label = "<b>#{message('widget.alerts.errors')}</b>#{h(m.alert_text)}."
