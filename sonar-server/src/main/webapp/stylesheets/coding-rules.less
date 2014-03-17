@@ -17,10 +17,14 @@
  * Detail
  */
 
-.coding-rules-detail-header {
-  margin-bottom: 2 * @navigatorPadding;
+.coding-rules-detail-header,
+.coding-rules-detail-title {
+  margin-bottom: @navigatorPadding;
   line-height: 1.5;
   font-weight: bold;
+}
+
+.coding-rules-detail-title {
   text-transform: uppercase;
 }
 
@@ -29,7 +33,6 @@
   background-color: @navigatorBarBackground;
   color: #777;
   font-size: @smallFontSize;
-  text-transform: uppercase;
 }
 
 .coding-rules-detail-key {
@@ -37,14 +40,14 @@
 }
 
 .coding-rules-detail-properties {
-  margin: 2 * @navigatorPadding 0;
+  margin: @navigatorPadding 0;
   font-size: 0;
 }
 
 .coding-rules-detail-property {
   display: inline-block;
   vertical-align: middle;
-  font-size: @baseFontSize;
+  font-size: @smallFontSize;
   height: 22px;
   line-height: 22px;
 
@@ -59,65 +62,37 @@
   margin-left: @navigatorPadding;
 }
 
-.coding-rules-detail-tag-delete {
-  position: relative;
-  top: -1px;
-  .trans;
-
-  &:hover, &:focus { color: @red; }
-}
-
-.coding-rules-detail-tag-add {
-  .trans;
-
-  &:hover, &:focus { color: @green; }
-}
-
-.coding-rules-detail-tag + .coding-rules-detail-tags-change {
-  margin-left: 1.5 * @navigatorPadding;
-}
-
-.coding-rules-detail-add-tag-box {
-  position: absolute;
-  width: 200px;
-  padding: @navigatorPadding;
-  border: 1px solid @navigatorBorderLightColor;
-  background-color: #fff;
-}
-
-.coding-rules-detail-add-tag-list-item {
-  padding: 3px 0;
-
-  input[type=text] { width: 120px; }
-}
-
 .coding-rules-detail-description {
   margin: 2 * @navigatorPadding 0;
-  padding-left: @navigatorPadding;
-  border-left: 5px solid @blue;
-
-  *:first-child {
-    margin-top: 0;
-    padding-top: 0;
-  }
-
-  *:last-child {
-    margin-bottom: 0;
-    padding-bottom: 0;
-  }
 }
 
 .coding-rules-detail-description-extra {
   margin-top: -@navigatorPadding;
-  border-left-color: @darkGrey;
 }
 
 .coding-rules-detail-parameters {
-  margin: 2 * @navigatorPadding 0;
+  margin: @navigatorPadding 0 @navigatorPadding * 2;
 }
 
 .coding-rules-detail-parameter {
   margin: @navigatorPadding 0;
+  font-size: 0;
+}
+
+.coding-rules-detail-parameter-name {
+  display: inline-block;
+  visibility: top;
+  width: 150px;
+  font-size: @baseFontSize;
+  font-weight: bold;
+  text-align: right;
+}
+
+.coding-rules-detail-parameter-description {
+  display: inline-block;
+  vertical-align: top;
+  margin-left: 2 * @navigatorPadding;
+  font-size: @baseFontSize;
 }
 
 

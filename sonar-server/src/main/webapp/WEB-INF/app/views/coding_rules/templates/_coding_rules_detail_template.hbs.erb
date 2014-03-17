@@ -1,15 +1,16 @@
 <script id="coding-rules-detail-template" type="text/x-handlebars-template">
-  <h3 class="coding-rules-detail-header">
-    {{#notEq status 'READY'}}
-      <span class="coding-rules-detail-status">{{status}}</span>
-    {{/notEq}}
-    <span class="coding-rules-detail-key">{{key}}</span> : {{name}}
-  </h3>
+  <h3 class="coding-rules-detail-header">{{name}}</h3>
 
   <ul class="coding-rules-detail-properties">
     <li class="coding-rules-detail-property">{{severityIcon severity}} {{t "severity" severity}}</li>
-    <li class="coding-rules-detail-property"><i class="icon-lang"></i> {{language}}</li>
-    <li class="coding-rules-detail-property"><i class="icon-calendar"></i> {{fCreationDate}}</li>
+    <li class="coding-rules-detail-property">
+      <span class="coding-rules-detail-status">{{language}}</span>
+    </li>
+    {{#notEq status 'READY'}}
+      <li class="coding-rules-detail-property">
+        <span class="coding-rules-detail-status">{{status}}</span>
+      </li>
+    {{/notEq}}
     <li class="coding-rules-detail-property coding-rules-detail-tag-list">
       <i class="icon-tags"></i>
       {{join tags ', '}}
@@ -19,6 +20,9 @@
       <input class="coding-rules-detail-tag-input" type="text" value="{{join tags ','}}">
       <a class="link-action coding-rules-detail-tag-edit-done">{{t 'done'}}</a>
     </li>
+    <li class="coding-rules-detail-property">{{t 'coding_rules.available_since'}} {{fCreationDate}}</li>
+    <li class="coding-rules-detail-property">{{t 'coding_rules.repository'}} {{repository}}</li>
+    <li class="coding-rules-detail-property">{{t 'coding_rules.key'}} {{key}}</li>
   </ul>
 
   <div class="coding-rules-detail-description rule-desc">{{{description}}}</div>
@@ -55,24 +59,24 @@
     </div>
   </div>
 
-  <table class="data zebra coding-rules-detail-parameters">
-    <thead>
-      <tr>
-        <th>{{t 'coding_rules.parameters.key'}}</th>
-        <th>{{t 'coding_rules.parameters.default_value'}}</th>
-        <th>{{t 'coding_rules.parameters.description'}}</th>
-      </tr>
-    </thead>
-    <tbody>
+
+  {{#if parameters}}
+    <h3 class="coding-rules-detail-title">{{t 'coding_rules.parameters'}}</h3>
+    <ul class="coding-rules-detail-parameters">
       {{#each parameters}}
-        <tr class="coding-rules-detail-parameter">
-          <td>{{key}}</td>
-          <td>{{#if default}}{{default}}{{else}}—{{/if}}</td>
-          <td>{{description}}</td>
-        </tr>
+        <li class="coding-rules-detail-parameter">
+          <h3 class="coding-rules-detail-parameter-name">{{key}}</h3>
+          <div class="coding-rules-detail-parameter-description">
+            {{description}}
+
+            {{#if default}}
+              <div>{{t 'coding_rules.parameters.default_value'}} {{default}}</div>
+            {{/if}}
+          </div>
+        </li>
       {{/each}}
-    </tbody>
-  </table>
+    </ul>
+  {{/if}}
 
 
   {{!--

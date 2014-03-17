@@ -75,16 +75,21 @@
           'severity.MINOR': 'Minor',
           'severity.INFO': 'Info',
           'coding_rules.activate_quality_profile': 'Activate Quality Profile',
+          'coding_rules.available_since': 'Available Since',
           'coding_rules.bulk_change': 'Bulk Change',
           'coding_rules.extend_description': 'Extend Description',
           'coding_rules.deactivate_quality_profile': 'Deactivate',
           'coding_rules.found': 'Found',
+          'coding_rules.key': 'Key:',
           'coding_rules.new_search': 'New Search',
           'coding_rules.no_results': 'No Coding Rules',
           'coding_rules.order': 'Order',
           'coding_rules.ordered_by': 'Ordered By',
           'coding_rules.page': 'Coding Rules',
+          'coding_rules.parameters': 'Parameters',
+          'coding_rules.parameters.default_value': 'Default Value:',
           'coding_rules.quality_profiles': 'Quality Profiles',
+          'coding_rules.repository': 'Repository:',
           'coding_rules._rules': 'rule(s)',
           'coding_rules.select_tag': 'Select Tag',
           'coding_rules.filters.availableSince': 'Available Since',
@@ -104,9 +109,6 @@
           'coding_rules.filters.severity': 'Severity',
           'coding_rules.filters.status': 'Status',
           'coding_rules.filters.tag': 'Tag',
-          'coding_rules.parameters.key': 'Key',
-          'coding_rules.parameters.default_value': 'Default Value',
-          'coding_rules.parameters.description': 'Description',
           'coding_rules.sort.creation_date': 'Creation Date',
           'coding_rules.sort.name': 'Name'
         }
@@ -119,23 +121,28 @@
           {
             name: 'Array designators "[]" should be located after the type in method signatures',
             language: 'Java',
-            severity: 'MAJOR'
+            severity: 'MAJOR',
+            status: 'DEPRECATED'
           }, {
             name: 'Avoid Array Loops',
             language: 'Java',
-            severity: 'CRITICAL'
+            severity: 'CRITICAL',
+            status: 'READY'
           }, {
             name: 'Bad practice - Abstract class defines covariant compareTo() method',
             language: 'Java',
-            severity: 'MAJOR'
+            severity: 'MAJOR',
+            status: 'READY'
           }, {
             name: 'Correctness - Use of class without a hashCode() method in a hashed data structure',
             language: 'Java',
-            severity: 'MINOR'
+            severity: 'MINOR',
+            status: 'BETA'
           }, {
             name: 'Useless Operation On Immutable',
             language: 'Java',
-            severity: 'MAJOR'
+            severity: 'MAJOR',
+            status: 'READY'
           }
         ],
         paging: {

@@ -16,10 +16,13 @@
 /*
  * Detail
  */
-.coding-rules-detail-header {
-  margin-bottom: 20px;
+.coding-rules-detail-header,
+.coding-rules-detail-title {
+  margin-bottom: 10px;
   line-height: 1.5;
   font-weight: bold;
+}
+.coding-rules-detail-title {
   text-transform: uppercase;
 }
 .coding-rules-detail-status {
@@ -27,16 +30,15 @@
   background-color: #efefef;
   color: #777;
   font-size: 11px;
-  text-transform: uppercase;
 }
 .coding-rules-detail-properties {
-  margin: 20px 0;
+  margin: 10px 0;
   font-size: 0;
 }
 .coding-rules-detail-property {
   display: inline-block;
   vertical-align: middle;
-  font-size: 13px;
+  font-size: 11px;
   height: 22px;
   line-height: 22px;
 }
@@ -49,60 +51,32 @@
 .coding-rules-detail-tag + .coding-rules-detail-tag {
   margin-left: 10px;
 }
-.coding-rules-detail-tag-delete {
-  position: relative;
-  top: -1px;
-  transition: all 0.3s ease;
-}
-.coding-rules-detail-tag-delete:hover,
-.coding-rules-detail-tag-delete:focus {
-  color: #d4333f;
-}
-.coding-rules-detail-tag-add {
-  transition: all 0.3s ease;
-}
-.coding-rules-detail-tag-add:hover,
-.coding-rules-detail-tag-add:focus {
-  color: #85bb43;
-}
-.coding-rules-detail-tag + .coding-rules-detail-tags-change {
-  margin-left: 15px;
-}
-.coding-rules-detail-add-tag-box {
-  position: absolute;
-  width: 200px;
-  padding: 10px;
-  border: 1px solid #e1e1e1;
-  background-color: #fff;
-}
-.coding-rules-detail-add-tag-list-item {
-  padding: 3px 0;
-}
-.coding-rules-detail-add-tag-list-item input[type=text] {
-  width: 120px;
-}
 .coding-rules-detail-description {
   margin: 20px 0;
-  padding-left: 10px;
-  border-left: 5px solid #4b9fd5;
-}
-.coding-rules-detail-description *:first-child {
-  margin-top: 0;
-  padding-top: 0;
-}
-.coding-rules-detail-description *:last-child {
-  margin-bottom: 0;
-  padding-bottom: 0;
 }
 .coding-rules-detail-description-extra {
   margin-top: -10px;
-  border-left-color: #cdcdcd;
 }
 .coding-rules-detail-parameters {
-  margin: 20px 0;
+  margin: 10px 0 20px;
 }
 .coding-rules-detail-parameter {
   margin: 10px 0;
+  font-size: 0;
+}
+.coding-rules-detail-parameter-name {
+  display: inline-block;
+  visibility: top;
+  width: 150px;
+  font-size: 13px;
+  font-weight: bold;
+  text-align: right;
+}
+.coding-rules-detail-parameter-description {
+  display: inline-block;
+  vertical-align: top;
+  margin-left: 20px;
+  font-size: 13px;
 }
 .coding-rules-detail-quality-profiles-header {
   margin-top: 30px;
