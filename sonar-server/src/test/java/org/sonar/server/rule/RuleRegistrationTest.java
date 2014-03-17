@@ -25,12 +25,16 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleDefinitions;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleTagDao;
 import org.sonar.server.qualityprofile.ProfilesManager;
+
+import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -49,16 +53,21 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   RuleDao ruleDao;
   RuleTagDao ruleTagDao;
   ActiveRuleDao activeRuleDao;
+  System2 system;
+  Date date = DateUtils.parseDateTime("2014-03-17T19:10:03+0100");
 
   @Before
   public void before() {
+    system = mock(System2.class);
+    when(system.now()).thenReturn(date.getTime());
+
     myBatis = getMyBatis();
     ruleDao = new RuleDao(myBatis);
     ruleTagDao = new RuleTagDao(myBatis);
     activeRuleDao = new ActiveRuleDao(myBatis);
     ruleTagOperations = new RuleTagOperations(ruleTagDao, esRuleTags);
     task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RuleDefinitions[]{new FakeRepository()}),
-      profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao);
+      profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao, system);
   }
 
   @Test
@@ -139,6 +148,14 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
     task.start();
 
     checkTables("should_disable_deprecated_rules", EXCLUDED_COLUMN_NAMES, "rules", "rules_parameters", "rules_rule_tags", "rule_tags");
+  }
+
+  @Test
+  public void not_disable_already_disabled_rules() {
+    setupData("not_disable_already_disabled_rules");
+    task.start();
+
+    checkTables("not_disable_already_disabled_rules", new String[]{"created_at", "note_data", "note_user_login", "note_created_at", "note_updated_at"}, "rules");
   }
 
   @Test

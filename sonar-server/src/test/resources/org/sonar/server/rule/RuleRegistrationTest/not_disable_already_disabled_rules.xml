@@ -1,0 +1,9 @@
+<dataset>
+
+  <rules id="1" plugin_rule_key="deprecated-key" plugin_name="deprecated-repo" plugin_config_key="[null]" name="Deprecated" description="[null]"
+         status="REMOVED" priority="4" cardinality="SINGLE" parent_id="[null]" updated_at="2014-03-16"/>
+
+  <rules id="2" plugin_rule_key="deprecated" plugin_name="fake" plugin_config_key="[null]" name="Deprecated fake" description="[null]"
+         status="REMOVED" priority="4" cardinality="SINGLE" parent_id="[null]" updated_at="2014-03-16"/>
+
+</dataset>
