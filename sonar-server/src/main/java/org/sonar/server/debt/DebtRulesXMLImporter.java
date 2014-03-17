@@ -171,7 +171,7 @@ public class DebtRulesXMLImporter implements ServerExtension {
   }
 
   @CheckForNull
-  private RuleDebt processRule(RuleKey ruleKey, Properties properties){
+  private RuleDebt processRule(RuleKey ruleKey, Properties properties) {
     try {
       return createRule(ruleKey, properties);
     } catch (DebtRemediationFunction.ValidationException e) {
@@ -189,17 +189,22 @@ public class DebtRulesXMLImporter implements ServerExtension {
       Property offsetProperty = properties.offset();
       String offset = offsetProperty != null ? offsetProperty.toDuration() : null;
 
-      String functionKey = function.getTextValue();
-      if ("linear_threshold".equals(functionKey) && factor != null) {
-        LOG.warn(String.format("Linear with threshold function is no longer used, remediation function of '%s' is replaced by linear.", ruleKey));
-        return new RuleDebt().setRuleKey(ruleKey).setFunction(DebtRemediationFunction.createLinear(factor));
-      } else if ("constant_resource".equals(functionKey)) {
-        LOG.warn(String.format("Constant/file function is no longer used, technical debt definitions on '%s' are ignored.", ruleKey));
-      } else if (DebtRemediationFunction.Type.CONSTANT_ISSUE.name().toLowerCase().equals(functionKey) && factor != null && offset == null) {
-        return new RuleDebt().setRuleKey(ruleKey).setFunction(DebtRemediationFunction.createConstantPerIssue(factor));
-      } else {
-        return new RuleDebt().setRuleKey(ruleKey).setFunction(DebtRemediationFunction.create(DebtRemediationFunction.Type.valueOf(functionKey.toUpperCase()), factor, offset));
-      }
+      return createRuleDebt(ruleKey, function.getTextValue(), factor, offset);
+    }
+    return null;
+  }
+
+  @CheckForNull
+  private RuleDebt createRuleDebt(RuleKey ruleKey, String function, @Nullable String factor, @Nullable String offset) {
+    if ("linear_threshold".equals(function) && factor != null) {
+      LOG.warn(String.format("Linear with threshold function is no longer used, remediation function of '%s' is replaced by linear.", ruleKey));
+      return new RuleDebt().setRuleKey(ruleKey).setFunction(DebtRemediationFunction.createLinear(factor));
+    } else if ("constant_resource".equals(function)) {
+      LOG.warn(String.format("Constant/file function is no longer used, technical debt definitions on '%s' are ignored.", ruleKey));
+    } else if (DebtRemediationFunction.Type.CONSTANT_ISSUE.name().equalsIgnoreCase(function) && factor != null && offset == null) {
+      return new RuleDebt().setRuleKey(ruleKey).setFunction(DebtRemediationFunction.createConstantPerIssue(factor));
+    } else {
+      return new RuleDebt().setRuleKey(ruleKey).setFunction(DebtRemediationFunction.create(DebtRemediationFunction.Type.valueOf(function.toUpperCase()), factor, offset));
     }
     return null;
   }

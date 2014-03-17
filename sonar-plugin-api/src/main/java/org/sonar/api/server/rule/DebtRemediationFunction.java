@@ -52,6 +52,10 @@ public class DebtRemediationFunction {
     // TODO validate factor and offset format
     this.factor = StringUtils.deleteWhitespace(factor);
     this.offset = StringUtils.deleteWhitespace(offset);
+    validate();
+  }
+
+  private void validate(){
     switch (type) {
       case LINEAR:
         if (this.factor == null || this.offset != null) {
@@ -68,6 +72,8 @@ public class DebtRemediationFunction {
           throw new ValidationException(String.format("%s is invalid, Constant/issue remediation function should only define an offset", this));
         }
         break;
+      default:
+        throw new IllegalStateException(String.format("Remediation function of %s is unknown", this));
     }
   }
 
