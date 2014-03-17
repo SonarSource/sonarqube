@@ -92,6 +92,8 @@ public class CopyRequirementsFromCharacteristicsToRulesTest extends AbstractDaoT
 
     assertThat(CopyRequirementsFromCharacteristicsToRules.convertDuration(1.0, null)).isEqualTo("1d");
     assertThat(CopyRequirementsFromCharacteristicsToRules.convertDuration(null, "d")).isNull();
+
+    assertThat(CopyRequirementsFromCharacteristicsToRules.convertDuration(0.0, "d")).isNull();
   }
 
   @Test

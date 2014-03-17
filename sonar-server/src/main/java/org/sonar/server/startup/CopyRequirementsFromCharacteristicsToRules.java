@@ -209,7 +209,7 @@ public class CopyRequirementsFromCharacteristicsToRules {
   @CheckForNull
   @VisibleForTesting
   static String convertDuration(@Nullable Double oldValue, @Nullable String oldUnit) {
-    if (oldValue != null) {
+    if (oldValue != null && oldValue > 0) {
       String unit = oldUnit != null ? oldUnit : Duration.DAY;
       // min is replaced by mn
       unit = "mn".equals(unit) ? Duration.MINUTE : unit;
