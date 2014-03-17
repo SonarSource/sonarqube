@@ -122,10 +122,9 @@
       <span id="rule_repository_<%= rule.id -%>"><%= message('rules_configuration.repository') %>: <%= rule.repositoryKey %></span>
       &nbsp;<%= image_tag 'sep12.png' -%>&nbsp;
       <span id="rule_key_<%= rule.id -%>"><%= message('key') %>: <%= rule.key %></span>
-      &nbsp;<%= image_tag 'sep12.png' -%>&nbsp;
-      <% if rule.status == "REMOVED" %>
-        <span id="rule_available_since_<%= rule.id -%>"><%= message('rules_configuration.removed_since') %>: <%= human_short_date(Api::Utils.java_to_ruby_datetime(rule.updatedAt)) %></span>
-      <% else %>
+      <!-- Some rules might not have some "rules.created_at" date, see http://jira.codehaus.org/browse/SONAR-5146 -->
+      <% if rule.createdAt -%>
+        &nbsp;<%= image_tag 'sep12.png' -%>&nbsp;
         <span id="rule_available_since_<%= rule.id -%>"><%= message('rules_configuration.available_since') %> <%= human_short_date(Api::Utils.java_to_ruby_datetime(rule.createdAt)) %></span>
       <% end %>
     </div>
