@@ -69,7 +69,7 @@ public class FileIndexer implements BatchComponent {
       return;
     }
     logger.info("Index files");
-    exclusionFilters.prepare(fileSystem);
+    exclusionFilters.prepare();
 
     Progress progress = new Progress(fileCache.byModule(fileSystem.moduleKey()));
 

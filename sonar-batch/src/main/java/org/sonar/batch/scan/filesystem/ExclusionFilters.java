@@ -26,12 +26,6 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.PathPattern;
 import org.sonar.api.scan.filesystem.FileExclusions;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
-import org.sonar.api.scan.filesystem.PathResolver;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ExclusionFilters implements BatchComponent {
   private final FileExclusions exclusionSettings;
@@ -45,10 +39,10 @@ public class ExclusionFilters implements BatchComponent {
     this.exclusionSettings = exclusions;
   }
 
-  public void prepare(ModuleFileSystem fs) {
-    mainInclusions = prepareMainInclusions(fs);
-    mainExclusions = prepareMainExclusions(fs);
-    testInclusions = prepareTestInclusions(fs);
+  public void prepare() {
+    mainInclusions = prepareMainInclusions();
+    mainExclusions = prepareMainExclusions();
+    testInclusions = prepareTestInclusions();
     testExclusions = prepareTestExclusions();
     log("Included sources: ", mainInclusions);
     log("Excluded sources: ", mainExclusions);
@@ -95,41 +89,29 @@ public class ExclusionFilters implements BatchComponent {
     return matchInclusion;
   }
 
-  PathPattern[] prepareMainInclusions(ModuleFileSystem fs) {
+  PathPattern[] prepareMainInclusions() {
     if (exclusionSettings.sourceInclusions().length > 0) {
       // User defined params
       return PathPattern.create(exclusionSettings.sourceInclusions());
     }
-    // Convert source directories to inclusions
-    List<String> sourcePattern = new ArrayList<String>();
-    for (File src : fs.sourceDirs()) {
-      String path = new PathResolver().relativePath(fs.baseDir(), src);
-      sourcePattern.add(path + "/**");
-    }
-    return PathPattern.create(sourcePattern.toArray(new String[sourcePattern.size()]));
+    return new PathPattern[0];
   }
 
-  PathPattern[] prepareTestInclusions(ModuleFileSystem fs) {
-    return PathPattern.create(computeTestInclusions(fs));
+  PathPattern[] prepareTestInclusions() {
+    return PathPattern.create(computeTestInclusions());
   }
 
-  private String[] computeTestInclusions(ModuleFileSystem fs) {
+  private String[] computeTestInclusions() {
     if (exclusionSettings.testInclusions().length > 0) {
       // User defined params
       return exclusionSettings.testInclusions();
     }
-    // Convert source directories to inclusions
-    List<String> testPatterns = new ArrayList<String>();
-    for (File test : fs.testDirs()) {
-      String path = new PathResolver().relativePath(fs.baseDir(), test);
-      testPatterns.add(path + "/**");
-    }
-    return testPatterns.toArray(new String[testPatterns.size()]);
+    return ArrayUtils.EMPTY_STRING_ARRAY;
   }
 
-  PathPattern[] prepareMainExclusions(ModuleFileSystem fs) {
+  PathPattern[] prepareMainExclusions() {
     String[] patterns = (String[]) ArrayUtils.addAll(
-        exclusionSettings.sourceExclusions(), computeTestInclusions(fs));
+      exclusionSettings.sourceExclusions(), computeTestInclusions());
     return PathPattern.create(patterns);
   }
 
