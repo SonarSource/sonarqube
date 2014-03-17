@@ -69,6 +69,7 @@ public class QgateAppHandler implements RequestHandler {
       "quality_gates.projects.with",
       "quality_gates.projects.without",
       "quality_gates.projects_for_default",
+      "quality_gates.projects_for_default.edit",
       "quality_gates.rename",
       "rename",
       "save",

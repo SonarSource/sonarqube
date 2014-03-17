@@ -33,3 +33,6 @@ define [
           tooltips:
             select: t('quality_gates.projects.select_hint')
             deselect: t('quality_gates.projects.deselect_hint')
+
+    serializeData: ->
+      _.extend super, canEdit: @options.app.canEdit

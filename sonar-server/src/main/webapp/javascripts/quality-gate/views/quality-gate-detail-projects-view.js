@@ -46,6 +46,12 @@
         }
       };
 
+      QualityGateDetailProjectsView.prototype.serializeData = function() {
+        return _.extend(QualityGateDetailProjectsView.__super__.serializeData.apply(this, arguments), {
+          canEdit: this.options.app.canEdit
+        });
+      };
+
       return QualityGateDetailProjectsView;
 
     })(Marionette.ItemView);
