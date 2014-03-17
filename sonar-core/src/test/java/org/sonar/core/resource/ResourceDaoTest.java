@@ -180,6 +180,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     assertThat(component.qualifier()).isEqualTo("FIL");
     assertThat(component.projectId()).isEqualTo(1);
     assertThat(component.subProjectId()).isEqualTo(2);
+    assertThat(component.path()).isEqualTo("src/org/struts/RequestContext.java");
 
     // Module
     results = dao.selectComponentsByIds(newArrayList(2L));
@@ -192,6 +193,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     assertThat(component.qualifier()).isEqualTo("BRC");
     assertThat(component.subProjectId()).isEqualTo(1);
     assertThat(component.projectId()).isEqualTo(1);
+    assertThat(component.path()).isNull();
 
     // Project
     results = dao.selectComponentsByIds(newArrayList(1L));
@@ -204,6 +206,7 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     assertThat(component.qualifier()).isEqualTo("TRK");
     assertThat(component.subProjectId()).isNull();
     assertThat(component.projectId()).isEqualTo(1);
+    assertThat(component.path()).isNull();
   }
 
   @Test

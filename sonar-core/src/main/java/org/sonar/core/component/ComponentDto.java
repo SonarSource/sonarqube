@@ -54,12 +54,13 @@ public class ComponentDto implements Component {
     return this;
   }
 
+  @CheckForNull
   @Override
   public String path() {
     return path;
   }
 
-  public ComponentDto setPath(String path) {
+  public ComponentDto setPath(@Nullable String path) {
     this.path = path;
     return this;
   }
