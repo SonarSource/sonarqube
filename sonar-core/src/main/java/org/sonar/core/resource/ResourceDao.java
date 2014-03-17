@@ -301,7 +301,6 @@ public class ResourceDao {
     return new ComponentDto()
       .setId(resourceDto.getId())
       .setKey(resourceDto.getKey())
-      .setModuleKey(resourceDto.getModuleKey())
       .setPath(resourceDto.getPath())
       .setLongName(resourceDto.getLongName())
       .setName(resourceDto.getName())

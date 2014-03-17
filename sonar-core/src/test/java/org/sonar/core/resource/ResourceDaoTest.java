@@ -73,7 +73,6 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     ResourceDto resource = dao.getResource(1L);
 
     assertThat(resource.getPath()).isNull();
-    assertThat(resource.getModuleKey()).isNull();
     assertThat(resource.getName()).isEqualTo("Struts");
     assertThat(resource.getLongName()).isEqualTo("Apache Struts");
     assertThat(resource.getScope()).isEqualTo("PRJ");
@@ -88,11 +87,9 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
 
     ResourceDto dir = dao.getResource(3L);
     assertThat(dir.getPath()).isEqualTo("src/org/struts");
-    assertThat(dir.getModuleKey()).isEqualTo("org.struts:struts-core");
 
     ResourceDto file = dao.getResource(4L);
     assertThat(file.getPath()).isEqualTo("src/org/struts/RequestContext.java");
-    assertThat(file.getModuleKey()).isEqualTo("org.struts:struts-core");
   }
 
   @Test

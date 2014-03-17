@@ -61,7 +61,6 @@ public class ResourceComponentTest {
   public void should_use_effective_key() {
     ResourceComponent component = new ResourceComponent(file);
     assertThat(component.key()).isEqualTo("myproject:path/to/foo.c");
-    assertThat(component.moduleKey()).isEqualTo("myproject");
   }
 
   @Test

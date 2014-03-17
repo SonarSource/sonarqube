@@ -32,14 +32,6 @@ public interface Component<C extends Component> {
   @CheckForNull
   String path();
 
-  /**
-   * Key of the module this component belong to.
-   * @return null for components that are module themself
-   * @since 4.2
-   */
-  @CheckForNull
-  String moduleKey();
-
   String name();
 
   String longName();
