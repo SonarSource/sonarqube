@@ -79,7 +79,7 @@ public class RulesProvider extends ProviderAdapter {
         .setStatus(RuleStatus.valueOf(ruleDto.getStatus()));
       // TODO should we set metadata ?
 
-      if (!ruleDto.isCharacteristicDisabled()) {
+      if (ruleDto.hasCharacteristic()) {
         newRule.setCharacteristic(characteristic(ruleDto, ruleKey, debtModel).key());
         setFunction(ruleDto, newRule, ruleKey, durations);
       }
