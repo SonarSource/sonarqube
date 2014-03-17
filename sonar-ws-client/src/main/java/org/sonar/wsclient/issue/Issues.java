@@ -51,6 +51,9 @@ public interface Issues {
   @CheckForNull
   Component component(Issue issue);
 
+  @CheckForNull
+  Component componentById(long id);
+
   Collection<Component> projects();
 
   @CheckForNull

@@ -167,6 +167,8 @@ public class IssueJsonParserTest {
     assertThat(component.longName()).isEqualTo("org.struts.Action");
     assertThat(component.subProjectId()).isEqualTo(2L);
     assertThat(component.projectId()).isEqualTo(1L);
+
+    assertThat(issues.componentById(10).key()).isEqualTo("struts:Action.java");
   }
 
   @Test
