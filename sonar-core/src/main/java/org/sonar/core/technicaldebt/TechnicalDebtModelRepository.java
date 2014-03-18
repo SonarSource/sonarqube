@@ -23,6 +23,7 @@ package org.sonar.core.technicaldebt;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import org.picocontainer.Startable;
+import org.sonar.api.Plugin;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
@@ -87,9 +88,12 @@ public class TechnicalDebtModelRepository implements ServerExtension, Startable 
       contributingPluginKeyToClassLoader.put(DEFAULT_MODEL, getClass().getClassLoader());
       for (PluginMetadata metadata : pluginRepository.getMetadata()) {
         String pluginKey = metadata.getKey();
-        ClassLoader classLoader = pluginRepository.getPlugin(pluginKey).getClass().getClassLoader();
-        if (classLoader.getResource(getXMLFilePath(pluginKey)) != null) {
-          contributingPluginKeyToClassLoader.put(pluginKey, classLoader);
+        Plugin plugin = pluginRepository.getPlugin(pluginKey);
+        if (plugin != null) {
+          ClassLoader classLoader = plugin.getClass().getClassLoader();
+          if (classLoader.getResource(getXMLFilePath(pluginKey)) != null) {
+            contributingPluginKeyToClassLoader.put(pluginKey, classLoader);
+          }
         }
       }
     }

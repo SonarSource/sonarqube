@@ -21,6 +21,8 @@
 package org.sonar.api.server.rule;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
@@ -37,7 +39,6 @@ public class DebtRemediationFunction {
   }
 
   public static class ValidationException extends RuntimeException {
-
     public ValidationException(String message) {
       super(message);
     }
@@ -117,26 +118,20 @@ public class DebtRemediationFunction {
     }
 
     DebtRemediationFunction that = (DebtRemediationFunction) o;
-
-    if (type != that.type) {
-      return false;
-    }
-    if (factor != null ? !factor.equals(that.factor) : that.factor != null) {
-      return false;
-    }
-    if (offset != null ? !offset.equals(that.offset) : that.offset != null) {
-      return false;
-    }
-
-    return true;
+    return new EqualsBuilder()
+      .append(type, that.type())
+      .append(factor, that.factor())
+      .append(offset, that.offset())
+      .isEquals();
   }
 
   @Override
   public int hashCode() {
-    int result = type.hashCode();
-    result = 31 * result + (factor != null ? factor.hashCode() : 0);
-    result = 31 * result + (offset != null ? offset.hashCode() : 0);
-    return result;
+    return new HashCodeBuilder(15, 33)
+      .append(type)
+      .append(factor)
+      .append(offset)
+      .toHashCode();
   }
 
   @Override

@@ -21,7 +21,7 @@
 package org.sonar.api.batch.rule;
 
 import org.junit.Test;
-import org.sonar.api.server.rule.DebtRemediationFunction;
+import org.sonar.api.utils.Duration;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -29,41 +29,41 @@ public class DebtRemediationFunctionTest {
 
   @Test
   public void create_linear() throws Exception {
-    org.sonar.api.server.rule.DebtRemediationFunction function = org.sonar.api.server.rule.DebtRemediationFunction.createLinear("10h");
-    assertThat(function.type()).isEqualTo(org.sonar.api.server.rule.DebtRemediationFunction.Type.LINEAR);
-    assertThat(function.factor()).isEqualTo("10h");
+    DebtRemediationFunction function = DebtRemediationFunction.createLinear(Duration.create(10));
+    assertThat(function.type()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
+    assertThat(function.factor()).isEqualTo(Duration.create(10));
     assertThat(function.offset()).isNull();
   }
 
   @Test
   public void create_linear_with_offset() throws Exception {
-    org.sonar.api.server.rule.DebtRemediationFunction function = org.sonar.api.server.rule.DebtRemediationFunction.createLinearWithOffset("10h", "5min");
-    assertThat(function.type()).isEqualTo(org.sonar.api.server.rule.DebtRemediationFunction.Type.LINEAR_OFFSET);
-    assertThat(function.factor()).isEqualTo("10h");
-    assertThat(function.offset()).isEqualTo("5min");
+    DebtRemediationFunction function = DebtRemediationFunction.createLinearWithOffset(Duration.create(10), Duration.create(5));
+    assertThat(function.type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
+    assertThat(function.factor()).isEqualTo(Duration.create(10));
+    assertThat(function.offset()).isEqualTo(Duration.create(5));
   }
 
   @Test
   public void create_constant_per_issue() throws Exception {
-    org.sonar.api.server.rule.DebtRemediationFunction function = org.sonar.api.server.rule.DebtRemediationFunction.createConstantPerIssue("10h");
-    assertThat(function.type()).isEqualTo(org.sonar.api.server.rule.DebtRemediationFunction.Type.CONSTANT_ISSUE);
+    DebtRemediationFunction function = DebtRemediationFunction.createConstantPerIssue(Duration.create(10));
+    assertThat(function.type()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE);
     assertThat(function.factor()).isNull();
-    assertThat(function.offset()).isEqualTo("10h");
+    assertThat(function.offset()).isEqualTo(Duration.create(10));
   }
 
   @Test
   public void test_equals_and_hashcode() throws Exception {
-    org.sonar.api.server.rule.DebtRemediationFunction function = org.sonar.api.server.rule.DebtRemediationFunction.createLinearWithOffset("10h", "5min");
-    org.sonar.api.server.rule.DebtRemediationFunction functionWithSameValue = org.sonar.api.server.rule.DebtRemediationFunction.createLinearWithOffset("10h", "5min");
-    org.sonar.api.server.rule.DebtRemediationFunction functionWithDifferentType = org.sonar.api.server.rule.DebtRemediationFunction.createConstantPerIssue("5min");
+    DebtRemediationFunction function = DebtRemediationFunction.createLinearWithOffset(Duration.create(10), Duration.create(5));
+    DebtRemediationFunction functionWithSameValue = DebtRemediationFunction.createLinearWithOffset(Duration.create(10), Duration.create(5));
+    DebtRemediationFunction functionWithDifferentType = DebtRemediationFunction.createConstantPerIssue(Duration.create(5));
 
     assertThat(function).isEqualTo(function);
     assertThat(function).isEqualTo(functionWithSameValue);
     assertThat(function).isNotEqualTo(functionWithDifferentType);
-    assertThat(function).isNotEqualTo(org.sonar.api.server.rule.DebtRemediationFunction.createLinearWithOffset("11h", "5min"));
-    assertThat(function).isNotEqualTo(org.sonar.api.server.rule.DebtRemediationFunction.createLinearWithOffset("10h", "6min"));
-    assertThat(function).isNotEqualTo(org.sonar.api.server.rule.DebtRemediationFunction.createLinear("10h"));
-    assertThat(function).isNotEqualTo(org.sonar.api.server.rule.DebtRemediationFunction.createConstantPerIssue("6min"));
+    assertThat(function).isNotEqualTo(DebtRemediationFunction.createLinearWithOffset(Duration.create(11), Duration.create(5)));
+    assertThat(function).isNotEqualTo(DebtRemediationFunction.createLinearWithOffset(Duration.create(10), Duration.create(6)));
+    assertThat(function).isNotEqualTo(DebtRemediationFunction.createLinear(Duration.create(10)));
+    assertThat(function).isNotEqualTo(DebtRemediationFunction.createConstantPerIssue(Duration.create(6)));
 
     assertThat(function.hashCode()).isEqualTo(function.hashCode());
     assertThat(function.hashCode()).isEqualTo(functionWithSameValue.hashCode());
@@ -72,6 +72,6 @@ public class DebtRemediationFunctionTest {
 
   @Test
   public void test_to_string() throws Exception {
-    assertThat(DebtRemediationFunction.createLinearWithOffset("10h", "5min").toString()).isNotNull();
+    assertThat(DebtRemediationFunction.createLinearWithOffset(Duration.create(10), Duration.create(5)).toString()).isNotNull();
   }
 }

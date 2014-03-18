@@ -109,7 +109,7 @@ public class RulesProvider extends ProviderAdapter {
     if (function != null) {
       return createDebtRemediationFunction(function, ruleDto.getRemediationFactor(), ruleDto.getRemediationOffset(), durations);
     } else if (defaultFunction != null) {
-      return createDebtRemediationFunction(ruleDto.getDefaultRemediationFunction(), ruleDto.getDefaultRemediationFactor(), ruleDto.getDefaultRemediationOffset(), durations);
+      return createDebtRemediationFunction(defaultFunction, ruleDto.getDefaultRemediationFactor(), ruleDto.getDefaultRemediationOffset(), durations);
     } else {
       throw new IllegalStateException(String.format("Remediation function should not be null on rule '%s'", ruleKey));
     }

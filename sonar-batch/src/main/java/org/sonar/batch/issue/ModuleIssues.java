@@ -107,15 +107,15 @@ public class ModuleIssues {
     if (issue.severity() == null) {
       issue.setSeverity(activeRule.severity());
     }
-    if (rule.debtCharacteristic() != null) {
-      issue.setDebt(calculateDebt(rule, issue.effortToFix()));
+    DebtRemediationFunction function = rule.debtRemediationFunction();
+    if (rule.debtCharacteristic() != null && function != null) {
+      issue.setDebt(calculateDebt(function, issue.effortToFix(), rule.key()));
     }
   }
 
-  private Duration calculateDebt(Rule rule, @Nullable Double effortToFix) {
-    DebtRemediationFunction function = rule.debtRemediationFunction();
+  private Duration calculateDebt(DebtRemediationFunction function, @Nullable Double effortToFix, RuleKey ruleKey) {
     if (DebtRemediationFunction.Type.CONSTANT_ISSUE.equals(function.type()) && effortToFix != null) {
-      throw new IllegalArgumentException("Rule '" + rule.key() + "' can not use 'Constant/issue' remediation function " +
+      throw new IllegalArgumentException("Rule '" + ruleKey + "' can not use 'Constant/issue' remediation function " +
         "because this rule does not have a fixed remediation cost.");
     }
     Duration result = Duration.create(0);
