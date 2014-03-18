@@ -38,7 +38,7 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
   }
 
   /**
-   * @return enabled root characteristics, characteristics and requirements
+   * @return enabled root characteristics and characteristics
    *
    */
   public List<CharacteristicDto> selectEnabledCharacteristics() {

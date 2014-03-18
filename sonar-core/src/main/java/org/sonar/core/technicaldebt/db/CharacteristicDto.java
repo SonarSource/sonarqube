@@ -30,9 +30,7 @@ import java.util.Date;
 
 public class CharacteristicDto implements Serializable {
 
-  public static final String DAYS = "d";
-  public static final String MINUTES = "mn";
-  public static final String HOURS = "h";
+  public static final Integer DISABLED_CHARACTERISTIC_ID = -1;
 
   private Integer id;
   private String kee;
@@ -52,22 +50,20 @@ public class CharacteristicDto implements Serializable {
     return this;
   }
 
-  @CheckForNull
   public String getKey() {
     return kee;
   }
 
-  public CharacteristicDto setKey(@Nullable String s) {
+  public CharacteristicDto setKey(String s) {
     this.kee = s;
     return this;
   }
 
-  @CheckForNull
   public String getName() {
     return name;
   }
 
-  public CharacteristicDto setName(@Nullable String s) {
+  public CharacteristicDto setName(String s) {
     this.name = s;
     return this;
   }

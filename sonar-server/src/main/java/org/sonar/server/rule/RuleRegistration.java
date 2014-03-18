@@ -46,6 +46,7 @@ import org.sonar.server.qualityprofile.ProfilesManager;
 import org.sonar.server.startup.RegisterDebtModel;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.*;
 
@@ -187,15 +188,14 @@ public class RuleRegistration implements Startable {
       .setUpdatedAt(buffer.now())
       .setStatus(ruleDef.status().name());
 
-    CharacteristicDto characteristic = findCharacteristic(characteristicDtos, ruleDef);
-    ruleDto.setDefaultCharacteristicId(characteristic != null ? characteristic.getId() : null)
-      .setEffortToFixL10nKey(ruleDef.effortToFixL10nKey());
-
+    CharacteristicDto characteristic = findCharacteristic(ruleDef, null, characteristicDtos);
     DebtRemediationFunction remediationFunction = ruleDef.debtRemediationFunction();
-    if (remediationFunction != null) {
-      ruleDto.setDefaultRemediationFunction(remediationFunction.type().name());
-      ruleDto.setDefaultRemediationFactor(remediationFunction.factor());
-      ruleDto.setDefaultRemediationOffset(remediationFunction.offset());
+    if (characteristic != null && remediationFunction != null) {
+      ruleDto.setDefaultCharacteristicId(characteristic.getId())
+        .setDefaultRemediationFunction(remediationFunction.type().name())
+        .setDefaultRemediationFactor(remediationFunction.factor())
+        .setDefaultRemediationOffset(remediationFunction.offset())
+        .setEffortToFixL10nKey(ruleDef.effortToFixL10nKey());
     }
 
     ruleDao.insert(ruleDto, sqlSession);
@@ -267,13 +267,14 @@ public class RuleRegistration implements Startable {
   private boolean mergeDebtDefinitions(RulesDefinition.Rule def, RuleDto dto, List<CharacteristicDto> characteristicDtos) {
     boolean changed = false;
 
-    CharacteristicDto characteristic = findCharacteristic(characteristicDtos, def);
+    CharacteristicDto characteristic = findCharacteristic(def, dto.getCharacteristicId(), characteristicDtos);
     // Debt definitions are set to null if the characteristic is null or unknown
+    boolean hasCharacteristic = characteristic != null;
+    DebtRemediationFunction debtRemediationFunction = characteristic != null ? def.debtRemediationFunction() : null;
     Integer characteristicId = characteristic != null ? characteristic.getId() : null;
-    DebtRemediationFunction debtRemediationFunction = def.debtRemediationFunction();
-    String remediationFactor = debtRemediationFunction != null ? debtRemediationFunction.factor() : null;
-    String remediationOffset = debtRemediationFunction != null ? debtRemediationFunction.offset() : null;
-    String effortToFixL10nKey = def.effortToFixL10nKey();
+    String remediationFactor = hasCharacteristic ? debtRemediationFunction.factor() : null;
+    String remediationOffset = hasCharacteristic ? debtRemediationFunction.offset() : null;
+    String effortToFixL10nKey = hasCharacteristic ? def.effortToFixL10nKey() : null;
 
     if (!ObjectUtils.equals(dto.getDefaultCharacteristicId(), characteristicId)) {
       dto.setDefaultCharacteristicId(characteristicId);
@@ -547,27 +548,31 @@ public class RuleRegistration implements Startable {
   }
 
   @CheckForNull
-  private CharacteristicDto findCharacteristic(List<CharacteristicDto> characteristicDtos, RulesDefinition.Rule ruleDef) {
-    final String key = ruleDef.debtCharacteristic();
+  private CharacteristicDto findCharacteristic(RulesDefinition.Rule ruleDef, @Nullable Integer overridingCharacteristicId, List<CharacteristicDto> characteristicDtos) {
+    String key = ruleDef.debtCharacteristic();
+    // Rule is not linked to a default characteristic or characteristic has been disabled by user, nothing to do
     if (key == null) {
-      // Rule is not linked to a characteristic, nothing to do
       return null;
     }
-    CharacteristicDto characteristicDto = Iterables.find(characteristicDtos, new Predicate<CharacteristicDto>() {
-      @Override
-      public boolean apply(CharacteristicDto input) {
-        String characteristicKey = input.getKey();
-        return characteristicKey != null && characteristicKey.equals(key);
-      }
-    }, null);
-
+    CharacteristicDto characteristicDto = findCharacteristic(key, characteristicDtos);
     if (characteristicDto == null) {
-      LOG.warn(String.format("Characteristic '%s' has not been found on rule '%s:%s'",
-        key, ruleDef.repository().name(), ruleDef.key()));
+      // Log a warning only if rule has not been overridden by user
+      if (overridingCharacteristicId == null) {
+        LOG.warn(String.format("Characteristic '%s' has not been found on rule '%s:%s'", key, ruleDef.repository().key(), ruleDef.key()));
+      }
     } else if (characteristicDto.getParentId() == null) {
-      throw MessageException.of(String.format("Rule '%s:%s' cannot be linked on the root characteristic '%s'",
-        ruleDef.repository().name(), ruleDef.key(), key));
+      throw MessageException.of(String.format("Rule '%s:%s' cannot be linked on the root characteristic '%s'", ruleDef.repository().key(), ruleDef.key(), key));
     }
     return characteristicDto;
+  }
+
+  @CheckForNull
+  private CharacteristicDto findCharacteristic(final String key, List<CharacteristicDto> characteristicDtos) {
+    return Iterables.find(characteristicDtos, new Predicate<CharacteristicDto>() {
+      @Override
+      public boolean apply(CharacteristicDto input) {
+        return key.equals(input.getKey());
+      }
+    }, null);
   }
 }

@@ -184,11 +184,33 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void set_no_characteristic_when_characteristic_not_found() {
+  public void set_no_default_characteristic_when_characteristic_not_found() {
     setupData("set_no_characteristic_when_characteristic_not_found");
+
     task.start();
+    // Warning log should be displayed
 
     checkTables("set_no_characteristic_when_characteristic_not_found", EXCLUDED_COLUMN_NAMES, "rules");
+  }
+
+  @Test
+  public void set_no_default_characteristic_when_default_characteristic_not_found_and_overriding_characteristic_disabled() {
+    setupData("set_no_characteristic_when_default_characteristic_not_found_and_overriding_characteristic_disabled");
+
+    task.start();
+    // No log should be displayed
+
+    checkTables("set_no_characteristic_when_default_characteristic_not_found_and_overriding_characteristic_disabled", EXCLUDED_COLUMN_NAMES, "rules");
+  }
+
+  @Test
+  public void set_no_default_characteristic_when_default_characteristic_not_found_but_characteristic_has_been_overridden() {
+    setupData("set_no_default_characteristic_when_default_characteristic_not_found_but_characteristic_has_been_overridden");
+
+    task.start();
+    // No log should be displayed
+
+    checkTables("set_no_default_characteristic_when_default_characteristic_not_found_but_characteristic_has_been_overridden", EXCLUDED_COLUMN_NAMES, "rules");
   }
 
   @Test

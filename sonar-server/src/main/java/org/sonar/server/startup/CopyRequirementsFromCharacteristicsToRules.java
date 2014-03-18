@@ -34,7 +34,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
-import org.sonar.core.rule.RuleDto;
+import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.core.technicaldebt.db.RequirementDao;
 import org.sonar.core.technicaldebt.db.RequirementDto;
 import org.sonar.server.db.migrations.MassUpdater;
@@ -174,7 +174,7 @@ public class CopyRequirementsFromCharacteristicsToRules {
 
       if (enabledRequirement == null && !Rule.STATUS_REMOVED.equals(ruleRow.getStatus())) {
         // If no requirements are enable, it means that the requirement has been disabled for this rule
-        updateStatement.setInt(1, RuleDto.DISABLED_CHARACTERISTIC_ID);
+        updateStatement.setInt(1, CharacteristicDto.DISABLED_CHARACTERISTIC_ID);
         updateStatement.setNull(2, Types.VARCHAR);
         updateStatement.setNull(3, Types.VARCHAR);
         updateStatement.setNull(4, Types.VARCHAR);
