@@ -86,3 +86,8 @@
 .quality-gate-condition-actions {
   position: relative;
 }
+.quality-gate-default-message {
+  padding: 6px 5px;
+  border: 1px solid #ddd;
+  background-color: #efefef;
+}
