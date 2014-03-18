@@ -166,7 +166,7 @@ public final class PropertyDefinitions implements BatchComponent, ServerComponen
     Map<Category, Map<SubCategory, Collection<PropertyDefinition>>> byCategory = new HashMap<Category, Map<SubCategory, Collection<PropertyDefinition>>>();
     if (qualifier == null) {
       // Special categories on global page
-      HashMap<SubCategory, Collection<PropertyDefinition>> emailSubCategories = new HashMap<SubCategory, Collection<PropertyDefinition>>();
+      Map<SubCategory, Collection<PropertyDefinition>> emailSubCategories = new HashMap<SubCategory, Collection<PropertyDefinition>>();
       emailSubCategories.put(new SubCategory("email", true), new ArrayList<PropertyDefinition>());
       byCategory.put(new Category(CoreProperties.CATEGORY_GENERAL, false), emailSubCategories);
 

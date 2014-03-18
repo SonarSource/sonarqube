@@ -63,7 +63,7 @@ public final class Search {
    * Depth-first search (DFS).
    */
   private void dfs() {
-    LinkedList<Node> stack = Lists.newLinkedList();
+    Deque<Node> stack = Lists.newLinkedList();
     stack.add(tree.getRootNode());
     while (!stack.isEmpty()) {
       Node node = stack.removeLast();
