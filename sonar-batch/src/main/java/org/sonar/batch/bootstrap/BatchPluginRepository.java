@@ -20,6 +20,8 @@
 package org.sonar.batch.bootstrap;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -34,7 +36,11 @@ import org.sonar.core.plugins.RemotePlugin;
 
 import java.io.File;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
@@ -154,7 +160,7 @@ public class BatchPluginRepository implements PluginRepository {
 
     static List<String> propertyValues(Settings settings, String key, String defaultValue) {
       String s = StringUtils.defaultIfEmpty(settings.getString(key), defaultValue);
-      return Arrays.asList(StringUtils.split(s, ","));
+      return Lists.newArrayList(Splitter.on(",").trimResults().split(s));
     }
 
     boolean accepts(String pluginKey) {

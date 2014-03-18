@@ -222,4 +222,14 @@ public class BatchPluginRepositoryTest {
     assertThat(filter.whites).containsOnly("cockpit");
     assertThat(filter.blacks).containsOnly("views", "checkstyle", "pmd");
   }
+
+  @Test
+  public void inclusions_and_exclusions_should_be_trimmed() {
+    Settings settings = new Settings()
+      .setProperty(CoreProperties.BATCH_INCLUDE_PLUGINS, "checkstyle, pmd, findbugs")
+      .setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "cobertura, pmd");
+    BatchPluginRepository.PluginFilter filter = new BatchPluginRepository.PluginFilter(settings, mode);
+    assertThat(filter.accepts("pmd")).isTrue();
+  }
+
 }
