@@ -34,24 +34,22 @@ class ExclusionProperties {
 
   static List<PropertyDefinition> definitions() {
     return ImmutableList.of(
-
-      // Do not display inclusions in UI
-      // https://jira.codehaus.org/browse/SONAR-5143
       PropertyDefinition.builder(CoreProperties.PROJECT_INCLUSIONS_PROPERTY)
         .name("Source File Inclusions")
         .multiValues(true)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
-        .hidden()
+        .onQualifiers(Qualifiers.PROJECT)
+        .index(3)
         .build(),
       PropertyDefinition.builder(CoreProperties.PROJECT_TEST_INCLUSIONS_PROPERTY)
         .name("Test File Inclusions")
         .multiValues(true)
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(CoreProperties.SUBCATEGORY_FILES_EXCLUSIONS)
-        .hidden()
+        .onQualifiers(Qualifiers.PROJECT)
+        .index(5)
         .build(),
-
       PropertyDefinition.builder(CoreProperties.GLOBAL_EXCLUSIONS_PROPERTY)
         .name("Global Source File Exclusions")
         .multiValues(true)
