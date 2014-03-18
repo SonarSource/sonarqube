@@ -5,11 +5,13 @@
   <td width="10%" nowrap>
     {{#if canEdit}}
       <select name="period">
-        <option value="0">{{t 'value'}}</option>
-        {{#each periods}}<option value="{{key}}">{{text}}</option>{{/each}}
+        {{#unless isDiffMetric}}<option value="0">{{t 'value'}}</option>{{/unless}}
+        {{#each periods}}<option value="{{key}}">&Delta; {{text}}</option>{{/each}}
       </select>
     {{else}}
-      {{periodText}}
+      {{#if periodText}}&Delta; {{periodText}}
+      {{else}}{{t 'value'}}
+      {{/if}}
     {{/if}}
   </td>
   <td width="10%" nowrap>

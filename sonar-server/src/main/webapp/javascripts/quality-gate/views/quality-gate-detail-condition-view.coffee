@@ -42,6 +42,7 @@ define [
       metricKey = @model.get('metric')
       metric = _.findWhere @options.app.metrics, key: metricKey
       @model.set { metric: metric }, { silent: true }
+      @model.set { isDiffMetric: metric.key.indexOf('new_') == 0 }, { silent: true }
 
 
     onRender: ->
@@ -105,7 +106,7 @@ define [
 
 
     serializeData: ->
-      period = _.findWhere(@options.app.periods, key: '' + this.model.get('period'))
+      period = _.findWhere(@options.app.periods, key: this.model.get('period'))
       _.extend super,
         canEdit: @options.app.canEdit
         periods: @options.app.periods
