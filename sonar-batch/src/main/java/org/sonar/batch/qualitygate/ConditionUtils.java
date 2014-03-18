@@ -92,22 +92,25 @@ class ConditionUtils {
   }
 
   private static Comparable getValueForComparison(Metric metric, String value) {
-    if (isADouble(metric)) {
-      return Double.parseDouble(value);
+    Comparable valueToCompare = null;
+    try {
+      if (isADouble(metric)) {
+        valueToCompare = Double.parseDouble(value);
+      } else if (isAInteger(metric)) {
+        valueToCompare = parseInteger(value);
+      } else if (isAString(metric)) {
+        valueToCompare = value;
+      } else if (isABoolean(metric)) {
+        valueToCompare = Integer.parseInt(value);
+      } else if (isAWorkDuration(metric)) {
+        valueToCompare = Long.parseLong(value);
+      } else {
+        throw new NotImplementedException(metric.getType().toString());
+      }
+    } catch (NumberFormatException badValueFormat) {
+      throw new IllegalArgumentException(String.format("Unable to parse value '%s' to compare against %s", value, metric.getName()));
     }
-    if (isAInteger(metric)) {
-      return parseInteger(value);
-    }
-    if (isAString(metric)) {
-      return value;
-    }
-    if (isABoolean(metric)) {
-      return Integer.parseInt(value);
-    }
-    if (isAWorkDuration(metric)) {
-      return Long.parseLong(value);
-    }
-    throw new NotImplementedException(metric.getType().toString());
+    return valueToCompare;
   }
 
   private static Comparable<Integer> parseInteger(String value) {
@@ -176,16 +179,17 @@ class ConditionUtils {
   }
 
   private static Double getValue(ResolvedCondition condition, Measure measure) {
-    if (condition.period() == null) {
+    Integer period = condition.period();
+    if (period == null) {
       return measure.getValue();
-    } else if (condition.period() == 1) {
+    } else if (period == 1) {
       return measure.getVariation1();
-    } else if (condition.period() == 2) {
+    } else if (period == 2) {
       return measure.getVariation2();
-    } else if (condition.period() == 3) {
+    } else if (period == 3) {
       return measure.getVariation3();
     } else {
-      throw new IllegalStateException("Following index period is not allowed : " + Double.toString(condition.period()));
+      throw new IllegalStateException("Following index period is not allowed : " + Double.toString(period));
     }
   }
 }
