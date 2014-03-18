@@ -30,10 +30,9 @@ class Characteristic < ActiveRecord::Base
   MINUTE = "mn"
 
   belongs_to :parent, :class_name => 'Characteristic', :foreign_key => 'parent_id'
-  belongs_to :rule
 
-  validates_uniqueness_of :name, :scope => [:enabled], :case_sensitive => false, :if => Proc.new { |c| c.rule_id.nil? && c.enabled }
-  validates_length_of :name, :in => 1..NAME_MAX_SIZE, :allow_blank => false, :if => Proc.new { |c| c.rule_id.nil? }
+  validates_uniqueness_of :name, :scope => [:enabled], :case_sensitive => false, :if => Proc.new { |c| c.enabled }
+  validates_length_of :name, :in => 1..NAME_MAX_SIZE, :allow_blank => false
 
   def root?
     parent_id.nil?
@@ -48,11 +47,7 @@ class Characteristic < ActiveRecord::Base
   end
 
   def name(rule_name_if_empty=false)
-    result=read_attribute(:name)
-    if (result.nil? && rule_name_if_empty && rule_id)
-      result=rule.name  
-    end
-    result
+    read_attribute(:name)
   end
 
 end

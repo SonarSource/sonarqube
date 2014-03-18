@@ -39,7 +39,6 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
 
   /**
    * @return enabled root characteristics and characteristics
-   *
    */
   public List<CharacteristicDto> selectEnabledCharacteristics() {
     SqlSession session = mybatis.openSession();
@@ -56,7 +55,6 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
 
   /**
    * @return all characteristics
-   *
    */
   public List<CharacteristicDto> selectCharacteristics() {
     SqlSession session = mybatis.openSession();
@@ -76,12 +74,18 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
    */
   public List<CharacteristicDto> selectEnabledRootCharacteristics() {
     SqlSession session = mybatis.openSession();
-    CharacteristicMapper mapper = session.getMapper(CharacteristicMapper.class);
     try {
-      return mapper.selectEnabledRootCharacteristics();
+      return selectEnabledRootCharacteristics(session);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  /**
+   * @return only enabled root characteristics, order by order
+   */
+  public List<CharacteristicDto> selectEnabledRootCharacteristics(SqlSession session) {
+    return session.getMapper(CharacteristicMapper.class).selectEnabledRootCharacteristics();
   }
 
   @CheckForNull
@@ -104,6 +108,35 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  @CheckForNull
+  public CharacteristicDto selectByName(String name) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectByName(name, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  @CheckForNull
+  public CharacteristicDto selectByName(String name, SqlSession session) {
+    return session.getMapper(CharacteristicMapper.class).selectByName(name);
+  }
+
+  public int selectMaxCharacteristicOrder() {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectMaxCharacteristicOrder(session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public int selectMaxCharacteristicOrder(SqlSession session) {
+    Integer result = session.getMapper(CharacteristicMapper.class).selectMaxCharacteristicOrder();
+    return result != null ? result : 0;
   }
 
   public void insert(CharacteristicDto dto, SqlSession session) {

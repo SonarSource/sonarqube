@@ -56,6 +56,24 @@
     </where>
   </select>
 
+  <select id="selectByName" parameterType="String" resultType="Characteristic">
+    select <include refid="characteristicColumns"/>
+    from characteristics c
+    <where>
+      and c.name=#{name}
+      and c.enabled=${_true}
+    </where>
+  </select>
+
+  <select id="selectMaxCharacteristicOrder" resultType="Integer">
+    select max(c.characteristic_order)
+    from characteristics c
+    <where>
+      and c.parent_id is null
+      and c.enabled=${_true}
+    </where>
+  </select>
+
   <insert id="insert" parameterType="Characteristic" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO characteristics (kee, name, parent_id, characteristic_order, enabled, created_at, updated_at)
     VALUES (#{kee}, #{name}, #{parentId}, #{characteristicOrder}, #{enabled}, current_timestamp, current_timestamp)

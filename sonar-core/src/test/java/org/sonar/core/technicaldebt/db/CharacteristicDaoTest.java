@@ -120,6 +120,15 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void select_characteristic_by_name() {
+    setupData("shared");
+
+    assertThat(dao.selectByName("Portability")).isNotNull();
+    assertThat(dao.selectByName("Compiler related portability")).isNotNull();
+    assertThat(dao.selectByName("Unknown")).isNull();
+  }
+
+  @Test
   public void select_characteristic_by_id() {
     setupData("shared");
 
@@ -127,6 +136,20 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
     assertThat(dao.selectById(1)).isNotNull();
 
     assertThat(dao.selectById(10)).isNull();
+  }
+
+  @Test
+  public void select_max_characteristic_order() {
+    setupData("shared");
+
+    assertThat(dao.selectMaxCharacteristicOrder()).isEqualTo(1);
+  }
+
+  @Test
+  public void select_max_characteristic_order_when_characteristics_are_all_disabled() {
+    setupData("select_max_characteristic_order_when_characteristics_are_all_disabled");
+
+    assertThat(dao.selectMaxCharacteristicOrder()).isEqualTo(0);
   }
 
   @Test
