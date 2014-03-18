@@ -18,11 +18,65 @@
       CodingRulesDetailQualityProfilesView.prototype.template = getTemplate('#coding-rules-detail-quality-profile-template');
 
       CodingRulesDetailQualityProfilesView.prototype.ui = {
-        severitySelect: '.coding-rules-detail-quality-profile-severity'
+        severitySelect: '.coding-rules-detail-quality-profile-severity',
+        note: '.coding-rules-detail-quality-profile-note',
+        noteForm: '.coding-rules-detail-quality-profile-note-form',
+        noteText: '.coding-rules-detail-quality-profile-note-text',
+        noteAdd: '.coding-rules-detail-quality-profile-note-add',
+        noteEdit: '.coding-rules-detail-quality-profile-note-edit',
+        noteDelete: '.coding-rules-detail-quality-profile-note-delete',
+        noteCancel: '.coding-rules-detail-quality-profile-note-cancel',
+        noteSubmit: '.coding-rules-detail-quality-profile-note-submit'
+      };
+
+      CodingRulesDetailQualityProfilesView.prototype.events = {
+        'click @ui.noteAdd': 'editNote',
+        'click @ui.noteEdit': 'editNote',
+        'click @ui.noteDelete': 'deleteNote',
+        'click @ui.noteCancel': 'cancelNote',
+        'click @ui.noteSubmit': 'submitNote'
+      };
+
+      CodingRulesDetailQualityProfilesView.prototype.editNote = function() {
+        this.ui.note.hide();
+        this.ui.noteForm.show();
+        return this.ui.noteText.focus();
+      };
+
+      CodingRulesDetailQualityProfilesView.prototype.deleteNote = function() {
+        var _this = this;
+        this.ui.noteText.val('');
+        return this.submitNote().done(function() {
+          _this.model.unset('note');
+          return _this.render();
+        });
+      };
+
+      CodingRulesDetailQualityProfilesView.prototype.cancelNote = function() {
+        this.ui.note.show();
+        return this.ui.noteForm.hide();
+      };
+
+      CodingRulesDetailQualityProfilesView.prototype.submitNote = function() {
+        var _this = this;
+        this.ui.note.html('<i class="spinner"></i>');
+        this.ui.noteForm.html('<i class="spinner"></i>');
+        return jQuery.ajax({
+          type: 'POST',
+          url: "" + baseUrl + "/api/codingrules/note",
+          dataType: 'json',
+          data: {
+            text: this.ui.noteText.val()
+          }
+        }).done(function(r) {
+          _this.model.set('note', r.note);
+          return _this.render();
+        });
       };
 
       CodingRulesDetailQualityProfilesView.prototype.onRender = function() {
         var format;
+        this.ui.noteForm.hide();
         format = function(state) {
           if (!state.id) {
             return state.text;

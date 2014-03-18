@@ -23,6 +23,7 @@
   font-weight: bold;
 }
 .coding-rules-detail-title {
+  display: inline-block;
   text-transform: uppercase;
 }
 .coding-rules-detail-status {
@@ -106,6 +107,9 @@
 .coding-rules-detail-quality-profile-actions {
   padding: 5px;
 }
+.coding-rules-detail-quality-profile-parameters {
+  padding: 0 5px;
+}
 .coding-rules-detail-quality-profile-parameters .coding-rules-detail-parameter-name,
 .coding-rules-detail-quality-profile-parameters .coding-rules-detail-parameter-description {
   vertical-align: middle;
@@ -115,9 +119,14 @@
 }
 .coding-rules-detail-quality-profile-inheritance {
   margin: 10px 0;
+  padding: 0 5px;
 }
 .coding-rules-detail-quality-profile-inheritance strong {
   font-weight: bold;
+}
+.coding-rules-detail-quality-profile-note {
+  margin: 10px 0;
+  padding: 0 5px;
 }
 .coding-rules-detail-quality-profiles-activation {
   margin-top: -3px;

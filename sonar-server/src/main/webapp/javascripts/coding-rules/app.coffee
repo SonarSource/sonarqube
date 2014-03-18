@@ -29,6 +29,7 @@ requirejs [
   'coding-rules/views/filter-bar-view',
   'coding-rules/views/coding-rules-list-view',
   'coding-rules/views/coding-rules-bulk-change-view',
+  'coding-rules/views/coding-rules-quality-profile-activation-view',
 
   # filters
   'navigator/filters/base-filters',
@@ -51,6 +52,7 @@ requirejs [
   CodingRulesFilterBarView,
   CodingRulesListView,
   CodingRulesBulkChangeView,
+  CodingRulesQualityProfileActivationView,
 
   # filters
   BaseFilters,
@@ -179,6 +181,11 @@ requirejs [
   # Construct bulk change view
   App.addInitializer ->
     @codingRulesBulkChangeView = new CodingRulesBulkChangeView app: @
+
+
+  # Construct quality profile activation view
+  App.addInitializer ->
+    @codingRulesQualityProfileActivationView = new CodingRulesQualityProfileActivationView app: @
 
 
   # Define filters

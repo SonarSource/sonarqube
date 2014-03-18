@@ -25,6 +25,7 @@
 }
 
 .coding-rules-detail-title {
+  display: inline-block;
   text-transform: uppercase;
 }
 
@@ -134,6 +135,7 @@
 }
 
 .coding-rules-detail-quality-profile-parameters {
+  padding: 0 @navigatorPadding / 2;
 
   .coding-rules-detail-parameter-name,
   .coding-rules-detail-parameter-description {
@@ -147,8 +149,14 @@
 
 .coding-rules-detail-quality-profile-inheritance {
   margin: @navigatorPadding 0;
+  padding: 0 @navigatorPadding / 2;
 
   strong { font-weight: bold; }
+}
+
+.coding-rules-detail-quality-profile-note {
+  margin: @navigatorPadding 0;
+  padding: 0 @navigatorPadding / 2;
 }
 
 .coding-rules-detail-quality-profiles-activation {

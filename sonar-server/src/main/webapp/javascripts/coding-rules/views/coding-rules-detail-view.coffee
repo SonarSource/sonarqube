@@ -32,6 +32,8 @@ define [
       extendDescriptionSpinner: '#coding-rules-detail-extend-description-spinner'
       cancelExtendDescription: '#coding-rules-detail-extend-description-cancel'
 
+      qualityProfileActivate: '#coding-rules-quality-profile-activate'
+
 
     events:
       'click @ui.tagsChange': 'changeTags'
@@ -40,6 +42,8 @@ define [
       'click @ui.extendDescriptionLink': 'showExtendDescriptionForm'
       'click @ui.cancelExtendDescription': 'hideExtendDescriptionForm'
       'click @ui.extendDescriptionSubmit': 'submitExtendDescription'
+
+      'click @ui.qualityProfileActivate': 'activateQualityProfile'
 
 
     initialize: (options) ->
@@ -100,3 +104,8 @@ define [
       .done (r) =>
         @model.set extra: r.extra, extraRaw: r.extraRaw
         @render()
+
+
+    activateQualityProfile: ->
+      @options.app.codingRulesQualityProfileActivationView.model = @model
+      @options.app.codingRulesQualityProfileActivationView.show()

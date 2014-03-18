@@ -12,15 +12,15 @@
             name: 'Sonar Way',
             parent: null
           }, {
-            key: 'qp1',
+            key: 'qualityprofile1',
             name: 'Quality Profile 1',
             parent: 'sonarway'
           }, {
-            key: 'qp2',
+            key: 'qualityprofile2',
             name: 'Quality Profile 2',
             parent: 'sonarway'
           }, {
-            key: 'qp3',
+            key: 'qualityprofile3',
             name: 'Quality Profile 3',
             parent: null
           }
@@ -65,7 +65,9 @@
           'bulk_change': 'Bulk Change',
           'cancel': 'Cancel',
           'change': 'Change',
+          'delete': 'Delete',
           'done': 'Done',
+          'edit': 'Edit',
           'moreCriteria': '+ More Criteria',
           'search_verb': 'Search',
           'severity': 'Severity',
@@ -75,7 +77,9 @@
           'severity.MAJOR': 'Major',
           'severity.MINOR': 'Minor',
           'severity.INFO': 'Info',
+          'coding_rules.activate': 'Activate',
           'coding_rules.activate_quality_profile': 'Activate Quality Profile',
+          'coding_rules.add_note': 'Add Note',
           'coding_rules.available_since': 'Available Since',
           'coding_rules.bulk_change': 'Bulk Change',
           'coding_rules.extend_description': 'Extend Description',
@@ -92,6 +96,7 @@
           'coding_rules.parameters': 'Parameters',
           'coding_rules.parameters.default_value': 'Default Value:',
           'coding_rules.quality_profiles': 'Quality Profiles',
+          'coding_rules.quality_profile': 'Quality Profile',
           'coding_rules.repository': 'Repository:',
           'coding_rules.revert_to_parent_definition': 'Revert to Parent Definition',
           'coding_rules._rules': 'rule(s)',
@@ -169,14 +174,13 @@
           key: 'S1190',
           parameters: [
             {
-              key: 'someParameterName',
+              key: 'someParameter',
               type: 'INT',
-              "default": '',
+              "default": 4,
               description: 'Some parameter description'
             }, {
               key: 'boolParameter',
               type: 'BOOL',
-              "default": true,
               description: 'Bool parameter description'
             }
           ],
@@ -192,7 +196,7 @@
               canUpdate: true,
               parameters: [
                 {
-                  key: 'max',
+                  key: 'someParameter',
                   value: 8
                 }
               ]
@@ -204,11 +208,17 @@
               canUpdate: false,
               parameters: [
                 {
-                  key: 'max',
+                  key: 'someParameter',
                   value: 6
                 }
               ],
-              inherits: 'sonarway'
+              inherits: 'sonarway',
+              note: {
+                username: 'Admin Admin',
+                html: '<p>This note is here <b>only for test purposes</b>.</p>',
+                raw: 'This note is here *only for test purposes*.',
+                fCreationDate: 'less than a minute'
+              }
             }
           ]
         }
@@ -226,6 +236,20 @@
     });
     jQuery.mockjax({
       url: "" + baseUrl + "/api/codingrules/set_tags"
+    });
+    jQuery.mockjax({
+      url: "" + baseUrl + "/api/codingrules/activate"
+    });
+    jQuery.mockjax({
+      url: "" + baseUrl + "/api/codingrules/note",
+      responseText: JSON.stringify({
+        note: {
+          username: 'Admin Admin',
+          html: '<p>This note is here <b>only for test purposes</b>.</p>',
+          raw: 'This note is here *only for test purposes*.',
+          fCreationDate: 'less than a minute'
+        }
+      })
     });
     jQuery.mockjax({
       url: "" + baseUrl + "/api/qualityprofiles/list",

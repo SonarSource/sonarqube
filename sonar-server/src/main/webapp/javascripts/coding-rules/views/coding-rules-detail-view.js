@@ -31,7 +31,8 @@
         extendDescriptionSubmit: '#coding-rules-detail-extend-description-submit',
         extendDescriptionText: '#coding-rules-detail-extend-description-text',
         extendDescriptionSpinner: '#coding-rules-detail-extend-description-spinner',
-        cancelExtendDescription: '#coding-rules-detail-extend-description-cancel'
+        cancelExtendDescription: '#coding-rules-detail-extend-description-cancel',
+        qualityProfileActivate: '#coding-rules-quality-profile-activate'
       };
 
       CodingRulesDetailView.prototype.events = {
@@ -39,7 +40,8 @@
         'click @ui.tagsEditDone': 'editDone',
         'click @ui.extendDescriptionLink': 'showExtendDescriptionForm',
         'click @ui.cancelExtendDescription': 'hideExtendDescriptionForm',
-        'click @ui.extendDescriptionSubmit': 'submitExtendDescription'
+        'click @ui.extendDescriptionSubmit': 'submitExtendDescription',
+        'click @ui.qualityProfileActivate': 'activateQualityProfile'
       };
 
       CodingRulesDetailView.prototype.initialize = function(options) {
@@ -114,6 +116,11 @@
           });
           return _this.render();
         });
+      };
+
+      CodingRulesDetailView.prototype.activateQualityProfile = function() {
+        this.options.app.codingRulesQualityProfileActivationView.model = this.model;
+        return this.options.app.codingRulesQualityProfileActivationView.show();
       };
 
       return CodingRulesDetailView;

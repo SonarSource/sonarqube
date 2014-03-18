@@ -9,9 +9,9 @@ define ['jquery.mockjax'], ->
     responseText: JSON.stringify
       qualityprofiles: [
         { key: 'sonarway', name: 'Sonar Way', parent: null },
-        { key: 'qp1', name: 'Quality Profile 1', parent: 'sonarway' },
-        { key: 'qp2', name: 'Quality Profile 2', parent: 'sonarway' },
-        { key: 'qp3', name: 'Quality Profile 3', parent: null },
+        { key: 'qualityprofile1', name: 'Quality Profile 1', parent: 'sonarway' },
+        { key: 'qualityprofile2', name: 'Quality Profile 2', parent: 'sonarway' },
+        { key: 'qualityprofile3', name: 'Quality Profile 3', parent: null },
       ]
       languages:
         java: 'Java'
@@ -49,7 +49,9 @@ define ['jquery.mockjax'], ->
         'bulk_change': 'Bulk Change'
         'cancel': 'Cancel'
         'change': 'Change'
+        'delete': 'Delete'
         'done': 'Done'
+        'edit': 'Edit'
         'moreCriteria': '+ More Criteria'
         'search_verb': 'Search'
         'severity': 'Severity'
@@ -61,7 +63,9 @@ define ['jquery.mockjax'], ->
         'severity.MINOR': 'Minor'
         'severity.INFO': 'Info'
 
+        'coding_rules.activate': 'Activate'
         'coding_rules.activate_quality_profile': 'Activate Quality Profile'
+        'coding_rules.add_note': 'Add Note'
         'coding_rules.available_since': 'Available Since'
         'coding_rules.bulk_change': 'Bulk Change'
         'coding_rules.extend_description': 'Extend Description'
@@ -78,6 +82,7 @@ define ['jquery.mockjax'], ->
         'coding_rules.parameters': 'Parameters'
         'coding_rules.parameters.default_value': 'Default Value:'
         'coding_rules.quality_profiles': 'Quality Profiles'
+        'coding_rules.quality_profile': 'Quality Profile'
         'coding_rules.repository': 'Repository:'
         'coding_rules.revert_to_parent_definition': 'Revert to Parent Definition'
         'coding_rules._rules': 'rule(s)'
@@ -161,8 +166,8 @@ define ['jquery.mockjax'], ->
         repository: 'squid'
         key: 'S1190'
         parameters: [
-          { key: 'someParameterName', type: 'INT', default: '', description: 'Some parameter description' }
-          { key: 'boolParameter', type: 'BOOL', default: true, description: 'Bool parameter description' }
+          { key: 'someParameter', type: 'INT', default: 4, description: 'Some parameter description' }
+          { key: 'boolParameter', type: 'BOOL', description: 'Bool parameter description' }
         ]
         description: '''
             <p>
@@ -196,7 +201,7 @@ define ['jquery.mockjax'], ->
             canDeactivate: true
             canUpdate: true
             parameters: [
-              { key: 'max', value: 8 }
+              { key: 'someParameter', value: 8 }
             ]
           },
           {
@@ -206,9 +211,14 @@ define ['jquery.mockjax'], ->
             canDeactivate: false
             canUpdate: false
             parameters: [
-              { key: 'max', value: 6 }
+              { key: 'someParameter', value: 6 }
             ]
             inherits: 'sonarway'
+            note:
+              username: 'Admin Admin'
+              html: '''<p>This note is here <b>only for test purposes</b>.</p>'''
+              raw: '''This note is here *only for test purposes*.'''
+              fCreationDate: 'less than a minute'
           }
         ]
 
@@ -230,6 +240,22 @@ define ['jquery.mockjax'], ->
   # POST /api/codingrules/set_tags
   jQuery.mockjax
     url: "#{baseUrl}/api/codingrules/set_tags"
+
+
+  # POST /api/codingrules/activate
+  jQuery.mockjax
+    url: "#{baseUrl}/api/codingrules/activate"
+
+
+  # POST /api/codingrules/note
+  jQuery.mockjax
+    url: "#{baseUrl}/api/codingrules/note"
+    responseText: JSON.stringify
+      note:
+        username: 'Admin Admin'
+        html: '''<p>This note is here <b>only for test purposes</b>.</p>'''
+        raw: '''This note is here *only for test purposes*.'''
+        fCreationDate: 'less than a minute'
 
 
   # GET /api/qualityprofiles/list

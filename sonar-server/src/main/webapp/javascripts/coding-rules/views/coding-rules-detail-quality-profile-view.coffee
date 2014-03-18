@@ -13,8 +13,58 @@ define [
     ui:
       severitySelect: '.coding-rules-detail-quality-profile-severity'
 
+      note: '.coding-rules-detail-quality-profile-note'
+      noteForm: '.coding-rules-detail-quality-profile-note-form'
+      noteText: '.coding-rules-detail-quality-profile-note-text'
+      noteAdd: '.coding-rules-detail-quality-profile-note-add'
+      noteEdit: '.coding-rules-detail-quality-profile-note-edit'
+      noteDelete: '.coding-rules-detail-quality-profile-note-delete'
+      noteCancel: '.coding-rules-detail-quality-profile-note-cancel'
+      noteSubmit: '.coding-rules-detail-quality-profile-note-submit'
+
+
+    events:
+      'click @ui.noteAdd': 'editNote'
+      'click @ui.noteEdit': 'editNote'
+      'click @ui.noteDelete': 'deleteNote'
+      'click @ui.noteCancel': 'cancelNote'
+      'click @ui.noteSubmit': 'submitNote'
+
+
+    editNote: ->
+      @ui.note.hide()
+      @ui.noteForm.show()
+      @ui.noteText.focus()
+
+
+    deleteNote: ->
+      @ui.noteText.val ''
+      @submitNote().done =>
+        @model.unset 'note'
+        @render()
+
+
+    cancelNote: ->
+      @ui.note.show()
+      @ui.noteForm.hide()
+
+
+    submitNote: ->
+      @ui.note.html '<i class="spinner"></i>'
+      @ui.noteForm.html '<i class="spinner"></i>'
+      jQuery.ajax
+        type: 'POST'
+        url: "#{baseUrl}/api/codingrules/note"
+        dataType: 'json'
+        data: text: @ui.noteText.val()
+      .done (r) =>
+        @model.set 'note', r.note
+        @render()
+
 
     onRender: ->
+      @ui.noteForm.hide()
+
       format = (state) ->
         return state.text unless state.id
         "<i class='icon-severity-#{state.id.toLowerCase()}'></i> #{state.text}"
