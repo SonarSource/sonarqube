@@ -91,23 +91,31 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
   @CheckForNull
   public CharacteristicDto selectByKey(String key) {
     SqlSession session = mybatis.openSession();
-    CharacteristicMapper mapper = session.getMapper(CharacteristicMapper.class);
     try {
-      return mapper.selectByKey(key);
+      return selectByKey(key, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   @CheckForNull
+  public CharacteristicDto selectByKey(String key, SqlSession session) {
+    return session.getMapper(CharacteristicMapper.class).selectByKey(key);
+  }
+
+  @CheckForNull
   public CharacteristicDto selectById(int id) {
     SqlSession session = mybatis.openSession();
-    CharacteristicMapper mapper = session.getMapper(CharacteristicMapper.class);
     try {
-      return mapper.selectById(id);
+      return selectById(id, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  @CheckForNull
+  public CharacteristicDto selectById(int id, SqlSession session) {
+    return session.getMapper(CharacteristicMapper.class).selectById(id);
   }
 
   @CheckForNull
@@ -123,6 +131,38 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
   @CheckForNull
   public CharacteristicDto selectByName(String name, SqlSession session) {
     return session.getMapper(CharacteristicMapper.class).selectByName(name);
+  }
+
+  @CheckForNull
+  public CharacteristicDto selectNext(int order, SqlSession session) {
+    List<CharacteristicDto> dtos = session.getMapper(CharacteristicMapper.class).selectNext(order);
+    return dtos.isEmpty() ? null : dtos.get(0);
+  }
+
+  @CheckForNull
+  public CharacteristicDto selectNext(int order) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectNext(order, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  @CheckForNull
+  public CharacteristicDto selectPrevious(int order, SqlSession session) {
+    List<CharacteristicDto> dtos = session.getMapper(CharacteristicMapper.class).selectPrevious(order);
+    return dtos.isEmpty() ? null : dtos.get(0);
+  }
+
+  @CheckForNull
+  public CharacteristicDto selectPrevious(int order) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectPrevious(order, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   public int selectMaxCharacteristicOrder() {

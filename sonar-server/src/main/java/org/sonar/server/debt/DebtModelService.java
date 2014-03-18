@@ -26,11 +26,13 @@ import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.debt.DebtModel;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
 import javax.annotation.CheckForNull;
@@ -69,7 +71,9 @@ public class DebtModelService implements DebtModel {
     return dto != null ? toCharacteristic(dto) : null;
   }
 
-  public DebtCharacteristic createCharacteristic(String name, @Nullable Integer parentId) {
+  public DebtCharacteristic create(String name, @Nullable Integer parentId) {
+    checkPermission();
+
     SqlSession session = mybatis.openSession();
     try {
       checkNotAlreadyExists(name, session);
@@ -81,14 +85,14 @@ public class DebtModelService implements DebtModel {
 
       // New sub characteristic
       if (parentId != null) {
-        CharacteristicDto parent = findCharacteristic(parentId);
+        CharacteristicDto parent = findCharacteristic(parentId, session);
         if (parent.getParentId() != null) {
           throw new BadRequestException("A sub characteristic can not have a sub characteristic as parent.");
         }
         newCharacteristic.setParentId(parent.getId());
       } else {
         // New root characteristic
-        newCharacteristic.setOrder(dao.selectMaxCharacteristicOrder(session)+1);
+        newCharacteristic.setOrder(dao.selectMaxCharacteristicOrder(session) + 1);
       }
       dao.insert(newCharacteristic, session);
       session.commit();
@@ -98,8 +102,62 @@ public class DebtModelService implements DebtModel {
     }
   }
 
-  private CharacteristicDto findCharacteristic(Integer id){
-    CharacteristicDto dto = dao.selectById(id);
+  public DebtCharacteristic rename(int characteristicId, String newName) {
+    checkPermission();
+
+    SqlSession session = mybatis.openSession();
+    try {
+      checkNotAlreadyExists(newName, session);
+
+      CharacteristicDto dto = findCharacteristic(characteristicId, session);
+      if (!dto.getName().equals(newName)) {
+        dto.setName(newName);
+        dao.update(dto, session);
+        session.commit();
+      }
+      return toCharacteristic(dto);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public DebtCharacteristic moveUp(int characteristicId) {
+    return move(characteristicId, true);
+  }
+
+  public DebtCharacteristic moveDown(int characteristicId) {
+    return move(characteristicId, false);
+  }
+
+  private DebtCharacteristic move(int characteristicId, boolean moveUpOrDown) {
+    checkPermission();
+
+    SqlSession session = mybatis.openSession();
+    try {
+      CharacteristicDto dto = findCharacteristic(characteristicId, session);
+      int currentOrder = dto.getOrder();
+      CharacteristicDto dtoToSwitchOrderWith = moveUpOrDown ? dao.selectPrevious(currentOrder, session) : dao.selectNext(currentOrder, session);
+
+      // Do nothing when characteristic is already to the new location
+      if (dtoToSwitchOrderWith == null) {
+        return toCharacteristic(dto);
+      }
+      int nextOrder = dtoToSwitchOrderWith.getOrder();
+      dtoToSwitchOrderWith.setOrder(currentOrder);
+      dao.update(dtoToSwitchOrderWith, session);
+
+      dto.setOrder(nextOrder);
+      dao.update(dto, session);
+
+      session.commit();
+      return toCharacteristic(dto);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  private CharacteristicDto findCharacteristic(Integer id, SqlSession session) {
+    CharacteristicDto dto = dao.selectById(id, session);
     if (dto == null) {
       throw new NotFoundException(String.format("Characteristic with id %s does not exists.", id));
     }
@@ -110,6 +168,10 @@ public class DebtModelService implements DebtModel {
     if (dao.selectByName(name, session) != null) {
       throw BadRequestException.ofL10n(Validation.IS_ALREADY_USED_MESSAGE, name);
     }
+  }
+
+  private void checkPermission() {
+    UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   private static List<DebtCharacteristic> toCharacteristics(Collection<CharacteristicDto> dtos) {
