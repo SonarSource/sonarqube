@@ -46,14 +46,15 @@ public class DbDuplicationsIndex {
 
   private DuplicationDao dao;
 
-  public DbDuplicationsIndex(ResourcePersister resourcePersister, Project currentProject, DuplicationDao dao) {
+  public DbDuplicationsIndex(ResourcePersister resourcePersister, Project currentProject, DuplicationDao dao,
+                             String language) {
     this.dao = dao;
     this.resourcePersister = resourcePersister;
     Snapshot currentSnapshot = resourcePersister.getSnapshotOrFail(currentProject);
     Snapshot lastSnapshot = resourcePersister.getLastSnapshot(currentSnapshot, false);
     this.currentProjectSnapshotId = currentSnapshot.getId();
     this.lastSnapshotId = lastSnapshot == null ? null : lastSnapshot.getId();
-    this.languageKey = currentProject.getLanguageKey();
+    this.languageKey = language;
   }
 
   int getSnapshotIdFor(InputFile inputFile) {
