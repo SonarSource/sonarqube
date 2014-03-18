@@ -1,5 +1,15 @@
 # nodeJS dependencies
 node_modules/
 
+# generated css
+src/main/webapp/stylesheets/
+
+# generated js
+src/main/webapp/javascripts/coding-rules/
+src/main/webapp/javascripts/quality-gate/
+src/main/webapp/javascripts/tests/common/
+src/main/webapp/javascripts/tests/translateSpec.js
+
 # js build
 src/main/webapp/javascripts/build/
+

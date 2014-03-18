@@ -3,21 +3,6 @@
 <groups xmlns="http://www.isdc.ro/wro">
 
   <group name='sonar'>
-    <css>/stylesheets/yui-reset-font.css</css>
-    <css>/stylesheets/jquery-ui.css</css>
-    <css>/stylesheets/select2.css</css>
-    <css>/stylesheets/select2-sonar.css</css>
-    <css>/stylesheets/layout.css</css>
-    <css>/stylesheets/style.css</css>
-    <css>/stylesheets/icons.css</css>
-    <css>/stylesheets/ui.css</css>
-    <css>/stylesheets/sonar-colorizer.css</css>
-    <css>/stylesheets/dashboard.css</css>
-    <css>/stylesheets/select-list.css</css>
-    <css>/stylesheets/navigator.css</css>
-    <css>/stylesheets/quality-gates.css</css>
-    <css>/stylesheets/coding-rules.css</css>
-
     <js>/javascripts/third-party/jquery.js</js>
     <js>/javascripts/third-party/jquery-ui.js</js>
     <js>/javascripts/third-party/d3.js</js>
