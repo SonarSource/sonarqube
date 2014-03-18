@@ -189,8 +189,8 @@ class IssueController < ApplicationController
     @rule = Rule.first(:conditions => ['plugin_name=? and plugin_rule_key=?', rule_key[0], rule_key[1]])
     characteristic_id = @rule.characteristic_id || @rule.default_characteristic_id
     if characteristic_id
-      @characteristic = Internal.debt.findCharacteristic(characteristic_id)
-      @root_characteristic = Internal.debt.findCharacteristic(@characteristic.parentId())
+      @characteristic = Internal.debt.characteristicById(characteristic_id)
+      @root_characteristic = Internal.debt.characteristicById(@characteristic.parentId())
     end
     render :partial => 'issue/rule'
   end

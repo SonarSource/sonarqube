@@ -27,10 +27,11 @@ import org.sonar.api.issue.*;
 import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
+import org.sonar.api.server.debt.DebtCharacteristic;
+import org.sonar.api.server.debt.DebtModel;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
-import org.sonar.api.technicaldebt.server.Characteristic;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
@@ -39,7 +40,6 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.workflow.Transition;
-import org.sonar.core.technicaldebt.DefaultTechnicalDebtManager;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.ActionService;
@@ -63,17 +63,17 @@ public class IssueShowWsHandler implements RequestHandler {
   private final IssueService issueService;
   private final IssueChangelogService issueChangelogService;
   private final ActionService actionService;
-  private final DefaultTechnicalDebtManager technicalDebtManager;
+  private final DebtModel debtModel;
   private final I18n i18n;
   private final Durations durations;
 
   public IssueShowWsHandler(IssueFinder issueFinder, IssueService issueService, IssueChangelogService issueChangelogService, ActionService actionService,
-                            DefaultTechnicalDebtManager technicalDebtManager, I18n i18n, Durations durations) {
+                            DebtModel debtModel, I18n i18n, Durations durations) {
     this.issueFinder = issueFinder;
     this.issueService = issueService;
     this.issueChangelogService = issueChangelogService;
     this.actionService = actionService;
-    this.technicalDebtManager = technicalDebtManager;
+    this.debtModel = debtModel;
     this.i18n = i18n;
     this.durations = durations;
   }
@@ -190,18 +190,18 @@ public class IssueShowWsHandler implements RequestHandler {
 
   private void addCharacteristics(IssueQueryResult result, DefaultIssue issue, JsonWriter json) {
     Integer subCharacteristicId = result.rule(issue).getCharacteristicId() != null ? result.rule(issue).getCharacteristicId() : result.rule(issue).getDefaultCharacteristicId();
-    Characteristic subCharacteristic = findCharacteristicById(subCharacteristicId);
+    DebtCharacteristic subCharacteristic = characteristicById(subCharacteristicId);
     if (subCharacteristic != null) {
       json.prop("subCharacteristic", subCharacteristic.name());
-      Characteristic characteristic = findCharacteristicById(subCharacteristic.parentId());
+      DebtCharacteristic characteristic = characteristicById(subCharacteristic.parentId());
       json.prop("characteristic", characteristic != null ? characteristic.name() : null);
     }
   }
 
   @CheckForNull
-  private Characteristic findCharacteristicById(@Nullable Integer id) {
+  private DebtCharacteristic characteristicById(@Nullable Integer id) {
     if (id != null) {
-      return technicalDebtManager.findCharacteristicById(id);
+      return debtModel.characteristicById(id);
     }
     return null;
   }

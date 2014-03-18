@@ -18,26 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.technicaldebt.server;
+package org.sonar.api.server.debt;
 
-import org.sonar.api.ServerComponent;
-import org.sonar.api.rules.Rule;
-
-import java.util.List;
+import javax.annotation.CheckForNull;
 
 /**
- * @since 4.1
+ * @since 4.3
  */
+public interface DebtCharacteristic {
+  Integer id();
 
-public interface TechnicalDebtManager extends ServerComponent {
+  String key();
 
-  List<Characteristic> findRootCharacteristics();
+  String name();
 
-  /**
-   * @deprecated since 4.3. Always return null
-   */
-  @Deprecated
-  Characteristic findRequirementByRule(Rule rule);
+  @CheckForNull
+  Integer order();
 
-  Characteristic findCharacteristicById(Integer id);
+  @CheckForNull
+  Integer parentId();
 }

@@ -32,7 +32,9 @@ import javax.annotation.Nullable;
 
 /**
  * @since 4.1
+ * @deprecated since 4.3.
  */
+@Deprecated
 public class DefaultCharacteristic implements Characteristic {
 
   private Integer id;

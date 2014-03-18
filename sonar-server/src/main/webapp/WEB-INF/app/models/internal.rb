@@ -55,7 +55,7 @@ class Internal
   end
 
   def self.debt
-    component(Java::OrgSonarServerDebt::DebtService.java_class)
+    component(Java::OrgSonarServerDebt::DebtModelService.java_class)
   end
 
   def self.profiling

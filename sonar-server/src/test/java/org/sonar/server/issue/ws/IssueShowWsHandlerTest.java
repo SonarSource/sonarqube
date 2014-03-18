@@ -37,8 +37,9 @@ import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.server.debt.DebtModel;
+import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.server.ws.WsTester;
-import org.sonar.api.technicaldebt.server.internal.DefaultCharacteristic;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
@@ -48,7 +49,6 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssueQueryResult;
 import org.sonar.core.issue.workflow.Transition;
-import org.sonar.core.technicaldebt.DefaultTechnicalDebtManager;
 import org.sonar.core.user.DefaultUser;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueChangelog;
@@ -84,7 +84,7 @@ public class IssueShowWsHandlerTest {
   ActionService actionService;
 
   @Mock
-  DefaultTechnicalDebtManager technicalDebtManager;
+  DebtModel debtModel;
 
   @Mock
   I18n i18n;
@@ -113,7 +113,7 @@ public class IssueShowWsHandlerTest {
 
     when(i18n.message(any(Locale.class), eq("created"), eq((String) null))).thenReturn("Created");
 
-    tester = new WsTester(new IssuesWs(new IssueShowWsHandler(issueFinder, issueService, issueChangelogService, actionService, technicalDebtManager, i18n, durations)));
+    tester = new WsTester(new IssuesWs(new IssueShowWsHandler(issueFinder, issueService, issueChangelogService, actionService, debtModel, i18n, durations)));
   }
 
   @Test
@@ -323,8 +323,8 @@ public class IssueShowWsHandlerTest {
     issues.add(issue);
 
     result.rule(issue).setCharacteristicId(2);
-    when(technicalDebtManager.findCharacteristicById(1)).thenReturn(new DefaultCharacteristic().setId(1).setName("Maintainability"));
-    when(technicalDebtManager.findCharacteristicById(2)).thenReturn(new DefaultCharacteristic().setId(2).setName("Readability").setParentId(1));
+    when(debtModel.characteristicById(1)).thenReturn(new DefaultDebtCharacteristic().setId(1).setName("Maintainability"));
+    when(debtModel.characteristicById(2)).thenReturn(new DefaultDebtCharacteristic().setId(2).setName("Readability").setParentId(1));
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());
@@ -337,8 +337,8 @@ public class IssueShowWsHandlerTest {
     issues.add(issue);
 
     result.rule(issue).setDefaultCharacteristicId(2);
-    when(technicalDebtManager.findCharacteristicById(1)).thenReturn(new DefaultCharacteristic().setId(1).setName("Maintainability"));
-    when(technicalDebtManager.findCharacteristicById(2)).thenReturn(new DefaultCharacteristic().setId(2).setName("Readability").setParentId(1));
+    when(debtModel.characteristicById(1)).thenReturn(new DefaultDebtCharacteristic().setId(1).setName("Maintainability"));
+    when(debtModel.characteristicById(2)).thenReturn(new DefaultDebtCharacteristic().setId(2).setName("Readability").setParentId(1));
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());
@@ -351,12 +351,12 @@ public class IssueShowWsHandlerTest {
     issues.add(issue);
 
     result.rule(issue).setCharacteristicId(2);
-    when(technicalDebtManager.findCharacteristicById(1)).thenReturn(new DefaultCharacteristic().setId(1).setName("Maintainability"));
-    when(technicalDebtManager.findCharacteristicById(2)).thenReturn(new DefaultCharacteristic().setId(2).setName("Readability").setParentId(1));
+    when(debtModel.characteristicById(1)).thenReturn(new DefaultDebtCharacteristic().setId(1).setName("Maintainability"));
+    when(debtModel.characteristicById(2)).thenReturn(new DefaultDebtCharacteristic().setId(2).setName("Readability").setParentId(1));
 
     result.rule(issue).setDefaultCharacteristicId(20);
-    when(technicalDebtManager.findCharacteristicById(10)).thenReturn(new DefaultCharacteristic().setId(10).setName("Default Maintainability"));
-    when(technicalDebtManager.findCharacteristicById(20)).thenReturn(new DefaultCharacteristic().setId(20).setName("Default Readability").setParentId(10));
+    when(debtModel.characteristicById(10)).thenReturn(new DefaultDebtCharacteristic().setId(10).setName("Default Maintainability"));
+    when(debtModel.characteristicById(20)).thenReturn(new DefaultDebtCharacteristic().setId(20).setName("Default Readability").setParentId(10));
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newRequest("show").setParam("key", issue.key());
