@@ -25,7 +25,7 @@
       {{t 'quality_gates.operator' op}}
     {{/if}}
   </td>
-  <td width="15%">
+  <td width="15%" nowrap="nowrap">
     <i class="icon-alert-warn" title="{{t 'alerts.warning_tooltip'}}"></i>
     {{#if canEdit}}
       <input name="warning" class="measure-input" data-type="{{metric.type}}" type="text">
@@ -33,7 +33,7 @@
       {{warning}}
     {{/if}}
   </td>
-  <td width="15%">
+  <td width="15%" nowrap="nowrap">
     <i class="icon-alert-error" title="{{t 'alerts.error_tooltip'}}"></i>
     {{#if canEdit}}
       <input name="error" class="measure-input" data-type="{{metric.type}}" type="text">
