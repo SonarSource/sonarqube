@@ -70,7 +70,7 @@ public class QualityGateProvider extends ProviderAdapter {
       configuredGate = fetch(qualityGateSetting, client, metricFinder);
     } catch (HttpDownloader.HttpException serverError) {
       if (serverError.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
-        throw MessageException.of("No quality gate found with configured value '" + qualityGateSetting + "'. Please check your configuration.");
+        throw MessageException.of("Quality gate '" + qualityGateSetting + "' was not found.");
       } else {
         throw serverError;
       }
