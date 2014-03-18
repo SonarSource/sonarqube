@@ -85,7 +85,9 @@ public class DefaultProjectBootstrapperTest {
   }
 
   @Test
-  public void shouldNotFailIfMissingSourceDirectory() throws IOException {
+  public void fail_if_sources_not_set() throws IOException {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("You must define the following mandatory properties for 'com.foo.project': sonar.sources");
     loadProjectDefinition("simple-project-with-missing-source-dir");
   }
 
@@ -469,7 +471,7 @@ public class DefaultProjectBootstrapperTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("You must define the following mandatory properties for 'Unknown': foo2, foo3");
 
-    DefaultProjectBootstrapper.checkMandatoryProperties(props, new String[] {"foo1", "foo2", "foo3"});
+    DefaultProjectBootstrapper.checkMandatoryProperties(props, new String[]{"foo1", "foo2", "foo3"});
   }
 
   @Test
@@ -481,7 +483,7 @@ public class DefaultProjectBootstrapperTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("You must define the following mandatory properties for 'my-project': foo2, foo3");
 
-    DefaultProjectBootstrapper.checkMandatoryProperties(props, new String[] {"foo1", "foo2", "foo3"});
+    DefaultProjectBootstrapper.checkMandatoryProperties(props, new String[]{"foo1", "foo2", "foo3"});
   }
 
   @Test
@@ -490,7 +492,7 @@ public class DefaultProjectBootstrapperTest {
     props.setProperty("foo1", "bla");
     props.setProperty("foo4", "bla");
 
-    DefaultProjectBootstrapper.checkMandatoryProperties(props, new String[] {"foo1"});
+    DefaultProjectBootstrapper.checkMandatoryProperties(props, new String[]{"foo1"});
 
     // No exception should be thrown
   }
