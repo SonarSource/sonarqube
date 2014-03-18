@@ -102,12 +102,12 @@ public class SonarEngine extends CpdEngine {
     if (sourceFiles.isEmpty()) {
       return;
     }
-    SonarDuplicationsIndex index = createIndex(project, sourceFiles);
+    SonarDuplicationsIndex index = createIndex(project, languageKey, sourceFiles);
     detect(index, context, sourceFiles);
   }
 
-  private SonarDuplicationsIndex createIndex(Project project, Iterable<InputFile> sourceFiles) {
-    final SonarDuplicationsIndex index = indexFactory.create(project);
+  private SonarDuplicationsIndex createIndex(Project project, String language, Iterable<InputFile> sourceFiles) {
+    final SonarDuplicationsIndex index = indexFactory.create(project, language);
 
     TokenChunker tokenChunker = JavaTokenProducer.build();
     StatementChunker statementChunker = JavaStatementBuilder.build();

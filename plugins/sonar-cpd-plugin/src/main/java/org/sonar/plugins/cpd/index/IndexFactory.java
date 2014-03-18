@@ -44,9 +44,9 @@ public class IndexFactory implements BatchExtension {
     this.dao = dao;
   }
 
-  public SonarDuplicationsIndex create(Project project) {
+  public SonarDuplicationsIndex create(Project project, String languageKey) {
     if (verifyCrossProject(project, LOG)) {
-      return new SonarDuplicationsIndex(new DbDuplicationsIndex(resourcePersister, project, dao));
+      return new SonarDuplicationsIndex(new DbDuplicationsIndex(resourcePersister, project, dao, languageKey));
     }
     return new SonarDuplicationsIndex();
   }

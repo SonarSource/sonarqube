@@ -101,7 +101,7 @@ public class SonarBridgeEngine extends CpdEngine {
     }
 
     // Create index
-    SonarDuplicationsIndex index = indexFactory.create(project);
+    SonarDuplicationsIndex index = indexFactory.create(project, languageKey);
 
     TokenizerBridge bridge = new TokenizerBridge(mapping.getTokenizer(), fs.encoding().name(), getBlockSize(project, languageKey));
     for (InputFile inputFile : sourceFiles) {
