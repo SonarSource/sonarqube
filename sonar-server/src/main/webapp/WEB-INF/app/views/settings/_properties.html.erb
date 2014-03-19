@@ -99,74 +99,71 @@
            <td>?</td>
            <td>Match a single character</td>
          </tr>
-        <tr>
-          <td>file:</td>
-          <td>Prefix to define a pattern based on absolute path</td>
-        </tr>
        </table>
        <br>
        <table class="data">
-         <thead><tr><th>Example</th><th>Description</th><th>Matches</th></tr></thead>
+         <thead><tr><th>Example</th><th>Matches</th><th>Does not match</th></tr></thead>
          <tbody>
          <tr>
-           <td>src/java/org/mycompany/*.java</td>
-           <td>matches all <code>.java</code> files in the directory <code>src/java/org/mycompany</code></td>
+           <td>**/foo/*.js</td>
            <td>
              <ul>
-               <li>src/java/org/mycompany/Foo.java</li>
-               <li>src/java/org/mycompany/Bar.java</li>
+               <li>src/foo/bar.js</li>
+               <li>lib/ui/foo/bar.js</li>
+             </ul>
+           </td>
+           <td>
+             <ul>
+               <li>src/bar.js</li>
+               <li>src/foo2/bar.js</li>
              </ul>
            </td>
          </tr>
          <tr>
-           <td>src/java/org/*Model*.java</td>
-           <td>matches all <code>.java</code> files with <code>Model</code> in filename and in the directory <code>src/java/org</code></td>
+           <td>src/foo/*bar*.js</td>
            <td>
              <ul>
-               <li>src/java/org/Model.java</li>
-               <li>src/java/org/FirstModel.java</li>
-               <li>src/java/org/ModelTest.java</li>
+               <li>src/foo/bar.js</li>
+               <li>src/foo/bar1.js</li>
+               <li>src/foo/bar123.js</li>
+               <li>src/foo/123bar123.js</li>
+             </ul>
+           </td>
+           <td>
+             <ul>
+               <li>src/foo/ui/bar.js</li>
+               <li>src/bar.js</li>
              </ul>
            </td>
          </tr>
          <tr>
-           <td>src/java/org/**</td>
-           <td>matches all files underneath the directory <code>src/java/org</code></td>
+           <td>src/foo/**</td>
            <td>
              <ul>
-               <li>src/java/org/Foo.java</li>
-               <li>src/java/org/foo/bar.jsp</li>
+               <li>src/foo/bar.js</li>
+               <li>src/foo/ui/bar.js</li>
+             </ul>
+           </td>
+           <td>
+             <ul>
+               <li>src/bar/foo/bar.js</li>
+               <li>src/bar.js</li>
              </ul>
            </td>
          </tr>
          <tr>
-           <td>src/java/org/**/Dummy.java</td>
-           <td>matches all <code>Dummy.java</code> files underneath the directory <code>src/java/org</code></td>
+           <td>**/foo?.js</td>
            <td>
              <ul>
-               <li>src/java/org/Dummy.java</li>
-               <li>src/java/org/foo/Dummy.java</li>
-               <li>src/java/org/foo/bar/Dummy.java</li>
+               <li>src/foo1.js</li>
+               <li>src/bar/foo1.js</li>
              </ul>
            </td>
-         </tr>
-         <tr>
-           <td>src/java/org/**/*.java</td>
-           <td>matches all <code>.java</code> files underneath the directory <code>src/java/org</code></td>
            <td>
              <ul>
-               <li>src/java/org/Foo.java</li>
-               <li>src/java/org/foo/Bar.java</li>
-               <li>src/java/org/foo/bar/Baz.java</li>
-             </ul>
-           </td>
-         </tr>
-        <tr>
-           <td>file:**/generated/**</td>
-           <td>matches all files whose one parent directory is 'generated'</td>
-           <td>
-             <ul>
-               <li>/path/to/project/tmp/generated/org/castor/Model.java</li>
+               <li>src/foo.js</li>
+               <li>src/foo12.js</li>
+               <li>src/12foo3.js</li>
              </ul>
            </td>
          </tr>
