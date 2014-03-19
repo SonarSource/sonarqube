@@ -1,8 +1,9 @@
 ({
   appDir: '.',
   baseUrl: '.',
-  dir: 'DEFINED IN POM.XML',
+  dir: 'build',
   preserveLicenseComments: false,
+  skipDirOptimize: true,
 
   modules: [
   	{ name: 'quality-gate/app' },
