@@ -81,11 +81,108 @@
       </div>
       <% end %>
 
-      <% unless category_help(@category).blank? -%>
+      <% if @category.key() == 'exclusions' -%>
+       <div class="help marginbottom10" style="margin-left: -1px">
+       <h2>Wildcards</h2>
+       <p>Following rules are applied:</p>
+       <table class="data">
+         <thead><tr><th colspan="2"></th></tr></thead>
+         <tr>
+           <td>*</td>
+           <td>Match zero or more characters</td>
+         </tr>
+         <tr>
+           <td>**</td>
+           <td>Match zero or more directories</td>
+         </tr>
+         <tr>
+           <td>?</td>
+           <td>Match a single character</td>
+         </tr>
+        <tr>
+          <td>file:</td>
+          <td>Prefix to define a pattern based on absolute path</td>
+        </tr>
+       </table>
+       <br>
+       <table class="data">
+         <thead><tr><th>Example</th><th>Description</th><th>Matches</th></tr></thead>
+         <tbody>
+         <tr>
+           <td>src/java/org/mycompany/*.java</td>
+           <td>matches all <code>.java</code> files in the directory <code>src/java/org/mycompany</code></td>
+           <td>
+             <ul>
+               <li>src/java/org/mycompany/Foo.java</li>
+               <li>src/java/org/mycompany/Bar.java</li>
+             </ul>
+           </td>
+         </tr>
+         <tr>
+           <td>src/java/org/*Model*.java</td>
+           <td>matches all <code>.java</code> files with <code>Model</code> in filename and in the directory <code>src/java/org</code></td>
+           <td>
+             <ul>
+               <li>src/java/org/Model.java</li>
+               <li>src/java/org/FirstModel.java</li>
+               <li>src/java/org/ModelTest.java</li>
+             </ul>
+           </td>
+         </tr>
+         <tr>
+           <td>src/java/org/**</td>
+           <td>matches all files underneath the directory <code>src/java/org</code></td>
+           <td>
+             <ul>
+               <li>src/java/org/Foo.java</li>
+               <li>src/java/org/foo/bar.jsp</li>
+             </ul>
+           </td>
+         </tr>
+         <tr>
+           <td>src/java/org/**/Dummy.java</td>
+           <td>matches all <code>Dummy.java</code> files underneath the directory <code>src/java/org</code></td>
+           <td>
+             <ul>
+               <li>src/java/org/Dummy.java</li>
+               <li>src/java/org/foo/Dummy.java</li>
+               <li>src/java/org/foo/bar/Dummy.java</li>
+             </ul>
+           </td>
+         </tr>
+         <tr>
+           <td>src/java/org/**/*.java</td>
+           <td>matches all <code>.java</code> files underneath the directory <code>src/java/org</code></td>
+           <td>
+             <ul>
+               <li>src/java/org/Foo.java</li>
+               <li>src/java/org/foo/Bar.java</li>
+               <li>src/java/org/foo/bar/Baz.java</li>
+             </ul>
+           </td>
+         </tr>
+        <tr>
+           <td>file:**/generated/**</td>
+           <td>matches all files whose one parent directory is 'generated'</td>
+           <td>
+             <ul>
+               <li>/path/to/project/tmp/generated/org/castor/Model.java</li>
+             </ul>
+           </td>
+         </tr>
+        </tbody>
+       </table>
+       </div>
+      <% else 
+         help = category_help(@category)
+         unless help.blank?
+      -%>
         <div class="help marginbottom10" style="margin-left: -1px">
-          <%= category_help(@category) -%>
+          <%= help -%>
         </div>
-      <% end -%>
+      <% end 
+      end
+      -%>
 
     <% end %>
   </form>
