@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.SetMultimap;
+import org.apache.commons.lang.builder.CompareToBuilder;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.server.rule.RulesDefinition;
 
@@ -110,7 +111,19 @@ public class RuleRepositories implements ServerComponent {
 
     @Override
     public int compareTo(Repository o) {
-      return name.toLowerCase().compareTo(o.name.toLowerCase());
+      return new CompareToBuilder()
+        .append(name.toLowerCase(), o.name.toLowerCase())
+        .append(key, o.key)
+        .toComparison();
+    }
+
+    @Override
+    public String toString() {
+      return "Repository{" +
+        "key='" + key + '\'' +
+        ", name='" + name + '\'' +
+        ", language='" + language + '\'' +
+        '}';
     }
   }
 
