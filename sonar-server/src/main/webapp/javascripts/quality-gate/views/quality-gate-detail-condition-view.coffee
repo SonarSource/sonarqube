@@ -90,7 +90,7 @@ define [
 
 
     deleteCondition: ->
-      if confirm t('are_you_sure')
+      if confirm t('quality_gates.delete_condition.confirm.message')
         @showSpinner()
         @model.delete().done =>
           @options.collectionView.collection.remove @model

@@ -113,7 +113,7 @@
       };
 
       QualityGateDetailConditionView.prototype.deleteCondition = function() {
-        if (confirm(t('are_you_sure'))) {
+        if (confirm(t('quality_gates.delete_condition.confirm.message'))) {
           this.showSpinner();
           return this.model["delete"]().done((function(_this) {
             return function() {

@@ -40,7 +40,8 @@ define [
 
 
     deleteQualityGate: ->
-      if confirm t('are_you_sure')
+      message = if @model.get 'default' then 'quality_gates.delete.confirm.default' else 'quality_gates.delete.confirm.message'
+      if confirm t(message).replace('{0}', @model.get 'name')
         @showSpinner()
         jQuery.ajax
           type: 'POST'
