@@ -5,29 +5,22 @@
     <p>{{t 'quality_gates.introduction'}}
       <a class="link-action quality-gate-introduction-show-more">{{t 'more'}}</a>
     </p>
-    <div class="quality-gate-introduction-more">
+    <div class="quality-gate-introduction-more inline-help">
       {{t 'quality_gates.health_icons'}}
-      <table class="data">
-        <thead>
-        <tr>
-          <th colspan="3"></th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr class="even">
-          <td><i class="icon-alert-ok"></i></td>
-          <td>{{t 'alerts.notes.ok'}}</td>
-        </tr>
-        <tr class="odd">
-          <td><i class="icon-alert-warn"></i></td>
-          <td>{{t 'alerts.notes.warn'}}</td>
-        </tr>
-        <tr class="even">
-          <td><i class="icon-alert-error"></i></td>
-          <td>{{t 'alerts.notes.error'}}</td>
-        </tr>
-        </tbody>
-      </table>
+      <ul>
+        <li>
+          <i class="icon-alert-ok"></i>
+          {{t 'alerts.notes.ok'}}
+        </li>
+        <li>
+          <i class="icon-alert-warn"></i>
+          {{t 'alerts.notes.warn'}}
+        </li>
+        <li>
+          <i class="icon-alert-error"></i>
+          {{t 'alerts.notes.error'}}
+        </li>
+      </ul>
     </div>
   </div>
 

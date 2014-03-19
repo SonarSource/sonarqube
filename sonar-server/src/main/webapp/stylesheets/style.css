@@ -1611,6 +1611,13 @@ option.sev_BLOCKER, span.sev_BLOCKER {
   padding: 5px 0;
 }
 
+.inline-help {
+  padding: 5px;
+  margin: 5px;
+  background-color: #FFF6BF;
+  border: 1px solid #FFD324;
+}
+
 /* ------------------- FORMS ------------------- */
 .admintable {
   border: solid 1px #FFD324;
