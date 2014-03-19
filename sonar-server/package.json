@@ -8,6 +8,7 @@
     "karma-coverage": "*",
     "karma-junit-reporter": "*",
     "grunt": "~0.4.2",
+    "grunt-cli": "~0.1.13",
     "grunt-contrib-less": "~0.10.0",
     "grunt-contrib-coffee": "~0.10.1",
     "grunt-contrib-handlebars": "~0.7.0",
