@@ -93,6 +93,7 @@ define [
       if confirm t('are_you_sure')
         @showSpinner()
         @model.delete().done =>
+          @options.collectionView.collection.remove @model
           @options.collectionView.updateConditions()
           @close()
 

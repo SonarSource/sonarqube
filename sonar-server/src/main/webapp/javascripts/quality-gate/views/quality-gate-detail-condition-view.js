@@ -117,6 +117,7 @@
           this.showSpinner();
           return this.model["delete"]().done((function(_this) {
             return function() {
+              _this.options.collectionView.collection.remove(_this.model);
               _this.options.collectionView.updateConditions();
               return _this.close();
             };
