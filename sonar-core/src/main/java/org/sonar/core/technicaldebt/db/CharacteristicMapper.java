@@ -30,6 +30,8 @@ public interface CharacteristicMapper {
 
   List<CharacteristicDto> selectEnabledRootCharacteristics();
 
+  List<CharacteristicDto> selectCharacteristicsByParentId(int parentId);
+
   CharacteristicDto selectByKey(String key);
 
   CharacteristicDto selectById(int id);
@@ -45,7 +47,5 @@ public interface CharacteristicMapper {
   void insert(CharacteristicDto characteristic);
 
   int update(CharacteristicDto characteristic);
-
-  int disable(Integer id);
 
 }

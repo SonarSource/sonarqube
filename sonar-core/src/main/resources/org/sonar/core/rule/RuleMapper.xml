@@ -57,6 +57,14 @@
     where plugin_name != 'manual'
   </select>
 
+  <select id="selectByCharacteristicOrSubCharacteristicId" resultType="Rule">
+    select <include refid="selectColumns"/> from rules
+    <where>
+      and characteristic_id in (select c.id from characteristics c where (c.id=#{id} or c.parent_id=#{id}) and c.enabled=${_true})
+      and status!='REMOVED'
+    </where>
+  </select>
+
   <update id="update" parameterType="Rule">
     UPDATE rules SET
     plugin_rule_key=#{ruleKey},

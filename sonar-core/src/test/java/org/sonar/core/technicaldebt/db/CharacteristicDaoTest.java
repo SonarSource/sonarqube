@@ -103,6 +103,14 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void select_sub_characteristics_by_parent_id() {
+    setupData("select_sub_characteristics_by_parent_id");
+
+    assertThat(dao.selectCharacteristicsByParentId(1)).hasSize(2);
+    assertThat(dao.selectCharacteristicsByParentId(55)).isEmpty();
+  }
+
+  @Test
   public void select_characteristic_by_key() {
     setupData("shared");
 
@@ -189,20 +197,12 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
       .setOrder(2)
         // Created date should not changed
       .setCreatedAt(DateUtils.parseDate("2013-11-22"))
+      .setUpdatedAt(DateUtils.parseDate("2014-03-19"))
       .setEnabled(false);
 
     dao.update(dto);
 
     checkTables("update_characteristic", EXCLUDED_COLUMNS, "characteristics");
-  }
-
-  @Test
-  public void disable() throws Exception {
-    setupData("disable");
-
-    dao.disable(1);
-
-    checkTables("disable", EXCLUDED_COLUMNS, "characteristics");
   }
 
 }

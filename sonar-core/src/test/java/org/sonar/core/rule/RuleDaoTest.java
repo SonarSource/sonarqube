@@ -19,7 +19,9 @@
  */
 package org.sonar.core.rule;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +33,7 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class RuleDaoTest extends AbstractDaoTestCase {
@@ -129,6 +132,25 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
     assertThat(ruleDto.getStatus()).isEqualTo(Rule.STATUS_READY);
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
+  }
+
+  @Test
+  public void select_by_characteristic_or_sub_characteristic_id(){
+    setupData("select_by_characteristic_or_sub_characteristic_id");
+
+    // Rules from sub characteristic
+    List<RuleDto> ruleDtos = dao.selectByCharacteristicOrSubCharacteristicId(2);
+    assertThat(ruleDtos).hasSize(1);
+    assertThat(ruleDtos.get(0).getId()).isEqualTo(1);
+
+    // Rules from characteristic
+    ruleDtos = dao.selectByCharacteristicOrSubCharacteristicId(1);
+    assertThat(ruleDtos).hasSize(2);
+    assertThat(idsFromRuleDtos(ruleDtos)).containsExactly(1, 2);
+
+    // Rules from disabled characteristic
+    ruleDtos = dao.selectByCharacteristicOrSubCharacteristicId(11);
+    assertThat(ruleDtos).isEmpty();
   }
 
   @Test
@@ -316,5 +338,14 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     dao.update(param);
 
     checkTables("update_parameter", "rules_parameters");
+  }
+
+  private List<Integer> idsFromRuleDtos(List<RuleDto> ruleDtos){
+    return newArrayList(Iterables.transform(ruleDtos, new Function<RuleDto, Integer>() {
+      @Override
+      public Integer apply(RuleDto input) {
+        return input.getId();
+      }
+    }));
   }
 }

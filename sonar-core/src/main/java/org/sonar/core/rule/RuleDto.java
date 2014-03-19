@@ -24,7 +24,6 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.check.Cardinality;
-import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -32,6 +31,8 @@ import javax.annotation.Nullable;
 import java.util.Date;
 
 public final class RuleDto {
+
+  public static final Integer DISABLED_CHARACTERISTIC_ID = -1;
 
   private Integer id;
   private String repositoryKey;
@@ -314,7 +315,7 @@ public final class RuleDto {
   }
 
   public boolean hasCharacteristic(){
-    return (characteristicId != null && !CharacteristicDto.DISABLED_CHARACTERISTIC_ID.equals(characteristicId)) || defaultCharacteristicId != null;
+    return (characteristicId != null && !RuleDto.DISABLED_CHARACTERISTIC_ID.equals(characteristicId)) || defaultCharacteristicId != null;
   }
 
   @Override

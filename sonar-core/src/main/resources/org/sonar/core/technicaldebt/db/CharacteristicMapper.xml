@@ -38,6 +38,15 @@
     order by characteristic_order asc
   </select>
 
+  <select id="selectCharacteristicsByParentId" parameterType="map" resultType="Characteristic">
+    select <include refid="characteristicColumns"/>
+    from characteristics c
+    <where>
+      and c.parent_id=#{parent_id}
+      and c.enabled=${_true}
+    </where>
+  </select>
+
   <select id="selectByKey" parameterType="String" resultType="Characteristic">
     select <include refid="characteristicColumns"/>
     from characteristics c
@@ -107,14 +116,7 @@
     parent_id=#{parentId},
     characteristic_order=#{characteristicOrder},
     enabled=#{enabled},
-    updated_at=current_timestamp
-    where id=#{id}
-  </update>
-
-  <update id="disable" parameterType="Integer">
-    update characteristics set
-    enabled=${_false},
-    updated_at=current_timestamp
+    updated_at=#{updatedAt}
     where id=#{id}
   </update>
 

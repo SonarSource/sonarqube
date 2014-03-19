@@ -30,8 +30,6 @@ import java.util.Date;
 
 public class CharacteristicDto implements Serializable {
 
-  public static final Integer DISABLED_CHARACTERISTIC_ID = -1;
-
   private Integer id;
   private String kee;
   private String name;
