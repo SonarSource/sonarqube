@@ -321,24 +321,4 @@ public class RulesDefinitionTest {
     }
   }
 
-  @Test
-  public void not_fail_if_linear_but_no_effort_to_fix_description() {
-    RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
-    newRepository.createRule("NPE").setName("NPE").setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
-      .setDebtCharacteristic("COMPILER")
-      .setDebtRemediationFunction(DebtRemediationFunction.createLinear("1h"));
-    newRepository.done();
-    // A warning log is displayed
-  }
-
-  @Test
-  public void not_fail_if_linear_offset_but_no_effort_to_fix_description() {
-    RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
-    newRepository.createRule("NPE").setName("NPE").setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
-      .setDebtCharacteristic("COMPILER")
-      .setDebtRemediationFunction(DebtRemediationFunction.createLinearWithOffset("1h", "10min"));
-    newRepository.done();
-    // A warning log is displayed
-  }
-
 }

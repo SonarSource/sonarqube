@@ -23,7 +23,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.rule.RuleStatus;
@@ -49,8 +48,6 @@ import java.util.Set;
  * @since 4.3
  */
 public interface RulesDefinition extends ServerExtension {
-
-  static final Logger LOG = LoggerFactory.getLogger(RulesDefinition.class);
 
   /**
    * Instantiated by core but not by plugins
@@ -445,13 +442,6 @@ public interface RulesDefinition extends ServerExtension {
       }
       if ((Strings.isNullOrEmpty(debtCharacteristic) && debtRemediationFunction != null) || (!Strings.isNullOrEmpty(debtCharacteristic) && debtRemediationFunction == null)) {
         throw new IllegalStateException(String.format("Both debt characteristic and debt remediation function should be defined on rule '%s'", this));
-      }
-      if (debtRemediationFunction != null &&
-        (DebtRemediationFunction.Type.LINEAR.equals(debtRemediationFunction.type()) || DebtRemediationFunction.Type.LINEAR_OFFSET.equals(debtRemediationFunction.type())) &&
-        Strings.isNullOrEmpty(effortToFixDescription)) {
-        // Only generate a warning for the moment, but should throw an exception when most of plugin defines rules with Java API instead of XML
-        LOG.warn(String.format("'Rule '%s' should have a description for the remediation function parameter " +
-          "as it's using a 'Linear' or 'Linear with offset' remediation function ", this));
       }
     }
 
