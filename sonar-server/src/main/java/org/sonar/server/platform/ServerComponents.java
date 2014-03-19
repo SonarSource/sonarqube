@@ -103,6 +103,7 @@ import org.sonar.server.platform.ws.RestartHandler;
 import org.sonar.server.plugins.*;
 import org.sonar.server.qualitygate.QgateProjectFinder;
 import org.sonar.server.qualitygate.QualityGates;
+import org.sonar.server.qualitygate.RegisterBuiltinQualityGate;
 import org.sonar.server.qualitygate.ws.QgateAppHandler;
 import org.sonar.server.qualitygate.ws.QualityGatesWs;
 import org.sonar.server.qualityprofile.*;
@@ -397,6 +398,7 @@ class ServerComponents {
     ComponentContainer startupContainer = pico.createChild();
     startupContainer.addSingleton(GwtPublisher.class);
     startupContainer.addSingleton(RegisterMetrics.class);
+    startupContainer.addSingleton(RegisterBuiltinQualityGate.class);
     startupContainer.addSingleton(DeprecatedRulesDefinition.class);
     startupContainer.addSingleton(RuleDefinitionsLoader.class);
     startupContainer.addSingleton(RuleRegistration.class);
@@ -413,14 +415,18 @@ class ServerComponents {
     startupContainer.addSingleton(RegisterServletFilters.class);
     startupContainer.addSingleton(CleanPreviewAnalysisCache.class);
     startupContainer.addSingleton(CopyRequirementsFromCharacteristicsToRules.class);
+
+    DoPrivileged.start();
     startupContainer.startComponents();
 
     startupContainer.getComponentByType(ServerLifecycleNotifier.class).notifyStart();
+    DoPrivileged.stop();
 
     // Do not put the following statements in a finally block.
     // It would hide the possible exception raised during startup
     // See SONAR-3107
     startupContainer.stopComponents();
+
     pico.getComponentByType(DatabaseSessionFactory.class).clear();
   }
 }
