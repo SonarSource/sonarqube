@@ -108,7 +108,7 @@ class ConditionUtils {
         throw new NotImplementedException(metric.getType().toString());
       }
     } catch (NumberFormatException badValueFormat) {
-      throw new IllegalArgumentException(String.format("Unable to parse value '%s' to compare against %s", value, metric.getName()));
+      throw new IllegalArgumentException(String.format("Quality Gate: Unable to parse value '%s' to compare against %s", value, metric.getName()));
     }
     return valueToCompare;
   }

@@ -237,7 +237,7 @@ public class ConditionUtilsTest {
       ConditionUtils.getLevel(condition, measure);
       fail();
     } catch(Exception expected) {
-      assertThat(expected).isInstanceOf(IllegalArgumentException.class).hasMessage("Unable to parse value 'polop' to compare against name");
+      assertThat(expected).isInstanceOf(IllegalArgumentException.class).hasMessage("Quality Gate: Unable to parse value 'polop' to compare against name");
     }
   }
 
@@ -256,7 +256,7 @@ public class ConditionUtilsTest {
       ConditionUtils.getLevel(condition, measure);
       fail();
     } catch(Exception expected) {
-      assertThat(expected).isInstanceOf(IllegalArgumentException.class).hasMessage("Unable to parse value 'polop' to compare against name");
+      assertThat(expected).isInstanceOf(IllegalArgumentException.class).hasMessage("Quality Gate: Unable to parse value 'polop' to compare against name");
     }
   }
 
