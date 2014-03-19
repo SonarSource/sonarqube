@@ -1,0 +1,13 @@
+<dataset>
+
+  <!-- Disabled root characteristic -->
+  <characteristics id="1" kee="PORTABILITY" name="Portability" parent_id="[null]" characteristic_order="1"
+                   enabled="[false]"
+                   created_at="2013-11-20" updated_at="2013-11-22"/>
+
+  <!-- Disabled root characteristic -->
+  <characteristics id="2" kee="DISABLED_ROOT_CHARACTERISTIC" name="Disabled root characteristic" parent_id="[null]" characteristic_order="2"
+                   enabled="[false]"
+                   created_at="2013-11-20" updated_at="2013-11-22"/>
+
+</dataset>

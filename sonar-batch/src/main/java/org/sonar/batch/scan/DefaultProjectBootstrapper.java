@@ -91,7 +91,8 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
    * Array of all mandatory properties required for a project without child.
    */
   private static final String[] MANDATORY_PROPERTIES_FOR_SIMPLE_PROJECT = {
-    PROPERTY_PROJECT_BASEDIR, CoreProperties.PROJECT_KEY_PROPERTY, CoreProperties.PROJECT_NAME_PROPERTY, CoreProperties.PROJECT_VERSION_PROPERTY
+    PROPERTY_PROJECT_BASEDIR, CoreProperties.PROJECT_KEY_PROPERTY, CoreProperties.PROJECT_NAME_PROPERTY,
+    CoreProperties.PROJECT_VERSION_PROPERTY, PROPERTY_SOURCES
   };
 
   /**

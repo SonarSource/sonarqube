@@ -34,6 +34,14 @@ public interface CharacteristicMapper {
 
   CharacteristicDto selectById(int id);
 
+  CharacteristicDto selectByName(String name);
+
+  List<CharacteristicDto> selectNext(int order);
+
+  List<CharacteristicDto> selectPrevious(int order);
+
+  Integer selectMaxCharacteristicOrder();
+
   void insert(CharacteristicDto characteristic);
 
   int update(CharacteristicDto characteristic);

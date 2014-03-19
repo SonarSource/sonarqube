@@ -20,13 +20,15 @@
 
 package org.sonar.batch.qualitygate;
 
-import org.junit.Assert;
+import org.apache.commons.lang.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 
+import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -57,7 +59,7 @@ public class ConditionUtilsTest {
       when(condition.errorThreshold()).thenReturn("20");
       ConditionUtils.getLevel(condition, measure);
     } catch (NumberFormatException ex) {
-      Assert.fail();
+      fail();
     }
 
     try {
@@ -65,7 +67,7 @@ public class ConditionUtilsTest {
       when(condition.errorThreshold()).thenReturn("20.1");
       ConditionUtils.getLevel(condition, measure);
     } catch (NumberFormatException ex) {
-      Assert.fail();
+      fail();
     }
 
     try {
@@ -73,7 +75,7 @@ public class ConditionUtilsTest {
       when(condition.errorThreshold()).thenReturn("20.1");
       ConditionUtils.getLevel(condition, measure);
     } catch (NumberFormatException ex) {
-      Assert.fail();
+      fail();
     }
   }
 
@@ -86,20 +88,20 @@ public class ConditionUtilsTest {
     when(condition.metric()).thenReturn(metric);
 
     when(condition.errorThreshold()).thenReturn("10.2");
-    Assert.assertEquals(Metric.Level.ERROR, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.ERROR);
 
     when(condition.errorThreshold()).thenReturn("10.1");
-    Assert.assertEquals(Metric.Level.OK, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.OK);
 
     metric.setType(Metric.ValueType.STRING);
     measure.setData("TEST");
     measure.setValue(null);
 
     when(condition.errorThreshold()).thenReturn("TEST");
-    Assert.assertEquals(Metric.Level.ERROR, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.ERROR);
 
     when(condition.errorThreshold()).thenReturn("TEST2");
-    Assert.assertEquals(Metric.Level.OK, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.OK);
 
   }
 
@@ -112,20 +114,20 @@ public class ConditionUtilsTest {
     when(condition.metric()).thenReturn(metric);
 
     when(condition.errorThreshold()).thenReturn("10.2");
-    Assert.assertEquals(Metric.Level.OK, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.OK);
 
     when(condition.errorThreshold()).thenReturn("10.1");
-    Assert.assertEquals(Metric.Level.ERROR, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.ERROR);
 
     metric.setType(Metric.ValueType.STRING);
     measure.setData("TEST");
     measure.setValue(null);
 
     when(condition.errorThreshold()).thenReturn("TEST");
-    Assert.assertEquals(Metric.Level.OK, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.OK);
 
     when(condition.errorThreshold()).thenReturn("TEST2");
-    Assert.assertEquals(Metric.Level.ERROR, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.ERROR);
 
   }
 
@@ -137,10 +139,10 @@ public class ConditionUtilsTest {
     when(condition.metric()).thenReturn(metric);
 
     when(condition.errorThreshold()).thenReturn("10.1");
-    Assert.assertEquals(Metric.Level.ERROR, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.ERROR);
 
     when(condition.errorThreshold()).thenReturn("10.3");
-    Assert.assertEquals(Metric.Level.OK, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.OK);
   }
 
   @Test
@@ -151,10 +153,10 @@ public class ConditionUtilsTest {
     when(condition.metric()).thenReturn(metric);
 
     when(condition.errorThreshold()).thenReturn("10.1");
-    Assert.assertEquals(Metric.Level.OK, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.OK);
 
     when(condition.errorThreshold()).thenReturn("10.3");
-    Assert.assertEquals(Metric.Level.ERROR, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.ERROR);
   }
 
   @Test
@@ -165,7 +167,7 @@ public class ConditionUtilsTest {
     when(condition.metric()).thenReturn(metric);
 
     when(condition.errorThreshold()).thenReturn("10.2");
-    Assert.assertEquals(Metric.Level.ERROR, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.ERROR);
   }
 
   @Test
@@ -176,7 +178,7 @@ public class ConditionUtilsTest {
     when(condition.metric()).thenReturn(metric);
 
     when(condition.errorThreshold()).thenReturn("10.2");
-    Assert.assertEquals(Metric.Level.ERROR, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.ERROR);
   }
 
   @Test
@@ -187,10 +189,10 @@ public class ConditionUtilsTest {
     when(condition.metric()).thenReturn(metric);
 
     when(condition.errorThreshold()).thenReturn("10");
-    Assert.assertEquals(Metric.Level.ERROR, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.ERROR);
 
     when(condition.errorThreshold()).thenReturn("10.2");
-    Assert.assertEquals(Metric.Level.ERROR, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.ERROR);
   }
 
   @Test
@@ -201,13 +203,13 @@ public class ConditionUtilsTest {
     when(condition.metric()).thenReturn(metric);
 
     when(condition.errorThreshold()).thenReturn(Metric.Level.ERROR.toString());
-    Assert.assertEquals(Metric.Level.ERROR, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.ERROR);
 
     when(condition.errorThreshold()).thenReturn(Metric.Level.OK.toString());
-    Assert.assertEquals(Metric.Level.OK, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.OK);
 
     when(condition.operator()).thenReturn(QualityGateConditionDto.OPERATOR_NOT_EQUALS);
-    Assert.assertEquals(Metric.Level.ERROR, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.ERROR);
   }
 
   @Test
@@ -218,17 +220,25 @@ public class ConditionUtilsTest {
     when(condition.metric()).thenReturn(metric);
 
     when(condition.errorThreshold()).thenReturn("1");
-    Assert.assertEquals(Metric.Level.OK, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.OK);
 
     when(condition.errorThreshold()).thenReturn("0");
-    Assert.assertEquals(Metric.Level.ERROR, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.ERROR);
 
     when(condition.operator()).thenReturn(QualityGateConditionDto.OPERATOR_NOT_EQUALS);
     when(condition.errorThreshold()).thenReturn("1");
-    Assert.assertEquals(Metric.Level.ERROR, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.ERROR);
 
     when(condition.errorThreshold()).thenReturn("0");
-    Assert.assertEquals(Metric.Level.OK, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.OK);
+
+    when(condition.errorThreshold()).thenReturn("polop");
+    try {
+      ConditionUtils.getLevel(condition, measure);
+      fail();
+    } catch(Exception expected) {
+      assertThat(expected).isInstanceOf(IllegalArgumentException.class).hasMessage("Unable to parse value 'polop' to compare against name");
+    }
   }
 
   @Test
@@ -239,7 +249,15 @@ public class ConditionUtilsTest {
     when(condition.metric()).thenReturn(metric);
 
     when(condition.errorThreshold()).thenReturn("60");
-    Assert.assertEquals(Metric.Level.ERROR, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.ERROR);
+
+    when(condition.errorThreshold()).thenReturn("polop");
+    try {
+      ConditionUtils.getLevel(condition, measure);
+      fail();
+    } catch(Exception expected) {
+      assertThat(expected).isInstanceOf(IllegalArgumentException.class).hasMessage("Unable to parse value 'polop' to compare against name");
+    }
   }
 
   @Test
@@ -250,13 +268,30 @@ public class ConditionUtilsTest {
     when(condition.metric()).thenReturn(metric);
 
     when(condition.errorThreshold()).thenReturn("10.2");
-    Assert.assertEquals(Metric.Level.ERROR, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.ERROR);
 
     when(condition.errorThreshold()).thenReturn("10.1");
-    Assert.assertEquals(Metric.Level.OK, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.OK);
 
     when(condition.errorThreshold()).thenReturn("10.3");
     when(condition.warningThreshold()).thenReturn("10.2");
-    Assert.assertEquals(Metric.Level.WARN, ConditionUtils.getLevel(condition, measure));
+    assertThat(ConditionUtils.getLevel(condition, measure)).isEqualTo(Metric.Level.WARN);
   }
+
+  @Test
+  public void testUnsupportedType() {
+    metric.setType(Metric.ValueType.DATA);
+    measure.setValue(3.14159265358);
+    when(condition.operator()).thenReturn(QualityGateConditionDto.OPERATOR_EQUALS);
+    when(condition.metric()).thenReturn(metric);
+
+    when(condition.errorThreshold()).thenReturn("1.60217657");
+    try {
+      ConditionUtils.getLevel(condition, measure);
+      fail();
+    } catch (Exception expected) {
+      assertThat(expected).isInstanceOf(NotImplementedException.class);
+    }
+  }
+
 }

@@ -139,11 +139,11 @@ public class QualityGates {
   public void delete(long idToDelete) {
     checkPermission(UserSession.get());
     QualityGateDto qGate = getNonNullQgate(idToDelete);
-    if (isDefault(qGate)) {
-      throw new BadRequestException("Impossible to delete default quality gate.");
-    }
     SqlSession session = myBatis.openSession();
     try {
+      if (isDefault(qGate)) {
+        propertiesDao.deleteGlobalProperty(SONAR_QUALITYGATE_PROPERTY, session);
+      }
       propertiesDao.deleteProjectProperties(SONAR_QUALITYGATE_PROPERTY, Long.toString(idToDelete), session);
       dao.delete(qGate, session);
       session.commit();
