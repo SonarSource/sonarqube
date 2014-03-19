@@ -31,6 +31,9 @@ class Characteristic < ActiveRecord::Base
 
   belongs_to :parent, :class_name => 'Characteristic', :foreign_key => 'parent_id'
 
+  # Needed for Views Plugin. Remove it when the plugin will not used it anymore
+  belongs_to :rule
+
   validates_uniqueness_of :name, :scope => [:enabled], :case_sensitive => false, :if => Proc.new { |c| c.enabled }
   validates_length_of :name, :in => 1..NAME_MAX_SIZE, :allow_blank => false
 
