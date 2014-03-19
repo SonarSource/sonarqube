@@ -113,7 +113,7 @@ public class ServerPluginJarsInstallerTest {
   }
 
   @Test
-  public void should_fail_on_plugin_depending_on_more_recent_sonar() {
+  public void fail_if_require_greater_SQ_version() {
     when(server.getVersion()).thenReturn("2.0");
 
     exception.expect(IllegalStateException.class);
