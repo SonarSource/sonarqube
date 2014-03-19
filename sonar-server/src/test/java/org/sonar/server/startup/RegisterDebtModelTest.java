@@ -21,10 +21,8 @@
 package org.sonar.server.startup;
 
 import org.junit.Test;
-import org.sonar.api.utils.ValidationMessages;
 import org.sonar.server.debt.DebtModelSynchronizer;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 public class RegisterDebtModelTest {
@@ -36,6 +34,6 @@ public class RegisterDebtModelTest {
 
     sqaleDefinition.start();
 
-    verify(synchronizer, times(1)).synchronize(any(ValidationMessages.class));
+    verify(synchronizer, times(1)).synchronize();
   }
 }

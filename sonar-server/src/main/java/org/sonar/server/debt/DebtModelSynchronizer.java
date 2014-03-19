@@ -26,9 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
-import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.technicaldebt.DefaultTechnicalDebtModel;
 import org.sonar.core.technicaldebt.TechnicalDebtModelRepository;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
@@ -54,12 +52,12 @@ public class DebtModelSynchronizer implements ServerExtension {
     this.importer = importer;
   }
 
-  public List<CharacteristicDto> synchronize(ValidationMessages messages) {
+  public List<CharacteristicDto> synchronize() {
     SqlSession session = mybatis.openSession();
 
     List<CharacteristicDto> model = newArrayList();
     try {
-      model = synchronize(messages, session);
+      model = synchronize(session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -67,14 +65,13 @@ public class DebtModelSynchronizer implements ServerExtension {
     return model;
   }
 
-  public List<CharacteristicDto> synchronize(ValidationMessages messages, SqlSession session) {
-    DefaultTechnicalDebtModel defaultModel = loadModelFromXml(TechnicalDebtModelRepository.DEFAULT_MODEL, messages);
+  public List<CharacteristicDto> synchronize(SqlSession session) {
+    DebtCharacteristicsXMLImporter.DebtModel defaultModel = loadModelFromXml(TechnicalDebtModelRepository.DEFAULT_MODEL);
     List<CharacteristicDto> model = loadOrCreateModelFromDb(defaultModel, session);
-    messages.log(LOG);
     return model;
   }
 
-  private List<CharacteristicDto> loadOrCreateModelFromDb(DefaultTechnicalDebtModel defaultModel, SqlSession session) {
+  private List<CharacteristicDto> loadOrCreateModelFromDb(DebtCharacteristicsXMLImporter.DebtModel defaultModel, SqlSession session) {
     List<CharacteristicDto> characteristicDtos = loadModel();
     if (characteristicDtos.isEmpty()) {
       return createTechnicalDebtModel(defaultModel, session);
@@ -86,7 +83,7 @@ public class DebtModelSynchronizer implements ServerExtension {
     return dao.selectEnabledCharacteristics();
   }
 
-  private List<CharacteristicDto> createTechnicalDebtModel(DefaultTechnicalDebtModel defaultModel, SqlSession session) {
+  private List<CharacteristicDto> createTechnicalDebtModel(DebtCharacteristicsXMLImporter.DebtModel defaultModel, SqlSession session) {
     List<CharacteristicDto> characteristics = newArrayList();
     for (DefaultCharacteristic rootCharacteristic : defaultModel.rootCharacteristics()) {
       CharacteristicDto rootCharacteristicDto = CharacteristicDto.toDto(rootCharacteristic, null);
@@ -101,11 +98,11 @@ public class DebtModelSynchronizer implements ServerExtension {
     return characteristics;
   }
 
-  public DefaultTechnicalDebtModel loadModelFromXml(String pluginKey, ValidationMessages messages) {
+  public DebtCharacteristicsXMLImporter.DebtModel loadModelFromXml(String pluginKey) {
     Reader xmlFileReader = null;
     try {
       xmlFileReader = languageModelFinder.createReaderForXMLFile(pluginKey);
-      return importer.importXML(xmlFileReader, messages);
+      return importer.importXML(xmlFileReader);
     } finally {
       IOUtils.closeQuietly(xmlFileReader);
     }

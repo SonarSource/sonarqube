@@ -24,12 +24,11 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import org.junit.Test;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
-import org.sonar.api.utils.ValidationMessages;
-import org.sonar.core.technicaldebt.DefaultTechnicalDebtModel;
 
 import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class DebtCharacteristicsXMLImporterTest {
 
@@ -37,8 +36,7 @@ public class DebtCharacteristicsXMLImporterTest {
   public void import_characteristics() {
     String xml = getFileContent("import_characteristics.xml");
 
-    ValidationMessages messages = ValidationMessages.create();
-    DefaultTechnicalDebtModel debtModel = new DebtCharacteristicsXMLImporter().importXML(xml, messages);
+    DebtCharacteristicsXMLImporter.DebtModel debtModel = new DebtCharacteristicsXMLImporter().importXML(xml);
 
     assertThat(debtModel.rootCharacteristics()).hasSize(2);
     assertThat(debtModel.rootCharacteristics().get(0).key()).isEqualTo("PORTABILITY");
@@ -63,24 +61,29 @@ public class DebtCharacteristicsXMLImporterTest {
   public void import_badly_formatted_xml() {
     String xml = getFileContent("import_badly_formatted_xml.xml");
 
-    ValidationMessages messages = ValidationMessages.create();
-    DefaultTechnicalDebtModel debtModel = new DebtCharacteristicsXMLImporter().importXML(xml, messages);
-
-    checkXmlCorrectlyImported(debtModel, messages);
-  }
-
-  private void checkXmlCorrectlyImported(DefaultTechnicalDebtModel sqale, ValidationMessages messages) {
-    assertThat(messages.getErrors()).isEmpty();
+    DebtCharacteristicsXMLImporter.DebtModel debtModel = new DebtCharacteristicsXMLImporter().importXML(xml);
 
     // characteristics
-    assertThat(sqale.rootCharacteristics()).hasSize(2);
-    DefaultCharacteristic efficiency = sqale.characteristicByKey("EFFICIENCY");
+    assertThat(debtModel.rootCharacteristics()).hasSize(2);
+    DefaultCharacteristic efficiency = debtModel.characteristicByKey("EFFICIENCY");
     assertThat(efficiency.name()).isEqualTo("Efficiency");
 
     // sub-characteristics
     assertThat(efficiency.children()).hasSize(1);
-    DefaultCharacteristic memoryEfficiency = sqale.characteristicByKey("MEMORY_EFFICIENCY");
+    DefaultCharacteristic memoryEfficiency = debtModel.characteristicByKey("MEMORY_EFFICIENCY");
     assertThat(memoryEfficiency.name()).isEqualTo("Memory use");
+  }
+
+  @Test
+  public void fail_on_bad_xml() {
+    String xml = getFileContent("fail_on_bad_xml.xml");
+
+    try {
+      new DebtCharacteristicsXMLImporter().importXML(xml);
+      fail();
+    } catch (Exception e){
+      assertThat(e).isInstanceOf(IllegalStateException.class);
+    }
   }
 
   private String getFileContent(String file) {

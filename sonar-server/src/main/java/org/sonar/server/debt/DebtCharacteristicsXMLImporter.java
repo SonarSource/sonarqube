@@ -20,38 +20,40 @@
 
 package org.sonar.server.debt;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
-import org.sonar.api.utils.ValidationMessages;
-import org.sonar.core.technicaldebt.DefaultTechnicalDebtModel;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Collection;
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class DebtCharacteristicsXMLImporter implements ServerExtension {
-
-  private static final Logger LOG = LoggerFactory.getLogger(DebtCharacteristicsXMLImporter.class);
 
   public static final String CHARACTERISTIC = "chc";
   public static final String CHARACTERISTIC_KEY = "key";
   public static final String CHARACTERISTIC_NAME = "name";
 
-  public DefaultTechnicalDebtModel importXML(String xml, ValidationMessages messages) {
-    return importXML(new StringReader(xml), messages);
+  public DebtModel importXML(String xml) {
+    return importXML(new StringReader(xml));
   }
 
-  public DefaultTechnicalDebtModel importXML(Reader xml, ValidationMessages messages) {
-    DefaultTechnicalDebtModel model = new DefaultTechnicalDebtModel();
+  public DebtModel importXML(Reader xml) {
+    DebtModel model = new DebtModel();
     try {
       SMInputFactory inputFactory = initStax();
       SMHierarchicCursor cursor = inputFactory.rootElementCursor(xml);
@@ -61,14 +63,13 @@ public class DebtCharacteristicsXMLImporter implements ServerExtension {
       SMInputCursor chcCursor = cursor.childElementCursor(CHARACTERISTIC);
 
       while (chcCursor.getNext() != null) {
-        processCharacteristic(model, null, chcCursor, messages);
+        processCharacteristic(model, null, chcCursor);
       }
 
       cursor.getStreamReader().closeCompletely();
 
     } catch (XMLStreamException e) {
-      LOG.error("XML is not valid", e);
-      messages.addErrorText("XML is not valid: " + e.getMessage());
+      throw new IllegalStateException("XML is not valid", e);
     }
     return model;
   }
@@ -82,8 +83,8 @@ public class DebtCharacteristicsXMLImporter implements ServerExtension {
     return new SMInputFactory(xmlFactory);
   }
 
-  private DefaultCharacteristic processCharacteristic(DefaultTechnicalDebtModel model, DefaultCharacteristic parent, SMInputCursor chcCursor,
-                                                      ValidationMessages messages) throws XMLStreamException {
+  @CheckForNull
+  private DefaultCharacteristic processCharacteristic(DebtModel model, @Nullable DefaultCharacteristic parent, SMInputCursor chcCursor) throws XMLStreamException {
     DefaultCharacteristic characteristic = new DefaultCharacteristic();
     SMInputCursor cursor = chcCursor.childElementCursor();
     while (cursor.getNext() != null) {
@@ -98,7 +99,7 @@ public class DebtCharacteristicsXMLImporter implements ServerExtension {
 
         // <chc> can contain characteristics or requirements
       } else if (StringUtils.equals(node, CHARACTERISTIC)) {
-        processCharacteristic(model, characteristic, cursor, messages);
+        processCharacteristic(model, characteristic, cursor);
       }
     }
 
@@ -108,6 +109,55 @@ public class DebtCharacteristicsXMLImporter implements ServerExtension {
       return characteristic;
     }
     return null;
+  }
+
+  static class DebtModel {
+
+    private Collection<DefaultCharacteristic> rootCharacteristics;
+
+    public DebtModel() {
+      rootCharacteristics = newArrayList();
+    }
+
+    public DebtModel addRootCharacteristic(DefaultCharacteristic characteristic) {
+      rootCharacteristics.add(characteristic);
+      return this;
+    }
+
+    public List<DefaultCharacteristic> rootCharacteristics() {
+      return newArrayList(Iterables.filter(rootCharacteristics, new Predicate<DefaultCharacteristic>() {
+        @Override
+        public boolean apply(DefaultCharacteristic input) {
+          return input.isRoot();
+        }
+      }));
+    }
+
+    @CheckForNull
+    public DefaultCharacteristic characteristicByKey(final String key) {
+      return Iterables.find(characteristics(), new Predicate<DefaultCharacteristic>() {
+        @Override
+        public boolean apply(DefaultCharacteristic input) {
+          return input.key().equals(key);
+        }
+      }, null);
+    }
+
+    public List<DefaultCharacteristic> characteristics() {
+      List<DefaultCharacteristic> flatCharacteristics = newArrayList();
+      for (DefaultCharacteristic rootCharacteristic : rootCharacteristics) {
+        flatCharacteristics.add(rootCharacteristic);
+        for (DefaultCharacteristic characteristic : rootCharacteristic.children()) {
+          flatCharacteristics.add(characteristic);
+        }
+      }
+      return flatCharacteristics;
+    }
+
+    public boolean isEmpty() {
+      return rootCharacteristics.isEmpty();
+    }
+
   }
 
 }

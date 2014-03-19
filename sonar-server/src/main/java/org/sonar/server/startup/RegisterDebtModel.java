@@ -23,7 +23,6 @@ package org.sonar.server.startup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.TimeProfiler;
-import org.sonar.api.utils.ValidationMessages;
 import org.sonar.server.debt.DebtModelSynchronizer;
 
 public class RegisterDebtModel {
@@ -38,7 +37,7 @@ public class RegisterDebtModel {
 
   public void start() {
     TimeProfiler profiler = new TimeProfiler(LOGGER).start("Register technical debt model");
-    manager.synchronize(ValidationMessages.create());
+    manager.synchronize();
     profiler.stop();
   }
 

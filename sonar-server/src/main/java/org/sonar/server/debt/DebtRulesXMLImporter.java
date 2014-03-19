@@ -81,14 +81,13 @@ public class DebtRulesXMLImporter implements ServerExtension {
       cursor.advance();
       SMInputCursor rootCursor = cursor.childElementCursor(CHARACTERISTIC);
       while (rootCursor.getNext() != null) {
-        processCharacteristic(ruleDebts, null, null, rootCursor);
+        process(ruleDebts, null, null, rootCursor);
       }
 
       cursor.getStreamReader().closeCompletely();
     } catch (XMLStreamException e) {
-      LOG.error("XML is not valid", e);
+      throw new IllegalStateException("XML is not valid", e);
     }
-
     return ruleDebts;
   }
 
@@ -101,7 +100,7 @@ public class DebtRulesXMLImporter implements ServerExtension {
     return new SMInputFactory(xmlFactory);
   }
 
-  private void processCharacteristic(List<RuleDebt> ruleDebts, @Nullable String rootKey, @Nullable String parentKey, SMInputCursor chcCursor) throws XMLStreamException {
+  private void process(List<RuleDebt> ruleDebts, @Nullable String rootKey, @Nullable String parentKey, SMInputCursor chcCursor) throws XMLStreamException {
     String currentCharacteristicKey = null;
     SMInputCursor cursor = chcCursor.childElementCursor();
     while (cursor.getNext() != null) {
@@ -109,7 +108,7 @@ public class DebtRulesXMLImporter implements ServerExtension {
       if (StringUtils.equals(node, CHARACTERISTIC_KEY)) {
         currentCharacteristicKey = cursor.collectDescendantText().trim();
       } else if (StringUtils.equals(node, CHARACTERISTIC)) {
-        processCharacteristic(ruleDebts, parentKey, currentCharacteristicKey, cursor);
+        process(ruleDebts, parentKey, currentCharacteristicKey, cursor);
       } else if (StringUtils.equals(node, REPOSITORY_KEY)) {
         RuleDebt ruleDebt = processRule(cursor);
         if (ruleDebt != null) {

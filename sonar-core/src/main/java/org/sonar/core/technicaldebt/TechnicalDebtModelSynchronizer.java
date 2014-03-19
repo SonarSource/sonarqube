@@ -36,6 +36,10 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+/**
+ * @deprecated since 4.3
+ */
+@Deprecated
 public class TechnicalDebtModelSynchronizer implements ServerExtension {
 
   private static final Logger LOG = LoggerFactory.getLogger(TechnicalDebtModelSynchronizer.class);
@@ -45,8 +49,7 @@ public class TechnicalDebtModelSynchronizer implements ServerExtension {
   private final TechnicalDebtModelRepository languageModelFinder;
   private final TechnicalDebtXMLImporter importer;
 
-  public TechnicalDebtModelSynchronizer(MyBatis mybatis, CharacteristicDao dao,
-                                        TechnicalDebtModelRepository modelRepository, TechnicalDebtXMLImporter importer) {
+  public TechnicalDebtModelSynchronizer(MyBatis mybatis, CharacteristicDao dao, TechnicalDebtModelRepository modelRepository, TechnicalDebtXMLImporter importer) {
     this.mybatis = mybatis;
     this.dao = dao;
     this.languageModelFinder = modelRepository;

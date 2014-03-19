@@ -190,6 +190,18 @@ public class DebtRulesXMLImporterTest {
     }
   }
 
+  @Test
+  public void fail_on_bad_xml() {
+    String xml = getFileContent("fail_on_bad_xml.xml");
+
+    try {
+      new DebtCharacteristicsXMLImporter().importXML(xml);
+      fail();
+    } catch (Exception e){
+      assertThat(e).isInstanceOf(IllegalStateException.class);
+    }
+  }
+
   private String getFileContent(String file) {
     try {
       return Resources.toString(Resources.getResource(DebtRulesXMLImporterTest.class, "DebtRulesXMLImporterTest/" + file), Charsets.UTF_8);

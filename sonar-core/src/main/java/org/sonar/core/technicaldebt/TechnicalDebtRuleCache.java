@@ -31,6 +31,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @deprecated since 4.3
+ */
+@Deprecated
 public class TechnicalDebtRuleCache {
 
   private final RuleFinder ruleFinder;
