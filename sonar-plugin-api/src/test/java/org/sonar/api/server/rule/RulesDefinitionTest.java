@@ -72,7 +72,7 @@ public class RulesDefinitionTest {
       .setStatus(RuleStatus.BETA)
       .setDebtCharacteristic("COMPILER")
       .setDebtRemediationFunction(DebtRemediationFunction.create(DebtRemediationFunction.Type.LINEAR_OFFSET, "1h", "10min"))
-      .setEffortToFixL10nKey("squid.S115.effortToFix")
+      .setEffortToFixDescription("squid.S115.effortToFix")
       .setTags("one", "two")
       .addTags("two", "three", "four");
     newFindbugs.createRule("ABC").setName("ABC").setHtmlDescription("ABC");
@@ -93,7 +93,7 @@ public class RulesDefinitionTest {
     assertThat(npeRule.status()).isEqualTo(RuleStatus.BETA);
     assertThat(npeRule.debtCharacteristic()).isEqualTo("COMPILER");
     assertThat(npeRule.debtRemediationFunction()).isEqualTo(DebtRemediationFunction.create(DebtRemediationFunction.Type.LINEAR_OFFSET, "1h", "10min"));
-    assertThat(npeRule.effortToFixL10nKey()).isEqualTo("squid.S115.effortToFix");
+    assertThat(npeRule.effortToFixDescription()).isEqualTo("squid.S115.effortToFix");
     assertThat(npeRule.toString()).isEqualTo("[repository=findbugs, key=NPE]");
     assertThat(npeRule.repository()).isSameAs(findbugs);
 
@@ -319,6 +319,26 @@ public class RulesDefinitionTest {
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Both debt characteristic and debt remediation function should be defined on rule '[repository=findbugs, key=NPE]'");
     }
+  }
+
+  @Test
+  public void not_fail_if_linear_but_no_effort_to_fix_description() {
+    RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
+    newRepository.createRule("NPE").setName("NPE").setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
+      .setDebtCharacteristic("COMPILER")
+      .setDebtRemediationFunction(DebtRemediationFunction.createLinear("1h"));
+    newRepository.done();
+    // A warning log is displayed
+  }
+
+  @Test
+  public void not_fail_if_linear_offset_but_no_effort_to_fix_description() {
+    RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
+    newRepository.createRule("NPE").setName("NPE").setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
+      .setDebtCharacteristic("COMPILER")
+      .setDebtRemediationFunction(DebtRemediationFunction.createLinearWithOffset("1h", "10min"));
+    newRepository.done();
+    // A warning log is displayed
   }
 
 }

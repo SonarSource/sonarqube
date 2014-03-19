@@ -6,7 +6,7 @@
          remediation_function="LINEAR_OFFSET" default_remediation_function="[null]"
          remediation_factor="5d" default_remediation_factor="[null]"
          remediation_offset="10h" default_remediation_offset="[null]"
-         effort_to_fix_l10n_key="[null]"/>
+         effort_to_fix_description="[null]"/>
 
   <rules id="2" plugin_rule_key="rule2" plugin_name="fake" plugin_config_key="[null]" name="Two" description="Description of Two"
          status="DEPRECATED" priority="0" cardinality="SINGLE" parent_id="[null]" language="java"
@@ -14,6 +14,6 @@
          remediation_function="[null]" default_remediation_function="[null]"
          remediation_factor="[null]" default_remediation_factor="[null]"
          remediation_offset="[null]" default_remediation_offset="[null]"
-         effort_to_fix_l10n_key="[null]"/>
+         effort_to_fix_description="[null]"/>
 
 </dataset>

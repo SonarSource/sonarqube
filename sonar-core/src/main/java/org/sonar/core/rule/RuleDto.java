@@ -57,7 +57,7 @@ public final class RuleDto {
   private String defaultRemediationFactor;
   private String remediationOffset;
   private String defaultRemediationOffset;
-  private String effortToFixL10nKey;
+  private String effortToFixDescription;
   private Date createdAt;
   private Date updatedAt;
 
@@ -287,12 +287,12 @@ public final class RuleDto {
   }
 
   @CheckForNull
-  public String getEffortToFixL10nKey() {
-    return effortToFixL10nKey;
+  public String getEffortToFixDescription() {
+    return effortToFixDescription;
   }
 
-  public RuleDto setEffortToFixL10nKey(@Nullable String effortToFixL10nKey) {
-    this.effortToFixL10nKey = effortToFixL10nKey;
+  public RuleDto setEffortToFixDescription(@Nullable String effortToFixDescription) {
+    this.effortToFixDescription = effortToFixDescription;
     return this;
   }
 

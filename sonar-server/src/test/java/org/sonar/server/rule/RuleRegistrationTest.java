@@ -50,7 +50,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   private static final String[] EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT = {"created_at", "updated_at", "note_data", "note_user_login", "note_created_at", "note_updated_at",
     "characteristic_id", "default_characteristic_id",
     "remediation_function", "default_remediation_function", "remediation_factor", "default_remediation_factor", "remediation_offset", "default_remediation_offset",
-    "effort_to_fix_l10n_key"};
+    "effort_to_fix_description"};
 
   RuleRegistration task;
   ProfilesManager profilesManager = mock(ProfilesManager.class);
@@ -287,7 +287,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
         .setSeverity(Severity.BLOCKER)
         .setDebtCharacteristic("MEMORY_EFFICIENCY")
         .setDebtRemediationFunction(DebtRemediationFunction.createLinearWithOffset("5d", "10h"))
-        .setEffortToFixL10nKey("squid.S115.effortToFix")
+        .setEffortToFixDescription("squid.S115.effortToFix")
         .setInternalKey("config1")
         .setTags("tag1", "tag3", "tag5");
       rule1.createParam("param1").setDescription("parameter one").setDefaultValue("default value one");

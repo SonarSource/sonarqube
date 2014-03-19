@@ -195,7 +195,7 @@ public class RuleRegistration implements Startable {
         .setDefaultRemediationFunction(remediationFunction.type().name())
         .setDefaultRemediationFactor(remediationFunction.factor())
         .setDefaultRemediationOffset(remediationFunction.offset())
-        .setEffortToFixL10nKey(ruleDef.effortToFixL10nKey());
+        .setEffortToFixDescription(ruleDef.effortToFixDescription());
     }
 
     ruleDao.insert(ruleDto, sqlSession);
@@ -274,7 +274,7 @@ public class RuleRegistration implements Startable {
     Integer characteristicId = characteristic != null ? characteristic.getId() : null;
     String remediationFactor = hasCharacteristic ? debtRemediationFunction.factor() : null;
     String remediationOffset = hasCharacteristic ? debtRemediationFunction.offset() : null;
-    String effortToFixL10nKey = hasCharacteristic ? def.effortToFixL10nKey() : null;
+    String effortToFixDescription = hasCharacteristic ? def.effortToFixDescription() : null;
 
     if (!ObjectUtils.equals(dto.getDefaultCharacteristicId(), characteristicId)) {
       dto.setDefaultCharacteristicId(characteristicId);
@@ -293,8 +293,8 @@ public class RuleRegistration implements Startable {
       dto.setDefaultRemediationOffset(remediationOffset);
       changed = true;
     }
-    if (!StringUtils.equals(dto.getEffortToFixL10nKey(), effortToFixL10nKey)) {
-      dto.setEffortToFixL10nKey(effortToFixL10nKey);
+    if (!StringUtils.equals(dto.getEffortToFixDescription(), effortToFixDescription)) {
+      dto.setEffortToFixDescription(effortToFixDescription);
       changed = true;
     }
     return changed;
@@ -420,7 +420,7 @@ public class RuleRegistration implements Startable {
           ruleDto.setDefaultRemediationFunction(parent.getDefaultRemediationFunction());
           ruleDto.setDefaultRemediationFactor(parent.getDefaultRemediationFactor());
           ruleDto.setDefaultRemediationOffset(parent.getDefaultRemediationOffset());
-          ruleDto.setEffortToFixL10nKey(parent.getEffortToFixL10nKey());
+          ruleDto.setEffortToFixDescription(parent.getEffortToFixDescription());
           ruleDto.setUpdatedAt(buffer.now());
           ruleDao.update(ruleDto, sqlSession);
           toBeRemoved = false;

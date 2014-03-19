@@ -8,7 +8,7 @@
          remediation_function="[null]" default_remediation_function="LINEAR_OFFSET"
          remediation_factor="[null]" default_remediation_factor="5d"
          remediation_offset="[null]" default_remediation_offset="10h"
-         effort_to_fix_l10n_key="squid.S115.effortToFix" />
+         effort_to_fix_description="squid.S115.effortToFix" />
 
   <!-- Instance of rule 1 -->
   <rules id="2" plugin_rule_key="template_rule1" plugin_name="fake" plugin_config_key="[null]" name="User rule" description="[null]"
@@ -17,7 +17,7 @@
          remediation_function="[null]" default_remediation_function="LINEAR"
          remediation_factor="[null]" default_remediation_factor="1h"
          remediation_offset="[null]" default_remediation_offset="15min"
-         effort_to_fix_l10n_key="squid.S115.effortToFix2" />
+         effort_to_fix_description="squid.S115.effortToFix2" />
 
   <rules id="3" plugin_rule_key="rule2" plugin_name="fake" plugin_config_key="old_config_key2" name="old name2" description="old description2"
          status="DEPRECATED" priority="1" cardinality="MULTIPLE" parent_id="[null]"
@@ -25,7 +25,7 @@
          remediation_function="[null]" default_remediation_function="[null]"
          remediation_factor="[null]" default_remediation_factor="[null]"
          remediation_offset="[null]" default_remediation_offset="[null]"
-         effort_to_fix_l10n_key="[null]" />
+         effort_to_fix_description="[null]" />
 
   <!-- Instance of rule 3 -->
   <rules id="4" plugin_rule_key="template_rule2" plugin_name="fake" plugin_config_key="[null]" name="User rule" description="[null]"
@@ -34,6 +34,6 @@
          remediation_function="[null]" default_remediation_function="[null]"
          remediation_factor="[null]" default_remediation_factor="[null]"
          remediation_offset="[null]" default_remediation_offset="[null]"
-         effort_to_fix_l10n_key="[null]" />
+         effort_to_fix_description="[null]" />
 
 </dataset>

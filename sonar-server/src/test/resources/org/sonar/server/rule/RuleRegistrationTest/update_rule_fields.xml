@@ -8,7 +8,7 @@
          remediation_function="[null]" default_remediation_function="LINEAR"
          remediation_factor="[null]" default_remediation_factor="14min"
          remediation_offset="[null]" default_remediation_offset="[null]"
-         effort_to_fix_l10n_key="[null]"/>
+         effort_to_fix_description="[null]"/>
 
   <rules_parameters id="1" rule_id="1" name="param1" description="[null]" param_type="STRING"/>
 

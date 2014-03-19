@@ -66,7 +66,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getDefaultRemediationFactor()).isEqualTo("5d");
     assertThat(ruleDto.getRemediationOffset()).isEqualTo("5min");
     assertThat(ruleDto.getDefaultRemediationOffset()).isEqualTo("10h");
-    assertThat(ruleDto.getEffortToFixL10nKey()).isEqualTo("squid.S115.effortToFix");
+    assertThat(ruleDto.getEffortToFixDescription()).isEqualTo("squid.S115.effortToFix");
   }
 
   @Test
@@ -90,7 +90,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getDefaultRemediationFactor()).isEqualTo("5d");
     assertThat(ruleDto.getRemediationOffset()).isEqualTo("5min");
     assertThat(ruleDto.getDefaultRemediationOffset()).isEqualTo("10h");
-    assertThat(ruleDto.getEffortToFixL10nKey()).isEqualTo("squid.S115.effortToFix");
+    assertThat(ruleDto.getEffortToFixDescription()).isEqualTo("squid.S115.effortToFix");
   }
 
   @Test
@@ -181,7 +181,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDefaultRemediationFactor("5d")
       .setRemediationOffset("5min")
       .setDefaultRemediationOffset("10h")
-      .setEffortToFixL10nKey("squid.S115.effortToFix")
+      .setEffortToFixDescription("squid.S115.effortToFix")
       .setUpdatedAt(DateUtils.parseDate("2013-12-17"));
 
     dao.update(ruleToUpdate);
@@ -213,7 +213,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDefaultRemediationFactor("5d")
       .setRemediationOffset("5min")
       .setDefaultRemediationOffset("10h")
-      .setEffortToFixL10nKey("squid.S115.effortToFix")
+      .setEffortToFixDescription("squid.S115.effortToFix")
       .setCreatedAt(DateUtils.parseDate("2013-12-16"))
       .setUpdatedAt(DateUtils.parseDate("2013-12-17"));
 
@@ -246,7 +246,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDefaultRemediationFactor("5d")
       .setRemediationOffset("5min")
       .setDefaultRemediationOffset("10h")
-      .setEffortToFixL10nKey("squid.S115.effortToFix")
+      .setEffortToFixDescription("squid.S115.effortToFix")
       .setCreatedAt(DateUtils.parseDate("2013-12-16"))
       .setUpdatedAt(DateUtils.parseDate("2013-12-17"));
 
@@ -270,7 +270,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDefaultRemediationFactor("1h")
       .setRemediationOffset("10h")
       .setDefaultRemediationOffset("5min")
-      .setEffortToFixL10nKey("squid.S115.effortToFix2")
+      .setEffortToFixDescription("squid.S115.effortToFix2")
       .setCreatedAt(DateUtils.parseDate("2013-12-14"))
       .setUpdatedAt(DateUtils.parseDate("2013-12-15"));
 
