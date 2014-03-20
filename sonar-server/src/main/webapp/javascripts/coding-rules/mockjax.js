@@ -85,7 +85,7 @@
           'coding_rules.extend_description': 'Extend Description',
           'coding_rules.deactivate_quality_profile': 'Deactivate',
           'coding_rules.found': 'Found',
-          'coding_rules.inherits': 'Inherits',
+          'coding_rules._inherits': 'inherits',
           'coding_rules.key': 'Key:',
           'coding_rules.new_search': 'New Search',
           'coding_rules.no_results': 'No Coding Rules',

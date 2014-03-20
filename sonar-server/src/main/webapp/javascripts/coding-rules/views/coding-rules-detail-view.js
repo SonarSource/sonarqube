@@ -55,7 +55,7 @@
         this.qualityProfilesRegion.show(this.qualityProfilesView);
         this.ui.tagInput.select2({
           tags: _.difference(this.options.app.tags, this.model.get('tags')),
-          width: '500px'
+          width: '300px'
         });
         this.ui.tagsEdit.hide();
         this.ui.extendDescriptionForm.hide();

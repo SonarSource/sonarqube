@@ -1,11 +1,12 @@
 <script id="coding-rules-detail-quality-profile-template" type="text/x-handlebars-template">
-  <div class="coding-rules-detail-quality-profile-name">{{name}}</div>
-
-  {{#if parent}}
-    <div class="coding-rules-detail-quality-profile-inheritance">
-      <i class="icon-inheritance"></i> {{t 'coding_rules.inherits'}} <strong>{{parent.name}}</strong>
-    </div>
-  {{/if}}
+  <div class="coding-rules-detail-quality-profile-name">
+    {{name}}
+    {{#if parent}}
+      <span class="coding-rules-detail-quality-profile-inheritance">
+        <i class="icon-inheritance"></i> {{parent.name}}
+      </span>
+    {{/if}}
+  </div>
 
   <ul class="coding-rules-detail-parameters coding-rules-detail-quality-profile-parameters">
     <li class="coding-rules-detail-parameter">
@@ -18,7 +19,9 @@
         </select>
         {{#if parent}}
           {{#notEq severity parent.severity}}
-            {{t 'coding_rules.original'}} {{severityIcon parent.severity}}{{t 'severity' parent.severity}}
+            <span class="coding-rules-detail-parameter-original">
+              {{t 'coding_rules.original'}} {{severityIcon parent.severity}}{{t 'severity' parent.severity}}
+            </span>
           {{/notEq}}
         {{/if}}
       </div>
@@ -30,7 +33,9 @@
           <input type="text" value="{{value}}">
           {{#if ../parent}}
             {{#notEq value original}}
-              {{t 'coding_rules.original'}} {{original}}
+              <span class="coding-rules-detail-parameter-original">
+                {{t 'coding_rules.original'}} {{original}}
+              </span>
             {{/notEq}}
           {{/if}}
         </div>
@@ -38,8 +43,19 @@
     {{/each}}
   </ul>
 
-  <div class="coding-rules-detail-quality-profile-note">
-    {{#if note}}
+  <div class="button-group coding-rules-detail-quality-profile-actions">
+    <button class="coding-rules-detail-quality-profile-update" disabled>{{t 'update'}}</button>
+    {{#unless note}}
+      <button class="coding-rules-detail-quality-profile-note-add">{{t 'coding_rules.add_note'}}</button>
+    {{/unless}}
+    {{#if parent}}
+      <button class="button-red">{{t 'coding_rules.revert_to_parent_definition'}}</button>
+    {{/if}}
+    <button class="button-red">{{t 'coding_rules.deactivate_quality_profile'}}</button>
+  </div>
+
+  {{#if note}}
+    <div class="coding-rules-detail-quality-profile-note">
       <blockquote class="rule-desc">
         <cite>
           <b>{{note.username}}</b> ({{note.fCreationDate}}) &nbsp;|&nbsp;
@@ -48,10 +64,8 @@
         </cite>
         {{{note.html}}}
       </blockquote>
-    {{else}}
-      <a class="coding-rules-detail-quality-profile-note-add link-action">{{t 'coding_rules.add_note'}}</a>
-    {{/if}}
-  </div>
+    </div>
+  {{/if}}
 
   <div class="coding-rules-detail-quality-profile-note-form admin">
     <table class="width100 table">
@@ -74,13 +88,5 @@
       </tr>
       </tbody>
     </table>
-  </div>
-
-  <div class="button-group coding-rules-detail-quality-profile-actions">
-    <button>{{t 'update'}}</button>
-    {{#if parent}}
-      <button class="button-red">{{t 'coding_rules.revert_to_parent_definition'}}</button>
-    {{/if}}
-    <button class="button-red">{{t 'coding_rules.deactivate_quality_profile'}}</button>
   </div>
 </script>

@@ -18,6 +18,7 @@
       CodingRulesDetailQualityProfilesView.prototype.template = getTemplate('#coding-rules-detail-quality-profile-template');
 
       CodingRulesDetailQualityProfilesView.prototype.ui = {
+        update: '.coding-rules-detail-quality-profile-update',
         severitySelect: '.coding-rules-detail-quality-profile-severity',
         note: '.coding-rules-detail-quality-profile-note',
         noteForm: '.coding-rules-detail-quality-profile-note-form',
@@ -34,7 +35,9 @@
         'click @ui.noteEdit': 'editNote',
         'click @ui.noteDelete': 'deleteNote',
         'click @ui.noteCancel': 'cancelNote',
-        'click @ui.noteSubmit': 'submitNote'
+        'click @ui.noteSubmit': 'submitNote',
+        'change .coding-rules-detail-parameters select': 'enableUpdate',
+        'keyup .coding-rules-detail-parameters input': 'enableUpdate'
       };
 
       CodingRulesDetailQualityProfilesView.prototype.editNote = function() {
@@ -72,6 +75,10 @@
           _this.model.set('note', r.note);
           return _this.render();
         });
+      };
+
+      CodingRulesDetailQualityProfilesView.prototype.enableUpdate = function() {
+        return this.ui.update.prop('disabled', false);
       };
 
       CodingRulesDetailQualityProfilesView.prototype.onRender = function() {

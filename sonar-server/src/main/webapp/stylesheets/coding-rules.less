@@ -24,20 +24,14 @@
   font-weight: bold;
 }
 
+.coding-rules-detail-header {
+  font-size: 18px;
+}
+
 .coding-rules-detail-title {
   display: inline-block;
+  margin-top: 3 * @navigatorPadding;
   text-transform: uppercase;
-}
-
-.coding-rules-detail-status {
-  padding: 3px 4px;
-  background-color: @navigatorBarBackground;
-  color: #777;
-  font-size: @smallFontSize;
-}
-
-.coding-rules-detail-key {
-
 }
 
 .coding-rules-detail-properties {
@@ -82,10 +76,10 @@
 
 .coding-rules-detail-parameter-name {
   display: inline-block;
-  visibility: top;
+  vertical-align: top;
   width: 150px;
   font-size: @baseFontSize;
-  font-weight: bold;
+  font-weight: normal;
   text-align: right;
 }
 
@@ -94,6 +88,11 @@
   vertical-align: top;
   margin-left: 2 * @navigatorPadding;
   font-size: @baseFontSize;
+}
+
+.coding-rules-detail-parameter-original {
+  margin-left: @navigatorPadding;
+  font-size: @smallFontSize;
 }
 
 
@@ -107,10 +106,9 @@
 }
 
 .coding-rules-detail-quality-profile {
-  border: 1px solid transparent;
+  margin-left: 2 * @navigatorPadding;
 
   &.active {
-    border-color: @highlighted;
 
     .coding-rules-detail-quality-profile-name {
       background-color: @highlighted;
@@ -121,12 +119,11 @@
 
 .coding-rules-detail-quality-profile + .coding-rules-detail-quality-profile {
   margin-top: 2 * @navigatorPadding;
+  padding-top: 2 * @navigatorPadding;
+  border-top: 1px solid @navigatorBorderLightColor;
 }
 
 .coding-rules-detail-quality-profile-name {
-  padding: @navigatorPadding / 2;
-  background-color: @navigatorBarBackground;
-  line-height: 1;
   font-weight: bold;
 }
 
@@ -148,14 +145,21 @@
 }
 
 .coding-rules-detail-quality-profile-inheritance {
-  margin: @navigatorPadding 0;
-  padding: 0 @navigatorPadding / 2;
+  vertical-align: middle;
+  margin-left: @navigatorPadding;
+  font-size: @smallFontSize;
+  font-weight: normal;
 
+  i {
+    position: relative;
+    top: -1px;
+    font-size: @iconSmallFontSize;
+  }
   strong { font-weight: bold; }
 }
 
 .coding-rules-detail-quality-profile-note {
-  margin: @navigatorPadding 0;
+  margin: @navigatorPadding * 2 0;
   padding: 0 @navigatorPadding / 2;
 }
 

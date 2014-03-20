@@ -11,6 +11,7 @@ define [
 
 
     ui:
+      update: '.coding-rules-detail-quality-profile-update'
       severitySelect: '.coding-rules-detail-quality-profile-severity'
 
       note: '.coding-rules-detail-quality-profile-note'
@@ -29,6 +30,9 @@ define [
       'click @ui.noteDelete': 'deleteNote'
       'click @ui.noteCancel': 'cancelNote'
       'click @ui.noteSubmit': 'submitNote'
+
+      'change .coding-rules-detail-parameters select': 'enableUpdate'
+      'keyup .coding-rules-detail-parameters input': 'enableUpdate'
 
 
     editNote: ->
@@ -60,6 +64,10 @@ define [
       .done (r) =>
         @model.set 'note', r.note
         @render()
+
+
+    enableUpdate: ->
+      @ui.update.prop 'disabled', false
 
 
     onRender: ->

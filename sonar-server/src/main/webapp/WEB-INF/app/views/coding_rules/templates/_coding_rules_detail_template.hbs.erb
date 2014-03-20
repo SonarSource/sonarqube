@@ -3,13 +3,9 @@
 
   <ul class="coding-rules-detail-properties">
     <li class="coding-rules-detail-property">{{severityIcon severity}} {{t "severity" severity}}</li>
-    <li class="coding-rules-detail-property">
-      <span class="coding-rules-detail-status">{{language}}</span>
-    </li>
+    <li class="coding-rules-detail-property">{{language}}</li>
     {{#notEq status 'READY'}}
-      <li class="coding-rules-detail-property">
-        <span class="coding-rules-detail-status">{{status}}</span>
-      </li>
+      <li class="coding-rules-detail-property">{{status}}</li>
     {{/notEq}}
     <li class="coding-rules-detail-property coding-rules-detail-tag-list">
       <i class="icon-tags"></i>

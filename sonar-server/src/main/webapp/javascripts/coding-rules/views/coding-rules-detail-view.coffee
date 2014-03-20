@@ -56,7 +56,7 @@ define [
 
       @ui.tagInput.select2
         tags: _.difference @options.app.tags, @model.get 'tags'
-        width: '500px'
+        width: '300px'
       @ui.tagsEdit.hide()
 
       @ui.extendDescriptionForm.hide()
