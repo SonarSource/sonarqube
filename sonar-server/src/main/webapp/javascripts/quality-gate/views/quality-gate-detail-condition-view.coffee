@@ -108,7 +108,12 @@ define [
 
     serializeData: ->
       period = _.findWhere(@options.app.periods, key: this.model.get('period'))
-      _.extend super,
+      data = _.extend super,
         canEdit: @options.app.canEdit
         periods: @options.app.periods
         periodText: period?.text
+      unless @options.app.canEdit
+        _.extend data,
+          warning: jQuery('<input>').data('type', @model.get('metric').type).val(@model.get('warning')).val()
+          error: jQuery('<input>').data('type', @model.get('metric').type).val(@model.get('error')).originalVal()
+      data

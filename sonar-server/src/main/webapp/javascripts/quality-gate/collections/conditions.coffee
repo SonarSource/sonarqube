@@ -8,3 +8,4 @@ define [
 
   class Conditions extends Backbone.Collection
     model: Condition
+    comparator: 'metric'

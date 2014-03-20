@@ -15,6 +15,8 @@
 
       Conditions.prototype.model = Condition;
 
+      Conditions.prototype.comparator = 'metric';
+
       return Conditions;
 
     })(Backbone.Collection);
