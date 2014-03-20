@@ -210,5 +210,5 @@ module.exports = (grunt) ->
 
 
   # Define tasks
-  grunt.registerTask 'build', ['less:dev', 'coffee:dev', 'uglify:dev', 'handlebars:dev']
+  grunt.registerTask 'dev', ['less:dev', 'coffee:build', 'uglify:dev', 'handlebars:build']
   grunt.registerTask 'default', ['less:build', 'coffee:build', 'uglify:build', 'handlebars:build', 'requirejs']
