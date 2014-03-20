@@ -60,9 +60,9 @@ public class DebtModelLookupTest {
   }
 
   @Test
-  public void find_characteristics() {
+  public void find_all_characteristics() {
     when(dao.selectEnabledCharacteristics()).thenReturn(newArrayList(characteristicDto));
-    assertThat(service.characteristics()).hasSize(1);
+    assertThat(service.allCharacteristics()).hasSize(1);
   }
 
   @Test

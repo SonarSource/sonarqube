@@ -48,14 +48,14 @@ public class DebtModelServiceTest {
 
   @Test
   public void find_root_characteristics() {
-    service.rootCharacteristics();
+    service.characteristics();
     verify(debtModelLookup).rootCharacteristics();
   }
 
   @Test
-  public void find_characteristics() {
-    service.characteristics();
-    verify(debtModelLookup).characteristics();
+  public void find_all_characteristics() {
+    service.allCharacteristics();
+    verify(debtModelLookup).allCharacteristics();
   }
 
   @Test

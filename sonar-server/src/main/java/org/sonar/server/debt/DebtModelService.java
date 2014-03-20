@@ -44,12 +44,12 @@ public class DebtModelService implements DebtModel {
     this.debtModelRestore = debtModelRestore;
   }
 
-  public List<DebtCharacteristic> rootCharacteristics() {
+  public List<DebtCharacteristic> characteristics() {
     return debtModelLookup.rootCharacteristics();
   }
 
-  public List<DebtCharacteristic> characteristics() {
-    return debtModelLookup.characteristics();
+  public List<DebtCharacteristic> allCharacteristics() {
+    return debtModelLookup.allCharacteristics();
   }
 
   @CheckForNull

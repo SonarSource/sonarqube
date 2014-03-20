@@ -47,7 +47,7 @@ public class DebtModelLookup implements ServerComponent {
     return toCharacteristics(dao.selectEnabledRootCharacteristics());
   }
 
-  public List<DebtCharacteristic> characteristics() {
+  public List<DebtCharacteristic> allCharacteristics() {
     return toCharacteristics(dao.selectEnabledCharacteristics());
   }
 

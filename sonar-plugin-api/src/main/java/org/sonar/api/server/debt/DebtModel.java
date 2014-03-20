@@ -29,9 +29,15 @@ import java.util.List;
  */
 public interface DebtModel extends ServerComponent {
 
-  List<DebtCharacteristic> characteristics();
+  /**
+   * @return all characteristics
+   */
+  List<DebtCharacteristic> allCharacteristics();
 
-  List<DebtCharacteristic> rootCharacteristics();
+  /**
+   * @return only characteristics of highest level
+   */
+  List<DebtCharacteristic> characteristics();
 
   DebtCharacteristic characteristicById(int id);
 

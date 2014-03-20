@@ -20,6 +20,8 @@
 
 package org.sonar.api.server.debt.internal;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.server.debt.DebtCharacteristic;
 
 import javax.annotation.CheckForNull;
@@ -107,6 +109,11 @@ public class DefaultDebtCharacteristic implements DebtCharacteristic {
   public DefaultDebtCharacteristic setUpdatedAt(@Nullable Date updatedAt) {
     this.updatedAt = updatedAt;
     return this;
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
 }

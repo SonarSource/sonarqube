@@ -108,7 +108,7 @@ public class DebtModelOperationsTest {
     }).when(dao).insert(any(CharacteristicDto.class), any(SqlSession.class));
 
     when(mybatis.openSession()).thenReturn(session);
-    service = new DebtModelOperations(mybatis, dao, ruleDao,system2);
+    service = new DebtModelOperations(mybatis, dao, ruleDao, system2);
   }
 
   @Test
@@ -234,8 +234,11 @@ public class DebtModelOperationsTest {
 
   @Test
   public void move_up() {
-    when(dao.selectById(10, session)).thenReturn(new CharacteristicDto().setId(10).setOrder(2));
-    when(dao.selectPrevious(2, session)).thenReturn(new CharacteristicDto().setId(2).setOrder(1));
+    when(dao.selectById(10, session)).thenReturn(new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(2));
+    when(dao.selectEnabledRootCharacteristics(session)).thenReturn(newArrayList(
+      new CharacteristicDto().setId(2).setKey("PORTABILITY").setOrder(1),
+      new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(2)
+    ));
 
     DebtCharacteristic result = service.moveUp(10);
 
@@ -251,9 +254,11 @@ public class DebtModelOperationsTest {
 
   @Test
   public void do_nothing_when_move_up_and_already_on_top() {
-    CharacteristicDto dto = new CharacteristicDto().setId(10).setOrder(1);
-    when(dao.selectById(10, session)).thenReturn(dto);
-    when(dao.selectPrevious(1, session)).thenReturn(null);
+    when(dao.selectById(10, session)).thenReturn(new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(1));
+    when(dao.selectEnabledRootCharacteristics(session)).thenReturn(newArrayList(
+      new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(1),
+      new CharacteristicDto().setId(2).setKey("PORTABILITY").setOrder(2)
+    ));
 
     service.moveUp(10);
 
@@ -262,8 +267,11 @@ public class DebtModelOperationsTest {
 
   @Test
   public void move_down() {
-    when(dao.selectById(10, session)).thenReturn(new CharacteristicDto().setId(10).setOrder(2));
-    when(dao.selectNext(2, session)).thenReturn(new CharacteristicDto().setId(2).setOrder(3));
+    when(dao.selectById(10, session)).thenReturn(new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(2));
+    when(dao.selectEnabledRootCharacteristics(session)).thenReturn(newArrayList(
+      new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(2),
+      new CharacteristicDto().setId(2).setKey("PORTABILITY").setOrder(3)
+    ));
 
     DebtCharacteristic result = service.moveDown(10);
 
@@ -279,9 +287,11 @@ public class DebtModelOperationsTest {
 
   @Test
   public void do_nothing_when_move_down_and_already_on_bottom() {
-    CharacteristicDto dto = new CharacteristicDto().setId(10).setOrder(5);
-    when(dao.selectById(10, session)).thenReturn(dto);
-    when(dao.selectNext(5, session)).thenReturn(null);
+    when(dao.selectById(10, session)).thenReturn(new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(2));
+    when(dao.selectEnabledRootCharacteristics(session)).thenReturn(newArrayList(
+      new CharacteristicDto().setId(2).setKey("PORTABILITY").setOrder(1),
+      new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(2)
+    ));
 
     service.moveDown(10);
 

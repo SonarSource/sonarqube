@@ -21,6 +21,8 @@
 package org.sonar.server.debt;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.server.debt.DebtCharacteristic;
@@ -126,14 +128,25 @@ public class DebtModelOperations implements ServerComponent {
 
     SqlSession session = mybatis.openSession();
     try {
-      CharacteristicDto dto = findCharacteristic(characteristicId, session);
+      final CharacteristicDto dto = findCharacteristic(characteristicId, session);
       int currentOrder = dto.getOrder();
-      CharacteristicDto dtoToSwitchOrderWith = moveUpOrDown ? dao.selectPrevious(currentOrder, session) : dao.selectNext(currentOrder, session);
 
-      // Do nothing when characteristic is already to the new location
-      if (dtoToSwitchOrderWith == null) {
+      // characteristics should be order by 'order'
+      List<CharacteristicDto> rootCharacteristics = dao.selectEnabledRootCharacteristics(session);
+      int currentPosition = Iterables.indexOf(rootCharacteristics, new Predicate<CharacteristicDto>() {
+        @Override
+        public boolean apply(CharacteristicDto input) {
+          return input.getKey().equals(dto.getKey());
+        }
+      });
+      Integer nextMove = moveUpOrDown ? (currentPosition > 0 ? currentPosition - 1 : null) : (currentPosition < rootCharacteristics.size()-1 ? currentPosition + 1 : null);
+
+      // Do nothing when characteristic is already to the good location
+      if (nextMove == null) {
         return toCharacteristic(dto);
       }
+
+      CharacteristicDto dtoToSwitchOrderWith = Iterables.get(rootCharacteristics, nextMove);
       int nextOrder = dtoToSwitchOrderWith.getOrder();
       dtoToSwitchOrderWith.setOrder(currentOrder);
       dtoToSwitchOrderWith.setUpdatedAt(new Date(system2.now()));
