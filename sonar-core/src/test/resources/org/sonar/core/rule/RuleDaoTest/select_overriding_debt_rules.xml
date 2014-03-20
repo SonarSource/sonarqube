@@ -1,28 +1,28 @@
 <dataset>
 
-  <!-- Rule overriding debt and with default debt should be returned -->
+  <!-- Rule overriding debt and with default debt -->
   <rules id="1" plugin_rule_key="UselessImportCheck" plugin_name="squid" name="UselessImportCheck" description="Useless imports should be removed" status="READY"
          characteristic_id="2" default_characteristic_id="50"
          remediation_function="LINEAR_OFFSET" default_remediation_function="LINEAR_OFFSET"
          remediation_factor="5d" default_remediation_factor="5d"
          remediation_offset="10h" default_remediation_offset="10h" updated_at="2014-02-19"/>
 
-  <!-- Rule only overriding debt should be returned -->
+  <!-- Rule only overriding debt -->
   <rules id="2" plugin_rule_key="LeftCurlyBraceStartLineCheck" plugin_name="squid" name="LeftCurlyBraceStartLineCheck" description="Left curly braces should be located at the beginning of lines of code" status="READY"
          characteristic_id="3" default_characteristic_id="[null]"
          remediation_function="LINEAR_OFFSET" default_remediation_function="[null]"
          remediation_factor="5d" default_remediation_factor="[null]"
          remediation_offset="10h" default_remediation_offset="[null]" updated_at="2014-02-19"/>
 
-  <!-- Rule with only default debt should be returned -->
+  <!-- Rule with only default debt : never been returned -->
   <rules id="3" plugin_rule_key="CallToFileDeleteOnExitMethod" plugin_name="squid" name="CallToFileDeleteOnExitMethod" description="CallToFileDeleteOnExitMethod" status="READY"
          characteristic_id="[null]" default_characteristic_id="50"
          remediation_function="[null]" default_remediation_function="LINEAR_OFFSET"
          remediation_factor="[null]" default_remediation_factor="5d"
          remediation_offset="[null]" default_remediation_offset="10h" updated_at="2014-02-19"/>
 
-  <!-- Removed rule overriding debt : should be returned -->
-  <rules id="4" plugin_rule_key="ObjectFinalizeOverridenCallsSuperFinalizeCheck" plugin_name="squid" name="ObjectFinalizeOverridenCallsSuperFinalizeCheck" description="super.finalize() should be called at the end of Object.finalize() implementations" status="REMOVED"
+  <!-- Removed rule overriding debt -->
+  <rules id="4" plugin_rule_key="ObjectFinalizeOverridenCallsSuperFinalizeCheck" plugin_name="java" name="ObjectFinalizeOverridenCallsSuperFinalizeCheck" description="super.finalize() should be called at the end of Object.finalize() implementations" status="REMOVED"
          characteristic_id="3" default_characteristic_id="50"
          remediation_function="LINEAR" default_remediation_function="LINEAR_OFFSET"
          remediation_factor="5d" default_remediation_factor="5min"

@@ -20,6 +20,7 @@
 package org.sonar.server.debt;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.apache.commons.io.IOUtils;
@@ -35,14 +36,19 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.technicaldebt.TechnicalDebtModelRepository;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
+import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.Reader;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class DebtModelRestore implements ServerComponent {
 
@@ -51,31 +57,44 @@ public class DebtModelRestore implements ServerComponent {
   private final RuleDao ruleDao;
   private final DebtModelOperations debtModelOperations;
   private final TechnicalDebtModelRepository debtModelPluginRepository;
+  private final RuleRepositories ruleRepositories;
   private final DebtCharacteristicsXMLImporter importer;
   private final System2 system2;
 
   public DebtModelRestore(MyBatis mybatis, CharacteristicDao dao, RuleDao ruleDao, DebtModelOperations debtModelOperations, TechnicalDebtModelRepository debtModelPluginRepository,
-                          DebtCharacteristicsXMLImporter importer) {
-    this(mybatis, dao, ruleDao, debtModelOperations, debtModelPluginRepository, importer, System2.INSTANCE);
+                          RuleRepositories ruleRepositories, DebtCharacteristicsXMLImporter importer) {
+    this(mybatis, dao, ruleDao, debtModelOperations, debtModelPluginRepository, ruleRepositories, importer, System2.INSTANCE);
   }
 
   @VisibleForTesting
   DebtModelRestore(MyBatis mybatis, CharacteristicDao dao, RuleDao ruleDao, DebtModelOperations debtModelOperations, TechnicalDebtModelRepository debtModelPluginRepository,
-                   DebtCharacteristicsXMLImporter importer,
+                   RuleRepositories ruleRepositories, DebtCharacteristicsXMLImporter importer,
                    System2 system2) {
     this.mybatis = mybatis;
     this.dao = dao;
     this.ruleDao = ruleDao;
     this.debtModelOperations = debtModelOperations;
     this.debtModelPluginRepository = debtModelPluginRepository;
+    this.ruleRepositories = ruleRepositories;
     this.importer = importer;
     this.system2 = system2;
   }
 
   /**
-   * Restore model from all provided plugins
+   * Restore from provided model
    */
-  public void restoreFromProvidedModel() {
+  public void restore() {
+    restore(Collections.<RuleRepositories.Repository>emptyList());
+  }
+
+  /**
+   * Restore from plugins providing rules for a given language
+   */
+  public void restore(String languageKey) {
+    restore(ruleRepositories.repositoriesForLang(languageKey));
+  }
+
+  private void restore(Collection<RuleRepositories.Repository> repositories) {
     checkPermission();
 
     Date updateDate = new Date(system2.now());
@@ -84,7 +103,7 @@ public class DebtModelRestore implements ServerComponent {
       List<CharacteristicDto> persisted = dao.selectEnabledCharacteristics();
       DebtModel providedModel = loadModelFromXml(TechnicalDebtModelRepository.DEFAULT_MODEL);
       restoreCharacteristics(providedModel, persisted, updateDate, session);
-      resetOverridingRuleDebt(updateDate, session);
+      resetOverridingRuleDebt(repositories, updateDate, session);
 
       session.commit();
     } finally {
@@ -92,8 +111,14 @@ public class DebtModelRestore implements ServerComponent {
     }
   }
 
-  private void resetOverridingRuleDebt(Date updateDate, SqlSession session) {
-    for (RuleDto rule : ruleDao.selectOverridingDebt(session)) {
+  private void resetOverridingRuleDebt(Collection<RuleRepositories.Repository> repositories, Date updateDate, SqlSession session) {
+    List<String> repositoryKeys = newArrayList(Iterables.transform(repositories, new Function<RuleRepositories.Repository, String>() {
+      @Override
+      public String apply(RuleRepositories.Repository input) {
+        return input.getKey();
+      }
+    }));
+    for (RuleDto rule : ruleDao.selectOverridingDebt(repositoryKeys, session)) {
       rule.setCharacteristicId(null);
       rule.setRemediationFunction(null);
       rule.setRemediationFactor(null);
@@ -121,7 +146,7 @@ public class DebtModelRestore implements ServerComponent {
     }
   }
 
-  private CharacteristicDto restoreCharacteristic(DebtCharacteristic targetCharacteristic, @Nullable Integer parentId,  List<CharacteristicDto> sourceCharacteristics,
+  private CharacteristicDto restoreCharacteristic(DebtCharacteristic targetCharacteristic, @Nullable Integer parentId, List<CharacteristicDto> sourceCharacteristics,
                                                   Date updateDate, SqlSession session) {
     CharacteristicDto sourceCharacteristic = dtoByKey(sourceCharacteristics, targetCharacteristic.key());
     if (sourceCharacteristic == null) {

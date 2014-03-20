@@ -69,6 +69,12 @@
     SELECT <include refid="selectColumns"/> FROM rules
     <where>
       AND (characteristic_id is NOT NULL or remediation_function IS NOT NULL)
+      <if test="repositories.size()>0">
+        AND
+        <foreach item="repo" index="index" collection="repositories" open="(" separator=" or " close=")">
+          plugin_name=#{repo}
+        </foreach>
+      </if>
     </where>
   </select>
 

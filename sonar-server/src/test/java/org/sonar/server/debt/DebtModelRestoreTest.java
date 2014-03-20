@@ -39,6 +39,7 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.technicaldebt.TechnicalDebtModelRepository;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
+import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.user.MockUserSession;
 
 import java.io.Reader;
@@ -76,6 +77,9 @@ public class DebtModelRestoreTest {
   DebtCharacteristicsXMLImporter characteristicsXMLImporter;
 
   @Mock
+  RuleRepositories ruleRepositories;
+
+  @Mock
   System2 system2;
 
   Date now = DateUtils.parseDate("2014-03-19");
@@ -109,7 +113,7 @@ public class DebtModelRestoreTest {
     when(debtModelPluginRepository.createReaderForXMLFile("technical-debt")).thenReturn(defaultModelReader);
     when(characteristicsXMLImporter.importXML(eq(defaultModelReader))).thenReturn(defaultModel);
 
-    debtModelRestore = new DebtModelRestore(myBatis, dao, ruleDao, debtModelOperations, debtModelPluginRepository, characteristicsXMLImporter, system2);
+    debtModelRestore = new DebtModelRestore(myBatis, dao, ruleDao, debtModelOperations, debtModelPluginRepository, ruleRepositories, characteristicsXMLImporter, system2);
   }
 
   @Test
@@ -125,21 +129,24 @@ public class DebtModelRestoreTest {
 
     ArgumentCaptor<CharacteristicDto> characteristicArgument = ArgumentCaptor.forClass(CharacteristicDto.class);
     verify(dao, times(2)).insert(characteristicArgument.capture(), eq(session));
-    assertThat(characteristicArgument.getAllValues().get(0).getId()).isEqualTo(10);
-    assertThat(characteristicArgument.getAllValues().get(0).getKey()).isEqualTo("PORTABILITY");
-    assertThat(characteristicArgument.getAllValues().get(0).getName()).isEqualTo("Portability");
-    assertThat(characteristicArgument.getAllValues().get(0).getParentId()).isNull();
-    assertThat(characteristicArgument.getAllValues().get(0).getOrder()).isEqualTo(1);
-    assertThat(characteristicArgument.getAllValues().get(0).getCreatedAt()).isEqualTo(now);
-    assertThat(characteristicArgument.getAllValues().get(0).getUpdatedAt()).isNull();
 
-    assertThat(characteristicArgument.getAllValues().get(1).getId()).isEqualTo(11);
-    assertThat(characteristicArgument.getAllValues().get(1).getKey()).isEqualTo("COMPILER_RELATED_PORTABILITY");
-    assertThat(characteristicArgument.getAllValues().get(1).getName()).isEqualTo("Compiler");
-    assertThat(characteristicArgument.getAllValues().get(1).getParentId()).isEqualTo(10);
-    assertThat(characteristicArgument.getAllValues().get(1).getOrder()).isNull();
-    assertThat(characteristicArgument.getAllValues().get(1).getCreatedAt()).isEqualTo(now);
-    assertThat(characteristicArgument.getAllValues().get(1).getUpdatedAt()).isNull();
+    CharacteristicDto dto1 = characteristicArgument.getAllValues().get(0);
+    assertThat(dto1.getId()).isEqualTo(10);
+    assertThat(dto1.getKey()).isEqualTo("PORTABILITY");
+    assertThat(dto1.getName()).isEqualTo("Portability");
+    assertThat(dto1.getParentId()).isNull();
+    assertThat(dto1.getOrder()).isEqualTo(1);
+    assertThat(dto1.getCreatedAt()).isEqualTo(now);
+    assertThat(dto1.getUpdatedAt()).isNull();
+
+    CharacteristicDto dto2 = characteristicArgument.getAllValues().get(1);
+    assertThat(dto2.getId()).isEqualTo(11);
+    assertThat(dto2.getKey()).isEqualTo("COMPILER_RELATED_PORTABILITY");
+    assertThat(dto2.getName()).isEqualTo("Compiler");
+    assertThat(dto2.getParentId()).isEqualTo(10);
+    assertThat(dto2.getOrder()).isNull();
+    assertThat(dto2.getCreatedAt()).isEqualTo(now);
+    assertThat(dto2.getUpdatedAt()).isNull();
   }
 
   @Test
@@ -160,21 +167,24 @@ public class DebtModelRestoreTest {
 
     ArgumentCaptor<CharacteristicDto> characteristicArgument = ArgumentCaptor.forClass(CharacteristicDto.class);
     verify(dao, times(2)).update(characteristicArgument.capture(), eq(session));
-    assertThat(characteristicArgument.getAllValues().get(0).getId()).isEqualTo(1);
-    assertThat(characteristicArgument.getAllValues().get(0).getKey()).isEqualTo("PORTABILITY");
-    assertThat(characteristicArgument.getAllValues().get(0).getName()).isEqualTo("Portability");
-    assertThat(characteristicArgument.getAllValues().get(0).getParentId()).isNull();
-    assertThat(characteristicArgument.getAllValues().get(0).getOrder()).isEqualTo(1);
-    assertThat(characteristicArgument.getAllValues().get(0).getCreatedAt()).isEqualTo(oldDate);
-    assertThat(characteristicArgument.getAllValues().get(0).getUpdatedAt()).isEqualTo(now);
 
-    assertThat(characteristicArgument.getAllValues().get(1).getId()).isEqualTo(2);
-    assertThat(characteristicArgument.getAllValues().get(1).getKey()).isEqualTo("COMPILER_RELATED_PORTABILITY");
-    assertThat(characteristicArgument.getAllValues().get(1).getName()).isEqualTo("Compiler");
-    assertThat(characteristicArgument.getAllValues().get(1).getParentId()).isEqualTo(1);
-    assertThat(characteristicArgument.getAllValues().get(1).getOrder()).isNull();
-    assertThat(characteristicArgument.getAllValues().get(1).getCreatedAt()).isEqualTo(oldDate);
-    assertThat(characteristicArgument.getAllValues().get(1).getUpdatedAt()).isEqualTo(now);
+    CharacteristicDto dto1 = characteristicArgument.getAllValues().get(0);
+    assertThat(dto1.getId()).isEqualTo(1);
+    assertThat(dto1.getKey()).isEqualTo("PORTABILITY");
+    assertThat(dto1.getName()).isEqualTo("Portability");
+    assertThat(dto1.getParentId()).isNull();
+    assertThat(dto1.getOrder()).isEqualTo(1);
+    assertThat(dto1.getCreatedAt()).isEqualTo(oldDate);
+    assertThat(dto1.getUpdatedAt()).isEqualTo(now);
+
+    CharacteristicDto dto2 = characteristicArgument.getAllValues().get(1);
+    assertThat(dto2.getId()).isEqualTo(2);
+    assertThat(dto2.getKey()).isEqualTo("COMPILER_RELATED_PORTABILITY");
+    assertThat(dto2.getName()).isEqualTo("Compiler");
+    assertThat(dto2.getParentId()).isEqualTo(1);
+    assertThat(dto2.getOrder()).isNull();
+    assertThat(dto2.getCreatedAt()).isEqualTo(oldDate);
+    assertThat(dto2.getUpdatedAt()).isEqualTo(now);
   }
 
   @Test
@@ -201,18 +211,18 @@ public class DebtModelRestoreTest {
       new CharacteristicDto().setId(2).setKey("COMPILER_RELATED_PORTABILITY").setName("Compiler updated").setParentId(1).setCreatedAt(oldDate)
     ));
 
-    when(ruleDao.selectOverridingDebt(session)).thenReturn(newArrayList(
+    when(ruleDao.selectOverridingDebt(Collections.<String>emptyList(), session)).thenReturn(newArrayList(
       new RuleDto().setCharacteristicId(10).setRemediationFunction("LINEAR_OFFSET").setRemediationFactor("2h").setRemediationOffset("15min")
         .setCreatedAt(oldDate).setUpdatedAt(oldDate)
     ));
 
-    debtModelRestore.restoreFromProvidedModel();
+    debtModelRestore.restore();
 
     verify(dao).selectEnabledCharacteristics();
     verify(dao, times(2)).update(any(CharacteristicDto.class), eq(session));
     verifyNoMoreInteractions(dao);
 
-    verify(ruleDao).selectOverridingDebt(session);
+    verify(ruleDao).selectOverridingDebt(Collections.<String>emptyList(), session);
     ArgumentCaptor<RuleDto> ruleArgument = ArgumentCaptor.forClass(RuleDto.class);
     verify(ruleDao).update(ruleArgument.capture(), eq(session));
     verifyNoMoreInteractions(ruleDao);
@@ -223,6 +233,43 @@ public class DebtModelRestoreTest {
     assertThat(rule.getRemediationFactor()).isNull();
     assertThat(rule.getRemediationOffset()).isNull();
     assertThat(rule.getUpdatedAt()).isEqualTo(now);
+
+    verify(session).commit();
+  }
+
+  @Test
+  public void restore_from_language() throws Exception {
+    Date oldDate = DateUtils.parseDate("2014-01-01");
+
+    defaultModel
+      .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
+      .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setName("Compiler"), "PORTABILITY");
+
+    when(dao.selectEnabledCharacteristics()).thenReturn(newArrayList(
+      new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability updated").setOrder(2).setCreatedAt(oldDate),
+      new CharacteristicDto().setId(2).setKey("COMPILER_RELATED_PORTABILITY").setName("Compiler updated").setParentId(1).setCreatedAt(oldDate)
+    ));
+
+    when(ruleDao.selectOverridingDebt(newArrayList("squid"), session)).thenReturn(newArrayList(
+      new RuleDto().setRepositoryKey("squid")
+        .setCharacteristicId(10).setRemediationFunction("LINEAR_OFFSET").setRemediationFactor("2h").setRemediationOffset("15min")
+        .setCreatedAt(oldDate).setUpdatedAt(oldDate)
+    ));
+
+    RuleRepositories.Repository squid = mock(RuleRepositories.Repository.class);
+    when(squid.getKey()).thenReturn("squid");
+    when(ruleRepositories.repositoriesForLang("java")).thenReturn(newArrayList(squid));
+
+    debtModelRestore.restore("java");
+
+    verify(dao).selectEnabledCharacteristics();
+    verify(dao, times(2)).update(any(CharacteristicDto.class), eq(session));
+    verifyNoMoreInteractions(dao);
+
+    verify(ruleDao).selectOverridingDebt(newArrayList("squid"), session);
+    ArgumentCaptor<RuleDto> ruleArgument = ArgumentCaptor.forClass(RuleDto.class);
+    verify(ruleDao).update(ruleArgument.capture(), eq(session));
+    verifyNoMoreInteractions(ruleDao);
 
     verify(session).commit();
   }

@@ -76,17 +76,17 @@ public class RuleDao implements BatchComponent, ServerComponent {
     return getMapper(session).selectByCharacteristicOrSubCharacteristicId(characteristicOrSubCharacteristicId);
   }
 
-  public List<RuleDto> selectOverridingDebt() {
+  public List<RuleDto> selectOverridingDebt(List<String> repositories) {
     SqlSession session = mybatis.openSession();
     try {
-      return selectOverridingDebt(session);
+      return selectOverridingDebt(repositories, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public List<RuleDto> selectOverridingDebt(SqlSession session) {
-    return getMapper(session).selectOverridingDebt();
+  public List<RuleDto> selectOverridingDebt(List<String> repositories, SqlSession session) {
+    return getMapper(session).selectOverridingDebt(repositories);
   }
 
   @CheckForNull

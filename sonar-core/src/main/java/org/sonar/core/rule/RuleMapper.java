@@ -32,7 +32,7 @@ public interface RuleMapper {
 
   List<RuleDto> selectByCharacteristicOrSubCharacteristicId(int id);
 
-  List<RuleDto> selectOverridingDebt();
+  List<RuleDto> selectOverridingDebt(@Param("repositories") List<String> repositories);
 
   RuleDto selectById(Integer id);
 

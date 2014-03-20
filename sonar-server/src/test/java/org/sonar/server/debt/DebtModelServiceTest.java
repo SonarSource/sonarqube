@@ -97,7 +97,13 @@ public class DebtModelServiceTest {
   @Test
   public void restore_provided_model() {
     service.restore();
-    verify(debtModelRestore).restoreFromProvidedModel();
+    verify(debtModelRestore).restore();
+  }
+
+  @Test
+  public void restore_from_language() {
+    service.restore("xoo");
+    verify(debtModelRestore).restore("xoo");
   }
 
 }

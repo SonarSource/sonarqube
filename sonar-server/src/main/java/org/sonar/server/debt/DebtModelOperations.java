@@ -151,16 +151,16 @@ public class DebtModelOperations implements ServerComponent {
   }
 
   /**
-   * Disable characteristic and sub characteristic or only sub characteristic.
+   * Disable characteristic and its sub characteristics or only sub characteristic.
    * Will also update every rules linked to sub characteristics by setting characteristic id to -1 and remove function, factor and offset.
    */
-  public void delete(int characteristicOrSubCharacteristicId) {
+  public void delete(int characteristicId) {
     checkPermission();
 
     Date updateDate = new Date(system2.now());
     SqlSession session = mybatis.openBatchSession();
     try {
-      CharacteristicDto characteristicOrSubCharacteristic = findCharacteristic(characteristicOrSubCharacteristicId, session);
+      CharacteristicDto characteristicOrSubCharacteristic = findCharacteristic(characteristicId, session);
       disableDebtRules(
         ruleDao.selectByCharacteristicOrSubCharacteristicId(characteristicOrSubCharacteristic.getId(), session),
         updateDate,
@@ -168,8 +168,8 @@ public class DebtModelOperations implements ServerComponent {
       );
 
       if (characteristicOrSubCharacteristic.getParentId() == null) {
-        List<CharacteristicDto> subChracteristics = dao.selectCharacteristicsByParentId(characteristicOrSubCharacteristic.getId(), session);
-        for (CharacteristicDto subCharacteristic : subChracteristics) {
+        List<CharacteristicDto> subCharacteristics = dao.selectCharacteristicsByParentId(characteristicOrSubCharacteristic.getId(), session);
+        for (CharacteristicDto subCharacteristic : subCharacteristics) {
           disableCharacteristic(subCharacteristic, updateDate, session);
         }
       }
