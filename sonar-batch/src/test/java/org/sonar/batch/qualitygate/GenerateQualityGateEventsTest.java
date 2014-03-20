@@ -17,7 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.sensors;
+package org.sonar.batch.qualitygate;
+
+import org.sonar.batch.qualitygate.GenerateQualityGateEvents;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -42,8 +44,8 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
-public class GenerateAlertEventsTest {
-  private GenerateAlertEvents decorator;
+public class GenerateQualityGateEventsTest {
+  private GenerateQualityGateEvents decorator;
   private DecoratorContext context;
   private QualityGate qualityGate;
   private TimeMachine timeMachine;
@@ -56,7 +58,7 @@ public class GenerateAlertEventsTest {
     timeMachine = mock(TimeMachine.class);
     qualityGate = mock(QualityGate.class);
     notificationManager = mock(NotificationManager.class);
-    decorator = new GenerateAlertEvents(qualityGate, timeMachine, notificationManager);
+    decorator = new GenerateQualityGateEvents(qualityGate, timeMachine, notificationManager);
     project = new ProjectTestBuilder().build();
   }
 

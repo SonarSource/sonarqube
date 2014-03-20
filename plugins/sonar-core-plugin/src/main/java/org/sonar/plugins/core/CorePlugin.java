@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.core;
 
+import org.sonar.batch.qualitygate.GenerateQualityGateEvents;
+
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.*;
 import org.sonar.api.checks.NoSonarFilter;
@@ -300,7 +302,6 @@ public final class CorePlugin extends SonarPlugin {
       ProjectLinksSensor.class,
       UnitTestDecorator.class,
       VersionEventsSensor.class,
-      GenerateAlertEvents.class,
       LineCoverageDecorator.class,
       CoverageDecorator.class,
       BranchCoverageDecorator.class,

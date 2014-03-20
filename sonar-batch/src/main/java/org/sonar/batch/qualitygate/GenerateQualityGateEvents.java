@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.core.sensors;
+package org.sonar.batch.qualitygate;
 
 import org.sonar.api.batch.*;
 import org.sonar.api.measures.CoreMetrics;
@@ -30,17 +30,16 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
-import org.sonar.batch.qualitygate.QualityGate;
 
 import java.util.List;
 
-public class GenerateAlertEvents implements Decorator {
+public class GenerateQualityGateEvents implements Decorator {
 
   private final QualityGate qualityGate;
   private final TimeMachine timeMachine;
   private NotificationManager notificationManager;
 
-  public GenerateAlertEvents(QualityGate qualityGate, TimeMachine timeMachine, NotificationManager notificationManager) {
+  public GenerateQualityGateEvents(QualityGate qualityGate, TimeMachine timeMachine, NotificationManager notificationManager) {
     this.qualityGate = qualityGate;
     this.timeMachine = timeMachine;
     this.notificationManager = notificationManager;
