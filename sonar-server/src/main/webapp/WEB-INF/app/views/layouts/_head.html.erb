@@ -18,57 +18,15 @@
      end
   %>
   <title><%= title -%></title>
-  <% if ENV['RAILS_ENV'] == 'production'
-  %>
-    <%= stylesheet_link_tag 'sonar', :media => 'all' -%>
-    <%= yield :style -%>
-    <%= javascript_include_tag 'sonar' -%>
-  <% else %>
-    <%= stylesheet_link_tag 'yui-reset-font', :media => 'all' %>
-    <%= stylesheet_link_tag 'jquery-ui', :media => 'all' %>
-    <%= stylesheet_link_tag 'select2', :media => 'all' %>
-    <%= stylesheet_link_tag 'select2-sonar', :media => 'all' %>
-    <%= stylesheet_link_tag 'layout', :media => 'all' %>
-    <%= stylesheet_link_tag 'style', :media => 'all' %>
-    <%= stylesheet_link_tag 'icons', :media => 'all' %>
-    <%= stylesheet_link_tag 'ui', :media => 'all' %>
-    <%= stylesheet_link_tag 'sonar-colorizer', :media => 'all' %>
-    <%= stylesheet_link_tag 'dashboard', :media => 'all' %>
-    <%= stylesheet_link_tag 'select-list', :media => 'all' %>
-    <%= stylesheet_link_tag 'navigator', :media => 'all' %>
-    <%= stylesheet_link_tag 'quality-gates', :media => 'all' %>
-    <%= stylesheet_link_tag 'coding-rules', :media => 'all' %>
-    <%= yield :style -%>
-    <%= javascript_include_tag 'third-party/jquery' %>
-    <%= javascript_include_tag 'third-party/jquery-ui' %>
-    <%= javascript_include_tag 'third-party/d3' %>
-    <%= javascript_include_tag 'third-party/underscore' %>
-    <%= javascript_include_tag 'third-party/select2' %>
-    <%= javascript_include_tag 'select2-jquery-ui-fix' %>
 
-    <%= javascript_include_tag 'translate' %>
+  <link href="<%= ApplicationController.root_context -%>/css/sonar.css" rel="stylesheet" media="all">
+  <%= yield :style -%>
 
-    <%= javascript_include_tag 'widgets/widget' %>
-    <%= javascript_include_tag 'widgets/bubble-chart' %>
-    <%= javascript_include_tag 'widgets/timeline' %>
-    <%= javascript_include_tag 'widgets/stack-area' %>
-    <%= javascript_include_tag 'widgets/pie-chart' %>
-    <%= javascript_include_tag 'widgets/histogram' %>
-
-    <%= javascript_include_tag 'top-search' %>
-    <%= javascript_include_tag 'sortable' %>
-    <%= javascript_include_tag 'common/inputs' %>
-
-    <%= javascript_include_tag 'application' %>
-    <%= javascript_include_tag 'dashboard' %>
-    <%= javascript_include_tag 'duplication' %>
-    <%= javascript_include_tag 'resource' %>
-    <%= javascript_include_tag 'issue' %>
-    <%= javascript_include_tag 'recent-history' %>
-  <% end %>
-  <script>var baseUrl = '<%= ApplicationController.root_context -%>';
-  var $j = jQuery.noConflict();
-  $j(document).ready(function () {$j('.open-modal').modal()});
+  <script src="<%= ApplicationController.root_context -%>/js/sonar.js"></script>
+  <script>
+    var baseUrl = '<%= ApplicationController.root_context -%>';
+    var $j = jQuery.noConflict();
+    $j(document).ready(function () {$j('.open-modal').modal()});
   </script>
   <%= yield :script -%>
 </head>

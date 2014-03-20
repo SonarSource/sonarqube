@@ -1,5 +1,21 @@
+# nodeJS downloaded by Maven
+node/
+
 # nodeJS dependencies
 node_modules/
 
-# js build
-src/main/webapp/javascripts/build/
+# build
+src/main/webapp/build/
+
+# generated css
+src/main/webapp/css/
+
+# generated js
+src/main/webapp/js/sonar.js
+src/main/webapp/js/coding-rules/
+src/main/webapp/js/quality-gate/
+src/main/webapp/js/tests/common/
+src/main/webapp/js/tests/translateSpec.js
+
+# generated templates
+src/main/webapp/js/templates/

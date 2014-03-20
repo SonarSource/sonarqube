@@ -1,0 +1,43 @@
+<div class="quality-gate-section-name">{{t 'quality_gates.conditions'}}</div>
+
+<div class="quality-gate-introduction">
+  <p>{{t 'quality_gates.introduction'}}
+    <a class="link-action quality-gate-introduction-show-more">{{t 'more'}}</a>
+  </p>
+  <div class="quality-gate-introduction-more inline-help">
+    {{t 'quality_gates.health_icons'}}
+    <ul>
+      <li>
+        <i class="icon-alert-ok"></i>
+        {{t 'alerts.notes.ok'}}
+      </li>
+      <li>
+        <i class="icon-alert-warn"></i>
+        {{t 'alerts.notes.warn'}}
+      </li>
+      <li>
+        <i class="icon-alert-error"></i>
+        {{t 'alerts.notes.error'}}
+      </li>
+    </ul>
+  </div>
+</div>
+
+{{#if canEdit}}
+  <div class="quality-gate-new-condition">
+    <label for="quality-gate-new-condition-metric">{{t 'quality_gates.add_condition'}}:</label>
+    <select id="quality-gate-new-condition-metric">
+      <option></option>
+      {{#each metricGroups}}
+        <optgroup label="{{domain}}">
+            {{#each metrics}}<option value="{{key}}">{{name}}</option>{{/each}}
+        </optgroup>
+      {{/each}}
+    </select>
+  </div>
+{{/if}}
+
+<table class="data zebra width100 marginbottom10 spaced quality-gate-conditions">
+  <thead><tr></tr></thead>
+  <tbody></tbody>
+</table>

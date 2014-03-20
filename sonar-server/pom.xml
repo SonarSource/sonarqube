@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.codehaus.sonar</groupId>
@@ -9,6 +10,10 @@
   <artifactId>sonar-server</artifactId>
   <packaging>war</packaging>
   <name>SonarQube :: Server</name>
+
+  <properties>
+    <gruntTask>default</gruntTask>
+  </properties>
 
   <dependencies>
     <dependency>
@@ -249,50 +254,65 @@
           </execution>
         </executions>
       </plugin>
-
       <plugin>
-        <groupId>ro.isdc.wro4j</groupId>
-        <artifactId>wro4j-maven-plugin</artifactId>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
         <executions>
           <execution>
-            <phase>prepare-package</phase>
+            <phase>generate-resources</phase>
+            <id>install node and npm</id>
             <goals>
-              <goal>run</goal>
+              <goal>install-node-and-npm</goal>
             </goals>
+            <configuration>
+              <nodeVersion>v0.10.26</nodeVersion>
+              <npmVersion>1.4.3</npmVersion>
+            </configuration>
+          </execution>
+          <execution>
+            <phase>generate-resources</phase>
+            <id>npm install</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <configuration>
+              <arguments>install</arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <phase>generate-resources</phase>
+            <id>grunt build</id>
+            <goals>
+              <goal>grunt</goal>
+            </goals>
+            <configuration>
+              <arguments>${gruntTask}</arguments>
+            </configuration>
           </execution>
         </executions>
-        <configuration>
-          <targetGroups>sonar</targetGroups>
-          <minimize>true</minimize>
-          <cssDestinationFolder>${project.build.directory}/${project.build.finalName}/stylesheets</cssDestinationFolder>
-          <jsDestinationFolder>${project.build.directory}/${project.build.finalName}/javascripts</jsDestinationFolder>
-          <contextFolder>${basedir}/src/main/webapp/</contextFolder>
-          <wroFile>${basedir}/wro.xml</wroFile>
-          <wroManagerFactory>ro.isdc.wro.extensions.manager.standalone.GoogleStandaloneManagerFactory</wroManagerFactory>
-          <ignoreMissingResources>false</ignoreMissingResources>
-        </configuration>
       </plugin>
-
       <plugin>
-        <groupId>com.github.bringking</groupId>
-        <artifactId>requirejs-maven-plugin</artifactId>
-        <version>2.0.3</version>
+        <artifactId>maven-resources-plugin</artifactId>
         <executions>
           <execution>
-            <phase>prepare-package</phase>
+            <id>copy-generated-webapp</id>
+            <!-- must be after the execution of grunt -->
+            <phase>process-resources</phase>
             <goals>
-              <goal>optimize</goal>
+              <goal>copy-resources</goal>
             </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/${project.build.finalName}</outputDirectory>
+              <overwrite>false</overwrite>
+              <resources>
+                <resource>
+                  <directory>src/main/webapp/build</directory>
+                  <filtering>false</filtering>
+                </resource>
+              </resources>
+            </configuration>
           </execution>
         </executions>
-        <configuration>
-          <configFile>${basedir}/src/main/webapp/javascripts/build.js</configFile>
-          <optimizerParameters>
-            <parameter>dir=${project.build.directory}/${project.build.finalName}/javascripts</parameter>
-            <parameter>skipDirOptimize=true</parameter>
-            <parameter>keepBuildDir=true</parameter>
-          </optimizerParameters>
-        </configuration>
       </plugin>
 
       <plugin>
@@ -314,13 +334,13 @@
           </execution>
         </executions>
       </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
           <packagingExcludes>
-            **/*.log,*.iml,WEB-INF/script/,WEB-INF/test/,javascripts/*-min.js,stylesheets/*-min.css,javascripts/tests/**/*
+            **/*.log,*.iml,WEB-INF/script/,WEB-INF/test/,javascripts/*-min.js,stylesheets/*-min.css,javascripts/tests/**/*,
+            build/**,coffee/**,less/**,templates/**
           </packagingExcludes>
           <warSourceExcludes>
             **/*
@@ -341,6 +361,9 @@
   <profiles>
     <profile>
       <id>start-dev-server</id>
+      <properties>
+        <gruntTask>dev</gruntTask>
+      </properties>
       <build>
         <plugins>
           <plugin>
@@ -634,32 +657,6 @@
             <configuration>
               <skip>true</skip>
             </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <!-- experimental profile -->
-      <id>js</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>com.kelveden</groupId>
-            <artifactId>maven-karma-plugin</artifactId>
-            <version>1.5</version>
-            <configuration>
-              <configFile>${basedir}/karma.conf.js</configFile>
-            </configuration>
-            <executions>
-              <execution>
-                <id>karma</id>
-                <goals>
-                  <goal>start</goal>
-                </goals>
-                <phase>process-test-classes</phase>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
       </build>
