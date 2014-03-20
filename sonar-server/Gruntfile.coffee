@@ -1,4 +1,5 @@
 module.exports = (grunt) ->
+  grunt.loadNpmTasks('grunt-karma');
   grunt.initConfig
     pkg: grunt.file.readJSON('package.json')
 
@@ -176,6 +177,12 @@ module.exports = (grunt) ->
           '<%= pkg.assets %>js/templates/quality-gates.js': [
             '<%= pkg.assets %>templates/quality-gates/**/*.hbs'
           ]
+
+
+    karma:
+      unit:
+        configFile: 'karma.conf.js'
+        singleRun: true
 
 
     watch:

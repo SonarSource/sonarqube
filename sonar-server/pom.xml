@@ -280,6 +280,16 @@
             </configuration>
           </execution>
           <execution>
+            <id>javascript tests</id>
+            <phase>test</phase>
+            <goals>
+              <goal>grunt</goal>
+            </goals>
+            <configuration>
+              <arguments>karma</arguments>
+            </configuration>
+          </execution>
+          <execution>
             <phase>generate-resources</phase>
             <id>grunt build</id>
             <goals>

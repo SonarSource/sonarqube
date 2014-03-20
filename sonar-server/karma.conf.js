@@ -14,7 +14,7 @@ module.exports = function(config) {
   config.set({
 
     // base path, that will be used to resolve files and exclude
-    basePath: 'src/main/webapp/javascripts',
+    basePath: 'src/main/webapp/js',
 
 
     // frameworks to use
@@ -26,7 +26,7 @@ module.exports = function(config) {
         // dependencies
         'third-party/jquery.js',
         'third-party/underscore.js',
-        'third-party/require.js',
+        'require.js',
         'translate.js',
         'common/inputs.js',
 
@@ -76,7 +76,7 @@ module.exports = function(config) {
 
 
     coverageReporter: {
-      type : 'text',
+      type : 'lcovonly',
       dir : '../../../../target/karma/coverage/'
     },
 
