@@ -19,27 +19,62 @@
  */
 package org.sonar.server.user;
 
+import org.sonar.core.permission.GlobalPermissions;
+
 import java.util.Locale;
 
+/**
+ * Allow code to be executed with the highest privileges possible, as if executed by a {@link GlobalPermissions#SYSTEM_ADMIN} account.
+ * @since 4.3
+ */
 public final class DoPrivileged {
 
   private static final String SYSTEM_LOGIN = "<system>";
-  private static final String SYSTEM_NAME = "Internal System Account";
+  private static final String SYSTEM_NAME = "<System>";
 
-  public static void start() {
-    UserSession.set(new UserSession() {
-      @Override
-      public boolean hasGlobalPermission(String globalPermission) {
-        return true;
-      }
-      @Override
-      public boolean hasProjectPermission(String permission, String projectKey) {
-        return true;
-      }
-    }.setLocale(Locale.getDefault()).setLogin(SYSTEM_LOGIN).setName(SYSTEM_NAME));
+  private DoPrivileged() {
+    // Only static stuff
   }
 
-  public static void stop() {
-    UserSession.remove();
+  /**
+   * Executes the task's <code>{@link Task#doPrivileged() doPrivileged}</code> method in a privileged environment.
+   * @param task
+   */
+  public static void execute(Task task) {
+    try {
+      task.start();
+      task.doPrivileged();
+    } finally {
+      task.stop();
+    }
+  }
+
+  /**
+   * Define a task that will be executed using the highest privileges available. The privileged section is restricted
+   * to the execution of the {@link #doPrivileged()} method.
+   */
+  public static abstract class Task {
+
+    /**
+     * Code placed in this method will be executed in a privileged environment.
+     */
+    protected abstract void doPrivileged();
+
+    private void start() {
+      UserSession.set(new UserSession() {
+        @Override
+        public boolean hasGlobalPermission(String globalPermission) {
+          return true;
+        }
+        @Override
+        public boolean hasProjectPermission(String permission, String projectKey) {
+          return true;
+        }
+      }.setLocale(Locale.getDefault()).setLogin(SYSTEM_LOGIN).setName(SYSTEM_NAME));
+    }
+  
+    private void stop() {
+      UserSession.remove();
+    }
   }
 }

@@ -26,15 +26,37 @@ import static org.fest.assertions.Assertions.assertThat;
 public class DoPrivilegedTest {
 
   @Test
-  public void should_allow_everything_in_privileged_mode_only() {
-    DoPrivileged.start();
-    UserSession userSession = UserSession.get();
-    assertThat(userSession.isLoggedIn()).isTrue();
-    assertThat(userSession.hasGlobalPermission("any permission")).isTrue();
-    assertThat(userSession.hasProjectPermission("any permission", "any project")).isTrue();
+  public void should_allow_everything_in_privileged_block_only() {
+    DoPrivileged.execute(new DoPrivileged.Task() {
+      @Override
+      protected void doPrivileged() {
+        UserSession userSession = UserSession.get();
+        assertThat(userSession.isLoggedIn()).isTrue();
+        assertThat(userSession.hasGlobalPermission("any permission")).isTrue();
+        assertThat(userSession.hasProjectPermission("any permission", "any project")).isTrue();
+      }
+    });
 
-    DoPrivileged.stop();
-    userSession = UserSession.get();
-    assertThat(userSession.isLoggedIn()).isFalse();
+    assertThat(UserSession.get().isLoggedIn()).isFalse();
   }
+
+  @Test
+  public void should_lose_privileges_on_exception() {
+    try {
+      DoPrivileged.execute(new DoPrivileged.Task() {
+        @Override
+        protected void doPrivileged() {
+          UserSession userSession = UserSession.get();
+          assertThat(userSession.isLoggedIn()).isTrue();
+          assertThat(userSession.hasGlobalPermission("any permission")).isTrue();
+          assertThat(userSession.hasProjectPermission("any permission", "any project")).isTrue();
+
+          throw new RuntimeException("Test to lose privileges");
+        }
+      });
+    } catch(Throwable ignored) {
+      assertThat(UserSession.get().isLoggedIn()).isFalse();
+    }
+  }
+
 }

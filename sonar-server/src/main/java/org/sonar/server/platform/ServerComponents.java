@@ -395,7 +395,7 @@ class ServerComponents {
   }
 
   private void executeStartupTaks(ComponentContainer pico) {
-    ComponentContainer startupContainer = pico.createChild();
+    final ComponentContainer startupContainer = pico.createChild();
     startupContainer.addSingleton(GwtPublisher.class);
     startupContainer.addSingleton(RegisterMetrics.class);
     startupContainer.addSingleton(RegisterBuiltinQualityGate.class);
@@ -416,11 +416,13 @@ class ServerComponents {
     startupContainer.addSingleton(CleanPreviewAnalysisCache.class);
     startupContainer.addSingleton(CopyRequirementsFromCharacteristicsToRules.class);
 
-    DoPrivileged.start();
-    startupContainer.startComponents();
-
-    startupContainer.getComponentByType(ServerLifecycleNotifier.class).notifyStart();
-    DoPrivileged.stop();
+    DoPrivileged.execute(new DoPrivileged.Task() {
+      @Override
+      protected void doPrivileged() {
+        startupContainer.startComponents();
+        startupContainer.getComponentByType(ServerLifecycleNotifier.class).notifyStart();
+      }
+    });
 
     // Do not put the following statements in a finally block.
     // It would hide the possible exception raised during startup
