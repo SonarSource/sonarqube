@@ -41,6 +41,10 @@ define [
     populateMetric: ->
       metricKey = @model.get('metric')
       metric = _.findWhere @options.app.metrics, key: metricKey
+      if metric?
+        switch metric.type
+          when 'WORK_DUR' then metric.placeholder = '1d 7h 59min'
+          when 'RATING' then metric.placeholder = 'A'
       @model.set { metric: metric }, { silent: true }
       @model.set { isDiffMetric: metric.key.indexOf('new_') == 0 }, { silent: true }
 

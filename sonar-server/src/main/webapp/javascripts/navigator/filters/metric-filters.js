@@ -31,6 +31,14 @@ define(['navigator/filters/base-filters', 'common/handlebars-extensions'], funct
       });
       if (metric) {
         this.$('[name=val]').data('type', metric.metric.val_type);
+        switch (metric.metric.val_type) {
+            case 'WORK_DUR':
+                this.$('[name=val]').prop('placeholder', '1d 7h 59min');
+                break;
+            case 'RATING':
+                this.$('[name=val]').prop('placeholder', 'A');
+                break;
+        }
       }
     },
 

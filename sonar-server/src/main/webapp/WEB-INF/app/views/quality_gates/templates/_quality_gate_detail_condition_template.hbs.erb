@@ -28,7 +28,7 @@
   <td width="15%" nowrap="nowrap">
     <i class="icon-alert-warn" title="{{t 'alerts.warning_tooltip'}}"></i>
     {{#if canEdit}}
-      <input name="warning" class="measure-input" data-type="{{metric.type}}" type="text">
+      <input name="warning" class="measure-input" data-type="{{metric.type}}" placeholder="{{metric.placeholder}}" type="text">
     {{else}}
       {{warning}}
     {{/if}}
@@ -36,7 +36,7 @@
   <td width="15%" nowrap="nowrap">
     <i class="icon-alert-error" title="{{t 'alerts.error_tooltip'}}"></i>
     {{#if canEdit}}
-      <input name="error" class="measure-input" data-type="{{metric.type}}" type="text">
+      <input name="error" class="measure-input" data-type="{{metric.type}}" placeholder="{{metric.placeholder}}" type="text">
     {{else}}
       {{error}}
     {{/if}}

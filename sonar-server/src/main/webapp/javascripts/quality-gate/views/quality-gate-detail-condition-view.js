@@ -51,6 +51,15 @@
         metric = _.findWhere(this.options.app.metrics, {
           key: metricKey
         });
+        if (metric != null) {
+          switch (metric.type) {
+            case 'WORK_DUR':
+              metric.placeholder = '1d 7h 59min';
+              break;
+            case 'RATING':
+              metric.placeholder = 'A';
+          }
+        }
         this.model.set({
           metric: metric
         }, {
