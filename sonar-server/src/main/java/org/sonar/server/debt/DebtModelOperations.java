@@ -39,6 +39,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.Date;
@@ -130,23 +131,13 @@ public class DebtModelOperations implements ServerComponent {
     try {
       final CharacteristicDto dto = findCharacteristic(characteristicId, session);
       int currentOrder = dto.getOrder();
-
-      // characteristics should be order by 'order'
-      List<CharacteristicDto> rootCharacteristics = dao.selectEnabledRootCharacteristics(session);
-      int currentPosition = Iterables.indexOf(rootCharacteristics, new Predicate<CharacteristicDto>() {
-        @Override
-        public boolean apply(CharacteristicDto input) {
-          return input.getKey().equals(dto.getKey());
-        }
-      });
-      Integer nextMove = moveUpOrDown ? (currentPosition > 0 ? currentPosition - 1 : null) : (currentPosition < rootCharacteristics.size()-1 ? currentPosition + 1 : null);
+      CharacteristicDto dtoToSwitchOrderWith = findCharacteristicToSwitchWith(dto, moveUpOrDown, session);
 
       // Do nothing when characteristic is already to the good location
-      if (nextMove == null) {
+      if (dtoToSwitchOrderWith == null) {
         return toCharacteristic(dto);
       }
 
-      CharacteristicDto dtoToSwitchOrderWith = Iterables.get(rootCharacteristics, nextMove);
       int nextOrder = dtoToSwitchOrderWith.getOrder();
       dtoToSwitchOrderWith.setOrder(currentOrder);
       dtoToSwitchOrderWith.setUpdatedAt(new Date(system2.now()));
@@ -163,6 +154,20 @@ public class DebtModelOperations implements ServerComponent {
     }
   }
 
+  @CheckForNull
+  private CharacteristicDto findCharacteristicToSwitchWith(final CharacteristicDto dto, final boolean moveUpOrDown, SqlSession session) {
+    // characteristics should be order by 'order'
+    List<CharacteristicDto> rootCharacteristics = dao.selectEnabledRootCharacteristics(session);
+    int currentPosition = Iterables.indexOf(rootCharacteristics, new Predicate<CharacteristicDto>() {
+      @Override
+      public boolean apply(CharacteristicDto input) {
+        return input.getKey().equals(dto.getKey());
+      }
+    });
+    Integer nextPosition = moveUpOrDown ? (currentPosition > 0 ? currentPosition - 1 : null) : (currentPosition < rootCharacteristics.size() - 1 ? currentPosition + 1 : null);
+    return nextPosition != null ? Iterables.get(rootCharacteristics, nextPosition) : null;
+  }
+
   /**
    * Disable characteristic and its sub characteristics or only sub characteristic.
    * Will also update every rules linked to sub characteristics by setting characteristic id to -1 and remove function, factor and offset.
@@ -174,27 +179,29 @@ public class DebtModelOperations implements ServerComponent {
     SqlSession session = mybatis.openBatchSession();
     try {
       CharacteristicDto characteristicOrSubCharacteristic = findCharacteristic(characteristicId, session);
-      disableDebtRules(
-        ruleDao.selectByCharacteristicOrSubCharacteristicId(characteristicOrSubCharacteristic.getId(), session),
-        updateDate,
-        session
-      );
-
+      // When root characteristic, browse sub characteristics and disable rule debt on each sub characteristic then disable it
       if (characteristicOrSubCharacteristic.getParentId() == null) {
         List<CharacteristicDto> subCharacteristics = dao.selectCharacteristicsByParentId(characteristicOrSubCharacteristic.getId(), session);
         for (CharacteristicDto subCharacteristic : subCharacteristics) {
-          disableCharacteristic(subCharacteristic, updateDate, session);
+          disableSubChracteristic(subCharacteristic, updateDate, session);
         }
+        disableCharacteristic(characteristicOrSubCharacteristic, updateDate, session);
+      } else {
+        // When sub characteristic, disable rule debt on the sub characteristic then disable it
+        disableSubChracteristic(characteristicOrSubCharacteristic, updateDate, session);
       }
-      disableCharacteristic(characteristicOrSubCharacteristic, updateDate, session);
-
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public void disableDebtRules(List<RuleDto> ruleDtos, Date updateDate, SqlSession session){
+  private void disableSubChracteristic(CharacteristicDto subCharacteristic, Date updateDate, SqlSession session) {
+    disableDebtRules(ruleDao.selectBySubCharacteristicId(subCharacteristic.getId(), session), updateDate, session);
+    disableCharacteristic(subCharacteristic, updateDate, session);
+  }
+
+  public void disableDebtRules(List<RuleDto> ruleDtos, Date updateDate, SqlSession session) {
     for (RuleDto ruleDto : ruleDtos) {
       ruleDto.setCharacteristicId(RuleDto.DISABLED_CHARACTERISTIC_ID);
       ruleDto.setRemediationFunction(null);
@@ -206,7 +213,7 @@ public class DebtModelOperations implements ServerComponent {
     }
   }
 
-  public void disableCharacteristic(CharacteristicDto characteristic, Date updateDate, SqlSession session){
+  public void disableCharacteristic(CharacteristicDto characteristic, Date updateDate, SqlSession session) {
     characteristic.setEnabled(false);
     characteristic.setUpdatedAt(updateDate);
     dao.update(characteristic, session);

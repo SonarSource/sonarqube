@@ -137,22 +137,21 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_by_characteristic_or_sub_characteristic_id(){
-    setupData("select_by_characteristic_or_sub_characteristic_id");
+  public void select_by_sub_characteristic_id(){
+    setupData("select_by_sub_characteristic_id");
 
     // Rules from sub characteristic
-    List<RuleDto> ruleDtos = dao.selectByCharacteristicOrSubCharacteristicId(2);
-    assertThat(ruleDtos).hasSize(1);
-    assertThat(ruleDtos.get(0).getId()).isEqualTo(1);
+    List<RuleDto> ruleDtos = dao.selectBySubCharacteristicId(3);
+    assertThat(ruleDtos).hasSize(3);
+    assertThat(idsFromRuleDtos(ruleDtos)).containsExactly(2, 4, 5);
 
-    // Rules from characteristic
-    ruleDtos = dao.selectByCharacteristicOrSubCharacteristicId(1);
-    assertThat(ruleDtos).hasSize(2);
-    assertThat(idsFromRuleDtos(ruleDtos)).containsExactly(1, 2);
+    // Nothing on root characteristic
+    ruleDtos = dao.selectBySubCharacteristicId(1);
+    assertThat(ruleDtos).isEmpty();
 
     // Rules from disabled characteristic
-    ruleDtos = dao.selectByCharacteristicOrSubCharacteristicId(11);
-    assertThat(ruleDtos).isEmpty();
+    ruleDtos = dao.selectBySubCharacteristicId(11);
+    assertThat(idsFromRuleDtos(ruleDtos)).containsExactly(3);
   }
 
   @Test

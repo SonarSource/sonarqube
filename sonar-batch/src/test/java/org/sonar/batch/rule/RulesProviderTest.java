@@ -174,6 +174,17 @@ public class RulesProviderTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void build_rules_with_default_characteristic_and_disable_characteristic() throws Exception {
+    setupData("build_rules_with_default_characteristic_and_disable_characteristic");
+
+    Rules rules = provider.provide(ruleDao, debtModel, durations);
+
+    Rule rule = rules.find(RuleKey.of("checkstyle", "AvoidNull"));
+    assertThat(rule.debtCharacteristic()).isNull();
+    assertThat(rule.debtRemediationFunction()).isNull();
+  }
+
+  @Test
   public void fail_if_characteristic_not_found() throws Exception {
     setupData("fail_if_characteristic_not_found");
 

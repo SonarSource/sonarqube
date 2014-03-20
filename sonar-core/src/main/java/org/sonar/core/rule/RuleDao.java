@@ -63,17 +63,17 @@ public class RuleDao implements BatchComponent, ServerComponent {
     return getMapper(session).selectNonManual();
   }
 
-  public List<RuleDto> selectByCharacteristicOrSubCharacteristicId(Integer characteristicOrSubCharacteristicId) {
+  public List<RuleDto> selectBySubCharacteristicId(Integer characteristicOrSubCharacteristicId) {
     SqlSession session = mybatis.openSession();
     try {
-      return selectByCharacteristicOrSubCharacteristicId(characteristicOrSubCharacteristicId, session);
+      return selectBySubCharacteristicId(characteristicOrSubCharacteristicId, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public List<RuleDto> selectByCharacteristicOrSubCharacteristicId(Integer characteristicOrSubCharacteristicId, SqlSession session) {
-    return getMapper(session).selectByCharacteristicOrSubCharacteristicId(characteristicOrSubCharacteristicId);
+  public List<RuleDto> selectBySubCharacteristicId(Integer characteristicOrSubCharacteristicId, SqlSession session) {
+    return getMapper(session).selectBySubCharacteristicId(characteristicOrSubCharacteristicId);
   }
 
   public List<RuleDto> selectOverridingDebt(List<String> repositories) {

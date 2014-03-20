@@ -30,7 +30,7 @@ public interface RuleMapper {
 
   List<RuleDto> selectNonManual();
 
-  List<RuleDto> selectByCharacteristicOrSubCharacteristicId(int id);
+  List<RuleDto> selectBySubCharacteristicId(int characteristicId);
 
   List<RuleDto> selectOverridingDebt(@Param("repositories") List<String> repositories);
 

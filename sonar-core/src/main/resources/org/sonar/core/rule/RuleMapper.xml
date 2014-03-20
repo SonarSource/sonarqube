@@ -4,75 +4,74 @@
 <mapper namespace="org.sonar.core.rule.RuleMapper">
 
   <sql id="selectColumns">
-    id,
-    plugin_rule_key as "ruleKey",
-    plugin_name as "repositoryKey",
-    description,
-    status,
-    name,
-    plugin_config_key as "configKey",
-    priority as "severity",
-    cardinality,
-    language as "language",
-    parent_id as "parentId",
-    note_data as "noteData",
-    note_user_login as "noteUserLogin",
-    note_created_at as "noteCreatedAt",
-    note_updated_at as "noteUpdatedAt",
-    characteristic_id as "characteristicId",
-    default_characteristic_id as "defaultCharacteristicId",
-    remediation_function as "remediationFunction",
-    default_remediation_function as "defaultRemediationFunction",
-    remediation_factor as "remediationFactor",
-    default_remediation_factor as "defaultRemediationFactor",
-    remediation_offset as "remediationOffset",
-    default_remediation_offset as "defaultRemediationOffset",
-    effort_to_fix_description as "effortToFixDescription",
-    created_at as "createdAt",
-    updated_at as "updatedAt"
+    r.id,
+    r.plugin_rule_key as "ruleKey",
+    r.plugin_name as "repositoryKey",
+    r.description,
+    r.status,
+    r.name,
+    r.plugin_config_key as "configKey",
+    r.priority as "severity",
+    r.cardinality,
+    r.language as "language",
+    r.parent_id as "parentId",
+    r.note_data as "noteData",
+    r.note_user_login as "noteUserLogin",
+    r.note_created_at as "noteCreatedAt",
+    r.note_updated_at as "noteUpdatedAt",
+    r.characteristic_id as "characteristicId",
+    r.default_characteristic_id as "defaultCharacteristicId",
+    r.remediation_function as "remediationFunction",
+    r.default_remediation_function as "defaultRemediationFunction",
+    r.remediation_factor as "remediationFactor",
+    r.default_remediation_factor as "defaultRemediationFactor",
+    r.remediation_offset as "remediationOffset",
+    r.default_remediation_offset as "defaultRemediationOffset",
+    r.effort_to_fix_description as "effortToFixDescription",
+    r.created_at as "createdAt",
+    r.updated_at as "updatedAt"
   </sql>
 
   <select id="selectAll" resultType="Rule">
-    select <include refid="selectColumns"/> from rules
+    select <include refid="selectColumns"/> from rules r
   </select>
 
   <select id="selectEnablesAndNonManual" resultType="Rule">
-    select <include refid="selectColumns"/> from rules
+    select <include refid="selectColumns"/> from rules r
     <where>
-      and status != 'REMOVED'
-      and plugin_name != 'manual'
+      and r.status != 'REMOVED'
+      and r.plugin_name != 'manual'
     </where>
   </select>
 
   <select id="selectById" parameterType="Integer" resultType="Rule">
-    select <include refid="selectColumns"/> from rules WHERE id=#{id}
+    select <include refid="selectColumns"/> from rules r WHERE r.id=#{id}
   </select>
 
   <select id="selectByName" parameterType="String" resultType="Rule">
-    select <include refid="selectColumns"/> from rules WHERE name=#{name}
+    select <include refid="selectColumns"/> from rules r WHERE r.name=#{name}
   </select>
 
   <select id="selectNonManual" resultType="Rule">
-    select <include refid="selectColumns"/> from rules
-    where plugin_name != 'manual'
+    select <include refid="selectColumns"/> from rules r
+    where r.plugin_name != 'manual'
   </select>
 
-  <select id="selectByCharacteristicOrSubCharacteristicId" resultType="Rule">
-    select <include refid="selectColumns"/> from rules
+  <select id="selectBySubCharacteristicId" resultType="Rule">
+    select <include refid="selectColumns"/> from rules r
     <where>
-      and characteristic_id in (select c.id from characteristics c where (c.id=#{id} or c.parent_id=#{id}) and c.enabled=${_true})
-      and status!='REMOVED'
+      and (r.characteristic_id=#{characteristicId} or r.default_characteristic_id=#{characteristicId})
     </where>
   </select>
 
   <select id="selectOverridingDebt" resultType="Rule">
-    SELECT <include refid="selectColumns"/> FROM rules
+    SELECT <include refid="selectColumns"/> FROM rules r
     <where>
-      AND (characteristic_id is NOT NULL or remediation_function IS NOT NULL)
+      AND (r.characteristic_id is NOT NULL or r.remediation_function IS NOT NULL)
       <if test="repositories.size()>0">
         AND
         <foreach item="repo" index="index" collection="repositories" open="(" separator=" or " close=")">
-          plugin_name=#{repo}
+          r.plugin_name=#{repo}
         </foreach>
       </if>
     </where>

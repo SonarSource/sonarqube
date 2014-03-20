@@ -81,7 +81,7 @@ public class RulesProvider extends ProviderAdapter {
 
       if (ruleDto.hasCharacteristic()) {
         newRule.setDebtCharacteristic(effectiveCharacteristic(ruleDto, ruleKey, debtModel).key());
-        newRule.setDebtRemediationFunction(effectiveFunction(ruleDto, ruleKey, newRule, durations));
+        newRule.setDebtRemediationFunction(effectiveFunction(ruleDto, ruleKey, durations));
       }
 
       for (RuleParamDto ruleParamDto : paramDtosByRuleId.get(ruleDto.getId())) {
@@ -103,7 +103,7 @@ public class RulesProvider extends ProviderAdapter {
     return characteristic;
   }
 
-  private DebtRemediationFunction effectiveFunction(RuleDto ruleDto, RuleKey ruleKey, NewRule newRule, Durations durations) {
+  private DebtRemediationFunction effectiveFunction(RuleDto ruleDto, RuleKey ruleKey, Durations durations) {
     String function = ruleDto.getRemediationFunction();
     String defaultFunction = ruleDto.getDefaultRemediationFunction();
     if (function != null) {

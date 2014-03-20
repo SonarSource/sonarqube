@@ -303,7 +303,7 @@ public class DebtModelOperationsTest {
     BatchSession batchSession = mock(BatchSession.class);
     when(mybatis.openBatchSession()).thenReturn(batchSession);
 
-    when(ruleDao.selectByCharacteristicOrSubCharacteristicId(2, batchSession)).thenReturn(newArrayList(
+    when(ruleDao.selectBySubCharacteristicId(2, batchSession)).thenReturn(newArrayList(
       new RuleDto()
         .setCharacteristicId(2).setRemediationFunction("LINEAR_OFFSET").setRemediationFactor("2h").setRemediationOffset("5min")
         .setDefaultCharacteristicId(10).setDefaultRemediationFunction("LINEAR_OFFSET").setDefaultRemediationFactor("4h").setDefaultRemediationOffset("15min")
@@ -344,8 +344,8 @@ public class DebtModelOperationsTest {
     BatchSession batchSession = mock(BatchSession.class);
     when(mybatis.openBatchSession()).thenReturn(batchSession);
 
-    when(ruleDao.selectByCharacteristicOrSubCharacteristicId(1, batchSession)).thenReturn(newArrayList(
-      new RuleDto().setCharacteristicId(2).setRemediationFunction("LINEAR_OFFSET").setRemediationFactor("2h").setRemediationOffset("5min")
+    when(ruleDao.selectBySubCharacteristicId(subCharacteristicDto.getId(), batchSession)).thenReturn(newArrayList(
+      new RuleDto().setCharacteristicId(subCharacteristicDto.getId()).setRemediationFunction("LINEAR_OFFSET").setRemediationFactor("2h").setRemediationOffset("5min")
     ));
     when(dao.selectCharacteristicsByParentId(1, batchSession)).thenReturn(newArrayList(
       subCharacteristicDto
