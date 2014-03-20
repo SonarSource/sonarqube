@@ -20,9 +20,9 @@
 
 #
 # SonarQube 4.2
-# See SONAR-4950
+# See SONAR-4950 - reverted. Unique constraint is not created but duplications are still purged.
 #
-class AddUniqueConstraintToGroupRoles < ActiveRecord::Migration
+class PurgeGroupRoles < ActiveRecord::Migration
 
   class GroupRole < ActiveRecord::Base
   end
@@ -40,7 +40,5 @@ class AddUniqueConstraintToGroupRoles < ActiveRecord::Migration
         end
       end
     end
-
-    add_index 'group_roles', ['group_id', 'resource_id', 'role'], :unique => true, :name => 'uniq_group_roles'
   end
 end
