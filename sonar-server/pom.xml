@@ -280,16 +280,6 @@
             </configuration>
           </execution>
           <execution>
-            <id>javascript tests</id>
-            <phase>test</phase>
-            <goals>
-              <goal>grunt</goal>
-            </goals>
-            <configuration>
-              <arguments>karma</arguments>
-            </configuration>
-          </execution>
-          <execution>
             <phase>generate-resources</phase>
             <id>grunt build</id>
             <goals>
@@ -369,6 +359,32 @@
   </build>
 
   <profiles>
+    <profile>
+      <id>js-tests</id>
+      <activation>
+        <property><name>!skipTests</name></property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.github.eirslett</groupId>
+            <artifactId>frontend-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>javascript tests</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>grunt</goal>
+                </goals>
+                <configuration>
+                  <arguments>karma</arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
     <profile>
       <id>start-dev-server</id>
       <properties>
