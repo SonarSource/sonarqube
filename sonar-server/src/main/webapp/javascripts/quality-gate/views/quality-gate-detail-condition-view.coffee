@@ -118,6 +118,6 @@ define [
         periodText: period?.text
       unless @options.app.canEdit
         _.extend data,
-          warning: jQuery('<input>').data('type', @model.get('metric').type).val(@model.get('warning')).val()
+          warning: jQuery('<input>').data('type', @model.get('metric').type).val(@model.get('warning')).originalVal()
           error: jQuery('<input>').data('type', @model.get('metric').type).val(@model.get('error')).originalVal()
       data

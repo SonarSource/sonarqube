@@ -151,7 +151,7 @@
         });
         if (!this.options.app.canEdit) {
           _.extend(data, {
-            warning: jQuery('<input>').data('type', this.model.get('metric').type).val(this.model.get('warning')).val(),
+            warning: jQuery('<input>').data('type', this.model.get('metric').type).val(this.model.get('warning')).originalVal(),
             error: jQuery('<input>').data('type', this.model.get('metric').type).val(this.model.get('error')).originalVal()
           });
         }
