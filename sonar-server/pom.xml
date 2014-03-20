@@ -303,7 +303,7 @@
             </goals>
             <configuration>
               <outputDirectory>${project.build.directory}/${project.build.finalName}</outputDirectory>
-              <overwrite>false</overwrite>
+              <overwrite>true</overwrite>
               <resources>
                 <resource>
                   <directory>src/main/webapp/build</directory>
@@ -343,7 +343,7 @@
             build/**,coffee/**,less/**,templates/**
           </packagingExcludes>
           <warSourceExcludes>
-            **/*
+            js/**,css/**
           </warSourceExcludes>
           <archive>
             <manifestEntries>
