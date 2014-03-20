@@ -1,31 +1,7 @@
 <% content_for :script do %>
-  <script data-main="<%= ApplicationController.root_context -%>/javascripts/quality-gate/app" src="<%= ApplicationController.root_context -%>/javascripts/third-party/require.js"></script>
+  <script data-main="<%= ApplicationController.root_context -%>/js/quality-gate/app" src="<%= ApplicationController.root_context -%>/js/require.js"></script>
 <% end %>
 
 <div id="quality-gate-page-loader" class="navigator-page-loader">
   <i class="spinner"></i>
 </div>
-
-<%= render :partial => '/quality_gates/templates/quality_gates_layout.hbs' -%>
-<%= render :partial => '/quality_gates/templates/quality_gate_sidebar_list_item_template.hbs' -%>
-<%= render :partial => '/quality_gates/templates/quality_gate_sidebar_list_empty_template.hbs' -%>
-<%= render :partial => '/quality_gates/templates/quality_gate_actions_template.hbs' -%>
-<%= render :partial => '/quality_gates/templates/quality_gate_edit_template.hbs' -%>
-<%= render :partial => '/quality_gates/templates/quality_gate_detail_template.hbs' -%>
-<%= render :partial => '/quality_gates/templates/quality_gate_detail_header_template.hbs' -%>
-<%= render :partial => '/quality_gates/templates/quality_gate_detail_conditions_template.hbs' -%>
-<%= render :partial => '/quality_gates/templates/quality_gate_detail_conditions_empty_template.hbs' -%>
-<%= render :partial => '/quality_gates/templates/quality_gate_detail_condition_template.hbs' -%>
-<%= render :partial => '/quality_gates/templates/quality_gate_detail_projects_template.hbs' -%>
-
-
-<script>
-  window.SS = {
-    workDuration: {
-      days: '<%= message('work_duration.x_days') -%>',
-      hours: '<%= message('work_duration.x_hours') -%>',
-      minutes: '<%= message('work_duration.x_minutes') -%>'
-    }
-  };
-</script>
-

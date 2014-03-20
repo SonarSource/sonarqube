@@ -1,0 +1,57 @@
+<td nowrap>
+  {{metric.name}}
+</td>
+<td width="10%" nowrap>
+  {{#if canEdit}}
+    <select name="period">
+      {{#unless isDiffMetric}}<option value="0">{{t 'value'}}</option>{{/unless}}
+      {{#each periods}}<option value="{{key}}">&Delta; {{text}}</option>{{/each}}
+    </select>
+  {{else}}
+    {{#if periodText}}&Delta; {{periodText}}
+    {{else}}{{t 'value'}}
+    {{/if}}
+  {{/if}}
+</td>
+<td width="10%" nowrap>
+  {{#if canEdit}}
+    <select name="operator">
+      {{#operators metric.type}}
+        <option value="{{this}}">{{t 'quality_gates.operator' this}}</option>
+      {{/operators}}
+    </select>
+  {{else}}
+    {{t 'quality_gates.operator' op}}
+  {{/if}}
+</td>
+<td width="15%" nowrap="nowrap">
+  <i class="icon-alert-warn" title="{{t 'alerts.warning_tooltip'}}"></i>
+  {{#if canEdit}}
+    <input name="warning" class="measure-input" data-type="{{metric.type}}" type="text">
+  {{else}}
+    {{warning}}
+  {{/if}}
+</td>
+<td width="15%" nowrap="nowrap">
+  <i class="icon-alert-error" title="{{t 'alerts.error_tooltip'}}"></i>
+  {{#if canEdit}}
+    <input name="error" class="measure-input" data-type="{{metric.type}}" type="text">
+  {{else}}
+    {{error}}
+  {{/if}}
+</td>
+<td class="quality-gate-condition-actions" width="120px" nowrap>
+  {{#if canEdit}}
+    {{#if id}}
+      <div class="button-group">
+        <button class="update-condition" disabled>{{t 'update_verb'}}</button>
+        <button class="button-red delete-condition">{{t 'delete'}}</button>
+      </div>
+    {{else}}
+      <div class="button-group">
+        <button class="add-condition">{{t 'add_verb'}}</button>
+        <a class="action cancel-add-condition">{{t 'cancel'}}</a>
+      </div>
+    {{/if}}
+  {{/if}}
+</td>

@@ -1,13 +1,14 @@
 define [
   'backbone.marionette',
-  'common/handlebars-extensions'
+  'templates/coding-rules'
 ], (
-  Marionette
+  Marionette,
+  Templates
 ) ->
 
   class CodingRulesQualityProfileActivationView extends Marionette.ItemView
     className: 'modal'
-    template: getTemplate '#coding-rules-quality-profile-activation-template'
+    template: Templates['coding-rules-quality-profile-activation']
 
 
     ui:

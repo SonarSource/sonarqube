@@ -1,11 +1,12 @@
 define [
   'backbone.marionette',
-  'common/handlebars-extensions'
+  'templates/coding-rules'
 ], (
   Marionette,
+  Templates
 ) ->
 
   class CodingRulesListEmptyView extends Marionette.ItemView
     tagName: 'li'
     className: 'navigator-results-no-results'
-    template: getTemplate '#coding-rules-list-empty-template'
+    template: Templates['coding-rules-list-empty']

@@ -1,12 +1,13 @@
 define [
   'backbone.marionette',
-  'common/handlebars-extensions'
+  'templates/coding-rules'
 ], (
-  Marionette
+  Marionette,
+  Templates
 ) ->
 
   class CodingRulesStatusView extends Marionette.ItemView
-    template: getTemplate '#coding-rules-status-template'
+    template: Templates['coding-rules-actions']
 
 
     collectionEvents:

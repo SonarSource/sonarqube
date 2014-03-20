@@ -1,5 +1,5 @@
 requirejs.config
-  baseUrl: "#{baseUrl}/javascripts"
+  baseUrl: "#{baseUrl}/js"
 
   paths:
     'backbone': 'third-party/backbone'
@@ -39,7 +39,8 @@ requirejs [
   'coding-rules/views/filters/quality-profile-filter-view',
   'coding-rules/views/filters/inheritance-filter-view',
 
-  'coding-rules/mockjax'
+  'coding-rules/mockjax',
+  'common/handlebars-extensions'
 ], (
   Backbone, Marionette,
 

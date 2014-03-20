@@ -1,13 +1,14 @@
 define [
   'backbone.marionette',
-  'common/handlebars-extensions'
+  'templates/quality-gates'
 ], (
-  Marionette
+  Marionette,
+  Templates
 ) ->
 
   class AppLayout extends Marionette.Layout
     className: 'navigator quality-gates-navigator'
-    template: getTemplate '#quality-gates-layout'
+    template: Templates['quality-gates-layout']
 
 
     regions:

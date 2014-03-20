@@ -1,12 +1,13 @@
 define [
   'backbone.marionette',
-  'common/handlebars-extensions'
+  'templates/coding-rules'
 ], (
-  Marionette
+  Marionette,
+  Templates
 ) ->
 
   class CodingRulesHeaderView extends Marionette.ItemView
-    template: getTemplate '#coding-rules-header-template'
+    template: Templates['coding-rules-header']
 
 
     events:

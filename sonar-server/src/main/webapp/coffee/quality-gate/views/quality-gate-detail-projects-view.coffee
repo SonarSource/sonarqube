@@ -1,14 +1,14 @@
 define [
   'backbone.marionette',
-  'handlebars',
+  'templates/quality-gates'
   'select-list'
 ], (
   Marionette,
-  Handlebars
+  Templates
 ) ->
 
   class QualityGateDetailProjectsView extends Marionette.ItemView
-    template: Handlebars.compile jQuery('#quality-gate-detail-projects-template').html()
+    template: Templates['quality-gate-detail-projects']
 
 
     onRender: ->

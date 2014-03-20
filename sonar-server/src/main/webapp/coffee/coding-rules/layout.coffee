@@ -1,13 +1,14 @@
 define [
   'backbone.marionette',
-  'common/handlebars-extensions'
+  'templates/coding-rules'
 ], (
-  Marionette
+  Marionette,
+  Templates
 ) ->
 
   class AppLayout extends Marionette.Layout
     className: 'navigator coding-rules-navigator'
-    template: getTemplate '#coding-rules-layout'
+    template: Templates['coding-rules-layout']
     spinner: '<i class="spinner"></i>'
 
 

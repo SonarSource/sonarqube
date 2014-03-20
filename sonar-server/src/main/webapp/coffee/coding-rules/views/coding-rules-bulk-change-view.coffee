@@ -1,13 +1,14 @@
 define [
   'backbone.marionette',
-  'common/handlebars-extensions'
+  'templates/coding-rules'
 ], (
-  Marionette
+  Marionette,
+  Templates
 ) ->
 
   class CodingRulesBulkChangeView extends Marionette.ItemView
     className: 'modal'
-    template: getTemplate '#coding-rules-bulk-change-template'
+    template: Templates['coding-rules-bulk-change']
 
 
     events:

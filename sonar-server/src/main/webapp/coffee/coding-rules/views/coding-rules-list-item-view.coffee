@@ -1,15 +1,16 @@
 define [
   'backbone.marionette',
   'coding-rules/views/coding-rules-detail-view',
-  'common/handlebars-extensions'
+  'templates/coding-rules'
 ], (
   Marionette,
-  CodingRulesDetailView
+  CodingRulesDetailView,
+  Templates
 ) ->
 
   class CodingRulesListItemView extends Marionette.ItemView
     tagName: 'li'
-    template: getTemplate '#coding-rules-list-item-template'
+    template: Templates['coding-rules-list-item']
     activeClass: 'active'
 
 

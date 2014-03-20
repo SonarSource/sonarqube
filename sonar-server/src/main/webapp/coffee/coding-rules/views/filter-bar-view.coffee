@@ -2,15 +2,18 @@ define [
   'navigator/filters/filter-bar',
   'navigator/filters/base-filters',
   'navigator/filters/favorite-filters',
-  'navigator/filters/more-criteria-filters'
+  'navigator/filters/more-criteria-filters',
+  'templates/coding-rules'
 ], (
   FilterBarView,
   BaseFilters,
   FavoriteFiltersModule,
-  MoreCriteriaFilters
+  MoreCriteriaFilters,
+  Templates
 ) ->
 
   class CodingRulesFilterBarView extends FilterBarView
+    template: Templates['coding-rules-filter-bar']
 
     collectionEvents:
       'change:enabled': 'changeEnabled'

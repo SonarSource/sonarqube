@@ -1,5 +1,5 @@
 requirejs.config
-  baseUrl: "#{baseUrl}/javascripts"
+  baseUrl: "#{baseUrl}/js"
 
   paths:
     'jquery': 'third-party/jquery'

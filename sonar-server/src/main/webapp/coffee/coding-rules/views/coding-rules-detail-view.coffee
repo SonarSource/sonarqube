@@ -2,15 +2,16 @@ define [
   'backbone',
   'backbone.marionette',
   'coding-rules/views/coding-rules-detail-quality-profiles-view'
-  'common/handlebars-extensions'
+  'templates/coding-rules'
 ], (
   Backbone,
   Marionette,
-  CodingRulesDetailQualityProfilesView
+  CodingRulesDetailQualityProfilesView,
+  Templates
 ) ->
 
   class CodingRulesDetailView extends Marionette.Layout
-    template: getTemplate '#coding-rules-detail-template'
+    template: Templates['coding-rules-detail']
 
 
     regions:

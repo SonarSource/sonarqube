@@ -1,14 +1,14 @@
 define [
   'backbone.marionette',
-  'handlebars'
+  'templates/quality-gates'
 ], (
   Marionette,
-  Handlebars
+  Templates
 ) ->
 
   class QualityGateDetailConditionView extends Marionette.ItemView
     tagName: 'tr'
-    template: Handlebars.compile jQuery('#quality-gate-detail-condition-template').html()
+    template: Templates['quality-gate-detail-condition']
     spinner: '<i class="spinner"></i>'
 
 

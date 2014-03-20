@@ -1,15 +1,11 @@
 define [
   'backbone.marionette',
-  'handlebars',
-  'quality-gate/models/quality-gate',
   'quality-gate/views/quality-gate-sidebar-list-item-view',
   'quality-gate/views/quality-gate-sidebar-list-empty-view'
 ], (
   Marionette,
-  Handlebars,
-  QualityGate,
   QualityGateSidebarListItemView,
-  QualityGateSidebarListEmptyView
+  QualityGateSidebarListEmptyView,
 ) ->
 
   class QualityGateSidebarListView extends Marionette.CollectionView

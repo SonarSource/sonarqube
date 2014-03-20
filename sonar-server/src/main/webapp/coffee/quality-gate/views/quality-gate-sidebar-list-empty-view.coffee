@@ -1,12 +1,12 @@
 define [
   'backbone.marionette',
-  'handlebars'
+  'templates/quality-gates'
 ], (
   Marionette,
-  Handlebars
+  Templates
 ) ->
 
   class QualityGateSidebarListEmptyView extends Marionette.ItemView
     tagName: 'li'
     className: 'empty'
-    template: Handlebars.compile jQuery('#quality-gate-sidebar-list-empty-template').html()
+    template: Templates['quality-gate-sidebar-list-empty']

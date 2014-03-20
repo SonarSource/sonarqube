@@ -11,11 +11,10 @@
     "grunt-cli": "~0.1.13",
     "grunt-contrib-less": "~0.10.0",
     "grunt-contrib-coffee": "~0.10.1",
-    "grunt-contrib-handlebars": "~0.7.0",
+    "grunt-contrib-handlebars": "^0.7.0",
     "grunt-contrib-requirejs": "^0.4.3",
     "grunt-contrib-watch": "~0.5.3",
     "grunt-contrib-uglify": "^0.4.0"
-
   },
   "engines": {
     "node": "~0.8 || ~0.10"

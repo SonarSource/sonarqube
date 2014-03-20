@@ -1,13 +1,13 @@
 define [
   'backbone.marionette',
-  'handlebars',
+  'templates/quality-gates',
   'quality-gate/collections/conditions',
   'quality-gate/views/quality-gate-detail-header-view',
   'quality-gate/views/quality-gate-detail-conditions-view',
   'quality-gate/views/quality-gate-detail-projects-view'
 ], (
   Marionette,
-  Handlebars,
+  Templates,
   Conditions,
   QualityGateDetailHeaderView,
   QualityGateDetailConditionsView,
@@ -15,7 +15,7 @@ define [
 ) ->
 
   class QualityGateDetailView extends Marionette.Layout
-    template: Handlebars.compile jQuery('#quality-gate-detail-template').html()
+    template: Templates['quality-gate-detail']
 
 
     regions:
