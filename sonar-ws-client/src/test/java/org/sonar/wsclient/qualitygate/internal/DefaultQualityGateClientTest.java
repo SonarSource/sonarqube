@@ -60,7 +60,7 @@ public class DefaultQualityGateClientTest {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
 
     httpServer.stubResponseBody(
-        "{\"qualitygates\":[{\"id\":666,\"name\":\"Ninth\"},{\"id\":42,\"name\":\"Golden\"},{\"id\":43,\"name\":\"Star\"}]}");
+        "{\"qualitygates\":[{\"id\":666,\"name\":\"Ninth\"},{\"id\":42,\"name\":\"Golden\"},{\"id\":43,\"name\":\"Star\"}],\"default\":42}");
 
     QualityGateClient client = new DefaultQualityGateClient(requestFactory);
     QualityGates qGates = client.list();
@@ -68,6 +68,22 @@ public class DefaultQualityGateClientTest {
     assertThat(httpServer.requestedPath()).isEqualTo("/api/qualitygates/list");
     assertThat(httpServer.requestParams()).isEmpty();
     assertThat(qGates.qualityGates()).hasSize(3);
+    assertThat(qGates.defaultGate().id()).isEqualTo(42L);
+  }
+
+  @Test
+  public void should_list_qualitygates_empty() {
+    HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
+
+    httpServer.stubResponseBody(
+        "{}");
+
+    QualityGateClient client = new DefaultQualityGateClient(requestFactory);
+    QualityGates qGates = client.list();
+
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/qualitygates/list");
+    assertThat(httpServer.requestParams()).isEmpty();
+    assertThat(qGates.qualityGates()).isEmpty();
     assertThat(qGates.defaultGate()).isNull();
   }
 

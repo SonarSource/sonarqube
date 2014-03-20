@@ -57,15 +57,18 @@ public class ResolvedCondition {
     return json.get("op").getAsString();
   }
 
-  public @CheckForNull String warningThreshold() {
+  @CheckForNull
+  public String warningThreshold() {
     return json.has(ATTRIBUTE_WARNING) ? json.get(ATTRIBUTE_WARNING).getAsString() : null;
   }
 
-  public @CheckForNull String errorThreshold() {
+  @CheckForNull
+  public String errorThreshold() {
     return json.has(ATTRIBUTE_ERROR) ? json.get(ATTRIBUTE_ERROR).getAsString() : null;
   }
 
-  public @CheckForNull Integer period() {
+  @CheckForNull
+  public Integer period() {
     return json.has(ATTRIBUTE_PERIOD) ? json.get(ATTRIBUTE_PERIOD).getAsInt() : null;
   }
 }

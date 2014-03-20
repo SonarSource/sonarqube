@@ -73,6 +73,8 @@ public class QualityGatesWs implements WebService {
 
     defineConditionActions(controller);
 
+    defineProjectAssociationActions(controller);
+
     controller.createAction("app")
       .setInternal(true)
       .setDescription("Get initialization items for the admin UI. For internal use.")
@@ -223,7 +225,9 @@ public class QualityGatesWs implements WebService {
     search.createParam(PARAM_QUERY).setDescription("Optionally, part of the name of the projects to search for.");
     search.createParam(PARAM_PAGE);
     search.createParam(PARAM_PAGE_SIZE);
+  }
 
+  private void defineProjectAssociationActions(NewController controller) {
     NewAction select = controller.createAction("select")
       .setPost(true)
       .setHandler(new RequestHandler() {
@@ -283,16 +287,10 @@ public class QualityGatesWs implements WebService {
   protected void show(Request request, Response response) {
     Long qGateId = request.paramAsLong(PARAM_ID);
     String qGateName = request.param(PARAM_NAME);
-    if (qGateId == null && qGateName == null) {
-      throw new BadRequestException("Either one of 'id' or 'name' is required.");
-    } else if (qGateId != null && qGateName != null) {
-      throw new BadRequestException("Only one of 'id' or 'name' must be provided.");
-    }
+    checkOneOfIdOrNamePresent(qGateId, qGateName);
 
     QualityGateDto qGate = qGateId == null ? qualityGates.get(qGateName) : qualityGates.get(qGateId);
-    if (qGateId == null) {
-      qGateId = qGate.getId();
-    }
+    qGateId = qGate.getId();
 
     JsonWriter writer = response.newJsonWriter().beginObject()
       .prop(PARAM_ID, qGate.getId())
@@ -306,6 +304,14 @@ public class QualityGatesWs implements WebService {
       writer.endArray();
     }
     writer.endObject().close();
+  }
+
+  private void checkOneOfIdOrNamePresent(Long qGateId, String qGateName) {
+    if (qGateId == null && qGateName == null) {
+      throw new BadRequestException("Either one of 'id' or 'name' is required.");
+    } else if (qGateId != null && qGateName != null) {
+      throw new BadRequestException("Only one of 'id' or 'name' must be provided.");
+    }
   }
 
   protected void createCondition(Request request, Response response) {

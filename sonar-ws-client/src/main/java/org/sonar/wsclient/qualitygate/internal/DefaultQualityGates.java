@@ -19,6 +19,8 @@
  */
 package org.sonar.wsclient.qualitygate.internal;
 
+import org.json.simple.JSONArray;
+
 import org.sonar.wsclient.unmarshallers.JsonUtils;
 import org.sonar.wsclient.qualitygate.QualityGate;
 
@@ -37,9 +39,12 @@ public class DefaultQualityGates implements QualityGates {
   @SuppressWarnings("unchecked")
   public DefaultQualityGates(Map<String, Object> json) {
     qualityGates = new LinkedHashMap<Long, QualityGate>();
-    for (Object entry: JsonUtils.getArray(json, "qualitygates")) {
-      QualityGate qGate = new DefaultQualityGate((Map<String, String>) entry);
-      qualityGates.put(qGate.id(), qGate);
+    JSONArray gatesJson = JsonUtils.getArray(json, "qualitygates");
+    if (gatesJson != null) {
+      for (Object entry: gatesJson) {
+        QualityGate qGate = new DefaultQualityGate((Map<String, String>) entry);
+        qualityGates.put(qGate.id(), qGate);
+      }
     }
     defaultId = JsonUtils.getLong(json, "default");
   }
