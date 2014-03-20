@@ -20,15 +20,13 @@
 
 package org.sonar.server.debt;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.ServerExtension;
-import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
+import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -37,10 +35,6 @@ import javax.xml.stream.XMLStreamException;
 
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.Collection;
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 public class DebtCharacteristicsXMLImporter implements ServerExtension {
 
@@ -53,7 +47,7 @@ public class DebtCharacteristicsXMLImporter implements ServerExtension {
   }
 
   public DebtModel importXML(Reader xml) {
-    DebtModel model = new DebtModel();
+    DebtModel debtModel = new DebtModel();
     try {
       SMInputFactory inputFactory = initStax();
       SMHierarchicCursor cursor = inputFactory.rootElementCursor(xml);
@@ -63,7 +57,7 @@ public class DebtCharacteristicsXMLImporter implements ServerExtension {
       SMInputCursor chcCursor = cursor.childElementCursor(CHARACTERISTIC);
 
       while (chcCursor.getNext() != null) {
-        processCharacteristic(model, null, chcCursor);
+        process(debtModel, null, chcCursor);
       }
 
       cursor.getStreamReader().closeCompletely();
@@ -71,7 +65,7 @@ public class DebtCharacteristicsXMLImporter implements ServerExtension {
     } catch (XMLStreamException e) {
       throw new IllegalStateException("XML is not valid", e);
     }
-    return model;
+    return debtModel;
   }
 
   private SMInputFactory initStax() {
@@ -84,80 +78,28 @@ public class DebtCharacteristicsXMLImporter implements ServerExtension {
   }
 
   @CheckForNull
-  private DefaultCharacteristic processCharacteristic(DebtModel model, @Nullable DefaultCharacteristic parent, SMInputCursor chcCursor) throws XMLStreamException {
-    DefaultCharacteristic characteristic = new DefaultCharacteristic();
+  private void process(DebtModel debtModel, @Nullable String parent, SMInputCursor chcCursor) throws XMLStreamException {
+    DefaultDebtCharacteristic characteristic = new DefaultDebtCharacteristic();
     SMInputCursor cursor = chcCursor.childElementCursor();
     while (cursor.getNext() != null) {
       String node = cursor.getLocalName();
       if (StringUtils.equals(node, CHARACTERISTIC_KEY)) {
+        // TODO Attached to parent only if a key is existing, otherwise characteristic with empty key can be added.
         characteristic.setKey(cursor.collectDescendantText().trim());
-        // Attached to parent only if a key is existing, otherwise characteristic with empty key can be added.
-        characteristic.setParent(parent);
+        if (parent == null) {
+          characteristic.setOrder(debtModel.rootCharacteristics().size() + 1);
+          debtModel.addRootCharacteristic(characteristic);
+        } else {
+          debtModel.addSubCharacteristic(characteristic, parent);
+        }
 
       } else if (StringUtils.equals(node, CHARACTERISTIC_NAME)) {
-        characteristic.setName(cursor.collectDescendantText().trim(), false);
+        characteristic.setName(cursor.collectDescendantText().trim());
 
         // <chc> can contain characteristics or requirements
       } else if (StringUtils.equals(node, CHARACTERISTIC)) {
-        processCharacteristic(model, characteristic, cursor);
+        process(debtModel, characteristic.key(), cursor);
       }
     }
-
-    if (StringUtils.isNotBlank(characteristic.key()) && characteristic.isRoot()) {
-      characteristic.setOrder(model.rootCharacteristics().size() + 1);
-      model.addRootCharacteristic(characteristic);
-      return characteristic;
-    }
-    return null;
   }
-
-  static class DebtModel {
-
-    private Collection<DefaultCharacteristic> rootCharacteristics;
-
-    public DebtModel() {
-      rootCharacteristics = newArrayList();
-    }
-
-    public DebtModel addRootCharacteristic(DefaultCharacteristic characteristic) {
-      rootCharacteristics.add(characteristic);
-      return this;
-    }
-
-    public List<DefaultCharacteristic> rootCharacteristics() {
-      return newArrayList(Iterables.filter(rootCharacteristics, new Predicate<DefaultCharacteristic>() {
-        @Override
-        public boolean apply(DefaultCharacteristic input) {
-          return input.isRoot();
-        }
-      }));
-    }
-
-    @CheckForNull
-    public DefaultCharacteristic characteristicByKey(final String key) {
-      return Iterables.find(characteristics(), new Predicate<DefaultCharacteristic>() {
-        @Override
-        public boolean apply(DefaultCharacteristic input) {
-          return input.key().equals(key);
-        }
-      }, null);
-    }
-
-    public List<DefaultCharacteristic> characteristics() {
-      List<DefaultCharacteristic> flatCharacteristics = newArrayList();
-      for (DefaultCharacteristic rootCharacteristic : rootCharacteristics) {
-        flatCharacteristics.add(rootCharacteristic);
-        for (DefaultCharacteristic characteristic : rootCharacteristic.children()) {
-          flatCharacteristics.add(characteristic);
-        }
-      }
-      return flatCharacteristics;
-    }
-
-    public boolean isEmpty() {
-      return rootCharacteristics.isEmpty();
-    }
-
-  }
-
 }

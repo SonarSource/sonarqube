@@ -65,6 +65,13 @@
     </where>
   </select>
 
+  <select id="selectOverridingDebt" resultType="Rule">
+    SELECT <include refid="selectColumns"/> FROM rules
+    <where>
+      AND (characteristic_id is NOT NULL or remediation_function IS NOT NULL)
+    </where>
+  </select>
+
   <update id="update" parameterType="Rule">
     UPDATE rules SET
     plugin_rule_key=#{ruleKey},

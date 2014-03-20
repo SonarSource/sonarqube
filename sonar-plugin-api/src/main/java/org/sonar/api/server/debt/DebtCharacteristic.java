@@ -22,6 +22,8 @@ package org.sonar.api.server.debt;
 
 import javax.annotation.CheckForNull;
 
+import java.util.Date;
+
 /**
  * @since 4.3
  */
@@ -37,4 +39,9 @@ public interface DebtCharacteristic {
 
   @CheckForNull
   Integer parentId();
+
+  Date createdAt();
+
+  @CheckForNull
+  Date updatedAt();
 }

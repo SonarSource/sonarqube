@@ -107,7 +107,7 @@
 
   <insert id="insert" parameterType="Characteristic" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO characteristics (kee, name, parent_id, characteristic_order, enabled, created_at, updated_at)
-    VALUES (#{kee}, #{name}, #{parentId}, #{characteristicOrder}, #{enabled}, current_timestamp, current_timestamp)
+    VALUES (#{kee}, #{name}, #{parentId}, #{characteristicOrder}, #{enabled}, #{createdAt}, #{updatedAt})
   </insert>
 
   <update id="update" parameterType="Characteristic">

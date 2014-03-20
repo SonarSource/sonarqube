@@ -31,8 +31,7 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class CharacteristicDaoTest extends AbstractDaoTestCase {
 
-  private static final String[] EXCLUDED_COLUMNS = new String[]{"id", "root_id", "rule_id", "function_key", "factor_unit", "factor_value", "offset_unit", "offset_value",
-    "created_at", "updated_at"};
+  private static final String[] EXCLUDED_COLUMNS = new String[]{"id", "root_id", "rule_id", "function_key", "factor_unit", "factor_value", "offset_unit", "offset_value"};
 
   CharacteristicDao dao;
 

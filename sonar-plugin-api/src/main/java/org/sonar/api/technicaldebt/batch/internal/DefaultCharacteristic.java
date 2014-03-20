@@ -33,6 +33,10 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+/**
+ * @deprecated since 4.3
+ */
+@Deprecated
 public class DefaultCharacteristic implements Characteristic {
 
   private Integer id;

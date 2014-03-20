@@ -30,7 +30,8 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
+import org.sonar.api.server.debt.DebtCharacteristic;
+import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.technicaldebt.TechnicalDebtModelRepository;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
@@ -40,6 +41,7 @@ import java.io.Reader;
 import java.util.Collections;
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -65,15 +67,14 @@ public class DebtModelSynchronizerTest {
 
   Integer currentId = 1;
 
-  private DebtCharacteristicsXMLImporter.DebtModel defaultModel;
+  DebtModel defaultModel = new DebtModel();
 
-  private DebtModelSynchronizer manager;
+  DebtModelSynchronizer manager;
 
   @Before
   public void initAndMerge() throws Exception {
     when(myBatis.openSession()).thenReturn(session);
 
-    defaultModel = new DebtCharacteristicsXMLImporter.DebtModel();
     Reader defaultModelReader = mock(Reader.class);
     when(technicalDebtModelRepository.createReaderForXMLFile("technical-debt")).thenReturn(defaultModelReader);
     when(xmlImporter.importXML(eq(defaultModelReader))).thenReturn(defaultModel);
@@ -93,9 +94,10 @@ public class DebtModelSynchronizerTest {
 
   @Test
   public void create_default_model_on_first_execution_when_no_plugin() throws Exception {
-    DefaultCharacteristic rootCharacteristic = new DefaultCharacteristic().setKey("PORTABILITY");
-    new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(rootCharacteristic);
-    defaultModel.addRootCharacteristic(rootCharacteristic);
+    DebtCharacteristic characteristic = new DefaultDebtCharacteristic().setKey("PORTABILITY");
+    DebtCharacteristic subCharacteristic = new DefaultDebtCharacteristic().setKey("COMPILER_RELATED_PORTABILITY");
+    defaultModel.addRootCharacteristic(characteristic);
+    defaultModel.addSubCharacteristic(subCharacteristic, "PORTABILITY");
 
     when(technicalDebtModelRepository.getContributingPluginList()).thenReturn(Collections.<String>emptyList());
     when(dao.selectEnabledCharacteristics()).thenReturn(Lists.<CharacteristicDto>newArrayList());
@@ -114,12 +116,13 @@ public class DebtModelSynchronizerTest {
 
   @Test
   public void not_create_default_model_if_already_exists() throws Exception {
-    DefaultCharacteristic rootCharacteristic = new DefaultCharacteristic().setKey("PORTABILITY");
-    new DefaultCharacteristic().setKey("COMPILER_RELATED_PORTABILITY").setParent(rootCharacteristic);
-    defaultModel.addRootCharacteristic(rootCharacteristic);
+    DebtCharacteristic characteristic = new DefaultDebtCharacteristic().setKey("PORTABILITY");
+    DebtCharacteristic subCharacteristic = new DefaultDebtCharacteristic().setKey("COMPILER_RELATED_PORTABILITY");
+    defaultModel.addRootCharacteristic(characteristic);
+    defaultModel.addSubCharacteristic(subCharacteristic, "PORTABILITY");
 
     when(technicalDebtModelRepository.getContributingPluginList()).thenReturn(Collections.<String>emptyList());
-    when(dao.selectEnabledCharacteristics()).thenReturn(Lists.newArrayList(new CharacteristicDto()));
+    when(dao.selectEnabledCharacteristics()).thenReturn(newArrayList(new CharacteristicDto()));
 
     manager.synchronize();
 

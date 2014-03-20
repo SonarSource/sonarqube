@@ -82,10 +82,7 @@ import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
 import org.sonar.server.db.migrations.DatabaseMigrations;
 import org.sonar.server.db.migrations.DatabaseMigrator;
-import org.sonar.server.debt.DebtCharacteristicsXMLImporter;
-import org.sonar.server.debt.DebtModelService;
-import org.sonar.server.debt.DebtModelSynchronizer;
-import org.sonar.server.debt.DebtRulesXMLImporter;
+import org.sonar.server.debt.*;
 import org.sonar.server.es.ESIndex;
 import org.sonar.server.es.ESNode;
 import org.sonar.server.issue.*;
@@ -349,6 +346,9 @@ class ServerComponents {
 
     // technical debt
     pico.addSingleton(DebtModelService.class);
+    pico.addSingleton(DebtModelOperations.class);
+    pico.addSingleton(DebtModelLookup.class);
+    pico.addSingleton(DebtModelRestore.class);
     pico.addSingleton(TechnicalDebtModelSynchronizer.class);
     pico.addSingleton(DebtModelSynchronizer.class);
     pico.addSingleton(TechnicalDebtModelRepository.class);

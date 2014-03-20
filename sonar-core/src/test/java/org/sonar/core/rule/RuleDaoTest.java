@@ -50,7 +50,8 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     setupData("selectAll");
     List<RuleDto> ruleDtos = dao.selectAll();
 
-    assertThat(ruleDtos.size()).isEqualTo(1);
+    assertThat(ruleDtos).hasSize(1);
+
     RuleDto ruleDto = ruleDtos.get(0);
     assertThat(ruleDto.getId()).isEqualTo(1);
     assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
@@ -151,6 +152,13 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     // Rules from disabled characteristic
     ruleDtos = dao.selectByCharacteristicOrSubCharacteristicId(11);
     assertThat(ruleDtos).isEmpty();
+  }
+
+  @Test
+  public void select_overriding_debt_rules() throws Exception {
+    setupData("select_overriding_debt_rules");
+
+    assertThat(dao.selectOverridingDebt()).hasSize(3);
   }
 
   @Test

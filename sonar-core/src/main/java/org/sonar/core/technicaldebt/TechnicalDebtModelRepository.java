@@ -44,6 +44,7 @@ import static com.google.common.collect.Lists.newArrayList;
  * they must be named "<pluginKey>-model.xml".
  * </p>
  */
+// TODO move it to sonar-server and rename it DebtModelPluginRepository when it will be no more used by the SQALE plugin
 public class TechnicalDebtModelRepository implements ServerExtension, Startable {
 
   public static final String DEFAULT_MODEL = "technical-debt";

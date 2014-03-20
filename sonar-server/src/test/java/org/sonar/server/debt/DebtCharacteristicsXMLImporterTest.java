@@ -23,9 +23,10 @@ package org.sonar.server.debt;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import org.junit.Test;
-import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
+import org.sonar.api.server.debt.DebtCharacteristic;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -36,42 +37,50 @@ public class DebtCharacteristicsXMLImporterTest {
   public void import_characteristics() {
     String xml = getFileContent("import_characteristics.xml");
 
-    DebtCharacteristicsXMLImporter.DebtModel debtModel = new DebtCharacteristicsXMLImporter().importXML(xml);
+    DebtModel debtModel = new DebtCharacteristicsXMLImporter().importXML(xml);
+    List<DebtCharacteristic> rootCharacteristics = debtModel.rootCharacteristics();
 
-    assertThat(debtModel.rootCharacteristics()).hasSize(2);
-    assertThat(debtModel.rootCharacteristics().get(0).key()).isEqualTo("PORTABILITY");
-    assertThat(debtModel.rootCharacteristics().get(1).key()).isEqualTo("MAINTAINABILITY");
+    assertThat(rootCharacteristics).hasSize(2);
+    assertThat(rootCharacteristics.get(0).key()).isEqualTo("PORTABILITY");
+    assertThat(rootCharacteristics.get(0).name()).isEqualTo("Portability");
+    assertThat(rootCharacteristics.get(0).order()).isEqualTo(1);
 
-    DefaultCharacteristic portability = debtModel.characteristicByKey("PORTABILITY");
-    assertThat(portability.order()).isEqualTo(1);
-    assertThat(portability.children()).hasSize(2);
-    assertThat(portability.children().get(0).key()).isEqualTo("COMPILER_RELATED_PORTABILITY");
-    assertThat(debtModel.characteristicByKey("COMPILER_RELATED_PORTABILITY").parent().key()).isEqualTo("PORTABILITY");
-    assertThat(portability.children().get(1).key()).isEqualTo("HARDWARE_RELATED_PORTABILITY");
-    assertThat(debtModel.characteristicByKey("HARDWARE_RELATED_PORTABILITY").parent().key()).isEqualTo("PORTABILITY");
+    assertThat(rootCharacteristics.get(1).key()).isEqualTo("MAINTAINABILITY");
+    assertThat(rootCharacteristics.get(1).name()).isEqualTo("Maintainability");
+    assertThat(rootCharacteristics.get(1).order()).isEqualTo(2);
 
-    DefaultCharacteristic maintainability = debtModel.characteristicByKey("MAINTAINABILITY");
-    assertThat(maintainability.order()).isEqualTo(2);
-    assertThat(maintainability.children()).hasSize(1);
-    assertThat(maintainability.children().get(0).key()).isEqualTo("READABILITY");
-    assertThat(debtModel.characteristicByKey("READABILITY").parent().key()).isEqualTo("MAINTAINABILITY");
+    List<DebtCharacteristic> portabilitySubCharacteristics = debtModel.subCharacteristics("PORTABILITY");
+    assertThat(portabilitySubCharacteristics).hasSize(2);
+    assertThat(portabilitySubCharacteristics.get(0).key()).isEqualTo("COMPILER_RELATED_PORTABILITY");
+    assertThat(portabilitySubCharacteristics.get(0).name()).isEqualTo("Compiler related portability");
+    assertThat(portabilitySubCharacteristics.get(1).key()).isEqualTo("HARDWARE_RELATED_PORTABILITY");
+    assertThat(portabilitySubCharacteristics.get(1).name()).isEqualTo("Hardware related portability");
+
+    List<DebtCharacteristic> maintainabilitySubCharacteristics = debtModel.subCharacteristics("MAINTAINABILITY");
+    assertThat(maintainabilitySubCharacteristics).hasSize(1);
+    assertThat(maintainabilitySubCharacteristics.get(0).key()).isEqualTo("READABILITY");
+    assertThat(maintainabilitySubCharacteristics.get(0).name()).isEqualTo("Readability");
   }
 
   @Test
   public void import_badly_formatted_xml() {
     String xml = getFileContent("import_badly_formatted_xml.xml");
 
-    DebtCharacteristicsXMLImporter.DebtModel debtModel = new DebtCharacteristicsXMLImporter().importXML(xml);
+    DebtModel debtModel = new DebtCharacteristicsXMLImporter().importXML(xml);
+    List<DebtCharacteristic> rootCharacteristics = debtModel.rootCharacteristics();
 
     // characteristics
-    assertThat(debtModel.rootCharacteristics()).hasSize(2);
-    DefaultCharacteristic efficiency = debtModel.characteristicByKey("EFFICIENCY");
-    assertThat(efficiency.name()).isEqualTo("Efficiency");
+    assertThat(rootCharacteristics).hasSize(2);
+    assertThat(rootCharacteristics.get(0).key()).isEqualTo("USABILITY");
+    assertThat(rootCharacteristics.get(0).name()).isEqualTo("Usability");
 
-    // sub-characteristics
-    assertThat(efficiency.children()).hasSize(1);
-    DefaultCharacteristic memoryEfficiency = debtModel.characteristicByKey("MEMORY_EFFICIENCY");
-    assertThat(memoryEfficiency.name()).isEqualTo("Memory use");
+    assertThat(rootCharacteristics.get(1).key()).isEqualTo("EFFICIENCY");
+    assertThat(rootCharacteristics.get(1).name()).isEqualTo("Efficiency");
+
+    // sub-characteristic
+    assertThat(debtModel.subCharacteristics("EFFICIENCY")).hasSize(1);
+    assertThat(debtModel.subCharacteristics("EFFICIENCY").get(0).key()).isEqualTo("MEMORY_EFFICIENCY");
+    assertThat(debtModel.subCharacteristics("EFFICIENCY").get(0).name()).isEqualTo("Memory use");
   }
 
   @Test
@@ -81,7 +90,7 @@ public class DebtCharacteristicsXMLImporterTest {
     try {
       new DebtCharacteristicsXMLImporter().importXML(xml);
       fail();
-    } catch (Exception e){
+    } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);
     }
   }

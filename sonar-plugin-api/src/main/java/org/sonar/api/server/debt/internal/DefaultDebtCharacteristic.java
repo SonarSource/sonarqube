@@ -22,6 +22,11 @@ package org.sonar.api.server.debt.internal;
 
 import org.sonar.api.server.debt.DebtCharacteristic;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import java.util.Date;
+
 /**
  * @since 4.3
  */
@@ -32,6 +37,8 @@ public class DefaultDebtCharacteristic implements DebtCharacteristic {
   private String name;
   private Integer order;
   private Integer parentId;
+  private Date createdAt;
+  private Date updatedAt;
 
   @Override
   public Integer id() {
@@ -82,4 +89,24 @@ public class DefaultDebtCharacteristic implements DebtCharacteristic {
     this.parentId = parentId;
     return this;
   }
+
+  public Date createdAt() {
+    return createdAt;
+  }
+
+  public DefaultDebtCharacteristic setCreatedAt(Date createdAt) {
+    this.createdAt = createdAt;
+    return this;
+  }
+
+  @CheckForNull
+  public Date updatedAt() {
+    return updatedAt;
+  }
+
+  public DefaultDebtCharacteristic setUpdatedAt(@Nullable Date updatedAt) {
+    this.updatedAt = updatedAt;
+    return this;
+  }
+
 }

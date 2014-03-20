@@ -22,14 +22,14 @@ package org.sonar.server.debt;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.ibatis.session.SqlSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
-import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
+import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.technicaldebt.TechnicalDebtModelRepository;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
+
+import javax.annotation.Nullable;
 
 import java.io.Reader;
 import java.util.List;
@@ -37,8 +37,6 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 
 public class DebtModelSynchronizer implements ServerExtension {
-
-  private static final Logger LOG = LoggerFactory.getLogger(DebtModelSynchronizer.class);
 
   private final MyBatis mybatis;
   private final CharacteristicDao dao;
@@ -55,50 +53,36 @@ public class DebtModelSynchronizer implements ServerExtension {
   public List<CharacteristicDto> synchronize() {
     SqlSession session = mybatis.openSession();
 
-    List<CharacteristicDto> model = newArrayList();
+    List<CharacteristicDto> characteristics = newArrayList();
     try {
-      model = synchronize(session);
-      session.commit();
+      DebtModel defaultModel = loadModelFromXml(TechnicalDebtModelRepository.DEFAULT_MODEL);
+      List<CharacteristicDto> existingCharacteristics = dao.selectEnabledCharacteristics();
+      if (existingCharacteristics.isEmpty()) {
+        return createDebtModel(defaultModel, session);
+      }
     } finally {
       MyBatis.closeQuietly(session);
-    }
-    return model;
-  }
-
-  public List<CharacteristicDto> synchronize(SqlSession session) {
-    DebtCharacteristicsXMLImporter.DebtModel defaultModel = loadModelFromXml(TechnicalDebtModelRepository.DEFAULT_MODEL);
-    List<CharacteristicDto> model = loadOrCreateModelFromDb(defaultModel, session);
-    return model;
-  }
-
-  private List<CharacteristicDto> loadOrCreateModelFromDb(DebtCharacteristicsXMLImporter.DebtModel defaultModel, SqlSession session) {
-    List<CharacteristicDto> characteristicDtos = loadModel();
-    if (characteristicDtos.isEmpty()) {
-      return createTechnicalDebtModel(defaultModel, session);
-    }
-    return characteristicDtos;
-  }
-
-  private List<CharacteristicDto> loadModel() {
-    return dao.selectEnabledCharacteristics();
-  }
-
-  private List<CharacteristicDto> createTechnicalDebtModel(DebtCharacteristicsXMLImporter.DebtModel defaultModel, SqlSession session) {
-    List<CharacteristicDto> characteristics = newArrayList();
-    for (DefaultCharacteristic rootCharacteristic : defaultModel.rootCharacteristics()) {
-      CharacteristicDto rootCharacteristicDto = CharacteristicDto.toDto(rootCharacteristic, null);
-      dao.insert(rootCharacteristicDto, session);
-      characteristics.add(rootCharacteristicDto);
-      for (DefaultCharacteristic characteristic : rootCharacteristic.children()) {
-        CharacteristicDto characteristicDto = CharacteristicDto.toDto(characteristic, rootCharacteristicDto.getId());
-        dao.insert(characteristicDto, session);
-        characteristics.add(characteristicDto);
-      }
     }
     return characteristics;
   }
 
-  public DebtCharacteristicsXMLImporter.DebtModel loadModelFromXml(String pluginKey) {
+  private List<CharacteristicDto> createDebtModel(DebtModel defaultModel, SqlSession session) {
+    List<CharacteristicDto> characteristics = newArrayList();
+    for (DebtCharacteristic rootCharacteristic : defaultModel.rootCharacteristics()) {
+      CharacteristicDto rootCharacteristicDto = toDto(rootCharacteristic, null);
+      dao.insert(rootCharacteristicDto, session);
+      characteristics.add(rootCharacteristicDto);
+      for (DebtCharacteristic characteristic : defaultModel.subCharacteristics(rootCharacteristic.key())) {
+        CharacteristicDto characteristicDto = toDto(characteristic, rootCharacteristicDto.getId());
+        dao.insert(characteristicDto, session);
+        characteristics.add(characteristicDto);
+      }
+    }
+    session.commit();
+    return characteristics;
+  }
+
+  private DebtModel loadModelFromXml(String pluginKey) {
     Reader xmlFileReader = null;
     try {
       xmlFileReader = languageModelFinder.createReaderForXMLFile(pluginKey);
@@ -106,6 +90,17 @@ public class DebtModelSynchronizer implements ServerExtension {
     } finally {
       IOUtils.closeQuietly(xmlFileReader);
     }
+  }
+
+  private static CharacteristicDto toDto(DebtCharacteristic characteristic, @Nullable Integer parentId) {
+    return new CharacteristicDto()
+      .setKey(characteristic.key())
+      .setName(characteristic.name())
+      .setOrder(characteristic.order())
+      .setParentId(parentId)
+      .setEnabled(true)
+      .setCreatedAt(characteristic.createdAt())
+      .setUpdatedAt(characteristic.updatedAt());
   }
 
 }
