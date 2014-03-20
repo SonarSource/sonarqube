@@ -42,7 +42,7 @@ module.exports = (grunt) ->
 
 
     coffee:
-      dev:
+      build:
         files: [
           expand: true
           cwd: '<%= pkg.assets %>coffee'
@@ -167,7 +167,7 @@ module.exports = (grunt) ->
           fileName = pieces[pieces.length - 1]
           fileName.split('.')[0]
 
-      dev:
+      build:
         files:
           '<%= pkg.assets %>js/templates/coding-rules.js': [
             '<%= pkg.assets %>templates/common/**/*.hbs'
@@ -188,7 +188,7 @@ module.exports = (grunt) ->
 
       coffee:
         files: '<%= pkg.assets %>coffee/**/*.coffee'
-        tasks: ['coffee:dev']
+        tasks: ['coffee:build']
 
       uglify:
         files: '<%= pkg.assets %>js/**/*.js'
@@ -196,7 +196,7 @@ module.exports = (grunt) ->
 
       handlebars:
         files: '<%= pkg.assets %>templates/**/*.hbs'
-        tasks: ['handlebars:dev']
+        tasks: ['handlebars:build']
 
 
 
@@ -210,5 +210,5 @@ module.exports = (grunt) ->
 
 
   # Define tasks
-  grunt.registerTask 'default', ['less:dev', 'coffee:dev', 'uglify:dev', 'handlebars:dev']
-  grunt.registerTask 'build', ['less:build', 'coffee:dev', 'uglify:build', 'handlebars:dev', 'requirejs']
+  grunt.registerTask 'build', ['less:dev', 'coffee:dev', 'uglify:dev', 'handlebars:dev']
+  grunt.registerTask 'default', ['less:build', 'coffee:build', 'uglify:build', 'handlebars:build', 'requirejs']
