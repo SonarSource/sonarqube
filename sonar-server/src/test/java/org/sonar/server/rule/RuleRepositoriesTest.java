@@ -25,6 +25,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class RuleRepositoriesTest {
+
   @Test
   public void should_register_repositories() {
     RulesDefinition.Context context = new RulesDefinition.Context();
@@ -58,6 +59,30 @@ public class RuleRepositoriesTest {
 
     // test equals() and hashCode()
     assertThat(findbugs).isEqualTo(findbugs).isNotEqualTo(squid).isNotEqualTo("findbugs").isNotEqualTo(null);
+  }
+
+  @Test
+  public void register_repositories_having_same_name() {
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    new RulesDefinition() {
+      @Override
+      public void define(Context context) {
+        context.createRepository("squid", "java").setName("SonarQube").done();
+      }
+    }.define(context);
+
+    // Repository with same name
+    new RulesDefinition() {
+      @Override
+      public void define(Context context) {
+       context.createRepository("javascript", "js").setName("SonarQube").done();
+      }
+    }.define(context);
+
+    RuleRepositories repositories = new RuleRepositories();
+    repositories.register(context);
+
+    assertThat(repositories.repositories()).hasSize(2);
   }
 
   static class FindbugsDefinitions implements RulesDefinition {

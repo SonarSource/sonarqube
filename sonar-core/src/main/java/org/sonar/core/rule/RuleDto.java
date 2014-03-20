@@ -24,7 +24,6 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.check.Cardinality;
-import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -32,6 +31,8 @@ import javax.annotation.Nullable;
 import java.util.Date;
 
 public final class RuleDto {
+
+  public static final Integer DISABLED_CHARACTERISTIC_ID = -1;
 
   private Integer id;
   private String repositoryKey;
@@ -56,7 +57,7 @@ public final class RuleDto {
   private String defaultRemediationFactor;
   private String remediationOffset;
   private String defaultRemediationOffset;
-  private String effortToFixL10nKey;
+  private String effortToFixDescription;
   private Date createdAt;
   private Date updatedAt;
 
@@ -286,12 +287,12 @@ public final class RuleDto {
   }
 
   @CheckForNull
-  public String getEffortToFixL10nKey() {
-    return effortToFixL10nKey;
+  public String getEffortToFixDescription() {
+    return effortToFixDescription;
   }
 
-  public RuleDto setEffortToFixL10nKey(@Nullable String effortToFixL10nKey) {
-    this.effortToFixL10nKey = effortToFixL10nKey;
+  public RuleDto setEffortToFixDescription(@Nullable String effortToFixDescription) {
+    this.effortToFixDescription = effortToFixDescription;
     return this;
   }
 
@@ -314,7 +315,7 @@ public final class RuleDto {
   }
 
   public boolean hasCharacteristic(){
-    return (characteristicId != null && !CharacteristicDto.DISABLED_CHARACTERISTIC_ID.equals(characteristicId)) || defaultCharacteristicId != null;
+    return (characteristicId != null && !RuleDto.DISABLED_CHARACTERISTIC_ID.equals(characteristicId)) || defaultCharacteristicId != null;
   }
 
   @Override

@@ -20,14 +20,18 @@
 
 package org.sonar.server.debt;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.debt.DebtModel;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
+import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.rule.RuleDao;
+import org.sonar.core.rule.RuleDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -39,6 +43,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -51,10 +56,19 @@ public class DebtModelService implements DebtModel {
 
   private final MyBatis mybatis;
   private final CharacteristicDao dao;
+  private final RuleDao ruleDao;
+  private final System2 system2;
 
-  public DebtModelService(MyBatis mybatis, CharacteristicDao dao) {
+  public DebtModelService(MyBatis mybatis, CharacteristicDao dao, RuleDao ruleDao) {
+    this(mybatis, dao, ruleDao, System2.INSTANCE);
+  }
+
+  @VisibleForTesting
+  DebtModelService(MyBatis mybatis, CharacteristicDao dao, RuleDao ruleDao, System2 system2) {
     this.mybatis = mybatis;
     this.dao = dao;
+    this.ruleDao = ruleDao;
+    this.system2 = system2;
   }
 
   public List<DebtCharacteristic> rootCharacteristics() {
@@ -151,6 +165,48 @@ public class DebtModelService implements DebtModel {
 
       session.commit();
       return toCharacteristic(dto);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  /**
+   * Disable characteristic and sub characteristic or only sub characteristic.
+   * Will also update every rules linked to sub characteristics by setting characteristic id to -1 and remove function, factor and offset.
+   */
+  public void delete(int characteristicOrSubCharactteristicId) {
+    checkPermission();
+
+    SqlSession session = mybatis.openBatchSession();
+    try {
+      Date now = new Date(system2.now());
+
+      CharacteristicDto characteristicOrSubCharacteristicDto = findCharacteristic(characteristicOrSubCharactteristicId, session);
+      List<RuleDto> ruleDtos = ruleDao.selectByCharacteristicOrSubCharacteristicId(characteristicOrSubCharacteristicDto.getId(), session);
+      for (RuleDto ruleDto : ruleDtos) {
+        ruleDto.setCharacteristicId(RuleDto.DISABLED_CHARACTERISTIC_ID);
+        ruleDto.setRemediationFunction(null);
+        ruleDto.setRemediationFactor(null);
+        ruleDto.setRemediationOffset(null);
+        ruleDto.setUpdatedAt(now);
+        ruleDao.update(ruleDto, session);
+
+        // TODO update rules from E/S
+      }
+
+      if (characteristicOrSubCharacteristicDto.getParentId() == null) {
+        List<CharacteristicDto> dtos = dao.selectCharacteristicsByParentId(characteristicOrSubCharacteristicDto.getId(), session);
+        for (CharacteristicDto subCharacteristicDto : dtos) {
+          subCharacteristicDto.setEnabled(false);
+          subCharacteristicDto.setUpdatedAt(now);
+          dao.update(subCharacteristicDto, session);
+        }
+      }
+      characteristicOrSubCharacteristicDto.setEnabled(false);
+      characteristicOrSubCharacteristicDto.setUpdatedAt(now);
+      dao.update(characteristicOrSubCharacteristicDto, session);
+
+      session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }

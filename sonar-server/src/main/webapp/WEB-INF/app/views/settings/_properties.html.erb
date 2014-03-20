@@ -81,11 +81,105 @@
       </div>
       <% end %>
 
-      <% unless category_help(@category).blank? -%>
+      <% if @category.key() == 'exclusions' -%>
+       <div class="help marginbottom10" style="margin-left: -1px">
+       <h2>Wildcards</h2>
+       <p>Following rules are applied:</p>
+       <table class="data">
+         <thead><tr><th colspan="2"></th></tr></thead>
+         <tr>
+           <td>*</td>
+           <td>Match zero or more characters</td>
+         </tr>
+         <tr>
+           <td>**</td>
+           <td>Match zero or more directories</td>
+         </tr>
+         <tr>
+           <td>?</td>
+           <td>Match a single character</td>
+         </tr>
+       </table>
+       <br>
+       <table class="data">
+         <thead><tr><th>Example</th><th>Matches</th><th>Does not match</th></tr></thead>
+         <tbody>
+         <tr>
+           <td>**/foo/*.js</td>
+           <td>
+             <ul>
+               <li>src/foo/bar.js</li>
+               <li>lib/ui/foo/bar.js</li>
+             </ul>
+           </td>
+           <td>
+             <ul>
+               <li>src/bar.js</li>
+               <li>src/foo2/bar.js</li>
+             </ul>
+           </td>
+         </tr>
+         <tr>
+           <td>src/foo/*bar*.js</td>
+           <td>
+             <ul>
+               <li>src/foo/bar.js</li>
+               <li>src/foo/bar1.js</li>
+               <li>src/foo/bar123.js</li>
+               <li>src/foo/123bar123.js</li>
+             </ul>
+           </td>
+           <td>
+             <ul>
+               <li>src/foo/ui/bar.js</li>
+               <li>src/bar.js</li>
+             </ul>
+           </td>
+         </tr>
+         <tr>
+           <td>src/foo/**</td>
+           <td>
+             <ul>
+               <li>src/foo/bar.js</li>
+               <li>src/foo/ui/bar.js</li>
+             </ul>
+           </td>
+           <td>
+             <ul>
+               <li>src/bar/foo/bar.js</li>
+               <li>src/bar.js</li>
+             </ul>
+           </td>
+         </tr>
+         <tr>
+           <td>**/foo?.js</td>
+           <td>
+             <ul>
+               <li>src/foo1.js</li>
+               <li>src/bar/foo1.js</li>
+             </ul>
+           </td>
+           <td>
+             <ul>
+               <li>src/foo.js</li>
+               <li>src/foo12.js</li>
+               <li>src/12foo3.js</li>
+             </ul>
+           </td>
+         </tr>
+        </tbody>
+       </table>
+       </div>
+      <% else 
+         help = category_help(@category)
+         unless help.blank?
+      -%>
         <div class="help marginbottom10" style="margin-left: -1px">
-          <%= category_help(@category) -%>
+          <%= help -%>
         </div>
-      <% end -%>
+      <% end 
+      end
+      -%>
 
     <% end %>
   </form>

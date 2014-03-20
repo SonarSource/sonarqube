@@ -24,6 +24,7 @@ target/
 .classpath
 .project
 .settings
+.externalToolBuilders
 
 # ---- Mac OS X
 .DS_Store

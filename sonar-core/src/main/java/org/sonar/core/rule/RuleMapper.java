@@ -30,6 +30,8 @@ public interface RuleMapper {
 
   List<RuleDto> selectNonManual();
 
+  List<RuleDto> selectByCharacteristicOrSubCharacteristicId(int id);
+
   RuleDto selectById(Integer id);
 
   RuleDto selectByName(String name);

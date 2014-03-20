@@ -32,7 +32,7 @@ import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
-public final class BatchSession implements SqlSession {
+public class BatchSession implements SqlSession {
 
   public static final int MAX_BATCH_SIZE = 250;
 

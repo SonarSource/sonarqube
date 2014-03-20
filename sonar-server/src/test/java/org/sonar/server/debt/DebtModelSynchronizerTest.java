@@ -31,9 +31,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
-import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.technicaldebt.DefaultTechnicalDebtModel;
 import org.sonar.core.technicaldebt.TechnicalDebtModelRepository;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
@@ -67,7 +65,7 @@ public class DebtModelSynchronizerTest {
 
   Integer currentId = 1;
 
-  private DefaultTechnicalDebtModel defaultModel;
+  private DebtCharacteristicsXMLImporter.DebtModel defaultModel;
 
   private DebtModelSynchronizer manager;
 
@@ -75,10 +73,10 @@ public class DebtModelSynchronizerTest {
   public void initAndMerge() throws Exception {
     when(myBatis.openSession()).thenReturn(session);
 
-    defaultModel = new DefaultTechnicalDebtModel();
+    defaultModel = new DebtCharacteristicsXMLImporter.DebtModel();
     Reader defaultModelReader = mock(Reader.class);
     when(technicalDebtModelRepository.createReaderForXMLFile("technical-debt")).thenReturn(defaultModelReader);
-    when(xmlImporter.importXML(eq(defaultModelReader), any(ValidationMessages.class))).thenReturn(defaultModel);
+    when(xmlImporter.importXML(eq(defaultModelReader))).thenReturn(defaultModel);
 
     doAnswer(new Answer() {
       public Object answer(InvocationOnMock invocation) {
@@ -102,7 +100,7 @@ public class DebtModelSynchronizerTest {
     when(technicalDebtModelRepository.getContributingPluginList()).thenReturn(Collections.<String>emptyList());
     when(dao.selectEnabledCharacteristics()).thenReturn(Lists.<CharacteristicDto>newArrayList());
 
-    manager.synchronize(ValidationMessages.create());
+    manager.synchronize();
 
     verify(dao).selectEnabledCharacteristics();
     ArgumentCaptor<CharacteristicDto> characteristicCaptor = ArgumentCaptor.forClass(CharacteristicDto.class);
@@ -123,7 +121,7 @@ public class DebtModelSynchronizerTest {
     when(technicalDebtModelRepository.getContributingPluginList()).thenReturn(Collections.<String>emptyList());
     when(dao.selectEnabledCharacteristics()).thenReturn(Lists.newArrayList(new CharacteristicDto()));
 
-    manager.synchronize(ValidationMessages.create());
+    manager.synchronize();
 
     verify(dao, never()).insert(any(CharacteristicDto.class), eq(session));
   }

@@ -33,7 +33,7 @@ class AddDebtColumnsToRules < ActiveRecord::Migration
     add_column 'rules', :default_remediation_factor,    :string,    :null => true,   :limit => 20
     add_column 'rules', :remediation_offset,            :string,    :null => true,   :limit => 20
     add_column 'rules', :default_remediation_offset,    :string,    :null => true,   :limit => 20
-    add_column 'rules', :effort_to_fix_l10n_key,        :string,    :null => true,   :limit => 100
+    add_column 'rules', :effort_to_fix_description,     :string,    :null => true,   :limit => 4000
     end
 
 end

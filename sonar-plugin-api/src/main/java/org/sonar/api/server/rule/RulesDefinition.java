@@ -19,6 +19,7 @@
  */
 package org.sonar.api.server.rule;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -313,7 +314,7 @@ public interface RulesDefinition extends ServerExtension {
     private RuleStatus status = RuleStatus.defaultStatus();
     private String debtCharacteristic;
     private DebtRemediationFunction debtRemediationFunction;
-    private String effortToFixL10nKey;
+    private String effortToFixDescription;
     private final Set<String> tags = Sets.newTreeSet();
     private final Map<String, NewParam> paramsByKey = Maps.newHashMap();
 
@@ -383,8 +384,8 @@ public interface RulesDefinition extends ServerExtension {
       return this;
     }
 
-    public NewRule setEffortToFixL10nKey(@Nullable String effortToFixL10nKey) {
-      this.effortToFixL10nKey = effortToFixL10nKey;
+    public NewRule setEffortToFixDescription(@Nullable String effortToFixDescription) {
+      this.effortToFixDescription = effortToFixDescription;
       return this;
     }
 
@@ -433,13 +434,13 @@ public interface RulesDefinition extends ServerExtension {
     }
 
     private void validate() {
-      if (StringUtils.isBlank(name)) {
+      if (Strings.isNullOrEmpty(name)) {
         throw new IllegalStateException(String.format("Name of rule %s is empty", this));
       }
-      if (StringUtils.isBlank(htmlDescription)) {
+      if (Strings.isNullOrEmpty(htmlDescription)) {
         throw new IllegalStateException(String.format("HTML description of rule %s is empty", this));
       }
-      if ((StringUtils.isBlank(debtCharacteristic) && debtRemediationFunction != null) || (!StringUtils.isBlank(debtCharacteristic) && debtRemediationFunction == null)) {
+      if ((Strings.isNullOrEmpty(debtCharacteristic) && debtRemediationFunction != null) || (!Strings.isNullOrEmpty(debtCharacteristic) && debtRemediationFunction == null)) {
         throw new IllegalStateException(String.format("Both debt characteristic and debt remediation function should be defined on rule '%s'", this));
       }
     }
@@ -457,7 +458,7 @@ public interface RulesDefinition extends ServerExtension {
     private final boolean template;
     private final String debtCharacteristic;
     private final DebtRemediationFunction debtRemediationFunction;
-    private final String effortToFixL10nKey;
+    private final String effortToFixDescription;
     private final Set<String> tags;
     private final Map<String, Param> params;
     private final RuleStatus status;
@@ -474,7 +475,7 @@ public interface RulesDefinition extends ServerExtension {
       this.status = newRule.status;
       this.debtCharacteristic = newRule.debtCharacteristic;
       this.debtRemediationFunction = newRule.debtRemediationFunction;
-      this.effortToFixL10nKey = newRule.effortToFixL10nKey;
+      this.effortToFixDescription = newRule.effortToFixDescription;
       this.tags = ImmutableSortedSet.copyOf(newRule.tags);
       ImmutableMap.Builder<String, Param> paramsBuilder = ImmutableMap.builder();
       for (NewParam newParam : newRule.paramsByKey.values()) {
@@ -523,8 +524,8 @@ public interface RulesDefinition extends ServerExtension {
     }
 
     @CheckForNull
-    public String effortToFixL10nKey() {
-      return effortToFixL10nKey;
+    public String effortToFixDescription() {
+      return effortToFixDescription;
     }
 
     @CheckForNull

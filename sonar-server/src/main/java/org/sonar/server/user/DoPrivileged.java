@@ -17,35 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.user;
 
-package org.sonar.core.technicaldebt.db;
+import java.util.Locale;
 
-import java.util.List;
+public final class DoPrivileged {
 
-public interface CharacteristicMapper {
+  private static final String SYSTEM_LOGIN = "<system>";
+  private static final String SYSTEM_NAME = "Internal System Account";
 
-  List<CharacteristicDto> selectEnabledCharacteristics();
+  public static void start() {
+    UserSession.set(new UserSession() {
+      @Override
+      public boolean hasGlobalPermission(String globalPermission) {
+        return true;
+      }
+      @Override
+      public boolean hasProjectPermission(String permission, String projectKey) {
+        return true;
+      }
+    }.setLocale(Locale.getDefault()).setLogin(SYSTEM_LOGIN).setName(SYSTEM_NAME));
+  }
 
-  List<CharacteristicDto> selectCharacteristics();
-
-  List<CharacteristicDto> selectEnabledRootCharacteristics();
-
-  List<CharacteristicDto> selectCharacteristicsByParentId(int parentId);
-
-  CharacteristicDto selectByKey(String key);
-
-  CharacteristicDto selectById(int id);
-
-  CharacteristicDto selectByName(String name);
-
-  List<CharacteristicDto> selectNext(int order);
-
-  List<CharacteristicDto> selectPrevious(int order);
-
-  Integer selectMaxCharacteristicOrder();
-
-  void insert(CharacteristicDto characteristic);
-
-  int update(CharacteristicDto characteristic);
-
+  public static void stop() {
+    UserSession.remove();
+  }
 }

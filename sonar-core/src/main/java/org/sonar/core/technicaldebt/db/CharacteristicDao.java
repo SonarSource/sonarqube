@@ -88,6 +88,19 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
     return session.getMapper(CharacteristicMapper.class).selectEnabledRootCharacteristics();
   }
 
+  public List<CharacteristicDto> selectCharacteristicsByParentId(int parentId) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectCharacteristicsByParentId(parentId, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<CharacteristicDto> selectCharacteristicsByParentId(int parentId, SqlSession session) {
+    return session.getMapper(CharacteristicMapper.class).selectCharacteristicsByParentId(parentId);
+  }
+
   @CheckForNull
   public CharacteristicDto selectByKey(String key) {
     SqlSession session = mybatis.openSession();
@@ -201,20 +214,6 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
     SqlSession session = mybatis.openSession();
     try {
       update(dto, session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public void disable(Integer id, SqlSession session) {
-    session.getMapper(CharacteristicMapper.class).disable(id);
-  }
-
-  public void disable(Integer id) {
-    SqlSession session = mybatis.openSession();
-    try {
-      disable(id, session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);

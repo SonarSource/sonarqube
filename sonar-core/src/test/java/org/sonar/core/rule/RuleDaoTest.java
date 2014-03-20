@@ -19,7 +19,9 @@
  */
 package org.sonar.core.rule;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +33,7 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class RuleDaoTest extends AbstractDaoTestCase {
@@ -63,7 +66,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getDefaultRemediationFactor()).isEqualTo("5d");
     assertThat(ruleDto.getRemediationOffset()).isEqualTo("5min");
     assertThat(ruleDto.getDefaultRemediationOffset()).isEqualTo("10h");
-    assertThat(ruleDto.getEffortToFixL10nKey()).isEqualTo("squid.S115.effortToFix");
+    assertThat(ruleDto.getEffortToFixDescription()).isEqualTo("squid.S115.effortToFix");
   }
 
   @Test
@@ -87,7 +90,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getDefaultRemediationFactor()).isEqualTo("5d");
     assertThat(ruleDto.getRemediationOffset()).isEqualTo("5min");
     assertThat(ruleDto.getDefaultRemediationOffset()).isEqualTo("10h");
-    assertThat(ruleDto.getEffortToFixL10nKey()).isEqualTo("squid.S115.effortToFix");
+    assertThat(ruleDto.getEffortToFixDescription()).isEqualTo("squid.S115.effortToFix");
   }
 
   @Test
@@ -132,6 +135,25 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void select_by_characteristic_or_sub_characteristic_id(){
+    setupData("select_by_characteristic_or_sub_characteristic_id");
+
+    // Rules from sub characteristic
+    List<RuleDto> ruleDtos = dao.selectByCharacteristicOrSubCharacteristicId(2);
+    assertThat(ruleDtos).hasSize(1);
+    assertThat(ruleDtos.get(0).getId()).isEqualTo(1);
+
+    // Rules from characteristic
+    ruleDtos = dao.selectByCharacteristicOrSubCharacteristicId(1);
+    assertThat(ruleDtos).hasSize(2);
+    assertThat(idsFromRuleDtos(ruleDtos)).containsExactly(1, 2);
+
+    // Rules from disabled characteristic
+    ruleDtos = dao.selectByCharacteristicOrSubCharacteristicId(11);
+    assertThat(ruleDtos).isEmpty();
+  }
+
+  @Test
   public void update() {
     setupData("update");
 
@@ -159,7 +181,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDefaultRemediationFactor("5d")
       .setRemediationOffset("5min")
       .setDefaultRemediationOffset("10h")
-      .setEffortToFixL10nKey("squid.S115.effortToFix")
+      .setEffortToFixDescription("squid.S115.effortToFix")
       .setUpdatedAt(DateUtils.parseDate("2013-12-17"));
 
     dao.update(ruleToUpdate);
@@ -191,7 +213,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDefaultRemediationFactor("5d")
       .setRemediationOffset("5min")
       .setDefaultRemediationOffset("10h")
-      .setEffortToFixL10nKey("squid.S115.effortToFix")
+      .setEffortToFixDescription("squid.S115.effortToFix")
       .setCreatedAt(DateUtils.parseDate("2013-12-16"))
       .setUpdatedAt(DateUtils.parseDate("2013-12-17"));
 
@@ -224,7 +246,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDefaultRemediationFactor("5d")
       .setRemediationOffset("5min")
       .setDefaultRemediationOffset("10h")
-      .setEffortToFixL10nKey("squid.S115.effortToFix")
+      .setEffortToFixDescription("squid.S115.effortToFix")
       .setCreatedAt(DateUtils.parseDate("2013-12-16"))
       .setUpdatedAt(DateUtils.parseDate("2013-12-17"));
 
@@ -248,7 +270,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDefaultRemediationFactor("1h")
       .setRemediationOffset("10h")
       .setDefaultRemediationOffset("5min")
-      .setEffortToFixL10nKey("squid.S115.effortToFix2")
+      .setEffortToFixDescription("squid.S115.effortToFix2")
       .setCreatedAt(DateUtils.parseDate("2013-12-14"))
       .setUpdatedAt(DateUtils.parseDate("2013-12-15"));
 
@@ -316,5 +338,14 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     dao.update(param);
 
     checkTables("update_parameter", "rules_parameters");
+  }
+
+  private List<Integer> idsFromRuleDtos(List<RuleDto> ruleDtos){
+    return newArrayList(Iterables.transform(ruleDtos, new Function<RuleDto, Integer>() {
+      @Override
+      public Integer apply(RuleDto input) {
+        return input.getId();
+      }
+    }));
   }
 }

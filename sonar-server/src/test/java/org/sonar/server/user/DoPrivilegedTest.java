@@ -17,35 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.user;
 
-package org.sonar.core.technicaldebt.db;
+import org.junit.Test;
 
-import java.util.List;
+import static org.fest.assertions.Assertions.assertThat;
 
-public interface CharacteristicMapper {
+public class DoPrivilegedTest {
 
-  List<CharacteristicDto> selectEnabledCharacteristics();
+  @Test
+  public void should_allow_everything_in_privileged_mode_only() {
+    DoPrivileged.start();
+    UserSession userSession = UserSession.get();
+    assertThat(userSession.isLoggedIn()).isTrue();
+    assertThat(userSession.hasGlobalPermission("any permission")).isTrue();
+    assertThat(userSession.hasProjectPermission("any permission", "any project")).isTrue();
 
-  List<CharacteristicDto> selectCharacteristics();
-
-  List<CharacteristicDto> selectEnabledRootCharacteristics();
-
-  List<CharacteristicDto> selectCharacteristicsByParentId(int parentId);
-
-  CharacteristicDto selectByKey(String key);
-
-  CharacteristicDto selectById(int id);
-
-  CharacteristicDto selectByName(String name);
-
-  List<CharacteristicDto> selectNext(int order);
-
-  List<CharacteristicDto> selectPrevious(int order);
-
-  Integer selectMaxCharacteristicOrder();
-
-  void insert(CharacteristicDto characteristic);
-
-  int update(CharacteristicDto characteristic);
-
+    DoPrivileged.stop();
+    userSession = UserSession.get();
+    assertThat(userSession.isLoggedIn()).isFalse();
+  }
 }

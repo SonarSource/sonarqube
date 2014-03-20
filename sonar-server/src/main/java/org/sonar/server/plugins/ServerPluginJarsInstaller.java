@@ -128,7 +128,7 @@ public class ServerPluginJarsInstaller {
     File destFile = new File(destDir, jar.getName());
     if (destFile.exists()) {
       // plugin with same filename already installed
-      FileUtils.deleteQuietly(jar);
+      FileUtils.deleteQuietly(destFile);
     }
     try {
       if (deleteSource) {

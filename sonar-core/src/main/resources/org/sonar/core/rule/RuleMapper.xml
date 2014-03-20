@@ -27,7 +27,7 @@
     default_remediation_factor as "defaultRemediationFactor",
     remediation_offset as "remediationOffset",
     default_remediation_offset as "defaultRemediationOffset",
-    effort_to_fix_l10n_key as "effortToFixL10nKey",
+    effort_to_fix_description as "effortToFixDescription",
     created_at as "createdAt",
     updated_at as "updatedAt"
   </sql>
@@ -57,6 +57,14 @@
     where plugin_name != 'manual'
   </select>
 
+  <select id="selectByCharacteristicOrSubCharacteristicId" resultType="Rule">
+    select <include refid="selectColumns"/> from rules
+    <where>
+      and characteristic_id in (select c.id from characteristics c where (c.id=#{id} or c.parent_id=#{id}) and c.enabled=${_true})
+      and status!='REMOVED'
+    </where>
+  </select>
+
   <update id="update" parameterType="Rule">
     UPDATE rules SET
     plugin_rule_key=#{ruleKey},
@@ -81,7 +89,7 @@
     default_remediation_factor=#{defaultRemediationFactor},
     remediation_offset=#{remediationOffset},
     default_remediation_offset=#{defaultRemediationOffset},
-    effort_to_fix_l10n_key=#{effortToFixL10nKey},
+    effort_to_fix_description=#{effortToFixDescription},
     updated_at=#{updatedAt}
     WHERE id=#{id}
   </update>
@@ -90,7 +98,7 @@
     (plugin_rule_key, plugin_name, description, status, name, plugin_config_key, priority, cardinality, language, parent_id,
     characteristic_id, default_characteristic_id, remediation_function, default_remediation_function,
     remediation_factor, default_remediation_factor, remediation_offset, default_remediation_offset,
-    effort_to_fix_l10n_key,
+    effort_to_fix_description,
     created_at, updated_at)
   </sql>
 
@@ -100,7 +108,7 @@
       #{severity}, #{cardinality}, #{language}, #{parentId},
       #{characteristicId}, #{defaultCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
       #{remediationFactor}, #{defaultRemediationFactor}, #{remediationOffset}, #{defaultRemediationOffset},
-      #{effortToFixL10nKey},
+      #{effortToFixDescription},
       #{createdAt}, #{updatedAt})
   </insert>
 
@@ -110,7 +118,7 @@
     #{severity}, #{cardinality}, #{language}, #{parentId},
     #{characteristicId}, #{defaultCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
     #{remediationFactor}, #{defaultRemediationFactor}, #{remediationOffset}, #{defaultRemediationOffset},
-    #{effortToFixL10nKey},
+    #{effortToFixDescription},
     #{createdAt}, #{updatedAt})
   </insert>
 

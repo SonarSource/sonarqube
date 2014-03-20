@@ -72,7 +72,7 @@ public class RulesDefinitionTest {
       .setStatus(RuleStatus.BETA)
       .setDebtCharacteristic("COMPILER")
       .setDebtRemediationFunction(DebtRemediationFunction.create(DebtRemediationFunction.Type.LINEAR_OFFSET, "1h", "10min"))
-      .setEffortToFixL10nKey("squid.S115.effortToFix")
+      .setEffortToFixDescription("squid.S115.effortToFix")
       .setTags("one", "two")
       .addTags("two", "three", "four");
     newFindbugs.createRule("ABC").setName("ABC").setHtmlDescription("ABC");
@@ -93,7 +93,7 @@ public class RulesDefinitionTest {
     assertThat(npeRule.status()).isEqualTo(RuleStatus.BETA);
     assertThat(npeRule.debtCharacteristic()).isEqualTo("COMPILER");
     assertThat(npeRule.debtRemediationFunction()).isEqualTo(DebtRemediationFunction.create(DebtRemediationFunction.Type.LINEAR_OFFSET, "1h", "10min"));
-    assertThat(npeRule.effortToFixL10nKey()).isEqualTo("squid.S115.effortToFix");
+    assertThat(npeRule.effortToFixDescription()).isEqualTo("squid.S115.effortToFix");
     assertThat(npeRule.toString()).isEqualTo("[repository=findbugs, key=NPE]");
     assertThat(npeRule.repository()).isSameAs(findbugs);
 

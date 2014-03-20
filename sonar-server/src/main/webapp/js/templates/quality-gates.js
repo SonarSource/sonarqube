@@ -250,14 +250,14 @@ function program1(depth0,data) {
 function program2(depth0,data) {
   
   var buffer = "", stack1, helper;
-  buffer += "\n      <optgroup label=\"";
+  buffer += "\n        <optgroup label=\"";
   if (helper = helpers.domain) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.domain); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "\">\n        ";
+    + "\">\n            ";
   stack1 = helpers.each.call(depth0, (depth0 && depth0.metrics), {hash:{},inverse:self.noop,fn:self.program(3, program3, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\n      </optgroup>\n      ";
+  buffer += "\n        </optgroup>\n      ";
   return buffer;
   }
 function program3(depth0,data) {
@@ -281,15 +281,15 @@ function program3(depth0,data) {
     + escapeExpression((helper = helpers.t || (depth0 && depth0.t),options={hash:{},data:data},helper ? helper.call(depth0, "quality_gates.introduction", options) : helperMissing.call(depth0, "t", "quality_gates.introduction", options)))
     + "\n    <a class=\"link-action quality-gate-introduction-show-more\">"
     + escapeExpression((helper = helpers.t || (depth0 && depth0.t),options={hash:{},data:data},helper ? helper.call(depth0, "more", options) : helperMissing.call(depth0, "t", "more", options)))
-    + "</a>\n  </p>\n  <div class=\"quality-gate-introduction-more\">\n    "
+    + "</a>\n  </p>\n  <div class=\"quality-gate-introduction-more inline-help\">\n    "
     + escapeExpression((helper = helpers.t || (depth0 && depth0.t),options={hash:{},data:data},helper ? helper.call(depth0, "quality_gates.health_icons", options) : helperMissing.call(depth0, "t", "quality_gates.health_icons", options)))
-    + "\n    <table class=\"data\">\n      <thead>\n      <tr>\n        <th colspan=\"3\"></th>\n      </tr>\n      </thead>\n      <tbody>\n      <tr class=\"even\">\n        <td><i class=\"icon-alert-ok\"></i></td>\n        <td>"
+    + "\n    <ul>\n      <li>\n        <i class=\"icon-alert-ok\"></i>\n        "
     + escapeExpression((helper = helpers.t || (depth0 && depth0.t),options={hash:{},data:data},helper ? helper.call(depth0, "alerts.notes.ok", options) : helperMissing.call(depth0, "t", "alerts.notes.ok", options)))
-    + "</td>\n      </tr>\n      <tr class=\"odd\">\n        <td><i class=\"icon-alert-warn\"></i></td>\n        <td>"
+    + "\n      </li>\n      <li>\n        <i class=\"icon-alert-warn\"></i>\n        "
     + escapeExpression((helper = helpers.t || (depth0 && depth0.t),options={hash:{},data:data},helper ? helper.call(depth0, "alerts.notes.warn", options) : helperMissing.call(depth0, "t", "alerts.notes.warn", options)))
-    + "</td>\n      </tr>\n      <tr class=\"even\">\n        <td><i class=\"icon-alert-error\"></i></td>\n        <td>"
+    + "\n      </li>\n      <li>\n        <i class=\"icon-alert-error\"></i>\n        "
     + escapeExpression((helper = helpers.t || (depth0 && depth0.t),options={hash:{},data:data},helper ? helper.call(depth0, "alerts.notes.error", options) : helperMissing.call(depth0, "t", "alerts.notes.error", options)))
-    + "</td>\n      </tr>\n      </tbody>\n    </table>\n  </div>\n</div>\n\n";
+    + "\n      </li>\n    </ul>\n  </div>\n</div>\n\n";
   stack1 = helpers['if'].call(depth0, (depth0 && depth0.canEdit), {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "\n\n<table class=\"data zebra width100 marginbottom10 spaced quality-gate-conditions\">\n  <thead><tr></tr></thead>\n  <tbody></tbody>\n</table>";
