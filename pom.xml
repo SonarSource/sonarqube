@@ -523,11 +523,11 @@
 
   <dependencyManagement>
     <dependencies>
-      <!-- sonar modules -->
+      <!-- SonarQube modules -->
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-channel</artifactId>
-        <version>4.2-RC3</version>
+        <version>4.1</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
