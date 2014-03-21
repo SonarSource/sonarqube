@@ -102,7 +102,11 @@ class Connectors {
       setConnectorAttribute(connector, "keystoreFile", props.of("sonar.web.https.keystoreFile"));
       setConnectorAttribute(connector, "keystoreType", props.of("sonar.web.https.keystoreType", "JKS"));
       setConnectorAttribute(connector, "keystoreProvider", props.of("sonar.web.https.keystoreProvider"));
-      setConnectorAttribute(connector, "clientAuth", false);
+      setConnectorAttribute(connector, "truststorePass", props.of("sonar.web.https.truststorePass", "changeit"));
+      setConnectorAttribute(connector, "truststoreFile", props.of("sonar.web.https.truststoreFile"));
+      setConnectorAttribute(connector, "truststoreType", props.of("sonar.web.https.truststoreType", "JKS"));
+      setConnectorAttribute(connector, "truststoreProvider", props.of("sonar.web.https.truststoreProvider"));
+      setConnectorAttribute(connector, "clientAuth", props.of("sonar.web.https.clientAuth", "false"));
       setConnectorAttribute(connector, "sslProtocol", "TLS");
       setConnectorAttribute(connector, "SSLEnabled", true);
       info("HTTPS connector is enabled on port " + port);
