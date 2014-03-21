@@ -1,7 +1,7 @@
 <%
    technical_debt = measure('sqale_index')
 
-   root_characteristics = Internal.debt.rootCharacteristics().to_a
+   root_characteristics = Internal.debt.characteristics().to_a
 
    should_display_diff_measures = dashboard_configuration.selected_period? && technical_debt.variation(dashboard_configuration.period_index)!=nil
    if technical_debt.nil? || root_characteristics.empty?
