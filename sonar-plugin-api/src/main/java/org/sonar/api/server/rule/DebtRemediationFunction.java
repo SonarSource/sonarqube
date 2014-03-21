@@ -56,28 +56,6 @@ public class DebtRemediationFunction {
     validate();
   }
 
-  private void validate(){
-    switch (type) {
-      case LINEAR:
-        if (this.factor == null || this.offset != null) {
-          throw new ValidationException(String.format("%s is invalid, Linear remediation function should only define a factor", this));
-        }
-        break;
-      case LINEAR_OFFSET:
-        if (this.factor == null || this.offset == null) {
-          throw new ValidationException(String.format("%s is invalid,  Linear with offset remediation function should define both factor and offset", this));
-        }
-        break;
-      case CONSTANT_ISSUE:
-        if (this.factor != null || this.offset == null) {
-          throw new ValidationException(String.format("%s is invalid, Constant/issue remediation function should only define an offset", this));
-        }
-        break;
-      default:
-        throw new IllegalStateException(String.format("Remediation function of %s is unknown", this));
-    }
-  }
-
   public static DebtRemediationFunction create(Type type, @Nullable String factor, @Nullable String offset) {
     return new DebtRemediationFunction(type, factor, offset);
   }
@@ -106,6 +84,28 @@ public class DebtRemediationFunction {
   @CheckForNull
   public String offset() {
     return offset;
+  }
+
+  private void validate(){
+    switch (type) {
+      case LINEAR:
+        if (this.factor == null || this.offset != null) {
+          throw new ValidationException(String.format("%s is invalid, Linear remediation function should only define a factor", this));
+        }
+        break;
+      case LINEAR_OFFSET:
+        if (this.factor == null || this.offset == null) {
+          throw new ValidationException(String.format("%s is invalid,  Linear with offset remediation function should define both factor and offset", this));
+        }
+        break;
+      case CONSTANT_ISSUE:
+        if (this.factor != null || this.offset == null) {
+          throw new ValidationException(String.format("%s is invalid, Constant/issue remediation function should only define an offset", this));
+        }
+        break;
+      default:
+        throw new IllegalStateException(String.format("Remediation function of %s is unknown", this));
+    }
   }
 
   @Override
