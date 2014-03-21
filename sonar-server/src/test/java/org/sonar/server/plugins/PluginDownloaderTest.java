@@ -46,7 +46,12 @@ import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class PluginDownloaderTest {
 
@@ -228,6 +233,33 @@ public class PluginDownloaderTest {
     assertThat(pluginDownloader.hasDownloads()).isTrue();
     pluginDownloader.cancelDownloads();
     assertThat(pluginDownloader.hasDownloads()).isFalse();
+  }
+
+  // SONAR-5011
+  @Test
+  public void download_common_transitive_dependency() throws Exception {
+    Plugin test1 = new Plugin("test1");
+    Release test1R = new Release(test1, "1.0").setDownloadUrl("http://server/test1-1.0.jar");
+    test1.addRelease(test1R);
+
+    Plugin test2 = new Plugin("test2");
+    Release test2R = new Release(test2, "1.0").setDownloadUrl("http://server/test2-1.0.jar");
+    test2.addRelease(test2R);
+
+    Plugin testDep = new Plugin("testdep");
+    Release testDepR = new Release(testDep, "1.0").setDownloadUrl("http://server/testdep-1.0.jar");
+    testDep.addRelease(testDepR);
+
+    when(updateCenter.findInstallablePlugins("test1", Version.create("1.0"))).thenReturn(newArrayList(test1R, testDepR));
+    when(updateCenter.findInstallablePlugins("test2", Version.create("1.0"))).thenReturn(newArrayList(test2R, testDepR));
+
+    pluginDownloader.start();
+    pluginDownloader.download("test1", Version.create("1.0"));
+    pluginDownloader.download("test2", Version.create("1.0"));
+
+    assertThat(new File(downloadDir, "test1-1.0.jar")).exists();
+    assertThat(new File(downloadDir, "test2-1.0.jar")).exists();
+    assertThat(new File(downloadDir, "testdep-1.0.jar")).exists();
   }
 
   class HasFileName extends ArgumentMatcher<File> {

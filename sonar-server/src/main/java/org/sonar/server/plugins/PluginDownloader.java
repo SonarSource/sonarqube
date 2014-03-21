@@ -49,7 +49,7 @@ public class PluginDownloader implements Startable {
   private final File downloadDir;
 
   public PluginDownloader(UpdateCenterMatrixFactory updateCenterMatrixFactory, HttpDownloader downloader,
-                          DefaultServerFileSystem fileSystem) {
+    DefaultServerFileSystem fileSystem) {
     this.updateCenterMatrixFactory = updateCenterMatrixFactory;
     this.downloader = downloader;
     this.downloadDir = fileSystem.getDownloadedPluginsDir();
@@ -64,7 +64,7 @@ public class PluginDownloader implements Startable {
   public void start() {
     try {
       FileUtils.forceMkdir(downloadDir);
-      Collection<File> tempFiles = FileUtils.listFiles(downloadDir, new String[]{TMP_SUFFIX}, false);
+      Collection<File> tempFiles = FileUtils.listFiles(downloadDir, new String[] {TMP_SUFFIX}, false);
       for (File tempFile : tempFiles) {
         FileUtils.deleteQuietly(tempFile);
       }
@@ -95,7 +95,7 @@ public class PluginDownloader implements Startable {
 
   public List<String> getDownloads() {
     List<String> names = new ArrayList<String>();
-    List<File> files = (List<File>) FileUtils.listFiles(downloadDir, new String[]{PLUGIN_EXTENSION}, false);
+    List<File> files = (List<File>) FileUtils.listFiles(downloadDir, new String[] {PLUGIN_EXTENSION}, false);
     for (File file : files) {
       names.add(file.getName());
     }
@@ -132,7 +132,8 @@ public class PluginDownloader implements Startable {
       File targetFile = new File(downloadDir, filename);
       File tempFile = new File(downloadDir, filename + "." + TMP_SUFFIX);
       downloader.download(uri, tempFile);
-      FileUtils.moveFile(tempFile, targetFile);
+      FileUtils.copyFile(tempFile, targetFile);
+      FileUtils.deleteQuietly(tempFile);
     }
   }
 }
