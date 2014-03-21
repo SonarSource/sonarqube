@@ -1,15 +1,13 @@
 <form>
   <div class="modal-head">
-    {{#eq method "rename"}}<h2>{{t 'quality_gates.rename'}} {{name}}</h2>{{/eq}}
-    {{#eq method "copy"}}<h2>{{t 'quality_gates.copy'}} {{name}}</h2>{{/eq}}
-    {{#eq method "create"}}<h2>{{t 'quality_gates.add'}}</h2>{{/eq}}
+    <h2>{{t 'quality_gates' method }}</h2>
   </div>
 
   <div class="modal-body">
     <div class="modal-error"></div>
     <div class="modal-field">
       <label for="quality-gate-edit-name">{{t 'name'}} <em class="mandatory">*</em></label>
-      <input id="quality-gate-edit-name" type="text" size="50" maxlength="100">
+      <input id="quality-gate-edit-name" type="text" size="50" maxlength="100" value="{{name}}">
     </div>
   </div>
 

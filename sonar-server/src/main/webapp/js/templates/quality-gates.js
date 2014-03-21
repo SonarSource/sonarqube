@@ -410,41 +410,6 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
 
 function program1(depth0,data) {
   
-  var buffer = "", stack1, helper, options;
-  buffer += "<h2>"
-    + escapeExpression((helper = helpers.t || (depth0 && depth0.t),options={hash:{},data:data},helper ? helper.call(depth0, "quality_gates.rename", options) : helperMissing.call(depth0, "t", "quality_gates.rename", options)))
-    + " ";
-  if (helper = helpers.name) { stack1 = helper.call(depth0, {hash:{},data:data}); }
-  else { helper = (depth0 && depth0.name); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
-  buffer += escapeExpression(stack1)
-    + "</h2>";
-  return buffer;
-  }
-
-function program3(depth0,data) {
-  
-  var buffer = "", stack1, helper, options;
-  buffer += "<h2>"
-    + escapeExpression((helper = helpers.t || (depth0 && depth0.t),options={hash:{},data:data},helper ? helper.call(depth0, "quality_gates.copy", options) : helperMissing.call(depth0, "t", "quality_gates.copy", options)))
-    + " ";
-  if (helper = helpers.name) { stack1 = helper.call(depth0, {hash:{},data:data}); }
-  else { helper = (depth0 && depth0.name); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
-  buffer += escapeExpression(stack1)
-    + "</h2>";
-  return buffer;
-  }
-
-function program5(depth0,data) {
-  
-  var buffer = "", helper, options;
-  buffer += "<h2>"
-    + escapeExpression((helper = helpers.t || (depth0 && depth0.t),options={hash:{},data:data},helper ? helper.call(depth0, "quality_gates.add", options) : helperMissing.call(depth0, "t", "quality_gates.add", options)))
-    + "</h2>";
-  return buffer;
-  }
-
-function program7(depth0,data) {
-  
   var buffer = "", helper, options;
   buffer += "<button>"
     + escapeExpression((helper = helpers.t || (depth0 && depth0.t),options={hash:{},data:data},helper ? helper.call(depth0, "save", options) : helperMissing.call(depth0, "t", "save", options)))
@@ -452,7 +417,7 @@ function program7(depth0,data) {
   return buffer;
   }
 
-function program9(depth0,data) {
+function program3(depth0,data) {
   
   var buffer = "", helper, options;
   buffer += "<button>"
@@ -461,7 +426,7 @@ function program9(depth0,data) {
   return buffer;
   }
 
-function program11(depth0,data) {
+function program5(depth0,data) {
   
   var buffer = "", helper, options;
   buffer += "<button>"
@@ -470,7 +435,15 @@ function program11(depth0,data) {
   return buffer;
   }
 
-  buffer += "<form>\n  <div class=\"modal-head\">\n    ";
+  buffer += "<form>\n  <div class=\"modal-head\">\n    <h2>"
+    + escapeExpression((helper = helpers.t || (depth0 && depth0.t),options={hash:{},data:data},helper ? helper.call(depth0, "quality_gates", (depth0 && depth0.method), options) : helperMissing.call(depth0, "t", "quality_gates", (depth0 && depth0.method), options)))
+    + "</h2>\n  </div>\n\n  <div class=\"modal-body\">\n    <div class=\"modal-error\"></div>\n    <div class=\"modal-field\">\n      <label for=\"quality-gate-edit-name\">"
+    + escapeExpression((helper = helpers.t || (depth0 && depth0.t),options={hash:{},data:data},helper ? helper.call(depth0, "name", options) : helperMissing.call(depth0, "t", "name", options)))
+    + " <em class=\"mandatory\">*</em></label>\n      <input id=\"quality-gate-edit-name\" type=\"text\" size=\"50\" maxlength=\"100\" value=\"";
+  if (helper = helpers.name) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.name); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "\">\n    </div>\n  </div>\n\n  <div class=\"modal-foot\">\n    ";
   stack1 = (helper = helpers.eq || (depth0 && depth0.eq),options={hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data},helper ? helper.call(depth0, (depth0 && depth0.method), "rename", options) : helperMissing.call(depth0, "eq", (depth0 && depth0.method), "rename", options));
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "\n    ";
@@ -478,17 +451,6 @@ function program11(depth0,data) {
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "\n    ";
   stack1 = (helper = helpers.eq || (depth0 && depth0.eq),options={hash:{},inverse:self.noop,fn:self.program(5, program5, data),data:data},helper ? helper.call(depth0, (depth0 && depth0.method), "create", options) : helperMissing.call(depth0, "eq", (depth0 && depth0.method), "create", options));
-  if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\n  </div>\n\n  <div class=\"modal-body\">\n    <div class=\"modal-error\"></div>\n    <div class=\"modal-field\">\n      <label for=\"quality-gate-edit-name\">"
-    + escapeExpression((helper = helpers.t || (depth0 && depth0.t),options={hash:{},data:data},helper ? helper.call(depth0, "name", options) : helperMissing.call(depth0, "t", "name", options)))
-    + " <em class=\"mandatory\">*</em></label>\n      <input id=\"quality-gate-edit-name\" type=\"text\" size=\"50\" maxlength=\"100\">\n    </div>\n  </div>\n\n  <div class=\"modal-foot\">\n    ";
-  stack1 = (helper = helpers.eq || (depth0 && depth0.eq),options={hash:{},inverse:self.noop,fn:self.program(7, program7, data),data:data},helper ? helper.call(depth0, (depth0 && depth0.method), "rename", options) : helperMissing.call(depth0, "eq", (depth0 && depth0.method), "rename", options));
-  if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\n    ";
-  stack1 = (helper = helpers.eq || (depth0 && depth0.eq),options={hash:{},inverse:self.noop,fn:self.program(9, program9, data),data:data},helper ? helper.call(depth0, (depth0 && depth0.method), "copy", options) : helperMissing.call(depth0, "eq", (depth0 && depth0.method), "copy", options));
-  if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "\n    ";
-  stack1 = (helper = helpers.eq || (depth0 && depth0.eq),options={hash:{},inverse:self.noop,fn:self.program(11, program11, data),data:data},helper ? helper.call(depth0, (depth0 && depth0.method), "create", options) : helperMissing.call(depth0, "eq", (depth0 && depth0.method), "create", options));
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "\n    <a id=\"quality-gate-cancel-create\" class=\"action\">"
     + escapeExpression((helper = helpers.t || (depth0 && depth0.t),options={hash:{},data:data},helper ? helper.call(depth0, "cancel", options) : helperMissing.call(depth0, "t", "cancel", options)))
