@@ -68,7 +68,7 @@ define ['jquery.mockjax'], ->
         'severity.INFO': 'Info'
 
         'coding_rules.activate': 'Activate'
-        'coding_rules.activate_quality_profile': 'Activate Quality Profile'
+        'coding_rules.activate_in_quality_profile': 'Activate in Quality Profile'
         'coding_rules.add_note': 'Add Note'
         'coding_rules.available_since': 'Available Since'
         'coding_rules.bulk_change': 'Bulk Change'
@@ -168,6 +168,8 @@ define ['jquery.mockjax'], ->
         fCreationDate: 'Oct 15, 2013'
         status: 'DEPRECATED'
         repository: 'squid'
+        characteristic: 'Reliability'
+        subcharacteristic: 'Data related reliability'
         key: 'S1190'
         parameters: [
           { key: 'someParameter', type: 'INT', default: 4, description: 'Some parameter description' }
