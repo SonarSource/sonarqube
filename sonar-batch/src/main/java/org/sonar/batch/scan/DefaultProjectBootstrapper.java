@@ -277,6 +277,10 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
     } finally {
       IOUtils.closeQuietly(fileInputStream);
     }
+    // Trim properties
+    for (String propKey : propsFromFile.stringPropertyNames()) {
+      propsFromFile.setProperty(propKey, StringUtils.trim(propsFromFile.getProperty(propKey)));
+    }
     return propsFromFile;
   }
 
