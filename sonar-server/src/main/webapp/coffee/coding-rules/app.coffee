@@ -39,6 +39,7 @@ requirejs [
   'navigator/filters/date-filter-view',
   'coding-rules/views/filters/quality-profile-filter-view',
   'coding-rules/views/filters/inheritance-filter-view',
+  'coding-rules/views/filters/characteristic-filter-view',
 
   'coding-rules/mockjax',
   'common/handlebars-extensions'
@@ -64,6 +65,7 @@ requirejs [
   DateFilterView,
   QualityProfileFilterView,
   InheritanceFilterView
+  CharacteristicFilterView
 ) ->
 
   # Create a generic error handler for ajax requests
@@ -230,13 +232,19 @@ requirejs [
       type: ChoiceFilters.ChoiceFilterView
       choices: @tags
 
+    @filters.add new BaseFilters.Filter
+      name: t 'coding_rules.filters.characteristic'
+      property: 'characteristic'
+      type: CharacteristicFilterView
+      choices: @characteristics
+      multiple: false
+
     @activeInFilter = new BaseFilters.Filter
       name: t 'coding_rules.filters.in_quality_profile'
       property: 'in_quality_profile'
       type: QualityProfileFilterView
       multiple: false
     @filters.add @activeInFilter
-
 
     @filters.add new BaseFilters.Filter
       name: t 'coding_rules.filters.key'
@@ -324,6 +332,7 @@ requirejs [
       App.repositories = r.repositories
       App.statuses = r.statuses
       App.tags = r.tags
+      App.characteristics = r.characteristics
       window.messages = r.messages
 
       # Remove the initial spinner
