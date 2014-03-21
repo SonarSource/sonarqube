@@ -164,3 +164,29 @@
   margin-top: -3px;
   margin-left: @navigatorPadding;
 }
+
+
+// Bulk Change
+.coding-rules-bulk-change-dropdown {
+  position: fixed;
+  z-index: 10;
+  top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight + @navigatorStatusHeight - 1px;
+  left: @navigatorResultsWidth - 200px;
+  width: 200px;
+  border: 1px solid @navigatorBorderLightColor;
+  .box-sizing(border-box);
+  background-color: #fff;
+}
+
+.coding-rules-bulk-change-dropdown-link {
+  display: block;
+  height: 30px;
+  line-height: 30px;
+  padding: 0 @navigatorPadding;
+  font-size: @smallFontSize;
+  .trans;
+
+  &:hover { background-color: @navigatorBarBackground; }
+
+  strong { font-weight: bold; }
+}

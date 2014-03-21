@@ -44,7 +44,8 @@ define [
         escapeMarkup: (m) -> m
 
 
-    show: ->
+    show: (action) ->
+      @action = action
       @render()
       @$el.dialog 'open'
 
@@ -55,40 +56,23 @@ define [
 
     prepareQuery: ->
       query = @options.app.getQuery()
-      activateIn = []
-      deactivateIn = []
-      severity = null
-      if @$('#coding-rules-bulk-change-activate-qp').is(':checked')
-        activateIn.push @options.app.getInactiveQualityProfile()
-      if @$('#coding-rules-bulk-change-activate').is(':checked')
-        activateIn.push @$('#coding-rules-bulk-change-activate-on').val()
-      if @$('#coding-rules-bulk-change-deactivate-qp').is(':checked')
-        deactivateIn.push @options.app.getActiveQualityProfile()
-      if @$('#coding-rules-bulk-change-deactivate').is(':checked')
-        deactivateIn.push @$('#coding-rules-bulk-change-deactivate-on').val()
-      if @$('#coding-rules-bulk-change-set-severity').is(':checked')
-        severity = @$('#coding-rules-bulk-change-severity').val()
-      actions = []
-      if activateIn.length > 0
-        actions.push 'bulk_activate'
-        _.extend query, bulk_activate_in: activateIn.join(',')
-      if deactivateIn.length > 0
-        actions.push 'bulk_deactivate'
-        _.extend query, bulk_deactivate_in: deactivateIn.join(',')
-      if severity
-        actions.push 'bulk_set_severity'
-        _.extend query, bulk_severity: severity
-      _.extend query, bulk_actions: actions
+      switch @action
+        when 'activate' then _.extend query, bulk_activate: @$('#coding-rules-bulk-change-activate-on').val()
+        when 'deactivate' then _.extend query, bulk_deactivate: @$('#coding-rules-bulk-change-deactivate-on').val()
+        when 'change-severity' then _.extend query, bulk_change_severity: @$('#coding-rules-bulk-change-severity').val()
 
-    onSubmit: (e) ->
-      e.preventDefault()
+
+    bulkChange: (query) ->
       jQuery.ajax
         type: 'POST'
         url: "#{baseUrl}/api/codingrules/bulk_change"
-        data: @prepareQuery()
+        data: query
       .done =>
         @options.app.fetchFirstPage()
-        @hide()
+
+    onSubmit: (e) ->
+      e.preventDefault()
+      @bulkChange(@prepareQuery()).done => @hide()
 
 
 
@@ -97,6 +81,8 @@ define [
 
 
     serializeData: ->
+      action: @action
+
       paging: @options.app.codingRules.paging
       qualityProfiles: @options.app.qualityProfiles
 

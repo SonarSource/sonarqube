@@ -1,8 +1,8 @@
 define [
-  'backbone.marionette',
+  'backbone.marionette'
   'templates/coding-rules'
 ], (
-  Marionette,
+  Marionette
   Templates
 ) ->
 
@@ -16,12 +16,13 @@ define [
 
     ui:
       orderChoices: '.navigator-actions-order-choices'
+      bulkChange: '.navigator-actions-bulk'
 
 
     events:
       'click .navigator-actions-order': 'toggleOrderChoices'
       'click @ui.orderChoices': 'sort'
-      'click .navigator-actions-bulk': 'bulkChange'
+      'click @ui.bulkChange': 'bulkChange'
 
 
     onRender: ->
@@ -50,8 +51,9 @@ define [
         @options.app.fetchFirstPage()
 
 
-    bulkChange: ->
-      @options.app.codingRulesBulkChangeView.show()
+    bulkChange: (e) ->
+      e.stopPropagation()
+      @options.app.codingRulesBulkChangeDropdownView.toggle()
 
 
     serializeData: ->

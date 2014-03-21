@@ -1,58 +1,53 @@
 <form>
   <div class="modal-head">
-    <h2>{{t 'coding_rules.bulk_change'}} {{paging.fTotal}} {{t 'coding_rules._rules'}}</h2>
+    {{#eq action 'activate'}}
+      <h2>{{t 'coding_rules.activate_in_quality_profile'}} ({{paging.fTotal}} {{t 'coding_rules._rules'}})</h2>
+    {{/eq}}
+    {{#eq action 'deactivate'}}
+      <h2>{{t 'coding_rules.deactivate_in_quality_profile'}} ({{paging.fTotal}} {{t 'coding_rules._rules'}})</h2>
+    {{/eq}}
+    {{#eq action 'change-severity'}}
+      <h2>{{t 'coding_rules.change_severity'}} ({{paging.fTotal}} {{t 'coding_rules._rules'}})</h2>
+    {{/eq}}
   </div>
 
   <div class="modal-body">
     <div class="modal-error"></div>
 
-    {{#if inactiveQualityProfile}}
+    {{#eq action 'activate'}}
       <div class="modal-field">
-        <label for="coding-rules-bulk-change-activate-on-qp">Activate on</label>
-        <input id="coding-rules-bulk-change-activate-qp" type="checkbox">
-        <span class="text">{{inactiveQualityProfileName}}</span>
-      </div>
-    {{/if}}
-
-    <div class="modal-field">
-      <label for="coding-rules-bulk-change-activate-on">{{#unless inactiveQualityProfile}}Activate on{{/unless}}</label>
-      <input id="coding-rules-bulk-change-activate" type="checkbox">
-      <select id="coding-rules-bulk-change-activate-on" multiple>
-        {{#each activateOnQualityProfiles}}
-          <option value="{{key}}">{{name}}</option>
-        {{/each}}
-      </select>
-    </div>
-
-    {{#if activeQualityProfile}}
-      <div class="modal-field">
-        <label for="coding-rules-bulk-change-deactivate-on-qp">Deactivate on</label>
-        <input id="coding-rules-bulk-change-deactivate-qp" type="checkbox">
-        <span class="text">{{activeQualityProfileName}}</span>
-      </div>
-    {{/if}}
-
-    <div class="modal-field">
-      <label for="coding-rules-bulk-change-deactivate-on">{{#unless activeQualityProfile}}Deactivate on{{/unless}}</label>
-      <input id="coding-rules-bulk-change-deactivate" type="checkbox">
-      <select id="coding-rules-bulk-change-deactivate-on" multiple>
-        {{#each deactivateOnQualityProfiles}}
-          <option value="{{key}}">{{name}}</option>
-        {{/each}}
-      </select>
-    </div>
-
-    {{#if activeQualityProfile}}
-      <div class="modal-field">
-        <label for="coding-rules-bulk-change-severity">Change Severity</label>
-        <input id="coding-rules-bulk-change-set-severity" type="checkbox">
-        <select id="coding-rules-bulk-change-severity">
-          {{#each severities}}
-            <option value="{{this}}">{{t 'severity' this}}</option>
+        <label for="coding-rules-bulk-change-activate-on">{{t 'coding_rules.activate_in'}}</label>
+        <select id="coding-rules-bulk-change-activate-on" multiple>
+          {{#each activateOnQualityProfiles}}
+            <option value="{{key}}">{{name}}</option>
           {{/each}}
         </select>
       </div>
-    {{/if}}
+    {{/eq}}
+
+    {{#eq action 'deactivate'}}
+      <div class="modal-field">
+        <label for="coding-rules-bulk-change-deactivate-on">{{t 'coding_rules.deactivate_in'}}</label>
+        <select id="coding-rules-bulk-change-deactivate-on" multiple>
+          {{#each deactivateOnQualityProfiles}}
+            <option value="{{key}}">{{name}}</option>
+          {{/each}}
+        </select>
+      </div>
+    {{/eq}}
+
+    {{#eq action 'change-severity'}}
+      {{#if activeQualityProfile}}
+        <div class="modal-field">
+          <label for="coding-rules-bulk-change-severity">{{t 'coding_rules.change_severity'}}</label>
+          <select id="coding-rules-bulk-change-severity">
+            {{#each severities}}
+              <option value="{{this}}">{{t 'severity' this}}</option>
+            {{/each}}
+          </select>
+        </div>
+      {{/if}}
+    {{/eq}}
   </div>
 
   <div class="modal-foot">
