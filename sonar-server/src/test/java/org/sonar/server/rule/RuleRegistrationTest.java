@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.server.rule.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
@@ -268,7 +267,8 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
   public void insert_extended_repositories() {
     task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RulesDefinition[]{
       new FindbugsRepository(), new FbContribRepository()}),
-      profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao, characteristicDao, mock(RegisterDebtModel.class));
+      profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao, characteristicDao, mock(RegisterDebtModel.class)
+    );
 
     setupData("empty");
     task.start();
@@ -285,11 +285,13 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
         .setName("One")
         .setHtmlDescription("Description of One")
         .setSeverity(Severity.BLOCKER)
-        .setDebtCharacteristic("MEMORY_EFFICIENCY")
-        .setDebtRemediationFunction(DebtRemediationFunction.createLinearWithOffset("5d", "10h"))
-        .setEffortToFixDescription("squid.S115.effortToFix")
         .setInternalKey("config1")
         .setTags("tag1", "tag3", "tag5");
+
+      rule1.setDebtCharacteristic("MEMORY_EFFICIENCY")
+        .setDebtRemediationFunction(rule1.debtRemediationFunctions().linearWithOffset("5d", "10h"))
+        .setEffortToFixDescription("squid.S115.effortToFix");
+
       rule1.createParam("param1").setDescription("parameter one").setDefaultValue("default value one");
       rule1.createParam("param2").setDescription("parameter two").setDefaultValue("default value two");
 

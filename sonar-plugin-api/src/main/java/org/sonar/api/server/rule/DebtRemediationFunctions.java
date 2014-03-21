@@ -20,29 +20,16 @@
 
 package org.sonar.api.server.rule;
 
-import javax.annotation.CheckForNull;
-
 /**
+ * Factory of {@link org.sonar.api.server.rule.DebtRemediationFunction}
+ *
  * @since 4.3
  */
-public interface DebtRemediationFunction {
+public interface DebtRemediationFunctions {
 
-  static class ValidationException extends RuntimeException {
-    public ValidationException(String message) {
-      super(message);
-    }
-  }
+  DebtRemediationFunction linear(String factor);
 
-  static enum Type {
-    LINEAR, LINEAR_OFFSET, CONSTANT_ISSUE
-  }
+  DebtRemediationFunction linearWithOffset(String factor, String offset);
 
-  Type type();
-
-  @CheckForNull
-  String factor();
-
-  @CheckForNull
-  String offset();
-
+  DebtRemediationFunction constantPerIssue(String offset);
 }

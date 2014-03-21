@@ -35,7 +35,6 @@ import org.sonar.api.ServerExtension;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.DebtRemediationFunction;
 import org.sonar.api.utils.Duration;
-import org.sonar.api.utils.MessageException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -138,7 +137,7 @@ public class DebtRulesXMLImporter implements ServerExtension {
       }
     }
     if (StringUtils.isNotBlank(ruleRepositoryKey) && StringUtils.isNotBlank(ruleKey)) {
-      return processRule(RuleKey.of(ruleRepositoryKey, ruleKey), properties);
+      return createRule(RuleKey.of(ruleRepositoryKey, ruleKey), properties);
     }
     return null;
   }
@@ -170,15 +169,6 @@ public class DebtRulesXMLImporter implements ServerExtension {
   }
 
   @CheckForNull
-  private RuleDebt processRule(RuleKey ruleKey, Properties properties) {
-    try {
-      return createRule(ruleKey, properties);
-    } catch (DebtRemediationFunction.ValidationException e) {
-      throw MessageException.of(String.format("Rule '%s' is invalid : %s", ruleKey, e.getMessage()));
-    }
-  }
-
-  @CheckForNull
   private RuleDebt createRule(RuleKey ruleKey, Properties properties) {
     Property function = properties.function();
     if (function != null) {
@@ -197,13 +187,13 @@ public class DebtRulesXMLImporter implements ServerExtension {
   private RuleDebt createRuleDebt(RuleKey ruleKey, String function, @Nullable String factor, @Nullable String offset) {
     if ("linear_threshold".equals(function) && factor != null) {
       LOG.warn(String.format("Linear with threshold function is no longer used, remediation function of '%s' is replaced by linear.", ruleKey));
-      return new RuleDebt().setRuleKey(ruleKey).setFunction(DebtRemediationFunction.createLinear(factor));
+      return new RuleDebt().setRuleKey(ruleKey).setType(DebtRemediationFunction.Type.LINEAR).setFactor(factor);
     } else if ("constant_resource".equals(function)) {
       LOG.warn(String.format("Constant/file function is no longer used, technical debt definitions on '%s' are ignored.", ruleKey));
     } else if (DebtRemediationFunction.Type.CONSTANT_ISSUE.name().equalsIgnoreCase(function) && factor != null && offset == null) {
-      return new RuleDebt().setRuleKey(ruleKey).setFunction(DebtRemediationFunction.createConstantPerIssue(factor));
+      return new RuleDebt().setRuleKey(ruleKey).setType(DebtRemediationFunction.Type.CONSTANT_ISSUE).setOffset(factor);
     } else {
-      return new RuleDebt().setRuleKey(ruleKey).setFunction(DebtRemediationFunction.create(DebtRemediationFunction.Type.valueOf(function.toUpperCase()), factor, offset));
+      return new RuleDebt().setRuleKey(ruleKey).setType(DebtRemediationFunction.Type.valueOf(function.toUpperCase())).setFactor(factor).setOffset(offset);
     }
     return null;
   }
@@ -279,7 +269,9 @@ public class DebtRulesXMLImporter implements ServerExtension {
   public static class RuleDebt {
     private RuleKey ruleKey;
     private String characteristicKey;
-    private DebtRemediationFunction function;
+    private DebtRemediationFunction.Type type;
+    private String factor;
+    private String offset;
 
     public RuleKey ruleKey() {
       return ruleKey;
@@ -299,12 +291,32 @@ public class DebtRulesXMLImporter implements ServerExtension {
       return this;
     }
 
-    public DebtRemediationFunction function() {
-      return function;
+    public DebtRemediationFunction.Type type() {
+      return type;
     }
 
-    public RuleDebt setFunction(DebtRemediationFunction function) {
-      this.function = function;
+    public RuleDebt setType(DebtRemediationFunction.Type type) {
+      this.type = type;
+      return this;
+    }
+
+    @CheckForNull
+    public String factor() {
+      return factor;
+    }
+
+    public RuleDebt setFactor(@Nullable String factor) {
+      this.factor = factor;
+      return this;
+    }
+
+    @CheckForNull
+    public String offset() {
+      return offset;
+    }
+
+    public RuleDebt setOffset(@Nullable String offset) {
+      this.offset = offset;
       return this;
     }
   }

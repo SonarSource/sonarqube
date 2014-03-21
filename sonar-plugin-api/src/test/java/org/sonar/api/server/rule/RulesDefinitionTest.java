@@ -71,7 +71,7 @@ public class RulesDefinitionTest {
       .setInternalKey("/something")
       .setStatus(RuleStatus.BETA)
       .setDebtCharacteristic("COMPILER")
-      .setDebtRemediationFunction(DebtRemediationFunction.create(DebtRemediationFunction.Type.LINEAR_OFFSET, "1h", "10min"))
+      .setDebtRemediationFunction(DefaultDebtRemediationFunction.create(DefaultDebtRemediationFunction.Type.LINEAR_OFFSET, "1h", "10min"))
       .setEffortToFixDescription("squid.S115.effortToFix")
       .setTags("one", "two")
       .addTags("two", "three", "four");
@@ -92,7 +92,7 @@ public class RulesDefinitionTest {
     assertThat(npeRule.template()).isFalse();
     assertThat(npeRule.status()).isEqualTo(RuleStatus.BETA);
     assertThat(npeRule.debtCharacteristic()).isEqualTo("COMPILER");
-    assertThat(npeRule.debtRemediationFunction()).isEqualTo(DebtRemediationFunction.create(DebtRemediationFunction.Type.LINEAR_OFFSET, "1h", "10min"));
+    assertThat(npeRule.debtRemediationFunction()).isEqualTo(DefaultDebtRemediationFunction.create(DefaultDebtRemediationFunction.Type.LINEAR_OFFSET, "1h", "10min"));
     assertThat(npeRule.effortToFixDescription()).isEqualTo("squid.S115.effortToFix");
     assertThat(npeRule.toString()).isEqualTo("[repository=findbugs, key=NPE]");
     assertThat(npeRule.repository()).isSameAs(findbugs);
@@ -312,7 +312,7 @@ public class RulesDefinitionTest {
     RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
     newRepository.createRule("NPE").setName("NPE").setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
       .setDebtCharacteristic("")
-      .setDebtRemediationFunction(DebtRemediationFunction.create(DebtRemediationFunction.Type.LINEAR_OFFSET, "1h", "10min"));
+      .setDebtRemediationFunction(DefaultDebtRemediationFunction.create(DefaultDebtRemediationFunction.Type.LINEAR_OFFSET, "1h", "10min"));
     try {
       newRepository.done();
       fail();

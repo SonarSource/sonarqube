@@ -20,6 +20,7 @@
 package org.sonar.xoo.rule;
 
 import org.junit.Test;
+import org.sonar.api.server.rule.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -42,5 +43,10 @@ public class XooRulesDefinitionTest {
     assertThat(x1.key()).isEqualTo("x1");
     assertThat(x1.tags()).containsOnly("style", "security");
     assertThat(x1.htmlDescription()).isNotEmpty();
+
+    assertThat(x1.debtCharacteristic()).isEqualTo("INTEGRATION_TESTABILITY");
+    assertThat(x1.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
+    assertThat(x1.debtRemediationFunction().factor()).isEqualTo("1h");
+    assertThat(x1.debtRemediationFunction().offset()).isEqualTo("30min");
   }
 }

@@ -459,11 +459,11 @@ public class RuleRegistration implements Startable {
    */
   private void removeActiveRulesOnStillExistingRepositories(List<RuleDto> removedRules, RulesDefinition.Context context) {
     List<String> repositoryKeys = newArrayList(Iterables.transform(context.repositories(), new Function<RulesDefinition.Repository, String>() {
-      @Override
-      public String apply(RulesDefinition.Repository input) {
-        return input.key();
+        @Override
+        public String apply(RulesDefinition.Repository input) {
+          return input.key();
+        }
       }
-    }
     ));
 
     for (RuleDto rule : removedRules) {

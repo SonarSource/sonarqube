@@ -25,7 +25,7 @@ import org.sonar.api.utils.Duration;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class DebtRemediationFunctionTest {
+public class DefaultDebtRemediationFunctionTest {
 
   @Test
   public void create_linear() throws Exception {

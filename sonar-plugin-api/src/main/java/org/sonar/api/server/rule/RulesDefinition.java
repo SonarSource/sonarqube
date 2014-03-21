@@ -317,10 +317,12 @@ public interface RulesDefinition extends ServerExtension {
     private String effortToFixDescription;
     private final Set<String> tags = Sets.newTreeSet();
     private final Map<String, NewParam> paramsByKey = Maps.newHashMap();
+    private final DefaultDebtRemediationFunctions functions;
 
     private NewRule(String repoKey, String key) {
       this.repoKey = repoKey;
       this.key = key;
+      this.functions = new DefaultDebtRemediationFunctions(repoKey, key);
     }
 
     public String key() {
@@ -377,6 +379,10 @@ public interface RulesDefinition extends ServerExtension {
     public NewRule setDebtCharacteristic(@Nullable String debtCharacteristic) {
       this.debtCharacteristic = debtCharacteristic;
       return this;
+    }
+
+    public DebtRemediationFunctions debtRemediationFunctions() {
+      return functions;
     }
 
     public NewRule setDebtRemediationFunction(@Nullable DebtRemediationFunction debtRemediationFunction) {

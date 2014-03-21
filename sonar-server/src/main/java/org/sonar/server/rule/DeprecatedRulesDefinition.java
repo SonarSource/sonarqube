@@ -105,7 +105,19 @@ public class DeprecatedRulesDefinition implements RulesDefinition {
     DebtRulesXMLImporter.RuleDebt ruleDebt = findRequirement(ruleDebts, repoKey, ruleKey);
     if (ruleDebt != null) {
       newRule.setDebtCharacteristic(ruleDebt.characteristicKey());
-      newRule.setDebtRemediationFunction(ruleDebt.function());
+      switch (ruleDebt.type()) {
+        case LINEAR :
+          newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linear(ruleDebt.factor()));
+          break;
+        case LINEAR_OFFSET:
+          newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linearWithOffset(ruleDebt.factor(), ruleDebt.offset()));
+          break;
+        case CONSTANT_ISSUE:
+          newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().constantPerIssue(ruleDebt.offset()));
+          break;
+        default :
+          throw new IllegalArgumentException(String.format("The type '%s' is unknown", ruleDebt.type()));
+      }
     }
   }
 

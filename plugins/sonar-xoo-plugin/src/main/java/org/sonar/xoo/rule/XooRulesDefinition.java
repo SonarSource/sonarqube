@@ -51,6 +51,10 @@ public class XooRulesDefinition implements RulesDefinition {
         // default severity when the rule is activated on a Quality profile. Default value is MAJOR.
       .setSeverity(Severity.MINOR);
 
+    x1Rule
+      .setDebtCharacteristic("INTEGRATION_TESTABILITY")
+      .setDebtRemediationFunction(x1Rule.debtRemediationFunctions().linearWithOffset("1h", "30min"));
+
     x1Rule.createParam("acceptWhitespace")
       .setDefaultValue("false")
       .setType(RuleParamType.BOOLEAN)

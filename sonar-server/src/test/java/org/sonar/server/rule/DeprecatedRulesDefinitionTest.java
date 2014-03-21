@@ -158,8 +158,10 @@ public class DeprecatedRulesDefinitionTest {
       new DebtRulesXMLImporter.RuleDebt()
         .setCharacteristicKey("MEMORY_EFFICIENCY")
         .setRuleKey(RuleKey.of("checkstyle", "ConstantName"))
-        .setFunction(DebtRemediationFunction.createLinearWithOffset("1d", "10min")
-        ));
+        .setType(DebtRemediationFunction.Type.LINEAR_OFFSET)
+        .setFactor("1d")
+        .setOffset("10min")
+    );
 
     Reader javaModelReader = mock(Reader.class);
     when(debtModelRepository.createReaderForXMLFile("java")).thenReturn(javaModelReader);
@@ -176,7 +178,9 @@ public class DeprecatedRulesDefinitionTest {
     assertThat(rule).isNotNull();
     assertThat(rule.key()).isEqualTo("ConstantName");
     assertThat(rule.debtCharacteristic()).isEqualTo("MEMORY_EFFICIENCY");
-    assertThat(rule.debtRemediationFunction()).isEqualTo(DebtRemediationFunction.createLinearWithOffset("1d", "10min"));
+    assertThat(rule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
+    assertThat(rule.debtRemediationFunction().factor()).isEqualTo("1d");
+    assertThat(rule.debtRemediationFunction().offset()).isEqualTo("10min");
   }
 
 }
