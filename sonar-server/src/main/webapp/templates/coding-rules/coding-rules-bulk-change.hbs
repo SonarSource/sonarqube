@@ -19,7 +19,7 @@
         <label for="coding-rules-bulk-change-activate-on">{{t 'coding_rules.activate_in'}}</label>
         <select id="coding-rules-bulk-change-activate-on" multiple>
           {{#each activateOnQualityProfiles}}
-            <option value="{{key}}">{{name}}</option>
+            <option value="{{key}}">{{name}} ({{lang}})</option>
           {{/each}}
         </select>
       </div>
@@ -30,7 +30,7 @@
         <label for="coding-rules-bulk-change-deactivate-on">{{t 'coding_rules.deactivate_in'}}</label>
         <select id="coding-rules-bulk-change-deactivate-on" multiple>
           {{#each deactivateOnQualityProfiles}}
-            <option value="{{key}}">{{name}}</option>
+            <option value="{{key}}">{{name}} ({{lang}})</option>
           {{/each}}
         </select>
       </div>

@@ -8,10 +8,10 @@ define ['jquery.mockjax'], ->
     url: "#{baseUrl}/api/codingrules/app"
     responseText: JSON.stringify
       qualityprofiles: [
-        { key: 'sonarway', name: 'Sonar Way', parent: null },
-        { key: 'qualityprofile1', name: 'Quality Profile 1', parent: 'sonarway' },
-        { key: 'qualityprofile2', name: 'Quality Profile 2', parent: 'sonarway' },
-        { key: 'qualityprofile3', name: 'Quality Profile 3', parent: null },
+        { key: 'sonarway', name: 'Sonar Way', lang: 'Java', parent: null },
+        { key: 'qualityprofile1', name: 'Quality Profile 1', lang: 'Java', parent: 'sonarway' },
+        { key: 'qualityprofile2', name: 'Quality Profile 2', lang: 'JavaScript', parent: 'sonarway' },
+        { key: 'qualityprofile3', name: 'Quality Profile 3', lang: 'Java', parent: null },
       ]
       languages:
         java: 'Java'
@@ -275,10 +275,10 @@ define ['jquery.mockjax'], ->
     responseText: JSON.stringify
       more: false
       results: [
-        { id: 'sonarway', text: 'Sonar Way', parent: null },
-        { id: 'qp1', text: 'Quality Profile 1', parent: 'sonarway' },
-        { id: 'qp2', text: 'Quality Profile 2', parent: 'sonarway' },
-        { id: 'qp3', text: 'Quality Profile 3', parent: null },
+        { id: 'sonarway', text: 'Sonar Way', category: 'Java', parent: null },
+        { id: 'qp1', text: 'Quality Profile 1', category: 'Java', parent: 'sonarway' },
+        { id: 'qp2', text: 'Quality Profile 2', category: 'JavaScript', parent: 'sonarway' },
+        { id: 'qp3', text: 'Quality Profile 3', category: 'Java', parent: null },
       ]
 
 
@@ -287,5 +287,5 @@ define ['jquery.mockjax'], ->
     url: "#{baseUrl}/api/qualityprofiles/show"
     responseText: JSON.stringify
       qualityprofile:
-        id: 'sonarway', text: 'Sonar Way', parent: null
+        id: 'sonarway', text: 'Sonar Way', category: 'Java', parent: null
 
