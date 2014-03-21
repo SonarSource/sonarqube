@@ -132,7 +132,7 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
     return new File(getHomeDir(), "extensions/downloads");
   }
 
-  public File getRemovedPluginsDir() {
+  public File getTrashPluginsDir() {
     return new File(getHomeDir(), "extensions/trash");
   }
 

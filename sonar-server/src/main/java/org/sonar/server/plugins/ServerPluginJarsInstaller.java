@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerUpgradeStatus;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.plugins.DefaultPluginMetadata;
 import org.sonar.server.platform.DefaultServerFileSystem;
@@ -46,34 +47,34 @@ public class ServerPluginJarsInstaller {
   private static final Logger LOG = LoggerFactory.getLogger(ServerPluginJarsInstaller.class);
 
   private final Server server;
-  private final DefaultServerFileSystem fileSystem;
+  private final DefaultServerFileSystem fs;
   private final ServerPluginJarInstaller installer;
   private final Map<String, PluginMetadata> pluginByKeys = Maps.newHashMap();
   private final ServerUpgradeStatus serverUpgradeStatus;
 
   public ServerPluginJarsInstaller(Server server, ServerUpgradeStatus serverUpgradeStatus,
-                                   DefaultServerFileSystem fileSystem, ServerPluginJarInstaller installer) {
+                                   DefaultServerFileSystem fs, ServerPluginJarInstaller installer) {
     this.server = server;
     this.serverUpgradeStatus = serverUpgradeStatus;
-    this.fileSystem = fileSystem;
+    this.fs = fs;
     this.installer = installer;
   }
 
   public void install() {
     TimeProfiler profiler = new TimeProfiler().start("Install plugins");
-    deleteUninstalledPlugins();
-    loadUserPlugins();
+    deleteTrash();
+    loadInstalledPlugins();
     if (serverUpgradeStatus.isFreshInstall()) {
-      copyAndLoadBundledPlugins();
+      copyBundledPlugins();
     }
-    moveAndLoadDownloadedPlugins();
+    moveDownloadedPlugins();
     loadCorePlugins();
     deployPlugins();
     profiler.stop();
   }
 
-  private void deleteUninstalledPlugins() {
-    File trashDir = fileSystem.getRemovedPluginsDir();
+  private void deleteTrash() {
+    File trashDir = fs.getTrashPluginsDir();
     try {
       if (trashDir.exists()) {
         FileUtils.deleteDirectory(trashDir);
@@ -83,69 +84,74 @@ public class ServerPluginJarsInstaller {
     }
   }
 
-  private void loadUserPlugins() {
-    for (File file : fileSystem.getUserPlugins()) {
-      registerPlugin(file, false, false);
-    }
-  }
-
-  private void registerPlugin(File file, boolean isCore, boolean canDelete) {
-    DefaultPluginMetadata metadata = installer.extractMetadata(file, isCore);
-    if (StringUtils.isBlank(metadata.getKey())) {
-      return;
-    }
-
-    PluginMetadata existing = pluginByKeys.put(metadata.getKey(), metadata);
-
-    if ((existing != null) && !canDelete) {
-      throw new IllegalStateException("Found two plugins with the same key '" + metadata.getKey() + "': " + metadata.getFile().getName() + " and "
-        + existing.getFile().getName());
-    }
-
-    if (existing != null) {
-      FileUtils.deleteQuietly(existing.getFile());
-      LOG.info("Plugin " + metadata.getKey() + " replaced by new version");
-    }
-  }
-
-  private void moveAndLoadDownloadedPlugins() {
-    if (fileSystem.getDownloadedPluginsDir().exists()) {
-      Collection<File> jars = FileUtils.listFiles(fileSystem.getDownloadedPluginsDir(), new String[]{"jar"}, false);
-      for (File jar : jars) {
-        installJarPlugin(jar, true);
+  private void loadInstalledPlugins() {
+    for (File file : fs.getUserPlugins()) {
+      DefaultPluginMetadata metadata = installer.extractMetadata(file, false);
+      if (StringUtils.isNotBlank(metadata.getKey())) {
+        PluginMetadata existing = pluginByKeys.put(metadata.getKey(), metadata);
+        if (existing != null) {
+          throw MessageException.of(String.format("Found two files for the same plugin '%s': %s and %s",
+            metadata.getKey(), metadata.getFile().getName(), existing.getFile().getName()));
+        }
       }
     }
   }
 
-  private void copyAndLoadBundledPlugins() {
-    for (File plugin : fileSystem.getBundledPlugins()) {
-      installJarPlugin(plugin, false);
+  private void moveDownloadedPlugins() {
+    if (fs.getDownloadedPluginsDir().exists()) {
+      Collection<File> sourceFiles = FileUtils.listFiles(fs.getDownloadedPluginsDir(), new String[]{"jar"}, false);
+      for (File sourceFile : sourceFiles) {
+        overridePlugin(sourceFile, true);
+      }
     }
   }
 
-  private void installJarPlugin(File jar, boolean deleteSource) {
-    File destDir = fileSystem.getUserPluginsDir();
-    File destFile = new File(destDir, jar.getName());
+  private void copyBundledPlugins() {
+    for (File sourceFile : fs.getBundledPlugins()) {
+      overridePlugin(sourceFile, false);
+    }
+  }
+
+
+  private void overridePlugin(File sourceFile, boolean deleteSource) {
+    File destDir = fs.getUserPluginsDir();
+    File destFile = new File(destDir, sourceFile.getName());
     if (destFile.exists()) {
       // plugin with same filename already installed
       FileUtils.deleteQuietly(destFile);
     }
+
     try {
       if (deleteSource) {
-        FileUtils.moveFileToDirectory(jar, destDir, true);
+        FileUtils.moveFile(sourceFile, destFile);
       } else {
-        FileUtils.copyFileToDirectory(jar, destDir, true);
+        FileUtils.copyFile(sourceFile, destFile);
       }
-      registerPlugin(destFile, false, true);
-
     } catch (IOException e) {
-      LOG.error("Fail to move plugin: " + jar.getAbsolutePath() + " to " + destDir.getAbsolutePath(), e);
+      LOG.error(String.format("Fail to move or copy plugin: %s to %s",
+        sourceFile.getAbsolutePath(), destFile.getAbsolutePath()), e);
+    }
+
+    DefaultPluginMetadata metadata = installer.extractMetadata(destFile, false);
+    if (StringUtils.isNotBlank(metadata.getKey())) {
+      PluginMetadata existing = pluginByKeys.put(metadata.getKey(), metadata);
+      if (existing != null) {
+        if (!existing.getFile().getName().equals(destFile.getName())) {
+          FileUtils.deleteQuietly(existing.getFile());
+        }
+        LOG.info("Plugin " + metadata.getKey() + " replaced by new version");
+      }
     }
   }
 
   private void loadCorePlugins() {
-    for (File file : fileSystem.getCorePlugins()) {
-      registerPlugin(file, true, false);
+    for (File file : fs.getCorePlugins()) {
+      DefaultPluginMetadata metadata = installer.extractMetadata(file, true);
+      PluginMetadata existing = pluginByKeys.put(metadata.getKey(), metadata);
+      if (existing != null) {
+        throw new IllegalStateException("Found two plugins with the same key '" + metadata.getKey() + "': " + metadata.getFile().getName() + " and "
+          + existing.getFile().getName());
+      }
     }
   }
 
@@ -159,8 +165,8 @@ public class ServerPluginJarsInstaller {
     PluginMetadata metadata = pluginByKeys.get(pluginKey);
     if ((metadata != null) && !metadata.isCore()) {
       try {
-        File masterFile = new File(fileSystem.getUserPluginsDir(), metadata.getFile().getName());
-        FileUtils.moveFileToDirectory(masterFile, fileSystem.getRemovedPluginsDir(), true);
+        File masterFile = new File(fs.getUserPluginsDir(), metadata.getFile().getName());
+        FileUtils.moveFileToDirectory(masterFile, fs.getTrashPluginsDir(), true);
       } catch (IOException e) {
         throw new IllegalStateException("Fail to uninstall plugin: " + pluginKey, e);
       }
@@ -169,8 +175,8 @@ public class ServerPluginJarsInstaller {
 
   public List<String> getUninstalls() {
     List<String> names = Lists.newArrayList();
-    if (fileSystem.getRemovedPluginsDir().exists()) {
-      List<File> files = (List<File>) FileUtils.listFiles(fileSystem.getRemovedPluginsDir(), new String[]{"jar"}, false);
+    if (fs.getTrashPluginsDir().exists()) {
+      List<File> files = (List<File>) FileUtils.listFiles(fs.getTrashPluginsDir(), new String[]{"jar"}, false);
       for (File file : files) {
         names.add(file.getName());
       }
@@ -179,11 +185,11 @@ public class ServerPluginJarsInstaller {
   }
 
   public void cancelUninstalls() {
-    if (fileSystem.getRemovedPluginsDir().exists()) {
-      List<File> files = (List<File>) FileUtils.listFiles(fileSystem.getRemovedPluginsDir(), new String[]{"jar"}, false);
+    if (fs.getTrashPluginsDir().exists()) {
+      List<File> files = (List<File>) FileUtils.listFiles(fs.getTrashPluginsDir(), new String[]{"jar"}, false);
       for (File file : files) {
         try {
-          FileUtils.moveFileToDirectory(file, fileSystem.getUserPluginsDir(), false);
+          FileUtils.moveFileToDirectory(file, fs.getUserPluginsDir(), false);
         } catch (IOException e) {
           throw new IllegalStateException("Fail to cancel plugin uninstalls", e);
         }
@@ -205,7 +211,7 @@ public class ServerPluginJarsInstaller {
       plugin.getKey(), server.getVersion(), plugin.getSonarVersion());
 
     try {
-      File pluginDeployDir = new File(fileSystem.getDeployedPluginsDir(), plugin.getKey());
+      File pluginDeployDir = new File(fs.getDeployedPluginsDir(), plugin.getKey());
       FileUtils.forceMkdir(pluginDeployDir);
       FileUtils.cleanDirectory(pluginDeployDir);
 

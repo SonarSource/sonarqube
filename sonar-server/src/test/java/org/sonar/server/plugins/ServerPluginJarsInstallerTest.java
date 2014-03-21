@@ -27,12 +27,14 @@ import org.junit.rules.TestName;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerUpgradeStatus;
+import org.sonar.api.utils.MessageException;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.test.TestUtils;
 
 import java.io.File;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -122,8 +124,16 @@ public class ServerPluginJarsInstallerTest {
     jarsInstaller.install();
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void failIfTwoPluginsWithSameKey() {
-    jarsInstaller.install();
+    try {
+      jarsInstaller.install();
+      fail();
+    } catch (MessageException e) {
+      assertThat(e.getMessage())
+        .contains("Found two files for the same plugin 'foo'")
+        .contains("foo-plugin1.jar")
+        .contains("foo-plugin2.jar");
+    }
   }
 }
