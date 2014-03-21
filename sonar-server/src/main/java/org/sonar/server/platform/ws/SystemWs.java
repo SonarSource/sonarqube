@@ -19,28 +19,24 @@
  */
 package org.sonar.server.platform.ws;
 
-import org.junit.Test;
-import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.platform.Platform;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+public class SystemWs implements WebService {
 
-public class PlatformWsTest {
+  private final RestartHandler restartHandler;
 
-  @Test
-  public void define() throws Exception {
-    Platform platform = mock(Platform.class);
-    Settings settings = new Settings();
-    RestartHandler restartHandler = new RestartHandler(settings, platform);
-    PlatformWs ws = new PlatformWs(restartHandler);
-    WebService.Context context = new WebService.Context();
-
-    ws.define(context);
-
-    assertThat(context.controllers()).hasSize(1);
-    assertThat(context.controller("api/platform")).isNotNull();
-    assertThat(context.controller("api/platform").actions()).isNotEmpty();
+  public SystemWs(RestartHandler restartHandler) {
+    this.restartHandler = restartHandler;
   }
+
+  @Override
+  public void define(Context context) {
+    NewController controller = context.createController("api/system")
+      .setSince("4.3");
+
+    restartHandler.define(controller);
+
+    controller.done();
+  }
+
 }

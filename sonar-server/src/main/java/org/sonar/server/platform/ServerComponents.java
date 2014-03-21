@@ -95,7 +95,7 @@ import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.InternalPermissionTemplateService;
 import org.sonar.server.permission.PermissionFinder;
-import org.sonar.server.platform.ws.PlatformWs;
+import org.sonar.server.platform.ws.SystemWs;
 import org.sonar.server.platform.ws.RestartHandler;
 import org.sonar.server.plugins.*;
 import org.sonar.server.qualitygate.QgateProjectFinder;
@@ -191,7 +191,7 @@ class ServerComponents {
 
       // ws
       RestartHandler.class,
-      PlatformWs.class
+      SystemWs.class
     );
   }
 

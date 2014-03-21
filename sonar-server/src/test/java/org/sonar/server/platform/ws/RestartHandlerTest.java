@@ -22,10 +22,9 @@ package org.sonar.server.platform.ws;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WsTester;
-import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.Platform;
 
-import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -39,7 +38,7 @@ public class RestartHandlerTest {
     Settings settings = new Settings();
     settings.setProperty("sonar.dev", true);
     RestartHandler restartHandler = new RestartHandler(settings, platform);
-    PlatformWs ws = new PlatformWs(restartHandler);
+    SystemWs ws = new SystemWs(restartHandler);
 
     WsTester tester = new WsTester(ws);
     tester.newRequest("restart").execute();
@@ -52,14 +51,13 @@ public class RestartHandlerTest {
     Platform platform = mock(Platform.class);
     Settings settings = new Settings();
     RestartHandler restartHandler = new RestartHandler(settings, platform);
-    PlatformWs ws = new PlatformWs(restartHandler);
+    SystemWs ws = new SystemWs(restartHandler);
 
     WsTester tester = new WsTester(ws);
     try {
       tester.newRequest("restart").execute();
       fail();
-    } catch (BadRequestException e) {
-      assertThat(e).hasMessage("Available in development mode only (sonar.dev=true)");
+    } catch (ForbiddenException e) {
       verifyZeroInteractions(platform);
     }
   }

@@ -24,7 +24,7 @@ import org.sonar.wsclient.internal.HttpRequestFactory;
 import org.sonar.wsclient.system.Migration;
 import org.sonar.wsclient.system.SystemClient;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
 public class DefaultSystemClient implements SystemClient {
@@ -37,7 +37,7 @@ public class DefaultSystemClient implements SystemClient {
 
   @Override
   public Migration migrate() {
-    String json = requestFactory.post("/api/server/setup", new HashMap<String, Object>());
+    String json = requestFactory.post("/api/server/setup", Collections.<String, Object>emptyMap());
     return jsonToMigration(json);
   }
 
@@ -59,6 +59,11 @@ public class DefaultSystemClient implements SystemClient {
       }
     }
     return migration;
+  }
+
+  @Override
+  public void restart() {
+    requestFactory.post("/api/system/restart", Collections.<String, Object>emptyMap());
   }
 
   private void sleepQuietly(long rateInMs) {

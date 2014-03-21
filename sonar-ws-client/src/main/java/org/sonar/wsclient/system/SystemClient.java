@@ -33,4 +33,10 @@ public interface SystemClient {
    * Synchronously start a database migration.
    */
   Migration migrate(long timeoutInSeconds, long rateInSeconds);
+
+  /**
+   * Restart server. Available only in development mode.
+   * @since 4.3
+   */
+  void restart();
 }

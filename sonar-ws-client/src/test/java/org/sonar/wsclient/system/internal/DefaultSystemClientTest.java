@@ -25,11 +25,14 @@ import org.sonar.wsclient.MockHttpServerInterceptor;
 import org.sonar.wsclient.internal.HttpRequestFactory;
 import org.sonar.wsclient.system.Migration;
 
+import java.util.Collections;
+
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DefaultSystemClientTest {
@@ -111,5 +114,13 @@ public class DefaultSystemClientTest {
     } catch (IllegalStateException e) {
       assertThat(e.getMessage()).isEqualTo("State is not set");
     }
+  }
+
+  @Test
+  public void restart() {
+    HttpRequestFactory requestFactory = mock(HttpRequestFactory.class);
+    DefaultSystemClient client = new DefaultSystemClient(requestFactory);
+    client.restart();
+    verify(requestFactory).post("/api/system/restart", Collections.<String, Object>emptyMap());
   }
 }

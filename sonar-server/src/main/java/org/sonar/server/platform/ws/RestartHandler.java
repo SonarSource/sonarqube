@@ -26,7 +26,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.Platform;
 
 public class RestartHandler implements RequestHandler {
@@ -41,7 +41,7 @@ public class RestartHandler implements RequestHandler {
 
   void define(WebService.NewController controller) {
     controller.createAction("restart")
-      .setDescription("Restart server. Available only in development mode.")
+      .setDescription("Restart server. Available only on development mode (sonar.dev=true)")
       .setPost(true)
       .setHandler(this);
   }
@@ -56,7 +56,7 @@ public class RestartHandler implements RequestHandler {
       response.noContent();
 
     } else {
-      throw new BadRequestException("Available in development mode only (sonar.dev=true)");
+      throw new ForbiddenException();
     }
   }
 }
