@@ -25,3 +25,6 @@ define [
     parse: (r) ->
       r.qualitygates.map (gate) ->
         _.extend gate, default: gate.id == r.default
+
+
+    comparator: (item) -> item.get('name').toLowerCase()

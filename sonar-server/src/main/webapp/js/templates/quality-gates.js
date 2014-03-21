@@ -12,7 +12,7 @@ function program1(depth0,data) {
   
   var buffer = "", helper, options;
   buffer += "\n  <div class=\"navigator-header-actions button-group\">\n    <button id=\"quality-gate-add\">"
-    + escapeExpression((helper = helpers.t || (depth0 && depth0.t),options={hash:{},data:data},helper ? helper.call(depth0, "add_verb", options) : helperMissing.call(depth0, "t", "add_verb", options)))
+    + escapeExpression((helper = helpers.t || (depth0 && depth0.t),options={hash:{},data:data},helper ? helper.call(depth0, "create", options) : helperMissing.call(depth0, "t", "create", options)))
     + "</button>\n  </div>\n";
   return buffer;
   }
