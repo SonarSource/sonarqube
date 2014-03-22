@@ -490,32 +490,16 @@
         </configuration>
       </plugin>
       <plugin>
-        <!-- this plugin is used to list the licenses of all the dependencies :
-        mvn org.codehaus.mojo:license-maven-plugin:aggregate-add-third-party
+        <!-- 
+        This plugin is used to list the licenses of all the dependencies. The module 
+        sonar-testing-harness must be excluded. See third-party-licenses.sh
         -->
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>license-maven-plugin</artifactId>
-        <version>1.0-beta-3</version>
+        <version>1.6</version>
         <configuration>
           <groupByLicense>true</groupByLicense>
-          <licenseMerges>
-            <licenseMerge>The Apache Software License, Version 2.0|Apache License 2.0|Apache 2|Apache License Version
-              2|Apache License Version 2.0|Apache Public License 2.0|Apache Software License - Version 2.0|Apache
-              Software Licenses
-            </licenseMerge>
-            <licenseMerge>GNU Lesser General Public License, Version 2.1|GNU Lesser General Public License Version
-              2.1|GNU Lesser General Public License (LGPL), Version 2.1
-            </licenseMerge>
-            <licenseMerge>BSD|BSD License|The BSD License</licenseMerge>
-            <licenseMerge>Common Public License, Version 1.0|Common Public License - v 1.0|Common Public License Version
-              1.0
-            </licenseMerge>
-            <licenseMerge>Eclipse Public License, Version 1.0|Eclipse Public License - Version 1.0</licenseMerge>
-            <licenseMerge>Common Development and Distribution License, Version 1.0|COMMON DEVELOPMENT AND DISTRIBUTION
-              LICENSE (CDDL) Version 1.0|Common Development and Distribution License (CDDL) v1.0
-            </licenseMerge>
-            <licenseMerge>MIT License|The MIT License</licenseMerge>
-          </licenseMerges>
+          <includedScopes>compile</includedScopes>
         </configuration>
       </plugin>
     </plugins>
