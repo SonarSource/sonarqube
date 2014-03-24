@@ -20,35 +20,34 @@
 package org.sonar.api.server.rule;
 
 import com.google.common.base.Charsets;
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class RulesDefinitionFromXmlTest {
+public class RulesDefinitionXmlLoaderTest {
 
   @org.junit.Rule
   public final ExpectedException thrown = ExpectedException.none();
 
-  private RulesDefinition.Repository load(Reader reader) {
+  private RulesDefinition.Repository load(InputStream input, String encoding) {
     RulesDefinition.Context context = new RulesDefinition.Context();
     RulesDefinition.NewRepository newRepository = context.createRepository("squid", "java");
-    new RuleDefinitionsFromXml().loadRules(newRepository, reader);
+    new RulesDefinitionXmlLoader().load(newRepository, input, encoding);
     newRepository.done();
     return context.repository("squid");
   }
 
   @Test
-  public void should_parse_xml() throws Exception {
-    InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("/org/sonar/api/server/rule/RuleDefinitionsFromXmlTest/rules.xml"), Charsets.UTF_8.name());
-    RulesDefinition.Repository repository = load(reader);
+  public void parse_xml() throws Exception {
+    InputStream input = getClass().getResourceAsStream("/org/sonar/api/server/rule/RulesDefinitionXmlLoaderTest/rules.xml");
+    RulesDefinition.Repository repository = load(input, Charsets.UTF_8.name());
     assertThat(repository.rules()).hasSize(2);
 
     RulesDefinition.Rule rule = repository.rule("complete");
@@ -77,27 +76,36 @@ public class RulesDefinitionFromXmlTest {
   }
 
   @Test
-  public void should_fail_if_missing_rule_key() {
+  public void fail_if_missing_rule_key() {
     thrown.expect(IllegalStateException.class);
-    load(new StringReader("<rules><rule><name>Foo</name></rule></rules>"));
+    load(IOUtils.toInputStream("<rules><rule><name>Foo</name></rule></rules>"), Charsets.UTF_8.name());
   }
 
   @Test
-  public void should_fail_if_missing_property_key() {
+  public void fail_if_missing_property_key() {
     thrown.expect(IllegalStateException.class);
-    load(new StringReader("<rules><rule><key>foo</key><name>Foo</name><param></param></rule></rules>"));
+    load(IOUtils.toInputStream("<rules><rule><key>foo</key><name>Foo</name><param></param></rule></rules>"), Charsets.UTF_8.name());
   }
 
   @Test
-  public void should_fail_on_invalid_rule_parameter_type() {
+  public void fail_on_invalid_rule_parameter_type() {
     thrown.expect(IllegalStateException.class);
-    load(new StringReader("<rules><rule><key>foo</key><name>Foo</name><param><key>key</key><type>INVALID</type></param></rule></rules>"));
+    load(IOUtils.toInputStream("<rules><rule><key>foo</key><name>Foo</name><param><key>key</key><type>INVALID</type></param></rule></rules>"), Charsets.UTF_8.name());
+  }
+
+  @Test
+  public void fail_if_invalid_xml() throws UnsupportedEncodingException {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("XML is not valid");
+
+    InputStream input = getClass().getResourceAsStream("/org/sonar/api/server/rule/RulesDefinitionXmlLoaderTest/invalid.xml");
+    load(input, Charsets.UTF_8.name());
   }
 
   @Test
   public void test_utf8_encoding() throws UnsupportedEncodingException {
-    InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("/org/sonar/api/server/rule/RuleDefinitionsFromXmlTest/utf8.xml"), Charsets.UTF_8.name());
-    RulesDefinition.Repository repository = load(reader);
+    InputStream input = getClass().getResourceAsStream("/org/sonar/api/server/rule/RulesDefinitionXmlLoaderTest/utf8.xml");
+    RulesDefinition.Repository repository = load(input, Charsets.UTF_8.name());
 
     assertThat(repository.rules()).hasSize(1);
     RulesDefinition.Rule rule = repository.rules().get(0);
@@ -109,10 +117,10 @@ public class RulesDefinitionFromXmlTest {
   }
 
   @Test
-  public void should_support_deprecated_format() throws UnsupportedEncodingException {
+  public void support_deprecated_format() throws UnsupportedEncodingException {
     // the deprecated format uses some attributes instead of nodes
-    InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream("/org/sonar/api/server/rule/RuleDefinitionsFromXmlTest/deprecated.xml"), Charsets.UTF_8.name());
-    RulesDefinition.Repository repository = load(reader);
+    InputStream input = getClass().getResourceAsStream("/org/sonar/api/server/rule/RulesDefinitionXmlLoaderTest/deprecated.xml");
+    RulesDefinition.Repository repository = load(input, Charsets.UTF_8.name());
 
     assertThat(repository.rules()).hasSize(1);
     RulesDefinition.Rule rule = repository.rules().get(0);

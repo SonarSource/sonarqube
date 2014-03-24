@@ -24,13 +24,13 @@ import org.apache.commons.lang.StringUtils;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
+import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.check.Cardinality;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -39,15 +39,53 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @since 4.2
+ * Loads definitions of rules from a XML file.
+ *
+ * <h3>XML Format</h3>
+ * <pre>
+ * &lt;rules&gt;
+ *   &lt;rule&gt;
+ *     &lt;!-- required fields --&gt;
+ *     &lt;key&gt;the-rule-key&lt;/key&gt;
+ *     &lt;name&gt;The purpose of the rule&lt;/name&gt;
+ *
+ *     &lt;!-- optional fields --&gt;
+ *     &lt;description&gt;
+ *       &lt;![CDATA[The description]]&gt;
+ *     &lt;/description&gt;
+ *     &lt;internalKey&gt;Checker/TreeWalker/LocalVariableName&lt;/internalKey&gt;
+ *     &lt;severity&gt;BLOCKER&lt;/severity&gt;
+ *     &lt;cardinality&gt;MULTIPLE&lt;/cardinality&gt;
+ *     &lt;status&gt;BETA&lt;/status&gt;
+ *     &lt;param&gt;
+ *       &lt;key&gt;the-param-key&lt;/key&gt;
+ *       &lt;tag&gt;style&lt;/tag&gt;
+ *       &lt;tag&gt;security&lt;/tag&gt;
+ *       &lt;description&gt;
+ *         &lt;![CDATA[the param-description]]&gt;
+ *       &lt;/description&gt;
+ *       &lt;defaultValue&gt;42&lt;/defaultValue&gt;
+ *     &lt;/param&gt;
+ *     &lt;param&gt;
+ *       &lt;key&gt;another-param&lt;/key&gt;
+ *     &lt;/param&gt;
+ *
+ *     &lt;!-- deprecated fields --&gt;
+ *     &lt;configKey&gt;Checker/TreeWalker/LocalVariableName&lt;/configKey&gt;
+ *     &lt;priority&gt;BLOCKER&lt;/priority&gt;
+ *   &lt;/rule&gt;
+ * &lt;/rules&gt;
+ * </pre>
+ *
+ * @since 4.3
  */
-class RuleDefinitionsFromXml {
+public class RulesDefinitionXmlLoader implements ServerComponent {
 
-  void loadRules(RulesDefinition.NewRepository repo, InputStream input, String encoding) {
+  public void load(RulesDefinition.NewRepository repo, InputStream input, String encoding) {
     Reader reader = null;
     try {
       reader = new InputStreamReader(input, encoding);
-      loadRules(repo, reader);
+      load(repo, reader);
 
     } catch (IOException e) {
       throw new IllegalStateException("Fail to load XML file", e);
@@ -57,7 +95,7 @@ class RuleDefinitionsFromXml {
     }
   }
 
-  void loadRules(RulesDefinition.NewRepository repo, Reader reader) {
+  public void load(RulesDefinition.NewRepository repo, Reader reader) {
     XMLInputFactory xmlFactory = XMLInputFactory.newInstance();
     xmlFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
     xmlFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.FALSE);

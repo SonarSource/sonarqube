@@ -20,7 +20,13 @@
 package org.sonar.api.server.rule;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
@@ -31,10 +37,9 @@ import org.sonar.api.rule.Severity;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -107,48 +112,6 @@ public interface RulesDefinition extends ServerExtension {
      */
     NewExtendedRepository loadAnnotatedClasses(Class... classes);
 
-    /**
-     * Reads definitions of rules from a XML file. Format is :
-     * <pre>
-     * &lt;rules&gt;
-     * &lt;rule&gt;
-     * &lt;!-- required fields --&gt;
-     * &lt;key&gt;the-rule-key&lt;/key&gt;
-     * &lt;name&gt;The purpose of the rule&lt;/name&gt;
-     * &lt;description&gt;
-     * &lt;![CDATA[The description]]&gt;
-     * &lt;/description&gt;
-     *
-     * &lt;!-- optional fields --&gt;
-     * &lt;internalKey&gt;Checker/TreeWalker/LocalVariableName&lt;/internalKey&gt;
-     * &lt;severity&gt;BLOCKER&lt;/severity&gt;
-     * &lt;cardinality&gt;MULTIPLE&lt;/cardinality&gt;
-     * &lt;status&gt;BETA&lt;/status&gt;
-     * &lt;param&gt;
-     * &lt;key&gt;the-param-key&lt;/key&gt;
-     * &lt;tag&gt;style&lt;/tag&gt;
-     * &lt;tag&gt;security&lt;/tag&gt;
-     * &lt;description&gt;
-     * &lt;![CDATA[
-     * the param-description
-     * ]]&gt;
-     * &lt;/description&gt;
-     * &lt;defaultValue&gt;42&lt;/defaultValue&gt;
-     * &lt;/param&gt;
-     * &lt;param&gt;
-     * &lt;key&gt;another-param&lt;/key&gt;
-     * &lt;/param&gt;
-     *
-     * &lt;!-- deprecated fields --&gt;
-     * &lt;configKey&gt;Checker/TreeWalker/LocalVariableName&lt;/configKey&gt;
-     * &lt;priority&gt;BLOCKER&lt;/priority&gt;
-     * &lt;/rule&gt;
-     * &lt;/rules&gt;
-     *
-     * </pre>
-     */
-    NewExtendedRepository loadXml(InputStream xmlInput, String encoding);
-
     void done();
   }
 
@@ -157,6 +120,10 @@ public interface RulesDefinition extends ServerExtension {
 
     @CheckForNull
     NewRule rule(String ruleKey);
+
+    Collection<NewRule> rules();
+
+    String key();
   }
 
   class NewRepositoryImpl implements NewRepository {
@@ -172,6 +139,11 @@ public interface RulesDefinition extends ServerExtension {
       this.context = context;
       this.key = this.name = key;
       this.language = language;
+    }
+
+    @Override
+    public String key() {
+      return key;
     }
 
     @Override
@@ -202,6 +174,11 @@ public interface RulesDefinition extends ServerExtension {
     }
 
     @Override
+    public Collection<NewRule> rules() {
+      return newRules.values();
+    }
+
+    @Override
     public NewRepositoryImpl loadAnnotatedClasses(Class... classes) {
       new RuleDefinitionsFromAnnotations().loadRules(this, classes);
       return this;
@@ -210,12 +187,6 @@ public interface RulesDefinition extends ServerExtension {
     @Override
     public RulesDefinition.NewRule loadAnnotatedClass(Class clazz) {
       return new RuleDefinitionsFromAnnotations().loadRule(this, clazz);
-    }
-
-    @Override
-    public NewRepositoryImpl loadXml(InputStream xmlInput, String encoding) {
-      new RuleDefinitionsFromXml().loadRules(this, xmlInput, encoding);
-      return this;
     }
 
     @Override
@@ -409,6 +380,10 @@ public interface RulesDefinition extends ServerExtension {
       return paramsByKey.get(paramKey);
     }
 
+    public Collection<NewParam> params() {
+      return paramsByKey.values();
+    }
+
     /**
      * @see RuleTagFormat
      */
@@ -587,6 +562,10 @@ public interface RulesDefinition extends ServerExtension {
 
     private NewParam(String key) {
       this.key = this.name = key;
+    }
+
+    public String key() {
+      return key;
     }
 
     public NewParam setName(@Nullable String s) {
