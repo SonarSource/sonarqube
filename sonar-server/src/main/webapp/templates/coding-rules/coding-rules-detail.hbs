@@ -1,5 +1,5 @@
 {{#if contextQualityProfile}}
-  <div class="coding-rules-detail-context-actions admin">
+  <div class="coding-rules-detail-context-actions">
     <table class="width100">
       <tbody>
       <tr>
@@ -18,7 +18,11 @@
                 </span>
               {{/each}}
 
-              {{#if note}}<span class="coding-rules-detail-context-actions-item">{{{note.html}}}</span>{{/if}}
+              {{#if note}}
+                <span class="coding-rules-detail-context-actions-item">
+                  <span class="limited limited-big">{{{note.html}}}</span>
+                </span>
+              {{/if}}
             {{/with}}
           {{/if}}
         </td>

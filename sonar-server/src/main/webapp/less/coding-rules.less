@@ -36,6 +36,9 @@
 
 .coding-rules-detail-context-actions {
   margin-bottom: @navigatorPadding;
+  padding: @navigatorPadding / 2;
+  background-color: @contextBackground;
+  border: 1px solid @contextBorder;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -53,6 +56,8 @@
   margin-right: @navigatorPadding;
 
   .limited {
+    display: inline-block;
+    vertical-align: middle;
     max-width: 180px;
     white-space: nowrap;
     overflow: hidden;
@@ -60,7 +65,7 @@
   }
 
   .limited-big {
-    width: 480px;
+    max-width: 480px;
   }
 }
 

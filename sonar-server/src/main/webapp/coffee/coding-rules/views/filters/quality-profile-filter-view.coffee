@@ -16,7 +16,12 @@ define [
     initialize: ->
       super
       @choices = new QualityProfileSuggestions
-      @listenTo @model, 'change:value', @updateParentQualityProfile
+      @listenTo @model, 'change:value', @onValueChange
+
+
+    onValueChange: ->
+      @updateParentQualityProfile()
+      @highlightContext()
 
 
     updateParentQualityProfile: ->
@@ -25,6 +30,11 @@ define [
         @model.set 'parentQualityProfile', selected[0].get('parent')
       else
         @model.unset 'parentQualityProfile'
+
+
+    highlightContext: ->
+      hasContext = _.isArray(@model.get('value')) && @model.get('value').length > 0
+      @$el.toggleClass 'navigator-filter-context', hasContext
 
 
     createRequest: (v) ->

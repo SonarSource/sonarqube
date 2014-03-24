@@ -249,7 +249,7 @@ requirejs [
       property: 'activation'
       type: ActivationFilterView
       enabled: false
-      optional: true
+      optional: false
       multiple: false
       qualityProfileFilter: @qualityProfileFilter
       choices:
