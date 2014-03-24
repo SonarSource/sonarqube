@@ -19,6 +19,7 @@
  */
 package org.sonar.home.cache;
 
+import org.apache.commons.io.FileExistsException;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.home.log.Log;
@@ -187,7 +188,12 @@ public class FileCache {
     if (!destDir.exists()) {
       File tempDir = createTempDir();
       ZipUtils.unzip(cachedFile, tempDir, new LibFilter());
-      FileUtils.moveDirectory(tempDir, destDir);
+      // Recheck in case a concurrent process
+      try {
+        FileUtils.moveDirectory(tempDir, destDir);
+      } catch (FileExistsException e) {
+        // Ignore as is certainly means a concurrent process has unziped the same file
+      }
     }
     return destDir;
   }
