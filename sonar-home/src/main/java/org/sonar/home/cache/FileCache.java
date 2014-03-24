@@ -189,7 +189,10 @@ public class FileCache {
       File tempDir = createTempDir();
       ZipUtils.unzip(cachedFile, tempDir, new LibFilter());
       try {
-        FileUtils.moveDirectory(tempDir, destDir);
+        // Recheck in case of concurrent processes
+        if (!destDir.exists()) {
+          FileUtils.moveDirectory(tempDir, destDir);
+        }
       } catch (FileExistsException e) {
         // Ignore as is certainly means a concurrent process has unziped the same file
       }
