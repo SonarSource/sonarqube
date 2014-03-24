@@ -30,11 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.rules.RuleParam;
-import org.sonar.api.rules.RuleQuery;
+import org.sonar.api.rules.*;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.ValidationMessages;
@@ -45,11 +41,7 @@ import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.qualityprofile.ESActiveRule;
 import org.sonar.server.rule.RuleRegistration;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class RegisterNewProfiles {
 
@@ -232,6 +224,9 @@ public class RegisterNewProfiles {
       } else if (rule.getConfigKey() != null) {
         rule = ruleFinder.find(RuleQuery.create().withRepositoryKey(rule.getRepositoryKey()).withConfigKey(rule.getConfigKey()));
       }
+    }
+    if (rule == null) {
+      throw new IllegalStateException(String.format("Rule '%s' has not been found.", activeRule.getRule()));
     }
     return rule;
   }
