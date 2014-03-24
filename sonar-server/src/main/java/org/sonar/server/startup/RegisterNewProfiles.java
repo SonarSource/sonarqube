@@ -83,6 +83,10 @@ public class RegisterNewProfiles {
   public void start() {
     TimeProfiler profiler = new TimeProfiler(LOGGER).start("Register Quality Profiles");
     session = sessionFactory.getSession();
+
+    // hibernate session can contain an invalid cache of rules
+    session.getEntityManager().clear();
+
     ListMultimap<String, RulesProfile> profilesByLanguage = loadDefinitions();
     for (String language : profilesByLanguage.keySet()) {
       List<RulesProfile> profiles = profilesByLanguage.get(language);
