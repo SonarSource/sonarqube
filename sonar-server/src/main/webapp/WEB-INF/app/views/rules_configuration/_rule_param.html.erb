@@ -36,8 +36,7 @@
     <% if ancestor_value != param_value %>
       <img src="<%= ApplicationController.root_context -%>/images/overrides.png" alt="Overrides parent definition" title="<%= message('rules_configuration.overrides_parent_definition') -%>" style="vertical-align: middle"/>
       <span class="form-val-note" style="font-weight: bold; vertical-align: middle;">
-        <%= message('rules_configuration.original_value') -%>
-        : <%= ancestor_value.blank? ? '(' + message('rules_configuration.parent_parameter.empty') + ')' : ancestor_value -%>
+        <%= message('rules_configuration.original_value') -%>: <%= ancestor_value.blank? ? '(' + message('rules_configuration.parent_parameter.empty') + ')' : ancestor_value -%>
       </span>
     <% end %>
   <% end %>

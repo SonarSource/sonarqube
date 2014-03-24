@@ -14,8 +14,7 @@
          end %>
       <% if filter.display.color_metric %>
         <td class="thin nowrap">
-          <span class="note"><%= message('color') -%>
-            : <b><%= filter.display.color_metric.short_name -%></b> <%= render :partial => 'treemap/gradient', :locals => {:metric => filter.display.color_metric} %></span>
+          <span class="note"><%= message('color') -%>: <b><%= filter.display.color_metric.short_name -%></b> <%= render :partial => 'treemap/gradient', :locals => {:metric => filter.display.color_metric} %></span>
         </td>
       <%
          colspan += 1
