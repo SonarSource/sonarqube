@@ -32,7 +32,9 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class RegisterMetricsTest extends AbstractDbUnitTestCase {
 
@@ -41,21 +43,21 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
     setupData("shouldSaveIfNew");
 
     Metric metric1 = new Metric.Builder("new1", "short1", Metric.ValueType.FLOAT)
-        .setDescription("desc1")
-        .setDirection(1)
-        .setQualitative(true)
-        .setDomain("domain1")
-        .setUserManaged(false)
-        .create();
+      .setDescription("desc1")
+      .setDirection(1)
+      .setQualitative(true)
+      .setDomain("domain1")
+      .setUserManaged(false)
+      .create();
     Metric metric2 = new Metric.Builder("new2", "short2", Metric.ValueType.FLOAT)
-        .setDescription("desc2")
-        .setDirection(1)
-        .setQualitative(true)
-        .setDomain("domain2")
-        .setUserManaged(false)
-        .create();
+      .setDescription("desc2")
+      .setDirection(1)
+      .setQualitative(true)
+      .setDomain("domain2")
+      .setUserManaged(false)
+      .create();
 
-    RegisterMetrics synchronizer = new RegisterMetrics(getSession(), new MeasuresDao(getSession()), mock(QualityGateConditionDao.class), null);
+    RegisterMetrics synchronizer = new RegisterMetrics(new MeasuresDao(getSession()), mock(QualityGateConditionDao.class), new Metrics[0]);
     synchronizer.register(Arrays.asList(metric1, metric2));
     checkTables("shouldSaveIfNew", "metrics");
   }
@@ -64,14 +66,14 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
   public void shouldUpdateIfAlreadyExists() {
     setupData("shouldUpdateIfAlreadyExists");
 
-    RegisterMetrics synchronizer = new RegisterMetrics(getSession(), new MeasuresDao(getSession()), mock(QualityGateConditionDao.class), null);
+    RegisterMetrics synchronizer = new RegisterMetrics(new MeasuresDao(getSession()), mock(QualityGateConditionDao.class), new Metrics[0]);
     synchronizer.register(newArrayList(new Metric.Builder("key", "new short name", Metric.ValueType.FLOAT)
-        .setDescription("new description")
-        .setDirection(-1)
-        .setQualitative(true)
-        .setDomain("new domain")
-        .setUserManaged(false)
-        .create()));
+      .setDescription("new description")
+      .setDirection(-1)
+      .setQualitative(true)
+      .setDomain("new domain")
+      .setUserManaged(false)
+      .create()));
 
     checkTables("shouldUpdateIfAlreadyExists", "metrics");
   }
@@ -80,15 +82,15 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
   public void shouldAddUserManagesMetric() {
     Metrics metrics = mock(Metrics.class);
     when(metrics.getMetrics()).thenReturn(newArrayList(new Metric.Builder("key", "new short name", Metric.ValueType.FLOAT)
-        .setDescription("new description")
-        .setDirection(-1)
-        .setQualitative(true)
-        .setDomain("new domain")
-        .setUserManaged(true)
-        .create()));
+      .setDescription("new description")
+      .setDirection(-1)
+      .setQualitative(true)
+      .setDomain("new domain")
+      .setUserManaged(true)
+      .create()));
 
     MeasuresDao measuresDao = new MeasuresDao(getSession());
-    RegisterMetrics loader = new RegisterMetrics(getSession(), measuresDao, mock(QualityGateConditionDao.class), new Metrics[]{metrics});
+    RegisterMetrics loader = new RegisterMetrics(measuresDao, mock(QualityGateConditionDao.class), new Metrics[]{metrics});
     List<Metric> result = loader.getMetricsRepositories();
 
     assertThat(result).hasSize(1);
@@ -100,15 +102,15 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
 
     Metrics metrics = mock(Metrics.class);
     when(metrics.getMetrics()).thenReturn(newArrayList(new Metric.Builder("key", "new short name", Metric.ValueType.FLOAT)
-        .setDescription("new description")
-        .setDirection(-1)
-        .setQualitative(true)
-        .setDomain("new domain")
-        .setUserManaged(true)
-        .create()));
+      .setDescription("new description")
+      .setDirection(-1)
+      .setQualitative(true)
+      .setDomain("new domain")
+      .setUserManaged(true)
+      .create()));
 
     MeasuresDao measuresDao = new MeasuresDao(getSession());
-    RegisterMetrics loader = new RegisterMetrics(getSession(), measuresDao, mock(QualityGateConditionDao.class), new Metrics[]{metrics});
+    RegisterMetrics loader = new RegisterMetrics(measuresDao, mock(QualityGateConditionDao.class), new Metrics[]{metrics});
     List<Metric> result = loader.getMetricsRepositories();
 
     assertThat(result).isEmpty();
@@ -119,7 +121,7 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
     setupData("shouldEnableOnlyLoadedMetrics");
 
     MeasuresDao measuresDao = new MeasuresDao(getSession());
-    RegisterMetrics loader = new RegisterMetrics(getSession(), measuresDao, mock(QualityGateConditionDao.class), null);
+    RegisterMetrics loader = new RegisterMetrics(measuresDao, mock(QualityGateConditionDao.class), new Metrics[0]);
     loader.start();
 
     assertThat(measuresDao.getMetric("deprecated").getEnabled()).isFalse();
@@ -127,9 +129,9 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
   }
 
   @Test
-  public void shouldCleanAlerts() {
+  public void clean_quality_gate_conditions() {
     QualityGateConditionDao conditionDao = mock(QualityGateConditionDao.class);
-    RegisterMetrics loader = new RegisterMetrics(getSession(), new MeasuresDao(getSession()), conditionDao, null);
+    RegisterMetrics loader = new RegisterMetrics(new MeasuresDao(getSession()), conditionDao, new Metrics[0]);
     loader.cleanAlerts();
     verify(conditionDao).deleteConditionsWithInvalidMetrics();
   }

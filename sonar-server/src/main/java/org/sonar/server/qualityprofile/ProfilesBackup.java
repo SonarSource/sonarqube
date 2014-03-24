@@ -36,11 +36,6 @@ import java.util.*;
 
 public class ProfilesBackup {
 
-  private static final String OPERATOR = "operator";
-  private static final String VALUE_ERROR = "value-error";
-  private static final String VALUE_WARNING = "value-warning";
-  private static final String PERIOD = "period";
-  private static final String METRIC_KEY = "metric-key";
   private static final String KEY = "key";
   private static final String PLUGIN = "plugin";
   private static final String LEVEL = "level";

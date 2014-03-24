@@ -25,7 +25,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
@@ -44,11 +43,9 @@ public class RegisterMetrics {
 
   private final MeasuresDao measuresDao;
   private final Metrics[] metricsRepositories;
-  private final DatabaseSession session;
   private final QualityGateConditionDao conditionDao;
 
-  public RegisterMetrics(DatabaseSession session, MeasuresDao measuresDao, QualityGateConditionDao conditionDao, Metrics[] metricsRepositories) {
-    this.session = session;
+  public RegisterMetrics(MeasuresDao measuresDao, QualityGateConditionDao conditionDao, Metrics[] metricsRepositories) {
     this.measuresDao = measuresDao;
     this.metricsRepositories = metricsRepositories;
     this.conditionDao = conditionDao;
@@ -70,12 +67,12 @@ public class RegisterMetrics {
   List<Metric> getMetricsRepositories() {
     List<Metric> metricsToRegister = newArrayList();
     Map<String, Metrics> metricsByRepository = Maps.newHashMap();
-    if (metricsRepositories != null) {
-      for (Metrics metrics : metricsRepositories) {
-        checkMetrics(metricsByRepository, metrics);
-        metricsToRegister.addAll(removeExistingUserManagedMetrics(metrics.getMetrics()));
-      }
+
+    for (Metrics metrics : metricsRepositories) {
+      checkMetrics(metricsByRepository, metrics);
+      metricsToRegister.addAll(removeExistingUserManagedMetrics(metrics.getMetrics()));
     }
+
     return metricsToRegister;
   }
 
@@ -104,17 +101,8 @@ public class RegisterMetrics {
   }
 
   protected void cleanAlerts() {
-    LOG.info("cleaning alert thresholds...");
+    LOG.info("Cleaning quality gate conditions");
     conditionDao.deleteConditionsWithInvalidMetrics();
-/*
-    Query query = session.createQuery("delete from " + Alert.class.getSimpleName() + " a where NOT EXISTS(FROM Metric m WHERE m=a.metric))");
-    query.executeUpdate();
-
-    query = session.createQuery("delete from " + Alert.class.getSimpleName() + " a where NOT EXISTS(FROM Metric m WHERE m=a.metric and m.enabled=:enabled))");
-    query.setParameter("enabled", Boolean.TRUE);
-    query.executeUpdate();
-    session.commit();
-*/
   }
 
   protected void register(List<Metric> metrics) {
