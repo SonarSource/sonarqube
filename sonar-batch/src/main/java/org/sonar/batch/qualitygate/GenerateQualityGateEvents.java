@@ -26,7 +26,6 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.Level;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationManager;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
@@ -92,14 +91,14 @@ public class GenerateQualityGateEvents implements Decorator {
 
   protected void notifyUsers(Resource resource, String alertName, String alertText, Level alertLevel, boolean isNewAlert) {
     Notification notification = new Notification("alerts")
-        .setDefaultMessage("Alert on " + resource.getLongName() + ": " + alertName)
-        .setFieldValue("projectName", resource.getLongName())
-        .setFieldValue("projectKey", resource.getKey())
-        .setFieldValue("projectId", String.valueOf(resource.getId()))
-        .setFieldValue("alertName", alertName)
-        .setFieldValue("alertText", alertText)
-        .setFieldValue("alertLevel", alertLevel.toString())
-        .setFieldValue("isNewAlert", Boolean.toString(isNewAlert));
+      .setDefaultMessage("Alert on " + resource.getLongName() + ": " + alertName)
+      .setFieldValue("projectName", resource.getLongName())
+      .setFieldValue("projectKey", resource.getKey())
+      .setFieldValue("projectId", String.valueOf(resource.getId()))
+      .setFieldValue("alertName", alertName)
+      .setFieldValue("alertText", alertText)
+      .setFieldValue("alertLevel", alertLevel.toString())
+      .setFieldValue("isNewAlert", Boolean.toString(isNewAlert));
     notificationManager.scheduleForSending(notification);
   }
 
