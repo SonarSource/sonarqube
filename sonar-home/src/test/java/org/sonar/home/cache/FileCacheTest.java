@@ -29,6 +29,13 @@ import org.sonar.home.log.Slf4jLog;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -121,10 +128,10 @@ public class FileCacheTest {
   }
 
   @Test
-  public void unzip_from_cache() throws IOException, URISyntaxException {
+  public void unzip_from_cache() throws IOException, URISyntaxException, InterruptedException, ExecutionException {
     final File samplePlugin = new File(this.getClass().getResource("/sonar-checkstyle-plugin-2.8.jar").toURI());
     FileHashes hashes = mock(FileHashes.class);
-    FileCache cache = new FileCache(tempFolder.newFolder(), log, hashes);
+    final FileCache cache = new FileCache(tempFolder.newFolder(), log, hashes);
     when(hashes.of(any(File.class))).thenReturn("ABCDE");
 
     FileCache.Downloader downloader = new FileCache.Downloader() {
@@ -132,11 +139,26 @@ public class FileCacheTest {
         FileUtils.copyFile(samplePlugin, toFile);
       }
     };
-    File cachedFile = cache.get("sonar-checkstyle-plugin-2.8.jar", "ABCDE", downloader);
+    final File cachedFile = cache.get("sonar-checkstyle-plugin-2.8.jar", "ABCDE", downloader);
     assertThat(cachedFile).isNotNull().exists().isFile();
     assertThat(cachedFile.getName()).isEqualTo("sonar-checkstyle-plugin-2.8.jar");
 
-    File pluginDepsDir = cache.unzip(cachedFile);
+    final int nThreads = 5;
+    ExecutorService executorService = Executors.newFixedThreadPool(nThreads);
+    List<Callable<File>> tasks = new ArrayList<Callable<File>>();
+    for (int i = 0; i < nThreads; i++) {
+      tasks.add(new Callable<File>() {
+
+        public File call() throws Exception {
+          return cache.unzip(cachedFile);
+        }
+      });
+    }
+
+    File pluginDepsDir = null;
+    for (Future<File> result : executorService.invokeAll(tasks)) {
+      pluginDepsDir = result.get();
+    }
     assertThat(pluginDepsDir.listFiles()).hasSize(1);
     File metaDir = new File(pluginDepsDir, "META-INF");
     assertThat(metaDir.listFiles()).hasSize(1);

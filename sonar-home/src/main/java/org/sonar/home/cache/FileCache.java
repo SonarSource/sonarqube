@@ -188,7 +188,6 @@ public class FileCache {
     if (!destDir.exists()) {
       File tempDir = createTempDir();
       ZipUtils.unzip(cachedFile, tempDir, new LibFilter());
-      // Recheck in case a concurrent process
       try {
         FileUtils.moveDirectory(tempDir, destDir);
       } catch (FileExistsException e) {
