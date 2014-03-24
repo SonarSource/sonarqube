@@ -42,7 +42,7 @@ import java.util.Map;
  * <h2>How to use</h2>
  * <pre>
  * public class HelloWs implements WebService {
- *   @Override
+ *   {@literal @}Override
  *   public void define(Context context) {
  *     NewController controller = context.createController("api/hello");
  *     controller.setDescription("Web service example");
@@ -51,7 +51,7 @@ import java.util.Map;
  *     controller.createAction("show")
  *       .setDescription("Entry point")
  *       .setHandler(new RequestHandler() {
- *         @Override
+ *         {@literal @}Override
  *         public void handle(Request request, Response response) {
  *           // read request parameters and generates response output
  *           response.newJsonWriter()
@@ -71,7 +71,7 @@ import java.util.Map;
  * public class HelloWsTest {
  *   WebService ws = new HelloWs();
  *
- *   @Test
+ *   {@literal @}Test
  *   public void should_define_ws() throws Exception {
  *     // WsTester is available in the Maven artifact org.codehaus.sonar:sonar-testing-harness
  *     WsTester tester = new WsTester(ws);
