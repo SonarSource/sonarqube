@@ -318,26 +318,6 @@
           </execution>
         </executions>
       </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.sonar</groupId>
-        <artifactId>sonar-dev-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>trim</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>trim</goal>
-            </goals>
-            <configuration>
-              <directory>${project.build.directory}/${project.build.finalName}</directory>
-              <includes>
-                <include>**/*.erb</include>
-              </includes>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
