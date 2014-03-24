@@ -35,9 +35,12 @@ import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
 import org.sonar.runner.api.EmbeddedRunner;
 import org.sonar.runner.api.RunnerProperties;
 import org.sonar.runner.api.ScanProperties;
+import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
+import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 
 /**
  * @goal sonar
@@ -126,6 +129,31 @@ public final class SonarMojo extends AbstractMojo {
    */
   RuntimeInformation runtimeInformation;
 
+  /**
+   * Plexus component for the SecDispatcher
+   * @component roleHint="mng-4384"
+   */
+  private SecDispatcher secDispatcher;
+
+  public Properties decryptKeys(Properties properties) {
+      Properties newProperties = new Properties();
+      try {
+          for(String key: properties.stringPropertyNames()) {
+              if(key.contains(".password")) {
+                  try {
+                    String decrypted = secDispatcher.decrypt(properties.getProperty(key));
+                    newProperties.setProperty(key, decrypted);
+                  }catch (SecDispatcherException e) {
+                      System.err.println(e);
+                  }
+              }
+          }
+      } catch (Exception e) {
+          System.err.println(e);
+      }
+      return newProperties;
+  }
+
   @Override
   public void execute() throws MojoExecutionException {
     ArtifactVersion mavenVersion = getMavenVersion();
@@ -170,6 +198,7 @@ public final class SonarMojo extends AbstractMojo {
       if (getLog().isDebugEnabled()) {
         runner.setProperty("sonar.verbose", "true");
       }
+      runner.addProperties(decryptKeys(runner.properties()));
       runner.execute();
     } catch (Exception e) {
       throw ExceptionHandling.handle(e, getLog());
