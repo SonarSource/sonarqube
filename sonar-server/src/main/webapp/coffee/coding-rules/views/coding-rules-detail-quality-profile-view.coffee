@@ -6,13 +6,22 @@ define [
   Templates
 ) ->
 
-  class CodingRulesDetailQualityProfilesView extends Marionette.ItemView
+  class CodingRulesDetailQualityProfileView extends Marionette.ItemView
     className: 'coding-rules-detail-quality-profile'
     template: Templates['coding-rules-detail-quality-profile']
 
 
     ui:
       change: '.coding-rules-detail-quality-profile-change'
+
+
+    events:
+      'click @ui.change': 'change'
+
+
+    change: ->
+      @options.app.codingRulesQualityProfileActivationView.model = @model
+      @options.app.codingRulesQualityProfileActivationView.show()
 
 
     enableUpdate: ->

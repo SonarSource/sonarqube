@@ -33,7 +33,8 @@ define [
       extendDescriptionSpinner: '#coding-rules-detail-extend-description-spinner'
       cancelExtendDescription: '#coding-rules-detail-extend-description-cancel'
 
-      qualityProfileActivate: '#coding-rules-quality-profile-activate'
+      activateQualityProfile: '#coding-rules-quality-profile-activate'
+      changeQualityProfile: '.coding-rules-detail-quality-profile-update'
 
 
     events:
@@ -44,11 +45,13 @@ define [
       'click @ui.cancelExtendDescription': 'hideExtendDescriptionForm'
       'click @ui.extendDescriptionSubmit': 'submitExtendDescription'
 
-      'click @ui.qualityProfileActivate': 'activateQualityProfile'
+      'click @ui.activateQualityProfile': 'activateQualityProfile'
+      'click @ui.changeQualityProfile': 'changeQualityProfile'
 
 
     initialize: (options) ->
       @qualityProfilesView = new CodingRulesDetailQualityProfilesView
+        app: @options.app
         collection: new Backbone.Collection options.model.get 'qualityProfiles'
 
 
@@ -104,16 +107,25 @@ define [
         @render()
 
 
+    getContextQualilyProfile: ->
+      contextQualityProfile = @options.app.getQualityProfile()
+      _.findWhere @model.get('qualityProfiles'), key: contextQualityProfile
+
+
     activateQualityProfile: ->
-      @options.app.codingRulesQualityProfileActivationView.model = @model
+      @options.app.codingRulesQualityProfileActivationView.model = null
+      @options.app.codingRulesQualityProfileActivationView.show()
+
+
+    changeQualityProfile: ->
+      @options.app.codingRulesQualityProfileActivationView.model = new Backbone.Model @getContextQualilyProfile()
       @options.app.codingRulesQualityProfileActivationView.show()
 
 
     serializeData: ->
       contextQualityProfile = @options.app.getQualityProfile()
-      qualityProfile = _.findWhere @model.get('qualityProfiles'), key: contextQualityProfile
 
       _.extend super,
         contextQualityProfile: contextQualityProfile
         contextQualityProfileName: @options.app.qualityProfileFilter.view.renderValue()
-        qualityProfile: qualityProfile
+        qualityProfile: @getContextQualilyProfile()

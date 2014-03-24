@@ -97,6 +97,7 @@ define ['jquery.mockjax'], ->
         'edit': 'Edit'
         'markdown.helplink': 'Markdown Help'
         'moreCriteria': '+ More Criteria'
+        'save': 'Save'
         'search_verb': 'Search'
         'severity': 'Severity'
         'update': 'Update'
@@ -115,6 +116,7 @@ define ['jquery.mockjax'], ->
         'coding_rules.bulk_change': 'Bulk Change'
         'coding_rules.change_severity': 'Change Severity'
         'coding_rules.change_severity_in': 'Change Severity In'
+        'coding_rules.change_details': 'Change Details of Quality Profile'
         'coding_rules.extend_description': 'Extend Description'
         'coding_rules.deactivate_in': 'Deactivate In'
         'coding_rules.deactivate': 'Deactivate'
@@ -222,7 +224,6 @@ define ['jquery.mockjax'], ->
         key: 'S1190'
         parameters: [
           { key: 'someParameter', type: 'INT', default: 4, description: 'Some parameter description' }
-          { key: 'boolParameter', type: 'BOOL', description: 'Bool parameter description' }
         ]
         description: '''
             <p>

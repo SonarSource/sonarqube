@@ -52,7 +52,8 @@ define [
         return state.text unless state.id
         "<i class='icon-severity-#{state.id.toLowerCase()}'></i> #{state.text}"
 
-      @ui.qualityProfileSeverity.val @model.get 'severity'
+      severity = if @model then @model.get 'severity' else @rule.get 'severity'
+      @ui.qualityProfileSeverity.val severity
       @ui.qualityProfileSeverity.select2
         width: '250px'
         minimumResultsForSearch: 999
@@ -71,10 +72,14 @@ define [
 
     getAvailableQualityProfiles: ->
       _.reject @options.app.qualityProfiles, (profile) =>
-        _.findWhere @model.get('qualityProfiles'), key: profile.key
+        _.findWhere @rule.get('qualityProfiles'), key: profile.key
 
 
     serializeData: ->
+      parameters = if @model then @model.get('parameters') else @rule.get('parameters')
+
       _.extend super,
+        rule: @rule.toJSON()
+        parameters: parameters
         qualityProfiles: @getAvailableQualityProfiles()
         severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO']

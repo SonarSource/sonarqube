@@ -27,6 +27,7 @@ define [
         url: "#{baseUrl}/api/codingrules/show"
       .done (r) =>
         @model.set r.codingrule
+        @options.app.codingRulesQualityProfileActivationView.rule = @model
         detailView = new CodingRulesDetailView
           app: @options.app
           model: @model

@@ -10,4 +10,5 @@ define [
     itemView: CodingRulesDetailQualityProfileView
 
     itemViewOptions: ->
+      app: @options.app
       qualityProfiles: @collection
