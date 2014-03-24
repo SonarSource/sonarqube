@@ -95,8 +95,8 @@ import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.InternalPermissionTemplateService;
 import org.sonar.server.permission.PermissionFinder;
-import org.sonar.server.platform.ws.SystemWs;
 import org.sonar.server.platform.ws.RestartHandler;
+import org.sonar.server.platform.ws.SystemWs;
 import org.sonar.server.plugins.*;
 import org.sonar.server.qualitygate.QgateProjectFinder;
 import org.sonar.server.qualitygate.QualityGates;
@@ -350,7 +350,6 @@ class ServerComponents {
     pico.addSingleton(DebtModelLookup.class);
     pico.addSingleton(DebtModelRestore.class);
     pico.addSingleton(TechnicalDebtModelSynchronizer.class);
-    pico.addSingleton(DebtModelSynchronizer.class);
     pico.addSingleton(TechnicalDebtModelRepository.class);
     pico.addSingleton(TechnicalDebtXMLImporter.class);
     pico.addSingleton(DebtRulesXMLImporter.class);

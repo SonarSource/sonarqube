@@ -23,21 +23,26 @@ package org.sonar.server.startup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.TimeProfiler;
-import org.sonar.server.debt.DebtModelSynchronizer;
+import org.sonar.core.technicaldebt.db.CharacteristicDao;
+import org.sonar.server.debt.DebtModelRestore;
 
 public class RegisterDebtModel {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RegisterDebtModel.class);
 
-  private final DebtModelSynchronizer manager;
+  private final CharacteristicDao dao;
+  private final DebtModelRestore debtModelRestore;
 
-  public RegisterDebtModel(DebtModelSynchronizer manager) {
-    this.manager = manager;
+  public RegisterDebtModel(CharacteristicDao dao, DebtModelRestore debtModelRestore) {
+    this.dao = dao;
+    this.debtModelRestore = debtModelRestore;
   }
 
   public void start() {
     TimeProfiler profiler = new TimeProfiler(LOGGER).start("Register technical debt model");
-    manager.synchronize();
+    if (dao.selectEnabledCharacteristics().isEmpty()) {
+      debtModelRestore.restore();
+    }
     profiler.stop();
   }
 

@@ -20,20 +20,51 @@
 
 package org.sonar.server.startup;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.sonar.server.debt.DebtModelSynchronizer;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.core.technicaldebt.db.CharacteristicDao;
+import org.sonar.core.technicaldebt.db.CharacteristicDto;
+import org.sonar.server.debt.DebtModelRestore;
 
+import java.util.Collections;
+
+import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class RegisterDebtModelTest {
 
+  @Mock
+  CharacteristicDao dao;
+
+  @Mock
+  DebtModelRestore debtModelRestore;
+
+  RegisterDebtModel registerDebtModel;
+
+  @Before
+  public void setUp() throws Exception {
+    registerDebtModel = new RegisterDebtModel(dao, debtModelRestore);
+  }
+
   @Test
-  public void create_model() throws Exception {
-    DebtModelSynchronizer synchronizer = mock(DebtModelSynchronizer.class);
-    RegisterDebtModel sqaleDefinition = new RegisterDebtModel(synchronizer);
+  public void create_debt_model() throws Exception {
+    when(dao.selectEnabledCharacteristics()).thenReturn(Collections.<CharacteristicDto>emptyList());
 
-    sqaleDefinition.start();
+    registerDebtModel.start();
 
-    verify(synchronizer, times(1)).synchronize();
+    verify(debtModelRestore).restore();
+  }
+
+  @Test
+  public void not_create_debt_model_if_already_exists() throws Exception {
+    when(dao.selectEnabledCharacteristics()).thenReturn(newArrayList(new CharacteristicDto()));
+
+    registerDebtModel.start();
+
+    verifyZeroInteractions(debtModelRestore);
   }
 }
