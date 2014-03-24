@@ -58,7 +58,7 @@ public class LastSnapshots implements BatchComponent {
 
   private String loadSourceFromWs(Resource resource) {
     try {
-      return server.request("/api/sources?resource=" + resource.getEffectiveKey() + "&format=txt", false);
+      return server.request("/api/sources?resource=" + resource.getEffectiveKey() + "&format=txt", false, analysisMode.getPreviewReadTimeoutSec() * 1000);
     } catch (HttpDownloader.HttpException he) {
       if (he.getResponseCode() == 404) {
         return "";

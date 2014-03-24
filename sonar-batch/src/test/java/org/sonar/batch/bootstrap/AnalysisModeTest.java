@@ -89,4 +89,30 @@ public class AnalysisModeTest {
     assertThat(mode.isPreview()).isTrue();
     assertThat(mode.isIncremental()).isFalse();
   }
+
+  @Test
+  public void should_get_default_preview_read_timeout() {
+    bootstrapSettings.properties().put(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW);
+    AnalysisMode mode = new AnalysisMode(bootstrapSettings);
+
+    assertThat(mode.getPreviewReadTimeoutSec()).isEqualTo(60);
+  }
+
+  @Test
+  public void should_download_database_with_deprecated_overriden_timeout() {
+    bootstrapSettings.properties().put(CoreProperties.DRY_RUN, "true");
+    bootstrapSettings.properties().put(CoreProperties.DRY_RUN_READ_TIMEOUT_SEC, "80");
+    AnalysisMode mode = new AnalysisMode(bootstrapSettings);
+
+    assertThat(mode.getPreviewReadTimeoutSec()).isEqualTo(80);
+  }
+
+  @Test
+  public void should_download_database_with_overriden_timeout() {
+    bootstrapSettings.properties().put(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_PREVIEW);
+    bootstrapSettings.properties().put(CoreProperties.PREVIEW_READ_TIMEOUT_SEC, "80");
+    AnalysisMode mode = new AnalysisMode(bootstrapSettings);
+
+    assertThat(mode.getPreviewReadTimeoutSec()).isEqualTo(80);
+  }
 }

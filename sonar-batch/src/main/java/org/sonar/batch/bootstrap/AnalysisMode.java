@@ -33,8 +33,11 @@ public class AnalysisMode implements BatchComponent {
 
   private static final Logger LOG = LoggerFactory.getLogger(AnalysisMode.class);
 
+  private static final int DEFAULT_PREVIEW_READ_TIMEOUT_SEC = 60;
+
   private boolean preview;
   private boolean incremental;
+  private int previewReadTimeoutSec;
 
   public AnalysisMode(BootstrapSettings bootstrapSettings) {
     init(bootstrapSettings);
@@ -66,6 +69,29 @@ public class AnalysisMode implements BatchComponent {
     // To stay compatible with plugins that use the old property to check mode
     if (incremental || preview) {
       bootstrapSettings.properties().put(CoreProperties.DRY_RUN, "true");
+      previewReadTimeoutSec = loadPreviewReadTimeout(bootstrapSettings);
     }
   }
+
+  // SONAR-4488 Allow to increase preview read timeout
+  private int loadPreviewReadTimeout(BootstrapSettings bootstrapSettings) {
+    int readTimeoutSec;
+    if (bootstrapSettings.property(CoreProperties.DRY_RUN_READ_TIMEOUT_SEC) != null) {
+      LOG.warn("Property {} is deprecated. Please use {} instead.", CoreProperties.DRY_RUN_READ_TIMEOUT_SEC, CoreProperties.PREVIEW_READ_TIMEOUT_SEC);
+      readTimeoutSec = Integer.parseInt(bootstrapSettings.property(CoreProperties.DRY_RUN_READ_TIMEOUT_SEC));
+    } else if (bootstrapSettings.property(CoreProperties.PREVIEW_READ_TIMEOUT_SEC) != null) {
+      readTimeoutSec = Integer.parseInt(bootstrapSettings.property(CoreProperties.PREVIEW_READ_TIMEOUT_SEC));
+    } else {
+      readTimeoutSec = DEFAULT_PREVIEW_READ_TIMEOUT_SEC;
+    }
+    return readTimeoutSec;
+  }
+
+  /**
+   * Read timeout used by HTTP request done in preview mode (SONAR-4488, SONAR-5028)
+   */
+  public int getPreviewReadTimeoutSec() {
+    return previewReadTimeoutSec;
+  }
+
 }

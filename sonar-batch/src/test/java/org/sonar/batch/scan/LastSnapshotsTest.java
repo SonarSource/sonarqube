@@ -50,6 +50,7 @@ public class LastSnapshotsTest extends AbstractDbUnitTestCase {
   @Before
   public void before() {
     mode = mock(AnalysisMode.class);
+    when(mode.getPreviewReadTimeoutSec()).thenReturn(30);
   }
 
   @Test
@@ -78,21 +79,21 @@ public class LastSnapshotsTest extends AbstractDbUnitTestCase {
   public void should_download_source_from_ws_if_preview_mode() {
     setupData("last_snapshot");
     ServerClient server = mock(ServerClient.class);
-    when(server.request(anyString(), eq(false))).thenReturn("downloaded source of Bar.c");
+    when(server.request(anyString(), eq(false), eq(30 * 1000))).thenReturn("downloaded source of Bar.c");
 
     when(mode.isPreview()).thenReturn(true);
     LastSnapshots lastSnapshots = new LastSnapshots(mode, getSession(), server);
 
     String source = lastSnapshots.getSource(newFile());
     assertThat(source).isEqualTo("downloaded source of Bar.c");
-    verify(server).request("/api/sources?resource=myproject:org/foo/Bar.c&format=txt", false);
+    verify(server).request("/api/sources?resource=myproject:org/foo/Bar.c&format=txt", false, 30 * 1000);
   }
 
   @Test
   public void should_fail_to_download_source_from_ws() throws URISyntaxException {
     setupData("last_snapshot");
     ServerClient server = mock(ServerClient.class);
-    when(server.request(anyString(), eq(false))).thenThrow(new HttpDownloader.HttpException(new URI(""), 500));
+    when(server.request(anyString(), eq(false), eq(30 * 1000))).thenThrow(new HttpDownloader.HttpException(new URI(""), 500));
 
     when(mode.isPreview()).thenReturn(true);
     LastSnapshots lastSnapshots = new LastSnapshots(mode, getSession(), server);
@@ -105,14 +106,14 @@ public class LastSnapshotsTest extends AbstractDbUnitTestCase {
   public void should_return_empty_source_if_preview_mode_and_no_last_snapshot() throws URISyntaxException {
     setupData("last_snapshot");
     ServerClient server = mock(ServerClient.class);
-    when(server.request(anyString(), eq(false))).thenThrow(new HttpDownloader.HttpException(new URI(""), 404));
+    when(server.request(anyString(), eq(false), eq(30 * 1000))).thenThrow(new HttpDownloader.HttpException(new URI(""), 404));
 
     when(mode.isPreview()).thenReturn(true);
     LastSnapshots lastSnapshots = new LastSnapshots(mode, getSession(), server);
 
     String source = lastSnapshots.getSource(newFile());
     assertThat(source).isEqualTo("");
-    verify(server).request("/api/sources?resource=myproject:org/foo/Bar.c&format=txt", false);
+    verify(server).request("/api/sources?resource=myproject:org/foo/Bar.c&format=txt", false, 30 * 1000);
   }
 
   @Test

@@ -64,6 +64,7 @@ public class PreviewDatabaseTest {
 
     mode = mock(AnalysisMode.class);
     when(mode.isPreview()).thenReturn(true);
+    when(mode.getPreviewReadTimeoutSec()).thenReturn(60);
   }
 
   @Test
@@ -79,22 +80,6 @@ public class PreviewDatabaseTest {
     new PreviewDatabase(settings, server, tempUtils, mode).start();
 
     verify(server).download("/batch_bootstrap/db?project=group:project", databaseFile, 60000);
-  }
-
-  @Test
-  public void should_download_database_with_deprecated_overriden_timeout() {
-    settings.setProperty(CoreProperties.DRY_RUN_READ_TIMEOUT_SEC, 80);
-    new PreviewDatabase(settings, server, tempUtils, mode).start();
-
-    verify(server).download("/batch_bootstrap/db?project=group:project", databaseFile, 80000);
-  }
-
-  @Test
-  public void should_download_database_with_overriden_timeout() {
-    settings.setProperty(CoreProperties.PREVIEW_READ_TIMEOUT_SEC, 80);
-    new PreviewDatabase(settings, server, tempUtils, mode).start();
-
-    verify(server).download("/batch_bootstrap/db?project=group:project", databaseFile, 80000);
   }
 
   @Test

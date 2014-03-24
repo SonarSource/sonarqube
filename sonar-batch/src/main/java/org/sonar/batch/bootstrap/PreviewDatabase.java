@@ -47,8 +47,6 @@ public class PreviewDatabase implements BatchComponent {
   private static final String USER = "sonar";
   private static final String PASSWORD = USER;
 
-  private static final int DEFAULT_PREVIEW_READ_TIMEOUT_SEC = 60;
-
   private final Settings settings;
   private final ServerClient server;
   private final TempFolder tempUtils;
@@ -65,7 +63,7 @@ public class PreviewDatabase implements BatchComponent {
     if (mode.isPreview()) {
       File databaseFile = tempUtils.newFile("preview", ".h2.db");
 
-      int readTimeoutSec = getReadTimeout();
+      int readTimeoutSec = mode.getPreviewReadTimeoutSec();
       downloadDatabase(databaseFile, readTimeoutSec * 1000);
 
       String databasePath = StringUtils.removeEnd(databaseFile.getAbsolutePath(), ".h2.db");
@@ -73,21 +71,7 @@ public class PreviewDatabase implements BatchComponent {
     }
   }
 
-  // SONAR-4488 Allow to increase dryRun timeout
-  private int getReadTimeout() {
-    int readTimeoutSec;
-    if (settings.hasKey(CoreProperties.DRY_RUN_READ_TIMEOUT_SEC)) {
-      LOG.warn("Property {} is deprecated. Please use {} instead.", CoreProperties.DRY_RUN_READ_TIMEOUT_SEC, CoreProperties.PREVIEW_READ_TIMEOUT_SEC);
-      readTimeoutSec = settings.getInt(CoreProperties.DRY_RUN_READ_TIMEOUT_SEC);
-    } else if (settings.hasKey(CoreProperties.PREVIEW_READ_TIMEOUT_SEC)) {
-      readTimeoutSec = settings.getInt(CoreProperties.PREVIEW_READ_TIMEOUT_SEC);
-    } else {
-      readTimeoutSec = DEFAULT_PREVIEW_READ_TIMEOUT_SEC;
-    }
-    return readTimeoutSec;
-  }
-
-  private void downloadDatabase(File toFile, int readTimeout) {
+  private void downloadDatabase(File toFile, int readTimeoutMillis) {
     String projectKey = null;
     try {
       projectKey = settings.getString(CoreProperties.PROJECT_KEY_PROPERTY);
@@ -96,13 +80,13 @@ public class PreviewDatabase implements BatchComponent {
         projectKey = String.format("%s:%s", projectKey, branch);
       }
       if (StringUtils.isBlank(projectKey)) {
-        server.download("/batch_bootstrap/db", toFile, readTimeout);
+        server.download("/batch_bootstrap/db", toFile, readTimeoutMillis);
       } else {
-        server.download("/batch_bootstrap/db?project=" + projectKey, toFile, readTimeout);
+        server.download("/batch_bootstrap/db?project=" + projectKey, toFile, readTimeoutMillis);
       }
       LOG.debug("Dry Run database size: {}", FileUtils.byteCountToDisplaySize(FileUtils.sizeOf(toFile)));
     } catch (SonarException e) {
-      handleException(readTimeout, projectKey, e);
+      handleException(readTimeoutMillis, projectKey, e);
       throw e;
     }
   }
