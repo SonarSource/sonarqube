@@ -35,9 +35,12 @@ import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
 import org.sonar.runner.api.EmbeddedRunner;
 import org.sonar.runner.api.RunnerProperties;
 import org.sonar.runner.api.ScanProperties;
+import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
+import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 
 /**
  * @goal sonar
@@ -126,6 +129,13 @@ public final class SonarMojo extends AbstractMojo {
    */
   RuntimeInformation runtimeInformation;
 
+  /**
+   * Plexus component for the SecDispatcher
+   * @component role="org.sonatype.plexus.components.sec.dispatcher.SecDispatcher"
+   * @required  
+   */
+  private SecDispatcher securityDispatcher;
+
   @Override
   public void execute() throws MojoExecutionException {
     ArtifactVersion mavenVersion = getMavenVersion();
@@ -157,19 +167,21 @@ public final class SonarMojo extends AbstractMojo {
         // Include slf4j Logger that is exposed by some Sonar components
         .unmask("org.slf4j.Logger")
         .unmask("org.slf4j.ILoggerFactory")
-          // Exclude other slf4j classes
-          // .unmask("org.slf4j.impl.")
+        // Exclude other slf4j classes
+        // .unmask("org.slf4j.impl.")
         .mask("org.slf4j.")
-          // Exclude logback
+        // Exclude logback
         .mask("ch.qos.logback.")
         .mask("org.sonar.")
-          // Include everything else
+        // Include everything else
         .unmask("");
       runner.addExtensions(session, getLog(), lifecycleExecutor, artifactFactory, localRepository, artifactMetadataSource, artifactCollector,
         dependencyTreeBuilder, projectBuilder);
       if (getLog().isDebugEnabled()) {
         runner.setProperty("sonar.verbose", "true");
       }
+      // Replace all properties by decrypted ones if applicable
+      runner.addProperties(decryptProperties(runner.properties()));
       runner.execute();
     } catch (Exception e) {
       throw ExceptionHandling.handle(e, getLog());
@@ -213,5 +225,24 @@ public final class SonarMojo extends AbstractMojo {
       return file;
     }
     return null;
+  }
+
+  public Properties decryptProperties(Properties properties) {
+    Properties newProperties = new Properties();
+    try {
+      for (String key : properties.stringPropertyNames()) {
+        if (key.contains(".password")) {
+          try {
+            String decrypted = securityDispatcher.decrypt(properties.getProperty(key));
+            newProperties.setProperty(key, decrypted);
+          } catch (SecDispatcherException e) {
+            getLog().warn("Unable to decrypt property " + key, e);
+          }
+        }
+      }
+    } catch (Exception e) {
+      getLog().warn("Unable to decrypt properties", e);
+    }
+    return newProperties;
   }
 }

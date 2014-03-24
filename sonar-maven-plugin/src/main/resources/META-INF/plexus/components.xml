@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component-set>
+  <components>
+    <component>
+      <role>org.sonatype.plexus.components.sec.dispatcher.SecDispatcher</role>
+      <role-hint>default</role-hint>
+      <implementation>org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher</implementation>
+      <requirements>
+        <requirement>
+          <role>org.sonatype.plexus.components.cipher.PlexusCipher</role>
+          <role-hint>default</role-hint>
+          <field-name>_cipher</field-name>
+        </requirement>
+      </requirements>
+      <configuration>
+        <_configuration-file>~/.m2/settings-security.xml</_configuration-file>
+      </configuration>
+    </component>
+    <component>
+      <role>org.sonatype.plexus.components.cipher.PlexusCipher</role>
+      <role-hint>default</role-hint>
+      <implementation>org.sonatype.plexus.components.cipher.DefaultPlexusCipher</implementation>
+    </component>
+  </components>
+</component-set>

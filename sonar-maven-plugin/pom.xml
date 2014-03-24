@@ -34,6 +34,12 @@
       <artifactId>maven-project</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.sonatype.plexus</groupId>
+      <artifactId>plexus-sec-dispatcher</artifactId>
+      <version>1.4</version>
+      <scope>compile</scope>
+    </dependency>
 
     <!-- Test -->
     <dependency>
