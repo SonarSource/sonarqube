@@ -29,7 +29,7 @@ public class DefaultDebtRemediationFunctionTest {
 
   @Test
   public void create_linear() throws Exception {
-    DebtRemediationFunction function = DefaultDebtRemediationFunction.createLinear("10h");
+    DebtRemediationFunction function = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, "10h", null);
     assertThat(function.type()).isEqualTo(DefaultDebtRemediationFunction.Type.LINEAR);
     assertThat(function.factor()).isEqualTo("10h");
     assertThat(function.offset()).isNull();
@@ -37,7 +37,7 @@ public class DefaultDebtRemediationFunctionTest {
 
   @Test
   public void create_linear_with_offset() throws Exception {
-    DebtRemediationFunction function = DefaultDebtRemediationFunction.createLinearWithOffset("10h", "5min");
+    DebtRemediationFunction function = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "10h", "5min");
     assertThat(function.type()).isEqualTo(DefaultDebtRemediationFunction.Type.LINEAR_OFFSET);
     assertThat(function.factor()).isEqualTo("10h");
     assertThat(function.offset()).isEqualTo("5min");
@@ -45,7 +45,7 @@ public class DefaultDebtRemediationFunctionTest {
 
   @Test
   public void create_constant_per_issue() throws Exception {
-    DebtRemediationFunction function = DefaultDebtRemediationFunction.createConstantPerIssue("10h");
+    DebtRemediationFunction function = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, "10h");
     assertThat(function.type()).isEqualTo(DefaultDebtRemediationFunction.Type.CONSTANT_ISSUE);
     assertThat(function.factor()).isNull();
     assertThat(function.offset()).isEqualTo("10h");
@@ -53,7 +53,7 @@ public class DefaultDebtRemediationFunctionTest {
 
   @Test
   public void sanitize_remediation_factor_and_offset() {
-    DebtRemediationFunction function = DefaultDebtRemediationFunction.create(DefaultDebtRemediationFunction.Type.LINEAR_OFFSET, "  1  h   ", "  10   mi n");
+    DebtRemediationFunction function = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "  1  h   ", "  10   mi n");
 
     assertThat(function.factor()).isEqualTo("1h");
     assertThat(function.offset()).isEqualTo("10min");
@@ -62,7 +62,7 @@ public class DefaultDebtRemediationFunctionTest {
   @Test
   public void fail_to_create_linear_when_no_factor() throws Exception {
     try {
-      DefaultDebtRemediationFunction.create(DefaultDebtRemediationFunction.Type.LINEAR, null, "10h");
+      new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, null, "10h");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(DefaultDebtRemediationFunction.ValidationException.class);
@@ -72,7 +72,7 @@ public class DefaultDebtRemediationFunctionTest {
   @Test
   public void fail_to_create_linear_when_offset() throws Exception {
     try {
-      DefaultDebtRemediationFunction.create(DefaultDebtRemediationFunction.Type.LINEAR, "5min", "10h");
+      new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, "5min", "10h");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(DefaultDebtRemediationFunction.ValidationException.class);
@@ -82,7 +82,7 @@ public class DefaultDebtRemediationFunctionTest {
   @Test
   public void fail_to_create_constant_per_issue_when_no_offset() throws Exception {
     try {
-      DefaultDebtRemediationFunction.create(DefaultDebtRemediationFunction.Type.CONSTANT_ISSUE, "10h", null);
+      new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, "10h", null);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(DefaultDebtRemediationFunction.ValidationException.class);
@@ -92,7 +92,7 @@ public class DefaultDebtRemediationFunctionTest {
   @Test
   public void fail_to_create_constant_per_issue_when_factor() throws Exception {
     try {
-      DefaultDebtRemediationFunction.create(DefaultDebtRemediationFunction.Type.CONSTANT_ISSUE, "5min", "10h");
+      new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, "5min", "10h");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(DefaultDebtRemediationFunction.ValidationException.class);
@@ -102,7 +102,7 @@ public class DefaultDebtRemediationFunctionTest {
   @Test
   public void fail_to_create_linear_with_offset_when_no_factor() throws Exception {
     try {
-      DefaultDebtRemediationFunction.create(DefaultDebtRemediationFunction.Type.LINEAR_OFFSET, null, "10h");
+      new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, null, "10h");
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(DefaultDebtRemediationFunction.ValidationException.class);
@@ -112,7 +112,7 @@ public class DefaultDebtRemediationFunctionTest {
   @Test
   public void fail_to_create_linear_with_offset_when_no_offset() throws Exception {
     try {
-      DefaultDebtRemediationFunction.create(DefaultDebtRemediationFunction.Type.LINEAR_OFFSET, "5min", null);
+      new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "5min", null);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(DefaultDebtRemediationFunction.ValidationException.class);
@@ -121,17 +121,18 @@ public class DefaultDebtRemediationFunctionTest {
 
   @Test
   public void test_equals_and_hashcode() throws Exception {
-    DebtRemediationFunction function = DefaultDebtRemediationFunction.createLinearWithOffset("10h", "5min");
-    DebtRemediationFunction functionWithSameValue = DefaultDebtRemediationFunction.createLinearWithOffset("10h", "5min");
-    DebtRemediationFunction functionWithDifferentType = DefaultDebtRemediationFunction.createConstantPerIssue("5min");
+    DebtRemediationFunction function = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "10h", "5min");
+    DebtRemediationFunction functionWithSameValue = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "10h", "5min");
+    DebtRemediationFunction functionWithDifferentType = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, "5min");
 
     assertThat(function).isEqualTo(function);
     assertThat(function).isEqualTo(functionWithSameValue);
     assertThat(function).isNotEqualTo(functionWithDifferentType);
-    assertThat(function).isNotEqualTo(DefaultDebtRemediationFunction.createLinearWithOffset("11h", "5min"));
-    assertThat(function).isNotEqualTo(DefaultDebtRemediationFunction.createLinearWithOffset("10h", "6min"));
-    assertThat(function).isNotEqualTo(DefaultDebtRemediationFunction.createLinear("10h"));
-    assertThat(function).isNotEqualTo(DefaultDebtRemediationFunction.createConstantPerIssue("6min"));
+
+    assertThat(function).isNotEqualTo(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "11h", "5min"));
+    assertThat(function).isNotEqualTo(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "10h", "6min"));
+    assertThat(function).isNotEqualTo(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, "10h", null));
+    assertThat(function).isNotEqualTo(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, "6min"));
 
     assertThat(function.hashCode()).isEqualTo(function.hashCode());
     assertThat(function.hashCode()).isEqualTo(functionWithSameValue.hashCode());
@@ -140,7 +141,7 @@ public class DefaultDebtRemediationFunctionTest {
 
   @Test
   public void test_to_string() throws Exception {
-    assertThat(DefaultDebtRemediationFunction.createLinearWithOffset("10h", "5min").toString()).isNotNull();
+    assertThat(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "10h", "5min").toString()).isNotNull();
   }
 
 }

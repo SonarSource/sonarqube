@@ -64,17 +64,18 @@ public class RulesDefinitionTest {
   @Test
   public void define_rules() {
     RulesDefinition.NewRepository newFindbugs = context.createRepository("findbugs", "java");
-    newFindbugs.createRule("NPE")
+    RulesDefinition.NewRule newFindbug = newFindbugs.createRule("NPE")
       .setName("Detect NPE")
       .setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
       .setSeverity(Severity.BLOCKER)
       .setInternalKey("/something")
       .setStatus(RuleStatus.BETA)
       .setDebtCharacteristic("COMPILER")
-      .setDebtRemediationFunction(DefaultDebtRemediationFunction.create(DefaultDebtRemediationFunction.Type.LINEAR_OFFSET, "1h", "10min"))
       .setEffortToFixDescription("squid.S115.effortToFix")
       .setTags("one", "two")
       .addTags("two", "three", "four");
+    newFindbug.setDebtRemediationFunction(newFindbug.debtRemediationFunctions().linearWithOffset("1h", "10min"));
+
     newFindbugs.createRule("ABC").setName("ABC").setHtmlDescription("ABC");
     newFindbugs.done();
 
@@ -92,7 +93,9 @@ public class RulesDefinitionTest {
     assertThat(npeRule.template()).isFalse();
     assertThat(npeRule.status()).isEqualTo(RuleStatus.BETA);
     assertThat(npeRule.debtCharacteristic()).isEqualTo("COMPILER");
-    assertThat(npeRule.debtRemediationFunction()).isEqualTo(DefaultDebtRemediationFunction.create(DefaultDebtRemediationFunction.Type.LINEAR_OFFSET, "1h", "10min"));
+    assertThat(npeRule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
+    assertThat(npeRule.debtRemediationFunction().factor()).isEqualTo("1h");
+    assertThat(npeRule.debtRemediationFunction().offset()).isEqualTo("10min");
     assertThat(npeRule.effortToFixDescription()).isEqualTo("squid.S115.effortToFix");
     assertThat(npeRule.toString()).isEqualTo("[repository=findbugs, key=NPE]");
     assertThat(npeRule.repository()).isSameAs(findbugs);
@@ -310,9 +313,9 @@ public class RulesDefinitionTest {
   @Test
   public void fail_if_define_function_without_characteristic() {
     RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
-    newRepository.createRule("NPE").setName("NPE").setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
-      .setDebtCharacteristic("")
-      .setDebtRemediationFunction(DefaultDebtRemediationFunction.create(DefaultDebtRemediationFunction.Type.LINEAR_OFFSET, "1h", "10min"));
+    RulesDefinition.NewRule newRule = newRepository.createRule("NPE").setName("NPE").setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
+      .setDebtCharacteristic("");
+    newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linearWithOffset("1h", "10min"));
     try {
       newRepository.done();
       fail();

@@ -50,7 +50,7 @@ class DefaultDebtRemediationFunctions implements DebtRemediationFunctions {
 
   private DebtRemediationFunction create(DefaultDebtRemediationFunction.Type type, @Nullable String factor, @Nullable String offset) {
     try {
-      return DefaultDebtRemediationFunction.create(type, factor, offset);
+      return new DefaultDebtRemediationFunction(type, factor, offset);
     } catch (DefaultDebtRemediationFunction.ValidationException e) {
       throw MessageException.of(String.format("The rule '%s:%s' is invalid : %s ", this.repoKey, this.key, e.getMessage()));
     }

@@ -35,7 +35,7 @@ class DefaultDebtRemediationFunction implements DebtRemediationFunction {
   private String factor;
   private String offset;
 
-  private DefaultDebtRemediationFunction(Type type, @Nullable String factor, @Nullable String offset) {
+  public DefaultDebtRemediationFunction(Type type, @Nullable String factor, @Nullable String offset) {
     this.type = type;
     // TODO validate factor and offset format
     this.factor = StringUtils.deleteWhitespace(factor);
@@ -43,31 +43,18 @@ class DefaultDebtRemediationFunction implements DebtRemediationFunction {
     validate();
   }
 
-  static DebtRemediationFunction create(Type type, @Nullable String factor, @Nullable String offset) {
-    return new DefaultDebtRemediationFunction(type, factor, offset);
-  }
-
-  static DebtRemediationFunction createLinear(String factor) {
-    return new DefaultDebtRemediationFunction(Type.LINEAR, factor, null);
-  }
-
-  static DebtRemediationFunction createLinearWithOffset(String factor, String offset) {
-    return new DefaultDebtRemediationFunction(Type.LINEAR_OFFSET, factor, offset);
-  }
-
-  static DebtRemediationFunction createConstantPerIssue(String offset) {
-    return new DefaultDebtRemediationFunction(Type.CONSTANT_ISSUE, null, offset);
-  }
-
+  @Override
   public Type type() {
     return type;
   }
 
+  @Override
   @CheckForNull
   public String factor() {
     return factor;
   }
 
+  @Override
   @CheckForNull
   public String offset() {
     return offset;
