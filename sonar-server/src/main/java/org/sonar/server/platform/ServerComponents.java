@@ -31,7 +31,6 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.XMLRuleParser;
-import org.sonar.api.server.rule.RulesDefinitionI18nLoader;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.HttpDownloader;
@@ -265,8 +264,7 @@ class ServerComponents {
     pico.addSingleton(AddTagsWsHandler.class);
     pico.addSingleton(RemoveTagsWsHandler.class);
     pico.addSingleton(RulesDefinitionXmlLoader.class);
-    pico.addSingleton(RulesDefinitionI18nLoader.class);
-
+    
     // rule tags
     pico.addSingleton(ESRuleTags.class);
     pico.addSingleton(RuleTagLookup.class);
