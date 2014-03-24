@@ -86,12 +86,10 @@ define [
       paging: @options.app.codingRules.paging
       qualityProfiles: @options.app.qualityProfiles
 
-      activeQualityProfile: @options.app.getActiveQualityProfile()
-      activeQualityProfileName: @options.app.activeInFilter.view.renderValue()
-      activateOnQualityProfiles: _.reject @options.app.qualityProfiles, (q) => q.key == @options.app.getInactiveQualityProfile()
+      qualityProfile: @options.app.getQualityProfile()
+      qualityProfileName: @options.app.qualityProfileFilter.view.renderValue()
 
-      inactiveQualityProfile: @options.app.getInactiveQualityProfile()
-      inactiveQualityProfileName: @options.app.inactiveInFilter.view.renderValue()
-      deactivateOnQualityProfiles: _.reject @options.app.qualityProfiles, (q) => q.key == @options.app.getActiveQualityProfile()
+      activateOnQualityProfiles: @options.app.qualityProfiles
+      deactivateOnQualityProfiles: _.reject @options.app.qualityProfiles, (q) => q.key == @options.app.getQualityProfile()
 
       severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO']

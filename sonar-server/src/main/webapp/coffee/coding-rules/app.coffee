@@ -39,6 +39,7 @@ requirejs [
   'navigator/filters/date-filter-view',
   'coding-rules/views/filters/quality-profile-filter-view',
   'coding-rules/views/filters/inheritance-filter-view',
+  'coding-rules/views/filters/activation-filter-view',
   'coding-rules/views/filters/characteristic-filter-view',
 
   'coding-rules/mockjax',
@@ -65,6 +66,7 @@ requirejs [
   DateFilterView,
   QualityProfileFilterView,
   InheritanceFilterView
+  ActivationFilterView
   CharacteristicFilterView
 ) ->
 
@@ -147,13 +149,8 @@ requirejs [
       App.fetchList false
 
 
-  App.getActiveQualityProfile = ->
-    value = @activeInFilter.get('value')
-    if value? && value.length == 1 then value[0] else null
-
-
-  App.getInactiveQualityProfile = ->
-    value = @inactiveInFilter.get('value')
+  App.getQualityProfile = ->
+    value = @qualityProfileFilter.get('value')
     if value? && value.length == 1 then value[0] else null
 
 
@@ -239,23 +236,56 @@ requirejs [
       choices: @characteristics
       multiple: false
 
-    @activeInFilter = new BaseFilters.Filter
-      name: t 'coding_rules.filters.in_quality_profile'
-      property: 'in_quality_profile'
+    @qualityProfileFilter = new BaseFilters.Filter
+      name: t 'coding_rules.filters.quality_profile'
+      property: 'quality_profile'
       type: QualityProfileFilterView
       multiple: false
-    @filters.add @activeInFilter
+    @filters.add @qualityProfileFilter
+
 
     @filters.add new BaseFilters.Filter
-      name: t 'coding_rules.filters.key'
-      property: 'key'
-      type: StringFilterView
+      name: t 'coding_rules.filters.activation'
+      property: 'activation'
+      type: ActivationFilterView
+      enabled: false
+      optional: true
+      multiple: false
+      qualityProfileFilter: @qualityProfileFilter
+      choices:
+        'active': t 'coding_rules.filters.activation.active'
+        'inactive': t 'coding_rules.filters.activation.inactive'
+
+    @filters.add new BaseFilters.Filter
+      name: t 'coding_rules.filters.availableSince'
+      property: 'availableSince'
+      type: DateFilterView
       enabled: false
       optional: true
 
     @filters.add new BaseFilters.Filter
       name: t 'coding_rules.filters.description'
       property: 'description'
+      type: StringFilterView
+      enabled: false
+      optional: true
+
+    @filters.add new BaseFilters.Filter
+      name: t 'coding_rules.filters.inheritance'
+      property: 'inheritance'
+      type: InheritanceFilterView
+      enabled: false
+      optional: true
+      multiple: false
+      qualityProfileFilter: @qualityProfileFilter
+      choices:
+        'not_inhertited': t 'coding_rules.filters.inheritance.not_inherited'
+        'inhertited': t 'coding_rules.filters.inheritance.inherited'
+        'overriden': t 'coding_rules.filters.inheritance.overriden'
+
+    @filters.add new BaseFilters.Filter
+      name: t 'coding_rules.filters.key'
+      property: 'key'
       type: StringFilterView
       enabled: false
       optional: true
@@ -276,35 +306,6 @@ requirejs [
       optional: true
       choices: @statuses
 
-    @filters.add new BaseFilters.Filter
-      name: t 'coding_rules.filters.availableSince'
-      property: 'availableSince'
-      type: DateFilterView
-      enabled: false
-      optional: true
-
-    @inactiveInFilter = new BaseFilters.Filter
-      name: t 'coding_rules.filters.out_of_quality_profile'
-      property: 'out_of_quality_profile'
-      type: QualityProfileFilterView
-      multiple: false
-      enabled: false
-      optional: true
-    @filters.add @inactiveInFilter
-
-    @filters.add new BaseFilters.Filter
-      name: t 'coding_rules.filters.inheritance'
-      property: 'inheritance'
-      type: InheritanceFilterView
-      enabled: false
-      optional: true
-      multiple: false
-      qualityProfileFilter: @activeInFilter
-      choices:
-        'any': t 'coding_rules.filters.inheritance.any'
-        'not_inhertited': t 'coding_rules.filters.inheritance.not_inherited'
-        'inhertited': t 'coding_rules.filters.inheritance.inherited'
-        'overriden': t 'coding_rules.filters.inheritance.overriden'
 
     @filterBarView = new CodingRulesFilterBarView
       app: @

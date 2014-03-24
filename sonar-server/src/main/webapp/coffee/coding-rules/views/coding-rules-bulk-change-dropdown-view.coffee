@@ -47,7 +47,5 @@ define [
 
 
     serializeData: ->
-      activeQualityProfile: @options.app.getActiveQualityProfile()
-      activeQualityProfileName: @options.app.activeInFilter.view.renderValue()
-      inactiveQualityProfile: @options.app.getInactiveQualityProfile()
-      inactiveQualityProfileName: @options.app.inactiveInFilter.view.renderValue()
+      qualityProfile: @options.app.getQualityProfile()
+      qualityProfileName: @options.app.qualityProfileFilter.view.renderValue()

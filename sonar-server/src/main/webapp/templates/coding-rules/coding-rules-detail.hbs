@@ -1,3 +1,54 @@
+{{#if contextQualityProfile}}
+  <div class="coding-rules-detail-context-actions admin">
+    <table class="width100">
+      <tbody>
+      <tr>
+        <td>
+          <span class="coding-rules-detail-context-actions-quality-profile">{{contextQualityProfileName}}</span>
+          {{#if qualityProfile}}
+            {{#with qualityProfile}}
+              <span class="coding-rules-detail-context-actions-item">
+                {{severityIcon severity}} {{t "severity" severity}}
+              </span>
+
+              {{#each parameters}}
+                <span class="coding-rules-detail-context-actions-item">
+                  <span class="limited">{{key}}</span><span class="limited">:</span>
+                  <span class="limited">{{value}}</span>
+                </span>
+              {{/each}}
+
+              {{#if note}}<span class="coding-rules-detail-context-actions-item">{{{note.html}}}</span>{{/if}}
+            {{/with}}
+          {{/if}}
+        </td>
+
+        <td class="coding-rules-detail-quality-profile-actions">
+          <div class="button-group">
+            {{#if qualityProfile}}
+              <button class="coding-rules-detail-quality-profile-update">{{t 'change'}}</button>
+              {{#if parent}}
+                <button class="coding-rules-detail-quality-profile-revert button-red">
+                  {{t 'coding_rules.revert_to_parent_definition'}}
+                </button>
+              {{/if}}
+              <button class="coding-rules-detail-quality-profile-deactivate button-red">
+                {{t 'coding_rules.deactivate'}}
+              </button>
+            {{else}}
+              <button class="coding-rules-detail-quality-profile-activate">
+                {{t 'coding_rules.activate'}}
+              </button>
+            {{/if}}
+          </div>
+        </td>
+
+      </tr>
+      </tbody>
+    </table>
+  </div>
+{{/if}}
+
 <h3 class="coding-rules-detail-header">{{name}}</h3>
 
 <ul class="coding-rules-detail-properties">
@@ -10,18 +61,20 @@
       <span class="coding-rules-detail-status">{{status}}</span>
     </li>
   {{/notEq}}
-  <li class="coding-rules-detail-property coding-rules-detail-tag-list">
+  <li class="coding-rules-detail-property coding-rules-detail-tag-list coding-rules-detail-tags-change">
     <i class="icon-tags"></i>
-    {{join tags ', '}}
-    <a class="link-action coding-rules-detail-tags-change">{{t 'change'}}</a>
+    <span>{{join tags ', '}}</span>
   </li>
   <li class="coding-rules-detail-property coding-rules-detail-tag-edit">
     <input class="coding-rules-detail-tag-input" type="text" value="{{join tags ','}}">
-    <a class="link-action coding-rules-detail-tag-edit-done">{{t 'done'}}</a>
+
+    <div class="button-group">
+      <button class="coding-rules-detail-tag-edit-done">{{t 'done'}}</button>
+    </div>
   </li>
   <li class="coding-rules-detail-property">{{characteristic}}&nbsp;>&nbsp;{{subcharacteristic}}</li>
   <li class="coding-rules-detail-property">{{t 'coding_rules.available_since'}} {{fCreationDate}}</li>
-  <li class="coding-rules-detail-property">{{t 'coding_rules.repository'}} {{repository}}</li>
+  <li class="coding-rules-detail-property">{{t 'coding_rules.repository'}} {{repositoryName}} ({{repositoryKey}})</li>
   <li class="coding-rules-detail-property">{{t 'coding_rules.key'}} {{key}}</li>
 </ul>
 
@@ -29,7 +82,8 @@
 
 <div class="coding-rules-detail-description coding-rules-detail-description-extra">
   <div id="coding-rules-detail-description-extra">
-    {{#if extra}}<div class="rule-desc marginbottom10">{{{extra}}}</div>{{/if}}
+    {{#if extra}}
+      <div class="rule-desc marginbottom10">{{{extra}}}</div>{{/if}}
     <div class="button-group">
       <button id="coding-rules-detail-extend-description">{{t 'coding_rules.extend_description'}}</button>
     </div>
@@ -40,7 +94,8 @@
       <tbody>
       <tr>
         <td class="width100" colspan="2">
-          <textarea id="coding-rules-detail-extend-description-text" rows="4" style="width: 100%;">{{extraRaw}}</textarea>
+          <textarea id="coding-rules-detail-extend-description-text" rows="4"
+                    style="width: 100%;">{{extraRaw}}</textarea>
         </td>
       </tr>
       <tr>
@@ -68,6 +123,7 @@
     {{#each parameters}}
       <li class="coding-rules-detail-parameter">
         <h3 class="coding-rules-detail-parameter-name">{{key}}</h3>
+
         <div class="coding-rules-detail-parameter-description">
           {{description}}
 
@@ -81,8 +137,11 @@
 {{/if}}
 
 
-<h3 class="coding-rules-detail-title">{{t 'coding_rules.quality_profiles'}}</h3>
-<div class="button-group coding-rules-detail-quality-profiles-activation">
-  <button id="coding-rules-quality-profile-activate">{{t 'coding_rules.activate_in_quality_profile'}}</button>
+<div class="coding-rules-detail-quality-profiles-section">
+  <h3 class="coding-rules-detail-title">{{t 'coding_rules.quality_profiles'}}</h3>
+
+  <div class="button-group coding-rules-detail-quality-profiles-activation">
+    <button id="coding-rules-quality-profile-activate">{{t 'coding_rules.activate_in_quality_profile'}}</button>
+  </div>
+  <div id="coding-rules-detail-quality-profiles"></div>
 </div>
-<div id="coding-rules-detail-quality-profiles"></div>

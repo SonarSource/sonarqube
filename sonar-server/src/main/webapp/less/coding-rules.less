@@ -34,6 +34,36 @@
   text-transform: uppercase;
 }
 
+.coding-rules-detail-context-actions {
+  margin-bottom: @navigatorPadding;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.coding-rules-detail-context-actions-quality-profile {
+  vertical-align: middle;
+  margin-right: @navigatorPadding;
+  font-weight: bold;
+}
+
+.coding-rules-detail-context-actions-item {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: @navigatorPadding;
+
+  .limited {
+    max-width: 180px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .limited-big {
+    width: 480px;
+  }
+}
+
 .coding-rules-detail-properties {
   margin: @navigatorPadding 0;
   font-size: 0;
@@ -52,6 +82,18 @@
 
 .coding-rules-detail-tag + .coding-rules-detail-tag {
   margin-left: @navigatorPadding;
+}
+
+.coding-rules-detail-tags-change {
+  cursor: pointer;
+
+  &:hover {
+    span { text-decoration: underline; }
+  }
+}
+
+.coding-rules-detail-tag-edit {
+  line-height: 1;
 }
 
 .coding-rules-detail-description {
@@ -94,6 +136,10 @@
 
 
 // Quality Profiles
+.coding-rules-detail-quality-profiles-section {
+
+}
+
 .coding-rules-detail-quality-profiles-header {
   margin-top: 3 * @navigatorPadding;
 }
@@ -104,46 +150,39 @@
 
 .coding-rules-detail-quality-profile {
   margin-left: 2 * @navigatorPadding;
-
-  &.active {
-
-    .coding-rules-detail-quality-profile-name {
-      background-color: @highlighted;
-      color: #fff;
-    }
-  }
 }
 
 .coding-rules-detail-quality-profile + .coding-rules-detail-quality-profile {
-  margin-top: 2 * @navigatorPadding;
-  padding-top: 2 * @navigatorPadding;
+  margin-top: @navigatorPadding;
+  padding-top: @navigatorPadding;
   border-top: 1px solid @navigatorBorderLightColor;
 }
 
 .coding-rules-detail-quality-profile-name {
+  width: 15%;
   font-weight: bold;
+  white-space: nowrap;
 }
 
-.coding-rules-detail-quality-profile-actions {
-  padding: @navigatorPadding / 2;
+.coding-rules-detail-quality-profile-severity {
+  width: 10%;
 }
 
 .coding-rules-detail-quality-profile-parameters {
-  padding: 0 @navigatorPadding / 2;
 
-  .coding-rules-detail-parameter-name,
-  .coding-rules-detail-parameter-description {
-    vertical-align: middle;
-  }
+}
 
-  .coding-rules-detail-parameter-description input {
-    width: 200px;
-  }
+.coding-rules-detail-quality-profile-actions {
+  width: 25%;
+  text-align: right;
+}
+
+.coding-rules-detail-quality-profile-note {
+  padding-top: 4px;
 }
 
 .coding-rules-detail-quality-profile-inheritance {
-  vertical-align: middle;
-  margin-left: @navigatorPadding;
+  margin-top: 4px;
   font-size: @smallFontSize;
   font-weight: normal;
 
@@ -152,12 +191,6 @@
     top: -1px;
     font-size: @iconSmallFontSize;
   }
-  strong { font-weight: bold; }
-}
-
-.coding-rules-detail-quality-profile-note {
-  margin: @navigatorPadding * 2 0;
-  padding: 0 @navigatorPadding / 2;
 }
 
 .coding-rules-detail-quality-profiles-activation {

@@ -31,9 +31,3 @@ define [
           app: @options.app
           model: @model
         @options.app.layout.detailsRegion.show detailView
-
-
-    serializeData: ->
-      _.extend super,
-        qualityProfile: @options.app.getActiveQualityProfile()
-        qualityProfileName: @options.app.activeInFilter.view.renderValue()

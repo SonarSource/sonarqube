@@ -79,12 +79,12 @@ define [
         "<i class='icon-severity-#{state.id.toLowerCase()}'></i> #{state.text}"
 
       @ui.severitySelect.val @model.get 'severity'
-      @ui.severitySelect.select2
-        width: '200px'
-        minimumResultsForSearch: 999
-        formatResult: format
-        formatSelection: format
-        escapeMarkup: (m) -> m
+#      @ui.severitySelect.select2
+#        width: '200px'
+#        minimumResultsForSearch: 999
+#        formatResult: format
+#        formatSelection: format
+#        escapeMarkup: (m) -> m
 
 
     getParent: ->

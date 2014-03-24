@@ -1,17 +1,15 @@
-<a class="coding-rules-bulk-change-dropdown-link" data-action="activate"
-   {{#if inactiveQualityProfile}}data-param="{{inactiveQualityProfile}}"{{/if}}>
+<a class="coding-rules-bulk-change-dropdown-link" data-action="activate">
   {{t 'coding_rules.activate_in'}}
-  {{#if inactiveQualityProfile}}<strong>{{inactiveQualityProfileName}}</strong>{{/if}}
 </a>
 
 <a class="coding-rules-bulk-change-dropdown-link" data-action="deactivate"
-   {{#if activeQualityProfile}}data-param="{{activeQualityProfile}}"{{/if}}>
+   {{#if qualityProfile}}data-param="{{qualityProfile}}"{{/if}}>
   {{t 'coding_rules.deactivate_in'}}
-  {{#if activeQualityProfile}}<strong>{{activeQualityProfileName}}</strong>{{/if}}
+  {{#if qualityProfile}}<strong>{{qualityProfileName}}</strong>{{/if}}
 </a>
 
-{{#if activeQualityProfile}}
+{{#if qualityProfile}}
   <a class="coding-rules-bulk-change-dropdown-link" data-action="change-severity">
-    {{t 'coding_rules.change_severity_in'}} <strong>{{activeQualityProfileName}}</strong>
+    {{t 'coding_rules.change_severity_in'}} <strong>{{qualityProfileName}}</strong>
   </a>
 {{/if}}

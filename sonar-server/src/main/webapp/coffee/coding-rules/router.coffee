@@ -27,17 +27,7 @@ define [
 
     index: (query) ->
       params = this.parseQuery(query)
-      idObj = _.findWhere(params, { key: 'id' })
-      if (idObj)
-        f = this.app.favoriteFilter
-        @app.canSave = false
-        f.set('id', idObj.value)
-        f.fetch
-          success: =>
-            params = _.extend({}, @parseQuery(f.get('query')), params)
-            @loadResults(params)
-      else
-        @loadResults(params)
+      @loadResults(params)
 
 
     loadResults: (params) ->

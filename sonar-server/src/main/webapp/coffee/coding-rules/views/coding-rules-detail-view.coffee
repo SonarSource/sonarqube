@@ -63,9 +63,6 @@ define [
       @ui.extendDescriptionForm.hide()
       @ui.extendDescriptionSpinner.hide()
 
-      qp = @options.app.getActiveQualityProfile()
-      @$('.coding-rules-detail-quality-profile').first().addClass 'active' if qp?
-
 
     changeTags: ->
       @ui.tagsEdit.show()
@@ -110,3 +107,13 @@ define [
     activateQualityProfile: ->
       @options.app.codingRulesQualityProfileActivationView.model = @model
       @options.app.codingRulesQualityProfileActivationView.show()
+
+
+    serializeData: ->
+      contextQualityProfile = @options.app.getQualityProfile()
+      qualityProfile = _.findWhere @model.get('qualityProfiles'), key: contextQualityProfile
+
+      _.extend super,
+        contextQualityProfile: contextQualityProfile
+        contextQualityProfileName: @options.app.qualityProfileFilter.view.renderValue()
+        qualityProfile: qualityProfile

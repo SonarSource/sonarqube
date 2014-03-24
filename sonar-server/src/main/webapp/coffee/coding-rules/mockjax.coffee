@@ -117,7 +117,7 @@ define ['jquery.mockjax'], ->
         'coding_rules.change_severity_in': 'Change Severity In'
         'coding_rules.extend_description': 'Extend Description'
         'coding_rules.deactivate_in': 'Deactivate In'
-        'coding_rules.deactivate_quality_profile': 'Deactivate'
+        'coding_rules.deactivate': 'Deactivate'
         'coding_rules.deactivate_in_quality_profile': 'Deactivate In Quality Profile'
         'coding_rules.found': 'Found'
         'coding_rules._inherits': 'inherits'
@@ -137,20 +137,22 @@ define ['jquery.mockjax'], ->
         'coding_rules._rules': 'rules'
         'coding_rules.select_tag': 'Select Tag'
 
+        'coding_rules.filters.activation': 'Activation'
+        'coding_rules.filters.activation.active': 'Active'
+        'coding_rules.filters.activation.inactive': 'Inactive'
+        'coding_rules.filters.activation.help': 'Activation criterion is available when a quality profile is selected'
         'coding_rules.filters.availableSince': 'Available Since'
         'coding_rules.filters.characteristic': 'Characteristic'
         'coding_rules.filters.description': 'Description'
-        'coding_rules.filters.in_quality_profile': 'In Quality Profile'
+        'coding_rules.filters.quality_profile': 'Quality Profile'
         'coding_rules.filters.inheritance': 'Inheritance'
-        'coding_rules.filters.inheritance.inactive': 'Inheritance criteria is available when an inherited quality profile is selected'
-        'coding_rules.filters.inheritance.any': 'Any'
+        'coding_rules.filters.inheritance.inactive': 'Inheritance criterion is available when an inherited quality profile is selected'
         'coding_rules.filters.inheritance.not_inherited': 'Not Inherited'
         'coding_rules.filters.inheritance.inherited': 'Inherited'
         'coding_rules.filters.inheritance.overriden': 'Overriden'
         'coding_rules.filters.key': 'Key'
         'coding_rules.filters.language': 'Language'
         'coding_rules.filters.name': 'Name'
-        'coding_rules.filters.out_of_quality_profile': 'Out of Quality Profile'
         'coding_rules.filters.repository': 'Repository'
         'coding_rules.filters.severity': 'Severity'
         'coding_rules.filters.status': 'Status'
@@ -213,7 +215,8 @@ define ['jquery.mockjax'], ->
         creationDate: '2013-10-15'
         fCreationDate: 'Oct 15, 2013'
         status: 'DEPRECATED'
-        repository: 'squid'
+        repositoryName: 'SonarQube'
+        repositoryKey: 'squid'
         characteristic: 'Reliability'
         subcharacteristic: 'Data related reliability'
         key: 'S1190'
@@ -242,7 +245,7 @@ define ['jquery.mockjax'], ->
 
             public int[][] getMatrix() { /* ... */ }  // Compliant
             </pre>'''
-        extra: '''<p>This note is here <b>only for test purposes</b>.</p>'''
+        extra: '''This note is here <b>only for test purposes</b>.'''
         extraRaw: '''This note is here *only for test purposes*.'''
 
         qualityProfiles: [
@@ -250,27 +253,23 @@ define ['jquery.mockjax'], ->
             name: 'SonarWay'
             key: 'sonarway'
             severity: 'MINOR'
-            canDeactivate: true
-            canUpdate: true
             parameters: [
               { key: 'someParameter', value: 8 }
             ]
-          },
-          {
-            name: 'Quality Profile 1'
-            key: 'qualityprofile1'
-            severity: 'MAJOR'
-            canDeactivate: false
-            canUpdate: false
-            parameters: [
-              { key: 'someParameter', value: 6 }
-            ]
-            inherits: 'sonarway'
             note:
               username: 'Admin Admin'
               html: '''<p>This note is here <b>only for test purposes</b>.</p>'''
               raw: '''This note is here *only for test purposes*.'''
               fCreationDate: 'less than a minute'
+          },
+          {
+            name: 'Quality Profile 1'
+            key: 'qualityprofile1'
+            severity: 'MAJOR'
+            parameters: [
+              { key: 'someParameter', value: 6 }
+            ]
+            inherits: 'sonarway'
           }
         ]
 
@@ -280,7 +279,7 @@ define ['jquery.mockjax'], ->
   jQuery.mockjax
     url: "#{baseUrl}/api/codingrules/extend_description"
     responseText: JSON.stringify
-      extra: '''<p>This note is here <i>only for test purposes</i>.</p>'''
+      extra: '''This note is here <i>only for test purposes</i>.'''
       extraRaw: '''This note is here *only for test purposes*.'''
 
 
