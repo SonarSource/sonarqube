@@ -13,6 +13,10 @@
 
   <properties>
     <gruntTask>default</gruntTask>
+
+    <!-- self-analysis -->
+    <sonar.sources>src/main/java,src/main/webapp/js</sonar.sources>
+    <sonar.exclusions>src/main/webapp/js/third-party/*</sonar.exclusions>
   </properties>
 
   <dependencies>
