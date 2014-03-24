@@ -31,7 +31,6 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
-import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -152,18 +151,6 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     // Rules from disabled characteristic
     ruleDtos = dao.selectBySubCharacteristicId(11);
     assertThat(idsFromRuleDtos(ruleDtos)).containsExactly(3);
-  }
-
-  @Test
-  public void select_overriding_debt_rules() throws Exception {
-    setupData("select_overriding_debt_rules");
-
-    assertThat(dao.selectOverridingDebt(Collections.<String>emptyList())).hasSize(3);
-
-    assertThat(dao.selectOverridingDebt(newArrayList("squid"))).hasSize(2);
-    assertThat(dao.selectOverridingDebt(newArrayList("java"))).hasSize(1);
-    assertThat(dao.selectOverridingDebt(newArrayList("squid", "java"))).hasSize(3);
-    assertThat(dao.selectOverridingDebt(newArrayList("unknown"))).isEmpty();
   }
 
   @Test

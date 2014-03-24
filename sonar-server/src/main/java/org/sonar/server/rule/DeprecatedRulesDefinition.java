@@ -23,12 +23,15 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.utils.ValidationMessages;
 import org.sonar.check.Cardinality;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.technicaldebt.TechnicalDebtModelRepository;
@@ -48,6 +51,8 @@ import static com.google.common.collect.Lists.newArrayList;
  * @since 4.2
  */
 public class DeprecatedRulesDefinition implements RulesDefinition {
+
+  private static final Logger LOG = LoggerFactory.getLogger(DeprecatedRulesDefinition.class);
 
   private final RuleI18nManager i18n;
   private final RuleRepository[] repositories;
@@ -105,7 +110,7 @@ public class DeprecatedRulesDefinition implements RulesDefinition {
     DebtRulesXMLImporter.RuleDebt ruleDebt = findRequirement(ruleDebts, repoKey, ruleKey);
     if (ruleDebt != null) {
       newRule.setDebtCharacteristic(ruleDebt.characteristicKey());
-      switch (ruleDebt.type()) {
+      switch (ruleDebt.function()) {
         case LINEAR :
           newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linear(ruleDebt.factor()));
           break;
@@ -116,7 +121,7 @@ public class DeprecatedRulesDefinition implements RulesDefinition {
           newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().constantPerIssue(ruleDebt.offset()));
           break;
         default :
-          throw new IllegalArgumentException(String.format("The type '%s' is unknown", ruleDebt.type()));
+          throw new IllegalArgumentException(String.format("The type '%s' is unknown", ruleDebt.function()));
       }
     }
   }
@@ -160,7 +165,10 @@ public class DeprecatedRulesDefinition implements RulesDefinition {
     Reader xmlFileReader = null;
     try {
       xmlFileReader = languageModelFinder.createReaderForXMLFile(pluginKey);
-      return importer.importXML(xmlFileReader);
+      ValidationMessages validationMessages = ValidationMessages.create();
+      List<DebtRulesXMLImporter.RuleDebt> rules = importer.importXML(xmlFileReader, validationMessages);
+      validationMessages.log(LOG);
+      return rules;
     } finally {
       IOUtils.closeQuietly(xmlFileReader);
     }

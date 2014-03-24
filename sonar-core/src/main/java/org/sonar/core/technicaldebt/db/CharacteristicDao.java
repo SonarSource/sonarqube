@@ -146,38 +146,6 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
     return session.getMapper(CharacteristicMapper.class).selectByName(name);
   }
 
-  @CheckForNull
-  public CharacteristicDto selectNext(int order, SqlSession session) {
-    List<CharacteristicDto> dtos = session.getMapper(CharacteristicMapper.class).selectNext(order);
-    return dtos.isEmpty() ? null : dtos.get(0);
-  }
-
-  @CheckForNull
-  public CharacteristicDto selectNext(int order) {
-    SqlSession session = mybatis.openSession();
-    try {
-      return selectNext(order, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  @CheckForNull
-  public CharacteristicDto selectPrevious(int order, SqlSession session) {
-    List<CharacteristicDto> dtos = session.getMapper(CharacteristicMapper.class).selectPrevious(order);
-    return dtos.isEmpty() ? null : dtos.get(0);
-  }
-
-  @CheckForNull
-  public CharacteristicDto selectPrevious(int order) {
-    SqlSession session = mybatis.openSession();
-    try {
-      return selectPrevious(order, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   public int selectMaxCharacteristicOrder() {
     SqlSession session = mybatis.openSession();
     try {

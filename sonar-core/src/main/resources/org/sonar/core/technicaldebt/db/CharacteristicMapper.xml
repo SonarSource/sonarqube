@@ -74,28 +74,6 @@
     </where>
   </select>
 
-  <select id="selectNext" parameterType="Integer" resultType="Characteristic">
-    select <include refid="characteristicColumns"/>
-    from characteristics c
-    <where>
-      and c.characteristic_order&gt;#{order}
-      and c.parent_id is null
-      and c.enabled=${_true}
-    </where>
-    order by characteristic_order asc
-  </select>
-
-  <select id="selectPrevious" parameterType="Integer" resultType="Characteristic">
-    select <include refid="characteristicColumns"/>
-    from characteristics c
-    <where>
-      and c.characteristic_order&lt;#{order}
-      and c.parent_id is null
-      and c.enabled=${_true}
-    </where>
-    order by characteristic_order asc
-  </select>
-
   <select id="selectMaxCharacteristicOrder" resultType="Integer">
     select max(c.characteristic_order)
     from characteristics c

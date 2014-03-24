@@ -22,6 +22,7 @@ package org.sonar.server.debt;
 
 import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.debt.DebtModel;
+import org.sonar.api.utils.ValidationMessages;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -84,15 +85,29 @@ public class DebtModelService implements DebtModel {
   /**
    * Restore from provided model
    */
-  public void restore(){
-    debtModelRestore.restore();
+  public ValidationMessages restore(){
+    return debtModelRestore.restore();
   }
 
   /**
    * Restore from plugins providing rules for a given language
    */
-  public void restore(String languageKey) {
-    debtModelRestore.restore(languageKey);
+  public ValidationMessages restoreFromLanguage(String languageKey) {
+    return debtModelRestore.restore(languageKey);
+  }
+
+  /**
+   * Restore from XML
+   */
+  public ValidationMessages restoreFromXml(String xml){
+    return debtModelRestore.restoreFromXml(xml);
+  }
+
+  /**
+   * Restore from XML and a given language
+   */
+  public ValidationMessages restoreFromXmlAndLanguage(String xml, String languageKey) {
+    return debtModelRestore.restoreFromXml(xml, languageKey);
   }
 
 }

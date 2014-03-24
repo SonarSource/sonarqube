@@ -146,17 +146,6 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_next_and_previous_characteristic() {
-    setupData("select_next_and_previous");
-
-    assertThat(dao.selectNext(1)).isNotNull();
-    assertThat(dao.selectNext(2)).isNull();
-
-    assertThat(dao.selectPrevious(1)).isNull();
-    assertThat(dao.selectPrevious(2)).isNotNull();
-  }
-
-  @Test
   public void select_max_characteristic_order() {
     setupData("shared");
 

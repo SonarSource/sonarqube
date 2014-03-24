@@ -64,19 +64,6 @@
     </where>
   </select>
 
-  <select id="selectOverridingDebt" resultType="Rule">
-    SELECT <include refid="selectColumns"/> FROM rules r
-    <where>
-      AND (r.characteristic_id is NOT NULL or r.remediation_function IS NOT NULL)
-      <if test="repositories.size()>0">
-        AND
-        <foreach item="repo" index="index" collection="repositories" open="(" separator=" or " close=")">
-          r.plugin_name=#{repo}
-        </foreach>
-      </if>
-    </where>
-  </select>
-
   <update id="update" parameterType="Rule">
     UPDATE rules SET
     plugin_rule_key=#{ruleKey},

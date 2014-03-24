@@ -31,6 +31,7 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.server.rule.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.technicaldebt.TechnicalDebtModelRepository;
 import org.sonar.server.debt.DebtRulesXMLImporter;
@@ -41,6 +42,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -158,7 +160,7 @@ public class DeprecatedRulesDefinitionTest {
       new DebtRulesXMLImporter.RuleDebt()
         .setCharacteristicKey("MEMORY_EFFICIENCY")
         .setRuleKey(RuleKey.of("checkstyle", "ConstantName"))
-        .setType(DebtRemediationFunction.Type.LINEAR_OFFSET)
+        .setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET)
         .setFactor("1d")
         .setOffset("10min")
     );
@@ -166,7 +168,7 @@ public class DeprecatedRulesDefinitionTest {
     Reader javaModelReader = mock(Reader.class);
     when(debtModelRepository.createReaderForXMLFile("java")).thenReturn(javaModelReader);
     when(debtModelRepository.getContributingPluginList()).thenReturn(newArrayList("java"));
-    when(importer.importXML(eq(javaModelReader))).thenReturn(ruleDebts);
+    when(importer.importXML(eq(javaModelReader), any(ValidationMessages.class))).thenReturn(ruleDebts);
 
     new DeprecatedRulesDefinition(i18n, new RuleRepository[]{new CheckstyleRules()}, debtModelRepository, importer).define(context);
 

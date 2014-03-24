@@ -36,6 +36,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+// TODO replace this by DebtModelRestore
 public class DebtModelSynchronizer implements ServerExtension {
 
   private final MyBatis mybatis;

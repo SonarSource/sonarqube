@@ -102,8 +102,20 @@ public class DebtModelServiceTest {
 
   @Test
   public void restore_from_language() {
-    service.restore("xoo");
+    service.restoreFromLanguage("xoo");
     verify(debtModelRestore).restore("xoo");
+  }
+
+  @Test
+  public void restore_xml() {
+    service.restoreFromXml("<xml/>");
+    verify(debtModelRestore).restoreFromXml("<xml/>");
+  }
+
+  @Test
+  public void restore_from_xml_and_language() {
+    service.restoreFromXmlAndLanguage("<xml/>", "xoo");
+    verify(debtModelRestore).restoreFromXml("<xml/>", "xoo");
   }
 
 }
