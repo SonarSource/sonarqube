@@ -29,18 +29,17 @@ Setup line endings preferences:
 
 Get sources by executing:
 
-    git clone https://github.com/SonarSource/sonar.git
+    git clone https://github.com/SonarSource/sonarqube.git
     
 Committers must configure their SSH key (see GitHub documentation for Windows and Mac) and clone repository:
 
-    git clone git@github.com:SonarSource/sonar.git
+    git clone git@github.com:SonarSource/sonarqube.git
 
 ### Build
 
 * Install JDK 6 or greater
 * Install Maven 3.0.5 or greater
 * Execute `mvn clean install`. ZIP file of application is generated into sonar-application/target/
-* Optionally, to speed-up build, http://nodejs.org should be installed (simply execute `brew install nodejs` on MacOS). node executable node must be available in PATH.
 
 ### Edit Ruby Code
 
