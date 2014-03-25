@@ -52,7 +52,7 @@ public class XooRulesDefinition implements RulesDefinition {
       .setSeverity(Severity.MINOR);
 
     x1Rule
-      .setDebtCharacteristic("INTEGRATION_TESTABILITY")
+      .setDebtSubCharacteristic("INTEGRATION_TESTABILITY")
       .setDebtRemediationFunction(x1Rule.debtRemediationFunctions().linearWithOffset("1h", "30min"));
 
     x1Rule.createParam("acceptWhitespace")

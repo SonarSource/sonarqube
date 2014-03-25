@@ -71,7 +71,7 @@ public class RulesDefinitionTest {
       .setSeverity(Severity.BLOCKER)
       .setInternalKey("/something")
       .setStatus(RuleStatus.BETA)
-      .setDebtCharacteristic("COMPILER")
+      .setDebtSubCharacteristic("COMPILER")
       .setEffortToFixDescription("squid.S115.effortToFix")
       .setTags("one", "two")
       .addTags("two", "three", "four");
@@ -93,7 +93,7 @@ public class RulesDefinitionTest {
     assertThat(rule.internalKey()).isEqualTo("/something");
     assertThat(rule.template()).isFalse();
     assertThat(rule.status()).isEqualTo(RuleStatus.BETA);
-    assertThat(rule.debtCharacteristic()).isEqualTo("COMPILER");
+    assertThat(rule.debtSubCharacteristic()).isEqualTo("COMPILER");
     assertThat(rule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
     assertThat(rule.debtRemediationFunction().factor()).isEqualTo("1h");
     assertThat(rule.debtRemediationFunction().offset()).isEqualTo("10min");
@@ -120,7 +120,7 @@ public class RulesDefinitionTest {
     assertThat(rule.internalKey()).isNull();
     assertThat(rule.status()).isEqualTo(RuleStatus.defaultStatus());
     assertThat(rule.tags()).isEmpty();
-    assertThat(rule.debtCharacteristic()).isNull();
+    assertThat(rule.debtSubCharacteristic()).isNull();
     assertThat(rule.debtRemediationFunction()).isNull();
   }
 
@@ -302,12 +302,12 @@ public class RulesDefinitionTest {
   public void fail_if_define_characteristic_without_function() {
     RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
     newRepository.createRule("NPE").setName("NPE").setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
-      .setDebtCharacteristic("COMPILER");
+      .setDebtSubCharacteristic("COMPILER");
     try {
       newRepository.done();
       fail();
     } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Both debt characteristic and debt remediation function should be defined on rule '[repository=findbugs, key=NPE]'");
+      assertThat(e).hasMessage("Both debt sub-characteristic and debt remediation function should be defined on rule '[repository=findbugs, key=NPE]'");
     }
   }
 
@@ -315,13 +315,13 @@ public class RulesDefinitionTest {
   public void fail_if_define_function_without_characteristic() {
     RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
     RulesDefinition.NewRule newRule = newRepository.createRule("NPE").setName("NPE").setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
-      .setDebtCharacteristic("");
+      .setDebtSubCharacteristic("");
     newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linearWithOffset("1h", "10min"));
     try {
       newRepository.done();
       fail();
     } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Both debt characteristic and debt remediation function should be defined on rule '[repository=findbugs, key=NPE]'");
+      assertThat(e).hasMessage("Both debt sub-characteristic and debt remediation function should be defined on rule '[repository=findbugs, key=NPE]'");
     }
   }
 

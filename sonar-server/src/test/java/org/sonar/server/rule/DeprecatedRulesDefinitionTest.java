@@ -180,7 +180,7 @@ public class DeprecatedRulesDefinitionTest {
     RulesDefinition.Rule rule = checkstyle.rule("ConstantName");
     assertThat(rule).isNotNull();
     assertThat(rule.key()).isEqualTo("ConstantName");
-    assertThat(rule.debtCharacteristic()).isEqualTo("MEMORY_EFFICIENCY");
+    assertThat(rule.debtSubCharacteristic()).isEqualTo("MEMORY_EFFICIENCY");
     assertThat(rule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
     assertThat(rule.debtRemediationFunction().factor()).isEqualTo("1d");
     assertThat(rule.debtRemediationFunction().offset()).isEqualTo("10min");

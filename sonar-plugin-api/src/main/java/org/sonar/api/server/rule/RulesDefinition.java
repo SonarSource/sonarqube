@@ -75,7 +75,7 @@ import java.util.Set;
  *     .setSeverity(Severity.MINOR);
  *
  *     x1Rule
- *       .setDebtCharacteristic("INTEGRATION_TESTABILITY")
+ *       .setDebtSubCharacteristic("INTEGRATION_TESTABILITY")
  *       .setDebtRemediationFunction(x1Rule.debtRemediationFunctions().linearWithOffset("1h", "30min"));
  *
  *     x1Rule.createParam("acceptWhitespace")
@@ -90,7 +90,7 @@ import java.util.Set;
  * </pre>
  * <p/>
  * If rules are declared in a XML file with the standard SonarQube format, then it can be loaded by using :
- *
+ * <p/>
  * <pre>
  * public class JsSquidRulesDefinition implements RulesDefinition {
  *
@@ -109,10 +109,10 @@ import java.util.Set;
  *   }
  * }
  * </pre>
- *
+ * <p/>
  * In the above example, XML file must contain name and description of each rule. If it's not the case, then the
  * (deprecated) English bundles can be used :
- *
+ * <p/>
  * <pre>
  * public class JsSquidRulesDefinition implements RulesDefinition {
  *
@@ -376,7 +376,7 @@ public interface RulesDefinition extends ServerExtension {
     private String name, htmlDescription, internalKey, severity = Severity.MAJOR;
     private boolean template;
     private RuleStatus status = RuleStatus.defaultStatus();
-    private String debtCharacteristic;
+    private String debtSubCharacteristic;
     private DebtRemediationFunction debtRemediationFunction;
     private String effortToFixDescription;
     private final Set<String> tags = Sets.newTreeSet();
@@ -440,11 +440,14 @@ public interface RulesDefinition extends ServerExtension {
       return this;
     }
 
-    public NewRule setDebtCharacteristic(@Nullable String debtCharacteristic) {
-      this.debtCharacteristic = debtCharacteristic;
+    public NewRule setDebtSubCharacteristic(@Nullable String s) {
+      this.debtSubCharacteristic = s;
       return this;
     }
 
+    /**
+     * Factory of {@link org.sonar.api.server.debt.DebtRemediationFunction}
+     */
     public DebtRemediationFunctions debtRemediationFunctions() {
       return functions;
     }
@@ -517,8 +520,8 @@ public interface RulesDefinition extends ServerExtension {
       if (Strings.isNullOrEmpty(htmlDescription)) {
         throw new IllegalStateException(String.format("HTML description of rule %s is empty", this));
       }
-      if ((Strings.isNullOrEmpty(debtCharacteristic) && debtRemediationFunction != null) || (!Strings.isNullOrEmpty(debtCharacteristic) && debtRemediationFunction == null)) {
-        throw new IllegalStateException(String.format("Both debt characteristic and debt remediation function should be defined on rule '%s'", this));
+      if ((Strings.isNullOrEmpty(debtSubCharacteristic) && debtRemediationFunction != null) || (!Strings.isNullOrEmpty(debtSubCharacteristic) && debtRemediationFunction == null)) {
+        throw new IllegalStateException(String.format("Both debt sub-characteristic and debt remediation function should be defined on rule '%s'", this));
       }
     }
 
@@ -533,7 +536,7 @@ public interface RulesDefinition extends ServerExtension {
     private final Repository repository;
     private final String repoKey, key, name, htmlDescription, internalKey, severity;
     private final boolean template;
-    private final String debtCharacteristic;
+    private final String debtSubCharacteristic;
     private final DebtRemediationFunction debtRemediationFunction;
     private final String effortToFixDescription;
     private final Set<String> tags;
@@ -550,7 +553,7 @@ public interface RulesDefinition extends ServerExtension {
       this.severity = newRule.severity;
       this.template = newRule.template;
       this.status = newRule.status;
-      this.debtCharacteristic = newRule.debtCharacteristic;
+      this.debtSubCharacteristic = newRule.debtSubCharacteristic;
       this.debtRemediationFunction = newRule.debtRemediationFunction;
       this.effortToFixDescription = newRule.effortToFixDescription;
       this.tags = ImmutableSortedSet.copyOf(newRule.tags);
@@ -591,8 +594,8 @@ public interface RulesDefinition extends ServerExtension {
     }
 
     @CheckForNull
-    public String debtCharacteristic() {
-      return debtCharacteristic;
+    public String debtSubCharacteristic() {
+      return debtSubCharacteristic;
     }
 
     @CheckForNull

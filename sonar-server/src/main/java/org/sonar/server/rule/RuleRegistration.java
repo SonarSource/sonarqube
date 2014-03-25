@@ -549,7 +549,7 @@ public class RuleRegistration implements Startable {
 
   @CheckForNull
   private CharacteristicDto findCharacteristic(RulesDefinition.Rule ruleDef, @Nullable Integer overridingCharacteristicId, List<CharacteristicDto> characteristicDtos) {
-    String key = ruleDef.debtCharacteristic();
+    String key = ruleDef.debtSubCharacteristic();
     // Rule is not linked to a default characteristic or characteristic has been disabled by user, nothing to do
     if (key == null) {
       return null;

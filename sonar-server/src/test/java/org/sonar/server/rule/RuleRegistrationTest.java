@@ -288,7 +288,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
         .setInternalKey("config1")
         .setTags("tag1", "tag3", "tag5");
 
-      rule1.setDebtCharacteristic("MEMORY_EFFICIENCY")
+      rule1.setDebtSubCharacteristic("MEMORY_EFFICIENCY")
         .setDebtRemediationFunction(rule1.debtRemediationFunctions().linearWithOffset("5d", "10h"))
         .setEffortToFixDescription("squid.S115.effortToFix");
 
