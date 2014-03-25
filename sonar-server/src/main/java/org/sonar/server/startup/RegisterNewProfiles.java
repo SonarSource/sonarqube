@@ -85,7 +85,7 @@ public class RegisterNewProfiles {
     session = sessionFactory.getSession();
 
     // hibernate session can contain an invalid cache of rules
-    session.getEntityManager().clear();
+    session.commit();
 
     ListMultimap<String, RulesProfile> profilesByLanguage = loadDefinitions();
     for (String language : profilesByLanguage.keySet()) {
