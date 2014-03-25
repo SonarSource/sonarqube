@@ -139,6 +139,170 @@ import java.util.Set;
 public interface RulesDefinition extends ServerExtension {
 
   /**
+   * Default sub-characteristics of technical debt model. See http://www.sqale.org
+   */
+  final class SubCharacteristics {
+    private SubCharacteristics() {
+      // only constants
+    }
+
+    /**
+     * Related to characteristic REUSABILITY
+     */
+    public static final String MODULARITY = "MODULARITY";
+
+    /**
+     * Related to characteristic REUSABILITY
+     */
+    public static final String TRANSPORTABILITY = "TRANSPORTABILITY";
+
+    /**
+     * Related to characteristic PORTABILITY
+     */
+    public static final String COMPILER_RELATED_PORTABILITY = "COMPILER_RELATED_PORTABILITY";
+
+    /**
+     * Related to characteristic PORTABILITY
+     */
+    public static final String HARDWARE_RELATED_PORTABILITY = "HARDWARE_RELATED_PORTABILITY";
+
+    /**
+     * Related to characteristic PORTABILITY
+     */
+    public static final String LANGUAGE_RELATED_PORTABILITY = "LANGUAGE_RELATED_PORTABILITY";
+
+    /**
+     * Related to characteristic PORTABILITY
+     */
+    public static final String OS_RELATED_PORTABILITY = "OS_RELATED_PORTABILITY";
+
+    /**
+     * Related to characteristic PORTABILITY
+     */
+    public static final String SOFTWARE_RELATED_PORTABILITY = "SOFTWARE_RELATED_PORTABILITY";
+
+    /**
+     * Related to characteristic PORTABILITY
+     */
+    public static final String TIME_ZONE_RELATED_PORTABILITY = "TIME_ZONE_RELATED_PORTABILITY";
+
+    /**
+     * Related to characteristic MAINTAINABILITY
+     */
+    public static final String READABILITY = "READABILITY";
+
+    /**
+     * Related to characteristic MAINTAINABILITY
+     */
+    public static final String UNDERSTANDABILITY = "UNDERSTANDABILITY";
+
+    /**
+     * Related to characteristic SECURITY
+     */
+    public static final String API_ABUSE = "API_ABUSE";
+
+    /**
+     * Related to characteristic SECURITY
+     */
+    public static final String ERRORS = "ERRORS";
+
+    /**
+     * Related to characteristic SECURITY
+     */
+    public static final String INPUT_VALIDATION_AND_REPRESENTATION = "INPUT_VALIDATION_AND_REPRESENTATION";
+
+    /**
+     * Related to characteristic SECURITY
+     */
+    public static final String SECURITY_FEATURES = "SECURITY_FEATURES";
+
+    /**
+     * Related to characteristic EFFICIENCY
+     */
+    public static final String CPU_EFFICIENCY = "CPU_EFFICIENCY";
+
+    /**
+     * Related to characteristic EFFICIENCY
+     */
+    public static final String MEMORY_EFFICIENCY = "MEMORY_EFFICIENCY";
+
+    /**
+     * Related to characteristic EFFICIENCY
+     */
+    public static final String NETWORK_USE = "NETWORK_USE";
+
+    /**
+     * Related to characteristic CHANGEABILITY
+     */
+    public static final String ARCHITECTURE_CHANGEABILITY = "ARCHITECTURE_CHANGEABILITY";
+
+    /**
+     * Related to characteristic CHANGEABILITY
+     */
+    public static final String DATA_CHANGEABILITY = "DATA_CHANGEABILITY";
+
+    /**
+     * Related to characteristic CHANGEABILITY
+     */
+    public static final String LOGIC_CHANGEABILITY = "LOGIC_CHANGEABILITY";
+
+    /**
+     * Related to characteristic RELIABILITY
+     */
+    public static final String ARCHITECTURE_RELIABILITY = "ARCHITECTURE_RELIABILITY";
+
+    /**
+     * Related to characteristic RELIABILITY
+     */
+    public static final String DATA_RELIABILITY = "DATA_RELIABILITY";
+
+    /**
+     * Related to characteristic RELIABILITY
+     */
+    public static final String EXCEPTION_HANDLING = "EXCEPTION_HANDLING";
+
+    /**
+     * Related to characteristic RELIABILITY
+     */
+    public static final String FAULT_TOLERANCE = "FAULT_TOLERANCE";
+
+    /**
+     * Related to characteristic RELIABILITY
+     */
+    public static final String INSTRUCTION_RELIABILITY = "INSTRUCTION_RELIABILITY";
+
+    /**
+     * Related to characteristic RELIABILITY
+     */
+    public static final String LOGIC_RELIABILITY = "LOGIC_RELIABILITY";
+
+    /**
+     * Related to characteristic RELIABILITY
+     */
+    public static final String RESOURCE_RELIABILITY = "RESOURCE_RELIABILITY";
+
+    /**
+     * Related to characteristic RELIABILITY
+     */
+    public static final String SYNCHRONIZATION_RELIABILITY = "SYNCHRONIZATION_RELIABILITY";
+
+    /**
+     * Related to characteristic RELIABILITY
+     */
+    public static final String UNIT_TESTS = "UNIT_TESTS";
+
+    /**
+     * Related to characteristic TESTABILITY
+     */
+    public static final String INTEGRATION_TESTABILITY = "INTEGRATION_TESTABILITY";
+
+    /**
+     * Related to characteristic TESTABILITY
+     */
+    public static final String UNIT_TESTABILITY = "UNIT_TESTABILITY";
+  }
+
+  /**
    * Instantiated by core but not by plugins
    */
   class Context {
@@ -186,28 +350,18 @@ public interface RulesDefinition extends ServerExtension {
   interface NewExtendedRepository {
     NewRule createRule(String ruleKey);
 
-    /**
-     * Reads definition of rule from the annotations provided by the library sonar-check-api.
-     */
-    NewRule loadAnnotatedClass(Class clazz);
-
-    /**
-     * Reads definitions of rules from the annotations provided by the library sonar-check-api.
-     */
-    NewExtendedRepository loadAnnotatedClasses(Class... classes);
-
-    void done();
-  }
-
-  interface NewRepository extends NewExtendedRepository {
-    NewRepository setName(String s);
-
     @CheckForNull
     NewRule rule(String ruleKey);
 
     Collection<NewRule> rules();
 
     String key();
+
+    void done();
+  }
+
+  interface NewRepository extends NewExtendedRepository {
+    NewRepository setName(String s);
   }
 
   class NewRepositoryImpl implements NewRepository {
@@ -260,17 +414,6 @@ public interface RulesDefinition extends ServerExtension {
     @Override
     public Collection<NewRule> rules() {
       return newRules.values();
-    }
-
-    @Override
-    public NewRepositoryImpl loadAnnotatedClasses(Class... classes) {
-      new RuleDefinitionsFromAnnotations().loadRules(this, classes);
-      return this;
-    }
-
-    @Override
-    public RulesDefinition.NewRule loadAnnotatedClass(Class clazz) {
-      return new RuleDefinitionsFromAnnotations().loadRule(this, clazz);
     }
 
     @Override
@@ -362,6 +505,9 @@ public interface RulesDefinition extends ServerExtension {
     }
   }
 
+  /**
+   * Factory of {@link org.sonar.api.server.debt.DebtRemediationFunction}.
+   */
   interface DebtRemediationFunctions {
     DebtRemediationFunction linear(String factor);
 
@@ -393,7 +539,10 @@ public interface RulesDefinition extends ServerExtension {
       return this.key;
     }
 
-    public NewRule setName(@Nullable String s) {
+    /**
+     * Required rule name
+     */
+    public NewRule setName(String s) {
       this.name = StringUtils.trim(s);
       return this;
     }
@@ -432,6 +581,11 @@ public interface RulesDefinition extends ServerExtension {
       return this;
     }
 
+    /**
+     * Default value is {@link org.sonar.api.rule.RuleStatus#READY}. The value
+     * {@link org.sonar.api.rule.RuleStatus#REMOVED} is not accepted and raises an
+     * {@link java.lang.IllegalArgumentException}.
+     */
     public NewRule setStatus(RuleStatus status) {
       if (status.equals(RuleStatus.REMOVED)) {
         throw new IllegalArgumentException(String.format("Status 'REMOVED' is not accepted on rule '%s'", this));
@@ -440,6 +594,11 @@ public interface RulesDefinition extends ServerExtension {
       return this;
     }
 
+    /**
+     * SQALE sub-characteristic. See http://www.sqale.org
+     *
+     * @see org.sonar.api.server.rule.RulesDefinition.SubCharacteristics for constant values
+     */
     public NewRule setDebtSubCharacteristic(@Nullable String s) {
       this.debtSubCharacteristic = s;
       return this;

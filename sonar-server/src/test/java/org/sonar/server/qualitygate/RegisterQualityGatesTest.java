@@ -36,7 +36,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RegisterBuiltinQualityGateTest {
+public class RegisterQualityGatesTest {
 
   @Mock
   private QualityGates qualityGates;
@@ -44,15 +44,15 @@ public class RegisterBuiltinQualityGateTest {
   @Mock
   private LoadedTemplateDao templateDao;
 
-  private RegisterBuiltinQualityGate task;
+  private RegisterQualityGates task;
 
   @Before
   public void setUp() {
-    task = new RegisterBuiltinQualityGate(qualityGates, templateDao);
+    task = new RegisterQualityGates(qualityGates, templateDao);
   }
 
   @Test
-  public void should_register_builtin() {
+  public void should_register_default_gate() {
     String templateType = "QUALITY_GATE";
     String templateName = "SonarQube way";
     when(templateDao.countByTypeAndKey(templateType, templateName)).thenReturn(0);
@@ -68,10 +68,12 @@ public class RegisterBuiltinQualityGateTest {
     LoadedTemplateDto template = templateArg.getValue();
     assertThat(template.getType()).isEqualTo(templateType);
     assertThat(template.getKey()).isEqualTo(templateName);
+
+    task.stop();
   }
 
   @Test
-  public void should_not_register_builtin() {
+  public void should_not_register_default_gate_if_already_present() {
     String templateType = "QUALITY_GATE";
     String templateName = "SonarQube way";
     when(templateDao.countByTypeAndKey(templateType, templateName)).thenReturn(1);

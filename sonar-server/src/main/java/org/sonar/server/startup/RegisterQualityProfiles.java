@@ -39,13 +39,13 @@ import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.qualityprofile.ESActiveRule;
-import org.sonar.server.rule.RuleRegistration;
+import org.sonar.server.rule.RegisterRules;
 
 import java.util.*;
 
-public class RegisterNewProfiles {
+public class RegisterQualityProfiles {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(RegisterNewProfiles.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(RegisterQualityProfiles.class);
   private static final String DEFAULT_PROFILE_NAME = "Sonar way";
 
   private final List<ProfileDefinition> definitions;
@@ -56,13 +56,13 @@ public class RegisterNewProfiles {
   private final PersistentSettings settings;
   private DatabaseSession session = null;
 
-  public RegisterNewProfiles(List<ProfileDefinition> definitions,
-                             PersistentSettings settings,
-                             RuleFinder ruleFinder,
-                             ESActiveRule esActiveRule,
-                             LoadedTemplateDao loadedTemplateDao,
-                             DatabaseSessionFactory sessionFactory,
-                             RuleRegistration registerRulesBefore) {
+  public RegisterQualityProfiles(List<ProfileDefinition> definitions,
+                                 PersistentSettings settings,
+                                 RuleFinder ruleFinder,
+                                 ESActiveRule esActiveRule,
+                                 LoadedTemplateDao loadedTemplateDao,
+                                 DatabaseSessionFactory sessionFactory,
+                                 RegisterRules registerRulesBefore) {
     this.settings = settings;
     this.ruleFinder = ruleFinder;
     this.esActiveRule = esActiveRule;
@@ -71,12 +71,12 @@ public class RegisterNewProfiles {
     this.sessionFactory = sessionFactory;
   }
 
-  public RegisterNewProfiles(PersistentSettings settings,
-                             RuleFinder ruleFinder,
-                             ESActiveRule esActiveRule,
-                             LoadedTemplateDao loadedTemplateDao,
-                             DatabaseSessionFactory sessionFactory,
-                             RuleRegistration registerRulesBefore) {
+  public RegisterQualityProfiles(PersistentSettings settings,
+                                 RuleFinder ruleFinder,
+                                 ESActiveRule esActiveRule,
+                                 LoadedTemplateDao loadedTemplateDao,
+                                 DatabaseSessionFactory sessionFactory,
+                                 RegisterRules registerRulesBefore) {
     this(Collections.<ProfileDefinition>emptyList(), settings, ruleFinder, esActiveRule, loadedTemplateDao, sessionFactory, registerRulesBefore);
   }
 

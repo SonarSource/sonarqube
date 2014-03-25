@@ -39,7 +39,7 @@ import org.sonar.core.technicaldebt.db.RequirementDao;
 import org.sonar.core.technicaldebt.db.RequirementDto;
 import org.sonar.server.db.migrations.MassUpdater;
 import org.sonar.server.db.migrations.SqlUtil;
-import org.sonar.server.rule.RuleRegistration;
+import org.sonar.server.rule.RegisterRules;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -69,9 +69,9 @@ public class CopyRequirementsFromCharacteristicsToRules {
   private final RequirementDao requirementDao;
 
   /**
-   * @param ruleRegistration used only to be started after init of rules
+   * @param registerRules used only to be started after init of rules
    */
-  public CopyRequirementsFromCharacteristicsToRules(Database database, RequirementDao requirementDao, ServerUpgradeStatus status, RuleRegistration ruleRegistration) {
+  public CopyRequirementsFromCharacteristicsToRules(Database database, RequirementDao requirementDao, ServerUpgradeStatus status, RegisterRules registerRules) {
     this(database, requirementDao, status, System2.INSTANCE);
   }
 

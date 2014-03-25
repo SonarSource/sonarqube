@@ -19,30 +19,36 @@
  */
 package org.sonar.server.qualitygate;
 
+import org.picocontainer.Startable;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 import org.sonar.core.qualitygate.db.QualityGateDto;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
 
-
-public final class RegisterBuiltinQualityGate {
+public class RegisterQualityGates implements Startable {
 
   private static final String BUILTIN_QUALITY_GATE = "SonarQube way";
 
   private final QualityGates qualityGates;
   private final LoadedTemplateDao loadedTemplateDao;
 
-  public RegisterBuiltinQualityGate(QualityGates qualityGates, LoadedTemplateDao loadedTemplateDao) {
+  public RegisterQualityGates(QualityGates qualityGates, LoadedTemplateDao loadedTemplateDao) {
     this.qualityGates = qualityGates;
     this.loadedTemplateDao = loadedTemplateDao;
   }
 
+  @Override
   public void start() {
     if (shouldRegisterBuiltinQualityGate()) {
       createBuiltinQualityGate();
       registerBuiltinQualityGate();
     }
+  }
+
+  @Override
+  public void stop() {
+    // do nothing
   }
 
   private boolean shouldRegisterBuiltinQualityGate() {

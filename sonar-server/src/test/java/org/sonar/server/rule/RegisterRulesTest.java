@@ -43,7 +43,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.*;
 
-public class RuleRegistrationTest extends AbstractDaoTestCase {
+public class RegisterRulesTest extends AbstractDaoTestCase {
 
   private static final String[] EXCLUDED_COLUMN_NAMES = {"created_at", "updated_at", "note_data", "note_user_login", "note_created_at", "note_updated_at"};
   private static final String[] EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT = {"created_at", "updated_at", "note_data", "note_user_login", "note_created_at", "note_updated_at",
@@ -51,7 +51,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
     "remediation_function", "default_remediation_function", "remediation_factor", "default_remediation_factor", "remediation_offset", "default_remediation_offset",
     "effort_to_fix_description"};
 
-  RuleRegistration task;
+  RegisterRules task;
   ProfilesManager profilesManager = mock(ProfilesManager.class);
   RuleRegistry ruleRegistry = mock(RuleRegistry.class);
   ESRuleTags esRuleTags = mock(ESRuleTags.class);
@@ -74,7 +74,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
     activeRuleDao = new ActiveRuleDao(myBatis);
     ruleTagOperations = new RuleTagOperations(ruleTagDao, esRuleTags);
     characteristicDao = new CharacteristicDao(myBatis);
-    task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RulesDefinition[]{new FakeRepository()}),
+    task = new RegisterRules(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RulesDefinition[]{new FakeRepository()}),
       profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao, characteristicDao, system);
   }
 
@@ -251,7 +251,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
 
   @Test
   public void test_high_number_of_rules() {
-    task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RulesDefinition[]{new BigRepository()}),
+    task = new RegisterRules(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RulesDefinition[]{new BigRepository()}),
       profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao, characteristicDao, mock(RegisterDebtModel.class));
 
     setupData("shared");
@@ -265,7 +265,7 @@ public class RuleRegistrationTest extends AbstractDaoTestCase {
 
   @Test
   public void insert_extended_repositories() {
-    task = new RuleRegistration(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RulesDefinition[]{
+    task = new RegisterRules(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RulesDefinition[]{
       new FindbugsRepository(), new FbContribRepository()}),
       profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao, characteristicDao, mock(RegisterDebtModel.class)
     );

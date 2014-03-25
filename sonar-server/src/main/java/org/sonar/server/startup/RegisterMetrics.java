@@ -80,7 +80,7 @@ public class RegisterMetrics {
     return newArrayList(Iterables.filter(metrics, new Predicate<Metric>() {
       @Override
       public boolean apply(Metric metric) {
-        // It should be better to use the template mechanism (as it's done in #RegisterNewDashboards to register provided user manager metrics
+        // It should be better to use the template mechanism (as it's done in #RegisterDashboards to register provided user manager metrics
         return !metric.getUserManaged() || measuresDao.getMetric(metric) == null;
       }
     }));

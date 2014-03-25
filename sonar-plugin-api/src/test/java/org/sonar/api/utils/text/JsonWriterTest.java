@@ -23,8 +23,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.api.utils.text.WriterException;
 
 import java.io.IOException;
 import java.io.StringWriter;

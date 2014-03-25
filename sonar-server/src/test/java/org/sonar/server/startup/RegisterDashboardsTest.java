@@ -49,8 +49,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.MoreConditions.contains;
 
-public class RegisterNewDashboardsTest {
-  private RegisterNewDashboards task;
+public class RegisterDashboardsTest {
+  private RegisterDashboards task;
   private DashboardDao dashboardDao;
   private ActiveDashboardDao activeDashboardDao;
   private LoadedTemplateDao loadedTemplateDao;
@@ -63,7 +63,7 @@ public class RegisterNewDashboardsTest {
     loadedTemplateDao = mock(LoadedTemplateDao.class);
     fakeDashboardTemplate = mock(DashboardTemplate.class);
 
-    task = new RegisterNewDashboards(new DashboardTemplate[] {fakeDashboardTemplate}, dashboardDao,
+    task = new RegisterDashboards(new DashboardTemplate[] {fakeDashboardTemplate}, dashboardDao,
         activeDashboardDao, loadedTemplateDao);
   }
 
@@ -76,6 +76,8 @@ public class RegisterNewDashboardsTest {
     verify(dashboardDao).insert(any(DashboardDto.class));
     verify(loadedTemplateDao).insert(any(LoadedTemplateDto.class));
     verify(activeDashboardDao).insert(any(ActiveDashboardDto.class));
+
+    task.stop();
   }
 
   @Test
@@ -156,7 +158,7 @@ public class RegisterNewDashboardsTest {
 
   @Test
   public void defaultDashboardShouldBeTheFirstActivatedDashboard() {
-    DashboardDto defaultDashboard = new DashboardDto().setId(10L).setName(RegisterNewDashboards.DEFAULT_DASHBOARD_NAME);
+    DashboardDto defaultDashboard = new DashboardDto().setId(10L).setName(RegisterDashboards.DEFAULT_DASHBOARD_NAME);
     DashboardDto second = new DashboardDto().setId(11L).setName("Bar");
     DashboardDto third = new DashboardDto().setId(12L).setName("Foo");
     List<DashboardDto> dashboards = Arrays.asList(third, defaultDashboard, second);

@@ -32,30 +32,27 @@ import org.sonar.api.utils.FieldUtils2;
 import org.sonar.check.Cardinality;
 
 import javax.annotation.CheckForNull;
-
 import java.lang.reflect.Field;
 import java.util.List;
 
 /**
- * Read definitions of rules based on the annotations provided by sonar-check-api.
- * </p>
- * It is internally used by {@link RulesDefinition} and can't be directly
- * used by plugins.
+ * Read definitions of rules based on the annotations provided by sonar-check-api. It is used
+ * to feed {@link RulesDefinition}.
  *
- * @since 4.2
+ * @since 4.3
  */
-class RuleDefinitionsFromAnnotations {
+public class RulesDefinitionAnnotationLoader {
 
-  private static final Logger LOG = LoggerFactory.getLogger(RuleDefinitionsFromAnnotations.class);
+  private static final Logger LOG = LoggerFactory.getLogger(RulesDefinitionAnnotationLoader.class);
 
-  void loadRules(RulesDefinition.NewRepository repo, Class... annotatedClasses) {
+  public void load(RulesDefinition.NewExtendedRepository repo, Class... annotatedClasses) {
     for (Class annotatedClass : annotatedClasses) {
       loadRule(repo, annotatedClass);
     }
   }
 
   @CheckForNull
-  RulesDefinition.NewRule loadRule(RulesDefinition.NewRepository repo, Class clazz) {
+  RulesDefinition.NewRule loadRule(RulesDefinition.NewExtendedRepository repo, Class clazz) {
     org.sonar.check.Rule ruleAnnotation = AnnotationUtils.getAnnotation(clazz, org.sonar.check.Rule.class);
     if (ruleAnnotation != null) {
       return loadRule(repo, clazz, ruleAnnotation);
@@ -65,7 +62,7 @@ class RuleDefinitionsFromAnnotations {
     }
   }
 
-  private RulesDefinition.NewRule loadRule(RulesDefinition.NewRepository repo, Class clazz, org.sonar.check.Rule ruleAnnotation) {
+  private RulesDefinition.NewRule loadRule(RulesDefinition.NewExtendedRepository repo, Class clazz, org.sonar.check.Rule ruleAnnotation) {
     String ruleKey = StringUtils.defaultIfEmpty(ruleAnnotation.key(), clazz.getCanonicalName());
     String ruleName = StringUtils.defaultIfEmpty(ruleAnnotation.name(), null);
     String description = StringUtils.defaultIfEmpty(ruleAnnotation.description(), null);
@@ -114,7 +111,8 @@ class RuleDefinitionsFromAnnotations {
       .put(Boolean.class, RuleParamType.BOOLEAN)
       .put(boolean.class, RuleParamType.BOOLEAN)
       .build(),
-    RuleParamType.STRING);
+    RuleParamType.STRING
+  );
 
   @VisibleForTesting
   static RuleParamType guessType(Class<?> type) {

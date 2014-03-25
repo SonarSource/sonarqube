@@ -21,6 +21,7 @@ package org.sonar.server.startup;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
+import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.TimeProfiler;
@@ -38,8 +39,8 @@ import java.util.Map.Entry;
 /**
  * @since 2.13
  */
-public final class RegisterNewDashboards {
-  private static final Logger LOG = LoggerFactory.getLogger(RegisterNewDashboards.class);
+public class RegisterDashboards implements Startable {
+  private static final Logger LOG = LoggerFactory.getLogger(RegisterDashboards.class);
 
   static final String DEFAULT_DASHBOARD_NAME = "Dashboard";
 
@@ -48,14 +49,15 @@ public final class RegisterNewDashboards {
   private final ActiveDashboardDao activeDashboardDao;
   private final LoadedTemplateDao loadedTemplateDao;
 
-  public RegisterNewDashboards(DashboardTemplate[] dashboardTemplatesArray, DashboardDao dashboardDao,
-                               ActiveDashboardDao activeDashboardDao, LoadedTemplateDao loadedTemplateDao) {
+  public RegisterDashboards(DashboardTemplate[] dashboardTemplatesArray, DashboardDao dashboardDao,
+                            ActiveDashboardDao activeDashboardDao, LoadedTemplateDao loadedTemplateDao) {
     this.dashboardTemplates = Lists.newArrayList(dashboardTemplatesArray);
     this.dashboardDao = dashboardDao;
     this.activeDashboardDao = activeDashboardDao;
     this.loadedTemplateDao = loadedTemplateDao;
   }
 
+  @Override
   public void start() {
     TimeProfiler profiler = new TimeProfiler(LOG).start("Register dashboards");
 
@@ -73,6 +75,11 @@ public final class RegisterNewDashboards {
     activate(registeredDashboards);
 
     profiler.stop();
+  }
+
+  @Override
+  public void stop() {
+    // nothing to do
   }
 
   protected void activate(List<DashboardDto> loadedDashboards) {

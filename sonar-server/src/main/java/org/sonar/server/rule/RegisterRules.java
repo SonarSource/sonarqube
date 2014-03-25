@@ -57,9 +57,9 @@ import static com.google.common.collect.Lists.newArrayList;
  *
  * @since 4.2
  */
-public class RuleRegistration implements Startable {
+public class RegisterRules implements Startable {
 
-  private static final Logger LOG = LoggerFactory.getLogger(RuleRegistration.class);
+  private static final Logger LOG = LoggerFactory.getLogger(RegisterRules.class);
 
   private final RuleDefinitionsLoader defLoader;
   private final ProfilesManager profilesManager;
@@ -76,17 +76,17 @@ public class RuleRegistration implements Startable {
   /**
    * @param registerDebtModel used only to be started after init of the technical debt model
    */
-  public RuleRegistration(RuleDefinitionsLoader defLoader, ProfilesManager profilesManager,
-                          RuleRegistry ruleRegistry, ESRuleTags esRuleTags, RuleTagOperations ruleTagOperations,
-                          MyBatis myBatis, RuleDao ruleDao, RuleTagDao ruleTagDao, ActiveRuleDao activeRuleDao, CharacteristicDao characteristicDao,
-                          RegisterDebtModel registerDebtModel) {
+  public RegisterRules(RuleDefinitionsLoader defLoader, ProfilesManager profilesManager,
+                       RuleRegistry ruleRegistry, ESRuleTags esRuleTags, RuleTagOperations ruleTagOperations,
+                       MyBatis myBatis, RuleDao ruleDao, RuleTagDao ruleTagDao, ActiveRuleDao activeRuleDao, CharacteristicDao characteristicDao,
+                       RegisterDebtModel registerDebtModel) {
     this(defLoader, profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao, characteristicDao, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  RuleRegistration(RuleDefinitionsLoader defLoader, ProfilesManager profilesManager,
-                   RuleRegistry ruleRegistry, ESRuleTags esRuleTags, RuleTagOperations ruleTagOperations,
-                   MyBatis myBatis, RuleDao ruleDao, RuleTagDao ruleTagDao, ActiveRuleDao activeRuleDao, CharacteristicDao characteristicDao, System2 system) {
+  RegisterRules(RuleDefinitionsLoader defLoader, ProfilesManager profilesManager,
+                RuleRegistry ruleRegistry, ESRuleTags esRuleTags, RuleTagOperations ruleTagOperations,
+                MyBatis myBatis, RuleDao ruleDao, RuleTagDao ruleTagDao, ActiveRuleDao activeRuleDao, CharacteristicDao characteristicDao, System2 system) {
     this.defLoader = defLoader;
     this.profilesManager = profilesManager;
     this.ruleRegistry = ruleRegistry;

@@ -28,10 +28,12 @@ import org.sonar.check.Priority;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class RulesDefinitionFromAnnotationsTest {
+public class RulesDefinitionAnnotationLoaderTest {
 
   @org.junit.Rule
   public final ExpectedException thrown = ExpectedException.none();
+
+  RulesDefinitionAnnotationLoader annotationLoader = new RulesDefinitionAnnotationLoader();
 
   @Test
   public void rule_with_property() {
@@ -57,7 +59,7 @@ public class RulesDefinitionFromAnnotationsTest {
   public void override_annotation_programmatically() {
     RulesDefinition.Context context = new RulesDefinition.Context();
     RulesDefinition.NewRepository newRepository = context.createRepository("squid", "java");
-    NewRule newRule = newRepository.loadAnnotatedClass(RuleWithProperty.class);
+    NewRule newRule = annotationLoader.loadRule(newRepository, RuleWithProperty.class);
     newRule.setName("Overriden name");
     newRule.param("property").setDefaultValue("true");
     newRule.param("property").setDescription("Overriden");
@@ -102,14 +104,14 @@ public class RulesDefinitionFromAnnotationsTest {
 
   @Test
   public void should_recognize_type() {
-    assertThat(RuleDefinitionsFromAnnotations.guessType(Integer.class)).isEqualTo(RuleParamType.INTEGER);
-    assertThat(RuleDefinitionsFromAnnotations.guessType(int.class)).isEqualTo(RuleParamType.INTEGER);
-    assertThat(RuleDefinitionsFromAnnotations.guessType(Float.class)).isEqualTo(RuleParamType.FLOAT);
-    assertThat(RuleDefinitionsFromAnnotations.guessType(float.class)).isEqualTo(RuleParamType.FLOAT);
-    assertThat(RuleDefinitionsFromAnnotations.guessType(Boolean.class)).isEqualTo(RuleParamType.BOOLEAN);
-    assertThat(RuleDefinitionsFromAnnotations.guessType(boolean.class)).isEqualTo(RuleParamType.BOOLEAN);
-    assertThat(RuleDefinitionsFromAnnotations.guessType(String.class)).isEqualTo(RuleParamType.STRING);
-    assertThat(RuleDefinitionsFromAnnotations.guessType(Object.class)).isEqualTo(RuleParamType.STRING);
+    assertThat(RulesDefinitionAnnotationLoader.guessType(Integer.class)).isEqualTo(RuleParamType.INTEGER);
+    assertThat(RulesDefinitionAnnotationLoader.guessType(int.class)).isEqualTo(RuleParamType.INTEGER);
+    assertThat(RulesDefinitionAnnotationLoader.guessType(Float.class)).isEqualTo(RuleParamType.FLOAT);
+    assertThat(RulesDefinitionAnnotationLoader.guessType(float.class)).isEqualTo(RuleParamType.FLOAT);
+    assertThat(RulesDefinitionAnnotationLoader.guessType(Boolean.class)).isEqualTo(RuleParamType.BOOLEAN);
+    assertThat(RulesDefinitionAnnotationLoader.guessType(boolean.class)).isEqualTo(RuleParamType.BOOLEAN);
+    assertThat(RulesDefinitionAnnotationLoader.guessType(String.class)).isEqualTo(RuleParamType.STRING);
+    assertThat(RulesDefinitionAnnotationLoader.guessType(Object.class)).isEqualTo(RuleParamType.STRING);
   }
 
   @Test
@@ -143,8 +145,8 @@ public class RulesDefinitionFromAnnotationsTest {
 
   private RulesDefinition.Repository load(Class annotatedClass) {
     RulesDefinition.Context context = new RulesDefinition.Context();
-    RulesDefinition.NewExtendedRepository newRepository = context.createRepository("squid", "java")
-      .loadAnnotatedClasses(annotatedClass);
+    RulesDefinition.NewExtendedRepository newRepository = context.createRepository("squid", "java");
+    annotationLoader.load(newRepository, annotatedClass);
     newRepository.done();
     return context.repository("squid");
   }

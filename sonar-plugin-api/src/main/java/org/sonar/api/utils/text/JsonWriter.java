@@ -26,6 +26,27 @@ import java.io.Writer;
 import java.util.Date;
 
 /**
+ * Writes JSON as a stream. This class allows plugins to not directly depend
+ * on the underlying JSON library.
+ *
+ * <h3>How to use</h3>
+ * <pre>
+ *   StringWriter json = new StringWriter();
+ *   JsonWriter writer = JsonWriter.of(json);
+ *   writer
+ *     .beginObject()
+ *     .prop("aBoolean", true)
+ *     .prop("aInt", 123)
+ *     .prop("aString", "foo")
+ *     .beginObject().name("aList")
+ *       .beginArray()
+ *         .beginObject().prop("key", "ABC").endObject()
+ *         .beginObject().prop("key", "DEF").endObject()
+ *       .endArray()
+ *     .endObject()
+ *     .close();
+ * </pre>
+ *
  * @since 4.2
  */
 public class JsonWriter {
@@ -64,6 +85,7 @@ public class JsonWriter {
 
   /**
    * Ends encoding the current array. Output is <code>]</code>.
+   *
    * @throws org.sonar.api.utils.text.WriterException on any failure
    */
   public JsonWriter endArray() {
@@ -78,6 +100,7 @@ public class JsonWriter {
   /**
    * Begins encoding a new object. Each call to this method must be paired
    * with a call to {@link #endObject}. Output is <code>{</code>.
+   *
    * @throws org.sonar.api.utils.text.WriterException on any failure
    */
   public JsonWriter beginObject() {
@@ -91,6 +114,7 @@ public class JsonWriter {
 
   /**
    * Ends encoding the current object. Output is <code>}</code>.
+   *
    * @throws org.sonar.api.utils.text.WriterException on any failure
    */
   public JsonWriter endObject() {
@@ -104,6 +128,7 @@ public class JsonWriter {
 
   /**
    * Encodes the property name. Output is <code>"theName":</code>.
+   *
    * @throws org.sonar.api.utils.text.WriterException on any failure
    */
   public JsonWriter name(String name) {
@@ -117,6 +142,7 @@ public class JsonWriter {
 
   /**
    * Encodes {@code value}. Output is <code>true</code> or <code>false</code>.
+   *
    * @throws org.sonar.api.utils.text.WriterException on any failure
    */
   public JsonWriter value(boolean value) {
@@ -157,7 +183,7 @@ public class JsonWriter {
    */
   public JsonWriter valueDate(@Nullable Date value) {
     try {
-      stream.value(value==null ? null : DateUtils.formatDate(value));
+      stream.value(value == null ? null : DateUtils.formatDate(value));
       return this;
     } catch (Exception e) {
       throw rethrow(e);
@@ -166,7 +192,7 @@ public class JsonWriter {
 
   public JsonWriter valueDateTime(@Nullable Date value) {
     try {
-      stream.value(value==null ? null : DateUtils.formatDateTime(value));
+      stream.value(value == null ? null : DateUtils.formatDateTime(value));
       return this;
     } catch (Exception e) {
       throw rethrow(e);
@@ -199,6 +225,7 @@ public class JsonWriter {
 
   /**
    * Encodes the property name and value. Output is for example <code>"theName":123</code>.
+   *
    * @throws org.sonar.api.utils.text.WriterException on any failure
    */
   public JsonWriter prop(String name, @Nullable Number value) {
@@ -208,6 +235,7 @@ public class JsonWriter {
   /**
    * Encodes the property name and date value (ISO format).
    * Output is for example <code>"theDate":"2013-01-24"</code>.
+   *
    * @throws org.sonar.api.utils.text.WriterException on any failure
    */
   public JsonWriter propDate(String name, @Nullable Date value) {
@@ -217,6 +245,7 @@ public class JsonWriter {
   /**
    * Encodes the property name and datetime value (ISO format).
    * Output is for example <code>"theDate":"2013-01-24T13:12:45+01"</code>.
+   *
    * @throws org.sonar.api.utils.text.WriterException on any failure
    */
   public JsonWriter propDateTime(String name, @Nullable Date value) {
