@@ -22,6 +22,7 @@ package org.sonar.server.platform.ws;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WsTester;
+import org.sonar.api.utils.System2;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.Platform;
 
@@ -29,15 +30,20 @@ import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class RestartHandlerTest {
+
+  System2 system = mock(System2.class);
 
   @Test
   public void restart_if_dev_mode() throws Exception {
     Platform platform = mock(Platform.class);
     Settings settings = new Settings();
     settings.setProperty("sonar.dev", true);
-    RestartHandler restartHandler = new RestartHandler(settings, platform);
+    when(system.isOsWindows()).thenReturn(false);
+
+    RestartHandler restartHandler = new RestartHandler(settings, platform, system);
     SystemWs ws = new SystemWs(restartHandler);
 
     WsTester tester = new WsTester(ws);
@@ -50,7 +56,27 @@ public class RestartHandlerTest {
   public void fail_if_production_mode() throws Exception {
     Platform platform = mock(Platform.class);
     Settings settings = new Settings();
-    RestartHandler restartHandler = new RestartHandler(settings, platform);
+    RestartHandler restartHandler = new RestartHandler(settings, platform, system);
+    SystemWs ws = new SystemWs(restartHandler);
+
+    WsTester tester = new WsTester(ws);
+    try {
+      tester.newRequest("restart").execute();
+      fail();
+    } catch (ForbiddenException e) {
+      verifyZeroInteractions(platform);
+    }
+  }
+
+  @Test
+  public void fail_if_windows_java_6() throws Exception {
+    Platform platform = mock(Platform.class);
+    Settings settings = new Settings();
+    settings.setProperty("sonar.dev", true);
+    when(system.isOsWindows()).thenReturn(true);
+    when(system.isJavaAtLeast17()).thenReturn(false);
+
+    RestartHandler restartHandler = new RestartHandler(settings, platform, system);
     SystemWs ws = new SystemWs(restartHandler);
 
     WsTester tester = new WsTester(ws);

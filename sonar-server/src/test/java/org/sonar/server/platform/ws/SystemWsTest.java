@@ -22,6 +22,7 @@ package org.sonar.server.platform.ws;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.System2;
 import org.sonar.server.platform.Platform;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -33,7 +34,7 @@ public class SystemWsTest {
   public void define() throws Exception {
     Platform platform = mock(Platform.class);
     Settings settings = new Settings();
-    RestartHandler restartHandler = new RestartHandler(settings, platform);
+    RestartHandler restartHandler = new RestartHandler(settings, platform, mock(System2.class));
     SystemWs ws = new SystemWs(restartHandler);
     WebService.Context context = new WebService.Context();
 

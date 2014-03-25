@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.System2;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.Platform;
 
@@ -33,22 +34,25 @@ public class RestartHandler implements RequestHandler {
 
   private final Settings settings;
   private final Platform platform;
+  private final System2 system;
 
-  public RestartHandler(Settings settings, Platform platform) {
+  public RestartHandler(Settings settings, Platform platform, System2 system) {
     this.settings = settings;
     this.platform = platform;
+    this.system = system;
   }
 
   void define(WebService.NewController controller) {
     controller.createAction("restart")
-      .setDescription("Restart server. Available only on development mode (sonar.dev=true)")
+      .setDescription("Restart server. Available only on development mode (sonar.dev=true), except when using Java 6 " +
+        "on MS Windows.")
       .setPost(true)
       .setHandler(this);
   }
 
   @Override
   public void handle(Request request, Response response) {
-    if (settings.getBoolean("sonar.dev")) {
+    if (canRestart()) {
       Logger logger = LoggerFactory.getLogger(getClass());
       logger.info("Restart server");
       platform.restart();
@@ -59,4 +63,13 @@ public class RestartHandler implements RequestHandler {
       throw new ForbiddenException();
     }
   }
+
+  private boolean canRestart() {
+    boolean ok = settings.getBoolean("sonar.dev");
+    if (ok) {
+      ok = !system.isOsWindows() || system.isJavaAtLeast17();
+    }
+    return ok;
+  }
+
 }
