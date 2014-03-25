@@ -18,9 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.server.rule;
+package org.sonar.api.server.debt;
 
+import org.junit.Ignore;
 import org.junit.Test;
+import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -28,7 +30,7 @@ import static org.fest.assertions.Fail.fail;
 public class DefaultDebtRemediationFunctionTest {
 
   @Test
-  public void create_linear() throws Exception {
+  public void create_linear() {
     DebtRemediationFunction function = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, "10h", null);
     assertThat(function.type()).isEqualTo(DefaultDebtRemediationFunction.Type.LINEAR);
     assertThat(function.factor()).isEqualTo("10h");
@@ -36,7 +38,7 @@ public class DefaultDebtRemediationFunctionTest {
   }
 
   @Test
-  public void create_linear_with_offset() throws Exception {
+  public void create_linear_with_offset() {
     DebtRemediationFunction function = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "10h", "5min");
     assertThat(function.type()).isEqualTo(DefaultDebtRemediationFunction.Type.LINEAR_OFFSET);
     assertThat(function.factor()).isEqualTo("10h");
@@ -44,7 +46,7 @@ public class DefaultDebtRemediationFunctionTest {
   }
 
   @Test
-  public void create_constant_per_issue() throws Exception {
+  public void create_constant_per_issue() {
     DebtRemediationFunction function = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, "10h");
     assertThat(function.type()).isEqualTo(DefaultDebtRemediationFunction.Type.CONSTANT_ISSUE);
     assertThat(function.factor()).isNull();
@@ -53,74 +55,74 @@ public class DefaultDebtRemediationFunctionTest {
 
   @Test
   public void sanitize_remediation_factor_and_offset() {
-    DebtRemediationFunction function = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "  1  h   ", "  10   mi n");
+    DebtRemediationFunction function = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "  1  h   ", "  10   min");
 
     assertThat(function.factor()).isEqualTo("1h");
     assertThat(function.offset()).isEqualTo("10min");
   }
 
   @Test
-  public void fail_to_create_linear_when_no_factor() throws Exception {
+  public void fail_to_create_linear_when_no_factor() {
     try {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, null, "10h");
       fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(DefaultDebtRemediationFunction.ValidationException.class);
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Only factor must be set on DebtRemediationFunction{type=LINEAR, factor=null, offset=10h}");
     }
   }
 
   @Test
-  public void fail_to_create_linear_when_offset() throws Exception {
+  public void fail_to_create_linear_when_offset() {
     try {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, "5min", "10h");
       fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(DefaultDebtRemediationFunction.ValidationException.class);
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Only factor must be set on DebtRemediationFunction{type=LINEAR, factor=5min, offset=10h}");
     }
   }
 
   @Test
-  public void fail_to_create_constant_per_issue_when_no_offset() throws Exception {
+  public void fail_to_create_constant_per_issue_when_no_offset() {
     try {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, "10h", null);
       fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(DefaultDebtRemediationFunction.ValidationException.class);
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Only offset must be set on DebtRemediationFunction{type=CONSTANT_ISSUE, factor=10h, offset=null}");
     }
   }
 
   @Test
-  public void fail_to_create_constant_per_issue_when_factor() throws Exception {
+  public void fail_to_create_constant_per_issue_when_factor() {
     try {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, "5min", "10h");
       fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(DefaultDebtRemediationFunction.ValidationException.class);
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Only offset must be set on DebtRemediationFunction{type=CONSTANT_ISSUE, factor=5min, offset=10h}");
     }
   }
 
   @Test
-  public void fail_to_create_linear_with_offset_when_no_factor() throws Exception {
+  public void fail_to_create_linear_with_offset_when_no_factor() {
     try {
-      new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, null, "10h");
+      new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "", "10h");
       fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(DefaultDebtRemediationFunction.ValidationException.class);
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Both factor and offset are required on DebtRemediationFunction{type=LINEAR_OFFSET, factor=null, offset=10h}");
     }
   }
 
   @Test
-  public void fail_to_create_linear_with_offset_when_no_offset() throws Exception {
+  public void fail_to_create_linear_with_offset_when_no_offset() {
     try {
-      new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "5min", null);
+      new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "5min", "");
       fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(DefaultDebtRemediationFunction.ValidationException.class);
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Both factor and offset are required on DebtRemediationFunction{type=LINEAR_OFFSET, factor=5min, offset=null}");
     }
   }
 
   @Test
-  public void test_equals_and_hashcode() throws Exception {
+  public void test_equals_and_hashcode() {
     DebtRemediationFunction function = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "10h", "5min");
     DebtRemediationFunction functionWithSameValue = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "10h", "5min");
     DebtRemediationFunction functionWithDifferentType = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, "5min");
@@ -140,8 +142,20 @@ public class DefaultDebtRemediationFunctionTest {
   }
 
   @Test
-  public void test_to_string() throws Exception {
-    assertThat(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "10h", "5min").toString()).isNotNull();
+  public void test_to_string() {
+    assertThat(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "10h", "5min").toString())
+      .isEqualTo("DebtRemediationFunction{type=LINEAR_OFFSET, factor=10h, offset=5min}");
   }
 
+  @Ignore
+  @Test
+  public void fail_if_bad_factor_format() {
+    try {
+      new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, "foo", null);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("TODO");
+    }
+
+  }
 }

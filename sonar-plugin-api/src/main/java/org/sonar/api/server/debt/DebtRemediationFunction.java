@@ -18,20 +18,29 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.server.rule;
+package org.sonar.api.server.debt;
 
 import javax.annotation.CheckForNull;
 
 /**
+ * Function used to calculate the remediation cost of an issue. There are three types :
+ * <ul>
+ * <li>
+ * <b>Linear</b> - Each issue of the rule costs the same amount of time (factor) to fix.
+ * </li>
+ * <li>
+ * <b>Linear with offset</b> - It takes a certain amount of time to analyze the issues of such kind on the file (offset).
+ * Then, each issue of the rule costs the same amount of time (factor) to fix. Total remediation cost
+ * by file = offset + (number of issues x factor)
+ * </li>
+ * <li><b>Constant/issue</b> - The cost to fix all the issues of the rule is the same whatever the number of issues
+ * of this rule in the file. Total remediation cost by file = constant
+ * </li>
+ * </ul>
+ *
  * @since 4.3
  */
 public interface DebtRemediationFunction {
-
-  static class ValidationException extends RuntimeException {
-    public ValidationException(String message) {
-      super(message);
-    }
-  }
 
   static enum Type {
     LINEAR, LINEAR_OFFSET, CONSTANT_ISSUE
@@ -39,9 +48,15 @@ public interface DebtRemediationFunction {
 
   Type type();
 
+  /**
+   * Factor is set on types {@link Type#LINEAR} and {@link Type#LINEAR_OFFSET}, else it's null.
+   */
   @CheckForNull
   String factor();
 
+  /**
+   * Offset is set on types {@link Type#LINEAR_OFFSET} and {@link Type#CONSTANT_ISSUE}, else it's null.
+   */
   @CheckForNull
   String offset();
 

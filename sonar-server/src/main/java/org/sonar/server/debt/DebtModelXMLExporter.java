@@ -29,7 +29,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtCharacteristic;
-import org.sonar.api.server.rule.DebtRemediationFunction;
+import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.xml.sax.InputSource;
 
 import javax.annotation.CheckForNull;

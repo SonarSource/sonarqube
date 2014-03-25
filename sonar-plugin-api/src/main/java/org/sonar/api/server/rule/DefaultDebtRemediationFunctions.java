@@ -17,14 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.api.server.rule;
 
+import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.api.utils.MessageException;
 
 import javax.annotation.Nullable;
 
-class DefaultDebtRemediationFunctions implements DebtRemediationFunctions {
+/**
+ * Factory of {@link org.sonar.api.server.debt.DebtRemediationFunction} that keeps
+ * a context of rule for better error messages. Used only when declaring rules.
+ *
+ * @see org.sonar.api.server.rule.RulesDefinition
+ */
+class DefaultDebtRemediationFunctions implements RulesDefinition.DebtRemediationFunctions {
 
   private final String repoKey, key;
 
@@ -51,7 +58,7 @@ class DefaultDebtRemediationFunctions implements DebtRemediationFunctions {
   private DebtRemediationFunction create(DefaultDebtRemediationFunction.Type type, @Nullable String factor, @Nullable String offset) {
     try {
       return new DefaultDebtRemediationFunction(type, factor, offset);
-    } catch (DefaultDebtRemediationFunction.ValidationException e) {
+    } catch (Exception e) {
       throw MessageException.of(String.format("The rule '%s:%s' is invalid : %s ", this.repoKey, this.key, e.getMessage()));
     }
   }

@@ -32,7 +32,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
-import org.sonar.api.server.rule.DebtRemediationFunction;
+import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ValidationMessages;

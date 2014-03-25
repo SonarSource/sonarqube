@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.server.debt.DebtRemediationFunction;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -49,6 +50,89 @@ import java.util.Set;
  * this extension point in order to define the rules that it supports.
  * <p/>
  * This interface replaces the deprecated class org.sonar.api.rules.RuleRepository.
+ * <p/>
+ * <h3>How to use</h3>
+ * <pre>
+ * public class JsSquidRulesDefinition implements RulesDefinition {
+ *
+ *   {@literal @}Override
+ *   public void define(Context context) {
+ *     NewRepository repository = context.createRepository("js_squid", "js").setName("Javascript Squid");
+ *
+ *     // define a rule programmatically. Note that rules
+ *     // could be loaded from files (JSON, XML, ...)
+ *     NewRule x1Rule = repository.createRule("x1")
+ *      .setName("No empty line")
+ *      .setHtmlDescription("Generate an issue on empty lines")
+ *
+ *      // optional tags
+ *      .setTags("style", "stupid")
+ *
+ *     // optional status. Default value is READY.
+ *     .setStatus(RuleStatus.BETA)
+ *
+ *     // default severity when the rule is activated on a Quality profile. Default value is MAJOR.
+ *     .setSeverity(Severity.MINOR);
+ *
+ *     x1Rule
+ *       .setDebtCharacteristic("INTEGRATION_TESTABILITY")
+ *       .setDebtRemediationFunction(x1Rule.debtRemediationFunctions().linearWithOffset("1h", "30min"));
+ *
+ *     x1Rule.createParam("acceptWhitespace")
+ *       .setDefaultValue("false")
+ *       .setType(RuleParamType.BOOLEAN)
+ *       .setDescription("Accept whitespaces on the line");
+ *
+ *     // don't forget to call done() to finalize the definition
+ *     repository.done();
+ *   }
+ * }
+ * </pre>
+ * <p/>
+ * If rules are declared in a XML file with the standard SonarQube format, then it can be loaded by using :
+ *
+ * <pre>
+ * public class JsSquidRulesDefinition implements RulesDefinition {
+ *
+ *   private final RulesDefinitionXmlLoader xmlLoader;
+ *
+ *   public JsSquidRulesDefinition(RulesDefinitionXmlLoader xmlLoader) {
+ *     this.xmlLoader = xmlLoader;
+ *   }
+ *
+ *   {@literal @}Override
+ *   public void define(Context context) {
+ *     NewRepository repository = context.createRepository("js_squid", "js").setName("Javascript Squid");
+ *     // see javadoc of RulesDefinitionXmlLoader for the format
+ *     xmlLoader.load(repository, getClass().getResourceAsStream("/path/to/rules.xml"));
+ *     repository.done();
+ *   }
+ * }
+ * </pre>
+ *
+ * In the above example, XML file must contain name and description of each rule. If it's not the case, then the
+ * (deprecated) English bundles can be used :
+ *
+ * <pre>
+ * public class JsSquidRulesDefinition implements RulesDefinition {
+ *
+ *   private final RulesDefinitionXmlLoader xmlLoader;
+ *   private final RulesDefinitionI18nLoader i18nLoader;
+ *
+ *   public JsSquidRulesDefinition(RulesDefinitionXmlLoader xmlLoader, RulesDefinitionI18nLoader i18nLoader) {
+ *     this.xmlLoader = xmlLoader;
+ *     this.i18nLoader = i18nLoader;
+ *   }
+ *
+ *   {@literal @}Override
+ *   public void define(Context context) {
+ *     NewRepository repository = context.createRepository("js_squid", "js").setName("Javascript Squid");
+ *     xmlLoader.load(repository, getClass().getResourceAsStream("/path/to/rules.xml"));
+ *     i18nLoader.load(repository);
+ *     repository.done();
+ *   }
+ * }
+ * </pre>
  *
  * @since 4.3
  */
@@ -278,6 +362,15 @@ public interface RulesDefinition extends ServerExtension {
     }
   }
 
+  interface DebtRemediationFunctions {
+    DebtRemediationFunction linear(String factor);
+
+    DebtRemediationFunction linearWithOffset(String factor, String offset);
+
+    DebtRemediationFunction constantPerIssue(String offset);
+  }
+
+
   class NewRule {
     private final String repoKey, key;
     private String name, htmlDescription, internalKey, severity = Severity.MAJOR;
@@ -288,7 +381,7 @@ public interface RulesDefinition extends ServerExtension {
     private String effortToFixDescription;
     private final Set<String> tags = Sets.newTreeSet();
     private final Map<String, NewParam> paramsByKey = Maps.newHashMap();
-    private final DefaultDebtRemediationFunctions functions;
+    private final DebtRemediationFunctions functions;
 
     private NewRule(String repoKey, String key) {
       this.repoKey = repoKey;
@@ -356,13 +449,16 @@ public interface RulesDefinition extends ServerExtension {
       return functions;
     }
 
-    public NewRule setDebtRemediationFunction(@Nullable DebtRemediationFunction debtRemediationFunction) {
-      this.debtRemediationFunction = debtRemediationFunction;
+    /**
+     * @see #debtRemediationFunctions()
+     */
+    public NewRule setDebtRemediationFunction(@Nullable DebtRemediationFunction fn) {
+      this.debtRemediationFunction = fn;
       return this;
     }
 
-    public NewRule setEffortToFixDescription(@Nullable String effortToFixDescription) {
-      this.effortToFixDescription = effortToFixDescription;
+    public NewRule setEffortToFixDescription(@Nullable String s) {
+      this.effortToFixDescription = s;
       return this;
     }
 

@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
-import org.sonar.api.server.rule.DebtRemediationFunction;
+import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.test.TestUtils;
 
 import java.io.IOException;

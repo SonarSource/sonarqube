@@ -39,7 +39,7 @@ import java.util.Map;
  * <p/>
  * The classes implementing this extension point must be declared in {@link org.sonar.api.SonarPlugin#getExtensions()}.
  *
- * <h2>How to use</h2>
+ * <h3>How to use</h3>
  * <pre>
  * public class HelloWs implements WebService {
  *   {@literal @}Override
@@ -66,7 +66,7 @@ import java.util.Map;
  *   }
  * }
  * </pre>
- * <h2>How to unit test</h2>
+ * <h3>How to test</h3>
  * <pre>
  * public class HelloWsTest {
  *   WebService ws = new HelloWs();

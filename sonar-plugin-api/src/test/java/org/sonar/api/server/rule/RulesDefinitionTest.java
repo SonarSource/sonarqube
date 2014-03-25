@@ -22,6 +22,7 @@ package org.sonar.api.server.rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.server.debt.DebtRemediationFunction;
 
 import java.net.URL;
 
@@ -63,8 +64,8 @@ public class RulesDefinitionTest {
 
   @Test
   public void define_rules() {
-    RulesDefinition.NewRepository newFindbugs = context.createRepository("findbugs", "java");
-    RulesDefinition.NewRule newFindbug = newFindbugs.createRule("NPE")
+    RulesDefinition.NewRepository newRepo = context.createRepository("findbugs", "java");
+    RulesDefinition.NewRule newRule = newRepo.createRule("NPE")
       .setName("Detect NPE")
       .setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
       .setSeverity(Severity.BLOCKER)
@@ -74,36 +75,36 @@ public class RulesDefinitionTest {
       .setEffortToFixDescription("squid.S115.effortToFix")
       .setTags("one", "two")
       .addTags("two", "three", "four");
-    newFindbug.setDebtRemediationFunction(newFindbug.debtRemediationFunctions().linearWithOffset("1h", "10min"));
+    newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linearWithOffset("1h", "10min"));
 
-    newFindbugs.createRule("ABC").setName("ABC").setHtmlDescription("ABC");
-    newFindbugs.done();
+    newRepo.createRule("ABC").setName("ABC").setHtmlDescription("ABC");
+    newRepo.done();
 
-    RulesDefinition.Repository findbugs = context.repository("findbugs");
-    assertThat(findbugs.rules()).hasSize(2);
+    RulesDefinition.Repository repo = context.repository("findbugs");
+    assertThat(repo.rules()).hasSize(2);
 
-    RulesDefinition.Rule npeRule = findbugs.rule("NPE");
-    assertThat(npeRule.key()).isEqualTo("NPE");
-    assertThat(npeRule.name()).isEqualTo("Detect NPE");
-    assertThat(npeRule.severity()).isEqualTo(Severity.BLOCKER);
-    assertThat(npeRule.htmlDescription()).isEqualTo("Detect <code>java.lang.NullPointerException</code>");
-    assertThat(npeRule.tags()).containsOnly("one", "two", "three", "four");
-    assertThat(npeRule.params()).isEmpty();
-    assertThat(npeRule.internalKey()).isEqualTo("/something");
-    assertThat(npeRule.template()).isFalse();
-    assertThat(npeRule.status()).isEqualTo(RuleStatus.BETA);
-    assertThat(npeRule.debtCharacteristic()).isEqualTo("COMPILER");
-    assertThat(npeRule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
-    assertThat(npeRule.debtRemediationFunction().factor()).isEqualTo("1h");
-    assertThat(npeRule.debtRemediationFunction().offset()).isEqualTo("10min");
-    assertThat(npeRule.effortToFixDescription()).isEqualTo("squid.S115.effortToFix");
-    assertThat(npeRule.toString()).isEqualTo("[repository=findbugs, key=NPE]");
-    assertThat(npeRule.repository()).isSameAs(findbugs);
+    RulesDefinition.Rule rule = repo.rule("NPE");
+    assertThat(rule.key()).isEqualTo("NPE");
+    assertThat(rule.name()).isEqualTo("Detect NPE");
+    assertThat(rule.severity()).isEqualTo(Severity.BLOCKER);
+    assertThat(rule.htmlDescription()).isEqualTo("Detect <code>java.lang.NullPointerException</code>");
+    assertThat(rule.tags()).containsOnly("one", "two", "three", "four");
+    assertThat(rule.params()).isEmpty();
+    assertThat(rule.internalKey()).isEqualTo("/something");
+    assertThat(rule.template()).isFalse();
+    assertThat(rule.status()).isEqualTo(RuleStatus.BETA);
+    assertThat(rule.debtCharacteristic()).isEqualTo("COMPILER");
+    assertThat(rule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
+    assertThat(rule.debtRemediationFunction().factor()).isEqualTo("1h");
+    assertThat(rule.debtRemediationFunction().offset()).isEqualTo("10min");
+    assertThat(rule.effortToFixDescription()).isEqualTo("squid.S115.effortToFix");
+    assertThat(rule.toString()).isEqualTo("[repository=findbugs, key=NPE]");
+    assertThat(rule.repository()).isSameAs(repo);
 
     // test equals() and hashCode()
-    RulesDefinition.Rule otherRule = findbugs.rule("ABC");
-    assertThat(npeRule).isEqualTo(npeRule).isNotEqualTo(otherRule).isNotEqualTo("NPE").isNotEqualTo(null);
-    assertThat(npeRule.hashCode()).isEqualTo(npeRule.hashCode());
+    RulesDefinition.Rule otherRule = repo.rule("ABC");
+    assertThat(rule).isEqualTo(rule).isNotEqualTo(otherRule).isNotEqualTo("NPE").isNotEqualTo(null);
+    assertThat(rule.hashCode()).isEqualTo(rule.hashCode());
   }
 
   @Test
@@ -239,14 +240,14 @@ public class RulesDefinitionTest {
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("Tag 'coding style' is invalid. Rule tags accept only the following characters: a-z, 0-9, '+', '-', '#', '.'");
+        .hasMessage("Tag 'coding style' is invalid. Rule tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'");
     }
   }
 
   @Test
   public void load_rule_description_from_file() {
     RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
-    newRepository.createRule("NPE").setName("NPE").setHtmlDescription(getClass().getResource("/org/sonar/api/server/rule/RuleDefinitionsTest/sample.html"));
+    newRepository.createRule("NPE").setName("NPE").setHtmlDescription(getClass().getResource("/org/sonar/api/server/rule/RulesDefinitionTest/sample.html"));
     newRepository.done();
 
     RulesDefinition.Rule rule = context.repository("findbugs").rule("NPE");

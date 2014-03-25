@@ -20,7 +20,7 @@
 package org.sonar.xoo.rule;
 
 import org.junit.Test;
-import org.sonar.api.server.rule.DebtRemediationFunction;
+import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 
 import static org.fest.assertions.Assertions.assertThat;

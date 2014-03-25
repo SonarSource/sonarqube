@@ -24,7 +24,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.server.rule.DebtRemediationFunction;
+import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.ValidationMessages;
 
 import java.io.IOException;
@@ -211,7 +211,7 @@ public class DebtRulesXMLImporterTest {
     RuleDebt ruleDebt = results.get(0);
     assertThat(ruleDebt.characteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
     assertThat(ruleDebt.ruleKey()).isEqualTo(RuleKey.of("checkstyle", "Regexp"));
-    assertThat(ruleDebt.function()).isEqualTo(org.sonar.api.server.rule.DebtRemediationFunction.Type.LINEAR);
+    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
     assertThat(ruleDebt.factor()).isEqualTo("3h");
     assertThat(ruleDebt.offset()).isNull();
   }

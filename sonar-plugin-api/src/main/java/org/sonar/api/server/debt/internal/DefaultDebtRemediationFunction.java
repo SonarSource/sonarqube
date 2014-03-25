@@ -18,29 +18,43 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.server.rule;
+package org.sonar.api.server.debt.internal;
 
+import com.google.common.base.Objects;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.api.utils.Duration;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-class DefaultDebtRemediationFunction implements DebtRemediationFunction {
+public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
 
-  private Type type;
-  private String factor;
-  private String offset;
+  private static final int HOURS_IN_DAY = 24;
+
+  private final Type type;
+  private final String factor;
+  private final String offset;
 
   public DefaultDebtRemediationFunction(Type type, @Nullable String factor, @Nullable String offset) {
     this.type = type;
     // TODO validate factor and offset format
-    this.factor = StringUtils.deleteWhitespace(factor);
-    this.offset = StringUtils.deleteWhitespace(offset);
+    this.factor = sanitizeValue("factor", factor);
+    this.offset = sanitizeValue("offset", offset);
     validate();
+  }
+
+  @CheckForNull
+  private String sanitizeValue(String label, @Nullable String s) {
+    if (StringUtils.isNotBlank(s)) {
+      try {
+        Duration duration = Duration.decode(s, HOURS_IN_DAY);
+        return duration.encode(HOURS_IN_DAY);
+      } catch (Exception e) {
+        throw new IllegalArgumentException(String.format("Invalid %s: %s", label, s), e);
+      }
+    }
+    return null;
   }
 
   @Override
@@ -64,21 +78,21 @@ class DefaultDebtRemediationFunction implements DebtRemediationFunction {
     switch (type) {
       case LINEAR:
         if (this.factor == null || this.offset != null) {
-          throw new ValidationException(String.format("%s is invalid, Linear remediation function should only define a factor", this));
+          throw new IllegalArgumentException(String.format("Only factor must be set on %s", this));
         }
         break;
       case LINEAR_OFFSET:
         if (this.factor == null || this.offset == null) {
-          throw new ValidationException(String.format("%s is invalid,  Linear with offset remediation function should define both factor and offset", this));
+          throw new IllegalArgumentException(String.format("Both factor and offset are required on %s", this));
         }
         break;
       case CONSTANT_ISSUE:
         if (this.factor != null || this.offset == null) {
-          throw new ValidationException(String.format("%s is invalid, Constant/issue remediation function should only define an offset", this));
+          throw new IllegalArgumentException(String.format("Only offset must be set on %s", this));
         }
         break;
       default:
-        throw new IllegalStateException(String.format("Remediation function of %s is unknown", this));
+        throw new IllegalArgumentException(String.format("Unknown type on %s", this));
     }
   }
 
@@ -90,26 +104,30 @@ class DefaultDebtRemediationFunction implements DebtRemediationFunction {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-
-    DebtRemediationFunction that = (DebtRemediationFunction) o;
-    return new EqualsBuilder()
-      .append(type, that.type())
-      .append(factor, that.factor())
-      .append(offset, that.offset())
-      .isEquals();
+    DefaultDebtRemediationFunction that = (DefaultDebtRemediationFunction) o;
+    if (factor != null ? !factor.equals(that.factor) : that.factor != null) {
+      return false;
+    }
+    if (offset != null ? !offset.equals(that.offset) : that.offset != null) {
+      return false;
+    }
+    return type == that.type;
   }
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder(15, 33)
-      .append(type)
-      .append(factor)
-      .append(offset)
-      .toHashCode();
+    int result = type.hashCode();
+    result = 31 * result + (factor != null ? factor.hashCode() : 0);
+    result = 31 * result + (offset != null ? offset.hashCode() : 0);
+    return result;
   }
 
   @Override
   public String toString() {
-    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
+    return Objects.toStringHelper(DebtRemediationFunction.class)
+      .add("type", type)
+      .add("factor", factor)
+      .add("offset", offset)
+      .toString();
   }
 }
