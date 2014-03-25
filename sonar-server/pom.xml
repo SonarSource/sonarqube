@@ -15,8 +15,8 @@
     <gruntTask>default</gruntTask>
 
     <!-- self-analysis -->
-    <sonar.sources>src/main/java,src/main/webapp/js</sonar.sources>
-    <sonar.exclusions>src/main/webapp/js/third-party/*,src/main/webapp/js/tests,src/main/webapp/js/require.js</sonar.exclusions>
+    <sonar.sources>src/main/java,src/main/js</sonar.sources>
+    <sonar.exclusions>src/main/js/third-party/**/*,src/main/js/require.js,src/main/js/tests/**/*</sonar.exclusions>
   </properties>
 
   <dependencies>
