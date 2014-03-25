@@ -16,8 +16,8 @@ define [
 
 
     doAction: (e) ->
-      action = jQuery(e.target).data 'action'
-      param = jQuery(e.target).data 'param'
+      action = jQuery(e.currentTarget).data 'action'
+      param = jQuery(e.currentTarget).data 'param'
       unless param
         @options.app.codingRulesBulkChangeView.show action
       else

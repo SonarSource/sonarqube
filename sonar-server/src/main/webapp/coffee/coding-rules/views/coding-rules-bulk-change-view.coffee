@@ -14,7 +14,6 @@ define [
     events:
       'submit form': 'onSubmit'
       'click #coding-rules-cancel-bulk-change': 'hide'
-      'click label': 'enableAction'
       'change select': 'enableAction'
 
 
@@ -56,10 +55,23 @@ define [
 
     prepareQuery: ->
       query = @options.app.getQuery()
-      switch @action
-        when 'activate' then _.extend query, bulk_activate: @$('#coding-rules-bulk-change-activate-on').val()
-        when 'deactivate' then _.extend query, bulk_deactivate: @$('#coding-rules-bulk-change-deactivate-on').val()
-        when 'change-severity' then _.extend query, bulk_change_severity: @$('#coding-rules-bulk-change-severity').val()
+
+      if @action == 'activate'
+        if @$('#coding-rules-bulk-change-activate-all').is ':checked'
+          _.extend query, bulk_activate: _.pluck @options.app.qualityProfiles, 'key'
+        else
+          _.extend query, bulk_activate: @$('#coding-rules-bulk-change-activate-on').val()
+
+      if @action == 'deactivate'
+        if @$('#coding-rules-bulk-change-deactivate-all').is ':checked'
+          _.extend query, bulk_deactivate: _.pluck @options.app.qualityProfiles, 'key'
+        else
+          _.extend query, bulk_deactivate: @$('#coding-rules-bulk-change-deactivate-on').val()
+
+      if @action == 'change-severity'
+        _.extend query, bulk_change_severity: @$('#coding-rules-bulk-change-severity').val()
+
+      query
 
 
     bulkChange: (query) ->
@@ -70,14 +82,10 @@ define [
       .done =>
         @options.app.fetchFirstPage()
 
+
     onSubmit: (e) ->
       e.preventDefault()
       @bulkChange(@prepareQuery()).done => @hide()
-
-
-
-    enableAction: (e) ->
-      jQuery(e.target).siblings('input[type=checkbox]').prop 'checked', true
 
 
     serializeData: ->
