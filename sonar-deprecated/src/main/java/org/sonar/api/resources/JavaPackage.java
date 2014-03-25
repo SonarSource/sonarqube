@@ -35,50 +35,54 @@ public class JavaPackage extends Resource {
   }
 
   public JavaPackage(String deprecatedKey) {
-    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
+    throw unsupported();
   }
 
   public boolean isDefault() {
-    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
+    throw unsupported();
   }
 
   @Override
   public boolean matchFilePattern(String antPattern) {
-    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
+    throw unsupported();
   }
 
   @Override
   public String getDescription() {
-    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
+    throw unsupported();
   }
 
   @Override
   public String getScope() {
-    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
+    throw unsupported();
   }
 
   @Override
   public String getQualifier() {
-    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
+    throw unsupported();
   }
 
   @Override
   public String getName() {
-    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
+    throw unsupported();
   }
 
   @Override
   public Resource getParent() {
-    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
+    throw unsupported();
   }
 
   @Override
   public String getLongName() {
-    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
+    throw unsupported();
   }
 
   @Override
   public Language getLanguage() {
+    throw unsupported();
+  }
+
+  private static UnsupportedOperationException unsupported() {
     throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
   }
 }
