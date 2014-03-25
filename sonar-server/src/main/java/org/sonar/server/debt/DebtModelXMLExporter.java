@@ -228,14 +228,13 @@ public class DebtModelXMLExporter implements ServerComponent {
       }, null);
     }
 
-    @CheckForNull
     public DebtCharacteristic characteristicById(final Integer id) {
       return Iterables.find(characteristicsByRootKey.values(), new Predicate<DebtCharacteristic>() {
         @Override
         public boolean apply(DebtCharacteristic input) {
           return id.equals(input.id());
         }
-      }, null);
+      });
     }
 
     private List<DebtCharacteristic> sortByOrder(List<DebtCharacteristic> characteristics) {

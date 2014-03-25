@@ -238,7 +238,7 @@ public class DebtModelBackup implements ServerComponent {
 
     List<CharacteristicDto> result = newArrayList();
 
-    // Restore not existing characteristics
+    // Create new characteristics
     for (DebtCharacteristic characteristic : targetModel.rootCharacteristics()) {
       CharacteristicDto rootCharacteristicDto = restoreCharacteristic(characteristic, null, sourceCharacteristics, updateDate, session);
       result.add(rootCharacteristicDto);
@@ -365,6 +365,5 @@ public class DebtModelBackup implements ServerComponent {
   private void checkPermission() {
     UserSession.get().checkGlobalPermission(GlobalPermissions.SYSTEM_ADMIN);
   }
-
 
 }
