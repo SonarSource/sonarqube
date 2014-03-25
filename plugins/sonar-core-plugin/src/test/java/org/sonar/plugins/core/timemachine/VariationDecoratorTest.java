@@ -22,9 +22,13 @@ package org.sonar.plugins.core.timemachine;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.measures.*;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.MeasuresFilter;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.MetricFinder;
+import org.sonar.api.measures.RuleMeasure;
+import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
-import org.sonar.api.resources.JavaPackage;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
@@ -37,7 +41,10 @@ import java.util.Arrays;
 import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class VariationDecoratorTest extends AbstractDbUnitTestCase {
 
@@ -61,20 +68,20 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
 
   @Test
   public void shouldCompareAndSaveVariation() {
-    Resource javaPackage = new JavaPackage("org.foo");
+    Resource dir = new Directory("org/foo");
 
     PastMeasuresLoader pastMeasuresLoader = mock(PastMeasuresLoader.class);
     PastSnapshot pastSnapshot1 = new PastSnapshot("days", new Date()).setIndex(1);
     PastSnapshot pastSnapshot3 = new PastSnapshot("days", new Date()).setIndex(3);
 
     // first past analysis
-    when(pastMeasuresLoader.getPastMeasures(javaPackage, pastSnapshot1)).thenReturn(Arrays.asList(
-      new Object[]{NCLOC_ID, null, null, null, 180.0},
-      new Object[]{COVERAGE_ID, null, null, null, 75.0}));
+    when(pastMeasuresLoader.getPastMeasures(dir, pastSnapshot1)).thenReturn(Arrays.asList(
+      new Object[] {NCLOC_ID, null, null, null, 180.0},
+      new Object[] {COVERAGE_ID, null, null, null, 75.0}));
 
     // second past analysis
-    when(pastMeasuresLoader.getPastMeasures(javaPackage, pastSnapshot3)).thenReturn(Arrays.<Object[]>asList(
-      new Object[]{NCLOC_ID, null, null, null, 240.0}));
+    when(pastMeasuresLoader.getPastMeasures(dir, pastSnapshot3)).thenReturn(Arrays.<Object[]>asList(
+      new Object[] {NCLOC_ID, null, null, null, 240.0}));
 
     // current analysis
     DecoratorContext context = mock(DecoratorContext.class);
@@ -83,7 +90,7 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
     when(context.getMeasures(Matchers.<MeasuresFilter>anyObject())).thenReturn(Arrays.asList(currentNcloc, currentCoverage));
 
     VariationDecorator decorator = new VariationDecorator(pastMeasuresLoader, mock(MetricFinder.class), Arrays.asList(pastSnapshot1, pastSnapshot3));
-    decorator.decorate(javaPackage, context);
+    decorator.decorate(dir, context);
 
     // context updated for each variation : 2 times for ncloc and 1 time for coverage
     verify(context, times(3)).saveMeasure(Matchers.<Measure>anyObject());
@@ -104,16 +111,16 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
     Rule rule2 = Rule.create();
     rule2.setId(2);
 
-    Resource javaPackage = new JavaPackage("org.foo");
+    Resource dir = new Directory("org/foo");
 
     PastMeasuresLoader pastMeasuresLoader = mock(PastMeasuresLoader.class);
     PastSnapshot pastSnapshot1 = new PastSnapshot("days", new Date()).setIndex(1);
 
     // first past analysis
-    when(pastMeasuresLoader.getPastMeasures(javaPackage, pastSnapshot1)).thenReturn(Arrays.asList(
-      new Object[]{VIOLATIONS_ID, null, null, null, 180.0},// total
-      new Object[]{VIOLATIONS_ID, null, null, rule1.getId(), 100.0},// rule 1
-      new Object[]{VIOLATIONS_ID, null, null, rule2.getId(), 80.0})); // rule 2
+    when(pastMeasuresLoader.getPastMeasures(dir, pastSnapshot1)).thenReturn(Arrays.asList(
+      new Object[] {VIOLATIONS_ID, null, null, null, 180.0},// total
+      new Object[] {VIOLATIONS_ID, null, null, rule1.getId(), 100.0},// rule 1
+      new Object[] {VIOLATIONS_ID, null, null, rule2.getId(), 80.0})); // rule 2
 
     // current analysis
     DecoratorContext context = mock(DecoratorContext.class);
@@ -123,7 +130,7 @@ public class VariationDecoratorTest extends AbstractDbUnitTestCase {
     when(context.getMeasures(Matchers.<MeasuresFilter>anyObject())).thenReturn(Arrays.asList(violations, violationsRule1, violationsRule2));
 
     VariationDecorator decorator = new VariationDecorator(pastMeasuresLoader, mock(MetricFinder.class), Arrays.asList(pastSnapshot1));
-    decorator.decorate(javaPackage, context);
+    decorator.decorate(dir, context);
 
     // context updated for each variation
     verify(context, times(3)).saveMeasure(Matchers.<Measure>anyObject());

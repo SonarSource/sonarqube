@@ -21,38 +21,58 @@ package org.sonar.api.resources;
 
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-
 public class JavaPackageTest {
-  @Test
-  public void defaultPackageDeprecatedConstructor() {
-    assertEquals(new JavaPackage(), new JavaPackage());
-    assertEquals(Directory.ROOT, new JavaPackage(null).getDeprecatedKey());
-    assertEquals(Directory.ROOT, new JavaPackage("").getDeprecatedKey());
-    assertThat(new JavaPackage(null).isDefault(), is(true));
+
+  JavaPackage javaPackage = new JavaPackage();
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testConstructor() {
+    new JavaPackage("");
   }
 
-  @Test
-  public void testNewPackageDeprecatedConstructor() {
-    assertEquals(new JavaPackage(" foo.bar   "), new JavaPackage("foo.bar"));
-    JavaPackage pac = new JavaPackage("foo.bar");
-    assertEquals("foo/bar", pac.getDeprecatedKey());
+  @Test(expected = UnsupportedOperationException.class)
+  public void testGetParent() {
+    javaPackage.getParent();
   }
 
-  @Test
-  public void singleLevelPackageDeprecatedConstructor() {
-    assertEquals(new JavaPackage("foo"), new JavaPackage("foo"));
-    JavaPackage pac = new JavaPackage("foo");
-    assertEquals("foo", pac.getDeprecatedKey());
+  @Test(expected = UnsupportedOperationException.class)
+  public void testGetDescription() {
+    javaPackage.getDescription();
   }
 
-  @Test
-  public void shouldNotMatchFilePatterns() {
-    JavaPackage pac = new JavaPackage("org.sonar.commons");
-    assertFalse(pac.matchFilePattern("**"));
+  @Test(expected = UnsupportedOperationException.class)
+  public void testGetLanguage() {
+    javaPackage.getLanguage();
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testGetName() {
+    javaPackage.getName();
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testGetLongName() {
+    javaPackage.getLongName();
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testGetScope() {
+    javaPackage.getScope();
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testGetQualifier() {
+    javaPackage.getQualifier();
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testIsUnitTest() {
+    javaPackage.isDefault();
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testMathFilePattern() {
+    javaPackage.matchFilePattern("");
   }
 
 }

@@ -26,8 +26,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.resources.Directory;
-import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.JavaPackage;
+import org.sonar.api.resources.File;
 import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Project;
 import org.sonar.api.security.ResourcePermissions;
@@ -172,8 +171,8 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     DefaultResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), snapshotCache, resourceCache);
     persister.saveProject(multiModuleProject, null);
     persister.saveProject(moduleA, multiModuleProject);
-    persister.saveResource(moduleA, new JavaPackage("org.foo").setEffectiveKey("a:org.foo"));
-    persister.saveResource(moduleA, new JavaFile("org.foo.MyClass").setEffectiveKey("a:org.foo.MyClass"));
+    persister.saveResource(moduleA, new Directory("org/foo").setEffectiveKey("a:org/foo"));
+    persister.saveResource(moduleA, new File("org/foo/MyClass.java").setEffectiveKey("a:org/foo/MyClass.java"));
     persister.clear();
 
     assertThat(persister.getSnapshotsByResource().size(), is(2));

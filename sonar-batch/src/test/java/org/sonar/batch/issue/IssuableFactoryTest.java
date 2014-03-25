@@ -24,10 +24,8 @@ import org.mockito.Mockito;
 import org.sonar.api.component.Component;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.resources.File;
-import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Project;
 import org.sonar.core.component.ResourceComponent;
-import org.sonar.java.api.JavaClass;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -57,25 +55,5 @@ public class IssuableFactoryTest {
     assertThat(issuable).isNotNull();
     assertThat(issuable.component()).isSameAs(component);
     assertThat(issuable.issues()).isEmpty();
-  }
-
-  @Test
-  public void java_file_should_be_issuable() throws Exception {
-    IssuableFactory factory = new IssuableFactory(moduleIssues, cache);
-    Component component = new ResourceComponent(new JavaFile("org.apache.Action").setEffectiveKey("struts:org.apache.Action"));
-    Issuable issuable = factory.loadPerspective(Issuable.class, component);
-
-    assertThat(issuable).isNotNull();
-    assertThat(issuable.component()).isSameAs(component);
-    assertThat(issuable.issues()).isEmpty();
-  }
-
-  @Test
-  public void java_class_should_not_be_issuable() throws Exception {
-    IssuableFactory factory = new IssuableFactory(moduleIssues, cache);
-    Component component = new ResourceComponent(JavaClass.create("org.apache.Action").setEffectiveKey("struts:org.apache.Action"));
-    Issuable issuable = factory.loadPerspective(Issuable.class, component);
-
-    assertThat(issuable).isNull();
   }
 }

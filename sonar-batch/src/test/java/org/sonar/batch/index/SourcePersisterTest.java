@@ -23,7 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.DuplicatedSourceException;
-import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.File;
 import org.sonar.api.resources.Resource;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
@@ -46,13 +46,13 @@ public class SourcePersisterTest extends AbstractDbUnitTestCase {
 
   @Test
   public void shouldSaveSource() {
-    sourcePersister.saveSource(new JavaFile("org.foo.Bar"), "this is the file content");
+    sourcePersister.saveSource(new File("org/foo/Bar.java"), "this is the file content");
     checkTables("shouldSaveSource", "snapshot_sources");
   }
 
   @Test(expected = DuplicatedSourceException.class)
   public void shouldFailIfSourceSavedSeveralTimes() {
-    JavaFile file = new JavaFile("org.foo.Bar");
+    File file = new File("org/foo/Bar.java");
     sourcePersister.saveSource(file, "this is the file content");
     sourcePersister.saveSource(file, "new content"); // fail
   }

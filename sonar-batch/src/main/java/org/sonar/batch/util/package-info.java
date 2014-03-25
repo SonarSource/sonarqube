@@ -17,25 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch;
 
-import org.junit.Test;
-import org.sonar.api.resources.JavaFile;
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.batch.util;
 
-public class SquidUtilsTest {
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void convertJavaFileKeyFromSquidFormat() {
-    SquidUtils.convertJavaFileKeyFromSquidFormat("java/lang/String");
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void shouldConvertJavaPackageKeyFromSquidFormat() {
-    SquidUtils.convertJavaPackageKeyFromSquidFormat("java/lang");
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void shouldConvertToSquidKeyFormat() {
-    SquidUtils.convertToSquidKeyFormat(new JavaFile("com.foo.Bar"));
-  }
-}

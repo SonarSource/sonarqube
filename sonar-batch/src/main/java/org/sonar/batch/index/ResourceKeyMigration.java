@@ -29,8 +29,14 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Directory;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.PathUtils;
+import org.sonar.batch.util.DeprecatedKeyUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -90,8 +96,8 @@ public class ResourceKeyMigration implements BatchComponent {
   }
 
   private void migrateFiles(Project module, Map<String, InputFile> deprecatedFileKeyMapper, Map<String, InputFile> deprecatedTestKeyMapper,
-                            Map<String, String> deprecatedDirectoryKeyMapper,
-                            int moduleId) {
+    Map<String, String> deprecatedDirectoryKeyMapper,
+    int moduleId) {
     // Find all FIL or CLA resources for this module
     StringBuilder hql = new StringBuilder().append("from ")
       .append(ResourceModel.class.getSimpleName())
@@ -108,12 +114,13 @@ public class ResourceKeyMigration implements BatchComponent {
         // Now compute migration of the parent dir
         String oldKey = StringUtils.substringAfterLast(oldEffectiveKey, ":");
         Resource sonarFile;
+        String parentOldKey;
         if ("java".equals(resourceModel.getLanguageKey())) {
-          sonarFile = new JavaFile(oldKey);
+          parentOldKey = module.getEffectiveKey() + ":" + DeprecatedKeyUtils.getJavaFileParentDeprecatedKey(oldKey);
         } else {
           sonarFile = new File(oldKey);
+          parentOldKey = module.getEffectiveKey() + ":" + sonarFile.getParent().getDeprecatedKey();
         }
-        String parentOldKey = module.getEffectiveKey() + ":" + sonarFile.getParent().getDeprecatedKey();
         String parentNewKey = module.getEffectiveKey() + ":" + getParentKey(matchedFile);
         if (!deprecatedDirectoryKeyMapper.containsKey(parentOldKey)) {
           deprecatedDirectoryKeyMapper.put(parentOldKey, parentNewKey);

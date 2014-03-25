@@ -23,8 +23,8 @@ import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.test.IsMeasure;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -48,7 +48,8 @@ public class SumDuplicationsDecoratorTest {
   @Test
   public void doNotSetDuplicationsOnUnitTests() {
     SumDuplicationsDecorator decorator = new SumDuplicationsDecorator();
-    Resource unitTest = new JavaFile("org.foo.BarTest", true);
+    File unitTest = new File("org/foo/BarTest.java");
+    unitTest.setQualifier(Qualifiers.UNIT_TEST_FILE);
     DecoratorContext context = mock(DecoratorContext.class);
 
     decorator.decorate(unitTest, context);
@@ -59,10 +60,10 @@ public class SumDuplicationsDecoratorTest {
   @Test
   public void saveZeroIfNoDuplications() {
     SumDuplicationsDecorator decorator = new SumDuplicationsDecorator();
-    Resource unitTest = new JavaFile("org.foo.BarTest", false);
+    File file = new File("org/foo/BarTest.java");
     DecoratorContext context = mock(DecoratorContext.class);
 
-    decorator.decorate(unitTest, context);
+    decorator.decorate(file, context);
 
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.DUPLICATED_LINES, 0.0)));
   }

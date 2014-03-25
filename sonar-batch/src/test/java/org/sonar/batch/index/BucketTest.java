@@ -23,26 +23,26 @@ import org.junit.Test;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilters;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.JavaPackage;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.Violation;
+import org.sonar.api.resources.Directory;
+import org.sonar.api.resources.File;
 import org.sonar.api.utils.SonarException;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
 
 public class BucketTest {
 
-  JavaPackage javaPackage = new JavaPackage("org.foo");
-  JavaFile javaFile = new JavaFile("org.foo.Bar");
+  Directory directory = new Directory("org/foo");
+  File javaFile = new File("org/foo/Bar.java");
   Metric ncloc = new Metric("ncloc");
 
   @Test
   public void shouldManageRelationships() {
-    Bucket packageBucket = new Bucket(javaPackage);
+    Bucket packageBucket = new Bucket(directory);
     Bucket fileBucket = new Bucket(javaFile);
     fileBucket.setParent(packageBucket);
 
@@ -89,13 +89,13 @@ public class BucketTest {
 
   @Test
   public void shouldBeEquals() {
-    assertEquals(new Bucket(javaPackage), new Bucket(javaPackage));
-    assertEquals(new Bucket(javaPackage).hashCode(), new Bucket(javaPackage).hashCode());
+    assertEquals(new Bucket(directory), new Bucket(directory));
+    assertEquals(new Bucket(directory).hashCode(), new Bucket(directory).hashCode());
   }
 
   @Test
   public void shouldNotBeEquals() {
-    assertFalse(new Bucket(javaPackage).equals(new Bucket(javaFile)));
-    assertThat(new Bucket(javaPackage).hashCode(), not(is(new Bucket(javaFile).hashCode())));
+    assertFalse(new Bucket(directory).equals(new Bucket(javaFile)));
+    assertThat(new Bucket(directory).hashCode(), not(is(new Bucket(javaFile).hashCode())));
   }
 }

@@ -24,11 +24,12 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.resources.JavaFile;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.bootstrap.AnalysisMode;
+import org.sonar.batch.util.DeprecatedKeyUtils;
 
 import javax.annotation.CheckForNull;
+
 import java.io.File;
 import java.util.List;
 
@@ -42,7 +43,7 @@ class InputFileBuilder {
   private final AnalysisMode analysisMode;
 
   InputFileBuilder(String moduleKey, PathResolver pathResolver, LanguageDetection langDetection,
-                   StatusDetection statusDetection, DefaultModuleFileSystem fs, AnalysisMode analysisMode) {
+    StatusDetection statusDetection, DefaultModuleFileSystem fs, AnalysisMode analysisMode) {
     this.moduleKey = moduleKey;
     this.pathResolver = pathResolver;
     this.langDetection = langDetection;
@@ -119,7 +120,7 @@ class InputFileBuilder {
 
         if ("java".equals(inputFile.language())) {
           inputFile.setDeprecatedKey(new StringBuilder()
-            .append(moduleKey).append(":").append(JavaFile.fromRelativePath(sourceRelativePath, false).getDeprecatedKey()).toString());
+            .append(moduleKey).append(":").append(DeprecatedKeyUtils.getJavaFileDeprecatedKey(sourceRelativePath)).toString());
         } else {
           inputFile.setDeprecatedKey(new StringBuilder().append(moduleKey).append(":").append(sourceRelativePath).toString());
         }

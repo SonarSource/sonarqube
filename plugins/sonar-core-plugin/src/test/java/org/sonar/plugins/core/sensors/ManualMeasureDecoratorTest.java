@@ -22,7 +22,7 @@ package org.sonar.plugins.core.sensors;
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.File;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.core.metric.DefaultMetricFinder;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
@@ -39,7 +39,7 @@ public class ManualMeasureDecoratorTest extends AbstractDbUnitTestCase {
   public void testCopyManualMeasures() throws Exception {
     setupData("testCopyManualMeasures");
 
-    JavaFile javaFile = new JavaFile("Foo.java");
+    File javaFile = new File("Foo.java");
     javaFile.setId(40);
 
     ManualMeasureDecorator decorator = new ManualMeasureDecorator(getSession(), new DefaultMetricFinder(getSessionFactory()));

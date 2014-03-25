@@ -19,11 +19,13 @@
  */
 package org.sonar.api.batch;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.JavaPackage;
 
+/**
+ * @deprecated since 4.2
+ */
+@Deprecated
 public final class SquidUtils {
 
   private SquidUtils() {
@@ -35,21 +37,7 @@ public final class SquidUtils {
    */
   @Deprecated
   public static JavaFile convertJavaFileKeyFromSquidFormat(String key) {
-    String extension = StringUtils.lowerCase(FilenameUtils.getExtension(key));
-    boolean isJavaFile = "jav".equals(extension) || "java".equals(extension);
-    if (isJavaFile) {
-      key = key.substring(0, key.length() - extension.length() - 1);
-    }
-
-    String convertedKey = key.replace('/', '.');
-    if (convertedKey.indexOf('.') == -1 && !"".equals(convertedKey)) {
-      convertedKey = "[default]." + convertedKey;
-
-    } else if (convertedKey.indexOf('.') == -1) {
-      convertedKey = "[default]";
-    }
-
-    return new JavaFile(convertedKey);
+    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
   }
 
   /**
@@ -57,9 +45,13 @@ public final class SquidUtils {
    */
   @Deprecated
   public static JavaPackage convertJavaPackageKeyFromSquidFormat(String key) {
-    return new JavaPackage(key);
+    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
   }
 
+  /**
+   * @deprecated since 4.0
+   */
+  @Deprecated
   public static String convertToSquidKeyFormat(JavaFile file) {
     throw new UnsupportedOperationException("Not supported since v4.0. Was badly implemented");
   }

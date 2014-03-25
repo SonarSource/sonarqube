@@ -19,9 +19,6 @@
  */
 package org.sonar.api.resources;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 /**
  * A class that represents a Java package in Sonar
  *
@@ -31,111 +28,57 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @Deprecated
 public class JavaPackage extends Resource {
 
-  /**
-   * Default package name for classes without package definition
-   */
   public static final String DEFAULT_PACKAGE_NAME = "[default]";
 
-  /**
-   * Default constructor
-   * @deprecated since 4.2 use {@link #create(String, String)}
-   */
-  @Deprecated
   public JavaPackage() {
-    this(null);
+    // For testing
   }
 
-  /**
-   * Creates a JavaPackage from its key.
-   * @deprecated since 4.2 use {@link #create(String, String)}
-   */
-  @Deprecated
   public JavaPackage(String deprecatedKey) {
-    if (DEFAULT_PACKAGE_NAME.equals(deprecatedKey)) {
-      deprecatedKey = Directory.ROOT;
-    }
-    String deprecatedDirectoryKey = StringUtils.trimToEmpty(deprecatedKey);
-    deprecatedDirectoryKey = deprecatedDirectoryKey.replaceAll("\\.", Directory.SEPARATOR);
-    setDeprecatedKey(StringUtils.defaultIfEmpty(deprecatedDirectoryKey, Directory.ROOT));
+    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
   }
 
-  /**
-   * @return whether the JavaPackage key is the default key
-   */
   public boolean isDefault() {
-    return StringUtils.equals(getDeprecatedKey(), Directory.ROOT);
+    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public boolean matchFilePattern(String antPattern) {
-    return false;
+    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public String getDescription() {
-    return null;
+    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
   }
 
-  /**
-   * @return SCOPE_SPACE
-   */
   @Override
   public String getScope() {
-    return Scopes.DIRECTORY;
+    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
   }
 
-  /**
-   * @return QUALIFIER_PACKAGE
-   */
   @Override
   public String getQualifier() {
-    return Qualifiers.DIRECTORY;
+    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public String getName() {
-    return getKey();
+    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public Resource getParent() {
-    return null;
+    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public String getLongName() {
-    return null;
+    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
   }
 
-  /**
-   * @return null
-   */
   @Override
   public Language getLanguage() {
-    return null;
-  }
-
-  @Override
-  public String toString() {
-    return new ToStringBuilder(this)
-      .append("id", getId())
-      .append("key", getKey())
-      .append("deprecatedKey", getDeprecatedKey())
-      .toString();
+    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
   }
 }

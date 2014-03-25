@@ -23,14 +23,20 @@ import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.Directory;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 
 import java.util.Arrays;
 import java.util.Collections;
 
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DirectoriesDecoratorTest {
 
@@ -61,21 +67,12 @@ public class DirectoriesDecoratorTest {
     DecoratorContext context = mock(DecoratorContext.class);
 
     when(context.getChildrenMeasures(CoreMetrics.DIRECTORIES)).thenReturn(Arrays.<Measure>asList(
-        new Measure(CoreMetrics.DIRECTORIES, 1.0),
-        new Measure(CoreMetrics.DIRECTORIES, 1.0),
-        new Measure(CoreMetrics.DIRECTORIES, 1.0)
-    ));
+      new Measure(CoreMetrics.DIRECTORIES, 1.0),
+      new Measure(CoreMetrics.DIRECTORIES, 1.0),
+      new Measure(CoreMetrics.DIRECTORIES, 1.0)
+      ));
     decorator.decorate(project, context);
     verify(context).saveMeasure(CoreMetrics.DIRECTORIES, 3.0);
-  }
-
-  @Test
-  public void packagesAreConsideredAsDirectories() {
-    DirectoriesDecorator decorator = new DirectoriesDecorator();
-    Resource pac = new JavaPackage("org/foo");
-    DecoratorContext context = mock(DecoratorContext.class);
-    decorator.decorate(pac, context);
-    verify(context).saveMeasure(eq(CoreMetrics.DIRECTORIES), eq(1.0));
   }
 
   @Test
@@ -85,9 +82,9 @@ public class DirectoriesDecoratorTest {
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getChildrenMeasures(CoreMetrics.DIRECTORIES)).thenReturn(Collections.<Measure>emptyList());
     when(context.getChildrenMeasures(CoreMetrics.PACKAGES)).thenReturn(Arrays.<Measure>asList(
-        new Measure(CoreMetrics.PACKAGES, 1.0),
-        new Measure(CoreMetrics.PACKAGES, 1.0)
-    ));
+      new Measure(CoreMetrics.PACKAGES, 1.0),
+      new Measure(CoreMetrics.PACKAGES, 1.0)
+      ));
     decorator.decorate(project, context);
     verify(context, never()).saveMeasure(eq(CoreMetrics.DIRECTORIES), anyDouble());
   }

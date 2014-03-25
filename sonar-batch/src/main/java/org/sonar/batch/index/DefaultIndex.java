@@ -31,8 +31,19 @@ import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.design.Dependency;
-import org.sonar.api.measures.*;
-import org.sonar.api.resources.*;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.MeasuresFilter;
+import org.sonar.api.measures.MeasuresFilters;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.MetricFinder;
+import org.sonar.api.resources.Directory;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectLink;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.scan.filesystem.PathResolver;
@@ -46,7 +57,15 @@ import org.sonar.core.component.ScanGraph;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.util.*;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class DefaultIndex extends SonarIndex {
 
@@ -566,7 +585,7 @@ public class DefaultIndex extends SonarIndex {
    * Should support 2 situations
    * 1) key = new key and deprecatedKey = old key : this is the standard use case in a perfect world
    * 2) key = null and deprecatedKey = oldKey : this is for plugins that are using deprecated constructors of
-   * {@link JavaFile}, {@link JavaPackage}, {@link File}, {@link Directory}
+   * {@link File} and {@link Directory}
    *
    * @param reference
    * @return

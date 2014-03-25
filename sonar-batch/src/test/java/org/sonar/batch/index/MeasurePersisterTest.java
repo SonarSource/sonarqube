@@ -26,9 +26,13 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.measures.*;
-import org.sonar.api.resources.JavaFile;
-import org.sonar.api.resources.JavaPackage;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.PersistenceMode;
+import org.sonar.api.measures.RuleMeasure;
+import org.sonar.api.resources.Directory;
+import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
@@ -39,7 +43,9 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class MeasurePersisterTest extends AbstractDaoTestCase {
 
@@ -60,17 +66,17 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
   ResourcePersister resourcePersister = mock(ResourcePersister.class);
   MemoryOptimizer memoryOptimizer = mock(MemoryOptimizer.class);
   Project project = new Project("foo");
-  JavaPackage aPackage = new JavaPackage("org.foo");
-  JavaFile aFile = new JavaFile("org.foo.Bar");
+  Directory aDirectory = new Directory("org/foo");
+  File aFile = new File("org/foo/Bar.java");
   Snapshot projectSnapshot = snapshot(PROJECT_SNAPSHOT_ID);
   Snapshot packageSnapshot = snapshot(PACKAGE_SNAPSHOT_ID);
 
   @Before
   public void mockResourcePersister() {
     when(resourcePersister.getSnapshotOrFail(project)).thenReturn(projectSnapshot);
-    when(resourcePersister.getSnapshotOrFail(aPackage)).thenReturn(packageSnapshot);
+    when(resourcePersister.getSnapshotOrFail(aDirectory)).thenReturn(packageSnapshot);
     when(resourcePersister.getSnapshot(project)).thenReturn(projectSnapshot);
-    when(resourcePersister.getSnapshot(aPackage)).thenReturn(packageSnapshot);
+    when(resourcePersister.getSnapshot(aDirectory)).thenReturn(packageSnapshot);
 
     measurePersister = new MeasurePersister(getMyBatis(), resourcePersister, ruleFinder, memoryOptimizer);
   }
@@ -160,7 +166,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     setupData("empty");
 
     measurePersister.saveMeasure(project, new Measure(ncloc()).setValue(200.0));
-    measurePersister.saveMeasure(aPackage, new Measure(ncloc()).setValue(300.0));
+    measurePersister.saveMeasure(aDirectory, new Measure(ncloc()).setValue(300.0));
 
     checkTables("shouldAlwaysPersistNonFileMeasures", "project_measures");
   }
@@ -171,7 +177,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
 
     measurePersister.saveMeasure(project, new Measure(coverage()).setValue(12.5).setId(1L));
     measurePersister.saveMeasure(project, new Measure(coverage()).setData(SHORT).setId(2L));
-    measurePersister.saveMeasure(aPackage, new Measure(coverage()).setData(LONG).setId(3L));
+    measurePersister.saveMeasure(aDirectory, new Measure(coverage()).setData(LONG).setId(3L));
 
     checkTables("shouldUpdateMeasure", "project_measures", "measure_data");
   }
@@ -196,7 +202,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
 
     measurePersister.setDelayedMode(true);
     measurePersister.saveMeasure(project, new Measure(ncloc()).setValue(1234.0).setData(SHORT));
-    measurePersister.saveMeasure(aPackage, new Measure(ncloc()).setValue(50.0).setData(LONG));
+    measurePersister.saveMeasure(aDirectory, new Measure(ncloc()).setValue(50.0).setData(LONG));
 
     assertEmptyTables("project_measures");
 
@@ -224,7 +230,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
 
     measurePersister.setDelayedMode(true);
     measurePersister.saveMeasure(project, new Measure(ncloc()).setValue(1234.0).setPersistenceMode(PersistenceMode.DATABASE));
-    measurePersister.saveMeasure(aPackage, new Measure(ncloc()).setValue(50.0));
+    measurePersister.saveMeasure(aDirectory, new Measure(ncloc()).setValue(50.0));
 
     checkTables("shouldInsertMeasure", "project_measures");
   }

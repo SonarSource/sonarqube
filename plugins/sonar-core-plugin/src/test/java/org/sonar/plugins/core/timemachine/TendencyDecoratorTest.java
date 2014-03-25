@@ -26,7 +26,7 @@ import org.sonar.api.batch.TimeMachineQuery;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MetricFinder;
-import org.sonar.api.resources.JavaPackage;
+import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.Project;
 
 import java.text.ParseException;
@@ -37,7 +37,11 @@ import java.util.Date;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItems;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class TendencyDecoratorTest {
 
@@ -65,19 +69,19 @@ public class TendencyDecoratorTest {
     TimeMachine timeMachine = mock(TimeMachine.class);
 
     when(timeMachine.getMeasuresFields(query)).thenReturn(Arrays.<Object[]>asList(
-      new Object[]{date("2009-12-01"), CoreMetrics.LINES, 1200.0},
-      new Object[]{date("2009-12-01"), CoreMetrics.COVERAGE, 80.5},
-      new Object[]{date("2009-12-02"), CoreMetrics.LINES, 1300.0},
-      new Object[]{date("2009-12-02"), CoreMetrics.COVERAGE, 79.6},
-      new Object[]{date("2009-12-15"), CoreMetrics.LINES, 1150.0}
-    ));
+      new Object[] {date("2009-12-01"), CoreMetrics.LINES, 1200.0},
+      new Object[] {date("2009-12-01"), CoreMetrics.COVERAGE, 80.5},
+      new Object[] {date("2009-12-02"), CoreMetrics.LINES, 1300.0},
+      new Object[] {date("2009-12-02"), CoreMetrics.COVERAGE, 79.6},
+      new Object[] {date("2009-12-15"), CoreMetrics.LINES, 1150.0}
+      ));
 
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getMeasure(CoreMetrics.LINES)).thenReturn(new Measure(CoreMetrics.LINES, 1400.0));
     when(context.getMeasure(CoreMetrics.COVERAGE)).thenReturn(new Measure(CoreMetrics.LINES, 90.0));
 
     TendencyDecorator decorator = new TendencyDecorator(timeMachine, query, analyser);
-    decorator.decorate(new JavaPackage("org.foo"), context);
+    decorator.decorate(new Directory("org/foo"), context);
 
     verify(analyser).analyseLevel(Arrays.asList(1200.0, 1300.0, 1150.0, 1400.0));
     verify(analyser).analyseLevel(Arrays.asList(80.5, 79.6, 90.0));
@@ -90,13 +94,13 @@ public class TendencyDecoratorTest {
     TimeMachine timeMachine = mock(TimeMachine.class);
 
     when(timeMachine.getMeasuresFields(query)).thenReturn(Arrays.<Object[]>asList(
-      new Object[]{date("2009-12-01"), CoreMetrics.LINES, 1200.0},
-      new Object[]{date("2009-12-02"), CoreMetrics.LINES, 1300.0}
-    ));
+      new Object[] {date("2009-12-01"), CoreMetrics.LINES, 1200.0},
+      new Object[] {date("2009-12-02"), CoreMetrics.LINES, 1300.0}
+      ));
 
     DecoratorContext context = mock(DecoratorContext.class);
     TendencyDecorator decorator = new TendencyDecorator(timeMachine, query, analyser);
-    decorator.decorate(new JavaPackage("org.foo"), context);
+    decorator.decorate(new Directory("org/foo"), context);
 
     verify(analyser, never()).analyseLevel(anyList());
   }

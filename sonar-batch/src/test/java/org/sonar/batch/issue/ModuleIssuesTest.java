@@ -30,7 +30,7 @@ import org.sonar.api.batch.rule.DebtRemediationFunction;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.RulesBuilder;
 import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.resources.JavaFile;
+import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
@@ -47,7 +47,9 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ModuleIssuesTest {
@@ -205,7 +207,7 @@ public class ModuleIssuesTest {
     initModuleIssues();
 
     org.sonar.api.rules.Rule rule = org.sonar.api.rules.Rule.create("squid", "AvoidCycle", "Avoid Cycle");
-    Resource resource = new JavaFile("org.struts.Action").setEffectiveKey("struts:org.struts.Action");
+    Resource resource = new File("org/struts/Action.java").setEffectiveKey("struts:src/org/struts/Action.java");
     Violation violation = new Violation(rule, resource);
     violation.setLineId(42);
     violation.setSeverity(RulePriority.CRITICAL);
@@ -224,7 +226,7 @@ public class ModuleIssuesTest {
     assertThat(issue.message()).isEqualTo("the message");
     assertThat(issue.key()).isNotEmpty();
     assertThat(issue.ruleKey().toString()).isEqualTo("squid:AvoidCycle");
-    assertThat(issue.componentKey()).isEqualTo("struts:org.struts.Action");
+    assertThat(issue.componentKey()).isEqualTo("struts:src/org/struts/Action.java");
   }
 
   @Test

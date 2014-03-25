@@ -30,12 +30,12 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.File;
-import org.sonar.api.resources.JavaFile;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.ResourceKeyMigration;
+import org.sonar.batch.util.DeprecatedKeyUtils;
 
 /**
  * Index all files/directories of the module in SQ database and importing source code.
@@ -52,7 +52,7 @@ public class ComponentIndexer implements BatchComponent {
   private InputFileCache fileCache;
 
   public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, Settings settings, ResourceKeyMigration migration,
-                          InputFileCache fileCache) {
+    InputFileCache fileCache) {
     this.module = module;
     this.languages = languages;
     this.sonarIndex = sonarIndex;
@@ -74,7 +74,7 @@ public class ComponentIndexer implements BatchComponent {
       }
       Resource sonarFile = File.create(inputFile.relativePath(), pathFromSourceDir, languages.get(languageKey), unitTest);
       if ("java".equals(languageKey)) {
-        sonarFile.setDeprecatedKey(JavaFile.fromRelativePath(pathFromSourceDir, false).getDeprecatedKey());
+        sonarFile.setDeprecatedKey(DeprecatedKeyUtils.getJavaFileDeprecatedKey(pathFromSourceDir));
       } else {
         sonarFile.setDeprecatedKey(pathFromSourceDir);
       }

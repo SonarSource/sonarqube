@@ -17,37 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.index;
+package org.sonar.batch.util;
 
 import org.junit.Test;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.Resource;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
 
-public class ResourceCacheTest {
+public class DeprecatedKeyUtilsTest {
+
   @Test
-  public void should_cache_resource() throws Exception {
-    ResourceCache cache = new ResourceCache();
-    String componentKey = "struts:src/org/struts/Action.java";
-    Resource resource = new File("org/struts/Action.java").setEffectiveKey(componentKey);
-    cache.add(resource);
-
-    assertThat(cache.get(componentKey)).isSameAs(resource);
-    assertThat(cache.get("other")).isNull();
+  public void testGetJavaFileParentDeprecatedKey() {
+    assertThat(DeprecatedKeyUtils.getJavaFileParentDeprecatedKey("org.foo.bar.Hello")).isEqualTo("org/foo/bar");
+    assertThat(DeprecatedKeyUtils.getJavaFileParentDeprecatedKey("[default].Hello")).isEqualTo("[root]");
+    assertThat(DeprecatedKeyUtils.getJavaFileParentDeprecatedKey("Hello")).isEqualTo("[root]");
   }
 
   @Test
-  public void should_fail_if_missing_component_key() throws Exception {
-    ResourceCache cache = new ResourceCache();
-    Resource resource = new File("org/struts/Action.java").setEffectiveKey(null);
-    try {
-      cache.add(resource);
-      fail();
-    } catch (IllegalStateException e) {
-      // success
-      assertThat(e).hasMessage("Missing resource effective key");
-    }
+  public void testGetJavaFileDeprecatedKey() {
+    assertThat(DeprecatedKeyUtils.getJavaFileDeprecatedKey("org/foo/bar/Hello.java")).isEqualTo("org.foo.bar.Hello");
+    assertThat(DeprecatedKeyUtils.getJavaFileDeprecatedKey("Hello.java")).isEqualTo("[default].Hello");
   }
 }
