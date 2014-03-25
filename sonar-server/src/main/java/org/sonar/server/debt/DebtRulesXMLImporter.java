@@ -29,7 +29,7 @@ import org.codehaus.stax2.XMLInputFactory2;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.DebtRemediationFunction;
 import org.sonar.api.utils.Duration;
@@ -45,23 +45,12 @@ import java.io.StringReader;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.sonar.server.debt.DebtModelXMLExporter.*;
 
-public class DebtRulesXMLImporter implements ServerExtension {
-
-  public static final String CHARACTERISTIC = "chc";
-  public static final String CHARACTERISTIC_KEY = "key";
-  public static final String PROPERTY = "prop";
-
-  public static final String PROPERTY_KEY = "key";
-  public static final String PROPERTY_VALUE = "val";
-  public static final String PROPERTY_TEXT_VALUE = "txt";
-
-  public static final String REPOSITORY_KEY = "rule-repo";
-  public static final String RULE_KEY = "rule-key";
-
-  public static final String PROPERTY_FUNCTION = "remediationFunction";
-  public static final String PROPERTY_FACTOR = "remediationFactor";
-  public static final String PROPERTY_OFFSET = "offset";
+/**
+ * Import rules debt definitions from an XML
+ */
+public class DebtRulesXMLImporter implements ServerComponent {
 
   public List<RuleDebt> importXML(String xml, ValidationMessages validationMessages) {
     return importXML(new StringReader(xml), validationMessages);
@@ -107,12 +96,12 @@ public class DebtRulesXMLImporter implements ServerExtension {
         process(ruleDebts, parentKey, currentCharacteristicKey, validationMessages, cursor);
       } else if (StringUtils.equals(node, REPOSITORY_KEY)) {
         RuleDebt ruleDebt = processRule(validationMessages, cursor);
-        if (ruleDebt != null) {
+        if (ruleDebt != null && parentKey != null) {
           if (rootKey != null) {
-            ruleDebt.characteristicKey = parentKey;
+            ruleDebt.setCharacteristicKey(parentKey);
             ruleDebts.add(ruleDebt);
           } else {
-            validationMessages.addWarningText("Rule '" + ruleDebt.ruleKey + "' is ignored because it's defined directly under a root characteristic.");
+            validationMessages.addWarningText("Rule '" + ruleDebt.ruleKey() + "' is ignored because it's defined directly under a root characteristic.");
           }
         }
       }
@@ -260,61 +249,6 @@ public class DebtRulesXMLImporter implements ServerExtension {
         return duration;
       }
       return null;
-    }
-  }
-
-  public static class RuleDebt {
-    private RuleKey ruleKey;
-    private String characteristicKey;
-    private DebtRemediationFunction.Type type;
-    private String factor;
-    private String offset;
-
-    public RuleKey ruleKey() {
-      return ruleKey;
-    }
-
-    public RuleDebt setRuleKey(RuleKey ruleKey) {
-      this.ruleKey = ruleKey;
-      return this;
-    }
-
-    public String characteristicKey() {
-      return characteristicKey;
-    }
-
-    public RuleDebt setCharacteristicKey(String characteristicKey) {
-      this.characteristicKey = characteristicKey;
-      return this;
-    }
-
-    public DebtRemediationFunction.Type function() {
-      return type;
-    }
-
-    public RuleDebt setFunction(DebtRemediationFunction.Type type) {
-      this.type = type;
-      return this;
-    }
-
-    @CheckForNull
-    public String factor() {
-      return factor;
-    }
-
-    public RuleDebt setFactor(@Nullable String factor) {
-      this.factor = factor;
-      return this;
-    }
-
-    @CheckForNull
-    public String offset() {
-      return offset;
-    }
-
-    public RuleDebt setOffset(@Nullable String offset) {
-      this.offset = offset;
-      return this;
     }
   }
 

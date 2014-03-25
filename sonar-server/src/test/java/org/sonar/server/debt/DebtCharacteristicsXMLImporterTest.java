@@ -30,6 +30,7 @@ import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
+import static org.sonar.server.debt.DebtModelXMLExporter.DebtModel;
 
 public class DebtCharacteristicsXMLImporterTest {
 
@@ -97,7 +98,7 @@ public class DebtCharacteristicsXMLImporterTest {
 
   private String getFileContent(String file) {
     try {
-      return Resources.toString(Resources.getResource(DebtCharacteristicsXMLImporterTest.class, "DebtCharacteristicsXMLImporterTest/" + file), Charsets.UTF_8);
+      return Resources.toString(Resources.getResource(this.getClass(), this.getClass().getSimpleName() + "/" + file), Charsets.UTF_8);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

@@ -25,7 +25,7 @@ import org.codehaus.stax2.XMLInputFactory2;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.ServerComponent;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 
 import javax.annotation.CheckForNull;
@@ -36,11 +36,12 @@ import javax.xml.stream.XMLStreamException;
 import java.io.Reader;
 import java.io.StringReader;
 
-public class DebtCharacteristicsXMLImporter implements ServerExtension {
+import static org.sonar.server.debt.DebtModelXMLExporter.*;
 
-  public static final String CHARACTERISTIC = "chc";
-  public static final String CHARACTERISTIC_KEY = "key";
-  public static final String CHARACTERISTIC_NAME = "name";
+/**
+ * Import characteristics from an xml
+ */
+public class DebtCharacteristicsXMLImporter implements ServerComponent {
 
   public DebtModel importXML(String xml) {
     return importXML(new StringReader(xml));
@@ -102,4 +103,5 @@ public class DebtCharacteristicsXMLImporter implements ServerExtension {
       }
     }
   }
+
 }

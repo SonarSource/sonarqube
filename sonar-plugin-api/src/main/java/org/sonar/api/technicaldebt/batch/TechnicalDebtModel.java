@@ -29,6 +29,7 @@ import java.util.List;
 
 /**
  * @since 4.1
+ * Used by Views plugin
  */
 public interface TechnicalDebtModel {
 

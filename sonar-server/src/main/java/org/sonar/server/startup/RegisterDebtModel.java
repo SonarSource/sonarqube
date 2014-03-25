@@ -24,24 +24,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
-import org.sonar.server.debt.DebtModelRestore;
+import org.sonar.server.debt.DebtModelBackup;
 
 public class RegisterDebtModel {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RegisterDebtModel.class);
 
   private final CharacteristicDao dao;
-  private final DebtModelRestore debtModelRestore;
+  private final DebtModelBackup debtModelBackup;
 
-  public RegisterDebtModel(CharacteristicDao dao, DebtModelRestore debtModelRestore) {
+  public RegisterDebtModel(CharacteristicDao dao, DebtModelBackup debtModelBackup) {
     this.dao = dao;
-    this.debtModelRestore = debtModelRestore;
+    this.debtModelBackup = debtModelBackup;
   }
 
   public void start() {
     TimeProfiler profiler = new TimeProfiler(LOGGER).start("Register technical debt model");
     if (dao.selectEnabledCharacteristics().isEmpty()) {
-      debtModelRestore.restore();
+      debtModelBackup.restore();
     }
     profiler.stop();
   }

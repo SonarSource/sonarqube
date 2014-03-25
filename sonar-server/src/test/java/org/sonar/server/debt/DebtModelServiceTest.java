@@ -37,13 +37,13 @@ public class DebtModelServiceTest {
   DebtModelLookup debtModelLookup;
 
   @Mock
-  DebtModelRestore debtModelRestore;
+  DebtModelBackup debtModelBackup;
 
   DebtModelService service;
 
   @Before
   public void setUp() throws Exception {
-    service = new DebtModelService(debtModelOperations, debtModelLookup, debtModelRestore);
+    service = new DebtModelService(debtModelOperations, debtModelLookup, debtModelBackup);
   }
 
   @Test
@@ -97,25 +97,36 @@ public class DebtModelServiceTest {
   @Test
   public void restore_provided_model() {
     service.restore();
-    verify(debtModelRestore).restore();
+    verify(debtModelBackup).restore();
   }
 
   @Test
   public void restore_from_language() {
     service.restoreFromLanguage("xoo");
-    verify(debtModelRestore).restore("xoo");
+    verify(debtModelBackup).restore("xoo");
   }
 
   @Test
   public void restore_xml() {
     service.restoreFromXml("<xml/>");
-    verify(debtModelRestore).restoreFromXml("<xml/>");
+    verify(debtModelBackup).restoreFromXml("<xml/>");
   }
 
   @Test
   public void restore_from_xml_and_language() {
     service.restoreFromXmlAndLanguage("<xml/>", "xoo");
-    verify(debtModelRestore).restoreFromXml("<xml/>", "xoo");
+    verify(debtModelBackup).restoreFromXml("<xml/>", "xoo");
   }
 
+  @Test
+  public void backup() {
+    service.backup();
+    verify(debtModelBackup).backup();
+  }
+
+  @Test
+  public void backup_fom_language() {
+    service.backupFromLanguage("xoo");
+    verify(debtModelBackup).backup("xoo");
+  }
 }

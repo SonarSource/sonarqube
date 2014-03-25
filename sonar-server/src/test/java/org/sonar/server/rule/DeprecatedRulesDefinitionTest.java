@@ -33,7 +33,8 @@ import org.sonar.api.server.rule.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.core.technicaldebt.TechnicalDebtModelRepository;
+import org.sonar.server.debt.DebtModelPluginRepository;
+import org.sonar.server.debt.DebtModelXMLExporter;
 import org.sonar.server.debt.DebtRulesXMLImporter;
 
 import java.io.Reader;
@@ -54,7 +55,7 @@ public class DeprecatedRulesDefinitionTest {
   RuleI18nManager i18n;
 
   @Mock
-  TechnicalDebtModelRepository debtModelRepository;
+  DebtModelPluginRepository debtModelRepository;
 
   @Mock
   DebtRulesXMLImporter importer;
@@ -156,8 +157,8 @@ public class DeprecatedRulesDefinitionTest {
   public void define_rule_debt() throws Exception {
     RulesDefinition.Context context = new RulesDefinition.Context();
 
-    List<DebtRulesXMLImporter.RuleDebt> ruleDebts = newArrayList(
-      new DebtRulesXMLImporter.RuleDebt()
+    List<DebtModelXMLExporter.RuleDebt> ruleDebts = newArrayList(
+      new DebtModelXMLExporter.RuleDebt()
         .setCharacteristicKey("MEMORY_EFFICIENCY")
         .setRuleKey(RuleKey.of("checkstyle", "ConstantName"))
         .setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET)

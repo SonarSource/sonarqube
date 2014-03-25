@@ -34,7 +34,8 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.check.Cardinality;
 import org.sonar.core.i18n.RuleI18nManager;
-import org.sonar.core.technicaldebt.TechnicalDebtModelRepository;
+import org.sonar.server.debt.DebtModelPluginRepository;
+import org.sonar.server.debt.DebtModelXMLExporter;
 import org.sonar.server.debt.DebtRulesXMLImporter;
 
 import javax.annotation.CheckForNull;
@@ -44,6 +45,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
 
 /**
  * Inject deprecated RuleRepository into RuleDefinitions for backward-compatibility.
@@ -57,24 +59,24 @@ public class DeprecatedRulesDefinition implements RulesDefinition {
   private final RuleI18nManager i18n;
   private final RuleRepository[] repositories;
 
-  private final TechnicalDebtModelRepository languageModelFinder;
+  private final DebtModelPluginRepository languageModelFinder;
   private final DebtRulesXMLImporter importer;
 
-  public DeprecatedRulesDefinition(RuleI18nManager i18n, RuleRepository[] repositories, TechnicalDebtModelRepository languageModelFinder, DebtRulesXMLImporter importer) {
+  public DeprecatedRulesDefinition(RuleI18nManager i18n, RuleRepository[] repositories, DebtModelPluginRepository languageModelFinder, DebtRulesXMLImporter importer) {
     this.i18n = i18n;
     this.repositories = repositories;
     this.languageModelFinder = languageModelFinder;
     this.importer = importer;
   }
 
-  public DeprecatedRulesDefinition(RuleI18nManager i18n, TechnicalDebtModelRepository languageModelFinder, DebtRulesXMLImporter importer) {
+  public DeprecatedRulesDefinition(RuleI18nManager i18n, DebtModelPluginRepository languageModelFinder, DebtRulesXMLImporter importer) {
     this(i18n, new RuleRepository[0], languageModelFinder, importer);
   }
 
   @Override
   public void define(Context context) {
     // Load rule debt definitions from xml files provided by plugin
-    List<DebtRulesXMLImporter.RuleDebt> ruleDebts = loadRuleDebtList();
+    List<RuleDebt> ruleDebts = loadRuleDebtList();
 
     for (RuleRepository repository : repositories) {
       // RuleRepository API does not handle difference between new and extended repositories,
@@ -106,8 +108,8 @@ public class DeprecatedRulesDefinition implements RulesDefinition {
     }
   }
 
-  private void updateRuleDebtDefinitions(NewRule newRule, String repoKey, String ruleKey, List<DebtRulesXMLImporter.RuleDebt> ruleDebts){
-    DebtRulesXMLImporter.RuleDebt ruleDebt = findRequirement(ruleDebts, repoKey, ruleKey);
+  private void updateRuleDebtDefinitions(NewRule newRule, String repoKey, String ruleKey, List<RuleDebt> ruleDebts){
+    RuleDebt ruleDebt = findRequirement(ruleDebts, repoKey, ruleKey);
     if (ruleDebt != null) {
       newRule.setDebtCharacteristic(ruleDebt.characteristicKey());
       switch (ruleDebt.function()) {
@@ -153,20 +155,20 @@ public class DeprecatedRulesDefinition implements RulesDefinition {
     return StringUtils.defaultIfBlank(desc, null);
   }
 
-  public List<DebtRulesXMLImporter.RuleDebt> loadRuleDebtList() {
-    List<DebtRulesXMLImporter.RuleDebt> ruleDebtList = newArrayList();
+  public List<DebtModelXMLExporter.RuleDebt> loadRuleDebtList() {
+    List<RuleDebt> ruleDebtList = newArrayList();
     for (String pluginKey : getContributingPluginListWithoutSqale()) {
       ruleDebtList.addAll(loadRuleDebtsFromXml(pluginKey));
     }
     return ruleDebtList;
   }
 
-  public List<DebtRulesXMLImporter.RuleDebt> loadRuleDebtsFromXml(String pluginKey) {
+  public List<RuleDebt> loadRuleDebtsFromXml(String pluginKey) {
     Reader xmlFileReader = null;
     try {
       xmlFileReader = languageModelFinder.createReaderForXMLFile(pluginKey);
       ValidationMessages validationMessages = ValidationMessages.create();
-      List<DebtRulesXMLImporter.RuleDebt> rules = importer.importXML(xmlFileReader, validationMessages);
+      List<RuleDebt> rules = importer.importXML(xmlFileReader, validationMessages);
       validationMessages.log(LOG);
       return rules;
     } finally {
@@ -176,15 +178,15 @@ public class DeprecatedRulesDefinition implements RulesDefinition {
 
   private Collection<String> getContributingPluginListWithoutSqale() {
     Collection<String> pluginList = newArrayList(languageModelFinder.getContributingPluginList());
-    pluginList.remove(TechnicalDebtModelRepository.DEFAULT_MODEL);
+    pluginList.remove(DebtModelPluginRepository.DEFAULT_MODEL);
     return pluginList;
   }
 
   @CheckForNull
-  private DebtRulesXMLImporter.RuleDebt findRequirement(List<DebtRulesXMLImporter.RuleDebt> requirements, final String repoKey, final String ruleKey) {
-    return Iterables.find(requirements, new Predicate<DebtRulesXMLImporter.RuleDebt>() {
+  private RuleDebt findRequirement(List<RuleDebt> requirements, final String repoKey, final String ruleKey) {
+    return Iterables.find(requirements, new Predicate<RuleDebt>() {
       @Override
-      public boolean apply(DebtRulesXMLImporter.RuleDebt input) {
+      public boolean apply(RuleDebt input) {
         return input.ruleKey().equals(RuleKey.of(repoKey, ruleKey));
       }
     }, null);

@@ -37,12 +37,12 @@ public class DebtModelService implements DebtModel {
 
   private final DebtModelOperations debtModelOperations;
   private final DebtModelLookup debtModelLookup;
-  private final DebtModelRestore debtModelRestore;
+  private final DebtModelBackup debtModelBackup;
 
-  public DebtModelService(DebtModelOperations debtModelOperations, DebtModelLookup debtModelLookup, DebtModelRestore debtModelRestore) {
+  public DebtModelService(DebtModelOperations debtModelOperations, DebtModelLookup debtModelLookup, DebtModelBackup debtModelBackup) {
     this.debtModelOperations = debtModelOperations;
     this.debtModelLookup = debtModelLookup;
-    this.debtModelRestore = debtModelRestore;
+    this.debtModelBackup = debtModelBackup;
   }
 
   public List<DebtCharacteristic> characteristics() {
@@ -85,29 +85,37 @@ public class DebtModelService implements DebtModel {
   /**
    * Restore from provided model
    */
-  public ValidationMessages restore(){
-    return debtModelRestore.restore();
+  public void restore() {
+    debtModelBackup.restore();
   }
 
   /**
    * Restore from plugins providing rules for a given language
    */
-  public ValidationMessages restoreFromLanguage(String languageKey) {
-    return debtModelRestore.restore(languageKey);
+  public void restoreFromLanguage(String languageKey) {
+    debtModelBackup.restore(languageKey);
   }
 
   /**
    * Restore from XML
    */
-  public ValidationMessages restoreFromXml(String xml){
-    return debtModelRestore.restoreFromXml(xml);
+  public ValidationMessages restoreFromXml(String xml) {
+    return debtModelBackup.restoreFromXml(xml);
   }
 
   /**
    * Restore from XML and a given language
    */
   public ValidationMessages restoreFromXmlAndLanguage(String xml, String languageKey) {
-    return debtModelRestore.restoreFromXml(xml, languageKey);
+    return debtModelBackup.restoreFromXml(xml, languageKey);
+  }
+
+  public String backup() {
+    return debtModelBackup.backup();
+  }
+
+  public String backupFromLanguage(String languageKey) {
+    return debtModelBackup.backup(languageKey);
   }
 
 }

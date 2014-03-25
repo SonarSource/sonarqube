@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.technicaldebt;
+package org.sonar.server.debt;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
@@ -44,8 +44,7 @@ import static com.google.common.collect.Lists.newArrayList;
  * they must be named "<pluginKey>-model.xml".
  * </p>
  */
-// TODO move it to sonar-server and rename it DebtModelPluginRepository when it will be no more used by the SQALE plugin
-public class TechnicalDebtModelRepository implements ServerExtension, Startable {
+public class DebtModelPluginRepository implements ServerExtension, Startable {
 
   public static final String DEFAULT_MODEL = "technical-debt";
 
@@ -57,19 +56,19 @@ public class TechnicalDebtModelRepository implements ServerExtension, Startable 
   private PluginRepository pluginRepository;
   private Map<String, ClassLoader> contributingPluginKeyToClassLoader;
 
-  public TechnicalDebtModelRepository(PluginRepository pluginRepository) {
+  public DebtModelPluginRepository(PluginRepository pluginRepository) {
     this.pluginRepository = pluginRepository;
     this.xmlFilePrefix = XML_FILE_PREFIX;
   }
 
   @VisibleForTesting
-  TechnicalDebtModelRepository(PluginRepository pluginRepository, String xmlFilePrefix) {
+  DebtModelPluginRepository(PluginRepository pluginRepository, String xmlFilePrefix) {
     this.pluginRepository = pluginRepository;
     this.xmlFilePrefix = xmlFilePrefix;
   }
 
   @VisibleForTesting
-  TechnicalDebtModelRepository(Map<String, ClassLoader> contributingPluginKeyToClassLoader, String xmlFilePrefix) {
+  DebtModelPluginRepository(Map<String, ClassLoader> contributingPluginKeyToClassLoader, String xmlFilePrefix) {
     this.contributingPluginKeyToClassLoader = contributingPluginKeyToClassLoader;
     this.xmlFilePrefix = xmlFilePrefix;
   }

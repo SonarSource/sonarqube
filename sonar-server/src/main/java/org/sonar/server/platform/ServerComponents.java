@@ -63,9 +63,6 @@ import org.sonar.core.qualitygate.db.QualityGateConditionDao;
 import org.sonar.core.qualitygate.db.QualityGateDao;
 import org.sonar.core.resource.DefaultResourcePermissions;
 import org.sonar.core.rule.DefaultRuleFinder;
-import org.sonar.core.technicaldebt.TechnicalDebtModelRepository;
-import org.sonar.core.technicaldebt.TechnicalDebtModelSynchronizer;
-import org.sonar.core.technicaldebt.TechnicalDebtXMLImporter;
 import org.sonar.core.test.TestPlanPerspectiveLoader;
 import org.sonar.core.test.TestablePerspectiveLoader;
 import org.sonar.core.timemachine.Periods;
@@ -266,7 +263,7 @@ class ServerComponents {
     pico.addSingleton(AddTagsWsHandler.class);
     pico.addSingleton(RemoveTagsWsHandler.class);
     pico.addSingleton(RulesDefinitionXmlLoader.class);
-    
+
     // rule tags
     pico.addSingleton(ESRuleTags.class);
     pico.addSingleton(RuleTagLookup.class);
@@ -352,10 +349,9 @@ class ServerComponents {
     pico.addSingleton(DebtModelService.class);
     pico.addSingleton(DebtModelOperations.class);
     pico.addSingleton(DebtModelLookup.class);
-    pico.addSingleton(DebtModelRestore.class);
-    pico.addSingleton(TechnicalDebtModelSynchronizer.class);
-    pico.addSingleton(TechnicalDebtModelRepository.class);
-    pico.addSingleton(TechnicalDebtXMLImporter.class);
+    pico.addSingleton(DebtModelBackup.class);
+    pico.addSingleton(DebtModelPluginRepository.class);
+    pico.addSingleton(DebtModelXMLExporter.class);
     pico.addSingleton(DebtRulesXMLImporter.class);
     pico.addSingleton(DebtCharacteristicsXMLImporter.class);
 

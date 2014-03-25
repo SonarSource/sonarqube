@@ -27,7 +27,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
-import org.sonar.server.debt.DebtModelRestore;
+import org.sonar.server.debt.DebtModelBackup;
 
 import java.util.Collections;
 
@@ -41,13 +41,13 @@ public class RegisterDebtModelTest {
   CharacteristicDao dao;
 
   @Mock
-  DebtModelRestore debtModelRestore;
+  DebtModelBackup debtModelBackup;
 
   RegisterDebtModel registerDebtModel;
 
   @Before
   public void setUp() throws Exception {
-    registerDebtModel = new RegisterDebtModel(dao, debtModelRestore);
+    registerDebtModel = new RegisterDebtModel(dao, debtModelBackup);
   }
 
   @Test
@@ -56,7 +56,7 @@ public class RegisterDebtModelTest {
 
     registerDebtModel.start();
 
-    verify(debtModelRestore).restore();
+    verify(debtModelBackup).restore();
   }
 
   @Test
@@ -65,6 +65,6 @@ public class RegisterDebtModelTest {
 
     registerDebtModel.start();
 
-    verifyZeroInteractions(debtModelRestore);
+    verifyZeroInteractions(debtModelBackup);
   }
 }

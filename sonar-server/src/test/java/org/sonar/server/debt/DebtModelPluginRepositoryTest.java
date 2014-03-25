@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.technicaldebt;
+package org.sonar.server.debt;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -46,11 +46,11 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class TechnicalDebtModelRepositoryTest {
+public class DebtModelPluginRepositoryTest {
 
-  private static final String TEST_XML_PREFIX_PATH = "org/sonar/core/technicaldebt/TechnicalDebtModelRepositoryTest/";
+  private static final String TEST_XML_PREFIX_PATH = "org/sonar/server/debt/DebtModelPluginRepositoryTest/";
 
-  private TechnicalDebtModelRepository modelFinder;
+  private DebtModelPluginRepository modelFinder;
 
   @Test
   public void test_component_initialization() throws Exception {
@@ -66,7 +66,7 @@ public class TechnicalDebtModelRepositoryTest {
     when(repository.getMetadata()).thenReturn(Lists.newArrayList(csharpPluginMetadata, phpPluginMetadata));
     FakePlugin fakePlugin = new FakePlugin();
     when(repository.getPlugin(anyString())).thenReturn(fakePlugin);
-    modelFinder = new TechnicalDebtModelRepository(repository, TEST_XML_PREFIX_PATH);
+    modelFinder = new DebtModelPluginRepository(repository, TEST_XML_PREFIX_PATH);
 
     // when
     modelFinder.start();
@@ -110,7 +110,7 @@ public class TechnicalDebtModelRepositoryTest {
 
   @Test
   public void contain_default_model() throws Exception {
-    modelFinder = new TechnicalDebtModelRepository(mock(PluginRepository.class));
+    modelFinder = new DebtModelPluginRepository(mock(PluginRepository.class));
     modelFinder.start();
     assertThat(modelFinder.getContributingPluginKeyToClassLoader().keySet()).containsOnly("technical-debt");
   }
@@ -119,7 +119,7 @@ public class TechnicalDebtModelRepositoryTest {
     Map<String, ClassLoader> contributingPluginKeyToClassLoader = Maps.newHashMap();
     contributingPluginKeyToClassLoader.put("csharp", newClassLoader());
     contributingPluginKeyToClassLoader.put("java", newClassLoader());
-    modelFinder = new TechnicalDebtModelRepository(contributingPluginKeyToClassLoader, TEST_XML_PREFIX_PATH);
+    modelFinder = new DebtModelPluginRepository(contributingPluginKeyToClassLoader, TEST_XML_PREFIX_PATH);
   }
 
   private ClassLoader newClassLoader() throws MalformedURLException {
