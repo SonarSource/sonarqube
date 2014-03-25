@@ -19,7 +19,6 @@
  */
 package org.sonar.home.cache;
 
-import org.apache.commons.io.FileExistsException;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.home.log.Log;
@@ -27,6 +26,7 @@ import org.sonar.home.log.Log;
 import javax.annotation.CheckForNull;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Random;
 import java.util.zip.ZipEntry;
@@ -185,16 +185,24 @@ public class FileCache {
   public File unzip(File cachedFile) throws IOException {
     String filename = cachedFile.getName();
     File destDir = new File(cachedFile.getParentFile(), filename + "_unzip");
+    File lockFile = new File(cachedFile.getParentFile(), filename + "_unzip.lock");
     if (!destDir.exists()) {
-      File tempDir = createTempDir();
-      ZipUtils.unzip(cachedFile, tempDir, new LibFilter());
+      FileOutputStream out = new FileOutputStream(lockFile);
       try {
-        // Recheck in case of concurrent processes
-        if (!destDir.exists()) {
-          FileUtils.moveDirectory(tempDir, destDir);
+        java.nio.channels.FileLock lock = out.getChannel().lock();
+        try {
+          // Recheck in case of concurrent processes
+          if (!destDir.exists()) {
+            File tempDir = createTempDir();
+            ZipUtils.unzip(cachedFile, tempDir, new LibFilter());
+            FileUtils.moveDirectory(tempDir, destDir);
+          }
+        } finally {
+          lock.release();
         }
-      } catch (FileExistsException e) {
-        // Ignore as is certainly means a concurrent process has unziped the same file
+      } finally {
+        out.close();
+        FileUtils.deleteQuietly(lockFile);
       }
     }
     return destDir;

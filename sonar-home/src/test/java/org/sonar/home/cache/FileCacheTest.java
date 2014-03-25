@@ -20,7 +20,6 @@
 package org.sonar.home.cache;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -30,13 +29,7 @@ import org.sonar.home.log.Slf4jLog;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -129,8 +122,7 @@ public class FileCacheTest {
   }
 
   @Test
-  @Ignore("Implementation is not safe so the test sometimes fails")
-  public void concurrent_unzip_from_cache() throws IOException, URISyntaxException, InterruptedException, ExecutionException {
+  public void unzip_from_cache() throws IOException, URISyntaxException, InterruptedException, ExecutionException {
     final File samplePlugin = new File(this.getClass().getResource("/sonar-checkstyle-plugin-2.8.jar").toURI());
     FileHashes hashes = mock(FileHashes.class);
     final FileCache cache = new FileCache(tempFolder.newFolder(), log, hashes);
@@ -145,27 +137,16 @@ public class FileCacheTest {
     assertThat(cachedFile).isNotNull().exists().isFile();
     assertThat(cachedFile.getName()).isEqualTo("sonar-checkstyle-plugin-2.8.jar");
 
-    final int nThreads = 5;
-    ExecutorService executorService = Executors.newFixedThreadPool(nThreads);
-    List<Callable<File>> tasks = new ArrayList<Callable<File>>();
-    for (int i = 0; i < nThreads; i++) {
-      tasks.add(new Callable<File>() {
+    File pluginDepsDir = cache.unzip(cachedFile);
 
-        public File call() throws Exception {
-          return cache.unzip(cachedFile);
-        }
-      });
-    }
-
-    File pluginDepsDir = null;
-    for (Future<File> result : executorService.invokeAll(tasks)) {
-      pluginDepsDir = result.get();
-    }
     assertThat(pluginDepsDir.listFiles()).hasSize(1);
     File metaDir = new File(pluginDepsDir, "META-INF");
     assertThat(metaDir.listFiles()).hasSize(1);
     File libDir = new File(metaDir, "lib");
     assertThat(libDir.listFiles()).hasSize(3);
     assertThat(libDir.listFiles()).containsOnly(new File(libDir, "antlr-2.7.6.jar"), new File(libDir, "checkstyle-5.1.jar"), new File(libDir, "commons-cli-1.0.jar"));
+
+    // Unzip again should not do anything as it is already unzipped
+    cache.unzip(cachedFile);
   }
 }
