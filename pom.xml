@@ -12,7 +12,6 @@
   <description>Open source platform for continuous inspection of code quality</description>
 
   <modules>
-    <!-- public artifacts to be deployed to central repository -->
     <module>sonar-application</module>
     <module>sonar-batch</module>
     <module>sonar-batch-maven-compat</module>
@@ -621,7 +620,7 @@
       <dependency>
         <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-classworlds</artifactId>
-        <version>2.2.3</version>
+        <version>2.5.1</version>
       </dependency>
       <dependency>
         <groupId>com.tinkerpop.blueprints</groupId>
