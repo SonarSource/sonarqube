@@ -1,6 +1,8 @@
 <form>
   <div class="modal-head">
-    <h2>{{t 'quality_gates' method }}</h2>
+    {{#if method}}
+      <h2>{{t 'quality_gates' method }}</h2>
+    {{/if}}
   </div>
 
   <div class="modal-body">

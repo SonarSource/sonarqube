@@ -7,38 +7,38 @@ module.exports = (grunt) ->
       dev:
         files:
           '<%= pkg.assets %>css/sonar.css': [
-            '<%= pkg.assets %>less/yui-reset-font.less'
-            '<%= pkg.assets %>less/jquery-ui.less'
-            '<%= pkg.assets %>less/select2.less'
-            '<%= pkg.assets %>less/select2-sonar.less'
-            '<%= pkg.assets %>less/layout.less'
-            '<%= pkg.assets %>less/style.less'
-            '<%= pkg.assets %>less/icons.less'
-            '<%= pkg.assets %>less/ui.less'
-            '<%= pkg.assets %>less/sonar-colorizer.less'
-            '<%= pkg.assets %>less/dashboard.less'
-            '<%= pkg.assets %>less/select-list.less'
-            '<%= pkg.assets %>less/navigator.less'
-            '<%= pkg.assets %>less/*.less'
+            '<%= pkg.sources %>less/yui-reset-font.less'
+            '<%= pkg.sources %>less/jquery-ui.less'
+            '<%= pkg.sources %>less/select2.less'
+            '<%= pkg.sources %>less/select2-sonar.less'
+            '<%= pkg.sources %>less/layout.less'
+            '<%= pkg.sources %>less/style.less'
+            '<%= pkg.sources %>less/icons.less'
+            '<%= pkg.sources %>less/ui.less'
+            '<%= pkg.sources %>less/sonar-colorizer.less'
+            '<%= pkg.sources %>less/dashboard.less'
+            '<%= pkg.sources %>less/select-list.less'
+            '<%= pkg.sources %>less/navigator.less'
+            '<%= pkg.sources %>less/*.less'
           ]
       build:
         options:
           cleancss: true
         files:
-          '<%= pkg.assets %>build/css/sonar.css': [
-            '<%= pkg.assets %>less/yui-reset-font.less'
-            '<%= pkg.assets %>less/jquery-ui.less'
-            '<%= pkg.assets %>less/select2.less'
-            '<%= pkg.assets %>less/select2-sonar.less'
-            '<%= pkg.assets %>less/layout.less'
-            '<%= pkg.assets %>less/style.less'
-            '<%= pkg.assets %>less/icons.less'
-            '<%= pkg.assets %>less/ui.less'
-            '<%= pkg.assets %>less/sonar-colorizer.less'
-            '<%= pkg.assets %>less/dashboard.less'
-            '<%= pkg.assets %>less/select-list.less'
-            '<%= pkg.assets %>less/navigator.less'
-            '<%= pkg.assets %>less/*.less'
+          '<%= pkg.assets %>css/sonar.css': [
+            '<%= pkg.sources %>less/yui-reset-font.less'
+            '<%= pkg.sources %>less/jquery-ui.less'
+            '<%= pkg.sources %>less/select2.less'
+            '<%= pkg.sources %>less/select2-sonar.less'
+            '<%= pkg.sources %>less/layout.less'
+            '<%= pkg.sources %>less/style.less'
+            '<%= pkg.sources %>less/icons.less'
+            '<%= pkg.sources %>less/ui.less'
+            '<%= pkg.sources %>less/sonar-colorizer.less'
+            '<%= pkg.sources %>less/dashboard.less'
+            '<%= pkg.sources %>less/select-list.less'
+            '<%= pkg.sources %>less/navigator.less'
+            '<%= pkg.sources %>less/*.less'
           ]
 
 
@@ -46,7 +46,7 @@ module.exports = (grunt) ->
       build:
         files: [
           expand: true
-          cwd: '<%= pkg.assets %>coffee'
+          cwd: '<%= pkg.sources %>coffee'
           src: ['**/*.coffee']
           dest: '<%= pkg.assets %>js'
           ext: '.js'
@@ -114,7 +114,7 @@ module.exports = (grunt) ->
 
     requirejs:
       options:
-        baseUrl: '<%= pkg.assets %>js'
+        baseUrl: '<%= pkg.assets %>js/'
         preserveLicenseComments: false,
 
         paths:
@@ -171,12 +171,27 @@ module.exports = (grunt) ->
       build:
         files:
           '<%= pkg.assets %>js/templates/coding-rules.js': [
-            '<%= pkg.assets %>templates/common/**/*.hbs'
-            '<%= pkg.assets %>templates/coding-rules/**/*.hbs'
+            '<%= pkg.sources %>hbs/common/**/*.hbs'
+            '<%= pkg.sources %>hbs/coding-rules/**/*.hbs'
           ]
           '<%= pkg.assets %>js/templates/quality-gates.js': [
-            '<%= pkg.assets %>templates/quality-gates/**/*.hbs'
+            '<%= pkg.sources %>hbs/quality-gates/**/*.hbs'
           ]
+
+
+    clean:
+      css: ['<%= pkg.assets %>css/']
+      js: ['<%= pkg.assets %>js/']
+      build: ['<%= pkg.assets %>build/']
+
+
+    copy:
+      js:
+        expand: true, cwd: '<%= pkg.sources %>js/', src: ['**'], dest: '<%= pkg.assets %>js/'
+      build:
+        expand: true, cwd: '<%= pkg.assets %>build/js/', src: ['**'], dest: '<%= pkg.assets %>js/'
+      requirejs:
+        src: '<%= pkg.sources %>js/require.js', dest: '<%= pkg.assets %>js/require.js'
 
 
     karma:
@@ -190,19 +205,19 @@ module.exports = (grunt) ->
         spawn: false
 
       less:
-        files: '<%= pkg.assets %>less/**/*.less'
+        files: '<%= pkg.sources %>less/**/*.less'
         tasks: ['less:dev']
 
       coffee:
-        files: '<%= pkg.assets %>coffee/**/*.coffee'
+        files: '<%= pkg.sources %>coffee/**/*.coffee'
         tasks: ['coffee:build']
 
-      uglify:
-        files: '<%= pkg.assets %>js/**/*.js'
-        tasks: ['uglify:dev']
+      js:
+        files: '<%= pkg.sources %>js/**/*.js'
+        tasks: ['copy:js', 'uglify:dev']
 
       handlebars:
-        files: '<%= pkg.assets %>templates/**/*.hbs'
+        files: '<%= pkg.sources %>hbs/**/*.hbs'
         tasks: ['handlebars:build']
 
 
@@ -214,8 +229,19 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-requirejs'
   grunt.loadNpmTasks 'grunt-contrib-handlebars'
   grunt.loadNpmTasks 'grunt-contrib-watch'
+  grunt.loadNpmTasks 'grunt-contrib-clean'
+  grunt.loadNpmTasks 'grunt-contrib-copy'
 
 
   # Define tasks
-  grunt.registerTask 'dev', ['less:dev', 'coffee:build', 'uglify:dev', 'handlebars:build']
-  grunt.registerTask 'default', ['less:build', 'coffee:build', 'uglify:build', 'handlebars:build', 'requirejs']
+  grunt.registerTask 'dev', ['clean:css', 'clean:js',
+                             'less:dev',
+                             'coffee:build', 'handlebars:build', 'copy:js',
+                             'uglify:dev']
+
+
+  grunt.registerTask 'default', ['clean:css', 'clean:js',
+                                 'less:build',
+                                 'coffee:build', 'handlebars:build', 'copy:js',
+                                 'uglify:build',
+                                 'requirejs', 'clean:js', 'copy:build', 'copy:requirejs', 'clean:build']
