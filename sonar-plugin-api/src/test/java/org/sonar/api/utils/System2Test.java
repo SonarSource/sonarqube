@@ -51,7 +51,7 @@ public class System2Test {
 
   @Test
   public void testEnvVariables() throws Exception {
-    Map<String,String> expected = System.getenv();
+    Map<String, String> expected = System.getenv();
     assertThat(System2.INSTANCE.envVariables()).isNotNull().isEqualTo(expected);
   }
 
@@ -70,6 +70,15 @@ public class System2Test {
   @Test
   public void testIsOsWindows() throws Exception {
     assertThat(System2.INSTANCE.isOsWindows()).isEqualTo(SystemUtils.IS_OS_WINDOWS);
+  }
+
+  @Test
+  public void testIsJavaAtLeast17() throws Exception {
+    if (SystemUtils.IS_JAVA_1_6) {
+      assertThat(System2.INSTANCE.isJavaAtLeast17()).isFalse();
+    } else {
+      assertThat(System2.INSTANCE.isJavaAtLeast17()).isTrue();
+    }
   }
 
   @Test

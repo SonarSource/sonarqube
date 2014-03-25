@@ -26,6 +26,7 @@ import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.HttpDownloader;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.batch.components.*;
@@ -83,7 +84,8 @@ public class BootstrapContainer extends ComponentContainer {
       TempFolderCleaner.class,
       HttpDownloader.class,
       UriReader.class,
-      new FileCacheProvider());
+      new FileCacheProvider(),
+      System2.INSTANCE);
   }
 
   private void addDatabaseComponents() {

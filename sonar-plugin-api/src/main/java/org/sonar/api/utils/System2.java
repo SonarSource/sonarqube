@@ -20,6 +20,8 @@
 package org.sonar.api.utils;
 
 import org.apache.commons.lang.SystemUtils;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.ServerComponent;
 
 import javax.annotation.CheckForNull;
 import java.util.Map;
@@ -28,7 +30,7 @@ import java.util.Properties;
 /**
  * Proxy over {@link java.lang.System}. It aims to improve testability of classes
  * that interact with low-level system methods, for example :
- *
+ * <p/>
  * <pre>
  * public class MyClass {
  *   private final System2 system;
@@ -42,7 +44,7 @@ import java.util.Properties;
  *   }
  * }
  *
- * @Test
+ * {@literal @}Test
  * public void should_return_xxx() {
  *   // using Mockito
  *   System2 system = mock(System2.class);
@@ -51,13 +53,14 @@ import java.util.Properties;
  *   assertThat(new MyClass(system).xxx()).isEqualTo(now);
  * }
  * </pre>
- *
  * <p/>
  * Note that the name System2 was chosen to not conflict with {@link java.lang.System}.
+ * <p/>
+ * An instance is available in IoC container since 4.3.
  *
  * @since 4.2
  */
-public class System2 {
+public class System2 implements BatchComponent, ServerComponent {
 
   public static final System2 INSTANCE = new System2();
 
@@ -103,6 +106,14 @@ public class System2 {
    */
   public boolean isOsWindows() {
     return SystemUtils.IS_OS_WINDOWS;
+  }
+
+  /**
+   * True if Java 7 or Java 8 runtime environment
+   * @since 4.3
+   */
+  public boolean isJavaAtLeast17() {
+    return SystemUtils.isJavaVersionAtLeast(1.7f);
   }
 
   public void println(String obj) {

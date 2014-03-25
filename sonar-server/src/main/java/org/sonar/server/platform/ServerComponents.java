@@ -34,6 +34,7 @@ import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.HttpDownloader;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.core.component.SnapshotPerspectives;
@@ -161,7 +162,8 @@ class ServerComponents {
       SemaphoreUpdater.class,
       SemaphoresImpl.class,
       TempFolderCleaner.class,
-      new TempFolderProvider()
+      new TempFolderProvider(),
+      System2.INSTANCE
     ));
     components.addAll(DatabaseMigrations.CLASSES);
     components.addAll(DaoUtils.getDaoClasses());
