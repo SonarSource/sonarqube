@@ -19,19 +19,22 @@
  */
 package org.sonar.server.plugins;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.rules.TestName;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.MessageException;
+import org.sonar.core.persistence.Database;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.test.TestUtils;
 
 import java.io.File;
+import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -41,99 +44,242 @@ import static org.mockito.Mockito.when;
 public class ServerPluginJarsInstallerTest {
 
   @Rule
-  public TestName name = new TestName();
-
-  @Rule
   public ExpectedException exception = ExpectedException.none();
 
-  ServerPluginJarInstaller jarInstaller;
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
   DefaultServerFileSystem fileSystem;
-  File homeDir;
-  File deployDir;
+  File homeDir, deployDir, pluginsDir, downloadsDir, bundledDir, trashDir, coreDir;
+  ServerPluginJarInstaller jarInstaller;
   ServerPluginJarsInstaller jarsInstaller;
   Server server = mock(Server.class);
-  ServerUpgradeStatus serverUpgradeStatus;
+  ServerUpgradeStatus upgradeStatus = mock(ServerUpgradeStatus.class);
 
   @Before
-  public void before() {
+  public void before() throws IOException {
     when(server.getVersion()).thenReturn("3.1");
-    homeDir = TestUtils.getResource(ServerPluginJarsInstallerTest.class, name.getMethodName());
-    deployDir = TestUtils.getTestTempDir(ServerPluginJarsInstallerTest.class, name.getMethodName() + "/deploy");
-    fileSystem = new DefaultServerFileSystem(null, homeDir, deployDir);
+    homeDir = temp.newFolder("home");
+    pluginsDir = new File(homeDir, "extensions/plugins");
+    FileUtils.forceMkdir(pluginsDir);
+    downloadsDir = new File(homeDir, "extensions/downloads");
+    trashDir = new File(homeDir, "extensions/trash");
+    bundledDir = new File(homeDir, "lib/bundled-plugins");
+    coreDir = new File(homeDir, "lib/core-plugins");
+    FileUtils.forceMkdir(bundledDir);
+    deployDir = temp.newFolder("deploy");
+    fileSystem = new DefaultServerFileSystem(mock(Database.class), homeDir, deployDir);
     jarInstaller = new ServerPluginJarInstaller();
-    serverUpgradeStatus = mock(ServerUpgradeStatus.class);
-    jarsInstaller = new ServerPluginJarsInstaller(server, serverUpgradeStatus, fileSystem, jarInstaller);
+    jarsInstaller = new ServerPluginJarsInstaller(server, upgradeStatus, fileSystem, jarInstaller);
+  }
+
+  private File jar(String name) {
+    return TestUtils.getResource(ServerPluginJarsInstallerTest.class, name);
   }
 
   @Test
-  public void deployPlugin() {
-    when(serverUpgradeStatus.isFreshInstall()).thenReturn(false);
+  public void copy_bundled_plugin_on_fresh_install() throws Exception {
+    when(upgradeStatus.isFreshInstall()).thenReturn(true);
+    FileUtils.copyFileToDirectory(jar("foo-plugin-1.0.jar"), bundledDir);
+
+    jarsInstaller.install();
+
+    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).hasSize(1);
+    assertThat(new File(pluginsDir, "foo-plugin-1.0.jar")).exists().isFile();
+    PluginMetadata plugin = jarsInstaller.getMetadata("foo");
+    assertThat(plugin.getName()).isEqualTo("Foo");
+    assertThat(plugin.getDeployedFiles()).hasSize(1);
+    assertThat(plugin.isCore()).isFalse();
+    assertThat(plugin.isUseChildFirstClassLoader()).isFalse();
+  }
+
+  @Test
+  public void do_not_copy_bundled_plugin_on_non_fresh_install() throws Exception {
+    when(upgradeStatus.isFreshInstall()).thenReturn(false);
+    FileUtils.copyFileToDirectory(jar("foo-plugin-1.0.jar"), bundledDir);
+
+    jarsInstaller.install();
+
+    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).isEmpty();
+  }
+
+  @Test
+  public void do_not_copy_bundled_plugin_if_already_installed() throws Exception {
+    // fresh install but plugins are already packaged in extensions/plugins
+    when(upgradeStatus.isFreshInstall()).thenReturn(true);
+    FileUtils.copyFileToDirectory(jar("foo-plugin-1.0.jar"), bundledDir);
+    FileUtils.copyFileToDirectory(jar("foo-plugin-2.0.jar"), pluginsDir);
+    FileUtils.copyFileToDirectory(jar("bar-plugin-1.0.jar"), pluginsDir);
+
+    jarsInstaller.install();
+
+    // do not copy foo 1.0
+    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).hasSize(2);
+    assertThat(new File(pluginsDir, "foo-plugin-2.0.jar")).exists().isFile();
+    assertThat(new File(pluginsDir, "bar-plugin-1.0.jar")).exists().isFile();
+    PluginMetadata plugin = jarsInstaller.getMetadata("foo");
+    assertThat(plugin.getVersion()).isEqualTo("2.0");
+  }
+
+  @Test
+  public void deploy_installed_plugin() throws IOException {
+    when(upgradeStatus.isFreshInstall()).thenReturn(false);
+    FileUtils.copyFileToDirectory(jar("foo-plugin-1.0.jar"), pluginsDir);
 
     jarsInstaller.install();
 
     // check that the plugin is registered
     assertThat(jarsInstaller.getMetadata()).hasSize(1);
-
     PluginMetadata plugin = jarsInstaller.getMetadata("foo");
     assertThat(plugin.getName()).isEqualTo("Foo");
     assertThat(plugin.getDeployedFiles()).hasSize(1);
     assertThat(plugin.isCore()).isFalse();
     assertThat(plugin.isUseChildFirstClassLoader()).isFalse();
 
-    // check that the file is deployed
-    File deployedJar = new File(deployDir, "plugins/foo/foo-plugin.jar");
-    assertThat(deployedJar).exists();
-    assertThat(deployedJar).isFile();
+    // check that the file is still present in extensions/plugins
+    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).hasSize(1);
+    assertThat(new File(pluginsDir, "foo-plugin-1.0.jar")).exists().isFile();
   }
 
   @Test
-  public void deployBundledPluginsOnFreshInstall() {
-    when(serverUpgradeStatus.isFreshInstall()).thenReturn(true);
+  public void ignore_non_plugin_jars() throws IOException {
+    when(upgradeStatus.isFreshInstall()).thenReturn(false);
+    FileUtils.copyFileToDirectory(jar("not-a-plugin.jar"), pluginsDir);
 
     jarsInstaller.install();
 
-    // check that the plugin is registered
-    assertThat(jarsInstaller.getMetadata()).hasSize(2);
-
-    PluginMetadata plugin = jarsInstaller.getMetadata("bar");
-    assertThat(plugin.getName()).isEqualTo("Bar");
-    assertThat(plugin.getDeployedFiles()).hasSize(1);
-    assertThat(plugin.isCore()).isFalse();
-    assertThat(plugin.isUseChildFirstClassLoader()).isFalse();
-
-    // check that the file is deployed
-    File deployedJar = new File(deployDir, "plugins/bar/bar-plugin.jar");
-    assertThat(deployedJar).exists();
-    assertThat(deployedJar).isFile();
-  }
-
-  @Test
-  public void ignoreJarsWhichAreNotPlugins() {
-    jarsInstaller.install();
-
+    // nothing to install but keep the file
     assertThat(jarsInstaller.getMetadata()).isEmpty();
+    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).hasSize(1);
+    assertThat(new File(pluginsDir, "not-a-plugin.jar")).exists().isFile();
   }
 
   @Test
-  public void fail_if_require_greater_SQ_version() {
-    when(server.getVersion()).thenReturn("2.0");
-
+  public void fail_if_plugin_requires_greater_SQ_version() throws IOException {
     exception.expect(IllegalStateException.class);
     exception.expectMessage("Plugin switchoffviolations needs a more recent version of SonarQube than 2.0. At least 2.5 is expected");
 
+    when(upgradeStatus.isFreshInstall()).thenReturn(false);
+    when(server.getVersion()).thenReturn("2.0");
+    FileUtils.copyFileToDirectory(jar("require-sq-2.5.jar"), pluginsDir);
+
     jarsInstaller.install();
   }
 
   @Test
-  public void failIfTwoPluginsWithSameKey() {
+  public void move_downloaded_plugins() throws IOException {
+    FileUtils.copyFileToDirectory(jar("foo-plugin-1.0.jar"), downloadsDir);
+    when(upgradeStatus.isFreshInstall()).thenReturn(false);
+
+    jarsInstaller.install();
+
+    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).hasSize(1);
+    assertThat(FileUtils.listFiles(downloadsDir, new String[]{"jar"}, false)).isEmpty();
+    assertThat(new File(pluginsDir, "foo-plugin-1.0.jar")).exists().isFile();
+  }
+
+  @Test
+  public void downloaded_plugins_overrides_existing_plugin() throws IOException {
+    FileUtils.copyFileToDirectory(jar("foo-plugin-1.0.jar"), pluginsDir);
+    FileUtils.copyFileToDirectory(jar("foo-plugin-2.0.jar"), downloadsDir);
+    when(upgradeStatus.isFreshInstall()).thenReturn(false);
+
+    jarsInstaller.install();
+
+    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).hasSize(1);
+    assertThat(FileUtils.listFiles(downloadsDir, new String[]{"jar"}, false)).isEmpty();
+    assertThat(new File(pluginsDir, "foo-plugin-2.0.jar")).exists().isFile();
+  }
+
+  @Test
+  public void downloaded_plugins_overrides_existing_plugin_even_if_same_filename() throws IOException {
+    FileUtils.copyFileToDirectory(jar("foo-plugin-1.0.jar"), pluginsDir, true);
+    // foo-plugin-1.0.jar in extensions/downloads is in fact version 2.0. It's used to verify
+    // that it has correctly overridden extensions/plugins/foo-plugin-1.0.jar
+    FileUtils.copyFile(jar("foo-plugin-2.0.jar"), new File(downloadsDir, "foo-plugin-1.0.jar"));
+    when(upgradeStatus.isFreshInstall()).thenReturn(false);
+
+    jarsInstaller.install();
+
+    PluginMetadata plugin = jarsInstaller.getMetadata("foo");
+    assertThat(plugin).isNotNull();
+    assertThat(plugin.getVersion()).isEqualTo("2.0");
+    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).hasSize(1);
+    assertThat(FileUtils.listFiles(downloadsDir, new String[]{"jar"}, false)).isEmpty();
+    File installed = new File(pluginsDir, "foo-plugin-1.0.jar");
+    assertThat(installed).exists().isFile();
+  }
+
+  @Test
+  public void delete_trash() throws IOException {
+    FileUtils.copyFileToDirectory(jar("foo-plugin-1.0.jar"), trashDir);
+    when(upgradeStatus.isFreshInstall()).thenReturn(false);
+
+    jarsInstaller.install();
+
+    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).isEmpty();
+    assertThat(trashDir).doesNotExist();
+  }
+
+  @Test
+  public void fail_if_two_installed_plugins_with_same_key() throws IOException {
+    when(upgradeStatus.isFreshInstall()).thenReturn(false);
+    FileUtils.copyFileToDirectory(jar("foo-plugin-1.0.jar"), pluginsDir);
+    FileUtils.copyFileToDirectory(jar("foo-plugin-2.0.jar"), pluginsDir);
+
     try {
       jarsInstaller.install();
       fail();
     } catch (MessageException e) {
       assertThat(e.getMessage())
         .contains("Found two files for the same plugin 'foo'")
-        .contains("foo-plugin1.jar")
-        .contains("foo-plugin2.jar");
+        .contains("foo-plugin-1.0.jar")
+        .contains("foo-plugin-2.0.jar");
     }
+  }
+
+  @Test
+  public void uninstall_plugin() throws IOException {
+    when(upgradeStatus.isFreshInstall()).thenReturn(false);
+    FileUtils.copyFileToDirectory(jar("foo-plugin-1.0.jar"), pluginsDir);
+
+    jarsInstaller.install();
+    jarsInstaller.uninstall("foo");
+
+    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).isEmpty();
+    assertThat(FileUtils.listFiles(trashDir, new String[]{"jar"}, false)).hasSize(1);
+    assertThat(jarsInstaller.getUninstalls()).containsOnly("foo-plugin-1.0.jar");
+  }
+
+  @Test
+  public void cancel_uninstallation() throws IOException {
+    when(upgradeStatus.isFreshInstall()).thenReturn(false);
+    FileUtils.copyFileToDirectory(jar("foo-plugin-1.0.jar"), pluginsDir);
+
+    jarsInstaller.install();
+    jarsInstaller.uninstall("foo");
+    jarsInstaller.cancelUninstalls();
+
+    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).hasSize(1);
+    assertThat(FileUtils.listFiles(trashDir, new String[]{"jar"}, false)).hasSize(0);
+    assertThat(jarsInstaller.getUninstalls()).isEmpty();
+  }
+
+  @Test
+  public void deploy_core_plugins() throws IOException {
+    when(upgradeStatus.isFreshInstall()).thenReturn(false);
+    FileUtils.copyFileToDirectory(jar("foo-plugin-1.0.jar"), coreDir);
+
+    jarsInstaller.install();
+
+    // do not deploy in extensions/plugins
+    assertThat(FileUtils.listFiles(pluginsDir, new String[]{"jar"}, false)).hasSize(0);
+
+    // do not remove from lib/core-plugins
+    assertThat(FileUtils.listFiles(coreDir, new String[]{"jar"}, false)).hasSize(1);
+
+    PluginMetadata plugin = jarsInstaller.getMetadata("foo");
+    assertThat(plugin).isNotNull();
+    assertThat(plugin.isCore()).isTrue();
   }
 }

@@ -64,9 +64,7 @@ public class ServerPluginJarsInstaller {
     TimeProfiler profiler = new TimeProfiler().start("Install plugins");
     deleteTrash();
     loadInstalledPlugins();
-    if (serverUpgradeStatus.isFreshInstall()) {
-      copyBundledPlugins();
-    }
+    copyBundledPlugins();
     moveDownloadedPlugins();
     loadCorePlugins();
     deployPlugins();
@@ -107,8 +105,15 @@ public class ServerPluginJarsInstaller {
   }
 
   private void copyBundledPlugins() {
-    for (File sourceFile : fs.getBundledPlugins()) {
-      overridePlugin(sourceFile, false);
+    if (serverUpgradeStatus.isFreshInstall()) {
+      for (File sourceFile : fs.getBundledPlugins()) {
+        DefaultPluginMetadata metadata = installer.extractMetadata(sourceFile, false);
+        // lib/bundled-plugins should be copied only if the plugin is not already
+        // available in extensions/plugins
+        if (!pluginByKeys.containsKey(metadata.getKey())) {
+          overridePlugin(sourceFile, false);
+        }
+      }
     }
   }
 
@@ -125,7 +130,7 @@ public class ServerPluginJarsInstaller {
       if (deleteSource) {
         FileUtils.moveFile(sourceFile, destFile);
       } else {
-        FileUtils.copyFile(sourceFile, destFile);
+        FileUtils.copyFile(sourceFile, destFile, true);
       }
     } catch (IOException e) {
       LOG.error(String.format("Fail to move or copy plugin: %s to %s",
@@ -163,7 +168,7 @@ public class ServerPluginJarsInstaller {
 
   private void uninstallPlugin(String pluginKey) {
     PluginMetadata metadata = pluginByKeys.get(pluginKey);
-    if ((metadata != null) && !metadata.isCore()) {
+    if (metadata != null && !metadata.isCore()) {
       try {
         File masterFile = new File(fs.getUserPluginsDir(), metadata.getFile().getName());
         FileUtils.moveFileToDirectory(masterFile, fs.getTrashPluginsDir(), true);
