@@ -51,19 +51,49 @@ public class DurationTest {
   @Test
   public void decode() throws Exception {
     assertThat(Duration.decode("    15 d  26  h     42min  ", HOURS_IN_DAY)).isEqualTo(Duration.create(15 * ONE_DAY_IN_MINUTES + 26 * ONE_HOUR_IN_MINUTES + 42 * ONE_MINUTE));
-    assertThat(Duration.decode("26h15d42min", HOURS_IN_DAY)).isEqualTo(Duration.create(15 * ONE_DAY_IN_MINUTES + 26 * ONE_HOUR_IN_MINUTES + 42 * ONE_MINUTE));
+    assertThat(Duration.decode("15d26h42min", HOURS_IN_DAY)).isEqualTo(Duration.create(15 * ONE_DAY_IN_MINUTES + 26 * ONE_HOUR_IN_MINUTES + 42 * ONE_MINUTE));
     assertThat(Duration.decode("26h", HOURS_IN_DAY)).isEqualTo(Duration.create(26 * ONE_HOUR_IN_MINUTES));
     assertThat(Duration.decode("15d", HOURS_IN_DAY)).isEqualTo(Duration.create(15 * ONE_DAY_IN_MINUTES));
     assertThat(Duration.decode("42min", HOURS_IN_DAY)).isEqualTo(Duration.create(42 * ONE_MINUTE));
   }
 
   @Test
-  public void fail_to_decode_if_not_number() throws Exception {
+  public void fail_to_decode_if_unit_with_invalid_number() throws Exception {
     try {
       Duration.decode("Xd", HOURS_IN_DAY);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Duration 'Xd' is invalid, it should use the following sample format : 2d 10h 15min");
+    }
+  }
+
+  @Test
+  public void fail_to_decode_if_no_valid_duration() throws Exception {
+    try {
+      Duration.decode("foo", HOURS_IN_DAY);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Duration 'foo' is invalid, it should use the following sample format : 2d 10h 15min");
+    }
+  }
+
+  @Test
+  public void fail_to_decode_if_only_number() throws Exception {
+    try {
+      Duration.decode("15", HOURS_IN_DAY);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Duration '15' is invalid, it should use the following sample format : 2d 10h 15min");
+    }
+  }
+
+  @Test
+  public void fail_to_decode_if_valid_unit_with_invalid_duration() throws Exception {
+    try {
+      Duration.decode("15min foo", HOURS_IN_DAY);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Duration '15min foo' is invalid, it should use the following sample format : 2d 10h 15min");
     }
   }
 

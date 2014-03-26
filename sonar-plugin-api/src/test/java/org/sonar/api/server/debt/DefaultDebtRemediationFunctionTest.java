@@ -20,7 +20,6 @@
 
 package org.sonar.api.server.debt;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 
@@ -147,14 +146,13 @@ public class DefaultDebtRemediationFunctionTest {
       .isEqualTo("DebtRemediationFunction{type=LINEAR_OFFSET, factor=10h, offset=5min}");
   }
 
-  @Ignore
   @Test
   public void fail_if_bad_factor_format() {
     try {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, "foo", null);
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("TODO");
+      assertThat(e).hasMessage("Invalid factor: foo");
     }
 
   }

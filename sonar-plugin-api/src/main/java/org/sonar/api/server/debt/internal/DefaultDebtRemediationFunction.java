@@ -38,7 +38,6 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
 
   public DefaultDebtRemediationFunction(Type type, @Nullable String factor, @Nullable String offset) {
     this.type = type;
-    // TODO validate factor and offset format
     this.factor = sanitizeValue("factor", factor);
     this.offset = sanitizeValue("offset", offset);
     validate();

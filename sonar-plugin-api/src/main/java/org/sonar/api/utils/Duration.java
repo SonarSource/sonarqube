@@ -20,8 +20,11 @@
 
 package org.sonar.api.utils;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+
+import javax.annotation.Nullable;
 
 import java.io.Serializable;
 import java.util.regex.Matcher;
@@ -53,20 +56,35 @@ public class Duration implements Serializable {
   }
 
   public static Duration decode(String text, int hoursInDay) {
-    return new Duration(extractValue(text, DAY), extractValue(text, HOUR), extractValue(text, MINUTE), hoursInDay);
-  }
+    int days = 0, hours = 0, minutes = 0;
+    String sanitizedText = StringUtils.deleteWhitespace(text);
+    Pattern pattern = Pattern.compile("\\s*+(?:(\\d++)\\s*+" + DAY + ")?+\\s*+(?:(\\d++)\\s*+" + HOUR + ")?+\\s*+(?:(\\d++)\\s*+" + MINUTE + ")?+\\s*+");
+    Matcher matcher = pattern.matcher(text);
 
-  private static int extractValue(String text, String unit) {
     try {
-      Pattern pattern = Pattern.compile("(\\d*?)\\D*" + unit);
-      Matcher matcher = pattern.matcher(text);
       if (matcher.find()) {
-        String daysString = matcher.group(1);
-        return Integer.parseInt(daysString);
+        String daysDuration = matcher.group(1);
+        if (daysDuration != null) {
+          days = Integer.parseInt(daysDuration);
+          sanitizedText = sanitizedText.replace(daysDuration + DAY, "");
+        }
+        String hoursText = matcher.group(2);
+        if (hoursText != null) {
+          hours = Integer.parseInt(hoursText);
+          sanitizedText = sanitizedText.replace(hoursText + HOUR, "");
+        }
+        String minutesText = matcher.group(3);
+        if (minutesText != null) {
+          minutes = Integer.parseInt(minutesText);
+          sanitizedText = sanitizedText.replace(minutesText + MINUTE, "");
+        }
+        if (sanitizedText.isEmpty()) {
+          return new Duration(days, hours, minutes, hoursInDay);
+        }
       }
-      return 0;
+      throw invalid(text, null);
     } catch (NumberFormatException e) {
-      throw new IllegalArgumentException(String.format("Duration '%s' is invalid, it should use the following sample format : 2d 10h 15min", text), e);
+      throw invalid(text, e);
     }
   }
 
@@ -111,6 +129,10 @@ public class Duration implements Serializable {
 
   public Duration multiply(int factor) {
     return Duration.create(durationInMinutes * factor);
+  }
+
+  private static IllegalArgumentException invalid(String text, @Nullable Exception e) {
+    throw new IllegalArgumentException(String.format("Duration '%s' is invalid, it should use the following sample format : 2d 10h 15min", text), e);
   }
 
   @Override
