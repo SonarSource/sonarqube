@@ -614,6 +614,15 @@ public interface RulesDefinition extends ServerExtension {
       return this;
     }
 
+    /**
+     * For rules that use "Linear"/"Linear with offset" remediation functions, the meaning
+     * of the function parameter (= "effort to fix") must be set. This description
+     * explains what 1 point of "effort to fix" represents for the rule.
+     * <p/>
+     * Example : : for the "Insufficient branch coverage", this description for the
+     * remediation function coefficient/offset would be something like
+     * "Effort to test one uncovered branch".
+     */
     public NewRule setEffortToFixDescription(@Nullable String s) {
       this.effortToFixDescription = s;
       return this;
