@@ -53,7 +53,12 @@
   </div>
 {{/if}}
 
-<h3 class="coding-rules-detail-header">{{name}}</h3>
+<h3 class="coding-rules-detail-header">
+  {{name}}
+  <a class="coding-rules-detail-permalink" href="#key={{key}}">
+    <i class="icon-link"></i> {{t 'coding_rules.permalink'}}
+  </a>
+</h3>
 
 <ul class="coding-rules-detail-properties">
   <li class="coding-rules-detail-property">{{severityIcon severity}} {{t "severity" severity}}</li>

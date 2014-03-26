@@ -133,6 +133,7 @@ define ['jquery.mockjax'], ->
         'coding_rules.page': 'Coding Rules'
         'coding_rules.parameters': 'Parameters'
         'coding_rules.parameters.default_value': 'Default Value:'
+        'coding_rules.permalink': 'Permalink'
         'coding_rules.quality_profiles': 'Quality Profiles'
         'coding_rules.quality_profile': 'Quality Profile'
         'coding_rules.repository': 'Repository:'

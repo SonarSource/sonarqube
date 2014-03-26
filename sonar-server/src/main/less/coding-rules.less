@@ -19,6 +19,7 @@
 
 .coding-rules-detail-header,
 .coding-rules-detail-title {
+  position: relative;
   margin-bottom: @navigatorPadding;
   line-height: 1.5;
   font-weight: bold;
@@ -32,6 +33,17 @@
   display: inline-block;
   margin-top: 3 * @navigatorPadding;
   text-transform: uppercase;
+}
+
+.coding-rules-detail-permalink {
+  position: absolute;
+  top: 0; right: 0;
+  font-size: @baseFontSize;
+  font-weight: normal;
+  text-decoration: none;
+  .trans;
+
+  &:hover { color: @highlighted; }
 }
 
 .coding-rules-detail-context-actions {
