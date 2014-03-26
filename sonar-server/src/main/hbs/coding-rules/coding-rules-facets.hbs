@@ -1,0 +1,15 @@
+<div class="navigator-facets-list">
+  {{#each items}}
+    <div class="navigator-facets-list-item" data-property="{{property}}">
+      <div class="navigator-facets-list-item-name">{{name}}</div>
+      <div class="navigator-facets-list-item-options">
+        {{#each values}}
+          <a class="navigator-facets-list-item-option" data-key="{{key}}" data-property="{{../property}}">
+            <span class="navigator-facets-list-item-option-name">{{text}}</span>
+            <span class="navigator-facets-list-item-option-stat">{{stat}}</span>
+          </a>
+        {{/each}}
+      </div>
+    </div>
+  {{/each}}
+</div>

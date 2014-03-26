@@ -31,6 +31,7 @@ requirejs [
   'coding-rules/views/coding-rules-bulk-change-view',
   'coding-rules/views/coding-rules-quality-profile-activation-view',
   'coding-rules/views/coding-rules-bulk-change-dropdown-view'
+  'coding-rules/views/coding-rules-facets-view'
 
   # filters
   'navigator/filters/base-filters',
@@ -58,6 +59,7 @@ requirejs [
   CodingRulesBulkChangeView,
   CodingRulesQualityProfileActivationView,
   CodingRulesBulkChangeDropdownView
+  CodingRulesFacetsView
 
   # filters
   BaseFilters,
@@ -98,7 +100,6 @@ requirejs [
   App.restoreSorting = ->
 
 
-
   App.storeQuery = (query, sorting) ->
     if sorting
       _.extend query,
@@ -109,18 +110,25 @@ requirejs [
 
 
 
-  App.fetchList = (firstPage) ->
+  App.fetchList = (firstPage, fromFacets) ->
     query = @getQuery()
     fetchQuery = _.extend { pageIndex: @pageIndex }, query
+
+    if @codingRulesFacetsView
+      _.extend fetchQuery, @codingRulesFacetsView.getQuery()
 
     if @codingRules.sorting
       _.extend fetchQuery,
           sort: @codingRules.sorting.sort,
           asc: @codingRules.sorting.asc
 
+    if fromFacets
+      _.extend fetchQuery, skipFacets: true
+
     @storeQuery query, @codingRules.sorting
 
     @layout.showSpinner 'resultsRegion'
+    @layout.showSpinner 'facetsRegion' unless fromFacets
     jQuery.ajax
       url: "#{baseUrl}/api/codingrules/search"
       data: fetchQuery
@@ -136,17 +144,23 @@ requirejs [
       @layout.resultsRegion.show @codingRulesListView
       @codingRulesListView.selectFirst()
 
+      unless fromFacets
+        @codingRulesFacetsView = new CodingRulesFacetsView
+          app: @
+          collection: new Backbone.Collection r.facets
+        @layout.facetsRegion.show @codingRulesFacetsView
 
 
-  App.fetchFirstPage = ->
+
+  App.fetchFirstPage = (fromFacets = false) ->
     @pageIndex = 1
-    App.fetchList true
+    App.fetchList true, fromFacets
 
 
-  App.fetchNextPage = ->
+  App.fetchNextPage = (fromFacets = false) ->
     if @pageIndex < @codingRules.paging.pages
       @pageIndex++
-      App.fetchList false
+      App.fetchList false, fromFacets
 
 
   App.getQualityProfile = ->

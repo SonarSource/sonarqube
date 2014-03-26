@@ -208,6 +208,36 @@ define ['jquery.mockjax'], ->
       paging:
         total: 5
         fTotal: '5'
+      facets: [
+        {
+          name: 'Languages'
+          property: 'languages'
+          values: [
+            { key: 'java', text: 'Java', stat: 45 }
+            { key: 'javascript', text: 'JavaScript', stat: 21 }
+          ]
+        }
+        {
+          name: 'Tags'
+          property: 'tags'
+          values: [
+            { key: 'brain-overload', text: 'brain-overload', stat: 8 }
+            { key: 'bug', text: 'bug', stat: 7 }
+            { key: 'comment', text: 'comment', stat: 7 }
+            { key: 'convention', text: 'convention', stat: 6 }
+            { key: 'error-handling', text: 'error-handling', stat: 5 }
+          ]
+        }
+        {
+          name: 'Repositories'
+          property: 'repositories'
+          values: [
+            { key: 'squid', text: 'SonarQube', stat: 57 }
+            { key: 'pmd', text: 'PMD', stat: 17 }
+          ]
+        }
+      ]
+
 
 
 

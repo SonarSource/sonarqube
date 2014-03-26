@@ -2,11 +2,26 @@
 @import 'variables';
 @import 'navigator/config';
 
+@facetsHeight: 40px;
+
 
 .coding-rules-page {
 
   .navigator-results .spinner {
     margin: @navigatorPadding;
+  }
+
+  .navigator-actions {
+    top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight + @navigatorFacetsHeight;
+  }
+
+  .navigator-results {
+    top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight + @navigatorStatusHeight +
+         @navigatorFacetsHeight;
+  }
+
+  .navigator-details {
+    top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight + @navigatorFacetsHeight;
   }
 
 }
