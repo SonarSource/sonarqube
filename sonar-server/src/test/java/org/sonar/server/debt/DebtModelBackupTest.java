@@ -593,6 +593,10 @@ public class DebtModelBackupTest {
 
   @Test
   public void restore_from_xml_and_language() throws Exception {
+    when(characteristicsXMLImporter.importXML(anyString())).thenReturn(new DebtModel()
+      .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
+      .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
+
     when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
       new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability").setOrder(1).setCreatedAt(oldDate),
       new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1).setCreatedAt(oldDate)));
@@ -612,9 +616,6 @@ public class DebtModelBackupTest {
 
     debtModelBackup.restoreFromXml("<xml/>", "java");
 
-    verify(characteristicsXMLImporter, never()).importXML(anyString());
-    verify(dao, never()).update(any(CharacteristicDto.class), eq(session));
-
     verify(ruleDao).selectEnablesAndNonManual(session);
     verify(ruleDao).update(ruleArgument.capture(), eq(session));
     verifyNoMoreInteractions(ruleDao);
@@ -627,6 +628,10 @@ public class DebtModelBackupTest {
 
   @Test
   public void restore_from_xml_and_language_with_rule_not_in_xml_and_linked_on_disabled_default_characteristic() throws Exception {
+    when(characteristicsXMLImporter.importXML(anyString())).thenReturn(new DebtModel()
+      .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
+      .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
+
     when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
       new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability updated").setOrder(2).setCreatedAt(oldDate),
       new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler updated").setParentId(1).setCreatedAt(oldDate)
@@ -642,9 +647,6 @@ public class DebtModelBackupTest {
     ));
 
     debtModelBackup.restoreFromXml("<xml/>", "java");
-
-    verify(characteristicsXMLImporter, never()).importXML(anyString());
-    verify(dao, never()).update(any(CharacteristicDto.class), eq(session));
 
     verify(ruleDao).selectEnablesAndNonManual(session);
     verify(ruleDao).update(ruleArgument.capture(), eq(session));
@@ -663,6 +665,10 @@ public class DebtModelBackupTest {
 
   @Test
   public void restore_from_xml_and_language_with_rule_linked_on_disabled_characteristic2() throws Exception {
+    when(characteristicsXMLImporter.importXML(anyString())).thenReturn(new DebtModel()
+      .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
+      .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
+
     when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
       new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability updated").setOrder(2).setCreatedAt(oldDate),
       new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler updated").setParentId(1).setCreatedAt(oldDate)
@@ -680,9 +686,6 @@ public class DebtModelBackupTest {
       .setRuleKey(RuleKey.of("squid", "UselessImportCheck")).setCharacteristicKey("HARDWARE").setFunction(DebtRemediationFunction.Type.LINEAR).setCoefficient("2h")));
 
     debtModelBackup.restoreFromXml("<xml/>", "java");
-
-    verify(characteristicsXMLImporter, never()).importXML(anyString());
-    verify(dao, never()).update(any(CharacteristicDto.class), eq(session));
 
     verify(ruleDao).selectEnablesAndNonManual(session);
     verify(ruleDao).update(ruleArgument.capture(), eq(session));

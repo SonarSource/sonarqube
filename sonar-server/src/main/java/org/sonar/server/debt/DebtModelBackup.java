@@ -126,47 +126,32 @@ public class DebtModelBackup implements ServerComponent {
   }
 
   /**
-   * Restore from provided model (characteristics and rule debt are restored)
+   * Restore from provided model
    */
   public void restore() {
+    restoreProvidedModel(null);
+  }
+
+  /**
+   * Restore from plugins providing rules for a given language
+   */
+  public void restore(final String languageKey) {
+    restoreProvidedModel(languageKey);
+  }
+
+  private void restoreProvidedModel(@Nullable String languageKey) {
     checkPermission();
 
     Date updateDate = new Date(system2.now());
     SqlSession session = mybatis.openSession();
     try {
       restoreCharacteristics(loadModelFromPlugin(DebtModelPluginRepository.DEFAULT_MODEL), updateDate, session);
-      restoreProvidedModel(ruleDao.selectEnablesAndNonManual(session), updateDate, session);
+      for (RuleDto rule : rules(languageKey, session)) {
+        disabledRuleDebt(rule, updateDate, session);
+      }
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
-    }
-  }
-
-  /**
-   * Restore from plugins providing rules for a given language (only debt of rules on given language are restored)
-   */
-  public void restore(final String languageKey) {
-    checkPermission();
-
-    Date updateDate = new Date(system2.now());
-    SqlSession session = mybatis.openSession();
-    try {
-      List<RuleDto> rules = newArrayList(Iterables.filter(ruleDao.selectEnablesAndNonManual(session), new Predicate<RuleDto>() {
-        @Override
-        public boolean apply(@Nullable RuleDto input) {
-          return input != null && languageKey.equals(input.getLanguage());
-        }
-      }));
-      restoreProvidedModel(rules, updateDate, session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  private void restoreProvidedModel(List<RuleDto> rules, Date updateDate, SqlSession session) {
-    for (RuleDto rule : rules) {
-      disabledRuleDebt(rule, updateDate, session);
     }
   }
 
@@ -174,6 +159,17 @@ public class DebtModelBackup implements ServerComponent {
    * Restore model from a given XML model (characteristics and rule debt are restored from XML)
    */
   public ValidationMessages restoreFromXml(String xml) {
+    return restoreXmlModel(xml, null);
+  }
+
+  /**
+   * Restore model from a given XML model and a given language (only debt of rules on given language are restored from XML)
+   */
+  public ValidationMessages restoreFromXml(String xml, final String languageKey) {
+    return restoreXmlModel(xml, languageKey);
+  }
+
+  private ValidationMessages restoreXmlModel(String xml, @Nullable final String languageKey) {
     checkPermission();
 
     ValidationMessages validationMessages = ValidationMessages.create();
@@ -181,33 +177,7 @@ public class DebtModelBackup implements ServerComponent {
     SqlSession session = mybatis.openSession();
     try {
       List<CharacteristicDto> characteristicDtos = restoreCharacteristics(characteristicsXMLImporter.importXML(xml), updateDate, session);
-      restoreRules(characteristicDtos, ruleDao.selectEnablesAndNonManual(session), rulesXMLImporter.importXML(xml, validationMessages), validationMessages, updateDate, session);
-
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-    return validationMessages;
-  }
-
-  /**
-   * Restore model from a given XML model and a given language (only debt of rules on given language are restored from XML)
-   */
-  public ValidationMessages restoreFromXml(String xml, final String languageKey) {
-    checkPermission();
-
-    ValidationMessages validationMessages = ValidationMessages.create();
-    Date updateDate = new Date(system2.now());
-    SqlSession session = mybatis.openSession();
-    try {
-      List<CharacteristicDto> characteristicDtos = dao.selectEnabledCharacteristics(session);
-      List<RuleDto> rules = newArrayList(Iterables.filter(ruleDao.selectEnablesAndNonManual(session), new Predicate<RuleDto>() {
-        @Override
-        public boolean apply(@Nullable RuleDto input) {
-          return input != null && languageKey.equals(input.getLanguage());
-        }
-      }));
-      restoreRules(characteristicDtos, rules, rulesXMLImporter.importXML(xml, validationMessages), validationMessages, updateDate, session);
+      restoreRules(characteristicDtos, rules(languageKey, session), rulesXMLImporter.importXML(xml, validationMessages), validationMessages, updateDate, session);
 
       session.commit();
     } finally {
@@ -227,12 +197,16 @@ public class DebtModelBackup implements ServerComponent {
         if (characteristicDto == null) {
           disabledRuleDebt(rule, updateDate, session);
         } else {
-          boolean isSameCharacteristic = characteristicDto.getId().equals(rule.getDefaultCharacteristicId());
-          boolean isSameFunction = isSameRemediationFunction(ruleDebt, rule);
-          rule.setCharacteristicId(!isSameCharacteristic ? characteristicDto.getId() : null);
-          rule.setRemediationFunction(!isSameFunction ? ruleDebt.function().name() : null);
-          rule.setRemediationCoefficient(!isSameFunction ? ruleDebt.coefficient() : null);
-          rule.setRemediationOffset(!isSameFunction ? ruleDebt.offset() : null);
+          boolean isSameCharacteristicAsDefault = characteristicDto.getId().equals(rule.getDefaultCharacteristicId());
+          boolean isSameFunctionAsDefault = isSameRemediationFunction(ruleDebt, rule);
+          // If given characteristic is the same as the default one, set nothing in overridden characteristic
+          rule.setCharacteristicId(!isSameCharacteristicAsDefault ? characteristicDto.getId() : null);
+
+          // If given function is the same as the default one, set nothing in overridden function
+          rule.setRemediationFunction(!isSameFunctionAsDefault ? ruleDebt.function().name() : null);
+          rule.setRemediationCoefficient(!isSameFunctionAsDefault ? ruleDebt.coefficient() : null);
+          rule.setRemediationOffset(!isSameFunctionAsDefault ? ruleDebt.offset() : null);
+
           rule.setUpdatedAt(updateDate);
           ruleDao.update(rule, session);
           // TODO index rules in E/S
@@ -313,6 +287,20 @@ public class DebtModelBackup implements ServerComponent {
       return characteristicsXMLImporter.importXML(xmlFileReader);
     } finally {
       IOUtils.closeQuietly(xmlFileReader);
+    }
+  }
+
+  private List<RuleDto> rules(@Nullable final String languageKey, SqlSession session) {
+    List<RuleDto> rules = ruleDao.selectEnablesAndNonManual(session);
+    if (languageKey == null) {
+      return rules;
+    } else {
+      return newArrayList(Iterables.filter(rules, new Predicate<RuleDto>() {
+        @Override
+        public boolean apply(@Nullable RuleDto input) {
+          return input != null && languageKey.equals(input.getLanguage());
+        }
+      }));
     }
   }
 
