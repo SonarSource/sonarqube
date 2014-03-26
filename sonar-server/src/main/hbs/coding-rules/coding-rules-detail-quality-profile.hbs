@@ -10,42 +10,50 @@
       {{/if}}
     </td>
 
-    <td class="coding-rules-detail-quality-profile-severity">
-      {{severityIcon severity}} {{t "severity" severity}}
-      {{#if parent}}{{#notEq severity parent.severity}}
-        <div class="coding-rules-detail-quality-profile-inheritance">
-          {{t 'coding_rules.original'}}&nbsp;{{t 'severity' parent.severity}}
-        </div>
-      {{/notEq}}{{/if}}
-    </td>
+    {{#if severity}}
+      <td class="coding-rules-detail-quality-profile-severity">
+        {{severityIcon severity}} {{t "severity" severity}}
+        {{#if parent}}{{#notEq severity parent.severity}}
+          <div class="coding-rules-detail-quality-profile-inheritance">
+            {{t 'coding_rules.original'}}&nbsp;{{t 'severity' parent.severity}}
+          </div>
+        {{/notEq}}{{/if}}
+      </td>
 
-    <td class="coding-rules-detail-quality-profile-parameters">
-      {{#each parameters}}
-        <div class="coding-rules-detail-quality-profile-parameter">
-          {{key}}: {{value}}
-          {{#if ../parent}}{{#notEq value original}}
-            <div class="coding-rules-detail-quality-profile-inheritance">
-              {{t 'coding_rules.original'}}&nbsp;{{original}}
-            </div>
-          {{/notEq}}{{/if}}
-        </div>
-      {{/each}}
-      &nbsp;
-    </td>
+      <td class="coding-rules-detail-quality-profile-parameters">
+        {{#each parameters}}
+          <div class="coding-rules-detail-quality-profile-parameter">
+            <span class="key">{{key}}</span><span class="sep">:&nbsp;</span><span class="value">{{value}}</span>
+            {{#if ../parent}}{{#notEq value original}}
+              <div class="coding-rules-detail-quality-profile-inheritance">
+                {{t 'coding_rules.original'}}&nbsp;{{original}}
+              </div>
+            {{/notEq}}{{/if}}
+          </div>
+        {{/each}}
+        &nbsp;
+      </td>
 
-    <td class="coding-rules-detail-quality-profile-actions">
-      <div class="button-group">
-        <button class="coding-rules-detail-quality-profile-change">{{t 'change'}}</button>
-        {{#if parent}}
-          <button class="coding-rules-detail-quality-profile-revert button-red">
-            {{t 'coding_rules.revert_to_parent_definition'}}
+      <td class="coding-rules-detail-quality-profile-actions">
+        <div class="button-group">
+          <button class="coding-rules-detail-quality-profile-change">{{t 'change'}}</button>
+          {{#if parent}}
+            <button class="coding-rules-detail-quality-profile-revert button-red">
+              {{t 'coding_rules.revert_to_parent_definition'}}
+            </button>
+          {{/if}}
+          <button class="coding-rules-detail-quality-profile-deactivate button-red">
+            {{t 'coding_rules.deactivate'}}
           </button>
-        {{/if}}
-        <button class="coding-rules-detail-quality-profile-deactivate button-red">
-          {{t 'coding_rules.deactivate'}}
-        </button>
-      </div>
-    </td>
+        </div>
+      </td>
+    {{else}}
+      <td class="coding-rules-detail-quality-profile-actions">
+        <div class="button-group">
+          <button class="coding-rules-detail-quality-profile-activate">{{t 'coding_rules.activate'}}</button>
+        </div>
+      </td>
+    {{/if}}
   </tr>
   </tbody>
 </table>

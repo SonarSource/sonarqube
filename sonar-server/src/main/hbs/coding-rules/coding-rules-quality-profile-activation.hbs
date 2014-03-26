@@ -1,6 +1,6 @@
 <form>
   <div class="modal-head">
-    {{#if key}}
+    {{#if change}}
       <h2>{{t 'coding_rules.change_details'}}</h2>
     {{else}}
       <h2>{{t 'coding_rules.activate_in_quality_profile'}}</h2>
@@ -56,7 +56,7 @@
 
   <div class="modal-foot">
     <button id="coding-rules-quality-profile-activation-activate">
-      {{#if key}}{{t 'save'}}{{else}}{{t 'coding_rules.activate'}}{{/if}}
+      {{#if change}}{{t 'save'}}{{else}}{{t 'coding_rules.activate'}}{{/if}}
     </button>
     <a id="coding-rules-quality-profile-activation-cancel" class="action">{{t 'cancel'}}</a>
   </div>

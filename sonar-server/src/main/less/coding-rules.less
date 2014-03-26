@@ -46,8 +46,42 @@
   &:hover { color: @highlighted; }
 }
 
-.coding-rules-detail-context-actions {
+.coding-rules-detail-context {
   margin-bottom: @navigatorPadding;
+  padding: @navigatorPadding / 2;
+  border: 1px solid @contextBorder;
+  background-color: @contextBackground;
+
+  .coding-rules-detail-quality-profile { margin-left: 0; }
+  .coding-rules-detail-quality-profile-name,
+  .coding-rules-detail-quality-profile-severity,
+  .coding-rules-detail-quality-profile-parameters,
+  .coding-rules-detail-quality-profile-actions {
+    vertical-align: middle;
+  }
+  .coding-rules-detail-quality-profile-parameter {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: @navigatorPadding;
+    white-space: nowrap;
+
+    .key, .value, .sep {
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .value {
+      max-width: 300px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+  .coding-rules-detail-quality-profile-parameter + .coding-rules-detail-quality-profile-parameter { margin-top: 0; }
+}
+
+.coding-rules-detail-context-actions {
+
   padding: @navigatorPadding / 2;
   background-color: @contextBackground;
   border: 1px solid @contextBorder;

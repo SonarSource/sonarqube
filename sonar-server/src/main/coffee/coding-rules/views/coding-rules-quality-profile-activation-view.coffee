@@ -67,7 +67,7 @@ define [
         return state.text unless state.id
         "<i class='icon-severity-#{state.id.toLowerCase()}'></i> #{state.text}"
 
-      severity = if @model then @model.get 'severity' else @rule.get 'severity'
+      severity = (@model && @model.get 'severity') || @rule.get 'severity'
       @ui.qualityProfileSeverity.val severity
       @ui.qualityProfileSeverity.select2
         width: '250px'
@@ -95,11 +95,13 @@ define [
       parameters = @rule.get 'parameters'
       if @model
         modelParameters = @model.get 'parameters'
-        parameters = parameters.map (p) ->
-          _.extend p, value: _.findWhere(modelParameters, key: p.key).value
+        if modelParameters
+          parameters = parameters.map (p) ->
+            _.extend p, value: _.findWhere(modelParameters, key: p.key).value
 
       _.extend super,
         rule: @rule.toJSON()
+        change: @model && @model.has 'severity'
         parameters: parameters
         qualityProfiles: @getAvailableQualityProfiles()
         severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO']
