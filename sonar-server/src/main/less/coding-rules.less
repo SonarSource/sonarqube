@@ -137,7 +137,7 @@
 .coding-rules-detail-parameter-name {
   display: inline-block;
   vertical-align: top;
-  width: 150px;
+  width: 20%;
   font-size: @baseFontSize;
   font-weight: normal;
   text-align: right;
@@ -146,7 +146,9 @@
 .coding-rules-detail-parameter-description {
   display: inline-block;
   vertical-align: top;
-  margin-left: 2 * @navigatorPadding;
+  width: 80%;
+  padding-left: 2 * @navigatorPadding;
+  .box-sizing(border-box);
   font-size: @baseFontSize;
 }
 
@@ -180,26 +182,29 @@
 }
 
 .coding-rules-detail-quality-profile-name {
+  vertical-align: top;
   width: 15%;
   font-weight: bold;
   white-space: nowrap;
 }
 
 .coding-rules-detail-quality-profile-severity {
+  vertical-align: top;
   width: 10%;
 }
 
 .coding-rules-detail-quality-profile-parameters {
+  vertical-align: top;
+}
 
+.coding-rules-detail-quality-profile-parameter + .coding-rules-detail-quality-profile-parameter {
+  margin-top: 8px;
 }
 
 .coding-rules-detail-quality-profile-actions {
+  vertical-align: top;
   width: 25%;
   text-align: right;
-}
-
-.coding-rules-detail-quality-profile-note {
-  padding-top: 4px;
 }
 
 .coding-rules-detail-quality-profile-inheritance {

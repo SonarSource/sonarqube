@@ -28,7 +28,7 @@ define [
       .done (r) =>
         @model.set r.codingrule
         @options.app.codingRulesQualityProfileActivationView.rule = @model
-        detailView = new CodingRulesDetailView
+        @options.app.detailView = new CodingRulesDetailView
           app: @options.app
           model: @model
-        @options.app.layout.detailsRegion.show detailView
+        @options.app.layout.detailsRegion.show @options.app.detailView

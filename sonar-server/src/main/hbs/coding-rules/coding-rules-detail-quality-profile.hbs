@@ -14,20 +14,23 @@
       {{severityIcon severity}} {{t "severity" severity}}
       {{#if parent}}{{#notEq severity parent.severity}}
         <div class="coding-rules-detail-quality-profile-inheritance">
-          {{t 'coding_rules.original'}} {{severityIcon parent.severity}}{{t 'severity' parent.severity}}
+          {{t 'coding_rules.original'}}&nbsp;{{t 'severity' parent.severity}}
         </div>
       {{/notEq}}{{/if}}
     </td>
 
     <td class="coding-rules-detail-quality-profile-parameters">
       {{#each parameters}}
-        {{key}}: {{value}}
-        {{#if ../parent}}{{#notEq value original}}
-          <div class="coding-rules-detail-quality-profile-inheritance">
-            {{t 'coding_rules.original'}} {{original}}
-          </div>
-        {{/notEq}}{{/if}}
+        <div class="coding-rules-detail-quality-profile-parameter">
+          {{key}}: {{value}}
+          {{#if ../parent}}{{#notEq value original}}
+            <div class="coding-rules-detail-quality-profile-inheritance">
+              {{t 'coding_rules.original'}}&nbsp;{{original}}
+            </div>
+          {{/notEq}}{{/if}}
+        </div>
       {{/each}}
+      &nbsp;
     </td>
 
     <td class="coding-rules-detail-quality-profile-actions">
@@ -44,11 +47,5 @@
       </div>
     </td>
   </tr>
-
-  {{#if note}}
-    <tr>
-      <td colspan="4" class="coding-rules-detail-quality-profile-note">{{{note.html}}}</td>
-    </tr>
-  {{/if}}
   </tbody>
 </table>

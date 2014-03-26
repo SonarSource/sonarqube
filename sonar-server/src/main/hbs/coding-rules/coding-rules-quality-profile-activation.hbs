@@ -39,7 +39,11 @@
         <tr class="property">
           <th><h3>{{key}}</h3></th>
           <td>
-            <input type="text" value="{{value}}" placeholder="{{default}}">
+            {{#eq type 'TEXT'}}
+              <textarea class="width100" rows="3" name="{{key}}"placeholder="{{default}}">{{value}}</textarea>
+            {{else}}
+              <input type="text" name="{{key}}" value="{{value}}" placeholder="{{default}}">
+            {{/eq}}
             <div class="note">{{description}}</div>
             {{#if extra}}
               <div class="note">{{extra}}</div>

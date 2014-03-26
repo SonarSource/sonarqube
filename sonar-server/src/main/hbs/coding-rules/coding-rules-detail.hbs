@@ -13,16 +13,10 @@
 
               {{#each parameters}}
                 <span class="coding-rules-detail-context-actions-item">
-                  <span class="limited">{{key}}</span><span class="limited">:</span>
-                  <span class="limited">{{value}}</span>
+                  <span class="limited" title="{{key}}">{{key}}</span><span class="limited">:</span>
+                  <span class="limited" title="{{value}}">{{value}}</span>
                 </span>
               {{/each}}
-
-              {{#if note}}
-                <span class="coding-rules-detail-context-actions-item">
-                  <span class="limited limited-big">{{{note.html}}}</span>
-                </span>
-              {{/if}}
             {{/with}}
           {{/if}}
         </td>

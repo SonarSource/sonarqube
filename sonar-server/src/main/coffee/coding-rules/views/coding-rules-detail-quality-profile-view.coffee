@@ -11,17 +11,38 @@ define [
     template: Templates['coding-rules-detail-quality-profile']
 
 
+    modelEvents:
+      'change': 'render'
+
+
     ui:
       change: '.coding-rules-detail-quality-profile-change'
+      revert: '.coding-rules-detail-quality-profile-revert'
+      deactivate: '.coding-rules-detail-quality-profile-deactivate'
 
 
     events:
       'click @ui.change': 'change'
+      'click @ui.revert': 'revert'
+      'click @ui.deactivate': 'deactivate'
 
 
     change: ->
       @options.app.codingRulesQualityProfileActivationView.model = @model
       @options.app.codingRulesQualityProfileActivationView.show()
+
+
+    revert: ->
+      if confirm t 'are_you_sure'
+        parent = @getParent()
+        parameters = @model.get('parameters').map (p) ->
+          _.extend {}, p, value: _.findWhere(parent.parameters, key: p.key).value
+        @model.set 'parameters', parameters
+
+
+    deactivate: ->
+      if confirm t 'are_you_sure'
+        @model.destroy()
 
 
     enableUpdate: ->

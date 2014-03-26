@@ -15,6 +15,7 @@ define [
       qualityProfileSelect: '#coding-rules-quality-profile-activation-select'
       qualityProfileSeverity: '#coding-rules-quality-profile-activation-severity'
       qualityProfileActivate: '#coding-rules-quality-profile-activation-activate'
+      qualityProfileParameters: '[name]'
 
 
     events:
@@ -29,8 +30,22 @@ define [
         url: "#{baseUrl}/api/codingrules/activate"
         data: id: 1
       .done =>
-        jQuery('.navigator-results-list .active').click()
-        @hide()
+          severity = @ui.qualityProfileSeverity.val()
+          parameters = @ui.qualityProfileParameters.map(->
+            key: jQuery(@).prop('name'), value: jQuery(@).val() || jQuery(@).prop('placeholder')).get()
+
+          if @model
+            @model.set severity: severity, parameters: parameters
+          else
+            key = @ui.qualityProfileSelect.val()
+            model = new Backbone.Model
+              name: _.findWhere(@options.app.qualityProfiles, key: key).name
+              key: key
+              severity: severity
+              parameters: parameters
+            @options.app.detailView.qualityProfilesView.collection.add model
+
+          @hide()
 
 
     onRender: ->
@@ -71,12 +86,17 @@ define [
 
 
     getAvailableQualityProfiles: ->
+      activeQualityProfiles =  @options.app.detailView.qualityProfilesView.collection
       _.reject @options.app.qualityProfiles, (profile) =>
-        _.findWhere @rule.get('qualityProfiles'), key: profile.key
+        activeQualityProfiles.findWhere key: profile.key
 
 
     serializeData: ->
-      parameters = if @model then @model.get('parameters') else @rule.get('parameters')
+      parameters = @rule.get 'parameters'
+      if @model
+        modelParameters = @model.get 'parameters'
+        parameters = parameters.map (p) ->
+          _.extend p, value: _.findWhere(modelParameters, key: p.key).value
 
       _.extend super,
         rule: @rule.toJSON()

@@ -86,6 +86,7 @@ define ['jquery.mockjax'], ->
         'all': 'All'
         'any': 'Any'
         'apply': 'Apply'
+        'are_you_sure': 'Are you sure?'
         'bold': 'Bold'
         'bulk_change': 'Bulk Change'
         'bulleted_point': 'Bulleted point'
@@ -227,6 +228,7 @@ define ['jquery.mockjax'], ->
         key: 'S1190'
         parameters: [
           { key: 'someParameter', type: 'INT', default: 4, description: 'Some parameter description' }
+          { key: 'xpath', type: 'TEXT', description: 'XPath, the XML Path Language, is a query language for selecting nodes from an XML document. In addition, XPath may be used to compute values (e.g., strings, numbers, or Boolean values) from the content of an XML document. XPath was defined by the World Wide Web Consortium (W3C).' }
         ]
         description: '''
             <p>
@@ -259,12 +261,8 @@ define ['jquery.mockjax'], ->
             severity: 'MINOR'
             parameters: [
               { key: 'someParameter', value: 8 }
+              { key: 'xpath', value: '/child::html/child::body/child::*/child::span[attribute::class]' }
             ]
-            note:
-              username: 'Admin Admin'
-              html: '''<p>This note is here <b>only for test purposes</b>.</p>'''
-              raw: '''This note is here *only for test purposes*.'''
-              fCreationDate: 'less than a minute'
           },
           {
             name: 'Quality Profile 1'
@@ -272,6 +270,7 @@ define ['jquery.mockjax'], ->
             severity: 'MAJOR'
             parameters: [
               { key: 'someParameter', value: 6 }
+              { key: 'xpath', value: '/html/body/*/span[@class]' }
             ]
             inherits: 'sonarway'
           }
