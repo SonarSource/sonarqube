@@ -299,6 +299,42 @@ public class DebtModelOperationsTest {
   }
 
   @Test
+  public void fail_to_move_sub_characteristic() {
+    when(dao.selectById(10, session)).thenReturn(new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setParentId(1));
+    when(dao.selectEnabledRootCharacteristics(session)).thenReturn(newArrayList(
+      new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(2),
+      new CharacteristicDto().setId(2).setKey("PORTABILITY").setOrder(3)
+    ));
+
+    try {
+      service.moveDown(10);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Sub characteristics can not be moved.");
+    }
+
+    verify(dao, never()).update(any(CharacteristicDto.class), eq(session));
+  }
+
+  @Test
+  public void fail_to_move_characteristic_with_no_order() {
+    when(dao.selectById(10, session)).thenReturn(new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(null));
+    when(dao.selectEnabledRootCharacteristics(session)).thenReturn(newArrayList(
+      new CharacteristicDto().setId(10).setKey("MEMORY_EFFICIENCY").setOrder(2),
+      new CharacteristicDto().setId(2).setKey("PORTABILITY").setOrder(3)
+    ));
+
+    try {
+      service.moveDown(10);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The order of the characteristic 'MEMORY_EFFICIENCY' should not be null");
+    }
+
+    verify(dao, never()).update(any(CharacteristicDto.class), eq(session));
+  }
+
+  @Test
   public void delete_sub_characteristic() {
     BatchSession batchSession = mock(BatchSession.class);
     when(mybatis.openBatchSession()).thenReturn(batchSession);

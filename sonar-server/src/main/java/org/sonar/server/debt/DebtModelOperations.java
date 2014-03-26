@@ -130,7 +130,10 @@ public class DebtModelOperations implements ServerComponent {
     SqlSession session = mybatis.openSession();
     try {
       final CharacteristicDto dto = findCharacteristic(characteristicId, session);
-      int currentOrder = dto.getOrder();
+      if (dto.getParentId() != null) {
+        throw new BadRequestException("Sub characteristics can not be moved.");
+      }
+      int currentOrder = getOrder(dto);
       CharacteristicDto dtoToSwitchOrderWith = findCharacteristicToSwitchWith(dto, moveUpOrDown, session);
 
       // Do nothing when characteristic is already to the good location
@@ -138,7 +141,7 @@ public class DebtModelOperations implements ServerComponent {
         return toCharacteristic(dto);
       }
 
-      int nextOrder = dtoToSwitchOrderWith.getOrder();
+      int nextOrder = getOrder(dtoToSwitchOrderWith);
       dtoToSwitchOrderWith.setOrder(currentOrder);
       dtoToSwitchOrderWith.setUpdatedAt(new Date(system2.now()));
       dao.update(dtoToSwitchOrderWith, session);
@@ -154,14 +157,22 @@ public class DebtModelOperations implements ServerComponent {
     }
   }
 
+  private int getOrder(CharacteristicDto characteristicDto){
+    Integer order= characteristicDto.getOrder();
+    if (order == null) {
+      throw new IllegalArgumentException(String.format("The order of the characteristic '%s' should not be null", characteristicDto.getKey()));
+    }
+    return order;
+  }
+
   @CheckForNull
   private CharacteristicDto findCharacteristicToSwitchWith(final CharacteristicDto dto, final boolean moveUpOrDown, SqlSession session) {
     // characteristics should be order by 'order'
     List<CharacteristicDto> rootCharacteristics = dao.selectEnabledRootCharacteristics(session);
     int currentPosition = Iterables.indexOf(rootCharacteristics, new Predicate<CharacteristicDto>() {
       @Override
-      public boolean apply(CharacteristicDto input) {
-        return input.getKey().equals(dto.getKey());
+      public boolean apply(@Nullable CharacteristicDto input) {
+        return input != null && input.getKey().equals(dto.getKey());
       }
     });
     Integer nextPosition = moveUpOrDown ? (currentPosition > 0 ? currentPosition - 1 : null) : (currentPosition < rootCharacteristics.size() - 1 ? currentPosition + 1 : null);

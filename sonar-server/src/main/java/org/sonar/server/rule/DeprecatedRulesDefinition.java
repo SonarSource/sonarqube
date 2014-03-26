@@ -29,6 +29,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RuleRepository;
+import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.ValidationMessages;
@@ -108,22 +109,22 @@ public class DeprecatedRulesDefinition implements RulesDefinition {
     }
   }
 
-  private void updateRuleDebtDefinitions(NewRule newRule, String repoKey, String ruleKey, List<RuleDebt> ruleDebts){
+  private void updateRuleDebtDefinitions(NewRule newRule, String repoKey, String ruleKey, List<RuleDebt> ruleDebts) {
     RuleDebt ruleDebt = findRequirement(ruleDebts, repoKey, ruleKey);
     if (ruleDebt != null) {
       newRule.setDebtSubCharacteristic(ruleDebt.characteristicKey());
-      switch (ruleDebt.function()) {
-        case LINEAR :
-          newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linear(ruleDebt.factor()));
-          break;
-        case LINEAR_OFFSET:
-          newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linearWithOffset(ruleDebt.factor(), ruleDebt.offset()));
-          break;
-        case CONSTANT_ISSUE:
-          newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().constantPerIssue(ruleDebt.offset()));
-          break;
-        default :
-          throw new IllegalArgumentException(String.format("The type '%s' is unknown", ruleDebt.function()));
+      DebtRemediationFunction.Type function = ruleDebt.function();
+      String coefficient = ruleDebt.coefficient();
+      String offset = ruleDebt.offset();
+
+      if (DebtRemediationFunction.Type.LINEAR.equals(function) && coefficient != null) {
+        newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linear(coefficient));
+      } else if (DebtRemediationFunction.Type.CONSTANT_ISSUE.equals(function) && offset != null) {
+        newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().constantPerIssue(offset));
+      } else if (DebtRemediationFunction.Type.LINEAR_OFFSET.equals(function) && coefficient != null && offset != null) {
+        newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linearWithOffset(coefficient, offset));
+      } else {
+        throw new IllegalArgumentException(String.format("Debt definition on rule '%s:%s' is invalid", repoKey, ruleKey));
       }
     }
   }

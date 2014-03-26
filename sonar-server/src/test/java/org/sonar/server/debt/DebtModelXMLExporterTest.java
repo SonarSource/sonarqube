@@ -25,8 +25,8 @@ import org.apache.commons.lang.SystemUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.test.TestUtils;
 
 import java.io.IOException;
@@ -62,7 +62,7 @@ public class DebtModelXMLExporterTest {
 
     List<RuleDebt> rules = newArrayList(
       new RuleDebt().setRuleKey(RuleKey.of("checkstyle", "Regexp"))
-        .setCharacteristicKey("MEMORY_USE").setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET).setFactor("3d").setOffset("15min")
+        .setCharacteristicKey("MEMORY_USE").setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET).setCoefficient("3d").setOffset("15min")
     );
 
     TestUtils.assertSimilarXml(getFileContent("export_xml.xml"), xmlExporter.export(debtModel, rules));
@@ -99,7 +99,7 @@ public class DebtModelXMLExporterTest {
 
     List<RuleDebt> rules = newArrayList(
       new RuleDebt().setRuleKey(RuleKey.of("checkstyle", "Regexp"))
-        .setCharacteristicKey("MEMORY_USE").setFunction(DebtRemediationFunction.Type.LINEAR).setFactor("3d")
+        .setCharacteristicKey("MEMORY_USE").setFunction(DebtRemediationFunction.Type.LINEAR).setCoefficient("3d")
     );
     assertThat(xmlExporter.export(debtModel, rules)).isEqualTo(
       "<sqale>" + SystemUtils.LINE_SEPARATOR +

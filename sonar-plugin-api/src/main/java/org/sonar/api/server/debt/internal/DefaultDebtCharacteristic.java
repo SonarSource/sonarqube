@@ -83,15 +83,17 @@ public class DefaultDebtCharacteristic implements DebtCharacteristic {
   }
 
   @Override
+  @CheckForNull
   public Integer parentId() {
     return parentId;
   }
 
-  public DefaultDebtCharacteristic setParentId(Integer parentId) {
+  public DefaultDebtCharacteristic setParentId(@Nullable Integer parentId) {
     this.parentId = parentId;
     return this;
   }
 
+  @Override
   public Date createdAt() {
     return createdAt;
   }
@@ -101,6 +103,7 @@ public class DefaultDebtCharacteristic implements DebtCharacteristic {
     return this;
   }
 
+  @Override
   @CheckForNull
   public Date updatedAt() {
     return updatedAt;

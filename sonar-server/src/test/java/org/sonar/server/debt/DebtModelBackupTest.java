@@ -169,7 +169,7 @@ public class DebtModelBackupTest {
     assertThat(rule.ruleKey().rule()).isEqualTo("UselessImportCheck");
     assertThat(rule.characteristicKey()).isEqualTo("COMPILER");
     assertThat(rule.function().name()).isEqualTo("LINEAR_OFFSET");
-    assertThat(rule.factor()).isEqualTo("2h");
+    assertThat(rule.coefficient()).isEqualTo("2h");
     assertThat(rule.offset()).isEqualTo("15min");
 
     rule = rules.get(1);
@@ -177,7 +177,7 @@ public class DebtModelBackupTest {
     assertThat(rule.ruleKey().rule()).isEqualTo("AvoidNPE");
     assertThat(rule.characteristicKey()).isEqualTo("COMPILER");
     assertThat(rule.function().name()).isEqualTo("LINEAR");
-    assertThat(rule.factor()).isEqualTo("2h");
+    assertThat(rule.coefficient()).isEqualTo("2h");
     assertThat(rule.offset()).isNull();
   }
 
@@ -232,7 +232,7 @@ public class DebtModelBackupTest {
     assertThat(rule.ruleKey().rule()).isEqualTo("UselessImportCheck");
     assertThat(rule.characteristicKey()).isEqualTo("COMPILER");
     assertThat(rule.function().name()).isEqualTo("CONSTANT_ISSUE");
-    assertThat(rule.factor()).isNull();
+    assertThat(rule.coefficient()).isNull();
     assertThat(rule.offset()).isEqualTo("15min");
   }
 
@@ -428,7 +428,7 @@ public class DebtModelBackupTest {
       new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1).setCreatedAt(oldDate)));
 
     when(rulesXMLImporter.importXML(anyString(), any(ValidationMessages.class))).thenReturn(newArrayList(new RuleDebt()
-      .setRuleKey(RuleKey.of("squid", "UselessImportCheck")).setCharacteristicKey("COMPILER").setFunction(DebtRemediationFunction.Type.LINEAR).setFactor("2h")));
+      .setRuleKey(RuleKey.of("squid", "UselessImportCheck")).setCharacteristicKey("COMPILER").setFunction(DebtRemediationFunction.Type.LINEAR).setCoefficient("2h")));
 
     when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
       new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
@@ -464,7 +464,7 @@ public class DebtModelBackupTest {
       new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1).setCreatedAt(oldDate)));
 
     when(rulesXMLImporter.importXML(anyString(), any(ValidationMessages.class))).thenReturn(newArrayList(new RuleDebt()
-      .setRuleKey(RuleKey.of("squid", "UselessImportCheck")).setCharacteristicKey("COMPILER").setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET).setFactor("12h").setOffset("11min")));
+      .setRuleKey(RuleKey.of("squid", "UselessImportCheck")).setCharacteristicKey("COMPILER").setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET).setCoefficient("12h").setOffset("11min")));
 
     when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
       new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
@@ -500,7 +500,7 @@ public class DebtModelBackupTest {
       new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1).setCreatedAt(oldDate)));
 
     when(rulesXMLImporter.importXML(anyString(), any(ValidationMessages.class))).thenReturn(newArrayList(new RuleDebt()
-      .setRuleKey(RuleKey.of("squid", "UselessImportCheck")).setCharacteristicKey("COMPILER").setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET).setFactor("2h").setOffset("15min")));
+      .setRuleKey(RuleKey.of("squid", "UselessImportCheck")).setCharacteristicKey("COMPILER").setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET).setCoefficient("2h").setOffset("15min")));
 
     when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
       new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
@@ -598,7 +598,7 @@ public class DebtModelBackupTest {
       new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1).setCreatedAt(oldDate)));
 
     when(rulesXMLImporter.importXML(anyString(), any(ValidationMessages.class))).thenReturn(newArrayList(new RuleDebt()
-      .setRuleKey(RuleKey.of("squid", "UselessImportCheck")).setCharacteristicKey("COMPILER").setFunction(DebtRemediationFunction.Type.LINEAR).setFactor("2h")));
+      .setRuleKey(RuleKey.of("squid", "UselessImportCheck")).setCharacteristicKey("COMPILER").setFunction(DebtRemediationFunction.Type.LINEAR).setCoefficient("2h")));
 
     when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
       new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck").setLanguage("java")
@@ -677,7 +677,7 @@ public class DebtModelBackupTest {
 
     when(rulesXMLImporter.importXML(anyString(), any(ValidationMessages.class))).thenReturn(newArrayList(new RuleDebt()
       // Linked on a default disabled characteristic -> Rule debt should be disabled
-      .setRuleKey(RuleKey.of("squid", "UselessImportCheck")).setCharacteristicKey("HARDWARE").setFunction(DebtRemediationFunction.Type.LINEAR).setFactor("2h")));
+      .setRuleKey(RuleKey.of("squid", "UselessImportCheck")).setCharacteristicKey("HARDWARE").setFunction(DebtRemediationFunction.Type.LINEAR).setCoefficient("2h")));
 
     debtModelBackup.restoreFromXml("<xml/>", "java");
 
@@ -710,7 +710,7 @@ public class DebtModelBackupTest {
       new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1).setCreatedAt(oldDate)));
 
     when(rulesXMLImporter.importXML(anyString(), any(ValidationMessages.class))).thenReturn(newArrayList(new RuleDebt()
-      .setRuleKey(RuleKey.of("squid", "UselessImportCheck")).setCharacteristicKey("COMPILER").setFunction(DebtRemediationFunction.Type.LINEAR).setFactor("2h")));
+      .setRuleKey(RuleKey.of("squid", "UselessImportCheck")).setCharacteristicKey("COMPILER").setFunction(DebtRemediationFunction.Type.LINEAR).setCoefficient("2h")));
 
     when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(Collections.<RuleDto>emptyList());
 

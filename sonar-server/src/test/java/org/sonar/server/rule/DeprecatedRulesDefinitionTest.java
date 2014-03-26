@@ -43,6 +43,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -162,7 +163,7 @@ public class DeprecatedRulesDefinitionTest {
         .setCharacteristicKey("MEMORY_EFFICIENCY")
         .setRuleKey(RuleKey.of("checkstyle", "ConstantName"))
         .setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET)
-        .setFactor("1d")
+        .setCoefficient("1d")
         .setOffset("10min")
     );
 
@@ -184,6 +185,33 @@ public class DeprecatedRulesDefinitionTest {
     assertThat(rule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
     assertThat(rule.debtRemediationFunction().coefficient()).isEqualTo("1d");
     assertThat(rule.debtRemediationFunction().offset()).isEqualTo("10min");
+  }
+
+  @Test
+  public void fail_on_invalid_rule_debt() throws Exception {
+    RulesDefinition.Context context = new RulesDefinition.Context();
+
+    List<DebtModelXMLExporter.RuleDebt> ruleDebts = newArrayList(
+      new DebtModelXMLExporter.RuleDebt()
+        .setCharacteristicKey("MEMORY_EFFICIENCY")
+        .setRuleKey(RuleKey.of("checkstyle", "ConstantName"))
+        .setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET)
+        .setCoefficient("1d")
+    );
+
+    Reader javaModelReader = mock(Reader.class);
+    when(debtModelRepository.createReaderForXMLFile("java")).thenReturn(javaModelReader);
+    when(debtModelRepository.getContributingPluginList()).thenReturn(newArrayList("java"));
+    when(importer.importXML(eq(javaModelReader), any(ValidationMessages.class))).thenReturn(ruleDebts);
+
+    try {
+      new DeprecatedRulesDefinition(i18n, new RuleRepository[]{new CheckstyleRules()}, debtModelRepository, importer).define(context);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    assertThat(context.repositories()).isEmpty();
   }
 
 }

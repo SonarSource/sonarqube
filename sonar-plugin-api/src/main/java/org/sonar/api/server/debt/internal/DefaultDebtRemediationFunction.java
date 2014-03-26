@@ -22,6 +22,7 @@ package org.sonar.api.server.debt.internal;
 
 import com.google.common.base.Objects;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.Duration;
 
@@ -33,12 +34,12 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
   private static final int HOURS_IN_DAY = 24;
 
   private final Type type;
-  private final String factor;
+  private final String coefficient;
   private final String offset;
 
-  public DefaultDebtRemediationFunction(Type type, @Nullable String factor, @Nullable String offset) {
+  public DefaultDebtRemediationFunction(Type type, @Nullable String coefficient, @Nullable String offset) {
     this.type = type;
-    this.factor = sanitizeValue("coefficient", factor);
+    this.coefficient = sanitizeValue("coefficient", coefficient);
     this.offset = sanitizeValue("offset", offset);
     validate();
   }
@@ -64,7 +65,7 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
   @Override
   @CheckForNull
   public String coefficient() {
-    return factor;
+    return coefficient;
   }
 
   @Override
@@ -76,17 +77,17 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
   private void validate() {
     switch (type) {
       case LINEAR:
-        if (this.factor == null || this.offset != null) {
+        if (this.coefficient == null || this.offset != null) {
           throw new IllegalArgumentException(String.format("Only coefficient must be set on %s", this));
         }
         break;
       case LINEAR_OFFSET:
-        if (this.factor == null || this.offset == null) {
+        if (this.coefficient == null || this.offset == null) {
           throw new IllegalArgumentException(String.format("Both coefficient and offset are required on %s", this));
         }
         break;
       case CONSTANT_ISSUE:
-        if (this.factor != null || this.offset == null) {
+        if (this.coefficient != null || this.offset == null) {
           throw new IllegalArgumentException(String.format("Only offset must be set on %s", this));
         }
         break;
@@ -97,26 +98,24 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
 
   @Override
   public boolean equals(Object o) {
+    if (!(o instanceof DefaultDebtRemediationFunction)) {
+      return false;
+    }
     if (this == o) {
       return true;
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    DefaultDebtRemediationFunction that = (DefaultDebtRemediationFunction) o;
-    if (factor != null ? !factor.equals(that.factor) : that.factor != null) {
-      return false;
-    }
-    if (offset != null ? !offset.equals(that.offset) : that.offset != null) {
-      return false;
-    }
-    return type == that.type;
+    DefaultDebtRemediationFunction other = (DefaultDebtRemediationFunction) o;
+    return new EqualsBuilder()
+      .append(coefficient, other.coefficient())
+      .append(offset, other.offset())
+      .append(type, other.type())
+      .isEquals();
   }
 
   @Override
   public int hashCode() {
     int result = type.hashCode();
-    result = 31 * result + (factor != null ? factor.hashCode() : 0);
+    result = 31 * result + (coefficient != null ? coefficient.hashCode() : 0);
     result = 31 * result + (offset != null ? offset.hashCode() : 0);
     return result;
   }
@@ -125,7 +124,7 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
   public String toString() {
     return Objects.toStringHelper(DebtRemediationFunction.class)
       .add("type", type)
-      .add("coefficient", factor)
+      .add("coefficient", coefficient)
       .add("offset", offset)
       .toString();
   }

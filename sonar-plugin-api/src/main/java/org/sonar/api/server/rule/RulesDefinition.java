@@ -137,10 +137,6 @@ public interface RulesDefinition extends ServerExtension {
    * Default sub-characteristics of technical debt model. See http://www.sqale.org
    */
   final class SubCharacteristics {
-    private SubCharacteristics() {
-      // only constants
-    }
-
     /**
      * Related to characteristic REUSABILITY
      */
@@ -295,6 +291,10 @@ public interface RulesDefinition extends ServerExtension {
      * Related to characteristic TESTABILITY
      */
     public static final String UNIT_TESTABILITY = "UNIT_TESTABILITY";
+
+    private SubCharacteristics() {
+      // only constants
+    }
   }
 
   /**

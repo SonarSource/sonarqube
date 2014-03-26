@@ -29,6 +29,7 @@ import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -60,8 +61,8 @@ public class DebtModelLookup implements ServerComponent {
   private static List<DebtCharacteristic> toCharacteristics(Collection<CharacteristicDto> dtos) {
     return newArrayList(Iterables.transform(dtos, new Function<CharacteristicDto, DebtCharacteristic>() {
       @Override
-      public DebtCharacteristic apply(CharacteristicDto input) {
-        return toCharacteristic(input);
+      public DebtCharacteristic apply(@Nullable CharacteristicDto input) {
+        return input != null ? toCharacteristic(input) : null;
       }
     }));
   }

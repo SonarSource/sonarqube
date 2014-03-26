@@ -112,9 +112,11 @@ public class DebtModelBackup implements ServerComponent {
 
       List<RuleDebt> rules = newArrayList();
       for (RuleDto rule : ruleDao.selectEnablesAndNonManual(session)) {
-        if ((languageKey == null || languageKey.equals(rule.getLanguage())) && rule.hasCharacteristic()) {
-          Integer characteristicId = rule.getCharacteristicId() != null ? rule.getCharacteristicId() : rule.getDefaultCharacteristicId();
-          rules.add(toRuleDebt(rule, debtModel.characteristicById(characteristicId).key()));
+        if ((languageKey == null || languageKey.equals(rule.getLanguage()))) {
+          Integer effectiveCharacteristicId = rule.getCharacteristicId() != null ? rule.getCharacteristicId() : rule.getDefaultCharacteristicId();
+          if (effectiveCharacteristicId != null && !RuleDto.DISABLED_CHARACTERISTIC_ID.equals(effectiveCharacteristicId)) {
+            rules.add(toRuleDebt(rule, debtModel.characteristicById(effectiveCharacteristicId).key()));
+          }
         }
       }
       return debtModelXMLExporter.export(debtModel, rules);
@@ -151,8 +153,8 @@ public class DebtModelBackup implements ServerComponent {
     try {
       List<RuleDto> rules = newArrayList(Iterables.filter(ruleDao.selectEnablesAndNonManual(session), new Predicate<RuleDto>() {
         @Override
-        public boolean apply(RuleDto input) {
-          return languageKey.equals(input.getLanguage());
+        public boolean apply(@Nullable RuleDto input) {
+          return input != null && languageKey.equals(input.getLanguage());
         }
       }));
       restoreProvidedModel(rules, updateDate, session);
@@ -201,8 +203,8 @@ public class DebtModelBackup implements ServerComponent {
       List<CharacteristicDto> characteristicDtos = dao.selectEnabledCharacteristics(session);
       List<RuleDto> rules = newArrayList(Iterables.filter(ruleDao.selectEnablesAndNonManual(session), new Predicate<RuleDto>() {
         @Override
-        public boolean apply(RuleDto input) {
-          return languageKey.equals(input.getLanguage());
+        public boolean apply(@Nullable RuleDto input) {
+          return input != null && languageKey.equals(input.getLanguage());
         }
       }));
       restoreRules(characteristicDtos, rules, rulesXMLImporter.importXML(xml, validationMessages), validationMessages, updateDate, session);
@@ -227,10 +229,10 @@ public class DebtModelBackup implements ServerComponent {
         } else {
           boolean isSameCharacteristic = characteristicDto.getId().equals(rule.getDefaultCharacteristicId());
           boolean isSameFunction = isSameRemediationFunction(ruleDebt, rule);
-          rule.setCharacteristicId((!isSameCharacteristic ? characteristicDto.getId() : null));
-          rule.setRemediationFunction((!isSameFunction ? ruleDebt.function().name() : null));
-          rule.setRemediationCoefficient((!isSameFunction ? ruleDebt.factor() : null));
-          rule.setRemediationOffset((!isSameFunction ? ruleDebt.offset() : null));
+          rule.setCharacteristicId(!isSameCharacteristic ? characteristicDto.getId() : null);
+          rule.setRemediationFunction(!isSameFunction ? ruleDebt.function().name() : null);
+          rule.setRemediationCoefficient(!isSameFunction ? ruleDebt.coefficient() : null);
+          rule.setRemediationOffset(!isSameFunction ? ruleDebt.offset() : null);
           rule.setUpdatedAt(updateDate);
           ruleDao.update(rule, session);
           // TODO index rules in E/S
@@ -290,12 +292,12 @@ public class DebtModelBackup implements ServerComponent {
   private static boolean isSameRemediationFunction(RuleDebt ruleDebt, RuleDto rule) {
     return new EqualsBuilder()
       .append(ruleDebt.function().name(), rule.getDefaultRemediationFunction())
-      .append(ruleDebt.factor(), rule.getDefaultRemediationCoefficient())
+      .append(ruleDebt.coefficient(), rule.getDefaultRemediationCoefficient())
       .append(ruleDebt.offset(), rule.getDefaultRemediationOffset())
       .isEquals();
   }
 
-  private void disabledRuleDebt(RuleDto rule, Date updateDate, SqlSession session){
+  private void disabledRuleDebt(RuleDto rule, Date updateDate, SqlSession session) {
     rule.setCharacteristicId(rule.getDefaultCharacteristicId() != null ? RuleDto.DISABLED_CHARACTERISTIC_ID : null);
     rule.setRemediationFunction(null);
     rule.setRemediationCoefficient(null);
@@ -321,8 +323,8 @@ public class DebtModelBackup implements ServerComponent {
     }
     return Iterables.find(ruleDebts, new Predicate<RuleDebt>() {
       @Override
-      public boolean apply(RuleDebt input) {
-        return rule.getRepositoryKey().equals(input.ruleKey().repository()) && rule.getRuleKey().equals(input.ruleKey().rule());
+      public boolean apply(@Nullable RuleDebt input) {
+        return input != null && rule.getRepositoryKey().equals(input.ruleKey().repository()) && rule.getRuleKey().equals(input.ruleKey().rule());
       }
     }, null);
   }
@@ -331,8 +333,8 @@ public class DebtModelBackup implements ServerComponent {
   private static CharacteristicDto characteristicByKey(final String key, List<CharacteristicDto> characteristicDtos) {
     return Iterables.find(characteristicDtos, new Predicate<CharacteristicDto>() {
       @Override
-      public boolean apply(CharacteristicDto input) {
-        return key.equals(input.getKey());
+      public boolean apply(@Nullable CharacteristicDto input) {
+        return input != null && key.equals(input.getKey());
       }
     }, null);
   }
@@ -340,21 +342,25 @@ public class DebtModelBackup implements ServerComponent {
   private static List<CharacteristicDto> subCharacteristics(final Integer parentId, List<CharacteristicDto> allCharacteristics) {
     return newArrayList(Iterables.filter(allCharacteristics, new Predicate<CharacteristicDto>() {
       @Override
-      public boolean apply(CharacteristicDto input) {
-        return parentId.equals(input.getParentId());
+      public boolean apply(@Nullable CharacteristicDto input) {
+        return input != null && parentId.equals(input.getParentId());
       }
     }));
   }
 
   private static RuleDebt toRuleDebt(RuleDto rule, String characteristicKey) {
     RuleDebt ruleDebt = new RuleDebt().setRuleKey(RuleKey.of(rule.getRepositoryKey(), rule.getRuleKey()));
-    String function = rule.getRemediationFunction() != null ? rule.getRemediationFunction() : rule.getDefaultRemediationFunction();
-    String factor = rule.getRemediationCoefficient() != null ? rule.getRemediationCoefficient() : rule.getDefaultRemediationCoefficient();
-    String offset = rule.getRemediationOffset() != null ? rule.getRemediationOffset() : rule.getDefaultRemediationOffset();
+    String function = rule.getRemediationFunction();
+    String coefficient = rule.getRemediationCoefficient();
+    String offset = rule.getRemediationOffset();
+
+    String effectiveFunction = function != null ? function : rule.getDefaultRemediationFunction();
+    String effectiveCoefficient = coefficient != null ? coefficient : rule.getDefaultRemediationCoefficient();
+    String effectiveOffset = offset != null ? offset : rule.getDefaultRemediationOffset();
     ruleDebt.setCharacteristicKey(characteristicKey);
-    ruleDebt.setFunction(DebtRemediationFunction.Type.valueOf(function));
-    ruleDebt.setFactor(factor);
-    ruleDebt.setOffset(offset);
+    ruleDebt.setFunction(DebtRemediationFunction.Type.valueOf(effectiveFunction));
+    ruleDebt.setCoefficient(effectiveCoefficient);
+    ruleDebt.setOffset(effectiveOffset);
     return ruleDebt;
   }
 

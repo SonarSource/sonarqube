@@ -85,7 +85,8 @@ public class DebtRulesXMLImporter implements ServerComponent {
     return new SMInputFactory(xmlFactory);
   }
 
-  private void process(List<RuleDebt> ruleDebts, @Nullable String rootKey, @Nullable String parentKey, ValidationMessages validationMessages, SMInputCursor chcCursor) throws XMLStreamException {
+  private void process(List<RuleDebt> ruleDebts, @Nullable String rootKey, @Nullable String parentKey,
+                       ValidationMessages validationMessages, SMInputCursor chcCursor) throws XMLStreamException {
     String currentCharacteristicKey = null;
     SMInputCursor cursor = chcCursor.childElementCursor();
     while (cursor.getNext() != null) {
@@ -159,27 +160,27 @@ public class DebtRulesXMLImporter implements ServerComponent {
     Property function = properties.function();
     if (function != null) {
 
-      Property factorProperty = properties.factor();
-      String factor = factorProperty != null ? factorProperty.toDuration() : null;
+      Property coefficientProperty = properties.coefficient();
+      String coefficient = coefficientProperty != null ? coefficientProperty.toDuration() : null;
       Property offsetProperty = properties.offset();
       String offset = offsetProperty != null ? offsetProperty.toDuration() : null;
 
-      return createRuleDebt(ruleKey, function.getTextValue(), factor, offset, validationMessages);
+      return createRuleDebt(ruleKey, function.getTextValue(), coefficient, offset, validationMessages);
     }
     return null;
   }
 
   @CheckForNull
-  private RuleDebt createRuleDebt(RuleKey ruleKey, String function, @Nullable String factor, @Nullable String offset, ValidationMessages validationMessages) {
-    if ("linear_threshold".equals(function) && factor != null) {
+  private RuleDebt createRuleDebt(RuleKey ruleKey, String function, @Nullable String coefficient, @Nullable String offset, ValidationMessages validationMessages) {
+    if ("linear_threshold".equals(function) && coefficient != null) {
       validationMessages.addWarningText(String.format("Linear with threshold function is no longer used, remediation function of '%s' is replaced by linear.", ruleKey));
-      return new RuleDebt().setRuleKey(ruleKey).setFunction(DebtRemediationFunction.Type.LINEAR).setFactor(factor);
+      return new RuleDebt().setRuleKey(ruleKey).setFunction(DebtRemediationFunction.Type.LINEAR).setCoefficient(coefficient);
     } else if ("constant_resource".equals(function)) {
       validationMessages.addWarningText(String.format("Constant/file function is no longer used, technical debt definitions on '%s' are ignored.", ruleKey));
-    } else if (DebtRemediationFunction.Type.CONSTANT_ISSUE.name().equalsIgnoreCase(function) && factor != null && offset == null) {
-      return new RuleDebt().setRuleKey(ruleKey).setFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE).setOffset(factor);
+    } else if (DebtRemediationFunction.Type.CONSTANT_ISSUE.name().equalsIgnoreCase(function) && coefficient != null && offset == null) {
+      return new RuleDebt().setRuleKey(ruleKey).setFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE).setOffset(coefficient);
     } else {
-      return new RuleDebt().setRuleKey(ruleKey).setFunction(DebtRemediationFunction.Type.valueOf(function.toUpperCase())).setFactor(factor).setOffset(offset);
+      return new RuleDebt().setRuleKey(ruleKey).setFunction(DebtRemediationFunction.Type.valueOf(function.toUpperCase())).setCoefficient(coefficient).setOffset(offset);
     }
     return null;
   }
@@ -200,8 +201,8 @@ public class DebtRulesXMLImporter implements ServerComponent {
       return find(PROPERTY_FUNCTION);
     }
 
-    public Property factor() {
-      return find(PROPERTY_FACTOR);
+    public Property coefficient() {
+      return find(PROPERTY_COEFFICIENT);
     }
 
     public Property offset() {

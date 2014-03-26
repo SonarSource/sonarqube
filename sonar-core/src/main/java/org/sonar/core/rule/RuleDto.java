@@ -315,7 +315,7 @@ public final class RuleDto {
   }
 
   public boolean hasCharacteristic(){
-    return ((characteristicId != null && !RuleDto.DISABLED_CHARACTERISTIC_ID.equals(characteristicId))) || (characteristicId == null && defaultCharacteristicId != null);
+    return (characteristicId != null && !RuleDto.DISABLED_CHARACTERISTIC_ID.equals(characteristicId)) || (characteristicId == null && defaultCharacteristicId != null);
   }
 
   @Override

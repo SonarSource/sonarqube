@@ -68,7 +68,7 @@ public class DebtModelXMLExporter implements ServerComponent {
   public static final String RULE_KEY = "rule-key";
 
   public static final String PROPERTY_FUNCTION = "remediationFunction";
-  public static final String PROPERTY_FACTOR = "remediationFactor";
+  public static final String PROPERTY_COEFFICIENT = "remediationFactor";
   public static final String PROPERTY_OFFSET = "offset";
 
   protected String export(DebtModel debtModel, List<RuleDebt> allRules) {
@@ -114,13 +114,13 @@ public class DebtModelXMLExporter implements ServerComponent {
     xml.append(StringEscapeUtils.escapeXml(rule.ruleKey().rule()));
     xml.append("</" + RULE_KEY + ">");
 
-    String factor = rule.factor();
+    String coefficient = rule.coefficient();
     String offset = rule.offset();
 
     appendProperty(PROPERTY_FUNCTION, null, rule.function().name(), xml);
-    if (factor != null) {
-      String[] values = getValues(factor);
-      appendProperty(PROPERTY_FACTOR, values[0], values[1], xml);
+    if (coefficient != null) {
+      String[] values = getValues(coefficient);
+      appendProperty(PROPERTY_COEFFICIENT, values[0], values[1], xml);
     }
     if (offset != null) {
       String[] values = getValues(offset);
@@ -266,7 +266,7 @@ public class DebtModelXMLExporter implements ServerComponent {
     private RuleKey ruleKey;
     private String characteristicKey;
     private DebtRemediationFunction.Type type;
-    private String factor;
+    private String coefficient;
     private String offset;
 
     public RuleKey ruleKey() {
@@ -297,12 +297,12 @@ public class DebtModelXMLExporter implements ServerComponent {
     }
 
     @CheckForNull
-    public String factor() {
-      return factor;
+    public String coefficient() {
+      return coefficient;
     }
 
-    public RuleDebt setFactor(@Nullable String factor) {
-      this.factor = factor;
+    public RuleDebt setCoefficient(@Nullable String coefficient) {
+      this.coefficient = coefficient;
       return this;
     }
 
@@ -314,6 +314,17 @@ public class DebtModelXMLExporter implements ServerComponent {
     public RuleDebt setOffset(@Nullable String offset) {
       this.offset = offset;
       return this;
+    }
+
+    @Override
+    public String toString() {
+      return "RuleDebt{" +
+        "ruleKey=" + ruleKey +
+        ", characteristicKey='" + characteristicKey + '\'' +
+        ", type=" + type +
+        ", coefficient='" + coefficient + '\'' +
+        ", offset='" + offset + '\'' +
+        '}';
     }
   }
 
