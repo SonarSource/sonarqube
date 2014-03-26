@@ -20,12 +20,11 @@
 
 package org.sonar.server.debt;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.sonar.api.server.debt.DebtCharacteristic;
+import org.sonar.test.TestUtils;
 
-import java.io.IOException;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -35,7 +34,7 @@ import static org.sonar.server.debt.DebtModelXMLExporter.DebtModel;
 public class DebtCharacteristicsXMLImporterTest {
 
   @Test
-  public void import_characteristics() {
+  public void import_characteristics() throws Exception {
     String xml = getFileContent("import_characteristics.xml");
 
     DebtModel debtModel = new DebtCharacteristicsXMLImporter().importXML(xml);
@@ -64,7 +63,7 @@ public class DebtCharacteristicsXMLImporterTest {
   }
 
   @Test
-  public void import_badly_formatted_xml() {
+  public void import_badly_formatted_xml() throws Exception {
     String xml = getFileContent("import_badly_formatted_xml.xml");
 
     DebtModel debtModel = new DebtCharacteristicsXMLImporter().importXML(xml);
@@ -85,7 +84,7 @@ public class DebtCharacteristicsXMLImporterTest {
   }
 
   @Test
-  public void fail_on_bad_xml() {
+  public void fail_on_bad_xml() throws Exception {
     String xml = getFileContent("fail_on_bad_xml.xml");
 
     try {
@@ -96,12 +95,8 @@ public class DebtCharacteristicsXMLImporterTest {
     }
   }
 
-  private String getFileContent(String file) {
-    try {
-      return Resources.toString(Resources.getResource(this.getClass(), this.getClass().getSimpleName() + "/" + file), Charsets.UTF_8);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+  private String getFileContent(String file) throws Exception {
+    return IOUtils.toString(TestUtils.getResource(getClass(), file).toURI());
   }
 
 }

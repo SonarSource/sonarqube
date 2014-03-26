@@ -20,14 +20,13 @@
 
 package org.sonar.server.debt;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.test.TestUtils;
 
-import java.io.IOException;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -40,7 +39,7 @@ public class DebtRulesXMLImporterTest {
   DebtRulesXMLImporter importer = new DebtRulesXMLImporter();
 
   @Test
-  public void import_rules() {
+  public void import_rules() throws Exception {
     String xml = getFileContent("import_rules.xml");
 
     List<RuleDebt> results = importer.importXML(xml, validationMessages);
@@ -51,7 +50,7 @@ public class DebtRulesXMLImporterTest {
   }
 
   @Test
-  public void import_linear() {
+  public void import_linear() throws Exception {
     String xml = getFileContent("import_linear.xml");
 
     List<RuleDebt> results = importer.importXML(xml, validationMessages);
@@ -66,7 +65,7 @@ public class DebtRulesXMLImporterTest {
   }
 
   @Test
-  public void import_linear_having_offset_to_zero() {
+  public void import_linear_having_offset_to_zero() throws Exception {
     String xml = getFileContent("import_linear_having_offset_to_zero.xml");
 
     List<RuleDebt> results = importer.importXML(xml, validationMessages);
@@ -81,7 +80,7 @@ public class DebtRulesXMLImporterTest {
   }
 
   @Test
-  public void import_linear_with_offset() {
+  public void import_linear_with_offset() throws Exception {
     String xml = getFileContent("import_linear_with_offset.xml");
 
     List<RuleDebt> results = importer.importXML(xml, validationMessages);
@@ -95,7 +94,7 @@ public class DebtRulesXMLImporterTest {
   }
 
   @Test
-  public void import_constant_issue() {
+  public void import_constant_issue() throws Exception {
     String xml = getFileContent("import_constant_issue.xml");
 
     List<RuleDebt> results = importer.importXML(xml, validationMessages);
@@ -109,7 +108,7 @@ public class DebtRulesXMLImporterTest {
   }
 
   @Test
-  public void use_default_unit_when_no_unit() {
+  public void use_default_unit_when_no_unit() throws Exception {
     String xml = getFileContent("use_default_unit_when_no_unit.xml");
 
     List<RuleDebt> results = importer.importXML(xml, validationMessages);
@@ -123,7 +122,7 @@ public class DebtRulesXMLImporterTest {
   }
 
   @Test
-  public void replace_mn_by_min() {
+  public void replace_mn_by_min() throws Exception {
     String xml = getFileContent("replace_mn_by_min.xml");
 
     List<RuleDebt> results = importer.importXML(xml, validationMessages);
@@ -137,7 +136,7 @@ public class DebtRulesXMLImporterTest {
   }
 
   @Test
-  public void read_integer() {
+  public void read_integer() throws Exception {
     String xml = getFileContent("read_integer.xml");
 
     List<RuleDebt> results = importer.importXML(xml, validationMessages);
@@ -152,7 +151,7 @@ public class DebtRulesXMLImporterTest {
   }
 
   @Test
-  public void convert_deprecated_linear_with_threshold_function_by_linear_function() {
+  public void convert_deprecated_linear_with_threshold_function_by_linear_function() throws Exception {
     String xml = getFileContent("convert_deprecated_linear_with_threshold_function_by_linear_function.xml");
 
     List<RuleDebt> results = importer.importXML(xml, validationMessages);
@@ -168,7 +167,7 @@ public class DebtRulesXMLImporterTest {
   }
 
   @Test
-  public void convert_constant_per_issue_with_coefficient_by_constant_per_issue_with_offset() {
+  public void convert_constant_per_issue_with_coefficient_by_constant_per_issue_with_offset() throws Exception {
     String xml = getFileContent("convert_constant_per_issue_with_coefficient_by_constant_per_issue_with_offset.xml");
 
     List<RuleDebt> results = importer.importXML(xml, validationMessages);
@@ -182,7 +181,7 @@ public class DebtRulesXMLImporterTest {
   }
 
   @Test
-  public void ignore_deprecated_constant_per_file_function() {
+  public void ignore_deprecated_constant_per_file_function() throws Exception {
     String xml = getFileContent("ignore_deprecated_constant_per_file_function.xml");
 
     List<RuleDebt> results = importer.importXML(xml, validationMessages);
@@ -192,7 +191,7 @@ public class DebtRulesXMLImporterTest {
   }
 
   @Test
-  public void ignore_rule_on_root_characteristics() {
+  public void ignore_rule_on_root_characteristics() throws Exception {
     String xml = getFileContent("ignore_rule_on_root_characteristics.xml");
 
     List<RuleDebt> results = importer.importXML(xml, validationMessages);
@@ -202,7 +201,7 @@ public class DebtRulesXMLImporterTest {
   }
 
   @Test
-  public void import_badly_formatted_xml() {
+  public void import_badly_formatted_xml() throws Exception {
     String xml = getFileContent("import_badly_formatted_xml.xml");
 
     List<RuleDebt> results = importer.importXML(xml, validationMessages);
@@ -226,7 +225,7 @@ public class DebtRulesXMLImporterTest {
   }
 
   @Test
-  public void fail_on_bad_xml() {
+  public void fail_on_bad_xml() throws Exception {
     String xml = getFileContent("fail_on_bad_xml.xml");
 
     try {
@@ -237,12 +236,7 @@ public class DebtRulesXMLImporterTest {
     }
   }
 
-  private String getFileContent(String file) {
-    try {
-      return Resources.toString(Resources.getResource(DebtRulesXMLImporterTest.class, "DebtRulesXMLImporterTest/" + file), Charsets.UTF_8);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+  private String getFileContent(String file) throws Exception {
+    return IOUtils.toString(TestUtils.getResource(getClass(), file).toURI());
   }
-
 }
