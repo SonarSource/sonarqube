@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch;
 
-import org.sonar.api.resources.File;
 import org.sonar.api.resources.Resource;
 
 import java.util.List;
@@ -35,6 +34,6 @@ public abstract class AbstractCpdMapping implements CpdMapping {
    * {@inheritDoc}
    */
   public Resource createResource(java.io.File file, List<java.io.File> sourceDirs) {
-    return File.fromIOFile(file, sourceDirs);
+    throw new UnsupportedOperationException("Deprecated since 4.2");
   }
 }

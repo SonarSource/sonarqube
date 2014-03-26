@@ -35,9 +35,9 @@ public class DefaultFileLinesContextFactory implements FileLinesContextFactory {
   }
 
   @Override
-  public FileLinesContext createFor(Resource resource) {
+  public FileLinesContext createFor(Resource model) {
     // Reload resource in case it use deprecated key
-    resource = index.getResource(resource);
+    Resource resource = index.getResource(model);
     return new DefaultFileLinesContext(index, resource);
   }
 

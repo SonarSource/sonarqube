@@ -37,9 +37,9 @@ import org.sonar.api.utils.SonarException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +67,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
   private boolean initialized;
 
   public DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, Project module, Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer,
-                                 ComponentIndexer componentIndexer) {
+    ComponentIndexer componentIndexer) {
     super(moduleInputFileCache);
     this.componentIndexer = componentIndexer;
     this.moduleKey = module.getKey();
@@ -146,7 +146,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
    */
   @Deprecated
   void addSourceDir(File dir) {
-    throw new UnsupportedOperationException("Modifications of the file system are not permitted");
+    throw modificationNotPermitted();
   }
 
   /**
@@ -156,7 +156,11 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
    */
   @Deprecated
   void addTestDir(File dir) {
-    throw new UnsupportedOperationException("Modifications of the file system are not permitted");
+    throw modificationNotPermitted();
+  }
+
+  private UnsupportedOperationException modificationNotPermitted() {
+    return new UnsupportedOperationException("Modifications of the file system are not permitted");
   }
 
   /**

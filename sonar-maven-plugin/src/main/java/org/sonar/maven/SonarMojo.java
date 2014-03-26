@@ -232,17 +232,21 @@ public final class SonarMojo extends AbstractMojo {
     try {
       for (String key : properties.stringPropertyNames()) {
         if (key.contains(".password")) {
-          try {
-            String decrypted = securityDispatcher.decrypt(properties.getProperty(key));
-            newProperties.setProperty(key, decrypted);
-          } catch (SecDispatcherException e) {
-            getLog().warn("Unable to decrypt property " + key, e);
-          }
+          decrypt(properties, newProperties, key);
         }
       }
     } catch (Exception e) {
       getLog().warn("Unable to decrypt properties", e);
     }
     return newProperties;
+  }
+
+  private void decrypt(Properties properties, Properties newProperties, String key) {
+    try {
+      String decrypted = securityDispatcher.decrypt(properties.getProperty(key));
+      newProperties.setProperty(key, decrypted);
+    } catch (SecDispatcherException e) {
+      getLog().warn("Unable to decrypt property " + key, e);
+    }
   }
 }

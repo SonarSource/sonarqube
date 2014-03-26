@@ -31,6 +31,7 @@ import org.apache.maven.model.IssueManagement;
 import org.apache.maven.model.Scm;
 import org.apache.maven.project.MavenProject;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.SupportedEnvironment;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.maven.MavenUtils;
 import org.sonar.api.task.TaskExtension;
@@ -39,6 +40,7 @@ import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.java.api.JavaUtils;
 
 import javax.annotation.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -46,6 +48,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+@SupportedEnvironment("maven")
 public class MavenProjectConverter implements TaskExtension {
 
   private static final String UNABLE_TO_DETERMINE_PROJECT_STRUCTURE_EXCEPTION_MESSAGE = "Unable to determine structure of project." +

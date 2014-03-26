@@ -37,7 +37,7 @@ public final class SquidUtils {
    */
   @Deprecated
   public static JavaFile convertJavaFileKeyFromSquidFormat(String key) {
-    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
+    throw unsupported();
   }
 
   /**
@@ -45,7 +45,11 @@ public final class SquidUtils {
    */
   @Deprecated
   public static JavaPackage convertJavaPackageKeyFromSquidFormat(String key) {
-    throw new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
+    throw unsupported();
+  }
+
+  private static UnsupportedOperationException unsupported() {
+    return new UnsupportedOperationException("Not supported since v4.2. See http://docs.codehaus.org/display/SONAR/API+Changes");
   }
 
   /**

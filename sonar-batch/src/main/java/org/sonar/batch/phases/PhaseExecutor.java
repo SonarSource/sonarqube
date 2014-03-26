@@ -43,12 +43,6 @@ public final class PhaseExecutor {
 
   public static final Logger LOGGER = LoggerFactory.getLogger(PhaseExecutor.class);
 
-  public static Collection<Class> getPhaseClasses() {
-    return Lists.<Class>newArrayList(DecoratorsExecutor.class, MavenPhaseExecutor.class, MavenPluginsConfigurator.class,
-      PostJobsExecutor.class, SensorsExecutor.class,
-      InitializersExecutor.class, ProjectInitializer.class, UpdateStatusJob.class);
-  }
-
   private final EventBus eventBus;
   private final Phases phases;
   private final DecoratorsExecutor decoratorsExecutor;
@@ -105,6 +99,12 @@ public final class PhaseExecutor {
     DefaultModuleFileSystem fs, QProfileVerifier profileVerifier, IssueExclusionsLoader issueExclusionsLoader) {
     this(phases, decoratorsExecutor, mavenPhaseExecutor, mavenPluginsConfigurator, initializersExecutor, postJobsExecutor,
       sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null, pi, persisters, fsLogger, jsonReport, fs, profileVerifier, issueExclusionsLoader);
+  }
+
+  public static Collection<Class> getPhaseClasses() {
+    return Lists.<Class>newArrayList(DecoratorsExecutor.class, MavenPhaseExecutor.class, MavenPluginsConfigurator.class,
+      PostJobsExecutor.class, SensorsExecutor.class,
+      InitializersExecutor.class, ProjectInitializer.class, UpdateStatusJob.class);
   }
 
   /**

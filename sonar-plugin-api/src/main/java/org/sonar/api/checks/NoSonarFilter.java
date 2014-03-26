@@ -43,10 +43,10 @@ public class NoSonarFilter implements ViolationFilter {
     this.context = context;
   }
 
-  public void addResource(Resource resource, Set<Integer> noSonarLines) {
-    if (resource != null && noSonarLines != null) {
+  public void addResource(Resource model, Set<Integer> noSonarLines) {
+    if (model != null && noSonarLines != null) {
       // Reload resource to handle backward compatibility of resource keys
-      resource = context.getResource(resource);
+      Resource resource = context.getResource(model);
       if (resource != null) {
         noSonarLinesByResource.put(resource, noSonarLines);
       }
