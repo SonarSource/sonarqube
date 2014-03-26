@@ -2,11 +2,23 @@
   {{t 'coding_rules.activate_in'}}
 </a>
 
+{{#if singleLanguage}}
+  <a class="coding-rules-bulk-change-dropdown-link" data-action="activate" data-param="<all>">
+    {{t 'coding_rules.activate_in_all_quality_profiles'}}
+  </a>
+{{/if}}
+
 <a class="coding-rules-bulk-change-dropdown-link" data-action="deactivate"
    {{#if qualityProfile}}data-param="{{qualityProfile}}"{{/if}}>
   {{t 'coding_rules.deactivate_in'}}
   {{#if qualityProfile}}<strong>{{qualityProfileName}}</strong>{{/if}}
 </a>
+
+{{#if singleLanguage}}
+  <a class="coding-rules-bulk-change-dropdown-link" data-action="deactivate" data-param="<all>">
+    {{t 'coding_rules.deactivate_in_all_quality_profiles'}}
+  </a>
+{{/if}}
 
 {{#if qualityProfile}}
   <a class="coding-rules-bulk-change-dropdown-link" data-action="change-severity">

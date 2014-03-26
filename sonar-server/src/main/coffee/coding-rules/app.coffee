@@ -200,11 +200,12 @@ requirejs [
       property: 'name'
       type: StringFilterView
 
-    @filters.add new BaseFilters.Filter
+    @languageFilter =  new BaseFilters.Filter
       name: t 'coding_rules.filters.language'
       property: 'languages'
       type: ChoiceFilters.ChoiceFilterView
       choices: @languages
+    @filters.add @languageFilter
 
     @filters.add new BaseFilters.Filter
       name: t 'coding_rules.filters.severity'

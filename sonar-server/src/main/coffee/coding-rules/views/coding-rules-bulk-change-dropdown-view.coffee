@@ -47,5 +47,7 @@ define [
 
 
     serializeData: ->
+      languages = @options.app.languageFilter.get('value')
       qualityProfile: @options.app.getQualityProfile()
       qualityProfileName: @options.app.qualityProfileFilter.view.renderValue()
+      singleLanguage: _.isArray(languages) && languages.length == 1
