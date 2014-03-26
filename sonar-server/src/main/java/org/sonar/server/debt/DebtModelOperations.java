@@ -170,7 +170,7 @@ public class DebtModelOperations implements ServerComponent {
 
   /**
    * Disable characteristic and its sub characteristics or only sub characteristic.
-   * Will also update every rules linked to sub characteristics by setting characteristic id to -1 and remove function, factor and offset.
+   * Will also update every rules linked to sub characteristics by setting characteristic id to -1 and remove function, coefficient and offset.
    */
   public void delete(int characteristicId) {
     checkPermission();
@@ -205,7 +205,7 @@ public class DebtModelOperations implements ServerComponent {
     for (RuleDto ruleDto : ruleDtos) {
       ruleDto.setCharacteristicId(RuleDto.DISABLED_CHARACTERISTIC_ID);
       ruleDto.setRemediationFunction(null);
-      ruleDto.setRemediationFactor(null);
+      ruleDto.setRemediationCoefficient(null);
       ruleDto.setRemediationOffset(null);
       ruleDto.setUpdatedAt(updateDate);
       ruleDao.update(ruleDto, session);

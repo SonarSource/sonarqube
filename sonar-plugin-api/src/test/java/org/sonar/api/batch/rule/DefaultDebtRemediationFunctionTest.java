@@ -31,7 +31,7 @@ public class DefaultDebtRemediationFunctionTest {
   public void create_linear() throws Exception {
     DebtRemediationFunction function = DebtRemediationFunction.createLinear(Duration.create(10));
     assertThat(function.type()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
-    assertThat(function.factor()).isEqualTo(Duration.create(10));
+    assertThat(function.coefficient()).isEqualTo(Duration.create(10));
     assertThat(function.offset()).isNull();
   }
 
@@ -39,7 +39,7 @@ public class DefaultDebtRemediationFunctionTest {
   public void create_linear_with_offset() throws Exception {
     DebtRemediationFunction function = DebtRemediationFunction.createLinearWithOffset(Duration.create(10), Duration.create(5));
     assertThat(function.type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
-    assertThat(function.factor()).isEqualTo(Duration.create(10));
+    assertThat(function.coefficient()).isEqualTo(Duration.create(10));
     assertThat(function.offset()).isEqualTo(Duration.create(5));
   }
 
@@ -47,7 +47,7 @@ public class DefaultDebtRemediationFunctionTest {
   public void create_constant_per_issue() throws Exception {
     DebtRemediationFunction function = DebtRemediationFunction.createConstantPerIssue(Duration.create(10));
     assertThat(function.type()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE);
-    assertThat(function.factor()).isNull();
+    assertThat(function.coefficient()).isNull();
     assertThat(function.offset()).isEqualTo(Duration.create(10));
   }
 

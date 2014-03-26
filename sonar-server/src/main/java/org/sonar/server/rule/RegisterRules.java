@@ -193,7 +193,7 @@ public class RegisterRules implements Startable {
     if (characteristic != null && remediationFunction != null) {
       ruleDto.setDefaultCharacteristicId(characteristic.getId())
         .setDefaultRemediationFunction(remediationFunction.type().name())
-        .setDefaultRemediationFactor(remediationFunction.factor())
+        .setDefaultRemediationCoefficient(remediationFunction.coefficient())
         .setDefaultRemediationOffset(remediationFunction.offset())
         .setEffortToFixDescription(ruleDef.effortToFixDescription());
     }
@@ -272,7 +272,7 @@ public class RegisterRules implements Startable {
     boolean hasCharacteristic = characteristic != null;
     DebtRemediationFunction debtRemediationFunction = characteristic != null ? def.debtRemediationFunction() : null;
     Integer characteristicId = characteristic != null ? characteristic.getId() : null;
-    String remediationFactor = hasCharacteristic ? debtRemediationFunction.factor() : null;
+    String remediationFactor = hasCharacteristic ? debtRemediationFunction.coefficient() : null;
     String remediationOffset = hasCharacteristic ? debtRemediationFunction.offset() : null;
     String effortToFixDescription = hasCharacteristic ? def.effortToFixDescription() : null;
 
@@ -285,8 +285,8 @@ public class RegisterRules implements Startable {
       dto.setDefaultRemediationFunction(remediationFunctionString);
       changed = true;
     }
-    if (!StringUtils.equals(dto.getDefaultRemediationFactor(), remediationFactor)) {
-      dto.setDefaultRemediationFactor(remediationFactor);
+    if (!StringUtils.equals(dto.getDefaultRemediationCoefficient(), remediationFactor)) {
+      dto.setDefaultRemediationCoefficient(remediationFactor);
       changed = true;
     }
     if (!StringUtils.equals(dto.getDefaultRemediationOffset(), remediationOffset)) {
@@ -418,7 +418,7 @@ public class RegisterRules implements Startable {
           ruleDto.setStatus(parent.getStatus());
           ruleDto.setDefaultCharacteristicId(parent.getDefaultCharacteristicId());
           ruleDto.setDefaultRemediationFunction(parent.getDefaultRemediationFunction());
-          ruleDto.setDefaultRemediationFactor(parent.getDefaultRemediationFactor());
+          ruleDto.setDefaultRemediationCoefficient(parent.getDefaultRemediationCoefficient());
           ruleDto.setDefaultRemediationOffset(parent.getDefaultRemediationOffset());
           ruleDto.setEffortToFixDescription(parent.getEffortToFixDescription());
           ruleDto.setUpdatedAt(buffer.now());

@@ -51,7 +51,7 @@ import java.util.List;
 /**
  * This script copy every requirements from characteristics table (every row where rule_id is not null) to the rules table.
  *
- * This script need to be executed after rules registration because default debt columns (characteristics, function, factor and offset) has to be populated
+ * This script need to be executed after rules registration because default debt columns (characteristics, function, coefficient and offset) has to be populated
  * in order to be able to compare default values with overridden values.
  *
  * @since 4.3 this component could be removed after 4 or 5 releases.

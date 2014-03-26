@@ -32,7 +32,7 @@ public class DefaultDebtRemediationFunctionTest {
   public void create_linear() {
     DebtRemediationFunction function = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, "10h", null);
     assertThat(function.type()).isEqualTo(DefaultDebtRemediationFunction.Type.LINEAR);
-    assertThat(function.factor()).isEqualTo("10h");
+    assertThat(function.coefficient()).isEqualTo("10h");
     assertThat(function.offset()).isNull();
   }
 
@@ -40,7 +40,7 @@ public class DefaultDebtRemediationFunctionTest {
   public void create_linear_with_offset() {
     DebtRemediationFunction function = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "10h", "5min");
     assertThat(function.type()).isEqualTo(DefaultDebtRemediationFunction.Type.LINEAR_OFFSET);
-    assertThat(function.factor()).isEqualTo("10h");
+    assertThat(function.coefficient()).isEqualTo("10h");
     assertThat(function.offset()).isEqualTo("5min");
   }
 
@@ -48,25 +48,25 @@ public class DefaultDebtRemediationFunctionTest {
   public void create_constant_per_issue() {
     DebtRemediationFunction function = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, "10h");
     assertThat(function.type()).isEqualTo(DefaultDebtRemediationFunction.Type.CONSTANT_ISSUE);
-    assertThat(function.factor()).isNull();
+    assertThat(function.coefficient()).isNull();
     assertThat(function.offset()).isEqualTo("10h");
   }
 
   @Test
-  public void sanitize_remediation_factor_and_offset() {
+  public void sanitize_remediation_coefficient_and_offset() {
     DebtRemediationFunction function = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "  1  h   ", "  10   min");
 
-    assertThat(function.factor()).isEqualTo("1h");
+    assertThat(function.coefficient()).isEqualTo("1h");
     assertThat(function.offset()).isEqualTo("10min");
   }
 
   @Test
-  public void fail_to_create_linear_when_no_factor() {
+  public void fail_to_create_linear_when_no_coefficient() {
     try {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, null, "10h");
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Only factor must be set on DebtRemediationFunction{type=LINEAR, factor=null, offset=10h}");
+      assertThat(e).hasMessage("Only coefficient must be set on DebtRemediationFunction{type=LINEAR, coefficient=null, offset=10h}");
     }
   }
 
@@ -76,7 +76,7 @@ public class DefaultDebtRemediationFunctionTest {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, "5min", "10h");
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Only factor must be set on DebtRemediationFunction{type=LINEAR, factor=5min, offset=10h}");
+      assertThat(e).hasMessage("Only coefficient must be set on DebtRemediationFunction{type=LINEAR, coefficient=5min, offset=10h}");
     }
   }
 
@@ -86,27 +86,27 @@ public class DefaultDebtRemediationFunctionTest {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, "10h", null);
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Only offset must be set on DebtRemediationFunction{type=CONSTANT_ISSUE, factor=10h, offset=null}");
+      assertThat(e).hasMessage("Only offset must be set on DebtRemediationFunction{type=CONSTANT_ISSUE, coefficient=10h, offset=null}");
     }
   }
 
   @Test
-  public void fail_to_create_constant_per_issue_when_factor() {
+  public void fail_to_create_constant_per_issue_when_coefficient() {
     try {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, "5min", "10h");
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Only offset must be set on DebtRemediationFunction{type=CONSTANT_ISSUE, factor=5min, offset=10h}");
+      assertThat(e).hasMessage("Only offset must be set on DebtRemediationFunction{type=CONSTANT_ISSUE, coefficient=5min, offset=10h}");
     }
   }
 
   @Test
-  public void fail_to_create_linear_with_offset_when_no_factor() {
+  public void fail_to_create_linear_with_offset_when_no_coefficient() {
     try {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "", "10h");
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Both factor and offset are required on DebtRemediationFunction{type=LINEAR_OFFSET, factor=null, offset=10h}");
+      assertThat(e).hasMessage("Both coefficient and offset are required on DebtRemediationFunction{type=LINEAR_OFFSET, coefficient=null, offset=10h}");
     }
   }
 
@@ -116,7 +116,7 @@ public class DefaultDebtRemediationFunctionTest {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "5min", "");
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Both factor and offset are required on DebtRemediationFunction{type=LINEAR_OFFSET, factor=5min, offset=null}");
+      assertThat(e).hasMessage("Both coefficient and offset are required on DebtRemediationFunction{type=LINEAR_OFFSET, coefficient=5min, offset=null}");
     }
   }
 
@@ -143,16 +143,16 @@ public class DefaultDebtRemediationFunctionTest {
   @Test
   public void test_to_string() {
     assertThat(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "10h", "5min").toString())
-      .isEqualTo("DebtRemediationFunction{type=LINEAR_OFFSET, factor=10h, offset=5min}");
+      .isEqualTo("DebtRemediationFunction{type=LINEAR_OFFSET, coefficient=10h, offset=5min}");
   }
 
   @Test
-  public void fail_if_bad_factor_format() {
+  public void fail_if_bad_coefficient_format() {
     try {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, "foo", null);
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Invalid factor: foo");
+      assertThat(e).hasMessage("Invalid coefficient: foo");
     }
 
   }

@@ -73,7 +73,7 @@ public class RulesBuilderTest {
     assertThat(squid1.severity()).isEqualTo(Severity.CRITICAL);
     assertThat(squid1.debtCharacteristic()).isEqualTo("COMPILER");
     assertThat(squid1.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
-    assertThat(squid1.debtRemediationFunction().factor()).isEqualTo(Duration.create(10));
+    assertThat(squid1.debtRemediationFunction().coefficient()).isEqualTo(Duration.create(10));
     assertThat(squid1.debtRemediationFunction().offset()).isEqualTo(Duration.create(60));
     assertThat(squid1.debtCharacteristic()).isEqualTo("COMPILER");
     assertThat(squid1.params()).hasSize(2);

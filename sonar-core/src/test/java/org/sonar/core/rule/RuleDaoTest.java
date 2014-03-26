@@ -63,8 +63,8 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getDefaultCharacteristicId()).isEqualTo(101);
     assertThat(ruleDto.getRemediationFunction()).isEqualTo("linear");
     assertThat(ruleDto.getDefaultRemediationFunction()).isEqualTo("linear_offset");
-    assertThat(ruleDto.getRemediationFactor()).isEqualTo("1h");
-    assertThat(ruleDto.getDefaultRemediationFactor()).isEqualTo("5d");
+    assertThat(ruleDto.getRemediationCoefficient()).isEqualTo("1h");
+    assertThat(ruleDto.getDefaultRemediationCoefficient()).isEqualTo("5d");
     assertThat(ruleDto.getRemediationOffset()).isEqualTo("5min");
     assertThat(ruleDto.getDefaultRemediationOffset()).isEqualTo("10h");
     assertThat(ruleDto.getEffortToFixDescription()).isEqualTo("squid.S115.effortToFix");
@@ -87,8 +87,8 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getDefaultCharacteristicId()).isEqualTo(101);
     assertThat(ruleDto.getRemediationFunction()).isEqualTo("LINEAR");
     assertThat(ruleDto.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
-    assertThat(ruleDto.getRemediationFactor()).isEqualTo("1h");
-    assertThat(ruleDto.getDefaultRemediationFactor()).isEqualTo("5d");
+    assertThat(ruleDto.getRemediationCoefficient()).isEqualTo("1h");
+    assertThat(ruleDto.getDefaultRemediationCoefficient()).isEqualTo("5d");
     assertThat(ruleDto.getRemediationOffset()).isEqualTo("5min");
     assertThat(ruleDto.getDefaultRemediationOffset()).isEqualTo("10h");
     assertThat(ruleDto.getEffortToFixDescription()).isEqualTo("squid.S115.effortToFix");
@@ -177,8 +177,8 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDefaultCharacteristicId(101)
       .setRemediationFunction("linear")
       .setDefaultRemediationFunction("linear_offset")
-      .setRemediationFactor("1h")
-      .setDefaultRemediationFactor("5d")
+      .setRemediationCoefficient("1h")
+      .setDefaultRemediationCoefficient("5d")
       .setRemediationOffset("5min")
       .setDefaultRemediationOffset("10h")
       .setEffortToFixDescription("squid.S115.effortToFix")
@@ -209,8 +209,8 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDefaultCharacteristicId(101)
       .setRemediationFunction("linear")
       .setDefaultRemediationFunction("linear_offset")
-      .setRemediationFactor("1h")
-      .setDefaultRemediationFactor("5d")
+      .setRemediationCoefficient("1h")
+      .setDefaultRemediationCoefficient("5d")
       .setRemediationOffset("5min")
       .setDefaultRemediationOffset("10h")
       .setEffortToFixDescription("squid.S115.effortToFix")
@@ -242,8 +242,8 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDefaultCharacteristicId(101)
       .setRemediationFunction("linear")
       .setDefaultRemediationFunction("linear_offset")
-      .setRemediationFactor("1h")
-      .setDefaultRemediationFactor("5d")
+      .setRemediationCoefficient("1h")
+      .setDefaultRemediationCoefficient("5d")
       .setRemediationOffset("5min")
       .setDefaultRemediationOffset("10h")
       .setEffortToFixDescription("squid.S115.effortToFix")
@@ -266,8 +266,8 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDefaultCharacteristicId(103)
       .setRemediationFunction("linear_offset")
       .setDefaultRemediationFunction("linear")
-      .setRemediationFactor("5d")
-      .setDefaultRemediationFactor("1h")
+      .setRemediationCoefficient("5d")
+      .setDefaultRemediationCoefficient("1h")
       .setRemediationOffset("10h")
       .setDefaultRemediationOffset("5min")
       .setEffortToFixDescription("squid.S115.effortToFix2")

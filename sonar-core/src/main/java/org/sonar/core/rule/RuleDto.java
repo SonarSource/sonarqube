@@ -53,8 +53,8 @@ public final class RuleDto {
   private Integer defaultCharacteristicId;
   private String remediationFunction;
   private String defaultRemediationFunction;
-  private String remediationFactor;
-  private String defaultRemediationFactor;
+  private String remediationCoefficient;
+  private String defaultRemediationCoefficient;
   private String remediationOffset;
   private String defaultRemediationOffset;
   private String effortToFixDescription;
@@ -247,22 +247,22 @@ public final class RuleDto {
   }
 
   @CheckForNull
-  public String getRemediationFactor() {
-    return remediationFactor;
+  public String getRemediationCoefficient() {
+    return remediationCoefficient;
   }
 
-  public RuleDto setRemediationFactor(@Nullable String remediationFactor) {
-    this.remediationFactor = remediationFactor;
+  public RuleDto setRemediationCoefficient(@Nullable String remediationCoefficient) {
+    this.remediationCoefficient = remediationCoefficient;
     return this;
   }
 
   @CheckForNull
-  public String getDefaultRemediationFactor() {
-    return defaultRemediationFactor;
+  public String getDefaultRemediationCoefficient() {
+    return defaultRemediationCoefficient;
   }
 
-  public RuleDto setDefaultRemediationFactor(@Nullable String defaultRemediationFactor) {
-    this.defaultRemediationFactor = defaultRemediationFactor;
+  public RuleDto setDefaultRemediationCoefficient(@Nullable String defaultRemediationCoefficient) {
+    this.defaultRemediationCoefficient = defaultRemediationCoefficient;
     return this;
   }
 

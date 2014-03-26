@@ -29,8 +29,8 @@ import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtCharacteristic;
-import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
@@ -229,7 +229,7 @@ public class DebtModelBackup implements ServerComponent {
           boolean isSameFunction = isSameRemediationFunction(ruleDebt, rule);
           rule.setCharacteristicId((!isSameCharacteristic ? characteristicDto.getId() : null));
           rule.setRemediationFunction((!isSameFunction ? ruleDebt.function().name() : null));
-          rule.setRemediationFactor((!isSameFunction ? ruleDebt.factor() : null));
+          rule.setRemediationCoefficient((!isSameFunction ? ruleDebt.factor() : null));
           rule.setRemediationOffset((!isSameFunction ? ruleDebt.offset() : null));
           rule.setUpdatedAt(updateDate);
           ruleDao.update(rule, session);
@@ -290,7 +290,7 @@ public class DebtModelBackup implements ServerComponent {
   private static boolean isSameRemediationFunction(RuleDebt ruleDebt, RuleDto rule) {
     return new EqualsBuilder()
       .append(ruleDebt.function().name(), rule.getDefaultRemediationFunction())
-      .append(ruleDebt.factor(), rule.getDefaultRemediationFactor())
+      .append(ruleDebt.factor(), rule.getDefaultRemediationCoefficient())
       .append(ruleDebt.offset(), rule.getDefaultRemediationOffset())
       .isEquals();
   }
@@ -298,7 +298,7 @@ public class DebtModelBackup implements ServerComponent {
   private void disabledRuleDebt(RuleDto rule, Date updateDate, SqlSession session){
     rule.setCharacteristicId(rule.getDefaultCharacteristicId() != null ? RuleDto.DISABLED_CHARACTERISTIC_ID : null);
     rule.setRemediationFunction(null);
-    rule.setRemediationFactor(null);
+    rule.setRemediationCoefficient(null);
     rule.setRemediationOffset(null);
     rule.setUpdatedAt(updateDate);
     ruleDao.update(rule, session);
@@ -349,7 +349,7 @@ public class DebtModelBackup implements ServerComponent {
   private static RuleDebt toRuleDebt(RuleDto rule, String characteristicKey) {
     RuleDebt ruleDebt = new RuleDebt().setRuleKey(RuleKey.of(rule.getRepositoryKey(), rule.getRuleKey()));
     String function = rule.getRemediationFunction() != null ? rule.getRemediationFunction() : rule.getDefaultRemediationFunction();
-    String factor = rule.getRemediationFactor() != null ? rule.getRemediationFactor() : rule.getDefaultRemediationFactor();
+    String factor = rule.getRemediationCoefficient() != null ? rule.getRemediationCoefficient() : rule.getDefaultRemediationCoefficient();
     String offset = rule.getRemediationOffset() != null ? rule.getRemediationOffset() : rule.getDefaultRemediationOffset();
     ruleDebt.setCharacteristicKey(characteristicKey);
     ruleDebt.setFunction(DebtRemediationFunction.Type.valueOf(function));

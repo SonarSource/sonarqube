@@ -51,10 +51,16 @@ public class Duration implements Serializable {
     this(((long) days * hoursInDay * MINUTES_IN_ONE_HOUR) + (hours * MINUTES_IN_ONE_HOUR) + minutes);
   }
 
+  /**
+   *
+   */
   public static Duration create(long durationInMinutes) {
     return new Duration(durationInMinutes);
   }
 
+  /**
+   *
+   */
   public static Duration decode(String text, int hoursInDay) {
     int days = 0, hours = 0, minutes = 0;
     String sanitizedText = StringUtils.deleteWhitespace(text);
@@ -88,6 +94,9 @@ public class Duration implements Serializable {
     }
   }
 
+  /**
+   *
+   */
   public String encode(int hoursInDay) {
     int days = ((Double) ((double) durationInMinutes / hoursInDay / MINUTES_IN_ONE_HOUR)).intValue();
     Long remainingDuration = durationInMinutes - (days * hoursInDay * MINUTES_IN_ONE_HOUR);
@@ -111,6 +120,11 @@ public class Duration implements Serializable {
     return stringBuilder.toString();
   }
 
+  /**
+   * Return the duration in minutes.
+   * <br>
+   * For instance, Duration.decode(1h, 24) will return 60.
+   */
   public long toMinutes() {
     return durationInMinutes;
   }

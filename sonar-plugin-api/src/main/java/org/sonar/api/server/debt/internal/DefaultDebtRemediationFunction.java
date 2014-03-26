@@ -38,7 +38,7 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
 
   public DefaultDebtRemediationFunction(Type type, @Nullable String factor, @Nullable String offset) {
     this.type = type;
-    this.factor = sanitizeValue("factor", factor);
+    this.factor = sanitizeValue("coefficient", factor);
     this.offset = sanitizeValue("offset", offset);
     validate();
   }
@@ -63,7 +63,7 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
 
   @Override
   @CheckForNull
-  public String factor() {
+  public String coefficient() {
     return factor;
   }
 
@@ -77,12 +77,12 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
     switch (type) {
       case LINEAR:
         if (this.factor == null || this.offset != null) {
-          throw new IllegalArgumentException(String.format("Only factor must be set on %s", this));
+          throw new IllegalArgumentException(String.format("Only coefficient must be set on %s", this));
         }
         break;
       case LINEAR_OFFSET:
         if (this.factor == null || this.offset == null) {
-          throw new IllegalArgumentException(String.format("Both factor and offset are required on %s", this));
+          throw new IllegalArgumentException(String.format("Both coefficient and offset are required on %s", this));
         }
         break;
       case CONSTANT_ISSUE:
@@ -125,7 +125,7 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
   public String toString() {
     return Objects.toStringHelper(DebtRemediationFunction.class)
       .add("type", type)
-      .add("factor", factor)
+      .add("coefficient", factor)
       .add("offset", offset)
       .toString();
   }

@@ -41,13 +41,13 @@ class DefaultDebtRemediationFunctions implements RulesDefinition.DebtRemediation
   }
 
   @Override
-  public DebtRemediationFunction linear(String factor) {
-    return create(DefaultDebtRemediationFunction.Type.LINEAR, factor, null);
+  public DebtRemediationFunction linear(String coefficient) {
+    return create(DefaultDebtRemediationFunction.Type.LINEAR, coefficient, null);
   }
 
   @Override
-  public DebtRemediationFunction linearWithOffset(String factor, String offset) {
-    return create(DefaultDebtRemediationFunction.Type.LINEAR_OFFSET, factor, offset);
+  public DebtRemediationFunction linearWithOffset(String coefficient, String offset) {
+    return create(DefaultDebtRemediationFunction.Type.LINEAR_OFFSET, coefficient, offset);
   }
 
   @Override
@@ -55,9 +55,9 @@ class DefaultDebtRemediationFunctions implements RulesDefinition.DebtRemediation
     return create(DefaultDebtRemediationFunction.Type.CONSTANT_ISSUE, null, offset);
   }
 
-  private DebtRemediationFunction create(DefaultDebtRemediationFunction.Type type, @Nullable String factor, @Nullable String offset) {
+  private DebtRemediationFunction create(DefaultDebtRemediationFunction.Type type, @Nullable String coefficient, @Nullable String offset) {
     try {
-      return new DefaultDebtRemediationFunction(type, factor, offset);
+      return new DefaultDebtRemediationFunction(type, coefficient, offset);
     } catch (Exception e) {
       throw MessageException.of(String.format("The rule '%s:%s' is invalid : %s ", this.repoKey, this.key, e.getMessage()));
     }

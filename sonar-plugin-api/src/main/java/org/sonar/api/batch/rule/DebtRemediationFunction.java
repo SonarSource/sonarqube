@@ -39,25 +39,25 @@ public class DebtRemediationFunction {
   }
 
   private Type type;
-  private Duration factor;
+  private Duration coefficient;
   private Duration offset;
 
-  private DebtRemediationFunction(Type type, @Nullable Duration factor, @Nullable Duration offset) {
+  private DebtRemediationFunction(Type type, @Nullable Duration coefficient, @Nullable Duration offset) {
     this.type = type;
-    this.factor = factor;
+    this.coefficient = coefficient;
     this.offset = offset;
   }
 
-  public static DebtRemediationFunction create(Type type, @Nullable Duration factor, @Nullable Duration offset) {
-    return new DebtRemediationFunction(type, factor, offset);
+  public static DebtRemediationFunction create(Type type, @Nullable Duration coefficient, @Nullable Duration offset) {
+    return new DebtRemediationFunction(type, coefficient, offset);
   }
 
-  public static DebtRemediationFunction createLinear(Duration factor) {
-    return new DebtRemediationFunction(Type.LINEAR, factor, null);
+  public static DebtRemediationFunction createLinear(Duration coefficient) {
+    return new DebtRemediationFunction(Type.LINEAR, coefficient, null);
   }
 
-  public static DebtRemediationFunction createLinearWithOffset(Duration factor, Duration offset) {
-    return new DebtRemediationFunction(Type.LINEAR_OFFSET, factor, offset);
+  public static DebtRemediationFunction createLinearWithOffset(Duration coefficient, Duration offset) {
+    return new DebtRemediationFunction(Type.LINEAR_OFFSET, coefficient, offset);
   }
 
   public static DebtRemediationFunction createConstantPerIssue(Duration offset) {
@@ -69,8 +69,8 @@ public class DebtRemediationFunction {
   }
 
   @CheckForNull
-  public Duration factor() {
-    return factor;
+  public Duration coefficient() {
+    return coefficient;
   }
 
   @CheckForNull
@@ -89,7 +89,7 @@ public class DebtRemediationFunction {
     DebtRemediationFunction that = (DebtRemediationFunction) o;
     return new EqualsBuilder()
       .append(type, that.type())
-      .append(factor, that.factor())
+      .append(coefficient, that.coefficient())
       .append(offset, that.offset())
       .isEquals();
   }
@@ -98,7 +98,7 @@ public class DebtRemediationFunction {
   public int hashCode() {
     return new HashCodeBuilder(15, 31)
       .append(type)
-      .append(factor)
+      .append(coefficient)
       .append(offset)
       .toHashCode();
   }

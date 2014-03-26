@@ -95,7 +95,7 @@ public class RulesDefinitionTest {
     assertThat(rule.status()).isEqualTo(RuleStatus.BETA);
     assertThat(rule.debtSubCharacteristic()).isEqualTo("COMPILER");
     assertThat(rule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
-    assertThat(rule.debtRemediationFunction().factor()).isEqualTo("1h");
+    assertThat(rule.debtRemediationFunction().coefficient()).isEqualTo("1h");
     assertThat(rule.debtRemediationFunction().offset()).isEqualTo("10min");
     assertThat(rule.effortToFixDescription()).isEqualTo("squid.S115.effortToFix");
     assertThat(rule.toString()).isEqualTo("[repository=findbugs, key=NPE]");

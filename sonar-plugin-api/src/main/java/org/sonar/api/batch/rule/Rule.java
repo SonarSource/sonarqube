@@ -61,7 +61,7 @@ public interface Rule {
   String debtCharacteristic();
 
   /**
-   * Remediation function : can by Linear (with a factor), Linear with offset (with a factor and an offset) or Constant per issue (with an offset)
+   * Remediation function : can by Linear (with a coefficient), Linear with offset (with a coefficient and an offset) or Constant per issue (with an offset)
    *
    * @since 4.3
    */

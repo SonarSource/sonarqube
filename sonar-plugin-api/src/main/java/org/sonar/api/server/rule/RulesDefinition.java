@@ -20,13 +20,7 @@
 package org.sonar.api.server.rule;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSortedSet;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
@@ -38,6 +32,7 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
@@ -509,9 +504,9 @@ public interface RulesDefinition extends ServerExtension {
    * Factory of {@link org.sonar.api.server.debt.DebtRemediationFunction}.
    */
   interface DebtRemediationFunctions {
-    DebtRemediationFunction linear(String factor);
+    DebtRemediationFunction linear(String coefficient);
 
-    DebtRemediationFunction linearWithOffset(String factor, String offset);
+    DebtRemediationFunction linearWithOffset(String coefficient, String offset);
 
     DebtRemediationFunction constantPerIssue(String offset);
   }

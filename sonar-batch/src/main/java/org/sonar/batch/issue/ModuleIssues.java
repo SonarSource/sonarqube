@@ -119,7 +119,7 @@ public class ModuleIssues {
         "because this rule does not have a fixed remediation cost.");
     }
     Duration result = Duration.create(0);
-    Duration factor = function.factor();
+    Duration factor = function.coefficient();
     Duration offset = function.offset();
 
     if (factor != null) {

@@ -23,8 +23,8 @@
     r.default_characteristic_id as "defaultCharacteristicId",
     r.remediation_function as "remediationFunction",
     r.default_remediation_function as "defaultRemediationFunction",
-    r.remediation_factor as "remediationFactor",
-    r.default_remediation_factor as "defaultRemediationFactor",
+    r.remediation_factor as "remediationCoefficient",
+    r.default_remediation_factor as "defaultRemediationCoefficient",
     r.remediation_offset as "remediationOffset",
     r.default_remediation_offset as "defaultRemediationOffset",
     r.effort_to_fix_description as "effortToFixDescription",
@@ -84,8 +84,8 @@
     default_characteristic_id=#{defaultCharacteristicId},
     remediation_function=#{remediationFunction},
     default_remediation_function=#{defaultRemediationFunction},
-    remediation_factor=#{remediationFactor},
-    default_remediation_factor=#{defaultRemediationFactor},
+    remediation_factor=#{remediationCoefficient},
+    default_remediation_factor=#{defaultRemediationCoefficient},
     remediation_offset=#{remediationOffset},
     default_remediation_offset=#{defaultRemediationOffset},
     effort_to_fix_description=#{effortToFixDescription},
@@ -106,7 +106,7 @@
     values (#{ruleKey}, #{repositoryKey}, #{description}, #{status}, #{name}, #{configKey},
       #{severity}, #{cardinality}, #{language}, #{parentId},
       #{characteristicId}, #{defaultCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
-      #{remediationFactor}, #{defaultRemediationFactor}, #{remediationOffset}, #{defaultRemediationOffset},
+      #{remediationCoefficient}, #{defaultRemediationCoefficient}, #{remediationOffset}, #{defaultRemediationOffset},
       #{effortToFixDescription},
       #{createdAt}, #{updatedAt})
   </insert>
@@ -116,7 +116,7 @@
     values (#{ruleKey}, #{repositoryKey}, #{description}, #{status}, #{name}, #{configKey},
     #{severity}, #{cardinality}, #{language}, #{parentId},
     #{characteristicId}, #{defaultCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
-    #{remediationFactor}, #{defaultRemediationFactor}, #{remediationOffset}, #{defaultRemediationOffset},
+    #{remediationCoefficient}, #{defaultRemediationCoefficient}, #{remediationOffset}, #{defaultRemediationOffset},
     #{effortToFixDescription},
     #{createdAt}, #{updatedAt})
   </insert>
