@@ -183,12 +183,12 @@ public class DebtModelOperations implements ServerComponent {
       if (characteristicOrSubCharacteristic.getParentId() == null) {
         List<CharacteristicDto> subCharacteristics = dao.selectCharacteristicsByParentId(characteristicOrSubCharacteristic.getId(), session);
         for (CharacteristicDto subCharacteristic : subCharacteristics) {
-          disableSubChracteristic(subCharacteristic, updateDate, session);
+          disableSubCharacteristic(subCharacteristic, updateDate, session);
         }
         disableCharacteristic(characteristicOrSubCharacteristic, updateDate, session);
       } else {
         // When sub characteristic, disable rule debt on the sub characteristic then disable it
-        disableSubChracteristic(characteristicOrSubCharacteristic, updateDate, session);
+        disableSubCharacteristic(characteristicOrSubCharacteristic, updateDate, session);
       }
       session.commit();
     } finally {
@@ -196,7 +196,7 @@ public class DebtModelOperations implements ServerComponent {
     }
   }
 
-  private void disableSubChracteristic(CharacteristicDto subCharacteristic, Date updateDate, SqlSession session) {
+  private void disableSubCharacteristic(CharacteristicDto subCharacteristic, Date updateDate, SqlSession session) {
     disableDebtRules(ruleDao.selectBySubCharacteristicId(subCharacteristic.getId(), session), updateDate, session);
     disableCharacteristic(subCharacteristic, updateDate, session);
   }
