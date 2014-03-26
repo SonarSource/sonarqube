@@ -126,6 +126,7 @@ define ['jquery.mockjax'], ->
         'coding_rules.key': 'Key:'
         'coding_rules.new_search': 'New Search'
         'coding_rules.no_results': 'No Coding Rules'
+        'coding_rules.no_tags': 'No tags'
         'coding_rules.order': 'Order'
         'coding_rules.ordered_by': 'Ordered By'
         'coding_rules.original': 'Original:'
@@ -213,7 +214,6 @@ define ['jquery.mockjax'], ->
       codingrule:
         name: 'Array designators "[]" should be located after the type in method signatures'
         language: 'Java'
-        tags: ['bug', 'comment', 'java8']
         creationDate: '2013-10-15'
         fCreationDate: 'Oct 15, 2013'
         status: 'DEPRECATED'

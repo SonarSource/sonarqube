@@ -27,7 +27,7 @@ define [
 
       descriptionExtra: '#coding-rules-detail-description-extra'
       extendDescriptionLink: '#coding-rules-detail-extend-description'
-      extendDescriptionForm: '#coding-rules-detail-extend-description-form'
+      extendDescriptionForm: '.coding-rules-detail-extend-description-form'
       extendDescriptionSubmit: '#coding-rules-detail-extend-description-submit'
       extendDescriptionText: '#coding-rules-detail-extend-description-text'
       extendDescriptionSpinner: '#coding-rules-detail-extend-description-spinner'
@@ -70,6 +70,7 @@ define [
     changeTags: ->
       @ui.tagsEdit.show()
       @ui.tagsList.hide()
+      @ui.tagInput.select2 'open'
 
 
     editDone: ->
@@ -80,7 +81,10 @@ define [
         url: "#{baseUrl}/api/codingrules/set_tags"
         data: tags: tags
       .done =>
-          @model.set 'tags', tags.split ','
+          if tags.length > 0
+            @model.set 'tags', tags.split ','
+          else
+            @model.unset 'tags'
           @render()
 
 
