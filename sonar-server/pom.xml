@@ -469,23 +469,9 @@
           <scope>provided</scope>
         </dependency>
         <dependency>
-          <groupId>org.codehaus.sonar-plugins.java</groupId>
-          <artifactId>sonar-checkstyle-plugin</artifactId>
-          <version>${sonarJava.version}</version>
-          <type>sonar-plugin</type>
-          <scope>provided</scope>
-        </dependency>
-        <dependency>
           <groupId>org.codehaus.sonar.plugins</groupId>
           <artifactId>sonar-dbcleaner-plugin</artifactId>
           <version>${project.version}</version>
-          <type>sonar-plugin</type>
-          <scope>provided</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.codehaus.sonar-plugins.java</groupId>
-          <artifactId>sonar-pmd-plugin</artifactId>
-          <version>${sonarJava.version}</version>
           <type>sonar-plugin</type>
           <scope>provided</scope>
         </dependency>
