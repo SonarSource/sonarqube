@@ -112,10 +112,11 @@ public class DebtModelBackup implements ServerComponent {
 
       List<RuleDebt> rules = newArrayList();
       for (RuleDto rule : ruleDao.selectEnablesAndNonManual(session)) {
-        if ((languageKey == null || languageKey.equals(rule.getLanguage()))) {
+        if (languageKey == null || languageKey.equals(rule.getLanguage())) {
           Integer effectiveCharacteristicId = rule.getCharacteristicId() != null ? rule.getCharacteristicId() : rule.getDefaultCharacteristicId();
-          if (effectiveCharacteristicId != null && !RuleDto.DISABLED_CHARACTERISTIC_ID.equals(effectiveCharacteristicId)) {
-            rules.add(toRuleDebt(rule, debtModel.characteristicById(effectiveCharacteristicId).key()));
+          String effectiveFunction = rule.getRemediationFunction() != null ? rule.getRemediationFunction() : rule.getDefaultRemediationFunction();
+          if (!RuleDto.DISABLED_CHARACTERISTIC_ID.equals(effectiveCharacteristicId) && effectiveCharacteristicId != null && effectiveFunction != null) {
+            rules.add(toRuleDebt(rule, debtModel.characteristicById(effectiveCharacteristicId).key(), effectiveFunction));
           }
         }
       }
@@ -336,17 +337,15 @@ public class DebtModelBackup implements ServerComponent {
     }));
   }
 
-  private static RuleDebt toRuleDebt(RuleDto rule, String characteristicKey) {
-    RuleDebt ruleDebt = new RuleDebt().setRuleKey(RuleKey.of(rule.getRepositoryKey(), rule.getRuleKey()));
-    String function = rule.getRemediationFunction();
+  private static RuleDebt toRuleDebt(RuleDto rule, String characteristicKey, String function) {
+    RuleDebt ruleDebt = new RuleDebt().setRuleKey(RuleKey.of(rule.getRepositoryKey(), rule.getRuleKey())).setCharacteristicKey(characteristicKey);
+
     String coefficient = rule.getRemediationCoefficient();
     String offset = rule.getRemediationOffset();
-
-    String effectiveFunction = function != null ? function : rule.getDefaultRemediationFunction();
     String effectiveCoefficient = coefficient != null ? coefficient : rule.getDefaultRemediationCoefficient();
     String effectiveOffset = offset != null ? offset : rule.getDefaultRemediationOffset();
-    ruleDebt.setCharacteristicKey(characteristicKey);
-    ruleDebt.setFunction(DebtRemediationFunction.Type.valueOf(effectiveFunction));
+
+    ruleDebt.setFunction(DebtRemediationFunction.Type.valueOf(function));
     ruleDebt.setCoefficient(effectiveCoefficient);
     ruleDebt.setOffset(effectiveOffset);
     return ruleDebt;

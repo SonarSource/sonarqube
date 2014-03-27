@@ -73,11 +73,12 @@ public class DefaultDebtCharacteristic implements DebtCharacteristic {
   }
 
   @Override
+  @CheckForNull
   public Integer order() {
     return order;
   }
 
-  public DefaultDebtCharacteristic setOrder(Integer order) {
+  public DefaultDebtCharacteristic setOrder(@Nullable Integer order) {
     this.order = order;
     return this;
   }
