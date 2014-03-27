@@ -52,15 +52,17 @@ public class Duration implements Serializable {
   }
 
   /**
-   *
+   * Create a Duration from a number of minutes.
    */
   public static Duration create(long durationInMinutes) {
     return new Duration(durationInMinutes);
   }
 
   /**
-   *
-   */
+   * Create a Duration from a text duration and the number of hours in a day.
+   * <br>
+   * For instance, Duration.decode("1d 1h", 8) will have a number of minutes of 540 (1*8*60 + 60).
+   * */
   public static Duration decode(String text, int hoursInDay) {
     int days = 0, hours = 0, minutes = 0;
     String sanitizedText = StringUtils.deleteWhitespace(text);
@@ -95,7 +97,10 @@ public class Duration implements Serializable {
   }
 
   /**
-   *
+   * Return the duration in text, by using the given hours in day parameter to process hours.
+   * <br/>
+   * Duration.decode("1d 1h", 8).encode(8) will return "1d 1h"
+   * Duration.decode("2d", 8).encode(16) will return "1d"
    */
   public String encode(int hoursInDay) {
     int days = ((Double) ((double) durationInMinutes / hoursInDay / MINUTES_IN_ONE_HOUR)).intValue();
@@ -123,24 +128,36 @@ public class Duration implements Serializable {
   /**
    * Return the duration in minutes.
    * <br>
-   * For instance, Duration.decode(1h, 24) will return 60.
+   * For instance, Duration.decode(1h, 24).toMinutes() will return 60.
    */
   public long toMinutes() {
     return durationInMinutes;
   }
 
+  /**
+   * Return true if the given duration is greater than the current one.
+   */
   public boolean isGreaterThan(Duration other) {
     return toMinutes() > other.toMinutes();
   }
 
+  /**
+   * Add the given duration to the current one.
+   */
   public Duration add(Duration with) {
     return Duration.create(durationInMinutes + with.durationInMinutes);
   }
 
+  /**
+   * Subtract the given duration to the current one.
+   */
   public Duration subtract(Duration with) {
     return Duration.create(durationInMinutes - with.durationInMinutes);
   }
 
+  /**
+   * Multiply the duration with the given factor.
+   */
   public Duration multiply(int factor) {
     return Duration.create(durationInMinutes * factor);
   }
