@@ -192,6 +192,14 @@ public class ProjectReactorValidatorTest {
   }
 
   @Test
+  public void fail_with_colon_in_branch() {
+    ProjectReactor reactor = createProjectReactor("foo", "bran:ch");
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("\"bran:ch\" is not a valid branch name");
+    validator.validate(reactor);
+  }
+
+  @Test
   public void fail_with_only_digits() {
     ProjectReactor reactor = createProjectReactor("12345");
 
