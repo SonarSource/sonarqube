@@ -160,7 +160,7 @@ public class ProjectReactorValidatorTest {
     ProjectReactor reactor = createProjectReactor("foo$bar");
 
     thrown.expect(SonarException.class);
-    thrown.expectMessage("foo$bar is not a valid project or module key");
+    thrown.expectMessage("\"foo$bar\" is not a valid project or module key");
     validator.validate(reactor);
   }
 
@@ -169,7 +169,7 @@ public class ProjectReactorValidatorTest {
     ProjectReactor reactor = createProjectReactor("foo\\bar");
 
     thrown.expect(SonarException.class);
-    thrown.expectMessage("foo\\bar is not a valid project or module key");
+    thrown.expectMessage("\"foo\\bar\" is not a valid project or module key");
     validator.validate(reactor);
   }
 
@@ -179,7 +179,7 @@ public class ProjectReactorValidatorTest {
     validator.validate(createProjectReactor("foo", "Branch2"));
     validator.validate(createProjectReactor("foo", "bra.nch"));
     validator.validate(createProjectReactor("foo", "bra-nch"));
-    validator.validate(createProjectReactor("foo", "bra:nch"));
+    validator.validate(createProjectReactor("foo", "1"));
     validator.validate(createProjectReactor("foo", "bra_nch"));
   }
 
@@ -187,7 +187,7 @@ public class ProjectReactorValidatorTest {
   public void fail_with_invalid_branch() {
     ProjectReactor reactor = createProjectReactor("foo", "bran#ch");
     thrown.expect(SonarException.class);
-    thrown.expectMessage("bran#ch is not a valid branch name");
+    thrown.expectMessage("\"bran#ch\" is not a valid branch name");
     validator.validate(reactor);
   }
 
@@ -196,7 +196,7 @@ public class ProjectReactorValidatorTest {
     ProjectReactor reactor = createProjectReactor("12345");
 
     thrown.expect(SonarException.class);
-    thrown.expectMessage("12345 is not a valid project or module key");
+    thrown.expectMessage("\"12345\" is not a valid project or module key");
     validator.validate(reactor);
   }
 

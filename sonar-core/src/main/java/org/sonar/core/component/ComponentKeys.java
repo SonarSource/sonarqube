@@ -33,6 +33,10 @@ public final class ComponentKeys {
    * Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit
    */
   private static final String VALID_MODULE_KEY_REGEXP = "[\\p{Alnum}\\-_.:]*[\\p{Alpha}\\-_.:]+[\\p{Alnum}\\-_.:]*";
+  /*
+   * Allowed characters are alphanumeric, '-', '_' and '.'
+   */
+  private static final String VALID_BRANCH_REGEXP = "[\\p{Alnum}\\-_.]*";
 
   private static final String KEY_WITH_BRANCH_FORMAT = "%s:%s";
 
@@ -77,6 +81,25 @@ public final class ComponentKeys {
    */
   public static boolean isValidModuleKey(String keyCandidate) {
     return keyCandidate.matches(VALID_MODULE_KEY_REGEXP);
+  }
+
+  /**
+   * <p>Test if given parameter is valid for a branch. Valid format is:</p>
+   * <ul>
+   *  <li>Allowed characters:
+   *    <ul>
+   *      <li>Uppercase ASCII letters A-Z</li>
+   *      <li>Lowercase ASCII letters a-z</li>
+   *      <li>ASCII digits 0-9</li>
+   *      <li>Punctuation signs dash '-', underscore '_', and period '.'</li>
+   *    </ul>
+   *  </li>
+   * </ul>
+   * @param keyCandidate
+   * @return <code>true</code> if <code>keyCandidate</code> can be used for a project/module
+   */
+  public static boolean isValidBranch(String branchCandidate) {
+    return branchCandidate.matches(VALID_BRANCH_REGEXP);
   }
 
   /**
