@@ -214,7 +214,7 @@ public class DebtModelOperations implements ServerComponent {
 
   public void disableDebtRules(List<RuleDto> ruleDtos, Date updateDate, SqlSession session) {
     for (RuleDto ruleDto : ruleDtos) {
-      ruleDto.setCharacteristicId(RuleDto.DISABLED_CHARACTERISTIC_ID);
+      ruleDto.setSubCharacteristicId(RuleDto.DISABLED_CHARACTERISTIC_ID);
       ruleDto.setRemediationFunction(null);
       ruleDto.setRemediationCoefficient(null);
       ruleDto.setRemediationOffset(null);

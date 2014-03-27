@@ -112,7 +112,7 @@ public class DeprecatedRulesDefinition implements RulesDefinition {
   private void updateRuleDebtDefinitions(NewRule newRule, String repoKey, String ruleKey, List<RuleDebt> ruleDebts) {
     RuleDebt ruleDebt = findRequirement(ruleDebts, repoKey, ruleKey);
     if (ruleDebt != null) {
-      newRule.setDebtSubCharacteristic(ruleDebt.characteristicKey());
+      newRule.setDebtSubCharacteristic(ruleDebt.subCharacteristicKey());
       DebtRemediationFunction.Type function = ruleDebt.function();
       String coefficient = ruleDebt.coefficient();
       String offset = ruleDebt.offset();

@@ -19,8 +19,8 @@
     r.note_user_login as "noteUserLogin",
     r.note_created_at as "noteCreatedAt",
     r.note_updated_at as "noteUpdatedAt",
-    r.characteristic_id as "characteristicId",
-    r.default_characteristic_id as "defaultCharacteristicId",
+    r.characteristic_id as "subCharacteristicId",
+    r.default_characteristic_id as "defaultSubCharacteristicId",
     r.remediation_function as "remediationFunction",
     r.default_remediation_function as "defaultRemediationFunction",
     r.remediation_factor as "remediationCoefficient",
@@ -60,7 +60,7 @@
   <select id="selectBySubCharacteristicId" resultType="Rule">
     select <include refid="selectColumns"/> from rules r
     <where>
-      and (r.characteristic_id=#{characteristicId} or r.default_characteristic_id=#{characteristicId})
+      and (r.characteristic_id=#{subCharacteristicId} or r.default_characteristic_id=#{subCharacteristicId})
     </where>
   </select>
 
@@ -80,8 +80,8 @@
     note_user_login=#{noteUserLogin},
     note_created_at=#{noteCreatedAt},
     note_updated_at=#{noteUpdatedAt},
-    characteristic_id=#{characteristicId},
-    default_characteristic_id=#{defaultCharacteristicId},
+    characteristic_id=#{subCharacteristicId},
+    default_characteristic_id=#{defaultSubCharacteristicId},
     remediation_function=#{remediationFunction},
     default_remediation_function=#{defaultRemediationFunction},
     remediation_factor=#{remediationCoefficient},
@@ -105,7 +105,7 @@
     insert into rules <include refid="insertColumns"/>
     values (#{ruleKey}, #{repositoryKey}, #{description}, #{status}, #{name}, #{configKey},
       #{severity}, #{cardinality}, #{language}, #{parentId},
-      #{characteristicId}, #{defaultCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
+      #{subCharacteristicId}, #{defaultSubCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
       #{remediationCoefficient}, #{defaultRemediationCoefficient}, #{remediationOffset}, #{defaultRemediationOffset},
       #{effortToFixDescription},
       #{createdAt}, #{updatedAt})
@@ -115,7 +115,7 @@
     insert into rules <include refid="insertColumns"/>
     values (#{ruleKey}, #{repositoryKey}, #{description}, #{status}, #{name}, #{configKey},
     #{severity}, #{cardinality}, #{language}, #{parentId},
-    #{characteristicId}, #{defaultCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
+    #{subCharacteristicId}, #{defaultSubCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
     #{remediationCoefficient}, #{defaultRemediationCoefficient}, #{remediationOffset}, #{defaultRemediationOffset},
     #{effortToFixDescription},
     #{createdAt}, #{updatedAt})

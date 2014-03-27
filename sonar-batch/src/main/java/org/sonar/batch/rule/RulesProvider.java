@@ -93,14 +93,14 @@ public class RulesProvider extends ProviderAdapter {
   }
 
   private Characteristic effectiveCharacteristic(RuleDto ruleDto, RuleKey ruleKey, TechnicalDebtModel debtModel) {
-    Integer characteristicId = ruleDto.getCharacteristicId();
-    Integer defaultCharacteristicId = ruleDto.getDefaultCharacteristicId();
-    Integer effectiveCharacteristicId = characteristicId != null ? characteristicId : defaultCharacteristicId;
-    Characteristic characteristic = debtModel.characteristicById(effectiveCharacteristicId);
-    if (characteristic == null) {
-      throw new IllegalStateException(String.format("Characteristic id '%s' on rule '%s' has not been found", effectiveCharacteristicId, ruleKey));
+    Integer subCharacteristicId = ruleDto.getSubCharacteristicId();
+    Integer defaultSubCharacteristicId = ruleDto.getDefaultSubCharacteristicId();
+    Integer effectiveSubCharacteristicId = subCharacteristicId != null ? subCharacteristicId : defaultSubCharacteristicId;
+    Characteristic subCharacteristic = debtModel.characteristicById(effectiveSubCharacteristicId);
+    if (subCharacteristic == null) {
+      throw new IllegalStateException(String.format("Sub characteristic id '%s' on rule '%s' has not been found", effectiveSubCharacteristicId, ruleKey));
     }
-    return characteristic;
+    return subCharacteristic;
   }
 
   private DebtRemediationFunction effectiveFunction(RuleDto ruleDto, RuleKey ruleKey, Durations durations) {

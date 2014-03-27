@@ -49,8 +49,8 @@ public final class RuleDto {
   private String noteUserLogin;
   private Date noteCreatedAt;
   private Date noteUpdatedAt;
-  private Integer characteristicId;
-  private Integer defaultCharacteristicId;
+  private Integer subCharacteristicId;
+  private Integer defaultSubCharacteristicId;
   private String remediationFunction;
   private String defaultRemediationFunction;
   private String remediationCoefficient;
@@ -207,22 +207,22 @@ public final class RuleDto {
   }
 
   @CheckForNull
-  public Integer getCharacteristicId() {
-    return characteristicId;
+  public Integer getSubCharacteristicId() {
+    return subCharacteristicId;
   }
 
-  public RuleDto setCharacteristicId(@Nullable Integer characteristicId) {
-    this.characteristicId = characteristicId;
+  public RuleDto setSubCharacteristicId(@Nullable Integer subCharacteristicId) {
+    this.subCharacteristicId = subCharacteristicId;
     return this;
   }
 
   @CheckForNull
-  public Integer getDefaultCharacteristicId() {
-    return defaultCharacteristicId;
+  public Integer getDefaultSubCharacteristicId() {
+    return defaultSubCharacteristicId;
   }
 
-  public RuleDto setDefaultCharacteristicId(@Nullable Integer defaultCharacteristicId) {
-    this.defaultCharacteristicId = defaultCharacteristicId;
+  public RuleDto setDefaultSubCharacteristicId(@Nullable Integer defaultSubCharacteristicId) {
+    this.defaultSubCharacteristicId = defaultSubCharacteristicId;
     return this;
   }
 
@@ -315,7 +315,7 @@ public final class RuleDto {
   }
 
   public boolean hasCharacteristic(){
-    return (characteristicId != null && !RuleDto.DISABLED_CHARACTERISTIC_ID.equals(characteristicId)) || (characteristicId == null && defaultCharacteristicId != null);
+    return (subCharacteristicId != null && !RuleDto.DISABLED_CHARACTERISTIC_ID.equals(subCharacteristicId)) || (subCharacteristicId == null && defaultSubCharacteristicId != null);
   }
 
   @Override

@@ -160,7 +160,7 @@ public class DeprecatedRulesDefinitionTest {
 
     List<DebtModelXMLExporter.RuleDebt> ruleDebts = newArrayList(
       new DebtModelXMLExporter.RuleDebt()
-        .setCharacteristicKey("MEMORY_EFFICIENCY")
+        .setSubCharacteristicKey("MEMORY_EFFICIENCY")
         .setRuleKey(RuleKey.of("checkstyle", "ConstantName"))
         .setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET)
         .setCoefficient("1d")
@@ -193,7 +193,7 @@ public class DeprecatedRulesDefinitionTest {
 
     List<DebtModelXMLExporter.RuleDebt> ruleDebts = newArrayList(
       new DebtModelXMLExporter.RuleDebt()
-        .setCharacteristicKey("MEMORY_EFFICIENCY")
+        .setSubCharacteristicKey("MEMORY_EFFICIENCY")
         .setRuleKey(RuleKey.of("checkstyle", "ConstantName"))
         .setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET)
         .setCoefficient("1d")

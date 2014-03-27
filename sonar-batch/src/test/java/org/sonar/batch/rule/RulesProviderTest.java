@@ -192,7 +192,7 @@ public class RulesProviderTest extends AbstractDaoTestCase {
       provider.provide(ruleDao, debtModel, durations);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Characteristic id '999' on rule 'checkstyle:AvoidNull' has not been found");
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Sub characteristic id '999' on rule 'checkstyle:AvoidNull' has not been found");
     }
   }
 

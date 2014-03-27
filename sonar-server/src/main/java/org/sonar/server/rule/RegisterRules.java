@@ -191,7 +191,7 @@ public class RegisterRules implements Startable {
     CharacteristicDto characteristic = findCharacteristic(ruleDef, null, characteristicDtos);
     DebtRemediationFunction remediationFunction = ruleDef.debtRemediationFunction();
     if (characteristic != null && remediationFunction != null) {
-      ruleDto.setDefaultCharacteristicId(characteristic.getId())
+      ruleDto.setDefaultSubCharacteristicId(characteristic.getId())
         .setDefaultRemediationFunction(remediationFunction.type().name())
         .setDefaultRemediationCoefficient(remediationFunction.coefficient())
         .setDefaultRemediationOffset(remediationFunction.offset())
@@ -267,7 +267,7 @@ public class RegisterRules implements Startable {
   private boolean mergeDebtDefinitions(RulesDefinition.Rule def, RuleDto dto, List<CharacteristicDto> characteristicDtos) {
     boolean changed = false;
 
-    CharacteristicDto characteristic = findCharacteristic(def, dto.getCharacteristicId(), characteristicDtos);
+    CharacteristicDto characteristic = findCharacteristic(def, dto.getSubCharacteristicId(), characteristicDtos);
     // Debt definitions are set to null if the characteristic is null or unknown
     boolean hasCharacteristic = characteristic != null;
     DebtRemediationFunction debtRemediationFunction = characteristic != null ? def.debtRemediationFunction() : null;
@@ -276,8 +276,8 @@ public class RegisterRules implements Startable {
     String remediationOffset = hasCharacteristic ? debtRemediationFunction.offset() : null;
     String effortToFixDescription = hasCharacteristic ? def.effortToFixDescription() : null;
 
-    if (!ObjectUtils.equals(dto.getDefaultCharacteristicId(), characteristicId)) {
-      dto.setDefaultCharacteristicId(characteristicId);
+    if (!ObjectUtils.equals(dto.getDefaultSubCharacteristicId(), characteristicId)) {
+      dto.setDefaultSubCharacteristicId(characteristicId);
       changed = true;
     }
     String remediationFunctionString = debtRemediationFunction != null ? debtRemediationFunction.type().name() : null;
@@ -416,7 +416,7 @@ public class RegisterRules implements Startable {
           // TODO merge params and tags ?
           ruleDto.setLanguage(parent.getLanguage());
           ruleDto.setStatus(parent.getStatus());
-          ruleDto.setDefaultCharacteristicId(parent.getDefaultCharacteristicId());
+          ruleDto.setDefaultSubCharacteristicId(parent.getDefaultSubCharacteristicId());
           ruleDto.setDefaultRemediationFunction(parent.getDefaultRemediationFunction());
           ruleDto.setDefaultRemediationCoefficient(parent.getDefaultRemediationCoefficient());
           ruleDto.setDefaultRemediationOffset(parent.getDefaultRemediationOffset());

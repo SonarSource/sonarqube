@@ -59,8 +59,8 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getStatus()).isEqualTo(Rule.STATUS_READY);
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
     assertThat(ruleDto.getNoteData()).isEqualTo("Rule note with accents \u00e9\u00e8\u00e0");
-    assertThat(ruleDto.getCharacteristicId()).isEqualTo(100);
-    assertThat(ruleDto.getDefaultCharacteristicId()).isEqualTo(101);
+    assertThat(ruleDto.getSubCharacteristicId()).isEqualTo(100);
+    assertThat(ruleDto.getDefaultSubCharacteristicId()).isEqualTo(101);
     assertThat(ruleDto.getRemediationFunction()).isEqualTo("linear");
     assertThat(ruleDto.getDefaultRemediationFunction()).isEqualTo("linear_offset");
     assertThat(ruleDto.getRemediationCoefficient()).isEqualTo("1h");
@@ -83,8 +83,8 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getStatus()).isEqualTo(Rule.STATUS_READY);
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
     assertThat(ruleDto.getNoteData()).isEqualTo("Rule note with accents \u00e9\u00e8\u00e0");
-    assertThat(ruleDto.getCharacteristicId()).isEqualTo(100);
-    assertThat(ruleDto.getDefaultCharacteristicId()).isEqualTo(101);
+    assertThat(ruleDto.getSubCharacteristicId()).isEqualTo(100);
+    assertThat(ruleDto.getDefaultSubCharacteristicId()).isEqualTo(101);
     assertThat(ruleDto.getRemediationFunction()).isEqualTo("LINEAR");
     assertThat(ruleDto.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
     assertThat(ruleDto.getRemediationCoefficient()).isEqualTo("1h");
@@ -173,8 +173,8 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setNoteUserLogin("admin")
       .setNoteCreatedAt(DateUtils.parseDate("2013-12-19"))
       .setNoteUpdatedAt(DateUtils.parseDate("2013-12-20"))
-      .setCharacteristicId(100)
-      .setDefaultCharacteristicId(101)
+      .setSubCharacteristicId(100)
+      .setDefaultSubCharacteristicId(101)
       .setRemediationFunction("linear")
       .setDefaultRemediationFunction("linear_offset")
       .setRemediationCoefficient("1h")
@@ -205,8 +205,8 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setCardinality(Cardinality.MULTIPLE)
       .setLanguage("dart")
       .setParentId(3)
-      .setCharacteristicId(100)
-      .setDefaultCharacteristicId(101)
+      .setSubCharacteristicId(100)
+      .setDefaultSubCharacteristicId(101)
       .setRemediationFunction("linear")
       .setDefaultRemediationFunction("linear_offset")
       .setRemediationCoefficient("1h")
@@ -238,8 +238,8 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setCardinality(Cardinality.MULTIPLE)
       .setLanguage("dart")
       .setParentId(3)
-      .setCharacteristicId(100)
-      .setDefaultCharacteristicId(101)
+      .setSubCharacteristicId(100)
+      .setDefaultSubCharacteristicId(101)
       .setRemediationFunction("linear")
       .setDefaultRemediationFunction("linear_offset")
       .setRemediationCoefficient("1h")
@@ -262,8 +262,8 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setCardinality(Cardinality.SINGLE)
       .setLanguage("js")
       .setParentId(null)
-      .setCharacteristicId(102)
-      .setDefaultCharacteristicId(103)
+      .setSubCharacteristicId(102)
+      .setDefaultSubCharacteristicId(103)
       .setRemediationFunction("linear_offset")
       .setDefaultRemediationFunction("linear")
       .setRemediationCoefficient("5d")

@@ -181,7 +181,7 @@ public class DebtModelXMLExporter implements ServerComponent {
     return newArrayList(Iterables.filter(rules, new Predicate<RuleDebt>() {
       @Override
       public boolean apply(RuleDebt input) {
-        return parentKey.equals(input.characteristicKey());
+        return parentKey.equals(input.subCharacteristicKey());
       }
     }));
   }
@@ -264,7 +264,7 @@ public class DebtModelXMLExporter implements ServerComponent {
 
   public static class RuleDebt {
     private RuleKey ruleKey;
-    private String characteristicKey;
+    private String subCharacteristicKey;
     private DebtRemediationFunction.Type type;
     private String coefficient;
     private String offset;
@@ -278,12 +278,12 @@ public class DebtModelXMLExporter implements ServerComponent {
       return this;
     }
 
-    public String characteristicKey() {
-      return characteristicKey;
+    public String subCharacteristicKey() {
+      return subCharacteristicKey;
     }
 
-    public RuleDebt setCharacteristicKey(String characteristicKey) {
-      this.characteristicKey = characteristicKey;
+    public RuleDebt setSubCharacteristicKey(String subCharacteristicKey) {
+      this.subCharacteristicKey = subCharacteristicKey;
       return this;
     }
 
@@ -320,7 +320,7 @@ public class DebtModelXMLExporter implements ServerComponent {
     public String toString() {
       return "RuleDebt{" +
         "ruleKey=" + ruleKey +
-        ", characteristicKey='" + characteristicKey + '\'' +
+        ", subCharacteristicKey='" + subCharacteristicKey + '\'' +
         ", type=" + type +
         ", coefficient='" + coefficient + '\'' +
         ", offset='" + offset + '\'' +

@@ -113,10 +113,10 @@ public class DebtModelBackup implements ServerComponent {
       List<RuleDebt> rules = newArrayList();
       for (RuleDto rule : ruleDao.selectEnablesAndNonManual(session)) {
         if (languageKey == null || languageKey.equals(rule.getLanguage())) {
-          Integer effectiveCharacteristicId = rule.getCharacteristicId() != null ? rule.getCharacteristicId() : rule.getDefaultCharacteristicId();
+          Integer effectiveSubCharacteristicId = rule.getSubCharacteristicId() != null ? rule.getSubCharacteristicId() : rule.getDefaultSubCharacteristicId();
           String effectiveFunction = rule.getRemediationFunction() != null ? rule.getRemediationFunction() : rule.getDefaultRemediationFunction();
-          if (!RuleDto.DISABLED_CHARACTERISTIC_ID.equals(effectiveCharacteristicId) && effectiveCharacteristicId != null && effectiveFunction != null) {
-            rules.add(toRuleDebt(rule, debtModel.characteristicById(effectiveCharacteristicId).key(), effectiveFunction));
+          if (!RuleDto.DISABLED_CHARACTERISTIC_ID.equals(effectiveSubCharacteristicId) && effectiveSubCharacteristicId != null && effectiveFunction != null) {
+            rules.add(toRuleDebt(rule, debtModel.characteristicById(effectiveSubCharacteristicId).key(), effectiveFunction));
           }
         }
       }
@@ -177,8 +177,8 @@ public class DebtModelBackup implements ServerComponent {
     Date updateDate = new Date(system2.now());
     SqlSession session = mybatis.openSession();
     try {
-      List<CharacteristicDto> characteristicDtos = restoreCharacteristics(characteristicsXMLImporter.importXML(xml), languageKey == null, updateDate, session);
-      restoreRules(characteristicDtos, rules(languageKey, session), rulesXMLImporter.importXML(xml, validationMessages), validationMessages, updateDate, session);
+      List<CharacteristicDto> allCharacteristicDtos = restoreCharacteristics(characteristicsXMLImporter.importXML(xml), languageKey == null, updateDate, session);
+      restoreRules(allCharacteristicDtos, rules(languageKey, session), rulesXMLImporter.importXML(xml, validationMessages), validationMessages, updateDate, session);
 
       session.commit();
     } finally {
@@ -187,21 +187,21 @@ public class DebtModelBackup implements ServerComponent {
     return validationMessages;
   }
 
-  private void restoreRules(List<CharacteristicDto> characteristicDtos, List<RuleDto> rules, List<RuleDebt> ruleDebts,
+  private void restoreRules(List<CharacteristicDto> allCharacteristicDtos, List<RuleDto> rules, List<RuleDebt> ruleDebts,
                             ValidationMessages validationMessages, Date updateDate, SqlSession session) {
     for (RuleDto rule : rules) {
       RuleDebt ruleDebt = ruleDebtByRule(rule, ruleDebts);
       if (ruleDebt == null) {
         disabledRuleDebt(rule, updateDate, session);
       } else {
-        CharacteristicDto characteristicDto = characteristicByKey(ruleDebt.characteristicKey(), characteristicDtos);
-        if (characteristicDto == null) {
+        CharacteristicDto subCharacteristicDto = characteristicByKey(ruleDebt.subCharacteristicKey(), allCharacteristicDtos);
+        if (subCharacteristicDto == null) {
           disabledRuleDebt(rule, updateDate, session);
         } else {
-          boolean isSameCharacteristicAsDefault = characteristicDto.getId().equals(rule.getDefaultCharacteristicId());
+          boolean isSameCharacteristicAsDefault = subCharacteristicDto.getId().equals(rule.getDefaultSubCharacteristicId());
           boolean isSameFunctionAsDefault = isSameRemediationFunction(ruleDebt, rule);
           // If given characteristic is the same as the default one, set nothing in overridden characteristic
-          rule.setCharacteristicId(!isSameCharacteristicAsDefault ? characteristicDto.getId() : null);
+          rule.setSubCharacteristicId(!isSameCharacteristicAsDefault ? subCharacteristicDto.getId() : null);
 
           // If given function is the same as the default one, set nothing in overridden function
           rule.setRemediationFunction(!isSameFunctionAsDefault ? ruleDebt.function().name() : null);
@@ -275,7 +275,7 @@ public class DebtModelBackup implements ServerComponent {
   }
 
   private void disabledRuleDebt(RuleDto rule, Date updateDate, SqlSession session) {
-    rule.setCharacteristicId(rule.getDefaultCharacteristicId() != null ? RuleDto.DISABLED_CHARACTERISTIC_ID : null);
+    rule.setSubCharacteristicId(rule.getDefaultSubCharacteristicId() != null ? RuleDto.DISABLED_CHARACTERISTIC_ID : null);
     rule.setRemediationFunction(null);
     rule.setRemediationCoefficient(null);
     rule.setRemediationOffset(null);
@@ -339,8 +339,8 @@ public class DebtModelBackup implements ServerComponent {
     }));
   }
 
-  private static RuleDebt toRuleDebt(RuleDto rule, String characteristicKey, String function) {
-    RuleDebt ruleDebt = new RuleDebt().setRuleKey(RuleKey.of(rule.getRepositoryKey(), rule.getRuleKey())).setCharacteristicKey(characteristicKey);
+  private static RuleDebt toRuleDebt(RuleDto rule, String subCharacteristicKey, String function) {
+    RuleDebt ruleDebt = new RuleDebt().setRuleKey(RuleKey.of(rule.getRepositoryKey(), rule.getRuleKey())).setSubCharacteristicKey(subCharacteristicKey);
 
     String coefficient = rule.getRemediationCoefficient();
     String offset = rule.getRemediationOffset();

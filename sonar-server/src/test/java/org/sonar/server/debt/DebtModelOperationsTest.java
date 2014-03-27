@@ -341,8 +341,8 @@ public class DebtModelOperationsTest {
 
     when(ruleDao.selectBySubCharacteristicId(2, batchSession)).thenReturn(newArrayList(
       new RuleDto()
-        .setCharacteristicId(2).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("2h").setRemediationOffset("5min")
-        .setDefaultCharacteristicId(10).setDefaultRemediationFunction("LINEAR_OFFSET").setDefaultRemediationCoefficient("4h").setDefaultRemediationOffset("15min")
+        .setSubCharacteristicId(2).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("2h").setRemediationOffset("5min")
+        .setDefaultSubCharacteristicId(10).setDefaultRemediationFunction("LINEAR_OFFSET").setDefaultRemediationCoefficient("4h").setDefaultRemediationOffset("15min")
     ));
     when(dao.selectById(2, batchSession)).thenReturn(subCharacteristicDto);
 
@@ -353,14 +353,14 @@ public class DebtModelOperationsTest {
     RuleDto ruleDto = ruleArgument.getValue();
 
     // Overridden debt data are disabled
-    assertThat(ruleDto.getCharacteristicId()).isEqualTo(-1);
+    assertThat(ruleDto.getSubCharacteristicId()).isEqualTo(-1);
     assertThat(ruleDto.getRemediationFunction()).isNull();
     assertThat(ruleDto.getRemediationCoefficient()).isNull();
     assertThat(ruleDto.getRemediationOffset()).isNull();
     assertThat(ruleDto.getUpdatedAt()).isEqualTo(now);
 
     // Default debt data should not be touched
-    assertThat(ruleDto.getDefaultCharacteristicId()).isEqualTo(10);
+    assertThat(ruleDto.getDefaultSubCharacteristicId()).isEqualTo(10);
     assertThat(ruleDto.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
     assertThat(ruleDto.getDefaultRemediationCoefficient()).isEqualTo("4h");
     assertThat(ruleDto.getDefaultRemediationOffset()).isEqualTo("15min");
@@ -381,7 +381,7 @@ public class DebtModelOperationsTest {
     when(mybatis.openBatchSession()).thenReturn(batchSession);
 
     when(ruleDao.selectBySubCharacteristicId(subCharacteristicDto.getId(), batchSession)).thenReturn(newArrayList(
-      new RuleDto().setCharacteristicId(subCharacteristicDto.getId()).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("2h").setRemediationOffset("5min")
+      new RuleDto().setSubCharacteristicId(subCharacteristicDto.getId()).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("2h").setRemediationOffset("5min")
     ));
     when(dao.selectCharacteristicsByParentId(1, batchSession)).thenReturn(newArrayList(
       subCharacteristicDto
