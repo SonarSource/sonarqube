@@ -244,6 +244,7 @@ public class DebtModelBackupTest {
       new DebtModel()
         .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
         .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"),
+      true,
       now,
       session
     );
@@ -280,6 +281,7 @@ public class DebtModelBackupTest {
       new DebtModel()
         .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
         .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"),
+      true,
       now,
       session
     );
@@ -312,7 +314,7 @@ public class DebtModelBackupTest {
 
     when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(dto1, dto2));
 
-    debtModelBackup.restoreCharacteristics(new DebtModel(), now, session);
+    debtModelBackup.restoreCharacteristics(new DebtModel(), true, now, session);
 
     verify(debtModelOperations).disableCharacteristic(dto1, now, session);
     verify(debtModelOperations).disableCharacteristic(dto2, now, session);
@@ -381,6 +383,24 @@ public class DebtModelBackupTest {
     assertThat(rule.getRemediationCoefficient()).isNull();
     assertThat(rule.getRemediationOffset()).isNull();
     assertThat(rule.getUpdatedAt()).isEqualTo(now);
+
+    verify(session).commit();
+  }
+
+  @Test
+  public void restore_from_language_do_not_disable_no_more_existing_characteristics() throws Exception {
+    when(characteristicsXMLImporter.importXML(any(Reader.class))).thenReturn(new DebtModel()
+      .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
+      // No more existing characteristic
+      .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
+
+    when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
+      new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability").setOrder(1))
+    );
+
+    debtModelBackup.restore("java");
+
+    verify(debtModelOperations, never()).disableCharacteristic(any(CharacteristicDto.class), eq(now), eq(session));
 
     verify(session).commit();
   }
@@ -622,6 +642,24 @@ public class DebtModelBackupTest {
 
     RuleDto rule = ruleArgument.getValue();
     assertThat(rule.getId()).isEqualTo(1);
+
+    verify(session).commit();
+  }
+
+  @Test
+  public void restore_from_xml_and_language_do_not_disable_no_more_existing_characteristics() throws Exception {
+    when(characteristicsXMLImporter.importXML(anyString())).thenReturn(new DebtModel()
+      .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
+        // No more existing characteristic
+      .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
+
+    when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
+        new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability").setOrder(1))
+    );
+
+    debtModelBackup.restoreFromXml("<xml/>", "java");
+
+    verify(debtModelOperations, never()).disableCharacteristic(any(CharacteristicDto.class), eq(now), eq(session));
 
     verify(session).commit();
   }

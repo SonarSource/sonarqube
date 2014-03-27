@@ -146,7 +146,7 @@ public class DebtModelBackup implements ServerComponent {
     Date updateDate = new Date(system2.now());
     SqlSession session = mybatis.openSession();
     try {
-      restoreCharacteristics(loadModelFromPlugin(DebtModelPluginRepository.DEFAULT_MODEL), updateDate, session);
+      restoreCharacteristics(loadModelFromPlugin(DebtModelPluginRepository.DEFAULT_MODEL), languageKey == null, updateDate, session);
       for (RuleDto rule : rules(languageKey, session)) {
         disabledRuleDebt(rule, updateDate, session);
       }
@@ -177,7 +177,7 @@ public class DebtModelBackup implements ServerComponent {
     Date updateDate = new Date(system2.now());
     SqlSession session = mybatis.openSession();
     try {
-      List<CharacteristicDto> characteristicDtos = restoreCharacteristics(characteristicsXMLImporter.importXML(xml), updateDate, session);
+      List<CharacteristicDto> characteristicDtos = restoreCharacteristics(characteristicsXMLImporter.importXML(xml), languageKey == null, updateDate, session);
       restoreRules(characteristicDtos, rules(languageKey, session), rulesXMLImporter.importXML(xml, validationMessages), validationMessages, updateDate, session);
 
       session.commit();
@@ -222,7 +222,7 @@ public class DebtModelBackup implements ServerComponent {
   }
 
   @VisibleForTesting
-  List<CharacteristicDto> restoreCharacteristics(DebtModel targetModel, Date updateDate, SqlSession session) {
+  List<CharacteristicDto> restoreCharacteristics(DebtModel targetModel, boolean disableNoMoreExistingCharacteristics, Date updateDate, SqlSession session) {
     List<CharacteristicDto> sourceCharacteristics = dao.selectEnabledCharacteristics(session);
 
     List<CharacteristicDto> result = newArrayList();
@@ -235,10 +235,12 @@ public class DebtModelBackup implements ServerComponent {
         result.add(restoreCharacteristic(subCharacteristic, rootCharacteristicDto.getId(), sourceCharacteristics, updateDate, session));
       }
     }
-    // Disable no more existing characteristics
-    for (CharacteristicDto sourceCharacteristic : sourceCharacteristics) {
-      if (targetModel.characteristicByKey(sourceCharacteristic.getKey()) == null) {
-        debtModelOperations.disableCharacteristic(sourceCharacteristic, updateDate, session);
+    if (disableNoMoreExistingCharacteristics) {
+      // Disable no more existing characteristics
+      for (CharacteristicDto sourceCharacteristic : sourceCharacteristics) {
+        if (targetModel.characteristicByKey(sourceCharacteristic.getKey()) == null) {
+          debtModelOperations.disableCharacteristic(sourceCharacteristic, updateDate, session);
+        }
       }
     }
     return result;
