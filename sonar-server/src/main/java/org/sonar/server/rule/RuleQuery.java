@@ -19,8 +19,9 @@
  */
 package org.sonar.server.rule;
 
-import org.sonar.server.paging.Paging;
+import com.google.common.base.Preconditions;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 /**
@@ -28,30 +29,52 @@ import javax.annotation.Nullable;
  */
 public class RuleQuery {
 
+  public static final int DEFAULT_PAGE_INDEX = 1;
   private static final int DEFAULT_PAGE_SIZE = 25;
 
   private String key;
-
   private String query;
+  private String characteristicKey;
+  private String subCharacteristicKey;
 
-  private Paging paging;
+  private int pageSize;
+  private int pageIndex;
 
-  private RuleQuery(@Nullable String key, @Nullable String query, Paging paging) {
-    this.key = key;
-    this.query = query;
-    this.paging = paging;
+  private RuleQuery(Builder builder) {
+    this.key = builder.key;
+    this.query = builder.query;
+    this.subCharacteristicKey = builder.subCharacteristicKey;
+    this.characteristicKey = builder.characteristicKey;
+    this.pageSize = builder.pageSize;
+    this.pageIndex = builder.pageIndex;
   }
 
+  @CheckForNull
   public String key() {
-    return this.key;
+    return key;
   }
 
+  @CheckForNull
   public String query() {
-    return this.query;
+    return query;
   }
 
-  public Paging paging() {
-    return this.paging;
+  @CheckForNull
+  public String characteristicKey() {
+    return characteristicKey;
+  }
+
+  @CheckForNull
+  public String subCharacteristicKey() {
+    return subCharacteristicKey;
+  }
+
+  public int pageSize() {
+    return pageSize;
+  }
+
+  public int pageIndex() {
+    return pageIndex;
   }
 
   public static Builder builder() {
@@ -61,40 +84,60 @@ public class RuleQuery {
   public static class Builder {
 
     private String key;
-
     private String query;
+    private String characteristicKey;
+    private String subCharacteristicKey;
 
-    private int pageSize;
+    private Integer pageSize;
+    private Integer pageIndex;
 
-    private int page;
-
-    private Builder() {
-      this.page = 0;
-      this.pageSize = DEFAULT_PAGE_SIZE;
-    }
-
-    public Builder withKey(String key) {
+    public Builder key(@Nullable String key) {
       this.key = key;
       return this;
     }
 
-    public Builder withSearchQuery(String query) {
+    public Builder searchQuery(@Nullable String query) {
       this.query = query;
       return this;
     }
 
-    public Builder withPageSize(int pageSize) {
+    public Builder characteristicKey(@Nullable String characteristicKey) {
+      this.characteristicKey = characteristicKey;
+      return this;
+    }
+
+    public Builder subCharacteristicKey(@Nullable String subCharacteristicKey) {
+      this.subCharacteristicKey = subCharacteristicKey;
+      return this;
+    }
+
+    public Builder pageSize(@Nullable Integer pageSize) {
       this.pageSize = pageSize;
       return this;
     }
 
-    public Builder withPage(int page) {
-      this.page = page;
+    public Builder pageIndex(@Nullable Integer page) {
+      this.pageIndex = page;
       return this;
     }
 
     public RuleQuery build() {
-      return new RuleQuery(key, query, Paging.create(pageSize, page));
+      initPageSize();
+      initPageIndex();
+      return new RuleQuery(this);
+    }
+
+    private void initPageSize() {
+      if (pageSize == null) {
+        pageSize = DEFAULT_PAGE_SIZE;
+      }
+    }
+
+    private void initPageIndex() {
+      if (pageIndex == null) {
+        pageIndex = DEFAULT_PAGE_INDEX;
+      }
+      Preconditions.checkArgument(pageIndex > 0, "Page index must be greater than 0 (got " + pageIndex + ")");
     }
   }
 }

@@ -75,8 +75,10 @@ public class DebtModelService implements DebtModel {
   }
 
   /**
-   * Disable characteristic and sub characteristic or only sub characteristic.
-   * Will also update every rules linked to sub characteristics by setting characteristic id to -1 and remove function, coefficient and offset.
+   * Delete a characteristic or a sub characteristic.
+   * <br/>
+   * If a characteristic is selected, all its sub characteristics will also be deleted.
+   * Every rules linked to sub characteristics will have their debt definitions reset.
    */
   public void delete(int characteristicId) {
     debtModelOperations.delete(characteristicId);

@@ -22,20 +22,30 @@ package org.sonar.server.rule;
 
 public final class RuleDocument {
 
+  public static final String FIELD_ID = "id";
+  public static final String FIELD_REPOSITORY_KEY = "repositoryKey";
+  public static final String FIELD_KEY = "key";
+  public static final String FIELD_LANGUAGE = "language";
+  public static final String FIELD_NAME = "name";
+  public static final String FIELD_SEVERITY = "severity";
+  public static final String FIELD_DESCRIPTION = "description";
+  public static final String FIELD_TEMPLATE_ID = "templateId";
+  public static final String FIELD_STATUS = "status";
   public static final String FIELD_SYSTEM_TAGS = "systemTags";
   public static final String FIELD_ADMIN_TAGS = "adminTags";
   public static final String FIELD_PARAMS = "params";
   public static final String FIELD_UPDATED_AT = "updatedAt";
   public static final String FIELD_CREATED_AT = "createdAt";
-  public static final String FIELD_STATUS = "status";
-  public static final String FIELD_SEVERITY = "severity";
-  public static final String FIELD_REPOSITORY_KEY = "repositoryKey";
-  public static final String FIELD_TEMPLATE_ID = "templateId";
-  public static final String FIELD_DESCRIPTION = "description";
-  public static final String FIELD_NAME = "name";
-  public static final String FIELD_LANGUAGE = "language";
-  public static final String FIELD_KEY = "key";
-  public static final String FIELD_ID = "id";
+
+  public static final String FIELD_CHARACTERISTIC_ID = "characteristicId";
+  public static final String FIELD_CHARACTERISTIC_KEY = "characteristicKey";
+  public static final String FIELD_CHARACTERISTIC_NAME = "characteristicName";
+  public static final String FIELD_SUB_CHARACTERISTIC_ID = "subCharacteristicId";
+  public static final String FIELD_SUB_CHARACTERISTIC_KEY = "subCharacteristicKey";
+  public static final String FIELD_SUB_CHARACTERISTIC_NAME = "subCharacteristicName";
+  public static final String FIELD_REMEDIATION_FUNCTION = "remediationFunction";
+  public static final String FIELD_REMEDIATION_COEFFICIENT = "remediationCoefficient";
+  public static final String FIELD_REMEDIATION_OFFSET = "remediationOffset";
 
   public static final String FIELD_PARAM_KEY = "key";
   public static final String FIELD_PARAM_TYPE = "type";

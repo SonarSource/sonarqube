@@ -49,6 +49,9 @@ public class RubyRuleService implements ServerComponent, Startable {
     return ruleRegistry.findIds(params).toArray(new Integer[0]);
   }
 
+  /**
+   * No more used
+   */
   public void saveOrUpdate(int ruleId) {
     ruleRegistry.saveOrUpdate(ruleId);
   }

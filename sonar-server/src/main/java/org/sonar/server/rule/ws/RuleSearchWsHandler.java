@@ -58,9 +58,9 @@ public class RuleSearchWsHandler implements RequestHandler {
       final int pageSize = request.paramAsInt("ps", 25);
       final int pageIndex = request.paramAsInt("p", 1);
       PagedResult<Rule> searchResult = rules.find(RuleQuery.builder()
-          .withSearchQuery(ruleSearchParam)
-          .withPageSize(pageSize)
-          .withPage(pageIndex)
+          .searchQuery(ruleSearchParam)
+          .pageSize(pageSize)
+          .pageIndex(pageIndex)
           .build());
       foundRules = searchResult.results();
       hasMore = searchResult.paging().hasNextPage();

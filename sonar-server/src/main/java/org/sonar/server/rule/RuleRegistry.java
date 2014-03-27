@@ -40,13 +40,16 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.rule.*;
+import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.es.ESIndex;
 import org.sonar.server.es.SearchQuery;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.paging.PagedResult;
+import org.sonar.server.paging.Paging;
 import org.sonar.server.paging.PagingResult;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -55,6 +58,8 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.elasticsearch.index.query.FilterBuilders.boolFilter;
+import static org.elasticsearch.index.query.FilterBuilders.termFilter;
 import static org.sonar.api.rules.Rule.STATUS_REMOVED;
 
 /**
@@ -81,8 +86,9 @@ public class RuleRegistry {
     searchIndex.addMappingFromClasspath(INDEX_RULES, TYPE_RULE, "/org/sonar/server/es/config/mappings/rule_mapping.json");
   }
 
-  public void bulkRegisterRules(Collection<RuleDto> rules, Multimap<Integer, RuleParamDto> paramsByRule, Multimap<Integer, RuleRuleTagDto> tagsByRule) {
-    String[] ids = bulkIndexRules(rules, paramsByRule, tagsByRule);
+  public void bulkRegisterRules(Collection<RuleDto> rules,Map<Integer, CharacteristicDto> characteristicByRule, Multimap<Integer, RuleParamDto> paramsByRule,
+                                Multimap<Integer, RuleRuleTagDto> tagsByRule) {
+    String[] ids = bulkIndexRules(rules, characteristicByRule, paramsByRule, tagsByRule);
     removeDeletedRules(ids);
   }
 
@@ -127,29 +133,35 @@ public class RuleRegistry {
   }
 
   public PagedResult<Rule> find(RuleQuery query) {
-    BoolFilterBuilder mainFilter = FilterBuilders.boolFilter().mustNot(FilterBuilders.termFilter(RuleDocument.FIELD_STATUS, STATUS_REMOVED));
+    BoolFilterBuilder mainFilter = boolFilter().mustNot(termFilter(RuleDocument.FIELD_STATUS, STATUS_REMOVED));
     if (StringUtils.isNotBlank(query.query())) {
       mainFilter.must(FilterBuilders.queryFilter(
-        QueryBuilders.multiMatchQuery(query.query(), RuleDocument.FIELD_NAME+".search", RuleDocument.FIELD_KEY).operator(Operator.AND)));
+        QueryBuilders.multiMatchQuery(query.query(), RuleDocument.FIELD_NAME + ".search", RuleDocument.FIELD_KEY).operator(Operator.AND)));
     }
+    if (query.characteristicKey() != null) {
+      mainFilter.must(termFilter(RuleDocument.FIELD_CHARACTERISTIC_KEY, query.characteristicKey()));
+    }
+    if (query.subCharacteristicKey() != null) {
+      mainFilter.must(termFilter(RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY, query.subCharacteristicKey()));
+    }
+    Paging paging = Paging.create(query.pageSize(), query.pageIndex());
     SearchHits hits = searchIndex.executeRequest(
       searchIndex.client().prepareSearch(INDEX_RULES).setTypes(TYPE_RULE)
         .setPostFilter(mainFilter)
         .addSort(RuleDocument.FIELD_NAME, SortOrder.ASC)
-        .setSize(query.paging().pageSize())
-        .setFrom(query.paging().offset()));
+        .setSize(paging.pageSize())
+        .setFrom(paging.offset())
+    );
 
     Builder<Rule> rulesBuilder = ImmutableList.builder();
-    for (SearchHit hit: hits.hits()) {
+    for (SearchHit hit : hits.hits()) {
       rulesBuilder.add(RuleDocumentParser.parse(hit.sourceAsMap()));
     }
-    return new PagedResult<Rule>(rulesBuilder.build(), PagingResult.create(query.paging().pageSize(), query.paging().pageIndex(), hits.getTotalHits()));
+    return new PagedResult<Rule>(rulesBuilder.build(), PagingResult.create(paging.pageSize(), paging.pageIndex(), hits.getTotalHits()));
   }
 
   /**
    * Create or update definition of rule identified by <code>ruleId</code>
-   *
-   * @param ruleId
    */
   public void saveOrUpdate(int ruleId) {
     RuleDto rule = ruleDao.selectById(ruleId);
@@ -164,7 +176,7 @@ public class RuleRegistry {
 
   public void save(RuleDto rule, Collection<RuleParamDto> params, Collection<RuleRuleTagDto> tags) {
     try {
-      searchIndex.putSynchronous(INDEX_RULES, TYPE_RULE, Long.toString(rule.getId()), ruleDocument(rule, params, tags));
+      searchIndex.putSynchronous(INDEX_RULES, TYPE_RULE, Long.toString(rule.getId()), ruleDocument(rule, null, null, params, tags));
     } catch (IOException ioexception) {
       throw new IllegalStateException("Unable to index rule with id=" + rule.getId(), ioexception);
     }
@@ -173,11 +185,11 @@ public class RuleRegistry {
   @CheckForNull
   public Rule findByKey(RuleKey key) {
     final SearchHits hits = searchIndex.executeRequest(searchIndex.client().prepareSearch(INDEX_RULES).setTypes(TYPE_RULE)
-      .setPostFilter(FilterBuilders.boolFilter()
+      .setPostFilter(boolFilter()
         .must(
-          FilterBuilders.termFilter(RuleDocument.FIELD_REPOSITORY_KEY, key.repository()),
-          FilterBuilders.termFilter(RuleDocument.FIELD_KEY, key.rule())
-          )));
+          termFilter(RuleDocument.FIELD_REPOSITORY_KEY, key.repository()),
+          termFilter(RuleDocument.FIELD_KEY, key.rule())
+        )));
     if (hits.totalHits() == 0) {
       return null;
     } else {
@@ -185,7 +197,8 @@ public class RuleRegistry {
     }
   }
 
-  private String[] bulkIndexRules(Collection<RuleDto> rules, Multimap<Integer, RuleParamDto> paramsByRule, Multimap<Integer, RuleRuleTagDto> tagsByRule) {
+  private String[] bulkIndexRules(Collection<RuleDto> rules, Map<Integer, CharacteristicDto> characteristicsById, Multimap<Integer, RuleParamDto> paramsByRule,
+                                  Multimap<Integer, RuleRuleTagDto> tagsByRule) {
     try {
       String[] ids = new String[rules.size()];
       BytesStream[] docs = new BytesStream[rules.size()];
@@ -194,7 +207,10 @@ public class RuleRegistry {
       profiler.start("Build rules documents");
       for (RuleDto rule : rules) {
         ids[index] = rule.getId().toString();
-        docs[index] = ruleDocument(rule, paramsByRule.get(rule.getId()), tagsByRule.get(rule.getId()));
+        CharacteristicDto subCharacteristic = characteristicsById.get(rule.getSubCharacteristicId() != null ? rule.getSubCharacteristicId() : rule.getDefaultSubCharacteristicId());
+        CharacteristicDto characteristic = subCharacteristic != null ? characteristicsById.get(subCharacteristic.getParentId()) : null;
+        characteristicsById.get(rule.getSubCharacteristicId() != null ? rule.getSubCharacteristicId() : rule.getDefaultSubCharacteristicId());
+        docs[index] = ruleDocument(rule, characteristic, subCharacteristic, paramsByRule.get(rule.getId()), tagsByRule.get(rule.getId()));
         index++;
       }
       profiler.stop();
@@ -221,7 +237,8 @@ public class RuleRegistry {
     }
   }
 
-  private XContentBuilder ruleDocument(RuleDto rule, Collection<RuleParamDto> params, Collection<RuleRuleTagDto> tags) throws IOException {
+  private XContentBuilder ruleDocument(RuleDto rule, @Nullable CharacteristicDto characteristicDto, @Nullable CharacteristicDto subCharacteristicDto,
+                                       Collection<RuleParamDto> params, Collection<RuleRuleTagDto> tags) throws IOException {
     XContentBuilder document = XContentFactory.jsonBuilder()
       .startObject()
       .field(RuleDocument.FIELD_ID, rule.getId())
@@ -236,6 +253,19 @@ public class RuleRegistry {
       .field(RuleDocument.FIELD_CARDINALITY, rule.getCardinality())
       .field(RuleDocument.FIELD_CREATED_AT, rule.getCreatedAt())
       .field(RuleDocument.FIELD_UPDATED_AT, rule.getUpdatedAt());
+    if (characteristicDto != null && subCharacteristicDto != null) {
+      document
+        .field(RuleDocument.FIELD_CHARACTERISTIC_ID, characteristicDto.getId())
+        .field(RuleDocument.FIELD_CHARACTERISTIC_KEY, characteristicDto.getKey())
+        .field(RuleDocument.FIELD_CHARACTERISTIC_NAME, characteristicDto.getName())
+        .field(RuleDocument.FIELD_SUB_CHARACTERISTIC_ID, subCharacteristicDto.getId())
+        .field(RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY, subCharacteristicDto.getKey())
+        .field(RuleDocument.FIELD_SUB_CHARACTERISTIC_NAME, subCharacteristicDto.getName())
+        .field(RuleDocument.FIELD_REMEDIATION_FUNCTION, rule.getRemediationFunction() != null ? rule.getRemediationFunction() : rule.getDefaultRemediationFunction())
+        .field(RuleDocument.FIELD_REMEDIATION_COEFFICIENT, rule.getRemediationCoefficient() != null ? rule.getRemediationCoefficient() : rule.getDefaultRemediationCoefficient())
+        .field(RuleDocument.FIELD_REMEDIATION_OFFSET, rule.getRemediationOffset() != null ? rule.getRemediationOffset() : rule.getDefaultRemediationOffset());
+    }
+
     if (rule.getNoteData() != null || rule.getNoteUserLogin() != null) {
       document.startObject(RuleDocument.FIELD_NOTE)
         .field(RuleDocument.FIELD_NOTE_DATA, rule.getNoteData())
@@ -256,10 +286,9 @@ public class RuleRegistry {
       }
       document.endArray();
     }
-
     List<String> systemTags = Lists.newArrayList();
     List<String> adminTags = Lists.newArrayList();
-    for (RuleRuleTagDto tag: tags) {
+    for (RuleRuleTagDto tag : tags) {
       if (tag.getType() == RuleTagType.SYSTEM) {
         systemTags.add(tag.getTag());
       } else {

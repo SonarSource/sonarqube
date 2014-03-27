@@ -108,6 +108,9 @@ public class RegisterRules implements Startable {
       RulesDefinition.Context context = defLoader.load();
       Buffer buffer = new Buffer(system.now());
       List<CharacteristicDto> characteristicDtos = characteristicDao.selectEnabledCharacteristics();
+      for (CharacteristicDto characteristicDto : characteristicDtos) {
+        buffer.add(characteristicDto);
+      }
       selectRulesFromDb(buffer, sqlSession);
       enableRuleDefinitions(context, buffer, characteristicDtos, sqlSession);
       List<RuleDto> removedRules = processRemainingDbRules(buffer, sqlSession);
@@ -475,7 +478,7 @@ public class RegisterRules implements Startable {
   }
 
   private void index(Buffer buffer) {
-    ruleRegistry.bulkRegisterRules(buffer.rulesById.values(), buffer.paramsByRuleId, buffer.tagsByRuleId);
+    ruleRegistry.bulkRegisterRules(buffer.rulesById.values(), buffer.characteristicsById, buffer.paramsByRuleId, buffer.tagsByRuleId);
     esRuleTags.putAllTags(buffer.referenceTagsByTagValue.values());
   }
 
@@ -487,6 +490,7 @@ public class RegisterRules implements Startable {
     private Multimap<Integer, RuleParamDto> paramsByRuleId = ArrayListMultimap.create();
     private Multimap<Integer, RuleRuleTagDto> tagsByRuleId = ArrayListMultimap.create();
     private Map<String, RuleTagDto> referenceTagsByTagValue = Maps.newHashMap();
+    private Map<Integer, CharacteristicDto> characteristicsById = Maps.newHashMap();
 
     Buffer(long now) {
       this.now = new Date(now);
@@ -499,6 +503,10 @@ public class RegisterRules implements Startable {
     void add(RuleDto rule) {
       rulesById.put(rule.getId(), rule);
       rulesByKey.put(RuleKey.of(rule.getRepositoryKey(), rule.getRuleKey()), rule);
+    }
+
+    void add(CharacteristicDto characteristicDto) {
+      characteristicsById.put(characteristicDto.getId(), characteristicDto);
     }
 
     void add(RuleTagDto tag) {

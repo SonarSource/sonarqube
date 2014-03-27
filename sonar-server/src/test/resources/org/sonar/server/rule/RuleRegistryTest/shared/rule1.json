@@ -19,36 +19,43 @@
   "systemTags": [ "has-params", "integration-tests" ],
   "adminTags": [ "keep-enabled" ],
   "params": [
-      {
-        "key": "string",
-        "type": "STRING",
-        "defaultValue": null,
-        "description": ""
-      },
-      {
-        "key": "text",
-        "type": "TEXT",
-        "defaultValue": null,
-        "description": ""
-      },
-      {
-        "key": "boolean",
-        "type": "BOOLEAN",
-        "defaultValue": null,
-        "description": ""
-      },
-      {
-        "key": "integer",
-        "type": "INTEGER",
-        "defaultValue": null,
-        "description": ""
-      },
-      {
-        "key": "float",
-        "type": "FLOAT",
-        "defaultValue": null,
-        "description": ""
-      }
-    ]
-  }
+    {
+      "key": "string",
+      "type": "STRING",
+      "defaultValue": null,
+      "description": ""
+    },
+    {
+      "key": "text",
+      "type": "TEXT",
+      "defaultValue": null,
+      "description": ""
+    },
+    {
+      "key": "boolean",
+      "type": "BOOLEAN",
+      "defaultValue": null,
+      "description": ""
+    },
+    {
+      "key": "integer",
+      "type": "INTEGER",
+      "defaultValue": null,
+      "description": ""
+    },
+    {
+      "key": "float",
+      "type": "FLOAT",
+      "defaultValue": null,
+      "description": ""
+    }
+  ],
+  "defaultCharacteristicId": 1,
+  "characteristicId": 2,
+  "defaultRemediationFunction": "LINEAR",
+  "remediationFunction": "LINEAR_OFFSET",
+  "defaultRemediationCoefficient": "2h",
+  "remediationCoefficient": "1h",
+  "defaultRemediationOffset": null,
+  "remediationOffset": "15min"
 }

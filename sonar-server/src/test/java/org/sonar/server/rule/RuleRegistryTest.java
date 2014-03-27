@@ -21,10 +21,7 @@
 package org.sonar.server.rule;
 
 import com.github.tlrx.elasticsearch.test.EsSetup;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.elasticsearch.common.collect.Lists;
@@ -41,6 +38,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.rule.*;
+import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.es.ESIndex;
 import org.sonar.server.es.ESNode;
 import org.sonar.test.TestUtils;
@@ -49,6 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -95,6 +94,7 @@ public class RuleRegistryTest {
     esSetup.execute(
       EsSetup.index("rules", "rule", "1").withSource(testFileAsString("shared/rule1.json")),
       EsSetup.index("rules", "rule", "2").withSource(testFileAsString("shared/rule2.json")),
+      // rule 3 is removed
       EsSetup.index("rules", "rule", "3").withSource(testFileAsString("shared/rule3.json"))
     );
     esSetup.client().admin().cluster().prepareHealth(RuleRegistry.INDEX_RULES).setWaitForGreenStatus().execute().actionGet();
@@ -107,13 +107,13 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void should_register_mapping_at_startup() {
+  public void register_mapping_at_startup() {
     assertThat(esSetup.exists("rules")).isTrue();
     assertThat(esSetup.client().admin().indices().prepareTypesExists("rules").setTypes("rule").execute().actionGet().isExists()).isTrue();
   }
 
   @Test
-  public void should_find_rule_by_key() {
+  public void find_rule_by_key() {
     assertThat(registry.findByKey(RuleKey.of("unknown", "RuleWithParameters"))).isNull();
     assertThat(registry.findByKey(RuleKey.of("xoo", "unknown"))).isNull();
     final Rule rule = registry.findByKey(RuleKey.of("xoo", "RuleWithParameters"));
@@ -126,29 +126,29 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void should_filter_removed_rules() {
+  public void filter_removed_rules() {
     assertThat(registry.findIds(new HashMap<String, String>())).containsOnly(1, 2);
   }
 
   @Test
-  public void should_display_disabled_rule() {
+  public void display_disabled_rule() {
     assertThat(registry.findIds(ImmutableMap.of("status", "BETA|REMOVED"))).containsOnly(2, 3);
   }
 
   @Test
-  public void should_filter_on_name_or_key() throws Exception {
+  public void filter_on_name_or_key() throws Exception {
     assertThat(registry.findIds(ImmutableMap.of("nameOrKey", "parameters"))).containsOnly(1);
     assertThat(registry.findIds(ImmutableMap.of("nameOrKey", "issue"))).containsOnly(1, 2);
     assertThat(registry.findIds(ImmutableMap.of("nameOrKey", "issue line"))).containsOnly(2);
   }
 
   @Test
-  public void should_filter_on_key() throws Exception {
+  public void filter_on_key() throws Exception {
     assertThat(registry.findIds(ImmutableMap.of("key", "OneIssuePerLine"))).containsOnly(2);
   }
 
   @Test
-  public void should_filter_on_multiple_criteria() {
+  public void filter_on_multiple_criteria() {
     assertThat(registry.findIds(ImmutableMap.of("nameOrKey", "parameters", "key", "OneIssuePerLine"))).isEmpty();
     assertThat(registry.findIds(ImmutableMap.of("repositoryKey", "polop"))).isEmpty();
 
@@ -156,29 +156,29 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void should_filter_on_multiple_values() {
+  public void filter_on_multiple_values() {
     assertThat(registry.findIds(ImmutableMap.of("key", "RuleWithParameters|OneIssuePerLine"))).hasSize(2);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void should_reject_leading_wildcard() {
+  public void reject_leading_wildcard() {
     registry.findIds(ImmutableMap.of("nameOrKey", "*ssue"));
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void should_wrap_parse_exceptions() {
+  public void wrap_parse_exceptions() {
     registry.findIds(ImmutableMap.of("nameOrKey", "\"'"));
   }
 
   @Test
-  public void should_remove_all_rules_when_ro_rule_registered() {
+  public void remove_all_rules_when_ro_rule_registered() {
     List<RuleDto> rules = Lists.newArrayList();
-    registry.bulkRegisterRules(rules, null, null);
+    registry.bulkRegisterRules(rules, null, null, null);
     assertThat(registry.findIds(new HashMap<String, String>())).hasSize(0);
   }
 
   @Test
-  public void should_index_all_rules() {
+  public void index_all_rules() {
     int ruleId1 = 3;
     RuleDto rule1 = new RuleDto();
     rule1.setRepositoryKey("repo");
@@ -187,6 +187,7 @@ public class RuleRegistryTest {
     rule1.setSeverity(Severity.MINOR);
     rule1.setNoteData("noteData");
     rule1.setNoteUserLogin("userLogin");
+
     int ruleId2 = 4;
     RuleDto rule2 = new RuleDto();
     rule2.setRepositoryKey("repo");
@@ -199,6 +200,7 @@ public class RuleRegistryTest {
     RuleParamDto paramRule2 = new RuleParamDto();
     paramRule2.setName("name");
     paramRule2.setRuleId(ruleId2);
+
     Multimap<Integer, RuleParamDto> params = ArrayListMultimap.create();
     params.put(ruleId2, paramRule2);
 
@@ -214,12 +216,13 @@ public class RuleRegistryTest {
     adminTagRule2.setRuleId(ruleId2);
     adminTagRule2.setTag("tag");
     adminTagRule2.setType(RuleTagType.ADMIN);
+
     Multimap<Integer, RuleRuleTagDto> tags = ArrayListMultimap.create();
     tags.put(ruleId2, systemTag1Rule2);
     tags.put(ruleId2, systemTag2Rule2);
     tags.put(ruleId2, adminTagRule2);
 
-    registry.bulkRegisterRules(rules, params, tags);
+    registry.bulkRegisterRules(rules, Maps.<Integer, CharacteristicDto>newHashMap(), params, tags);
     assertThat(registry.findIds(ImmutableMap.of("repositoryKey", "repo"))).hasSize(2);
 
     Map<String, Object> rule2Document = esSetup.client().prepareGet("rules", "rule", Integer.toString(ruleId2))
@@ -229,7 +232,7 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void should_index_and_reindex_single_rule() {
+  public void index_and_reindex_single_rule() {
     RuleDto rule = new RuleDto();
     rule.setRepositoryKey("repo");
     rule.setRuleKey("key");
@@ -245,7 +248,7 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void should_update_existing_rules_and_forget_deleted_rules() {
+  public void update_existing_rules_and_forget_deleted_rules() {
     int ruleId1 = 1;
     RuleDto rule1 = new RuleDto();
     rule1.setRepositoryKey("xoo");
@@ -265,7 +268,7 @@ public class RuleRegistryTest {
     when(ruleDao.selectNonManual(any(SqlSession.class))).thenReturn(rules);
     final Multimap<Integer, RuleParamDto> params = ArrayListMultimap.create();
     final Multimap<Integer, RuleRuleTagDto> tags = ArrayListMultimap.create();
-    registry.bulkRegisterRules(rules, params, tags);
+    registry.bulkRegisterRules(rules, Maps.<Integer, CharacteristicDto>newHashMap(), params, tags);
 
     assertThat(registry.findIds(ImmutableMap.of("repositoryKey", "xoo")))
       .hasSize(2)
@@ -274,19 +277,89 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void should_find_rules_by_name() {
+  public void find_rules_by_name() {
     // Removed rule should not appear
-    assertThat(registry.find(RuleQuery.builder().withPage(1).withPageSize(10).build()).results()).hasSize(2);
+    assertThat(registry.find(RuleQuery.builder().pageIndex(1).pageSize(10).build()).results()).hasSize(2);
 
     // Search is case insensitive
-    assertThat(registry.find(RuleQuery.builder().withPage(1).withPageSize(10).withSearchQuery("one issue per line").build()).results()).hasSize(1);
+    assertThat(registry.find(RuleQuery.builder().pageIndex(1).pageSize(10).searchQuery("one issue per line").build()).results()).hasSize(1);
 
     // Search is ngram based
-    assertThat(registry.find(RuleQuery.builder().withPage(1).withPageSize(10).withSearchQuery("with param").build()).results()).hasSize(1);
+    assertThat(registry.find(RuleQuery.builder().pageIndex(1).pageSize(10).searchQuery("with param").build()).results()).hasSize(1);
 
     // Search works also with key
-    assertThat(registry.find(RuleQuery.builder().withPage(1).withPageSize(10).withSearchQuery("OneIssuePerLine").build()).results()).hasSize(1);
+    assertThat(registry.find(RuleQuery.builder().pageIndex(1).pageSize(10).searchQuery("OneIssuePerLine").build()).results()).hasSize(1);
+  }
 
+  @Test
+  public void index_debt_definitions() {
+    Map<Integer, CharacteristicDto> characteristics = newHashMap();
+    characteristics.put(10, new CharacteristicDto().setId(10).setKey("REUSABILITY").setName("Reusability"));
+    characteristics.put(11, new CharacteristicDto().setId(11).setKey("MODULARITY").setName("Modularity").setParentId(10));
+
+    List<RuleDto> rules = ImmutableList.of(new RuleDto().setId(10).setRepositoryKey("repo").setRuleKey("key1").setSeverity(Severity.MINOR)
+      .setDefaultSubCharacteristicId(11).setDefaultRemediationFunction("LINEAR_OFFSET").setDefaultRemediationCoefficient("1h").setDefaultRemediationOffset("15min"));
+
+    registry.bulkRegisterRules(rules, characteristics, ArrayListMultimap.<Integer, RuleParamDto>create(), ArrayListMultimap.<Integer, RuleRuleTagDto>create());
+
+    Map<String, Object> ruleDocument = esSetup.client().prepareGet("rules", "rule", Integer.toString(10)).execute().actionGet().getSourceAsMap();
+    assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_ID)).isEqualTo(10);
+    assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_KEY)).isEqualTo("REUSABILITY");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_NAME)).isEqualTo("Reusability");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_ID)).isEqualTo(11);
+    assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY)).isEqualTo("MODULARITY");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_NAME)).isEqualTo("Modularity");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_FUNCTION)).isEqualTo("LINEAR_OFFSET");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_COEFFICIENT)).isEqualTo("1h");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_OFFSET)).isEqualTo("15min");
+  }
+
+  @Test
+  public void index_overridden_debt_definitions_if_both_default_and_overridden_values_exists() {
+    Map<Integer, CharacteristicDto> characteristics = newHashMap();
+    characteristics.put(10, new CharacteristicDto().setId(10).setKey("REUSABILITY").setName("Reusability"));
+    characteristics.put(11, new CharacteristicDto().setId(11).setKey("MODULARITY").setName("Modularity").setParentId(10));
+    characteristics.put(12, new CharacteristicDto().setId(12).setKey("PORTABILITY").setName("Portability"));
+    characteristics.put(13, new CharacteristicDto().setId(13).setKey("COMPILER").setName("Compiler").setParentId(12));
+
+    List<RuleDto> rules = ImmutableList.of(new RuleDto().setId(10).setRepositoryKey("repo").setRuleKey("key1").setSeverity(Severity.MINOR)
+      // default and overridden debt values are set
+      .setDefaultSubCharacteristicId(11).setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("2h")
+      .setSubCharacteristicId(13).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("1h").setRemediationOffset("15min"));
+
+    registry.bulkRegisterRules(rules, characteristics, ArrayListMultimap.<Integer, RuleParamDto>create(), ArrayListMultimap.<Integer, RuleRuleTagDto>create());
+
+    Map<String, Object> ruleDocument = esSetup.client().prepareGet("rules", "rule", Integer.toString(10)).execute().actionGet().getSourceAsMap();
+    assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_ID)).isEqualTo(12);
+    assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_KEY)).isEqualTo("PORTABILITY");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_NAME)).isEqualTo("Portability");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_ID)).isEqualTo(13);
+    assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY)).isEqualTo("COMPILER");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_NAME)).isEqualTo("Compiler");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_FUNCTION)).isEqualTo("LINEAR_OFFSET");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_COEFFICIENT)).isEqualTo("1h");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_OFFSET)).isEqualTo("15min");
+  }
+
+  @Test
+  public void find_rules_by_characteristic_and_sub_characteristic() {
+    Map<Integer, CharacteristicDto> characteristics = newHashMap();
+    characteristics.put(10, new CharacteristicDto().setId(10).setKey("REUSABILITY").setName("Reusability"));
+    characteristics.put(11, new CharacteristicDto().setId(11).setKey("MODULARITY").setName("Modularity").setParentId(10));
+
+    List<RuleDto> rules = ImmutableList.of(new RuleDto().setId(10).setRepositoryKey("repo").setRuleKey("key1").setSeverity(Severity.MINOR)
+      .setDefaultSubCharacteristicId(11).setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("2h"));
+
+    registry.bulkRegisterRules(rules, characteristics, ArrayListMultimap.<Integer, RuleParamDto>create(),
+      ArrayListMultimap.<Integer, RuleRuleTagDto>create());
+
+    assertThat(registry.find(RuleQuery.builder().subCharacteristicKey("MODULARITY").build()).results()).hasSize(1);
+    assertThat(registry.find(RuleQuery.builder().subCharacteristicKey("REUSABILITY").build()).results()).isEmpty();
+    assertThat(registry.find(RuleQuery.builder().subCharacteristicKey("Unknown").build()).results()).isEmpty();
+
+    assertThat(registry.find(RuleQuery.builder().characteristicKey("REUSABILITY").build()).results()).hasSize(1);
+    assertThat(registry.find(RuleQuery.builder().characteristicKey("MODULARITY").build()).results()).isEmpty();
+    assertThat(registry.find(RuleQuery.builder().characteristicKey("Unknown").build()).results()).isEmpty();
   }
 
   private String testFileAsString(String testFile) throws Exception {

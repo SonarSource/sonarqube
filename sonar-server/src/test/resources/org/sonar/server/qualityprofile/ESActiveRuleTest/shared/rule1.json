@@ -11,36 +11,35 @@
   "createdAt": "2013-10-28T13:07:26.329Z",
   "updatedAt": "2013-11-08T10:52:53.473Z",
   "params": [
-      {
-        "key": "string",
-        "type": "STRING",
-        "defaultValue": null,
-        "description": ""
-      },
-      {
-        "key": "text",
-        "type": "TEXT",
-        "defaultValue": null,
-        "description": ""
-      },
-      {
-        "key": "boolean",
-        "type": "BOOLEAN",
-        "defaultValue": null,
-        "description": ""
-      },
-      {
-        "key": "integer",
-        "type": "INTEGER",
-        "defaultValue": null,
-        "description": ""
-      },
-      {
-        "key": "float",
-        "type": "FLOAT",
-        "defaultValue": null,
-        "description": ""
-      }
-    ]
-  }
+    {
+      "key": "string",
+      "type": "STRING",
+      "defaultValue": null,
+      "description": ""
+    },
+    {
+      "key": "text",
+      "type": "TEXT",
+      "defaultValue": null,
+      "description": ""
+    },
+    {
+      "key": "boolean",
+      "type": "BOOLEAN",
+      "defaultValue": null,
+      "description": ""
+    },
+    {
+      "key": "integer",
+      "type": "INTEGER",
+      "defaultValue": null,
+      "description": ""
+    },
+    {
+      "key": "float",
+      "type": "FLOAT",
+      "defaultValue": null,
+      "description": ""
+    }
+  ]
 }

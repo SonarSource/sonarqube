@@ -103,6 +103,42 @@
       "adminTags": {
         "type": "string",
         "index": "not_analyzed"
+      },
+      "characteristicId": {
+        "type": "integer",
+        "index": "not_analyzed"
+      },
+      "characteristicKey": {
+        "type": "string",
+        "index": "not_analyzed"
+      },
+      "characteristicName": {
+        "type": "string",
+        "index": "not_analyzed"
+      },
+      "subCharacteristicId": {
+        "type": "integer",
+        "index": "not_analyzed"
+      },
+      "subCharacteristicKey": {
+        "type": "string",
+        "index": "not_analyzed"
+      },
+      "subCharacteristicName": {
+        "type": "string",
+        "index": "not_analyzed"
+      },
+      "remediationFunction": {
+        "type": "string",
+        "index": "not_analyzed"
+      },
+      "remediationCoefficient": {
+        "type": "string",
+        "index": "not_analyzed"
+      },
+      "remediationOffset": {
+        "type": "string",
+        "index": "not_analyzed"
       }
     }
   }
