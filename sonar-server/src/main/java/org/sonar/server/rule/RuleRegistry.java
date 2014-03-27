@@ -139,10 +139,9 @@ public class RuleRegistry {
         QueryBuilders.multiMatchQuery(query.query(), RuleDocument.FIELD_NAME + ".search", RuleDocument.FIELD_KEY).operator(Operator.AND)));
     }
     if (query.characteristicKey() != null) {
-      mainFilter.must(termFilter(RuleDocument.FIELD_CHARACTERISTIC_KEY, query.characteristicKey()));
-    }
-    if (query.subCharacteristicKey() != null) {
-      mainFilter.must(termFilter(RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY, query.subCharacteristicKey()));
+      mainFilter.must(FilterBuilders.queryFilter(
+          QueryBuilders.multiMatchQuery(query.characteristicKey(), RuleDocument.FIELD_CHARACTERISTIC_KEY, RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY).operator(Operator.OR))
+      );
     }
     Paging paging = Paging.create(query.pageSize(), query.pageIndex());
     SearchHits hits = searchIndex.executeRequest(

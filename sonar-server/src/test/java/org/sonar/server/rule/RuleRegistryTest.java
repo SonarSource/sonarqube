@@ -342,7 +342,7 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void find_rules_by_characteristic_and_sub_characteristic() {
+  public void find_rules_by_characteristic_or_sub_characteristic() {
     Map<Integer, CharacteristicDto> characteristics = newHashMap();
     characteristics.put(10, new CharacteristicDto().setId(10).setKey("REUSABILITY").setName("Reusability"));
     characteristics.put(11, new CharacteristicDto().setId(11).setKey("MODULARITY").setName("Modularity").setParentId(10));
@@ -353,12 +353,8 @@ public class RuleRegistryTest {
     registry.bulkRegisterRules(rules, characteristics, ArrayListMultimap.<Integer, RuleParamDto>create(),
       ArrayListMultimap.<Integer, RuleRuleTagDto>create());
 
-    assertThat(registry.find(RuleQuery.builder().subCharacteristicKey("MODULARITY").build()).results()).hasSize(1);
-    assertThat(registry.find(RuleQuery.builder().subCharacteristicKey("REUSABILITY").build()).results()).isEmpty();
-    assertThat(registry.find(RuleQuery.builder().subCharacteristicKey("Unknown").build()).results()).isEmpty();
-
+    assertThat(registry.find(RuleQuery.builder().characteristicKey("MODULARITY").build()).results()).hasSize(1);
     assertThat(registry.find(RuleQuery.builder().characteristicKey("REUSABILITY").build()).results()).hasSize(1);
-    assertThat(registry.find(RuleQuery.builder().characteristicKey("MODULARITY").build()).results()).isEmpty();
     assertThat(registry.find(RuleQuery.builder().characteristicKey("Unknown").build()).results()).isEmpty();
   }
 

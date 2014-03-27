@@ -35,7 +35,6 @@ public class RuleQuery {
   private String key;
   private String query;
   private String characteristicKey;
-  private String subCharacteristicKey;
 
   private int pageSize;
   private int pageIndex;
@@ -43,7 +42,6 @@ public class RuleQuery {
   private RuleQuery(Builder builder) {
     this.key = builder.key;
     this.query = builder.query;
-    this.subCharacteristicKey = builder.subCharacteristicKey;
     this.characteristicKey = builder.characteristicKey;
     this.pageSize = builder.pageSize;
     this.pageIndex = builder.pageIndex;
@@ -64,11 +62,6 @@ public class RuleQuery {
     return characteristicKey;
   }
 
-  @CheckForNull
-  public String subCharacteristicKey() {
-    return subCharacteristicKey;
-  }
-
   public int pageSize() {
     return pageSize;
   }
@@ -86,7 +79,6 @@ public class RuleQuery {
     private String key;
     private String query;
     private String characteristicKey;
-    private String subCharacteristicKey;
 
     private Integer pageSize;
     private Integer pageIndex;
@@ -103,11 +95,6 @@ public class RuleQuery {
 
     public Builder characteristicKey(@Nullable String characteristicKey) {
       this.characteristicKey = characteristicKey;
-      return this;
-    }
-
-    public Builder subCharacteristicKey(@Nullable String subCharacteristicKey) {
-      this.subCharacteristicKey = subCharacteristicKey;
       return this;
     }
 
