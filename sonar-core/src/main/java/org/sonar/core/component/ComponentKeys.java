@@ -25,12 +25,16 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 
+import javax.annotation.Nullable;
+
 public final class ComponentKeys {
 
   /*
    * Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit
    */
   private static final String VALID_MODULE_KEY_REGEXP = "[\\p{Alnum}\\-_.:]*[\\p{Alpha}\\-_.:]+[\\p{Alnum}\\-_.:]*";
+
+  private static final String KEY_WITH_BRANCH_FORMAT = "%s:%s";
 
   private ComponentKeys() {
     // only static stuff
@@ -73,5 +77,19 @@ public final class ComponentKeys {
    */
   public static boolean isValidModuleKey(String keyCandidate) {
     return keyCandidate.matches(VALID_MODULE_KEY_REGEXP);
+  }
+
+  /**
+   * Return the project/module key with potential branch
+   * @param keyWithoutBranch
+   * @param branch
+   * @return
+   */
+  public static String createKey(String keyWithoutBranch, @Nullable String branch) {
+    if (StringUtils.isNotBlank(branch)) {
+      return String.format(KEY_WITH_BRANCH_FORMAT, keyWithoutBranch, branch);
+    } else {
+      return keyWithoutBranch;
+    }
   }
 }

@@ -19,16 +19,18 @@
  */
 package org.sonar.batch.scan;
 
-import org.apache.commons.lang.StringUtils;
-import org.sonar.core.component.ComponentKeys;
-
 import com.google.common.base.Joiner;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.SonarException;
+import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.ResourceDto;
+
+import javax.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,39 +50,49 @@ public class ProjectReactorValidator {
   }
 
   public void validate(ProjectReactor reactor) {
-    if (settings.getBoolean(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION)) {
-      String projectKey = reactor.getRoot().getKey();
-      if (resourceDao.findByKey(projectKey) == null) {
-        throw new SonarException("Unable to scan non-existing project " + projectKey);
-      }
-    }
+    preventAutomaticProjectCreationIfNeeded(reactor);
+
+    String branch = settings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY);
+    String rootProjectKey = ComponentKeys.createKey(reactor.getRoot().getKey(), branch);
 
     List<String> validationMessages = new ArrayList<String>();
     for (ProjectDefinition moduleDef : reactor.getProjects()) {
-      validateModule(moduleDef, validationMessages);
+      validateModule(moduleDef, validationMessages, branch, rootProjectKey);
     }
 
-    validateBranch(validationMessages);
+    validateBranch(validationMessages, branch);
 
     if (!validationMessages.isEmpty()) {
       throw new SonarException("Validation of project reactor failed:\n  o " + Joiner.on("\n  o ").join(validationMessages));
     }
   }
 
-  private void validateModule(ProjectDefinition moduleDef, List<String> validationMessages) {
-    validateKey(moduleDef, validationMessages);
-  }
-
-  private void validateKey(ProjectDefinition def, List<String> validationMessages) {
-    if (!ComponentKeys.isValidModuleKey(def.getKey())) {
-      validationMessages.add(String.format("%s is not a valid project or module key", def.getKey()));
+  private void preventAutomaticProjectCreationIfNeeded(ProjectReactor reactor) {
+    if (settings.getBoolean(CoreProperties.CORE_PREVENT_AUTOMATIC_PROJECT_CREATION)) {
+      // FIXME should we take branch into account here?
+      String projectKey = reactor.getRoot().getKey();
+      if (resourceDao.findByKey(projectKey) == null) {
+        throw new SonarException(String.format("Unable to scan non-existing project \"%s\"", projectKey));
+      }
     }
   }
 
-  private void validateBranch(List<String> validationMessages) {
-    String branch = settings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY);
+  private void validateModule(ProjectDefinition moduleDef, List<String> validationMessages, @Nullable String branch, String rootProjectKey) {
+    if (!ComponentKeys.isValidModuleKey(moduleDef.getKey())) {
+      validationMessages.add(String.format("\"%s\" is not a valid project or module key", moduleDef.getKey()));
+    } else if (moduleDef.getParent() != null) {
+      // SONAR-4692 Validate root project is the same than previous analysis to avoid module with same key in different projects
+      String key = ComponentKeys.createKey(moduleDef.getKey(), branch);
+      ResourceDto root = resourceDao.getRootProjectByComponentKey(key);
+      if (root != null && !rootProjectKey.equals(root.getKey())) {
+        throw new SonarException(String.format("Module \"%s\" is already part of project \"%s\"", moduleDef.getKey(), root.getKey()));
+      }
+    }
+  }
+
+  private void validateBranch(List<String> validationMessages, @Nullable String branch) {
     if (StringUtils.isNotEmpty(branch) && !ComponentKeys.isValidModuleKey(branch)) {
-      validationMessages.add(String.format("%s is not a valid branch name", branch));
+      validationMessages.add(String.format("\"%s\" is not a valid branch name", branch));
     }
   }
 
