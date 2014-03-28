@@ -24,11 +24,14 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.api.server.ws.WsTester;
 import org.sonar.server.paging.PagedResult;
 import org.sonar.server.paging.PagingResult;
@@ -37,9 +40,9 @@ import org.sonar.server.rule.RuleQuery;
 import org.sonar.server.rule.Rules;
 import org.sonar.server.user.MockUserSession;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RuleSearchWsHandlerTest {
@@ -55,7 +58,12 @@ public class RuleSearchWsHandlerTest {
     .setRepositoryKey("squid")
     .setName("Avoid cycle")
     .setDescription("Avoid cycle between packages")
-    .setLanguage("java");
+    .setLanguage("java")
+    .setDebtCharacteristicKey("REUSABILITY")
+    .setDebtCharacteristicName("Reusability")
+    .setDebtCharacteristicKey("MODULARITY")
+    .setDebtCharacteristicKey("Modularity")
+    .setDebtRemediationFunction(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "1h", "15min"));
 
   WsTester tester;
 
@@ -98,5 +106,43 @@ public class RuleSearchWsHandlerTest {
     request.execute().assertJson("{'more':false,'total':1,'results':["
       + "{'key':'squid:AvoidCycle','name':'Avoid cycle','language':'Java'}"
       + "]}");
+  }
+
+  @Test
+  public void search_rule_by_language() throws Exception {
+    Rule rule = ruleBuilder.build();
+
+    when(rules.find(any(RuleQuery.class))).thenReturn(
+      new PagedResult<Rule>(ImmutableList.of(rule), PagingResult.create(10, 1, 1)));
+
+    MockUserSession.set();
+    WsTester.TestRequest request = tester.newRequest("list").setParam("language", "java");
+    request.execute().assertJson("{'more':false,'total':1,'results':["
+      + "{'key':'squid:AvoidCycle','name':'Avoid cycle','language':'java'}"
+      + "]}");
+
+    ArgumentCaptor<RuleQuery> ruleQueryCaptor = ArgumentCaptor.forClass(RuleQuery.class);
+    verify(rules).find(ruleQueryCaptor.capture());
+
+    assertThat(ruleQueryCaptor.getValue().language()).isEqualTo("java");
+  }
+
+  @Test
+  public void search_rule_by_characteristic() throws Exception {
+    Rule rule = ruleBuilder.build();
+
+    when(rules.find(any(RuleQuery.class))).thenReturn(
+      new PagedResult<Rule>(ImmutableList.of(rule), PagingResult.create(10, 1, 1)));
+
+    MockUserSession.set();
+    WsTester.TestRequest request = tester.newRequest("list").setParam("characteristic", "MODULARITY");
+    request.execute().assertJson("{'more':false,'total':1,'results':["
+      + "{'key':'squid:AvoidCycle','name':'Avoid cycle','language':'java'}"
+      + "]}");
+
+    ArgumentCaptor<RuleQuery> ruleQueryCaptor = ArgumentCaptor.forClass(RuleQuery.class);
+    verify(rules).find(ruleQueryCaptor.capture());
+
+    assertThat(ruleQueryCaptor.getValue().characteristic()).isEqualTo("MODULARITY");
   }
 }

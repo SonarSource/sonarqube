@@ -111,7 +111,7 @@ public class RuleQuery {
       return this;
     }
 
-    public Builder language(String language) {
+    public Builder language(@Nullable String language) {
       this.language = language;
       return this;
     }

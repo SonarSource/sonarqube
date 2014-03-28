@@ -54,14 +54,13 @@ public class RuleSearchWsHandler implements RequestHandler {
     boolean hasMore = false;
     long total = 0L;
     if (ruleKeyParam == null) {
-      final String ruleSearchParam = request.param("s");
-      final int pageSize = request.paramAsInt("ps", 25);
-      final int pageIndex = request.paramAsInt("p", 1);
       PagedResult<Rule> searchResult = rules.find(RuleQuery.builder()
-          .searchQuery(ruleSearchParam)
-          .pageSize(pageSize)
-          .pageIndex(pageIndex)
-          .build());
+        .searchQuery(request.param("s"))
+        .language(request.param("language"))
+        .characteristic(request.param("characteristic"))
+        .pageSize(request.paramAsInt("ps"))
+        .pageIndex(request.paramAsInt("p"))
+        .build());
       foundRules = searchResult.results();
       hasMore = searchResult.paging().hasNextPage();
       total = searchResult.paging().total();
@@ -77,7 +76,7 @@ public class RuleSearchWsHandler implements RequestHandler {
 
     JsonWriter json = response.newJsonWriter();
     json.beginObject().name("results").beginArray();
-    for(Rule rule: foundRules) {
+    for (Rule rule : foundRules) {
       json.beginObject();
       writeRule(rule, json);
       json.endObject();
