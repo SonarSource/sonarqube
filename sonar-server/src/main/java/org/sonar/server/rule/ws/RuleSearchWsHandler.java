@@ -64,6 +64,7 @@ public class RuleSearchWsHandler implements RequestHandler {
         .statuses(RubyUtils.toStrings(request.param("statuses")))
         .tags(RubyUtils.toStrings(request.param("tags")))
         .debtCharacteristics(RubyUtils.toStrings(request.param("debtCharacteristics")))
+        .hasDebtCharacteristic(request.paramAsBoolean("hasDebtCharacteristic"))
         .pageSize(request.paramAsInt("ps"))
         .pageIndex(request.paramAsInt("p"))
         .build());

@@ -120,6 +120,7 @@ public class RuleSearchWsHandlerTest {
       .setParam("statuses", "READY,BETA")
       .setParam("tags", "has-params,integration-tests")
       .setParam("debtCharacteristics", "MODULARITY,REUSABILITY")
+      .setParam("hasDebtCharacteristic", "true")
       .execute();
 
     ArgumentCaptor<RuleQuery> ruleQueryCaptor = ArgumentCaptor.forClass(RuleQuery.class);
@@ -131,6 +132,7 @@ public class RuleSearchWsHandlerTest {
     assertThat(ruleQueryCaptor.getValue().statuses()).containsOnly("READY", "BETA");
     assertThat(ruleQueryCaptor.getValue().tags()).containsOnly("has-params", "integration-tests");
     assertThat(ruleQueryCaptor.getValue().debtCharacteristics()).containsOnly("MODULARITY", "REUSABILITY");
+    assertThat(ruleQueryCaptor.getValue().hasDebtCharacteristic()).isTrue();
   }
 
 }

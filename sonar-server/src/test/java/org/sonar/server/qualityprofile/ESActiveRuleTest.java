@@ -53,9 +53,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.elasticsearch.index.query.FilterBuilders.hasChildFilter;
-import static org.elasticsearch.index.query.FilterBuilders.hasParentFilter;
-import static org.elasticsearch.index.query.FilterBuilders.termFilter;
+import static org.elasticsearch.index.query.FilterBuilders.*;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -102,7 +100,7 @@ public class ESActiveRuleTest {
     esSetup.execute(
       EsSetup.index("rules", "rule", "1").withSource(testFileAsString("shared/rule1.json")),
       EsSetup.index("rules", "rule", "2").withSource(testFileAsString("shared/rule2.json")),
-      EsSetup.index("rules", "rule", "3").withSource(testFileAsString("shared/rule3.json"))
+      EsSetup.index("rules", "rule", "3").withSource(testFileAsString("shared/removed_rule.json"))
     );
   }
 

@@ -96,7 +96,7 @@ public class RuleRegistryTest {
       EsSetup.index("rules", "rule", "1").withSource(testFileAsString("shared/rule1.json")),
       EsSetup.index("rules", "rule", "2").withSource(testFileAsString("shared/rule2.json")),
       // rule 3 is removed
-      EsSetup.index("rules", "rule", "3").withSource(testFileAsString("shared/rule3.json"))
+      EsSetup.index("rules", "rule", "3").withSource(testFileAsString("shared/removed_rule.json"))
     );
     esSetup.client().admin().cluster().prepareHealth(RuleRegistry.INDEX_RULES).setWaitForGreenStatus().execute().actionGet();
   }
@@ -382,6 +382,13 @@ public class RuleRegistryTest {
     assertThat(registry.find(RuleQuery.builder().debtCharacteristics(newArrayList("REUSABILITY")).build()).results()).hasSize(1);
     assertThat(registry.find(RuleQuery.builder().debtCharacteristics(newArrayList("MODULARITY", "REUSABILITY")).build()).results()).hasSize(1);
     assertThat(registry.find(RuleQuery.builder().debtCharacteristics(newArrayList("unknown")).build()).results()).isEmpty();
+  }
+
+  @Test
+  public void find_rules_by_has_debt_characteristic() {
+    assertThat(registry.find(RuleQuery.builder().hasDebtCharacteristic(null).build()).results()).hasSize(2);
+    assertThat(registry.find(RuleQuery.builder().hasDebtCharacteristic(true).build()).results()).hasSize(1);
+    assertThat(registry.find(RuleQuery.builder().hasDebtCharacteristic(false).build()).results()).hasSize(1);
   }
 
   private String testFileAsString(String testFile) throws Exception {

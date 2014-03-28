@@ -142,15 +142,22 @@ public class RuleRegistry {
     addMustTermOrTerms(mainFilter, RuleDocument.FIELD_REPOSITORY_KEY, query.repositories());
     addMustTermOrTerms(mainFilter, RuleDocument.FIELD_SEVERITY, query.severities());
     addMustTermOrTerms(mainFilter, RuleDocument.FIELD_STATUS, query.statuses());
+    if (!query.tags().isEmpty()) {
+      mainFilter.must(FilterBuilders.queryFilter(
+          QueryBuilders.multiMatchQuery(query.tags(), RuleDocument.FIELD_ADMIN_TAGS, RuleDocument.FIELD_SYSTEM_TAGS).operator(Operator.OR))
+      );
+    }
     if (!query.debtCharacteristics().isEmpty()) {
       mainFilter.must(FilterBuilders.queryFilter(
           QueryBuilders.multiMatchQuery(query.debtCharacteristics(), RuleDocument.FIELD_CHARACTERISTIC_KEY, RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY).operator(Operator.OR))
       );
     }
-    if (!query.tags().isEmpty()) {
-      mainFilter.must(FilterBuilders.queryFilter(
-          QueryBuilders.multiMatchQuery(query.tags(), RuleDocument.FIELD_ADMIN_TAGS, RuleDocument.FIELD_SYSTEM_TAGS).operator(Operator.OR))
-      );
+    if (query.hasDebtCharacteristic() != null) {
+      if (Boolean.TRUE.equals(query.hasDebtCharacteristic())) {
+        mainFilter.must(FilterBuilders.missingFilter(RuleDocument.FIELD_CHARACTERISTIC_KEY));
+      } else {
+        mainFilter.mustNot(FilterBuilders.missingFilter(RuleDocument.FIELD_CHARACTERISTIC_KEY));
+      }
     }
 
     Paging paging = Paging.create(query.pageSize(), query.pageIndex());

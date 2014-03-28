@@ -43,6 +43,7 @@ public class RuleQuery {
   private Collection<String> statuses;
   private Collection<String> tags;
   private Collection<String> debtCharacteristics;
+  private Boolean hasDebtCharacteristic;
 
   private int pageSize;
   private int pageIndex;
@@ -56,6 +57,7 @@ public class RuleQuery {
     this.statuses = defaultCollection(builder.statuses);
     this.tags = defaultCollection(builder.tags);
     this.debtCharacteristics = defaultCollection(builder.debtCharacteristics);
+    this.hasDebtCharacteristic = builder.hasDebtCharacteristic;
     this.pageSize = builder.pageSize;
     this.pageIndex = builder.pageIndex;
   }
@@ -94,6 +96,11 @@ public class RuleQuery {
     return debtCharacteristics;
   }
 
+  @CheckForNull
+  public Boolean hasDebtCharacteristic() {
+    return hasDebtCharacteristic;
+  }
+
   public int pageSize() {
     return pageSize;
   }
@@ -116,6 +123,7 @@ public class RuleQuery {
     private Collection<String> statuses;
     private Collection<String> tags;
     private Collection<String> debtCharacteristics;
+    private Boolean hasDebtCharacteristic = null;
 
     private Integer pageSize;
     private Integer pageIndex;
@@ -157,6 +165,11 @@ public class RuleQuery {
 
     public Builder debtCharacteristics(@Nullable Collection<String> debtCharacteristics) {
       this.debtCharacteristics = debtCharacteristics;
+      return this;
+    }
+
+    public Builder hasDebtCharacteristic(@Nullable Boolean hasDebtCharacteristic) {
+      this.hasDebtCharacteristic = hasDebtCharacteristic;
       return this;
     }
 
