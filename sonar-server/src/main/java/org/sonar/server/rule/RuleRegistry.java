@@ -154,9 +154,9 @@ public class RuleRegistry {
     }
     if (query.hasDebtCharacteristic() != null) {
       if (Boolean.TRUE.equals(query.hasDebtCharacteristic())) {
-        mainFilter.must(FilterBuilders.missingFilter(RuleDocument.FIELD_CHARACTERISTIC_KEY));
+        mainFilter.must(FilterBuilders.existsFilter(RuleDocument.FIELD_CHARACTERISTIC_KEY));
       } else {
-        mainFilter.mustNot(FilterBuilders.missingFilter(RuleDocument.FIELD_CHARACTERISTIC_KEY));
+        mainFilter.mustNot(FilterBuilders.existsFilter(RuleDocument.FIELD_CHARACTERISTIC_KEY));
       }
     }
 
