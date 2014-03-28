@@ -23,6 +23,8 @@ package org.sonar.server.rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.check.Cardinality;
 
@@ -50,6 +52,11 @@ public class RuleTest {
       .setAdminTags(newArrayList("AdminTag"))
       .setSystemTags(newArrayList("SysTag"))
       .setParams(newArrayList(new RuleParam("key", "desc", "default", RuleParamType.STRING)))
+      .setDebtCharacteristicKey("REUSABILITY")
+      .setDebtCharacteristicName("Reusability")
+      .setDebtSubCharacteristicKey("MODULARITY")
+      .setDebtSubCharacteristicName("Modularity")
+      .setDebtRemediationFunction(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "1h", "15min"))
       .setCreatedAt(new Date())
       .setUpdatedAt(new Date())
       .build();
@@ -67,6 +74,11 @@ public class RuleTest {
     assertThat(rule.adminTags()).hasSize(1);
     assertThat(rule.systemTags()).hasSize(1);
     assertThat(rule.params()).hasSize(1);
+    assertThat(rule.debtCharacteristicKey()).isEqualTo("REUSABILITY");
+    assertThat(rule.debtCharacteristicName()).isEqualTo("Reusability");
+    assertThat(rule.debtSubCharacteristicKey()).isEqualTo("MODULARITY");
+    assertThat(rule.debtSubCharacteristicName()).isEqualTo("Modularity");
+    assertThat(rule.debtRemediationFunction()).isEqualTo(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "1h", "15min"));
     assertThat(rule.createdAt()).isNotNull();
     assertThat(rule.updatedAt()).isNotNull();
   }

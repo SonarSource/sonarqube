@@ -20,6 +20,7 @@
 package org.sonar.server.rule;
 
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.check.Cardinality;
 
 import javax.annotation.CheckForNull;
@@ -46,6 +47,11 @@ public class Rule {
   private Collection<String> systemTags;
   private Collection<String> adminTags;
   private Collection<RuleParam> params;
+  private String debtCharacteristicKey;
+  private String debtCharacteristicName;
+  private String debtSubCharacteristicKey;
+  private String debtSubCharacteristicName;
+  private DebtRemediationFunction debtRemediationFunction;
   private Date createdAt;
   private Date updatedAt;
 
@@ -63,6 +69,11 @@ public class Rule {
     this.systemTags = defaultCollection(builder.systemTags);
     this.adminTags = defaultCollection(builder.adminTags);
     this.params = defaultCollection(builder.params);
+    this.debtCharacteristicKey = builder.debtCharacteristicKey;
+    this.debtCharacteristicName = builder.debtCharacteristicName;
+    this.debtSubCharacteristicKey = builder.debtSubCharacteristicKey;
+    this.debtSubCharacteristicName = builder.debtSubCharacteristicName;
+    this.debtRemediationFunction = builder.debtRemediationFunction;
     this.createdAt = builder.createdAt;
     this.updatedAt = builder.updatedAt;
   }
@@ -123,8 +134,38 @@ public class Rule {
     return params;
   }
 
+  @CheckForNull
+  public String debtCharacteristicKey() {
+    return debtCharacteristicKey;
+  }
+
+  @CheckForNull
+  public String debtCharacteristicName() {
+    return debtCharacteristicName;
+  }
+
+  @CheckForNull
+  public String debtSubCharacteristicKey() {
+    return debtSubCharacteristicKey;
+  }
+
+  @CheckForNull
+  public String debtSubCharacteristicName() {
+    return debtSubCharacteristicName;
+  }
+
+  @CheckForNull
+  public DebtRemediationFunction debtRemediationFunction() {
+    return debtRemediationFunction;
+  }
+
   public Date createdAt() {
     return createdAt;
+  }
+
+  @CheckForNull
+  public Date updatedAt() {
+    return updatedAt;
   }
 
   public boolean isTemplate() {
@@ -135,10 +176,6 @@ public class Rule {
     return templateId != null;
   }
 
-  @CheckForNull
-  public Date updatedAt() {
-    return updatedAt;
-  }
 
   public static class Builder {
 
@@ -156,6 +193,11 @@ public class Rule {
     private Collection<String> systemTags;
     private Collection<String> adminTags;
     private Collection<RuleParam> params;
+    private String debtCharacteristicKey;
+    private String debtCharacteristicName;
+    private String debtSubCharacteristicKey;
+    private String debtSubCharacteristicName;
+    private DebtRemediationFunction debtRemediationFunction;
     private Date createdAt;
     private Date updatedAt;
 
@@ -229,6 +271,31 @@ public class Rule {
 
     public Builder setParams(Collection<RuleParam> params) {
       this.params = params;
+      return this;
+    }
+
+    public Builder setDebtCharacteristicKey(@Nullable String debtCharacteristicKey) {
+      this.debtCharacteristicKey = debtCharacteristicKey;
+      return this;
+    }
+
+    public Builder setDebtCharacteristicName(@Nullable String debtCharacteristicName) {
+      this.debtCharacteristicName = debtCharacteristicName;
+      return this;
+    }
+
+    public Builder setDebtSubCharacteristicKey(@Nullable String debtSubCharacteristicKey) {
+      this.debtSubCharacteristicKey = debtSubCharacteristicKey;
+      return this;
+    }
+
+    public Builder setDebtSubCharacteristicName(@Nullable String debtSubCharacteristicName) {
+      this.debtSubCharacteristicName = debtSubCharacteristicName;
+      return this;
+    }
+
+    public Builder setDebtRemediationFunction(@Nullable DebtRemediationFunction debtRemediationFunction) {
+      this.debtRemediationFunction = debtRemediationFunction;
       return this;
     }
 

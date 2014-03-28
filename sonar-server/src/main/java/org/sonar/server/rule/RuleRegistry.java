@@ -58,8 +58,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.elasticsearch.index.query.FilterBuilders.boolFilter;
-import static org.elasticsearch.index.query.FilterBuilders.termFilter;
+import static org.elasticsearch.index.query.FilterBuilders.*;
 import static org.sonar.api.rules.Rule.STATUS_REMOVED;
 
 /**
@@ -138,10 +137,20 @@ public class RuleRegistry {
       mainFilter.must(FilterBuilders.queryFilter(
         QueryBuilders.multiMatchQuery(query.query(), RuleDocument.FIELD_NAME + ".search", RuleDocument.FIELD_KEY).operator(Operator.AND)));
     }
-    if (query.characteristicKey() != null) {
+    if (query.characteristic() != null) {
       mainFilter.must(FilterBuilders.queryFilter(
-          QueryBuilders.multiMatchQuery(query.characteristicKey(), RuleDocument.FIELD_CHARACTERISTIC_KEY, RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY).operator(Operator.OR))
+          QueryBuilders.multiMatchQuery(query.characteristic(), RuleDocument.FIELD_CHARACTERISTIC_KEY, RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY).operator(Operator.OR))
       );
+    }
+    if (query.language() != null) {
+      mainFilter.must(termFilter(RuleDocument.FIELD_LANGUAGE, query.language()));
+    }
+    if (!query.repositories().isEmpty()) {
+      if (query.repositories().size() == 1) {
+        mainFilter.must(termFilter(RuleDocument.FIELD_REPOSITORY_KEY, query.repositories().iterator().next()));
+      } else {
+        mainFilter.must(termsFilter(RuleDocument.FIELD_REPOSITORY_KEY, query.repositories().toArray()));
+      }
     }
     Paging paging = Paging.create(query.pageSize(), query.pageIndex());
     SearchHits hits = searchIndex.executeRequest(

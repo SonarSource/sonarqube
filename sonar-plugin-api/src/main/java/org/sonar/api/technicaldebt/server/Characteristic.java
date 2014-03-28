@@ -27,7 +27,7 @@ import org.sonar.api.utils.internal.WorkDuration;
 import javax.annotation.CheckForNull;
 
 /**
- * @since 4.1 *
+ * @since 4.1
  * @deprecated since 4.3.
  */
 @Deprecated

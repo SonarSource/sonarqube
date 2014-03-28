@@ -47,6 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -279,16 +280,29 @@ public class RuleRegistryTest {
   @Test
   public void find_rules_by_name() {
     // Removed rule should not appear
-    assertThat(registry.find(RuleQuery.builder().pageIndex(1).pageSize(10).build()).results()).hasSize(2);
+    assertThat(registry.find(RuleQuery.builder().build()).results()).hasSize(2);
 
     // Search is case insensitive
-    assertThat(registry.find(RuleQuery.builder().pageIndex(1).pageSize(10).searchQuery("one issue per line").build()).results()).hasSize(1);
+    assertThat(registry.find(RuleQuery.builder().searchQuery("one issue per line").build()).results()).hasSize(1);
 
     // Search is ngram based
-    assertThat(registry.find(RuleQuery.builder().pageIndex(1).pageSize(10).searchQuery("with param").build()).results()).hasSize(1);
+    assertThat(registry.find(RuleQuery.builder().searchQuery("with param").build()).results()).hasSize(1);
 
     // Search works also with key
-    assertThat(registry.find(RuleQuery.builder().pageIndex(1).pageSize(10).searchQuery("OneIssuePerLine").build()).results()).hasSize(1);
+    assertThat(registry.find(RuleQuery.builder().searchQuery("OneIssuePerLine").build()).results()).hasSize(1);
+  }
+
+  @Test
+  public void find_rules_by_language() {
+    assertThat(registry.find(RuleQuery.builder().language("xoo").build()).results()).hasSize(2);
+    assertThat(registry.find(RuleQuery.builder().language("unknown").build()).results()).isEmpty();
+  }
+
+  @Test
+  public void find_rules_by_rule_repositories() {
+    assertThat(registry.find(RuleQuery.builder().repositories(newArrayList("xoo")).build()).results()).hasSize(1);
+    assertThat(registry.find(RuleQuery.builder().repositories(newArrayList("xoo", "xoo2")).build()).results()).hasSize(2);
+    assertThat(registry.find(RuleQuery.builder().repositories(newArrayList("unknown")).build()).results()).isEmpty();
   }
 
   @Test
@@ -353,9 +367,9 @@ public class RuleRegistryTest {
     registry.bulkRegisterRules(rules, characteristics, ArrayListMultimap.<Integer, RuleParamDto>create(),
       ArrayListMultimap.<Integer, RuleRuleTagDto>create());
 
-    assertThat(registry.find(RuleQuery.builder().characteristicKey("MODULARITY").build()).results()).hasSize(1);
-    assertThat(registry.find(RuleQuery.builder().characteristicKey("REUSABILITY").build()).results()).hasSize(1);
-    assertThat(registry.find(RuleQuery.builder().characteristicKey("Unknown").build()).results()).isEmpty();
+    assertThat(registry.find(RuleQuery.builder().characteristic("MODULARITY").build()).results()).hasSize(1);
+    assertThat(registry.find(RuleQuery.builder().characteristic("REUSABILITY").build()).results()).hasSize(1);
+    assertThat(registry.find(RuleQuery.builder().characteristic("Unknown").build()).results()).isEmpty();
   }
 
   private String testFileAsString(String testFile) throws Exception {

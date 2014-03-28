@@ -24,6 +24,9 @@ import com.google.common.base.Preconditions;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * @since 4.3
  */
@@ -34,7 +37,9 @@ public class RuleQuery {
 
   private String key;
   private String query;
-  private String characteristicKey;
+  private String characteristic;
+  private String language;
+  private Collection<String> repositories;
 
   private int pageSize;
   private int pageIndex;
@@ -42,7 +47,9 @@ public class RuleQuery {
   private RuleQuery(Builder builder) {
     this.key = builder.key;
     this.query = builder.query;
-    this.characteristicKey = builder.characteristicKey;
+    this.language = builder.language;
+    this.repositories = defaultCollection(builder.repositories);
+    this.characteristic = builder.characteristic;
     this.pageSize = builder.pageSize;
     this.pageIndex = builder.pageIndex;
   }
@@ -58,8 +65,17 @@ public class RuleQuery {
   }
 
   @CheckForNull
-  public String characteristicKey() {
-    return characteristicKey;
+  public String language() {
+    return language;
+  }
+
+  public Collection<String> repositories() {
+    return repositories;
+  }
+
+  @CheckForNull
+  public String characteristic() {
+    return characteristic;
   }
 
   public int pageSize() {
@@ -78,7 +94,9 @@ public class RuleQuery {
 
     private String key;
     private String query;
-    private String characteristicKey;
+    private String characteristic;
+    private String language;
+    private Collection<String> repositories;
 
     private Integer pageSize;
     private Integer pageIndex;
@@ -93,8 +111,18 @@ public class RuleQuery {
       return this;
     }
 
-    public Builder characteristicKey(@Nullable String characteristicKey) {
-      this.characteristicKey = characteristicKey;
+    public Builder language(String language) {
+      this.language = language;
+      return this;
+    }
+
+    public Builder repositories(Collection<String> repositories) {
+      this.repositories = repositories;
+      return this;
+    }
+
+    public Builder characteristic(@Nullable String characteristic) {
+      this.characteristic = characteristic;
       return this;
     }
 
@@ -126,5 +154,9 @@ public class RuleQuery {
       }
       Preconditions.checkArgument(pageIndex > 0, "Page index must be greater than 0 (got " + pageIndex + ")");
     }
+  }
+
+  private static <T> Collection<T> defaultCollection(@Nullable Collection<T> c) {
+    return c == null ? Collections.<T>emptyList() : Collections.unmodifiableCollection(c);
   }
 }
