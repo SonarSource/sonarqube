@@ -226,8 +226,7 @@ public class RuleRegistryTest {
     registry.bulkRegisterRules(rules, Maps.<Integer, CharacteristicDto>newHashMap(), params, tags);
     assertThat(registry.findIds(ImmutableMap.of("repositoryKey", "repo"))).hasSize(2);
 
-    Map<String, Object> rule2Document = esSetup.client().prepareGet("rules", "rule", Integer.toString(ruleId2))
-      .execute().actionGet().getSourceAsMap();
+    Map<String, Object> rule2Document = esSetup.client().prepareGet("rules", "rule", Integer.toString(ruleId2)).execute().actionGet().getSourceAsMap();
     assertThat((List<String>) rule2Document.get(RuleDocument.FIELD_SYSTEM_TAGS)).hasSize(2);
     assertThat((List<String>) rule2Document.get(RuleDocument.FIELD_ADMIN_TAGS)).hasSize(1);
   }
@@ -275,34 +274,6 @@ public class RuleRegistryTest {
       .hasSize(2)
       .containsOnly(ruleId1, ruleId2);
     assertThat(esSetup.exists("rules", "rule", "3")).isFalse();
-  }
-
-  @Test
-  public void find_rules_by_name() {
-    // Removed rule should not appear
-    assertThat(registry.find(RuleQuery.builder().build()).results()).hasSize(2);
-
-    // Search is case insensitive
-    assertThat(registry.find(RuleQuery.builder().searchQuery("one issue per line").build()).results()).hasSize(1);
-
-    // Search is ngram based
-    assertThat(registry.find(RuleQuery.builder().searchQuery("with param").build()).results()).hasSize(1);
-
-    // Search works also with key
-    assertThat(registry.find(RuleQuery.builder().searchQuery("OneIssuePerLine").build()).results()).hasSize(1);
-  }
-
-  @Test
-  public void find_rules_by_language() {
-    assertThat(registry.find(RuleQuery.builder().language("xoo").build()).results()).hasSize(2);
-    assertThat(registry.find(RuleQuery.builder().language("unknown").build()).results()).isEmpty();
-  }
-
-  @Test
-  public void find_rules_by_rule_repositories() {
-    assertThat(registry.find(RuleQuery.builder().repositories(newArrayList("xoo")).build()).results()).hasSize(1);
-    assertThat(registry.find(RuleQuery.builder().repositories(newArrayList("xoo", "xoo2")).build()).results()).hasSize(2);
-    assertThat(registry.find(RuleQuery.builder().repositories(newArrayList("unknown")).build()).results()).isEmpty();
   }
 
   @Test
@@ -356,20 +327,61 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void find_rules_by_characteristic_or_sub_characteristic() {
-    Map<Integer, CharacteristicDto> characteristics = newHashMap();
-    characteristics.put(10, new CharacteristicDto().setId(10).setKey("REUSABILITY").setName("Reusability"));
-    characteristics.put(11, new CharacteristicDto().setId(11).setKey("MODULARITY").setName("Modularity").setParentId(10));
+  public void find_rules_by_name() {
+    // Removed rule should not appear
+    assertThat(registry.find(RuleQuery.builder().searchQuery("Removed rule").build()).results()).isEmpty();
 
-    List<RuleDto> rules = ImmutableList.of(new RuleDto().setId(10).setRepositoryKey("repo").setRuleKey("key1").setSeverity(Severity.MINOR)
-      .setDefaultSubCharacteristicId(11).setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("2h"));
+    // Search is case insensitive
+    assertThat(registry.find(RuleQuery.builder().searchQuery("one issue per line").build()).results()).hasSize(1);
 
-    registry.bulkRegisterRules(rules, characteristics, ArrayListMultimap.<Integer, RuleParamDto>create(),
-      ArrayListMultimap.<Integer, RuleRuleTagDto>create());
+    // Search is ngram based
+    assertThat(registry.find(RuleQuery.builder().searchQuery("with param").build()).results()).hasSize(1);
 
-    assertThat(registry.find(RuleQuery.builder().characteristic("MODULARITY").build()).results()).hasSize(1);
-    assertThat(registry.find(RuleQuery.builder().characteristic("REUSABILITY").build()).results()).hasSize(1);
-    assertThat(registry.find(RuleQuery.builder().characteristic("Unknown").build()).results()).isEmpty();
+    // Search works also with key
+    assertThat(registry.find(RuleQuery.builder().searchQuery("OneIssuePerLine").build()).results()).hasSize(1);
+  }
+
+  @Test
+  public void find_rules_by_languages() {
+    assertThat(registry.find(RuleQuery.builder().languages(newArrayList("xoo")).build()).results()).hasSize(2);
+    assertThat(registry.find(RuleQuery.builder().languages(newArrayList("unknown")).build()).results()).isEmpty();
+  }
+
+  @Test
+  public void find_rules_by_repositories() {
+    assertThat(registry.find(RuleQuery.builder().repositories(newArrayList("xoo")).build()).results()).hasSize(1);
+    assertThat(registry.find(RuleQuery.builder().repositories(newArrayList("xoo", "xoo2")).build()).results()).hasSize(2);
+    assertThat(registry.find(RuleQuery.builder().repositories(newArrayList("unknown")).build()).results()).isEmpty();
+  }
+
+  @Test
+  public void find_rules_by_severities() {
+    assertThat(registry.find(RuleQuery.builder().severities(newArrayList("MAJOR")).build()).results()).hasSize(1);
+    assertThat(registry.find(RuleQuery.builder().severities(newArrayList("MAJOR", "MINOR")).build()).results()).hasSize(2);
+    assertThat(registry.find(RuleQuery.builder().severities(newArrayList("unknown")).build()).results()).isEmpty();
+  }
+
+  @Test
+  public void find_rules_by_statuses() {
+    assertThat(registry.find(RuleQuery.builder().statuses(newArrayList("READY")).build()).results()).hasSize(1);
+    assertThat(registry.find(RuleQuery.builder().statuses(newArrayList("READY", "BETA")).build()).results()).hasSize(2);
+    assertThat(registry.find(RuleQuery.builder().statuses(newArrayList("unknown")).build()).results()).isEmpty();
+  }
+
+  @Test
+  public void find_rules_by_tags() {
+    assertThat(registry.find(RuleQuery.builder().tags(newArrayList("has-params")).build()).results()).hasSize(1);
+    assertThat(registry.find(RuleQuery.builder().tags(newArrayList("keep-enabled")).build()).results()).hasSize(1);
+    assertThat(registry.find(RuleQuery.builder().tags(newArrayList("has-params", "keep-enabled")).build()).results()).hasSize(1);
+    assertThat(registry.find(RuleQuery.builder().tags(newArrayList("unknown")).build()).results()).isEmpty();
+  }
+
+  @Test
+  public void find_rules_by_characteristics() {
+    assertThat(registry.find(RuleQuery.builder().debtCharacteristics(newArrayList("MODULARITY")).build()).results()).hasSize(1);
+    assertThat(registry.find(RuleQuery.builder().debtCharacteristics(newArrayList("REUSABILITY")).build()).results()).hasSize(1);
+    assertThat(registry.find(RuleQuery.builder().debtCharacteristics(newArrayList("MODULARITY", "REUSABILITY")).build()).results()).hasSize(1);
+    assertThat(registry.find(RuleQuery.builder().debtCharacteristics(newArrayList("unknown")).build()).results()).isEmpty();
   }
 
   private String testFileAsString(String testFile) throws Exception {

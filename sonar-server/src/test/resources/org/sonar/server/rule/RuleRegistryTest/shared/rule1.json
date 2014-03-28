@@ -50,12 +50,13 @@
       "description": ""
     }
   ],
-  "defaultCharacteristicId": 1,
-  "characteristicId": 2,
-  "defaultRemediationFunction": "LINEAR",
+  "characteristicId": 1,
+  "characteristicKey": "REUSABILITY",
+  "characteristicName": "Reusability",
+  "subCharacteristicId": 2,
+  "subCharacteristicKey": "MODULARITY",
+  "subCharacteristicName": "Modularity",
   "remediationFunction": "LINEAR_OFFSET",
-  "defaultRemediationCoefficient": "2h",
   "remediationCoefficient": "1h",
-  "defaultRemediationOffset": null,
   "remediationOffset": "15min"
 }

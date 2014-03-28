@@ -46,6 +46,7 @@ public class RulesWs implements WebService {
       .setHandler(searchHandler)
       .createParam("s", "An optional query that will be matched against rule titles.")
       .createParam("k", "An optional query that will be matched exactly agains rule keys.")
+      // TODO add description for languages, repositories, etc. params
       .createParam("ps", "Optional page size (default is 25).")
       .createParam("p", "Optional page number (default is 0).");
 

@@ -23,6 +23,7 @@ package org.sonar.server.rule.ws;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -31,6 +32,7 @@ import org.sonar.server.paging.PagedResult;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleQuery;
 import org.sonar.server.rule.Rules;
+import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.CheckForNull;
 
@@ -56,8 +58,12 @@ public class RuleSearchWsHandler implements RequestHandler {
     if (ruleKeyParam == null) {
       PagedResult<Rule> searchResult = rules.find(RuleQuery.builder()
         .searchQuery(request.param("s"))
-        .language(request.param("language"))
-        .characteristic(request.param("characteristic"))
+        .languages(RubyUtils.toStrings(request.param("languages")))
+        .repositories(RubyUtils.toStrings(request.param("repositories")))
+        .severities(RubyUtils.toStrings(request.param("severities")))
+        .statuses(RubyUtils.toStrings(request.param("statuses")))
+        .tags(RubyUtils.toStrings(request.param("tags")))
+        .debtCharacteristics(RubyUtils.toStrings(request.param("debtCharacteristics")))
         .pageSize(request.paramAsInt("ps"))
         .pageIndex(request.paramAsInt("p"))
         .build());
@@ -104,6 +110,19 @@ public class RuleSearchWsHandler implements RequestHandler {
       .prop("key", rule.ruleKey().toString())
       .prop("name", rule.name())
       .prop("language", languageName)
+      .prop("status", rule.status())
     ;
+    DebtRemediationFunction function = rule.debtRemediationFunction();
+    if (function != null) {
+      json
+        .prop("debtCharacteristic", rule.debtCharacteristicKey())
+        .prop("debtCharacteristicName", rule.debtCharacteristicName())
+        .prop("debtSubCharacteristic", rule.debtSubCharacteristicKey())
+        .prop("debtSubCharacteristicName", rule.debtSubCharacteristicName())
+        .prop("debtRemediationFunction", function.type().name())
+        .prop("debtRemediationCoefficient", function.coefficient())
+        .prop("debtRemediationOffset", function.offset())
+      ;
+    }
   }
 }

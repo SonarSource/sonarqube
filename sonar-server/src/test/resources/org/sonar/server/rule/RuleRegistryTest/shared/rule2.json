@@ -6,7 +6,7 @@
   "description": "Generate an issue on each line of a file. It requires the metric \"lines\".",
   "parentKey": null,
   "repositoryKey": "xoo2",
-  "severity": "MAJOR",
+  "severity": "MINOR",
   "status": "BETA",
   "createdAt": "2013-10-28T13:07:26.339Z",
   "updatedAt": "2013-11-08T10:52:53.487Z"

@@ -31,6 +31,7 @@ import org.elasticsearch.common.io.BytesStream;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.BoolFilterBuilder;
+import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.MatchQueryBuilder.Operator;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -137,21 +138,21 @@ public class RuleRegistry {
       mainFilter.must(FilterBuilders.queryFilter(
         QueryBuilders.multiMatchQuery(query.query(), RuleDocument.FIELD_NAME + ".search", RuleDocument.FIELD_KEY).operator(Operator.AND)));
     }
-    if (query.characteristic() != null) {
+    addMustTermOrTerms(mainFilter, RuleDocument.FIELD_LANGUAGE, query.languages());
+    addMustTermOrTerms(mainFilter, RuleDocument.FIELD_REPOSITORY_KEY, query.repositories());
+    addMustTermOrTerms(mainFilter, RuleDocument.FIELD_SEVERITY, query.severities());
+    addMustTermOrTerms(mainFilter, RuleDocument.FIELD_STATUS, query.statuses());
+    if (!query.debtCharacteristics().isEmpty()) {
       mainFilter.must(FilterBuilders.queryFilter(
-          QueryBuilders.multiMatchQuery(query.characteristic(), RuleDocument.FIELD_CHARACTERISTIC_KEY, RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY).operator(Operator.OR))
+          QueryBuilders.multiMatchQuery(query.debtCharacteristics(), RuleDocument.FIELD_CHARACTERISTIC_KEY, RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY).operator(Operator.OR))
       );
     }
-    if (query.language() != null) {
-      mainFilter.must(termFilter(RuleDocument.FIELD_LANGUAGE, query.language()));
+    if (!query.tags().isEmpty()) {
+      mainFilter.must(FilterBuilders.queryFilter(
+          QueryBuilders.multiMatchQuery(query.tags(), RuleDocument.FIELD_ADMIN_TAGS, RuleDocument.FIELD_SYSTEM_TAGS).operator(Operator.OR))
+      );
     }
-    if (!query.repositories().isEmpty()) {
-      if (query.repositories().size() == 1) {
-        mainFilter.must(termFilter(RuleDocument.FIELD_REPOSITORY_KEY, query.repositories().iterator().next()));
-      } else {
-        mainFilter.must(termsFilter(RuleDocument.FIELD_REPOSITORY_KEY, query.repositories().toArray()));
-      }
-    }
+
     Paging paging = Paging.create(query.pageSize(), query.pageIndex());
     SearchHits hits = searchIndex.executeRequest(
       searchIndex.client().prepareSearch(INDEX_RULES).setTypes(TYPE_RULE)
@@ -166,6 +167,25 @@ public class RuleRegistry {
       rulesBuilder.add(RuleDocumentParser.parse(hit.sourceAsMap()));
     }
     return new PagedResult<Rule>(rulesBuilder.build(), PagingResult.create(paging.pageSize(), paging.pageIndex(), hits.getTotalHits()));
+  }
+
+  private static void addMustTermOrTerms(BoolFilterBuilder filter, String field, Collection<String> terms) {
+    FilterBuilder termOrTerms = getTermOrTerms(field, terms);
+    if (termOrTerms != null) {
+      filter.must(termOrTerms);
+    }
+  }
+
+  private static FilterBuilder getTermOrTerms(String field, Collection<String> terms) {
+    if (terms.isEmpty()) {
+      return null;
+    } else {
+      if (terms.size() == 1) {
+        return termFilter(field, terms.iterator().next());
+      } else {
+        return termsFilter(field, terms.toArray());
+      }
+    }
   }
 
   /**
