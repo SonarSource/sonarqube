@@ -112,6 +112,27 @@ public class ProjectReactorValidatorTest {
     validator.validate(reactor);
   }
 
+  // SONAR-4245
+  @Test
+  public void shouldFailWhenTryingToConvertProjectIntoModule() {
+    String rootProjectKey = "project-key";
+    String moduleKey = "module-key";
+    ResourceDto rootResource = mock(ResourceDto.class);
+
+    when(rootResource.getKey()).thenReturn(moduleKey);
+
+    when(resourceDao.getRootProjectByComponentKey(moduleKey)).thenReturn(rootResource);
+
+    ProjectReactor reactor = createProjectReactor(rootProjectKey);
+    reactor.getRoot().addSubProject(ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, moduleKey));
+
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("The project 'module-key' is already defined in SonarQube but not as a module of project 'project-key'. "
+      + "If you really want to stop directly analysing project 'module-key', please first delete it from SonarQube and then relaunch the analysis of project 'project-key'.");
+
+    validator.validate(reactor);
+  }
+
   @Test
   public void not_fail_with_valid_key() {
     validator.validate(createProjectReactor("foo"));

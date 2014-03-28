@@ -80,14 +80,30 @@ public class ProjectReactorValidator {
   private void validateModule(ProjectDefinition moduleDef, List<String> validationMessages, @Nullable String branch, String rootProjectKey) {
     if (!ComponentKeys.isValidModuleKey(moduleDef.getKey())) {
       validationMessages.add(String.format("\"%s\" is not a valid project or module key", moduleDef.getKey()));
-    } else if (moduleDef.getParent() != null) {
+    } else if (isSubProject(moduleDef)) {
       // SONAR-4692 Validate root project is the same than previous analysis to avoid module with same key in different projects
-      String key = ComponentKeys.createKey(moduleDef.getKey(), branch);
-      ResourceDto root = resourceDao.getRootProjectByComponentKey(key);
-      if (root != null && !rootProjectKey.equals(root.getKey())) {
-        throw new SonarException(String.format("Module \"%s\" is already part of project \"%s\"", moduleDef.getKey(), root.getKey()));
+      String moduleKey = ComponentKeys.createKey(moduleDef.getKey(), branch);
+      ResourceDto rootInDB = resourceDao.getRootProjectByComponentKey(moduleKey);
+      if (rootInDB == null) {
+        // This is a new module so OK
+        return;
+      }
+      if (rootInDB.getKey().equals(moduleKey)) {
+        // SONAR-4245 current subproject is actually a root project in SQ DB
+        throw new SonarException(
+          String.format("The project '%s' is already defined in SonarQube but not as a module of project '%s'. "
+            + "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
+            moduleKey, rootProjectKey, moduleKey, rootProjectKey));
+      }
+      if (!rootProjectKey.equals(rootInDB.getKey())) {
+        // SONAR-4692 current subproject is already a subproject in another project
+        throw new SonarException(String.format("Module \"%s\" is already part of project \"%s\"", moduleDef.getKey(), rootInDB.getKey()));
       }
     }
+  }
+
+  private boolean isSubProject(ProjectDefinition moduleDef) {
+    return moduleDef.getParent() != null;
   }
 
   private void validateBranch(List<String> validationMessages, @Nullable String branch) {

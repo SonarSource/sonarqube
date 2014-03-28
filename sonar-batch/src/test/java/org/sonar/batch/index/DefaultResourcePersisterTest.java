@@ -30,7 +30,6 @@ import org.sonar.api.resources.File;
 import org.sonar.api.resources.Library;
 import org.sonar.api.resources.Project;
 import org.sonar.api.security.ResourcePermissions;
-import org.sonar.api.utils.SonarException;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import java.text.ParseException;
@@ -120,22 +119,6 @@ public class DefaultResourcePersisterTest extends AbstractDbUnitTestCase {
     persister.saveProject(moduleB1, moduleB);
 
     checkTables("shouldSaveNewMultiModulesProject", new String[] {"build_date", "created_at"}, "projects", "snapshots");
-  }
-
-  // SONAR-4245
-  @Test
-  public void shouldFailWhenTryingToConvertProjectIntoModule() {
-    setupData("shared");
-
-    ResourcePersister persister = new DefaultResourcePersister(getSession(), mock(ResourcePermissions.class), snapshotCache, resourceCache);
-    existingProject.setParent(multiModuleProject);
-    persister.saveProject(multiModuleProject, null);
-
-    thrown.expect(SonarException.class);
-    thrown.expectMessage("The project 'my:key' is already defined in SonarQube but not as a module of project 'root'. "
-      + "If you really want to stop directly analysing project 'my:key', please first delete it from SonarQube and then relaunch the analysis of project 'root'.");
-
-    persister.saveProject(existingProject, multiModuleProject);
   }
 
   @Test

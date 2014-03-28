@@ -26,12 +26,19 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.Library;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.security.ResourcePermissions;
 import org.sonar.api.utils.SonarException;
 
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
+
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -310,15 +317,6 @@ public final class DefaultResourcePersister implements ResourcePersister {
       model.setPath(resource.getPath());
     }
     if (!ResourceUtils.isLibrary(resource)) {
-      // SONAR-4245
-      if (Scopes.PROJECT.equals(resource.getScope()) &&
-        Qualifiers.MODULE.equals(resource.getQualifier())
-        && Qualifiers.PROJECT.equals(model.getQualifier())) {
-        throw new SonarException(
-          String.format("The project '%s' is already defined in SonarQube but not as a module of project '%s'. "
-            + "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
-            resource.getKey(), resource.getParent().getKey(), resource.getKey(), resource.getParent().getKey()));
-      }
       model.setScope(resource.getScope());
       model.setQualifier(resource.getQualifier());
     }
