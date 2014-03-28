@@ -5,7 +5,7 @@
       {{name}}
       {{#if parent}}
         <div class="coding-rules-detail-quality-profile-inheritance">
-          <i class="icon-inheritance"></i> {{parent.name}}
+          <i class="icon-inheritance" title="{{tp 'coding_rules.inherits' name parent.name}}"></i> {{parent.name}}
         </div>
       {{/if}}
     </td>
@@ -23,7 +23,7 @@
       <td class="coding-rules-detail-quality-profile-parameters">
         {{#each parameters}}
           <div class="coding-rules-detail-quality-profile-parameter">
-            <span class="key">{{key}}</span><span class="sep">:&nbsp;</span><span class="value">{{value}}</span>
+            <span class="key">{{key}}</span><span class="sep">:&nbsp;</span><span class="value" title="{{value}}">{{value}}</span>
             {{#if ../parent}}{{#notEq value original}}
               <div class="coding-rules-detail-quality-profile-inheritance">
                 {{t 'coding_rules.original'}}&nbsp;{{original}}

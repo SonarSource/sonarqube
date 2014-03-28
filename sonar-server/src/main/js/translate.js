@@ -19,6 +19,21 @@
   };
 
 
+  window.tp = function() {
+    var args = Array.prototype.slice.call(arguments, 0),
+        key = args.shift(),
+        message = window.messages[key];
+    if (message) {
+      args.forEach(function(p, i) {
+        message = message.replace('{' + i + '}', p);
+      });
+    } else {
+      warn('No translation for "' + key + '"');
+    }
+    return message || '';
+  };
+
+
   window.translate = function() {
     var args = Array.prototype.slice.call(arguments, 0),
         tokens = args.reduce(function(prev, current) {

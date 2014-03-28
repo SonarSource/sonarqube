@@ -96,6 +96,11 @@ define(['handlebars'], function (Handlebars) {
     return window.t.apply(this, args);
   });
 
+  Handlebars.registerHelper('tp', function() {
+    var args = Array.prototype.slice.call(arguments, 0, -1);
+    return window.tp.apply(this, args);
+  });
+
   Handlebars.registerHelper('pluginActions', function(actions, options) {
     var pluginActions = _.difference(actions, defaultActions);
     return pluginActions.reduce(function(prev, current) {

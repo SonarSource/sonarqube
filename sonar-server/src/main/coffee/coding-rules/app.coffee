@@ -259,7 +259,7 @@ requirejs [
     @filters.add @qualityProfileFilter
 
 
-    @filters.add new BaseFilters.Filter
+    @activationFilter = new BaseFilters.Filter
       name: t 'coding_rules.filters.activation'
       property: 'activation'
       type: ActivationFilterView
@@ -270,6 +270,7 @@ requirejs [
       choices:
         'active': t 'coding_rules.filters.activation.active'
         'inactive': t 'coding_rules.filters.activation.inactive'
+    @filters.add @activationFilter
 
     @filters.add new BaseFilters.Filter
       name: t 'coding_rules.filters.availableSince'

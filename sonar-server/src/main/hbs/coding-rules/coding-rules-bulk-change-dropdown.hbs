@@ -1,27 +1,51 @@
-<a class="coding-rules-bulk-change-dropdown-link" data-action="activate">
-  {{t 'coding_rules.activate_in'}}
-</a>
+{{! activation }}
+
+{{#notEq activation 'active'}}
+  <a class="coding-rules-bulk-change-dropdown-link" data-action="activate">
+    {{t 'coding_rules.activate_in'}}
+  </a>
+{{/notEq}}
+
+{{#eq activation 'active'}}
+  <a class="coding-rules-bulk-change-dropdown-link" data-action="activate" data-param="{{qualityProfile}}">
+    {{t 'coding_rules.activate_in'}} <strong>{{qualityProfileName}}</strong>
+  </a>
+{{/eq}}
 
 {{#if singleLanguage}}
   <a class="coding-rules-bulk-change-dropdown-link" data-action="activate" data-param="<all>">
-    {{t 'coding_rules.activate_in_all_quality_profiles'}}
+    {{tp 'coding_rules.activate_in_all_quality_profiles' language}}
   </a>
 {{/if}}
 
-<a class="coding-rules-bulk-change-dropdown-link" data-action="deactivate"
-   {{#if qualityProfile}}data-param="{{qualityProfile}}"{{/if}}>
-  {{t 'coding_rules.deactivate_in'}}
-  {{#if qualityProfile}}<strong>{{qualityProfileName}}</strong>{{/if}}
-</a>
+
+
+{{! dectivation }}
+
+{{#notEq activation 'inactive'}}
+  <a class="coding-rules-bulk-change-dropdown-link" data-action="deactivate">
+    {{t 'coding_rules.deactivate_in'}}
+  </a>
+{{/notEq}}
+
+{{#if qualityProfile}}{{#eq activation 'inactive'}}
+  <a class="coding-rules-bulk-change-dropdown-link" data-action="deactivate" data-param="{{qualityProfile}}">
+    {{tp 'coding_rules.deactivate_in'}} <strong>{{qualityProfileName}}</strong>
+  </a>
+{{/eq}}{{/if}}
 
 {{#if singleLanguage}}
   <a class="coding-rules-bulk-change-dropdown-link" data-action="deactivate" data-param="<all>">
-    {{t 'coding_rules.deactivate_in_all_quality_profiles'}}
+    {{tp 'coding_rules.deactivate_in_all_quality_profiles' language}}
   </a>
 {{/if}}
 
-{{#if qualityProfile}}
+
+
+{{! severity }}
+
+{{#eq activation 'active'}}
   <a class="coding-rules-bulk-change-dropdown-link" data-action="change-severity">
     {{t 'coding_rules.change_severity_in'}} <strong>{{qualityProfileName}}</strong>
   </a>
-{{/if}}
+{{/eq}}

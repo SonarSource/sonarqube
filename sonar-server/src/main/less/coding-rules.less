@@ -41,6 +41,7 @@
 }
 
 .coding-rules-detail-header {
+  padding-right: 100px;
   font-size: 18px;
 }
 
@@ -73,6 +74,12 @@
   .coding-rules-detail-quality-profile-parameters,
   .coding-rules-detail-quality-profile-actions {
     vertical-align: middle;
+  }
+  .coding-rules-detail-quality-profile-name,
+  .coding-rules-detail-quality-profile-severity {
+    width: 1px;
+    padding-right: @navigatorPadding;
+    white-space: nowrap;
   }
   .coding-rules-detail-quality-profile-parameter {
     display: inline-block;
@@ -278,11 +285,12 @@
 .coding-rules-bulk-change-dropdown {
   position: fixed;
   z-index: 10;
-  top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight + @navigatorStatusHeight - 1px;
+  top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight + @navigatorFacetsHeight + @navigatorStatusHeight - 1px;
   left: @navigatorResultsWidth - 200px;
   width: 200px;
   border: 1px solid @navigatorBorderLightColor;
   .box-sizing(border-box);
+  box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5);
   background-color: #fff;
 }
 
