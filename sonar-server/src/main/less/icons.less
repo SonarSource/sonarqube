@@ -141,18 +141,23 @@ a[class^="icon-"], a[class*=" icon-"] {
  * Qualifier
  */
 
-.icon-qualifier-dir:before {
-  content: "\f07b";
+[class^="icon-qualifier-"], [class*=" icon-qualifier-"] {
+  color: @qualifierColor;
   font-size: @iconFontSize;
 }
-.icon-qualifier-fil:before {
-  content: "\f0f6";
-  font-size: @iconFontSize;
-}
-.icon-qualifier-lib:before {
-  content: "\e600";
-  font-size: @iconFontSize;
-}
+
+.icon-qualifier-dir:before,
+.icon-qualifier-pac:before { content: "\e603"; }
+.icon-qualifier-trk:before { content: "\e600"; }
+.icon-qualifier-brc:before { content: "\e607"; }
+.icon-qualifier-cla:before,
+.icon-qualifier-fil:before { content: "\e601"; }
+.icon-qualifier-uts:before { content: "\e602"; }
+.icon-qualifier-lib:before { content: "\e604"; }
+.icon-qualifier-vw:before,
+.icon-qualifier-svw:before { content: "\e605"; }
+.icon-qualifier-dev:before,
+.icon-qualifier-dev_prj:before { content: "\f007"; }
 
 
 /*

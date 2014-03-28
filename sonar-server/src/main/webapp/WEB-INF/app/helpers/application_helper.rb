@@ -103,7 +103,7 @@ module ApplicationHelper
   def qualifier_icon(object)
     qualifier=(object.respond_to?('qualifier') ? object.qualifier : object.to_s)
     if qualifier
-      image_tag Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceType(qualifier).getIconPath(), :alt => '', :size => '16x16'
+      "<i class=\"icon-qualifier-#{qualifier.downcase}\"></i>"
     else
       image_tag 'e16.gif'
     end
@@ -404,10 +404,10 @@ module ApplicationHelper
     resource_id=(resource.is_a?(Fixnum) ? resource : resource.permanent_id)
 
     if current_user.favourite?(resource_id)
-      css='fav'
+      css='icon-favorite'
       title=message('click_to_remove_from_favourites')
     else
-      css='notfav'
+      css='icon-not-favorite'
       title=message('click_to_add_to_favourites')
     end
     link_to_function '', "toggleFav(#{resource_id}, this)", :class => css, :title => title

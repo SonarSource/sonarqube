@@ -61,10 +61,8 @@
                       .html(' ' + highlightedName)
                       .appendTo(el);
 
-              $('<img>')
-                  .prop('src', baseUrl + qualifier.icon)
-                  .prop('width', 16)
-                  .prop('height', 16)
+              $('<i>')
+                  .addClass('icon-qualifier-' + qualifier.q.toLowerCase())
                   .prependTo(label);
 
               if (index === 0) {

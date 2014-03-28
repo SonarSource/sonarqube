@@ -76,10 +76,10 @@ module MeasuresHelper
 
   def measure_filter_star(filter, is_favourite)
     if is_favourite
-      style='fav'
+      style='icon-favorite'
       title=message('click_to_remove_from_favourites')
     else
-      style='notfav'
+      style='icon-not-favorite'
       title=message('click_to_add_to_favourites')
     end
 

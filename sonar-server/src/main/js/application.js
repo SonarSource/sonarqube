@@ -15,7 +15,7 @@ function toggleFav(resourceId, elt) {
   $j.ajax({type: 'POST', dataType: 'json', url: baseUrl + '/favourites/toggle/' + resourceId,
     success: function (data) {
       var star = $j(elt);
-      star.removeClass('fav notfav');
+      star.removeClass('icon-favorite icon-not-favorite');
       star.addClass(data['css']);
       star.attr('title', data['title']);
     }});

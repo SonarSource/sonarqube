@@ -36,7 +36,7 @@
   else {
     sonarRecentHistory.add('<%= escape_javascript(h(@resource.key)) -%>',
                            '<%= escape_javascript(h(@resource.name)) -%>',
-                           '<%= Api::Utils.java_facade.getResourceType(@resource.qualifier).getIconPath() -%>');
+                           '<%= escape_javascript @resource.qualifier.downcase -%>');
   }
   <% end %>
 
