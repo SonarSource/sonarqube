@@ -1,3 +1,6 @@
+@import "mixins";
+@import "variables";
+
 /*
  * SonarQube, open source software quality management tool.
  * Copyright (C) 2008-2014 SonarSource
@@ -1251,6 +1254,11 @@ div.autocomplete ul li img {
 
 div.autocomplete ul li.selected {
   background-color: #4b9fd5;
+  color: #fff;
+}
+
+div.autocomplete ul li.selected [class^="icon-qualifier-"],
+div.autocomplete ul li.selected [class*=" icon-qualifier-"] {
   color: #fff;
 }
 
