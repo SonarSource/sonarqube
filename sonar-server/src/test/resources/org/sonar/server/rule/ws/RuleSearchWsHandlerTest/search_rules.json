@@ -2,6 +2,7 @@
   "results": [
     {
       "key": "squid:AvoidCycle",
+      "repository": "squid",
       "name": "Avoid cycle",
       "language": "Java",
       "status": "READY",

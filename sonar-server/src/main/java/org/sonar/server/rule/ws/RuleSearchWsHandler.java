@@ -109,6 +109,7 @@ public class RuleSearchWsHandler implements RequestHandler {
     }
     json
       .prop("key", rule.ruleKey().toString())
+      .prop("repository", rule.ruleKey().repository())
       .prop("name", rule.name())
       .prop("language", languageName)
       .prop("status", rule.status())
