@@ -137,6 +137,9 @@ public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Start
     return age(locale, system2.now() - date.getTime());
   }
 
+  /**
+   * Format date for the given locale. JVM timezone is used.
+   */
   public String formatDateTime(Locale locale, Date date) {
     return DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.SHORT, locale).format(date);
   }

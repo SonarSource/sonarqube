@@ -29,21 +29,24 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.*;
 
 public class MeasureFilterFactory implements ServerComponent {
 
-  private MetricFinder metricFinder;
+  private final MetricFinder metricFinder;
+  private final System2 system;
 
-  public MeasureFilterFactory(MetricFinder metricFinder) {
+  public MeasureFilterFactory(MetricFinder metricFinder, System2 system) {
     this.metricFinder = metricFinder;
+    this.system = system;
   }
 
   public MeasureFilter create(Map<String, Object> properties) {
-
     MeasureFilter filter = new MeasureFilter();
     filter.setBaseResourceKey((String) properties.get("base"));
     filter.setResourceScopes(toList(properties.get("scopes")));
@@ -120,6 +123,7 @@ public class MeasureFilterFactory implements ServerComponent {
     }
   }
 
+  @CheckForNull
   private MeasureFilterCondition toCondition(Map<String, Object> props, int index) {
     MeasureFilterCondition condition = null;
     String metricKey = (String) props.get("c" + index + "_metric");
@@ -137,6 +141,7 @@ public class MeasureFilterFactory implements ServerComponent {
     return condition;
   }
 
+  @CheckForNull
   private MeasureFilterCondition alertToCondition(List<String> alertLevels) {
     if (alertLevels == null || alertLevels.isEmpty()) {
       return null;
@@ -171,17 +176,19 @@ public class MeasureFilterFactory implements ServerComponent {
     return result;
   }
 
-  private static Date toDate(@Nullable String date) {
+  @CheckForNull
+  private Date toDate(@Nullable String date) {
     if (date != null) {
       return DateUtils.parseDate(date);
     }
     return null;
   }
 
-  private static Date toDays(@Nullable String s) {
+  @CheckForNull
+  private Date toDays(@Nullable String s) {
     if (s != null) {
       int days = Integer.valueOf(s);
-      Date date = org.apache.commons.lang.time.DateUtils.truncate(new Date(), Calendar.DATE);
+      Date date = org.apache.commons.lang.time.DateUtils.truncate(new Date(system.now()), Calendar.DATE);
       date = org.apache.commons.lang.time.DateUtils.addDays(date, -days);
       return date;
     }

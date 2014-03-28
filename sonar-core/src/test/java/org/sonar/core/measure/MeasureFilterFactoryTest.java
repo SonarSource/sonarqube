@@ -27,8 +27,11 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -36,10 +39,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class MeasureFilterFactoryTest {
+
+  System2 system = mock(System2.class);
+
   @Test
   public void sort_on_measure_value() {
-    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder());
-    Map<String, Object> props = ImmutableMap.<String, Object> of("sort", "metric:ncloc");
+    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder(), system);
+    Map<String, Object> props = ImmutableMap.<String, Object>of("sort", "metric:ncloc");
     MeasureFilter filter = factory.create(props);
 
     assertThat(filter.sort().column()).isEqualTo("pmsort.value");
@@ -49,8 +55,8 @@ public class MeasureFilterFactoryTest {
 
   @Test
   public void sort_on_measure_variation() {
-    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder());
-    Map<String, Object> props = ImmutableMap.<String, Object> of("sort", "metric:ncloc:3");
+    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder(), system);
+    Map<String, Object> props = ImmutableMap.<String, Object>of("sort", "metric:ncloc:3");
     MeasureFilter filter = factory.create(props);
 
     assertThat(filter.sort().column()).isEqualTo("pmsort.variation_value_3");
@@ -60,8 +66,8 @@ public class MeasureFilterFactoryTest {
 
   @Test
   public void sort_on_name() {
-    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder());
-    Map<String, Object> props = ImmutableMap.<String, Object> of("sort", "name");
+    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder(), system);
+    Map<String, Object> props = ImmutableMap.<String, Object>of("sort", "name");
     MeasureFilter filter = factory.create(props);
 
     assertThat(filter.sort().column()).isEqualTo("p.long_name");
@@ -73,8 +79,8 @@ public class MeasureFilterFactoryTest {
   public void fallback_on_name_sort_when_metric_is_unknown() {
     MetricFinder finder = mock(MetricFinder.class);
     when(finder.findByKey(anyString())).thenReturn(null);
-    MeasureFilterFactory factory = new MeasureFilterFactory(finder);
-    Map<String, Object> props = ImmutableMap.<String, Object> of("sort", "metric:sqale_index");
+    MeasureFilterFactory factory = new MeasureFilterFactory(finder, system);
+    Map<String, Object> props = ImmutableMap.<String, Object>of("sort", "metric:sqale_index");
     MeasureFilter filter = factory.create(props);
 
     assertThat(filter.sort().column()).isEqualTo("p.long_name");
@@ -85,8 +91,8 @@ public class MeasureFilterFactoryTest {
 
   @Test
   public void descending_sort() {
-    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder());
-    Map<String, Object> props = ImmutableMap.<String, Object> of("asc", "false");
+    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder(), system);
+    Map<String, Object> props = ImmutableMap.<String, Object>of("asc", "false");
     MeasureFilter filter = factory.create(props);
 
     assertThat(filter.sort().column()).isEqualTo("p.long_name");
@@ -97,7 +103,7 @@ public class MeasureFilterFactoryTest {
 
   @Test
   public void ascending_sort_by_default() {
-    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder());
+    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder(), system);
     Map<String, Object> props = Maps.newHashMap();
     MeasureFilter filter = factory.create(props);
 
@@ -109,11 +115,11 @@ public class MeasureFilterFactoryTest {
 
   @Test
   public void date_conditions() {
-    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder());
-    Map<String, Object> props = ImmutableMap.<String, Object> of(
-        "fromDate", "2012-01-25",
-        "toDate", "2012-02-18"
-        );
+    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder(), system);
+    Map<String, Object> props = ImmutableMap.<String, Object>of(
+      "fromDate", "2012-01-25",
+      "toDate", "2012-02-18"
+    );
     MeasureFilter filter = factory.create(props);
 
     assertThat(DateUtils.formatDate(filter.getFromDate())).isEqualTo("2012-01-25");
@@ -122,28 +128,27 @@ public class MeasureFilterFactoryTest {
 
   @Test
   public void age_conditions() {
-    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder());
-    Map<String, Object> props = ImmutableMap.<String, Object> of(
-      "ageMaxDays", "50",
-      "ageMinDays", "3"
+    long today = DateUtils.parseDateTime("2013-05-18T11:00:00+0000").getTime();
+    when(system.now()).thenReturn(today);
+
+    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder(), system);
+    Map<String, Object> props = ImmutableMap.<String, Object>of(
+      "ageMaxDays", "3",
+      "ageMinDays", "1"
     );
     MeasureFilter filter = factory.create(props);
-
-    long today = org.apache.commons.lang.time.DateUtils.truncate(new Date(), Calendar.DATE).getTime();
-    long msFrom = today - filter.getFromDate().getTime();
-    long msTo = today - filter.getToDate().getTime();
-    assertThat(millisecondsToDays(msFrom)).isEqualTo(50);
-    assertThat(millisecondsToDays(msTo)).isEqualTo(3);
+    assertThat(DateUtils.formatDate(filter.getFromDate())).isEqualTo("2013-05-15");
+    assertThat(DateUtils.formatDate(filter.getToDate())).isEqualTo("2013-05-17");
   }
 
   @Test
   public void measure_value_condition() {
-    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder());
-    Map<String, Object> props = ImmutableMap.<String, Object> of(
-        "c1_metric", "complexity",
-        "c1_op", "gte",
-        "c1_val", "3.14"
-        );
+    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder(), system);
+    Map<String, Object> props = ImmutableMap.<String, Object>of(
+      "c1_metric", "complexity",
+      "c1_op", "gte",
+      "c1_val", "3.14"
+    );
     MeasureFilter filter = factory.create(props);
 
     List<MeasureFilterCondition> conditions = filter.getMeasureConditions();
@@ -156,13 +161,13 @@ public class MeasureFilterFactoryTest {
 
   @Test
   public void measure_variation_condition() {
-    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder());
-    Map<String, Object> props = ImmutableMap.<String, Object> of(
-        "c1_metric", "complexity",
-        "c1_op", "gte",
-        "c1_val", "3.14",
-        "c1_period", "3"
-        );
+    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder(), system);
+    Map<String, Object> props = ImmutableMap.<String, Object>of(
+      "c1_metric", "complexity",
+      "c1_op", "gte",
+      "c1_val", "3.14",
+      "c1_period", "3"
+    );
     MeasureFilter filter = factory.create(props);
 
     List<MeasureFilterCondition> conditions = filter.getMeasureConditions();
@@ -175,10 +180,10 @@ public class MeasureFilterFactoryTest {
 
   @Test
   public void alert_level_condition() {
-    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder());
-    Map<String, Object> props = ImmutableMap.<String, Object> of(
-        "alertLevels", Arrays.asList("error", "warn")
-        );
+    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder(), system);
+    Map<String, Object> props = ImmutableMap.<String, Object>of(
+      "alertLevels", Arrays.asList("error", "warn")
+    );
     MeasureFilter filter = factory.create(props);
 
     List<MeasureFilterCondition> conditions = filter.getMeasureConditions();
@@ -192,19 +197,15 @@ public class MeasureFilterFactoryTest {
 
   @Test
   public void ignore_partial_measure_condition() {
-    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder());
-    Map<String, Object> props = ImmutableMap.<String, Object> of(
-        "c1_op", "gte",
-        "c1_val", "3.14"
-        );
+    MeasureFilterFactory factory = new MeasureFilterFactory(newMetricFinder(), system);
+    Map<String, Object> props = ImmutableMap.<String, Object>of(
+      "c1_op", "gte",
+      "c1_val", "3.14"
+    );
     MeasureFilter filter = factory.create(props);
 
     List<MeasureFilterCondition> conditions = filter.getMeasureConditions();
     assertThat(conditions).isEmpty();
-  }
-
-  private int millisecondsToDays(long ms) {
-    return (int) (ms / (1000L * 60 * 60 * 24));
   }
 
   private MetricFinder newMetricFinder() {
