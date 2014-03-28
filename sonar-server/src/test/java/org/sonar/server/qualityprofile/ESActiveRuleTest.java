@@ -100,7 +100,7 @@ public class ESActiveRuleTest {
     esSetup.execute(
       EsSetup.index("rules", "rule", "1").withSource(testFileAsString("shared/rule1.json")),
       EsSetup.index("rules", "rule", "2").withSource(testFileAsString("shared/rule2.json")),
-      EsSetup.index("rules", "rule", "3").withSource(testFileAsString("shared/removed_rule.json"))
+      EsSetup.index("rules", "rule", "3").withSource(testFileAsString("shared/rule3.json"))
     );
   }
 
