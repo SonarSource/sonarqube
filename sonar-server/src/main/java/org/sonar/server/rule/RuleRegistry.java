@@ -27,9 +27,13 @@ import com.google.common.collect.Multimap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.elasticsearch.ElasticSearchException;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.io.BytesStream;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.BoolFilterBuilder;
@@ -196,20 +200,44 @@ public class RuleRegistry {
       }
     }
 
-    Paging paging = Paging.create(query.pageSize(), query.pageIndex());
-    SearchHits hits = searchIndex.executeRequest(
-      searchIndex.client().prepareSearch(INDEX_RULES).setTypes(TYPE_RULE)
-        .setPostFilter(mainFilter)
-        .addSort(RuleDocument.FIELD_NAME, SortOrder.ASC)
-        .setSize(paging.pageSize())
-        .setFrom(paging.offset())
-    );
-
     Builder<Rule> rulesBuilder = ImmutableList.builder();
-    for (SearchHit hit : hits.hits()) {
-      rulesBuilder.add(RuleDocumentParser.parse(hit.sourceAsMap()));
+    SearchRequestBuilder searchRequestBuilder =
+      searchIndex.client().prepareSearch(INDEX_RULES).setTypes(TYPE_RULE)
+      .setPostFilter(mainFilter)
+      .addSort(RuleDocument.FIELD_NAME, SortOrder.ASC);
+
+    if (RuleQuery.NO_PAGINATION == query.pageSize()) {
+      final int scrollTime = 100;
+      SearchResponse scrollResp = searchRequestBuilder
+        .setSearchType(SearchType.SCAN)
+        .setScroll(new TimeValue(scrollTime))
+        .setSize(50).execute().actionGet();
+      //Scroll until no hits are returned
+      while (true) {
+        scrollResp = searchIndex.client().prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(scrollTime)).execute().actionGet();
+        for (SearchHit hit : scrollResp.getHits()) {
+          rulesBuilder.add(RuleDocumentParser.parse(hit.sourceAsMap()));
+        }
+        //Break condition: No hits are returned
+        if (scrollResp.getHits().getHits().length == 0) {
+          break;
+        }
+      }
+      return new PagedResult<Rule>(rulesBuilder.build(), null);
+
+    } else {
+      Paging paging = Paging.create(query.pageSize(), query.pageIndex());
+      SearchHits hits = searchIndex.executeRequest(
+        searchRequestBuilder
+          .setSize(paging.pageSize())
+          .setFrom(paging.offset())
+      );
+
+      for (SearchHit hit : hits.hits()) {
+        rulesBuilder.add(RuleDocumentParser.parse(hit.sourceAsMap()));
+      }
+      return new PagedResult<Rule>(rulesBuilder.build(), PagingResult.create(paging.pageSize(), paging.pageIndex(), hits.getTotalHits()));
     }
-    return new PagedResult<Rule>(rulesBuilder.build(), PagingResult.create(paging.pageSize(), paging.pageIndex(), hits.getTotalHits()));
   }
 
   private static void addMustTermOrTerms(BoolFilterBuilder filter, String field, Collection<String> terms) {

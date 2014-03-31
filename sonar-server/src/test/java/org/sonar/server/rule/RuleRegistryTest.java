@@ -435,14 +435,14 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void find_linear() {
+  public void find_rules_with_all_remediation_function_types() {
     Map<Integer, CharacteristicDto> characteristics = newHashMap();
     characteristics.put(10, new CharacteristicDto().setId(10).setKey("REUSABILITY").setName("Reusability"));
     characteristics.put(11, new CharacteristicDto().setId(11).setKey("MODULARITY").setName("Modularity").setParentId(10));
 
     List<RuleDto> rules = ImmutableList.of(
       new RuleDto().setId(10).setRepositoryKey("repo").setRuleKey("key1").setSeverity(Severity.MINOR)
-        .setDefaultSubCharacteristicId(11).setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("1h").setDefaultRemediationOffset(""),
+        .setDefaultSubCharacteristicId(11).setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("1h"),
       new RuleDto().setId(11).setRepositoryKey("repo").setRuleKey("key2").setSeverity(Severity.MINOR)
         .setDefaultSubCharacteristicId(11).setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationOffset("15min"),
       new RuleDto().setId(12).setRepositoryKey("repo").setRuleKey("key3").setSeverity(Severity.MINOR)
@@ -451,7 +451,12 @@ public class RuleRegistryTest {
 
     registry.bulkRegisterRules(rules, characteristics, ArrayListMultimap.<Integer, RuleParamDto>create(), ArrayListMultimap.<Integer, RuleRuleTagDto>create());
 
-    assertThat(registry.find(RuleQuery.builder().hasDebtCharacteristic(null).build()).results()).hasSize(3);
+    assertThat(registry.find(RuleQuery.builder().build()).results()).hasSize(3);
+  }
+
+  @Test
+  public void find_with_no_pagination() {
+    assertThat(registry.find(RuleQuery.builder().pageSize(-1).build()).results()).hasSize(2);
   }
 
   private String testFileAsString(String testFile) throws Exception {

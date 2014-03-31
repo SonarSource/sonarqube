@@ -34,6 +34,7 @@ public class RuleQuery {
 
   private static final int DEFAULT_PAGE_INDEX = 1;
   private static final int DEFAULT_PAGE_SIZE = 25;
+  public static final int NO_PAGINATION = -1;
 
   private String key;
   private String query;
