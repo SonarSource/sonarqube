@@ -6,7 +6,7 @@
          status="READY" priority="2" cardinality="SINGLE" parent_id="[null]"
          characteristic_id="[null]" default_characteristic_id="200"
          remediation_function="[null]" default_remediation_function="LINEAR"
-         remediation_factor="[null]" default_remediation_factor="14min"
+         remediation_coeff="[null]" default_remediation_coeff="14min"
          remediation_offset="[null]" default_remediation_offset="[null]"
          effort_to_fix_description="squid.S1115.effortTotFix"/>
 

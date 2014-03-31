@@ -25,7 +25,7 @@
          note_data="[null]" note_user_login="[null]" note_created_at="[null]" note_updated_at="[null]"
          characteristic_id="100" default_characteristic_id="101"
          remediation_function="linear" default_remediation_function="linear_offset"
-         remediation_factor="1h" default_remediation_factor="5d"
+         remediation_coeff="1h" default_remediation_coeff="5d"
          remediation_offset="5min" default_remediation_offset="10h"
          effort_to_fix_description="squid.S115.effortToFix"
       />
@@ -35,7 +35,7 @@
          note_data="[null]" note_user_login="[null]" note_created_at="[null]" note_updated_at="[null]"
          characteristic_id="102" default_characteristic_id="103"
          remediation_function="linear_offset" default_remediation_function="linear"
-         remediation_factor="5d" default_remediation_factor="1h"
+         remediation_coeff="5d" default_remediation_coeff="1h"
          remediation_offset="10h" default_remediation_offset="5min"
          effort_to_fix_description="squid.S115.effortToFix2"
       />

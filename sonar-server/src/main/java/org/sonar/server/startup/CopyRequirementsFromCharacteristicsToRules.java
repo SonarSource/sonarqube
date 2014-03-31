@@ -117,8 +117,8 @@ public class CopyRequirementsFromCharacteristicsToRules {
   private static class RuleInputLoader implements MassUpdater.InputLoader<RuleRow>{
     @Override
     public String selectSql() {
-      return "SELECT r.id,r.characteristic_id,r.remediation_function,r.remediation_factor,r.remediation_offset," +
-        "r.default_characteristic_id,r.default_remediation_function,r.default_remediation_factor,r.default_remediation_offset,r.status " +
+      return "SELECT r.id,r.characteristic_id,r.remediation_function,r.remediation_coeff,r.remediation_offset," +
+        "r.default_characteristic_id,r.default_remediation_function,r.default_remediation_coeff,r.default_remediation_offset,r.status " +
         "FROM rules r";
     }
 
@@ -151,7 +151,7 @@ public class CopyRequirementsFromCharacteristicsToRules {
 
     @Override
     public String updateSql() {
-      return "UPDATE rules SET characteristic_id=?,remediation_function=?,remediation_factor=?,remediation_offset=?,updated_at=? WHERE id=?";
+      return "UPDATE rules SET characteristic_id=?,remediation_function=?,remediation_coeff=?,remediation_offset=?,updated_at=? WHERE id=?";
     }
 
     @Override

@@ -23,8 +23,8 @@
     r.default_characteristic_id as "defaultSubCharacteristicId",
     r.remediation_function as "remediationFunction",
     r.default_remediation_function as "defaultRemediationFunction",
-    r.remediation_factor as "remediationCoefficient",
-    r.default_remediation_factor as "defaultRemediationCoefficient",
+    r.remediation_coeff as "remediationCoefficient",
+    r.default_remediation_coeff as "defaultRemediationCoefficient",
     r.remediation_offset as "remediationOffset",
     r.default_remediation_offset as "defaultRemediationOffset",
     r.effort_to_fix_description as "effortToFixDescription",
@@ -84,8 +84,8 @@
     default_characteristic_id=#{defaultSubCharacteristicId},
     remediation_function=#{remediationFunction},
     default_remediation_function=#{defaultRemediationFunction},
-    remediation_factor=#{remediationCoefficient},
-    default_remediation_factor=#{defaultRemediationCoefficient},
+    remediation_coeff=#{remediationCoefficient},
+    default_remediation_coeff=#{defaultRemediationCoefficient},
     remediation_offset=#{remediationOffset},
     default_remediation_offset=#{defaultRemediationOffset},
     effort_to_fix_description=#{effortToFixDescription},
@@ -96,7 +96,7 @@
   <sql id="insertColumns">
     (plugin_rule_key, plugin_name, description, status, name, plugin_config_key, priority, cardinality, language, parent_id,
     characteristic_id, default_characteristic_id, remediation_function, default_remediation_function,
-    remediation_factor, default_remediation_factor, remediation_offset, default_remediation_offset,
+    remediation_coeff, default_remediation_coeff, remediation_offset, default_remediation_offset,
     effort_to_fix_description,
     created_at, updated_at)
   </sql>

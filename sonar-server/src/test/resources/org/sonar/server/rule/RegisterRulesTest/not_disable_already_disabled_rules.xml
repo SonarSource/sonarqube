@@ -6,7 +6,7 @@
          status="REMOVED" priority="4" cardinality="SINGLE" parent_id="[null]"
          characteristic_id="[null]" default_characteristic_id="[null]"
          remediation_function="[null]" default_remediation_function="[null]"
-         remediation_factor="[null]" default_remediation_factor="[null]"
+         remediation_coeff="[null]" default_remediation_coeff="[null]"
          remediation_offset="[null]" default_remediation_offset="[null]"
          effort_to_fix_description="[null]"
          updated_at="2014-03-16"/>
@@ -15,7 +15,7 @@
          status="REMOVED" priority="4" cardinality="SINGLE" parent_id="[null]"
          characteristic_id="[null]" default_characteristic_id="[null]"
          remediation_function="[null]" default_remediation_function="[null]"
-         remediation_factor="[null]" default_remediation_factor="[null]"
+         remediation_coeff="[null]" default_remediation_coeff="[null]"
          remediation_offset="[null]" default_remediation_offset="[null]"
          effort_to_fix_description="[null]"
          updated_at="2014-03-16"/>
