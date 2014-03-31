@@ -154,22 +154,32 @@ a[class^="icon-"], a[class*=" icon-"] {
 [class^="icon-qualifier-"], [class*=" icon-qualifier-"] {
   position: relative;
   top: -1px;
-  color: @qualifierColor;
+  color: @baseFontColor;
   font-size: @iconFontSize;
 }
 
 .icon-qualifier-dir:before,
-.icon-qualifier-pac:before { content: "\f07b"; }
+.icon-qualifier-pac:before { content: "\f114"; }
 .icon-qualifier-trk:before,
-.icon-qualifier-dev_prj:before { content: "\f0b1"; }
-.icon-qualifier-brc:before { content: "\f02d"; }
+.icon-qualifier-brc:before,
+.icon-qualifier-dev_prj:before { content: "\e600"; }
 .icon-qualifier-cla:before,
 .icon-qualifier-fil:before { content: "\f0f6"; }
 .icon-qualifier-uts:before { content: "\e602"; }
 .icon-qualifier-lib:before { content: "\e604"; }
 .icon-qualifier-vw:before,
-.icon-qualifier-svw:before { content: "\e600"; }
+.icon-qualifier-svw:before { content: "\e608"; }
 .icon-qualifier-dev:before { content: "\f007"; }
+
+.icon-qualifier-dir:before,
+.icon-qualifier-pac:before { color: @orange; }
+.icon-qualifier-dev:before { color: darken(@green, 10%); }
+.icon-qualifier-uts:before { color: darken(@purple, 10%); }
+.icon-qualifier-cla:before,
+.icon-qualifier-fil:before { color: darken(@blue, 10%); }
+.icon-qualifier-trk:before,
+.icon-qualifier-brc:before,
+.icon-qualifier-dev_prj:before { color: darken(@blue, 20%); }
 
 
 /*
