@@ -20,10 +20,12 @@
 
 package org.sonar.server.rule;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.Multimap;
 import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.session.SqlSession;
 import org.elasticsearch.ElasticSearchException;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
@@ -40,7 +42,9 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.TimeProfiler;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.*;
+import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.es.ESIndex;
 import org.sonar.server.es.SearchQuery;
@@ -59,6 +63,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 import static org.elasticsearch.index.query.FilterBuilders.*;
 import static org.sonar.api.rules.Rule.STATUS_REMOVED;
 
@@ -75,15 +80,46 @@ public class RuleRegistry {
   private static final String PARAM_STATUS = "status";
 
   private final ESIndex searchIndex;
+  private final MyBatis myBatis;
   private final RuleDao ruleDao;
+  private final CharacteristicDao characteristicDao;
 
-  public RuleRegistry(ESIndex searchIndex, RuleDao ruleDao) {
+  public RuleRegistry(ESIndex searchIndex, MyBatis myBatis, RuleDao ruleDao, CharacteristicDao characteristicDao) {
     this.searchIndex = searchIndex;
+    this.myBatis = myBatis;
     this.ruleDao = ruleDao;
+    this.characteristicDao = characteristicDao;
   }
 
   public void start() {
     searchIndex.addMappingFromClasspath(INDEX_RULES, TYPE_RULE, "/org/sonar/server/es/config/mappings/rule_mapping.json");
+  }
+
+  public void reindexRules() {
+    SqlSession sqlSession = myBatis.openSession();
+    try {
+      Multimap<Integer, RuleParamDto> paramsByRuleId = ArrayListMultimap.create();
+      Multimap<Integer, RuleRuleTagDto> tagsByRuleId = ArrayListMultimap.create();
+      Map<Integer, CharacteristicDto> characteristicsById = newHashMap();
+
+      for (RuleParamDto paramDto : ruleDao.selectParameters(sqlSession)) {
+        paramsByRuleId.put(paramDto.getRuleId(), paramDto);
+      }
+      for (RuleRuleTagDto tagDto : ruleDao.selectTags(sqlSession)) {
+        tagsByRuleId.put(tagDto.getRuleId(), tagDto);
+      }
+      for (CharacteristicDto characteristicDto : characteristicDao.selectEnabledCharacteristics(sqlSession)) {
+        characteristicsById.put(characteristicDto.getId(), characteristicDto);
+      }
+
+      bulkIndexRules(
+        ruleDao.selectEnablesAndNonManual(sqlSession),
+        characteristicsById,
+        paramsByRuleId,
+        tagsByRuleId);
+    } finally {
+      sqlSession.close();
+    }
   }
 
   public void bulkRegisterRules(Collection<RuleDto> rules, Map<Integer, CharacteristicDto> characteristicByRule, Multimap<Integer, RuleParamDto> paramsByRule,

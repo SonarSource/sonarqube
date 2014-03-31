@@ -38,6 +38,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.rule.*;
+import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.es.ESIndex;
 import org.sonar.server.es.ESNode;
@@ -51,8 +52,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RuleRegistryTest {
@@ -62,10 +62,13 @@ public class RuleRegistryTest {
   ESIndex searchIndex;
 
   @Mock
+  MyBatis myBatis;
+
+  @Mock
   RuleDao ruleDao;
 
   @Mock
-  MyBatis myBatis;
+  CharacteristicDao characteristicDao;
 
   @Mock
   SqlSession session;
@@ -89,7 +92,7 @@ public class RuleRegistryTest {
     searchIndex = new ESIndex(node, profiling);
     searchIndex.start();
 
-    registry = new RuleRegistry(searchIndex, ruleDao);
+    registry = new RuleRegistry(searchIndex, myBatis, ruleDao, characteristicDao);
     registry.start();
 
     esSetup.execute(
@@ -229,6 +232,19 @@ public class RuleRegistryTest {
     Map<String, Object> rule2Document = esSetup.client().prepareGet("rules", "rule", Integer.toString(ruleId2)).execute().actionGet().getSourceAsMap();
     assertThat((List<String>) rule2Document.get(RuleDocument.FIELD_SYSTEM_TAGS)).hasSize(2);
     assertThat((List<String>) rule2Document.get(RuleDocument.FIELD_ADMIN_TAGS)).hasSize(1);
+  }
+
+  @Test
+  public void reindex_all_rules() {
+    SqlSession session = mock(SqlSession.class);
+    when(myBatis.openSession()).thenReturn(session);
+
+    registry.reindexRules();
+
+    verify(ruleDao).selectEnablesAndNonManual(session);
+    verify(ruleDao).selectParameters(session);
+    verify(ruleDao).selectTags(session);
+    verify(characteristicDao).selectEnabledCharacteristics(session);
   }
 
   @Test

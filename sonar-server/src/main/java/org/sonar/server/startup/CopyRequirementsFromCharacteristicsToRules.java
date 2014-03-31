@@ -40,6 +40,7 @@ import org.sonar.core.technicaldebt.db.RequirementDto;
 import org.sonar.server.db.migrations.MassUpdater;
 import org.sonar.server.db.migrations.SqlUtil;
 import org.sonar.server.rule.RegisterRules;
+import org.sonar.server.rule.RuleRegistry;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -68,37 +69,44 @@ public class CopyRequirementsFromCharacteristicsToRules {
 
   private final RequirementDao requirementDao;
 
+  private final RuleRegistry ruleRegistry;
+
   /**
    * @param registerRules used only to be started after init of rules
    */
-  public CopyRequirementsFromCharacteristicsToRules(Database database, RequirementDao requirementDao, ServerUpgradeStatus status, RegisterRules registerRules) {
-    this(database, requirementDao, status, System2.INSTANCE);
+  public CopyRequirementsFromCharacteristicsToRules(Database database, RequirementDao requirementDao, ServerUpgradeStatus status, RuleRegistry ruleRegistry,
+                                                    RegisterRules registerRules) {
+    this(database, requirementDao, ruleRegistry, status, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  CopyRequirementsFromCharacteristicsToRules(Database database, RequirementDao requirementDao, ServerUpgradeStatus status, System2 system2) {
+  CopyRequirementsFromCharacteristicsToRules(Database database, RequirementDao requirementDao, RuleRegistry ruleRegistry, ServerUpgradeStatus status, System2 system2) {
     this.db = database;
     this.system2 = system2;
     this.status = status;
     this.requirementDao = requirementDao;
+    this.ruleRegistry = ruleRegistry;
   }
 
   public void start() {
-    if (mustDoPurge()) {
-      doPurge();
+    if (mustDoExecute()) {
+      doExecute();
     }
   }
 
-  private boolean mustDoPurge() {
+  private boolean mustDoExecute() {
     return status.isUpgraded() && status.getInitialDbVersion() <= 520;
   }
 
-  private void doPurge() {
+  private void doExecute() {
     LOGGER.info("Copying requirement from characteristics to rules");
     copyRequirementsFromCharacteristicsToRules();
 
     LOGGER.info("Deleting requirements data");
     removeRequirementsDataFromCharacteristics();
+
+    LOGGER.info("Reindex rules in E/S");
+    ruleRegistry.reindexRules();
   }
 
   private void copyRequirementsFromCharacteristicsToRules() {

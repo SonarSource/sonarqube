@@ -92,7 +92,7 @@ public class ESActiveRuleTest {
     searchIndex = new ESIndex(node, profiling);
     searchIndex.start();
 
-    RuleRegistry esRule = new RuleRegistry(searchIndex, null);
+    RuleRegistry esRule = new RuleRegistry(searchIndex, null, null, null);
     esRule.start();
     esActiveRule = new ESActiveRule(searchIndex, activeRuleDao, myBatis, profiling);
     esActiveRule.start();

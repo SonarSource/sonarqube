@@ -31,8 +31,10 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.TestDatabase;
 import org.sonar.core.technicaldebt.db.RequirementDao;
+import org.sonar.server.rule.RuleRegistry;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -47,12 +49,15 @@ public class CopyRequirementsFromCharacteristicsToRulesTest extends AbstractDaoT
   @Mock
   System2 system2;
 
+  @Mock
+  RuleRegistry ruleRegistry;
+
   CopyRequirementsFromCharacteristicsToRules service;
 
   @Before
   public void setUp() throws Exception {
     when(system2.now()).thenReturn(DateUtils.parseDateTime("2014-03-13T19:10:03+0100").getTime());
-    service = new CopyRequirementsFromCharacteristicsToRules(db.database(), new RequirementDao(getMyBatis()), status, system2);
+    service = new CopyRequirementsFromCharacteristicsToRules(db.database(), new RequirementDao(getMyBatis()), ruleRegistry, status, system2);
   }
 
   @Test
@@ -66,6 +71,7 @@ public class CopyRequirementsFromCharacteristicsToRulesTest extends AbstractDaoT
     service.start();
 
     db.assertDbUnit(getClass(), "copy_requirements_from_characteristics_to_rules_result.xml", "rules");
+    verify(ruleRegistry).reindexRules();
   }
 
   @Test
@@ -78,6 +84,7 @@ public class CopyRequirementsFromCharacteristicsToRulesTest extends AbstractDaoT
     service.start();
 
     db.assertDbUnit(getClass(), "remove_requirements_data_from_characteristics_result.xml", "characteristics");
+    verify(ruleRegistry).reindexRules();
   }
 
   @Test

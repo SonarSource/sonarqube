@@ -107,12 +107,8 @@ public class RegisterRules implements Startable {
     try {
       RulesDefinition.Context context = defLoader.load();
       Buffer buffer = new Buffer(system.now());
-      List<CharacteristicDto> characteristicDtos = characteristicDao.selectEnabledCharacteristics();
-      for (CharacteristicDto characteristicDto : characteristicDtos) {
-        buffer.add(characteristicDto);
-      }
       selectRulesFromDb(buffer, sqlSession);
-      enableRuleDefinitions(context, buffer, characteristicDtos, sqlSession);
+      enableRuleDefinitions(context, buffer, sqlSession);
       List<RuleDto> removedRules = processRemainingDbRules(buffer, sqlSession);
       removeActiveRulesOnStillExistingRepositories(removedRules, context);
       index(buffer);
@@ -144,29 +140,32 @@ public class RegisterRules implements Startable {
     for (RuleRuleTagDto tagDto : ruleDao.selectTags(sqlSession)) {
       buffer.add(tagDto);
     }
+    for (CharacteristicDto characteristicDto : characteristicDao.selectEnabledCharacteristics()) {
+      buffer.add(characteristicDto);
+    }
   }
 
-  private void enableRuleDefinitions(RulesDefinition.Context context, Buffer buffer, List<CharacteristicDto> characteristicDtos, SqlSession sqlSession) {
+  private void enableRuleDefinitions(RulesDefinition.Context context, Buffer buffer, SqlSession sqlSession) {
     for (RulesDefinition.Repository repoDef : context.repositories()) {
-      enableRepository(buffer, sqlSession, repoDef, characteristicDtos);
+      enableRepository(buffer, sqlSession, repoDef);
     }
     for (RulesDefinition.ExtendedRepository extendedRepoDef : context.extendedRepositories()) {
       if (context.repository(extendedRepoDef.key()) == null) {
         LOG.warn(String.format("Extension is ignored, repository %s does not exist", extendedRepoDef.key()));
       } else {
-        enableRepository(buffer, sqlSession, extendedRepoDef, characteristicDtos);
+        enableRepository(buffer, sqlSession, extendedRepoDef);
       }
     }
   }
 
-  private void enableRepository(Buffer buffer, SqlSession sqlSession, RulesDefinition.ExtendedRepository repoDef, List<CharacteristicDto> characteristicDtos) {
+  private void enableRepository(Buffer buffer, SqlSession sqlSession, RulesDefinition.ExtendedRepository repoDef) {
     int count = 0;
     for (RulesDefinition.Rule ruleDef : repoDef.rules()) {
       RuleDto dto = buffer.rule(RuleKey.of(ruleDef.repository().key(), ruleDef.key()));
       if (dto == null) {
-        dto = enableAndInsert(buffer, sqlSession, ruleDef, characteristicDtos);
+        dto = enableAndInsert(buffer, sqlSession, ruleDef);
       } else {
-        enableAndUpdate(buffer, sqlSession, ruleDef, dto, characteristicDtos);
+        enableAndUpdate(buffer, sqlSession, ruleDef, dto);
       }
       buffer.markProcessed(dto);
       count++;
@@ -177,7 +176,7 @@ public class RegisterRules implements Startable {
     sqlSession.commit();
   }
 
-  private RuleDto enableAndInsert(Buffer buffer, SqlSession sqlSession, RulesDefinition.Rule ruleDef, List<CharacteristicDto> characteristicDtos) {
+  private RuleDto enableAndInsert(Buffer buffer, SqlSession sqlSession, RulesDefinition.Rule ruleDef) {
     RuleDto ruleDto = new RuleDto()
       .setCardinality(ruleDef.template() ? Cardinality.MULTIPLE : Cardinality.SINGLE)
       .setConfigKey(ruleDef.internalKey())
@@ -191,7 +190,7 @@ public class RegisterRules implements Startable {
       .setUpdatedAt(buffer.now())
       .setStatus(ruleDef.status().name());
 
-    CharacteristicDto characteristic = findCharacteristic(ruleDef, null, characteristicDtos);
+    CharacteristicDto characteristic = buffer.characteristic(ruleDef.debtSubCharacteristic(), ruleDef.repository().key(), ruleDef.key(), null);
     DebtRemediationFunction remediationFunction = ruleDef.debtRemediationFunction();
     if (characteristic != null && remediationFunction != null) {
       ruleDto.setDefaultSubCharacteristicId(characteristic.getId())
@@ -218,8 +217,8 @@ public class RegisterRules implements Startable {
     return ruleDto;
   }
 
-  private void enableAndUpdate(Buffer buffer, SqlSession sqlSession, RulesDefinition.Rule ruleDef, RuleDto dto, List<CharacteristicDto> characteristicDtos) {
-    if (mergeRule(buffer, ruleDef, dto, characteristicDtos)) {
+  private void enableAndUpdate(Buffer buffer, SqlSession sqlSession, RulesDefinition.Rule ruleDef, RuleDto dto) {
+    if (mergeRule(buffer, ruleDef, dto)) {
       ruleDao.update(dto);
     }
     mergeParams(buffer, sqlSession, ruleDef, dto);
@@ -227,7 +226,7 @@ public class RegisterRules implements Startable {
     buffer.markProcessed(dto);
   }
 
-  private boolean mergeRule(Buffer buffer, RulesDefinition.Rule def, RuleDto dto, List<CharacteristicDto> characteristicDtos) {
+  private boolean mergeRule(Buffer buffer, RulesDefinition.Rule def, RuleDto dto) {
     boolean changed = false;
     if (!StringUtils.equals(dto.getName(), def.name())) {
       dto.setName(def.name());
@@ -260,17 +259,17 @@ public class RegisterRules implements Startable {
       dto.setLanguage(def.repository().language());
       changed = true;
     }
-    changed = mergeDebtDefinitions(def, dto, characteristicDtos) || changed;
+    CharacteristicDto characteristic = buffer.characteristic(def.debtSubCharacteristic(), def.repository().key(), def.key(), dto.getSubCharacteristicId());
+    changed = mergeDebtDefinitions(def, dto, characteristic) || changed;
     if (changed) {
       dto.setUpdatedAt(buffer.now());
     }
     return changed;
   }
 
-  private boolean mergeDebtDefinitions(RulesDefinition.Rule def, RuleDto dto, List<CharacteristicDto> characteristicDtos) {
+  private boolean mergeDebtDefinitions(RulesDefinition.Rule def, RuleDto dto, @Nullable CharacteristicDto characteristic) {
     boolean changed = false;
 
-    CharacteristicDto characteristic = findCharacteristic(def, dto.getSubCharacteristicId(), characteristicDtos);
     // Debt definitions are set to null if the characteristic is null or unknown
     boolean hasCharacteristic = characteristic != null;
     DebtRemediationFunction debtRemediationFunction = characteristic != null ? def.debtRemediationFunction() : null;
@@ -553,34 +552,32 @@ public class RegisterRules implements Startable {
     void markProcessed(RuleDto ruleDto) {
       unprocessedRuleIds.remove(ruleDto.getId());
     }
-  }
 
-  @CheckForNull
-  private CharacteristicDto findCharacteristic(RulesDefinition.Rule ruleDef, @Nullable Integer overridingCharacteristicId, List<CharacteristicDto> characteristicDtos) {
-    String key = ruleDef.debtSubCharacteristic();
-    // Rule is not linked to a default characteristic or characteristic has been disabled by user, nothing to do
-    if (key == null) {
-      return null;
-    }
-    CharacteristicDto characteristicDto = findCharacteristic(key, characteristicDtos);
-    if (characteristicDto == null) {
-      // Log a warning only if rule has not been overridden by user
-      if (overridingCharacteristicId == null) {
-        LOG.warn(String.format("Characteristic '%s' has not been found on rule '%s:%s'", key, ruleDef.repository().key(), ruleDef.key()));
+    CharacteristicDto characteristic(@Nullable String subCharacteristic, String repo, String ruleKey, @Nullable Integer overridingCharacteristicId){
+      // Rule is not linked to a default characteristic or characteristic has been disabled by user
+      if (subCharacteristic == null) {
+        return null;
       }
-    } else if (characteristicDto.getParentId() == null) {
-      throw MessageException.of(String.format("Rule '%s:%s' cannot be linked on the root characteristic '%s'", ruleDef.repository().key(), ruleDef.key(), key));
+      CharacteristicDto characteristicDto = findCharacteristic(subCharacteristic);
+      if (characteristicDto == null) {
+        // Log a warning only if rule has not been overridden by user
+        if (overridingCharacteristicId == null) {
+          LOG.warn(String.format("Characteristic '%s' has not been found on rule '%s:%s'", subCharacteristic, repo, ruleKey));
+        }
+      } else if (characteristicDto.getParentId() == null) {
+        throw MessageException.of(String.format("Rule '%s:%s' cannot be linked on the root characteristic '%s'", repo, ruleKey, subCharacteristic));
+      }
+      return characteristicDto;
     }
-    return characteristicDto;
-  }
 
-  @CheckForNull
-  private CharacteristicDto findCharacteristic(final String key, List<CharacteristicDto> characteristicDtos) {
-    return Iterables.find(characteristicDtos, new Predicate<CharacteristicDto>() {
-      @Override
-      public boolean apply(CharacteristicDto input) {
-        return key.equals(input.getKey());
-      }
-    }, null);
+    @CheckForNull
+    private CharacteristicDto findCharacteristic(final String key) {
+      return Iterables.find(characteristicsById.values(), new Predicate<CharacteristicDto>() {
+        @Override
+        public boolean apply(@Nullable CharacteristicDto input) {
+          return input != null && key.equals(input.getKey());
+        }
+      }, null);
+    }
   }
 }
