@@ -1,12 +1,12 @@
 {{! activation }}
 
-{{#notEq activation 'active'}}
+{{#notEq activation 'inactive'}}
   <a class="coding-rules-bulk-change-dropdown-link" data-action="activate">
     {{t 'coding_rules.activate_in'}}
   </a>
 {{/notEq}}
 
-{{#eq activation 'active'}}
+{{#eq activation 'inactive'}}
   <a class="coding-rules-bulk-change-dropdown-link" data-action="activate" data-param="{{qualityProfile}}">
     {{t 'coding_rules.activate_in'}} <strong>{{qualityProfileName}}</strong>
   </a>
@@ -22,17 +22,17 @@
 
 {{! dectivation }}
 
-{{#notEq activation 'inactive'}}
+{{#notEq activation 'active'}}
   <a class="coding-rules-bulk-change-dropdown-link" data-action="deactivate">
     {{t 'coding_rules.deactivate_in'}}
   </a>
 {{/notEq}}
 
-{{#if qualityProfile}}{{#eq activation 'inactive'}}
+{{#eq activation 'active'}}
   <a class="coding-rules-bulk-change-dropdown-link" data-action="deactivate" data-param="{{qualityProfile}}">
     {{tp 'coding_rules.deactivate_in'}} <strong>{{qualityProfileName}}</strong>
   </a>
-{{/eq}}{{/if}}
+{{/eq}}
 
 {{#if singleLanguage}}
   <a class="coding-rules-bulk-change-dropdown-link" data-action="deactivate" data-param="<all>">
