@@ -86,7 +86,7 @@ public class RuleRegistry {
     searchIndex.addMappingFromClasspath(INDEX_RULES, TYPE_RULE, "/org/sonar/server/es/config/mappings/rule_mapping.json");
   }
 
-  public void bulkRegisterRules(Collection<RuleDto> rules,Map<Integer, CharacteristicDto> characteristicByRule, Multimap<Integer, RuleParamDto> paramsByRule,
+  public void bulkRegisterRules(Collection<RuleDto> rules, Map<Integer, CharacteristicDto> characteristicByRule, Multimap<Integer, RuleParamDto> paramsByRule,
                                 Multimap<Integer, RuleRuleTagDto> tagsByRule) {
     String[] ids = bulkIndexRules(rules, characteristicByRule, paramsByRule, tagsByRule);
     removeDeletedRules(ids);
@@ -289,6 +289,7 @@ public class RuleRegistry {
       .field(RuleDocument.FIELD_CREATED_AT, rule.getCreatedAt())
       .field(RuleDocument.FIELD_UPDATED_AT, rule.getUpdatedAt());
     if (characteristicDto != null && subCharacteristicDto != null) {
+      boolean isFunctionOverridden = rule.getRemediationFunction() != null;
       document
         .field(RuleDocument.FIELD_CHARACTERISTIC_ID, characteristicDto.getId())
         .field(RuleDocument.FIELD_CHARACTERISTIC_KEY, characteristicDto.getKey())
@@ -296,9 +297,9 @@ public class RuleRegistry {
         .field(RuleDocument.FIELD_SUB_CHARACTERISTIC_ID, subCharacteristicDto.getId())
         .field(RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY, subCharacteristicDto.getKey())
         .field(RuleDocument.FIELD_SUB_CHARACTERISTIC_NAME, subCharacteristicDto.getName())
-        .field(RuleDocument.FIELD_REMEDIATION_FUNCTION, rule.getRemediationFunction() != null ? rule.getRemediationFunction() : rule.getDefaultRemediationFunction())
-        .field(RuleDocument.FIELD_REMEDIATION_COEFFICIENT, rule.getRemediationCoefficient() != null ? rule.getRemediationCoefficient() : rule.getDefaultRemediationCoefficient())
-        .field(RuleDocument.FIELD_REMEDIATION_OFFSET, rule.getRemediationOffset() != null ? rule.getRemediationOffset() : rule.getDefaultRemediationOffset());
+        .field(RuleDocument.FIELD_REMEDIATION_FUNCTION, isFunctionOverridden ? rule.getRemediationFunction() : rule.getDefaultRemediationFunction())
+        .field(RuleDocument.FIELD_REMEDIATION_COEFFICIENT, isFunctionOverridden ? rule.getRemediationCoefficient() : rule.getDefaultRemediationCoefficient())
+        .field(RuleDocument.FIELD_REMEDIATION_OFFSET, isFunctionOverridden ? rule.getRemediationOffset() : rule.getDefaultRemediationOffset());
     }
 
     if (rule.getNoteData() != null || rule.getNoteUserLogin() != null) {

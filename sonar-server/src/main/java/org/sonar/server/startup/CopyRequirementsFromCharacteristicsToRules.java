@@ -173,7 +173,7 @@ public class CopyRequirementsFromCharacteristicsToRules {
       }, null);
 
       if (enabledRequirement == null && !Rule.STATUS_REMOVED.equals(ruleRow.getStatus())) {
-        // If no requirements are enable, it means that the requirement has been disabled for this rule
+        // If no enabled requirement is found, it means that the requirement has been disabled for this rule
         updateStatement.setInt(1, RuleDto.DISABLED_CHARACTERISTIC_ID);
         updateStatement.setNull(2, Types.VARCHAR);
         updateStatement.setNull(3, Types.VARCHAR);

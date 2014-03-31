@@ -23,6 +23,8 @@ package org.sonar.server.rule;
 import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
+import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.api.server.rule.RuleParamType;
 
 import java.util.Date;
@@ -51,6 +53,24 @@ public class RuleDocumentParser {
       .setTemplateId((Integer) ruleSource.get(RuleDocument.FIELD_TEMPLATE_ID))
       .setCreatedAt(parseOptionalDate(RuleDocument.FIELD_CREATED_AT, ruleSource))
       .setUpdatedAt(parseOptionalDate(RuleDocument.FIELD_UPDATED_AT, ruleSource));
+
+    if (ruleSource.containsKey(RuleDocument.FIELD_CHARACTERISTIC_KEY)) {
+      try {
+        ruleBuilder
+          .setDebtCharacteristicKey((String) ruleSource.get(RuleDocument.FIELD_CHARACTERISTIC_KEY))
+          .setDebtCharacteristicName((String) ruleSource.get(RuleDocument.FIELD_CHARACTERISTIC_NAME))
+          .setDebtSubCharacteristicKey((String) ruleSource.get(RuleDocument.FIELD_CHARACTERISTIC_KEY))
+          .setDebtSubCharacteristicName((String) ruleSource.get(RuleDocument.FIELD_CHARACTERISTIC_NAME))
+          .setDebtRemediationFunction(
+            new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.valueOf((String) ruleSource.get(RuleDocument.FIELD_REMEDIATION_FUNCTION)),
+              (String) ruleSource.get(RuleDocument.FIELD_REMEDIATION_COEFFICIENT),
+              (String) ruleSource.get(RuleDocument.FIELD_REMEDIATION_OFFSET))
+          )
+        ;
+      } catch (IllegalArgumentException e) {
+        throw new RuntimeException("Fail on rule '" + ruleSource.get(RuleDocument.FIELD_KEY) + "', " + e.getMessage(), e);
+      }
+    }
 
     if (ruleSource.containsKey(RuleDocument.FIELD_NOTE)) {
       Map<String, Object> ruleNoteDocument = (Map<String, Object>) ruleSource.get(RuleDocument.FIELD_NOTE);
