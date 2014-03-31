@@ -269,7 +269,7 @@ class Rule < ActiveRecord::Base
 
     # SONAR-5048 Group results by 1000 due to fix issue on Oracle db
     rules = []
-    matching_rule_ids = Array(Internal.rrules.findIds(params))
+    matching_rule_ids = Array(Internal.rules.findIds(params))
     unless matching_rule_ids.empty?
       ids_grouped = matching_rule_ids.each_slice(1000).to_a
       ids_condition = []

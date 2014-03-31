@@ -34,10 +34,6 @@ class Internal
     component(Java::OrgSonarServerText::RubyTextService.java_class)
   end
 
-  def self.rrules
-    component(Java::OrgSonarServerRule::RubyRuleService.java_class)
-  end
-
   def self.users_api
     component(Java::OrgSonarApiUser::RubyUserService.java_class)
   end
@@ -83,7 +79,7 @@ class Internal
   end
 
   def self.rules
-    component(Java::OrgSonarServerRule::Rules.java_class)
+    component(Java::OrgSonarServerRule::RubyRuleService.java_class)
   end
 
   def self.rule_tags

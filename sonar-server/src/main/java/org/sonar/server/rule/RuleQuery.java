@@ -37,7 +37,7 @@ public class RuleQuery {
   public static final int NO_PAGINATION = -1;
 
   private String key;
-  private String query;
+  private String searchQuery;
   private Collection<String> languages;
   private Collection<String> repositories;
   private Collection<String> severities;
@@ -51,7 +51,7 @@ public class RuleQuery {
 
   private RuleQuery(Builder builder) {
     this.key = builder.key;
-    this.query = builder.query;
+    this.searchQuery = builder.searchQuery;
     this.languages = defaultCollection(builder.languages);
     this.repositories = defaultCollection(builder.repositories);
     this.severities = defaultCollection(builder.severities);
@@ -69,8 +69,8 @@ public class RuleQuery {
   }
 
   @CheckForNull
-  public String query() {
-    return query;
+  public String searchQuery() {
+    return searchQuery;
   }
 
   public Collection<String> languages() {
@@ -117,7 +117,7 @@ public class RuleQuery {
   public static class Builder {
 
     private String key;
-    private String query;
+    private String searchQuery;
     private Collection<String> languages;
     private Collection<String> repositories;
     private Collection<String> severities;
@@ -134,8 +134,8 @@ public class RuleQuery {
       return this;
     }
 
-    public Builder searchQuery(@Nullable String query) {
-      this.query = query;
+    public Builder searchQuery(@Nullable String searchQuery) {
+      this.searchQuery = searchQuery;
       return this;
     }
 

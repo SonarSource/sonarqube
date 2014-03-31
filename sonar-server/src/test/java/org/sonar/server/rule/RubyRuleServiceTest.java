@@ -19,20 +19,42 @@
  */
 package org.sonar.server.rule;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatcher;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.rule.Severity;
 
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.verify;
 
+@RunWith(MockitoJUnitRunner.class)
 public class RubyRuleServiceTest {
 
-  RuleRegistry ruleRegistry = mock(RuleRegistry.class);
-  RubyRuleService facade = new RubyRuleService(ruleRegistry);
+  @Mock
+  Rules rules;
+
+  @Mock
+  RuleRegistry ruleRegistry;
+
+  RubyRuleService facade;
+
+  @Before
+  public void setUp() throws Exception {
+    facade = new RubyRuleService(rules, ruleRegistry);
+  }
 
   @Test
   @SuppressWarnings({"unchecked", "rawtypes"})
@@ -63,6 +85,78 @@ public class RubyRuleServiceTest {
     int ruleId = 42;
     facade.saveOrUpdate(ruleId);
     verify(ruleRegistry).saveOrUpdate(ruleId);
+  }
+
+  @Test
+  public void update_rule_note(){
+    facade.updateRuleNote(10, "My note");
+    verify(rules).updateRuleNote(10, "My note");
+  }
+
+  @Test
+  public void create_rule(){
+    facade.createRule(10, "Rule name", Severity.MAJOR, "My note", ImmutableMap.of("max", "20"));
+    verify(rules).createRule(10, "Rule name", Severity.MAJOR, "My note", ImmutableMap.of("max", "20"));
+  }
+
+  @Test
+  public void update_rule(){
+    facade.updateRule(10, "Rule name", Severity.MAJOR, "My note", ImmutableMap.of("max", "20"));
+    verify(rules).updateRule(10, "Rule name", Severity.MAJOR, "My note", ImmutableMap.of("max", "20"));
+  }
+
+  @Test
+  public void delete_note(){
+    facade.deleteRule(10);
+    verify(rules).deleteRule(10);
+  }
+
+  @Test
+  public void update_rule_tags(){
+    facade.updateRuleTags(10, ImmutableList.of("tag1", "tag2"));
+    verify(rules).updateRuleTags(10,  ImmutableList.of("tag1", "tag2"));
+  }
+
+  @Test
+  public void find_by_params(){
+    facade.find(ImmutableMap.<String, Object>of("languages", Lists.newArrayList("java")));
+    verify(rules).find(argThat(new ArgumentMatcher<RuleQuery>() {
+      @Override
+      public boolean matches(Object o) {
+        RuleQuery query = (RuleQuery) o;
+        return query.languages().contains("java");
+      }
+    }));
+  }
+
+  @Test
+  public void create_rule_query_from_parameters() {
+    Map<String, Object> map = newHashMap();
+    map.put("searchQuery", "NPE");
+    map.put("key", "rule");
+    map.put("languages", newArrayList("java", "xoo"));
+    map.put("repositories", newArrayList("pmd", "checkstyle"));
+    map.put("severities", newArrayList("MINOR", "MAJOR"));
+    map.put("statuses", newArrayList("READY", "BETA"));
+    map.put("tags", newArrayList("has-params", "keep-enabled"));
+    map.put("debtCharacteristics", newArrayList("MODULARITY", "REUSABILITY"));
+    map.put("hasDebtCharacteristic", "true");
+
+    map.put("pageSize", 10l);
+    map.put("pageIndex", 50);
+
+    RuleQuery query = RubyRuleService.toRuleQuery(map);
+    assertThat(query.searchQuery()).isEqualTo("NPE");
+    assertThat(query.key()).isEqualTo("rule");
+    assertThat(query.languages()).containsOnly("java", "xoo");
+    assertThat(query.repositories()).containsOnly("pmd", "checkstyle");
+    assertThat(query.severities()).containsOnly("MINOR", "MAJOR");
+    assertThat(query.statuses()).containsOnly("READY", "BETA");
+    assertThat(query.tags()).containsOnly("has-params", "keep-enabled");
+    assertThat(query.debtCharacteristics()).containsOnly("MODULARITY", "REUSABILITY");
+    assertThat(query.hasDebtCharacteristic()).isTrue();
+    assertThat(query.pageSize()).isEqualTo(10);
+    assertThat(query.pageIndex()).isEqualTo(50);
   }
 
   @Test

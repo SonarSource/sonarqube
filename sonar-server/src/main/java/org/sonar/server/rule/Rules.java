@@ -62,6 +62,9 @@ public class Rules implements ServerExtension {
     }
   }
 
+  /**
+   * Create rule from a template rule id
+   */
   public Integer createRule(int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
     RuleDto rule = findRuleNotNull(ruleId);
     validateRule(null, name, severity, description);
@@ -69,6 +72,9 @@ public class Rules implements ServerExtension {
     return newRule.getId();
   }
 
+  /**
+   * Update instance of template rule
+   */
   public void updateRule(int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
     RuleDto rule = findRuleNotNull(ruleId);
     validateRuleParent(rule);
@@ -76,6 +82,9 @@ public class Rules implements ServerExtension {
     ruleOperations.updateRule(rule, name, severity, description, paramsByKey, UserSession.get());
   }
 
+  /**
+   * Delete instance of template rule
+   */
   public void deleteRule(int ruleId) {
     RuleDto rule = findRuleNotNull(ruleId);
     validateRuleParent(rule);

@@ -174,9 +174,9 @@ public class RuleRegistry {
 
   public PagedResult<Rule> find(RuleQuery query) {
     BoolFilterBuilder mainFilter = boolFilter().mustNot(termFilter(RuleDocument.FIELD_STATUS, STATUS_REMOVED));
-    if (StringUtils.isNotBlank(query.query())) {
+    if (StringUtils.isNotBlank(query.searchQuery())) {
       mainFilter.must(FilterBuilders.queryFilter(
-        QueryBuilders.multiMatchQuery(query.query(), RuleDocument.FIELD_NAME + ".search", RuleDocument.FIELD_KEY).operator(Operator.AND)));
+        QueryBuilders.multiMatchQuery(query.searchQuery(), RuleDocument.FIELD_NAME + ".search", RuleDocument.FIELD_KEY).operator(Operator.AND)));
     }
     addMustTermOrTerms(mainFilter, RuleDocument.FIELD_LANGUAGE, query.languages());
     addMustTermOrTerms(mainFilter, RuleDocument.FIELD_REPOSITORY_KEY, query.repositories());
