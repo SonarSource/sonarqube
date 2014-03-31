@@ -23,19 +23,19 @@
           <div class="description"><%= h dashboard.description -%></div>
         </td>
         <td class="shared">
-          <%= boolean_icon(dashboard.shared, {:id => "dashboard-#{index}-shared"}) -%>
+          <% if (dashboard.shared) %><i class="icon-check" id='<%= "dashboard-#{index}-shared" -%>'></i><% end %>
         </td>
         <td class="owner">
           <%= h(dashboard.user_name || message('dashboard.username.default')) -%>
         </td>
         <td class="order">
           <% if index > 0 %>
-            <%= link_to image_tag('blue-up.png'), {:action => :up, :id => dashboard.id, :resource => resource_id}, :method => :post, :id => "up-#{u dashboard.name}" %>
+            <%= link_to '', {:action => :up, :id => dashboard.id, :resource => resource_id}, :method => :post, :id => "up-#{u dashboard.name}", :class => "icon-move-up" %>
           <% else %>
             <%= image_tag('transparent_16.gif') %>
           <% end %>
           <% if index < @actives.size-1 %>
-            <%= link_to image_tag('blue-down.png'), {:action => :down, :id => dashboard.id, :resource => resource_id}, :method => :post, :id => "down-#{u dashboard.name}" %>
+            <%= link_to '', {:action => :down, :id => dashboard.id, :resource => resource_id}, :method => :post, :id => "down-#{u dashboard.name}", :class => "icon-move-down" %>
           <% else %>
             <%= image_tag('transparent_16.gif') %>
         <% end %>
