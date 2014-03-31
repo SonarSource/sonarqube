@@ -26,7 +26,7 @@ module IssuesHelper
     unless issues_result.maxResultsReached()
       html = link_to_function(h(column_label), "refreshList('#{escape_javascript sort}',#{!filter_asc}, #{issue_query.pageIndex||1})", :title => h(column_tooltip))
       if sort == filter_sort
-        html << (filter_asc ? image_tag("asc12.png") : image_tag("desc12.png"))
+        html << (filter_asc ? ' <i class="icon-sort-asc"></i>' : ' <i class="icon-sort-desc"></i>')
       end
     end
     html

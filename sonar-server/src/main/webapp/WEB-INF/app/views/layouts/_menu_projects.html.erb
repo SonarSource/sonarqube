@@ -5,7 +5,8 @@
 </script>
 
 <li>
-  <a href="#" onclick="if (sonarRecentHistory) { sonarRecentHistory.populateRecentHistoryPanel(); }; showDropdownMenu('projects-menu'); return false;" class="link-more"><%= message('layout.projects') -%></a>
+  <a href="#" onclick="if (sonarRecentHistory) { sonarRecentHistory.populateRecentHistoryPanel(); }; showDropdownMenu('projects-menu'); return false;"><%= message('layout.projects') -%></a>
+  <i class="icon-dropdown"></i>
 
   <div id="projects-menu" class="dropdown-menu" style="max-width: none; display: none;">
     <div id="recent-history" style="border-bottom: 1px solid #ccc; padding-bottom: 10px;">

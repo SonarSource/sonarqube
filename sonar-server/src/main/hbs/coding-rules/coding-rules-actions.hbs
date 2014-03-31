@@ -1,15 +1,15 @@
 <div class="navigator-actions-order">
   {{#if sorting}}
-    {{t 'coding_rules.ordered_by'}} <strong>{{sorting.sortText}}</strong> {{#if sorting.asc}}<i class="icon-arrow-up"></i>{{else}}<i class="icon-arrow-down"></i>{{/if}}
+    {{t 'coding_rules.ordered_by'}} <strong>{{sorting.sortText}}</strong> {{#if sorting.asc}}<i class="icon-sort-asc"></i>{{else}}<i class="icon-sort-desc"></i>{{/if}}
   {{else}}
     {{t 'coding_rules.order'}}
   {{/if}}
 </div>
 <ul class="navigator-actions-order-choices">
-  <li data-sort="CREATION_DATE" data-asc="true">{{t 'coding_rules.sort.creation_date'}} <i class="icon-arrow-up"></i></li>
-  <li data-sort="CREATION_DATE" data-asc="false">{{t 'coding_rules.sort.creation_date'}} <i class="icon-arrow-down"></i></li>
-  <li data-sort="NAME" data-asc="true">{{t 'coding_rules.sort.name'}} <i class="icon-arrow-up"></i></li>
-  <li data-sort="NAME" data-asc="false">{{t 'coding_rules.sort.name'}} <i class="icon-arrow-down"></i></li>
+  <li data-sort="CREATION_DATE" data-asc="true">{{t 'coding_rules.sort.creation_date'}} <i class="icon-sort-asc"></i></li>
+  <li data-sort="CREATION_DATE" data-asc="false">{{t 'coding_rules.sort.creation_date'}} <i class="icon-sort-desc"></i></li>
+  <li data-sort="NAME" data-asc="true">{{t 'coding_rules.sort.name'}} <i class="icon-sort-asc"></i></li>
+  <li data-sort="NAME" data-asc="false">{{t 'coding_rules.sort.name'}} <i class="icon-sort-desc"></i></li>
 </ul>
 <div class="navigator-actions-total">
   {{t 'coding_rules.found'}}: <strong>{{paging.fTotal}}</strong>

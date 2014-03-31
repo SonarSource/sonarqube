@@ -29,7 +29,7 @@ module MeasuresHelper
       html += "<br><span class='note'>#{Api::Utils.period_abbreviation(column.period)}</small>"
     end
     if filter.sort_key==column.key
-      html << (filter.sort_asc? ? image_tag("asc12.png") : image_tag("desc12.png"))
+      html << (filter.sort_asc? ? ' <i class="icon-sort-asc"></i>' : ' <i class="icon-sort-desc"></i>')
     end
     "<th class='#{column.align} #{column.title_css}'>#{html}</th>"
   end

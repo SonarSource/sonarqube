@@ -2,12 +2,12 @@
 <div class="line-block marginbottom10">
   <ul style="float: right" class="operations">
     <li>
-      <%= image_tag 'compare.png' -%>
+      <i class="icon-compare"></i>
       <a href="profiles/compare" id="compare-link"><%= message('quality_profiles.compare_profiles') -%></a>
     </li>
     <% if profiles_administrator? %>
       <li class="last">
-        <%= image_tag 'restore.gif' -%>
+        <i class="icon-restore"></i>
         <a href="profiles/restore_form" class="open-modal" id="restore-link"><%= message('quality_profiles.restore_profile') -%></a>
       </li>
     <% end %>
@@ -21,7 +21,8 @@
   <div class="line-block">
     <% if profiles_administrator? %>
       <ul style="float: right" class="horizontal">
-        <li class="marginleft10 add">
+        <li class="marginleft10">
+          <i class="icon-plus"></i>
           <a id="create-link-<%= language.getKey() -%>" href="<%= ApplicationController.root_context -%>/profiles/create_form?language=<%= u language.getKey() -%>"
              class="open-modal link-action"><%= message('create') -%></a>
         </li>
@@ -76,7 +77,7 @@
             -%>
           <% end %>
           <% if is_default_profile %>
-            <%= image_tag 'tick.png', :id => "is_active_#{u key}" %>
+            <i class="icon-check" id='"is_active_#{u key}"'></i>
           <% end %>
         </td>
 

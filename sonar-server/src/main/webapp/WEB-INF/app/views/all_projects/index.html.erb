@@ -22,7 +22,7 @@
           <% end %>
           <th class="thin nowrap">
             <%= link_to message('all-projects.cols.name'), {:action => 'index', :qualifier => params[:qualifier], :asc => (!@filter.sort_asc?).to_s} -%>
-            <%= @filter.sort_asc? ? image_tag("asc12.png") : image_tag("desc12.png") -%>
+            <%= @filter.sort_asc? ? '<i class="icon-sort-asc"></i>' : '<i class="icon-sort-desc"></i>' -%>
           </th>
           <th></th>
           <th></th>

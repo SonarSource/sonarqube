@@ -174,7 +174,9 @@ a[class^="icon-"], a[class*=" icon-"] {
 .icon-qualifier-dir:before,
 .icon-qualifier-pac:before { color: @orange; }
 .icon-qualifier-dev:before { color: darken(@green, 10%); }
-.icon-qualifier-uts:before { color: darken(@purple, 10%); }
+.icon-qualifier-uts:before,
+.icon-qualifier-vw:before,
+.icon-qualifier-svw:before { color: darken(@purple, 20%); }
 .icon-qualifier-cla:before,
 .icon-qualifier-fil:before { color: darken(@blue, 10%); }
 .icon-qualifier-trk:before,
@@ -230,7 +232,6 @@ a[class^="icon-"], a[class*=" icon-"] {
   content: "\f085";
   font-size: @iconFontSize;
 }
-
 .icon-arrow-down:before {
   content: "\f0d7";
   position: relative;
@@ -246,8 +247,24 @@ a[class^="icon-"], a[class*=" icon-"] {
 }
 .icon-arrow-right:before {
   content: "\f0da";
+  position: relative;
+  top: 1px;
 }
-
+.icon-dropdown:before {
+  content: "\f0d7";
+  position: relative;
+  top: -1px;
+}
+.icon-sort-desc:before {
+  content: "\f0d7";
+  position: relative;
+  top: -1px;
+}
+.icon-sort-asc:before {
+  content: "\f0d8";
+  position: relative;
+  top: -1px;
+}
 .icon-emoticon-smiley:before {
   content: "\f118";
 }
@@ -330,6 +347,11 @@ a[class^="icon-"], a[class*=" icon-"] {
 }
 .icon-compare:before {
   content: "\f0c5";
+  font-size: @iconSmallFontSize;
+}
+.icon-restore:before {
+  content: "\f122";
+  font-size: @iconSmallFontSize;
 }
 .icon-link:before {
   content: "\f0c1";
