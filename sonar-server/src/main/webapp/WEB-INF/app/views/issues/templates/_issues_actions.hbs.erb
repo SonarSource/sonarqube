@@ -21,7 +21,7 @@
     {{#if appState.canBulkChange}}
       <a href="<%= url_for params.merge({:action => 'bulk_change_form'}) -%>?{{query}}"
          class="navigator-actions-bulk"
-         title="<%= message('bulk_change') -%>"><i class="icon-settings-multiple"></i></a>
+         title="<%= message('bulk_change') -%>"><i class="icon-bulk-change"></i></a>
     {{/if}}
   </div>
 </script>

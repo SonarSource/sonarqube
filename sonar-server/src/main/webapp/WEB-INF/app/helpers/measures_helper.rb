@@ -68,7 +68,7 @@ module MeasuresHelper
     elsif column.key=='links' && row.links
       html = ''
       row.links.select { |link| link.href.start_with?('http') }.each do |link|
-        html += link_to(image_tag(link.icon, :alt => link.name), link.href, :class => 'nolink', :popup => true) unless link.custom?
+        html += "<a target='_blank' href='#{link.href}' class='icon-#{link.link_type}'></a> " unless link.custom?
       end
       html
     end

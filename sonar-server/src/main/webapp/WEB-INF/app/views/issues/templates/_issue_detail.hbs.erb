@@ -3,7 +3,7 @@
     <div class="subtitle">{{projectName}} {{#if subProjectName}}/ {{subProjectName}}{{/if}}</div>
     <span class="h1">
       {{#if componentQualifier}}
-        <img src="<%= ApplicationController.root_context -%>/images/q/{{componentQualifier}}.png" width="16" height="16" alt="">
+        {{qualifierIcon componentQualifier}}
       {{/if}}
 
       {{#if componentLongName}}

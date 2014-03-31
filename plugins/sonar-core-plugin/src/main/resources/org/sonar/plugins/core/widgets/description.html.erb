@@ -30,11 +30,10 @@
         <td id="resource_links">
         <% @project.project_links.sort.each do |link| %>
           <div>
+            <i class="icon-<%= h link.link_type -%>"></i>
           <% if link.href.starts_with?('http') %>
-            <%= link_to(image_tag(link.icon, :alt => link.name), link.href , :popup => true, :class => 'nolink') -%>
-            <%= link_to(h(link.name), link.href, :popup => true) -%>
+            <a target="_blank" href="<%= link.href -%>"><%= h link.name -%></a>
           <% else %>
-            <%= image_tag(link.icon, :alt => link.name) -%>
             <a href="#" onclick="$j('#link_<%= link.id -%>').toggle();return false;"><%= h(link.name) -%></a>
             <div id="link_<%= link.id -%>" style="padding-left: 20px; display:none"><%= h(link.href) -%></div>
           <% end %>

@@ -25,9 +25,9 @@ define(['handlebars'], function (Handlebars) {
     );
   });
 
-  Handlebars.registerHelper('resolutionIcon', function(resolution) {
+  Handlebars.registerHelper('qualifierIcon', function(qualifier) {
     return new Handlebars.SafeString(
-        '<i class="icon-resolution-' + resolution.toLowerCase() + '"></i>'
+        '<i class="icon-qualifier-' + qualifier.toLowerCase() + '"></i>'
     );
   });
 
