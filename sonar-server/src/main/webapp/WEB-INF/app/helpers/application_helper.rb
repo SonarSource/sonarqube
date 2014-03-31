@@ -434,27 +434,24 @@ module ApplicationHelper
       m = @snapshot.measure(metric_or_measure)
     end
 
-    if options[:big]
-      size = '-big'
-      pixels = 16
-    else
-      size = ''
-      pixels = 10
-    end
     if m.nil? || m.tendency.nil? || m.tendency==0
-      return options[:empty] ? image_tag("trend/0#{size}.png", :width => pixels, :height => pixels, :alt => '') : nil
+      return options[:empty] ? "<i class=\"icon-trend-0\"></i>" : nil
     end
-    filename = m.tendency.to_s
+    className = m.tendency.to_s
+
+    if options[:big]
+      className += ' icon-trend-big'
+    end
 
     case m.tendency_qualitative
       when 0
-        filename+= '-black'
+        className += ' icon-black'
       when -1
-        filename+= '-red'
+        className += ' icon-red'
       when 1
-        filename+= '-green'
+        className += ' icon-green'
     end
-    image_tag("trend/#{filename}#{size}.png", :alt => '', :width => pixels, :height => pixels)
+    "<i class=\"icon-trend-#{className}\"></i>"
   end
 
   #

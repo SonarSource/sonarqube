@@ -30,6 +30,16 @@ a[class^="icon-"], a[class*=" icon-"] {
 
 
 /*
+ * Colors
+ */
+
+
+.icon-black { color: @baseFontColor; }
+.icon-red { color: @red; }
+.icon-green { color: @green; }
+
+
+/*
  * Severity
  */
 
@@ -142,6 +152,8 @@ a[class^="icon-"], a[class*=" icon-"] {
  */
 
 [class^="icon-qualifier-"], [class*=" icon-qualifier-"] {
+  position: relative;
+  top: -1px;
   color: @qualifierColor;
   font-size: @iconFontSize;
 }
@@ -158,6 +170,37 @@ a[class^="icon-"], a[class*=" icon-"] {
 .icon-qualifier-vw:before,
 .icon-qualifier-svw:before { content: "\e600"; }
 .icon-qualifier-dev:before { content: "\f007"; }
+
+
+/*
+ * Trends
+ */
+
+[class^="icon-trend-"], [class*=" icon-trend-"] {
+  position: relative;
+  top: -1px;
+  font-size: @iconSmallFontSize;
+}
+
+.icon-trend-big {
+  font-size: @iconFontSize;
+}
+
+.icon-trend-0:before {
+  content: "\e607";
+}
+.icon-trend-1:before {
+  content: "\e605";
+}
+.icon-trend--1:before {
+  content: "\e601";
+}
+.icon-trend-2:before {
+  content: "\e606";
+}
+.icon-trend--2:before {
+  content: "\e603";
+}
 
 
 /*
