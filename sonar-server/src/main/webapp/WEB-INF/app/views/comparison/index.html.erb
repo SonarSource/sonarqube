@@ -4,11 +4,11 @@
       vertical-align: middle;
     }
 
-    #comparison-page .move-actions img {
+    #comparison-page .move-actions a {
       visibility: hidden;
     }
 
-    #comparison-page .move-actions:hover img {
+    #comparison-page .move-actions:hover a {
       visibility: visible;
     }
   </style>
@@ -164,19 +164,19 @@
                 <tr>
                   <td style="vertical-align: bottom;">
                     <% if index > 0 %>
-                      <a href="#" onclick="moveLeft(<%= index -%>)" id="left-<%= index -%>"><img src="<%= ApplicationController.root_context -%>/images/controls/move_left.png" title="<%= message('comparison.move_left') -%>"/></a>
+                      <a class="icon-move-left" href="#" onclick="moveLeft(<%= index -%>)" id="left-<%= index -%>"></a>
                     <% else %>
                       <img src="<%= ApplicationController.root_context -%>/images/transparent_16.gif"/>
                     <% end %>
                   </td>
                   <td style="text-align: center; min-width: 100px">
                     <div style="width: 100%; text-align: center;">
-                      <a href="#" onclick="removeFromList(<%= index -%>, $j('#sids'))" id="del-r-<%= index -%>"><img src="<%= ApplicationController.root_context -%>/images/cross-gray.png" title="<%= message('comparison.suppress_column') -%>"/></a>
+                      <a class="icon-delete" href="#" onclick="removeFromList(<%= index -%>, $j('#sids'))" id="del-r-<%= index -%>" title="<%= message('comparison.suppress_column') -%>"></a>
                     </div>
                   </td>
                   <td style="vertical-align: bottom;">
                     <% if index < last_index %>
-                      <a href="#" onclick="moveRight(<%= index -%>)" id="right-<%= index -%>"><img src="<%= ApplicationController.root_context -%>/images/controls/move_right.png" title="<%= message('comparison.move_right') -%>"/></a>
+                      <a class="icon-move-right" href="#" onclick="moveRight(<%= index -%>)" id="right-<%= index -%>"></a>
                     <% else %>
                       <img src="<%= ApplicationController.root_context -%>/images/transparent_16.gif"/>
                     <% end %>
@@ -218,12 +218,12 @@
                   <td class="nowrap" style="vertical-align: bottom; width: 100%;"><%= m.short_name -%></td>
                   <td class="nowrap" style="padding-left: 10px">
                     <% if index > 0 %>
-                      <a href="#" onclick="moveUp(<%= index -%>)" id="up-<%= index -%>"><img src="<%= ApplicationController.root_context -%>/images/controls/move_up.png" title="<%= message('comparison.move_up') -%>"/></a>
+                      <a class="icon-move-up" href="#" onclick="moveUp(<%= index -%>)" id="up-<%= index -%>"></a>
                     <% end %>
                     <% if index < last_index %>
-                      <a href="#" onclick="moveDown(<%= index -%>)" id="down-<%= index -%>"><img src="<%= ApplicationController.root_context -%>/images/controls/move_down.png" title="<%= message('comparison.move_down') -%>"/></a>
+                      <a class="icon-move-down" href="#" onclick="moveDown(<%= index -%>)" id="down-<%= index -%>"></a>
                     <% end %>
-                    <a href="#" onclick="removeFromList(<%= index -%>, $j('#metrics'))" id="del-m-<%= index -%>"><img src="<%= ApplicationController.root_context -%>/images/cross-gray.png" title="<%= message('comparison.suppress_line') -%>"/></a>
+                    <a class="icon-delete" href="#" onclick="removeFromList(<%= index -%>, $j('#metrics'))" id="del-m-<%= index -%>" title="<%= message('comparison.suppress_line') -%>"></a>
                   </td>
                 </tr>
               </table>
