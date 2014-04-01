@@ -9,7 +9,9 @@
   font-style: normal;
 }
 
-[class^="icon-"], [class*=" icon-"] {
+[class^="icon-"], [class*=" icon-"],
+.ui-icon-circle-triangle-e,
+.ui-icon-circle-triangle-w {
   font-family: 'sonar';
   speak: none;
   font-style: normal;
@@ -239,13 +241,23 @@ a[class^="icon-"], a[class*=" icon-"] {
   position: relative;
   top: -2px;
 }
-.icon-arrow-left:before {
+.icon-arrow-left:before,
+.ui-icon-circle-triangle-w:before {
+  position: relative;
+  top: 1px;
   content: "\f0d9";
 }
-.icon-arrow-right:before {
+.ui-icon-circle-triangle-w:before {
+  margin-right: 3px;
+}
+.icon-arrow-right:before,
+.ui-icon-circle-triangle-e:after {
   content: "\f0da";
   position: relative;
   top: 1px;
+}
+.ui-icon-circle-triangle-e:after {
+  margin-left: 3px;
 }
 .icon-dropdown:before {
   content: "\f0d7";

@@ -8,4 +8,4 @@ define [
 
     render: ->
       super
-      @detailsView.$('input').prop 'placeholder', '1970-01-31'
+      @detailsView.$('input').prop('placeholder', '1970-01-31').datepicker dateFormat: 'yy-mm-dd'
