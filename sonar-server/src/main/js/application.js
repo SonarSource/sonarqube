@@ -552,5 +552,12 @@ jQuery(function() {
     }
     window.location = href;
   });
+
+
+  // Define global shortcuts
+  key('/', function() {
+    jQuery('#searchInput').focus();
+    return false;
+  });
 });
 
