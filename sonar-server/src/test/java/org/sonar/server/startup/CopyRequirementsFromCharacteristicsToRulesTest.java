@@ -71,7 +71,7 @@ public class CopyRequirementsFromCharacteristicsToRulesTest extends AbstractDaoT
     service.start();
 
     db.assertDbUnit(getClass(), "copy_requirements_from_characteristics_to_rules_result.xml", "rules");
-    verify(ruleRegistry).reindexRules();
+    verify(ruleRegistry).reindex();
   }
 
   @Test
@@ -84,7 +84,7 @@ public class CopyRequirementsFromCharacteristicsToRulesTest extends AbstractDaoT
     service.start();
 
     db.assertDbUnit(getClass(), "remove_requirements_data_from_characteristics_result.xml", "characteristics");
-    verify(ruleRegistry).reindexRules();
+    verify(ruleRegistry).reindex();
   }
 
   @Test

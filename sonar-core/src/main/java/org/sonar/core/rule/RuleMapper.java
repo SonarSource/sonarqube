@@ -47,7 +47,7 @@ public interface RuleMapper {
 
   List<RuleParamDto> selectAllParams();
 
-  List<RuleParamDto> selectParamsForRule(Integer id);
+  List<RuleParamDto> selectParamsByRuleIds(@Param("ruleIds") List<Integer> ruleIds);
 
   RuleParamDto selectParamByRuleAndKey(@Param("ruleId") Integer ruleId, @Param("key") String key);
 
@@ -65,5 +65,5 @@ public interface RuleMapper {
 
   void updateTag(RuleRuleTagDto existingTag);
 
-  List<RuleRuleTagDto> selectTagsForRule(Integer ruleId);
+  List<RuleRuleTagDto> selectTagsByRuleIds(@Param("ruleIds") List<Integer> ruleIds);
 }

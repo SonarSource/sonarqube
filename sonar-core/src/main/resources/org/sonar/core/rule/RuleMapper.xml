@@ -138,10 +138,12 @@
     from rules_parameters
   </select>
 
-  <select id="selectParamsForRule" resultType="RuleParam">
-    select <include refid="paramColumns"/>
-    from rules_parameters
-    where rule_id=#{id}
+  <select id="selectParamsByRuleIds" resultType="RuleParam">
+    SELECT <include refid="paramColumns"/>
+    FROM rules_parameters
+    <where>
+      AND (<foreach item="id" index="index" collection="ruleIds" open="(" separator=" or " close=")">rule_id=#{id}</foreach>)
+    </where>
   </select>
 
   <select id="selectParamByRuleAndKey" resultType="RuleParam">
@@ -181,11 +183,13 @@
     JOIN rule_tags rt ON rrt.rule_tag_id = rt.id
   </select>
 
-  <select id="selectTagsForRule" resultType="RuleRuleTag">
-    select <include refid="tagColumns"/>
+  <select id="selectTagsByRuleIds" resultType="RuleRuleTag">
+    SELECT <include refid="tagColumns"/>
     FROM rules_rule_tags rrt
     JOIN rule_tags rt ON rrt.rule_tag_id = rt.id
-    WHERE rrt.rule_id=#{id}
+    <where>
+      AND (<foreach item="id" index="index" collection="ruleIds" open="(" separator=" or " close=")">rrt.rule_id=#{id}</foreach>)
+    </where>
   </select>
 
   <insert id="insertTag" parameterType="RuleRuleTag" keyColumn="id" useGeneratedKeys="true" keyProperty="id">

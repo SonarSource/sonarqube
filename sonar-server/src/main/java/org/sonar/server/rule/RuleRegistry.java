@@ -67,6 +67,7 @@ import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newHashSet;
 import static org.elasticsearch.index.query.FilterBuilders.*;
 import static org.sonar.api.rules.Rule.STATUS_REMOVED;
 
@@ -98,37 +99,56 @@ public class RuleRegistry {
     searchIndex.addMappingFromClasspath(INDEX_RULES, TYPE_RULE, "/org/sonar/server/es/config/mappings/rule_mapping.json");
   }
 
-  public void reindexRules() {
+  /**
+   * Reindex all enabled and non manual rules
+   */
+  public String[] reindex() {
     SqlSession sqlSession = myBatis.openSession();
     try {
-      Multimap<Integer, RuleParamDto> paramsByRuleId = ArrayListMultimap.create();
-      Multimap<Integer, RuleRuleTagDto> tagsByRuleId = ArrayListMultimap.create();
-      Map<Integer, CharacteristicDto> characteristicsById = newHashMap();
-
-      for (RuleParamDto paramDto : ruleDao.selectParameters(sqlSession)) {
-        paramsByRuleId.put(paramDto.getRuleId(), paramDto);
-      }
-      for (RuleRuleTagDto tagDto : ruleDao.selectTags(sqlSession)) {
-        tagsByRuleId.put(tagDto.getRuleId(), tagDto);
-      }
-      for (CharacteristicDto characteristicDto : characteristicDao.selectEnabledCharacteristics(sqlSession)) {
-        characteristicsById.put(characteristicDto.getId(), characteristicDto);
-      }
-
-      bulkIndexRules(
-        ruleDao.selectEnablesAndNonManual(sqlSession),
-        characteristicsById,
-        paramsByRuleId,
-        tagsByRuleId);
+      return reindex(sqlSession);
     } finally {
       sqlSession.close();
     }
   }
 
-  public void bulkRegisterRules(Collection<RuleDto> rules, Map<Integer, CharacteristicDto> characteristicByRule, Multimap<Integer, RuleParamDto> paramsByRule,
-                                Multimap<Integer, RuleRuleTagDto> tagsByRule) {
-    String[] ids = bulkIndexRules(rules, characteristicByRule, paramsByRule, tagsByRule);
-    removeDeletedRules(ids);
+  public String[] reindex(SqlSession session) {
+    return reindex(ruleDao.selectEnablesAndNonManual(session), session);
+  }
+
+  public String[] reindex(Collection<RuleDto> rules, SqlSession session) {
+    Multimap<Integer, RuleParamDto> paramsByRuleId = ArrayListMultimap.create();
+    Multimap<Integer, RuleRuleTagDto> tagsByRuleId = ArrayListMultimap.create();
+    Map<Integer, CharacteristicDto> characteristicsById = newHashMap();
+
+    List<Integer> ruleIds = newArrayList();
+    Collection<Integer> subCharacteristicIds = newHashSet();
+    for (RuleDto ruleDto : rules) {
+      ruleIds.add(ruleDto.getId());
+      if (ruleDto.getDefaultSubCharacteristicId() != null) {
+        subCharacteristicIds.add(ruleDto.getDefaultSubCharacteristicId());
+      }
+      if (ruleDto.getSubCharacteristicId() != null) {
+        subCharacteristicIds.add(ruleDto.getSubCharacteristicId());
+      }
+    }
+
+    List<CharacteristicDto> allCharacteristicDtos = characteristicDao.selectCharacteristicsByIds(subCharacteristicIds, session);
+    Collection<Integer> characteristicIds = newHashSet();
+    for (CharacteristicDto subCharacteristicDto : allCharacteristicDtos) {
+      characteristicIds.add(subCharacteristicDto.getParentId());
+    }
+    allCharacteristicDtos.addAll(characteristicDao.selectCharacteristicsByIds(characteristicIds, session));
+
+    for (RuleParamDto paramDto : ruleDao.selectParametersByRuleIds(ruleIds, session)) {
+      paramsByRuleId.put(paramDto.getRuleId(), paramDto);
+    }
+    for (RuleRuleTagDto tagDto : ruleDao.selectTagsByRuleIds(ruleIds, session)) {
+      tagsByRuleId.put(tagDto.getRuleId(), tagDto);
+    }
+    for (CharacteristicDto characteristicDto : allCharacteristicDtos) {
+      characteristicsById.put(characteristicDto.getId(), characteristicDto);
+    }
+    return bulkIndexRules(rules, characteristicsById, paramsByRuleId, tagsByRuleId);
   }
 
   /**
@@ -202,8 +222,8 @@ public class RuleRegistry {
     Builder<Rule> rulesBuilder = ImmutableList.builder();
     SearchRequestBuilder searchRequestBuilder =
       searchIndex.client().prepareSearch(INDEX_RULES).setTypes(TYPE_RULE)
-      .setPostFilter(mainFilter)
-      .addSort(RuleDocument.FIELD_NAME, SortOrder.ASC);
+        .setPostFilter(mainFilter)
+        .addSort(RuleDocument.FIELD_NAME, SortOrder.ASC);
 
     if (RuleQuery.NO_PAGINATION == query.pageSize()) {
       final int scrollTime = 100;
@@ -292,10 +312,10 @@ public class RuleRegistry {
       profiler.start("Build rules documents");
       for (RuleDto rule : rules) {
         ids[index] = rule.getId().toString();
-        CharacteristicDto subCharacteristic = characteristicsById.get(rule.getSubCharacteristicId() != null ? rule.getSubCharacteristicId() : rule.getDefaultSubCharacteristicId());
-        CharacteristicDto characteristic = subCharacteristic != null ? characteristicsById.get(subCharacteristic.getParentId()) : null;
-        characteristicsById.get(rule.getSubCharacteristicId() != null ? rule.getSubCharacteristicId() : rule.getDefaultSubCharacteristicId());
-        docs[index] = ruleDocument(rule, characteristic, subCharacteristic, paramsByRule.get(rule.getId()), tagsByRule.get(rule.getId()));
+        CharacteristicDto effectiveSubCharacteristic =
+          characteristicsById.get(rule.getSubCharacteristicId() != null ? rule.getSubCharacteristicId() : rule.getDefaultSubCharacteristicId());
+        CharacteristicDto effectiveCharacteristic = effectiveSubCharacteristic != null ? characteristicsById.get(effectiveSubCharacteristic.getParentId()) : null;
+        docs[index] = ruleDocument(rule, effectiveCharacteristic, effectiveSubCharacteristic, paramsByRule.get(rule.getId()), tagsByRule.get(rule.getId()));
         index++;
       }
       profiler.stop();
@@ -311,7 +331,7 @@ public class RuleRegistry {
     }
   }
 
-  private void removeDeletedRules(String[] ids) {
+  public void removeDeletedRules(String[] ids) {
     List<String> indexIds = searchIndex.findDocumentIds(SearchQuery.create().index(INDEX_RULES).type(TYPE_RULE));
     indexIds.removeAll(Arrays.asList(ids));
     TimeProfiler profiler = new TimeProfiler();
@@ -331,7 +351,7 @@ public class RuleRegistry {
       .field(RuleDocument.FIELD_LANGUAGE, rule.getLanguage())
       .field(RuleDocument.FIELD_NAME, rule.getName())
       .field(RuleDocument.FIELD_DESCRIPTION, rule.getDescription())
-      .field(RuleDocument.FIELD_TEMPLATE_ID, rule.getParentId() == null ? null : rule.getParentId())
+      .field(RuleDocument.FIELD_TEMPLATE_ID, rule.getParentId())
       .field(RuleDocument.FIELD_REPOSITORY_KEY, rule.getRepositoryKey())
       .field(RuleDocument.FIELD_SEVERITY, rule.getSeverityString())
       .field(RuleDocument.FIELD_STATUS, rule.getStatus())

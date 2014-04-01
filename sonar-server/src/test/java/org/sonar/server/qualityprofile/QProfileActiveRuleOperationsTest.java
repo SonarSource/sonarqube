@@ -135,7 +135,7 @@ public class QProfileActiveRuleOperationsTest {
     when(profileDao.selectById(1, session)).thenReturn(new QualityProfileDto().setId(1).setName("Default").setLanguage("java"));
     when(ruleDao.selectById(10, session)).thenReturn(new RuleDto().setId(10));
 
-    when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10")));
+    when(ruleDao.selectParametersByRuleId(eq(10), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10")));
     final int idActiveRuleToUpdate = 42;
     final int idActiveRuleToDelete = 24;
     ProfilesManager.RuleInheritanceActions inheritanceActions = new ProfilesManager.RuleInheritanceActions()
@@ -203,7 +203,7 @@ public class QProfileActiveRuleOperationsTest {
     ProfileRuleQuery query = ProfileRuleQuery.create(1);
     when(rules.searchInactiveProfileRuleIds(query)).thenReturn(newArrayList(10));
 
-    when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10")));
+    when(ruleDao.selectParametersByRuleId(eq(10), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10")));
     final int idActiveRuleToUpdate = 42;
     final int idActiveRuleToDelete = 24;
     ProfilesManager.RuleInheritanceActions inheritanceActions = new ProfilesManager.RuleInheritanceActions()

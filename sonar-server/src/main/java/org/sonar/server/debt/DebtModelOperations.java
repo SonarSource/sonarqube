@@ -36,6 +36,7 @@ import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
@@ -51,16 +52,18 @@ public class DebtModelOperations implements ServerComponent {
   private final CharacteristicDao dao;
   private final RuleDao ruleDao;
   private final System2 system2;
+  private final RuleRegistry ruleRegistry;
 
-  public DebtModelOperations(MyBatis mybatis, CharacteristicDao dao, RuleDao ruleDao) {
-    this(mybatis, dao, ruleDao, System2.INSTANCE);
+  public DebtModelOperations(MyBatis mybatis, CharacteristicDao dao, RuleDao ruleDao, RuleRegistry ruleRegistry) {
+    this(mybatis, dao, ruleDao, ruleRegistry, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  DebtModelOperations(MyBatis mybatis, CharacteristicDao dao, RuleDao ruleDao, System2 system2) {
+  DebtModelOperations(MyBatis mybatis, CharacteristicDao dao, RuleDao ruleDao, RuleRegistry ruleRegistry, System2 system2) {
     this.mybatis = mybatis;
     this.dao = dao;
     this.ruleDao = ruleDao;
+    this.ruleRegistry = ruleRegistry;
     this.system2 = system2;
   }
 
@@ -189,6 +192,7 @@ public class DebtModelOperations implements ServerComponent {
     Date updateDate = new Date(system2.now());
     SqlSession session = mybatis.openBatchSession();
     try {
+
       CharacteristicDto characteristicOrSubCharacteristic = findCharacteristic(characteristicId, session);
       // When root characteristic, browse sub characteristics and disable rule debt on each sub characteristic then disable it
       if (characteristicOrSubCharacteristic.getParentId() == null) {
@@ -207,27 +211,36 @@ public class DebtModelOperations implements ServerComponent {
     }
   }
 
-  private void disableSubCharacteristic(CharacteristicDto subCharacteristic, Date updateDate, SqlSession session) {
-    disableDebtRules(ruleDao.selectBySubCharacteristicId(subCharacteristic.getId(), session), updateDate, session);
-    disableCharacteristic(subCharacteristic, updateDate, session);
-  }
-
-  public void disableDebtRules(List<RuleDto> ruleDtos, Date updateDate, SqlSession session) {
-    for (RuleDto ruleDto : ruleDtos) {
-      ruleDto.setSubCharacteristicId(RuleDto.DISABLED_CHARACTERISTIC_ID);
-      ruleDto.setRemediationFunction(null);
-      ruleDto.setRemediationCoefficient(null);
-      ruleDto.setRemediationOffset(null);
-      ruleDto.setUpdatedAt(updateDate);
-      ruleDao.update(ruleDto, session);
-      // TODO update rules from E/S
-    }
-  }
-
   public void disableCharacteristic(CharacteristicDto characteristic, Date updateDate, SqlSession session) {
     characteristic.setEnabled(false);
     characteristic.setUpdatedAt(updateDate);
     dao.update(characteristic, session);
+  }
+
+  private void disableSubCharacteristic(CharacteristicDto subCharacteristic, Date updateDate, SqlSession session) {
+    disableRulesDebt(ruleDao.selectBySubCharacteristicId(subCharacteristic.getId(), session), subCharacteristic.getId(), updateDate, session);
+    disableCharacteristic(subCharacteristic, updateDate, session);
+  }
+
+  public void disableRulesDebt(List<RuleDto> ruleDtos, Integer subCharacteristicId, Date updateDate, SqlSession session) {
+    for (RuleDto ruleDto : ruleDtos) {
+      if (subCharacteristicId.equals(ruleDto.getSubCharacteristicId())) {
+        ruleDto.setSubCharacteristicId(null);
+        ruleDto.setRemediationFunction(null);
+        ruleDto.setRemediationCoefficient(null);
+        ruleDto.setRemediationOffset(null);
+        ruleDto.setUpdatedAt(updateDate);
+      }
+      if (subCharacteristicId.equals(ruleDto.getDefaultSubCharacteristicId())) {
+        ruleDto.setDefaultSubCharacteristicId(null);
+        ruleDto.setDefaultRemediationFunction(null);
+        ruleDto.setDefaultRemediationCoefficient(null);
+        ruleDto.setDefaultRemediationOffset(null);
+      }
+      ruleDto.setUpdatedAt(updateDate);
+      ruleDao.update(ruleDto, session);
+    }
+    ruleRegistry.reindex(ruleDtos, session);
   }
 
   private CharacteristicDto findCharacteristic(Integer id, SqlSession session) {

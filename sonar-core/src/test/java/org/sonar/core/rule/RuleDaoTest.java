@@ -303,10 +303,10 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_params_for_rule() throws Exception {
-    setupData("selectParamsForRule");
+  public void select_parameters_by_rule_id() throws Exception {
+    setupData("select_parameters_by_rule_id");
     int ruleId = 1;
-    List<RuleParamDto> ruleDtos = dao.selectParameters(ruleId);
+    List<RuleParamDto> ruleDtos = dao.selectParametersByRuleId(ruleId);
 
     assertThat(ruleDtos.size()).isEqualTo(1);
     RuleParamDto ruleDto = ruleDtos.get(0);
@@ -315,6 +315,14 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getDescription()).isEqualTo("My Parameter");
     assertThat(ruleDto.getType()).isEqualTo("plop");
     assertThat(ruleDto.getRuleId()).isEqualTo(ruleId);
+  }
+
+  @Test
+  public void select_parameters_by_rule_ids() throws Exception {
+    setupData("select_parameters_by_rule_ids");
+
+    assertThat(dao.selectParametersByRuleIds(newArrayList(1, 2))).hasSize(2);
+    assertThat(dao.selectParametersByRuleIds(newArrayList(1))).hasSize(1);
   }
 
   @Test
@@ -347,6 +355,20 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     dao.update(param);
 
     checkTables("update_parameter", "rules_parameters");
+  }
+
+  @Test
+  public void select_tags_by_rule_id() throws Exception {
+    setupData("select_tags_by_rule_id");
+
+    assertThat(dao.selectTagsByRuleId(3)).hasSize(2);
+  }
+
+  @Test
+  public void select_tags_by_rule_ids() throws Exception {
+    setupData("select_tags_by_rule_ids");
+
+    assertThat(dao.selectTagsByRuleIds(newArrayList(3, 4))).hasSize(3);
   }
 
   private List<Integer> idsFromRuleDtos(List<RuleDto> ruleDtos){

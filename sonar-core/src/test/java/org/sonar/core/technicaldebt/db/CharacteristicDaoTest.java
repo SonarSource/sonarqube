@@ -27,6 +27,7 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class CharacteristicDaoTest extends AbstractDaoTestCase {
@@ -107,6 +108,17 @@ public class CharacteristicDaoTest extends AbstractDaoTestCase {
 
     assertThat(dao.selectCharacteristicsByParentId(1)).hasSize(2);
     assertThat(dao.selectCharacteristicsByParentId(55)).isEmpty();
+  }
+
+  @Test
+  public void select_characteristics_by_ids() {
+    setupData("shared");
+
+    assertThat(dao.selectCharacteristicsByIds(newArrayList(1, 2))).hasSize(2);
+    assertThat(dao.selectCharacteristicsByIds(newArrayList(1))).hasSize(1);
+
+    // Disabled characteristics are not returned
+    assertThat(dao.selectCharacteristicsByIds(newArrayList(4, 5))).isEmpty();
   }
 
   @Test

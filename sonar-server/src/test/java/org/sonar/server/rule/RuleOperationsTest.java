@@ -134,9 +134,9 @@ public class RuleOperationsTest {
     RuleDto rule = new RuleDto().setId(10).setNoteCreatedAt(null).setNoteData(null);
 
     List<RuleParamDto> ruleParams = newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10"));
-    when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(ruleParams);
+    when(ruleDao.selectParametersByRuleId(eq(10), eq(session))).thenReturn(ruleParams);
     List<RuleRuleTagDto> ruleTags = newArrayList(new RuleRuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM));
-    when(ruleDao.selectTags(eq(10), eq(session))).thenReturn(ruleTags);
+    when(ruleDao.selectTagsByRuleIds(eq(10), eq(session))).thenReturn(ruleTags);
 
     operations.updateRuleNote(rule, "My note", authorizedUserSession);
 
@@ -171,9 +171,9 @@ public class RuleOperationsTest {
     RuleDto rule = new RuleDto().setId(10).setNoteCreatedAt(createdAt).setNoteData("My previous note").setNoteUserLogin("nicolas");
 
     List<RuleParamDto> ruleParams = newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10"));
-    when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(ruleParams);
+    when(ruleDao.selectParametersByRuleId(eq(10), eq(session))).thenReturn(ruleParams);
     List<RuleRuleTagDto> ruleTags = newArrayList(new RuleRuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM));
-    when(ruleDao.selectTags(eq(10), eq(session))).thenReturn(ruleTags);
+    when(ruleDao.selectTagsByRuleIds(eq(10), eq(session))).thenReturn(ruleTags);
 
     operations.updateRuleNote(rule, "My new note", MockUserSession.create().setLogin("guy").setName("Guy").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
 
@@ -194,9 +194,9 @@ public class RuleOperationsTest {
     RuleDto rule = new RuleDto().setId(10).setNoteData("My note").setNoteUserLogin("nicolas").setNoteCreatedAt(createdAt).setNoteUpdatedAt(createdAt);
 
     List<RuleParamDto> ruleParams = newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10"));
-    when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(ruleParams);
+    when(ruleDao.selectParametersByRuleId(eq(10), eq(session))).thenReturn(ruleParams);
     List<RuleRuleTagDto> ruleTags = newArrayList(new RuleRuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM));
-    when(ruleDao.selectTags(eq(10), eq(session))).thenReturn(ruleTags);
+    when(ruleDao.selectTagsByRuleIds(eq(10), eq(session))).thenReturn(ruleTags);
 
     long now = System.currentTimeMillis();
     doReturn(now).when(system).now();
@@ -217,8 +217,8 @@ public class RuleOperationsTest {
   @Test
   public void create_custom_rule() throws Exception {
     RuleDto templateRule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle").setConfigKey("Xpath");
-    when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10")));
-    when(ruleDao.selectTags(eq(10), eq(session))).thenReturn(newArrayList(new RuleRuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM)));
+    when(ruleDao.selectParametersByRuleId(eq(10), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10")));
+    when(ruleDao.selectTagsByRuleIds(eq(10), eq(session))).thenReturn(newArrayList(new RuleRuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM)));
 
     Map<String, String> paramsByKey = ImmutableMap.of("max", "20");
     RuleDto result = operations.createCustomRule(templateRule, "My New Rule", Severity.BLOCKER, "Rule Description", paramsByKey, authorizedUserSession);
@@ -254,9 +254,9 @@ public class RuleOperationsTest {
   @Test
   public void update_custom_rule() throws Exception {
     RuleDto rule = new RuleDto().setId(11).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setConfigKey("Xpath");
-    when(ruleDao.selectParameters(eq(11), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(21).setName("max").setDefaultValue("20")));
+    when(ruleDao.selectParametersByRuleId(eq(11), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(21).setName("max").setDefaultValue("20")));
     ArrayList<RuleRuleTagDto> ruleTags = newArrayList(new RuleRuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM));
-    when(ruleDao.selectTags(eq(11), eq(session))).thenReturn(ruleTags);
+    when(ruleDao.selectTagsByRuleIds(eq(11), eq(session))).thenReturn(ruleTags);
 
     Map<String, String> paramsByKey = ImmutableMap.of("max", "21");
     operations.updateCustomRule(rule, "Updated Rule", Severity.MAJOR, "Updated Description", paramsByKey, authorizedUserSession);
@@ -281,9 +281,9 @@ public class RuleOperationsTest {
     final int ruleId = 11;
     RuleDto rule = new RuleDto().setId(ruleId).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setConfigKey("Xpath").setUpdatedAt(DateUtils.parseDate("2013-12-23"));
     RuleParamDto param = new RuleParamDto().setId(21).setName("max").setDefaultValue("20");
-    when(ruleDao.selectParameters(eq(ruleId), eq(session))).thenReturn(newArrayList(param));
+    when(ruleDao.selectParametersByRuleId(eq(ruleId), eq(session))).thenReturn(newArrayList(param));
     ArrayList<RuleRuleTagDto> ruleTags = newArrayList(new RuleRuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM));
-    when(ruleDao.selectTags(eq(ruleId), eq(session))).thenReturn(ruleTags);
+    when(ruleDao.selectTagsByRuleIds(eq(ruleId), eq(session))).thenReturn(ruleTags);
 
     final int activeRuleId = 5;
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(activeRuleId).setProfileId(1).setRuleId(ruleId).setSeverity(Severity.MINOR);
@@ -341,11 +341,11 @@ public class RuleOperationsTest {
     final RuleDto rule = new RuleDto().setId(ruleId);
     final String tag = "polop";
     RuleRuleTagDto existingTag = new RuleRuleTagDto().setTag(tag).setType(RuleTagType.ADMIN);
-    when(ruleDao.selectTags(ruleId, session)).thenReturn(ImmutableList.of(existingTag));
+    when(ruleDao.selectTagsByRuleIds(ruleId, session)).thenReturn(ImmutableList.of(existingTag));
 
     operations.updateRuleTags(rule, ImmutableList.<String>of(), authorizedUserSession);
 
-    verify(ruleDao, atLeast(1)).selectTags(ruleId, session);
+    verify(ruleDao, atLeast(1)).selectTagsByRuleIds(ruleId, session);
     verify(ruleDao).deleteTag(existingTag, session);
     verify(ruleDao).update(rule, session);
     verify(ruleTagOperations).deleteUnusedTags(session);
@@ -360,12 +360,12 @@ public class RuleOperationsTest {
     final long tagId = 42L;
     when(ruleTagDao.selectId(tag, session)).thenReturn(tagId);
     RuleRuleTagDto existingTag = new RuleRuleTagDto().setTag(tag).setType(RuleTagType.ADMIN);
-    when(ruleDao.selectTags(ruleId, session)).thenReturn(ImmutableList.of(existingTag));
+    when(ruleDao.selectTagsByRuleIds(ruleId, session)).thenReturn(ImmutableList.of(existingTag));
 
     operations.updateRuleTags(rule, ImmutableList.of(tag), authorizedUserSession);
 
     verify(ruleTagDao).selectId(tag, session);
-    verify(ruleDao).selectTags(ruleId, session);
+    verify(ruleDao).selectTagsByRuleIds(ruleId, session);
     verify(ruleTagOperations).deleteUnusedTags(session);
     verify(ruleDao, never()).update(rule);
   }

@@ -20,6 +20,7 @@
 
 package org.sonar.core.technicaldebt.db;
 
+import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
@@ -27,7 +28,10 @@ import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
 
+import java.util.Collection;
 import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class CharacteristicDao implements BatchComponent, ServerComponent {
 
@@ -99,6 +103,24 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
 
   public List<CharacteristicDto> selectCharacteristicsByParentId(int parentId, SqlSession session) {
     return session.getMapper(CharacteristicMapper.class).selectCharacteristicsByParentId(parentId);
+  }
+
+  public List<CharacteristicDto> selectCharacteristicsByIds(Collection<Integer> ids) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectCharacteristicsByIds(ids, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<CharacteristicDto> selectCharacteristicsByIds(Collection<Integer> ids, SqlSession session) {
+    List<CharacteristicDto> dtos = newArrayList();
+    List<List<Integer>> partitionList = Lists.partition(newArrayList(ids), 1000);
+    for (List<Integer> partition : partitionList) {
+      dtos.addAll(session.getMapper(CharacteristicMapper.class).selectCharacteristicsByIds(partition));
+    }
+    return dtos;
   }
 
   @CheckForNull

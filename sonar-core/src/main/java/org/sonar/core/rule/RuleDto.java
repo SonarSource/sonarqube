@@ -161,11 +161,12 @@ public final class RuleDto {
     return this;
   }
 
+  @CheckForNull
   public Integer getParentId() {
     return parentId;
   }
 
-  public RuleDto setParentId(Integer parentId) {
+  public RuleDto setParentId(@Nullable Integer parentId) {
     this.parentId = parentId;
     return this;
   }

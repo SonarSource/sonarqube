@@ -42,6 +42,7 @@ import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.MockUserSession;
 
 import java.util.Date;
@@ -66,6 +67,9 @@ public class DebtModelOperationsTest {
 
   @Mock
   SqlSession session;
+
+  @Mock
+  RuleRegistry ruleRegistry;
 
   @Mock
   System2 system2;
@@ -108,7 +112,7 @@ public class DebtModelOperationsTest {
     }).when(dao).insert(any(CharacteristicDto.class), any(SqlSession.class));
 
     when(mybatis.openSession()).thenReturn(session);
-    service = new DebtModelOperations(mybatis, dao, ruleDao, system2);
+    service = new DebtModelOperations(mybatis, dao, ruleDao, ruleRegistry, system2);
   }
 
   @Test
@@ -351,19 +355,60 @@ public class DebtModelOperationsTest {
     ArgumentCaptor<RuleDto> ruleArgument = ArgumentCaptor.forClass(RuleDto.class);
     verify(ruleDao).update(ruleArgument.capture(), eq(batchSession));
     RuleDto ruleDto = ruleArgument.getValue();
+    assertThat(ruleDto.getUpdatedAt()).isEqualTo(now);
 
     // Overridden debt data are disabled
-    assertThat(ruleDto.getSubCharacteristicId()).isEqualTo(-1);
+    assertThat(ruleDto.getSubCharacteristicId()).isNull();
     assertThat(ruleDto.getRemediationFunction()).isNull();
     assertThat(ruleDto.getRemediationCoefficient()).isNull();
     assertThat(ruleDto.getRemediationOffset()).isNull();
-    assertThat(ruleDto.getUpdatedAt()).isEqualTo(now);
 
     // Default debt data should not be touched
     assertThat(ruleDto.getDefaultSubCharacteristicId()).isEqualTo(10);
     assertThat(ruleDto.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
     assertThat(ruleDto.getDefaultRemediationCoefficient()).isEqualTo("4h");
     assertThat(ruleDto.getDefaultRemediationOffset()).isEqualTo("15min");
+
+    ArgumentCaptor<CharacteristicDto> characteristicArgument = ArgumentCaptor.forClass(CharacteristicDto.class);
+    verify(dao).update(characteristicArgument.capture(), eq(batchSession));
+    CharacteristicDto characteristicDto = characteristicArgument.getValue();
+
+    // Sub characteristic is disable
+    assertThat(characteristicDto.getId()).isEqualTo(2);
+    assertThat(characteristicDto.isEnabled()).isFalse();
+    assertThat(characteristicDto.getUpdatedAt()).isEqualTo(now);
+  }
+
+  @Test
+  public void delete_sub_characteristic_disable_default_rules_debt_if_default_characteristic_is_deleted() {
+    BatchSession batchSession = mock(BatchSession.class);
+    when(mybatis.openBatchSession()).thenReturn(batchSession);
+
+    when(ruleDao.selectBySubCharacteristicId(2, batchSession)).thenReturn(newArrayList(
+      new RuleDto()
+        .setSubCharacteristicId(10).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("2h").setRemediationOffset("5min")
+        .setDefaultSubCharacteristicId(2).setDefaultRemediationFunction("LINEAR_OFFSET").setDefaultRemediationCoefficient("4h").setDefaultRemediationOffset("15min")
+    ));
+    when(dao.selectById(2, batchSession)).thenReturn(subCharacteristicDto);
+
+    service.delete(2);
+
+    ArgumentCaptor<RuleDto> ruleArgument = ArgumentCaptor.forClass(RuleDto.class);
+    verify(ruleDao).update(ruleArgument.capture(), eq(batchSession));
+    RuleDto ruleDto = ruleArgument.getValue();
+    assertThat(ruleDto.getUpdatedAt()).isEqualTo(now);
+
+    // Default debt data are disabled
+    assertThat(ruleDto.getDefaultSubCharacteristicId()).isNull();
+    assertThat(ruleDto.getDefaultRemediationFunction()).isNull();
+    assertThat(ruleDto.getDefaultRemediationCoefficient()).isNull();
+    assertThat(ruleDto.getDefaultRemediationOffset()).isNull();
+
+    // Overridden debt data should not be touched
+    assertThat(ruleDto.getSubCharacteristicId()).isEqualTo(10);
+    assertThat(ruleDto.getRemediationFunction()).isEqualTo("LINEAR_OFFSET");
+    assertThat(ruleDto.getRemediationCoefficient()).isEqualTo("2h");
+    assertThat(ruleDto.getRemediationOffset()).isEqualTo("5min");
 
     ArgumentCaptor<CharacteristicDto> characteristicArgument = ArgumentCaptor.forClass(CharacteristicDto.class);
     verify(dao).update(characteristicArgument.capture(), eq(batchSession));

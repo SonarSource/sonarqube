@@ -19,6 +19,7 @@
  */
 package org.sonar.core.rule;
 
+import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
@@ -29,6 +30,8 @@ import javax.annotation.CheckForNull;
 
 import java.util.Collection;
 import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class RuleDao implements BatchComponent, ServerComponent {
 
@@ -161,6 +164,10 @@ public class RuleDao implements BatchComponent, ServerComponent {
     }
   }
 
+  //******************************
+  // Methods for Rule Parameters
+  //******************************
+
   public List<RuleParamDto> selectParameters() {
     SqlSession session = mybatis.openSession();
     try {
@@ -174,17 +181,35 @@ public class RuleDao implements BatchComponent, ServerComponent {
     return getMapper(session).selectAllParams();
   }
 
-  public List<RuleParamDto> selectParameters(Integer id) {
+  public List<RuleParamDto> selectParametersByRuleId(Integer ruleId) {
     SqlSession session = mybatis.openSession();
     try {
-      return selectParameters(id, session);
+      return selectParametersByRuleId(ruleId, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public List<RuleParamDto> selectParameters(Integer ruleId, SqlSession session) {
-    return getMapper(session).selectParamsForRule(ruleId);
+  public List<RuleParamDto> selectParametersByRuleId(Integer ruleId, SqlSession session) {
+    return selectParametersByRuleIds(newArrayList(ruleId));
+  }
+
+  public List<RuleParamDto> selectParametersByRuleIds(List<Integer> ruleIds) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectParametersByRuleIds(ruleIds, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<RuleParamDto> selectParametersByRuleIds(List<Integer> ruleIds, SqlSession session) {
+    List<RuleParamDto> dtos = newArrayList();
+    List<List<Integer>> partitionList = Lists.partition(newArrayList(ruleIds), 1000);
+    for (List<Integer> partition : partitionList) {
+      dtos.addAll(getMapper(session).selectParamsByRuleIds(partition));
+    }
+    return dtos;
   }
 
   public void insert(RuleParamDto param, SqlSession session) {
@@ -224,9 +249,10 @@ public class RuleDao implements BatchComponent, ServerComponent {
     return session.getMapper(RuleMapper.class);
   }
 
-  public List<RuleRuleTagDto> selectTags(SqlSession session) {
-    return getMapper(session).selectAllTags();
-  }
+  //***************************
+  // Methods for Rule Tags
+  //***************************
+
 
   public void insert(RuleRuleTagDto newTag, SqlSession session) {
     getMapper(session).insertTag(newTag);
@@ -244,16 +270,38 @@ public class RuleDao implements BatchComponent, ServerComponent {
     getMapper(session).updateTag(existingTag);
   }
 
-  public List<RuleRuleTagDto> selectTags(Integer id) {
+  public List<RuleRuleTagDto> selectTags(SqlSession session) {
+    return getMapper(session).selectAllTags();
+  }
+
+  public List<RuleRuleTagDto> selectTagsByRuleId(Integer ruleId) {
     SqlSession session = mybatis.openSession();
     try {
-      return selectTags(id, session);
+      return selectTagsByRuleIds(ruleId, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public List<RuleRuleTagDto> selectTags(Integer id, SqlSession session) {
-    return getMapper(session).selectTagsForRule(id);
+  public List<RuleRuleTagDto> selectTagsByRuleIds(Integer ruleId, SqlSession session) {
+    return selectTagsByRuleIds(newArrayList(ruleId), session);
+  }
+
+  public List<RuleRuleTagDto> selectTagsByRuleIds(List<Integer> ruleIds) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectTagsByRuleIds(ruleIds, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<RuleRuleTagDto> selectTagsByRuleIds(List<Integer> ruleIds, SqlSession session) {
+    List<RuleRuleTagDto> dtos = newArrayList();
+    List<List<Integer>> partitionList = Lists.partition(newArrayList(ruleIds), 1000);
+    for (List<Integer> partition : partitionList) {
+      dtos.addAll(getMapper(session).selectTagsByRuleIds(partition));
+    }
+    return dtos;
   }
 }

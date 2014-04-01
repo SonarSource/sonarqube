@@ -106,7 +106,7 @@ public class CopyRequirementsFromCharacteristicsToRules {
     removeRequirementsDataFromCharacteristics();
 
     LOGGER.info("Reindex rules in E/S");
-    ruleRegistry.reindexRules();
+    ruleRegistry.reindex();
   }
 
   private void copyRequirementsFromCharacteristicsToRules() {

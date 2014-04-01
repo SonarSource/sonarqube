@@ -148,8 +148,11 @@ public class DebtModelBackup implements ServerComponent {
     try {
       restoreCharacteristics(loadModelFromPlugin(DebtModelPluginRepository.DEFAULT_MODEL), languageKey == null, updateDate, session);
       for (RuleDto rule : rules(languageKey, session)) {
-        disabledRuleDebt(rule, updateDate, session);
+        disabledOverriddenRuleDebt(rule);
+        rule.setUpdatedAt(updateDate);
+        ruleDao.update(rule, session);
       }
+      // TODO index rules in E/S
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -192,11 +195,11 @@ public class DebtModelBackup implements ServerComponent {
     for (RuleDto rule : rules) {
       RuleDebt ruleDebt = ruleDebtByRule(rule, ruleDebts);
       if (ruleDebt == null) {
-        disabledRuleDebt(rule, updateDate, session);
+        disabledOverriddenRuleDebt(rule);
       } else {
         CharacteristicDto subCharacteristicDto = characteristicByKey(ruleDebt.subCharacteristicKey(), allCharacteristicDtos);
         if (subCharacteristicDto == null) {
-          disabledRuleDebt(rule, updateDate, session);
+          disabledOverriddenRuleDebt(rule);
         } else {
           boolean isSameCharacteristicAsDefault = subCharacteristicDto.getId().equals(rule.getDefaultSubCharacteristicId());
           boolean isSameFunctionAsDefault = isSameRemediationFunction(ruleDebt, rule);
@@ -207,14 +210,14 @@ public class DebtModelBackup implements ServerComponent {
           rule.setRemediationFunction(!isSameFunctionAsDefault ? ruleDebt.function().name() : null);
           rule.setRemediationCoefficient(!isSameFunctionAsDefault ? ruleDebt.coefficient() : null);
           rule.setRemediationOffset(!isSameFunctionAsDefault ? ruleDebt.offset() : null);
-
-          rule.setUpdatedAt(updateDate);
-          ruleDao.update(rule, session);
-          // TODO index rules in E/S
         }
       }
+      rule.setUpdatedAt(updateDate);
+      ruleDao.update(rule, session);
+
       ruleDebts.remove(ruleDebt);
     }
+    // TODO index rules in E/S
 
     for (RuleDebt ruleDebt : ruleDebts) {
       validationMessages.addWarningText(String.format("The rule '%s' does not exist.", ruleDebt.ruleKey()));
@@ -274,13 +277,11 @@ public class DebtModelBackup implements ServerComponent {
       .isEquals();
   }
 
-  private void disabledRuleDebt(RuleDto rule, Date updateDate, SqlSession session) {
+  private void disabledOverriddenRuleDebt(RuleDto rule) {
     rule.setSubCharacteristicId(rule.getDefaultSubCharacteristicId() != null ? RuleDto.DISABLED_CHARACTERISTIC_ID : null);
     rule.setRemediationFunction(null);
     rule.setRemediationCoefficient(null);
     rule.setRemediationOffset(null);
-    rule.setUpdatedAt(updateDate);
-    ruleDao.update(rule, session);
   }
 
   private DebtModel loadModelFromPlugin(String pluginKey) {

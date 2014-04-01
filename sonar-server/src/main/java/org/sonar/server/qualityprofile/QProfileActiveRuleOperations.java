@@ -107,7 +107,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
       .setSeverity(severity);
     activeRuleDao.insert(activeRule, session);
 
-    List<RuleParamDto> ruleParams = ruleDao.selectParameters(ruleId, session);
+    List<RuleParamDto> ruleParams = ruleDao.selectParametersByRuleId(ruleId, session);
     List<ActiveRuleParamDto> activeRuleParams = newArrayList();
     for (RuleParamDto ruleParam : ruleParams) {
       ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto()

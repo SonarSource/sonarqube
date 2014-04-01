@@ -20,8 +20,14 @@
 
 package org.sonar.server.rule;
 
+import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RulesDefinition;
@@ -32,17 +38,21 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.rule.RuleDao;
+import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleTagDao;
+import org.sonar.core.rule.RuleTagDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.server.qualityprofile.ProfilesManager;
 import org.sonar.server.startup.RegisterDebtModel;
 
+import java.util.Collection;
 import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class RegisterRulesTest extends AbstractDaoTestCase {
 
   private static final String[] EXCLUDED_COLUMN_NAMES = {"created_at", "updated_at", "note_data", "note_user_login", "note_created_at", "note_updated_at"};
@@ -52,9 +62,22 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     "effort_to_fix_description"};
 
   RegisterRules task;
-  ProfilesManager profilesManager = mock(ProfilesManager.class);
-  RuleRegistry ruleRegistry = mock(RuleRegistry.class);
-  ESRuleTags esRuleTags = mock(ESRuleTags.class);
+
+  @Mock
+  ProfilesManager profilesManager;
+
+  @Mock
+  RuleRegistry ruleRegistry;
+
+  @Mock
+  ESRuleTags esRuleTags;
+
+  @Captor
+  ArgumentCaptor<Collection<RuleDto>> rulesCaptor;
+
+  @Captor
+  ArgumentCaptor<Collection<RuleTagDto>> ruleTagsCaptor;
+
   RuleTagOperations ruleTagOperations;
   MyBatis myBatis;
   RuleDao ruleDao;
@@ -82,6 +105,13 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
   public void insert_new_rules() {
     setupData("shared");
     task.start();
+
+    verify(ruleRegistry).reindex(rulesCaptor.capture(), any(SqlSession.class));
+    assertThat(rulesCaptor.getValue()).hasSize(3);
+    verify(ruleRegistry).removeDeletedRules(any(String[].class));
+
+    verify(esRuleTags).putAllTags(ruleTagsCaptor.capture());
+    assertThat(ruleTagsCaptor.getValue()).hasSize(3);
 
     checkTables("insert_new_rules", EXCLUDED_COLUMN_NAMES, "rules", "rules_parameters", "rules_rule_tags", "rule_tags");
   }

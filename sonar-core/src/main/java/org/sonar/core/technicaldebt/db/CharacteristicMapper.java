@@ -20,6 +20,8 @@
 
 package org.sonar.core.technicaldebt.db;
 
+import org.apache.ibatis.annotations.Param;
+
 import java.util.List;
 
 public interface CharacteristicMapper {
@@ -31,6 +33,8 @@ public interface CharacteristicMapper {
   List<CharacteristicDto> selectEnabledRootCharacteristics();
 
   List<CharacteristicDto> selectCharacteristicsByParentId(int parentId);
+
+  List<CharacteristicDto> selectCharacteristicsByIds(@Param("ids") List<Integer> ids);
 
   CharacteristicDto selectByKey(String key);
 

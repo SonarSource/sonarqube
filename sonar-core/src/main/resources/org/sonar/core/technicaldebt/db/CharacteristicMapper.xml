@@ -47,6 +47,15 @@
     </where>
   </select>
 
+  <select id="selectCharacteristicsByIds" parameterType="map" resultType="Characteristic">
+    select <include refid="characteristicColumns"/>
+    from characteristics c
+    <where>
+      and c.enabled=${_true}
+      AND (<foreach item="id" index="index" collection="ids" open="(" separator=" or " close=")">c.id=#{id}</foreach>)
+    </where>
+  </select>
+
   <select id="selectByKey" parameterType="String" resultType="Characteristic">
     select <include refid="characteristicColumns"/>
     from characteristics c

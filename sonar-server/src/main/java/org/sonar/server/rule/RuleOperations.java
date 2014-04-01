@@ -149,7 +149,7 @@ public class RuleOperations implements ServerComponent {
         .setUpdatedAt(new Date(system.now()));
       ruleDao.insert(rule, session);
 
-      List<RuleParamDto> templateRuleParams = ruleDao.selectParameters(templateRule.getId(), session);
+      List<RuleParamDto> templateRuleParams = ruleDao.selectParametersByRuleId(templateRule.getId(), session);
       for (RuleParamDto templateRuleParam : templateRuleParams) {
         String key = templateRuleParam.getName();
         String value = paramsByKey.get(key);
@@ -163,7 +163,7 @@ public class RuleOperations implements ServerComponent {
         ruleDao.insert(param, session);
       }
 
-      List<RuleRuleTagDto> templateRuleTags = ruleDao.selectTags(templateRule.getId(), session);
+      List<RuleRuleTagDto> templateRuleTags = ruleDao.selectTagsByRuleIds(templateRule.getId(), session);
       for (RuleRuleTagDto tag : templateRuleTags) {
         RuleRuleTagDto newTag = new RuleRuleTagDto()
           .setRuleId(rule.getId())
@@ -192,7 +192,7 @@ public class RuleOperations implements ServerComponent {
         .setUpdatedAt(new Date(system.now()));
       ruleDao.update(rule, session);
 
-      List<RuleParamDto> ruleParams = ruleDao.selectParameters(rule.getId(), session);
+      List<RuleParamDto> ruleParams = ruleDao.selectParametersByRuleId(rule.getId(), session);
       for (RuleParamDto ruleParam : ruleParams) {
         String value = paramsByKey.get(ruleParam.getName());
         ruleParam.setDefaultValue(Strings.emptyToNull(value));
@@ -340,7 +340,7 @@ public class RuleOperations implements ServerComponent {
     boolean ruleChanged = false;
 
     Set<String> tagsToKeep = Sets.newHashSet();
-    List<RuleRuleTagDto> currentTags = ruleDao.selectTags(ruleId, session);
+    List<RuleRuleTagDto> currentTags = ruleDao.selectTagsByRuleIds(ruleId, session);
     for (RuleRuleTagDto existingTag : currentTags) {
       if (existingTag.getType() == RuleTagType.ADMIN && !newTags.contains(existingTag.getTag())) {
         ruleDao.deleteTag(existingTag, session);
@@ -366,7 +366,7 @@ public class RuleOperations implements ServerComponent {
     Integer subCharacteristicId = rule.getSubCharacteristicId();
     CharacteristicDto subCharacteristic = subCharacteristicId != null ? characteristicDao.selectById(subCharacteristicId, session) : null;
     CharacteristicDto characteristic = subCharacteristic != null ? characteristicDao.selectById(subCharacteristic.getParentId(), session) : null;
-    ruleRegistry.save(rule, characteristic, subCharacteristic, ruleDao.selectParameters(rule.getId(), session), ruleDao.selectTags(rule.getId(), session));
+    ruleRegistry.save(rule, characteristic, subCharacteristic, ruleDao.selectParametersByRuleId(rule.getId(), session), ruleDao.selectTagsByRuleIds(rule.getId(), session));
   }
 
   private void checkPermission(UserSession userSession) {

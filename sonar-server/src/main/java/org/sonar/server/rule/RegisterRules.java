@@ -111,7 +111,7 @@ public class RegisterRules implements Startable {
       enableRuleDefinitions(context, buffer, sqlSession);
       List<RuleDto> removedRules = processRemainingDbRules(buffer, sqlSession);
       removeActiveRulesOnStillExistingRepositories(removedRules, context);
-      index(buffer);
+      index(buffer, sqlSession);
       ruleTagOperations.deleteUnusedTags(sqlSession);
       sqlSession.commit();
 
@@ -272,8 +272,8 @@ public class RegisterRules implements Startable {
 
     // Debt definitions are set to null if the characteristic is null or unknown
     boolean hasCharacteristic = characteristic != null;
-    DebtRemediationFunction debtRemediationFunction = characteristic != null ? def.debtRemediationFunction() : null;
-    Integer characteristicId = characteristic != null ? characteristic.getId() : null;
+    DebtRemediationFunction debtRemediationFunction = hasCharacteristic ? def.debtRemediationFunction() : null;
+    Integer characteristicId = hasCharacteristic ? characteristic.getId() : null;
     String remediationFactor = hasCharacteristic ? debtRemediationFunction.coefficient() : null;
     String remediationOffset = hasCharacteristic ? debtRemediationFunction.offset() : null;
     String effortToFixDescription = hasCharacteristic ? def.effortToFixDescription() : null;
@@ -476,8 +476,9 @@ public class RegisterRules implements Startable {
     }
   }
 
-  private void index(Buffer buffer) {
-    ruleRegistry.bulkRegisterRules(buffer.rulesById.values(), buffer.characteristicsById, buffer.paramsByRuleId, buffer.tagsByRuleId);
+  private void index(Buffer buffer, SqlSession sqlSession) {
+    String[] ids = ruleRegistry.reindex(buffer.rulesById.values(), sqlSession);
+    ruleRegistry.removeDeletedRules(ids);
     esRuleTags.putAllTags(buffer.referenceTagsByTagValue.values());
   }
 
