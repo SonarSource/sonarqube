@@ -53,19 +53,17 @@ module.exports = (grunt) ->
         ]
 
 
-    uglify:
+    concat:
       dev:
-        options:
-          beautify: true
         files:
           '<%= pkg.assets %>js/sonar.js': [
+            '<%= pkg.assets %>js/translate.js'
             '<%= pkg.assets %>js/third-party/jquery.js'
             '<%= pkg.assets %>js/third-party/jquery-ui.js'
             '<%= pkg.assets %>js/third-party/d3.js'
             '<%= pkg.assets %>js/third-party/underscore.js'
             '<%= pkg.assets %>js/third-party/select2.js'
             '<%= pkg.assets %>js/select2-jquery-ui-fix.js'
-            '<%= pkg.assets %>js/translate.js'
             '<%= pkg.assets %>js/widgets/widget.js'
             '<%= pkg.assets %>js/widgets/bubble-chart.js'
             '<%= pkg.assets %>js/widgets/timeline.js'
@@ -82,18 +80,21 @@ module.exports = (grunt) ->
             '<%= pkg.assets %>js/issue.js'
             '<%= pkg.assets %>js/recent-history.js'
           ]
+
+
+    uglify:
       build:
         options:
           preserveComments: false # remove all comments
         files:
           '<%= pkg.assets %>build/js/sonar.js': [
+            '<%= pkg.assets %>js/translate.js'
             '<%= pkg.assets %>js/third-party/jquery.js'
             '<%= pkg.assets %>js/third-party/jquery-ui.js'
             '<%= pkg.assets %>js/third-party/d3.js'
             '<%= pkg.assets %>js/third-party/underscore.js'
             '<%= pkg.assets %>js/third-party/select2.js'
             '<%= pkg.assets %>js/select2-jquery-ui-fix.js'
-            '<%= pkg.assets %>js/translate.js'
             '<%= pkg.assets %>js/widgets/widget.js'
             '<%= pkg.assets %>js/widgets/bubble-chart.js'
             '<%= pkg.assets %>js/widgets/timeline.js'
@@ -214,7 +215,7 @@ module.exports = (grunt) ->
 
       js:
         files: '<%= pkg.sources %>js/**/*.js'
-        tasks: ['copy:js', 'uglify:dev']
+        tasks: ['copy:js', 'concat:dev']
 
       handlebars:
         files: '<%= pkg.sources %>hbs/**/*.hbs'
@@ -231,13 +232,14 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-watch'
   grunt.loadNpmTasks 'grunt-contrib-clean'
   grunt.loadNpmTasks 'grunt-contrib-copy'
+  grunt.loadNpmTasks 'grunt-contrib-concat'
 
 
   # Define tasks
   grunt.registerTask 'dev', ['clean:css', 'clean:js',
                              'less:dev',
                              'coffee:build', 'handlebars:build', 'copy:js',
-                             'uglify:dev']
+                             'concat:dev']
 
 
   grunt.registerTask 'default', ['clean:css', 'clean:js',
