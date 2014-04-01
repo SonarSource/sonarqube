@@ -18,10 +18,12 @@
   {{/unless}}
   <div class="navigator-actions-total">
     <%= message('issues.found') -%>: <strong>{{paging.fTotal}}</strong>
-    {{#if appState.canBulkChange}}
-      <a href="<%= url_for params.merge({:action => 'bulk_change_form'}) -%>?{{query}}"
-         class="navigator-actions-bulk"
-         title="<%= message('bulk_change') -%>"><i class="icon-bulk-change"></i></a>
-    {{/if}}
+    {{#notEq paging.fTotal 0}}
+      {{#if appState.canBulkChange}}
+        <a href="<%= url_for params.merge({:action => 'bulk_change_form'}) -%>?{{query}}"
+           class="navigator-actions-bulk"
+           title="<%= message('bulk_change') -%>"><i class="icon-bulk-change"></i></a>
+      {{/if}}
+    {{/notEq}}
   </div>
 </script>
