@@ -19,12 +19,12 @@
  */
 package org.sonar.server.rule;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.server.paging.PagedResult;
 import org.sonar.server.util.RubyUtils;
 
@@ -63,48 +63,44 @@ public class RubyRuleService implements ServerComponent, Startable {
     }
   }
 
-  /**
-   * No more used
-   */
-  public void saveOrUpdate(int ruleId) {
-    ruleRegistry.saveOrUpdate(ruleId);
+  public PagedResult<Rule> find(Map<String, Object> params) {
+    return rules.find(RuleQuery.builder()
+      .searchQuery(Strings.emptyToNull((String) params.get("searchQuery")))
+      .key(Strings.emptyToNull((String) params.get("key")))
+      .languages(RubyUtils.toStrings(params.get("languages")))
+      .repositories(RubyUtils.toStrings(params.get("repositories")))
+      .severities(RubyUtils.toStrings(params.get("severities")))
+      .statuses(RubyUtils.toStrings(params.get("statuses")))
+      .tags(RubyUtils.toStrings(params.get("tags")))
+      .debtCharacteristics(RubyUtils.toStrings(params.get("debtCharacteristics")))
+      .hasDebtCharacteristic(RubyUtils.toBoolean(params.get("hasDebtCharacteristic")))
+      .pageSize(RubyUtils.toInteger(params.get("pageSize")))
+      .pageIndex(RubyUtils.toInteger(params.get("pageIndex"))).build());
   }
 
-  public PagedResult<Rule> find(Map<String, Object> params){
-    return rules.find(toRuleQuery(params));
-  }
-
-  @VisibleForTesting
-  static RuleQuery toRuleQuery(Map<String, Object> props) {
-    RuleQuery.Builder builder = RuleQuery.builder()
-      .searchQuery(Strings.emptyToNull((String) props.get("searchQuery")))
-      .key(Strings.emptyToNull((String) props.get("key")))
-      .languages(RubyUtils.toStrings(props.get("languages")))
-      .repositories(RubyUtils.toStrings(props.get("repositories")))
-      .severities(RubyUtils.toStrings(props.get("severities")))
-      .statuses(RubyUtils.toStrings(props.get("statuses")))
-      .tags(RubyUtils.toStrings(props.get("tags")))
-      .debtCharacteristics(RubyUtils.toStrings(props.get("debtCharacteristics")))
-      .hasDebtCharacteristic(RubyUtils.toBoolean(props.get("hasDebtCharacteristic")))
-      .pageSize(RubyUtils.toInteger(props.get("pageSize")))
-      .pageIndex(RubyUtils.toInteger(props.get("pageIndex")));
-    return builder.build();
+  public void updateRule(Map<String, Object> params) {
+    rules.updateRule(new RuleOperations.RuleChange()
+      .setRuleKey(RuleKey.parse((String) params.get("ruleKey")))
+      .setDebtCharacteristicKey(Strings.emptyToNull((String) params.get("debtCharacteristicKey")))
+      .setDebtRemediationFunction((String) params.get("debtRemediationFunction"))
+      .setDebtRemediationCoefficient(Strings.emptyToNull((String) params.get("debtRemediationCoefficient")))
+      .setDebtRemediationOffset(Strings.emptyToNull((String) params.get("debtRemediationOffset"))));
   }
 
   public void updateRuleNote(int ruleId, String note) {
     rules.updateRuleNote(ruleId, note);
   }
 
-  public Integer createRule(int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
-    return rules.createRule(ruleId, name, severity, description, paramsByKey);
+  public Integer createCustomRule(int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
+    return rules.createCustomRule(ruleId, name, severity, description, paramsByKey);
   }
 
-  public void updateRule(int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
-    rules.updateRule(ruleId, name, severity, description, paramsByKey);
+  public void updateCustomRule(int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
+    rules.updateCustomRule(ruleId, name, severity, description, paramsByKey);
   }
 
-  public void deleteRule(int ruleId) {
-    rules.deleteRule(ruleId);
+  public void deleteCustomRule(int ruleId) {
+    rules.deleteCustomRule(ruleId);
   }
 
   public void updateRuleTags(int ruleId, Object tags) {

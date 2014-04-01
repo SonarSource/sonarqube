@@ -166,7 +166,7 @@ class RulesConfigurationController < ApplicationController
     rule_id = params[:rule_id].to_i
     new_rule = nil
     call_backend do
-      new_rule_id = Internal.rules.createRule(rule_id, params[:rule][:name], params[:rule][:priority], params[:rule][:description], params[:rule_param])
+      new_rule_id = Internal.rules.createCustomRule(rule_id, params[:rule][:name], params[:rule][:priority], params[:rule][:description], params[:rule_param])
       new_rule = Internal.quality_profiles.findByRule(new_rule_id)
     end
 
@@ -218,7 +218,7 @@ class RulesConfigurationController < ApplicationController
     rule_id = params[:rule_id].to_i
     rule = nil
     call_backend do
-      Internal.rules.updateRule(rule_id, params[:rule][:name], params[:rule][:priority], params[:rule][:description], params[:rule_param])
+      Internal.rules.updateCustomRule(rule_id, params[:rule][:name], params[:rule][:priority], params[:rule][:description], params[:rule_param])
       rule = Internal.quality_profiles.findByRule(rule_id)
     end
 
@@ -240,7 +240,7 @@ class RulesConfigurationController < ApplicationController
     require_parameters :id, :rule_id
 
     call_backend do
-      Internal.rules.deleteRule(params[:rule_id].to_i)
+      Internal.rules.deleteCustomRule(params[:rule_id].to_i)
       flash[:notice]=message('rules_configuration.rule_deleted')
     end
     redirect_to :action => 'index', :id => params[:id]

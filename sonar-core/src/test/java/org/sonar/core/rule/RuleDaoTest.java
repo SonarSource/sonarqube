@@ -25,6 +25,7 @@ import com.google.common.collect.Iterables;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.DateUtils;
@@ -104,6 +105,14 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
     assertThat(ruleDto.getStatus()).isEqualTo(Rule.STATUS_READY);
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
+  }
+
+  @Test
+  public void select_by_rule_key() throws Exception {
+    setupData("select_by_rule_key");
+    assertThat(dao.selectByKey(RuleKey.of("checkstyle", "AvoidComparison"))).isNotNull();
+    assertThat(dao.selectByKey(RuleKey.of("checkstyle", "Unknown"))).isNull();
+    assertThat(dao.selectByKey(RuleKey.of("Unknown", "AvoidComparison"))).isNull();
   }
 
   @Test

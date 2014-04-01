@@ -48,6 +48,10 @@
     select <include refid="selectColumns"/> from rules r WHERE r.id=#{id}
   </select>
 
+  <select id="selectByKey" parameterType="map" resultType="Rule">
+    SELECT <include refid="selectColumns"/> FROM rules r WHERE r.plugin_name=#{repository} AND r.plugin_rule_key=#{rule}
+  </select>
+
   <select id="selectByName" parameterType="String" resultType="Rule">
     select <include refid="selectColumns"/> from rules r WHERE r.name=#{name}
   </select>

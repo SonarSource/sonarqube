@@ -20,6 +20,7 @@
 package org.sonar.core.rule;
 
 import org.apache.ibatis.annotations.Param;
+import org.sonar.api.rule.RuleKey;
 
 import java.util.List;
 
@@ -33,6 +34,8 @@ public interface RuleMapper {
   List<RuleDto> selectBySubCharacteristicId(int characteristicId);
 
   RuleDto selectById(Integer id);
+
+  RuleDto selectByKey(RuleKey ruleKey);
 
   RuleDto selectByName(String name);
 

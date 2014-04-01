@@ -22,6 +22,7 @@ package org.sonar.core.rule;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
@@ -90,6 +91,21 @@ public class RuleDao implements BatchComponent, ServerComponent {
     SqlSession session = mybatis.openSession();
     try {
       return selectById(id, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  @CheckForNull
+  public RuleDto selectByKey(RuleKey ruleKey, SqlSession session) {
+    return getMapper(session).selectByKey(ruleKey);
+  }
+
+  @CheckForNull
+  public RuleDto selectByKey(RuleKey ruleKey) {
+    SqlSession session = mybatis.openSession();
+    try {
+      return selectByKey(ruleKey, session);
     } finally {
       MyBatis.closeQuietly(session);
     }

@@ -52,7 +52,6 @@ import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.es.ESIndex;
 import org.sonar.server.es.SearchQuery;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.paging.PagedResult;
 import org.sonar.server.paging.Paging;
 import org.sonar.server.paging.PagingResult;
@@ -259,23 +258,10 @@ public class RuleRegistry {
     }
   }
 
-  /**
-   * Create or update definition of rule identified by <code>ruleId</code>
-   */
-  public void saveOrUpdate(int ruleId) {
-    RuleDto rule = ruleDao.selectById(ruleId);
-    if (rule == null) {
-      throw new NotFoundException("Impossible to find rule with ID " + ruleId);
-    } else {
-      Collection<RuleParamDto> params = ruleDao.selectParameters(rule.getId());
-      Collection<RuleRuleTagDto> tags = ruleDao.selectTags(rule.getId());
-      save(rule, params, tags);
-    }
-  }
-
-  public void save(RuleDto rule, Collection<RuleParamDto> params, Collection<RuleRuleTagDto> tags) {
+  public void save(RuleDto rule, @Nullable CharacteristicDto characteristicDto, @Nullable CharacteristicDto subCharacteristicDto,
+                   Collection<RuleParamDto> params, Collection<RuleRuleTagDto> tags) {
     try {
-      searchIndex.putSynchronous(INDEX_RULES, TYPE_RULE, Long.toString(rule.getId()), ruleDocument(rule, null, null, params, tags));
+      searchIndex.putSynchronous(INDEX_RULES, TYPE_RULE, Long.toString(rule.getId()), ruleDocument(rule, characteristicDto, subCharacteristicDto, params, tags));
     } catch (IOException ioexception) {
       throw new IllegalStateException("Unable to index rule with id=" + rule.getId(), ioexception);
     }

@@ -21,15 +21,14 @@ package org.sonar.server.rule;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 
 import java.util.Map;
@@ -37,7 +36,6 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -58,7 +56,7 @@ public class RubyRuleServiceTest {
 
   @Test
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public void should_translate_arguments_ind_find_ids() {
+  public void translate_arguments_ind_find_ids() {
     Map<String, String> options = Maps.newHashMap();
     String status = " ";
     String repositories = "repo1|repo2";
@@ -79,73 +77,79 @@ public class RubyRuleServiceTest {
     assertThat(params.get("nameOrKey")).isEqualTo(searchText);
   }
 
+
   @Test
-  public void should_update_index_when_rule_saved() {
-    // this is not a magic number
-    int ruleId = 42;
-    facade.saveOrUpdate(ruleId);
-    verify(ruleRegistry).saveOrUpdate(ruleId);
+  public void update_rule() {
+    Map<String, Object> params = newHashMap();
+    params.put("ruleKey", "squid:UselessImportCheck");
+    params.put("debtCharacteristicKey", "MODULARITY");
+    params.put("debtRemediationFunction", "LINEAR_OFFSET");
+    params.put("debtRemediationCoefficient", "1h");
+    params.put("debtRemediationOffset", "10min");
+
+    facade.updateRule(params);
+    ArgumentCaptor<RuleOperations.RuleChange> ruleChangeCaptor = ArgumentCaptor.forClass(RuleOperations.RuleChange.class);
+    verify(rules).updateRule(ruleChangeCaptor.capture());
+
+    RuleOperations.RuleChange ruleChange = ruleChangeCaptor.getValue();
+    assertThat(ruleChange.ruleKey()).isEqualTo(RuleKey.of("squid", "UselessImportCheck"));
+    assertThat(ruleChange.debtCharacteristicKey()).isEqualTo("MODULARITY");
+    assertThat(ruleChange.debtRemediationFunction()).isEqualTo("LINEAR_OFFSET");
+    assertThat(ruleChange.debtRemediationCoefficient()).isEqualTo("1h");
+    assertThat(ruleChange.debtRemediationOffset()).isEqualTo("10min");
   }
 
   @Test
-  public void update_rule_note(){
+  public void update_rule_note() {
     facade.updateRuleNote(10, "My note");
     verify(rules).updateRuleNote(10, "My note");
   }
 
   @Test
-  public void create_rule(){
-    facade.createRule(10, "Rule name", Severity.MAJOR, "My note", ImmutableMap.of("max", "20"));
-    verify(rules).createRule(10, "Rule name", Severity.MAJOR, "My note", ImmutableMap.of("max", "20"));
+  public void create_custom_rule() {
+    facade.createCustomRule(10, "Rule name", Severity.MAJOR, "My note", ImmutableMap.of("max", "20"));
+    verify(rules).createCustomRule(10, "Rule name", Severity.MAJOR, "My note", ImmutableMap.of("max", "20"));
   }
 
   @Test
-  public void update_rule(){
-    facade.updateRule(10, "Rule name", Severity.MAJOR, "My note", ImmutableMap.of("max", "20"));
-    verify(rules).updateRule(10, "Rule name", Severity.MAJOR, "My note", ImmutableMap.of("max", "20"));
+  public void update_custom_rule() {
+    facade.updateCustomRule(10, "Rule name", Severity.MAJOR, "My note", ImmutableMap.of("max", "20"));
+    verify(rules).updateCustomRule(10, "Rule name", Severity.MAJOR, "My note", ImmutableMap.of("max", "20"));
   }
 
   @Test
-  public void delete_note(){
-    facade.deleteRule(10);
-    verify(rules).deleteRule(10);
+  public void delete_Custom_rule() {
+    facade.deleteCustomRule(10);
+    verify(rules).deleteCustomRule(10);
   }
 
   @Test
-  public void update_rule_tags(){
+  public void update_rule_tags() {
     facade.updateRuleTags(10, ImmutableList.of("tag1", "tag2"));
-    verify(rules).updateRuleTags(10,  ImmutableList.of("tag1", "tag2"));
+    verify(rules).updateRuleTags(10, ImmutableList.of("tag1", "tag2"));
   }
 
   @Test
-  public void find_by_params(){
-    facade.find(ImmutableMap.<String, Object>of("languages", Lists.newArrayList("java")));
-    verify(rules).find(argThat(new ArgumentMatcher<RuleQuery>() {
-      @Override
-      public boolean matches(Object o) {
-        RuleQuery query = (RuleQuery) o;
-        return query.languages().contains("java");
-      }
-    }));
-  }
+  public void find_by_params() {
+    Map<String, Object> params = newHashMap();
+    params.put("searchQuery", "NPE");
+    params.put("key", "rule");
+    params.put("languages", newArrayList("java", "xoo"));
+    params.put("repositories", newArrayList("pmd", "checkstyle"));
+    params.put("severities", newArrayList("MINOR", "MAJOR"));
+    params.put("statuses", newArrayList("READY", "BETA"));
+    params.put("tags", newArrayList("has-params", "keep-enabled"));
+    params.put("debtCharacteristics", newArrayList("MODULARITY", "REUSABILITY"));
+    params.put("hasDebtCharacteristic", "true");
 
-  @Test
-  public void create_rule_query_from_parameters() {
-    Map<String, Object> map = newHashMap();
-    map.put("searchQuery", "NPE");
-    map.put("key", "rule");
-    map.put("languages", newArrayList("java", "xoo"));
-    map.put("repositories", newArrayList("pmd", "checkstyle"));
-    map.put("severities", newArrayList("MINOR", "MAJOR"));
-    map.put("statuses", newArrayList("READY", "BETA"));
-    map.put("tags", newArrayList("has-params", "keep-enabled"));
-    map.put("debtCharacteristics", newArrayList("MODULARITY", "REUSABILITY"));
-    map.put("hasDebtCharacteristic", "true");
+    params.put("pageSize", 10l);
+    params.put("pageIndex", 50);
 
-    map.put("pageSize", 10l);
-    map.put("pageIndex", 50);
+    facade.find(params);
+    ArgumentCaptor<RuleQuery> ruleQueryCaptor = ArgumentCaptor.forClass(RuleQuery.class);
+    verify(rules).find(ruleQueryCaptor.capture());
 
-    RuleQuery query = RubyRuleService.toRuleQuery(map);
+    RuleQuery query = ruleQueryCaptor.getValue();
     assertThat(query.searchQuery()).isEqualTo("NPE");
     assertThat(query.key()).isEqualTo("rule");
     assertThat(query.languages()).containsOnly("java", "xoo");

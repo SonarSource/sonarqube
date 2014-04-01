@@ -64,6 +64,13 @@ public class RulesTest {
   }
 
   @Test
+  public void update_rule() throws Exception {
+    RuleOperations.RuleChange ruleChange = new RuleOperations.RuleChange();
+    rules.updateRule(ruleChange);
+    verify(ruleOperations).updateRule(eq(ruleChange), any(UserSession.class));
+  }
+
+  @Test
   public void create_rule_note() throws Exception {
     RuleDto rule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle");
     when(ruleDao.selectById(10)).thenReturn(rule);
@@ -84,30 +91,30 @@ public class RulesTest {
   }
 
   @Test
-  public void create_new_rule() throws Exception {
+  public void create_new_custom_rule() throws Exception {
     RuleDto rule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle");
     when(ruleDao.selectById(10)).thenReturn(rule);
 
     RuleDto newRule = new RuleDto().setId(11);
     Map<String, String> paramsByKey = ImmutableMap.of("max", "20");
-    when(ruleOperations.createRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class))).thenReturn(newRule);
+    when(ruleOperations.createCustomRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class))).thenReturn(newRule);
 
-    assertThat(rules.createRule(10, "Rule name", Severity.MAJOR, "My note", paramsByKey)).isEqualTo(11);
+    assertThat(rules.createCustomRule(10, "Rule name", Severity.MAJOR, "My note", paramsByKey)).isEqualTo(11);
 
-    verify(ruleOperations).createRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class));
+    verify(ruleOperations).createCustomRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class));
   }
 
   @Test
-  public void fail_to_create_new_rule_on_empty_parameters() throws Exception {
+  public void fail_to_create_new_custom_rule_on_empty_parameters() throws Exception {
     RuleDto rule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle");
     when(ruleDao.selectById(10)).thenReturn(rule);
 
     RuleDto newRule = new RuleDto().setId(11);
     Map<String, String> paramsByKey = ImmutableMap.of("max", "20");
-    when(ruleOperations.createRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class))).thenReturn(newRule);
+    when(ruleOperations.createCustomRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My note"), eq(paramsByKey), any(UserSession.class))).thenReturn(newRule);
 
     try {
-      rules.createRule(10, "", "", "", paramsByKey);
+      rules.createCustomRule(10, "", "", "", paramsByKey);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class);
@@ -117,7 +124,7 @@ public class RulesTest {
   }
 
   @Test
-  public void fail_to_create_new_rule_when_rule_name_already_exists() throws Exception {
+  public void fail_to_create_new_custom_rule_when_rule_name_already_exists() throws Exception {
     RuleDto rule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle");
     when(ruleDao.selectById(10)).thenReturn(rule);
 
@@ -125,10 +132,10 @@ public class RulesTest {
 
     RuleDto newRule = new RuleDto().setId(11);
     Map<String, String> paramsByKey = ImmutableMap.of("max", "20");
-    when(ruleOperations.createRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My description"), eq(paramsByKey), any(UserSession.class))).thenReturn(newRule);
+    when(ruleOperations.createCustomRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("My description"), eq(paramsByKey), any(UserSession.class))).thenReturn(newRule);
 
     try {
-      rules.createRule(10, "Rule name", Severity.MAJOR, "My description", paramsByKey);
+      rules.createCustomRule(10, "Rule name", Severity.MAJOR, "My description", paramsByKey);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class);
@@ -138,33 +145,33 @@ public class RulesTest {
   }
 
   @Test
-  public void update_rule() throws Exception {
+  public void update_custom_rule() throws Exception {
     RuleDto rule = new RuleDto().setId(11).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setParentId(10);
     when(ruleDao.selectById(11)).thenReturn(rule);
     when(ruleDao.selectByName("Updated name")).thenReturn(null);
 
     Map<String, String> paramsByKey = ImmutableMap.of("max", "21");
 
-    rules.updateRule(11, "Updated name", Severity.MAJOR, "Updated description", paramsByKey);
+    rules.updateCustomRule(11, "Updated name", Severity.MAJOR, "Updated description", paramsByKey);
 
-    verify(ruleOperations).updateRule(eq(rule), eq("Updated name"), eq(Severity.MAJOR), eq("Updated description"), eq(paramsByKey), any(UserSession.class));
+    verify(ruleOperations).updateCustomRule(eq(rule), eq("Updated name"), eq(Severity.MAJOR), eq("Updated description"), eq(paramsByKey), any(UserSession.class));
   }
 
   @Test
-  public void update_rule_with_same_name() throws Exception {
+  public void update_custom_rule_with_same_name() throws Exception {
     RuleDto rule = new RuleDto().setId(11).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setParentId(10);
     when(ruleDao.selectById(11)).thenReturn(rule);
     when(ruleDao.selectByName("Rule name")).thenReturn(rule);
 
     Map<String, String> paramsByKey = ImmutableMap.of("max", "21");
 
-    rules.updateRule(11, "Rule name", Severity.MAJOR, "Updated description", paramsByKey);
+    rules.updateCustomRule(11, "Rule name", Severity.MAJOR, "Updated description", paramsByKey);
 
-    verify(ruleOperations).updateRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("Updated description"), eq(paramsByKey), any(UserSession.class));
+    verify(ruleOperations).updateCustomRule(eq(rule), eq("Rule name"), eq(Severity.MAJOR), eq("Updated description"), eq(paramsByKey), any(UserSession.class));
   }
 
   @Test
-  public void fail_to_update_rule_when_no_parent() throws Exception {
+  public void fail_to_update_custom_rule_when_no_parent() throws Exception {
     RuleDto rule = new RuleDto().setId(11).setRepositoryKey("squid").setRuleKey("XPath_1387869254");
     when(ruleDao.selectById(11)).thenReturn(rule);
     when(ruleDao.selectByName("Rule name")).thenReturn(rule);
@@ -172,7 +179,7 @@ public class RulesTest {
     Map<String, String> paramsByKey = ImmutableMap.of("max", "21");
 
     try {
-      rules.updateRule(11, "Rule name", Severity.MAJOR, "Updated description", paramsByKey);
+      rules.updateCustomRule(11, "Rule name", Severity.MAJOR, "Updated description", paramsByKey);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(NotFoundException.class);
@@ -181,38 +188,38 @@ public class RulesTest {
   }
 
   @Test
-  public void delete_rule() throws Exception {
+  public void delete_custom_rule() throws Exception {
     RuleDto rule = new RuleDto().setId(11).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setParentId(10);
     when(ruleDao.selectById(11)).thenReturn(rule);
 
-    rules.deleteRule(11);
+    rules.deleteCustomRule(11);
 
-    verify(ruleOperations).deleteRule(eq(rule), any(UserSession.class));
+    verify(ruleOperations).deleteCustomRule(eq(rule), any(UserSession.class));
   }
 
   @Test
-  public void should_pass_tags_to_update() {
+  public void pass_tags_to_update() {
     final int ruleId = 11;
     RuleDto rule = new RuleDto().setId(ruleId).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setParentId(10);
     when(ruleDao.selectById(ruleId)).thenReturn(rule);
 
     rules.updateRuleTags(ruleId, null);
-    verify(ruleOperations).updateTags(eq(rule), isA(List.class), any(UserSession.class));
+    verify(ruleOperations).updateRuleTags(eq(rule), isA(List.class), any(UserSession.class));
   }
 
   @Test
-  public void should_prepare_empty_tag_list() {
+  public void prepare_empty_tag_list() {
     final int ruleId = 11;
     RuleDto rule = new RuleDto().setId(ruleId).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setParentId(10);
     when(ruleDao.selectById(ruleId)).thenReturn(rule);
 
     List<String> tags = ImmutableList.of("tag1", "tag2");
     rules.updateRuleTags(ruleId, tags);
-    verify(ruleOperations).updateTags(eq(rule), eq(tags), any(UserSession.class));
+    verify(ruleOperations).updateRuleTags(eq(rule), eq(tags), any(UserSession.class));
   }
 
   @Test
-  public void should_find_by_key() {
+  public void find_by_key() {
     RuleKey key = RuleKey.of("polop", "palap");
     Rule rule = mock(Rule.class);
     when(ruleRegistry.findByKey(key)).thenReturn(rule );

@@ -20,9 +20,6 @@
 
 package org.sonar.server.rule;
 
-import org.sonar.server.qualityprofile.ESActiveRule;
-
-import org.sonar.server.rule.RuleOperations;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.apache.ibatis.session.SqlSession;
@@ -30,10 +27,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.DateUtils;
@@ -43,16 +42,13 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.rule.RuleDao;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.core.rule.RuleParamDto;
-import org.sonar.core.rule.RuleRuleTagDto;
-import org.sonar.core.rule.RuleTagDao;
-import org.sonar.core.rule.RuleTagType;
+import org.sonar.core.rule.*;
+import org.sonar.core.technicaldebt.db.CharacteristicDao;
+import org.sonar.core.technicaldebt.db.CharacteristicDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.rule.RuleRegistry;
-import org.sonar.server.rule.RuleTagOperations;
+import org.sonar.server.qualityprofile.ESActiveRule;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
@@ -66,14 +62,8 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.sonar.server.rule.RuleOperations.RuleChange;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RuleOperationsTest {
@@ -94,6 +84,9 @@ public class RuleOperationsTest {
   RuleTagDao ruleTagDao;
 
   @Mock
+  CharacteristicDao characteristicDao;
+
+  @Mock
   RuleTagOperations ruleTagOperations;
 
   @Mock
@@ -104,6 +97,9 @@ public class RuleOperationsTest {
 
   @Mock
   System2 system;
+
+  @Captor
+  ArgumentCaptor<RuleDto> ruleCaptor;
 
   Integer currentId = 1;
 
@@ -126,7 +122,7 @@ public class RuleOperationsTest {
       }
     }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(SqlSession.class));
 
-    operations = new RuleOperations(myBatis, activeRuleDao, ruleDao, ruleTagDao, ruleTagOperations, esActiveRule, ruleRegistry, system);
+    operations = new RuleOperations(myBatis, activeRuleDao, ruleDao, ruleTagDao, characteristicDao, ruleTagOperations, esActiveRule, ruleRegistry, system);
   }
 
   @Test
@@ -151,7 +147,7 @@ public class RuleOperationsTest {
     assertThat(argumentCaptor.getValue().getNoteUpdatedAt().getTime()).isEqualTo(now);
 
     verify(session).commit();
-    verify(ruleRegistry).save(eq(rule), eq(ruleParams), eq(ruleTags));
+    verify(ruleRegistry).save(eq(rule), any(CharacteristicDto.class), any(CharacteristicDto.class), eq(ruleParams), eq(ruleTags));
   }
 
   @Test
@@ -191,7 +187,7 @@ public class RuleOperationsTest {
     assertThat(argumentCaptor.getValue().getNoteUpdatedAt().getTime()).isEqualTo(now);
 
     verify(session).commit();
-    verify(ruleRegistry).save(eq(rule), eq(ruleParams), eq(ruleTags));
+    verify(ruleRegistry).save(eq(rule), any(CharacteristicDto.class), any(CharacteristicDto.class), eq(ruleParams), eq(ruleTags));
   }
 
   @Test
@@ -217,17 +213,17 @@ public class RuleOperationsTest {
     assertThat(argumentCaptor.getValue().getNoteUpdatedAt()).isNull();
 
     verify(session).commit();
-    verify(ruleRegistry).save(eq(rule), eq(ruleParams), eq(ruleTags));
+    verify(ruleRegistry).save(eq(rule), any(CharacteristicDto.class), any(CharacteristicDto.class), eq(ruleParams), eq(ruleTags));
   }
 
   @Test
-  public void create_rule() throws Exception {
+  public void create_custom_rule() throws Exception {
     RuleDto templateRule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle").setConfigKey("Xpath");
     when(ruleDao.selectParameters(eq(10), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10")));
     when(ruleDao.selectTags(eq(10), eq(session))).thenReturn(newArrayList(new RuleRuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM)));
 
     Map<String, String> paramsByKey = ImmutableMap.of("max", "20");
-    RuleDto result = operations.createRule(templateRule, "My New Rule", Severity.BLOCKER, "Rule Description", paramsByKey, authorizedUserSession);
+    RuleDto result = operations.createCustomRule(templateRule, "My New Rule", Severity.BLOCKER, "Rule Description", paramsByKey, authorizedUserSession);
     assertThat(result).isNotNull();
 
     ArgumentCaptor<RuleDto> ruleArgument = ArgumentCaptor.forClass(RuleDto.class);
@@ -253,18 +249,19 @@ public class RuleOperationsTest {
     assertThat(ruleTagArgument.getValue().getType()).isEqualTo(RuleTagType.SYSTEM);
 
     verify(session).commit();
-    verify(ruleRegistry).save(eq(ruleArgument.getValue()), eq(newArrayList(ruleParamArgument.getValue())), eq(newArrayList(ruleTagArgument.getValue())));
+    verify(ruleRegistry).save(eq(ruleArgument.getValue()), isNull(CharacteristicDto.class), isNull(CharacteristicDto.class),
+      anyListOf(RuleParamDto.class), anyListOf(RuleRuleTagDto.class));
   }
 
   @Test
-  public void update_rule() throws Exception {
+  public void update_custom_rule() throws Exception {
     RuleDto rule = new RuleDto().setId(11).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setConfigKey("Xpath");
     when(ruleDao.selectParameters(eq(11), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(21).setName("max").setDefaultValue("20")));
     ArrayList<RuleRuleTagDto> ruleTags = newArrayList(new RuleRuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM));
     when(ruleDao.selectTags(eq(11), eq(session))).thenReturn(ruleTags);
 
     Map<String, String> paramsByKey = ImmutableMap.of("max", "21");
-    operations.updateRule(rule, "Updated Rule", Severity.MAJOR, "Updated Description", paramsByKey, authorizedUserSession);
+    operations.updateCustomRule(rule, "Updated Rule", Severity.MAJOR, "Updated Description", paramsByKey, authorizedUserSession);
 
     ArgumentCaptor<RuleDto> ruleArgument = ArgumentCaptor.forClass(RuleDto.class);
     verify(ruleDao).update(ruleArgument.capture(), eq(session));
@@ -277,11 +274,12 @@ public class RuleOperationsTest {
     assertThat(ruleParamArgument.getValue().getDefaultValue()).isEqualTo("21");
 
     verify(session).commit();
-    verify(ruleRegistry).save(eq(ruleArgument.getValue()), eq(newArrayList(ruleParamArgument.getValue())), eq(ruleTags));
+    verify(ruleRegistry).save(eq(ruleArgument.getValue()), any(CharacteristicDto.class), any(CharacteristicDto.class),
+      eq(newArrayList(ruleParamArgument.getValue())), eq(ruleTags));
   }
 
   @Test
-  public void delete_rule() throws Exception {
+  public void delete_custom_rule() throws Exception {
     final int ruleId = 11;
     RuleDto rule = new RuleDto().setId(ruleId).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setConfigKey("Xpath").setUpdatedAt(DateUtils.parseDate("2013-12-23"));
     RuleParamDto param = new RuleParamDto().setId(21).setName("max").setDefaultValue("20");
@@ -296,14 +294,13 @@ public class RuleOperationsTest {
     long now = System.currentTimeMillis();
     doReturn(now).when(system).now();
 
-    operations.deleteRule(rule, authorizedUserSession);
+    operations.deleteCustomRule(rule, authorizedUserSession);
 
-    ArgumentCaptor<RuleDto> ruleArgument = ArgumentCaptor.forClass(RuleDto.class);
-    verify(ruleDao).update(ruleArgument.capture(), eq(session));
-    assertThat(ruleArgument.getValue().getStatus()).isEqualTo(Rule.STATUS_REMOVED);
-    assertThat(ruleArgument.getValue().getUpdatedAt()).isEqualTo(new Date(now));
+    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
+    assertThat(ruleCaptor.getValue().getStatus()).isEqualTo(Rule.STATUS_REMOVED);
+    assertThat(ruleCaptor.getValue().getUpdatedAt()).isEqualTo(new Date(now));
 
-    verify(ruleRegistry).save(eq(ruleArgument.getValue()), eq(newArrayList(param)), eq(ruleTags));
+    verify(ruleRegistry).save(eq(ruleCaptor.getValue()), any(CharacteristicDto.class), any(CharacteristicDto.class), eq(newArrayList(param)), eq(ruleTags));
     verify(activeRuleDao).deleteParameters(eq(activeRuleId), eq(session));
     verify(activeRuleDao).deleteFromRule(eq(ruleId), eq(session));
     verify(session, times(2)).commit();
@@ -311,26 +308,26 @@ public class RuleOperationsTest {
   }
 
   @Test(expected = ForbiddenException.class)
-  public void should_fail_update_tags_on_unauthorized_user() {
-    operations.updateTags(new RuleDto(), ImmutableList.of("polop"), unauthorizedUserSession);
+  public void fail_to_update_tags_on_unauthorized_user() {
+    operations.updateRuleTags(new RuleDto(), ImmutableList.of("polop"), unauthorizedUserSession);
   }
 
   @Test(expected = NotFoundException.class)
-  public void should_fail_update_tags_on_unknown_tag() {
+  public void fail_to_update_tags_on_unknown_tag() {
     final String tag = "polop";
     when(ruleTagDao.selectId(tag, session)).thenReturn(null);
-    operations.updateTags(new RuleDto(), ImmutableList.of(tag), authorizedUserSession);
+    operations.updateRuleTags(new RuleDto(), ImmutableList.of(tag), authorizedUserSession);
   }
 
   @Test
-  public void should_add_new_tags() {
+  public void add_new_tags() {
     final int ruleId = 24;
     final RuleDto rule = new RuleDto().setId(ruleId);
     final String tag = "polop";
     final long tagId = 42L;
     when(ruleTagDao.selectId(tag, session)).thenReturn(tagId);
 
-    operations.updateTags(rule, ImmutableList.of(tag), authorizedUserSession);
+    operations.updateRuleTags(rule, ImmutableList.of(tag), authorizedUserSession);
 
     verify(ruleTagDao).selectId(tag, session);
     ArgumentCaptor<RuleRuleTagDto> capture = ArgumentCaptor.forClass(RuleRuleTagDto.class);
@@ -344,7 +341,7 @@ public class RuleOperationsTest {
   }
 
   @Test
-  public void should_delete_removed_tags() {
+  public void delete_removed_tags() {
     final int ruleId = 24;
     final RuleDto rule = new RuleDto().setId(ruleId);
     final String tag = "polop";
@@ -352,7 +349,7 @@ public class RuleOperationsTest {
     when(ruleDao.selectTags(ruleId, session)).thenReturn(ImmutableList.of(existingTag));
 
 
-    operations.updateTags(rule, ImmutableList.<String>of(), authorizedUserSession);
+    operations.updateRuleTags(rule, ImmutableList.<String>of(), authorizedUserSession);
 
     verify(ruleDao, atLeast(1)).selectTags(ruleId, session);
     verify(ruleDao).deleteTag(existingTag, session);
@@ -362,7 +359,7 @@ public class RuleOperationsTest {
   }
 
   @Test
-  public void should_not_update_rule_if_tags_unchanged() {
+  public void not_update_rule_tags_if_tags_unchanged() {
     final int ruleId = 24;
     final RuleDto rule = new RuleDto().setId(ruleId);
     final String tag = "polop";
@@ -371,11 +368,184 @@ public class RuleOperationsTest {
     RuleRuleTagDto existingTag = new RuleRuleTagDto().setTag(tag).setType(RuleTagType.ADMIN);
     when(ruleDao.selectTags(ruleId, session)).thenReturn(ImmutableList.of(existingTag));
 
-    operations.updateTags(rule, ImmutableList.of(tag), authorizedUserSession);
+    operations.updateRuleTags(rule, ImmutableList.of(tag), authorizedUserSession);
 
     verify(ruleTagDao).selectId(tag, session);
     verify(ruleDao).selectTags(ruleId, session);
     verify(ruleTagOperations).deleteUnusedTags(session);
     verify(ruleDao, never()).update(rule);
+  }
+
+  @Test
+  public void update_rule() throws Exception {
+    RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
+      .setSubCharacteristicId(6).setRemediationFunction("CONSTANT_ISSUE").setRemediationOffset("10min");
+    RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
+
+    when(ruleDao.selectByKey(ruleKey, session)).thenReturn(dto);
+
+    CharacteristicDto subCharacteristic = new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1);
+    when(characteristicDao.selectByKey("COMPILER", session)).thenReturn(subCharacteristic);
+
+    // Call when reindexing rule in E/S
+    when(characteristicDao.selectById(2, session)).thenReturn(subCharacteristic);
+    CharacteristicDto characteristic = new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability").setOrder(2);
+    when(characteristicDao.selectById(1, session)).thenReturn(characteristic);
+
+    operations.updateRule(
+      new RuleChange().setRuleKey(ruleKey).setDebtCharacteristicKey("COMPILER")
+        .setDebtRemediationFunction("LINEAR_OFFSET").setDebtRemediationCoefficient("2h").setDebtRemediationOffset("20min"),
+      authorizedUserSession
+    );
+
+    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
+    RuleDto result = ruleCaptor.getValue();
+
+    assertThat(result.getId()).isEqualTo(1);
+    assertThat(result.getSubCharacteristicId()).isEqualTo(2);
+    assertThat(result.getRemediationFunction()).isEqualTo("LINEAR_OFFSET");
+    assertThat(result.getRemediationCoefficient()).isEqualTo("2h");
+    assertThat(result.getRemediationOffset()).isEqualTo("20min");
+
+    verify(session).commit();
+    verify(ruleRegistry).save(eq(result), eq(characteristic), eq(subCharacteristic), anyListOf(RuleParamDto.class), anyListOf(RuleRuleTagDto.class));
+  }
+
+  @Test
+  public void not_update_rule_if_same_sub_characteristic_and_function() throws Exception {
+    RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
+      .setSubCharacteristicId(2).setRemediationFunction("CONSTANT_ISSUE").setRemediationOffset("10min");
+    RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
+
+    when(ruleDao.selectByKey(ruleKey, session)).thenReturn(dto);
+
+    CharacteristicDto subCharacteristic = new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1);
+    when(characteristicDao.selectByKey("COMPILER", session)).thenReturn(subCharacteristic);
+
+    operations.updateRule(
+      new RuleChange().setRuleKey(ruleKey).setDebtCharacteristicKey("COMPILER")
+        .setDebtRemediationFunction("CONSTANT_ISSUE").setDebtRemediationOffset("10min"),
+      authorizedUserSession
+    );
+
+    verify(ruleDao, never()).update(any(RuleDto.class), eq(session));
+    verify(session, never()).commit();
+    verify(ruleRegistry, never()).save(any(RuleDto.class), any(CharacteristicDto.class), any(CharacteristicDto.class), anyListOf(RuleParamDto.class), anyListOf(RuleRuleTagDto.class));
+  }
+
+
+  @Test
+  public void disable_characteristic_and_remove_remediation_function_when_update_rule_with_no_sub_characteristic() throws Exception {
+    RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
+      .setSubCharacteristicId(6).setRemediationFunction("CONSTANT_ISSUE").setRemediationOffset("10min");
+    RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
+
+    when(ruleDao.selectByKey(ruleKey, session)).thenReturn(dto);
+
+    operations.updateRule(
+      new RuleChange().setRuleKey(ruleKey).setDebtCharacteristicKey(null),
+      authorizedUserSession
+    );
+
+    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
+    RuleDto result = ruleCaptor.getValue();
+
+    assertThat(result.getId()).isEqualTo(1);
+    assertThat(result.getSubCharacteristicId()).isEqualTo(-1);
+    assertThat(result.getRemediationFunction()).isNull();
+    assertThat(result.getRemediationCoefficient()).isNull();
+    assertThat(result.getRemediationOffset()).isNull();
+
+    verify(session).commit();
+    verify(ruleRegistry).save(eq(result), isNull(CharacteristicDto.class), isNull(CharacteristicDto.class), anyListOf(RuleParamDto.class), anyListOf(RuleRuleTagDto.class));
+  }
+
+  @Test
+  public void not_disable_characteristic_when_update_rule_if_already_disabled() throws Exception {
+    RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck").setSubCharacteristicId(-1);
+    RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
+
+    when(ruleDao.selectByKey(ruleKey, session)).thenReturn(dto);
+
+    operations.updateRule(
+      new RuleChange().setRuleKey(ruleKey).setDebtCharacteristicKey(null),
+      authorizedUserSession
+    );
+
+    verify(ruleDao, never()).update(any(RuleDto.class), eq(session));
+    verify(session, never()).commit();
+    verify(ruleRegistry, never()).save(any(RuleDto.class), any(CharacteristicDto.class), any(CharacteristicDto.class), anyListOf(RuleParamDto.class), anyListOf(RuleRuleTagDto.class));
+  }
+
+  @Test
+  public void fail_to_update_rule_on_unknown_rule() throws Exception {
+    RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
+
+    when(ruleDao.selectByKey(ruleKey, session)).thenReturn(null);
+
+    try {
+      operations.updateRule(
+        new RuleChange().setRuleKey(ruleKey).setDebtCharacteristicKey("COMPILER")
+          .setDebtRemediationFunction("LINEAR_OFFSET").setDebtRemediationCoefficient("2h").setDebtRemediationOffset("20min"),
+        authorizedUserSession
+      );
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class);
+    }
+
+    verify(ruleDao, never()).update(any(RuleDto.class), eq(session));
+    verify(session, never()).commit();
+    verify(ruleRegistry, never()).save(any(RuleDto.class), any(CharacteristicDto.class), any(CharacteristicDto.class), anyListOf(RuleParamDto.class), anyListOf(RuleRuleTagDto.class));
+  }
+
+  @Test
+  public void fail_to_update_rule_on_unknown_sub_characteristic() throws Exception {
+    RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
+      .setSubCharacteristicId(2).setRemediationFunction("CONSTANT_ISSUE").setRemediationOffset("10min");
+    RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
+
+    when(ruleDao.selectByKey(ruleKey, session)).thenReturn(dto);
+
+    when(characteristicDao.selectByKey("COMPILER", session)).thenReturn(null);
+
+    try {
+      operations.updateRule(
+        new RuleChange().setRuleKey(ruleKey).setDebtCharacteristicKey("COMPILER")
+          .setDebtRemediationFunction("LINEAR_OFFSET").setDebtRemediationCoefficient("2h").setDebtRemediationOffset("20min"),
+        authorizedUserSession
+      );
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class);
+    }
+
+    verify(ruleDao, never()).update(any(RuleDto.class), eq(session));
+    verify(session, never()).commit();
+    verify(ruleRegistry, never()).save(any(RuleDto.class), any(CharacteristicDto.class), any(CharacteristicDto.class), anyListOf(RuleParamDto.class), anyListOf(RuleRuleTagDto.class));
+  }
+
+  @Test
+  public void fail_to_update_rule_on_invalid_coefficient() throws Exception {
+    RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
+      .setSubCharacteristicId(2).setRemediationFunction("LINEAR").setRemediationCoefficient("1h");
+    RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
+
+    when(ruleDao.selectByKey(ruleKey, session)).thenReturn(dto);
+
+    CharacteristicDto subCharacteristic = new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1);
+    when(characteristicDao.selectByKey("COMPILER", session)).thenReturn(subCharacteristic);
+
+    try {
+      operations.updateRule(
+        new RuleChange().setRuleKey(ruleKey).setDebtCharacteristicKey("COMPILER")
+          .setDebtRemediationFunction("LINEAR").setDebtRemediationCoefficient("foo"),
+        authorizedUserSession
+      );
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Invalid coefficient: foo");
+    }
+
+    verify(ruleDao, never()).update(any(RuleDto.class), eq(session));
+    verify(session, never()).commit();
+    verify(ruleRegistry, never()).save(any(RuleDto.class), any(CharacteristicDto.class), any(CharacteristicDto.class), anyListOf(RuleParamDto.class), anyListOf(RuleRuleTagDto.class));
   }
 }

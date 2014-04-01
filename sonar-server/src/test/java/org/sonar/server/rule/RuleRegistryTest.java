@@ -248,22 +248,6 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void index_and_reindex_single_rule() {
-    RuleDto rule = new RuleDto();
-    rule.setRepositoryKey("repo");
-    rule.setRuleKey("key");
-    rule.setSeverity(Severity.MINOR);
-    int id = 3;
-    rule.setId(id);
-    when(ruleDao.selectById(id)).thenReturn(rule);
-    registry.saveOrUpdate(id);
-    assertThat(registry.findIds(ImmutableMap.of("repositoryKey", "repo"))).hasSize(1);
-    rule.setName("polop");
-    registry.saveOrUpdate(id);
-    assertThat(registry.findIds(ImmutableMap.of("repositoryKey", "repo"))).hasSize(1);
-  }
-
-  @Test
   public void update_existing_rules_and_forget_deleted_rules() {
     int ruleId1 = 1;
     RuleDto rule1 = new RuleDto();

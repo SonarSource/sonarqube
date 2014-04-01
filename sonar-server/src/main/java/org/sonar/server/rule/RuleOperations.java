@@ -20,8 +20,6 @@
 
 package org.sonar.server.rule;
 
-import org.sonar.server.qualityprofile.ESActiveRule;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
@@ -29,24 +27,29 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.api.utils.System2;
 import org.sonar.check.Cardinality;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.rule.RuleDao;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.core.rule.RuleParamDto;
-import org.sonar.core.rule.RuleRuleTagDto;
-import org.sonar.core.rule.RuleTagDao;
-import org.sonar.core.rule.RuleTagType;
+import org.sonar.core.rule.*;
+import org.sonar.core.technicaldebt.db.CharacteristicDao;
+import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.qualityprofile.ESActiveRule;
 import org.sonar.server.user.UserSession;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.Date;
 import java.util.List;
@@ -61,24 +64,26 @@ public class RuleOperations implements ServerComponent {
   private final ActiveRuleDao activeRuleDao;
   private final RuleDao ruleDao;
   private final RuleTagDao ruleTagDao;
+  private final CharacteristicDao characteristicDao;
   private final RuleTagOperations ruleTagOperations;
   private final ESActiveRule esActiveRule;
   private final RuleRegistry ruleRegistry;
 
   private final System2 system;
 
-  public RuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleTagDao ruleTagDao, RuleTagOperations ruleTagOperations,
-    ESActiveRule esActiveRule, RuleRegistry ruleRegistry) {
-    this(myBatis, activeRuleDao, ruleDao, ruleTagDao, ruleTagOperations, esActiveRule, ruleRegistry, System2.INSTANCE);
+  public RuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleTagDao ruleTagDao, CharacteristicDao characteristicDao,
+                        RuleTagOperations ruleTagOperations, ESActiveRule esActiveRule, RuleRegistry ruleRegistry) {
+    this(myBatis, activeRuleDao, ruleDao, ruleTagDao, characteristicDao, ruleTagOperations, esActiveRule, ruleRegistry, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  RuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleTagDao ruleTagDao, RuleTagOperations ruleTagOperations, ESActiveRule esActiveRule,
-    RuleRegistry ruleRegistry, System2 system) {
+  RuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleTagDao ruleTagDao, CharacteristicDao characteristicDao, RuleTagOperations ruleTagOperations,
+                 ESActiveRule esActiveRule, RuleRegistry ruleRegistry, System2 system) {
     this.myBatis = myBatis;
     this.activeRuleDao = activeRuleDao;
     this.ruleDao = ruleDao;
     this.ruleTagDao = ruleTagDao;
+    this.characteristicDao = characteristicDao;
     this.ruleTagOperations = ruleTagOperations;
     this.esActiveRule = esActiveRule;
     this.ruleRegistry = ruleRegistry;
@@ -124,8 +129,8 @@ public class RuleOperations implements ServerComponent {
     }
   }
 
-  public RuleDto createRule(RuleDto templateRule, String name, String severity, String description, Map<String, String> paramsByKey,
-                            UserSession userSession) {
+  public RuleDto createCustomRule(RuleDto templateRule, String name, String severity, String description, Map<String, String> paramsByKey,
+                                  UserSession userSession) {
     checkPermission(userSession);
     SqlSession session = myBatis.openSession();
     try {
@@ -145,7 +150,6 @@ public class RuleOperations implements ServerComponent {
       ruleDao.insert(rule, session);
 
       List<RuleParamDto> templateRuleParams = ruleDao.selectParameters(templateRule.getId(), session);
-      List<RuleParamDto> ruleParams = newArrayList();
       for (RuleParamDto templateRuleParam : templateRuleParams) {
         String key = templateRuleParam.getName();
         String value = paramsByKey.get(key);
@@ -157,31 +161,28 @@ public class RuleOperations implements ServerComponent {
           .setType(templateRuleParam.getType())
           .setDefaultValue(Strings.emptyToNull(value));
         ruleDao.insert(param, session);
-        ruleParams.add(param);
       }
 
       List<RuleRuleTagDto> templateRuleTags = ruleDao.selectTags(templateRule.getId(), session);
-      List<RuleRuleTagDto> ruleTags = newArrayList();
-      for (RuleRuleTagDto tag: templateRuleTags) {
+      for (RuleRuleTagDto tag : templateRuleTags) {
         RuleRuleTagDto newTag = new RuleRuleTagDto()
           .setRuleId(rule.getId())
           .setTagId(tag.getTagId())
           .setTag(tag.getTag())
           .setType(tag.getType());
         ruleDao.insert(newTag, session);
-        ruleTags.add(newTag);
       }
 
       session.commit();
-      reindexRule(rule, ruleParams, ruleTags);
+      reindexRule(rule, session);
       return rule;
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public void updateRule(RuleDto rule, String name, String severity, String description, Map<String, String> paramsByKey,
-                         UserSession userSession) {
+  public void updateCustomRule(RuleDto rule, String name, String severity, String description, Map<String, String> paramsByKey,
+                               UserSession userSession) {
     checkPermission(userSession);
     SqlSession session = myBatis.openSession();
     try {
@@ -197,15 +198,14 @@ public class RuleOperations implements ServerComponent {
         ruleParam.setDefaultValue(Strings.emptyToNull(value));
         ruleDao.update(ruleParam, session);
       }
-      List<RuleRuleTagDto> ruleTags = ruleDao.selectTags(rule.getId(), session);
       session.commit();
-      reindexRule(rule, ruleParams, ruleTags);
+      reindexRule(rule, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public void deleteRule(RuleDto rule, UserSession userSession) {
+  public void deleteCustomRule(RuleDto rule, UserSession userSession) {
     checkPermission(userSession);
     SqlSession session = myBatis.openSession();
     try {
@@ -234,7 +234,7 @@ public class RuleOperations implements ServerComponent {
     }
   }
 
-  public void updateTags(RuleDto rule, List<String> newTags, UserSession userSession) {
+  public void updateRuleTags(RuleDto rule, List<String> newTags, UserSession userSession) {
     checkPermission(userSession);
     SqlSession session = myBatis.openSession();
     try {
@@ -254,10 +254,73 @@ public class RuleOperations implements ServerComponent {
     }
   }
 
+  public void updateRule(RuleChange ruleChange, UserSession userSession) {
+    checkPermission(userSession);
+    SqlSession session = myBatis.openSession();
+    try {
+      boolean updated = false;
+
+      RuleDto ruleDto = ruleDao.selectByKey(ruleChange.ruleKey(), session);
+      if (ruleDto == null) {
+        throw new NotFoundException(String.format("Unknown rule '%s'", ruleChange.ruleKey()));
+      }
+      String subCharacteristicKey = ruleChange.debtCharacteristicKey();
+      if (!Strings.isNullOrEmpty(subCharacteristicKey)) {
+        CharacteristicDto subCharacteristic = characteristicDao.selectByKey(subCharacteristicKey, session);
+        if (subCharacteristic == null) {
+          throw new NotFoundException(String.format("Unknown sub characteristic '%s'", ruleChange.debtCharacteristicKey()));
+        }
+
+        // New sub characteristic is not equals to existing one -> update it
+        if (!subCharacteristic.getId().equals(ruleDto.getSubCharacteristicId())) {
+          ruleDto.setSubCharacteristicId(subCharacteristic.getId());
+          updated = true;
+        }
+
+        // New remediation function is not equals to existing one -> update it
+        if (!isSameRemediationFunction(ruleChange.debtRemediationFunction(), ruleChange.debtRemediationCoefficient(), ruleChange.debtRemediationOffset(), ruleDto)) {
+          DefaultDebtRemediationFunction debtRemediationFunction = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.valueOf(ruleChange.debtRemediationFunction()),
+            ruleChange.debtRemediationCoefficient(), ruleChange.debtRemediationOffset());
+          ruleDto.setRemediationFunction(debtRemediationFunction.type().name());
+          ruleDto.setRemediationCoefficient(debtRemediationFunction.coefficient());
+          ruleDto.setRemediationOffset(debtRemediationFunction.offset());
+          updated = true;
+        }
+      } else {
+        // Rule characteristic is not already disabled -> update it
+        if (!ruleDto.getSubCharacteristicId().equals(RuleDto.DISABLED_CHARACTERISTIC_ID)) {
+          ruleDto.setSubCharacteristicId(RuleDto.DISABLED_CHARACTERISTIC_ID);
+          ruleDto.setRemediationFunction(null);
+          ruleDto.setRemediationCoefficient(null);
+          ruleDto.setRemediationOffset(null);
+          updated = true;
+        }
+      }
+
+      if (updated) {
+        ruleDao.update(ruleDto, session);
+        session.commit();
+        reindexRule(ruleDto, session);
+      }
+    } catch (IllegalArgumentException e) {
+      throw BadRequestException.of(e.getMessage());
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  private static boolean isSameRemediationFunction(String function, @Nullable String coefficient, @Nullable String offset, RuleDto rule) {
+    return new EqualsBuilder()
+      .append(function, rule.getRemediationFunction())
+      .append(coefficient, rule.getRemediationCoefficient())
+      .append(offset, rule.getRemediationOffset())
+      .isEquals();
+  }
+
   private Map<String, Long> validateAndGetTagIds(List<String> newTags, SqlSession session) {
     Map<String, Long> neededTagIds = Maps.newHashMap();
     Set<String> unknownTags = Sets.newHashSet();
-    for (String tag: newTags) {
+    for (String tag : newTags) {
       Long tagId = ruleTagDao.selectId(tag, session);
       if (tagId == null) {
         unknownTags.add(tag);
@@ -277,8 +340,8 @@ public class RuleOperations implements ServerComponent {
 
     Set<String> tagsToKeep = Sets.newHashSet();
     List<RuleRuleTagDto> currentTags = ruleDao.selectTags(ruleId, session);
-    for (RuleRuleTagDto existingTag: currentTags) {
-      if(existingTag.getType() == RuleTagType.ADMIN && !newTags.contains(existingTag.getTag())) {
+    for (RuleRuleTagDto existingTag : currentTags) {
+      if (existingTag.getType() == RuleTagType.ADMIN && !newTags.contains(existingTag.getTag())) {
         ruleDao.deleteTag(existingTag, session);
         ruleChanged = true;
       } else {
@@ -286,8 +349,8 @@ public class RuleOperations implements ServerComponent {
       }
     }
 
-    for (String tag: newTags) {
-      if (! tagsToKeep.contains(tag)) {
+    for (String tag : newTags) {
+      if (!tagsToKeep.contains(tag)) {
         ruleDao.insert(new RuleRuleTagDto().setRuleId(ruleId).setTagId(neededTagIds.get(tag)).setType(RuleTagType.ADMIN), session);
         ruleChanged = true;
       }
@@ -299,11 +362,10 @@ public class RuleOperations implements ServerComponent {
   }
 
   private void reindexRule(RuleDto rule, SqlSession session) {
-    reindexRule(rule, ruleDao.selectParameters(rule.getId(), session), ruleDao.selectTags(rule.getId(), session));
-  }
-
-  private void reindexRule(RuleDto rule, List<RuleParamDto> ruleParams, List<RuleRuleTagDto> ruleTags) {
-    ruleRegistry.save(rule, ruleParams, ruleTags);
+    Integer subCharacteristicId = rule.getSubCharacteristicId();
+    CharacteristicDto subCharacteristic = subCharacteristicId != null ? characteristicDao.selectById(subCharacteristicId, session) : null;
+    CharacteristicDto characteristic = subCharacteristic != null ? characteristicDao.selectById(subCharacteristic.getParentId(), session) : null;
+    ruleRegistry.save(rule, characteristic, subCharacteristic, ruleDao.selectParameters(rule.getId(), session), ruleDao.selectTags(rule.getId(), session));
   }
 
   private void checkPermission(UserSession userSession) {
@@ -317,5 +379,62 @@ public class RuleOperations implements ServerComponent {
       throw new BadRequestException("User login can't be null");
     }
     return login;
+  }
+
+  public static class RuleChange {
+    private RuleKey ruleKey;
+    private String debtCharacteristicKey;
+    private String debtRemediationFunction;
+    private String debtRemediationCoefficient;
+    private String debtRemediationOffset;
+
+    public RuleKey ruleKey() {
+      return ruleKey;
+    }
+
+    public RuleChange setRuleKey(RuleKey ruleKey) {
+      this.ruleKey = ruleKey;
+      return this;
+    }
+
+    @CheckForNull
+    public String debtCharacteristicKey() {
+      return debtCharacteristicKey;
+    }
+
+    public RuleChange setDebtCharacteristicKey(@Nullable String debtCharacteristicKey) {
+      this.debtCharacteristicKey = debtCharacteristicKey;
+      return this;
+    }
+
+    @CheckForNull
+    public String debtRemediationFunction() {
+      return debtRemediationFunction;
+    }
+
+    public RuleChange setDebtRemediationFunction(@Nullable String debtRemediationFunction) {
+      this.debtRemediationFunction = debtRemediationFunction;
+      return this;
+    }
+
+    @CheckForNull
+    public String debtRemediationCoefficient() {
+      return debtRemediationCoefficient;
+    }
+
+    public RuleChange setDebtRemediationCoefficient(@Nullable String debtRemediationCoefficient) {
+      this.debtRemediationCoefficient = debtRemediationCoefficient;
+      return this;
+    }
+
+    @CheckForNull
+    public String debtRemediationOffset() {
+      return debtRemediationOffset;
+    }
+
+    public RuleChange setDebtRemediationOffset(@Nullable String debtRemediationOffset) {
+      this.debtRemediationOffset = debtRemediationOffset;
+      return this;
+    }
   }
 }

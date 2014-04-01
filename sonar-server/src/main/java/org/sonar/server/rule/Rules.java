@@ -52,6 +52,13 @@ public class Rules implements ServerExtension {
     this.ruleRegistry = ruleRegistry;
   }
 
+  /**
+   * Update a rule : Only sub characteristic or remediation function can be updated
+   */
+  public void updateRule(RuleOperations.RuleChange ruleChange) {
+    ruleOperations.updateRule(ruleChange, UserSession.get());
+  }
+
   public void updateRuleNote(int ruleId, String note) {
     RuleDto rule = findRuleNotNull(ruleId);
     String sanitizedNote = Strings.emptyToNull(note);
@@ -63,32 +70,32 @@ public class Rules implements ServerExtension {
   }
 
   /**
-   * Create rule from a template rule id
+   * Create custom rule
    */
-  public Integer createRule(int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
+  public Integer createCustomRule(int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
     RuleDto rule = findRuleNotNull(ruleId);
     validateRule(null, name, severity, description);
-    RuleDto newRule = ruleOperations.createRule(rule, name, severity, description, paramsByKey, UserSession.get());
+    RuleDto newRule = ruleOperations.createCustomRule(rule, name, severity, description, paramsByKey, UserSession.get());
     return newRule.getId();
   }
 
   /**
-   * Update instance of template rule
+   * Update custom rule
    */
-  public void updateRule(int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
+  public void updateCustomRule(int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
     RuleDto rule = findRuleNotNull(ruleId);
     validateRuleParent(rule);
     validateRule(ruleId, name, severity, description);
-    ruleOperations.updateRule(rule, name, severity, description, paramsByKey, UserSession.get());
+    ruleOperations.updateCustomRule(rule, name, severity, description, paramsByKey, UserSession.get());
   }
 
   /**
-   * Delete instance of template rule
+   * Delete custom rule
    */
-  public void deleteRule(int ruleId) {
+  public void deleteCustomRule(int ruleId) {
     RuleDto rule = findRuleNotNull(ruleId);
     validateRuleParent(rule);
-    ruleOperations.deleteRule(rule, UserSession.get());
+    ruleOperations.deleteCustomRule(rule, UserSession.get());
   }
 
   public void updateRuleTags(int ruleId, Object tags) {
@@ -97,7 +104,7 @@ public class Rules implements ServerExtension {
     if (newTags == null) {
       newTags = ImmutableList.of();
     }
-    ruleOperations.updateTags(rule, newTags, UserSession.get());
+    ruleOperations.updateRuleTags(rule, newTags, UserSession.get());
   }
 
   public Rule findByKey(RuleKey key) {
