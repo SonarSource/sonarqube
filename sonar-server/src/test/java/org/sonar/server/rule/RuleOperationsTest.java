@@ -98,6 +98,8 @@ public class RuleOperationsTest {
   @Mock
   System2 system;
 
+  Date now = DateUtils.parseDate("2014-03-19");
+
   @Captor
   ArgumentCaptor<RuleDto> ruleCaptor;
 
@@ -111,6 +113,8 @@ public class RuleOperationsTest {
   @Before
   public void setUp() throws Exception {
     when(myBatis.openSession()).thenReturn(session);
+
+    when(system.now()).thenReturn(now.getTime());
 
     // Associate an id when inserting an object to simulate the db id generator
     doAnswer(new Answer() {
@@ -134,17 +138,14 @@ public class RuleOperationsTest {
     List<RuleRuleTagDto> ruleTags = newArrayList(new RuleRuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM));
     when(ruleDao.selectTags(eq(10), eq(session))).thenReturn(ruleTags);
 
-    long now = System.currentTimeMillis();
-    doReturn(now).when(system).now();
-
     operations.updateRuleNote(rule, "My note", authorizedUserSession);
 
     ArgumentCaptor<RuleDto> argumentCaptor = ArgumentCaptor.forClass(RuleDto.class);
     verify(ruleDao).update(argumentCaptor.capture());
     assertThat(argumentCaptor.getValue().getNoteData()).isEqualTo("My note");
     assertThat(argumentCaptor.getValue().getNoteUserLogin()).isEqualTo("nicolas");
-    assertThat(argumentCaptor.getValue().getNoteCreatedAt().getTime()).isEqualTo(now);
-    assertThat(argumentCaptor.getValue().getNoteUpdatedAt().getTime()).isEqualTo(now);
+    assertThat(argumentCaptor.getValue().getNoteCreatedAt()).isEqualTo(now);
+    assertThat(argumentCaptor.getValue().getNoteUpdatedAt()).isEqualTo(now);
 
     verify(session).commit();
     verify(ruleRegistry).save(eq(rule), any(CharacteristicDto.class), any(CharacteristicDto.class), eq(ruleParams), eq(ruleTags));
@@ -174,9 +175,6 @@ public class RuleOperationsTest {
     List<RuleRuleTagDto> ruleTags = newArrayList(new RuleRuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM));
     when(ruleDao.selectTags(eq(10), eq(session))).thenReturn(ruleTags);
 
-    long now = System.currentTimeMillis();
-    doReturn(now).when(system).now();
-
     operations.updateRuleNote(rule, "My new note", MockUserSession.create().setLogin("guy").setName("Guy").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
 
     ArgumentCaptor<RuleDto> argumentCaptor = ArgumentCaptor.forClass(RuleDto.class);
@@ -184,7 +182,7 @@ public class RuleOperationsTest {
     assertThat(argumentCaptor.getValue().getNoteData()).isEqualTo("My new note");
     assertThat(argumentCaptor.getValue().getNoteUserLogin()).isEqualTo("nicolas");
     assertThat(argumentCaptor.getValue().getNoteCreatedAt()).isEqualTo(createdAt);
-    assertThat(argumentCaptor.getValue().getNoteUpdatedAt().getTime()).isEqualTo(now);
+    assertThat(argumentCaptor.getValue().getNoteUpdatedAt()).isEqualTo(now);
 
     verify(session).commit();
     verify(ruleRegistry).save(eq(rule), any(CharacteristicDto.class), any(CharacteristicDto.class), eq(ruleParams), eq(ruleTags));
@@ -291,14 +289,11 @@ public class RuleOperationsTest {
     ActiveRuleDto activeRule = new ActiveRuleDto().setId(activeRuleId).setProfileId(1).setRuleId(ruleId).setSeverity(Severity.MINOR);
     when(activeRuleDao.selectByRuleId(ruleId)).thenReturn(newArrayList(activeRule));
 
-    long now = System.currentTimeMillis();
-    doReturn(now).when(system).now();
-
     operations.deleteCustomRule(rule, authorizedUserSession);
 
     verify(ruleDao).update(ruleCaptor.capture(), eq(session));
     assertThat(ruleCaptor.getValue().getStatus()).isEqualTo(Rule.STATUS_REMOVED);
-    assertThat(ruleCaptor.getValue().getUpdatedAt()).isEqualTo(new Date(now));
+    assertThat(ruleCaptor.getValue().getUpdatedAt()).isEqualTo(now);
 
     verify(ruleRegistry).save(eq(ruleCaptor.getValue()), any(CharacteristicDto.class), any(CharacteristicDto.class), eq(newArrayList(param)), eq(ruleTags));
     verify(activeRuleDao).deleteParameters(eq(activeRuleId), eq(session));
@@ -347,7 +342,6 @@ public class RuleOperationsTest {
     final String tag = "polop";
     RuleRuleTagDto existingTag = new RuleRuleTagDto().setTag(tag).setType(RuleTagType.ADMIN);
     when(ruleDao.selectTags(ruleId, session)).thenReturn(ImmutableList.of(existingTag));
-
 
     operations.updateRuleTags(rule, ImmutableList.<String>of(), authorizedUserSession);
 
@@ -406,6 +400,7 @@ public class RuleOperationsTest {
     assertThat(result.getRemediationFunction()).isEqualTo("LINEAR_OFFSET");
     assertThat(result.getRemediationCoefficient()).isEqualTo("2h");
     assertThat(result.getRemediationOffset()).isEqualTo("20min");
+    assertThat(result.getUpdatedAt()).isEqualTo(now);
 
     verify(session).commit();
     verify(ruleRegistry).save(eq(result), eq(characteristic), eq(subCharacteristic), anyListOf(RuleParamDto.class), anyListOf(RuleRuleTagDto.class));
@@ -433,7 +428,6 @@ public class RuleOperationsTest {
     verify(ruleRegistry, never()).save(any(RuleDto.class), any(CharacteristicDto.class), any(CharacteristicDto.class), anyListOf(RuleParamDto.class), anyListOf(RuleRuleTagDto.class));
   }
 
-
   @Test
   public void disable_characteristic_and_remove_remediation_function_when_update_rule_with_no_sub_characteristic() throws Exception {
     RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
@@ -455,6 +449,7 @@ public class RuleOperationsTest {
     assertThat(result.getRemediationFunction()).isNull();
     assertThat(result.getRemediationCoefficient()).isNull();
     assertThat(result.getRemediationOffset()).isNull();
+    assertThat(result.getUpdatedAt()).isEqualTo(now);
 
     verify(session).commit();
     verify(ruleRegistry).save(eq(result), isNull(CharacteristicDto.class), isNull(CharacteristicDto.class), anyListOf(RuleParamDto.class), anyListOf(RuleRuleTagDto.class));

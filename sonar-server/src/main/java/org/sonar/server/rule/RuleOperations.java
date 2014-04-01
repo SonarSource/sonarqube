@@ -298,6 +298,7 @@ public class RuleOperations implements ServerComponent {
       }
 
       if (updated) {
+        ruleDto.setUpdatedAt(new Date(system.now()));
         ruleDao.update(ruleDto, session);
         session.commit();
         reindexRule(ruleDto, session);
