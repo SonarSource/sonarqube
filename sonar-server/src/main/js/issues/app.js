@@ -344,6 +344,11 @@ requirejs(
               pageIndex: this.issuesPage
             }, query);
 
+        // SONAR-5086
+        if (fetchQuery['actionPlans'] && fetchQuery['componentRoots']) {
+          delete fetchQuery['componentRoots'];
+        }
+
         if (this.issues.sorting) {
           _.extend(fetchQuery, {
             sort: this.issues.sorting.sort,
