@@ -195,14 +195,18 @@ class Api::Utils
   # Api::Utils.insensitive_sort!([foo, bar]) { |elt| elt.nullable_field_to_compare }
   #
   def self.insensitive_sort!(arr)
+    ruby_array = arr
+    if arr.respond_to? :to_a
+      ruby_array = arr.to_a
+    end
     if block_given?
-      arr.sort! do |a, b|
+      ruby_array.sort! do |a, b|
         a_string=yield(a) || ''
         b_string=yield(b) || ''
         a_string.downcase <=> b_string.downcase || a_string <=> b_string
       end
     else
-      arr.sort! do |a, b|
+      ruby_array.sort! do |a, b|
         a_string=a || ''
         b_string=b || ''
         a_string.downcase <=> b_string.downcase || a_string <=> b_string
@@ -235,7 +239,7 @@ class Api::Utils
   end
 
   def self.languages
-    java_facade.getLanguages().sort_by(&:getName)
+    java_facade.getLanguages().to_a.sort_by(&:getName)
   end
 
   def self.language(key)

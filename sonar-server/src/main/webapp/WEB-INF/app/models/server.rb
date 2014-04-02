@@ -77,7 +77,7 @@ class Server
 
   def sonar_plugins
     sonar_plugins=[]
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().getPluginsMetadata().select { |plugin| !plugin.isCore() }.sort.each do |plugin|
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().getPluginsMetadata().to_a.select { |plugin| !plugin.isCore() }.sort.each do |plugin|
       add_property(sonar_plugins, plugin.getName()) { plugin.getVersion() }
     end
     sonar_plugins
@@ -85,7 +85,7 @@ class Server
 
   def system_properties
     system_properties=[]
-    keys=java.lang.System.getProperties().keySet().sort
+    keys=java.lang.System.getProperties().keySet().to_a.sort
     keys.each do |key|
       add_property(system_properties, key) { java.lang.System.getProperty(key) }
     end
