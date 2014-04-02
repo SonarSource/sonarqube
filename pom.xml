@@ -481,11 +481,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <runOrder>random</runOrder>
-          <!--
-          user.locale is overridden: timezone is forced to an arbitrary value (GMT-4) to be sure that
-          tests do not depend on developers timezone
-          -->
-          <argLine>-Xmx512m -Djava.awt.headless=true -XX:MaxPermSize=128m -Duser.locale=EST5EDT</argLine>
+          <argLine>-Xmx512m -Djava.awt.headless=true -XX:MaxPermSize=128m</argLine>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
           <systemPropertyVariables>
             <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
