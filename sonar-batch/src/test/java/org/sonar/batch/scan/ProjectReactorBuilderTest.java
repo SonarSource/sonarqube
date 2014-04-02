@@ -59,16 +59,6 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void shouldDefineSimpleProjectWithDeprecatedProperties() throws IOException {
-    ProjectDefinition projectDefinition = loadProjectDefinition("simple-project-with-deprecated-props");
-
-    assertThat(projectDefinition.getSourceDirs()).contains("sources");
-    assertThat(projectDefinition.getLibraries()).contains(
-      TestUtils.getResource(this.getClass(), "simple-project-with-deprecated-props/libs/lib2.txt").getAbsolutePath(),
-      TestUtils.getResource(this.getClass(), "simple-project-with-deprecated-props/libs/lib2.txt").getAbsolutePath());
-  }
-
-  @Test
   public void shouldFailOnInvalidProjectKey() throws IOException {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Invalid project key 'A key with spaces'.\nAllowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");

@@ -20,7 +20,6 @@
 package org.sonar.batch.scan;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.AndFileFilter;
@@ -77,20 +76,6 @@ public class ProjectReactorBuilder {
   private static final String PROPERTY_TESTS = "sonar.tests";
   private static final String PROPERTY_BINARIES = "sonar.binaries";
   private static final String PROPERTY_LIBRARIES = "sonar.libraries";
-
-  /**
-   * Old deprecated properties, replaced by the same ones preceded by "sonar."
-   */
-  private static final String PROPERTY_OLD_SOURCES = "sources";
-  private static final String PROPERTY_OLD_TESTS = "tests";
-  private static final String PROPERTY_OLD_BINARIES = "binaries";
-  private static final String PROPERTY_OLD_LIBRARIES = "libraries";
-  private static final Map<String, String> DEPRECATED_PROPS_TO_NEW_PROPS = ImmutableMap.of(
-    PROPERTY_OLD_SOURCES, PROPERTY_SOURCES,
-    PROPERTY_OLD_TESTS, PROPERTY_TESTS,
-    PROPERTY_OLD_BINARIES, PROPERTY_BINARIES,
-    PROPERTY_OLD_LIBRARIES, PROPERTY_LIBRARIES
-    );
 
   /**
    * Array of all mandatory properties required for a project without child.
@@ -368,7 +353,6 @@ public class ProjectReactorBuilder {
 
   @VisibleForTesting
   protected static void checkMandatoryProperties(Properties props, String[] mandatoryProps) {
-    replaceDeprecatedProperties(props);
     StringBuilder missing = new StringBuilder();
     for (String mandatoryProperty : mandatoryProps) {
       if (!props.containsKey(mandatoryProperty)) {
@@ -470,24 +454,6 @@ public class ProjectReactorBuilder {
         properties.remove(key);
       }
     }
-  }
-
-  /**
-   * Replaces the deprecated properties by the new ones, and logs a message to warn the users.
-   */
-  @VisibleForTesting
-  protected static void replaceDeprecatedProperties(Properties props) {
-    for (Entry<String, String> entry : DEPRECATED_PROPS_TO_NEW_PROPS.entrySet()) {
-      String key = entry.getKey();
-      if (props.containsKey(key)) {
-        String newKey = entry.getValue();
-        LOG.warn("/!\\ The '{}' property is deprecated and is replaced by '{}'. Don't forget to update your files.", key, newKey);
-        String value = props.getProperty(key);
-        props.remove(key);
-        props.put(newKey, value);
-      }
-    }
-
   }
 
   @VisibleForTesting
