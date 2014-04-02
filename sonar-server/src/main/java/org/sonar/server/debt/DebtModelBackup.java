@@ -251,7 +251,7 @@ public class DebtModelBackup implements ServerComponent {
       // Disable no more existing characteristics
       for (CharacteristicDto sourceCharacteristic : sourceCharacteristics) {
         if (targetModel.characteristicByKey(sourceCharacteristic.getKey()) == null) {
-          debtModelOperations.disableCharacteristic(sourceCharacteristic, updateDate, session);
+          debtModelOperations.delete(sourceCharacteristic, updateDate, session);
         }
       }
     }

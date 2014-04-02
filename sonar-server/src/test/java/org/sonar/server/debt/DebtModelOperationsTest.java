@@ -460,4 +460,21 @@ public class DebtModelOperationsTest {
     verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), batchSession);
   }
 
+  @Test
+  public void not_delete_already_disabled_characteristic() {
+    BatchSession batchSession = mock(BatchSession.class);
+    when(mybatis.openBatchSession()).thenReturn(batchSession);
+
+    when(dao.selectById(1, batchSession)).thenReturn(new CharacteristicDto()
+      .setId(1)
+      .setKey("MEMORY_EFFICIENCY")
+      .setName("Memory use")
+      .setOrder(2)
+      .setEnabled(false));
+
+    service.delete(1);
+
+    verify(dao, never()).update(any(CharacteristicDto.class), eq(batchSession));
+  }
+
 }

@@ -314,8 +314,8 @@ public class DebtModelBackupTest {
 
     debtModelBackup.restoreCharacteristics(new DebtModel(), true, now, session);
 
-    verify(debtModelOperations).disableCharacteristic(dto1, now, session);
-    verify(debtModelOperations).disableCharacteristic(dto2, now, session);
+    verify(debtModelOperations).delete(dto1, now, session);
+    verify(debtModelOperations).delete(dto2, now, session);
   }
 
   @Test
@@ -401,7 +401,7 @@ public class DebtModelBackupTest {
 
     debtModelBackup.restore("java");
 
-    verify(debtModelOperations, never()).disableCharacteristic(any(CharacteristicDto.class), eq(now), eq(session));
+    verify(debtModelOperations, never()).delete(any(CharacteristicDto.class), eq(now), eq(session));
     verify(session).commit();
   }
 
@@ -627,7 +627,7 @@ public class DebtModelBackupTest {
 
     debtModelBackup.restoreFromXml("<xml/>", "java");
 
-    verify(debtModelOperations, never()).disableCharacteristic(any(CharacteristicDto.class), eq(now), eq(session));
+    verify(debtModelOperations, never()).delete(any(CharacteristicDto.class), eq(now), eq(session));
     verify(session).commit();
   }
 

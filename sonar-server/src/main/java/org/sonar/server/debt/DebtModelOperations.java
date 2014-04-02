@@ -192,8 +192,20 @@ public class DebtModelOperations implements ServerComponent {
     Date updateDate = new Date(system2.now());
     SqlSession session = mybatis.openBatchSession();
     try {
+      delete(findCharacteristic(characteristicId, session), updateDate, session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
 
-      CharacteristicDto characteristicOrSubCharacteristic = findCharacteristic(characteristicId, session);
+  /**
+   * Disabled a characteristic or a sub characteristic.
+   * If it has already been disabled, do nothing (for instance when call on a list of characteristics and sub-characteristics in random order)
+   */
+  public void delete(CharacteristicDto characteristicOrSubCharacteristic, Date updateDate, SqlSession session) {
+    // Do nothing is the characteristic is already disabled
+    if (characteristicOrSubCharacteristic.isEnabled()) {
       // When root characteristic, browse sub characteristics and disable rule debt on each sub characteristic then disable it
       if (characteristicOrSubCharacteristic.getParentId() == null) {
         List<CharacteristicDto> subCharacteristics = dao.selectCharacteristicsByParentId(characteristicOrSubCharacteristic.getId(), session);
@@ -205,21 +217,18 @@ public class DebtModelOperations implements ServerComponent {
         // When sub characteristic, disable rule debt on the sub characteristic then disable it
         disableSubCharacteristic(characteristicOrSubCharacteristic, updateDate, session);
       }
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
     }
-  }
-
-  public void disableCharacteristic(CharacteristicDto characteristic, Date updateDate, SqlSession session) {
-    characteristic.setEnabled(false);
-    characteristic.setUpdatedAt(updateDate);
-    dao.update(characteristic, session);
   }
 
   private void disableSubCharacteristic(CharacteristicDto subCharacteristic, Date updateDate, SqlSession session) {
     disableRulesDebt(ruleDao.selectBySubCharacteristicId(subCharacteristic.getId(), session), subCharacteristic.getId(), updateDate, session);
     disableCharacteristic(subCharacteristic, updateDate, session);
+  }
+
+  private void disableCharacteristic(CharacteristicDto characteristic, Date updateDate, SqlSession session) {
+    characteristic.setEnabled(false);
+    characteristic.setUpdatedAt(updateDate);
+    dao.update(characteristic, session);
   }
 
   public void disableRulesDebt(List<RuleDto> ruleDtos, Integer subCharacteristicId, Date updateDate, SqlSession session) {
