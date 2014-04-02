@@ -170,7 +170,7 @@ public class DebtModelOperations implements ServerComponent {
 
   @CheckForNull
   private CharacteristicDto findCharacteristicToSwitchWith(final CharacteristicDto dto, final boolean moveUpOrDown, SqlSession session) {
-    // characteristics should be order by 'order'
+    // characteristics should be sort by 'order'
     List<CharacteristicDto> rootCharacteristics = dao.selectEnabledRootCharacteristics(session);
     int currentPosition = Iterables.indexOf(rootCharacteristics, new Predicate<CharacteristicDto>() {
       @Override
@@ -234,7 +234,7 @@ public class DebtModelOperations implements ServerComponent {
   public void disableRulesDebt(List<RuleDto> ruleDtos, Integer subCharacteristicId, Date updateDate, SqlSession session) {
     for (RuleDto ruleDto : ruleDtos) {
       if (subCharacteristicId.equals(ruleDto.getSubCharacteristicId())) {
-        ruleDto.setSubCharacteristicId(null);
+        ruleDto.setSubCharacteristicId(RuleDto.DISABLED_CHARACTERISTIC_ID);
         ruleDto.setRemediationFunction(null);
         ruleDto.setRemediationCoefficient(null);
         ruleDto.setRemediationOffset(null);

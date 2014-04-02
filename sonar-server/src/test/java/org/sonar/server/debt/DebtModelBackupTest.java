@@ -31,8 +31,11 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ValidationMessages;
@@ -42,6 +45,7 @@ import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
+import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.MockUserSession;
 
@@ -93,6 +97,9 @@ public class DebtModelBackupTest {
   RuleRegistry ruleRegistry;
 
   @Mock
+  RuleDefinitionsLoader defLoader;
+
+  @Mock
   System2 system2;
 
   @Captor
@@ -134,7 +141,7 @@ public class DebtModelBackupTest {
     when(debtModelPluginRepository.createReaderForXMLFile("technical-debt")).thenReturn(defaultModelReader);
 
     debtModelBackup = new DebtModelBackup(myBatis, dao, ruleDao, debtModelOperations, debtModelPluginRepository, characteristicsXMLImporter, rulesXMLImporter,
-      debtModelXMLExporter, ruleRegistry, system2);
+      debtModelXMLExporter, ruleRegistry, defLoader, system2);
   }
 
   @Test
@@ -271,6 +278,7 @@ public class DebtModelBackupTest {
   @Test
   public void update_characteristics_when_restoring_characteristics() throws Exception {
     when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
+      // Order and name have changed
       new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability updated").setOrder(2).setCreatedAt(oldDate).setUpdatedAt(oldDate),
       new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler updated").setParentId(1).setCreatedAt(oldDate).setUpdatedAt(oldDate)
     ));
@@ -306,6 +314,38 @@ public class DebtModelBackupTest {
   }
 
   @Test
+  public void update_parent_when_restoring_characteristics() throws Exception {
+    when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
+      // Parent has changed
+      new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability updated").setParentId(1).setOrder(1).setCreatedAt(oldDate).setUpdatedAt(oldDate),
+      new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler updated").setCreatedAt(oldDate).setUpdatedAt(oldDate)
+    ));
+
+    debtModelBackup.restoreCharacteristics(
+      new DebtModel()
+        .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
+        .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"),
+      true,
+      now,
+      session
+    );
+
+    verify(dao, times(2)).update(characteristicCaptor.capture(), eq(session));
+
+    CharacteristicDto dto1 = characteristicCaptor.getAllValues().get(0);
+    assertThat(dto1.getId()).isEqualTo(1);
+    assertThat(dto1.getKey()).isEqualTo("PORTABILITY");
+    assertThat(dto1.getParentId()).isNull();
+    assertThat(dto1.getUpdatedAt()).isEqualTo(now);
+
+    CharacteristicDto dto2 = characteristicCaptor.getAllValues().get(1);
+    assertThat(dto2.getId()).isEqualTo(2);
+    assertThat(dto2.getKey()).isEqualTo("COMPILER");
+    assertThat(dto2.getParentId()).isEqualTo(1);
+    assertThat(dto2.getUpdatedAt()).isEqualTo(now);
+  }
+
+  @Test
   public void disable_no_more_existing_characteristics_when_restoring_characteristics() throws Exception {
     CharacteristicDto dto1 = new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability").setOrder(1);
     CharacteristicDto dto2 = new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1);
@@ -319,7 +359,7 @@ public class DebtModelBackupTest {
   }
 
   @Test
-  public void reset_from_provided_model() throws Exception {
+  public void reset_model() throws Exception {
     when(characteristicsXMLImporter.importXML(any(Reader.class))).thenReturn(new DebtModel()
       .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
       .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
@@ -330,9 +370,23 @@ public class DebtModelBackupTest {
     ));
 
     when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
-      new RuleDto().setRepositoryKey("squid").setSubCharacteristicId(2).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("2h").setRemediationOffset("15min")
+      new RuleDto().setRepositoryKey("squid").setRuleKey("NPE")
+        .setDefaultSubCharacteristicId(10).setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("2h")
+        .setSubCharacteristicId(2).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("2h").setRemediationOffset("15min")
         .setCreatedAt(oldDate).setUpdatedAt(oldDate)
     ));
+
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    RulesDefinition.NewRepository repo = context.createRepository("squid", "java").setName("Squid");
+    RulesDefinition.NewRule newRule = repo.createRule("NPE")
+      .setName("Detect NPE")
+      .setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
+      .setSeverity(Severity.BLOCKER)
+      .setStatus(RuleStatus.BETA)
+      .setDebtSubCharacteristic("COMPILER");
+    newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linearWithOffset("4h", "20min"));
+    repo.done();
+    when(defLoader.load()).thenReturn(context);
 
     debtModelBackup.reset();
 
@@ -348,10 +402,66 @@ public class DebtModelBackupTest {
     verify(session).commit();
 
     RuleDto rule = ruleCaptor.getValue();
+
+    assertThat(rule.getDefaultSubCharacteristicId()).isEqualTo(2);
+    assertThat(rule.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
+    assertThat(rule.getDefaultRemediationCoefficient()).isEqualTo("4h");
+    assertThat(rule.getDefaultRemediationOffset()).isEqualTo("20min");
+    assertThat(rule.getUpdatedAt()).isEqualTo(now);
+
     assertThat(rule.getSubCharacteristicId()).isNull();
     assertThat(rule.getRemediationFunction()).isNull();
     assertThat(rule.getRemediationCoefficient()).isNull();
     assertThat(rule.getRemediationOffset()).isNull();
+    assertThat(rule.getUpdatedAt()).isEqualTo(now);
+  }
+
+  @Test
+  public void reset_model_when_no_default_value() throws Exception {
+    when(characteristicsXMLImporter.importXML(any(Reader.class))).thenReturn(new DebtModel()
+      .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
+      .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
+
+    when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
+      new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability updated").setOrder(2).setCreatedAt(oldDate),
+      new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler updated").setParentId(1).setCreatedAt(oldDate)
+    ));
+
+    when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
+      new RuleDto().setRepositoryKey("squid").setRuleKey("NPE")
+        .setDefaultSubCharacteristicId(10).setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("2h")
+        .setSubCharacteristicId(2).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("2h").setRemediationOffset("15min")
+        .setCreatedAt(oldDate).setUpdatedAt(oldDate)
+    ));
+
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    RulesDefinition.NewRepository repo = context.createRepository("squid", "java").setName("Squid");
+    repo.createRule("NPE")
+      .setName("Detect NPE")
+      .setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
+      .setSeverity(Severity.BLOCKER)
+      .setStatus(RuleStatus.BETA);
+    repo.done();
+    when(defLoader.load()).thenReturn(context);
+
+    debtModelBackup.reset();
+
+    verify(dao).selectEnabledCharacteristics(session);
+    verify(dao, times(2)).update(any(CharacteristicDto.class), eq(session));
+    verifyNoMoreInteractions(dao);
+
+    verify(ruleDao).selectEnablesAndNonManual(session);
+    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
+    verifyNoMoreInteractions(ruleDao);
+    verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), session);
+
+    verify(session).commit();
+
+    RuleDto rule = ruleCaptor.getValue();
+    assertThat(rule.getDefaultSubCharacteristicId()).isNull();
+    assertThat(rule.getDefaultRemediationFunction()).isNull();
+    assertThat(rule.getDefaultRemediationCoefficient()).isNull();
+    assertThat(rule.getDefaultRemediationOffset()).isNull();
     assertThat(rule.getUpdatedAt()).isEqualTo(now);
   }
 

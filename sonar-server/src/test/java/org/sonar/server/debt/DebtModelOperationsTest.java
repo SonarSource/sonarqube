@@ -363,7 +363,7 @@ public class DebtModelOperationsTest {
     assertThat(ruleDto.getUpdatedAt()).isEqualTo(now);
 
     // Overridden debt data are disabled
-    assertThat(ruleDto.getSubCharacteristicId()).isNull();
+    assertThat(ruleDto.getSubCharacteristicId()).isEqualTo(-1);
     assertThat(ruleDto.getRemediationFunction()).isNull();
     assertThat(ruleDto.getRemediationCoefficient()).isNull();
     assertThat(ruleDto.getRemediationOffset()).isNull();

@@ -257,6 +257,8 @@ class ServerComponents {
     pico.addSingleton(RuleRegistry.class);
     pico.addSingleton(RubyRuleService.class);
     pico.addSingleton(RuleRepositories.class);
+    pico.addSingleton(DeprecatedRulesDefinition.class);
+    pico.addSingleton(RuleDefinitionsLoader.class);
     pico.addSingleton(RulesWs.class);
     pico.addSingleton(RuleShowWsHandler.class);
     pico.addSingleton(RuleSearchWsHandler.class);
@@ -398,8 +400,6 @@ class ServerComponents {
     startupContainer.addSingleton(GwtPublisher.class);
     startupContainer.addSingleton(RegisterMetrics.class);
     startupContainer.addSingleton(RegisterQualityGates.class);
-    startupContainer.addSingleton(DeprecatedRulesDefinition.class);
-    startupContainer.addSingleton(RuleDefinitionsLoader.class);
     startupContainer.addSingleton(RegisterRules.class);
     startupContainer.addSingleton(RegisterQualityProfiles.class);
     startupContainer.addSingleton(JdbcDriverDeployer.class);

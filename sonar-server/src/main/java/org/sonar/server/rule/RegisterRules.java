@@ -259,21 +259,21 @@ public class RegisterRules implements Startable {
       dto.setLanguage(def.repository().language());
       changed = true;
     }
-    CharacteristicDto characteristic = buffer.characteristic(def.debtSubCharacteristic(), def.repository().key(), def.key(), dto.getSubCharacteristicId());
-    changed = mergeDebtDefinitions(def, dto, characteristic) || changed;
+    CharacteristicDto subCharacteristic = buffer.characteristic(def.debtSubCharacteristic(), def.repository().key(), def.key(), dto.getSubCharacteristicId());
+    changed = mergeDebtDefinitions(def, dto, subCharacteristic) || changed;
     if (changed) {
       dto.setUpdatedAt(buffer.now());
     }
     return changed;
   }
 
-  private boolean mergeDebtDefinitions(RulesDefinition.Rule def, RuleDto dto, @Nullable CharacteristicDto characteristic) {
+  private boolean mergeDebtDefinitions(RulesDefinition.Rule def, RuleDto dto, @Nullable CharacteristicDto subCharacteristic) {
     boolean changed = false;
 
-    // Debt definitions are set to null if the characteristic is null or unknown
-    boolean hasCharacteristic = characteristic != null;
+    // Debt definitions are set to null if the sub-characteristic is null or unknown
+    boolean hasCharacteristic = subCharacteristic != null;
     DebtRemediationFunction debtRemediationFunction = hasCharacteristic ? def.debtRemediationFunction() : null;
-    Integer characteristicId = hasCharacteristic ? characteristic.getId() : null;
+    Integer characteristicId = hasCharacteristic ? subCharacteristic.getId() : null;
     String remediationFactor = hasCharacteristic ? debtRemediationFunction.coefficient() : null;
     String remediationOffset = hasCharacteristic ? debtRemediationFunction.offset() : null;
     String effortToFixDescription = hasCharacteristic ? def.effortToFixDescription() : null;
