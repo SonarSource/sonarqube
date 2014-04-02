@@ -361,7 +361,7 @@
                   <goal>grunt</goal>
                 </goals>
                 <configuration>
-                  <arguments>karma</arguments>
+                  <arguments>test</arguments>
                 </configuration>
               </execution>
             </executions>
