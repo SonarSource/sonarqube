@@ -27,6 +27,6 @@ import java.util.List;
 public final class MavenBatchPlugin extends SonarPlugin {
 
   public List getExtensions() {
-    return ImmutableList.of(MavenProjectBootstrapper.class, DefaultMavenPluginExecutor.class, MavenProjectConverter.class);
+    return ImmutableList.of(MavenProjectBootstrapper.class, DefaultMavenPluginExecutor.class, MavenProjectConverter.class, MavenProjectBuilder.class);
   }
 }

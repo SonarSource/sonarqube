@@ -28,7 +28,7 @@ public class MavenBatchPluginTest {
   @Test
   public void testGetExtensions() {
     MavenBatchPlugin plugin = new MavenBatchPlugin();
-    assertThat(plugin.getExtensions()).hasSize(3);
+    assertThat(plugin.getExtensions()).hasSize(4);
   }
 
 }

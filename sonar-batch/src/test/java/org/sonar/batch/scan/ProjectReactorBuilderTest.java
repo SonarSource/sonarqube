@@ -545,7 +545,7 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldInitRootWorkDir() {
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new BootstrapSettings(new BootstrapProperties(Maps.<String, String>newHashMap())), null);
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new BootstrapSettings(new BootstrapProperties(Maps.<String, String>newHashMap())));
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir);
@@ -557,7 +557,7 @@ public class ProjectReactorBuilderTest {
   public void shouldInitWorkDirWithCustomRelativeFolder() {
     Map<String, String> props = Maps.<String, String>newHashMap();
     props.put("sonar.working.directory", ".foo");
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new BootstrapSettings(new BootstrapProperties(props)), null);
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new BootstrapSettings(new BootstrapProperties(props)));
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir);
@@ -569,7 +569,7 @@ public class ProjectReactorBuilderTest {
   public void shouldInitRootWorkDirWithCustomAbsoluteFolder() {
     Map<String, String> props = Maps.<String, String>newHashMap();
     props.put("sonar.working.directory", new File("src").getAbsolutePath());
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new BootstrapSettings(new BootstrapProperties(props)), null);
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new BootstrapSettings(new BootstrapProperties(props)));
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir);
@@ -634,7 +634,7 @@ public class ProjectReactorBuilderTest {
     }
     props.put("sonar.projectBaseDir", TestUtils.getResource(this.getClass(), projectFolder).getAbsolutePath());
     BootstrapProperties bootstrapProps = new BootstrapProperties(props);
-    ProjectReactor projectReactor = new ProjectReactorBuilder(new BootstrapSettings(bootstrapProps), null).execute();
+    ProjectReactor projectReactor = new ProjectReactorBuilder(new BootstrapSettings(bootstrapProps)).execute();
     return projectReactor.getRoot();
   }
 
