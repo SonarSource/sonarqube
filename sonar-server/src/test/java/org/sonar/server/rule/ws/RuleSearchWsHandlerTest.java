@@ -61,9 +61,7 @@ public class RuleSearchWsHandlerTest {
     .setLanguage("java")
     .setStatus("READY")
     .setDebtCharacteristicKey("REUSABILITY")
-    .setDebtCharacteristicName("Reusability")
     .setDebtSubCharacteristicKey("MODULARITY")
-    .setDebtSubCharacteristicName("Modularity")
     .setDebtRemediationFunction(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "1h", "15min"));
 
   WsTester tester;

@@ -39,10 +39,8 @@ public final class RuleDocument {
 
   public static final String FIELD_CHARACTERISTIC_ID = "characteristicId";
   public static final String FIELD_CHARACTERISTIC_KEY = "characteristicKey";
-  public static final String FIELD_CHARACTERISTIC_NAME = "characteristicName";
   public static final String FIELD_SUB_CHARACTERISTIC_ID = "subCharacteristicId";
   public static final String FIELD_SUB_CHARACTERISTIC_KEY = "subCharacteristicKey";
-  public static final String FIELD_SUB_CHARACTERISTIC_NAME = "subCharacteristicName";
   public static final String FIELD_REMEDIATION_FUNCTION = "remediationFunction";
   public static final String FIELD_REMEDIATION_COEFFICIENT = "remediationCoefficient";
   public static final String FIELD_REMEDIATION_OFFSET = "remediationOffset";

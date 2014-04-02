@@ -58,9 +58,7 @@ public class RuleDocumentParser {
       try {
         ruleBuilder
           .setDebtCharacteristicKey((String) ruleSource.get(RuleDocument.FIELD_CHARACTERISTIC_KEY))
-          .setDebtCharacteristicName((String) ruleSource.get(RuleDocument.FIELD_CHARACTERISTIC_NAME))
           .setDebtSubCharacteristicKey((String) ruleSource.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY))
-          .setDebtSubCharacteristicName((String) ruleSource.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_NAME))
           .setDebtRemediationFunction(
             new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.valueOf((String) ruleSource.get(RuleDocument.FIELD_REMEDIATION_FUNCTION)),
               (String) ruleSource.get(RuleDocument.FIELD_REMEDIATION_COEFFICIENT),

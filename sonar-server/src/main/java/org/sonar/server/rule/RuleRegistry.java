@@ -242,10 +242,8 @@ public class RuleRegistry {
       document
         .field(RuleDocument.FIELD_CHARACTERISTIC_ID, characteristicDto.getId())
         .field(RuleDocument.FIELD_CHARACTERISTIC_KEY, characteristicDto.getKey())
-        .field(RuleDocument.FIELD_CHARACTERISTIC_NAME, characteristicDto.getName())
         .field(RuleDocument.FIELD_SUB_CHARACTERISTIC_ID, subCharacteristicDto.getId())
         .field(RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY, subCharacteristicDto.getKey())
-        .field(RuleDocument.FIELD_SUB_CHARACTERISTIC_NAME, subCharacteristicDto.getName())
         .field(RuleDocument.FIELD_REMEDIATION_FUNCTION, isFunctionOverridden ? rule.getRemediationFunction() : rule.getDefaultRemediationFunction())
         .field(RuleDocument.FIELD_REMEDIATION_COEFFICIENT, isFunctionOverridden ? rule.getRemediationCoefficient() : rule.getDefaultRemediationCoefficient())
         .field(RuleDocument.FIELD_REMEDIATION_OFFSET, isFunctionOverridden ? rule.getRemediationOffset() : rule.getDefaultRemediationOffset());

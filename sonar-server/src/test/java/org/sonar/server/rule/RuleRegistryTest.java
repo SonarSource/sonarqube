@@ -151,10 +151,8 @@ public class RuleRegistryTest {
 
     assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_ID)).isEqualTo(10);
     assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_KEY)).isEqualTo("REUSABILITY");
-    assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_NAME)).isEqualTo("Reusability");
     assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_ID)).isEqualTo(11);
     assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY)).isEqualTo("MODULARITY");
-    assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_NAME)).isEqualTo("Modularity");
     assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_FUNCTION)).isEqualTo("LINEAR_OFFSET");
     assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_COEFFICIENT)).isEqualTo("1h");
     assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_OFFSET)).isEqualTo("15min");
@@ -204,10 +202,8 @@ public class RuleRegistryTest {
     Map<String, Object> ruleDocument = esSetup.client().prepareGet("rules", "rule", Integer.toString(10)).execute().actionGet().getSourceAsMap();
     assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_ID)).isEqualTo(12);
     assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_KEY)).isEqualTo("PORTABILITY");
-    assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_NAME)).isEqualTo("Portability");
     assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_ID)).isEqualTo(13);
     assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY)).isEqualTo("COMPILER");
-    assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_NAME)).isEqualTo("Compiler");
 
     assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_FUNCTION)).isEqualTo("LINEAR_OFFSET");
     assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_COEFFICIENT)).isEqualTo("1h");
@@ -235,10 +231,8 @@ public class RuleRegistryTest {
     Map<String, Object> ruleDocument = esSetup.client().prepareGet("rules", "rule", Integer.toString(10)).execute().actionGet().getSourceAsMap();
     assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_ID)).isEqualTo(10);
     assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_KEY)).isEqualTo("REUSABILITY");
-    assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_NAME)).isEqualTo("Reusability");
     assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_ID)).isEqualTo(11);
     assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY)).isEqualTo("MODULARITY");
-    assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_NAME)).isEqualTo("Modularity");
 
     assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_FUNCTION)).isEqualTo("LINEAR");
     assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_COEFFICIENT)).isEqualTo("1h");
@@ -277,10 +271,8 @@ public class RuleRegistryTest {
 
     assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_ID)).isEqualTo(10);
     assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_KEY)).isEqualTo("REUSABILITY");
-    assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_NAME)).isEqualTo("Reusability");
     assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_ID)).isEqualTo(11);
     assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY)).isEqualTo("MODULARITY");
-    assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_NAME)).isEqualTo("Modularity");
     assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_FUNCTION)).isEqualTo("LINEAR_OFFSET");
     assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_COEFFICIENT)).isEqualTo("1h");
     assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_OFFSET)).isEqualTo("15min");
@@ -317,10 +309,8 @@ public class RuleRegistryTest {
     Map<String, Object> ruleDocument = esSetup.client().prepareGet("rules", "rule", Integer.toString(10)).execute().actionGet().getSourceAsMap();
     assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_ID)).isEqualTo(12);
     assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_KEY)).isEqualTo("REUSABILITY");
-    assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_NAME)).isEqualTo("Reusability");
     assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_ID)).isEqualTo(13);
     assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY)).isEqualTo("MODULARITY");
-    assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_NAME)).isEqualTo("Modularity");
 
     assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_FUNCTION)).isEqualTo("LINEAR_OFFSET");
     assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_COEFFICIENT)).isEqualTo("1h");
@@ -342,10 +332,8 @@ public class RuleRegistryTest {
     Map<String, Object> ruleDocument = esSetup.client().prepareGet("rules", "rule", Integer.toString(10)).execute().actionGet().getSourceAsMap();
     assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_ID)).isEqualTo(10);
     assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_KEY)).isEqualTo("REUSABILITY");
-    assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_NAME)).isEqualTo("Reusability");
     assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_ID)).isEqualTo(11);
     assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY)).isEqualTo("MODULARITY");
-    assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_NAME)).isEqualTo("Modularity");
 
     assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_FUNCTION)).isEqualTo("LINEAR");
     assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_COEFFICIENT)).isEqualTo("1h");

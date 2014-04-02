@@ -48,9 +48,7 @@ public class Rule {
   private Collection<String> adminTags;
   private Collection<RuleParam> params;
   private String debtCharacteristicKey;
-  private String debtCharacteristicName;
   private String debtSubCharacteristicKey;
-  private String debtSubCharacteristicName;
   private DebtRemediationFunction debtRemediationFunction;
   private Date createdAt;
   private Date updatedAt;
@@ -70,9 +68,7 @@ public class Rule {
     this.adminTags = defaultCollection(builder.adminTags);
     this.params = defaultCollection(builder.params);
     this.debtCharacteristicKey = builder.debtCharacteristicKey;
-    this.debtCharacteristicName = builder.debtCharacteristicName;
     this.debtSubCharacteristicKey = builder.debtSubCharacteristicKey;
-    this.debtSubCharacteristicName = builder.debtSubCharacteristicName;
     this.debtRemediationFunction = builder.debtRemediationFunction;
     this.createdAt = builder.createdAt;
     this.updatedAt = builder.updatedAt;
@@ -140,18 +136,8 @@ public class Rule {
   }
 
   @CheckForNull
-  public String debtCharacteristicName() {
-    return debtCharacteristicName;
-  }
-
-  @CheckForNull
   public String debtSubCharacteristicKey() {
     return debtSubCharacteristicKey;
-  }
-
-  @CheckForNull
-  public String debtSubCharacteristicName() {
-    return debtSubCharacteristicName;
   }
 
   @CheckForNull
@@ -279,18 +265,8 @@ public class Rule {
       return this;
     }
 
-    public Builder setDebtCharacteristicName(@Nullable String debtCharacteristicName) {
-      this.debtCharacteristicName = debtCharacteristicName;
-      return this;
-    }
-
     public Builder setDebtSubCharacteristicKey(@Nullable String debtSubCharacteristicKey) {
       this.debtSubCharacteristicKey = debtSubCharacteristicKey;
-      return this;
-    }
-
-    public Builder setDebtSubCharacteristicName(@Nullable String debtSubCharacteristicName) {
-      this.debtSubCharacteristicName = debtSubCharacteristicName;
       return this;
     }
 

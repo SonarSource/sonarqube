@@ -118,9 +118,7 @@ public class RuleSearchWsHandler implements RequestHandler {
     if (function != null) {
       json
         .prop("debtCharacteristic", rule.debtCharacteristicKey())
-        .prop("debtCharacteristicName", rule.debtCharacteristicName())
         .prop("debtSubCharacteristic", rule.debtSubCharacteristicKey())
-        .prop("debtSubCharacteristicName", rule.debtSubCharacteristicName())
         .prop("debtRemediationFunction", function.type().name())
         .prop("debtRemediationCoefficient", function.coefficient())
         .prop("debtRemediationOffset", function.offset())

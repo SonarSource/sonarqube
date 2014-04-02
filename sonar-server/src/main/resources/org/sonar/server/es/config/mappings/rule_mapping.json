@@ -112,19 +112,11 @@
         "type": "string",
         "index": "not_analyzed"
       },
-      "characteristicName": {
-        "type": "string",
-        "index": "not_analyzed"
-      },
       "subCharacteristicId": {
         "type": "integer",
         "index": "not_analyzed"
       },
       "subCharacteristicKey": {
-        "type": "string",
-        "index": "not_analyzed"
-      },
-      "subCharacteristicName": {
         "type": "string",
         "index": "not_analyzed"
       },

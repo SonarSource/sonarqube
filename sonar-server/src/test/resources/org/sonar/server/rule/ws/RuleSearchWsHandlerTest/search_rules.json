@@ -7,9 +7,7 @@
       "language": "Java",
       "status": "READY",
       "debtCharacteristic": "REUSABILITY",
-      "debtCharacteristicName": "Reusability",
       "debtSubCharacteristic": "MODULARITY",
-      "debtSubCharacteristicName": "Modularity",
       "debtRemediationFunction": "LINEAR_OFFSET",
       "debtRemediationCoefficient": "1h",
       "debtRemediationOffset": "15min"
