@@ -164,6 +164,9 @@ define(
 
 
         showDetails: function () {
+          key.setScope('list');
+          this.options.issuesView.selected = this.$el.parent().children().index(this.$el);
+
           this.$el.parent().children().removeClass('active');
           this.$el.addClass('active');
 
@@ -250,6 +253,41 @@ define(
         },
 
 
+        selectFirst: function() {
+          this.selected = -1;
+          this.selectNext();
+        },
+
+
+        selectNext: function() {
+          if (this.selected < this.collection.length - 1) {
+            this.selected++;
+            var child = this.$el.children().eq(this.selected),
+                container = jQuery('.navigator-results'),
+                containerHeight = container.height(),
+                bottom = child.position().top + child.outerHeight();
+            if (bottom > containerHeight) {
+              container.scrollTop(container.scrollTop() - containerHeight + bottom);
+            }
+            child.click();
+          }
+        },
+
+
+        selectPrev: function() {
+          if (this.selected > 0) {
+            this.selected--;
+            var child = this.$el.children().eq(this.selected),
+                container = jQuery('.navigator-results'),
+                top = child.position().top;
+            if (top < 0) {
+              container.scrollTop(container.scrollTop() + top);
+            }
+            child.click();
+          }
+        },
+
+
         onRender: function () {
           var that = this,
               $scrollEl = jQuery('.navigator-results'),
@@ -261,6 +299,7 @@ define(
               },
               throttledScroll = _.throttle(onScroll, 300);
           $scrollEl.off('scroll').on('scroll', throttledScroll);
+          this.bindShortcuts();
         },
 
 
@@ -275,6 +314,13 @@ define(
           var scrollEl = jQuery('.navigator-results');
           scrollEl.off('scroll');
           Marionette.CollectionView.prototype.close.call(this);
+        },
+
+
+        bindShortcuts: function () {
+          var that = this;
+          key('up', 'list', function() { that.selectPrev(); });
+          key('down', 'list', function() { that.selectNext(); });
         }
 
       });
@@ -832,6 +878,8 @@ define(
 
 
         events: {
+          'click': 'setDetailScope',
+
           'click .code-issue-toggle': 'toggleCollapsed',
 
           'click [href=#tab-issue-rule]': 'fetchRule',
@@ -850,6 +898,11 @@ define(
 
         modelEvents: {
           'change': 'render'
+        },
+
+
+        setDetailScope: function() {
+          key.setScope('detail');
         },
 
 

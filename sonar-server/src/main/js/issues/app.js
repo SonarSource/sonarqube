@@ -369,6 +369,7 @@ requirejs(
             data: fetchQuery,
             success: function () {
               that.issuesView.$el.removeClass('navigator-fetching');
+              that.issuesView.selectFirst();
             }
           });
           this.detailsRegion.reset();

@@ -111,8 +111,10 @@ define(['backbone', 'backbone.marionette', 'common/handlebars-extensions'], func
     toggleDetails: function(e) {
       e.stopPropagation();
       if (this.$el.hasClass('active')) {
+        key.setScope('list');
         this.hideDetails();
       } else {
+        key.setScope('filter');
         this.showDetails();
       }
     },
