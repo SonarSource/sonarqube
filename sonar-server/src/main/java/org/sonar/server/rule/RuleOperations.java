@@ -363,10 +363,7 @@ public class RuleOperations implements ServerComponent {
   }
 
   private void reindexRule(RuleDto rule, SqlSession session) {
-    Integer subCharacteristicId = rule.getSubCharacteristicId();
-    CharacteristicDto subCharacteristic = subCharacteristicId != null ? characteristicDao.selectById(subCharacteristicId, session) : null;
-    CharacteristicDto characteristic = subCharacteristic != null ? characteristicDao.selectById(subCharacteristic.getParentId(), session) : null;
-    ruleRegistry.save(rule, characteristic, subCharacteristic, ruleDao.selectParametersByRuleId(rule.getId(), session), ruleDao.selectTagsByRuleIds(rule.getId(), session));
+    ruleRegistry.reindex(rule, session);
   }
 
   private void checkPermission(UserSession userSession) {

@@ -116,7 +116,7 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void index_rules() {
+  public void index_new_rules() {
     when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
       new RuleDto().setId(3).setRepositoryKey("repo").setRuleKey("key").setSeverity(Severity.MINOR).setNoteData("noteData").setNoteUserLogin("userLogin")
         .setDefaultSubCharacteristicId(11).setDefaultRemediationFunction("LINEAR_OFFSET").setDefaultRemediationCoefficient("1h").setDefaultRemediationOffset("15min")
@@ -161,7 +161,25 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void index_overridden_characteristic_if_both_default_and_overridden_characteristics_exists() {
+  public void reindex_existing_rules() {
+    assertThat(esSetup.exists("rules", "rule", "3")).isTrue();
+
+    // Update severity to MAJOR
+    when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
+      new RuleDto().setId(3).setRepositoryKey("repo").setRuleKey("key").setSeverity(Severity.MAJOR)
+    ));
+
+    registry.reindex();
+
+    Map<String, Object> ruleDocument = esSetup.client().prepareGet("rules", "rule", Integer.toString(3)).execute().actionGet().getSourceAsMap();
+    assertThat(ruleDocument.get(RuleDocument.FIELD_ID)).isEqualTo(3);
+    assertThat(ruleDocument.get(RuleDocument.FIELD_REPOSITORY_KEY)).isEqualTo("repo");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_KEY)).isEqualTo("key");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_SEVERITY)).isEqualTo("MAJOR");
+  }
+
+  @Test
+  public void index_overridden_characteristic_if_both_default_and_overridden_characteristics_exists_when_indexing_rules() {
     when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
       new RuleDto().setId(10).setRepositoryKey("repo").setRuleKey("key1").setSeverity(Severity.MINOR)
         // default and overridden debt values are set
@@ -169,13 +187,16 @@ public class RuleRegistryTest {
         .setSubCharacteristicId(13).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("1h").setRemediationOffset("15min")
     ));
 
-    when(characteristicDao.selectCharacteristicsByIds(newHashSet(11, 13), session)).thenReturn(newArrayList(
-      new CharacteristicDto().setId(11).setKey("MODULARITY").setName("Modularity").setParentId(10),
-      new CharacteristicDto().setId(13).setKey("COMPILER").setName("Compiler").setParentId(12)
-    ));
+    // Characteristics
     when(characteristicDao.selectCharacteristicsByIds(newHashSet(10, 12), session)).thenReturn(newArrayList(
       new CharacteristicDto().setId(10).setKey("REUSABILITY").setName("Reusability"),
       new CharacteristicDto().setId(12).setKey("PORTABILITY").setName("Portability")
+    ));
+
+    // Sub-characteristics
+    when(characteristicDao.selectCharacteristicsByIds(newHashSet(11, 13), session)).thenReturn(newArrayList(
+      new CharacteristicDto().setId(11).setKey("MODULARITY").setName("Modularity").setParentId(10),
+      new CharacteristicDto().setId(13).setKey("COMPILER").setName("Compiler").setParentId(12)
     ));
 
     registry.reindex();
@@ -194,7 +215,7 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void index_overridden_function_if_both_default_and_overridden_functions_exists() {
+  public void index_overridden_function_if_both_default_and_overridden_functions_exists_when_indexing_rules() {
     when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
       new RuleDto().setId(10).setRepositoryKey("repo").setRuleKey("key1").setSeverity(Severity.MINOR)
         // default and overridden debt values are set
@@ -224,6 +245,112 @@ public class RuleRegistryTest {
     assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_OFFSET)).isNull();
   }
 
+  @Test
+  public void index_one_rule() {
+    RuleDto ruleDto = new RuleDto().setId(3).setRepositoryKey("repo").setRuleKey("key").setSeverity(Severity.MINOR).setNoteData("noteData").setNoteUserLogin("userLogin")
+      .setDefaultSubCharacteristicId(11).setDefaultRemediationFunction("LINEAR_OFFSET").setDefaultRemediationCoefficient("1h").setDefaultRemediationOffset("15min");
+
+    when(ruleDao.selectParametersByRuleIds(newArrayList(3), session)).thenReturn(newArrayList(
+      new RuleParamDto().setRuleId(3).setName("name")
+    ));
+
+    when(ruleDao.selectTagsByRuleIds(newArrayList(3), session)).thenReturn(newArrayList(
+      new RuleRuleTagDto().setRuleId(3).setTag("tag1").setType(RuleTagType.SYSTEM),
+      new RuleRuleTagDto().setRuleId(3).setTag("tag2").setType(RuleTagType.SYSTEM),
+      new RuleRuleTagDto().setRuleId(3).setTag("tag").setType(RuleTagType.ADMIN)));
+
+    when(characteristicDao.selectById(11, session)).thenReturn(new CharacteristicDto().setId(11).setKey("MODULARITY").setName("Modularity").setParentId(10));
+    when(characteristicDao.selectById(10, session)).thenReturn(new CharacteristicDto().setId(10).setKey("REUSABILITY").setName("Reusability"));
+
+    registry.reindex(ruleDto);
+
+    Map<String, Object> ruleDocument = esSetup.client().prepareGet("rules", "rule", Integer.toString(3)).execute().actionGet().getSourceAsMap();
+    assertThat(ruleDocument.get(RuleDocument.FIELD_ID)).isEqualTo(3);
+    assertThat(ruleDocument.get(RuleDocument.FIELD_REPOSITORY_KEY)).isEqualTo("repo");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_KEY)).isEqualTo("key");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_SEVERITY)).isEqualTo("MINOR");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_NOTE)).isNotNull();
+
+    assertThat((List<String>) ruleDocument.get(RuleDocument.FIELD_PARAMS)).hasSize(1);
+    assertThat((List<String>) ruleDocument.get(RuleDocument.FIELD_SYSTEM_TAGS)).hasSize(2);
+    assertThat((List<String>) ruleDocument.get(RuleDocument.FIELD_ADMIN_TAGS)).hasSize(1);
+
+    assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_ID)).isEqualTo(10);
+    assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_KEY)).isEqualTo("REUSABILITY");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_NAME)).isEqualTo("Reusability");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_ID)).isEqualTo(11);
+    assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY)).isEqualTo("MODULARITY");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_NAME)).isEqualTo("Modularity");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_FUNCTION)).isEqualTo("LINEAR_OFFSET");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_COEFFICIENT)).isEqualTo("1h");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_OFFSET)).isEqualTo("15min");
+  }
+
+  @Test
+  public void reindex_existing_rule() {
+    // Update severity to MAJOR
+    RuleDto ruleDto = new RuleDto().setId(3).setRepositoryKey("repo").setRuleKey("key").setSeverity(Severity.MAJOR);
+
+    assertThat(esSetup.exists("rules", "rule", "3")).isTrue();
+
+    registry.reindex(ruleDto);
+
+    Map<String, Object> ruleDocument = esSetup.client().prepareGet("rules", "rule", Integer.toString(3)).execute().actionGet().getSourceAsMap();
+    assertThat(ruleDocument.get(RuleDocument.FIELD_ID)).isEqualTo(3);
+    assertThat(ruleDocument.get(RuleDocument.FIELD_REPOSITORY_KEY)).isEqualTo("repo");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_KEY)).isEqualTo("key");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_SEVERITY)).isEqualTo("MAJOR");
+  }
+
+  @Test
+  public void index_overridden_characteristic_if_both_default_and_overridden_characteristics_exists_when_indexing_one_rule() {
+    RuleDto ruleDto = new RuleDto().setId(10).setRepositoryKey("repo").setRuleKey("key1").setSeverity(Severity.MINOR)
+        // default and overridden debt values are set
+        .setDefaultSubCharacteristicId(11).setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("2h")
+        .setSubCharacteristicId(13).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("1h").setRemediationOffset("15min");
+
+    when(characteristicDao.selectById(12, session)).thenReturn(new CharacteristicDto().setId(12).setKey("REUSABILITY").setName("Reusability"));
+    when(characteristicDao.selectById(13, session)).thenReturn(new CharacteristicDto().setId(13).setKey("MODULARITY").setName("Modularity").setParentId(12));
+
+    registry.reindex(ruleDto);
+
+    Map<String, Object> ruleDocument = esSetup.client().prepareGet("rules", "rule", Integer.toString(10)).execute().actionGet().getSourceAsMap();
+    assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_ID)).isEqualTo(12);
+    assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_KEY)).isEqualTo("REUSABILITY");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_NAME)).isEqualTo("Reusability");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_ID)).isEqualTo(13);
+    assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY)).isEqualTo("MODULARITY");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_NAME)).isEqualTo("Modularity");
+
+    assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_FUNCTION)).isEqualTo("LINEAR_OFFSET");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_COEFFICIENT)).isEqualTo("1h");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_OFFSET)).isEqualTo("15min");
+  }
+
+  @Test
+  public void index_overridden_function_if_both_default_and_overridden_functions_exists_when_indexing_one_rule() {
+    RuleDto ruleDto = new RuleDto().setId(10).setRepositoryKey("repo").setRuleKey("key1").setSeverity(Severity.MINOR)
+        // default and overridden debt values are set
+        .setDefaultSubCharacteristicId(11).setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationOffset("15min")
+        .setSubCharacteristicId(11).setRemediationFunction("LINEAR").setRemediationCoefficient("1h");
+
+    when(characteristicDao.selectById(10, session)).thenReturn(new CharacteristicDto().setId(10).setKey("REUSABILITY").setName("Reusability"));
+    when(characteristicDao.selectById(11, session)).thenReturn(new CharacteristicDto().setId(11).setKey("MODULARITY").setName("Modularity").setParentId(10));
+
+    registry.reindex(ruleDto);
+
+    Map<String, Object> ruleDocument = esSetup.client().prepareGet("rules", "rule", Integer.toString(10)).execute().actionGet().getSourceAsMap();
+    assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_ID)).isEqualTo(10);
+    assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_KEY)).isEqualTo("REUSABILITY");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_CHARACTERISTIC_NAME)).isEqualTo("Reusability");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_ID)).isEqualTo(11);
+    assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY)).isEqualTo("MODULARITY");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_NAME)).isEqualTo("Modularity");
+
+    assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_FUNCTION)).isEqualTo("LINEAR");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_COEFFICIENT)).isEqualTo("1h");
+    assertThat(ruleDocument.get(RuleDocument.FIELD_REMEDIATION_OFFSET)).isNull();
+  }
 
   @Test
   public void remove_all_rules_when_ro_rule_registered() {

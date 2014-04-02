@@ -148,7 +148,7 @@ public class RuleOperationsTest {
     assertThat(argumentCaptor.getValue().getNoteUpdatedAt()).isEqualTo(now);
 
     verify(session).commit();
-    verify(ruleRegistry).save(eq(rule), any(CharacteristicDto.class), any(CharacteristicDto.class), eq(ruleParams), eq(ruleTags));
+    verify(ruleRegistry).reindex(eq(rule), eq(session));
   }
 
   @Test
@@ -185,7 +185,7 @@ public class RuleOperationsTest {
     assertThat(argumentCaptor.getValue().getNoteUpdatedAt()).isEqualTo(now);
 
     verify(session).commit();
-    verify(ruleRegistry).save(eq(rule), any(CharacteristicDto.class), any(CharacteristicDto.class), eq(ruleParams), eq(ruleTags));
+    verify(ruleRegistry).reindex(eq(rule), eq(session));
   }
 
   @Test
@@ -211,7 +211,7 @@ public class RuleOperationsTest {
     assertThat(argumentCaptor.getValue().getNoteUpdatedAt()).isNull();
 
     verify(session).commit();
-    verify(ruleRegistry).save(eq(rule), any(CharacteristicDto.class), any(CharacteristicDto.class), eq(ruleParams), eq(ruleTags));
+    verify(ruleRegistry).reindex(eq(rule), eq(session));
   }
 
   @Test
@@ -247,8 +247,7 @@ public class RuleOperationsTest {
     assertThat(ruleTagArgument.getValue().getType()).isEqualTo(RuleTagType.SYSTEM);
 
     verify(session).commit();
-    verify(ruleRegistry).save(eq(ruleArgument.getValue()), isNull(CharacteristicDto.class), isNull(CharacteristicDto.class),
-      anyListOf(RuleParamDto.class), anyListOf(RuleRuleTagDto.class));
+    verify(ruleRegistry).reindex(eq(ruleArgument.getValue()), eq(session));
   }
 
   @Test
@@ -272,8 +271,7 @@ public class RuleOperationsTest {
     assertThat(ruleParamArgument.getValue().getDefaultValue()).isEqualTo("21");
 
     verify(session).commit();
-    verify(ruleRegistry).save(eq(ruleArgument.getValue()), any(CharacteristicDto.class), any(CharacteristicDto.class),
-      eq(newArrayList(ruleParamArgument.getValue())), eq(ruleTags));
+    verify(ruleRegistry).reindex(eq(ruleArgument.getValue()), eq(session));
   }
 
   @Test
@@ -295,7 +293,7 @@ public class RuleOperationsTest {
     assertThat(ruleCaptor.getValue().getStatus()).isEqualTo(Rule.STATUS_REMOVED);
     assertThat(ruleCaptor.getValue().getUpdatedAt()).isEqualTo(now);
 
-    verify(ruleRegistry).save(eq(ruleCaptor.getValue()), any(CharacteristicDto.class), any(CharacteristicDto.class), eq(newArrayList(param)), eq(ruleTags));
+    verify(ruleRegistry).reindex(eq(ruleCaptor.getValue()), eq(session));
     verify(activeRuleDao).deleteParameters(eq(activeRuleId), eq(session));
     verify(activeRuleDao).deleteFromRule(eq(ruleId), eq(session));
     verify(session, times(2)).commit();
@@ -403,7 +401,7 @@ public class RuleOperationsTest {
     assertThat(result.getUpdatedAt()).isEqualTo(now);
 
     verify(session).commit();
-    verify(ruleRegistry).save(eq(result), eq(characteristic), eq(subCharacteristic), anyListOf(RuleParamDto.class), anyListOf(RuleRuleTagDto.class));
+    verify(ruleRegistry).reindex(eq(result), eq(session));
   }
 
   @Test
@@ -425,7 +423,7 @@ public class RuleOperationsTest {
 
     verify(ruleDao, never()).update(any(RuleDto.class), eq(session));
     verify(session, never()).commit();
-    verify(ruleRegistry, never()).save(any(RuleDto.class), any(CharacteristicDto.class), any(CharacteristicDto.class), anyListOf(RuleParamDto.class), anyListOf(RuleRuleTagDto.class));
+    verify(ruleRegistry, never()).reindex(any(RuleDto.class), eq(session));
   }
 
   @Test
@@ -452,7 +450,7 @@ public class RuleOperationsTest {
     assertThat(result.getUpdatedAt()).isEqualTo(now);
 
     verify(session).commit();
-    verify(ruleRegistry).save(eq(result), isNull(CharacteristicDto.class), isNull(CharacteristicDto.class), anyListOf(RuleParamDto.class), anyListOf(RuleRuleTagDto.class));
+    verify(ruleRegistry).reindex(eq(result), eq(session));
   }
 
   @Test
@@ -469,7 +467,7 @@ public class RuleOperationsTest {
 
     verify(ruleDao, never()).update(any(RuleDto.class), eq(session));
     verify(session, never()).commit();
-    verify(ruleRegistry, never()).save(any(RuleDto.class), any(CharacteristicDto.class), any(CharacteristicDto.class), anyListOf(RuleParamDto.class), anyListOf(RuleRuleTagDto.class));
+    verify(ruleRegistry, never()).reindex(any(RuleDto.class), eq(session));
   }
 
   @Test
@@ -490,7 +488,7 @@ public class RuleOperationsTest {
 
     verify(ruleDao, never()).update(any(RuleDto.class), eq(session));
     verify(session, never()).commit();
-    verify(ruleRegistry, never()).save(any(RuleDto.class), any(CharacteristicDto.class), any(CharacteristicDto.class), anyListOf(RuleParamDto.class), anyListOf(RuleRuleTagDto.class));
+    verify(ruleRegistry, never()).reindex(any(RuleDto.class), eq(session));
   }
 
   @Test
@@ -515,7 +513,7 @@ public class RuleOperationsTest {
 
     verify(ruleDao, never()).update(any(RuleDto.class), eq(session));
     verify(session, never()).commit();
-    verify(ruleRegistry, never()).save(any(RuleDto.class), any(CharacteristicDto.class), any(CharacteristicDto.class), anyListOf(RuleParamDto.class), anyListOf(RuleRuleTagDto.class));
+    verify(ruleRegistry, never()).reindex(any(RuleDto.class), eq(session));
   }
 
   @Test
@@ -541,6 +539,6 @@ public class RuleOperationsTest {
 
     verify(ruleDao, never()).update(any(RuleDto.class), eq(session));
     verify(session, never()).commit();
-    verify(ruleRegistry, never()).save(any(RuleDto.class), any(CharacteristicDto.class), any(CharacteristicDto.class), anyListOf(RuleParamDto.class), anyListOf(RuleRuleTagDto.class));
+    verify(ruleRegistry, never()).reindex(any(RuleDto.class), eq(session));
   }
 }

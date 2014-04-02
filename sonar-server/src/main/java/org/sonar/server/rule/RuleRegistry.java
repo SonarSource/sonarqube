@@ -115,6 +115,9 @@ public class RuleRegistry {
     return reindex(ruleDao.selectEnablesAndNonManual(session), session);
   }
 
+  /**
+   * Reindex a given list of rules
+   */
   public String[] reindex(Collection<RuleDto> rules, SqlSession session) {
     Multimap<Integer, RuleParamDto> paramsByRuleId = ArrayListMultimap.create();
     Multimap<Integer, RuleRuleTagDto> tagsByRuleId = ArrayListMultimap.create();
@@ -150,6 +153,144 @@ public class RuleRegistry {
     }
     return bulkIndexRules(rules, characteristicsById, paramsByRuleId, tagsByRuleId);
   }
+
+  /**
+   * Reindex one rule
+   */
+  public void reindex(RuleDto rule) {
+    SqlSession sqlSession = myBatis.openSession();
+    try {
+      reindex(rule, sqlSession);
+    } finally {
+      sqlSession.close();
+    }
+  }
+
+  public void reindex(RuleDto rule, SqlSession session) {
+    try {
+      Integer ruleId = rule.getId();
+      Integer effectiveSubCharacteristicId = rule.getSubCharacteristicId() != null ? rule.getSubCharacteristicId() : rule.getDefaultSubCharacteristicId();
+      CharacteristicDto subCharacteristic = effectiveSubCharacteristicId != null ? characteristicDao.selectById(effectiveSubCharacteristicId, session) : null;
+      CharacteristicDto characteristic = subCharacteristic != null ? characteristicDao.selectById(subCharacteristic.getParentId(), session) : null;
+      searchIndex.putSynchronous(INDEX_RULES, TYPE_RULE, Long.toString(ruleId), ruleDocument(rule,
+        characteristic, subCharacteristic,
+        ruleDao.selectParametersByRuleIds(newArrayList(ruleId), session),
+        ruleDao.selectTagsByRuleIds(newArrayList(ruleId), session)));
+    } catch (IOException ioexception) {
+      throw new IllegalStateException("Unable to index rule with id=" + rule.getId(), ioexception);
+    }
+  }
+
+  private String[] bulkIndexRules(Collection<RuleDto> rules, Map<Integer, CharacteristicDto> characteristicsById, Multimap<Integer, RuleParamDto> paramsByRule,
+                                  Multimap<Integer, RuleRuleTagDto> tagsByRule) {
+    try {
+      String[] ids = new String[rules.size()];
+      BytesStream[] docs = new BytesStream[rules.size()];
+      int index = 0;
+      TimeProfiler profiler = new TimeProfiler();
+      profiler.start("Build rules documents");
+      for (RuleDto rule : rules) {
+        ids[index] = rule.getId().toString();
+        CharacteristicDto effectiveSubCharacteristic =
+          characteristicsById.get(rule.getSubCharacteristicId() != null ? rule.getSubCharacteristicId() : rule.getDefaultSubCharacteristicId());
+        CharacteristicDto effectiveCharacteristic = effectiveSubCharacteristic != null ? characteristicsById.get(effectiveSubCharacteristic.getParentId()) : null;
+        docs[index] = ruleDocument(rule, effectiveCharacteristic, effectiveSubCharacteristic, paramsByRule.get(rule.getId()), tagsByRule.get(rule.getId()));
+        index++;
+      }
+      profiler.stop();
+
+      if (!rules.isEmpty()) {
+        profiler.start("Index rules");
+        searchIndex.bulkIndex(INDEX_RULES, TYPE_RULE, ids, docs);
+        profiler.stop();
+      }
+      return ids;
+    } catch (IOException ioe) {
+      throw new IllegalStateException("Unable to index rules", ioe);
+    }
+  }
+
+  public void removeDeletedRules(String[] ids) {
+    List<String> indexIds = searchIndex.findDocumentIds(SearchQuery.create().index(INDEX_RULES).type(TYPE_RULE));
+    indexIds.removeAll(Arrays.asList(ids));
+    TimeProfiler profiler = new TimeProfiler();
+    if (!indexIds.isEmpty()) {
+      profiler.start("Remove deleted rule documents");
+      searchIndex.bulkDelete(INDEX_RULES, TYPE_RULE, indexIds.toArray(new String[0]));
+      profiler.stop();
+    }
+  }
+
+  private XContentBuilder ruleDocument(RuleDto rule, @Nullable CharacteristicDto characteristicDto, @Nullable CharacteristicDto subCharacteristicDto,
+                                       Collection<RuleParamDto> params, Collection<RuleRuleTagDto> tags) throws IOException {
+    XContentBuilder document = XContentFactory.jsonBuilder()
+      .startObject()
+      .field(RuleDocument.FIELD_ID, rule.getId())
+      .field(RuleDocument.FIELD_KEY, rule.getRuleKey())
+      .field(RuleDocument.FIELD_LANGUAGE, rule.getLanguage())
+      .field(RuleDocument.FIELD_NAME, rule.getName())
+      .field(RuleDocument.FIELD_DESCRIPTION, rule.getDescription())
+      .field(RuleDocument.FIELD_TEMPLATE_ID, rule.getParentId())
+      .field(RuleDocument.FIELD_REPOSITORY_KEY, rule.getRepositoryKey())
+      .field(RuleDocument.FIELD_SEVERITY, rule.getSeverityString())
+      .field(RuleDocument.FIELD_STATUS, rule.getStatus())
+      .field(RuleDocument.FIELD_CARDINALITY, rule.getCardinality())
+      .field(RuleDocument.FIELD_CREATED_AT, rule.getCreatedAt())
+      .field(RuleDocument.FIELD_UPDATED_AT, rule.getUpdatedAt());
+    if (characteristicDto != null && subCharacteristicDto != null) {
+      boolean isFunctionOverridden = rule.getRemediationFunction() != null;
+      document
+        .field(RuleDocument.FIELD_CHARACTERISTIC_ID, characteristicDto.getId())
+        .field(RuleDocument.FIELD_CHARACTERISTIC_KEY, characteristicDto.getKey())
+        .field(RuleDocument.FIELD_CHARACTERISTIC_NAME, characteristicDto.getName())
+        .field(RuleDocument.FIELD_SUB_CHARACTERISTIC_ID, subCharacteristicDto.getId())
+        .field(RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY, subCharacteristicDto.getKey())
+        .field(RuleDocument.FIELD_SUB_CHARACTERISTIC_NAME, subCharacteristicDto.getName())
+        .field(RuleDocument.FIELD_REMEDIATION_FUNCTION, isFunctionOverridden ? rule.getRemediationFunction() : rule.getDefaultRemediationFunction())
+        .field(RuleDocument.FIELD_REMEDIATION_COEFFICIENT, isFunctionOverridden ? rule.getRemediationCoefficient() : rule.getDefaultRemediationCoefficient())
+        .field(RuleDocument.FIELD_REMEDIATION_OFFSET, isFunctionOverridden ? rule.getRemediationOffset() : rule.getDefaultRemediationOffset());
+    }
+
+    if (rule.getNoteData() != null || rule.getNoteUserLogin() != null) {
+      document.startObject(RuleDocument.FIELD_NOTE)
+        .field(RuleDocument.FIELD_NOTE_DATA, rule.getNoteData())
+        .field(RuleDocument.FIELD_NOTE_USER_LOGIN, rule.getNoteUserLogin())
+        .field(RuleDocument.FIELD_NOTE_CREATED_AT, rule.getNoteCreatedAt())
+        .field(RuleDocument.FIELD_NOTE_UPDATED_AT, rule.getNoteUpdatedAt())
+        .endObject();
+    }
+    if (!params.isEmpty()) {
+      document.startArray(RuleDocument.FIELD_PARAMS);
+      for (RuleParamDto param : params) {
+        document.startObject()
+          .field(RuleDocument.FIELD_PARAM_KEY, param.getName())
+          .field(RuleDocument.FIELD_PARAM_TYPE, param.getType())
+          .field(RuleDocument.FIELD_PARAM_DEFAULT_VALUE, param.getDefaultValue())
+          .field(RuleDocument.FIELD_PARAM_DESCRIPTION, param.getDescription())
+          .endObject();
+      }
+      document.endArray();
+    }
+    List<String> systemTags = Lists.newArrayList();
+    List<String> adminTags = Lists.newArrayList();
+    for (RuleRuleTagDto tag : tags) {
+      if (tag.getType() == RuleTagType.SYSTEM) {
+        systemTags.add(tag.getTag());
+      } else {
+        adminTags.add(tag.getTag());
+      }
+    }
+    if (!systemTags.isEmpty()) {
+      document.array(RuleDocument.FIELD_SYSTEM_TAGS, systemTags.toArray());
+    }
+    if (!adminTags.isEmpty()) {
+      document.array(RuleDocument.FIELD_ADMIN_TAGS, adminTags.toArray());
+    }
+
+    document.endObject();
+    return document;
+  }
+
 
   /**
    * <p>Find rule IDs matching the given criteria.</p>
@@ -278,15 +419,6 @@ public class RuleRegistry {
     }
   }
 
-  public void save(RuleDto rule, @Nullable CharacteristicDto characteristicDto, @Nullable CharacteristicDto subCharacteristicDto,
-                   Collection<RuleParamDto> params, Collection<RuleRuleTagDto> tags) {
-    try {
-      searchIndex.putSynchronous(INDEX_RULES, TYPE_RULE, Long.toString(rule.getId()), ruleDocument(rule, characteristicDto, subCharacteristicDto, params, tags));
-    } catch (IOException ioexception) {
-      throw new IllegalStateException("Unable to index rule with id=" + rule.getId(), ioexception);
-    }
-  }
-
   @CheckForNull
   public Rule findByKey(RuleKey key) {
     final SearchHits hits = searchIndex.executeRequest(searchIndex.client().prepareSearch(INDEX_RULES).setTypes(TYPE_RULE)
@@ -300,115 +432,5 @@ public class RuleRegistry {
     } else {
       return RuleDocumentParser.parse(hits.hits()[0].sourceAsMap());
     }
-  }
-
-  private String[] bulkIndexRules(Collection<RuleDto> rules, Map<Integer, CharacteristicDto> characteristicsById, Multimap<Integer, RuleParamDto> paramsByRule,
-                                  Multimap<Integer, RuleRuleTagDto> tagsByRule) {
-    try {
-      String[] ids = new String[rules.size()];
-      BytesStream[] docs = new BytesStream[rules.size()];
-      int index = 0;
-      TimeProfiler profiler = new TimeProfiler();
-      profiler.start("Build rules documents");
-      for (RuleDto rule : rules) {
-        ids[index] = rule.getId().toString();
-        CharacteristicDto effectiveSubCharacteristic =
-          characteristicsById.get(rule.getSubCharacteristicId() != null ? rule.getSubCharacteristicId() : rule.getDefaultSubCharacteristicId());
-        CharacteristicDto effectiveCharacteristic = effectiveSubCharacteristic != null ? characteristicsById.get(effectiveSubCharacteristic.getParentId()) : null;
-        docs[index] = ruleDocument(rule, effectiveCharacteristic, effectiveSubCharacteristic, paramsByRule.get(rule.getId()), tagsByRule.get(rule.getId()));
-        index++;
-      }
-      profiler.stop();
-
-      if (!rules.isEmpty()) {
-        profiler.start("Index rules");
-        searchIndex.bulkIndex(INDEX_RULES, TYPE_RULE, ids, docs);
-        profiler.stop();
-      }
-      return ids;
-    } catch (IOException ioe) {
-      throw new IllegalStateException("Unable to index rules", ioe);
-    }
-  }
-
-  public void removeDeletedRules(String[] ids) {
-    List<String> indexIds = searchIndex.findDocumentIds(SearchQuery.create().index(INDEX_RULES).type(TYPE_RULE));
-    indexIds.removeAll(Arrays.asList(ids));
-    TimeProfiler profiler = new TimeProfiler();
-    if (!indexIds.isEmpty()) {
-      profiler.start("Remove deleted rule documents");
-      searchIndex.bulkDelete(INDEX_RULES, TYPE_RULE, indexIds.toArray(new String[0]));
-      profiler.stop();
-    }
-  }
-
-  private XContentBuilder ruleDocument(RuleDto rule, @Nullable CharacteristicDto characteristicDto, @Nullable CharacteristicDto subCharacteristicDto,
-                                       Collection<RuleParamDto> params, Collection<RuleRuleTagDto> tags) throws IOException {
-    XContentBuilder document = XContentFactory.jsonBuilder()
-      .startObject()
-      .field(RuleDocument.FIELD_ID, rule.getId())
-      .field(RuleDocument.FIELD_KEY, rule.getRuleKey())
-      .field(RuleDocument.FIELD_LANGUAGE, rule.getLanguage())
-      .field(RuleDocument.FIELD_NAME, rule.getName())
-      .field(RuleDocument.FIELD_DESCRIPTION, rule.getDescription())
-      .field(RuleDocument.FIELD_TEMPLATE_ID, rule.getParentId())
-      .field(RuleDocument.FIELD_REPOSITORY_KEY, rule.getRepositoryKey())
-      .field(RuleDocument.FIELD_SEVERITY, rule.getSeverityString())
-      .field(RuleDocument.FIELD_STATUS, rule.getStatus())
-      .field(RuleDocument.FIELD_CARDINALITY, rule.getCardinality())
-      .field(RuleDocument.FIELD_CREATED_AT, rule.getCreatedAt())
-      .field(RuleDocument.FIELD_UPDATED_AT, rule.getUpdatedAt());
-    if (characteristicDto != null && subCharacteristicDto != null) {
-      boolean isFunctionOverridden = rule.getRemediationFunction() != null;
-      document
-        .field(RuleDocument.FIELD_CHARACTERISTIC_ID, characteristicDto.getId())
-        .field(RuleDocument.FIELD_CHARACTERISTIC_KEY, characteristicDto.getKey())
-        .field(RuleDocument.FIELD_CHARACTERISTIC_NAME, characteristicDto.getName())
-        .field(RuleDocument.FIELD_SUB_CHARACTERISTIC_ID, subCharacteristicDto.getId())
-        .field(RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY, subCharacteristicDto.getKey())
-        .field(RuleDocument.FIELD_SUB_CHARACTERISTIC_NAME, subCharacteristicDto.getName())
-        .field(RuleDocument.FIELD_REMEDIATION_FUNCTION, isFunctionOverridden ? rule.getRemediationFunction() : rule.getDefaultRemediationFunction())
-        .field(RuleDocument.FIELD_REMEDIATION_COEFFICIENT, isFunctionOverridden ? rule.getRemediationCoefficient() : rule.getDefaultRemediationCoefficient())
-        .field(RuleDocument.FIELD_REMEDIATION_OFFSET, isFunctionOverridden ? rule.getRemediationOffset() : rule.getDefaultRemediationOffset());
-    }
-
-    if (rule.getNoteData() != null || rule.getNoteUserLogin() != null) {
-      document.startObject(RuleDocument.FIELD_NOTE)
-        .field(RuleDocument.FIELD_NOTE_DATA, rule.getNoteData())
-        .field(RuleDocument.FIELD_NOTE_USER_LOGIN, rule.getNoteUserLogin())
-        .field(RuleDocument.FIELD_NOTE_CREATED_AT, rule.getNoteCreatedAt())
-        .field(RuleDocument.FIELD_NOTE_UPDATED_AT, rule.getNoteUpdatedAt())
-        .endObject();
-    }
-    if (!params.isEmpty()) {
-      document.startArray(RuleDocument.FIELD_PARAMS);
-      for (RuleParamDto param : params) {
-        document.startObject()
-          .field(RuleDocument.FIELD_PARAM_KEY, param.getName())
-          .field(RuleDocument.FIELD_PARAM_TYPE, param.getType())
-          .field(RuleDocument.FIELD_PARAM_DEFAULT_VALUE, param.getDefaultValue())
-          .field(RuleDocument.FIELD_PARAM_DESCRIPTION, param.getDescription())
-          .endObject();
-      }
-      document.endArray();
-    }
-    List<String> systemTags = Lists.newArrayList();
-    List<String> adminTags = Lists.newArrayList();
-    for (RuleRuleTagDto tag : tags) {
-      if (tag.getType() == RuleTagType.SYSTEM) {
-        systemTags.add(tag.getTag());
-      } else {
-        adminTags.add(tag.getTag());
-      }
-    }
-    if (!systemTags.isEmpty()) {
-      document.array(RuleDocument.FIELD_SYSTEM_TAGS, systemTags.toArray());
-    }
-    if (!adminTags.isEmpty()) {
-      document.array(RuleDocument.FIELD_ADMIN_TAGS, adminTags.toArray());
-    }
-
-    document.endObject();
-    return document;
   }
 }
