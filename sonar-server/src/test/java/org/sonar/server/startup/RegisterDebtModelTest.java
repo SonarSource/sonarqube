@@ -56,7 +56,7 @@ public class RegisterDebtModelTest {
 
     registerDebtModel.start();
 
-    verify(debtModelBackup).restore();
+    verify(debtModelBackup).reset();
   }
 
   @Test

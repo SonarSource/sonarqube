@@ -130,27 +130,20 @@ public class DebtModelBackup implements ServerComponent {
   }
 
   /**
-   * Restore from provided model
+   * Reset from provided model
    */
-  public void restore() {
-    restoreProvidedModel(null);
+  public void reset() {
+    restoreProvidedModel();
   }
 
-  /**
-   * Restore from plugins providing rules for a given language
-   */
-  public void restore(final String languageKey) {
-    restoreProvidedModel(languageKey);
-  }
-
-  private void restoreProvidedModel(@Nullable String languageKey) {
+  private void restoreProvidedModel() {
     checkPermission();
 
     Date updateDate = new Date(system2.now());
     SqlSession session = mybatis.openSession();
     try {
-      restoreCharacteristics(loadModelFromPlugin(DebtModelPluginRepository.DEFAULT_MODEL), languageKey == null, updateDate, session);
-      List<RuleDto> ruleDtos = rules(languageKey, session);
+      restoreCharacteristics(loadModelFromPlugin(DebtModelPluginRepository.DEFAULT_MODEL), true, updateDate, session);
+      List<RuleDto> ruleDtos = rules(null, session);
       for (RuleDto rule : ruleDtos) {
         rule.setSubCharacteristicId(null);
         rule.setRemediationFunction(null);

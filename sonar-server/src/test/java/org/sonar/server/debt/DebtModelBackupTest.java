@@ -319,7 +319,7 @@ public class DebtModelBackupTest {
   }
 
   @Test
-  public void restore_from_provided_model() throws Exception {
+  public void reset_from_provided_model() throws Exception {
     when(characteristicsXMLImporter.importXML(any(Reader.class))).thenReturn(new DebtModel()
       .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
       .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
@@ -334,7 +334,7 @@ public class DebtModelBackupTest {
         .setCreatedAt(oldDate).setUpdatedAt(oldDate)
     ));
 
-    debtModelBackup.restore();
+    debtModelBackup.reset();
 
     verify(dao).selectEnabledCharacteristics(session);
     verify(dao, times(2)).update(any(CharacteristicDto.class), eq(session));
@@ -353,56 +353,6 @@ public class DebtModelBackupTest {
     assertThat(rule.getRemediationCoefficient()).isNull();
     assertThat(rule.getRemediationOffset()).isNull();
     assertThat(rule.getUpdatedAt()).isEqualTo(now);
-  }
-
-  @Test
-  public void restore_from_language() throws Exception {
-    when(characteristicsXMLImporter.importXML(any(Reader.class))).thenReturn(new DebtModel());
-
-    when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
-      new RuleDto().setId(1).setRepositoryKey("squid").setLanguage("java")
-        .setSubCharacteristicId(2).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("2h").setRemediationOffset("15min")
-        .setCreatedAt(oldDate).setUpdatedAt(oldDate),
-      // Should be ignored because linked on another language
-      new RuleDto().setId(2).setRepositoryKey("checkstyle").setLanguage("java2")
-        .setSubCharacteristicId(2).setRemediationFunction("LINEAR").setRemediationCoefficient("2h")
-        .setCreatedAt(oldDate).setUpdatedAt(oldDate)
-    ));
-
-    debtModelBackup.restore("java");
-
-    verify(dao, never()).update(any(CharacteristicDto.class), eq(session));
-
-    verify(ruleDao).selectEnablesAndNonManual(session);
-    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
-    verifyNoMoreInteractions(ruleDao);
-    verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), session);
-    verify(session).commit();
-
-    RuleDto rule = ruleCaptor.getValue();
-    assertThat(rule.getId()).isEqualTo(1);
-    assertThat(rule.getSubCharacteristicId()).isNull();
-    assertThat(rule.getRemediationFunction()).isNull();
-    assertThat(rule.getRemediationCoefficient()).isNull();
-    assertThat(rule.getRemediationOffset()).isNull();
-    assertThat(rule.getUpdatedAt()).isEqualTo(now);
-  }
-
-  @Test
-  public void restore_from_language_do_not_disable_no_more_existing_characteristics() throws Exception {
-    when(characteristicsXMLImporter.importXML(any(Reader.class))).thenReturn(new DebtModel()
-      .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
-      // No more existing characteristic
-      .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
-
-    when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
-      new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability").setOrder(1))
-    );
-
-    debtModelBackup.restore("java");
-
-    verify(debtModelOperations, never()).delete(any(CharacteristicDto.class), eq(now), eq(session));
-    verify(session).commit();
   }
 
   @Test

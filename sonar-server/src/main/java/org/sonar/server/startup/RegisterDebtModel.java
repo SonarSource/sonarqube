@@ -41,7 +41,7 @@ public class RegisterDebtModel {
   public void start() {
     TimeProfiler profiler = new TimeProfiler(LOGGER).start("Register technical debt model");
     if (dao.selectEnabledCharacteristics().isEmpty()) {
-      debtModelBackup.restore();
+      debtModelBackup.reset();
     }
     profiler.stop();
   }

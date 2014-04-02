@@ -85,17 +85,10 @@ public class DebtModelService implements DebtModel {
   }
 
   /**
-   * Restore from provided model
+   * Reset model
    */
-  public void restore() {
-    debtModelBackup.restore();
-  }
-
-  /**
-   * Restore from plugins providing rules for a given language
-   */
-  public void restoreFromLanguage(String languageKey) {
-    debtModelBackup.restore(languageKey);
+  public void reset() {
+    debtModelBackup.reset();
   }
 
   /**
