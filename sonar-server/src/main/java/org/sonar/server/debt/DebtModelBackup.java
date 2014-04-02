@@ -157,14 +157,17 @@ public class DebtModelBackup implements ServerComponent {
       for (RuleDto rule : ruleDtos) {
         // Restore default debt definitions
         RulesDefinition.Rule ruleDef = ruleDef(rule, rules);
-        String subCharacteristicKey = ruleDef.debtSubCharacteristic();
-        CharacteristicDto subCharacteristicDto = characteristicByKey(subCharacteristicKey, allCharacteristicDtos);
-        DebtRemediationFunction remediationFunction = ruleDef.debtRemediationFunction();
-        boolean hasDebtDefinition = subCharacteristicDto != null && remediationFunction != null;
-        rule.setDefaultSubCharacteristicId(hasDebtDefinition ? subCharacteristicDto.getId() : null);
-        rule.setDefaultRemediationFunction(hasDebtDefinition ? remediationFunction.type().name() : null);
-        rule.setDefaultRemediationCoefficient(hasDebtDefinition ? remediationFunction.coefficient() : null);
-        rule.setDefaultRemediationOffset(hasDebtDefinition ? remediationFunction.offset() : null);
+        if (ruleDef != null) {
+          // TODO when can it be null ?
+          String subCharacteristicKey = ruleDef.debtSubCharacteristic();
+          CharacteristicDto subCharacteristicDto = characteristicByKey(subCharacteristicKey, allCharacteristicDtos);
+          DebtRemediationFunction remediationFunction = ruleDef.debtRemediationFunction();
+          boolean hasDebtDefinition = subCharacteristicDto != null && remediationFunction != null;
+          rule.setDefaultSubCharacteristicId(hasDebtDefinition ? subCharacteristicDto.getId() : null);
+          rule.setDefaultRemediationFunction(hasDebtDefinition ? remediationFunction.type().name() : null);
+          rule.setDefaultRemediationCoefficient(hasDebtDefinition ? remediationFunction.coefficient() : null);
+          rule.setDefaultRemediationOffset(hasDebtDefinition ? remediationFunction.offset() : null);
+        }
 
         // Reset overridden debt definitions
         rule.setSubCharacteristicId(null);
@@ -347,13 +350,14 @@ public class DebtModelBackup implements ServerComponent {
     }, null);
   }
 
+  @CheckForNull
   private static RulesDefinition.Rule ruleDef(final RuleDto rule, List<RulesDefinition.Rule> rules) {
     return Iterables.find(rules, new Predicate<RulesDefinition.Rule>() {
       @Override
       public boolean apply(@Nullable RulesDefinition.Rule input) {
         return input != null && rule.getRepositoryKey().equals(input.repository().key()) && rule.getRuleKey().equals(input.key());
       }
-    });
+    }, null);
   }
 
   @CheckForNull
