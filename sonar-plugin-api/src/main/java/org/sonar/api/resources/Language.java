@@ -44,8 +44,7 @@ public interface Language extends BatchExtension, ServerExtension {
   String getName();
 
   /**
-   * Make sure that dot is a prefix for all values.
-   * For example [".jav", ".java"].
+   * For example ["jav", "java"].
    * If empty, then all files in source directories are considered as sources.
    */
   String[] getFileSuffixes();
