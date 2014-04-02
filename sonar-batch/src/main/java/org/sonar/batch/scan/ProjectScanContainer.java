@@ -20,7 +20,6 @@
 package org.sonar.batch.scan;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.maven.execution.MavenSession;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
@@ -113,9 +112,11 @@ public class ProjectScanContainer extends ComponentContainer {
         // Starting from Maven plugin 2.3 then only DefaultProjectBootstrapper should be used.
         || "true".equals(settings.property("sonar.mojoUseRunner"))) {
         // Use default SonarRunner project bootstrapper
-        bootstrapper = new DefaultProjectBootstrapper(settings, getComponentByType(MavenSession.class));
+        ProjectReactorBuilder builder = getComponentByType(ProjectReactorBuilder.class);
+        reactor = builder.execute();
+      } else {
+        reactor = bootstrapper.bootstrap();
       }
-      reactor = bootstrapper.bootstrap();
       if (reactor == null) {
         throw new SonarException(bootstrapper + " has returned null as ProjectReactor");
       }

@@ -29,12 +29,23 @@ import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.internal.TempFolderCleaner;
-import org.sonar.batch.components.*;
+import org.sonar.batch.components.PastMeasuresLoader;
+import org.sonar.batch.components.PastSnapshotFinder;
+import org.sonar.batch.components.PastSnapshotFinderByDate;
+import org.sonar.batch.components.PastSnapshotFinderByDays;
+import org.sonar.batch.components.PastSnapshotFinderByPreviousAnalysis;
+import org.sonar.batch.components.PastSnapshotFinderByPreviousVersion;
+import org.sonar.batch.components.PastSnapshotFinderByVersion;
+import org.sonar.batch.scan.ProjectReactorBuilder;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.metric.CacheMetricFinder;
-import org.sonar.core.persistence.*;
+import org.sonar.core.persistence.DaoUtils;
+import org.sonar.core.persistence.DatabaseVersion;
+import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.SemaphoreUpdater;
+import org.sonar.core.persistence.SemaphoresImpl;
 import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.core.rule.CacheRuleFinder;
 import org.sonar.core.user.HibernateUserFinder;
@@ -85,7 +96,8 @@ public class BootstrapContainer extends ComponentContainer {
       HttpDownloader.class,
       UriReader.class,
       new FileCacheProvider(),
-      System2.INSTANCE);
+      System2.INSTANCE,
+      ProjectReactorBuilder.class);
   }
 
   private void addDatabaseComponents() {
@@ -127,8 +139,7 @@ public class BootstrapContainer extends ComponentContainer {
       PastSnapshotFinderByPreviousVersion.class,
       PastMeasuresLoader.class,
       PastSnapshotFinder.class,
-      Durations.class
-    );
+      Durations.class);
   }
 
   @Override

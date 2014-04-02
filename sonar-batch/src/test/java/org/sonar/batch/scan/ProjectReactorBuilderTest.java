@@ -40,7 +40,7 @@ import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class DefaultProjectBootstrapperTest {
+public class ProjectReactorBuilderTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -449,14 +449,14 @@ public class DefaultProjectBootstrapperTest {
     props.setProperty("foobar.tests", "src/test/java");
     props.setProperty("foobar.binaries", "target/classes");
 
-    Properties moduleProps = DefaultProjectBootstrapper.extractModuleProperties("bar", props);
+    Properties moduleProps = ProjectReactorBuilder.extractModuleProperties("bar", props);
     assertThat(moduleProps.size()).isEqualTo(0);
 
-    moduleProps = DefaultProjectBootstrapper.extractModuleProperties("foo", props);
+    moduleProps = ProjectReactorBuilder.extractModuleProperties("foo", props);
     assertThat(moduleProps.size()).isEqualTo(1);
     assertThat(moduleProps.get("sources")).isEqualTo("src/main/java");
 
-    moduleProps = DefaultProjectBootstrapper.extractModuleProperties("foobar", props);
+    moduleProps = ProjectReactorBuilder.extractModuleProperties("foobar", props);
     assertThat(moduleProps.size()).isEqualTo(2);
     assertThat(moduleProps.get("tests")).isEqualTo("src/test/java");
     assertThat(moduleProps.get("binaries")).isEqualTo("target/classes");
@@ -471,7 +471,7 @@ public class DefaultProjectBootstrapperTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("You must define the following mandatory properties for 'Unknown': foo2, foo3");
 
-    DefaultProjectBootstrapper.checkMandatoryProperties(props, new String[] {"foo1", "foo2", "foo3"});
+    ProjectReactorBuilder.checkMandatoryProperties(props, new String[] {"foo1", "foo2", "foo3"});
   }
 
   @Test
@@ -483,7 +483,7 @@ public class DefaultProjectBootstrapperTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("You must define the following mandatory properties for 'my-project': foo2, foo3");
 
-    DefaultProjectBootstrapper.checkMandatoryProperties(props, new String[] {"foo1", "foo2", "foo3"});
+    ProjectReactorBuilder.checkMandatoryProperties(props, new String[] {"foo1", "foo2", "foo3"});
   }
 
   @Test
@@ -492,7 +492,7 @@ public class DefaultProjectBootstrapperTest {
     props.setProperty("foo1", "bla");
     props.setProperty("foo4", "bla");
 
-    DefaultProjectBootstrapper.checkMandatoryProperties(props, new String[] {"foo1"});
+    ProjectReactorBuilder.checkMandatoryProperties(props, new String[] {"foo1"});
 
     // No exception should be thrown
   }
@@ -500,22 +500,22 @@ public class DefaultProjectBootstrapperTest {
   @Test
   public void shouldFilterFiles() throws Exception {
     File baseDir = TestUtils.getResource(this.getClass(), "shouldFilterFiles");
-    assertThat(DefaultProjectBootstrapper.getLibraries(baseDir, "in*.txt")).hasSize(1);
-    assertThat(DefaultProjectBootstrapper.getLibraries(baseDir, "*.txt")).hasSize(2);
-    assertThat(DefaultProjectBootstrapper.getLibraries(baseDir.getParentFile(), "shouldFilterFiles/in*.txt")).hasSize(1);
-    assertThat(DefaultProjectBootstrapper.getLibraries(baseDir.getParentFile(), "shouldFilterFiles/*.txt")).hasSize(2);
+    assertThat(ProjectReactorBuilder.getLibraries(baseDir, "in*.txt")).hasSize(1);
+    assertThat(ProjectReactorBuilder.getLibraries(baseDir, "*.txt")).hasSize(2);
+    assertThat(ProjectReactorBuilder.getLibraries(baseDir.getParentFile(), "shouldFilterFiles/in*.txt")).hasSize(1);
+    assertThat(ProjectReactorBuilder.getLibraries(baseDir.getParentFile(), "shouldFilterFiles/*.txt")).hasSize(2);
   }
 
   @Test
   public void shouldWorkWithAbsolutePath() throws Exception {
     File baseDir = new File("not-exists");
     String absolutePattern = TestUtils.getResource(this.getClass(), "shouldFilterFiles").getAbsolutePath() + "/in*.txt";
-    assertThat(DefaultProjectBootstrapper.getLibraries(baseDir.getParentFile(), absolutePattern)).hasSize(1);
+    assertThat(ProjectReactorBuilder.getLibraries(baseDir.getParentFile(), absolutePattern)).hasSize(1);
   }
 
   @Test
   public void shouldGetRelativeFile() {
-    assertThat(DefaultProjectBootstrapper.getFileFromPath("shouldGetFile/foo.properties", TestUtils.getResource(this.getClass(), "/")))
+    assertThat(ProjectReactorBuilder.getFileFromPath("shouldGetFile/foo.properties", TestUtils.getResource(this.getClass(), "/")))
       .isEqualTo(TestUtils.getResource(this.getClass(), "shouldGetFile/foo.properties"));
   }
 
@@ -523,7 +523,7 @@ public class DefaultProjectBootstrapperTest {
   public void shouldGetAbsoluteFile() {
     File file = TestUtils.getResource(this.getClass(), "shouldGetFile/foo.properties");
 
-    assertThat(DefaultProjectBootstrapper.getFileFromPath(file.getAbsolutePath(), TestUtils.getResource(this.getClass(), "/")))
+    assertThat(ProjectReactorBuilder.getFileFromPath(file.getAbsolutePath(), TestUtils.getResource(this.getClass(), "/")))
       .isEqualTo(file);
   }
 
@@ -541,7 +541,7 @@ public class DefaultProjectBootstrapperTest {
     childProps.setProperty("existingChildProp", "barChild");
     childProps.setProperty("otherProp", "tutuChild");
 
-    DefaultProjectBootstrapper.mergeParentProperties(childProps, parentProps);
+    ProjectReactorBuilder.mergeParentProperties(childProps, parentProps);
 
     assertThat(childProps.size()).isEqualTo(3);
     assertThat(childProps.getProperty("toBeMergeProps")).isEqualTo("fooParent");
@@ -555,7 +555,7 @@ public class DefaultProjectBootstrapperTest {
 
   @Test
   public void shouldInitRootWorkDir() {
-    DefaultProjectBootstrapper builder = new DefaultProjectBootstrapper(new BootstrapSettings(new BootstrapProperties(Maps.<String, String>newHashMap())), null);
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new BootstrapSettings(new BootstrapProperties(Maps.<String, String>newHashMap())), null);
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir);
@@ -567,7 +567,7 @@ public class DefaultProjectBootstrapperTest {
   public void shouldInitWorkDirWithCustomRelativeFolder() {
     Map<String, String> props = Maps.<String, String>newHashMap();
     props.put("sonar.working.directory", ".foo");
-    DefaultProjectBootstrapper builder = new DefaultProjectBootstrapper(new BootstrapSettings(new BootstrapProperties(props)), null);
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new BootstrapSettings(new BootstrapProperties(props)), null);
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir);
@@ -579,7 +579,7 @@ public class DefaultProjectBootstrapperTest {
   public void shouldInitRootWorkDirWithCustomAbsoluteFolder() {
     Map<String, String> props = Maps.<String, String>newHashMap();
     props.put("sonar.working.directory", new File("src").getAbsolutePath());
-    DefaultProjectBootstrapper builder = new DefaultProjectBootstrapper(new BootstrapSettings(new BootstrapProperties(props)), null);
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new BootstrapSettings(new BootstrapProperties(props)), null);
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir);
@@ -601,7 +601,7 @@ public class DefaultProjectBootstrapperTest {
     Properties props2 = new Properties();
     props2.put("sonar.projectKey", "mod2");
     ProjectDefinition mod2 = ProjectDefinition.create().setProperties(props2);
-    DefaultProjectBootstrapper.checkUniquenessOfChildKey(mod2, root);
+    ProjectReactorBuilder.checkUniquenessOfChildKey(mod2, root);
 
     // Now, add it and check again
     root.addSubProject(mod2);
@@ -609,7 +609,7 @@ public class DefaultProjectBootstrapperTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Project 'root' can't have 2 modules with the following key: mod2");
 
-    DefaultProjectBootstrapper.checkUniquenessOfChildKey(mod2, root);
+    ProjectReactorBuilder.checkUniquenessOfChildKey(mod2, root);
   }
 
   @Test
@@ -618,12 +618,12 @@ public class DefaultProjectBootstrapperTest {
     props.put("sonar.projectVersion", "1.0");
 
     // should be set
-    DefaultProjectBootstrapper.setModuleKeyAndNameIfNotDefined(props, "foo", "parent");
+    ProjectReactorBuilder.setModuleKeyAndNameIfNotDefined(props, "foo", "parent");
     assertThat(props.getProperty("sonar.moduleKey")).isEqualTo("parent:foo");
     assertThat(props.getProperty("sonar.projectName")).isEqualTo("foo");
 
     // but not this 2nd time
-    DefaultProjectBootstrapper.setModuleKeyAndNameIfNotDefined(props, "bar", "parent");
+    ProjectReactorBuilder.setModuleKeyAndNameIfNotDefined(props, "bar", "parent");
     assertThat(props.getProperty("sonar.moduleKey")).isEqualTo("parent:foo");
     assertThat(props.getProperty("sonar.projectName")).isEqualTo("foo");
   }
@@ -633,18 +633,18 @@ public class DefaultProjectBootstrapperTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Impossible to read the property file");
 
-    DefaultProjectBootstrapper.toProperties(new File("foo.properties"));
+    ProjectReactorBuilder.toProperties(new File("foo.properties"));
   }
 
   private ProjectDefinition loadProjectDefinition(String projectFolder) throws IOException {
     Map<String, String> props = Maps.<String, String>newHashMap();
-    Properties runnerProps = DefaultProjectBootstrapper.toProperties(TestUtils.getResource(this.getClass(), projectFolder + "/sonar-project.properties"));
+    Properties runnerProps = ProjectReactorBuilder.toProperties(TestUtils.getResource(this.getClass(), projectFolder + "/sonar-project.properties"));
     for (final String name : runnerProps.stringPropertyNames()) {
       props.put(name, runnerProps.getProperty(name));
     }
     props.put("sonar.projectBaseDir", TestUtils.getResource(this.getClass(), projectFolder).getAbsolutePath());
     BootstrapProperties bootstrapProps = new BootstrapProperties(props);
-    ProjectReactor projectReactor = new DefaultProjectBootstrapper(new BootstrapSettings(bootstrapProps), null).bootstrap();
+    ProjectReactor projectReactor = new ProjectReactorBuilder(new BootstrapSettings(bootstrapProps), null).execute();
     return projectReactor.getRoot();
   }
 
@@ -661,7 +661,7 @@ public class DefaultProjectBootstrapperTest {
     Properties props = new Properties();
 
     props.put("prop", "  foo  ,  bar  , \n\ntoto,tutu");
-    assertThat(DefaultProjectBootstrapper.getListFromProperty(props, "prop")).containsOnly("foo", "bar", "toto", "tutu");
+    assertThat(ProjectReactorBuilder.getListFromProperty(props, "prop")).containsOnly("foo", "bar", "toto", "tutu");
   }
 
   @Test
@@ -669,7 +669,7 @@ public class DefaultProjectBootstrapperTest {
     String filePath = "shouldGetList/foo.properties";
     Properties props = loadPropsFromFile(filePath);
 
-    assertThat(DefaultProjectBootstrapper.getListFromProperty(props, "prop")).containsOnly("foo", "bar", "toto", "tutu");
+    assertThat(ProjectReactorBuilder.getListFromProperty(props, "prop")).containsOnly("foo", "bar", "toto", "tutu");
   }
 
   private Properties loadPropsFromFile(String filePath) throws IOException {

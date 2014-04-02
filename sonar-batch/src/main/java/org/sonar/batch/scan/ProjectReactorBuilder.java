@@ -33,12 +33,12 @@ import org.apache.maven.project.MavenProject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.bootstrap.ProjectBootstrapper;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.bootstrap.BootstrapSettings;
 import org.sonar.core.component.ComponentKeys;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.io.File;
@@ -52,11 +52,11 @@ import java.util.Map.Entry;
 import java.util.Properties;
 
 /**
- * Class that creates a Sonar project definition based on a set of properties.
+ * Class that creates a project definition based on a set of properties.
  */
-class DefaultProjectBootstrapper implements ProjectBootstrapper {
+public class ProjectReactorBuilder {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultProjectBootstrapper.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ProjectReactorBuilder.class);
 
   /**
    * @since 4.1 but not yet exposed in {@link CoreProperties}
@@ -64,6 +64,7 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
   private static final String MODULE_KEY_PROPERTY = "sonar.moduleKey";
 
   private static final String PROPERTY_PROJECT_BASEDIR = "sonar.projectBaseDir";
+  private static final String PROPERTY_PROJECT_BUILDDIR = "sonar.projectBuildDir";
   private static final String PROPERTY_PROJECT_CONFIG_FILE = "sonar.projectConfigFile";
   private static final String PROPERTY_MODULES = "sonar.modules";
 
@@ -119,13 +120,12 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
   private File rootProjectWorkDir;
   private MavenSession mavenSession;
 
-  DefaultProjectBootstrapper(BootstrapSettings settings, @Nullable MavenSession mavenSession) {
+  ProjectReactorBuilder(BootstrapSettings settings, @Nullable MavenSession mavenSession) {
     this.settings = settings;
     this.mavenSession = mavenSession;
   }
 
-  @Override
-  public ProjectReactor bootstrap() {
+  public ProjectReactor execute() {
     Properties bootstrapProperties = new Properties();
     bootstrapProperties.putAll(settings.properties());
     ProjectDefinition rootProject = defineProject(bootstrapProperties, null);
@@ -149,12 +149,13 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
       validateDirectories(properties, baseDir, projectKey);
       workDir = initRootProjectWorkDir(baseDir);
     } else {
-      workDir = initModuleWorkDir(properties);
+      workDir = initModuleWorkDir(baseDir, properties);
     }
 
     ProjectDefinition definition = ProjectDefinition.create().setProperties(properties)
       .setBaseDir(baseDir)
-      .setWorkDir(workDir);
+      .setWorkDir(workDir)
+      .setBuildDir(initModuleBuildDir(baseDir, properties));
     setMavenProjectIfApplicable(definition);
     return definition;
   }
@@ -200,10 +201,33 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
   }
 
   @VisibleForTesting
-  protected File initModuleWorkDir(Properties properties) {
-    String cleanKey = StringUtils.deleteWhitespace(properties.getProperty(CoreProperties.PROJECT_KEY_PROPERTY));
-    cleanKey = StringUtils.replace(cleanKey, ":", "_");
-    return new File(rootProjectWorkDir, cleanKey);
+  protected File initModuleWorkDir(File moduleBaseDir, Properties moduleProperties) {
+    String workDir = moduleProperties.getProperty(CoreProperties.WORKING_DIRECTORY);
+    if (StringUtils.isBlank(workDir)) {
+      String cleanKey = StringUtils.deleteWhitespace(moduleProperties.getProperty(CoreProperties.PROJECT_KEY_PROPERTY));
+      cleanKey = StringUtils.replace(cleanKey, ":", "_");
+      return new File(rootProjectWorkDir, cleanKey);
+    }
+
+    File customWorkDir = new File(workDir);
+    if (customWorkDir.isAbsolute()) {
+      return customWorkDir;
+    }
+    return new File(moduleBaseDir, customWorkDir.getPath());
+  }
+
+  @CheckForNull
+  private File initModuleBuildDir(File moduleBaseDir, Properties moduleProperties) {
+    String buildDir = moduleProperties.getProperty(PROPERTY_PROJECT_BUILDDIR);
+    if (StringUtils.isBlank(buildDir)) {
+      return null;
+    }
+
+    File customBuildDir = new File(buildDir);
+    if (customBuildDir.isAbsolute()) {
+      return customBuildDir;
+    }
+    return new File(moduleBaseDir, customBuildDir.getPath());
   }
 
   private void defineChildren(ProjectDefinition parentProject) {
