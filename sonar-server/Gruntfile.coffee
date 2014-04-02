@@ -249,3 +249,5 @@ module.exports = (grunt) ->
                                  'coffee:build', 'handlebars:build', 'copy:js',
                                  'uglify:build',
                                  'requirejs', 'clean:js', 'copy:build', 'copy:requirejs', 'clean:build']
+
+  grunt.registerTask 'test', ['coffee:build', 'handlebars:build', 'copy:js', 'karma:unit']
