@@ -140,7 +140,7 @@ public class RegisterRules implements Startable {
     for (RuleRuleTagDto tagDto : ruleDao.selectTags(sqlSession)) {
       buffer.add(tagDto);
     }
-    for (CharacteristicDto characteristicDto : characteristicDao.selectEnabledCharacteristics()) {
+    for (CharacteristicDto characteristicDto : characteristicDao.selectEnabledCharacteristics(sqlSession)) {
       buffer.add(characteristicDto);
     }
   }
@@ -219,7 +219,7 @@ public class RegisterRules implements Startable {
 
   private void enableAndUpdate(Buffer buffer, SqlSession sqlSession, RulesDefinition.Rule ruleDef, RuleDto dto) {
     if (mergeRule(buffer, ruleDef, dto)) {
-      ruleDao.update(dto);
+      ruleDao.update(dto, sqlSession);
     }
     mergeParams(buffer, sqlSession, ruleDef, dto);
     mergeTags(buffer, sqlSession, ruleDef, dto);

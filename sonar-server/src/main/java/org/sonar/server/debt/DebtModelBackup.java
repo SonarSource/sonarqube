@@ -152,7 +152,10 @@ public class DebtModelBackup implements ServerComponent {
       restoreCharacteristics(loadModelFromPlugin(DebtModelPluginRepository.DEFAULT_MODEL), languageKey == null, updateDate, session);
       List<RuleDto> ruleDtos = rules(languageKey, session);
       for (RuleDto rule : ruleDtos) {
-        disabledOverriddenRuleDebt(rule);
+        rule.setSubCharacteristicId(null);
+        rule.setRemediationFunction(null);
+        rule.setRemediationCoefficient(null);
+        rule.setRemediationOffset(null);
         rule.setUpdatedAt(updateDate);
         ruleDao.update(rule, session);
       }
@@ -199,10 +202,12 @@ public class DebtModelBackup implements ServerComponent {
     for (RuleDto rule : rules) {
       RuleDebt ruleDebt = ruleDebtByRule(rule, ruleDebts);
       if (ruleDebt == null) {
+        // rule does not exists in the XML
         disabledOverriddenRuleDebt(rule);
       } else {
         CharacteristicDto subCharacteristicDto = characteristicByKey(ruleDebt.subCharacteristicKey(), allCharacteristicDtos);
         if (subCharacteristicDto == null) {
+          // rule is linked on a not existing characteristic
           disabledOverriddenRuleDebt(rule);
         } else {
           boolean isSameCharacteristicAsDefault = subCharacteristicDto.getId().equals(rule.getDefaultSubCharacteristicId());

@@ -75,7 +75,7 @@ public class DebtModelXMLExporter implements ServerComponent {
     StringBuilder sb = new StringBuilder();
     sb.append("<" + ROOT + ">");
     for (DebtCharacteristic characteristic : debtModel.rootCharacteristics()) {
-      appendCharacteristic(debtModel, characteristic, allRules, sb);
+      processCharacteristic(debtModel, characteristic, allRules, sb);
     }
     sb.append("</" + ROOT + ">");
     String xml = sb.toString();
@@ -83,7 +83,7 @@ public class DebtModelXMLExporter implements ServerComponent {
     return xml;
   }
 
-  private void appendCharacteristic(DebtModel debtModel, DebtCharacteristic characteristic, List<RuleDebt> allRules, StringBuilder xml) {
+  private void processCharacteristic(DebtModel debtModel, DebtCharacteristic characteristic, List<RuleDebt> allRules, StringBuilder xml) {
     xml.append("<" + CHARACTERISTIC + ">");
     if (StringUtils.isNotBlank(characteristic.key())) {
       xml.append("<" + CHARACTERISTIC_KEY + ">");
@@ -96,17 +96,17 @@ public class DebtModelXMLExporter implements ServerComponent {
     if (characteristic.parentId() != null) {
       List<RuleDebt> rules = rules(allRules, characteristic.key());
       for (RuleDebt ruleDto : rules) {
-        appendRule(ruleDto, xml);
+        processRule(ruleDto, xml);
       }
     } else {
       for (DebtCharacteristic child : debtModel.subCharacteristics(characteristic.key())) {
-        appendCharacteristic(debtModel, child, allRules, xml);
+        processCharacteristic(debtModel, child, allRules, xml);
       }
     }
     xml.append("</" + CHARACTERISTIC + ">");
   }
 
-  private void appendRule(RuleDebt rule, StringBuilder xml) {
+  private void processRule(RuleDebt rule, StringBuilder xml) {
     xml.append("<" + CHARACTERISTIC + ">");
     xml.append("<" + REPOSITORY_KEY + ">");
     xml.append(StringEscapeUtils.escapeXml(rule.ruleKey().repository()));
@@ -117,14 +117,14 @@ public class DebtModelXMLExporter implements ServerComponent {
     String coefficient = rule.coefficient();
     String offset = rule.offset();
 
-    appendProperty(PROPERTY_FUNCTION, null, rule.function().name(), xml);
+    processProperty(PROPERTY_FUNCTION, null, rule.function().name(), xml);
     if (coefficient != null) {
       String[] values = getValues(coefficient);
-      appendProperty(PROPERTY_COEFFICIENT, values[0], values[1], xml);
+      processProperty(PROPERTY_COEFFICIENT, values[0], values[1], xml);
     }
     if (offset != null) {
       String[] values = getValues(offset);
-      appendProperty(PROPERTY_OFFSET, values[0], values[1], xml);
+      processProperty(PROPERTY_OFFSET, values[0], values[1], xml);
     }
     xml.append("</" + CHARACTERISTIC + ">");
   }
@@ -142,7 +142,7 @@ public class DebtModelXMLExporter implements ServerComponent {
     return result;
   }
 
-  private void appendProperty(String key, @Nullable String val, String text, StringBuilder xml) {
+  private void processProperty(String key, @Nullable String val, String text, StringBuilder xml) {
     xml.append("<" + PROPERTY + "><" + PROPERTY_KEY + ">");
     xml.append(StringEscapeUtils.escapeXml(key));
     xml.append("</" + PROPERTY_KEY + ">");
