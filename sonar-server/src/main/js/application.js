@@ -555,7 +555,7 @@ jQuery(function() {
 
 
   // Define global shortcuts
-  key('shift+s', function() {
+  key('/,shift+/', function() {
     jQuery('#searchInput').focus();
     return false;
   });
