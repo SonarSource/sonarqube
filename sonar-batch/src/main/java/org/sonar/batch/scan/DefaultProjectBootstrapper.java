@@ -28,6 +28,8 @@ import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang.StringUtils;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.project.MavenProject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -36,6 +38,8 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.bootstrap.BootstrapSettings;
 import org.sonar.core.component.ComponentKeys;
+
+import javax.annotation.Nullable;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -113,9 +117,11 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
 
   private BootstrapSettings settings;
   private File rootProjectWorkDir;
+  private MavenSession mavenSession;
 
-  DefaultProjectBootstrapper(BootstrapSettings settings) {
+  DefaultProjectBootstrapper(BootstrapSettings settings, @Nullable MavenSession mavenSession) {
     this.settings = settings;
+    this.mavenSession = mavenSession;
   }
 
   @Override
@@ -149,7 +155,26 @@ class DefaultProjectBootstrapper implements ProjectBootstrapper {
     ProjectDefinition definition = ProjectDefinition.create().setProperties(properties)
       .setBaseDir(baseDir)
       .setWorkDir(workDir);
+    setMavenProjectIfApplicable(definition);
     return definition;
+  }
+
+  private void setMavenProjectIfApplicable(ProjectDefinition definition) {
+    if (mavenSession != null) {
+      String moduleKey = definition.getKey();
+      MavenProject foundMavenModule = null;
+      for (MavenProject mavenModule : (List<MavenProject>) mavenSession.getSortedProjects()) {
+        String mavenModuleKey = mavenModule.getGroupId() + ":" + mavenModule.getArtifactId();
+        if (mavenModuleKey.equals(moduleKey)) {
+          foundMavenModule = mavenModule;
+          break;
+        }
+      }
+      if (foundMavenModule == null) {
+        throw new IllegalStateException("Unable to find Maven project in reactor with key " + moduleKey);
+      }
+      definition.addContainerExtension(foundMavenModule);
+    }
   }
 
   private void checkProjectKeyValid(String projectKey) {

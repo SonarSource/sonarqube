@@ -32,7 +32,9 @@ import org.sonar.api.task.TaskExtension;
  * Only one instance is allowed per environment.
  *
  * @since 3.7
+ * @deprecated since 4.3 All bootstrappers should use SQ Runner API and provide a set of properties
  */
+@Deprecated
 public interface ProjectBootstrapper extends TaskExtension {
 
   /**

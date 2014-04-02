@@ -27,6 +27,10 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 
 import java.util.List;
 
+/**
+ * @deprecated since 4.3 kept only to support old version of SonarQube Mojo
+ */
+@Deprecated
 @SupportedEnvironment("maven")
 public class MavenProjectBootstrapper implements ProjectBootstrapper {
 

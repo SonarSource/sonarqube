@@ -48,6 +48,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @deprecated since 4.3 kept only to support old version of SonarQube Mojo
+ */
+@Deprecated
 @SupportedEnvironment("maven")
 public class MavenProjectConverter implements TaskExtension {
 

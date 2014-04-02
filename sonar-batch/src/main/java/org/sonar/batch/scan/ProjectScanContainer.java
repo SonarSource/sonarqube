@@ -20,6 +20,7 @@
 package org.sonar.batch.scan;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.maven.execution.MavenSession;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
@@ -35,12 +36,34 @@ import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
-import org.sonar.batch.bootstrap.*;
+import org.sonar.batch.bootstrap.BootstrapSettings;
+import org.sonar.batch.bootstrap.ExtensionInstaller;
+import org.sonar.batch.bootstrap.ExtensionMatcher;
+import org.sonar.batch.bootstrap.ExtensionUtils;
+import org.sonar.batch.bootstrap.MetricProvider;
 import org.sonar.batch.components.PeriodsDefinition;
 import org.sonar.batch.debt.DebtModelProvider;
 import org.sonar.batch.debt.IssueChangelogDebtCalculator;
-import org.sonar.batch.index.*;
-import org.sonar.batch.issue.*;
+import org.sonar.batch.index.Caches;
+import org.sonar.batch.index.ComponentDataCache;
+import org.sonar.batch.index.ComponentDataPersister;
+import org.sonar.batch.index.DefaultIndex;
+import org.sonar.batch.index.DefaultPersistenceManager;
+import org.sonar.batch.index.DefaultResourcePersister;
+import org.sonar.batch.index.DependencyPersister;
+import org.sonar.batch.index.EventPersister;
+import org.sonar.batch.index.LinkPersister;
+import org.sonar.batch.index.MeasurePersister;
+import org.sonar.batch.index.MemoryOptimizer;
+import org.sonar.batch.index.ResourceCache;
+import org.sonar.batch.index.ResourceKeyMigration;
+import org.sonar.batch.index.SnapshotCache;
+import org.sonar.batch.index.SourcePersister;
+import org.sonar.batch.issue.DefaultProjectIssues;
+import org.sonar.batch.issue.DeprecatedViolations;
+import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.issue.IssuePersister;
+import org.sonar.batch.issue.ScanIssueStorage;
 import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.batch.rule.RulesProvider;
@@ -85,10 +108,12 @@ public class ProjectScanContainer extends ComponentContainer {
     if (reactor == null) {
       // OK, not present, so look for a custom ProjectBootstrapper
       ProjectBootstrapper bootstrapper = getComponentByType(ProjectBootstrapper.class);
-      if (bootstrapper == null) {
+      BootstrapSettings settings = getComponentByType(BootstrapSettings.class);
+      if (bootstrapper == null
+        // Starting from Maven plugin 2.3 then only DefaultProjectBootstrapper should be used.
+        || "true".equals(settings.property("sonar.mojoUseRunner"))) {
         // Use default SonarRunner project bootstrapper
-        BootstrapSettings settings = getComponentByType(BootstrapSettings.class);
-        bootstrapper = new DefaultProjectBootstrapper(settings);
+        bootstrapper = new DefaultProjectBootstrapper(settings, getComponentByType(MavenSession.class));
       }
       reactor = bootstrapper.bootstrap();
       if (reactor == null) {
@@ -162,8 +187,7 @@ public class ProjectScanContainer extends ComponentContainer {
       // Differential periods
       PeriodsDefinition.class,
 
-      ProjectSettingsReady.class
-    );
+      ProjectSettingsReady.class);
   }
 
   private void fixMavenExecutor() {

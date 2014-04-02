@@ -471,7 +471,7 @@ public class DefaultProjectBootstrapperTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("You must define the following mandatory properties for 'Unknown': foo2, foo3");
 
-    DefaultProjectBootstrapper.checkMandatoryProperties(props, new String[]{"foo1", "foo2", "foo3"});
+    DefaultProjectBootstrapper.checkMandatoryProperties(props, new String[] {"foo1", "foo2", "foo3"});
   }
 
   @Test
@@ -483,7 +483,7 @@ public class DefaultProjectBootstrapperTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("You must define the following mandatory properties for 'my-project': foo2, foo3");
 
-    DefaultProjectBootstrapper.checkMandatoryProperties(props, new String[]{"foo1", "foo2", "foo3"});
+    DefaultProjectBootstrapper.checkMandatoryProperties(props, new String[] {"foo1", "foo2", "foo3"});
   }
 
   @Test
@@ -492,7 +492,7 @@ public class DefaultProjectBootstrapperTest {
     props.setProperty("foo1", "bla");
     props.setProperty("foo4", "bla");
 
-    DefaultProjectBootstrapper.checkMandatoryProperties(props, new String[]{"foo1"});
+    DefaultProjectBootstrapper.checkMandatoryProperties(props, new String[] {"foo1"});
 
     // No exception should be thrown
   }
@@ -555,7 +555,7 @@ public class DefaultProjectBootstrapperTest {
 
   @Test
   public void shouldInitRootWorkDir() {
-    DefaultProjectBootstrapper builder = new DefaultProjectBootstrapper(new BootstrapSettings(new BootstrapProperties(Maps.<String, String>newHashMap())));
+    DefaultProjectBootstrapper builder = new DefaultProjectBootstrapper(new BootstrapSettings(new BootstrapProperties(Maps.<String, String>newHashMap())), null);
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir);
@@ -567,7 +567,7 @@ public class DefaultProjectBootstrapperTest {
   public void shouldInitWorkDirWithCustomRelativeFolder() {
     Map<String, String> props = Maps.<String, String>newHashMap();
     props.put("sonar.working.directory", ".foo");
-    DefaultProjectBootstrapper builder = new DefaultProjectBootstrapper(new BootstrapSettings(new BootstrapProperties(props)));
+    DefaultProjectBootstrapper builder = new DefaultProjectBootstrapper(new BootstrapSettings(new BootstrapProperties(props)), null);
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir);
@@ -579,7 +579,7 @@ public class DefaultProjectBootstrapperTest {
   public void shouldInitRootWorkDirWithCustomAbsoluteFolder() {
     Map<String, String> props = Maps.<String, String>newHashMap();
     props.put("sonar.working.directory", new File("src").getAbsolutePath());
-    DefaultProjectBootstrapper builder = new DefaultProjectBootstrapper(new BootstrapSettings(new BootstrapProperties(props)));
+    DefaultProjectBootstrapper builder = new DefaultProjectBootstrapper(new BootstrapSettings(new BootstrapProperties(props)), null);
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir);
@@ -644,7 +644,7 @@ public class DefaultProjectBootstrapperTest {
     }
     props.put("sonar.projectBaseDir", TestUtils.getResource(this.getClass(), projectFolder).getAbsolutePath());
     BootstrapProperties bootstrapProps = new BootstrapProperties(props);
-    ProjectReactor projectReactor = new DefaultProjectBootstrapper(new BootstrapSettings(bootstrapProps)).bootstrap();
+    ProjectReactor projectReactor = new DefaultProjectBootstrapper(new BootstrapSettings(bootstrapProps), null).bootstrap();
     return projectReactor.getRoot();
   }
 
