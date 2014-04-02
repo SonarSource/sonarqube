@@ -201,6 +201,7 @@ module.exports = (grunt) ->
       unit:
         configFile: 'karma.conf.js'
         singleRun: true
+        logLevel: 'DEBUG'
 
 
     watch:
