@@ -35,4 +35,32 @@
          remediation_coeff="[null]" default_remediation_coeff="5d"
          remediation_offset="[null]" default_remediation_offset="[null]" updated_at="2014-02-19"/>
 
+  <!-- Rule linked to one enable requirement on Constant per issue function (with a coefficient of 0d -> to be replaced by null), with different value of debt -> Update rule -->
+  <rules id="6" plugin_rule_key="HiddenFieldCheck" plugin_name="squid" name="HiddenFieldCheck" description="HiddenFieldCheck" status="READY"
+         characteristic_id="[null]" default_characteristic_id="20"
+         remediation_function="[null]" default_remediation_function="LINEAR"
+         remediation_coeff="[null]" default_remediation_coeff="5d"
+         remediation_offset="[null]" default_remediation_offset="[null]" updated_at="2014-02-19"/>
+
+  <!-- Rule linked to one enable requirement on Linear function (with a coeeficient of 0min -> to be replaced by null), with different value of debt -> Update rule -->
+  <rules id="7" plugin_rule_key="ForLoopCounterChangedCheck" plugin_name="squid" name="ForLoopCounterChangedCheck" description="ForLoopCounterChangedCheck" status="READY"
+         characteristic_id="[null]" default_characteristic_id="20"
+         remediation_function="[null]" default_remediation_function="LINEAR"
+         remediation_coeff="[null]" default_remediation_coeff="5d"
+         remediation_offset="[null]" default_remediation_offset="[null]" updated_at="2014-02-19"/>
+
+  <!-- Rule linked to one enable requirement on Linear with offset function (with a offset of 0h -> should be replaced by 0d), with different value of debt -> Update rule -->
+  <rules id="8" plugin_rule_key="ClassVariableVisibilityCheck" plugin_name="squid" name="ClassVariableVisibilityCheck" description="ClassVariableVisibilityCheck" status="READY"
+         characteristic_id="[null]" default_characteristic_id="20"
+         remediation_function="[null]" default_remediation_function="LINEAR"
+         remediation_coeff="[null]" default_remediation_coeff="5d"
+         remediation_offset="[null]" default_remediation_offset="[null" updated_at="2014-02-19"/>
+
+  <!-- Rule linked to one enable requirement on Linear function (with a coefficient of 0d -> should keep 0d), with different value of debt -> Update rule -->
+  <rules id="9" plugin_rule_key="SwitchLastCaseIsDefaultCheck" plugin_name="squid" name="SwitchLastCaseIsDefaultCheck" description="SwitchLastCaseIsDefaultCheck" status="READY"
+         characteristic_id="[null]" default_characteristic_id="20"
+         remediation_function="[null]" default_remediation_function="LINEAR"
+         remediation_coeff="[null]" default_remediation_coeff="5d"
+         remediation_offset="[null]" default_remediation_offset="[null]" updated_at="2014-02-19"/>
+
 </dataset>

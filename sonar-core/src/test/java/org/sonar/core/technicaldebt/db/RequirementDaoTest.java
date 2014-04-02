@@ -23,6 +23,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
+import java.util.List;
+
 import static org.fest.assertions.Assertions.assertThat;
 
 public class RequirementDaoTest extends AbstractDaoTestCase {
@@ -41,6 +43,27 @@ public class RequirementDaoTest extends AbstractDaoTestCase {
     setupData("shared");
 
     assertThat(dao.selectRequirements()).hasSize(2);
+  }
+
+  @Test
+  public void select_requirement() {
+    setupData("select_requirement");
+
+    List<RequirementDto> dtos = dao.selectRequirements();
+    assertThat(dtos).hasSize(1);
+
+    RequirementDto dto = dtos.get(0);
+    assertThat(dto.getId()).isEqualTo(3);
+    assertThat(dto.getParentId()).isEqualTo(2);
+    assertThat(dto.getRuleId()).isEqualTo(10);
+    assertThat(dto.getFunction()).isEqualTo("linear_offset");
+    assertThat(dto.getCoefficientValue()).isEqualTo(20d);
+    assertThat(dto.getCoefficientUnit()).isEqualTo("mn");
+    assertThat(dto.getOffsetValue()).isEqualTo(30d);
+    assertThat(dto.getOffsetUnit()).isEqualTo("h");
+    assertThat(dto.isEnabled()).isTrue();
+    assertThat(dto.getCreatedAt()).isNotNull();
+    assertThat(dto.getUpdatedAt()).isNull();
   }
 
 }

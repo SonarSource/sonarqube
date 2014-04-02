@@ -51,7 +51,7 @@ import java.util.List;
 
 /**
  * This script copy every requirements from characteristics table (every row where rule_id is not null) to the rules table.
- *
+ * <p/>
  * This script need to be executed after rules registration because default debt columns (characteristics, function, coefficient and offset) has to be populated
  * in order to be able to compare default values with overridden values.
  *
@@ -122,7 +122,7 @@ public class CopyRequirementsFromCharacteristicsToRules {
     );
   }
 
-  private static class RuleInputLoader implements MassUpdater.InputLoader<RuleRow>{
+  private static class RuleInputLoader implements MassUpdater.InputLoader<RuleRow> {
     @Override
     public String selectSql() {
       return "SELECT r.id,r.characteristic_id,r.remediation_function,r.remediation_coeff,r.remediation_offset," +
@@ -136,18 +136,18 @@ public class CopyRequirementsFromCharacteristicsToRules {
       ruleRow.setId(SqlUtil.getInt(rs, 1));
       ruleRow.setCharacteristicId(SqlUtil.getInt(rs, 2));
       ruleRow.setFunction(rs.getString(3));
-      ruleRow.setFactor(rs.getString(4));
+      ruleRow.setCoefficient(rs.getString(4));
       ruleRow.setOffset(rs.getString(5));
       ruleRow.setDefaultCharacteristicId(SqlUtil.getInt(rs, 6));
       ruleRow.setDefaultFunction(rs.getString(7));
-      ruleRow.setDefaultFactor(rs.getString(8));
+      ruleRow.setDefaultCoefficient(rs.getString(8));
       ruleRow.setDefaultOffset(rs.getString(9));
       ruleRow.setStatus(rs.getString(10));
       return ruleRow;
     }
   }
 
-  private static class RuleInputConvertor implements MassUpdater.InputConverter<RuleRow>{
+  private static class RuleInputConvertor implements MassUpdater.InputConverter<RuleRow> {
 
     private final Multimap<Integer, RequirementDto> requirementsByRuleId;
     private final System2 system2;
@@ -195,14 +195,22 @@ public class CopyRequirementsFromCharacteristicsToRules {
 
         ruleRow.setCharacteristicId(enabledRequirement.getParentId());
         ruleRow.setFunction(enabledRequirement.getFunction().toUpperCase());
-        ruleRow.setFactor(convertDuration(enabledRequirement.getFactorValue(), enabledRequirement.getFactorUnit()));
+        ruleRow.setCoefficient(convertDuration(enabledRequirement.getCoefficientValue(), enabledRequirement.getCoefficientUnit()));
         ruleRow.setOffset(convertDuration(enabledRequirement.getOffsetValue(), enabledRequirement.getOffsetUnit()));
+
+        // If the coefficient of a linear or linear with offset function is null, it should be replaced by 0
+        if (("LINEAR".equals(ruleRow.getFunction()) || "LINEAR_OFFSET".equals(ruleRow.getFunction())) && ruleRow.getCoefficient() == null) {
+          ruleRow.setCoefficient("0" + convertUnit(enabledRequirement.getCoefficientUnit()));
+          // If the offset of a constant per issue or linear with offset function is null, it should be replaced by 0
+        } else if (("CONSTANT_ISSUE".equals(ruleRow.getFunction()) || "LINEAR_OFFSET".equals(ruleRow.getFunction())) && ruleRow.getOffset() == null) {
+          ruleRow.setOffset("0" + convertUnit(enabledRequirement.getOffsetUnit()));
+        }
 
         if (!isDebtDefaultValuesSameAsOverriddenValues(ruleRow)) {
           // Default values on debt are not the same that ones set by SQALE, update the rule
           updateStatement.setInt(1, ruleRow.getCharacteristicId());
           updateStatement.setString(2, ruleRow.getFunction());
-          updateStatement.setString(3, ruleRow.getFactor());
+          updateStatement.setString(3, ruleRow.getCoefficient());
           updateStatement.setString(4, ruleRow.getOffset());
           updateStatement.setTimestamp(5, new Timestamp(system2.now()));
           updateStatement.setInt(6, ruleRow.getId());
@@ -218,13 +226,16 @@ public class CopyRequirementsFromCharacteristicsToRules {
   @VisibleForTesting
   static String convertDuration(@Nullable Double oldValue, @Nullable String oldUnit) {
     if (oldValue != null && oldValue > 0) {
-      String unit = oldUnit != null ? oldUnit : Duration.DAY;
-      // min is replaced by mn
-      unit = "mn".equals(unit) ? Duration.MINUTE : unit;
       // As value is stored in double, we have to round it in order to have an integer (for instance, if it was 1.6, we'll use 2)
-      return Integer.toString((int) Math.round(oldValue)) + unit;
+      return Integer.toString((int) Math.round(oldValue)) + convertUnit(oldUnit);
     }
     return null;
+  }
+
+  @VisibleForTesting
+  private static String convertUnit(@Nullable String oldUnit) {
+    String unit = oldUnit != null ? oldUnit : Duration.DAY;
+    return "mn".equals(unit) ? Duration.MINUTE : unit;
   }
 
   @VisibleForTesting
@@ -232,7 +243,7 @@ public class CopyRequirementsFromCharacteristicsToRules {
     return new EqualsBuilder()
       .append(ruleRow.getDefaultCharacteristicId(), ruleRow.getCharacteristicId())
       .append(ruleRow.getDefaultFunction(), ruleRow.getFunction())
-      .append(ruleRow.getDefaultFactor(), ruleRow.getFactor())
+      .append(ruleRow.getDefaultCoefficient(), ruleRow.getCoefficient())
       .append(ruleRow.getDefaultOffset(), ruleRow.getOffset())
       .isEquals();
   }
@@ -259,8 +270,8 @@ public class CopyRequirementsFromCharacteristicsToRules {
     private Integer defaultCharacteristicId;
     private String function;
     private String defaultFunction;
-    private String factor;
-    private String defaultFactor;
+    private String coefficient;
+    private String defaultCoefficient;
     private String offset;
     private String defaultOffset;
     private String status;
@@ -315,22 +326,22 @@ public class CopyRequirementsFromCharacteristicsToRules {
     }
 
     @CheckForNull
-    String getFactor() {
-      return factor;
+    String getCoefficient() {
+      return coefficient;
     }
 
-    RuleRow setFactor(@Nullable String factor) {
-      this.factor = factor;
+    RuleRow setCoefficient(@Nullable String coefficient) {
+      this.coefficient = coefficient;
       return this;
     }
 
     @CheckForNull
-    String getDefaultFactor() {
-      return defaultFactor;
+    String getDefaultCoefficient() {
+      return defaultCoefficient;
     }
 
-    RuleRow setDefaultFactor(@Nullable String defaultFactor) {
-      this.defaultFactor = defaultFactor;
+    RuleRow setDefaultCoefficient(@Nullable String defaultCoefficient) {
+      this.defaultCoefficient = defaultCoefficient;
       return this;
     }
 

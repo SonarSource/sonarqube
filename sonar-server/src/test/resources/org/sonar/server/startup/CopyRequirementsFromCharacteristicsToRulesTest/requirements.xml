@@ -2,7 +2,7 @@
 
   <!-- No requirement for rule 1 -->
 
-  <!-- Requirement of rule 2 -->
+  <!-- Requirements of rule 2 -->
   <characteristics id="1" parent_id="10" rule_id="2"
                    function_key="linear_offset" factor_value="20.0" factor_unit="mn" offset_value="30.0" offset_unit="h" enabled="[false]"
                    created_at="2013-11-20" updated_at="[null]"/>
@@ -11,7 +11,7 @@
                    function_key="linear_offset" factor_value="30.0" factor_unit="mn" offset_value="20.0" offset_unit="h" enabled="[false]"
                    created_at="2013-11-20" updated_at="2013-11-22"/>
 
-  <!-- Requirement of rule 3 -->
+  <!-- Requirements of rule 3 -->
   <characteristics id="3" parent_id="10" rule_id="3"
                    function_key="linear_offset" factor_value="20.0" factor_unit="mn" offset_value="30.0" offset_unit="h" enabled="[false]"
                    created_at="2013-11-20" updated_at="[null]"/>
@@ -20,7 +20,7 @@
                    function_key="linear_offset" factor_value="30.0" factor_unit="mn" offset_value="20.0" offset_unit="h" enabled="[false]"
                    created_at="2013-11-20" updated_at="2013-11-22"/>
 
-  <!-- Requirement of rule 4 -->
+  <!-- Requirements of rule 4 -->
   <characteristics id="5" parent_id="10" rule_id="4"
                    function_key="linear_offset" factor_value="5.0" factor_unit="mn" offset_value="9.8" offset_unit="h" enabled="[true]"
                    created_at="2013-11-20" updated_at="[null]"/>
@@ -29,7 +29,7 @@
                    function_key="linear_offset" factor_value="30.0" factor_unit="mn" offset_value="20.0" offset_unit="h" enabled="[false]"
                    created_at="2013-11-20" updated_at="2013-11-22"/>
 
-  <!-- Requirement of rule 5 -->
+  <!-- Requirements of rule 5 -->
   <characteristics id="7" parent_id="10" rule_id="5"
                    function_key="linear_offset" factor_value="20.0" factor_unit="mn" offset_value="30.0" offset_unit="h" enabled="[true]"
                    created_at="2013-11-20" updated_at="[null]"/>
@@ -37,5 +37,25 @@
   <characteristics id="8" parent_id="10" rule_id="5"
                    function_key="linear_offset" factor_value="30.0" factor_unit="mn" offset_value="20.0" offset_unit="h" enabled="[false]"
                    created_at="2013-11-20" updated_at="2013-11-22"/>
+
+  <!-- Requirements of rule 6 -->
+  <characteristics id="9" parent_id="10" rule_id="6"
+                   function_key="constant_issue" factor_value="0.0" factor_unit="d" offset_value="15.0" offset_unit="mn" enabled="[true]"
+                   created_at="2013-11-20" updated_at="[null]"/>
+
+  <!-- Requirements of rule 7 -->
+  <characteristics id="10" parent_id="10" rule_id="7"
+                   function_key="linear" factor_value="0.0" factor_unit="mn" offset_value="0.0" offset_unit="min" enabled="[true]"
+                   created_at="2013-11-20" updated_at="[null]"/>
+
+  <!-- Requirements of rule 8 -->
+  <characteristics id="11" parent_id="10" rule_id="8"
+                   function_key="linear_offset" factor_value="5.0" factor_unit="d" offset_value="0.0" offset_unit="h" enabled="[true]"
+                   created_at="2013-11-20" updated_at="[null]"/>
+
+  <!-- Requirements of rule 9 -->
+  <characteristics id="12" parent_id="10" rule_id="9"
+                   function_key="linear" factor_value="0.0" factor_unit="d" offset_value="0.0" offset_unit="h" enabled="[true]"
+                   created_at="2013-11-20" updated_at="[null]"/>
 
 </dataset>

@@ -108,28 +108,28 @@ public class CopyRequirementsFromCharacteristicsToRulesTest extends AbstractDaoT
     assertThat(CopyRequirementsFromCharacteristicsToRules.isDebtDefaultValuesSameAsOverriddenValues(new CopyRequirementsFromCharacteristicsToRules.RuleRow()
       .setDefaultCharacteristicId(1).setCharacteristicId(1)
       .setDefaultFunction("LINEAR_OFFSET").setFunction("LINEAR_OFFSET")
-      .setDefaultFactor("5h").setFactor("5h")
+      .setDefaultCoefficient("5h").setCoefficient("5h")
       .setDefaultOffset("10min").setOffset("10min")
     )).isTrue();
 
     assertThat(CopyRequirementsFromCharacteristicsToRules.isDebtDefaultValuesSameAsOverriddenValues(new CopyRequirementsFromCharacteristicsToRules.RuleRow()
       .setDefaultCharacteristicId(1).setCharacteristicId(2)
       .setDefaultFunction("LINEAR_OFFSET").setFunction("LINEAR_OFFSET")
-      .setDefaultFactor("5h").setFactor("5h")
+      .setDefaultCoefficient("5h").setCoefficient("5h")
       .setDefaultOffset("10min").setOffset("10min")
     )).isFalse();
 
     assertThat(CopyRequirementsFromCharacteristicsToRules.isDebtDefaultValuesSameAsOverriddenValues(new CopyRequirementsFromCharacteristicsToRules.RuleRow()
       .setDefaultCharacteristicId(1).setCharacteristicId(1)
       .setDefaultFunction("LINEAR_OFFSET").setFunction("LINEAR_OFFSET")
-      .setDefaultFactor("5h").setFactor("4h")
+      .setDefaultCoefficient("5h").setCoefficient("4h")
       .setDefaultOffset("10min").setOffset("5min")
     )).isFalse();
 
     assertThat(CopyRequirementsFromCharacteristicsToRules.isDebtDefaultValuesSameAsOverriddenValues(new CopyRequirementsFromCharacteristicsToRules.RuleRow()
       .setDefaultCharacteristicId(1).setCharacteristicId(1)
       .setDefaultFunction("CONSTANT_ISSUE").setFunction("LINEAR")
-      .setDefaultFactor(null).setFactor("5h")
+      .setDefaultCoefficient(null).setCoefficient("5h")
       .setDefaultOffset("10min").setOffset(null)
     )).isFalse();
   }

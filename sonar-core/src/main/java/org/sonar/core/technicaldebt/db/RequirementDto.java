@@ -35,8 +35,8 @@ public class RequirementDto implements Serializable {
   private Integer rootId;
   private Integer ruleId;
   private String functionKey;
-  private Double factorValue;
-  private String factorUnit;
+  private Double coefficientValue;
+  private String coefficientUnit;
   private Double offsetValue;
   private String offsetUnit;
   private Date createdAt;
@@ -89,22 +89,22 @@ public class RequirementDto implements Serializable {
   }
 
   @CheckForNull
-  public Double getFactorValue() {
-    return factorValue;
+  public Double getCoefficientValue() {
+    return coefficientValue;
   }
 
-  public RequirementDto setFactorValue(@Nullable Double factor) {
-    this.factorValue = factor;
+  public RequirementDto setCoefficientValue(@Nullable Double coefficientValue) {
+    this.coefficientValue = coefficientValue;
     return this;
   }
 
   @CheckForNull
-  public String getFactorUnit() {
-    return factorUnit;
+  public String getCoefficientUnit() {
+    return coefficientUnit;
   }
 
-  public RequirementDto setFactorUnit(@Nullable String factorUnit) {
-    this.factorUnit = factorUnit;
+  public RequirementDto setCoefficientUnit(@Nullable String coefficientUnit) {
+    this.coefficientUnit = coefficientUnit;
     return this;
   }
 
