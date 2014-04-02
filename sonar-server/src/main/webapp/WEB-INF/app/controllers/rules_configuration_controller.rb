@@ -68,7 +68,7 @@ class RulesConfigurationController < ApplicationController
 
       @current_rules = result.rules
 
-      @select_repositories = ANY_SELECTION + java_facade.getRuleRepositoriesByLanguage(@profile.language).collect { |repo| [repo.name(), repo.key()] }.sort
+      @select_repositories = ANY_SELECTION + java_facade.getRuleRepositoriesByLanguage(@profile.language).collect { |repo| [repo.name(), repo.key()] }.to_a.sort
       @select_priority = ANY_SELECTION + RULE_PRIORITIES
       @select_activation = [[message('active'), STATUS_ACTIVE], [message('inactive'), STATUS_INACTIVE]]
       @select_inheritance = [[message('any'), 'any'], [message('rules_configuration.not_inherited'), 'NOT'], [message('rules_configuration.inherited'), 'INHERITED'],
@@ -77,7 +77,7 @@ class RulesConfigurationController < ApplicationController
                                         [message('rules.status.deprecated'), Rule::STATUS_DEPRECATED],
                                         [message('rules.status.ready'), Rule::STATUS_READY]]
       @select_sort_by = [[message('rules_configuration.rule_name'), Rule::SORT_BY_RULE_NAME], [message('rules_configuration.creation_date'), Rule::SORT_BY_CREATION_DATE]]
-      @select_tags = ANY_SELECTION + Internal.rule_tags.listAllTags().sort
+      @select_tags = ANY_SELECTION + Internal.rule_tags.listAllTags().to_a.sort
     end
   end
 
@@ -408,7 +408,7 @@ class RulesConfigurationController < ApplicationController
   end
 
   def tag_selection_for_rule(rule)
-    Internal.rule_tags.listAllTags().sort.collect do |tag|
+    Internal.rule_tags.listAllTags().to_a.sort.collect do |tag|
       {
         :value => tag,
         :selected => (rule.systemTags.contains?(tag) || rule.adminTags.contains?(tag)),

@@ -38,7 +38,7 @@ class RolesController < ApplicationController
     params['qualifiers'] ||= 'TRK'
     @query_result = Internal.component_api.findWithUncompleteProjects(params)
 
-    @available_qualifiers = java_facade.getQualifiersWithProperty('hasRolePolicy').collect { |qualifier| [message("qualifiers.#{qualifier}"), qualifier] }.sort
+    @available_qualifiers = java_facade.getQualifiersWithProperty('hasRolePolicy').collect { |qualifier| [message("qualifiers.#{qualifier}"), qualifier] }.to_a.sort
 
     # For the moment, we return projects from rails models, but it should be replaced to return java components (this will need methods on ComponentQueryResult to return roles from component)
     @projects = Project.all(
@@ -96,9 +96,9 @@ class RolesController < ApplicationController
 
     if @components && @components.size == 1
       project = Project.by_key(@components.first)
-      @permission_templates = Internal.permission_templates.selectAllPermissionTemplates(project.key).sort_by {|t| t.name.downcase}.collect {|pt| [pt.name, pt.key]}
+      @permission_templates = Internal.permission_templates.selectAllPermissionTemplates(project.key).to_a.sort_by {|t| t.name.downcase}.collect {|pt| [pt.name, pt.key]}
     else
-      @permission_templates = Internal.permission_templates.selectAllPermissionTemplates().sort_by {|t| t.name.downcase}.collect {|pt| [pt.name, pt.key]}
+      @permission_templates = Internal.permission_templates.selectAllPermissionTemplates().to_a.sort_by {|t| t.name.downcase}.collect {|pt| [pt.name, pt.key]}
     end
 
     render :partial => 'apply_template_form'

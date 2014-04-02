@@ -273,7 +273,7 @@ class PermissionTemplatesController < ApplicationController
   # GET (modal form)
   #
   def default_templates_form
-    all_templates = Internal.permission_templates.selectAllPermissionTemplates
+    all_templates = Internal.permission_templates.selectAllPermissionTemplates.to_a
 
     @permission_templates_options = all_templates.sort_by {|t| t.name.downcase}.collect {|t| [t.name, t.key]}
     @root_qualifiers = get_root_qualifiers
@@ -300,7 +300,7 @@ class PermissionTemplatesController < ApplicationController
   private
 
   def get_root_qualifiers
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceRootTypes().map {|type| type.getQualifier()}.sort
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().getResourceRootTypes().map {|type| type.getQualifier()}.to_a.sort
   end
 
   def get_default_templates_per_qualifier(root_qualifiers)

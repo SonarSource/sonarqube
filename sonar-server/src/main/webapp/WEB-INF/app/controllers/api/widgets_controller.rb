@@ -20,7 +20,7 @@
 class Api::WidgetsController < Api::ApiController
 
   def index
-    widget_definitions = java_facade.getWidgets().sort_by{|w| w.getId()}
+    widget_definitions = java_facade.getWidgets().to_a.sort_by{|w| w.getId()}
     render :json => jsonp(widgets_to_json(widget_definitions))
   end
 

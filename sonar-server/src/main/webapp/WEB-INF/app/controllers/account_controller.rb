@@ -97,7 +97,7 @@ class AccountController < ApplicationController
   end
   
   def dispatchers_for_scope(scope)
-    notification_service.getDispatcherKeysForProperty(scope, "true").sort {|x,y| dispatcher_name(x) <=> dispatcher_name(y)}
+    notification_service.getDispatcherKeysForProperty(scope, "true").to_a.sort {|x,y| dispatcher_name(x) <=> dispatcher_name(y)}
   end
   
   def dispatcher_name(dispatcher_key)
