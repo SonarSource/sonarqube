@@ -42,6 +42,7 @@ import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
+import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.MockUserSession;
 
 import java.io.Reader;
@@ -89,13 +90,16 @@ public class DebtModelBackupTest {
   DebtModelXMLExporter debtModelXMLExporter;
 
   @Mock
+  RuleRegistry ruleRegistry;
+
+  @Mock
   System2 system2;
 
   @Captor
-  ArgumentCaptor<CharacteristicDto> characteristicArgument;
+  ArgumentCaptor<CharacteristicDto> characteristicCaptor;
 
   @Captor
-  ArgumentCaptor<RuleDto> ruleArgument;
+  ArgumentCaptor<RuleDto> ruleCaptor;
 
   @Captor
   ArgumentCaptor<ArrayList<RuleDebt>> ruleDebtListCaptor;
@@ -104,9 +108,6 @@ public class DebtModelBackupTest {
   Date now = DateUtils.parseDate("2014-03-19");
 
   int currentId;
-
-  DebtModel xmlDebtModel = new DebtModel();
-  List<RuleDebt> xmlDebtRules = newArrayList();
 
   DebtModelBackup debtModelBackup;
 
@@ -131,12 +132,9 @@ public class DebtModelBackupTest {
 
     Reader defaultModelReader = mock(Reader.class);
     when(debtModelPluginRepository.createReaderForXMLFile("technical-debt")).thenReturn(defaultModelReader);
-    when(characteristicsXMLImporter.importXML(any(Reader.class))).thenReturn(xmlDebtModel);
-//    when(characteristicsXMLImporter.importXML(anyString())).thenReturn(xmlDebtModel);
-//    when(rulesXMLImporter.importXML(anyString(), any(ValidationMessages.class))).thenReturn(xmlDebtRules);
 
     debtModelBackup = new DebtModelBackup(myBatis, dao, ruleDao, debtModelOperations, debtModelPluginRepository, characteristicsXMLImporter, rulesXMLImporter,
-      debtModelXMLExporter, system2);
+      debtModelXMLExporter, ruleRegistry, system2);
   }
 
   @Test
@@ -249,9 +247,9 @@ public class DebtModelBackupTest {
       session
     );
 
-    verify(dao, times(2)).insert(characteristicArgument.capture(), eq(session));
+    verify(dao, times(2)).insert(characteristicCaptor.capture(), eq(session));
 
-    CharacteristicDto dto1 = characteristicArgument.getAllValues().get(0);
+    CharacteristicDto dto1 = characteristicCaptor.getAllValues().get(0);
     assertThat(dto1.getId()).isEqualTo(10);
     assertThat(dto1.getKey()).isEqualTo("PORTABILITY");
     assertThat(dto1.getName()).isEqualTo("Portability");
@@ -260,7 +258,7 @@ public class DebtModelBackupTest {
     assertThat(dto1.getCreatedAt()).isEqualTo(now);
     assertThat(dto1.getUpdatedAt()).isNull();
 
-    CharacteristicDto dto2 = characteristicArgument.getAllValues().get(1);
+    CharacteristicDto dto2 = characteristicCaptor.getAllValues().get(1);
     assertThat(dto2.getId()).isEqualTo(11);
     assertThat(dto2.getKey()).isEqualTo("COMPILER");
     assertThat(dto2.getName()).isEqualTo("Compiler");
@@ -286,9 +284,9 @@ public class DebtModelBackupTest {
       session
     );
 
-    verify(dao, times(2)).update(characteristicArgument.capture(), eq(session));
+    verify(dao, times(2)).update(characteristicCaptor.capture(), eq(session));
 
-    CharacteristicDto dto1 = characteristicArgument.getAllValues().get(0);
+    CharacteristicDto dto1 = characteristicCaptor.getAllValues().get(0);
     assertThat(dto1.getId()).isEqualTo(1);
     assertThat(dto1.getKey()).isEqualTo("PORTABILITY");
     assertThat(dto1.getName()).isEqualTo("Portability");
@@ -297,7 +295,7 @@ public class DebtModelBackupTest {
     assertThat(dto1.getCreatedAt()).isEqualTo(oldDate);
     assertThat(dto1.getUpdatedAt()).isEqualTo(now);
 
-    CharacteristicDto dto2 = characteristicArgument.getAllValues().get(1);
+    CharacteristicDto dto2 = characteristicCaptor.getAllValues().get(1);
     assertThat(dto2.getId()).isEqualTo(2);
     assertThat(dto2.getKey()).isEqualTo("COMPILER");
     assertThat(dto2.getName()).isEqualTo("Compiler");
@@ -343,21 +341,24 @@ public class DebtModelBackupTest {
     verifyNoMoreInteractions(dao);
 
     verify(ruleDao).selectEnablesAndNonManual(session);
-    verify(ruleDao).update(ruleArgument.capture(), eq(session));
+    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
     verifyNoMoreInteractions(ruleDao);
+    verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), session);
 
-    RuleDto rule = ruleArgument.getValue();
+    verify(session).commit();
+
+    RuleDto rule = ruleCaptor.getValue();
     assertThat(rule.getSubCharacteristicId()).isNull();
     assertThat(rule.getRemediationFunction()).isNull();
     assertThat(rule.getRemediationCoefficient()).isNull();
     assertThat(rule.getRemediationOffset()).isNull();
     assertThat(rule.getUpdatedAt()).isEqualTo(now);
-
-    verify(session).commit();
   }
 
   @Test
   public void restore_from_language() throws Exception {
+    when(characteristicsXMLImporter.importXML(any(Reader.class))).thenReturn(new DebtModel());
+
     when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
       new RuleDto().setId(1).setRepositoryKey("squid").setLanguage("java")
         .setSubCharacteristicId(2).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("2h").setRemediationOffset("15min")
@@ -373,18 +374,18 @@ public class DebtModelBackupTest {
     verify(dao, never()).update(any(CharacteristicDto.class), eq(session));
 
     verify(ruleDao).selectEnablesAndNonManual(session);
-    verify(ruleDao).update(ruleArgument.capture(), eq(session));
+    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
     verifyNoMoreInteractions(ruleDao);
+    verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), session);
+    verify(session).commit();
 
-    RuleDto rule = ruleArgument.getValue();
+    RuleDto rule = ruleCaptor.getValue();
     assertThat(rule.getId()).isEqualTo(1);
     assertThat(rule.getSubCharacteristicId()).isNull();
     assertThat(rule.getRemediationFunction()).isNull();
     assertThat(rule.getRemediationCoefficient()).isNull();
     assertThat(rule.getRemediationOffset()).isNull();
     assertThat(rule.getUpdatedAt()).isEqualTo(now);
-
-    verify(session).commit();
   }
 
   @Test
@@ -401,12 +402,13 @@ public class DebtModelBackupTest {
     debtModelBackup.restore("java");
 
     verify(debtModelOperations, never()).disableCharacteristic(any(CharacteristicDto.class), eq(now), eq(session));
-
     verify(session).commit();
   }
 
   @Test
   public void restore_from_language_with_rule_linked_on_disabled_default_characteristic() throws Exception {
+    when(characteristicsXMLImporter.importXML(any(Reader.class))).thenReturn(new DebtModel());
+
     when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
       new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability updated").setOrder(2).setCreatedAt(oldDate),
       new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler updated").setParentId(1).setCreatedAt(oldDate)
@@ -423,18 +425,18 @@ public class DebtModelBackupTest {
     debtModelBackup.restore("java");
 
     verify(ruleDao).selectEnablesAndNonManual(session);
-    verify(ruleDao).update(ruleArgument.capture(), eq(session));
+    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
     verifyNoMoreInteractions(ruleDao);
+    verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), session);
+    verify(session).commit();
 
-    RuleDto rule = ruleArgument.getValue();
+    RuleDto rule = ruleCaptor.getValue();
     assertThat(rule.getId()).isEqualTo(1);
     assertThat(rule.getSubCharacteristicId()).isEqualTo(-1);
     assertThat(rule.getRemediationFunction()).isNull();
     assertThat(rule.getRemediationCoefficient()).isNull();
     assertThat(rule.getRemediationOffset()).isNull();
     assertThat(rule.getUpdatedAt()).isEqualTo(now);
-
-    verify(session).commit();
   }
 
   @Test
@@ -459,18 +461,18 @@ public class DebtModelBackupTest {
     debtModelBackup.restoreFromXml("<xml/>");
 
     verify(ruleDao).selectEnablesAndNonManual(session);
-    verify(ruleDao).update(ruleArgument.capture(), eq(session));
+    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
     verifyNoMoreInteractions(ruleDao);
+    verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), session);
+    verify(session).commit();
 
-    RuleDto rule = ruleArgument.getValue();
+    RuleDto rule = ruleCaptor.getValue();
     assertThat(rule.getId()).isEqualTo(1);
     assertThat(rule.getSubCharacteristicId()).isEqualTo(2);
     assertThat(rule.getRemediationFunction()).isNull();
     assertThat(rule.getRemediationCoefficient()).isNull();
     assertThat(rule.getRemediationOffset()).isNull();
     assertThat(rule.getUpdatedAt()).isEqualTo(now);
-
-    verify(session).commit();
   }
 
   @Test
@@ -495,18 +497,18 @@ public class DebtModelBackupTest {
     debtModelBackup.restoreFromXml("<xml/>");
 
     verify(ruleDao).selectEnablesAndNonManual(session);
-    verify(ruleDao).update(ruleArgument.capture(), eq(session));
+    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
     verifyNoMoreInteractions(ruleDao);
+    verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), session);
+    verify(session).commit();
 
-    RuleDto rule = ruleArgument.getValue();
+    RuleDto rule = ruleCaptor.getValue();
     assertThat(rule.getId()).isEqualTo(1);
     assertThat(rule.getSubCharacteristicId()).isNull();
     assertThat(rule.getRemediationFunction()).isEqualTo("LINEAR_OFFSET");
     assertThat(rule.getRemediationCoefficient()).isEqualTo("12h");
     assertThat(rule.getRemediationOffset()).isEqualTo("11min");
     assertThat(rule.getUpdatedAt()).isEqualTo(now);
-
-    verify(session).commit();
   }
 
   @Test
@@ -531,18 +533,18 @@ public class DebtModelBackupTest {
     debtModelBackup.restoreFromXml("<xml/>");
 
     verify(ruleDao).selectEnablesAndNonManual(session);
-    verify(ruleDao).update(ruleArgument.capture(), eq(session));
+    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
     verifyNoMoreInteractions(ruleDao);
+    verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), session);
+    verify(session).commit();
 
-    RuleDto rule = ruleArgument.getValue();
+    RuleDto rule = ruleCaptor.getValue();
     assertThat(rule.getId()).isEqualTo(1);
     assertThat(rule.getSubCharacteristicId()).isNull();
     assertThat(rule.getRemediationFunction()).isNull();
     assertThat(rule.getRemediationCoefficient()).isNull();
     assertThat(rule.getRemediationOffset()).isNull();
     assertThat(rule.getUpdatedAt()).isEqualTo(now);
-
-    verify(session).commit();
   }
 
   @Test
@@ -564,18 +566,18 @@ public class DebtModelBackupTest {
     debtModelBackup.restoreFromXml("<xml/>");
 
     verify(ruleDao).selectEnablesAndNonManual(session);
-    verify(ruleDao).update(ruleArgument.capture(), eq(session));
+    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
     verifyNoMoreInteractions(ruleDao);
+    verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), session);
+    verify(session).commit();
 
-    RuleDto rule = ruleArgument.getValue();
+    RuleDto rule = ruleCaptor.getValue();
     assertThat(rule.getId()).isEqualTo(1);
     assertThat(rule.getSubCharacteristicId()).isEqualTo(-1);
     assertThat(rule.getRemediationFunction()).isNull();
     assertThat(rule.getRemediationCoefficient()).isNull();
     assertThat(rule.getRemediationOffset()).isNull();
     assertThat(rule.getUpdatedAt()).isEqualTo(now);
-
-    verify(session).commit();
   }
 
   @Test
@@ -596,10 +598,12 @@ public class DebtModelBackupTest {
     debtModelBackup.restoreFromXml("<xml/>");
 
     verify(ruleDao).selectEnablesAndNonManual(session);
-    verify(ruleDao).update(ruleArgument.capture(), eq(session));
+    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
     verifyNoMoreInteractions(ruleDao);
+    verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), session);
+    verify(session).commit();
 
-    RuleDto rule = ruleArgument.getValue();
+    RuleDto rule = ruleCaptor.getValue();
     assertThat(rule.getId()).isEqualTo(1);
     // As rule has no debt value, characteristic is set to null
     assertThat(rule.getSubCharacteristicId()).isNull();
@@ -607,8 +611,6 @@ public class DebtModelBackupTest {
     assertThat(rule.getRemediationCoefficient()).isNull();
     assertThat(rule.getRemediationOffset()).isNull();
     assertThat(rule.getUpdatedAt()).isEqualTo(now);
-
-    verify(session).commit();
   }
 
   @Test
@@ -637,13 +639,13 @@ public class DebtModelBackupTest {
     debtModelBackup.restoreFromXml("<xml/>", "java");
 
     verify(ruleDao).selectEnablesAndNonManual(session);
-    verify(ruleDao).update(ruleArgument.capture(), eq(session));
+    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
     verifyNoMoreInteractions(ruleDao);
-
-    RuleDto rule = ruleArgument.getValue();
-    assertThat(rule.getId()).isEqualTo(1);
-
+    verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), session);
     verify(session).commit();
+
+    RuleDto rule = ruleCaptor.getValue();
+    assertThat(rule.getId()).isEqualTo(1);
   }
 
   @Test
@@ -660,7 +662,6 @@ public class DebtModelBackupTest {
     debtModelBackup.restoreFromXml("<xml/>", "java");
 
     verify(debtModelOperations, never()).disableCharacteristic(any(CharacteristicDto.class), eq(now), eq(session));
-
     verify(session).commit();
   }
 
@@ -687,18 +688,18 @@ public class DebtModelBackupTest {
     debtModelBackup.restoreFromXml("<xml/>", "java");
 
     verify(ruleDao).selectEnablesAndNonManual(session);
-    verify(ruleDao).update(ruleArgument.capture(), eq(session));
+    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
     verifyNoMoreInteractions(ruleDao);
+    verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), session);
+    verify(session).commit();
 
-    RuleDto rule = ruleArgument.getValue();
+    RuleDto rule = ruleCaptor.getValue();
     assertThat(rule.getId()).isEqualTo(1);
     assertThat(rule.getSubCharacteristicId()).isEqualTo(-1);
     assertThat(rule.getRemediationFunction()).isNull();
     assertThat(rule.getRemediationCoefficient()).isNull();
     assertThat(rule.getRemediationOffset()).isNull();
     assertThat(rule.getUpdatedAt()).isEqualTo(now);
-
-    verify(session).commit();
   }
 
   @Test
@@ -726,18 +727,18 @@ public class DebtModelBackupTest {
     debtModelBackup.restoreFromXml("<xml/>", "java");
 
     verify(ruleDao).selectEnablesAndNonManual(session);
-    verify(ruleDao).update(ruleArgument.capture(), eq(session));
+    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
     verifyNoMoreInteractions(ruleDao);
+    verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), session);
+    verify(session).commit();
 
-    RuleDto rule = ruleArgument.getValue();
+    RuleDto rule = ruleCaptor.getValue();
     assertThat(rule.getId()).isEqualTo(1);
     assertThat(rule.getSubCharacteristicId()).isEqualTo(-1);
     assertThat(rule.getRemediationFunction()).isNull();
     assertThat(rule.getRemediationCoefficient()).isNull();
     assertThat(rule.getRemediationOffset()).isNull();
     assertThat(rule.getUpdatedAt()).isEqualTo(now);
-
-    verify(session).commit();
   }
 
   @Test
@@ -759,7 +760,7 @@ public class DebtModelBackupTest {
 
     verify(ruleDao).selectEnablesAndNonManual(session);
     verifyNoMoreInteractions(ruleDao);
-
+    verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), session);
     verify(session).commit();
   }
 

@@ -39,6 +39,7 @@ import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
+import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -62,19 +63,20 @@ public class DebtModelBackup implements ServerComponent {
   private final DebtCharacteristicsXMLImporter characteristicsXMLImporter;
   private final DebtRulesXMLImporter rulesXMLImporter;
   private final DebtModelXMLExporter debtModelXMLExporter;
+  private final RuleRegistry ruleRegistry;
   private final System2 system2;
 
   public DebtModelBackup(MyBatis mybatis, CharacteristicDao dao, RuleDao ruleDao, DebtModelOperations debtModelOperations, DebtModelPluginRepository debtModelPluginRepository,
                          DebtCharacteristicsXMLImporter characteristicsXMLImporter, DebtRulesXMLImporter rulesXMLImporter,
-                         DebtModelXMLExporter debtModelXMLExporter) {
-    this(mybatis, dao, ruleDao, debtModelOperations, debtModelPluginRepository, characteristicsXMLImporter, rulesXMLImporter, debtModelXMLExporter,
+                         DebtModelXMLExporter debtModelXMLExporter, RuleRegistry ruleRegistry) {
+    this(mybatis, dao, ruleDao, debtModelOperations, debtModelPluginRepository, characteristicsXMLImporter, rulesXMLImporter, debtModelXMLExporter, ruleRegistry,
       System2.INSTANCE);
   }
 
   @VisibleForTesting
   DebtModelBackup(MyBatis mybatis, CharacteristicDao dao, RuleDao ruleDao, DebtModelOperations debtModelOperations, DebtModelPluginRepository debtModelPluginRepository,
-                  DebtCharacteristicsXMLImporter characteristicsXMLImporter, DebtRulesXMLImporter rulesXMLImporter,
-                  DebtModelXMLExporter debtModelXMLExporter, System2 system2) {
+                  DebtCharacteristicsXMLImporter characteristicsXMLImporter, DebtRulesXMLImporter rulesXMLImporter,DebtModelXMLExporter debtModelXMLExporter,
+                  RuleRegistry ruleRegistry, System2 system2) {
     this.mybatis = mybatis;
     this.dao = dao;
     this.ruleDao = ruleDao;
@@ -83,6 +85,7 @@ public class DebtModelBackup implements ServerComponent {
     this.characteristicsXMLImporter = characteristicsXMLImporter;
     this.rulesXMLImporter = rulesXMLImporter;
     this.debtModelXMLExporter = debtModelXMLExporter;
+    this.ruleRegistry = ruleRegistry;
     this.system2 = system2;
   }
 
@@ -147,12 +150,13 @@ public class DebtModelBackup implements ServerComponent {
     SqlSession session = mybatis.openSession();
     try {
       restoreCharacteristics(loadModelFromPlugin(DebtModelPluginRepository.DEFAULT_MODEL), languageKey == null, updateDate, session);
-      for (RuleDto rule : rules(languageKey, session)) {
+      List<RuleDto> ruleDtos = rules(languageKey, session);
+      for (RuleDto rule : ruleDtos) {
         disabledOverriddenRuleDebt(rule);
         rule.setUpdatedAt(updateDate);
         ruleDao.update(rule, session);
       }
-      // TODO index rules in E/S
+      ruleRegistry.reindex(ruleDtos, session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -217,7 +221,7 @@ public class DebtModelBackup implements ServerComponent {
 
       ruleDebts.remove(ruleDebt);
     }
-    // TODO index rules in E/S
+    ruleRegistry.reindex(rules, session);
 
     for (RuleDebt ruleDebt : ruleDebts) {
       validationMessages.addWarningText(String.format("The rule '%s' does not exist.", ruleDebt.ruleKey()));

@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -73,6 +74,12 @@ public class DebtModelOperationsTest {
 
   @Mock
   System2 system2;
+
+  @Captor
+  ArgumentCaptor<CharacteristicDto> characteristicCaptor;
+
+  @Captor
+  ArgumentCaptor<RuleDto> ruleCaptor;
 
   Date now = DateUtils.parseDate("2014-03-19");
 
@@ -246,14 +253,13 @@ public class DebtModelOperationsTest {
 
     DebtCharacteristic result = service.moveUp(10);
 
-    ArgumentCaptor<CharacteristicDto> argument = ArgumentCaptor.forClass(CharacteristicDto.class);
-    verify(dao, times(2)).update(argument.capture(), eq(session));
+    verify(dao, times(2)).update(characteristicCaptor.capture(), eq(session));
 
     assertThat(result.order()).isEqualTo(1);
-    assertThat(argument.getAllValues().get(0).getOrder()).isEqualTo(2);
-    assertThat(argument.getAllValues().get(0).getUpdatedAt()).isEqualTo(now);
-    assertThat(argument.getAllValues().get(1).getOrder()).isEqualTo(1);
-    assertThat(argument.getAllValues().get(1).getUpdatedAt()).isEqualTo(now);
+    assertThat(characteristicCaptor.getAllValues().get(0).getOrder()).isEqualTo(2);
+    assertThat(characteristicCaptor.getAllValues().get(0).getUpdatedAt()).isEqualTo(now);
+    assertThat(characteristicCaptor.getAllValues().get(1).getOrder()).isEqualTo(1);
+    assertThat(characteristicCaptor.getAllValues().get(1).getUpdatedAt()).isEqualTo(now);
   }
 
   @Test
@@ -279,14 +285,13 @@ public class DebtModelOperationsTest {
 
     DebtCharacteristic result = service.moveDown(10);
 
-    ArgumentCaptor<CharacteristicDto> argument = ArgumentCaptor.forClass(CharacteristicDto.class);
-    verify(dao, times(2)).update(argument.capture(), eq(session));
+    verify(dao, times(2)).update(characteristicCaptor.capture(), eq(session));
 
     assertThat(result.order()).isEqualTo(3);
-    assertThat(argument.getAllValues().get(0).getOrder()).isEqualTo(2);
-    assertThat(argument.getAllValues().get(0).getUpdatedAt()).isEqualTo(now);
-    assertThat(argument.getAllValues().get(1).getOrder()).isEqualTo(3);
-    assertThat(argument.getAllValues().get(1).getUpdatedAt()).isEqualTo(now);
+    assertThat(characteristicCaptor.getAllValues().get(0).getOrder()).isEqualTo(2);
+    assertThat(characteristicCaptor.getAllValues().get(0).getUpdatedAt()).isEqualTo(now);
+    assertThat(characteristicCaptor.getAllValues().get(1).getOrder()).isEqualTo(3);
+    assertThat(characteristicCaptor.getAllValues().get(1).getUpdatedAt()).isEqualTo(now);
   }
 
   @Test
@@ -352,9 +357,9 @@ public class DebtModelOperationsTest {
 
     service.delete(2);
 
-    ArgumentCaptor<RuleDto> ruleArgument = ArgumentCaptor.forClass(RuleDto.class);
-    verify(ruleDao).update(ruleArgument.capture(), eq(batchSession));
-    RuleDto ruleDto = ruleArgument.getValue();
+    verify(ruleDao).update(ruleCaptor.capture(), eq(batchSession));
+
+    RuleDto ruleDto = ruleCaptor.getValue();
     assertThat(ruleDto.getUpdatedAt()).isEqualTo(now);
 
     // Overridden debt data are disabled
@@ -369,14 +374,15 @@ public class DebtModelOperationsTest {
     assertThat(ruleDto.getDefaultRemediationCoefficient()).isEqualTo("4h");
     assertThat(ruleDto.getDefaultRemediationOffset()).isEqualTo("15min");
 
-    ArgumentCaptor<CharacteristicDto> characteristicArgument = ArgumentCaptor.forClass(CharacteristicDto.class);
-    verify(dao).update(characteristicArgument.capture(), eq(batchSession));
-    CharacteristicDto characteristicDto = characteristicArgument.getValue();
+    verify(dao).update(characteristicCaptor.capture(), eq(batchSession));
+    CharacteristicDto characteristicDto = characteristicCaptor.getValue();
 
     // Sub characteristic is disable
     assertThat(characteristicDto.getId()).isEqualTo(2);
     assertThat(characteristicDto.isEnabled()).isFalse();
     assertThat(characteristicDto.getUpdatedAt()).isEqualTo(now);
+
+    verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), batchSession);
   }
 
   @Test
@@ -393,9 +399,8 @@ public class DebtModelOperationsTest {
 
     service.delete(2);
 
-    ArgumentCaptor<RuleDto> ruleArgument = ArgumentCaptor.forClass(RuleDto.class);
-    verify(ruleDao).update(ruleArgument.capture(), eq(batchSession));
-    RuleDto ruleDto = ruleArgument.getValue();
+    verify(ruleDao).update(ruleCaptor.capture(), eq(batchSession));
+    RuleDto ruleDto = ruleCaptor.getValue();
     assertThat(ruleDto.getUpdatedAt()).isEqualTo(now);
 
     // Default debt data are disabled
@@ -410,14 +415,15 @@ public class DebtModelOperationsTest {
     assertThat(ruleDto.getRemediationCoefficient()).isEqualTo("2h");
     assertThat(ruleDto.getRemediationOffset()).isEqualTo("5min");
 
-    ArgumentCaptor<CharacteristicDto> characteristicArgument = ArgumentCaptor.forClass(CharacteristicDto.class);
-    verify(dao).update(characteristicArgument.capture(), eq(batchSession));
-    CharacteristicDto characteristicDto = characteristicArgument.getValue();
+    verify(dao).update(characteristicCaptor.capture(), eq(batchSession));
+    CharacteristicDto characteristicDto = characteristicCaptor.getValue();
 
     // Sub characteristic is disable
     assertThat(characteristicDto.getId()).isEqualTo(2);
     assertThat(characteristicDto.isEnabled()).isFalse();
     assertThat(characteristicDto.getUpdatedAt()).isEqualTo(now);
+
+    verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), batchSession);
   }
 
   @Test
@@ -435,12 +441,11 @@ public class DebtModelOperationsTest {
 
     service.delete(1);
 
-    verify(ruleDao).update(any(RuleDto.class), eq(batchSession));
+    verify(ruleDao).update(ruleCaptor.capture(), eq(batchSession));
 
-    ArgumentCaptor<CharacteristicDto> characteristicArgument = ArgumentCaptor.forClass(CharacteristicDto.class);
-    verify(dao, times(2)).update(characteristicArgument.capture(), eq(batchSession));
-    CharacteristicDto subCharacteristicDto = characteristicArgument.getAllValues().get(0);
-    CharacteristicDto characteristicDto = characteristicArgument.getAllValues().get(1);
+    verify(dao, times(2)).update(characteristicCaptor.capture(), eq(batchSession));
+    CharacteristicDto subCharacteristicDto = characteristicCaptor.getAllValues().get(0);
+    CharacteristicDto characteristicDto = characteristicCaptor.getAllValues().get(1);
 
     // Sub characteristic is disable
     assertThat(subCharacteristicDto.getId()).isEqualTo(2);
@@ -451,6 +456,8 @@ public class DebtModelOperationsTest {
     assertThat(characteristicDto.getId()).isEqualTo(1);
     assertThat(characteristicDto.isEnabled()).isFalse();
     assertThat(characteristicDto.getUpdatedAt()).isEqualTo(now);
+
+    verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), batchSession);
   }
 
 }
