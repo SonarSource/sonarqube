@@ -27,6 +27,9 @@ import org.sonar.api.Plugin;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.utils.TempFolder;
+import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.batch.scan.DeprecatedProjectReactorBuilder;
+import org.sonar.batch.scan.ProjectReactorBuilder;
 import org.sonar.core.config.Logback;
 
 import java.util.Arrays;
@@ -73,6 +76,30 @@ public class BootstrapContainerTest {
     container.doAfterStart();
 
     assertThat(container.getComponentsByType(Plugin.class)).containsOnly(plugin);
+  }
+
+  @Test
+  public void should_add_project_reactor_builder_by_default() {
+    BootstrapContainer container = BootstrapContainer.create(Lists.newArrayList());
+    container.add(new BootstrapProperties(Collections.<String, String>emptyMap()));
+    container.doBeforeStart();
+
+    assertThat(container.getComponentByType(ProjectReactorBuilder.class)).isNotNull().isInstanceOf(ProjectReactorBuilder.class);
+
+    container = BootstrapContainer.create(Lists.newArrayList(new EnvironmentInformation("SonarQubeRunner", "2.4")));
+    container.add(new BootstrapProperties(Collections.<String, String>emptyMap()));
+    container.doBeforeStart();
+
+    assertThat(container.getComponentByType(ProjectReactorBuilder.class)).isNotNull().isInstanceOf(ProjectReactorBuilder.class);
+  }
+
+  @Test
+  public void should_add_deprecated_project_reactor_builder_if_old_runner() {
+    BootstrapContainer container = BootstrapContainer.create(Lists.newArrayList(new EnvironmentInformation("SonarRunner", "2.3")));
+    container.add(new BootstrapProperties(Collections.<String, String>emptyMap()));
+    container.doBeforeStart();
+
+    assertThat(container.getComponentByType(DeprecatedProjectReactorBuilder.class)).isNotNull().isInstanceOf(DeprecatedProjectReactorBuilder.class);
   }
 
   public static class Foo implements BatchExtension {

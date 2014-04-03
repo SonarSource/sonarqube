@@ -59,9 +59,8 @@ public class ProjectReactorBuilder {
    */
   private static final String MODULE_KEY_PROPERTY = "sonar.moduleKey";
 
-  private static final String PROPERTY_PROJECT_BASEDIR = "sonar.projectBaseDir";
+  protected static final String PROPERTY_PROJECT_BASEDIR = "sonar.projectBaseDir";
   private static final String PROPERTY_PROJECT_BUILDDIR = "sonar.projectBuildDir";
-  private static final String PROPERTY_PROJECT_CONFIG_FILE = "sonar.projectConfigFile";
   private static final String PROPERTY_MODULES = "sonar.modules";
 
   /**
@@ -91,7 +90,7 @@ public class ProjectReactorBuilder {
   /**
    * Array of all mandatory properties required for a child project before its properties get merged with its parent ones.
    */
-  private static final String[] MANDATORY_PROPERTIES_FOR_CHILD = {MODULE_KEY_PROPERTY, CoreProperties.PROJECT_NAME_PROPERTY};
+  protected static final String[] MANDATORY_PROPERTIES_FOR_CHILD = {MODULE_KEY_PROPERTY, CoreProperties.PROJECT_NAME_PROPERTY};
 
   /**
    * Properties that must not be passed from the parent project to its children.
@@ -115,7 +114,7 @@ public class ProjectReactorBuilder {
     return new ProjectReactor(rootProject);
   }
 
-  private ProjectDefinition defineProject(Properties properties, ProjectDefinition parent) {
+  protected ProjectDefinition defineProject(Properties properties, ProjectDefinition parent) {
     File baseDir = new File(properties.getProperty(PROPERTY_PROJECT_BASEDIR));
     if (properties.containsKey(PROPERTY_MODULES)) {
       checkMandatoryProperties(properties, MANDATORY_PROPERTIES_FOR_MULTIMODULE_PROJECT);
@@ -207,24 +206,14 @@ public class ProjectReactorBuilder {
     }
   }
 
-  private ProjectDefinition loadChildProject(ProjectDefinition parentProject, Properties moduleProps, String moduleId) {
+  protected ProjectDefinition loadChildProject(ProjectDefinition parentProject, Properties moduleProps, String moduleId) {
     final File baseDir;
     if (moduleProps.containsKey(PROPERTY_PROJECT_BASEDIR)) {
-      baseDir = getFileFromPath(moduleProps.getProperty(PROPERTY_PROJECT_BASEDIR), parentProject.getBaseDir());
+      baseDir = resolvePath(parentProject.getBaseDir(), moduleProps.getProperty(PROPERTY_PROJECT_BASEDIR));
       setProjectBaseDir(baseDir, moduleProps, moduleId);
-      try {
-        if (!parentProject.getBaseDir().getCanonicalFile().equals(baseDir.getCanonicalFile())) {
-          tryToFindAndLoadPropsFile(baseDir, moduleProps, moduleId);
-        }
-      } catch (IOException e) {
-        throw new IllegalStateException("Error when resolving baseDir", e);
-      }
-    } else if (moduleProps.containsKey(PROPERTY_PROJECT_CONFIG_FILE)) {
-      baseDir = loadPropsFile(parentProject, moduleProps, moduleId);
     } else {
       baseDir = new File(parentProject.getBaseDir(), moduleId);
       setProjectBaseDir(baseDir, moduleProps, moduleId);
-      tryToFindAndLoadPropsFile(baseDir, moduleProps, moduleId);
     }
 
     setModuleKeyAndNameIfNotDefined(moduleProps, moduleId, parentProject.getKey());
@@ -236,43 +225,6 @@ public class ProjectReactorBuilder {
     mergeParentProperties(moduleProps, parentProject.getProperties());
 
     return defineProject(moduleProps, parentProject);
-  }
-
-  /**
-   * @return baseDir
-   */
-  protected File loadPropsFile(ProjectDefinition parentProject, Properties moduleProps, String moduleId) {
-    File propertyFile = getFileFromPath(moduleProps.getProperty(PROPERTY_PROJECT_CONFIG_FILE), parentProject.getBaseDir());
-    if (propertyFile.isFile()) {
-      Properties propsFromFile = toProperties(propertyFile);
-      for (Entry<Object, Object> entry : propsFromFile.entrySet()) {
-        moduleProps.put(entry.getKey(), entry.getValue());
-      }
-      File baseDir = null;
-      if (moduleProps.containsKey(PROPERTY_PROJECT_BASEDIR)) {
-        baseDir = getFileFromPath(moduleProps.getProperty(PROPERTY_PROJECT_BASEDIR), propertyFile.getParentFile());
-      } else {
-        baseDir = propertyFile.getParentFile();
-      }
-      setProjectBaseDir(baseDir, moduleProps, moduleId);
-      return baseDir;
-    } else {
-      throw new IllegalStateException("The properties file of the module '" + moduleId + "' does not exist: " + propertyFile.getAbsolutePath());
-    }
-  }
-
-  private void tryToFindAndLoadPropsFile(File baseDir, Properties moduleProps, String moduleId) {
-    File propertyFile = new File(baseDir, "sonar-project.properties");
-    if (propertyFile.isFile()) {
-      Properties propsFromFile = toProperties(propertyFile);
-      for (Entry<Object, Object> entry : propsFromFile.entrySet()) {
-        moduleProps.put(entry.getKey(), entry.getValue());
-      }
-      if (moduleProps.containsKey(PROPERTY_PROJECT_BASEDIR)) {
-        File overwrittenBaseDir = getFileFromPath(moduleProps.getProperty(PROPERTY_PROJECT_BASEDIR), propertyFile.getParentFile());
-        setProjectBaseDir(overwrittenBaseDir, moduleProps, moduleId);
-      }
-    }
   }
 
   @VisibleForTesting
@@ -320,7 +272,7 @@ public class ProjectReactorBuilder {
     }
   }
 
-  private static void setProjectBaseDir(File baseDir, Properties childProps, String moduleId) {
+  protected static void setProjectBaseDir(File baseDir, Properties childProps, String moduleId) {
     if (!baseDir.isDirectory()) {
       throw new IllegalStateException("The base directory of the module '" + moduleId + "' does not exist: " + baseDir.getAbsolutePath());
     }
@@ -344,7 +296,7 @@ public class ProjectReactorBuilder {
     }
   }
 
-  private static void validateDirectories(Properties props, File baseDir, String projectId) {
+  protected static void validateDirectories(Properties props, File baseDir, String projectId) {
     if (!props.containsKey(PROPERTY_MODULES)) {
       // SONARPLUGINS-2285 Not an aggregator project so we can validate that paths are correct if defined
 
@@ -407,7 +359,7 @@ public class ProjectReactorBuilder {
     // SONARPLUGINS-2295
     String[] sourceDirs = getListFromProperty(properties, PROPERTY_SOURCES);
     for (String path : sourceDirs) {
-      File sourceFolder = getFileFromPath(path, project.getBaseDir());
+      File sourceFolder = resolvePath(project.getBaseDir(), path);
       if (sourceFolder.isDirectory()) {
         LOG.warn("/!\\ A multi-module project can't have source folders, so '{}' won't be used for the analysis. " +
           "If you want to analyse files of this folder, you should create another sub-module and move them inside it.",
@@ -471,7 +423,7 @@ public class ProjectReactorBuilder {
   @VisibleForTesting
   protected static void checkExistenceOfDirectories(String moduleRef, File baseDir, String[] sourceDirs, String propName) {
     for (String path : sourceDirs) {
-      File sourceFolder = getFileFromPath(path, baseDir);
+      File sourceFolder = resolvePath(baseDir, path);
       if (!sourceFolder.isDirectory()) {
         LOG.error("Invalid value of " + propName + " for " + moduleRef);
         throw new IllegalStateException("The folder '" + path + "' does not exist for '" + moduleRef +
@@ -508,7 +460,7 @@ public class ProjectReactorBuilder {
     return files;
   }
 
-  private static File resolvePath(File baseDir, String path) {
+  protected static File resolvePath(File baseDir, String path) {
     File file = new File(path);
     if (!file.isAbsolute()) {
       try {
@@ -518,18 +470,6 @@ public class ProjectReactorBuilder {
       }
     }
     return file;
-  }
-
-  /**
-   * Returns the file denoted by the given path, may this path be relative to "baseDir" or absolute.
-   */
-  @VisibleForTesting
-  protected static File getFileFromPath(String path, File baseDir) {
-    File propertyFile = new File(path.trim());
-    if (!propertyFile.isAbsolute()) {
-      propertyFile = new File(baseDir, propertyFile.getPath());
-    }
-    return propertyFile;
   }
 
   /**

@@ -29,6 +29,7 @@ import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.internal.TempFolderCleaner;
+import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PastSnapshotFinder;
 import org.sonar.batch.components.PastSnapshotFinderByDate;
@@ -36,6 +37,7 @@ import org.sonar.batch.components.PastSnapshotFinderByDays;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousAnalysis;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousVersion;
 import org.sonar.batch.components.PastSnapshotFinderByVersion;
+import org.sonar.batch.scan.DeprecatedProjectReactorBuilder;
 import org.sonar.batch.scan.ProjectReactorBuilder;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.DefaultI18n;
@@ -97,7 +99,20 @@ public class BootstrapContainer extends ComponentContainer {
       UriReader.class,
       new FileCacheProvider(),
       System2.INSTANCE,
-      ProjectReactorBuilder.class);
+      projectReactorBuilder());
+  }
+
+  private Class<? extends ProjectReactorBuilder> projectReactorBuilder() {
+    if (isRunnerPre2_4()) {
+      return DeprecatedProjectReactorBuilder.class;
+    }
+    return ProjectReactorBuilder.class;
+  }
+
+  private boolean isRunnerPre2_4() {
+    EnvironmentInformation env = this.getComponentByType(EnvironmentInformation.class);
+    // Starting from SQ Runner 2.4 the key is "SonarQubeRunner"
+    return env != null && "SonarRunner".equals(env.getKey());
   }
 
   private void addDatabaseComponents() {
