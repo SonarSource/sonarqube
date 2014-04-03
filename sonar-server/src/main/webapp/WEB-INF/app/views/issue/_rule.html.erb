@@ -8,14 +8,14 @@
   <% end %>
 </div>
 
-<% if @rule.note_data %>
+<% if @rule.ruleNote() %>
   <div class="marginbottom10">
-    <%= Api::Utils.markdown_to_html(@rule.note_data) -%>
+    <%= Api::Utils.markdown_to_html(@rule.ruleNote().data()) -%>
   </div>
 <% end %>
 
 <p class="note">
-  <span class="spacer-right"><%= h @rule.plugin_name -%>:<%= h @rule.plugin_rule_key -%></span>
+  <span class="spacer-right"><%= h @rule.ruleKey() -%></span>
   <%= image_tag 'sep12.png', :class => 'spacer-right' -%>
   <% if @characteristic && @sub_characteristic %>
     <%= @characteristic.name -%>&nbsp;&gt;&nbsp;<%= @sub_characteristic.name -%>
