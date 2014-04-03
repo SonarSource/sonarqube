@@ -35,7 +35,6 @@ public class DefaultSymbolTableTest {
 
   @Test
   public void should_order_symbol_and_references() throws Exception {
-
     Symbolizable.SymbolTableBuilder symbolTableBuilder = new DefaultSymbolTable.Builder();
     Symbol firstSymbol = symbolTableBuilder.newSymbol(10, 20);
     symbolTableBuilder.newReference(firstSymbol, 32);
@@ -53,11 +52,18 @@ public class DefaultSymbolTableTest {
 
   @Test
   public void should_reject_reference_conflicting_with_declaration() throws Exception {
-
     throwable.expect(UnsupportedOperationException.class);
 
     Symbolizable.SymbolTableBuilder symbolTableBuilder = new DefaultSymbolTable.Builder();
     Symbol symbol = symbolTableBuilder.newSymbol(10, 20);
     symbolTableBuilder.newReference(symbol, 15);
+  }
+
+  @Test
+  public void test_toString() throws Exception {
+    Symbolizable.SymbolTableBuilder symbolTableBuilder = new DefaultSymbolTable.Builder();
+    Symbol symbol = symbolTableBuilder.newSymbol(10, 20);
+
+    assertThat(symbol.toString()).isEqualTo("Symbol{offset=10-20}");
   }
 }

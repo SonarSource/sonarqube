@@ -20,20 +20,17 @@
 
 package org.sonar.batch.source;
 
+import com.google.common.base.Objects;
 import org.sonar.api.source.Symbol;
-
-import javax.annotation.Nullable;
 
 public class DefaultSymbol implements Symbol {
 
   private final int declarationStartOffset;
   private final int declarationEndOffset;
-  private final String fullyQualifiedName;
 
-  public DefaultSymbol(int startOffset, int endOffset, @Nullable String fullyQualifiedName) {
+  public DefaultSymbol(int startOffset, int endOffset) {
     this.declarationStartOffset = startOffset;
     this.declarationEndOffset = endOffset;
-    this.fullyQualifiedName = fullyQualifiedName;
   }
 
   public int getDeclarationStartOffset() {
@@ -45,6 +42,13 @@ public class DefaultSymbol implements Symbol {
   }
 
   public String getFullyQualifiedName() {
-    return fullyQualifiedName;
+    return null;
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper("Symbol")
+      .add("offset", String.format("%d-%d", declarationStartOffset, declarationEndOffset))
+      .toString();
   }
 }

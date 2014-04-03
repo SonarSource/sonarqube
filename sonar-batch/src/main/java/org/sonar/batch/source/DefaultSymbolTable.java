@@ -66,7 +66,7 @@ public class DefaultSymbolTable implements Symbolizable.SymbolTable {
 
     @Override
     public Symbol newSymbol(int fromOffset, int toOffset) {
-      Symbol symbol = new DefaultSymbol(fromOffset, toOffset, null);
+      Symbol symbol = new DefaultSymbol(fromOffset, toOffset);
       referencesBySymbol.put(symbol, symbol.getDeclarationStartOffset());
       return symbol;
     }
@@ -74,7 +74,7 @@ public class DefaultSymbolTable implements Symbolizable.SymbolTable {
     @Override
     public void newReference(Symbol symbol, int fromOffset) {
       if (fromOffset >= symbol.getDeclarationStartOffset() && fromOffset < symbol.getDeclarationEndOffset()) {
-        throw new UnsupportedOperationException("Cannot add reference overlapping the symbol declaration");
+        throw new UnsupportedOperationException("Cannot add reference (" + fromOffset + ") overlapping " + symbol);
       }
       referencesBySymbol.put(symbol, fromOffset);
     }
