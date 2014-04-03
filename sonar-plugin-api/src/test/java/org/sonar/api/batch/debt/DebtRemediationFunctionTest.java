@@ -18,14 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.batch.rule;
+package org.sonar.api.batch.debt;
 
 import org.junit.Test;
 import org.sonar.api.utils.Duration;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class DefaultDebtRemediationFunctionTest {
+public class DebtRemediationFunctionTest {
 
   @Test
   public void create_linear() throws Exception {

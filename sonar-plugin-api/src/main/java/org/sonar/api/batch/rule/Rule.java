@@ -20,6 +20,7 @@
 package org.sonar.api.batch.rule;
 
 import com.google.common.annotations.Beta;
+import org.sonar.api.batch.debt.DebtRemediationFunction;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 

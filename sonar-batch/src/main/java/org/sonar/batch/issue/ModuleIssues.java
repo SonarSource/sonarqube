@@ -21,7 +21,11 @@ package org.sonar.batch.issue;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
-import org.sonar.api.batch.rule.*;
+import org.sonar.api.batch.debt.DebtRemediationFunction;
+import org.sonar.api.batch.rule.ActiveRule;
+import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.rule.Rule;
+import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;

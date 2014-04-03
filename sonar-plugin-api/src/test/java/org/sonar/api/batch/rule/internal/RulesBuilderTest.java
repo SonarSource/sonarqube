@@ -20,7 +20,7 @@
 package org.sonar.api.batch.rule.internal;
 
 import org.junit.Test;
-import org.sonar.api.batch.rule.DebtRemediationFunction;
+import org.sonar.api.batch.debt.DebtRemediationFunction;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.rule.RuleKey;

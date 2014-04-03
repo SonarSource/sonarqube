@@ -21,7 +21,7 @@ package org.sonar.api.batch.rule.internal;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.rule.DebtRemediationFunction;
+import org.sonar.api.batch.debt.DebtRemediationFunction;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
