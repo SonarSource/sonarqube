@@ -35,11 +35,13 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.bootstrap.BootstrapSettings;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +52,8 @@ import java.util.Properties;
  * Class that creates a project definition based on a set of properties.
  */
 public class ProjectReactorBuilder {
+
+  private static final String INVALID_VALUE_OF_X_FOR_Y = "Invalid value of {0} for {1}";
 
   private static final Logger LOG = LoggerFactory.getLogger(ProjectReactorBuilder.class);
 
@@ -114,7 +118,7 @@ public class ProjectReactorBuilder {
     return new ProjectReactor(rootProject);
   }
 
-  protected ProjectDefinition defineProject(Properties properties, ProjectDefinition parent) {
+  protected ProjectDefinition defineProject(Properties properties, @Nullable ProjectDefinition parent) {
     File baseDir = new File(properties.getProperty(PROPERTY_PROJECT_BASEDIR));
     if (properties.containsKey(PROPERTY_MODULES)) {
       checkMandatoryProperties(properties, MANDATORY_PROPERTIES_FOR_MULTIMODULE_PROJECT);
@@ -130,11 +134,10 @@ public class ProjectReactorBuilder {
       workDir = initModuleWorkDir(baseDir, properties);
     }
 
-    ProjectDefinition definition = ProjectDefinition.create().setProperties(properties)
+    return ProjectDefinition.create().setProperties(properties)
       .setBaseDir(baseDir)
       .setWorkDir(workDir)
       .setBuildDir(initModuleBuildDir(baseDir, properties));
-    return definition;
   }
 
   @VisibleForTesting
@@ -295,7 +298,7 @@ public class ProjectReactorBuilder {
       for (String pattern : getListFromProperty(props, PROPERTY_LIBRARIES)) {
         File[] files = getLibraries(baseDir, pattern);
         if (files == null || files.length == 0) {
-          LOG.error("Invalid value of " + PROPERTY_LIBRARIES + " for " + projectId);
+          LOG.error(MessageFormat.format(INVALID_VALUE_OF_X_FOR_Y, PROPERTY_LIBRARIES, projectId));
           throw new IllegalStateException("No files nor directories matching '" + pattern + "' in directory " + baseDir);
         }
       }
@@ -416,7 +419,7 @@ public class ProjectReactorBuilder {
     for (String path : sourceDirs) {
       File sourceFolder = resolvePath(baseDir, path);
       if (!sourceFolder.isDirectory()) {
-        LOG.error("Invalid value of " + propName + " for " + moduleRef);
+        LOG.error(MessageFormat.format(INVALID_VALUE_OF_X_FOR_Y, propName, moduleRef));
         throw new IllegalStateException("The folder '" + path + "' does not exist for '" + moduleRef +
           "' (base directory = " + baseDir.getAbsolutePath() + ")");
       }

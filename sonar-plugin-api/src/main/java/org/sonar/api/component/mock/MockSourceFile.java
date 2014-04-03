@@ -24,7 +24,6 @@ import org.sonar.api.component.SourceFile;
 public class MockSourceFile implements SourceFile {
   private String key;
   private String path;
-  private String moduleKey;
   private String qualifier;
   private String language;
   private String name;
@@ -49,11 +48,6 @@ public class MockSourceFile implements SourceFile {
 
   public MockSourceFile setPath(String path) {
     this.path = path;
-    return this;
-  }
-
-  public MockSourceFile setModuleKey(String moduleKey) {
-    this.moduleKey = moduleKey;
     return this;
   }
 

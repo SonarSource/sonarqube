@@ -23,6 +23,9 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.io.File;
 import java.util.List;
 import java.util.Properties;
@@ -80,20 +83,22 @@ public class ProjectDefinition {
     return baseDir;
   }
 
-  public ProjectDefinition setWorkDir(File workDir) {
+  public ProjectDefinition setWorkDir(@Nullable File workDir) {
     this.workDir = workDir;
     return this;
   }
 
+  @CheckForNull
   public File getWorkDir() {
     return workDir;
   }
 
-  public ProjectDefinition setBuildDir(File d) {
+  public ProjectDefinition setBuildDir(@Nullable File d) {
     this.buildDir = d;
     return this;
   }
 
+  @CheckForNull
   public File getBuildDir() {
     return buildDir;
   }
