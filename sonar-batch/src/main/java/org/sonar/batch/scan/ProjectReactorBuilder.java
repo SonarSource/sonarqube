@@ -95,7 +95,8 @@ public class ProjectReactorBuilder {
   /**
    * Properties that must not be passed from the parent project to its children.
    */
-  private static final List<String> NON_HERITED_PROPERTIES_FOR_CHILD = Lists.newArrayList(PROPERTY_PROJECT_BASEDIR, PROPERTY_MODULES, CoreProperties.PROJECT_DESCRIPTION_PROPERTY);
+  private static final List<String> NON_HERITED_PROPERTIES_FOR_CHILD = Lists.newArrayList(PROPERTY_PROJECT_BASEDIR, CoreProperties.WORKING_DIRECTORY, PROPERTY_MODULES,
+    CoreProperties.PROJECT_DESCRIPTION_PROPERTY);
 
   private BootstrapSettings settings;
   private File rootProjectWorkDir;
