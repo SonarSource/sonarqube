@@ -145,6 +145,10 @@ public class RuleOperations implements ServerComponent {
         .setCardinality(Cardinality.SINGLE)
         .setStatus(Rule.STATUS_READY)
         .setLanguage(templateRule.getLanguage())
+        .setDefaultSubCharacteristicId(templateRule.getDefaultSubCharacteristicId())
+        .setDefaultRemediationFunction(templateRule.getDefaultRemediationFunction())
+        .setDefaultRemediationCoefficient(templateRule.getDefaultRemediationCoefficient())
+        .setDefaultRemediationOffset(templateRule.getDefaultRemediationOffset())
         .setCreatedAt(new Date(system.now()))
         .setUpdatedAt(new Date(system.now()));
       ruleDao.insert(rule, session);
@@ -272,12 +276,14 @@ public class RuleOperations implements ServerComponent {
         }
 
         // New sub characteristic is not equals to existing one -> update it
+        // TODO check characteristic is not equals to default one, if so do nothing
         if (!subCharacteristic.getId().equals(ruleDto.getSubCharacteristicId())) {
           ruleDto.setSubCharacteristicId(subCharacteristic.getId());
           updated = true;
         }
 
         // New remediation function is not equals to existing one -> update it
+        // TODO check remediaiton function is not equals to default one, if so do nothing
         if (!isSameRemediationFunction(ruleChange.debtRemediationFunction(), ruleChange.debtRemediationCoefficient(), ruleChange.debtRemediationOffset(), ruleDto)) {
           DefaultDebtRemediationFunction debtRemediationFunction = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.valueOf(ruleChange.debtRemediationFunction()),
             ruleChange.debtRemediationCoefficient(), ruleChange.debtRemediationOffset());
