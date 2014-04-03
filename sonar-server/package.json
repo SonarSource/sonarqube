@@ -2,13 +2,12 @@
   "name": "SonarQube",
   "version": "0.0.1",
   "devDependencies": {
-    "karma": "0.10.8",
+    "karma": "0.10.10",
     "karma-jasmine": "0.1.5",
     "karma-phantomjs-launcher": "0.1.2",
     "karma-coverage": "0.2.1",
     "karma-junit-reporter": "0.2.1",
-    "phantomjs": "1.9.7-1",
-    "grunt": "0.4.2",
+    "grunt": "0.4.4",
     "grunt-cli": "0.1.13",
     "grunt-contrib-less": "0.10.0",
     "grunt-contrib-coffee": "0.10.1",
@@ -22,7 +21,7 @@
     "grunt-contrib-concat": "0.4.0"
   },
   "engines": {
-    "node": "0.10.26"
+    "node": "~0.8 || ~0.10"
   },
   "sources": "src/main/",
   "assets": "src/main/webapp/"
