@@ -246,7 +246,7 @@ define(
 
         initialize: function() {
           var openIssue = function(el) { el.click(); };
-          this.openIssue = _.debounce(openIssue, 300);
+          this.openRule = _.debounce(openIssue, 300);
         },
 
 
@@ -262,7 +262,7 @@ define(
           this.$('.active').removeClass('active');
           el.addClass('active');
           if (open) {
-            this.openIssue(el);
+            this.openRule(el);
           }
         },
 
