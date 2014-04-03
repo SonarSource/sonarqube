@@ -167,8 +167,7 @@ define(
           key.setScope('list');
           this.options.issuesView.selected = this.$el.parent().children().index(this.$el);
 
-          this.$el.parent().children().removeClass('active');
-          this.$el.addClass('active');
+          this.options.issuesView.selectIssue(this.$el, false);
 
           var that = this,
               app = this.options.app,
@@ -245,11 +244,26 @@ define(
         emptyView: NoIssuesView,
 
 
+        initialize: function() {
+          var openIssue = function(el) { el.click(); };
+          this.openIssue = _.debounce(openIssue, 300);
+        },
+
+
         itemViewOptions: function () {
           return {
             issuesView: this,
             app: this.options.app
           };
+        },
+
+
+        selectIssue: function(el, open) {
+          this.$('.active').removeClass('active');
+          el.addClass('active');
+          if (open) {
+            this.openIssue(el);
+          }
         },
 
 
@@ -269,7 +283,7 @@ define(
             if (bottom > containerHeight) {
               container.scrollTop(container.scrollTop() - containerHeight + bottom);
             }
-            child.click();
+            this.selectIssue(child, true);
           }
         },
 
@@ -283,7 +297,7 @@ define(
             if (top < 0) {
               container.scrollTop(container.scrollTop() + top);
             }
-            child.click();
+            this.selectIssue(child, true);
           }
         },
 
