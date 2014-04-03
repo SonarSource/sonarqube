@@ -76,7 +76,7 @@
     <jetty.version>8.1.12.v20130726</jetty.version>
     <logback.version>1.0.13</logback.version>
     <slf4j.version>1.7.5</slf4j.version>
-    <tomcat.version>7.0.42</tomcat.version>
+    <tomcat.version>7.0.53</tomcat.version>
     <elasticsearch.version>0.90.9</elasticsearch.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.min.version>3.0.5</maven.min.version>
@@ -1034,7 +1034,7 @@
       <dependency>
         <groupId>org.skyscreamer</groupId>
         <artifactId>jsonassert</artifactId>
-        <version>1.2.2</version>
+        <version>1.2.3</version>
       </dependency>
       <dependency>
         <groupId>junit</groupId>
