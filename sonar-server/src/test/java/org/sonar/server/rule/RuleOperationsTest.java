@@ -504,10 +504,30 @@ public class RuleOperationsTest {
 
     when(ruleDao.selectByKey(ruleKey, session)).thenReturn(dto);
 
-    operations.updateRule(
-      new RuleChange().setRuleKey(ruleKey).setDebtCharacteristicKey(null),
-      authorizedUserSession
-    );
+    operations.updateRule(new RuleChange().setRuleKey(ruleKey).setDebtCharacteristicKey(null), authorizedUserSession);
+
+    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
+    verify(ruleRegistry).reindex(eq(ruleCaptor.getValue()), eq(session));
+    verify(session).commit();
+
+    RuleDto result = ruleCaptor.getValue();
+
+    assertThat(result.getId()).isEqualTo(1);
+    assertThat(result.getSubCharacteristicId()).isEqualTo(-1);
+    assertThat(result.getRemediationFunction()).isNull();
+    assertThat(result.getRemediationCoefficient()).isNull();
+    assertThat(result.getRemediationOffset()).isNull();
+    assertThat(result.getUpdatedAt()).isEqualTo(now);
+  }
+
+  @Test
+  public void disable_characteristic_on_rule_having_no_debt_info() throws Exception {
+    RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck");
+    RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
+
+    when(ruleDao.selectByKey(ruleKey, session)).thenReturn(dto);
+
+    operations.updateRule(new RuleChange().setRuleKey(ruleKey).setDebtCharacteristicKey(null), authorizedUserSession);
 
     verify(ruleDao).update(ruleCaptor.capture(), eq(session));
     verify(ruleRegistry).reindex(eq(ruleCaptor.getValue()), eq(session));

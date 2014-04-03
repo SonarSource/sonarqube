@@ -294,7 +294,7 @@ public class RuleOperations implements ServerComponent {
         // No sub-characteristic is given -> disable rule debt if not already disabled
       } else {
         // Rule characteristic is not already disabled -> update it
-        if (!ruleDto.getSubCharacteristicId().equals(RuleDto.DISABLED_CHARACTERISTIC_ID)) {
+        if (!RuleDto.DISABLED_CHARACTERISTIC_ID.equals(ruleDto.getSubCharacteristicId())) {
           ruleDto.setSubCharacteristicId(RuleDto.DISABLED_CHARACTERISTIC_ID);
           ruleDto.setRemediationFunction(null);
           ruleDto.setRemediationCoefficient(null);
