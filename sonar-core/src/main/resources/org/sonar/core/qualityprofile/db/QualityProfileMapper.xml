@@ -41,7 +41,7 @@
     SELECT <include refid="profilesColumns"/>
     FROM rules_profiles p
     <where>
-      AND UPPER(p.name)=#{name}
+      AND p.name=#{name}
       AND p.language=#{language}
     </where>
   </select>
@@ -73,7 +73,7 @@
     SELECT <include refid="profilesColumns"/>
     FROM rules_profiles p
     <where>
-      AND UPPER(p.parent_name)=#{name}
+      AND p.parent_name=#{name}
       AND p.language=#{language}
     </where>
     ORDER BY p.name
@@ -83,7 +83,7 @@
     SELECT count(p.id)
     FROM rules_profiles p
     <where>
-      AND UPPER(p.parent_name)=#{name}
+      AND p.parent_name=#{name}
       AND p.language=#{language}
     </where>
   </select>

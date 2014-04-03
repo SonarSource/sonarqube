@@ -20,7 +20,6 @@
 
 package org.sonar.core.qualityprofile.db;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.component.ComponentDto;
@@ -102,7 +101,6 @@ public class QualityProfileDao implements ServerComponent {
     }
   }
 
-
   public QualityProfileDto selectByProjectAndLanguage(long projectId, String language, String key) {
     SqlSession session = mybatis.openSession();
     try {
@@ -152,40 +150,39 @@ public class QualityProfileDao implements ServerComponent {
   }
 
   public List<QualityProfileDto> selectChildren(String name, String language, SqlSession session) {
-    return session.getMapper(QualityProfileMapper.class).selectChildren(StringUtils.upperCase(name), language);
+    return session.getMapper(QualityProfileMapper.class).selectChildren(name, language);
   }
 
   public List<QualityProfileDto> selectChildren(String name, String language) {
     SqlSession session = mybatis.openSession();
     try {
-      return selectChildren(StringUtils.upperCase(name), language, session);
+      return selectChildren(name, language, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   public int countChildren(String name, String language, SqlSession session) {
-    return session.getMapper(QualityProfileMapper.class).countChildren(StringUtils.upperCase(name), language);
+    return session.getMapper(QualityProfileMapper.class).countChildren(name, language);
   }
 
   public int countChildren(String name, String language) {
     SqlSession session = mybatis.openSession();
     try {
-      return countChildren(StringUtils.upperCase(name), language, session);
+      return countChildren(name, language, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   public QualityProfileDto selectByNameAndLanguage(String name, String language, SqlSession session) {
-    return session.getMapper(QualityProfileMapper.class).selectByNameAndLanguage(StringUtils.upperCase(name), language);
+    return session.getMapper(QualityProfileMapper.class).selectByNameAndLanguage(name, language);
   }
-
 
   public QualityProfileDto selectByNameAndLanguage(String name, String language) {
     SqlSession session = mybatis.openSession();
     try {
-      return selectByNameAndLanguage(StringUtils.upperCase(name), language, session);
+      return selectByNameAndLanguage(name, language, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
