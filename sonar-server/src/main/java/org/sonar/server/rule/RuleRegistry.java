@@ -44,6 +44,8 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.SortOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.persistence.MyBatis;
@@ -77,6 +79,9 @@ import static org.sonar.api.rules.Rule.STATUS_REMOVED;
  * @since 4.1
  */
 public class RuleRegistry {
+
+  private static final Logger LOG = LoggerFactory.getLogger(RuleRegistry.class);
+  private static final TimeProfiler TIME_PROFILER = new TimeProfiler(LOG).setLevelToDebug();
 
   public static final String INDEX_RULES = "rules";
   public static final String TYPE_RULE = "rule";
@@ -187,8 +192,7 @@ public class RuleRegistry {
       String[] ids = new String[rules.size()];
       BytesStream[] docs = new BytesStream[rules.size()];
       int index = 0;
-      TimeProfiler profiler = new TimeProfiler();
-      profiler.start("Build rules documents");
+      TIME_PROFILER.start("Build rules documents");
       for (RuleDto rule : rules) {
         ids[index] = rule.getId().toString();
         CharacteristicDto effectiveSubCharacteristic =
@@ -197,12 +201,12 @@ public class RuleRegistry {
         docs[index] = ruleDocument(rule, effectiveCharacteristic, effectiveSubCharacteristic, paramsByRule.get(rule.getId()), tagsByRule.get(rule.getId()));
         index++;
       }
-      profiler.stop();
+      TIME_PROFILER.stop();
 
       if (!rules.isEmpty()) {
-        profiler.start("Index rules");
+        TIME_PROFILER.start("Index rules");
         searchIndex.bulkIndex(INDEX_RULES, TYPE_RULE, ids, docs);
-        profiler.stop();
+        TIME_PROFILER.stop();
       }
       return ids;
     } catch (IOException ioe) {
@@ -213,11 +217,10 @@ public class RuleRegistry {
   public void removeDeletedRules(String[] ids) {
     List<String> indexIds = searchIndex.findDocumentIds(SearchQuery.create().index(INDEX_RULES).type(TYPE_RULE));
     indexIds.removeAll(Arrays.asList(ids));
-    TimeProfiler profiler = new TimeProfiler();
     if (!indexIds.isEmpty()) {
-      profiler.start("Remove deleted rule documents");
+      TIME_PROFILER.start("Remove deleted rule documents");
       searchIndex.bulkDelete(INDEX_RULES, TYPE_RULE, indexIds.toArray(new String[0]));
-      profiler.stop();
+      TIME_PROFILER.stop();
     }
   }
 
