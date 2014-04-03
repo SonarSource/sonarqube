@@ -153,7 +153,7 @@ public class DebtModelBackup implements ServerComponent {
       }
 
       // Restore rules
-      List<RuleDto> ruleDtos = rules(null, session);
+      List<RuleDto> ruleDtos = ruleDao.selectEnablesAndNonManual(session);
       for (RuleDto rule : ruleDtos) {
         // Restore default debt definitions
         RulesDefinition.Rule ruleDef = ruleDef(rule.getRepositoryKey(), rule.getRuleKey(), rules);
@@ -175,8 +175,6 @@ public class DebtModelBackup implements ServerComponent {
         rule.setRemediationCoefficient(null);
         rule.setRemediationOffset(null);
         rule.setUpdatedAt(updateDate);
-
-        // TODO update only if modification ?
         ruleDao.update(rule, session);
       }
       ruleRegistry.reindex(ruleDtos, session);
@@ -227,6 +225,7 @@ public class DebtModelBackup implements ServerComponent {
       } else {
         CharacteristicDto subCharacteristicDto = characteristicByKey(ruleDebt.subCharacteristicKey(), allCharacteristicDtos);
         if (subCharacteristicDto == null) {
+          // TODO not possible, all char should have been created
           // rule is linked on a not existing characteristic
           disabledOverriddenRuleDebt(rule);
         } else {
@@ -309,7 +308,7 @@ public class DebtModelBackup implements ServerComponent {
   }
 
   private void disabledOverriddenRuleDebt(RuleDto rule) {
-    // TODO ?
+    // If default characteristic is not defined, set the overridden characteristic to null in order to be able to track debt plugin update
     rule.setSubCharacteristicId(rule.getDefaultSubCharacteristicId() != null ? RuleDto.DISABLED_CHARACTERISTIC_ID : null);
     rule.setRemediationFunction(null);
     rule.setRemediationCoefficient(null);

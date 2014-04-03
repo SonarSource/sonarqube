@@ -242,8 +242,6 @@ public class DebtModelOperations implements ServerComponent {
       }
       if (subCharacteristicId.equals(ruleDto.getDefaultSubCharacteristicId())) {
         ruleDto.setDefaultSubCharacteristicId(null);
-
-        // TODO should we really set these fields to null ?
         ruleDto.setDefaultRemediationFunction(null);
         ruleDto.setDefaultRemediationCoefficient(null);
         ruleDto.setDefaultRemediationOffset(null);

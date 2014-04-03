@@ -216,8 +216,7 @@ public class RuleOperationsTest {
 
   @Test
   public void create_custom_rule() throws Exception {
-    RuleDto templateRule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle").setConfigKey("Xpath")
-      .setDefaultSubCharacteristicId(20).setDefaultRemediationFunction("LINEAR_OFFSET").setDefaultRemediationCoefficient("2h").setDefaultRemediationOffset("15min");
+    RuleDto templateRule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle").setConfigKey("Xpath");
     when(ruleDao.selectParametersByRuleId(eq(10), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10")));
     when(ruleDao.selectTagsByRuleIds(eq(10), eq(session))).thenReturn(newArrayList(new RuleRuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM)));
 
@@ -236,10 +235,6 @@ public class RuleOperationsTest {
     assertThat(ruleArgument.getValue().getRuleKey()).startsWith("AvoidCycle");
     assertThat(ruleArgument.getValue().getStatus()).isEqualTo("READY");
     assertThat(ruleArgument.getValue().getCardinality()).isEqualTo(Cardinality.SINGLE);
-    assertThat(ruleArgument.getValue().getDefaultSubCharacteristicId()).isEqualTo(20);
-    assertThat(ruleArgument.getValue().getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
-    assertThat(ruleArgument.getValue().getDefaultRemediationCoefficient()).isEqualTo("2h");
-    assertThat(ruleArgument.getValue().getDefaultRemediationOffset()).isEqualTo("15min");
 
     ArgumentCaptor<RuleParamDto> ruleParamArgument = ArgumentCaptor.forClass(RuleParamDto.class);
     verify(ruleDao).insert(ruleParamArgument.capture(), eq(session));

@@ -145,10 +145,6 @@ public class RuleOperations implements ServerComponent {
         .setCardinality(Cardinality.SINGLE)
         .setStatus(Rule.STATUS_READY)
         .setLanguage(templateRule.getLanguage())
-        .setDefaultSubCharacteristicId(templateRule.getDefaultSubCharacteristicId())
-        .setDefaultRemediationFunction(templateRule.getDefaultRemediationFunction())
-        .setDefaultRemediationCoefficient(templateRule.getDefaultRemediationCoefficient())
-        .setDefaultRemediationOffset(templateRule.getDefaultRemediationOffset())
         .setCreatedAt(new Date(system.now()))
         .setUpdatedAt(new Date(system.now()));
       ruleDao.insert(rule, session);
@@ -274,6 +270,8 @@ public class RuleOperations implements ServerComponent {
         if (subCharacteristic == null) {
           throw new NotFoundException(String.format("Unknown sub characteristic '%s'", ruleChange.debtCharacteristicKey()));
         }
+
+        // TODO
 
         // New sub characteristic is not equals to existing one and not equals to default value -> update it
         if (!subCharacteristic.getId().equals(ruleDto.getSubCharacteristicId()) && !subCharacteristic.getId().equals(ruleDto.getDefaultSubCharacteristicId()) ) {
