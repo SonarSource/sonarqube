@@ -65,7 +65,7 @@ public class RulesWsTest {
     assertThat(list.since()).isEqualTo("4.3");
     assertThat(list.isPost()).isFalse();
     assertThat(list.isInternal()).isFalse();
-    assertThat(list.params()).hasSize(4);
+    assertThat(list.params()).hasSize(11);
 
     WebService.Action show = controller.action("show");
     assertThat(show).isNotNull();
