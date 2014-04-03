@@ -405,78 +405,6 @@ public class RuleOperationsTest {
   }
 
   @Test
-  public void update_rule_set_characteristic_only_if_different_from_default_one() throws Exception {
-    RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
-      .setDefaultSubCharacteristicId(2).setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationOffset("10min");
-    RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
-
-    when(ruleDao.selectByKey(ruleKey, session)).thenReturn(dto);
-
-    CharacteristicDto subCharacteristic = new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1);
-    when(characteristicDao.selectByKey("COMPILER", session)).thenReturn(subCharacteristic);
-    when(characteristicDao.selectById(2, session)).thenReturn(subCharacteristic);
-    CharacteristicDto characteristic = new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability").setOrder(2);
-    when(characteristicDao.selectById(1, session)).thenReturn(characteristic);
-
-    operations.updateRule(
-      // Characteristic is the same as the default one -> Overridden characteristic should not be set
-      // Remediation function is not the same as default one -> Overridden remediation function should be set
-      new RuleChange().setRuleKey(ruleKey).setDebtCharacteristicKey("COMPILER")
-        .setDebtRemediationFunction("LINEAR_OFFSET").setDebtRemediationCoefficient("2h").setDebtRemediationOffset("20min"),
-      authorizedUserSession
-    );
-
-    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
-    verify(ruleRegistry).reindex(eq(ruleCaptor.getValue()), eq(session));
-    verify(session).commit();
-
-    RuleDto result = ruleCaptor.getValue();
-
-    assertThat(result.getId()).isEqualTo(1);
-    assertThat(result.getSubCharacteristicId()).isNull();
-    assertThat(result.getRemediationFunction()).isEqualTo("LINEAR_OFFSET");
-    assertThat(result.getRemediationCoefficient()).isEqualTo("2h");
-    assertThat(result.getRemediationOffset()).isEqualTo("20min");
-    assertThat(result.getUpdatedAt()).isEqualTo(now);
-  }
-
-  @Test
-  public void update_rule_set_remediation_function_only_if_different_from_default_one() throws Exception {
-    RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
-      .setDefaultSubCharacteristicId(6).setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationOffset("10min");
-    RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
-
-    when(ruleDao.selectByKey(ruleKey, session)).thenReturn(dto);
-
-    CharacteristicDto subCharacteristic = new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1);
-    when(characteristicDao.selectByKey("COMPILER", session)).thenReturn(subCharacteristic);
-    when(characteristicDao.selectById(2, session)).thenReturn(subCharacteristic);
-    CharacteristicDto characteristic = new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability").setOrder(2);
-    when(characteristicDao.selectById(1, session)).thenReturn(characteristic);
-
-    operations.updateRule(
-      // Characteristic is the not same as the default one -> Overridden characteristic should be set
-      // Remediation function is the same as default one -> Overridden remediation function should not be set
-      new RuleChange().setRuleKey(ruleKey).setDebtCharacteristicKey("COMPILER")
-        .setDebtRemediationFunction("CONSTANT_ISSUE").setDebtRemediationOffset("10min"),
-      authorizedUserSession
-    );
-
-    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
-    verify(ruleRegistry).reindex(eq(ruleCaptor.getValue()), eq(session));
-    verify(session).commit();
-
-    RuleDto result = ruleCaptor.getValue();
-
-    assertThat(result.getId()).isEqualTo(1);
-    assertThat(result.getSubCharacteristicId()).isEqualTo(2);
-    assertThat(result.getRemediationFunction()).isNull();
-    assertThat(result.getRemediationCoefficient()).isNull();
-    assertThat(result.getRemediationOffset()).isNull();
-    assertThat(result.getUpdatedAt()).isEqualTo(now);
-  }
-
-  @Test
   public void not_update_rule_if_same_sub_characteristic_and_function() throws Exception {
     RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
       .setSubCharacteristicId(2).setRemediationFunction("CONSTANT_ISSUE").setRemediationOffset("10min");
@@ -496,6 +424,76 @@ public class RuleOperationsTest {
     verify(ruleDao, never()).update(any(RuleDto.class), eq(session));
     verify(session, never()).commit();
     verify(ruleRegistry, never()).reindex(any(RuleDto.class), eq(session));
+  }
+
+  @Test
+  public void update_rule_set_characteristic_if_different_from_default_one() throws Exception {
+    RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
+      .setDefaultSubCharacteristicId(2).setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationOffset("10min");
+    RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
+
+    when(ruleDao.selectByKey(ruleKey, session)).thenReturn(dto);
+
+    CharacteristicDto subCharacteristic = new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1);
+    when(characteristicDao.selectByKey("COMPILER", session)).thenReturn(subCharacteristic);
+    when(characteristicDao.selectById(2, session)).thenReturn(subCharacteristic);
+    CharacteristicDto characteristic = new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability").setOrder(2);
+    when(characteristicDao.selectById(1, session)).thenReturn(characteristic);
+
+    operations.updateRule(
+      // Remediation function is not the same as default one -> Overridden value should be set
+      new RuleChange().setRuleKey(ruleKey).setDebtCharacteristicKey("COMPILER")
+        .setDebtRemediationFunction("LINEAR_OFFSET").setDebtRemediationCoefficient("2h").setDebtRemediationOffset("20min"),
+      authorizedUserSession
+    );
+
+    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
+    verify(ruleRegistry).reindex(eq(ruleCaptor.getValue()), eq(session));
+    verify(session).commit();
+
+    RuleDto result = ruleCaptor.getValue();
+
+    assertThat(result.getId()).isEqualTo(1);
+    assertThat(result.getSubCharacteristicId()).isEqualTo(2);
+    assertThat(result.getRemediationFunction()).isEqualTo("LINEAR_OFFSET");
+    assertThat(result.getRemediationCoefficient()).isEqualTo("2h");
+    assertThat(result.getRemediationOffset()).isEqualTo("20min");
+    assertThat(result.getUpdatedAt()).isEqualTo(now);
+  }
+
+  @Test
+  public void update_rule_set_remediation_function_if_different_from_default_one() throws Exception {
+    RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
+      .setDefaultSubCharacteristicId(6).setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationOffset("10min");
+    RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
+
+    when(ruleDao.selectByKey(ruleKey, session)).thenReturn(dto);
+
+    CharacteristicDto subCharacteristic = new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1);
+    when(characteristicDao.selectByKey("COMPILER", session)).thenReturn(subCharacteristic);
+    when(characteristicDao.selectById(2, session)).thenReturn(subCharacteristic);
+    CharacteristicDto characteristic = new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability").setOrder(2);
+    when(characteristicDao.selectById(1, session)).thenReturn(characteristic);
+
+    operations.updateRule(
+      // Characteristic is the not same as the default one -> Overridden values should be set
+      new RuleChange().setRuleKey(ruleKey).setDebtCharacteristicKey("COMPILER")
+        .setDebtRemediationFunction("CONSTANT_ISSUE").setDebtRemediationOffset("10min"),
+      authorizedUserSession
+    );
+
+    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
+    verify(ruleRegistry).reindex(eq(ruleCaptor.getValue()), eq(session));
+    verify(session).commit();
+
+    RuleDto result = ruleCaptor.getValue();
+
+    assertThat(result.getId()).isEqualTo(1);
+    assertThat(result.getSubCharacteristicId()).isEqualTo(2);
+    assertThat(result.getRemediationFunction()).isEqualTo("CONSTANT_ISSUE");
+    assertThat(result.getRemediationCoefficient()).isNull();
+    assertThat(result.getRemediationOffset()).isEqualTo("10min");
+    assertThat(result.getUpdatedAt()).isEqualTo(now);
   }
 
   @Test

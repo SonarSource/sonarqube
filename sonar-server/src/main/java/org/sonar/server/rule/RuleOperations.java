@@ -258,37 +258,40 @@ public class RuleOperations implements ServerComponent {
     checkPermission(userSession);
     SqlSession session = myBatis.openSession();
     try {
-      boolean updated = false;
+      boolean needUpdate = false;
 
       RuleDto ruleDto = ruleDao.selectByKey(ruleChange.ruleKey(), session);
       if (ruleDto == null) {
         throw new NotFoundException(String.format("Unknown rule '%s'", ruleChange.ruleKey()));
       }
       String subCharacteristicKey = ruleChange.debtCharacteristicKey();
+
+      // A sub-characteristic is given -> update rule debt if given values are different from overridden ones and from default ones
       if (!Strings.isNullOrEmpty(subCharacteristicKey)) {
         CharacteristicDto subCharacteristic = characteristicDao.selectByKey(subCharacteristicKey, session);
         if (subCharacteristic == null) {
           throw new NotFoundException(String.format("Unknown sub characteristic '%s'", ruleChange.debtCharacteristicKey()));
         }
 
-        // TODO
+        boolean iSameAsOverriddenValues = subCharacteristic.getId().equals(ruleDto.getSubCharacteristicId())
+          && isSameRemediationFunction(ruleChange, ruleDto.getRemediationFunction(), ruleDto.getRemediationCoefficient(), ruleDto.getRemediationOffset());
+        boolean iSameAsDefaultValues = subCharacteristic.getId().equals(ruleDto.getDefaultSubCharacteristicId())
+          && isSameRemediationFunction(ruleChange, ruleDto.getDefaultRemediationFunction(), ruleDto.getDefaultRemediationCoefficient(), ruleDto.getDefaultRemediationOffset());
 
-        // New sub characteristic is not equals to existing one and not equals to default value -> update it
-        if (!subCharacteristic.getId().equals(ruleDto.getSubCharacteristicId()) && !subCharacteristic.getId().equals(ruleDto.getDefaultSubCharacteristicId()) ) {
+        // New sub characteristic is not equals to existing one and not equals to default value
+        // and new remediation function is not equals to existing one and not equals to default value -> update overridden values
+        if (!iSameAsOverriddenValues && !iSameAsDefaultValues) {
           ruleDto.setSubCharacteristicId(subCharacteristic.getId());
-          updated = true;
-        }
 
-        // New remediation function is not equals to existing one and not equals to default value -> update it
-        if (!isSameRemediationFunction(ruleChange, ruleDto.getRemediationFunction(), ruleDto.getRemediationCoefficient(), ruleDto.getRemediationOffset())
-          && !isSameRemediationFunction(ruleChange, ruleDto.getDefaultRemediationFunction(), ruleDto.getDefaultRemediationCoefficient(), ruleDto.getDefaultRemediationOffset())) {
           DefaultDebtRemediationFunction debtRemediationFunction = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.valueOf(ruleChange.debtRemediationFunction()),
             ruleChange.debtRemediationCoefficient(), ruleChange.debtRemediationOffset());
           ruleDto.setRemediationFunction(debtRemediationFunction.type().name());
           ruleDto.setRemediationCoefficient(debtRemediationFunction.coefficient());
           ruleDto.setRemediationOffset(debtRemediationFunction.offset());
-          updated = true;
+          needUpdate = true;
         }
+
+        // No sub-characteristic is given -> disable rule debt if not already disabled
       } else {
         // Rule characteristic is not already disabled -> update it
         if (!ruleDto.getSubCharacteristicId().equals(RuleDto.DISABLED_CHARACTERISTIC_ID)) {
@@ -296,11 +299,11 @@ public class RuleOperations implements ServerComponent {
           ruleDto.setRemediationFunction(null);
           ruleDto.setRemediationCoefficient(null);
           ruleDto.setRemediationOffset(null);
-          updated = true;
+          needUpdate = true;
         }
       }
 
-      if (updated) {
+      if (needUpdate) {
         ruleDto.setUpdatedAt(new Date(system.now()));
         ruleDao.update(ruleDto, session);
         session.commit();

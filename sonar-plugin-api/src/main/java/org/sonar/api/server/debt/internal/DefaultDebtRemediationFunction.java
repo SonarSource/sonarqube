@@ -37,7 +37,10 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
   private final String coefficient;
   private final String offset;
 
-  public DefaultDebtRemediationFunction(Type type, @Nullable String coefficient, @Nullable String offset) {
+  public DefaultDebtRemediationFunction(@Nullable Type type, @Nullable String coefficient, @Nullable String offset) {
+    if (type == null) {
+      throw new IllegalArgumentException("Remediation function type cannot be null");
+    }
     this.type = type;
     this.coefficient = sanitizeValue("coefficient", coefficient);
     this.offset = sanitizeValue("offset", offset);

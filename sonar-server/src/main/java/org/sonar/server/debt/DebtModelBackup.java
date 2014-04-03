@@ -40,6 +40,7 @@ import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
@@ -143,7 +144,7 @@ public class DebtModelBackup implements ServerComponent {
     SqlSession session = mybatis.openSession();
     try {
       // Restore characteristics
-      List<CharacteristicDto> allCharacteristicDtos = restoreCharacteristics(loadModelFromPlugin(DebtModelPluginRepository.DEFAULT_MODEL), true, updateDate, session);
+      List<CharacteristicDto> allCharacteristicDtos = restoreCharacteristics(loadModelFromPlugin(DebtModelPluginRepository.DEFAULT_MODEL), updateDate, session);
 
       // Load default rule definitions
       RulesDefinition.Context context = defLoader.load();
@@ -159,7 +160,7 @@ public class DebtModelBackup implements ServerComponent {
         RulesDefinition.Rule ruleDef = ruleDef(rule.getRepositoryKey(), rule.getRuleKey(), rules);
         if (ruleDef != null) {
           String subCharacteristicKey = ruleDef.debtSubCharacteristic();
-          CharacteristicDto subCharacteristicDto = characteristicByKey(subCharacteristicKey, allCharacteristicDtos);
+          CharacteristicDto subCharacteristicDto = characteristicByKey(subCharacteristicKey, allCharacteristicDtos, false);
           DebtRemediationFunction remediationFunction = ruleDef.debtRemediationFunction();
           boolean hasDebtDefinition = subCharacteristicDto != null && remediationFunction != null;
 
@@ -205,7 +206,7 @@ public class DebtModelBackup implements ServerComponent {
     Date updateDate = new Date(system2.now());
     SqlSession session = mybatis.openSession();
     try {
-      List<CharacteristicDto> allCharacteristicDtos = restoreCharacteristics(characteristicsXMLImporter.importXML(xml), languageKey == null, updateDate, session);
+      List<CharacteristicDto> allCharacteristicDtos = restoreCharacteristics(characteristicsXMLImporter.importXML(xml), updateDate, session);
       restoreRules(allCharacteristicDtos, rules(languageKey, session), rulesXMLImporter.importXML(xml, validationMessages), validationMessages, updateDate, session);
 
       session.commit();
@@ -223,21 +224,21 @@ public class DebtModelBackup implements ServerComponent {
         // rule does not exists in the XML
         disabledOverriddenRuleDebt(rule);
       } else {
-        CharacteristicDto subCharacteristicDto = characteristicByKey(ruleDebt.subCharacteristicKey(), allCharacteristicDtos);
-        if (subCharacteristicDto == null) {
-          // TODO not possible, all char should have been created
-          // rule is linked on a not existing characteristic
-          disabledOverriddenRuleDebt(rule);
-        } else {
-          boolean isSameCharacteristicAsDefault = subCharacteristicDto.getId().equals(rule.getDefaultSubCharacteristicId());
-          boolean isSameFunctionAsDefault = isSameRemediationFunction(ruleDebt, rule);
-          // If given characteristic is the same as the default one, set nothing in overridden characteristic
-          rule.setSubCharacteristicId(!isSameCharacteristicAsDefault ? subCharacteristicDto.getId() : null);
+        CharacteristicDto subCharacteristicDto = characteristicByKey(ruleDebt.subCharacteristicKey(), allCharacteristicDtos, true);
+        boolean isSameCharacteristicAsDefault = subCharacteristicDto.getId().equals(rule.getDefaultSubCharacteristicId());
+        boolean isSameFunctionAsDefault = isSameRemediationFunction(ruleDebt, rule);
 
-          // If given function is the same as the default one, set nothing in overridden function
-          rule.setRemediationFunction(!isSameFunctionAsDefault ? ruleDebt.function().name() : null);
-          rule.setRemediationCoefficient(!isSameFunctionAsDefault ? ruleDebt.coefficient() : null);
-          rule.setRemediationOffset(!isSameFunctionAsDefault ? ruleDebt.offset() : null);
+        // Update only if given characteristic is not the same as the default one or if given function is not the same as the default one
+        if (!isSameCharacteristicAsDefault || !isSameFunctionAsDefault) {
+          rule.setSubCharacteristicId(subCharacteristicDto.getId());
+          rule.setRemediationFunction(ruleDebt.function().name());
+          rule.setRemediationCoefficient(ruleDebt.coefficient());
+          rule.setRemediationOffset(ruleDebt.offset());
+        } else {
+          rule.setSubCharacteristicId(null);
+          rule.setRemediationFunction(null);
+          rule.setRemediationCoefficient(null);
+          rule.setRemediationOffset(null);
         }
       }
       rule.setUpdatedAt(updateDate);
@@ -253,7 +254,7 @@ public class DebtModelBackup implements ServerComponent {
   }
 
   @VisibleForTesting
-  List<CharacteristicDto> restoreCharacteristics(DebtModel targetModel, boolean disableNoMoreExistingCharacteristics, Date updateDate, SqlSession session) {
+  List<CharacteristicDto> restoreCharacteristics(DebtModel targetModel, Date updateDate, SqlSession session) {
     List<CharacteristicDto> sourceCharacteristics = dao.selectEnabledCharacteristics(session);
 
     List<CharacteristicDto> result = newArrayList();
@@ -266,12 +267,10 @@ public class DebtModelBackup implements ServerComponent {
         result.add(restoreCharacteristic(subCharacteristic, rootCharacteristicDto.getId(), sourceCharacteristics, updateDate, session));
       }
     }
-    if (disableNoMoreExistingCharacteristics) {
-      // Disable no more existing characteristics
-      for (CharacteristicDto sourceCharacteristic : sourceCharacteristics) {
-        if (targetModel.characteristicByKey(sourceCharacteristic.getKey()) == null) {
-          debtModelOperations.delete(sourceCharacteristic, updateDate, session);
-        }
+    // Disable no more existing characteristics
+    for (CharacteristicDto sourceCharacteristic : sourceCharacteristics) {
+      if (targetModel.characteristicByKey(sourceCharacteristic.getKey()) == null) {
+        debtModelOperations.delete(sourceCharacteristic, updateDate, session);
       }
     }
     return result;
@@ -279,7 +278,7 @@ public class DebtModelBackup implements ServerComponent {
 
   private CharacteristicDto restoreCharacteristic(DebtCharacteristic targetCharacteristic, @Nullable Integer parentId, List<CharacteristicDto> sourceCharacteristics,
                                                   Date updateDate, SqlSession session) {
-    CharacteristicDto sourceCharacteristic = characteristicByKey(targetCharacteristic.key(), sourceCharacteristics);
+    CharacteristicDto sourceCharacteristic = characteristicByKey(targetCharacteristic.key(), sourceCharacteristics, false);
     if (sourceCharacteristic == null) {
       CharacteristicDto newCharacteristic = toDto(targetCharacteristic, parentId).setCreatedAt(updateDate);
       dao.insert(newCharacteristic, session);
@@ -362,17 +361,20 @@ public class DebtModelBackup implements ServerComponent {
     }, null);
   }
 
-  @CheckForNull
-  private static CharacteristicDto characteristicByKey(@Nullable final String key, List<CharacteristicDto> characteristicDtos) {
+  private static CharacteristicDto characteristicByKey(@Nullable final String key, List<CharacteristicDto> characteristicDtos, boolean failIfNotFound) {
     if (key == null) {
       return null;
     }
-    return Iterables.find(characteristicDtos, new Predicate<CharacteristicDto>() {
+    CharacteristicDto dto = Iterables.find(characteristicDtos, new Predicate<CharacteristicDto>() {
       @Override
       public boolean apply(@Nullable CharacteristicDto input) {
         return input != null && key.equals(input.getKey());
       }
     }, null);
+    if (dto == null && failIfNotFound) {
+      throw new NotFoundException(String.format("Characteristic '%s' has not been found", key));
+    }
+    return dto;
   }
 
   private static List<CharacteristicDto> subCharacteristics(final Integer parentId, List<CharacteristicDto> allCharacteristics) {

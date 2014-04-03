@@ -61,6 +61,16 @@ public class DefaultDebtRemediationFunctionTest {
   }
 
   @Test
+  public void fail_to_when_no_type() {
+    try {
+      new DefaultDebtRemediationFunction(null, "5min", "10h");
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Remediation function type cannot be null");
+    }
+  }
+
+  @Test
   public void fail_to_create_linear_when_no_coefficient() {
     try {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, null, "10h");
