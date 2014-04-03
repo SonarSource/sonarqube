@@ -36,7 +36,7 @@ public class ComponentVertexTest {
     BeanGraph beanGraph = new BeanGraph(new TinkerGraph());
     ComponentVertex vertex = beanGraph.createVertex(ComponentVertex.class);
     Component file = MockSourceFile.createMain("myproject:org/Foo.java").setName("Foo.java").setQualifier(Qualifiers.FILE)
-      .setPath("src/org/Foo.java").setModuleKey("myproject");
+      .setPath("src/org/Foo.java");
 
     vertex.copyFrom(file);
 
