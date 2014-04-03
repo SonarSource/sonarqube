@@ -33,7 +33,6 @@ import org.sonar.batch.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.batch.rule.QProfileVerifier;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.batch.scan.filesystem.FileSystemLogger;
-import org.sonar.batch.scan.maven.MavenPhaseExecutor;
 import org.sonar.batch.scan.maven.MavenPluginsConfigurator;
 import org.sonar.batch.scan.report.JsonReport;
 
@@ -46,7 +45,6 @@ public final class PhaseExecutor {
   private final EventBus eventBus;
   private final Phases phases;
   private final DecoratorsExecutor decoratorsExecutor;
-  private final MavenPhaseExecutor mavenPhaseExecutor;
   private final MavenPluginsConfigurator mavenPluginsConfigurator;
   private final PostJobsExecutor postJobsExecutor;
   private final InitializersExecutor initializersExecutor;
@@ -63,7 +61,7 @@ public final class PhaseExecutor {
   private final QProfileVerifier profileVerifier;
   private final IssueExclusionsLoader issueExclusionsLoader;
 
-  public PhaseExecutor(Phases phases, DecoratorsExecutor decoratorsExecutor, MavenPhaseExecutor mavenPhaseExecutor,
+  public PhaseExecutor(Phases phases, DecoratorsExecutor decoratorsExecutor,
     MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
     PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
     PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
@@ -72,7 +70,6 @@ public final class PhaseExecutor {
     IssueExclusionsLoader issueExclusionsLoader) {
     this.phases = phases;
     this.decoratorsExecutor = decoratorsExecutor;
-    this.mavenPhaseExecutor = mavenPhaseExecutor;
     this.mavenPluginsConfigurator = mavenPluginsConfigurator;
     this.postJobsExecutor = postJobsExecutor;
     this.initializersExecutor = initializersExecutor;
@@ -91,18 +88,18 @@ public final class PhaseExecutor {
     this.issueExclusionsLoader = issueExclusionsLoader;
   }
 
-  public PhaseExecutor(Phases phases, DecoratorsExecutor decoratorsExecutor, MavenPhaseExecutor mavenPhaseExecutor,
+  public PhaseExecutor(Phases phases, DecoratorsExecutor decoratorsExecutor,
     MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
     PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
     PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
     EventBus eventBus, ProjectInitializer pi, ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport,
     DefaultModuleFileSystem fs, QProfileVerifier profileVerifier, IssueExclusionsLoader issueExclusionsLoader) {
-    this(phases, decoratorsExecutor, mavenPhaseExecutor, mavenPluginsConfigurator, initializersExecutor, postJobsExecutor,
+    this(phases, decoratorsExecutor, mavenPluginsConfigurator, initializersExecutor, postJobsExecutor,
       sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null, pi, persisters, fsLogger, jsonReport, fs, profileVerifier, issueExclusionsLoader);
   }
 
   public static Collection<Class> getPhaseClasses() {
-    return Lists.<Class>newArrayList(DecoratorsExecutor.class, MavenPhaseExecutor.class, MavenPluginsConfigurator.class,
+    return Lists.<Class>newArrayList(DecoratorsExecutor.class, MavenPluginsConfigurator.class,
       PostJobsExecutor.class, SensorsExecutor.class,
       InitializersExecutor.class, ProjectInitializer.class, UpdateStatusJob.class);
   }
@@ -188,7 +185,6 @@ public final class PhaseExecutor {
     if (phases.isEnabled(Phases.Phase.MAVEN)) {
       eventBus.fireEvent(new MavenPhaseEvent(true));
       mavenPluginsConfigurator.execute(module);
-      mavenPhaseExecutor.execute(module);
       eventBus.fireEvent(new MavenPhaseEvent(false));
     }
   }
