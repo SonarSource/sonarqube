@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.server.debt.DebtCharacteristic;
+import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
@@ -69,7 +69,7 @@ public class DebtModelLookupTest {
   public void find_characteristic_by_id() {
     when(dao.selectById(1)).thenReturn(characteristicDto);
 
-    DebtCharacteristic characteristic = service.characteristicById(1);
+    DefaultDebtCharacteristic characteristic = (DefaultDebtCharacteristic) service.characteristicById(1);
     assertThat(characteristic.id()).isEqualTo(1);
     assertThat(characteristic.key()).isEqualTo("MEMORY_EFFICIENCY");
     assertThat(characteristic.name()).isEqualTo("Memory use");
@@ -77,6 +77,20 @@ public class DebtModelLookupTest {
     assertThat(characteristic.parentId()).isNull();
 
     assertThat(service.characteristicById(111)).isNull();
+  }
+
+  @Test
+  public void find_characteristic_by_key() {
+    when(dao.selectByKey("MEMORY_EFFICIENCY")).thenReturn(characteristicDto);
+
+    DefaultDebtCharacteristic characteristic = (DefaultDebtCharacteristic) service.characteristicByKey("MEMORY_EFFICIENCY");
+    assertThat(characteristic.id()).isEqualTo(1);
+    assertThat(characteristic.key()).isEqualTo("MEMORY_EFFICIENCY");
+    assertThat(characteristic.name()).isEqualTo("Memory use");
+    assertThat(characteristic.order()).isEqualTo(2);
+    assertThat(characteristic.parentId()).isNull();
+
+    assertThat(service.characteristicByKey("UNKNOWN")).isNull();
   }
 
 }

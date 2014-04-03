@@ -65,6 +65,12 @@ public class DebtModelServiceTest {
   }
 
   @Test
+  public void find_characteristic_by_key() {
+    service.characteristicByKey("MEMORY_EFFICIENCY");
+    verify(debtModelLookup).characteristicByKey("MEMORY_EFFICIENCY");
+  }
+
+  @Test
   public void create_characteristic() {
     service.create("Compilation name", 1);
     verify(debtModelOperations).create("Compilation name", 1);

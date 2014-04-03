@@ -58,6 +58,11 @@ public class DebtModelService implements DebtModel {
     return debtModelLookup.characteristicById(id);
   }
 
+  @CheckForNull
+  public DebtCharacteristic characteristicByKey(String key) {
+    return debtModelLookup.characteristicByKey(key);
+  }
+
   public DebtCharacteristic create(String name, @Nullable Integer parentId) {
     return debtModelOperations.create(name, parentId);
   }

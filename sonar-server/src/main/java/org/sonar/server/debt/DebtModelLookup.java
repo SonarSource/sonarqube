@@ -58,6 +58,12 @@ public class DebtModelLookup implements ServerComponent {
     return dto != null ? toCharacteristic(dto) : null;
   }
 
+  @CheckForNull
+  public DebtCharacteristic characteristicByKey(String key) {
+    CharacteristicDto dto = dao.selectByKey(key);
+    return dto != null ? toCharacteristic(dto) : null;
+  }
+
   private static List<DebtCharacteristic> toCharacteristics(Collection<CharacteristicDto> dtos) {
     return newArrayList(Iterables.transform(dtos, new Function<CharacteristicDto, DebtCharacteristic>() {
       @Override

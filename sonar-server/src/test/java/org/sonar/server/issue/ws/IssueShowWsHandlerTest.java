@@ -37,7 +37,6 @@ import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.server.debt.DebtModel;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.server.ws.WsTester;
 import org.sonar.api.user.User;
@@ -50,6 +49,7 @@ import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssueQueryResult;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.user.DefaultUser;
+import org.sonar.server.debt.DebtModelService;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueChangelog;
 import org.sonar.server.issue.IssueChangelogService;
@@ -84,7 +84,7 @@ public class IssueShowWsHandlerTest {
   ActionService actionService;
 
   @Mock
-  DebtModel debtModel;
+  DebtModelService debtModel;
 
   @Mock
   I18n i18n;

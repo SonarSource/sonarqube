@@ -31,6 +31,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.server.debt.DebtCharacteristic;
+import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
@@ -126,7 +127,7 @@ public class DebtModelOperationsTest {
   public void create_sub_characteristic() {
     when(dao.selectById(1, session)).thenReturn(characteristicDto);
 
-    DebtCharacteristic result = service.create("Compilation name", 1);
+    DefaultDebtCharacteristic result = (DefaultDebtCharacteristic) service.create("Compilation name", 1);
 
     assertThat(result.id()).isEqualTo(currentId);
     assertThat(result.key()).isEqualTo("COMPILATION_NAME");
@@ -189,7 +190,7 @@ public class DebtModelOperationsTest {
   public void create_characteristic() {
     when(dao.selectMaxCharacteristicOrder(session)).thenReturn(2);
 
-    DebtCharacteristic result = service.create("Portability", null);
+    DefaultDebtCharacteristic result = (DefaultDebtCharacteristic) service.create("Portability", null);
 
     assertThat(result.id()).isEqualTo(currentId);
     assertThat(result.key()).isEqualTo("PORTABILITY");
@@ -202,7 +203,7 @@ public class DebtModelOperationsTest {
   public void create_first_characteristic() {
     when(dao.selectMaxCharacteristicOrder(session)).thenReturn(0);
 
-    DebtCharacteristic result = service.create("Portability", null);
+    DefaultDebtCharacteristic result = (DefaultDebtCharacteristic) service.create("Portability", null);
 
     assertThat(result.id()).isEqualTo(currentId);
     assertThat(result.key()).isEqualTo("PORTABILITY");
@@ -215,7 +216,7 @@ public class DebtModelOperationsTest {
   public void rename_characteristic() {
     when(dao.selectById(10, session)).thenReturn(subCharacteristicDto);
 
-    DebtCharacteristic result = service.rename(10, "New Efficiency");
+    DefaultDebtCharacteristic result = (DefaultDebtCharacteristic) service.rename(10, "New Efficiency");
 
     assertThat(result.key()).isEqualTo("EFFICIENCY");
     assertThat(result.name()).isEqualTo("New Efficiency");

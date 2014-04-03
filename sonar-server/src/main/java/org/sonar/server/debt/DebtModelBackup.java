@@ -408,8 +408,8 @@ public class DebtModelBackup implements ServerComponent {
       .setOrder(characteristic.order())
       .setParentId(parentId)
       .setEnabled(true)
-      .setCreatedAt(characteristic.createdAt())
-      .setUpdatedAt(characteristic.updatedAt());
+      .setCreatedAt(((DefaultDebtCharacteristic) characteristic).createdAt())
+      .setUpdatedAt(((DefaultDebtCharacteristic) characteristic).updatedAt());
   }
 
   private static DebtCharacteristic toDebtCharacteristic(CharacteristicDto characteristic) {

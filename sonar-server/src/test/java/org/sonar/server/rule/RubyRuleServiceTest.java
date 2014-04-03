@@ -130,6 +130,12 @@ public class RubyRuleServiceTest {
   }
 
   @Test
+  public void find_by_key() {
+    facade.findByKey("repo:key");
+    verify(rules).findByKey(RuleKey.of("repo", "key"));
+  }
+
+  @Test
   public void find_by_params() {
     Map<String, Object> params = newHashMap();
     params.put("searchQuery", "NPE");

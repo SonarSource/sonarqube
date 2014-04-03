@@ -28,6 +28,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.server.paging.PagedResult;
 import org.sonar.server.util.RubyUtils;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.Map;
@@ -61,6 +62,11 @@ public class RubyRuleService implements ServerComponent, Startable {
     if (options.get(optionKey) != null && StringUtils.isNotBlank(options.get(optionKey).toString())) {
       params.put(paramKey, options.get(optionKey).toString());
     }
+  }
+
+  @CheckForNull
+  public Rule findByKey(String ruleKey) {
+    return rules.findByKey(RuleKey.parse(ruleKey));
   }
 
   public PagedResult<Rule> find(Map<String, Object> params) {

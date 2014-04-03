@@ -185,12 +185,11 @@ class IssueController < ApplicationController
   def rule
     verify_ajax_request
     require_parameters :id
-    rule_key = params[:id].split(':')
-    @rule = Rule.first(:conditions => ['plugin_name=? and plugin_rule_key=?', rule_key[0], rule_key[1]])
-    characteristic_id = @rule.characteristic_id || @rule.default_characteristic_id
-    if characteristic_id
-      @characteristic = Internal.debt.characteristicById(characteristic_id)
-      @root_characteristic = Internal.debt.characteristicById(@characteristic.parentId())
+
+    @rule = Internal.rules.findByKey(params[:id])
+    if @rule.debtCharacteristicKey()
+      @characteristic = Internal.debt.characteristicByKey(@rule.debtCharacteristicKey())
+      @sub_characteristic = Internal.debt.characteristicByKey(@rule.debtSubCharacteristicKey())
     end
     render :partial => 'issue/rule'
   end

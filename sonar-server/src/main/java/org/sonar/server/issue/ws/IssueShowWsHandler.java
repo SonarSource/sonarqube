@@ -28,7 +28,7 @@ import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.server.debt.DebtCharacteristic;
-import org.sonar.api.server.debt.DebtModel;
+import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -41,6 +41,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.markdown.Markdown;
+import org.sonar.server.debt.DebtModelService;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueChangelog;
@@ -63,12 +64,12 @@ public class IssueShowWsHandler implements RequestHandler {
   private final IssueService issueService;
   private final IssueChangelogService issueChangelogService;
   private final ActionService actionService;
-  private final DebtModel debtModel;
+  private final DebtModelService debtModel;
   private final I18n i18n;
   private final Durations durations;
 
   public IssueShowWsHandler(IssueFinder issueFinder, IssueService issueService, IssueChangelogService issueChangelogService, ActionService actionService,
-                            DebtModel debtModel, I18n i18n, Durations durations) {
+                            DebtModelService debtModel, I18n i18n, Durations durations) {
     this.issueFinder = issueFinder;
     this.issueService = issueService;
     this.issueChangelogService = issueChangelogService;
@@ -193,7 +194,7 @@ public class IssueShowWsHandler implements RequestHandler {
     DebtCharacteristic subCharacteristic = characteristicById(subCharacteristicId);
     if (subCharacteristic != null) {
       json.prop("subCharacteristic", subCharacteristic.name());
-      DebtCharacteristic characteristic = characteristicById(subCharacteristic.parentId());
+      DebtCharacteristic characteristic = characteristicById(((DefaultDebtCharacteristic) subCharacteristic).parentId());
       json.prop("characteristic", characteristic != null ? characteristic.name() : null);
     }
   }

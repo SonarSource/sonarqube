@@ -33,6 +33,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 import org.sonar.server.util.Validation;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.List;
@@ -107,6 +108,7 @@ public class Rules implements ServerExtension {
     ruleOperations.updateRuleTags(rule, newTags, UserSession.get());
   }
 
+  @CheckForNull
   public Rule findByKey(RuleKey key) {
     return ruleRegistry.findByKey(key);
   }

@@ -30,6 +30,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.xml.sax.InputSource;
 
 import javax.annotation.CheckForNull;
@@ -93,7 +94,7 @@ public class DebtModelXMLExporter implements ServerComponent {
       xml.append("</" + CHARACTERISTIC_NAME + ">");
     }
 
-    if (characteristic.parentId() != null) {
+    if (characteristic.isSub()) {
       List<RuleDebt> rules = rules(allRules, characteristic.key());
       for (RuleDebt ruleDto : rules) {
         processRule(ruleDto, xml);
@@ -188,19 +189,19 @@ public class DebtModelXMLExporter implements ServerComponent {
 
   public static class DebtModel {
 
-    private Multimap<String, DebtCharacteristic> characteristicsByRootKey;
+    private Multimap<String, DebtCharacteristic> characteristicsByKey;
 
     public DebtModel() {
-      characteristicsByRootKey = ArrayListMultimap.create();
+      characteristicsByKey = ArrayListMultimap.create();
     }
 
     public DebtModel addRootCharacteristic(DebtCharacteristic characteristic) {
-      characteristicsByRootKey.put(null, characteristic);
+      characteristicsByKey.put(null, characteristic);
       return this;
     }
 
     public DebtModel addSubCharacteristic(DebtCharacteristic subCharacteristic, String characteristicKey) {
-      characteristicsByRootKey.put(characteristicKey, subCharacteristic);
+      characteristicsByKey.put(characteristicKey, subCharacteristic);
       return this;
     }
 
@@ -208,19 +209,19 @@ public class DebtModelXMLExporter implements ServerComponent {
      * @return root characteristics sorted by order
      */
     public List<DebtCharacteristic> rootCharacteristics() {
-      return sortByOrder(newArrayList(characteristicsByRootKey.get(null)));
+      return sortByOrder(newArrayList(characteristicsByKey.get(null)));
     }
 
     /**
      * @return root characteristics sorted by name
      */
     public List<DebtCharacteristic> subCharacteristics(String characteristicKey) {
-      return sortByName(newArrayList(characteristicsByRootKey.get(characteristicKey)));
+      return sortByName(newArrayList(characteristicsByKey.get(characteristicKey)));
     }
 
     @CheckForNull
     public DebtCharacteristic characteristicByKey(final String key) {
-      return Iterables.find(characteristicsByRootKey.values(), new Predicate<DebtCharacteristic>() {
+      return Iterables.find(characteristicsByKey.values(), new Predicate<DebtCharacteristic>() {
         @Override
         public boolean apply(DebtCharacteristic input) {
           return key.equals(input.key());
@@ -229,10 +230,10 @@ public class DebtModelXMLExporter implements ServerComponent {
     }
 
     public DebtCharacteristic characteristicById(final Integer id) {
-      return Iterables.find(characteristicsByRootKey.values(), new Predicate<DebtCharacteristic>() {
+      return Iterables.find(characteristicsByKey.values(), new Predicate<DebtCharacteristic>() {
         @Override
         public boolean apply(DebtCharacteristic input) {
-          return id.equals(input.id());
+          return id.equals(((DefaultDebtCharacteristic) input).id());
         }
       });
     }
