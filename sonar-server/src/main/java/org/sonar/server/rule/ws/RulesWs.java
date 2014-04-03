@@ -46,7 +46,13 @@ public class RulesWs implements WebService {
       .setHandler(searchHandler)
       .createParam("s", "An optional query that will be matched against rule titles.")
       .createParam("k", "An optional query that will be matched exactly agains rule keys.")
-      // TODO add description for languages, repositories, etc. params
+      .createParam("languages", "An optional query that will be matched against rule languages.")
+      .createParam("repositories", "An optional query that will be matched against rule repositories.")
+      .createParam("severities", "An optional query that will be matched against rule severities.")
+      .createParam("statuses", "An optional query that will be matched against rule statuses.")
+      .createParam("tags", "An optional query that will be matched against rule tags.")
+      .createParam("debtCharacteristics", "An optional query that will be matched against rule debt characteristics or sub-characteristics.")
+      .createParam("hasDebtCharacteristic", "Determine if returned rules should be linked to a debt characteristics or not.")
       .createParam("ps", "Optional page size (default is 25).")
       .createParam("p", "Optional page number (default is 0).");
 
