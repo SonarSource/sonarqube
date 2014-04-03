@@ -5378,7 +5378,7 @@ $.extend(Datepicker.prototype, {
 
 		prev = (this._canAdjustMonth(inst, -1, drawYear, drawMonth) ?
 			"<a class='ui-datepicker-prev ui-corner-all' data-handler='prev' data-event='click'" +
-			" title='" + t(prevText) + "'><span class='ui-icon ui-icon-circle-triangle-" + ( isRTL ? "e" : "w") + "'>" + t(prevText) + "</span></a>" :
+			" title='" + t(prevText) + "'><i class='icon-arrow-" + ( isRTL ? "right" : "left") + "'></i> " + t(prevText) + "</a>" :
 			(hideIfNoPrevNext ? "" : "<a class='ui-datepicker-prev ui-corner-all ui-state-disabled' title='"+ t(prevText) +"'><span class='ui-icon ui-icon-circle-triangle-" + ( isRTL ? "e" : "w") + "'>" + t(prevText) + "</span></a>"));
 
 		nextText = this._get(inst, "nextText");
@@ -5388,7 +5388,7 @@ $.extend(Datepicker.prototype, {
 
 		next = (this._canAdjustMonth(inst, +1, drawYear, drawMonth) ?
 			"<a class='ui-datepicker-next ui-corner-all' data-handler='next' data-event='click'" +
-			" title='" + t(nextText) + "'><span class='ui-icon ui-icon-circle-triangle-" + ( isRTL ? "w" : "e") + "'>" + t(nextText) + "</span></a>" :
+			" title='" + t(nextText) + "'>" + t(nextText) + " <i class='icon-arrow-" + ( isRTL ? "left" : "right") + "'></i></a>" :
 			(hideIfNoPrevNext ? "" : "<a class='ui-datepicker-next ui-corner-all ui-state-disabled' title='"+ t(nextText) + "'><span class='ui-icon ui-icon-circle-triangle-" + ( isRTL ? "w" : "e") + "'>" + t(nextText) + "</span></a>"));
 
 		currentText = this._get(inst, "currentText");

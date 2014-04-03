@@ -35,5 +35,10 @@
 
 <script>
   $j("#create-action-plan-form").modalForm();
+  $j("[name=deadline]").datepicker({
+    dateFormat: 'yy-mm-dd',
+    changeMonth: true,
+    changeYear: true
+  });
 </script>
 

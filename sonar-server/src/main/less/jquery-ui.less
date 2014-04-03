@@ -398,7 +398,7 @@ button.ui-button::-moz-focus-inner {
   right: 2px;
 }
 .ui-datepicker .ui-datepicker-title {
-  margin: 0 2.3em;
+  margin: 0 48px;
   line-height: 1.8em;
   color: #444;
   text-align: center;
@@ -453,6 +453,10 @@ button.ui-button::-moz-focus-inner {
 .ui-datepicker .ui-datepicker-buttonpane button.ui-datepicker-current {
   float: left;
 }
+
+.ui-datepicker-today { background-color: @contextBackground; }
+.ui-datepicker-current-day { background-color: @highlighted; }
+.ui-datepicker-current-day a { color: #fff; }
 
 /* with multiple calendars */
 .ui-datepicker.ui-datepicker-multi {

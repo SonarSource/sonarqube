@@ -168,7 +168,11 @@ define(['navigator/filters/base-filters', 'common/handlebars-extensions'], funct
       RangeFilterView.prototype.render.apply(this, arguments);
       this.detailsView.$('input')
           .prop('placeholder', '1970-01-31')
-          .datepicker({ dateFormat: 'yy-mm-dd' });
+          .datepicker({
+            dateFormat: 'yy-mm-dd',
+            changeMonth: true,
+            changeYear: true
+          });
     },
 
 
