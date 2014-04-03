@@ -275,16 +275,15 @@ public class RuleOperations implements ServerComponent {
           throw new NotFoundException(String.format("Unknown sub characteristic '%s'", ruleChange.debtCharacteristicKey()));
         }
 
-        // New sub characteristic is not equals to existing one -> update it
-        // TODO check characteristic is not equals to default one, if so do nothing
-        if (!subCharacteristic.getId().equals(ruleDto.getSubCharacteristicId())) {
+        // New sub characteristic is not equals to existing one and not equals to default value -> update it
+        if (!subCharacteristic.getId().equals(ruleDto.getSubCharacteristicId()) && !subCharacteristic.getId().equals(ruleDto.getDefaultSubCharacteristicId()) ) {
           ruleDto.setSubCharacteristicId(subCharacteristic.getId());
           updated = true;
         }
 
-        // New remediation function is not equals to existing one -> update it
-        // TODO check remediaiton function is not equals to default one, if so do nothing
-        if (!isSameRemediationFunction(ruleChange.debtRemediationFunction(), ruleChange.debtRemediationCoefficient(), ruleChange.debtRemediationOffset(), ruleDto)) {
+        // New remediation function is not equals to existing one and not equals to default value -> update it
+        if (!isSameRemediationFunction(ruleChange, ruleDto.getRemediationFunction(), ruleDto.getRemediationCoefficient(), ruleDto.getRemediationOffset())
+          && !isSameRemediationFunction(ruleChange, ruleDto.getDefaultRemediationFunction(), ruleDto.getDefaultRemediationCoefficient(), ruleDto.getDefaultRemediationOffset())) {
           DefaultDebtRemediationFunction debtRemediationFunction = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.valueOf(ruleChange.debtRemediationFunction()),
             ruleChange.debtRemediationCoefficient(), ruleChange.debtRemediationOffset());
           ruleDto.setRemediationFunction(debtRemediationFunction.type().name());
@@ -316,11 +315,11 @@ public class RuleOperations implements ServerComponent {
     }
   }
 
-  private static boolean isSameRemediationFunction(String function, @Nullable String coefficient, @Nullable String offset, RuleDto rule) {
+  private static boolean isSameRemediationFunction(RuleChange ruleChange, String function, @Nullable String coefficient, @Nullable String offset) {
     return new EqualsBuilder()
-      .append(function, rule.getRemediationFunction())
-      .append(coefficient, rule.getRemediationCoefficient())
-      .append(offset, rule.getRemediationOffset())
+      .append(function, ruleChange.debtRemediationFunction())
+      .append(coefficient, ruleChange.debtRemediationCoefficient())
+      .append(offset, ruleChange.debtRemediationOffset())
       .isEquals();
   }
 

@@ -156,13 +156,13 @@ public class DebtModelBackup implements ServerComponent {
       List<RuleDto> ruleDtos = rules(null, session);
       for (RuleDto rule : ruleDtos) {
         // Restore default debt definitions
-        RulesDefinition.Rule ruleDef = ruleDef(rule, rules);
+        RulesDefinition.Rule ruleDef = ruleDef(rule.getRepositoryKey(), rule.getRuleKey(), rules);
         if (ruleDef != null) {
-          // TODO when can it be null ?
           String subCharacteristicKey = ruleDef.debtSubCharacteristic();
           CharacteristicDto subCharacteristicDto = characteristicByKey(subCharacteristicKey, allCharacteristicDtos);
           DebtRemediationFunction remediationFunction = ruleDef.debtRemediationFunction();
           boolean hasDebtDefinition = subCharacteristicDto != null && remediationFunction != null;
+
           rule.setDefaultSubCharacteristicId(hasDebtDefinition ? subCharacteristicDto.getId() : null);
           rule.setDefaultRemediationFunction(hasDebtDefinition ? remediationFunction.type().name() : null);
           rule.setDefaultRemediationCoefficient(hasDebtDefinition ? remediationFunction.coefficient() : null);
@@ -175,6 +175,8 @@ public class DebtModelBackup implements ServerComponent {
         rule.setRemediationCoefficient(null);
         rule.setRemediationOffset(null);
         rule.setUpdatedAt(updateDate);
+
+        // TODO update only if modification ?
         ruleDao.update(rule, session);
       }
       ruleRegistry.reindex(ruleDtos, session);
@@ -218,7 +220,7 @@ public class DebtModelBackup implements ServerComponent {
   private void restoreRules(List<CharacteristicDto> allCharacteristicDtos, List<RuleDto> rules, List<RuleDebt> ruleDebts,
                             ValidationMessages validationMessages, Date updateDate, SqlSession session) {
     for (RuleDto rule : rules) {
-      RuleDebt ruleDebt = ruleDebt(rule, ruleDebts);
+      RuleDebt ruleDebt = ruleDebt(rule.getRepositoryKey(), rule.getRuleKey(), ruleDebts);
       if (ruleDebt == null) {
         // rule does not exists in the XML
         disabledOverriddenRuleDebt(rule);
@@ -307,6 +309,7 @@ public class DebtModelBackup implements ServerComponent {
   }
 
   private void disabledOverriddenRuleDebt(RuleDto rule) {
+    // TODO ?
     rule.setSubCharacteristicId(rule.getDefaultSubCharacteristicId() != null ? RuleDto.DISABLED_CHARACTERISTIC_ID : null);
     rule.setRemediationFunction(null);
     rule.setRemediationCoefficient(null);
@@ -338,24 +341,24 @@ public class DebtModelBackup implements ServerComponent {
   }
 
   @CheckForNull
-  private static RuleDebt ruleDebt(final RuleDto rule, List<RuleDebt> ruleDebts) {
+  private static RuleDebt ruleDebt(final String repo, final String key, List<RuleDebt> ruleDebts) {
     if (ruleDebts.isEmpty()) {
       return null;
     }
     return Iterables.find(ruleDebts, new Predicate<RuleDebt>() {
       @Override
       public boolean apply(@Nullable RuleDebt input) {
-        return input != null && rule.getRepositoryKey().equals(input.ruleKey().repository()) && rule.getRuleKey().equals(input.ruleKey().rule());
+        return input != null && repo.equals(input.ruleKey().repository()) && key.equals(input.ruleKey().rule());
       }
     }, null);
   }
 
   @CheckForNull
-  private static RulesDefinition.Rule ruleDef(final RuleDto rule, List<RulesDefinition.Rule> rules) {
+  private static RulesDefinition.Rule ruleDef(final String repo, final String key, List<RulesDefinition.Rule> rules) {
     return Iterables.find(rules, new Predicate<RulesDefinition.Rule>() {
       @Override
       public boolean apply(@Nullable RulesDefinition.Rule input) {
-        return input != null && rule.getRepositoryKey().equals(input.repository().key()) && rule.getRuleKey().equals(input.key());
+        return input != null && repo.equals(input.repository().key()) && key.equals(input.key());
       }
     }, null);
   }

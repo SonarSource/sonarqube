@@ -466,6 +466,65 @@ public class DebtModelBackupTest {
   }
 
   @Test
+  public void reset_model_for_custom_rules() throws Exception {
+    when(characteristicsXMLImporter.importXML(any(Reader.class))).thenReturn(new DebtModel()
+      .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
+      .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
+
+    when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
+      new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability updated").setOrder(2).setCreatedAt(oldDate),
+      new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler updated").setParentId(1).setCreatedAt(oldDate)
+    ));
+
+    when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
+      new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("Xpath").setCreatedAt(oldDate).setUpdatedAt(oldDate),
+      new RuleDto().setId(11).setRepositoryKey("squid").setRuleKey("XPath_1369910135").setParentId(10)
+        .setDefaultSubCharacteristicId(10).setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("2h")
+        .setSubCharacteristicId(2).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("2h").setRemediationOffset("15min")
+        .setCreatedAt(oldDate).setUpdatedAt(oldDate)
+    ));
+
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    RulesDefinition.NewRepository repo = context.createRepository("squid", "java").setName("Squid");
+    RulesDefinition.NewRule newRule = repo.createRule("Xpath")
+      .setName("Xpath")
+      .setHtmlDescription("Xpath")
+      .setSeverity(Severity.BLOCKER)
+      .setStatus(RuleStatus.BETA)
+      .setDebtSubCharacteristic("COMPILER");
+    newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linearWithOffset("4h", "20min"));
+    repo.done();
+    when(defLoader.load()).thenReturn(context);
+
+    debtModelBackup.reset();
+
+    verify(dao).selectEnabledCharacteristics(session);
+    verify(dao, times(2)).update(any(CharacteristicDto.class), eq(session));
+    verifyNoMoreInteractions(dao);
+
+    verify(ruleDao).selectEnablesAndNonManual(session);
+    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
+    verifyNoMoreInteractions(ruleDao);
+    verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), session);
+
+    verify(session).commit();
+
+    RuleDto rule = ruleCaptor.getValue();
+
+    assertThat(rule.getDefaultSubCharacteristicId()).isEqualTo(2);
+    assertThat(rule.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
+    assertThat(rule.getDefaultRemediationCoefficient()).isEqualTo("4h");
+    assertThat(rule.getDefaultRemediationOffset()).isEqualTo("20min");
+    assertThat(rule.getUpdatedAt()).isEqualTo(now);
+
+    assertThat(rule.getSubCharacteristicId()).isNull();
+    assertThat(rule.getRemediationFunction()).isNull();
+    assertThat(rule.getRemediationCoefficient()).isNull();
+    assertThat(rule.getRemediationOffset()).isNull();
+    assertThat(rule.getUpdatedAt()).isEqualTo(now);
+  }
+
+  @Test
   public void restore_from_xml_with_different_characteristic_and_same_function() throws Exception {
     when(characteristicsXMLImporter.importXML(anyString())).thenReturn(new DebtModel()
       .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
