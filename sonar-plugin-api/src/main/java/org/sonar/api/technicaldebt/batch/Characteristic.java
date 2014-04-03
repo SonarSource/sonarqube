@@ -27,7 +27,9 @@ import java.util.List;
 
 /**
  * @since 4.1
+ * @deprecated since 4.3
  */
+@Deprecated
 public interface Characteristic {
 
   Integer id();

@@ -22,6 +22,8 @@ package org.sonar.core.technicaldebt;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.batch.debt.internal.DefaultDebtCharacteristic;
+import org.sonar.api.batch.debt.internal.DefaultDebtModel;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
 
@@ -33,45 +35,51 @@ public class DefaultTechnicalDebtModelTest {
 
   @Before
   public void setUp() throws Exception {
-    sqaleModel = new DefaultTechnicalDebtModel();
+    DefaultDebtModel debtModel = new DefaultDebtModel();
+    debtModel.addCharacteristic(
+      new DefaultDebtCharacteristic().setId(1)
+        .setKey("MEMORY_EFFICIENCY")
+        .setName("Memory use")
+        .setOrder(1)
+    );
+    debtModel.addSubCharacteristic(
+      new DefaultDebtCharacteristic().setId(2)
+        .setKey("EFFICIENCY")
+        .setName("Efficiency")
+        .setParentId(1),
+      "MEMORY_EFFICIENCY"
+    );
+    sqaleModel = new DefaultTechnicalDebtModel(debtModel);
   }
 
   @Test
-  public void get_root_characteristics() throws Exception {
-    DefaultCharacteristic rootCharacteristic = new DefaultCharacteristic()
-      .setKey("MEMORY_EFFICIENCY")
-      .setName("Memory use");
-
-    new DefaultCharacteristic()
-      .setKey("EFFICIENCY")
-      .setName("Efficiency")
-      .setParent(rootCharacteristic);
-
-    sqaleModel.addRootCharacteristic(rootCharacteristic);
-
+  public void get_characteristics() throws Exception {
     assertThat(sqaleModel.rootCharacteristics()).hasSize(1);
+
     DefaultCharacteristic resultRootCharacteristic = sqaleModel.rootCharacteristics().get(0);
-    assertThat(resultRootCharacteristic).isEqualTo(rootCharacteristic);
+    assertThat(resultRootCharacteristic.id()).isEqualTo(1);
+    assertThat(resultRootCharacteristic.key()).isEqualTo("MEMORY_EFFICIENCY");
+    assertThat(resultRootCharacteristic.name()).isEqualTo("Memory use");
+    assertThat(resultRootCharacteristic.order()).isEqualTo(1);
+    assertThat(resultRootCharacteristic.children()).hasSize(1);
+    assertThat(resultRootCharacteristic.parent()).isNull();
+    assertThat(resultRootCharacteristic.root()).isNull();
   }
 
   @Test
   public void get_characteristic_by_key() throws Exception {
-    DefaultCharacteristic rootCharacteristic = new DefaultCharacteristic()
-      .setKey("MEMORY_EFFICIENCY")
-      .setName("Memory use");
-
-    DefaultCharacteristic characteristic = new DefaultCharacteristic()
-      .setKey("EFFICIENCY")
-      .setName("Efficiency")
-      .setParent(rootCharacteristic);
-
-    sqaleModel.addRootCharacteristic(rootCharacteristic);
-
-    assertThat(sqaleModel.characteristicByKey("MEMORY_EFFICIENCY")).isEqualTo(rootCharacteristic);
-    assertThat(sqaleModel.characteristicByKey("EFFICIENCY")).isEqualTo(characteristic);
-    assertThat(sqaleModel.characteristicByKey("EFFICIENCY").parent()).isEqualTo(rootCharacteristic);
+    assertThat(sqaleModel.characteristicByKey("MEMORY_EFFICIENCY")).isNotNull();
+    assertThat(sqaleModel.characteristicByKey("EFFICIENCY")).isNotNull();
+    assertThat(sqaleModel.characteristicByKey("EFFICIENCY").parent()).isNotNull();
 
     assertThat(sqaleModel.characteristicByKey("UNKNOWN")).isNull();
+  }
+
+  @Test
+  public void characteristic_by_id() throws Exception {
+    assertThat(sqaleModel.characteristicById(1)).isNotNull();
+    assertThat(sqaleModel.characteristicById(2)).isNotNull();
+    assertThat(sqaleModel.characteristicById(123)).isNull();
   }
 
   @Test

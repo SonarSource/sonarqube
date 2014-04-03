@@ -25,6 +25,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.batch.debt.internal.DefaultDebtCharacteristic;
+import org.sonar.api.batch.debt.internal.DefaultDebtModel;
 import org.sonar.api.batch.rule.DebtRemediationFunction;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.RuleParam;
@@ -32,12 +34,10 @@ import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.rule.RuleDao;
-import org.sonar.core.technicaldebt.DefaultTechnicalDebtModel;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -50,29 +50,34 @@ public class RulesProviderTest extends AbstractDaoTestCase {
 
   RuleDao ruleDao;
 
-  DefaultTechnicalDebtModel debtModel;
+  DefaultDebtModel debtModel;
 
   RulesProvider provider;
 
   @Before
   public void setUp() throws Exception {
-    debtModel = new DefaultTechnicalDebtModel();
-    debtModel.addRootCharacteristic(new DefaultCharacteristic()
-      .setId(101)
-      .setKey("EFFICIENCY")
-      .setName("Efficiency")
-      .setParent(new DefaultCharacteristic()
+    debtModel = new DefaultDebtModel()
+      .addCharacteristic(new DefaultDebtCharacteristic()
         .setId(100)
         .setKey("MEMORY_EFFICIENCY")
-        .setName("Memory use")));
-    debtModel.addRootCharacteristic(new DefaultCharacteristic()
-      .setId(103)
-      .setKey("PORTABILITY")
-      .setName("Portability")
-      .setParent(new DefaultCharacteristic()
+        .setName("Memory use")
+        .setOrder(1))
+      .addCharacteristic(new DefaultDebtCharacteristic()
+        .setId(101)
+        .setKey("EFFICIENCY")
+        .setName("Efficiency")
+        .setParentId(100));
+    debtModel
+      .addCharacteristic(new DefaultDebtCharacteristic()
         .setId(102)
         .setKey("COMPILER_RELATED_PORTABILITY")
-        .setName("Compiler")));
+        .setName("Compiler")
+        .setOrder(1))
+      .addCharacteristic(new DefaultDebtCharacteristic()
+        .setId(103)
+        .setKey("PORTABILITY")
+        .setName("Portability")
+        .setParentId(102));
 
     durations = new Durations(new Settings().setProperty("sonar.technicalDebt.hoursInDay", 8), null);
     ruleDao = new RuleDao(getMyBatis());
@@ -111,7 +116,7 @@ public class RulesProviderTest extends AbstractDaoTestCase {
     Rules rules = provider.provide(ruleDao, debtModel, durations);
 
     Rule rule = rules.find(RuleKey.of("checkstyle", "AvoidNull"));
-    assertThat(rule.debtCharacteristic()).isEqualTo("EFFICIENCY");
+    assertThat(rule.debtSubCharacteristic()).isEqualTo("EFFICIENCY");
     assertThat(rule.debtRemediationFunction()).isEqualTo(DebtRemediationFunction.createLinearWithOffset(Duration.decode("5d", 8), Duration.decode("10h", 8)));
   }
 
@@ -122,7 +127,7 @@ public class RulesProviderTest extends AbstractDaoTestCase {
     Rules rules = provider.provide(ruleDao, debtModel, durations);
 
     Rule rule = rules.find(RuleKey.of("checkstyle", "AvoidNull"));
-    assertThat(rule.debtCharacteristic()).isEqualTo("PORTABILITY");
+    assertThat(rule.debtSubCharacteristic()).isEqualTo("PORTABILITY");
     assertThat(rule.debtRemediationFunction()).isEqualTo(DebtRemediationFunction.createLinear(Duration.decode("2h", 8)));
   }
 
@@ -134,7 +139,7 @@ public class RulesProviderTest extends AbstractDaoTestCase {
 
     // As both default columns and user columns on debt are set, user debt columns should be used
     Rule rule = rules.find(RuleKey.of("checkstyle", "AvoidNull"));
-    assertThat(rule.debtCharacteristic()).isEqualTo("PORTABILITY");
+    assertThat(rule.debtSubCharacteristic()).isEqualTo("PORTABILITY");
     assertThat(rule.debtRemediationFunction()).isEqualTo(DebtRemediationFunction.createLinear(Duration.decode("2h", 8)));
   }
 
@@ -146,7 +151,7 @@ public class RulesProviderTest extends AbstractDaoTestCase {
 
     // As both default columns and user columns on debt are set, user debt columns should be used
     Rule rule = rules.find(RuleKey.of("checkstyle", "AvoidNull"));
-    assertThat(rule.debtCharacteristic()).isEqualTo("PORTABILITY");
+    assertThat(rule.debtSubCharacteristic()).isEqualTo("PORTABILITY");
     assertThat(rule.debtRemediationFunction()).isEqualTo(DebtRemediationFunction.createLinear(Duration.decode("2h", 8)));
   }
 
@@ -158,7 +163,7 @@ public class RulesProviderTest extends AbstractDaoTestCase {
 
     // As both default columns and user columns on debt are set, user debt columns should be used
     Rule rule = rules.find(RuleKey.of("checkstyle", "AvoidNull"));
-    assertThat(rule.debtCharacteristic()).isEqualTo("PORTABILITY");
+    assertThat(rule.debtSubCharacteristic()).isEqualTo("PORTABILITY");
     assertThat(rule.debtRemediationFunction()).isEqualTo(DebtRemediationFunction.createLinear(Duration.decode("2h", 8)));
   }
 
@@ -169,7 +174,7 @@ public class RulesProviderTest extends AbstractDaoTestCase {
     Rules rules = provider.provide(ruleDao, debtModel, durations);
 
     Rule rule = rules.find(RuleKey.of("checkstyle", "AvoidNull"));
-    assertThat(rule.debtCharacteristic()).isNull();
+    assertThat(rule.debtSubCharacteristic()).isNull();
     assertThat(rule.debtRemediationFunction()).isNull();
   }
 
@@ -180,7 +185,7 @@ public class RulesProviderTest extends AbstractDaoTestCase {
     Rules rules = provider.provide(ruleDao, debtModel, durations);
 
     Rule rule = rules.find(RuleKey.of("checkstyle", "AvoidNull"));
-    assertThat(rule.debtCharacteristic()).isNull();
+    assertThat(rule.debtSubCharacteristic()).isNull();
     assertThat(rule.debtRemediationFunction()).isNull();
   }
 

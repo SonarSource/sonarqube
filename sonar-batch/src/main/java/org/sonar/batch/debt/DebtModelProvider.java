@@ -20,28 +20,30 @@
 
 package org.sonar.batch.debt;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
-import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
+import org.sonar.api.batch.debt.DebtCharacteristic;
+import org.sonar.api.batch.debt.DebtModel;
+import org.sonar.api.batch.debt.internal.DefaultDebtCharacteristic;
+import org.sonar.api.batch.debt.internal.DefaultDebtModel;
 import org.sonar.api.utils.TimeProfiler;
-import org.sonar.core.technicaldebt.DefaultTechnicalDebtModel;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
-import java.util.List;
-import java.util.Map;
+import javax.annotation.Nullable;
 
-import static com.google.common.collect.Maps.newHashMap;
+import java.util.List;
 
 public class DebtModelProvider extends ProviderAdapter {
 
   private static final Logger LOG = LoggerFactory.getLogger(DebtModelProvider.class);
 
-  private TechnicalDebtModel model;
+  private DebtModel model;
 
-  public TechnicalDebtModel provide(CharacteristicDao dao) {
+  public DebtModel provide(CharacteristicDao dao) {
     if (model == null) {
       TimeProfiler profiler = new TimeProfiler(LOG).start("Loading technical debt model");
       model = load(dao);
@@ -50,33 +52,37 @@ public class DebtModelProvider extends ProviderAdapter {
     return model;
   }
 
-  private TechnicalDebtModel load(CharacteristicDao dao) {
-    DefaultTechnicalDebtModel debtModel = new DefaultTechnicalDebtModel();
-    List<CharacteristicDto> dtos = dao.selectEnabledCharacteristics();
-    Map<Integer, DefaultCharacteristic> characteristicsById = newHashMap();
+  private DebtModel load(CharacteristicDao dao) {
+    DefaultDebtModel debtModel = new DefaultDebtModel();
 
-    addRootCharacteristics(debtModel, dtos, characteristicsById);
-    addCharacteristics(dtos, characteristicsById);
+    List<CharacteristicDto> allCharacteristics = dao.selectEnabledCharacteristics();
+    for (CharacteristicDto dto : allCharacteristics) {
+      Integer parentId = dto.getParentId();
+      if (parentId == null) {
+        debtModel.addCharacteristic(toDebtCharacteristic(dto));
+      } else {
+        debtModel.addSubCharacteristic(toDebtCharacteristic(dto), characteristicById(parentId, allCharacteristics).getKey());
+      }
+    }
     return debtModel;
   }
 
-  private void addRootCharacteristics(DefaultTechnicalDebtModel model, List<CharacteristicDto> dtos, Map<Integer, DefaultCharacteristic> characteristicsById) {
-    for (CharacteristicDto dto : dtos) {
-      if (dto.getParentId() == null) {
-        DefaultCharacteristic rootCharacteristic = dto.toCharacteristic(null);
-        model.addRootCharacteristic(rootCharacteristic);
-        characteristicsById.put(dto.getId(), rootCharacteristic);
+  private static CharacteristicDto characteristicById(final int id, List<CharacteristicDto> allCharacteristics) {
+    return Iterables.find(allCharacteristics, new Predicate<CharacteristicDto>() {
+      @Override
+      public boolean apply(@Nullable CharacteristicDto input) {
+        return input != null && id == input.getId();
       }
-    }
+    });
   }
 
-  private void addCharacteristics(List<CharacteristicDto> dtos, Map<Integer, DefaultCharacteristic> characteristicsById) {
-    for (CharacteristicDto dto : dtos) {
-      if (dto.getParentId() != null) {
-        DefaultCharacteristic parent = characteristicsById.get(dto.getParentId());
-        DefaultCharacteristic characteristic = dto.toCharacteristic(parent);
-        characteristicsById.put(dto.getId(), characteristic);
-      }
-    }
+  private static DebtCharacteristic toDebtCharacteristic(CharacteristicDto characteristic) {
+    return new DefaultDebtCharacteristic()
+      .setId(characteristic.getId())
+      .setKey(characteristic.getKey())
+      .setName(characteristic.getName())
+      .setOrder(characteristic.getOrder())
+      .setParentId(characteristic.getParentId());
   }
+
 }

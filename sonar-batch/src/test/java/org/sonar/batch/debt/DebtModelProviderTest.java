@@ -25,8 +25,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
-import org.sonar.core.technicaldebt.DefaultTechnicalDebtModel;
+import org.sonar.api.batch.debt.DebtCharacteristic;
+import org.sonar.api.batch.debt.DebtModel;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
@@ -42,18 +42,18 @@ public class DebtModelProviderTest {
 
   DebtModelProvider provider;
 
-
   @Before
   public void before() {
     provider = new DebtModelProvider();
   }
 
   @Test
-  public void find_all() throws Exception {
+  public void provide_model() throws Exception {
     CharacteristicDto rootCharacteristicDto = new CharacteristicDto()
       .setId(1)
       .setKey("MEMORY_EFFICIENCY")
-      .setName("Memory use");
+      .setName("Memory use")
+      .setOrder(1);
 
     CharacteristicDto characteristicDto = new CharacteristicDto()
       .setId(2)
@@ -63,21 +63,19 @@ public class DebtModelProviderTest {
 
     when(dao.selectEnabledCharacteristics()).thenReturn(newArrayList(rootCharacteristicDto, characteristicDto));
 
-    DefaultTechnicalDebtModel result = (DefaultTechnicalDebtModel) provider.provide(dao);
-    assertThat(result.rootCharacteristics()).hasSize(1);
+    DebtModel result = provider.provide(dao);
+    assertThat(result.characteristics()).hasSize(1);
 
-    DefaultCharacteristic rootCharacteristic = result.characteristicByKey("MEMORY_EFFICIENCY");
-    assertThat(rootCharacteristic.key()).isEqualTo("MEMORY_EFFICIENCY");
-    assertThat(rootCharacteristic.name()).isEqualTo("Memory use");
-    assertThat(rootCharacteristic.parent()).isNull();
-    assertThat(rootCharacteristic.children()).hasSize(1);
-    assertThat(rootCharacteristic.children().get(0).key()).isEqualTo("EFFICIENCY");
+    DebtCharacteristic characteristic = result.characteristicByKey("MEMORY_EFFICIENCY");
+    assertThat(characteristic.key()).isEqualTo("MEMORY_EFFICIENCY");
+    assertThat(characteristic.name()).isEqualTo("Memory use");
+    assertThat(characteristic.isSub()).isFalse();
+    assertThat(characteristic.order()).isEqualTo(1);
 
-    DefaultCharacteristic characteristic = result.characteristicByKey("EFFICIENCY");
-    assertThat(characteristic.key()).isEqualTo("EFFICIENCY");
-    assertThat(characteristic.name()).isEqualTo("Efficiency");
-    assertThat(characteristic.parent().key()).isEqualTo("MEMORY_EFFICIENCY");
-    assertThat(characteristic.children()).isEmpty();
+    DebtCharacteristic subCharacteristic = result.characteristicByKey("EFFICIENCY");
+    assertThat(subCharacteristic.key()).isEqualTo("EFFICIENCY");
+    assertThat(subCharacteristic.name()).isEqualTo("Efficiency");
+    assertThat(subCharacteristic.isSub()).isTrue();
+    assertThat(subCharacteristic.order()).isNull();
   }
-
 }

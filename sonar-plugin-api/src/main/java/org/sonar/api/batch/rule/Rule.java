@@ -53,12 +53,12 @@ public interface Rule {
   RuleStatus status();
 
   /**
-   * Characteristic key.
+   * Sub characteristic key.
    *
    * @since 4.3
    */
   @CheckForNull
-  String debtCharacteristic();
+  String debtSubCharacteristic();
 
   /**
    * Remediation function : can by Linear (with a coefficient), Linear with offset (with a coefficient and an offset) or Constant per issue (with an offset)

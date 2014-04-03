@@ -108,7 +108,7 @@ public class ModuleIssues {
       issue.setSeverity(activeRule.severity());
     }
     DebtRemediationFunction function = rule.debtRemediationFunction();
-    if (rule.debtCharacteristic() != null && function != null) {
+    if (rule.debtSubCharacteristic() != null && function != null) {
       issue.setDebt(calculateDebt(function, issue.effortToFix(), rule.key()));
     }
   }

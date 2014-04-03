@@ -18,20 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.server.debt.internal;
+package org.sonar.api.batch.debt.internal;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.server.debt.DebtCharacteristic;
+import org.sonar.api.batch.debt.DebtCharacteristic;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.Date;
 
-/**
- * @since 4.3
- */
 public class DefaultDebtCharacteristic implements DebtCharacteristic {
 
   private Integer id;
@@ -120,5 +117,4 @@ public class DefaultDebtCharacteristic implements DebtCharacteristic {
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
-
 }

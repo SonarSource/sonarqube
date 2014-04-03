@@ -121,7 +121,7 @@ public final class DebtDecorator implements Decorator {
     if (debt != null) {
       Rule rule = rules.find(ruleKey);
       if (rule != null) {
-        String characteristicKey = rule.debtCharacteristic();
+        String characteristicKey = rule.debtSubCharacteristic();
         if (characteristicKey != null) {
           Characteristic characteristic = model.characteristicByKey(characteristicKey);
           if (characteristic != null) {

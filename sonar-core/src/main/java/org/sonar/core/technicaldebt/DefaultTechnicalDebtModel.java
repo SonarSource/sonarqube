@@ -22,14 +22,17 @@ package org.sonar.core.technicaldebt;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import org.sonar.api.batch.debt.DebtCharacteristic;
+import org.sonar.api.batch.debt.DebtModel;
+import org.sonar.api.batch.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
 import org.sonar.api.technicaldebt.batch.internal.DefaultRequirement;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,19 +40,14 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class DefaultTechnicalDebtModel implements TechnicalDebtModel {
 
-  private Collection<DefaultCharacteristic> rootCharacteristics;
+  private final DebtModel model;
 
-  public DefaultTechnicalDebtModel() {
-    rootCharacteristics = newArrayList();
-  }
-
-  public DefaultTechnicalDebtModel addRootCharacteristic(DefaultCharacteristic characteristic) {
-    rootCharacteristics.add(characteristic);
-    return this;
+  public DefaultTechnicalDebtModel(DebtModel model) {
+    this.model = model;
   }
 
   public List<DefaultCharacteristic> rootCharacteristics() {
-    return newArrayList(Iterables.filter(rootCharacteristics, new Predicate<DefaultCharacteristic>() {
+    return newArrayList(Iterables.filter(characteristics(), new Predicate<DefaultCharacteristic>() {
       @Override
       public boolean apply(DefaultCharacteristic input) {
         return input.isRoot();
@@ -68,7 +66,7 @@ public class DefaultTechnicalDebtModel implements TechnicalDebtModel {
   }
 
   @CheckForNull
-  public DefaultCharacteristic characteristicById(final Integer id){
+  public DefaultCharacteristic characteristicById(final Integer id) {
     return Iterables.find(characteristics(), new Predicate<DefaultCharacteristic>() {
       @Override
       public boolean apply(DefaultCharacteristic input) {
@@ -83,16 +81,17 @@ public class DefaultTechnicalDebtModel implements TechnicalDebtModel {
   }
 
   @CheckForNull
-  public DefaultRequirement requirementsById(final Integer id){
+  public DefaultRequirement requirementsById(final Integer id) {
     return null;
   }
 
   public List<DefaultCharacteristic> characteristics() {
     List<DefaultCharacteristic> flatCharacteristics = newArrayList();
-    for (DefaultCharacteristic rootCharacteristic : rootCharacteristics) {
-      flatCharacteristics.add(rootCharacteristic);
-      for (DefaultCharacteristic characteristic : rootCharacteristic.children()) {
-        flatCharacteristics.add(characteristic);
+    for (DebtCharacteristic characteristic : model.characteristics()) {
+      DefaultCharacteristic root = toDefaultCharacteristic((DefaultDebtCharacteristic) characteristic, null);
+      flatCharacteristics.add(root);
+      for (DebtCharacteristic subCharacteristic : model.subCharacteristics(characteristic.key())) {
+        flatCharacteristics.add(toDefaultCharacteristic((DefaultDebtCharacteristic) subCharacteristic, root));
       }
     }
     return flatCharacteristics;
@@ -102,8 +101,20 @@ public class DefaultTechnicalDebtModel implements TechnicalDebtModel {
     return Collections.emptyList();
   }
 
-  public boolean isEmpty(){
-    return rootCharacteristics.isEmpty();
+  public boolean isEmpty() {
+    return model.allCharacteristics().isEmpty();
+  }
+
+  private static DefaultCharacteristic toDefaultCharacteristic(DefaultDebtCharacteristic debtCharacteristic, @Nullable DefaultCharacteristic parentCharacteristic) {
+    return new DefaultCharacteristic()
+      .setId(debtCharacteristic.id())
+      .setKey(debtCharacteristic.key())
+      .setName(debtCharacteristic.name())
+      .setOrder(debtCharacteristic.order())
+      .setParent(parentCharacteristic)
+      .setRoot(parentCharacteristic)
+      .setCreatedAt(debtCharacteristic.createdAt())
+      .setUpdatedAt(debtCharacteristic.updatedAt());
   }
 
 }

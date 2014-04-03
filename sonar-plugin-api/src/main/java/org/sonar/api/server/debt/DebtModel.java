@@ -39,6 +39,9 @@ public interface DebtModel extends ServerComponent {
    */
   List<DebtCharacteristic> characteristics();
 
-  DebtCharacteristic characteristicById(int id);
+  /**
+   * Return a characteristic or a sub-characteristic by its key
+   */
+  DebtCharacteristic characteristicByKey(String key);
 
 }

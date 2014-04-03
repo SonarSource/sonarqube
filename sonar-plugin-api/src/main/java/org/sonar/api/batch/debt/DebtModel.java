@@ -18,53 +18,41 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.technicaldebt.batch;
-
-import org.sonar.api.BatchComponent;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
+package org.sonar.api.batch.debt;
 
 import javax.annotation.CheckForNull;
 
 import java.util.List;
 
 /**
- * @since 4.1
- * Used by Views plugin
- * @deprecated since 4.3
+ * This class can be used to retrieve characteristics or sub-characteristics from the technical debt model during analysis.
+ *
+ * Unfortunately, this class cannot be used to set characteristic on {@link org.sonar.api.measures.Measure},
+ * because the Measure API still uses deprecated {@link org.sonar.api.technicaldebt.batch.Characteristic}.
+ *
+ * @since 4.3
  */
-@Deprecated
-public interface TechnicalDebtModel extends BatchComponent {
-
-  @CheckForNull
-  Characteristic characteristicById(Integer id);
-
-  @CheckForNull
-  Characteristic characteristicByKey(String key);
+public interface DebtModel {
 
   /**
-   * @deprecated since 4.3. Always return null
+   * Return only characteristics
+   */
+  List<DebtCharacteristic> characteristics();
+
+  /**
+   * Return sub-characteristics of a characteristic
+   */
+  List<DebtCharacteristic> subCharacteristics(String characteristicKey);
+
+  /**
+   * Return characteristics and sub-characteristics
+   */
+  List<DebtCharacteristic> allCharacteristics();
+
+  /**
+   * Return a characteristic or a sub-characteristic by a key
    */
   @CheckForNull
-  @Deprecated
-  Requirement requirementsByRule(RuleKey ruleKey);
-
-  /**
-   * @deprecated since 4.3. Always return null
-   */
-  @CheckForNull
-  @Deprecated
-  Requirement requirementsById(Integer id);
-
-  /**
-   * @deprecated since 4.3. Always return empty list
-   */
-  @Deprecated
-  List<? extends Requirement> requirements();
-
-  /**
-   * @since 4.3
-   */
-  List<DefaultCharacteristic> characteristics();
+  DebtCharacteristic characteristicByKey(String key);
 
 }

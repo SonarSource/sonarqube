@@ -18,53 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.technicaldebt.batch;
-
-import org.sonar.api.BatchComponent;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
+package org.sonar.api.batch.debt;
 
 import javax.annotation.CheckForNull;
 
-import java.util.List;
-
 /**
- * @since 4.1
- * Used by Views plugin
- * @deprecated since 4.3
+ * @since 4.3
  */
-@Deprecated
-public interface TechnicalDebtModel extends BatchComponent {
+public interface DebtCharacteristic {
+  String key();
+
+  String name();
 
   @CheckForNull
-  Characteristic characteristicById(Integer id);
+  Integer order();
 
-  @CheckForNull
-  Characteristic characteristicByKey(String key);
-
-  /**
-   * @deprecated since 4.3. Always return null
-   */
-  @CheckForNull
-  @Deprecated
-  Requirement requirementsByRule(RuleKey ruleKey);
-
-  /**
-   * @deprecated since 4.3. Always return null
-   */
-  @CheckForNull
-  @Deprecated
-  Requirement requirementsById(Integer id);
-
-  /**
-   * @deprecated since 4.3. Always return empty list
-   */
-  @Deprecated
-  List<? extends Requirement> requirements();
-
-  /**
-   * @since 4.3
-   */
-  List<DefaultCharacteristic> characteristics();
-
+  boolean isSub();
 }
