@@ -555,7 +555,7 @@ jQuery(function() {
 
 
   // Define global shortcuts
-  key('/,/', function() { // divide sign, slash
+  key('slash,divide,shift+slash', function() { //
     jQuery('#searchInput').focus();
     return false;
   });
