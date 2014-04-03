@@ -33,7 +33,6 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.bootstrap.BootstrapSettings;
-import org.sonar.core.component.ComponentKeys;
 
 import javax.annotation.CheckForNull;
 
@@ -123,7 +122,6 @@ public class ProjectReactorBuilder {
       checkMandatoryProperties(properties, MANDATORY_PROPERTIES_FOR_SIMPLE_PROJECT);
     }
     final String projectKey = properties.getProperty(CoreProperties.PROJECT_KEY_PROPERTY);
-    checkProjectKeyValid(projectKey);
     File workDir;
     if (parent == null) {
       validateDirectories(properties, baseDir, projectKey);
@@ -137,14 +135,6 @@ public class ProjectReactorBuilder {
       .setWorkDir(workDir)
       .setBuildDir(initModuleBuildDir(baseDir, properties));
     return definition;
-  }
-
-  private void checkProjectKeyValid(String projectKey) {
-    if (!ComponentKeys.isValidModuleKey(projectKey)) {
-      throw new IllegalStateException(String.format(
-        "Invalid project key '%s'.\n"
-          + "Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", projectKey));
-    }
   }
 
   @VisibleForTesting

@@ -59,13 +59,6 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void shouldFailOnInvalidProjectKey() throws IOException {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Invalid project key 'A key with spaces'.\nAllowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.");
-    loadProjectDefinition("project-with-invalid-key");
-  }
-
-  @Test
   public void shouldFailIfUnexistingSourceDirectory() throws IOException {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("The folder 'unexisting-source-dir' does not exist for 'com.foo.project' (base directory = "
