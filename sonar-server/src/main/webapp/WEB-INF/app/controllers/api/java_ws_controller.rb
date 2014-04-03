@@ -31,4 +31,8 @@ class Api::JavaWsController < Api::ApiController
            :status => ws_response.stream().httpStatus(),
            :content_type => ws_response.stream().mediaType()
   end
+
+  def redirect_to_ws_listing
+    redirect_to :action => 'index', :wspath => 'api/webservices', :wsaction => 'list'
+  end
 end

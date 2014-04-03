@@ -13,6 +13,7 @@ ActionController::Routing::Routes.draw do |map|
     api.resources :manual_measures, :only => [:index, :create, :destroy], :requirements => { :id => /.*/ }
   end
 
+  map.connect 'api', :controller => 'api/java_ws', :action => 'redirect_to_ws_listing'
   map.connect 'api/metrics', :controller => 'api/metrics', :action => 'index', :conditions => { :method => :get }
   map.connect 'api/metrics/:id', :controller => 'api/metrics', :action => 'show', :conditions => { :method => :get }
   map.connect 'api/metrics/:id', :controller => 'api/metrics', :action => 'create', :conditions => { :method => :post }
