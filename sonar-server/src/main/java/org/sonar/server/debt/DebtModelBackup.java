@@ -158,6 +158,7 @@ public class DebtModelBackup implements ServerComponent {
       for (RuleDto rule : ruleDtos) {
         // Restore default debt definitions
         RulesDefinition.Rule ruleDef = ruleDef(rule.getRepositoryKey(), rule.getRuleKey(), rules);
+        // Custom rules will not be found in rules definition
         if (ruleDef != null) {
           String subCharacteristicKey = ruleDef.debtSubCharacteristic();
           CharacteristicDto subCharacteristicDto = characteristicByKey(subCharacteristicKey, allCharacteristicDtos, false);
