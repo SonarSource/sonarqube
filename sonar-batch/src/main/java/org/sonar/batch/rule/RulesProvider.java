@@ -79,7 +79,7 @@ public class RulesProvider extends ProviderAdapter {
         .setStatus(RuleStatus.valueOf(ruleDto.getStatus()));
       // TODO should we set metadata ?
 
-      if (ruleDto.hasCharacteristic()) {
+      if (hasCharacteristic(ruleDto)) {
         newRule.setDebtCharacteristic(effectiveCharacteristic(ruleDto, ruleKey, debtModel).key());
         newRule.setDebtRemediationFunction(effectiveFunction(ruleDto, ruleKey, durations));
       }
@@ -119,6 +119,16 @@ public class RulesProvider extends ProviderAdapter {
     return DebtRemediationFunction.create(DebtRemediationFunction.Type.valueOf(function),
       factor != null ? durations.decode(factor) : null,
       offset != null ? durations.decode(offset) : null);
+  }
+
+  /**
+   * Return true is the characteristic has not been overridden and a default characteristic is existing or
+   * if the characteristic has been overridden but is not disabled
+   */
+  private boolean hasCharacteristic(RuleDto ruleDto){
+    Integer subCharacteristicId = ruleDto.getSubCharacteristicId();
+    return (subCharacteristicId == null && ruleDto.getDefaultSubCharacteristicId() != null) ||
+      (subCharacteristicId != null && !RuleDto.DISABLED_CHARACTERISTIC_ID.equals(subCharacteristicId));
   }
 
 }

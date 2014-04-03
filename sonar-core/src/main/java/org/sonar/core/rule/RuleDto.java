@@ -315,10 +315,6 @@ public final class RuleDto {
     return this;
   }
 
-  public boolean hasCharacteristic(){
-    return (subCharacteristicId != null && !RuleDto.DISABLED_CHARACTERISTIC_ID.equals(subCharacteristicId)) || (subCharacteristicId == null && defaultSubCharacteristicId != null);
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (!(obj instanceof RuleDto)) {
