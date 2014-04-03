@@ -51,19 +51,11 @@ public class MavenProjectBuilder extends ProjectBuilder {
   private void setMavenProjectIfApplicable(ProjectDefinition definition) {
     if (mavenSession != null) {
       String moduleKey = definition.getKey();
-      MavenProject foundMavenModule = null;
       for (MavenProject mavenModule : (List<MavenProject>) mavenSession.getSortedProjects()) {
         String mavenModuleKey = mavenModule.getGroupId() + ":" + mavenModule.getArtifactId();
-        if (mavenModuleKey.equals(moduleKey)) {
-          foundMavenModule = mavenModule;
-          break;
+        if (mavenModuleKey.equals(moduleKey) && !definition.getContainerExtensions().contains(mavenModule)) {
+          definition.addContainerExtension(mavenModule);
         }
-      }
-      if (foundMavenModule == null) {
-        throw new IllegalStateException("Unable to find Maven project in reactor with key " + moduleKey);
-      }
-      if (!definition.getContainerExtensions().contains(foundMavenModule)) {
-        definition.addContainerExtension(foundMavenModule);
       }
     }
   }
