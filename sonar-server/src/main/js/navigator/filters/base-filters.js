@@ -110,11 +110,12 @@ define(['backbone', 'backbone.marionette', 'common/handlebars-extensions'], func
 
     toggleDetails: function(e) {
       e.stopPropagation();
+      this.options.filterBarView.selected = this.options.filterBarView.getEnabledFilters().index(this.$el);
       if (this.$el.hasClass('active')) {
         key.setScope('list');
         this.hideDetails();
       } else {
-        key.setScope('filter');
+        key.setScope('filters');
         this.showDetails();
       }
     },

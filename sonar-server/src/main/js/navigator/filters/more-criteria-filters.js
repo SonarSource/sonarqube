@@ -1,6 +1,6 @@
 define(['navigator/filters/base-filters', 'navigator/filters/choice-filters', 'common/handlebars-extensions'], function (BaseFilters, ChoiceFilters) {
 
-  var DetailsMoreCriteriaFilterView = BaseFilters.DetailsFilterView.extend({
+  var DetailsMoreCriteriaFilterView = ChoiceFilters.DetailsChoiceFilterView.extend({
     template: getTemplate('#more-criteria-details-filter-template'),
 
 
@@ -13,6 +13,7 @@ define(['navigator/filters/base-filters', 'navigator/filters/choice-filters', 'c
       var id = $j(e.target).data('id');
       this.model.view.options.filterBarView.enableFilter(id);
       this.model.view.hideDetails();
+      this.updateCurrent(0);
     },
 
 

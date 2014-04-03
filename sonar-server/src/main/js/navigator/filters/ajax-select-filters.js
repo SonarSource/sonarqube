@@ -100,7 +100,7 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/choice-
 
       var that = this,
           keyup = function(e) {
-            if (e.keyCode !== 38 && e.keyCode !== 40) {
+            if (e.keyCode !== 37 && e.keyCode !== 38 && e.keyCode !== 39 && e.keyCode !== 40) {
               that.search();
             }
           },
@@ -162,7 +162,7 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/choice-
 
 
     keydown: function(e) {
-      if (_([37, 38, 39, 40, 13]).indexOf(e.keyCode) !== -1) {
+      if (_([38, 40, 13]).indexOf(e.keyCode) !== -1) {
         e.preventDefault();
       }
     },

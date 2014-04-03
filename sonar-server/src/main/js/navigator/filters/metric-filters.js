@@ -66,9 +66,7 @@ define(['navigator/filters/base-filters', 'common/handlebars-extensions'], funct
 
     onShow: function() {
       var select = this.$('[name=metric]');
-      if (!select.val()) {
-        select.select2('open');
-      }
+      select.select2('open');
     }
 
   });

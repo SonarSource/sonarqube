@@ -39,6 +39,60 @@ define(
             that.hideDetails();
           });
           this.addMoreCriteriaFilter();
+
+          key.filter = function(e) {
+            var el = jQuery(e.target),
+                tabbableSet = el.closest('.navigator-filter-details-inner').find(':tabbable');
+            return tabbableSet.index(el) >= tabbableSet.length - 1;
+          };
+          key('f', function() {
+            key.setScope('filters');
+            that.selectFirst();
+            return false;
+          });
+          key('shift+tab', 'filters', function() {
+            that.selectPrev();
+            return false;
+          });
+          key('tab', 'filters', function() {
+            that.selectNext();
+            return false;
+          });
+        },
+
+
+        getEnabledFilters: function() {
+          return this.$(this.itemViewContainer).children()
+              .not('.navigator-filter-disabled')
+              .not('.navigator-filter-inactive')
+              .not('.navigator-filter-favorite');
+        },
+
+
+        selectFirst: function() {
+          this.selected = -1;
+          this.selectNext();
+        },
+
+
+        selectPrev: function() {
+          var filters = this.getEnabledFilters();
+          if (this.selected > 0) {
+            this.selected--;
+            filters.eq(this.selected).click();
+          }
+        },
+
+
+        selectNext: function() {
+          var filters = this.getEnabledFilters();
+          if (this.selected < filters.length - 1) {
+            this.selected++;
+            filters.eq(this.selected).click();
+          } else {
+            this.hideDetails();
+            this.$('.navigator-filter-submit').focus();
+          }
         },
 
 
