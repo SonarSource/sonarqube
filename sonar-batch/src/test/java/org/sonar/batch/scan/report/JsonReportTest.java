@@ -55,7 +55,7 @@ import java.util.Collections;
 import java.util.TimeZone;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -116,10 +116,10 @@ public class JsonReportTest {
       .setUpdateDate(SIMPLE_DATE_FORMAT.parse("2013-04-25"))
       .setNew(false);
     when(ruleFinder.findByKey(RuleKey.of("squid", "AvoidCycles"))).thenReturn(new Rule().setName("Avoid Cycles"));
-    when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
+    when(jsonReport.getIssues()).thenReturn(Lists.newArrayList(issue));
     DefaultUser user1 = new DefaultUser().setLogin("julien").setName("Julien");
     DefaultUser user2 = new DefaultUser().setLogin("simon").setName("Simon");
-    when(userFinder.findByLogins(eq(Arrays.asList("julien", "simon")))).thenReturn(Lists.<User>newArrayList(user1, user2));
+    when(userFinder.findByLogins(anyListOf(String.class))).thenReturn(Lists.<User>newArrayList(user1, user2));
 
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);

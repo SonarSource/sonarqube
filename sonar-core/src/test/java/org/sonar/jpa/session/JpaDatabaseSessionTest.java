@@ -69,7 +69,7 @@ public class JpaDatabaseSessionTest {
   @Test
   public void shouldBuildCriteriasHQL() {
     StringBuilder hql = new StringBuilder();
-    Map<String, Object> mappedCriterias = Maps.newHashMap();
+    Map<String, Object> mappedCriterias = Maps.newLinkedHashMap();
     mappedCriterias.put("foo", "value");
     mappedCriterias.put("bar", null);
     session.buildCriteriasHQL(hql, mappedCriterias);

@@ -23,12 +23,10 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.SystemUtils;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class CycleDetectorTest {
 
@@ -41,7 +39,7 @@ public class CycleDetectorTest {
 
     CycleDetector<String> cycleDetector = new CycleDetector<String>(dag);
     cycleDetector.detectCycles();
-    assertTrue(cycleDetector.isAcyclicGraph());
+    assertThat(cycleDetector.isAcyclicGraph()).isTrue();
   }
 
   @Test
@@ -51,7 +49,7 @@ public class CycleDetectorTest {
 
     CycleDetector<String> cycleDetector = new CycleDetector<String>(dcg);
     cycleDetector.detectCycles();
-    assertFalse(cycleDetector.isAcyclicGraph());
+    assertThat(cycleDetector.isAcyclicGraph()).isFalse();
   }
 
   @Test
@@ -67,8 +65,14 @@ public class CycleDetectorTest {
 
     CycleDetector<String> cycleDetector = new CycleDetector<String>(dcg);
     cycleDetector.detectCycles();
-    assertThat(cycleDetector.getCycles().size(), is(8));
-    assertThat(cycleDetector.getSearchCyclesCalls(), is(8L));
+    assertThat(cycleDetector.getCycles()).hasSize(8);
+
+    if (SystemUtils.IS_JAVA_1_6 || SystemUtils.IS_JAVA_1_7) {
+      assertThat(cycleDetector.getSearchCyclesCalls()).isEqualTo(8);
+    } else {
+      // Java 8
+      assertThat(cycleDetector.getSearchCyclesCalls()).isEqualTo(11);
+    }
   }
 
   @Test
@@ -80,11 +84,11 @@ public class CycleDetectorTest {
 
     CycleDetector<String> cycleDetector = new CycleDetector<String>(dcg);
     cycleDetector.detectCyclesWithMaxSearchDepth(3);
-    assertThat(cycleDetector.getCycles().size(), is(2));
+    assertThat(cycleDetector.getCycles()).hasSize(2);
 
     cycleDetector = new CycleDetector<String>(dcg);
     cycleDetector.detectCyclesWithMaxSearchDepth(2);
-    assertThat(cycleDetector.getCycles().size(), is(1));
+    assertThat(cycleDetector.getCycles()).hasSize(1);
   }
 
   @Test
@@ -100,7 +104,7 @@ public class CycleDetectorTest {
 
     CycleDetector<String> cycleDetector = new CycleDetector<String>(dcg, excludedEdges);
     cycleDetector.detectCycles();
-    assertThat(cycleDetector.getCycles().size(), is(1));
+    assertThat(cycleDetector.getCycles()).hasSize(1);
   }
 
   @Test
@@ -111,11 +115,11 @@ public class CycleDetectorTest {
 
     CycleDetector<String> cycleDetector = new CycleDetector<String>(dcg);
     cycleDetector.detectCycles();
-    assertThat(cycleDetector.getCycles().size(), is(1));
+    assertThat(cycleDetector.getCycles()).hasSize(1);
     Cycle cycle = cycleDetector.getCycles().iterator().next();
-    assertThat(cycle.size(), is(2));
-    assertTrue(cycle.contains(new StringEdge("A", "B")));
-    assertTrue(cycle.contains(new StringEdge("B", "A")));
+    assertThat(cycle.size()).isEqualTo(2);
+    assertThat(cycle.contains(new StringEdge("A", "B"))).isTrue();
+    assertThat(cycle.contains(new StringEdge("B", "A"))).isTrue();
   }
 
   @Test
@@ -126,12 +130,12 @@ public class CycleDetectorTest {
     // C must not be used to find cycles
     CycleDetector<String> cycleDetector = new CycleDetector<String>(dcg, Arrays.asList("A", "B"));
     cycleDetector.detectCycles();
-    assertThat(cycleDetector.getCycles().size(), is(0));
+    assertThat(cycleDetector.getCycles()).isEmpty();
 
     // C is used to find cycles
     cycleDetector = new CycleDetector<String>(dcg, Arrays.asList("A", "B", "C"));
     cycleDetector.detectCycles();
-    assertThat(cycleDetector.getCycles().size(), is(1));
+    assertThat(cycleDetector.getCycles().size()).isEqualTo(1);
   }
 
   @Test(expected = IllegalStateException.class)
@@ -151,6 +155,6 @@ public class CycleDetectorTest {
     dcg.addEdge("B", "A");
 
     CycleDetector<String> cycleDetector = new CycleDetector<String>(dcg);
-    assertThat(cycleDetector.detectCyclesWithUpperLimit(1).size(), is(1));
+    assertThat(cycleDetector.detectCyclesWithUpperLimit(1)).hasSize(1);
   }
 }
