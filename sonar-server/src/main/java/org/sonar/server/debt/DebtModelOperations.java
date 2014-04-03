@@ -231,7 +231,7 @@ public class DebtModelOperations implements ServerComponent {
     dao.update(characteristic, session);
   }
 
-  public void disableRulesDebt(List<RuleDto> ruleDtos, Integer subCharacteristicId, Date updateDate, SqlSession session) {
+  private void disableRulesDebt(List<RuleDto> ruleDtos, Integer subCharacteristicId, Date updateDate, SqlSession session) {
     for (RuleDto ruleDto : ruleDtos) {
       if (subCharacteristicId.equals(ruleDto.getSubCharacteristicId())) {
         ruleDto.setSubCharacteristicId(RuleDto.DISABLED_CHARACTERISTIC_ID);
