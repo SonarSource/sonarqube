@@ -56,7 +56,7 @@ public final class LoggingConfiguration {
   private Map<String, String> substitutionVariables = Maps.newHashMap();
 
   private LoggingConfiguration(@Nullable EnvironmentInformation environment) {
-    setVerbose(false);
+    setRootLevel(LEVEL_ROOT_DEFAULT);
     if (environment != null && "maven".equalsIgnoreCase(environment.getKey())) {
       setFormat(FORMAT_MAVEN);
     } else {
@@ -71,7 +71,9 @@ public final class LoggingConfiguration {
   public LoggingConfiguration setProperties(Map<String, String> properties) {
     Profiling.Level profilingLevel = Profiling.Level.fromConfigString(properties.get("sonar.log.profilingLevel"));
     setShowSqlResults(profilingLevel == Level.FULL);
-    setVerbose("true".equals(properties.get("sonar.verbose")));
+    if (properties.containsKey("sonar.logLevel")) {
+      setRootLevel(properties.get("sonar.logLevel"));
+    }
     return this;
   }
 

@@ -168,7 +168,7 @@ public final class SonarMojo extends AbstractMojo {
       runner.addExtensions(session, getLog(), lifecycleExecutor, artifactFactory, localRepository, artifactMetadataSource, artifactCollector,
         dependencyTreeBuilder, projectBuilder);
       if (getLog().isDebugEnabled()) {
-        runner.setProperty("sonar.verbose", "true");
+        runner.setProperty("sonar.logLevel", "DEBUG");
       }
       runner.execute();
     } catch (Exception e) {

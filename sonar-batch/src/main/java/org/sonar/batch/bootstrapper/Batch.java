@@ -21,6 +21,7 @@ package org.sonar.batch.bootstrapper;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.batch.bootstrap.BootstrapContainer;
 import org.sonar.batch.bootstrap.BootstrapProperties;
@@ -71,6 +72,9 @@ public final class Batch {
 
   public Batch execute() {
     configureLogging();
+    if (bootstrapProperties.containsKey("sonar.verbose")) {
+      LoggerFactory.getLogger(getClass()).warn("sonar.verbose is deprecated, use sonar.logLevel instead");
+    }
     startBatch();
     return this;
   }

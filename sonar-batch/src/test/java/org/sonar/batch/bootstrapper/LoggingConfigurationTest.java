@@ -47,18 +47,18 @@ public class LoggingConfigurationTest {
   }
 
   @Test
-  public void testSetVerboseProperty() {
+  public void testSetLogLevelProperty() {
     Map<String, String> properties = Maps.newHashMap();
     assertThat(LoggingConfiguration.create(null).setProperties(properties)
         .getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_ROOT_DEFAULT);
 
-    properties.put("sonar.verbose", "true");
+    properties.put("sonar.logLevel", "WARN");
     assertThat(LoggingConfiguration.create(null).setProperties(properties)
-        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_ROOT_VERBOSE);
+        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL)).isEqualTo("WARN");
 
-    properties.put("sonar.verbose", "false");
+    properties.put("sonar.logLevel", "OFF");
     assertThat(LoggingConfiguration.create(null).setProperties(properties)
-        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL)).isEqualTo(LoggingConfiguration.LEVEL_ROOT_DEFAULT);
+        .getSubstitutionVariable(LoggingConfiguration.PROPERTY_ROOT_LOGGER_LEVEL)).isEqualTo("OFF");
   }
 
   @Test

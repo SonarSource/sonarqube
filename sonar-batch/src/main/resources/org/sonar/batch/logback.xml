@@ -2,7 +2,7 @@
 <configuration debug="false">
 
   <!--
-  
+
   This file is deprecated. It's replaced by org/sonar/batch/bootstrapper/logback.xml.
   It can't be deleted as long as Ant Task and Java Runner do not use org.sonar.batch.bootstrapper.LoggingConfiguration.
 
@@ -22,7 +22,7 @@
     <level value="WARN"/>
   </logger>
 
-  <!-- BeanUtils generate to many DEBUG logs when sonar.verbose is set -->
+  <!-- BeanUtils generate to many DEBUG logs when sonar.logLevel is set to DEBUG -->
   <logger name="org.apache.commons.beanutils.converters">
     <level value="WARN"/>
   </logger>
@@ -50,7 +50,7 @@
 
 
   <root>
-    <!-- sonar.verbose -->
+    <!-- sonar.logLevel -->
     <level value="${ROOT_LOGGER_LEVEL}"/>
     <appender-ref ref="STDOUT"/>
   </root>
