@@ -47,7 +47,7 @@ public final class DefaultServerUpgradeStatus implements ServerUpgradeStatus, St
 
   @Override
   public void stop() {
-
+    // do nothing
   }
 
   @Override

@@ -77,8 +77,8 @@ public class RulesProvider extends ProviderAdapter {
         .setName(ruleDto.getName())
         .setSeverity(ruleDto.getSeverityString())
         .setDescription(ruleDto.getDescription())
-        .setStatus(RuleStatus.valueOf(ruleDto.getStatus()));
-      // TODO should we set metadata ?
+        .setStatus(RuleStatus.valueOf(ruleDto.getStatus()))
+        .setInternalKey(ruleDto.getConfigKey());
 
       if (hasCharacteristic(ruleDto)) {
         newRule.setDebtSubCharacteristic(effectiveCharacteristic(ruleDto, ruleKey, debtModel).key());

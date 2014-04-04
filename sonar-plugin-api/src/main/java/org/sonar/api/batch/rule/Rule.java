@@ -31,7 +31,6 @@ import java.util.Collection;
 /**
  * @since 4.2
  */
-@Beta
 public interface Rule {
 
   RuleKey key();
@@ -42,7 +41,7 @@ public interface Rule {
   String description();
 
   @CheckForNull
-  String metadata();
+  String internalKey();
 
   String severity();
 

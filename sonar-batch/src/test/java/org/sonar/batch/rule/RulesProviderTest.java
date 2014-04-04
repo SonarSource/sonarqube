@@ -101,7 +101,7 @@ public class RulesProviderTest extends AbstractDaoTestCase {
     assertThat(rule.name()).isEqualTo("Avoid Null");
     assertThat(rule.description()).isEqualTo("Should avoid NULL");
     assertThat(rule.severity()).isEqualTo(Severity.MINOR);
-    assertThat(rule.metadata()).isNull();
+    assertThat(rule.internalKey()).isNull();
     assertThat(rule.params()).hasSize(1);
 
     RuleParam param = rule.param("myParameter");

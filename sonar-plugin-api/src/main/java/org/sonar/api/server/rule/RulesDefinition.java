@@ -48,11 +48,11 @@ import java.util.Set;
  * <p/>
  * <h3>How to use</h3>
  * <pre>
- * public class JsSquidRulesDefinition implements RulesDefinition {
+ * public class MyJsRulesDefinition implements RulesDefinition {
  *
  *   {@literal @}Override
  *   public void define(Context context) {
- *     NewRepository repository = context.createRepository("js_squid", "js").setName("Javascript Squid");
+ *     NewRepository repository = context.createRepository("my_js", "js").setName("My Javascript Analyzer");
  *
  *     // define a rule programmatically. Note that rules
  *     // could be loaded from files (JSON, XML, ...)
@@ -84,20 +84,21 @@ import java.util.Set;
  * }
  * </pre>
  * <p/>
- * If rules are declared in a XML file with the standard SonarQube format, then it can be loaded by using :
+ * If rules are declared in a XML file with the standard SonarQube format (see
+ * {@link org.sonar.api.server.rule.RulesDefinitionXmlLoader}), then it can be loaded by using :
  * <p/>
  * <pre>
- * public class JsSquidRulesDefinition implements RulesDefinition {
+ * public class MyJsRulesDefinition implements RulesDefinition {
  *
  *   private final RulesDefinitionXmlLoader xmlLoader;
  *
- *   public JsSquidRulesDefinition(RulesDefinitionXmlLoader xmlLoader) {
+ *   public MyJsRulesDefinition(RulesDefinitionXmlLoader xmlLoader) {
  *     this.xmlLoader = xmlLoader;
  *   }
  *
  *   {@literal @}Override
  *   public void define(Context context) {
- *     NewRepository repository = context.createRepository("js_squid", "js").setName("Javascript Squid");
+ *     NewRepository repository = context.createRepository("my_js", "js").setName("My Javascript Analyzer");
  *     // see javadoc of RulesDefinitionXmlLoader for the format
  *     xmlLoader.load(repository, getClass().getResourceAsStream("/path/to/rules.xml"));
  *     repository.done();
@@ -109,19 +110,19 @@ import java.util.Set;
  * (deprecated) English bundles can be used :
  * <p/>
  * <pre>
- * public class JsSquidRulesDefinition implements RulesDefinition {
+ * public class MyJsRulesDefinition implements RulesDefinition {
  *
  *   private final RulesDefinitionXmlLoader xmlLoader;
  *   private final RulesDefinitionI18nLoader i18nLoader;
  *
- *   public JsSquidRulesDefinition(RulesDefinitionXmlLoader xmlLoader, RulesDefinitionI18nLoader i18nLoader) {
+ *   public MyJsRulesDefinition(RulesDefinitionXmlLoader xmlLoader, RulesDefinitionI18nLoader i18nLoader) {
  *     this.xmlLoader = xmlLoader;
  *     this.i18nLoader = i18nLoader;
  *   }
  *
  *   {@literal @}Override
  *   public void define(Context context) {
- *     NewRepository repository = context.createRepository("js_squid", "js").setName("Javascript Squid");
+ *     NewRepository repository = context.createRepository("my_js", "js").setName("My Javascript Analyzer");
  *     xmlLoader.load(repository, getClass().getResourceAsStream("/path/to/rules.xml"));
  *     i18nLoader.load(repository);
  *     repository.done();

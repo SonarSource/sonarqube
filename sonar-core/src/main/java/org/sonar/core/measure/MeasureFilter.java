@@ -27,6 +27,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Qualifiers;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.Collections;
@@ -141,20 +142,22 @@ public class MeasureFilter {
     return this;
   }
 
-  public MeasureFilter setFromDate(Date d) {
+  public MeasureFilter setFromDate(@Nullable Date d) {
     this.fromDate = d;
     return this;
   }
 
-  public MeasureFilter setToDate(Date d) {
+  public MeasureFilter setToDate(@Nullable Date d) {
     this.toDate = d;
     return this;
   }
 
+  @CheckForNull
   public Date getFromDate() {
     return fromDate;
   }
 
+  @CheckForNull
   public Date getToDate() {
     return toDate;
   }

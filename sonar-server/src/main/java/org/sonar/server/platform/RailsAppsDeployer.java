@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.Plugin;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.platform.ServerFileSystem;
@@ -60,10 +61,13 @@ public class RailsAppsDeployer implements Startable {
 
     for (PluginMetadata pluginMetadata : pluginRepository.getMetadata()) {
       String pluginKey = pluginMetadata.getKey();
-      try {
-        deployRailsApp(appsDir, pluginKey, pluginRepository.getPlugin(pluginKey).getClass().getClassLoader());
-      } catch (Exception e) {
-        throw new IllegalStateException("Fail to deploy Ruby on Rails application: " + pluginKey, e);
+      Plugin plugin = pluginRepository.getPlugin(pluginKey);
+      if (plugin != null) {
+        try {
+          deployRailsApp(appsDir, pluginKey, plugin.getClass().getClassLoader());
+        } catch (Exception e) {
+          throw new IllegalStateException("Fail to deploy Ruby on Rails application: " + pluginKey, e);
+        }
       }
     }
   }

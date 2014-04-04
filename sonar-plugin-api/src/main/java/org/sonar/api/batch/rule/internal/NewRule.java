@@ -37,7 +37,7 @@ public class NewRule {
 
   final RuleKey key;
   Integer id;
-  String name, description, severity = DEFAULT_SEVERITY, metadata, debtSubCharacteristic;
+  String name, description, severity = DEFAULT_SEVERITY, internalKey, debtSubCharacteristic;
   DebtRemediationFunction debtRemediationFunction;
   RuleStatus status = RuleStatus.defaultStatus();
   Map<String, NewRuleParam> params = new HashMap<String, NewRuleParam>();
@@ -71,8 +71,8 @@ public class NewRule {
     return this;
   }
 
-  public NewRule setMetadata(@Nullable String metadata) {
-    this.metadata = metadata;
+  public NewRule setInternalKey(@Nullable String s) {
+    this.internalKey = s;
     return this;
   }
 

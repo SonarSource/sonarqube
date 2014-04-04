@@ -45,6 +45,18 @@ public class RulesDefinitionAnnotationLoader {
 
   private static final Logger LOG = LoggerFactory.getLogger(RulesDefinitionAnnotationLoader.class);
 
+  private static final Function<Class<?>, RuleParamType> TYPE_FOR_CLASS = Functions.forMap(
+    ImmutableMap.<Class<?>, RuleParamType>builder()
+      .put(Integer.class, RuleParamType.INTEGER)
+      .put(int.class, RuleParamType.INTEGER)
+      .put(Float.class, RuleParamType.FLOAT)
+      .put(float.class, RuleParamType.FLOAT)
+      .put(Boolean.class, RuleParamType.BOOLEAN)
+      .put(boolean.class, RuleParamType.BOOLEAN)
+      .build(),
+    RuleParamType.STRING
+  );
+
   public void load(RulesDefinition.NewExtendedRepository repo, Class... annotatedClasses) {
     for (Class annotatedClass : annotatedClasses) {
       loadRule(repo, annotatedClass);
@@ -101,18 +113,6 @@ public class RulesDefinitionAnnotationLoader {
       }
     }
   }
-
-  private static final Function<Class<?>, RuleParamType> TYPE_FOR_CLASS = Functions.forMap(
-    ImmutableMap.<Class<?>, RuleParamType>builder()
-      .put(Integer.class, RuleParamType.INTEGER)
-      .put(int.class, RuleParamType.INTEGER)
-      .put(Float.class, RuleParamType.FLOAT)
-      .put(float.class, RuleParamType.FLOAT)
-      .put(Boolean.class, RuleParamType.BOOLEAN)
-      .put(boolean.class, RuleParamType.BOOLEAN)
-      .build(),
-    RuleParamType.STRING
-  );
 
   @VisibleForTesting
   static RuleParamType guessType(Class<?> type) {

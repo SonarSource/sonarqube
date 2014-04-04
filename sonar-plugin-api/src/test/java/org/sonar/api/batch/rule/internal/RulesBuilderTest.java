@@ -45,7 +45,7 @@ public class RulesBuilderTest {
     NewRule newSquid1 = builder.add(RuleKey.of("squid", "S0001"));
     newSquid1.setName("Detect bug");
     newSquid1.setDescription("Detect potential bug");
-    newSquid1.setMetadata("foo=bar");
+    newSquid1.setInternalKey("foo=bar");
     newSquid1.setSeverity(Severity.CRITICAL);
     newSquid1.setStatus(RuleStatus.BETA);
     newSquid1.setDebtSubCharacteristic("COMPILER");
@@ -68,7 +68,7 @@ public class RulesBuilderTest {
     assertThat(squid1.key().rule()).isEqualTo("S0001");
     assertThat(squid1.name()).isEqualTo("Detect bug");
     assertThat(squid1.description()).isEqualTo("Detect potential bug");
-    assertThat(squid1.metadata()).isEqualTo("foo=bar");
+    assertThat(squid1.internalKey()).isEqualTo("foo=bar");
     assertThat(squid1.status()).isEqualTo(RuleStatus.BETA);
     assertThat(squid1.severity()).isEqualTo(Severity.CRITICAL);
     assertThat(squid1.debtSubCharacteristic()).isEqualTo("COMPILER");
@@ -86,7 +86,7 @@ public class RulesBuilderTest {
     assertThat(squid2.key().repository()).isEqualTo("squid");
     assertThat(squid2.key().rule()).isEqualTo("S0002");
     assertThat(squid2.description()).isNull();
-    assertThat(squid2.metadata()).isNull();
+    assertThat(squid2.internalKey()).isNull();
     assertThat(squid2.status()).isEqualTo(RuleStatus.defaultStatus());
     assertThat(squid2.severity()).isEqualTo(Severity.defaultSeverity());
     assertThat(squid2.debtSubCharacteristic()).isNull();

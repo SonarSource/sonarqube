@@ -37,7 +37,7 @@ public class DefaultRule implements Rule {
 
   private final RuleKey key;
   private final Integer id;
-  private final String name, severity, description, metadata, debtSubCharacteristic;
+  private final String name, severity, description, internalKey, debtSubCharacteristic;
   private final RuleStatus status;
   private final DebtRemediationFunction debtRemediationFunction;
 
@@ -49,7 +49,7 @@ public class DefaultRule implements Rule {
     this.name = newRule.name;
     this.severity = newRule.severity;
     this.description = newRule.description;
-    this.metadata = newRule.metadata;
+    this.internalKey = newRule.internalKey;
     this.status = newRule.status;
     this.debtSubCharacteristic = newRule.debtSubCharacteristic;
     this.debtRemediationFunction = newRule.debtRemediationFunction;
@@ -87,8 +87,8 @@ public class DefaultRule implements Rule {
   }
 
   @Override
-  public String metadata() {
-    return metadata;
+  public String internalKey() {
+    return internalKey;
   }
 
   @Override

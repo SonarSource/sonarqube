@@ -33,8 +33,11 @@ import org.sonar.api.utils.System2;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class MeasureFilterFactory implements ServerComponent {
 
@@ -55,15 +58,15 @@ public class MeasureFilterFactory implements ServerComponent {
     if (condition != null) {
       filter.addCondition(condition);
     }
-    String onBaseComponents = "onBaseComponents";
-    if (properties.containsKey(onBaseComponents)) {
-      filter.setOnBaseResourceChildren(Boolean.valueOf((String) properties.get(onBaseComponents)));
+    String onBaseComponents = (String) properties.get("onBaseComponents");
+    if (onBaseComponents != null) {
+      filter.setOnBaseResourceChildren(Boolean.valueOf(onBaseComponents));
     }
     filter.setResourceName((String) properties.get("nameSearch"));
     filter.setResourceKey((String) properties.get("keySearch"));
-    String onFavourites = "onFavourites";
-    if (properties.containsKey(onFavourites)) {
-      filter.setUserFavourites(Boolean.valueOf((String) properties.get(onFavourites)));
+    String onFavourites = (String) properties.get("onFavourites");
+    if (onFavourites != null) {
+      filter.setUserFavourites(Boolean.valueOf(onFavourites));
     }
     fillDateConditions(filter, properties);
     fillSorting(filter, properties);
@@ -72,23 +75,17 @@ public class MeasureFilterFactory implements ServerComponent {
   }
 
   private void fillDateConditions(MeasureFilter filter, Map<String, Object> properties) {
-    String fromDate = "fromDate";
-    if (properties.containsKey(fromDate)) {
-      filter.setFromDate(toDate((String) properties.get(fromDate)));
+    String fromDate = (String) properties.get("fromDate");
+    if (fromDate != null) {
+      filter.setFromDate(toDate(fromDate));
     } else {
-      String ageMaxDays = "ageMaxDays";
-      if (properties.containsKey(ageMaxDays)) {
-        filter.setFromDate(toDays((String) properties.get(ageMaxDays)));
-      }
+      filter.setFromDate(toDays((String) properties.get("ageMaxDays")));
     }
-    String toDate = "toDate";
-    if (properties.containsKey(toDate)) {
-      filter.setToDate(toDate((String) properties.get(toDate)));
+    String toDate = (String) properties.get("toDate");
+    if (toDate != null) {
+      filter.setToDate(toDate(toDate));
     } else {
-      String ageMinDays = "ageMinDays";
-      if (properties.containsKey(ageMinDays)) {
-        filter.setToDate(toDays((String) properties.get(ageMinDays)));
-      }
+      filter.setToDate(toDays((String) properties.get("ageMinDays")));
     }
   }
 
