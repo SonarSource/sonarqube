@@ -163,7 +163,8 @@ define(['handlebars', 'navigator/filters/base-filters', 'common/handlebars-exten
 
 
     selectCurrent: function() {
-      this.$('label').eq(this.currentChoice).click();
+      var cb = this.$('input[type=checkbox]').eq(this.currentChoice);
+      cb.prop('checked', !cb.prop('checked')).trigger('change');
     },
 
 

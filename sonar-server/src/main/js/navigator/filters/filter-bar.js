@@ -43,9 +43,17 @@ define(
           key.filter = function(e) {
             var el = jQuery(e.target),
                 tabbableSet = el.closest('.navigator-filter-details-inner').find(':tabbable');
-            return tabbableSet.index(el) >= tabbableSet.length - 1;
+            if (el.is(':input')) {
+              if (e.keyCode === 9 || e.keyCode === 27) {
+                return tabbableSet.index(el) >= tabbableSet.length - 1;
+              } else {
+                return false;
+              }
+            } else {
+              return true;
+            }
           };
-          key('f', function() {
+          key('tab', 'list', function() {
             key.setScope('filters');
             that.selectFirst();
             return false;
@@ -57,6 +65,11 @@ define(
           key('tab', 'filters', function() {
             that.selectNext();
             return false;
+          });
+          key('escape', 'filters', function() {
+            that.hideDetails();
+            this.selected = -1;
+            key.setScope('list');
           });
         },
 
@@ -90,6 +103,7 @@ define(
             this.selected++;
             filters.eq(this.selected).click();
           } else {
+            this.selected = filters.length;
             this.hideDetails();
             this.$('.navigator-filter-submit').focus();
           }

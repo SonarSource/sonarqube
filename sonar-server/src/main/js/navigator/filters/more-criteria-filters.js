@@ -17,6 +17,11 @@ define(['navigator/filters/base-filters', 'navigator/filters/choice-filters', 'c
     },
 
 
+    selectCurrent: function() {
+      this.$('label').eq(this.currentChoice).click();
+    },
+
+
     serializeData: function() {
       var filters = this.model.get('filters').map(function(filter) {
             return _.extend(filter.toJSON(), { id: filter.cid });

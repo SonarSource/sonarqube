@@ -191,5 +191,6 @@ requirejs(
       if (window.queryParams) {
         NavigatorApp.filterBarView.restoreFromQuery(window.queryParams);
       }
+      key.setScope('list');
 
     });
