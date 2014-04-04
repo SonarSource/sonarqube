@@ -65,17 +65,14 @@ public class RulesDefinitionTest {
   @Test
   public void define_rules() {
     RulesDefinition.NewRepository newRepo = context.createRepository("findbugs", "java");
-    RulesDefinition.NewRule newRule = newRepo.createRule("NPE")
+    newRepo.createRule("NPE")
       .setName("Detect NPE")
       .setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
       .setSeverity(Severity.BLOCKER)
       .setInternalKey("/something")
       .setStatus(RuleStatus.BETA)
-      .setDebtSubCharacteristic("COMPILER")
-      .setEffortToFixDescription("squid.S115.effortToFix")
       .setTags("one", "two")
       .addTags("two", "three", "four");
-    newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linearWithOffset("1h", "10min"));
 
     newRepo.createRule("ABC").setName("ABC").setHtmlDescription("ABC");
     newRepo.done();
@@ -93,11 +90,6 @@ public class RulesDefinitionTest {
     assertThat(rule.internalKey()).isEqualTo("/something");
     assertThat(rule.template()).isFalse();
     assertThat(rule.status()).isEqualTo(RuleStatus.BETA);
-    assertThat(rule.debtSubCharacteristic()).isEqualTo("COMPILER");
-    assertThat(rule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
-    assertThat(rule.debtRemediationFunction().coefficient()).isEqualTo("1h");
-    assertThat(rule.debtRemediationFunction().offset()).isEqualTo("10min");
-    assertThat(rule.effortToFixDescription()).isEqualTo("squid.S115.effortToFix");
     assertThat(rule.toString()).isEqualTo("[repository=findbugs, key=NPE]");
     assertThat(rule.repository()).isSameAs(repo);
 
@@ -105,6 +97,29 @@ public class RulesDefinitionTest {
     RulesDefinition.Rule otherRule = repo.rule("ABC");
     assertThat(rule).isEqualTo(rule).isNotEqualTo(otherRule).isNotEqualTo("NPE").isNotEqualTo(null);
     assertThat(rule.hashCode()).isEqualTo(rule.hashCode());
+  }
+
+  @Test
+  public void define_rules_with_technical_debt() {
+    RulesDefinition.NewRepository newRepo = context.createRepository("common-java", "java");
+    RulesDefinition.NewRule newRule = newRepo.createRule("InsufficientBranchCoverage")
+      .setName("Insufficient branch coverage")
+      .setHtmlDescription("Insufficient branch coverage by unit tests")
+      .setSeverity(Severity.MAJOR)
+      .setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.UNIT_TESTS)
+      .setEffortToFixDescription("Effort to test one uncovered branch");
+    newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linearWithOffset("1h", "10min"));
+    newRepo.done();
+
+    RulesDefinition.Repository repo = context.repository("common-java");
+    assertThat(repo.rules()).hasSize(1);
+
+    RulesDefinition.Rule rule = repo.rule("InsufficientBranchCoverage");
+    assertThat(rule.debtSubCharacteristic()).isEqualTo("UNIT_TESTS");
+    assertThat(rule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
+    assertThat(rule.debtRemediationFunction().coefficient()).isEqualTo("1h");
+    assertThat(rule.debtRemediationFunction().offset()).isEqualTo("10min");
+    assertThat(rule.effortToFixDescription()).isEqualTo("Effort to test one uncovered branch");
   }
 
   @Test
