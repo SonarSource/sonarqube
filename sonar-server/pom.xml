@@ -175,34 +175,7 @@
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
-      <!--
-       bug of maven 3.0.x (maybe 3.1). Fixed in 3.2
-       Scope of transitive dependencies of sonar-core:test-jar is "compile"
-       but should be "test"
-      -->
-      <exclusions>
-        <exclusion>
-          <groupId>ch.qos.logback</groupId>
-          <artifactId>logback-classic</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>ch.qos.logback</groupId>
-          <artifactId>logback-core</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>
@@ -384,9 +357,7 @@
     <profile>
       <id>js-tests</id>
       <activation>
-        <property>
-          <name>!skipTests</name>
-        </property>
+        <property><name>!skipTests</name></property>
       </activation>
       <build>
         <plugins>
