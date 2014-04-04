@@ -661,7 +661,7 @@ public class RuleOperationsTest {
         authorizedUserSession
       );
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Invalid coefficient: foo");
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Invalid coefficient: foo (Duration 'foo' is invalid, it should use the following sample format : 2d 10h 15min)");
     }
 
     verify(ruleDao, never()).update(any(RuleDto.class), eq(session));
