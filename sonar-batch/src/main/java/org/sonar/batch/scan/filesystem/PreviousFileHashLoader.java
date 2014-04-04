@@ -20,7 +20,6 @@
 package org.sonar.batch.scan.filesystem;
 
 import com.google.common.collect.Maps;
-import org.picocontainer.Startable;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.utils.KeyValueFormat;
@@ -29,8 +28,6 @@ import org.sonar.batch.components.PastSnapshotFinder;
 import org.sonar.core.source.SnapshotDataTypes;
 import org.sonar.core.source.db.SnapshotDataDao;
 import org.sonar.core.source.db.SnapshotDataDto;
-
-import javax.annotation.CheckForNull;
 
 import java.util.Arrays;
 import java.util.Collection;

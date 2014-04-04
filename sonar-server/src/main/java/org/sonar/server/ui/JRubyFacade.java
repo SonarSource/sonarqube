@@ -239,6 +239,9 @@ public final class JRubyFacade {
 
   /* PROFILES CONSOLE : RULES AND METRIC THRESHOLDS */
 
+  /**
+   * @deprecated in 4.2
+   */
   @Deprecated
   @CheckForNull
   public RuleRepositories.Repository getRuleRepository(String repositoryKey) {

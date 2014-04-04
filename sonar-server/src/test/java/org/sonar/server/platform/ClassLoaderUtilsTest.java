@@ -20,7 +20,9 @@
 package org.sonar.server.platform;
 
 import com.google.common.base.Function;
+import com.google.common.base.Functions;
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -29,7 +31,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.server.platform.ClassLoaderUtils;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -59,24 +60,13 @@ public class ClassLoaderUtilsTest {
 
   @Test
   public void listResources_unknown_root() {
-    Collection<String> strings = ClassLoaderUtils.listResources(classLoader, "unknown/directory");
+    Collection<String> strings = ClassLoaderUtils.listResources(classLoader, "unknown/directory", Predicates.<String>alwaysTrue());
     assertThat(strings.size(), Is.is(0));
   }
 
   @Test
   public void listResources_all() {
-    Collection<String> strings = ClassLoaderUtils.listResources(classLoader, "org/sonar/sqale");
-    assertThat(strings, hasItems(
-      "org/sonar/sqale/",
-      "org/sonar/sqale/app/",
-      "org/sonar/sqale/app/copyright.txt",
-      "org/sonar/sqale/app/README.md"));
-    assertThat(strings.size(), Is.is(4));
-  }
-
-  @Test
-  public void listResources_root_path_starts_with_slash() {
-    Collection<String> strings = ClassLoaderUtils.listResources(classLoader, "/org/sonar/sqale");
+    Collection<String> strings = ClassLoaderUtils.listResources(classLoader, "org/sonar/sqale", Predicates.<String>alwaysTrue());
     assertThat(strings, hasItems(
       "org/sonar/sqale/",
       "org/sonar/sqale/app/",
@@ -108,7 +98,7 @@ public class ClassLoaderUtilsTest {
   @Test
   public void copyRubyRailsApp() {
     File toDir = temp.newFolder("dest");
-    ClassLoaderUtils.copyResources(classLoader, "org/sonar/sqale", toDir);
+    ClassLoaderUtils.copyResources(classLoader, "org/sonar/sqale", toDir, Functions.<String>identity());
 
     assertThat(FileUtils.listFiles(toDir, null, true).size(), Is.is(2));
     assertThat(new File(toDir, "org/sonar/sqale/app/copyright.txt").exists(), Is.is(true));

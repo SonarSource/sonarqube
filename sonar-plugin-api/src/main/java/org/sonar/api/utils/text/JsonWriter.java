@@ -51,10 +51,6 @@ import java.util.Date;
  */
 public class JsonWriter {
 
-  public static JsonWriter of(Writer writer) {
-    return new JsonWriter(writer);
-  }
-
   private final com.google.gson.stream.JsonWriter stream;
 
   private JsonWriter(Writer writer) {
@@ -66,6 +62,10 @@ public class JsonWriter {
   // for unit testing
   JsonWriter(com.google.gson.stream.JsonWriter stream) {
     this.stream = stream;
+  }
+
+  public static JsonWriter of(Writer writer) {
+    return new JsonWriter(writer);
   }
 
   /**

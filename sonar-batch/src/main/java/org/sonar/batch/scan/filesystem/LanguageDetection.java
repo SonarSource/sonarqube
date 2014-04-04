@@ -113,12 +113,10 @@ class LanguageDetection {
       return detectedLanguage;
     }
 
-    // Check if deprecated sonar.language is used and we are on a language without declared extensions
-    if (forcedLanguage != null) {
-      // Languages without declared suffixes match everything
-      if (patternsByLanguage.get(forcedLanguage).length == 0) {
-        return forcedLanguage;
-      }
+    // Check if deprecated sonar.language is used and we are on a language without declared extensions.
+    // Languages without declared suffixes match everything.
+    if (forcedLanguage != null && patternsByLanguage.get(forcedLanguage).length == 0) {
+      return forcedLanguage;
     }
     return null;
   }

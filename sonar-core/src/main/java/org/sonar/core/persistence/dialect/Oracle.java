@@ -19,13 +19,11 @@
  */
 package org.sonar.core.persistence.dialect;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.dialect.Oracle10gDialect;
 import org.sonar.api.database.DatabaseProperties;
 
 import java.sql.Types;
-import java.util.List;
 
 /**
  * @since 1.12

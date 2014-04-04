@@ -30,10 +30,6 @@ import java.io.Writer;
  */
 public class XmlWriter {
 
-  public static XmlWriter of(Writer writer) {
-    return new XmlWriter(writer);
-  }
-
   private final XMLStreamWriter stream;
 
   private XmlWriter(Writer writer) {
@@ -43,6 +39,10 @@ public class XmlWriter {
     } catch (Exception e) {
       throw new WriterException("Fail to initialize XML Stream writer", e);
     }
+  }
+
+  public static XmlWriter of(Writer writer) {
+    return new XmlWriter(writer);
   }
 
   public XmlWriter declaration() {

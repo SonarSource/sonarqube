@@ -21,7 +21,6 @@ package org.sonar.batch.rule;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
-import org.codehaus.plexus.util.StringUtils;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
@@ -32,8 +31,6 @@ import org.sonar.api.rules.RuleParam;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-
-import javax.annotation.CheckForNull;
 
 /**
  * Loads the rules that are activated on the Quality profiles
@@ -84,11 +81,5 @@ public class ActiveRulesProvider extends ProviderAdapter {
       }
     }
     return builder.build();
-  }
-
-  @CheckForNull
-  private String defaultParamValue(Rule rule, String paramKey) {
-    RuleParam param = rule.getParam(paramKey);
-    return param != null ? param.getDefaultValue() : null;
   }
 }

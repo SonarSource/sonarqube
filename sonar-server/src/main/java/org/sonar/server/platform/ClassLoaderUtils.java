@@ -43,10 +43,7 @@ import java.util.jar.JarFile;
 class ClassLoaderUtils {
 
   private ClassLoaderUtils() {
-  }
-
-  static File copyResources(ClassLoader classLoader, String rootPath, File toDir) {
-    return copyResources(classLoader, rootPath, toDir, Functions.<String>identity());
+    // only static methods
   }
 
   static File copyResources(ClassLoader classLoader, String rootPath, File toDir, Function<String, String> relocationFunction) {
@@ -80,17 +77,12 @@ class ClassLoaderUtils {
     });
   }
 
-
-  static Collection<String> listResources(ClassLoader classLoader, String rootPath) {
-    return listResources(classLoader, rootPath, Predicates.<String>alwaysTrue());
-  }
-
   /**
    * Finds directories and files within a given directory and its subdirectories.
    *
    * @param classLoader
    * @param rootPath    the root directory, for example org/sonar/sqale, or a file in this root directory, for example org/sonar/sqale/index.txt
-   * @param
+   * @param predicate
    * @return a list of relative paths, for example {"org/sonar/sqale", "org/sonar/sqale/foo", "org/sonar/sqale/foo/bar.txt}. Never null.
    */
   static Collection<String> listResources(ClassLoader classLoader, String rootPath, Predicate<String> predicate) {
@@ -98,8 +90,6 @@ class ClassLoaderUtils {
     JarFile jar = null;
     try {
       Collection<String> paths = Lists.newArrayList();
-      rootPath = StringUtils.removeStart(rootPath, "/");
-
       URL root = classLoader.getResource(rootPath);
       if (root != null) {
         checkJarFile(root);
