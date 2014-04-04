@@ -24,7 +24,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
@@ -42,6 +41,7 @@ import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.RuleDefinitionsLoader;
+import org.sonar.server.rule.RuleOperations;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
 
@@ -62,6 +62,7 @@ public class DebtModelBackup implements ServerComponent {
   private final CharacteristicDao dao;
   private final RuleDao ruleDao;
   private final DebtModelOperations debtModelOperations;
+  private final RuleOperations ruleOperations;
   private final DebtModelPluginRepository debtModelPluginRepository;
   private final DebtCharacteristicsXMLImporter characteristicsXMLImporter;
   private final DebtRulesXMLImporter rulesXMLImporter;
@@ -70,21 +71,22 @@ public class DebtModelBackup implements ServerComponent {
   private final RuleDefinitionsLoader defLoader;
   private final System2 system2;
 
-  public DebtModelBackup(MyBatis mybatis, CharacteristicDao dao, RuleDao ruleDao, DebtModelOperations debtModelOperations, DebtModelPluginRepository debtModelPluginRepository,
-                         DebtCharacteristicsXMLImporter characteristicsXMLImporter, DebtRulesXMLImporter rulesXMLImporter,
+  public DebtModelBackup(MyBatis mybatis, CharacteristicDao dao, RuleDao ruleDao, DebtModelOperations debtModelOperations, RuleOperations ruleOperations,
+                         DebtModelPluginRepository debtModelPluginRepository, DebtCharacteristicsXMLImporter characteristicsXMLImporter, DebtRulesXMLImporter rulesXMLImporter,
                          DebtModelXMLExporter debtModelXMLExporter, RuleRegistry ruleRegistry, RuleDefinitionsLoader defLoader) {
-    this(mybatis, dao, ruleDao, debtModelOperations, debtModelPluginRepository, characteristicsXMLImporter, rulesXMLImporter, debtModelXMLExporter, ruleRegistry, defLoader,
-      System2.INSTANCE);
+    this(mybatis, dao, ruleDao, debtModelOperations, ruleOperations, debtModelPluginRepository, characteristicsXMLImporter, rulesXMLImporter, debtModelXMLExporter, ruleRegistry,
+      defLoader, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  DebtModelBackup(MyBatis mybatis, CharacteristicDao dao, RuleDao ruleDao, DebtModelOperations debtModelOperations, DebtModelPluginRepository debtModelPluginRepository,
-                  DebtCharacteristicsXMLImporter characteristicsXMLImporter, DebtRulesXMLImporter rulesXMLImporter, DebtModelXMLExporter debtModelXMLExporter,
-                  RuleRegistry ruleRegistry, RuleDefinitionsLoader defLoader, System2 system2) {
+  DebtModelBackup(MyBatis mybatis, CharacteristicDao dao, RuleDao ruleDao, DebtModelOperations debtModelOperations, RuleOperations ruleOperations,
+                  DebtModelPluginRepository debtModelPluginRepository, DebtCharacteristicsXMLImporter characteristicsXMLImporter, DebtRulesXMLImporter rulesXMLImporter,
+                  DebtModelXMLExporter debtModelXMLExporter, RuleRegistry ruleRegistry, RuleDefinitionsLoader defLoader, System2 system2) {
     this.mybatis = mybatis;
     this.dao = dao;
     this.ruleDao = ruleDao;
     this.debtModelOperations = debtModelOperations;
+    this.ruleOperations = ruleOperations;
     this.debtModelPluginRepository = debtModelPluginRepository;
     this.characteristicsXMLImporter = characteristicsXMLImporter;
     this.rulesXMLImporter = rulesXMLImporter;
@@ -221,30 +223,13 @@ public class DebtModelBackup implements ServerComponent {
                             ValidationMessages validationMessages, Date updateDate, SqlSession session) {
     for (RuleDto rule : rules) {
       RuleDebt ruleDebt = ruleDebt(rule.getRepositoryKey(), rule.getRuleKey(), ruleDebts);
-      if (ruleDebt == null) {
-        // rule does not exists in the XML
-        disabledOverriddenRuleDebt(rule);
-      } else {
-        CharacteristicDto subCharacteristicDto = characteristicByKey(ruleDebt.subCharacteristicKey(), allCharacteristicDtos, true);
-        boolean isSameCharacteristicAsDefault = subCharacteristicDto.getId().equals(rule.getDefaultSubCharacteristicId());
-        boolean isSameFunctionAsDefault = isSameRemediationFunction(ruleDebt, rule);
-
-        // Update only if given characteristic is not the same as the default one or if given function is not the same as the default one
-        if (!isSameCharacteristicAsDefault || !isSameFunctionAsDefault) {
-          rule.setSubCharacteristicId(subCharacteristicDto.getId());
-          rule.setRemediationFunction(ruleDebt.function().name());
-          rule.setRemediationCoefficient(ruleDebt.coefficient());
-          rule.setRemediationOffset(ruleDebt.offset());
-        } else {
-          rule.setSubCharacteristicId(null);
-          rule.setRemediationFunction(null);
-          rule.setRemediationCoefficient(null);
-          rule.setRemediationOffset(null);
-        }
-      }
+      String subCharacteristicKey = ruleDebt != null ? ruleDebt.subCharacteristicKey() : null;
+      CharacteristicDto subCharacteristicDto = subCharacteristicKey != null ? characteristicByKey(ruleDebt.subCharacteristicKey(), allCharacteristicDtos, true) : null;
+      ruleOperations.updateRule(rule, subCharacteristicDto,
+        ruleDebt != null ? ruleDebt.function() : null,
+        ruleDebt != null ? ruleDebt.coefficient() :null,
+        ruleDebt != null ? ruleDebt.offset() :null, updateDate, session);
       rule.setUpdatedAt(updateDate);
-      ruleDao.update(rule, session);
-
       ruleDebts.remove(ruleDebt);
     }
     ruleRegistry.reindex(rules, session);
@@ -297,22 +282,6 @@ public class DebtModelBackup implements ServerComponent {
       }
       return sourceCharacteristic;
     }
-  }
-
-  private static boolean isSameRemediationFunction(RuleDebt ruleDebt, RuleDto rule) {
-    return new EqualsBuilder()
-      .append(ruleDebt.function().name(), rule.getDefaultRemediationFunction())
-      .append(ruleDebt.coefficient(), rule.getDefaultRemediationCoefficient())
-      .append(ruleDebt.offset(), rule.getDefaultRemediationOffset())
-      .isEquals();
-  }
-
-  private void disabledOverriddenRuleDebt(RuleDto rule) {
-    // If default characteristic is not defined, set the overridden characteristic to null in order to be able to track debt plugin update
-    rule.setSubCharacteristicId(rule.getDefaultSubCharacteristicId() != null ? RuleDto.DISABLED_CHARACTERISTIC_ID : null);
-    rule.setRemediationFunction(null);
-    rule.setRemediationCoefficient(null);
-    rule.setRemediationOffset(null);
   }
 
   private DebtModel loadModelFromPlugin(String pluginKey) {
@@ -395,7 +364,7 @@ public class DebtModelBackup implements ServerComponent {
     String effectiveCoefficient = coefficient != null ? coefficient : rule.getDefaultRemediationCoefficient();
     String effectiveOffset = offset != null ? offset : rule.getDefaultRemediationOffset();
 
-    ruleDebt.setFunction(DebtRemediationFunction.Type.valueOf(function));
+    ruleDebt.setFunction(function);
     ruleDebt.setCoefficient(effectiveCoefficient);
     ruleDebt.setOffset(effectiveOffset);
     return ruleDebt;

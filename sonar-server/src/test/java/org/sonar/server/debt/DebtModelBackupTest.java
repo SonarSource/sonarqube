@@ -46,6 +46,7 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.rule.RuleDefinitionsLoader;
+import org.sonar.server.rule.RuleOperations;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.MockUserSession;
 
@@ -83,6 +84,9 @@ public class DebtModelBackupTest {
 
   @Mock
   DebtModelOperations debtModelOperations;
+
+  @Mock
+  RuleOperations ruleOperations;
 
   @Mock
   DebtCharacteristicsXMLImporter characteristicsXMLImporter;
@@ -140,7 +144,7 @@ public class DebtModelBackupTest {
     Reader defaultModelReader = mock(Reader.class);
     when(debtModelPluginRepository.createReaderForXMLFile("technical-debt")).thenReturn(defaultModelReader);
 
-    debtModelBackup = new DebtModelBackup(myBatis, dao, ruleDao, debtModelOperations, debtModelPluginRepository, characteristicsXMLImporter, rulesXMLImporter,
+    debtModelBackup = new DebtModelBackup(myBatis, dao, ruleDao, debtModelOperations, ruleOperations, debtModelPluginRepository, characteristicsXMLImporter, rulesXMLImporter,
       debtModelXMLExporter, ruleRegistry, defLoader, system2);
   }
 
@@ -173,7 +177,7 @@ public class DebtModelBackupTest {
     assertThat(rule.ruleKey().repository()).isEqualTo("squid");
     assertThat(rule.ruleKey().rule()).isEqualTo("UselessImportCheck");
     assertThat(rule.subCharacteristicKey()).isEqualTo("COMPILER");
-    assertThat(rule.function().name()).isEqualTo("LINEAR_OFFSET");
+    assertThat(rule.function()).isEqualTo("LINEAR_OFFSET");
     assertThat(rule.coefficient()).isEqualTo("2h");
     assertThat(rule.offset()).isEqualTo("15min");
 
@@ -181,7 +185,7 @@ public class DebtModelBackupTest {
     assertThat(rule.ruleKey().repository()).isEqualTo("squid");
     assertThat(rule.ruleKey().rule()).isEqualTo("AvoidNPE");
     assertThat(rule.subCharacteristicKey()).isEqualTo("COMPILER");
-    assertThat(rule.function().name()).isEqualTo("LINEAR");
+    assertThat(rule.function()).isEqualTo("LINEAR");
     assertThat(rule.coefficient()).isEqualTo("2h");
     assertThat(rule.offset()).isNull();
   }
@@ -236,7 +240,7 @@ public class DebtModelBackupTest {
     assertThat(rule.ruleKey().repository()).isEqualTo("squid");
     assertThat(rule.ruleKey().rule()).isEqualTo("UselessImportCheck");
     assertThat(rule.subCharacteristicKey()).isEqualTo("COMPILER");
-    assertThat(rule.function().name()).isEqualTo("CONSTANT_ISSUE");
+    assertThat(rule.function()).isEqualTo("CONSTANT_ISSUE");
     assertThat(rule.coefficient()).isNull();
     assertThat(rule.offset()).isEqualTo("15min");
   }
@@ -502,20 +506,21 @@ public class DebtModelBackupTest {
   }
 
   @Test
-  public void restore_from_xml_with_different_characteristic_and_same_function_as_default_values() throws Exception {
+  public void restore_from_xml() throws Exception {
     when(characteristicsXMLImporter.importXML(anyString())).thenReturn(new DebtModel()
       .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
       .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
 
+    CharacteristicDto compiler = new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1).setCreatedAt(oldDate);
     when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
       new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability").setOrder(1).setCreatedAt(oldDate),
-      new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1).setCreatedAt(oldDate),
-      new CharacteristicDto().setId(3).setKey("HARDWARE").setName("Hardware").setParentId(1).setCreatedAt(oldDate)));
+      new CharacteristicDto().setId(3).setKey("HARDWARE").setName("Hardware").setParentId(1).setCreatedAt(oldDate),
+      compiler));
 
     when(rulesXMLImporter.importXML(anyString(), any(ValidationMessages.class))).thenReturn(newArrayList(new RuleDebt()
       .setRuleKey(RuleKey.of("squid", "UselessImportCheck"))
       .setSubCharacteristicKey("COMPILER")
-      .setFunction(DebtRemediationFunction.Type.LINEAR).setCoefficient("2h")));
+      .setFunction(DebtRemediationFunction.Type.LINEAR.name()).setCoefficient("2h")));
 
     when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
       new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
@@ -525,93 +530,11 @@ public class DebtModelBackupTest {
 
     debtModelBackup.restoreFromXml("<xml/>");
 
-    verify(ruleDao).selectEnablesAndNonManual(session);
-    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
-    verifyNoMoreInteractions(ruleDao);
-    verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), session);
-    verify(session).commit();
-
-    RuleDto rule = ruleCaptor.getValue();
-    assertThat(rule.getId()).isEqualTo(1);
-    assertThat(rule.getSubCharacteristicId()).isEqualTo(2);
-    assertThat(rule.getRemediationFunction()).isEqualTo("LINEAR");
-    assertThat(rule.getRemediationCoefficient()).isEqualTo("2h");
-    assertThat(rule.getRemediationOffset()).isNull();
-    assertThat(rule.getUpdatedAt()).isEqualTo(now);
-  }
-
-  @Test
-  public void restore_from_xml_with_same_characteristic_and_different_function_as_default_values() throws Exception {
-    when(characteristicsXMLImporter.importXML(anyString())).thenReturn(new DebtModel()
-      .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
-      .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
-
-    when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
-      new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability").setOrder(1).setCreatedAt(oldDate),
-      new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1).setCreatedAt(oldDate)));
-
-    when(rulesXMLImporter.importXML(anyString(), any(ValidationMessages.class))).thenReturn(newArrayList(new RuleDebt()
-      .setRuleKey(RuleKey.of("squid", "UselessImportCheck"))
-      .setSubCharacteristicKey("COMPILER")
-      .setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET).setCoefficient("12h").setOffset("11min")));
-
-    when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
-      new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
-        .setDefaultSubCharacteristicId(2).setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("2h")
-        .setCreatedAt(oldDate).setUpdatedAt(oldDate)
-    ));
-
-    debtModelBackup.restoreFromXml("<xml/>");
+    verify(ruleOperations).updateRule(ruleCaptor.capture(), eq(compiler), eq("LINEAR"), eq("2h"), isNull(String.class), eq(now), eq(session));
 
     verify(ruleDao).selectEnablesAndNonManual(session);
-    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
-    verifyNoMoreInteractions(ruleDao);
     verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), session);
     verify(session).commit();
-
-    RuleDto rule = ruleCaptor.getValue();
-    assertThat(rule.getId()).isEqualTo(1);
-    assertThat(rule.getSubCharacteristicId()).isEqualTo(2);
-    assertThat(rule.getRemediationFunction()).isEqualTo("LINEAR_OFFSET");
-    assertThat(rule.getRemediationCoefficient()).isEqualTo("12h");
-    assertThat(rule.getRemediationOffset()).isEqualTo("11min");
-    assertThat(rule.getUpdatedAt()).isEqualTo(now);
-  }
-
-  @Test
-  public void restore_from_xml_with_same_characteristic_and_same_function_as_default_values() throws Exception {
-    when(characteristicsXMLImporter.importXML(anyString())).thenReturn(new DebtModel()
-      .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
-      .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
-
-    when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
-      new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability").setOrder(1).setCreatedAt(oldDate),
-      new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1).setCreatedAt(oldDate)));
-
-    when(rulesXMLImporter.importXML(anyString(), any(ValidationMessages.class))).thenReturn(newArrayList(new RuleDebt()
-      .setRuleKey(RuleKey.of("squid", "UselessImportCheck")).setSubCharacteristicKey("COMPILER").setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET).setCoefficient("2h").setOffset("15min")));
-
-    when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
-      new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
-        .setDefaultSubCharacteristicId(2).setDefaultRemediationFunction("LINEAR_OFFSET").setDefaultRemediationCoefficient("2h").setDefaultRemediationOffset("15min")
-        .setCreatedAt(oldDate).setUpdatedAt(oldDate)
-    ));
-
-    debtModelBackup.restoreFromXml("<xml/>");
-
-    verify(ruleDao).selectEnablesAndNonManual(session);
-    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
-    verifyNoMoreInteractions(ruleDao);
-    verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), session);
-    verify(session).commit();
-
-    RuleDto rule = ruleCaptor.getValue();
-    assertThat(rule.getId()).isEqualTo(1);
-    assertThat(rule.getSubCharacteristicId()).isNull();
-    assertThat(rule.getRemediationFunction()).isNull();
-    assertThat(rule.getRemediationCoefficient()).isNull();
-    assertThat(rule.getRemediationOffset()).isNull();
-    assertThat(rule.getUpdatedAt()).isEqualTo(now);
   }
 
   @Test
@@ -632,52 +555,11 @@ public class DebtModelBackupTest {
 
     debtModelBackup.restoreFromXml("<xml/>");
 
-    verify(ruleDao).selectEnablesAndNonManual(session);
-    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
-    verifyNoMoreInteractions(ruleDao);
-    verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), session);
-    verify(session).commit();
-
-    RuleDto rule = ruleCaptor.getValue();
-    assertThat(rule.getId()).isEqualTo(1);
-    assertThat(rule.getSubCharacteristicId()).isEqualTo(-1);
-    assertThat(rule.getRemediationFunction()).isNull();
-    assertThat(rule.getRemediationCoefficient()).isNull();
-    assertThat(rule.getRemediationOffset()).isNull();
-    assertThat(rule.getUpdatedAt()).isEqualTo(now);
-  }
-
-  @Test
-  public void restore_from_xml_set_no_rule_debt_when_not_in_xml_and_rule_has_no_default_debt_values() throws Exception {
-    when(characteristicsXMLImporter.importXML(anyString())).thenReturn(new DebtModel()
-      .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
-      .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
-
-    when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
-      new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability").setOrder(1).setCreatedAt(oldDate),
-      new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1).setCreatedAt(oldDate)));
-
-    when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
-      new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
-        .setCreatedAt(oldDate).setUpdatedAt(oldDate)
-    ));
-
-    debtModelBackup.restoreFromXml("<xml/>");
+    verify(ruleOperations).updateRule(ruleCaptor.capture(), isNull(CharacteristicDto.class), isNull(String.class), isNull(String.class), isNull(String.class), eq(now), eq(session));
 
     verify(ruleDao).selectEnablesAndNonManual(session);
-    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
-    verifyNoMoreInteractions(ruleDao);
     verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), session);
     verify(session).commit();
-
-    RuleDto rule = ruleCaptor.getValue();
-    assertThat(rule.getId()).isEqualTo(1);
-    // As rule has no debt value, characteristic is set to null
-    assertThat(rule.getSubCharacteristicId()).isNull();
-    assertThat(rule.getRemediationFunction()).isNull();
-    assertThat(rule.getRemediationCoefficient()).isNull();
-    assertThat(rule.getRemediationOffset()).isNull();
-    assertThat(rule.getUpdatedAt()).isEqualTo(now);
   }
 
   @Test
@@ -686,12 +568,13 @@ public class DebtModelBackupTest {
       .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
       .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
 
+    CharacteristicDto compiler = new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1).setCreatedAt(oldDate);
     when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
       new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability").setOrder(1).setCreatedAt(oldDate),
-      new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1).setCreatedAt(oldDate)));
+      compiler));
 
     when(rulesXMLImporter.importXML(anyString(), any(ValidationMessages.class))).thenReturn(newArrayList(new RuleDebt()
-      .setRuleKey(RuleKey.of("squid", "UselessImportCheck")).setSubCharacteristicKey("COMPILER").setFunction(DebtRemediationFunction.Type.LINEAR).setCoefficient("2h")));
+      .setRuleKey(RuleKey.of("squid", "UselessImportCheck")).setSubCharacteristicKey("COMPILER").setFunction(DebtRemediationFunction.Type.LINEAR.name()).setCoefficient("2h")));
 
     when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
       new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck").setLanguage("java")
@@ -705,14 +588,11 @@ public class DebtModelBackupTest {
 
     debtModelBackup.restoreFromXml("<xml/>", "java");
 
+    verify(ruleOperations).updateRule(ruleCaptor.capture(), eq(compiler), eq("LINEAR"), eq("2h"), isNull(String.class), eq(now), eq(session));
+
     verify(ruleDao).selectEnablesAndNonManual(session);
-    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
-    verifyNoMoreInteractions(ruleDao);
     verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), session);
     verify(session).commit();
-
-    RuleDto rule = ruleCaptor.getValue();
-    assertThat(rule.getId()).isEqualTo(1);
   }
 
   @Test
@@ -744,7 +624,7 @@ public class DebtModelBackupTest {
 
     when(rulesXMLImporter.importXML(anyString(), any(ValidationMessages.class))).thenReturn(Collections.<RuleDebt>emptyList());
     when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
-      // Rule does not exitss in XML -> debt will be disabled
+      // Rule does not exits in XML -> debt will be disabled
       new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck").setLanguage("java")
         .setDefaultSubCharacteristicId(2).setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("2h")
         .setSubCharacteristicId(2).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("2h").setRemediationOffset("15min")
@@ -753,19 +633,11 @@ public class DebtModelBackupTest {
 
     debtModelBackup.restoreFromXml("<xml/>", "java");
 
+    verify(ruleOperations).updateRule(ruleCaptor.capture(), isNull(CharacteristicDto.class), isNull(String.class), isNull(String.class), isNull(String.class), eq(now), eq(session));
+
     verify(ruleDao).selectEnablesAndNonManual(session);
-    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
-    verifyNoMoreInteractions(ruleDao);
     verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), session);
     verify(session).commit();
-
-    RuleDto rule = ruleCaptor.getValue();
-    assertThat(rule.getId()).isEqualTo(1);
-    assertThat(rule.getSubCharacteristicId()).isEqualTo(-1);
-    assertThat(rule.getRemediationFunction()).isNull();
-    assertThat(rule.getRemediationCoefficient()).isNull();
-    assertThat(rule.getRemediationOffset()).isNull();
-    assertThat(rule.getUpdatedAt()).isEqualTo(now);
   }
 
   @Test
@@ -779,7 +651,7 @@ public class DebtModelBackupTest {
       new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1).setCreatedAt(oldDate)));
 
     when(rulesXMLImporter.importXML(anyString(), any(ValidationMessages.class))).thenReturn(newArrayList(new RuleDebt()
-      .setRuleKey(RuleKey.of("squid", "UselessImportCheck")).setSubCharacteristicKey("COMPILER").setFunction(DebtRemediationFunction.Type.LINEAR).setCoefficient("2h")));
+      .setRuleKey(RuleKey.of("squid", "UselessImportCheck")).setSubCharacteristicKey("COMPILER").setFunction(DebtRemediationFunction.Type.LINEAR.name()).setCoefficient("2h")));
 
     when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(Collections.<RuleDto>emptyList());
 

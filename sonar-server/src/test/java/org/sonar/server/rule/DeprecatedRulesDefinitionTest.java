@@ -162,7 +162,7 @@ public class DeprecatedRulesDefinitionTest {
       new DebtModelXMLExporter.RuleDebt()
         .setSubCharacteristicKey("MEMORY_EFFICIENCY")
         .setRuleKey(RuleKey.of("checkstyle", "ConstantName"))
-        .setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET)
+        .setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
         .setCoefficient("1d")
         .setOffset("10min")
     );
@@ -195,7 +195,7 @@ public class DeprecatedRulesDefinitionTest {
       new DebtModelXMLExporter.RuleDebt()
         .setSubCharacteristicKey("MEMORY_EFFICIENCY")
         .setRuleKey(RuleKey.of("checkstyle", "ConstantName"))
-        .setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET)
+        .setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
         .setCoefficient("1d")
     );
 

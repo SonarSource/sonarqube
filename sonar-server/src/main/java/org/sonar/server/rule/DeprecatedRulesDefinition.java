@@ -113,15 +113,15 @@ public class DeprecatedRulesDefinition implements RulesDefinition {
     RuleDebt ruleDebt = findRequirement(ruleDebts, repoKey, ruleKey);
     if (ruleDebt != null) {
       newRule.setDebtSubCharacteristic(ruleDebt.subCharacteristicKey());
-      DebtRemediationFunction.Type function = ruleDebt.function();
+      String function = ruleDebt.function();
       String coefficient = ruleDebt.coefficient();
       String offset = ruleDebt.offset();
 
-      if (DebtRemediationFunction.Type.LINEAR.equals(function) && coefficient != null) {
+      if (DebtRemediationFunction.Type.LINEAR.name().equals(function) && coefficient != null) {
         newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linear(coefficient));
-      } else if (DebtRemediationFunction.Type.CONSTANT_ISSUE.equals(function) && offset != null) {
+      } else if (DebtRemediationFunction.Type.CONSTANT_ISSUE.name().equals(function) && offset != null) {
         newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().constantPerIssue(offset));
-      } else if (DebtRemediationFunction.Type.LINEAR_OFFSET.equals(function) && coefficient != null && offset != null) {
+      } else if (DebtRemediationFunction.Type.LINEAR_OFFSET.name().equals(function) && coefficient != null && offset != null) {
         newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linearWithOffset(coefficient, offset));
       } else {
         throw new IllegalArgumentException(String.format("Debt definition on rule '%s:%s' is invalid", repoKey, ruleKey));

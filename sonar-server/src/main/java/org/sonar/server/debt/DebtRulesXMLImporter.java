@@ -174,13 +174,13 @@ public class DebtRulesXMLImporter implements ServerComponent {
   private RuleDebt createRuleDebt(RuleKey ruleKey, String function, @Nullable String coefficient, @Nullable String offset, ValidationMessages validationMessages) {
     if ("linear_threshold".equals(function) && coefficient != null) {
       validationMessages.addWarningText(String.format("Linear with threshold function is no longer used, remediation function of '%s' is replaced by linear.", ruleKey));
-      return new RuleDebt().setRuleKey(ruleKey).setFunction(DebtRemediationFunction.Type.LINEAR).setCoefficient(coefficient);
+      return new RuleDebt().setRuleKey(ruleKey).setFunction(DebtRemediationFunction.Type.LINEAR.name()).setCoefficient(coefficient);
     } else if ("constant_resource".equals(function)) {
       validationMessages.addWarningText(String.format("Constant/file function is no longer used, technical debt definitions on '%s' are ignored.", ruleKey));
     } else if (DebtRemediationFunction.Type.CONSTANT_ISSUE.name().equalsIgnoreCase(function) && coefficient != null && offset == null) {
-      return new RuleDebt().setRuleKey(ruleKey).setFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE).setOffset(coefficient);
+      return new RuleDebt().setRuleKey(ruleKey).setFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name()).setOffset(coefficient);
     } else {
-      return new RuleDebt().setRuleKey(ruleKey).setFunction(DebtRemediationFunction.Type.valueOf(function.toUpperCase())).setCoefficient(coefficient).setOffset(offset);
+      return new RuleDebt().setRuleKey(ruleKey).setFunction(function.toUpperCase()).setCoefficient(coefficient).setOffset(offset);
     }
     return null;
   }

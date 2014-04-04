@@ -29,7 +29,6 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtCharacteristic;
-import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.xml.sax.InputSource;
 
@@ -118,7 +117,7 @@ public class DebtModelXMLExporter implements ServerComponent {
     String coefficient = rule.coefficient();
     String offset = rule.offset();
 
-    processProperty(PROPERTY_FUNCTION, null, rule.function().name(), xml);
+    processProperty(PROPERTY_FUNCTION, null, rule.function(), xml);
     if (coefficient != null) {
       String[] values = getValues(coefficient);
       processProperty(PROPERTY_COEFFICIENT, values[0], values[1], xml);
@@ -266,7 +265,7 @@ public class DebtModelXMLExporter implements ServerComponent {
   public static class RuleDebt {
     private RuleKey ruleKey;
     private String subCharacteristicKey;
-    private DebtRemediationFunction.Type type;
+    private String function;
     private String coefficient;
     private String offset;
 
@@ -288,12 +287,12 @@ public class DebtModelXMLExporter implements ServerComponent {
       return this;
     }
 
-    public DebtRemediationFunction.Type function() {
-      return type;
+    public String function() {
+      return function;
     }
 
-    public RuleDebt setFunction(DebtRemediationFunction.Type type) {
-      this.type = type;
+    public RuleDebt setFunction(String function) {
+      this.function = function;
       return this;
     }
 
@@ -322,7 +321,7 @@ public class DebtModelXMLExporter implements ServerComponent {
       return "RuleDebt{" +
         "ruleKey=" + ruleKey +
         ", subCharacteristicKey='" + subCharacteristicKey + '\'' +
-        ", type=" + type +
+        ", function=" + function +
         ", coefficient='" + coefficient + '\'' +
         ", offset='" + offset + '\'' +
         '}';

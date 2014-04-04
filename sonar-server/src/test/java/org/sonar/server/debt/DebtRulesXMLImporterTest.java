@@ -59,7 +59,7 @@ public class DebtRulesXMLImporterTest {
     RuleDebt ruleDebt = results.get(0);
     assertThat(ruleDebt.subCharacteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
     assertThat(ruleDebt.ruleKey()).isEqualTo(RuleKey.of("checkstyle", "Regexp"));
-    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
+    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.LINEAR.name());
     assertThat(ruleDebt.coefficient()).isEqualTo("3h");
     assertThat(ruleDebt.offset()).isNull();
   }
@@ -74,7 +74,7 @@ public class DebtRulesXMLImporterTest {
     RuleDebt ruleDebt = results.get(0);
     assertThat(ruleDebt.subCharacteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
     assertThat(ruleDebt.ruleKey()).isEqualTo(RuleKey.of("checkstyle", "Regexp"));
-    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
+    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.LINEAR.name());
     assertThat(ruleDebt.coefficient()).isEqualTo("3h");
     assertThat(ruleDebt.offset()).isNull();
   }
@@ -88,7 +88,7 @@ public class DebtRulesXMLImporterTest {
 
     RuleDebt ruleDebt = results.get(0);
     assertThat(ruleDebt.subCharacteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
-    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
+    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET.name());
     assertThat(ruleDebt.coefficient()).isEqualTo("3h");
     assertThat(ruleDebt.offset()).isEqualTo("1min");
   }
@@ -102,7 +102,7 @@ public class DebtRulesXMLImporterTest {
 
     RuleDebt ruleDebt = results.get(0);
     assertThat(ruleDebt.subCharacteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
-    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE);
+    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE.name());
     assertThat(ruleDebt.coefficient()).isNull();
     assertThat(ruleDebt.offset()).isEqualTo("3d");
   }
@@ -116,7 +116,7 @@ public class DebtRulesXMLImporterTest {
 
     RuleDebt ruleDebt = results.get(0);
     assertThat(ruleDebt.subCharacteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
-    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
+    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET.name());
     assertThat(ruleDebt.coefficient()).isEqualTo("3d");
     assertThat(ruleDebt.offset()).isEqualTo("1d");
   }
@@ -130,7 +130,7 @@ public class DebtRulesXMLImporterTest {
 
     RuleDebt ruleDebt = results.get(0);
     assertThat(ruleDebt.subCharacteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
-    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
+    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.LINEAR.name());
     assertThat(ruleDebt.coefficient()).isEqualTo("3min");
     assertThat(ruleDebt.offset()).isNull();
   }
@@ -145,7 +145,7 @@ public class DebtRulesXMLImporterTest {
     RuleDebt ruleDebt = results.get(0);
     assertThat(ruleDebt.subCharacteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
     assertThat(ruleDebt.ruleKey()).isEqualTo(RuleKey.of("checkstyle", "Regexp"));
-    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
+    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.LINEAR.name());
     assertThat(ruleDebt.coefficient()).isEqualTo("3h");
     assertThat(ruleDebt.offset()).isNull();
   }
@@ -159,7 +159,7 @@ public class DebtRulesXMLImporterTest {
 
     RuleDebt ruleDebt = results.get(0);
     assertThat(ruleDebt.subCharacteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
-    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
+    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.LINEAR.name());
     assertThat(ruleDebt.coefficient()).isEqualTo("3h");
     assertThat(ruleDebt.offset()).isNull();
 
@@ -175,7 +175,7 @@ public class DebtRulesXMLImporterTest {
 
     RuleDebt ruleDebt = results.get(0);
     assertThat(ruleDebt.subCharacteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
-    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE);
+    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE.name());
     assertThat(ruleDebt.coefficient()).isNull();
     assertThat(ruleDebt.offset()).isEqualTo("3h");
   }
@@ -210,7 +210,7 @@ public class DebtRulesXMLImporterTest {
     RuleDebt ruleDebt = results.get(0);
     assertThat(ruleDebt.subCharacteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
     assertThat(ruleDebt.ruleKey()).isEqualTo(RuleKey.of("checkstyle", "Regexp"));
-    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
+    assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.LINEAR.name());
     assertThat(ruleDebt.coefficient()).isEqualTo("3h");
     assertThat(ruleDebt.offset()).isNull();
   }
