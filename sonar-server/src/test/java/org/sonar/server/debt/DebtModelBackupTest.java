@@ -213,6 +213,40 @@ public class DebtModelBackupTest {
   }
 
   @Test
+  public void backup_with_rule_having_default_linear_and_overridden_offset() throws Exception {
+    when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
+      new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability updated").setOrder(2),
+      new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler updated").setParentId(1)
+    ));
+
+    when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
+      // Rule with default debt values : default value is linear (only coefficient is set) and overridden value is constant per issue (only offset is set)
+      // -> Ony offset should be set
+      new RuleDto().setRepositoryKey("squid").setRuleKey("AvoidNPE")
+        .setDefaultSubCharacteristicId(2).setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("2h")
+        .setSubCharacteristicId(2).setRemediationFunction("CONSTANT_ISSUE").setRemediationOffset("15min")
+    ));
+
+    debtModelBackup.backup();
+
+    ArgumentCaptor<DebtModel> debtModelArgument = ArgumentCaptor.forClass(DebtModel.class);
+    verify(debtModelXMLExporter).export(debtModelArgument.capture(), ruleDebtListCaptor.capture());
+    assertThat(debtModelArgument.getValue().rootCharacteristics()).hasSize(1);
+    assertThat(debtModelArgument.getValue().subCharacteristics("PORTABILITY")).hasSize(1);
+
+    List<RuleDebt> rules = ruleDebtListCaptor.getValue();
+    assertThat(rules).hasSize(1);
+
+    RuleDebt rule = rules.get(0);
+    assertThat(rule.ruleKey().repository()).isEqualTo("squid");
+    assertThat(rule.ruleKey().rule()).isEqualTo("AvoidNPE");
+    assertThat(rule.subCharacteristicKey()).isEqualTo("COMPILER");
+    assertThat(rule.function()).isEqualTo("CONSTANT_ISSUE");
+    assertThat(rule.offset()).isEqualTo("15min");
+    assertThat(rule.coefficient()).isNull();
+  }
+
+  @Test
   public void backup_from_language() throws Exception {
     when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
       new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability updated").setOrder(2),
@@ -641,7 +675,7 @@ public class DebtModelBackupTest {
   }
 
   @Test
-  public void add_warning_message_when_rule_from_xml_is_not_found() throws Exception {
+  public void restore_from_xml_add_warning_message_when_rule_from_xml_is_not_found() throws Exception {
     when(characteristicsXMLImporter.importXML(anyString())).thenReturn(new DebtModel()
       .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
       .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
@@ -657,10 +691,39 @@ public class DebtModelBackupTest {
 
     assertThat(debtModelBackup.restoreFromXml("<xml/>").getWarnings()).hasSize(1);
 
+    verifyZeroInteractions(ruleOperations);
+
     verify(ruleDao).selectEnablesAndNonManual(session);
-    verifyNoMoreInteractions(ruleDao);
     verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), session);
     verify(session).commit();
+  }
+
+  @Test
+  public void restore_from_xml_add_error_message_when_illegal_argument_exception() throws Exception {
+    when(characteristicsXMLImporter.importXML(anyString())).thenReturn(new DebtModel()
+      .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
+      .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
+
+    when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
+      new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability").setOrder(1).setCreatedAt(oldDate),
+      new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1).setCreatedAt(oldDate)));
+
+    when(rulesXMLImporter.importXML(anyString(), any(ValidationMessages.class))).thenReturn(newArrayList(new RuleDebt()
+      .setRuleKey(RuleKey.of("squid", "UselessImportCheck")).setSubCharacteristicKey("COMPILER").setFunction(DebtRemediationFunction.Type.LINEAR.name()).setCoefficient("2h")));
+
+    when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
+      new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
+        .setDefaultSubCharacteristicId(3).setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("2h")
+        .setCreatedAt(oldDate).setUpdatedAt(oldDate)
+    ));
+
+    when(ruleOperations.updateRule(any(RuleDto.class), any(CharacteristicDto.class), anyString(), anyString(), anyString(), any(Date.class), eq(session))).thenThrow(IllegalArgumentException.class);
+
+    assertThat(debtModelBackup.restoreFromXml("<xml/>").getErrors()).hasSize(1);
+
+    verify(ruleDao).selectEnablesAndNonManual(session);
+    verifyZeroInteractions(ruleRegistry);
+    verify(session, never()).commit();
   }
 
 }

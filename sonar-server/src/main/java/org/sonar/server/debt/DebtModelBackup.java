@@ -123,10 +123,9 @@ public class DebtModelBackup implements ServerComponent {
       List<RuleDebt> rules = newArrayList();
       for (RuleDto rule : ruleDao.selectEnablesAndNonManual(session)) {
         if (languageKey == null || languageKey.equals(rule.getLanguage())) {
-          Integer effectiveSubCharacteristicId = rule.getSubCharacteristicId() != null ? rule.getSubCharacteristicId() : rule.getDefaultSubCharacteristicId();
-          String effectiveFunction = rule.getRemediationFunction() != null ? rule.getRemediationFunction() : rule.getDefaultRemediationFunction();
-          if (!RuleDto.DISABLED_CHARACTERISTIC_ID.equals(effectiveSubCharacteristicId) && effectiveSubCharacteristicId != null && effectiveFunction != null) {
-            rules.add(toRuleDebt(rule, debtModel.characteristicById(effectiveSubCharacteristicId).key(), effectiveFunction));
+          RuleDebt ruleDebt = toRuleDebt(rule, debtModel);
+          if (ruleDebt != null) {
+            rules.add(ruleDebt);
           }
         }
       }
@@ -213,6 +212,8 @@ public class DebtModelBackup implements ServerComponent {
       restoreRules(allCharacteristicDtos, rules(languageKey, session), rulesXMLImporter.importXML(xml, validationMessages), validationMessages, updateDate, session);
 
       session.commit();
+    } catch (IllegalArgumentException e) {
+      validationMessages.addErrorText(e.getMessage());
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -356,18 +357,27 @@ public class DebtModelBackup implements ServerComponent {
     }));
   }
 
-  private static RuleDebt toRuleDebt(RuleDto rule, String subCharacteristicKey, String function) {
-    RuleDebt ruleDebt = new RuleDebt().setRuleKey(RuleKey.of(rule.getRepositoryKey(), rule.getRuleKey())).setSubCharacteristicKey(subCharacteristicKey);
-
-    String coefficient = rule.getRemediationCoefficient();
-    String offset = rule.getRemediationOffset();
-    String effectiveCoefficient = coefficient != null ? coefficient : rule.getDefaultRemediationCoefficient();
-    String effectiveOffset = offset != null ? offset : rule.getDefaultRemediationOffset();
-
-    ruleDebt.setFunction(function);
-    ruleDebt.setCoefficient(effectiveCoefficient);
-    ruleDebt.setOffset(effectiveOffset);
-    return ruleDebt;
+  @CheckForNull
+  private static RuleDebt toRuleDebt(RuleDto rule, DebtModel debtModel) {
+    RuleDebt ruleDebt = new RuleDebt().setRuleKey(RuleKey.of(rule.getRepositoryKey(), rule.getRuleKey()));
+    Integer effectiveSubCharacteristicId = rule.getSubCharacteristicId() != null ? rule.getSubCharacteristicId() : rule.getDefaultSubCharacteristicId();
+    DebtCharacteristic subCharacteristic = (effectiveSubCharacteristicId != null && !RuleDto.DISABLED_CHARACTERISTIC_ID.equals(effectiveSubCharacteristicId)) ?
+      debtModel.characteristicById(effectiveSubCharacteristicId) : null;
+    if (subCharacteristic != null) {
+      ruleDebt.setSubCharacteristicKey(subCharacteristic.key());
+      if (rule.getRemediationFunction() != null) {
+        ruleDebt.setFunction(rule.getRemediationFunction());
+        ruleDebt.setCoefficient(rule.getRemediationCoefficient());
+        ruleDebt.setOffset(rule.getRemediationOffset());
+        return ruleDebt;
+      } else if (rule.getDefaultRemediationFunction() != null) {
+        ruleDebt.setFunction(rule.getDefaultRemediationFunction());
+        ruleDebt.setCoefficient(rule.getDefaultRemediationCoefficient());
+        ruleDebt.setOffset(rule.getDefaultRemediationOffset());
+        return ruleDebt;
+      }
+    }
+    return null;
   }
 
   private static CharacteristicDto toDto(DebtCharacteristic characteristic, @Nullable Integer parentId) {

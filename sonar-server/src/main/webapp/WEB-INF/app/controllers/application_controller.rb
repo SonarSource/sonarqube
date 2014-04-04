@@ -224,6 +224,12 @@ class ApplicationController < ActionController::Base
       else
         flash[:error] = java_error_message(exception)
       end
+    rescue Java::JavaLang::IllegalArgumentException => exception
+      if request.xhr?
+        raise exception
+      else
+        flash[:error] = java_error_message(exception)
+      end
     end
   end
 
