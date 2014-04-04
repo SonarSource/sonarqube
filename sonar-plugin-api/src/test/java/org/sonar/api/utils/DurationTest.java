@@ -50,11 +50,31 @@ public class DurationTest {
 
   @Test
   public void decode() throws Exception {
-    assertThat(Duration.decode("    15 d  26  h     42min  ", HOURS_IN_DAY)).isEqualTo(Duration.create(15 * ONE_DAY_IN_MINUTES + 26 * ONE_HOUR_IN_MINUTES + 42 * ONE_MINUTE));
-    assertThat(Duration.decode("15d26h42min", HOURS_IN_DAY)).isEqualTo(Duration.create(15 * ONE_DAY_IN_MINUTES + 26 * ONE_HOUR_IN_MINUTES + 42 * ONE_MINUTE));
-    assertThat(Duration.decode("26h", HOURS_IN_DAY)).isEqualTo(Duration.create(26 * ONE_HOUR_IN_MINUTES));
+    assertThat(Duration.decode("    15 d  23  h     42min  ", HOURS_IN_DAY)).isEqualTo(Duration.create(15 * ONE_DAY_IN_MINUTES + 23 * ONE_HOUR_IN_MINUTES + 42 * ONE_MINUTE));
+    assertThat(Duration.decode("15d23h42min", HOURS_IN_DAY)).isEqualTo(Duration.create(15 * ONE_DAY_IN_MINUTES + 23 * ONE_HOUR_IN_MINUTES + 42 * ONE_MINUTE));
+    assertThat(Duration.decode("23h", HOURS_IN_DAY)).isEqualTo(Duration.create(23 * ONE_HOUR_IN_MINUTES));
     assertThat(Duration.decode("15d", HOURS_IN_DAY)).isEqualTo(Duration.create(15 * ONE_DAY_IN_MINUTES));
     assertThat(Duration.decode("42min", HOURS_IN_DAY)).isEqualTo(Duration.create(42 * ONE_MINUTE));
+  }
+
+  @Test
+  public void fail_to_decode_if_more_than_24_hours() throws Exception {
+    try {
+      Duration.decode("25h", HOURS_IN_DAY);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The number of hours should not be greater than 24, got 25");
+    }
+  }
+
+  @Test
+  public void fail_to_decode_if_more_than_60_minutes() throws Exception {
+    try {
+      Duration.decode("61min", HOURS_IN_DAY);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The number of minutes should not be greater than 60, got 61");
+    }
   }
 
   @Test

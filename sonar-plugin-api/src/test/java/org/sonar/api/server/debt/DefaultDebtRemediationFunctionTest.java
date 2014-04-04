@@ -162,7 +162,7 @@ public class DefaultDebtRemediationFunctionTest {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, "foo", null);
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Invalid coefficient: foo");
+      assertThat(e).hasMessage("Invalid coefficient: foo (Duration 'foo' is invalid, it should use the following sample format : 2d 10h 15min)");
     }
 
   }

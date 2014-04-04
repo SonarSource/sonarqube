@@ -51,7 +51,7 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
         Duration duration = Duration.decode(s, HOURS_IN_DAY);
         return duration.encode(HOURS_IN_DAY);
       } catch (Exception e) {
-        throw new IllegalArgumentException(String.format("Invalid %s: %s", label, s), e);
+        throw new IllegalArgumentException(String.format("Invalid %s: %s (%s)", label, s, e.getMessage()), e);
       }
     }
     return null;
