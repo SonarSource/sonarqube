@@ -54,22 +54,28 @@ public class RuleDocumentParser {
       .setCreatedAt(parseOptionalDate(RuleDocument.FIELD_CREATED_AT, ruleSource))
       .setUpdatedAt(parseOptionalDate(RuleDocument.FIELD_UPDATED_AT, ruleSource));
 
-    if (ruleSource.containsKey(RuleDocument.FIELD_CHARACTERISTIC_KEY)) {
-      try {
-        ruleBuilder
-          .setDebtCharacteristicKey((String) ruleSource.get(RuleDocument.FIELD_CHARACTERISTIC_KEY))
-          .setDebtSubCharacteristicKey((String) ruleSource.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY))
-          .setDebtRemediationFunction(
-            new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.valueOf((String) ruleSource.get(RuleDocument.FIELD_REMEDIATION_FUNCTION)),
-              (String) ruleSource.get(RuleDocument.FIELD_REMEDIATION_COEFFICIENT),
-              (String) ruleSource.get(RuleDocument.FIELD_REMEDIATION_OFFSET))
-          )
-        ;
-      } catch (IllegalArgumentException e) {
-        throw new RuntimeException("Fail on rule '" + ruleSource.get(RuleDocument.FIELD_KEY) + "', " + e.getMessage(), e);
-      }
-    }
+    addRuleDebt(ruleSource, ruleBuilder);
+    addRuleNote(ruleSource, ruleBuilder);
+    addRuleParams(ruleSource, ruleBuilder);
+    addRuleTags(ruleSource, ruleBuilder);
+    return ruleBuilder.build();
+  }
 
+  private static void addRuleDebt(Map<String, Object> ruleSource, Rule.Builder ruleBuilder) {
+    if (ruleSource.containsKey(RuleDocument.FIELD_CHARACTERISTIC_KEY)) {
+      ruleBuilder
+        .setDebtCharacteristicKey((String) ruleSource.get(RuleDocument.FIELD_CHARACTERISTIC_KEY))
+        .setDebtSubCharacteristicKey((String) ruleSource.get(RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY))
+        .setDebtRemediationFunction(
+          new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.valueOf((String) ruleSource.get(RuleDocument.FIELD_REMEDIATION_FUNCTION)),
+            (String) ruleSource.get(RuleDocument.FIELD_REMEDIATION_COEFFICIENT),
+            (String) ruleSource.get(RuleDocument.FIELD_REMEDIATION_OFFSET))
+        )
+      ;
+    }
+  }
+
+  private static void addRuleNote(Map<String, Object> ruleSource, Rule.Builder ruleBuilder) {
     if (ruleSource.containsKey(RuleDocument.FIELD_NOTE)) {
       Map<String, Object> ruleNoteDocument = (Map<String, Object>) ruleSource.get(RuleDocument.FIELD_NOTE);
       ruleBuilder.setRuleNote(new RuleNote(
@@ -79,7 +85,9 @@ public class RuleDocumentParser {
         parseOptionalDate(RuleDocument.FIELD_NOTE_UPDATED_AT, ruleNoteDocument)
       ));
     }
+  }
 
+  private static void addRuleParams(Map<String, Object> ruleSource, Rule.Builder ruleBuilder) {
     List<RuleParam> params = Lists.newArrayList();
     if (ruleSource.containsKey(RuleDocument.FIELD_PARAMS)) {
       Map<String, Map<String, Object>> ruleParams = Maps.newHashMap();
@@ -97,7 +105,9 @@ public class RuleDocumentParser {
       }
     }
     ruleBuilder.setParams(params);
+  }
 
+  private static void addRuleTags(Map<String, Object> ruleSource, Rule.Builder ruleBuilder) {
     List<String> systemTags = newArrayList();
     if (ruleSource.containsKey(RuleDocument.FIELD_SYSTEM_TAGS)) {
       for (String tag : (List<String>) ruleSource.get(RuleDocument.FIELD_SYSTEM_TAGS)) {
@@ -113,8 +123,6 @@ public class RuleDocumentParser {
       }
     }
     ruleBuilder.setAdminTags(adminTags);
-
-    return ruleBuilder.build();
   }
 
   public static Date parseOptionalDate(String field, Map<String, Object> ruleSource) {

@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
@@ -173,50 +174,67 @@ public class CopyRequirementsFromCharacteristicsToRules {
     }
 
     private boolean convert(RuleRow ruleRow, PreparedStatement updateStatement, Collection<RequirementDto> requirementsForRule) throws SQLException {
-      RequirementDto enabledRequirement = Iterables.find(requirementsForRule, new Predicate<RequirementDto>() {
+      RequirementDto enabledRequirement = enabledRequirement(requirementsForRule);
+
+      if (enabledRequirement == null && !Rule.STATUS_REMOVED.equals(ruleRow.getStatus())) {
+        // If no enabled requirement is found, it means that the requirement has been disabled for this rule
+        return convertDisableRequirement(ruleRow, updateStatement);
+
+      } else if (enabledRequirement != null) {
+        // If one requirement is enable, it means either that this requirement has been set from SQALE, or that it come from a XML model definition
+        return convertEnabledRequirement(ruleRow, updateStatement, enabledRequirement);
+
+        // When default values on debt are the same that ones set by SQALE, nothing to do
+      }
+      return false;
+    }
+
+    private static RequirementDto enabledRequirement(Collection<RequirementDto> requirementsForRule) {
+      return Iterables.find(requirementsForRule, new Predicate<RequirementDto>() {
         @Override
         public boolean apply(RequirementDto input) {
           return input.isEnabled();
         }
       }, null);
+    }
 
-      if (enabledRequirement == null && !Rule.STATUS_REMOVED.equals(ruleRow.getStatus())) {
-        // If no enabled requirement is found, it means that the requirement has been disabled for this rule
-        updateStatement.setInt(1, RuleDto.DISABLED_CHARACTERISTIC_ID);
-        updateStatement.setNull(2, Types.VARCHAR);
-        updateStatement.setNull(3, Types.VARCHAR);
-        updateStatement.setNull(4, Types.VARCHAR);
+    private boolean convertDisableRequirement(RuleRow ruleRow, PreparedStatement updateStatement) throws SQLException {
+      updateStatement.setInt(1, RuleDto.DISABLED_CHARACTERISTIC_ID);
+      updateStatement.setNull(2, Types.VARCHAR);
+      updateStatement.setNull(3, Types.VARCHAR);
+      updateStatement.setNull(4, Types.VARCHAR);
+      updateStatement.setTimestamp(5, new Timestamp(system2.now()));
+      updateStatement.setInt(6, ruleRow.getId());
+      return true;
+    }
+
+    private boolean convertEnabledRequirement(RuleRow ruleRow, PreparedStatement updateStatement, RequirementDto enabledRequirement) throws SQLException {
+      ruleRow.setCharacteristicId(enabledRequirement.getParentId());
+      ruleRow.setFunction(enabledRequirement.getFunction().toUpperCase());
+      ruleRow.setCoefficient(convertDuration(enabledRequirement.getCoefficientValue(), enabledRequirement.getCoefficientUnit()));
+      ruleRow.setOffset(convertDuration(enabledRequirement.getOffsetValue(), enabledRequirement.getOffsetUnit()));
+
+      // If the coefficient of a linear or linear with offset function is null, it should be replaced by 0
+      if ((DebtRemediationFunction.Type.LINEAR.name().equals(ruleRow.getFunction()) ||
+        DebtRemediationFunction.Type.LINEAR_OFFSET.name().equals(ruleRow.getFunction()))
+        && ruleRow.getCoefficient() == null) {
+        ruleRow.setCoefficient("0" + convertUnit(enabledRequirement.getCoefficientUnit()));
+        // If the offset of a constant per issue or linear with offset function is null, it should be replaced by 0
+      } else if ((DebtRemediationFunction.Type.CONSTANT_ISSUE.name().equals(ruleRow.getFunction())
+        || DebtRemediationFunction.Type.LINEAR_OFFSET.name().equals(ruleRow.getFunction()))
+        && ruleRow.getOffset() == null) {
+        ruleRow.setOffset("0" + convertUnit(enabledRequirement.getOffsetUnit()));
+      }
+
+      if (!isDebtDefaultValuesSameAsOverriddenValues(ruleRow)) {
+        // Default values on debt are not the same that ones set by SQALE, update the rule
+        updateStatement.setInt(1, ruleRow.getCharacteristicId());
+        updateStatement.setString(2, ruleRow.getFunction());
+        updateStatement.setString(3, ruleRow.getCoefficient());
+        updateStatement.setString(4, ruleRow.getOffset());
         updateStatement.setTimestamp(5, new Timestamp(system2.now()));
         updateStatement.setInt(6, ruleRow.getId());
         return true;
-
-      } else if (enabledRequirement != null) {
-        // If one requirement is enable, it means either that this requirement has been set from SQALE, or that it come from a XML model definition
-
-        ruleRow.setCharacteristicId(enabledRequirement.getParentId());
-        ruleRow.setFunction(enabledRequirement.getFunction().toUpperCase());
-        ruleRow.setCoefficient(convertDuration(enabledRequirement.getCoefficientValue(), enabledRequirement.getCoefficientUnit()));
-        ruleRow.setOffset(convertDuration(enabledRequirement.getOffsetValue(), enabledRequirement.getOffsetUnit()));
-
-        // If the coefficient of a linear or linear with offset function is null, it should be replaced by 0
-        if (("LINEAR".equals(ruleRow.getFunction()) || "LINEAR_OFFSET".equals(ruleRow.getFunction())) && ruleRow.getCoefficient() == null) {
-          ruleRow.setCoefficient("0" + convertUnit(enabledRequirement.getCoefficientUnit()));
-          // If the offset of a constant per issue or linear with offset function is null, it should be replaced by 0
-        } else if (("CONSTANT_ISSUE".equals(ruleRow.getFunction()) || "LINEAR_OFFSET".equals(ruleRow.getFunction())) && ruleRow.getOffset() == null) {
-          ruleRow.setOffset("0" + convertUnit(enabledRequirement.getOffsetUnit()));
-        }
-
-        if (!isDebtDefaultValuesSameAsOverriddenValues(ruleRow)) {
-          // Default values on debt are not the same that ones set by SQALE, update the rule
-          updateStatement.setInt(1, ruleRow.getCharacteristicId());
-          updateStatement.setString(2, ruleRow.getFunction());
-          updateStatement.setString(3, ruleRow.getCoefficient());
-          updateStatement.setString(4, ruleRow.getOffset());
-          updateStatement.setTimestamp(5, new Timestamp(system2.now()));
-          updateStatement.setInt(6, ruleRow.getId());
-          return true;
-        }
-        // When default values on debt are the same that ones set by SQALE, nothing to do
       }
       return false;
     }

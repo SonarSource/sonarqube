@@ -176,7 +176,9 @@ public class RuleRegistry {
       Integer ruleId = rule.getId();
       Integer effectiveSubCharacteristicId = rule.getSubCharacteristicId() != null ? rule.getSubCharacteristicId() : rule.getDefaultSubCharacteristicId();
       CharacteristicDto subCharacteristic = effectiveSubCharacteristicId != null ? characteristicDao.selectById(effectiveSubCharacteristicId, session) : null;
-      CharacteristicDto characteristic = subCharacteristic != null ? characteristicDao.selectById(subCharacteristic.getParentId(), session) : null;
+      // The parent id of the sub-characteristic should never be null
+      CharacteristicDto characteristic = (subCharacteristic != null && subCharacteristic.getParentId() != null) ?
+        characteristicDao.selectById(subCharacteristic.getParentId(), session) : null;
       searchIndex.putSynchronous(INDEX_RULES, TYPE_RULE, Long.toString(ruleId), ruleDocument(rule,
         characteristic, subCharacteristic,
         ruleDao.selectParametersByRuleIds(newArrayList(ruleId), session),
@@ -240,6 +242,16 @@ public class RuleRegistry {
       .field(RuleDocument.FIELD_CARDINALITY, rule.getCardinality())
       .field(RuleDocument.FIELD_CREATED_AT, rule.getCreatedAt())
       .field(RuleDocument.FIELD_UPDATED_AT, rule.getUpdatedAt());
+    addRuleDebt(document, rule, characteristicDto, subCharacteristicDto);
+    addRuleNote(document, rule);
+    addRuleParams(document, rule, params);
+    addRuleTags(document, rule, tags);
+    document.endObject();
+    return document;
+  }
+
+  private void addRuleDebt(XContentBuilder document, RuleDto rule, @Nullable CharacteristicDto characteristicDto, @Nullable CharacteristicDto subCharacteristicDto)
+    throws IOException {
     if (characteristicDto != null && subCharacteristicDto != null) {
       boolean isFunctionOverridden = rule.getRemediationFunction() != null;
       document
@@ -251,7 +263,9 @@ public class RuleRegistry {
         .field(RuleDocument.FIELD_REMEDIATION_COEFFICIENT, isFunctionOverridden ? rule.getRemediationCoefficient() : rule.getDefaultRemediationCoefficient())
         .field(RuleDocument.FIELD_REMEDIATION_OFFSET, isFunctionOverridden ? rule.getRemediationOffset() : rule.getDefaultRemediationOffset());
     }
+  }
 
+  private void addRuleNote(XContentBuilder document, RuleDto rule) throws IOException {
     if (rule.getNoteData() != null || rule.getNoteUserLogin() != null) {
       document.startObject(RuleDocument.FIELD_NOTE)
         .field(RuleDocument.FIELD_NOTE_DATA, rule.getNoteData())
@@ -260,6 +274,9 @@ public class RuleRegistry {
         .field(RuleDocument.FIELD_NOTE_UPDATED_AT, rule.getNoteUpdatedAt())
         .endObject();
     }
+  }
+
+  private void addRuleParams(XContentBuilder document, RuleDto rule, Collection<RuleParamDto> params) throws IOException {
     if (!params.isEmpty()) {
       document.startArray(RuleDocument.FIELD_PARAMS);
       for (RuleParamDto param : params) {
@@ -272,6 +289,9 @@ public class RuleRegistry {
       }
       document.endArray();
     }
+  }
+
+  private void addRuleTags(XContentBuilder document, RuleDto rule, Collection<RuleRuleTagDto> tags) throws IOException {
     List<String> systemTags = Lists.newArrayList();
     List<String> adminTags = Lists.newArrayList();
     for (RuleRuleTagDto tag : tags) {
@@ -287,9 +307,6 @@ public class RuleRegistry {
     if (!adminTags.isEmpty()) {
       document.array(RuleDocument.FIELD_ADMIN_TAGS, adminTags.toArray());
     }
-
-    document.endObject();
-    return document;
   }
 
 
@@ -334,32 +351,7 @@ public class RuleRegistry {
   }
 
   public PagedResult<Rule> find(RuleQuery query) {
-    BoolFilterBuilder mainFilter = boolFilter().mustNot(termFilter(RuleDocument.FIELD_STATUS, STATUS_REMOVED));
-    if (StringUtils.isNotBlank(query.searchQuery())) {
-      mainFilter.must(FilterBuilders.queryFilter(
-        QueryBuilders.multiMatchQuery(query.searchQuery(), RuleDocument.FIELD_NAME + ".search", RuleDocument.FIELD_KEY).operator(Operator.AND)));
-    }
-    addMustTermOrTerms(mainFilter, RuleDocument.FIELD_LANGUAGE, query.languages());
-    addMustTermOrTerms(mainFilter, RuleDocument.FIELD_REPOSITORY_KEY, query.repositories());
-    addMustTermOrTerms(mainFilter, RuleDocument.FIELD_SEVERITY, query.severities());
-    addMustTermOrTerms(mainFilter, RuleDocument.FIELD_STATUS, query.statuses());
-    if (!query.tags().isEmpty()) {
-      mainFilter.must(FilterBuilders.queryFilter(
-          QueryBuilders.multiMatchQuery(query.tags(), RuleDocument.FIELD_ADMIN_TAGS, RuleDocument.FIELD_SYSTEM_TAGS).operator(Operator.OR))
-      );
-    }
-    if (!query.debtCharacteristics().isEmpty()) {
-      mainFilter.must(FilterBuilders.queryFilter(
-          QueryBuilders.multiMatchQuery(query.debtCharacteristics(), RuleDocument.FIELD_CHARACTERISTIC_KEY, RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY).operator(Operator.OR))
-      );
-    }
-    if (query.hasDebtCharacteristic() != null) {
-      if (Boolean.TRUE.equals(query.hasDebtCharacteristic())) {
-        mainFilter.must(FilterBuilders.existsFilter(RuleDocument.FIELD_CHARACTERISTIC_KEY));
-      } else {
-        mainFilter.mustNot(FilterBuilders.existsFilter(RuleDocument.FIELD_CHARACTERISTIC_KEY));
-      }
-    }
+    BoolFilterBuilder mainFilter = convertRuleQueryToFilterBuilder(query);
 
     Builder<Rule> rulesBuilder = ImmutableList.builder();
     SearchRequestBuilder searchRequestBuilder =
@@ -399,6 +391,36 @@ public class RuleRegistry {
       }
       return new PagedResult<Rule>(rulesBuilder.build(), PagingResult.create(paging.pageSize(), paging.pageIndex(), hits.getTotalHits()));
     }
+  }
+
+  private static BoolFilterBuilder convertRuleQueryToFilterBuilder(RuleQuery query){
+    BoolFilterBuilder mainFilter = boolFilter().mustNot(termFilter(RuleDocument.FIELD_STATUS, STATUS_REMOVED));
+    if (StringUtils.isNotBlank(query.searchQuery())) {
+      mainFilter.must(FilterBuilders.queryFilter(
+        QueryBuilders.multiMatchQuery(query.searchQuery(), RuleDocument.FIELD_NAME + ".search", RuleDocument.FIELD_KEY).operator(Operator.AND)));
+    }
+    addMustTermOrTerms(mainFilter, RuleDocument.FIELD_LANGUAGE, query.languages());
+    addMustTermOrTerms(mainFilter, RuleDocument.FIELD_REPOSITORY_KEY, query.repositories());
+    addMustTermOrTerms(mainFilter, RuleDocument.FIELD_SEVERITY, query.severities());
+    addMustTermOrTerms(mainFilter, RuleDocument.FIELD_STATUS, query.statuses());
+    if (!query.tags().isEmpty()) {
+      mainFilter.must(FilterBuilders.queryFilter(
+          QueryBuilders.multiMatchQuery(query.tags(), RuleDocument.FIELD_ADMIN_TAGS, RuleDocument.FIELD_SYSTEM_TAGS).operator(Operator.OR))
+      );
+    }
+    if (!query.debtCharacteristics().isEmpty()) {
+      mainFilter.must(FilterBuilders.queryFilter(
+          QueryBuilders.multiMatchQuery(query.debtCharacteristics(), RuleDocument.FIELD_CHARACTERISTIC_KEY, RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY).operator(Operator.OR))
+      );
+    }
+    if (query.hasDebtCharacteristic() != null) {
+      if (Boolean.TRUE.equals(query.hasDebtCharacteristic())) {
+        mainFilter.must(FilterBuilders.existsFilter(RuleDocument.FIELD_CHARACTERISTIC_KEY));
+      } else {
+        mainFilter.mustNot(FilterBuilders.existsFilter(RuleDocument.FIELD_CHARACTERISTIC_KEY));
+      }
+    }
+    return mainFilter;
   }
 
   private static void addMustTermOrTerms(BoolFilterBuilder filter, String field, Collection<String> terms) {

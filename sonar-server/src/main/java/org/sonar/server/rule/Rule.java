@@ -180,9 +180,7 @@ public class Rule {
     private Collection<String> adminTags;
     private Collection<RuleParam> params;
     private String debtCharacteristicKey;
-    private String debtCharacteristicName;
     private String debtSubCharacteristicKey;
-    private String debtSubCharacteristicName;
     private DebtRemediationFunction debtRemediationFunction;
     private Date createdAt;
     private Date updatedAt;

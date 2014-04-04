@@ -72,6 +72,9 @@ public class DefaultDebtModelTest {
     assertThat(debtCharacteristic.order()).isEqualTo(1);
     assertThat(debtCharacteristic.parentId()).isNull();
     assertThat(debtCharacteristic.isSub()).isFalse();
+
+
+    assertThat(debtModel.characteristicById(555)).isNull();
   }
 
   @Test
@@ -84,5 +87,7 @@ public class DefaultDebtModelTest {
     assertThat(debtCharacteristic.order()).isNull();
     assertThat(debtCharacteristic.parentId()).isEqualTo(1);
     assertThat(debtCharacteristic.isSub()).isTrue();
+
+    assertThat(debtModel.characteristicByKey("UNKNOWN")).isNull();
   }
 }

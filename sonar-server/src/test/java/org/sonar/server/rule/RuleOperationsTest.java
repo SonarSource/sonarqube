@@ -533,7 +533,7 @@ public class RuleOperationsTest {
   }
 
   @Test
-  public void disable_characteristic_and_remove_remediation_function_when_update_rule_with_no_sub_characteristic() throws Exception {
+  public void disable_rule_debt_when_update_rule_with_no_sub_characteristic() throws Exception {
     RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
       .setDefaultSubCharacteristicId(6).setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("10min")
       .setSubCharacteristicId(6).setRemediationFunction("CONSTANT_ISSUE").setRemediationOffset("10min");
@@ -542,6 +542,36 @@ public class RuleOperationsTest {
     when(ruleDao.selectByKey(ruleKey, session)).thenReturn(dto);
 
     operations.updateRule(new RuleChange().setRuleKey(ruleKey).setDebtCharacteristicKey(null), authorizedUserSession);
+
+    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
+    verify(ruleRegistry).reindex(eq(ruleCaptor.getValue()), eq(session));
+    verify(session).commit();
+
+    RuleDto result = ruleCaptor.getValue();
+
+    assertThat(result.getId()).isEqualTo(1);
+    assertThat(result.getSubCharacteristicId()).isEqualTo(-1);
+    assertThat(result.getRemediationFunction()).isNull();
+    assertThat(result.getRemediationCoefficient()).isNull();
+    assertThat(result.getRemediationOffset()).isNull();
+    assertThat(result.getUpdatedAt()).isEqualTo(now);
+  }
+
+  @Test
+  public void disable_rule_debt_when_update_rule_with_no_function() throws Exception {
+    RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
+      .setDefaultSubCharacteristicId(6).setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationOffset("10min");
+    RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
+
+    when(ruleDao.selectByKey(ruleKey, session)).thenReturn(dto);
+
+    CharacteristicDto subCharacteristic = new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1);
+    when(characteristicDao.selectByKey("COMPILER", session)).thenReturn(subCharacteristic);
+    when(characteristicDao.selectById(2, session)).thenReturn(subCharacteristic);
+    CharacteristicDto characteristic = new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability").setOrder(2);
+    when(characteristicDao.selectById(1, session)).thenReturn(characteristic);
+
+    operations.updateRule(new RuleChange().setRuleKey(ruleKey).setDebtCharacteristicKey("COMPILER"), authorizedUserSession);
 
     verify(ruleDao).update(ruleCaptor.capture(), eq(session));
     verify(ruleRegistry).reindex(eq(ruleCaptor.getValue()), eq(session));

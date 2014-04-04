@@ -85,7 +85,6 @@ public class DebtCharacteristicsXMLImporter implements ServerComponent {
     while (cursor.getNext() != null) {
       String node = cursor.getLocalName();
       if (StringUtils.equals(node, CHARACTERISTIC_KEY)) {
-        // TODO Attached to parent only if a key is existing, otherwise characteristic with empty key can be added.
         characteristic.setKey(cursor.collectDescendantText().trim());
         if (parent == null) {
           characteristic.setOrder(debtModel.rootCharacteristics().size() + 1);

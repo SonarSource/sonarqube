@@ -268,27 +268,31 @@ public class RegisterRules implements Startable {
   }
 
   private boolean mergeDebtDefinitions(RulesDefinition.Rule def, RuleDto dto, @Nullable CharacteristicDto subCharacteristic) {
-    boolean changed = false;
+    // Debt definitions are set to null if the sub-characteristic and the remediation function are null
+    DebtRemediationFunction debtRemediationFunction = subCharacteristic != null ? def.debtRemediationFunction() : null;
+    boolean hasDebt = subCharacteristic != null && debtRemediationFunction != null;
+    return mergeDebtDefinitions(def, dto,
+      hasDebt ? subCharacteristic.getId() : null,
+      debtRemediationFunction != null ? debtRemediationFunction.type().name() : null,
+      hasDebt ? debtRemediationFunction.coefficient() : null,
+      hasDebt ? debtRemediationFunction.offset() : null,
+      hasDebt ? def.effortToFixDescription() : null);
+  }
 
-    // Debt definitions are set to null if the sub-characteristic is null or unknown
-    boolean hasCharacteristic = subCharacteristic != null;
-    DebtRemediationFunction debtRemediationFunction = hasCharacteristic ? def.debtRemediationFunction() : null;
-    Integer characteristicId = hasCharacteristic ? subCharacteristic.getId() : null;
-    String remediationFactor = hasCharacteristic ? debtRemediationFunction.coefficient() : null;
-    String remediationOffset = hasCharacteristic ? debtRemediationFunction.offset() : null;
-    String effortToFixDescription = hasCharacteristic ? def.effortToFixDescription() : null;
+  private boolean mergeDebtDefinitions(RulesDefinition.Rule def, RuleDto dto,@Nullable  Integer characteristicId, @Nullable String remediationFunction,
+                                       @Nullable String remediationCoefficient, @Nullable String remediationOffset, @Nullable String effortToFixDescription) {
+    boolean changed = false;
 
     if (!ObjectUtils.equals(dto.getDefaultSubCharacteristicId(), characteristicId)) {
       dto.setDefaultSubCharacteristicId(characteristicId);
       changed = true;
     }
-    String remediationFunctionString = debtRemediationFunction != null ? debtRemediationFunction.type().name() : null;
-    if (!StringUtils.equals(dto.getDefaultRemediationFunction(), remediationFunctionString)) {
-      dto.setDefaultRemediationFunction(remediationFunctionString);
+    if (!StringUtils.equals(dto.getDefaultRemediationFunction(), remediationFunction)) {
+      dto.setDefaultRemediationFunction(remediationFunction);
       changed = true;
     }
-    if (!StringUtils.equals(dto.getDefaultRemediationCoefficient(), remediationFactor)) {
-      dto.setDefaultRemediationCoefficient(remediationFactor);
+    if (!StringUtils.equals(dto.getDefaultRemediationCoefficient(), remediationCoefficient)) {
+      dto.setDefaultRemediationCoefficient(remediationCoefficient);
       changed = true;
     }
     if (!StringUtils.equals(dto.getDefaultRemediationOffset(), remediationOffset)) {

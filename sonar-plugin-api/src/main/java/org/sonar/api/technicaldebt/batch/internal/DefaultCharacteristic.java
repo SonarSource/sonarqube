@@ -83,7 +83,6 @@ public class DefaultCharacteristic implements Characteristic {
     return this;
   }
 
-  // TODO Replace this is a TechnicalDebtFactory class
   public DefaultCharacteristic setName(String s, boolean asKey) {
     this.name = StringUtils.trimToNull(s);
     if (asKey) {
@@ -157,11 +156,12 @@ public class DefaultCharacteristic implements Characteristic {
     return this;
   }
 
+  @CheckForNull
   public Date updatedAt() {
     return updatedAt;
   }
 
-  public DefaultCharacteristic setUpdatedAt(Date updatedAt) {
+  public DefaultCharacteristic setUpdatedAt(@Nullable Date updatedAt) {
     this.updatedAt = updatedAt;
     return this;
   }

@@ -287,20 +287,13 @@ public class RuleOperations implements ServerComponent {
   }
 
   public boolean updateRule(RuleDto ruleDto, @Nullable CharacteristicDto newSubCharacteristic, @Nullable String newFunction,
-                            @Nullable String newCoefficient, @Nullable String newOffset, Date updateDate, SqlSession session){
+                            @Nullable String newCoefficient, @Nullable String newOffset, Date updateDate, SqlSession session) {
     boolean needUpdate = false;
 
-    // A sub-characteristic is given -> update rule debt
-    if (newSubCharacteristic != null) {
-      boolean iSameAsDefaultValues = newSubCharacteristic.getId().equals(ruleDto.getDefaultSubCharacteristicId())
-        && isSameRemediationFunction(newFunction, newCoefficient, newOffset,
-        ruleDto.getDefaultRemediationFunction(), ruleDto.getDefaultRemediationCoefficient(), ruleDto.getDefaultRemediationOffset());
-      boolean iSameAsOverriddenValues = newSubCharacteristic.getId().equals(ruleDto.getSubCharacteristicId())
-        && isSameRemediationFunction(newFunction, newCoefficient, newOffset,
-        ruleDto.getRemediationFunction(), ruleDto.getRemediationCoefficient(), ruleDto.getRemediationOffset());
-
+    // A sub-characteristic and a remediation function is given -> update rule debt
+    if (newSubCharacteristic != null && newFunction != null) {
       // New values are the same as the default values -> set overridden values to null
-      if (iSameAsDefaultValues) {
+      if (isRuleDebtSameAsDefaultValues(ruleDto, newSubCharacteristic, newFunction, newCoefficient, newOffset)) {
         ruleDto.setSubCharacteristicId(null);
         ruleDto.setRemediationFunction(null);
         ruleDto.setRemediationCoefficient(null);
@@ -308,7 +301,7 @@ public class RuleOperations implements ServerComponent {
         needUpdate = true;
 
         // New values are not the same as the overridden values -> update overridden values with new values
-      } else if (!iSameAsOverriddenValues) {
+      } else if (!isRuleDebtSameAsOverriddenValues(ruleDto, newSubCharacteristic, newFunction, newCoefficient, newOffset)) {
         ruleDto.setSubCharacteristicId(newSubCharacteristic.getId());
 
         DefaultDebtRemediationFunction debtRemediationFunction = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.valueOf(newFunction), newCoefficient, newOffset);
@@ -336,6 +329,19 @@ public class RuleOperations implements ServerComponent {
       ruleDao.update(ruleDto, session);
     }
     return needUpdate;
+  }
+
+  private static boolean isRuleDebtSameAsDefaultValues(RuleDto ruleDto, CharacteristicDto newSubCharacteristic, @Nullable String newFunction,
+                                              @Nullable String newCoefficient, @Nullable String newOffset) {
+    return newSubCharacteristic.getId().equals(ruleDto.getDefaultSubCharacteristicId()) &&
+      isSameRemediationFunction(newFunction, newCoefficient, newOffset, ruleDto.getDefaultRemediationFunction(), ruleDto.getDefaultRemediationCoefficient(),
+        ruleDto.getDefaultRemediationOffset());
+  }
+
+  private static boolean isRuleDebtSameAsOverriddenValues(RuleDto ruleDto, CharacteristicDto newSubCharacteristic, @Nullable String newFunction,
+                                                 @Nullable String newCoefficient, @Nullable String newOffset) {
+    return newSubCharacteristic.getId().equals(ruleDto.getSubCharacteristicId())
+      && isSameRemediationFunction(newFunction, newCoefficient, newOffset, ruleDto.getRemediationFunction(), ruleDto.getRemediationCoefficient(), ruleDto.getRemediationOffset());
   }
 
   private static boolean isSameRemediationFunction(@Nullable String newFunction, @Nullable String newCoefficient, @Nullable String newOffset,
