@@ -177,8 +177,9 @@ public class RuleRegistry {
       Integer effectiveSubCharacteristicId = rule.getSubCharacteristicId() != null ? rule.getSubCharacteristicId() : rule.getDefaultSubCharacteristicId();
       CharacteristicDto subCharacteristic = effectiveSubCharacteristicId != null ? characteristicDao.selectById(effectiveSubCharacteristicId, session) : null;
       // The parent id of the sub-characteristic should never be null
-      CharacteristicDto characteristic = (subCharacteristic != null && subCharacteristic.getParentId() != null) ?
-        characteristicDao.selectById(subCharacteristic.getParentId(), session) : null;
+      Integer parentId = subCharacteristic!= null ? subCharacteristic.getParentId() : null;
+      CharacteristicDto characteristic = (subCharacteristic != null && parentId != null) ?
+        characteristicDao.selectById(parentId, session) : null;
       searchIndex.putSynchronous(INDEX_RULES, TYPE_RULE, Long.toString(ruleId), ruleDocument(rule,
         characteristic, subCharacteristic,
         ruleDao.selectParametersByRuleIds(newArrayList(ruleId), session),

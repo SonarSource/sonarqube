@@ -25,6 +25,8 @@ import com.google.common.collect.Iterables;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.ibatis.session.SqlSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtCharacteristic;
@@ -57,6 +59,8 @@ import static org.sonar.server.debt.DebtModelXMLExporter.DebtModel;
 import static org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
 
 public class DebtModelBackup implements ServerComponent {
+
+  private static final Logger LOG = LoggerFactory.getLogger(DebtModelBackup.class);
 
   private final MyBatis mybatis;
   private final CharacteristicDao dao;
@@ -213,6 +217,7 @@ public class DebtModelBackup implements ServerComponent {
 
       session.commit();
     } catch (IllegalArgumentException e) {
+      LOG.debug("Error when restoring the model", e);
       validationMessages.addErrorText(e.getMessage());
     } finally {
       MyBatis.closeQuietly(session);
@@ -365,13 +370,16 @@ public class DebtModelBackup implements ServerComponent {
       debtModel.characteristicById(effectiveSubCharacteristicId) : null;
     if (subCharacteristic != null) {
       ruleDebt.setSubCharacteristicKey(subCharacteristic.key());
-      if (rule.getRemediationFunction() != null) {
-        ruleDebt.setFunction(rule.getRemediationFunction());
+
+      String overriddenFunction = rule.getRemediationFunction();
+      String defaultFunction = rule.getDefaultRemediationFunction();
+      if (overriddenFunction != null) {
+        ruleDebt.setFunction(overriddenFunction);
         ruleDebt.setCoefficient(rule.getRemediationCoefficient());
         ruleDebt.setOffset(rule.getRemediationOffset());
         return ruleDebt;
-      } else if (rule.getDefaultRemediationFunction() != null) {
-        ruleDebt.setFunction(rule.getDefaultRemediationFunction());
+      } else if (defaultFunction != null) {
+        ruleDebt.setFunction(defaultFunction);
         ruleDebt.setCoefficient(rule.getDefaultRemediationCoefficient());
         ruleDebt.setOffset(rule.getDefaultRemediationOffset());
         return ruleDebt;

@@ -192,8 +192,8 @@ public class CopyRequirementsFromCharacteristicsToRules {
     private static RequirementDto enabledRequirement(Collection<RequirementDto> requirementsForRule) {
       return Iterables.find(requirementsForRule, new Predicate<RequirementDto>() {
         @Override
-        public boolean apply(RequirementDto input) {
-          return input.isEnabled();
+        public boolean apply(@Nullable RequirementDto input) {
+          return input != null && input.isEnabled();
         }
       }, null);
     }
