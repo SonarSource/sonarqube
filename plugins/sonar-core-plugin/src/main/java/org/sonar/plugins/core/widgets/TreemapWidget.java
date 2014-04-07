@@ -26,7 +26,7 @@ import org.sonar.api.web.WidgetPropertyType;
 
 @WidgetProperties({
   @WidgetProperty(key = "sizeMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.NCLOC_KEY),
-  @WidgetProperty(key = "colorMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.VIOLATIONS_DENSITY_KEY, options = "type:PERCENT,RATING"),
+  @WidgetProperty(key = "colorMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.VIOLATIONS_DENSITY_KEY, options = "type:PERCENT,RATING,LEVEL"),
   @WidgetProperty(key = "heightInPercents", type = WidgetPropertyType.INTEGER, optional = true, defaultValue = "55")
 })
 public class TreemapWidget extends CoreWidget {
