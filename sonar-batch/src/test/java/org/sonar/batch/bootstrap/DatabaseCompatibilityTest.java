@@ -28,6 +28,8 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.persistence.DatabaseVersion;
+import org.sonar.core.properties.PropertiesDao;
+import org.sonar.core.properties.PropertyDto;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -40,6 +42,7 @@ public class DatabaseCompatibilityTest {
   DatabaseVersion databaseVersion;
   ServerMetadata server;
   Settings settings;
+  PropertiesDao propertiesDao;
 
   private AnalysisMode mode;
 
@@ -52,7 +55,9 @@ public class DatabaseCompatibilityTest {
     settings = new Settings();
     settings.setProperty(DatabaseProperties.PROP_URL, "jdbc:postgresql://localhost/foo");
     settings.setProperty(DatabaseProperties.PROP_USER, "bar");
-    settings.setProperty(CoreProperties.SERVER_ID, "123456");
+
+    propertiesDao = mock(PropertiesDao.class);
+    when(propertiesDao.selectGlobalProperty(CoreProperties.SERVER_ID)).thenReturn(new PropertyDto().setValue("123456"));
 
     mode = mock(AnalysisMode.class);
 
@@ -66,7 +71,7 @@ public class DatabaseCompatibilityTest {
     thrown.expect(MessageException.class);
     thrown.expectMessage("Database relates to a more recent version of SonarQube. Please check your settings (JDBC settings, version of Maven plugin)");
 
-    new DatabaseCompatibility(databaseVersion, server, settings, mode).start();
+    new DatabaseCompatibility(databaseVersion, server, settings, propertiesDao, mode).start();
   }
 
   @Test
@@ -76,31 +81,31 @@ public class DatabaseCompatibilityTest {
     thrown.expect(MessageException.class);
     thrown.expectMessage("Database must be upgraded.");
 
-    new DatabaseCompatibility(databaseVersion, server, settings, mode).start();
+    new DatabaseCompatibility(databaseVersion, server, settings, propertiesDao, mode).start();
   }
 
   @Test
   public void shouldFailIfNotSameServerId() throws Exception {
-    settings.setProperty(CoreProperties.SERVER_ID, "11111111");
+    when(propertiesDao.selectGlobalProperty(CoreProperties.SERVER_ID)).thenReturn(new PropertyDto().setValue("11111111"));
 
     thrown.expect(MessageException.class);
     thrown.expectMessage("The current batch process and the configured remote server do not share the same DB configuration.");
     thrown.expectMessage("- Batch side: jdbc:postgresql://localhost/foo (bar / *****)");
     thrown.expectMessage("- Server side: check the configuration at http://localhost:9000/system");
 
-    new DatabaseCompatibility(databaseVersion, server, settings, mode).start();
+    new DatabaseCompatibility(databaseVersion, server, settings, propertiesDao, mode).start();
   }
 
   @Test
   public void shouldUseDefaultUserNameWhenFaillingIfNotSameServerIdAndNoUserNameFound() throws Exception {
-    settings.setProperty(CoreProperties.SERVER_ID, "11111111");
+    when(propertiesDao.selectGlobalProperty(CoreProperties.SERVER_ID)).thenReturn(new PropertyDto().setValue("11111111"));
 
     settings.removeProperty(DatabaseProperties.PROP_USER);
 
     thrown.expect(MessageException.class);
     thrown.expectMessage("- Batch side: jdbc:postgresql://localhost/foo (sonar / *****)");
 
-    new DatabaseCompatibility(databaseVersion, server, settings, mode).start();
+    new DatabaseCompatibility(databaseVersion, server, settings, propertiesDao, mode).start();
   }
 
   @Test
@@ -109,13 +114,13 @@ public class DatabaseCompatibilityTest {
 
     thrown.expect(IllegalStateException.class);
 
-    new DatabaseCompatibility(mock(DatabaseVersion.class), server, settings, mode).start();
+    new DatabaseCompatibility(mock(DatabaseVersion.class), server, settings, propertiesDao, mode).start();
   }
 
   @Test
   public void shouldDoNothingIfUpToDate() {
     when(databaseVersion.getStatus()).thenReturn(DatabaseVersion.Status.UP_TO_DATE);
-    new DatabaseCompatibility(databaseVersion, server, settings, mode).start();
+    new DatabaseCompatibility(databaseVersion, server, settings, propertiesDao, mode).start();
     // no error
   }
 
@@ -124,7 +129,7 @@ public class DatabaseCompatibilityTest {
     settings.setProperty(CoreProperties.SERVER_ID, "11111111");
     when(mode.isPreview()).thenReturn(true);
 
-    new DatabaseCompatibility(databaseVersion, server, settings, mode).start();
+    new DatabaseCompatibility(databaseVersion, server, settings, propertiesDao, mode).start();
 
     // no failure
   }
