@@ -49,7 +49,11 @@ window.SonarWidgets.WordCloud.prototype.render = (container) ->
   @getSizeMetric = (d) => d.measures[@sizeMetric].val
 
   # Configure scales
-  @color = d3.scale.linear().domain([0, 100]).range(['#d62728', '#1f77b4'])
+  @color = d3.scale.linear().domain([0, 100])
+  if @options().reverseColor
+    @color.range(['#1f77b4', '#d62728'])
+  else
+    @color.range(['#d62728', '#1f77b4'])
   sizeDomain = d3.extent @components(), (d) => @getSizeMetric d
   @size = d3.scale.linear().domain(sizeDomain).range([10, 24])
 
@@ -60,9 +64,18 @@ window.SonarWidgets.WordCloud.prototype.render = (container) ->
 window.SonarWidgets.WordCloud.prototype.update = ->
   # Configure words
   @words = @box.selectAll('a').data @components()
-  @words.enter().append('a').classed('cloud-word', true).text (d) -> d.name
+
+  wordsEnter = @words.enter().append('a')
+  wordsEnter.classed 'cloud-word', true
+  wordsEnter.text (d) -> d.name
+  wordsEnter.attr 'href', (d) =>
+    url = @options().baseUrl + encodeURIComponent(d.key)
+    url += '?metric=' + encodeURIComponent(@colorMetric) if d.qualifier == 'CLA' || d.qualifier == 'FIL'
+    url
+
   @words.style 'color', (d) => @color @getColorMetric d
   @words.style 'font-size', (d) => "#{@size @getSizeMetric d}px"
+
   @words.exit().remove()
 
   

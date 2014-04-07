@@ -42,6 +42,7 @@
       .source(baseUrl + '/measures/search_filter?' + query)
       .metricsPriority(metrics)
       .options({
+        reverseColor: <%= reverseColor -%>,
         baseUrl: baseUrl + '/dashboard/index/',
         noData: '<%= message('no_data') -%>'
       })
