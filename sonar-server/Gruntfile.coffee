@@ -71,6 +71,7 @@ module.exports = (grunt) ->
             '<%= pkg.assets %>js/widgets/stack-area.js'
             '<%= pkg.assets %>js/widgets/pie-chart.js'
             '<%= pkg.assets %>js/widgets/histogram.js'
+            '<%= pkg.assets %>js/widgets/word-cloud.js'
             '<%= pkg.assets %>js/top-search.js'
             '<%= pkg.assets %>js/sortable.js'
             '<%= pkg.assets %>js/common/inputs.js'
@@ -103,6 +104,7 @@ module.exports = (grunt) ->
             '<%= pkg.assets %>js/widgets/stack-area.js'
             '<%= pkg.assets %>js/widgets/pie-chart.js'
             '<%= pkg.assets %>js/widgets/histogram.js'
+            '<%= pkg.assets %>js/widgets/word-cloud.js'
             '<%= pkg.assets %>js/top-search.js'
             '<%= pkg.assets %>js/sortable.js'
             '<%= pkg.assets %>js/common/inputs.js'
@@ -214,7 +216,7 @@ module.exports = (grunt) ->
 
       coffee:
         files: '<%= pkg.sources %>coffee/**/*.coffee'
-        tasks: ['coffee:build']
+        tasks: ['coffee:build', 'copy:js', 'concat:dev']
 
       js:
         files: '<%= pkg.sources %>js/**/*.js'
