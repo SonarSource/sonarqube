@@ -41,6 +41,7 @@ import java.util.List;
  */
 public class ProjectReactorValidator {
 
+  private static final String SONAR_PHASE = "sonar.phase";
   private final Settings settings;
   private final ResourceDao resourceDao;
 
@@ -78,6 +79,8 @@ public class ProjectReactorValidator {
   }
 
   private void validateModule(ProjectDefinition moduleDef, List<String> validationMessages, @Nullable String branch, String rootProjectKey) {
+    checkDeprecatedProperties(moduleDef, validationMessages);
+
     if (!ComponentKeys.isValidModuleKey(moduleDef.getKey())) {
       validationMessages.add(String.format("\"%s\" is not a valid project or module key. "
         + "Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", moduleDef.getKey()));
@@ -100,6 +103,12 @@ public class ProjectReactorValidator {
         // SONAR-4692 current subproject is already a subproject in another project
         throw new SonarException(String.format("Module \"%s\" is already part of project \"%s\"", moduleDef.getKey(), rootInDB.getKey()));
       }
+    }
+  }
+
+  private void checkDeprecatedProperties(ProjectDefinition moduleDef, List<String> validationMessages) {
+    if (moduleDef.getProperties().getProperty(SONAR_PHASE) != null) {
+      validationMessages.add(String.format("Property \"%s\" is deprecated. Please remove it from your configuration.", SONAR_PHASE));
     }
   }
 
