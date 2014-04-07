@@ -38,18 +38,23 @@
 }
 
 .navigator-filter {
+  position: relative;
+  z-index: 1;
   display: inline-block;
   vertical-align: top;
   height: @navigatorFiltersHeight - 1px;
   line-height: @navigatorFiltersHeight - 1px;
   margin: -1px 0 0;
   padding: 0 @navigatorFilterPadding;
-  border: 1px solid transparent;
+  border: 1px solid;
+  border-color: transparent @navigatorBorderLightColor;
   white-space: nowrap;
   cursor: pointer;
   transition: background 0.3s ease;
 
   &:hover {
+    z-index: 2;
+    border-color: @navigatorBorderColor;
     background-color: @navigatorHover;
   }
 
@@ -57,6 +62,14 @@
     border-color: @darkGrey;
     background: #fff;
   }
+
+  &:first-child {
+    border-left: none;
+  }
+}
+
+.navigator-filter + .navigator-filter {
+  margin-left: -1px;
 }
 
 .navigator-filter-disabled {
