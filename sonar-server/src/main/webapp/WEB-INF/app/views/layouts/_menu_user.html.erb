@@ -1,6 +1,9 @@
 <li>
-  <a href="#" onclick="showDropdownMenu('user-panel'); return false;"><%= h current_user.name -%></a>
-  <i class="icon-dropdown"></i>
+  <a href="#" class="with-icon" onclick="showDropdownMenu('user-panel'); return false;">
+    <span><%= h current_user.name -%></span>
+    <i class="icon-dropdown"></i>
+  </a>
+
   
   <div id="user-panel" class="dropdown-menu" style="display: none">
     <ul>

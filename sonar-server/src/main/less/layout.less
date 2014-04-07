@@ -64,14 +64,13 @@ body, a {
 #hd a {
   color: #FFF;
   text-decoration: none;
-}
 
-#hd a.selected {
-  color: #4B9FD5;
-}
-
-#hd a:focus, #hd a:hover {
-  text-decoration: underline;
+  &:focus, &:hover { text-decoration: underline; }
+  &.selected { color: #4B9FD5; }
+  &.with-icon:hover {
+    text-decoration: none;
+    span { text-decoration: underline; }
+  }
 }
 
 #nav-left {
