@@ -1,5 +1,5 @@
 <%
-if metric && metric.worst_value && metric.best_value
+if metric && metric.worst_value && metric.best_value && (metric.val_type != Metric::VALUE_TYPE_RATING)
   if metric.worst_value<metric.best_value
     min=metric.worst_value
     max=metric.best_value
