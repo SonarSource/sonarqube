@@ -93,6 +93,7 @@ define(
           if (this.selected > 0) {
             this.selected--;
             filters.eq(this.selected).click();
+            this.$('.navigator-filter-submit').blur();
           }
         },
 

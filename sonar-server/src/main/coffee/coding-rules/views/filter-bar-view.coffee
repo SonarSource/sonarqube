@@ -61,6 +61,7 @@ define [
 
 
     search: ->
+      @$('.navigator-filter-submit').blur()
       @options.app.state.set
         query: this.options.app.getQuery(),
         search: true

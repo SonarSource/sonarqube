@@ -30,6 +30,12 @@ define [
       key 'down', 'list', => @selectNext()
 
 
+    close: ->
+      super
+      key.unbind 'up', 'list'
+      key.unbind 'down', 'list'
+
+
     selectIssue: (el, open) ->
       @$('.active').removeClass 'active'
       el.addClass 'active'

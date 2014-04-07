@@ -478,6 +478,7 @@ define(
 
 
         search: function () {
+          this.$('.navigator-filter-submit').blur();
           this.options.app.state.set({
             query: this.options.app.getQuery(),
             search: true
