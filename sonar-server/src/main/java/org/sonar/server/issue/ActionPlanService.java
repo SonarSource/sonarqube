@@ -36,10 +36,11 @@ import org.sonar.core.issue.db.*;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
-import org.sonar.core.user.AuthorizationDao;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
+
 import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -52,17 +53,15 @@ public class ActionPlanService implements ServerComponent {
   private final ActionPlanDao actionPlanDao;
   private final ActionPlanStatsDao actionPlanStatsDao;
   private final ResourceDao resourceDao;
-  private final AuthorizationDao authorizationDao;
   private final IssueDao issueDao;
   private final IssueUpdater issueUpdater;
   private final IssueStorage issueStorage;
 
-  public ActionPlanService(ActionPlanDao actionPlanDao, ActionPlanStatsDao actionPlanStatsDao, ResourceDao resourceDao, AuthorizationDao authorizationDao,
+  public ActionPlanService(ActionPlanDao actionPlanDao, ActionPlanStatsDao actionPlanStatsDao, ResourceDao resourceDao,
                            IssueDao issueDao, IssueUpdater issueUpdater, IssueStorage issueStorage) {
     this.actionPlanDao = actionPlanDao;
     this.actionPlanStatsDao = actionPlanStatsDao;
     this.resourceDao = resourceDao;
-    this.authorizationDao = authorizationDao;
     this.issueDao = issueDao;
     this.issueUpdater = issueUpdater;
     this.issueStorage = issueStorage;
@@ -70,21 +69,21 @@ public class ActionPlanService implements ServerComponent {
 
   public ActionPlan create(ActionPlan actionPlan, UserSession userSession) {
     ResourceDto project = findProject(actionPlan.projectKey());
-    checkAuthorization(userSession, project, UserRole.ADMIN);
+    checkUserIsProjectAdministrator(project.getKey(), userSession);
     actionPlanDao.save(ActionPlanDto.toActionDto(actionPlan, project.getId()));
     return actionPlan;
   }
 
   public ActionPlan update(ActionPlan actionPlan, UserSession userSession) {
     ResourceDto project = findProject(actionPlan.projectKey());
-    checkAuthorization(userSession, project, UserRole.ADMIN);
+    checkUserIsProjectAdministrator(project.getKey(), userSession);
     actionPlanDao.update(ActionPlanDto.toActionDto(actionPlan, project.getId()));
     return actionPlan;
   }
 
   public void delete(String actionPlanKey, UserSession userSession) {
     ActionPlanDto dto = findActionPlanDto(actionPlanKey);
-    checkAuthorization(userSession, dto.getProjectKey(), UserRole.ADMIN);
+    checkUserIsProjectAdministrator(dto.getProjectKey(), userSession);
     unplanIssues(dto.toActionPlan(), userSession);
     actionPlanDao.delete(actionPlanKey);
   }
@@ -111,7 +110,7 @@ public class ActionPlanService implements ServerComponent {
 
   public ActionPlan setStatus(String actionPlanKey, String status, UserSession userSession) {
     ActionPlanDto actionPlanDto = findActionPlanDto(actionPlanKey);
-    checkAuthorization(userSession, actionPlanDto.getProjectKey(), UserRole.ADMIN);
+    checkUserIsProjectAdministrator(actionPlanDto.getProjectKey(), userSession);
 
     actionPlanDto.setStatus(status);
     actionPlanDto.setCreatedAt(new Date());
@@ -125,7 +124,7 @@ public class ActionPlanService implements ServerComponent {
     if (actionPlanDto == null) {
       return null;
     }
-    checkAuthorization(userSession, actionPlanDto.getProjectKey(), UserRole.USER);
+    checkUserCanAccessProject(actionPlanDto.getProjectKey(), userSession);
     return actionPlanDto.toActionPlan();
   }
 
@@ -136,7 +135,7 @@ public class ActionPlanService implements ServerComponent {
 
   public Collection<ActionPlan> findOpenByProjectKey(String projectKey, UserSession userSession) {
     ResourceDto project = findProject(projectKey);
-    checkAuthorization(userSession, project, UserRole.USER);
+    checkUserCanAccessProject(project.getKey(), userSession);
 
     List<ActionPlanDto> dtos = actionPlanDao.findOpenByProjectId(project.getId());
     List<ActionPlan> plans = toActionPlans(dtos);
@@ -146,7 +145,7 @@ public class ActionPlanService implements ServerComponent {
 
   public List<ActionPlanStats> findActionPlanStats(String projectKey, UserSession userSession) {
     ResourceDto project = findProject(projectKey);
-    checkAuthorization(userSession, project, UserRole.USER);
+    checkUserCanAccessProject(project.getKey(), userSession);
 
     List<ActionPlanStatsDto> actionPlanStatsDtos = actionPlanStatsDao.findByProjectId(project.getId());
     List<ActionPlanStats> actionPlanStats = newArrayList(Iterables.transform(actionPlanStatsDtos, new Function<ActionPlanStatsDto, ActionPlanStats>() {
@@ -175,8 +174,7 @@ public class ActionPlanService implements ServerComponent {
   private ActionPlanDto findActionPlanDto(String actionPlanKey) {
     ActionPlanDto actionPlanDto = actionPlanDao.findByKey(actionPlanKey);
     if (actionPlanDto == null) {
-      // TODO throw 404
-      throw new IllegalArgumentException("Action plan " + actionPlanKey + " has not been found.");
+      throw new NotFoundException("Action plan " + actionPlanKey + " has not been found.");
     }
     return actionPlanDto;
   }
@@ -184,21 +182,17 @@ public class ActionPlanService implements ServerComponent {
   private ResourceDto findProject(String projectKey) {
     ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(projectKey));
     if (resourceDto == null) {
-      // TODO throw 404
-      throw new IllegalArgumentException("Project " + projectKey + " does not exists.");
+      throw new NotFoundException("Project " + projectKey + " does not exists.");
     }
     return resourceDto;
   }
 
-  private void checkAuthorization(UserSession userSession, String projectKey, String requiredRole) {
-    checkAuthorization(userSession, findProject(projectKey), requiredRole);
+  private void checkUserCanAccessProject(String projectKey, UserSession userSession) {
+    userSession.checkProjectPermission(UserRole.USER, projectKey);
   }
 
-  private void checkAuthorization(UserSession userSession, ResourceDto project, String requiredRole) {
-    if (!authorizationDao.isAuthorizedComponentKey(project.getKey(), userSession.userId(), requiredRole)) {
-      // TODO throw unauthorized
-      throw new IllegalStateException("User does not have the required role on the project: " + project.getKey());
-    }
+  private void checkUserIsProjectAdministrator(String projectKey, UserSession userSession) {
+    userSession.checkProjectPermission(UserRole.ADMIN, projectKey);
   }
 
 }

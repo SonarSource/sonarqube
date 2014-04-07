@@ -71,7 +71,7 @@ public class ActionServiceTest {
   }
 
   @Test
-  public void should_execute_functions() {
+  public void execute_functions() {
     Function function1 = mock(Function.class);
     Function function2 = mock(Function.class);
 
@@ -92,7 +92,7 @@ public class ActionServiceTest {
   }
 
   @Test
-  public void should_modify_issue_when_executing_a_function() {
+  public void modify_issue_when_executing_a_function() {
     Function function = new TweetFunction();
 
     UserSession userSession = mock(UserSession.class);
@@ -113,7 +113,7 @@ public class ActionServiceTest {
   }
 
   @Test
-  public void should_inject_project_settings_when_executing_a_function() {
+  public void inject_project_settings_when_executing_a_function() {
     Function function = new TweetFunction();
 
     UserSession userSession = mock(UserSession.class);
@@ -135,7 +135,7 @@ public class ActionServiceTest {
   }
 
   @Test
-  public void should_not_execute_function_if_issue_not_found() {
+  public void not_execute_function_if_issue_not_found() {
     Function function = mock(Function.class);
 
     IssueQueryResult issueQueryResult = new DefaultIssueQueryResult(Collections.<Issue>emptyList());
@@ -152,7 +152,7 @@ public class ActionServiceTest {
   }
 
   @Test
-  public void should_not_execute_function_if_action_not_found() {
+  public void not_execute_function_if_action_not_found() {
     Function function = mock(Function.class);
 
     Issue issue = new DefaultIssue().setKey("ABCD");
@@ -170,7 +170,7 @@ public class ActionServiceTest {
   }
 
   @Test
-  public void should_not_execute_function_if_action_is_not_supported() {
+  public void not_execute_function_if_action_is_not_supported() {
     Function function = mock(Function.class);
 
     Issue issue = new DefaultIssue().setKey("ABCD");
@@ -188,7 +188,7 @@ public class ActionServiceTest {
   }
 
   @Test
-  public void should_list_available_supported_actions() {
+  public void list_available_supported_actions() {
     Issue issue = new DefaultIssue().setKey("ABCD");
     IssueQueryResult issueQueryResult = new DefaultIssueQueryResult(newArrayList(issue));
     when(finder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
@@ -199,7 +199,7 @@ public class ActionServiceTest {
   }
 
   @Test
-  public void should_list_available_actions_throw_exception_if_issue_not_found() {
+  public void list_available_actions_throw_exception_if_issue_not_found() {
     IssueQueryResult issueQueryResult = new DefaultIssueQueryResult(Collections.<Issue>emptyList());
     when(finder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
 
@@ -214,7 +214,7 @@ public class ActionServiceTest {
   }
 
   @Test
-  public void should_return_no_action() {
+  public void return_no_action() {
     Issue issue = new DefaultIssue().setKey("ABCD");
     IssueQueryResult issueQueryResult = new DefaultIssueQueryResult(newArrayList(issue));
     when(finder.find(any(IssueQuery.class))).thenReturn(issueQueryResult);
@@ -223,7 +223,7 @@ public class ActionServiceTest {
   }
 
   @Test
-  public void should_get_project_settings(){
+  public void get_project_settings(){
     Component project = mock(Component.class);
     when(project.key()).thenReturn("struts");
 

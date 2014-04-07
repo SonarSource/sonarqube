@@ -1,5 +1,5 @@
 <div>
-  <% if profiles_administrator? %>
+  <% if is_admin?(@resource.id) %>
   <ul style="float: right" class="horizontal">
     <li class="marginleft10 add">
       <a id="create-link-action_plans"

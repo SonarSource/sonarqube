@@ -65,6 +65,8 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newArrayList;
 
 /**
+ * Used through ruby code <pre>Internal.issues</pre>
+ *
  * All the issue features that are not published to public API.
  *
  * @since 3.6

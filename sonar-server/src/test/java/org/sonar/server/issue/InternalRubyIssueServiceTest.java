@@ -20,13 +20,18 @@
 
 package org.sonar.server.issue;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.user.User;
@@ -51,18 +56,37 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class InternalRubyIssueServiceTest {
 
-  InternalRubyIssueService service;
-  IssueService issueService = mock(IssueService.class);
+  @Mock
+  IssueService issueService;
+
+  @Mock
   IssueCommentService commentService = mock(IssueCommentService.class);
+
+  @Mock
   IssueChangelogService changelogService = mock(IssueChangelogService.class);
+
+  @Mock
   ActionPlanService actionPlanService = mock(ActionPlanService.class);
+
+  @Mock
   ResourceDao resourceDao = mock(ResourceDao.class);
+
+  @Mock
   IssueStatsFinder issueStatsFinder = mock(IssueStatsFinder.class);
+
+  @Mock
   ActionService actionService = mock(ActionService.class);
+
+  @Mock
   IssueFilterService issueFilterService = mock(IssueFilterService.class);
+
+  @Mock
   IssueBulkChangeService issueBulkChangeService = mock(IssueBulkChangeService.class);
+
+  InternalRubyIssueService service;
 
   @Before
   public void setUp() {
@@ -73,13 +97,53 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void list_plugin_actions() {
-    service.listPluginActions();
-    verify(actionService).listAllActions();
+  public void find_issue_assignees() throws Exception {
+    service.findIssueAssignees(ImmutableMap.<String, Object>of("issues", "ABCD"));
+    verify(issueStatsFinder).findIssueAssignees(any(IssueQuery.class));
   }
 
-    @Test
-  public void should_create_action_plan() {
+  @Test
+  public void list_transitions_by_issue_key() throws Exception {
+    service.listTransitions("ABCD");
+    verify(issueService).listTransitions(eq("ABCD"), any(UserSession.class));
+  }
+
+  @Test
+  public void list_transitions_by_issue() throws Exception {
+    Issue issue = new DefaultIssue().setKey("ABCD");
+    service.listTransitions(issue);
+    verify(issueService).listTransitions(eq(issue), any(UserSession.class));
+  }
+
+  @Test
+  public void list_status() throws Exception {
+    service.listStatus();
+    verify(issueService).listStatus();
+  }
+
+  @Test
+  public void list_resolutions() throws Exception {
+    assertThat(service.listResolutions()).isEqualTo(Issue.RESOLUTIONS);
+  }
+
+  @Test
+  public void list_plugin_actions() {
+    Action action = mock(Action.class);
+    when(action.key()).thenReturn("link-to-jira");
+
+    when(actionService.listAllActions()).thenReturn(newArrayList(action));
+
+    assertThat(service.listPluginActions()).containsOnly("link-to-jira");
+  }
+
+  @Test
+  public void do_transition() throws Exception {
+    service.doTransition("ABCD", Issue.STATUS_RESOLVED);
+    verify(issueService).doTransition(eq("ABCD"), eq(Issue.STATUS_RESOLVED), any(UserSession.class));
+  }
+
+  @Test
+  public void create_action_plan() {
     Map<String, String> parameters = newHashMap();
     parameters.put("name", "Long term");
     parameters.put("description", "Long term issues");
@@ -101,7 +165,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_update_action_plan() {
+  public void update_action_plan() {
     when(actionPlanService.findByKey(eq("ABCD"), any(UserSession.class))).thenReturn(DefaultActionPlan.create("Long term"));
 
     Map<String, String> parameters = newHashMap();
@@ -125,7 +189,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_update_action_plan_with_new_project() {
+  public void update_action_plan_with_new_project() {
     when(actionPlanService.findByKey(eq("ABCD"), any(UserSession.class))).thenReturn(DefaultActionPlan.create("Long term").setProjectKey("org.sonar.MultiSample"));
 
     Map<String, String> parameters = newHashMap();
@@ -149,7 +213,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_not_update_action_plan_when_action_plan_is_not_found() {
+  public void not_update_action_plan_when_action_plan_is_not_found() {
     when(actionPlanService.findByKey(eq("ABCD"), any(UserSession.class))).thenReturn(null);
 
     Result result = service.updateActionPlan("ABCD", null);
@@ -158,7 +222,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_delete_action_plan() {
+  public void delete_action_plan() {
     when(actionPlanService.findByKey(eq("ABCD"), any(UserSession.class))).thenReturn(DefaultActionPlan.create("Long term"));
 
     Result result = service.deleteActionPlan("ABCD");
@@ -167,7 +231,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_not_delete_action_plan_if_action_plan_not_found() {
+  public void not_delete_action_plan_if_action_plan_not_found() {
     when(actionPlanService.findByKey(eq("ABCD"), any(UserSession.class))).thenReturn(null);
 
     Result result = service.deleteActionPlan("ABCD");
@@ -177,7 +241,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_close_action_plan() {
+  public void close_action_plan() {
     when(actionPlanService.findByKey(eq("ABCD"), any(UserSession.class))).thenReturn(DefaultActionPlan.create("Long term"));
 
     Result result = service.closeActionPlan("ABCD");
@@ -186,7 +250,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_open_action_plan() {
+  public void open_action_plan() {
     when(actionPlanService.findByKey(eq("ABCD"), any(UserSession.class))).thenReturn(DefaultActionPlan.create("Long term"));
 
     Result result = service.openActionPlan("ABCD");
@@ -195,7 +259,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_get_error_on_action_plan_result_when_no_project() {
+  public void get_error_on_action_plan_result_when_no_project() {
     Map<String, String> parameters = newHashMap();
     parameters.put("name", "Long term");
     parameters.put("description", "Long term issues");
@@ -206,7 +270,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_get_error_on_action_plan_result_when_no_name() {
+  public void get_error_on_action_plan_result_when_no_name() {
     Map<String, String> parameters = newHashMap();
     parameters.put("name", null);
     parameters.put("description", "Long term issues");
@@ -218,7 +282,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_get_error_on_action_plan_result_when_name_is_too_long() {
+  public void get_error_on_action_plan_result_when_name_is_too_long() {
     Map<String, String> parameters = newHashMap();
     parameters.put("name", createLongString(201));
     parameters.put("description", "Long term issues");
@@ -230,7 +294,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_get_error_on_action_plan_result_when_description_is_too_long() {
+  public void get_error_on_action_plan_result_when_description_is_too_long() {
     Map<String, String> parameters = newHashMap();
     parameters.put("name", "Long term");
     parameters.put("description", createLongString(1001));
@@ -242,7 +306,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_get_error_on_action_plan_result_when_dead_line_use_wrong_format() {
+  public void get_error_on_action_plan_result_when_dead_line_use_wrong_format() {
     Map<String, String> parameters = newHashMap();
     parameters.put("name", "Long term");
     parameters.put("description", "Long term issues");
@@ -255,7 +319,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_get_error_on_action_plan_result_when_dead_line_is_in_the_past() {
+  public void get_error_on_action_plan_result_when_dead_line_is_in_the_past() {
     Map<String, String> parameters = newHashMap();
     parameters.put("name", "Long term");
     parameters.put("description", "Long term issues");
@@ -268,7 +332,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_get_error_on_action_plan_result_when_name_is_already_used_for_project() {
+  public void get_error_on_action_plan_result_when_name_is_already_used_for_project() {
     Map<String, String> parameters = newHashMap();
     parameters.put("name", "Long term");
     parameters.put("description", "Long term issues");
@@ -282,7 +346,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_get_error_on_action_plan_result_when_project_not_found() {
+  public void get_error_on_action_plan_result_when_project_not_found() {
     Map<String, String> parameters = newHashMap();
     parameters.put("name", "Long term");
     parameters.put("description", "Long term issues");
@@ -297,7 +361,7 @@ public class InternalRubyIssueServiceTest {
 
   @Test
   public void test_changelog_from_issue_key() throws Exception {
-    IssueChangelog changelog = new IssueChangelog(Collections.<FieldDiffs> emptyList(), Collections.<User> emptyList());
+    IssueChangelog changelog = new IssueChangelog(Collections.<FieldDiffs>emptyList(), Collections.<User>emptyList());
     when(changelogService.changelog(eq("ABCDE"))).thenReturn(changelog);
 
     IssueChangelog result = service.changelog("ABCDE");
@@ -309,7 +373,7 @@ public class InternalRubyIssueServiceTest {
   public void test_changelog_from_issue() throws Exception {
     Issue issue = new DefaultIssue().setKey("ABCDE");
 
-    IssueChangelog changelog = new IssueChangelog(Collections.<FieldDiffs> emptyList(), Collections.<User> emptyList());
+    IssueChangelog changelog = new IssueChangelog(Collections.<FieldDiffs>emptyList(), Collections.<User>emptyList());
     when(changelogService.changelog(eq(issue))).thenReturn(changelog);
 
     IssueChangelog result = service.changelog(issue);
@@ -318,7 +382,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_create_issue_filter() {
+  public void create_issue_filter() {
     Map<String, String> parameters = newHashMap();
     parameters.put("name", "Long term");
     parameters.put("description", "Long term issues");
@@ -333,7 +397,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_update_issue_filter() {
+  public void update_issue_filter() {
     Map<String, String> parameters = newHashMap();
     parameters.put("id", "10");
     parameters.put("name", "Long term");
@@ -351,20 +415,20 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_update_data() {
+  public void update_data() {
     Map<String, Object> data = newHashMap();
     service.updateIssueFilterQuery(10L, data);
     verify(issueFilterService).updateFilterQuery(eq(10L), eq(data), any(UserSession.class));
   }
 
   @Test
-  public void should_delete_issue_filter() {
+  public void delete_issue_filter() {
     service.deleteIssueFilter(1L);
     verify(issueFilterService).delete(eq(1L), any(UserSession.class));
   }
 
   @Test
-  public void should_copy_issue_filter() {
+  public void copy_issue_filter() {
     Map<String, String> parameters = newHashMap();
     parameters.put("name", "Copy of Long term");
     parameters.put("description", "Copy of Long term issues");
@@ -379,7 +443,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_get_error_on_create_issue_filter_result_when_no_name() {
+  public void get_error_on_create_issue_filter_result_when_no_name() {
     Map<String, String> parameters = newHashMap();
     parameters.put("name", "");
     parameters.put("description", "Long term issues");
@@ -395,7 +459,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_get_error_on_create_issue_filter_result_when_name_is_too_long() {
+  public void get_error_on_create_issue_filter_result_when_name_is_too_long() {
     Map<String, String> parameters = newHashMap();
     parameters.put("name", createLongString(101));
     parameters.put("description", "Long term issues");
@@ -411,7 +475,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_get_error_on_create_issue_filter_result_when_description_is_too_long() {
+  public void get_error_on_create_issue_filter_result_when_description_is_too_long() {
     Map<String, String> parameters = newHashMap();
     parameters.put("name", "Long term");
     parameters.put("description", createLongString(4001));
@@ -427,7 +491,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_get_error_on_create_issue_filter_result_when_id_is_null_on_update() {
+  public void get_error_on_create_issue_filter_result_when_id_is_null_on_update() {
     Map<String, String> parameters = newHashMap();
     parameters.put("id", null);
     parameters.put("name", "Long term");
@@ -444,7 +508,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_get_error_on_create_issue_filter_result_when_user_is_null_on_update() {
+  public void get_error_on_create_issue_filter_result_when_user_is_null_on_update() {
     Map<String, String> parameters = newHashMap();
     parameters.put("id", "10");
     parameters.put("name", "All Open Issues");
@@ -461,7 +525,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_get_no_error_on_issue_filter_result_when_id_and_user_are_null_on_copy() {
+  public void get_no_error_on_issue_filter_result_when_id_and_user_are_null_on_copy() {
     Map<String, String> parameters = newHashMap();
     parameters.put("id", null);
     parameters.put("name", "Long term");
@@ -473,13 +537,13 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_execute_issue_filter_from_issue_query() {
-    service.execute(Maps.<String, Object> newHashMap());
+  public void execute_issue_filter_from_issue_query() {
+    service.execute(Maps.<String, Object>newHashMap());
     verify(issueFilterService).execute(any(IssueQuery.class));
   }
 
   @Test
-  public void should_execute_issue_filter_from_existing_filter() {
+  public void execute_issue_filter_from_existing_filter() {
     Map<String, Object> props = newHashMap();
     props.put("componentRoots", "struts");
     props.put("statuses", "OPEN");
@@ -504,7 +568,7 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_serialize_filter_query() {
+  public void serialize_filter_query() {
     Map<String, Object> props = newHashMap();
     props.put("componentRoots", "struts");
     service.serializeFilterQuery(props);
@@ -512,14 +576,14 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_deserialize_filter_query() {
+  public void deserialize_filter_query() {
     DefaultIssueFilter issueFilter = new DefaultIssueFilter();
     service.deserializeFilterQuery(issueFilter);
     verify(issueFilterService).deserializeIssueFilterQuery(issueFilter);
   }
 
   @Test
-  public void should_sanitize_filter_query() {
+  public void sanitize_filter_query() {
     Map<String, Object> query = newHashMap();
     query.put("statuses", "CLOSED");
     query.put("resolved", true);
@@ -529,31 +593,31 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_find_user_issue_filters() {
+  public void find_user_issue_filters() {
     service.findIssueFiltersForCurrentUser();
     verify(issueFilterService).findByUser(any(UserSession.class));
   }
 
   @Test
-  public void should_find_shared_issue_filters() {
+  public void find_shared_issue_filters() {
     service.findSharedFiltersForCurrentUser();
     verify(issueFilterService).findSharedFiltersWithoutUserFilters(any(UserSession.class));
   }
 
   @Test
-  public void should_find_favourite_issue_filters() {
+  public void find_favourite_issue_filters() {
     service.findFavouriteIssueFiltersForCurrentUser();
     verify(issueFilterService).findFavoriteFilters(any(UserSession.class));
   }
 
   @Test
-  public void should_toggle_favourite_issue_filter() {
+  public void toggle_favourite_issue_filter() {
     service.toggleFavouriteIssueFilter(10L);
     verify(issueFilterService).toggleFavouriteIssueFilter(eq(10L), any(UserSession.class));
   }
 
   @Test
-  public void should_check_if_user_is_authorized_to_see_issue_filter() {
+  public void check_if_user_is_authorized_to_see_issue_filter() {
     DefaultIssueFilter issueFilter = new DefaultIssueFilter();
     service.isUserAuthorized(issueFilter);
     verify(issueFilterService).getLoggedLogin(any(UserSession.class));
@@ -561,13 +625,13 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void should_check_if_user_can_share_issue_filter() {
+  public void check_if_user_can_share_issue_filter() {
     service.canUserShareIssueFilter();
     verify(issueFilterService).canShareFilter(any(UserSession.class));
   }
 
   @Test
-  public void should_execute_bulk_change() {
+  public void execute_bulk_change() {
     Map<String, Object> params = newHashMap();
     params.put("issues", newArrayList("ABCD", "EFGH"));
     params.put("actions", newArrayList("do_transition", "assign", "set_severity", "plan"));
