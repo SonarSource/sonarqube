@@ -80,8 +80,11 @@ public class RuleDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public List<RuleDto> selectBySubCharacteristicId(Integer characteristicOrSubCharacteristicId, SqlSession session) {
-    return getMapper(session).selectBySubCharacteristicId(characteristicOrSubCharacteristicId);
+  /**
+   * Return all rules (even the REMOVED ones) linked on to a sub characteristic
+   */
+  public List<RuleDto> selectBySubCharacteristicId(Integer subCharacteristicId, SqlSession session) {
+    return getMapper(session).selectBySubCharacteristicId(subCharacteristicId);
   }
 
   @CheckForNull

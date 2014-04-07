@@ -221,6 +221,7 @@ public class DebtModelOperations implements ServerComponent {
   }
 
   private void disableSubCharacteristic(CharacteristicDto subCharacteristic, Date updateDate, SqlSession session) {
+    // Disable debt on all rules (even REMOVED ones, in order to have no issue if they are reactivated) linked to the sub characteristic
     disableRulesDebt(ruleDao.selectBySubCharacteristicId(subCharacteristic.getId(), session), subCharacteristic.getId(), updateDate, session);
     disableCharacteristic(subCharacteristic, updateDate, session);
   }

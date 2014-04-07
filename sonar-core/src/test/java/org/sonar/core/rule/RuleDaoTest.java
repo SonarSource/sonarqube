@@ -148,7 +148,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   public void select_by_sub_characteristic_id(){
     setupData("select_by_sub_characteristic_id");
 
-    // Rules from sub characteristic
+    // Rules from sub characteristic (even REMOVED ones are returned)
     List<RuleDto> ruleDtos = dao.selectBySubCharacteristicId(3);
     assertThat(ruleDtos).hasSize(3);
     assertThat(idsFromRuleDtos(ruleDtos)).containsExactly(2, 4, 5);
