@@ -104,11 +104,9 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
 
         if (Issue.STATUS_OPEN.equals(issue.status())) {
           countOpen++;
-        }
-        if (Issue.STATUS_REOPENED.equals(issue.status())) {
+        } else if (Issue.STATUS_REOPENED.equals(issue.status())) {
           countReopened++;
-        }
-        if (Issue.STATUS_CONFIRMED.equals(issue.status())) {
+        } else if (Issue.STATUS_CONFIRMED.equals(issue.status())) {
           countConfirmed++;
         }
       }
