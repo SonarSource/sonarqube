@@ -79,17 +79,11 @@ public class Duration implements Serializable {
         String hoursText = matcher.group(2);
         if (hoursText != null) {
           hours = Integer.parseInt(hoursText);
-          if (hours > 24) {
-            throw new IllegalArgumentException(String.format("The number of hours should not be greater than 24, got %s", hours));
-          }
           sanitizedText = sanitizedText.replace(hoursText + HOUR, "");
         }
         String minutesText = matcher.group(3);
         if (minutesText != null) {
           minutes = Integer.parseInt(minutesText);
-          if (minutes > 60) {
-            throw new IllegalArgumentException(String.format("The number of minutes should not be greater than 60, got %s", minutes));
-          }
           sanitizedText = sanitizedText.replace(minutesText + MINUTE, "");
         }
         if (sanitizedText.isEmpty()) {
