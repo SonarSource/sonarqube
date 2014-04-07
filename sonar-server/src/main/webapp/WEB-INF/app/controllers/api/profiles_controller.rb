@@ -34,25 +34,28 @@ class Api::ProfilesController < Api::ApiController
     language = params[:language]
     project_key = params[:project]
 
+    profiles = []
     default_profile_by_language = {}
     if project_key.present?
       project = Project.by_key(project_key)
       not_found('Unknown project') unless project
-      profiles = Internal.quality_profiles.profiles(project.id).to_a
       if language.present?
-        profile = profiles.find {|profile| profile.language == language} if profiles
+        default_profile_by_language[language] = Internal.quality_profiles.defaultProfile(language)
+        profile = Internal.quality_profiles.findProfileByProjectAndLanguage(project.id, language)
+        profiles << profile if profile
         # Return default profile if the project is not associate to a profile
-        profile = Internal.quality_profiles.defaultProfile(language.to_s) unless profile
+        profiles << default_profile_by_language[language] unless profile
       else
-        profile = Internal.quality_profiles.defaultProfile(project.language.to_s) if profiles.empty?
-      end
-      if profile
-        # Populate default profile by language to not execute twice the SQL to get default profile
-        profiles = [profile]
-        default_profile_by_language[profile.language] = profile
+        Api::Utils.languages.each do |language|
+          default_profile_by_language[language.getKey()] = Internal.quality_profiles.defaultProfile(language.getKey())
+          profile = Internal.quality_profiles.findProfileByProjectAndLanguage(project.id, language.getKey())
+          profiles << profile if profile
+          # Return default profile if the project is not associate to a profile
+          profiles << default_profile_by_language[language.getKey()] unless profile
+        end
       end
     elsif language.present?
-      profiles = Internal.quality_profiles.allProfiles().select {|profile| profile.language == language}
+      profiles = Internal.quality_profiles.profilesByLanguage(language).to_a
     else
       profiles = Internal.quality_profiles.allProfiles().to_a
     end
@@ -65,7 +68,6 @@ class Api::ProfilesController < Api::ApiController
         default_profile_by_language[lang] = Internal.quality_profiles.defaultProfile(lang.to_s)
       end
     end
-    profiles = [default_profile_by_language[project.language]] if profiles.empty?
 
     json = profiles.compact.map { |profile| {:name => profile.name, :language => profile.language, :default => default_profile_by_language[profile.language].name == profile.name } }
     respond_to do |format|
