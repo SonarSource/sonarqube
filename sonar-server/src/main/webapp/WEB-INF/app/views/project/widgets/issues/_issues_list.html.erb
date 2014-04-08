@@ -39,10 +39,11 @@
         <td>
           <a class="rule-modal" href="#" onclick="return openModalWindow('<%= url_for :controller => 'issue', :action => 'show', :id => issue.key, :modal => true -%>', {'width': 800})">
             <%= h truncate(issue.message, :length => 100) -%></a>
-          <% if last_comment %>
+          <% if last_comment && last_comment.userLogin() %>
             <div class="comment-excerpt">
               <img src="<%= ApplicationController.root_context -%>/images/reviews/comment.png"/>
-              &nbsp;<b><%= last_comment.userLogin() -%> :</b>
+              <% commentAuthor = results.user(last_comment.userLogin()) %>
+              &nbsp;<b><%= h( commentAuthor.nil? ? last_comment.userLogin() : commentAuthor.name() ) -%> :</b>
               <%= Internal.text.markdownToHtml(last_comment.markdownText) -%>
             </div>
           <% end %>
