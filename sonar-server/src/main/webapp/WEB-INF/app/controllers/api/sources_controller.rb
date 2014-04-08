@@ -23,6 +23,11 @@ require "json"
 class Api::SourcesController < Api::RestController
 
   def rest_call
+    unless params[:resource]
+      rest_status_ko('Missing parameter: resource', 400)
+      return
+    end
+
     resource_id=params[:resource]
     if resource_id
       @resource=Project.by_key(resource_id)
