@@ -57,6 +57,8 @@ public class ProjectReactorValidator {
     String rootProjectKey = ComponentKeys.createKey(reactor.getRoot().getKey(), branch);
 
     List<String> validationMessages = new ArrayList<String>();
+    checkDeprecatedProperties(validationMessages);
+
     for (ProjectDefinition moduleDef : reactor.getProjects()) {
       validateModule(moduleDef, validationMessages, branch, rootProjectKey);
     }
@@ -79,8 +81,6 @@ public class ProjectReactorValidator {
   }
 
   private void validateModule(ProjectDefinition moduleDef, List<String> validationMessages, @Nullable String branch, String rootProjectKey) {
-    checkDeprecatedProperties(moduleDef, validationMessages);
-
     if (!ComponentKeys.isValidModuleKey(moduleDef.getKey())) {
       validationMessages.add(String.format("\"%s\" is not a valid project or module key. "
         + "Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", moduleDef.getKey()));
@@ -106,8 +106,8 @@ public class ProjectReactorValidator {
     }
   }
 
-  private void checkDeprecatedProperties(ProjectDefinition moduleDef, List<String> validationMessages) {
-    if (moduleDef.getProperties().getProperty(SONAR_PHASE) != null) {
+  private void checkDeprecatedProperties(List<String> validationMessages) {
+    if (settings.getString(SONAR_PHASE) != null) {
       validationMessages.add(String.format("Property \"%s\" is deprecated. Please remove it from your configuration.", SONAR_PHASE));
     }
   }

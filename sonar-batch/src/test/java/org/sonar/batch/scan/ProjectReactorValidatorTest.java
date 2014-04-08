@@ -232,7 +232,7 @@ public class ProjectReactorValidatorTest {
   @Test
   public void fail_with_deprecated_sonar_phase() {
     ProjectReactor reactor = createProjectReactor("foo");
-    reactor.getRoot().setProperty("sonar.phase", "phase");
+    settings.setProperty("sonar.phase", "phase");
 
     thrown.expect(SonarException.class);
     thrown.expectMessage("\"sonar.phase\" is deprecated");
