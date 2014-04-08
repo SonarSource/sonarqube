@@ -134,7 +134,7 @@
          comment_html_id = "comment-#{comment.key}-#{rand(100)}" %>
       <div class="code-issue-comment" id="<%= comment_html_id -%>" data-comment-key="<%= comment.key -%>">
         <h4>
-          <%= image_tag('reviews/comment.png') -%> &nbsp;<b><%= @issue_results.user(comment.userLogin()).name() -%></b>
+          <%= image_tag('reviews/comment.png') -%> &nbsp;<b><%= h( @issue_results.user(comment.userLogin()).name() ) -%></b>
           (<%= distance_of_time_in_words_to_now(Api::Utils.java_to_ruby_datetime(comment.createdAt)) -%>)
           <% if current_user && current_user.login==comment.userLogin %>
             &nbsp;
