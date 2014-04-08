@@ -43,6 +43,9 @@ public final class IssueExclusionsConfiguration {
   private static final String PROPERTY_FILE_PATH_PATTERN = "File Path Pattern";
   public static final String RULE_KEY = "ruleKey";
   private static final String PROPERTY_RULE_KEY_PATTERN = "Rule Key Pattern";
+  private static final String PROPERTY_RULE_KEY_PATTERN_HELP = "<br/>A rule key pattern consists of the rule repository name, followed by a colon, followed by a rule key "
+    + "or rule name fragment. For example:"
+    + "<ul><li>squid:S1195</li><li>squid:*Naming*</li></ul>";
 
   public static final String BLOCK_SUFFIX = ".block";
   public static final String PATTERNS_BLOCK_KEY = EXCLUSION_KEY_PREFIX + BLOCK_SUFFIX;
@@ -66,7 +69,7 @@ public final class IssueExclusionsConfiguration {
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
         .name("Ignore Issues on Multiple Criteria")
-        .description("Patterns to ignore issues on certain components and for certain coding rules.")
+        .description("Patterns to ignore issues on certain components and for certain coding rules." + PROPERTY_RULE_KEY_PATTERN_HELP)
         .onQualifiers(Qualifiers.PROJECT)
         .index(3)
         .fields(
@@ -123,7 +126,7 @@ public final class IssueExclusionsConfiguration {
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
         .name("Restrict Scope of Coding Rules")
-        .description("Patterns to restrict the application of a rule to only certain components, ignoring all others.")
+        .description("Patterns to restrict the application of a rule to only certain components, ignoring all others." + PROPERTY_RULE_KEY_PATTERN_HELP)
         .onQualifiers(Qualifiers.PROJECT)
         .index(4)
         .fields(
