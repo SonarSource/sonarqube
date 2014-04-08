@@ -50,7 +50,6 @@
       <artifactId>tomcat-embed-core</artifactId>
     </dependency>
     <dependency>
-      <!-- TODO remove this unused dependency, but how to disable Jasper in embedded tomcat ? -->
       <groupId>org.apache.tomcat.embed</groupId>
       <artifactId>tomcat-embed-jasper</artifactId>
     </dependency>
@@ -58,15 +57,6 @@
       <groupId>org.apache.tomcat.embed</groupId>
       <artifactId>tomcat-embed-logging-juli</artifactId>
     </dependency>
-    <!--
-    TODO
-    <dependency>
-      <groupId>org.apache.tomcat</groupId>
-      <artifactId>tomcat-dbcp</artifactId>
-      <version>${tomcat.version}</version>
-    </dependency>
-    -->
-
 
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
