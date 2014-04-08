@@ -58,6 +58,9 @@
                 <% default_prop_value = (@resource ? Property.value(property.key, nil, property.defaultValue) : property.defaultValue) -%>
                 <% unless default_prop_value.blank? -%>
                   <div class="note"><%= message('default') %>: <%= property.type.to_s=='PASSWORD' ? '********' : h(default_prop_value) -%></div>
+                <% else -%>
+                  <!-- SONAR-5162 When no default value, leave a space to add a separation with the description or the key -->
+                  <p class="marginbottom10"></p>
                 <% end -%>
               <% end -%>
 
