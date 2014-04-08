@@ -90,10 +90,11 @@ public class DeprecatedRulesDefinition implements RulesDefinition {
       }
       for (org.sonar.api.rules.Rule rule : repository.createRules()) {
         NewRule newRule = newRepository.createRule(rule.getKey());
+        boolean isTemplate = Cardinality.MULTIPLE.equals(rule.getCardinality());
         newRule.setName(ruleName(repository.getKey(), rule));
         newRule.setHtmlDescription(ruleDescription(repository.getKey(), rule));
         newRule.setInternalKey(rule.getConfigKey());
-        newRule.setTemplate(Cardinality.MULTIPLE.equals(rule.getCardinality()));
+        newRule.setTemplate(isTemplate);
         newRule.setSeverity(rule.getSeverity().toString());
         newRule.setStatus(rule.getStatus() == null ? RuleStatus.defaultStatus() : RuleStatus.valueOf(rule.getStatus()));
         newRule.setTags(rule.getTags());
@@ -103,28 +104,32 @@ public class DeprecatedRulesDefinition implements RulesDefinition {
           newParam.setDescription(paramDescription(repository.getKey(), rule.getKey(), param));
           newParam.setType(RuleParamType.parse(param.getType()));
         }
-        updateRuleDebtDefinitions(newRule, repository.getKey(), rule.getKey(), ruleDebts);
+        updateRuleDebtDefinitions(newRule, repository.getKey(), rule.getKey(), isTemplate, ruleDebts);
       }
       newRepository.done();
     }
   }
 
-  private void updateRuleDebtDefinitions(NewRule newRule, String repoKey, String ruleKey, List<RuleDebt> ruleDebts) {
+  private void updateRuleDebtDefinitions(NewRule newRule, String repoKey, String ruleKey, boolean isTemplate, List<RuleDebt> ruleDebts) {
     RuleDebt ruleDebt = findRequirement(ruleDebts, repoKey, ruleKey);
     if (ruleDebt != null) {
-      newRule.setDebtSubCharacteristic(ruleDebt.subCharacteristicKey());
-      String function = ruleDebt.function();
-      String coefficient = ruleDebt.coefficient();
-      String offset = ruleDebt.offset();
-
-      if (DebtRemediationFunction.Type.LINEAR.name().equals(function) && coefficient != null) {
-        newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linear(coefficient));
-      } else if (DebtRemediationFunction.Type.CONSTANT_ISSUE.name().equals(function) && offset != null) {
-        newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().constantPerIssue(offset));
-      } else if (DebtRemediationFunction.Type.LINEAR_OFFSET.name().equals(function) && coefficient != null && offset != null) {
-        newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linearWithOffset(coefficient, offset));
+      if (isTemplate) {
+        LOG.warn(String.format("'%s:%s' is a rule template, it should not define technical debt. Its debt definition will be ignored.", repoKey, ruleKey));
       } else {
-        throw new IllegalArgumentException(String.format("Debt definition on rule '%s:%s' is invalid", repoKey, ruleKey));
+        newRule.setDebtSubCharacteristic(ruleDebt.subCharacteristicKey());
+        String function = ruleDebt.function();
+        String coefficient = ruleDebt.coefficient();
+        String offset = ruleDebt.offset();
+
+        if (DebtRemediationFunction.Type.LINEAR.name().equals(function) && coefficient != null) {
+          newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linear(coefficient));
+        } else if (DebtRemediationFunction.Type.CONSTANT_ISSUE.name().equals(function) && offset != null) {
+          newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().constantPerIssue(offset));
+        } else if (DebtRemediationFunction.Type.LINEAR_OFFSET.name().equals(function) && coefficient != null && offset != null) {
+          newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linearWithOffset(coefficient, offset));
+        } else {
+          throw new IllegalArgumentException(String.format("Debt definition on rule '%s:%s' is invalid", repoKey, ruleKey));
+        }
       }
     }
   }

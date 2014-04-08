@@ -32,6 +32,7 @@ import org.sonar.api.rules.RuleRepository;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.check.Cardinality;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtModelXMLExporter;
@@ -212,6 +213,47 @@ public class DeprecatedRulesDefinitionTest {
     }
 
     assertThat(context.repositories()).isEmpty();
+  }
+
+  /**
+   * SONAR-5195
+   */
+  @Test
+  public void remove_debt_on_rule_templates() {
+    RulesDefinition.Context context = new RulesDefinition.Context();
+
+    List<DebtModelXMLExporter.RuleDebt> ruleDebts = newArrayList(
+      new DebtModelXMLExporter.RuleDebt()
+        .setSubCharacteristicKey("MEMORY_EFFICIENCY")
+        .setRuleKey(RuleKey.of("squid", "XPath"))
+        .setFunction(DebtRemediationFunction.Type.LINEAR.name())
+        .setCoefficient("1d")
+    );
+
+    Reader javaModelReader = mock(Reader.class);
+    when(debtModelRepository.createReaderForXMLFile("java")).thenReturn(javaModelReader);
+    when(debtModelRepository.getContributingPluginList()).thenReturn(newArrayList("java"));
+    when(importer.importXML(eq(javaModelReader), any(ValidationMessages.class))).thenReturn(ruleDebts);
+
+    new DeprecatedRulesDefinition(i18n, new RuleRepository[]{new RuleRepository("squid", "java") {
+      @Override
+      public List<Rule> createRules() {
+        return newArrayList(
+          Rule.create("squid", "XPath", "XPath rule")
+            .setCardinality(Cardinality.MULTIPLE)
+            .setDescription("This rule allows to define some homemade Java rules with help of an XPath expression.")
+        );
+      }
+    }}, debtModelRepository, importer).define(context);
+
+    assertThat(context.repositories()).hasSize(1);
+    RulesDefinition.Repository repo = context.repository("squid");
+    assertThat(repo.rules()).hasSize(1);
+
+    RulesDefinition.Rule rule = repo.rule("XPath");
+    assertThat(rule).isNotNull();
+    assertThat(rule.debtSubCharacteristic()).isNull();
+    assertThat(rule.debtRemediationFunction()).isNull();
   }
 
 }

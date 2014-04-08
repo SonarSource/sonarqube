@@ -340,4 +340,26 @@ public class RulesDefinitionTest {
     }
   }
 
+  /**
+   * SONAR-5195
+   */
+  @Test
+  public void fail_if_rule_template_define_technical_debt() {
+    RulesDefinition.NewRepository newRepo = context.createRepository("squid", "java");
+    RulesDefinition.NewRule newRule = newRepo.createRule("XPath rule")
+      .setTemplate(true)
+      .setName("Insufficient branch coverage")
+      .setHtmlDescription("This rule allows to define some homemade Java rules with help of an XPath expression.")
+      .setSeverity(Severity.MAJOR)
+      .setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.UNIT_TESTS);
+    newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linearWithOffset("1h", "10min"));
+
+    try {
+      newRepo.done();
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("'[repository=squid, key=XPath rule]' is a rule template, it should not define technical debt.");
+    }
+  }
+
 }

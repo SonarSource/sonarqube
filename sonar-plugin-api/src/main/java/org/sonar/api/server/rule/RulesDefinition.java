@@ -687,6 +687,9 @@ public interface RulesDefinition extends ServerExtension {
       if ((Strings.isNullOrEmpty(debtSubCharacteristic) && debtRemediationFunction != null) || (!Strings.isNullOrEmpty(debtSubCharacteristic) && debtRemediationFunction == null)) {
         throw new IllegalStateException(String.format("Both debt sub-characteristic and debt remediation function should be defined on rule '%s'", this));
       }
+      if (!Strings.isNullOrEmpty(debtSubCharacteristic) && template) {
+        throw new IllegalStateException(String.format("'%s' is a rule template, it should not define technical debt.", this));
+      }
     }
 
     @Override
