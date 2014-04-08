@@ -1,0 +1,20 @@
+<%
+  containerId = 'project-file-widget' + widget.id.to_s
+  chartTitle = widget_properties['chartTitle']
+  filterId = widget_properties['filter'].to_i
+  maxItems = widget_properties['maxItems'].to_i
+  reverseColor = widget_properties['reverseColor']
+
+  filter = MeasureFilter.find_by_id(filterId.to_i)
+  @widget_title = link_to h(filter.name), {:controller => 'measures', :action => 'filter', :id => filter.id, :display => 'list'}
+%>
+
+<div class="histogram-widget" id="<%= containerId %>">
+  <!--[if lte IE 8 ]> <h3><%= message('widget.unsupported_browser_warning') -%></h3> <![endif]-->
+
+  <!--[if (gte IE 9)|!(IE)]><!-->
+  <% if chartTitle %>
+    <h3><%= h(chartTitle) -%></h3>
+  <% end %>
+  <!--<![endif]-->
+</div>
