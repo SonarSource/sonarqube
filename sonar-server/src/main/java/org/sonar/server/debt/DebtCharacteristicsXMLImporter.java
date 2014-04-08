@@ -27,6 +27,7 @@ import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
+import org.sonar.api.server.rule.RulesDefinition;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -85,7 +86,7 @@ public class DebtCharacteristicsXMLImporter implements ServerComponent {
     while (cursor.getNext() != null) {
       String node = cursor.getLocalName();
       if (StringUtils.equals(node, CHARACTERISTIC_KEY)) {
-        characteristic.setKey(cursor.collectDescendantText().trim());
+        characteristic.setKey(convertKey(cursor.collectDescendantText().trim()));
         if (parent == null) {
           characteristic.setOrder(debtModel.rootCharacteristics().size() + 1);
           debtModel.addRootCharacteristic(characteristic);
@@ -101,6 +102,13 @@ public class DebtCharacteristicsXMLImporter implements ServerComponent {
         process(debtModel, characteristic.key(), cursor);
       }
     }
+  }
+
+  static String convertKey(String key){
+    if ("NETWORK_USE_EFFICIENCY".equals(key)) {
+      return RulesDefinition.SubCharacteristics.NETWORK_USE;
+    }
+    return key;
   }
 
 }

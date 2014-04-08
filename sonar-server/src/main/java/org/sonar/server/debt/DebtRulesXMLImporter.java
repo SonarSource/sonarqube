@@ -99,7 +99,7 @@ public class DebtRulesXMLImporter implements ServerComponent {
         RuleDebt ruleDebt = processRule(validationMessages, cursor);
         if (ruleDebt != null && parentKey != null) {
           if (rootKey != null) {
-            ruleDebt.setSubCharacteristicKey(parentKey);
+            ruleDebt.setSubCharacteristicKey(DebtCharacteristicsXMLImporter.convertKey(parentKey));
             ruleDebts.add(ruleDebt);
           } else {
             validationMessages.addWarningText("Rule '" + ruleDebt.ruleKey() + "' is ignored because it's defined directly under a root characteristic.");

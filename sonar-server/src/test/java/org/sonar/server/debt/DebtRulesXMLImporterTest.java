@@ -224,6 +224,21 @@ public class DebtRulesXMLImporterTest {
     assertThat(validationMessages.getErrors()).isNotEmpty();
   }
 
+  /**
+   * SONAR-5180
+   */
+  @Test
+  public void convert_network_use_key() throws Exception {
+    // Rule is linked to sub characteristic key NETWORK_USE_EFFICIENCY
+    String xml = getFileContent("convert_network_use_key.xml");
+
+    List<RuleDebt> results = importer.importXML(xml, validationMessages);
+    assertThat(results).hasSize(1);
+
+    RuleDebt ruleDebt = results.get(0);
+    assertThat(ruleDebt.subCharacteristicKey()).isEqualTo("NETWORK_USE");
+  }
+
   @Test
   public void fail_on_bad_xml() throws Exception {
     String xml = getFileContent("fail_on_bad_xml.xml");

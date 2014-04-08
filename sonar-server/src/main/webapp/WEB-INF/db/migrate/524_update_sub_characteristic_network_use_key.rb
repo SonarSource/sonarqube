@@ -20,12 +20,25 @@
 
 #
 # SonarQube 4.3
-# SONAR-5097
+# SONAR-5180
 #
-class DropAlerts < ActiveRecord::Migration
+class UpdateSubCharacteristicNetworkUseKey < ActiveRecord::Migration
+
+  class Characteristic < ActiveRecord::Base
+  end
 
   def self.up
-    drop_table(:alerts)
+    # On an empty DB, there are no characteristics, they're all gonna be created after
+    if Characteristic.all.size > 0
+      Characteristic.reset_column_information
+
+      # NETWORK_USE was created with a bad key in the migration 466
+      network_use = Characteristic.first(:conditions => ['kee=? AND enabled=?', 'NETWORK_USE_EFFICIENCY', true])
+      if network_use
+        network_use.kee = 'NETWORK_USE'
+        network_use.save!
+      end
+    end
   end
 
 end

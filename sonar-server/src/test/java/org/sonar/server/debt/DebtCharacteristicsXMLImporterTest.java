@@ -83,6 +83,18 @@ public class DebtCharacteristicsXMLImporterTest {
     assertThat(debtModel.subCharacteristics("EFFICIENCY").get(0).name()).isEqualTo("Memory use");
   }
 
+  /**
+   * SONAR-5180
+   */
+  @Test
+  public void convert_network_use_key() throws Exception {
+    String xml = getFileContent("convert_network_use_key.xml");
+
+    DebtModel debtModel = new DebtCharacteristicsXMLImporter().importXML(xml);
+    assertThat(debtModel.characteristicByKey("NETWORK_USE_EFFICIENCY")).isNull();
+    assertThat(debtModel.characteristicByKey("NETWORK_USE")).isNotNull();
+  }
+
   @Test
   public void fail_on_bad_xml() throws Exception {
     String xml = getFileContent("fail_on_bad_xml.xml");

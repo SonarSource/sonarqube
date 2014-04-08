@@ -1,0 +1,23 @@
+<sqale>
+  <chc>
+    <key>EFFICIENCY</key>
+    <name>Efficiency</name>
+    <chc>
+      <key>NETWORK_USE_EFFICIENCY</key>
+      <name>Network use</name>
+      <chc>
+        <rule-repo>checkstyle</rule-repo>
+        <rule-key>Regexp</rule-key>
+        <prop>
+          <key>remediationFactor</key>
+          <val>3.0</val>
+          <txt>h</txt>
+        </prop>
+        <prop>
+          <key>remediationFunction</key>
+          <txt>LINEAR</txt>
+        </prop>
+      </chc>
+    </chc>
+  </chc>
+</sqale>
