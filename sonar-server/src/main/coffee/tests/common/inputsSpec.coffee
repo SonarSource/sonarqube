@@ -17,26 +17,31 @@ describe 'WORK_DUR suite', ->
     @input.originalVal '2d 7h 13min'
     expect(@input.val()).toBe 1393
 
-
   it 'converts only days', ->
     @input.originalVal '1d'
     expect(@input.val()).toBe 480
 
-
   it 'converts hours with minutes', ->
     @input.originalVal '2h 30min'
     expect(@input.val()).toBe 150
+
+  it 'converts zero', ->
+    @input.originalVal '0'
+    expect(@input.val()).toBe 0
 
 
   it 'restores', ->
     @input.val 1393
     expect(@input.originalVal()).toBe '2d 7h 13min'
 
+  it 'restores zero', ->
+    @input.val '0'
+    expect(@input.originalVal()).toBe '0'
+
 
   it 'returns initially incorrect value', ->
     @input.val 'something'
     expect(@input.val()).toBe 'something'
-
 
 
 describe 'RATING suite', ->

@@ -5,6 +5,8 @@ transformPattern = (pattern) ->
 
 
 convertWorkDuration = (value) ->
+  return 0 if value == '0'
+
   daysPattern = transformPattern t('work_duration.x_days')
   hoursPattern = transformPattern t('work_duration.x_hours')
   minutesPattern = transformPattern t('work_duration.x_minutes')
@@ -24,7 +26,9 @@ convertWorkDuration = (value) ->
 
 
 restoreWorkDuration = (value) ->
+  return '0' if value == '0'
   return value unless /^\d+$/.test value
+
   days = Math.floor(value / (8 * 60))
   hours = Math.floor((value - days * 8 * 60) / 60)
   minutes = value % 60
