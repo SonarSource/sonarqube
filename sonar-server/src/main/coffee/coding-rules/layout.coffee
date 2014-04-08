@@ -21,9 +21,25 @@ define [
       facetsRegion: '.navigator-facets'
 
 
-    onRender: ->
-      # Adjust details region height
-      @$(@detailsRegion.el).css 'bottom', jQuery('#footer').outerHeight()
+    initialize: ->
+      jQuery(window).on 'resize', => @onResize()
+
+
+    onResize: ->
+      footerEl = jQuery('#footer')
+      footerHeight = footerEl.outerHeight true
+
+      resultsEl = jQuery('.navigator-results')
+      resultsHeight = jQuery(window).height() - resultsEl.offset().top -
+        parseInt(resultsEl.css('margin-bottom'), 10) - footerHeight
+      resultsEl.height resultsHeight
+
+      detailsEl = jQuery('.navigator-details')
+      detailsWidth = jQuery(window).width() - detailsEl.offset().left -
+        parseInt(detailsEl.css('margin-right'), 10)
+      detailsHeight = jQuery(window).height() - detailsEl.offset().top -
+        parseInt(detailsEl.css('margin-bottom'), 10) - footerHeight
+      detailsEl.width(detailsWidth).height detailsHeight
 
 
     showSpinner: (region) ->

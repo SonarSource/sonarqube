@@ -1,11 +1,13 @@
 @import "../variables";
 
 // Layout
-@navigatorTopOffset: 30px;
+@navigatorTopOffset: 80px;
 @navigatorBottomOffset: 35px;
 
-@navigatorHeaderHeight: 37px;
-@navigatorFiltersHeight: 37px;
+@navigatorHeaderHeight: 40px;
+@navigatorHeaderLineHeight: @navigatorHeaderHeight - 3px;
+@navigatorFiltersHeight: 40px;
+@navigatorFiltersLineHeight: @navigatorFiltersHeight - 3px;
 @navigatorFacetsHeight: 90px;
 @navigatorStatusHeight: 30px;
 @navigatorNotesHeight: 20px;
@@ -16,10 +18,12 @@
 
 
 // Colors
-@navigatorBarBackground: @grey;
-@navigatorBorderColor: @darkGrey;
-@navigatorBorderLightColor: lighten(@darkGrey, 8%);
+@navigatorBarBackground: #f3f3f3;
+@navigatorBorderColor: darken(@navigatorBarBackground, 5%);
+@navigatorBorderLightColor: @navigatorBorderColor;
+
+@navigatorHeaderColor: darken(@blue, 10%);
 
 
-@navigatorHover: darken(@grey, 5%);
+@navigatorHover: darken(@navigatorBarBackground, 5%);
 @navigatorFilterPadding: @navigatorPadding;

@@ -4,13 +4,18 @@
 
 <div class="navigator">
   <div class="navigator-header"></div>
-  <div class="navigator-notes">
-    <%= message('issue_filter.max_results_reached', :params => 10000) -%>
-  </div>
   <div class="navigator-filters"></div>
-  <div class="navigator-results"></div>
-  <div class="navigator-details"></div>
-  <div class="navigator-actions"></div>
+
+  <div class="navigator-content">
+    <div class="navigator-side">
+      <div class="navigator-actions"></div>
+      <div class="navigator-results"></div>
+    </div>
+    <div class="navigator-main">
+      <div class="navigator-notes"><%= message('issue_filter.max_results_reached', :params => 10000) -%></div>
+      <div class="navigator-details"></div>
+    </div>
+  </div>
 </div>
 
 <%= render :partial => '/navigator/filter_templates' -%>

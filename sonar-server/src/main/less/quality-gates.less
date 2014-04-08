@@ -6,22 +6,25 @@
 
 .quality-gates-navigator {
 
-  .navigator-header {
-    left: @qualityGateSidebarWidth;
-    border-color: @navigatorBorderColor;
+  .navigator-side {
+    display: table-cell;
+    vertical-align: top;
+    width: @qualityGateSidebarWidth + 2 * @navigatorPadding;
+  }
 
+  .navigator-header {
+    margin-left: 0;
     .spinner { margin-top: 9px; }
   }
 
   .navigator-actions {
-    top: @navigatorTopOffset;
     height: @navigatorHeaderHeight;
     width: @qualityGateSidebarWidth;
+    margin: @navigatorPadding;
     padding: 0 @navigatorPadding;
-    border-color: @navigatorBorderColor;
-    border-bottom-color: @navigatorBarBackground;
 
     .navigator-header-title {
+      color: @baseFontColor;
       font-size: 13px;
       font-weight: bold;
       text-transform: uppercase;
@@ -29,26 +32,13 @@
   }
 
   .navigator-results {
-    top: @navigatorTopOffset + @navigatorHeaderHeight;
-    width: @qualityGateSidebarWidth - 1px;
-    border-color: @navigatorBorderColor;
+    width: @qualityGateSidebarWidth;
   }
 
-  .navigator-details {
-    top: @navigatorTopOffset + @navigatorHeaderHeight;
-    left: @qualityGateSidebarWidth;
-    padding: @navigatorPadding;
-  }
-
-}
-
-.quality-gates-page #footer {
-  left: @qualityGateSidebarWidth;
 }
 
 
 .quality-gates-nav {
-  background-color: @navigatorBarBackground;
 
   .navigator-results-list {
 
@@ -56,7 +46,7 @@
       border-color: transparent;
 
       &:hover:not(.active):not(.empty) {
-        background-color: @navigatorBorderLightColor;
+        background-color: @navigatorBarBackground;
       }
 
       &.active {

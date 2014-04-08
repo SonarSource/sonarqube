@@ -5,7 +5,7 @@
 
 
 .navigator-filters {
-  border-bottom: 1px solid @darkGrey;
+  padding-right: 85px;
   background-color: @navigatorBarBackground;
   font-size: 0;
 }
@@ -13,8 +13,8 @@
 .navigator-filters-list {
   display: inline-block;
   vertical-align: middle;
-  margin-bottom: -1px;
   font-size: 0;
+  margin-bottom: -1px;
 }
 
 .navigator-filter-submit,
@@ -22,6 +22,25 @@
   vertical-align: middle;
   margin-left: 15px;
   font-size: @baseFontSize;
+}
+
+.navigator-filter-submit {
+  position: absolute;
+  top: 0; right: 0;
+  .size(85px, 100%);
+  margin: -1px -1px -1px 0;
+  padding: 0;
+  border: 1px solid darken(@blue, 10%);
+  .box-sizing(content-box);
+  background: @blue;
+  color: #fff;
+  font-weight: normal;
+  .trans;
+
+  &:hover, &:focus {
+    border-color: @blue;
+    background-color: lighten(@blue, 10%);
+  }
 }
 
 .navigator-filter-list-favorite {
@@ -42,15 +61,15 @@
   z-index: 1;
   display: inline-block;
   vertical-align: top;
-  height: @navigatorFiltersHeight - 1px;
-  line-height: @navigatorFiltersHeight - 1px;
-  margin: -1px 0 0;
-  padding: 0 @navigatorFilterPadding;
-  border: 1px solid;
-  border-color: transparent @navigatorBorderLightColor;
+  height: @navigatorFiltersHeight;
+  line-height: @navigatorFiltersLineHeight;
+  margin: -1px 0 0 -1px;
+  padding: 0 1.5 * @navigatorFilterPadding;
+  border: 1px solid @navigatorBorderLightColor;
+  .box-sizing(border-box);
   white-space: nowrap;
   cursor: pointer;
-  transition: background 0.3s ease;
+  .trans;
 
   &:hover {
     z-index: 2;
@@ -63,13 +82,6 @@
     background: #fff;
   }
 
-  &:first-child {
-    border-left: none;
-  }
-}
-
-.navigator-filter + .navigator-filter {
-  margin-left: -1px;
 }
 
 .navigator-filter-disabled {
@@ -101,6 +113,7 @@
 }
 
 .navigator-filter-context {
+  z-index: 3;
   background-color: @contextBackground;
   border-color: @contextBorder;
 }
@@ -286,8 +299,8 @@
 
 .navigator-filter-favorite {
   position: absolute;
-  top: -100%; left: 0;
-  border-top: none;
+  top: -@navigatorPadding - @navigatorFiltersHeight;
+  left: 0;
 }
 
 .navigator-filter-favorite-toggle {

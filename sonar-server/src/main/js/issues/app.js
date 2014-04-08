@@ -61,10 +61,6 @@ requirejs(
       });
 
 
-      // Adjust details region height
-      jQuery('.navigator-details').css('bottom', jQuery('#footer').outerHeight());
-
-
       NavigatorApp.addInitializer(function () {
         jQuery('html').addClass('navigator-page issues-page');
 
@@ -297,6 +293,28 @@ requirejs(
             }
           });
         };
+      });
+
+
+      NavigatorApp.addInitializer(function () {
+        var onResize = function() {
+          var footerEl = jQuery('#footer'),
+              footerHeight = footerEl.outerHeight(true);
+
+          var resultsEl = jQuery('.navigator-results'),
+              resultsHeight = jQuery(window).height() - resultsEl.offset().top -
+                  parseInt(resultsEl.css('margin-bottom'), 10) - footerHeight;
+          resultsEl.height(resultsHeight);
+
+          var detailsEl = jQuery('.navigator-details'),
+              detailsWidth = jQuery(window).width() - detailsEl.offset().left -
+                  parseInt(detailsEl.css('margin-right'), 10),
+              detailsHeight = jQuery(window).height() - detailsEl.offset().top -
+                  parseInt(detailsEl.css('margin-bottom'), 10) - footerHeight;
+          detailsEl.width(detailsWidth).height(detailsHeight);
+        };
+        jQuery(window).on('resize', onResize);
+        onResize();
       });
 
 

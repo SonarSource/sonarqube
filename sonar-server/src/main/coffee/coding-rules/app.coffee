@@ -171,7 +171,8 @@ requirejs [
   # Construct layout
   App.addInitializer ->
     @layout = new CodingRulesLayout app: @
-    jQuery('body').append @layout.render().el
+    jQuery('#content').append @layout.render().el
+    @layout.onResize()
 
 
   # Construct header

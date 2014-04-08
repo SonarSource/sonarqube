@@ -14,92 +14,76 @@
 }
 
 .navigator-header {
-  .navigator-element;
-  top: @navigatorTopOffset;
-  left: 0;
-  .size(100%, @navigatorHeaderHeight);
+  height: @navigatorHeaderHeight;
+  margin: @navigatorPadding;
+  border: 1px solid @navigatorBorderLightColor;
+  .box-sizing(border-box);
 }
 
 .navigator-filters {
-  .navigator-element;
-  top: @navigatorTopOffset + @navigatorHeaderHeight;
-  left: 0;
-  .size(100%, @navigatorFiltersHeight);
+  position: relative;
+  margin: @navigatorPadding;
+  border: 1px solid @navigatorBorderLightColor;
+  .box-sizing(border-box);
+}
+
+.navigator-content {
+  display: table;
+  width: 100%;
+}
+
+.navigator-side {
+  display: table-cell;
+  vertical-align: top;
+  width: @navigatorResultsWidth + 2 * @navigatorPadding;
+}
+
+.navigator-main {
+  display: table-cell;
+  vertical-align: top;
 }
 
 .navigator-facets {
-  .navigator-element;
-  top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight;
-  left: 0;
-  .size(100%, @navigatorFacetsHeight);
+  height: @navigatorFacetsHeight;
+  margin: @navigatorPadding;
+  border: 1px solid @navigatorBorderLightColor;
+  .box-sizing(border-box);
 }
 
 .navigator-results {
-  .navigator-element;
-  .box-sizing(content-box);
-  top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight + @navigatorStatusHeight;
-  bottom: 0;
-  left: 0;
-  width: @navigatorResultsWidth - 1px;
-}
-
-.navigator-details {
-  .navigator-element;
-  top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight;
-  bottom: @navigatorBottomOffset;
-  left: @navigatorResultsWidth;
-  right: 0;
+  width: @navigatorResultsWidth;
+  margin: @navigatorPadding;
+  .box-sizing(border-box);
 }
 
 .navigator-actions {
-  .navigator-element;
-  top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight;
-  left: 0;
-  .size(@navigatorResultsWidth, @navigatorStatusHeight);
+  .clearfix;
+  width: @navigatorResultsWidth;
+  margin: 0 @navigatorPadding @navigatorPadding;
+  border: 1px solid @navigatorBorderLightColor;
+  .box-sizing(border-box);
+}
+
+.navigator-details {
+  position: relative;
+  margin: 0 @navigatorPadding @navigatorPadding 0;
 }
 
 .navigator-notes {
-  .navigator-element;
-  top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight;
-  left: 0;
-  .size(100%, @navigatorNotesHeight);
   display: none;
 }
 
-
-.measures-page {
-  .navigator-results {
-    top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight;
-    left: 0;
-    bottom: 36px;
-    width: 100%;
-  }
-}
-
-
 .navigator-with-notes {
-
-  .navigator-actions,
-  .navigator-details {
-    top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight + @navigatorNotesHeight;
-  }
-
-  .navigator-results {
-    top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight + @navigatorNotesHeight + @navigatorStatusHeight;
-  }
 
   .navigator-notes {
     display: block;
   }
+}
 
-  .navigator-details .source_title {
-    top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight + @navigatorNotesHeight;
-  }
 
-  .navigator-fetching.navigator-results-list:before {
-    top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight + @navigatorStatusHeight + @navigatorNotesHeight;
-  }
-
+.measures-page {
+  .navigator-details { overflow: visible; }
+  .page { padding: 0 0 0 @navigatorPadding; }
 }
 
 
@@ -141,20 +125,20 @@
 // Header
 .navigator-header {
   padding: 0 @navigatorPadding;
-  border-bottom: 1px solid @navigatorBorderColor;
   background-color: @navigatorBarBackground;
   font-size: 0;
 }
 
 .navigator-header-favorite {
-  padding-left: 46px;
+  padding-left: 58px;
 }
 
 .navigator-header-title {
   display: inline-block;
   vertical-align: middle;
+  color: @navigatorHeaderColor;
   font-size: 20px;
-  line-height: @navigatorHeaderHeight;
+  line-height: @navigatorHeaderLineHeight;
 }
 
 .navigator-header-title-note {
@@ -211,17 +195,14 @@
 
 // Notes
 .navigator-notes {
+  margin: 0 @navigatorPadding @navigatorPadding 0;
   padding: 0 @navigatorPadding;
-  border-bottom: 1px solid @navigatorBorderColor;
+  border: 1px solid @navigatorBorderColor;
   background-color: @navigatorBarBackground;
 
   color: #777;
   font-size: @smallFontSize;
   line-height: @navigatorNotesHeight;
-
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 
@@ -293,7 +274,6 @@
 
 // Results
 .navigator-results {
-  border-right: 1px solid @navigatorBorderLightColor;
   background-color: @white;
   overflow-x: hidden;
   overflow-y: auto;
@@ -302,8 +282,11 @@
 .navigator-results-list {
 
   & > li {
+    position: relative;
+    z-index: 1;
     padding: @navigatorPadding / 2 0;
-    border-top: 1px solid transparent;
+    border: 1px solid;
+    border-color: @navigatorBorderLightColor transparent;
     cursor: pointer;
     .trans;
 
@@ -332,30 +315,13 @@
     }
 
     &.active {
+      z-index: 2;
       background-color: #CAE3F2;
       border-color: #4B9FD5;
     }
-
-    &.with-context {
-      border-right: 6px solid @navigatorBorderLightColor;
-    }
-
-    &:last-child {
-      border-bottom: 1px solid transparent;
-
-      &.active {
-        border-bottom-color: #4B9FD5;
-      }
-    }
   }
 
-  & > li + li {
-    border-top-color: @navigatorBorderLightColor;
-  }
-
-  & > li.active + li {
-    border-top-color: #4B9FD5;
-  }
+  & > li + li { margin-top: -1px; }
 
   &.navigator-fetching {
 
@@ -386,14 +352,8 @@
 
 // Details
 .navigator-details {
-  padding: @navigatorPadding;
   background-color: @white;
   overflow: auto;
-
-  .issues-page & {
-    padding-top: 62px;
-    padding-right: 0;
-  }
 
   &.loading {
     background: @white url("../images/loading.gif") no-repeat 4px 2px;
@@ -408,19 +368,15 @@
   }
 
   .source_title {
-    position: fixed;
     z-index: 3;
     top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight;
     left: @navigatorResultsWidth;
     right: 0;
-    padding: @navigatorPadding;
-    border-bottom: 1px solid @navigatorBorderLightColor;
+    padding: 0 0 @navigatorPadding 0;
     background-color: #fff;
   }
 
   .source {
-    padding-right: 10px;
-
     & > table {
       border: 1px solid #DDD;
     }
@@ -492,7 +448,7 @@
 
 .navigator-actions-total {
   float: right;
-  line-height: @navigatorStatusHeight - 4px;
+  line-height: @navigatorStatusHeight;
 }
 
 .navigator-actions-bulk {
@@ -507,18 +463,5 @@
 
 // Footer
 .navigator-page #footer {
-  .navigator-element;
-  bottom: 0;
-  left: @navigatorResultsWidth;
-  right: 0;
-  margin: 0;
   border-top: 1px solid @navigatorBorderLightColor;
-}
-
-.navigator-page #ftlinks {
-  margin-top: 0;
-}
-
-.measures-page #footer {
-  left: 0;
 }

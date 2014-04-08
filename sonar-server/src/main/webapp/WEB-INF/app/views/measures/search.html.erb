@@ -7,9 +7,15 @@
   <div class="navigator-header">
     <%= render :partial => 'search_header' -%>
   </div>
+
   <div class="navigator-filters"></div>
-  <div class="navigator-results">
-    <%= render :partial => 'search_body' -%>
+
+  <div class="navigator-content">
+    <div class="navigator-main">
+      <div class="navigator-details">
+        <%= render :partial => 'search_body' -%>
+      </div>
+    </div>
   </div>
 </div>
 
