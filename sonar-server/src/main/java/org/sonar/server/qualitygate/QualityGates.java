@@ -22,6 +22,7 @@ package org.sonar.server.qualitygate;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.elasticsearch.common.collect.Lists;
@@ -284,7 +285,7 @@ public class QualityGates {
   }
 
   private boolean isAlertable(Metric metric) {
-    return !metric.isDataType() && !metric.isHidden() && !CoreMetrics.ALERT_STATUS.equals(metric) && ValueType.RATING != metric.getType();
+    return !metric.isDataType() && BooleanUtils.isFalse(metric.isHidden()) && !CoreMetrics.ALERT_STATUS.equals(metric) && ValueType.RATING != metric.getType();
   }
 
   private boolean isDefault(QualityGateDto qGate) {

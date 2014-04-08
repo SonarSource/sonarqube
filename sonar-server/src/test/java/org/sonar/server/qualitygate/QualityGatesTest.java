@@ -560,13 +560,15 @@ public class QualityGatesTest {
     when(dataMetric.isDataType()).thenReturn(true);
     Metric hiddenMetric = mock(Metric.class);
     when(hiddenMetric.isHidden()).thenReturn(true);
+    Metric nullHiddenMetric = mock(Metric.class);
+    when(nullHiddenMetric.isHidden()).thenReturn(null);
     Metric alertMetric = CoreMetrics.ALERT_STATUS;
     Metric ratingMetric = mock(Metric.class);
     when(ratingMetric.getType()).thenReturn(ValueType.RATING);
     Metric classicMetric = mock(Metric.class);
     when(classicMetric.getType()).thenReturn(ValueType.BOOL);
     when(metricFinder.findAll()).thenReturn(ImmutableList.of(
-      dataMetric, hiddenMetric, alertMetric, ratingMetric, classicMetric));
+      dataMetric, hiddenMetric, nullHiddenMetric, alertMetric, ratingMetric, classicMetric));
     assertThat(qGates.gateMetrics()).hasSize(1).containsOnly(classicMetric);
   }
 }
