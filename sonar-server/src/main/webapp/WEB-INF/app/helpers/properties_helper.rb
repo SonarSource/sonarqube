@@ -123,7 +123,7 @@ module PropertiesHelper
 
   def metrics_filtered_by(options)
     Metric.all.select(&:display?).sort_by(&:short_name).select do |metric|
-      options.blank? || options.any? { |option| metric_matches(metric, option) }
+      options.blank? || options.all? { |option| metric_matches(metric, option) }
     end
   end
 
@@ -133,7 +133,6 @@ module PropertiesHelper
     elsif /domain:(.*)/.match(option)
       Regexp.new(Regexp.last_match(1)).match(metric.domain)
     elsif /type:(.*)/.match(option)
-      false
       Regexp.last_match(1).split(',').any? { |type| (type == metric.value_type) || ((type == 'NUMERIC') && metric.numeric?) }
     else
       false
