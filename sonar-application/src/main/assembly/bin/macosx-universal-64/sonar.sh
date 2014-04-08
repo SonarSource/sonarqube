@@ -14,8 +14,8 @@
 # 
 # NOTE: The build for specific applications may override this during the resource-copying
 # phase, to fill in a concrete name and avoid the use of the defaults specified here.
-DEF_APP_NAME="sonar"
-DEF_APP_LONG_NAME="sonar"
+DEF_APP_NAME="SonarQube"
+DEF_APP_LONG_NAME="SonarQube"
 
 # Application
 APP_NAME="${DEF_APP_NAME}"
