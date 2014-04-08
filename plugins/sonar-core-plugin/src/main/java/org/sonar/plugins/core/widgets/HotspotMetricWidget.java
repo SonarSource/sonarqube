@@ -27,7 +27,7 @@ import org.sonar.api.web.WidgetPropertyType;
 @WidgetCategory({ "Hotspots" })
 @WidgetProperties({
         @WidgetProperty(key = "title", type = WidgetPropertyType.STRING),
-        @WidgetProperty(key = "metric", type = WidgetPropertyType.METRIC, defaultValue = "ncloc"),
+        @WidgetProperty(key = "metric", type = WidgetPropertyType.METRIC, defaultValue = "ncloc", options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
         @WidgetProperty(key = "numberOfLines", type = WidgetPropertyType.INTEGER, defaultValue = "5")
 })
 public class HotspotMetricWidget extends CoreWidget {

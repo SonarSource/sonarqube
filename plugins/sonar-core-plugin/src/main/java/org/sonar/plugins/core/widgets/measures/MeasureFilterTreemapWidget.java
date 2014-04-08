@@ -21,6 +21,7 @@ package org.sonar.plugins.core.widgets.measures;
 
 import org.sonar.api.web.*;
 import org.sonar.plugins.core.widgets.CoreWidget;
+import org.sonar.plugins.core.widgets.WidgetConstants;
 
 import static org.sonar.api.web.WidgetScope.GLOBAL;
 
@@ -28,8 +29,9 @@ import static org.sonar.api.web.WidgetScope.GLOBAL;
 @WidgetScope(GLOBAL)
 @WidgetProperties({
   @WidgetProperty(key = MeasureFilterTreemapWidget.FILTER_PROPERTY, type = WidgetPropertyType.FILTER, optional = false),
-  @WidgetProperty(key = MeasureFilterTreemapWidget.SIZE_METRIC_PROPERTY, type = WidgetPropertyType.METRIC, optional = true),
-  @WidgetProperty(key = MeasureFilterTreemapWidget.COLOR_METRIC_PROPERTY, type = WidgetPropertyType.METRIC, optional = true, options = "type:PERCENT,RATING,LEVEL"),
+  @WidgetProperty(key = MeasureFilterTreemapWidget.SIZE_METRIC_PROPERTY, type = WidgetPropertyType.METRIC, optional = true, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
+  @WidgetProperty(key = MeasureFilterTreemapWidget.COLOR_METRIC_PROPERTY, type = WidgetPropertyType.METRIC, optional = true,
+    options = {WidgetConstants.FILTER_OUT_NEW_METRICS,"type:PERCENT,RATING,LEVEL"}),
   @WidgetProperty(key = MeasureFilterTreemapWidget.HEIGHT_PERCENTS_PROPERTY, type = WidgetPropertyType.INTEGER, optional = true, defaultValue = "55",
     description = "Height in percents of width"),
   @WidgetProperty(key = MeasureFilterListWidget.DISPLAY_FILTER_DESCRIPTION, type = WidgetPropertyType.BOOLEAN, defaultValue = "false")
