@@ -28,7 +28,7 @@ public class MeasureDataDto {
 
   private Integer id;
 
-  private Integer measureId;
+  private Long measureId;
 
   private Integer snapshotId;
 
@@ -43,11 +43,11 @@ public class MeasureDataDto {
     return this;
   }
 
-  public Integer getMeasureId() {
+  public Long getMeasureId() {
     return measureId;
   }
 
-  public MeasureDataDto setMeasureId(Integer measureId) {
+  public MeasureDataDto setMeasureId(Long measureId) {
     this.measureId = measureId;
     return this;
   }
