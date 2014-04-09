@@ -17,10 +17,14 @@ define [
       'change': 'render'
 
 
+    ui:
+      deleteButton: '#quality-gate-delete'
+
+
     events:
       'click #quality-gate-rename': 'renameQualityGate'
       'click #quality-gate-copy': 'copyQualityGate'
-      'click #quality-gate-delete': 'deleteQualityGate'
+      'click @ui.deleteButton': 'deleteQualityGate'
       'click #quality-gate-set-as-default': 'setAsDefault'
       'click #quality-gate-unset-as-default': 'unsetAsDefault'
 
@@ -51,6 +55,8 @@ define [
           @hideSpinner()
         .done =>
           @options.app.deleteQualityGate @model.id
+      else
+        @ui.deleteButton.blur()
 
 
     changeDefault: (set) ->
