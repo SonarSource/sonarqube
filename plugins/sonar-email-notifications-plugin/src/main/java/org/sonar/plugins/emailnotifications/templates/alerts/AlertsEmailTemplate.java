@@ -28,7 +28,7 @@ import org.sonar.plugins.emailnotifications.api.EmailTemplate;
 
 /**
  * Creates email message for notification "alerts".
- * 
+ *
  * @since 3.5
  */
 public class AlertsEmailTemplate extends EmailTemplate {
@@ -70,9 +70,9 @@ public class AlertsEmailTemplate extends EmailTemplate {
     if (Metric.Level.OK.toString().equals(alertLevel)) {
       subjectBuilder.append("\"").append(projectName).append("\" is back to green");
     } else if (isNewAlert) {
-      subjectBuilder.append("New alert on \"").append(projectName).append("\"");
+      subjectBuilder.append("New quality gate threshold reached on \"").append(projectName).append("\"");
     } else {
-      subjectBuilder.append("Alert level changed on \"").append(projectName).append("\"");
+      subjectBuilder.append("Quality gate status changed on \"").append(projectName).append("\"");
     }
     return subjectBuilder.toString();
   }
@@ -80,14 +80,14 @@ public class AlertsEmailTemplate extends EmailTemplate {
   private String generateMessageBody(String projectName, String projectKey, String alertName, String alertText, boolean isNewAlert) {
     StringBuilder messageBody = new StringBuilder();
     messageBody.append("Project: ").append(projectName).append("\n");
-    messageBody.append("Alert level: ").append(alertName).append("\n\n");
+    messageBody.append("Quality gate status: ").append(alertName).append("\n\n");
 
     String[] alerts = StringUtils.split(alertText, ",");
     if (alerts.length > 0) {
       if (isNewAlert) {
-        messageBody.append("New alert");
+        messageBody.append("New quality gate threshold");
       } else {
-        messageBody.append("Alert");
+        messageBody.append("Quality gate threshold");
       }
       if (alerts.length == 1) {
         messageBody.append(": ").append(alerts[0].trim()).append("\n");

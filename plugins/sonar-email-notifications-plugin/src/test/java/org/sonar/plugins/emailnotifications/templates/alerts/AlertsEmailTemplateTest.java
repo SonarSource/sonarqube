@@ -19,8 +19,6 @@
  */
 package org.sonar.plugins.emailnotifications.templates.alerts;
 
-import org.sonar.plugins.emailnotifications.templates.alerts.AlertsEmailTemplate;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.EmailSettings;
@@ -57,12 +55,12 @@ public class AlertsEmailTemplateTest {
 
     EmailMessage message = template.format(notification);
     assertThat(message.getMessageId(), is("alerts/45"));
-    assertThat(message.getSubject(), is("Alert level changed on \"Foo\""));
+    assertThat(message.getSubject(), is("Quality gate status changed on \"Foo\""));
     assertThat(message.getMessage(), is("" +
       "Project: Foo\n" +
-      "Alert level: Orange (was Red)\n" +
+      "Quality gate status: Orange (was Red)\n" +
       "\n" +
-      "Alerts:\n" +
+      "Quality gate thresholds:\n" +
       "  - violations > 4\n" +
       "  - coverage < 75%\n" +
       "\n" +
@@ -75,12 +73,12 @@ public class AlertsEmailTemplateTest {
 
     EmailMessage message = template.format(notification);
     assertThat(message.getMessageId(), is("alerts/45"));
-    assertThat(message.getSubject(), is("New alert on \"Foo\""));
+    assertThat(message.getSubject(), is("New quality gate threshold reached on \"Foo\""));
     assertThat(message.getMessage(), is("" +
       "Project: Foo\n" +
-      "Alert level: Orange (was Red)\n" +
+      "Quality gate status: Orange (was Red)\n" +
       "\n" +
-      "New alerts:\n" +
+      "New quality gate thresholds:\n" +
       "  - violations > 4\n" +
       "  - coverage < 75%\n" +
       "\n" +
@@ -93,12 +91,12 @@ public class AlertsEmailTemplateTest {
 
     EmailMessage message = template.format(notification);
     assertThat(message.getMessageId(), is("alerts/45"));
-    assertThat(message.getSubject(), is("New alert on \"Foo\""));
+    assertThat(message.getSubject(), is("New quality gate threshold reached on \"Foo\""));
     assertThat(message.getMessage(), is("" +
       "Project: Foo\n" +
-      "Alert level: Orange (was Red)\n" +
+      "Quality gate status: Orange (was Red)\n" +
       "\n" +
-      "New alert: violations > 4\n" +
+      "New quality gate threshold: violations > 4\n" +
       "\n" +
       "See it in SonarQube: http://nemo.sonarsource.org/dashboard/index/org.sonar.foo:foo"));
   }
@@ -112,7 +110,7 @@ public class AlertsEmailTemplateTest {
     assertThat(message.getSubject(), is("\"Foo\" is back to green"));
     assertThat(message.getMessage(), is("" +
       "Project: Foo\n" +
-      "Alert level: Green (was Red)\n" +
+      "Quality gate status: Green (was Red)\n" +
       "\n" +
       "\n" +
       "See it in SonarQube: http://nemo.sonarsource.org/dashboard/index/org.sonar.foo:foo"));
