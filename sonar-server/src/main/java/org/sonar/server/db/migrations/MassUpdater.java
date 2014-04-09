@@ -20,6 +20,7 @@
 
 package org.sonar.server.db.migrations;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.dbutils.DbUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +82,7 @@ public class MassUpdater {
       } else {
         stmt.setFetchSize(GROUP_SIZE);
       }
-      rs = stmt.executeQuery(inputLoader.selectSql());
+      rs = stmt.executeQuery(convertSelectSql(inputLoader.selectSql(), db));
 
       int cursor = 0;
       while (rs.next()) {
@@ -118,6 +119,17 @@ public class MassUpdater {
 
       LOGGER.info("{} rows have been updated", count);
     }
+  }
+
+  @VisibleForTesting
+  static String convertSelectSql(String selectSql, Database db){
+    // Replace ${_true}
+    selectSql = selectSql.replace("${_true}", db.getDialect().getTrueSqlValue());
+
+    // Replace ${_false}
+    selectSql = selectSql.replace("${_false}", db.getDialect().getFalseSqlValue());
+
+    return selectSql;
   }
 
 }

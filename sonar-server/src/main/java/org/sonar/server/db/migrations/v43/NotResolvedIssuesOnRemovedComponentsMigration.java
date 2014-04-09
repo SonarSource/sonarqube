@@ -21,7 +21,7 @@
 package org.sonar.server.db.migrations.v43;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.sonar.api.config.Settings;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.DatabaseMigration;
@@ -35,22 +35,21 @@ import java.sql.Timestamp;
 
 /**
  * Used in the Active Record Migration 525
+ *
  * @since 4.3
  */
 public class NotResolvedIssuesOnRemovedComponentsMigration implements DatabaseMigration {
 
-  private final WorkDurationConvertor workDurationConvertor;
   private final System2 system2;
   private final Database db;
 
-  public NotResolvedIssuesOnRemovedComponentsMigration(Database database, Settings settings) {
-    this(database, settings, System2.INSTANCE);
+  public NotResolvedIssuesOnRemovedComponentsMigration(Database database) {
+    this(database, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  NotResolvedIssuesOnRemovedComponentsMigration(Database database, Settings settings, System2 system2) {
+  NotResolvedIssuesOnRemovedComponentsMigration(Database database, System2 system2) {
     this.db = database;
-    this.workDurationConvertor = new WorkDurationConvertor(settings);
     this.system2 = system2;
   }
 
@@ -60,28 +59,30 @@ public class NotResolvedIssuesOnRemovedComponentsMigration implements DatabaseMi
       new MassUpdater.InputLoader<Row>() {
         @Override
         public String selectSql() {
-          return "SELECT i.id, i.technical_debt FROM issues i WHERE i.technical_debt IS NOT NULL";
+          return "SELECT i.id FROM issues i " +
+            "INNER JOIN projects p on p.id=i.component_id " +
+            "WHERE p.enabled=${_false} AND i.resolution IS NULL ";
         }
 
         @Override
         public Row load(ResultSet rs) throws SQLException {
           Row row = new Row();
           row.id = SqlUtil.getLong(rs, 1);
-          row.debt = SqlUtil.getLong(rs, 2);
           return row;
         }
       },
       new MassUpdater.InputConverter<Row>() {
         @Override
         public String updateSql() {
-          return "UPDATE issues SET technical_debt=?,updated_at=? WHERE id=?";
+          return "UPDATE issues SET status=?,resolution=?,updated_at=? WHERE id=?";
         }
 
         @Override
         public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
-          updateStatement.setLong(1, workDurationConvertor.createFromLong(row.debt));
-          updateStatement.setTimestamp(2, new Timestamp(system2.now()));
-          updateStatement.setLong(3, row.id);
+          updateStatement.setString(1, Issue.STATUS_CLOSED);
+          updateStatement.setString(2, Issue.RESOLUTION_REMOVED);
+          updateStatement.setTimestamp(3, new Timestamp(system2.now()));
+          updateStatement.setLong(4, row.id);
           return true;
         }
       }
@@ -90,7 +91,6 @@ public class NotResolvedIssuesOnRemovedComponentsMigration implements DatabaseMi
 
   private static class Row {
     private Long id;
-    private Long debt;
   }
 
 }

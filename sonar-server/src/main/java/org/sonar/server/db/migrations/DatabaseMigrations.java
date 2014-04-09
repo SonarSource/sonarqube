@@ -30,15 +30,19 @@ import java.util.List;
 public interface DatabaseMigrations {
 
   List<Class<? extends DatabaseMigration>> CLASSES = ImmutableList.of(
+    // 3.6
     ViolationMigration.class,
+
+    // 4.2
+    PackageKeysMigration.class, CompleteIssueMessageMigration.class,
+
+    // 4.3
     IssueMigration.class,
     IssueChangelogMigration.class,
     TechnicalDebtMeasuresMigration.class,
     DevelopmentCostMeasuresMigration.class,
     RequirementMeasuresMigration.class,
-
-    // 4.2
-    PackageKeysMigration.class, CompleteIssueMessageMigration.class
+    NotResolvedIssuesOnRemovedComponentsMigration.class
   );
 
 }

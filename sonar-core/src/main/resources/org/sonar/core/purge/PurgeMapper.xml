@@ -183,6 +183,10 @@
     update projects set enabled=${_false} where id=#{id}
   </update>
 
+  <update id="resolveResourceIssuesNotAlreadyResolved" parameterType="long">
+    update issues set status='CLOSED',resolution='REMOVED' where component_id=#{id} AND resolution IS NULL
+  </update>
+
   <delete id="deleteResourceIndex" parameterType="map">
     delete from resource_index where resource_id in
     <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">

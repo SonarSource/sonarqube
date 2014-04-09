@@ -19,7 +19,6 @@
  */
 package org.sonar.core.purge;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.ibatis.session.ResultContext;
@@ -83,34 +82,35 @@ public class PurgeDao {
     if (hasAbortedBuilds(project.getId(), commands)) {
       LOG.info("<- Delete aborted builds");
       PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
-          .setIslast(false)
-          .setStatus(new String[] {"U"})
-          .setRootProjectId(project.getId());
+        .setIslast(false)
+        .setStatus(new String[]{"U"})
+        .setRootProjectId(project.getId());
       commands.deleteSnapshots(query);
     }
   }
 
   private boolean hasAbortedBuilds(Long projectId, PurgeCommands commands) {
     PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
-        .setIslast(false)
-        .setStatus(new String[] {"U"})
-        .setResourceId(projectId);
+      .setIslast(false)
+      .setStatus(new String[]{"U"})
+      .setResourceId(projectId);
     return !commands.selectSnapshotIds(query).isEmpty();
   }
 
   private void purge(ResourceDto project, String[] scopesWithoutHistoricalData, PurgeCommands purgeCommands) {
     List<Long> projectSnapshotIds = purgeCommands.selectSnapshotIds(
-        PurgeSnapshotQuery.create()
-            .setResourceId(project.getId())
-            .setIslast(false)
-            .setNotPurged(true));
+      PurgeSnapshotQuery.create()
+        .setResourceId(project.getId())
+        .setIslast(false)
+        .setNotPurged(true)
+    );
     for (final Long projectSnapshotId : projectSnapshotIds) {
       LOG.info("<- Clean snapshot " + projectSnapshotId);
       if (!ArrayUtils.isEmpty(scopesWithoutHistoricalData)) {
         PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
-            .setIslast(false)
-            .setScopes(scopesWithoutHistoricalData)
-            .setRootSnapshotId(projectSnapshotId);
+          .setIslast(false)
+          .setScopes(scopesWithoutHistoricalData)
+          .setRootSnapshotId(projectSnapshotId);
         purgeCommands.deleteSnapshots(query);
       }
 
@@ -170,11 +170,11 @@ public class PurgeDao {
     commands.deleteResources(resourceIds);
   }
 
-  @VisibleForTesting
-  void disableResource(long resourceId, PurgeMapper mapper) {
+  private void disableResource(long resourceId, PurgeMapper mapper) {
     mapper.deleteResourceIndex(Arrays.asList(resourceId));
     mapper.setSnapshotIsLastToFalse(resourceId);
     mapper.disableResource(resourceId);
+    mapper.resolveResourceIssuesNotAlreadyResolved(resourceId);
   }
 
   public PurgeDao deleteSnapshots(PurgeSnapshotQuery query) {

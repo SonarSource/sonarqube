@@ -21,8 +21,10 @@ package org.sonar.core.purge;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.time.DateUtils;
+import org.sonar.api.utils.System2;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Date;
 
 public class PurgeConfiguration {
@@ -30,11 +32,18 @@ public class PurgeConfiguration {
   private final long rootProjectId;
   private final String[] scopesWithoutHistoricalData;
   private final int maxAgeInDaysOfClosedIssues;
+  private final System2 system2;
 
   public PurgeConfiguration(long rootProjectId, String[] scopesWithoutHistoricalData, int maxAgeInDaysOfClosedIssues) {
+    this(rootProjectId, scopesWithoutHistoricalData, maxAgeInDaysOfClosedIssues, System2.INSTANCE);
+  }
+
+  @VisibleForTesting
+  PurgeConfiguration(long rootProjectId, String[] scopesWithoutHistoricalData, int maxAgeInDaysOfClosedIssues, System2 system2) {
     this.rootProjectId = rootProjectId;
     this.scopesWithoutHistoricalData = scopesWithoutHistoricalData;
     this.maxAgeInDaysOfClosedIssues = maxAgeInDaysOfClosedIssues;
+    this.system2 = system2;
   }
 
   public long rootProjectId() {
@@ -47,7 +56,7 @@ public class PurgeConfiguration {
 
   @CheckForNull
   public Date maxLiveDateOfClosedIssues() {
-    return maxLiveDateOfClosedIssues(new Date());
+    return maxLiveDateOfClosedIssues(new Date(system2.now()));
   }
 
   @VisibleForTesting

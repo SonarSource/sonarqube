@@ -58,15 +58,13 @@ public interface PurgeMapper {
 
   List<Long> selectMetricIdsWithoutHistoricalData();
 
-  List<Long> selectCharacteristicIdsToPurge();
-
   void deleteSnapshotWastedMeasures(@Param("snapshotIds") List<Long> snapshotIds, @Param("mids") List<Long> metricIds);
-
-  void deleteSnapshotMeasuresOnCharacteristics(@Param("snapshotIds") List<Long> snapshotIds, @Param("cids") List<Long> characteristicIds);
 
   void updatePurgeStatusToOne(long snapshotId);
 
   void disableResource(long resourceId);
+
+  void resolveResourceIssuesNotAlreadyResolved(long resourceId);
 
   void deleteResourceIndex(@Param("resourceIds") List<Long> resourceIds);
 

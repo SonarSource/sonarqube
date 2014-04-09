@@ -24,6 +24,8 @@ import org.hamcrest.Description;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.resource.ResourceDao;
 
@@ -32,13 +34,20 @@ import java.util.List;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PurgeDaoTest extends AbstractDaoTestCase {
 
-  private PurgeDao dao;
+  System2 system2;
+
+  PurgeDao dao;
 
   @Before
   public void createDao() {
+    system2 = mock(System2.class);
+    when(system2.now()).thenReturn(DateUtils.parseDate("2014-04-09").getTime());
+
     dao = new PurgeDao(getMyBatis(), new ResourceDao(getMyBatis()), new PurgeProfiler());
   }
 
@@ -64,10 +73,10 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void shouldDisableResourcesWithoutLastSnapshot() {
-    setupData("shouldDisableResourcesWithoutLastSnapshot");
-    dao.purge(new PurgeConfiguration(1L, new String[0], 30));
-    checkTables("shouldDisableResourcesWithoutLastSnapshot", "projects", "snapshots");
+  public void disable_resources_without_last_snapshot() {
+    setupData("disable_resources_without_last_snapshot");
+    dao.purge(new PurgeConfiguration(1L, new String[0], 30, system2));
+    checkTables("disable_resources_without_last_snapshot", "projects", "snapshots", "issues");
   }
 
   @Test
@@ -108,7 +117,6 @@ public class PurgeDaoTest extends AbstractDaoTestCase {
     dao.purge(new PurgeConfiguration(1L, new String[0], 0));
     checkTables("should_delete_all_closed_issues", "issues", "issue_changes");
   }
-
 
   static final class SnapshotMatcher extends BaseMatcher<PurgeableSnapshotDto> {
     long snapshotId;
