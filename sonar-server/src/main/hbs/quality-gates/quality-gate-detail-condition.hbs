@@ -1,5 +1,8 @@
 <td nowrap>
   {{metric.name}}
+  {{#if metric.hidden}}
+    <span class="deprecated">{{t 'deprecated'}}</span>
+  {{/if}}
 </td>
 <td width="10%" nowrap>
   {{#if canEdit}}

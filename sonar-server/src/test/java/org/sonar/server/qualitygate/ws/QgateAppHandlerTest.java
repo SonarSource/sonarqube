@@ -79,6 +79,7 @@ public class QgateAppHandlerTest {
     when(metric.getName()).thenReturn("Metric");
     when(metric.getType()).thenReturn(ValueType.BOOL);
     when(metric.getDomain()).thenReturn("General");
+    when(metric.isHidden()).thenReturn(false);
     when(qGates.gateMetrics()).thenReturn(ImmutableList.of(metric));
 
     String json = tester.newRequest("app").execute().outputAsString();
@@ -88,12 +89,18 @@ public class QgateAppHandlerTest {
     Collection<Map> periods = (Collection<Map>) responseJson.get("periods");
     assertThat(periods).hasSize(3);
     Map messages = (Map) responseJson.get("messages");
-    assertThat(messages).isNotNull().isNotEmpty().hasSize(50);
+    assertThat(messages).isNotNull().isNotEmpty().hasSize(51);
     for (Entry message: (Set<Entry>) messages.entrySet()) {
       assertThat(message.getKey()).isEqualTo(message.getValue());
     }
     Collection<Map> metrics = (Collection<Map>) responseJson.get("metrics");
     assertThat(metrics).hasSize(1);
-    assertThat(metrics.iterator().next().get("key")).isEqualTo("metric");
+    Map metricMap = metrics.iterator().next();
+    assertThat(metricMap.get("id").toString()).isEqualTo("42");
+    assertThat(metricMap.get("key")).isEqualTo("metric");
+    assertThat(metricMap.get("name")).isEqualTo("Metric");
+    assertThat(metricMap.get("type")).isEqualTo("BOOL");
+    assertThat(metricMap.get("domain")).isEqualTo("General");
+    assertThat(metricMap.get("hidden")).isEqualTo(false);
   }
 }

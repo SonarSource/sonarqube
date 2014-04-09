@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ws.Request;
@@ -46,6 +47,7 @@ public class QgateAppHandler implements RequestHandler {
       "create",
       "default",
       "delete",
+      "deprecated",
       "more",
       "name",
       "quality_gates.add_condition",
@@ -136,6 +138,7 @@ public class QgateAppHandler implements RequestHandler {
         .prop("name", metric.getName())
         .prop("type", metric.getType().toString())
         .prop("domain", metric.getDomain())
+        .prop("hidden", BooleanUtils.isNotFalse(metric.isHidden()))
       .endObject();
     }
     writer.endArray();

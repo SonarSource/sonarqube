@@ -569,6 +569,6 @@ public class QualityGatesTest {
     when(classicMetric.getType()).thenReturn(ValueType.BOOL);
     when(metricFinder.findAll()).thenReturn(ImmutableList.of(
       dataMetric, hiddenMetric, nullHiddenMetric, alertMetric, ratingMetric, classicMetric));
-    assertThat(qGates.gateMetrics()).hasSize(1).containsOnly(classicMetric);
+    assertThat(qGates.gateMetrics()).hasSize(3).containsOnly(classicMetric, hiddenMetric, nullHiddenMetric);
   }
 }

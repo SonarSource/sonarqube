@@ -229,7 +229,7 @@ public class QualityGates {
     return Collections2.filter(metricFinder.findAll(), new Predicate<Metric>() {
       @Override
       public boolean apply(Metric metric) {
-        return isAlertable(metric);
+        return isAvailableForInit(metric);
       }
     });
   }
@@ -284,8 +284,12 @@ public class QualityGates {
     }
   }
 
+  private boolean isAvailableForInit(Metric metric) {
+    return !metric.isDataType() && !CoreMetrics.ALERT_STATUS.equals(metric) && ValueType.RATING != metric.getType();
+  }
+
   private boolean isAlertable(Metric metric) {
-    return !metric.isDataType() && BooleanUtils.isFalse(metric.isHidden()) && !CoreMetrics.ALERT_STATUS.equals(metric) && ValueType.RATING != metric.getType();
+    return isAvailableForInit(metric) && BooleanUtils.isFalse(metric.isHidden());
   }
 
   private boolean isDefault(QualityGateDto qGate) {

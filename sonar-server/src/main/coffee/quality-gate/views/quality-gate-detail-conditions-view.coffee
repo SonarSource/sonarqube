@@ -54,6 +54,8 @@ define [
 
     groupedMetrics: ->
       metrics = @options.app.metrics
+      metrics = _.filter metrics, (metric) ->
+        !metric.hidden
       metrics = _.groupBy metrics, 'domain'
       metrics = _.map metrics, (metrics, domain) ->
         domain: domain, metrics: _.sortBy metrics, 'short_name'
