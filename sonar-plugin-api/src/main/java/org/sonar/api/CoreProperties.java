@@ -163,6 +163,11 @@ public interface CoreProperties {
    */
   @Deprecated
   String PROJECT_LANGUAGE_PROPERTY = "sonar.language";
+
+  /**
+   * @deprecated since 4.3. See http://jira.codehaus.org/browse/SONAR-5185
+   */
+  @Deprecated
   String DYNAMIC_ANALYSIS_PROPERTY = "sonar.dynamicAnalysis";
 
   /* Exclusions */

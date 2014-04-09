@@ -22,6 +22,8 @@ package org.sonar.batch;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.maven.project.MavenProject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -36,6 +38,8 @@ import org.sonar.api.utils.SonarException;
 import java.util.Date;
 
 public class ProjectConfigurator implements BatchComponent {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ProjectConfigurator.class);
 
   private DatabaseSession databaseSession;
   private Settings settings;
@@ -62,7 +66,7 @@ public class ProjectConfigurator implements BatchComponent {
     return project;
   }
 
-  String loadProjectBranch() {
+  private String loadProjectBranch() {
     return settings.getString(CoreProperties.PROJECT_BRANCH_PROPERTY);
   }
 
@@ -94,7 +98,7 @@ public class ProjectConfigurator implements BatchComponent {
 
   }
 
-  Date loadAnalysisDate() {
+  private Date loadAnalysisDate() {
     Date date;
     try {
       // sonar.projectDate may have been specified as a time
@@ -110,11 +114,13 @@ public class ProjectConfigurator implements BatchComponent {
     return date;
   }
 
-  Project.AnalysisType loadAnalysisType() {
+  private Project.AnalysisType loadAnalysisType() {
     String value = settings.getString(CoreProperties.DYNAMIC_ANALYSIS_PROPERTY);
     if (value == null) {
       return Project.AnalysisType.DYNAMIC;
     }
+
+    LOG.warn("'sonar.dynamicAnalysis' property is deprecated since version 4.3 and should not be used anymore. It's the responsibility of plugins to gather test information.");
     if ("true".equals(value)) {
       return Project.AnalysisType.DYNAMIC;
     }
@@ -124,7 +130,7 @@ public class ProjectConfigurator implements BatchComponent {
     return Project.AnalysisType.STATIC;
   }
 
-  String loadAnalysisVersion() {
+  private String loadAnalysisVersion() {
     return settings.getString(CoreProperties.PROJECT_VERSION_PROPERTY);
   }
 }
