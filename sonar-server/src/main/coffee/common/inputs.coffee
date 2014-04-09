@@ -26,7 +26,7 @@ convertWorkDuration = (value) ->
 
 
 restoreWorkDuration = (value) ->
-  return '0' if value == '0'
+  return '0' if (value == '0' || value == 0)
   return value unless /^\d+$/.test value
 
   days = Math.floor(value / (8 * 60))
