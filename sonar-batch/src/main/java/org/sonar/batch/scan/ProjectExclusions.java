@@ -60,6 +60,14 @@ public class ProjectExclusions implements TaskComponent {
   public void apply() {
     if (!reactor.getProjects().isEmpty() && StringUtils.isNotBlank(reactor.getProjects().get(0).getKey())) {
       LOG.info("Apply project exclusions");
+
+      if (settings.hasKey(CoreProperties.CORE_INCLUDED_MODULES_PROPERTY)) {
+        LOG.warn("'sonar.includedModules' property is deprecated since version 4.3 and should not be used anymore.");
+      }
+      if (settings.hasKey(CoreProperties.CORE_SKIPPED_MODULES_PROPERTY)) {
+        LOG.warn("'sonar.skippedModules' property is deprecated since version 4.3 and should not be used anymore.");
+      }
+
       for (ProjectDefinition project : reactor.getProjects()) {
         if (isExcluded(key(project), project == reactor.getRoot())) {
           exclude(project);
