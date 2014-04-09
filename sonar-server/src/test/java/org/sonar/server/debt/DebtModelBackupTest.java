@@ -540,6 +540,33 @@ public class DebtModelBackupTest {
   }
 
   @Test
+  public void reset_model_do_not_load_rule_definitions_if_no_rule() throws Exception {
+    when(characteristicsXMLImporter.importXML(any(Reader.class))).thenReturn(new DebtModel()
+      .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))
+      .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("COMPILER").setName("Compiler"), "PORTABILITY"));
+
+    when(dao.selectEnabledCharacteristics(session)).thenReturn(newArrayList(
+      new CharacteristicDto().setId(1).setKey("PORTABILITY").setName("Portability updated").setOrder(2).setCreatedAt(oldDate),
+      new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler updated").setParentId(1).setCreatedAt(oldDate)
+    ));
+
+    when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(Collections.<RuleDto>emptyList());
+
+    debtModelBackup.reset();
+
+    verify(dao).selectEnabledCharacteristics(session);
+    verify(dao, times(2)).update(any(CharacteristicDto.class), eq(session));
+    verifyNoMoreInteractions(dao);
+
+    verify(ruleDao).selectEnablesAndNonManual(session);
+    verify(ruleDao, never()).update(any(RuleDto.class), eq(session));
+    verifyZeroInteractions(ruleRegistry);
+    verifyZeroInteractions(defLoader);
+
+    verify(session).commit();
+  }
+
+  @Test
   public void restore_from_xml() throws Exception {
     when(characteristicsXMLImporter.importXML(anyString())).thenReturn(new DebtModel()
       .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(1))

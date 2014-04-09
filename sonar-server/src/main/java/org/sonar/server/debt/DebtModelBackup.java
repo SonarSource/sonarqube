@@ -151,40 +151,44 @@ public class DebtModelBackup implements ServerComponent {
       // Restore characteristics
       List<CharacteristicDto> allCharacteristicDtos = restoreCharacteristics(loadModelFromPlugin(DebtModelPluginRepository.DEFAULT_MODEL), updateDate, session);
 
-      // Load default rule definitions
-      RulesDefinition.Context context = defLoader.load();
-      List<RulesDefinition.Rule> rules = newArrayList();
-      for (RulesDefinition.Repository repoDef : context.repositories()) {
-        rules.addAll(repoDef.rules());
-      }
-
       // Restore rules
       List<RuleDto> ruleDtos = ruleDao.selectEnablesAndNonManual(session);
-      for (RuleDto rule : ruleDtos) {
-        // Restore default debt definitions
-        RulesDefinition.Rule ruleDef = ruleDef(rule.getRepositoryKey(), rule.getRuleKey(), rules);
-        // Custom rules will not be found in rules definition
-        if (ruleDef != null) {
-          String subCharacteristicKey = ruleDef.debtSubCharacteristic();
-          CharacteristicDto subCharacteristicDto = characteristicByKey(subCharacteristicKey, allCharacteristicDtos, false);
-          DebtRemediationFunction remediationFunction = ruleDef.debtRemediationFunction();
-          boolean hasDebtDefinition = subCharacteristicDto != null && remediationFunction != null;
+      if (!ruleDtos.isEmpty()) {
 
-          rule.setDefaultSubCharacteristicId(hasDebtDefinition ? subCharacteristicDto.getId() : null);
-          rule.setDefaultRemediationFunction(hasDebtDefinition ? remediationFunction.type().name() : null);
-          rule.setDefaultRemediationCoefficient(hasDebtDefinition ? remediationFunction.coefficient() : null);
-          rule.setDefaultRemediationOffset(hasDebtDefinition ? remediationFunction.offset() : null);
+        // Load default rule definitions
+        RulesDefinition.Context context = defLoader.load();
+        List<RulesDefinition.Rule> rules = newArrayList();
+        for (RulesDefinition.Repository repoDef : context.repositories()) {
+          rules.addAll(repoDef.rules());
         }
 
-        // Reset overridden debt definitions
-        rule.setSubCharacteristicId(null);
-        rule.setRemediationFunction(null);
-        rule.setRemediationCoefficient(null);
-        rule.setRemediationOffset(null);
-        rule.setUpdatedAt(updateDate);
-        ruleDao.update(rule, session);
+        for (RuleDto rule : ruleDtos) {
+          // Restore default debt definitions
+          RulesDefinition.Rule ruleDef = ruleDef(rule.getRepositoryKey(), rule.getRuleKey(), rules);
+          // Custom rules will not be found in rules definition
+          if (ruleDef != null) {
+            String subCharacteristicKey = ruleDef.debtSubCharacteristic();
+            CharacteristicDto subCharacteristicDto = characteristicByKey(subCharacteristicKey, allCharacteristicDtos, false);
+            DebtRemediationFunction remediationFunction = ruleDef.debtRemediationFunction();
+            boolean hasDebtDefinition = subCharacteristicDto != null && remediationFunction != null;
+
+            rule.setDefaultSubCharacteristicId(hasDebtDefinition ? subCharacteristicDto.getId() : null);
+            rule.setDefaultRemediationFunction(hasDebtDefinition ? remediationFunction.type().name() : null);
+            rule.setDefaultRemediationCoefficient(hasDebtDefinition ? remediationFunction.coefficient() : null);
+            rule.setDefaultRemediationOffset(hasDebtDefinition ? remediationFunction.offset() : null);
+          }
+
+          // Reset overridden debt definitions
+          rule.setSubCharacteristicId(null);
+          rule.setRemediationFunction(null);
+          rule.setRemediationCoefficient(null);
+          rule.setRemediationOffset(null);
+          rule.setUpdatedAt(updateDate);
+          ruleDao.update(rule, session);
+        }
+        ruleRegistry.reindex(ruleDtos, session);
       }
-      ruleRegistry.reindex(ruleDtos, session);
+
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -233,8 +237,8 @@ public class DebtModelBackup implements ServerComponent {
       CharacteristicDto subCharacteristicDto = subCharacteristicKey != null ? characteristicByKey(ruleDebt.subCharacteristicKey(), allCharacteristicDtos, true) : null;
       ruleOperations.updateRule(rule, subCharacteristicDto,
         ruleDebt != null ? ruleDebt.function() : null,
-        ruleDebt != null ? ruleDebt.coefficient() :null,
-        ruleDebt != null ? ruleDebt.offset() :null, updateDate, session);
+        ruleDebt != null ? ruleDebt.coefficient() : null,
+        ruleDebt != null ? ruleDebt.offset() : null, updateDate, session);
       rule.setUpdatedAt(updateDate);
       ruleDebts.remove(ruleDebt);
     }
