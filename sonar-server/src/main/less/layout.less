@@ -66,10 +66,16 @@ body, a {
   text-decoration: none;
 
   &:focus, &:hover { text-decoration: underline; }
+
   &.selected { color: #4B9FD5; }
-  &.with-icon:hover {
-    text-decoration: none;
-    span { text-decoration: underline; }
+
+  &.with-icon {
+
+    &:hover, &:focus {
+      text-decoration: none;
+      span { text-decoration: underline; }
+    }
+
   }
 }
 
