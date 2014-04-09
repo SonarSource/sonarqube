@@ -41,12 +41,15 @@ window.SonarWidgets.WordCloud = ->
 
 window.SonarWidgets.WordCloud.prototype.render = (container) ->
   @box = d3.select(container).append('div').classed 'sonar-d3', true
+  @box.style 'text-align', 'center'
 
   # Configure metrics
   @colorMetric = @metricsPriority()[0]
-  @getColorMetric = (d) => d.measures[@colorMetric].val
+  @getColorMetric = (d) => d.measures[@colorMetric]?.val
+  @getFColorMetric = (d) => d.measures[@colorMetric]?.fval
   @sizeMetric = @metricsPriority()[1]
-  @getSizeMetric = (d) => d.measures[@sizeMetric].val
+  @getSizeMetric = (d) => d.measures[@sizeMetric]?.val
+  @getFSizeMetric = (d) => d.measures[@sizeMetric]?.fval
 
   # Configure scales
   @color = d3.scale.linear().domain([0, 100])
@@ -72,9 +75,19 @@ window.SonarWidgets.WordCloud.prototype.update = ->
     url = @options().baseUrl + encodeURIComponent(d.key)
     url += '?metric=' + encodeURIComponent(@colorMetric) if d.qualifier == 'CLA' || d.qualifier == 'FIL'
     url
+  wordsEnter.attr 'title', (d) =>
+    title = d.longName
+    title += " | #{@metrics()[@colorMetric].name}: #{@getFColorMetric d}" if @getFColorMetric d
+    title += " | #{@metrics()[@sizeMetric].name}: #{@getFSizeMetric d}" if @getFSizeMetric d
+    title
 
   @words.style 'color', (d) => @color @getColorMetric d
   @words.style 'font-size', (d) => "#{@size @getSizeMetric d}px"
+
+  @words.sort (a, b) =>
+    if a.name.toLowerCase() > b.name.toLowerCase() then 1 else -1
+
+  console.log @words
 
   @words.exit().remove()
 

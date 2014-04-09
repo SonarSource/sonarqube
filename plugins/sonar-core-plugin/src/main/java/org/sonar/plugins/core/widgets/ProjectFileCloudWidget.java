@@ -27,7 +27,6 @@ import org.sonar.api.web.WidgetPropertyType;
 
 @WidgetProperties({
   @WidgetProperty(key = "chartTitle", type = WidgetPropertyType.STRING),
-  @WidgetProperty(key = "filter", type = WidgetPropertyType.FILTER, optional = false),
   @WidgetProperty(key = "colorMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.COVERAGE_KEY, options = "type:PERCENT"),
   @WidgetProperty(key = "sizeMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.COMPLEXITY_KEY, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
   @WidgetProperty(key = "maxItems", type = WidgetPropertyType.INTEGER, defaultValue = "100"),

@@ -29,10 +29,10 @@
         query = [
           'filter=<%= filterId -%>',
           'metrics=' + metrics.join(','),
-          'fields=name,qualifier',
+          'fields=name,longName,qualifier',
           'pageSize=<%= maxItems -%>',
           'page=1',
-          'sort=metric:' + metrics[0],
+          'sort=metric:' + metrics[1],
           'asc=false'
         ].join('&'),
         widget = new SonarWidgets.Widget();

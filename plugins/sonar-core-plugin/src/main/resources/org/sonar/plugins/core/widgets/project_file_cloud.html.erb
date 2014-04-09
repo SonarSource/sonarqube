@@ -1,15 +1,13 @@
 <%
   containerId = 'project-file-widget' + widget.id.to_s
+  colorMetric = widget_properties['colorMetric']
+  sizeMetric = widget_properties['sizeMetric']
   chartTitle = widget_properties['chartTitle']
-  filterId = widget_properties['filter'].to_i
   maxItems = widget_properties['maxItems'].to_i
   reverseColor = widget_properties['reverseColor']
-
-  filter = MeasureFilter.find_by_id(filterId.to_i)
-  @widget_title = link_to h(filter.name), {:controller => 'measures', :action => 'filter', :id => filter.id, :display => 'list'}
 %>
 
-<div class="histogram-widget" id="<%= containerId %>">
+<div class="word-cloud-widget" id="<%= containerId %>">
   <!--[if lte IE 8 ]> <h3><%= message('widget.unsupported_browser_warning') -%></h3> <![endif]-->
 
   <!--[if (gte IE 9)|!(IE)]><!-->
@@ -18,3 +16,62 @@
   <% end %>
   <!--<![endif]-->
 </div>
+
+<!--[if (gte IE 9)|!(IE)]><!-->
+<script>
+  (function () {
+    <%
+      filter = MeasureFilter.new
+      # Test files should not be returned
+      qualifiers = Api::Utils.java_facade.getResourceLeavesQualifiers(@project.qualifier).to_a.reject {|q| q == 'UTS'}
+      filter.criteria = {:qualifiers => qualifiers, :base => @project.key, :pageSize => maxItems, :sort => 'metric:' + sizeMetric.name, :asc => false}
+      filter.metrics = [colorMetric.name, sizeMetric.name]
+      filter.execute(self, :user => current_user)
+    %>
+
+    var data = {
+          metrics: {
+            <%= colorMetric.name -%>: {
+              name: '<%= colorMetric.short_name -%>'
+            },
+            <%= sizeMetric.name -%>: {
+              name: '<%= sizeMetric.short_name -%>'
+            }
+          },
+          components: [
+            <%
+            filter.rows.each  do |row|
+              color = row.measure(colorMetric)
+              size = row.measure(sizeMetric)
+            %>
+            {
+              key: '<%= escape_javascript row.resource.key -%>',
+              name: '<%= escape_javascript row.resource.name -%>',
+              longName: '<%= escape_javascript row.resource.long_name -%>',
+              qualifier: '<%= escape_javascript row.resource.qualifier -%>',
+              measures: {
+                <%= colorMetric.name -%>: { val: <%= color ? color.value : 0 -%>, fval: '<%= color ? color.formatted_value : "-" -%>' },
+                <%= sizeMetric.name -%>: { val: <%= size ? size.value : 0 -%>, fval: '<%= size ? size.formatted_value : "-" -%>' }
+              }
+            },
+            <% end %>
+          ]
+        },
+        widget = new SonarWidgets.WordCloud();
+
+    widget
+        .metrics(data.metrics)
+        .metricsPriority(['<%= colorMetric.name -%>', '<%= sizeMetric.name -%>'])
+        .components(data.components)
+        .options({
+          baseUrl: baseUrl + '/dashboard/index/',
+          reverseColor: <%= reverseColor -%>
+        })
+        .render('#<%= containerId -%>');
+
+    autoResize(500, function() {
+      widget.update('#<%= containerId -%>');
+    });
+  })();
+</script>
+<!--<![endif]-->
