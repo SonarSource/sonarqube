@@ -20,10 +20,23 @@
 
 package org.sonar.server.rule;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
-import com.google.common.collect.Multimap;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newHashSet;
+import static org.elasticsearch.index.query.FilterBuilders.boolFilter;
+import static org.elasticsearch.index.query.FilterBuilders.termFilter;
+import static org.elasticsearch.index.query.FilterBuilders.termsFilter;
+import static org.sonar.api.rules.Rule.STATUS_REMOVED;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.elasticsearch.ElasticSearchException;
@@ -40,6 +53,7 @@ import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.MatchQueryBuilder.Operator;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -49,7 +63,11 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.rule.*;
+import org.sonar.core.rule.RuleDao;
+import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleParamDto;
+import org.sonar.core.rule.RuleRuleTagDto;
+import org.sonar.core.rule.RuleTagType;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.es.ESIndex;
@@ -58,20 +76,10 @@ import org.sonar.server.paging.PagedResult;
 import org.sonar.server.paging.Paging;
 import org.sonar.server.paging.PagingResult;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
-import static com.google.common.collect.Sets.newHashSet;
-import static org.elasticsearch.index.query.FilterBuilders.*;
-import static org.sonar.api.rules.Rule.STATUS_REMOVED;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
+import com.google.common.collect.Multimap;
 
 /**
  * Fill search index with rules
@@ -352,12 +360,12 @@ public class RuleRegistry {
   }
 
   public PagedResult<Rule> find(RuleQuery query) {
-    BoolFilterBuilder mainFilter = convertRuleQueryToFilterBuilder(query);
+    QueryBuilder mainQuery = convertRuleQueryToFilterBuilder(query);
 
     Builder<Rule> rulesBuilder = ImmutableList.builder();
     SearchRequestBuilder searchRequestBuilder =
       searchIndex.client().prepareSearch(INDEX_RULES).setTypes(TYPE_RULE)
-        .setPostFilter(mainFilter)
+      	.setQuery(mainQuery)
         .addSort(RuleDocument.FIELD_NAME, SortOrder.ASC);
 
     if (RuleQuery.NO_PAGINATION == query.pageSize()) {
@@ -394,26 +402,37 @@ public class RuleRegistry {
     }
   }
 
-  private static BoolFilterBuilder convertRuleQueryToFilterBuilder(RuleQuery query){
+  private static QueryBuilder convertRuleQueryToFilterBuilder(RuleQuery query){
+	
+    //Execute the main query (defaults to matchAll
+	QueryBuilder mainQuery = QueryBuilders.matchAllQuery();
+	if (StringUtils.isNotBlank(query.searchQuery())) {
+	  mainQuery= QueryBuilders.multiMatchQuery(query.searchQuery(),
+        RuleDocument.FIELD_KEY,
+        RuleDocument.FIELD_NAME,
+        RuleDocument.FIELD_NAME + ".search").operator(Operator.AND);
+	}
+	
+	//Execute all filters
     BoolFilterBuilder mainFilter = boolFilter().mustNot(termFilter(RuleDocument.FIELD_STATUS, STATUS_REMOVED));
-    if (StringUtils.isNotBlank(query.searchQuery())) {
-      mainFilter.must(FilterBuilders.queryFilter(
-        QueryBuilders.multiMatchQuery(query.searchQuery(), RuleDocument.FIELD_NAME + ".search", RuleDocument.FIELD_KEY).operator(Operator.AND)));
-    }
+        
     addMustTermOrTerms(mainFilter, RuleDocument.FIELD_LANGUAGE, query.languages());
     addMustTermOrTerms(mainFilter, RuleDocument.FIELD_REPOSITORY_KEY, query.repositories());
     addMustTermOrTerms(mainFilter, RuleDocument.FIELD_SEVERITY, query.severities());
     addMustTermOrTerms(mainFilter, RuleDocument.FIELD_STATUS, query.statuses());
+    
     if (!query.tags().isEmpty()) {
       mainFilter.must(FilterBuilders.queryFilter(
           QueryBuilders.multiMatchQuery(query.tags(), RuleDocument.FIELD_ADMIN_TAGS, RuleDocument.FIELD_SYSTEM_TAGS).operator(Operator.OR))
       );
     }
+    
     if (!query.debtCharacteristics().isEmpty()) {
       mainFilter.must(FilterBuilders.queryFilter(
           QueryBuilders.multiMatchQuery(query.debtCharacteristics(), RuleDocument.FIELD_CHARACTERISTIC_KEY, RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY).operator(Operator.OR))
       );
     }
+    
     if (query.hasDebtCharacteristic() != null) {
       if (Boolean.TRUE.equals(query.hasDebtCharacteristic())) {
         mainFilter.must(FilterBuilders.existsFilter(RuleDocument.FIELD_CHARACTERISTIC_KEY));
@@ -421,7 +440,8 @@ public class RuleRegistry {
         mainFilter.mustNot(FilterBuilders.existsFilter(RuleDocument.FIELD_CHARACTERISTIC_KEY));
       }
     }
-    return mainFilter;
+    
+    return QueryBuilders.filteredQuery(mainQuery, mainFilter);
   }
 
   private static void addMustTermOrTerms(BoolFilterBuilder filter, String field, Collection<String> terms) {

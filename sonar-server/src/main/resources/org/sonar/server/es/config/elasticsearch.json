@@ -29,11 +29,11 @@
         },
         "rule_name": {
           "type": "custom",
-          "tokenizer": "rule_name_ngram",
-          "filter": "lowercase"
+          "tokenizer": "standard",
+          "filter": ["lowercase", "rule_name_ngram"]
         }
       },
-      "tokenizer": {
+      "filter": {
         "rule_name_ngram": {
           "type": "nGram",
           "min_gram": 3,

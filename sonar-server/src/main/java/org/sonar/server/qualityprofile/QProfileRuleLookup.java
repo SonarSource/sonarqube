@@ -288,7 +288,7 @@ public class QProfileRuleLookup implements ServerExtension {
     if (StringUtils.isNotBlank(query.nameOrKey())) {
       result.must(
         queryFilter(
-          multiMatchQuery(query.nameOrKey().trim(), RuleDocument.FIELD_NAME + ".search", RuleDocument.FIELD_KEY)
+          multiMatchQuery(query.nameOrKey().trim(), RuleDocument.FIELD_NAME, RuleDocument.FIELD_NAME + ".search", RuleDocument.FIELD_KEY)
             .operator(Operator.AND)));
     }
 

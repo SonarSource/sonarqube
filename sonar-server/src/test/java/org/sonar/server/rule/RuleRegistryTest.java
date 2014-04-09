@@ -365,6 +365,24 @@ public class RuleRegistryTest {
   }
 
   @Test
+  public void filter_removed_rules() {
+    assertThat(registry.findIds(new HashMap<String, String>())).containsOnly(1, 2);
+  }
+
+  @Test
+  public void display_disabled_rule() {
+    assertThat(registry.findIds(ImmutableMap.of("status", "BETA|REMOVED"))).containsOnly(2, 3);
+  }
+  
+  @Test
+  public void find_rules_by_name_with_number_in_name() {
+    registry.reindex(new RuleDto().setId(10).setRepositoryKey("repo").setRuleKey("rule1").setName("MyRule 1").setSeverity(Severity.MINOR));
+    registry.reindex(new RuleDto().setId(11).setRepositoryKey("repo").setRuleKey("rule2").setName("MyRule 2").setSeverity(Severity.MINOR));
+    System.out.println("MY RESULT: " + registry.find(RuleQuery.builder().searchQuery("MyRule 1").build()).results());
+    assertThat(registry.find(RuleQuery.builder().searchQuery("MyRule 1").build()).results()).hasSize(1);
+  }
+  
+  @Test
   public void find_rule_by_key() {
     assertThat(registry.findByKey(RuleKey.of("unknown", "RuleWithParameters"))).isNull();
     assertThat(registry.findByKey(RuleKey.of("xoo", "unknown"))).isNull();
@@ -376,17 +394,7 @@ public class RuleRegistryTest {
     assertThat(rule.adminTags()).hasSize(1);
     assertThat(rule.systemTags()).hasSize(2);
   }
-
-  @Test
-  public void filter_removed_rules() {
-    assertThat(registry.findIds(new HashMap<String, String>())).containsOnly(1, 2);
-  }
-
-  @Test
-  public void display_disabled_rule() {
-    assertThat(registry.findIds(ImmutableMap.of("status", "BETA|REMOVED"))).containsOnly(2, 3);
-  }
-
+  
   @Test
   public void filter_on_name_or_key() throws Exception {
     assertThat(registry.findIds(ImmutableMap.of("nameOrKey", "parameters"))).containsOnly(1);

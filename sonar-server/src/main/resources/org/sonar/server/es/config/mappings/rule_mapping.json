@@ -21,7 +21,7 @@
         "fields": {
           "name": { "type": "string", "index": "analyzed" },
           "raw": { "type": "string", "index": "analyzed", "analyzer": "sortable" },
-          "search": { "type": "string", "index": "analyzed", "analyzer": "rule_name" }
+          "search": { "type": "string", "index": "analyzed", "index_analyzer": "rule_name", "search_analyzer": "standard" }
         }
       },
       "description": {
