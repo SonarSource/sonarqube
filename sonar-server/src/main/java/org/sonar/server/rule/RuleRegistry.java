@@ -185,7 +185,7 @@ public class RuleRegistry {
       Integer effectiveSubCharacteristicId = rule.getSubCharacteristicId() != null ? rule.getSubCharacteristicId() : rule.getDefaultSubCharacteristicId();
       CharacteristicDto subCharacteristic = effectiveSubCharacteristicId != null ? characteristicDao.selectById(effectiveSubCharacteristicId, session) : null;
       // The parent id of the sub-characteristic should never be null
-      Integer parentId = subCharacteristic!= null ? subCharacteristic.getParentId() : null;
+      Integer parentId = subCharacteristic != null ? subCharacteristic.getParentId() : null;
       CharacteristicDto characteristic = (subCharacteristic != null && parentId != null) ?
         characteristicDao.selectById(parentId, session) : null;
       searchIndex.putSynchronous(INDEX_RULES, TYPE_RULE, Long.toString(ruleId), ruleDocument(rule,
@@ -198,7 +198,7 @@ public class RuleRegistry {
   }
 
   private String[] bulkIndexRules(Collection<RuleDto> rules, Map<Integer, CharacteristicDto> characteristicsById, Multimap<Integer, RuleParamDto> paramsByRule,
-                                  Multimap<Integer, RuleRuleTagDto> tagsByRule) {
+    Multimap<Integer, RuleRuleTagDto> tagsByRule) {
     try {
       String[] ids = new String[rules.size()];
       BytesStream[] docs = new BytesStream[rules.size()];
@@ -236,7 +236,7 @@ public class RuleRegistry {
   }
 
   private XContentBuilder ruleDocument(RuleDto rule, @Nullable CharacteristicDto characteristicDto, @Nullable CharacteristicDto subCharacteristicDto,
-                                       Collection<RuleParamDto> params, Collection<RuleRuleTagDto> tags) throws IOException {
+    Collection<RuleParamDto> params, Collection<RuleRuleTagDto> tags) throws IOException {
     XContentBuilder document = XContentFactory.jsonBuilder()
       .startObject()
       .field(RuleDocument.FIELD_ID, rule.getId())
@@ -318,7 +318,6 @@ public class RuleRegistry {
     }
   }
 
-
   /**
    * <p>Find rule IDs matching the given criteria.</p>
    *
@@ -365,7 +364,7 @@ public class RuleRegistry {
     Builder<Rule> rulesBuilder = ImmutableList.builder();
     SearchRequestBuilder searchRequestBuilder =
       searchIndex.client().prepareSearch(INDEX_RULES).setTypes(TYPE_RULE)
-      	.setQuery(mainQuery)
+        .setQuery(mainQuery)
         .addSort(RuleDocument.FIELD_NAME, SortOrder.ASC);
 
     if (RuleQuery.NO_PAGINATION == query.pageSize()) {
@@ -374,13 +373,13 @@ public class RuleRegistry {
         .setSearchType(SearchType.SCAN)
         .setScroll(new TimeValue(scrollTime))
         .setSize(50).execute().actionGet();
-      //Scroll until no hits are returned
+      // Scroll until no hits are returned
       while (true) {
         scrollResp = searchIndex.client().prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(scrollTime)).execute().actionGet();
         for (SearchHit hit : scrollResp.getHits()) {
           rulesBuilder.add(RuleDocumentParser.parse(hit.sourceAsMap()));
         }
-        //Break condition: No hits are returned
+        // Break condition: No hits are returned
         if (scrollResp.getHits().getHits().length == 0) {
           break;
         }
@@ -393,7 +392,7 @@ public class RuleRegistry {
         searchRequestBuilder
           .setSize(paging.pageSize())
           .setFrom(paging.offset())
-      );
+        );
 
       for (SearchHit hit : hits.hits()) {
         rulesBuilder.add(RuleDocumentParser.parse(hit.sourceAsMap()));
@@ -402,37 +401,36 @@ public class RuleRegistry {
     }
   }
 
-  private static QueryBuilder convertRuleQueryToFilterBuilder(RuleQuery query){
-	
-    //Execute the main query (defaults to matchAll
-	QueryBuilder mainQuery = QueryBuilders.matchAllQuery();
-	if (StringUtils.isNotBlank(query.searchQuery())) {
-	  mainQuery= QueryBuilders.multiMatchQuery(query.searchQuery(),
-        RuleDocument.FIELD_KEY,
-        RuleDocument.FIELD_NAME,
+  private static QueryBuilder convertRuleQueryToFilterBuilder(RuleQuery query) {
+
+    // Execute the main query (defaults to matchAll
+    QueryBuilder mainQuery = QueryBuilders.matchAllQuery();
+    if (StringUtils.isNotBlank(query.searchQuery())) {
+      mainQuery = QueryBuilders.multiMatchQuery(query.searchQuery(),
+        RuleDocument.FIELD_KEY, RuleDocument.FIELD_NAME,
         RuleDocument.FIELD_NAME + ".search").operator(Operator.AND);
-	}
-	
-	//Execute all filters
+    }
+
+    // Execute all filters
     BoolFilterBuilder mainFilter = boolFilter().mustNot(termFilter(RuleDocument.FIELD_STATUS, STATUS_REMOVED));
-        
+
     addMustTermOrTerms(mainFilter, RuleDocument.FIELD_LANGUAGE, query.languages());
     addMustTermOrTerms(mainFilter, RuleDocument.FIELD_REPOSITORY_KEY, query.repositories());
     addMustTermOrTerms(mainFilter, RuleDocument.FIELD_SEVERITY, query.severities());
     addMustTermOrTerms(mainFilter, RuleDocument.FIELD_STATUS, query.statuses());
-    
+
     if (!query.tags().isEmpty()) {
       mainFilter.must(FilterBuilders.queryFilter(
-          QueryBuilders.multiMatchQuery(query.tags(), RuleDocument.FIELD_ADMIN_TAGS, RuleDocument.FIELD_SYSTEM_TAGS).operator(Operator.OR))
-      );
+        QueryBuilders.multiMatchQuery(query.tags(), RuleDocument.FIELD_ADMIN_TAGS, RuleDocument.FIELD_SYSTEM_TAGS).operator(Operator.OR))
+        );
     }
-    
+
     if (!query.debtCharacteristics().isEmpty()) {
       mainFilter.must(FilterBuilders.queryFilter(
-          QueryBuilders.multiMatchQuery(query.debtCharacteristics(), RuleDocument.FIELD_CHARACTERISTIC_KEY, RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY).operator(Operator.OR))
-      );
+        QueryBuilders.multiMatchQuery(query.debtCharacteristics(), RuleDocument.FIELD_CHARACTERISTIC_KEY, RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY).operator(Operator.OR))
+        );
     }
-    
+
     if (query.hasDebtCharacteristic() != null) {
       if (Boolean.TRUE.equals(query.hasDebtCharacteristic())) {
         mainFilter.must(FilterBuilders.existsFilter(RuleDocument.FIELD_CHARACTERISTIC_KEY));
@@ -440,7 +438,7 @@ public class RuleRegistry {
         mainFilter.mustNot(FilterBuilders.existsFilter(RuleDocument.FIELD_CHARACTERISTIC_KEY));
       }
     }
-    
+
     return QueryBuilders.filteredQuery(mainQuery, mainFilter);
   }
 
