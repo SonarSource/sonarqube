@@ -31,7 +31,7 @@ class MeasureFilterDisplayTreemap < MeasureFilterDisplay
     super(filter, options)
 
     @size_metric = Metric.by_key(@filter.criteria(:tmSize)||'ncloc')
-    @color_metric = Metric.by_key(@filter.criteria(:tmColor)||'violations_density')
+    @color_metric = Metric.by_key(@filter.criteria(:tmColor)||'coverage')
     @height_percents = (@filter.criteria(:tmHeight) || DEFAULT_HEIGHT_PERCENTS).to_i
     @height_percents = DEFAULT_HEIGHT_PERCENTS if @height_percents<=0
     @filter.metrics=([@size_metric, @color_metric].compact)

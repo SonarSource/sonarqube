@@ -78,7 +78,7 @@ public final class GlobalDefaultDashboard extends DashboardTemplate {
         .addWidget(MeasureFilterTreemapWidget.ID, 2)
         .setProperty(MeasureFilterListWidget.FILTER_PROPERTY, filter.getId().toString())
         .setProperty(MeasureFilterTreemapWidget.SIZE_METRIC_PROPERTY, "ncloc")
-        .setProperty(MeasureFilterTreemapWidget.COLOR_METRIC_PROPERTY, "violations_density");
+        .setProperty(MeasureFilterTreemapWidget.COLOR_METRIC_PROPERTY, "coverage");
     }
   }
 
