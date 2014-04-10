@@ -88,6 +88,13 @@ class DashboardsController < ApplicationController
     if @dashboard.editable_by?(current_user)
       load_dashboard_from_params(@dashboard)
       if @dashboard.save
+
+        # SONAR-4979 If the dashboard is no more shared, current user has to unfollow it if he was following it
+        # unless @dashboard.shared
+        #   active = current_user.active_dashboards.to_a.find { |a| (a.user_id == dashboard_owner.id) && (a.dashboard_id == @dashboard.id)}
+        #   active.destroy if active
+        # end
+
         render :text => CGI.escapeHTML(params[:resource]), :status => 200
       else
         @dashboard.user = dashboard_owner
@@ -161,6 +168,7 @@ class DashboardsController < ApplicationController
 
     redirect_to :action => 'index', :resource => params[:resource]
   end
+
 
   private
 
