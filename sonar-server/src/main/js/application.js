@@ -282,7 +282,7 @@ function openModalWindow(url, options) {
   var width = (options && options['width']) || 540;
   var $dialog = $j('#modal');
   if (!$dialog.length) {
-    $dialog = $j('<div id="modal" class="ui-widget-overlay"></div>').appendTo('body');
+    $dialog = $j('<div id="modal" class="ui-widget-overlay ui-front"></div>').appendTo('body');
   }
   $j.get(url,function (html) {
     $dialog.removeClass('ui-widget-overlay');
