@@ -86,19 +86,6 @@ module MeasuresHelper
     "<a href='#' id='star-#{filter.name.parameterize}' class='measure-filter-star #{style}' filter-id='#{filter.id}' title='#{title}'></a>"
   end
 
-  CLOUD_MIN_SIZE_PERCENT=60.0
-  CLOUD_MAX_SIZE_PERCENT=240.0
-
-  def cloud_font_size(value, min_size_value, max_size_value)
-    divisor=max_size_value - min_size_value
-    size=CLOUD_MIN_SIZE_PERCENT
-    if divisor!=0.0
-      multiplier=(CLOUD_MAX_SIZE_PERCENT - CLOUD_MIN_SIZE_PERCENT)/divisor
-      size=CLOUD_MIN_SIZE_PERCENT + ((max_size_value - (max_size_value-(value - min_size_value)))*multiplier)
-    end
-    size.to_i
-  end
-
   def period_labels
     [Api::Utils.period_label(1), Api::Utils.period_label(2), Api::Utils.period_label(3)]
   end

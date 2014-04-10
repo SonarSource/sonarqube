@@ -105,9 +105,6 @@
                 <a href="<%= ApplicationController.root_context -%><%= page_url -%>"><%= h message(page.getId() + '.page', :default => page.getTitle()) -%></a>
               </li>
               <% end %>
-            <li class="<%= 'active' if controller.controller_path=='cloud' -%>">
-              <a href="<%= ApplicationController.root_context -%>/cloud/index/<%= @project.id -%>"><%= message('clouds.page') -%></a>
-            </li>
               <% if controller.java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'comparable') %>
               <li class="<%= 'active' if request.request_uri.include?('/comparison/index') -%>">
                 <a href="<%= ApplicationController.root_context -%>/comparison/index?resource=<%= @project.key -%>"><%= message('comparison.page') -%></a>
