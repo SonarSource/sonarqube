@@ -120,7 +120,7 @@ public class ProjectConfigurator implements BatchComponent {
       return Project.AnalysisType.DYNAMIC;
     }
 
-    LOG.warn("'sonar.dynamicAnalysis' property is deprecated since version 4.3 and should not be used anymore. It's the responsibility of plugins to gather test information.");
+    LOG.warn("'sonar.dynamicAnalysis' is deprecated since version 4.3 and should no longer be used.");
     if ("true".equals(value)) {
       return Project.AnalysisType.DYNAMIC;
     }
