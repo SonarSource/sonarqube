@@ -123,13 +123,10 @@ public class MassUpdater {
 
   @VisibleForTesting
   static String convertSelectSql(String selectSql, Database db){
-    // Replace ${_true}
-    selectSql = selectSql.replace("${_true}", db.getDialect().getTrueSqlValue());
-
-    // Replace ${_false}
-    selectSql = selectSql.replace("${_false}", db.getDialect().getFalseSqlValue());
-
-    return selectSql;
+    String newSelectSql = selectSql;
+    newSelectSql = newSelectSql.replace("${_true}", db.getDialect().getTrueSqlValue());
+    newSelectSql = newSelectSql.replace("${_false}", db.getDialect().getFalseSqlValue());
+    return newSelectSql;
   }
 
 }

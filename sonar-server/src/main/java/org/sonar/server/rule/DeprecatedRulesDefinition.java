@@ -40,6 +40,7 @@ import org.sonar.server.debt.DebtModelXMLExporter;
 import org.sonar.server.debt.DebtRulesXMLImporter;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.io.Reader;
 import java.util.Collection;
@@ -117,20 +118,26 @@ public class DeprecatedRulesDefinition implements RulesDefinition {
         LOG.warn(String.format("'%s:%s' is a rule template, it should not define technical debt. Its debt definition will be ignored.", repoKey, ruleKey));
       } else {
         newRule.setDebtSubCharacteristic(ruleDebt.subCharacteristicKey());
-        String function = ruleDebt.function();
-        String coefficient = ruleDebt.coefficient();
-        String offset = ruleDebt.offset();
-
-        if (DebtRemediationFunction.Type.LINEAR.name().equals(function) && coefficient != null) {
-          newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linear(coefficient));
-        } else if (DebtRemediationFunction.Type.CONSTANT_ISSUE.name().equals(function) && offset != null) {
-          newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().constantPerIssue(offset));
-        } else if (DebtRemediationFunction.Type.LINEAR_OFFSET.name().equals(function) && coefficient != null && offset != null) {
-          newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linearWithOffset(coefficient, offset));
-        } else {
-          throw new IllegalArgumentException(String.format("Debt definition on rule '%s:%s' is invalid", repoKey, ruleKey));
-        }
+        newRule.setDebtRemediationFunction(remediationFunction(DebtRemediationFunction.Type.valueOf(ruleDebt.function()),
+          ruleDebt.coefficient(),
+          ruleDebt.offset(),
+          newRule.debtRemediationFunctions(),
+          repoKey, ruleKey
+        ));
       }
+    }
+  }
+
+  private DebtRemediationFunction remediationFunction(DebtRemediationFunction.Type function, @Nullable String coefficient, @Nullable  String offset,
+                                                      DebtRemediationFunctions functions, String repoKey, String ruleKey) {
+    if (DebtRemediationFunction.Type.LINEAR.equals(function) && coefficient != null) {
+      return functions.linear(coefficient);
+    } else if (DebtRemediationFunction.Type.CONSTANT_ISSUE.equals(function) && offset != null) {
+      return functions.constantPerIssue(offset);
+    } else if (DebtRemediationFunction.Type.LINEAR_OFFSET.equals(function) && coefficient != null && offset != null) {
+      return functions.linearWithOffset(coefficient, offset);
+    } else {
+      throw new IllegalArgumentException(String.format("Debt definition on rule '%s:%s' is invalid", repoKey, ruleKey));
     }
   }
 
