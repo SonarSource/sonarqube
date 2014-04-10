@@ -24,14 +24,18 @@
 #
 class RemoveActiveDashboardsLinkedOnUnsharedDashboards < ActiveRecord::Migration
 
+  class Dashboard < ActiveRecord::Base
+  end
+
   class ActiveDashboard < ActiveRecord::Base
+    belongs_to :dashboard
   end
 
   def self.up
     ActiveDashboard.reset_column_information
 
     # Delete every active_dashboards linked on unshared dashboard not owned by the user
-    ActiveDashboard.delete_all(['dashboard_id in (SELECT d.id FROM dashboards d INNER JOIN active_dashboards ad on ad.dashboard_id=d.id WHERE ad.user_id<>d.user_id AND d.shared=?)', false])
+    ActiveDashboard.all(:include => :dashboard, :conditions => ['dashboards.shared=? AND active_dashboards.user_id<>dashboards.user_id', false]).each {|ad| ad.delete}
   end
 
 end

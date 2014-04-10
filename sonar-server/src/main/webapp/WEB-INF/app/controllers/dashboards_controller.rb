@@ -90,10 +90,10 @@ class DashboardsController < ApplicationController
       if @dashboard.save
 
         # SONAR-4979 If the dashboard is no more shared, current user has to unfollow it if he was following it
-        # unless @dashboard.shared
-        #   active = current_user.active_dashboards.to_a.find { |a| (a.user_id == dashboard_owner.id) && (a.dashboard_id == @dashboard.id)}
-        #   active.destroy if active
-        # end
+        unless @dashboard.shared
+          active = current_user.active_dashboards.to_a.find { |a| (a.user_id == dashboard_owner.id) && (a.dashboard_id == @dashboard.id)}
+          active.destroy if active
+        end
 
         render :text => CGI.escapeHTML(params[:resource]), :status => 200
       else
