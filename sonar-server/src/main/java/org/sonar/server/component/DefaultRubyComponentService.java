@@ -53,7 +53,7 @@ public class DefaultRubyComponentService implements RubyComponentService {
   }
 
   @Override
-  public Component<?> findByKey(String key) {
+  public Component findByKey(String key) {
     return resourceDao.findByKey(key);
   }
 

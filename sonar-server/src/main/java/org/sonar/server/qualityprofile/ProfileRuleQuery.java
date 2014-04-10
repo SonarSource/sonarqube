@@ -105,6 +105,19 @@ public class ProfileRuleQuery {
       result.addTags(optionalVarargs(params.get(PARAM_TAGS)));
     }
 
+    parseInheritance(params, errors, result);
+
+    parseParams(params, errors, result);
+
+    if (!errors.isEmpty()) {
+      throw BadRequestException.of("Incorrect rule search parameters", errors);
+    } else {
+      result.profileId = RubyUtils.toInteger(params.get(PARAM_PROFILE_ID));
+    }
+    return result;
+  }
+
+  private static void parseInheritance(Map<String, Object> params, List<BadRequestException.Message> errors, ProfileRuleQuery result) {
     if (params.containsKey(PARAM_INHERITANCE)) {
       String inheritance = (String) params.get(PARAM_INHERITANCE);
       validateInheritance(inheritance, errors);
@@ -118,7 +131,9 @@ public class ProfileRuleQuery {
     } else {
       result.setAnyInheritance(true);
     }
+  }
 
+  private static void parseParams(Map<String, Object> params, List<BadRequestException.Message> errors, ProfileRuleQuery result) {
     if (params.get(PARAM_SORT) != null) {
       String sort = (String) params.get(PARAM_SORT);
       Boolean asc = RubyUtils.toBoolean(params.get(PARAM_ASC));
@@ -128,13 +143,6 @@ public class ProfileRuleQuery {
         result.setAsc(asc);
       }
     }
-
-    if (!errors.isEmpty()) {
-      throw BadRequestException.of("Incorrect rule search parameters", errors);
-    } else {
-      result.profileId = RubyUtils.toInteger(params.get(PARAM_PROFILE_ID));
-    }
-    return result;
   }
 
   private static void validatePresenceOf(Map<String, Object> params, List<BadRequestException.Message> errors, String... paramNames) {

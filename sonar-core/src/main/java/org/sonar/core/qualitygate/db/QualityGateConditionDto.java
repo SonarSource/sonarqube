@@ -19,16 +19,15 @@
  */
 package org.sonar.core.qualitygate.db;
 
+import com.google.common.collect.ImmutableMap;
+
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.measures.Metric.ValueType;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @since 4.3
@@ -62,6 +61,18 @@ public class QualityGateConditionDto {
   private static final List<String> BOOLEAN_OPERATORS = ImmutableList.of(
     OPERATOR_EQUALS
   );
+
+  private static final Map<ValueType, List<String>> OPERATORS_BY_TYPE = ImmutableMap.<ValueType, List<String>>builder()
+      .put(ValueType.BOOL, BOOLEAN_OPERATORS)
+      .put(ValueType.LEVEL, LEVEL_OPERATORS)
+      .put(ValueType.STRING, STRING_OPERATORS)
+      .put(ValueType.INT, NUMERIC_OPERATORS)
+      .put(ValueType.FLOAT, NUMERIC_OPERATORS)
+      .put(ValueType.PERCENT, NUMERIC_OPERATORS)
+      .put(ValueType.MILLISEC, NUMERIC_OPERATORS)
+      .put(ValueType.RATING, NUMERIC_OPERATORS)
+      .put(ValueType.WORK_DUR, NUMERIC_OPERATORS)
+      .build();
 
   private long id;
 
@@ -180,30 +191,10 @@ public class QualityGateConditionDto {
   }
 
   public static Collection<String> getOperatorsForType(ValueType metricType) {
-    Collection<String> operators = Collections.emptySet();
-    if (metricType != null) {
-      switch(metricType) {
-        case BOOL:
-          operators = BOOLEAN_OPERATORS;
-          break;
-        case LEVEL:
-          operators = LEVEL_OPERATORS;
-          break;
-        case STRING:
-          operators = STRING_OPERATORS;
-          break;
-        case INT:
-        case FLOAT:
-        case PERCENT:
-        case MILLISEC:
-        case RATING:
-        case WORK_DUR:
-          operators = NUMERIC_OPERATORS;
-          break;
-        default:
-          operators = Collections.emptySet();
-      }
+    if (OPERATORS_BY_TYPE.containsKey(metricType)) {
+      return OPERATORS_BY_TYPE.get(metricType);
+    } else {
+      return Collections.emptySet();
     }
-    return operators;
   }
 }

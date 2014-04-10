@@ -53,7 +53,7 @@ public final class DoPrivileged {
    * Define a task that will be executed using the highest privileges available. The privileged section is restricted
    * to the execution of the {@link #doPrivileged()} method.
    */
-  public static abstract class Task {
+  public abstract static class Task {
 
     /**
      * Code placed in this method will be executed in a privileged environment.

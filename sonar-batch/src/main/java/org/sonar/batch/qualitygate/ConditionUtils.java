@@ -66,19 +66,19 @@ class ConditionUtils {
   }
 
   private static boolean isNotEquals(int comparison, ResolvedCondition condition) {
-    return condition.operator().equals("NE") && comparison == 0;
+    return "NE".equals(condition.operator()) && comparison == 0;
   }
 
   private static boolean isGreater(int comparison, ResolvedCondition condition) {
-    return condition.operator().equals("GT") && comparison != 1;
+    return "GT".equals(condition.operator()) && comparison != 1;
   }
 
   private static boolean isSmaller(int comparison, ResolvedCondition condition) {
-    return condition.operator().equals("LT") && comparison != -1;
+    return "LT".equals(condition.operator()) && comparison != -1;
   }
 
   private static boolean isEquals(int comparison, ResolvedCondition condition) {
-    return condition.operator().equals("EQ") && comparison != 0;
+    return "EQ".equals(condition.operator()) && comparison != 0;
   }
 
   private static String getValueToEval(ResolvedCondition condition, Metric.Level alertLevel) {
