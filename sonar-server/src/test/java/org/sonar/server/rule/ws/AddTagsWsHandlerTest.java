@@ -20,6 +20,8 @@
 
 package org.sonar.server.rule.ws;
 
+import org.sonar.server.exceptions.NotFoundException;
+
 import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,6 +72,11 @@ public class AddTagsWsHandlerTest {
     Object newTags = newTagsCaptor.getValue();
     assertThat(newTags).isInstanceOf(List.class);
     assertThat((List<String>) newTags).hasSize(4).containsOnly("admin1", "admin2", "tag1", "tag2");
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void add_tags_key_not_found() throws Exception {
+    tester.newRequest("add_tags").setParam("key", "polop:palap").setParam("tags", "tag1,tag2").execute();
   }
 
   private Rule create(String repoKey, String key, String name, String description) {

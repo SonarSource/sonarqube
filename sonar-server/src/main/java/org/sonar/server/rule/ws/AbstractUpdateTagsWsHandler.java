@@ -19,6 +19,8 @@
  */
 package org.sonar.server.rule.ws;
 
+import org.sonar.server.exceptions.NotFoundException;
+
 import com.google.common.collect.Sets;
 import org.elasticsearch.common.collect.Lists;
 import org.sonar.api.rule.RuleKey;
@@ -40,7 +42,11 @@ public abstract class AbstractUpdateTagsWsHandler implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) {
-    Rule rule = rules.findByKey(RuleKey.parse(request.mandatoryParam("key")));
+    RuleKey ruleKey = RuleKey.parse(request.mandatoryParam("key"));
+    Rule rule = rules.findByKey(ruleKey);
+    if (rule == null) {
+      throw new NotFoundException("No rule found for key " + ruleKey);
+    }
     Set<String> allAdminTags = Sets.newHashSet(rule.adminTags());
     String[] tagsFromRequest = request.mandatoryParam("tags").split(",");
     updateTags(allAdminTags, tagsFromRequest);

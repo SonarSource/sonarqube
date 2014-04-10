@@ -114,10 +114,9 @@ public class BadRequestException extends ServerException {
       return l10nKey;
     }
 
-    @CheckForNull
     public Object[] l10nParams() {
       if (l10nParams == null) {
-        return null;
+        return new Object[0];
       } else {
         return Arrays.copyOf(l10nParams, l10nParams.length);
       }
