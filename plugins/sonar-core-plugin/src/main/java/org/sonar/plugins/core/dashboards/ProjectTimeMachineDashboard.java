@@ -39,6 +39,7 @@ public final class ProjectTimeMachineDashboard extends DashboardTemplate {
   private static final String METRIC5 = "metric5";
   private static final String METRIC6 = "metric6";
   private static final String METRIC7 = "metric7";
+  private static final String METRIC8 = "metric8";
 
   @Override
   public String getName() {
@@ -57,7 +58,7 @@ public final class ProjectTimeMachineDashboard extends DashboardTemplate {
   private void addFirstColumn(Dashboard dashboard) {
     Widget timelineWidget = dashboard.addWidget("timeline", 1);
     timelineWidget.setProperty(METRIC1, CoreMetrics.COMPLEXITY_KEY);
-    timelineWidget.setProperty(METRIC2, CoreMetrics.VIOLATIONS_DENSITY_KEY);
+    timelineWidget.setProperty(METRIC2, CoreMetrics.TECHNICAL_DEBT_KEY);
     timelineWidget.setProperty(METRIC3, CoreMetrics.COVERAGE_KEY);
 
     Widget sizeTimeMachineWidget = addTimeMachineWidgetOnFirstColumn(dashboard);
@@ -85,12 +86,11 @@ public final class ProjectTimeMachineDashboard extends DashboardTemplate {
   private void addSecondColumn(Dashboard dashboard) {
     Widget rulesTimeMachineWidget = addTimeMachineWidgetOnSecondColumn(dashboard);
     rulesTimeMachineWidget.setProperty(METRIC1, CoreMetrics.VIOLATIONS_KEY);
-    rulesTimeMachineWidget.setProperty(METRIC2, CoreMetrics.VIOLATIONS_DENSITY_KEY);
-    rulesTimeMachineWidget.setProperty(METRIC3, CoreMetrics.BLOCKER_VIOLATIONS_KEY);
-    rulesTimeMachineWidget.setProperty(METRIC4, CoreMetrics.CRITICAL_VIOLATIONS_KEY);
-    rulesTimeMachineWidget.setProperty(METRIC5, CoreMetrics.MAJOR_VIOLATIONS_KEY);
-    rulesTimeMachineWidget.setProperty(METRIC6, CoreMetrics.MINOR_VIOLATIONS_KEY);
-    rulesTimeMachineWidget.setProperty(METRIC7, CoreMetrics.INFO_VIOLATIONS_KEY);
+    rulesTimeMachineWidget.setProperty(METRIC2, CoreMetrics.BLOCKER_VIOLATIONS_KEY);
+    rulesTimeMachineWidget.setProperty(METRIC3, CoreMetrics.CRITICAL_VIOLATIONS_KEY);
+    rulesTimeMachineWidget.setProperty(METRIC4, CoreMetrics.MAJOR_VIOLATIONS_KEY);
+    rulesTimeMachineWidget.setProperty(METRIC5, CoreMetrics.MINOR_VIOLATIONS_KEY);
+    rulesTimeMachineWidget.setProperty(METRIC6, CoreMetrics.INFO_VIOLATIONS_KEY);
     rulesTimeMachineWidget.setProperty(METRIC7, CoreMetrics.WEIGHTED_VIOLATIONS_KEY);
 
     Widget complexityTimeMachineWidget = addTimeMachineWidgetOnSecondColumn(dashboard);
@@ -107,7 +107,7 @@ public final class ProjectTimeMachineDashboard extends DashboardTemplate {
     testsTimeMachineWidget.setProperty(METRIC5, CoreMetrics.TEST_FAILURES_KEY);
     testsTimeMachineWidget.setProperty(METRIC6, CoreMetrics.TEST_ERRORS_KEY);
     testsTimeMachineWidget.setProperty(METRIC7, CoreMetrics.TESTS_KEY);
-    testsTimeMachineWidget.setProperty(METRIC7, CoreMetrics.TEST_EXECUTION_TIME_KEY);
+    testsTimeMachineWidget.setProperty(METRIC8, CoreMetrics.TEST_EXECUTION_TIME_KEY);
   }
 
   private Widget addTimeMachineWidgetOnFirstColumn(Dashboard dashboard) {

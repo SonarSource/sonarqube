@@ -97,7 +97,7 @@ public final class DefaultPages {
 
   @NavigationSection(NavigationSection.RESOURCE_TAB)
   @DefaultTab(
-      metrics = {CoreMetrics.VIOLATIONS_DENSITY_KEY, CoreMetrics.WEIGHTED_VIOLATIONS_KEY, CoreMetrics.VIOLATIONS_KEY, CoreMetrics.BLOCKER_VIOLATIONS_KEY,
+      metrics = {CoreMetrics.WEIGHTED_VIOLATIONS_KEY, CoreMetrics.VIOLATIONS_KEY, CoreMetrics.BLOCKER_VIOLATIONS_KEY,
           CoreMetrics.CRITICAL_VIOLATIONS_KEY, CoreMetrics.MAJOR_VIOLATIONS_KEY, CoreMetrics.MINOR_VIOLATIONS_KEY, CoreMetrics.INFO_VIOLATIONS_KEY,
           CoreMetrics.NEW_VIOLATIONS_KEY, CoreMetrics.NEW_BLOCKER_VIOLATIONS_KEY, CoreMetrics.NEW_CRITICAL_VIOLATIONS_KEY, CoreMetrics.NEW_MAJOR_VIOLATIONS_KEY,
           CoreMetrics.NEW_MINOR_VIOLATIONS_KEY, CoreMetrics.NEW_INFO_VIOLATIONS_KEY,
