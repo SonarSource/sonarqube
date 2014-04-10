@@ -33,9 +33,12 @@
 }
 
 .navigator-side {
+  position: relative;
   display: table-cell;
   vertical-align: top;
   width: @navigatorResultsWidth + 2 * @navigatorPadding;
+  min-width: 275px + 2 * @navigatorPadding;
+  max-width: 600px + 2 * @navigatorPadding;
 }
 
 .navigator-main {
@@ -51,22 +54,33 @@
 }
 
 .navigator-results {
+  position: relative;
+  z-index: 2;
   width: @navigatorResultsWidth;
+  min-width: 275px;
+  max-width: 600px;
   margin: @navigatorPadding;
   .box-sizing(border-box);
 }
 
 .navigator-actions {
-  .clearfix;
-  width: @navigatorResultsWidth;
+  position: relative;
+  z-index: 4;
   margin: 0 @navigatorPadding @navigatorPadding;
   border: 1px solid @navigatorBorderLightColor;
   .box-sizing(border-box);
+  .clearfix;
 }
 
 .navigator-details {
   position: relative;
-  margin: 0 @navigatorPadding @navigatorPadding 0;
+  margin: 0 @navigatorPadding @navigatorPadding @navigatorPadding;
+}
+
+.navigator-resizer {
+  position: absolute;
+  top: 50%; right: -1px;
+  cursor: col-resize;
 }
 
 .navigator-notes {
@@ -330,12 +344,9 @@
     }
 
     &:before {
-      position: fixed;
+      position: absolute;
       z-index: 3;
-      top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight + @navigatorStatusHeight;
-      bottom: 0;
-      left: 0;
-      width: @navigatorResultsWidth - 1px;
+      top: 0; bottom: 0; left: 0; right: 0;
     }
   }
 }
@@ -414,18 +425,18 @@
   .trans;
 
   &:hover {
-    background-color: @navigatorBarBackground;
+    background-color: @navigatorHover;
   }
 }
 
 .navigator-actions-order-choices {
-  .navigator-element;
-  top: @navigatorTopOffset + @navigatorHeaderHeight + @navigatorFiltersHeight + @navigatorStatusHeight;
-  left: 0;
+  position: absolute;
+  top: 100%;
+  left: -1px;
   min-width: @navigatorResultsWidth / 2;
   background-color: #fff;
-  border-bottom: 1px solid @navigatorBorderLightColor;
-  border-right: 1px solid @navigatorBorderLightColor;
+  border: 1px solid @navigatorBorderLightColor;
+  box-shadow: @defaultShadow;
   overflow: hidden;
   display: none;
 
@@ -448,6 +459,7 @@
 
 .navigator-actions-total {
   float: right;
+  height: @navigatorStatusHeight;
   line-height: @navigatorStatusHeight;
 }
 

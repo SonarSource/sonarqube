@@ -10,6 +10,7 @@ define [
     className: 'navigator coding-rules-navigator'
     template: Templates['coding-rules-layout']
     spinner: '<i class="spinner"></i>'
+    storageKey: 'codingRulesResultsWidth'
 
 
     regions:
@@ -21,20 +22,40 @@ define [
       facetsRegion: '.navigator-facets'
 
 
+    ui:
+      side: '.navigator-side'
+      results: '.navigator-results'
+      details: '.navigator-details'
+      resizer: '.navigator-resizer'
+
+
     initialize: ->
       jQuery(window).on 'resize', => @onResize()
+
+      @isResize = false
+      jQuery('body').on 'mousemove', (e) => @processResize(e)
+      jQuery('body').on 'mouseup', => @stopResize()
+
+
+    onRender: ->
+      @ui.resizer.on 'mousedown', (e) => @startResize(e)
+
+      resultsWidth = localStorage.getItem @storageKey
+      if resultsWidth
+        @$(@resultsRegion.el).width +resultsWidth
+        @ui.side.width +resultsWidth + 20
 
 
     onResize: ->
       footerEl = jQuery('#footer')
       footerHeight = footerEl.outerHeight true
 
-      resultsEl = jQuery('.navigator-results')
+      resultsEl = @ui.results
       resultsHeight = jQuery(window).height() - resultsEl.offset().top -
         parseInt(resultsEl.css('margin-bottom'), 10) - footerHeight
       resultsEl.height resultsHeight
 
-      detailsEl = jQuery('.navigator-details')
+      detailsEl = @ui.details
       detailsWidth = jQuery(window).width() - detailsEl.offset().left -
         parseInt(detailsEl.css('margin-right'), 10)
       detailsHeight = jQuery(window).height() - detailsEl.offset().top -
@@ -44,3 +65,25 @@ define [
 
     showSpinner: (region) ->
       @$(@[region].el).html @spinner
+
+
+    startResize: (e) ->
+      @isResize = true
+      @originalWidth = @ui.results.width()
+      @x = e.clientX
+      jQuery('html').attr('unselectable', 'on').css('user-select', 'none').on('selectstart', false)
+
+
+    processResize: (e) ->
+      if @isResize
+        delta = e.clientX - @x
+        @$(@resultsRegion.el).width @originalWidth + delta
+        @ui.side.width @originalWidth + 20 + delta
+        localStorage.setItem @storageKey, @ui.results.width()
+        @onResize()
+
+
+    stopResize: ->
+      if @isResize
+        jQuery('html').attr('unselectable', 'off').css('user-select', 'all').off('selectstart')
+      @isResize = false

@@ -297,7 +297,7 @@ requirejs(
 
 
       NavigatorApp.addInitializer(function () {
-        var onResize = function() {
+        this.onResize = function() {
           var footerEl = jQuery('#footer'),
               footerHeight = footerEl.outerHeight(true);
 
@@ -313,9 +313,51 @@ requirejs(
                   parseInt(detailsEl.css('margin-bottom'), 10) - footerHeight;
           detailsEl.width(detailsWidth).height(detailsHeight);
         };
-        jQuery(window).on('resize', onResize);
-        onResize();
+        jQuery(window).on('resize', this.onResize);
+        this.onResize();
       });
+
+
+      NavigatorApp.addInitializer(function () {
+        var that = this;
+        jQuery('body')
+            .on('mousemove', function (e) { that.processResize(e); })
+            .on('mouseup', function (e) { that.stopResize(); });
+        jQuery('.navigator-resizer').on('mousedown', function (e) { that.startResize(e); });
+
+        var resultsWidth = localStorage.getItem('issuesResultsWidth');
+        if (resultsWidth) {
+          jQuery('.navigator-results').width(+resultsWidth);
+          jQuery('.navigator-side').width(+resultsWidth + 20);
+        }
+      });
+
+
+      NavigatorApp.startResize = function (e) {
+        this.isResize = true;
+        this.originalWidth = jQuery('.navigator-results').width();
+        this.x = e.clientX;
+        jQuery('html').attr('unselectable', 'on').css('user-select', 'none').on('selectstart', false);
+      };
+
+
+      NavigatorApp.processResize = function (e) {
+        if (this.isResize) {
+          var delta = e.clientX - this.x;
+          jQuery('.navigator-results').width(this.originalWidth + delta);
+          jQuery('.navigator-side').width(this.originalWidth + 20 + delta);
+          localStorage.setItem('issuesResultsWidth', jQuery('.navigator-results').width());
+          this.onResize();
+        }
+      };
+
+
+      NavigatorApp.stopResize = function() {
+        if (this.isResize) {
+          jQuery('html').attr('unselectable', 'off').css('user-select', 'all').off('selectstart');
+        }
+        this.isResize = false;
+      };
 
 
       NavigatorApp.getQuery = function (withoutId) {

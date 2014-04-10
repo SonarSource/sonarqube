@@ -150,6 +150,8 @@ requirejs [
           collection: new Backbone.Collection r.facets
         @layout.facetsRegion.show @codingRulesFacetsView
 
+      @layout.onResize()
+
 
 
   App.fetchFirstPage = (fromFacets = false) ->
