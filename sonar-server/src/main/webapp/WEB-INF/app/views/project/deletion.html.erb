@@ -1,31 +1,15 @@
 <%
-  if !@snapshot || @snapshot.root?
-    resource_qualifier = message('qualifier.' + @project.qualifier)
-    delete_resource_message = message('project_deletion.page', :params => resource_qualifier)
+   if !@snapshot || @snapshot.root?
+     resource_qualifier = message('qualifier.' + @project.qualifier)
+     delete_resource_message = message('project_deletion.page', :params => resource_qualifier)
 %>
-<h1 class="admin-page-title"><%= delete_resource_message -%></h1>
-<p class="admin-page-description"><%= message('project_deletion.page.description') -%></p>
-<br/>
-<div class="yui-g widget" id="widget_delete_project">
-  <div class="warning">
-      <form 	onsubmit="
-                  $j.ajax({
-                            url:'<%= url_for(:action => 'delete',:id => @project.id)-%>',
-                            success:function(request)	{
-                                        window.location='<%= url_for(:action => 'pending_deletion',:id => @project.id)-%>';
-                                                      },
-                            data:$j(this).serialize(),
-                            type:'delete'
-                          });
-                  return false;"
-             method="delete"
-             action="<%= url_for(:action => 'delete',:id => @project.id)-%>">
-
-    <%= message('project_deletion.operation_cannot_be_undone') -%>
-    <br/>
-    <%= submit_tag delete_resource_message, :id => 'delete_resource', :class => 'action red-button',
-                   :confirm => message('project_deletion.delete_resource_confirmation', :params => resource_qualifier) %>
-    </form>
+  <h1 class="admin-page-title"><%= delete_resource_message -%></h1>
+  <p class="admin-page-description"><%= message('project_deletion.page.description') -%></p>
+  <div class="yui-g widget" id="widget_delete_project">
+    <div class="warning">
+      <%= message('project_deletion.operation_cannot_be_undone') -%><br/>
+      <a id="delete_resource" class="open-modal button button-red"
+         href="<%= ApplicationController.root_context -%>/project/delete_form/<%= h(@project.id) -%>"><%= delete_resource_message -%></a>
+    </div>
   </div>
-</div>
 <% end %>

@@ -1,0 +1,37 @@
+<% resource_qualifier = message('qualifier.' + @project.qualifier) %>
+<form id="delete-project-form" method="post" action="<%= ApplicationController.root_context -%>/project/delete">
+  <fieldset>
+    <div class="modal-head">
+      <h2><%= message('project_deletion.page', :params => resource_qualifier) -%></h2>
+    </div>
+    <div class="modal-body">
+      <div class="info">
+        <img src="<%= ApplicationController.root_context -%>/images/information.png" style="vertical-align: text-bottom"/>
+        <%= message('project_deletion.delete_resource_confirmation', :params => resource_qualifier) %>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span id="delete-project-loading-image" class="loading-image hidden"><%= image_tag 'loading.gif' %></span>
+      <input type="submit" value="<%= message('delete') -%>" id="delete-project-submit" onclick="return displayLoadingImage()"/>
+      <a href="#" onclick="return closeModalWindow()" id="delete-project-cancel"><%= message('cancel') -%></a>
+    </div>
+  </fieldset>
+</form>
+<script>
+  $j("#delete-project-form").modalForm({
+    success: function () {
+      $j.ajax({
+        url: "<%= ApplicationController.root_context-%>/project/delete/<%= h(@project.id) -%>",
+        success: function (request) {
+          window.location = '<%= url_for(:action => 'pending_deletion',:id => @project.id)-%>';
+        },
+        data: $j(this).serialize(),
+        type: 'delete'
+      });
+    }
+  });
+
+  function displayLoadingImage() {
+    $j('#delete-project-loading-image').removeClass("hidden");
+  }
+</script>

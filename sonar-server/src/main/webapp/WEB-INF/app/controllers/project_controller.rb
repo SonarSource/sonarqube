@@ -28,24 +28,14 @@ class ProjectController < ApplicationController
     redirect_to :overwrite_params => {:controller => :dashboard, :action => 'index'}
   end
 
-  def deletion
+  def delete_form
+    access_denied unless (is_admin?(@project))
     @project = get_current_project(params[:id])
-
-    if java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'deletable')
-      deletion_manager = ResourceDeletionManager.instance
-      if deletion_manager.currently_deleting_resources? ||
-        (!deletion_manager.currently_deleting_resources? && deletion_manager.deletion_failures_occured?)
-        # a deletion is happening or it has just finished with errors => display the message from the Resource Deletion Manager
-        render :template => 'project/pending_deletion'
-      else
-        @snapshot=@project.last_snapshot
-      end
-    else
-      redirect_to :action => 'index', :id => params[:id]
-    end
+    render :partial => 'delete_form'
   end
 
   def delete
+    access_denied unless (is_admin?(@project))
     @project = get_current_project(params[:id])
 
     # Ask the resource deletion manager to start the migration
@@ -54,6 +44,23 @@ class ProjectController < ApplicationController
 
     # and return some text that will actually never be displayed
     render :text => ResourceDeletionManager.instance.message
+  end
+
+  def deletion
+    @project = get_current_project(params[:id])
+
+    if java_facade.getResourceTypeBooleanProperty(@project.qualifier, 'deletable')
+      deletion_manager = ResourceDeletionManager.instance
+      if deletion_manager.currently_deleting_resources? ||
+          (!deletion_manager.currently_deleting_resources? && deletion_manager.deletion_failures_occured?)
+        # a deletion is happening or it has just finished with errors => display the message from the Resource Deletion Manager
+        render :template => 'project/pending_deletion'
+      else
+        @snapshot=@project.last_snapshot
+      end
+    else
+      redirect_to :action => 'index', :id => params[:id]
+    end
   end
 
   def pending_deletion
