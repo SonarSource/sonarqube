@@ -37,7 +37,6 @@ import java.sql.*;
 public class MassUpdater {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MassUpdater.class);
-  private static final String FAILURE_MESSAGE = "Fail to migrate data";
   private static final int GROUP_SIZE = 1000;
   private final Database db;
 
@@ -104,14 +103,10 @@ public class MassUpdater {
       }
 
     } catch (SQLException e) {
-      LOGGER.error(FAILURE_MESSAGE, e);
       SqlUtil.log(LOGGER, e);
-      throw MessageException.of(FAILURE_MESSAGE);
-
+      throw processError(e);
     } catch (Exception e) {
-      LOGGER.error(FAILURE_MESSAGE, e);
-      throw MessageException.of(FAILURE_MESSAGE);
-
+      throw processError(e);
     } finally {
       DbUtils.closeQuietly(writeStatement);
       DbUtils.closeQuietly(writeConnection);
@@ -119,6 +114,12 @@ public class MassUpdater {
 
       LOGGER.info("{} rows have been updated", count);
     }
+  }
+
+  private static MessageException processError(Exception e) {
+    String message = String.format("Fail to migrate data, error is : %s", e.getMessage());
+    LOGGER.error(message, e);
+    throw MessageException.of(message);
   }
 
   @VisibleForTesting

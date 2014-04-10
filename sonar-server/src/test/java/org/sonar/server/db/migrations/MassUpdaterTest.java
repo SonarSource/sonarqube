@@ -20,25 +20,146 @@
 
 package org.sonar.server.db.migrations;
 
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.utils.MessageException;
 import org.sonar.core.persistence.Database;
+import org.sonar.core.persistence.TestDatabase;
 import org.sonar.core.persistence.dialect.Dialect;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MassUpdaterTest {
 
-  @Mock
-  Database db;
+  @ClassRule
+  public static TestDatabase db = new TestDatabase().schema(MassUpdaterTest.class, "schema.sql");
+
+  static class Row {
+    private Long id;
+  }
+
+  @Test
+  public void execute() throws Exception {
+    db.prepareDbUnit(getClass(), "migrate_data.xml");
+
+    new MassUpdater(db.database()).execute(
+      new MassUpdater.InputLoader<Row>() {
+        @Override
+        public String selectSql() {
+          return "SELECT i.id FROM issues i";
+        }
+
+        @Override
+        public Row load(ResultSet rs) throws SQLException {
+          Row row = new Row();
+          row.id = SqlUtil.getLong(rs, 1);
+          return row;
+        }
+      },
+      new MassUpdater.InputConverter<Row>() {
+        @Override
+        public String updateSql() {
+          return "UPDATE issues SET severity=? WHERE id=?";
+        }
+
+        @Override
+        public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
+          updateStatement.setString(1, "MAJOR");
+          updateStatement.setLong(2, row.id);
+          return true;
+        }
+      }
+    );
+
+    db.assertDbUnit(getClass(), "migrate_data_result.xml", "issues");
+  }
+
+  @Test
+  public void fail_on_bad_sql_request() throws Exception {
+    db.prepareDbUnit(getClass(), "migrate_data.xml");
+
+    try {
+      new MassUpdater(db.database()).execute(
+        new MassUpdater.InputLoader<Row>() {
+          @Override
+          public String selectSql() {
+            return "<INVALID QUERY>";
+          }
+
+          @Override
+          public Row load(ResultSet rs) throws SQLException {
+            return new Row();
+          }
+        },
+        new MassUpdater.InputConverter<Row>() {
+          @Override
+          public String updateSql() {
+            return "<INVALID QUERY>";
+          }
+
+          @Override
+          public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
+            return true;
+          }
+        }
+      );
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(MessageException.class);
+    }
+  }
+
+  @Test
+  public void fail_on_unknown_error() throws Exception {
+    db.prepareDbUnit(getClass(), "migrate_data.xml");
+
+    try {
+      new MassUpdater(db.database()).execute(
+        new MassUpdater.InputLoader<Row>() {
+          @Override
+          public String selectSql() {
+            return "SELECT i.id FROM issues i";
+          }
+
+          @Override
+          public Row load(ResultSet rs) throws SQLException {
+            Row row = new Row();
+            row.id = SqlUtil.getLong(rs, 1);
+            return row;
+          }
+        },
+        new MassUpdater.InputConverter<Row>() {
+          @Override
+          public String updateSql() {
+            throw new RuntimeException("Unknown error");
+          }
+
+          @Override
+          public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
+            return true;
+          }
+        }
+      );
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(MessageException.class);
+    }
+  }
 
   @Test
   public void convert_select_sql() throws Exception {
+    Database db = mock(Database.class);
+
     Dialect dialect = mock(Dialect.class);
     when(dialect.getTrueSqlValue()).thenReturn("true");
     when(dialect.getFalseSqlValue()).thenReturn("false");
