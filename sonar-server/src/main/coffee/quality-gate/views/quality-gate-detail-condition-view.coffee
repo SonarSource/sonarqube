@@ -23,11 +23,12 @@ define [
       errorInput: '[name=error]'
       actionsBox: '.quality-gate-condition-actions'
       updateButton: '.update-condition'
+      deleteButton: '.delete-condition'
 
 
     events:
       'click @ui.updateButton': 'saveCondition'
-      'click .delete-condition': 'deleteCondition'
+      'click @ui.deleteButton': 'deleteCondition'
       'click .add-condition': 'saveCondition'
       'click .cancel-add-condition': 'cancelAddCondition'
       'keyup :input': 'enableUpdate'
@@ -94,12 +95,16 @@ define [
 
 
     deleteCondition: ->
-      if confirm t('quality_gates.delete_condition.confirm.message')
-        @showSpinner()
-        @model.delete().done =>
-          @options.collectionView.collection.remove @model
-          @options.collectionView.updateConditions()
-          @close()
+      confirmDialog
+        title: t 'quality_gates.delete_condition'
+        html: t('quality_gates.delete_condition.confirm.message')
+        yesHandler: =>
+          @showSpinner()
+          @model.delete().done =>
+            @options.collectionView.collection.remove @model
+            @options.collectionView.updateConditions()
+            @close()
+        always: => @ui.deleteButton.blur()
 
 
     cancelAddCondition: ->

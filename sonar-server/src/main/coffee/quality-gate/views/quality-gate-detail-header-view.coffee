@@ -45,18 +45,19 @@ define [
 
     deleteQualityGate: ->
       message = if @model.get 'default' then 'quality_gates.delete.confirm.default' else 'quality_gates.delete.confirm.message'
-      if confirm t(message).replace('{0}', @model.get 'name')
-        @showSpinner()
-        jQuery.ajax
-          type: 'POST'
-          url: "#{baseUrl}/api/qualitygates/destroy"
-          data: id: @model.id
-        .always =>
-          @hideSpinner()
-        .done =>
-          @options.app.deleteQualityGate @model.id
-      else
-        @ui.deleteButton.blur()
+      message = tp message, @model.get('name')
+      confirmDialog
+        title: t 'quality_gates.delete'
+        html: message
+        yesHandler: =>
+          @showSpinner()
+          jQuery.ajax
+            type: 'POST'
+            url: "#{baseUrl}/api/qualitygates/destroy"
+            data: id: @model.id
+          .always => @hideSpinner()
+          .done => @options.app.deleteQualityGate @model.id
+        always: => @ui.deleteButton.blur()
 
 
     changeDefault: (set) ->
