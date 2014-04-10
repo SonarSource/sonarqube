@@ -8,6 +8,9 @@
    transitions_by_issues = {}
    unresolved_issues = 0
    unresolved_issues_user_can_admin = 0
+   at_least_one_issue_is_planned = false
+   at_least_one_issue_is_assigned = false
+   all_issues_are_assigned_to_current_user = true
    issues.each do |issue|
      transitions = Internal.issues.listTransitions(issue)
      transitions.each do |transition|
@@ -19,6 +22,9 @@
      if Java::OrgSonarServerUser::UserSession.get().hasProjectPermission('issueadmin', issue.projectKey)
        unresolved_issues_user_can_admin += 1 unless issue.resolution()
      end
+     at_least_one_issue_is_planned ||= issue.actionPlanKey()
+     at_least_one_issue_is_assigned ||= issue.assignee()
+     all_issues_are_assigned_to_current_user &&= issue.assignee() == current_user.login
    end
 %>
 <form id="bulk-change-form" method="post" action="<%= ApplicationController.root_context -%>/issues/bulk_change">
@@ -42,20 +48,28 @@
           <%= message('issue.assign.formlink') -%>
         </label>
         <input id="assign-action" name="actions[]" type="checkbox" value="assign"/>
-        <%= user_select_tag('assign.assignee', :html_id => 'assignee', :open => false, :selected_user => current_user,
-                            :include_choices => {'' => escape_javascript(message('unassigned')), current_user.login => escape_javascript(message('assigned_to_me'))}) -%>
+        <%= assign_added_choices = {}
+            # SONAR-4728 Display 'Not assigned' option only if at least one issue is assigned
+            assign_added_choices[''] = escape_javascript(message('unassigned')) if at_least_one_issue_is_assigned
+            # SONAR-4728 Display 'Assign to me' option only if not not all issues are asigned to current user
+            assign_added_choices[current_user.login] = escape_javascript(message('assigned_to_me')) unless all_issues_are_assigned_to_current_user
+            user_select_tag('assign.assignee', :html_id => 'assignee', :open => false, :selected_user => current_user,
+                            :include_choices => assign_added_choices)
+        -%>
         <span style="float:right" class="note">(<%= message('issue_bulk_change.x_issues', :params => unresolved_issues.to_s) -%>)</span>
       </div>
       <%
          if project_key
            plans = Internal.issues.findOpenActionPlans(project_key)
+           # Display action plan combo box if there are some action plans defined on the project
            unless plans.empty?
              first_plan = plans[0]
              options = plans.map { |plan|
                label = plan.deadLine ? "#{h plan.name} (#{format_date(plan.deadLine)})" : h(plan.name)
                [label, plan.key]
              }
-             options.unshift([escape_javascript(message('issue.unplan.submit')), ''])
+             # SONAR-4728 Display 'Unplan' option only if at least one issue is planned
+             options.unshift([escape_javascript(message('issue.unplan.submit')), '']) if at_least_one_issue_is_planned
              plan_options = options_for_select(options, first_plan.key)
       %>
         <div class="modal-field">
