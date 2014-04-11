@@ -2194,8 +2194,8 @@ public final class CoreMetrics {
   // --------------------------------------------------------------------------------------------------------------------
 
   public static final String ALERT_STATUS_KEY = "alert_status";
-  public static final Metric ALERT_STATUS = new Metric.Builder(ALERT_STATUS_KEY, "Alert", Metric.ValueType.LEVEL)
-    .setDescription("Alert")
+  public static final Metric ALERT_STATUS = new Metric.Builder(ALERT_STATUS_KEY, "Quality Gate Status", Metric.ValueType.LEVEL)
+    .setDescription("The project status with regard to its quality gate.")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
     .setDomain(DOMAIN_GENERAL)
