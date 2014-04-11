@@ -21,6 +21,7 @@ window.SonarWidgets.WordCloud = ->
   @_legendWidth = window.SonarWidgets.WordCloud.defaults.legendWidth
   @_legendMargin = window.SonarWidgets.WordCloud.defaults.legendMargin
   @_detailsWidth = window.SonarWidgets.WordCloud.defaults.detailsWidth
+  @_maxResultsReached = false
   @_options = {}
 
   @_lineHeight = 20
@@ -35,6 +36,7 @@ window.SonarWidgets.WordCloud = ->
   @legendWidth = (_) -> param.call(this, '_legendWidth', _)
   @legendMargin = (_) -> param.call(this, '_legendMargin', _)
   @detailsWidth = (_) -> param.call(this, '_detailsWidth', _)
+  @maxResultsReached = (_) -> param.call(this, '_maxResultsReached', _)
   @options = (_) -> param.call(this, '_options', _)
   @
 
@@ -87,7 +89,14 @@ window.SonarWidgets.WordCloud.prototype.update = ->
   @words.sort (a, b) =>
     if a.name.toLowerCase() > b.name.toLowerCase() then 1 else -1
 
-  console.log @words
+  # Show maxResultsReached message
+  if @maxResultsReached()
+    @maxResultsReachedLabel.remove() if @maxResultsReachedLabel?
+    @maxResultsReachedLabel = @box.append('div').text @options().maxItemsReachedMessage
+    @maxResultsReachedLabel.style 'color', '#777'
+    @maxResultsReachedLabel.style 'font-size', '12px'
+    @maxResultsReachedLabel.style 'text-align', 'center'
+    @maxResultsReachedLabel.style 'margin-top', '10px'
 
   @words.exit().remove()
 

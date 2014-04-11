@@ -43,6 +43,7 @@
       .metricsPriority(metrics)
       .options({
         reverseColor: <%= reverseColor -%>,
+        maxItemsReachedMessage: '<%= message("widget.measure_filter_histogram.max_items_reached", :params => [maxItems]) -%>',
         baseUrl: baseUrl + '/dashboard/index/',
         noData: '<%= message('no_data') -%>'
       })
