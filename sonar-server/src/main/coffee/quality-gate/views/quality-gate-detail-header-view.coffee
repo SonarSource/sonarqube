@@ -49,6 +49,8 @@ define [
       confirmDialog
         title: t 'quality_gates.delete'
         html: message
+        yesLabel: t 'delete'
+        noLabel: t 'cancel'
         yesHandler: =>
           @showSpinner()
           jQuery.ajax

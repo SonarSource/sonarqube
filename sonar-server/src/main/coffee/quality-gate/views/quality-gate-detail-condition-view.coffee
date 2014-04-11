@@ -97,7 +97,9 @@ define [
     deleteCondition: ->
       confirmDialog
         title: t 'quality_gates.delete_condition'
-        html: t('quality_gates.delete_condition.confirm.message')
+        html: tp 'quality_gates.delete_condition.confirm.message', @model.get('metric').name
+        yesLabel: t 'delete'
+        noLabel: t 'cancel'
         yesHandler: =>
           @showSpinner()
           @model.delete().done =>
