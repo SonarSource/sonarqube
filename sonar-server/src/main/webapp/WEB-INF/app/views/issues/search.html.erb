@@ -8,9 +8,11 @@
 
   <div class="navigator-content">
     <div class="navigator-side">
-      <div class="navigator-actions"></div>
-      <div class="navigator-results"></div>
-      <a class="navigator-resizer"><i class="icon-resizer"></i></a>
+      <div style="position:relative; overflow: visible; height: 100%;">
+        <div class="navigator-actions"></div>
+        <div class="navigator-results"></div>
+        <a class="navigator-resizer"><i class="icon-resizer"></i></a>
+      </div>
     </div>
     <div class="navigator-main">
       <div class="navigator-notes"><%= message('issue_filter.max_results_reached', :params => 10000) -%></div>
