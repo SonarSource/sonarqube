@@ -55,10 +55,11 @@ window.SonarWidgets.WordCloud.prototype.render = (container) ->
 
   # Configure scales
   @color = d3.scale.linear().domain([0, 100])
-  if @options().reverseColor
-    @color.range(['#1f77b4', '#d62728'])
+  if @metrics()[@colorMetric].direction == 1
+    @color.range ['#d62728', '#1f77b4']
   else
-    @color.range(['#d62728', '#1f77b4'])
+    @color.range ['#1f77b4', '#d62728']
+
   sizeDomain = d3.extent @components(), (d) => @getSizeMetric d
   @size = d3.scale.linear().domain(sizeDomain).range([10, 24])
 

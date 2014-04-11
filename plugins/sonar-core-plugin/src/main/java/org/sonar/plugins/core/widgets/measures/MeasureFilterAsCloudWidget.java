@@ -35,7 +35,6 @@ import static org.sonar.api.web.WidgetScope.GLOBAL;
   @WidgetProperty(key = "colorMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.COVERAGE_KEY,
     options = { WidgetConstants.FILTER_OUT_NEW_METRICS, "type:PERCENT" }),
   @WidgetProperty(key = "maxItems", type = WidgetPropertyType.INTEGER, defaultValue = "100"),
-  @WidgetProperty(key = "reverseColor", type = WidgetPropertyType.BOOLEAN, defaultValue = "false")
 })
 public class MeasureFilterAsCloudWidget extends CoreWidget {
 
