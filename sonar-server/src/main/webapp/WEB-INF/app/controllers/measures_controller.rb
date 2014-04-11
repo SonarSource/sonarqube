@@ -294,7 +294,8 @@ class MeasuresController < ApplicationController
     filter.metrics.each do |metric|
       hash[:metrics][metric.key] = {
         :name => metric.short_name,
-        :type => metric.val_type
+        :type => metric.val_type,
+        :direction => metric.direction
       }
       hash[:metrics][metric.key][:worstValue] = metric.worst_value if metric.worst_value
       hash[:metrics][metric.key][:bestValue] = metric.best_value if metric.best_value
