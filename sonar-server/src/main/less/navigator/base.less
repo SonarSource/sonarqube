@@ -209,7 +209,7 @@
 
 // Notes
 .navigator-notes {
-  margin: 0 @navigatorPadding @navigatorPadding 0;
+  margin: 0 @navigatorPadding @navigatorPadding @navigatorPadding;
   padding: 0 @navigatorPadding;
   border: 1px solid @navigatorBorderColor;
   background-color: @navigatorBarBackground;
@@ -291,6 +291,18 @@
   background-color: @white;
   overflow-x: hidden;
   overflow-y: auto;
+
+  &.fetching {
+    .navigator-results-list { visibility: hidden; }
+    .navigator-results-loader { display: block; }
+  }
+}
+
+.navigator-results-loader {
+  position: fixed;
+  z-index: 10;
+  display: none;
+  background-color: #fff;
 }
 
 .navigator-results-list {
@@ -336,19 +348,6 @@
   }
 
   & > li + li { margin-top: -1px; }
-
-  &.navigator-fetching {
-
-    & > li .line-nowrap {
-      text-overflow: clip; /* thanks to FF */
-    }
-
-    &:before {
-      position: absolute;
-      z-index: 3;
-      top: 0; bottom: 0; left: 0; right: 0;
-    }
-  }
 }
 
 .navigator-results-no-results {

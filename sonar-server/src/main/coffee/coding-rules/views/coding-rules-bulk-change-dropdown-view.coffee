@@ -31,6 +31,9 @@ define [
     onRender: ->
       jQuery('body').append @el
       jQuery('body').off('click.bulk-change').on 'click.bulk-change', => @hide()
+      @$el.css
+        top: jQuery('.navigator-actions').offset().top + jQuery('.navigator-actions').height() + 1
+        left: jQuery('.navigator-actions').offset().left + jQuery('.navigator-actions').outerWidth() - @$el.outerWidth()
 
 
     toggle: ->

@@ -312,6 +312,13 @@ requirejs(
               detailsHeight = jQuery(window).height() - detailsEl.offset().top -
                   parseInt(detailsEl.css('margin-bottom'), 10) - footerHeight;
           detailsEl.width(detailsWidth).height(detailsHeight);
+
+          var resultsLoadingEl = jQuery('.navigator-results-loader');
+          resultsLoadingEl
+              .css('top', resultsEl.offset().top)
+              .css('left', resultsEl.offset().left)
+              .width(resultsEl.width() + 10)
+              .height(resultsEl.height() + 10);
         };
         jQuery(window).on('resize', this.onResize);
         this.onResize();
@@ -329,6 +336,7 @@ requirejs(
         if (resultsWidth) {
           jQuery('.navigator-results').width(+resultsWidth);
           jQuery('.navigator-side').width(+resultsWidth + 20);
+          this.onResize();
         }
       });
 
@@ -428,12 +436,12 @@ requirejs(
         this.storeQuery(query, this.issues.sorting);
 
         var that = this;
-        this.issuesView.$el.addClass('navigator-fetching');
+        jQuery('.navigator-results').addClass('fetching');
         if (firstPage) {
           this.issues.fetch({
             data: fetchQuery,
             success: function () {
-              that.issuesView.$el.removeClass('navigator-fetching');
+              jQuery('.navigator-results').removeClass('fetching');
               that.issuesView.selectFirst();
             }
           });
@@ -443,7 +451,7 @@ requirejs(
             data: fetchQuery,
             remove: false,
             success: function () {
-              that.issuesView.$el.removeClass('navigator-fetching');
+              jQuery('.navigator-results').removeClass('fetching');
             }
           });
         }

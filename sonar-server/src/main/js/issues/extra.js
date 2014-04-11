@@ -237,16 +237,16 @@ define(
       });
 
 
-      var IssuesView = Marionette.CollectionView.extend({
-        tagName: 'ol',
-        className: 'navigator-results-list',
+      var IssuesView = Marionette.CompositeView.extend({
+        template: Handlebars.compile(jQuery('#issues-template').html() || ''),
+        itemViewContainer: '.navigator-results-list',
         itemView: IssueView,
         emptyView: NoIssuesView,
 
 
         initialize: function() {
           var openIssue = function(el) { el.click(); };
-          this.openRule = _.debounce(openIssue, 300);
+          this.openIssue = _.debounce(openIssue, 300);
         },
 
 
@@ -262,7 +262,7 @@ define(
           this.$('.active').removeClass('active');
           el.addClass('active');
           if (open) {
-            this.openRule(el);
+            this.openIssue(el);
           }
         },
 
@@ -276,7 +276,7 @@ define(
         selectNext: function() {
           if (this.selected < this.collection.length - 1) {
             this.selected++;
-            var child = this.$el.children().eq(this.selected),
+            var child = this.$(this.itemViewContainer).children().eq(this.selected),
                 container = jQuery('.navigator-results'),
                 containerHeight = container.height(),
                 bottom = child.position().top + child.outerHeight();
