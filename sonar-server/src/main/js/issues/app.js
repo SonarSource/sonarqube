@@ -174,7 +174,8 @@ requirejs(
             enabled: true,
             optional: false,
             choices: {
-              '!resolved': window.SS.phrases.resolutions.UNRESOLVED,
+              '!resolved=true': window.SS.phrases.resolutions.RESOLVED,
+              '!resolved=false': window.SS.phrases.resolutions.UNRESOLVED,
               'FALSE-POSITIVE': window.SS.phrases.resolutions['FALSE-POSITIVE'],
               'FIXED': window.SS.phrases.resolutions.FIXED,
               'REMOVED': window.SS.phrases.resolutions.REMOVED

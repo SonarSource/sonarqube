@@ -52,9 +52,7 @@ define(['handlebars', 'navigator/filters/base-filters', 'common/handlebars-exten
 
       if (this.model.get('multiple')) {
         if (checkbox.closest('.opposite').length > 0) {
-          this.options.filterView.choices.reject(function(item) {
-            return item.get('id')[0] === '!'
-          }).forEach(function(item) {
+          this.options.filterView.choices.each(function(item) {
                 item.set('checked', false);
               });
         } else {
@@ -268,6 +266,11 @@ define(['handlebars', 'navigator/filters/base-filters', 'common/handlebars-exten
         this.choices.forEach(function(item) {
           if (item.get('id')[0] === '!') {
             var x = _.findWhere(q, { key: item.get('id').substr(1) });
+            if (item.get('id').indexOf('=') >= 0) {
+              var key = item.get('id').split('=')[0].substr(1);
+              var value = item.get('id').split('=')[1];
+              x = _.findWhere(q, { key: key, value: value });
+            }
             if (x) {
               if (!param) {
                 param = { value: item.get('id') };
@@ -339,7 +342,12 @@ define(['handlebars', 'navigator/filters/base-filters', 'common/handlebars-exten
         });
         if (opposite.length > 0) {
           opposite.forEach(function(item) {
-            q[item.substr(1)] = false;
+            if (item.indexOf('=') >= 0) {
+              var paramValue = item.split('=');
+              q[paramValue[0].substr(1)] = paramValue[1];
+            } else {
+              q[item.substr(1)] = false;
+            }
           });
         } else {
           q[this.model.get('property')] = this.model.get('value').join(',');
