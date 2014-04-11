@@ -362,7 +362,7 @@ requirejs(
 
       NavigatorApp.stopResize = function() {
         if (this.isResize) {
-          jQuery('html').attr('unselectable', 'off').css('user-select', 'all').off('selectstart');
+          jQuery('html').attr('unselectable', 'off').css('user-select', 'text').off('selectstart');
         }
         this.isResize = false;
       };
