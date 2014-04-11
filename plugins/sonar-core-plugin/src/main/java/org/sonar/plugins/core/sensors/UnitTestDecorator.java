@@ -46,7 +46,7 @@ public class UnitTestDecorator implements Decorator {
   }
 
   public boolean shouldDecorateResource(Resource resource, DecoratorContext context) {
-    return context.getMeasure(CoreMetrics.TESTS) == null && (ResourceUtils.isUnitTestClass(resource) || !ResourceUtils.isEntity(resource));
+    return ResourceUtils.isUnitTestClass(resource) || !ResourceUtils.isEntity(resource);
   }
 
   public void decorate(Resource resource, DecoratorContext context) {

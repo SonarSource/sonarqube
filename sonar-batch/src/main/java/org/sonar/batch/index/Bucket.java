@@ -22,6 +22,7 @@ package org.sonar.batch.index;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.MeasuresFilters;
@@ -87,6 +88,9 @@ public final class Bucket {
       if (index > -1) {
         if (metricMeasures.get(index) == measure) {
           add = false;
+        } else if (measure.getMetric().equals(CoreMetrics.TESTS)) {
+          // Hack for SONAR-5212
+          measuresByMetric.remove(measure.getMetric().getKey(), metricMeasures.get(index));
         } else {
           throw new SonarException("Can not add twice the same measure on " + resource + ": " + measure);
         }

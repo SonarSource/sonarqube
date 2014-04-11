@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.database.model.MeasureMapper;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.Resource;
@@ -73,6 +74,10 @@ public final class MeasurePersister {
 
   public void saveMeasure(Resource resource, Measure measure) {
     if (shouldSaveLater(measure)) {
+      if (measure.getMetric().equals(CoreMetrics.TESTS) && unsavedMeasuresByResource.get(resource).contains(measure)) {
+        // Hack for SONAR-5212
+        unsavedMeasuresByResource.remove(resource, measure);
+      }
       unsavedMeasuresByResource.put(resource, measure);
       return;
     }
