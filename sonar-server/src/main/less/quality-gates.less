@@ -10,6 +10,7 @@
     display: table-cell;
     vertical-align: top;
     width: @qualityGateSidebarWidth + 2 * @navigatorPadding;
+    min-width: 0;
   }
 
   .navigator-header {
@@ -33,7 +34,10 @@
 
   .navigator-results {
     width: @qualityGateSidebarWidth;
+    min-width: 0;
   }
+
+  .navigator-details { margin-left: 0; }
 
 }
 
