@@ -50,7 +50,7 @@
                  if row.links
                    row.links.select { |link| link.href.start_with?('http') }.each do |link|
               %>
-                <%= link_to(image_tag(link.icon, :alt => link.name), link.href, :class => 'nolink', :popup => true) unless link.custom? -%>
+                <a target="_blank" href="<%= link.href -%>" class="icon-<%= link.link_type -%>"></a>
               <%
                    end
                  end
