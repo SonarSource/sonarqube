@@ -29,9 +29,7 @@ import org.sonar.api.web.WidgetPropertyType;
   @WidgetProperty(key = "chartTitle", type = WidgetPropertyType.STRING),
   @WidgetProperty(key = "colorMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.COVERAGE_KEY, options = "type:PERCENT"),
   @WidgetProperty(key = "sizeMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.COMPLEXITY_KEY, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
-  @WidgetProperty(key = "maxItems", type = WidgetPropertyType.INTEGER, defaultValue = "100"),
-  @WidgetProperty(key = "reverseColor", type = WidgetPropertyType.BOOLEAN, defaultValue = "false")
-
+  @WidgetProperty(key = "maxItems", type = WidgetPropertyType.INTEGER, defaultValue = "100")
 })
 public class ProjectFileCloudWidget extends CoreWidget {
   public ProjectFileCloudWidget() {

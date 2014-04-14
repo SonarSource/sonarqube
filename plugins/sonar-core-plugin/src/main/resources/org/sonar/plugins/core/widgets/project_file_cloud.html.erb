@@ -4,7 +4,6 @@
   sizeMetric = widget_properties['sizeMetric']
   chartTitle = widget_properties['chartTitle']
   maxItems = widget_properties['maxItems'].to_i
-  reverseColor = widget_properties['reverseColor']
 %>
 
 <div class="word-cloud-widget" id="<%= containerId %>">
@@ -64,8 +63,7 @@
         .metricsPriority(['<%= colorMetric.name -%>', '<%= sizeMetric.name -%>'])
         .components(data.components)
         .options({
-          baseUrl: baseUrl + '/dashboard/index/',
-          reverseColor: <%= reverseColor -%>
+          baseUrl: baseUrl + '/dashboard/index/'
         })
         .render('#<%= containerId -%>');
 
