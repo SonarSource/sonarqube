@@ -109,10 +109,20 @@
   background-color: #efefef;
 }
 
+.quality-gate-conditions-wrap {
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+}
+
 .quality-gate-conditions {
   & .deprecated {
     color: #777;
     text-transform: lowercase;
     font-variant: small-caps;
+  }
+
+  tbody {
+    border-left: none !important;
+    border-right: none !important;
   }
 }
