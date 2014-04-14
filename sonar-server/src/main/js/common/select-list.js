@@ -199,9 +199,11 @@ requirejs(['backbone'], function (Backbone) {
         var searchInput = this.$('.select-list-search-control input')
             .on('keyup', _.debounce(keyup, 250));
 
-        setTimeout(function () {
-          searchInput.focus();
-        }, 250);
+        if (this.settings.focusSearch) {
+          setTimeout(function () {
+            searchInput.focus();
+          }, 250);
+        }
 
         this.listItemViews = [];
 
@@ -403,6 +405,7 @@ requirejs(['backbone'], function (Backbone) {
       height: 400,
 
       readOnly: false,
+      focusSearch: true,
 
       format: function (item) {
         return item.value;

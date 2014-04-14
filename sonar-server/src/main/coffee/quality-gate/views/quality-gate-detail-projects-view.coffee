@@ -17,6 +17,7 @@ define [
           el: @$('#select-list-projects')
           width: '100%'
           readOnly: !@options.app.canEdit
+          focusSearch: false
           format: (item) -> item.name
           searchUrl: "#{baseUrl}/api/qualitygates/search?gateId=#{@options.gateId}"
           selectUrl: "#{baseUrl}/api/qualitygates/select"
