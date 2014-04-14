@@ -80,11 +80,12 @@ window.SonarWidgets.WordCloud.prototype.update = ->
     url
   wordsEnter.attr 'title', (d) =>
     title = d.longName
-    title += " | #{@metrics()[@colorMetric].name}: #{@getFColorMetric d}" if @getFColorMetric d
-    title += " | #{@metrics()[@sizeMetric].name}: #{@getFSizeMetric d}" if @getFSizeMetric d
+    title += " | #{@metrics()[@colorMetric].name}: #{@getFColorMetric d}" if @getColorMetric(d)?
+    title += " | #{@metrics()[@sizeMetric].name}: #{@getFSizeMetric d}" if @getSizeMetric(d)?
     title
 
-  @words.style 'color', (d) => @color @getColorMetric d
+  @words.style 'color', (d) =>
+    if @getColorMetric(d)? then @color @getColorMetric d else '#999'
   @words.style 'font-size', (d) => "#{@size @getSizeMetric d}px"
 
   @words.sort (a, b) =>

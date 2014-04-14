@@ -31,7 +31,8 @@
     var data = {
           metrics: {
             <%= colorMetric.name -%>: {
-              name: '<%= colorMetric.short_name -%>'
+              name: '<%= colorMetric.short_name -%>',
+              direction: <%= colorMetric.direction -%>
             },
             <%= sizeMetric.name -%>: {
               name: '<%= sizeMetric.short_name -%>'
@@ -49,8 +50,8 @@
               longName: '<%= escape_javascript row.resource.long_name -%>',
               qualifier: '<%= escape_javascript row.resource.qualifier -%>',
               measures: {
-                <%= colorMetric.name -%>: { val: <%= color ? color.value : 0 -%>, fval: '<%= color ? color.formatted_value : "-" -%>' },
-                <%= sizeMetric.name -%>: { val: <%= size ? size.value : 0 -%>, fval: '<%= size ? size.formatted_value : "-" -%>' }
+                <%= colorMetric.name -%>: { val: <%= color ? color.value : "null" -%>, fval: '<%= color ? color.formatted_value : "-" -%>' },
+                <%= sizeMetric.name -%>: { val: <%= size ? size.value : "null" -%>, fval: '<%= size ? size.formatted_value : "-" -%>' }
               }
             },
             <% end %>
