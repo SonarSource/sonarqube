@@ -45,7 +45,7 @@ define(
                 box = el.closest('.navigator-filter-details-inner'),
                 tabbableSet = box.find(':tabbable');
 
-            if (box.length == 0 && (el.is(':input') || el.is('a'))) {
+            if (el.closest('.ui-dialog').length > 0 && (el.is(':input') || el.is('a'))) {
               return false;
             }
 
