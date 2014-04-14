@@ -419,7 +419,6 @@ public class RegisterRules implements Startable {
       if (ruleDto.getParentId() != null) {
         RuleDto parent = buffer.rulesById.get(ruleDto.getParentId());
         if (parent != null && !Rule.STATUS_REMOVED.equals(parent.getStatus())) {
-          // TODO merge params and tags ?
           ruleDto.setLanguage(parent.getLanguage());
           ruleDto.setStatus(parent.getStatus());
           ruleDto.setDefaultSubCharacteristicId(parent.getDefaultSubCharacteristicId());
@@ -433,8 +432,7 @@ public class RegisterRules implements Startable {
         }
       }
       if (toBeRemoved && !Rule.STATUS_REMOVED.equals(ruleDto.getStatus())) {
-        // TODO log repository key
-        LOG.info("Disable rule " + ruleDto.getRuleKey());
+        LOG.info(String.format("Disable rule %s:%s", ruleDto.getRepositoryKey(), ruleDto.getRuleKey()));
         ruleDto.setStatus(Rule.STATUS_REMOVED);
         ruleDto.setUpdatedAt(buffer.now());
         for (RuleRuleTagDto removed : buffer.tagsByRuleId.removeAll(ruleDto.getId())) {

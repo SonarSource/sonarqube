@@ -561,16 +561,6 @@ public class DefaultIndex extends SonarIndex {
     return bucket;
   }
 
-  private Bucket checkIndexed(@Nullable Resource resource) {
-    Bucket bucket = getBucket(resource);
-    if (bucket == null) {
-      if (Scopes.isDirectory(resource) || Scopes.isFile(resource)) {
-        bucket = doIndex(resource);
-      }
-    }
-    return bucket;
-  }
-
   @Override
   public boolean isExcluded(@Nullable Resource reference) {
     return false;
@@ -586,9 +576,6 @@ public class DefaultIndex extends SonarIndex {
    * 1) key = new key and deprecatedKey = old key : this is the standard use case in a perfect world
    * 2) key = null and deprecatedKey = oldKey : this is for plugins that are using deprecated constructors of
    * {@link File} and {@link Directory}
-   *
-   * @param reference
-   * @return
    */
   private Bucket getBucket(@Nullable Resource reference) {
     if (reference == null) {
