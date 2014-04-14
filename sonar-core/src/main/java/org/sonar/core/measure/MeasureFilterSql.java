@@ -34,8 +34,8 @@ import org.sonar.core.resource.SnapshotDto;
 import javax.annotation.Nullable;
 
 import java.sql.*;
-import java.util.Comparator;
-import java.util.List;
+import java.sql.Date;
+import java.util.*;
 
 class MeasureFilterSql {
 
@@ -128,13 +128,15 @@ class MeasureFilterSql {
   }
 
   private void appendDateConditions(StringBuilder sb) {
-    if (filter.getFromDate() != null) {
+    java.util.Date fromDate = filter.getFromDate();
+    if (fromDate != null) {
       sb.append(" AND s.created_at >= ? ");
-      dateParameters.add(new Date(filter.getFromDate().getTime()));
+      dateParameters.add(new Date(fromDate.getTime()));
     }
-    if (filter.getToDate() != null) {
+    java.util.Date toDate = filter.getToDate();
+    if (toDate != null) {
       sb.append(" AND s.created_at <= ? ");
-      dateParameters.add(new Date(filter.getToDate().getTime()));
+      dateParameters.add(new Date(toDate.getTime()));
     }
   }
 
