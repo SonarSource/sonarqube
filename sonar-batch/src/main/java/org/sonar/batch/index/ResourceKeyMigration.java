@@ -44,6 +44,8 @@ import java.util.Map;
 
 public class ResourceKeyMigration implements BatchComponent {
 
+  private static final String UNABLE_TO_UPDATE_COMPONENT_NO_MATCH_WAS_FOUND = "Unable to update component {}. No match was found.";
+  private static final String COMPONENT_CHANGED_TO = "Component {} changed to {}";
   private final Logger logger;
   private final DatabaseSession session;
 
@@ -99,10 +101,7 @@ public class ResourceKeyMigration implements BatchComponent {
     Map<String, String> deprecatedDirectoryKeyMapper,
     int moduleId) {
     // Find all FIL or CLA resources for this module
-    StringBuilder hql = new StringBuilder().append("from ")
-      .append(ResourceModel.class.getSimpleName())
-      .append(" where enabled = true ")
-      .append(" and rootId = :rootId ")
+    StringBuilder hql = newResourceQuery()
       .append(" and scope = '").append(Scopes.FILE).append("' order by qualifier, key");
     List<ResourceModel> resources = session.createQuery(hql.toString()).setParameter("rootId", moduleId).getResultList();
     for (ResourceModel resourceModel : resources) {
@@ -130,11 +129,18 @@ public class ResourceKeyMigration implements BatchComponent {
         }
         resourceModel.setKey(newEffectiveKey);
         resourceModel.setDeprecatedKey(oldEffectiveKey);
-        logger.info("Component {} changed to {}", oldEffectiveKey, newEffectiveKey);
+        logger.info(COMPONENT_CHANGED_TO, oldEffectiveKey, newEffectiveKey);
       } else {
-        logger.warn("Unable to update component {}. No match was found.", oldEffectiveKey);
+        logger.warn(UNABLE_TO_UPDATE_COMPONENT_NO_MATCH_WAS_FOUND, oldEffectiveKey);
       }
     }
+  }
+
+  private StringBuilder newResourceQuery() {
+    return new StringBuilder().append("from ")
+      .append(ResourceModel.class.getSimpleName())
+      .append(" where enabled = true ")
+      .append(" and rootId = :rootId ");
   }
 
   private InputFile findInputFile(Map<String, InputFile> deprecatedFileKeyMapper, Map<String, InputFile> deprecatedTestKeyMapper, String oldEffectiveKey, boolean isTest) {
@@ -147,10 +153,7 @@ public class ResourceKeyMigration implements BatchComponent {
 
   private void migrateDirectories(Map<String, String> deprecatedDirectoryKeyMapper, int moduleId) {
     // Find all DIR resources for this module
-    StringBuilder hql = new StringBuilder().append("from ")
-      .append(ResourceModel.class.getSimpleName())
-      .append(" where enabled = true ")
-      .append(" and rootId = :rootId ")
+    StringBuilder hql = newResourceQuery()
       .append(" and qualifier = '").append(Qualifiers.DIRECTORY).append("'");
     List<ResourceModel> resources = session.createQuery(hql.toString()).setParameter("rootId", moduleId).getResultList();
     for (ResourceModel resourceModel : resources) {
@@ -159,9 +162,9 @@ public class ResourceKeyMigration implements BatchComponent {
         String newEffectiveKey = deprecatedDirectoryKeyMapper.get(oldEffectiveKey);
         resourceModel.setKey(newEffectiveKey);
         resourceModel.setDeprecatedKey(oldEffectiveKey);
-        logger.info("Component {} changed to {}", oldEffectiveKey, newEffectiveKey);
+        logger.info(COMPONENT_CHANGED_TO, oldEffectiveKey, newEffectiveKey);
       } else {
-        logger.warn("Unable to update component {}. No match was found.", oldEffectiveKey);
+        logger.warn(UNABLE_TO_UPDATE_COMPONENT_NO_MATCH_WAS_FOUND, oldEffectiveKey);
       }
     }
   }

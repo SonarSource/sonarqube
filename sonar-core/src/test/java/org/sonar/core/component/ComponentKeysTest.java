@@ -40,4 +40,24 @@ public class ComponentKeysTest {
     assertThat(ComponentKeys.createEffectiveKey(project, library)).isEqualTo("junit:junit");
   }
 
+  @Test
+  public void isValidModuleKey() {
+    assertThat(ComponentKeys.isValidModuleKey("")).isFalse();
+    assertThat(ComponentKeys.isValidModuleKey("abc")).isTrue();
+    assertThat(ComponentKeys.isValidModuleKey("0123")).isFalse();
+    assertThat(ComponentKeys.isValidModuleKey("ab 12")).isFalse();
+    assertThat(ComponentKeys.isValidModuleKey("ab_12")).isTrue();
+    assertThat(ComponentKeys.isValidModuleKey("ab/12")).isFalse();
+  }
+
+  @Test
+  public void isValidBranchKey() {
+    assertThat(ComponentKeys.isValidBranch("")).isTrue();
+    assertThat(ComponentKeys.isValidBranch("abc")).isTrue();
+    assertThat(ComponentKeys.isValidBranch("0123")).isTrue();
+    assertThat(ComponentKeys.isValidBranch("ab 12")).isFalse();
+    assertThat(ComponentKeys.isValidBranch("ab_12")).isTrue();
+    assertThat(ComponentKeys.isValidBranch("ab/12")).isFalse();
+  }
+
 }

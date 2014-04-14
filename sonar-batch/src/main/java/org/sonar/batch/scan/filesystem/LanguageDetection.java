@@ -34,6 +34,8 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.MessageException;
 
 import javax.annotation.CheckForNull;
+
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -92,19 +94,13 @@ class LanguageDetection {
   String language(InputFile inputFile) {
     String detectedLanguage = null;
     for (String languageKey : languagesToConsider) {
-      PathPattern[] patterns = patternsByLanguage.get(languageKey);
-      if (patterns != null) {
-        for (PathPattern pathPattern : patterns) {
-          if (pathPattern.match(inputFile, false)) {
-            if (detectedLanguage == null) {
-              detectedLanguage = languageKey;
-              break;
-            } else {
-              // Language was already forced by another pattern
-              throw MessageException.of("Language of file '" + inputFile.relativePath() + "' can not be decided as the file matches patterns of both " + getDetails(detectedLanguage)
-                + " and " + getDetails(languageKey));
-            }
-          }
+      if (isCandidateForLanguage(inputFile, languageKey)) {
+        if (detectedLanguage == null) {
+          detectedLanguage = languageKey;
+        } else {
+          // Language was already forced by another pattern
+          throw MessageException.of(MessageFormat.format("Language of file ''{0}'' can not be decided as the file matches patterns of both {1} and {2}",
+            inputFile.relativePath(), getDetails(detectedLanguage), getDetails(languageKey)));
         }
       }
     }
@@ -119,6 +115,18 @@ class LanguageDetection {
       return forcedLanguage;
     }
     return null;
+  }
+
+  private boolean isCandidateForLanguage(InputFile inputFile, String languageKey) {
+    PathPattern[] patterns = patternsByLanguage.get(languageKey);
+    if (patterns != null) {
+      for (PathPattern pathPattern : patterns) {
+        if (pathPattern.match(inputFile, false)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   private String getFileLangPatternPropKey(String languageKey) {

@@ -102,14 +102,14 @@ public class BootstrapContainer extends ComponentContainer {
       projectReactorBuilder());
   }
 
-  private Class<? extends ProjectReactorBuilder> projectReactorBuilder() {
-    if (isRunnerPre2_4()) {
+  private Class<?> projectReactorBuilder() {
+    if (isRunnerVersionLessThan2Dot4()) {
       return DeprecatedProjectReactorBuilder.class;
     }
     return ProjectReactorBuilder.class;
   }
 
-  private boolean isRunnerPre2_4() {
+  private boolean isRunnerVersionLessThan2Dot4() {
     EnvironmentInformation env = this.getComponentByType(EnvironmentInformation.class);
     // Starting from SQ Runner 2.4 the key is "SonarQubeRunner"
     return env != null && "SonarRunner".equals(env.getKey());

@@ -261,19 +261,21 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
    * @throws IllegalArgumentException if the key is longer than KEY_SIZE
    */
   public void setKey(String key) {
+    checkSize(key);
+    this.key = key;
+  }
+
+  private void checkSize(String key) {
     if (key.length() > KEY_SIZE) {
       throw new IllegalArgumentException("Resource key is too long, max is " + KEY_SIZE + " characters. Got : " + key);
     }
-    this.key = key;
   }
 
   /**
    * @throws IllegalArgumentException if the key is longer than KEY_SIZE
    */
   public void setDeprecatedKey(String deprecatedKey) {
-    if (deprecatedKey.length() > KEY_SIZE) {
-      throw new IllegalArgumentException("Resource deprecated key is too long, max is " + KEY_SIZE + " characters. Got : " + deprecatedKey);
-    }
+    checkSize(deprecatedKey);
     this.deprecatedKey = deprecatedKey;
   }
 
