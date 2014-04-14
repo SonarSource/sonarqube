@@ -29,8 +29,8 @@ import static org.sonar.api.web.WidgetScope.GLOBAL;
 @WidgetCategory({"Filters", "Global"})
 @WidgetScope(GLOBAL)
 @WidgetProperties({
-  @WidgetProperty(key = "chartTitle", type = WidgetPropertyType.STRING),
   @WidgetProperty(key = "filter", type = WidgetPropertyType.FILTER, optional = false),
+  @WidgetProperty(key = "chartTitle", type = WidgetPropertyType.STRING),
   @WidgetProperty(key = "sizeMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.COMPLEXITY_KEY, options = {WidgetConstants.FILTER_OUT_NEW_METRICS}),
   @WidgetProperty(key = "colorMetric", type = WidgetPropertyType.METRIC, defaultValue = CoreMetrics.COVERAGE_KEY,
     options = { WidgetConstants.FILTER_OUT_NEW_METRICS, "type:PERCENT" }),
