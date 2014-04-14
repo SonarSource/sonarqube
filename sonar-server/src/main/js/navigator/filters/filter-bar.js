@@ -42,7 +42,13 @@ define(
 
           key.filter = function(e) {
             var el = jQuery(e.target),
-                tabbableSet = el.closest('.navigator-filter-details-inner').find(':tabbable');
+                box = el.closest('.navigator-filter-details-inner'),
+                tabbableSet = box.find(':tabbable');
+
+            if (box.length == 0 && (el.is(':input') || el.is('a'))) {
+              return false;
+            }
+
             if (el.is(':input') || el.is('a')) {
               if (e.keyCode === 9 || e.keyCode === 27) {
                 return tabbableSet.index(el) >= tabbableSet.length - 1;
