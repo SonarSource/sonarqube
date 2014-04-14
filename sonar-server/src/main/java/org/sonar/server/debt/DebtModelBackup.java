@@ -164,8 +164,15 @@ public class DebtModelBackup implements ServerComponent {
 
         for (RuleDto rule : ruleDtos) {
           // Restore default debt definitions
-          RulesDefinition.Rule ruleDef = ruleDef(rule.getRepositoryKey(), rule.getRuleKey(), rules);
-          // Custom rules will not be found in rules definition
+
+          RulesDefinition.Rule ruleDef;
+          if (rule.getParentId() != null) {
+            RuleDto templateRule = rule(rule.getParentId(), ruleDtos);
+            ruleDef = ruleDef(templateRule.getRepositoryKey(), templateRule.getRuleKey(), rules);
+          } else {
+            ruleDef = ruleDef(rule.getRepositoryKey(), rule.getRuleKey(), rules);
+          }
+
           if (ruleDef != null) {
             String subCharacteristicKey = ruleDef.debtSubCharacteristic();
             CharacteristicDto subCharacteristicDto = characteristicByKey(subCharacteristicKey, allCharacteristicDtos, false);
@@ -329,6 +336,15 @@ public class DebtModelBackup implements ServerComponent {
         return input != null && repo.equals(input.ruleKey().repository()) && key.equals(input.ruleKey().rule());
       }
     }, null);
+  }
+
+  private static RuleDto rule(final Integer id, List<RuleDto> rules) {
+    return Iterables.find(rules, new Predicate<RuleDto>() {
+      @Override
+      public boolean apply(@Nullable RuleDto input) {
+        return input != null && id.equals(input.getId());
+      }
+    });
   }
 
   @CheckForNull

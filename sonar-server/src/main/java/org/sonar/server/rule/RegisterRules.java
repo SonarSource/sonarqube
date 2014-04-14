@@ -415,7 +415,7 @@ public class RegisterRules implements Startable {
     for (Integer unprocessedRuleId : buffer.unprocessedRuleIds) {
       RuleDto ruleDto = buffer.rulesById.get(unprocessedRuleId);
       boolean toBeRemoved = true;
-      // Update copy of template rules from template
+      // Update custom rules from template
       if (ruleDto.getParentId() != null) {
         RuleDto parent = buffer.rulesById.get(ruleDto.getParentId());
         if (parent != null && !Rule.STATUS_REMOVED.equals(parent.getStatus())) {

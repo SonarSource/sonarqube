@@ -512,25 +512,45 @@ public class DebtModelBackupTest {
     ));
 
     when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
-      // Custom rule will not be found in rules definitions
-      new RuleDto().setRepositoryKey("squid").setRuleKey("XPath_1369910135").setParentId(5)
+      // Template rule
+      new RuleDto().setId(5).setRepositoryKey("squid").setRuleKey("XPath")
+        .setSubCharacteristicId(2).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("2h").setRemediationOffset("15min")
+        .setCreatedAt(oldDate).setUpdatedAt(oldDate),
+      // Custom rule
+      new RuleDto().setId(6).setRepositoryKey("squid").setRuleKey("XPath_1369910135").setParentId(5)
         .setSubCharacteristicId(2).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("2h").setRemediationOffset("15min")
         .setCreatedAt(oldDate).setUpdatedAt(oldDate)
     ));
 
-    // No rule found
     RulesDefinition.Context context = new RulesDefinition.Context();
+    // Template rule
+    RulesDefinition.NewRepository repo = context.createRepository("squid", "java").setName("XPath");
+    RulesDefinition.NewRule newRule = repo.createRule("XPath")
+      .setName("XPath")
+      .setHtmlDescription("XPath")
+      .setSeverity(Severity.BLOCKER)
+      .setStatus(RuleStatus.BETA)
+      .setDebtSubCharacteristic("COMPILER");
+    newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linearWithOffset("4h", "20min"));
+    repo.done();
     when(defLoader.load()).thenReturn(context);
 
     debtModelBackup.reset();
 
     verify(ruleDao).selectEnablesAndNonManual(session);
-    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
+    verify(ruleDao, times(2)).update(ruleCaptor.capture(), eq(session));
     verifyNoMoreInteractions(ruleDao);
     verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), session);
     verify(session).commit();
 
-    RuleDto rule = ruleCaptor.getValue();
+    RuleDto rule = ruleCaptor.getAllValues().get(1);
+
+    assertThat(rule.getId()).isEqualTo(6);
+    assertThat(rule.getDefaultSubCharacteristicId()).isEqualTo(2);
+    assertThat(rule.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
+    assertThat(rule.getDefaultRemediationCoefficient()).isEqualTo("4h");
+    assertThat(rule.getDefaultRemediationOffset()).isEqualTo("20min");
+    assertThat(rule.getUpdatedAt()).isEqualTo(now);
 
     assertThat(rule.getSubCharacteristicId()).isNull();
     assertThat(rule.getRemediationFunction()).isNull();

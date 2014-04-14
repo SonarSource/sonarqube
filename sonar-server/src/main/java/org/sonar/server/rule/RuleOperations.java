@@ -145,6 +145,10 @@ public class RuleOperations implements ServerComponent {
         .setCardinality(Cardinality.SINGLE)
         .setStatus(Rule.STATUS_READY)
         .setLanguage(templateRule.getLanguage())
+        .setDefaultSubCharacteristicId(templateRule.getDefaultSubCharacteristicId())
+        .setDefaultRemediationFunction(templateRule.getDefaultRemediationFunction())
+        .setDefaultRemediationCoefficient(templateRule.getDefaultRemediationCoefficient())
+        .setDefaultRemediationOffset(templateRule.getDefaultRemediationOffset())
         .setCreatedAt(new Date(system.now()))
         .setUpdatedAt(new Date(system.now()));
       ruleDao.insert(rule, session);
