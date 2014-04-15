@@ -137,6 +137,6 @@ public class DefaultDatabaseTest {
 
     Properties hibernateProps = database.getHibernateProperties();
 
-    assertThat(hibernateProps.getProperty("hibernate.hbm2ddl.auto")).isEqualTo("validate");
+    assertThat(hibernateProps.getProperty("hibernate.generate_statistics")).isEqualTo("false");
   }
 }

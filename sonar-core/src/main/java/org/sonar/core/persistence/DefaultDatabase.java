@@ -164,7 +164,6 @@ public class DefaultDatabase implements Database {
     }
     props.put(Environment.DIALECT, getDialect().getHibernateDialectClass().getName());
     props.put("hibernate.generate_statistics", "false");
-    props.put("hibernate.hbm2ddl.auto", VALIDATE);
     props.put(Environment.CONNECTION_PROVIDER, CustomHibernateConnectionProvider.class.getName());
 
     return props;
