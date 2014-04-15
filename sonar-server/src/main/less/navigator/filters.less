@@ -179,6 +179,13 @@
   }
 }
 
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+  /* IE10+ specific styles go here */
+  .navigator-filter-details {
+    width: 250px;
+  }
+}
+
 .navigator-filter-details-inner {
   max-width: 300px;
   padding: 5px @navigatorFilterPadding;
@@ -197,6 +204,7 @@
   padding: 5px 0;
   overflow-y: auto;
   .webkit-scrollbar;
+  -ms-overflow-style: scrollbar;
 
   label {
     display: block;
