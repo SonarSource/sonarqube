@@ -78,10 +78,8 @@ public class ComponentIndexer implements BatchComponent {
       } else {
         sonarFile.setDeprecatedKey(pathFromSourceDir);
       }
-      if (sonarFile != null) {
-        sonarIndex.index(sonarFile);
-        importSources(fs, shouldImportSource, inputFile, sonarFile);
-      }
+      sonarIndex.index(sonarFile);
+      importSources(fs, shouldImportSource, inputFile, sonarFile);
     }
   }
 
