@@ -110,12 +110,9 @@ public class FileIndexer implements BatchComponent {
     Collection<File> files = FileUtils.listFiles(dirToIndex, FILE_FILTER, DIR_FILTER);
     for (File file : files) {
       DefaultInputFile inputFile = inputFileBuilder.create(file);
-      if (inputFile != null) {
-        if (exclusionFilters.accept(inputFile, type)) {
-          indexFile(inputFileBuilder, fileSystem, status, inputFile, type);
-        }
+      if (inputFile != null && exclusionFilters.accept(inputFile, type))
+        indexFile(inputFileBuilder, fileSystem, status, inputFile, type);
       }
-    }
   }
 
   private void indexFile(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fs,

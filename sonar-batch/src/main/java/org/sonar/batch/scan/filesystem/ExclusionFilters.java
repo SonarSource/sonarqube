@@ -61,15 +61,18 @@ public class ExclusionFilters implements BatchComponent {
   }
 
   public boolean accept(InputFile inputFile, InputFile.Type type) {
-    PathPattern[] inclusionPatterns = null;
-    PathPattern[] exclusionPatterns = null;
+    PathPattern[] inclusionPatterns;
+    PathPattern[] exclusionPatterns;
     if (InputFile.Type.MAIN == type) {
       inclusionPatterns = mainInclusions;
       exclusionPatterns = mainExclusions;
     } else if (InputFile.Type.TEST == type) {
       inclusionPatterns = testInclusions;
       exclusionPatterns = testExclusions;
+    } else {
+      throw new IllegalArgumentException("Unknown file type: " + type);
     }
+
     if (inclusionPatterns.length > 0) {
       boolean matchInclusion = false;
       for (PathPattern pattern : inclusionPatterns) {
