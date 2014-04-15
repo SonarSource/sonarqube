@@ -162,44 +162,48 @@ public class DebtModelBackup implements ServerComponent {
           rules.addAll(repoDef.rules());
         }
 
-        for (RuleDto rule : ruleDtos) {
-          // Restore default debt definitions
-
-          RulesDefinition.Rule ruleDef;
-          if (rule.getParentId() != null) {
-            RuleDto templateRule = rule(rule.getParentId(), ruleDtos);
-            ruleDef = ruleDef(templateRule.getRepositoryKey(), templateRule.getRuleKey(), rules);
-          } else {
-            ruleDef = ruleDef(rule.getRepositoryKey(), rule.getRuleKey(), rules);
-          }
-
-          if (ruleDef != null) {
-            String subCharacteristicKey = ruleDef.debtSubCharacteristic();
-            CharacteristicDto subCharacteristicDto = characteristicByKey(subCharacteristicKey, allCharacteristicDtos, false);
-            DebtRemediationFunction remediationFunction = ruleDef.debtRemediationFunction();
-            boolean hasDebtDefinition = subCharacteristicDto != null && remediationFunction != null;
-
-            rule.setDefaultSubCharacteristicId(hasDebtDefinition ? subCharacteristicDto.getId() : null);
-            rule.setDefaultRemediationFunction(hasDebtDefinition ? remediationFunction.type().name() : null);
-            rule.setDefaultRemediationCoefficient(hasDebtDefinition ? remediationFunction.coefficient() : null);
-            rule.setDefaultRemediationOffset(hasDebtDefinition ? remediationFunction.offset() : null);
-          }
-
-          // Reset overridden debt definitions
-          rule.setSubCharacteristicId(null);
-          rule.setRemediationFunction(null);
-          rule.setRemediationCoefficient(null);
-          rule.setRemediationOffset(null);
-          rule.setUpdatedAt(updateDate);
-          ruleDao.update(rule, session);
-        }
-        ruleRegistry.reindex(ruleDtos, session);
+        resetRules(ruleDtos, rules, allCharacteristicDtos, updateDate, session);
       }
 
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  private void resetRules(List<RuleDto> ruleDtos, List<RulesDefinition.Rule> rules, List<CharacteristicDto> allCharacteristicDtos, Date updateDate, SqlSession session){
+    for (RuleDto rule : ruleDtos) {
+      // Restore default debt definitions
+
+      RulesDefinition.Rule ruleDef;
+      if (rule.getParentId() != null) {
+        RuleDto templateRule = rule(rule.getParentId(), ruleDtos);
+        ruleDef = ruleDef(templateRule.getRepositoryKey(), templateRule.getRuleKey(), rules);
+      } else {
+        ruleDef = ruleDef(rule.getRepositoryKey(), rule.getRuleKey(), rules);
+      }
+
+      if (ruleDef != null) {
+        String subCharacteristicKey = ruleDef.debtSubCharacteristic();
+        CharacteristicDto subCharacteristicDto = characteristicByKey(subCharacteristicKey, allCharacteristicDtos, false);
+        DebtRemediationFunction remediationFunction = ruleDef.debtRemediationFunction();
+        boolean hasDebtDefinition = subCharacteristicDto != null && remediationFunction != null;
+
+        rule.setDefaultSubCharacteristicId(hasDebtDefinition ? subCharacteristicDto.getId() : null);
+        rule.setDefaultRemediationFunction(hasDebtDefinition ? remediationFunction.type().name() : null);
+        rule.setDefaultRemediationCoefficient(hasDebtDefinition ? remediationFunction.coefficient() : null);
+        rule.setDefaultRemediationOffset(hasDebtDefinition ? remediationFunction.offset() : null);
+      }
+
+      // Reset overridden debt definitions
+      rule.setSubCharacteristicId(null);
+      rule.setRemediationFunction(null);
+      rule.setRemediationCoefficient(null);
+      rule.setRemediationOffset(null);
+      rule.setUpdatedAt(updateDate);
+      ruleDao.update(rule, session);
+    }
+    ruleRegistry.reindex(ruleDtos, session);
   }
 
   /**
