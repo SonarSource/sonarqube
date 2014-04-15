@@ -538,8 +538,8 @@ public interface RulesDefinition extends ServerExtension {
     /**
      * Required rule name
      */
-    public NewRule setName(String s) {
-      this.name = StringUtils.trim(s);
+    public NewRule setName(@Nullable String s) {
+      this.name = StringUtils.trimToNull(s);
       return this;
     }
 
@@ -556,8 +556,8 @@ public interface RulesDefinition extends ServerExtension {
       return this;
     }
 
-    public NewRule setHtmlDescription(String s) {
-      this.htmlDescription = StringUtils.trim(s);
+    public NewRule setHtmlDescription(@Nullable String s) {
+      this.htmlDescription = StringUtils.trimToNull(s);
       return this;
     }
 
