@@ -92,6 +92,7 @@ public class Caches implements BatchComponent, Startable {
 
   @Override
   public void start() {
+    // already started in constructor
   }
 
   @Override
