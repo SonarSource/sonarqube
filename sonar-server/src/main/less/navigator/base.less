@@ -59,7 +59,7 @@
   width: @navigatorResultsWidth;
   min-width: 275px;
   max-width: 600px;
-  margin: @navigatorPadding;
+  margin: @navigatorPadding @navigatorPadding 0;
   .box-sizing(border-box);
 }
 
@@ -74,7 +74,7 @@
 
 .navigator-details {
   position: relative;
-  margin: 0 @navigatorPadding @navigatorPadding @navigatorPadding;
+  margin: 0 @navigatorPadding;
 }
 
 .navigator-resizer {
@@ -475,5 +475,10 @@
 
 // Footer
 .navigator-page #footer {
+  margin: 0;
   border-top: 1px solid @navigatorBorderLightColor;
+}
+
+.navigator-page #ftlinks {
+  margin-top: 0;
 }
