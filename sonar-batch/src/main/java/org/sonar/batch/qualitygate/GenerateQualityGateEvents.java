@@ -66,6 +66,11 @@ public class GenerateQualityGateEvents implements Decorator {
     List<Measure> measures = timeMachine.getMeasures(query);
 
     Measure pastStatus = measures != null && measures.size() == 1 ? measures.get(0) : null;
+    checkQualityGateStatusChange(resource, context, currentStatus, pastStatus);
+
+  }
+
+  private void checkQualityGateStatusChange(Resource resource, DecoratorContext context, Measure currentStatus, Measure pastStatus) {
     String alertText = currentStatus.getAlertText();
     Level alertLevel = currentStatus.getDataAsLevel();
     String alertName = null;
@@ -86,7 +91,6 @@ public class GenerateQualityGateEvents implements Decorator {
       createEvent(context, alertName, alertText);
       notifyUsers(resource, alertName, alertText, alertLevel, isNewAlert);
     }
-
   }
 
   protected void notifyUsers(Resource resource, String alertName, String alertText, Level alertLevel, boolean isNewAlert) {
