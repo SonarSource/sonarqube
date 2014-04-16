@@ -19,22 +19,23 @@
  */
 package org.sonar.server.startup;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.platform.Server;
 import org.sonar.home.cache.FileHashes;
 import org.sonar.server.platform.DefaultServerFileSystem;
-
-import javax.servlet.ServletContext;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @since 3.5
@@ -45,11 +46,13 @@ public final class GenerateBootstrapIndex {
   private static final String[] IGNORE = {"jtds", "mysql", "postgresql", "jruby", "jfreechart", "eastwood",
     "elasticsearch", "lucene"};
 
-  private final ServletContext servletContext;
+  private static final String LIB_DIR = "/web/WEB-INF/lib";
+
+  private final Server server;
   private final DefaultServerFileSystem fileSystem;
 
-  public GenerateBootstrapIndex(DefaultServerFileSystem fileSystem, ServletContext servletContext) {
-    this.servletContext = servletContext;
+  public GenerateBootstrapIndex(DefaultServerFileSystem fileSystem, Server server) {
+    this.server = server;
     this.fileSystem = fileSystem;
   }
 
@@ -61,25 +64,32 @@ public final class GenerateBootstrapIndex {
     FileUtils.forceMkdir(indexFile.getParentFile());
     FileWriter writer = new FileWriter(indexFile, false);
     try {
-      for (String path : getLibs(servletContext)) {
-        writer.append(path);
-        InputStream is = servletContext.getResourceAsStream("/WEB-INF/lib/" + path);
-        writer.append("|").append(new FileHashes().of(is));
-        writer.append(CharUtils.LF);
+      File libDir = new File(server.getRootDir(), LIB_DIR);
+      // TODO hack for Medium tests
+      if (libDir.exists()) {
+        for (String path : getLibs(libDir)) {
+          writer.append(path);
+          File is = new File(libDir, path);
+          writer.append("|").append(new FileHashes().of(is));
+          writer.append(CharUtils.LF);
+        }
+        writer.flush();
       }
-      writer.flush();
 
     } finally {
       IOUtils.closeQuietly(writer);
     }
   }
 
-  public static List<String> getLibs(ServletContext servletContext) {
+  @VisibleForTesting
+  static List<String> getLibs(File libDir) {
     List<String> libs = Lists.newArrayList();
-    Set<String> paths = servletContext.getResourcePaths("/WEB-INF/lib/");
-    for (String path : paths) {
+
+    Collection<File> files = FileUtils.listFiles(libDir, HiddenFileFilter.VISIBLE, FileFilterUtils.directoryFileFilter());
+    for (File file : files) {
+      String path = file.getPath();
       if (StringUtils.endsWith(path, ".jar")) {
-        String filename = StringUtils.removeStart(path, "/WEB-INF/lib/");
+        String filename = StringUtils.removeStart(path, libDir.getAbsolutePath() + "/");
         if (!isIgnored(filename)) {
           libs.add(filename);
         }

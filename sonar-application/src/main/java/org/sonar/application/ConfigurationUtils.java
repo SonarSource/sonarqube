@@ -17,60 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.config;
+package org.sonar.application;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
 
-import javax.annotation.WillClose;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
 
-/**
- * @since 2.12
- */
 public final class ConfigurationUtils {
 
   private ConfigurationUtils() {
+    // Utility class
   }
 
-  public static void copyProperties(Properties from, Map<String, String> to) {
-    for (Map.Entry<Object, Object> entry : from.entrySet()) {
-      String key = (String) entry.getKey();
-      to.put(key, entry.getValue().toString());
-    }
-  }
-
-  public static Properties openProperties(File file) throws IOException {
-    FileInputStream input = FileUtils.openInputStream(file);
-    return readInputStream(input);
-  }
-
-  /**
-   * Note that the input stream is closed in this method.
-   */
-  public static Properties readInputStream(@WillClose InputStream input) throws IOException {
-    try {
-      Properties p = new Properties();
-      p.load(input);
-      return p;
-
-    } finally {
-      IOUtils.closeQuietly(input);
-    }
-  }
-
-  public static Properties interpolateEnvVariables(Properties properties) {
+  static Properties interpolateEnvVariables(Properties properties) {
     return interpolateVariables(properties, System.getenv());
   }
 
-  public static Properties interpolateVariables(Properties properties, Map<String, String> variables) {
+  static Properties interpolateVariables(Properties properties, Map<String, String> variables) {
     Properties result = new Properties();
     Enumeration keys = properties.keys();
     while (keys.hasMoreElements()) {

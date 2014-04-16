@@ -51,6 +51,13 @@ public class RegisterMetrics {
     this.conditionDao = conditionDao;
   }
 
+  /**
+   * Used when no plugin is defining Metrics
+   */
+  public RegisterMetrics(MeasuresDao measuresDao, QualityGateConditionDao conditionDao) {
+    this(measuresDao, conditionDao, new Metrics[]{});
+  }
+
   public void start() {
     TimeProfiler profiler = new TimeProfiler().start("Load metrics");
     measuresDao.disableAutomaticMetrics();

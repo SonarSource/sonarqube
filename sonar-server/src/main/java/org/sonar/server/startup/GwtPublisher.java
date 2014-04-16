@@ -19,17 +19,18 @@
  */
 package org.sonar.server.startup;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
+import org.sonar.api.platform.Server;
 import org.sonar.api.utils.Logs;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.web.GwtExtension;
-import org.sonar.server.platform.ServerSettings;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,15 +42,23 @@ import java.util.zip.ZipEntry;
 public class GwtPublisher {
   private static final Logger LOG = LoggerFactory.getLogger(GwtPublisher.class);
 
-  private Settings settings;
+  private Server server;
   private GwtExtension[] extensions = null;
   private File outputDir = null;
 
-  public GwtPublisher(GwtExtension[] extensions, Settings settings) {
+  public GwtPublisher(GwtExtension[] extensions, Settings settings, Server server) {
     this.extensions = extensions;
-    this.settings = settings;
+    this.server = server;
   }
 
+  /**
+   * Used when no plugin is defining some GwtExtension
+   */
+  public GwtPublisher(Settings settings, Server server) {
+    this(new GwtExtension[]{}, settings, server);
+  }
+
+  @VisibleForTesting
   GwtPublisher(GwtExtension[] extensions, File outputDir) {
     this.extensions = extensions;
     this.outputDir = outputDir;
@@ -62,7 +71,7 @@ public class GwtPublisher {
     TimeProfiler profiler = new TimeProfiler().start("Deploy GWT plugins");
     try {
       cleanDirectory();
-      this.outputDir = new File(settings.getString(ServerSettings.DEPLOY_DIR), "gwt");
+      this.outputDir = new File(server.getDeployDir(), "gwt");
       LoggerFactory.getLogger(GwtPublisher.class).debug("Deploy {} GWT extensions to {}", extensions.length, outputDir);
       publish();
 

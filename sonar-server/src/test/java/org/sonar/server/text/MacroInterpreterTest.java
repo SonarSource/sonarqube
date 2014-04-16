@@ -22,8 +22,7 @@ package org.sonar.server.text;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.servlet.ServletContext;
+import org.sonar.api.platform.Server;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -36,9 +35,9 @@ public class MacroInterpreterTest {
 
   @Before
   public void setUp() {
-    ServletContext servletContext = mock(ServletContext.class);
-    when(servletContext.getContextPath()).thenReturn(path);
-    interpreter = new MacroInterpreter(servletContext);
+    Server server = mock(Server.class);
+    when(server.getContextPath()).thenReturn(path);
+    interpreter = new MacroInterpreter(server);
   }
 
   @Test

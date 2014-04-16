@@ -19,40 +19,41 @@
  */
 package org.sonar.server.startup;
 
-import com.google.common.collect.Sets;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
-import javax.servlet.ServletContext;
-
-import java.util.Set;
+import java.io.File;
+import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class GenerateBootstrapIndexTest {
+
+  @Rule
+  public TemporaryFolder rootDir = new TemporaryFolder();
 
   @Before
   public void setUp() throws Exception {
   }
 
   @Test
-  public void shouldDetermineListOfResources() {
-    ServletContext servletContext = mock(ServletContext.class);
-    Set<String> libs = Sets.newHashSet();
-    libs.add("/WEB-INF/lib/sonar-core-2.6.jar");
-    libs.add("/WEB-INF/lib/treemap.rb");
-    libs.add("/WEB-INF/lib/directory/");
-    when(servletContext.getResourcePaths(anyString())).thenReturn(libs);
+  public void determine_list_of_resources() throws IOException {
+    new File(rootDir.getRoot(), "/web/WEB-INF/lib").mkdirs();
+    File webInf = new File(rootDir.getRoot(), "/web/WEB-INF");
+    File lib = new File(rootDir.getRoot(), "/web/WEB-INF/lib");
+    new File(webInf, "directory").mkdir();
+    new File(lib, "sonar-core-2.6.jar").createNewFile();
+    new File(lib, "treemap.rbr").createNewFile();
+    new File(lib, "sonar-core-2.6.jar").createNewFile();
 
-    assertThat(GenerateBootstrapIndex.getLibs(servletContext)).hasSize(1);
-    assertThat(GenerateBootstrapIndex.getLibs(servletContext).get(0)).isEqualTo("sonar-core-2.6.jar");
+    assertThat(GenerateBootstrapIndex.getLibs(lib)).hasSize(1);
+    assertThat(GenerateBootstrapIndex.getLibs(lib).get(0)).isEqualTo("sonar-core-2.6.jar");
   }
 
   @Test
-  public void shouldIgnore() {
+  public void ignore_some_jars() {
     assertThat(GenerateBootstrapIndex.isIgnored("sonar-batch-2.6-SNAPSHOT.jar")).isFalse();
     assertThat(GenerateBootstrapIndex.isIgnored("mysql-connector-java-5.1.13.jar")).isTrue();
     assertThat(GenerateBootstrapIndex.isIgnored("postgresql-9.0-801.jdbc3.jar")).isTrue();

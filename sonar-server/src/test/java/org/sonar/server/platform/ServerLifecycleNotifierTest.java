@@ -21,10 +21,11 @@ package org.sonar.server.platform;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerStartHandler;
 import org.sonar.api.platform.ServerStopHandler;
-import org.sonar.api.platform.Server;
 
+import java.io.File;
 import java.util.Date;
 
 import static org.mockito.Mockito.*;
@@ -96,6 +97,21 @@ class FakeServer extends Server {
 
   @Override
   public Date getStartedAt() {
+    return null;
+  }
+
+  @Override
+  public File getRootDir() {
+    return null;
+  }
+
+  @Override
+  public File getDeployDir() {
+    return null;
+  }
+
+  @Override
+  public String getContextPath() {
     return null;
   }
 

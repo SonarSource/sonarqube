@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.config;
+package org.sonar.application;
 
 import com.google.common.collect.Maps;
 import org.junit.Test;
@@ -52,22 +52,4 @@ public class ConfigurationUtilsTest {
     assertThat(input.getProperty("do_not_change"), is("${SONAR_JDBC_URL}"));
   }
 
-  @Test
-  public void shouldCopyProperties() {
-    Properties input = new Properties();
-    input.setProperty("hello", "world");
-    input.setProperty("foo", "bar");
-    Map<String, String> output = Maps.newHashMap();
-
-    ConfigurationUtils.copyProperties(input, output);
-
-    assertThat(output.size(), is(2));
-    assertThat(output.get("hello"), is("world"));
-    assertThat(output.get("foo"), is("bar"));
-
-    // input is not changed
-    assertThat(input.size(), is(2));
-    assertThat(input.getProperty("hello"), is("world"));
-    assertThat(input.getProperty("foo"), is("bar"));
-  }
 }

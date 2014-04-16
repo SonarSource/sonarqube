@@ -19,6 +19,7 @@
  */
 package org.sonar.application;
 
+import com.google.common.io.Resources;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Test;
 
@@ -31,6 +32,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PropsTest {
+
   @Test
   public void of() throws Exception {
     Properties p = new Properties();
@@ -99,8 +101,10 @@ public class PropsTest {
 
   @Test
   public void load_file_and_system_properties() throws Exception {
+    System.setProperty("hello", "bar");
+
     Env env = mock(Env.class);
-    File propsFile = new File(getClass().getResource("/org/sonar/application/PropsTest/sonar.properties").toURI());
+    File propsFile = new File(Resources.getResource(getClass(), "PropsTest/sonar.properties").getFile());
     when(env.file("conf/sonar.properties")).thenReturn(propsFile);
 
     Props props = Props.create(env);
@@ -109,7 +113,11 @@ public class PropsTest {
     assertThat(props.of("java.version")).isNotNull();
 
     // system properties override file properties
+    assertThat(props.of("hello")).isEqualTo("bar");
     assertThat(props.of("java.io.tmpdir")).isNotEmpty().isNotEqualTo("/should/be/overridden");
+
+    assertThat(System.getProperty("foo")).isEqualTo("bar");
+    assertThat(System.getProperty("hello")).isEqualTo("bar");
   }
 
   @Test

@@ -22,6 +22,7 @@ package org.sonar.server.platform;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.CoreProperties;
 
 import java.io.File;
 
@@ -33,6 +34,8 @@ import java.io.File;
  * </ol>
  *
  * @since 2.12
+ *
+ * TODO Delete it as it's now useless (SONAR_HOME is set by Tomcat)
  */
 final class SonarHome {
 
@@ -40,12 +43,10 @@ final class SonarHome {
     // only static methods
   }
 
-  static final String SONAR_HOME = "SONAR_HOME";
-
   static Supplier<File> homeSupplier = Suppliers.memoize(new Supplier<File>() {
     public File get() {
       File home = locate();
-      System.setProperty(SONAR_HOME, home.getAbsolutePath());
+      System.setProperty(CoreProperties.SONAR_HOME, home.getAbsolutePath());
       return home;
     }
   });
@@ -55,19 +56,19 @@ final class SonarHome {
   }
 
   static File locate() {
-    String value = System.getProperty(SONAR_HOME);
+    String value = System.getProperty(CoreProperties.SONAR_HOME);
     if (StringUtils.isBlank(value)) {
-      value = System.getenv(SONAR_HOME);
+      value = System.getenv(CoreProperties.SONAR_HOME);
     }
 
     if (StringUtils.isBlank(value)) {
-      throw new IllegalStateException("The system property or env variable " + SONAR_HOME + " is not set");
+      throw new IllegalStateException("The system property or env variable " + CoreProperties.SONAR_HOME + " is not set");
     }
 
     File dir = new File(value);
     if (!dir.isDirectory() || !dir.exists()) {
-      throw new IllegalStateException(SONAR_HOME + " is not valid: " + value + ". Please fix the env variable/system " +
-        "property " + SONAR_HOME);
+      throw new IllegalStateException(CoreProperties.SONAR_HOME + " is not valid: " + value + ". Please fix the env variable/system " +
+        "property " + CoreProperties.SONAR_HOME);
     }
     return dir;
   }

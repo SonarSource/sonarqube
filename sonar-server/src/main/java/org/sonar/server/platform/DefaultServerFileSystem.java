@@ -21,12 +21,12 @@ package org.sonar.server.platform;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
+import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.core.persistence.Database;
 
@@ -47,26 +47,22 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultServerFileSystem.class);
 
   private Database database;
-  private File deployDir;
+  private final Server server;
   private File homeDir;
 
-  public DefaultServerFileSystem(Database database, Settings settings) {
+  public DefaultServerFileSystem(Database database, Settings settings, Server server) {
     this.database = database;
+    this.server = server;
     this.homeDir = new File(settings.getString(CoreProperties.SONAR_HOME));
-
-    String deployPath = settings.getString(ServerSettings.DEPLOY_DIR);
-    if (StringUtils.isNotBlank(deployPath)) {
-      this.deployDir = new File(deployPath);
-    }
   }
 
   /**
    * for unit tests
    */
-  public DefaultServerFileSystem(Database database, File homeDir, File deployDir) {
+  public DefaultServerFileSystem(Database database, File homeDir, Server server) {
     this.database = database;
-    this.deployDir = deployDir;
     this.homeDir = homeDir;
+    this.server = server;
   }
 
   @Override
@@ -76,19 +72,19 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
       throw new IllegalStateException("SonarQube home directory does not exist");
     }
 
-    if (deployDir == null) {
-      throw new IllegalStateException("The target directory to deploy libraries is not set");
-    }
-
     try {
-      LOGGER.info("Deploy dir: " + deployDir.getAbsolutePath());
-      FileUtils.forceMkdir(deployDir);
-      for (File subDirectory : deployDir.listFiles((FileFilter) FileFilterUtils.directoryFileFilter())) {
+      if (getDeployDir() == null) {
+        throw new IllegalArgumentException("Web app directory does not exist: " + getDeployDir());
+      }
+
+      LOGGER.info("Deploy dir: " + getDeployDir().getAbsolutePath());
+      FileUtils.forceMkdir(getDeployDir());
+      for (File subDirectory : getDeployDir().listFiles((FileFilter) FileFilterUtils.directoryFileFilter())) {
         FileUtils.cleanDirectory(subDirectory);
       }
 
     } catch (IOException e) {
-      throw new IllegalStateException("The following directory can not be created: " + deployDir.getAbsolutePath(), e);
+      throw new IllegalStateException("The following directory can not be created: " + getDeployDir().getAbsolutePath(), e);
     }
 
     File deprecated = getDeprecatedPluginsDir();
@@ -117,15 +113,15 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
   }
 
   public File getDeployDir() {
-    return deployDir;
+    return server.getDeployDir();
   }
 
   public File getDeployedJdbcDriverIndex() {
-    return new File(deployDir, "jdbc-driver.txt");
+    return new File(getDeployDir(), "jdbc-driver.txt");
   }
 
   public File getDeployedPluginsDir() {
-    return new File(deployDir, "plugins");
+    return new File(getDeployDir(), "plugins");
   }
 
   public File getDownloadedPluginsDir() {

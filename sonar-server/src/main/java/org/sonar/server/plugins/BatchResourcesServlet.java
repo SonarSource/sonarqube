@@ -23,7 +23,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.server.startup.GenerateBootstrapIndex;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -33,7 +32,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 
 /**
  * This servlet allows to load libraries from directory "WEB-INF/lib" in order to provide them for batch-bootstrapper.
@@ -48,17 +46,7 @@ public class BatchResourcesServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
     String filename = filename(request);
     if (StringUtils.isBlank(filename)) {
-      PrintWriter writer = null;
-      try {
-        response.setContentType("text/plain");
-        writer = response.getWriter();
-        writer.print(StringUtils.join(GenerateBootstrapIndex.getLibs(getServletContext()), ','));
-      } catch (IOException e) {
-        LOG.error("Unable to provide list of batch resources", e);
-        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-      } finally {
-        IOUtils.closeQuietly(writer);
-      }
+      throw new IllegalArgumentException("Filename is missing.");
     } else {
       InputStream in = null;
       OutputStream out = null;

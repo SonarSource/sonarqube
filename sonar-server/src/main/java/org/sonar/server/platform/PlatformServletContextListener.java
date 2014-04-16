@@ -50,7 +50,7 @@ public final class PlatformServletContextListener implements ServletContextListe
   public void contextInitialized(ServletContextEvent event) {
     try {
       configureLogback(event);
-      Platform.getInstance().init(event.getServletContext());
+      Platform.getInstance().init(System.getProperties());
       Platform.getInstance().doStart();
     } catch (Throwable t) {
       // Tomcat 7 "limitations":

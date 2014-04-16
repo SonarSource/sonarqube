@@ -18,30 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.text;
+package org.sonar.application;
 
-import com.google.common.collect.ImmutableList;
-import org.sonar.api.ServerComponent;
-import org.sonar.api.platform.Server;
-
-import java.util.List;
-
-public class MacroInterpreter implements ServerComponent {
-
-  private final List<Macro> macros;
-
-  public MacroInterpreter(Server server) {
-    this.macros = ImmutableList.<Macro>of(
-      new RuleMacro(server.getContextPath())
-    );
-  }
-
-  public String interpret(String text) {
-    String textReplaced = text;
-    for (Macro macro : macros) {
-      textReplaced = textReplaced.replaceAll(macro.getRegex(), macro.getReplacement());
-    }
-    return textReplaced;
-  }
-
+abstract class Cipher {
+  abstract String encrypt(String clearText);
+  abstract String decrypt(String encryptedText);
 }
