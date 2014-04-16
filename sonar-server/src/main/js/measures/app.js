@@ -73,19 +73,6 @@ requirejs(
           }),
 
           new BaseFilters.Filter({
-            name: window.SS.phrases.alert,
-            property: 'alertLevels[]',
-            type: ChoiceFilters.ChoiceFilterView,
-            enabled: false,
-            optional: true,
-            choices: {
-              'error': window.SS.phrases.error,
-              'warn': window.SS.phrases.warning,
-              'ok': window.SS.phrases.ok
-            }
-          }),
-
-          new BaseFilters.Filter({
             name: window.SS.phrases.componentsOf,
             property: 'base',
             type: AjaxSelectFilters.ComponentFilterView,
@@ -170,6 +157,19 @@ requirejs(
             type: StringFilterView,
             enabled: false,
             optional: true
+          }),
+
+          new BaseFilters.Filter({
+            name: window.SS.phrases.alert,
+            property: 'alertLevels[]',
+            type: ChoiceFilters.ChoiceFilterView,
+            enabled: false,
+            optional: true,
+            choices: {
+              'error': window.SS.phrases.error,
+              'warn': window.SS.phrases.warning,
+              'ok': window.SS.phrases.ok
+            }
           })
         ]);
 
