@@ -11,8 +11,12 @@ define [
     template: Templates['source']
 
 
-    modelEvents:
-      'change': 'render'
+    showSpinner: ->
+      @$el.html '<div style="padding: 10px;"><i class="spinner"></i></div>'
+
+
+    hideCoverage: ->
+      @$('.coverage').hide()
 
 
     serializeData: ->
@@ -30,7 +34,6 @@ define [
           lineCoverageConditionsStatus = 'red' if lineCoverageConditions == 0
           lineCoverageConditionsStatus = 'orange' if lineCoverageConditions > 0 && lineCoverageConditions < lineConditions
           lineCoverageConditionsStatus = 'green' if lineCoverageConditions == lineConditions
-
 
         lineNumber: line
         code: code

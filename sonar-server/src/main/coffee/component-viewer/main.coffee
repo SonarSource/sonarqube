@@ -2,11 +2,13 @@ define [
   'backbone'
   'backbone.marionette'
   'templates/component-viewer'
+  'component-viewer/header'
   'component-viewer/source'
 ], (
   Backbone
   Marionette
   Templates
+  HeaderView
   SourceView
 ) ->
 
@@ -22,46 +24,70 @@ define [
 
 
     regions:
+      headerRegion: '.component-viewer-header'
       sourceRegion: '.component-viewer-source'
 
 
     initialize: ->
+      @component = new Backbone.Model()
+      @headerView = new HeaderView model: @component, main: @
+
       @source = new Backbone.Model()
-      @sourceView = new SourceView model: @source
+      @sourceView = new SourceView model: @source, main: @
 
 
     onRender: ->
+      @headerRegion.show @headerView
       @sourceRegion.show @sourceView
+
+
+    requestComponent: (key, metrics) ->
+      $.get API_RESOURCES, resource: key, metrics: metrics, (data) =>
+        @component.set data[0]
 
 
     requestSource: (key) ->
       $.get API_SOURCES, resource: key, (data) =>
-        @source.set { source:  data[0] }, { silent: true }
+        @source.set source: data[0]
 
 
-    requestCoverage: (key) ->
-      metrics = 'coverage_line_hits_data,covered_conditions_by_line,conditions_by_line'
-
-      toObj = (data) ->
+    extractCoverage: (data) ->
+      toObj = (d) ->
         q = {}
-        data.split(';').forEach (item) ->
+        d.split(';').forEach (item) ->
           tokens = item.split '='
           q[tokens[0]] = tokens[1]
         q
 
-
-      $.get API_RESOURCES, resource: key, metrics: metrics, (data) =>
-        msr = data[0].msr
-        coverage = toObj _.findWhere(msr, key: 'coverage_line_hits_data').data
-        coverageConditions = toObj _.findWhere(msr, key: 'covered_conditions_by_line').data
-        conditions = toObj _.findWhere(msr, key: 'conditions_by_line').data
-        @source.set {
-          coverage: coverage,
-          coverageConditions: coverageConditions
-          conditions: conditions
-        }, { silent: true }
+      msr = data[0].msr
+      coverage = toObj _.findWhere(msr, key: 'coverage_line_hits_data').data
+      coverageConditions = toObj _.findWhere(msr, key: 'covered_conditions_by_line').data
+      conditions = toObj _.findWhere(msr, key: 'conditions_by_line').data
+      @source.set
+        coverage: coverage
+        coverageConditions: coverageConditions
+        conditions: conditions
 
 
     open: (key) ->
-      $.when(@requestSource(key), @requestCoverage(key)).done =>
+      @key = key
+      @sourceView.showSpinner()
+      source = @requestSource key
+      component = @requestComponent key
+      $.when(source, component).done =>
+        @render()
+        @hideCoverage()
+
+
+    showCoverage: ->
+      unless @source.has 'coverage'
+        metrics = 'coverage_line_hits_data,covered_conditions_by_line,conditions_by_line'
+        @requestComponent(@key, metrics).done (data) =>
+          @extractCoverage data
+          @sourceView.render()
+      else
         @sourceView.render()
+
+
+    hideCoverage: ->
+      @sourceView.hideCoverage()
