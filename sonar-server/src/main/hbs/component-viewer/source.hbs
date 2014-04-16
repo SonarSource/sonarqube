@@ -1,0 +1,20 @@
+<table class="sources2 code" cellpadding="0" cellspacing="0">
+  {{#each source}}
+    <tr class="row">
+      <td class="coverage {{#if coverage}}coverage-{{coverageStatus}}{{/if}}">
+        {{#if coverage}}<span title="Line is covered by {{coverage}} tests">{{coverage}}</span>{{/if}}
+      </td>
+      <td class="coverage {{#if coverageConditions}}coverage-{{coverageConditionsStatus}}{{/if}}">
+          {{#if coverageConditions}}
+            {{#if conditions}}
+              <span title="{{coverageConditions}} branches are covered by tests">
+                {{coverageConditions}}/{{conditions}}
+              </span>
+            {{/if}}
+          {{/if}}
+      </td>
+      <td class="lid">{{lineNumber}}</td>
+      <td class="line"><pre>{{{code}}}</pre></td>
+    </tr>
+  {{/each}}
+</table>
