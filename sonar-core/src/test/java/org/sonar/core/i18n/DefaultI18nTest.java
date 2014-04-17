@@ -50,38 +50,36 @@ public class DefaultI18nTest {
   @Before
   public void before() {
     PluginRepository pluginRepository = mock(PluginRepository.class);
-    List<PluginMetadata> plugins = Arrays.asList(newPlugin("sqale"), newPlugin("frpack"), newPlugin("core"), newPlugin("checkstyle"), newPlugin("other"));
+    List<PluginMetadata> plugins = Arrays.asList(newPlugin("core"), newPlugin("sqale"), newPlugin("frpack"), newPlugin("checkstyle"), newPlugin("other"));
     when(pluginRepository.getMetadata()).thenReturn(plugins);
 
-    I18nClassloader i18nClassloader = new I18nClassloader(new ClassLoader[]{
-      newCoreClassloader(), newFrenchPackClassloader(), newSqaleClassloader(), newCheckstyleClassloader()
-    });
     manager = new DefaultI18n(pluginRepository, system2);
-    manager.doStart(i18nClassloader);
+    manager.doStart(getClass().getClassLoader());
   }
 
   @Test
-  public void should_introspect_all_available_properties() {
-    assertThat(manager.getPropertyKeys().contains("by")).isTrue();
-    assertThat(manager.getPropertyKeys().contains("only.in.english")).isTrue();
+  public void introspect_all_available_properties() {
+    assertThat(manager.getPropertyKeys().contains("any")).isTrue();
+    // Only in english
+    assertThat(manager.getPropertyKeys().contains("assignee")).isTrue();
     assertThat(manager.getPropertyKeys().contains("sqale.page")).isTrue();
     assertThat(manager.getPropertyKeys().contains("unknown")).isFalse();
   }
 
   @Test
-  public void should_get_english_labels() {
-    assertThat(manager.message(Locale.ENGLISH, "by", null)).isEqualTo("By");
+  public void get_english_labels() {
+    assertThat(manager.message(Locale.ENGLISH, "any", null)).isEqualTo("Any");
     assertThat(manager.message(Locale.ENGLISH, "sqale.page", null)).isEqualTo("Sqale page title");
     assertThat(manager.message(Locale.ENGLISH, "checkstyle.rule1.name", null)).isEqualTo("Rule one");
   }
 
   // SONAR-2927
   @Test
-  public void should_get_english_labels_when_default_locale_is_not_english() {
+  public void get_english_labels_when_default_locale_is_not_english() {
     Locale defaultLocale = Locale.getDefault();
     try {
       Locale.setDefault(Locale.FRENCH);
-      assertThat(manager.message(Locale.ENGLISH, "by", null)).isEqualTo("By");
+      assertThat(manager.message(Locale.ENGLISH, "any", null)).isEqualTo("Any");
       assertThat(manager.message(Locale.ENGLISH, "sqale.page", null)).isEqualTo("Sqale page title");
       assertThat(manager.message(Locale.ENGLISH, "checkstyle.rule1.name", null)).isEqualTo("Rule one");
     } finally {
@@ -90,81 +88,57 @@ public class DefaultI18nTest {
   }
 
   @Test
-  public void should_get_labels_from_french_pack() {
+  public void get_labels_from_french_pack() {
     assertThat(manager.message(Locale.FRENCH, "checkstyle.rule1.name", null)).isEqualTo("Rule un");
-    assertThat(manager.message(Locale.FRENCH, "by", null)).isEqualTo("Par");
+    assertThat(manager.message(Locale.FRENCH, "any", null)).isEqualTo("Tous");
 
     // language pack
     assertThat(manager.message(Locale.FRENCH, "sqale.page", null)).isEqualTo("Titre de la page Sqale");
   }
 
   @Test
-  public void should_get_french_label_if_swiss_country() {
+  public void get_french_label_if_swiss_country() {
     Locale swiss = new Locale("fr", "CH");
     assertThat(manager.message(swiss, "checkstyle.rule1.name", null)).isEqualTo("Rule un");
-    assertThat(manager.message(swiss, "by", null)).isEqualTo("Par");
+    assertThat(manager.message(swiss, "any", null)).isEqualTo("Tous");
 
     // language pack
     assertThat(manager.message(swiss, "sqale.page", null)).isEqualTo("Titre de la page Sqale");
   }
 
   @Test
-  public void should_fallback_to_default_locale() {
+  public void fallback_to_default_locale() {
     assertThat(manager.message(Locale.CHINA, "checkstyle.rule1.name", null)).isEqualTo("Rule one");
-    assertThat(manager.message(Locale.CHINA, "by", null)).isEqualTo("By");
+    assertThat(manager.message(Locale.CHINA, "any", null)).isEqualTo("Any");
     assertThat(manager.message(Locale.CHINA, "sqale.page", null)).isEqualTo("Sqale page title");
   }
 
   @Test
-  public void should_return_default_value_if_missing_key() {
+  public void return_default_value_if_missing_key() {
     assertThat(manager.message(Locale.ENGLISH, "unknown", "default")).isEqualTo("default");
     assertThat(manager.message(Locale.FRENCH, "unknown", "default")).isEqualTo("default");
   }
 
   @Test
-  public void should_accept_empty_labels() {
-    assertThat(manager.message(Locale.ENGLISH, "empty", "default")).isEqualTo("");
-    assertThat(manager.message(Locale.FRENCH, "empty", "default")).isEqualTo("");
+  public void format_message_with_parameters() {
+    assertThat(manager.message(Locale.ENGLISH, "name_too_long_x", null, "10")).isEqualTo("Name is too long (maximum is 10 characters)");
   }
 
   @Test
-  public void shouldFormatMessageWithParameters() {
-    assertThat(manager.message(Locale.ENGLISH, "with.parameters", null, "one", "two")).isEqualTo("First is one and second is two");
+  public void use_default_locale_if_missing_value_in_localized_bundle() {
+    assertThat(manager.message(Locale.FRENCH, "assignee", null)).isEqualTo("Assignee");
+    assertThat(manager.message(Locale.CHINA, "assignee", null)).isEqualTo("Assignee");
   }
 
   @Test
-  public void shouldUseDefaultLocaleIfMissingValueInLocalizedBundle() {
-    assertThat(manager.message(Locale.FRENCH, "only.in.english", null)).isEqualTo("Missing in French bundle");
-    assertThat(manager.message(Locale.CHINA, "only.in.english", null)).isEqualTo("Missing in French bundle");
-  }
-
-  @Test
-  public void should_locate_english_file() {
-    String html = manager.messageFromFile(Locale.ENGLISH, "ArchitectureRule.html", "checkstyle.rule1.name");
-    assertThat(html).isEqualTo("This is the architecture rule");
-  }
-
-  @Test
-  public void should_return_null_if_file_not_found() {
+  public void return_null_if_file_not_found() {
     String html = manager.messageFromFile(Locale.ENGLISH, "UnknownRule.html", "checkstyle.rule1.name");
     assertThat(html).isNull();
   }
 
   @Test
-  public void should_return_null_if_rule_not_internationalized() {
+  public void return_null_if_rule_not_internationalized() {
     String html = manager.messageFromFile(Locale.ENGLISH, "UnknownRule.html", "foo.rule1.name");
-    assertThat(html).isNull();
-  }
-
-  @Test
-  public void should_locate_french_file() {
-    String html = manager.messageFromFile(Locale.FRENCH, "ArchitectureRule.html", "checkstyle.rule1.name");
-    assertThat(html).isEqualTo("Règle d'architecture");
-  }
-
-  @Test
-  public void should_locate_file_with_missing_locale() {
-    String html = manager.messageFromFile(Locale.CHINA, "ArchitectureRule.html", "checkstyle.rule1.name");
     assertThat(html).isNull();
   }
 
@@ -195,12 +169,8 @@ public class DefaultI18nTest {
     assertThat(manager.formatDate(Locale.ENGLISH, DateUtils.parseDateTime("2014-01-22T19:10:03+0100"))).isEqualTo("Jan 22, 2014");
   }
 
-  static URLClassLoader newCoreClassloader() {
-    return newClassLoader("/org/sonar/core/i18n/corePlugin/");
-  }
-
   static URLClassLoader newCheckstyleClassloader() {
-    return newClassLoader("/org/sonar/core/i18n/checkstylePlugin/");
+    return newClassLoader("/org/sonar/core/i18n/I18nClassloaderTest/");
   }
 
   /**

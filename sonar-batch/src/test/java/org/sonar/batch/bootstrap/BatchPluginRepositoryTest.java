@@ -158,15 +158,6 @@ public class BatchPluginRepositoryTest {
     assertThat(filter.accepts("core")).isTrue();
   }
 
-  // English Pack plugin should never be blacklisted as it is mandatory for the I18nManager on batch side
-  @Test
-  public void englishPackPluginShouldNeverBeInBlackList() {
-    Settings settings = new Settings()
-      .setProperty(CoreProperties.BATCH_EXCLUDE_PLUGINS, "l10nen,findbugs");
-    BatchPluginRepository.PluginFilter filter = new BatchPluginRepository.PluginFilter(settings, mode);
-    assertThat(filter.accepts("l10nen")).isTrue();
-  }
-
   @Test
   public void check_white_list_with_black_list() {
     Settings settings = new Settings()
