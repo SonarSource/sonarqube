@@ -84,20 +84,28 @@ public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Start
   void doStart(ClassLoader classloader) {
     this.classloader = classloader;
     propertyToBundles = Maps.newHashMap();
-    for (PluginMetadata plugin : pluginRepository.getMetadata()) {
-      try {
-        String bundleKey = BUNDLE_PACKAGE + plugin.getKey();
-        ResourceBundle bundle = ResourceBundle.getBundle(bundleKey, Locale.ENGLISH, this.classloader, control);
-        Enumeration<String> keys = bundle.getKeys();
-        while (keys.hasMoreElements()) {
-          String key = keys.nextElement();
-          propertyToBundles.put(key, bundleKey);
-        }
-      } catch (MissingResourceException e) {
-        // ignore
+    Collection<PluginMetadata> metadata = pluginRepository.getMetadata();
+    if (metadata.isEmpty()) {
+      addPlugin("core");
+    } else {
+      for (PluginMetadata plugin : pluginRepository.getMetadata()) {
+        addPlugin(plugin.getKey());
       }
     }
     LOG.debug(String.format("Loaded %d properties from l10n bundles", propertyToBundles.size()));
+  }
+  private void addPlugin(String pluginKey){
+    try {
+      String bundleKey = BUNDLE_PACKAGE + pluginKey;
+      ResourceBundle bundle = ResourceBundle.getBundle(bundleKey, Locale.ENGLISH, this.classloader, control);
+      Enumeration<String> keys = bundle.getKeys();
+      while (keys.hasMoreElements()) {
+        String key = keys.nextElement();
+        propertyToBundles.put(key, bundleKey);
+      }
+    } catch (MissingResourceException e) {
+      // ignore
+    }
   }
 
   @Override

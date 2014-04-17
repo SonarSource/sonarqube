@@ -58,6 +58,15 @@ public class DefaultI18nTest {
   }
 
   @Test
+  public void load_core_bundle_when_no_plugin() {
+    DefaultI18n manager = new DefaultI18n(mock(PluginRepository.class), system2);
+    manager.doStart(getClass().getClassLoader());
+
+    assertThat(manager.getPropertyKeys().contains("any")).isTrue();
+    assertThat(manager.getPropertyKeys().contains("assignee")).isTrue();
+  }
+
+  @Test
   public void introspect_all_available_properties() {
     assertThat(manager.getPropertyKeys().contains("any")).isTrue();
     // Only in english
