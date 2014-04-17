@@ -182,10 +182,6 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
     return new File(getDeployDir(), "plugins/index.txt");
   }
 
-  public File getBootstrapIndex() {
-    return new File(getDeployDir(), "bootstrap/index.txt");
-  }
-
   /**
    * @deprecated since 4.1
    */

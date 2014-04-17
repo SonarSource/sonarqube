@@ -35,7 +35,6 @@
     <module>plugins/sonar-cpd-plugin</module>
     <module>plugins/sonar-design-plugin</module>
     <module>plugins/sonar-email-notifications-plugin</module>
-    <module>plugins/sonar-maven-batch-plugin</module>
     <module>plugins/sonar-xoo-plugin</module>
   </modules>
 

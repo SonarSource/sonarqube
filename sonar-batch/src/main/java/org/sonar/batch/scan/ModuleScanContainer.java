@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.api.BatchComponent;
 import org.sonar.batch.qualitygate.GenerateQualityGateEvents;
 
 import org.slf4j.Logger;
@@ -158,7 +159,7 @@ public class ModuleScanContainer extends ComponentContainer {
     ExtensionInstaller installer = getComponentByType(ExtensionInstaller.class);
     installer.install(this, new ExtensionMatcher() {
       public boolean accept(Object extension) {
-        if (ExtensionUtils.isType(extension, BatchExtension.class) && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_PROJECT)) {
+        if (ExtensionUtils.isType(extension, BatchComponent.class) && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_PROJECT)) {
           // Special use-case: the extension point ProjectBuilder is used in a Maven environment to define some
           // new sub-projects without pom.
           // Example : C# plugin adds sub-projects at runtime, even if they are not defined in root pom.

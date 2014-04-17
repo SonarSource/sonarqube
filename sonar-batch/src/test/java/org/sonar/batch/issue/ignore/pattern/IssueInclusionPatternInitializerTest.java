@@ -20,13 +20,12 @@
 
 package org.sonar.batch.issue.ignore.pattern;
 
-import org.sonar.batch.issue.ignore.IssueExclusionsConfiguration;
-import org.sonar.batch.issue.ignore.pattern.IssueInclusionPatternInitializer;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
+import org.sonar.core.config.IssueExclusionProperties;
+
 import static org.fest.assertions.Assertions.assertThat;
 
 public class IssueInclusionPatternInitializerTest {
@@ -37,7 +36,7 @@ public class IssueInclusionPatternInitializerTest {
 
   @Before
   public void init() {
-    settings = new Settings(new PropertyDefinitions(IssueExclusionsConfiguration.getPropertyDefinitions()));
+    settings = new Settings(new PropertyDefinitions(IssueExclusionProperties.all()));
     patternsInitializer = new IssueInclusionPatternInitializer(settings);
   }
 
@@ -49,11 +48,11 @@ public class IssueInclusionPatternInitializerTest {
 
   @Test
   public void shouldHavePatternsBasedOnMulticriteriaPattern() {
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_MULTICRITERIA_INCLUSION_KEY, "1,2");
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_MULTICRITERIA_INCLUSION_KEY + ".1." + IssueExclusionsConfiguration.RESOURCE_KEY, "org/foo/Bar.java");
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_MULTICRITERIA_INCLUSION_KEY + ".1." + IssueExclusionsConfiguration.RULE_KEY, "*");
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_MULTICRITERIA_INCLUSION_KEY + ".2." + IssueExclusionsConfiguration.RESOURCE_KEY, "org/foo/Hello.java");
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_MULTICRITERIA_INCLUSION_KEY + ".2." + IssueExclusionsConfiguration.RULE_KEY, "checkstyle:MagicNumber");
+    settings.setProperty("sonar.issue.enforce" + ".multicriteria", "1,2");
+    settings.setProperty("sonar.issue.enforce" + ".multicriteria" + ".1." + "resourceKey", "org/foo/Bar.java");
+    settings.setProperty("sonar.issue.enforce" + ".multicriteria" + ".1." + "ruleKey", "*");
+    settings.setProperty("sonar.issue.enforce" + ".multicriteria" + ".2." + "resourceKey", "org/foo/Hello.java");
+    settings.setProperty("sonar.issue.enforce" + ".multicriteria" + ".2." + "ruleKey", "checkstyle:MagicNumber");
     patternsInitializer.initPatterns();
 
     assertThat(patternsInitializer.hasConfiguredPatterns()).isTrue();

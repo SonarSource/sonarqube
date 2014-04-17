@@ -58,6 +58,12 @@
       <artifactId>logback-core</artifactId>
     </dependency>
     <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>sonar-batch-maven-compat</artifactId>
+      <version>${pom.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.tomcat.embed</groupId>
       <artifactId>tomcat-embed-core</artifactId>
     </dependency>
@@ -164,13 +170,6 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar.plugins</groupId>
-      <artifactId>sonar-maven-batch-plugin</artifactId>
-      <version>${project.version}</version>
-      <type>sonar-plugin</type>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
       <groupId>org.sonatype.jsw-binaries</groupId>
       <artifactId>jsw-binaries</artifactId>
       <version>3.2.3.6</version>
@@ -258,8 +257,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <minsize>55000000</minsize>
-                  <maxsize>75000000</maxsize>
+                  <minsize>80000000</minsize>
+                  <maxsize>88000000</maxsize>
                   <files>
                     <file>${project.build.directory}/sonarqube-${project.version}.zip</file>
                   </files>

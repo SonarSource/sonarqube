@@ -18,7 +18,15 @@
         <exclude>net.sourceforge.jtds:jtds</exclude>
         <exclude>org.codehaus.sonar.plugins:*</exclude>
         <exclude>org.codehaus.sonar-plugins.*:*</exclude>
+        <exclude>org.codehaus.sonar:sonar-batch-maven-compat</exclude>
       </excludes>
+    </dependencySet>
+    <dependencySet>
+      <outputDirectory>lib/batch</outputDirectory>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <includes>
+        <include>org.codehaus.sonar:sonar-batch-maven-compat</include>
+      </includes>
     </dependencySet>
     <!-- Plugins -->
     <dependencySet>

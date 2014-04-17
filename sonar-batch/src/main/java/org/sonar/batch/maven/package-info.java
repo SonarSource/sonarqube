@@ -18,33 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.batch.issue.ignore.pattern;
+/**
+ * This package is a part of bootstrap process, so we should take care about backward compatibility.
+ */
+@ParametersAreNonnullByDefault
+package org.sonar.batch.maven;
 
-import com.google.common.collect.Maps;
-import org.sonar.api.config.Settings;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-import java.util.Map;
-
-public class IssueInclusionPatternInitializer extends AbstractPatternInitializer {
-
-  private Map<String, String> pathForComponent;
-
-  public IssueInclusionPatternInitializer(Settings settings) {
-    super(settings);
-    pathForComponent = Maps.newHashMap();
-  }
-
-  @Override
-  protected String getMulticriteriaConfigurationKey() {
-    return "sonar.issue.enforce" + ".multicriteria";
-  }
-
-  @Override
-  public void initializePatternsForPath(String relativePath, String componentKey) {
-    pathForComponent.put(componentKey, relativePath);
-  }
-
-  public String getPathForComponent(String componentKey) {
-    return pathForComponent.get(componentKey);
-  }
-}

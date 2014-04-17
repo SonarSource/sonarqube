@@ -24,6 +24,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.task.Task;
+import org.sonar.api.task.TaskComponent;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.task.TaskExtension;
 import org.sonar.api.utils.SonarException;
@@ -55,7 +56,7 @@ public class TaskContainer extends ComponentContainer {
   private void installTaskExtensions() {
     getComponentByType(ExtensionInstaller.class).install(this, new ExtensionMatcher() {
       public boolean accept(Object extension) {
-        return ExtensionUtils.isType(extension, TaskExtension.class);
+        return ExtensionUtils.isType(extension, TaskComponent.class);
       }
     });
   }

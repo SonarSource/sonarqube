@@ -25,14 +25,8 @@
       <artifactId>gson</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-batch</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-batch-maven-compat</artifactId>
-      <version>${project.version}</version>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
@@ -49,6 +43,12 @@
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-deprecated</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.maven</groupId>
+          <artifactId>maven-project</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
@@ -504,13 +504,6 @@
           <scope>provided</scope>
         </dependency>
         <dependency>
-          <groupId>org.codehaus.sonar.plugins</groupId>
-          <artifactId>sonar-maven-batch-plugin</artifactId>
-          <version>${project.version}</version>
-          <type>sonar-plugin</type>
-          <scope>provided</scope>
-        </dependency>
-        <dependency>
           <groupId>org.codehaus.sonar-plugins.java</groupId>
           <artifactId>sonar-jacoco-plugin</artifactId>
           <version>${sonarJava.version}</version>
@@ -629,12 +622,6 @@
           </plugin>
         </plugins>
       </build>
-      <dependencies>
-        <dependency>
-          <groupId>com.h2database</groupId>
-          <artifactId>h2</artifactId>
-        </dependency>
-      </dependencies>
     </profile>
 
     <profile>

@@ -27,6 +27,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Resource;
+import org.sonar.core.config.ExclusionProperties;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -40,7 +41,7 @@ public class CoverageMeasurementFilterTest {
 
   @Before
   public void createFilter() {
-    settings = new Settings(new PropertyDefinitions(CoverageMeasurementFilter.getPropertyDefinitions()));
+    settings = new Settings(new PropertyDefinitions(ExclusionProperties.all()));
     filter = new CoverageMeasurementFilter(settings, new CoverageDecorator(), new LineCoverageDecorator(), new BranchCoverageDecorator());
   }
 
@@ -57,7 +58,7 @@ public class CoverageMeasurementFilterTest {
     Measure coverageMeasure = mock(Measure.class);
     when(coverageMeasure.getMetric()).thenReturn(CoreMetrics.LINES_TO_COVER);
 
-    settings.setProperty(CoverageMeasurementFilter.PROPERTY_COVERAGE_EXCLUSIONS, "src/org/polop/*");
+    settings.setProperty("sonar.coverage.exclusions", "src/org/polop/*");
     filter.initPatterns();
     assertThat(filter.accept(resource, coverageMeasure)).isFalse();
   }
@@ -68,7 +69,7 @@ public class CoverageMeasurementFilterTest {
     Measure coverageMeasure = mock(Measure.class);
     when(coverageMeasure.getMetric()).thenReturn(CoreMetrics.COVERAGE);
 
-    settings.setProperty(CoverageMeasurementFilter.PROPERTY_COVERAGE_EXCLUSIONS, "src/org/other/*");
+    settings.setProperty("sonar.coverage.exclusions", "src/org/other/*");
     filter.initPatterns();
     assertThat(filter.accept(resource, coverageMeasure)).isTrue();
   }

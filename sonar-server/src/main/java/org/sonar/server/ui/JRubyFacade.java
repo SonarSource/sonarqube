@@ -35,7 +35,11 @@ import org.sonar.api.test.MutableTestPlan;
 import org.sonar.api.test.MutableTestable;
 import org.sonar.api.test.TestPlan;
 import org.sonar.api.test.Testable;
-import org.sonar.api.web.*;
+import org.sonar.api.web.Footer;
+import org.sonar.api.web.NavigationSection;
+import org.sonar.api.web.Page;
+import org.sonar.api.web.RubyRailsWebservice;
+import org.sonar.api.web.Widget;
 import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.measure.MeasureFilterEngine;
 import org.sonar.core.measure.MeasureFilterResult;
@@ -46,8 +50,15 @@ import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.server.db.migrations.DatabaseMigrator;
-import org.sonar.server.platform.*;
-import org.sonar.server.plugins.*;
+import org.sonar.server.platform.Platform;
+import org.sonar.server.platform.ServerIdGenerator;
+import org.sonar.server.platform.ServerSettings;
+import org.sonar.server.platform.SettingsChangeNotifier;
+import org.sonar.server.plugins.InstalledPluginReferentialFactory;
+import org.sonar.server.plugins.PluginDownloader;
+import org.sonar.server.plugins.ServerPluginJarsInstaller;
+import org.sonar.server.plugins.ServerPluginRepository;
+import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.source.CodeColorizers;
 import org.sonar.server.user.NewUserNotifier;
@@ -57,7 +68,6 @@ import org.sonar.updatecenter.common.Version;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.sql.Connection;
 import java.util.Collection;
@@ -367,10 +377,6 @@ public final class JRubyFacade {
 
   public ComponentContainer getContainer() {
     return Platform.getInstance().getContainer();
-  }
-
-  public String boostrapIndexPath() throws IOException {
-    return getContainer().getComponentByType(DefaultServerFileSystem.class).getBootstrapIndex().getCanonicalPath();
   }
 
   // UPDATE PROJECT KEY ------------------------------------------------------------------

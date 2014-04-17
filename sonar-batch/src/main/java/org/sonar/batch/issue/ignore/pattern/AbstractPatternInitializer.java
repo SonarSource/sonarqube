@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.issue.ignore.pattern;
 
-import org.sonar.batch.issue.ignore.IssueExclusionsConfiguration;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
@@ -67,8 +65,8 @@ public abstract class AbstractPatternInitializer implements BatchExtension {
     String patternConf = StringUtils.defaultIfBlank(settings.getString(getMulticriteriaConfigurationKey()), "");
     for (String id : StringUtils.split(patternConf, ',')) {
       String propPrefix = getMulticriteriaConfigurationKey() + "." + id + ".";
-      String resourceKeyPattern = settings.getString(propPrefix + IssueExclusionsConfiguration.RESOURCE_KEY);
-      String ruleKeyPattern = settings.getString(propPrefix + IssueExclusionsConfiguration.RULE_KEY);
+      String resourceKeyPattern = settings.getString(propPrefix + "resourceKey");
+      String ruleKeyPattern = settings.getString(propPrefix + "ruleKey");
       String lineRange = "*";
       String[] fields = new String[] { resourceKeyPattern, ruleKeyPattern, lineRange };
       PatternDecoder.checkRegularLineConstraints(StringUtils.join(fields, ","), fields);

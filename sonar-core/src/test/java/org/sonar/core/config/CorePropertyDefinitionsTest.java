@@ -17,34 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.core.config;
 
-package org.sonar.batch.issue.ignore.pattern;
+import org.junit.Test;
+import org.sonar.api.config.PropertyDefinition;
 
-import com.google.common.collect.Maps;
-import org.sonar.api.config.Settings;
+import java.util.List;
 
-import java.util.Map;
+import static org.fest.assertions.Assertions.assertThat;
 
-public class IssueInclusionPatternInitializer extends AbstractPatternInitializer {
-
-  private Map<String, String> pathForComponent;
-
-  public IssueInclusionPatternInitializer(Settings settings) {
-    super(settings);
-    pathForComponent = Maps.newHashMap();
-  }
-
-  @Override
-  protected String getMulticriteriaConfigurationKey() {
-    return "sonar.issue.enforce" + ".multicriteria";
-  }
-
-  @Override
-  public void initializePatternsForPath(String relativePath, String componentKey) {
-    pathForComponent.put(componentKey, relativePath);
-  }
-
-  public String getPathForComponent(String componentKey) {
-    return pathForComponent.get(componentKey);
+public class CorePropertyDefinitionsTest {
+  @Test
+  public void all() {
+    List<PropertyDefinition> defs = CorePropertyDefinitions.all();
+    assertThat(defs.size()).isGreaterThan(10);
   }
 }

@@ -20,6 +20,7 @@
 package org.sonar.batch.scan;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.InstantiationStrategy;
@@ -201,7 +202,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
   static class BatchExtensionFilter implements ExtensionMatcher {
     public boolean accept(Object extension) {
-      return ExtensionUtils.isType(extension, BatchExtension.class)
+      return ExtensionUtils.isType(extension, BatchComponent.class)
         && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_BATCH);
     }
   }

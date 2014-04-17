@@ -39,6 +39,7 @@ import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.component.db.ComponentDao;
+import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.i18n.GwtI18n;
@@ -162,6 +163,7 @@ class ServerComponents {
       new TempFolderProvider(),
       System2.INSTANCE
     ));
+    components.addAll(CorePropertyDefinitions.all());
     components.addAll(DatabaseMigrations.CLASSES);
     components.addAll(DaoUtils.getDaoClasses());
     return components;
@@ -191,7 +193,8 @@ class ServerComponents {
 
       // ws
       RestartHandler.class,
-      SystemWs.class
+      SystemWs.class,
+      BatchWs.class
     );
   }
 
@@ -405,7 +408,6 @@ class ServerComponents {
     startupContainer.addSingleton(JdbcDriverDeployer.class);
     startupContainer.addSingleton(RegisterDebtModel.class);
     startupContainer.addSingleton(GeneratePluginIndex.class);
-    startupContainer.addSingleton(GenerateBootstrapIndex.class);
     startupContainer.addSingleton(RegisterNewMeasureFilters.class);
     startupContainer.addSingleton(RegisterDashboards.class);
     startupContainer.addSingleton(RegisterPermissionTemplates.class);
