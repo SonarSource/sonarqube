@@ -23,14 +23,14 @@ import org.junit.Test;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.dialect.Dialect;
+import org.sonar.core.persistence.dialect.H2;
 import org.sonar.core.persistence.dialect.MySql;
 import org.sonar.test.TestUtils;
 
 import java.io.File;
 import java.util.List;
 
-import static junit.framework.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -39,15 +39,22 @@ public class DefaultServerFileSystemTest {
   private static final String PATH = "/org/sonar/server/platform/DefaultServerFileSystemTest/";
 
   @Test
-  public void testGetJdbcDriver() {
+  public void get_jdbc_driver() {
     Database database = mock(Database.class);
     when(database.getDialect()).thenReturn(new MySql());
     File driver = new DefaultServerFileSystem(database, TestUtils.getResource(PATH + "testGetJdbcDriver"), null).getJdbcDriver();
-    assertNotNull(driver);
+    assertThat(driver).isNotNull();
+  }
+
+  @Test
+  public void get_jdbc_driver_return_null_when_h2() {
+    Database database = mock(Database.class);
+    when(database.getDialect()).thenReturn(new H2());
+    assertThat(new DefaultServerFileSystem(database, (File) null, null).getJdbcDriver()).isNull();
   }
 
   @Test(expected = IllegalStateException.class)
-  public void failIfJdbcDriverNotFound() {
+  public void fail_if_jdbc_driver_not_found() {
     Database database = mock(Database.class);
 
     Dialect fakeDialect = mock(Dialect.class);
@@ -58,40 +65,40 @@ public class DefaultServerFileSystemTest {
   }
 
   @Test
-  public void shouldFindPlugins() {
+  public void find_plugins() {
     List<File> plugins = new DefaultServerFileSystem(null, TestUtils.getResource(PATH + "shouldFindPlugins"), null).getUserPlugins();
-    assertEquals(2, plugins.size());
+    assertThat(plugins).hasSize(2);
   }
 
   @Test
-  public void shouldNotFailIfNoPlugins() {
+  public void not_fail_if_no_plugins() {
     List<File> plugins = new DefaultServerFileSystem(null, TestUtils.getResource(PATH + "shouldNotFailIfNoPlugins"), null).getUserPlugins();
-    assertEquals(0, plugins.size());
+    assertThat(plugins).isEmpty();
   }
 
   @Test
-  public void shouldFindCheckstyleExtensions() {
+  public void find_checkstyle_extensions() {
     ServerFileSystem fs = new DefaultServerFileSystem(null, TestUtils.getResource(PATH + "shouldFindCheckstyleExtensions"), null);
 
     List<File> xmls = fs.getExtensions("checkstyle", "xml");
-    assertEquals(1, xmls.size());
+    assertThat(xmls).hasSize(1);
 
     List<File> all = fs.getExtensions("checkstyle");
-    assertEquals(3, all.size());
+    assertThat(all).hasSize(3);
   }
 
   @Test
-  public void shouldNotFailIfNoCheckstyleExtensions() {
+  public void not_fail_if_no_checkstyle_extensions() {
     ServerFileSystem fs = new DefaultServerFileSystem(null, TestUtils.getResource(PATH + "shouldNotFailIfNoCheckstyleExtensions"), null);
     List<File> xmls = fs.getExtensions("checkstyle", "xml");
-    assertEquals(0, xmls.size());
+    assertThat(xmls).isEmpty();
 
     List<File> jars = fs.getExtensions("checkstyle");
-    assertEquals(0, jars.size());
+    assertThat(jars).isEmpty();
   }
 
   @Test(expected = IllegalStateException.class)
-  public void shouldFailIfHomeDirectoryNotExists() {
+  public void fail_if_home_directory_not_exists() {
     DefaultServerFileSystem fs = new DefaultServerFileSystem(null, new File("/notexists"), null);
     fs.start();
   }
