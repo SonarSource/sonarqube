@@ -22,8 +22,9 @@ package org.sonar.server.tester;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.sonar.api.i18n.I18n;
+import org.sonar.core.i18n.GwtI18n;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
@@ -33,9 +34,10 @@ import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.rule.Rules;
 import org.sonar.server.user.MockUserSession;
 
+import java.util.Locale;
+
 import static org.fest.assertions.Assertions.assertThat;
 
-@Ignore
 public class MediumTest {
 
   ServerTester serverTester = new ServerTester();
@@ -99,5 +101,14 @@ public class MediumTest {
     serverTester.get(RuleRegistry.class).reindex(ruleDto);
 
     assertThat(rules.find(RuleQuery.builder().build()).results()).hasSize(1);
+  }
+
+  @Test
+  public void i18n_message() throws Exception {
+    I18n i18n = serverTester.get(I18n.class);
+    assertThat(i18n.message(Locale.ENGLISH, "any", null)).isEqualTo("Any");
+
+    GwtI18n gwtI18n= serverTester.get(GwtI18n.class);
+    assertThat(gwtI18n.getJsDictionnary(Locale.ENGLISH)).contains("\"design.help\": \"Help\"");
   }
 }
