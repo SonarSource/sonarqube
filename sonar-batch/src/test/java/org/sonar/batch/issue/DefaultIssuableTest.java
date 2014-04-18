@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.sonar.api.component.Component;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.resources.Project;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,6 +36,7 @@ public class DefaultIssuableTest {
 
   ModuleIssues moduleIssues = mock(ModuleIssues.class);
   IssueCache cache = mock(IssueCache.class);
+  Project project = mock(Project.class);
   Component component = mock(Component.class);
 
   @Test
@@ -44,7 +46,7 @@ public class DefaultIssuableTest {
     DefaultIssue unresolved = new DefaultIssue();
     when(cache.byComponent("struts:org.apache.Action")).thenReturn(Arrays.asList(resolved, unresolved));
 
-    DefaultIssuable perspective = new DefaultIssuable(component, moduleIssues, cache);
+    DefaultIssuable perspective = new DefaultIssuable(component, project, moduleIssues, cache);
 
     List<Issue> issues = perspective.issues();
     assertThat(issues).containsOnly(unresolved);
@@ -57,7 +59,7 @@ public class DefaultIssuableTest {
     DefaultIssue unresolved = new DefaultIssue();
     when(cache.byComponent("struts:org.apache.Action")).thenReturn(Arrays.asList(resolved, unresolved));
 
-    DefaultIssuable perspective = new DefaultIssuable(component, moduleIssues, cache);
+    DefaultIssuable perspective = new DefaultIssuable(component, project, moduleIssues, cache);
 
     List<Issue> issues = perspective.resolvedIssues();
     assertThat(issues).containsOnly(resolved);

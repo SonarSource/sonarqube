@@ -24,6 +24,7 @@ import org.sonar.api.component.Component;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.resources.Project;
 import org.sonar.core.issue.DefaultIssueBuilder;
 
 import java.util.List;
@@ -36,16 +37,18 @@ public class DefaultIssuable implements Issuable {
   private final ModuleIssues moduleIssues;
   private final IssueCache cache;
   private final Component component;
+  private final Project project;
 
-  DefaultIssuable(Component component, ModuleIssues moduleIssues, IssueCache cache) {
+  DefaultIssuable(Component component, Project project, ModuleIssues moduleIssues, IssueCache cache) {
     this.component = component;
+    this.project = project;
     this.moduleIssues = moduleIssues;
     this.cache = cache;
   }
 
   @Override
   public IssueBuilder newIssueBuilder() {
-    return new DefaultIssueBuilder().componentKey(component.key());
+    return new DefaultIssueBuilder().componentKey(component.key()).projectKey(project.getKey());
   }
 
   @Override

@@ -35,6 +35,7 @@ import java.util.UUID;
 public class DefaultIssueBuilder implements Issuable.IssueBuilder {
 
   private String componentKey;
+  private String projectKey;
   private RuleKey ruleKey;
   private Integer line;
   private String message;
@@ -49,6 +50,12 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
 
   public DefaultIssueBuilder componentKey(String componentKey) {
     this.componentKey = componentKey;
+    return this;
+  }
+
+
+  public DefaultIssueBuilder projectKey(String projectKey) {
+    this.projectKey = projectKey;
     return this;
   }
 
@@ -99,6 +106,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
 
   @Override
   public DefaultIssue build() {
+    Preconditions.checkNotNull(projectKey, "Project key must be set");
     Preconditions.checkNotNull(componentKey, "Component key must be set");
     Preconditions.checkNotNull(ruleKey, "Rule key must be set");
 
@@ -107,6 +115,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     Preconditions.checkState(!Strings.isNullOrEmpty(key), "Fail to generate issue key");
     issue.setKey(key);
     issue.setComponentKey(componentKey);
+    issue.setProjectKey(projectKey);
     issue.setRuleKey(ruleKey);
     issue.setMessage(message);
     issue.setSeverity(severity);

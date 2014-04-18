@@ -310,7 +310,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_select_non_closed_issues_by_module() {
+  public void select_non_closed_issues_by_module() {
     setupData("shared", "should_select_non_closed_issues_by_module");
 
     // 400 is a non-root module, we should find 2 issues from classes and one on itself
@@ -322,11 +322,37 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getRuleRepo()).isNotNull();
     assertThat(issue.getRule()).isNotNull();
     assertThat(issue.getComponentKey()).isNotNull();
+    assertThat(issue.getRootComponentKey()).isEqualTo("struts");
 
     // 399 is the root module, we should only find 1 issue on itself
     handler = new DefaultResultHandler();
     dao.selectNonClosedIssuesByModule(399, handler);
     assertThat(handler.getResultList()).hasSize(1);
+
+    issue = (IssueDto) handler.getResultList().get(0);
+    assertThat(issue.getComponentKey()).isEqualTo("struts");
+    assertThat(issue.getRootComponentKey()).isEqualTo("struts");
+  }
+
+  /**
+   * SONAR-5218
+   */
+  @Test
+  public void select_non_closed_issues_by_module_on_removed_project() {
+    // All issues are linked on a project that is not existing anymore
+
+    setupData("shared", "should_select_non_closed_issues_by_module_on_removed_project");
+
+    // 400 is a non-root module, we should find 2 issues from classes and one on itself
+    DefaultResultHandler handler = new DefaultResultHandler();
+    dao.selectNonClosedIssuesByModule(400, handler);
+    assertThat(handler.getResultList()).hasSize(3);
+
+    IssueDto issue = (IssueDto) handler.getResultList().get(0);
+    assertThat(issue.getRuleRepo()).isNotNull();
+    assertThat(issue.getRule()).isNotNull();
+    assertThat(issue.getComponentKey()).isNotNull();
+    assertThat(issue.getRootComponentKey()).isNull();
   }
 
   @Test

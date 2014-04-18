@@ -447,4 +447,35 @@ public class IssueUpdaterTest {
     assertThat(issue.mustSendNotifications()).isFalse();
   }
 
+  @Test
+  public void set_project() throws Exception {
+    boolean updated = updater.setProject(issue, "sample", context);
+    assertThat(updated).isTrue();
+    assertThat(issue.projectKey()).isEqualTo("sample");
+
+    // do not save change
+    assertThat(issue.currentChange()).isNull();
+    assertThat(issue.mustSendNotifications()).isFalse();
+  }
+
+  @Test
+  public void set_past_project() throws Exception {
+    issue.setProjectKey("new project key");
+    boolean updated = updater.setPastProject(issue, "past project key", context);
+    assertThat(updated).isTrue();
+    assertThat(issue.projectKey()).isEqualTo("new project key");
+
+    // do not save change
+    assertThat(issue.currentChange()).isNull();
+    assertThat(issue.mustSendNotifications()).isFalse();
+  }
+
+  @Test
+  public void not_set_past_project_if_no_change() throws Exception {
+    issue.setProjectKey("key");
+    boolean updated = updater.setPastProject(issue, "key", context);
+    assertThat(updated).isFalse();
+    assertThat(issue.projectKey()).isEqualTo("key");
+  }
+
 }
