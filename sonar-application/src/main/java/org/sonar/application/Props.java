@@ -101,7 +101,7 @@ class Props {
   }
 
   static Properties decrypt(Properties properties) {
-    Encryption encryption = new Encryption(null);
+    Encryption encryption = new Encryption(properties.getProperty(AesCipher.ENCRYPTION_SECRET_KEY_PATH));
     Properties result = new Properties();
 
     for (Map.Entry<Object, Object> entry : properties.entrySet()) {

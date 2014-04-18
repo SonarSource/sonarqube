@@ -48,7 +48,7 @@ final class AesCipher extends Cipher {
   /**
    * Duplication from CoreProperties.ENCRYPTION_SECRET_KEY_PATH
    */
-  private static final String ENCRYPTION_SECRET_KEY_PATH = "sonar.secretKeyPath";
+  static final String ENCRYPTION_SECRET_KEY_PATH = "sonar.secretKeyPath";
 
   private String pathToSecretKey;
 
