@@ -46,7 +46,7 @@ public class RulesWs implements WebService {
       .setInternal(true)
       .setHandler(searchHandler)
       .createParam("s", "To return rules whose title contains this string.")
-      .createParam("k", "An optional query that will be matched exactly agains rule keys.")
+      .createParam("k", "Key of the rule, for example : 'findbugs:DMI_USELESS_SUBSTRING'.")
       .createParam("languages", "Comma-separated list of language keys")
       .createParam("repositories", "Comma-separated list of repositories")
       .createParam("severities", "Comma-separated list of severities. Possible values: INFO | MINOR | MAJOR | CRITICAL | BLOCKER.")
