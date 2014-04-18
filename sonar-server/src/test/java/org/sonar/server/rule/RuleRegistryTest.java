@@ -97,8 +97,8 @@ public class RuleRegistryTest {
     esSetup.execute(
       EsSetup.index("rules", "rule", "1").withSource(testFileAsString("shared/rule1.json")),
       EsSetup.index("rules", "rule", "2").withSource(testFileAsString("shared/rule2.json")),
-      // rule 3 is removed
-      EsSetup.index("rules", "rule", "3").withSource(testFileAsString("shared/removed_rule.json"))
+      EsSetup.index("rules", "rule", "3").withSource(testFileAsString("shared/rule3.json")),
+      EsSetup.index("rules", "rule", "50").withSource(testFileAsString("shared/removed_rule.json"))
     );
     esSetup.client().admin().cluster().prepareHealth(RuleRegistry.INDEX_RULES).setWaitForGreenStatus().execute().actionGet();
   }
@@ -366,12 +366,12 @@ public class RuleRegistryTest {
 
   @Test
   public void filter_removed_rules() {
-    assertThat(registry.findIds(new HashMap<String, String>())).containsOnly(1, 2);
+    assertThat(registry.findIds(new HashMap<String, String>())).containsOnly(1, 2, 3);
   }
 
   @Test
   public void display_disabled_rule() {
-    assertThat(registry.findIds(ImmutableMap.of("status", "BETA|REMOVED"))).containsOnly(2, 3);
+    assertThat(registry.findIds(ImmutableMap.of("status", "BETA|REMOVED"))).containsOnly(2, 50);
   }
   
   @Test
@@ -460,23 +460,24 @@ public class RuleRegistryTest {
 
   @Test
   public void find_rules_by_severities() {
-    assertThat(registry.find(RuleQuery.builder().severities(newArrayList("MAJOR")).build()).results()).hasSize(1);
-    assertThat(registry.find(RuleQuery.builder().severities(newArrayList("MAJOR", "MINOR")).build()).results()).hasSize(2);
+    assertThat(registry.find(RuleQuery.builder().severities(newArrayList("MAJOR")).build()).results()).hasSize(2);
+    assertThat(registry.find(RuleQuery.builder().severities(newArrayList("MAJOR", "MINOR")).build()).results()).hasSize(3);
     assertThat(registry.find(RuleQuery.builder().severities(newArrayList("unknown")).build()).results()).isEmpty();
   }
 
   @Test
   public void find_rules_by_statuses() {
-    assertThat(registry.find(RuleQuery.builder().statuses(newArrayList("READY")).build()).results()).hasSize(1);
-    assertThat(registry.find(RuleQuery.builder().statuses(newArrayList("READY", "BETA")).build()).results()).hasSize(2);
+    assertThat(registry.find(RuleQuery.builder().statuses(newArrayList("READY")).build()).results()).hasSize(2);
+    assertThat(registry.find(RuleQuery.builder().statuses(newArrayList("READY", "BETA")).build()).results()).hasSize(3);
     assertThat(registry.find(RuleQuery.builder().statuses(newArrayList("unknown")).build()).results()).isEmpty();
   }
 
   @Test
   public void find_rules_by_tags() {
-    assertThat(registry.find(RuleQuery.builder().tags(newArrayList("has-params")).build()).results()).hasSize(1);
+    assertThat(registry.find(RuleQuery.builder().tags(newArrayList("has-params")).build()).results()).hasSize(2);
     assertThat(registry.find(RuleQuery.builder().tags(newArrayList("keep-enabled")).build()).results()).hasSize(1);
     assertThat(registry.find(RuleQuery.builder().tags(newArrayList("has-params", "keep-enabled")).build()).results()).hasSize(1);
+    assertThat(registry.find(RuleQuery.builder().tags(newArrayList("has-params", "integration-tests")).build()).results()).hasSize(1);
     assertThat(registry.find(RuleQuery.builder().tags(newArrayList("unknown")).build()).results()).isEmpty();
   }
 
@@ -484,20 +485,22 @@ public class RuleRegistryTest {
   public void find_rules_by_characteristics() {
     assertThat(registry.find(RuleQuery.builder().debtCharacteristics(newArrayList("MODULARITY")).build()).results()).hasSize(1);
     assertThat(registry.find(RuleQuery.builder().debtCharacteristics(newArrayList("REUSABILITY")).build()).results()).hasSize(1);
+    // FIXME query has to be updated
+//    assertThat(registry.find(RuleQuery.builder().debtCharacteristics(newArrayList("MODULARITY", "PORTABILITY")).build()).results()).hasSize(2);
     assertThat(registry.find(RuleQuery.builder().debtCharacteristics(newArrayList("MODULARITY", "REUSABILITY")).build()).results()).hasSize(1);
     assertThat(registry.find(RuleQuery.builder().debtCharacteristics(newArrayList("unknown")).build()).results()).isEmpty();
   }
 
   @Test
   public void find_rules_by_has_debt_characteristic() {
-    assertThat(registry.find(RuleQuery.builder().hasDebtCharacteristic(null).build()).results()).hasSize(2);
-    assertThat(registry.find(RuleQuery.builder().hasDebtCharacteristic(true).build()).results()).hasSize(1);
+    assertThat(registry.find(RuleQuery.builder().hasDebtCharacteristic(null).build()).results()).hasSize(3);
+    assertThat(registry.find(RuleQuery.builder().hasDebtCharacteristic(true).build()).results()).hasSize(2);
     assertThat(registry.find(RuleQuery.builder().hasDebtCharacteristic(false).build()).results()).hasSize(1);
   }
 
   @Test
   public void find_with_no_pagination() {
-    assertThat(registry.find(RuleQuery.builder().pageSize(-1).build()).results()).hasSize(2);
+    assertThat(registry.find(RuleQuery.builder().pageSize(-1).build()).results()).hasSize(3);
   }
 
   private String testFileAsString(String testFile) throws Exception {

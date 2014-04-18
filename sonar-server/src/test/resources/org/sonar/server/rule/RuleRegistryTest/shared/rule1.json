@@ -52,10 +52,8 @@
   ],
   "characteristicId": 1,
   "characteristicKey": "REUSABILITY",
-  "characteristicName": "Reusability",
   "subCharacteristicId": 2,
   "subCharacteristicKey": "MODULARITY",
-  "subCharacteristicName": "Modularity",
   "remediationFunction": "LINEAR_OFFSET",
   "remediationCoefficient": "1h",
   "remediationOffset": "15min"
