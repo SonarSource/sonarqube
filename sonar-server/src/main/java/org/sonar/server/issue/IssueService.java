@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
@@ -29,14 +28,11 @@ import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.issue.DefaultIssueBuilder;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.db.IssueStorage;
@@ -206,26 +202,15 @@ public class IssueService implements ServerComponent {
     return issue;
   }
 
-  public DefaultIssue createManualIssue(String componentKey, RuleKey ruleKey, @Nullable Integer line, @Nullable String message, @Nullable String severity,
-                                        @Nullable Double effortToFix, UserSession userSession) {
+  public DefaultIssue createManualIssue(DefaultIssue issue, UserSession userSession) {
     verifyLoggedIn(userSession);
-    ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(componentKey));
-    ResourceDto project = resourceDao.getRootProjectByComponentKey(componentKey);
-    if (resourceDto == null || project == null) {
-      throw new IllegalArgumentException("Unknown component: " + componentKey);
+    ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(issue.componentKey()));
+    if (resourceDto == null) {
+      throw new IllegalArgumentException("Unknown component: " + issue.componentKey());
     }
-
-    DefaultIssue issue = (DefaultIssue) new DefaultIssueBuilder()
-      .componentKey(resourceDto.getKey())
-      .projectKey(project.getKey())
-      .line(line)
-      .message(message)
-      .severity(Objects.firstNonNull(severity, Severity.MAJOR))
-      .effortToFix(effortToFix)
-      .ruleKey(ruleKey)
-      .reporter(UserSession.get().login())
-      .build();
-
+    // Force use of correct key in case deprecated key is used
+    issue.setComponentKey(resourceDto.getKey());
+    issue.setComponentId(resourceDto.getId());
     if (!authorizationDao.isAuthorizedComponentKey(resourceDto.getKey(), userSession.userId(), UserRole.USER)) {
       // TODO throw unauthorized
       throw new IllegalStateException("User does not have the required role");

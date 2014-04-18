@@ -67,7 +67,6 @@ public class ModuleIssues {
   private DefaultIssue newIssue(Violation violation) {
     return (DefaultIssue) new DefaultIssueBuilder()
       .componentKey(violation.getResource().getEffectiveKey())
-      .projectKey(project.getRoot().getEffectiveKey())
       .ruleKey(RuleKey.of(violation.getRule().getRepositoryKey(), violation.getRule().getKey()))
       .effortToFix(violation.getCost())
       .line(violation.getLineId())

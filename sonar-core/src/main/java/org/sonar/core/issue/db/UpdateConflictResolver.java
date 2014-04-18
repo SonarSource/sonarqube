@@ -41,7 +41,7 @@ class UpdateConflictResolver {
     IssueDto dbIssue = mapper.selectByKey(issue.key());
     if (dbIssue != null) {
       mergeFields(dbIssue, issue);
-      mapper.update(IssueDto.toDtoForUpdate(issue, dbIssue.getRootComponentId(), new Date()));
+      mapper.update(IssueDto.toDtoForUpdate(issue, new Date()));
     }
   }
 

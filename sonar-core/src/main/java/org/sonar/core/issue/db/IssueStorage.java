@@ -119,7 +119,7 @@ public abstract class IssueStorage {
   }
 
   private void update(IssueMapper issueMapper, Date now, DefaultIssue issue) {
-    IssueDto dto = IssueDto.toDtoForUpdate(issue, projectId(issue), now);
+    IssueDto dto = IssueDto.toDtoForUpdate(issue, now);
     if (Issue.STATUS_CLOSED.equals(issue.status()) || issue.selectedAt() == null) {
       // Issue is closed by scan or changed by end-user
       issueMapper.update(dto);

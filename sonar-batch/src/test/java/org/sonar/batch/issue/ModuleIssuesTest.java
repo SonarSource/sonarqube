@@ -73,7 +73,6 @@ public class ModuleIssuesTest {
   public void setUp() {
     when(project.getAnalysisDate()).thenReturn(new Date());
     when(project.getEffectiveKey()).thenReturn("org.apache:struts-core");
-    when(project.getRoot()).thenReturn(project);
   }
 
   @Test
@@ -226,7 +225,6 @@ public class ModuleIssuesTest {
     assertThat(issue.key()).isNotEmpty();
     assertThat(issue.ruleKey().toString()).isEqualTo("squid:AvoidCycle");
     assertThat(issue.componentKey()).isEqualTo("struts:src/org/struts/Action.java");
-    assertThat(issue.projectKey()).isEqualTo("org.apache:struts-core");
   }
 
   @Test

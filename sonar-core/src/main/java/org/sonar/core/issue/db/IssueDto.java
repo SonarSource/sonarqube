@@ -390,7 +390,7 @@ public final class IssueDto implements Serializable {
       .setUpdatedAt(now);
   }
 
-  public static IssueDto toDtoForUpdate(DefaultIssue issue, Long rootComponentId, Date now) {
+  public static IssueDto toDtoForUpdate(DefaultIssue issue, Date now) {
     // Invariant fields, like key and rule, can't be updated
     return new IssueDto()
       .setKee(issue.key())
@@ -408,7 +408,6 @@ public final class IssueDto implements Serializable {
       .setActionPlanKey(issue.actionPlanKey())
       .setIssueAttributes(KeyValueFormat.format(issue.attributes()))
       .setAuthorLogin(issue.authorLogin())
-      .setRootComponentId(rootComponentId)
       .setIssueCreationDate(issue.creationDate())
       .setIssueCloseDate(issue.closeDate())
       .setIssueUpdateDate(issue.updateDate())

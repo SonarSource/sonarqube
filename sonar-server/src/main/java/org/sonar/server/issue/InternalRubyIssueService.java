@@ -21,6 +21,7 @@ package org.sonar.server.issue;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
+import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
@@ -35,9 +36,11 @@ import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.SonarException;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
+import org.sonar.core.issue.DefaultIssueBuilder;
 import org.sonar.core.issue.DefaultIssueFilter;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.resource.ResourceDao;
@@ -233,8 +236,16 @@ public class InternalRubyIssueService implements ServerComponent {
       }
 
       if (result.ok()) {
-        DefaultIssue issue = issueService.createManualIssue(componentKey, ruleKey, RubyUtils.toInteger(params.get("line")), params.get("message"), params.get("severity"),
-          RubyUtils.toDouble(params.get("effortToFix")), UserSession.get());
+        DefaultIssue issue = (DefaultIssue) new DefaultIssueBuilder()
+          .componentKey(componentKey)
+          .line(RubyUtils.toInteger(params.get("line")))
+          .message(params.get("message"))
+          .severity(Objects.firstNonNull(params.get("severity"), Severity.MAJOR))
+          .effortToFix(RubyUtils.toDouble(params.get("effortToFix")))
+          .ruleKey(ruleKey)
+          .reporter(UserSession.get().login())
+          .build();
+        issue = issueService.createManualIssue(issue, UserSession.get());
         result.set(issue);
       }
 

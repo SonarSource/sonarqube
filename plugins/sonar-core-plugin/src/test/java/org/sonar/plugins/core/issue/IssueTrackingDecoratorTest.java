@@ -508,7 +508,7 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
   @Test
   public void merge_matched_issue() throws Exception {
     IssueDto previousIssue = new IssueDto().setKee("ABCDE").setResolution(null).setStatus("OPEN").setRuleKey_unit_test_only("squid", "AvoidCycle")
-      .setLine(10).setSeverity("MAJOR").setMessage("Message").setEffortToFix(1.5).setDebt(1L).setRootComponentKey_unit_test_only("sample");
+      .setLine(10).setSeverity("MAJOR").setMessage("Message").setEffortToFix(1.5).setDebt(1L);
     DefaultIssue issue = new DefaultIssue();
 
     IssueTrackingResult trackingResult = mock(IssueTrackingResult.class);
@@ -521,7 +521,6 @@ public class IssueTrackingDecoratorTest extends AbstractDaoTestCase {
     verify(updater).setPastMessage(eq(issue), eq("Message"), any(IssueChangeContext.class));
     verify(updater).setPastEffortToFix(eq(issue), eq(1.5), any(IssueChangeContext.class));
     verify(updater).setPastTechnicalDebt(eq(issue), eq(Duration.create(1L)), any(IssueChangeContext.class));
-    verify(updater).setPastProject(eq(issue), eq("sample"), any(IssueChangeContext.class));
   }
 
   @Test
