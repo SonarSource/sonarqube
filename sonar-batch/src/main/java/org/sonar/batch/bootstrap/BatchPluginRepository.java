@@ -36,11 +36,7 @@ import org.sonar.core.plugins.RemotePlugin;
 
 import java.io.File;
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
@@ -49,7 +45,6 @@ public class BatchPluginRepository implements PluginRepository {
 
   private static final Logger LOG = LoggerFactory.getLogger(BatchPluginRepository.class);
   private static final String CORE_PLUGIN = "core";
-  private static final String ENGLISH_PACK_PLUGIN = "l10nen";
 
   private PluginDownloader pluginDownloader;
   private Map<String, Plugin> pluginsByKey;
@@ -164,7 +159,7 @@ public class BatchPluginRepository implements PluginRepository {
     }
 
     boolean accepts(String pluginKey) {
-      if (CORE_PLUGIN.equals(pluginKey) || ENGLISH_PACK_PLUGIN.equals(pluginKey)) {
+      if (CORE_PLUGIN.equals(pluginKey)) {
         return true;
       }
 

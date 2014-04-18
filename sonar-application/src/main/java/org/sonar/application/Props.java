@@ -22,16 +22,14 @@ package org.sonar.application;
 import org.apache.commons.io.IOUtils;
 
 import javax.annotation.Nullable;
+
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
+import java.util.Map;
 import java.util.Properties;
 
-/**
- * TODO support env substitution and encryption
- */
 class Props {
+
   private final Properties props;
 
   Props(Properties props) {
@@ -80,8 +78,18 @@ class Props {
     FileReader reader = null;
     try {
       reader = new FileReader(propsFile);
+
+      // order is important : the last override the first
       p.load(reader);
+      p.putAll(System.getenv());
       p.putAll(System.getProperties());
+
+      p = ConfigurationUtils.interpolateEnvVariables(p);
+      p = decrypt(p);
+
+      // Set all properties as system properties to pass them to PlatformServletContextListener
+      System.setProperties(p);
+
       return new Props(p);
 
     } catch (Exception e) {
@@ -90,5 +98,20 @@ class Props {
     } finally {
       IOUtils.closeQuietly(reader);
     }
+  }
+
+  static Properties decrypt(Properties properties) {
+    Encryption encryption = new Encryption(properties.getProperty(AesCipher.ENCRYPTION_SECRET_KEY_PATH));
+    Properties result = new Properties();
+
+    for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+      String key = (String) entry.getKey();
+      String value = (String) entry.getValue();
+      if (encryption.isEncrypted(value)) {
+        value = encryption.decrypt(value);
+      }
+      result.setProperty(key, value);
+    }
+    return result;
   }
 }

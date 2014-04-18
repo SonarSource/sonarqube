@@ -20,22 +20,41 @@
 package org.sonar.server.platform;
 
 import org.hamcrest.core.Is;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
+
+import java.io.File;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertThat;
 
 public class ServerImplTest {
+
   @Rule
   public ExpectedException exception = ExpectedException.none();
 
+  @Rule
+  public TemporaryFolder sonarHome = new TemporaryFolder();
+
+  Settings settings;
+
+  ServerImpl server;
+
+  @Before
+  public void setUp() throws Exception {
+    settings = new Settings().setProperty(CoreProperties.SONAR_HOME, sonarHome.getRoot().getAbsolutePath());
+    new File(sonarHome.getRoot(), "web/deploy").mkdirs();
+
+    server = new ServerImpl(settings, "/org/sonar/server/platform/ServerImplTest/build.properties", "/org/sonar/server/platform/ServerImplTest/version.txt");
+  }
+
   @Test
-  public void alwaysReturnTheSameValues() {
-    ServerImpl server = new ServerImpl(new Settings(), "", "/org/sonar/server/platform/ServerImplTest/pom-with-version.properties");
+  public void always_return_the_same_values() {
     server.start();
 
     assertThat(server.getId()).isNotNull();
@@ -49,52 +68,48 @@ public class ServerImplTest {
   }
 
   @Test
-  public void getVersionFromFile() {
-    ServerImpl server = new ServerImpl(new Settings(), "", "/org/sonar/server/platform/ServerImplTest/pom-with-version.properties");
+  public void read_version_from_file() {
     server.start();
 
     assertThat(server.getVersion()).isEqualTo("1.0");
   }
 
   @Test
-  public void getImplementationBuildFromManifest() {
-    ServerImpl server = new ServerImpl(new Settings(),
-        "/org/sonar/server/platform/ServerImplTest/build.properties",
-        "/org/sonar/server/platform/ServerImplTest/pom-with-version.properties");
+  public void read_implementation_build_from_manifest() {
     server.start();
 
     assertThat(server.getImplementationBuild()).isEqualTo("0b9545a8b74aca473cb776275be4dc93a327c363");
   }
 
   @Test
-  public void testFileWithNoVersion() {
+  public void read_file_with_no_version() {
     exception.expect(IllegalStateException.class);
     exception.expectMessage("Unknown SonarQube version");
 
-    ServerImpl server = new ServerImpl(new Settings(), "", "/org/sonar/server/platform/ServerImplTest/pom-without-version.properties");
+    ServerImpl server = new ServerImpl(settings, "", "/org/sonar/server/platform/ServerImplTest/empty-version.txt");
     server.start();
   }
 
   @Test
-  public void testFileWithEmptyVersionParameter() {
+  public void read_file_with_empty_version() {
     exception.expect(IllegalStateException.class);
     exception.expectMessage("Unknown SonarQube version");
 
-    ServerImpl server = new ServerImpl(new Settings(), "", "/org/sonar/server/platform/ServerImplTest/pom-with-empty-version.properties");
+    ServerImpl server = new ServerImpl(settings, "", "/org/sonar/server/platform/ServerImplTest/empty-version.txt");
     server.start();
   }
 
   @Test
-  public void shouldFailIfFileNotFound() {
+  public void fail_if_version_file_not_found() {
     exception.expect(IllegalStateException.class);
     exception.expectMessage("Unknown SonarQube version");
 
-    ServerImpl server = new ServerImpl(new Settings(), "", "/org/sonar/server/platform/ServerImplTest/unknown-file.properties");
+    ServerImpl server = new ServerImpl(settings, "", "/org/sonar/server/platform/ServerImplTest/unknown-file.properties");
     server.start();
   }
 
   @Test
-  public void shouldLoadServerIdFromDatabase() {
+  public void load_server_id_from_database() {
     Settings settings = new Settings();
     settings.setProperty(CoreProperties.PERMANENT_SERVER_ID, "abcde");
 
@@ -102,4 +117,18 @@ public class ServerImplTest {
 
     assertThat(server.getPermanentServerId(), Is.is("abcde"));
   }
+
+  @Test
+  public void use_default_context_path() {
+    server.start();
+    assertThat(server.getContextPath()).isEqualTo("/");
+  }
+
+  @Test
+  public void get_context_path_from_settings() {
+    settings.setProperty("sonar.web.context", "/my_path");
+    server.start();
+    assertThat(server.getContextPath()).isEqualTo("/my_path");
+  }
+
 }

@@ -22,6 +22,7 @@ package org.sonar.api.platform;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 
+import java.io.File;
 import java.util.Date;
 
 /**
@@ -34,6 +35,12 @@ public abstract class Server implements BatchComponent, ServerComponent {
   public abstract String getVersion();
 
   public abstract Date getStartedAt();
+
+  public abstract File getRootDir();
+
+  public abstract File getDeployDir();
+
+  public abstract String getContextPath();
 
   /**
    * @return the server URL when executed from batch, else null.

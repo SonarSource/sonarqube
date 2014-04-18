@@ -57,6 +57,13 @@ public class RegisterDashboards implements Startable {
     this.loadedTemplateDao = loadedTemplateDao;
   }
 
+  /**
+   * Used when no plugin is defining some DashboardTemplate
+   */
+  public RegisterDashboards(DashboardDao dashboardDao, ActiveDashboardDao activeDashboardDao, LoadedTemplateDao loadedTemplateDao) {
+    this(new DashboardTemplate[]{}, dashboardDao, activeDashboardDao, loadedTemplateDao);
+  }
+
   @Override
   public void start() {
     TimeProfiler profiler = new TimeProfiler(LOG).start("Register dashboards");

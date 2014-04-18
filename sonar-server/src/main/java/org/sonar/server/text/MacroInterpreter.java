@@ -22,17 +22,17 @@ package org.sonar.server.text;
 
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.platform.Server;
 
-import javax.servlet.ServletContext;
 import java.util.List;
 
 public class MacroInterpreter implements ServerComponent {
 
   private final List<Macro> macros;
 
-  public MacroInterpreter(ServletContext servletContext) {
+  public MacroInterpreter(Server server) {
     this.macros = ImmutableList.<Macro>of(
-      new RuleMacro(servletContext.getContextPath())
+      new RuleMacro(server.getContextPath())
     );
   }
 

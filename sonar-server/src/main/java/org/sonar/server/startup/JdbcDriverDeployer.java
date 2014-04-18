@@ -23,6 +23,8 @@ import org.apache.commons.io.FileUtils;
 import org.sonar.home.cache.FileHashes;
 import org.sonar.server.platform.DefaultServerFileSystem;
 
+import javax.annotation.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -35,22 +37,35 @@ public class JdbcDriverDeployer {
   }
 
   public void start() {
+    File deployedDriver = null;
     File driver = fileSystem.getJdbcDriver();
-    File deployedDriver = new File(fileSystem.getDeployDir(), driver.getName());
-    if (!deployedDriver.exists() || deployedDriver.length() != driver.length()) {
-      try {
-        FileUtils.copyFile(driver, deployedDriver);
+    // Driver can be null for H2, in that case we write an empty jdbc-driver.txt file
+    if (driver != null) {
+      deployedDriver = new File(fileSystem.getDeployDir(), driver.getName());
+      if (!deployedDriver.exists() || deployedDriver.length() != driver.length()) {
+        try {
+          FileUtils.copyFile(driver, deployedDriver);
 
-      } catch (IOException e) {
-        throw new IllegalStateException("Can not copy the JDBC driver from " + driver + " to " + deployedDriver, e);
+        } catch (IOException e) {
+          throw new IllegalStateException("Can not copy the JDBC driver from " + driver + " to " + deployedDriver, e);
+        }
       }
     }
+
     File deployedDriverIndex = fileSystem.getDeployedJdbcDriverIndex();
     try {
-      String hash = new FileHashes().of(deployedDriver);
-      FileUtils.writeStringToFile(deployedDriverIndex, deployedDriver.getName() + "|" + hash);
+      FileUtils.writeStringToFile(deployedDriverIndex, driverIndexContent(deployedDriver));
     } catch (IOException e) {
       throw new IllegalStateException("Can not generate index of JDBC driver", e);
     }
   }
+
+  private String driverIndexContent(@Nullable File deployedDriver){
+    if (deployedDriver != null) {
+      String hash = new FileHashes().of(deployedDriver);
+      return deployedDriver.getName() + "|" + hash;
+    }
+    return "";
+  }
+
 }

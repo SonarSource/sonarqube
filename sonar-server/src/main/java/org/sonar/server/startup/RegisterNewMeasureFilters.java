@@ -54,6 +54,13 @@ public final class RegisterNewMeasureFilters {
     this.loadedTemplateDao = loadedTemplateDao;
   }
 
+  /**
+   * Used when no plugin is defining some FilterTemplate
+   */
+  public RegisterNewMeasureFilters(MeasureFilterDao filterDao, LoadedTemplateDao loadedTemplateDao) {
+    this(new FilterTemplate[]{}, filterDao, loadedTemplateDao);
+  }
+
   public void start() {
     TimeProfiler profiler = new TimeProfiler(LOG).start("Register measure filters");
 

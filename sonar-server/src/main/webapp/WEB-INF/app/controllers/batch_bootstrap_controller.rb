@@ -90,11 +90,6 @@ class BatchBootstrapController < Api::ApiController
     render :json => JSON(json_properties)
   end
 
-  # GET /batch_bootstrap/index
-  def index
-    render :file => java_facade.boostrapIndexPath(), :layout => false
-  end
-
   private
 
   def render_unauthorized(message, status=403)

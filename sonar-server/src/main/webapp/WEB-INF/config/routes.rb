@@ -14,6 +14,11 @@ ActionController::Routing::Routes.draw do |map|
   end
 
   map.connect 'api', :controller => 'api/java_ws', :action => 'redirect_to_ws_listing'
+
+  # deprecated, sonar-runner should use batch/index and batch/file?name=xxx
+  map.connect 'batch_bootstrap/index', :controller => 'api/java_ws', :action => 'index', :wspath => 'batch', :wsaction => 'index'
+  map.connect 'batch/:name', :controller => 'api/java_ws', :action => 'index', :wspath => 'batch', :wsaction => 'file', :requirements => { :name => /.*/ }
+
   map.connect 'api/metrics', :controller => 'api/metrics', :action => 'index', :conditions => { :method => :get }
   map.connect 'api/metrics/:id', :controller => 'api/metrics', :action => 'show', :conditions => { :method => :get }
   map.connect 'api/metrics/:id', :controller => 'api/metrics', :action => 'create', :conditions => { :method => :post }

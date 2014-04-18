@@ -65,6 +65,7 @@ class EmbeddedTomcat {
     tomcat.getHost().setDeployOnStartup(true);
 
     Props props = Props.create(env);
+
     Logging.configure(tomcat, env, props);
     Connectors.configure(tomcat, props);
     Webapp.configure(tomcat, env, props);

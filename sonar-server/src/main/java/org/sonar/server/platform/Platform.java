@@ -25,7 +25,8 @@ import org.sonar.api.platform.Server;
 import org.sonar.core.persistence.DatabaseVersion;
 
 import javax.annotation.CheckForNull;
-import javax.servlet.ServletContext;
+
+import java.util.Properties;
 
 /**
  * @since 2.2
@@ -40,7 +41,7 @@ public class Platform {
   private boolean dbConnected = false;
   private boolean started = false;
 
-  private Platform() {
+  public Platform() {
   }
 
   public static Platform getInstance() {
@@ -65,8 +66,8 @@ public class Platform {
     return null;
   }
 
-  public void init(ServletContext servletContext) {
-    serverComponents = new ServerComponents(this, servletContext);
+  public void init(Properties properties) {
+    serverComponents = new ServerComponents(this, properties);
     if (!dbConnected) {
       startLevel1Container();
       startLevel2Container();

@@ -20,14 +20,14 @@
 
 package org.sonar.batch.issue.ignore.pattern;
 
-import org.sonar.batch.issue.ignore.IssueExclusionsConfiguration;
-import org.sonar.batch.issue.ignore.pattern.IssueExclusionPatternInitializer;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.SonarException;
+import org.sonar.core.config.IssueExclusionProperties;
+
 import static org.fest.assertions.Assertions.assertThat;
 
 public class IssueExclusionPatternInitializerTest {
@@ -38,7 +38,7 @@ public class IssueExclusionPatternInitializerTest {
 
   @Before
   public void init() {
-    settings = new Settings(new PropertyDefinitions(IssueExclusionsConfiguration.getPropertyDefinitions()));
+    settings = new Settings(new PropertyDefinitions(IssueExclusionProperties.all()));
     patternsInitializer = new IssueExclusionPatternInitializer(settings);
   }
 
@@ -51,11 +51,11 @@ public class IssueExclusionPatternInitializerTest {
 
   @Test
   public void shouldHavePatternsBasedOnMulticriteriaPattern() {
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY, "1,2");
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY + ".1." + IssueExclusionsConfiguration.RESOURCE_KEY, "org/foo/Bar.java");
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY + ".1." + IssueExclusionsConfiguration.RULE_KEY, "*");
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY + ".2." + IssueExclusionsConfiguration.RESOURCE_KEY, "org/foo/Hello.java");
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY + ".2." + IssueExclusionsConfiguration.RULE_KEY, "checkstyle:MagicNumber");
+    settings.setProperty("sonar.issue.ignore" + ".multicriteria", "1,2");
+    settings.setProperty("sonar.issue.ignore" + ".multicriteria" + ".1." + "resourceKey", "org/foo/Bar.java");
+    settings.setProperty("sonar.issue.ignore" + ".multicriteria" + ".1." + "ruleKey", "*");
+    settings.setProperty("sonar.issue.ignore" + ".multicriteria" + ".2." + "resourceKey", "org/foo/Hello.java");
+    settings.setProperty("sonar.issue.ignore" + ".multicriteria" + ".2." + "ruleKey", "checkstyle:MagicNumber");
     patternsInitializer.initPatterns();
 
     assertThat(patternsInitializer.hasConfiguredPatterns()).isTrue();
@@ -77,29 +77,29 @@ public class IssueExclusionPatternInitializerTest {
 
   @Test(expected = SonarException.class)
   public void shouldLogInvalidResourceKey() {
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY, "1");
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY + ".1." + IssueExclusionsConfiguration.RESOURCE_KEY, "");
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY + ".1." + IssueExclusionsConfiguration.RULE_KEY, "*");
+    settings.setProperty("sonar.issue.ignore" + ".multicriteria", "1");
+    settings.setProperty("sonar.issue.ignore" + ".multicriteria" + ".1." + "resourceKey", "");
+    settings.setProperty("sonar.issue.ignore" + ".multicriteria" + ".1." + "ruleKey", "*");
     patternsInitializer.initPatterns();
   }
 
   @Test(expected = SonarException.class)
   public void shouldLogInvalidRuleKey() {
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY, "1");
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY + ".1." + IssueExclusionsConfiguration.RESOURCE_KEY, "*");
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_MULTICRITERIA_EXCLUSION_KEY + ".1." + IssueExclusionsConfiguration.RULE_KEY, "");
+    settings.setProperty("sonar.issue.ignore" + ".multicriteria", "1");
+    settings.setProperty("sonar.issue.ignore" + ".multicriteria" + ".1." + "resourceKey", "*");
+    settings.setProperty("sonar.issue.ignore" + ".multicriteria" + ".1." + "ruleKey", "");
     patternsInitializer.initPatterns();
   }
 
   @Test
   public void shouldReturnBlockPattern() {
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_BLOCK_KEY, "1,2,3");
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_BLOCK_KEY + ".1." + IssueExclusionsConfiguration.BEGIN_BLOCK_REGEXP, "// SONAR-OFF");
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_BLOCK_KEY + ".1." + IssueExclusionsConfiguration.END_BLOCK_REGEXP, "// SONAR-ON");
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_BLOCK_KEY + ".2." + IssueExclusionsConfiguration.BEGIN_BLOCK_REGEXP, "// FOO-OFF");
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_BLOCK_KEY + ".2." + IssueExclusionsConfiguration.END_BLOCK_REGEXP, "// FOO-ON");
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_BLOCK_KEY + ".3." + IssueExclusionsConfiguration.BEGIN_BLOCK_REGEXP, "// IGNORE-TO-EOF");
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_BLOCK_KEY + ".3." + IssueExclusionsConfiguration.END_BLOCK_REGEXP, "");
+    settings.setProperty(IssueExclusionProperties.PATTERNS_BLOCK_KEY, "1,2,3");
+    settings.setProperty(IssueExclusionProperties.PATTERNS_BLOCK_KEY + ".1." + IssueExclusionProperties.BEGIN_BLOCK_REGEXP, "// SONAR-OFF");
+    settings.setProperty(IssueExclusionProperties.PATTERNS_BLOCK_KEY + ".1." + IssueExclusionProperties.END_BLOCK_REGEXP, "// SONAR-ON");
+    settings.setProperty(IssueExclusionProperties.PATTERNS_BLOCK_KEY + ".2." + IssueExclusionProperties.BEGIN_BLOCK_REGEXP, "// FOO-OFF");
+    settings.setProperty(IssueExclusionProperties.PATTERNS_BLOCK_KEY + ".2." + IssueExclusionProperties.END_BLOCK_REGEXP, "// FOO-ON");
+    settings.setProperty(IssueExclusionProperties.PATTERNS_BLOCK_KEY + ".3." + IssueExclusionProperties.BEGIN_BLOCK_REGEXP, "// IGNORE-TO-EOF");
+    settings.setProperty(IssueExclusionProperties.PATTERNS_BLOCK_KEY + ".3." + IssueExclusionProperties.END_BLOCK_REGEXP, "");
     patternsInitializer.loadFileContentPatterns();
 
     assertThat(patternsInitializer.hasConfiguredPatterns()).isTrue();
@@ -112,17 +112,17 @@ public class IssueExclusionPatternInitializerTest {
 
   @Test(expected = SonarException.class)
   public void shouldLogInvalidStartBlockPattern() {
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_BLOCK_KEY, "1");
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_BLOCK_KEY + ".1." + IssueExclusionsConfiguration.BEGIN_BLOCK_REGEXP, "");
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_BLOCK_KEY + ".1." + IssueExclusionsConfiguration.END_BLOCK_REGEXP, "// SONAR-ON");
+    settings.setProperty(IssueExclusionProperties.PATTERNS_BLOCK_KEY, "1");
+    settings.setProperty(IssueExclusionProperties.PATTERNS_BLOCK_KEY + ".1." + IssueExclusionProperties.BEGIN_BLOCK_REGEXP, "");
+    settings.setProperty(IssueExclusionProperties.PATTERNS_BLOCK_KEY + ".1." + IssueExclusionProperties.END_BLOCK_REGEXP, "// SONAR-ON");
     patternsInitializer.loadFileContentPatterns();
   }
 
   @Test
   public void shouldReturnAllFilePattern() {
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_ALLFILE_KEY, "1,2");
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_ALLFILE_KEY + ".1." + IssueExclusionsConfiguration.FILE_REGEXP, "@SONAR-IGNORE-ALL");
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_ALLFILE_KEY + ".2." + IssueExclusionsConfiguration.FILE_REGEXP, "//FOO-IGNORE-ALL");
+    settings.setProperty(IssueExclusionProperties.PATTERNS_ALLFILE_KEY, "1,2");
+    settings.setProperty(IssueExclusionProperties.PATTERNS_ALLFILE_KEY + ".1." + IssueExclusionProperties.FILE_REGEXP, "@SONAR-IGNORE-ALL");
+    settings.setProperty(IssueExclusionProperties.PATTERNS_ALLFILE_KEY + ".2." + IssueExclusionProperties.FILE_REGEXP, "//FOO-IGNORE-ALL");
     patternsInitializer.loadFileContentPatterns();
 
     assertThat(patternsInitializer.hasConfiguredPatterns()).isTrue();
@@ -135,8 +135,8 @@ public class IssueExclusionPatternInitializerTest {
 
   @Test(expected = SonarException.class)
   public void shouldLogInvalidAllFilePattern() {
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_ALLFILE_KEY, "1");
-    settings.setProperty(IssueExclusionsConfiguration.PATTERNS_ALLFILE_KEY + ".1." + IssueExclusionsConfiguration.FILE_REGEXP, "");
+    settings.setProperty(IssueExclusionProperties.PATTERNS_ALLFILE_KEY, "1");
+    settings.setProperty(IssueExclusionProperties.PATTERNS_ALLFILE_KEY + ".1." + IssueExclusionProperties.FILE_REGEXP, "");
     patternsInitializer.loadFileContentPatterns();
   }
 }

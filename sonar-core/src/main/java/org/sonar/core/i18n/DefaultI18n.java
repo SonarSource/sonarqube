@@ -49,7 +49,7 @@ public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Start
   public static final String BUNDLE_PACKAGE = "org.sonar.l10n.";
 
   private PluginRepository pluginRepository;
-  private I18nClassloader i18nClassloader;
+  private ClassLoader classloader;
   private Map<String, String> propertyToBundles;
   private final ResourceBundle.Control control;
   private final System2 system2;
@@ -81,28 +81,36 @@ public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Start
   }
 
   @VisibleForTesting
-  void doStart(I18nClassloader classloader) {
-    this.i18nClassloader = classloader;
+  void doStart(ClassLoader classloader) {
+    this.classloader = classloader;
     propertyToBundles = Maps.newHashMap();
-    for (PluginMetadata plugin : pluginRepository.getMetadata()) {
-      try {
-        String bundleKey = BUNDLE_PACKAGE + plugin.getKey();
-        ResourceBundle bundle = ResourceBundle.getBundle(bundleKey, Locale.ENGLISH, i18nClassloader, control);
-        Enumeration<String> keys = bundle.getKeys();
-        while (keys.hasMoreElements()) {
-          String key = keys.nextElement();
-          propertyToBundles.put(key, bundleKey);
-        }
-      } catch (MissingResourceException e) {
-        // ignore
+    Collection<PluginMetadata> metadata = pluginRepository.getMetadata();
+    if (metadata.isEmpty()) {
+      addPlugin("core");
+    } else {
+      for (PluginMetadata plugin : pluginRepository.getMetadata()) {
+        addPlugin(plugin.getKey());
       }
     }
     LOG.debug(String.format("Loaded %d properties from l10n bundles", propertyToBundles.size()));
   }
+  private void addPlugin(String pluginKey){
+    try {
+      String bundleKey = BUNDLE_PACKAGE + pluginKey;
+      ResourceBundle bundle = ResourceBundle.getBundle(bundleKey, Locale.ENGLISH, this.classloader, control);
+      Enumeration<String> keys = bundle.getKeys();
+      while (keys.hasMoreElements()) {
+        String key = keys.nextElement();
+        propertyToBundles.put(key, bundleKey);
+      }
+    } catch (MissingResourceException e) {
+      // ignore
+    }
+  }
 
   @Override
   public void stop() {
-    i18nClassloader = null;
+    classloader = null;
     propertyToBundles = null;
   }
 
@@ -112,7 +120,7 @@ public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Start
     String value = null;
     if (bundleKey != null) {
       try {
-        ResourceBundle resourceBundle = ResourceBundle.getBundle(bundleKey, locale, i18nClassloader, control);
+        ResourceBundle resourceBundle = ResourceBundle.getBundle(bundleKey, locale, classloader, control);
         value = resourceBundle.getString(key);
       } catch (MissingResourceException e1) {
         // ignore
@@ -165,7 +173,7 @@ public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Start
       filePath += "_" + locale.getLanguage();
     }
     filePath += "/" + filename;
-    InputStream input = i18nClassloader.getResourceAsStream(filePath);
+    InputStream input = classloader.getResourceAsStream(filePath);
     if (input != null) {
       result = readInputStream(filePath, input);
     }
@@ -198,6 +206,6 @@ public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Start
   }
 
   ClassLoader getBundleClassLoader() {
-    return i18nClassloader;
+    return classloader;
   }
 }

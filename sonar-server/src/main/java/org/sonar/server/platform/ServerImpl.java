@@ -20,7 +20,9 @@
 package org.sonar.server.platform;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
+import com.google.common.io.Resources;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
@@ -30,8 +32,10 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
@@ -42,21 +46,24 @@ public final class ServerImpl extends Server implements Startable {
   private final Settings settings;
   private final Date startedAt;
   private final String buildProperties;
-  private final String pomProperties;
+  private final String versionPath;
   private String id;
   private String version;
   private String implementationBuild;
+  private String contextPath;
+  private File sonarHome;
+  private File deployDir;
 
   public ServerImpl(Settings settings) {
-    this(settings, "/build.properties", "/META-INF/maven/org.codehaus.sonar/sonar-plugin-api/pom.properties");
+    this(settings, "/build.properties", "/sq-version.txt");
   }
 
   @VisibleForTesting
-  ServerImpl(Settings settings, String buildProperties, String pomProperties) {
+  ServerImpl(Settings settings, String buildProperties, String versionPath) {
     this.settings = settings;
     this.startedAt = new Date();
     this.buildProperties = buildProperties;
-    this.pomProperties = pomProperties;
+    this.versionPath = versionPath;
   }
 
   @Override
@@ -64,12 +71,16 @@ public final class ServerImpl extends Server implements Startable {
     try {
       id = new SimpleDateFormat("yyyyMMddHHmmss").format(startedAt);
 
-      version = read(pomProperties).getProperty("version", "");
+      version = readVersion(versionPath);
       implementationBuild = read(buildProperties).getProperty("Implementation-Build");
+      contextPath = StringUtils.defaultIfBlank(settings.getString("sonar.web.context"), "/");
 
-      if (StringUtils.isBlank(version)) {
-        throw new IllegalStateException("Unknown SonarQube version");
+      sonarHome = new File(settings.getString(CoreProperties.SONAR_HOME));
+      if (!sonarHome.isDirectory()) {
+        throw new IllegalStateException("SonarQube home directory is not valid");
       }
+
+      deployDir = new File(sonarHome, "/web/deploy/");
 
       LOG.info("SonarQube {}", Joiner.on(" / ").skipNulls().join("Server", version, implementationBuild));
 
@@ -107,6 +118,32 @@ public final class ServerImpl extends Server implements Startable {
     return startedAt;
   }
 
+  @Override
+  public File getRootDir() {
+    return sonarHome;
+  }
+
+  @Override
+  public File getDeployDir() {
+    return deployDir;
+  }
+
+  @Override
+  public String getContextPath() {
+    return contextPath;
+  }
+
+  private static String readVersion(String filename) throws IOException {
+    URL url = ServerImpl.class.getResource(filename);
+    if (url != null) {
+      String version = Resources.toString(url, Charsets.UTF_8);
+      if (!StringUtils.isBlank(version)) {
+        return  StringUtils.deleteWhitespace(version);
+      }
+    }
+    throw new IllegalStateException("Unknown SonarQube version");
+  }
+
   private static Properties read(String filename) throws IOException {
     Properties properties = new Properties();
 
@@ -122,6 +159,7 @@ public final class ServerImpl extends Server implements Startable {
 
     return properties;
   }
+
   @Override
   public String getURL() {
     return null;

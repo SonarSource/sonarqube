@@ -19,17 +19,13 @@
  */
 package org.sonar.server.platform;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.configuration.Configuration;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
-import org.sonar.core.config.ConfigurationUtils;
 
 import javax.annotation.Nullable;
-import javax.servlet.ServletContext;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
@@ -47,23 +43,14 @@ import java.util.Properties;
  */
 public class ServerSettings extends Settings {
 
-  public static final String DEPLOY_DIR = "sonar.web.deployDir";
-
+  private final Properties properties;
   private Configuration deprecatedConfiguration;
-  private File deployDir;
-  private File sonarHome;
 
-  public ServerSettings(PropertyDefinitions definitions, Configuration deprecatedConfiguration, ServletContext servletContext) {
-    this(definitions, deprecatedConfiguration, getDeployDir(servletContext), SonarHome.getHome());
-  }
-
-  @VisibleForTesting
-  ServerSettings(PropertyDefinitions definitions, Configuration deprecatedConfiguration, File deployDir, File sonarHome) {
+  public ServerSettings(PropertyDefinitions definitions, Configuration deprecatedConfiguration, Properties properties) {
     super(definitions);
     this.deprecatedConfiguration = deprecatedConfiguration;
-    this.deployDir = deployDir;
-    this.sonarHome = sonarHome;
-    load(Collections.<String, String> emptyMap());
+    this.properties = properties;
+    load(Collections.<String, String>emptyMap());
     // Secret key is loaded from conf/sonar.properties
     getEncryption().setPathToSecretKey(getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
   }
@@ -74,41 +61,12 @@ public class ServerSettings extends Settings {
 
   private ServerSettings load(Map<String, String> databaseSettings) {
     clear();
-    setProperty(CoreProperties.SONAR_HOME, sonarHome.getAbsolutePath());
-    setProperty(DEPLOY_DIR, deployDir.getAbsolutePath());
 
     // order is important : the last override the first
     addProperties(databaseSettings);
-    loadPropertiesFile(sonarHome);
-    addEnvironmentVariables();
-    addSystemProperties();
+    addProperties(properties);
 
     return this;
-  }
-
-  private void loadPropertiesFile(File sonarHome) {
-    File propertiesFile = new File(sonarHome, "conf/sonar.properties");
-    if (!propertiesFile.isFile() || !propertiesFile.exists()) {
-      throw new IllegalStateException("Properties file does not exist: " + propertiesFile);
-    }
-    try {
-      Properties p = ConfigurationUtils.openProperties(propertiesFile);
-      addProperties(ConfigurationUtils.interpolateEnvVariables(p));
-    } catch (Exception e) {
-      throw new IllegalStateException("Fail to load configuration file: " + propertiesFile, e);
-    }
-  }
-
-  static File getDeployDir(ServletContext servletContext) {
-    String dirname = servletContext.getRealPath("/deploy/");
-    if (dirname == null) {
-      throw new IllegalArgumentException("Web app directory not found : /deploy/");
-    }
-    File dir = new File(dirname);
-    if (!dir.exists()) {
-      throw new IllegalArgumentException("Web app directory does not exist: " + dir);
-    }
-    return dir;
   }
 
   @Override

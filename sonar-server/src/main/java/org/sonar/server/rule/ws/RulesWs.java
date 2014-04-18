@@ -43,6 +43,7 @@ public class RulesWs implements WebService {
     controller.createAction("list")
       .setDescription("List rules that match the given criteria")
       .setSince("4.3")
+      .setInternal(true)
       .setHandler(searchHandler)
       .createParam("s", "An optional query that will be matched against rule titles.")
       .createParam("k", "An optional query that will be matched exactly agains rule keys.")

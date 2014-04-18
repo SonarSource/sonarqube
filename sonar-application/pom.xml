@@ -17,13 +17,25 @@
 
   <dependencies>
     <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+    </dependency>
+    <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -44,6 +56,12 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${pom.groupId}</groupId>
+      <artifactId>sonar-batch-maven-compat</artifactId>
+      <version>${pom.version}</version>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.tomcat.embed</groupId>
@@ -72,11 +90,6 @@
     <dependency>
       <groupId>postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -134,13 +147,6 @@
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar.plugins</groupId>
-      <artifactId>sonar-l10n-en-plugin</artifactId>
-      <version>${project.version}</version>
-      <type>sonar-plugin</type>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar.plugins</groupId>
       <artifactId>sonar-email-notifications-plugin</artifactId>
       <version>${project.version}</version>
       <type>sonar-plugin</type>
@@ -155,13 +161,6 @@
     <dependency>
       <groupId>org.codehaus.sonar-plugins.java</groupId>
       <artifactId>sonar-java-plugin</artifactId>
-      <type>sonar-plugin</type>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar.plugins</groupId>
-      <artifactId>sonar-maven-batch-plugin</artifactId>
-      <version>${project.version}</version>
       <type>sonar-plugin</type>
       <scope>runtime</scope>
     </dependency>
@@ -201,12 +200,6 @@
       <artifactId>http-request</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <scope>test</scope>
-    </dependency>
-
   </dependencies>
 
   <build>
@@ -259,8 +252,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <minsize>55000000</minsize>
-                  <maxsize>75000000</maxsize>
+                  <minsize>80000000</minsize>
+                  <maxsize>88000000</maxsize>
                   <files>
                     <file>${project.build.directory}/sonarqube-${project.version}.zip</file>
                   </files>

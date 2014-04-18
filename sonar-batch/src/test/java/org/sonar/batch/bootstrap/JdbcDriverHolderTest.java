@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.bootstrap;
 
+import com.google.common.io.Resources;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,9 +33,7 @@ import java.io.File;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class JdbcDriverHolderTest {
 
@@ -59,10 +58,10 @@ public class JdbcDriverHolderTest {
   }
 
   @Test
-  public void should_extend_classloader_with_jdbc_driver() throws Exception {
+  public void extend_classloader_with_jdbc_driver() throws Exception {
     FileCache cache = mock(FileCache.class);
 
-    File fakeDriver = new File(getClass().getResource("/org/sonar/batch/bootstrap/JdbcDriverHolderTest/jdbc-driver.jar").toURI());
+    File fakeDriver = new File(Resources.getResource(JdbcDriverHolderTest.class, "JdbcDriverHolderTest/jdbc-driver.jar").getFile());
     when(cache.get(eq("ojdbc14.jar"), eq("fakemd5"), any(FileCache.Downloader.class))).thenReturn(fakeDriver);
 
     /* jdbc-driver.jar has just one file /foo/foo.txt */
@@ -85,7 +84,22 @@ public class JdbcDriverHolderTest {
   }
 
   @Test
-  public void should_be_disabled_if_preview() {
+  public void do_nothing_when_jdbc_driver_file_is_empty() throws Exception {
+    FileCache cache = mock(FileCache.class);
+
+    ServerClient server = mock(ServerClient.class);
+    when(server.request("/deploy/jdbc-driver.txt")).thenReturn("");
+
+    JdbcDriverHolder holder = new JdbcDriverHolder(cache, mode, server);
+    holder.start();
+
+    verify(server, never()).download(anyString(), any(File.class));
+    verifyZeroInteractions(cache);
+    assertThat(holder.getClassLoader()).isNull();
+  }
+
+  @Test
+  public void be_disabled_if_preview() {
     FileCache cache = mock(FileCache.class);
     when(mode.isPreview()).thenReturn(true);
     ServerClient server = mock(ServerClient.class);

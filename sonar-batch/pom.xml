@@ -7,7 +7,6 @@
     <version>4.4-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.codehaus.sonar</groupId>
   <artifactId>sonar-batch</artifactId>
   <name>SonarQube :: Batch</name>
 
@@ -40,6 +39,16 @@
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-plugin-api</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>jfree</groupId>
+          <artifactId>jcommon</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>jfree</groupId>
+          <artifactId>jfreechat</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
@@ -52,11 +61,13 @@
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
+      <version>3.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-core</artifactId>
+      <version>3.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

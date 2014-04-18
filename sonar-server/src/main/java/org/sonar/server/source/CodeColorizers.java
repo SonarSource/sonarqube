@@ -19,6 +19,7 @@
  */
 package org.sonar.server.source;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.utils.Logs;
@@ -47,6 +48,13 @@ public class CodeColorizers implements ServerExtension {
     }
 
     Logs.INFO.info("Code colorizer, supported languages: " + StringUtils.join(byLang.keySet(), ","));
+  }
+
+  /**
+   * Used when no plugin is defining some CodeColorizerFormat
+   */
+  public CodeColorizers() {
+    this(Lists.<CodeColorizerFormat>newArrayList());
   }
 
   public String toHtml(String code, String language) {

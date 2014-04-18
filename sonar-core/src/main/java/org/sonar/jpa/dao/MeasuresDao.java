@@ -100,7 +100,7 @@ public class MeasuresDao extends BaseDao {
       getSession().getEntityManager().merge(dbMetric);
 
     } else {
-      getSession().getEntityManager().persist(metric);
+      getSession().getEntityManager().persist(new Metric().merge(metric));
     }
   }
 

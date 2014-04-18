@@ -45,7 +45,6 @@ public class GwtPublisherTest {
     outputDir = new File("./target/test-tmp/org/sonar/server/startup/GwtPublisherTest/output");
     if (outputDir.exists()) {
       FileUtils.forceDelete(outputDir);
-
     }
   }
 

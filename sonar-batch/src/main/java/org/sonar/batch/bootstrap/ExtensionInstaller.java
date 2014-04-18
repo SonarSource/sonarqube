@@ -44,6 +44,13 @@ public class ExtensionInstaller {
 
   public ExtensionInstaller install(ComponentContainer container, ExtensionMatcher matcher) {
     boolean preview = analysisMode.isPreview();
+
+    // core components
+    for (Object o : BatchComponents.all()) {
+      doInstall(container, matcher, null, preview, o);
+    }
+
+    // plugin extensions
     for (Map.Entry<PluginMetadata, Plugin> entry : pluginRepository.getPluginsByMetadata().entrySet()) {
       PluginMetadata metadata = entry.getKey();
       Plugin plugin = entry.getValue();
