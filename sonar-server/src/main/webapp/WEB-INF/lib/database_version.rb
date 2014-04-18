@@ -70,6 +70,7 @@ class DatabaseVersion
 
   def self.automatic_setup
     if current_version<=0
+      try_restore_structure_dump()
       upgrade_and_start()
     elsif uptodate?
       load_java_web_services
@@ -81,6 +82,20 @@ class DatabaseVersion
 
   def self.connected?
     ActiveRecord::Base.connected?
+  end
+
+  def self.try_restore_structure_dump()
+    ::Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().createDatabase()
+  end
+
+  def self.execute_sql_requests(requests)
+    requests.each do |request|
+      unless request.blank? || request.start_with?('--')
+        request.chomp!
+        request.chop! if request.end_with?(';')
+        ActiveRecord::Base.connection.execute(request)
+      end
+    end
   end
 
   def self.dialect
