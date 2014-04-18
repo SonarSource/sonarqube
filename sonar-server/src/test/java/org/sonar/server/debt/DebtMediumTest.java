@@ -24,6 +24,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.debt.DebtCharacteristic;
+import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
@@ -60,7 +61,32 @@ public class DebtMediumTest {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     DebtModelService debtModelService = serverTester.get(DebtModelService.class);
+    int nb = debtModelService.characteristics().size();
+
     DebtCharacteristic result = debtModelService.create("New characteristic", null);
+
+    assertThat(result.name()).isEqualTo("New characteristic");
+    assertThat(result.key()).isEqualTo("NEW_CHARACTERISTIC");
+    assertThat(result.isSub()).isFalse();
+    assertThat(result.order()).isEqualTo(nb + 1);
+
+    assertThat(debtModelService.characteristicByKey(result.key())).isNotNull();
+  }
+
+  @Test
+  public void create_sub_characteristic() throws Exception {
+    MockUserSession.set().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+
+    DebtModelService debtModelService = serverTester.get(DebtModelService.class);
+
+    DefaultDebtCharacteristic parent = (DefaultDebtCharacteristic) debtModelService.characteristicByKey("REUSABILITY");
+
+    DebtCharacteristic result = debtModelService.create("New characteristic", parent.id());
+
+    assertThat(result.name()).isEqualTo("New characteristic");
+    assertThat(result.key()).isEqualTo("NEW_CHARACTERISTIC");
+    assertThat(result.isSub()).isTrue();
+    assertThat(result.order()).isNull();
 
     assertThat(debtModelService.characteristicByKey(result.key())).isNotNull();
   }
