@@ -20,23 +20,10 @@
 
 package org.sonar.server.rule;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
-import static com.google.common.collect.Sets.newHashSet;
-import static org.elasticsearch.index.query.FilterBuilders.boolFilter;
-import static org.elasticsearch.index.query.FilterBuilders.termFilter;
-import static org.elasticsearch.index.query.FilterBuilders.termsFilter;
-import static org.sonar.api.rules.Rule.STATUS_REMOVED;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
+import com.google.common.collect.Multimap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.elasticsearch.ElasticSearchException;
@@ -49,12 +36,8 @@ import org.elasticsearch.common.io.BytesStream;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
-import org.elasticsearch.index.query.BoolFilterBuilder;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.index.query.MatchQueryBuilder.Operator;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.SortOrder;
@@ -63,11 +46,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.rule.RuleDao;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.core.rule.RuleParamDto;
-import org.sonar.core.rule.RuleRuleTagDto;
-import org.sonar.core.rule.RuleTagType;
+import org.sonar.core.rule.*;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.es.ESIndex;
@@ -76,10 +55,21 @@ import org.sonar.server.paging.PagedResult;
 import org.sonar.server.paging.Paging;
 import org.sonar.server.paging.PagingResult;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
-import com.google.common.collect.Multimap;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newHashSet;
+import static org.elasticsearch.index.query.FilterBuilders.*;
+import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
+import static org.sonar.api.rules.Rule.STATUS_REMOVED;
 
 /**
  * Fill search index with rules
@@ -420,15 +410,14 @@ public class RuleRegistry {
     addMustTermOrTerms(mainFilter, RuleDocument.FIELD_STATUS, query.statuses());
 
     if (!query.tags().isEmpty()) {
-      mainFilter.must(FilterBuilders.queryFilter(
-        QueryBuilders.multiMatchQuery(query.tags(), RuleDocument.FIELD_ADMIN_TAGS, RuleDocument.FIELD_SYSTEM_TAGS).operator(Operator.OR))
-        );
+      for (String tag: query.tags()) {
+        mainFilter.must(queryFilter(multiMatchQuery(tag, RuleDocument.FIELD_ADMIN_TAGS, RuleDocument.FIELD_SYSTEM_TAGS)));
+      }
     }
 
     if (!query.debtCharacteristics().isEmpty()) {
       mainFilter.must(FilterBuilders.queryFilter(
-        QueryBuilders.multiMatchQuery(query.debtCharacteristics(), RuleDocument.FIELD_CHARACTERISTIC_KEY, RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY).operator(Operator.OR))
-        );
+        QueryBuilders.multiMatchQuery(query.debtCharacteristics(), RuleDocument.FIELD_CHARACTERISTIC_KEY, RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY).operator(Operator.OR)));
     }
 
     if (query.hasDebtCharacteristic() != null) {
