@@ -51,7 +51,7 @@ public class RulesWs implements WebService {
       .createParam("repositories", "Comma-separated list of repositories")
       .createParam("severities", "Comma-separated list of severities. Possible values: INFO | MINOR | MAJOR | CRITICAL | BLOCKER.")
       .createParam("statuses", "Comma-separated list of statuses. Possible values: READY | BETA | DEPRECATED.")
-      .createParam("tags", "Comma-separated list of tags. The rule is returned if it matches at least of one these tags.")
+      .createParam("tags", "Comma-separated list of tags. The rule is returned if it matches all the tags.")
       .createParam("debtCharacteristics", "Comma-separated list of characteristics / sub-characteristics.")
       .createParam("hasDebtCharacteristic", "Determine if returned rules should be linked to a debt characteristic or not. Possible values: true | false")
       .createParam("ps", "Page size (default is 25).")
