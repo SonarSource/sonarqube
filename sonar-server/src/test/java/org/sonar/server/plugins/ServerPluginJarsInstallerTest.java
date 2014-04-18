@@ -59,6 +59,8 @@ public class ServerPluginJarsInstallerTest {
   @Before
   public void before() throws IOException {
     when(server.getVersion()).thenReturn("3.1");
+    when(server.getDeployDir()).thenReturn(temp.newFolder("deploy"));
+
     homeDir = temp.newFolder("home");
     pluginsDir = new File(homeDir, "extensions/plugins");
     FileUtils.forceMkdir(pluginsDir);
@@ -67,6 +69,7 @@ public class ServerPluginJarsInstallerTest {
     bundledDir = new File(homeDir, "lib/bundled-plugins");
     coreDir = new File(homeDir, "lib/core-plugins");
     FileUtils.forceMkdir(bundledDir);
+
     fileSystem = new DefaultServerFileSystem(mock(Database.class), homeDir, server);
     jarInstaller = new ServerPluginJarInstaller();
     jarsInstaller = new ServerPluginJarsInstaller(server, upgradeStatus, fileSystem, jarInstaller);
