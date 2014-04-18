@@ -20,9 +20,11 @@
 package org.sonar.server.db.migrations;
 
 import org.apache.ibatis.session.SqlSession;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.MyBatis;
@@ -43,12 +45,18 @@ public class DatabaseMigratorTest extends AbstractDaoTestCase {
   MyBatis mybatis = mock(MyBatis.class);
   Database database = mock(Database.class);
   DatabaseMigration[] migrations = new DatabaseMigration[]{new FakeMigration()};
+  ServerUpgradeStatus serverUpgradeStatus = mock(ServerUpgradeStatus.class);
+
+  DatabaseMigrator migrator;
+
+  @Before
+  public void setUp() throws Exception {
+    migrator = new DatabaseMigrator(mybatis, database, migrations, serverUpgradeStatus, null);
+  }
 
   @Test
   public void should_support_only_creation_of_h2_database() throws Exception {
     when(database.getDialect()).thenReturn(new MySql());
-
-    DatabaseMigrator migrator = new DatabaseMigrator(mybatis, database, migrations);
 
     assertThat(migrator.createDatabase()).isFalse();
     verifyZeroInteractions(mybatis);
@@ -59,13 +67,11 @@ public class DatabaseMigratorTest extends AbstractDaoTestCase {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Database migration not found: org.xxx.UnknownMigration");
 
-    DatabaseMigrator migrator = new DatabaseMigrator(mybatis, database, migrations);
     migrator.executeMigration("org.xxx.UnknownMigration");
   }
 
   @Test
   public void execute_migration() throws Exception {
-    DatabaseMigrator migrator = new DatabaseMigrator(mybatis, database, migrations);
     assertThat(FakeMigration.executed).isFalse();
     migrator.executeMigration(FakeMigration.class.getName());
     assertThat(FakeMigration.executed).isTrue();
@@ -73,15 +79,15 @@ public class DatabaseMigratorTest extends AbstractDaoTestCase {
 
   @Test
   public void should_create_schema_on_h2() throws Exception {
-
     Dialect supportedDialect = new H2();
     when(database.getDialect()).thenReturn(supportedDialect);
     Connection connection = mock(Connection.class);
     SqlSession session = mock(SqlSession.class);
     when(session.getConnection()).thenReturn(connection);
     when(mybatis.openSession()).thenReturn(session);
+    when(serverUpgradeStatus.isFreshInstall()).thenReturn(true);
 
-    DatabaseMigrator databaseMigrator = new DatabaseMigrator(mybatis, database, migrations) {
+    DatabaseMigrator databaseMigrator = new DatabaseMigrator(mybatis, database, migrations, serverUpgradeStatus, null) {
       @Override
       protected void createSchema(Connection connection, String dialectId) {
       }

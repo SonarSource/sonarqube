@@ -152,7 +152,6 @@ class ServerComponents {
       DefaultDatabase.class,
       MyBatis.class,
       DatabaseServerCompatibility.class,
-      DatabaseMigrator.class,
       DatabaseVersion.class,
       PurgeProfiler.class,
       DefaultServerFileSystem.class,
@@ -176,6 +175,8 @@ class ServerComponents {
   Collection level2Components() {
     return Lists.newArrayList(
       DefaultServerUpgradeStatus.class,
+      DatabaseMigrator.class,
+
       // plugins
       ServerPluginJarsInstaller.class,
       ServerPluginJarInstaller.class,

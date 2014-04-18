@@ -22,11 +22,14 @@ package org.sonar.server.db.migrations;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.ibatis.session.SqlSession;
+import org.picocontainer.Startable;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DdlUtils;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.server.plugins.ServerPluginRepository;
 
 import java.sql.Connection;
 
@@ -36,41 +39,57 @@ import java.sql.Connection;
  *
  * @since 2.12
  */
-public class DatabaseMigrator implements ServerComponent {
+public class DatabaseMigrator implements ServerComponent, Startable {
 
   private final MyBatis myBatis;
   private final Database database;
   private final DatabaseMigration[] migrations;
+  private final ServerUpgradeStatus serverUpgradeStatus;
 
-  public DatabaseMigrator(MyBatis myBatis, Database database, DatabaseMigration[] migrations) {
+  /**
+   * ServerPluginRepository is used to ensure H2 schema creation is done only after copy of bundle plugins have been done
+   */
+  public DatabaseMigrator(MyBatis myBatis, Database database, DatabaseMigration[] migrations, ServerUpgradeStatus serverUpgradeStatus,
+                          ServerPluginRepository serverPluginRepository) {
     this.myBatis = myBatis;
     this.database = database;
     this.migrations = migrations;
+    this.serverUpgradeStatus = serverUpgradeStatus;
+  }
+
+  @Override
+  public void start(){
+    createDatabase();
+  }
+
+  @Override
+  public void stop(){
+    // Nothing to do
   }
 
   /**
-   * @return true if the database has been created, false if this database is not supported
+   * @return true if the database has been created, false if this database is not supported or if database has already been created
    */
-  public boolean createDatabase() {
-    if (!DdlUtils.supportsDialect(database.getDialect().getId())) {
-      return false;
-    }
+  @VisibleForTesting
+  boolean createDatabase() {
+    if (DdlUtils.supportsDialect(database.getDialect().getId()) && serverUpgradeStatus.isFreshInstall()) {
+      LoggerFactory.getLogger(getClass()).info("Create database");
+      SqlSession session = null;
+      Connection connection = null;
+      try {
+        session = myBatis.openSession();
+        connection = session.getConnection();
+        createSchema(connection, database.getDialect().getId());
+        return true;
+      } finally {
+        MyBatis.closeQuietly(session);
 
-    LoggerFactory.getLogger(getClass()).info("Create database");
-    SqlSession session = null;
-    Connection connection = null;
-    try {
-      session = myBatis.openSession();
-      connection = session.getConnection();
-      createSchema(connection, database.getDialect().getId());
-      return true;
-    } finally {
-      MyBatis.closeQuietly(session);
-
-      // The connection is probably already closed by session.close()
-      // but it's not documented in mybatis javadoc.
-      DbUtils.closeQuietly(connection);
+        // The connection is probably already closed by session.close()
+        // but it's not documented in mybatis javadoc.
+        DbUtils.closeQuietly(connection);
+      }
     }
+    return false;
   }
 
   public void executeMigration(String className) {

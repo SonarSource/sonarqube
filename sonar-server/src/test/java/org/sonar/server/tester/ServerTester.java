@@ -22,7 +22,6 @@ package org.sonar.server.tester;
 
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.server.db.migrations.DatabaseMigrator;
 import org.sonar.server.platform.Platform;
 
 import java.io.File;
@@ -49,7 +48,6 @@ public class ServerTester {
     properties.setProperty("sonar.jdbc.url", "jdbc:h2:" + temp.getAbsolutePath() + "/h2");
 
     platform.init(properties);
-    ((DatabaseMigrator) platform.getComponent(DatabaseMigrator.class)).createDatabase();
     platform.doStart();
   }
 
