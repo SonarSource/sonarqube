@@ -89,6 +89,7 @@
     reporter=#{reporter},
     assignee=#{assignee},
     author_login=#{authorLogin},
+    root_component_id=#{rootComponentId},
     issue_attributes=#{issueAttributes},
     issue_creation_date=#{issueCreationDate},
     issue_update_date=#{issueUpdateDate},
@@ -115,6 +116,7 @@
     reporter=#{reporter},
     assignee=#{assignee},
     author_login=#{authorLogin},
+    root_component_id=#{rootComponentId},
     issue_attributes=#{issueAttributes},
     issue_creation_date=#{issueCreationDate},
     issue_update_date=#{issueUpdateDate},
@@ -163,10 +165,12 @@
       i.updated_at as updatedAt,
       r.plugin_rule_key as ruleKey,
       r.plugin_name as ruleRepo,
-      p.kee as componentKey
+      p.kee as componentKey,
+      root.kee as rootComponentKey
     from issues i
-    inner join rules r on r.id=i.rule_id
     inner join (select p.id,p.kee from projects p where (p.root_id=#{id} and p.qualifier &lt;&gt; 'BRC') or (p.id=#{id})) p on p.id=i.component_id
+    inner join rules r on r.id=i.rule_id
+    left outer join projects root on root.id=i.root_component_id
     <where>
       and i.status &lt;&gt; 'CLOSED'
     </where>

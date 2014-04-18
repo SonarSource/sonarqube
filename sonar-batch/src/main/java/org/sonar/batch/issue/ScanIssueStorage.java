@@ -23,6 +23,7 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.batch.ProjectTree;
 import org.sonar.batch.index.SnapshotCache;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.persistence.MyBatis;
@@ -34,16 +35,18 @@ public class ScanIssueStorage extends IssueStorage implements BatchComponent {
 
   private final SnapshotCache snapshotCache;
   private final ResourceDao resourceDao;
+  private final ProjectTree projectTree;
 
-  public ScanIssueStorage(MyBatis mybatis, RuleFinder ruleFinder, SnapshotCache snapshotCache, ResourceDao resourceDao) {
+  public ScanIssueStorage(MyBatis mybatis, RuleFinder ruleFinder, SnapshotCache snapshotCache, ResourceDao resourceDao, ProjectTree projectTree) {
     super(mybatis, ruleFinder);
     this.snapshotCache = snapshotCache;
     this.resourceDao = resourceDao;
+    this.projectTree = projectTree;
   }
 
   @Override
   protected long componentId(DefaultIssue issue) {
-    Snapshot snapshot = getSnapshot(issue);
+    Snapshot snapshot = snapshotCache.get(issue.componentKey());
     if (snapshot != null) {
       return snapshot.getResourceId();
     }
@@ -58,19 +61,7 @@ public class ScanIssueStorage extends IssueStorage implements BatchComponent {
 
   @Override
   protected long projectId(DefaultIssue issue) {
-    Snapshot snapshot = getSnapshot(issue);
-    if (snapshot != null) {
-      return snapshot.getRootProjectId();
-    }
-    throw new IllegalStateException("Project id not found for: " + issue.componentKey());
-  }
-
-  private Snapshot getSnapshot(DefaultIssue issue) {
-    Snapshot snapshot = snapshotCache.get(issue.componentKey());
-    if (snapshot != null) {
-      return snapshot;
-    }
-    return null;
+    return projectTree.getRootProject().getId();
   }
 
 }

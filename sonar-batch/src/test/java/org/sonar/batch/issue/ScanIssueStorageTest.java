@@ -19,13 +19,19 @@
  */
 package org.sonar.batch.issue;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
+import org.sonar.batch.ProjectTree;
 import org.sonar.batch.index.SnapshotCache;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.resource.ResourceDao;
@@ -34,16 +40,28 @@ import java.util.Collection;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ScanIssueStorageTest extends AbstractDaoTestCase {
+
+  @Mock
+  SnapshotCache snapshotCache;
+
+  @Mock
+  ProjectTree projectTree;
+
+  ScanIssueStorage storage;
+
+  @Before
+  public void setUp() throws Exception {
+    storage = new ScanIssueStorage(getMyBatis(), new FakeRuleFinder(), snapshotCache, new ResourceDao(getMyBatis()), projectTree);
+  }
+
   @Test
   public void should_load_component_id_from_cache() throws Exception {
-    SnapshotCache snapshotCache = mock(SnapshotCache.class);
     when(snapshotCache.get("struts:Action.java")).thenReturn(new Snapshot().setResourceId(123));
 
-    ScanIssueStorage storage = new ScanIssueStorage(getMyBatis(), new FakeRuleFinder(), snapshotCache, new ResourceDao(getMyBatis()));
     long componentId = storage.componentId(new DefaultIssue().setComponentKey("struts:Action.java"));
 
     assertThat(componentId).isEqualTo(123);
@@ -52,10 +70,8 @@ public class ScanIssueStorageTest extends AbstractDaoTestCase {
   @Test
   public void should_load_component_id_from_db() throws Exception {
     setupData("should_load_component_id_from_db");
-    SnapshotCache snapshotCache = mock(SnapshotCache.class);
     when(snapshotCache.get("struts:Action.java")).thenReturn(null);
 
-    ScanIssueStorage storage = new ScanIssueStorage(getMyBatis(), new FakeRuleFinder(), snapshotCache, new ResourceDao(getMyBatis()));
     long componentId = storage.componentId(new DefaultIssue().setComponentKey("struts:Action.java"));
 
     assertThat(componentId).isEqualTo(123);
@@ -64,10 +80,8 @@ public class ScanIssueStorageTest extends AbstractDaoTestCase {
   @Test
   public void should_fail_to_load_component_id_if_unknown_component() throws Exception {
     setupData("should_fail_to_load_component_id_if_unknown_component");
-    SnapshotCache snapshotCache = mock(SnapshotCache.class);
     when(snapshotCache.get("struts:Action.java")).thenReturn(null);
 
-    ScanIssueStorage storage = new ScanIssueStorage(getMyBatis(), new FakeRuleFinder(), snapshotCache, new ResourceDao(getMyBatis()));
     try {
       storage.componentId(new DefaultIssue().setComponentKey("struts:Action.java"));
       fail();
@@ -78,27 +92,11 @@ public class ScanIssueStorageTest extends AbstractDaoTestCase {
 
   @Test
   public void should_load_project_id() throws Exception {
-    SnapshotCache snapshotCache = mock(SnapshotCache.class);
-    when(snapshotCache.get("struts:Action.java")).thenReturn(new Snapshot().setResourceId(123).setRootProjectId(100));
+    when(projectTree.getRootProject()).thenReturn((Project) new Project("struts").setId(100));
 
-    ScanIssueStorage storage = new ScanIssueStorage(getMyBatis(), new FakeRuleFinder(), snapshotCache, new ResourceDao(getMyBatis()));
     long projectId = storage.projectId(new DefaultIssue().setComponentKey("struts:Action.java"));
 
     assertThat(projectId).isEqualTo(100);
-  }
-
-  @Test
-  public void should_fail_to_load_project_id_if_unknown_component() throws Exception {
-    SnapshotCache snapshotCache = mock(SnapshotCache.class);
-    when(snapshotCache.get("struts:Action.java")).thenReturn(null);
-
-    ScanIssueStorage storage = new ScanIssueStorage(getMyBatis(), new FakeRuleFinder(), snapshotCache, new ResourceDao(getMyBatis()));
-    try {
-      storage.projectId(new DefaultIssue().setComponentKey("struts:Action.java"));
-      fail();
-    } catch (Exception e) {
-      assertThat(e).hasMessage("Project id not found for: struts:Action.java");
-    }
   }
 
   static class FakeRuleFinder implements RuleFinder {

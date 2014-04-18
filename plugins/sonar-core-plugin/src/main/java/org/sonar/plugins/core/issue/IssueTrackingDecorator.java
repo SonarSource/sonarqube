@@ -157,6 +157,7 @@ public class IssueTrackingDecorator implements Decorator {
       issue.setStatus(ref.getStatus());
       issue.setAssignee(ref.getAssignee());
       issue.setAuthorLogin(ref.getAuthorLogin());
+
       if (ref.getIssueAttributes() != null) {
         issue.setAttributes(KeyValueFormat.parse(ref.getIssueAttributes()));
       }
@@ -180,6 +181,7 @@ public class IssueTrackingDecorator implements Decorator {
       Long debtInMinutes = ref.getDebt();
       Duration previousTechnicalDebt = debtInMinutes != null ? Duration.create(debtInMinutes) : null;
       updater.setPastTechnicalDebt(issue, previousTechnicalDebt, changeContext);
+      updater.setPastProject(issue, ref.getRootComponentKey(), changeContext);
     }
   }
 

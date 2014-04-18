@@ -32,8 +32,10 @@ public class DefaultIssueBuilderTest {
   @Test
   public void build_new_issue() throws Exception {
     String componentKey = "org.apache.struts:struts-core:Action.java";
+    String projectKey = "org.apache.struts";
     DefaultIssue issue = (DefaultIssue) new DefaultIssueBuilder()
       .componentKey(componentKey)
+      .projectKey(projectKey)
       .message("the message")
       .line(123)
       .effortToFix(10000.0)
@@ -47,6 +49,7 @@ public class DefaultIssueBuilderTest {
     assertThat(issue.key()).isNotNull();
     assertThat(issue.effortToFix()).isEqualTo(10000.0);
     assertThat(issue.componentKey()).isEqualTo(componentKey);
+    assertThat(issue.projectKey()).isEqualTo(projectKey);
     assertThat(issue.message()).isEqualTo("the message");
     assertThat(issue.line()).isEqualTo(123);
     assertThat(issue.ruleKey().repository()).isEqualTo("squid");
@@ -65,6 +68,7 @@ public class DefaultIssueBuilderTest {
   public void not_set_default_severity() {
     DefaultIssue issue = (DefaultIssue) new DefaultIssueBuilder()
       .componentKey("Action.java")
+      .projectKey("org.apache.struts")
       .ruleKey(RuleKey.of("squid", "NullDereference"))
       .build();
 

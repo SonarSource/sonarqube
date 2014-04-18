@@ -31,8 +31,6 @@ public interface IssueMapper {
 
   IssueDto selectByKey(String key);
 
-  List<IssueDto> selectNonClosedIssuesByModule(int rootComponentId);
-
   /**
    * Return a paginated list of authorized issue ids for a user.
    * If the role is null, then the authorisation check is disabled.
