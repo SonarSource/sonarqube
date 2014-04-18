@@ -1,4 +1,17 @@
-<h3 class="component-viewer-component">{{name}}</h3>
+<div class="component-viewer-workspace">
+  <ul class="component-viewer-workspace-list">
+    {{#each workspace}}
+      <li class="component-viewer-workspace-item">
+        {{#if transition}}
+          <span class="component-viewer-workspace-transition">
+            <i class="icon-move-right"></i>
+          </span>
+        {{/if}}
+        <a data-key="{{key}}">{{qualifierIcon component.qualifier}} {{component.name}}</a>
+      </li>
+    {{/each}}
+  </ul>
+</div>
 
 <div class="component-viewer-options button-group">
   <button data-option="issues"><i class="icon-issue"></i>&nbsp;&nbsp;Issues</button>

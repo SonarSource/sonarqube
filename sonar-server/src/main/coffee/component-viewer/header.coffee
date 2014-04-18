@@ -27,3 +27,7 @@ define [
       el.toggleClass 'active'
       if active then @options.main.hideCoverage() else @options.main.showCoverage()
 
+
+    serializeData: ->
+      _.extend super, workspace: @options.workspace.toJSON()
+

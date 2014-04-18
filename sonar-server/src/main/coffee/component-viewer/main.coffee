@@ -29,8 +29,12 @@ define [
 
 
     initialize: ->
+      @workspace = new Backbone.Collection()
       @component = new Backbone.Model()
-      @headerView = new HeaderView model: @component, main: @
+      @headerView = new HeaderView
+        model: @component
+        workspace: @workspace
+        main: @
 
       @source = new Backbone.Model()
       @sourceView = new SourceView model: @source, main: @
@@ -70,13 +74,19 @@ define [
 
 
     open: (key) ->
+      @workspace.reset [ key: key ]
+      @_open key
+
+
+    _open: (key) ->
       @key = key
       @sourceView.showSpinner()
       source = @requestSource key
       component = @requestComponent key
       $.when(source, component).done =>
+        @workspace.findWhere(key: key).set 'component': @component.toJSON()
         @render()
-        @hideCoverage()
+        @showCoverage()
 
 
     showCoverage: ->
@@ -91,3 +101,8 @@ define [
 
     hideCoverage: ->
       @sourceView.hideCoverage()
+
+
+    addTransition: (key, transition) ->
+      @workspace.add key: key, transition: transition
+      @_open key

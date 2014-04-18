@@ -1,14 +1,27 @@
 define [
   'backbone.marionette'
   'templates/component-viewer'
+  'component-viewer/coverage-popup'
   'common/handlebars-extensions'
 ], (
   Marionette
   Templates
+  CoveragePopupView
 ) ->
+
+  $ = jQuery
+
 
   class SourceView extends Marionette.ItemView
     template: Templates['source']
+
+
+    events:
+      'click .coverage a': 'showCoveragePopup'
+
+
+    onRender: ->
+      @delegateEvents()
 
 
     showSpinner: ->
@@ -17,6 +30,14 @@ define [
 
     hideCoverage: ->
       @$('.coverage').hide()
+
+
+    showCoveragePopup: (e) ->
+      e.stopPropagation()
+      popup = new CoveragePopupView
+        triggerEl: $(e.currentTarget).closest('td')
+        main: @options.main
+      popup.render()
 
 
     serializeData: ->

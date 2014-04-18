@@ -2,7 +2,7 @@
   {{#each source}}
     <tr class="row">
       <td class="coverage {{#if coverage}}coverage-{{coverageStatus}}{{/if}}">
-        {{#if coverage}}<span title="Line is covered by {{coverage}} tests">{{coverage}}</span>{{/if}}
+        {{#if coverage}}<a title="Line is covered by {{coverage}} tests">{{coverage}}</a>{{/if}}
       </td>
       <td class="coverage {{#if coverageConditions}}coverage-{{coverageConditionsStatus}}{{/if}}">
           {{#if coverageConditions}}
