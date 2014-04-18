@@ -291,7 +291,7 @@ define(
         selectPrev: function() {
           if (this.selected > 0) {
             this.selected--;
-            var child = this.$el.children().eq(this.selected),
+            var child = this.$(this.itemViewContainer).children().eq(this.selected),
                 container = jQuery('.navigator-results'),
                 top = child.position().top;
             if (top < 0) {
