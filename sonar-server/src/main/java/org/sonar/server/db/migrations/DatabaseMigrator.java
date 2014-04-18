@@ -22,6 +22,7 @@ package org.sonar.server.db.migrations;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.ibatis.session.SqlSession;
+import org.picocontainer.Startable;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.Database;
@@ -36,7 +37,7 @@ import java.sql.Connection;
  *
  * @since 2.12
  */
-public class DatabaseMigrator implements ServerComponent {
+public class DatabaseMigrator implements ServerComponent, Startable {
 
   private final MyBatis myBatis;
   private final Database database;
@@ -48,10 +49,21 @@ public class DatabaseMigrator implements ServerComponent {
     this.migrations = migrations;
   }
 
+  @Override
+  public void start(){
+    createDatabase();
+  }
+
+  @Override
+  public void stop(){
+    // Nothing to do
+  }
+
   /**
    * @return true if the database has been created, false if this database is not supported
    */
-  public boolean createDatabase() {
+  @VisibleForTesting
+  boolean createDatabase() {
     if (!DdlUtils.supportsDialect(database.getDialect().getId())) {
       return false;
     }

@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.h2.Driver;
 import org.h2.tools.Server;
+import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
@@ -34,7 +35,7 @@ import java.io.File;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class EmbeddedDatabase {
+public class EmbeddedDatabase implements Startable  {
   private static final Logger LOG = LoggerFactory.getLogger(EmbeddedDatabase.class);
   private final Settings settings;
   private Server server;
@@ -43,6 +44,7 @@ public class EmbeddedDatabase {
     this.settings = settings;
   }
 
+  @Override
   public void start() {
     File dbHome = getDataDirectory(settings);
     if (!dbHome.exists()) {
@@ -71,6 +73,7 @@ public class EmbeddedDatabase {
     }
   }
 
+  @Override
   public void stop() {
     if (server != null) {
       server.stop();
