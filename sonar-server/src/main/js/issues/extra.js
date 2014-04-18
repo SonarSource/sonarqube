@@ -245,7 +245,9 @@ define(
 
 
         initialize: function() {
-          var openIssue = function(el) { el.click(); };
+          var openIssue = function(el) {
+            el.click();
+          };
           this.openIssue = _.debounce(openIssue, 300);
         },
 
@@ -333,8 +335,12 @@ define(
 
         bindShortcuts: function () {
           var that = this;
-          key('up', 'list', function() { that.selectPrev(); });
-          key('down', 'list', function() { that.selectNext(); });
+          key('up', 'list', function() {
+            that.selectPrev();
+          });
+          key('down', 'list', function() {
+            that.selectNext();
+          });
         }
 
       });

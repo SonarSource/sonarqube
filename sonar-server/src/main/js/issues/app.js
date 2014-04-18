@@ -329,9 +329,15 @@ requirejs(
       NavigatorApp.addInitializer(function () {
         var that = this;
         jQuery('body')
-            .on('mousemove', function (e) { that.processResize(e); })
-            .on('mouseup', function (e) { that.stopResize(); });
-        jQuery('.navigator-resizer').on('mousedown', function (e) { that.startResize(e); });
+            .on('mousemove', function (e) {
+              that.processResize(e);
+            })
+            .on('mouseup', function () {
+              that.stopResize();
+            });
+        jQuery('.navigator-resizer').on('mousedown', function (e) {
+          that.startResize(e);
+        });
 
         var resultsWidth = localStorage.getItem('issuesResultsWidth');
         if (resultsWidth) {
