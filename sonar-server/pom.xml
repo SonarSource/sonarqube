@@ -498,6 +498,13 @@
         </dependency>
         <dependency>
           <groupId>org.codehaus.sonar.plugins</groupId>
+          <artifactId>sonar-l10n-en-plugin</artifactId>
+          <version>${project.version}</version>
+          <type>sonar-plugin</type>
+          <scope>provided</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.codehaus.sonar.plugins</groupId>
           <artifactId>sonar-email-notifications-plugin</artifactId>
           <version>${project.version}</version>
           <type>sonar-plugin</type>
