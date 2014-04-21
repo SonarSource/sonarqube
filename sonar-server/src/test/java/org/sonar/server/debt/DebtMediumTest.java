@@ -20,8 +20,7 @@
 
 package org.sonar.server.debt;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
@@ -33,17 +32,8 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class DebtMediumTest {
 
-  ServerTester serverTester = new ServerTester();
-
-  @Before
-  public void before() throws Exception {
-    serverTester.start();
-  }
-
-  @After
-  public void after() throws Exception {
-    serverTester.stop();
-  }
+  @Rule
+  public ServerTester serverTester = new ServerTester();
 
   @Test
   public void find_characteristics() throws Exception {
