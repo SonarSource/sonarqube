@@ -19,14 +19,10 @@
  */
 package org.sonar.colorizer;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.junit.Assert.assertThat;
-import static org.junit.internal.matchers.StringContains.containsString;
-
 import org.junit.Test;
 import org.sonar.channel.CodeReader;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class HtmlDecoratorTest {
 
@@ -84,34 +80,35 @@ public class HtmlDecoratorTest {
     HtmlCodeBuilder output = new HtmlCodeBuilder();
 
     output.appendWithoutTransforming(decorator.getTagBeginOfFile());
-    assertThat(decorator.consume(code, output), is(true));
-    assertThat(decorator.consume(code, output), is(true));
-    assertThat(decorator.consume(code, output), is(true));
+    assertThat(decorator.consume(code, output)).isTrue();
+    assertThat(decorator.consume(code, output)).isTrue();
+    assertThat(decorator.consume(code, output)).isTrue();
     output.appendWithoutTransforming(decorator.getTagEndOfFile());
-    
-    assertThat(output.toString(), is(
-        "<table class=\"code\" id=\"\"><tbody>"
-        + "<tr id=\"1\"><td><pre></pre></td></tr>" 
-        + "<tr id=\"2\"><td><pre></pre></td></tr>" 
+
+    assertThat(output.toString()).isEqualTo(
+      "<table class=\"code\" id=\"\"><tbody>"
+        + "<tr id=\"1\"><td><pre></pre></td></tr>"
+        + "<tr id=\"2\"><td><pre></pre></td></tr>"
         + "<tr id=\"3\"><td><pre></pre></td></tr>"
-        + "</tbody></table>"));
+        + "</tbody></table>"
+    );
   }
 
   @Test
   public void getCss() {
-    assertThat(HtmlDecorator.getCss().length(), greaterThan(100));
-    assertThat(HtmlDecorator.getCss(), containsString(".code"));
+    assertThat(HtmlDecorator.getCss().length()).isGreaterThan(100);
+    assertThat(HtmlDecorator.getCss()).contains(".code");
   }
 
   public void assertContains(String html, String... strings) {
     for (String string : strings) {
-      assertThat(html, containsString(string));
+      assertThat(html).contains(string);
     }
   }
 
   public void assertNotContains(String html, String... strings) {
     for (String string : strings) {
-      assertThat(html, not(containsString(string)));
+      assertThat(html).doesNotContain(string);
     }
   }
 }

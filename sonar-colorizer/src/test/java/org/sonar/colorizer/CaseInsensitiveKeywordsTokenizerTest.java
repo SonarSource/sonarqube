@@ -19,28 +19,26 @@
  */
 package org.sonar.colorizer;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
-import static org.sonar.colorizer.SyntaxHighlighterTestingHarness.highlight;
-
 import org.junit.Test;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.sonar.colorizer.SyntaxHighlighterTestingHarness.highlight;
 
 public class CaseInsensitiveKeywordsTokenizerTest {
 
   @Test
   public void hasNextToken() {
     CaseInsensitiveKeywordsTokenizer tokenizer = new CaseInsensitiveKeywordsTokenizer("<k>", "</k>", "PROCEDURE");
-    assertThat(highlight("procedure name", tokenizer), is("<k>procedure</k> name"));
-    assertThat(highlight("Procedure name", tokenizer), is("<k>Procedure</k> name"));
-    assertThat(highlight("PROCEDURE name", tokenizer), is("<k>PROCEDURE</k> name"));
+    assertThat(highlight("procedure name", tokenizer)).isEqualTo("<k>procedure</k> name");
+    assertThat(highlight("Procedure name", tokenizer)).isEqualTo("<k>Procedure</k> name");
+    assertThat(highlight("PROCEDURE name", tokenizer)).isEqualTo("<k>PROCEDURE</k> name");
   }
 
   @Test
   public void testClone() {
     CaseInsensitiveKeywordsTokenizer tokenizer = new CaseInsensitiveKeywordsTokenizer("<k>", "</k>", "PROCEDURE");
     Tokenizer cloneTokenizer = tokenizer.clone();
-    assertThat(tokenizer, is(not(cloneTokenizer)));
-    assertThat(highlight("procedure name", cloneTokenizer), is("<k>procedure</k> name"));
+    assertThat(tokenizer).isNotEqualTo(cloneTokenizer);
+    assertThat(highlight("procedure name", cloneTokenizer)).isEqualTo("<k>procedure</k> name");
   }
 }

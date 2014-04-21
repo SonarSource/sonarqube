@@ -24,9 +24,9 @@ import org.sonar.wsclient.services.Resource;
 
 import java.util.List;
 
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 
 public class ResourceUnmarshallerTest extends UnmarshallerTestCase {

@@ -19,16 +19,15 @@
  */
 package org.sonar.wsclient.services;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Test;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class ServerSetupQueryTest extends QueryTestCase {
   @Test
   public void index() {
     ServerSetupQuery query = new ServerSetupQuery();
-    assertThat(query.getUrl(), is("/api/server/setup"));
-    assertThat(query.getModelClass().getName(), is(ServerSetup.class.getName()));
+    assertThat(query.getUrl()).isEqualTo("/api/server/setup");
+    assertThat(query.getModelClass().getName()).isEqualTo(ServerSetup.class.getName());
   }
 }

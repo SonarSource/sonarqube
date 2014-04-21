@@ -23,10 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.channel.CodeReader;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class CDocTokenizerTest {
 
@@ -40,10 +37,10 @@ public class CDocTokenizerTest {
   @Test
   public void testRead() {
     CDocTokenizer tokenizer = new CDocTokenizer("<c>", "</c>");
-    assertTrue(tokenizer.consume(new CodeReader("//this is a comment"), codeBuilder));
-    assertThat(codeBuilder.toString(), is("<c>//this is a comment</c>"));
+    assertThat(tokenizer.consume(new CodeReader("//this is a comment"), codeBuilder)).isTrue();
+    assertThat(codeBuilder.toString()).isEqualTo("<c>//this is a comment</c>");
 
-    assertFalse(tokenizer.consume(new CodeReader("this is not a comment"), codeBuilder));
-    assertThat(codeBuilder.toString(), is("<c>//this is a comment</c>"));
+    assertThat(tokenizer.consume(new CodeReader("this is not a comment"), codeBuilder)).isFalse();
+    assertThat(codeBuilder.toString()).isEqualTo("<c>//this is a comment</c>");
   }
 }

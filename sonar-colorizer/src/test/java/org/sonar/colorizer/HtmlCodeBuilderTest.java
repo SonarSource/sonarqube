@@ -22,10 +22,7 @@ package org.sonar.colorizer;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class HtmlCodeBuilderTest {
 
@@ -39,7 +36,7 @@ public class HtmlCodeBuilderTest {
   @Test
   public void testAppendCharSequence() {
     builder.append("freddy < olivier");
-    assertEquals("freddy &lt; olivier", builder.toString());
+    assertThat("freddy &lt; olivier").isEqualTo(builder.toString());
   }
 
   @Test
@@ -47,35 +44,35 @@ public class HtmlCodeBuilderTest {
     builder.append('p');
     builder.append('a');
     builder.append('>');
-    assertEquals("pa&gt;", builder.toString());
+    assertThat("pa&gt;").isEqualTo(builder.toString());
   }
 
   @Test
   public void testAppendCharSequenceIntInt() {
     builder.append("freddy < olivier", 0, 2);
-    assertEquals("fr", builder.toString());
+    assertThat("fr").isEqualTo(builder.toString());
   }
 
   @Test
   public void testAppendWithoutTransforming() {
     builder.appendWithoutTransforming("<inside>outside");
-    assertEquals("<inside>outside", builder.toString());
+    assertThat("<inside>outside").isEqualTo(builder.toString());
   }
 
   @Test
   public void testStatefulVariables() {
-    assertThat(builder.getVariable("foo"), nullValue());
+    assertThat(builder.getVariable("foo")).isNull();
 
     builder.setVariable("foo", "xxx");
-    assertThat((String) builder.getVariable("foo"), is("xxx"));
+    assertThat((String) builder.getVariable("foo")).isEqualTo(("xxx"));
 
     builder.setVariable("foo", "yyy");
-    assertThat((String) builder.getVariable("foo"), is("yyy"));
+    assertThat((String) builder.getVariable("foo")).isEqualTo(("yyy"));
 
     builder.setVariable("foo", null);
-    assertThat(builder.getVariable("foo"), nullValue());
+    assertThat(builder.getVariable("foo")).isNull();
 
-    assertThat((String) builder.getVariable("foo", "default"), is("default"));
+    assertThat((String) builder.getVariable("foo", "default")).isEqualTo(("default"));
   }
 
 }

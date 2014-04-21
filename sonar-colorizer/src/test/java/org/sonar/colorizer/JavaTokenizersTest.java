@@ -23,24 +23,21 @@ import java.util.List;
 
 import org.junit.Test;
 
-import static junit.framework.Assert.fail;
-
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.hamcrest.number.OrderingComparisons.lessThan;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 public class JavaTokenizersTest {
 
   @Test
   public void forHtml() {
-    assertThat(JavaTokenizers.forHtml().size(), greaterThan(3));
+    assertThat(JavaTokenizers.forHtml().size()).isGreaterThan(3);
   }
 
   @Test
   public void javadocIsDefinedBeforeCppComment() {
     // just because /** must be detected before /*
-    assertThat(indexOf(JavaTokenizers.forHtml(), JavadocTokenizer.class),
-        lessThan(indexOf(JavaTokenizers.forHtml(), CppDocTokenizer.class)));
+    assertThat(indexOf(JavaTokenizers.forHtml(), JavadocTokenizer.class)).isLessThan(
+      indexOf(JavaTokenizers.forHtml(), CppDocTokenizer.class));
   }
 
   private Integer indexOf(List<Tokenizer> tokenizers, Class tokenizerClass) {

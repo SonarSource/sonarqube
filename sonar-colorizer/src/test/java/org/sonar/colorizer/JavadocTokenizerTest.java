@@ -19,11 +19,10 @@
  */
 package org.sonar.colorizer;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.sonar.colorizer.SyntaxHighlighterTestingHarness.highlight;
-
 import org.junit.Test;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.sonar.colorizer.SyntaxHighlighterTestingHarness.highlight;
 
 public class JavadocTokenizerTest {
 
@@ -31,12 +30,12 @@ public class JavadocTokenizerTest {
 
   @Test
   public void testHighlighting() {
-    assertThat(highlight("/**this is a javadoc*/ public ...", tokenizer), is("<j>/**this is a javadoc*/</j> public ..."));
-    assertThat(highlight("//this is not a javadoc", tokenizer), is("//this is not a javadoc"));
+    assertThat(highlight("/**this is a javadoc*/ public ...", tokenizer)).isEqualTo("<j>/**this is a javadoc*/</j> public ...");
+    assertThat(highlight("//this is not a javadoc", tokenizer)).isEqualTo("//this is not a javadoc");
   }
 
   @Test
   public void testHighlightingOnMultipleLines() {
-    assertThat(highlight("/**this is \n a javadoc*/ private", tokenizer), is("<j>/**this is </j>\n<j> a javadoc*/</j> private"));
+    assertThat(highlight("/**this is \n a javadoc*/ private", tokenizer)).isEqualTo("<j>/**this is </j>\n<j> a javadoc*/</j> private");
   }
 }

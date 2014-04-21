@@ -22,7 +22,7 @@ package org.sonar.duplications.detector.original;
 import org.junit.Test;
 import org.sonar.duplications.block.Block;
 
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class BlocksGroupTest {

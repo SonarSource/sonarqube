@@ -19,11 +19,10 @@
  */
 package org.sonar.colorizer;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.sonar.colorizer.SyntaxHighlighterTestingHarness.highlight;
-
 import org.junit.Test;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.sonar.colorizer.SyntaxHighlighterTestingHarness.highlight;
 
 public class JavaAnnotationTokenizerTest {
 
@@ -31,12 +30,12 @@ public class JavaAnnotationTokenizerTest {
 
   @Test
   public void testHighlighting() {
-    assertThat(highlight("@deprecated public", tokenizer), is("<a>@deprecated</a> public"));
-    assertThat(highlight("import", tokenizer), is("import"));
+    assertThat(highlight("@deprecated public", tokenizer)).isEqualTo("<a>@deprecated</a> public");
+    assertThat(highlight("import", tokenizer)).isEqualTo("import");
   }
 
   @Test
   public void testHighlightingWithProperties() {
-    assertThat(highlight("@Target(ElementType.METHOD)", tokenizer), is("<a>@Target</a>(ElementType.METHOD)"));
+    assertThat(highlight("@Target(ElementType.METHOD)", tokenizer)).isEqualTo("<a>@Target</a>(ElementType.METHOD)");
   }
 }

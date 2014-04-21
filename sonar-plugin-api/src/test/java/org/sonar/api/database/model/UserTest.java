@@ -19,40 +19,37 @@
  */
 package org.sonar.api.database.model;
 
-import org.hamcrest.core.Is;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.internal.matchers.StringContains.containsString;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class UserTest {
 
   @Test
   public void testToString() {
     User user = new User()
-        .setEmail("super@m.an")
-        .setLogin("superman")
-        .setName("Superman");
-    assertThat(user.toString(), containsString("super@m.an"));
-    assertThat(user.toString(), containsString("superman"));
-    assertThat(user.toString(), containsString("Superman"));
+      .setEmail("super@m.an")
+      .setLogin("superman")
+      .setName("Superman");
+    assertThat(user.toString()).contains("super@m.an");
+    assertThat(user.toString()).contains("superman");
+    assertThat(user.toString()).contains("Superman");
   }
 
   @Test
   public void testEquals() {
     User one = new User()
-        .setLogin("one")
-        .setName("One");
+      .setLogin("one")
+      .setName("One");
 
     User two = new User()
-        .setLogin("two")
-        .setName("Two");
+      .setLogin("two")
+      .setName("Two");
 
-    assertThat(one.equals(one), Is.is(true));
-    assertThat(one.equals(new User().setLogin("one")), Is.is(true));
-    assertThat(one.equals(two), Is.is(false));
+    assertThat(one.equals(one)).isTrue();
+    assertThat(one.equals(new User().setLogin("one"))).isTrue();
+    assertThat(one.equals(two)).isFalse();
 
-    assertEquals(one.hashCode(), new User().setLogin("one").hashCode());
+    assertThat(one.hashCode()).isEqualTo(new User().setLogin("one").hashCode());
   }
 }

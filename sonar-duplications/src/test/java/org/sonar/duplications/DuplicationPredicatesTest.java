@@ -23,17 +23,16 @@ import com.google.common.base.Predicate;
 import org.junit.Test;
 import org.sonar.duplications.index.CloneGroup;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class DuplicationPredicatesTest {
 
   @Test
   public void testNumberOfUnitsNotLessThan() {
     Predicate<CloneGroup> predicate = DuplicationPredicates.numberOfUnitsNotLessThan(5);
-    assertThat(predicate.apply(CloneGroup.builder().setLengthInUnits(6).build()), is(true));
-    assertThat(predicate.apply(CloneGroup.builder().setLengthInUnits(5).build()), is(true));
-    assertThat(predicate.apply(CloneGroup.builder().setLengthInUnits(4).build()), is(false));
+    assertThat(predicate.apply(CloneGroup.builder().setLengthInUnits(6).build())).isTrue();
+    assertThat(predicate.apply(CloneGroup.builder().setLengthInUnits(5).build())).isTrue();
+    assertThat(predicate.apply(CloneGroup.builder().setLengthInUnits(4).build())).isFalse();
   }
 
 }

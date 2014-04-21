@@ -32,11 +32,8 @@ import org.sonar.batch.DefaultDecoratorContext;
 import org.sonar.batch.events.EventBus;
 import org.sonar.core.measure.MeasurementFilters;
 
-import static org.hamcrest.number.OrderingComparisons.greaterThanOrEqualTo;
-import static org.hamcrest.number.OrderingComparisons.lessThan;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -54,11 +51,11 @@ public class DecoratorsExecutorTest {
     profiler.start(decorator2);
     profiler.stop();
 
-    assertThat(profiler.getMessage().indexOf("Decorator1"), greaterThanOrEqualTo(0));
-    assertThat(profiler.getMessage().indexOf("Decorator2"), greaterThanOrEqualTo(0));
+    assertThat(profiler.getMessage().indexOf("Decorator1")).isGreaterThanOrEqualTo(0);
+    assertThat(profiler.getMessage().indexOf("Decorator2")).isGreaterThanOrEqualTo(0);
 
     // sequence of execution
-    assertThat(profiler.getMessage().indexOf("Decorator1"), lessThan(profiler.getMessage().indexOf("Decorator2")));
+    assertThat(profiler.getMessage().indexOf("Decorator1")).isLessThan(profiler.getMessage().indexOf("Decorator2"));
   }
 
   @Test
@@ -73,7 +70,7 @@ public class DecoratorsExecutorTest {
       fail("Exception has not been thrown");
 
     } catch (SonarException e) {
-      assertThat(e.getMessage(), containsString("src/org/foo/Bar.java"));
+      assertThat(e.getMessage()).contains("src/org/foo/Bar.java");
     }
   }
 

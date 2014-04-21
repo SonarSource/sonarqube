@@ -19,18 +19,15 @@
  */
 package org.sonar.colorizer;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
-import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class JavaKeywordsTest {
 
   @Test
   public void get() {
-    assertThat(JavaKeywords.get().size(), is(53));
-    assertThat(JavaKeywords.get(), hasItem("true"));
-    assertThat(JavaKeywords.get(), hasItem("public"));
-    assertThat(JavaKeywords.get(), hasItem("switch"));
+    assertThat(JavaKeywords.get()).hasSize(53);
+    assertThat(JavaKeywords.get()).contains("true", "public", "switch");
   }
 }

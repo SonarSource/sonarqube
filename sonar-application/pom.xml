@@ -58,9 +58,9 @@
       <artifactId>logback-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>${pom.groupId}</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>sonar-batch-maven-compat</artifactId>
-      <version>${pom.version}</version>
+      <version>${project.version}</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>

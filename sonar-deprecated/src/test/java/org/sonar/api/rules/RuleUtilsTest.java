@@ -26,8 +26,7 @@ import org.sonar.api.CoreProperties;
 
 import java.util.Map;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -41,11 +40,11 @@ public class RuleUtilsTest {
 
     final Map<RulePriority, Integer> map = RuleUtils.getPriorityWeights(conf);
 
-    assertThat(map.get(RulePriority.BLOCKER), is(10));
-    assertThat(map.get(RulePriority.CRITICAL), is(5));
-    assertThat(map.get(RulePriority.MAJOR), is(2));
-    assertThat(map.get(RulePriority.MINOR), is(1));
-    assertThat(map.get(RulePriority.INFO), is(0));
+    assertThat(map.get(RulePriority.BLOCKER)).isEqualTo(10);
+    assertThat(map.get(RulePriority.CRITICAL)).isEqualTo(5);
+    assertThat(map.get(RulePriority.MAJOR)).isEqualTo(2);
+    assertThat(map.get(RulePriority.MINOR)).isEqualTo(1);
+    assertThat(map.get(RulePriority.INFO)).isEqualTo(0);
   }
 
   @Test
@@ -55,11 +54,11 @@ public class RuleUtilsTest {
 
     final Map<RulePriority, Integer> map = RuleUtils.getPriorityWeights(conf);
 
-    assertThat(map.get(RulePriority.BLOCKER), is(1));
-    assertThat(map.get(RulePriority.CRITICAL), is(5));
-    assertThat(map.get(RulePriority.MAJOR), is(1));
-    assertThat(map.get(RulePriority.MINOR), is(1));
-    assertThat(map.get(RulePriority.INFO), is(1));
+    assertThat(map.get(RulePriority.BLOCKER)).isEqualTo(1);
+    assertThat(map.get(RulePriority.CRITICAL)).isEqualTo(5);
+    assertThat(map.get(RulePriority.MAJOR)).isEqualTo(1);
+    assertThat(map.get(RulePriority.MINOR)).isEqualTo(1);
+    assertThat(map.get(RulePriority.INFO)).isEqualTo(1);
   }
 
 }

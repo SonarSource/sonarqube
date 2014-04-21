@@ -30,12 +30,18 @@ import org.sonar.duplications.index.ClonePart;
 import org.sonar.duplications.index.MemoryCloneIndex;
 import org.sonar.duplications.junit.TestNamePrinter;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.junit.matchers.JUnitMatchers.hasItem;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.sonar.duplications.detector.CloneGroupMatcher.hasCloneGroup;
 
 public abstract class DetectorTestCase {
@@ -51,11 +57,11 @@ public abstract class DetectorTestCase {
    */
   protected static Block newBlock(String resourceId, ByteArray hash, int index) {
     return Block.builder()
-        .setResourceId(resourceId)
-        .setBlockHash(hash)
-        .setIndexInFile(index)
-        .setLines(index, index + LINES_PER_BLOCK)
-        .build();
+      .setResourceId(resourceId)
+      .setBlockHash(hash)
+      .setIndexInFile(index)
+      .setLines(index, index + LINES_PER_BLOCK)
+      .build();
   }
 
   protected static ClonePart newClonePart(String resourceId, int unitStart, int cloneUnitLength) {
@@ -80,8 +86,8 @@ public abstract class DetectorTestCase {
   @Test
   public void exampleFromPaper() {
     CloneIndex index = createIndex(
-        newBlocks("y", "2 3 4 5"),
-        newBlocks("z", "3 4"));
+      newBlocks("y", "2 3 4 5"),
+      newBlocks("z", "3 4"));
     Block[] fileBlocks = newBlocks("x", "1 2 3 4 5 6");
     List<CloneGroup> result = detect(index, fileBlocks);
 
@@ -89,13 +95,13 @@ public abstract class DetectorTestCase {
     assertEquals(2, result.size());
 
     assertThat(result, hasCloneGroup(4,
-        newClonePart("x", 1, 4),
-        newClonePart("y", 0, 4)));
+      newClonePart("x", 1, 4),
+      newClonePart("y", 0, 4)));
 
     assertThat(result, hasCloneGroup(2,
-        newClonePart("x", 2, 2),
-        newClonePart("y", 1, 2),
-        newClonePart("z", 0, 2)));
+      newClonePart("x", 2, 2),
+      newClonePart("y", 1, 2),
+      newClonePart("z", 0, 2)));
   }
 
   /**
@@ -114,8 +120,8 @@ public abstract class DetectorTestCase {
   @Test
   public void exampleFromPaperWithModifiedResourceIds() {
     CloneIndex cloneIndex = createIndex(
-        newBlocks("a", "2 3 4 5"),
-        newBlocks("b", "3 4"));
+      newBlocks("a", "2 3 4 5"),
+      newBlocks("b", "3 4"));
     Block[] fileBlocks = newBlocks("c", "1 2 3 4 5 6");
     List<CloneGroup> clones = detect(cloneIndex, fileBlocks);
 
@@ -123,13 +129,13 @@ public abstract class DetectorTestCase {
     assertThat(clones.size(), is(2));
 
     assertThat(clones, hasCloneGroup(4,
-        newClonePart("c", 1, 4),
-        newClonePart("a", 0, 4)));
+      newClonePart("c", 1, 4),
+      newClonePart("a", 0, 4)));
 
     assertThat(clones, hasCloneGroup(2,
-        newClonePart("c", 2, 2),
-        newClonePart("a", 1, 2),
-        newClonePart("b", 0, 2)));
+      newClonePart("c", 2, 2),
+      newClonePart("a", 1, 2),
+      newClonePart("b", 0, 2)));
   }
 
   /**
@@ -149,8 +155,8 @@ public abstract class DetectorTestCase {
   @Test
   public void example1() {
     CloneIndex index = createIndex(
-        newBlocks("b", "3 4 5 6"),
-        newBlocks("c", "5 6 7"));
+      newBlocks("b", "3 4 5 6"),
+      newBlocks("c", "5 6 7"));
     Block[] fileBlocks = newBlocks("a", "1 2 3 4 5 6 7 8 9");
     List<CloneGroup> result = detect(index, fileBlocks);
 
@@ -158,17 +164,17 @@ public abstract class DetectorTestCase {
     assertThat(result.size(), is(3));
 
     assertThat(result, hasCloneGroup(4,
-        newClonePart("a", 2, 4),
-        newClonePart("b", 0, 4)));
+      newClonePart("a", 2, 4),
+      newClonePart("b", 0, 4)));
 
     assertThat(result, hasCloneGroup(3,
-        newClonePart("a", 4, 3),
-        newClonePart("c", 0, 3)));
+      newClonePart("a", 4, 3),
+      newClonePart("c", 0, 3)));
 
     assertThat(result, hasCloneGroup(2,
-        newClonePart("a", 4, 2),
-        newClonePart("b", 2, 2),
-        newClonePart("c", 0, 2)));
+      newClonePart("a", 4, 2),
+      newClonePart("b", 2, 2),
+      newClonePart("c", 0, 2)));
   }
 
   /**
@@ -186,8 +192,8 @@ public abstract class DetectorTestCase {
   @Test
   public void example2() {
     CloneIndex index = createIndex(
-        newBlocks("b", "1 2 3 4 1 2 3 4 1 2 3 4"),
-        newBlocks("c", "1 2 3 4"));
+      newBlocks("b", "1 2 3 4 1 2 3 4 1 2 3 4"),
+      newBlocks("c", "1 2 3 4"));
     Block[] fileBlocks = newBlocks("a", "1 2 3 5");
     List<CloneGroup> result = detect(index, fileBlocks);
 
@@ -195,11 +201,11 @@ public abstract class DetectorTestCase {
     assertThat(result.size(), is(1));
 
     assertThat(result, hasCloneGroup(3,
-        newClonePart("a", 0, 3),
-        newClonePart("b", 0, 3),
-        newClonePart("b", 4, 3),
-        newClonePart("b", 8, 3),
-        newClonePart("c", 0, 3)));
+      newClonePart("a", 0, 3),
+      newClonePart("b", 0, 3),
+      newClonePart("b", 4, 3),
+      newClonePart("b", 8, 3),
+      newClonePart("c", 0, 3)));
   }
 
   /**
@@ -223,8 +229,8 @@ public abstract class DetectorTestCase {
     assertThat(result.size(), is(1));
 
     assertThat(result, hasCloneGroup(2,
-        newClonePart("a", 0, 2),
-        newClonePart("a", 3, 2)));
+      newClonePart("a", 0, 2),
+      newClonePart("a", 3, 2)));
   }
 
   /**
@@ -243,7 +249,7 @@ public abstract class DetectorTestCase {
   @Test
   public void covered() {
     CloneIndex index = createIndex(
-        newBlocks("b", "1 2 1 2"));
+      newBlocks("b", "1 2 1 2"));
     Block[] fileBlocks = newBlocks("a", "1 2 1");
     List<CloneGroup> result = detect(index, fileBlocks);
 
@@ -251,13 +257,13 @@ public abstract class DetectorTestCase {
     assertThat(result.size(), is(2));
 
     assertThat(result, hasCloneGroup(3,
-        newClonePart("a", 0, 3),
-        newClonePart("b", 0, 3)));
+      newClonePart("a", 0, 3),
+      newClonePart("b", 0, 3)));
 
     assertThat(result, hasCloneGroup(2,
-        newClonePart("a", 0, 2),
-        newClonePart("b", 0, 2),
-        newClonePart("b", 2, 2)));
+      newClonePart("a", 0, 2),
+      newClonePart("b", 0, 2),
+      newClonePart("b", 2, 2)));
   }
 
   /**
@@ -275,7 +281,7 @@ public abstract class DetectorTestCase {
   @Test
   public void problemWithNestedCloneGroups() {
     CloneIndex index = createIndex(
-        newBlocks("b", "1 2 1 2 1 2 1"));
+      newBlocks("b", "1 2 1 2 1 2 1"));
     Block[] fileBlocks = newBlocks("a", "1 2 1 2 1 2");
     List<CloneGroup> result = detect(index, fileBlocks);
 
@@ -283,13 +289,13 @@ public abstract class DetectorTestCase {
     assertThat(result.size(), is(2));
 
     assertThat(result, hasCloneGroup(6,
-        newClonePart("a", 0, 6),
-        newClonePart("b", 0, 6)));
+      newClonePart("a", 0, 6),
+      newClonePart("b", 0, 6)));
 
     assertThat(result, hasCloneGroup(5,
-        newClonePart("a", 0, 5),
-        newClonePart("b", 0, 5),
-        newClonePart("b", 2, 5)));
+      newClonePart("a", 0, 5),
+      newClonePart("b", 0, 5),
+      newClonePart("b", 2, 5)));
   }
 
   /**
@@ -307,8 +313,8 @@ public abstract class DetectorTestCase {
   @Test
   public void fileAlreadyInIndex() {
     CloneIndex index = createIndex(
-        newBlocks("a", "1 2 3"),
-        newBlocks("b", "1 2 4"));
+      newBlocks("a", "1 2 3"),
+      newBlocks("b", "1 2 4"));
     // Note about blocks with hashes "3", "4" and "5": those blocks here in order to not face another problem - with EOF (see separate test)
     Block[] fileBlocks = newBlocks("a", "1 2 5");
     List<CloneGroup> result = detect(index, fileBlocks);
@@ -317,8 +323,8 @@ public abstract class DetectorTestCase {
     assertThat(result.size(), is(1));
 
     assertThat(result, hasCloneGroup(2,
-        newClonePart("a", 0, 2),
-        newClonePart("b", 0, 2)));
+      newClonePart("a", 0, 2),
+      newClonePart("b", 0, 2)));
   }
 
   /**
@@ -360,17 +366,17 @@ public abstract class DetectorTestCase {
   @Test
   public void problemWithEndOfFile() {
     CloneIndex cloneIndex = createIndex(
-        newBlocks("b", "1 2 3 4"));
+      newBlocks("b", "1 2 3 4"));
     Block[] fileBlocks =
-        newBlocks("a", "1 2 3");
+      newBlocks("a", "1 2 3");
     List<CloneGroup> clones = detect(cloneIndex, fileBlocks);
 
     print(clones);
     assertThat(clones.size(), is(1));
 
     assertThat(clones, hasCloneGroup(3,
-        newClonePart("a", 0, 3),
-        newClonePart("b", 0, 3)));
+      newClonePart("a", 0, 3),
+      newClonePart("b", 0, 3)));
   }
 
   /**
@@ -391,9 +397,9 @@ public abstract class DetectorTestCase {
   public void same_lines_but_different_indexes() {
     CloneIndex cloneIndex = createIndex();
     Block.Builder block = Block.builder()
-        .setResourceId("a")
-        .setLines(0, 1);
-    Block[] fileBlocks = new Block[] {
+      .setResourceId("a")
+      .setLines(0, 1);
+    Block[] fileBlocks = new Block[]{
       block.setBlockHash(new ByteArray("1".getBytes())).setIndexInFile(0).build(),
       block.setBlockHash(new ByteArray("2".getBytes())).setIndexInFile(1).build(),
       block.setBlockHash(new ByteArray("1".getBytes())).setIndexInFile(2).build()

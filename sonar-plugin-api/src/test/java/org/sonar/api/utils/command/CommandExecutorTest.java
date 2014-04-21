@@ -49,7 +49,7 @@ public class CommandExecutorTest {
   private File workDir;
 
   @Before
-  public void setUp() {
+  public void before() throws IOException {
     workDir = tempFolder.newFolder(testName.getMethodName());
   }
 

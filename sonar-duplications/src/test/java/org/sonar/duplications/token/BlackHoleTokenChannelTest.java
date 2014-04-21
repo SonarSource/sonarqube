@@ -19,13 +19,12 @@
  */
 package org.sonar.duplications.token;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
-
 import org.junit.Test;
 import org.sonar.channel.CodeReader;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class BlackHoleTokenChannelTest {
 
@@ -35,9 +34,9 @@ public class BlackHoleTokenChannelTest {
     TokenQueue output = mock(TokenQueue.class);
     CodeReader codeReader = new CodeReader("ABCD");
 
-    assertThat(channel.consume(codeReader, output), is(true));
-    assertThat(codeReader.getLinePosition(), is(1));
-    assertThat(codeReader.getColumnPosition(), is(3));
+    assertThat(channel.consume(codeReader, output)).isTrue();
+    assertThat(codeReader.getLinePosition()).isEqualTo(1);
+    assertThat(codeReader.getColumnPosition()).isEqualTo(3);
     verifyZeroInteractions(output);
   }
 

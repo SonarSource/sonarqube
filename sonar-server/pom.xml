@@ -166,6 +166,16 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.easytesting</groupId>
+      <artifactId>fest-assert</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>
       <scope>test</scope>
@@ -256,6 +266,24 @@
               </resources>
             </configuration>
           </execution>
+          <execution>
+            <id>copy-generated-webapp</id>
+            <!-- must be after the execution of grunt -->
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/${project.build.finalName}</outputDirectory>
+              <overwrite>true</overwrite>
+              <resources>
+                <resource>
+                  <directory>src/main/webapp/build</directory>
+                  <filtering>false</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
       <plugin>
@@ -291,29 +319,6 @@
             </goals>
             <configuration>
               <arguments>${gruntTask}</arguments>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-resources-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>copy-generated-webapp</id>
-            <!-- must be after the execution of grunt -->
-            <phase>process-resources</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${project.build.directory}/${project.build.finalName}</outputDirectory>
-              <overwrite>true</overwrite>
-              <resources>
-                <resource>
-                  <directory>src/main/webapp/build</directory>
-                  <filtering>false</filtering>
-                </resource>
-              </resources>
             </configuration>
           </execution>
         </executions>
@@ -397,6 +402,7 @@
             </executions>
           </plugin>
           <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-resources-plugin</artifactId>
             <executions>
               <execution>

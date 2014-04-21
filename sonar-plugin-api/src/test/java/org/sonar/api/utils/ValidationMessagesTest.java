@@ -22,21 +22,21 @@ package org.sonar.api.utils;
 import org.junit.Test;
 import org.slf4j.Logger;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
-import static org.junit.internal.matchers.StringContains.containsString;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class ValidationMessagesTest {
 
   @Test
   public void emptyMessages() {
     ValidationMessages messages = ValidationMessages.create();
-    assertThat(messages.hasErrors(), is(false));
-    assertThat(messages.hasWarnings(), is(false));
-    assertThat(messages.hasInfos(), is(false));
+    assertThat(messages.hasErrors()).isFalse();
+    assertThat(messages.hasWarnings()).isFalse();
+    assertThat(messages.hasInfos()).isFalse();
 
     Logger logger = mock(Logger.class);
     messages.log(logger);
@@ -49,13 +49,13 @@ public class ValidationMessagesTest {
   public void addError() {
     ValidationMessages messages = ValidationMessages.create();
     messages.addErrorText("my error");
-    assertThat(messages.hasErrors(), is(true));
-    assertThat(messages.hasWarnings(), is(false));
-    assertThat(messages.hasInfos(), is(false));
-    assertThat(messages.getErrors().size(), is(1));
-    assertThat(messages.getErrors(), hasItem("my error"));
-    assertThat(messages.toString(), containsString("my error"));
-    
+    assertThat(messages.hasErrors()).isTrue();
+    assertThat(messages.hasWarnings()).isFalse();
+    assertThat(messages.hasInfos()).isFalse();
+    assertThat(messages.getErrors()).hasSize(1);
+    assertThat(messages.getErrors()).contains("my error");
+    assertThat(messages.toString()).contains("my error");
+
     Logger logger = mock(Logger.class);
     messages.log(logger);
     verify(logger, times(1)).error("my error");
