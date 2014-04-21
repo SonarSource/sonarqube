@@ -14,7 +14,13 @@
 </div>
 
 <div class="component-viewer-options button-group">
-  <button data-option="issues"><i class="icon-issue"></i>&nbsp;&nbsp;Issues</button>
-  <button data-option="coverage"><i class="icon-coverage"></i>&nbsp;&nbsp;Coverage</button>
-  <button data-option="duplications"><i class="icon-duplications"></i>&nbsp;&nbsp;Duplications</button>
+  <button data-option="issues" {{#if settings.issues}}class="active"{{/if}}>
+    <i class="icon-issue"></i>&nbsp;&nbsp;Issues
+  </button>
+  <button data-option="coverage" {{#if settings.coverage}}class="active"{{/if}}>
+    <i class="icon-coverage"></i>&nbsp;&nbsp;Coverage
+  </button>
+  <button data-option="duplications" {{#if settings.duplications}}class="active"{{/if}}>
+    <i class="icon-duplications"></i>&nbsp;&nbsp;Duplications
+  </button>
 </div>

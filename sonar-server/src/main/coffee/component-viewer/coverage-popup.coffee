@@ -31,4 +31,5 @@ define [
 
     goToFile: (e) ->
       key = $(e.currentTarget).data 'key'
+      console.log key
       @options.main.addTransition key, 'coverage'

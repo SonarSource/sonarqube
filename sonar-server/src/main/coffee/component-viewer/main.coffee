@@ -33,11 +33,12 @@ define [
       @component = new Backbone.Model()
       @headerView = new HeaderView
         model: @component
-        workspace: @workspace
         main: @
 
       @source = new Backbone.Model()
       @sourceView = new SourceView model: @source, main: @
+
+      @settings = new Backbone.Model issues: false, coverage: true, duplications: false
 
 
     onRender: ->
@@ -84,9 +85,10 @@ define [
       source = @requestSource key
       component = @requestComponent key
       $.when(source, component).done =>
-        @workspace.findWhere(key: key).set 'component': @component.toJSON()
+        @workspace.where(key: key).forEach (model) =>
+          model.set 'component': @component.toJSON()
         @render()
-        @showCoverage()
+        if @settings.get('coverage') then @showCoverage() else @hideCoverage()
 
 
     showCoverage: ->

@@ -14,11 +14,21 @@ define [
 
 
     events:
+      'click .component-viewer-workspace-item [data-key]': 'goToWorkspaceItem'
       'click [data-option=coverage]': 'toggleCoverage'
 
 
     onRender: ->
       @delegateEvents()
+
+
+    goToWorkspaceItem: (e) ->
+      key = $(e.currentTarget).data 'key'
+      workspace = @options.main.workspace
+      workspaceItem = workspace.findWhere key: key
+      workspaceItemIndex = workspace.indexOf workspaceItem
+      workspace.reset workspace.initial(workspace.length - workspaceItemIndex)
+      @options.main.addTransition workspaceItem.get('key'), workspaceItem.get('transition')
 
 
     toggleCoverage: (e) ->
@@ -29,5 +39,7 @@ define [
 
 
     serializeData: ->
-      _.extend super, workspace: @options.workspace.toJSON()
+      _.extend super,
+        workspace: @options.main.workspace.toJSON()
+        settings: @options.main.settings.toJSON()
 

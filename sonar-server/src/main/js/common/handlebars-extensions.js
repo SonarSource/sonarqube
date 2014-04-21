@@ -27,7 +27,7 @@ define(['handlebars'], function (Handlebars) {
 
   Handlebars.registerHelper('qualifierIcon', function(qualifier) {
     return new Handlebars.SafeString(
-        '<i class="icon-qualifier-' + qualifier.toLowerCase() + '"></i>'
+        qualifier ? '<i class="icon-qualifier-' + qualifier.toLowerCase() + '"></i>': ''
     );
   });
 
