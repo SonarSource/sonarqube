@@ -34,6 +34,7 @@ define [
 
     showCoveragePopup: (e) ->
       e.stopPropagation()
+      $('body').click()
       popup = new CoveragePopupView
         triggerEl: $(e.currentTarget).closest('td')
         main: @options.main
