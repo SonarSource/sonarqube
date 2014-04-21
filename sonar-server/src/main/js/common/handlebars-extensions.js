@@ -144,6 +144,11 @@ define(['handlebars'], function (Handlebars) {
   });
 
   Handlebars.registerHelper('sources', function(source, scm, options) {
+    if (options == null) {
+      options = scm;
+      scm = null;
+    }
+
     var sources = _.map(source, function(code, line) {
       return {
         lineNumber: line,

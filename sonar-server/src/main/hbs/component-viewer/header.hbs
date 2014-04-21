@@ -1,0 +1,20 @@
+<div class="component-viewer-workspace">
+  <ul class="component-viewer-workspace-list">
+    {{#each workspace}}
+      <li class="component-viewer-workspace-item">
+        {{#if transition}}
+          <span class="component-viewer-workspace-transition">
+            <i class="icon-move-right"></i>
+          </span>
+        {{/if}}
+        <a data-key="{{key}}">{{qualifierIcon component.qualifier}} {{component.name}}</a>
+      </li>
+    {{/each}}
+  </ul>
+</div>
+
+<div class="component-viewer-options button-group">
+  <button data-option="issues"><i class="icon-issue"></i>&nbsp;&nbsp;Issues</button>
+  <button data-option="coverage"><i class="icon-coverage"></i>&nbsp;&nbsp;Coverage</button>
+  <button data-option="duplications"><i class="icon-duplications"></i>&nbsp;&nbsp;Duplications</button>
+</div>

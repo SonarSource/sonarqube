@@ -1,0 +1,132 @@
+@import "variables";
+@import "mixins";
+
+
+.component-viewer {
+  width: 100%;
+  min-width: 600px;
+  border: 1px solid @barBorderColor;
+  .box-sizing(border-box);
+}
+
+
+.component-viewer-header {
+  position: relative;
+  height: 40px;
+  padding: 0 10px;
+  border-bottom: 1px solid @barBorderColor;
+  background-color: @barBackgroundColor;
+}
+
+
+.component-viewer-workspace {
+  height: 40px;
+  line-height: 40px;
+  font-size: 0;
+}
+
+.component-viewer-workspace-item {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: @baseFontSize;
+
+  &:last-child { font-weight: bold; }
+}
+
+.component-viewer-workspace-transition {
+  padding: 0 10px;
+}
+
+
+.component-viewer-options {
+  position: absolute;
+  top: 8px; right: 10px;
+}
+
+
+.component-viewer-source {
+
+  .sources2 td.line {
+    padding: 1px 5px;
+
+    pre {
+      padding: 0;
+      font-family: 'inconsolata', monospace;
+      font-size: 13px;
+    }
+  }
+
+  .sources2 td.lid {
+    padding: 1px 5px;
+    border-color: @barBorderColor;
+    background-color: @barBackgroundColor;
+    color: #888;
+    font-size: 11px;
+  }
+
+  .sources2 td.coverage {
+    padding: 1px 5px;
+    background-color: @barBackgroundColor;
+    color: #fff;
+
+    &.coverage-green { background-color: @green;}
+    &.coverage-red { background-color: @red; }
+    &.coverage-orange { background-color: @orange; }
+
+    a { color: #fff; }
+  }
+
+  .sources2 .row:hover {
+    td.lid { background-color: darken(@barBackgroundColor, 5%); }
+    td.line { background-color: @barBackgroundColor; }
+    td.coverage { background-color: darken(@barBackgroundColor, 5%); }
+    td.coverage.coverage-green { background-color: darken(@green, 5%); }
+    td.coverage.coverage-red { background-color: darken(@red, 5%); }
+    td.coverage.coverage-orange { background-color: darken(@orange, 5%); }
+  }
+
+}
+
+
+.component-viewer-popup {
+  position: absolute;
+  z-index: 100;
+  padding: 10px;
+  border: 1px solid @barBorderColor;
+  background-color: @barBackgroundColor;
+}
+
+.component-viewer-popup-section + .component-viewer-popup-section {
+  margin-top: 10px;
+}
+
+.component-viewer-popup-section-title {
+
+}
+
+.component-viewer-popup-list {
+  margin-top: 5px;
+  font-size: @smallFontSize;
+}
+
+
+@font-face {
+  font-family: 'inconsolata-bold';
+  src: url('../fonts/inconsolata-bold-webfont.woff') format('woff'),
+       url('../fonts/inconsolata-bold-webfont.svg#inconsolatabold') format('svg');
+  font-weight: normal;
+  font-style: normal;
+
+}
+
+
+
+
+@font-face {
+  font-family: 'inconsolata';
+  src: url('../fonts/inconsolata-regular-webfont.woff') format('woff'),
+       url('../fonts/inconsolata-regular-webfont.svg#inconsolataregular') format('svg');
+  font-weight: normal;
+  font-style: normal;
+
+}
