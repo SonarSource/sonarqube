@@ -20,6 +20,9 @@
 
 # since 4.2
 class Api::JavaWsController < Api::ApiController
+
+  skip_before_filter :check_authentication
+
   def index
     ws_request = Java::OrgSonarServerWs::ServletRequest.new(servlet_request, params.to_java)
     ws_response = Java::OrgSonarServerWs::ServletResponse.new()
