@@ -213,6 +213,15 @@ requirejs(
           }),
 
           new BaseFilters.Filter({
+            name: window.SS.phrases.language,
+            property: 'languages',
+            type: ChoiceFilters.ChoiceFilterView,
+            enabled: false,
+            optional: true,
+            choices: window.SS.languages
+          }),
+
+          new BaseFilters.Filter({
             name: window.SS.phrases.reporter,
             property: 'reporters',
             type: AjaxSelectFilters.ReporterFilterView,
@@ -227,7 +236,6 @@ requirejs(
             enabled: false,
             optional: true
           })
-
         ]);
 
 
