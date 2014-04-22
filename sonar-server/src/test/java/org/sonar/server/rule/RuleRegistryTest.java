@@ -373,7 +373,7 @@ public class RuleRegistryTest {
   public void display_disabled_rule() {
     assertThat(registry.findIds(ImmutableMap.of("status", "BETA|REMOVED"))).containsOnly(2, 50);
   }
-  
+
   @Test
   public void find_rules_by_name_with_number_in_name() {
     registry.reindex(new RuleDto().setId(10).setRepositoryKey("repo").setRuleKey("rule1").setName("MyRule 1").setSeverity(Severity.MINOR));
@@ -381,7 +381,7 @@ public class RuleRegistryTest {
     System.out.println("MY RESULT: " + registry.find(RuleQuery.builder().searchQuery("MyRule 1").build()).results());
     assertThat(registry.find(RuleQuery.builder().searchQuery("MyRule 1").build()).results()).hasSize(1);
   }
-  
+
   @Test
   public void find_rule_by_key() {
     assertThat(registry.findByKey(RuleKey.of("unknown", "RuleWithParameters"))).isNull();
@@ -394,7 +394,7 @@ public class RuleRegistryTest {
     assertThat(rule.adminTags()).hasSize(1);
     assertThat(rule.systemTags()).hasSize(2);
   }
-  
+
   @Test
   public void filter_on_name_or_key() throws Exception {
     assertThat(registry.findIds(ImmutableMap.of("nameOrKey", "parameters"))).containsOnly(1);
@@ -485,8 +485,9 @@ public class RuleRegistryTest {
   public void find_rules_by_characteristics() {
     assertThat(registry.find(RuleQuery.builder().debtCharacteristics(newArrayList("MODULARITY")).build()).results()).hasSize(1);
     assertThat(registry.find(RuleQuery.builder().debtCharacteristics(newArrayList("REUSABILITY")).build()).results()).hasSize(1);
+    assertThat(registry.find(RuleQuery.builder().debtCharacteristics(newArrayList("PORTABILITY")).build()).results()).hasSize(1);
     // FIXME query has to be updated
-//    assertThat(registry.find(RuleQuery.builder().debtCharacteristics(newArrayList("MODULARITY", "PORTABILITY")).build()).results()).hasSize(2);
+    assertThat(registry.find(RuleQuery.builder().debtCharacteristics(newArrayList("MODULARITY", "PORTABILITY")).build()).results()).hasSize(2);
     assertThat(registry.find(RuleQuery.builder().debtCharacteristics(newArrayList("MODULARITY", "REUSABILITY")).build()).results()).hasSize(1);
     assertThat(registry.find(RuleQuery.builder().debtCharacteristics(newArrayList("unknown")).build()).results()).isEmpty();
   }

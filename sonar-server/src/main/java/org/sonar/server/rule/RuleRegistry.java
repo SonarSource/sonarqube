@@ -416,8 +416,10 @@ public class RuleRegistry {
     }
 
     if (!query.debtCharacteristics().isEmpty()) {
-      mainFilter.must(FilterBuilders.queryFilter(
-        QueryBuilders.multiMatchQuery(query.debtCharacteristics(), RuleDocument.FIELD_CHARACTERISTIC_KEY, RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY).operator(Operator.OR)));
+      BoolFilterBuilder debtFilter = boolFilter();
+      debtFilter.should(termsFilter(RuleDocument.FIELD_CHARACTERISTIC_KEY, query.debtCharacteristics()));
+      debtFilter.should(termsFilter(RuleDocument.FIELD_SUB_CHARACTERISTIC_KEY, query.debtCharacteristics()));
+      mainFilter.must(debtFilter);
     }
 
     if (query.hasDebtCharacteristic() != null) {
