@@ -20,9 +20,7 @@ define [
 
     onRender: ->
       @$el.detach().appendTo $('body')
-      @$el.css
-        top: @options.triggerEl.offset().top
-        left: @options.triggerEl.offset().left + @options.triggerEl.outerWidth()
+      @$el.css 'top', @options.triggerEl.offset().top
 
       $('body').on 'click.coverage-popup', =>
         $('body').off 'click.coverage-popup'

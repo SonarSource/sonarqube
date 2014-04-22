@@ -2,13 +2,13 @@ define [
   'backbone'
   'backbone.marionette'
   'templates/component-viewer'
-  'component-viewer/header'
+  'component-viewer/workspace'
   'component-viewer/source'
 ], (
   Backbone
   Marionette
   Templates
-  HeaderView
+  WorkspaceView
   SourceView
 ) ->
 
@@ -24,25 +24,27 @@ define [
 
 
     regions:
-      headerRegion: '.component-viewer-header'
+      workspaceRegion: '.component-viewer-workspace'
       sourceRegion: '.component-viewer-source'
 
 
     initialize: ->
       @workspace = new Backbone.Collection()
       @component = new Backbone.Model()
-      @headerView = new HeaderView
-        model: @component
+      @workspaceView = new WorkspaceView
+        collection: @workspace
         main: @
 
       @source = new Backbone.Model()
-      @sourceView = new SourceView model: @source, main: @
+      @sourceView = new SourceView
+        model: @source
+        main: @
 
       @settings = new Backbone.Model issues: false, coverage: true, duplications: false
 
 
     onRender: ->
-      @headerRegion.show @headerView
+      @workspaceRegion.show @workspaceView
       @sourceRegion.show @sourceView
 
 
@@ -92,6 +94,7 @@ define [
 
 
     showCoverage: ->
+      @settings.set 'coverage', true
       unless @source.has 'coverage'
         metrics = 'coverage_line_hits_data,covered_conditions_by_line,conditions_by_line'
         @requestComponent(@key, metrics).done (data) =>
@@ -102,7 +105,8 @@ define [
 
 
     hideCoverage: ->
-      @sourceView.hideCoverage()
+      @settings.set 'coverage', false
+      @sourceView.render()
 
 
     addTransition: (key, transition) ->

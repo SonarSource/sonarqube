@@ -17,42 +17,61 @@ define [
 
 
     events:
-      'click .coverage a': 'showCoveragePopup'
+      'click .settings-toggle button': 'toggleSettings'
+      'change #source-coverage': 'toggleCoverage'
+      'click .coverage-tests': 'showCoveragePopup'
 
 
     onRender: ->
       @delegateEvents()
+      @showSettings = false
 
 
     showSpinner: ->
       @$el.html '<div style="padding: 10px;"><i class="spinner"></i></div>'
 
 
-    hideCoverage: ->
-      @$('.coverage').hide()
+
+    toggleSettings: ->
+      @$('.settings-toggle button').toggleClass 'open'
+      @$('.component-viewer-source-settings').toggleClass 'open'
+
+
+    toggleCoverage: (e) ->
+      active = $(e.currentTarget).is ':checked'
+      @showSettings = true
+      if active then @options.main.showCoverage() else @options.main.hideCoverage()
 
 
     showCoveragePopup: (e) ->
       e.stopPropagation()
       $('body').click()
       popup = new CoveragePopupView
-        triggerEl: $(e.currentTarget).closest('td')
+        triggerEl: $(e.currentTarget)
         main: @options.main
       popup.render()
 
 
-    serializeData: ->
+    prepareSource: ->
       source = @model.get 'source'
       coverage = @model.get 'coverage'
       coverageConditions = @model.get 'coverageConditions'
       conditions = @model.get 'conditions'
-      source = _.map source, (code, line) ->
+      _.map source, (code, line) ->
         lineCoverage = coverage? && coverage[line]? && coverage[line]
+        lineCoverage = +lineCoverage if _.isString lineCoverage
         lineCoverageConditions = coverageConditions? && coverageConditions[line]? && coverageConditions[line]
+        lineCoverageConditions = +lineCoverageConditions if _.isString lineCoverageConditions
         lineConditions = conditions? && conditions[line]? && conditions[line]
-        lineCoverageStatus = lineCoverage? &&  if lineCoverage > 0 then 'green' else 'red'
+        lineConditions = +lineConditions if _.isString lineConditions
+
+        lineCoverageStatus = null
+        if _.isNumber lineCoverage
+          lineCoverageStatus = 'red' if lineCoverage == 0
+          lineCoverageStatus = 'green' if lineCoverage > 0
+
         lineCoverageConditionsStatus = null
-        if lineCoverageConditions? && conditions?
+        if _.isNumber(lineCoverageConditions) && _.isNumber(conditions)
           lineCoverageConditionsStatus = 'red' if lineCoverageConditions == 0
           lineCoverageConditionsStatus = 'orange' if lineCoverageConditions > 0 && lineCoverageConditions < lineConditions
           lineCoverageConditionsStatus = 'green' if lineCoverageConditions == lineConditions
@@ -63,5 +82,10 @@ define [
         coverageStatus: lineCoverageStatus
         coverageConditions: lineCoverageConditions
         conditions: lineConditions
-        coverageConditionsStatus: lineCoverageConditionsStatus
-      source: source
+        coverageConditionsStatus: lineCoverageConditionsStatus || lineCoverageStatus
+
+
+    serializeData: ->
+      source: @prepareSource()
+      settings: @options.main.settings.toJSON()
+      showSettings: @showSettings

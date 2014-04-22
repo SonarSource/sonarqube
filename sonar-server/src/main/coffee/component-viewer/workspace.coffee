@@ -9,13 +9,12 @@ define [
   $ = jQuery
 
 
-  class HeaderView extends Marionette.ItemView
-    template: Templates['header']
+  class WorkspaceView extends Marionette.ItemView
+    template: Templates['workspace']
 
 
     events:
       'click .component-viewer-workspace-item [data-key]': 'goToWorkspaceItem'
-      'click [data-option=coverage]': 'toggleCoverage'
 
 
     onRender: ->
@@ -29,13 +28,6 @@ define [
       workspaceItemIndex = workspace.indexOf workspaceItem
       workspace.reset workspace.initial(workspace.length - workspaceItemIndex)
       @options.main.addTransition workspaceItem.get('key'), workspaceItem.get('transition')
-
-
-    toggleCoverage: (e) ->
-      el = $(e.currentTarget)
-      active = el.is '.active'
-      el.toggleClass 'active'
-      if active then @options.main.hideCoverage() else @options.main.showCoverage()
 
 
     serializeData: ->

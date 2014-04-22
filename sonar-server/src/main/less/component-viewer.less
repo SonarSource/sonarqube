@@ -1,6 +1,8 @@
 @import "variables";
 @import "mixins";
 
+@workspaceWidth: 260px;
+
 
 .component-viewer {
   width: 100%;
@@ -10,41 +12,69 @@
 }
 
 
-.component-viewer-header {
-  position: relative;
-  height: 40px;
-  padding: 0 10px;
-  border-bottom: 1px solid @barBorderColor;
-  background-color: @barBackgroundColor;
-}
-
-
 .component-viewer-workspace {
-  height: 40px;
-  line-height: 40px;
-  font-size: 0;
+  float: left;
+  width: @workspaceWidth;
+  .box-sizing(border-box);
 }
 
 .component-viewer-workspace-item {
-  display: inline-block;
-  vertical-align: middle;
-  font-size: @baseFontSize;
+  height: 30px;
+  line-height: 30px;
+  padding: 0 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
-  &:last-child { font-weight: bold; }
+  &:first-child {
+    border-bottom: 1px solid @barBorderColor;
+  }
+
+  &:last-child {
+    font-weight: bold;
+  }
 }
 
 .component-viewer-workspace-transition {
-  padding: 0 10px;
-}
 
-
-.component-viewer-options {
-  position: absolute;
-  top: 8px; right: 10px;
 }
 
 
 .component-viewer-source {
+  border-left: @workspaceWidth solid @barBackgroundColor;
+
+  .sources2 {
+    border-left: 1px solid @barBorderColor;
+  }
+
+  .sources2 th {
+    height: 30px;
+    .box-sizing(border-box);
+
+    &.stat {
+      padding-top: 4px;
+      padding-bottom: 4px;
+      border-left: none;
+      border-right: none;
+      border-bottom: 1px solid @barBorderColor;
+    }
+
+    &.lid {
+      border-right: 1px solid @barBorderColor;
+    }
+
+    &.settings {
+      text-align: left;
+    }
+
+    &.settings-toggle {
+      border-right: 1px solid @barBorderColor;
+      text-align: center;
+      white-space: nowrap;
+
+      .icon-settings { font-size: @iconSmallFontSize; }
+    }
+  }
 
   .sources2 td.line {
     padding: 1px 5px;
@@ -56,45 +86,83 @@
     }
   }
 
-  .sources2 td.lid {
+  .sources2 .stat {
+    min-width: 12px;
     padding: 1px 5px;
-    border-color: @barBorderColor;
+    border-left: 1px solid @barBorderColor;
+    border-right: 1px solid @barBorderColor;
     background-color: @barBackgroundColor;
     color: #888;
     font-size: 11px;
+    text-align: right;
+    cursor: default;
   }
 
-  .sources2 td.coverage {
-    padding: 1px 5px;
-    background-color: @barBackgroundColor;
-    color: #fff;
-
-    &.coverage-green { background-color: @green;}
-    &.coverage-red { background-color: @red; }
-    &.coverage-orange { background-color: @orange; }
-
-    a { color: #fff; }
+  .sources2 .lid {
+    min-width: 18px;
+    padding-right: 10px;
   }
 
-  .sources2 .row:hover {
-    td.lid { background-color: darken(@barBackgroundColor, 5%); }
-    td.line { background-color: @barBackgroundColor; }
-    td.coverage { background-color: darken(@barBackgroundColor, 5%); }
-    td.coverage.coverage-green { background-color: darken(@green, 5%); }
-    td.coverage.coverage-red { background-color: darken(@red, 5%); }
-    td.coverage.coverage-orange { background-color: darken(@orange, 5%); }
+  .sources2 .coverage-tests {
+    cursor: pointer;
   }
 
+  .sources2 .row {
+
+    &.coverage-green td.stat {
+      background-color: lighten(@green, 15%);
+      border-color: lighten(@green, 7%);
+      color: @baseFontColor;
+
+      &.lid { border-right-color: lighten(@green, 15%); }
+    }
+
+    &.coverage-red td.stat {
+      background-color: lighten(@red, 15%);
+      border-color: lighten(@red, 10%);
+      color: @baseFontColor;
+
+      &.lid { border-right-color: lighten(@red, 15%); }
+    }
+
+    &:hover {
+      td.line { background-color: @barBackgroundColor; }
+
+      td.stat {
+        background-color: darken(@barBackgroundColor, 3%);
+        color: @baseFontColor;
+      }
+
+      &.coverage-green td.stat { background-color: lighten(@green, 10%); }
+      &.coverage-red td.stat { background-color: lighten(@red, 10%); }
+    }
+  }
+
+}
+
+
+.component-viewer-source-settings {
+  visibility: hidden;
+
+  &.open { visibility: visible; }
+
+  & > li {
+    display: inline;
+    margin-right: 10px;
+  }
 }
 
 
 .component-viewer-popup {
   position: absolute;
   z-index: 100;
+  left: 0;
+  width: @workspaceWidth;
   padding: 10px;
-  border: 1px solid @barBorderColor;
+  border-top: 1px solid @barBorderColor;
+  border-bottom: 1px solid @barBorderColor;
+  .box-sizing(border-box);
   background-color: @white;
-  box-shadow: @defaultShadow;
 }
 
 .component-viewer-popup-section + .component-viewer-popup-section {

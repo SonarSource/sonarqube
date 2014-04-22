@@ -53,7 +53,7 @@ requirejs(
 
 
       NavigatorApp.addRegions({
-        headerRegion: '.navigator-header',
+        workspaceRegion: '.navigator-header',
         filtersRegion: '.navigator-filters',
         resultsRegion: '.navigator-results',
         actionsRegion: '.navigator-actions',
@@ -85,7 +85,7 @@ requirejs(
           app: this,
           model: this.favoriteFilter
         });
-        this.headerRegion.show(this.issuesHeaderView);
+        this.workspaceRegion.show(this.issuesHeaderView);
 
         this.issuesView = new Extra.IssuesView({
           app: this,

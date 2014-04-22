@@ -28,7 +28,7 @@ define [
         qualityGateDetailHeaderView = new QualityGateDetailHeaderView
           app: @app
           model: qualityGate
-        @app.layout.headerRegion.show qualityGateDetailHeaderView
+        @app.layout.workspaceRegion.show qualityGateDetailHeaderView
 
         qualityGateDetailView = new QualityGateDetailView
           app: @app
