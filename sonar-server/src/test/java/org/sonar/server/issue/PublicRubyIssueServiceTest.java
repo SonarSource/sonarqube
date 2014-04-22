@@ -79,6 +79,7 @@ public class PublicRubyIssueServiceTest {
     map.put("componentRoots", newArrayList("org.sonar"));
     map.put("reporters", newArrayList("marilyn"));
     map.put("assignees", newArrayList("joanna"));
+    map.put("languages", newArrayList("xoo"));
     map.put("assigned", true);
     map.put("planned", true);
     map.put("hideRules", true);
@@ -100,6 +101,7 @@ public class PublicRubyIssueServiceTest {
     assertThat(query.componentRoots()).containsOnly("org.sonar");
     assertThat(query.reporters()).containsOnly("marilyn");
     assertThat(query.assignees()).containsOnly("joanna");
+    assertThat(query.languages()).containsOnly("xoo");
     assertThat(query.assigned()).isTrue();
     assertThat(query.planned()).isTrue();
     assertThat(query.hideRules()).isTrue();
@@ -113,7 +115,7 @@ public class PublicRubyIssueServiceTest {
   }
 
   @Test
-  public void should_parse_list_of_rules() {
+  public void parse_list_of_rules() {
     assertThat(PublicRubyIssueService.toRules(null)).isNull();
     assertThat(PublicRubyIssueService.toRules("")).isEmpty();
     assertThat(PublicRubyIssueService.toRules("squid:AvoidCycle")).containsOnly(RuleKey.of("squid", "AvoidCycle"));
@@ -122,7 +124,7 @@ public class PublicRubyIssueServiceTest {
   }
 
   @Test
-  public void should_start() throws Exception {
+  public void start() throws Exception {
     facade.start();
     // nothing is done
     verifyZeroInteractions(finder);

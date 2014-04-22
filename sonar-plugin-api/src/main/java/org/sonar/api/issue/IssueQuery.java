@@ -67,6 +67,7 @@ public class IssueQuery {
   private final Collection<String> actionPlans;
   private final Collection<String> reporters;
   private final Collection<String> assignees;
+  private final Collection<String> languages;
   private final Boolean assigned;
   private final Boolean planned;
   private final Boolean resolved;
@@ -95,6 +96,7 @@ public class IssueQuery {
     this.actionPlans = defaultCollection(builder.actionPlans);
     this.reporters = defaultCollection(builder.reporters);
     this.assignees = defaultCollection(builder.assignees);
+    this.languages = defaultCollection(builder.languages);
     this.assigned = builder.assigned;
     this.planned = builder.planned;
     this.resolved = builder.resolved;
@@ -147,6 +149,9 @@ public class IssueQuery {
 
   public Collection<String> assignees() {
     return assignees;
+  }
+  public Collection<String> languages() {
+    return languages;
   }
 
   @CheckForNull
@@ -233,6 +238,7 @@ public class IssueQuery {
     private Collection<String> actionPlans;
     private Collection<String> reporters;
     private Collection<String> assignees;
+    private Collection<String> languages;
     private Boolean assigned = null;
     private Boolean planned = null;
     private Boolean resolved = null;
@@ -296,6 +302,11 @@ public class IssueQuery {
 
     public Builder assignees(@Nullable Collection<String> l) {
       this.assignees = l;
+      return this;
+    }
+
+    public Builder languages(@Nullable Collection<String> l) {
+      this.languages = l;
       return this;
     }
 

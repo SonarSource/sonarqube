@@ -260,6 +260,20 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void select_by_languages() {
+    setupData("shared", "select_by_languages");
+
+    IssueQuery query = IssueQuery.builder().languages(newArrayList("java")).requiredRole("user").build();
+    assertThat(dao.selectIssueIds(query)).hasSize(2);
+
+    query = IssueQuery.builder().languages(newArrayList("java", "xoo")).requiredRole("user").build();
+    assertThat(dao.selectIssueIds(query)).hasSize(3);
+
+    query = IssueQuery.builder().languages(newArrayList("Other")).requiredRole("user").build();
+    assertThat(dao.selectIssueIds(query)).isEmpty();
+  }
+
+  @Test
   public void should_select_issues_for_authorized_projects() {
     setupData("should_select_issues_for_authorized_projects");
 

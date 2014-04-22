@@ -87,6 +87,7 @@ public class PublicRubyIssueService implements RubyIssueService {
       .actionPlans(RubyUtils.toStrings(props.get(IssueFilterParameters.ACTION_PLANS)))
       .reporters(RubyUtils.toStrings(props.get(IssueFilterParameters.REPORTERS)))
       .assignees(RubyUtils.toStrings(props.get(IssueFilterParameters.ASSIGNEES)))
+      .languages(RubyUtils.toStrings(props.get(IssueFilterParameters.LANGUAGES)))
       .assigned(RubyUtils.toBoolean(props.get(IssueFilterParameters.ASSIGNED)))
       .planned(RubyUtils.toBoolean(props.get(IssueFilterParameters.PLANNED)))
       .hideRules(RubyUtils.toBoolean(props.get(IssueFilterParameters.HIDE_RULES)))

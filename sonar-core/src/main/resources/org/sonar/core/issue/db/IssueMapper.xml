@@ -236,9 +236,16 @@
       <foreach item="component" index="index" collection="query.components()" open="(" separator=" or " close=")">project_component.kee=#{component}
       </foreach>
     </if>
-    <if test="query.rules().size()>0">
-      inner join rules r on r.id=i.rule_id and (<foreach item="rule" index="index" collection="query.rules()" open="(" separator=" or " close=")">
-      r.plugin_name=#{rule.repository} and r.plugin_rule_key=#{rule.rule}</foreach>)
+    <if test="query.rules().size()>0 or query.languages().size()>0">
+      inner join rules r on r.id=i.rule_id
+      <if test="query.rules().size()>0">
+        and (<foreach item="rule" index="index" collection="query.rules()" open="(" separator=" or " close=")">
+        r.plugin_name=#{rule.repository} and r.plugin_rule_key=#{rule.rule}</foreach>)
+      </if>
+      <if test="query.languages().size()>0">
+        and (<foreach item="language" index="index" collection="query.languages()" open="(" separator=" or " close=")">
+        r.language=#{language}</foreach>)
+      </if>
     </if>
     <where>
       <if test="query.issueKeys().size()>0">

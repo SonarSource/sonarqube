@@ -52,6 +52,7 @@ public class IssueQueryTest {
       .statuses("OPEN", "CLOSED")
       .severities("BLOCKER", "INFO")
       .reporters("login1", "login2")
+      .languages("xoo", "java")
       .createdAt(df.parse("2015-01-02T05:59:50:50"))
       .createdBefore(df.parse("2015-12-13T05:59:50"))
       .createdAfter(df.parse("2012-01-23T13:40:50"))
@@ -60,7 +61,7 @@ public class IssueQueryTest {
       .pageSize(5)
       .pageIndex(4);
 
-    assertThat(query.urlParams()).hasSize(21);
+    assertThat(query.urlParams()).hasSize(22);
     assertThat(query.urlParams()).includes(entry("issues", "ABCDE,FGHIJ"));
     assertThat(query.urlParams()).includes(entry("assignees", "arthur,perceval"));
     assertThat(query.urlParams()).includes(entry("assigned", true));
@@ -75,6 +76,7 @@ public class IssueQueryTest {
     assertThat(query.urlParams()).includes(entry("statuses", "OPEN,CLOSED"));
     assertThat(query.urlParams()).includes(entry("severities", "BLOCKER,INFO"));
     assertThat(query.urlParams()).includes(entry("reporters", "login1,login2"));
+    assertThat(query.urlParams()).includes(entry("languages", "xoo,java"));
     assertThat((String)query.urlParams().get("createdBefore")).startsWith("2015-12-13T05:59:50");
     assertThat((String)query.urlParams().get("createdAfter")).startsWith("2012-01-23T13:40:50");
     assertThat((String)query.urlParams().get("createdAt")).startsWith("2015-01-02T05:59:50");

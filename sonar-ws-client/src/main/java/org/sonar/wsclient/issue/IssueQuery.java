@@ -85,6 +85,9 @@ public class IssueQuery {
   public IssueQuery assignees(String... s) {
     return addParam("assignees", s);
   }
+  public IssueQuery languages(String... s) {
+    return addParam("languages", s);
+  }
 
   public IssueQuery assigned(Boolean assigned) {
     params.put("assigned", assigned);
