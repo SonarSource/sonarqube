@@ -49,9 +49,5 @@
       <version>${project.version}</version>
       <type>test-jar</type>
     </dependency>
-    <dependency>
-      <groupId>xmlunit</groupId>
-      <artifactId>xmlunit</artifactId>
-    </dependency>
   </dependencies>
 </project>

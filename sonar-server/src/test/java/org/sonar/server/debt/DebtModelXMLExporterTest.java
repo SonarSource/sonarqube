@@ -20,7 +20,10 @@
 package org.sonar.server.debt;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.SystemUtils;
+import org.custommonkey.xmlunit.Diff;
+import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
@@ -34,6 +37,7 @@ import java.util.regex.Pattern;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.sonar.server.debt.DebtModelXMLExporter.DebtModel;
 import static org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
 
@@ -63,7 +67,14 @@ public class DebtModelXMLExporterTest {
         .setSubCharacteristicKey("MEMORY_USE").setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name()).setCoefficient("3d").setOffset("15min")
     );
 
-    TestUtils.assertSimilarXml(getFileContent("export_xml.xml"), xmlExporter.export(debtModel, rules));
+    assertSimilarXml(getFileContent("export_xml.xml"), xmlExporter.export(debtModel, rules));
+  }
+
+  public static void assertSimilarXml(String expectedXml, String xml) throws Exception {
+    XMLUnit.setIgnoreWhitespace(true);
+    Diff diff = XMLUnit.compareXML(xml, expectedXml);
+    String message = "Diff: " + diff.toString() + CharUtils.LF + "XML: " + xml;
+    assertTrue(message, diff.similar());
   }
 
   @Test
