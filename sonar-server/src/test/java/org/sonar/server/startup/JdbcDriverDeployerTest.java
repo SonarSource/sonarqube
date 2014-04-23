@@ -21,11 +21,11 @@ package org.sonar.server.startup;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import com.google.common.io.Resources;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.server.platform.DefaultServerFileSystem;
-import org.sonar.test.TestUtils;
 
 import java.io.File;
 
@@ -41,7 +41,7 @@ public class JdbcDriverDeployerTest {
   @Test
   public void test_deploy() throws Exception {
     DefaultServerFileSystem fs = mock(DefaultServerFileSystem.class);
-    File initialDriver = TestUtils.getResource(getClass(), "deploy/my-driver.jar");
+    File initialDriver = new File(Resources.getResource(getClass(), "JdbcDriverDeployerTest/deploy/my-driver.jar").toURI());
     when(fs.getJdbcDriver()).thenReturn(initialDriver);
 
     File deployDir = temp.newFolder("deploy");

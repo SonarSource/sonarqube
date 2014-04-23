@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.bootstrap;
 
+import com.google.common.io.Resources;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -30,7 +31,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.core.plugins.RemotePlugin;
 import org.sonar.home.cache.FileCache;
 import org.sonar.home.cache.FileCacheBuilder;
-import org.sonar.test.TestUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,7 +65,7 @@ public class BatchPluginRepositoryTest {
   }
 
   @Test
-  public void shouldLoadPlugin() throws IOException {
+  public void shouldLoadPlugin() throws Exception {
     RemotePlugin checkstyle = new RemotePlugin("checkstyle", true);
 
     PluginDownloader downloader = mock(PluginDownloader.class);
@@ -82,7 +82,7 @@ public class BatchPluginRepositoryTest {
   }
 
   @Test
-  public void shouldLoadPluginExtension() throws IOException {
+  public void shouldLoadPluginExtension() throws Exception {
     RemotePlugin checkstyle = new RemotePlugin("checkstyle", true);
     RemotePlugin checkstyleExt = new RemotePlugin("checkstyleextensions", false);
 
@@ -102,7 +102,7 @@ public class BatchPluginRepositoryTest {
   }
 
   @Test
-  public void shouldExcludePluginAndItsExtensions() throws IOException {
+  public void shouldExcludePluginAndItsExtensions() throws Exception {
     RemotePlugin checkstyle = new RemotePlugin("checkstyle", true);
     RemotePlugin checkstyleExt = new RemotePlugin("checkstyleextensions", false);
 
@@ -119,8 +119,8 @@ public class BatchPluginRepositoryTest {
     assertThat(repository.getMetadata()).isEmpty();
   }
 
-  private File fileFromCache(String filename) throws IOException {
-    File file = TestUtils.getResource("/org/sonar/batch/bootstrap/BatchPluginRepositoryTest/" + filename);
+  private File fileFromCache(String filename) throws Exception {
+    File file = new File(Resources.getResource("org/sonar/batch/bootstrap/BatchPluginRepositoryTest/" + filename).toURI());
     File destDir = new File(userHome, "cache/foomd5");
     FileUtils.forceMkdir(destDir);
     FileUtils.copyFileToDirectory(file, destDir);

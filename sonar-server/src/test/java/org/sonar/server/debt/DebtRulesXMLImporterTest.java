@@ -20,12 +20,12 @@
 
 package org.sonar.server.debt;
 
-import org.apache.commons.io.IOUtils;
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.test.TestUtils;
 
 import java.util.List;
 
@@ -43,7 +43,7 @@ public class DebtRulesXMLImporterTest {
     String xml = getFileContent("import_rules.xml");
 
     List<RuleDebt> results = importer.importXML(xml, validationMessages);
-    
+
     assertThat(results).hasSize(2);
     assertThat(validationMessages.getErrors()).isEmpty();
     assertThat(validationMessages.getWarnings()).isEmpty();
@@ -252,6 +252,7 @@ public class DebtRulesXMLImporterTest {
   }
 
   private String getFileContent(String file) throws Exception {
-    return IOUtils.toString(TestUtils.getResource(getClass(), file).toURI());
+    return Resources.toString(Resources.getResource(getClass(), "DebtRulesXMLImporterTest/" + file),
+      Charsets.UTF_8);
   }
 }

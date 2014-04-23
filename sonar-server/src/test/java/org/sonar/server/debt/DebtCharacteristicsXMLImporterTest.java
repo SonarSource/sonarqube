@@ -20,10 +20,10 @@
 
 package org.sonar.server.debt;
 
-import org.apache.commons.io.IOUtils;
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
 import org.junit.Test;
 import org.sonar.api.server.debt.DebtCharacteristic;
-import org.sonar.test.TestUtils;
 
 import java.util.List;
 
@@ -108,7 +108,7 @@ public class DebtCharacteristicsXMLImporterTest {
   }
 
   private String getFileContent(String file) throws Exception {
-    return IOUtils.toString(TestUtils.getResource(getClass(), file).toURI());
+    return Resources.toString(Resources.getResource(getClass(), "DebtCharacteristicsXMLImporterTest/" + file), Charsets.UTF_8);
   }
 
 }

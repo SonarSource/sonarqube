@@ -20,6 +20,8 @@
 package org.sonar.batch.scan.report;
 
 import com.google.common.collect.Lists;
+import com.google.common.io.Resources;
+import org.apache.commons.codec.Charsets;
 import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +46,6 @@ import org.sonar.batch.events.EventBus;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.scan.filesystem.InputFileCache;
 import org.sonar.core.user.DefaultUser;
-import org.sonar.test.TestUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -124,8 +125,8 @@ public class JsonReportTest {
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);
 
-    JSONAssert.assertEquals(TestUtils.getResourceContent("/org/sonar/batch/scan/report/JsonReportTest/report.json"),
-      writer.toString(), false);
+    String expected = Resources.toString(Resources.getResource("org/sonar/batch/scan/report/JsonReportTest/report.json"), Charsets.UTF_8);
+    JSONAssert.assertEquals(expected, writer.toString(), false);
   }
 
   @Test
@@ -142,13 +143,14 @@ public class JsonReportTest {
       .setCloseDate(SIMPLE_DATE_FORMAT.parse("2013-04-26"))
       .setNew(false);
     when(ruleFinder.findByKey(ruleKey)).thenReturn(Rule.create(ruleKey.repository(), ruleKey.rule()).setName("Avoid Cycles"));
-    when(jsonReport.getIssues()).thenReturn(Lists.<DefaultIssue>newArrayList(issue));
+    when(jsonReport.getIssues()).thenReturn(Lists.newArrayList(issue));
 
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);
 
-    JSONAssert.assertEquals(TestUtils.getResourceContent("/org/sonar/batch/scan/report/JsonReportTest/report-without-resolved-issues.json"),
-      writer.toString(), false);
+    String expected = Resources.toString(Resources.getResource(
+      "org/sonar/batch/scan/report/JsonReportTest/report-without-resolved-issues.json"), Charsets.UTF_8);
+    JSONAssert.assertEquals(expected, writer.toString(), false);
   }
 
   @Test

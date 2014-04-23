@@ -19,18 +19,16 @@
  */
 package org.sonar.server.plugins;
 
+import com.google.common.io.Resources;
 import org.junit.After;
 import org.junit.Test;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.core.plugins.DefaultPluginMetadata;
-import org.sonar.test.TestUtils;
 
 import java.io.File;
 import java.util.Arrays;
 
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -46,9 +44,9 @@ public class ServerPluginRepositoryTest {
   }
 
   @Test
-  public void testStart() {
+  public void testStart() throws Exception {
     ServerPluginJarsInstaller deployer = mock(ServerPluginJarsInstaller.class);
-    File pluginFile = TestUtils.getResource("/org/sonar/server/plugins/ServerPluginRepositoryTest/sonar-artifact-size-plugin-0.2.jar");
+    File pluginFile = new File(Resources.getResource("org/sonar/server/plugins/ServerPluginRepositoryTest/sonar-artifact-size-plugin-0.2.jar").toURI());
     PluginMetadata plugin = DefaultPluginMetadata.create(pluginFile)
       .setKey("artifactsize")
       .setMainClass("org.sonar.plugins.artifactsize.ArtifactSizePlugin")
@@ -58,10 +56,10 @@ public class ServerPluginRepositoryTest {
     repository = new ServerPluginRepository(deployer);
     repository.start();
 
-    assertThat(repository.getPlugin("artifactsize"), not(nullValue()));
-    assertThat(repository.getClassLoader("artifactsize"), not(nullValue()));
-    assertThat(repository.getClass("artifactsize", "org.sonar.plugins.artifactsize.ArtifactSizeMetrics"), not(nullValue()));
-    assertThat(repository.getClass("artifactsize", "org.Unknown"), nullValue());
-    assertThat(repository.getClass("other", "org.sonar.plugins.artifactsize.ArtifactSizeMetrics"), nullValue());
+    assertThat(repository.getPlugin("artifactsize")).isNotNull();
+    assertThat(repository.getClassLoader("artifactsize")).isNotNull();
+    assertThat(repository.getClass("artifactsize", "org.sonar.plugins.artifactsize.ArtifactSizeMetrics")).isNotNull();
+    assertThat(repository.getClass("artifactsize", "org.Unknown")).isNull();
+    assertThat(repository.getClass("other", "org.sonar.plugins.artifactsize.ArtifactSizeMetrics")).isNull();
   }
 }

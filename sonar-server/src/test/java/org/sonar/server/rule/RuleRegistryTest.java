@@ -21,8 +21,9 @@
 package org.sonar.server.rule;
 
 import com.github.tlrx.elasticsearch.test.EsSetup;
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.io.IOUtils;
+import com.google.common.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.junit.After;
@@ -36,12 +37,15 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.profiling.Profiling;
-import org.sonar.core.rule.*;
+import org.sonar.core.rule.RuleDao;
+import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleParamDto;
+import org.sonar.core.rule.RuleRuleTagDto;
+import org.sonar.core.rule.RuleTagType;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.es.ESIndex;
 import org.sonar.server.es.ESNode;
-import org.sonar.test.TestUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -297,9 +301,9 @@ public class RuleRegistryTest {
   @Test
   public void index_overridden_characteristic_if_both_default_and_overridden_characteristics_exists_when_indexing_one_rule() {
     RuleDto ruleDto = new RuleDto().setId(10).setRepositoryKey("repo").setRuleKey("key1").setSeverity(Severity.MINOR)
-        // default and overridden debt values are set
-        .setDefaultSubCharacteristicId(11).setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("2h")
-        .setSubCharacteristicId(13).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("1h").setRemediationOffset("15min");
+      // default and overridden debt values are set
+      .setDefaultSubCharacteristicId(11).setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("2h")
+      .setSubCharacteristicId(13).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("1h").setRemediationOffset("15min");
 
     when(characteristicDao.selectById(12, session)).thenReturn(new CharacteristicDto().setId(12).setKey("REUSABILITY").setName("Reusability"));
     when(characteristicDao.selectById(13, session)).thenReturn(new CharacteristicDto().setId(13).setKey("MODULARITY").setName("Modularity").setParentId(12));
@@ -320,9 +324,9 @@ public class RuleRegistryTest {
   @Test
   public void index_overridden_function_if_both_default_and_overridden_functions_exists_when_indexing_one_rule() {
     RuleDto ruleDto = new RuleDto().setId(10).setRepositoryKey("repo").setRuleKey("key1").setSeverity(Severity.MINOR)
-        // default and overridden debt values are set
-        .setDefaultSubCharacteristicId(11).setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationOffset("15min")
-        .setSubCharacteristicId(11).setRemediationFunction("LINEAR").setRemediationCoefficient("1h");
+      // default and overridden debt values are set
+      .setDefaultSubCharacteristicId(11).setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationOffset("15min")
+      .setSubCharacteristicId(11).setRemediationFunction("LINEAR").setRemediationCoefficient("1h");
 
     when(characteristicDao.selectById(10, session)).thenReturn(new CharacteristicDto().setId(10).setKey("REUSABILITY").setName("Reusability"));
     when(characteristicDao.selectById(11, session)).thenReturn(new CharacteristicDto().setId(11).setKey("MODULARITY").setName("Modularity").setParentId(10));
@@ -505,7 +509,7 @@ public class RuleRegistryTest {
   }
 
   private String testFileAsString(String testFile) throws Exception {
-    return IOUtils.toString(TestUtils.getResource(getClass(), testFile).toURI());
+    return Resources.toString(Resources.getResource(getClass(), "RuleRegistryTest/" + testFile), Charsets.UTF_8);
   }
 
 }

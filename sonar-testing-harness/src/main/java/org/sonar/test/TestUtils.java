@@ -19,14 +19,10 @@
  */
 package org.sonar.test;
 
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.utils.SonarException;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 
 /**
@@ -55,19 +51,6 @@ public final class TestUtils {
       return FileUtils.toFile(url);
     }
     return null;
-  }
-
-  public static String getResourceContent(String path) {
-    URL url = TestUtils.class.getResource(path);
-    if (url == null) {
-      return null;
-    }
-
-    try {
-      return IOUtils.toString(url, Charsets.UTF_8);
-    } catch (IOException e) {
-      throw new SonarException("Can not load the resource: " + path, e);
-    }
   }
 
   /**

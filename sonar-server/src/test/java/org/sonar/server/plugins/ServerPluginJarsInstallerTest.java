@@ -19,6 +19,7 @@
  */
 package org.sonar.server.plugins;
 
+import com.google.common.io.Resources;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -31,10 +32,8 @@ import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.platform.DefaultServerFileSystem;
-import org.sonar.test.TestUtils;
 
 import java.io.File;
-import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -57,7 +56,7 @@ public class ServerPluginJarsInstallerTest {
   ServerUpgradeStatus upgradeStatus = mock(ServerUpgradeStatus.class);
 
   @Before
-  public void before() throws IOException {
+  public void before() throws Exception {
     when(server.getVersion()).thenReturn("3.1");
     when(server.getDeployDir()).thenReturn(temp.newFolder("deploy"));
 
@@ -75,8 +74,8 @@ public class ServerPluginJarsInstallerTest {
     jarsInstaller = new ServerPluginJarsInstaller(server, upgradeStatus, fileSystem, jarInstaller);
   }
 
-  private File jar(String name) {
-    return TestUtils.getResource(ServerPluginJarsInstallerTest.class, name);
+  private File jar(String name) throws Exception {
+    return new File(Resources.getResource(getClass(), "ServerPluginJarsInstallerTest/" + name).toURI());
   }
 
   @Test
@@ -124,7 +123,7 @@ public class ServerPluginJarsInstallerTest {
   }
 
   @Test
-  public void deploy_installed_plugin() throws IOException {
+  public void deploy_installed_plugin() throws Exception {
     when(upgradeStatus.isFreshInstall()).thenReturn(false);
     FileUtils.copyFileToDirectory(jar("foo-plugin-1.0.jar"), pluginsDir);
 
@@ -144,7 +143,7 @@ public class ServerPluginJarsInstallerTest {
   }
 
   @Test
-  public void ignore_non_plugin_jars() throws IOException {
+  public void ignore_non_plugin_jars() throws Exception {
     when(upgradeStatus.isFreshInstall()).thenReturn(false);
     FileUtils.copyFileToDirectory(jar("not-a-plugin.jar"), pluginsDir);
 
@@ -157,7 +156,7 @@ public class ServerPluginJarsInstallerTest {
   }
 
   @Test
-  public void fail_if_plugin_requires_greater_SQ_version() throws IOException {
+  public void fail_if_plugin_requires_greater_SQ_version() throws Exception {
     exception.expect(IllegalStateException.class);
     exception.expectMessage("Plugin switchoffviolations needs a more recent version of SonarQube than 2.0. At least 2.5 is expected");
 
@@ -169,7 +168,7 @@ public class ServerPluginJarsInstallerTest {
   }
 
   @Test
-  public void move_downloaded_plugins() throws IOException {
+  public void move_downloaded_plugins() throws Exception {
     FileUtils.copyFileToDirectory(jar("foo-plugin-1.0.jar"), downloadsDir);
     when(upgradeStatus.isFreshInstall()).thenReturn(false);
 
@@ -181,7 +180,7 @@ public class ServerPluginJarsInstallerTest {
   }
 
   @Test
-  public void downloaded_plugins_overrides_existing_plugin() throws IOException {
+  public void downloaded_plugins_overrides_existing_plugin() throws Exception {
     FileUtils.copyFileToDirectory(jar("foo-plugin-1.0.jar"), pluginsDir);
     FileUtils.copyFileToDirectory(jar("foo-plugin-2.0.jar"), downloadsDir);
     when(upgradeStatus.isFreshInstall()).thenReturn(false);
@@ -194,7 +193,7 @@ public class ServerPluginJarsInstallerTest {
   }
 
   @Test
-  public void downloaded_plugins_overrides_existing_plugin_even_if_same_filename() throws IOException {
+  public void downloaded_plugins_overrides_existing_plugin_even_if_same_filename() throws Exception {
     FileUtils.copyFileToDirectory(jar("foo-plugin-1.0.jar"), pluginsDir, true);
     // foo-plugin-1.0.jar in extensions/downloads is in fact version 2.0. It's used to verify
     // that it has correctly overridden extensions/plugins/foo-plugin-1.0.jar
@@ -213,7 +212,7 @@ public class ServerPluginJarsInstallerTest {
   }
 
   @Test
-  public void delete_trash() throws IOException {
+  public void delete_trash() throws Exception {
     FileUtils.copyFileToDirectory(jar("foo-plugin-1.0.jar"), trashDir);
     when(upgradeStatus.isFreshInstall()).thenReturn(false);
 
@@ -224,7 +223,7 @@ public class ServerPluginJarsInstallerTest {
   }
 
   @Test
-  public void fail_if_two_installed_plugins_with_same_key() throws IOException {
+  public void fail_if_two_installed_plugins_with_same_key() throws Exception {
     when(upgradeStatus.isFreshInstall()).thenReturn(false);
     FileUtils.copyFileToDirectory(jar("foo-plugin-1.0.jar"), pluginsDir);
     FileUtils.copyFileToDirectory(jar("foo-plugin-2.0.jar"), pluginsDir);
@@ -241,7 +240,7 @@ public class ServerPluginJarsInstallerTest {
   }
 
   @Test
-  public void uninstall_plugin() throws IOException {
+  public void uninstall_plugin() throws Exception {
     when(upgradeStatus.isFreshInstall()).thenReturn(false);
     FileUtils.copyFileToDirectory(jar("foo-plugin-1.0.jar"), pluginsDir);
 
@@ -254,7 +253,7 @@ public class ServerPluginJarsInstallerTest {
   }
 
   @Test
-  public void cancel_uninstallation() throws IOException {
+  public void cancel_uninstallation() throws Exception {
     when(upgradeStatus.isFreshInstall()).thenReturn(false);
     FileUtils.copyFileToDirectory(jar("foo-plugin-1.0.jar"), pluginsDir);
 
@@ -268,7 +267,7 @@ public class ServerPluginJarsInstallerTest {
   }
 
   @Test
-  public void deploy_core_plugins() throws IOException {
+  public void deploy_core_plugins() throws Exception {
     when(upgradeStatus.isFreshInstall()).thenReturn(false);
     FileUtils.copyFileToDirectory(jar("foo-plugin-1.0.jar"), coreDir);
 

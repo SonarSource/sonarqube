@@ -19,6 +19,7 @@
  */
 package org.sonar.server.es;
 
+import com.google.common.io.Resources;
 import org.apache.commons.io.FileUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.client.AdminClient;
@@ -34,7 +35,6 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.utils.ZipUtils;
-import org.sonar.test.TestUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -117,7 +117,8 @@ public class ESNodeTest {
 
   @Test
   public void should_restore_status_on_startup() throws Exception {
-    ZipUtils.unzip(TestUtils.getResource(ESNodeTest.class, "data-es-clean.zip"), dataDir);
+    File zip = new File(Resources.getResource(getClass(), "ESNodeTest/data-es-clean.zip").toURI());
+    ZipUtils.unzip(zip, dataDir);
 
     ESNode node = new ESNode(fs, new Settings());
     node.start();
@@ -131,7 +132,8 @@ public class ESNodeTest {
 
   @Test(expected = IllegalStateException.class)
   public void should_fail_on_corrupt_index() throws Exception {
-    ZipUtils.unzip(TestUtils.getResource(ESNodeTest.class, "data-es-corrupt.zip"), dataDir);
+    File zip = new File(Resources.getResource(getClass(), "ESNodeTest/data-es-corrupt.zip").toURI());
+    ZipUtils.unzip(zip, dataDir);
 
     ESNode node = new ESNode(fs, new Settings(), "5s");
     try {

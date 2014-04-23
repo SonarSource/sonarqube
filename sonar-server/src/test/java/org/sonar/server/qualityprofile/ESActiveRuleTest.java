@@ -20,11 +20,12 @@
 package org.sonar.server.qualityprofile;
 
 import com.github.tlrx.elasticsearch.test.EsSetup;
+import com.google.common.base.Charsets;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import org.apache.commons.io.IOUtils;
+import com.google.common.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.common.settings.ImmutableSettings;
@@ -45,7 +46,6 @@ import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.server.es.ESIndex;
 import org.sonar.server.es.ESNode;
 import org.sonar.server.rule.RuleRegistry;
-import org.sonar.test.TestUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,7 +53,9 @@ import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.elasticsearch.index.query.FilterBuilders.*;
+import static org.elasticsearch.index.query.FilterBuilders.hasChildFilter;
+import static org.elasticsearch.index.query.FilterBuilders.hasParentFilter;
+import static org.elasticsearch.index.query.FilterBuilders.termFilter;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -215,7 +217,7 @@ public class ESActiveRuleTest {
 
   @Test
   public void should_not_fail_on_empty_delete_list() {
-    esActiveRule.deleteActiveRules(ImmutableList.<Integer> of());
+    esActiveRule.deleteActiveRules(ImmutableList.<Integer>of());
   }
 
   @Test
@@ -226,7 +228,7 @@ public class ESActiveRuleTest {
     SqlSession session = mock(SqlSession.class);
     when(myBatis.openSession()).thenReturn(session);
     when(activeRuleDao.selectAll(session)).thenReturn(activeRules);
-    when(activeRuleDao.selectAllParams(session)).thenReturn(Lists.<ActiveRuleParamDto> newArrayList());
+    when(activeRuleDao.selectAllParams(session)).thenReturn(Lists.<ActiveRuleParamDto>newArrayList());
 
     esActiveRule.bulkRegisterActiveRules();
     assertThat(esSetup.exists("rules", "active_rule", "1"));
@@ -245,7 +247,7 @@ public class ESActiveRuleTest {
   }
 
   private String testFileAsString(String testFile) throws Exception {
-    return IOUtils.toString(TestUtils.getResource(getClass(), testFile).toURI());
+    return Resources.toString(Resources.getResource(getClass(), "ESActiveRuleTest/" + testFile), Charsets.UTF_8);
   }
 
 }

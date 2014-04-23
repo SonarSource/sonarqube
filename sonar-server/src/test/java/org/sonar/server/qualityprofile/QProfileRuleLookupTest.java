@@ -20,7 +20,8 @@
 package org.sonar.server.qualityprofile;
 
 import com.github.tlrx.elasticsearch.test.EsSetup;
-import org.apache.commons.io.IOUtils;
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.junit.After;
@@ -33,7 +34,6 @@ import org.sonar.server.es.ESIndex;
 import org.sonar.server.es.ESNode;
 import org.sonar.server.paging.Paging;
 import org.sonar.server.rule.RuleRegistry;
-import org.sonar.test.TestUtils;
 
 import java.util.List;
 
@@ -51,7 +51,7 @@ public class QProfileRuleLookupTest {
     esSetup = new EsSetup(ImmutableSettings.builder()
       .loadFromUrl(ESNode.class.getResource("config/elasticsearch.json"))
       .build()
-      );
+    );
     esSetup.execute(EsSetup.deleteAll());
 
     ESNode searchNode = mock(ESNode.class);
@@ -325,17 +325,17 @@ public class QProfileRuleLookupTest {
     esSetup.client().prepareBulk()
       // id = 2303, tags = empty
       .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("find_inactive_rules_with_tags/tags_empty.json")))
-      // active rule with parent having no tag
+        // active rule with parent having no tag
       .add(Requests.indexRequest().index("rules").type("active_rule").parent("2303").source(testFileAsString("find_inactive_rules_with_tags/active_rule_empty.json")))
-      // id = 2304, tags = taga
+        // id = 2304, tags = taga
       .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("find_inactive_rules_with_tags/tags_a.json")))
-      // id = 2305, tags = taga, tagb
+        // id = 2305, tags = taga, tagb
       .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("find_inactive_rules_with_tags/tags_ab.json")))
-      // id = 2306, tags = tagb, tagc
+        // id = 2306, tags = tagb, tagc
       .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("find_inactive_rules_with_tags/tags_bc.json")))
-      // id = 2307, tags = taga, tagc, tage
+        // id = 2307, tags = taga, tagc, tage
       .add(Requests.indexRequest().index("rules").type("rule").source(testFileAsString("find_inactive_rules_with_tags/tags_ace.json")))
-      // active rule with parent having tags
+        // active rule with parent having tags
       .add(Requests.indexRequest().index("rules").type("active_rule").parent("2307").source(testFileAsString("find_inactive_rules_with_tags/active_rule_ace.json")))
       .setRefresh(true)
       .execute().actionGet();
@@ -460,6 +460,6 @@ public class QProfileRuleLookupTest {
   }
 
   private String testFileAsString(String testFile) throws Exception {
-    return IOUtils.toString(TestUtils.getResource(getClass(), testFile).toURI());
+    return Resources.toString(Resources.getResource(getClass(), "QProfileRuleLookupTest/" + testFile), Charsets.UTF_8);
   }
 }

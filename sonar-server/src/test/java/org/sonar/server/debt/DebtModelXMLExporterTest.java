@@ -19,7 +19,8 @@
  */
 package org.sonar.server.debt;
 
-import org.apache.commons.io.IOUtils;
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
 import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.custommonkey.xmlunit.Diff;
@@ -29,7 +30,6 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
-import org.sonar.test.TestUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -142,6 +142,6 @@ public class DebtModelXMLExporterTest {
   }
 
   private String getFileContent(String file) throws Exception {
-    return IOUtils.toString(TestUtils.getResource(getClass(), file).toURI());
+    return Resources.toString(Resources.getResource(getClass(), "DebtModelXMLExporterTest/" + file), Charsets.UTF_8);
   }
 }

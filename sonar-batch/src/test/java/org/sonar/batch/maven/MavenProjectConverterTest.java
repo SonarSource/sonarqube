@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.maven;
 
+import com.google.common.io.Resources;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
@@ -30,7 +31,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.test.TestUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -119,7 +119,7 @@ public class MavenProjectConverterTest {
 
   @Test
   public void moduleNameShouldEqualArtifactId() throws Exception {
-    File rootDir = TestUtils.getResource("/org/sonar/batch/maven/MavenProjectConverterTest/moduleNameShouldEqualArtifactId/");
+    File rootDir = new File(Resources.getResource("org/sonar/batch/maven/MavenProjectConverterTest/moduleNameShouldEqualArtifactId/").toURI());
     MavenProject parent = loadPom("/org/sonar/batch/maven/MavenProjectConverterTest/moduleNameShouldEqualArtifactId/pom.xml", true);
     MavenProject module1 = loadPom("/org/sonar/batch/maven/MavenProjectConverterTest/moduleNameShouldEqualArtifactId/module1/pom.xml", false);
     MavenProject module2 = loadPom("/org/sonar/batch/maven/MavenProjectConverterTest/moduleNameShouldEqualArtifactId/module2/pom.xml", false);
@@ -140,7 +140,7 @@ public class MavenProjectConverterTest {
 
   @Test
   public void moduleNameDifferentThanArtifactId() throws Exception {
-    File rootDir = TestUtils.getResource("/org/sonar/batch/maven/MavenProjectConverterTest/moduleNameDifferentThanArtifactId/");
+    File rootDir = new File(Resources.getResource("org/sonar/batch/maven/MavenProjectConverterTest/moduleNameDifferentThanArtifactId/").toURI());
     MavenProject parent = loadPom("/org/sonar/batch/maven/MavenProjectConverterTest/moduleNameDifferentThanArtifactId/pom.xml", true);
     MavenProject module1 = loadPom("/org/sonar/batch/maven/MavenProjectConverterTest/moduleNameDifferentThanArtifactId/path1/pom.xml", false);
     MavenProject module2 = loadPom("/org/sonar/batch/maven/MavenProjectConverterTest/moduleNameDifferentThanArtifactId/path2/pom.xml", false);
@@ -161,7 +161,7 @@ public class MavenProjectConverterTest {
 
   @Test
   public void should_find_module_with_maven_project_file_naming_different_from_pom_xml() throws Exception {
-    File rootDir = TestUtils.getResource("/org/sonar/batch/maven/MavenProjectConverterTest/mavenProjectFileNameNotEqualsToPomXml/");
+    File rootDir = new File(Resources.getResource("org/sonar/batch/maven/MavenProjectConverterTest/mavenProjectFileNameNotEqualsToPomXml/").toURI());
     MavenProject parent = loadPom("/org/sonar/batch/maven/MavenProjectConverterTest/mavenProjectFileNameNotEqualsToPomXml/pom.xml", true);
     MavenProject module = loadPom("/org/sonar/batch/maven/MavenProjectConverterTest/mavenProjectFileNameNotEqualsToPomXml/module/pom_having_different_name.xml", false);
 
@@ -181,7 +181,7 @@ public class MavenProjectConverterTest {
 
   @Test
   public void testSingleProjectWithoutModules() throws Exception {
-    File rootDir = TestUtils.getResource("/org/sonar/batch/maven/MavenProjectConverterTest/singleProjectWithoutModules/");
+    File rootDir = new File(Resources.getResource("org/sonar/batch/maven/MavenProjectConverterTest/singleProjectWithoutModules/").toURI());
     MavenProject pom = loadPom("/org/sonar/batch/maven/MavenProjectConverterTest/singleProjectWithoutModules/pom.xml", true);
 
     ProjectDefinition rootDef = converter.configure(Arrays.asList(pom), pom);
