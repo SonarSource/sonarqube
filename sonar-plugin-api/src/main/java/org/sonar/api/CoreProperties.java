@@ -251,6 +251,19 @@ public interface CoreProperties {
    */
   String CORE_AUTHENTICATOR_REALM = "sonar.security.realm";
 
+  /**
+   * @since 4.3
+   */
+  String CORE_SECURITY_AUTHENTICATORS = "sonar.security.authenticators";
+  /**
+   * @since 4.3
+   */
+  String CORE_SECURITY_USER_PROVIDERS = "sonar.security.userProviders";
+  /**
+   * @since 4.3
+   */
+  String CORE_SECURITY_GROUP_PROVIDERS = "sonar.security.groupProviders";
+
   String CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE = "sonar.authenticator.ignoreStartupFailure";
   String CORE_AUTHENTICATOR_CREATE_USERS = "sonar.authenticator.createUsers";
 

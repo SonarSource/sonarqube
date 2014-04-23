@@ -19,6 +19,9 @@
  */
 package org.sonar.api.security;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.sonar.api.ServerExtension;
 
 /**
@@ -51,9 +54,9 @@ public abstract class SecurityRealm implements ServerExtension {
   /**
    * @since 3.1
    */
+  @Deprecated
   public Authenticator doGetAuthenticator() {
-    // this method is not overridden when deprecated getLoginPasswordAuthenticator
-    // is used
+    // this method is not overridden when deprecated getLoginPasswordAuthenticator is used
     return new Authenticator() {
       @Override
       public boolean doAuthenticate(Context context) {
@@ -63,16 +66,52 @@ public abstract class SecurityRealm implements ServerExtension {
   }
 
   /**
+   * @since 4.3
+   */
+  public List<Authenticator> getAuthenticators() {
+    // this method is not overridden when deprecated doGetAuthenticator
+    // or getLoginPasswordAuthenticator is used
+    return Collections.singletonList(doGetAuthenticator());
+  }
+
+  /**
    * @return {@link ExternalUsersProvider} associated with this realm, null if not supported
    */
+  @Deprecated
   public ExternalUsersProvider getUsersProvider() {
     return null;
   }
 
   /**
+   * @return {@link ExternalUsersProvider}s associated with this realm, empty {@link List} if not supported
+   * @since 4.3
+   */
+  public List<ExternalUsersProvider> getUsersProviders() {
+    // this method is not overridden when deprecated getUsersProvider is used
+    if (getUsersProvider() == null) {
+      return Collections.emptyList();
+    }
+    return Collections.singletonList(getUsersProvider());
+  }
+
+  /**
    * @return {@link ExternalGroupsProvider} associated with this realm, null if not supported
    */
+  @Deprecated
   public ExternalGroupsProvider getGroupsProvider() {
     return null;
   }
+
+  /**
+   * @return {@link ExternalGroupsProvider} associated with this realm, empty {@link List} if not supported
+   * @since 4.3
+   */
+  public List<ExternalGroupsProvider> getGroupsProviders() {
+    // this method is not overridden when deprecated getGroupsProvider is used
+    if (getGroupsProvider() == null) {
+      return Collections.emptyList();
+    }
+    return Collections.singletonList(getGroupsProvider());
+  }
+
 }

@@ -42,9 +42,9 @@ end
 #
 class PluginRealm
   def initialize(java_realm)
-    @java_authenticator = java_realm.doGetAuthenticator()
-    @java_users_provider = java_realm.getUsersProvider()
-    @java_groups_provider = java_realm.getGroupsProvider()
+    @java_authenticators = java_realm.getAuthenticators()
+    @java_users_providers = java_realm.getUsersProviders()
+    @java_groups_providers = java_realm.getGroupsProviders()
     @save_password = Api::Utils.java_facade.getSettings().getBoolean('sonar.security.savePassword')
   end
 
@@ -73,37 +73,40 @@ class PluginRealm
   # Authenticate using external system
   #
   def external_auth(username, password, servlet_request, details)
-    if @java_authenticator
-      context = org.sonar.api.security.Authenticator::Context.new(username, password, servlet_request)
-      status = @java_authenticator.doAuthenticate(context)
-      status ? synchronize(username, password, details) : nil
-    else
-      # No authenticator
-      nil
+    context = org.sonar.api.security.Authenticator::Context.new(username, password, servlet_request)
+    for java_authenticator in @java_authenticators do
+      status = java_authenticator.doAuthenticate(context)
+      if status
+        return synchronize(username, password, details)
+      end
     end
+    nil
   end
 
   #
   # Authenticate user using external system. Can fallback on local auth if external system is not available. Return the user.
   #
   def auth(username, password, servlet_request)
-    if @java_users_provider
-      begin
-        provider_context = org.sonar.api.security.ExternalUsersProvider::Context.new(username, servlet_request)
-        details = @java_users_provider.doGetUserDetails(provider_context)
-      rescue => e
-        # Maybe LDAP server is not available
-        Rails.logger.error("Error from external users provider: exception #{e.class.name}: #{e.message}")
-        @save_password ? local_auth(username, password) : false
-      else
-        if details
-          # User exist in external system
-          external_auth(username, password, servlet_request, details)
+    userDetails = nil
+    if not @java_users_providers.empty?
+      for java_users_provider in @java_users_providers do
+        begin
+          provider_context = org.sonar.api.security.ExternalUsersProvider::Context.new(username, servlet_request)
+          details = java_users_provider.doGetUserDetails(provider_context)
+        rescue => e
+          # Maybe LDAP server is not available
+          Rails.logger.error("Error from external users provider: exception #{e.class.name}: #{e.message}")
+          next
         else
-          # No such user in external system
-          nil
+          if details
+            # User exist in external system
+            return external_auth(username, password, servlet_request, details)
+          end
+          next
         end
       end
+      # Local auth if no exteranl auth worked
+      return @save_password ? local_auth(username, password) : false
     else
       # Legacy authenticator
       external_auth(username, password, servlet_request, nil)
@@ -154,14 +157,14 @@ class PluginRealm
   end
 
   def synchronize_groups(user)
-    if @java_groups_provider
+    user.groups = []
+    for java_groups_provider in @java_groups_providers do
       begin
-        groups = @java_groups_provider.doGetGroups(user.login)
+        groups = java_groups_provider.doGetGroups(user.login)
       rescue Exception => e
         Rails.logger.error("Error from external groups provider: #{e.message}")
       else
         if groups
-          user.groups = []
           for group_name in groups
             group = Group.find_by_name(group_name)
             if group
