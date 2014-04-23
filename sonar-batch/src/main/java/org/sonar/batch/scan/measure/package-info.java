@@ -18,66 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.api.technicaldebt.batch;
-
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.WorkUnit;
-import org.sonar.api.utils.internal.WorkDuration;
-
-import java.io.Serializable;
-import java.util.Date;
-
 /**
- * @since 4.1
- * @deprecated since 4.3
+ * This package is a part of bootstrap process, so we should take care about backward compatibility.
  */
-@Deprecated
-public interface Requirement extends Serializable {
+@ParametersAreNonnullByDefault
+package org.sonar.batch.scan.measure;
 
-  Integer id();
-
-  RuleKey ruleKey();
-
-  Characteristic characteristic();
-
-  Characteristic rootCharacteristic();
-
-  String function();
-
-  /**
-   * @deprecated since 4.2
-   */
-  @Deprecated
-  WorkUnit factor();
-
-  /**
-   * @since 4.2
-   */
-  int factorValue();
-
-  /**
-   * @since 4.2
-   */
-  WorkDuration.UNIT factorUnit();
-
-  /**
-   * @deprecated since 4.2
-   */
-  @Deprecated
-  WorkUnit offset();
-
-  /**
-   * @since 4.2
-   */
-  int offsetValue();
-
-  /**
-   * @since 4.2
-   */
-  WorkDuration.UNIT offsetUnit();
-
-  Date createdAt();
-
-  Date updatedAt();
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

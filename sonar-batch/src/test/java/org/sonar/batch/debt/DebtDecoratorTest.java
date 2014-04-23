@@ -59,7 +59,7 @@ import java.util.Collections;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.argThat;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -204,7 +204,7 @@ public class DebtDecoratorTest {
       new RuleMeasure(CoreMetrics.TECHNICAL_DEBT,
         org.sonar.api.rules.Rule.create(ruleKey1.repository(), ruleKey1.rule()), null, null)
         .setValue(5d * ONE_DAY_IN_MINUTES)
-    ));
+      ));
     decorator.decorate(resource, context);
 
     verify(context).saveMeasure(CoreMetrics.TECHNICAL_DEBT, 7d * ONE_DAY_IN_MINUTES);
@@ -225,7 +225,7 @@ public class DebtDecoratorTest {
       new RuleMeasure(CoreMetrics.TECHNICAL_DEBT,
         org.sonar.api.rules.Rule.create(ruleKey2.repository(), ruleKey2.rule())
         , null, null).setValue(10d * ONE_DAY_IN_MINUTES)
-    ));
+      ));
     decorator.decorate(resource, context);
 
     verify(context).saveMeasure(CoreMetrics.TECHNICAL_DEBT, 15d * ONE_DAY_IN_MINUTES);
@@ -319,8 +319,7 @@ public class DebtDecoratorTest {
       description.appendText(new StringBuilder()
         .append("value=").append(value).append(",")
         .append("characteristic=").append(characteristic.key()).append(",")
-        .append("metric=").append(metric.getKey()).toString())
-      ;
+        .append("metric=").append(metric.getKey()).toString());
     }
   }
 
@@ -342,8 +341,7 @@ public class DebtDecoratorTest {
       }
       RuleMeasure m = (RuleMeasure) o;
       return ObjectUtils.equals(metric, m.getMetric()) &&
-        ObjectUtils.equals(ruleKey.repository(), m.getRule().getRepositoryKey()) &&
-        ObjectUtils.equals(ruleKey.rule(), m.getRule().getKey()) &&
+        ObjectUtils.equals(ruleKey, m.ruleKey()) &&
         ObjectUtils.equals(value, m.getValue());
     }
 

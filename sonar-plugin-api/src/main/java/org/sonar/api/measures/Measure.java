@@ -28,6 +28,7 @@ import org.sonar.api.technicaldebt.batch.Requirement;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Date;
@@ -37,7 +38,7 @@ import java.util.Date;
  *
  * @since 1.10
  */
-public class Measure {
+public class Measure implements Serializable {
   private static final String INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5 = "Index should be in range from 1 to 5";
 
   protected static final int MAX_TEXT_SIZE = 96;
@@ -47,8 +48,6 @@ public class Measure {
    */
   public static final int DEFAULT_PRECISION = 1;
 
-  // for internal use
-  private Long id;
   protected String metricKey;
   protected Metric metric;
   protected Double value;
@@ -413,20 +412,11 @@ public class Measure {
   }
 
   /**
-   * @return the measure id - Internal use only
+   * Called by views when cloning measures
+   * @deprecated since 4.4 not used
    */
-  public Long getId() {
-    return id;
-  }
-
-  /**
-   * Sets the measure id - Internal use only
-   *
-   * @param id the id
-   * @return the measure object instance
-   */
+  @Deprecated
   public Measure setId(Long id) {
-    this.id = id;
     return this;
   }
 
@@ -646,7 +636,7 @@ public class Measure {
     return metric.isOptimizedBestValue() == Boolean.TRUE
       && metric.getBestValue() != null
       && (value == null || NumberUtils.compare(metric.getBestValue(), value) == 0)
-      && allNull(id, alertStatus, description, tendency, url, data)
+      && allNull(alertStatus, description, tendency, url, data)
       && isZeroVariation(variation1, variation2, variation3, variation4, variation5);
   }
 

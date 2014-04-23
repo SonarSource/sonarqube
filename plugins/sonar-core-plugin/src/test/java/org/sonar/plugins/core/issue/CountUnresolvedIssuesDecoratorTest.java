@@ -31,7 +31,11 @@ import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.measures.*;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.MeasuresFilter;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
@@ -55,7 +59,12 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class CountUnresolvedIssuesDecoratorTest {
 
@@ -83,9 +92,9 @@ public class CountUnresolvedIssuesDecoratorTest {
     ruleB1 = Rule.create().setRepositoryKey("ruleB1").setKey("ruleB1").setName("nameB1");
 
     ruleFinder = mock(RuleFinder.class);
-    when(ruleFinder.findByKey(ruleA1.getRepositoryKey(), ruleA1.getKey())).thenReturn(ruleA1);
-    when(ruleFinder.findByKey(ruleA2.getRepositoryKey(), ruleA2.getKey())).thenReturn(ruleA2);
-    when(ruleFinder.findByKey(ruleB1.getRepositoryKey(), ruleB1.getKey())).thenReturn(ruleB1);
+    when(ruleFinder.findByKey(ruleA1.ruleKey())).thenReturn(ruleA1);
+    when(ruleFinder.findByKey(ruleA2.ruleKey())).thenReturn(ruleA2);
+    when(ruleFinder.findByKey(ruleB1.ruleKey())).thenReturn(ruleB1);
 
     rightNow = new Date();
     tenDaysAgo = DateUtils.addDays(rightNow, -10);
@@ -324,7 +333,7 @@ public class CountUnresolvedIssuesDecoratorTest {
       }
       RuleMeasure m = (RuleMeasure) o;
       return ObjectUtils.equals(metric, m.getMetric()) &&
-        ObjectUtils.equals(rule, m.getRule()) &&
+        ObjectUtils.equals(rule.ruleKey(), m.ruleKey()) &&
         ObjectUtils.equals(var1, m.getVariation1()) &&
         ObjectUtils.equals(var2, m.getVariation2());
     }

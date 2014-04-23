@@ -19,6 +19,7 @@
  */
 package org.sonar.api.measures;
 
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.technicaldebt.batch.Characteristic;
 import org.sonar.api.technicaldebt.batch.Requirement;
@@ -37,8 +38,15 @@ public final class MeasuresFilters {
 
   public static MeasuresFilter<Collection<Measure>> all() {
     return new MeasuresFilter<Collection<Measure>>() {
+      @Override
       public Collection<Measure> filter(Collection<Measure> measures) {
-        return measures;
+        Collection<Measure> all = new ArrayList<Measure>();
+        for (Measure measure : measures) {
+          if (measure != null) {
+            all.add(measure);
+          }
+        }
+        return all;
       }
     };
   }
@@ -49,7 +57,7 @@ public final class MeasuresFilters {
 
   public static MeasuresFilter<Measure> metric(final String metricKey) {
     return new MetricFilter<Measure>(metricKey) {
-
+      @Override
       public Measure filter(Collection<Measure> measures) {
         if (measures == null) {
           return null;
@@ -70,6 +78,7 @@ public final class MeasuresFilters {
   public static MeasuresFilter<Measure> characteristic(final Metric metric, final Characteristic characteristic) {
     return new MetricFilter<Measure>(metric) {
 
+      @Override
       public Measure filter(Collection<Measure> measures) {
         if (measures == null) {
           return null;
@@ -100,6 +109,7 @@ public final class MeasuresFilters {
   public static MeasuresFilter<Measure> requirement(final Metric metric, final Requirement requirement) {
     return new MetricFilter<Measure>(metric) {
 
+      @Override
       public Measure filter(Collection<Measure> measures) {
         if (measures == null) {
           return null;
@@ -128,6 +138,7 @@ public final class MeasuresFilters {
    */
   public static MeasuresFilter<Measure> measure(final Measure measure) {
     return new MeasuresFilter<Measure>() {
+      @Override
       public Measure filter(Collection<Measure> measures) {
         if (measures == null) {
           return null;
@@ -143,7 +154,7 @@ public final class MeasuresFilters {
   }
 
   public static MeasuresFilter<RuleMeasure> rule(final Metric metric, final Rule rule) {
-    return new RuleFilter(metric, rule);
+    return new RuleFilter(metric, rule.ruleKey());
   }
 
   public static MeasuresFilter<Collection<RuleMeasure>> rules(final Metric metric) {
@@ -151,9 +162,10 @@ public final class MeasuresFilters {
 
       private boolean apply(Measure measure) {
         return measure instanceof RuleMeasure && metric.equals(measure.getMetric())
-          && measure.getPersonId() == null && ((RuleMeasure) measure).getRule() != null;
+          && measure.getPersonId() == null && ((RuleMeasure) measure).ruleKey() != null;
       }
 
+      @Override
       public Collection<RuleMeasure> filter(Collection<Measure> measures) {
         if (measures == null) {
           return null;
@@ -202,6 +214,7 @@ public final class MeasuresFilters {
 
     abstract boolean doApply(RuleMeasure ruleMeasure);
 
+    @Override
     public M filter(Collection<Measure> measures) {
       if (measures == null) {
         return null;
@@ -216,17 +229,17 @@ public final class MeasuresFilters {
   }
 
   private static class RuleFilter extends AbstractRuleMeasureFilter<RuleMeasure> {
-    private Rule rule;
+    private RuleKey ruleKey;
 
-    protected RuleFilter(Metric metric, Rule rule) {
+    protected RuleFilter(Metric metric, RuleKey ruleKey) {
       super(metric);
-      this.rule = rule;
+      this.ruleKey = ruleKey;
     }
 
     @Override
     boolean doApply(RuleMeasure measure) {
-      return measure.getRule() != null
-        && rule.equals(measure.getRule());
+      return measure.ruleKey() != null
+        && ruleKey.equals(measure.ruleKey());
     }
   }
 }

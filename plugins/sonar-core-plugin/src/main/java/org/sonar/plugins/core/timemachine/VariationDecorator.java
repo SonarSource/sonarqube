@@ -21,16 +21,26 @@ package org.sonar.plugins.core.timemachine;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.*;
-import org.sonar.api.measures.*;
+import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorBarriers;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.MeasuresFilters;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.MetricFinder;
+import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.technicaldebt.batch.Characteristic;
 import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
+import org.sonar.batch.index.DefaultIndex;
 
 import java.util.Collection;
 import java.util.List;
@@ -42,16 +52,20 @@ public class VariationDecorator implements Decorator {
   private List<PastSnapshot> projectPastSnapshots;
   private MetricFinder metricFinder;
   private PastMeasuresLoader pastMeasuresLoader;
+  private RuleFinder ruleFinder;
+  private final DefaultIndex sonarIndex;
 
-
-  public VariationDecorator(PastMeasuresLoader pastMeasuresLoader, MetricFinder metricFinder, TimeMachineConfiguration timeMachineConfiguration) {
-    this(pastMeasuresLoader, metricFinder, timeMachineConfiguration.getProjectPastSnapshots());
+  public VariationDecorator(PastMeasuresLoader pastMeasuresLoader, MetricFinder metricFinder, TimeMachineConfiguration timeMachineConfiguration, RuleFinder ruleFinder,
+    DefaultIndex index) {
+    this(pastMeasuresLoader, metricFinder, timeMachineConfiguration.getProjectPastSnapshots(), ruleFinder, index);
   }
 
-  VariationDecorator(PastMeasuresLoader pastMeasuresLoader, MetricFinder metricFinder, List<PastSnapshot> projectPastSnapshots) {
+  VariationDecorator(PastMeasuresLoader pastMeasuresLoader, MetricFinder metricFinder, List<PastSnapshot> projectPastSnapshots, RuleFinder ruleFinder, DefaultIndex index) {
     this.pastMeasuresLoader = pastMeasuresLoader;
     this.projectPastSnapshots = projectPastSnapshots;
     this.metricFinder = metricFinder;
+    this.ruleFinder = ruleFinder;
+    this.sonarIndex = index;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -82,10 +96,10 @@ public class VariationDecorator implements Decorator {
 
   private void computeVariation(Resource resource, DecoratorContext context, PastSnapshot pastSnapshot) {
     List<Object[]> pastMeasures = pastMeasuresLoader.getPastMeasures(resource, pastSnapshot);
-    compareWithPastMeasures(context, pastSnapshot.getIndex(), pastMeasures);
+    compareWithPastMeasures(resource, context, pastSnapshot.getIndex(), pastMeasures);
   }
 
-  void compareWithPastMeasures(DecoratorContext context, int index, List<Object[]> pastMeasures) {
+  void compareWithPastMeasures(Resource resource, DecoratorContext context, int index, List<Object[]> pastMeasures) {
     Map<MeasureKey, Object[]> pastMeasuresByKey = Maps.newHashMap();
     for (Object[] pastMeasure : pastMeasures) {
       pastMeasuresByKey.put(new MeasureKey(pastMeasure), pastMeasure);
@@ -98,11 +112,11 @@ public class VariationDecorator implements Decorator {
       Characteristic characteristic = measure.getCharacteristic();
       Integer characteristicId = characteristic != null ? characteristic.id() : null;
       Integer personId = measure.getPersonId();
-      Integer ruleId = measure instanceof RuleMeasure ? ((RuleMeasure) measure).getRule().getId() : null;
+      Integer ruleId = measure instanceof RuleMeasure ? ruleFinder.findByKey(((RuleMeasure) measure).ruleKey()).getId() : null;
 
       Object[] pastMeasure = pastMeasuresByKey.get(new MeasureKey(metricId, characteristicId, personId, ruleId));
       if (updateVariation(measure, pastMeasure, index)) {
-        context.saveMeasure(measure);
+        sonarIndex.updateMeasure(resource, measure);
       }
     }
   }

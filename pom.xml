@@ -1097,13 +1097,18 @@
         <groupId>com.akiban</groupId>
         <artifactId>akiban-persistit</artifactId>
         <!-- do not use 3.3.0. It was build only for Java 7. Waiting for 3.3.1 to be deployed in central repo -->
-        <version>3.2.7</version>
+        <version>3.3.0</version>
         <exclusions>
           <exclusion>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.esotericsoftware.kryo</groupId>
+        <artifactId>kryo</artifactId>
+        <version>2.23.0</version>
       </dependency>
       <dependency>
         <groupId>com.github.kevinsawicki</groupId>

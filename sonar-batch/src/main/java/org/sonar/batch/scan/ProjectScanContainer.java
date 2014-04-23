@@ -68,6 +68,7 @@ import org.sonar.batch.rule.RulesProvider;
 import org.sonar.batch.scan.filesystem.InputFileCache;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
+import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.source.HighlightableBuilder;
 import org.sonar.batch.source.SymbolizableBuilder;
 import org.sonar.core.component.ScanGraph;
@@ -187,6 +188,9 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // Differential periods
       PeriodsDefinition.class,
+
+      // Measures
+      MeasureCache.class,
 
       ProjectSettingsReady.class);
   }

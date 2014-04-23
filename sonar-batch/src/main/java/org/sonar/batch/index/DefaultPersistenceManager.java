@@ -22,7 +22,6 @@ package org.sonar.batch.index;
 import org.sonar.api.batch.Event;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.design.Dependency;
-import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
@@ -34,17 +33,14 @@ public final class DefaultPersistenceManager implements PersistenceManager {
 
   private ResourcePersister resourcePersister;
   private SourcePersister sourcePersister;
-  private MeasurePersister measurePersister;
   private DependencyPersister dependencyPersister;
   private LinkPersister linkPersister;
   private EventPersister eventPersister;
 
   public DefaultPersistenceManager(ResourcePersister resourcePersister, SourcePersister sourcePersister,
-    MeasurePersister measurePersister, DependencyPersister dependencyPersister,
-    LinkPersister linkPersister, EventPersister eventPersister) {
+    DependencyPersister dependencyPersister, LinkPersister linkPersister, EventPersister eventPersister) {
     this.resourcePersister = resourcePersister;
     this.sourcePersister = sourcePersister;
-    this.measurePersister = measurePersister;
     this.dependencyPersister = dependencyPersister;
     this.linkPersister = linkPersister;
     this.eventPersister = eventPersister;
@@ -53,14 +49,6 @@ public final class DefaultPersistenceManager implements PersistenceManager {
   public void clear() {
     resourcePersister.clear();
     sourcePersister.clear();
-  }
-
-  public void setDelayedMode(boolean b) {
-    measurePersister.setDelayedMode(b);
-  }
-
-  public void dump() {
-    measurePersister.dump();
   }
 
   public void saveProject(Project project, Project parent) {
@@ -80,12 +68,6 @@ public final class DefaultPersistenceManager implements PersistenceManager {
 
   public String getSource(Resource resource) {
     return sourcePersister.getSource(resource);
-  }
-
-  public void saveMeasure(Resource resource, Measure measure) {
-    if (ResourceUtils.isPersistable(resource)) {
-      measurePersister.saveMeasure(resource, measure);
-    }
   }
 
   public void saveDependency(Project project, Dependency dependency, Dependency parentDependency) {
