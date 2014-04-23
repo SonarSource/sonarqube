@@ -34,7 +34,19 @@ import org.sonar.check.Cardinality;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -279,15 +291,15 @@ public class Rule {
 
   public RuleParam createParameter() {
     RuleParam parameter = new RuleParam()
-        .setRule(this);
+      .setRule(this);
     params.add(parameter);
     return parameter;
   }
 
   public RuleParam createParameter(String key) {
     RuleParam parameter = new RuleParam()
-        .setKey(key)
-        .setRule(this);
+      .setKey(key)
+      .setRule(this);
     params.add(parameter);
     return parameter;
   }
@@ -468,7 +480,6 @@ public class Rule {
     return this;
   }
 
-
   /**
    * For internal use only.
    *
@@ -499,34 +510,34 @@ public class Rule {
     }
     Rule other = (Rule) obj;
     return new EqualsBuilder()
-        .append(pluginName, other.getRepositoryKey())
-        .append(key, other.getKey())
-        .isEquals();
+      .append(pluginName, other.getRepositoryKey())
+      .append(key, other.getKey())
+      .isEquals();
   }
 
   @Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37)
-        .append(pluginName)
-        .append(key)
-        .toHashCode();
+      .append(pluginName)
+      .append(key)
+      .toHashCode();
   }
 
   @Override
   public String toString() {
     // Note that ReflectionToStringBuilder will not work here - see SONAR-3077
     return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-        .append("id", id)
-        .append("name", name)
-        .append("key", key)
-        .append("configKey", configKey)
-        .append("plugin", pluginName)
-        .append("severity", priority)
-        .append("cardinality", cardinality)
-        .append("status", status)
-        .append("language", language)
-        .append("parent", parent)
-        .toString();
+      .append("id", id)
+      .append("name", name)
+      .append("key", key)
+      .append("configKey", configKey)
+      .append("plugin", pluginName)
+      .append("severity", priority)
+      .append("cardinality", cardinality)
+      .append("status", status)
+      .append("language", language)
+      .append("parent", parent)
+      .toString();
   }
 
   @CheckForNull

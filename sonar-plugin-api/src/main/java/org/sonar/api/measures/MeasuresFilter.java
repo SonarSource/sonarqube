@@ -19,13 +19,12 @@
  */
 package org.sonar.api.measures;
 
-import java.util.Collection;
 
 /**
  * @since 1.10
  */
 public interface MeasuresFilter<M> {
 
-  M filter(Collection<Measure> measures);
+  M filter(Iterable<Measure> measures);
 
 }

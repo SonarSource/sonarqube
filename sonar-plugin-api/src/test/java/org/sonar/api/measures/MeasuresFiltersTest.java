@@ -25,6 +25,7 @@ import org.sonar.api.rules.RulePriority;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.hamcrest.core.Is.is;
@@ -37,8 +38,8 @@ public class MeasuresFiltersTest {
     MeasuresFilter<Measure> filter = MeasuresFilters.metric(CoreMetrics.VIOLATIONS);
 
     Collection<Measure> measures = Arrays.asList(
-        RuleMeasure.createForPriority(CoreMetrics.VIOLATIONS, RulePriority.CRITICAL, 50.0),
-        new Measure(CoreMetrics.VIOLATIONS, 500.0));
+      RuleMeasure.createForPriority(CoreMetrics.VIOLATIONS, RulePriority.CRITICAL, 50.0),
+      new Measure(CoreMetrics.VIOLATIONS, 500.0));
 
     assertThat(filter.filter(measures).getValue(), is(500.0));
   }
@@ -46,10 +47,13 @@ public class MeasuresFiltersTest {
   @Test
   public void all() {
     Collection<Measure> measures = Arrays.asList(
-        RuleMeasure.createForPriority(CoreMetrics.VIOLATIONS, RulePriority.CRITICAL, 50.0),
-        new Measure(CoreMetrics.VIOLATIONS, 500.0));
+      RuleMeasure.createForPriority(CoreMetrics.VIOLATIONS, RulePriority.CRITICAL, 50.0),
+      new Measure(CoreMetrics.VIOLATIONS, 500.0));
 
-    assertThat(MeasuresFilters.all().filter(measures).size(), is(2));
+    Iterator<Measure> filteredMeasures = MeasuresFilters.all().filter(measures).iterator();
+    filteredMeasures.next();
+    filteredMeasures.next();
+    assertThat(filteredMeasures.hasNext(), is(false));
   }
 
   @Test
@@ -58,13 +62,13 @@ public class MeasuresFiltersTest {
     Rule rule2 = new Rule("pmd", "key2");
     MeasuresFilter<RuleMeasure> filter = MeasuresFilters.rule(CoreMetrics.VIOLATIONS, rule1);
     List<Measure> measures = Arrays.asList(
-        RuleMeasure.createForRule(CoreMetrics.VIOLATIONS, rule1, 50.0),
-        RuleMeasure.createForRule(CoreMetrics.VIOLATIONS, rule2, 10.0),
-        RuleMeasure.createForRule(CoreMetrics.VIOLATIONS_DENSITY, rule2, 3.3),
+      RuleMeasure.createForRule(CoreMetrics.VIOLATIONS, rule1, 50.0),
+      RuleMeasure.createForRule(CoreMetrics.VIOLATIONS, rule2, 10.0),
+      RuleMeasure.createForRule(CoreMetrics.VIOLATIONS_DENSITY, rule2, 3.3),
 
-        RuleMeasure.createForPriority(CoreMetrics.VIOLATIONS, RulePriority.CRITICAL, 400.0),
-        RuleMeasure.createForPriority(CoreMetrics.COVERAGE, RulePriority.CRITICAL, 400.0),
-        new Measure(CoreMetrics.VIOLATIONS, 500.0));
+      RuleMeasure.createForPriority(CoreMetrics.VIOLATIONS, RulePriority.CRITICAL, 400.0),
+      RuleMeasure.createForPriority(CoreMetrics.COVERAGE, RulePriority.CRITICAL, 400.0),
+      new Measure(CoreMetrics.VIOLATIONS, 500.0));
 
     assertThat(filter.filter(measures).getValue(), is(50.0));
   }
@@ -75,13 +79,13 @@ public class MeasuresFiltersTest {
     Rule rule2 = new Rule("pmd", "key2");
     MeasuresFilter<Collection<RuleMeasure>> filter = MeasuresFilters.rules(CoreMetrics.VIOLATIONS);
     List<Measure> measures = Arrays.asList(
-        RuleMeasure.createForRule(CoreMetrics.VIOLATIONS, rule1, 50.0),
-        RuleMeasure.createForRule(CoreMetrics.VIOLATIONS, rule2, 10.0),
-        RuleMeasure.createForRule(CoreMetrics.VIOLATIONS_DENSITY, rule2, 3.3),
+      RuleMeasure.createForRule(CoreMetrics.VIOLATIONS, rule1, 50.0),
+      RuleMeasure.createForRule(CoreMetrics.VIOLATIONS, rule2, 10.0),
+      RuleMeasure.createForRule(CoreMetrics.VIOLATIONS_DENSITY, rule2, 3.3),
 
-        RuleMeasure.createForPriority(CoreMetrics.VIOLATIONS, RulePriority.CRITICAL, 400.0),
-        RuleMeasure.createForPriority(CoreMetrics.COVERAGE, RulePriority.CRITICAL, 400.0),
-        new Measure(CoreMetrics.VIOLATIONS, 500.0));
+      RuleMeasure.createForPriority(CoreMetrics.VIOLATIONS, RulePriority.CRITICAL, 400.0),
+      RuleMeasure.createForPriority(CoreMetrics.COVERAGE, RulePriority.CRITICAL, 400.0),
+      new Measure(CoreMetrics.VIOLATIONS, 500.0));
 
     assertThat(filter.filter(measures).size(), is(2));
   }
@@ -90,10 +94,10 @@ public class MeasuresFiltersTest {
   public void measure() {
     MeasuresFilter<Measure> filter = MeasuresFilters.measure(new Measure(CoreMetrics.VIOLATIONS));
     List<Measure> measures = Arrays.asList(
-        new Measure(CoreMetrics.COMMENT_LINES, 50.0),
-        new Measure(CoreMetrics.VIOLATIONS, 10.0),
-        RuleMeasure.createForCategory(CoreMetrics.VIOLATIONS, 2, 12.0),
-        new Measure(CoreMetrics.COVERAGE, 15.0));
+      new Measure(CoreMetrics.COMMENT_LINES, 50.0),
+      new Measure(CoreMetrics.VIOLATIONS, 10.0),
+      RuleMeasure.createForCategory(CoreMetrics.VIOLATIONS, 2, 12.0),
+      new Measure(CoreMetrics.COVERAGE, 15.0));
 
     assertThat(filter.filter(measures).getValue(), is(10.0));
   }

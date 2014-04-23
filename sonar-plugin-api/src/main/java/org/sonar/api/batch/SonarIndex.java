@@ -30,6 +30,8 @@ import org.sonar.api.rules.Violation;
 import org.sonar.api.violations.ViolationQuery;
 import org.sonar.graph.DirectedGraphAccessor;
 
+import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -118,8 +120,10 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
   @Deprecated
   public abstract Resource addResource(Resource resource);
 
+  @CheckForNull
   public abstract Measure getMeasure(Resource resource, Metric metric);
 
+  @CheckForNull
   public abstract <M> M getMeasures(Resource resource, MeasuresFilter<M> filter);
 
   /**

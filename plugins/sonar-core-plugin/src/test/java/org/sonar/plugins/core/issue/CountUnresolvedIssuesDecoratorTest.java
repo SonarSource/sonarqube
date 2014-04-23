@@ -31,7 +31,11 @@ import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.measures.*;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.MeasuresFilter;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
@@ -55,7 +59,12 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class CountUnresolvedIssuesDecoratorTest {
 
@@ -324,7 +333,7 @@ public class CountUnresolvedIssuesDecoratorTest {
       }
       RuleMeasure m = (RuleMeasure) o;
       return ObjectUtils.equals(metric, m.getMetric()) &&
-        ObjectUtils.equals(rule, m.getRule()) &&
+        ObjectUtils.equals(rule.ruleKey(), m.ruleKey()) &&
         ObjectUtils.equals(var1, m.getVariation1()) &&
         ObjectUtils.equals(var2, m.getVariation2());
     }

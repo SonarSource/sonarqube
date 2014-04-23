@@ -20,16 +20,32 @@
 package org.sonar.plugins.core.issue;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multiset;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.time.DateUtils;
-import org.sonar.api.batch.*;
+import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorBarriers;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.measures.*;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.MeasureUtils;
+import org.sonar.api.measures.MeasuresFilters;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
@@ -38,7 +54,12 @@ import org.sonar.batch.components.TimeMachineConfiguration;
 
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Computes metrics related to number of issues.
@@ -80,7 +101,7 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
       CoreMetrics.OPEN_ISSUES,
       CoreMetrics.REOPENED_ISSUES,
       CoreMetrics.CONFIRMED_ISSUES
-    );
+      );
   }
 
   public void decorate(Resource resource, DecoratorContext context) {
@@ -90,7 +111,7 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
       boolean shouldSaveNewMetrics = shouldSaveNewMetrics(context);
 
       Multiset<RulePriority> severityBag = HashMultiset.create();
-      Map<RulePriority, Multiset<Rule>> rulesPerSeverity = Maps.newHashMap();
+      Map<RulePriority, Multiset<RuleKey>> rulesPerSeverity = Maps.newHashMap();
       ListMultimap<RulePriority, Issue> issuesPerSeverity = ArrayListMultimap.create();
       int countOpen = 0;
       int countReopened = 0;
@@ -98,8 +119,8 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
 
       for (Issue issue : issues) {
         severityBag.add(RulePriority.valueOf(issue.severity()));
-        Multiset<Rule> rulesBag = initRules(rulesPerSeverity, RulePriority.valueOf(issue.severity()));
-        rulesBag.add(rulefinder.findByKey(issue.ruleKey().repository(), issue.ruleKey().rule()));
+        Multiset<RuleKey> rulesBag = initRules(rulesPerSeverity, RulePriority.valueOf(issue.severity()));
+        rulesBag.add(issue.ruleKey());
         issuesPerSeverity.put(RulePriority.valueOf(issue.severity()), issue);
 
         if (Issue.STATUS_OPEN.equals(issue.status())) {
@@ -159,22 +180,22 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
     }
   }
 
-  private void saveIssuesPerRules(DecoratorContext context, RulePriority severity, Map<RulePriority, Multiset<Rule>> rulesPerSeverity) {
+  private void saveIssuesPerRules(DecoratorContext context, RulePriority severity, Map<RulePriority, Multiset<RuleKey>> rulesPerSeverity) {
     Metric metric = SeverityUtils.severityToIssueMetric(severity);
 
     Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.rules(metric));
     for (Measure child : children) {
       RuleMeasure childRuleMeasure = (RuleMeasure) child;
-      Rule rule = childRuleMeasure.getRule();
-      if (rule != null && MeasureUtils.hasValue(childRuleMeasure)) {
-        Multiset<Rule> rulesBag = initRules(rulesPerSeverity, severity);
-        rulesBag.add(rule, childRuleMeasure.getIntValue());
+      RuleKey ruleKey = childRuleMeasure.ruleKey();
+      if (ruleKey != null && MeasureUtils.hasValue(childRuleMeasure)) {
+        Multiset<RuleKey> rulesBag = initRules(rulesPerSeverity, severity);
+        rulesBag.add(ruleKey, childRuleMeasure.getIntValue());
       }
     }
 
-    Multiset<Rule> rulesBag = rulesPerSeverity.get(severity);
+    Multiset<RuleKey> rulesBag = rulesPerSeverity.get(severity);
     if (rulesBag != null) {
-      for (Multiset.Entry<Rule> entry : rulesBag.entrySet()) {
+      for (Multiset.Entry<RuleKey> entry : rulesBag.entrySet()) {
         RuleMeasure measure = RuleMeasure.createForRule(metric, entry.getElement(), (double) entry.getCount());
         measure.setSeverity(severity);
         context.saveMeasure(measure);
@@ -185,34 +206,34 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
   private void saveNewIssuesPerRule(DecoratorContext context, RulePriority severity, Collection<Issue> issues, boolean shouldSaveNewMetrics) {
     if (shouldSaveNewMetrics) {
       Metric metric = SeverityUtils.severityToNewMetricIssue(severity);
-      ListMultimap<Rule, Measure> childMeasuresPerRule = ArrayListMultimap.create();
-      ListMultimap<Rule, Issue> issuesPerRule = ArrayListMultimap.create();
-      Set<Rule> rules = Sets.newHashSet();
+      ListMultimap<RuleKey, Measure> childMeasuresPerRuleKeys = ArrayListMultimap.create();
+      ListMultimap<RuleKey, Issue> issuesPerRuleKeys = ArrayListMultimap.create();
+      Set<RuleKey> ruleKeys = Sets.newHashSet();
 
       Collection<Measure> children = context.getChildrenMeasures(MeasuresFilters.rules(metric));
       for (Measure child : children) {
         RuleMeasure childRuleMeasure = (RuleMeasure) child;
-        Rule rule = childRuleMeasure.getRule();
-        if (rule != null) {
-          childMeasuresPerRule.put(rule, childRuleMeasure);
-          rules.add(rule);
+        RuleKey ruleKey = childRuleMeasure.ruleKey();
+        if (ruleKey != null) {
+          childMeasuresPerRuleKeys.put(ruleKey, childRuleMeasure);
+          ruleKeys.add(ruleKey);
         }
       }
 
       for (Issue issue : issues) {
         if (RulePriority.valueOf(issue.severity()).equals(severity)) {
-          Rule rule = rulefinder.findByKey(issue.ruleKey().repository(), issue.ruleKey().rule());
-          rules.add(rule);
-          issuesPerRule.put(rule, issue);
+          ruleKeys.add(issue.ruleKey());
+          issuesPerRuleKeys.put(issue.ruleKey(), issue);
         }
       }
 
-      for (Rule rule : rules) {
+      for (RuleKey ruleKey : ruleKeys) {
+        Rule rule = rulefinder.findByKey(ruleKey);
         RuleMeasure measure = RuleMeasure.createForRule(metric, rule, null);
         measure.setSeverity(severity);
         for (Period period : timeMachineConfiguration.periods()) {
           int variationIndex = period.getIndex();
-          double sum = MeasureUtils.sumOnVariation(true, variationIndex, childMeasuresPerRule.get(rule)) + countIssues(issuesPerRule.get(rule), period);
+          double sum = MeasureUtils.sumOnVariation(true, variationIndex, childMeasuresPerRuleKeys.get(rule.ruleKey())) + countIssues(issuesPerRuleKeys.get(rule.ruleKey()), period);
           measure.setVariation(variationIndex, sum);
         }
         context.saveMeasure(measure);
@@ -242,8 +263,8 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
     return sum;
   }
 
-  private Multiset<Rule> initRules(Map<RulePriority, Multiset<Rule>> rulesPerSeverity, RulePriority severity) {
-    Multiset<Rule> rulesBag = rulesPerSeverity.get(severity);
+  private Multiset<RuleKey> initRules(Map<RulePriority, Multiset<RuleKey>> rulesPerSeverity, RulePriority severity) {
+    Multiset<RuleKey> rulesBag = rulesPerSeverity.get(severity);
     if (rulesBag == null) {
       rulesBag = HashMultiset.create();
       rulesPerSeverity.put(severity, rulesBag);

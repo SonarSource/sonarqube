@@ -38,7 +38,12 @@ import org.sonar.batch.index.DefaultIndex;
 import javax.annotation.Nullable;
 import javax.persistence.Query;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class DefaultTimeMachine implements TimeMachine {
 
@@ -155,7 +160,6 @@ public class DefaultTimeMachine implements TimeMachine {
   static Measure toMeasure(MeasureModel model, Metric metric, @Nullable Characteristic characteristic) {
     // NOTE: measures on rule are not supported
     Measure measure = new Measure(metric);
-    measure.setId(model.getId());
     measure.setDescription(model.getDescription());
     measure.setValue(model.getValue());
     measure.setData(model.getData(metric));
