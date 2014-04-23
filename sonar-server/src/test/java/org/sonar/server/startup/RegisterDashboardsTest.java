@@ -37,6 +37,7 @@ import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -47,7 +48,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.test.MoreConditions.contains;
 
 public class RegisterDashboardsTest {
   private RegisterDashboards task;
@@ -63,8 +63,8 @@ public class RegisterDashboardsTest {
     loadedTemplateDao = mock(LoadedTemplateDao.class);
     fakeDashboardTemplate = mock(DashboardTemplate.class);
 
-    task = new RegisterDashboards(new DashboardTemplate[] {fakeDashboardTemplate}, dashboardDao,
-        activeDashboardDao, loadedTemplateDao);
+    task = new RegisterDashboards(new DashboardTemplate[]{fakeDashboardTemplate}, dashboardDao,
+      activeDashboardDao, loadedTemplateDao);
   }
 
   @Test
@@ -128,8 +128,8 @@ public class RegisterDashboardsTest {
   @Test
   public void shouldCreateDtoFromExtension() {
     Dashboard dashboard = Dashboard.create()
-        .setGlobal(true)
-        .setLayout(DashboardLayout.TWO_COLUMNS_30_70);
+      .setGlobal(true)
+      .setLayout(DashboardLayout.TWO_COLUMNS_30_70);
     Dashboard.Widget widget = dashboard.addWidget("fake-widget", 1);
     widget.setProperty("fake-property", "fake_metric");
     when(fakeDashboardTemplate.createDashboard()).thenReturn(dashboard);
@@ -153,7 +153,11 @@ public class RegisterDashboardsTest {
     assertThat(widgetDto.getCreatedAt()).isNotNull();
     assertThat(widgetDto.getUpdatedAt()).isNotNull();
 
-    assertThat(widgetDto.getWidgetProperties()).satisfies(contains(new WidgetPropertyDto().setKey("fake-property").setValue("fake_metric")));
+    Collection<WidgetPropertyDto> props = widgetDto.getWidgetProperties();
+    assertThat(props).hasSize(1);
+    WidgetPropertyDto prop = Iterables.getFirst(props, null);
+    assertThat(prop.getKey()).isEqualTo("fake-property");
+    assertThat(prop.getValue()).isEqualTo("fake_metric");
   }
 
   @Test
