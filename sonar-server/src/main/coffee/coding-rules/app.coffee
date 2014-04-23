@@ -180,7 +180,7 @@ requirejs [
   # Construct header
   App.addInitializer ->
     @codingRulesHeaderView = new CodingRulesHeaderView app: @
-    @layout.workspaceRegion.show @codingRulesHeaderView
+    @layout.headerRegion.show @codingRulesHeaderView
 
 
   # Define coding rules

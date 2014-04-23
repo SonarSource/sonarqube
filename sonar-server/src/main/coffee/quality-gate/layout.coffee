@@ -25,7 +25,7 @@ define [
 
     updateLayout: ->
       empty = @options.app.qualityGates.length == 0
-      @$(@workspaceRegion.el).toggle !empty
+      @$(@headerRegion.el).toggle !empty
       @$(@detailsRegion.el).toggle !empty
 
 
