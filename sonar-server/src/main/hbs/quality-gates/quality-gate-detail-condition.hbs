@@ -4,9 +4,9 @@
     <span class="deprecated">{{t 'deprecated'}}</span>
   {{/if}}
 </td>
-<td width="10%" nowrap>
+<td width="20%" nowrap>
   {{#if canEdit}}
-    <select name="period">
+    <select name="period" style="width: 100%">
       {{#unless isDiffMetric}}<option value="0">{{t 'value'}}</option>{{/unless}}
       {{#each periods}}<option value="{{key}}">&Delta; {{text}}</option>{{/each}}
     </select>

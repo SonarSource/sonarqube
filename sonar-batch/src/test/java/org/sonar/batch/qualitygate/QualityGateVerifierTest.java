@@ -302,8 +302,8 @@ public class QualityGateVerifierTest {
     verify(context).saveMeasure(argThat(hasLevel(measureRatingMetric, Metric.Level.OK)));
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void shouldAllowOnlyVariationPeriodOneGlobalPeriods() {
+  @Test
+  public void shouldAllowVariationPeriodOnAllPeriods() {
     measureClasses.setVariation4(40d);
 
     ArrayList<ResolvedCondition> conditions = Lists.newArrayList(
@@ -312,6 +312,9 @@ public class QualityGateVerifierTest {
     when(qualityGate.conditions()).thenReturn(conditions);
 
     verifier.decorate(project, context);
+
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.WARN, null)));
+    verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.WARN)));
   }
 
   @Test(expected = NotImplementedException.class)

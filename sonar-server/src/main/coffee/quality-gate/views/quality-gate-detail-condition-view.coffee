@@ -59,7 +59,7 @@ define [
       @ui.periodSelect.select2
         allowClear: false
         minimumResultsForSearch: 999
-        width: '200px'
+        width: '100%'
 
       @ui.operatorSelect.select2
         allowClear: false

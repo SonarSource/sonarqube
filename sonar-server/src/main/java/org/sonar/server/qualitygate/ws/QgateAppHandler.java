@@ -78,6 +78,7 @@ public class QgateAppHandler implements RequestHandler {
       "quality_gates.delete.confirm.message",
       "quality_gates.delete.confirm.default",
       "quality_gates.delete_condition.confirm.message",
+      "quality_gates.project_period",
       "rename",
       "save",
       "set_as_default",
@@ -120,7 +121,15 @@ public class QgateAppHandler implements RequestHandler {
     for (int i=0; i < 3; i ++) {
       writer.beginObject().prop("key", i + 1).prop("text", periods.label(i + 1)).endObject();
     }
+    addProjectPeriod(4, writer);
+    addProjectPeriod(5, writer);
     writer.endArray();
+  }
+
+  private void addProjectPeriod(int periodIndex, JsonWriter writer) {
+    writer.beginObject().prop("key", periodIndex).prop("text",
+      i18n.message(Locale.getDefault(), "quality_gates.project_period", "Period " + periodIndex, periodIndex)
+    ).endObject();
   }
 
   private void addMessages(JsonWriter writer) {

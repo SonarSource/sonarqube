@@ -261,8 +261,8 @@ public class QualityGates {
       if (metric.getKey().startsWith("new_")) {
         validationMessages.add(Message.of("A period must be selected for differential metrics."));
       }
-    } else if (period < 1 || period > 3) {
-      validationMessages.add(Message.of("Valid periods are 1, 2 and 3."));
+    } else if (period < 1 || period > 5) {
+      validationMessages.add(Message.of("Valid periods are integers between 1 and 5 (included)."));
     }
   }
 

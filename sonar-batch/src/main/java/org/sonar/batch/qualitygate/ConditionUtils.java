@@ -188,6 +188,10 @@ class ConditionUtils {
       return measure.getVariation2();
     } else if (period == 3) {
       return measure.getVariation3();
+    } else if (period == 4) {
+      return measure.getVariation4();
+    } else if (period == 5) {
+      return measure.getVariation5();
     } else {
       throw new IllegalStateException("Following index period is not allowed : " + Double.toString(period));
     }

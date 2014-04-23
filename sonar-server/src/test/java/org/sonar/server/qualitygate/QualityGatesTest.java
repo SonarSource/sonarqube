@@ -420,7 +420,7 @@ public class QualityGatesTest {
     when(metric.getType()).thenReturn(ValueType.BOOL);
     when(metricFinder.findByKey(anyString())).thenReturn(metric);
     when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
-    qGates.createCondition(qGateId, "alert_status", "EQ", null, "90", 4);
+    qGates.createCondition(qGateId, "alert_status", "EQ", null, "90", 6);
   }
 
   @Test

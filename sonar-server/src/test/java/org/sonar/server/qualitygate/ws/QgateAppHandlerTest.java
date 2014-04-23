@@ -87,9 +87,9 @@ public class QgateAppHandlerTest {
     Map responseJson = (Map) JSONValue.parse(json);
     assertThat((Boolean) responseJson.get("edit")).isFalse();
     Collection<Map> periods = (Collection<Map>) responseJson.get("periods");
-    assertThat(periods).hasSize(3);
+    assertThat(periods).hasSize(5);
     Map messages = (Map) responseJson.get("messages");
-    assertThat(messages).isNotNull().isNotEmpty().hasSize(53);
+    assertThat(messages).isNotNull().isNotEmpty().hasSize(54);
     for (Entry message: (Set<Entry>) messages.entrySet()) {
       assertThat(message.getKey()).isEqualTo(message.getValue());
     }
