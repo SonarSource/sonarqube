@@ -24,6 +24,26 @@
       <td><span id="resource_profile"><%= link_to profile_measure.data, {:controller => '/rules_configuration', :action => 'index', :id => profile_measure.value.to_i}, :id => 'profile_link' -%></span> (<%= message('widget.description.profile_version_x', :params => format_measure('profile_version', :default => '1')) -%>)</td>
     </tr>
     <% end %>
+    <%
+      using_default=false
+      quality_gate=Property.value('sonar.qualitygate', @resource && @resource.id, nil)
+      unless quality_gate
+        quality_gate=Property.value('sonar.qualitygate', nil, nil)
+        using_default=false || quality_gate
+      end
+      if quality_gate
+        qgate = Internal.quality_gates.get(quality_gate.to_i)
+    %>
+    <tr>
+      <td><%= message('widget.description.qualitygate') -%>:</td>
+      <td><span id="resource_qgate"><%= link_to qgate.getName(), (url_for :controller => '/quality_gates') + '#show/' + quality_gate, :id => 'qgate_link' -%>
+        <% if using_default %>
+          <span class="subtitle">(<%= message('default') -%>)</span>
+        <% end %>
+        </span>
+      </td>
+    </tr>
+    <% end %>
     <% unless @project.project_links.empty? %>
       <tr>
         <td valign="top"><%= message('widget.description.links') -%>: </td>
