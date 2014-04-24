@@ -50,7 +50,8 @@ public class CommandExecutor {
   }
 
   /**
-   * @throws CommandException
+   * @throws org.sonar.api.utils.command.TimeoutException on timeout, since 4.4
+   * @throws CommandException on any other error
    * @since 3.0
    */
   public int execute(Command command, StreamConsumer stdOut, StreamConsumer stdErr, long timeoutMilliseconds) {
@@ -86,9 +87,9 @@ public class CommandExecutor {
       verifyGobbler(command, errorGobbler, "stdErr");
       return exitCode;
 
-    } catch (TimeoutException te) {
+    } catch (java.util.concurrent.TimeoutException te) {
       process.destroy();
-      throw new CommandException(command, "Timeout exceeded: " + timeoutMilliseconds + " ms", te);
+      throw new TimeoutException(command, "Timeout exceeded: " + timeoutMilliseconds + " ms", te);
 
     } catch (CommandException e) {
       throw e;

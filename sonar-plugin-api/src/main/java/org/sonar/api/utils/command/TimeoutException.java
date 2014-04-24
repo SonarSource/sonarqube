@@ -19,21 +19,14 @@
  */
 package org.sonar.api.utils.command;
 
-public class CommandException extends RuntimeException {
+/**
+ * Unchecked version of {@link java.util.concurrent.TimeoutException}
+ *
+ * @since 4.4
+ */
+public class TimeoutException extends CommandException {
 
-  private final Command command;
-
-  public CommandException(Command command, String message, Throwable throwable) {
-    super(message + " [command: " + command + "]", throwable);
-    this.command = command;
-  }
-
-  public CommandException(Command command, Throwable throwable) {
-    super(throwable);
-    this.command = command;
-  }
-
-  public Command getCommand() {
-    return command;
+  public TimeoutException(Command command, String message, Throwable throwable) {
+    super(command, message, throwable);
   }
 }

@@ -110,9 +110,9 @@ public class CommandExecutorTest {
   @Test
   public void should_use_working_directory_to_store_argument_and_environment_variable() throws Exception {
     Command command = Command.create(getScript("echo"))
-        .setDirectory(workDir)
-        .addArgument("1")
-        .setEnvironmentVariable("ENVVAR", "2");
+      .setDirectory(workDir)
+      .addArgument("1")
+      .setEnvironmentVariable("ENVVAR", "2");
     int exitCode = CommandExecutor.create().execute(command, 1000L);
     assertThat(exitCode).isEqualTo(0);
     File logFile = new File(workDir, "echo.log");
@@ -130,7 +130,7 @@ public class CommandExecutorTest {
     try {
       CommandExecutor.create().execute(Command.create(executable).setDirectory(workDir), 300L);
       fail();
-    } catch (CommandException e) {
+    } catch (TimeoutException e) {
       long duration = System.currentTimeMillis() - start;
       // should test >= 300 but it strangly fails during build on windows.
       // The timeout is raised after 297ms (??)
