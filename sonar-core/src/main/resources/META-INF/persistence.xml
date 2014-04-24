@@ -11,6 +11,8 @@
     <class>org.sonar.api.database.configuration.Property</class>
     <class>org.sonar.api.database.model.User</class>
     <class>org.sonar.api.database.model.Snapshot</class>
+    <class>org.sonar.api.database.model.MeasureModel</class>
+    <class>org.sonar.api.database.model.MeasureData</class>
     <class>org.sonar.api.design.DependencyDto</class>
     <class>org.sonar.api.measures.Metric</class>
     <class>org.sonar.api.database.model.ResourceModel</class>

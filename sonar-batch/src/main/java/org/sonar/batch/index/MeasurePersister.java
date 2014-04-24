@@ -58,6 +58,7 @@ public final class MeasurePersister implements ScanPersister {
     SqlSession session = mybatis.openSession();
     try {
       MeasureMapper mapper = session.getMapper(MeasureMapper.class);
+
       for (Entry<Measure> entry : measureCache.entries()) {
         String effectiveKey = entry.key()[0].toString();
         Measure measure = entry.value();

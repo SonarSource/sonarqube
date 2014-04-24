@@ -23,17 +23,23 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.api.database.BaseIdentifiable;
 
+import javax.persistence.*;
 import java.io.UnsupportedEncodingException;
 
-public class MeasureData {
+@Entity
+@Table(name = "measure_data")
+public class MeasureData extends BaseIdentifiable {
 
-  private Integer id;
-
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "measure_id")
   private MeasureModel measure;
 
+  @Column(name = "snapshot_id", updatable = true, nullable = true)
   private Integer snapshotId;
 
+  @Column(name = "data", updatable = true, nullable = true, length = 167772150)
   private byte[] data;
 
   public MeasureData(MeasureModel measure) {
@@ -51,14 +57,6 @@ public class MeasureData {
   }
 
   public MeasureData() {
-  }
-
-  public Integer getId() {
-    return id;
-  }
-
-  public void setId(Integer id) {
-    this.id = id;
   }
 
   public MeasureModel getMeasure() {
@@ -106,3 +104,4 @@ public class MeasureData {
       .toString();
   }
 }
+

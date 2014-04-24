@@ -23,20 +23,19 @@ import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.internal.matchers.IsCollectionContaining;
+import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.database.model.ResourceModel;
+import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Metric;
+import org.sonar.jpa.dao.MeasuresDao;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
 import javax.persistence.NonUniqueResultException;
-
+import java.sql.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class DatabaseSessionTest extends AbstractDbUnitTestCase {
   private static final Long NB_INSERTS = 20000l;
@@ -48,6 +47,25 @@ public class DatabaseSessionTest extends AbstractDbUnitTestCase {
   public void setup() {
     project1 = new ResourceModel(ResourceModel.SCOPE_PROJECT, "mygroup:myartifact", "JAV", null, "my name");
     project2 = new ResourceModel(ResourceModel.SCOPE_PROJECT, "mygroup:myartifact1", "JAV", null, "my name 2");
+  }
+
+  @Test
+  public void performanceTestOnBatchInserts() throws Exception {
+    getSession().save(project1);
+    Snapshot snapshot = new Snapshot(project1, true, "", new Date(1));
+    getSession().save(snapshot);
+    getSession().save(CoreMetrics.CLASSES);
+    getSession().commit();
+
+    Metric metric = new MeasuresDao(getSession()).getMetric(CoreMetrics.CLASSES_KEY);
+    for (int i = 0; i < NB_INSERTS; i++) {
+      MeasureModel pm = new MeasureModel(metric.getId(), 1.0).setSnapshotId(snapshot.getId());
+      getSession().save(pm);
+    }
+
+    getSession().commit();
+    assertEquals(NB_INSERTS, getHQLCount(MeasureModel.class));
+
   }
 
   @Test
