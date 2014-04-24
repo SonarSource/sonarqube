@@ -25,7 +25,6 @@ import com.google.common.collect.Collections2;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
-import org.elasticsearch.common.collect.Lists;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
@@ -77,7 +76,7 @@ public class QualityGates {
   private final MyBatis myBatis;
 
   public QualityGates(QualityGateDao dao, QualityGateConditionDao conditionDao, MetricFinder metricFinder, PropertiesDao propertiesDao, ComponentDao componentDao,
-      MyBatis myBatis) {
+                      MyBatis myBatis) {
     this.dao = dao;
     this.conditionDao = conditionDao;
     this.metricFinder = metricFinder;
@@ -119,11 +118,12 @@ public class QualityGates {
     SqlSession session = myBatis.openSession();
     try {
       dao.insert(destinationGate, session);
-      for(QualityGateConditionDto sourceCondition: conditionDao.selectForQualityGate(sourceId, session)) {
+      for (QualityGateConditionDto sourceCondition : conditionDao.selectForQualityGate(sourceId, session)) {
         conditionDao.insert(new QualityGateConditionDto().setQualityGateId(destinationGate.getId())
-          .setMetricId(sourceCondition.getMetricId()).setOperator(sourceCondition.getOperator())
-          .setWarningThreshold(sourceCondition.getWarningThreshold()).setErrorThreshold(sourceCondition.getErrorThreshold()).setPeriod(sourceCondition.getPeriod()),
-          session);
+            .setMetricId(sourceCondition.getMetricId()).setOperator(sourceCondition.getOperator())
+            .setWarningThreshold(sourceCondition.getWarningThreshold()).setErrorThreshold(sourceCondition.getErrorThreshold()).setPeriod(sourceCondition.getPeriod()),
+          session
+        );
       }
       session.commit();
     } finally {
@@ -174,7 +174,7 @@ public class QualityGates {
   }
 
   public QualityGateConditionDto createCondition(long qGateId, String metricKey, String operator,
-    @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
+                                                 @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
     checkPermission(UserSession.get());
     getNonNullQgate(qGateId);
     Metric metric = getNonNullMetric(metricKey);
@@ -187,7 +187,7 @@ public class QualityGates {
   }
 
   public QualityGateConditionDto updateCondition(long condId, String metricKey, String operator,
-    @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
+                                                 @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
     checkPermission(UserSession.get());
     QualityGateConditionDto condition = getNonNullCondition(condId);
     Metric metric = getNonNullMetric(metricKey);
@@ -200,7 +200,7 @@ public class QualityGates {
 
   public Collection<QualityGateConditionDto> listConditions(long qGateId) {
     Collection<QualityGateConditionDto> conditionsForGate = conditionDao.selectForQualityGate(qGateId);
-    for (QualityGateConditionDto condition: conditionsForGate) {
+    for (QualityGateConditionDto condition : conditionsForGate) {
       condition.setMetricKey(metricFinder.findById((int) condition.getMetricId()).getKey());
     }
     return conditionsForGate;
@@ -239,14 +239,14 @@ public class QualityGates {
     try {
       checkPermission(UserSession.get());
       hasWritePermission = true;
-    } catch(ServerException unallowed) {
+    } catch (ServerException unallowed) {
       // Ignored
     }
     return hasWritePermission;
   }
 
   private void validateCondition(Metric metric, String operator, @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
-    List<Message> validationMessages = Lists.newArrayList();
+    List<Message> validationMessages = newArrayList();
     validateMetric(metric, validationMessages);
     validateOperator(metric, operator, validationMessages);
     validateThresholds(warningThreshold, errorThreshold, validationMessages);

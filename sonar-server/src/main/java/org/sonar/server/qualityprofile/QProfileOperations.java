@@ -131,15 +131,14 @@ public class QProfileOperations implements ServerComponent {
     checkPermission(userSession);
     SqlSession session = myBatis.openSession();
     try {
-      deleteProfile(profileId, userSession, session);
+      deleteProfile(profileId, session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private void deleteProfile(int profileId, UserSession userSession, SqlSession session) {
-    checkPermission(userSession);
+  public void deleteProfile(int profileId, SqlSession session) {
     QualityProfileDto profile = findNotNull(profileId, session);
     if (!profileLookup.isDeletable(QProfile.from(profile), session)) {
       throw new BadRequestException("This profile can not be deleted");

@@ -30,6 +30,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.PropertyType;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.server.rule.RuleParamType;
@@ -43,6 +44,7 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
@@ -159,6 +161,47 @@ public class QProfileActiveRuleOperationsTest {
     verify(profilesManager).activated(eq(1), anyInt(), eq("Nicolas"));
     verify(esActiveRule).deleteActiveRules(eq(newArrayList(idActiveRuleToDelete)));
     verify(esActiveRule).bulkIndexActiveRuleIds(eq(newArrayList(idActiveRuleToUpdate)), eq(session));
+  }
+
+  @Test
+  public void create_active_rule() throws Exception {
+    RuleKey ruleKey = RuleKey.of("repo", "key");
+    when(ruleDao.selectByKey(ruleKey, session)).thenReturn(new RuleDto().setId(10));
+
+    when(ruleDao.selectParametersByRuleId(eq(10), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10")));
+
+    operations.createActiveRule(1, ruleKey, Severity.CRITICAL, session);
+
+    ArgumentCaptor<ActiveRuleDto> activeRuleArgument = ArgumentCaptor.forClass(ActiveRuleDto.class);
+    verify(activeRuleDao).insert(activeRuleArgument.capture(), eq(session));
+    assertThat(activeRuleArgument.getValue().getRulId()).isEqualTo(10);
+    assertThat(activeRuleArgument.getValue().getSeverityString()).isEqualTo(Severity.CRITICAL);
+
+    ArgumentCaptor<ActiveRuleParamDto> activeRuleParamArgument = ArgumentCaptor.forClass(ActiveRuleParamDto.class);
+    verify(activeRuleDao).insert(activeRuleParamArgument.capture(), eq(session));
+    assertThat(activeRuleParamArgument.getValue().getKey()).isEqualTo("max");
+    assertThat(activeRuleParamArgument.getValue().getValue()).isEqualTo("10");
+
+    verifyZeroInteractions(session);
+    verifyZeroInteractions(profilesManager);
+    verifyZeroInteractions(esActiveRule);
+  }
+
+  @Test
+  public void fail_create_active_rule_when_rule_does_not_exists() throws Exception {
+    RuleKey ruleKey = RuleKey.of("repo", "key");
+    when(ruleDao.selectByKey(ruleKey, session)).thenReturn(null);
+
+    try {
+      operations.createActiveRule(1, ruleKey, Severity.CRITICAL, session);
+    } catch(Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class);
+    }
+
+    verifyZeroInteractions(session);
+    verifyZeroInteractions(activeRuleDao);
+    verifyZeroInteractions(profilesManager);
+    verifyZeroInteractions(esActiveRule);
   }
 
   @Test
@@ -363,6 +406,27 @@ public class QProfileActiveRuleOperationsTest {
     operations.updateActiveRuleParam(5, "max", "30,31,32", authorizedUserSession);
 
     verify(typeValidations).validate(eq(newArrayList("30", "31", "32")), eq("SINGLE_SELECT_LIST"), anyList());
+  }
+
+  @Test
+  public void update_active_rule_param_from_active_rule() throws Exception {
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(Severity.MINOR);
+    RuleParamDto ruleParam = new RuleParamDto().setRuleId(10).setName("max").setDefaultValue("20").setType(PropertyType.INTEGER.name());
+    when(ruleDao.selectParamByRuleAndKey(10, "max", session)).thenReturn(ruleParam);
+    ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setId(100).setActiveRuleId(5).setKey("max").setValue("20");
+    when(activeRuleDao.selectParamByActiveRuleAndKey(5, "max", session)).thenReturn(activeRuleParam);
+
+    operations.updateActiveRuleParam(activeRule, "max", "30", session);
+
+    ArgumentCaptor<ActiveRuleParamDto> argumentCaptor = ArgumentCaptor.forClass(ActiveRuleParamDto.class);
+    verify(activeRuleDao).update(argumentCaptor.capture(), eq(session));
+    assertThat(argumentCaptor.getValue().getId()).isEqualTo(100);
+    assertThat(argumentCaptor.getValue().getValue()).isEqualTo("30");
+
+    verify(typeValidations).validate(eq("30"), eq("INTEGER"), anyList());
+    verifyZeroInteractions(session);
+    verifyZeroInteractions(profilesManager);
+    verifyZeroInteractions(esActiveRule);
   }
 
   @Test

@@ -90,7 +90,7 @@ public class QProfileRepositoryExporter implements ServerComponent {
   public String exportToXml(QProfile profile, String pluginKey) {
     DatabaseSession session = sessionFactory.getSession();
     RulesProfile rulesProfile = session.getSingleResult(RulesProfile.class, "id", profile.id());
-    if (profile == null) {
+    if (rulesProfile == null) {
       throw new NotFoundException("This profile does not exists.");
     }
     ProfileExporter exporter = getProfileExporter(pluginKey);
@@ -127,8 +127,8 @@ public class QProfileRepositoryExporter implements ServerComponent {
       }
       throw BadRequestException.of("Fail to import profile", errors);
     }
-    result.setWarnings(messages.getWarnings());
-    result.setInfos(messages.getInfos());
+    result.addWarnings(messages.getWarnings());
+    result.addInfos(messages.getInfos());
   }
 
   private ActiveRuleDto toActiveRuleDto(ActiveRule activeRule, int profileId) {

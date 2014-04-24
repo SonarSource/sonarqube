@@ -20,16 +20,22 @@
 
 package org.sonar.server.qualityprofile;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.profiles.XMLProfileParser;
 import org.sonar.api.profiles.XMLProfileSerializer;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleParam;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.preview.PreviewCache;
+import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
@@ -37,7 +43,10 @@ import org.sonar.server.user.UserSession;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -52,18 +61,31 @@ public class QProfileBackup implements ServerComponent {
 
   private final MyBatis myBatis;
   private final QProfileLookup qProfileLookup;
+  private final QProfileOperations qProfileOperations;
+  private final QProfileActiveRuleOperations qProfileActiveRuleOperations;
   private final ESActiveRule esActiveRule;
+  private final List<ProfileDefinition> definitions;
   private final PreviewCache dryRunCache;
 
   public QProfileBackup(DatabaseSessionFactory sessionFactory, XMLProfileParser xmlProfileParser, XMLProfileSerializer xmlProfileSerializer, MyBatis myBatis,
-                        QProfileLookup qProfileLookup, ESActiveRule esActiveRule, PreviewCache dryRunCache) {
+                        QProfileLookup qProfileLookup, QProfileOperations qProfileOperations, QProfileActiveRuleOperations qProfileActiveRuleOperations, ESActiveRule esActiveRule,
+                        PreviewCache dryRunCache) {
+    this(sessionFactory, xmlProfileParser, xmlProfileSerializer, myBatis, qProfileLookup, qProfileOperations, qProfileActiveRuleOperations, esActiveRule,
+      Collections.<ProfileDefinition>emptyList(), dryRunCache);
+  }
 
+  public QProfileBackup(DatabaseSessionFactory sessionFactory, XMLProfileParser xmlProfileParser, XMLProfileSerializer xmlProfileSerializer, MyBatis myBatis,
+                        QProfileLookup qProfileLookup, QProfileOperations qProfileOperations, QProfileActiveRuleOperations qProfileActiveRuleOperations, ESActiveRule esActiveRule,
+                        List<ProfileDefinition> definitions, PreviewCache dryRunCache) {
     this.sessionFactory = sessionFactory;
     this.xmlProfileParser = xmlProfileParser;
     this.xmlProfileSerializer = xmlProfileSerializer;
     this.myBatis = myBatis;
     this.qProfileLookup = qProfileLookup;
+    this.qProfileOperations = qProfileOperations;
+    this.qProfileActiveRuleOperations = qProfileActiveRuleOperations;
     this.esActiveRule = esActiveRule;
+    this.definitions = definitions;
     this.dryRunCache = dryRunCache;
   }
 
@@ -76,8 +98,7 @@ public class QProfileBackup implements ServerComponent {
   }
 
   /**
-   * @param deleteExisting is used to not fail if profile exist but to delete it first.
-   *                       It's only used by WS, and it should should be soon removed
+   * @param deleteExisting is used to not fail if profile exist but to delete it first. It's only used by WS, and it should be soon removed.
    */
   public QProfileResult restore(String xmlBackup, boolean deleteExisting) {
     checkPermission(UserSession.get());
@@ -109,6 +130,63 @@ public class QProfileBackup implements ServerComponent {
     return result;
   }
 
+  /**
+   * Restore default profile for a given language.
+   * If a profile with same name than default profile already exists, an exception will be thrown.
+   */
+  public QProfileResult restoreDefaultProfilesFromLanguage(String language) {
+    checkPermission(UserSession.get());
+    QProfileResult result = new QProfileResult();
+
+    SqlSession session = myBatis.openSession();
+    try {
+      ListMultimap<String, RulesProfile> profilesByName = profilesByName(language, result);
+      for (Map.Entry<String, Collection<RulesProfile>> entry : profilesByName.asMap().entrySet()) {
+        String name = entry.getKey();
+        QProfile profile = qProfileOperations.newProfile(name, language, true, UserSession.get(), session);
+        for (RulesProfile currentRulesProfile : entry.getValue()) {
+          restoreFromActiveRules(profile, currentRulesProfile, session);
+        }
+        esActiveRule.bulkIndexProfile(profile.id(), session);
+      }
+      dryRunCache.reportGlobalModification(session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+    return result;
+  }
+
+  private ListMultimap<String, RulesProfile> profilesByName(String language, QProfileResult result) {
+    ListMultimap<String, RulesProfile> profilesByName = ArrayListMultimap.create();
+    for (ProfileDefinition definition : definitions) {
+      ValidationMessages validation = ValidationMessages.create();
+      RulesProfile profile = definition.createProfile(validation);
+      if (language.equals(profile.getLanguage())) {
+        processValidationMessages(validation, result);
+        profilesByName.put(profile.getName(), profile);
+      }
+    }
+    return profilesByName;
+  }
+
+  /**
+   * Used by {@link org.sonar.server.startup.RegisterQualityProfiles}
+   */
+  public void restoreFromActiveRules(QProfile profile, RulesProfile rulesProfile, SqlSession session) {
+    for (org.sonar.api.rules.ActiveRule activeRule : rulesProfile.getActiveRules()) {
+      RuleKey ruleKey = RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey());
+      ActiveRuleDto activeRuleDto = qProfileActiveRuleOperations.createActiveRule(profile.id(), ruleKey, activeRule.getSeverity().name(), session);
+      for (RuleParam param : activeRule.getRule().getParams()) {
+        String paramKey = param.getKey();
+        String value = activeRule.getParameter(param.getKey());
+        if (value != null) {
+          qProfileActiveRuleOperations.updateActiveRuleParam(activeRuleDto, paramKey, value, session);
+        }
+      }
+    }
+  }
+
   private void checkProfileDoesNotExists(RulesProfile importedProfile, boolean deleteExisting, DatabaseSession hibernateSession) {
     RulesProfile existingProfile = hibernateSession.getSingleResult(RulesProfile.class, "name", importedProfile.getName(), "language", importedProfile.getLanguage());
     if (existingProfile != null && !deleteExisting) {
@@ -130,8 +208,8 @@ public class QProfileBackup implements ServerComponent {
       }
       throw BadRequestException.of("Fail to restore profile", errors);
     }
-    result.setWarnings(messages.getWarnings());
-    result.setInfos(messages.getInfos());
+    result.addWarnings(messages.getWarnings());
+    result.addInfos(messages.getInfos());
   }
 
   private void checkPermission(UserSession userSession) {

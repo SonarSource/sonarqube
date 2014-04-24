@@ -37,11 +37,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.profiling.Profiling;
-import org.sonar.core.rule.RuleDao;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.core.rule.RuleParamDto;
-import org.sonar.core.rule.RuleRuleTagDto;
-import org.sonar.core.rule.RuleTagType;
+import org.sonar.core.rule.*;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.es.ESIndex;
@@ -490,7 +486,6 @@ public class RuleRegistryTest {
     assertThat(registry.find(RuleQuery.builder().debtCharacteristics(newArrayList("MODULARITY")).build()).results()).hasSize(1);
     assertThat(registry.find(RuleQuery.builder().debtCharacteristics(newArrayList("REUSABILITY")).build()).results()).hasSize(1);
     assertThat(registry.find(RuleQuery.builder().debtCharacteristics(newArrayList("PORTABILITY")).build()).results()).hasSize(1);
-    // FIXME query has to be updated
     assertThat(registry.find(RuleQuery.builder().debtCharacteristics(newArrayList("MODULARITY", "PORTABILITY")).build()).results()).hasSize(2);
     assertThat(registry.find(RuleQuery.builder().debtCharacteristics(newArrayList("MODULARITY", "REUSABILITY")).build()).results()).hasSize(1);
     assertThat(registry.find(RuleQuery.builder().debtCharacteristics(newArrayList("unknown")).build()).results()).isEmpty();

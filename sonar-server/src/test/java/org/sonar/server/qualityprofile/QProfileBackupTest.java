@@ -29,21 +29,30 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.database.DatabaseSession;
+import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.profiles.XMLProfileParser;
 import org.sonar.api.profiles.XMLProfileSerializer;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.preview.PreviewCache;
+import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.MockUserSession;
+import org.sonar.server.user.UserSession;
 
 import java.io.Reader;
 import java.io.Writer;
+import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
@@ -70,16 +79,24 @@ public class QProfileBackupTest {
   XMLProfileParser xmlProfileParser;
 
   @Mock
-  XMLProfileSerializer xmlProfileSerializer;;
+  XMLProfileSerializer xmlProfileSerializer;
 
   @Mock
   QProfileLookup qProfileLookup;
+
+  @Mock
+  QProfileOperations qProfileOperations;
+
+  @Mock
+  QProfileActiveRuleOperations qProfileActiveRuleOperations;
 
   @Mock
   ESActiveRule esActiveRule;
 
   @Mock
   PreviewCache dryRunCache;
+
+  List<ProfileDefinition> definitions;
 
   QProfileBackup backup;
 
@@ -88,7 +105,10 @@ public class QProfileBackupTest {
     when(myBatis.openSession()).thenReturn(session);
     when(sessionFactory.getSession()).thenReturn(hibernateSession);
 
-    backup = new QProfileBackup(sessionFactory, xmlProfileParser, xmlProfileSerializer, myBatis, qProfileLookup, esActiveRule, dryRunCache);
+    definitions = newArrayList();
+
+    backup = new QProfileBackup(sessionFactory, xmlProfileParser, xmlProfileSerializer, myBatis, qProfileLookup, qProfileOperations, qProfileActiveRuleOperations,
+      esActiveRule, definitions, dryRunCache);
 
     MockUserSession.set().setLogin("nicolas").setName("Nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
@@ -274,5 +294,78 @@ public class QProfileBackupTest {
 
     verifyZeroInteractions(esActiveRule);
     verifyZeroInteractions(dryRunCache);
+  }
+
+  @Test
+  public void restore_default_profiles_from_language() throws Exception {
+    String name = "Default";
+    String language = "java";
+
+    RulesProfile profile = RulesProfile.create(name, language);
+    Rule rule = Rule.create("pmd", "rule");
+    rule.createParameter("max");
+    ActiveRule activeRule = profile.activateRule(rule, RulePriority.BLOCKER);
+    activeRule.setParameter("max", "10");
+
+    ProfileDefinition profileDefinition = mock(ProfileDefinition.class);
+    when(profileDefinition.createProfile(any(ValidationMessages.class))).thenReturn(profile);
+
+    definitions.add(profileDefinition);
+
+    when(qProfileOperations.newProfile(eq(name), eq(language), eq(true), any(UserSession.class), eq(session))).thenReturn(new QProfile().setId(1));
+
+    backup.restoreDefaultProfilesFromLanguage(language);
+
+    verify(qProfileActiveRuleOperations).createActiveRule(eq(1), eq(RuleKey.of("pmd", "rule")), eq("BLOCKER"), eq(session));
+    verify(qProfileActiveRuleOperations).updateActiveRuleParam(any(ActiveRuleDto.class), eq("max"), eq("10"), eq(session));
+    verifyNoMoreInteractions(qProfileActiveRuleOperations);
+
+    verify(esActiveRule).bulkIndexProfile(eq(1), eq(session));
+    verify(dryRunCache).reportGlobalModification(session);
+    verify(session).commit();
+  }
+
+  @Test
+  public void restore_default_profiles_from_language_with_multiple_profiles_with_same_name_and_same_language() throws Exception {
+    RulesProfile profile1 = RulesProfile.create("Default", "java");
+    profile1.activateRule(Rule.create("pmd", "rule").setSeverity(RulePriority.BLOCKER), null);
+    ProfileDefinition profileDefinition1 = mock(ProfileDefinition.class);
+    when(profileDefinition1.createProfile(any(ValidationMessages.class))).thenReturn(profile1);
+    definitions.add(profileDefinition1);
+
+    RulesProfile profile2 = RulesProfile.create("Default", "java");
+    profile2.activateRule(Rule.create("checkstyle", "rule").setSeverity(RulePriority.MAJOR), null);
+    ProfileDefinition profileDefinition2 = mock(ProfileDefinition.class);
+    when(profileDefinition2.createProfile(any(ValidationMessages.class))).thenReturn(profile2);
+    definitions.add(profileDefinition2);
+
+    when(qProfileOperations.newProfile(eq("Default"), eq("java"), eq(true), any(UserSession.class), eq(session))).thenReturn(new QProfile().setId(1));
+
+    backup.restoreDefaultProfilesFromLanguage("java");
+
+    verify(qProfileActiveRuleOperations).createActiveRule(eq(1), eq(RuleKey.of("pmd", "rule")), eq("BLOCKER"), eq(session));
+    verify(qProfileActiveRuleOperations).createActiveRule(eq(1), eq(RuleKey.of("checkstyle", "rule")), eq("MAJOR"), eq(session));
+    verifyNoMoreInteractions(qProfileActiveRuleOperations);
+
+    verify(esActiveRule).bulkIndexProfile(eq(1), eq(session));
+    verify(dryRunCache).reportGlobalModification(session);
+    verify(session).commit();
+  }
+
+  @Test
+  public void not_restore_default_profiles_from_another_language() throws Exception {
+    RulesProfile profile = RulesProfile.create("Default", "java");
+    profile.activateRule(Rule.create("pmd", "rule").setSeverity(RulePriority.BLOCKER), null);
+    ProfileDefinition profileDefinition = mock(ProfileDefinition.class);
+    when(profileDefinition.createProfile(any(ValidationMessages.class))).thenReturn(profile);
+
+    definitions.add(profileDefinition);
+
+    backup.restoreDefaultProfilesFromLanguage("js");
+
+    verifyZeroInteractions(qProfileOperations);
+    verifyZeroInteractions(qProfileActiveRuleOperations);
+
+    verifyZeroInteractions(esActiveRule);
   }
 }

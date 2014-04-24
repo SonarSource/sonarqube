@@ -38,6 +38,8 @@ public class ServerTester extends ExternalResource {
   private File tempDir;
   private Platform platform;
 
+  private Object[] extensions;
+
   @Override
   protected void before() {
     tempDir = createTempDir();
@@ -47,7 +49,7 @@ public class ServerTester extends ExternalResource {
     properties.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:" + tempDir.getAbsolutePath() + "/h2");
     platform = new Platform();
     platform.init(properties);
-
+    platform.addExtensions(extensions);
     platform.doStart();
   }
 
@@ -70,6 +72,14 @@ public class ServerTester extends ExternalResource {
     FileUtils.deleteQuietly(tempDir);
   }
 
+  public ServerTester addExtensions(Object... extensions) {
+    this.extensions = extensions;
+    return this;
+  }
+
+  /**
+   * Get a component from the platform
+   */
   public <C> C get(Class<C> component) {
     if (platform == null) {
       throw new IllegalStateException("Not started");

@@ -34,23 +34,30 @@ public class LoadedTemplateDao implements BatchComponent, ServerComponent {
 
   public int countByTypeAndKey(String type, String key) {
     SqlSession session = mybatis.openSession();
-    LoadedTemplateMapper mapper = session.getMapper(LoadedTemplateMapper.class);
     try {
-      return mapper.countByTypeAndKey(type, key);
+      return countByTypeAndKey(type, key, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
+  public int countByTypeAndKey(String type, String key, SqlSession session) {
+    return session.getMapper(LoadedTemplateMapper.class).countByTypeAndKey(type, key);
+  }
+
+
   public void insert(LoadedTemplateDto loadedTemplateDto) {
     SqlSession session = mybatis.openSession();
-    LoadedTemplateMapper mapper = session.getMapper(LoadedTemplateMapper.class);
     try {
-      mapper.insert(loadedTemplateDto);
+      insert(loadedTemplateDto, session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public void insert(LoadedTemplateDto loadedTemplateDto, SqlSession session) {
+    session.getMapper(LoadedTemplateMapper.class).insert(loadedTemplateDto);
   }
 
 }

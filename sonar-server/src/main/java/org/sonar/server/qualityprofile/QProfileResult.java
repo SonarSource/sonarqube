@@ -40,8 +40,8 @@ public class QProfileResult {
     return warnings;
   }
 
-  public QProfileResult setWarnings(List<String> warnings) {
-    this.warnings = warnings;
+  public QProfileResult addWarnings(List<String> warnings) {
+    this.warnings.addAll(warnings);
     return this;
   }
 
@@ -49,8 +49,8 @@ public class QProfileResult {
     return infos;
   }
 
-  public QProfileResult setInfos(List<String> infos) {
-    this.infos = infos;
+  public QProfileResult addInfos(List<String> infos) {
+    this.infos.addAll(infos);
     return this;
   }
 

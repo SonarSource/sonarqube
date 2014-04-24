@@ -44,6 +44,7 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 
 import java.io.Reader;
 import java.io.Writer;
@@ -241,6 +242,26 @@ public class QProfileRepositoryExporterTest {
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("No such exporter : unknown");
+    }
+
+    verify(exporter, never()).exportProfile(any(RulesProfile.class), any(Writer.class));
+  }
+
+  @Test
+  public void fail_to_export_profile_when_profile_is_missing() throws Exception {
+    RulesProfile profile = mock(RulesProfile.class);
+    when(profile.getId()).thenReturn(1);
+    when(hibernateSession.getSingleResult(any(Class.class), eq("id"), eq(1))).thenReturn(null);
+
+    ProfileExporter exporter = mock(ProfileExporter.class);
+    when(exporter.getKey()).thenReturn("pmd");
+    exporters.add(exporter);
+
+    try {
+      operations.exportToXml(new QProfile().setId(1), "pmd");
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("This profile does not exists.");
     }
 
     verify(exporter, never()).exportProfile(any(RulesProfile.class), any(Writer.class));

@@ -25,21 +25,23 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.*;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
-import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.platform.PersistentSettings;
-import org.sonar.server.qualityprofile.ESActiveRule;
+import org.sonar.server.qualityprofile.*;
 import org.sonar.server.rule.RegisterRules;
+import org.sonar.server.user.UserSession;
+
+import javax.annotation.Nullable;
 
 import java.util.*;
 
@@ -48,66 +50,100 @@ public class RegisterQualityProfiles {
   private static final Logger LOGGER = LoggerFactory.getLogger(RegisterQualityProfiles.class);
   private static final String DEFAULT_PROFILE_NAME = "Sonar way";
 
-  private final List<ProfileDefinition> definitions;
   private final LoadedTemplateDao loadedTemplateDao;
-  private final RuleFinder ruleFinder;
+  private final QProfileBackup qProfileBackup;
+  private final QProfileOperations qProfileOperations;
+  private final QProfileLookup qProfileLookup;
   private final ESActiveRule esActiveRule;
-  private final DatabaseSessionFactory sessionFactory;
   private final PersistentSettings settings;
-  private DatabaseSession session = null;
+  private final List<ProfileDefinition> definitions;
+  private final MyBatis myBatis;
 
-  public RegisterQualityProfiles(List<ProfileDefinition> definitions,
-                                 PersistentSettings settings,
-                                 RuleFinder ruleFinder,
-                                 ESActiveRule esActiveRule,
-                                 LoadedTemplateDao loadedTemplateDao,
-                                 DatabaseSessionFactory sessionFactory,
-                                 RegisterRules registerRulesBefore) {
-    this.settings = settings;
-    this.ruleFinder = ruleFinder;
-    this.esActiveRule = esActiveRule;
-    this.definitions = definitions;
-    this.loadedTemplateDao = loadedTemplateDao;
-    this.sessionFactory = sessionFactory;
+  public RegisterQualityProfiles(MyBatis myBatis,
+                                  PersistentSettings settings,
+                                  ESActiveRule esActiveRule,
+                                  LoadedTemplateDao loadedTemplateDao,
+                                  QProfileBackup qProfileBackup,
+                                  QProfileOperations qProfileOperations,
+                                  QProfileLookup qProfileLookup,
+                                  RegisterRules registerRulesBefore) {
+    this(myBatis, settings, esActiveRule, loadedTemplateDao, qProfileBackup, qProfileOperations, qProfileLookup, registerRulesBefore,
+      Collections.<ProfileDefinition>emptyList());
   }
 
-  public RegisterQualityProfiles(PersistentSettings settings,
-                                 RuleFinder ruleFinder,
-                                 ESActiveRule esActiveRule,
-                                 LoadedTemplateDao loadedTemplateDao,
-                                 DatabaseSessionFactory sessionFactory,
-                                 RegisterRules registerRulesBefore) {
-    this(Collections.<ProfileDefinition>emptyList(), settings, ruleFinder, esActiveRule, loadedTemplateDao, sessionFactory, registerRulesBefore);
+  public RegisterQualityProfiles(MyBatis myBatis,
+                                  PersistentSettings settings,
+                                  ESActiveRule esActiveRule,
+                                  LoadedTemplateDao loadedTemplateDao,
+                                  QProfileBackup qProfileBackup,
+                                  QProfileOperations qProfileOperations,
+                                  QProfileLookup qProfileLookup,
+                                  RegisterRules registerRulesBefore,
+                                  List<ProfileDefinition> definitions) {
+    this.myBatis = myBatis;
+    this.settings = settings;
+    this.esActiveRule = esActiveRule;
+    this.qProfileBackup = qProfileBackup;
+    this.qProfileOperations = qProfileOperations;
+    this.qProfileLookup = qProfileLookup;
+    this.definitions = definitions;
+    this.loadedTemplateDao = loadedTemplateDao;
   }
 
   public void start() {
     TimeProfiler profiler = new TimeProfiler(LOGGER).start("Register Quality Profiles");
-    session = sessionFactory.getSession();
 
-    // hibernate session can contain an invalid cache of rules
-    session.commit();
+    SqlSession session = myBatis.openSession();
+    try {
+      ListMultimap<String, RulesProfile> profilesByLanguage = profilesByLanguage();
+      for (String language : profilesByLanguage.keySet()) {
+        List<RulesProfile> profiles = profilesByLanguage.get(language);
+        verifyLanguage(language, profiles);
 
-    ListMultimap<String, RulesProfile> profilesByLanguage = loadDefinitions();
-    for (String language : profilesByLanguage.keySet()) {
-      List<RulesProfile> profiles = profilesByLanguage.get(language);
-      verifyLanguage(language, profiles);
-
-      for (Map.Entry<String, Collection<RulesProfile>> entry : groupByName(profiles).entrySet()) {
-        String name = entry.getKey();
-        if (shouldRegister(language, name)) {
-          register(language, name, entry.getValue());
+        for (Map.Entry<String, Collection<RulesProfile>> entry : profilesByName(profiles).entrySet()) {
+          String name = entry.getKey();
+          if (shouldRegister(language, name, session)) {
+            register(language, name, entry.getValue(), session);
+          }
         }
+        setDefault(language, profiles, session);
       }
-
-      setDefault(language, profiles);
+      session.commit();
+      esActiveRule.bulkRegisterActiveRules();
+    } finally {
+      MyBatis.closeQuietly(session);
+      profiler.stop();
     }
-    session.commit();
-    profiler.stop();
-
-    esActiveRule.bulkRegisterActiveRules();
   }
 
-  private void setDefault(String language, List<RulesProfile> profiles) {
+  private static void verifyLanguage(String language, List<RulesProfile> profiles) {
+    if (profiles.isEmpty()) {
+      LOGGER.warn("No Quality Profile defined for language: " + language);
+    }
+
+    Set<String> defaultProfileNames = defaultProfileNames(profiles);
+    if (defaultProfileNames.size() > 1) {
+      throw new SonarException("Several Quality Profiles are flagged as default for the language " + language + ": " + defaultProfileNames);
+    }
+  }
+
+  private void register(String language, String name, Collection<RulesProfile> profiles, SqlSession session) {
+    LOGGER.info("Register " + language + " profile: " + name);
+
+    QProfile profile = qProfileLookup.profile(name, language, session);
+    if (profile != null) {
+      qProfileOperations.deleteProfile(profile.id(), session);
+    }
+    profile = qProfileOperations.newProfile(name, language, true, UserSession.get(), session);
+
+    for (RulesProfile currentRulesProfile : profiles) {
+      qProfileBackup.restoreFromActiveRules(profile, currentRulesProfile, session);
+    }
+
+    loadedTemplateDao.insert(new LoadedTemplateDto(templateKey(language, name), LoadedTemplateDto.QUALITY_PROFILE_TYPE), session);
+  }
+
+  private void setDefault(String language, List<RulesProfile> profiles, SqlSession session) {
     String propertyKey = "sonar.profile." + language;
     if (settings.getString(propertyKey) == null) {
       String defaultProfileName = defaultProfileName(profiles);
@@ -116,47 +152,10 @@ public class RegisterQualityProfiles {
     }
   }
 
-  private Map<String, Collection<RulesProfile>> groupByName(List<RulesProfile> profiles) {
-    return Multimaps.index(profiles,
-      new Function<RulesProfile, String>() {
-        public String apply(RulesProfile profile) {
-          return profile.getName();
-        }
-      }).asMap();
-  }
-
-  private boolean shouldRegister(String language, String profileName) {
-    return loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.QUALITY_PROFILE_TYPE, templateKey(language, profileName)) == 0;
-  }
-
-  private static String templateKey(String language, String profileName) {
-    return StringUtils.lowerCase(language) + ":" + profileName;
-  }
-
-  private void register(String language, String name, Collection<RulesProfile> profiles) {
-    LOGGER.info("Register " + language + " profile: " + name);
-    clean(language, name);
-    insert(language, name, profiles);
-    loadedTemplateDao.insert(new LoadedTemplateDto(templateKey(language, name), LoadedTemplateDto.QUALITY_PROFILE_TYPE));
-  }
-
-
-  private void verifyLanguage(String language, List<RulesProfile> profiles) {
-    if (profiles.isEmpty()) {
-      LOGGER.warn("No Quality Profile defined for language: " + language);
-    }
-
-    Set<String> defaultProfileNames = defaultProfileNames(profiles);
-    if (defaultProfileNames.size() > 1) {
-      throw new SonarException("Several Quality Profiles are flagged as default for the language " + language + ": " +
-        defaultProfileNames);
-    }
-  }
-
   /**
    * @return profiles by language
    */
-  private ListMultimap<String, RulesProfile> loadDefinitions() {
+  private ListMultimap<String, RulesProfile> profilesByLanguage() {
     ListMultimap<String, RulesProfile> byLang = ArrayListMultimap.create();
     for (ProfileDefinition definition : definitions) {
       ValidationMessages validation = ValidationMessages.create();
@@ -167,6 +166,14 @@ public class RegisterQualityProfiles {
       }
     }
     return byLang;
+  }
+
+  private static Map<String, Collection<RulesProfile>> profilesByName(List<RulesProfile> profiles) {
+    return Multimaps.index(profiles, new Function<RulesProfile, String>() {
+      public String apply(@Nullable RulesProfile profile) {
+        return profile != null ? profile.getName() : null;
+      }
+    }).asMap();
   }
 
   private static String defaultProfileName(List<RulesProfile> profiles) {
@@ -198,47 +205,11 @@ public class RegisterQualityProfiles {
     return names;
   }
 
-  //
-  // PERSISTENCE
-  //
-
-  private void insert(String language, String name, Collection<RulesProfile> profiles) {
-    RulesProfile persisted = RulesProfile.create(name, language);
-    for (RulesProfile profile : profiles) {
-      for (ActiveRule activeRule : profile.getActiveRules()) {
-        Rule rule = persistedRule(activeRule);
-        ActiveRule persistedActiveRule = persisted.activateRule(rule, activeRule.getSeverity());
-        for (RuleParam param : rule.getParams()) {
-          String value = StringUtils.defaultString(activeRule.getParameter(param.getKey()), param.getDefaultValue());
-          if (value != null) {
-            persistedActiveRule.setParameter(param.getKey(), value);
-          }
-        }
-      }
-    }
-    session.saveWithoutFlush(persisted);
+  private boolean shouldRegister(String language, String profileName, SqlSession session) {
+    return loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.QUALITY_PROFILE_TYPE, templateKey(language, profileName), session) == 0;
   }
 
-  private Rule persistedRule(ActiveRule activeRule) {
-    Rule rule = activeRule.getRule();
-    if (rule != null && rule.getId() == null) {
-      if (rule.getKey() != null) {
-        rule = ruleFinder.findByKey(rule.getRepositoryKey(), rule.getKey());
-
-      } else if (rule.getConfigKey() != null) {
-        rule = ruleFinder.find(RuleQuery.create().withRepositoryKey(rule.getRepositoryKey()).withConfigKey(rule.getConfigKey()));
-      }
-    }
-    if (rule == null) {
-      throw new IllegalStateException(String.format("Rule '%s' has not been found.", activeRule.getRule()));
-    }
-    return rule;
-  }
-
-  private void clean(String language, String name) {
-    List<RulesProfile> existingProfiles = session.getResults(RulesProfile.class, "language", language, "name", name);
-    for (RulesProfile profile : existingProfiles) {
-      session.removeWithoutFlush(profile);
-    }
+  private static String templateKey(String language, String profileName) {
+    return StringUtils.lowerCase(language) + ":" + profileName;
   }
 }

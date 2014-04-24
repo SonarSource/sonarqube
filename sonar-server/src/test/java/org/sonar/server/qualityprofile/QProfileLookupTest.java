@@ -81,7 +81,7 @@ public class QProfileLookupTest {
 
   @Test
   public void find_by_name_and_language() throws Exception {
-    when(dao.selectByNameAndLanguage("Sonar Way", "java")).thenReturn(new QualityProfileDto().setId(1).setName("Sonar Way").setLanguage("java"));
+    when(dao.selectByNameAndLanguage("Sonar Way", "java", session)).thenReturn(new QualityProfileDto().setId(1).setName("Sonar Way").setLanguage("java"));
 
     assertThat(search.profile("Sonar Way", "java")).isNotNull();
   }
@@ -115,12 +115,11 @@ public class QProfileLookupTest {
     verify(dao).selectByLanguage("java");
   }
 
-
   @Test
   public void find_parent() throws Exception {
-    when(dao.selectByNameAndLanguage("Sonar Way", "java")).thenReturn(new QualityProfileDto().setId(1).setName("Sonar Way").setLanguage("java"));
+    when(dao.selectByNameAndLanguage("Sonar Way", "java", session)).thenReturn(new QualityProfileDto().setId(1).setName("Sonar Way").setLanguage("java"));
     search.parent(new QProfile().setName("Sonar Way with Findbugs").setLanguage("java").setParent("Sonar Way"));
-    verify(dao).selectByNameAndLanguage("Sonar Way", "java");
+    verify(dao).selectByNameAndLanguage("Sonar Way", "java", session);
   }
 
   @Test

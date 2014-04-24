@@ -148,6 +148,10 @@ public class Platform {
     }
   }
 
+  public void addExtensions(Object... extensions){
+    serverComponents.addExtensions(extensions);
+  }
+
   public ComponentContainer getContainer() {
     return currentContainer;
   }

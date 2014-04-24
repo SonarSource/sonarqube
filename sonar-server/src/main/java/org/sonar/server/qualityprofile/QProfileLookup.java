@@ -29,6 +29,7 @@ import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -70,13 +71,22 @@ public class QProfileLookup implements ServerComponent {
     return null;
   }
 
-  @CheckForNull
-  public QProfile profile(String name, String language) {
-    QualityProfileDto dto = findQualityProfile(name, language);
+  public QProfile profile(String name, String language, SqlSession session) {
+    QualityProfileDto dto = findQualityProfile(name, language, session);
     if (dto != null) {
       return QProfile.from(dto);
     }
     return null;
+  }
+
+  @CheckForNull
+  public QProfile profile(String name, String language) {
+    SqlSession session = myBatis.openSession();
+    try {
+      return profile(name, language, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   @CheckForNull
@@ -100,14 +110,19 @@ public class QProfileLookup implements ServerComponent {
 
   @CheckForNull
   public QProfile parent(QProfile profile) {
-    String parent = profile.parent();
-    if (parent != null) {
-      QualityProfileDto parentDto = findQualityProfile(parent, profile.language());
-      if (parentDto != null) {
-        return QProfile.from(parentDto);
+    SqlSession session = myBatis.openSession();
+    try {
+      String parent = profile.parent();
+      if (parent != null) {
+        QualityProfileDto parentDto = findQualityProfile(parent, profile.language(), session);
+        if (parentDto != null) {
+          return QProfile.from(parentDto);
+        }
       }
+      return null;
+    } finally {
+      MyBatis.closeQuietly(session);
     }
-    return null;
   }
 
   public List<QProfile> children(QProfile profile) {
@@ -191,8 +206,8 @@ public class QProfileLookup implements ServerComponent {
   }
 
   @CheckForNull
-  private QualityProfileDto findQualityProfile(String name, String language) {
-    return dao.selectByNameAndLanguage(name, language);
+  private QualityProfileDto findQualityProfile(String name, String language, SqlSession session) {
+    return dao.selectByNameAndLanguage(name, language, session);
   }
 
 }
