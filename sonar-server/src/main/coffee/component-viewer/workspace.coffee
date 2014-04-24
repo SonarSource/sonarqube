@@ -14,7 +14,8 @@ define [
 
 
     events:
-      'click .component-viewer-workspace-item [data-key]': 'goToWorkspaceItem'
+      'click .component-viewer-workspace-item > a[data-key]': 'goToWorkspaceItem'
+      'click .component-viewer-workspace-option > a[data-key]': 'goToWorkspaceOption'
 
 
     onRender: ->
@@ -28,6 +29,21 @@ define [
       workspaceItemIndex = workspace.indexOf workspaceItem
       workspace.reset workspace.initial(workspace.length - workspaceItemIndex)
       @options.main.addTransition workspaceItem.get('key'), workspaceItem.get('transition')
+
+
+    goToWorkspaceOption: (e) ->
+      workspaceKey = $(e.currentTarget).data 'workspace-key'
+      key = $(e.currentTarget).data 'key'
+      name = $(e.currentTarget).text()
+
+      workspace = @options.main.workspace
+      workspaceItem = workspace.findWhere key: workspaceKey
+      workspaceItemOptions = workspaceItem.get 'options'
+      workspaceItemOptions.forEach (option) -> option.active = option.name == name
+
+      @options.main.addTransition workspaceItem.get('key'), workspaceItem.get('transition'), null, [
+        { key: key, name: name }
+      ]
 
 
     serializeData: ->

@@ -1,12 +1,17 @@
 <ul class="component-viewer-workspace-list">
-  {{#each workspace}}
+  {{#eachReverse workspace}}
     <li class="component-viewer-workspace-item">
-      {{#if transition}}
-        <span>
-            <i class="icon-move-right"></i>
-          </span>
+      {{qualifierIcon component.qualifier}} <a data-key="{{key}}">{{component.name}}</a>
+      {{#if options}}
+        <ul class="component-viewer-workspace-options">
+          {{#each options}}
+            <li class="component-viewer-workspace-option {{#if active}}active{{/if}}">
+              <a data-workspace-key="{{../key}}" data-key="{{key}}">{{name}}</a>
+              {{#if subname}}<div class="subtitle">{{subname}}</div>{{/if}}
+            </li>
+          {{/each}}
+        </ul>
       {{/if}}
-      <a data-key="{{key}}">{{qualifierIcon component.qualifier}} {{component.name}}</a>
     </li>
-  {{/each}}
+  {{/eachReverse}}
 </ul>

@@ -16,27 +16,39 @@
   float: left;
   width: @workspaceWidth;
   .box-sizing(border-box);
+
+  a:hover { text-decoration: underline; }
+}
+
+.component-viewer-workspace-list {
+  margin: 8px 0;
 }
 
 .component-viewer-workspace-item {
-  height: 30px;
-  line-height: 30px;
   padding: 0 10px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 
-  &:first-child {
-    border-bottom: 1px solid @barBorderColor;
-  }
+  &:first-child > a { font-weight: bold; }
+}
 
-  &:last-child {
-    font-weight: bold;
-  }
+.component-viewer-workspace-item + .component-viewer-workspace-item {
+  margin-top: 10px;
 }
 
 .component-viewer-workspace-transition {
 
+}
+
+.component-viewer-workspace-options {
+  margin-top: 5px;
+  margin-left: 21px;
+  padding-left: 10px;
+  border-left: 3px solid darken(@barBorderColor, 10%);
+}
+
+.component-viewer-workspace-option {
+  padding: 3px 0;
+
+  &.active > a { font-weight: bold; }
 }
 
 
@@ -153,16 +165,42 @@
 }
 
 
+@popupArrowSize: 8px;
+
 .component-viewer-popup {
   position: absolute;
   z-index: 100;
-  left: 0;
-  width: @workspaceWidth;
+  margin-top: -16px;
+  margin-left: @popupArrowSize;
   padding: 10px;
-  border-top: 1px solid @barBorderColor;
-  border-bottom: 1px solid @barBorderColor;
+  border: 1px solid @barBorderColor;
+  border-radius: 3px;
   .box-sizing(border-box);
   background-color: @white;
+  box-shadow: @defaultShadow;
+}
+
+.component-viewer-popup-arrow,
+.component-viewer-popup-arrow:after {
+  position: absolute;
+  display: block;
+  .size(0, 0);
+  border: @popupArrowSize solid transparent;
+}
+
+.component-viewer-popup-arrow {
+  top: 15px;
+  left: -@popupArrowSize;
+  border-left-width: 0;
+  border-right-color: @barBorderColor;
+
+  &:after {
+    content: " ";
+    left: 1px;
+    bottom: -@popupArrowSize;
+    border-left-width: 0;
+    border-right-color: @white;
+  }
 }
 
 .component-viewer-popup-section + .component-viewer-popup-section {
@@ -170,11 +208,43 @@
 }
 
 .component-viewer-popup-section-title {
-
+  color: #777;
+  font-size: @smallFontSize;
 }
 
 .component-viewer-popup-list {
   margin-top: 5px;
+}
+
+.component-viewer-popup-test {
+  position: relative;
+  display: block;
+  height: 24px;
+  line-height: 24px;
+
+  &:hover {
+    .component-viewer-popup-test-name { text-decoration: underline; }
+  }
+}
+
+.component-viewer-popup-test-name {
+  display: block;
+  width: 240px;
+  border-left: 20px solid transparent;
+  border-right: 44px solid transparent;
+  .box-sizing(border-box);
+}
+
+.component-viewer-popup-test-status {
+  position: absolute;
+  top: 0; left: 0;
+  line-height: 24px;
+}
+
+.component-viewer-popup-test-duration {
+  position: absolute;
+  top: 0; right: 0;
+  color: #777;
   font-size: @smallFontSize;
 }
 

@@ -40,7 +40,7 @@ define [
         model: @source
         main: @
 
-      @settings = new Backbone.Model issues: false, coverage: true, duplications: false
+      @settings = new Backbone.Model issues: false, coverage: true, duplications: false, scm: false
 
 
     onRender: ->
@@ -109,6 +109,16 @@ define [
       @sourceView.render()
 
 
-    addTransition: (key, transition) ->
-      @workspace.add key: key, transition: transition
+    addTransition: (key, transition, optionsForCurrent, options) ->
+      if optionsForCurrent?
+        last = @workspace.at(@workspace.length - 1)
+        last.set 'options', optionsForCurrent if last
+
+#      workspaceItem = @workspace.findWhere key: key
+#      if workspaceItem?
+#        @workspace.remove workspaceItem
+#        @workspace.add workspaceItem
+#      else
+      @workspace.add key: key, transition: transition, options: options
+
       @_open key
