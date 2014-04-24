@@ -53,6 +53,7 @@ import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.batch.issue.ModuleIssues;
+import org.sonar.batch.qualitygate.QualityGateVerifier;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.component.ScanGraph;
@@ -209,7 +210,8 @@ public class DefaultIndex extends SonarIndex {
   }
 
   /**
-   * Used by some core features like TendencyDecorator, QualityGateVerifier that need to update some existing measures
+   * Used by some core features like TendencyDecorator, {@link QualityGateVerifier}, VariationDecorator 
+   * that need to update some existing measures
    */
   public void updateMeasure(Resource resource, Measure measure) {
     if (!measureCache.contains(resource, measure)) {
