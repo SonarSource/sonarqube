@@ -322,20 +322,6 @@ public class Cache<V extends Serializable> {
   }
 
   /**
-   * Lazy-loading values for a given key
-   */
-  public Iterable<V> allValues(Object key) {
-    try {
-      exchange.clear();
-      exchange.append(key).append(Key.BEFORE);
-      Exchange iteratorExchange = new Exchange(exchange);
-      return new ValueIterable<V>(iteratorExchange, true);
-    } catch (Exception e) {
-      throw new IllegalStateException("Fail to get values from cache " + name, e);
-    }
-  }
-
-  /**
    * Lazy-loading values
    */
   public Iterable<V> values() {

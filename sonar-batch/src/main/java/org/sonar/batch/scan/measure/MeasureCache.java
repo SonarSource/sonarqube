@@ -22,6 +22,7 @@ package org.sonar.batch.scan.measure;
 import com.google.common.base.Preconditions;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Cache.Entry;
@@ -43,19 +44,33 @@ public class MeasureCache implements BatchComponent {
   }
 
   public Iterable<Measure> byResource(Resource r) {
-    return cache.allValues(r.getEffectiveKey());
+    return cache.values(r.getEffectiveKey());
   }
 
   public MeasureCache put(Resource resource, Measure measure) {
     Preconditions.checkNotNull(resource.getEffectiveKey());
     Preconditions.checkNotNull(measure.getMetricKey());
-    cache.put(resource.getEffectiveKey(), measure.getMetricKey(), measure.hashCode(), measure);
+    cache.put(resource.getEffectiveKey(), computeMeasureKey(measure), measure);
     return this;
   }
 
-  public Iterable<Measure> byMetric(Resource resource, String metricKey) {
-    Preconditions.checkNotNull(resource.getEffectiveKey());
-    Preconditions.checkNotNull(metricKey);
-    return cache.values(resource.getEffectiveKey(), metricKey);
+  private static String computeMeasureKey(Measure m) {
+    StringBuilder sb = new StringBuilder();
+    if (m.getMetricKey() != null) {
+      sb.append(m.getMetricKey());
+    }
+    sb.append("|");
+    if (m.getCharacteristic() != null) {
+      sb.append(m.getCharacteristic().key());
+    }
+    sb.append("|");
+    if (m.getPersonId() != null) {
+      sb.append(m.getPersonId());
+    }
+    if (m instanceof RuleMeasure) {
+      sb.append("|");
+      sb.append(((RuleMeasure) m).ruleKey());
+    }
+    return sb.toString();
   }
 }
