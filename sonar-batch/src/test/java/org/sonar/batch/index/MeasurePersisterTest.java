@@ -114,7 +114,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     setupData("empty");
 
     Rule rule = Rule.create("pmd", "key");
-    when(ruleFinder.findByKey("pmd", "key")).thenReturn(rule);
+    when(ruleFinder.findByKey(rule.ruleKey())).thenReturn(rule);
 
     Measure measure = new RuleMeasure(ncloc(), rule, RulePriority.MAJOR, 1).setValue(1234.0);
     when(measureCache.entries()).thenReturn(Arrays.asList(new Cache.Entry<Measure>(new String[] {"foo", "ncloc"}, measure)));
