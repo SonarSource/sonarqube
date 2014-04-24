@@ -25,96 +25,62 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.rules.RulePriority;
 
-import javax.persistence.*;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * This class is the Hibernate model to store a measure in the DB
- */
-@Entity
-@Table(name = "project_measures")
 public class MeasureModel implements Cloneable {
 
   public static final int TEXT_VALUE_LENGTH = 96;
 
-  @Id
-  @Column(name = "id")
-  @GeneratedValue
   private Long id;
 
-  @Column(name = "value", updatable = true, nullable = true, precision = 30, scale = 20)
   private Double value = 0.0;
 
-  @Column(name = "text_value", updatable = true, nullable = true, length = TEXT_VALUE_LENGTH)
   private String textValue;
 
-  @Column(name = "tendency", updatable = true, nullable = true)
   private Integer tendency;
 
-  @Column(name = "metric_id", updatable = false, nullable = false)
   private Integer metricId;
 
-  @Column(name = "snapshot_id", updatable = true, nullable = true)
   private Integer snapshotId;
 
-  @Column(name = "project_id", updatable = true, nullable = true)
   private Integer projectId;
 
-  @Column(name = "description", updatable = true, nullable = true, length = 4000)
   private String description;
 
-  @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "measure_date", updatable = true, nullable = true)
   private Date measureDate;
 
-  @Column(name = "rule_id", updatable = true, nullable = true)
   private Integer ruleId;
 
   /**
    * @deprecated since 2.5 See http://jira.codehaus.org/browse/SONAR-2007
    */
   @Deprecated
-  @Column(name = "rules_category_id", nullable = true)
-  private Integer rulesCategoryId;//NOSONAR this field is kept for backward-compatiblity of API
+  private Integer rulesCategoryId;// NOSONAR this field is kept for backward-compatiblity of API
 
-  @Column(name = "rule_priority", updatable = false, nullable = true)
-  @Enumerated(EnumType.ORDINAL)
   private RulePriority rulePriority;
 
-  @Column(name = "alert_status", updatable = true, nullable = true, length = 5)
   private String alertStatus;
 
-  @Column(name = "alert_text", updatable = true, nullable = true, length = 4000)
   private String alertText;
 
-  @Column(name = "variation_value_1", updatable = true, nullable = true)
   private Double variationValue1;
 
-  @Column(name = "variation_value_2", updatable = true, nullable = true)
   private Double variationValue2;
 
-  @Column(name = "variation_value_3", updatable = true, nullable = true)
   private Double variationValue3;
 
-  @Column(name = "variation_value_4", updatable = true, nullable = true)
   private Double variationValue4;
 
-  @Column(name = "variation_value_5", updatable = true, nullable = true)
   private Double variationValue5;
 
-  @Column(name = "url", updatable = true, nullable = true, length = 2000)
   private String url;
 
-  @OneToMany(mappedBy = "measure", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
   private List<MeasureData> measureData = new ArrayList<MeasureData>();
 
-  @Column(name = "characteristic_id", nullable = true)
   private Integer characteristicId;
 
-  @Column(name = "person_id", updatable = true, nullable = true)
   private Integer personId;
 
   public Long getId() {
@@ -395,7 +361,7 @@ public class MeasureModel implements Cloneable {
   /**
    * Use setData() instead
    */
-  //@Deprecated
+  // @Deprecated
   public void setMeasureData(MeasureData data) {
     measureData.clear();
     if (data != null) {
@@ -480,19 +446,11 @@ public class MeasureModel implements Cloneable {
    * Saves the current object to database
    *
    * @return the current object
+   * @deprecated since 4.4 We don't use Hibernate anymore. See {@link MeasureMapper}.
    */
+  @Deprecated
   public MeasureModel save(DatabaseSession session) {
-    MeasureData data = getMeasureData();
-    setMeasureData(null);
-    session.save(this);
-
-    if (data != null) {
-      data.setMeasure(session.getEntity(MeasureModel.class, getId()));
-      data.setSnapshotId(snapshotId);
-      session.save(data);
-      setMeasureData(data);
-    }
-    return this;
+    throw new UnsupportedOperationException();
   }
 
   public Integer getCharacteristicId() {
