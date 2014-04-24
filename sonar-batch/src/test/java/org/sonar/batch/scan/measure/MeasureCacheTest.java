@@ -72,6 +72,7 @@ public class MeasureCacheTest {
     Measure m = new Measure(CoreMetrics.NCLOC, 1.0);
     cache.put(p, m);
 
+    assertThat(cache.contains(p, m)).isTrue();
     assertThat(cache.entries()).hasSize(1);
     Iterator<Entry<Measure>> iterator = cache.entries().iterator();
     iterator.hasNext();

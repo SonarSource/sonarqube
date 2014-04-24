@@ -54,6 +54,12 @@ public class MeasureCache implements BatchComponent {
     return this;
   }
 
+  public boolean contains(Resource resource, Measure measure) {
+    Preconditions.checkNotNull(resource.getEffectiveKey());
+    Preconditions.checkNotNull(measure.getMetricKey());
+    return cache.containsKey(resource.getEffectiveKey(), computeMeasureKey(measure));
+  }
+
   private static String computeMeasureKey(Measure m) {
     StringBuilder sb = new StringBuilder();
     if (m.getMetricKey() != null) {

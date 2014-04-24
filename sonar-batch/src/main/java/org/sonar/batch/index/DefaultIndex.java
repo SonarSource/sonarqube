@@ -31,6 +31,7 @@ import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.design.Dependency;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.MeasuresFilters;
@@ -188,9 +189,6 @@ public class DefaultIndex extends SonarIndex {
     return filter.filter(unfiltered);
   }
 
-  /**
-   * the measure is updated if it's already registered.
-   */
   @Override
   public Measure addMeasure(Resource resource, Measure measure) {
     Bucket bucket = getBucket(resource);
@@ -200,9 +198,24 @@ public class DefaultIndex extends SonarIndex {
         throw new SonarException("Unknown metric: " + measure.getMetricKey());
       }
       measure.setMetric(metric);
+      if (measureCache.contains(resource, measure)
+        // Hack for SONAR-5212
+        && !measure.getMetric().equals(CoreMetrics.TESTS)) {
+        throw new SonarException("Can not add twice the same measure on " + resource + ": " + measure);
+      }
       measureCache.put(resource, measure);
     }
     return measure;
+  }
+
+  /**
+   * Used by some core features like TendencyDecorator, QualityGateVerifier that need to update some existing measures
+   */
+  public void updateMeasure(Resource resource, Measure measure) {
+    if (!measureCache.contains(resource, measure)) {
+      throw new SonarException("Can't update measure on " + resource + ": " + measure);
+    }
+    measureCache.put(resource, measure);
   }
 
   //
