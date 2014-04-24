@@ -35,12 +35,9 @@ import org.apache.maven.shared.dependency.tree.DependencyTreeBuilder;
 import org.sonar.runner.api.EmbeddedRunner;
 import org.sonar.runner.api.RunnerProperties;
 import org.sonar.runner.api.ScanProperties;
-import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
-import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Properties;
 
 /**
  * @goal sonar
@@ -129,13 +126,6 @@ public final class SonarMojo extends AbstractMojo {
    */
   RuntimeInformation runtimeInformation;
 
-  /**
-   * Plexus component for the SecDispatcher
-   * @component role="org.sonatype.plexus.components.sec.dispatcher.SecDispatcher"
-   * @required  
-   */
-  private SecDispatcher securityDispatcher;
-
   @Override
   public void execute() throws MojoExecutionException {
     ArtifactVersion mavenVersion = getMavenVersion();
@@ -180,8 +170,6 @@ public final class SonarMojo extends AbstractMojo {
       if (getLog().isDebugEnabled()) {
         runner.setProperty("sonar.verbose", "true");
       }
-      // Replace all properties by decrypted ones if applicable
-      runner.addProperties(decryptProperties(runner.properties()));
       runner.execute();
     } catch (Exception e) {
       throw ExceptionHandling.handle(e, getLog());
@@ -227,26 +215,4 @@ public final class SonarMojo extends AbstractMojo {
     return null;
   }
 
-  public Properties decryptProperties(Properties properties) {
-    Properties newProperties = new Properties();
-    try {
-      for (String key : properties.stringPropertyNames()) {
-        if (key.contains(".password")) {
-          decrypt(properties, newProperties, key);
-        }
-      }
-    } catch (Exception e) {
-      getLog().warn("Unable to decrypt properties", e);
-    }
-    return newProperties;
-  }
-
-  private void decrypt(Properties properties, Properties newProperties, String key) {
-    try {
-      String decrypted = securityDispatcher.decrypt(properties.getProperty(key));
-      newProperties.setProperty(key, decrypted);
-    } catch (SecDispatcherException e) {
-      getLog().warn("Unable to decrypt property " + key, e);
-    }
-  }
 }
