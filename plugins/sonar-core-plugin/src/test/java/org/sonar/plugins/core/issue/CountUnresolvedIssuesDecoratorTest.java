@@ -92,9 +92,9 @@ public class CountUnresolvedIssuesDecoratorTest {
     ruleB1 = Rule.create().setRepositoryKey("ruleB1").setKey("ruleB1").setName("nameB1");
 
     ruleFinder = mock(RuleFinder.class);
-    when(ruleFinder.findByKey(ruleA1.getRepositoryKey(), ruleA1.getKey())).thenReturn(ruleA1);
-    when(ruleFinder.findByKey(ruleA2.getRepositoryKey(), ruleA2.getKey())).thenReturn(ruleA2);
-    when(ruleFinder.findByKey(ruleB1.getRepositoryKey(), ruleB1.getKey())).thenReturn(ruleB1);
+    when(ruleFinder.findByKey(ruleA1.ruleKey())).thenReturn(ruleA1);
+    when(ruleFinder.findByKey(ruleA2.ruleKey())).thenReturn(ruleA2);
+    when(ruleFinder.findByKey(ruleB1.ruleKey())).thenReturn(ruleB1);
 
     rightNow = new Date();
     tenDaysAgo = DateUtils.addDays(rightNow, -10);
