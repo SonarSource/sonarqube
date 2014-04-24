@@ -2201,6 +2201,12 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_GENERAL)
     .create();
 
+  public static final String QUALITY_GATE_DETAILS_KEY = "quality_gate_details";
+  public static final Metric QUALITY_GATE_DETAILS = new Metric.Builder(QUALITY_GATE_DETAILS_KEY, "Quality Gate Details", Metric.ValueType.DATA)
+    .setDescription("The project detailed status with regard to its quality gate.")
+    .setDomain(DOMAIN_GENERAL)
+    .create();
+
   public static final String PROFILE_KEY = "profile";
   public static final Metric PROFILE = new Metric.Builder(PROFILE_KEY, "Profile", Metric.ValueType.DATA)
     .setDescription("Selected quality profile")

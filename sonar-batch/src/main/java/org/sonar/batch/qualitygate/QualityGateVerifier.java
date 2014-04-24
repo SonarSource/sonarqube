@@ -108,6 +108,7 @@ public class QualityGateVerifier implements Decorator {
 
   private void checkProjectConditions(Resource resource, DecoratorContext context) {
     Metric.Level globalLevel = Metric.Level.OK;
+    QualityGateDetails details = new QualityGateDetails();
     List<String> labels = Lists.newArrayList();
 
     for (ResolvedCondition condition : qualityGate.conditions()) {
@@ -115,9 +116,6 @@ public class QualityGateVerifier implements Decorator {
       if (measure != null) {
         Metric.Level level = ConditionUtils.getLevel(condition, measure);
 
-        /*
-         * This should probably be done only after migration from alerts
-         */
         measure.setAlertStatus(level);
         String text = getText(condition, level);
         if (!StringUtils.isBlank(text)) {
@@ -133,6 +131,8 @@ public class QualityGateVerifier implements Decorator {
         } else if (Metric.Level.ERROR == level) {
           globalLevel = Metric.Level.ERROR;
         }
+
+        details.addCondition(condition, level, ConditionUtils.getValue(condition, measure));
       }
     }
 
@@ -140,6 +140,12 @@ public class QualityGateVerifier implements Decorator {
     globalMeasure.setAlertStatus(globalLevel);
     globalMeasure.setAlertText(StringUtils.join(labels, ", "));
     context.saveMeasure(globalMeasure);
+
+    details.setLevel(globalLevel);
+    Measure detailsMeasure = new Measure(CoreMetrics.QUALITY_GATE_DETAILS, details.toJson());
+    detailsMeasure.setAlertStatus(globalLevel);
+    context.saveMeasure(detailsMeasure);
+
   }
 
   private String getText(ResolvedCondition condition, Metric.Level level) {
@@ -175,10 +181,14 @@ public class QualityGateVerifier implements Decorator {
   private String alertValue(ResolvedCondition condition, Metric.Level level) {
     String value = level.equals(Metric.Level.ERROR) ? condition.errorThreshold() : condition.warningThreshold();
     if (condition.metric().getType().equals(Metric.ValueType.WORK_DUR)) {
-      return durations.format(Locale.ENGLISH, Duration.create(Long.parseLong(value)), Durations.DurationFormat.SHORT);
+      return formatDuration(value);
     } else {
       return value;
     }
+  }
+
+  private String formatDuration(String value) {
+    return durations.format(Locale.ENGLISH, Duration.create(Long.parseLong(value)), Durations.DurationFormat.SHORT);
   }
 
   private String operatorLabel(String operator) {

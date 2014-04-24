@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.qualitygate;
 
+import org.sonar.api.measures.Metric.Level;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.NotImplementedException;
@@ -46,14 +48,8 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 public class QualityGateVerifierTest {
 
@@ -132,9 +128,16 @@ public class QualityGateVerifierTest {
 
     verifier.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.ALERT_STATUS, Metric.Level.OK.toString())));
     verify(index).updateMeasure(eq(project), argThat(hasLevel(measureClasses, Metric.Level.OK)));
     verify(index).updateMeasure(eq(project), argThat(hasLevel(measureCoverage, Metric.Level.OK)));
+    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.ALERT_STATUS, Metric.Level.OK.toString())));
+    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.QUALITY_GATE_DETAILS, "{\"level\":\"OK\","
+      + "\"conditions\":"
+      + "["
+      + "{\"metric\":\"classes\",\"op\":\"GT\",\"warning\":\"20\",\"actual\":\"20.0\",\"level\":\"OK\"},"
+      + "{\"metric\":\"coverage\",\"op\":\"GT\",\"warning\":\"35.0\",\"actual\":\"35.0\",\"level\":\"OK\"}"
+      + "]"
+      + "}")));
   }
 
   @Test
@@ -394,12 +397,20 @@ public class QualityGateVerifierTest {
     when(i18n.message(any(Locale.class), eq("metric.tech_debt.name"), anyString())).thenReturn("The Debt");
     when(durations.format(any(Locale.class), eq(Duration.create(3600L)), eq(Durations.DurationFormat.SHORT))).thenReturn("1h");
 
-    when(context.getMeasure(metric)).thenReturn(new Measure(metric, 1800d));
-    ArrayList<ResolvedCondition> conditions = Lists.newArrayList(mockCondition(metric, QualityGateConditionDto.OPERATOR_LESS_THAN, "3600", null));
+    when(context.getMeasure(metric)).thenReturn(new Measure(metric, 7200d));
+    ArrayList<ResolvedCondition> conditions = Lists.newArrayList(mockCondition(metric, QualityGateConditionDto.OPERATOR_GREATER_THAN, "3600", null));
     when(qualityGate.conditions()).thenReturn(conditions);
     verifier.decorate(project, context);
 
-    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR, "The Debt < 1h")));
+    // First call to saveMeasure is for the update of debt
+    verify(index).updateMeasure(eq(project), argThat(matchesMetric(metric, Level.ERROR, "The Debt > 1h")));
+    verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR, "The Debt > 1h")));
+    verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.QUALITY_GATE_DETAILS, "{\"level\":\"ERROR\","
+        + "\"conditions\":"
+        + "["
+        + "{\"metric\":\"tech_debt\",\"op\":\"GT\",\"error\":\"3600\",\"actual\":\"7200.0\",\"level\":\"ERROR\"}"
+        + "]"
+        + "}")));
   }
 
   private ArgumentMatcher<Measure> matchesMetric(final Metric metric, final Metric.Level alertStatus, final String alertText) {

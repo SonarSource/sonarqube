@@ -178,22 +178,24 @@ class ConditionUtils {
     return metric.getType() == Metric.ValueType.WORK_DUR;
   }
 
-  private static Double getValue(ResolvedCondition condition, Measure measure) {
+  static Double getValue(ResolvedCondition condition, Measure measure) {
     Integer period = condition.period();
+    Double value;
     if (period == null) {
-      return measure.getValue();
+      value = measure.getValue();
     } else if (period == 1) {
-      return measure.getVariation1();
+      value = measure.getVariation1();
     } else if (period == 2) {
-      return measure.getVariation2();
+      value = measure.getVariation2();
     } else if (period == 3) {
-      return measure.getVariation3();
+      value = measure.getVariation3();
     } else if (period == 4) {
-      return measure.getVariation4();
+      value = measure.getVariation4();
     } else if (period == 5) {
-      return measure.getVariation5();
+      value = measure.getVariation5();
     } else {
       throw new IllegalStateException("Following index period is not allowed : " + Double.toString(period));
     }
+    return value;
   }
 }
