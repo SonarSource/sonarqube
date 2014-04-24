@@ -73,7 +73,7 @@ public class QProfilesMediumTest {
   }
 
   @Test
-  public void restore_default_profile_from_language() throws Exception {
+  public void restore_provided_profile_from_language() throws Exception {
     MockUserSession.set().setLogin("julien").setName("Julien").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     QProfiles qProfiles = serverTester.get(QProfiles.class);
@@ -91,11 +91,15 @@ public class QProfilesMediumTest {
     Rule rule2 = rules.find(RuleQuery.builder().searchQuery("x2").build()).results().iterator().next();
     qProfiles.deactivateRule(qProfiles.profile("Basic", "xoo").id(), rule2.id());
 
+    assertThat(qProfileBackup.findProvidedProfilesByLanguage("xoo")).hasSize(1);
+
     // Renamed profile
     qProfiles.renameProfile(profile.id(), "Old Basic");
 
+    assertThat(qProfileBackup.findProvidedProfilesByLanguage("xoo")).isEmpty();
+
     // Restore default profiles of xoo
-    qProfileBackup.restoreDefaultProfilesFromLanguage("xoo");
+    qProfileBackup.restoreProvidedProfilesFromLanguage("xoo");
 
     // Reload profile
     profile = qProfiles.profile("Basic", "xoo");

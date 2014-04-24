@@ -131,10 +131,10 @@ public class QProfileBackup implements ServerComponent {
   }
 
   /**
-   * Restore default profile for a given language.
+   * Restore provided profile for a given language.
    * If a profile with same name than default profile already exists, an exception will be thrown.
    */
-  public QProfileResult restoreDefaultProfilesFromLanguage(String language) {
+  public QProfileResult restoreProvidedProfilesFromLanguage(String language) {
     checkPermission(UserSession.get());
     QProfileResult result = new QProfileResult();
 
@@ -185,6 +185,21 @@ public class QProfileBackup implements ServerComponent {
         }
       }
     }
+  }
+
+  /**
+   * Return the list of existing profiles that match the provided ones for a given language
+   */
+  public List<QProfile> findProvidedProfilesByLanguage(String language) {
+    List<QProfile> profiles = newArrayList();
+    ListMultimap<String, RulesProfile> profilesByName = profilesByName(language, new QProfileResult());
+    for (RulesProfile rulesProfile : profilesByName.values()) {
+      QProfile profile = qProfileLookup.profile(rulesProfile.getName(), language);
+      if (profile != null) {
+        profiles.add(profile);
+      }
+    }
+    return profiles;
   }
 
   private void checkProfileDoesNotExists(RulesProfile importedProfile, boolean deleteExisting, DatabaseSession hibernateSession) {
