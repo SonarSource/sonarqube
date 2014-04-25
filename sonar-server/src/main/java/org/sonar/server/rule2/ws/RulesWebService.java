@@ -17,34 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.ws;
+package org.sonar.server.rule2.ws;
 
-import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.ws.WsTester;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+public class RulesWebService implements WebService {
 
+  private final SearchAction search;
+  private final ShowAction show;
 
-public class IssuesWsTest {
-
-  IssueShowWsHandler showHandler = mock(IssueShowWsHandler.class);
-  WsTester tester = new WsTester(new IssuesWs(showHandler));
-
-  @Test
-  public void define_ws() throws Exception {
-    WebService.Controller controller = tester.controller("api/issues");
-    assertThat(controller).isNotNull();
-    assertThat(controller.description()).isNotEmpty();
-
-    WebService.Action show = controller.action("show");
-    assertThat(show).isNotNull();
-    assertThat(show.handler()).isNotNull();
-    assertThat(show.since()).isEqualTo("4.2");
-    assertThat(show.isPost()).isFalse();
-    assertThat(show.isInternal()).isTrue();
-    assertThat(show.handler()).isSameAs(showHandler);
+  public RulesWebService(SearchAction search, ShowAction show) {
+    this.search = search;
+    this.show = show;
   }
 
+  @Override
+  public void define(Context context) {
+    NewController controller = context
+      .createController("api/rules2")
+      .setDescription("Coding rules")
+      .setSince("4.4");
+
+    search.define(controller);
+    show.define(controller);
+
+    controller.done();
+  }
 }

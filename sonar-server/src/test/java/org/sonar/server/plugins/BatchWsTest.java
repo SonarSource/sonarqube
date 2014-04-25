@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.platform.Server;
-import org.sonar.api.server.ws.WsTester;
+import org.sonar.server.ws.WsTester;
 
 import java.io.File;
 import java.io.IOException;

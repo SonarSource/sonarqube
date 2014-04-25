@@ -35,10 +35,10 @@ import java.util.Map;
 /**
  * Defines a web service. Note that contrary to the deprecated {@link org.sonar.api.web.Webservice}
  * the ws is fully implemented in Java and does not require any Ruby on Rails code.
- *
+ * <p/>
  * <p/>
  * The classes implementing this extension point must be declared in {@link org.sonar.api.SonarPlugin#getExtensions()}.
- *
+ * <p/>
  * <h3>How to use</h3>
  * <pre>
  * public class HelloWs implements WebService {
@@ -370,7 +370,9 @@ public interface WebService extends ServerExtension {
   }
 
   class NewParam {
-    private String key, description;
+    private String key, description, exampleValue;
+    private boolean required = false;
+    private String[] possibleValues = null;
 
     private NewParam(String key) {
       this.key = key;
@@ -378,6 +380,33 @@ public interface WebService extends ServerExtension {
 
     public NewParam setDescription(@Nullable String s) {
       this.description = s;
+      return this;
+    }
+
+    /**
+     * Is the parameter required or optional ? Default value is false (optional).
+     * @since 4.4
+     */
+    public NewParam setRequired(boolean b) {
+      this.required = b;
+      return this;
+    }
+
+    /**
+     * @since 4.4
+     */
+    public NewParam setExampleValue(@Nullable String s) {
+      this.exampleValue = s;
+      return this;
+    }
+
+    /**
+     * Exhaustive list of possible values when it makes sense, for example
+     * list of severities.
+     * @since 4.4
+     */
+    public NewParam setPossibleValues(@Nullable String... s) {
+      this.possibleValues = s;
       return this;
     }
 
@@ -389,11 +418,16 @@ public interface WebService extends ServerExtension {
 
   @Immutable
   class Param {
-    private final String key, description;
+    private final String key, description, exampleValue;
+    private final boolean required;
+    private final String[] possibleValues;
 
     public Param(NewParam newParam) {
       this.key = newParam.key;
       this.description = newParam.description;
+      this.exampleValue = newParam.exampleValue;
+      this.required = newParam.required;
+      this.possibleValues = (newParam.possibleValues == null ? new String[0] : newParam.possibleValues);
     }
 
     public String key() {
@@ -403,6 +437,29 @@ public interface WebService extends ServerExtension {
     @CheckForNull
     public String description() {
       return description;
+    }
+
+    /**
+     * @since 4.4
+     */
+    @CheckForNull
+    public String exampleValue() {
+      return exampleValue;
+    }
+
+    /**
+     * Is the parameter required or optional ?
+     * @since 4.4
+     */
+    public boolean isRequired() {
+      return required;
+    }
+
+    /**
+     * @since 4.4
+     */
+    public String[] possibleValues() {
+      return possibleValues;
     }
 
     @Override

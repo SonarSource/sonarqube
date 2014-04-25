@@ -31,7 +31,7 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
-import org.sonar.api.server.ws.WsTester;
+import org.sonar.server.ws.WsTester;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.server.qualitygate.QualityGates;
 
