@@ -28,12 +28,14 @@ import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.server.search.BaseIndex;
 import static org.fest.assertions.Assertions.assertThat;
 
+@Ignore
 public class BaseIndexTest {
 
   private static final String TEST_NODE_NAME = "es_node_for_tests";
