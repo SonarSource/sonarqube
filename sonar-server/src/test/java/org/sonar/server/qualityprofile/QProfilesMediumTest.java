@@ -31,6 +31,7 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.paging.Paging;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleQuery;
@@ -42,6 +43,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class QProfilesMediumTest {
 
@@ -118,6 +120,22 @@ public class QProfilesMediumTest {
 
     // Verify rule x2
     assertThat(qProfiles.searchProfileRules(ProfileRuleQuery.create(profile.id()).setNameOrKey("x2"), Paging.create(10, 1)).rules().get(0)).isNotNull();
+  }
+
+  @Test
+  public void fail_to_restore_provided_profile_from_language_if_default_profile_already_exists() throws Exception {
+    MockUserSession.set().setLogin("julien").setName("Julien").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+
+    QProfileBackup qProfileBackup = serverTester.get(QProfileBackup.class);
+
+    try {
+      // Restore default profiles of xoo -> fail as it already exists
+      qProfileBackup.restoreDefaultProfilesByLanguage("xoo");
+      fail();
+    } catch (BadRequestException e) {
+      assertThat(e.l10nKey()).isEqualTo("quality_profiles.profile_x_already_exists");
+      assertThat(e.l10nParams()).containsOnly("Basic");
+    }
   }
 
   public static class XooProfileDefinition extends ProfileDefinition {
