@@ -132,7 +132,6 @@ public class QualityGateVerifier implements Decorator {
 
     details.setLevel(globalLevel);
     Measure detailsMeasure = new Measure(CoreMetrics.QUALITY_GATE_DETAILS, details.toJson());
-    detailsMeasure.setAlertStatus(globalLevel);
     context.saveMeasure(detailsMeasure);
 
   }
