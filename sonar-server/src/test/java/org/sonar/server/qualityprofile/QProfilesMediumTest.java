@@ -62,14 +62,21 @@ public class QProfilesMediumTest {
 
     assertThat(qProfiles.searchProfileRules(ProfileRuleQuery.create(profile.id()), Paging.create(10, 1)).rules()).hasSize(2);
 
-    QProfileRule qProfileRule = qProfiles.searchProfileRules(ProfileRuleQuery.create(profile.id()).setNameOrKey("x1"), Paging.create(10, 1)).rules().get(0);
-    assertThat(qProfileRule.key()).isEqualTo("x1");
-    assertThat(qProfileRule.severity()).isEqualTo("MAJOR");
-    assertThat(qProfileRule.params()).hasSize(1);
+    // Rule x1
+    QProfileRule qProfileRule1 = qProfiles.searchProfileRules(ProfileRuleQuery.create(profile.id()).setNameOrKey("x1"), Paging.create(10, 1)).rules().get(0);
+    assertThat(qProfileRule1.key()).isEqualTo("x1");
+    assertThat(qProfileRule1.severity()).isEqualTo("MAJOR");
+    assertThat(qProfileRule1.params()).hasSize(1);
 
-    QProfileRuleParam qProfileRuleParam = qProfileRule.params().get(0);
-    assertThat(qProfileRuleParam.key()).isEqualTo("acceptWhitespace");
-    assertThat(qProfileRuleParam.value()).isEqualTo("true");
+    QProfileRuleParam qProfileRule1Param = qProfileRule1.params().get(0);
+    assertThat(qProfileRule1Param.key()).isEqualTo("acceptWhitespace");
+    assertThat(qProfileRule1Param.value()).isEqualTo("true");
+
+    // Rule x2
+    QProfileRule qProfileRule2 = qProfiles.searchProfileRules(ProfileRuleQuery.create(profile.id()).setNameOrKey("x2"), Paging.create(10, 1)).rules().get(0);
+    assertThat(qProfileRule2.key()).isEqualTo("x2");
+    assertThat(qProfileRule2.severity()).isEqualTo("BLOCKER");
+    assertThat(qProfileRule2.params()).isEmpty();
   }
 
   @Test
@@ -91,12 +98,12 @@ public class QProfilesMediumTest {
     Rule rule2 = rules.find(RuleQuery.builder().searchQuery("x2").build()).results().iterator().next();
     qProfiles.deactivateRule(qProfiles.profile("Basic", "xoo").id(), rule2.id());
 
-    assertThat(qProfileBackup.findProvidedProfilesByLanguage("xoo")).hasSize(1);
+    assertThat(qProfileBackup.findExistingProvidedProfileNamesByLanguage("xoo")).hasSize(1);
 
     // Renamed profile
     qProfiles.renameProfile(profile.id(), "Old Basic");
 
-    assertThat(qProfileBackup.findProvidedProfilesByLanguage("xoo")).isEmpty();
+    assertThat(qProfileBackup.findExistingProvidedProfileNamesByLanguage("xoo")).isEmpty();
 
     // Restore default profiles of xoo
     qProfileBackup.restoreProvidedProfilesFromLanguage("xoo");

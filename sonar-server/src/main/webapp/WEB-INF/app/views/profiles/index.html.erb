@@ -27,6 +27,13 @@
              class="open-modal link-action"><%= message('create') -%></a>
         </li>
       </ul>
+      <ul style="float: right" class="horizontal">
+        <li class="marginleft10">
+          <i class="icon-plus"></i>
+          <a id="create-link-<%= language.getKey() -%>" href="<%= ApplicationController.root_context -%>/profiles/restore_default_form?language=<%= u language.getKey() -%>"
+             class="open-modal link-action"><%= message('quality_profiles.restore_default_profiles') -%></a>
+        </li>
+      </ul>
     <% end %>
     <h2><%= message('quality_profiles.x_language_profiles', :params => language.getName()) -%></h2>
   </div>

@@ -43,12 +43,10 @@ import org.sonar.server.user.UserSession;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
 
 /**
  * Used through ruby code <pre>Internal.profile_backup</pre>
@@ -188,16 +186,28 @@ public class QProfileBackup implements ServerComponent {
   }
 
   /**
-   * Return the list of existing profiles that match the provided ones for a given language
+   * Return the list of existing profile names that match the provided ones for a given language
    */
-  public List<QProfile> findProvidedProfilesByLanguage(String language) {
-    List<QProfile> profiles = newArrayList();
+  public Collection<String> findExistingProvidedProfileNamesByLanguage(String language) {
+    Set<String> profiles = newHashSet();
     ListMultimap<String, RulesProfile> profilesByName = profilesByName(language, new QProfileResult());
     for (RulesProfile rulesProfile : profilesByName.values()) {
       QProfile profile = qProfileLookup.profile(rulesProfile.getName(), language);
       if (profile != null) {
-        profiles.add(profile);
+        profiles.add(profile.name());
       }
+    }
+    return profiles;
+  }
+
+  /**
+   * Return the list of provided profile names for a given language
+   */
+  public Collection<String> findProvidedProfileNamesByLanguage(String language) {
+    Set<String> profiles = newHashSet();
+    ListMultimap<String, RulesProfile> profilesByName = profilesByName(language, new QProfileResult());
+    for (RulesProfile rulesProfile : profilesByName.values()) {
+      profiles.add(rulesProfile.getName());
     }
     return profiles;
   }

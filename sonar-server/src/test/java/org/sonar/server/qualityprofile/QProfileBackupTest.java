@@ -50,6 +50,7 @@ import org.sonar.server.user.UserSession;
 
 import java.io.Reader;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -369,7 +370,30 @@ public class QProfileBackupTest {
   }
 
   @Test
-  public void find_provided_profiles_by_language() throws Exception {
+  public void find_existing_provided_profiles_by_language() throws Exception {
+    RulesProfile rulesProfile1 = RulesProfile.create("Basic", "java");
+    ProfileDefinition profileDefinition1 = mock(ProfileDefinition.class);
+    when(profileDefinition1.createProfile(any(ValidationMessages.class))).thenReturn(rulesProfile1);
+    definitions.add(profileDefinition1);
+
+    RulesProfile rulesProfile2 = RulesProfile.create("Basic", "java");
+    ProfileDefinition profileDefinition2 = mock(ProfileDefinition.class);
+    when(profileDefinition2.createProfile(any(ValidationMessages.class))).thenReturn(rulesProfile2);
+    definitions.add(profileDefinition2);
+
+    RulesProfile rulesProfile3 = RulesProfile.create("Default", "java");
+    ProfileDefinition profileDefinition3 = mock(ProfileDefinition.class);
+    when(profileDefinition3.createProfile(any(ValidationMessages.class))).thenReturn(rulesProfile3);
+    definitions.add(profileDefinition3);
+
+    // Only basic profile is existing
+    when(qProfileLookup.profile("Basic", "java")).thenReturn(new QProfile().setId(1).setName("Basic").setLanguage("java"));
+
+    assertThat(backup.findExistingProvidedProfileNamesByLanguage("java")).containsOnly("Basic");
+  }
+
+  @Test
+  public void find_provided_profile_names_by_language() throws Exception {
     RulesProfile rulesProfile1 = RulesProfile.create("Basic", "java");
     ProfileDefinition profileDefinition1 = mock(ProfileDefinition.class);
     when(profileDefinition1.createProfile(any(ValidationMessages.class))).thenReturn(rulesProfile1);
@@ -380,10 +404,12 @@ public class QProfileBackupTest {
     when(profileDefinition2.createProfile(any(ValidationMessages.class))).thenReturn(rulesProfile2);
     definitions.add(profileDefinition2);
 
-    // Only basic profile is existing
-    when(qProfileLookup.profile("Basic", "java")).thenReturn(new QProfile().setId(1));
+    RulesProfile rulesProfile3 = RulesProfile.create("Default", "java");
+    ProfileDefinition profileDefinition3 = mock(ProfileDefinition.class);
+    when(profileDefinition3.createProfile(any(ValidationMessages.class))).thenReturn(rulesProfile3);
+    definitions.add(profileDefinition3);
 
-    List<QProfile> result = backup.findProvidedProfilesByLanguage("java");
-    assertThat(result).hasSize(1);
+    Collection<String> result = backup.findProvidedProfileNamesByLanguage("java");
+    assertThat(result).containsOnly("Basic", "Default");
   }
 }
