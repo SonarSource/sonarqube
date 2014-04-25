@@ -104,7 +104,6 @@ define(['backbone', 'backbone.marionette', 'common/handlebars-extensions'], func
 
     focus: function() {
       this.render();
-//      this.showDetails();
     },
 
 

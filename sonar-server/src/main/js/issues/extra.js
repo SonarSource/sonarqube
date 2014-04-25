@@ -424,6 +424,26 @@ define(
       });
 
 
+
+      var IssuesFavoriteFilterView = FavoriteFiltersModule.FavoriteFilterView.extend({
+
+        initialize: function () {
+          BaseFilters.BaseFilterView.prototype.initialize.call(this, {
+            detailsView: IssuesDetailsFavoriteFilterView
+          });
+
+          this.listenTo(window.SS.appState, 'change:favorites', this.updateFavorites);
+        },
+
+
+        updateFavorites: function () {
+          this.model.set('choices', window.SS.appState.get('favorites'));
+          this.render();
+        }
+      });
+
+
+
       var IssuesFilterBarView = FilterBarView.extend({
 
         collectionEvents: {
@@ -599,24 +619,6 @@ define(
               return item.name.toLowerCase();
             })
           });
-        }
-      });
-
-
-      var IssuesFavoriteFilterView = FavoriteFiltersModule.FavoriteFilterView.extend({
-
-        initialize: function () {
-          BaseFilters.BaseFilterView.prototype.initialize.call(this, {
-            detailsView: IssuesDetailsFavoriteFilterView
-          });
-
-          this.listenTo(window.SS.appState, 'change:favorites', this.updateFavorites);
-        },
-
-
-        updateFavorites: function () {
-          this.model.set('choices', window.SS.appState.get('favorites'));
-          this.render();
         }
       });
 

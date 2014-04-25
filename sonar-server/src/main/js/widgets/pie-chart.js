@@ -259,7 +259,23 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
     // Configure events
-    var enterHandler = function(sector, d, i, showDetails) {
+    var updateMetrics = function(metrics) {
+          widget.detailsMetrics = widget.detailsWrap.selectAll('.details-metric')
+              .data(metrics);
+
+          widget.detailsMetrics.enter().append('text')
+              .classed('details-metric', true)
+              .classed('details-metric-main', function(d, i) { return i === 0; })
+              .attr('transform', function(d, i) { return trans(10, i * widget._lineHeight); })
+              .attr('dy', '1.2em');
+
+          widget.detailsMetrics
+              .text(function(d) { return d.name + (d.value ? ': ' + d.value : ''); })
+              .style('opacity', 1);
+
+          widget.detailsMetrics.exit().remove();
+        },
+        enterHandler = function(sector, d, i, showDetails) {
           if (showDetails) {
             var metrics = widget.metricsPriority().map(function(m) {
               return {
@@ -323,24 +339,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
             default:
               window.location = widget.options().baseUrl + encodeURIComponent(d.key);
           }
-        },
-
-        updateMetrics = function(metrics) {
-
-          widget.detailsMetrics = widget.detailsWrap.selectAll('.details-metric')
-              .data(metrics);
-
-          widget.detailsMetrics.enter().append('text')
-              .classed('details-metric', true)
-              .classed('details-metric-main', function(d, i) { return i === 0; })
-              .attr('transform', function(d, i) { return trans(10, i * widget._lineHeight); })
-              .attr('dy', '1.2em');
-
-          widget.detailsMetrics
-              .text(function(d) { return d.name + (d.value ? ': ' + d.value : ''); })
-              .style('opacity', 1);
-
-          widget.detailsMetrics.exit().remove();
         };
 
     this.sectors

@@ -181,8 +181,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     // Update scales
     var xDomain = d3.extent(this.components(), function(d) {
           return widget.getMainMetric(d);
-        }),
-        metric = this.metrics()[this.mainMetric];
+        });
 
     if (!this.options().relativeScale) {
       if (this.metrics()[this.mainMetric].type === 'PERCENT') {
