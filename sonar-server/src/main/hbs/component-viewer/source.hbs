@@ -6,7 +6,7 @@
       <th class="stat"></th>
     {{/if}}
     <th class="stat settings-toggle">
-      <button class="button-clean">
+      <button class="button-clean js-toggle-settings">
         <i class="icon-settings"></i></i>
       </button>
     </th>
@@ -35,6 +35,67 @@
       </ul>
 
       {{qualifierIcon component.qualifier}} <span class="component-viewer-title">{{component.name}}</span>
+    </th>
+  </tr>
+  <tr>
+    {{#if settings.coverage}}
+      <th class="stat"></th>
+      <th class="stat"></th>
+    {{/if}}
+    <th class="stat settings-toggle">
+      <button class="button-clean js-toggle-measures"><i class="icon-list"></i></button>
+    </th>
+    <th class="measures">
+      <ul class="component-viewer-measures">
+        <li class="component-viewer-measures-section brief">
+          <dl>
+            {{#each component.msr}}
+              <dt>{{t 'metric' key 'name'}}</dt><dd>{{frmt_val}}</dd>
+            {{/each}}
+          </dl>
+        </li>
+        {{#if settings.issues}}
+          <li class="component-viewer-measures-section brief">
+            {{#if component.issuesMeasures}}
+              {{#with component.issuesMeasures}}
+                <dl>
+                  <dt>Issues</dt>
+                  <dd>
+                    {{#if blocker_violations}}
+                      <i class="icon-severity-blocker"></i>{{blocker_violations}}&nbsp;
+                    {{/if}}
+                    {{#if critical_violations}}
+                      <i class="icon-severity-critical"></i>{{critical_violations}}&nbsp;
+                    {{/if}}
+                    {{#if major_violations}}
+                      <i class="icon-severity-major"></i>{{major_violations}}&nbsp;
+                    {{/if}}
+                    {{#if minor_violations}}
+                      <i class="icon-severity-minor"></i>{{minor_violations}}&nbsp;
+                    {{/if}}
+                    {{#if info_violations}}
+                      <i class="icon-severity-info"></i>{{info_violations}}&nbsp;
+                    {{/if}}
+                  </dd>
+                </dl>
+              {{/with}}
+            {{/if}}
+          </li>
+        {{/if}}
+        {{#if settings.coverage}}
+          <li class="component-viewer-measures-section brief">
+            {{#if component.coverageMeasures}}
+              <dl>
+                {{#each component.coverageMeasures}}
+                  <dt>{{t 'metric' key 'name'}}</dt><dd>{{frmt_val}}</dd>
+                {{/each}}
+              </dl>
+            {{/if}}
+          </li>
+        {{/if}}
+        <li class="component-viewer-measures-section">
+        </li>
+      </ul>
     </th>
   </tr>
   </thead>

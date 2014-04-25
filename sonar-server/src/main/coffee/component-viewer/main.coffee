@@ -16,6 +16,15 @@ define [
   API_SOURCES = "#{baseUrl}/api/sources"
   API_RESOURCES = "#{baseUrl}/api/resources"
 
+  SOURCE_METRIC_LIST = 'lines,ncloc,functions,accessors,classes,statements,complexity,function_complexity,' +
+                       'comment_lines_density,comment_lines,public_documented_api_density,public_undocumented_api,' +
+                       'public_api'
+
+  COVERAGE_METRIC_LIST = 'coverage,line_coverage,branch_coverage,' +
+                         'coverage_line_hits_data,covered_conditions_by_line,conditions_by_line'
+
+  ISSUES_METRIC_LIST = 'blocker_violations,critical_violations,major_violations,minor_violations,info_violations'
+
 
 
   class ComponentViewer extends Marionette.Layout
@@ -62,6 +71,14 @@ define [
         @component.set data[0]
 
 
+    requestComponentCoverage: (key) ->
+      $.get API_RESOURCES, resource: key, metrics: COVERAGE_METRIC_LIST
+
+
+    requestComponentIssues: (key) ->
+      $.get API_RESOURCES, resource: key, metrics: ISSUES_METRIC_LIST
+
+
     requestSource: (key) ->
       $.get API_SOURCES, resource: key, (data) =>
         @source.set source: data[0]
@@ -83,6 +100,16 @@ define [
         coverage: coverage
         coverageConditions: coverageConditions
         conditions: conditions
+      coverageMeasures = _.reject data[0].msr, (m) ->
+        m.key == 'coverage_line_hits_data' || m.key == 'covered_conditions_by_line' || m.key == 'conditions_by_line'
+      @component.set 'coverageMeasures', coverageMeasures
+
+
+    extractIssues: (data) ->
+      issuesMeasures = {}
+      data[0].msr.forEach (q) ->
+        issuesMeasures[q.key] = q.frmt_val
+      @component.set 'issuesMeasures', issuesMeasures
 
 
     open: (key) ->
@@ -94,7 +121,7 @@ define [
       @key = key
       @sourceView.showSpinner()
       source = @requestSource key
-      component = @requestComponent key
+      component = @requestComponent key, SOURCE_METRIC_LIST
       $.when(source, component).done =>
         @workspace.where(key: key).forEach (model) =>
           model.set 'component': @component.toJSON()
@@ -105,8 +132,7 @@ define [
     showCoverage: ->
       @settings.set 'coverage', true
       unless @source.has 'coverage'
-        metrics = 'coverage_line_hits_data,covered_conditions_by_line,conditions_by_line'
-        @requestComponent(@key, metrics).done (data) =>
+        @requestComponentCoverage(@key).done (data) =>
           @extractCoverage data
           @sourceView.render()
       else
@@ -130,6 +156,12 @@ define [
 
     showIssues: (issues) ->
       @settings.set 'issues', true
+
+      unless @source.has 'issues'
+        @requestComponentIssues(@key).done (data) =>
+          @extractIssues data
+          @sourceView.render()
+
       if _.isArray(issues) && issues.length > 0
         @source.set 'issues', issues
       @sourceView.render()

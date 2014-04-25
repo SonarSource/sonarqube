@@ -21,7 +21,8 @@ define [
 
 
     events:
-      'click .settings-toggle button': 'toggleSettings'
+      'click .js-toggle-settings': 'toggleSettings'
+      'click .js-toggle-measures': 'toggleMeasures'
       'change #source-coverage': 'toggleCoverage'
       'change #source-workspace': 'toggleWorkspace'
       'click .coverage-tests': 'showCoveragePopup'
@@ -51,6 +52,10 @@ define [
     toggleSettings: ->
       @$('.settings-toggle button').toggleClass 'open'
       @$('.component-viewer-source-settings').toggleClass 'open'
+
+
+    toggleMeasures: ->
+      @$('.component-viewer-measures-section').toggleClass 'brief'
 
 
     toggleCoverage: (e) ->

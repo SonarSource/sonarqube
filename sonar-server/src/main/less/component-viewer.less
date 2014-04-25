@@ -95,6 +95,7 @@
     }
 
     &.settings-toggle {
+      vertical-align: top;
       border-right: 1px solid @barBorderColor;
       text-align: center;
       white-space: nowrap;
@@ -127,11 +128,19 @@
 
   .sources2 .lid {
     min-width: 18px;
+    padding-left: 10px;
     padding-right: 10px;
   }
 
   .sources2 .coverage-tests {
     cursor: pointer;
+  }
+
+  .sources2 .measures {
+    padding: 4px 5px;
+    border-left: 1px solid @barBorderColor;
+    border-bottom: 1px solid @barBorderColor;
+    background-color: @barBackgroundColor;
   }
 
   .sources2 .issue pre {
@@ -170,6 +179,44 @@
     margin-right: 10px;
   }
 }
+
+
+.component-viewer-measures {
+  font-size: 0;
+}
+
+.component-viewer-measures-section {
+  display: inline-block;
+  vertical-align: top;
+  width: 25%;
+  max-width: 260px;
+  padding-right: 40px;
+  .box-sizing(border-box);
+  font-size: @baseFontSize;
+
+  &.brief {
+    dt { display: none; }
+    dt:first-of-type { display: block; }
+    dd { display: none; }
+    dd:first-of-type { display: block; }
+  }
+
+  &:not(.brief) {
+    padding-top: 3px;
+    padding-bottom: 3px;
+  }
+
+  dt {
+    float: left;
+    clear: left;
+  }
+
+  dd {
+    float: right;
+    font-weight: bold;
+  }
+}
+
 
 
 @popupArrowSize: 8px;

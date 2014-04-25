@@ -180,8 +180,11 @@ define(
                 componentViewer.open(that.model.get('component')).done(function() {
                   componentViewer.showIssues([that.model.toJSON()], true);
 
-                  var top = componentViewer.$('.code-issues:first').closest('tr').position().top;
-                  jQuery('.navigator-details').scrollTop(top - 40);
+                  var row = componentViewer.$('.code-issue:first').closest('.row');
+                  if (row.data('line-number') > 0) {
+                    var top = row.position().top;
+                    jQuery('.navigator-details').scrollTop(top - 40);
+                  }
                 });
               };
 
