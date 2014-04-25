@@ -27,16 +27,7 @@ import org.sonar.api.ServerExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 
 import javax.annotation.Nullable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
-import java.io.Serializable;
+import javax.persistence.*;
 
 /**
  * This class represents the definition of a metric in Sonar.
@@ -46,7 +37,7 @@ import java.io.Serializable;
 @Table(name = "metrics")
 @Entity(name = "Metric")
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public class Metric implements ServerExtension, BatchExtension, Serializable {
+public class Metric implements ServerExtension, BatchExtension {
 
   /**
    * A metric bigger value means a degradation
@@ -89,7 +80,7 @@ public class Metric implements ServerExtension, BatchExtension, Serializable {
   private Integer id;
 
   @Transient
-  private transient Formula formula;
+  private Formula formula;
 
   @Column(name = "name", updatable = false, nullable = false, length = 64)
   private String key;
@@ -215,7 +206,7 @@ public class Metric implements ServerExtension, BatchExtension, Serializable {
    */
   @Deprecated
   public Metric(String key, String name, String description, ValueType type, Integer direction, Boolean qualitative, @Nullable String domain,
-    boolean userManaged) {
+      boolean userManaged) {
     this.key = key;
     this.description = description;
     this.type = type;

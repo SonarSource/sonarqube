@@ -23,6 +23,8 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
+import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
@@ -36,13 +38,13 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
-import java.util.Arrays;
-
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class MeasurePersisterTest extends AbstractDaoTestCase {
@@ -61,28 +63,22 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
 
   MeasurePersister measurePersister;
   RuleFinder ruleFinder = mock(RuleFinder.class);
+  ResourcePersister resourcePersister = mock(ResourcePersister.class);
+  MemoryOptimizer memoryOptimizer = mock(MemoryOptimizer.class);
   Project project = new Project("foo");
   Directory aDirectory = new Directory("org/foo");
   File aFile = new File("org/foo/Bar.java");
   Snapshot projectSnapshot = snapshot(PROJECT_SNAPSHOT_ID);
   Snapshot packageSnapshot = snapshot(PACKAGE_SNAPSHOT_ID);
 
-  private SnapshotCache snapshotCache;
-
-  private MeasureCache measureCache;
-
   @Before
   public void mockResourcePersister() {
-    snapshotCache = mock(SnapshotCache.class);
-    measureCache = mock(MeasureCache.class);
-    ResourceCache resourceCache = mock(ResourceCache.class);
-    when(snapshotCache.get("foo")).thenReturn(projectSnapshot);
-    when(snapshotCache.get("foo:org/foo")).thenReturn(packageSnapshot);
-    when(resourceCache.get("foo")).thenReturn(project);
-    when(resourceCache.get("foo:org/foo/Bar.java")).thenReturn(aFile);
-    when(resourceCache.get("foo:org/foo")).thenReturn(aDirectory);
+    when(resourcePersister.getSnapshotOrFail(project)).thenReturn(projectSnapshot);
+    when(resourcePersister.getSnapshotOrFail(aDirectory)).thenReturn(packageSnapshot);
+    when(resourcePersister.getSnapshot(project)).thenReturn(projectSnapshot);
+    when(resourcePersister.getSnapshot(aDirectory)).thenReturn(packageSnapshot);
 
-    measurePersister = new MeasurePersister(getMyBatis(), ruleFinder, measureCache, snapshotCache, resourceCache);
+    measurePersister = new MeasurePersister(getMyBatis(), resourcePersister, ruleFinder, memoryOptimizer);
   }
 
   @Test
@@ -90,10 +86,11 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     setupData("empty");
 
     Measure measure = new Measure(ncloc()).setValue(1234.0);
-    when(measureCache.entries()).thenReturn(Arrays.asList(new Cache.Entry<Measure>(new String[] {"foo", "ncloc"}, measure)));
-    measurePersister.persist();
+    measurePersister.saveMeasure(project, measure);
 
     checkTables("shouldInsertMeasure", "project_measures");
+    verify(memoryOptimizer).evictDataMeasure(eq(measure), any(MeasureModel.class));
+    assertThat(measure.getId()).isNotNull();
   }
 
   @Test
@@ -101,12 +98,20 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     setupData("empty");
 
     Measure measure = new Measure(ncloc()).setValue(1234.0).setAlertText(TOO_LONG);
-    when(measureCache.entries()).thenReturn(Arrays.asList(new Cache.Entry<Measure>(new String[] {"foo", "ncloc"}, measure)));
 
     thrown.expect(SonarException.class);
     thrown.expectMessage("Unable to save measure for metric [ncloc] on component [foo]");
 
-    measurePersister.persist();
+    measurePersister.saveMeasure(project, measure);
+  }
+
+  @Test
+  public void should_reload_measure() {
+    Measure measure = new Measure(ncloc());
+
+    measurePersister.reloadMeasure(measure);
+
+    verify(memoryOptimizer).reloadMeasure(measure);
   }
 
   @Test
@@ -114,14 +119,13 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     setupData("empty");
 
     Rule rule = Rule.create("pmd", "key");
-    when(ruleFinder.findByKey(rule.ruleKey())).thenReturn(rule);
+    when(ruleFinder.findByKey("pmd", "key")).thenReturn(rule);
 
     Measure measure = new RuleMeasure(ncloc(), rule, RulePriority.MAJOR, 1).setValue(1234.0);
-    when(measureCache.entries()).thenReturn(Arrays.asList(new Cache.Entry<Measure>(new String[] {"foo", "ncloc"}, measure)));
-
-    measurePersister.persist();
+    measurePersister.saveMeasure(project, measure);
 
     checkTables("shouldInsertRuleMeasure", "project_measures");
+    assertThat(measure.getId()).isNotNull();
   }
 
   @Test
@@ -129,21 +133,21 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     setupData("empty");
 
     Measure withLargeData = new Measure(ncloc()).setData(LONG);
-    when(measureCache.entries()).thenReturn(Arrays.asList(new Cache.Entry<Measure>(new String[] {"foo", "ncloc"}, withLargeData)));
-
-    measurePersister.persist();
+    measurePersister.saveMeasure(project, withLargeData);
 
     checkTables("shouldInsertMeasureWithLargeData", "project_measures", "measure_data");
+
+    ArgumentCaptor<MeasureModel> validMeasureModel = ArgumentCaptor.forClass(MeasureModel.class);
+    verify(memoryOptimizer).evictDataMeasure(eq(withLargeData), validMeasureModel.capture());
+    assertThat(validMeasureModel.getValue().getMeasureData().getId()).isNotNull();
+    assertThat(withLargeData.getId()).isNotNull();
   }
 
   @Test
   public void should_not_save_best_values() {
     setupData("empty");
 
-    Measure measure = new Measure(coverage()).setValue(100.0);
-    when(measureCache.entries()).thenReturn(Arrays.asList(new Cache.Entry<Measure>(new String[] {"foo:org/foo/Bar.java", "coverage"}, measure)));
-
-    measurePersister.persist();
+    measurePersister.saveMeasure(aFile, new Measure(coverage()).setValue(100.0));
 
     assertEmptyTables("project_measures", "measure_data");
   }
@@ -152,10 +156,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
   public void should_not_save_memory_only_measures() {
     setupData("empty");
 
-    Measure measure = new Measure("ncloc").setPersistenceMode(PersistenceMode.MEMORY);
-    when(measureCache.entries()).thenReturn(Arrays.asList(new Cache.Entry<Measure>(new String[] {"foo:org/foo/Bar.java", "ncloc"}, measure)));
-
-    measurePersister.persist();
+    measurePersister.saveMeasure(aFile, new Measure("ncloc").setPersistenceMode(PersistenceMode.MEMORY));
 
     assertEmptyTables("project_measures", "measure_data");
   }
@@ -164,15 +165,88 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
   public void should_always_save_non_file_measures() {
     setupData("empty");
 
-    Measure measure1 = new Measure(ncloc()).setValue(200.0);
-    Measure measure2 = new Measure(ncloc()).setValue(300.0);
-    when(measureCache.entries()).thenReturn(Arrays.asList(
-      new Cache.Entry<Measure>(new String[] {"foo", "ncloc"}, measure1),
-      new Cache.Entry<Measure>(new String[] {"foo:org/foo", "ncloc"}, measure2)));
-
-    measurePersister.persist();
+    measurePersister.saveMeasure(project, new Measure(ncloc()).setValue(200.0));
+    measurePersister.saveMeasure(aDirectory, new Measure(ncloc()).setValue(300.0));
 
     checkTables("shouldAlwaysPersistNonFileMeasures", "project_measures");
+  }
+
+  @Test
+  public void should_update_measure() {
+    setupData("data");
+
+    measurePersister.saveMeasure(project, new Measure(coverage()).setValue(12.5).setId(1L));
+    measurePersister.saveMeasure(project, new Measure(coverage()).setData(SHORT).setId(2L));
+    measurePersister.saveMeasure(aDirectory, new Measure(coverage()).setData(LONG).setId(3L));
+
+    checkTables("shouldUpdateMeasure", "project_measures", "measure_data");
+  }
+
+  @Test
+  public void should_add_delayed_measure_several_times() {
+    setupData("empty");
+
+    Measure measure = new Measure(ncloc());
+
+    measurePersister.setDelayedMode(true);
+    measurePersister.saveMeasure(project, measure.setValue(200.0));
+    measurePersister.saveMeasure(project, measure.setValue(300.0));
+    measurePersister.dump();
+
+    checkTables("shouldAddDelayedMeasureSeveralTimes", "project_measures");
+  }
+
+  @Test
+  public void should_delay_saving() {
+    setupData("empty");
+
+    measurePersister.setDelayedMode(true);
+    measurePersister.saveMeasure(project, new Measure(ncloc()).setValue(1234.0).setData(SHORT));
+    measurePersister.saveMeasure(aDirectory, new Measure(ncloc()).setValue(50.0).setData(LONG));
+
+    assertEmptyTables("project_measures");
+
+    measurePersister.dump();
+    checkTables("shouldDelaySaving", "project_measures", "measure_data");
+  }
+
+  @Test
+  public void should_display_contextual_info_when_error_during_delay_saving() {
+    setupData("empty");
+
+    measurePersister.setDelayedMode(true);
+
+    measurePersister.saveMeasure(project, new Measure(ncloc()).setValue(1234.0).setData(SHORT).setAlertText(TOO_LONG));
+
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("Unable to save measure for metric [ncloc] on component [foo]");
+
+    measurePersister.dump();
+  }
+
+  @Test
+  public void should_not_delay_saving_with_database_only_measure() {
+    setupData("empty");
+
+    measurePersister.setDelayedMode(true);
+    measurePersister.saveMeasure(project, new Measure(ncloc()).setValue(1234.0).setPersistenceMode(PersistenceMode.DATABASE));
+    measurePersister.saveMeasure(aDirectory, new Measure(ncloc()).setValue(50.0));
+
+    checkTables("shouldInsertMeasure", "project_measures");
+  }
+
+  @Test
+  public void should_not_save_best_value_measures_in_delayed_mode() {
+    setupData("empty");
+
+    measurePersister.setDelayedMode(true);
+    measurePersister.saveMeasure(aFile, new Measure(coverage()).setValue(100.0));
+
+    assertEmptyTables("project_measures", "measure_data");
+
+    measurePersister.dump();
+
+    assertEmptyTables("project_measures", "measure_data");
   }
 
   @Test

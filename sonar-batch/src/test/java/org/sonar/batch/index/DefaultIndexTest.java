@@ -28,13 +28,7 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilters;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.Directory;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.Java;
-import org.sonar.api.resources.Library;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.*;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.Violation;
@@ -42,7 +36,6 @@ import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.batch.issue.ModuleIssues;
-import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.core.component.ScanGraph;
 
 import java.io.IOException;
@@ -75,8 +68,7 @@ public class DefaultIndexTest {
     ruleFinder = mock(RuleFinder.class);
 
     ProjectTree projectTree = mock(ProjectTree.class);
-    index = new DefaultIndex(mock(PersistenceManager.class), projectTree, metricFinder, mock(ScanGraph.class), deprecatedViolations, mock(ResourceKeyMigration.class),
-      mock(MeasureCache.class));
+    index = new DefaultIndex(mock(PersistenceManager.class), projectTree, metricFinder, mock(ScanGraph.class), deprecatedViolations, mock(ResourceKeyMigration.class));
 
     java.io.File baseDir = temp.newFolder();
     project = new Project("project");

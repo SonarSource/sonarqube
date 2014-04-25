@@ -26,7 +26,6 @@ import com.persistit.exception.PersistitException;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import javax.annotation.CheckForNull;
-
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Set;
@@ -220,6 +219,7 @@ public class Cache<V extends Serializable> {
     }
   }
 
+
   /**
    * Clears the default as well as all group caches.
    */
@@ -294,20 +294,6 @@ public class Cache<V extends Serializable> {
   }
 
   /**
-   * Lazy-loading values for given keys
-   */
-  public Iterable<V> values(Object firstKey, Object secondKey) {
-    try {
-      exchange.clear();
-      exchange.append(firstKey).append(secondKey).append(Key.BEFORE);
-      Exchange iteratorExchange = new Exchange(exchange);
-      return new ValueIterable<V>(iteratorExchange, false);
-    } catch (Exception e) {
-      throw new IllegalStateException("Fail to get values from cache " + name, e);
-    }
-  }
-
-  /**
    * Lazy-loading values for a given key
    */
   public Iterable<V> values(Object key) {
@@ -365,6 +351,7 @@ public class Cache<V extends Serializable> {
       exchange.append(o);
     }
   }
+
 
   //
   // LAZY ITERATORS AND ITERABLES

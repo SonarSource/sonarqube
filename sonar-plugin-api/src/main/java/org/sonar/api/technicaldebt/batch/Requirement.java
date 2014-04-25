@@ -24,7 +24,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.WorkUnit;
 import org.sonar.api.utils.internal.WorkDuration;
 
-import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -32,7 +31,7 @@ import java.util.Date;
  * @deprecated since 4.3
  */
 @Deprecated
-public interface Requirement extends Serializable {
+public interface Requirement {
 
   Integer id();
 

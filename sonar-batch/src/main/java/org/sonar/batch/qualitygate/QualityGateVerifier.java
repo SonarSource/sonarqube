@@ -23,11 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.Decorator;
-import org.sonar.api.batch.DecoratorBarriers;
-import org.sonar.api.batch.DecoratorContext;
-import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.batch.DependsUpon;
+import org.sonar.api.batch.*;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.CoreMetrics;
@@ -38,15 +34,10 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
-import org.sonar.batch.index.DefaultIndex;
 import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 import org.sonar.core.timemachine.Periods;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class QualityGateVerifier implements Decorator {
 
@@ -64,15 +55,13 @@ public class QualityGateVerifier implements Decorator {
   private Periods periods;
   private I18n i18n;
   private Durations durations;
-  private final DefaultIndex index;
 
-  public QualityGateVerifier(QualityGate qualityGate, Snapshot snapshot, Periods periods, I18n i18n, Durations durations, DefaultIndex index) {
+  public QualityGateVerifier(QualityGate qualityGate, Snapshot snapshot, Periods periods, I18n i18n, Durations durations) {
     this.qualityGate = qualityGate;
     this.snapshot = snapshot;
     this.periods = periods;
     this.i18n = i18n;
     this.durations = durations;
-    this.index = index;
   }
 
   @DependedUpon
@@ -88,7 +77,7 @@ public class QualityGateVerifier implements Decorator {
   @DependsUpon
   public Collection<Metric> dependsUponMetrics() {
     Set<Metric> metrics = Sets.newHashSet();
-    for (ResolvedCondition condition : qualityGate.conditions()) {
+    for (ResolvedCondition condition: qualityGate.conditions()) {
       metrics.add(condition.metric());
     }
     return metrics;
@@ -102,16 +91,16 @@ public class QualityGateVerifier implements Decorator {
   @Override
   public void decorate(Resource resource, DecoratorContext context) {
     if (ResourceUtils.isRootProject(resource)) {
-      checkProjectConditions(resource, context);
+      checkProjectConditions(context);
     }
   }
 
-  private void checkProjectConditions(Resource resource, DecoratorContext context) {
+  private void checkProjectConditions(DecoratorContext context) {
     Metric.Level globalLevel = Metric.Level.OK;
     QualityGateDetails details = new QualityGateDetails();
     List<String> labels = Lists.newArrayList();
 
-    for (ResolvedCondition condition : qualityGate.conditions()) {
+    for (ResolvedCondition condition: qualityGate.conditions()) {
       Measure measure = context.getMeasure(condition.metric());
       if (measure != null) {
         Metric.Level level = ConditionUtils.getLevel(condition, measure);
@@ -123,7 +112,7 @@ public class QualityGateVerifier implements Decorator {
           labels.add(text);
         }
 
-        index.updateMeasure(resource, measure);
+        context.saveMeasure(measure);
 
         if (Metric.Level.WARN == level && globalLevel != Metric.Level.ERROR) {
           globalLevel = Metric.Level.WARN;

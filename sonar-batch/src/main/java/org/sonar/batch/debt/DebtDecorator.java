@@ -48,7 +48,6 @@ import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -111,7 +110,7 @@ public final class DebtDecorator implements Decorator {
     for (Measure measure : context.getChildrenMeasures(MeasuresFilters.rules(CoreMetrics.TECHNICAL_DEBT))) {
       Long debt = measure.getValue().longValue();
       RuleMeasure ruleMeasure = (RuleMeasure) measure;
-      total += computeDebt(debt, ruleMeasure.ruleKey(), ruleDebts, characteristicDebts);
+      total += computeDebt(debt, ruleMeasure.getRule().ruleKey(), ruleDebts, characteristicDebts);
     }
 
     context.saveMeasure(CoreMetrics.TECHNICAL_DEBT, total.doubleValue());

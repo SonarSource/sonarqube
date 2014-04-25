@@ -116,6 +116,8 @@ public final class PhaseExecutor {
 
     executeInitializersPhase();
 
+    persistenceManager.setDelayedMode(true);
+
     if (phases.isEnabled(Phases.Phase.SENSOR)) {
       // Index and lock the filesystem
       fs.index();
@@ -132,6 +134,12 @@ public final class PhaseExecutor {
     if (phases.isEnabled(Phases.Phase.DECORATOR)) {
       decoratorsExecutor.execute();
     }
+
+    String saveMeasures = "Save measures";
+    eventBus.fireEvent(new BatchStepEvent(saveMeasures, true));
+    persistenceManager.dump();
+    eventBus.fireEvent(new BatchStepEvent(saveMeasures, false));
+    persistenceManager.setDelayedMode(false);
 
     if (module.isRoot()) {
       jsonReport.execute();
@@ -154,7 +162,6 @@ public final class PhaseExecutor {
       LOGGER.debug("Execute {}", persister.getClass().getName());
       persister.persist();
     }
-
     eventBus.fireEvent(new BatchStepEvent(persistersStep, false));
   }
 

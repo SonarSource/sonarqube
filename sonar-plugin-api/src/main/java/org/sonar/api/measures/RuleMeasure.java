@@ -22,7 +22,6 @@ package org.sonar.api.measures;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 
@@ -33,54 +32,24 @@ import javax.annotation.Nullable;
  */
 public class RuleMeasure extends Measure {
 
-  /**
-   * @deprecated since 4.4
-   */
-  @Deprecated
-  private transient Rule rule;
-  private RuleKey ruleKey;
+  private Rule rule;
   private RulePriority rulePriority;
 
   /**
    * This constructor is for internal use only. Please use static methods createForXXX().
-   * @deprecated since 4.4 use {@link #RuleMeasure(Metric, RuleKey, RulePriority, Integer)}
    */
-  @Deprecated
   public RuleMeasure(Metric metric, @Nullable Rule rule, @Nullable RulePriority rulePriority, @Nullable Integer ruleCategory) {
-    this(metric, rule.ruleKey(), rulePriority, ruleCategory);
-    this.rule = rule;
-  }
-
-  public RuleMeasure(Metric metric, @Nullable RuleKey ruleKey, @Nullable RulePriority rulePriority, @Nullable Integer ruleCategory) {
     super(metric);
-    this.ruleKey = ruleKey;
+    this.rule = rule;
     this.rulePriority = rulePriority;
   }
 
-  public RuleKey ruleKey() {
-    return ruleKey;
-  }
-
-  public RuleMeasure setRuleKey(RuleKey ruleKey) {
-    this.ruleKey = ruleKey;
-    return this;
-  }
-
-  /**
-   * @deprecated since 4.4 use {@link #ruleKey()}
-   */
-  @Deprecated
   public Rule getRule() {
     return rule;
   }
 
-  /**
-   * @deprecated since 4.4 use {@link #setRuleKey()}
-   */
-  @Deprecated
   public RuleMeasure setRule(Rule rule) {
     this.rule = rule;
-    this.ruleKey = rule.ruleKey();
     return this;
   }
 
@@ -146,10 +115,10 @@ public class RuleMeasure extends Measure {
     }
     RuleMeasure other = (RuleMeasure) obj;
     return new EqualsBuilder()
-      .append(getMetric(), other.getMetric())
-      .append(personId, other.personId)
-      .append(ruleKey, other.ruleKey)
-      .isEquals();
+        .append(getMetric(), other.getMetric())
+        .append(personId, other.personId)
+        .append(rule, other.rule)
+        .isEquals();
   }
 
   @Override
@@ -160,42 +129,35 @@ public class RuleMeasure extends Measure {
   @Override
   public int hashCode() {
     return new HashCodeBuilder(17, 37)
-      .append(getMetric())
-      .append(personId)
-      .append(ruleKey)
-      .toHashCode();
+        .append(getMetric())
+        .append(personId)
+        .append(rule)
+        .toHashCode();
   }
 
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-      .append("metric", metric)
-      .append("personId", personId)
-      .append("ruleKey", ruleKey)
-      .append("value", value)
-      .append("data", data)
-      .append("description", description)
-      .append("alertStatus", alertStatus)
-      .append("alertText", alertText)
-      .append("tendency", tendency)
-      .append("severity", rulePriority)
-      .toString();
+        .append("id", getId())
+        .append("metric", metric)
+        .append("personId", personId)
+        .append("rule", rule)
+        .append("value", value)
+        .append("data", data)
+        .append("description", description)
+        .append("alertStatus", alertStatus)
+        .append("alertText", alertText)
+        .append("tendency", tendency)
+        .append("severity", rulePriority)
+        .toString();
   }
 
-  /**
-   * @deprecated since 4.4 use {@link #createForRule(Metric, RuleKey, Double)}
-   */
-  @Deprecated
   public static RuleMeasure createForRule(Metric metric, Rule rule, @Nullable Double value) {
     return new RuleMeasure(metric, rule, null, null).setValue(value);
   }
 
-  public static RuleMeasure createForRule(Metric metric, RuleKey ruleKey, @Nullable Double value) {
-    return new RuleMeasure(metric, ruleKey, null, null).setValue(value);
-  }
-
   public static RuleMeasure createForPriority(Metric metric, RulePriority priority, @Nullable Double value) {
-    return new RuleMeasure(metric, (RuleKey) null, priority, null).setValue(value);
+    return new RuleMeasure(metric, null, priority, null).setValue(value);
   }
 
   /**
@@ -203,6 +165,6 @@ public class RuleMeasure extends Measure {
    */
   @Deprecated
   public static RuleMeasure createForCategory(Metric metric, Integer category, @Nullable Double value) {
-    return new RuleMeasure(metric, (RuleKey) null, null, category).setValue(value);
+    return new RuleMeasure(metric, null, null, category).setValue(value);
   }
 }
