@@ -46,7 +46,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class QProfilesMediumTest {
 
   @org.junit.Rule
-  public ServerTester serverTester = new ServerTester().addExtensions(XooRulesDefinition.class, XooProfileDefinition.class);
+  public ServerTester serverTester = new ServerTester().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
 
   @Test
   public void register_profile_at_startup() throws Exception {

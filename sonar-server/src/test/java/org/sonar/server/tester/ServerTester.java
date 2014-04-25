@@ -31,25 +31,33 @@ import java.util.Properties;
 /**
  * Entry point to implement medium tests of server components
  *
- * @since 4.3
+ * @since 4.4
  */
 public class ServerTester extends ExternalResource {
 
-  private File tempDir;
   private Platform platform;
+  private File tempDir;
+  private Object[] components;
 
-  private Object[] extensions;
-
+  /**
+   * Called only when JUnit @Rule or @ClassRule is used.
+   */
   @Override
   protected void before() {
-    tempDir = createTempDir();
+    start();
+  }
 
+  public void start() {
+    if (platform != null) {
+      throw new IllegalStateException("Already started");
+    }
+    tempDir = createTempDir();
     Properties properties = new Properties();
     properties.setProperty(CoreProperties.SONAR_HOME, tempDir.getAbsolutePath());
     properties.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:" + tempDir.getAbsolutePath() + "/h2");
     platform = new Platform();
     platform.init(properties);
-    platform.addExtensions(extensions);
+    platform.addExtensions(components);
     platform.doStart();
   }
 
@@ -65,15 +73,24 @@ public class ServerTester extends ExternalResource {
     }
   }
 
+  /**
+   * Called only when JUnit @Rule or @ClassRule is used.
+   */
   @Override
   protected void after() {
-    platform.doStop();
-    platform = null;
+    stop();
+  }
+
+  public void stop() {
+    if (platform != null) {
+      platform.doStop();
+      platform = null;
+    }
     FileUtils.deleteQuietly(tempDir);
   }
 
-  public ServerTester addExtensions(Object... extensions) {
-    this.extensions = extensions;
+  public ServerTester addComponents(Object... components) {
+    this.components = components;
     return this;
   }
 
