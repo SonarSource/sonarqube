@@ -19,9 +19,9 @@
  */
 package org.sonar.batch.qualitygate;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.inject.internal.util.Lists;
 import org.sonar.api.measures.Metric.Level;
 
 import java.util.List;
