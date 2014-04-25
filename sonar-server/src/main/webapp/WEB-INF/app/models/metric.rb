@@ -75,12 +75,12 @@ class Metric < ActiveRecord::Base
   # Localized domain name
   def self.domain_for(domain_key)
     return nil if domain_key.nil?
-    
+
     localeMap = Metric.i18n_domain_cache[domain_key]
     locale = I18n.locale
-    
+
     return localeMap[locale] if localeMap && localeMap.has_key?(locale)
-    
+
     i18n_key = 'metric_domain.' + domain_key
     result = Api::Utils.message(i18n_key, :default => domain_key)
     localeMap[locale] = result if localeMap
@@ -91,7 +91,7 @@ class Metric < ActiveRecord::Base
     m=by_key(metric_key)
     m && m.short_name
   end
- 
+
   def key
     name
   end
@@ -101,29 +101,29 @@ class Metric < ActiveRecord::Base
     return default_string unless translate
     Metric.domain_for(default_string)
   end
- 
+
   def domain=(value)
     write_attribute(:domain, value)
   end
- 
+
   def short_name(translate=true)
     default_string = read_attribute(:short_name)
     return default_string unless translate
-    
+
     metric_key = read_attribute(:name)
     return nil if metric_key.nil?
-    
+
     localeMap = Metric.i18n_short_name_cache[metric_key]
     locale = I18n.locale
-    
+
     return localeMap[locale] if localeMap && localeMap.has_key?(locale)
-    
+
     i18n_key = 'metric.' + metric_key + '.name'
     result = Api::Utils.message(i18n_key, :default => default_string)
     localeMap[locale] = result if localeMap
     result
   end
-  
+
   def short_name=(value)
     write_attribute(:short_name, value)
   end
@@ -133,15 +133,15 @@ class Metric < ActiveRecord::Base
     label = Api::Utils.message("metric.#{key}.name", :default => short_name) if label==''
     label
   end
- 
+
   def description(translate=true)
     default_string = read_attribute(:description) || ''
     return default_string unless translate
 
     metric_name = read_attribute(:name)
-      
+
     return nil if metric_name.nil?
-    
+
     i18n_key = 'metric.' + metric_name + '.description'
     result = Api::Utils.message(i18n_key, :default => default_string)
     result
@@ -150,7 +150,7 @@ class Metric < ActiveRecord::Base
   def description=(value)
     write_attribute(:description, value)
   end
- 
+
   def user_managed?
     user_managed==true
   end
@@ -170,7 +170,7 @@ class Metric < ActiveRecord::Base
   def quantitative?
     !qualitative?
   end
-  
+
   def qualitative?
     qualitative
   end
@@ -260,7 +260,7 @@ class Metric < ActiveRecord::Base
     ManualMeasure.delete_all(["metric_id = ?", id])
     self.deactivate(id)
   end
-  
+
   def self.deactivate(id)
     metric = by_id(id)
     metric.enabled = false
@@ -328,7 +328,7 @@ class Metric < ActiveRecord::Base
   DIRECTORIES = 'directories'
   ACCESSORS = 'accessors'
   PUBLIC_API = 'public_api'
-  
+
   COMPLEXITY = 'complexity'
   STATEMENTS = 'statements'
   AVG_CMPX_BY_CLASS = 'class_complexity'
@@ -353,7 +353,7 @@ class Metric < ActiveRecord::Base
   BRANCH_COVERAGE = 'branch_coverage'
   UNCOVERED_LINES='uncovered_lines'
   UNCOVERED_CONDITIONS='uncovered_conditions'
-  
+
   VIOLATIONS = 'violations'
   VIOLATIONS_DENSITY = 'violations_density'
   WEIGHTED_VIOLATIONS = 'weighted_violations'
@@ -376,6 +376,7 @@ class Metric < ActiveRecord::Base
   COMMENTED_OUT_CODE_LINES = 'commented_out_code_lines'
 
   ALERT_STATUS = 'alert_status'
+  QUALITY_GATE_DETAILS = 'quality_gate_details'
   PROFILE='profile'
 
   private
@@ -403,7 +404,7 @@ class Metric < ActiveRecord::Base
     end
     c
   end
-  
+
   def self.i18n_short_name_cache
     c = Caches.cache(I18N_SHORT_NAME_CACHE_KEY)
     if c.size==0
