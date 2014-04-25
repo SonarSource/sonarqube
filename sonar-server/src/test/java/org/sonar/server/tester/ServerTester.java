@@ -57,7 +57,7 @@ public class ServerTester extends ExternalResource {
     properties.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:" + tempDir.getAbsolutePath() + "/h2");
     platform = new Platform();
     platform.init(properties);
-    platform.addExtensions(components);
+    platform.addComponents(components);
     platform.doStart();
   }
 
@@ -90,6 +90,9 @@ public class ServerTester extends ExternalResource {
   }
 
   public ServerTester addComponents(Object... components) {
+    if (platform != null) {
+      throw new IllegalStateException("Already started");
+    }
     this.components = components;
     return this;
   }
@@ -103,4 +106,5 @@ public class ServerTester extends ExternalResource {
     }
     return platform.getContainer().getComponentByType(component);
   }
+
 }

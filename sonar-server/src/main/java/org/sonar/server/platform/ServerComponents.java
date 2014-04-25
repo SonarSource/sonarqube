@@ -131,7 +131,7 @@ import java.util.List;
 class ServerComponents {
 
   private final Object[] rootComponents;
-  private Object[] extensions;
+  private Object[] level4AddedComponents;
 
   ServerComponents(Object... rootComponents) {
     this.rootComponents = rootComponents;
@@ -393,9 +393,9 @@ class ServerComponents {
     pico.addSingleton(StringTypeValidation.class);
     pico.addSingleton(StringListTypeValidation.class);
 
-    if (extensions != null) {
-      for (Object extension : extensions) {
-        pico.addSingleton(extension);
+    if (level4AddedComponents != null) {
+      for (Object components : level4AddedComponents) {
+        pico.addSingleton(components);
       }
     }
 
@@ -406,8 +406,8 @@ class ServerComponents {
     executeStartupTaks(pico);
   }
 
-  void addExtensions(Object... extensions){
-    this.extensions = extensions;
+  void addComponents(Object... components){
+    this.level4AddedComponents = components;
   }
 
   private void executeStartupTaks(ComponentContainer pico) {
