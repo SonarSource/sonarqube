@@ -128,7 +128,7 @@ define [
       @render()
 
 
-    showIssues: (issues, scrollToFirst) ->
+    showIssues: (issues) ->
       @settings.set 'issues', true
       if _.isArray(issues) && issues.length > 0
         @source.set 'issues', issues
@@ -144,12 +144,5 @@ define [
       if optionsForCurrent?
         last = @workspace.at(@workspace.length - 1)
         last.set 'options', optionsForCurrent if last
-
-#      workspaceItem = @workspace.findWhere key: key
-#      if workspaceItem?
-#        @workspace.remove workspaceItem
-#        @workspace.add workspaceItem
-#      else
       @workspace.add key: key, transition: transition, options: options
-
       @_open key
