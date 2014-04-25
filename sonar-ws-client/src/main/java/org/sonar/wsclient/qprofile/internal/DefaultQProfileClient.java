@@ -18,28 +18,29 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.qualityprofile.ws;
+package org.sonar.wsclient.qprofile.internal;
 
-import org.sonar.api.server.ws.WebService;
+import org.json.simple.JSONValue;
+import org.sonar.wsclient.internal.HttpRequestFactory;
+import org.sonar.wsclient.qprofile.QProfileClient;
+import org.sonar.wsclient.qprofile.QProfileResult;
 
-public class QProfilesWs implements WebService {
+import java.util.Collections;
+import java.util.Map;
 
-  private final QProfileBackupWsHandler qProfileBackupWsHandler;
+public class DefaultQProfileClient implements QProfileClient {
 
-  public QProfilesWs(QProfileBackupWsHandler qProfileBackupWsHandler) {
-    this.qProfileBackupWsHandler = qProfileBackupWsHandler;
+  private final HttpRequestFactory requestFactory;
+
+  public DefaultQProfileClient(HttpRequestFactory requestFactory) {
+    this.requestFactory = requestFactory;
   }
 
   @Override
-  public void define(Context context) {
-    NewController controller = context.createController("api/qprofiles")
-      .setDescription("Quality profiles management");
-
-    controller.createAction("restore_default")
-      .setDescription("Restore default profiles")
-      .setSince("4.4")
-      .setHandler(qProfileBackupWsHandler)
-      .createParam("language", "Restore default profiles for this language");
-    controller.done();
+  public QProfileResult restoreDefault(String language) {
+    String json = requestFactory.post("/api/qprofiles/restore_default", Collections.singletonMap("language", (Object) language));
+    Map jsonRoot = (Map) JSONValue.parse(json);
+    return new DefaultQProfileResult(jsonRoot);
   }
+
 }

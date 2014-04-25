@@ -19,9 +19,6 @@
  */
 package org.sonar.wsclient;
 
-import org.sonar.wsclient.qualitygate.internal.DefaultQualityGateClient;
-
-import org.sonar.wsclient.qualitygate.QualityGateClient;
 import org.sonar.wsclient.internal.HttpRequestFactory;
 import org.sonar.wsclient.issue.ActionPlanClient;
 import org.sonar.wsclient.issue.IssueClient;
@@ -31,6 +28,10 @@ import org.sonar.wsclient.permissions.PermissionClient;
 import org.sonar.wsclient.permissions.internal.DefaultPermissionClient;
 import org.sonar.wsclient.project.ProjectClient;
 import org.sonar.wsclient.project.internal.DefaultProjectClient;
+import org.sonar.wsclient.qprofile.QProfileClient;
+import org.sonar.wsclient.qprofile.internal.DefaultQProfileClient;
+import org.sonar.wsclient.qualitygate.QualityGateClient;
+import org.sonar.wsclient.qualitygate.internal.DefaultQualityGateClient;
 import org.sonar.wsclient.rule.RuleClient;
 import org.sonar.wsclient.rule.RuleTagClient;
 import org.sonar.wsclient.rule.internal.DefaultRuleClient;
@@ -130,6 +131,14 @@ public class SonarClient {
   public QualityGateClient qualityGateClient() {
     return new DefaultQualityGateClient(requestFactory);
   }
+
+  /**
+   * New client to interact with web services related to quality profilesgates
+   */
+  public QProfileClient qProfileClient() {
+    return new DefaultQProfileClient(requestFactory);
+  }
+
 
   public SystemClient systemClient() {
     return new DefaultSystemClient(requestFactory);

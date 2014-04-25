@@ -238,7 +238,7 @@ public class QProfileOperations implements ServerComponent {
 
   private void checkNotAlreadyExists(String name, String language, SqlSession session) {
     if (dao.selectByNameAndLanguage(name, language, session) != null) {
-      throw BadRequestException.ofL10n("quality_profiles.already_exists");
+      throw BadRequestException.ofL10n("quality_profiles.profile_x_already_exists", name);
     }
   }
 

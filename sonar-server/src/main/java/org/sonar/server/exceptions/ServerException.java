@@ -22,16 +22,13 @@ package org.sonar.server.exceptions;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-
-import static com.google.common.collect.Lists.newArrayList;
+import java.util.Arrays;
 
 public class ServerException extends RuntimeException {
   private final int httpCode;
 
   private final String l10nKey;
-  private final Collection<Object> l10nParams;
+  private final Object[] l10nParams;
 
   public ServerException(int httpCode) {
     this.httpCode = httpCode;
@@ -50,7 +47,7 @@ public class ServerException extends RuntimeException {
     super(message);
     this.httpCode = httpCode;
     this.l10nKey = l10nKey;
-    this.l10nParams = l10nParams == null ? Collections.emptyList() : Collections.unmodifiableCollection(newArrayList(l10nParams));
+    this.l10nParams = l10nParams;
   }
 
   public int httpCode() {
@@ -63,7 +60,11 @@ public class ServerException extends RuntimeException {
   }
 
   @CheckForNull
-  public Collection<Object> l10nParams() {
-    return l10nParams;
+  public Object[] l10nParams() {
+    if (l10nParams == null) {
+      return new Object[0];
+    } else {
+      return Arrays.copyOf(l10nParams, l10nParams.length);
+    }
   }
 }

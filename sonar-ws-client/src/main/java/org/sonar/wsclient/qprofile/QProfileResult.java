@@ -18,28 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.qualityprofile.ws;
+package org.sonar.wsclient.qprofile;
 
-import org.sonar.api.server.ws.WebService;
+import java.util.List;
 
-public class QProfilesWs implements WebService {
+public interface QProfileResult {
 
-  private final QProfileBackupWsHandler qProfileBackupWsHandler;
+  List<String> infos();
 
-  public QProfilesWs(QProfileBackupWsHandler qProfileBackupWsHandler) {
-    this.qProfileBackupWsHandler = qProfileBackupWsHandler;
-  }
-
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController("api/qprofiles")
-      .setDescription("Quality profiles management");
-
-    controller.createAction("restore_default")
-      .setDescription("Restore default profiles")
-      .setSince("4.4")
-      .setHandler(qProfileBackupWsHandler)
-      .createParam("language", "Restore default profiles for this language");
-    controller.done();
-  }
+  List<String> warnings();
 }

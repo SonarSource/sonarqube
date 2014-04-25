@@ -18,28 +18,44 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.qualityprofile.ws;
+package org.sonar.wsclient.qprofile.internal;
 
-import org.sonar.api.server.ws.WebService;
+import org.sonar.wsclient.qprofile.QProfileResult;
 
-public class QProfilesWs implements WebService {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-  private final QProfileBackupWsHandler qProfileBackupWsHandler;
+public class DefaultQProfileResult implements QProfileResult {
 
-  public QProfilesWs(QProfileBackupWsHandler qProfileBackupWsHandler) {
-    this.qProfileBackupWsHandler = qProfileBackupWsHandler;
+  private Map json;
+
+  DefaultQProfileResult(Map json) {
+    this.json = json;
   }
 
   @Override
-  public void define(Context context) {
-    NewController controller = context.createController("api/qprofiles")
-      .setDescription("Quality profiles management");
-
-    controller.createAction("restore_default")
-      .setDescription("Restore default profiles")
-      .setSince("4.4")
-      .setHandler(qProfileBackupWsHandler)
-      .createParam("language", "Restore default profiles for this language");
-    controller.done();
+  public List<String> infos() {
+    List<String> infos = new ArrayList<String>();
+    List<String> jsonInfos = (List<String>) json.get("infos");
+    if (jsonInfos != null) {
+      for (String info : jsonInfos) {
+        infos.add(info);
+      }
+    }
+    return infos;
   }
+
+  @Override
+  public List<String> warnings() {
+    List<String> warnings = new ArrayList<String>();
+    List<String> jsonWarnings = (List<String>) json.get("warnings");
+    if (jsonWarnings != null) {
+      for (String warning : jsonWarnings) {
+        warnings.add(warning);
+      }
+    }
+    return warnings;
+  }
+
 }

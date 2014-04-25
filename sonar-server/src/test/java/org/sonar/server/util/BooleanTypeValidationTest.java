@@ -57,7 +57,7 @@ public class BooleanTypeValidationTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class);
       BadRequestException badRequestException = (BadRequestException) e;
-      assertThat(badRequestException.l10nParams().toArray()[0]).isEqualTo("abc");
+      assertThat(badRequestException.l10nParams()[0]).isEqualTo("abc");
     }
   }
 

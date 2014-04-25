@@ -104,6 +104,8 @@ import org.sonar.server.qualitygate.RegisterQualityGates;
 import org.sonar.server.qualitygate.ws.QgateAppHandler;
 import org.sonar.server.qualitygate.ws.QualityGatesWs;
 import org.sonar.server.qualityprofile.*;
+import org.sonar.server.qualityprofile.ws.QProfileBackupWsHandler;
+import org.sonar.server.qualityprofile.ws.QProfilesWs;
 import org.sonar.server.rule.*;
 import org.sonar.server.rule.ws.*;
 import org.sonar.server.source.CodeColorizers;
@@ -251,6 +253,8 @@ class ServerComponents {
     pico.addSingleton(QProfileBackup.class);
     pico.addSingleton(QProfileRepositoryExporter.class);
     pico.addSingleton(ESActiveRule.class);
+    pico.addSingleton(QProfileBackupWsHandler.class);
+    pico.addSingleton(QProfilesWs.class);
 
     // rule
     pico.addSingleton(AnnotationRuleParser.class);
