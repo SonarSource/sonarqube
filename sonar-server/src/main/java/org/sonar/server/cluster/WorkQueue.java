@@ -19,22 +19,19 @@
  */
 package org.sonar.server.cluster;
 
-import java.io.Serializable;
-
-
 public interface WorkQueue {
 
-  Integer enqueInsert(String indexName, Serializable key);
+  Integer enqueInsert(String indexName, Object key);
 
-  Integer enqueUpdate(String indexName, Serializable key);
+  Integer enqueUpdate(String indexName, Object key);
 
-  Integer enqueDelete(String indexName, Serializable key);
+  Integer enqueDelete(String indexName, Object key);
 
-  Serializable dequeInsert(String indexName);
+  Object dequeInsert(String indexName);
 
-  Serializable dequeUpdate(String indexName);
+  Object dequeUpdate(String indexName);
 
-  Serializable dequeDelete(String indexName);
+  Object dequeDelete(String indexName);
 
   Status getStatus(Integer workId);
 

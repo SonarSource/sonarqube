@@ -28,6 +28,8 @@ import java.util.Map;
 
 public interface Index<K extends Serializable> extends Startable {
 
+  String getIndexName();
+
   Hit getByKey(K key);
 
   void insert(K key);
@@ -44,7 +46,10 @@ public interface Index<K extends Serializable> extends Startable {
 
   Map<String, Object> normalize(K key);
 
-  Date getLastSynchronization();
+  Long getLastSynchronization();
 
-  Collection<K> synchronizeSince(Date date);
+  void setLastSynchronization(Long time);
+
+  Collection<K> synchronizeSince(Long time);
+
 }
