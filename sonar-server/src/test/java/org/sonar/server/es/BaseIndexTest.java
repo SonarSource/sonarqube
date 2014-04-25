@@ -38,7 +38,7 @@ public class BaseIndexTest {
 
   private static final String TEST_NODE_NAME = "es_node_for_tests";
 
-  private BaseIndex searchIndex;
+  private BaseIndex<?> searchIndex;
   private Node node;
 
   @Before
@@ -50,7 +50,7 @@ public class BaseIndexTest {
       .clusterName(BaseIndex.ES_CLUSTER_NAME).node();
   }
 
-  private BaseIndex getBaseIndex(){
+  private BaseIndex<?> getBaseIndex(){
     Settings settings = new Settings();
     settings.setProperty("sonar.log.profilingLevel", "BASIC");
     return new BaseIndex<Serializable>(null, new Profiling(settings)) {
