@@ -98,15 +98,13 @@ public class QProfilesMediumTest {
     Rule rule2 = rules.find(RuleQuery.builder().searchQuery("x2").build()).results().iterator().next();
     qProfiles.deactivateRule(qProfiles.profile("Basic", "xoo").id(), rule2.id());
 
-    assertThat(qProfileBackup.findExistingProvidedProfileNamesByLanguage("xoo")).hasSize(1);
+    assertThat(qProfileBackup.findDefaultProfileNamesByLanguage("xoo")).hasSize(1);
 
     // Renamed profile
     qProfiles.renameProfile(profile.id(), "Old Basic");
 
-    assertThat(qProfileBackup.findExistingProvidedProfileNamesByLanguage("xoo")).isEmpty();
-
     // Restore default profiles of xoo
-    qProfileBackup.restoreProvidedProfilesFromLanguage("xoo");
+    qProfileBackup.restoreDefaultProfilesByLanguage("xoo");
 
     // Reload profile
     profile = qProfiles.profile("Basic", "xoo");

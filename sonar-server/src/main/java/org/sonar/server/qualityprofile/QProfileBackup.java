@@ -132,7 +132,7 @@ public class QProfileBackup implements ServerComponent {
    * Restore provided profile for a given language.
    * If a profile with same name than default profile already exists, an exception will be thrown.
    */
-  public QProfileResult restoreProvidedProfilesFromLanguage(String language) {
+  public QProfileResult restoreDefaultProfilesByLanguage(String language) {
     checkPermission(UserSession.get());
     QProfileResult result = new QProfileResult();
 
@@ -186,24 +186,9 @@ public class QProfileBackup implements ServerComponent {
   }
 
   /**
-   * Return the list of existing profile names that match the provided ones for a given language
+   * Return the list of default profile names for a given language
    */
-  public Collection<String> findExistingProvidedProfileNamesByLanguage(String language) {
-    Set<String> profiles = newHashSet();
-    ListMultimap<String, RulesProfile> profilesByName = profilesByName(language, new QProfileResult());
-    for (RulesProfile rulesProfile : profilesByName.values()) {
-      QProfile profile = qProfileLookup.profile(rulesProfile.getName(), language);
-      if (profile != null) {
-        profiles.add(profile.name());
-      }
-    }
-    return profiles;
-  }
-
-  /**
-   * Return the list of provided profile names for a given language
-   */
-  public Collection<String> findProvidedProfileNamesByLanguage(String language) {
+  public Collection<String> findDefaultProfileNamesByLanguage(String language) {
     Set<String> profiles = newHashSet();
     ListMultimap<String, RulesProfile> profilesByName = profilesByName(language, new QProfileResult());
     for (RulesProfile rulesProfile : profilesByName.values()) {
