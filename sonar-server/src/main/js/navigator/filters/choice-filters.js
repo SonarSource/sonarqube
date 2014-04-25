@@ -1,4 +1,8 @@
-define(['handlebars', 'navigator/filters/base-filters', 'common/handlebars-extensions'], function (Handlebars, BaseFilters) {
+define([
+  'handlebars',
+  'navigator/filters/base-filters',
+  'common/handlebars-extensions'
+], function (Handlebars, BaseFilters) {
 
   var DetailsChoiceFilterView = BaseFilters.DetailsFilterView.extend({
     template: getTemplate('#choice-filter-template'),
@@ -57,7 +61,7 @@ define(['handlebars', 'navigator/filters/base-filters', 'common/handlebars-exten
               });
         } else {
           this.options.filterView.choices.filter(function(item) {
-            return item.get('id')[0] === '!'
+            return item.get('id')[0] === '!';
           }).forEach(function(item) {
                 item.set('checked', false);
               });

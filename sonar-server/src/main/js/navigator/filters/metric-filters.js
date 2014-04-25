@@ -107,7 +107,8 @@ define(['navigator/filters/base-filters', 'common/handlebars-extensions'], funct
     renderValue: function() {
       return this.isDefaultValue() ?
           window.SS.phrases.notSet :
-          this.model.get('value').metricText + ' ' + this.model.get('value').opText + ' ' + this.model.get('value').valText;
+          this.model.get('value').metricText + ' ' + this.model.get('value').opText + ' ' +
+              this.model.get('value').valText;
     },
 
 

@@ -1,4 +1,8 @@
-define(['navigator/filters/base-filters', 'navigator/filters/choice-filters', 'common/handlebars-extensions'], function (BaseFilters, ChoiceFilters) {
+define([
+  'navigator/filters/base-filters',
+  'navigator/filters/choice-filters',
+  'common/handlebars-extensions'
+], function (BaseFilters, ChoiceFilters) {
 
   var DetailsMoreCriteriaFilterView = ChoiceFilters.DetailsChoiceFilterView.extend({
     template: getTemplate('#more-criteria-details-filter-template'),

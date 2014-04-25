@@ -1,6 +1,6 @@
 (function($) {
 
-  function _stripe(rows) {
+  function stripe(rows) {
     rows.each(function(index) {
       $(this).toggleClass('rowodd', index % 2 === 0);
       $(this).toggleClass('roweven', index % 2 !== 0);
@@ -8,15 +8,15 @@
   }
 
 
-  function _getValue(cell) {
+  function getValue(cell) {
     return cell.attr('x') || $.trim(cell.text()) || '';
   }
 
 
-  function _sort(container, rows, cellIndex, order) {
+  function sort(container, rows, cellIndex, order) {
     var sortArray = rows.map(function(index) {
       var cell = $(this).find('td').eq(cellIndex);
-      return { index: index, value: _getValue(cell) };
+      return { index: index, value: getValue(cell) };
     }).get();
 
     Array.prototype.sort.call(sortArray, function(a, b) {
@@ -35,11 +35,11 @@
       newRows = newRows.add(row);
     });
 
-    _stripe(newRows);
+    stripe(newRows);
   }
 
 
-  function _markSorted(headCells, cell, asc) {
+  function markSorted(headCells, cell, asc) {
     headCells.removeClass('sortasc sortdesc');
     cell.toggleClass('sortasc', asc);
     cell.toggleClass('sortdesc', !asc);
@@ -56,17 +56,17 @@
        headCells.filter(':not(.nosort)').addClass('sortcol');
        headCells.filter(':not(.nosort)').on('click', function() {
          var asc = !$(this).is('.sortasc');
-         _markSorted(headCells, $(this), asc);
-         _sort(tbody, rows, headCells.index($(this)), asc ? 1 : -1);
+         markSorted(headCells, $(this), asc);
+         sort(tbody, rows, headCells.index($(this)), asc ? 1 : -1);
        });
 
       var sortFirst = headCells.filter('[class^=sortfirst],[class*=sortfirst]');
       if (sortFirst.length > 0) {
         var asc = sortFirst.is('.sortfirstasc');
-        _markSorted(headCells, sortFirst, asc);
-        _sort(tbody, rows, headCells.index(sortFirst), asc ? 1 : -1);
+        markSorted(headCells, sortFirst, asc);
+        sort(tbody, rows, headCells.index(sortFirst), asc ? 1 : -1);
       } else {
-        _stripe(rows);
+        stripe(rows);
       }
     });
   };

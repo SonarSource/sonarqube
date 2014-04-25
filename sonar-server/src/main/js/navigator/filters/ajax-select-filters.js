@@ -1,4 +1,9 @@
-define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/choice-filters', 'common/handlebars-extensions'], function (Backbone, BaseFilters, ChoiceFilters) {
+define([
+  'backbone',
+  'navigator/filters/base-filters',
+  'navigator/filters/choice-filters',
+  'common/handlebars-extensions'
+], function (Backbone, BaseFilters, ChoiceFilters) {
 
   var PAGE_SIZE = 100;
 

@@ -65,7 +65,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     container = d3.select(container);
 
     var validData = this.components().reduce(function(p, c) {
-      return p && !!c.measures[widget.metricsPriority()[0]]
+      return p && !!c.measures[widget.metricsPriority()[0]];
     }, true);
 
     if (!validData) {
@@ -227,7 +227,9 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .classed('legend-text value', true)
         .attr('dy', '-0.35em')
         .text(function(d) { return d.measures[widget.mainMetric].fval; })
-        .attr('transform', function(d) { return trans(widget.legendWidth() + widget.x(widget.getMainMetric(d)) + 5, barHeight); });
+        .attr('transform', function(d) {
+          return trans(widget.legendWidth() + widget.x(widget.getMainMetric(d)) + 5, barHeight);
+        });
 
     this.bars.selectAll('rect')
         .transition()
@@ -242,7 +244,9 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     this.bars.selectAll('.value')
         .transition()
-        .attr('transform', function(d) { return trans(widget.legendWidth() + widget.x(widget.getMainMetric(d)) + 5, barHeight); });
+        .attr('transform', function(d) {
+          return trans(widget.legendWidth() + widget.x(widget.getMainMetric(d)) + 5, barHeight);
+        });
 
     this.bars
         .exit().remove();

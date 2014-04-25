@@ -128,7 +128,9 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     // Configure scales
     var timeDomain = this.data()
         .map(function(_) {
-          return d3.extent(_, function(d) { return d.x; });
+          return d3.extent(_, function(d) {
+            return d.x;
+          });
         })
         .reduce(function(p, c) {
           return p.concat(c);

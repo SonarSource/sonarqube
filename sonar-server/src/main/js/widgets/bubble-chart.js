@@ -130,19 +130,19 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     this.x
         .domain(d3.extent(this.components(), function (d) {
-          return widget.getXMetric(d)
+          return widget.getXMetric(d);
         }))
         .range([0, this.availableWidth]);
 
     this.y
         .domain(d3.extent(this.components(), function (d) {
-          return widget.getYMetric(d)
+          return widget.getYMetric(d);
         }))
         .range([this.availableHeight, 0]);
 
     this.size
         .domain(d3.extent(this.components(), function (d) {
-          return widget.getSizeMetric(d)
+          return widget.getSizeMetric(d);
         }))
         .range([5, 45]);
 
@@ -201,9 +201,18 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           widget.infoDate.text(d.longName);
 
           var metricLines = [
-            { metric: widget.metrics()[widget.xMetric].name, value: d.measures[widget.xMetric].fval },
-            { metric: widget.metrics()[widget.yMetric].name, value: d.measures[widget.yMetric].fval },
-            { metric: widget.metrics()[widget.sizeMetric].name, value: (!!d.measures[widget.sizeMetric] ? d.measures[widget.sizeMetric].fval : '–') }
+            {
+              metric: widget.metrics()[widget.xMetric].name,
+              value: d.measures[widget.xMetric].fval
+            },
+            {
+              metric: widget.metrics()[widget.yMetric].name,
+              value: d.measures[widget.yMetric].fval
+            },
+            {
+              metric: widget.metrics()[widget.sizeMetric].name,
+              value: (!!d.measures[widget.sizeMetric] ? d.measures[widget.sizeMetric].fval : '–')
+            }
           ];
 
           var lastX = 0;

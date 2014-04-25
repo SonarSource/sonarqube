@@ -89,7 +89,9 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     // Configure scales
     var timeDomain = this.data()
         .map(function(_) {
-          return d3.extent(_, function(d) { return d.x; });
+          return d3.extent(_, function(d) {
+            return d.x;
+          });
         })
         .reduce(function(p, c) {
           return p.concat(c);
@@ -98,7 +100,9 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.time = d3.time.scale().domain(d3.extent(timeDomain));
 
     this.y = d3.scale.linear()
-        .domain([0, d3.max(this.stackDataTop, function(d) { return d.y0 + d.y; })])
+        .domain([0, d3.max(this.stackDataTop, function(d) {
+          return d.y0 + d.y;
+        })])
         .nice();
 
     this.color = function(i) { return widget.colors()[i % cl][0]; };

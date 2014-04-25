@@ -168,7 +168,7 @@ define(['handlebars'], function (Handlebars) {
         lineNumber: line,
         code: code,
         scm: (scm && scm[line]) ? { author: scm[line][0], date: scm[line][1] } : undefined
-      }
+      };
     });
 
     return sources.reduce(function(prev, current, index) {

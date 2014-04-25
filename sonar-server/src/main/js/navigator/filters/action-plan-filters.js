@@ -1,4 +1,8 @@
-define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/choice-filters'], function (Backbone, BaseFilters, ChoiceFilters) {
+define([
+  'backbone',
+  'navigator/filters/base-filters',
+  'navigator/filters/choice-filters'
+], function (Backbone, BaseFilters, ChoiceFilters) {
 
   return ChoiceFilters.ChoiceFilterView.extend({
 
@@ -68,7 +72,7 @@ define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/choice-
                 id: plan.key,
                 text: plan.name,
                 category: plan.fDeadLine
-              }
+              };
             }));
             _.each(that.model.get('choices'), function(v, k) {
               that.choices.add(new Backbone.Model({ id: k, text: v }));

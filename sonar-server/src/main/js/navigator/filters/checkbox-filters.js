@@ -1,4 +1,9 @@
-define(['backbone', 'backbone.marionette', 'navigator/filters/base-filters', 'common/handlebars-extensions'], function (Backbone, Marionette, BaseFilters) {
+define([
+  'backbone',
+  'backbone.marionette',
+  'navigator/filters/base-filters',
+  'common/handlebars-extensions'
+], function (Backbone, Marionette, BaseFilters) {
 
   return BaseFilters.BaseFilterView.extend({
     template: getTemplate('#checkbox-filter-template'),

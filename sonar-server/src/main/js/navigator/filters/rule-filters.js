@@ -1,4 +1,8 @@
-define(['backbone', 'navigator/filters/base-filters', 'navigator/filters/ajax-select-filters'], function (Backbone, BaseFilters, AjaxSelectFilters) {
+define([
+  'backbone',
+  'navigator/filters/base-filters',
+  'navigator/filters/ajax-select-filters'
+], function (Backbone, BaseFilters, AjaxSelectFilters) {
 
   var RuleSuggestions = AjaxSelectFilters.Suggestions.extend({
 

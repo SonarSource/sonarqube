@@ -468,8 +468,9 @@ define(
 
         changeEnabled: function () {
           var disabledFilters = _.reject(this.collection.where({ enabled: false }), function (filter) {
-                return filter.get('type') === require('navigator/filters/more-criteria-filters').MoreCriteriaFilterView ||
-                    filter.get('type') === ReadOnlyFilterView;
+                return filter.get('type') ===
+                       require('navigator/filters/more-criteria-filters').MoreCriteriaFilterView ||
+                       filter.get('type') === ReadOnlyFilterView;
               });
 
           if (disabledFilters.length === 0) {
@@ -639,7 +640,7 @@ define(
             return {
               key: tokens[0],
               value: decodeURIComponent(tokens[1])
-            }
+            };
           });
         },
 
