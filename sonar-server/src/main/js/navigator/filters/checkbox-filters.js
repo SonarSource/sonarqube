@@ -34,7 +34,7 @@ define([
 
 
     renderValue: function() {
-      return this.model.get('value') || false;
+      return this.model.get('value');
     },
 
 

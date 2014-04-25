@@ -108,7 +108,7 @@ requirejs(['backbone'], function (Backbone) {
         }
       },
 
-      toggle: function (e) {
+      toggle: function () {
         var selected = this.model.get('selected'),
             that = this,
             url = selected ? this.settings.deselectUrl : this.settings.selectUrl,

@@ -163,13 +163,11 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .attr('r', function (d) {
           return widget.size(widget.getSizeMetric(d));
         })
-        .style('fill', function (d) {
-          // TODO widget.bubbleColorUndefined()
+        .style('fill', function () {
           return widget.bubbleColor();
         })
         .style('fill-opacity', 0.2)
-        .style('stroke', function (d) {
-          // TODO widget.bubbleColorUndefined()
+        .style('stroke', function () {
           return widget.bubbleColor();
         })
         .style('transition', 'all 0.2s ease');
