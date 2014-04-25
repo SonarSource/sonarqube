@@ -161,10 +161,6 @@ module.exports = (grunt) ->
         name: 'common/select-list'
         out: '<%= pkg.assets %>build/js/common/select-list.js'
 
-      componentViewer: options:
-        name: 'component-viewer/app'
-        out: '<%= pkg.assets %>build/js/component-viewer/app.js'
-
 
     handlebars:
       options:
@@ -190,6 +186,10 @@ module.exports = (grunt) ->
           ]
           '<%= pkg.assets %>js/templates/component-viewer.js': [
             '<%= pkg.sources %>hbs/component-viewer/**/*.hbs'
+          ]
+          '<%= pkg.assets %>js/templates/issues.js': [
+            '<%= pkg.sources %>hbs/common/**/*.hbs'
+            '<%= pkg.sources %>hbs/issues/**/*.hbs'
           ]
 
 

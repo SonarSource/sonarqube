@@ -8,11 +8,27 @@
   width: 100%;
   min-width: 600px;
   border: 1px solid @barBorderColor;
+  border-left-width: 0;
   .box-sizing(border-box);
+}
+
+.component-viewer-workspace-enabled {
+  border-left-width: 1px;
+
+  .component-viewer-workspace { display: block; }
+  .component-viewer-source { border-left: @workspaceWidth solid @barBackgroundColor; }
+}
+
+
+.component-viewer-title {
+  color: @baseFontColor;
+  font-size: @baseFontSize;
+  font-weight: bold;
 }
 
 
 .component-viewer-workspace {
+  display: none;
   float: left;
   width: @workspaceWidth;
   .box-sizing(border-box);
@@ -53,7 +69,6 @@
 
 
 .component-viewer-source {
-  border-left: @workspaceWidth solid @barBackgroundColor;
 
   .sources2 {
     border-left: 1px solid @barBorderColor;
@@ -119,6 +134,10 @@
     cursor: pointer;
   }
 
+  .sources2 .issue pre {
+    background-color: #ff9090;
+  }
+
   .sources2 .row {
 
     &.coverage-green td.stat {
@@ -136,27 +155,15 @@
 
       &.lid { border-right-color: lighten(@red, 15%); }
     }
-
-    &:hover {
-      td.line { background-color: @barBackgroundColor; }
-
-      td.stat {
-        background-color: darken(@barBackgroundColor, 3%);
-        color: @baseFontColor;
-      }
-
-      &.coverage-green td.stat { background-color: lighten(@green, 10%); }
-      &.coverage-red td.stat { background-color: lighten(@red, 10%); }
-    }
   }
 
 }
 
 
 .component-viewer-source-settings {
-  visibility: hidden;
+  display: none;
 
-  &.open { visibility: visible; }
+  &.open { display: inline-block; }
 
   & > li {
     display: inline;

@@ -28,13 +28,29 @@
           <input id="source-scm" type="checkbox" {{#if settings.scm}}checked{{/if}}>
           <label for="source-scm">SCM</label>
         </li>
+        <li>
+          <input id="source-workspace" type="checkbox" {{#if settings.workspace}}checked{{/if}}>
+          <label for="source-workspace">Workspace</label>
+        </li>
       </ul>
+
+      {{qualifierIcon component.qualifier}} <span class="component-viewer-title">{{component.name}}</span>
     </th>
   </tr>
   </thead>
   <tbody>
+    <tr class="row" data-line-number="0">
+      {{#if settings.coverage}}
+        <td class="stat coverage-tests"></td>
+        <td class="stat coverage-conditions"></td>
+      {{/if}}
+      <td class="stat lid"></td>
+      <td class="line"></td>
+    </tr>
+
     {{#each source}}
-      <tr class="row {{#if ../settings.coverage}}{{#if coverageStatus}}coverage-{{coverageStatus}}{{/if}}{{/if}}">
+      <tr class="row {{#if ../settings.coverage}}{{#if coverageStatus}}coverage-{{coverageStatus}}{{/if}}{{/if}}"
+          data-line-number="{{lineNumber}}">
 
         {{#if ../settings.coverage}}
           <td class="stat coverage-tests">

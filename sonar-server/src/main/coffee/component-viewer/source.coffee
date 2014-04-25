@@ -2,11 +2,15 @@ define [
   'backbone.marionette'
   'templates/component-viewer'
   'component-viewer/coverage-popup'
+  'issues/issue-view'
+  'issues/models/issue'
   'common/handlebars-extensions'
 ], (
   Marionette
   Templates
   CoveragePopupView
+  IssueView
+  Issue
 ) ->
 
   $ = jQuery
@@ -19,6 +23,7 @@ define [
     events:
       'click .settings-toggle button': 'toggleSettings'
       'change #source-coverage': 'toggleCoverage'
+      'change #source-workspace': 'toggleWorkspace'
       'click .coverage-tests': 'showCoveragePopup'
 
 
@@ -26,10 +31,21 @@ define [
       @delegateEvents()
       @showSettings = false
 
+      @renderIssues() if @options.main.settings.get('issues') && @model.has('issues')
+
+
+    renderIssues: ->
+      issues = @model.get 'issues'
+      issues.forEach (issue) =>
+        line = issue.line || 0
+        container = @$("[data-line-number=#{line}]").children('.line')
+        container.addClass 'issue' if line > 0
+        issueView = new IssueView model: new Issue issue
+        issueView.render().$el.appendTo container
+
 
     showSpinner: ->
       @$el.html '<div style="padding: 10px;"><i class="spinner"></i></div>'
-
 
 
     toggleSettings: ->
@@ -41,6 +57,12 @@ define [
       active = $(e.currentTarget).is ':checked'
       @showSettings = true
       if active then @options.main.showCoverage() else @options.main.hideCoverage()
+
+
+    toggleWorkspace: (e) ->
+      active = $(e.currentTarget).is ':checked'
+      @showSettings = true
+      if active then @options.main.showWorkspace() else @options.main.hideWorkspace()
 
 
     showCoveragePopup: (e) ->
@@ -89,3 +111,4 @@ define [
       source: @prepareSource()
       settings: @options.main.settings.toJSON()
       showSettings: @showSettings
+      component: @options.main.component.toJSON()

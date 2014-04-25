@@ -1,0 +1,7 @@
+<h1 class="marginbottom10">{{name}}</h1>
+<div class="marginbottom10">{{{description}}}</div>
+<p class="note">
+  <span class="spacer-right">{{key}}</span>
+  <%= image_tag 'sep12.png', :class => 'spacer-right' -%>
+  {{#all characteristic subCharacteristic}}{{characteristic}} > {{subCharacteristic}}{{else}}{{t 'issue.technical_debt_deleted'}}{{/all}}
+</p>

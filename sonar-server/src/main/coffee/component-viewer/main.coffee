@@ -40,11 +40,20 @@ define [
         model: @source
         main: @
 
-      @settings = new Backbone.Model issues: false, coverage: true, duplications: false, scm: false
+      @settings = new Backbone.Model
+        issues: false
+        coverage: false
+        duplications: false
+        scm: false
+        workspace: false
 
 
     onRender: ->
-      @workspaceRegion.show @workspaceView
+      if @settings.get 'workspace'
+        @workspaceRegion.show @workspaceView
+        @$el.addClass 'component-viewer-workspace-enabled'
+      else
+        @$el.removeClass 'component-viewer-workspace-enabled'
       @sourceRegion.show @sourceView
 
 
@@ -106,6 +115,28 @@ define [
 
     hideCoverage: ->
       @settings.set 'coverage', false
+      @sourceView.render()
+
+
+    showWorkspace: ->
+      @settings.set 'workspace', true
+      @render()
+
+
+    hideWorkspace: ->
+      @settings.set 'workspace', false
+      @render()
+
+
+    showIssues: (issues, scrollToFirst) ->
+      @settings.set 'issues', true
+      if _.isArray(issues) && issues.length > 0
+        @source.set 'issues', issues
+      @sourceView.render()
+
+
+    hideIssues: ->
+      @settings.set 'issues', false
       @sourceView.render()
 
 
