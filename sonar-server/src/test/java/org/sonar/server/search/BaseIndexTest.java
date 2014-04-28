@@ -17,45 +17,86 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.es;
+package org.sonar.server.search;
 
-import java.io.Serializable;
-import java.util.Map;
+import org.sonar.server.cluster.LocalNonBlockingWorkQueue;
 
+import com.github.tlrx.elasticsearch.test.annotations.ElasticsearchNode;
+import com.github.tlrx.elasticsearch.test.support.junit.runners.ElasticsearchRunner;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
-import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.node.Node;
-import org.elasticsearch.node.NodeBuilder;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
-import org.sonar.server.search.BaseIndex;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Map;
+
 import static org.fest.assertions.Assertions.assertThat;
 
-@Ignore
+@RunWith(ElasticsearchRunner.class)
 public class BaseIndexTest {
 
   private static final String TEST_NODE_NAME = "es_node_for_tests";
 
-  private BaseIndex<?> searchIndex;
+  @ElasticsearchNode(name = TEST_NODE_NAME,
+    clusterName = BaseIndex.ES_CLUSTER_NAME,
+    local = false, data = true)
   private Node node;
 
   @Before
   public void setUp() throws Exception {
 
-    this.node = NodeBuilder.nodeBuilder()
-      .settings(ImmutableSettings.settingsBuilder()
-        .put("node.name", TEST_NODE_NAME).build())
-      .clusterName(BaseIndex.ES_CLUSTER_NAME).node();
   }
 
   private BaseIndex<?> getBaseIndex(){
+    LocalNonBlockingWorkQueue queue = new LocalNonBlockingWorkQueue();
     Settings settings = new Settings();
     settings.setProperty("sonar.log.profilingLevel", "BASIC");
-    return new BaseIndex<Serializable>(null, new Profiling(settings)) {
+    return new BaseIndex<Serializable>(queue, null, new Profiling(settings)) {
+
+      @Override
+      public String getIndexName() {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      protected org.elasticsearch.common.settings.Settings getIndexSettings() {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      protected String getType() {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      protected XContentBuilder getMapping() {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      public Collection<Serializable> synchronizeSince(Long date) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      protected QueryBuilder getKeyQuery(Serializable key) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
       @Override
       public Map<String, Object> normalize(Serializable key) {
         // TODO Auto-generated method stub
@@ -72,30 +113,20 @@ public class BaseIndexTest {
   }
 
   @Test
-  public void should_start_and_stop_properly() {
-
-    searchIndex = getBaseIndex();
-    searchIndex.start();
-
+  public void baseIndex_connects_to_es() {
+    BaseIndex<?> searchIndex = getBaseIndex();
+    searchIndex.connect();
     assertThat(node.client().admin().cluster().prepareClusterStats().get().getNodesStats().getCounts().getTotal())
       .isEqualTo(searchIndex.getNodesStats().getCounts().getTotal());
 
     searchIndex.stop();
-
   }
 
   @Test(expected = NoNodeAvailableException.class)
-  public void fails_when_es_gone(){
-    searchIndex = getBaseIndex();
-    searchIndex.start();
-
-    node.stop();
-
-
-    assertThat(searchIndex.getNodesStats().getCounts().getTotal());
-
-    node.start();
-
-
+  public void baseIndex_fails_when_es_gone(){
+    BaseIndex<?> searchIndex = getBaseIndex();
+    searchIndex.connect();
+    node.close();
+    assertThat(searchIndex.getNodesStats().getCounts().getTotal()).isNotNull();
   }
 }

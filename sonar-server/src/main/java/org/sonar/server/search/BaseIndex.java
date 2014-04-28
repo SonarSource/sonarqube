@@ -20,29 +20,30 @@
 package org.sonar.server.search;
 
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsNodes;
+import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
+import org.elasticsearch.action.deletebyquery.DeleteByQueryResponse;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.Profiling.Level;
 import org.sonar.core.profiling.StopWatch;
 import org.sonar.server.cluster.WorkQueue;
+import org.sonar.server.db.Dao;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
 
-public abstract class BaseIndex<K extends Serializable> implements Index<K>{
-
-  private static final String ES_EXECUTE_FAILED = "Failed execution of {}. Root is {}";
-
-  private static final String BULK_EXECUTE_FAILED = "Execution of bulk operation failed";
-  private static final String BULK_INTERRUPTED = "Interrupted during bulk operation";
+public abstract class BaseIndex<K extends Serializable> implements Index<K> {
 
   private static final String PROFILE_DOMAIN = "es";
   private static final Logger LOG = LoggerFactory.getLogger(BaseIndex.class);
@@ -55,35 +56,34 @@ public abstract class BaseIndex<K extends Serializable> implements Index<K>{
   private final Profiling profiling;
   private Client client;
   private WorkQueue workQueue;
-  private IndexSynchronizer synchronizer;
+  private IndexSynchronizer<K> synchronizer;
+  protected Dao<?,K> dao;
 
-  public BaseIndex(WorkQueue workQueue, Profiling profiling) {
+  public BaseIndex(WorkQueue workQueue, Dao<?,K> dao, Profiling profiling) {
     this.profiling = profiling;
     this.workQueue = workQueue;
     this.synchronizer = IndexSynchronizer.getOnetimeSynchronizer(this, this.workQueue);
+    this.dao = dao;
   }
+
+  protected Dao<?,K> getDao(){
+    return this.dao;
+  }
+
+  protected Client getClient(){
+    return this.client;
+  }
+
+  /* Component Methods */
 
   @Override
   public void start() {
 
-    /* Settings to access our local ES node */
-    Settings settings = ImmutableSettings.settingsBuilder()
-      .put("client.transport.sniff", true)
-      .put("cluster.name", ES_CLUSTER_NAME)
-      .put("node.name", "localclient_")
-      .build();
+    /* Connect to the local ES Cluster */
+    this.connect();
 
-    this.client = new TransportClient(settings)
-      .addTransportAddress(new InetSocketTransportAddress(LOCAL_ES_NODE_HOST, LOCAL_ES_NODE_PORT));
-
-    /* Cannot do that yet, need version >= 1.0
-    ImmutableList<DiscoveryNode> nodes = client.connectedNodes();
-    if (nodes.isEmpty()) {
-        throw new ElasticSearchUnavailableException("No nodes available. Verify ES is running!");
-    } else {
-        log.info("connected to nodes: " + nodes.toString());
-    }
-    */
+    /* Setup the index if necessary */
+    this.intializeIndex();
 
     /* Launch synchronization */
     synchronizer.start();
@@ -96,10 +96,50 @@ public abstract class BaseIndex<K extends Serializable> implements Index<K>{
     }
   }
 
-  public Collection<K> synchronizeSince(Long date) {
-    // TODO Auto-generated method stub
-    return Collections.EMPTY_LIST;
+  private StopWatch createWatch() {
+    return profiling.start(PROFILE_DOMAIN, Level.FULL);
   }
+
+  public void connect(){
+    /* Settings to access our local ES node */
+    Settings settings = ImmutableSettings.settingsBuilder()
+      .put("client.transport.sniff", true)
+      .put("cluster.name", ES_CLUSTER_NAME)
+      .put("node.name", "localclient_")
+      .build();
+
+    this.client = new TransportClient(settings)
+      .addTransportAddress(new InetSocketTransportAddress(LOCAL_ES_NODE_HOST, LOCAL_ES_NODE_PORT));
+
+    /*
+     * Cannot do that yet, need version >= 1.0
+     * ImmutableList<DiscoveryNode> nodes = client.connectedNodes();
+     * if (nodes.isEmpty()) {
+     * throw new ElasticSearchUnavailableException("No nodes available. Verify ES is running!");
+     * } else {
+     * log.info("connected to nodes: " + nodes.toString());
+     * }
+     */
+  }
+
+  /* Cluster And ES Stats/Client methods */
+
+  private void intializeIndex() {
+
+    String index = this.getIndexName();
+
+    IndicesExistsResponse indexExistsResponse = client.admin().indices()
+      .prepareExists(index).execute().actionGet();
+
+    if (!indexExistsResponse.isExists()) {
+
+      client.admin().indices().prepareCreate(index)
+        .setSettings(getIndexSettings())
+        .addMapping(getType(), getMapping())
+        .execute().actionGet();
+    }
+  }
+
 
   public ClusterStatsNodes getNodesStats() {
     StopWatch watch = createWatch();
@@ -110,71 +150,87 @@ public abstract class BaseIndex<K extends Serializable> implements Index<K>{
     }
   }
 
-  private StopWatch createWatch() {
-    return profiling.start(PROFILE_DOMAIN, Level.FULL);
-  }
+
+  /* Index management and Tx methods */
+
+  protected abstract Settings getIndexSettings();
+
+  protected abstract String getType();
+
+  protected abstract XContentBuilder getMapping();
+
+  public abstract Collection<K> synchronizeSince(Long date);
+
+
+  /* Base CRUD methods */
+
+  protected abstract QueryBuilder getKeyQuery(K key);
 
   @Override
   public Hit getByKey(K key) {
-    // TODO Auto-generated method stub
+    getClient().prepareSearch(this.getIndexName())
+      .setQuery(getKeyQuery(key))
+      .get();
     return null;
   }
 
   @Override
   public void insert(K key) {
-    // TODO Auto-generated method stub
-
+    this.update(key);
   }
 
   @Override
-  public void udpate(K key) {
-    // TODO Auto-generated method stub
+  public void update(K key) {
+    IndexResponse result = getClient().index(new IndexRequest()
+      .type(this.getType())
+      .index(this.getIndexName())
+      .source(this.normalize(key))).actionGet();
 
   }
 
   @Override
   public void delete(K key) {
-    // TODO Auto-generated method stub
-
+    DeleteByQueryResponse result = getClient().prepareDeleteByQuery(this.getIndexName())
+      .setQuery(getKeyQuery(key)).get();
   }
 
-  @Override
-  public K dequeueInsert() {
-    // TODO Auto-generated method stub
-    return null;
-  }
+  /* Synchronization methods */
 
-  @Override
-  public K dequeueUpdate() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public K dequeueDelete() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public abstract Map<String, Object> normalize(K key);
-
-
-  @Override
-  public String getIndexName() {
-    // TODO Auto-generated method stub
-    return null;
-  }
+  Long lastSynch = 0l;
+  long cooldown = 30000;
 
   @Override
   public void setLastSynchronization(Long time) {
-    // TODO Auto-generated method stub
+    if(time > (getLastSynchronization() + cooldown)){
+      LOG.trace("Updating synchTime updating");
+      lastSynch = time;
+    } else {
+      LOG.trace("Not updating synchTime, still cooling down");
+    }
 
   }
 
   @Override
   public Long getLastSynchronization() {
-    // TODO Auto-generated method stub
-    return null;
+    // need to read that in the admin index;
+    return 0l;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public K dequeueInsert() {
+    return (K) this.workQueue.dequeUpdate(this.getIndexName());
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public K dequeueUpdate() {
+    return (K) this.workQueue.dequeUpdate(this.getIndexName());
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public K dequeueDelete() {
+    return (K) this.workQueue.dequeDelete(this.getIndexName());
   }
 }

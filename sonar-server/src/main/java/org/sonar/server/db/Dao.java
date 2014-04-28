@@ -20,6 +20,7 @@
 package org.sonar.server.db;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 public interface Dao<E extends Dto<K>, K extends Serializable> {
 
@@ -32,5 +33,7 @@ public interface Dao<E extends Dto<K>, K extends Serializable> {
   public void delete(E item);
 
   public void deleteByKey(K key);
+
+  public Collection<K> insertsSince(Long timestamp);
 
 }

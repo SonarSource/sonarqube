@@ -34,7 +34,7 @@ public interface Index<K extends Serializable> extends Startable {
 
   void insert(K key);
 
-  void udpate(K key);
+  void update(K key);
 
   void delete(K key);
 
