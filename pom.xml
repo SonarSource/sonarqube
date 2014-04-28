@@ -93,6 +93,7 @@
     <skipSanityChecks>false</skipSanityChecks>
 
     <sonar.snapshotRepository.url>dav:https://dav.codehaus.org/snapshots.repository/sonar</sonar.snapshotRepository.url>
+    <argLine>-Xmx512m -Djava.awt.headless=true -XX:MaxPermSize=128m</argLine>
   </properties>
 
   <build>
@@ -480,7 +481,6 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <runOrder>random</runOrder>
-          <argLine>-Xmx512m -Djava.awt.headless=true -XX:MaxPermSize=128m</argLine>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
           <systemPropertyVariables>
             <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
