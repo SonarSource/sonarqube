@@ -44,10 +44,16 @@ public class ShowAction implements RequestHandler {
       .setHandler(this);
 
     action
+      .createParam("repo")
+      .setDescription("Repository key")
+      .setRequired(true)
+      .setExampleValue("javascript");
+
+    action
       .createParam("key")
       .setDescription("Rule key")
       .setRequired(true)
-      .setExampleValue("javascript:EmptyBlock");
+      .setExampleValue("EmptyBlock");
   }
 
   @Override

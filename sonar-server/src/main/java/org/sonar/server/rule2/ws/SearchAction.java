@@ -55,7 +55,7 @@ public class SearchAction implements RequestHandler {
 
     action
       .createParam("activation")
-      .setDescription("Only if 'qProfile' is set. Possible values are: true | false | all")
+      .setDescription("Used only if 'qProfile' is set. Possible values are: true | false | all")
       .setExampleValue("java:Sonar way");
   }
 

@@ -207,5 +207,11 @@
     DELETE FROM rules_rule_tags WHERE id=#{tagId}
   </update>
 
+
+  <select id="selectKeysOfRulesUpdatedSince" resultType="map">
+    SELECT r.plugin_name as "repo", r.plugin_rule_key as "rule"
+    FROM rules r
+    WHERE r.updated_at IS NULL or r.updated_at &gt;= #{id}
+  </select>
 </mapper>
 

@@ -17,31 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+@ParametersAreNonnullByDefault
 package org.sonar.core.db;
 
-import org.apache.ibatis.session.SqlSession;
-
-import java.io.Serializable;
-
-public interface Dao<E extends Dto<K>, K extends Serializable> {
-
-  E getByKey(K key);
-
-  E update(E item);
-
-  E update(E item, SqlSession session);
-
-  E insert(E item);
-
-  E insert(E item, SqlSession session);
-
-  void delete(E item);
-
-  void delete(E item, SqlSession session);
-
-  void deleteByKey(K key);
-
-  void deleteByKey(K key, SqlSession session);
-
-  Iterable<K> keysOfRowsUpdatedAfter(long timestamp);
-}
+import javax.annotation.ParametersAreNonnullByDefault;

@@ -67,4 +67,5 @@ public interface RuleMapper {
   void updateTag(RuleRuleTagDto existingTag);
 
   List<RuleRuleTagDto> selectTagsByRuleIds(@Param("ruleIds") List<Integer> ruleIds);
+
 }

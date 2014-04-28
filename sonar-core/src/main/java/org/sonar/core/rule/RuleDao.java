@@ -20,6 +20,8 @@
 package org.sonar.core.rule;
 
 import com.google.common.collect.Lists;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
@@ -29,9 +31,10 @@ import org.sonar.core.db.UnsuportedException;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
-
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -315,8 +318,20 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
   }
 
   @Override
-  public Collection<RuleKey> insertsSince(Long timestamp) {
-    // TODO Auto-generated method stub
-    return null;
+  public Collection<RuleKey> keysOfRowsUpdatedAfter(long timestamp) {
+    SqlSession session = mybatis.openSession();
+    try {
+      final List<RuleKey> keys = Lists.newArrayList();
+      session.select("selectKeysOfRulesUpdatedSince", new Timestamp(timestamp), new ResultHandler() {
+        @Override
+        public void handleResult(ResultContext context) {
+          Map<String, String> map = (Map) context.getResultObject();
+          keys.add(RuleKey.of(map.get("repo"), map.get("rule")));
+        }
+      });
+      return keys;
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 }

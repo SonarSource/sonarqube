@@ -103,8 +103,7 @@ public class RuleShowWsHandler implements RequestHandler {
     json
       .prop("key", rule.ruleKey().toString())
       .prop("name", rule.name())
-      .prop("description", rule.description())
-    ;
+      .prop("description", rule.description());
     addLanguage(rule, json);
     addNote(rule, json);
     addDate(rule.createdAt(), "createdAt", json);
@@ -119,7 +118,6 @@ public class RuleShowWsHandler implements RequestHandler {
       Language language = languages.get(languageKey);
       json.prop("language", language == null ? languageKey : language.getName());
     }
-
   }
 
   private void addNote(Rule rule, JsonWriter json) {
