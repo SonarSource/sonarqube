@@ -90,9 +90,7 @@ public class WebServiceEngine implements ServerComponent, Startable {
     } catch (BadRequestException e) {
       sendError(e, response);
     } catch (ServerException e) {
-      // TODO support ServerException l10n messages
-      sendError(e.httpCode(), e.getMessage(), response);
-
+      sendError(e.httpCode(), message(e.getMessage(), e.l10nKey(), e.l10nParams()), response);
     } catch (Exception e) {
       // TODO implement Request.toString()
       LoggerFactory.getLogger(getClass()).error("Fail to process request " + request, e);
@@ -121,8 +119,9 @@ public class WebServiceEngine implements ServerComponent, Startable {
 
   private void sendError(BadRequestException e, ServletResponse response) {
     Collection<String> messages = Lists.newArrayList();
-    if (e.getMessage()!= null || e.l10nKey() != null) {
-      messages.add(message(e.getMessage(), e.l10nKey(), e.l10nParams()));
+    String exceptionMessage = message(e.getMessage(), e.l10nKey(), e.l10nParams());
+    if (exceptionMessage != null) {
+      messages.add(exceptionMessage);
     }
     for (Message message : e.errors()) {
       messages.add(message(message.text(), message.l10nKey(), message.l10nParams()));
@@ -139,7 +138,7 @@ public class WebServiceEngine implements ServerComponent, Startable {
     }
   }
 
-  private void sendError(int status, String message, ServletResponse response) {
+  private void sendError(int status, @Nullable String message, ServletResponse response) {
     sendErrors(response, status, message);
   }
 

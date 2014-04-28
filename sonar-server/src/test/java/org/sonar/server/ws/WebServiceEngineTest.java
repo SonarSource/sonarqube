@@ -31,6 +31,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.BadRequestException.Message;
+import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.plugins.MimeTypes;
 
 import javax.annotation.CheckForNull;
@@ -246,6 +247,19 @@ public class WebServiceEngineTest {
     assertThat(response.stream().mediaType()).isEqualTo(MimeTypes.JSON);
   }
 
+  @Test
+  public void server_exception_with_i18n_message() throws Exception {
+    InternalRequest request = new SimpleRequest();
+    ServletResponse response = new ServletResponse();
+    when(i18n.message(eq(Locale.getDefault()), eq("not.found"), anyString())).thenReturn("Element is not found");
+
+    engine.execute(request, response, "api/system", "server_exception_with_i18n_message");
+
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Element is not found\"}]}");
+    assertThat(response.stream().httpStatus()).isEqualTo(404);
+    assertThat(response.stream().mediaType()).isEqualTo(MimeTypes.JSON);
+  }
+
   static class SystemWebService implements WebService {
     @Override
     public void define(Context context) {
@@ -307,6 +321,13 @@ public class WebServiceEngineTest {
               errors.add(Message.ofL10n("bad.request.reason", count));
             }
             throw BadRequestException.of(errors);
+          }
+        });
+      newController.createAction("server_exception_with_i18n_message")
+        .setHandler(new RequestHandler() {
+          @Override
+          public void handle(Request request, Response response) {
+            throw new ServerException(404, null, "not.found", null);
           }
         });
       newController.createAction("alive")
