@@ -19,8 +19,6 @@
  */
 package org.sonar.server.platform;
 
-import org.sonar.core.cluster.LocalNonBlockingWorkQueue;
-
 import com.google.common.collect.Lists;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.sonar.api.config.EmailSettings;
@@ -39,6 +37,7 @@ import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.internal.TempFolderCleaner;
+import org.sonar.core.cluster.LocalNonBlockingWorkQueue;
 import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.component.db.ComponentDao;
 import org.sonar.core.config.CorePropertyDefinitions;
@@ -90,6 +89,7 @@ import org.sonar.server.es.ESNode;
 import org.sonar.server.issue.*;
 import org.sonar.server.issue.filter.IssueFilterService;
 import org.sonar.server.issue.filter.IssueFilterWs;
+import org.sonar.server.issue.ws.ActionPlanWs;
 import org.sonar.server.issue.ws.IssueShowWsHandler;
 import org.sonar.server.issue.ws.IssuesWs;
 import org.sonar.server.notifications.NotificationCenter;
@@ -351,6 +351,7 @@ class ServerComponents {
     pico.addSingleton(IssueFilterWs.class);
     pico.addSingleton(IssueShowWsHandler.class);
     pico.addSingleton(IssuesWs.class);
+    pico.addSingleton(ActionPlanWs.class);
 
     // issues actions
     pico.addSingleton(AssignAction.class);

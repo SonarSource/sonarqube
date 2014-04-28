@@ -289,6 +289,10 @@ public interface WebService extends ServerExtension {
       return newParam;
     }
 
+    /**
+     * @deprecated since 4.4. Use {@link #createParam(String paramKey)} instead.
+     */
+    @Deprecated
     public NewAction createParam(String paramKey, @Nullable String description) {
       createParam(paramKey).setDescription(description);
       return this;
