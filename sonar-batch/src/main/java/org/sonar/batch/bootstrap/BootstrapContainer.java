@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.core.cluster.NullQueue;
+
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.sonar.api.Plugin;
 import org.sonar.api.config.EmailSettings;
@@ -121,6 +123,7 @@ public class BootstrapContainer extends ComponentContainer {
       JdbcDriverHolder.class,
       BatchDatabase.class,
       MyBatis.class,
+      NullQueue.class,
       DatabaseVersion.class,
       // TODO check that it still works (see @Freddy)
       DatabaseCompatibility.class,

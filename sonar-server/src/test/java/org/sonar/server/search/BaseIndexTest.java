@@ -40,8 +40,8 @@ import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-@RunWith(ElasticsearchRunner.class)
 @Ignore("Should be fixed")
+@RunWith(ElasticsearchRunner.class)
 public class BaseIndexTest {
 
   private static final String TEST_NODE_NAME = "es_node_for_tests";

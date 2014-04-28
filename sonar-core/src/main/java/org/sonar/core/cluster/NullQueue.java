@@ -23,7 +23,7 @@ import java.io.Serializable;
 
 public class NullQueue implements WorkQueue {
 
-  NullQueue(){
+  public NullQueue(){
 
   }
 

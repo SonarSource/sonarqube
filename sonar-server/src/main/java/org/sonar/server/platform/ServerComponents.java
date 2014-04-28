@@ -19,6 +19,8 @@
  */
 package org.sonar.server.platform;
 
+import org.sonar.core.cluster.LocalNonBlockingWorkQueue;
+
 import com.google.common.collect.Lists;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.sonar.api.config.EmailSettings;
@@ -154,6 +156,7 @@ class ServerComponents {
       EmbeddedDatabaseFactory.class,
       DefaultDatabase.class,
       MyBatis.class,
+      LocalNonBlockingWorkQueue.class,
       DatabaseServerCompatibility.class,
       DatabaseVersion.class,
       PurgeProfiler.class,
