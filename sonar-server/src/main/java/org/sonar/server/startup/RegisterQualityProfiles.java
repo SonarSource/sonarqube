@@ -36,6 +36,7 @@ import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
+import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.qualityprofile.*;
 import org.sonar.server.rule.RegisterRules;
@@ -57,29 +58,33 @@ public class RegisterQualityProfiles {
   private final ESActiveRule esActiveRule;
   private final PersistentSettings settings;
   private final List<ProfileDefinition> definitions;
+  private final DatabaseSessionFactory sessionFactory;
   private final MyBatis myBatis;
 
-  public RegisterQualityProfiles(MyBatis myBatis,
-                                  PersistentSettings settings,
-                                  ESActiveRule esActiveRule,
-                                  LoadedTemplateDao loadedTemplateDao,
-                                  QProfileBackup qProfileBackup,
-                                  QProfileOperations qProfileOperations,
-                                  QProfileLookup qProfileLookup,
-                                  RegisterRules registerRulesBefore) {
-    this(myBatis, settings, esActiveRule, loadedTemplateDao, qProfileBackup, qProfileOperations, qProfileLookup, registerRulesBefore,
+  public RegisterQualityProfiles(DatabaseSessionFactory sessionFactory,
+                                 MyBatis myBatis,
+                                 PersistentSettings settings,
+                                 ESActiveRule esActiveRule,
+                                 LoadedTemplateDao loadedTemplateDao,
+                                 QProfileBackup qProfileBackup,
+                                 QProfileOperations qProfileOperations,
+                                 QProfileLookup qProfileLookup,
+                                 RegisterRules registerRulesBefore) {
+    this(sessionFactory, myBatis, settings, esActiveRule, loadedTemplateDao, qProfileBackup, qProfileOperations, qProfileLookup, registerRulesBefore,
       Collections.<ProfileDefinition>emptyList());
   }
 
-  public RegisterQualityProfiles(MyBatis myBatis,
-                                  PersistentSettings settings,
-                                  ESActiveRule esActiveRule,
-                                  LoadedTemplateDao loadedTemplateDao,
-                                  QProfileBackup qProfileBackup,
-                                  QProfileOperations qProfileOperations,
-                                  QProfileLookup qProfileLookup,
-                                  RegisterRules registerRulesBefore,
-                                  List<ProfileDefinition> definitions) {
+  public RegisterQualityProfiles(DatabaseSessionFactory sessionFactory,
+                                 MyBatis myBatis,
+                                 PersistentSettings settings,
+                                 ESActiveRule esActiveRule,
+                                 LoadedTemplateDao loadedTemplateDao,
+                                 QProfileBackup qProfileBackup,
+                                 QProfileOperations qProfileOperations,
+                                 QProfileLookup qProfileLookup,
+                                 RegisterRules registerRulesBefore,
+                                 List<ProfileDefinition> definitions) {
+    this.sessionFactory = sessionFactory;
     this.myBatis = myBatis;
     this.settings = settings;
     this.esActiveRule = esActiveRule;
@@ -92,6 +97,10 @@ public class RegisterQualityProfiles {
 
   public void start() {
     TimeProfiler profiler = new TimeProfiler(LOGGER).start("Register Quality Profiles");
+
+    // Hibernate session can contain an invalid cache of rules.
+    // As long ProfileDefinition API will be used, then we'll have to use this commit as Hibernate is used by plugin to load rules when creating their profiles.
+    sessionFactory.getSession().commit();
 
     SqlSession session = myBatis.openSession();
     try {
