@@ -33,7 +33,6 @@ import org.junit.runner.RunWith;
 import org.sonar.api.config.Settings;
 import org.sonar.core.cluster.LocalNonBlockingWorkQueue;
 import org.sonar.core.profiling.Profiling;
-import org.sonar.server.cluster.LocalNonBlockingWorkQueue;
 
 import java.io.Serializable;
 import java.util.Collection;
