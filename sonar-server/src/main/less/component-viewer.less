@@ -124,6 +124,7 @@
     font-size: 11px;
     text-align: right;
     cursor: default;
+    white-space: nowrap;
   }
 
   .sources2 .lid {
@@ -134,6 +135,30 @@
 
   .sources2 .coverage-tests {
     cursor: pointer;
+  }
+
+  .sources2 .duplications {
+    padding-top: 0;
+    padding-bottom: 0;
+    font-size: 0;
+
+    .duplication {
+      display: inline-block;
+      vertical-align: top;
+      .size(5px, 100%);
+    }
+
+    .duplication + .duplication { margin-left: 2px; }
+
+    .duplication-exists {
+      background-color: @lightOrange;
+      cursor: pointer;
+      .trans;
+    }
+
+    .duplication-hover {
+      background-color: darken(@lightOrange, 10%);
+    }
   }
 
   .sources2 .measures {

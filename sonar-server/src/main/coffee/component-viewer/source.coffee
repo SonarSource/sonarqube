@@ -2,6 +2,7 @@ define [
   'backbone.marionette'
   'templates/component-viewer'
   'component-viewer/coverage-popup'
+  'component-viewer/duplication-popup'
   'issues/issue-view'
   'issues/models/issue'
   'common/handlebars-extensions'
@@ -9,6 +10,7 @@ define [
   Marionette
   Templates
   CoveragePopupView
+  DuplicationPopupView
   IssueView
   Issue
 ) ->
@@ -24,8 +26,13 @@ define [
       'click .js-toggle-settings': 'toggleSettings'
       'click .js-toggle-measures': 'toggleMeasures'
       'change #source-coverage': 'toggleCoverage'
+      'change #source-duplications': 'toggleDuplications'
       'change #source-workspace': 'toggleWorkspace'
       'click .coverage-tests': 'showCoveragePopup'
+
+      'click .duplication-exists': 'showDuplicationPopup'
+      'mouseenter .duplication-exists': 'duplicationMouseEnter'
+      'mouseleave .duplication-exists': 'duplicationMouseLeave'
 
 
     onRender: ->
@@ -64,6 +71,12 @@ define [
       if active then @options.main.showCoverage() else @options.main.hideCoverage()
 
 
+    toggleDuplications: (e) ->
+      active = $(e.currentTarget).is ':checked'
+      @showSettings = true
+      if active then @options.main.showDuplications() else @options.main.hideDuplications()
+
+
     toggleWorkspace: (e) ->
       active = $(e.currentTarget).is ':checked'
       @showSettings = true
@@ -79,11 +92,36 @@ define [
       popup.render()
 
 
+    showDuplicationPopup: (e) ->
+      e.stopPropagation()
+      $('body').click()
+      popup = new DuplicationPopupView
+        triggerEl: $(e.currentTarget)
+        main: @options.main
+      popup.render()
+
+
+    duplicationMouseEnter: (e) ->
+      @toggleDuplicationHover e, true
+
+
+    duplicationMouseLeave: (e) ->
+      @toggleDuplicationHover e, false
+
+
+    toggleDuplicationHover: (e, add) ->
+      bar = $(e.currentTarget)
+      index = bar.parent().children('.duplication').index bar
+      @$('.duplications').each ->
+        $(".duplication", @).eq(index).filter('.duplication-exists').toggleClass 'duplication-hover', add
+
+
     prepareSource: ->
       source = @model.get 'source'
       coverage = @model.get 'coverage'
       coverageConditions = @model.get 'coverageConditions'
       conditions = @model.get 'conditions'
+      duplications = @model.get('duplications') || []
       _.map source, (code, line) ->
         lineCoverage = coverage? && coverage[line]? && coverage[line]
         lineCoverage = +lineCoverage if _.isString lineCoverage
@@ -103,6 +141,9 @@ define [
           lineCoverageConditionsStatus = 'orange' if lineCoverageConditions > 0 && lineCoverageConditions < lineConditions
           lineCoverageConditionsStatus = 'green' if lineCoverageConditions == lineConditions
 
+        lineDuplications = duplications.map (d) ->
+          d.from <= line && (d.from + d.count) > line
+
         lineNumber: line
         code: code
         coverage: lineCoverage
@@ -110,6 +151,7 @@ define [
         coverageConditions: lineCoverageConditions
         conditions: lineConditions
         coverageConditionsStatus: lineCoverageConditionsStatus || lineCoverageStatus
+        duplications: lineDuplications
 
 
     serializeData: ->
