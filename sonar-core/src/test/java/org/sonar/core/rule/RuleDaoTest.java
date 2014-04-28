@@ -19,8 +19,6 @@
  */
 package org.sonar.core.rule;
 
-import org.sonar.core.cluster.WorkQueue;
-
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -32,14 +30,14 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
+import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.List;
 
-import static org.mockito.Mockito.mock;
-
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class RuleDaoTest extends AbstractDaoTestCase {
 

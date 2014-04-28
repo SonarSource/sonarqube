@@ -19,13 +19,12 @@
  */
 package org.sonar.server.rule2;
 
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 
 import java.util.Date;
 import java.util.List;
-
-import org.sonar.api.rule.RuleKey;
 
 public class RuleImpl implements Rule {
 

@@ -31,7 +31,6 @@ import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.rule.RuleConstants;
 import org.sonar.core.rule.RuleDao;
-import org.sonar.core.db.Dao;
 import org.sonar.server.search.BaseIndex;
 
 import java.io.IOException;
