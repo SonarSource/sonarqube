@@ -25,7 +25,7 @@ import org.sonar.core.persistence.MyBatis;
 
 import java.io.Serializable;
 
-public abstract class BaseDao<E extends Dto<K>, K extends Serializable, M extends Dao<E,K>>
+public abstract class BaseDao<E extends Dto<K>, K extends Serializable>
   implements Dao<E, K> {
 
   protected MyBatis mybatis;
@@ -38,11 +38,15 @@ public abstract class BaseDao<E extends Dto<K>, K extends Serializable, M extend
 
   protected abstract String getIndexName();
 
-  protected abstract Class<M> getMapperClass();
+  protected abstract void doInsert(E item, SqlSession session);
 
-  private M getMapper(SqlSession session) {
-    return session.getMapper(getMapperClass());
-  }
+  protected abstract void doUpdate(E item, SqlSession session);
+
+  protected abstract void doDelete(E item, SqlSession session);
+
+  protected abstract void doDeleteByKey(E item, SqlSession session);
+
+  protected abstract E doGetByKey(K key, SqlSession session);
 
   protected void enqueInsert(K key) {
     this.queue.enqueInsert(this.getIndexName(), key);
@@ -56,42 +60,54 @@ public abstract class BaseDao<E extends Dto<K>, K extends Serializable, M extend
     this.queue.enqueDelete(this.getIndexName(), key);
   }
 
-  protected MyBatis getMyBatis(){
+  protected MyBatis getMyBatis() {
     return this.mybatis;
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public E getByKey(K key) {
-    E item = null;
     SqlSession session = getMyBatis().openSession();
-    item = getMapper(session).getByKey(key);
+    E item = this.doGetByKey(key, session);
     MyBatis.closeQuietly(session);
     return item;
   }
 
   @Override
-  public void update(E item) {
+  public E update(E item) {
     SqlSession session = getMyBatis().openSession();
     try {
-      getMapper(session).update(item);
+      this.doUpdate(item, session);
       session.commit();
       this.enqueUpdate(item.getKey());
+      return item;
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   @Override
-  public void insert(E item) {
+  public E insert(E item) {
     SqlSession session = getMyBatis().openSession();
     try {
-      getMapper(session).insert(item);
+      this.doInsert(item, session);
       session.commit();
       this.enqueInsert(item.getKey());
+      return item;
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public void insert(E item, SqlSession session) {
+
+  }
+
+  public void update(E item, SqlSession session) {
+
+  }
+
+  public void delete(E item, SqlSession session) {
+
   }
 
   @Override
@@ -103,7 +119,7 @@ public abstract class BaseDao<E extends Dto<K>, K extends Serializable, M extend
   public void deleteByKey(K key) {
     SqlSession session = getMyBatis().openSession();
     try {
-      getMapper(session).deleteByKey(key);
+      this.deleteByKey(key);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);

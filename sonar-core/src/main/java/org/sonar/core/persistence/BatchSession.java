@@ -40,6 +40,7 @@ public class BatchSession implements SqlSession {
   private final int batchSize;
   private int count = 0;
 
+
   BatchSession(SqlSession session) {
     this(session, MAX_BATCH_SIZE);
   }

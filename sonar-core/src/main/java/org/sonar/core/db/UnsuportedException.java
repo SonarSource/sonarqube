@@ -19,21 +19,10 @@
  */
 package org.sonar.core.db;
 
-import java.io.Serializable;
-import java.util.Collection;
+public class UnsuportedException extends RuntimeException {
 
-public interface Dao<E extends Dto<K>, K extends Serializable> {
-
-  public E getByKey(K key);
-
-  public E update(E item);
-
-  public E insert(E item);
-
-  public void delete(E item);
-
-  public void deleteByKey(K key);
-
-  public Collection<K> insertsSince(Long timestamp);
+  public UnsuportedException(String cause) {
+    super(cause);
+  }
 
 }
