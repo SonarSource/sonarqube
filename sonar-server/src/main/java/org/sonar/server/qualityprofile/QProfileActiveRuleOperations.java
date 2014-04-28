@@ -111,8 +111,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
 
   ActiveRuleDto createActiveRule(int profileId, RuleKey ruleKey, String severity, SqlSession session) {
     RuleDto rule = ruleDao.selectByKey(ruleKey, session);
-    QProfileValidations.checkRuleIsNotNull(rule);
-    return createActiveRule(profileId, rule.getId(), severity, session);
+    return createActiveRule(profileId, QProfileValidations.checkRuleIsNotNull(rule).getId(), severity, session);
   }
 
   private ActiveRuleDto createActiveRule(int profileId, int ruleId, String severity, SqlSession session) {
