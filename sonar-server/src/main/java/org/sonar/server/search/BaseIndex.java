@@ -33,12 +33,11 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.cluster.WorkQueue;
+import org.sonar.core.db.Dao;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.Profiling.Level;
 import org.sonar.core.profiling.StopWatch;
-import org.sonar.server.cluster.WorkQueue;
-import org.sonar.server.db.Dao;
 
 import java.io.Serializable;
 import java.util.Collection;

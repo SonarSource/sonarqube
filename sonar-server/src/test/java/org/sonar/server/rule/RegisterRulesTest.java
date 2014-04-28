@@ -34,6 +34,8 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
+import org.sonar.core.cluster.LocalNonBlockingWorkQueue;
+import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
@@ -50,7 +52,11 @@ import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RegisterRulesTest extends AbstractDaoTestCase {
@@ -85,14 +91,16 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
   ActiveRuleDao activeRuleDao;
   CharacteristicDao characteristicDao;
   System2 system;
+  WorkQueue queue;
   Date date = DateUtils.parseDateTime("2014-03-17T19:10:03+0100");
 
   @Before
   public void before() {
     system = mock(System2.class);
+    queue = mock(WorkQueue.class);
     when(system.now()).thenReturn(date.getTime());
     myBatis = getMyBatis();
-    ruleDao = new RuleDao(myBatis);
+    ruleDao = new RuleDao(myBatis, queue);
     ruleTagDao = new RuleTagDao(myBatis);
     activeRuleDao = new ActiveRuleDao(myBatis);
     ruleTagOperations = new RuleTagOperations(ruleTagDao, esRuleTags);

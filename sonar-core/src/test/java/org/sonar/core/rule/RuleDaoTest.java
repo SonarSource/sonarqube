@@ -19,6 +19,8 @@
  */
 package org.sonar.core.rule;
 
+import org.sonar.core.cluster.WorkQueue;
+
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -34,6 +36,8 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.List;
 
+import static org.mockito.Mockito.mock;
+
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -43,7 +47,8 @@ public class RuleDaoTest extends AbstractDaoTestCase {
 
   @Before
   public void createDao() throws Exception {
-    dao = new RuleDao(getMyBatis());
+    WorkQueue queue = mock(WorkQueue.class);
+    dao = new RuleDao(getMyBatis(), queue);
   }
 
   @Test

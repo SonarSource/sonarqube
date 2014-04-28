@@ -20,6 +20,8 @@
 package org.sonar.server.rule2;
 
 import org.sonar.api.rule.RuleKey;
+import org.sonar.core.rule.RuleDao;
+import org.sonar.core.rule.RuleDto;
 import org.sonar.server.search.Hit;
 
 import javax.annotation.CheckForNull;

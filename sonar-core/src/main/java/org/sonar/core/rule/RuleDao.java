@@ -24,6 +24,8 @@ import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.core.cluster.WorkQueue;
+import org.sonar.core.db.BaseDao;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
@@ -33,12 +35,22 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class RuleDao implements BatchComponent, ServerComponent {
+public class RuleDao extends BaseDao<RuleDto, RuleKey, RuleMapper>
+  implements BatchComponent, ServerComponent {
 
-  private MyBatis mybatis;
 
-  public RuleDao(MyBatis mybatis) {
-    this.mybatis = mybatis;
+  public RuleDao(MyBatis mybatis, WorkQueue queue) {
+    super(queue, mybatis);
+  }
+
+  @Override
+  protected String getIndexName() {
+    return RuleConstants.INDEX_NAME;
+  }
+
+  @Override
+  protected Class<RuleMapper> getMapperClass() {
+    return RuleMapper.class;
   }
 
   public List<RuleDto> selectAll() {
@@ -131,29 +143,18 @@ public class RuleDao implements BatchComponent, ServerComponent {
     getMapper(session).update(rule);
   }
 
-  public void update(RuleDto rule) {
-    SqlSession session = mybatis.openSession();
-    try {
-      update(rule, session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
+//  public RuleDto update(RuleDto rule) {
+//   return super.update(rule);
+//  }
+//
+//  public RuleDto insert(RuleDto ruleToInsert) {
+//    return super.insert(ruleToInsert);
+//  }
 
   public void insert(RuleDto ruleToInsert, SqlSession session) {
     getMapper(session).insert(ruleToInsert);
   }
 
-  public void insert(RuleDto ruleToInsert) {
-    SqlSession session = mybatis.openSession();
-    try {
-      insert(ruleToInsert, session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
 
   public void insert(Collection<RuleDto> rules) {
     SqlSession session = mybatis.openBatchSession();
@@ -306,5 +307,11 @@ public class RuleDao implements BatchComponent, ServerComponent {
       dtos.addAll(getMapper(session).selectTagsByRuleIds(partition));
     }
     return dtos;
+  }
+
+  @Override
+  public Collection<RuleKey> insertsSince(Long timestamp) {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

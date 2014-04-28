@@ -19,7 +19,7 @@
  */
 package org.sonar.server.rule2;
 
-import org.sonar.server.cluster.LocalNonBlockingWorkQueue;
+import org.sonar.core.cluster.LocalNonBlockingWorkQueue;
 
 import com.github.tlrx.elasticsearch.test.annotations.ElasticsearchNode;
 import com.github.tlrx.elasticsearch.test.support.junit.runners.ElasticsearchRunner;

@@ -17,27 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.cluster;
+package org.sonar.core.db;
 
 import java.io.Serializable;
+import java.util.Collection;
 
-public interface WorkQueue {
+public interface Dao<E extends Dto<K>, K extends Serializable> {
 
-  Integer enqueInsert(String indexName, Serializable key);
+  public E getByKey(K key);
 
-  Integer enqueUpdate(String indexName, Serializable key);
+  public void update(E item);
 
-  Integer enqueDelete(String indexName, Serializable key);
+  public void insert(E item);
 
-  Object dequeInsert(String indexName);
+  public void delete(E item);
 
-  Object dequeUpdate(String indexName);
+  public void deleteByKey(K key);
 
-  Object dequeDelete(String indexName);
+  public Collection<K> insertsSince(Long timestamp);
 
-  Status getStatus(Integer workId);
-
-  interface Status {
-
-  }
 }

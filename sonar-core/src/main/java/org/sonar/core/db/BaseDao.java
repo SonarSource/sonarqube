@@ -17,40 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db;
+package org.sonar.core.db;
 
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.server.cluster.WorkQueue;
 
 import java.io.Serializable;
 
-public abstract class BaseDao<E extends Dto<K>, K extends Serializable> implements Dao<E, K> {
+public abstract class BaseDao<E extends Dto<K>, K extends Serializable, M extends Dao<E,K>>
+  implements Dao<E, K> {
 
-  private MyBatis myBatis;
-  private WorkQueue workQueue;
+  protected MyBatis mybatis;
+  private WorkQueue queue;
 
   protected BaseDao(WorkQueue workQueue, MyBatis myBatis) {
-    this.myBatis = myBatis;
-    this.workQueue = workQueue;
+    this.mybatis = myBatis;
+    this.queue = workQueue;
   }
 
   protected abstract String getIndexName();
 
+  protected abstract Class<M> getMapperClass();
+
+  private M getMapper(SqlSession session) {
+    return session.getMapper(getMapperClass());
+  }
+
   protected void enqueInsert(K key) {
-    this.workQueue.enqueInsert(this.getIndexName(), key);
+    this.queue.enqueInsert(this.getIndexName(), key);
   }
 
   protected void enqueUpdate(K key) {
-    this.workQueue.enqueUpdate(this.getIndexName(), key);
+    this.queue.enqueUpdate(this.getIndexName(), key);
   }
 
   protected void enqueDelete(K key) {
-    this.workQueue.enqueDelete(this.getIndexName(), key);
+    this.queue.enqueDelete(this.getIndexName(), key);
   }
 
   protected MyBatis getMyBatis(){
-    return this.myBatis;
+    return this.mybatis;
   }
 
   @Override
@@ -58,36 +65,32 @@ public abstract class BaseDao<E extends Dto<K>, K extends Serializable> implemen
   public E getByKey(K key) {
     E item = null;
     SqlSession session = getMyBatis().openSession();
-    item = (E) session.getMapper(this.getClass()).getByKey(key);
+    item = getMapper(session).getByKey(key);
     MyBatis.closeQuietly(session);
     return item;
   }
 
   @Override
-  public E update(E item) {
+  public void update(E item) {
     SqlSession session = getMyBatis().openSession();
-    E result = null;
     try {
-      result = (E) session.getMapper(this.getClass()).update(item);
+      getMapper(session).update(item);
       session.commit();
-    } finally {
       this.enqueUpdate(item.getKey());
+    } finally {
       MyBatis.closeQuietly(session);
-      return result;
     }
   }
 
   @Override
-  public E insert(E item) {
+  public void insert(E item) {
     SqlSession session = getMyBatis().openSession();
-    E result = null;
     try {
-      result = (E) session.getMapper(this.getClass()).insert(item);
+      getMapper(session).insert(item);
       session.commit();
+      this.enqueInsert(item.getKey());
     } finally {
       MyBatis.closeQuietly(session);
-      this.enqueInsert(item.getKey());
-      return result;
     }
   }
 
@@ -100,7 +103,7 @@ public abstract class BaseDao<E extends Dto<K>, K extends Serializable> implemen
   public void deleteByKey(K key) {
     SqlSession session = getMyBatis().openSession();
     try {
-      session.getMapper(this.getClass()).deleteByKey(key);
+      getMapper(session).deleteByKey(key);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);

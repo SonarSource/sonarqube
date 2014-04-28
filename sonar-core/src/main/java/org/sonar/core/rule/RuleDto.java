@@ -19,6 +19,9 @@
  */
 package org.sonar.core.rule;
 
+import org.sonar.api.rule.RuleKey;
+
+import org.sonar.core.db.Dto;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
@@ -30,7 +33,7 @@ import javax.annotation.Nullable;
 
 import java.util.Date;
 
-public final class RuleDto {
+public final class RuleDto implements Dto<RuleKey>{
 
   public static final Integer DISABLED_CHARACTERISTIC_ID = -1;
 
@@ -61,6 +64,12 @@ public final class RuleDto {
   private Date createdAt;
   private Date updatedAt;
 
+  @Override
+  public RuleKey getKey() {
+    return RuleKey.of(this.getRepositoryKey(), this.getRuleKey());
+  }
+
+  @Deprecated
   public Integer getId() {
     return id;
   }

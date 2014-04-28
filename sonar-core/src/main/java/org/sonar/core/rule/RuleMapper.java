@@ -21,10 +21,12 @@ package org.sonar.core.rule;
 
 import org.apache.ibatis.annotations.Param;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.core.db.Dao;
 
 import java.util.List;
 
-public interface RuleMapper {
+public interface RuleMapper extends Dao<RuleDto, RuleKey>{
+
   List<RuleDto> selectAll();
 
   List<RuleDto> selectEnablesAndNonManual();

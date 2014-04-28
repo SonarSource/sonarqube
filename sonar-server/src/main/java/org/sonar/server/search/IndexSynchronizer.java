@@ -19,9 +19,10 @@
  */
 package org.sonar.server.search;
 
+import org.sonar.core.cluster.WorkQueue;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.server.cluster.WorkQueue;
 
 import java.io.Serializable;
 

@@ -17,23 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db;
+package org.sonar.core.rule;
 
-import java.io.Serializable;
-import java.util.Collection;
+public interface RuleConstants {
 
-public interface Dao<E extends Dto<K>, K extends Serializable> {
-
-  public E getByKey(K key);
-
-  public E update(E item);
-
-  public E insert(E item);
-
-  public void delete(E item);
-
-  public void deleteByKey(K key);
-
-  public Collection<K> insertsSince(Long timestamp);
-
+  public static final String INDEX_NAME = "rules";
+  public static final String ES_TYPE = "rule";
 }
