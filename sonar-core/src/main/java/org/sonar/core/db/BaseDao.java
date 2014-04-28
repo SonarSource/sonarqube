@@ -19,8 +19,11 @@
  */
 package org.sonar.core.db;
 
+import org.sonar.core.cluster.IndexAction;
+
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.SonarSession;
 
 import java.io.Serializable;
 
@@ -51,21 +54,22 @@ public abstract class BaseDao<E extends Dto<K>, K extends Serializable>
 
   @Override
   public E getByKey(K key) {
-    SqlSession session = getMyBatis().openSession();
+    SonarSession session = getMyBatis().openSession();
     E item = this.doGetByKey(key, session);
     MyBatis.closeQuietly(session);
     return item;
   }
 
   @Override
-  public E update(E item, SqlSession session) {
-    //TODO add update record to session */
+  public E update(E item, SonarSession session) {
+    session.enqueue(new IndexAction(this.getIndexName(),
+      IndexAction.Method.UPDATE, item.getKey()));
     return this.doUpdate(item, session);
   }
 
   @Override
   public E update(E item) {
-    SqlSession session = getMyBatis().openSession();
+    SonarSession session = getMyBatis().openSession();
     try {
       this.update(item, session);
       session.commit();
@@ -76,14 +80,15 @@ public abstract class BaseDao<E extends Dto<K>, K extends Serializable>
   }
 
   @Override
-  public E insert(E item, SqlSession session) {
-    //TODO add insert record to session */
+  public E insert(E item, SonarSession session) {
+    session.enqueue(new IndexAction(this.getIndexName(),
+      IndexAction.Method.INSERT, item.getKey()));
     return this.doInsert(item, session);
   }
 
   @Override
   public E insert(E item) {
-    SqlSession session = getMyBatis().openSession();
+    SonarSession session = getMyBatis().openSession();
     try {
       this.insert(item, session);
       session.commit();
@@ -94,14 +99,15 @@ public abstract class BaseDao<E extends Dto<K>, K extends Serializable>
   }
 
   @Override
-  public void delete(E item, SqlSession session) {
-    //TODO add delete record to session */
+  public void delete(E item, SonarSession session) {
+    session.enqueue(new IndexAction(this.getIndexName(),
+      IndexAction.Method.DELETE, item.getKey()));
     this.doDelete(item, session);
   }
 
   @Override
   public void delete(E item) {
-    SqlSession session = getMyBatis().openSession();
+    SonarSession session = getMyBatis().openSession();
     try {
       this.delete(item, session);
       session.commit();
@@ -111,14 +117,15 @@ public abstract class BaseDao<E extends Dto<K>, K extends Serializable>
   }
 
   @Override
-  public void deleteByKey(K key, SqlSession session) {
-    //TODO add delete record to session */
+  public void deleteByKey(K key, SonarSession session) {
+    session.enqueue(new IndexAction(this.getIndexName(),
+      IndexAction.Method.DELETE, key));
     this.doDeleteByKey(key, session);
   }
 
   @Override
   public void deleteByKey(K key) {
-    SqlSession session = getMyBatis().openSession();
+    SonarSession session = getMyBatis().openSession();
     try {
       this.doDeleteByKey(key, session);
       session.commit();

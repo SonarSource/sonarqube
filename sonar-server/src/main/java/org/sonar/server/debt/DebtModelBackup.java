@@ -37,10 +37,13 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.SonarSession;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
+import org.sonar.server.debt.DebtModelXMLExporter.DebtModel;
+import org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.RuleOperations;
@@ -55,8 +58,6 @@ import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.sonar.server.debt.DebtModelXMLExporter.DebtModel;
-import static org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
 
 public class DebtModelBackup implements ServerComponent {
 
@@ -146,7 +147,7 @@ public class DebtModelBackup implements ServerComponent {
     checkPermission();
 
     Date updateDate = new Date(system2.now());
-    SqlSession session = mybatis.openSession();
+    SonarSession session = mybatis.openSession();
     try {
       // Restore characteristics
       List<CharacteristicDto> allCharacteristicDtos = restoreCharacteristics(loadModelFromPlugin(DebtModelPluginRepository.DEFAULT_MODEL), updateDate, session);
@@ -171,7 +172,7 @@ public class DebtModelBackup implements ServerComponent {
     }
   }
 
-  private void resetRules(List<RuleDto> ruleDtos, List<RulesDefinition.Rule> rules, List<CharacteristicDto> allCharacteristicDtos, Date updateDate, SqlSession session){
+  private void resetRules(List<RuleDto> ruleDtos, List<RulesDefinition.Rule> rules, List<CharacteristicDto> allCharacteristicDtos, Date updateDate, SonarSession session){
     for (RuleDto rule : ruleDtos) {
       // Restore default debt definitions
 
@@ -225,7 +226,7 @@ public class DebtModelBackup implements ServerComponent {
 
     ValidationMessages validationMessages = ValidationMessages.create();
     Date updateDate = new Date(system2.now());
-    SqlSession session = mybatis.openSession();
+    SonarSession session = mybatis.openSession();
     try {
       List<CharacteristicDto> allCharacteristicDtos = restoreCharacteristics(characteristicsXMLImporter.importXML(xml), updateDate, session);
       restoreRules(allCharacteristicDtos, rules(languageKey, session), rulesXMLImporter.importXML(xml, validationMessages), validationMessages, updateDate, session);
@@ -241,7 +242,7 @@ public class DebtModelBackup implements ServerComponent {
   }
 
   private void restoreRules(List<CharacteristicDto> allCharacteristicDtos, List<RuleDto> rules, List<RuleDebt> ruleDebts,
-                            ValidationMessages validationMessages, Date updateDate, SqlSession session) {
+                            ValidationMessages validationMessages, Date updateDate, SonarSession session) {
     for (RuleDto rule : rules) {
       RuleDebt ruleDebt = ruleDebt(rule.getRepositoryKey(), rule.getRuleKey(), ruleDebts);
       String subCharacteristicKey = ruleDebt != null ? ruleDebt.subCharacteristicKey() : null;
@@ -261,7 +262,7 @@ public class DebtModelBackup implements ServerComponent {
   }
 
   @VisibleForTesting
-  List<CharacteristicDto> restoreCharacteristics(DebtModel targetModel, Date updateDate, SqlSession session) {
+  List<CharacteristicDto> restoreCharacteristics(DebtModel targetModel, Date updateDate, SonarSession session) {
     List<CharacteristicDto> sourceCharacteristics = dao.selectEnabledCharacteristics(session);
 
     List<CharacteristicDto> result = newArrayList();

@@ -20,7 +20,6 @@
 
 package org.sonar.server.startup;
 
-import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,12 +32,17 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.SonarSession;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.platform.PersistentSettings;
-import org.sonar.server.qualityprofile.*;
+import org.sonar.server.qualityprofile.ESActiveRule;
+import org.sonar.server.qualityprofile.QProfile;
+import org.sonar.server.qualityprofile.QProfileBackup;
+import org.sonar.server.qualityprofile.QProfileLookup;
+import org.sonar.server.qualityprofile.QProfileOperations;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
@@ -47,8 +51,14 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RegisterQualityProfilesTest {
@@ -75,7 +85,7 @@ public class RegisterQualityProfilesTest {
   MyBatis myBatis;
 
   @Mock
-  SqlSession session;
+  SonarSession session;
 
   @Mock
   DatabaseSessionFactory sessionFactory;

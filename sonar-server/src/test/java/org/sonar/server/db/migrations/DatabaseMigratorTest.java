@@ -19,7 +19,6 @@
  */
 package org.sonar.server.db.migrations;
 
-import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,6 +27,7 @@ import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.SonarSession;
 import org.sonar.core.persistence.dialect.Dialect;
 import org.sonar.core.persistence.dialect.H2;
 import org.sonar.core.persistence.dialect.MySql;
@@ -35,7 +35,9 @@ import org.sonar.core.persistence.dialect.MySql;
 import java.sql.Connection;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class DatabaseMigratorTest extends AbstractDaoTestCase {
 
@@ -82,7 +84,7 @@ public class DatabaseMigratorTest extends AbstractDaoTestCase {
     Dialect supportedDialect = new H2();
     when(database.getDialect()).thenReturn(supportedDialect);
     Connection connection = mock(Connection.class);
-    SqlSession session = mock(SqlSession.class);
+    SonarSession session = mock(SonarSession.class);
     when(session.getConnection()).thenReturn(connection);
     when(mybatis.openSession()).thenReturn(session);
     when(serverUpgradeStatus.isFreshInstall()).thenReturn(true);

@@ -30,109 +30,109 @@ import static org.fest.assertions.Assertions.assertThat;
 
 
 public class LocalNonBlockingWorkQueueTest {
-
-  private static final String WORKING_INDEX = "working_index";
-  private static final String NON_WORKING_INDEX = "non_working_index";
-
-  @Test
-  public void test_insert_queue(){
-    LocalNonBlockingWorkQueue queue = new LocalNonBlockingWorkQueue();
-
-    assertThat(queue.dequeInsert(WORKING_INDEX)).isNull();
-    assertThat(queue.dequeInsert(NON_WORKING_INDEX)).isNull();
-
-    queue.enqueInsert(WORKING_INDEX, new Integer(0));
-    assertThat(queue.dequeInsert(NON_WORKING_INDEX)).isNull();
-
-    Object dequeued = queue.dequeInsert(WORKING_INDEX);
-    assertThat(queue.dequeInsert(NON_WORKING_INDEX)).isNull();
-    assertThat(queue.dequeInsert(WORKING_INDEX)).isNull();
-
-    assertThat(dequeued).isEqualTo(new Integer(0));
-  }
-
-  @Test
-  public void test_update_queue(){
-    LocalNonBlockingWorkQueue queue = new LocalNonBlockingWorkQueue();
-
-    assertThat(queue.dequeUpdate(WORKING_INDEX)).isNull();
-    assertThat(queue.dequeUpdate(NON_WORKING_INDEX)).isNull();
-
-    queue.enqueUpdate(WORKING_INDEX, new Integer(0));
-    assertThat(queue.dequeUpdate(NON_WORKING_INDEX)).isNull();
-
-    Object dequeued = queue.dequeUpdate(WORKING_INDEX);
-    assertThat(queue.dequeUpdate(NON_WORKING_INDEX)).isNull();
-    assertThat(queue.dequeUpdate(WORKING_INDEX)).isNull();
-
-    assertThat(dequeued).isEqualTo(new Integer(0));
-  }
-
-  @Test
-  public void test_delete_queue(){
-    LocalNonBlockingWorkQueue queue = new LocalNonBlockingWorkQueue();
-
-    assertThat(queue.dequeDelete(WORKING_INDEX)).isNull();
-    assertThat(queue.dequeDelete(NON_WORKING_INDEX)).isNull();
-
-    queue.enqueDelete(WORKING_INDEX, new Integer(0));
-    assertThat(queue.dequeDelete(NON_WORKING_INDEX)).isNull();
-
-    Object dequeued = queue.dequeDelete(WORKING_INDEX);
-    assertThat(queue.dequeDelete(NON_WORKING_INDEX)).isNull();
-    assertThat(queue.dequeDelete(WORKING_INDEX)).isNull();
-
-    assertThat(dequeued).isEqualTo(new Integer(0));
-  }
-
-  @Test
-  public void test_enque_seralizable_object(){
-
-    LocalNonBlockingWorkQueue queue = new LocalNonBlockingWorkQueue();
-
-    class NonSerializable implements Serializable{
-      private Object var1;
-      private Map<String, Object> objs;
-    }
-
-    NonSerializable nonSer = new NonSerializable();
-    assertThat(queue.enqueInsert(WORKING_INDEX, nonSer)).isNotNull();
-
-    Object dequeued = queue.dequeInsert(WORKING_INDEX);
-    assertThat(queue.dequeInsert(NON_WORKING_INDEX)).isNull();
-
-    assertThat(dequeued).isNotNull();
-    assertThat(dequeued.getClass()).isEqualTo(NonSerializable.class);
-  }
-
-  @Test
-  public void test_under_queue_capacity(){
-    LocalNonBlockingWorkQueue queue = new LocalNonBlockingWorkQueue();
-
-    for(int i = 0; i < 10; i++){
-      assertThat(queue.enqueDelete(WORKING_INDEX, i)).isNotNull();
-    }
-
-    for(int i = 0; i < 10; i++){
-      assertThat(queue.dequeDelete(WORKING_INDEX)).isNotNull();
-    }
-    assertThat(queue.dequeDelete(WORKING_INDEX)).isNull();
-
-  }
-
-  @Test
-  public void test_over_queue_capacity(){
-    LocalNonBlockingWorkQueue queue = new LocalNonBlockingWorkQueue();
-
-    for(int i = 0; i < 100; i++){
-      assertThat(queue.enqueDelete(WORKING_INDEX, i)).isNotNull();
-    }
-
-    for(int i = 0; i < 100; i++){
-      assertThat(queue.dequeDelete(WORKING_INDEX)).isNotNull();
-    }
-    assertThat(queue.dequeDelete(WORKING_INDEX)).isNull();
-
-  }
+//
+//  private static final String WORKING_INDEX = "working_index";
+//  private static final String NON_WORKING_INDEX = "non_working_index";
+//
+//  @Test
+//  public void test_insert_queue(){
+//    LocalNonBlockingWorkQueue queue = new LocalNonBlockingWorkQueue();
+//
+//    assertThat(queue.dequeInsert(WORKING_INDEX)).isNull();
+//    assertThat(queue.dequeInsert(NON_WORKING_INDEX)).isNull();
+//
+//    queue.enqueInsert(WORKING_INDEX, new Integer(0));
+//    assertThat(queue.dequeInsert(NON_WORKING_INDEX)).isNull();
+//
+//    Object dequeued = queue.dequeInsert(WORKING_INDEX);
+//    assertThat(queue.dequeInsert(NON_WORKING_INDEX)).isNull();
+//    assertThat(queue.dequeInsert(WORKING_INDEX)).isNull();
+//
+//    assertThat(dequeued).isEqualTo(new Integer(0));
+//  }
+//
+//  @Test
+//  public void test_update_queue(){
+//    LocalNonBlockingWorkQueue queue = new LocalNonBlockingWorkQueue();
+//
+//    assertThat(queue.dequeUpdate(WORKING_INDEX)).isNull();
+//    assertThat(queue.dequeUpdate(NON_WORKING_INDEX)).isNull();
+//
+//    queue.enqueUpdate(WORKING_INDEX, new Integer(0));
+//    assertThat(queue.dequeUpdate(NON_WORKING_INDEX)).isNull();
+//
+//    Object dequeued = queue.dequeUpdate(WORKING_INDEX);
+//    assertThat(queue.dequeUpdate(NON_WORKING_INDEX)).isNull();
+//    assertThat(queue.dequeUpdate(WORKING_INDEX)).isNull();
+//
+//    assertThat(dequeued).isEqualTo(new Integer(0));
+//  }
+//
+//  @Test
+//  public void test_delete_queue(){
+//    LocalNonBlockingWorkQueue queue = new LocalNonBlockingWorkQueue();
+//
+//    assertThat(queue.dequeDelete(WORKING_INDEX)).isNull();
+//    assertThat(queue.dequeDelete(NON_WORKING_INDEX)).isNull();
+//
+//    queue.enqueDelete(WORKING_INDEX, new Integer(0));
+//    assertThat(queue.dequeDelete(NON_WORKING_INDEX)).isNull();
+//
+//    Object dequeued = queue.dequeDelete(WORKING_INDEX);
+//    assertThat(queue.dequeDelete(NON_WORKING_INDEX)).isNull();
+//    assertThat(queue.dequeDelete(WORKING_INDEX)).isNull();
+//
+//    assertThat(dequeued).isEqualTo(new Integer(0));
+//  }
+//
+//  @Test
+//  public void test_enque_seralizable_object(){
+//
+//    LocalNonBlockingWorkQueue queue = new LocalNonBlockingWorkQueue();
+//
+//    class NonSerializable implements Serializable{
+//      private Object var1;
+//      private Map<String, Object> objs;
+//    }
+//
+//    NonSerializable nonSer = new NonSerializable();
+//    assertThat(queue.enqueInsert(WORKING_INDEX, nonSer)).isNotNull();
+//
+//    Object dequeued = queue.dequeInsert(WORKING_INDEX);
+//    assertThat(queue.dequeInsert(NON_WORKING_INDEX)).isNull();
+//
+//    assertThat(dequeued).isNotNull();
+//    assertThat(dequeued.getClass()).isEqualTo(NonSerializable.class);
+//  }
+//
+//  @Test
+//  public void test_under_queue_capacity(){
+//    LocalNonBlockingWorkQueue queue = new LocalNonBlockingWorkQueue();
+//
+//    for(int i = 0; i < 10; i++){
+//      assertThat(queue.enqueDelete(WORKING_INDEX, i)).isNotNull();
+//    }
+//
+//    for(int i = 0; i < 10; i++){
+//      assertThat(queue.dequeDelete(WORKING_INDEX)).isNotNull();
+//    }
+//    assertThat(queue.dequeDelete(WORKING_INDEX)).isNull();
+//
+//  }
+//
+//  @Test
+//  public void test_over_queue_capacity(){
+//    LocalNonBlockingWorkQueue queue = new LocalNonBlockingWorkQueue();
+//
+//    for(int i = 0; i < 100; i++){
+//      assertThat(queue.enqueDelete(WORKING_INDEX, i)).isNotNull();
+//    }
+//
+//    for(int i = 0; i < 100; i++){
+//      assertThat(queue.dequeDelete(WORKING_INDEX)).isNotNull();
+//    }
+//    assertThat(queue.dequeDelete(WORKING_INDEX)).isNull();
+//
+//  }
 
 }

@@ -27,98 +27,98 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.core.cluster.WorkQueue;
 
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
-public class BatchSession implements SqlSession {
+public class BatchSession extends SonarSession {
 
   public static final int MAX_BATCH_SIZE = 250;
 
-  private final SqlSession session;
   private final int batchSize;
   private int count = 0;
 
 
-  BatchSession(SqlSession session) {
-    this(session, MAX_BATCH_SIZE);
+  BatchSession(WorkQueue queue, SqlSession session) {
+    this(queue, session, MAX_BATCH_SIZE);
   }
 
-  BatchSession(SqlSession session, int batchSize) {
-    this.session = session;
+  BatchSession(WorkQueue queue, SqlSession session, int batchSize) {
+    super(queue, session);
     this.batchSize = batchSize;
   }
 
   public void select(String statement, Object parameter, ResultHandler handler) {
     reset();
-    session.select(statement, parameter, handler);
+    super.select(statement, parameter, handler);
   }
 
   public void select(String statement, ResultHandler handler) {
     reset();
-    session.select(statement, handler);
+    super.select(statement, handler);
   }
 
   public <T> T selectOne(String statement) {
     reset();
-    return (T) session.selectOne(statement);
+    return (T) super.selectOne(statement);
   }
 
   public <T> T selectOne(String statement, Object parameter) {
     reset();
-    return (T) session.selectOne(statement, parameter);
+    return (T) super.selectOne(statement, parameter);
   }
 
   public <E> List<E> selectList(String statement) {
     reset();
-    return session.selectList(statement);
+    return super.selectList(statement);
   }
 
   public <E> List<E> selectList(String statement, Object parameter) {
     reset();
-    return session.selectList(statement, parameter);
+    return super.selectList(statement, parameter);
   }
 
   public <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds) {
     reset();
-    return session.selectList(statement, parameter, rowBounds);
+    return super.selectList(statement, parameter, rowBounds);
   }
 
   public <K, V> Map<K, V> selectMap(String statement, String mapKey) {
     reset();
-    return session.selectMap(statement, mapKey);
+    return super.selectMap(statement, mapKey);
   }
 
   public <K, V> Map<K, V> selectMap(String statement, Object parameter, String mapKey) {
     reset();
-    return session.selectMap(statement, parameter, mapKey);
+    return super.selectMap(statement, parameter, mapKey);
   }
 
   public <K, V> Map<K, V> selectMap(String statement, Object parameter, String mapKey, RowBounds rowBounds) {
     reset();
-    return session.selectMap(statement, parameter, mapKey, rowBounds);
+    return super.selectMap(statement, parameter, mapKey, rowBounds);
   }
 
   public void select(String statement, Object parameter, RowBounds rowBounds, ResultHandler handler) {
     reset();
-    session.select(statement, parameter, rowBounds, handler);
+    super.select(statement, parameter, rowBounds, handler);
   }
 
   public int insert(String statement) {
     makeSureGeneratedKeysAreNotUsedInBatchInserts(statement);
     increment();
-    return session.insert(statement);
+    return super.insert(statement);
   }
 
   public int insert(String statement, Object parameter) {
     makeSureGeneratedKeysAreNotUsedInBatchInserts(statement);
     increment();
-    return session.insert(statement, parameter);
+    return super.insert(statement, parameter);
   }
 
   private void makeSureGeneratedKeysAreNotUsedInBatchInserts(String statement) {
-    Configuration configuration = session.getConfiguration();
+    Configuration configuration = super.getConfiguration();
     if (null != configuration) {
       MappedStatement mappedStatement = configuration.getMappedStatement(statement);
       if (null != mappedStatement) {
@@ -132,60 +132,60 @@ public class BatchSession implements SqlSession {
 
   public int update(String statement) {
     increment();
-    return session.update(statement);
+    return super.update(statement);
   }
 
   public int update(String statement, Object parameter) {
     increment();
-    return session.update(statement, parameter);
+    return super.update(statement, parameter);
   }
 
   public int delete(String statement) {
     increment();
-    return session.delete(statement);
+    return super.delete(statement);
   }
 
   public int delete(String statement, Object parameter) {
     increment();
-    return session.delete(statement, parameter);
+    return super.delete(statement, parameter);
   }
 
   public void commit() {
-    session.commit();
+    super.commit();
     reset();
   }
 
   public void commit(boolean force) {
-    session.commit(force);
+    super.commit(force);
     reset();
   }
 
   public void rollback() {
-    session.rollback();
+    super.rollback();
     reset();
   }
 
   public void rollback(boolean force) {
-    session.rollback(force);
+    super.rollback(force);
     reset();
   }
 
   public List<BatchResult> flushStatements() {
-    List<BatchResult> batchResults = session.flushStatements();
+    List<BatchResult> batchResults = super.flushStatements();
     reset();
     return batchResults;
   }
 
   public void close() {
-    session.close();
+    super.close();
   }
 
   public void clearCache() {
-    session.clearCache();
+    super.clearCache();
   }
 
   public Configuration getConfiguration() {
-    return session.getConfiguration();
+    return super.getConfiguration();
   }
 
   public <T> T getMapper(Class<T> type) {
@@ -193,7 +193,7 @@ public class BatchSession implements SqlSession {
   }
 
   public Connection getConnection() {
-    return session.getConnection();
+    return super.getConnection();
   }
 
   private BatchSession increment() {

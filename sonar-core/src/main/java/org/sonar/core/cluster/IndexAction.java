@@ -17,32 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.search;
-
-import org.picocontainer.Startable;
+package org.sonar.core.cluster;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Map;
 
-public interface Index<K extends Serializable> extends Startable {
+public class IndexAction {
 
-  String getIndexName();
+  public enum Method {
+    INSERT, UPDATE, DELETE
+  }
 
-  Hit getByKey(K key);
+  String indexName;
+  Serializable key;
+  Method method;
 
-  void insert(K key);
+  public IndexAction(String indexName, Method method, Serializable key){
+    this.indexName = indexName;
+    this.method = method;
+    this.key = key;
+  }
 
-  void update(K key);
+  public String getIndexName() {
+    return indexName;
+  }
 
-  void delete(K key);
+  public void setIndexName(String indexName) {
+    this.indexName = indexName;
+  }
 
-  Map<String, Object> normalize(K key);
+  public Serializable getKey() {
+    return key;
+  }
 
-  Long getLastSynchronization();
+  public void setKey(Serializable key) {
+    this.key = key;
+  }
 
-  void setLastSynchronization(Long time);
+  public Method getMethod() {
+    return method;
+  }
 
-  Collection<K> synchronizeSince(Long time);
-
+  public void setMethod(Method method) {
+    this.method = method;
+  }
 }

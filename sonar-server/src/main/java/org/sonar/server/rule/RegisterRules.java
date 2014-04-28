@@ -22,7 +22,12 @@ package org.sonar.server.rule;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import com.google.common.collect.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
@@ -38,8 +43,15 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.SonarSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
-import org.sonar.core.rule.*;
+import org.sonar.core.rule.RuleDao;
+import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleParamDto;
+import org.sonar.core.rule.RuleRuleTagDto;
+import org.sonar.core.rule.RuleTagDao;
+import org.sonar.core.rule.RuleTagDto;
+import org.sonar.core.rule.RuleTagType;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.qualityprofile.ProfilesManager;
@@ -48,7 +60,11 @@ import org.sonar.server.startup.RegisterDebtModel;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -103,7 +119,7 @@ public class RegisterRules implements Startable {
   @Override
   public void start() {
     TimeProfiler profiler = new TimeProfiler().start("Register rules");
-    SqlSession sqlSession = myBatis.openSession();
+    SonarSession sqlSession = myBatis.openSession();
     try {
       RulesDefinition.Context context = defLoader.load();
       Buffer buffer = new Buffer(system.now());
@@ -145,7 +161,7 @@ public class RegisterRules implements Startable {
     }
   }
 
-  private void enableRuleDefinitions(RulesDefinition.Context context, Buffer buffer, SqlSession sqlSession) {
+  private void enableRuleDefinitions(RulesDefinition.Context context, Buffer buffer, SonarSession sqlSession) {
     for (RulesDefinition.Repository repoDef : context.repositories()) {
       enableRepository(buffer, sqlSession, repoDef);
     }
@@ -158,7 +174,7 @@ public class RegisterRules implements Startable {
     }
   }
 
-  private void enableRepository(Buffer buffer, SqlSession sqlSession, RulesDefinition.ExtendedRepository repoDef) {
+  private void enableRepository(Buffer buffer, SonarSession sqlSession, RulesDefinition.ExtendedRepository repoDef) {
     int count = 0;
     for (RulesDefinition.Rule ruleDef : repoDef.rules()) {
       RuleDto dto = buffer.rule(RuleKey.of(ruleDef.repository().key(), ruleDef.key()));
@@ -176,7 +192,7 @@ public class RegisterRules implements Startable {
     sqlSession.commit();
   }
 
-  private RuleDto enableAndInsert(Buffer buffer, SqlSession sqlSession, RulesDefinition.Rule ruleDef) {
+  private RuleDto enableAndInsert(Buffer buffer, SonarSession sqlSession, RulesDefinition.Rule ruleDef) {
     RuleDto ruleDto = new RuleDto()
       .setCardinality(ruleDef.template() ? Cardinality.MULTIPLE : Cardinality.SINGLE)
       .setConfigKey(ruleDef.internalKey())
@@ -217,7 +233,7 @@ public class RegisterRules implements Startable {
     return ruleDto;
   }
 
-  private void enableAndUpdate(Buffer buffer, SqlSession sqlSession, RulesDefinition.Rule ruleDef, RuleDto dto) {
+  private void enableAndUpdate(Buffer buffer, SonarSession sqlSession, RulesDefinition.Rule ruleDef, RuleDto dto) {
     if (mergeRule(buffer, ruleDef, dto)) {
       ruleDao.update(dto, sqlSession);
     }
@@ -410,7 +426,7 @@ public class RegisterRules implements Startable {
     return tagId;
   }
 
-  private List<RuleDto> processRemainingDbRules(Buffer buffer, SqlSession sqlSession) {
+  private List<RuleDto> processRemainingDbRules(Buffer buffer, SonarSession sqlSession) {
     List<RuleDto> removedRules = newArrayList();
     for (Integer unprocessedRuleId : buffer.unprocessedRuleIds) {
       RuleDto ruleDto = buffer.rulesById.get(unprocessedRuleId);

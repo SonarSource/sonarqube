@@ -21,15 +21,20 @@ package org.sonar.core.persistence;
 
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Test;
+import org.sonar.core.cluster.WorkQueue;
 
 import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class BatchSessionTest {
   @Test
   public void shouldCommitWhenReachingBatchSize() {
     SqlSession mybatisSession = mock(SqlSession.class);
-    BatchSession session = new BatchSession(mybatisSession, 10);
+    WorkQueue queue = mock(WorkQueue.class);
+    BatchSession session = new BatchSession(queue, mybatisSession, 10);
 
     for (int i = 0; i < 9; i++) {
       session.insert("id" + i);
@@ -44,7 +49,8 @@ public class BatchSessionTest {
   @Test
     public void shouldResetCounterAfterCommit() {
       SqlSession mybatisSession = mock(SqlSession.class);
-      BatchSession session = new BatchSession(mybatisSession, 10);
+      WorkQueue queue = mock(WorkQueue.class);
+      BatchSession session = new BatchSession(queue, mybatisSession, 10);
 
       for (int i = 0; i < 35; i++) {
         session.insert("id" + i);

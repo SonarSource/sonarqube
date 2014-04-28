@@ -20,13 +20,13 @@
 
 package org.sonar.server.source;
 
-import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.SonarSession;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
@@ -48,7 +48,7 @@ public class DeprecatedSourceDecoratorTest {
   MyBatis mybatis;
 
   @Mock
-  SqlSession session;
+  SonarSession session;
 
   @Mock
   ResourceDao resourceDao;

@@ -29,6 +29,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.core.db.BaseDao;
 import org.sonar.core.db.UnsuportedException;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.SonarSession;
 
 import javax.annotation.CheckForNull;
 import java.sql.Timestamp;

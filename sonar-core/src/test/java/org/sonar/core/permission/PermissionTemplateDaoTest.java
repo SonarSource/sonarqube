@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.SonarSession;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -33,7 +34,9 @@ import java.util.Date;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
 
@@ -71,7 +74,7 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
 
     PermissionTemplateMapper mapper = mock(PermissionTemplateMapper.class);
 
-    SqlSession session = mock(SqlSession.class);
+    SonarSession session = mock(SonarSession.class);
     when(session.getMapper(PermissionTemplateMapper.class)).thenReturn(mapper);
 
     MyBatis myBatis = mock(MyBatis.class);

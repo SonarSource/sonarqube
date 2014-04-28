@@ -214,22 +214,4 @@ public abstract class BaseIndex<K extends Serializable> implements Index<K> {
     // need to read that in the admin index;
     return 0l;
   }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public K dequeueInsert() {
-    return (K) this.workQueue.dequeUpdate(this.getIndexName());
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public K dequeueUpdate() {
-    return (K) this.workQueue.dequeUpdate(this.getIndexName());
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public K dequeueDelete() {
-    return (K) this.workQueue.dequeDelete(this.getIndexName());
-  }
 }

@@ -39,6 +39,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.SonarSession;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
@@ -73,7 +74,7 @@ public class ESActiveRuleTest {
   MyBatis myBatis;
 
   @Mock
-  SqlSession session;
+  SonarSession session;
 
   @Mock
   ActiveRuleDao activeRuleDao;
@@ -225,7 +226,7 @@ public class ESActiveRuleTest {
     List<ActiveRuleDto> activeRules = newArrayList(new ActiveRuleDto().setId(1).setProfileId(10).setRuleId(1).setSeverity(Severity.MAJOR).setParentId(5)
       .setNoteData("polop").setNoteCreatedAt(new Date()).setNoteUserLogin("godin"));
 
-    SqlSession session = mock(SqlSession.class);
+    SonarSession session = mock(SonarSession.class);
     when(myBatis.openSession()).thenReturn(session);
     when(activeRuleDao.selectAll(session)).thenReturn(activeRules);
     when(activeRuleDao.selectAllParams(session)).thenReturn(Lists.<ActiveRuleParamDto>newArrayList());

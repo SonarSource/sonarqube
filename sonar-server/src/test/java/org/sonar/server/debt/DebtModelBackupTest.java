@@ -41,10 +41,13 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.SonarSession;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
+import org.sonar.server.debt.DebtModelXMLExporter.DebtModel;
+import org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.RuleOperations;
 import org.sonar.server.rule.RuleRegistry;
@@ -59,10 +62,17 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
-import static org.sonar.server.debt.DebtModelXMLExporter.DebtModel;
-import static org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
+import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DebtModelBackupTest {
@@ -71,7 +81,7 @@ public class DebtModelBackupTest {
   MyBatis myBatis;
 
   @Mock
-  SqlSession session;
+  SonarSession session;
 
   @Mock
   DebtModelPluginRepository debtModelPluginRepository;
@@ -137,7 +147,7 @@ public class DebtModelBackupTest {
         dto.setId(currentId++);
         return null;
       }
-    }).when(dao).insert(any(CharacteristicDto.class), any(SqlSession.class));
+    }).when(dao).insert(any(CharacteristicDto.class), any(SonarSession.class));
 
     when(myBatis.openSession()).thenReturn(session);
 

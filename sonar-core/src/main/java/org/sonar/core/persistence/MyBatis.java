@@ -236,13 +236,14 @@ public class MyBatis implements BatchComponent, ServerComponent {
     return sessionFactory;
   }
 
-  public SqlSession openSession() {
-    return sessionFactory.openSession(ExecutorType.REUSE);
+  public SonarSession openSession() {
+    SqlSession session =  sessionFactory.openSession(ExecutorType.REUSE);
+    return new SonarSession(queue, session);
   }
 
   public BatchSession openBatchSession() {
     SqlSession session = sessionFactory.openSession(ExecutorType.BATCH);
-    return new BatchSession(session);
+    return new BatchSession(queue, session);
   }
 
   public static void closeQuietly(SqlSession session) {

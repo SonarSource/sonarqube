@@ -40,6 +40,7 @@ import org.sonar.core.component.ComponentQuery;
 import org.sonar.core.component.db.ComponentDao;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.SonarSession;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualitygate.db.QualityGateConditionDao;
@@ -234,7 +235,7 @@ public class QualityGatesTest {
     String name = "To Delete";
     QualityGateDto toDelete = new QualityGateDto().setId(idToDelete).setName(name);
     when(dao.selectById(idToDelete)).thenReturn(toDelete);
-    SqlSession session = mock(SqlSession.class);
+    SonarSession session = mock(SonarSession.class);
     when(myBatis.openSession()).thenReturn(session);
     qGates.delete(idToDelete);
     verify(dao).selectById(idToDelete);
@@ -249,7 +250,7 @@ public class QualityGatesTest {
     QualityGateDto toDelete = new QualityGateDto().setId(idToDelete).setName(name);
     when(dao.selectById(idToDelete)).thenReturn(toDelete);
     when(propertiesDao.selectGlobalProperty("sonar.qualitygate")).thenReturn(new PropertyDto().setValue("666"));
-    SqlSession session = mock(SqlSession.class);
+    SonarSession session = mock(SonarSession.class);
     when(myBatis.openSession()).thenReturn(session);
     qGates.delete(idToDelete);
     verify(dao).selectById(idToDelete);
@@ -264,7 +265,7 @@ public class QualityGatesTest {
     QualityGateDto toDelete = new QualityGateDto().setId(idToDelete).setName(name);
     when(dao.selectById(idToDelete)).thenReturn(toDelete);
     when(propertiesDao.selectGlobalProperty("sonar.qualitygate")).thenReturn(new PropertyDto().setValue("42"));
-    SqlSession session = mock(SqlSession.class);
+    SonarSession session = mock(SonarSession.class);
     when(myBatis.openSession()).thenReturn(session);
     qGates.delete(idToDelete);
     verify(dao).selectById(idToDelete);
@@ -536,7 +537,7 @@ public class QualityGatesTest {
     Collection<QualityGateConditionDto> conditions = ImmutableList.of(cond1, cond2);
 
     when(dao.selectById(sourceId)).thenReturn(new QualityGateDto().setId(sourceId).setName("SG-1"));
-    SqlSession session = mock(SqlSession.class);
+    SonarSession session = mock(SonarSession.class);
     when(myBatis.openSession()).thenReturn(session);
     Mockito.doAnswer(new Answer<Object>() {
       @Override

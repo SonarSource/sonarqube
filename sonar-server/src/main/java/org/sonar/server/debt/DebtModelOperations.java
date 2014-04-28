@@ -30,6 +30,7 @@ import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.SonarSession;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
@@ -190,7 +191,7 @@ public class DebtModelOperations implements ServerComponent {
     checkPermission();
 
     Date updateDate = new Date(system2.now());
-    SqlSession session = mybatis.openBatchSession();
+    SonarSession session = mybatis.openBatchSession();
     try {
       delete(findCharacteristic(characteristicId, session), updateDate, session);
       session.commit();
@@ -203,7 +204,7 @@ public class DebtModelOperations implements ServerComponent {
    * Disabled a characteristic or a sub characteristic.
    * If it has already been disabled, do nothing (for instance when call on a list of characteristics and sub-characteristics in random order)
    */
-  public void delete(CharacteristicDto characteristicOrSubCharacteristic, Date updateDate, SqlSession session) {
+  public void delete(CharacteristicDto characteristicOrSubCharacteristic, Date updateDate, SonarSession session) {
     // Do nothing is the characteristic is already disabled
     if (characteristicOrSubCharacteristic.isEnabled()) {
       // When root characteristic, browse sub characteristics and disable rule debt on each sub characteristic then disable it
@@ -220,7 +221,7 @@ public class DebtModelOperations implements ServerComponent {
     }
   }
 
-  private void disableSubCharacteristic(CharacteristicDto subCharacteristic, Date updateDate, SqlSession session) {
+  private void disableSubCharacteristic(CharacteristicDto subCharacteristic, Date updateDate, SonarSession session) {
     // Disable debt on all rules (even REMOVED ones, in order to have no issue if they are reactivated) linked to the sub characteristic
     disableRulesDebt(ruleDao.selectBySubCharacteristicId(subCharacteristic.getId(), session), subCharacteristic.getId(), updateDate, session);
     disableCharacteristic(subCharacteristic, updateDate, session);
@@ -232,7 +233,7 @@ public class DebtModelOperations implements ServerComponent {
     dao.update(characteristic, session);
   }
 
-  private void disableRulesDebt(List<RuleDto> ruleDtos, Integer subCharacteristicId, Date updateDate, SqlSession session) {
+  private void disableRulesDebt(List<RuleDto> ruleDtos, Integer subCharacteristicId, Date updateDate, SonarSession session) {
     for (RuleDto ruleDto : ruleDtos) {
       if (subCharacteristicId.equals(ruleDto.getSubCharacteristicId())) {
         ruleDto.setSubCharacteristicId(RuleDto.DISABLED_CHARACTERISTIC_ID);

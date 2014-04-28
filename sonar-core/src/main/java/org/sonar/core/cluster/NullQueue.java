@@ -19,7 +19,6 @@
  */
 package org.sonar.core.cluster;
 
-import java.io.Serializable;
 
 public class NullQueue implements WorkQueue {
 
@@ -28,37 +27,21 @@ public class NullQueue implements WorkQueue {
   }
 
   @Override
-  public Integer enqueInsert(String indexName, Serializable key) {
-    return 1;
-  }
-
-  @Override
-  public Integer enqueUpdate(String indexName, Serializable key) {
-    return 1;
-  }
-
-  @Override
-  public Integer enqueDelete(String indexName, Serializable key) {
-    return 1;
-  }
-
-  @Override
-  public Object dequeInsert(String indexName) {
+  public Integer enqueue(IndexAction... action) {
+    // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public Object dequeUpdate(String indexName) {
-    return null;
-  }
-
-  @Override
-  public Object dequeDelete(String indexName) {
+  public Object dequeue() {
+    // TODO Auto-generated method stub
     return null;
   }
 
   @Override
   public Status getStatus(Integer workId) {
+    // TODO Auto-generated method stub
     return null;
   }
+
 }
