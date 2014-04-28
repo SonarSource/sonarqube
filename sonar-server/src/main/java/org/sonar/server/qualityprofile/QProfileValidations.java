@@ -33,21 +33,24 @@ public class QProfileValidations {
     // Only static methods
   }
 
-  public static void checkProfileIsNotNull(@Nullable QualityProfileDto profile) {
+  public static QualityProfileDto checkProfileIsNotNull(@Nullable QualityProfileDto profile) {
     if (profile == null) {
       throw new NotFoundException("This quality profile does not exists.");
     }
+    return profile;
   }
 
-  public static void checkRuleIsNotNull(@Nullable RuleDto rule) {
+  public static RuleDto checkRuleIsNotNull(@Nullable RuleDto rule) {
     if (rule == null) {
       throw new NotFoundException("This rule does not exists.");
     }
+    return rule;
   }
 
-  public static void checkActiveRuleIsNotNull(@Nullable ActiveRuleDto activeRule) {
+  public static ActiveRuleDto checkActiveRuleIsNotNull(@Nullable ActiveRuleDto activeRule) {
     if (activeRule == null) {
       throw new NotFoundException("This active rule does not exists.");
     }
+    return activeRule;
   }
 }
