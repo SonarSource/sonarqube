@@ -19,15 +19,13 @@
  */
 package org.sonar.core.rule;
 
-import org.sonar.core.db.UnsuportedException;
-
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.db.BaseDao;
+import org.sonar.core.db.UnsuportedException;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
@@ -40,8 +38,8 @@ import static com.google.common.collect.Lists.newArrayList;
 public class RuleDao extends BaseDao<RuleDto, RuleKey>
   implements BatchComponent, ServerComponent {
 
-  public RuleDao(MyBatis mybatis, WorkQueue queue) {
-    super(queue, mybatis);
+  public RuleDao(MyBatis mybatis) {
+    super(mybatis);
   }
 
   @Override
@@ -50,13 +48,21 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
   }
 
   @Override
-  protected void doInsert(RuleDto item, SqlSession session) {
-    session.getMapper(RuleMapper.class).insert(item);
+  @CheckForNull
+  protected RuleDto doGetByKey(RuleKey key, SqlSession session) {
+    return getMapper(session).selectByKey(key);
   }
 
   @Override
-  protected void doUpdate(RuleDto item, SqlSession session) {
+  protected RuleDto doInsert(RuleDto item, SqlSession session) {
+    session.getMapper(RuleMapper.class).insert(item);
+    return item;
+  }
+
+  @Override
+  protected RuleDto doUpdate(RuleDto item, SqlSession session) {
     session.getMapper(RuleMapper.class).update(item);
+    return item;
   }
 
   @Override
@@ -65,14 +71,8 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
   }
 
   @Override
-  protected void doDeleteByKey(RuleDto item, SqlSession session) {
+  protected void doDeleteByKey(RuleKey key, SqlSession session) {
     throw new UnsuportedException("Rules cannot be deleted");
-  }
-
-  @Override
-  @CheckForNull
-  protected RuleDto doGetByKey(RuleKey key, SqlSession session) {
-    return getMapper(session).selectByKey(key);
   }
 
   public List<RuleDto> selectAll() {
@@ -136,21 +136,12 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
     }
   }
 
-  /**
-   *
-   * @deprecated use {@link getByKey(RuleKey key, SqlSession session)} instead.
-   */
-  @Deprecated
   @CheckForNull
   public RuleDto selectByKey(RuleKey ruleKey, SqlSession session) {
     return getMapper(session).selectByKey(ruleKey);
   }
 
-  /**
-  *
-  * @deprecated use {@link getByKey(RuleKey key)} instead.
-  */
-  @Deprecated
+
   @CheckForNull
   public RuleDto selectByKey(RuleKey ruleKey) {
     SqlSession session = mybatis.openSession();

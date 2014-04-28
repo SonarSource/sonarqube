@@ -97,10 +97,9 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
   @Before
   public void before() {
     system = mock(System2.class);
-    queue = mock(WorkQueue.class);
     when(system.now()).thenReturn(date.getTime());
     myBatis = getMyBatis();
-    ruleDao = new RuleDao(myBatis, queue);
+    ruleDao = new RuleDao(myBatis);
     ruleTagDao = new RuleTagDao(myBatis);
     activeRuleDao = new ActiveRuleDao(myBatis);
     ruleTagOperations = new RuleTagOperations(ruleTagDao, esRuleTags);

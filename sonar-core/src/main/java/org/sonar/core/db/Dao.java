@@ -19,21 +19,30 @@
  */
 package org.sonar.core.db;
 
+import org.apache.ibatis.session.SqlSession;
+
 import java.io.Serializable;
 import java.util.Collection;
 
 public interface Dao<E extends Dto<K>, K extends Serializable> {
 
-  public E getByKey(K key);
+  E getByKey(K key);
 
-  public E update(E item);
+  E update(E item);
 
-  public E insert(E item);
+  E update(E item, SqlSession session);
 
-  public void delete(E item);
+  E insert(E item);
 
-  public void deleteByKey(K key);
+  E insert(E item, SqlSession session);
 
-  public Collection<K> insertsSince(Long timestamp);
+  void delete(E item);
 
+  void delete(E item, SqlSession session);
+
+  void deleteByKey(K key);
+
+  void deleteByKey(K key, SqlSession session);
+
+  Collection<K> insertsSince(Long timestamp);
 }

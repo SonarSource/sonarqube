@@ -30,14 +30,12 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
-import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class RuleDaoTest extends AbstractDaoTestCase {
 
@@ -45,8 +43,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
 
   @Before
   public void createDao() throws Exception {
-    WorkQueue queue = mock(WorkQueue.class);
-    dao = new RuleDao(getMyBatis(), queue);
+    dao = new RuleDao(getMyBatis());
   }
 
   @Test

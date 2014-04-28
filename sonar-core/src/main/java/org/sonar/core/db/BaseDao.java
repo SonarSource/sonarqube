@@ -20,7 +20,6 @@
 package org.sonar.core.db;
 
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.persistence.MyBatis;
 
 import java.io.Serializable;
@@ -29,36 +28,22 @@ public abstract class BaseDao<E extends Dto<K>, K extends Serializable>
   implements Dao<E, K> {
 
   protected MyBatis mybatis;
-  private WorkQueue queue;
 
-  protected BaseDao(WorkQueue workQueue, MyBatis myBatis) {
+  protected BaseDao(MyBatis myBatis) {
     this.mybatis = myBatis;
-    this.queue = workQueue;
   }
 
   protected abstract String getIndexName();
 
-  protected abstract void doInsert(E item, SqlSession session);
+  protected abstract E doGetByKey(K key, SqlSession session);
 
-  protected abstract void doUpdate(E item, SqlSession session);
+  protected abstract E doInsert(E item, SqlSession session);
+
+  protected abstract E doUpdate(E item, SqlSession session);
 
   protected abstract void doDelete(E item, SqlSession session);
 
-  protected abstract void doDeleteByKey(E item, SqlSession session);
-
-  protected abstract E doGetByKey(K key, SqlSession session);
-
-  protected void enqueInsert(K key) {
-    this.queue.enqueInsert(this.getIndexName(), key);
-  }
-
-  protected void enqueUpdate(K key) {
-    this.queue.enqueUpdate(this.getIndexName(), key);
-  }
-
-  protected void enqueDelete(K key) {
-    this.queue.enqueDelete(this.getIndexName(), key);
-  }
+  protected abstract void doDeleteByKey(K key, SqlSession session);
 
   protected MyBatis getMyBatis() {
     return this.mybatis;
@@ -73,57 +58,72 @@ public abstract class BaseDao<E extends Dto<K>, K extends Serializable>
   }
 
   @Override
+  public E update(E item, SqlSession session) {
+    //TODO add update record to session */
+    return this.doUpdate(item, session);
+  }
+
+  @Override
   public E update(E item) {
     SqlSession session = getMyBatis().openSession();
     try {
-      this.doUpdate(item, session);
+      this.update(item, session);
       session.commit();
-      this.enqueUpdate(item.getKey());
       return item;
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  @Override
+  public E insert(E item, SqlSession session) {
+    //TODO add insert record to session */
+    return this.doInsert(item, session);
   }
 
   @Override
   public E insert(E item) {
     SqlSession session = getMyBatis().openSession();
     try {
-      this.doInsert(item, session);
+      this.insert(item, session);
       session.commit();
-      this.enqueInsert(item.getKey());
       return item;
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public void insert(E item, SqlSession session) {
-
-  }
-
-  public void update(E item, SqlSession session) {
-
-  }
-
+  @Override
   public void delete(E item, SqlSession session) {
-
+    //TODO add delete record to session */
+    this.doDelete(item, session);
   }
 
   @Override
   public void delete(E item) {
-    this.deleteByKey(item.getKey());
+    SqlSession session = getMyBatis().openSession();
+    try {
+      this.delete(item, session);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  @Override
+  public void deleteByKey(K key, SqlSession session) {
+    //TODO add delete record to session */
+    this.doDeleteByKey(key, session);
   }
 
   @Override
   public void deleteByKey(K key) {
     SqlSession session = getMyBatis().openSession();
     try {
-      this.deleteByKey(key);
+      this.doDeleteByKey(key, session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
-      this.enqueDelete(key);
     }
   }
 }

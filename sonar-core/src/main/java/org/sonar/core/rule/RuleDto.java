@@ -69,7 +69,6 @@ public final class RuleDto implements Dto<RuleKey>{
     return RuleKey.of(this.getRepositoryKey(), this.getRuleKey());
   }
 
-  @Deprecated
   public Integer getId() {
     return id;
   }

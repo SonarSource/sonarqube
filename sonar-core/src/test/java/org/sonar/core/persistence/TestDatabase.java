@@ -19,6 +19,8 @@
  */
 package org.sonar.core.persistence;
 
+import org.sonar.core.cluster.WorkQueue;
+
 import com.google.common.collect.Maps;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.dbutils.DbUtils;
@@ -62,6 +64,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import static org.mockito.Mockito.mock;
+
 import static org.junit.Assert.fail;
 
 /**
@@ -76,6 +80,7 @@ public class TestDatabase extends ExternalResource {
   private DatabaseCommands commands;
   private IDatabaseTester tester;
   private MyBatis myBatis;
+  private WorkQueue queue = mock(WorkQueue.class);
   private String schemaPath = null;
 
   public TestDatabase schema(Class baseClass, String filename) {
@@ -109,7 +114,7 @@ public class TestDatabase extends ExternalResource {
     commands = DatabaseCommands.forDialect(db.getDialect());
     tester = new DataSourceDatabaseTester(db.getDataSource());
 
-    myBatis = new MyBatis(db, new Logback());
+    myBatis = new MyBatis(db, new Logback(), queue);
     myBatis.start();
 
     commands.truncateDatabase(db.getDataSource());

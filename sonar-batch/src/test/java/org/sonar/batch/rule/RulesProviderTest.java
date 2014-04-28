@@ -82,8 +82,7 @@ public class RulesProviderTest extends AbstractDaoTestCase {
         .setParentId(102));
 
     durations = new Durations(new Settings().setProperty("sonar.technicalDebt.hoursInDay", 8), null);
-    WorkQueue queue = mock(WorkQueue.class);
-    ruleDao = new RuleDao(getMyBatis(),queue);
+    ruleDao = new RuleDao(getMyBatis());
 
     provider = new RulesProvider();
   }
