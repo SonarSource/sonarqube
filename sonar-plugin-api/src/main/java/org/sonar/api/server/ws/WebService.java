@@ -28,6 +28,7 @@ import org.sonar.api.ServerExtension;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -370,7 +371,7 @@ public interface WebService extends ServerExtension {
   }
 
   class NewParam {
-    private String key, description, exampleValue;
+    private String key, description, exampleValue, defaultValue;
     private boolean required = false;
     private String[] possibleValues = null;
 
@@ -410,6 +411,14 @@ public interface WebService extends ServerExtension {
       return this;
     }
 
+    /**
+     * @since 4.4
+     */
+    public NewParam setDefaultValue(@Nullable String s) {
+      this.defaultValue = s;
+      return this;
+    }
+
     @Override
     public String toString() {
       return key;
@@ -418,7 +427,7 @@ public interface WebService extends ServerExtension {
 
   @Immutable
   class Param {
-    private final String key, description, exampleValue;
+    private final String key, description, exampleValue, defaultValue;
     private final boolean required;
     private final String[] possibleValues;
 
@@ -426,6 +435,7 @@ public interface WebService extends ServerExtension {
       this.key = newParam.key;
       this.description = newParam.description;
       this.exampleValue = newParam.exampleValue;
+      this.defaultValue = newParam.defaultValue;
       this.required = newParam.required;
       this.possibleValues = (newParam.possibleValues == null ? new String[0] : newParam.possibleValues);
     }
@@ -460,6 +470,14 @@ public interface WebService extends ServerExtension {
      */
     public String[] possibleValues() {
       return possibleValues;
+    }
+
+    /**
+     * @since 4.4
+     */
+    @CheckForNull
+    public String defaultValue() {
+      return defaultValue;
     }
 
     @Override

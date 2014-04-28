@@ -158,6 +158,15 @@ public class WebServiceEngineTest {
   }
 
   @Test
+  public void unknown_parameter_is_set() throws Exception {
+    InternalRequest request = new SimpleRequest().setParam("unknown", "Unknown");
+    ServletResponse response = new ServletResponse();
+    engine.execute(request, response, "api/system", "fail_with_undeclared_parameter");
+
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Parameter 'unknown' is undefined for action 'fail_with_undeclared_parameter'\"}]}");
+  }
+
+  @Test
   public void required_parameter_is_not_set() throws Exception {
     InternalRequest request = new SimpleRequest();
     ServletResponse response = new ServletResponse();
@@ -302,6 +311,7 @@ public class WebServiceEngineTest {
           }
         });
       newController.createAction("fail_with_multiple_messages")
+        .createParam("count", "Number of error messages to generate")
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {
@@ -313,6 +323,7 @@ public class WebServiceEngineTest {
           }
         });
       newController.createAction("fail_with_multiple_i18n_messages")
+        .createParam("count", "Number of error messages to generate")
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {
@@ -338,16 +349,24 @@ public class WebServiceEngineTest {
           }
         });
 
+      newController.createAction("fail_with_undeclared_parameter")
+      .setHandler(new RequestHandler() {
+        @Override
+        public void handle(Request request, Response response) {
+          response.newJsonWriter().prop("unknown", request.param("unknown"));
+        }
+      });
+
       // parameter "message" is required but not "author"
-      newController.createAction("print")
-        .createParam("message", "required message")
-        .createParam("author", "optional author")
-        .setHandler(new RequestHandler() {
+      NewAction print = newController.createAction("print");
+      print.createParam("message").setDescription("required message").setRequired(true);
+      print.createParam("author").setDescription("optional author").setDefaultValue("-");
+      print.setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {
             try {
               IOUtils.write(
-                request.mandatoryParam("message") + " by " + request.param("author", "-"), response.stream().output());
+                request.mandatoryParam("message") + " by " + request.param("author", "nobody"), response.stream().output());
             } catch (IOException e) {
               throw new IllegalStateException(e);
             }
