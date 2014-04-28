@@ -5,6 +5,9 @@
       <th class="stat"></th>
       <th class="stat"></th>
     {{/if}}
+    {{#if settings.duplications}}
+      <th class="stat"></th>
+    {{/if}}
     <th class="stat settings-toggle">
       <button class="button-clean js-toggle-settings">
         <i class="icon-settings"></i></i>
@@ -40,6 +43,9 @@
   <tr>
     {{#if settings.coverage}}
       <th class="stat"></th>
+      <th class="stat"></th>
+    {{/if}}
+    {{#if settings.duplications}}
       <th class="stat"></th>
     {{/if}}
     <th class="stat settings-toggle">
@@ -93,8 +99,18 @@
             {{/if}}
           </li>
         {{/if}}
-        <li class="component-viewer-measures-section">
-        </li>
+        {{#if settings.duplications}}
+          <li class="component-viewer-measures-section brief">
+            {{component.duplicationsMeasures}}
+            {{#if component.duplicationsMeasures}}
+              <dl>
+                {{#each component.duplicationsMeasures}}
+                  <dt>{{t 'metric' key 'name'}}</dt><dd>{{frmt_val}}</dd>
+                {{/each}}
+              </dl>
+            {{/if}}
+          </li>
+        {{/if}}
       </ul>
     </th>
   </tr>
@@ -104,6 +120,9 @@
       {{#if settings.coverage}}
         <td class="stat coverage-tests"></td>
         <td class="stat coverage-conditions"></td>
+      {{/if}}
+      {{#if settings.duplications}}
+        <td class="stat"></td>
       {{/if}}
       <td class="stat lid"></td>
       <td class="line"></td>
@@ -128,6 +147,14 @@
                   </span>
                 {{/if}}
               {{/if}}
+          </td>
+        {{/if}}
+
+        {{#if ../settings.duplications}}
+          <td class="stat duplications">
+            {{#each duplications}}
+              <span class="duplication {{#if this}}duplication-exists{{/if}}"></span>
+            {{/each}}
           </td>
         {{/if}}
 
