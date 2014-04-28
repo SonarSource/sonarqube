@@ -1,14 +1,73 @@
+<% m=measure(Metric::QUALITY_GATE_DETAILS)
+   if m && !m.data.blank?
+     details = JSON.parse m.data
+     m.alert_status = details['level']
+     conditions = details['conditions']
+     alert_metric = metric(Metric::ALERT_STATUS)
+
+     warn_message = message('measure_filter.criteria.alert.warn')
+     error_message = message('measure_filter.criteria.alert.error')
+
+     css_class = "color_#{m.alert_status}"
+     if m.alert_status==Metric::TYPE_LEVEL_OK
+       label = "#{message('widget.alerts.no_alert')}."
+     elsif m.alert_status==Metric::TYPE_LEVEL_WARN
+       label = "#{message('widget.alerts.warnings')}"
+     else
+       label = "#{message('widget.alerts.errors')}"
+     end
+-%><div class="widget <%= css_class -%>" style="color: black !important" id="quality_gate_widget_<%= widget.id -%>">
+  <div><%= format_measure(measure(Metric::ALERT_STATUS)) -%> <%= label -%></div>
+  <% if conditions.any? {|condition| condition['level'] != 'OK'} || widget_properties['show_ok'] && !conditions.empty? -%>
+    <% details['conditions'].sort_by {|condition| [ -condition['level'].length, metric(condition['metric']).short_name] }.each do |condition|
+
+      level = condition['level']
+      condition_metric = metric(condition['metric'])
+      operator = message("quality_gates.operator.#{condition['op']}.short")
+      period = condition['period']
+      warning_value = condition['warning']
+      error_value = condition['error']
+      actual_value = condition['actual']
+
+      detail_measure = ProjectMeasure.new :metric => alert_metric, :alert_status => level
+
+      drilldown_url = period.blank? ? url_for_drilldown(condition_metric) : url_for_drilldown(condition_metric, :period => period)
+
+      actual_measure = ProjectMeasure.new :metric => condition_metric, :value => actual_value, :alert_status => level
+      warning_measure = ProjectMeasure.new :metric => condition_metric, :value => warning_value
+      error_measure = ProjectMeasure.new :metric => condition_metric, :value => error_value
+
+
+      unless level == 'OK' && !widget_properties['show_ok']
+      -%>
+      <div class="dashbox" style="margin: 10px">
+        <p class="title"><%= condition_metric.short_name -%></p>
+        <span class="big"><%= format_measure(actual_measure, :url => drilldown_url) -%></span>
+        <% if level == 'WARN' -%><%= operator -%> <%= format_measure(warning_measure) -%><% end -%>
+        <% if level == 'ERROR' -%><%= operator -%> <%= format_measure(error_measure) -%><% end -%>
+        <% if level == 'OK' -%>
+          <% unless warning_value.blank? -%><%= warn_message -%> <%= operator -%> <%= format_measure(warning_measure) -%> <%= '|' unless error_value.blank? -%><% end -%>
+          <% unless error_value.blank? -%><%= error_message -%> <%= operator -%> <%= format_measure(error_measure) -%><% end -%>
+        <% end -%>
+        <p><%= period_label(@snapshot, period) unless period.blank? -%></p>
+      </div>
+    <% end
+     end
+   end -%>
+</div>
+<% else -%>
 <% m=measure(Metric::ALERT_STATUS)
    if m && !m.alert_status.blank?
-	 css_class = "widget color_#{m.alert_status}"
-	 if m.alert_status==Metric::TYPE_LEVEL_OK
-	   label = "<b>#{message('widget.alerts.no_alert')}</b>."
-	 elsif m.alert_status==Metric::TYPE_LEVEL_WARN
-     label = "<b>#{message('widget.alerts.warnings')}</b>#{h(m.alert_text)}."
-	 else
-	   label = "<b>#{message('widget.alerts.errors')}</b>#{h(m.alert_text)}."
-	 end
-%><div class="<%= css_class -%>" id="alerts_widget">
+     css_class = "widget color_#{m.alert_status}"
+     if m.alert_status==Metric::TYPE_LEVEL_OK
+       label = "<b>#{message('widget.alerts.no_alert')}</b>."
+     elsif m.alert_status==Metric::TYPE_LEVEL_WARN
+       label = "<b>#{message('widget.alerts.warnings')}</b>#{h(m.alert_text)}."
+     else
+       label = "<b>#{message('widget.alerts.errors')}</b>#{h(m.alert_text)}."
+     end
+-%><div class="<%= css_class -%>" id="alerts_widget">
   <div><%= format_measure(m) -%> <%= label -%></div>
 </div>
-<% end %>
+<% end
+end -%>

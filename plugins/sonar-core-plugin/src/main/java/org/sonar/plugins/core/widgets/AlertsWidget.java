@@ -19,9 +19,11 @@
  */
 package org.sonar.plugins.core.widgets;
 
-import org.sonar.api.web.WidgetLayout;
-import org.sonar.api.web.WidgetLayoutType;
+import org.sonar.api.web.*;
 
+@WidgetProperties({
+  @WidgetProperty(key = "show_ok", type = WidgetPropertyType.BOOLEAN, defaultValue = "false"),
+})
 @WidgetLayout(WidgetLayoutType.NONE)
 public class AlertsWidget extends CoreWidget {
 

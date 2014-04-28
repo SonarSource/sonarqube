@@ -213,7 +213,6 @@ public final class CorePlugin extends SonarPlugin {
 
       // widgets
       AlertsWidget.class,
-      QualityGateWidget.class,
       CoverageWidget.class,
       ItCoverageWidget.class,
       DescriptionWidget.class,
