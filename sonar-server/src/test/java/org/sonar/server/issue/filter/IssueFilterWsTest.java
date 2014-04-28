@@ -21,7 +21,7 @@ package org.sonar.server.issue.filter;
 
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.server.ws.WsTester;
+import org.sonar.server.ws.WsTester;
 import org.sonar.core.issue.DefaultIssueFilter;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.MockUserSession;

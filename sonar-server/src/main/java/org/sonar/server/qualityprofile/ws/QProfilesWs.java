@@ -33,7 +33,7 @@ public class QProfilesWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/qprofiles")
-      .setDescription("Quality profiles");
+      .setDescription("Quality profiles management");
 
     controller.createAction("restore_default")
       .setDescription("Restore default profiles")

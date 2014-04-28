@@ -17,43 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule2;
 
-import org.sonar.api.rule.RuleKey;
-import org.sonar.server.search.Hit;
+package org.sonar.wsclient.qprofile.internal;
 
-import javax.annotation.CheckForNull;
+import org.json.simple.JSONValue;
+import org.sonar.wsclient.internal.HttpRequestFactory;
+import org.sonar.wsclient.qprofile.QProfileClient;
+import org.sonar.wsclient.qprofile.QProfileResult;
 
-import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 
-/**
- * @since 4.4
- */
-public class RuleService {
+public class DefaultQProfileClient implements QProfileClient {
 
-  private RuleDao dao;
-  private RuleIndex index;
+  private final HttpRequestFactory requestFactory;
 
-  public RuleService(RuleDao dao, RuleIndex index){
-    this.dao = dao;
-    this.index = index;
+  public DefaultQProfileClient(HttpRequestFactory requestFactory) {
+    this.requestFactory = requestFactory;
   }
 
-  @CheckForNull
-  public Rule getByKey(RuleKey key) {
-    return null;
+  @Override
+  public QProfileResult restoreDefault(String language) {
+    String json = requestFactory.post("/api/qprofiles/restore_default", Collections.singletonMap("language", (Object) language));
+    Map jsonRoot = (Map) JSONValue.parse(json);
+    return new DefaultQProfileResult(jsonRoot);
   }
 
-  public Collection<Hit> search(RuleQuery query){
-    return Collections.emptyList();
-  }
-
-  public static Rule toRule(RuleDto ruleDto){
-    return new RuleImpl();
-  }
-
-  public static Rule toRule(Hit hit){
-    return new RuleImpl();
-  }
 }

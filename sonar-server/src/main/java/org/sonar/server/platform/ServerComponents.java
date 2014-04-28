@@ -104,6 +104,8 @@ import org.sonar.server.qualitygate.RegisterQualityGates;
 import org.sonar.server.qualitygate.ws.QgateAppHandler;
 import org.sonar.server.qualitygate.ws.QualityGatesWs;
 import org.sonar.server.qualityprofile.*;
+import org.sonar.server.qualityprofile.ws.QProfileBackupWsHandler;
+import org.sonar.server.qualityprofile.ws.QProfilesWs;
 import org.sonar.server.rule.*;
 import org.sonar.server.rule.ws.*;
 import org.sonar.server.source.CodeColorizers;
@@ -131,7 +133,7 @@ import java.util.List;
 class ServerComponents {
 
   private final Object[] rootComponents;
-  private Object[] extensions;
+  private Object[] level4AddedComponents;
 
   ServerComponents(Object... rootComponents) {
     this.rootComponents = rootComponents;
@@ -251,6 +253,8 @@ class ServerComponents {
     pico.addSingleton(QProfileBackup.class);
     pico.addSingleton(QProfileRepositoryExporter.class);
     pico.addSingleton(ESActiveRule.class);
+    pico.addSingleton(QProfileBackupWsHandler.class);
+    pico.addSingleton(QProfilesWs.class);
 
     // rule
     pico.addSingleton(AnnotationRuleParser.class);
@@ -393,9 +397,9 @@ class ServerComponents {
     pico.addSingleton(StringTypeValidation.class);
     pico.addSingleton(StringListTypeValidation.class);
 
-    if (extensions != null) {
-      for (Object extension : extensions) {
-        pico.addSingleton(extension);
+    if (level4AddedComponents != null) {
+      for (Object components : level4AddedComponents) {
+        pico.addSingleton(components);
       }
     }
 
@@ -406,8 +410,8 @@ class ServerComponents {
     executeStartupTaks(pico);
   }
 
-  void addExtensions(Object... extensions){
-    this.extensions = extensions;
+  void addComponents(Object... components){
+    this.level4AddedComponents = components;
   }
 
   private void executeStartupTaks(ComponentContainer pico) {

@@ -27,6 +27,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.utils.SonarException;
@@ -35,6 +36,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
+import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.qualityprofile.*;
 import org.sonar.server.user.UserSession;
@@ -76,6 +78,9 @@ public class RegisterQualityProfilesTest {
   SqlSession session;
 
   @Mock
+  DatabaseSessionFactory sessionFactory;
+
+  @Mock
   PersistentSettings settings;
 
   List<ProfileDefinition> definitions;
@@ -85,9 +90,10 @@ public class RegisterQualityProfilesTest {
   @Before
   public void setUp() throws Exception {
     when(myBatis.openSession()).thenReturn(session);
+    when(sessionFactory.getSession()).thenReturn(mock(DatabaseSession.class));
 
     definitions = newArrayList();
-    registerQualityProfiles = new RegisterQualityProfiles(myBatis, settings, esActiveRule, loadedTemplateDao, qProfileBackup, qProfileOperations, qProfileLookup, null, definitions);
+    registerQualityProfiles = new RegisterQualityProfiles(sessionFactory, myBatis, settings, esActiveRule, loadedTemplateDao, qProfileBackup, qProfileOperations, qProfileLookup, null, definitions);
   }
 
   @Test
@@ -318,7 +324,7 @@ public class RegisterQualityProfilesTest {
 
     registerQualityProfiles.start();
 
-    verify(qProfileOperations).deleteProfile(anyInt(), eq(session));
+    verify(qProfileOperations).deleteProfile(any(QProfile.class), eq(session));
     verify(qProfileBackup).restoreFromActiveRules(eq(profile), eq(rulesProfile), eq(session));
     verify(session).commit();
   }

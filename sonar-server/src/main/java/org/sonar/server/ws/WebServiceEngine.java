@@ -19,7 +19,6 @@
  */
 package org.sonar.server.ws;
 
-import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.picocontainer.Startable;
 import org.slf4j.LoggerFactory;
@@ -33,6 +32,8 @@ import org.sonar.server.exceptions.BadRequestException.Message;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.plugins.MimeTypes;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.OutputStreamWriter;
@@ -87,11 +88,7 @@ public class WebServiceEngine implements ServerComponent, Startable {
       // TODO replace by BadRequestException in Request#mandatoryParam()
       sendError(400, e.getMessage(), response);
     } catch (BadRequestException e) {
-      if (StringUtils.isBlank(e.getMessage())) {
-        sendError(e, response);
-      } else {
-        sendError(e.httpCode(), e.getMessage(), response);
-      }
+      sendError(e, response);
     } catch (ServerException e) {
       // TODO support ServerException l10n messages
       sendError(e.httpCode(), e.getMessage(), response);
@@ -124,10 +121,22 @@ public class WebServiceEngine implements ServerComponent, Startable {
 
   private void sendError(BadRequestException e, ServletResponse response) {
     Collection<String> messages = Lists.newArrayList();
-    for (Message message: e.errors()) {
-      messages.add(i18n.message(Locale.getDefault(), message.l10nKey(), message.text(), message.l10nParams()));
+    if (e.getMessage()!= null || e.l10nKey() != null) {
+      messages.add(message(e.getMessage(), e.l10nKey(), e.l10nParams()));
+    }
+    for (Message message : e.errors()) {
+      messages.add(message(message.text(), message.l10nKey(), message.l10nParams()));
     }
     sendErrors(response, e.httpCode(), messages.toArray(new String[0]));
+  }
+
+  @CheckForNull
+  private String message(@Nullable String message, @Nullable  String l10nKey, @Nullable Object[] l10nParams){
+    if (l10nKey != null) {
+      return i18n.message(Locale.getDefault(), l10nKey, message, l10nParams);
+    } else {
+     return message;
+    }
   }
 
   private void sendError(int status, String message, ServletResponse response) {
@@ -144,7 +153,7 @@ public class WebServiceEngine implements ServerComponent, Startable {
     try {
       json.beginObject();
       json.name("errors").beginArray();
-      for (String message: errors) {
+      for (String message : errors) {
         json.beginObject().prop("msg", message).endObject();
       }
       json.endArray();

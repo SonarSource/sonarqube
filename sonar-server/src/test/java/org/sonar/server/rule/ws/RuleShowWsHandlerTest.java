@@ -31,7 +31,7 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.server.ws.WsTester;
+import org.sonar.server.ws.WsTester;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.Rule;

@@ -17,43 +17,45 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule2;
 
-import org.sonar.api.rule.RuleKey;
-import org.sonar.server.search.Hit;
+package org.sonar.wsclient.qprofile.internal;
 
-import javax.annotation.CheckForNull;
+import org.sonar.wsclient.qprofile.QProfileResult;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-/**
- * @since 4.4
- */
-public class RuleService {
+public class DefaultQProfileResult implements QProfileResult {
 
-  private RuleDao dao;
-  private RuleIndex index;
+  private Map json;
 
-  public RuleService(RuleDao dao, RuleIndex index){
-    this.dao = dao;
-    this.index = index;
+  DefaultQProfileResult(Map json) {
+    this.json = json;
   }
 
-  @CheckForNull
-  public Rule getByKey(RuleKey key) {
-    return null;
+  @Override
+  public List<String> infos() {
+    List<String> infos = new ArrayList<String>();
+    List<String> jsonInfos = (List<String>) json.get("infos");
+    if (jsonInfos != null) {
+      for (String info : jsonInfos) {
+        infos.add(info);
+      }
+    }
+    return infos;
   }
 
-  public Collection<Hit> search(RuleQuery query){
-    return Collections.emptyList();
+  @Override
+  public List<String> warnings() {
+    List<String> warnings = new ArrayList<String>();
+    List<String> jsonWarnings = (List<String>) json.get("warnings");
+    if (jsonWarnings != null) {
+      for (String warning : jsonWarnings) {
+        warnings.add(warning);
+      }
+    }
+    return warnings;
   }
 
-  public static Rule toRule(RuleDto ruleDto){
-    return new RuleImpl();
-  }
-
-  public static Rule toRule(Hit hit){
-    return new RuleImpl();
-  }
 }

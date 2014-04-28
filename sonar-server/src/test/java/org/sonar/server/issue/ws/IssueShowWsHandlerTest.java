@@ -38,7 +38,7 @@ import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
-import org.sonar.api.server.ws.WsTester;
+import org.sonar.server.ws.WsTester;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;

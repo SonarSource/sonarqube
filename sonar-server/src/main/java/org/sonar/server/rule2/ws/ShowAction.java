@@ -17,34 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.ws;
+package org.sonar.server.rule2.ws;
 
-import org.junit.Test;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.RequestHandler;
+import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.rule2.RuleService;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+/**
+ * @since 4.4
+ */
+public class ShowAction implements RequestHandler {
 
+  private final RuleService service;
 
-public class IssuesWsTest {
-
-  IssueShowWsHandler showHandler = mock(IssueShowWsHandler.class);
-  WsTester tester = new WsTester(new IssuesWs(showHandler));
-
-  @Test
-  public void define_ws() throws Exception {
-    WebService.Controller controller = tester.controller("api/issues");
-    assertThat(controller).isNotNull();
-    assertThat(controller.description()).isNotEmpty();
-
-    WebService.Action show = controller.action("show");
-    assertThat(show).isNotNull();
-    assertThat(show.handler()).isNotNull();
-    assertThat(show.since()).isEqualTo("4.2");
-    assertThat(show.isPost()).isFalse();
-    assertThat(show.isInternal()).isTrue();
-    assertThat(show.handler()).isSameAs(showHandler);
+  public ShowAction(RuleService service) {
+    this.service = service;
   }
 
+  void define(WebService.NewController controller) {
+    WebService.NewAction action = controller
+      .createAction("show")
+      .setDescription("Returns detailed information about a rule")
+      .setSince("4.4")
+      .setHandler(this);
+
+    action
+      .createParam("key")
+      .setDescription("Rule key")
+      .setRequired(true)
+      .setExampleValue("javascript:EmptyBlock");
+  }
+
+  @Override
+  public void handle(Request request, Response response) {
+
+  }
 }

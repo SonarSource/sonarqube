@@ -170,7 +170,7 @@ public class DebtModelOperationsTest {
       fail();
     } catch (BadRequestException e) {
       assertThat(e.l10nKey()).isEqualTo("errors.is_already_used");
-      assertThat(e.l10nParams().iterator().next()).isEqualTo("Compilation");
+      assertThat(e.l10nParams()[0]).isEqualTo("Compilation");
     }
   }
 

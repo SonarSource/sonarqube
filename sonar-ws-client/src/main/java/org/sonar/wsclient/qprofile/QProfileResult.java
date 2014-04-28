@@ -17,43 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule2;
 
-import org.sonar.api.rule.RuleKey;
-import org.sonar.server.search.Hit;
+package org.sonar.wsclient.qprofile;
 
-import javax.annotation.CheckForNull;
+import java.util.List;
 
-import java.util.Collection;
-import java.util.Collections;
+public interface QProfileResult {
 
-/**
- * @since 4.4
- */
-public class RuleService {
+  List<String> infos();
 
-  private RuleDao dao;
-  private RuleIndex index;
-
-  public RuleService(RuleDao dao, RuleIndex index){
-    this.dao = dao;
-    this.index = index;
-  }
-
-  @CheckForNull
-  public Rule getByKey(RuleKey key) {
-    return null;
-  }
-
-  public Collection<Hit> search(RuleQuery query){
-    return Collections.emptyList();
-  }
-
-  public static Rule toRule(RuleDto ruleDto){
-    return new RuleImpl();
-  }
-
-  public static Rule toRule(Hit hit){
-    return new RuleImpl();
-  }
+  List<String> warnings();
 }

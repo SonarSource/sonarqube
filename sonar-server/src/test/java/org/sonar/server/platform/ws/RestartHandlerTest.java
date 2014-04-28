@@ -21,7 +21,7 @@ package org.sonar.server.platform.ws;
 
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.api.server.ws.WsTester;
+import org.sonar.server.ws.WsTester;
 import org.sonar.api.utils.System2;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.Platform;

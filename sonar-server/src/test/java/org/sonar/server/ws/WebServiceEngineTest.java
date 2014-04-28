@@ -42,6 +42,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -195,14 +197,45 @@ public class WebServiceEngineTest {
   }
 
   @Test
+  public void bad_request_with_i18n_message() throws Exception {
+    InternalRequest request = new SimpleRequest().setParam("count", "3");
+    ServletResponse response = new ServletResponse();
+    when(i18n.message(eq(Locale.getDefault()), eq("bad.request.reason"), anyString(), eq(0))).thenReturn("Bad request reason #0");
+
+    engine.execute(request, response, "api/system", "fail_with_i18n_message");
+
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":["
+      + "{\"msg\":\"Bad request reason #0\"}"
+      + "]}");
+    assertThat(response.stream().httpStatus()).isEqualTo(400);
+    assertThat(response.stream().mediaType()).isEqualTo(MimeTypes.JSON);
+  }
+
+  @Test
   public void bad_request_with_multiple_messages() throws Exception {
+    InternalRequest request = new SimpleRequest().setParam("count", "3");
+    ServletResponse response = new ServletResponse();
+
+    engine.execute(request, response, "api/system", "fail_with_multiple_messages");
+
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":["
+      + "{\"msg\":\"Bad request reason #0\"},"
+      + "{\"msg\":\"Bad request reason #1\"},"
+      + "{\"msg\":\"Bad request reason #2\"}"
+      + "]}");
+    assertThat(response.stream().httpStatus()).isEqualTo(400);
+    assertThat(response.stream().mediaType()).isEqualTo(MimeTypes.JSON);
+  }
+
+  @Test
+  public void bad_request_with_multiple_i18n_messages() throws Exception {
     InternalRequest request = new SimpleRequest().setParam("count", "3");
     ServletResponse response = new ServletResponse();
     when(i18n.message(Locale.getDefault(), "bad.request.reason", null, 0)).thenReturn("Bad request reason #0");
     when(i18n.message(Locale.getDefault(), "bad.request.reason", null, 1)).thenReturn("Bad request reason #1");
     when(i18n.message(Locale.getDefault(), "bad.request.reason", null, 2)).thenReturn("Bad request reason #2");
 
-    engine.execute(request, response, "api/system", "fail");
+    engine.execute(request, response, "api/system", "fail_with_multiple_i18n_messages");
 
     assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":["
       + "{\"msg\":\"Bad request reason #0\"},"
@@ -244,23 +277,45 @@ public class WebServiceEngineTest {
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {
-            if (request.param("count") != null) {
-              List<BadRequestException.Message> errors = Lists.newArrayList();
-              for (int count=0; count < Integer.valueOf(request.param("count")); count ++) {
-                errors.add(Message.ofL10n("bad.request.reason", count));
-              }
-              throw BadRequestException.of(errors);
-            }
             throw new IllegalStateException("Unexpected");
           }
         });
+      newController.createAction("fail_with_i18n_message")
+        .setHandler(new RequestHandler() {
+          @Override
+          public void handle(Request request, Response response) {
+            throw BadRequestException.ofL10n("bad.request.reason", 0);
+          }
+        });
+      newController.createAction("fail_with_multiple_messages")
+        .setHandler(new RequestHandler() {
+          @Override
+          public void handle(Request request, Response response) {
+            List<BadRequestException.Message> errors = Lists.newArrayList();
+            for (int count = 0; count < Integer.valueOf(request.param("count")); count++) {
+              errors.add(Message.of("Bad request reason #" + count));
+            }
+            throw BadRequestException.of(errors);
+          }
+        });
+      newController.createAction("fail_with_multiple_i18n_messages")
+        .setHandler(new RequestHandler() {
+          @Override
+          public void handle(Request request, Response response) {
+            List<BadRequestException.Message> errors = Lists.newArrayList();
+            for (int count = 0; count < Integer.valueOf(request.param("count")); count++) {
+              errors.add(Message.ofL10n("bad.request.reason", count));
+            }
+            throw BadRequestException.of(errors);
+          }
+        });
       newController.createAction("alive")
-      .setHandler(new RequestHandler() {
-        @Override
-        public void handle(Request request, Response response) {
-          response.noContent();
-        }
-      });
+        .setHandler(new RequestHandler() {
+          @Override
+          public void handle(Request request, Response response) {
+            response.noContent();
+          }
+        });
 
       // parameter "message" is required but not "author"
       newController.createAction("print")
@@ -271,7 +326,7 @@ public class WebServiceEngineTest {
           public void handle(Request request, Response response) {
             try {
               IOUtils.write(
-              request.mandatoryParam("message") + " by " + request.param("author", "-"), response.stream().output());
+                request.mandatoryParam("message") + " by " + request.param("author", "-"), response.stream().output());
             } catch (IOException e) {
               throw new IllegalStateException(e);
             }

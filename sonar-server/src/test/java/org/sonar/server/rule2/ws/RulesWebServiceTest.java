@@ -17,48 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.rule2.ws;
 
-package org.sonar.server.util;
-
-import org.junit.Before;
 import org.junit.Test;
-import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.server.rule2.RuleService;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
-public class BooleanTypeValidationTest {
-
-  BooleanTypeValidation validation;
-
-  @Before
-  public void setUp() throws Exception {
-    validation = new BooleanTypeValidation();
-  }
+public class RulesWebServiceTest {
 
   @Test
-  public void key() {
-    assertThat(validation.key()).isEqualTo("BOOLEAN");
-  }
+  public void define() throws Exception {
+    RuleService service = mock(RuleService.class);
+    SearchAction search = new SearchAction(service);
+    ShowAction show = new ShowAction(service);
+    RulesWebService ws = new RulesWebService(search, show);
 
-  @Test
-  public void not_fail_on_valid_boolean() {
-    validation.validate("true", null);
-    validation.validate("True", null);
-    validation.validate("false", null);
-    validation.validate("FALSE", null);
-  }
+    WebService.Context context = new WebService.Context();
+    ws.define(context);
 
-  @Test
-  public void fail_on_invalid_boolean() {
-    try {
-      validation.validate("abc", null);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class);
-      BadRequestException badRequestException = (BadRequestException) e;
-      assertThat(badRequestException.l10nParams()[0]).isEqualTo("abc");
-    }
+    WebService.Controller controller = context.controller("api/rules2");
+    assertThat(controller).isNotNull();
+    assertThat(controller.since()).isEqualTo("4.4");
+    assertThat(controller.actions()).hasSize(2);
+    assertThat(controller.action("search")).isNotNull();
+    assertThat(controller.action("show")).isNotNull();
   }
-
 }
