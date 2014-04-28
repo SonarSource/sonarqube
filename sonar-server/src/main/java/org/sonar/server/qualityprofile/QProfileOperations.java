@@ -131,25 +131,29 @@ public class QProfileOperations implements ServerComponent {
     checkPermission(userSession);
     SqlSession session = myBatis.openSession();
     try {
-      deleteProfile(profileId, session);
+      QualityProfileDto profile = findNotNull(profileId, session);
+      QProfile qProfile = QProfile.from(profile);
+      if (!profileLookup.isDeletable(QProfile.from(profile), session)) {
+        throw new BadRequestException("This profile can not be deleted");
+      } else {
+        deleteProfile(qProfile, session);
+      }
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public void deleteProfile(int profileId, SqlSession session) {
-    QualityProfileDto profile = findNotNull(profileId, session);
-    if (!profileLookup.isDeletable(QProfile.from(profile), session)) {
-      throw new BadRequestException("This profile can not be deleted");
-    } else {
-      activeRuleDao.deleteParametersFromProfile(profile.getId(), session);
-      activeRuleDao.deleteFromProfile(profile.getId(), session);
-      dao.delete(profile.getId(), session);
-      propertiesDao.deleteProjectProperties(PROFILE_PROPERTY_PREFIX + profile.getLanguage(), profile.getName(), session);
-      esActiveRule.deleteActiveRulesFromProfile(profile.getId());
-      dryRunCache.reportGlobalModification(session);
-    }
+  /**
+   * Delete profile without checking permission or that profile is existing or that profile can be deleted (is not defined as default, has no children, etc.)
+   */
+  public void deleteProfile(QProfile profile, SqlSession session) {
+    activeRuleDao.deleteParametersFromProfile(profile.id(), session);
+    activeRuleDao.deleteFromProfile(profile.id(), session);
+    dao.delete(profile.id(), session);
+    propertiesDao.deleteProjectProperties(PROFILE_PROPERTY_PREFIX + profile.language(), profile.name(), session);
+    esActiveRule.deleteActiveRulesFromProfile(profile.id());
+    dryRunCache.reportGlobalModification(session);
   }
 
   public void setDefaultProfile(int profileId, UserSession userSession) {

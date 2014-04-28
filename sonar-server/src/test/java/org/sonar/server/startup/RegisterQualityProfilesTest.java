@@ -324,7 +324,7 @@ public class RegisterQualityProfilesTest {
 
     registerQualityProfiles.start();
 
-    verify(qProfileOperations).deleteProfile(anyInt(), eq(session));
+    verify(qProfileOperations).deleteProfile(any(QProfile.class), eq(session));
     verify(qProfileBackup).restoreFromActiveRules(eq(profile), eq(rulesProfile), eq(session));
     verify(session).commit();
   }

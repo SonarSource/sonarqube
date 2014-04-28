@@ -141,7 +141,7 @@ public class RegisterQualityProfiles {
 
     QProfile profile = qProfileLookup.profile(name, language, session);
     if (profile != null) {
-      qProfileOperations.deleteProfile(profile.id(), session);
+      qProfileOperations.deleteProfile(profile, session);
     }
     profile = qProfileOperations.newProfile(name, language, true, UserSession.get(), session);
 
