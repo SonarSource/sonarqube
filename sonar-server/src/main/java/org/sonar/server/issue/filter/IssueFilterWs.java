@@ -60,15 +60,17 @@ public class IssueFilterWs implements WebService {
 
     NewAction show = controller.createAction("show");
     show
-      .setDescription("Get detail of issue filter")
+      .setDescription("Get detail of an issue filter. Requires to be authenticated")
       .setSince("4.2")
       .setHandler(new RequestHandler() {
         @Override
         public void handle(Request request, Response response) {
           show(request, response);
         }
-      })
-      .createParam(PARAM_ID).setRequired(true);
+      });
+    show.createParam(PARAM_ID)
+      .setDescription("ID of the issue filter")
+      .setRequired(true);
 
     NewAction fav = controller.createAction("favorites");
     fav

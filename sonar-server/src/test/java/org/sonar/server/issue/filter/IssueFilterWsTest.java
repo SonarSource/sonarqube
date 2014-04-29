@@ -21,10 +21,10 @@ package org.sonar.server.issue.filter;
 
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.ws.WsTester;
 import org.sonar.core.issue.DefaultIssueFilter;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.MockUserSession;
+import org.sonar.server.ws.WsTester;
 
 import java.util.Arrays;
 
@@ -46,11 +46,39 @@ public class IssueFilterWsTest {
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("4.2");
 
-    WebService.Action index = controller.action("app");
-    assertThat(index).isNotNull();
-    assertThat(index.handler()).isNotNull();
-    assertThat(index.isPost()).isFalse();
-    assertThat(index.isInternal()).isTrue();
+    WebService.Action app = controller.action("app");
+    assertThat(app).isNotNull();
+    assertThat(app.handler()).isNotNull();
+    assertThat(app.isPost()).isFalse();
+    assertThat(app.isInternal()).isTrue();
+    assertThat(app.since()).isEqualTo("4.2");
+    assertThat(app.params()).hasSize(1);
+
+    WebService.Param appId = app.param("id");
+    assertThat(appId).isNotNull();
+    assertThat(appId.description()).isNotNull();
+    assertThat(appId.isRequired()).isFalse();
+
+    WebService.Action show = controller.action("show");
+    assertThat(show).isNotNull();
+    assertThat(show.handler()).isNotNull();
+    assertThat(show.isPost()).isFalse();
+    assertThat(show.isInternal()).isFalse();
+    assertThat(show.since()).isEqualTo("4.2");
+    assertThat(show.params()).hasSize(1);
+
+    WebService.Param showId = show.param("id");
+    assertThat(showId).isNotNull();
+    assertThat(showId.description()).isNotNull();
+    assertThat(showId.isRequired()).isTrue();
+
+    WebService.Action favorites = controller.action("favorites");
+    assertThat(favorites).isNotNull();
+    assertThat(favorites.handler()).isNotNull();
+    assertThat(favorites.isPost()).isFalse();
+    assertThat(favorites.isInternal()).isFalse();
+    assertThat(favorites.since()).isEqualTo("4.2");
+    assertThat(favorites.params()).isEmpty();
   }
 
   @Test
