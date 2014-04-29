@@ -19,7 +19,6 @@
  */
 package org.sonar.server.rule2;
 
-import org.sonar.core.cluster.IndexAction;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -32,10 +31,10 @@ import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.rule.RuleConstants;
 import org.sonar.core.rule.RuleDao;
+import org.sonar.server.es.ESNode;
 import org.sonar.server.search.BaseIndex;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Map;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
@@ -45,8 +44,8 @@ public class RuleIndex extends BaseIndex<RuleKey> {
 
   private static final Logger LOG = LoggerFactory.getLogger(RuleIndex.class);
 
-  public RuleIndex(WorkQueue queue, RuleDao dao, Profiling profiling) {
-    super(queue, dao, profiling);
+  public RuleIndex(WorkQueue queue, RuleDao dao, Profiling profiling, ESNode node) {
+    super(queue, dao, profiling, node);
   }
 
   @Override

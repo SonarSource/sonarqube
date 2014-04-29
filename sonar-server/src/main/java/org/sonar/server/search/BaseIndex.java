@@ -19,6 +19,8 @@
  */
 package org.sonar.server.search;
 
+import org.sonar.server.es.ESNode;
+
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsNodes;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.deletebyquery.DeleteByQueryResponse;
@@ -55,15 +57,17 @@ public abstract class BaseIndex<K extends Serializable> implements Index<K> {
 
   private final Profiling profiling;
   private Client client;
+  private final ESNode node;
   private WorkQueue workQueue;
   private IndexSynchronizer<K> synchronizer;
   protected Dao<?, K> dao;
 
-  public BaseIndex(WorkQueue workQueue, Dao<?, K> dao, Profiling profiling) {
+  public BaseIndex(WorkQueue workQueue, Dao<?, K> dao, Profiling profiling, ESNode node) {
     this.profiling = profiling;
     this.workQueue = workQueue;
     this.synchronizer = new IndexSynchronizer<K>(this, dao, this.workQueue);
     this.dao = dao;
+    this.node = node;
   }
 
   protected Dao<?, K> getDao() {
@@ -101,25 +105,26 @@ public abstract class BaseIndex<K extends Serializable> implements Index<K> {
   }
 
   public void connect() {
-    /* Settings to access our local ES node */
-    Settings settings = ImmutableSettings.settingsBuilder()
-      .put("client.transport.sniff", true)
-      .put("cluster.name", ES_CLUSTER_NAME)
-      .put("node.name", "localclient_")
-      .build();
-
-    this.client = new TransportClient(settings)
-      .addTransportAddress(new InetSocketTransportAddress(LOCAL_ES_NODE_HOST, LOCAL_ES_NODE_PORT));
-
-    /*
-     * Cannot do that yet, need version >= 1.0
-     * ImmutableList<DiscoveryNode> nodes = client.connectedNodes();
-     * if (nodes.isEmpty()) {
-     * throw new ElasticSearchUnavailableException("No nodes available. Verify ES is running!");
-     * } else {
-     * log.info("connected to nodes: " + nodes.toString());
-     * }
-     */
+    this.client = this.node.client();
+//    /* Settings to access our local ES node */
+//    Settings settings = ImmutableSettings.settingsBuilder()
+//      .put("client.transport.sniff", true)
+//      .put("cluster.name", ES_CLUSTER_NAME)
+//      .put("node.name", "localclient_")
+//      .build();
+//
+//    this.client = new TransportClient(settings)
+//      .addTransportAddress(new InetSocketTransportAddress(LOCAL_ES_NODE_HOST, LOCAL_ES_NODE_PORT));
+//
+//    /*
+//     * Cannot do that yet, need version >= 1.0
+//     * ImmutableList<DiscoveryNode> nodes = client.connectedNodes();
+//     * if (nodes.isEmpty()) {
+//     * throw new ElasticSearchUnavailableException("No nodes available. Verify ES is running!");
+//     * } else {
+//     * log.info("connected to nodes: " + nodes.toString());
+//     * }
+//     */
   }
 
   /* Cluster And ES Stats/Client methods */

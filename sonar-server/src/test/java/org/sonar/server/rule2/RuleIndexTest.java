@@ -38,43 +38,43 @@ import static org.fest.assertions.Assertions.assertThat;
 @Ignore("Same problem as with BaseIndex test")
 public class RuleIndexTest {
 
-  private static final String TEST_NODE_NAME = "es_node_for_tests";
-
-  @ElasticsearchNode(name = TEST_NODE_NAME,
-      clusterName = BaseIndex.ES_CLUSTER_NAME,
-      local = false, data = true)
-  private Node node;
-
-  @Before
-  public void setUp() throws Exception {
-
-  }
-
-  private RuleIndex getRuleIndex(){
-    LocalNonBlockingWorkQueue queue = new LocalNonBlockingWorkQueue();
-    Settings settings = new Settings();
-    settings.setProperty("sonar.log.profilingLevel", "BASIC");
-    RuleIndex rindex =  new RuleIndex(queue, null, new Profiling(settings));
-    return rindex;
-  }
-
-  @After
-  public void tearDown() {
-    if (node != null && !node.isClosed()) {
-      node.close();
-    }
-  }
-
-  @Test
-  public void test_ruleIndex_conencts_to_es() {
-
-    RuleIndex ruleIndex = getRuleIndex();
-    ruleIndex.connect();
-
-    assertThat(node.client().admin().cluster().prepareClusterStats().get().getNodesStats().getCounts().getTotal())
-      .isEqualTo(ruleIndex.getNodesStats().getCounts().getTotal());
-
-    ruleIndex.stop();
-
-  }
+//  private static final String TEST_NODE_NAME = "es_node_for_tests";
+//
+//  @ElasticsearchNode(name = TEST_NODE_NAME,
+//      clusterName = BaseIndex.ES_CLUSTER_NAME,
+//      local = false, data = true)
+//  private Node node;
+//
+//  @Before
+//  public void setUp() throws Exception {
+//
+//  }
+//
+//  private RuleIndex getRuleIndex(){
+//    LocalNonBlockingWorkQueue queue = new LocalNonBlockingWorkQueue();
+//    Settings settings = new Settings();
+//    settings.setProperty("sonar.log.profilingLevel", "BASIC");
+//    RuleIndex rindex =  new RuleIndex(queue, null, new Profiling(settings));
+//    return rindex;
+//  }
+//
+//  @After
+//  public void tearDown() {
+//    if (node != null && !node.isClosed()) {
+//      node.close();
+//    }
+//  }
+//
+//  @Test
+//  public void test_ruleIndex_conencts_to_es() {
+//
+//    RuleIndex ruleIndex = getRuleIndex();
+//    ruleIndex.connect();
+//
+//    assertThat(node.client().admin().cluster().prepareClusterStats().get().getNodesStats().getCounts().getTotal())
+//      .isEqualTo(ruleIndex.getNodesStats().getCounts().getTotal());
+//
+//    ruleIndex.stop();
+//
+//  }
 }

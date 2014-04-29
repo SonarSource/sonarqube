@@ -79,6 +79,7 @@ public class ESNode implements Startable {
       .loadFromUrl(getClass().getResource("config/elasticsearch.json"));
     initDirs(esSettings);
     initRestConsole(esSettings);
+    initNetwork(esSettings);
 
     node = NodeBuilder.nodeBuilder()
       .settings(esSettings)
@@ -105,13 +106,17 @@ public class ESNode implements Startable {
       node.client().admin().indices().preparePutTemplate("default")
         .setSource(IOUtils.toString(getClass().getResource("config/templates/default.json")))
         .execute().actionGet();
-    } catch(IOException ioe) {
+    } catch (IOException ioe) {
       throw new IllegalStateException("Unable to load index templates", ioe);
     }
   }
 
   private void initLogging() {
     ESLoggerFactory.setDefaultFactory(new Slf4jESLoggerFactory());
+  }
+
+  private void initNetwork(ImmutableSettings.Builder esSettings) {
+    esSettings.put("network.bind_host", "127.0.0.1");
   }
 
   private void initRestConsole(ImmutableSettings.Builder esSettings) {
