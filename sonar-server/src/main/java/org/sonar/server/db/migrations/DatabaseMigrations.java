@@ -24,6 +24,7 @@ import org.sonar.server.db.migrations.v36.ViolationMigration;
 import org.sonar.server.db.migrations.v42.CompleteIssueMessageMigration;
 import org.sonar.server.db.migrations.v42.PackageKeysMigration;
 import org.sonar.server.db.migrations.v43.*;
+import org.sonar.server.db.migrations.v44.IssueActionPlanKeyMigration;
 
 import java.util.List;
 
@@ -42,7 +43,10 @@ public interface DatabaseMigrations {
     TechnicalDebtMeasuresMigration.class,
     DevelopmentCostMeasuresMigration.class,
     RequirementMeasuresMigration.class,
-    NotResolvedIssuesOnRemovedComponentsMigration.class
+    NotResolvedIssuesOnRemovedComponentsMigration.class,
+
+    // 4.4
+    IssueActionPlanKeyMigration.class
   );
 
 }
