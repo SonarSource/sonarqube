@@ -40,7 +40,7 @@
 
       unless level == 'OK' && !widget_properties['show_ok']
       -%>
-      <div class="dashbox" style="margin: 10px">
+      <div class="dashbox" style="margin: 10px; vertical-align: baseline">
         <p class="title"><%= condition_metric.short_name -%></p>
         <span class="big"><%= format_measure(actual_measure, :url => drilldown_url) -%></span>
         <% if level == 'WARN' -%><%= operator -%> <%= format_measure(warning_measure) -%><% end -%>
