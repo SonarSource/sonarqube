@@ -62,26 +62,26 @@ public class SourceServiceTest {
   }
 
   @Test
-  public void get_sources_by_component() throws Exception {
+  public void get_lines() throws Exception {
     String projectKey = "org.sonar.sample";
     String componentKey = "org.sonar.sample:Sample";
     MockUserSession.set().addProjectPermissions(UserRole.CODEVIEWER, projectKey);
     when(resourceDao.getRootProjectByComponentKey(componentKey)).thenReturn(new ResourceDto().setKey(projectKey));
 
-    service.getSourcesForComponent(componentKey);
+    service.getLinesAsHtml(componentKey);
 
     verify(sourceDecorator).getDecoratedSourceAsHtml(componentKey, null, null);
   }
 
   @Test
-  public void fail_to_get_sources_by_component_if_component_not_found() throws Exception {
+  public void fail_to_get_lines_if_file_not_found() throws Exception {
     String projectKey = "org.sonar.sample";
     String componentKey = "org.sonar.sample:Sample";
     MockUserSession.set().addProjectPermissions(UserRole.CODEVIEWER, projectKey);
     when(resourceDao.getRootProjectByComponentKey(componentKey)).thenReturn(null);
 
     try {
-      service.getSourcesForComponent(componentKey);
+      service.getLinesAsHtml(componentKey);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(NotFoundException.class);
@@ -91,26 +91,26 @@ public class SourceServiceTest {
   }
 
   @Test
-  public void get_sources_by_component_with_only_given_lines() throws Exception {
+  public void get_block_of_lines() throws Exception {
     String projectKey = "org.sonar.sample";
     String componentKey = "org.sonar.sample:Sample";
     MockUserSession.set().addProjectPermissions(UserRole.CODEVIEWER, projectKey);
     when(resourceDao.getRootProjectByComponentKey(componentKey)).thenReturn(new ResourceDto().setKey(projectKey));
 
-    service.getSourcesByComponent(componentKey, 1, 2);
+    service.getLinesAsHtml(componentKey, 1, 2);
 
     verify(sourceDecorator).getDecoratedSourceAsHtml(componentKey, 1, 2);
   }
 
   @Test
-  public void get_sources_by_component_from_deprecated_source_decorator_when_no_data_from_new_decorator() throws Exception {
+  public void get_lines_from_deprecated_source_decorator_when_no_data_from_new_decorator() throws Exception {
     String projectKey = "org.sonar.sample";
     String componentKey = "org.sonar.sample:Sample";
     MockUserSession.set().addProjectPermissions(UserRole.CODEVIEWER, projectKey);
     when(resourceDao.getRootProjectByComponentKey(componentKey)).thenReturn(new ResourceDto().setKey(projectKey));
     when(sourceDecorator.getDecoratedSourceAsHtml(eq(componentKey), anyInt(), anyInt())).thenReturn(Collections.<String>emptyList());
 
-    service.getSourcesByComponent(componentKey, 1, 2);
+    service.getLinesAsHtml(componentKey, 1, 2);
 
     verify(deprecatedSourceDecorator).getSourceAsHtml(componentKey, 1, 2);
   }

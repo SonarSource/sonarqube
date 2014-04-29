@@ -32,7 +32,6 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.List;
 
 public class SourceService implements ServerComponent {
@@ -54,38 +53,37 @@ public class SourceService implements ServerComponent {
     this.measureDataDao = measureDataDao;
   }
 
-  public List<String> getSourcesForComponent(String componentKey) {
-    return getSourcesByComponent(componentKey, null, null);
+  public List<String> getLinesAsHtml(String fileKey) {
+    return getLinesAsHtml(fileKey, null, null);
   }
 
-  public List<String> getSourcesByComponent(String componentKey, @Nullable Integer from, @Nullable Integer to) {
-    ResourceDto project = resourceDao.getRootProjectByComponentKey(componentKey);
+  public List<String> getLinesAsHtml(String fileKey, @Nullable Integer from, @Nullable Integer to) {
+    ResourceDto project = resourceDao.getRootProjectByComponentKey(fileKey);
     if (project == null) {
-      throw new NotFoundException("This component does not exists.");
+      throw new NotFoundException("File does not exist");
     }
     UserSession.get().checkProjectPermission(UserRole.CODEVIEWER, project.getKey());
 
-    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml(componentKey, from, to);
+    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml(fileKey, from, to);
     if (!decoratedSource.isEmpty()) {
       return decoratedSource;
-    } else {
-      return deprecatedSourceDecorator.getSourceAsHtml(componentKey, from, to);
     }
+    return deprecatedSourceDecorator.getSourceAsHtml(fileKey, from, to);
   }
 
   @CheckForNull
-  public String getScmAuthorData(String componentKey) {
-    return findDataFromComponent(componentKey, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY);
+  public String getScmAuthorData(String fileKey) {
+    return findDataFromComponent(fileKey, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY);
   }
 
   @CheckForNull
-  public String getScmDateData(String componentKey) {
-    return findDataFromComponent(componentKey, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY);
+  public String getScmDateData(String fileKey) {
+    return findDataFromComponent(fileKey, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY);
   }
 
   @CheckForNull
-  private String findDataFromComponent(String componentKey, String metricKey) {
-    MeasureDataDto data = measureDataDao.findByComponentKeyAndMetricKey(componentKey, metricKey);
+  private String findDataFromComponent(String fileKey, String metricKey) {
+    MeasureDataDto data = measureDataDao.findByComponentKeyAndMetricKey(fileKey, metricKey);
     if (data != null) {
       return data.getText();
     }

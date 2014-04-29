@@ -24,23 +24,16 @@ import org.sonar.api.server.ws.WebService;
 
 public class SourcesWs implements WebService {
 
-  private final SourcesShowWsHandler showHandler;
+  private final ShowAction showAction;
 
-  public SourcesWs(SourcesShowWsHandler showHandler) {
-    this.showHandler = showHandler;
+  public SourcesWs(ShowAction showAction) {
+    this.showAction = showAction;
   }
 
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/sources");
-
-    controller.createAction("show")
-      .setDescription("Show source of a component")
-      .setSince("4.2")
-      .setInternal(true)
-      .setHandler(showHandler)
-      .createParam("key", "Component key");
-
+    showAction.define(controller);
     controller.done();
   }
 }

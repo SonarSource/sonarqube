@@ -39,7 +39,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SourcesShowWsHandlerTest {
+public class ShowActionTest {
 
   @Mock
   SourceService sourceService;
@@ -48,13 +48,13 @@ public class SourcesShowWsHandlerTest {
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new SourcesWs(new SourcesShowWsHandler(sourceService)));
+    tester = new WsTester(new SourcesWs(new ShowAction(sourceService)));
   }
 
   @Test
   public void show_source() throws Exception {
-    String componentKey = "org.apache.struts:struts:Dispatcher";
-    when(sourceService.getSourcesByComponent(eq(componentKey), anyInt(), anyInt())).thenReturn(newArrayList(
+    String componentKey = "src/Foo.java";
+    when(sourceService.getLinesAsHtml(eq(componentKey), anyInt(), anyInt())).thenReturn(newArrayList(
       "/*",
       " * Header",
       " */",
@@ -69,8 +69,8 @@ public class SourcesShowWsHandlerTest {
 
   @Test
   public void fail_to_show_source_if_no_source_found() throws Exception {
-    String componentKey = "org.apache.struts:struts:Dispatcher";
-    when(sourceService.getSourcesByComponent(anyString(), anyInt(), anyInt())).thenReturn(Collections.<String>emptyList());
+    String componentKey = "src/Foo.java";
+    when(sourceService.getLinesAsHtml(anyString(), anyInt(), anyInt())).thenReturn(Collections.<String>emptyList());
 
     try {
       WsTester.TestRequest request = tester.newRequest("show").setParam("key", componentKey);
@@ -83,8 +83,8 @@ public class SourcesShowWsHandlerTest {
 
   @Test
   public void show_source_with_from_and_to_params() throws Exception {
-    String componentKey = "org.apache.struts:struts:Dispatcher";
-    when(sourceService.getSourcesByComponent(componentKey, 3, 5)).thenReturn(newArrayList(
+    String componentKey = "src/Foo.java";
+    when(sourceService.getLinesAsHtml(componentKey, 3, 5)).thenReturn(newArrayList(
       " */",
       "",
       "public class <span class=\"sym-31 sym\">HelloWorld</span> {"
@@ -94,80 +94,90 @@ public class SourcesShowWsHandlerTest {
   }
 
   @Test
-  public void show_source_always_should_not_begin_with_from_0() throws Exception {
-    String componentKey = "org.apache.struts:struts:Dispatcher";
-    when(sourceService.getSourcesByComponent(componentKey, 1, 5)).thenReturn(newArrayList(
+  public void show_source_accept_from_less_than_one() throws Exception {
+    String fileKey = "src/Foo.java";
+    when(sourceService.getLinesAsHtml(fileKey, 1, 5)).thenReturn(newArrayList(
       " */",
       "",
       "public class <span class=\"sym-31 sym\">HelloWorld</span> {"
     ));
-    WsTester.TestRequest request = tester.newRequest("show").setParam("key", componentKey).setParam("from", "0").setParam("to", "5");
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", fileKey).setParam("from", "0").setParam("to", "5");
     request.execute();
-    verify(sourceService).getSourcesByComponent(componentKey, 1, 5);
+    verify(sourceService).getLinesAsHtml(fileKey, 1, 5);
   }
 
   @Test
   public void show_source_with_scm() throws Exception {
-    String componentKey = "org.apache.struts:struts:Dispatcher";
-    when(sourceService.getSourcesByComponent(eq(componentKey), anyInt(), anyInt())).thenReturn(newArrayList(
+    String fileKey = "src/Foo.java";
+    when(sourceService.getLinesAsHtml(eq(fileKey), anyInt(), anyInt())).thenReturn(newArrayList(
       "public class <span class=\"sym-31 sym\">HelloWorld</span> {}"
     ));
 
-    when(sourceService.getScmAuthorData(componentKey)).thenReturn("1=julien;");
-    when(sourceService.getScmDateData(componentKey)).thenReturn("1=2013-03-13T16:22:31+0100;");
+    when(sourceService.getScmAuthorData(fileKey)).thenReturn("1=julien;");
+    when(sourceService.getScmDateData(fileKey)).thenReturn("1=2013-03-13T16:22:31+0100;");
 
-    WsTester.TestRequest request = tester.newRequest("show").setParam("key", componentKey);
+    WsTester.TestRequest request = tester.newRequest("show").setParam("key", fileKey).setParam("scm", "true");
     request.execute().assertJson(getClass(), "show_source_with_scm.json");
   }
 
   @Test
   public void show_source_with_scm_with_from_and_to_params() throws Exception {
-    String componentKey = "org.apache.struts:struts:Dispatcher";
-    when(sourceService.getSourcesByComponent(componentKey, 3, 5)).thenReturn(newArrayList(
+    String fileKey = "src/Foo.java";
+    when(sourceService.getLinesAsHtml(fileKey, 3, 5)).thenReturn(newArrayList(
       " */",
       "",
       "public class <span class=\"sym-31 sym\">HelloWorld</span> {"
     ));
-    when(sourceService.getScmAuthorData(componentKey))
+    when(sourceService.getScmAuthorData(fileKey))
       .thenReturn("1=julien;2=simon;3=julien;4=simon;5=jean;6=julien");
-    when(sourceService.getScmDateData(componentKey))
+    when(sourceService.getScmDateData(fileKey))
       .thenReturn("1=2013-03-13T16:22:31+0100;2=2013-03-14T16:22:31+0100;3=2013-03-13T16:22:31+0100;4=2013-03-14T16:22:31+0100;5=2013-03-15T16:22:31+0100;6=2013-03-13T16:22:31+0100;");
 
-    WsTester.TestRequest request = tester.newRequest("show").setParam("key", componentKey).setParam("from", "3").setParam("to", "5");
+    WsTester.TestRequest request = tester.newRequest("show")
+      .setParam("key", fileKey)
+      .setParam("from", "3")
+      .setParam("to", "5")
+      .setParam("scm", "true");
     request.execute().assertJson(getClass(), "show_source_with_scm_with_from_and_to_params.json");
   }
 
   @Test
   public void show_source_with_scm_without_repeating_same_lines() throws Exception {
-    String componentKey = "org.apache.struts:struts:Dispatcher";
-    when(sourceService.getSourcesByComponent(eq(componentKey), anyInt(), anyInt())).thenReturn(newArrayList(
+    String fileKey = "src/Foo.java";
+    when(sourceService.getLinesAsHtml(eq(fileKey), anyInt(), anyInt())).thenReturn(newArrayList(
       " */",
       "",
       "public class <span class=\"sym-31 sym\">HelloWorld</span> {"
     ));
-    when(sourceService.getScmAuthorData(componentKey))
+    when(sourceService.getScmAuthorData(fileKey))
       .thenReturn("1=julien;2=julien;3=simon");
-    when(sourceService.getScmDateData(componentKey))
+    when(sourceService.getScmDateData(fileKey))
       .thenReturn("1=2013-03-13T16:22:31+0100;2=2013-03-13T16:22:31+0100;3=2013-03-14T16:22:31+0100;");
-    WsTester.TestRequest request = tester.newRequest("show").setParam("key", componentKey);
+    WsTester.TestRequest request = tester.newRequest("show")
+      .setParam("key", fileKey)
+      .setParam("scm", "true");
     request.execute().assertJson(getClass(), "show_source_with_scm_without_repeating_same_lines.json");
   }
 
   @Test
   public void show_source_with_scm_when_from_is_after_same_commit() throws Exception {
-    String componentKey = "org.apache.struts:struts:Dispatcher";
-    when(sourceService.getSourcesByComponent(componentKey, 3, 5)).thenReturn(newArrayList(
+    String fileKey = "src/Foo.java";
+    when(sourceService.getLinesAsHtml(fileKey, 3, 5)).thenReturn(newArrayList(
       " */",
       "",
       "public class <span class=\"sym-31 sym\">HelloWorld</span> {"
     ));
 
     // Since line 2, it's the same commit
-    when(sourceService.getScmAuthorData(componentKey))
+    when(sourceService.getScmAuthorData(fileKey))
       .thenReturn("1=julien;2=simon;3=simon;4=simon;5=simon;6=simon");
-    when(sourceService.getScmDateData(componentKey))
+    when(sourceService.getScmDateData(fileKey))
       .thenReturn("1=2013-03-13T16:22:31+0100;2=2013-03-14T16:22:31+0100;3=2013-03-14T16:22:31+0100;4=2013-03-14T16:22:31+0100;5=2013-03-14T16:22:31+0100;6=2013-03-14T16:22:31+0100;");
-    WsTester.TestRequest request = tester.newRequest("show").setParam("key", componentKey).setParam("from", "3").setParam("to", "5");
+    WsTester.TestRequest request = tester.newRequest("show")
+      .setParam("key", fileKey)
+      .setParam("from", "3")
+      .setParam("to", "5")
+      .setParam("scm", "true");
     request.execute().assertJson(getClass(), "show_source_with_scm_without_repeating_same_lines_and_with_from_param_after_repetition.json");
   }
 }

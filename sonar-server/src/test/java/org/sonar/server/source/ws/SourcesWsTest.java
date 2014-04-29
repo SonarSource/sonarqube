@@ -22,6 +22,7 @@ package org.sonar.server.source.ws;
 
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.source.SourceService;
 import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -29,8 +30,8 @@ import static org.mockito.Mockito.mock;
 
 public class SourcesWsTest {
 
-  SourcesShowWsHandler showHandler = mock(SourcesShowWsHandler.class);
-  WsTester tester = new WsTester(new SourcesWs(showHandler));
+  ShowAction showAction = new ShowAction(mock(SourceService.class));
+  WsTester tester = new WsTester(new SourcesWs(showAction));
 
   @Test
   public void define_ws() throws Exception {
@@ -43,7 +44,6 @@ public class SourcesWsTest {
     assertThat(show.handler()).isNotNull();
     assertThat(show.since()).isEqualTo("4.2");
     assertThat(show.isPost()).isFalse();
-    assertThat(show.isInternal()).isTrue();
-    assertThat(show.handler()).isSameAs(showHandler);
+    assertThat(show.handler()).isSameAs(showAction);
   }
 }
