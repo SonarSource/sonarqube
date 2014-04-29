@@ -38,7 +38,7 @@ public class ServerTester extends ExternalResource {
   private Platform platform;
   private File tempDir;
   private Object[] components;
-  private Properties initialProps = new Properties();
+  private final Properties initialProps = new Properties();
 
   /**
    * Called only when JUnit @Rule or @ClassRule is used.
@@ -48,10 +48,11 @@ public class ServerTester extends ExternalResource {
     start();
   }
 
+  /**
+   * This method should not be called by test when ServerTester is annotated with {@link org.junit.Rule}
+   */
   public void start() {
-    if (platform != null) {
-      throw new IllegalStateException("Already started");
-    }
+    checkNotStarted();
     tempDir = createTempDir();
     Properties properties = new Properties();
     properties.putAll(initialProps);
@@ -83,6 +84,9 @@ public class ServerTester extends ExternalResource {
     stop();
   }
 
+  /**
+   * This method should not be called by test when ServerTester is annotated with {@link org.junit.Rule}
+   */
   public void stop() {
     if (platform != null) {
       platform.doStop();
@@ -91,15 +95,21 @@ public class ServerTester extends ExternalResource {
     FileUtils.deleteQuietly(tempDir);
   }
 
+  /**
+   * Add classes or objects to IoC container, as it could be done by plugins.
+   * Must be called before {@link #start()}.
+   */
   public ServerTester addComponents(Object... components) {
-    if (platform != null) {
-      throw new IllegalStateException("Already started");
-    }
+    checkNotStarted();
     this.components = components;
     return this;
   }
 
+  /**
+   * Set a property available for startup. Must be called before {@link #start()}.
+   */
   public ServerTester setProperty(String key, String value) {
+    checkNotStarted();
     initialProps.setProperty(key, value);
     return this;
   }
@@ -108,10 +118,20 @@ public class ServerTester extends ExternalResource {
    * Get a component from the platform
    */
   public <C> C get(Class<C> component) {
+    checkStarted();
+    return platform.getContainer().getComponentByType(component);
+  }
+
+  private void checkStarted() {
     if (platform == null) {
       throw new IllegalStateException("Not started");
     }
-    return platform.getContainer().getComponentByType(component);
+  }
+
+  private void checkNotStarted() {
+    if (platform != null) {
+      throw new IllegalStateException("Already started");
+    }
   }
 
 }
