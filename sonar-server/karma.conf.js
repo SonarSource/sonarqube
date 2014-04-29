@@ -29,6 +29,7 @@ module.exports = function(config) {
         'require.js',
         'translate.js',
         'common/inputs.js',
+        'widgets/base.js',
 
         // libs
         { pattern: 'third-party/**/*.js', included: false },

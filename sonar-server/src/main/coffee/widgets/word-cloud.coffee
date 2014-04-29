@@ -1,114 +1,70 @@
-# Some helper functions
-
-# Gets or sets parameter
-param = (name, value) ->
-  unless value?
-    return this[name]
-  else
-    this[name] = value
-    return @
+class WordCloud extends window.SonarWidgets.BaseWidget
+  colorLow: '#d62728'
+  colorHigh: '#1f77b4'
+  colorUnknown: '#777'
+  sizeLow: 10
+  sizeHigh: 24
 
 
-window.SonarWidgets ?= {}
-
-window.SonarWidgets.WordCloud = ->
-  @_components = []
-  @_metrics = []
-  @_metricsPriority = []
-  @_width = window.SonarWidgets.WordCloud.defaults.width
-  @_height = window.SonarWidgets.WordCloud.defaults.height
-  @_margin = window.SonarWidgets.WordCloud.defaults.margin
-  @_legendWidth = window.SonarWidgets.WordCloud.defaults.legendWidth
-  @_legendMargin = window.SonarWidgets.WordCloud.defaults.legendMargin
-  @_detailsWidth = window.SonarWidgets.WordCloud.defaults.detailsWidth
-  @_maxResultsReached = false
-  @_options = {}
-
-  @_lineHeight = 20
-
-  # Export global variables
-  @metrics = (_) -> param.call(this, '_metrics', _)
-  @metricsPriority = (_) -> param.call(this, '_metricsPriority', _)
-  @components = (_) -> param.call(this, '_components', _)
-  @width = (_) -> param.call(this, '_width', _)
-  @height = (_) -> param.call(this, '_height', _)
-  @margin = (_) -> param.call(this, '_margin', _)
-  @legendWidth = (_) -> param.call(this, '_legendWidth', _)
-  @legendMargin = (_) -> param.call(this, '_legendMargin', _)
-  @detailsWidth = (_) -> param.call(this, '_detailsWidth', _)
-  @maxResultsReached = (_) -> param.call(this, '_maxResultsReached', _)
-  @options = (_) -> param.call(this, '_options', _)
-  @
+  constructor: ->
+    @addField 'width', []
+    @addField 'height', []
+    @addField 'maxResultsReached', false
+    super
 
 
-window.SonarWidgets.WordCloud.prototype.render = (container) ->
-  @box = d3.select(container).append('div').classed 'sonar-d3', true
-  @box.style 'text-align', 'center'
+  renderWords: ->
+    words = @wordContainer.selectAll('.cloud-word').data @components()
 
-  # Configure metrics
-  @colorMetric = @metricsPriority()[0]
-  @getColorMetric = (d) => d.measures[@colorMetric]?.val
-  @getFColorMetric = (d) => d.measures[@colorMetric]?.fval
-  @sizeMetric = @metricsPriority()[1]
-  @getSizeMetric = (d) => d.measures[@sizeMetric]?.val
-  @getFSizeMetric = (d) => d.measures[@sizeMetric]?.fval
+    wordsEnter = words.enter().append('a').classed 'cloud-word', true
+    wordsEnter.text (d) -> d.name
+    wordsEnter.attr 'href', (d) =>
+      url = @options().baseUrl + encodeURIComponent(d.key)
+      url += '?metric=' + encodeURIComponent(@colorMetric.key) if d.qualifier == 'CLA' || d.qualifier == 'FIL'
+      url
+    wordsEnter.attr 'title', (d) =>
+      title = d.longName
+      title += " | #{@colorMetric.name}: #{@colorMetric.formattedValue d}" if @colorMetric.value(d)?
+      title += " | #{@sizeMetric.name}: #{@sizeMetric.formattedValue d}" if @sizeMetric.value(d)?
+      title
 
-  # Configure scales
-  @color = d3.scale.linear().domain([0, 100])
-  if @metrics()[@colorMetric].direction == 1
-    @color.range ['#d62728', '#1f77b4']
-  else
-    @color.range ['#1f77b4', '#d62728']
+    words.style 'color', (d) =>
+      if @colorMetric.value(d)? then @color @colorMetric.value(d) else @colorUnknown
+    words.style 'font-size', (d) => "#{@size @sizeMetric.value d}px"
 
-  sizeDomain = d3.extent @components(), (d) => @getSizeMetric d
-  @size = d3.scale.linear().domain(sizeDomain).range([10, 24])
-
-  @update container
-  @
+    words.sort (a, b) =>
+      if a.name.toLowerCase() > b.name.toLowerCase() then 1 else -1
 
 
-window.SonarWidgets.WordCloud.prototype.update = ->
-  # Configure words
-  @words = @box.selectAll('a').data @components()
+  render: (container) ->
+    box = d3.select(container).append('div')
+    box.classed 'sonar-d3', true
+    box.classed 'cloud-widget', true
+    @wordContainer = box.append 'div'
 
-  wordsEnter = @words.enter().append('a')
-  wordsEnter.classed 'cloud-word', true
-  wordsEnter.text (d) -> d.name
-  wordsEnter.attr 'href', (d) =>
-    url = @options().baseUrl + encodeURIComponent(d.key)
-    url += '?metric=' + encodeURIComponent(@colorMetric) if d.qualifier == 'CLA' || d.qualifier == 'FIL'
-    url
-  wordsEnter.attr 'title', (d) =>
-    title = d.longName
-    title += " | #{@metrics()[@colorMetric].name}: #{@getFColorMetric d}" if @getColorMetric(d)?
-    title += " | #{@metrics()[@sizeMetric].name}: #{@getFSizeMetric d}" if @getSizeMetric(d)?
-    title
+    # Configure metrics
+    @addMetric 'colorMetric', 0
+    @addMetric 'sizeMetric', 1
 
-  @words.style 'color', (d) =>
-    if @getColorMetric(d)? then @color @getColorMetric d else '#999'
-  @words.style 'font-size', (d) => "#{@size @getSizeMetric d}px"
+    # Configure scales
+    @color = d3.scale.linear().domain([0, 100])
+    if @colorMetric.direction == 1
+      @color.range [@colorLow, @colorHigh]
+    else
+      @color.range [@colorHigh, @colorLow]
 
-  @words.sort (a, b) =>
-    if a.name.toLowerCase() > b.name.toLowerCase() then 1 else -1
+    sizeDomain = d3.extent @components(), (d) => @sizeMetric.value d
+    @size = d3.scale.linear().domain(sizeDomain).range [@sizeLow, @sizeHigh]
 
-  # Show maxResultsReached message
-  if @maxResultsReached()
-    @maxResultsReachedLabel.remove() if @maxResultsReachedLabel?
-    @maxResultsReachedLabel = @box.append('div').text @options().maxItemsReachedMessage
-    @maxResultsReachedLabel.style 'color', '#777'
-    @maxResultsReachedLabel.style 'font-size', '12px'
-    @maxResultsReachedLabel.style 'text-align', 'center'
-    @maxResultsReachedLabel.style 'margin-top', '10px'
+    # Show maxResultsReached message
+    if @maxResultsReached()
+      maxResultsReachedLabel = box.append('div').text @options().maxItemsReachedMessage
+      maxResultsReachedLabel.classed 'max-results-reached-message', true
 
-  @words.exit().remove()
+    @renderWords()
 
-  
+    super
 
 
 
-window.SonarWidgets.WordCloud.defaults =
-  width: 350
-  height: 300
-  margin: { top: 10, right: 10, bottom: 10, left: 10 }
-  legendWidth: 160
-  legendMargin: 30
+window.SonarWidgets.WordCloud = WordCloud

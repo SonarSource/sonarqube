@@ -65,6 +65,7 @@ module.exports = (grunt) ->
             '<%= pkg.assets %>js/third-party/select2.js'
             '<%= pkg.assets %>js/third-party/keymaster.js'
             '<%= pkg.assets %>js/select2-jquery-ui-fix.js'
+            '<%= pkg.assets %>js/widgets/base.js'
             '<%= pkg.assets %>js/widgets/widget.js'
             '<%= pkg.assets %>js/widgets/bubble-chart.js'
             '<%= pkg.assets %>js/widgets/timeline.js'
@@ -99,6 +100,7 @@ module.exports = (grunt) ->
             '<%= pkg.assets %>js/third-party/select2.js'
             '<%= pkg.assets %>js/third-party/keymaster.js'
             '<%= pkg.assets %>js/select2-jquery-ui-fix.js'
+            '<%= pkg.assets %>js/widgets/base.js'
             '<%= pkg.assets %>js/widgets/widget.js'
             '<%= pkg.assets %>js/widgets/bubble-chart.js'
             '<%= pkg.assets %>js/widgets/timeline.js'
@@ -262,4 +264,4 @@ module.exports = (grunt) ->
                                  'uglify:build',
                                  'requirejs', 'clean:js', 'copy:build', 'copy:requirejs', 'clean:build']
 
-  grunt.registerTask 'test', ['coffee:build', 'handlebars:build', 'copy:js', 'karma:unit']
+  grunt.registerTask 'test', ['coffee:build', 'handlebars:build', 'copy:js', 'concat:dev', 'karma:unit']
