@@ -192,6 +192,19 @@
           <version>2.5.1</version>
         </plugin>
         <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>0.7.0.201403182114</version>
+          <configuration>
+            <excludes>
+              <exclude>*_javassist_*</exclude>
+            </excludes>
+            <includes>
+              <include>org.sonar.**</include>
+            </includes>
+          </configuration>
+        </plugin>
+        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
           <version>2.4</version>
