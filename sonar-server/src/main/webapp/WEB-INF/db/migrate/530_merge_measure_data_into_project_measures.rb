@@ -32,7 +32,7 @@ class MergeMeasureDataIntoProjectMeasures < ActiveRecord::Migration
       add_column :project_measures, 'measure_data', :binary, :null => true
     end
     ProjectMeasure.reset_column_information
-    execute_ddl('move measure data', 'UPDATE project_measures m SET m.measure_data = (SELECT md.data FROM measure_data md WHERE md.measure_id = m.id)')
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().executeMigration('org.sonar.server.db.migrations.v44.MeasureDataMigration')
     drop_table(:measure_data)
   end
   
