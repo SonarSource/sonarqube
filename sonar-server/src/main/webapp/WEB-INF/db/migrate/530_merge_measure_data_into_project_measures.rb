@@ -22,7 +22,7 @@
 # SonarQube 4.4
 # SONAR-5249
 #
-class MergeMeasureDataIntoProjectMeasure < ActiveRecord::Migration
+class MergeMeasureDataIntoProjectMeasures < ActiveRecord::Migration
 
   class ProjectMeasure < ActiveRecord::Base
   end
@@ -39,7 +39,7 @@ class MergeMeasureDataIntoProjectMeasure < ActiveRecord::Migration
   def self.execute_ddl(message, ddl)
     begin
       say_with_time(message) do
-        ProjectMeasure.connection.execute(ddl)
+        ActiveRecord::Base.connection.execute(ddl)
       end
     rescue
       # already executed
