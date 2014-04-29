@@ -48,7 +48,7 @@ public abstract class BaseIndex<K extends Serializable> implements Index<K> {
   private static final String PROFILE_DOMAIN = "es";
   private static final Logger LOG = LoggerFactory.getLogger(BaseIndex.class);
 
-  public static final String ES_CLUSTER_NAME = "sonarcluster";
+  public static final String ES_CLUSTER_NAME = "sonarqube";
 
   private static final String LOCAL_ES_NODE_HOST = "localhost";
   private static final int LOCAL_ES_NODE_PORT = 9300;

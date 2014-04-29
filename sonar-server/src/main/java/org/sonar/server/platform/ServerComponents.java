@@ -261,7 +261,6 @@ class ServerComponents {
     components.addAll(CorePropertyDefinitions.all());
     components.addAll(DatabaseMigrations.CLASSES);
     components.addAll(DaoUtils.getDaoClasses());
-    components.addAll(IndexUtils.getIndexClasses());
     return components;
   }
 
@@ -301,7 +300,7 @@ class ServerComponents {
    * when its schema is up-to-date.
    */
   Collection level3Components() {
-    return Lists.newArrayList(
+    List components = Lists.newArrayList(
       PersistentSettings.class,
       DefaultDatabaseConnector.class,
       ThreadLocalDatabaseSessionFactory.class,
@@ -312,6 +311,8 @@ class ServerComponents {
       UriReader.class,
       ServerIdGenerator.class
     );
+    components.addAll(IndexUtils.getIndexClasses());
+    return components;
   }
 
 
