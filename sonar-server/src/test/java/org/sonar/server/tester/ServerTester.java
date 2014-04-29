@@ -38,6 +38,7 @@ public class ServerTester extends ExternalResource {
   private Platform platform;
   private File tempDir;
   private Object[] components;
+  private Properties initialProps = new Properties();
 
   /**
    * Called only when JUnit @Rule or @ClassRule is used.
@@ -53,6 +54,7 @@ public class ServerTester extends ExternalResource {
     }
     tempDir = createTempDir();
     Properties properties = new Properties();
+    properties.putAll(initialProps);
     properties.setProperty(CoreProperties.SONAR_HOME, tempDir.getAbsolutePath());
     properties.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:" + tempDir.getAbsolutePath() + "/h2");
     platform = new Platform();
@@ -94,6 +96,11 @@ public class ServerTester extends ExternalResource {
       throw new IllegalStateException("Already started");
     }
     this.components = components;
+    return this;
+  }
+
+  public ServerTester setProperty(String key, String value) {
+    initialProps.setProperty(key, value);
     return this;
   }
 
