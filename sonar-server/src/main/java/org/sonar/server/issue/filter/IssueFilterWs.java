@@ -33,6 +33,7 @@ import java.util.List;
 
 public class IssueFilterWs implements WebService {
 
+  private static final String PARAM_ID = "id";
   private final IssueFilterService service;
 
   public IssueFilterWs(IssueFilterService service) {
@@ -55,6 +56,7 @@ public class IssueFilterWs implements WebService {
           app(request, response);
         }
       });
+    app.createParam(PARAM_ID).setDescription("Optionally, the ID of the current filter");
 
     NewAction show = controller.createAction("show");
     show
@@ -66,7 +68,7 @@ public class IssueFilterWs implements WebService {
           show(request, response);
         }
       })
-      .createParam("id");
+      .createParam(PARAM_ID).setRequired(true);
 
     NewAction fav = controller.createAction("favorites");
     fav
@@ -77,8 +79,7 @@ public class IssueFilterWs implements WebService {
         public void handle(Request request, Response response) {
           favorites(request, response);
         }
-      })
-      .createParam("id");
+      });
 
     controller.done();
   }
@@ -90,7 +91,7 @@ public class IssueFilterWs implements WebService {
     json.beginObject();
 
     // Current filter (optional)
-    int filterId = request.paramAsInt("id", -1);
+    int filterId = request.paramAsInt(PARAM_ID, -1);
     DefaultIssueFilter filter = null;
     if (filterId >= 0) {
       filter = service.find((long) filterId, session);
@@ -113,7 +114,7 @@ public class IssueFilterWs implements WebService {
       for (DefaultIssueFilter favorite : favorites) {
         json
           .beginObject()
-          .prop("id", favorite.id())
+          .prop(PARAM_ID, favorite.id())
           .prop("name", favorite.name())
           .endObject();
       }
@@ -126,7 +127,7 @@ public class IssueFilterWs implements WebService {
 
   private void show(Request request, Response response) {
     UserSession session = UserSession.get();
-    DefaultIssueFilter filter = service.find(Long.parseLong(request.mandatoryParam("id")), session);
+    DefaultIssueFilter filter = service.find(Long.parseLong(request.mandatoryParam(PARAM_ID)), session);
 
     JsonWriter json = response.newJsonWriter();
     json.beginObject();
@@ -143,7 +144,7 @@ public class IssueFilterWs implements WebService {
     if (session.isLoggedIn()) {
       for (DefaultIssueFilter favorite : service.findFavoriteFilters(session)) {
         json.beginObject();
-        json.prop("id", favorite.id());
+        json.prop(PARAM_ID, favorite.id());
         json.prop("name", favorite.name());
         json.prop("user", favorite.user());
         json.prop("shared", favorite.shared());
@@ -156,7 +157,7 @@ public class IssueFilterWs implements WebService {
 
   private JsonWriter writeFilterJson(UserSession session, DefaultIssueFilter filter, JsonWriter json) {
     return json.beginObject()
-      .prop("id", filter.id())
+      .prop(PARAM_ID, filter.id())
       .prop("name", filter.name())
       .prop("description", filter.description())
       .prop("user", filter.user())
