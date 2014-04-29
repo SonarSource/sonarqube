@@ -1,4 +1,4 @@
-<table class="sources2 code" cellpadding="0" cellspacing="0">
+<table class="code" cellpadding="0" cellspacing="0">
   <thead>
   <tr>
     {{#if settings.coverage}}
@@ -116,7 +116,7 @@
   </tr>
   </thead>
   <tbody>
-    <tr class="row" data-line-number="0">
+    <tr class="row row-hidden" data-line-number="0">
       {{#if settings.coverage}}
         <td class="stat coverage-tests"></td>
         <td class="stat coverage-conditions"></td>
@@ -129,39 +129,41 @@
     </tr>
 
     {{#each source}}
-      <tr class="row {{#if ../settings.coverage}}{{#if coverageStatus}}coverage-{{coverageStatus}}{{/if}}{{/if}}"
-          data-line-number="{{lineNumber}}">
+      {{#if show}}
+        <tr class="row {{#if ../../settings.coverage}}{{#if coverageStatus}}coverage-{{coverageStatus}}{{/if}}{{/if}}"
+            data-line-number="{{lineNumber}}">
 
-        {{#if ../settings.coverage}}
-          <td class="stat coverage-tests">
-            {{#if coverage}}
-              <span title="Line is covered by {{coverage}} tests">{{coverage}}</span>
-            {{/if}}
-          </td>
-
-          <td class="stat coverage-conditions">
-              {{#if coverageConditions}}
-                {{#if conditions}}
-                  <span title="{{coverageConditions}} branches are covered by tests">
-                    {{coverageConditions}}/{{conditions}}
-                  </span>
-                {{/if}}
+          {{#if ../../settings.coverage}}
+            <td class="stat coverage-tests">
+              {{#if coverage}}
+                <span title="Line is covered by {{coverage}} tests">{{coverage}}</span>
               {{/if}}
-          </td>
-        {{/if}}
+            </td>
 
-        {{#if ../settings.duplications}}
-          <td class="stat duplications">
-            {{#each duplications}}
-              <span class="duplication {{#if this}}duplication-exists{{/if}}"></span>
-            {{/each}}
-          </td>
-        {{/if}}
+            <td class="stat coverage-conditions">
+                {{#if coverageConditions}}
+                  {{#if conditions}}
+                    <span title="{{coverageConditions}} branches are covered by tests">
+                      {{coverageConditions}}/{{conditions}}
+                    </span>
+                  {{/if}}
+                {{/if}}
+            </td>
+          {{/if}}
 
-        <td class="stat lid">{{lineNumber}}</td>
+          {{#if ../../settings.duplications}}
+            <td class="stat duplications">
+              {{#each duplications}}
+                <span class="duplication {{#if this}}duplication-exists{{/if}}"></span>
+              {{/each}}
+            </td>
+          {{/if}}
 
-        <td class="line"><pre>{{{code}}}</pre></td>
-      </tr>
+          <td class="stat lid">{{lineNumber}}</td>
+
+          <td class="line"><pre>{{{code}}}</pre></td>
+        </tr>
+      {{/if}}
     {{/each}}
   </tbody>
 </table>

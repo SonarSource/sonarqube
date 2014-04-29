@@ -1,0 +1,13 @@
+<tr class="row row-expand">
+  {{#if settings.coverage}}
+    <td class="stat coverage-tests"></td>
+    <td class="stat coverage-conditions"></td>
+  {{/if}}
+  {{#if settings.duplications}}
+    <td class="stat"></td>
+  {{/if}}
+  <td class="stat lid">
+    <button class="button-clean js-expand" data-from="{{from}}" data-to="{{to}}"><i class="icon-expand"></i></button>
+  </td>
+  <td class="line"></td>
+</tr>

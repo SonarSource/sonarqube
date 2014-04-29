@@ -13,7 +13,7 @@ define [
 ) ->
 
   $ = jQuery
-  API_SOURCES = "#{baseUrl}/api/sources"
+  API_SOURCES = "#{baseUrl}/api/sources/show"
   API_RESOURCES = "#{baseUrl}/api/resources"
 
   SOURCE_METRIC_LIST = 'lines,ncloc,functions,accessors,classes,statements,complexity,function_complexity,' +
@@ -54,7 +54,7 @@ define [
       @settings = new Backbone.Model
         issues: false
         coverage: false
-        duplications: true
+        duplications: false
         scm: false
         workspace: false
 
@@ -86,8 +86,8 @@ define [
 
 
     requestSource: (key) ->
-      $.get API_SOURCES, resource: key, (data) =>
-        @source.set source: data[0]
+      $.get API_SOURCES, key: key, (data) =>
+        @source.set source: data.source
 
 
     extractCoverage: (data) ->
@@ -119,7 +119,6 @@ define [
           { from: 62, count: 33 }
         ]
       duplicationsMeasures = _.sortBy data[0].msr, (item) -> -(item.key == 'duplicated_lines_density')
-      console.log data
       @component.set 'duplicationsMeasures', duplicationsMeasures
 
 
