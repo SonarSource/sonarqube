@@ -33,6 +33,8 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.core.cluster.IndexAction;
+import org.sonar.core.cluster.IndexAction.Method;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.db.Dao;
 import org.sonar.core.profiling.Profiling;
@@ -40,7 +42,6 @@ import org.sonar.core.profiling.Profiling.Level;
 import org.sonar.core.profiling.StopWatch;
 
 import java.io.Serializable;
-import java.util.Collection;
 
 public abstract class BaseIndex<K extends Serializable> implements Index<K> {
 
@@ -56,20 +57,20 @@ public abstract class BaseIndex<K extends Serializable> implements Index<K> {
   private Client client;
   private WorkQueue workQueue;
   private IndexSynchronizer<K> synchronizer;
-  protected Dao<?,K> dao;
+  protected Dao<?, K> dao;
 
-  public BaseIndex(WorkQueue workQueue, Dao<?,K> dao, Profiling profiling) {
+  public BaseIndex(WorkQueue workQueue, Dao<?, K> dao, Profiling profiling) {
     this.profiling = profiling;
     this.workQueue = workQueue;
-    this.synchronizer = IndexSynchronizer.getOnetimeSynchronizer(this, this.workQueue);
+    this.synchronizer = new IndexSynchronizer<K>(this, dao, this.workQueue);
     this.dao = dao;
   }
 
-  protected Dao<?,K> getDao(){
+  protected Dao<?, K> getDao() {
     return this.dao;
   }
 
-  protected Client getClient(){
+  protected Client getClient() {
     return this.client;
   }
 
@@ -99,7 +100,7 @@ public abstract class BaseIndex<K extends Serializable> implements Index<K> {
     return profiling.start(PROFILE_DOMAIN, Level.FULL);
   }
 
-  public void connect(){
+  public void connect() {
     /* Settings to access our local ES node */
     Settings settings = ImmutableSettings.settingsBuilder()
       .put("client.transport.sniff", true)
@@ -139,7 +140,6 @@ public abstract class BaseIndex<K extends Serializable> implements Index<K> {
     }
   }
 
-
   public ClusterStatsNodes getNodesStats() {
     StopWatch watch = createWatch();
     try {
@@ -149,17 +149,26 @@ public abstract class BaseIndex<K extends Serializable> implements Index<K> {
     }
   }
 
+  /* Index Action Methods */
 
-  /* Index management and Tx methods */
+  @Override
+  public void executeAction(IndexAction<K> action) {
+    if (action.getMethod().equals(Method.DELETE)) {
+      this.delete(action.getKey());
+    } else if (action.getMethod().equals(Method.INSERT)) {
+      this.insert(action.getKey());
+    } else if (action.getMethod().equals(Method.UPDATE)) {
+      this.update(action.getKey());
+    }
+  }
+
+  /* Index management methods */
 
   protected abstract Settings getIndexSettings();
 
   protected abstract String getType();
 
   protected abstract XContentBuilder getMapping();
-
-  public abstract Collection<K> synchronizeSince(Long date);
-
 
   /* Base CRUD methods */
 
@@ -200,7 +209,7 @@ public abstract class BaseIndex<K extends Serializable> implements Index<K> {
 
   @Override
   public void setLastSynchronization(Long time) {
-    if(time > (getLastSynchronization() + cooldown)){
+    if (time > (getLastSynchronization() + cooldown)) {
       LOG.trace("Updating synchTime updating");
       lastSynch = time;
     } else {

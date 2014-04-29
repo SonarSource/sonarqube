@@ -20,14 +20,16 @@
 package org.sonar.server.search;
 
 import org.picocontainer.Startable;
+import org.sonar.core.cluster.IndexAction;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Map;
 
 public interface Index<K extends Serializable> extends Startable {
 
   String getIndexName();
+
+  void executeAction(IndexAction<K> action);
 
   Hit getByKey(K key);
 
@@ -42,7 +44,5 @@ public interface Index<K extends Serializable> extends Startable {
   Long getLastSynchronization();
 
   void setLastSynchronization(Long time);
-
-  Collection<K> synchronizeSince(Long time);
 
 }

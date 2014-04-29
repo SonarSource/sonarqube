@@ -17,24 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.cluster;
+package org.sonar.server.search;
 
+import com.google.common.collect.ImmutableList;
+import org.sonar.server.rule2.RuleIndex;
 
-public class NullQueue implements WorkQueue {
+import java.util.List;
 
-  public NullQueue(){
+public final class IndexUtils {
 
+  private IndexUtils() {
   }
 
-  @Override
-  public Integer enqueue(IndexAction<?>... action) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public IndexAction<?> dequeue() {
-    // TODO Auto-generated method stub
-    return null;
+  @SuppressWarnings("unchecked")
+  public static List<Class> getIndexClasses() {
+    return ImmutableList.<Class>of(
+      RuleIndex.class
+    );
   }
 }

@@ -21,17 +21,17 @@ package org.sonar.core.cluster;
 
 import java.io.Serializable;
 
-public class IndexAction {
+public class IndexAction<K extends Serializable> {
 
   public enum Method {
     INSERT, UPDATE, DELETE
   }
 
   String indexName;
-  Serializable key;
+  K key;
   Method method;
 
-  public IndexAction(String indexName, Method method, Serializable key){
+  public IndexAction(String indexName, Method method, K key){
     this.indexName = indexName;
     this.method = method;
     this.key = key;
@@ -45,11 +45,11 @@ public class IndexAction {
     this.indexName = indexName;
   }
 
-  public Serializable getKey() {
+  public K getKey() {
     return key;
   }
 
-  public void setKey(Serializable key) {
+  public void setKey(K key) {
     this.key = key;
   }
 

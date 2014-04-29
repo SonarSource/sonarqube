@@ -17,24 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.cluster;
+package org.sonar.server.cluster;
 
+import org.sonar.core.cluster.IndexAction;
+import org.junit.Test;
+import static org.fest.assertions.Assertions.assertThat;
 
-public class NullQueue implements WorkQueue {
+public class LocalQueueWorkerTest {
 
-  public NullQueue(){
+  private static final String WORKING_IDNEX = "working_index";
 
-  }
-
-  @Override
-  public Integer enqueue(IndexAction<?>... action) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public IndexAction<?> dequeue() {
-    // TODO Auto-generated method stub
-    return null;
+  @Test
+  public void test_worker_dequeue(){
+    LocalNonBlockingWorkQueue queue = new LocalNonBlockingWorkQueue();
+    LocalQueueWorker worker = new LocalQueueWorker(queue);
+    worker.start();
+    queue.enqueue(new IndexAction(WORKING_IDNEX, IndexAction.Method.INSERT,new Integer(33)));
+    queue.enqueue(new IndexAction(WORKING_IDNEX, IndexAction.Method.INSERT,new Integer(33)));
+    try {
+      Thread.sleep(500);
+    } catch (InterruptedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    assertThat(queue.dequeue()).isNull();
+    queue = null;
   }
 }

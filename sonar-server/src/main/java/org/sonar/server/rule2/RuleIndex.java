@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule2;
 
+import org.sonar.core.cluster.IndexAction;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -131,12 +132,6 @@ public class RuleIndex extends BaseIndex<RuleKey> {
   @Override
   public Map<String, Object> normalize(RuleKey key) {
     //Use a MyBatis to normalize the Rule form multiple Table
-    return null;
-  }
-
-  @Override
-  public Collection<RuleKey> synchronizeSince(Long date) {
-    //Use MyBatis to get the RuleKey created since date X
     return null;
   }
 }

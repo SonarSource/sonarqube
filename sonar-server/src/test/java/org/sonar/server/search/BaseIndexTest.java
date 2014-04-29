@@ -19,6 +19,8 @@
  */
 package org.sonar.server.search;
 
+import org.sonar.core.cluster.IndexAction;
+
 import com.github.tlrx.elasticsearch.test.annotations.ElasticsearchNode;
 import com.github.tlrx.elasticsearch.test.support.junit.runners.ElasticsearchRunner;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
@@ -31,8 +33,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.config.Settings;
-import org.sonar.core.cluster.LocalNonBlockingWorkQueue;
 import org.sonar.core.profiling.Profiling;
+import org.sonar.server.cluster.LocalNonBlockingWorkQueue;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -87,12 +89,6 @@ public class BaseIndexTest {
       }
 
       @Override
-      public Collection<Serializable> synchronizeSince(Long date) {
-        // TODO Auto-generated method stub
-        return null;
-      }
-
-      @Override
       protected QueryBuilder getKeyQuery(Serializable key) {
         // TODO Auto-generated method stub
         return null;
@@ -102,6 +98,12 @@ public class BaseIndexTest {
       public Map<String, Object> normalize(Serializable key) {
         // TODO Auto-generated method stub
         return null;
+      }
+
+      @Override
+      public void executeAction(IndexAction action) {
+        // TODO Auto-generated method stub
+
       }
     };
   }

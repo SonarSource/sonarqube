@@ -19,19 +19,19 @@
  */
 package org.sonar.server.rule2;
 
-import org.junit.Ignore;
-
-import org.sonar.core.cluster.LocalNonBlockingWorkQueue;
 import com.github.tlrx.elasticsearch.test.annotations.ElasticsearchNode;
 import com.github.tlrx.elasticsearch.test.support.junit.runners.ElasticsearchRunner;
 import org.elasticsearch.node.Node;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
+import org.sonar.server.cluster.LocalNonBlockingWorkQueue;
 import org.sonar.server.search.BaseIndex;
+
 import static org.fest.assertions.Assertions.assertThat;
 
 @RunWith(ElasticsearchRunner.class)

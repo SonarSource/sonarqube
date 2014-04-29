@@ -17,46 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.cluster;
+package org.sonar.server.cluster;
 
-import org.jfree.util.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.core.cluster.IndexAction;
+import org.sonar.core.cluster.WorkQueue;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class LocalNonBlockingWorkQueue implements WorkQueue{
+public class LocalNonBlockingWorkQueue implements WorkQueue {
 
-  private ConcurrentLinkedQueue<IndexAction> actions;
+  private static final Logger LOG = LoggerFactory.getLogger(LocalNonBlockingWorkQueue.class);
 
-  public LocalNonBlockingWorkQueue(){
-    this.actions = new ConcurrentLinkedQueue<IndexAction>();
+  private final ConcurrentLinkedQueue<IndexAction<?>> actions;
+
+  public LocalNonBlockingWorkQueue() {
+    this.actions = new ConcurrentLinkedQueue<IndexAction<?>>();
   }
 
   @Override
-  public Integer enqueue(IndexAction... indexActions){
-    for(IndexAction action:indexActions){
+  public Integer enqueue(IndexAction<?>... indexActions) {
+    for (IndexAction<?> action : indexActions) {
       actions.offer(action);
     }
     return 0;
   }
 
   @Override
-  public Object dequeue(){
-    Object out = actions.poll();
-    while(out == null){
-      try {
-        Thread.sleep(200);
-      } catch (InterruptedException e) {
-        Log.error("Oops");
-      }
-      out = actions.poll();
-    }
+  public IndexAction<?> dequeue() {
+    IndexAction<?> out = actions.poll();
     return out;
   }
-
-  @Override
-  public Status getStatus(Integer workId) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
 }

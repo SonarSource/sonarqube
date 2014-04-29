@@ -22,13 +22,8 @@ package org.sonar.core.cluster;
 
 public interface WorkQueue {
 
-  Integer enqueue(IndexAction... action);
+  Integer enqueue(IndexAction<?>... action);
 
-  Object dequeue();
+  IndexAction<?> dequeue();
 
-  Status getStatus(Integer workId);
-
-  interface Status {
-
-  }
 }
