@@ -58,6 +58,7 @@ public class RegisterQualityProfiles {
   private final ESActiveRule esActiveRule;
   private final PersistentSettings settings;
   private final List<ProfileDefinition> definitions;
+  private final DefaultProfilesCache defaultProfilesCache;
   private final DatabaseSessionFactory sessionFactory;
   private final MyBatis myBatis;
 
@@ -69,8 +70,9 @@ public class RegisterQualityProfiles {
                                  QProfileBackup qProfileBackup,
                                  QProfileOperations qProfileOperations,
                                  QProfileLookup qProfileLookup,
+                                 DefaultProfilesCache defaultProfilesCache,
                                  RegisterRules registerRulesBefore) {
-    this(sessionFactory, myBatis, settings, esActiveRule, loadedTemplateDao, qProfileBackup, qProfileOperations, qProfileLookup, registerRulesBefore,
+    this(sessionFactory, myBatis, settings, esActiveRule, loadedTemplateDao, qProfileBackup, qProfileOperations, qProfileLookup, defaultProfilesCache, registerRulesBefore,
       Collections.<ProfileDefinition>emptyList());
   }
 
@@ -82,6 +84,7 @@ public class RegisterQualityProfiles {
                                  QProfileBackup qProfileBackup,
                                  QProfileOperations qProfileOperations,
                                  QProfileLookup qProfileLookup,
+                                 DefaultProfilesCache defaultProfilesCache,
                                  RegisterRules registerRulesBefore,
                                  List<ProfileDefinition> definitions) {
     this.sessionFactory = sessionFactory;
@@ -91,6 +94,7 @@ public class RegisterQualityProfiles {
     this.qProfileBackup = qProfileBackup;
     this.qProfileOperations = qProfileOperations;
     this.qProfileLookup = qProfileLookup;
+    this.defaultProfilesCache = defaultProfilesCache;
     this.definitions = definitions;
     this.loadedTemplateDao = loadedTemplateDao;
   }
@@ -114,6 +118,7 @@ public class RegisterQualityProfiles {
           if (shouldRegister(language, name, session)) {
             register(language, name, entry.getValue(), session);
           }
+          defaultProfilesCache.put(language, name);
         }
         setDefault(language, profiles, session);
       }

@@ -36,17 +36,22 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
+import org.sonar.core.rule.RuleDao;
+import org.sonar.core.rule.RuleDto;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
 
 /**
  * Used through ruby code <pre>Internal.profile_backup</pre>
@@ -61,20 +66,22 @@ public class QProfileBackup implements ServerComponent {
   private final QProfileLookup qProfileLookup;
   private final QProfileOperations qProfileOperations;
   private final QProfileActiveRuleOperations qProfileActiveRuleOperations;
+  private final RuleDao ruleDao;
   private final ESActiveRule esActiveRule;
   private final List<ProfileDefinition> definitions;
+  private final DefaultProfilesCache defaultProfilesCache;
   private final PreviewCache dryRunCache;
 
   public QProfileBackup(DatabaseSessionFactory sessionFactory, XMLProfileParser xmlProfileParser, XMLProfileSerializer xmlProfileSerializer, MyBatis myBatis,
-                        QProfileLookup qProfileLookup, QProfileOperations qProfileOperations, QProfileActiveRuleOperations qProfileActiveRuleOperations, ESActiveRule esActiveRule,
-                        PreviewCache dryRunCache) {
-    this(sessionFactory, xmlProfileParser, xmlProfileSerializer, myBatis, qProfileLookup, qProfileOperations, qProfileActiveRuleOperations, esActiveRule,
-      Collections.<ProfileDefinition>emptyList(), dryRunCache);
+                        QProfileLookup qProfileLookup, QProfileOperations qProfileOperations, QProfileActiveRuleOperations qProfileActiveRuleOperations, RuleDao ruleDao,
+                        ESActiveRule esActiveRule, DefaultProfilesCache defaultProfilesCache, PreviewCache dryRunCache) {
+    this(sessionFactory, xmlProfileParser, xmlProfileSerializer, myBatis, qProfileLookup, qProfileOperations, qProfileActiveRuleOperations, ruleDao, esActiveRule,
+      Collections.<ProfileDefinition>emptyList(), defaultProfilesCache, dryRunCache);
   }
 
   public QProfileBackup(DatabaseSessionFactory sessionFactory, XMLProfileParser xmlProfileParser, XMLProfileSerializer xmlProfileSerializer, MyBatis myBatis,
-                        QProfileLookup qProfileLookup, QProfileOperations qProfileOperations, QProfileActiveRuleOperations qProfileActiveRuleOperations, ESActiveRule esActiveRule,
-                        List<ProfileDefinition> definitions, PreviewCache dryRunCache) {
+                        QProfileLookup qProfileLookup, QProfileOperations qProfileOperations, QProfileActiveRuleOperations qProfileActiveRuleOperations, RuleDao ruleDao,
+                        ESActiveRule esActiveRule, List<ProfileDefinition> definitions, DefaultProfilesCache defaultProfilesCache, PreviewCache dryRunCache) {
     this.sessionFactory = sessionFactory;
     this.xmlProfileParser = xmlProfileParser;
     this.xmlProfileSerializer = xmlProfileSerializer;
@@ -82,8 +89,10 @@ public class QProfileBackup implements ServerComponent {
     this.qProfileLookup = qProfileLookup;
     this.qProfileOperations = qProfileOperations;
     this.qProfileActiveRuleOperations = qProfileActiveRuleOperations;
+    this.ruleDao = ruleDao;
     this.esActiveRule = esActiveRule;
     this.definitions = definitions;
+    this.defaultProfilesCache = defaultProfilesCache;
     this.dryRunCache = dryRunCache;
   }
 
@@ -174,7 +183,11 @@ public class QProfileBackup implements ServerComponent {
   public void restoreFromActiveRules(QProfile profile, RulesProfile rulesProfile, SqlSession session) {
     for (org.sonar.api.rules.ActiveRule activeRule : rulesProfile.getActiveRules()) {
       RuleKey ruleKey = RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey());
-      ActiveRuleDto activeRuleDto = qProfileActiveRuleOperations.createActiveRule(profile.id(), ruleKey, activeRule.getSeverity().name(), session);
+      RuleDto rule = ruleDao.selectByKey(ruleKey, session);
+      if (rule == null) {
+        throw new NotFoundException(String.format("Rule '%s' does not exists.", ruleKey));
+      }
+      ActiveRuleDto activeRuleDto = qProfileActiveRuleOperations.createActiveRule(profile.id(), rule.getId(), activeRule.getSeverity().name(), session);
       for (RuleParam param : activeRule.getRule().getParams()) {
         String paramKey = param.getKey();
         String value = activeRule.getParameter(param.getKey());
@@ -189,12 +202,7 @@ public class QProfileBackup implements ServerComponent {
    * Return the list of default profile names for a given language
    */
   public Collection<String> findDefaultProfileNamesByLanguage(String language) {
-    Set<String> profiles = newHashSet();
-    ListMultimap<String, RulesProfile> profilesByName = profilesByName(language, new QProfileResult());
-    for (RulesProfile rulesProfile : profilesByName.values()) {
-      profiles.add(rulesProfile.getName());
-    }
-    return profiles;
+    return defaultProfilesCache.byLanguage(language);
   }
 
   private void checkProfileDoesNotExists(RulesProfile importedProfile, boolean deleteExisting, DatabaseSession hibernateSession) {

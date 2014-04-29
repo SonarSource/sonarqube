@@ -259,6 +259,7 @@ class ServerComponents {
     pico.addSingleton(QProfileProjectLookup.class);
     pico.addSingleton(QProfileBackup.class);
     pico.addSingleton(QProfileRepositoryExporter.class);
+    pico.addSingleton(DefaultProfilesCache.class);
     pico.addSingleton(ESActiveRule.class);
     pico.addSingleton(QProfileBackupWsHandler.class);
     pico.addSingleton(QProfilesWs.class);

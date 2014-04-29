@@ -38,11 +38,7 @@ import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.platform.PersistentSettings;
-import org.sonar.server.qualityprofile.ESActiveRule;
-import org.sonar.server.qualityprofile.QProfile;
-import org.sonar.server.qualityprofile.QProfileBackup;
-import org.sonar.server.qualityprofile.QProfileLookup;
-import org.sonar.server.qualityprofile.QProfileOperations;
+import org.sonar.server.qualityprofile.*;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
@@ -53,12 +49,7 @@ import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RegisterQualityProfilesTest {
@@ -80,6 +71,8 @@ public class RegisterQualityProfilesTest {
 
   @Mock
   ESActiveRule esActiveRule;
+
+  DefaultProfilesCache defaultProfilesCache = new DefaultProfilesCache();
 
   @Mock
   MyBatis myBatis;
@@ -103,7 +96,8 @@ public class RegisterQualityProfilesTest {
     when(sessionFactory.getSession()).thenReturn(mock(DatabaseSession.class));
 
     definitions = newArrayList();
-    registerQualityProfiles = new RegisterQualityProfiles(sessionFactory, myBatis, settings, esActiveRule, loadedTemplateDao, qProfileBackup, qProfileOperations, qProfileLookup, null, definitions);
+    registerQualityProfiles = new RegisterQualityProfiles(sessionFactory, myBatis, settings, esActiveRule, loadedTemplateDao, qProfileBackup, qProfileOperations, qProfileLookup,
+      defaultProfilesCache, null, definitions);
   }
 
   @Test
@@ -127,8 +121,9 @@ public class RegisterQualityProfilesTest {
 
     verify(settings).saveProperty("sonar.profile.java", "Default");
 
-    verify(session).commit();
+    assertThat(defaultProfilesCache.byLanguage("java")).containsOnly("Default");
 
+    verify(session).commit();
     verify(esActiveRule).bulkRegisterActiveRules();
   }
 
@@ -159,6 +154,9 @@ public class RegisterQualityProfilesTest {
 
     verify(settings).saveProperty("sonar.profile.java", "Default");
     verify(settings).saveProperty("sonar.profile.js", "Default");
+
+    assertThat(defaultProfilesCache.byLanguage("java")).containsOnly("Default");
+    assertThat(defaultProfilesCache.byLanguage("js")).containsOnly("Default");
   }
 
   @Test
@@ -184,6 +182,7 @@ public class RegisterQualityProfilesTest {
     registerQualityProfiles.start();
 
     verify(settings).saveProperty("sonar.profile.java", "Default");
+    assertThat(defaultProfilesCache.byLanguage("java")).containsOnly("Default", "Basic");
   }
 
   @Test

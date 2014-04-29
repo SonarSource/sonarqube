@@ -27,7 +27,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.elasticsearch.common.base.Predicate;
 import org.elasticsearch.common.collect.Iterables;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.server.rule.RuleParamType;
@@ -109,12 +108,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     return activeRule;
   }
 
-  ActiveRuleDto createActiveRule(int profileId, RuleKey ruleKey, String severity, SqlSession session) {
-    RuleDto rule = ruleDao.selectByKey(ruleKey, session);
-    return createActiveRule(profileId, QProfileValidations.checkRuleIsNotNull(rule).getId(), severity, session);
-  }
-
-  private ActiveRuleDto createActiveRule(int profileId, int ruleId, String severity, SqlSession session) {
+  ActiveRuleDto createActiveRule(int profileId, int ruleId, String severity, SqlSession session) {
     ActiveRuleDto activeRule = new ActiveRuleDto()
       .setProfileId(profileId)
       .setRuleId(ruleId)

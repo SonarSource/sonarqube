@@ -42,9 +42,12 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
+import org.sonar.core.rule.RuleDao;
+import org.sonar.core.rule.RuleDto;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
@@ -59,13 +62,7 @@ import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfileBackupTest {
@@ -98,7 +95,12 @@ public class QProfileBackupTest {
   QProfileActiveRuleOperations qProfileActiveRuleOperations;
 
   @Mock
+  RuleDao ruleDao;
+
+  @Mock
   ESActiveRule esActiveRule;
+
+  DefaultProfilesCache defaultProfilesCache = new DefaultProfilesCache();
 
   @Mock
   PreviewCache dryRunCache;
@@ -114,8 +116,8 @@ public class QProfileBackupTest {
 
     definitions = newArrayList();
 
-    backup = new QProfileBackup(sessionFactory, xmlProfileParser, xmlProfileSerializer, myBatis, qProfileLookup, qProfileOperations, qProfileActiveRuleOperations,
-      esActiveRule, definitions, dryRunCache);
+    backup = new QProfileBackup(sessionFactory, xmlProfileParser, xmlProfileSerializer, myBatis, qProfileLookup, qProfileOperations, qProfileActiveRuleOperations, ruleDao,
+      esActiveRule, definitions, defaultProfilesCache, dryRunCache);
 
     MockUserSession.set().setLogin("nicolas").setName("Nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
@@ -316,14 +318,15 @@ public class QProfileBackupTest {
 
     ProfileDefinition profileDefinition = mock(ProfileDefinition.class);
     when(profileDefinition.createProfile(any(ValidationMessages.class))).thenReturn(profile);
-
     definitions.add(profileDefinition);
+
+    when(ruleDao.selectByKey(RuleKey.of("pmd", "rule"), session)).thenReturn(new RuleDto().setId(10).setSeverity("INFO"));
 
     when(qProfileOperations.newProfile(eq(name), eq(language), eq(true), any(UserSession.class), eq(session))).thenReturn(new QProfile().setId(1));
 
     backup.restoreDefaultProfilesByLanguage(language);
 
-    verify(qProfileActiveRuleOperations).createActiveRule(eq(1), eq(RuleKey.of("pmd", "rule")), eq("BLOCKER"), eq(session));
+    verify(qProfileActiveRuleOperations).createActiveRule(eq(1), eq(10), eq("BLOCKER"), eq(session));
     verify(qProfileActiveRuleOperations).updateActiveRuleParam(any(ActiveRuleDto.class), eq("max"), eq("10"), eq(session));
     verifyNoMoreInteractions(qProfileActiveRuleOperations);
 
@@ -346,17 +349,47 @@ public class QProfileBackupTest {
     when(profileDefinition2.createProfile(any(ValidationMessages.class))).thenReturn(profile2);
     definitions.add(profileDefinition2);
 
+    when(ruleDao.selectByKey(RuleKey.of("pmd", "rule"), session)).thenReturn(new RuleDto().setId(10).setSeverity("INFO"));
+    when(ruleDao.selectByKey(RuleKey.of("checkstyle", "rule"), session)).thenReturn(new RuleDto().setId(11).setSeverity("INFO"));
+
     when(qProfileOperations.newProfile(eq("Default"), eq("java"), eq(true), any(UserSession.class), eq(session))).thenReturn(new QProfile().setId(1));
 
     backup.restoreDefaultProfilesByLanguage("java");
 
-    verify(qProfileActiveRuleOperations).createActiveRule(eq(1), eq(RuleKey.of("pmd", "rule")), eq("BLOCKER"), eq(session));
-    verify(qProfileActiveRuleOperations).createActiveRule(eq(1), eq(RuleKey.of("checkstyle", "rule")), eq("MAJOR"), eq(session));
+    verify(qProfileActiveRuleOperations).createActiveRule(eq(1), eq(10), eq("BLOCKER"), eq(session));
+    verify(qProfileActiveRuleOperations).createActiveRule(eq(1), eq(11), eq("MAJOR"), eq(session));
     verifyNoMoreInteractions(qProfileActiveRuleOperations);
 
     verify(esActiveRule).bulkIndexProfile(eq(1), eq(session));
     verify(dryRunCache).reportGlobalModification(session);
     verify(session).commit();
+  }
+
+  @Test
+  public void fail_to_restore_profile_when_rule_not_found() throws Exception {
+    String name = "Default";
+    String language = "java";
+
+    RulesProfile profile = RulesProfile.create(name, language);
+    Rule rule = Rule.create("pmd", "rule");
+    profile.activateRule(rule, null);
+
+    ProfileDefinition profileDefinition = mock(ProfileDefinition.class);
+    when(profileDefinition.createProfile(any(ValidationMessages.class))).thenReturn(profile);
+    definitions.add(profileDefinition);
+
+    when(ruleDao.selectByKey(RuleKey.of("pmd", "rule"), session)).thenReturn(null);
+
+    when(qProfileOperations.newProfile(eq(name), eq(language), eq(true), any(UserSession.class), eq(session))).thenReturn(new QProfile().setId(1));
+
+    try {
+      backup.restoreDefaultProfilesByLanguage(language);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class);
+    }
+    verifyZeroInteractions(qProfileActiveRuleOperations);
+    verifyZeroInteractions(esActiveRule);
   }
 
   @Test
@@ -371,26 +404,14 @@ public class QProfileBackupTest {
 
     verifyZeroInteractions(qProfileOperations);
     verifyZeroInteractions(qProfileActiveRuleOperations);
-
     verifyZeroInteractions(esActiveRule);
   }
 
   @Test
   public void find_default_profile_names_by_language() throws Exception {
-    RulesProfile rulesProfile1 = RulesProfile.create("Basic", "java");
-    ProfileDefinition profileDefinition1 = mock(ProfileDefinition.class);
-    when(profileDefinition1.createProfile(any(ValidationMessages.class))).thenReturn(rulesProfile1);
-    definitions.add(profileDefinition1);
-
-    RulesProfile rulesProfile2 = RulesProfile.create("Default", "java");
-    ProfileDefinition profileDefinition2 = mock(ProfileDefinition.class);
-    when(profileDefinition2.createProfile(any(ValidationMessages.class))).thenReturn(rulesProfile2);
-    definitions.add(profileDefinition2);
-
-    RulesProfile rulesProfile3 = RulesProfile.create("Default", "java");
-    ProfileDefinition profileDefinition3 = mock(ProfileDefinition.class);
-    when(profileDefinition3.createProfile(any(ValidationMessages.class))).thenReturn(rulesProfile3);
-    definitions.add(profileDefinition3);
+    defaultProfilesCache.put("java", "Basic");
+    defaultProfilesCache.put("java", "Default");
+    defaultProfilesCache.put("java", "Default");
 
     Collection<String> result = backup.findDefaultProfileNamesByLanguage("java");
     assertThat(result).containsOnly("Basic", "Default");

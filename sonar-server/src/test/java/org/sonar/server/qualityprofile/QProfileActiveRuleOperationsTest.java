@@ -39,17 +39,12 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.qualityprofile.db.ActiveRuleDao;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.qualityprofile.db.*;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
@@ -65,14 +60,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfileActiveRuleOperationsTest {
@@ -178,11 +166,10 @@ public class QProfileActiveRuleOperationsTest {
   @Test
   public void create_active_rule() throws Exception {
     RuleKey ruleKey = RuleKey.of("repo", "key");
-    when(ruleDao.selectByKey(ruleKey, session)).thenReturn(new RuleDto().setId(10));
 
     when(ruleDao.selectParametersByRuleId(eq(10), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10")));
 
-    operations.createActiveRule(1, ruleKey, Severity.CRITICAL, session);
+    operations.createActiveRule(1, 10, Severity.CRITICAL, session);
 
     ArgumentCaptor<ActiveRuleDto> activeRuleArgument = ArgumentCaptor.forClass(ActiveRuleDto.class);
     verify(activeRuleDao).insert(activeRuleArgument.capture(), eq(session));
@@ -195,23 +182,6 @@ public class QProfileActiveRuleOperationsTest {
     assertThat(activeRuleParamArgument.getValue().getValue()).isEqualTo("10");
 
     verifyZeroInteractions(session);
-    verifyZeroInteractions(profilesManager);
-    verifyZeroInteractions(esActiveRule);
-  }
-
-  @Test
-  public void fail_create_active_rule_when_rule_does_not_exists() throws Exception {
-    RuleKey ruleKey = RuleKey.of("repo", "key");
-    when(ruleDao.selectByKey(ruleKey, session)).thenReturn(null);
-
-    try {
-      operations.createActiveRule(1, ruleKey, Severity.CRITICAL, session);
-    } catch(Exception e) {
-      assertThat(e).isInstanceOf(NotFoundException.class);
-    }
-
-    verifyZeroInteractions(session);
-    verifyZeroInteractions(activeRuleDao);
     verifyZeroInteractions(profilesManager);
     verifyZeroInteractions(esActiveRule);
   }
