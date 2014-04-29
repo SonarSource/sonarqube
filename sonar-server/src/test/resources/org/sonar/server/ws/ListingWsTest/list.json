@@ -13,11 +13,17 @@
           "post": true,
           "params": [
             {
-              "key": "key",
-              "description": "Key of new metric"
+              "key": "name",
+              "required": false
             },
             {
-              "key": "name"
+              "key": "severity",
+              "description": "Severity",
+              "required": true,
+              "defaultValue": "BLOCKER",
+              "exampleValue": "INFO",
+              "possibleValues": ["BLOCKER", "INFO"]
+
             }
           ]
         },

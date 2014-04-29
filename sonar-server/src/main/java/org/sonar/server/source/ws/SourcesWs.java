@@ -25,15 +25,18 @@ import org.sonar.api.server.ws.WebService;
 public class SourcesWs implements WebService {
 
   private final ShowAction showAction;
+  private final ScmAction scmAction;
 
-  public SourcesWs(ShowAction showAction) {
+  public SourcesWs(ShowAction showAction, ScmAction scmAction) {
     this.showAction = showAction;
+    this.scmAction = scmAction;
   }
 
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/sources");
     showAction.define(controller);
+    scmAction.define(controller);
     controller.done();
   }
 }

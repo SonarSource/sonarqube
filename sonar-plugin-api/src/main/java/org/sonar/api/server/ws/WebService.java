@@ -441,7 +441,7 @@ public interface WebService extends ServerExtension {
       this.exampleValue = newParam.exampleValue;
       this.defaultValue = newParam.defaultValue;
       this.required = newParam.required;
-      this.possibleValues = (newParam.possibleValues == null ? new String[0] : newParam.possibleValues);
+      this.possibleValues = newParam.possibleValues;
     }
 
     public String key() {
@@ -472,6 +472,7 @@ public interface WebService extends ServerExtension {
     /**
      * @since 4.4
      */
+    @CheckForNull
     public String[] possibleValues() {
       return possibleValues;
     }

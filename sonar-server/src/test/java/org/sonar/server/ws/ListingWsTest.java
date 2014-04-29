@@ -83,7 +83,13 @@ public class ListingWsTest {
           public void handle(Request request, Response response) {
           }
         });
-      create.createParam("key").setDescription("Key of new metric");
+      create
+        .createParam("severity")
+        .setDescription("Severity")
+        .setRequired(true)
+        .setPossibleValues("BLOCKER", "INFO")
+        .setExampleValue("INFO")
+        .setDefaultValue("BLOCKER");
       create.createParam("name");
       newController.done();
     }

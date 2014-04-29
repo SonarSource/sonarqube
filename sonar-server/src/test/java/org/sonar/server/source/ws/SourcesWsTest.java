@@ -30,8 +30,9 @@ import static org.mockito.Mockito.mock;
 
 public class SourcesWsTest {
 
-  ShowAction showAction = new ShowAction(mock(SourceService.class));
-  WsTester tester = new WsTester(new SourcesWs(showAction));
+  ShowAction showAction = new ShowAction(mock(SourceService.class), new ScmWriter());
+  ScmAction scmAction = new ScmAction(mock(SourceService.class), new ScmWriter());
+  WsTester tester = new WsTester(new SourcesWs(showAction, scmAction));
 
   @Test
   public void define_ws() throws Exception {

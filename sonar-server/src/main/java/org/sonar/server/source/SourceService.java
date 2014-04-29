@@ -58,11 +58,7 @@ public class SourceService implements ServerComponent {
   }
 
   public List<String> getLinesAsHtml(String fileKey, @Nullable Integer from, @Nullable Integer to) {
-    ResourceDto project = resourceDao.getRootProjectByComponentKey(fileKey);
-    if (project == null) {
-      throw new NotFoundException("File does not exist");
-    }
-    UserSession.get().checkProjectPermission(UserRole.CODEVIEWER, project.getKey());
+    checkPermission(fileKey);
 
     List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml(fileKey, from, to);
     if (!decoratedSource.isEmpty()) {
@@ -71,11 +67,25 @@ public class SourceService implements ServerComponent {
     return deprecatedSourceDecorator.getSourceAsHtml(fileKey, from, to);
   }
 
+  public void checkPermission(String fileKey) {
+    ResourceDto project = resourceDao.getRootProjectByComponentKey(fileKey);
+    if (project == null) {
+      throw new NotFoundException("File does not exist");
+    }
+    UserSession.get().checkProjectPermission(UserRole.CODEVIEWER, project.getKey());
+  }
+
+  /**
+   * Warning - does not check permission
+   */
   @CheckForNull
   public String getScmAuthorData(String fileKey) {
     return findDataFromComponent(fileKey, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY);
   }
 
+  /**
+   * Warning - does not check permission
+   */
   @CheckForNull
   public String getScmDateData(String fileKey) {
     return findDataFromComponent(fileKey, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY);

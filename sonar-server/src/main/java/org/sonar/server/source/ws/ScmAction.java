@@ -24,26 +24,22 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.SourceService;
 
-import java.util.List;
+public class ScmAction implements RequestHandler {
 
-public class ShowAction implements RequestHandler {
-
-  private final SourceService sourceService;
+  private final SourceService service;
   private final ScmWriter scmWriter;
 
-  public ShowAction(SourceService sourceService, ScmWriter scmWriter) {
-    this.sourceService = sourceService;
+  public ScmAction(SourceService service, ScmWriter scmWriter) {
+    this.service = service;
     this.scmWriter = scmWriter;
   }
 
   void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("show")
-      .setDescription("Get source code. Parameter 'output' with value 'raw' is missing before being marked as a public WS.")
-      .setSince("4.2")
-      .setInternal(true)
+    WebService.NewAction action = controller.createAction("scm")
+      .setDescription("Get SCM information of source files")
+      .setSince("4.4")
       .setHandler(this);
 
     action
@@ -64,14 +60,8 @@ public class ShowAction implements RequestHandler {
       .setExampleValue("20");
 
     action
-      .createParam("scm")
-      .setDescription("Enable loading of SCM information per line")
-      .setPossibleValues("true", "false")
-      .setDefaultValue("false");
-
-    action
       .createParam("groupCommits")
-      .setDescription("Group lines by SCM commit. Used only if 'scm' is 'true'")
+      .setDescription("Group lines by SCM commit")
       .setPossibleValues("false", "true")
       .setDefaultValue("true");
   }
@@ -79,32 +69,16 @@ public class ShowAction implements RequestHandler {
   @Override
   public void handle(Request request, Response response) {
     String fileKey = request.mandatoryParam("key");
+    service.checkPermission(fileKey);
+
     int from = Math.max(request.paramAsInt("from", 1), 1);
     int to = request.paramAsInt("to", Integer.MAX_VALUE);
 
-    List<String> sourceHtml = sourceService.getLinesAsHtml(fileKey, from, to);
-    if (sourceHtml.isEmpty()) {
-      throw new NotFoundException("File '" + fileKey + "' has no sources");
-    }
+    String authors = service.getScmAuthorData(fileKey);
+    String dates = service.getScmDateData(fileKey);
 
     JsonWriter json = response.newJsonWriter().beginObject();
-    writeSource(sourceHtml, from, json);
-
-    if (request.paramAsBoolean("scm", false)) {
-      String scmAuthorData = sourceService.getScmAuthorData(fileKey);
-      String scmDataData = sourceService.getScmDateData(fileKey);
-      scmWriter.write(scmAuthorData, scmDataData, from, to, request.paramAsBoolean("groupCommits", true), json);
-    }
-
+    scmWriter.write(authors, dates, from, to, request.paramAsBoolean("groupCommits", true), json);
     json.endObject().close();
-  }
-
-  private void writeSource(List<String> lines, int from, JsonWriter json) {
-    json.name("source").beginObject();
-    for (int i = 0; i < lines.size(); i++) {
-      String line = lines.get(i);
-      json.prop(Integer.toString(i + from), line);
-    }
-    json.endObject();
   }
 }
