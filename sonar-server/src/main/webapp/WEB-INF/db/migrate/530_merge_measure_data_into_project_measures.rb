@@ -28,7 +28,7 @@ class MergeMeasureDataIntoProjectMeasures < ActiveRecord::Migration
   end
 
   def self.up
-    unless ProjectMeasure.column_names.include?('data')
+    unless ProjectMeasure.column_names.include?('measure_data')
       add_column :project_measures, 'measure_data', :binary, :null => true
     end
     ProjectMeasure.reset_column_information
