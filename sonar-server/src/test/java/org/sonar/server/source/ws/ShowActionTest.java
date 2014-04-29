@@ -19,8 +19,10 @@
  */
 package org.sonar.server.source.ws;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.SourceService;
@@ -65,6 +67,13 @@ public class ShowActionTest {
 
     WsTester.TestRequest request = tester.newRequest("show").setParam("key", componentKey);
     request.execute().assertJson(getClass(), "show_source.json");
+  }
+
+  @Test
+  public void response_example_exists() throws Exception {
+    WebService.Action show = tester.controller("api/sources").action("show");
+    assertThat(show.responseExampleFormat()).isEqualTo("json");
+    assertThat(show.responseExampleAsString()).isNotEmpty();
   }
 
   @Test

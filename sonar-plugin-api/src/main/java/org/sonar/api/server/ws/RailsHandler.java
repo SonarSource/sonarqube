@@ -21,13 +21,13 @@
 package org.sonar.api.server.ws;
 
 /**
- * Used to declare web services that are still implemented in rails.
+ * Used to declare web services that are still implemented in Ruby on Rails.
  *
  * @since 4.4
  */
 public class RailsHandler implements RequestHandler {
 
-  public static final RequestHandler INSTANCE = new RailsHandler(){};
+  public static final RequestHandler INSTANCE = new RailsHandler();
 
   private RailsHandler() {
     // Nothing

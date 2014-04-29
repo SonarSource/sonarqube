@@ -19,14 +19,17 @@
  */
 package org.sonar.server.ws;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.collect.Ordering;
+import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -39,20 +42,56 @@ public class ListingWs implements WebService {
 
   @Override
   public void define(final Context context) {
-    NewController controller = context.createController("api/webservices")
-      .setDescription("List web services")
-      .setSince("4.2");
-    controller.createAction("list")
-      .setHandler(new RequestHandler() {
-        @Override
-        public void handle(Request request, Response response) {
-          list(context.controllers(), response);
-        }
-      });
+    NewController controller = context
+      .createController("api/webservices")
+      .setDescription("List web services");
+    defineList(context, controller);
+    defineResponseExample(context, controller);
     controller.done();
   }
 
-  void list(List<Controller> controllers, Response response) {
+  private void defineList(final Context context, NewController controller) {
+    controller
+      .createAction("list")
+      .setSince("4.2")
+      .setHandler(new RequestHandler() {
+        @Override
+        public void handle(Request request, Response response) {
+          handleList(context.controllers(), response);
+        }
+      });
+  }
+
+  private void defineResponseExample(final Context context, NewController controller) {
+    NewAction action = controller
+      .createAction("responseExample")
+      .setHandler(new RequestHandler() {
+        @Override
+        public void handle(Request request, Response response) throws Exception {
+          Controller controller = context.controller(request.mandatoryParam("controller"));
+          Action action = controller.action(request.mandatoryParam("action"));
+          handleResponseExample(action, response);
+        }
+      });
+    action.createParam("controller").setRequired(true);
+    action.createParam("action").setRequired(true);
+  }
+
+  private void handleResponseExample(Action action, Response response) throws IOException {
+    if (action.responseExample() != null) {
+      response
+        .newJsonWriter()
+        .beginObject()
+        .prop("format", action.responseExampleFormat())
+        .prop("example", IOUtils.toString(action.responseExample(), Charsets.UTF_8))
+        .endObject()
+        .close();
+    } else {
+      response.noContent();
+    }
+  }
+
+  void handleList(List<Controller> controllers, Response response) {
     JsonWriter writer = response.newJsonWriter();
     writer.beginObject();
     writer.name("webServices").beginArray();
@@ -64,14 +103,14 @@ public class ListingWs implements WebService {
       }
     });
     for (Controller controller : ordering.sortedCopy(controllers)) {
-      write(writer, controller);
+      writeController(writer, controller);
     }
     writer.endArray();
     writer.endObject();
     writer.close();
   }
 
-  private void write(JsonWriter writer, Controller controller) {
+  private void writeController(JsonWriter writer, Controller controller) {
     writer.beginObject();
     writer.prop("path", controller.path());
     writer.prop("since", controller.since());
@@ -84,19 +123,20 @@ public class ListingWs implements WebService {
     });
     writer.name("actions").beginArray();
     for (Action action : ordering.sortedCopy(controller.actions())) {
-      write(writer, action);
+      writeAction(writer, action);
     }
     writer.endArray();
     writer.endObject();
   }
 
-  private void write(JsonWriter writer, Action action) {
+  private void writeAction(JsonWriter writer, Action action) {
     writer.beginObject();
     writer.prop("key", action.key());
     writer.prop("description", action.description());
     writer.prop("since", action.since());
     writer.prop("internal", action.isInternal());
     writer.prop("post", action.isPost());
+    writer.prop("hasResponseExample", action.responseExample()!=null);
     if (!action.params().isEmpty()) {
       // sort parameters by key
       Ordering<Param> ordering = Ordering.natural().onResultOf(new Function<Param, String>() {
@@ -106,14 +146,14 @@ public class ListingWs implements WebService {
       });
       writer.name("params").beginArray();
       for (Param param : ordering.sortedCopy(action.params())) {
-        write(writer, param);
+        writeParam(writer, param);
       }
       writer.endArray();
     }
     writer.endObject();
   }
 
-  private void write(JsonWriter writer, Param param) {
+  private void writeParam(JsonWriter writer, Param param) {
     writer.beginObject();
     writer.prop("key", param.key());
     writer.prop("description", param.description());

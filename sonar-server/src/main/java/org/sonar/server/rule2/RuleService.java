@@ -19,8 +19,6 @@
  */
 package org.sonar.server.rule2;
 
-import org.apache.commons.beanutils.BeanUtils;
-
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.rule.RuleDao;
@@ -28,7 +26,6 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.server.search.Hit;
 
 import javax.annotation.CheckForNull;
-
 import java.util.Collection;
 import java.util.Collections;
 
@@ -40,7 +37,7 @@ public class RuleService implements ServerComponent {
   private RuleDao dao;
   private RuleIndex index;
 
-  public RuleService(RuleDao dao, RuleIndex index){
+  public RuleService(RuleDao dao, RuleIndex index) {
     this.dao = dao;
     this.index = index;
   }
@@ -48,23 +45,23 @@ public class RuleService implements ServerComponent {
   @CheckForNull
   public Rule getByKey(RuleKey key) {
     Hit hit = index.getByKey(key);
-    if(hit != null){
+    if (hit != null) {
       return toRule(hit);
     } else {
       return null;
     }
   }
 
-  public Collection<Hit> search(RuleQuery query){
+  public Collection<Hit> search(RuleQuery query) {
 
     return Collections.emptyList();
   }
 
-  public static Rule toRule(RuleDto ruleDto){
+  public static Rule toRule(RuleDto ruleDto) {
     return new RuleImpl();
   }
 
-  public static Rule toRule(Hit hit){
+  public static Rule toRule(Hit hit) {
 //    BeanUtils.setProperty(bean, name, value);
     return new RuleImpl();
   }

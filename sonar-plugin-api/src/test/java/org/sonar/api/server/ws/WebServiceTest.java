@@ -19,7 +19,11 @@
  */
 package org.sonar.api.server.ws;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -50,6 +54,8 @@ public class WebServiceTest {
         .setSince("4.1")
         .setPost(true)
         .setInternal(true)
+        .setResponseExampleFormat("txt")
+        .setResponseExample(getClass().getResource("/org/sonar/api/server/ws/WebServiceTest/response-example.txt"))
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {
@@ -142,7 +148,7 @@ public class WebServiceTest {
         }
       }.define(context);
       fail();
-    } catch (IllegalStateException e) {
+    } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("RequestHandler is not set on action rule/show");
     }
   }
@@ -297,5 +303,45 @@ public class WebServiceTest {
     }.define(context);
 
     assertThat(context.controller("api/rule").isInternal()).isTrue();
+  }
+
+  @Test
+  public void response_example() {
+    MetricWebService metricWs = new MetricWebService();
+    metricWs.define(context);
+    WebService.Action action = context.controller("api/metric").action("create");
+
+    assertThat(action.responseExampleFormat()).isEqualTo("txt");
+    assertThat(action.responseExample()).isNotNull();
+    assertThat(StringUtils.trim(action.responseExampleAsString())).isEqualTo("example of WS response");
+  }
+
+  @Test
+  public void fail_to_open_response_example() {
+    WebService ws = new WebService() {
+      @Override
+      public void define(Context context) {
+        try {
+          NewController controller = context.createController("foo");
+          controller
+            .createAction("bar")
+            .setHandler(mock(RequestHandler.class))
+            .setResponseExample(new URL("file:/does/not/exist"));
+          controller.done();
+
+        } catch (MalformedURLException e) {
+          e.printStackTrace();
+        }
+      }
+    };
+    ws.define(context);
+
+    WebService.Action action = context.controller("foo").action("bar");
+    try {
+      action.responseExampleAsString();
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("Fail to load file:/does/not/exist");
+    }
   }
 }

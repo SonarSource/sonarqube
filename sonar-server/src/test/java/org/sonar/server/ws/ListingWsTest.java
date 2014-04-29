@@ -38,8 +38,7 @@ public class ListingWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/webservices");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.since()).isEqualTo("4.2");
-    assertThat(controller.actions()).hasSize(1);
+    assertThat(controller.actions()).hasSize(2);
 
     WebService.Action index = controller.action("list");
     assertThat(index).isNotNull();
@@ -48,12 +47,24 @@ public class ListingWsTest {
     assertThat(index.since()).isEqualTo("4.2");
     assertThat(index.isPost()).isFalse();
     assertThat(index.isInternal()).isFalse();
+
+    assertThat(controller.action("responseExample")).isNotNull();
   }
 
   @Test
-  public void index() throws Exception {
+  public void list() throws Exception {
     WsTester tester = new WsTester(ws, new MetricWebService());
     tester.newRequest("api/webservices", "list").execute().assertJson(getClass(), "list.json");
+  }
+
+  @Test
+  public void response_example() throws Exception {
+    WsTester tester = new WsTester(ws, new MetricWebService());
+    tester
+      .newRequest("api/webservices", "responseExample")
+      .setParam("controller", "api/metric")
+      .setParam("action", "create")
+      .execute().assertJson(getClass(), "response_example.json");
   }
 
   static class MetricWebService implements WebService {
@@ -78,6 +89,8 @@ public class ListingWsTest {
         .setSince("4.1")
         .setPost(true)
         .setInternal(true)
+        .setResponseExample(getClass().getResource("/org/sonar/server/ws/ListingWsTest/metrics_example.json"))
+        .setResponseExampleFormat("json")
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {

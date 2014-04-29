@@ -1,51 +1,67 @@
-{
-  "webServices": [
-    {
-      "path": "api/metric",
-      "since": "3.2",
-      "description": "Metrics",
-      "actions": [
-        {
-          "key": "create",
-          "description": "Create metric",
-          "since": "4.1",
-          "internal": true,
-          "post": true,
-          "params": [
-            {
-              "key": "name",
-              "required": false
-            },
-            {
-              "key": "severity",
-              "description": "Severity",
-              "required": true,
-              "defaultValue": "BLOCKER",
-              "exampleValue": "INFO",
-              "possibleValues": ["BLOCKER", "INFO"]
-
-            }
-          ]
-        },
-        {
-          "key": "show",
-          "since": "3.2",
-          "internal": false,
-          "post": false
-        }
-      ]
-    },
-    {
-      "path": "api/webservices",
-      "since": "4.2",
-      "description": "List web services",
-      "actions": [
-        {
-          "key": "list",
-          "since": "4.2",
-          "internal": false,
-          "post": false
-        }
-      ]
-    }
-  ]}
+{"webServices": [
+  {
+    "path": "api/metric",
+    "since": "3.2",
+    "description": "Metrics",
+    "actions": [
+      {
+        "key": "create",
+        "description": "Create metric",
+        "since": "4.1",
+        "internal": true,
+        "post": true,
+        "hasResponseExample": true,
+        "params": [
+          {
+            "key": "name",
+            "required": false
+          },
+          {
+            "key": "severity",
+            "description": "Severity",
+            "required": true,
+            "defaultValue": "BLOCKER",
+            "exampleValue": "INFO",
+            "possibleValues": ["BLOCKER", "INFO"]
+          }
+        ]
+      },
+      {
+        "key": "show",
+        "since": "3.2",
+        "internal": false,
+        "post": false,
+        "hasResponseExample": false
+      }
+    ]
+  },
+  {
+    "path": "api/webservices",
+    "description": "List web services",
+    "actions": [
+      {
+        "key": "list",
+        "since": "4.2",
+        "internal": false,
+        "post": false,
+        "hasResponseExample": false
+      },
+      {
+        "key": "responseExample",
+        "internal": false,
+        "post": false,
+        "hasResponseExample": false,
+        "params": [
+          {
+            "key": "action",
+            "required": true
+          },
+          {
+            "key": "controller",
+            "required": true
+          }
+        ]
+      }
+    ]
+  }
+]}

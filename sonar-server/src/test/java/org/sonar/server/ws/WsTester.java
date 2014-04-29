@@ -87,7 +87,7 @@ public class WsTester {
       return params.get(key);
     }
 
-    public Result execute() {
+    public Result execute() throws Exception {
       TestResponse response = new TestResponse();
       action.handler().handle(this, response);
       return new Result(response);
@@ -181,7 +181,7 @@ public class WsTester {
      * at src/test/resources/org/foo/BarTest/index.json.
      *
      * @param clazz                the test class
-     * @param jsonResourceFilename name of the file containing the expected JSON
+     * @param expectedJsonFilename name of the file containing the expected JSON
      */
     public Result assertJson(Class clazz, String expectedJsonFilename) throws Exception {
       String path = clazz.getSimpleName() + "/" + expectedJsonFilename;

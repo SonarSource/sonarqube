@@ -19,16 +19,19 @@
  */
 package org.sonar.api.server.ws;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerExtension;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-
+import java.io.IOException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -248,6 +251,8 @@ public interface WebService extends ServerExtension {
     private boolean post = false, isInternal = false;
     private RequestHandler handler;
     private Map<String, NewParam> newParams = Maps.newHashMap();
+    private URL responseExample = null;
+    private String responseExampleFormat = null;
 
     private NewAction(String key) {
       this.key = key;
@@ -278,6 +283,31 @@ public interface WebService extends ServerExtension {
       return this;
     }
 
+    /**
+     * Link to the document containing an example of response. Content must be UTF-8 encoded.
+     * <p/>
+     * Example:
+     * <pre>
+     *   newAction.setResponseExample(getClass().getResource("/org/sonar/my-ws-response-example.json"));
+     * </pre>
+     *
+     * @since 4.4
+     */
+    public NewAction setResponseExample(@Nullable URL url) {
+      this.responseExample = url;
+      return this;
+    }
+
+    /**
+     * Used only if {@link #setResponseExample(java.net.URL)} is set. Example of values: "xml", "json", "txt", "csv".
+     *
+     * @since 4.4
+     */
+    public NewAction setResponseExampleFormat(@Nullable String format) {
+      this.responseExampleFormat = format;
+      return this;
+    }
+
     public NewParam createParam(String paramKey) {
       if (newParams.containsKey(paramKey)) {
         throw new IllegalStateException(
@@ -305,6 +335,8 @@ public interface WebService extends ServerExtension {
     private final boolean post, isInternal;
     private final RequestHandler handler;
     private final Map<String, Param> params;
+    private final URL responseExample;
+    private final String responseExampleFormat;
 
     private Action(Controller controller, NewAction newAction) {
       this.key = newAction.key;
@@ -313,9 +345,11 @@ public interface WebService extends ServerExtension {
       this.since = StringUtils.defaultIfBlank(newAction.since, controller.since);
       this.post = newAction.post;
       this.isInternal = newAction.isInternal;
+      this.responseExample = newAction.responseExample;
+      this.responseExampleFormat = newAction.responseExampleFormat;
 
       if (newAction.handler == null) {
-        throw new IllegalStateException("RequestHandler is not set on action " + path);
+        throw new IllegalArgumentException("RequestHandler is not set on action " + path);
       }
       this.handler = newAction.handler;
 
@@ -359,6 +393,37 @@ public interface WebService extends ServerExtension {
       return handler;
     }
 
+    /**
+     * @see org.sonar.api.server.ws.WebService.NewAction#setResponseExample(java.net.URL)
+     */
+    @CheckForNull
+    public URL responseExample() {
+      return responseExample;
+    }
+
+    /**
+     * @see org.sonar.api.server.ws.WebService.NewAction#setResponseExample(java.net.URL)
+     */
+    @CheckForNull
+    public String responseExampleAsString() {
+      try {
+        if (responseExample != null) {
+          return IOUtils.toString(responseExample, Charsets.UTF_8);
+        }
+        return null;
+      } catch (IOException e) {
+        throw new IllegalStateException("Fail to load " + responseExample, e);
+      }
+    }
+
+    /**
+     * @see org.sonar.api.server.ws.WebService.NewAction#setResponseExampleFormat(String)
+     */
+    @CheckForNull
+    public String responseExampleFormat() {
+      return responseExampleFormat;
+    }
+
     @CheckForNull
     public Param param(String key) {
       return params.get(key);
@@ -390,6 +455,7 @@ public interface WebService extends ServerExtension {
 
     /**
      * Is the parameter required or optional ? Default value is false (optional).
+     *
      * @since 4.4
      */
     public NewParam setRequired(boolean b) {
@@ -408,6 +474,7 @@ public interface WebService extends ServerExtension {
     /**
      * Exhaustive list of possible values when it makes sense, for example
      * list of severities.
+     *
      * @since 4.4
      */
     public NewParam setPossibleValues(@Nullable String... s) {
@@ -463,6 +530,7 @@ public interface WebService extends ServerExtension {
 
     /**
      * Is the parameter required or optional ?
+     *
      * @since 4.4
      */
     public boolean isRequired() {
