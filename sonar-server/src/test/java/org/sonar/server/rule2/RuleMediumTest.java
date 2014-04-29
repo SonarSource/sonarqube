@@ -24,10 +24,14 @@ import org.junit.Test;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
+import org.sonar.core.qualityprofile.db.ActiveRuleDao;
+import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.search.Hit;
 import org.sonar.server.tester.ServerTester;
+
+import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -36,48 +40,61 @@ public class RuleMediumTest {
   @Rule
   public ServerTester tester = new ServerTester();
 
+  private ActiveRuleDto getActiveRuleDto(RuleDto dto){
+    return new ActiveRuleDto()
+      .setId(1)
+      .setNoteCreatedAt(new Date())
+      .setNoteData("Note data, and some more note and here too.")
+      .setRuleId(dto.getId())
+      .setProfileId(1)
+      .setParentId(0)
+      .setSeverity(3);
+    }
 
-  private RuleDto getRuleDto(){
+  private RuleDto getRuleDto() {
     return new RuleDto()
-    .setId(1)
-    .setRuleKey("NewRuleKey")
-    .setRepositoryKey("plugin")
-    .setName("new name")
-    .setDescription("new description")
-    .setStatus(org.sonar.api.rules.Rule.STATUS_DEPRECATED)
-    .setConfigKey("NewConfigKey")
-    .setSeverity(Severity.INFO)
-    .setCardinality(Cardinality.MULTIPLE)
-    .setLanguage("dart")
-    .setParentId(3)
-    .setSubCharacteristicId(100)
-    .setDefaultSubCharacteristicId(101)
-    .setRemediationFunction("linear")
-    .setDefaultRemediationFunction("linear_offset")
-    .setRemediationCoefficient("1h")
-    .setDefaultRemediationCoefficient("5d")
-    .setRemediationOffset("5min")
-    .setDefaultRemediationOffset("10h")
-    .setEffortToFixDescription("squid.S115.effortToFix")
-    .setCreatedAt(DateUtils.parseDate("2013-12-16"))
-    .setUpdatedAt(DateUtils.parseDate("2013-12-17"));
+      .setId(1)
+      .setRuleKey("NewRuleKey")
+      .setRepositoryKey("plugin")
+      .setName("new name")
+      .setDescription("new description")
+      .setStatus(org.sonar.api.rules.Rule.STATUS_DEPRECATED)
+      .setConfigKey("NewConfigKey")
+      .setSeverity(Severity.INFO)
+      .setCardinality(Cardinality.MULTIPLE)
+      .setLanguage("dart")
+      .setParentId(3)
+      .setSubCharacteristicId(100)
+      .setDefaultSubCharacteristicId(101)
+      .setRemediationFunction("linear")
+      .setDefaultRemediationFunction("linear_offset")
+      .setRemediationCoefficient("1h")
+      .setDefaultRemediationCoefficient("5d")
+      .setRemediationOffset("5min")
+      .setDefaultRemediationOffset("10h")
+      .setEffortToFixDescription("squid.S115.effortToFix")
+      .setCreatedAt(DateUtils.parseDate("2013-12-16"))
+      .setUpdatedAt(DateUtils.parseDate("2013-12-17"));
   }
 
   @Test
-  public void test_dao_queue_es_search_loop(){
+  public void test_dao_queue_es_search_loop() {
     RuleDao dao = tester.get(RuleDao.class);
+    ActiveRuleDao adao = tester.get(ActiveRuleDao.class);
     RuleIndex index = tester.get(RuleIndex.class);
 
     RuleDto dto = getRuleDto();
     dao.insert(dto);
 
+    adao.insert(getActiveRuleDto(dto));
+
     try {
-      Thread.sleep(1000000);
+      Thread.sleep(100);
     } catch (InterruptedException e) {
       ;
     }
 
     Hit hit = index.getByKey(dto.getKey());
-    assertThat(hit.getFields().get("key")).isEqualTo(dto.getRuleKey());
+    assertThat(hit.getFields().get("ruleKey")).isEqualTo(dto.getRuleKey());
   }
 }

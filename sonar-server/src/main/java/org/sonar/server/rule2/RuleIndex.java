@@ -19,6 +19,9 @@
  */
 package org.sonar.server.rule2;
 
+import org.sonar.core.qualityprofile.db.ActiveRuleDto;
+
+import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.apache.commons.beanutils.BeanUtils;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.slf4j.Logger;
@@ -43,8 +46,11 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
 
   private static final Logger LOG = LoggerFactory.getLogger(RuleIndex.class);
 
-  public RuleIndex(WorkQueue queue, RuleDao dao, Profiling profiling, ESNode node) {
+  private ActiveRuleDao activeRuleDao;
+
+  public RuleIndex(WorkQueue queue, RuleDao dao, ActiveRuleDao ActiveRuleDao, Profiling profiling, ESNode node) {
     super(queue, dao, profiling, node);
+    this.activeRuleDao = ActiveRuleDao;
   }
 
   @Override
@@ -157,8 +163,17 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
       Map<String, Object> properties = BeanUtils.describe(rule);
 
       for (Entry<String, Object> property : properties.entrySet()) {
-        LOG.trace("NORMALIZING: {} -> {}",property.getKey(), property.getValue());
+        LOG.info("NORMALIZING: {} -> {}",property.getKey(), property.getValue());
         document.field(property.getKey(), property.getValue());
+      }
+
+
+      for(ActiveRuleDto activeRule:activeRuleDao.selectByRuleId(rule.getId())){
+        Map<String, Object> activeRuleProperties = BeanUtils.describe(activeRule);
+        for (Entry<String, Object> activeRuleProp : activeRuleProperties.entrySet()) {
+          LOG.info("NORMALIZING: --- {} -> {}",activeRuleProp.getKey(), activeRuleProp.getValue());
+          document.field(activeRuleProp.getKey(), activeRuleProp.getValue());
+        }
       }
 
       return document.endObject();
