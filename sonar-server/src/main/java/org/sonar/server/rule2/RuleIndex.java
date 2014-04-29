@@ -20,7 +20,6 @@
 package org.sonar.server.rule2;
 
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.apache.commons.beanutils.BeanUtils;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -92,30 +91,32 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
     }
   }
 
+  private void addMatchField(XContentBuilder mapping, String field, String type) throws IOException {
+    mapping.startObject(field)
+      .field("type", type)
+      .field("index", "not_analyzed")
+      .endObject();
+  }
+
   @Override
   protected XContentBuilder getMapping() {
     try {
-      return jsonBuilder().startObject()
+      XContentBuilder mapping = jsonBuilder().startObject()
         .startObject(this.getType())
-        .field("dynamic",true)
-        .startObject("properties")
-        .startObject("id")
-        .field("type", "string")
-        .field("index", "not_analyzed")
-        .endObject()
-        .startObject("key")
-        .field("type", "string")
-        .field("index", "not_analyzed")
-        .endObject()
-        .startObject("repositoryKey")
-        .field("type", "string")
-        .field("index", "not_analyzed")
-        .endObject()
-        .startObject("severity")
-        .field("type", "string")
-        .field("index", "not_analyzed")
-        .endObject()
-        .endObject()
+        .field("dynamic", true)
+        .startObject("properties");
+
+      addMatchField(mapping, "id", "string");
+      addMatchField(mapping, "key", "string");
+      addMatchField(mapping, "repositoryKey", "string");
+      addMatchField(mapping, "severity", "string");
+
+      mapping.startObject("active")
+        .field("type", "nested")
+        .field("dynamic", true)
+        .endObject();
+
+      return mapping.endObject()
         .endObject().endObject();
 
       // return jsonBuilder().startObject()
@@ -154,41 +155,52 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
   @Override
   public XContentBuilder normalize(RuleKey key) {
 
-    RuleDto rule = dao.getByKey(key);
-
     try {
+
+      long start = System.currentTimeMillis();
+      RuleDto rule = dao.getByKey(key);
+      LOG.info("Action dao.getByKey(key) in {} took {}ms",
+        this.getIndexName(), (System.currentTimeMillis() - start));
 
       XContentBuilder document = jsonBuilder().startObject();
 
       Map<String, Object> properties = BeanUtils.describe(rule);
 
       for (Entry<String, Object> property : properties.entrySet()) {
-        LOG.info("NORMALIZING: {} -> {}",property.getKey(), property.getValue());
+        LOG.trace("NORMALIZING: {} -> {}", property.getKey(), property.getValue());
         document.field(property.getKey(), property.getValue());
       }
 
+      start = System.currentTimeMillis();
 
-      for(ActiveRuleDto activeRule:activeRuleDao.selectByRuleId(rule.getId())){
+      document.startArray("active");
+      for (ActiveRuleDto activeRule : activeRuleDao.selectByRuleId(rule.getId())) {
+        document.startObject();
         Map<String, Object> activeRuleProperties = BeanUtils.describe(activeRule);
         for (Entry<String, Object> activeRuleProp : activeRuleProperties.entrySet()) {
-          LOG.info("NORMALIZING: --- {} -> {}",activeRuleProp.getKey(), activeRuleProp.getValue());
+          LOG.trace("NORMALIZING: --- {} -> {}", activeRuleProp.getKey(), activeRuleProp.getValue());
           document.field(activeRuleProp.getKey(), activeRuleProp.getValue());
         }
+        document.endObject();
       }
+      document.endArray();
+
+      LOG.info("Action activeRuleDao.selectByRuleId(rule.getId()) in {} took {}ms",
+        this.getIndexName(), (System.currentTimeMillis() - start));
 
       return document.endObject();
     } catch (IOException e) {
-      LOG.error("Could not normalize {} in {}", key, this.getClass().getSimpleName());
-      e.printStackTrace();
+      LOG.error("Could not normalize {} in {} because {}",
+        key, this.getClass().getSimpleName(), e.getMessage());
     } catch (IllegalAccessException e) {
-      LOG.error("Could not normalize {} in {}", key, this.getClass().getSimpleName());
-      e.printStackTrace();
+      LOG.error("Could not normalize {} in {} because {}",
+        key, this.getClass().getSimpleName(), e.getMessage());
     } catch (InvocationTargetException e) {
-      LOG.error("Could not normalize {} in {}", key, this.getClass().getSimpleName());
-      e.printStackTrace();
+      LOG.error("Could not normalize {} in {} because {}",
+        key, this.getClass().getSimpleName(), e.getMessage());
     } catch (NoSuchMethodException e) {
-      LOG.error("Could not normalize {} in {}", key, this.getClass().getSimpleName());
-      e.printStackTrace();
+      LOG.error("Could not normalize {} in {} because {}",
+        key, this.getClass().getSimpleName(), e.getMessage());
     }
     return null;
   }

@@ -25,6 +25,8 @@ import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.slf4j.Logger;
@@ -104,25 +106,25 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
 
   public void connect() {
     this.client = this.node.client();
-//    /* Settings to access our local ES node */
-//    Settings settings = ImmutableSettings.settingsBuilder()
-//      .put("client.transport.sniff", true)
-//      .put("cluster.name", ES_CLUSTER_NAME)
-//      .put("node.name", "localclient_")
-//      .build();
-//
-//    this.client = new TransportClient(settings)
-//      .addTransportAddress(new InetSocketTransportAddress(LOCAL_ES_NODE_HOST, LOCAL_ES_NODE_PORT));
-//
-//    /*
-//     * Cannot do that yet, need version >= 1.0
-//     * ImmutableList<DiscoveryNode> nodes = client.connectedNodes();
-//     * if (nodes.isEmpty()) {
-//     * throw new ElasticSearchUnavailableException("No nodes available. Verify ES is running!");
-//     * } else {
-//     * log.info("connected to nodes: " + nodes.toString());
-//     * }
-//     */
+    // /* Settings to access our local ES node */
+    // Settings settings = ImmutableSettings.settingsBuilder()
+    // .put("client.transport.sniff", true)
+    // .put("cluster.name", ES_CLUSTER_NAME)
+    // .put("node.name", "localclient_")
+    // .build();
+    //
+    // this.client = new TransportClient(settings)
+    // .addTransportAddress(new InetSocketTransportAddress(LOCAL_ES_NODE_HOST, LOCAL_ES_NODE_PORT));
+    //
+    // /*
+    // * Cannot do that yet, need version >= 1.0
+    // * ImmutableList<DiscoveryNode> nodes = client.connectedNodes();
+    // * if (nodes.isEmpty()) {
+    // * throw new ElasticSearchUnavailableException("No nodes available. Verify ES is running!");
+    // * } else {
+    // * log.info("connected to nodes: " + nodes.toString());
+    // * }
+    // */
   }
 
   /* Cluster And ES Stats/Client methods */
@@ -136,10 +138,10 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
 
     if (!indexExistsResponse.isExists()) {
 
-      LOG.info("Setup of index {}",this.getIndexName());
+      LOG.info("Setup of index {}", this.getIndexName());
 
       try {
-        LOG.info("Settings: {}",getIndexSettings().string());
+        LOG.info("Settings: {}", getIndexSettings().string());
         LOG.info("Mapping: {}", getMapping().string());
       } catch (IOException e) {
         // TODO Auto-generated catch block
@@ -166,6 +168,8 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
 
   @Override
   public void executeAction(IndexAction<K> action) {
+    StopWatch watch = this.createWatch();
+    long start = System.currentTimeMillis();
     if (action.getMethod().equals(Method.DELETE)) {
       this.delete(action.getKey());
     } else if (action.getMethod().equals(Method.INSERT)) {
@@ -173,6 +177,9 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
     } else if (action.getMethod().equals(Method.UPDATE)) {
       this.update(action.getKey());
     }
+    LOG.info("Action {} in {} took {}ms", action.getMethod(),
+      this.getIndexName(), (System.currentTimeMillis() - start));
+    watch.stop("Action {} in {}", action.getMethod(), this.getIndexName());
   }
 
   /* Index management methods */
@@ -196,18 +203,37 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
 
   @Override
   public void insert(K key) {
-    this.update(key);
+    try {
+      XContentBuilder doc = this.normalize(key);
+      String keyvalue = this.getKeyValue(key);
+      if (doc != null && keyvalue != null && !keyvalue.isEmpty()) {
+        LOG.info("Update document with key {}", key);
+        IndexResponse result = getClient().index(
+          new IndexRequest(this.getIndexName(),
+            this.getType(), keyvalue)
+            .source(this.normalize(key))).get();
+      } else {
+        LOG.error("Could not normalize document {} for insert in ",
+          key, this.getIndexName());
+      }
+    } catch (Exception e) {
+      LOG.error("Could not update documet for index {}: {}",
+        this.getIndexName(), e.getMessage());
+    }
   }
 
   @Override
   public void update(K key) {
-    LOG.info("Update document with key {}", key);
-    IndexResponse result = getClient().index(new IndexRequest()
-      .type(this.getType())
-      .index(this.getIndexName())
-      .id(this.getKeyValue(key))
-      .source(this.normalize(key))).actionGet();
-
+    try {
+      LOG.info("Update document with key {}", key);
+      UpdateResponse result = getClient().update(
+        new UpdateRequest(this.getIndexName(),
+          this.getType(), this.getKeyValue(key))
+          .doc(this.normalize(key))).get();
+    } catch (Exception e) {
+      LOG.error("Could not update documet for index {}: {}",
+        this.getIndexName(), e.getMessage());
+    }
   }
 
   @Override
@@ -236,7 +262,7 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
 
   @Override
   public Long getLastSynchronization() {
-    // need to read that in the admin index;
+    // TODO need to read that in the admin index;
     return 0l;
   }
 }

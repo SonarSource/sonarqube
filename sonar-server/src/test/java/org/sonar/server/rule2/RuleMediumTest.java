@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule2;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.Severity;
@@ -38,7 +39,18 @@ import static org.fest.assertions.Assertions.assertThat;
 public class RuleMediumTest {
 
   @Rule
-  public ServerTester tester = new ServerTester();
+  public ServerTester tester = new ServerTester()
+  //.setProperty("sonar.log.profilingLevel", "FULL")
+  .setProperty("sonar.es.http.port", "8888");
+
+  private RuleDto dto;
+  private ActiveRuleDto adto;
+
+  @Before
+  public void setup(){
+    dto = getRuleDto(1);
+    adto = getActiveRuleDto(dto);
+  }
 
   private ActiveRuleDto getActiveRuleDto(RuleDto dto){
     return new ActiveRuleDto()
@@ -51,10 +63,10 @@ public class RuleMediumTest {
       .setSeverity(3);
     }
 
-  private RuleDto getRuleDto() {
+  private RuleDto getRuleDto(int id) {
     return new RuleDto()
-      .setId(1)
-      .setRuleKey("NewRuleKey")
+      .setId(id)
+      .setRuleKey("NewRuleKey="+id)
       .setRepositoryKey("plugin")
       .setName("new name")
       .setDescription("new description")
@@ -79,22 +91,35 @@ public class RuleMediumTest {
 
   @Test
   public void test_dao_queue_es_search_loop() {
+
     RuleDao dao = tester.get(RuleDao.class);
     ActiveRuleDao adao = tester.get(ActiveRuleDao.class);
     RuleIndex index = tester.get(RuleIndex.class);
 
-    RuleDto dto = getRuleDto();
     dao.insert(dto);
-
-    adao.insert(getActiveRuleDto(dto));
+    adao.insert(adto);
 
     try {
-      Thread.sleep(100);
+      Thread.sleep(200);
     } catch (InterruptedException e) {
       ;
     }
 
     Hit hit = index.getByKey(dto.getKey());
     assertThat(hit.getFields().get("ruleKey")).isEqualTo(dto.getRuleKey());
+  }
+
+  @Test
+  public void test_ruleservice_getByKey() {
+    RuleService service = tester.get(RuleService.class);
+    RuleDao dao = tester.get(RuleDao.class);
+
+    dao.insert(dto);
+
+    //org.sonar.server.rule2.Rule rule = service.getByKey(dto.getKey());
+
+    //assertThat(rule.key()).isEqualTo(dto.getKey());
+
+
   }
 }
