@@ -4,17 +4,15 @@
 <mapper namespace="org.sonar.core.measure.db.MeasureDataMapper">
 
   <sql id="measureDataColumns">
-    m.id,
-    m.measure_id as measureId,
-    m.snapshot_id as snapshotId,
-    m.data as data
+    pm.id,
+    pm.snapshot_id as snapshotId,
+    pm.measure_data as data
   </sql>
 
   <select id="findByComponentKeyAndMetricKey" parameterType="map" resultType="MeasureData">
     SELECT
     <include refid="measureDataColumns"/>
-    FROM measure_data m
-    INNER JOIN project_measures pm ON pm.id=m.measure_id
+    FROM project_measures pm
     INNER JOIN snapshots s ON s.id=pm.snapshot_id AND s.islast=${_true}
     INNER JOIN projects p ON p.id=s.project_id AND p.enabled=${_true}
     INNER JOIN metrics metric ON metric.id=pm.metric_id

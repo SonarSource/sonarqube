@@ -176,10 +176,7 @@ public class DefaultIndex extends SonarIndex {
   public Measure getMeasure(Resource resource, Metric metric) {
     Bucket bucket = buckets.get(resource);
     if (bucket != null) {
-      Measure measure = bucket.getMeasures(MeasuresFilters.metric(metric));
-      if (measure != null) {
-        return persistence.reloadMeasure(measure);
-      }
+      return bucket.getMeasures(MeasuresFilters.metric(metric));
     }
     return null;
   }

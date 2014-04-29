@@ -19,17 +19,26 @@
  */
 package org.sonar.api.database.model;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Throwables;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.rules.RulePriority;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
-import java.util.ArrayList;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
-import java.util.List;
 
 /**
  * This class is the Hibernate model to store a measure in the DB
@@ -78,7 +87,7 @@ public class MeasureModel implements Cloneable {
    */
   @Deprecated
   @Column(name = "rules_category_id", nullable = true)
-  private Integer rulesCategoryId;//NOSONAR this field is kept for backward-compatiblity of API
+  private Integer rulesCategoryId;// NOSONAR this field is kept for backward-compatiblity of API
 
   @Column(name = "rule_priority", updatable = false, nullable = true)
   @Enumerated(EnumType.ORDINAL)
@@ -108,14 +117,14 @@ public class MeasureModel implements Cloneable {
   @Column(name = "url", updatable = true, nullable = true, length = 2000)
   private String url;
 
-  @OneToMany(mappedBy = "measure", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
-  private List<MeasureData> measureData = new ArrayList<MeasureData>();
-
   @Column(name = "characteristic_id", nullable = true)
   private Integer characteristicId;
 
   @Column(name = "person_id", updatable = true, nullable = true)
   private Integer personId;
+
+  @Column(name = "measure_data", updatable = true, nullable = true, length = 167772150)
+  private byte[] data;
 
   public Long getId() {
     return id;
@@ -357,8 +366,13 @@ public class MeasureModel implements Cloneable {
     if (this.textValue != null) {
       return this.textValue;
     }
-    if (metric.isDataType() && !measureData.isEmpty()) {
-      return measureData.get(0).getText();
+    if (metric.isDataType() && data != null) {
+      try {
+        return new String(data, Charsets.UTF_8.name());
+      } catch (UnsupportedEncodingException e) {
+        // how is it possible to not support UTF-8 ?
+        Throwables.propagate(e);
+      }
     }
     return null;
   }
@@ -369,37 +383,16 @@ public class MeasureModel implements Cloneable {
   public final void setData(String data) {
     if (data == null) {
       this.textValue = null;
-      measureData.clear();
+      this.data = null;
 
     } else {
       if (data.length() > TEXT_VALUE_LENGTH) {
-        measureData.clear();
-        measureData.add(new MeasureData(this, data));
-
+        this.textValue = null;
+        this.data = data.getBytes(Charsets.UTF_8);
       } else {
         this.textValue = data;
+        this.data = null;
       }
-    }
-  }
-
-  /**
-   * Use getData() instead
-   */
-  public MeasureData getMeasureData() {
-    if (!measureData.isEmpty()) {
-      return measureData.get(0);
-    }
-    return null;
-  }
-
-  /**
-   * Use setData() instead
-   */
-  //@Deprecated
-  public void setMeasureData(MeasureData data) {
-    measureData.clear();
-    if (data != null) {
-      this.measureData.add(data);
     }
   }
 
@@ -482,16 +475,7 @@ public class MeasureModel implements Cloneable {
    * @return the current object
    */
   public MeasureModel save(DatabaseSession session) {
-    MeasureData data = getMeasureData();
-    setMeasureData(null);
     session.save(this);
-
-    if (data != null) {
-      data.setMeasure(session.getEntity(MeasureModel.class, getId()));
-      data.setSnapshotId(snapshotId);
-      session.save(data);
-      setMeasureData(data);
-    }
     return this;
   }
 

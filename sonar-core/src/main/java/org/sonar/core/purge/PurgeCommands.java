@@ -173,13 +173,6 @@ class PurgeCommands {
     session.commit();
     profiler.stop();
 
-    profiler.start("deleteSnapshotMeasureData (measure_data)");
-    for (List<Long> partSnapshotIds : snapshotIdsPartition) {
-      purgeMapper.deleteSnapshotMeasureData(partSnapshotIds);
-    }
-    session.commit();
-    profiler.stop();
-
     profiler.start("deleteSnapshotMeasures (project_measures)");
     for (List<Long> partSnapshotIds : snapshotIdsPartition) {
       purgeMapper.deleteSnapshotMeasures(partSnapshotIds);
@@ -276,7 +269,8 @@ class PurgeCommands {
     profiler.start("deleteSnapshotDependencies (dependencies)");
     for (List<Long> partSnapshotIds : snapshotIdsPartition) {
       // SONAR-4586
-      // On MsSQL, the maximum number of parameters allowed in a query is 2000, so we have to execute 3 queries instead of one with 3 or inside
+      // On MsSQL, the maximum number of parameters allowed in a query is 2000, so we have to execute 3 queries instead of one with 3 or
+      // inside
       purgeMapper.deleteSnapshotDependenciesFromSnapshotId(partSnapshotIds);
       purgeMapper.deleteSnapshotDependenciesToSnapshotId(partSnapshotIds);
       purgeMapper.deleteSnapshotDependenciesProjectSnapshotId(partSnapshotIds);

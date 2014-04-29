@@ -40,8 +40,8 @@ public final class DefaultPersistenceManager implements PersistenceManager {
   private EventPersister eventPersister;
 
   public DefaultPersistenceManager(ResourcePersister resourcePersister, SourcePersister sourcePersister,
-                                   MeasurePersister measurePersister, DependencyPersister dependencyPersister,
-                                   LinkPersister linkPersister, EventPersister eventPersister) {
+    MeasurePersister measurePersister, DependencyPersister dependencyPersister,
+    LinkPersister linkPersister, EventPersister eventPersister) {
     this.resourcePersister = resourcePersister;
     this.sourcePersister = sourcePersister;
     this.measurePersister = measurePersister;
@@ -86,10 +86,6 @@ public final class DefaultPersistenceManager implements PersistenceManager {
     if (ResourceUtils.isPersistable(resource)) {
       measurePersister.saveMeasure(resource, measure);
     }
-  }
-
-  public Measure reloadMeasure(Measure measure) {
-    return measurePersister.reloadMeasure(measure);
   }
 
   public void saveDependency(Project project, Dependency dependency, Dependency parentDependency) {

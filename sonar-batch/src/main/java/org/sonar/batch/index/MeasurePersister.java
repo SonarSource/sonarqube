@@ -47,23 +47,17 @@ public final class MeasurePersister {
   private final MyBatis mybatis;
   private final ResourcePersister resourcePersister;
   private final RuleFinder ruleFinder;
-  private final MemoryOptimizer memoryOptimizer;
   private final SetMultimap<Resource, Measure> unsavedMeasuresByResource = LinkedHashMultimap.create();
   private boolean delayedMode = false;
 
-  public MeasurePersister(MyBatis mybatis, ResourcePersister resourcePersister, RuleFinder ruleFinder, MemoryOptimizer memoryOptimizer) {
+  public MeasurePersister(MyBatis mybatis, ResourcePersister resourcePersister, RuleFinder ruleFinder) {
     this.mybatis = mybatis;
     this.resourcePersister = resourcePersister;
     this.ruleFinder = ruleFinder;
-    this.memoryOptimizer = memoryOptimizer;
   }
 
   public void setDelayedMode(boolean delayedMode) {
     this.delayedMode = delayedMode;
-  }
-
-  public Measure reloadMeasure(Measure measure) {
-    return memoryOptimizer.reloadMeasure(measure);
   }
 
   public void dump() {
@@ -81,15 +75,11 @@ public final class MeasurePersister {
       unsavedMeasuresByResource.put(resource, measure);
       return;
     }
-    MeasureModel model;
     try {
-      model = insertOrUpdate(resource, measure);
+      insertOrUpdate(resource, measure);
     } catch (Exception e) {
       // SONAR-4066
       throw new SonarException(String.format("Unable to save measure for metric [%s] on component [%s]", measure.getMetricKey(), resource.getKey()), e);
-    }
-    if (model != null) {
-      memoryOptimizer.evictDataMeasure(measure, model);
     }
   }
 
@@ -192,9 +182,6 @@ public final class MeasurePersister {
       for (MeasureModelAndDetails value : values) {
         try {
           mapper.insert(value.getMeasureModel());
-          if (value.getMeasureModel().getMeasureData() != null) {
-            mapper.insertData(value.getMeasureModel().getMeasureData());
-          }
         } catch (Exception e) {
           // SONAR-4066
           throw new SonarException(String.format("Unable to save measure for metric [%s] on component [%s]", value.getMetricKey(), value.getResourceKey()), e);
@@ -216,9 +203,6 @@ public final class MeasurePersister {
       MeasureMapper mapper = session.getMapper(MeasureMapper.class);
 
       mapper.insert(value);
-      if (value.getMeasureData() != null) {
-        mapper.insertData(value.getMeasureData());
-      }
 
       session.commit();
     } finally {
@@ -238,10 +222,6 @@ public final class MeasurePersister {
       MeasureMapper mapper = session.getMapper(MeasureMapper.class);
 
       mapper.update(value);
-      mapper.deleteData(value);
-      if (value.getMeasureData() != null) {
-        mapper.insertData(value.getMeasureData());
-      }
 
       session.commit();
     } finally {

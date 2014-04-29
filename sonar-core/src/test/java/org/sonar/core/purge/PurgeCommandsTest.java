@@ -53,7 +53,7 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
       MyBatis.closeQuietly(session);
     }
     checkTables("shouldDeleteSnapshot",
-        "snapshots", "project_measures", "measure_data", "snapshot_sources", "duplications_index", "events", "dependencies", "snapshot_data");
+      "snapshots", "project_measures", "snapshot_sources", "duplications_index", "events", "dependencies", "snapshot_data");
   }
 
   /**
@@ -84,7 +84,7 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
       MyBatis.closeQuietly(session);
     }
     checkTables("shouldPurgeSnapshot",
-        "snapshots", "project_measures", "measure_data", "snapshot_sources", "duplications_index", "events", "dependencies", "snapshot_data");
+      "snapshots", "project_measures", "snapshot_sources", "duplications_index", "events", "dependencies", "snapshot_data");
   }
 
   @Test
@@ -140,9 +140,9 @@ public class PurgeCommandsTest extends AbstractDaoTestCase {
     // The goal of this test is only to check that the query do no fail, not to check result
   }
 
-  private List<Long> getHugeNumberOfIds(){
+  private List<Long> getHugeNumberOfIds() {
     List<Long> hugeNbOfSnapshotIds = newArrayList();
-    for (long i=0; i<4500; i++) {
+    for (long i = 0; i < 4500; i++) {
       hugeNbOfSnapshotIds.add(i);
     }
     return hugeNbOfSnapshotIds;

@@ -28,8 +28,6 @@ public class MeasureDataDto {
 
   private Integer id;
 
-  private Long measureId;
-
   private Integer snapshotId;
 
   private byte[] data;
@@ -40,15 +38,6 @@ public class MeasureDataDto {
 
   public MeasureDataDto setId(Integer id) {
     this.id = id;
-    return this;
-  }
-
-  public Long getMeasureId() {
-    return measureId;
-  }
-
-  public MeasureDataDto setMeasureId(Long measureId) {
-    this.measureId = measureId;
     return this;
   }
 

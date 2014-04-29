@@ -4,7 +4,6 @@
   <projects id="1" kee="org.sonar.core.measure.db.MeasureData" enabled="[true]"/>
   <snapshots id="5" project_id="1" islast="[true]" />
 
-  <project_measures id="20" snapshot_id="5" metric_id="10"/>
-  <measure_data id="30" measure_id="20" snapshot_id="5" data="[null]"/>
+  <project_measures id="20" snapshot_id="5" metric_id="10" measure_data="[null]"/>
 
 </dataset>

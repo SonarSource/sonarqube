@@ -30,7 +30,6 @@ class ProjectMeasure < ActiveRecord::Base
   belongs_to :project
   belongs_to :characteristic
   belongs_to :person, :class_name => 'Project', :foreign_key => 'person_id'
-  has_one :measure_data, :class_name => 'MeasureData', :foreign_key => 'measure_id'
 
   def metric
     @metric ||=
@@ -50,7 +49,7 @@ class ProjectMeasure < ActiveRecord::Base
 
   def data
     if metric.data?
-      text_value || (measure_data && measure_data.data)
+      text_value || measure_data
     else
       text_value
     end

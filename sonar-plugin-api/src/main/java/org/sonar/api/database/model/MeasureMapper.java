@@ -22,9 +22,5 @@ package org.sonar.api.database.model;
 public interface MeasureMapper {
   void insert(MeasureModel measure);
 
-  void insertData(MeasureData data);
-
-  void deleteData(MeasureModel data);
-
   void update(MeasureModel measure);
 }

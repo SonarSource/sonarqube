@@ -19,21 +19,21 @@
  */
 package org.sonar.api.database.model;
 
-import java.io.UnsupportedEncodingException;
-
-import com.google.common.base.Charsets;
 import org.junit.Test;
+import org.sonar.api.measures.CoreMetrics;
+
+import java.io.UnsupportedEncodingException;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class MeasureDataTest {
+public class MeasureModelTest {
   @Test
   public void text_is_utf8() throws UnsupportedEncodingException {
     String s = "accents éà and special characters ç€";
 
-    MeasureData data = new MeasureData();
-    data.setData(s.getBytes(Charsets.UTF_8.name()));
+    MeasureModel measure = new MeasureModel();
+    measure.setData(s);
 
-    assertThat(data.getText()).isEqualTo(s);
+    assertThat(measure.getData(CoreMetrics.DUPLICATIONS_DATA)).isEqualTo(s);
   }
 }

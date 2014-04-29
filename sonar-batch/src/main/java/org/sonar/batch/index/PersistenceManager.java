@@ -46,8 +46,6 @@ public interface PersistenceManager {
 
   void saveMeasure(Resource resource, Measure measure);
 
-  Measure reloadMeasure(Measure measure);
-
   void saveDependency(Project project, Dependency dependency, Dependency parentDependency);
 
   void saveLink(Project project, ProjectLink link);

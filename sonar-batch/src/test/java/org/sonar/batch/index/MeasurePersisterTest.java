@@ -23,8 +23,6 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.ArgumentCaptor;
-import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
@@ -41,10 +39,7 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class MeasurePersisterTest extends AbstractDaoTestCase {
@@ -64,7 +59,6 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
   MeasurePersister measurePersister;
   RuleFinder ruleFinder = mock(RuleFinder.class);
   ResourcePersister resourcePersister = mock(ResourcePersister.class);
-  MemoryOptimizer memoryOptimizer = mock(MemoryOptimizer.class);
   Project project = new Project("foo");
   Directory aDirectory = new Directory("org/foo");
   File aFile = new File("org/foo/Bar.java");
@@ -78,7 +72,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     when(resourcePersister.getSnapshot(project)).thenReturn(projectSnapshot);
     when(resourcePersister.getSnapshot(aDirectory)).thenReturn(packageSnapshot);
 
-    measurePersister = new MeasurePersister(getMyBatis(), resourcePersister, ruleFinder, memoryOptimizer);
+    measurePersister = new MeasurePersister(getMyBatis(), resourcePersister, ruleFinder);
   }
 
   @Test
@@ -89,7 +83,6 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     measurePersister.saveMeasure(project, measure);
 
     checkTables("shouldInsertMeasure", "project_measures");
-    verify(memoryOptimizer).evictDataMeasure(eq(measure), any(MeasureModel.class));
     assertThat(measure.getId()).isNotNull();
   }
 
@@ -103,15 +96,6 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     thrown.expectMessage("Unable to save measure for metric [ncloc] on component [foo]");
 
     measurePersister.saveMeasure(project, measure);
-  }
-
-  @Test
-  public void should_reload_measure() {
-    Measure measure = new Measure(ncloc());
-
-    measurePersister.reloadMeasure(measure);
-
-    verify(memoryOptimizer).reloadMeasure(measure);
   }
 
   @Test
@@ -135,11 +119,8 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     Measure withLargeData = new Measure(ncloc()).setData(LONG);
     measurePersister.saveMeasure(project, withLargeData);
 
-    checkTables("shouldInsertMeasureWithLargeData", "project_measures", "measure_data");
+    checkTables("shouldInsertMeasureWithLargeData", "project_measures");
 
-    ArgumentCaptor<MeasureModel> validMeasureModel = ArgumentCaptor.forClass(MeasureModel.class);
-    verify(memoryOptimizer).evictDataMeasure(eq(withLargeData), validMeasureModel.capture());
-    assertThat(validMeasureModel.getValue().getMeasureData().getId()).isNotNull();
     assertThat(withLargeData.getId()).isNotNull();
   }
 
@@ -149,7 +130,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
 
     measurePersister.saveMeasure(aFile, new Measure(coverage()).setValue(100.0));
 
-    assertEmptyTables("project_measures", "measure_data");
+    assertEmptyTables("project_measures");
   }
 
   @Test
@@ -158,7 +139,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
 
     measurePersister.saveMeasure(aFile, new Measure("ncloc").setPersistenceMode(PersistenceMode.MEMORY));
 
-    assertEmptyTables("project_measures", "measure_data");
+    assertEmptyTables("project_measures");
   }
 
   @Test
@@ -179,7 +160,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     measurePersister.saveMeasure(project, new Measure(coverage()).setData(SHORT).setId(2L));
     measurePersister.saveMeasure(aDirectory, new Measure(coverage()).setData(LONG).setId(3L));
 
-    checkTables("shouldUpdateMeasure", "project_measures", "measure_data");
+    checkTables("shouldUpdateMeasure", "project_measures");
   }
 
   @Test
@@ -207,7 +188,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     assertEmptyTables("project_measures");
 
     measurePersister.dump();
-    checkTables("shouldDelaySaving", "project_measures", "measure_data");
+    checkTables("shouldDelaySaving", "project_measures");
   }
 
   @Test
@@ -242,11 +223,11 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     measurePersister.setDelayedMode(true);
     measurePersister.saveMeasure(aFile, new Measure(coverage()).setValue(100.0));
 
-    assertEmptyTables("project_measures", "measure_data");
+    assertEmptyTables("project_measures");
 
     measurePersister.dump();
 
-    assertEmptyTables("project_measures", "measure_data");
+    assertEmptyTables("project_measures");
   }
 
   @Test

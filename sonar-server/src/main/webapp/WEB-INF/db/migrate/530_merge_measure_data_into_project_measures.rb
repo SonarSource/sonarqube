@@ -17,8 +17,33 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-class MeasureData < ActiveRecord::Base
-  set_table_name :measure_data
-  belongs_to :measure, :class_name => 'ProjectMeasure', :foreign_key => 'measure_id'
 
+#
+# SonarQube 4.4
+# SONAR-5249
+#
+class MergeMeasureDataIntoProjectMeasure < ActiveRecord::Migration
+
+  class ProjectMeasure < ActiveRecord::Base
+  end
+
+  def self.up
+    unless ProjectMeasure.column_names.include?('data')
+      add_column :project_measures, 'measure_data', :binary, :null => true
+    end
+    ProjectMeasure.reset_column_information
+    execute_ddl('move measure data', 'UPDATE project_measures m SET m.measure_data = (SELECT md.data FROM measure_data md WHERE md.measure_id = m.id)')
+    drop_table(:measure_data)
+  end
+  
+  def self.execute_ddl(message, ddl)
+    begin
+      say_with_time(message) do
+        ProjectMeasure.connection.execute(ddl)
+      end
+    rescue
+      # already executed
+    end
+  end
+  
 end

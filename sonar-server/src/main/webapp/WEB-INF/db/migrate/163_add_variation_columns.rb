@@ -204,7 +204,7 @@ class AddVariationColumns < ActiveRecord::Migration
   end
 
   def self.add_measures_column(colname)
-    unless ProjectMeasure.column_names.include?(name)
+    unless ProjectMeasure.column_names.include?(colname)
       add_column(:project_measures, colname, :decimal, :null => true, :precision => 30, :scale => 20)
     end
   end

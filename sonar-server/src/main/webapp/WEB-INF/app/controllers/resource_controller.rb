@@ -224,8 +224,8 @@ class ResourceController < ApplicationController
 
     # create duplication groups
     @duplication_groups = []
-    if duplications_data && duplications_data.measure_data && duplications_data.measure_data.data
-      dups = Document.new duplications_data.measure_data.data.to_s
+    if duplications_data && duplications_data.data
+      dups = Document.new duplications_data.data.to_s
       if XPath.match(dups, "//g").size > 0
         parse_duplications(dups, @duplication_groups)
       else

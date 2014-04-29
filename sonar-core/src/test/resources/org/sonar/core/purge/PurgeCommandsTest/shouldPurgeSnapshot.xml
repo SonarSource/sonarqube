@@ -16,9 +16,7 @@
                     url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]" variation_value_4="[null]"
                     variation_value_5="[null]" rule_priority="[null]" alert_text="[null]" VALUE="10.0" METRIC_ID="1" rules_category_id="[null]"
                     person_id="[null]"
-                    text_value="[null]" tendency="[null]" measure_date="[null]" alert_status="[null]" description="[null]"/>
-
-  <measure_data id="1" measure_id="1" snapshot_id="1" data="[null]"/>
+                    text_value="[null]" tendency="[null]" measure_date="[null]" alert_status="[null]" description="[null]" measure_data="[null]"/>
 
   <dependencies id="1" from_resource_id="1" from_snapshot_id="1" to_resource_id="2" to_snapshot_id="2"
                 parent_dependency_id="[null]" project_snapshot_id="[null]"
@@ -54,9 +52,7 @@
                       url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]" variation_value_4="[null]"
                       variation_value_5="[null]" rule_priority="[null]" alert_text="[null]" VALUE="10.0" METRIC_ID="1" rules_category_id="[null]"
                       person_id="[null]"
-                      text_value="[null]" tendency="[null]" measure_date="[null]" alert_status="[null]" description="[null]"/>
-
-    <measure_data id="2" measure_id="2" snapshot_id="2" data="[null]"/>
+                      text_value="[null]" tendency="[null]" measure_date="[null]" alert_status="[null]" description="[null]" measure_data="[null]"/>
 
     <dependencies id="3" from_resource_id="33" from_snapshot_id="33" to_resource_id="44" to_snapshot_id="44"
                   parent_dependency_id="[null]" project_snapshot_id="[null]"
