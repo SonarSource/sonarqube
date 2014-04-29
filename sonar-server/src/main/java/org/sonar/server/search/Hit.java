@@ -19,45 +19,22 @@
  */
 package org.sonar.server.search;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Hit implements Comparable<Hit> {
 
-  private Map<String, Collection<Serializable>> fields;
+  private Map<String, Object> fields;
 
   private Integer rank;
 
   public Hit(Integer rank){
-    this.fields = new HashMap<String, Collection<Serializable>>();
+    this.fields = new HashMap<String, Object>();
     this.rank = rank;
   }
 
-  public Collection<Serializable> getFieldValues(String field){
-    return this.fields.get(field);
-  }
-
-  public Serializable getFieldValue(String field){
-    if(this.hasField(field)){
-      return fields.get(field).iterator().next();
-    } else {
-      return null;
-    }
-  }
-
-  public Hit addFieldValue(String field, Serializable value){
-    if(!this.hasField(field)){
-      this.fields.put(field, new ArrayList<Serializable>());
-    }
-    return this;
-  }
-
-  public boolean hasField(String field){
-    return this.fields.containsKey(field) &&
-      !this.fields.get(field).isEmpty();
+  public Map<String, Object> getFields(){
+    return this.fields;
   }
 
   public Integer getRank(){
@@ -67,5 +44,11 @@ public class Hit implements Comparable<Hit> {
   @Override
   public int compareTo(Hit hit) {
     return this.getRank().compareTo(hit.getRank());
+  }
+
+  public static Hit fromMap(Integer rank, Map<String, Object> fieldMap) {
+    Hit hit = new Hit(0);
+    hit.fields = fieldMap;
+    return hit;
   }
 }

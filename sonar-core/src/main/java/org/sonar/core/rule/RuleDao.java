@@ -32,6 +32,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
+
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;

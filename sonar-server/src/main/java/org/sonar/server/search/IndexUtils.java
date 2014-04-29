@@ -20,7 +20,9 @@
 package org.sonar.server.search;
 
 import com.google.common.collect.ImmutableList;
+
 import org.sonar.server.rule2.RuleIndex;
+import org.sonar.server.cluster.LocalQueueWorker;
 
 import java.util.List;
 
@@ -32,7 +34,8 @@ public final class IndexUtils {
   @SuppressWarnings("unchecked")
   public static List<Class> getIndexClasses() {
     return ImmutableList.<Class>of(
-      RuleIndex.class
+      RuleIndex.class,
+      LocalQueueWorker.class
     );
   }
 }

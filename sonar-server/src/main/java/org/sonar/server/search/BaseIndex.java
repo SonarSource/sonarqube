@@ -19,35 +19,33 @@
  */
 package org.sonar.server.search;
 
-import org.sonar.server.es.ESNode;
-
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsNodes;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
-import org.elasticsearch.action.deletebyquery.DeleteByQueryResponse;
+import org.elasticsearch.action.delete.DeleteResponse;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.cluster.IndexAction;
 import org.sonar.core.cluster.IndexAction.Method;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.db.Dao;
+import org.sonar.core.db.Dto;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.Profiling.Level;
 import org.sonar.core.profiling.StopWatch;
+import org.sonar.server.es.ESNode;
 
+import java.io.IOException;
 import java.io.Serializable;
 
-public abstract class BaseIndex<K extends Serializable> implements Index<K> {
+public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implements Index<K> {
 
   private static final String PROFILE_DOMAIN = "es";
+
   private static final Logger LOG = LoggerFactory.getLogger(BaseIndex.class);
 
   public static final String ES_CLUSTER_NAME = "sonarqube";
@@ -60,9 +58,9 @@ public abstract class BaseIndex<K extends Serializable> implements Index<K> {
   private final ESNode node;
   private WorkQueue workQueue;
   private IndexSynchronizer<K> synchronizer;
-  protected Dao<?, K> dao;
+  protected Dao<E, K> dao;
 
-  public BaseIndex(WorkQueue workQueue, Dao<?, K> dao, Profiling profiling, ESNode node) {
+  public BaseIndex(WorkQueue workQueue, Dao<E, K> dao, Profiling profiling, ESNode node) {
     this.profiling = profiling;
     this.workQueue = workQueue;
     this.synchronizer = new IndexSynchronizer<K>(this, dao, this.workQueue);
@@ -138,6 +136,16 @@ public abstract class BaseIndex<K extends Serializable> implements Index<K> {
 
     if (!indexExistsResponse.isExists()) {
 
+      LOG.info("Setup of index {}",this.getIndexName());
+
+      try {
+        LOG.info("Settings: {}",getIndexSettings().string());
+        LOG.info("Mapping: {}", getMapping().string());
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+
       client.admin().indices().prepareCreate(index)
         .setSettings(getIndexSettings())
         .addMapping(getType(), getMapping())
@@ -169,7 +177,7 @@ public abstract class BaseIndex<K extends Serializable> implements Index<K> {
 
   /* Index management methods */
 
-  protected abstract Settings getIndexSettings();
+  protected abstract XContentBuilder getIndexSettings();
 
   protected abstract String getType();
 
@@ -177,14 +185,13 @@ public abstract class BaseIndex<K extends Serializable> implements Index<K> {
 
   /* Base CRUD methods */
 
-  protected abstract QueryBuilder getKeyQuery(K key);
+  protected abstract String getKeyValue(K key);
 
   @Override
   public Hit getByKey(K key) {
-    getClient().prepareSearch(this.getIndexName())
-      .setQuery(getKeyQuery(key))
+    GetResponse result = getClient().prepareGet(this.getIndexName(), this.getType(), this.getKeyValue(key))
       .get();
-    return null;
+    return Hit.fromMap(0, result.getSourceAsMap());
   }
 
   @Override
@@ -194,17 +201,21 @@ public abstract class BaseIndex<K extends Serializable> implements Index<K> {
 
   @Override
   public void update(K key) {
+    LOG.info("Update document with key {}", key);
     IndexResponse result = getClient().index(new IndexRequest()
       .type(this.getType())
       .index(this.getIndexName())
+      .id(this.getKeyValue(key))
       .source(this.normalize(key))).actionGet();
 
   }
 
   @Override
   public void delete(K key) {
-    DeleteByQueryResponse result = getClient().prepareDeleteByQuery(this.getIndexName())
-      .setQuery(getKeyQuery(key)).get();
+    LOG.info("Deleting document with key {}", key);
+    DeleteResponse result = getClient()
+      .prepareDelete(this.getIndexName(), this.getType(), this.getKeyValue(key))
+      .get();
   }
 
   /* Synchronization methods */

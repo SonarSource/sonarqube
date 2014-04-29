@@ -19,18 +19,17 @@
  */
 package org.sonar.server.cluster;
 
+import org.jfree.util.Log;
+import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.jfree.util.Log;
+import org.sonar.api.ServerComponent;
 import org.sonar.core.cluster.IndexAction;
+import org.sonar.core.cluster.WorkQueue;
 import org.sonar.server.search.Index;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import org.picocontainer.Startable;
-import org.sonar.api.ServerComponent;
-import org.sonar.core.cluster.WorkQueue;
 
 public class LocalQueueWorker implements ServerComponent, Startable {
 
@@ -50,7 +49,7 @@ public class LocalQueueWorker implements ServerComponent, Startable {
       Thread thisThread = Thread.currentThread();
       while (worker == thisThread) {
         try {
-          Thread.sleep(200);
+          Thread.sleep(20);
         } catch (InterruptedException e) {
           Log.error("Oops");
         }
@@ -59,6 +58,7 @@ public class LocalQueueWorker implements ServerComponent, Startable {
         IndexAction action = queue.dequeue();
 
         if (action != null && indexes.containsKey(action.getIndexName())) {
+          LOG.info("Dequeued action {}",action);
           indexes.get(action.getIndexName()).executeAction(action);
         }
       }

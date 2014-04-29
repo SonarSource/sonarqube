@@ -120,7 +120,7 @@ public class ESNode implements Startable {
   }
 
   private void initRestConsole(ImmutableSettings.Builder esSettings) {
-    int httpPort = settings.getInt("sonar.es.http.port");
+    int httpPort = 8888;//settings.getInt("sonar.es.http.port");
     if (httpPort > 0) {
       LOG.warn("Elasticsearch HTTP console enabled on port {}. Only for debugging purpose.", httpPort);
       esSettings.put(HTTP_ENABLED, true);
