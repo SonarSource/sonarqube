@@ -106,7 +106,7 @@ public class RuleRegistry {
    * Reindex all enabled and non manual rules
    */
   public String[] reindex() {
-    SqlSession sqlSession = myBatis.openSession();
+    SqlSession sqlSession = myBatis.openSession(false);
     try {
       return reindex(sqlSession);
     } finally {
@@ -161,7 +161,7 @@ public class RuleRegistry {
    * Reindex one rule
    */
   public void reindex(RuleDto rule) {
-    SqlSession sqlSession = myBatis.openSession();
+    SqlSession sqlSession = myBatis.openSession(false);
     try {
       reindex(rule, sqlSession);
     } finally {

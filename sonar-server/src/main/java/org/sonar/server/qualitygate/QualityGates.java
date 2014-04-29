@@ -115,7 +115,7 @@ public class QualityGates {
     getNonNullQgate(sourceId);
     validateQualityGate(null, destinationName);
     QualityGateDto destinationGate = new QualityGateDto().setName(destinationName);
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       dao.insert(destinationGate, session);
       for (QualityGateConditionDto sourceCondition : conditionDao.selectForQualityGate(sourceId, session)) {
@@ -140,7 +140,7 @@ public class QualityGates {
   public void delete(long idToDelete) {
     checkPermission(UserSession.get());
     QualityGateDto qGate = getNonNullQgate(idToDelete);
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       if (isDefault(qGate)) {
         propertiesDao.deleteGlobalProperty(SONAR_QUALITYGATE_PROPERTY, session);

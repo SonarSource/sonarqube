@@ -68,7 +68,7 @@ public class ESActiveRule {
   }
 
   public void bulkRegisterActiveRules() {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
 
       StopWatch bulkWatch = startWatch();
@@ -89,7 +89,7 @@ public class ESActiveRule {
   }
 
   public void bulkIndexProfile(int profileId) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       bulkIndexProfile(profileId, session);
     } finally {
@@ -106,7 +106,7 @@ public class ESActiveRule {
   }
 
   public void bulkIndexActiveRules(List<Integer> ids) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       bulkIndexActiveRuleIds(ids, session);
     } finally {

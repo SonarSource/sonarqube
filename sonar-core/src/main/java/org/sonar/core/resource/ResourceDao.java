@@ -45,7 +45,7 @@ public class ResourceDao {
   }
 
   public List<ResourceDto> getResources(ResourceQuery query) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(ResourceMapper.class).selectResources(query);
     } finally {
@@ -63,7 +63,7 @@ public class ResourceDao {
    */
   @CheckForNull
   public ResourceDto getResource(ResourceQuery query) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return getResource(query, session);
     } finally {
@@ -81,7 +81,7 @@ public class ResourceDao {
   }
 
   public List<Long> getResourceIds(ResourceQuery query) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(ResourceMapper.class).selectResourceIds(query);
     } finally {
@@ -90,7 +90,7 @@ public class ResourceDao {
   }
 
   public ResourceDto getResource(long projectId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return getResource(projectId, session);
     } finally {
@@ -111,7 +111,7 @@ public class ResourceDao {
   }
 
   public List<ResourceDto> getDescendantProjects(long projectId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return getDescendantProjects(projectId, session);
     } finally {
@@ -135,7 +135,7 @@ public class ResourceDao {
   }
 
   public ResourceDao insertOrUpdate(ResourceDto... resources) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     ResourceMapper mapper = session.getMapper(ResourceMapper.class);
     try {
       for (ResourceDto resource : resources) {
@@ -157,7 +157,7 @@ public class ResourceDao {
     if (ids.isEmpty()) {
       return Collections.emptyList();
     }
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       List<ComponentDto> components = newArrayList();
       List<List<Long>> partitionList = Lists.partition(newArrayList(ids), 1000);
@@ -179,7 +179,7 @@ public class ResourceDao {
 
   @CheckForNull
   public Component findById(Long id) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return findById(id, session);
     } finally {
@@ -197,7 +197,7 @@ public class ResourceDao {
     if (componentRootKeys.isEmpty()) {
       return Collections.emptyList();
     }
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(ResourceMapper.class).selectAuthorizedChildrenComponentIds(componentRootKeys, userId, role);
     } finally {
@@ -207,7 +207,7 @@ public class ResourceDao {
 
   @CheckForNull
   public ResourceDto getRootProjectByComponentKey(String componentKey) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(ResourceMapper.class).selectRootProjectByComponentKey(componentKey);
     } finally {
@@ -217,7 +217,7 @@ public class ResourceDao {
 
   @CheckForNull
   public ResourceDto getRootProjectByComponentId(Long componentId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(ResourceMapper.class).selectRootProjectByComponentId(componentId);
     } finally {
@@ -229,7 +229,7 @@ public class ResourceDao {
     if (qualifiers.isEmpty()) {
       return Collections.emptyList();
     }
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return toComponents(session.getMapper(ResourceMapper.class).selectProjectsByQualifiers(qualifiers));
     } finally {
@@ -244,7 +244,7 @@ public class ResourceDao {
     if (qualifiers.isEmpty()) {
       return Collections.emptyList();
     }
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return toComponents(session.getMapper(ResourceMapper.class).selectProjectsIncludingNotCompletedOnesByQualifiers(qualifiers));
     } finally {
@@ -262,7 +262,7 @@ public class ResourceDao {
     if (qualifiers.isEmpty()) {
       return Collections.emptyList();
     }
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return toComponents(session.getMapper(ResourceMapper.class).selectGhostsProjects(qualifiers));
     } finally {
@@ -277,7 +277,7 @@ public class ResourceDao {
     if (qualifiers.isEmpty()) {
       return Collections.emptyList();
     }
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(ResourceMapper.class).selectProvisionedProjects(qualifiers);
     } finally {
@@ -289,7 +289,7 @@ public class ResourceDao {
    * Return provisioned project with given key
    */
   public ResourceDto selectProvisionedProject(String key) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(ResourceMapper.class).selectProvisionedProject(key);
     } finally {

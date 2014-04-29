@@ -77,7 +77,7 @@ public class DatabaseMigrator implements ServerComponent, Startable {
       SqlSession session = null;
       Connection connection = null;
       try {
-        session = myBatis.openSession();
+        session = myBatis.openSession(false);
         connection = session.getConnection();
         createSchema(connection, database.getDialect().getId());
         return true;

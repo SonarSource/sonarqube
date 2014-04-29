@@ -175,7 +175,7 @@ public final class MeasurePersister {
   }
 
   private void insert(Iterable<MeasureModelAndDetails> values) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       MeasureMapper mapper = session.getMapper(MeasureMapper.class);
 
@@ -198,7 +198,7 @@ public final class MeasurePersister {
     MeasureModel value = model(measure);
     value.setSnapshotId(snapshot.getId());
 
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       MeasureMapper mapper = session.getMapper(MeasureMapper.class);
 
@@ -217,7 +217,7 @@ public final class MeasurePersister {
     value.setId(measure.getId());
     value.setSnapshotId(snapshot.getId());
 
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       MeasureMapper mapper = session.getMapper(MeasureMapper.class);
 

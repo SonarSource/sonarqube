@@ -39,7 +39,7 @@ public class IssueFilterFavouriteDao implements BatchComponent, ServerComponent 
   }
 
   public IssueFilterFavouriteDto selectById(Long id) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return getMapper(session).selectById(id);
     } finally {
@@ -48,7 +48,7 @@ public class IssueFilterFavouriteDao implements BatchComponent, ServerComponent 
   }
 
   public List<IssueFilterFavouriteDto> selectByFilterId(Long filterId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return getMapper(session).selectByFilterId(filterId);
     } finally {
@@ -57,7 +57,7 @@ public class IssueFilterFavouriteDao implements BatchComponent, ServerComponent 
   }
 
   public void insert(IssueFilterFavouriteDto filter) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       getMapper(session).insert(filter);
       session.commit();
@@ -67,7 +67,7 @@ public class IssueFilterFavouriteDao implements BatchComponent, ServerComponent 
   }
 
   public void delete(Long id) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       getMapper(session).delete(id);
       session.commit();
@@ -77,7 +77,7 @@ public class IssueFilterFavouriteDao implements BatchComponent, ServerComponent 
   }
 
   public void deleteByFilterId(Long filterId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       getMapper(session).deleteByFilterId(filterId);
       session.commit();

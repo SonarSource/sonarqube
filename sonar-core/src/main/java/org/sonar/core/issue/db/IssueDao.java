@@ -51,7 +51,7 @@ public class IssueDao implements BatchComponent, ServerComponent {
 
   @CheckForNull
   public IssueDto selectByKey(String key) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       IssueMapper mapper = session.getMapper(IssueMapper.class);
       return mapper.selectByKey(key);
@@ -61,7 +61,7 @@ public class IssueDao implements BatchComponent, ServerComponent {
   }
 
   public void selectNonClosedIssuesByModule(int componentId, ResultHandler handler) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       session.select("org.sonar.core.issue.db.IssueMapper.selectNonClosedIssuesByModule", componentId, handler);
 
@@ -72,7 +72,7 @@ public class IssueDao implements BatchComponent, ServerComponent {
 
   @VisibleForTesting
   List<IssueDto> selectIssueIds(IssueQuery query, @Nullable Integer userId, Integer maxResult) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectIssueIds(query, userId, maxResult, session);
     } finally {
@@ -82,7 +82,7 @@ public class IssueDao implements BatchComponent, ServerComponent {
 
   @VisibleForTesting
   List<IssueDto> selectIssueIds(IssueQuery query) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectIssueIds(query, null, Integer.MAX_VALUE, session);
     } finally {
@@ -103,7 +103,7 @@ public class IssueDao implements BatchComponent, ServerComponent {
   }
 
   public List<IssueDto> selectIssues(IssueQuery query) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectIssues(query, null, session);
     } finally {
@@ -118,7 +118,7 @@ public class IssueDao implements BatchComponent, ServerComponent {
 
   @VisibleForTesting
   List<IssueDto> selectByIds(Collection<Long> ids) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectByIds(ids, session);
     } finally {

@@ -26,6 +26,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
@@ -51,7 +52,7 @@ public class PurgeDao {
   }
 
   public PurgeDao purge(PurgeConfiguration conf) {
-    SqlSession session = mybatis.openBatchSession();
+    DbSession session = mybatis.openSession(true);
     PurgeMapper mapper = session.getMapper(PurgeMapper.class);
     PurgeCommands commands = new PurgeCommands(session, mapper, profiler);
     try {
@@ -135,7 +136,7 @@ public class PurgeDao {
   }
 
   public List<PurgeableSnapshotDto> selectPurgeableSnapshots(long resourceId) {
-    SqlSession session = mybatis.openBatchSession();
+    DbSession session = mybatis.openSession(true);
     try {
       PurgeMapper mapper = session.getMapper(PurgeMapper.class);
       List<PurgeableSnapshotDto> result = Lists.newArrayList();
@@ -150,7 +151,7 @@ public class PurgeDao {
   }
 
   public PurgeDao deleteResourceTree(long rootProjectId) {
-    final SqlSession session = mybatis.openBatchSession();
+    final DbSession session = mybatis.openSession(true);
     final PurgeMapper mapper = session.getMapper(PurgeMapper.class);
     try {
       deleteProject(rootProjectId, mapper, new PurgeCommands(session, profiler));
@@ -178,7 +179,7 @@ public class PurgeDao {
   }
 
   public PurgeDao deleteSnapshots(PurgeSnapshotQuery query) {
-    final SqlSession session = mybatis.openBatchSession();
+    final DbSession session = mybatis.openSession(true);
     try {
       new PurgeCommands(session, profiler).deleteSnapshots(query);
       return this;

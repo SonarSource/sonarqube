@@ -37,8 +37,8 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.persistence.SonarSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
@@ -81,7 +81,7 @@ public class QProfileActiveRuleOperationsTest {
   MyBatis myBatis;
 
   @Mock
-  SonarSession session;
+  DbSession session;
 
   @Mock
   ActiveRuleDao activeRuleDao;
@@ -116,7 +116,7 @@ public class QProfileActiveRuleOperationsTest {
 
   @Before
   public void setUp() throws Exception {
-    when(myBatis.openSession()).thenReturn(session);
+    when(myBatis.openSession(false)).thenReturn(session);
 
     // Associate an id when inserting an object to simulate the db id generator
     doAnswer(new Answer() {

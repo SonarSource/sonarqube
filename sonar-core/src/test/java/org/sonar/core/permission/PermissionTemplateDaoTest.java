@@ -20,13 +20,12 @@
 
 package org.sonar.core.permission;
 
-import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.persistence.SonarSession;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -74,11 +73,11 @@ public class PermissionTemplateDaoTest extends AbstractDaoTestCase {
 
     PermissionTemplateMapper mapper = mock(PermissionTemplateMapper.class);
 
-    SonarSession session = mock(SonarSession.class);
+    DbSession session = mock(DbSession.class);
     when(session.getMapper(PermissionTemplateMapper.class)).thenReturn(mapper);
 
     MyBatis myBatis = mock(MyBatis.class);
-    when(myBatis.openSession()).thenReturn(session);
+    when(myBatis.openSession(false)).thenReturn(session);
 
     permissionTemplateDao = new PermissionTemplateDao(myBatis, system);
     PermissionTemplateDto permissionTemplate = permissionTemplateDao.createPermissionTemplate(PermissionTemplateDto.DEFAULT.getName(), null, null);

@@ -42,7 +42,7 @@ public class QualityProfileDao implements ServerComponent {
   }
 
   public void insert(QualityProfileDto dto) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       insert(dto, session);
       session.commit();
@@ -56,7 +56,7 @@ public class QualityProfileDao implements ServerComponent {
   }
 
   public void update(QualityProfileDto dto) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       update(dto, session);
       session.commit();
@@ -70,7 +70,7 @@ public class QualityProfileDao implements ServerComponent {
   }
 
   public void delete(int id) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       delete(id, session);
       session.commit();
@@ -80,7 +80,7 @@ public class QualityProfileDao implements ServerComponent {
   }
 
   public List<QualityProfileDto> selectAll() {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(QualityProfileMapper.class).selectAll();
     } finally {
@@ -93,7 +93,7 @@ public class QualityProfileDao implements ServerComponent {
   }
 
   public QualityProfileDto selectDefaultProfile(String language, String key) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectDefaultProfile(language, key, session);
     } finally {
@@ -102,7 +102,7 @@ public class QualityProfileDao implements ServerComponent {
   }
 
   public QualityProfileDto selectByProjectAndLanguage(long projectId, String language, String key) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(QualityProfileMapper.class).selectByProjectAndLanguage(projectId, language, key);
     } finally {
@@ -111,7 +111,7 @@ public class QualityProfileDao implements ServerComponent {
   }
 
   public List<QualityProfileDto> selectByLanguage(String language) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(QualityProfileMapper.class).selectByLanguage(language);
     } finally {
@@ -126,7 +126,7 @@ public class QualityProfileDao implements ServerComponent {
 
   @CheckForNull
   public QualityProfileDto selectById(int id) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectById(id, session);
     } finally {
@@ -141,7 +141,7 @@ public class QualityProfileDao implements ServerComponent {
 
   @CheckForNull
   public QualityProfileDto selectParent(int childId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectParent(childId, session);
     } finally {
@@ -154,7 +154,7 @@ public class QualityProfileDao implements ServerComponent {
   }
 
   public List<QualityProfileDto> selectChildren(String name, String language) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectChildren(name, language, session);
     } finally {
@@ -167,7 +167,7 @@ public class QualityProfileDao implements ServerComponent {
   }
 
   public int countChildren(String name, String language) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return countChildren(name, language, session);
     } finally {
@@ -180,7 +180,7 @@ public class QualityProfileDao implements ServerComponent {
   }
 
   public QualityProfileDto selectByNameAndLanguage(String name, String language) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectByNameAndLanguage(name, language, session);
     } finally {
@@ -189,7 +189,7 @@ public class QualityProfileDao implements ServerComponent {
   }
 
   public List<ComponentDto> selectProjects(String propertyKey, String propertyValue) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectProjects(propertyKey, propertyValue, session);
     } finally {
@@ -202,7 +202,7 @@ public class QualityProfileDao implements ServerComponent {
   }
 
   public int countProjects(String propertyKey, String propertyValue) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(QualityProfileMapper.class).countProjects(propertyKey, propertyValue);
     } finally {
@@ -211,7 +211,7 @@ public class QualityProfileDao implements ServerComponent {
   }
 
   public void updateUsedColumn(int profileId, boolean used) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       session.getMapper(QualityProfileMapper.class).updatedUsedColumn(profileId, used);
       session.commit();

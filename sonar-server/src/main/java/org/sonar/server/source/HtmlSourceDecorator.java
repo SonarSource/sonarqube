@@ -50,7 +50,7 @@ public class HtmlSourceDecorator implements ServerComponent {
   }
 
   public List<String> getDecoratedSourceAsHtml(String componentKey, @Nullable Integer from, @Nullable Integer to) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       Collection<SnapshotDataDto> snapshotDataEntries = snapshotDataDao.selectSnapshotDataByComponentKey(componentKey, highlightingDataTypes(), session);
       if (!snapshotDataEntries.isEmpty()) {

@@ -31,8 +31,8 @@ import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.persistence.SonarSession;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
@@ -85,7 +85,7 @@ public class RegisterQualityProfilesTest {
   MyBatis myBatis;
 
   @Mock
-  SonarSession session;
+  DbSession session;
 
   @Mock
   DatabaseSessionFactory sessionFactory;
@@ -99,7 +99,7 @@ public class RegisterQualityProfilesTest {
 
   @Before
   public void setUp() throws Exception {
-    when(myBatis.openSession()).thenReturn(session);
+    when(myBatis.openSession(false)).thenReturn(session);
     when(sessionFactory.getSession()).thenReturn(mock(DatabaseSession.class));
 
     definitions = newArrayList();

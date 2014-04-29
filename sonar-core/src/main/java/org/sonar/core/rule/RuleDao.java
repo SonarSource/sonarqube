@@ -28,8 +28,8 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.db.BaseDao;
 import org.sonar.core.db.UnsuportedException;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.persistence.SonarSession;
 
 import javax.annotation.CheckForNull;
 import java.sql.Timestamp;
@@ -80,7 +80,7 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
   }
 
   public List<RuleDto> selectAll() {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectAll(session);
     } finally {
@@ -93,7 +93,7 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
   }
 
   public List<RuleDto> selectEnablesAndNonManual() {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectEnablesAndNonManual(session);
     } finally {
@@ -110,7 +110,7 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
   }
 
   public List<RuleDto> selectBySubCharacteristicId(Integer characteristicOrSubCharacteristicId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectBySubCharacteristicId(characteristicOrSubCharacteristicId, session);
     } finally {
@@ -132,7 +132,7 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
 
   @CheckForNull
   public RuleDto selectById(Integer id) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectById(id, session);
     } finally {
@@ -148,7 +148,7 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
 
   @CheckForNull
   public RuleDto selectByKey(RuleKey ruleKey) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectByKey(ruleKey, session);
     } finally {
@@ -158,7 +158,7 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
 
   @CheckForNull
   public RuleDto selectByName(String name) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return getMapper(session).selectByName(name);
     } finally {
@@ -167,7 +167,7 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
   }
 
   public void insert(Collection<RuleDto> rules) {
-    SqlSession session = mybatis.openBatchSession();
+    DbSession session = mybatis.openSession(true);
     try {
       for (RuleDto rule : rules) {
         getMapper(session).batchInsert(rule);
@@ -183,7 +183,7 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
   // ******************************
 
   public List<RuleParamDto> selectParameters() {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectParameters(session);
     } finally {
@@ -196,7 +196,7 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
   }
 
   public List<RuleParamDto> selectParametersByRuleId(Integer ruleId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectParametersByRuleId(ruleId, session);
     } finally {
@@ -209,7 +209,7 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
   }
 
   public List<RuleParamDto> selectParametersByRuleIds(List<Integer> ruleIds) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectParametersByRuleIds(ruleIds, session);
     } finally {
@@ -231,7 +231,7 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
   }
 
   public void insert(RuleParamDto param) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       insert(param, session);
       session.commit();
@@ -245,7 +245,7 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
   }
 
   public void update(RuleParamDto param) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       update(param, session);
       session.commit();
@@ -288,7 +288,7 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
   }
 
   public List<RuleRuleTagDto> selectTagsByRuleId(Integer ruleId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectTagsByRuleIds(ruleId, session);
     } finally {
@@ -301,7 +301,7 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
   }
 
   public List<RuleRuleTagDto> selectTagsByRuleIds(List<Integer> ruleIds) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectTagsByRuleIds(ruleIds, session);
     } finally {
@@ -320,7 +320,7 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
 
   @Override
   public Collection<RuleKey> keysOfRowsUpdatedAfter(long timestamp) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       final List<RuleKey> keys = Lists.newArrayList();
       session.select("selectKeysOfRulesUpdatedSince", new Timestamp(timestamp), new ResultHandler() {

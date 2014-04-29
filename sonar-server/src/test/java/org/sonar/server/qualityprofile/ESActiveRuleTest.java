@@ -26,7 +26,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.io.Resources;
-import org.apache.ibatis.session.SqlSession;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.search.SearchHit;
@@ -38,8 +37,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.Severity;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.persistence.SonarSession;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
@@ -74,14 +73,14 @@ public class ESActiveRuleTest {
   MyBatis myBatis;
 
   @Mock
-  SonarSession session;
+  DbSession session;
 
   @Mock
   ActiveRuleDao activeRuleDao;
 
   @Before
   public void setUp() throws Exception {
-    when(myBatis.openSession()).thenReturn(session);
+    when(myBatis.openSession(false)).thenReturn(session);
 
     esSetup = new EsSetup(ImmutableSettings.builder().loadFromUrl(ESNode.class.getResource("config/elasticsearch.json")).build());
     esSetup.execute(EsSetup.deleteAll());
@@ -144,7 +143,7 @@ public class ESActiveRuleTest {
 
   @Test
   public void bulk_index_active_rules_from_ids() throws IOException {
-    when(myBatis.openSession()).thenReturn(session);
+    when(myBatis.openSession(false)).thenReturn(session);
 
     List<Integer> ids = newArrayList(1);
     when(activeRuleDao.selectByIds(ids, session)).thenReturn(
@@ -226,8 +225,8 @@ public class ESActiveRuleTest {
     List<ActiveRuleDto> activeRules = newArrayList(new ActiveRuleDto().setId(1).setProfileId(10).setRuleId(1).setSeverity(Severity.MAJOR).setParentId(5)
       .setNoteData("polop").setNoteCreatedAt(new Date()).setNoteUserLogin("godin"));
 
-    SonarSession session = mock(SonarSession.class);
-    when(myBatis.openSession()).thenReturn(session);
+    DbSession session = mock(DbSession.class);
+    when(myBatis.openSession(false)).thenReturn(session);
     when(activeRuleDao.selectAll(session)).thenReturn(activeRules);
     when(activeRuleDao.selectAllParams(session)).thenReturn(Lists.<ActiveRuleParamDto>newArrayList());
 

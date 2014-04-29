@@ -19,11 +19,15 @@
  */
 package org.sonar.core.cluster;
 
+import javax.annotation.CheckForNull;
 
 public interface WorkQueue {
 
-  Integer enqueue(IndexAction<?>... action);
+  void enqueue(IndexAction<?> action);
 
+  void enqueue(Iterable<IndexAction<?>> actions);
+
+  @CheckForNull
   IndexAction<?> dequeue();
 
 }

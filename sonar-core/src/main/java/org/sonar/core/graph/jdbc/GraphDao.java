@@ -19,7 +19,7 @@
  */
 package org.sonar.core.graph.jdbc;
 
-import org.apache.ibatis.session.SqlSession;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 public class GraphDao {
@@ -30,7 +30,7 @@ public class GraphDao {
   }
 
   public GraphDto selectBySnapshot(String perspectiveKey, long snapshotId) {
-    SqlSession session = mybatis.openBatchSession();
+    DbSession session = mybatis.openSession(true);
     try {
       GraphDtoMapper mapper = session.getMapper(GraphDtoMapper.class);
       return mapper.selectBySnapshot(perspectiveKey, snapshotId);
@@ -41,7 +41,7 @@ public class GraphDao {
   }
 
   public GraphDto selectByComponent(String perspectiveKey, String componentKey) {
-    SqlSession session = mybatis.openBatchSession();
+    DbSession session = mybatis.openSession(true);
     try {
       GraphDtoMapper mapper = session.getMapper(GraphDtoMapper.class);
       return mapper.selectByComponent(perspectiveKey, componentKey);

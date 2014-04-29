@@ -35,7 +35,7 @@ public class MeasureFilterDao implements BatchComponent, ServerComponent {
   }
 
   public MeasureFilterDto findSystemFilterByName(String name) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       MeasureFilterMapper mapper = session.getMapper(MeasureFilterMapper.class);
       return mapper.findSystemFilterByName(name);
@@ -45,7 +45,7 @@ public class MeasureFilterDao implements BatchComponent, ServerComponent {
   }
 
   public void insert(MeasureFilterDto filter) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     MeasureFilterMapper mapper = session.getMapper(MeasureFilterMapper.class);
     try {
       mapper.insert(filter);

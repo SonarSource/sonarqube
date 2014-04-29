@@ -38,8 +38,8 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.persistence.SonarSession;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.jpa.session.DatabaseSessionFactory;
@@ -80,7 +80,7 @@ public class QProfileBackupTest {
   MyBatis myBatis;
 
   @Mock
-  SonarSession session;
+  DbSession session;
 
   @Mock
   XMLProfileParser xmlProfileParser;
@@ -109,7 +109,7 @@ public class QProfileBackupTest {
 
   @Before
   public void setUp() throws Exception {
-    when(myBatis.openSession()).thenReturn(session);
+    when(myBatis.openSession(false)).thenReturn(session);
     when(sessionFactory.getSession()).thenReturn(hibernateSession);
 
     definitions = newArrayList();

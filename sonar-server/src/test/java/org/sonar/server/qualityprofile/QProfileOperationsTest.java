@@ -31,8 +31,8 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.persistence.SonarSession;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
@@ -71,7 +71,7 @@ public class QProfileOperationsTest {
   MyBatis myBatis;
 
   @Mock
-  SonarSession session;
+  DbSession session;
 
   @Mock
   QualityProfileDao qualityProfileDao;
@@ -106,7 +106,7 @@ public class QProfileOperationsTest {
 
   @Before
   public void setUp() throws Exception {
-    when(myBatis.openSession()).thenReturn(session);
+    when(myBatis.openSession(false)).thenReturn(session);
 
     // Associate an id when inserting an object to simulate the db id generator
     doAnswer(new Answer() {

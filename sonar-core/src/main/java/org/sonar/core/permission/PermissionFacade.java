@@ -172,7 +172,7 @@ public class PermissionFacade implements TaskComponent, ServerComponent {
 
   public void applyPermissionTemplate(String templateKey, Long resourceId) {
     PermissionTemplateDto permissionTemplate = getPermissionTemplateWithPermissions(templateKey);
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       removeAllPermissions(resourceId, session);
       List<PermissionTemplateUserDto> usersPermissions = permissionTemplate.getUsersPermissions();

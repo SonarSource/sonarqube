@@ -19,31 +19,29 @@
  */
 package org.sonar.server.cluster;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.core.cluster.IndexAction;
 import org.sonar.core.cluster.WorkQueue;
 
+import javax.annotation.CheckForNull;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class LocalNonBlockingWorkQueue implements WorkQueue {
 
-  private static final Logger LOG = LoggerFactory.getLogger(LocalNonBlockingWorkQueue.class);
+  private final ConcurrentLinkedQueue<IndexAction<?>> actions = new ConcurrentLinkedQueue<IndexAction<?>>();
 
-  private final ConcurrentLinkedQueue<IndexAction<?>> actions;
-
-  public LocalNonBlockingWorkQueue() {
-    this.actions = new ConcurrentLinkedQueue<IndexAction<?>>();
+  @Override
+  public void enqueue(IndexAction<?> indexAction) {
+    actions.offer(indexAction);
   }
 
   @Override
-  public Integer enqueue(IndexAction<?>... indexActions) {
+  public void enqueue(Iterable<IndexAction<?>> indexActions) {
     for (IndexAction<?> action : indexActions) {
-      actions.offer(action);
+      enqueue(action);
     }
-    return 0;
   }
 
+  @CheckForNull
   @Override
   public IndexAction<?> dequeue() {
     IndexAction<?> out = actions.poll();

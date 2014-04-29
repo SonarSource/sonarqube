@@ -54,7 +54,7 @@ public class QProfileLookup implements ServerComponent {
 
   @CheckForNull
   public QProfile profile(int id) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       return profile(id, session);
     } finally {
@@ -81,7 +81,7 @@ public class QProfileLookup implements ServerComponent {
 
   @CheckForNull
   public QProfile profile(String name, String language) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       return profile(name, language, session);
     } finally {
@@ -91,7 +91,7 @@ public class QProfileLookup implements ServerComponent {
 
   @CheckForNull
   public QProfile defaultProfile(String language) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       return defaultProfile(language, session);
     } finally {
@@ -110,7 +110,7 @@ public class QProfileLookup implements ServerComponent {
 
   @CheckForNull
   public QProfile parent(QProfile profile) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       String parent = profile.parent();
       if (parent != null) {
@@ -126,7 +126,7 @@ public class QProfileLookup implements ServerComponent {
   }
 
   public List<QProfile> children(QProfile profile) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       return children(profile, session);
     } finally {
@@ -140,7 +140,7 @@ public class QProfileLookup implements ServerComponent {
 
   public List<QProfile> ancestors(QProfile profile) {
     List<QProfile> ancestors = newArrayList();
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       incrementAncestors(profile, ancestors, session);
     } finally {
@@ -158,7 +158,7 @@ public class QProfileLookup implements ServerComponent {
   }
 
   public boolean isDeletable(QProfile profile) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       return isDeletable(profile, session);
     } finally {
@@ -179,7 +179,7 @@ public class QProfileLookup implements ServerComponent {
   }
 
   public int countChildren(QProfile profile) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       return countChildren(profile, session);
     } finally {

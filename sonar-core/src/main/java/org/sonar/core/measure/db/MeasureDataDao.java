@@ -33,7 +33,7 @@ public class MeasureDataDao implements ServerComponent {
   }
 
   public MeasureDataDto findByComponentKeyAndMetricKey(String componentKey, String metricKey) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       MeasureDataMapper mapper = session.getMapper(MeasureDataMapper.class);
       return mapper.findByComponentKeyAndMetricKey(componentKey, metricKey);

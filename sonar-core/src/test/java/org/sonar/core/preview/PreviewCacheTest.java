@@ -28,9 +28,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.platform.ServerFileSystem;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.persistence.PreviewDatabaseFactory;
-import org.sonar.core.persistence.SonarSession;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.resource.ResourceDao;
@@ -57,7 +57,7 @@ public class PreviewCacheTest {
 
   private MyBatis myBatis;
 
-  private SonarSession session;
+  private DbSession session;
 
   private PreviewCache dryRunCache;
   private ServerFileSystem serverFileSystem;
@@ -71,8 +71,8 @@ public class PreviewCacheTest {
   @Before
   public void prepare() throws IOException {
     myBatis = mock(MyBatis.class);
-    session = mock(SonarSession.class);
-    when(myBatis.openSession()).thenReturn(session);
+    session = mock(DbSession.class);
+    when(myBatis.openSession(false)).thenReturn(session);
     serverFileSystem = mock(ServerFileSystem.class);
     propertiesDao = mock(PropertiesDao.class);
     resourceDao = mock(ResourceDao.class);

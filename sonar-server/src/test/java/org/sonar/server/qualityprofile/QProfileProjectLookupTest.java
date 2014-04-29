@@ -26,8 +26,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.persistence.SonarSession;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
@@ -46,7 +46,7 @@ public class QProfileProjectLookupTest {
   MyBatis myBatis;
 
   @Mock
-  SonarSession session;
+  DbSession session;
 
   @Mock
   QualityProfileDao qualityProfileDao;
@@ -58,7 +58,7 @@ public class QProfileProjectLookupTest {
 
   @Before
   public void setUp() throws Exception {
-    when(myBatis.openSession()).thenReturn(session);
+    when(myBatis.openSession(false)).thenReturn(session);
     lookup = new QProfileProjectLookup(myBatis, qualityProfileDao);
   }
 

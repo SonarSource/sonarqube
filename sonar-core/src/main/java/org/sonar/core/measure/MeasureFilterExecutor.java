@@ -53,7 +53,7 @@ public class MeasureFilterExecutor implements ServerComponent {
     SqlSession session = null;
     Connection connection = null;
     try {
-      session = mybatis.openSession();
+      session = mybatis.openSession(false);
       prepareContext(context, filter, session);
 
       if (isValid(filter, context)) {

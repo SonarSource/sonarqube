@@ -45,7 +45,7 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
    * @return enabled root characteristics and characteristics
    */
   public List<CharacteristicDto> selectEnabledCharacteristics() {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectEnabledCharacteristics(session);
     } finally {
@@ -61,7 +61,7 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
    * @return all characteristics
    */
   public List<CharacteristicDto> selectCharacteristics() {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectCharacteristics(session);
     } finally {
@@ -77,7 +77,7 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
    * @return only enabled root characteristics, order by order
    */
   public List<CharacteristicDto> selectEnabledRootCharacteristics() {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectEnabledRootCharacteristics(session);
     } finally {
@@ -93,7 +93,7 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
   }
 
   public List<CharacteristicDto> selectCharacteristicsByParentId(int parentId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectCharacteristicsByParentId(parentId, session);
     } finally {
@@ -106,7 +106,7 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
   }
 
   public List<CharacteristicDto> selectCharacteristicsByIds(Collection<Integer> ids) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectCharacteristicsByIds(ids, session);
     } finally {
@@ -125,7 +125,7 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
 
   @CheckForNull
   public CharacteristicDto selectByKey(String key) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectByKey(key, session);
     } finally {
@@ -140,7 +140,7 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
 
   @CheckForNull
   public CharacteristicDto selectById(int id) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectById(id, session);
     } finally {
@@ -155,7 +155,7 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
 
   @CheckForNull
   public CharacteristicDto selectByName(String name) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectByName(name, session);
     } finally {
@@ -169,7 +169,7 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
   }
 
   public int selectMaxCharacteristicOrder() {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectMaxCharacteristicOrder(session);
     } finally {
@@ -187,7 +187,7 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
   }
 
   public void insert(CharacteristicDto dto) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       insert(dto, session);
       session.commit();
@@ -201,7 +201,7 @@ public class CharacteristicDao implements BatchComponent, ServerComponent {
   }
 
   public void update(CharacteristicDto dto) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       update(dto, session);
       session.commit();

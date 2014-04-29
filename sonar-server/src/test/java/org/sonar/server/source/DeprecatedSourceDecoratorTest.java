@@ -25,8 +25,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.persistence.SonarSession;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
@@ -48,7 +48,7 @@ public class DeprecatedSourceDecoratorTest {
   MyBatis mybatis;
 
   @Mock
-  SonarSession session;
+  DbSession session;
 
   @Mock
   ResourceDao resourceDao;
@@ -63,7 +63,7 @@ public class DeprecatedSourceDecoratorTest {
 
   @Before
   public void setUp() throws Exception {
-    when(mybatis.openSession()).thenReturn(session);
+    when(mybatis.openSession(false)).thenReturn(session);
     sourceDecorator = new DeprecatedSourceDecorator(mybatis, resourceDao, codeColorizers, snapshotSourceDao);
   }
 

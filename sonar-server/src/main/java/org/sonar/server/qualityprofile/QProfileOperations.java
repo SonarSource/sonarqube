@@ -69,7 +69,7 @@ public class QProfileOperations implements ServerComponent {
   }
 
   public QProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin, UserSession userSession) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       QProfile profile = newProfile(name, language, true, userSession, session);
 
@@ -103,7 +103,7 @@ public class QProfileOperations implements ServerComponent {
 
   public void renameProfile(int profileId, String newName, UserSession userSession) {
     checkPermission(userSession);
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       QualityProfileDto profileDto = findNotNull(profileId, session);
       String oldName = profileDto.getName();
@@ -129,7 +129,7 @@ public class QProfileOperations implements ServerComponent {
 
   public void deleteProfile(int profileId, UserSession userSession) {
     checkPermission(userSession);
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       QualityProfileDto profile = findNotNull(profileId, session);
       QProfile qProfile = QProfile.from(profile);
@@ -158,7 +158,7 @@ public class QProfileOperations implements ServerComponent {
 
   public void setDefaultProfile(int profileId, UserSession userSession) {
     checkPermission(userSession);
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       QualityProfileDto qualityProfile = findNotNull(profileId, session);
       propertiesDao.setProperty(new PropertyDto().setKey(PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()));
@@ -170,7 +170,7 @@ public class QProfileOperations implements ServerComponent {
 
   public void updateParentProfile(int profileId, @Nullable Integer parentId, UserSession userSession) {
     checkPermission(userSession);
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       QualityProfileDto profile = findNotNull(profileId, session);
       QualityProfileDto parentProfile = null;
@@ -196,7 +196,7 @@ public class QProfileOperations implements ServerComponent {
 
   public void copyProfile(int profileId, String copyProfileName, UserSession userSession) {
     checkPermission(userSession);
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       QualityProfileDto profileDto = findNotNull(profileId, session);
       checkNotAlreadyExists(copyProfileName, profileDto.getLanguage(), session);

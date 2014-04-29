@@ -193,7 +193,7 @@ public class PreviewCache implements ServerExtension {
   }
 
   public void reportGlobalModification() {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       reportGlobalModification(session);
       session.commit();

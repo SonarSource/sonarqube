@@ -102,7 +102,7 @@ public class RegisterQualityProfiles {
     // As long ProfileDefinition API will be used, then we'll have to use this commit as Hibernate is used by plugin to load rules when creating their profiles.
     sessionFactory.getSession().commit();
 
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       ListMultimap<String, RulesProfile> profilesByLanguage = profilesByLanguage();
       for (String language : profilesByLanguage.keySet()) {

@@ -44,7 +44,7 @@ public class ActionPlanDao implements BatchComponent, ServerComponent {
   }
 
   public void save(ActionPlanDto actionPlanDto) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       session.getMapper(ActionPlanMapper.class).insert(actionPlanDto);
       session.commit();
@@ -54,7 +54,7 @@ public class ActionPlanDao implements BatchComponent, ServerComponent {
   }
 
   public void update(ActionPlanDto actionPlanDto) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       session.getMapper(ActionPlanMapper.class).update(actionPlanDto);
       session.commit();
@@ -64,7 +64,7 @@ public class ActionPlanDao implements BatchComponent, ServerComponent {
   }
 
   public void delete(String key) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       session.getMapper(ActionPlanMapper.class).delete(key);
       session.commit();
@@ -74,7 +74,7 @@ public class ActionPlanDao implements BatchComponent, ServerComponent {
   }
 
   public ActionPlanDto findByKey(String key) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(ActionPlanMapper.class).findByKey(key);
     } finally {
@@ -86,7 +86,7 @@ public class ActionPlanDao implements BatchComponent, ServerComponent {
     if (keys.isEmpty()) {
       return Collections.emptyList();
     }
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       List<ActionPlanDto> dtosList = newArrayList();
       List<List<String>> keysPartition = Lists.partition(newArrayList(keys), 1000);
@@ -101,7 +101,7 @@ public class ActionPlanDao implements BatchComponent, ServerComponent {
   }
 
   public List<ActionPlanDto> findOpenByProjectId(Long projectId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(ActionPlanMapper.class).findOpenByProjectId(projectId);
     } finally {
@@ -110,7 +110,7 @@ public class ActionPlanDao implements BatchComponent, ServerComponent {
   }
 
   public List<ActionPlanDto> findByNameAndProjectId(String name, Long projectId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(ActionPlanMapper.class).findByNameAndProjectId(name, projectId);
     } finally {

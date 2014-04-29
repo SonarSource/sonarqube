@@ -34,8 +34,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.persistence.SonarSession;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
@@ -74,13 +74,13 @@ public class RuleRegistryTest {
   CharacteristicDao characteristicDao;
 
   @Mock
-  SonarSession session;
+  DbSession session;
 
   RuleRegistry registry;
 
   @Before
   public void setUp() throws Exception {
-    when(myBatis.openSession()).thenReturn(session);
+    when(myBatis.openSession(false)).thenReturn(session);
 
     esSetup = new EsSetup(ImmutableSettings.builder().loadFromUrl(ESNode.class.getResource("config/elasticsearch.json"))
       .build());

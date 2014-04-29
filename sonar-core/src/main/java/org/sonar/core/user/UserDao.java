@@ -42,7 +42,7 @@ public class UserDao implements BatchComponent, ServerComponent {
   }
 
   public UserDto getUser(long userId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return getUser(userId, session);
     } finally {
@@ -61,7 +61,7 @@ public class UserDao implements BatchComponent, ServerComponent {
    */
   @CheckForNull
   public UserDto selectActiveUserByLogin(String login) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectActiveUserByLogin(login, session);
     } finally {
@@ -77,7 +77,7 @@ public class UserDao implements BatchComponent, ServerComponent {
   public List<UserDto> selectUsersByLogins(List<String> logins) {
     List<UserDto> users = Lists.newArrayList();
     if (!logins.isEmpty()) {
-      SqlSession session = mybatis.openSession();
+      SqlSession session = mybatis.openSession(false);
       try {
         UserMapper mapper = session.getMapper(UserMapper.class);
         List<List<String>> partitions = Lists.partition(logins, 1000);
@@ -92,7 +92,7 @@ public class UserDao implements BatchComponent, ServerComponent {
   }
 
   public List<UserDto> selectUsers(UserQuery query) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       UserMapper mapper = session.getMapper(UserMapper.class);
       return mapper.selectUsers(query);
@@ -106,7 +106,7 @@ public class UserDao implements BatchComponent, ServerComponent {
    * @return false if the user does not exist, true if the existing user has been deactivated
    */
   public boolean deactivateUserByLogin(String login) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       UserMapper mapper = session.getMapper(UserMapper.class);
       UserDto dto = mapper.selectUserByLogin(login);
@@ -145,7 +145,7 @@ public class UserDao implements BatchComponent, ServerComponent {
 
   @CheckForNull
   public GroupDto selectGroupByName(String name) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectGroupByName(name, session);
     } finally {

@@ -33,17 +33,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class SonarSession implements SqlSession {
+public class DbSession implements SqlSession {
 
-  private List<IndexAction> actions;
+  private List<IndexAction<?>> actions;
 
   private WorkQueue queue;
   private SqlSession session;
 
-  SonarSession(WorkQueue queue, SqlSession session) {
+  DbSession(WorkQueue queue, SqlSession session) {
     this.session = session;
     this.queue = queue;
-    this.actions = new ArrayList<IndexAction>();
+    this.actions = new ArrayList<IndexAction<?>>();
   }
 
   public void enqueue(IndexAction action) {
@@ -53,13 +53,13 @@ public class SonarSession implements SqlSession {
   @Override
   public void commit() {
     session.commit();
-    queue.enqueue(actions.toArray(new IndexAction[0]));
+    queue.enqueue(actions);
   }
 
   @Override
   public void commit(boolean force) {
     session.commit(force);
-    queue.enqueue(actions.toArray(new IndexAction[0]));
+    queue.enqueue(actions);
   }
 
   /**

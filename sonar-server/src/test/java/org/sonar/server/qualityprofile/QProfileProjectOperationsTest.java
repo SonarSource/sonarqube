@@ -28,8 +28,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.persistence.SonarSession;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
@@ -55,7 +55,7 @@ public class QProfileProjectOperationsTest {
   MyBatis myBatis;
 
   @Mock
-  SonarSession session;
+  DbSession session;
 
   @Mock
   QualityProfileDao qualityProfileDao;
@@ -72,7 +72,7 @@ public class QProfileProjectOperationsTest {
 
   @Before
   public void setUp() throws Exception {
-    when(myBatis.openSession()).thenReturn(session);
+    when(myBatis.openSession(false)).thenReturn(session);
     service = new QProfileProjectOperations(myBatis, qualityProfileDao, resourceDao, propertiesDao);
   }
 

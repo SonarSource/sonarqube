@@ -50,7 +50,7 @@ public class DefaultResourcePermissions implements ResourcePermissions {
 
   public void grantUserRole(Resource resource, String login, String role) {
     if (resource.getId() != null) {
-      SqlSession session = myBatis.openSession();
+      SqlSession session = myBatis.openSession(false);
       try {
         UserDto user = session.getMapper(UserMapper.class).selectUserByLogin(login);
         if (user != null) {
@@ -66,7 +66,7 @@ public class DefaultResourcePermissions implements ResourcePermissions {
 
   public void grantGroupRole(Resource resource, String groupName, String role) {
     if (resource.getId() != null) {
-      SqlSession session = myBatis.openSession();
+      SqlSession session = myBatis.openSession(false);
       try {
         permissionFacade.deleteGroupPermission(Long.valueOf(resource.getId()), groupName, role, session);
         permissionFacade.insertGroupPermission(Long.valueOf(resource.getId()), groupName, role, session);

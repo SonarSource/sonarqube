@@ -33,6 +33,7 @@ import org.sonar.core.graph.graphson.GraphsonWriter;
 import org.sonar.core.graph.jdbc.GraphDto;
 import org.sonar.core.graph.jdbc.GraphDtoMapper;
 import org.sonar.core.persistence.BatchSession;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import java.io.StringWriter;
@@ -49,7 +50,7 @@ public class GraphPersister implements ScanPersister {
   }
 
   public void persist() {
-    BatchSession session = myBatis.openBatchSession();
+    DbSession session = myBatis.openSession(true);
     GraphDtoMapper mapper = session.getMapper(GraphDtoMapper.class);
     try {
       for (ComponentVertex component : projectGraph.getComponents()) {

@@ -25,6 +25,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 public class ResourceIndexerDao {
@@ -50,7 +51,7 @@ public class ResourceIndexerDao {
    * This method is reentrant. It can be executed even if the project is already indexed.
    */
   public ResourceIndexerDao indexProject(final int rootProjectId) {
-    SqlSession session = mybatis.openBatchSession();
+    DbSession session = mybatis.openSession(true);
     try {
       ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
       doIndexProject(rootProjectId, session, mapper);
@@ -66,7 +67,7 @@ public class ResourceIndexerDao {
    * This method is reentrant. It can be executed even if some projects are already indexed.
    */
   public ResourceIndexerDao indexProjects() {
-    final SqlSession session = mybatis.openBatchSession();
+    final DbSession session = mybatis.openSession(true);
     try {
       final ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
       session.select("org.sonar.core.resource.ResourceIndexerMapper.selectRootProjectIds", /* workaround to get booleans */ResourceIndexerQuery.create(), new ResultHandler() {
@@ -125,7 +126,7 @@ public class ResourceIndexerDao {
 
   public boolean indexResource(long id) {
     boolean indexed = false;
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
       ResourceDto resource = mapper.selectResourceToIndex(id);
@@ -144,7 +145,7 @@ public class ResourceIndexerDao {
 
   public boolean indexResource(int id, String name, String qualifier, int rootId) {
     boolean indexed = false;
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     ResourceIndexerMapper mapper = session.getMapper(ResourceIndexerMapper.class);
     try {
       indexed = indexResource(id, name, qualifier, rootId, session, mapper);

@@ -20,7 +20,6 @@
 
 package org.sonar.server.debt;
 
-import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,8 +39,8 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.persistence.SonarSession;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
@@ -81,7 +80,7 @@ public class DebtModelBackupTest {
   MyBatis myBatis;
 
   @Mock
-  SonarSession session;
+  DbSession session;
 
   @Mock
   DebtModelPluginRepository debtModelPluginRepository;
@@ -147,9 +146,9 @@ public class DebtModelBackupTest {
         dto.setId(currentId++);
         return null;
       }
-    }).when(dao).insert(any(CharacteristicDto.class), any(SonarSession.class));
+    }).when(dao).insert(any(CharacteristicDto.class), any(DbSession.class));
 
-    when(myBatis.openSession()).thenReturn(session);
+    when(myBatis.openSession(false)).thenReturn(session);
 
     Reader defaultModelReader = mock(Reader.class);
     when(debtModelPluginRepository.createReaderForXMLFile("technical-debt")).thenReturn(defaultModelReader);

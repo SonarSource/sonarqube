@@ -33,7 +33,7 @@ public class DashboardDao implements BatchComponent, ServerComponent {
   }
 
   public DashboardDto selectGlobalDashboard(String name) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       DashboardMapper mapper = session.getMapper(DashboardMapper.class);
       return mapper.selectGlobalDashboard(name);
@@ -43,7 +43,7 @@ public class DashboardDao implements BatchComponent, ServerComponent {
   }
 
   public void insert(DashboardDto dashboardDto) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     DashboardMapper dashboardMapper = session.getMapper(DashboardMapper.class);
     WidgetMapper widgetMapper = session.getMapper(WidgetMapper.class);
     WidgetPropertyMapper widgetPropertyMapper = session.getMapper(WidgetPropertyMapper.class);

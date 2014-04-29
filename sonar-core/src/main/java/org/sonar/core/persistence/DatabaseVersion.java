@@ -104,7 +104,7 @@ public class DatabaseVersion implements BatchComponent, ServerComponent {
   }
 
   public Integer getVersion() {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       List<Integer> versions = session.getMapper(SchemaMigrationMapper.class).selectVersions();
       if (!versions.isEmpty()) {

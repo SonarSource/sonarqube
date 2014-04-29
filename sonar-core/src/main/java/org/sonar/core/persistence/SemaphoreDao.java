@@ -43,7 +43,7 @@ public class SemaphoreDao {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(name), SEMAPHORE_NAME_MUST_NOT_BE_EMPTY);
     Preconditions.checkArgument(maxAgeInSeconds >= 0, "Semaphore max age must be positive: " + maxAgeInSeconds);
 
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       SemaphoreMapper mapper = session.getMapper(SemaphoreMapper.class);
       Date now = mapper.now();
@@ -63,7 +63,7 @@ public class SemaphoreDao {
   public Semaphores.Semaphore acquire(String name) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(name), SEMAPHORE_NAME_MUST_NOT_BE_EMPTY);
 
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       SemaphoreMapper mapper = session.getMapper(SemaphoreMapper.class);
       Date now = mapper.now();
@@ -82,7 +82,7 @@ public class SemaphoreDao {
   public void update(Semaphores.Semaphore semaphore) {
     Preconditions.checkArgument(semaphore != null, "Semaphore must not be null");
 
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       SemaphoreMapper mapper = session.getMapper(SemaphoreMapper.class);
       mapper.update(semaphore.getName());
@@ -94,7 +94,7 @@ public class SemaphoreDao {
 
   public void release(String name) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(name), SEMAPHORE_NAME_MUST_NOT_BE_EMPTY);
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       session.getMapper(SemaphoreMapper.class).release(name);
       session.commit();

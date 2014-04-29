@@ -26,8 +26,8 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.Database;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.persistence.SonarSession;
 import org.sonar.core.persistence.dialect.Dialect;
 import org.sonar.core.persistence.dialect.H2;
 import org.sonar.core.persistence.dialect.MySql;
@@ -84,9 +84,9 @@ public class DatabaseMigratorTest extends AbstractDaoTestCase {
     Dialect supportedDialect = new H2();
     when(database.getDialect()).thenReturn(supportedDialect);
     Connection connection = mock(Connection.class);
-    SonarSession session = mock(SonarSession.class);
+    DbSession session = mock(DbSession.class);
     when(session.getConnection()).thenReturn(connection);
-    when(mybatis.openSession()).thenReturn(session);
+    when(mybatis.openSession(false)).thenReturn(session);
     when(serverUpgradeStatus.isFreshInstall()).thenReturn(true);
 
     DatabaseMigrator databaseMigrator = new DatabaseMigrator(mybatis, database, migrations, serverUpgradeStatus, null) {

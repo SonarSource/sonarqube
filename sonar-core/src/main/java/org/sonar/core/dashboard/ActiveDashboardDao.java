@@ -33,7 +33,7 @@ public class ActiveDashboardDao implements BatchComponent, ServerComponent {
   }
 
   public void insert(ActiveDashboardDto activeDashboardDto) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     ActiveDashboardMapper mapper = session.getMapper(ActiveDashboardMapper.class);
     try {
       mapper.insert(activeDashboardDto);
@@ -44,7 +44,7 @@ public class ActiveDashboardDao implements BatchComponent, ServerComponent {
   }
 
   public int selectMaxOrderIndexForNullUser() {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     ActiveDashboardMapper mapper = session.getMapper(ActiveDashboardMapper.class);
     try {
       Integer max = mapper.selectMaxOrderIndexForNullUser();

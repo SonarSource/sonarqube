@@ -21,6 +21,7 @@ package org.sonar.batch.index;
 
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.core.persistence.BatchSession;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.source.db.SnapshotDataDao;
 import org.sonar.core.source.db.SnapshotDataDto;
@@ -43,7 +44,7 @@ public class ComponentDataPersister implements ScanPersister {
 
   @Override
   public void persist() {
-    BatchSession session = mybatis.openBatchSession();
+    DbSession session = mybatis.openSession(true);
     for (Map.Entry<String, Snapshot> componentEntry : snapshots.snapshots()) {
       String componentKey = componentEntry.getKey();
       Snapshot snapshot = componentEntry.getValue();

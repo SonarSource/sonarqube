@@ -44,7 +44,7 @@ public class AuthorizationDao implements ServerComponent {
   }
 
   public Set<String> keepAuthorizedComponentKeys(Set<String> componentKeys, @Nullable Integer userId, String role) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return keepAuthorizedComponentKeys(componentKeys, userId, role, session);
 
@@ -75,7 +75,7 @@ public class AuthorizationDao implements ServerComponent {
   }
 
   public Collection<String> selectAuthorizedRootProjectsKeys(@Nullable Integer userId, String role) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectAuthorizedRootProjectsKeys(userId, role, session);
 
@@ -95,7 +95,7 @@ public class AuthorizationDao implements ServerComponent {
   }
 
   public List<String> selectGlobalPermissions(@Nullable String userLogin) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       Map<String, Object> params = newHashMap();
       params.put("userLogin", userLogin);

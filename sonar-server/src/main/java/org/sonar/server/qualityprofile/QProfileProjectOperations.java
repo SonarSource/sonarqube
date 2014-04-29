@@ -50,7 +50,7 @@ public class QProfileProjectOperations implements ServerComponent {
 
   public void addProject(int profileId, long projectId, UserSession userSession) {
     checkPermission(userSession);
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       ComponentDto project = (ComponentDto) findProjectNotNull(projectId, session);
       QualityProfileDto qualityProfile = findNotNull(profileId, session);
@@ -65,7 +65,7 @@ public class QProfileProjectOperations implements ServerComponent {
 
   public void removeProject(int profileId, long projectId, UserSession userSession) {
     checkPermission(userSession);
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       ComponentDto project = (ComponentDto) findProjectNotNull(projectId, session);
       QualityProfileDto qualityProfile = findNotNull(profileId, session);
@@ -79,7 +79,7 @@ public class QProfileProjectOperations implements ServerComponent {
 
   public void removeProject(String language, long projectId, UserSession userSession) {
     checkPermission(userSession);
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       ComponentDto project = (ComponentDto) findProjectNotNull(projectId, session);
 
@@ -92,7 +92,7 @@ public class QProfileProjectOperations implements ServerComponent {
 
   public void removeAllProjects(int profileId, UserSession userSession) {
     checkPermission(userSession);
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       QualityProfileDto qualityProfile = findNotNull(profileId, session);
 

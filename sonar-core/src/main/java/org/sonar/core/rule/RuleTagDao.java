@@ -34,7 +34,7 @@ public class RuleTagDao implements ServerExtension {
   }
 
   public List<RuleTagDto> selectAll() {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       return selectAll(session);
     } finally {
@@ -47,7 +47,7 @@ public class RuleTagDao implements ServerExtension {
   }
 
   public void insert(RuleTagDto newRuleTag) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       insert(newRuleTag, session);
       session.commit();
@@ -61,7 +61,7 @@ public class RuleTagDao implements ServerExtension {
   }
 
   public void delete(Long tagId) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       delete(tagId, session);
       session.commit();
@@ -75,7 +75,7 @@ public class RuleTagDao implements ServerExtension {
   }
 
   public Long selectId(String tag) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       return selectId(tag, session);
     } finally {
@@ -88,7 +88,7 @@ public class RuleTagDao implements ServerExtension {
   }
 
   public List<RuleTagDto> selectUnused() {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       return selectUnused(session);
     } finally {

@@ -86,7 +86,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     validatePermission(userSession);
     validateSeverity(severity);
 
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       QualityProfileDto profile = findProfileNotNull(profileId, session);
       RuleDto rule = findRuleNotNull(ruleId, session);
@@ -147,7 +147,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   public int activateRules(int profileId, ProfileRuleQuery query, UserSession userSession) {
     validatePermission(userSession);
 
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       List<Integer> ruleIdsToActivate = rules.searchInactiveProfileRuleIds(query);
       for (Integer ruleId : ruleIdsToActivate) {
@@ -162,7 +162,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
 
   public boolean deactivateRule(int profileId, int ruleId, UserSession userSession) {
     validatePermission(userSession);
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       ActiveRuleDto activeRule = findActiveRuleNotNull(profileId, ruleId, session);
       return deactivateRule(activeRule, userSession, session);
@@ -189,7 +189,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   public int deactivateRules(ProfileRuleQuery query, UserSession userSession) {
     validatePermission(userSession);
 
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     int numberOfDeactivatedRules = 0;
     try {
       List<Integer> activeRuleIdsToDeactivate = rules.searchProfileRuleIds(query);
@@ -208,7 +208,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   public void updateActiveRuleParam(int activeRuleId, String key, @Nullable String value, UserSession userSession) {
     validatePermission(userSession);
 
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       String sanitizedValue = Strings.emptyToNull(value);
       ActiveRuleParamDto activeRuleParam = findActiveRuleParam(activeRuleId, key, session);
@@ -272,7 +272,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   public void revertActiveRule(int activeRuleId, UserSession userSession) {
     validatePermission(userSession);
 
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId, session);
       if (activeRule.doesOverride()) {
@@ -368,7 +368,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
 
   public void updateActiveRuleNote(int activeRuleId, String note, UserSession userSession) {
     validatePermission(userSession);
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
 
     try {
       ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId, session);
@@ -394,7 +394,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   public void deleteActiveRuleNote(int activeRuleId, UserSession userSession) {
     validatePermission(userSession);
 
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId, session);
 

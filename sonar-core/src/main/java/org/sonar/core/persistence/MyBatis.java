@@ -236,14 +236,32 @@ public class MyBatis implements BatchComponent, ServerComponent {
     return sessionFactory;
   }
 
-  public SonarSession openSession() {
-    SqlSession session =  sessionFactory.openSession(ExecutorType.REUSE);
-    return new SonarSession(queue, session);
+  /**
+   * @deprecated since 4.4. Replaced by <code>openSession(false)</code>.
+   */
+  @Deprecated
+  public SqlSession openSession() {
+    return openSession(false);
   }
 
+  /**
+   * @deprecated since 4.4. Replaced by <code>openSession(true)</code>.
+   */
+  @Deprecated
   public BatchSession openBatchSession() {
-    SqlSession session = sessionFactory.openSession(ExecutorType.BATCH);
-    return new BatchSession(queue, session);
+    return (BatchSession) openSession(true);
+  }
+
+  /**
+   * @since 4.4
+   */
+  public DbSession openSession(boolean batch) {
+    if (batch) {
+      SqlSession session = sessionFactory.openSession(ExecutorType.BATCH);
+      return new BatchSession(queue, session);
+    }
+    SqlSession session = sessionFactory.openSession(ExecutorType.REUSE);
+    return new DbSession(queue, session);
   }
 
   public static void closeQuietly(SqlSession session) {

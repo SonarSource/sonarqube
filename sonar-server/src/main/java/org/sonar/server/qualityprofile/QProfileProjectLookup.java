@@ -44,7 +44,7 @@ public class QProfileProjectLookup implements ServerComponent {
   }
 
   public List<Component> projects(int profileId) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       QualityProfileDto qualityProfile = qualityProfileDao.selectById(profileId, session);
       QProfileValidations.checkProfileIsNotNull(qualityProfile);

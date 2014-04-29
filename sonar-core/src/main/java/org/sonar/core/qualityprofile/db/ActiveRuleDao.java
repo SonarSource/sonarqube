@@ -46,7 +46,7 @@ public class ActiveRuleDao implements ServerComponent {
   }
 
   public void insert(ActiveRuleDto dto) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       insert(dto, session);
       session.commit();
@@ -60,7 +60,7 @@ public class ActiveRuleDao implements ServerComponent {
   }
 
   public void update(ActiveRuleDto dto) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       update(dto, session);
       session.commit();
@@ -74,7 +74,7 @@ public class ActiveRuleDao implements ServerComponent {
   }
 
   public void delete(int activeRuleId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       delete(activeRuleId, session);
       session.commit();
@@ -88,7 +88,7 @@ public class ActiveRuleDao implements ServerComponent {
   }
 
   public void deleteFromRule(int ruleId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       deleteFromRule(ruleId, session);
       session.commit();
@@ -102,7 +102,7 @@ public class ActiveRuleDao implements ServerComponent {
   }
 
   public void deleteFromProfile(int profileId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       deleteFromProfile(profileId, session);
       session.commit();
@@ -112,7 +112,7 @@ public class ActiveRuleDao implements ServerComponent {
   }
 
   public List<ActiveRuleDto> selectByIds(List<Integer> ids) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectByIds(ids, session);
     } finally {
@@ -134,7 +134,7 @@ public class ActiveRuleDao implements ServerComponent {
   }
 
   public List<ActiveRuleDto> selectAll() {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectAll(session);
     } finally {
@@ -147,7 +147,7 @@ public class ActiveRuleDao implements ServerComponent {
   }
 
   public List<ActiveRuleDto> selectByRuleId(int ruleId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectByRuleId(ruleId, session);
     } finally {
@@ -160,7 +160,7 @@ public class ActiveRuleDao implements ServerComponent {
   }
 
   public List<ActiveRuleDto> selectByProfileId(int profileId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectByProfileId(profileId, session);
     } finally {
@@ -175,7 +175,7 @@ public class ActiveRuleDao implements ServerComponent {
 
   @CheckForNull
   public ActiveRuleDto selectById(int id) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectById(id, session);
     } finally {
@@ -190,7 +190,7 @@ public class ActiveRuleDao implements ServerComponent {
 
   @CheckForNull
   public ActiveRuleDto selectByProfileAndRule(int profileId, int ruleId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectByProfileAndRule(profileId, ruleId, session);
     } finally {
@@ -208,7 +208,7 @@ public class ActiveRuleDao implements ServerComponent {
   }
 
   public void insert(ActiveRuleParamDto dto) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       insert(dto, session);
       session.commit();
@@ -222,7 +222,7 @@ public class ActiveRuleDao implements ServerComponent {
   }
 
   public void update(ActiveRuleParamDto dto) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       update(dto, session);
       session.commit();
@@ -237,7 +237,7 @@ public class ActiveRuleDao implements ServerComponent {
   }
 
   public void deleteParameter(int activeRuleParamId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       deleteParameter(activeRuleParamId, session);
       session.commit();
@@ -251,7 +251,7 @@ public class ActiveRuleDao implements ServerComponent {
   }
 
   public void deleteParameters(int activeRuleId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       deleteParameters(activeRuleId, session);
       session.commit();
@@ -265,7 +265,7 @@ public class ActiveRuleDao implements ServerComponent {
   }
 
   public void deleteParametersFromProfile(int profileId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       deleteParametersFromProfile(profileId, session);
       session.commit();
@@ -279,7 +279,7 @@ public class ActiveRuleDao implements ServerComponent {
   }
 
   public ActiveRuleParamDto selectParamById(Integer activeRuleParamId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(ActiveRuleMapper.class).selectParamById(activeRuleParamId);
     } finally {
@@ -288,7 +288,7 @@ public class ActiveRuleDao implements ServerComponent {
   }
 
   public ActiveRuleParamDto selectParamByActiveRuleAndKey(int activeRuleId, String key) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectParamByActiveRuleAndKey(activeRuleId, key, session);
     } finally {
@@ -301,7 +301,7 @@ public class ActiveRuleDao implements ServerComponent {
   }
 
   public List<ActiveRuleParamDto> selectParamsByActiveRuleId(int activeRuleId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectParamsByActiveRuleId(activeRuleId, session);
     } finally {
@@ -314,7 +314,7 @@ public class ActiveRuleDao implements ServerComponent {
   }
 
   public List<ActiveRuleParamDto> selectParamsByActiveRuleIds(List<Integer> activeRuleIds) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectParamsByActiveRuleIds(activeRuleIds, session);
     } finally {
@@ -336,7 +336,7 @@ public class ActiveRuleDao implements ServerComponent {
   }
 
   public List<ActiveRuleParamDto> selectAllParams() {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectAllParams(session);
     } finally {
@@ -349,7 +349,7 @@ public class ActiveRuleDao implements ServerComponent {
   }
 
   public List<ActiveRuleParamDto> selectParamsByProfileId(int profileId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(ActiveRuleMapper.class).selectParamsByProfileId(profileId);
     } finally {

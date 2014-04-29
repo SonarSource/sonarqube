@@ -19,7 +19,7 @@
  */
 package org.sonar.core.db;
 
-import org.sonar.core.persistence.SonarSession;
+import org.sonar.core.persistence.DbSession;
 
 import java.io.Serializable;
 
@@ -29,19 +29,19 @@ public interface Dao<E extends Dto<K>, K extends Serializable> {
 
   E update(E item);
 
-  E update(E item, SonarSession session);
+  E update(E item, DbSession session);
 
   E insert(E item);
 
-  E insert(E item, SonarSession session);
+  E insert(E item, DbSession session);
 
   void delete(E item);
 
-  void delete(E item, SonarSession session);
+  void delete(E item, DbSession session);
 
   void deleteByKey(K key);
 
-  void deleteByKey(K key, SonarSession session);
+  void deleteByKey(K key, DbSession session);
 
   Iterable<K> keysOfRowsUpdatedAfter(long timestamp);
 }

@@ -21,7 +21,6 @@ package org.sonar.server.qualitygate;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,8 +38,8 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.ComponentQuery;
 import org.sonar.core.component.db.ComponentDao;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.persistence.SonarSession;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualitygate.db.QualityGateConditionDao;
@@ -235,8 +234,8 @@ public class QualityGatesTest {
     String name = "To Delete";
     QualityGateDto toDelete = new QualityGateDto().setId(idToDelete).setName(name);
     when(dao.selectById(idToDelete)).thenReturn(toDelete);
-    SonarSession session = mock(SonarSession.class);
-    when(myBatis.openSession()).thenReturn(session);
+    DbSession session = mock(DbSession.class);
+    when(myBatis.openSession(false)).thenReturn(session);
     qGates.delete(idToDelete);
     verify(dao).selectById(idToDelete);
     verify(propertiesDao).deleteProjectProperties("sonar.qualitygate", "42", session);
@@ -250,8 +249,8 @@ public class QualityGatesTest {
     QualityGateDto toDelete = new QualityGateDto().setId(idToDelete).setName(name);
     when(dao.selectById(idToDelete)).thenReturn(toDelete);
     when(propertiesDao.selectGlobalProperty("sonar.qualitygate")).thenReturn(new PropertyDto().setValue("666"));
-    SonarSession session = mock(SonarSession.class);
-    when(myBatis.openSession()).thenReturn(session);
+    DbSession session = mock(DbSession.class);
+    when(myBatis.openSession(false)).thenReturn(session);
     qGates.delete(idToDelete);
     verify(dao).selectById(idToDelete);
     verify(propertiesDao).deleteProjectProperties("sonar.qualitygate", "42", session);
@@ -265,8 +264,8 @@ public class QualityGatesTest {
     QualityGateDto toDelete = new QualityGateDto().setId(idToDelete).setName(name);
     when(dao.selectById(idToDelete)).thenReturn(toDelete);
     when(propertiesDao.selectGlobalProperty("sonar.qualitygate")).thenReturn(new PropertyDto().setValue("42"));
-    SonarSession session = mock(SonarSession.class);
-    when(myBatis.openSession()).thenReturn(session);
+    DbSession session = mock(DbSession.class);
+    when(myBatis.openSession(false)).thenReturn(session);
     qGates.delete(idToDelete);
     verify(dao).selectById(idToDelete);
     verify(propertiesDao).deleteGlobalProperty("sonar.qualitygate", session);
@@ -537,8 +536,8 @@ public class QualityGatesTest {
     Collection<QualityGateConditionDto> conditions = ImmutableList.of(cond1, cond2);
 
     when(dao.selectById(sourceId)).thenReturn(new QualityGateDto().setId(sourceId).setName("SG-1"));
-    SonarSession session = mock(SonarSession.class);
-    when(myBatis.openSession()).thenReturn(session);
+    DbSession session = mock(DbSession.class);
+    when(myBatis.openSession(false)).thenReturn(session);
     Mockito.doAnswer(new Answer<Object>() {
       @Override
       public Object answer(InvocationOnMock invocation) throws Throwable {

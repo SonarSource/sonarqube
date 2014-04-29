@@ -24,6 +24,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Collection;
@@ -44,7 +45,7 @@ public class ResourceKeyUpdaterDao {
   }
 
   public void updateKey(long projectId, String newKey) {
-    SqlSession session = mybatis.openBatchSession();
+    DbSession session = mybatis.openSession(true);
     ResourceKeyUpdaterMapper mapper = session.getMapper(ResourceKeyUpdaterMapper.class);
     try {
       if (mapper.countResourceByKey(newKey) > 0) {
@@ -67,7 +68,7 @@ public class ResourceKeyUpdaterDao {
   }
 
   public Map<String, String> checkModuleKeysBeforeRenaming(long projectId, String stringToReplace, String replacementString) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     ResourceKeyUpdaterMapper mapper = session.getMapper(ResourceKeyUpdaterMapper.class);
     Map<String, String> result = Maps.newHashMap();
     try {
@@ -87,7 +88,7 @@ public class ResourceKeyUpdaterDao {
   }
 
   public void bulkUpdateKey(long projectId, String stringToReplace, String replacementString) {
-    SqlSession session = mybatis.openBatchSession();
+    DbSession session = mybatis.openSession(true);
     ResourceKeyUpdaterMapper mapper = session.getMapper(ResourceKeyUpdaterMapper.class);
     try {
       // must SELECT first everything

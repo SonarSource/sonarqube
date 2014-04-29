@@ -34,7 +34,7 @@ public class RequirementDao implements ServerComponent {
   }
 
   public List<RequirementDto> selectRequirements() {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectRequirements(session);
     } finally {

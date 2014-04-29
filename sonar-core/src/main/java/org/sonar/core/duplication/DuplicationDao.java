@@ -22,6 +22,7 @@ package org.sonar.core.duplication;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import java.util.Collection;
@@ -36,7 +37,7 @@ public class DuplicationDao implements BatchComponent, ServerComponent {
   }
 
   public List<DuplicationUnitDto> selectCandidates(int resourceSnapshotId, Integer lastSnapshotId, String language) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       DuplicationMapper mapper = session.getMapper(DuplicationMapper.class);
       return mapper.selectCandidates(resourceSnapshotId, lastSnapshotId, language);
@@ -50,7 +51,7 @@ public class DuplicationDao implements BatchComponent, ServerComponent {
    * Note that generated ids are not returned.
    */
   public void insert(Collection<DuplicationUnitDto> units) {
-    SqlSession session = mybatis.openBatchSession();
+    DbSession session = mybatis.openSession(true);
     try {
       DuplicationMapper mapper = session.getMapper(DuplicationMapper.class);
       for (DuplicationUnitDto unit : units) {

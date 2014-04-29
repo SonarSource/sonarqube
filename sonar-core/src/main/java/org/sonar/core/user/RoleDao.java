@@ -38,7 +38,7 @@ public class RoleDao implements TaskComponent, ServerComponent {
   }
 
   public List<String> selectUserPermissions(String userLogin, @Nullable Long resourceId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     RoleMapper mapper = session.getMapper(RoleMapper.class);
     try {
       return mapper.selectUserPermissions(userLogin, resourceId);
@@ -48,7 +48,7 @@ public class RoleDao implements TaskComponent, ServerComponent {
   }
 
   public List<String> selectGroupPermissions(String groupName, @Nullable Long resourceId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     RoleMapper mapper = session.getMapper(RoleMapper.class);
     try {
       return mapper.selectGroupPermissions(groupName, resourceId, DefaultGroups.isAnyone(groupName));
@@ -58,7 +58,7 @@ public class RoleDao implements TaskComponent, ServerComponent {
   }
 
   public void insertGroupRole(GroupRoleDto groupRole) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       insertGroupRole(groupRole, session);
       session.commit();
@@ -73,7 +73,7 @@ public class RoleDao implements TaskComponent, ServerComponent {
   }
 
   public void insertUserRole(UserRoleDto userRole) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       insertUserRole(userRole, session);
       session.commit();
@@ -88,7 +88,7 @@ public class RoleDao implements TaskComponent, ServerComponent {
   }
 
   public void deleteUserRole(UserRoleDto userRole) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       deleteUserRole(userRole, session);
       session.commit();
@@ -103,7 +103,7 @@ public class RoleDao implements TaskComponent, ServerComponent {
   }
 
   public void deleteGroupRole(GroupRoleDto groupRole) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       deleteGroupRole(groupRole, session);
       session.commit();
@@ -128,7 +128,7 @@ public class RoleDao implements TaskComponent, ServerComponent {
   }
 
   public int countResourceGroupRoles(Long resourceId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       RoleMapper mapper = session.getMapper(RoleMapper.class);
       return mapper.countResourceGroupRoles(resourceId);
@@ -138,7 +138,7 @@ public class RoleDao implements TaskComponent, ServerComponent {
   }
 
   public int countResourceUserRoles(Long resourceId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       RoleMapper mapper = session.getMapper(RoleMapper.class);
       return mapper.countResourceUserRoles(resourceId);

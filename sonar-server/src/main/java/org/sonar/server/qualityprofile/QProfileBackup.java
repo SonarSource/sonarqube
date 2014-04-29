@@ -101,7 +101,7 @@ public class QProfileBackup implements ServerComponent {
   public QProfileResult restore(String xmlBackup, boolean deleteExisting) {
     checkPermission(UserSession.get());
 
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     QProfileResult result = new QProfileResult();
     try {
       ValidationMessages messages = ValidationMessages.create();
@@ -136,7 +136,7 @@ public class QProfileBackup implements ServerComponent {
     checkPermission(UserSession.get());
     QProfileResult result = new QProfileResult();
 
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       ListMultimap<String, RulesProfile> profilesByName = profilesByName(language, result);
       for (Map.Entry<String, Collection<RulesProfile>> entry : profilesByName.asMap().entrySet()) {

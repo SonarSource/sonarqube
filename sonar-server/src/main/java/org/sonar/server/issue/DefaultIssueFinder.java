@@ -97,7 +97,7 @@ public class DefaultIssueFinder implements IssueFinder {
   public IssueQueryResult find(IssueQuery query) {
     LOG.debug("IssueQuery : {}", query);
     long start = System.currentTimeMillis();
-    SqlSession sqlSession = myBatis.openSession();
+    SqlSession sqlSession = myBatis.openSession(false);
     try {
       // 1. Select the authorized ids of all the issues that match the query
       List<IssueDto> authorizedIssues = issueDao.selectIssueIds(query, UserSession.get().userId(), sqlSession);

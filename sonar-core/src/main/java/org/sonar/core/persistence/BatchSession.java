@@ -33,7 +33,7 @@ import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
-public class BatchSession extends SonarSession {
+public class BatchSession extends DbSession {
 
   public static final int MAX_BATCH_SIZE = 250;
 

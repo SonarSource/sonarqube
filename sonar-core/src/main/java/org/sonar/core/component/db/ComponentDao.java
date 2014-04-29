@@ -38,7 +38,7 @@ public class ComponentDao {
   }
 
   public Collection<ComponentDto> selectComponent(ComponentQuery query) {
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       return select(query, session);
     } finally {

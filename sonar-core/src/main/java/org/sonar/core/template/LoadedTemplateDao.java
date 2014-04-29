@@ -33,7 +33,7 @@ public class LoadedTemplateDao implements BatchComponent, ServerComponent {
   }
 
   public int countByTypeAndKey(String type, String key) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return countByTypeAndKey(type, key, session);
     } finally {
@@ -47,7 +47,7 @@ public class LoadedTemplateDao implements BatchComponent, ServerComponent {
 
 
   public void insert(LoadedTemplateDto loadedTemplateDto) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       insert(loadedTemplateDto, session);
       session.commit();

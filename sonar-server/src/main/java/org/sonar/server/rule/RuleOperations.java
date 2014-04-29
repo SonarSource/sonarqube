@@ -37,8 +37,8 @@ import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.api.utils.System2;
 import org.sonar.check.Cardinality;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.persistence.SonarSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.rule.RuleDao;
@@ -100,7 +100,7 @@ public class RuleOperations implements ServerComponent {
     checkPermission(userSession);
     Date now = new Date(system.now());
 
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       if (rule.getNoteData() == null) {
         rule.setNoteCreatedAt(now);
@@ -120,7 +120,7 @@ public class RuleOperations implements ServerComponent {
   public void deleteRuleNote(RuleDto rule, UserSession userSession) {
     checkPermission(userSession);
 
-    SqlSession session = myBatis.openSession();
+    SqlSession session = myBatis.openSession(false);
     try {
       rule.setNoteData(null);
       rule.setNoteUserLogin(null);
@@ -138,7 +138,7 @@ public class RuleOperations implements ServerComponent {
   public RuleDto createCustomRule(RuleDto templateRule, String name, String severity, String description, Map<String, String> paramsByKey,
                                   UserSession userSession) {
     checkPermission(userSession);
-    SonarSession session = myBatis.openSession();
+    DbSession session = myBatis.openSession(false);
     try {
       RuleDto rule = new RuleDto()
         .setParentId(templateRule.getId())
@@ -194,7 +194,7 @@ public class RuleOperations implements ServerComponent {
   public void updateCustomRule(RuleDto rule, String name, String severity, String description, Map<String, String> paramsByKey,
                                UserSession userSession) {
     checkPermission(userSession);
-    SonarSession session = myBatis.openSession();
+    DbSession session = myBatis.openSession(false);
     try {
       rule.setName(name)
         .setDescription(description)
@@ -217,7 +217,7 @@ public class RuleOperations implements ServerComponent {
 
   public void deleteCustomRule(RuleDto rule, UserSession userSession) {
     checkPermission(userSession);
-    SonarSession session = myBatis.openSession();
+    DbSession session = myBatis.openSession(false);
     try {
       // Set status REMOVED on rule
       rule.setStatus(Rule.STATUS_REMOVED)
@@ -246,7 +246,7 @@ public class RuleOperations implements ServerComponent {
 
   public void updateRuleTags(RuleDto rule, List<String> newTags, UserSession userSession) {
     checkPermission(userSession);
-    SonarSession session = myBatis.openSession();
+    DbSession session = myBatis.openSession(false);
     try {
       Map<String, Long> neededTagIds = validateAndGetTagIds(newTags, session);
 
@@ -266,7 +266,7 @@ public class RuleOperations implements ServerComponent {
 
   public void updateRule(RuleChange ruleChange, UserSession userSession) {
     checkPermission(userSession);
-    SonarSession session = myBatis.openSession();
+    DbSession session = myBatis.openSession(false);
     try {
       RuleDto ruleDto = ruleDao.selectByKey(ruleChange.ruleKey(), session);
       if (ruleDto == null) {
@@ -297,7 +297,7 @@ public class RuleOperations implements ServerComponent {
   }
 
   public boolean updateRule(RuleDto ruleDto, @Nullable CharacteristicDto newSubCharacteristic, @Nullable String newFunction,
-                            @Nullable String newCoefficient, @Nullable String newOffset, Date updateDate, SonarSession session) {
+                            @Nullable String newCoefficient, @Nullable String newOffset, Date updateDate, DbSession session) {
     boolean needUpdate = false;
 
     // A sub-characteristic and a remediation function is given -> update rule debt
