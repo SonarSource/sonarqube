@@ -26,6 +26,7 @@ import org.sonar.api.utils.DateUtils;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -73,6 +74,12 @@ public class JsonWriterTest {
       .endArray()
       .endObject().close();
     expect("{\"issues\":[{\"key\":\"ABC\"},{\"key\":\"DEF\"}]}");
+  }
+
+  @Test
+  public void array_values() throws Exception {
+    writer.beginArray().values(Arrays.asList("foo", "bar", "baz")).endArray().close();
+    expect("[\"foo\",\"bar\",\"baz\"]");
   }
 
   @Test

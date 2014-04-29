@@ -179,6 +179,21 @@ public class JsonWriter {
   }
 
   /**
+   * Write a list of values in an array, for example:
+   * <pre>
+   *   writer.beginArray().values(myValues).endArray();
+   * </pre>
+   *
+   * @throws org.sonar.api.utils.text.WriterException on any failure
+   */
+  public JsonWriter values(Iterable<String> values) {
+    for (String value : values) {
+      value(value);
+    }
+    return this;
+  }
+
+  /**
    * @throws org.sonar.api.utils.text.WriterException on any failure
    */
   public JsonWriter valueDate(@Nullable Date value) {
