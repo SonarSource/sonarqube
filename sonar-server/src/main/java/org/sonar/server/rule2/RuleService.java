@@ -65,8 +65,7 @@ public class RuleService implements ServerComponent {
   }
 
   public static Rule toRule(Hit hit){
-    for()
-    BeanUtils.setProperty(bean, name, value);
+//    BeanUtils.setProperty(bean, name, value);
     return new RuleImpl();
   }
 }
