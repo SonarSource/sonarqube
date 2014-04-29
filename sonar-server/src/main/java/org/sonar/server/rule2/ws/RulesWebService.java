@@ -35,8 +35,7 @@ public class RulesWebService implements WebService {
   public void define(Context context) {
     NewController controller = context
       .createController("api/rules2")
-      .setDescription("Coding rules")
-      .setSince("4.4");
+      .setDescription("Coding rules");
 
     search.define(controller);
     show.define(controller);

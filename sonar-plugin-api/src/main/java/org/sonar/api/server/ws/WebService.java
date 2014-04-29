@@ -32,6 +32,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -408,7 +409,7 @@ public interface WebService extends ServerExtension {
     public String responseExampleAsString() {
       try {
         if (responseExample != null) {
-          return IOUtils.toString(responseExample, Charsets.UTF_8);
+          return StringUtils.trim(IOUtils.toString(responseExample, Charsets.UTF_8));
         }
         return null;
       } catch (IOException e) {
@@ -442,7 +443,7 @@ public interface WebService extends ServerExtension {
   class NewParam {
     private String key, description, exampleValue, defaultValue;
     private boolean required = false;
-    private String[] possibleValues = null;
+    private Collection<Object> possibleValues = null;
 
     private NewParam(String key) {
       this.key = key;
@@ -477,8 +478,19 @@ public interface WebService extends ServerExtension {
      *
      * @since 4.4
      */
-    public NewParam setPossibleValues(@Nullable String... s) {
-      this.possibleValues = s;
+    public NewParam setPossibleValues(@Nullable Object... s) {
+      this.possibleValues = (s == null ? null : Arrays.asList(s));
+      return this;
+    }
+
+    /**
+     * Exhaustive list of possible values when it makes sense, for example
+     * list of severities.
+     *
+     * @since 4.4
+     */
+    public NewParam setPossibleValues(@Nullable Collection c) {
+      this.possibleValues = c;
       return this;
     }
 
@@ -500,7 +512,7 @@ public interface WebService extends ServerExtension {
   class Param {
     private final String key, description, exampleValue, defaultValue;
     private final boolean required;
-    private final String[] possibleValues;
+    private final List<String> possibleValues;
 
     public Param(NewParam newParam) {
       this.key = newParam.key;
@@ -508,7 +520,15 @@ public interface WebService extends ServerExtension {
       this.exampleValue = newParam.exampleValue;
       this.defaultValue = newParam.defaultValue;
       this.required = newParam.required;
-      this.possibleValues = newParam.possibleValues;
+      if (newParam.possibleValues == null) {
+        this.possibleValues = null;
+      } else {
+        ImmutableList.Builder<String> builder = ImmutableList.builder();
+        for (Object possibleValue : newParam.possibleValues) {
+          builder.add(possibleValue.toString());
+        }
+        this.possibleValues = builder.build();
+      }
     }
 
     public String key() {
@@ -541,7 +561,7 @@ public interface WebService extends ServerExtension {
      * @since 4.4
      */
     @CheckForNull
-    public String[] possibleValues() {
+    public List<String> possibleValues() {
       return possibleValues;
     }
 

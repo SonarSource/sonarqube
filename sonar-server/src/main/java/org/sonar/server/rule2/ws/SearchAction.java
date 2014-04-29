@@ -19,6 +19,8 @@
  */
 package org.sonar.server.rule2.ws;
 
+import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -39,7 +41,7 @@ public class SearchAction implements RequestHandler {
   void define(WebService.NewController controller) {
     WebService.NewAction action = controller
       .createAction("search")
-      .setDescription("Returns a collection of relevant rules matching a specified query")
+      .setDescription("Search for a collection of relevant rules matching a specified query")
       .setSince("4.4")
       .setHandler(this);
 
@@ -47,6 +49,23 @@ public class SearchAction implements RequestHandler {
       .createParam("q")
       .setDescription("UTF-8 search query")
       .setExampleValue("null pointer");
+
+    action
+      .createParam("severities")
+      .setDescription("Comma-separated list of default severities. Not the same than severity of rules in Quality profiles.")
+      .setPossibleValues(Severity.ALL)
+      .setExampleValue("CRITICAL,BLOCKER");
+
+    action
+      .createParam("statuses")
+      .setDescription("Comma-separated list of status codes")
+      .setPossibleValues(RuleStatus.values())
+      .setExampleValue("BETA,DEPRECATED");
+
+    action
+      .createParam("tags")
+      .setDescription("Comma-separated list of tags")
+      .setExampleValue("security,java8");
 
     action
       .createParam("qProfile")

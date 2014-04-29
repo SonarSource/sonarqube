@@ -20,7 +20,7 @@
 package org.sonar.server.rule2;
 
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 
 import javax.annotation.CheckForNull;
@@ -40,13 +40,29 @@ public interface Rule {
 
   String description();
 
-  Severity severity();
+  /**
+   * Default severity when activated on a Quality profile
+   *
+   * @see org.sonar.api.rule.Severity
+   */
+  String severity();
 
-  String status();
+  /**
+   * @see org.sonar.api.rule.RuleStatus
+   */
+  RuleStatus status();
 
   boolean template();
 
+  /**
+   * Tags that can be customized by administrators
+   */
   List<String> tags();
+
+  /**
+   * Read-only tags defined by plugins
+   */
+  List<String> systemTags();
 
   List<RuleParam> params();
 

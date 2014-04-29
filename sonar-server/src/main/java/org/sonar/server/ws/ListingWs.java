@@ -19,10 +19,8 @@
  */
 package org.sonar.server.ws;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.collect.Ordering;
-import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -83,7 +81,7 @@ public class ListingWs implements WebService {
         .newJsonWriter()
         .beginObject()
         .prop("format", action.responseExampleFormat())
-        .prop("example", IOUtils.toString(action.responseExample(), Charsets.UTF_8))
+        .prop("example", action.responseExampleAsString())
         .endObject()
         .close();
     } else {
@@ -136,7 +134,7 @@ public class ListingWs implements WebService {
     writer.prop("since", action.since());
     writer.prop("internal", action.isInternal());
     writer.prop("post", action.isPost());
-    writer.prop("hasResponseExample", action.responseExample()!=null);
+    writer.prop("hasResponseExample", action.responseExample() != null);
     if (!action.params().isEmpty()) {
       // sort parameters by key
       Ordering<Param> ordering = Ordering.natural().onResultOf(new Function<Param, String>() {

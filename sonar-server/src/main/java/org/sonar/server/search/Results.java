@@ -19,32 +19,25 @@
  */
 package org.sonar.server.search;
 
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.picocontainer.Startable;
-import org.sonar.core.cluster.IndexAction;
+import java.util.Collection;
 
-import javax.annotation.CheckForNull;
-import java.io.Serializable;
+public class Results {
 
-public interface Index<K extends Serializable> extends Startable {
+  private Collection<Hit> hits;
 
-  String getIndexName();
+  private int total;
 
-  void executeAction(IndexAction<K> action);
+  private int offset;
 
-  @CheckForNull
-  Hit getByKey(K key);
+  public Collection<Hit> getHits() {
+    return hits;
+  }
 
-  void insert(K key);
+  public int getTotal() {
+    return total;
+  }
 
-  void update(K key);
-
-  void delete(K key);
-
-  XContentBuilder normalize(K key);
-
-  Long getLastSynchronization();
-
-  void setLastSynchronization(Long time);
-
+  public int getOffset() {
+    return offset;
+  }
 }

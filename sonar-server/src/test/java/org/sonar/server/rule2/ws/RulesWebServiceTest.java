@@ -40,7 +40,6 @@ public class RulesWebServiceTest {
 
     WebService.Controller controller = context.controller("api/rules2");
     assertThat(controller).isNotNull();
-    assertThat(controller.since()).isEqualTo("4.4");
     assertThat(controller.actions()).hasSize(2);
     assertThat(controller.action("search")).isNotNull();
     assertThat(controller.action("show")).isNotNull();
