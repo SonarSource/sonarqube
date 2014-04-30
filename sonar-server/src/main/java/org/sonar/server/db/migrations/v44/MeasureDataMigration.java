@@ -25,7 +25,6 @@ import org.sonar.server.db.migrations.DatabaseMigration;
 import org.sonar.server.db.migrations.MassUpdater;
 import org.sonar.server.db.migrations.SqlUtil;
 
-import java.sql.Blob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -58,7 +57,8 @@ public class MeasureDataMigration implements DatabaseMigration {
         public Row load(ResultSet rs) throws SQLException {
           Row row = new Row();
           row.measure_id = SqlUtil.getLong(rs, 1);
-          row.data = rs.getBlob(2);
+          // Don't use getBlob as it fails on Postgres and mssql
+          row.data = rs.getBytes(2);
           return row;
         }
       },
@@ -70,7 +70,7 @@ public class MeasureDataMigration implements DatabaseMigration {
 
         @Override
         public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
-          updateStatement.setBlob(1, row.data);
+          updateStatement.setBytes(1, row.data);
           updateStatement.setLong(2, row.measure_id);
           return true;
         }
@@ -80,7 +80,7 @@ public class MeasureDataMigration implements DatabaseMigration {
 
   private static class Row {
     private Long measure_id;
-    private Blob data;
+    private byte[] data;
   }
 
 }
