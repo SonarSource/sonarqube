@@ -118,33 +118,6 @@ define(
       });
 
 
-      var Rule = Backbone.Model.extend({
-
-        url: function () {
-          return baseUrl + '/api/rules/show/?key=' + this.get('key');
-        },
-
-
-        parse: function (r) {
-          return r.rule ? r.rule : r;
-        }
-      });
-
-
-      var ActionPlans = Backbone.Collection.extend({
-
-        url: function () {
-          return baseUrl + '/api/action_plans/search';
-        },
-
-
-        parse: function (r) {
-          return r.actionPlans;
-        }
-
-      });
-
-
       var IssueView = Marionette.ItemView.extend({
         template: Handlebars.compile(jQuery('#issue-template').html() || ''),
         tagName: 'li',
@@ -173,7 +146,12 @@ define(
 
           var that = this,
               app = this.options.app,
-              componentViewer = new ComponentViewer(),
+              componentViewer = new ComponentViewer({
+                component: {
+                  project: this.model.get('project'),
+                  projectLongName: this.model.get('projectLongName')
+                }
+              }),
               showCallback = function () {
                 jQuery('.navigator-details').removeClass('navigator-fetching');
                 app.detailsRegion.show(componentViewer);
@@ -190,34 +168,6 @@ define(
 
           jQuery('.navigator-details').empty().addClass('navigator-fetching');
           jQuery.when(this.model.fetch()).done(showCallback);
-        },
-
-
-        fetchSource: function (view, callback) {
-          var line = this.model.get('line') || 0,
-              from = line >= 10 ? line - 10 : 0,
-              to = line + 30;
-
-          return jQuery
-              .ajax({
-                type: 'GET',
-                url: baseUrl + '/api/sources/show',
-                data: {
-                  key: this.model.get('component'),
-                  from: from,
-                  to: to,
-                  format: 'json'
-                }
-              })
-              .done(function (r) {
-                if (_.isObject(r) && r.source) {
-                  view.source = r.source;
-                }
-                if (_.isObject(r) && r.scm) {
-                  view.scm = r.scm;
-                }
-              })
-              .always(callback);
         },
 
 

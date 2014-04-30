@@ -40,8 +40,10 @@ define [
 
 
     initialize: (options) ->
-      @workspace = new Backbone.Collection()
       @component = new Backbone.Model()
+      @component.set options.component if options.component?
+
+      @workspace = new Backbone.Collection()
       @workspaceView = new WorkspaceView
         collection: @workspace
         main: @
