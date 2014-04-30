@@ -79,6 +79,23 @@ public class RuleMediumTest {
     assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.STATUS.key())).isEqualTo(RuleStatus.READY.toString());
   }
 
+  @Test
+  public void search_rules_partial_match() throws InterruptedException {
+    RuleDao dao = tester.get(RuleDao.class);
+    dao.insert(newRuleDto(RuleKey.of("javascript", "S001"))
+    .setName("testing the partial match and matching of rule"));
+
+    RuleService service = tester.get(RuleService.class).refresh();;
+
+    RuleQuery query = service.newRuleQuery().setQueryText("test");
+    Results results = service.search(query, new QueryOptions());
+
+    assertThat(results.getTotal()).isEqualTo(1);
+    assertThat(results.getHits()).hasSize(1);
+    assertThat(Iterables.getFirst(results.getHits(), null).getFieldAsString("key")).isEqualTo("S001");
+
+  }
+
 
   @Test
   public void search_rules_no_filters() throws InterruptedException {

@@ -89,20 +89,39 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
     try {
       return jsonBuilder().startObject()
         .startObject("index")
-        .field("number_of_replicas", 0)
-        .field("number_of_shards", 3)
-        .startObject("mapper")
-        .field("dynamic", true)
-        .endObject()
-        .startObject("analysis")
-        .startObject("analyzer")
-        .startObject("path_analyzer")
-        .field("type", "custom")
-        .field("tokenizer", "path_hierarchy")
-        .endObject()
-        .endObject()
-        .endObject()
-        .endObject().endObject();
+          .field("number_of_replicas", 0)
+          .field("number_of_shards", 3)
+          .startObject("mapper")
+            .field("dynamic", true)
+          .endObject()
+          .startObject("analysis")
+            .startObject("analyzer")
+              .startObject("path_analyzer")
+                .field("type", "custom")
+                .field("tokenizer", "path_hierarchy")
+              .endObject()
+              .startObject("sortable")
+                .field("type", "custom")
+                .field("tokenizer", "keyword")
+                .field("filter", "lowercase")
+              .endObject()
+              .startObject("rule_name")
+                .field("type", "custom")
+                .field("tokenizer", "standard")
+                .array("filter", "lowercase", "rule_name_ngram")
+              .endObject()
+            .endObject()
+            .startObject("filter")
+              .startObject("rule_name_ngram")
+                .field("type", "nGram")
+                .field("min_gram", 3)
+                .field("max_gram", 5)
+                .array("token_chars", "letter", "digit")
+              .endObject()
+            .endObject()
+          .endObject()
+         .endObject()
+        .endObject();
     } catch (IOException e) {
       LOG.error("Could not create index settings for {}", this.getIndexName());
       return null;
@@ -128,6 +147,22 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
       addMatchField(mapping, RuleField.REPOSITORY.key(), "string");
       addMatchField(mapping, RuleField.SEVERITY.key(), "string");
 
+      mapping.startObject(RuleField.NAME.key())
+          .field("type","multi_field")
+          .startObject("fields")
+            .startObject("raw")
+              .field("type","string")
+              .field("index","analyzed")
+            .endObject()
+            .startObject("search")
+              .field("type","string")
+              .field("index","analyzed")
+              .field("index_analyzer","rule_name")
+              .field("search_analyzer","standard")
+            .endObject()
+          .endObject()
+        .endObject();
+
       mapping.startObject("active")
         .field("type", "nested")
         .field("dynamic", true)
@@ -149,6 +184,7 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
     if (query.getQueryText() != null && !query.getQueryText().isEmpty()) {
       qb = QueryBuilders.multiMatchQuery(query.getQueryText(),
         RuleField.NAME.key(),
+        RuleField.NAME.key()+".search",
         RuleField.DESCRIPTION.key(),
         RuleField.KEY.key(),
         RuleField.LANGUAGE.key(),
