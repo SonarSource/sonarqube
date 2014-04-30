@@ -41,8 +41,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class RuleMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester()
-    .setProperty("sonar.es.http.port", "8888");
+  public static ServerTester tester = new ServerTester();
 
   @After
   public void clear_data_store() {
@@ -85,12 +84,10 @@ public class RuleMediumTest {
     RuleQuery query = service.newRuleQuery().setRepositories(Arrays.asList("findbugs", "java"));
     Results results = service.search(query, new QueryOptions());
 
-
     assertThat(results.getTotal()).isEqualTo(1);
     assertThat(results.getHits()).hasSize(1);
     assertThat(Iterables.getFirst(results.getHits(), null).getFieldAsString("key")).isEqualTo("S002");
   }
-
 
   private RuleDto newRuleDto(RuleKey ruleKey) {
     return new RuleDto()

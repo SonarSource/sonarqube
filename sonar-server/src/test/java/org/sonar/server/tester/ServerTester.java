@@ -19,6 +19,7 @@
  */
 package org.sonar.server.tester;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.junit.rules.ExternalResource;
@@ -39,10 +40,15 @@ import java.util.Properties;
  */
 public class ServerTester extends ExternalResource {
 
-  private Platform platform;
-  private File tempDir;
-  private List components = Lists.newArrayList(DataStoreCleanup.class);
+  private final Platform platform;
+  private final File homeDir;
+  private final List components = Lists.newArrayList(DataStoreCleanup.class);
   private final Properties initialProps = new Properties();
+
+  public ServerTester() {
+    homeDir = createTempDir();
+    platform = new Platform();
+  }
 
   /**
    * Called only when JUnit @Rule or @ClassRule is used.
@@ -57,12 +63,11 @@ public class ServerTester extends ExternalResource {
    */
   public void start() {
     checkNotStarted();
-    tempDir = createTempDir();
+
     Properties properties = new Properties();
     properties.putAll(initialProps);
-    properties.setProperty(CoreProperties.SONAR_HOME, tempDir.getAbsolutePath());
-    properties.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:" + tempDir.getAbsolutePath() + "/h2");
-    platform = new Platform();
+    properties.setProperty(CoreProperties.SONAR_HOME, homeDir.getAbsolutePath());
+    properties.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:" + homeDir.getAbsolutePath() + "/h2");
     platform.init(properties);
     platform.addComponents(components);
     platform.doStart();
@@ -92,11 +97,10 @@ public class ServerTester extends ExternalResource {
    * This method should not be called by test when ServerTester is annotated with {@link org.junit.Rule}
    */
   public void stop() {
-    if (platform != null) {
+    if (platform.isStarted()) {
       platform.doStop();
-      platform = null;
     }
-    FileUtils.deleteQuietly(tempDir);
+    FileUtils.deleteQuietly(homeDir);
   }
 
   /**
@@ -111,6 +115,18 @@ public class ServerTester extends ExternalResource {
     return this;
   }
 
+  public ServerTester addPluginJar(File jar) {
+    Preconditions.checkArgument(jar.exists() && jar.isFile(), "Plugin JAR file does not exist: " + jar.getAbsolutePath());
+    try {
+      File pluginsDir = new File(homeDir, "extensions/plugins");
+      FileUtils.forceMkdir(pluginsDir);
+      FileUtils.copyFileToDirectory(jar, pluginsDir);
+      return this;
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to copy plugin JAR file: " + jar.getAbsolutePath(), e);
+    }
+  }
+
   /**
    * Set a property available for startup. Must be called before {@link #start()}.
    */
@@ -121,7 +137,7 @@ public class ServerTester extends ExternalResource {
   }
 
   /**
-   * Truncate all db tables and es indices
+   * Truncate all db tables and es indices. Can be executed only if ServerTester is started.
    */
   public void clearDataStores() {
     checkStarted();
@@ -137,13 +153,13 @@ public class ServerTester extends ExternalResource {
   }
 
   private void checkStarted() {
-    if (platform == null) {
+    if (!platform.isStarted()) {
       throw new IllegalStateException("Not started");
     }
   }
 
   private void checkNotStarted() {
-    if (platform != null) {
+    if (platform.isStarted()) {
       throw new IllegalStateException("Already started");
     }
   }

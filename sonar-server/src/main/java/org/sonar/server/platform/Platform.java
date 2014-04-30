@@ -83,6 +83,10 @@ public class Platform {
     }
   }
 
+  public boolean isStarted() {
+    return started;
+  }
+
   /**
    * Start level 1 only
    */

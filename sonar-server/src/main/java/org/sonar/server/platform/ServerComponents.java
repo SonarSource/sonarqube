@@ -264,8 +264,6 @@ class ServerComponents {
       TempFolderCleaner.class,
       new TempFolderProvider(),
       System2.INSTANCE,
-
-      /* new RuleDao working with ES */
       org.sonar.server.rule2.RuleDao.class
     ));
     components.addAll(CorePropertyDefinitions.all());
@@ -528,8 +526,8 @@ class ServerComponents {
     }
 
 
-    ServerExtensionInstaller extensionRegistrar = pico.getComponentByType(ServerExtensionInstaller.class);
-    extensionRegistrar.installExtensions(pico);
+    ServerExtensionInstaller extensionInstaller = pico.getComponentByType(ServerExtensionInstaller.class);
+    extensionInstaller.installExtensions(pico);
 
     pico.startComponents();
     executeStartupTaks(pico);
