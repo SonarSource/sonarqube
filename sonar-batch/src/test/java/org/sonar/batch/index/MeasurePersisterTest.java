@@ -97,14 +97,14 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_display_contextual_info_when_error_during_insert_measure() {
+  public void should_display_message_when_error_during_insert_measure() {
     setupData("empty");
 
     Measure measure = new Measure(ncloc()).setValue(1234.0).setAlertText(TOO_LONG);
     when(measureCache.entries()).thenReturn(Arrays.asList(new Cache.Entry<Measure>(new String[] {"foo", "ncloc"}, measure)));
 
     thrown.expect(SonarException.class);
-    thrown.expectMessage("Unable to save measure for metric [ncloc] on component [foo]");
+    thrown.expectMessage("Unable to save some measures");
 
     measurePersister.persist();
   }
