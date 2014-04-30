@@ -20,7 +20,7 @@
 package org.sonar.server.cluster;
 
 import org.sonar.api.ServerComponent;
-import org.sonar.core.cluster.ClusterAction;
+import org.sonar.core.cluster.QueueAction;
 import org.sonar.core.cluster.WorkQueue;
 
 import java.util.concurrent.LinkedBlockingQueue;
@@ -34,7 +34,7 @@ public class LocalNonBlockingWorkQueue extends LinkedBlockingQueue<Runnable>
   }
 
   @Override
-  public void enqueue(ClusterAction action) {
+  public void enqueue(QueueAction action) {
     try {
       this.offer(action, 1000,TimeUnit.SECONDS);
     } catch (InterruptedException e) {
@@ -43,8 +43,8 @@ public class LocalNonBlockingWorkQueue extends LinkedBlockingQueue<Runnable>
   }
 
   @Override
-  public void enqueue(Iterable<ClusterAction> actions) {
-    for (ClusterAction action : actions) {
+  public void enqueue(Iterable<QueueAction> actions) {
+    for (QueueAction action : actions) {
       enqueue(action);
     }
   }

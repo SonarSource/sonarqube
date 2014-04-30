@@ -162,23 +162,6 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
     }
   }
 
-  /* Index Action Methods */
-
-  @Override
-  public boolean executeAction(IndexAction<K> action) {
-    long start = System.currentTimeMillis();
-    if (action.getMethod().equals(Method.DELETE)) {
-      this.delete(action.getKey());
-    } else if (action.getMethod().equals(Method.INSERT)) {
-      this.insert(action.getKey());
-    } else if (action.getMethod().equals(Method.UPDATE)) {
-      this.update(action.getKey());
-    }
-    LOG.debug("Action {} in {} took {}ms", action.getMethod(),
-      this.getIndexName(), (System.currentTimeMillis() - start));
-    return true;
-  }
-
   /* Index management methods */
 
   protected abstract XContentBuilder getIndexSettings();

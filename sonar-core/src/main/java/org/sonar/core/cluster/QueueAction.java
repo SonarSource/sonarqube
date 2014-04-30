@@ -21,15 +21,15 @@ package org.sonar.core.cluster;
 
 import java.util.concurrent.CountDownLatch;
 
-public abstract class ClusterAction implements Runnable {
+public abstract class QueueAction implements Runnable {
 
   private CountDownLatch latch;
 
-  public ClusterAction(CountDownLatch latch){
+  public QueueAction(CountDownLatch latch){
     this.latch = latch;
   }
 
-  public ClusterAction() {
+  public QueueAction() {
     this.latch = null;
   }
 

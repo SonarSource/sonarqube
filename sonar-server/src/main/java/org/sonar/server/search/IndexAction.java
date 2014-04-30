@@ -19,11 +19,16 @@
  */
 package org.sonar.server.search;
 
-import org.sonar.core.cluster.ClusterAction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.core.cluster.QueueAction;
 
 import java.io.Serializable;
 
-public class IndexAction<K extends Serializable> extends ClusterAction {
+public class IndexAction<K extends Serializable> extends QueueAction {
+
+  private static final Logger LOG = LoggerFactory.getLogger(IndexAction.class);
+
 
   public enum Method {
     INSERT, UPDATE, DELETE
@@ -68,7 +73,17 @@ public class IndexAction<K extends Serializable> extends ClusterAction {
 
   @Override
   public void doExecute() {
-    index.executeAction(this);
+    long start = System.currentTimeMillis();
+    if (this.getMethod().equals(Method.DELETE)) {
+      index.delete(this.getKey());
+    } else if (this.getMethod().equals(Method.INSERT)) {
+      index.insert(this.getKey());
+    } else if (this.getMethod().equals(Method.UPDATE)) {
+      index.update(this.getKey());
+    }
+    //TODO execute ACtion when DTO available
+    LOG.debug("Action {} in {} took {}ms", this.getMethod(),
+      this.getIndexName(), (System.currentTimeMillis() - start));
   }
 
   @SuppressWarnings("unchecked")

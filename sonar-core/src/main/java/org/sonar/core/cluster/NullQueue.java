@@ -24,12 +24,12 @@ package org.sonar.core.cluster;
 public class NullQueue implements WorkQueue {
 
   @Override
-  public void enqueue(ClusterAction action) {
+  public void enqueue(QueueAction action) {
 
   }
 
   @Override
-  public void enqueue(Iterable<ClusterAction> actions) {
+  public void enqueue(Iterable<QueueAction> actions) {
 
   }
 }

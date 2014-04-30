@@ -60,6 +60,7 @@ public class LocalQueueWorker extends ThreadPoolExecutor
 
   protected void afterExecute(Runnable r, Throwable t) {
     super.afterExecute(r, t);
+    //TODO throw throwable
   }
 
   @Override

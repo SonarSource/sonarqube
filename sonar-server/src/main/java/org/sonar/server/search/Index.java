@@ -29,8 +29,6 @@ public interface Index<K extends Serializable> extends Startable {
 
   String getIndexName();
 
-  boolean executeAction(IndexAction<K> action);
-
   @CheckForNull
   Hit getByKey(K key);
 

@@ -19,17 +19,14 @@
  */
 package org.sonar.core.cluster;
 
-import org.sonar.core.db.Dto;
-
-import java.io.Serializable;
 
 
 
 public interface WorkQueue {
 
-  void enqueue(ClusterAction action);
+  void enqueue(QueueAction action);
 
-  void enqueue(Iterable<ClusterAction> actions);
+  void enqueue(Iterable<QueueAction> actions);
 
   /* This is because of core vs server packages... */
 //  void enqueue(ClusterAction.Type type, ClusterAction.Method method, String ref, Serializable key);

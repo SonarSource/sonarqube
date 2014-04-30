@@ -20,7 +20,7 @@
 package org.sonar.server.rule2;
 
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.server.search.Hit;
 
@@ -64,14 +64,13 @@ public class RuleImpl implements Rule {
   }
 
   @Override
-  public Severity severity() {
-    //FIXME missign Severity.of(String) or Severity.of(int);
-    return null;
+  public String severity() {
+    return (String) this.fields.get("severity");
   }
 
   @Override
-  public String status() {
-    return (String) this.fields.get("status");
+  public RuleStatus status() {
+    return RuleStatus.valueOf( (String) this.fields.get("status"));
   }
 
   @Override
@@ -84,6 +83,12 @@ public class RuleImpl implements Rule {
   @SuppressWarnings("unchecked")
   public List<String> tags() {
     return (List<String>) this.fields.get("tags");
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public List<String> systemTags() {
+    return (List<String>) this.fields.get("systemTags");
   }
 
   @Override
@@ -121,5 +126,4 @@ public class RuleImpl implements Rule {
   public static Rule fromHit(Hit hit) {
     return new RuleImpl(hit.getFields());
   }
-
 }

@@ -26,7 +26,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.core.cluster.ClusterAction;
+import org.sonar.core.cluster.QueueAction;
 import org.sonar.core.cluster.WorkQueue;
 
 import java.sql.Connection;
@@ -39,7 +39,7 @@ public class DbSession implements SqlSession {
 
   private static final Logger LOG = LoggerFactory.getLogger(DbSession.class);
 
-  private List<ClusterAction> actions;
+  private List<QueueAction> actions;
 
   private WorkQueue queue;
   private SqlSession session;
@@ -47,16 +47,16 @@ public class DbSession implements SqlSession {
   DbSession(WorkQueue queue, SqlSession session) {
     this.session = session;
     this.queue = queue;
-    this.actions = new ArrayList<ClusterAction>();
+    this.actions = new ArrayList<QueueAction>();
   }
 
-  public void enqueue(ClusterAction action) {
+  public void enqueue(QueueAction action) {
     this.actions.add(action);
   }
 
   private void enqueueActions(){
     CountDownLatch latch = new CountDownLatch(actions.size());
-    for(ClusterAction action:actions){
+    for(QueueAction action:actions){
       action.setLatch(latch);
       queue.enqueue(action);
     }
