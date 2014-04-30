@@ -22,7 +22,6 @@ package org.sonar.server.rule2;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Cardinality;
-import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.search.BaseNormalizer;
 
@@ -33,7 +32,6 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
   private RuleDao ruleDao;
-  private ActiveRuleDao activeRuleDao;
 
   public enum RuleField {
     KEY("key"),
@@ -65,9 +63,8 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     }
   }
 
-  public RuleNormalizer(RuleDao ruleDao, ActiveRuleDao activeRuleDao) {
+  public RuleNormalizer(RuleDao ruleDao) {
     this.ruleDao = ruleDao;
-    this.activeRuleDao = activeRuleDao;
   }
 
   @Override
@@ -77,10 +74,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
   @Override
   public XContentBuilder normalize(RuleDto rule) throws IOException {
-
     XContentBuilder document = jsonBuilder().startObject();
-
-
     indexField(RuleField.KEY.key(), rule.getRuleKey(), document);
     indexField(RuleField.REPOSITORY.key(), rule.getRepositoryKey(), document);
     indexField(RuleField.NAME.key(), rule.getName(), document);
@@ -92,7 +86,6 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     indexField(RuleField.LANGUAGE.key(), rule.getLanguage(), document);
     indexField(RuleField.INTERNAL_KEY.key(), rule.getConfigKey(), document);
     indexField(RuleField.TEMPLATE.key(), rule.getCardinality() == Cardinality.MULTIPLE, document);
-
     indexField(RuleField.TAGS.key(), rule.getName(), document);
     indexField(RuleField.SYSTEM_TAGS.key(), rule.getName(), document);
 

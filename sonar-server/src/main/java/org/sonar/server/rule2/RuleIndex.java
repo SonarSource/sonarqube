@@ -42,7 +42,6 @@ import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.Hit;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Results;
-import org.yecht.Data;
 
 import java.io.IOException;
 import java.util.Map;
@@ -185,7 +184,7 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
     for (SearchHit esHit : esResult.getHits().getHits()) {
       Hit hit = new Hit(esHit.score());
       for (Map.Entry<String, SearchHitField> entry : esHit.fields().entrySet()) {
-        if(entry.getValue().getValues().size()>1) {
+        if (entry.getValue().getValues().size() > 1) {
           hit.getFields().put(entry.getKey(), entry.getValue().getValues());
         } else {
           hit.getFields().put(entry.getKey(), entry.getValue().getValue());

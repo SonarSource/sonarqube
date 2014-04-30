@@ -31,7 +31,7 @@ import java.io.Serializable;
 public abstract class BaseDao<E extends Dto<K>, K extends Serializable>
   implements Dao<E, K> {
 
-  protected MyBatis mybatis;
+  protected final MyBatis mybatis;
 
   protected BaseDao(MyBatis myBatis) {
     this.mybatis = myBatis;
@@ -56,9 +56,11 @@ public abstract class BaseDao<E extends Dto<K>, K extends Serializable>
   @Override
   public E getByKey(K key) {
     DbSession session = getMyBatis().openSession(false);
-    E item = this.doGetByKey(key, session);
-    MyBatis.closeQuietly(session);
-    return item;
+    try {
+      return this.doGetByKey(key, session);
+    } finally {
+      session.close();
+    }
   }
 
   @Override

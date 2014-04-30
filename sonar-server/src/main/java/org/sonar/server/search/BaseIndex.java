@@ -19,14 +19,10 @@
  */
 package org.sonar.server.search;
 
-import org.elasticsearch.action.admin.cluster.stats.ClusterStatsNodes;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
-import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.BoolFilterBuilder;
@@ -37,8 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.db.Dto;
 import org.sonar.core.profiling.Profiling;
-import org.sonar.core.profiling.Profiling.Level;
-import org.sonar.core.profiling.StopWatch;
 import org.sonar.server.es.ESNode;
 
 import java.io.IOException;
@@ -47,29 +41,21 @@ import java.util.Collection;
 
 public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implements Index<K> {
 
-  private static final String PROFILE_DOMAIN = "es";
-
   private static final Logger LOG = LoggerFactory.getLogger(BaseIndex.class);
 
-  public static final String ES_CLUSTER_NAME = "sonarqube";
-
-  private static final String LOCAL_ES_NODE_HOST = "localhost";
-  private static final int LOCAL_ES_NODE_PORT = 9300;
-
   private final Profiling profiling;
-  private Client client;
   private final ESNode node;
   protected BaseNormalizer<E, K> normalizer;
 
   public BaseIndex(BaseNormalizer<E, K> normalizer, WorkQueue workQueue,
-    Profiling profiling, ESNode node) {
+                   Profiling profiling, ESNode node) {
     this.normalizer = normalizer;
     this.profiling = profiling;
     this.node = node;
   }
 
   protected Client getClient() {
-    return this.client;
+    return node.client();
   }
 
   /* Component Methods */
@@ -77,26 +63,13 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
   @Override
   public void start() {
 
-    /* Connect to the local ES Cluster */
-    this.connect();
-
     /* Setup the index if necessary */
     this.intializeIndex();
   }
 
   @Override
   public void stop() {
-    if (client != null) {
-      client.close();
-    }
-  }
 
-  private StopWatch createWatch() {
-    return profiling.start(PROFILE_DOMAIN, Level.FULL);
-  }
-
-  public void connect() {
-    this.client = this.node.client();
   }
 
   /* Cluster And ES Stats/Client methods */
@@ -105,7 +78,7 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
 
     String index = this.getIndexName();
 
-    IndicesExistsResponse indexExistsResponse = client.admin().indices()
+    IndicesExistsResponse indexExistsResponse = getClient().admin().indices()
       .prepareExists(index).execute().actionGet();
 
     if (!indexExistsResponse.isExists()) {
@@ -120,19 +93,10 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
         e.printStackTrace();
       }
 
-      client.admin().indices().prepareCreate(index)
+      getClient().admin().indices().prepareCreate(index)
         .setSettings(getIndexSettings())
         .addMapping(getType(), getMapping())
         .execute().actionGet();
-    }
-  }
-
-  public ClusterStatsNodes getNodesStats() {
-    StopWatch watch = createWatch();
-    try {
-      return client.admin().cluster().prepareClusterStats().get().getNodesStats();
-    } finally {
-      watch.stop("ping from transport client");
     }
   }
 
@@ -159,21 +123,22 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
   public void insert(K key) {
     try {
       XContentBuilder doc = normalizer.normalize(key);
-      String keyValue = this.getKeyValue(key);
+      String keyValue = getKeyValue(key);
       if (doc != null && keyValue != null && !keyValue.isEmpty()) {
-        LOG.debug("Update document with key {}", key);
-        IndexResponse result = getClient().index(
+        LOG.debug("Insert document with key {}", key);
+        getClient().index(
           new IndexRequest(this.getIndexName(),
-            this.getType(), keyValue)
-            .refresh(true)
-            .source(doc)).get();
+            getType(), keyValue)
+            //.refresh(true)
+            .source(doc)
+        ).get();
       } else {
-        LOG.error("Could not normalize document {} for insert in ",
-          key, this.getIndexName());
+        LOG.error("Could not normalize document {} for insert in {}",
+          key, getIndexName());
       }
     } catch (Exception e) {
-      LOG.error("Could not update documet for index {}: {}",
-        this.getIndexName(), e.getMessage());
+      LOG.error("Could not update document for index {}: {}",
+        getIndexName(), e.getMessage());
     }
   }
 
@@ -182,11 +147,12 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
     try {
       LOG.info("Update document with key {}", key);
       XContentBuilder doc = normalizer.normalize(key);
-      UpdateResponse result = getClient().update(
+      getClient().update(
         new UpdateRequest(this.getIndexName(),
           this.getType(), this.getKeyValue(key))
-                .refresh(true)
-          .doc(doc)).get();
+          //.refresh(true)
+          .doc(doc)
+      ).get();
     } catch (Exception e) {
       LOG.error("Could not update documet for index {}: {}",
         this.getIndexName(), e.getMessage());
@@ -196,7 +162,7 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
   @Override
   public void delete(K key) {
     LOG.info("Deleting document with key {}", key);
-    DeleteResponse result = getClient()
+    getClient()
       .prepareDelete(this.getIndexName(), this.getType(), this.getKeyValue(key))
       .get();
   }
@@ -229,8 +195,8 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
     if (values != null && !values.isEmpty()) {
       BoolFilterBuilder valuesFilter = FilterBuilders.boolFilter();
       for (String value : values) {
-          FilterBuilder valueFilter = FilterBuilders.termFilter(field, value);
-          valuesFilter.should(valueFilter);
+        FilterBuilder valueFilter = FilterBuilders.termFilter(field, value);
+        valuesFilter.should(valueFilter);
       }
       filter.must(valuesFilter);
     }
