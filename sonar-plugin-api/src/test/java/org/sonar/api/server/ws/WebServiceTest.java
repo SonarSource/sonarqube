@@ -54,7 +54,6 @@ public class WebServiceTest {
         .setSince("4.1")
         .setPost(true)
         .setInternal(true)
-        .setResponseExampleFormat("txt")
         .setResponseExample(getClass().getResource("/org/sonar/api/server/ws/WebServiceTest/response-example.txt"))
         .setHandler(new RequestHandler() {
           @Override
@@ -102,6 +101,9 @@ public class WebServiceTest {
     assertThat(showAction.key()).isEqualTo("show");
     assertThat(showAction.description()).isEqualTo("Show metric");
     assertThat(showAction.handler()).isNotNull();
+    assertThat(showAction.responseExample()).isNull();
+    assertThat(showAction.responseExampleFormat()).isNull();
+    assertThat(showAction.responseExampleAsString()).isNull();
     // same as controller
     assertThat(showAction.since()).isEqualTo("3.2");
     assertThat(showAction.isPost()).isFalse();

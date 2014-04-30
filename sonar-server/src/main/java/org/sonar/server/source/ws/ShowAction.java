@@ -19,6 +19,7 @@
  */
 package org.sonar.server.source.ws;
 
+import com.google.common.io.Resources;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -44,8 +45,7 @@ public class ShowAction implements RequestHandler {
       .setDescription("Get source code. Parameter 'output' with value 'raw' is missing before being marked as a public WS.")
       .setSince("4.2")
       .setInternal(true)
-      .setResponseExampleFormat("json")
-      .setResponseExample(getClass().getResource("/org/sonar/server/source/ws/example-show.json"))
+      .setResponseExample(Resources.getResource(getClass(), "example-show.json"))
       .setHandler(this);
 
     action

@@ -23,6 +23,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerExtension;
@@ -253,7 +254,6 @@ public interface WebService extends ServerExtension {
     private RequestHandler handler;
     private Map<String, NewParam> newParams = Maps.newHashMap();
     private URL responseExample = null;
-    private String responseExampleFormat = null;
 
     private NewAction(String key) {
       this.key = key;
@@ -299,16 +299,6 @@ public interface WebService extends ServerExtension {
       return this;
     }
 
-    /**
-     * Used only if {@link #setResponseExample(java.net.URL)} is set. Example of values: "xml", "json", "txt", "csv".
-     *
-     * @since 4.4
-     */
-    public NewAction setResponseExampleFormat(@Nullable String format) {
-      this.responseExampleFormat = format;
-      return this;
-    }
-
     public NewParam createParam(String paramKey) {
       if (newParams.containsKey(paramKey)) {
         throw new IllegalStateException(
@@ -337,7 +327,6 @@ public interface WebService extends ServerExtension {
     private final RequestHandler handler;
     private final Map<String, Param> params;
     private final URL responseExample;
-    private final String responseExampleFormat;
 
     private Action(Controller controller, NewAction newAction) {
       this.key = newAction.key;
@@ -347,7 +336,6 @@ public interface WebService extends ServerExtension {
       this.post = newAction.post;
       this.isInternal = newAction.isInternal;
       this.responseExample = newAction.responseExample;
-      this.responseExampleFormat = newAction.responseExampleFormat;
 
       if (newAction.handler == null) {
         throw new IllegalArgumentException("RequestHandler is not set on action " + path);
@@ -418,11 +406,14 @@ public interface WebService extends ServerExtension {
     }
 
     /**
-     * @see org.sonar.api.server.ws.WebService.NewAction#setResponseExampleFormat(String)
+     * @see org.sonar.api.server.ws.WebService.NewAction#setResponseExample(java.net.URL)
      */
     @CheckForNull
     public String responseExampleFormat() {
-      return responseExampleFormat;
+      if (responseExample != null) {
+        return StringUtils.lowerCase(FilenameUtils.getExtension(responseExample.getFile()));
+      }
+      return null;
     }
 
     @CheckForNull

@@ -90,7 +90,6 @@ public class ListingWsTest {
         .setPost(true)
         .setInternal(true)
         .setResponseExample(getClass().getResource("/org/sonar/server/ws/ListingWsTest/metrics_example.json"))
-        .setResponseExampleFormat("json")
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {
