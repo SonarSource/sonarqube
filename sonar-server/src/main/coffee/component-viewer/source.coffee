@@ -23,14 +23,13 @@ define [
     expandTemplate: Templates['code-expand']
 
     LINES_AROUND_ISSUE = 4
-    LINES_AROUND_COVERAGE = 4
-    LINES_AROUND_DUPLICATION = 4
     EXPAND_LINES = 20
 
 
     events:
       'click .js-toggle-settings': 'toggleSettings'
       'click .js-toggle-measures': 'toggleMeasures'
+      'change #source-issues': 'toggleIssues'
       'change #source-coverage': 'toggleCoverage'
       'change #source-duplications': 'toggleDuplications'
       'change #source-workspace': 'toggleWorkspace'
@@ -99,24 +98,27 @@ define [
       @$('.component-viewer-measures-section').toggleClass 'brief'
 
 
-    toggleCoverage: (e) ->
+    toggleSetting: (e, show, hide) ->
       @showBlocks = []
       active = $(e.currentTarget).is ':checked'
       @showSettings = true
-      if active then @options.main.showCoverage() else @options.main.hideCoverage()
+      if active then show.call @options.main else hide.call @options.main
+
+
+    toggleIssues: (e) ->
+      @toggleSetting e, @options.main.showIssues, @options.main.hideIssues
+
+
+    toggleCoverage: (e) ->
+      @toggleSetting e, @options.main.showCoverage, @options.main.hideCoverage
 
 
     toggleDuplications: (e) ->
-      @showBlocks = []
-      active = $(e.currentTarget).is ':checked'
-      @showSettings = true
-      if active then @options.main.showDuplications() else @options.main.hideDuplications()
+      @toggleSetting e, @options.main.showDuplications, @options.main.hideDuplications
 
 
     toggleWorkspace: (e) ->
-      active = $(e.currentTarget).is ':checked'
-      @showSettings = true
-      if active then @options.main.showWorkspace() else @options.main.hideWorkspace()
+      @toggleSetting e, @options.main.showWorkspace, @options.main.hideWorkspace
 
 
     showCoveragePopup: (e) ->

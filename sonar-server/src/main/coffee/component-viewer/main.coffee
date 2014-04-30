@@ -39,7 +39,7 @@ define [
       sourceRegion: '.component-viewer-source'
 
 
-    initialize: ->
+    initialize: (options) ->
       @workspace = new Backbone.Collection()
       @component = new Backbone.Model()
       @workspaceView = new WorkspaceView
@@ -57,6 +57,7 @@ define [
         duplications: false
         scm: false
         workspace: false
+      @settings.set options.settings
 
 
     onRender: ->
@@ -143,6 +144,7 @@ define [
         @workspace.where(key: key).forEach (model) =>
           model.set 'component': @component.toJSON()
         @render()
+        if @settings.get('issues') then @showIssues() else @hideIssues()
         if @settings.get('coverage') then @showCoverage() else @hideCoverage()
         if @settings.get('duplications') then @showDuplications() else @hideDuplications()
 
