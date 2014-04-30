@@ -23,6 +23,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.server.search.Hit;
+import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Results;
 
 import javax.annotation.CheckForNull;
@@ -53,7 +54,11 @@ public class RuleService implements ServerComponent {
     return new RuleQuery();
   }
 
-  public Results search(RuleQuery query) {
-    return index.search(query);
+  /**
+   * @see #newRuleQuery()
+   */
+  public Results search(RuleQuery query, QueryOptions options) {
+    options.filterFieldsToReturn(RuleIndex.PUBLIC_FIELDS);
+    return index.search(query, options);
   }
 }

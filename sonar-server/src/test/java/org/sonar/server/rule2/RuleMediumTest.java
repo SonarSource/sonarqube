@@ -21,13 +21,12 @@ package org.sonar.server.rule2;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.rule.RuleDto;
@@ -110,6 +109,7 @@ public class RuleMediumTest {
   }
 
   @Test
+  @Ignore
   public void test_ruleservice_getByKey() {
     RuleService service = tester.get(RuleService.class);
     RuleDao dao = tester.get(RuleDao.class);

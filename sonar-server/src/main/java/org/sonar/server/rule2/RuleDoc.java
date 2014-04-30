@@ -45,13 +45,12 @@ class RuleDoc implements Rule {
 
   @Override
   public RuleKey key() {
-    return RuleKey.of((String) fields.get("repositoryKey"),
-      (String) fields.get("ruleKey"));
+    return RuleKey.of((String) fields.get("repositoryKey"), (String) fields.get("key"));
   }
 
   @Override
   public String language() {
-    return (String) fields.get("language");
+    return (String) fields.get("lang");
   }
 
   @Override
@@ -61,7 +60,7 @@ class RuleDoc implements Rule {
 
   @Override
   public String description() {
-    return (String) fields.get("description");
+    return (String) fields.get("desc");
   }
 
   @Override

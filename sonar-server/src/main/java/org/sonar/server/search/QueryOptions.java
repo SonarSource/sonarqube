@@ -20,9 +20,13 @@
 package org.sonar.server.search;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Sets;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.Set;
 
 /**
  * Options about paging, sorting and fields to return
@@ -37,7 +41,7 @@ public class QueryOptions {
   private int limit = DEFAULT_LIMIT;
   private boolean ascending = DEFAULT_ASCENDING;
   private String sortField;
-  private String[] fieldsToReturn;
+  private Set<String> fieldsToReturn;
 
   /**
    * Offset of the first result to return. Defaults to {@link #DEFAULT_OFFSET}
@@ -93,12 +97,37 @@ public class QueryOptions {
   }
 
   @CheckForNull
-  public String[] getFieldsToReturn() {
+  public Set<String> getFieldsToReturn() {
     return fieldsToReturn;
   }
 
-  public QueryOptions setFieldsToReturn(@Nullable String[] fieldsToReturn) {
-    this.fieldsToReturn = fieldsToReturn;
+  public QueryOptions setFieldsToReturn(@Nullable Set<String> c) {
+    this.fieldsToReturn = c;
+    return this;
+  }
+
+  public QueryOptions addFieldsToReturn(@Nullable Collection<String> c) {
+    if (c != null) {
+      if (fieldsToReturn == null) {
+        fieldsToReturn = Sets.newHashSet(c);
+      } else {
+        fieldsToReturn.addAll(c);
+      }
+    }
+    return this;
+  }
+
+  public QueryOptions filterFieldsToReturn(final Set<String> keep) {
+    if (fieldsToReturn == null) {
+      fieldsToReturn = keep;
+    } else {
+      fieldsToReturn = Sets.filter(fieldsToReturn, new Predicate<String>() {
+        @Override
+        public boolean apply(@Nullable String input) {
+          return input != null && keep.contains(input);
+        }
+      });
+    }
     return this;
   }
 }

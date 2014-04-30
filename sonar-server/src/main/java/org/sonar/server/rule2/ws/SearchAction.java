@@ -25,8 +25,15 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.server.rule2.RuleIndex;
 import org.sonar.server.rule2.RuleQuery;
 import org.sonar.server.rule2.RuleService;
+import org.sonar.server.search.Hit;
+import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.Results;
+
+import java.util.Map;
 
 /**
  * @since 4.4
@@ -82,6 +89,12 @@ public class SearchAction implements RequestHandler {
       .createParam("activation")
       .setDescription("Used only if 'qProfile' is set. Possible values are: true | false | all")
       .setExampleValue("java:Sonar way");
+
+    action
+      .createParam("fields")
+      .setDescription("Comma-separated list of the fields to be returned in response. All the fields are returned by default.")
+      .setPossibleValues(RuleIndex.PUBLIC_FIELDS)
+      .setExampleValue("key,name");
   }
 
   @Override
@@ -91,6 +104,17 @@ public class SearchAction implements RequestHandler {
     query.setSeverities(request.paramAsStrings("severities"));
     query.setRepositories(request.paramAsStrings("repositories"));
 
-    service.search(query);
+    Results results = service.search(query, new QueryOptions());
+    JsonWriter json = response.newJsonWriter().beginObject().name("hits").beginArray();
+    for (Hit hit : results.getHits()) {
+      json.beginObject();
+      for (Map.Entry<String, Object> entry : hit.getFields().entrySet()) {
+        Object value = entry.getValue();
+        json.prop(entry.getKey(), value == null ? null : value.toString());
+      }
+      json.endObject();
+    }
+    json.endArray();
+    json.endObject().close();
   }
 }

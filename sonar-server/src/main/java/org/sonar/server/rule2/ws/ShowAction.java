@@ -19,6 +19,8 @@
  */
 package org.sonar.server.rule2.ws;
 
+import com.google.common.io.Resources;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
@@ -27,6 +29,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule2.Rule;
+import org.sonar.server.rule2.RuleParam;
 import org.sonar.server.rule2.RuleService;
 
 /**
@@ -44,26 +47,30 @@ public class ShowAction implements RequestHandler {
     WebService.NewAction action = controller
       .createAction("show")
       .setDescription("Get detailed information about a rule")
-      .setSince("4.4")
+      .setSince("4.2")
+      .setResponseExample(Resources.getResource(getClass(), "example-show.json"))
       .setHandler(this);
 
     action
       .createParam("repo")
-      .setDescription("Repository key")
-      .setRequired(true)
+      .setDescription("Repository key. It's not marked as required for backward-compatibility reasons.")
       .setExampleValue("javascript");
 
     action
       .createParam("key")
-      .setDescription("Rule key")
+      .setDescription("Rule key. The format including the repository key is deprecated " +
+        "but still supported, for example 'javascript:EmptyBlock'.")
       .setRequired(true)
       .setExampleValue("EmptyBlock");
   }
 
   @Override
   public void handle(Request request, Response response) {
-    String repoKey = request.mandatoryParam("repo");
     String ruleKey = request.mandatoryParam("key");
+    String repoKey = request.param("repo");
+    if (repoKey == null && ruleKey.contains(":")) {
+      repoKey = StringUtils.substringBefore(ruleKey, ":");
+    }
     Rule rule = service.getByKey(RuleKey.of(repoKey, ruleKey));
     if (rule == null) {
       throw new NotFoundException("Rule not found");
@@ -74,16 +81,24 @@ public class ShowAction implements RequestHandler {
   }
 
   private void writeRule(Rule rule, JsonWriter json) {
-    json.prop("repo", rule.key().repository());
-    json.prop("key", rule.key().rule());
-    json.prop("lang", rule.language());
-    json.prop("name", rule.name());
-    json.prop("desc", rule.description());
-    json.prop("status", rule.status().toString());
-    json.prop("template", rule.template());
-    json.prop("severity", rule.severity().toString());
-    json.name("tags").beginArray().values(rule.tags()).endArray();
-    json.name("sysTags").beginArray().values(rule.systemTags()).endArray();
-    //TODO debt, params
+    json
+      .prop("repo", rule.key().repository())
+      .prop("key", rule.key().rule())
+      .prop("lang", rule.language())
+      .prop("name", rule.name())
+      .prop("desc", rule.description())
+      .prop("status", rule.status().toString())
+      .prop("template", rule.template())
+      .prop("severity", rule.severity().toString())
+      .name("tags").beginArray().values(rule.tags()).endArray()
+      .name("sysTags").beginArray().values(rule.systemTags()).endArray();
+    json.name("params").beginArray();
+    for (RuleParam param : rule.params()) {
+      json
+        .prop("key", param.key())
+        .prop("desc", param.description())
+        .prop("defaultValue", param.defaultValue());
+    }
+    json.endArray();
   }
 }

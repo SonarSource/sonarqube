@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule2;
 
+import com.google.common.collect.ImmutableSet;
 import org.apache.commons.beanutils.BeanUtils;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.slf4j.Logger;
@@ -32,12 +33,14 @@ import org.sonar.core.rule.RuleConstants;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.es.ESNode;
 import org.sonar.server.search.BaseIndex;
+import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Results;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
@@ -45,7 +48,10 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
 
   private static final Logger LOG = LoggerFactory.getLogger(RuleIndex.class);
 
-  private ActiveRuleDao activeRuleDao;
+  public static final Set<String> PUBLIC_FIELDS = ImmutableSet.of("repositoryKey", "key", "name", "desc",
+    "lang", "severity", "status", "tags", "sysTags", "createdAt", "updatedAt");
+
+  private final ActiveRuleDao activeRuleDao;
 
   public RuleIndex(WorkQueue workQueue, RuleDao dao, ActiveRuleDao ActiveRuleDao, Profiling profiling, ESNode node) {
     super(workQueue, dao, profiling, node);
@@ -197,7 +203,10 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
     return null;
   }
 
-  public Results search(RuleQuery query) {
+  public Results search(RuleQuery query, QueryOptions options) {
     throw new UnsupportedOperationException("TODO");
+
   }
+
+
 }
