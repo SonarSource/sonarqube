@@ -24,8 +24,6 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.core.cluster.QueueAction;
 import org.sonar.core.cluster.WorkQueue;
 
@@ -33,11 +31,8 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 
 public class DbSession implements SqlSession {
-
-  private static final Logger LOG = LoggerFactory.getLogger(DbSession.class);
 
   private List<QueueAction> actions;
 
@@ -58,17 +53,19 @@ public class DbSession implements SqlSession {
   public void commit() {
     session.commit();
     queue.enqueue(actions);
+    actions.clear();
   }
 
   @Override
   public void commit(boolean force) {
     session.commit(force);
     queue.enqueue(actions);
+    actions.clear();
   }
 
   /**
-   *  We only care about the the commit section.
-   *  The rest is simply passed to its parent.
+   * We only care about the the commit section.
+   * The rest is simply passed to its parent.
    */
 
   @Override
