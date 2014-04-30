@@ -54,11 +54,13 @@ public class RuleService implements ServerComponent {
     return new RuleQuery();
   }
 
-  /**
-   * @see #newRuleQuery()
-   */
   public Results search(RuleQuery query, QueryOptions options) {
     options.filterFieldsToReturn(RuleIndex.PUBLIC_FIELDS);
     return index.search(query, options);
+  }
+
+  public RuleService refresh(){
+    this.index.refresh();
+    return this;
   }
 }

@@ -20,6 +20,7 @@
 package org.sonar.server.rule2;
 
 import com.google.common.collect.Iterables;
+import com.sun.org.apache.xerces.internal.util.SynchronizedSymbolTable;
 import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -28,6 +29,8 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.search.Hit;
 import org.sonar.server.search.QueryOptions;
@@ -64,6 +67,8 @@ public class RuleMediumTest {
 
     // verify that rule is indexed in es
     RuleIndex index = tester.get(RuleIndex.class);
+    index.refresh();
+
     Hit hit = index.getByKey(ruleKey);
     assertThat(hit).isNotNull();
     assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.REPOSITORY.key())).isEqualTo(ruleKey.repository());
@@ -74,13 +79,31 @@ public class RuleMediumTest {
     assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.STATUS.key())).isEqualTo(RuleStatus.READY.toString());
   }
 
+
+  @Test
+  public void search_rules_no_filters() throws InterruptedException {
+    RuleDao dao = tester.get(RuleDao.class);
+    dao.insert(newRuleDto(RuleKey.of("javascript", "S001")));
+
+    RuleService service = tester.get(RuleService.class).refresh();;
+
+    RuleQuery query = service.newRuleQuery();
+    Results results = service.search(query, new QueryOptions());
+
+    assertThat(results.getTotal()).isEqualTo(1);
+    assertThat(results.getHits()).hasSize(1);
+    assertThat(Iterables.getFirst(results.getHits(), null).getFieldAsString("key")).isEqualTo("S001");
+
+  }
+
   @Test
   public void search_rules_by_repositories() throws InterruptedException {
     RuleDao dao = tester.get(RuleDao.class);
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001")));
     dao.insert(newRuleDto(RuleKey.of("java", "S002")));
 
-    RuleService service = tester.get(RuleService.class);
+    RuleService service = tester.get(RuleService.class).refresh();
+
     RuleQuery query = service.newRuleQuery().setRepositories(Arrays.asList("findbugs", "java"));
     Results results = service.search(query, new QueryOptions());
 

@@ -165,7 +165,18 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
     this.addTermFilter(RuleField.SEVERITY.key(), query.getSeverities(), fb);
     this.addTermFilter(RuleField.KEY.key(), query.getKey(), fb);
 
-    QueryBuilder mainQuery = QueryBuilders.filteredQuery(qb, fb);
+
+    QueryBuilder mainQuery;
+
+    if((query.getLanguages() != null && !query.getLanguages().isEmpty()) ||
+      (query.getRepositories() != null && !query.getRepositories().isEmpty()) ||
+      (query.getSeverities() != null && !query.getSeverities().isEmpty()) ||
+      (query.getKey() != null && !query.getKey().isEmpty())) {
+
+      mainQuery = QueryBuilders.filteredQuery(qb, fb);
+    } else {
+      mainQuery = qb;
+    }
 
     //Create ES query Object;
     SearchRequestBuilder esSearch = getClient()

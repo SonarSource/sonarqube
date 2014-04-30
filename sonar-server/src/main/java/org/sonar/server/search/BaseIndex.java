@@ -64,7 +64,7 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
   public void start() {
 
     /* Setup the index if necessary */
-    this.intializeIndex();
+    this.initializeIndex();
   }
 
   @Override
@@ -74,7 +74,7 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
 
   /* Cluster And ES Stats/Client methods */
 
-  private void intializeIndex() {
+  private void initializeIndex() {
 
     String index = this.getIndexName();
 
@@ -111,6 +111,11 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
   /* Base CRUD methods */
 
   protected abstract String getKeyValue(K key);
+
+  @Override
+  public void refresh(){
+    getClient().admin().indices().prepareRefresh(this.getIndexName()).get();
+  }
 
   @Override
   public Hit getByKey(K key) {

@@ -32,6 +32,8 @@ public interface Index<K extends Serializable> extends Startable {
   @CheckForNull
   Hit getByKey(K key);
 
+  void refresh();
+
   void insert(K key);
 
   void update(K key);
