@@ -19,6 +19,10 @@
  */
 package org.sonar.server.platform;
 
+import org.sonar.server.cluster.LocalNonBlockingWorkQueue;
+
+import org.sonar.server.rule2.RuleDao;
+import org.sonar.server.rule2.RuleService;
 import com.google.common.collect.Lists;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.sonar.api.config.EmailSettings;
@@ -78,7 +82,6 @@ import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
 import org.sonar.server.authentication.ws.AuthenticationWs;
 import org.sonar.server.charts.ChartFactory;
-import org.sonar.server.cluster.LocalNonBlockingWorkQueue;
 import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
@@ -170,7 +173,10 @@ class ServerComponents {
       SemaphoresImpl.class,
       TempFolderCleaner.class,
       new TempFolderProvider(),
-      System2.INSTANCE
+      System2.INSTANCE,
+
+      /* new RuleDao working with ES */
+      RuleDao.class
     ));
     components.addAll(CorePropertyDefinitions.all());
     components.addAll(DatabaseMigrations.CLASSES);
@@ -284,6 +290,7 @@ class ServerComponents {
     pico.addSingleton(AddTagsWsHandler.class);
     pico.addSingleton(RemoveTagsWsHandler.class);
     pico.addSingleton(RulesDefinitionXmlLoader.class);
+    pico.addSingleton(RuleService.class);
 
     // rule tags
     pico.addSingleton(ESRuleTags.class);

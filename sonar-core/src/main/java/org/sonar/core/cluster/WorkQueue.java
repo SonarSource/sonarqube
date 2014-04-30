@@ -19,15 +19,20 @@
  */
 package org.sonar.core.cluster;
 
-import javax.annotation.CheckForNull;
+import org.sonar.core.db.Dto;
+
+import java.io.Serializable;
+
+
 
 public interface WorkQueue {
 
-  void enqueue(IndexAction<?> action);
+  void enqueue(ClusterAction action);
 
-  void enqueue(Iterable<IndexAction<?>> actions);
+  void enqueue(Iterable<ClusterAction> actions);
 
-  @CheckForNull
-  IndexAction<?> dequeue();
+  /* This is because of core vs server packages... */
+//  void enqueue(ClusterAction.Type type, ClusterAction.Method method, String ref, Serializable key);
+//  void enqueue(ClusterAction.Type type, ClusterAction.Method method, String ref, Dto dto);
 
 }

@@ -17,12 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.db;
+package org.sonar.server.db;
 
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.core.cluster.IndexAction;
+import org.sonar.core.db.Dao;
+import org.sonar.core.db.Dto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.server.search.IndexAction;
 
 import java.io.Serializable;
 
@@ -80,9 +82,11 @@ public abstract class BaseDao<E extends Dto<K>, K extends Serializable>
 
   @Override
   public E insert(E item, DbSession session) {
-    session.enqueue(new IndexAction(this.getIndexName(),
-      IndexAction.Method.INSERT, item.getKey()));
-    return this.doInsert(item, session);
+    IndexAction action = new IndexAction(this.getIndexName(),
+      IndexAction.Method.INSERT, item.getKey());
+    session.enqueue(action);
+    this.doInsert(item, session);
+    return item;
   }
 
   @Override

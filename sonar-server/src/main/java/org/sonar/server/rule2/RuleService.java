@@ -22,11 +22,15 @@ package org.sonar.server.rule2;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.rule.RuleDao;
+import org.sonar.core.rule.RuleDto;
 import org.sonar.server.search.Hit;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Results;
 
 import javax.annotation.CheckForNull;
+
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * @since 4.4
@@ -52,5 +56,17 @@ public class RuleService implements ServerComponent {
 
   public Results search(RuleQuery query, QueryOptions options) {
     throw new UnsupportedOperationException("TODO");
+  }
+
+  public Collection<Hit> search(RuleQuery query) {
+    return Collections.emptyList();
+  }
+
+  public static Rule toRule(RuleDto ruleDto) {
+    return new RuleImpl();
+  }
+
+  public static Rule toRule(Hit hit) {
+    return RuleImpl.fromHit(hit);
   }
 }

@@ -19,32 +19,33 @@
  */
 package org.sonar.server.cluster;
 
-import org.sonar.core.cluster.IndexAction;
+import org.sonar.api.ServerComponent;
+import org.sonar.core.cluster.ClusterAction;
 import org.sonar.core.cluster.WorkQueue;
 
-import javax.annotation.CheckForNull;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
-public class LocalNonBlockingWorkQueue implements WorkQueue {
+public class LocalNonBlockingWorkQueue extends LinkedBlockingQueue<Runnable>
+  implements ServerComponent, WorkQueue{
 
-  private final ConcurrentLinkedQueue<IndexAction<?>> actions = new ConcurrentLinkedQueue<IndexAction<?>>();
-
-  @Override
-  public void enqueue(IndexAction<?> indexAction) {
-    actions.offer(indexAction);
+  public LocalNonBlockingWorkQueue(){
+    super();
   }
 
   @Override
-  public void enqueue(Iterable<IndexAction<?>> indexActions) {
-    for (IndexAction<?> action : indexActions) {
-      enqueue(action);
+  public void enqueue(ClusterAction action) {
+    try {
+      this.offer(action, 1000,TimeUnit.SECONDS);
+    } catch (InterruptedException e) {
+      //TODO throw a runtime error here.
     }
   }
 
-  @CheckForNull
   @Override
-  public IndexAction<?> dequeue() {
-    IndexAction<?> out = actions.poll();
-    return out;
+  public void enqueue(Iterable<ClusterAction> actions) {
+    for (ClusterAction action : actions) {
+      enqueue(action);
+    }
   }
 }

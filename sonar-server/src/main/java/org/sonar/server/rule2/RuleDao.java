@@ -17,32 +17,76 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.rule;
+package org.sonar.server.rule2;
 
 import com.google.common.collect.Lists;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.core.db.UnsuportedException;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.rule.RuleConstants;
+import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleMapper;
+import org.sonar.core.rule.RuleParamDto;
+import org.sonar.core.rule.RuleRuleTagDto;
+import org.sonar.server.db.BaseDao;
 
 import javax.annotation.CheckForNull;
 
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class RuleDao implements BatchComponent, ServerComponent {
-
-  private MyBatis mybatis;
+public class RuleDao extends BaseDao<RuleDto, RuleKey>
+  implements BatchComponent, ServerComponent {
 
   public RuleDao(MyBatis mybatis) {
-    this.mybatis = mybatis;
+    super(mybatis);
+  }
+
+  @Override
+  protected String getIndexName() {
+    return RuleConstants.INDEX_NAME;
+  }
+
+  @Override
+  @CheckForNull
+  protected RuleDto doGetByKey(RuleKey key, SqlSession session) {
+    return getMapper(session).selectByKey(key);
+  }
+
+  @Override
+  protected RuleDto doInsert(RuleDto item, SqlSession session) {
+    session.getMapper(RuleMapper.class).insert(item);
+    return item;
+  }
+
+  @Override
+  protected RuleDto doUpdate(RuleDto item, SqlSession session) {
+    session.getMapper(RuleMapper.class).update(item);
+    return item;
+  }
+
+  @Override
+  protected void doDelete(RuleDto item, SqlSession session) {
+    throw new UnsuportedException("Rules cannot be deleted");
+  }
+
+  @Override
+  protected void doDeleteByKey(RuleKey key, SqlSession session) {
+    throw new UnsuportedException("Rules cannot be deleted");
   }
 
   public List<RuleDto> selectAll() {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectAll(session);
     } finally {
@@ -55,7 +99,7 @@ public class RuleDao implements BatchComponent, ServerComponent {
   }
 
   public List<RuleDto> selectEnablesAndNonManual() {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectEnablesAndNonManual(session);
     } finally {
@@ -72,7 +116,7 @@ public class RuleDao implements BatchComponent, ServerComponent {
   }
 
   public List<RuleDto> selectBySubCharacteristicId(Integer characteristicOrSubCharacteristicId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectBySubCharacteristicId(characteristicOrSubCharacteristicId, session);
     } finally {
@@ -94,7 +138,7 @@ public class RuleDao implements BatchComponent, ServerComponent {
 
   @CheckForNull
   public RuleDto selectById(Integer id) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectById(id, session);
     } finally {
@@ -107,9 +151,10 @@ public class RuleDao implements BatchComponent, ServerComponent {
     return getMapper(session).selectByKey(ruleKey);
   }
 
+
   @CheckForNull
   public RuleDto selectByKey(RuleKey ruleKey) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectByKey(ruleKey, session);
     } finally {
@@ -119,7 +164,7 @@ public class RuleDao implements BatchComponent, ServerComponent {
 
   @CheckForNull
   public RuleDto selectByName(String name) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return getMapper(session).selectByName(name);
     } finally {
@@ -127,36 +172,8 @@ public class RuleDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public void update(RuleDto rule, SqlSession session) {
-    getMapper(session).update(rule);
-  }
-
-  public void update(RuleDto rule) {
-    SqlSession session = mybatis.openSession();
-    try {
-      update(rule, session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public void insert(RuleDto ruleToInsert, SqlSession session) {
-    getMapper(session).insert(ruleToInsert);
-  }
-
-  public void insert(RuleDto ruleToInsert) {
-    SqlSession session = mybatis.openSession();
-    try {
-      insert(ruleToInsert, session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   public void insert(Collection<RuleDto> rules) {
-    SqlSession session = mybatis.openBatchSession();
+    DbSession session = mybatis.openSession(true);
     try {
       for (RuleDto rule : rules) {
         getMapper(session).batchInsert(rule);
@@ -167,12 +184,12 @@ public class RuleDao implements BatchComponent, ServerComponent {
     }
   }
 
-  //******************************
+  // ******************************
   // Methods for Rule Parameters
-  //******************************
+  // ******************************
 
   public List<RuleParamDto> selectParameters() {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectParameters(session);
     } finally {
@@ -185,7 +202,7 @@ public class RuleDao implements BatchComponent, ServerComponent {
   }
 
   public List<RuleParamDto> selectParametersByRuleId(Integer ruleId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectParametersByRuleId(ruleId, session);
     } finally {
@@ -198,7 +215,7 @@ public class RuleDao implements BatchComponent, ServerComponent {
   }
 
   public List<RuleParamDto> selectParametersByRuleIds(List<Integer> ruleIds) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectParametersByRuleIds(ruleIds, session);
     } finally {
@@ -220,7 +237,7 @@ public class RuleDao implements BatchComponent, ServerComponent {
   }
 
   public void insert(RuleParamDto param) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       insert(param, session);
       session.commit();
@@ -234,7 +251,7 @@ public class RuleDao implements BatchComponent, ServerComponent {
   }
 
   public void update(RuleParamDto param) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       update(param, session);
       session.commit();
@@ -252,10 +269,9 @@ public class RuleDao implements BatchComponent, ServerComponent {
     return session.getMapper(RuleMapper.class);
   }
 
-  //***************************
+  // ***************************
   // Methods for Rule Tags
-  //***************************
-
+  // ***************************
 
   public void insert(RuleRuleTagDto newTag, SqlSession session) {
     getMapper(session).insertTag(newTag);
@@ -278,7 +294,7 @@ public class RuleDao implements BatchComponent, ServerComponent {
   }
 
   public List<RuleRuleTagDto> selectTagsByRuleId(Integer ruleId) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectTagsByRuleIds(ruleId, session);
     } finally {
@@ -291,7 +307,7 @@ public class RuleDao implements BatchComponent, ServerComponent {
   }
 
   public List<RuleRuleTagDto> selectTagsByRuleIds(List<Integer> ruleIds) {
-    SqlSession session = mybatis.openSession();
+    SqlSession session = mybatis.openSession(false);
     try {
       return selectTagsByRuleIds(ruleIds, session);
     } finally {
@@ -306,5 +322,23 @@ public class RuleDao implements BatchComponent, ServerComponent {
       dtos.addAll(getMapper(session).selectTagsByRuleIds(partition));
     }
     return dtos;
+  }
+
+  @Override
+  public Collection<RuleKey> keysOfRowsUpdatedAfter(long timestamp) {
+    SqlSession session = mybatis.openSession(false);
+    try {
+      final List<RuleKey> keys = Lists.newArrayList();
+      session.select("selectKeysOfRulesUpdatedSince", new Timestamp(timestamp), new ResultHandler() {
+        @Override
+        public void handleResult(ResultContext context) {
+          Map<String, String> map = (Map) context.getResultObject();
+          keys.add(RuleKey.of(map.get("repo"), map.get("rule")));
+        }
+      });
+      return keys;
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 }

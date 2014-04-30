@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.rule;
+package org.sonar.server.rule2;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
@@ -31,7 +31,10 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleParamDto;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -369,6 +372,33 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     setupData("select_tags_by_rule_ids");
 
     assertThat(dao.selectTagsByRuleIds(newArrayList(3, 4))).hasSize(3);
+  }
+
+  @Test
+  public void keysOfRowsUpdatedAfter() throws Exception {
+    setupData("empty");
+
+    RuleDto rule1 = new RuleDto()
+      .setId(1)
+      .setRepositoryKey("foo")
+      .setRuleKey("R1")
+      .setName("ROne")
+      .setCreatedAt(DateUtils.parseDate("2013-12-16"))
+      .setUpdatedAt(DateUtils.parseDate("2013-12-16"));
+    RuleDto rule2 = new RuleDto()
+      .setId(2)
+      .setRepositoryKey("foo")
+      .setRuleKey("R2")
+      .setName("RTwo")
+      .setCreatedAt(DateUtils.parseDate("2014-01-28"))
+      .setUpdatedAt(DateUtils.parseDate("2014-05-19"));
+    dao.insert(Arrays.asList(rule1, rule2));
+
+    assertThat(dao.keysOfRowsUpdatedAfter(DateUtils.parseDate("2014-06-01").getTime())).isEmpty();
+    assertThat(dao.keysOfRowsUpdatedAfter(DateUtils.parseDate("2012-01-01").getTime())).hasSize(2);
+    Iterable<RuleKey> keys = dao.keysOfRowsUpdatedAfter(DateUtils.parseDate("2014-05-17").getTime());
+    assertThat(keys).hasSize(1);
+    assertThat(Iterables.getFirst(keys, null).rule()).isEqualTo("R2");
   }
 
   private List<Integer> idsFromRuleDtos(List<RuleDto> ruleDtos){

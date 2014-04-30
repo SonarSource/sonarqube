@@ -19,45 +19,31 @@
  */
 package org.sonar.core.cluster;
 
-import java.io.Serializable;
+import java.util.concurrent.CountDownLatch;
 
-public class IndexAction<K extends Serializable> {
+public abstract class ClusterAction implements Runnable {
 
-  public enum Method {
-    INSERT, UPDATE, DELETE
+  private CountDownLatch latch;
+
+  public ClusterAction(CountDownLatch latch){
+    this.latch = latch;
   }
 
-  String indexName;
-  K key;
-  Method method;
-
-  public IndexAction(String indexName, Method method, K key){
-    this.indexName = indexName;
-    this.method = method;
-    this.key = key;
+  public ClusterAction() {
+    this.latch = null;
   }
 
-  public String getIndexName() {
-    return indexName;
+  public void setLatch(CountDownLatch latch){
+    this.latch = latch;
   }
 
-  public void setIndexName(String indexName) {
-    this.indexName = indexName;
-  }
+  public abstract void doExecute();
 
-  public K getKey() {
-    return key;
-  }
-
-  public void setKey(K key) {
-    this.key = key;
-  }
-
-  public Method getMethod() {
-    return method;
-  }
-
-  public void setMethod(Method method) {
-    this.method = method;
+  @Override
+  public void run(){
+    this.doExecute();
+    if(latch != null){
+      latch.countDown();
+    }
   }
 }

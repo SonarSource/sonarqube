@@ -21,7 +21,6 @@ package org.sonar.server.search;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.core.cluster.IndexAction;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.db.Dao;
 
@@ -52,7 +51,7 @@ public class IndexSynchronizer<K extends Serializable> {
       if (LOG.isTraceEnabled()) {
         LOG.trace("Adding {} to workQueue for {}", key, index.getClass().getSimpleName());
       }
-      workQueue.enqueue(new IndexAction(index.getIndexName(), IndexAction.Method.INSERT, key));
+      workQueue.enqueue(new IndexAction<K>(index.getIndexName(), IndexAction.Method.INSERT, key));
     }
 
     return this;

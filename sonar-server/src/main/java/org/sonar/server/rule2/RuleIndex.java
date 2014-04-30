@@ -19,8 +19,6 @@
  */
 package org.sonar.server.rule2;
 
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.apache.commons.beanutils.BeanUtils;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.slf4j.Logger;
@@ -28,8 +26,10 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.profiling.Profiling;
+import org.sonar.core.qualityprofile.db.ActiveRuleDao;
+import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.rule.RuleConstants;
-import org.sonar.core.rule.RuleDao;
+import org.sonar.server.rule2.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.es.ESNode;
 import org.sonar.server.search.BaseIndex;
@@ -47,8 +47,8 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
 
   private ActiveRuleDao activeRuleDao;
 
-  public RuleIndex(WorkQueue queue, RuleDao dao, ActiveRuleDao ActiveRuleDao, Profiling profiling, ESNode node) {
-    super(queue, dao, profiling, node);
+  public RuleIndex(WorkQueue workQueue, RuleDao dao, ActiveRuleDao ActiveRuleDao, Profiling profiling, ESNode node) {
+    super(workQueue, dao, profiling, node);
     this.activeRuleDao = ActiveRuleDao;
   }
 
@@ -157,10 +157,7 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
 
     try {
 
-      long start = System.currentTimeMillis();
       RuleDto rule = dao.getByKey(key);
-      LOG.info("Action dao.getByKey(key) in {} took {}ms",
-        this.getIndexName(), (System.currentTimeMillis() - start));
 
       XContentBuilder document = jsonBuilder().startObject();
 
@@ -170,8 +167,6 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
         LOG.trace("NORMALIZING: {} -> {}", property.getKey(), property.getValue());
         document.field(property.getKey(), property.getValue());
       }
-
-      start = System.currentTimeMillis();
 
       document.startArray("active");
       for (ActiveRuleDto activeRule : activeRuleDao.selectByRuleId(rule.getId())) {
@@ -184,9 +179,6 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
         document.endObject();
       }
       document.endArray();
-
-      LOG.info("Action activeRuleDao.selectByRuleId(rule.getId()) in {} took {}ms",
-        this.getIndexName(), (System.currentTimeMillis() - start));
 
       return document.endObject();
     } catch (IOException e) {

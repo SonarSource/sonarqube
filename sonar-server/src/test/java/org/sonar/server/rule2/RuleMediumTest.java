@@ -19,15 +19,17 @@
  */
 package org.sonar.server.rule2;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.search.Hit;
 import org.sonar.server.tester.ServerTester;
@@ -40,19 +42,24 @@ public class RuleMediumTest {
 
   @Rule
   public ServerTester tester = new ServerTester()
-  //.setProperty("sonar.log.profilingLevel", "FULL")
-  .setProperty("sonar.es.http.port", "8888");
+    // .setProperty("sonar.log.profilingLevel", "FULL")
+    .setProperty("sonar.es.http.port", "8888");
 
   private RuleDto dto;
   private ActiveRuleDto adto;
 
   @Before
-  public void setup(){
+  public void setup() {
     dto = getRuleDto(1);
     adto = getActiveRuleDto(dto);
   }
 
-  private ActiveRuleDto getActiveRuleDto(RuleDto dto){
+  @After
+  public void teardown() {
+    tester.stop();
+  }
+
+  private ActiveRuleDto getActiveRuleDto(RuleDto dto) {
     return new ActiveRuleDto()
       .setId(1)
       .setNoteCreatedAt(new Date())
@@ -61,12 +68,12 @@ public class RuleMediumTest {
       .setProfileId(1)
       .setParentId(0)
       .setSeverity(3);
-    }
+  }
 
   private RuleDto getRuleDto(int id) {
     return new RuleDto()
-      .setId(id)
-      .setRuleKey("NewRuleKey="+id)
+      // .setId(id)
+      .setRuleKey("NewRuleKey=" + id)
       .setRepositoryKey("plugin")
       .setName("new name")
       .setDescription("new description")
@@ -97,13 +104,6 @@ public class RuleMediumTest {
     RuleIndex index = tester.get(RuleIndex.class);
 
     dao.insert(dto);
-    adao.insert(adto);
-
-    try {
-      Thread.sleep(200);
-    } catch (InterruptedException e) {
-      ;
-    }
 
     Hit hit = index.getByKey(dto.getKey());
     assertThat(hit.getFields().get("ruleKey")).isEqualTo(dto.getRuleKey());
@@ -116,10 +116,9 @@ public class RuleMediumTest {
 
     dao.insert(dto);
 
-    //org.sonar.server.rule2.Rule rule = service.getByKey(dto.getKey());
+    org.sonar.server.rule2.Rule rule = service.getByKey(dto.getKey());
 
-    //assertThat(rule.key()).isEqualTo(dto.getKey());
-
+    assertThat(rule.key()).isEqualTo(dto.getKey());
 
   }
 }

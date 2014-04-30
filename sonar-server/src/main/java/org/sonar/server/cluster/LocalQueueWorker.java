@@ -19,70 +19,56 @@
  */
 package org.sonar.server.cluster;
 
-import org.jfree.util.Log;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
-import org.sonar.core.cluster.IndexAction;
-import org.sonar.core.cluster.WorkQueue;
 import org.sonar.server.search.Index;
+import org.sonar.server.search.IndexAction;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
-public class LocalQueueWorker implements ServerComponent, Startable {
+public class LocalQueueWorker extends ThreadPoolExecutor
+  implements ServerComponent, Startable {
 
-  private static final Logger LOG = LoggerFactory.getLogger(LocalNonBlockingWorkQueue.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LocalQueueWorker.class);
 
-  private WorkQueue queue;
-
-  private volatile Thread worker;
   private Map<String, Index<?>> indexes;
 
-  class Worker implements Runnable {
+  public LocalQueueWorker(LocalNonBlockingWorkQueue queue, Index<?>... allIndexes) {
+    super(10, 10, 500l, TimeUnit.MILLISECONDS, queue);
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public void run() {
-      LOG.info("Starting Worker Thread");
-      Thread thisThread = Thread.currentThread();
-      while (worker == thisThread) {
-        try {
-          Thread.sleep(20);
-        } catch (InterruptedException e) {
-          Log.error("Oops");
-        }
-
-        @SuppressWarnings("rawtypes")
-        IndexAction action = queue.dequeue();
-
-        if (action != null && indexes.containsKey(action.getIndexName())) {
-          LOG.info("Dequeued action {}",action);
-          indexes.get(action.getIndexName()).executeAction(action);
-        }
-      }
-      LOG.info("Stoping Worker Thread");
-    }
-  }
-
-  public LocalQueueWorker(WorkQueue queue, Index<?>... indexes) {
-    this.queue = queue;
-    this.worker = new Thread(new Worker());
+    // Save all instances of Index<?>
     this.indexes = new HashMap<String, Index<?>>();
-    for(Index<?> index:indexes){
+    for (Index<?> index : allIndexes) {
       this.indexes.put(index.getIndexName(), index);
     }
   }
 
+  protected void beforeExecute(Thread t, Runnable r) {
+    LOG.debug("Starting task: {}",r);
+    super.beforeExecute(t, r);
+    if(r.getClass().isAssignableFrom(IndexAction.class)){
+      IndexAction<?> ia = (IndexAction<?>)r;
+      LOG.trace("Task is an IndexAction for {}",ia.getIndexName());
+      ia.setIndex(indexes.get(ia.getIndexName()));
+    }
+  }
+
+  protected void afterExecute(Runnable r, Throwable t) {
+    super.afterExecute(r, t);
+  }
 
   @Override
   public void start() {
-    this.worker.start();
+    this.prestartCoreThread();
   }
 
   @Override
   public void stop() {
-    this.worker = null;
+    this.shutdown();
   }
 }

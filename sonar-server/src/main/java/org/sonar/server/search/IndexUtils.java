@@ -20,16 +20,13 @@
 package org.sonar.server.search;
 
 import com.google.common.collect.ImmutableList;
-
-import org.sonar.server.rule2.RuleIndex;
 import org.sonar.server.cluster.LocalQueueWorker;
+import org.sonar.server.rule2.RuleIndex;
 
 import java.util.List;
 
 public final class IndexUtils {
 
-  private IndexUtils() {
-  }
 
   @SuppressWarnings("unchecked")
   public static List<Class> getIndexClasses() {

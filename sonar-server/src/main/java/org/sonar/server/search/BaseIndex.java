@@ -31,8 +31,8 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.core.cluster.IndexAction;
-import org.sonar.core.cluster.IndexAction.Method;
+import org.sonar.server.search.IndexAction;
+import org.sonar.server.search.IndexAction.Method;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.db.Dao;
 import org.sonar.core.db.Dto;
@@ -58,14 +58,12 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
   private final Profiling profiling;
   private Client client;
   private final ESNode node;
-  private WorkQueue workQueue;
   private IndexSynchronizer<K> synchronizer;
   protected Dao<E, K> dao;
 
   public BaseIndex(WorkQueue workQueue, Dao<E, K> dao, Profiling profiling, ESNode node) {
     this.profiling = profiling;
-    this.workQueue = workQueue;
-    this.synchronizer = new IndexSynchronizer<K>(this, dao, this.workQueue);
+    this.synchronizer = new IndexSynchronizer<K>(this, dao, workQueue);
     this.dao = dao;
     this.node = node;
   }
@@ -167,8 +165,7 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
   /* Index Action Methods */
 
   @Override
-  public void executeAction(IndexAction<K> action) {
-    StopWatch watch = this.createWatch();
+  public boolean executeAction(IndexAction<K> action) {
     long start = System.currentTimeMillis();
     if (action.getMethod().equals(Method.DELETE)) {
       this.delete(action.getKey());
@@ -177,9 +174,9 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
     } else if (action.getMethod().equals(Method.UPDATE)) {
       this.update(action.getKey());
     }
-    LOG.info("Action {} in {} took {}ms", action.getMethod(),
+    LOG.debug("Action {} in {} took {}ms", action.getMethod(),
       this.getIndexName(), (System.currentTimeMillis() - start));
-    watch.stop("Action {} in {}", action.getMethod(), this.getIndexName());
+    return true;
   }
 
   /* Index management methods */
@@ -207,7 +204,7 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
       XContentBuilder doc = this.normalize(key);
       String keyvalue = this.getKeyValue(key);
       if (doc != null && keyvalue != null && !keyvalue.isEmpty()) {
-        LOG.info("Update document with key {}", key);
+        LOG.debug("Update document with key {}", key);
         IndexResponse result = getClient().index(
           new IndexRequest(this.getIndexName(),
             this.getType(), keyvalue)

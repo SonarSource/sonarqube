@@ -21,7 +21,6 @@ package org.sonar.server.search;
 
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.picocontainer.Startable;
-import org.sonar.core.cluster.IndexAction;
 
 import javax.annotation.CheckForNull;
 import java.io.Serializable;
@@ -30,7 +29,7 @@ public interface Index<K extends Serializable> extends Startable {
 
   String getIndexName();
 
-  void executeAction(IndexAction<K> action);
+  boolean executeAction(IndexAction<K> action);
 
   @CheckForNull
   Hit getByKey(K key);

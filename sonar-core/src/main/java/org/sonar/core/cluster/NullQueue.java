@@ -19,23 +19,17 @@
  */
 package org.sonar.core.cluster;
 
-import javax.annotation.CheckForNull;
+
 
 public class NullQueue implements WorkQueue {
 
   @Override
-  public void enqueue(IndexAction<?> action) {
+  public void enqueue(ClusterAction action) {
 
   }
 
   @Override
-  public void enqueue(Iterable<IndexAction<?>> actions) {
+  public void enqueue(Iterable<ClusterAction> actions) {
 
-  }
-
-  @CheckForNull
-  @Override
-  public IndexAction<?> dequeue() {
-    return null;
   }
 }
