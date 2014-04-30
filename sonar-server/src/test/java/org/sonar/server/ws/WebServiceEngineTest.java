@@ -35,6 +35,7 @@ import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.plugins.MimeTypes;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -69,7 +70,7 @@ public class WebServiceEngineTest {
       return this;
     }
 
-    public SimpleRequest setParam(String key, @CheckForNull String value) {
+    public SimpleRequest setParam(String key, @Nullable String value) {
       if (value != null) {
         params.put(key, value);
       }
@@ -193,6 +194,28 @@ public class WebServiceEngineTest {
     engine.execute(request, response, "api/system", "print");
 
     assertThat(response.stream().outputAsString()).isEqualTo("Hello World by Marcel");
+  }
+
+  @Test
+  public void param_value_is_in_possible_values() throws Exception {
+    InternalRequest request = new SimpleRequest()
+      .setParam("message", "Hello World")
+      .setParam("format", "json");
+    ServletResponse response = new ServletResponse();
+    engine.execute(request, response, "api/system", "print");
+
+    assertThat(response.stream().outputAsString()).isEqualTo("Hello World by -");
+  }
+
+  @Test
+  public void param_value_is_not_in_possible_values() throws Exception {
+    InternalRequest request = new SimpleRequest()
+      .setParam("message", "Hello World")
+      .setParam("format", "html");
+    ServletResponse response = new ServletResponse();
+    engine.execute(request, response, "api/system", "print");
+
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Value of parameter 'format' can only be one of [json, xml]\"}]}");
   }
 
   @Test
@@ -361,17 +384,19 @@ public class WebServiceEngineTest {
       NewAction print = newController.createAction("print");
       print.createParam("message").setDescription("required message").setRequired(true);
       print.createParam("author").setDescription("optional author").setDefaultValue("-");
+      print.createParam("format").setDescription("optional format").setPossibleValues("json", "xml");
       print.setHandler(new RequestHandler() {
-          @Override
-          public void handle(Request request, Response response) {
-            try {
-              IOUtils.write(
-                request.mandatoryParam("message") + " by " + request.param("author", "nobody"), response.stream().output());
-            } catch (IOException e) {
-              throw new IllegalStateException(e);
-            }
+        @Override
+        public void handle(Request request, Response response) {
+          try {
+            request.param("format");
+            IOUtils.write(
+              request.mandatoryParam("message") + " by " + request.param("author", "nobody"), response.stream().output());
+          } catch (IOException e) {
+            throw new IllegalStateException(e);
           }
-        });
+        }
+      });
       newController.done();
     }
   }

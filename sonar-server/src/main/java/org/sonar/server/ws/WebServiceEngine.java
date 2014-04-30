@@ -128,8 +128,13 @@ public class WebServiceEngine implements ServerComponent, Startable {
         if (paramDef == null) {
           throw new BadRequestException(String.format("Parameter '%s' is undefined for action '%s'", key, action.key()));
         }
+        String value = StringUtils.defaultString(super.param(key), paramDef.defaultValue());
 
-        return StringUtils.defaultString(super.param(key), paramDef.defaultValue());
+        List<String> possibleValues = paramDef.possibleValues();
+        if (value != null && possibleValues != null && !possibleValues.contains(value)) {
+          throw new BadRequestException(String.format("Value of parameter '%s' can only be one of %s", key, possibleValues));
+        }
+        return value;
       }
     };
   }
@@ -143,15 +148,15 @@ public class WebServiceEngine implements ServerComponent, Startable {
     for (Message message : e.errors()) {
       messages.add(message(message.text(), message.l10nKey(), message.l10nParams()));
     }
-    sendErrors(response, e.httpCode(), messages.toArray(new String[0]));
+    sendErrors(response, e.httpCode(), messages.toArray(new String[messages.size()]));
   }
 
   @CheckForNull
-  private String message(@Nullable String message, @Nullable  String l10nKey, @Nullable Object[] l10nParams){
+  private String message(@Nullable String message, @Nullable String l10nKey, Object... l10nParams) {
     if (l10nKey != null) {
       return i18n.message(Locale.getDefault(), l10nKey, message, l10nParams);
     } else {
-     return message;
+      return message;
     }
   }
 
