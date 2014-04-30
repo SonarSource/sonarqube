@@ -19,7 +19,10 @@
  */
 package org.sonar.server.rule2;
 
-import org.junit.Rule;
+import com.google.common.collect.Iterables;
+import org.junit.After;
+import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -28,17 +31,27 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.search.Hit;
+import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.Results;
 import org.sonar.server.tester.ServerTester;
+
+import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class RuleMediumTest {
 
-  @Rule
-  public ServerTester tester = new ServerTester();
+  @ClassRule
+  public static ServerTester tester = new ServerTester();
+    //.setProperty("sonar.es.http.port", "8888");
+
+  @After
+  public void clear_data_store() {
+    tester.clearDataStores();
+  }
 
   @Test
-  public void persist_and_index_new_rule() {
+  public void insert_in_db_and_index_in_es() {
     // insert db
     RuleKey ruleKey = RuleKey.of("javascript", "S001");
     RuleDao dao = tester.get(RuleDao.class);
@@ -61,6 +74,21 @@ public class RuleMediumTest {
     assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.NAME.key())).isEqualTo("Rule S001");
     assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.DESCRIPTION.key())).isEqualTo("Description S001");
     assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.STATUS.key())).isEqualTo(RuleStatus.READY.toString());
+  }
+
+  @Test
+  @Ignore
+  public void search_rules_by_repositories() throws InterruptedException {
+    RuleDao dao = tester.get(RuleDao.class);
+    dao.insert(newRuleDto(RuleKey.of("javascript", "S001")));
+    dao.insert(newRuleDto(RuleKey.of("java", "S002")));
+
+    RuleService service = tester.get(RuleService.class);
+    RuleQuery query = service.newRuleQuery().setRepositories(Arrays.asList("findbugs", "java"));
+    Results results = service.search(query, new QueryOptions());
+    assertThat(results.getTotal()).isEqualTo(1);
+    assertThat(results.getHits()).hasSize(1);
+    assertThat(Iterables.getFirst(results.getHits(), null).getFieldAsString("key")).isEqualTo("S002");
   }
 
 

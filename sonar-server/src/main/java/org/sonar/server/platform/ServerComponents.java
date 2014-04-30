@@ -55,7 +55,13 @@ import org.sonar.core.measure.MeasureFilterFactory;
 import org.sonar.core.metric.DefaultMetricFinder;
 import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.permission.PermissionFacade;
-import org.sonar.core.persistence.*;
+import org.sonar.core.persistence.DaoUtils;
+import org.sonar.core.persistence.DatabaseVersion;
+import org.sonar.core.persistence.DefaultDatabase;
+import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.PreviewDatabaseFactory;
+import org.sonar.core.persistence.SemaphoreUpdater;
+import org.sonar.core.persistence.SemaphoresImpl;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.purge.PurgeProfiler;
@@ -84,10 +90,32 @@ import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
 import org.sonar.server.db.migrations.DatabaseMigrations;
 import org.sonar.server.db.migrations.DatabaseMigrator;
-import org.sonar.server.debt.*;
+import org.sonar.server.debt.DebtCharacteristicsXMLImporter;
+import org.sonar.server.debt.DebtModelBackup;
+import org.sonar.server.debt.DebtModelLookup;
+import org.sonar.server.debt.DebtModelOperations;
+import org.sonar.server.debt.DebtModelPluginRepository;
+import org.sonar.server.debt.DebtModelService;
+import org.sonar.server.debt.DebtModelXMLExporter;
+import org.sonar.server.debt.DebtRulesXMLImporter;
 import org.sonar.server.es.ESIndex;
 import org.sonar.server.es.ESNode;
-import org.sonar.server.issue.*;
+import org.sonar.server.issue.ActionService;
+import org.sonar.server.issue.AssignAction;
+import org.sonar.server.issue.CommentAction;
+import org.sonar.server.issue.DefaultIssueFinder;
+import org.sonar.server.issue.InternalRubyIssueService;
+import org.sonar.server.issue.IssueBulkChangeService;
+import org.sonar.server.issue.IssueChangelogFormatter;
+import org.sonar.server.issue.IssueChangelogService;
+import org.sonar.server.issue.IssueCommentService;
+import org.sonar.server.issue.IssueService;
+import org.sonar.server.issue.IssueStatsFinder;
+import org.sonar.server.issue.PlanAction;
+import org.sonar.server.issue.PublicRubyIssueService;
+import org.sonar.server.issue.ServerIssueStorage;
+import org.sonar.server.issue.SetSeverityAction;
+import org.sonar.server.issue.TransitionAction;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.actionplan.ActionPlanWs;
 import org.sonar.server.issue.filter.IssueFilterService;
@@ -102,18 +130,55 @@ import org.sonar.server.permission.InternalPermissionTemplateService;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.platform.ws.RestartHandler;
 import org.sonar.server.platform.ws.SystemWs;
-import org.sonar.server.plugins.*;
+import org.sonar.server.plugins.BatchWs;
+import org.sonar.server.plugins.InstalledPluginReferentialFactory;
+import org.sonar.server.plugins.PluginDownloader;
+import org.sonar.server.plugins.ServerExtensionInstaller;
+import org.sonar.server.plugins.ServerPluginJarInstaller;
+import org.sonar.server.plugins.ServerPluginJarsInstaller;
+import org.sonar.server.plugins.ServerPluginRepository;
+import org.sonar.server.plugins.UpdateCenterClient;
+import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.qualitygate.QgateProjectFinder;
 import org.sonar.server.qualitygate.QualityGates;
 import org.sonar.server.qualitygate.RegisterQualityGates;
 import org.sonar.server.qualitygate.ws.QgateAppHandler;
 import org.sonar.server.qualitygate.ws.QualityGatesWs;
-import org.sonar.server.qualityprofile.*;
+import org.sonar.server.qualityprofile.DefaultProfilesCache;
+import org.sonar.server.qualityprofile.ESActiveRule;
+import org.sonar.server.qualityprofile.ProfilesManager;
+import org.sonar.server.qualityprofile.QProfileActiveRuleOperations;
+import org.sonar.server.qualityprofile.QProfileBackup;
+import org.sonar.server.qualityprofile.QProfileLookup;
+import org.sonar.server.qualityprofile.QProfileOperations;
+import org.sonar.server.qualityprofile.QProfileProjectLookup;
+import org.sonar.server.qualityprofile.QProfileProjectOperations;
+import org.sonar.server.qualityprofile.QProfileRepositoryExporter;
+import org.sonar.server.qualityprofile.QProfileRuleLookup;
+import org.sonar.server.qualityprofile.QProfiles;
 import org.sonar.server.qualityprofile.ws.QProfileBackupWsHandler;
 import org.sonar.server.qualityprofile.ws.QProfilesWs;
-import org.sonar.server.rule.*;
-import org.sonar.server.rule.ws.*;
+import org.sonar.server.rule.DeprecatedRulesDefinition;
+import org.sonar.server.rule.ESRuleTags;
+import org.sonar.server.rule.RegisterRules;
+import org.sonar.server.rule.RubyRuleService;
+import org.sonar.server.rule.RuleDefinitionsLoader;
+import org.sonar.server.rule.RuleOperations;
+import org.sonar.server.rule.RuleRegistry;
+import org.sonar.server.rule.RuleRepositories;
+import org.sonar.server.rule.RuleTagLookup;
+import org.sonar.server.rule.RuleTagOperations;
+import org.sonar.server.rule.RuleTags;
+import org.sonar.server.rule.Rules;
+import org.sonar.server.rule.ws.AddTagsWsHandler;
+import org.sonar.server.rule.ws.RemoveTagsWsHandler;
+import org.sonar.server.rule.ws.RuleSearchWsHandler;
+import org.sonar.server.rule.ws.RuleShowWsHandler;
+import org.sonar.server.rule.ws.RuleTagsWs;
+import org.sonar.server.rule.ws.RulesWs;
 import org.sonar.server.rule2.RuleService;
+import org.sonar.server.rule2.ws.RulesWebService;
+import org.sonar.server.rule2.ws.SearchAction;
 import org.sonar.server.search.IndexUtils;
 import org.sonar.server.source.CodeColorizers;
 import org.sonar.server.source.DeprecatedSourceDecorator;
@@ -123,15 +188,40 @@ import org.sonar.server.source.ws.ScmAction;
 import org.sonar.server.source.ws.ScmWriter;
 import org.sonar.server.source.ws.ShowAction;
 import org.sonar.server.source.ws.SourcesWs;
-import org.sonar.server.startup.*;
+import org.sonar.server.startup.CleanPreviewAnalysisCache;
+import org.sonar.server.startup.CopyRequirementsFromCharacteristicsToRules;
+import org.sonar.server.startup.GeneratePluginIndex;
+import org.sonar.server.startup.GwtPublisher;
+import org.sonar.server.startup.JdbcDriverDeployer;
+import org.sonar.server.startup.LogServerId;
+import org.sonar.server.startup.RegisterDashboards;
+import org.sonar.server.startup.RegisterDebtModel;
+import org.sonar.server.startup.RegisterMetrics;
+import org.sonar.server.startup.RegisterNewMeasureFilters;
+import org.sonar.server.startup.RegisterPermissionTemplates;
+import org.sonar.server.startup.RegisterQualityProfiles;
+import org.sonar.server.startup.RegisterServletFilters;
+import org.sonar.server.startup.RenameDeprecatedPropertyKeys;
+import org.sonar.server.startup.ServerMetadataPersister;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.text.RubyTextService;
 import org.sonar.server.ui.JRubyI18n;
 import org.sonar.server.ui.JRubyProfiling;
 import org.sonar.server.ui.PageDecorations;
 import org.sonar.server.ui.Views;
-import org.sonar.server.user.*;
-import org.sonar.server.util.*;
+import org.sonar.server.user.DefaultUserService;
+import org.sonar.server.user.DoPrivileged;
+import org.sonar.server.user.GroupMembershipFinder;
+import org.sonar.server.user.GroupMembershipService;
+import org.sonar.server.user.NewUserNotifier;
+import org.sonar.server.user.SecurityRealmFactory;
+import org.sonar.server.util.BooleanTypeValidation;
+import org.sonar.server.util.FloatTypeValidation;
+import org.sonar.server.util.IntegerTypeValidation;
+import org.sonar.server.util.StringListTypeValidation;
+import org.sonar.server.util.StringTypeValidation;
+import org.sonar.server.util.TextTypeValidation;
+import org.sonar.server.util.TypeValidations;
 import org.sonar.server.ws.ListingWs;
 import org.sonar.server.ws.WebServiceEngine;
 
@@ -142,7 +232,7 @@ import java.util.List;
 class ServerComponents {
 
   private final Object[] rootComponents;
-  private Object[] level4AddedComponents;
+  private List level4AddedComponents = Lists.newArrayList();
 
   ServerComponents(Object... rootComponents) {
     this.rootComponents = rootComponents;
@@ -290,7 +380,12 @@ class ServerComponents {
     pico.addSingleton(AddTagsWsHandler.class);
     pico.addSingleton(RemoveTagsWsHandler.class);
     pico.addSingleton(RulesDefinitionXmlLoader.class);
+
+    // experimental rules
     pico.addSingleton(RuleService.class);
+    pico.addSingleton(RulesWebService.class);
+    pico.addSingleton(SearchAction.class);
+    pico.addSingleton(org.sonar.server.rule2.ws.ShowAction.class);
 
     // rule tags
     pico.addSingleton(ESRuleTags.class);
@@ -428,11 +523,10 @@ class ServerComponents {
     pico.addSingleton(StringTypeValidation.class);
     pico.addSingleton(StringListTypeValidation.class);
 
-    if (level4AddedComponents != null) {
-      for (Object components : level4AddedComponents) {
-        pico.addSingleton(components);
-      }
+    for (Object components : level4AddedComponents) {
+      pico.addSingleton(components);
     }
+
 
     ServerExtensionInstaller extensionRegistrar = pico.getComponentByType(ServerExtensionInstaller.class);
     extensionRegistrar.installExtensions(pico);
@@ -441,8 +535,8 @@ class ServerComponents {
     executeStartupTaks(pico);
   }
 
-  void addComponents(Object... components){
-    this.level4AddedComponents = components;
+  void addComponents(Collection components) {
+    this.level4AddedComponents.addAll(components);
   }
 
   private void executeStartupTaks(ComponentContainer pico) {

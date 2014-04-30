@@ -19,13 +19,17 @@
  */
 package org.sonar.server.tester;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.server.platform.Platform;
 
+import javax.annotation.Nullable;
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -37,7 +41,7 @@ public class ServerTester extends ExternalResource {
 
   private Platform platform;
   private File tempDir;
-  private Object[] components;
+  private List components = Lists.newArrayList(DataStoreCleanup.class);
   private final Properties initialProps = new Properties();
 
   /**
@@ -99,9 +103,11 @@ public class ServerTester extends ExternalResource {
    * Add classes or objects to IoC container, as it could be done by plugins.
    * Must be called before {@link #start()}.
    */
-  public ServerTester addComponents(Object... components) {
+  public ServerTester addComponents(@Nullable Object... components) {
     checkNotStarted();
-    this.components = components;
+    if (components != null) {
+      this.components.addAll(Arrays.asList(components));
+    }
     return this;
   }
 
@@ -112,6 +118,14 @@ public class ServerTester extends ExternalResource {
     checkNotStarted();
     initialProps.setProperty(key, value);
     return this;
+  }
+
+  /**
+   * Truncate all db tables and es indices
+   */
+  public void clearDataStores() {
+    checkStarted();
+    get(DataStoreCleanup.class).clear();
   }
 
   /**

@@ -25,7 +25,7 @@ import org.sonar.api.rule.Severity;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.util.List;
+import java.util.Collection;
 
 public class RuleQuery {
 
@@ -35,12 +35,12 @@ public class RuleQuery {
 
   private String key;
   private String queryText;
-  private List<String> languages;
-  private List<String> repositories;
-  private List<String> severities;
-  private List<RuleStatus> statuses;
-  private List<String> tags;
-  private List<String> debtCharacteristics;
+  private Collection<String> languages;
+  private Collection<String> repositories;
+  private Collection<String> severities;
+  private Collection<RuleStatus> statuses;
+  private Collection<String> tags;
+  private Collection<String> debtCharacteristics;
   private Boolean hasDebtCharacteristic;
   private SortField sortField;
   private boolean ascendingSort = true;
@@ -72,31 +72,31 @@ public class RuleQuery {
   }
 
   @CheckForNull
-  public List<String> getLanguages() {
+  public Collection<String> getLanguages() {
     return languages;
   }
 
-  public RuleQuery setLanguages(@Nullable List<String> languages) {
+  public RuleQuery setLanguages(@Nullable Collection<String> languages) {
     this.languages = languages;
     return this;
   }
 
   @CheckForNull
-  public List<String> getRepositories() {
+  public Collection<String> getRepositories() {
     return repositories;
   }
 
-  public RuleQuery setRepositories(@Nullable List<String> repositories) {
+  public RuleQuery setRepositories(@Nullable Collection<String> repositories) {
     this.repositories = repositories;
     return this;
   }
 
   @CheckForNull
-  public List<String> getSeverities() {
+  public Collection<String> getSeverities() {
     return severities;
   }
 
-  public RuleQuery setSeverities(@Nullable List<String> severities) {
+  public RuleQuery setSeverities(@Nullable Collection<String> severities) {
     if (severities != null) {
       for (String severity : severities) {
         Preconditions.checkArgument(Severity.ALL.contains(severity), "Unknown severity: " + severity);
@@ -107,31 +107,31 @@ public class RuleQuery {
   }
 
   @CheckForNull
-  public List<RuleStatus> getStatuses() {
+  public Collection<RuleStatus> getStatuses() {
     return statuses;
   }
 
-  public RuleQuery setStatuses(@Nullable List<RuleStatus> statuses) {
+  public RuleQuery setStatuses(@Nullable Collection<RuleStatus> statuses) {
     this.statuses = statuses;
     return this;
   }
 
   @CheckForNull
-  public List<String> getTags() {
+  public Collection<String> getTags() {
     return tags;
   }
 
-  public RuleQuery setTags(@Nullable List<String> tags) {
+  public RuleQuery setTags(@Nullable Collection<String> tags) {
     this.tags = tags;
     return this;
   }
 
   @CheckForNull
-  public List<String> getDebtCharacteristics() {
+  public Collection<String> getDebtCharacteristics() {
     return debtCharacteristics;
   }
 
-  public RuleQuery setDebtCharacteristics(@Nullable List<String> debtCharacteristics) {
+  public RuleQuery setDebtCharacteristics(@Nullable Collection<String> debtCharacteristics) {
     this.debtCharacteristics = debtCharacteristics;
     return this;
   }

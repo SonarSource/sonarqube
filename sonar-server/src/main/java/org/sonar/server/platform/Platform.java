@@ -25,7 +25,7 @@ import org.sonar.api.platform.Server;
 import org.sonar.core.persistence.DatabaseVersion;
 
 import javax.annotation.CheckForNull;
-
+import java.util.Collection;
 import java.util.Properties;
 
 /**
@@ -148,7 +148,7 @@ public class Platform {
     }
   }
 
-  public void addComponents(Object... components){
+  public void addComponents(Collection components) {
     serverComponents.addComponents(components);
   }
 
