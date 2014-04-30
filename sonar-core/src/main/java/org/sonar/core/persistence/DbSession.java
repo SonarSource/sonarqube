@@ -54,29 +54,16 @@ public class DbSession implements SqlSession {
     this.actions.add(action);
   }
 
-  private void enqueueActions(){
-    CountDownLatch latch = new CountDownLatch(actions.size());
-    for(QueueAction action:actions){
-      action.setLatch(latch);
-      queue.enqueue(action);
-    }
-    try {
-      latch.await();
-    } catch (InterruptedException e) {
-      LOG.error("ES update has been interrupted: {}",e.getMessage());
-    }
-  }
-
   @Override
   public void commit() {
     session.commit();
-    enqueueActions();
+    queue.enqueue(actions);
   }
 
   @Override
   public void commit(boolean force) {
     session.commit(force);
-    enqueueActions();
+    queue.enqueue(actions);
   }
 
   /**

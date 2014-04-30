@@ -1,0 +1,7 @@
+<dataset>
+
+  <rules_parameters id="1" rule_id="1" name="myParameter" param_type="plop" default_value="plouf" description="My Parameter"/>
+
+  <rules_parameters id="2" rule_id="2" name="otherParam" param_type="plop" default_value="plouf" description="Other Parameter"/>
+
+</dataset>

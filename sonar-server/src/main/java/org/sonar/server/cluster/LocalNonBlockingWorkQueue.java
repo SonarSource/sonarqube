@@ -19,33 +19,50 @@
  */
 package org.sonar.server.cluster;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.sonar.api.ServerComponent;
 import org.sonar.core.cluster.QueueAction;
 import org.sonar.core.cluster.WorkQueue;
 
+import java.util.Collection;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class LocalNonBlockingWorkQueue extends LinkedBlockingQueue<Runnable>
-  implements ServerComponent, WorkQueue{
+  implements ServerComponent, WorkQueue {
 
-  public LocalNonBlockingWorkQueue(){
+  private static final Logger LOG = LoggerFactory.getLogger(LocalNonBlockingWorkQueue.class);
+
+  public LocalNonBlockingWorkQueue() {
     super();
   }
 
   @Override
   public void enqueue(QueueAction action) {
+    CountDownLatch latch = new CountDownLatch(1);
+    action.setLatch(latch);
     try {
-      this.offer(action, 1000,TimeUnit.SECONDS);
+      this.offer(action, 1000, TimeUnit.SECONDS);
+      latch.await();
     } catch (InterruptedException e) {
-      //TODO throw a runtime error here.
+      LOG.error("ES update has been interrupted: {}", e.getMessage());
     }
   }
 
   @Override
-  public void enqueue(Iterable<QueueAction> actions) {
-    for (QueueAction action : actions) {
-      enqueue(action);
+  public void enqueue(Collection<QueueAction> actions) {
+    CountDownLatch latch = new CountDownLatch(actions.size());
+    try {
+      for (QueueAction action : actions) {
+        action.setLatch(latch);
+        this.offer(action, 1000, TimeUnit.SECONDS);
+      }
+      latch.await();
+    } catch (InterruptedException e) {
+      LOG.error("ES update has been interrupted: {}", e.getMessage());
     }
   }
 }

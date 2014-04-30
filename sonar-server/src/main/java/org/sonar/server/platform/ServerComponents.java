@@ -176,7 +176,7 @@ class ServerComponents {
       System2.INSTANCE,
 
       /* new RuleDao working with ES */
-      RuleDao.class
+      org.sonar.server.rule2.RuleDao.class
     ));
     components.addAll(CorePropertyDefinitions.all());
     components.addAll(DatabaseMigrations.CLASSES);

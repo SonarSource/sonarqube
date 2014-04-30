@@ -19,8 +19,9 @@
  */
 package org.sonar.core.persistence;
 
-import org.sonar.core.cluster.WorkQueue;
+import org.sonar.core.cluster.NullQueue;
 
+import org.sonar.core.cluster.WorkQueue;
 import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
 import org.apache.commons.io.FileUtils;
@@ -56,7 +57,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import static org.mockito.Mockito.mock;
-
 import static org.junit.Assert.fail;
 
 public abstract class AbstractDaoTestCase {
@@ -65,7 +65,7 @@ public abstract class AbstractDaoTestCase {
   private static DatabaseCommands databaseCommands;
   private static IDatabaseTester databaseTester;
   private static MyBatis myBatis;
-  private WorkQueue queue = mock(WorkQueue.class);
+  private WorkQueue queue = new NullQueue();
 
 
   @Before

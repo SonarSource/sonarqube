@@ -1,0 +1,3 @@
+<dataset>
+  <rules_parameters id="1" rule_id="1" name="max" param_type="INTEGER" default_value="30" description="My Parameter"/>
+</dataset>

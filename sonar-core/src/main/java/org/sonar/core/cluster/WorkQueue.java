@@ -19,6 +19,8 @@
  */
 package org.sonar.core.cluster;
 
+import java.util.Collection;
+
 
 
 
@@ -26,7 +28,7 @@ public interface WorkQueue {
 
   void enqueue(QueueAction action);
 
-  void enqueue(Iterable<QueueAction> actions);
+  void enqueue(Collection<QueueAction> actions);
 
   /* This is because of core vs server packages... */
 //  void enqueue(ClusterAction.Type type, ClusterAction.Method method, String ref, Serializable key);
