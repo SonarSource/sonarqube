@@ -99,44 +99,47 @@ public class CacheTest {
 
     cache.put("europe", "france", "paris");
     cache.put("europe", "italy", "rome");
+    cache.put("asia", "china", "pekin");
     assertThat(cache.get("europe")).isNull();
     assertThat(cache.get("europe", "france")).isEqualTo("paris");
     assertThat(cache.get("europe", "italy")).isEqualTo("rome");
     assertThat(cache.get("europe")).isNull();
     assertThat(cache.keySet("europe")).containsOnly("france", "italy");
-    assertThat(cache.keySet()).containsOnly("europe");
+    assertThat(cache.keySet()).containsOnly("europe", "asia");
     assertThat(cache.containsKey("europe")).isFalse();
     assertThat(cache.containsKey("europe", "france")).isTrue();
     assertThat(cache.containsKey("europe", "spain")).isFalse();
-    assertThat(cache.values()).containsOnly("paris", "rome");
+    assertThat(cache.values()).containsOnly("paris", "rome", "pekin");
     assertThat(cache.values("america")).isEmpty();
     assertThat(cache.values("europe")).containsOnly("paris", "rome");
     assertThat(cache.values("oceania")).isEmpty();
 
     Cache.Entry[] allEntries = Iterables.toArray(cache.entries(), Cache.Entry.class);
-    assertThat(allEntries).hasSize(2);
-    assertThat(allEntries[0].key()).isEqualTo(new String[]{"europe", "france"});
-    assertThat(allEntries[0].value()).isEqualTo("paris");
-    assertThat(allEntries[1].key()).isEqualTo(new String[]{"europe", "italy"});
-    assertThat(allEntries[1].value()).isEqualTo("rome");
+    assertThat(allEntries).hasSize(3);
+    assertThat(allEntries[0].key()).isEqualTo(new String[] {"asia", "china"});
+    assertThat(allEntries[0].value()).isEqualTo("pekin");
+    assertThat(allEntries[1].key()).isEqualTo(new String[] {"europe", "france"});
+    assertThat(allEntries[1].value()).isEqualTo("paris");
+    assertThat(allEntries[2].key()).isEqualTo(new String[] {"europe", "italy"});
+    assertThat(allEntries[2].value()).isEqualTo("rome");
 
-    Cache.SubEntry[] subEntries = Iterables.toArray(cache.subEntries("europe"), Cache.SubEntry.class);
+    Cache.Entry[] subEntries = Iterables.toArray(cache.entries("europe"), Cache.Entry.class);
     assertThat(subEntries).hasSize(2);
-    assertThat(subEntries[0].keyAsString()).isEqualTo("france");
+    assertThat(subEntries[0].key()).isEqualTo(new String[] {"europe", "france"});
     assertThat(subEntries[0].value()).isEqualTo("paris");
-    assertThat(subEntries[1].keyAsString()).isEqualTo("italy");
+    assertThat(subEntries[1].key()).isEqualTo(new String[] {"europe", "italy"});
     assertThat(subEntries[1].value()).isEqualTo("rome");
 
     cache.remove("europe", "france");
-    assertThat(cache.values()).containsOnly("rome");
+    assertThat(cache.values()).containsOnly("rome", "pekin");
     assertThat(cache.get("europe", "france")).isNull();
     assertThat(cache.get("europe", "italy")).isEqualTo("rome");
     assertThat(cache.containsKey("europe", "france")).isFalse();
     assertThat(cache.keySet("europe")).containsOnly("italy");
 
     cache.clear("america");
-    assertThat(cache.keySet()).containsOnly("europe");
-    cache.clear("europe");
+    assertThat(cache.keySet()).containsOnly("europe", "asia");
+    cache.clear();
     assertThat(cache.keySet()).isEmpty();
   }
 
@@ -147,47 +150,68 @@ public class CacheTest {
 
     cache.put("europe", "france", "paris", "eiffel tower");
     cache.put("europe", "france", "annecy", "lake");
+    cache.put("europe", "france", "poitiers", "notre dame");
     cache.put("europe", "italy", "rome", "colosseum");
+    cache.put("europe2", "ukrania", "kiev", "dunno");
+    cache.put("asia", "china", "pekin", "great wall");
+    cache.put("america", "us", "new york", "empire state building");
     assertThat(cache.get("europe")).isNull();
     assertThat(cache.get("europe", "france")).isNull();
     assertThat(cache.get("europe", "france", "paris")).isEqualTo("eiffel tower");
     assertThat(cache.get("europe", "france", "annecy")).isEqualTo("lake");
     assertThat(cache.get("europe", "italy", "rome")).isEqualTo("colosseum");
-    assertThat(cache.keySet()).containsOnly("europe");
+    assertThat(cache.keySet()).containsOnly("europe", "asia", "america", "europe2");
     assertThat(cache.keySet("europe")).containsOnly("france", "italy");
-    assertThat(cache.keySet("europe", "france")).containsOnly("annecy", "paris");
+    assertThat(cache.keySet("europe", "france")).containsOnly("annecy", "paris", "poitiers");
     assertThat(cache.containsKey("europe")).isFalse();
     assertThat(cache.containsKey("europe", "france")).isFalse();
     assertThat(cache.containsKey("europe", "france", "annecy")).isTrue();
     assertThat(cache.containsKey("europe", "france", "biarritz")).isFalse();
-    assertThat(cache.values()).containsOnly("eiffel tower", "lake", "colosseum");
+    assertThat(cache.values()).containsOnly("eiffel tower", "lake", "colosseum", "notre dame", "great wall", "empire state building", "dunno");
+    assertThat(cache.values("europe")).containsOnly("eiffel tower", "lake", "colosseum", "notre dame");
+    assertThat(cache.values("europe", "france")).containsOnly("eiffel tower", "lake", "notre dame");
 
     Cache.Entry[] allEntries = Iterables.toArray(cache.entries(), Cache.Entry.class);
-    assertThat(allEntries).hasSize(3);
-    assertThat(allEntries[0].key()).isEqualTo(new String[]{"europe", "france", "annecy"});
-    assertThat(allEntries[0].value()).isEqualTo("lake");
-    assertThat(allEntries[1].key()).isEqualTo(new String[]{"europe", "france", "paris"});
-    assertThat(allEntries[1].value()).isEqualTo("eiffel tower");
-    assertThat(allEntries[2].key()).isEqualTo(new String[]{"europe", "italy", "rome"});
-    assertThat(allEntries[2].value()).isEqualTo("colosseum");
+    assertThat(allEntries).hasSize(7);
+    assertThat(allEntries[0].key()).isEqualTo(new String[] {"america", "us", "new york"});
+    assertThat(allEntries[0].value()).isEqualTo("empire state building");
+    assertThat(allEntries[1].key()).isEqualTo(new String[] {"asia", "china", "pekin"});
+    assertThat(allEntries[1].value()).isEqualTo("great wall");
+    assertThat(allEntries[2].key()).isEqualTo(new String[] {"europe", "france", "annecy"});
+    assertThat(allEntries[2].value()).isEqualTo("lake");
+    assertThat(allEntries[3].key()).isEqualTo(new String[] {"europe", "france", "paris"});
+    assertThat(allEntries[3].value()).isEqualTo("eiffel tower");
+    assertThat(allEntries[4].key()).isEqualTo(new String[] {"europe", "france", "poitiers"});
+    assertThat(allEntries[4].value()).isEqualTo("notre dame");
+    assertThat(allEntries[5].key()).isEqualTo(new String[] {"europe", "italy", "rome"});
+    assertThat(allEntries[5].value()).isEqualTo("colosseum");
 
-    Cache.SubEntry[] subEntries = Iterables.toArray(cache.subEntries("europe"), Cache.SubEntry.class);
-    assertThat(subEntries).hasSize(2);
-    assertThat(subEntries[0].keyAsString()).isEqualTo("france");
-    assertThat(subEntries[0].value()).isNull();
-    assertThat(subEntries[1].keyAsString()).isEqualTo("italy");
-    assertThat(subEntries[1].value()).isNull();
+    Cache.Entry[] subEntries = Iterables.toArray(cache.entries("europe"), Cache.Entry.class);
+    assertThat(subEntries).hasSize(4);
+    assertThat(subEntries[0].key()).isEqualTo(new String[] {"europe", "france", "annecy"});
+    assertThat(subEntries[0].value()).isEqualTo("lake");
+    assertThat(subEntries[1].key()).isEqualTo(new String[] {"europe", "france", "paris"});
+    assertThat(subEntries[1].value()).isEqualTo("eiffel tower");
+    assertThat(subEntries[2].key()).isEqualTo(new String[] {"europe", "france", "poitiers"});
+    assertThat(subEntries[2].value()).isEqualTo("notre dame");
+    assertThat(subEntries[3].key()).isEqualTo(new String[] {"europe", "italy", "rome"});
+    assertThat(subEntries[3].value()).isEqualTo("colosseum");
 
     cache.remove("europe", "france", "annecy");
-    assertThat(cache.values()).containsOnly("eiffel tower", "colosseum");
+    assertThat(cache.values()).containsOnly("eiffel tower", "colosseum", "notre dame", "great wall", "empire state building", "dunno");
+    assertThat(cache.values("europe")).containsOnly("eiffel tower", "colosseum", "notre dame");
+    assertThat(cache.values("europe", "france")).containsOnly("eiffel tower", "notre dame");
     assertThat(cache.get("europe", "france", "annecy")).isNull();
     assertThat(cache.get("europe", "italy", "rome")).isEqualTo("colosseum");
     assertThat(cache.containsKey("europe", "france")).isFalse();
 
     cache.clear("europe", "italy");
-    assertThat(cache.values()).containsOnly("eiffel tower");
+    assertThat(cache.values()).containsOnly("eiffel tower", "notre dame", "great wall", "empire state building", "dunno");
 
     cache.clear("europe");
+    assertThat(cache.values()).containsOnly("great wall", "empire state building", "dunno");
+
+    cache.clear();
     assertThat(cache.values()).isEmpty();
   }
 

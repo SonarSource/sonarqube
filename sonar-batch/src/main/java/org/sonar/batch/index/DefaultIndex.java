@@ -187,7 +187,13 @@ public class DefaultIndex extends SonarIndex {
   public <M> M getMeasures(Resource resource, MeasuresFilter<M> filter) {
     // Reload resource so that effective key is populated
     Resource indexedResource = getResource(resource);
-    Iterable<Measure> unfiltered = measureCache.byResource(indexedResource);
+    Iterable<Measure> unfiltered;
+    if (filter instanceof MeasuresFilters.MetricFilter) {
+      // optimization
+      unfiltered = measureCache.byMetric(indexedResource, ((MeasuresFilters.MetricFilter<M>) filter).filterOnMetricKey());
+    } else {
+      unfiltered = measureCache.byResource(indexedResource);
+    }
     Collection<Measure> all = new ArrayList<Measure>();
     if (unfiltered != null) {
       for (Measure measure : unfiltered) {

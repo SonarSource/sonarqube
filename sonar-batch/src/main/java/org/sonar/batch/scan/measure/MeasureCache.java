@@ -47,17 +47,21 @@ public class MeasureCache implements BatchComponent {
     return cache.values(r.getEffectiveKey());
   }
 
+  public Iterable<Measure> byMetric(Resource r, String metricKey) {
+    return cache.values(r.getEffectiveKey(), metricKey);
+  }
+
   public MeasureCache put(Resource resource, Measure measure) {
     Preconditions.checkNotNull(resource.getEffectiveKey());
     Preconditions.checkNotNull(measure.getMetricKey());
-    cache.put(resource.getEffectiveKey(), computeMeasureKey(measure), measure);
+    cache.put(resource.getEffectiveKey(), measure.getMetricKey(), computeMeasureKey(measure), measure);
     return this;
   }
 
   public boolean contains(Resource resource, Measure measure) {
     Preconditions.checkNotNull(resource.getEffectiveKey());
     Preconditions.checkNotNull(measure.getMetricKey());
-    return cache.containsKey(resource.getEffectiveKey(), computeMeasureKey(measure));
+    return cache.containsKey(resource.getEffectiveKey(), measure.getMetricKey(), computeMeasureKey(measure));
   }
 
   private static String computeMeasureKey(Measure m) {
