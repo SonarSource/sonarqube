@@ -19,10 +19,10 @@
  */
 package org.sonar.server.search;
 
-import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.picocontainer.Startable;
 
 import javax.annotation.CheckForNull;
+
 import java.io.Serializable;
 
 public interface Index<K extends Serializable> extends Startable {
@@ -37,8 +37,6 @@ public interface Index<K extends Serializable> extends Startable {
   void update(K key);
 
   void delete(K key);
-
-  XContentBuilder normalize(K key);
 
   Long getLastSynchronization();
 

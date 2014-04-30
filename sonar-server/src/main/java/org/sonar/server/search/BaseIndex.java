@@ -32,7 +32,6 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.cluster.WorkQueue;
-import org.sonar.core.db.Dao;
 import org.sonar.core.db.Dto;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.Profiling.Level;
@@ -56,18 +55,13 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
   private final Profiling profiling;
   private Client client;
   private final ESNode node;
-  private IndexSynchronizer<K> synchronizer;
-  protected Dao<E, K> dao;
+  protected BaseNormalizer<E,K> normalizer;
 
-  public BaseIndex(WorkQueue workQueue, Dao<E, K> dao, Profiling profiling, ESNode node) {
+  public BaseIndex(BaseNormalizer<E,K> normalizer, WorkQueue workQueue,
+                Profiling profiling, ESNode node) {
+    this.normalizer = normalizer;
     this.profiling = profiling;
-    this.synchronizer = new IndexSynchronizer<K>(this, dao, workQueue);
-    this.dao = dao;
     this.node = node;
-  }
-
-  protected Dao<?, K> getDao() {
-    return this.dao;
   }
 
   protected Client getClient() {
@@ -84,9 +78,6 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
 
     /* Setup the index if necessary */
     this.intializeIndex();
-
-    /* Launch synchronization */
-//    synchronizer.start();
   }
 
   @Override
@@ -102,25 +93,6 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
 
   public void connect() {
     this.client = this.node.client();
-    // /* Settings to access our local ES node */
-    // Settings settings = ImmutableSettings.settingsBuilder()
-    // .put("client.transport.sniff", true)
-    // .put("cluster.name", ES_CLUSTER_NAME)
-    // .put("node.name", "localclient_")
-    // .build();
-    //
-    // this.client = new TransportClient(settings)
-    // .addTransportAddress(new InetSocketTransportAddress(LOCAL_ES_NODE_HOST, LOCAL_ES_NODE_PORT));
-    //
-    // /*
-    // * Cannot do that yet, need version >= 1.0
-    // * ImmutableList<DiscoveryNode> nodes = client.connectedNodes();
-    // * if (nodes.isEmpty()) {
-    // * throw new ElasticSearchUnavailableException("No nodes available. Verify ES is running!");
-    // * } else {
-    // * log.info("connected to nodes: " + nodes.toString());
-    // * }
-    // */
   }
 
   /* Cluster And ES Stats/Client methods */
@@ -182,14 +154,14 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
   @Override
   public void insert(K key) {
     try {
-      XContentBuilder doc = this.normalize(key);
+      XContentBuilder doc = normalizer.normalize(key);
       String keyvalue = this.getKeyValue(key);
       if (doc != null && keyvalue != null && !keyvalue.isEmpty()) {
         LOG.debug("Update document with key {}", key);
         IndexResponse result = getClient().index(
           new IndexRequest(this.getIndexName(),
             this.getType(), keyvalue)
-            .source(this.normalize(key))).get();
+            .source(doc)).get();
       } else {
         LOG.error("Could not normalize document {} for insert in ",
           key, this.getIndexName());
@@ -204,10 +176,11 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
   public void update(K key) {
     try {
       LOG.info("Update document with key {}", key);
+      XContentBuilder doc = normalizer.normalize(key);
       UpdateResponse result = getClient().update(
         new UpdateRequest(this.getIndexName(),
           this.getType(), this.getKeyValue(key))
-          .doc(this.normalize(key))).get();
+          .doc(doc)).get();
     } catch (Exception e) {
       LOG.error("Could not update documet for index {}: {}",
         this.getIndexName(), e.getMessage());

@@ -20,15 +20,12 @@
 package org.sonar.server.rule2;
 
 import com.google.common.collect.ImmutableSet;
-import org.apache.commons.beanutils.BeanUtils;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.profiling.Profiling;
-import org.sonar.core.qualityprofile.db.ActiveRuleDao;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.rule.RuleConstants;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.es.ESNode;
@@ -37,9 +34,6 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Results;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
@@ -51,11 +45,9 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
   public static final Set<String> PUBLIC_FIELDS = ImmutableSet.of("repositoryKey", "key", "name", "desc",
     "lang", "severity", "status", "tags", "sysTags", "createdAt", "updatedAt");
 
-  private final ActiveRuleDao activeRuleDao;
-
-  public RuleIndex(WorkQueue workQueue, RuleDao dao, ActiveRuleDao ActiveRuleDao, Profiling profiling, ESNode node) {
-    super(workQueue, dao, profiling, node);
-    this.activeRuleDao = ActiveRuleDao;
+  public RuleIndex(RuleNormalizer normalizer, WorkQueue workQueue,
+    Profiling profiling, ESNode node) {
+    super(normalizer, workQueue, profiling, node);
   }
 
   @Override
@@ -125,88 +117,16 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
       return mapping.endObject()
         .endObject().endObject();
 
-      // return jsonBuilder().startObject()
-      // .startObject("issue")
-      // .startObject("properties")
-      // .startObject("component.path")
-      // .field("type", "string")
-      // .field("index_analyzer", "path_analyzer")
-      // .field("search_analyzer", "keyword")
-      // .endObject()
-      // .startObject("rule.name")
-      // .field("type", "string")
-      // .field("analyzer", "keyword")
-      // .endObject()
-      // .startObject("root.id")
-      // .field("type", "multi_field")
-      // .startObject("fields")
-      // .startObject("str")
-      // .field("type", "string")
-      // .field("index","analyzed")
-      // .field("analyzer", "default")
-      // .endObject()
-      // .startObject("num")
-      // .field("type", "long")
-      // .field("index","analyzed")
-      // .endObject()
-      // .endObject()
-      // .endObject()
-      // .endObject().endObject();
     } catch (IOException e) {
       LOG.error("Could not create mapping for {}", this.getIndexName());
       return null;
     }
   }
 
-  @Override
-  public XContentBuilder normalize(RuleKey key) {
-
-    try {
-
-      RuleDto rule = dao.getByKey(key);
-
-      XContentBuilder document = jsonBuilder().startObject();
-
-      Map<String, Object> properties = BeanUtils.describe(rule);
-
-      for (Entry<String, Object> property : properties.entrySet()) {
-        LOG.trace("NORMALIZING: {} -> {}", property.getKey(), property.getValue());
-        document.field(property.getKey(), property.getValue());
-      }
-
-      document.startArray("active");
-      for (ActiveRuleDto activeRule : activeRuleDao.selectByRuleId(rule.getId())) {
-        document.startObject();
-        Map<String, Object> activeRuleProperties = BeanUtils.describe(activeRule);
-        for (Entry<String, Object> activeRuleProp : activeRuleProperties.entrySet()) {
-          LOG.trace("NORMALIZING: --- {} -> {}", activeRuleProp.getKey(), activeRuleProp.getValue());
-          document.field(activeRuleProp.getKey(), activeRuleProp.getValue());
-        }
-        document.endObject();
-      }
-      document.endArray();
-
-      return document.endObject();
-    } catch (IOException e) {
-      LOG.error("Could not normalize {} in {} because {}",
-        key, this.getClass().getSimpleName(), e.getMessage());
-    } catch (IllegalAccessException e) {
-      LOG.error("Could not normalize {} in {} because {}",
-        key, this.getClass().getSimpleName(), e.getMessage());
-    } catch (InvocationTargetException e) {
-      LOG.error("Could not normalize {} in {} because {}",
-        key, this.getClass().getSimpleName(), e.getMessage());
-    } catch (NoSuchMethodException e) {
-      LOG.error("Could not normalize {} in {} because {}",
-        key, this.getClass().getSimpleName(), e.getMessage());
-    }
-    return null;
-  }
-
   public Results search(RuleQuery query, QueryOptions options) {
+
     throw new UnsupportedOperationException("TODO");
 
   }
-
 
 }

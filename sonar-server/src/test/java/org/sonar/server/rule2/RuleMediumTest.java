@@ -105,7 +105,7 @@ public class RuleMediumTest {
     dao.insert(dto);
 
     Hit hit = index.getByKey(dto.getKey());
-    assertThat(hit.getFields().get("ruleKey")).isEqualTo(dto.getRuleKey());
+    assertThat(hit.getFields().get(RuleNormalizer.RuleFields.RULE_KEY.key())).isEqualTo(dto.getRuleKey().toString());
   }
 
   @Test
