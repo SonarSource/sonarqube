@@ -29,7 +29,6 @@ import org.sonar.core.profiling.Profiling;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.rule.RuleConstants;
-import org.sonar.server.rule2.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.es.ESNode;
 import org.sonar.server.search.BaseIndex;
