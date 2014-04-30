@@ -247,9 +247,9 @@ public class IssueUpdater implements BatchComponent, ServerComponent {
     return false;
   }
 
-  public boolean setProject(DefaultIssue issue, String key, IssueChangeContext context) {
-    if (!Objects.equal(key, issue.projectKey())) {
-      issue.setProjectKey(key);
+  public boolean setProject(DefaultIssue issue, @Nullable String projectKey, IssueChangeContext context) {
+    if (!Objects.equal(projectKey, issue.projectKey())) {
+      issue.setProjectKey(projectKey);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
       return true;

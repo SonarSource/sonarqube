@@ -53,7 +53,7 @@ public class QProfilesWsTest {
 
     WebService.Action restoreProfiles = controller.action("restore_default");
     assertThat(restoreProfiles).isNotNull();
-    assertThat(restoreProfiles.handler()).isNotNull();
+    assertThat(restoreProfiles.handler()).isSameAs(qProfileBackupWsHandler);
     assertThat(restoreProfiles.since()).isEqualTo("4.4");
     assertThat(restoreProfiles.isPost()).isFalse();
     assertThat(restoreProfiles.isInternal()).isFalse();

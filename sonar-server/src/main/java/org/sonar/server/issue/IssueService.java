@@ -210,45 +210,45 @@ public class IssueService implements ServerComponent {
   public DefaultIssue createManualIssue(String componentKey, RuleKey ruleKey, @Nullable Integer line, @Nullable String message, @Nullable String severity,
                                         @Nullable Double effortToFix, UserSession userSession) {
     verifyLoggedIn(userSession);
-    ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(componentKey));
+    ResourceDto component = resourceDao.getResource(ResourceQuery.create().setKey(componentKey));
     ResourceDto project = resourceDao.getRootProjectByComponentKey(componentKey);
-    if (resourceDto == null || project == null) {
+    if (component == null || project == null) {
       throw new IllegalArgumentException("Unknown component: " + componentKey);
     }
+    if (!authorizationDao.isAuthorizedComponentKey(component.getKey(), userSession.userId(), UserRole.USER)) {
+      // TODO throw unauthorized
+      throw new IllegalStateException("User does not have the required role");
+    }
+    if (!org.sonar.server.rule.Rule.MANUAL_REPOSITORY_KEY.equals(ruleKey.repository())) {
+      throw new IllegalArgumentException("Issues can be created only on rules marked as 'manual': " + ruleKey);
+    }
+    Rule rule = findRule(ruleKey);
 
     DefaultIssue issue = (DefaultIssue) new DefaultIssueBuilder()
-      .componentKey(resourceDto.getKey())
+      .componentKey(component.getKey())
       .projectKey(project.getKey())
       .line(line)
-      .message(message)
+      .message(!Strings.isNullOrEmpty(message) ? message : rule.getName())
       .severity(Objects.firstNonNull(severity, Severity.MAJOR))
       .effortToFix(effortToFix)
       .ruleKey(ruleKey)
       .reporter(UserSession.get().login())
       .build();
 
-    if (!authorizationDao.isAuthorizedComponentKey(resourceDto.getKey(), userSession.userId(), UserRole.USER)) {
-      // TODO throw unauthorized
-      throw new IllegalStateException("User does not have the required role");
-    }
-    if (!org.sonar.server.rule.Rule.MANUAL_REPOSITORY_KEY.equals(issue.ruleKey().repository())) {
-      throw new IllegalArgumentException("Issues can be created only on rules marked as 'manual': " + issue.ruleKey());
-    }
-
-    Rule rule = ruleFinder.findByKey(issue.ruleKey());
-    if (rule == null) {
-      throw new IllegalArgumentException("Unknown rule: " + issue.ruleKey());
-    }
-    if (Strings.isNullOrEmpty(issue.message())) {
-      issue.setMessage(rule.getName());
-    }
-
     Date now = new Date();
     issue.setCreationDate(now);
     issue.setUpdateDate(now);
     issueStorage.save(issue);
-    dryRunCache.reportResourceModification(resourceDto.getKey());
+    dryRunCache.reportResourceModification(component.getKey());
     return issue;
+  }
+
+  private Rule findRule (RuleKey ruleKey) {
+    Rule rule = ruleFinder.findByKey(ruleKey);
+    if (rule == null) {
+      throw new IllegalArgumentException("Unknown rule: " + ruleKey);
+    }
+    return rule;
   }
 
   public IssueQueryResult loadIssue(String issueKey) {

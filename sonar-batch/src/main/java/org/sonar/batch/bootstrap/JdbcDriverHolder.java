@@ -26,8 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.SonarException;
 import org.sonar.home.cache.FileCache;
 
-import javax.annotation.CheckForNull;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,7 +59,7 @@ public class JdbcDriverHolder {
       try {
         LOG.info("Install JDBC driver");
         String[] nameAndHash = downloadJdbcDriverIndex();
-        if (nameAndHash != null) {
+        if (nameAndHash.length > 0) {
           String filename = nameAndHash[0];
           String hash = nameAndHash[1];
 
@@ -138,7 +136,6 @@ public class JdbcDriverHolder {
     }
   }
 
-  @CheckForNull
   private String[] downloadJdbcDriverIndex() {
     String url = "/deploy/jdbc-driver.txt";
     try {
@@ -146,7 +143,7 @@ public class JdbcDriverHolder {
       String indexContent = serverClient.request(url);
       // File is empty when H2 is used
       if (Strings.isNullOrEmpty(indexContent)) {
-        return null;
+        return new String[]{};
       }
       return indexContent.split("\\|");
     } catch (Exception e) {

@@ -35,11 +35,13 @@ public class QProfilesWs implements WebService {
     NewController controller = context.createController("api/qprofiles")
       .setDescription("Quality profiles management");
 
-    controller.createAction("restore_default")
+    NewAction restoreDefault = controller.createAction("restore_default")
       .setDescription("Restore default profiles")
       .setSince("4.4")
-      .setHandler(qProfileBackupWsHandler)
-      .createParam("language", "Restore default profiles for this language");
+      .setHandler(qProfileBackupWsHandler);
+    restoreDefault.createParam("language")
+      .setDescription("Restore default profiles for this language");
+
     controller.done();
   }
 }

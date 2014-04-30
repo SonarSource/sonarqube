@@ -141,7 +141,7 @@ public class DefaultIssue implements Issue {
     return projectKey;
   }
 
-  public DefaultIssue setProjectKey(String projectKey) {
+  public DefaultIssue setProjectKey(@Nullable String projectKey) {
     this.projectKey = projectKey;
     return this;
   }
