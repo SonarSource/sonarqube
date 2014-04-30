@@ -163,6 +163,10 @@ module.exports = (grunt) ->
         name: 'common/select-list'
         out: '<%= pkg.assets %>build/js/common/select-list.js'
 
+      apiDocumentation: options:
+        name: 'api-documentation/app'
+        out: '<%= pkg.assets %>build/js/api-documentation/app.js'
+
 
     handlebars:
       options:
@@ -192,6 +196,9 @@ module.exports = (grunt) ->
           '<%= pkg.assets %>js/templates/issues.js': [
             '<%= pkg.sources %>hbs/common/**/*.hbs'
             '<%= pkg.sources %>hbs/issues/**/*.hbs'
+          ]
+          '<%= pkg.assets %>js/templates/api-documentation.js': [
+            '<%= pkg.sources %>hbs/api-documentation/**/*.hbs'
           ]
 
 
