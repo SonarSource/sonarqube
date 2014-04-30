@@ -31,8 +31,6 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.server.search.IndexAction;
-import org.sonar.server.search.IndexAction.Method;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.db.Dao;
 import org.sonar.core.db.Dto;
@@ -88,7 +86,7 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
     this.intializeIndex();
 
     /* Launch synchronization */
-    synchronizer.start();
+//    synchronizer.start();
   }
 
   @Override
