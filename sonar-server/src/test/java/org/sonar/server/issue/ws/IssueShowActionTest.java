@@ -38,7 +38,6 @@ import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
-import org.sonar.server.ws.WsTester;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
@@ -56,6 +55,7 @@ import org.sonar.server.issue.IssueChangelogService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
+import org.sonar.server.ws.WsTester;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -69,7 +69,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class IssueShowWsHandlerTest {
+public class IssueShowActionTest {
 
   @Mock
   IssueFinder issueFinder;
@@ -113,7 +113,7 @@ public class IssueShowWsHandlerTest {
 
     when(i18n.message(any(Locale.class), eq("created"), eq((String) null))).thenReturn("Created");
 
-    tester = new WsTester(new IssuesWs(new IssueShowWsHandler(issueFinder, issueService, issueChangelogService, actionService, debtModel, i18n, durations)));
+    tester = new WsTester(new IssuesWs(new IssueShowAction(issueFinder, issueService, issueChangelogService, actionService, debtModel, i18n, durations)));
   }
 
   @Test

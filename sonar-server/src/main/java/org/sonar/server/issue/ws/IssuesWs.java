@@ -19,13 +19,15 @@
  */
 package org.sonar.server.issue.ws;
 
+import org.sonar.api.rule.Severity;
+import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
 public class IssuesWs implements WebService {
 
-  private final IssueShowWsHandler showHandler;
+  private final IssueShowAction showHandler;
 
-  public IssuesWs(IssueShowWsHandler showHandler) {
+  public IssuesWs(IssueShowAction showHandler) {
     this.showHandler = showHandler;
   }
 
@@ -33,13 +35,20 @@ public class IssuesWs implements WebService {
   public void define(Context context) {
     NewController controller = context.createController("api/issues");
     controller.setDescription("Coding rule issues");
+    controller.setSince("3.6");
+    showHandler.define(controller);
 
-    controller.createAction("show")
-      .setDescription("Detail of issue")
-      .setSince("4.2")
-      .setInternal(true)
-      .setHandler(showHandler)
-      .createParam("key", "Issue key");
+    WebService.NewAction search = controller.createAction("search")
+      .setDescription("Get a list of issues. If the number of issues is greater than 10,000, only the first 10,000 ones are returned by the web service. Requires Browse permission on project(s).")
+      .setSince("3.6")
+      .setHandler(RailsHandler.INSTANCE);
+    search.createParam("issues")
+      .setDescription("Comma-separated list of issue keys.")
+      .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef");
+    search.createParam("severities")
+      .setDescription("Comma-separated list of severities.")
+      .setExampleValue("BLOCKER,CRITICAL")
+      .setPossibleValues(Severity.ALL.toArray(new String[Severity.ALL.size()]));
 
     controller.done();
   }

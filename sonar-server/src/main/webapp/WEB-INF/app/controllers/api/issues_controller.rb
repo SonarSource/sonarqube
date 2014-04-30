@@ -219,7 +219,7 @@ class Api::IssuesController < Api::ApiController
     require_parameters :issue
 
     plan = nil
-    plan = params[:plan] if params[:plan] && !params[:plan].blank?
+    plan = params[:actionplan] if params[:actionplan] && !params[:actionplan].blank?
     result = Internal.issues.plan(params[:issue], plan)
     render_result_issue(result)
   end

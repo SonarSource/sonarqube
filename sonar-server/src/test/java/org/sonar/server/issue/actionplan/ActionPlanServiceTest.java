@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.issue;
+package org.sonar.server.issue.actionplan;
 
+import org.fest.assertions.Fail;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,7 +49,6 @@ import java.util.Collection;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -103,7 +103,7 @@ public class ActionPlanServiceTest {
 
     try {
       actionPlanService.create(actionPlan, unauthorizedUserSession);
-      fail();
+      Fail.fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ForbiddenException.class);
     }
@@ -195,7 +195,7 @@ public class ActionPlanServiceTest {
 
     try {
       actionPlanService.findOpenByProjectKey(projectKey, unauthorizedUserSession);
-      fail();
+      Fail.fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(ForbiddenException.class);
     }

@@ -20,6 +20,7 @@
 
 package org.sonar.server.authentication.ws;
 
+import com.google.common.io.Resources;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
@@ -33,7 +34,8 @@ public class AuthenticationWs implements WebService {
     controller.createAction("validate")
       .setDescription("Check credentials")
       .setSince("3.3")
-      .setHandler(RailsHandler.INSTANCE);
+      .setHandler(RailsHandler.INSTANCE)
+      .setResponseExample(Resources.getResource(this.getClass(), "example-validate.json"));
 
     controller.done();
   }

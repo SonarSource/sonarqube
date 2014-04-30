@@ -41,9 +41,7 @@ public class AuthenticationWsTest {
     WebService.Action validate = controller.action("validate");
     assertThat(validate).isNotNull();
     assertThat(validate.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(validate.since()).isEqualTo("3.3");
-    assertThat(validate.isPost()).isFalse();
-    assertThat(validate.isInternal()).isFalse();
+    assertThat(validate.responseExampleAsString()).isNotEmpty();
     assertThat(validate.params()).isEmpty();
   }
 }

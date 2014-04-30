@@ -27,6 +27,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.IsUnResolved;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.core.issue.IssueUpdater;
+import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;

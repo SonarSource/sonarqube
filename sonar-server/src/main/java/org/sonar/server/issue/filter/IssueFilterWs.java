@@ -19,25 +19,18 @@
  */
 package org.sonar.server.issue.filter;
 
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
-import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.issue.DefaultIssueFilter;
-import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.server.user.UserSession;
-
-import java.util.List;
 
 public class IssueFilterWs implements WebService {
 
-  private static final String PARAM_ID = "id";
-  private final IssueFilterService service;
+  private final AppAction appAction;
+  private final ShowAction showAction;
+  private final FavoritesAction favoritesAction;
 
-  public IssueFilterWs(IssueFilterService service) {
-    this.service = service;
+  public IssueFilterWs(AppAction appAction, ShowAction showAction, FavoritesAction favoritesAction) {
+    this.appAction = appAction;
+    this.showAction = showAction;
+    this.favoritesAction = favoritesAction;
   }
 
   @Override
@@ -45,132 +38,10 @@ public class IssueFilterWs implements WebService {
     NewController controller = context.createController("api/issue_filters")
       .setSince("4.2")
       .setDescription("Issue Filters");
-
-    NewAction app = controller.createAction("app");
-    app
-      .setDescription("Data required for rendering the page 'Issues'")
-      .setInternal(true)
-      .setHandler(new RequestHandler() {
-        @Override
-        public void handle(Request request, Response response) {
-          app(request, response);
-        }
-      });
-    app.createParam(PARAM_ID).setDescription("Optionally, the ID of the current filter");
-
-    NewAction show = controller.createAction("show");
-    show
-      .setDescription("Get detail of an issue filter. Requires to be authenticated")
-      .setSince("4.2")
-      .setHandler(new RequestHandler() {
-        @Override
-        public void handle(Request request, Response response) {
-          show(request, response);
-        }
-      });
-    show.createParam(PARAM_ID)
-      .setDescription("ID of the issue filter")
-      .setRequired(true);
-
-    NewAction fav = controller.createAction("favorites");
-    fav
-      .setDescription("The issue filters marked as favorite by request user")
-      .setSince("4.2")
-      .setHandler(new RequestHandler() {
-        @Override
-        public void handle(Request request, Response response) {
-          favorites(request, response);
-        }
-      });
-
+    appAction.define(controller);
+    showAction.define(controller);
+    favoritesAction.define(controller);
     controller.done();
   }
 
-  private void app(Request request, Response response) {
-    UserSession session = UserSession.get();
-
-    JsonWriter json = response.newJsonWriter();
-    json.beginObject();
-
-    // Current filter (optional)
-    int filterId = request.paramAsInt(PARAM_ID, -1);
-    DefaultIssueFilter filter = null;
-    if (filterId >= 0) {
-      filter = service.find((long) filterId, session);
-    }
-
-    // Permissions
-    json.prop("canManageFilters", session.isLoggedIn());
-    json.prop("canBulkChange", session.isLoggedIn());
-
-    // Selected filter
-    if (filter != null) {
-      json.name("filter");
-      writeFilterJson(session, filter, json);
-    }
-
-    // Favorite filters, if logged in
-    if (session.isLoggedIn()) {
-      List<DefaultIssueFilter> favorites = service.findFavoriteFilters(session);
-      json.name("favorites").beginArray();
-      for (DefaultIssueFilter favorite : favorites) {
-        json
-          .beginObject()
-          .prop(PARAM_ID, favorite.id())
-          .prop("name", favorite.name())
-          .endObject();
-      }
-      json.endArray();
-    }
-
-    json.endObject();
-    json.close();
-  }
-
-  private void show(Request request, Response response) {
-    UserSession session = UserSession.get();
-    DefaultIssueFilter filter = service.find(Long.parseLong(request.mandatoryParam(PARAM_ID)), session);
-
-    JsonWriter json = response.newJsonWriter();
-    json.beginObject();
-    json.name("filter");
-    writeFilterJson(session, filter, json);
-    json.endObject();
-    json.close();
-  }
-
-  private void favorites(Request request, Response response) {
-    UserSession session = UserSession.get();
-    JsonWriter json = response.newJsonWriter();
-    json.beginObject().name("favoriteFilters").beginArray();
-    if (session.isLoggedIn()) {
-      for (DefaultIssueFilter favorite : service.findFavoriteFilters(session)) {
-        json.beginObject();
-        json.prop(PARAM_ID, favorite.id());
-        json.prop("name", favorite.name());
-        json.prop("user", favorite.user());
-        json.prop("shared", favorite.shared());
-        // no need to export description and query fields
-        json.endObject();
-      }
-    }
-    json.endArray().endObject().close();
-  }
-
-  private JsonWriter writeFilterJson(UserSession session, DefaultIssueFilter filter, JsonWriter json) {
-    return json.beginObject()
-      .prop(PARAM_ID, filter.id())
-      .prop("name", filter.name())
-      .prop("description", filter.description())
-      .prop("user", filter.user())
-      .prop("shared", filter.shared())
-      .prop("query", filter.data())
-      .prop("canModify", canModifyFilter(session, filter))
-      .endObject();
-  }
-
-  private boolean canModifyFilter(UserSession session, DefaultIssueFilter filter) {
-    return session.isLoggedIn() &&
-      (StringUtils.equals(filter.user(), session.login()) || session.hasGlobalPermission(GlobalPermissions.SYSTEM_ADMIN));
-  }
 }

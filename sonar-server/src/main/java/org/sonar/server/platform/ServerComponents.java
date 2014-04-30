@@ -19,10 +19,6 @@
  */
 package org.sonar.server.platform;
 
-import org.sonar.server.cluster.LocalNonBlockingWorkQueue;
-
-import org.sonar.server.rule2.RuleDao;
-import org.sonar.server.rule2.RuleService;
 import com.google.common.collect.Lists;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.sonar.api.config.EmailSettings;
@@ -82,6 +78,7 @@ import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
 import org.sonar.server.authentication.ws.AuthenticationWs;
 import org.sonar.server.charts.ChartFactory;
+import org.sonar.server.cluster.LocalNonBlockingWorkQueue;
 import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
@@ -91,10 +88,12 @@ import org.sonar.server.debt.*;
 import org.sonar.server.es.ESIndex;
 import org.sonar.server.es.ESNode;
 import org.sonar.server.issue.*;
+import org.sonar.server.issue.actionplan.ActionPlanService;
+import org.sonar.server.issue.actionplan.ActionPlanWs;
 import org.sonar.server.issue.filter.IssueFilterService;
+import org.sonar.server.issue.filter.IssueFilterWriter;
 import org.sonar.server.issue.filter.IssueFilterWs;
-import org.sonar.server.issue.ws.ActionPlanWs;
-import org.sonar.server.issue.ws.IssueShowWsHandler;
+import org.sonar.server.issue.ws.IssueShowAction;
 import org.sonar.server.issue.ws.IssuesWs;
 import org.sonar.server.notifications.NotificationCenter;
 import org.sonar.server.notifications.NotificationService;
@@ -114,6 +113,7 @@ import org.sonar.server.qualityprofile.ws.QProfileBackupWsHandler;
 import org.sonar.server.qualityprofile.ws.QProfilesWs;
 import org.sonar.server.rule.*;
 import org.sonar.server.rule.ws.*;
+import org.sonar.server.rule2.RuleService;
 import org.sonar.server.search.IndexUtils;
 import org.sonar.server.source.CodeColorizers;
 import org.sonar.server.source.DeprecatedSourceDecorator;
@@ -356,19 +356,27 @@ class ServerComponents {
     pico.addSingleton(IssueStatsFinder.class);
     pico.addSingleton(PublicRubyIssueService.class);
     pico.addSingleton(InternalRubyIssueService.class);
-    pico.addSingleton(ActionPlanService.class);
     pico.addSingleton(IssueChangelogService.class);
     pico.addSingleton(IssueNotifications.class);
     pico.addSingleton(ActionService.class);
     pico.addSingleton(Actions.class);
-    pico.addSingleton(IssueFilterSerializer.class);
-    pico.addSingleton(IssueFilterService.class);
     pico.addSingleton(IssueBulkChangeService.class);
     pico.addSingleton(IssueChangelogFormatter.class);
-    pico.addSingleton(IssueFilterWs.class);
-    pico.addSingleton(IssueShowWsHandler.class);
+    pico.addSingleton(IssueShowAction.class);
     pico.addSingleton(IssuesWs.class);
+
+    // issue filters
+    pico.addSingleton(IssueFilterService.class);
+    pico.addSingleton(IssueFilterSerializer.class);
+    pico.addSingleton(IssueFilterWs.class);
+    pico.addSingleton(IssueFilterWriter.class);
+    pico.addSingleton(org.sonar.server.issue.filter.AppAction.class);
+    pico.addSingleton(org.sonar.server.issue.filter.ShowAction.class);
+    pico.addSingleton(org.sonar.server.issue.filter.FavoritesAction.class);
+
+    // action plan
     pico.addSingleton(ActionPlanWs.class);
+    pico.addSingleton(ActionPlanService.class);
 
     // issues actions
     pico.addSingleton(AssignAction.class);

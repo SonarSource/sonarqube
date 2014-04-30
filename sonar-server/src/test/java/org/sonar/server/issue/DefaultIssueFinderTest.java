@@ -43,6 +43,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.rule.DefaultRuleFinder;
 import org.sonar.core.user.DefaultUser;
+import org.sonar.server.issue.actionplan.ActionPlanService;
 
 import java.util.Collections;
 import java.util.List;

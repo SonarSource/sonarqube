@@ -18,8 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.issue.ws;
+package org.sonar.server.issue.actionplan;
 
+import com.google.common.io.Resources;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
@@ -33,7 +34,8 @@ public class ActionPlanWs implements WebService {
     WebService.NewAction search = controller.createAction("search")
       .setDescription("Get a list of action plans. Requires Browse permission on project")
       .setSince("3.6")
-      .setHandler(RailsHandler.INSTANCE);
+      .setHandler(RailsHandler.INSTANCE)
+      .setResponseExample(Resources.getResource(this.getClass(), "example-search.json"));
     addProjectParam(search);
 
     WebService.NewAction create = controller.createAction("create")

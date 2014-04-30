@@ -50,6 +50,7 @@ import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
 import org.sonar.core.user.AuthorizationDao;
 import org.sonar.core.user.DefaultUser;
+import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.user.UserSession;
 
 import java.util.Collections;

@@ -32,6 +32,7 @@ import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
@@ -58,7 +59,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class IssueShowWsHandler implements RequestHandler {
+public class IssueShowAction implements RequestHandler {
 
   private final IssueFinder issueFinder;
   private final IssueService issueService;
@@ -68,8 +69,8 @@ public class IssueShowWsHandler implements RequestHandler {
   private final I18n i18n;
   private final Durations durations;
 
-  public IssueShowWsHandler(IssueFinder issueFinder, IssueService issueService, IssueChangelogService issueChangelogService, ActionService actionService,
-                            DebtModelService debtModel, I18n i18n, Durations durations) {
+  public IssueShowAction(IssueFinder issueFinder, IssueService issueService, IssueChangelogService issueChangelogService, ActionService actionService,
+                         DebtModelService debtModel, I18n i18n, Durations durations) {
     this.issueFinder = issueFinder;
     this.issueService = issueService;
     this.issueChangelogService = issueChangelogService;
@@ -77,6 +78,16 @@ public class IssueShowWsHandler implements RequestHandler {
     this.debtModel = debtModel;
     this.i18n = i18n;
     this.durations = durations;
+  }
+
+  void define (WebService.NewController controller) {
+    WebService.NewAction action = controller.createAction("show")
+      .setDescription("Detail of issue")
+      .setSince("4.2")
+      .setInternal(true)
+      .setHandler(this);
+    action.createParam("key")
+      .setDescription("Issue key");
   }
 
   @Override

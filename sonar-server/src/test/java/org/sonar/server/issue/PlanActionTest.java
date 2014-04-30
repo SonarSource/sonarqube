@@ -30,6 +30,7 @@ import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.IssueChangeContext;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.IssueUpdater;
+import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;

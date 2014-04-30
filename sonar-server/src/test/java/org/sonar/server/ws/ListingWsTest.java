@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ws;
 
+import com.google.common.io.Resources;
 import org.junit.Test;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
@@ -89,7 +90,7 @@ public class ListingWsTest {
         .setSince("4.1")
         .setPost(true)
         .setInternal(true)
-        .setResponseExample(getClass().getResource("/org/sonar/server/ws/ListingWsTest/metrics_example.json"))
+        .setResponseExample(Resources.getResource(getClass(), "ListingWsTest/metrics_example.json"))
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {

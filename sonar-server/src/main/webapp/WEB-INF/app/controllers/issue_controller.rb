@@ -83,7 +83,7 @@ class IssueController < ApplicationController
     elsif action_type=='severity'
       issue_result = Internal.issues.setSeverity(issue_key, params[:severity])
     elsif action_type=='plan'
-      issue_result = Internal.issues.plan(issue_key, params[:plan])
+      issue_result = Internal.issues.plan(issue_key, params[:actionplan])
     elsif action_type=='unplan'
       issue_result = Internal.issues.plan(issue_key, nil)
     else

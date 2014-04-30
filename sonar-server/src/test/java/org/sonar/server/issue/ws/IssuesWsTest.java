@@ -20,23 +20,38 @@
 package org.sonar.server.issue.ws;
 
 import org.junit.Test;
+import org.sonar.api.i18n.I18n;
+import org.sonar.api.issue.IssueFinder;
+import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.Durations;
+import org.sonar.server.debt.DebtModelService;
+import org.sonar.server.issue.ActionService;
+import org.sonar.server.issue.IssueChangelogService;
+import org.sonar.server.issue.IssueService;
 import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-
 public class IssuesWsTest {
 
-  IssueShowWsHandler showHandler = mock(IssueShowWsHandler.class);
-  WsTester tester = new WsTester(new IssuesWs(showHandler));
+  IssueShowAction showAction = new IssueShowAction(mock(IssueFinder.class), mock(IssueService.class), mock(IssueChangelogService.class), mock(ActionService.class),
+    mock(DebtModelService.class), mock(I18n.class), mock(Durations.class));
+  WsTester tester = new WsTester(new IssuesWs(showAction));
 
   @Test
-  public void define_ws() throws Exception {
+  public void define_controller() throws Exception {
     WebService.Controller controller = tester.controller("api/issues");
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
+    assertThat(controller.since()).isEqualTo("3.6");
+    assertThat(controller.actions()).hasSize(2);
+  }
+
+  @Test
+  public void define_show_action() throws Exception {
+    WebService.Controller controller = tester.controller("api/issues");
 
     WebService.Action show = controller.action("show");
     assertThat(show).isNotNull();
@@ -44,7 +59,26 @@ public class IssuesWsTest {
     assertThat(show.since()).isEqualTo("4.2");
     assertThat(show.isPost()).isFalse();
     assertThat(show.isInternal()).isTrue();
-    assertThat(show.handler()).isSameAs(showHandler);
+    assertThat(show.handler()).isSameAs(showAction);
+
+    WebService.Param key = show.param("key");
+    assertThat(key).isNotNull();
+    assertThat(key.description()).isNotNull();
+    assertThat(key.isRequired()).isFalse();
+  }
+
+  @Test
+  public void define_search_action() throws Exception {
+    WebService.Controller controller = tester.controller("api/issues");
+
+    WebService.Action show = controller.action("search");
+    assertThat(show).isNotNull();
+    assertThat(show.handler()).isNotNull();
+    assertThat(show.since()).isEqualTo("3.6");
+    assertThat(show.isPost()).isFalse();
+    assertThat(show.isInternal()).isFalse();
+    assertThat(show.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(show.params()).hasSize(2);
   }
 
 }

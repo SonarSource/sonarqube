@@ -42,9 +42,12 @@ public class SourcesWsTest {
 
     WebService.Action show = controller.action("show");
     assertThat(show).isNotNull();
-    assertThat(show.handler()).isNotNull();
-    assertThat(show.since()).isEqualTo("4.2");
-    assertThat(show.isPost()).isFalse();
     assertThat(show.handler()).isSameAs(showAction);
+    assertThat(show.params()).hasSize(5);
+
+    WebService.Action scm = controller.action("scm");
+    assertThat(scm).isNotNull();
+    assertThat(scm.handler()).isSameAs(scmAction);
+    assertThat(scm.params()).hasSize(4);
   }
 }

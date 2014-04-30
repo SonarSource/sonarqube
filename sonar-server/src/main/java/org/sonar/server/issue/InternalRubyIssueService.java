@@ -44,6 +44,7 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.issue.filter.IssueFilterResult;
 import org.sonar.server.issue.filter.IssueFilterService;
