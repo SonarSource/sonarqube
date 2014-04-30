@@ -24,7 +24,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.search.Hit;
-import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Results;
 
 import javax.annotation.CheckForNull;
@@ -54,8 +53,12 @@ public class RuleService implements ServerComponent {
     return null;
   }
 
-  public Results search(RuleQuery query, QueryOptions options) {
-    throw new UnsupportedOperationException("TODO");
+  public RuleQuery newRuleQuery() {
+    return new RuleQuery();
+  }
+
+  public Results search(RuleQuery query) {
+    return index.search(query);
   }
 
   public Collection<Hit> search(RuleQuery query) {

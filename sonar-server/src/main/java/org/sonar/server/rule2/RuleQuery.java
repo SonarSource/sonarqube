@@ -25,18 +25,31 @@ import org.sonar.api.rule.Severity;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import java.util.List;
 
 public class RuleQuery {
 
+  public static enum SortField {
+    NAME, CREATED_AT
+  }
+
   private String key;
   private String queryText;
-  private String[] languages;
-  private String[] repositories;
-  private String[] severities;
-  private RuleStatus[] statuses;
-  private String[] tags;
-  private String[] debtCharacteristics;
+  private List<String> languages;
+  private List<String> repositories;
+  private List<String> severities;
+  private List<RuleStatus> statuses;
+  private List<String> tags;
+  private List<String> debtCharacteristics;
   private Boolean hasDebtCharacteristic;
+  private SortField sortField;
+  private boolean ascendingSort = true;
+
+  /**
+   * @see RuleService#newRuleQuery()
+   */
+  RuleQuery() {
+  }
 
   @CheckForNull
   public String getKey() {
@@ -59,31 +72,31 @@ public class RuleQuery {
   }
 
   @CheckForNull
-  public String[] getLanguages() {
+  public List<String> getLanguages() {
     return languages;
   }
 
-  public RuleQuery setLanguages(@Nullable String[] languages) {
+  public RuleQuery setLanguages(@Nullable List<String> languages) {
     this.languages = languages;
     return this;
   }
 
   @CheckForNull
-  public String[] getRepositories() {
+  public List<String> getRepositories() {
     return repositories;
   }
 
-  public RuleQuery setRepositories(@Nullable String[] repositories) {
+  public RuleQuery setRepositories(@Nullable List<String> repositories) {
     this.repositories = repositories;
     return this;
   }
 
   @CheckForNull
-  public String[] getSeverities() {
+  public List<String> getSeverities() {
     return severities;
   }
 
-  public RuleQuery setSeverities(@Nullable String[] severities) {
+  public RuleQuery setSeverities(@Nullable List<String> severities) {
     if (severities != null) {
       for (String severity : severities) {
         Preconditions.checkArgument(Severity.ALL.contains(severity), "Unknown severity: " + severity);
@@ -94,31 +107,31 @@ public class RuleQuery {
   }
 
   @CheckForNull
-  public RuleStatus[] getStatuses() {
+  public List<RuleStatus> getStatuses() {
     return statuses;
   }
 
-  public RuleQuery setStatuses(@Nullable RuleStatus[] statuses) {
+  public RuleQuery setStatuses(@Nullable List<RuleStatus> statuses) {
     this.statuses = statuses;
     return this;
   }
 
   @CheckForNull
-  public String[] getTags() {
+  public List<String> getTags() {
     return tags;
   }
 
-  public RuleQuery setTags(@Nullable String[] tags) {
+  public RuleQuery setTags(@Nullable List<String> tags) {
     this.tags = tags;
     return this;
   }
 
   @CheckForNull
-  public String[] getDebtCharacteristics() {
+  public List<String> getDebtCharacteristics() {
     return debtCharacteristics;
   }
 
-  public RuleQuery setDebtCharacteristics(@Nullable String[] debtCharacteristics) {
+  public RuleQuery setDebtCharacteristics(@Nullable List<String> debtCharacteristics) {
     this.debtCharacteristics = debtCharacteristics;
     return this;
   }
@@ -130,6 +143,24 @@ public class RuleQuery {
 
   public RuleQuery setHasDebtCharacteristic(@Nullable Boolean hasDebtCharacteristic) {
     this.hasDebtCharacteristic = hasDebtCharacteristic;
+    return this;
+  }
+
+  public SortField getSortField() {
+    return sortField;
+  }
+
+  public RuleQuery setSortField(@Nullable SortField sf) {
+    this.sortField = sf;
+    return this;
+  }
+
+  public boolean isAscendingSort() {
+    return ascendingSort;
+  }
+
+  public RuleQuery setAscendingSort(boolean b) {
+    this.ascendingSort = b;
     return this;
   }
 }

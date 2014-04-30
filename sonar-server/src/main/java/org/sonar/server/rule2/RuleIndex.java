@@ -33,6 +33,7 @@ import org.sonar.server.rule2.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.es.ESNode;
 import org.sonar.server.search.BaseIndex;
+import org.sonar.server.search.Results;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -195,5 +196,9 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
         key, this.getClass().getSimpleName(), e.getMessage());
     }
     return null;
+  }
+
+  public Results search(RuleQuery query) {
+    throw new UnsupportedOperationException("TODO");
   }
 }
