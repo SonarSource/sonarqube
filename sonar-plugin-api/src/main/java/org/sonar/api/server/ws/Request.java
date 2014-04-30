@@ -19,9 +19,12 @@
  */
 package org.sonar.api.server.ws;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.CheckForNull;
+import java.util.List;
 
 /**
  * @since 4.2
@@ -85,6 +88,15 @@ public abstract class Request {
   @CheckForNull
   public String param(String key, @CheckForNull String defaultValue) {
     return StringUtils.defaultString(param(key), defaultValue);
+  }
+
+  @CheckForNull
+  public List<String> paramAsStrings(String key) {
+    String s = param(key);
+    if (s == null) {
+      return null;
+    }
+    return Lists.newArrayList(Splitter.on(',').omitEmptyStrings().trimResults().split(s));
   }
 
   @CheckForNull

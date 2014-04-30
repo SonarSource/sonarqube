@@ -129,4 +129,13 @@ public class RequestTest {
     assertThat(request.setParam("foo", "true").paramAsBoolean("xxx", true)).isTrue();
     assertThat(request.setParam("foo", "true").paramAsBoolean("xxx", false)).isFalse();
   }
+
+  @Test
+  public void param_as_strings() throws Exception {
+    assertThat(request.paramAsStrings("foo")).isNull();
+    assertThat(request.setParam("foo", "").paramAsStrings("foo")).isEmpty();
+    assertThat(request.setParam("foo", "bar").paramAsStrings("foo")).containsExactly("bar");
+    assertThat(request.setParam("foo", "bar,baz").paramAsStrings("foo")).containsExactly("bar", "baz");
+    assertThat(request.setParam("foo", "bar , baz").paramAsStrings("foo")).containsExactly("bar", "baz");
+  }
 }
