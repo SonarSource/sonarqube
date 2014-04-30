@@ -30,6 +30,7 @@ import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.BoolFilterBuilder;
+import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,8 +113,8 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
       LOG.info("Setup of index {}", this.getIndexName());
 
       try {
-        LOG.info("Settings: {}", getIndexSettings().string());
-        LOG.info("Mapping: {}", getMapping().string());
+        LOG.debug("Settings: {}", getIndexSettings().string());
+        LOG.debug("Mapping: {}", getMapping().string());
       } catch (IOException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
@@ -158,12 +159,13 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
   public void insert(K key) {
     try {
       XContentBuilder doc = normalizer.normalize(key);
-      String keyvalue = this.getKeyValue(key);
-      if (doc != null && keyvalue != null && !keyvalue.isEmpty()) {
+      String keyValue = this.getKeyValue(key);
+      if (doc != null && keyValue != null && !keyValue.isEmpty()) {
         LOG.debug("Update document with key {}", key);
         IndexResponse result = getClient().index(
           new IndexRequest(this.getIndexName(),
-            this.getType(), keyvalue)
+            this.getType(), keyValue)
+            .refresh(true)
             .source(doc)).get();
       } else {
         LOG.error("Could not normalize document {} for insert in ",
@@ -183,6 +185,7 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
       UpdateResponse result = getClient().update(
         new UpdateRequest(this.getIndexName(),
           this.getType(), this.getKeyValue(key))
+                .refresh(true)
           .doc(doc)).get();
     } catch (Exception e) {
       LOG.error("Could not update documet for index {}: {}",
@@ -224,13 +227,12 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
 
   protected BoolFilterBuilder addTermFilter(String field, Collection<String> values, BoolFilterBuilder filter) {
     if (values != null && !values.isEmpty()) {
-      BoolFilterBuilder valueFilter = FilterBuilders.boolFilter()
-        .cache(true)
-        .cacheKey(field + "_vs");
+      BoolFilterBuilder valuesFilter = FilterBuilders.boolFilter();
       for (String value : values) {
-        valueFilter.should(FilterBuilders.termFilter(field, value));
+          FilterBuilder valueFilter = FilterBuilders.termFilter(field, value);
+          valuesFilter.should(valueFilter);
       }
-      filter.must(valueFilter);
+      filter.must(valuesFilter);
     }
     return filter;
   }

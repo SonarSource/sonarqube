@@ -22,7 +22,6 @@ package org.sonar.server.rule2;
 import com.google.common.collect.Iterables;
 import org.junit.After;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -42,8 +41,8 @@ import static org.fest.assertions.Assertions.assertThat;
 public class RuleMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
-    //.setProperty("sonar.es.http.port", "8888");
+  public static ServerTester tester = new ServerTester()
+    .setProperty("sonar.es.http.port", "8888");
 
   @After
   public void clear_data_store() {
@@ -77,7 +76,6 @@ public class RuleMediumTest {
   }
 
   @Test
-  @Ignore
   public void search_rules_by_repositories() throws InterruptedException {
     RuleDao dao = tester.get(RuleDao.class);
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001")));
@@ -86,6 +84,8 @@ public class RuleMediumTest {
     RuleService service = tester.get(RuleService.class);
     RuleQuery query = service.newRuleQuery().setRepositories(Arrays.asList("findbugs", "java"));
     Results results = service.search(query, new QueryOptions());
+
+
     assertThat(results.getTotal()).isEqualTo(1);
     assertThat(results.getHits()).hasSize(1);
     assertThat(Iterables.getFirst(results.getHits(), null).getFieldAsString("key")).isEqualTo("S002");

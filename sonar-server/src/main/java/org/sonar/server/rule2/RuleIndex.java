@@ -20,6 +20,7 @@
 package org.sonar.server.rule2;
 
 import com.google.common.collect.ImmutableSet;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.BoolFilterBuilder;
@@ -27,6 +28,7 @@ import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHitField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RuleKey;
@@ -40,8 +42,10 @@ import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.Hit;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Results;
+import org.yecht.Data;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
@@ -63,7 +67,7 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
     RuleField.UDPATED_AT.key());
 
   public RuleIndex(RuleNormalizer normalizer, WorkQueue workQueue,
-    Profiling profiling, ESNode node) {
+                   Profiling profiling, ESNode node) {
     super(normalizer, workQueue, profiling, node);
   }
 
@@ -162,20 +166,32 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
     this.addTermFilter(RuleField.SEVERITY.key(), query.getSeverities(), fb);
     this.addTermFilter(RuleField.KEY.key(), query.getKey(), fb);
 
+    QueryBuilder mainQuery = QueryBuilders.filteredQuery(qb, fb);
+
     //Create ES query Object;
-    SearchResponse esResult = getClient()
+    SearchRequestBuilder esSearch = getClient()
       .prepareSearch(this.getIndexName())
-      .setQuery(QueryBuilders.filteredQuery(qb, fb))
-      .addFields(options.getFieldsToReturn().toArray(new String[options.getFieldsToReturn().size()]))
-      .get();
+      .setQuery(mainQuery)
+      .addFields(options.getFieldsToReturn().toArray(new String[options.getFieldsToReturn().size()]));
+
+
+    SearchResponse esResult = esSearch.get();
+
 
     Results results = new Results()
       .setTotal((int) esResult.getHits().totalHits())
       .setTime(esResult.getTookInMillis());
 
-    for (SearchHit hit : esResult.getHits().getHits()) {
-      results.getHits().add(
-        Hit.fromMap(hit.score(), hit.sourceAsMap()));
+    for (SearchHit esHit : esResult.getHits().getHits()) {
+      Hit hit = new Hit(esHit.score());
+      for (Map.Entry<String, SearchHitField> entry : esHit.fields().entrySet()) {
+        if(entry.getValue().getValues().size()>1) {
+          hit.getFields().put(entry.getKey(), entry.getValue().getValues());
+        } else {
+          hit.getFields().put(entry.getKey(), entry.getValue().getValue());
+        }
+      }
+      results.getHits().add(hit);
     }
 
     return results;
