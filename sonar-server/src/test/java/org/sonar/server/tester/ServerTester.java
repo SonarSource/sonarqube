@@ -22,6 +22,7 @@ package org.sonar.server.tester;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseProperties;
@@ -31,14 +32,20 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
- * Entry point to implement medium tests of server components
+ * Entry point to implement medium tests of server components.
+ * <p/>
+ * The system properties starting with "mediumTests." override the programmatic settings, for example:
+ * <code>-DmediumTests.sonar.log.profilingLevel=FULL</code>
  *
  * @since 4.4
  */
 public class ServerTester extends ExternalResource {
+
+  private static final String PROP_PREFIX = "mediumTests.";
 
   private final Platform platform;
   private final File homeDir;
@@ -68,6 +75,13 @@ public class ServerTester extends ExternalResource {
     properties.putAll(initialProps);
     properties.setProperty(CoreProperties.SONAR_HOME, homeDir.getAbsolutePath());
     properties.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:" + homeDir.getAbsolutePath() + "/h2");
+    for (Map.Entry<Object, Object> entry : System.getProperties().entrySet()) {
+      String key = entry.getKey().toString();
+      if (key.startsWith(PROP_PREFIX)) {
+        properties.put(StringUtils.substringAfter(key, PROP_PREFIX), entry.getValue());
+      }
+    }
+
     platform.init(properties);
     platform.addComponents(components);
     platform.doStart();
