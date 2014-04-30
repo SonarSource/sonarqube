@@ -17,26 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.issue;
 
-import com.google.common.collect.ImmutableList;
+package org.sonar.api.issue.action;
 
-import java.util.List;
+import org.junit.Test;
 
-/**
- * @since 3.6
- */
-public interface DefaultTransitions {
+import static org.fest.assertions.Assertions.assertThat;
 
-  String CONFIRM = "confirm";
-  String UNCONFIRM = "unconfirm";
-  String REOPEN = "reopen";
-  String RESOLVE = "resolve";
-  String FALSE_POSITIVE = "falsepositive";
-  String CLOSE = "close";
+public class ActionsTest {
 
-  /**
-   * @since 4.4
-   */
-  List<String> ALL = ImmutableList.of(CONFIRM, UNCONFIRM, REOPEN, RESOLVE, FALSE_POSITIVE, CLOSE);
+  @Test
+  public void add_action() throws Exception {
+    Actions actions = new Actions();
+    actions.add("plan");
+
+    assertThat(actions.list()).hasSize(1);
+  }
+
 }

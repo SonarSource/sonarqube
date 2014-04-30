@@ -1,0 +1,3 @@
+{
+  "transitions": ["confirm", "resolve", "falsepositive"]
+}

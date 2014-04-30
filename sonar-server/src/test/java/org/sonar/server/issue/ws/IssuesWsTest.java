@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.ws;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.IssueFinder;
@@ -36,9 +37,16 @@ import static org.mockito.Mockito.mock;
 
 public class IssuesWsTest {
 
-  IssueShowAction showAction = new IssueShowAction(mock(IssueFinder.class), mock(IssueService.class), mock(IssueChangelogService.class), mock(ActionService.class),
-    mock(DebtModelService.class), mock(I18n.class), mock(Durations.class));
-  WsTester tester = new WsTester(new IssuesWs(showAction));
+  IssueShowAction showAction;
+
+  WsTester tester;
+
+  @Before
+  public void setUp() throws Exception {
+    showAction = new IssueShowAction(mock(IssueFinder.class), mock(IssueService.class), mock(IssueChangelogService.class), mock(ActionService.class),
+      mock(DebtModelService.class), mock(I18n.class), mock(Durations.class));
+    tester = new WsTester(new IssuesWs(showAction));
+  }
 
   @Test
   public void define_controller() throws Exception {
@@ -46,22 +54,23 @@ public class IssuesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("3.6");
-    assertThat(controller.actions()).hasSize(2);
+    assertThat(controller.actions()).hasSize(12);
   }
 
   @Test
   public void define_show_action() throws Exception {
     WebService.Controller controller = tester.controller("api/issues");
 
-    WebService.Action show = controller.action("show");
-    assertThat(show).isNotNull();
-    assertThat(show.handler()).isNotNull();
-    assertThat(show.since()).isEqualTo("4.2");
-    assertThat(show.isPost()).isFalse();
-    assertThat(show.isInternal()).isTrue();
-    assertThat(show.handler()).isSameAs(showAction);
+    WebService.Action action = controller.action("show");
+    assertThat(action).isNotNull();
+    assertThat(action.handler()).isNotNull();
+    assertThat(action.since()).isEqualTo("4.2");
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.isInternal()).isTrue();
+    assertThat(action.handler()).isSameAs(showAction);
+    assertThat(action.params()).hasSize(1);
 
-    WebService.Param key = show.param("key");
+    WebService.Param key = action.param("key");
     assertThat(key).isNotNull();
     assertThat(key.description()).isNotNull();
     assertThat(key.isRequired()).isFalse();
@@ -78,7 +87,148 @@ public class IssuesWsTest {
     assertThat(show.isPost()).isFalse();
     assertThat(show.isInternal()).isFalse();
     assertThat(show.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(show.params()).hasSize(2);
+    assertThat(show.responseExampleAsString()).isNotEmpty();
+    assertThat(show.params()).hasSize(17);
+  }
+
+  @Test
+  public void define_assign_action() throws Exception {
+    WebService.Controller controller = tester.controller("api/issues");
+
+    WebService.Action action = controller.action("assign");
+    assertThat(action).isNotNull();
+    assertThat(action.handler()).isNotNull();
+    assertThat(action.since()).isEqualTo("3.6");
+    assertThat(action.isPost()).isTrue();
+    assertThat(action.isInternal()).isFalse();
+    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(action.params()).hasSize(2);
+  }
+
+  @Test
+  public void define_add_comment_action() throws Exception {
+    WebService.Controller controller = tester.controller("api/issues");
+
+    WebService.Action action = controller.action("add_comment");
+    assertThat(action).isNotNull();
+    assertThat(action.handler()).isNotNull();
+    assertThat(action.since()).isEqualTo("3.6");
+    assertThat(action.isPost()).isTrue();
+    assertThat(action.isInternal()).isFalse();
+    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(action.params()).hasSize(2);
+  }
+
+  @Test
+  public void define_delete_comment_action() throws Exception {
+    WebService.Controller controller = tester.controller("api/issues");
+
+    WebService.Action action = controller.action("delete_comment");
+    assertThat(action).isNotNull();
+    assertThat(action.handler()).isNotNull();
+    assertThat(action.since()).isEqualTo("3.6");
+    assertThat(action.isPost()).isTrue();
+    assertThat(action.isInternal()).isFalse();
+    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(action.params()).hasSize(1);
+  }
+
+  @Test
+  public void define_edit_comment_action() throws Exception {
+    WebService.Controller controller = tester.controller("api/issues");
+
+    WebService.Action action = controller.action("edit_comment");
+    assertThat(action).isNotNull();
+    assertThat(action.handler()).isNotNull();
+    assertThat(action.since()).isEqualTo("3.6");
+    assertThat(action.isPost()).isTrue();
+    assertThat(action.isInternal()).isFalse();
+    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(action.params()).hasSize(2);
+  }
+
+  @Test
+  public void define_change_severity_action() throws Exception {
+    WebService.Controller controller = tester.controller("api/issues");
+
+    WebService.Action action = controller.action("set_severity");
+    assertThat(action).isNotNull();
+    assertThat(action.handler()).isNotNull();
+    assertThat(action.since()).isEqualTo("3.6");
+    assertThat(action.isPost()).isTrue();
+    assertThat(action.isInternal()).isFalse();
+    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(action.params()).hasSize(2);
+  }
+
+  @Test
+  public void define_plan_action() throws Exception {
+    WebService.Controller controller = tester.controller("api/issues");
+
+    WebService.Action action = controller.action("plan");
+    assertThat(action).isNotNull();
+    assertThat(action.handler()).isNotNull();
+    assertThat(action.since()).isEqualTo("3.6");
+    assertThat(action.isPost()).isTrue();
+    assertThat(action.isInternal()).isFalse();
+    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(action.params()).hasSize(2);
+  }
+
+  @Test
+  public void define_do_transition_action() throws Exception {
+    WebService.Controller controller = tester.controller("api/issues");
+
+    WebService.Action action = controller.action("do_transition");
+    assertThat(action).isNotNull();
+    assertThat(action.handler()).isNotNull();
+    assertThat(action.since()).isEqualTo("3.6");
+    assertThat(action.isPost()).isTrue();
+    assertThat(action.isInternal()).isFalse();
+    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(action.params()).hasSize(2);
+  }
+
+  @Test
+  public void define_transitions_action() throws Exception {
+    WebService.Controller controller = tester.controller("api/issues");
+
+    WebService.Action action = controller.action("transitions");
+    assertThat(action).isNotNull();
+    assertThat(action.handler()).isNotNull();
+    assertThat(action.since()).isEqualTo("3.6");
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.isInternal()).isFalse();
+    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.params()).hasSize(1);
+  }
+
+  @Test
+  public void define_create_action() throws Exception {
+    WebService.Controller controller = tester.controller("api/issues");
+
+    WebService.Action action = controller.action("create");
+    assertThat(action).isNotNull();
+    assertThat(action.handler()).isNotNull();
+    assertThat(action.since()).isEqualTo("3.6");
+    assertThat(action.isPost()).isTrue();
+    assertThat(action.isInternal()).isFalse();
+    assertThat(action.params()).hasSize(5);
+  }
+
+  @Test
+  public void define_bulk_change_action() throws Exception {
+    WebService.Controller controller = tester.controller("api/issues");
+
+    WebService.Action action = controller.action("bulk_change");
+    assertThat(action).isNotNull();
+    assertThat(action.handler()).isNotNull();
+    assertThat(action.since()).isEqualTo("3.7");
+    assertThat(action.isPost()).isTrue();
+    assertThat(action.isInternal()).isFalse();
+    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(action.params()).hasSize(8);
   }
 
 }

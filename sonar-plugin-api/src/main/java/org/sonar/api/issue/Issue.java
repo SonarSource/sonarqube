@@ -63,6 +63,13 @@ public interface Issue extends Serializable {
   List<String> RESOLUTIONS = ImmutableList.of(RESOLUTION_FALSE_POSITIVE, RESOLUTION_FIXED, RESOLUTION_REMOVED);
 
   /**
+   * Return all available statuses
+   *
+   * @since 4.4
+   */
+  List<String> STATUSES = ImmutableList.of(STATUS_OPEN, STATUS_CONFIRMED, STATUS_REOPENED, STATUS_RESOLVED, STATUS_CLOSED);
+
+  /**
    * Unique generated key. It looks like "d2de809c-1512-4ae2-9f34-f5345c9f1a13".
    */
   String key();

@@ -134,19 +134,19 @@ public class IssueShowActionTest {
     issues.add(issue);
 
     result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
-      .setId(10L)
-      .setKey("org.sonar.server.issue.IssueClient")
-      .setLongName("SonarQube :: Issue Client")
-      .setQualifier("FIL")
-      .setSubProjectId(1L)
-      .setProjectId(1L)
+        .setId(10L)
+        .setKey("org.sonar.server.issue.IssueClient")
+        .setLongName("SonarQube :: Issue Client")
+        .setQualifier("FIL")
+        .setSubProjectId(1L)
+        .setProjectId(1L)
     ));
 
     result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
-      .setId(1L)
-      .setKey("org.sonar.Sonar")
-      .setLongName("SonarQube")
-      .setProjectId(1L)
+        .setId(1L)
+        .setKey("org.sonar.Sonar")
+        .setLongName("SonarQube")
+        .setProjectId(1L)
     ));
 
     MockUserSession.set();
@@ -396,7 +396,8 @@ public class IssueShowActionTest {
           .setKey("COMMENT-ABCD")
           .setMarkdownText("*My comment*")
           .setUserLogin("john")
-          .setCreatedAt(date1))
+          .setCreatedAt(date1)
+      )
       .addComment(
         new DefaultIssueComment()
           .setKey("COMMENT-ABCE")
@@ -542,19 +543,19 @@ public class IssueShowActionTest {
 
   private void addComponentAndProject() {
     result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
-      .setId(10L)
-      .setKey("org.sonar.server.issue.IssueClient")
-      .setLongName("SonarQube :: Issue Client")
-      .setQualifier("FIL")
-      .setSubProjectId(1L)
-      .setProjectId(1L)
+        .setId(10L)
+        .setKey("org.sonar.server.issue.IssueClient")
+        .setLongName("SonarQube :: Issue Client")
+        .setQualifier("FIL")
+        .setSubProjectId(1L)
+        .setProjectId(1L)
     ));
 
     result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
-      .setId(1L)
-      .setKey("org.sonar.Sonar")
-      .setLongName("SonarQube")
-      .setProjectId(1L)
+        .setId(1L)
+        .setKey("org.sonar.Sonar")
+        .setLongName("SonarQube")
+        .setProjectId(1L)
     ));
   }
 
