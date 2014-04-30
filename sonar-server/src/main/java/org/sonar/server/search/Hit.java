@@ -19,6 +19,7 @@
  */
 package org.sonar.server.search;
 
+import javax.annotation.CheckForNull;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,16 +29,27 @@ public class Hit implements Comparable<Hit> {
 
   private Integer rank;
 
-  public Hit(Integer rank){
+  public Hit(Integer rank) {
     this.fields = new HashMap<String, Object>();
     this.rank = rank;
   }
 
-  public Map<String, Object> getFields(){
+  public Map<String, Object> getFields() {
     return this.fields;
   }
 
-  public Integer getRank(){
+  @CheckForNull
+  public Object getField(String key) {
+    return this.fields.get(key);
+  }
+
+  @CheckForNull
+  public String getFieldAsString(String key) {
+    Object val = this.fields.get(key);
+    return val == null ? null : val.toString();
+  }
+
+  public Integer getRank() {
     return this.rank;
   }
 

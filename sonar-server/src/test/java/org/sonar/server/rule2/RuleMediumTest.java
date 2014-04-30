@@ -19,107 +19,70 @@
  */
 package org.sonar.server.rule2;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
-import org.sonar.core.qualityprofile.db.ActiveRuleDao;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.search.Hit;
 import org.sonar.server.tester.ServerTester;
 
-import java.util.Date;
-
 import static org.fest.assertions.Assertions.assertThat;
 
-@Ignore
 public class RuleMediumTest {
 
   @Rule
-  public ServerTester tester = new ServerTester()
-    // .setProperty("sonar.log.profilingLevel", "FULL")
-    .setProperty("sonar.es.http.port", "8888");
+  public ServerTester tester = new ServerTester();
 
-  private RuleDto dto;
-  private ActiveRuleDto adto;
+  @Test
+  public void persist_and_index_new_rule() {
+    // insert db
+    RuleKey ruleKey = RuleKey.of("javascript", "S001");
+    RuleDao dao = tester.get(RuleDao.class);
+    dao.insert(newRuleDto(ruleKey));
 
-  @Before
-  public void setup() {
-    dto = getRuleDto(1);
-    adto = getActiveRuleDto(dto);
+    // verify that rule is persisted in db
+    RuleDto persistedDto = dao.selectByKey(ruleKey);
+    assertThat(persistedDto).isNotNull();
+    assertThat(persistedDto.getId()).isGreaterThanOrEqualTo(0);
+    assertThat(persistedDto.getRuleKey()).isEqualTo(ruleKey.rule());
+    assertThat(persistedDto.getLanguage()).isEqualTo("js");
+
+    // verify that rule is indexed in es
+    RuleIndex index = tester.get(RuleIndex.class);
+    Hit hit = index.getByKey(ruleKey);
+    assertThat(hit).isNotNull();
+    assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.REPOSITORY.key())).isEqualTo(ruleKey.repository());
+    assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.KEY.key())).isEqualTo(ruleKey.rule());
+    assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.LANGUAGE.key())).isEqualTo("js");
+    assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.NAME.key())).isEqualTo("Rule S001");
+    assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.DESCRIPTION.key())).isEqualTo("Description S001");
+    assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.STATUS.key())).isEqualTo(RuleStatus.READY.toString());
   }
 
-  @After
-  public void teardown() {
-    tester.stop();
-  }
 
-  private ActiveRuleDto getActiveRuleDto(RuleDto dto) {
-    return new ActiveRuleDto()
-      .setId(1)
-      .setNoteCreatedAt(new Date())
-      .setNoteData("Note data, and some more note and here too.")
-      .setRuleId(dto.getId())
-      .setProfileId(1)
-      .setParentId(0)
-      .setSeverity(3);
-  }
-
-  private RuleDto getRuleDto(int id) {
+  private RuleDto newRuleDto(RuleKey ruleKey) {
     return new RuleDto()
-      // .setId(id)
-      .setRuleKey("NewRuleKey=" + id)
-      .setRepositoryKey("plugin")
-      .setName("new name")
-      .setDescription("new description")
-      .setStatus(org.sonar.api.rules.Rule.STATUS_DEPRECATED)
-      .setConfigKey("NewConfigKey")
+      .setRuleKey(ruleKey.rule())
+      .setRepositoryKey(ruleKey.repository())
+      .setName("Rule " + ruleKey.rule())
+      .setDescription("Description " + ruleKey.rule())
+      .setStatus(RuleStatus.READY.toString())
+      .setConfigKey("InternalKey" + ruleKey.rule())
       .setSeverity(Severity.INFO)
-      .setCardinality(Cardinality.MULTIPLE)
-      .setLanguage("dart")
-      .setParentId(3)
-      .setSubCharacteristicId(100)
-      .setDefaultSubCharacteristicId(101)
+      .setCardinality(Cardinality.SINGLE)
+      .setLanguage("js")
       .setRemediationFunction("linear")
       .setDefaultRemediationFunction("linear_offset")
       .setRemediationCoefficient("1h")
       .setDefaultRemediationCoefficient("5d")
       .setRemediationOffset("5min")
       .setDefaultRemediationOffset("10h")
-      .setEffortToFixDescription("squid.S115.effortToFix")
+      .setEffortToFixDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix")
       .setCreatedAt(DateUtils.parseDate("2013-12-16"))
       .setUpdatedAt(DateUtils.parseDate("2013-12-17"));
-  }
-
-  @Test
-  public void test_dao_queue_es_search_loop() {
-
-    RuleDao dao = tester.get(RuleDao.class);
-    ActiveRuleDao adao = tester.get(ActiveRuleDao.class);
-    RuleIndex index = tester.get(RuleIndex.class);
-
-    dao.insert(dto);
-
-    Hit hit = index.getByKey(dto.getKey());
-    assertThat(hit.getFields().get(RuleNormalizer.RuleField.KEY.key())).isEqualTo(dto.getRuleKey().toString());
-  }
-
-  @Test
-  @Ignore
-  public void test_ruleservice_getByKey() {
-    RuleService service = tester.get(RuleService.class);
-    RuleDao dao = tester.get(RuleDao.class);
-
-    dao.insert(dto);
-
-    org.sonar.server.rule2.Rule rule = service.getByKey(dto.getKey());
-
-    assertThat(rule.key()).isEqualTo(dto.getKey());
-
   }
 }

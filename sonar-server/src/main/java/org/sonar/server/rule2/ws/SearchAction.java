@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.rule2.RuleIndex;
+import org.sonar.server.rule2.RuleNormalizer;
 import org.sonar.server.rule2.RuleQuery;
 import org.sonar.server.rule2.RuleService;
 import org.sonar.server.search.Hit;
@@ -94,7 +95,7 @@ public class SearchAction implements RequestHandler {
       .createParam("fields")
       .setDescription("Comma-separated list of the fields to be returned in response. All the fields are returned by default.")
       .setPossibleValues(RuleIndex.PUBLIC_FIELDS)
-      .setExampleValue("key,name");
+      .setExampleValue(String.format("%s,%s,%s", RuleNormalizer.RuleField.KEY, RuleNormalizer.RuleField.REPOSITORY, RuleNormalizer.RuleField.LANGUAGE));
   }
 
   @Override

@@ -19,17 +19,14 @@
  */
 package org.sonar.server.rule2;
 
-import org.sonar.check.Cardinality;
-
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.check.Cardinality;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.search.BaseNormalizer;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
@@ -94,7 +91,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     indexField(RuleField.STATUS.key(), rule.getStatus(), document);
     indexField(RuleField.LANGUAGE.key(), rule.getLanguage(), document);
     indexField(RuleField.INTERNAL_KEY.key(), rule.getConfigKey(), document);
-    indexField(RuleField.TEMPLATE.key(), rule.getCardinality()==Cardinality.MULTIPLE, document);
+    indexField(RuleField.TEMPLATE.key(), rule.getCardinality() == Cardinality.MULTIPLE, document);
 
     indexField(RuleField.TAGS.key(), rule.getName(), document);
     indexField(RuleField.SYSTEM_TAGS.key(), rule.getName(), document);
