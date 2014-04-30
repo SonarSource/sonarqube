@@ -49,16 +49,13 @@ public class ComponentIndexer implements BatchComponent {
   private final SonarIndex sonarIndex;
   private final ResourceKeyMigration migration;
   private final Project module;
-  private InputFileCache fileCache;
 
-  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, Settings settings, ResourceKeyMigration migration,
-    InputFileCache fileCache) {
+  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, Settings settings, ResourceKeyMigration migration) {
     this.module = module;
     this.languages = languages;
     this.sonarIndex = sonarIndex;
     this.settings = settings;
     this.migration = migration;
-    this.fileCache = fileCache;
   }
 
   public void execute(FileSystem fs) {
@@ -92,7 +89,6 @@ public class ComponentIndexer implements BatchComponent {
       String source = Files.toString(inputFile.file(), fs.encoding());
       // SONAR-3860 Remove BOM character from source
       source = CharMatcher.anyOf("\uFEFF").removeFrom(source);
-      fileCache.put(module.getKey(), inputFile);
       if (shouldImportSource) {
         sonarIndex.setSource(sonarFile, source);
       }
