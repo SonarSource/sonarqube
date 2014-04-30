@@ -37,7 +37,10 @@
         </li>
       </ul>
 
-      {{qualifierIcon component.qualifier}} <span class="component-viewer-title">{{component.name}}</span>
+      {{qualifierIcon component.qualifier}} <span class="component-viewer-title">{{component.lname}}</span>
+
+      <a class="icon-not-favorite" href="#" onclick="toggleFav({{component.id}}, this); return false;"
+         title="Click to add to favourites"></a>
     </th>
   </tr>
   <tr>

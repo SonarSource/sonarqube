@@ -41,6 +41,7 @@ define [
       'mouseleave .duplication-exists': 'duplicationMouseLeave'
 
       'click .js-expand': 'expandBlock'
+      'click .js-expand-all': 'expandAll'
 
 
     initialize: ->
@@ -162,6 +163,10 @@ define [
       @showBlocks.push from: linesFrom, to: linesTo
       @render()
 
+
+    expandAll: ->
+      @showBlocks.push from: 0, to: _.size @model.get 'source'
+      @render()
 
 
     getLineCoverage: (line) ->
