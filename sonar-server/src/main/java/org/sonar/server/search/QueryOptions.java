@@ -26,6 +26,7 @@ import com.google.common.collect.Sets;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -42,6 +43,10 @@ public class QueryOptions {
   private boolean ascending = DEFAULT_ASCENDING;
   private String sortField;
   private Set<String> fieldsToReturn;
+
+  public QueryOptions(){
+    fieldsToReturn = new HashSet<String>();
+  }
 
   /**
    * Offset of the first result to return. Defaults to {@link #DEFAULT_OFFSET}

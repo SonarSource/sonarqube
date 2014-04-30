@@ -44,6 +44,7 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Results;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -214,11 +215,16 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
       mainQuery = qb;
     }
 
+    //GetFields to return (defaults to *)
+    Set<String> fields = new HashSet<String>();
+    fields.addAll(options.getFieldsToReturn());
+    fields.add(RuleField.KEY.key());
+
     //Create ES query Object;
     SearchRequestBuilder esSearch = getClient()
       .prepareSearch(this.getIndexName())
       .setQuery(mainQuery)
-      .addFields(options.getFieldsToReturn().toArray(new String[options.getFieldsToReturn().size()]));
+      .addFields(fields.toArray(new String[fields.size()]));
 
 
     SearchResponse esResult = esSearch.get();

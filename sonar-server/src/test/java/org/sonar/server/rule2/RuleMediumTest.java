@@ -80,12 +80,86 @@ public class RuleMediumTest {
   }
 
   @Test
+  public void search_rule_field_allowed(){
+    String lang = "java";
+
+    RuleDao dao = tester.get(RuleDao.class);
+    dao.insert(newRuleDto(RuleKey.of("javascript", "S001"))
+      .setLanguage(lang));
+
+    RuleService service = tester.get(RuleService.class).refresh();
+
+    RuleQuery query = service.newRuleQuery();
+
+    QueryOptions options = new QueryOptions();
+    options.getFieldsToReturn().add(RuleNormalizer.RuleField.LANGUAGE.key());
+
+    Results results = service.search(query, options);
+
+    assertThat(results.getTotal()).isEqualTo(1);
+    assertThat(results.getHits()).hasSize(1);
+    assertThat(Iterables.getFirst(results.getHits(), null).getFieldAsString("key")).isEqualTo("S001");
+    assertThat(Iterables.getFirst(results.getHits(), null)
+      .getFieldAsString(RuleNormalizer.RuleField.LANGUAGE.key()))
+      .isNotNull();
+    assertThat(Iterables.getFirst(results.getHits(), null)
+      .getFieldAsString(RuleNormalizer.RuleField.LANGUAGE.key()))
+      .isEqualTo(lang);
+  }
+
+  @Test
+  public void search_rule_no_field_selected() {
+    String lang = "java";
+
+    RuleDao dao = tester.get(RuleDao.class);
+    dao.insert(newRuleDto(RuleKey.of("javascript", "S001"))
+      .setLanguage(lang));
+
+    RuleService service = tester.get(RuleService.class).refresh();
+
+    RuleQuery query = service.newRuleQuery();
+
+    QueryOptions options = new QueryOptions();
+
+    Results results = service.search(query, options);
+
+    assertThat(results.getTotal()).isEqualTo(1);
+    assertThat(results.getHits()).hasSize(1);
+    assertThat(Iterables.getFirst(results.getHits(), null).getFieldAsString("key")).isEqualTo("S001");
+    assertThat(Iterables.getFirst(results.getHits(), null)
+      .getFieldAsString(RuleNormalizer.RuleField.LANGUAGE.key()))
+      .isNull();
+  }
+
+  @Test
+  public void search_rule_field_not_allowed(){
+    RuleDao dao = tester.get(RuleDao.class);
+    dao.insert(newRuleDto(RuleKey.of("javascript", "S001"))
+      .setConfigKey("I should not see this"));
+
+    RuleService service = tester.get(RuleService.class).refresh();
+
+    RuleQuery query = service.newRuleQuery();
+    QueryOptions options = new QueryOptions();
+    options.getFieldsToReturn().add(RuleNormalizer.RuleField.INTERNAL_KEY.key());
+
+    Results results = service.search(query, options);
+
+    assertThat(results.getTotal()).isEqualTo(1);
+    assertThat(results.getHits()).hasSize(1);
+    assertThat(Iterables.getFirst(results.getHits(), null).getFieldAsString("key")).isEqualTo("S001");
+    assertThat(Iterables.getFirst(results.getHits(), null)
+      .getFieldAsString(RuleNormalizer.RuleField.INTERNAL_KEY.key()))
+      .isNull();
+  }
+
+  @Test
   public void search_rules_partial_match() throws InterruptedException {
     RuleDao dao = tester.get(RuleDao.class);
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001"))
     .setName("testing the partial match and matching of rule"));
 
-    RuleService service = tester.get(RuleService.class).refresh();;
+    RuleService service = tester.get(RuleService.class).refresh();
 
     RuleQuery query = service.newRuleQuery().setQueryText("test");
     Results results = service.search(query, new QueryOptions());
@@ -102,7 +176,7 @@ public class RuleMediumTest {
     RuleDao dao = tester.get(RuleDao.class);
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001")));
 
-    RuleService service = tester.get(RuleService.class).refresh();;
+    RuleService service = tester.get(RuleService.class).refresh();
 
     RuleQuery query = service.newRuleQuery();
     Results results = service.search(query, new QueryOptions());
