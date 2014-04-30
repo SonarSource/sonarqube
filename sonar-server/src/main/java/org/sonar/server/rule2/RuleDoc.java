@@ -19,6 +19,8 @@
  */
 package org.sonar.server.rule2;
 
+import org.sonar.server.rule2.RuleNormalizer.RuleField;
+
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
@@ -45,49 +47,50 @@ class RuleDoc implements Rule {
 
   @Override
   public RuleKey key() {
-    return RuleKey.of((String) fields.get("repositoryKey"), (String) fields.get("key"));
+    return RuleKey.of((String) fields.get(RuleField.REPOSITORY.key()),
+      (String) fields.get(RuleField.KEY.key()));
   }
 
   @Override
   public String language() {
-    return (String) fields.get("lang");
+    return (String) fields.get(RuleField.LANGUAGE.key());
   }
 
   @Override
   public String name() {
-    return (String) fields.get("name");
+    return (String) fields.get(RuleField.NAME.key());
   }
 
   @Override
   public String description() {
-    return (String) fields.get("desc");
+    return (String) fields.get(RuleField.DESCRIPTION.key());
   }
 
   @Override
   public String severity() {
-    return (String) fields.get("severity");
+    return (String) fields.get(RuleField.SEVERITY.key());
   }
 
   @Override
   public RuleStatus status() {
-    return RuleStatus.valueOf((String) fields.get("status"));
+    return RuleStatus.valueOf((String) fields.get(RuleField.STATUS.key()));
   }
 
   @Override
   public boolean template() {
-    throw new UnsupportedOperationException();
+    return (Boolean) fields.get(RuleField.TEMPLATE.key());
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public List<String> tags() {
-    return (List<String>) fields.get("tags");
+    return (List<String>) fields.get(RuleField.TAGS.key());
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public List<String> systemTags() {
-    return (List<String>) fields.get("sysTags");
+    return (List<String>) fields.get(RuleField.SYSTEM_TAGS.key());
   }
 
   @Override
@@ -112,11 +115,11 @@ class RuleDoc implements Rule {
 
   @Override
   public Date createdAt() {
-    return (Date) fields.get("createdAt");
+    return (Date) fields.get(RuleField.CREATED_AT.key());
   }
 
   @Override
   public Date updatedAt() {
-    return (Date) fields.get("updatedAt");
+    return (Date) fields.get(RuleField.UDPATED_AT.key());
   }
 }

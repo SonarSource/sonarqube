@@ -19,8 +19,14 @@
  */
 package org.sonar.server.rule2;
 
+import org.sonar.server.rule2.RuleNormalizer.RuleField;
+
+import org.elasticsearch.action.search.SearchResponse;
 import com.google.common.collect.ImmutableSet;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RuleKey;
@@ -42,8 +48,17 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
 
   private static final Logger LOG = LoggerFactory.getLogger(RuleIndex.class);
 
-  public static final Set<String> PUBLIC_FIELDS = ImmutableSet.of("repositoryKey", "key", "name", "desc",
-    "lang", "severity", "status", "tags", "sysTags", "createdAt", "updatedAt");
+  public static final Set<String> PUBLIC_FIELDS = ImmutableSet.of(
+    RuleField.KEY.key(),
+    RuleField.NAME.key(),
+    RuleField.DESCRIPTION.key(),
+    RuleField.LANGUAGE.key(),
+    RuleField.SEVERITY.key(),
+    RuleField.STATUS.key(),
+    RuleField.TAGS.key(),
+    RuleField.SYSTEM_TAGS.key(),
+    RuleField.CREATED_AT.key(),
+    RuleField.UDPATED_AT.key());
 
   public RuleIndex(RuleNormalizer normalizer, WorkQueue workQueue,
     Profiling profiling, ESNode node) {
@@ -104,10 +119,9 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
         .field("dynamic", true)
         .startObject("properties");
 
-      addMatchField(mapping, "id", "string");
-      addMatchField(mapping, "key", "string");
-      addMatchField(mapping, "repositoryKey", "string");
-      addMatchField(mapping, "severity", "string");
+      addMatchField(mapping, RuleField.KEY.key(), "string");
+      addMatchField(mapping, RuleField.REPOSITORY.key(), "string");
+      addMatchField(mapping, RuleField.SEVERITY.key(), "string");
 
       mapping.startObject("active")
         .field("type", "nested")
@@ -125,8 +139,20 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
 
   public Results search(RuleQuery query, QueryOptions options) {
 
-    throw new UnsupportedOperationException("TODO");
-
+//    QueryBuilder qb;
+//    if(query.getQueryText() != null && !query.getQueryText().isEmpty()){
+//      qb = QueryBuilders.multiMatchQuery("test", "toto");
+//    } else {
+//      qb = QueryBuilders.matchAllQuery();
+//    }
+//
+//    SearchResponse esResult = getClient()
+//      .prepareSearch(this.getIndexName())
+//      .setQuery(qb)
+//      .get();
+//
+      Results results = new Results();
+    return results;
   }
 
 }

@@ -1,5 +1,7 @@
 package org.sonar.server.rule2;
 
+import org.sonar.check.Cardinality;
+
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
@@ -17,16 +19,24 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
   private RuleDao ruleDao;
   private ActiveRuleDao activeRuleDao;
 
-  public enum RuleFields {
+  public enum RuleField {
     KEY("key"),
-    RULE_KEY("ruleKey"),
-    REPOSITORY_KEY("repositoryKey"),
+    REPOSITORY("repo"),
     NAME("name"),
-    CREATED_AT("createdAt");
+    CREATED_AT("createdAt"),
+    DESCRIPTION("desc"),
+    SEVERITY("severity"),
+    STATUS("status"),
+    LANGUAGE("lang"),
+    TAGS("tags"),
+    SYSTEM_TAGS("sysTags"),
+    INTERNAL_KEY("internalKey"),
+    TEMPLATE("template"),
+    UDPATED_AT("updatedAt");
 
     private final String key;
 
-    private RuleFields(final String key) {
+    private RuleField(final String key) {
       this.key = key;
     }
 
@@ -54,11 +64,21 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
     XContentBuilder document = jsonBuilder().startObject();
 
-    indexField(RuleFields.KEY.key(), rule.getKey(), document);
-    indexField(RuleFields.NAME.key(), rule.getName(), document);
-    indexField(RuleFields.CREATED_AT.key(), rule.getCreatedAt(), document);
-    indexField(RuleFields.RULE_KEY.key(), rule.getRuleKey(), document);
-    indexField(RuleFields.REPOSITORY_KEY.key(), rule.getRepositoryKey(), document);
+
+    indexField(RuleField.KEY.key(), rule.getRuleKey(), document);
+    indexField(RuleField.REPOSITORY.key(), rule.getRepositoryKey(), document);
+    indexField(RuleField.NAME.key(), rule.getName(), document);
+    indexField(RuleField.CREATED_AT.key(), rule.getCreatedAt(), document);
+    indexField(RuleField.UDPATED_AT.key(), rule.getUpdatedAt(), document);
+    indexField(RuleField.DESCRIPTION.key(), rule.getDescription(), document);
+    indexField(RuleField.SEVERITY.key(), rule.getSeverityString(), document);
+    indexField(RuleField.STATUS.key(), rule.getStatus(), document);
+    indexField(RuleField.LANGUAGE.key(), rule.getLanguage(), document);
+    indexField(RuleField.INTERNAL_KEY.key(), rule.getConfigKey(), document);
+    indexField(RuleField.TEMPLATE.key(), rule.getCardinality()==Cardinality.MULTIPLE, document);
+
+    indexField(RuleField.TAGS.key(), rule.getName(), document);
+    indexField(RuleField.SYSTEM_TAGS.key(), rule.getName(), document);
 
     // document.startArray("active");
     // for (ActiveRuleDto activeRule : activeRuleDao.selectByRuleId(rule.getId())) {
