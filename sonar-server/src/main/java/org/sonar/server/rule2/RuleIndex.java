@@ -19,14 +19,14 @@
  */
 package org.sonar.server.rule2;
 
-import org.sonar.server.rule2.RuleNormalizer.RuleField;
-
-import org.elasticsearch.action.search.SearchResponse;
 import com.google.common.collect.ImmutableSet;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.index.query.MultiMatchQueryBuilder;
+import org.elasticsearch.index.query.BoolFilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RuleKey;
@@ -35,7 +35,9 @@ import org.sonar.core.profiling.Profiling;
 import org.sonar.core.rule.RuleConstants;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.es.ESNode;
+import org.sonar.server.rule2.RuleNormalizer.RuleField;
 import org.sonar.server.search.BaseIndex;
+import org.sonar.server.search.Hit;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Results;
 
@@ -139,20 +141,43 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
 
   public Results search(RuleQuery query, QueryOptions options) {
 
-//    QueryBuilder qb;
-//    if(query.getQueryText() != null && !query.getQueryText().isEmpty()){
-//      qb = QueryBuilders.multiMatchQuery("test", "toto");
-//    } else {
-//      qb = QueryBuilders.matchAllQuery();
-//    }
-//
-//    SearchResponse esResult = getClient()
-//      .prepareSearch(this.getIndexName())
-//      .setQuery(qb)
-//      .get();
-//
-      Results results = new Results();
+    // Build main query (search based)
+    QueryBuilder qb;
+    if (query.getQueryText() != null && !query.getQueryText().isEmpty()) {
+      qb = QueryBuilders.multiMatchQuery(query.getQueryText(),
+        RuleField.NAME.key(),
+        RuleField.DESCRIPTION.key(),
+        RuleField.KEY.key(),
+        RuleField.LANGUAGE.key(),
+        RuleField.TAGS.key());
+    } else {
+      qb = QueryBuilders.matchAllQuery();
+    }
+
+    // Build main filter (match based)
+    BoolFilterBuilder fb = FilterBuilders.boolFilter();
+
+    this.addTermFilter(RuleField.LANGUAGE.key(), query.getLanguages(), fb);
+    this.addTermFilter(RuleField.REPOSITORY.key(), query.getRepositories(), fb);
+    this.addTermFilter(RuleField.SEVERITY.key(), query.getSeverities(), fb);
+    this.addTermFilter(RuleField.KEY.key(), query.getKey(), fb);
+
+    //Create ES query Object;
+    SearchResponse esResult = getClient()
+      .prepareSearch(this.getIndexName())
+      .setQuery(QueryBuilders.filteredQuery(qb, fb))
+      .addFields(options.getFieldsToReturn().toArray(new String[options.getFieldsToReturn().size()]))
+      .get();
+
+    Results results = new Results()
+      .setTotal((int) esResult.getHits().totalHits())
+      .setTime(esResult.getTookInMillis());
+
+    for (SearchHit hit : esResult.getHits().getHits()) {
+      results.getHits().add(
+        Hit.fromMap(hit.score(), hit.sourceAsMap()));
+    }
+
     return results;
   }
-
 }

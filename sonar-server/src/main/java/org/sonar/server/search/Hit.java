@@ -28,10 +28,16 @@ public class Hit implements Comparable<Hit> {
   private Map<String, Object> fields;
 
   private Integer rank;
+  private Float score;
 
   public Hit(Integer rank) {
     this.fields = new HashMap<String, Object>();
     this.rank = rank;
+  }
+
+  public Hit(Float score){
+    this.fields = new HashMap<String, Object>();
+    this.score = score;
   }
 
   public Map<String, Object> getFields() {
@@ -53,13 +59,27 @@ public class Hit implements Comparable<Hit> {
     return this.rank;
   }
 
+  public Float getScore() {
+    return this.score;
+  }
+
   @Override
   public int compareTo(Hit hit) {
-    return this.getRank().compareTo(hit.getRank());
+    if (this.getRank() != null) {
+      return this.getRank().compareTo(hit.getRank());
+    } else {
+      return this.getScore().compareTo(hit.getScore());
+    }
   }
 
   public static Hit fromMap(Integer rank, Map<String, Object> fieldMap) {
     Hit hit = new Hit(0);
+    hit.fields = fieldMap;
+    return hit;
+  }
+
+  public static Hit fromMap(float score, Map<String, Object> fieldMap) {
+    Hit hit = new Hit(score);
     hit.fields = fieldMap;
     return hit;
   }

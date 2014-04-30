@@ -19,6 +19,7 @@
  */
 package org.sonar.server.search;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class Results {
@@ -28,6 +29,12 @@ public class Results {
   private int total;
 
   private int offset;
+
+  private long time;
+
+  public Results() {
+    this.hits = new ArrayList<Hit>();
+  }
 
   public Collection<Hit> getHits() {
     return hits;
@@ -39,5 +46,24 @@ public class Results {
 
   public int getOffset() {
     return offset;
+  }
+
+  public Results setTotal(int total) {
+    this.total = total;
+    return this;
+  }
+
+  public Results setOffset(int offset) {
+    this.offset = offset;
+    return this;
+  }
+
+  public long getTime() {
+    return time;
+  }
+
+  public Results setTime(long time) {
+    this.time = time;
+    return this;
   }
 }

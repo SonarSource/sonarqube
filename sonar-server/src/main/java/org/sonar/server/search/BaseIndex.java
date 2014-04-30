@@ -29,6 +29,8 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.index.query.BoolFilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.cluster.WorkQueue;
@@ -40,6 +42,7 @@ import org.sonar.server.es.ESNode;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Collection;
 
 public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implements Index<K> {
 
@@ -55,10 +58,10 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
   private final Profiling profiling;
   private Client client;
   private final ESNode node;
-  protected BaseNormalizer<E,K> normalizer;
+  protected BaseNormalizer<E, K> normalizer;
 
-  public BaseIndex(BaseNormalizer<E,K> normalizer, WorkQueue workQueue,
-                Profiling profiling, ESNode node) {
+  public BaseIndex(BaseNormalizer<E, K> normalizer, WorkQueue workQueue,
+    Profiling profiling, ESNode node) {
     this.normalizer = normalizer;
     this.profiling = profiling;
     this.node = node;
@@ -215,5 +218,27 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
   public Long getLastSynchronization() {
     // TODO need to read that in the admin index;
     return 0l;
+  }
+
+  /* ES QueryHelper Methods */
+
+  protected BoolFilterBuilder addTermFilter(String field, Collection<String> values, BoolFilterBuilder filter) {
+    if (values != null && !values.isEmpty()) {
+      BoolFilterBuilder valueFilter = FilterBuilders.boolFilter()
+        .cache(true)
+        .cacheKey(field + "_vs");
+      for (String value : values) {
+        valueFilter.should(FilterBuilders.termFilter(field, value));
+      }
+      filter.must(valueFilter);
+    }
+    return filter;
+  }
+
+  protected BoolFilterBuilder addTermFilter(String field, String value, BoolFilterBuilder filter) {
+    if (value != null && !value.isEmpty()) {
+      filter.must(FilterBuilders.termFilter(field, value));
+    }
+    return filter;
   }
 }
