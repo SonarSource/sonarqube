@@ -30,6 +30,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.rule.RuleConstants;
@@ -41,6 +42,8 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Results;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Set;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
@@ -141,7 +144,7 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
     mapping.startObject(RuleField.NAME.key())
         .field("type", "multi_field")
         .startObject("fields")
-          .startObject("raw")
+          .startObject(RuleField.NAME.key())
             .field("type", "string")
             .field("index", "analyzed")
           .endObject()
@@ -190,12 +193,20 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
     this.addTermFilter(RuleField.REPOSITORY.key(), query.getRepositories(), fb);
     this.addTermFilter(RuleField.SEVERITY.key(), query.getSeverities(), fb);
     this.addTermFilter(RuleField.KEY.key(), query.getKey(), fb);
+    if(query.getStatuses() != null && !query.getStatuses().isEmpty()) {
+      Collection<String> stringStatus = new ArrayList<String>();
+      for (RuleStatus status : query.getStatuses()) {
+        stringStatus.add(status.name());
+      }
+      this.addTermFilter(RuleField.STATUS.key(), stringStatus, fb);
+    }
 
     /* Integrate Query */
     QueryBuilder mainQuery;
     if((query.getLanguages() != null && !query.getLanguages().isEmpty()) ||
       (query.getRepositories() != null && !query.getRepositories().isEmpty()) ||
       (query.getSeverities() != null && !query.getSeverities().isEmpty()) ||
+      (query.getStatuses() != null && !query.getStatuses().isEmpty()) ||
       (query.getKey() != null && !query.getKey().isEmpty())) {
       mainQuery = QueryBuilders.filteredQuery(qb, fb);
     } else {

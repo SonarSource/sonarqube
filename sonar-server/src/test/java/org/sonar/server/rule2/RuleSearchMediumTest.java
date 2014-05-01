@@ -88,7 +88,6 @@ public class RuleSearchMediumTest {
   }
 
   @Test
-  @Ignore
   public void search_by_name() {
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001"))
       .setName("testing the partial match and matching of rule"));
@@ -146,7 +145,6 @@ public class RuleSearchMediumTest {
   }
 
   @Test
-  @Ignore
   public void search_rules_by_any_of_repositories() {
     dao.insert(newRuleDto(RuleKey.of("findbugs", "S001")));
     dao.insert(newRuleDto(RuleKey.of("pmd", "S002")));
@@ -163,14 +161,13 @@ public class RuleSearchMediumTest {
 
     // empty list => no filter
     query = new RuleQuery().setRepositories(Collections.<String>emptyList());
-    assertThat(index.search(query, new QueryOptions()).getHits()).isEmpty();
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(2);
   }
 
   @Test
-  @Ignore
-  public void search_rules_by_any_of_languages() {
-    dao.insert(newRuleDto(RuleKey.of("java", "S001"))).setLanguage("java");
-    dao.insert(newRuleDto(RuleKey.of("javascript", "S002"))).setLanguage("js");
+  public void search_rules_by_any_of_languages() throws InterruptedException {
+    dao.insert(newRuleDto(RuleKey.of("java", "S001")).setLanguage("java"));
+    dao.insert(newRuleDto(RuleKey.of("javascript", "S002")).setLanguage("js"));
     index.refresh();
 
     RuleQuery query = new RuleQuery().setLanguages(Arrays.asList("cobol", "js"));
@@ -184,18 +181,17 @@ public class RuleSearchMediumTest {
 
     // empty list => no filter
     query = new RuleQuery().setLanguages(Collections.<String>emptyList());
-    assertThat(index.search(query, new QueryOptions()).getHits()).isEmpty();
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(2);
 
     // null list => no filter
     query = new RuleQuery().setLanguages(null);
-    assertThat(index.search(query, new QueryOptions()).getHits()).isEmpty();
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(2);
   }
 
   @Test
-  @Ignore
-  public void search_rules_by_any_of_severities() {
-    dao.insert(newRuleDto(RuleKey.of("java", "S001"))).setSeverity(Severity.BLOCKER);
-    dao.insert(newRuleDto(RuleKey.of("java", "S002"))).setSeverity(Severity.INFO);
+  public void search_rules_by_any_of_severities() throws InterruptedException {
+    dao.insert(newRuleDto(RuleKey.of("java", "S001")).setSeverity(Severity.BLOCKER));
+    dao.insert(newRuleDto(RuleKey.of("java", "S002")).setSeverity(Severity.INFO));
     index.refresh();
 
     RuleQuery query = new RuleQuery().setSeverities(Arrays.asList(Severity.INFO, Severity.MINOR));
@@ -209,18 +205,17 @@ public class RuleSearchMediumTest {
 
     // empty list => no filter
     query = new RuleQuery().setSeverities(Collections.<String>emptyList());
-    assertThat(index.search(query, new QueryOptions()).getHits()).isEmpty();
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(2);
 
     // null list => no filter
     query = new RuleQuery().setSeverities(null);
-    assertThat(index.search(query, new QueryOptions()).getHits()).isEmpty();
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(2);
   }
 
   @Test
-  @Ignore
-  public void search_rules_by_any_of_statuses() {
-    dao.insert(newRuleDto(RuleKey.of("java", "S001"))).setStatus(RuleStatus.BETA.name());
-    dao.insert(newRuleDto(RuleKey.of("java", "S002"))).setStatus(RuleStatus.READY.name());
+  public void search_rules_by_any_of_statuses() throws InterruptedException {
+    dao.insert(newRuleDto(RuleKey.of("java", "S001")).setStatus(RuleStatus.BETA.name()));
+    dao.insert(newRuleDto(RuleKey.of("java", "S002")).setStatus(RuleStatus.READY.name()));
     index.refresh();
 
     RuleQuery query = new RuleQuery().setStatuses(Arrays.asList(RuleStatus.DEPRECATED, RuleStatus.READY));
@@ -234,11 +229,11 @@ public class RuleSearchMediumTest {
 
     // empty list => no filter
     query = new RuleQuery().setStatuses(Collections.<RuleStatus>emptyList());
-    assertThat(index.search(query, new QueryOptions()).getHits()).isEmpty();
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(2);
 
     // null list => no filter
     query = new RuleQuery().setStatuses(null);
-    assertThat(index.search(query, new QueryOptions()).getHits()).isEmpty();
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(2);
   }
 
   @Test
