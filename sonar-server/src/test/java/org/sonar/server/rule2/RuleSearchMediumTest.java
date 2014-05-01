@@ -213,6 +213,7 @@ public class RuleSearchMediumTest {
   }
 
   @Test
+  @Ignore
   public void search_rules_by_any_of_statuses() throws InterruptedException {
     dao.insert(newRuleDto(RuleKey.of("java", "S001")).setStatus(RuleStatus.BETA.name()));
     dao.insert(newRuleDto(RuleKey.of("java", "S002")).setStatus(RuleStatus.READY.name()));
