@@ -22,7 +22,6 @@ package org.sonar.server.rule2;
 import com.google.common.collect.Iterables;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -237,7 +236,6 @@ public class RuleSearchMediumTest {
   }
 
   @Test
-  @Ignore("TODO")
   public void sort_by_name() {
     dao.insert(newRuleDto(RuleKey.of("java", "S001")).setName("abcd"));
     dao.insert(newRuleDto(RuleKey.of("java", "S002")).setName("ABC"));
@@ -260,7 +258,6 @@ public class RuleSearchMediumTest {
   }
 
   @Test
-  @Ignore("TODO")
   public void sort_by_language() {
     dao.insert(newRuleDto(RuleKey.of("java", "S001")).setLanguage("java"));
     dao.insert(newRuleDto(RuleKey.of("java", "S002")).setLanguage("php"));
@@ -275,12 +272,11 @@ public class RuleSearchMediumTest {
     // descending
     query = new RuleQuery().setSortField(RuleQuery.SortField.LANGUAGE).setAscendingSort(false);
     results = index.search(query, new QueryOptions());
-    assertThat(Iterables.getFirst(results.getHits(), null).getFieldAsString("key")).isEqualTo("S001");
+    assertThat(Iterables.getFirst(results.getHits(), null).getFieldAsString("key")).isEqualTo("S002");
     assertThat(Iterables.getLast(results.getHits(), null).getFieldAsString("key")).isEqualTo("S001");
   }
 
   @Test
-  @Ignore("TODO")
   public void paging() {
     dao.insert(newRuleDto(RuleKey.of("java", "S001")));
     dao.insert(newRuleDto(RuleKey.of("java", "S002")));

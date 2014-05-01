@@ -27,6 +27,9 @@ import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RuleKey;
@@ -221,7 +224,26 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
       mainQuery = qb;
     }
     esSearch.setQuery(mainQuery);
-    System.out.println(mainQuery.toString());
+
+    /* integrate Query Sort */
+    if(query.getSortField() != null){
+      FieldSortBuilder sort = SortBuilders.fieldSort(query.getSortField().field().key());
+      if(query.isAscendingSort()){
+        sort.order(SortOrder.ASC);
+      } else {
+        sort.order(SortOrder.DESC);
+      }
+      esSearch.addSort(sort);
+    } else if(query.getQueryText() != null && !query.getQueryText().isEmpty()){
+      esSearch.addSort(SortBuilders.scoreSort());
+    } else {
+      esSearch.addSort(RuleField.UPDATED_AT.key(), SortOrder.DESC);
+    }
+
+
+    /* integrate Option's Pagination */
+    esSearch.setFrom(options.getOffset());
+    esSearch.setSize(options.getLimit());
 
     /* integrate Option's Fields */
     if (options.getFieldsToReturn() != null &&
@@ -235,11 +257,8 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
       }
     }
 
-
     /* Get results */
     SearchResponse esResult = esSearch.get();
-
-    System.out.println(esResult);
 
     /* Integrate ES Results */
     Results results = new Results()
