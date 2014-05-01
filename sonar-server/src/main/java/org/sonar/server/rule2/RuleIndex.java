@@ -66,6 +66,7 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
     RuleField.SYSTEM_TAGS.key(),
     RuleField.CREATED_AT.key(),
     RuleField.REPOSITORY.key(),
+    RuleField.PARAMS.key(),
     RuleField.UPDATED_AT.key());
 
   public RuleIndex(RuleNormalizer normalizer, WorkQueue workQueue,
@@ -169,6 +170,11 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
       .endObject();
 
     mapping.startObject("active")
+      .field("type", "nested")
+      .field("dynamic", true)
+      .endObject();
+
+    mapping.startObject("params")
       .field("type", "nested")
       .field("dynamic", true)
       .endObject();

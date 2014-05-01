@@ -95,7 +95,8 @@ class RuleDoc implements Rule {
 
   @Override
   public List<RuleParam> params() {
-    throw new UnsupportedOperationException("TODO");
+    RuleParam param = new RuleParam()
+
   }
 
   @Override
