@@ -23,9 +23,12 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Cardinality;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleParamDto;
+import org.sonar.core.rule.RuleRuleTagDto;
 import org.sonar.server.search.BaseNormalizer;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
@@ -46,11 +49,34 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     SYSTEM_TAGS("sysTags"),
     INTERNAL_KEY("internalKey"),
     TEMPLATE("template"),
-    UPDATED_AT("updatedAt");
+    UPDATED_AT("updatedAt"),
+    PARAMS("params");
 
     private final String key;
 
     private RuleField(final String key) {
+      this.key = key;
+    }
+
+    public String key() {
+      return key;
+    }
+
+    @Override
+    public String toString() {
+      return key;
+    }
+  }
+
+  public static enum RuleParamField {
+    NAME("name"),
+    TYPE("type"),
+    DESCRIPTION("description"),
+    DEFAULT_VALUE("default");
+
+    private final String key;
+
+    private RuleParamField(final String key) {
       this.key = key;
     }
 
@@ -88,9 +114,42 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     indexField(RuleField.INTERNAL_KEY.key(), rule.getConfigKey(), document);
     indexField(RuleField.TEMPLATE.key(), rule.getCardinality() == Cardinality.MULTIPLE, document);
 
-    //TODO get tags
-    indexField(RuleField.TAGS.key(), "", document);
-    indexField(RuleField.SYSTEM_TAGS.key(), "", document);
+
+    /* Normalize the tags */
+    List<RuleRuleTagDto> tags = ruleDao.selectTagsByRuleId(rule.getId());
+    if (!tags.isEmpty()) {
+      XContentBuilder sysTags = document.startArray(RuleField.SYSTEM_TAGS.key());
+      XContentBuilder adminTags = document.startArray(RuleField.TAGS.key());
+
+      for (RuleRuleTagDto tag : tags) {
+        switch (tag.getType()) {
+          case SYSTEM:
+            sysTags.startObject(tag.getTag()).endObject();
+            break;
+          case ADMIN:
+            adminTags.startObject(tag.getTag()).endObject();
+            break;
+        }
+      }
+      sysTags.endArray();
+      adminTags.endArray();
+    }
+
+    /*Normalize the params */
+    List<RuleParamDto> params = ruleDao.selectParametersByRuleId(rule.getId());
+    document.startArray(RuleField.PARAMS.key());
+    if (!params.isEmpty()) {
+      for (RuleParamDto param :params) {
+        document.startObject();
+        indexField(RuleParamField.NAME.key(), param.getName(), document);
+        indexField(RuleParamField.TYPE.key(), param.getType(), document);
+        indexField(RuleParamField.DESCRIPTION.key(), param.getDescription(), document);
+        indexField(RuleParamField.DEFAULT_VALUE.key(), param.getDefaultValue(), document);
+        document.endObject();
+      }
+    }
+    document.endArray();
+
 
     // document.startArray("active");
     // for (ActiveRuleDto activeRule : activeRuleDao.selectByRuleId(rule.getId())) {

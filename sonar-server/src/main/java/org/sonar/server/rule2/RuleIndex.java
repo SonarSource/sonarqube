@@ -265,6 +265,7 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
 
     /* Get results */
     SearchResponse esResult = esSearch.get();
+System.out.println(esResult);
 
     /* Integrate ES Results */
     Results results = new Results()

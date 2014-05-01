@@ -19,9 +19,9 @@
  */
 package org.sonar.server.rule2;
 
+import com.google.common.collect.Iterables;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -86,7 +86,6 @@ public class RuleServiceMediumTest {
   }
 
   @Test
-  @Ignore
   public void insert_and_index_rule_parameters() {
     DbSession dbSession = tester.get(MyBatis.class).openSession(false);
 
@@ -119,7 +118,13 @@ public class RuleServiceMediumTest {
     Hit hit = index.getByKey(ruleKey);
     assertThat(hit).isNotNull();
     assertThat(hit.getField("params")).isNotNull();
-    //TODO complete assertions
+
+
+    RuleService service = tester.get(RuleService.class);
+    Rule rule = service.getByKey(ruleKey);
+
+    assertThat(rule.params()).hasSize(2);
+    assertThat(Iterables.getLast(rule.params(), null).key()).isEqualTo("max");
   }
 
   //TODO test delete, update, tags, params

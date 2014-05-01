@@ -19,13 +19,15 @@
  */
 package org.sonar.server.rule2;
 
-import org.sonar.server.rule2.RuleNormalizer.RuleField;
-
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.api.server.rule.RuleParamType;
+import org.sonar.server.rule2.RuleNormalizer.RuleField;
 import org.sonar.server.search.Hit;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -95,8 +97,42 @@ class RuleDoc implements Rule {
 
   @Override
   public List<RuleParam> params() {
-    RuleParam param = new RuleParam()
+    List<RuleParam> params = new ArrayList<RuleParam>();
+    if(this.fields.get(RuleField.PARAMS.key()) != null) {
+      Collection<Object> esParams = (Collection<Object>) this.fields.get(RuleField.PARAMS.key());
+      for (Object temp : esParams) {
+        final Map<String, Object> param = (Map<String, Object>) temp;
+        params.add(new RuleParam() {
+          {
+            this.fields = param;
+          }
 
+          Map<String, Object> fields;
+
+          @Override
+          public String key() {
+            return (String) param.get(RuleNormalizer.RuleParamField.NAME.key());
+          }
+
+          @Override
+          public String description() {
+            return (String) param.get(RuleNormalizer.RuleParamField.DESCRIPTION.key());
+          }
+
+          @Override
+          public String defaultValue() {
+            return (String) param.get(RuleNormalizer.RuleParamField.DEFAULT_VALUE.key());
+          }
+
+          @Override
+          public RuleParamType type() {
+            return RuleParamType
+              .parse((String) param.get(RuleNormalizer.RuleParamField.TYPE.key()));
+          }
+        });
+      }
+    }
+    return params;
   }
 
   @Override
