@@ -1,8 +1,7 @@
 #!/bin/sh
 
-#
-# NOTE: sonar must be built
-#
+# Shortcut to start server. It must be already built.
+
 cd sonar-application/target/
 unzip sonarqube-*.zip
 cd sonarqube-*

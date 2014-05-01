@@ -30,8 +30,8 @@ echo '  u$$$uuu$$$$$$$$$uu ""$$$$$$$$$$$uuu$$$'
 echo '  $$$$$$$$$$""""           ""$$$$$$$$$$$"'
 echo '   "$$$$$"                      ""$$$$""'
 echo '     $$$"                         $$$$"'
-
-
+echo ''
+echo ''
 echo '           TESTS ARE DISABLED'
 echo '               ARE U CRAZY ?'
 echo ''

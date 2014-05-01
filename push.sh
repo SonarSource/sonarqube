@@ -38,8 +38,8 @@ git clone --single-branch -slb "${BRANCH}" . ../privatebuild
 cd ../privatebuild
 
 # Build with maven
-set MAVEN_OPTS=-Xmx1G
-mvn -T4 install -Pdev -DskipSanityChecks=false
+set MAVEN_OPTS=-Xmx256m
+mvn -T4 clean install
 if [ $? -ne 0 ]; then
 exit_ko "Unable to build"
 fi
