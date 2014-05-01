@@ -137,7 +137,7 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
 
   @Override
   public void insert(Object obj) throws InvalidIndexActionException {
-    LOG.info("INSERT for class" + obj.getClass().getSimpleName());
+    LOG.debug("INSERT for class" + obj.getClass().getSimpleName());
     if(Dto.class.isAssignableFrom(obj.getClass())){
       this.insertByDto((E) obj);
     } else if(Serializable.class.isAssignableFrom(obj.getClass())) {
