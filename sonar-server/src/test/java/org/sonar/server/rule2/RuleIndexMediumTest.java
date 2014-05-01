@@ -71,7 +71,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void select_doc_fields_to_load() {
+  public void select_doc_fields_to_return() {
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001")));
     index.refresh();
 
@@ -87,7 +87,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_by_name() {
+  public void search_name_by_query() {
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001"))
       .setName("testing the partial match and matching of rule"));
     index.refresh();
@@ -144,7 +144,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_rules_by_any_of_repositories() {
+  public void search_by_any_of_repositories() {
     dao.insert(newRuleDto(RuleKey.of("findbugs", "S001")));
     dao.insert(newRuleDto(RuleKey.of("pmd", "S002")));
     index.refresh();
@@ -164,7 +164,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_rules_by_any_of_languages() throws InterruptedException {
+  public void search_by_any_of_languages() throws InterruptedException {
     dao.insert(newRuleDto(RuleKey.of("java", "S001")).setLanguage("java"));
     dao.insert(newRuleDto(RuleKey.of("javascript", "S002")).setLanguage("js"));
     index.refresh();
@@ -188,7 +188,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_rules_by_any_of_severities() throws InterruptedException {
+  public void search_by_any_of_severities() throws InterruptedException {
     dao.insert(newRuleDto(RuleKey.of("java", "S001")).setSeverity(Severity.BLOCKER));
     dao.insert(newRuleDto(RuleKey.of("java", "S002")).setSeverity(Severity.INFO));
     index.refresh();
@@ -212,7 +212,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_rules_by_any_of_statuses() throws InterruptedException {
+  public void search_by_any_of_statuses() throws InterruptedException {
     dao.insert(newRuleDto(RuleKey.of("java", "S001")).setStatus(RuleStatus.BETA.name()));
     dao.insert(newRuleDto(RuleKey.of("java", "S002")).setStatus(RuleStatus.READY.name()));
     index.refresh();
