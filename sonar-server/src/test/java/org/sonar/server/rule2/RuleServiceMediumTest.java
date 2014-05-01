@@ -31,6 +31,8 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.qualityprofile.db.ActiveRuleDao;
+import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.search.Hit;
@@ -117,7 +119,7 @@ public class RuleServiceMediumTest {
     index.refresh();
     Hit hit = index.getByKey(ruleKey);
     assertThat(hit).isNotNull();
-    assertThat(hit.getField("params")).isNotNull();
+    assertThat(hit.getField(RuleNormalizer.RuleField.PARAMS.key())).isNotNull();
 
 
     RuleService service = tester.get(RuleService.class);
@@ -128,6 +130,38 @@ public class RuleServiceMediumTest {
   }
 
   //TODO test delete, update, tags, params
+
+  @Test
+  public void insert_and_index_activeRules() {
+    DbSession dbSession = tester.get(MyBatis.class).openSession(false);
+    ActiveRuleDao activeRuleDao = tester.get(ActiveRuleDao.class);
+    // insert db
+    RuleKey ruleKey = RuleKey.of("javascript", "S001");
+    RuleDto ruleDto = newRuleDto(ruleKey);
+    dao.insert(ruleDto, dbSession);
+    ActiveRuleDto activeRule = new ActiveRuleDto()
+      .setInheritance("inherited")
+      .setProfileId(1)
+      .setRuleId(ruleDto.getId())
+      .setSeverity(Severity.BLOCKER);
+    activeRuleDao.insert(activeRule, dbSession);
+    dbSession.commit();
+
+    // verify that activeRules are persisted in db
+    List<ActiveRuleDto> persistedDtos = activeRuleDao.selectByRuleId(ruleDto.getId());
+    assertThat(persistedDtos).hasSize(1);
+
+    // verify that activeRules are indexed in es
+    index.refresh();
+    Hit hit = index.getByKey(ruleKey);
+    assertThat(hit).isNotNull();
+    assertThat(hit.getField(RuleNormalizer.RuleField.ACTIVE.key())).isNotNull();
+
+
+    RuleService service = tester.get(RuleService.class);
+    Rule rule = service.getByKey(ruleKey);
+  }
+
 
   private RuleDto newRuleDto(RuleKey ruleKey) {
     return new RuleDto()

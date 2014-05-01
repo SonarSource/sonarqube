@@ -67,6 +67,7 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
     RuleField.CREATED_AT.key(),
     RuleField.REPOSITORY.key(),
     RuleField.PARAMS.key(),
+    RuleField.ACTIVE.key(),
     RuleField.UPDATED_AT.key());
 
   public RuleIndex(RuleNormalizer normalizer, WorkQueue workQueue,

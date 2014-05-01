@@ -22,6 +22,8 @@ package org.sonar.server.rule2;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Cardinality;
+import org.sonar.core.qualityprofile.db.ActiveRuleDao;
+import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.rule.RuleRuleTagDto;
@@ -35,6 +37,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
   private final RuleDao ruleDao;
+  private final ActiveRuleDao activeRuleDao;
 
   public static enum RuleField {
     KEY("key"),
@@ -50,7 +53,8 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     INTERNAL_KEY("internalKey"),
     TEMPLATE("template"),
     UPDATED_AT("updatedAt"),
-    PARAMS("params");
+    PARAMS("params"),
+    ACTIVE("active");
 
     private final String key;
 
@@ -90,8 +94,36 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     }
   }
 
-  public RuleNormalizer(RuleDao ruleDao) {
+  public static enum ActiveRuleField {
+    OVERRIDE("override"),
+    INHERITANCE("inheritance"),
+    NOTE_CREATED("noteCreatedAt"),
+    NOTE_UPDATED("noteUpdatedAt"),
+    NOTE_DATA("noteData"),
+    NOTE_USER("noteUser"),
+    PROFILE_ID("profile"),
+    SEVERITY("severity"),
+    PARENT_ID("parent");
+
+    private final String key;
+
+    private ActiveRuleField(final String key) {
+      this.key = key;
+    }
+
+    public String key() {
+      return key;
+    }
+
+    @Override
+    public String toString() {
+      return key;
+    }
+  }
+
+  public RuleNormalizer(RuleDao ruleDao, ActiveRuleDao activeRuleDao) {
     this.ruleDao = ruleDao;
+    this.activeRuleDao = activeRuleDao;
   }
 
   @Override
@@ -135,10 +167,10 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       adminTags.endArray();
     }
 
-    /*Normalize the params */
+    /* Normalize the params */
     List<RuleParamDto> params = ruleDao.selectParametersByRuleId(rule.getId());
-    document.startArray(RuleField.PARAMS.key());
     if (!params.isEmpty()) {
+      document.startArray(RuleField.PARAMS.key());
       for (RuleParamDto param :params) {
         document.startObject();
         indexField(RuleParamField.NAME.key(), param.getName(), document);
@@ -147,22 +179,30 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
         indexField(RuleParamField.DEFAULT_VALUE.key(), param.getDefaultValue(), document);
         document.endObject();
       }
+      document.endArray();
     }
-    document.endArray();
 
+    /* Normalize activeRules */
+    List<ActiveRuleDto> activeRules = activeRuleDao.selectByRuleId(rule.getId());
+    if(!activeRules.isEmpty()) {
+      document.startArray(RuleField.ACTIVE.key());
+      for (ActiveRuleDto activeRule : activeRules) {
+        document.startObject();
+        indexField(ActiveRuleField.OVERRIDE.key(), activeRule.doesOverride(), document);
+        indexField(ActiveRuleField.INHERITANCE.key(), activeRule.getInheritance(), document);
+        indexField(ActiveRuleField.NOTE_CREATED.key(), activeRule.getNoteCreatedAt(), document);
+        indexField(ActiveRuleField.NOTE_UPDATED.key(), activeRule.getNoteUpdatedAt(), document);
+        indexField(ActiveRuleField.NOTE_DATA.key(), activeRule.getNoteData(), document);
+        indexField(ActiveRuleField.NOTE_USER.key(), activeRule.getNoteUserLogin(), document);
+        indexField(ActiveRuleField.PROFILE_ID.key(), activeRule.getProfileId(), document);
+        indexField(ActiveRuleField.SEVERITY.key(), activeRule.getSeverityString(), document);
+        indexField(ActiveRuleField.PARENT_ID.key(), activeRule.getParentId(), document);
+        document.endObject();
+      }
+      document.endArray();
+    }
 
-    // document.startArray("active");
-    // for (ActiveRuleDto activeRule : activeRuleDao.selectByRuleId(rule.getId())) {
-    // document.startObject();
-    // Map<String, Object> activeRuleProperties = BeanUtils.describe(activeRule);
-    // for (Entry<String, Object> activeRuleProp : activeRuleProperties.entrySet()) {
-    // LOG.trace("NORMALIZING: --- {} -> {}", activeRuleProp.getKey(), activeRuleProp.getValue());
-    // document.field(activeRuleProp.getKey(), activeRuleProp.getValue());
-    // }
-    // document.endObject();
-    // }
-    // document.endArray();
-
+    /* Done normalizing for Rule */
     return document.endObject();
   }
 
