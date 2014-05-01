@@ -19,8 +19,9 @@
  */
 package org.sonar.core.rule;
 
-public interface RuleConstants {
+public class RuleConstants {
 
   public static final String INDEX_NAME = "rules2";
   public static final String ES_TYPE = "rule2";
+
 }

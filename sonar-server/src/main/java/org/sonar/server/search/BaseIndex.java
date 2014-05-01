@@ -84,30 +84,25 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
 
     if (!indexExistsResponse.isExists()) {
 
-      LOG.info("Setup of index {}", this.getIndexName());
-
       try {
-        LOG.debug("Settings: {}", getIndexSettings().string());
-        LOG.debug("Mapping: {}", getMapping().string());
-      } catch (IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        LOG.info("Setup of index {}", this.getIndexName());
+        getClient().admin().indices().prepareCreate(index)
+          .setSettings(getIndexSettings())
+          .addMapping(getType(), getMapping())
+          .execute().actionGet();
+      } catch (Exception e) {
+        throw new RuntimeException("Invalid configuration for index " + this.getIndexName(), e);
       }
-
-      getClient().admin().indices().prepareCreate(index)
-        .setSettings(getIndexSettings())
-        .addMapping(getType(), getMapping())
-        .execute().actionGet();
     }
   }
 
   /* Index management methods */
 
-  protected abstract XContentBuilder getIndexSettings();
+  protected abstract XContentBuilder getIndexSettings() throws IOException;
 
   protected abstract String getType();
 
-  protected abstract XContentBuilder getMapping();
+  protected abstract XContentBuilder getMapping() throws IOException;
 
   /* Base CRUD methods */
 
@@ -266,8 +261,8 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
 
   /* Synchronization methods */
 
-  Long lastSynch = 0l;
-  long cooldown = 30000;
+  Long lastSynch = 0L;
+  Long cooldown = 30000L;
 
   @Override
   public void setLastSynchronization(Long time) {
@@ -282,8 +277,8 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
 
   @Override
   public Long getLastSynchronization() {
-    // TODO need to read that in the admin index;
-    return 0l;
+    //TODO need to read that in the admin index;
+    return 0L;
   }
 
   /* ES QueryHelper Methods */
