@@ -120,7 +120,7 @@ public class QueryOptions {
 
   public QueryOptions filterFieldsToReturn(final Set<String> keep) {
     if (fieldsToReturn == null) {
-      fieldsToReturn = keep;
+      fieldsToReturn = Sets.newHashSet(keep);
     } else {
       fieldsToReturn = Sets.filter(fieldsToReturn, new Predicate<String>() {
         @Override

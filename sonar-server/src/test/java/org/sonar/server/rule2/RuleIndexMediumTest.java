@@ -39,7 +39,7 @@ import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class RuleSearchMediumTest {
+public class RuleIndexMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();

@@ -20,8 +20,6 @@
 package org.sonar.server.rule2;
 
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Cardinality;
 import org.sonar.core.rule.RuleDto;
@@ -33,9 +31,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
-  private static final Logger LOG = LoggerFactory.getLogger(RuleNormalizer.class);
-
-  private RuleDao ruleDao;
+  private final RuleDao ruleDao;
 
   public static enum RuleField {
     KEY("key"),
@@ -62,6 +58,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       return key;
     }
 
+    @Override
     public String toString() {
       return key;
     }
