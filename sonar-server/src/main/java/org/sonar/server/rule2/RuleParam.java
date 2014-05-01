@@ -21,12 +21,16 @@ package org.sonar.server.rule2;
 
 import org.sonar.api.server.rule.RuleParamType;
 
+import javax.annotation.CheckForNull;
+
 public interface RuleParam {
 
   String key();
 
+  @CheckForNull
   String description();
 
+  @CheckForNull
   String defaultValue();
 
   RuleParamType type();

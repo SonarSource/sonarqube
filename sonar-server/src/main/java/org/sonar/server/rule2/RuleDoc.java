@@ -99,9 +99,8 @@ class RuleDoc implements Rule {
   public List<RuleParam> params() {
     List<RuleParam> params = new ArrayList<RuleParam>();
     if(this.fields.get(RuleField.PARAMS.key()) != null) {
-      Collection<Object> esParams = (Collection<Object>) this.fields.get(RuleField.PARAMS.key());
-      for (Object temp : esParams) {
-        final Map<String, Object> param = (Map<String, Object>) temp;
+      Collection<Map<String, Object>> esParams = (Collection<Map<String, Object>>) this.fields.get(RuleField.PARAMS.key());
+      for (final Map<String, Object> param : esParams) {
         params.add(new RuleParam() {
           {
             this.fields = param;

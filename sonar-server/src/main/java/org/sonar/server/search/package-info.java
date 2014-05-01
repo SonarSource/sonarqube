@@ -17,50 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+@ParametersAreNonnullByDefault
 package org.sonar.server.search;
 
-import java.util.Collection;
-
-public class Results {
-
-  private Collection<Hit> hits;
-  private int total;
-  private int offset;
-  private long time;
-
-  public Collection<Hit> getHits() {
-    return hits;
-  }
-
-  public Results setHits(Collection<Hit> hits) {
-    this.hits = hits;
-    return this;
-  }
-
-  public int getTotal() {
-    return total;
-  }
-
-  public int getOffset() {
-    return offset;
-  }
-
-  public Results setTotal(int total) {
-    this.total = total;
-    return this;
-  }
-
-  public Results setOffset(int offset) {
-    this.offset = offset;
-    return this;
-  }
-
-  public long getTime() {
-    return time;
-  }
-
-  public Results setTime(long time) {
-    this.time = time;
-    return this;
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;
