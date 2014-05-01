@@ -24,6 +24,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Cardinality;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
+import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.rule.RuleRuleTagDto;
@@ -32,7 +33,9 @@ import org.sonar.server.search.BaseNormalizer;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
@@ -78,7 +81,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     NAME("name"),
     TYPE("type"),
     DESCRIPTION("description"),
-    DEFAULT_VALUE("default");
+    VALUE("value");
 
     private final String key;
 
@@ -105,7 +108,8 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     NOTE_USER("noteUser"),
     PROFILE_ID("profile"),
     SEVERITY("severity"),
-    PARENT_ID("parent");
+    PARENT_ID("parent"),
+    PARAMS("params");
 
     private final String key;
 
@@ -171,14 +175,16 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
     /* Normalize the params */
     List<RuleParamDto> params = ruleDao.selectParametersByRuleId(rule.getId());
+    Map<Integer, String> paramIdNameLookup = new HashMap<Integer, String>();
     if (!params.isEmpty()) {
       document.startArray(RuleField.PARAMS.key());
       for (RuleParamDto param : params) {
+        paramIdNameLookup.put(param.getId(), param.getName());
         document.startObject();
         indexField(RuleParamField.NAME.key(), param.getName(), document);
         indexField(RuleParamField.TYPE.key(), param.getType(), document);
         indexField(RuleParamField.DESCRIPTION.key(), param.getDescription(), document);
-        indexField(RuleParamField.DEFAULT_VALUE.key(), param.getDefaultValue(), document);
+        indexField(RuleParamField.VALUE.key(), param.getDefaultValue(), document);
         document.endObject();
       }
       document.endArray();
@@ -199,6 +205,19 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
         indexField(ActiveRuleField.PROFILE_ID.key(), activeRule.getProfileId(), document);
         indexField(ActiveRuleField.SEVERITY.key(), activeRule.getSeverityString(), document);
         indexField(ActiveRuleField.PARENT_ID.key(), activeRule.getParentId(), document);
+
+        /* Get all activeRuleParams */
+        List<ActiveRuleParamDto> activeRuleParams = activeRuleDao.selectParamsByActiveRuleId(activeRule.getId());
+        if(!activeRuleParams.isEmpty()) {
+          document.startArray(ActiveRuleField.PARAMS.key());
+          for (ActiveRuleParamDto param : activeRuleParams) {
+            document.startObject();
+            indexField(RuleParamField.NAME.key(), param.getKey(), document);
+            indexField(RuleParamField.VALUE.key(), param.getValue(), document);
+            document.endObject();
+          }
+          document.endArray();
+        }
         document.endObject();
       }
       document.endArray();
@@ -207,5 +226,4 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     /* Done normalizing for Rule */
     return document.endObject();
   }
-
 }

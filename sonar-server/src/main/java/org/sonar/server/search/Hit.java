@@ -20,7 +20,6 @@
 package org.sonar.server.search;
 
 import javax.annotation.CheckForNull;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -37,7 +36,7 @@ public class Hit implements Comparable<Hit> {
     this.rank = rank;
   }
 
-  public Hit(Float score){
+  public Hit(Float score) {
     this.fields = new TreeMap<String, Object>();
     this.score = score;
   }

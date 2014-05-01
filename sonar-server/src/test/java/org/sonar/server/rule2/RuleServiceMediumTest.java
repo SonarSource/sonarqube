@@ -33,6 +33,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
+import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.rule.RuleRuleTagDto;
@@ -43,6 +44,7 @@ import org.sonar.server.search.Hit;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -86,9 +88,10 @@ public class RuleServiceMediumTest {
     assertThat(hit.getField(RuleNormalizer.RuleField.UPDATED_AT.key())).isNotNull();
     assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.INTERNAL_KEY.key())).isEqualTo("InternalKeyS001");
     assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.SEVERITY.key())).isEqualTo("INFO");
-//TODO    assertThat((Collection) hit.getField(RuleNormalizer.RuleField.SYSTEM_TAGS.key())).isEmpty();
-//TODO    assertThat((Collection) hit.getField(RuleNormalizer.RuleField.TAGS.key())).isEmpty();
     assertThat((Boolean) hit.getField(RuleNormalizer.RuleField.TEMPLATE.key())).isFalse();
+
+    //TODO    assertThat((Collection) hit.getField(RuleNormalizer.RuleField.SYSTEM_TAGS.key())).isEmpty();
+    //TODO    assertThat((Collection) hit.getField(RuleNormalizer.RuleField.TAGS.key())).isEmpty();
   }
 
   @Test
@@ -164,6 +167,54 @@ public class RuleServiceMediumTest {
     Rule rule = service.getByKey(ruleKey);
   }
 
+  @Test
+  public void insert_and_index_activeRuleParams() {
+    DbSession dbSession = tester.get(MyBatis.class).openSession(false);
+    ActiveRuleDao activeRuleDao = tester.get(ActiveRuleDao.class);
+    // insert db
+    RuleKey ruleKey = RuleKey.of("javascript", "S001");
+    RuleDto ruleDto = newRuleDto(ruleKey);
+    dao.insert(ruleDto, dbSession);
+
+    RuleParamDto ruleParam = new RuleParamDto()
+      .setRuleId(ruleDto.getId())
+      .setName("test")
+      .setType("STRING");
+    dao.insert(ruleParam);
+
+    ActiveRuleDto activeRule = new ActiveRuleDto()
+      .setInheritance("inherited")
+      .setProfileId(1)
+      .setRuleId(ruleDto.getId())
+      .setSeverity(Severity.BLOCKER);
+    activeRuleDao.insert(activeRule, dbSession);
+
+    ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto()
+      .setActiveRuleId(activeRule.getId())
+      .setKey(ruleParam.getName())
+      .setValue("world")
+      .setRulesParameterId(ruleParam.getId());
+    activeRuleDao.insert(activeRuleParam, dbSession);
+
+    dbSession.commit();
+
+    // verify that activeRulesParams are persisted in db
+    List<ActiveRuleParamDto> persistedDtos = activeRuleDao.selectParamsByActiveRuleId(activeRule.getId());
+    assertThat(persistedDtos).hasSize(1);
+
+    // verify that activeRulesParams are indexed in es
+    index.refresh();
+    Hit hit = index.getByKey(ruleKey);
+    assertThat(hit).isNotNull();
+
+    //Check that we have an ActiveRuleParam
+    List<Map<String, Object>> activeRules = (List<Map<String, Object>>) hit.getField(RuleNormalizer.RuleField.ACTIVE.key());
+    assertThat(Iterables.getFirst(activeRules, null).get(RuleNormalizer.ActiveRuleField.PARAMS.key())).isNotNull();
+
+    List<Map<String, String>> params = (List<Map<String, String>>) activeRules.get(0).get(RuleNormalizer.ActiveRuleField.PARAMS.key());
+    assertThat(Iterables.getFirst(params,null).get(RuleNormalizer.RuleParamField.NAME.key())).isEqualTo(ruleParam.getName());
+  }
+
   //TODO test delete, update, tags, params
 
   @Test
@@ -183,7 +234,7 @@ public class RuleServiceMediumTest {
       .setTag("AdMiN");
     ruleTagDao.insert(tag1,dbSession);
     ruleTagDao.insert(tag2,dbSession);
-    ruleTagDao.insert(tag3,dbSession);
+    ruleTagDao.insert(tag3, dbSession);
 
     RuleRuleTagDto rTag1 = new RuleRuleTagDto()
       .setTagId(tag1.getId())
