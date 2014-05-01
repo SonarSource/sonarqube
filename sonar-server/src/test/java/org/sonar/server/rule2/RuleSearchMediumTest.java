@@ -59,16 +59,21 @@ public class RuleSearchMediumTest {
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001")));
     index.refresh();
 
-    QueryOptions options = new QueryOptions();
+    QueryOptions options = new QueryOptions().setFieldsToReturn(null);
     Results results = index.search(new RuleQuery(), options);
-
     assertThat(results.getHits()).hasSize(1);
     Hit hit = Iterables.getFirst(results.getHits(), null);
+    assertThat(hit.getFields()).hasSize(RuleNormalizer.RuleField.values().length);
+
+    options = new QueryOptions().setFieldsToReturn(Collections.<String>emptyList());
+    results = index.search(new RuleQuery(), options);
+    assertThat(results.getHits()).hasSize(1);
+    hit = Iterables.getFirst(results.getHits(), null);
     assertThat(hit.getFields()).hasSize(RuleNormalizer.RuleField.values().length);
   }
 
   @Test
-  @Ignore("TODO permanent 'repo' is missing")
+  @Ignore
   public void select_doc_fields_to_load() {
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001")));
     index.refresh();
@@ -79,15 +84,9 @@ public class RuleSearchMediumTest {
 
     assertThat(results.getHits()).hasSize(1);
     Hit hit = Iterables.getFirst(results.getHits(), null);
-    assertThat(hit.getFields()).hasSize(4);
-
-    // request fields
+    assertThat(hit.getFields()).hasSize(2);
     assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.LANGUAGE.key())).isEqualTo("js");
     assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.STATUS.key())).isEqualTo(RuleStatus.READY.name());
-
-    // permanent fields
-    assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.REPOSITORY.key())).isEqualTo("javascript");
-    assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.KEY.key())).isEqualTo("S001");
   }
 
   @Test
@@ -186,6 +185,10 @@ public class RuleSearchMediumTest {
     // empty list => no filter
     query = new RuleQuery().setLanguages(Collections.<String>emptyList());
     assertThat(index.search(query, new QueryOptions()).getHits()).isEmpty();
+
+    // null list => no filter
+    query = new RuleQuery().setLanguages(null);
+    assertThat(index.search(query, new QueryOptions()).getHits()).isEmpty();
   }
 
   @Test
@@ -207,6 +210,10 @@ public class RuleSearchMediumTest {
     // empty list => no filter
     query = new RuleQuery().setSeverities(Collections.<String>emptyList());
     assertThat(index.search(query, new QueryOptions()).getHits()).isEmpty();
+
+    // null list => no filter
+    query = new RuleQuery().setSeverities(null);
+    assertThat(index.search(query, new QueryOptions()).getHits()).isEmpty();
   }
 
   @Test
@@ -227,6 +234,10 @@ public class RuleSearchMediumTest {
 
     // empty list => no filter
     query = new RuleQuery().setStatuses(Collections.<RuleStatus>emptyList());
+    assertThat(index.search(query, new QueryOptions()).getHits()).isEmpty();
+
+    // null list => no filter
+    query = new RuleQuery().setStatuses(null);
     assertThat(index.search(query, new QueryOptions()).getHits()).isEmpty();
   }
 
