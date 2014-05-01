@@ -19,20 +19,24 @@
  */
 package org.sonar.server.rule2;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.search.Hit;
 import org.sonar.server.tester.ServerTester;
 
-import java.util.Collection;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -40,6 +44,9 @@ public class RuleServiceMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+
+  RuleDao dao = tester.get(RuleDao.class);
+  RuleIndex index = tester.get(RuleIndex.class);
 
   @Before
   public void clear_data_store() {
@@ -50,7 +57,6 @@ public class RuleServiceMediumTest {
   public void insert_in_db_and_index_in_es() {
     // insert db
     RuleKey ruleKey = RuleKey.of("javascript", "S001");
-    RuleDao dao = tester.get(RuleDao.class);
     dao.insert(newRuleDto(ruleKey));
 
     // verify that rule is persisted in db
@@ -61,9 +67,7 @@ public class RuleServiceMediumTest {
     assertThat(persistedDto.getLanguage()).isEqualTo("js");
 
     // verify that rule is indexed in es
-    RuleIndex index = tester.get(RuleIndex.class);
     index.refresh();
-
     Hit hit = index.getByKey(ruleKey);
     assertThat(hit).isNotNull();
     assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.REPOSITORY.key())).isEqualTo(ruleKey.repository());
@@ -79,6 +83,43 @@ public class RuleServiceMediumTest {
 //TODO    assertThat((Collection) hit.getField(RuleNormalizer.RuleField.SYSTEM_TAGS.key())).isEmpty();
 //TODO    assertThat((Collection) hit.getField(RuleNormalizer.RuleField.TAGS.key())).isEmpty();
     assertThat((Boolean) hit.getField(RuleNormalizer.RuleField.TEMPLATE.key())).isFalse();
+  }
+
+  @Test
+  @Ignore
+  public void insert_and_index_rule_parameters() {
+    DbSession dbSession = tester.get(MyBatis.class).openSession(false);
+
+    // insert db
+    RuleKey ruleKey = RuleKey.of("javascript", "S001");
+    RuleDto ruleDto = newRuleDto(ruleKey);
+    dao.insert(ruleDto, dbSession);
+    RuleParamDto minParamDto = new RuleParamDto()
+      .setRuleId(ruleDto.getId())
+      .setName("min")
+      .setType(RuleParamType.INTEGER.type())
+      .setDefaultValue("2")
+      .setDescription("Minimum");
+    dao.insert(minParamDto, dbSession);
+    RuleParamDto maxParamDto = new RuleParamDto()
+      .setRuleId(ruleDto.getId())
+      .setName("max")
+      .setType(RuleParamType.INTEGER.type())
+      .setDefaultValue("10")
+      .setDescription("Maximum");
+    dao.insert(maxParamDto, dbSession);
+    dbSession.commit();
+
+    // verify that parameters are persisted in db
+    List<RuleParamDto> persistedDtos = dao.selectParametersByRuleId(ruleDto.getId());
+    assertThat(persistedDtos).hasSize(2);
+
+    // verify that parameters are indexed in es
+    index.refresh();
+    Hit hit = index.getByKey(ruleKey);
+    assertThat(hit).isNotNull();
+    assertThat(hit.getField("params")).isNotNull();
+    //TODO complete assertions
   }
 
   //TODO test delete, update, tags, params
