@@ -54,7 +54,7 @@ public class RuleSearchMediumTest {
   }
 
   @Test
-  public void return_all_doc_fields_by_default() throws InterruptedException {
+  public void return_all_doc_fields_by_default() {
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001")));
     index.refresh();
 
@@ -89,7 +89,7 @@ public class RuleSearchMediumTest {
 
   @Test
   @Ignore
-  public void search_by_name() throws InterruptedException {
+  public void search_by_name() {
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001"))
       .setName("testing the partial match and matching of rule"));
     index.refresh();
@@ -112,7 +112,7 @@ public class RuleSearchMediumTest {
   }
 
   @Test
-  public void search_key_by_query() throws InterruptedException {
+  public void search_key_by_query() {
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001"))
       .setRuleKey("X001"));
     dao.insert(newRuleDto(RuleKey.of("cobol", "S001"))
@@ -134,7 +134,7 @@ public class RuleSearchMediumTest {
   }
 
   @Test
-  public void search_all_rules() throws InterruptedException {
+  public void search_all_rules() {
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001")));
     dao.insert(newRuleDto(RuleKey.of("java", "S002")));
     index.refresh();
@@ -147,7 +147,7 @@ public class RuleSearchMediumTest {
 
   @Test
   @Ignore
-  public void search_rules_by_any_of_repositories() throws InterruptedException {
+  public void search_rules_by_any_of_repositories() {
     dao.insert(newRuleDto(RuleKey.of("findbugs", "S001")));
     dao.insert(newRuleDto(RuleKey.of("pmd", "S002")));
     index.refresh();
@@ -168,7 +168,7 @@ public class RuleSearchMediumTest {
 
   @Test
   @Ignore
-  public void search_rules_by_any_of_languages() throws InterruptedException {
+  public void search_rules_by_any_of_languages() {
     dao.insert(newRuleDto(RuleKey.of("java", "S001"))).setLanguage("java");
     dao.insert(newRuleDto(RuleKey.of("javascript", "S002"))).setLanguage("js");
     index.refresh();
@@ -193,7 +193,7 @@ public class RuleSearchMediumTest {
 
   @Test
   @Ignore
-  public void search_rules_by_any_of_severities() throws InterruptedException {
+  public void search_rules_by_any_of_severities() {
     dao.insert(newRuleDto(RuleKey.of("java", "S001"))).setSeverity(Severity.BLOCKER);
     dao.insert(newRuleDto(RuleKey.of("java", "S002"))).setSeverity(Severity.INFO);
     index.refresh();
@@ -218,7 +218,7 @@ public class RuleSearchMediumTest {
 
   @Test
   @Ignore
-  public void search_rules_by_any_of_statuses() throws InterruptedException {
+  public void search_rules_by_any_of_statuses() {
     dao.insert(newRuleDto(RuleKey.of("java", "S001"))).setStatus(RuleStatus.BETA.name());
     dao.insert(newRuleDto(RuleKey.of("java", "S002"))).setStatus(RuleStatus.READY.name());
     index.refresh();
@@ -239,6 +239,77 @@ public class RuleSearchMediumTest {
     // null list => no filter
     query = new RuleQuery().setStatuses(null);
     assertThat(index.search(query, new QueryOptions()).getHits()).isEmpty();
+  }
+
+  @Test
+  @Ignore("TODO")
+  public void sort_by_name() {
+    dao.insert(newRuleDto(RuleKey.of("java", "S001")).setName("abcd"));
+    dao.insert(newRuleDto(RuleKey.of("java", "S002")).setName("ABC"));
+    dao.insert(newRuleDto(RuleKey.of("java", "S003")).setName("FGH"));
+    index.refresh();
+
+    // ascending
+    RuleQuery query = new RuleQuery().setSortField(RuleQuery.SortField.NAME);
+    Results results = index.search(query, new QueryOptions());
+    assertThat(results.getHits()).hasSize(3);
+    assertThat(Iterables.getFirst(results.getHits(), null).getFieldAsString("key")).isEqualTo("S002");
+    assertThat(Iterables.getLast(results.getHits(), null).getFieldAsString("key")).isEqualTo("S003");
+
+    // descending
+    query = new RuleQuery().setSortField(RuleQuery.SortField.NAME).setAscendingSort(false);
+    results = index.search(query, new QueryOptions());
+    assertThat(results.getHits()).hasSize(3);
+    assertThat(Iterables.getFirst(results.getHits(), null).getFieldAsString("key")).isEqualTo("S003");
+    assertThat(Iterables.getLast(results.getHits(), null).getFieldAsString("key")).isEqualTo("S002");
+  }
+
+  @Test
+  @Ignore("TODO")
+  public void sort_by_language() {
+    dao.insert(newRuleDto(RuleKey.of("java", "S001")).setLanguage("java"));
+    dao.insert(newRuleDto(RuleKey.of("java", "S002")).setLanguage("php"));
+    index.refresh();
+
+    // ascending
+    RuleQuery query = new RuleQuery().setSortField(RuleQuery.SortField.LANGUAGE);
+    Results results = index.search(query, new QueryOptions());
+    assertThat(Iterables.getFirst(results.getHits(), null).getFieldAsString("key")).isEqualTo("S001");
+    assertThat(Iterables.getLast(results.getHits(), null).getFieldAsString("key")).isEqualTo("S002");
+
+    // descending
+    query = new RuleQuery().setSortField(RuleQuery.SortField.LANGUAGE).setAscendingSort(false);
+    results = index.search(query, new QueryOptions());
+    assertThat(Iterables.getFirst(results.getHits(), null).getFieldAsString("key")).isEqualTo("S001");
+    assertThat(Iterables.getLast(results.getHits(), null).getFieldAsString("key")).isEqualTo("S001");
+  }
+
+  @Test
+  @Ignore("TODO")
+  public void paging() {
+    dao.insert(newRuleDto(RuleKey.of("java", "S001")));
+    dao.insert(newRuleDto(RuleKey.of("java", "S002")));
+    dao.insert(newRuleDto(RuleKey.of("java", "S003")));
+    index.refresh();
+
+    // from 0 to 1 included
+    QueryOptions options = new QueryOptions();
+    options.setOffset(0).setLimit(2);
+    Results results = index.search(new RuleQuery(), options);
+    assertThat(results.getTotal()).isEqualTo(3);
+    assertThat(results.getHits()).hasSize(2);
+
+    // from 0 to 9 included
+    options.setOffset(0).setLimit(10);
+    results = index.search(new RuleQuery(), options);
+    assertThat(results.getTotal()).isEqualTo(3);
+    assertThat(results.getHits()).hasSize(3);
+
+    // from 2 to 11 included
+    options.setOffset(2).setLimit(10);
+    results = index.search(new RuleQuery(), options);
+    assertThat(results.getTotal()).isEqualTo(3);
+    assertThat(results.getHits()).hasSize(1);
   }
 
   private RuleDto newRuleDto(RuleKey ruleKey) {
