@@ -20,6 +20,8 @@
 package org.sonar.server.rule2;
 
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Cardinality;
 import org.sonar.core.rule.RuleDto;
@@ -30,6 +32,8 @@ import java.io.IOException;
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
+
+  private static final Logger LOG = LoggerFactory.getLogger(RuleNormalizer.class);
 
   private RuleDao ruleDao;
 
@@ -46,7 +50,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     SYSTEM_TAGS("sysTags"),
     INTERNAL_KEY("internalKey"),
     TEMPLATE("template"),
-    UDPATED_AT("updatedAt");
+    UPDATED_AT("updatedAt");
 
     private final String key;
 
@@ -79,7 +83,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     indexField(RuleField.REPOSITORY.key(), rule.getRepositoryKey(), document);
     indexField(RuleField.NAME.key(), rule.getName(), document);
     indexField(RuleField.CREATED_AT.key(), rule.getCreatedAt(), document);
-    indexField(RuleField.UDPATED_AT.key(), rule.getUpdatedAt(), document);
+    indexField(RuleField.UPDATED_AT.key(), rule.getUpdatedAt(), document);
     indexField(RuleField.DESCRIPTION.key(), rule.getDescription(), document);
     indexField(RuleField.SEVERITY.key(), rule.getSeverityString(), document);
     indexField(RuleField.STATUS.key(), rule.getStatus(), document);

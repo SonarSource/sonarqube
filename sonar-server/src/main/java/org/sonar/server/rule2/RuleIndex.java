@@ -64,7 +64,8 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
     RuleField.TAGS.key(),
     RuleField.SYSTEM_TAGS.key(),
     RuleField.CREATED_AT.key(),
-    RuleField.UDPATED_AT.key());
+    RuleField.REPOSITORY.key(),
+    RuleField.UPDATED_AT.key());
 
   public RuleIndex(RuleNormalizer normalizer, WorkQueue workQueue,
                    Profiling profiling, ESNode node) {

@@ -20,28 +20,42 @@
 package org.sonar.server.search;
 
 import org.picocontainer.Startable;
+import org.sonar.core.db.Dto;
 
 import javax.annotation.CheckForNull;
 
 import java.io.Serializable;
 
-public interface Index<K extends Serializable> extends Startable {
+public interface Index<E extends Dto<K>, K extends Serializable> extends Startable {
 
   String getIndexName();
 
   @CheckForNull
-  Hit getByKey(K key);
+  Hit getByKey(K item);
 
   void refresh();
 
-  void insert(K key);
+  void insert(Object obj) throws InvalidIndexActionException;
 
-  void update(K key);
+  void insertByKey(K key);
 
-  void delete(K key);
+  void insertByDto(E item);
+
+  void update(Object obj) throws InvalidIndexActionException;
+
+  void updateByKey(K key);
+
+  void updateByDto(E item);
+
+  void delete(Object obj) throws InvalidIndexActionException;
+
+  void deleteByKey(K key);
+
+  void deleteByDto(E item);
 
   Long getLastSynchronization();
 
   void setLastSynchronization(Long time);
+
 
 }

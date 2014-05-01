@@ -30,11 +30,11 @@ public class IndexSynchronizer<K extends Serializable> {
 
   private static final Logger LOG = LoggerFactory.getLogger(IndexSynchronizer.class);
 
-  private final Index<K> index;
+  private final Index index;
   private final Dao<?,K> dao;
   private final WorkQueue workQueue;
 
-  public IndexSynchronizer(Index<K> index, Dao<?,K> dao,  WorkQueue workQueue) {
+  public IndexSynchronizer(Index index, Dao<?,K> dao,  WorkQueue workQueue) {
     this.index = index;
     this.dao = dao;
     this.workQueue = workQueue;
@@ -51,7 +51,7 @@ public class IndexSynchronizer<K extends Serializable> {
       if (LOG.isTraceEnabled()) {
         LOG.trace("Adding {} to workQueue for {}", key, index.getClass().getSimpleName());
       }
-      workQueue.enqueue(new IndexAction<K>(index.getIndexName(), IndexAction.Method.INSERT, key));
+      workQueue.enqueue(new IndexAction(index.getIndexName(), IndexAction.Method.INSERT, key));
     }
 
     return this;

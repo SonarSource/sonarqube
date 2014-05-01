@@ -38,8 +38,9 @@ import org.sonar.server.es.ESNode;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.concurrent.ExecutionException;
 
-public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implements Index<K> {
+public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implements Index<E, K> {
 
   private static final Logger LOG = LoggerFactory.getLogger(BaseIndex.class);
 
@@ -124,19 +125,52 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
     return Hit.fromMap(0, result.getSourceAsMap());
   }
 
+  private void insertDocument(XContentBuilder doc, String key) throws ExecutionException, InterruptedException {
+    LOG.debug("INSERT _id:{} in index {}", key, this.getIndexName());
+    getClient().index(
+      new IndexRequest(this.getIndexName(),
+        getType(), key)
+        .source(doc)
+    ).get();
+  }
+
   @Override
-  public void insert(K key) {
+  public void insert(Object obj) throws InvalidIndexActionException {
+    LOG.info("INSERT for class" + obj.getClass().getSimpleName());
+    if(Dto.class.isAssignableFrom(obj.getClass())){
+      this.insertByDto((E) obj);
+    } else if(Serializable.class.isAssignableFrom(obj.getClass())) {
+      this.insertByKey((K) obj);
+    } else {
+      throw new InvalidIndexActionException("Index " + this.getIndexName() +
+        " cannot execute INSERT for class: " + obj.getClass());
+    }
+  }
+
+  @Override
+  public void insertByDto(E item) {
+    try {
+      XContentBuilder doc = normalizer.normalize(item);
+      String keyValue = getKeyValue(item.getKey());
+      if (doc != null && keyValue != null && !keyValue.isEmpty()) {
+        insertDocument(doc, keyValue);
+      } else {
+        LOG.error("Could not normalize document {} for insert in {}",
+          keyValue, getIndexName());
+      }
+    } catch (Exception e) {
+      LOG.error("Could not update document for index {}: {}",
+        getIndexName(), e.getMessage());
+    }
+  }
+
+  @Override
+  public void insertByKey(K key) {
     try {
       XContentBuilder doc = normalizer.normalize(key);
       String keyValue = getKeyValue(key);
       if (doc != null && keyValue != null && !keyValue.isEmpty()) {
-        LOG.debug("Insert document with key {}", key);
-        getClient().index(
-          new IndexRequest(this.getIndexName(),
-            getType(), keyValue)
-            //.refresh(true)
-            .source(doc)
-        ).get();
+        insertDocument(doc, keyValue);
       } else {
         LOG.error("Could not normalize document {} for insert in {}",
           key, getIndexName());
@@ -147,29 +181,87 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
     }
   }
 
+  private void updateDocument(XContentBuilder doc, String key) throws ExecutionException, InterruptedException {
+    LOG.debug("UPDATE _id:{} in index {}", key, this.getIndexName());
+    getClient().update(
+      new UpdateRequest(this.getIndexName(),
+        this.getType(), key)
+        //.refresh(true)
+        .doc(doc)
+    ).get();
+  }
+
   @Override
-  public void update(K key) {
+  public void update(Object obj) throws InvalidIndexActionException {
+    if(Dto.class.isAssignableFrom(obj.getClass())){
+      this.updateByDto((E) obj);
+    } else if(Serializable.class.isAssignableFrom(obj.getClass())) {
+      this.updateByKey((K) obj);
+    } else {
+      throw new InvalidIndexActionException("Index " + this.getIndexName() +
+        " cannot execute UPDATE for class: " + obj.getClass());
+    }
+  }
+
+  @Override
+  public void updateByDto(E item) {
     try {
-      LOG.info("Update document with key {}", key);
-      XContentBuilder doc = normalizer.normalize(key);
-      getClient().update(
-        new UpdateRequest(this.getIndexName(),
-          this.getType(), this.getKeyValue(key))
-          //.refresh(true)
-          .doc(doc)
-      ).get();
+      XContentBuilder doc = normalizer.normalize(item);
+      String keyValue = getKeyValue(item.getKey());
+      this.updateDocument(doc, keyValue);
     } catch (Exception e) {
-      LOG.error("Could not update documet for index {}: {}",
+      LOG.error("Could not update document for index {}: {}",
         this.getIndexName(), e.getMessage());
     }
   }
 
   @Override
-  public void delete(K key) {
-    LOG.info("Deleting document with key {}", key);
+  public void updateByKey(K key) {
+    try {
+      XContentBuilder doc = normalizer.normalize(key);
+      String keyValue = getKeyValue(key);
+      this.updateDocument(doc, keyValue);
+    } catch (Exception e) {
+      LOG.error("Could not update document for index {}: {}",
+        this.getIndexName(), e.getMessage());
+    }
+  }
+
+  private void deleteDocument(String key) throws ExecutionException, InterruptedException {
+    LOG.debug("DELETE _id:{} in index {}", key, this.getIndexName());
     getClient()
-      .prepareDelete(this.getIndexName(), this.getType(), this.getKeyValue(key))
+      .prepareDelete(this.getIndexName(), this.getType(), key)
       .get();
+  }
+
+  @Override
+  public void delete(Object obj) throws InvalidIndexActionException {
+    if(Dto.class.isAssignableFrom(obj.getClass())){
+      this.deleteByDto((E) obj);
+    } else if(Serializable.class.isAssignableFrom(obj.getClass())) {
+      this.deleteByKey((K) obj);
+    } else {
+      throw new InvalidIndexActionException("Index " + this.getIndexName() +
+        " cannot execute DELETE for class: " + obj.getClass());
+    }
+  }
+
+  @Override
+  public void deleteByKey(K key) {
+    try {
+      this.deleteDocument(this.getKeyValue(key));
+    } catch (Exception e) {
+      LOG.error("Could not DELETE _id:{} for index {}: {}",
+        this.getKeyValue(key), this.getIndexName(), e.getMessage());    }
+  }
+
+  @Override
+  public void deleteByDto(E item) {
+    try {
+      this.deleteDocument(this.getKeyValue(item.getKey()));
+    } catch (Exception e) {
+      LOG.error("Could not DELETE _id:{} for index {}: {}",
+        this.getKeyValue(item.getKey()), this.getIndexName(), e.getMessage());    }
   }
 
   /* Synchronization methods */

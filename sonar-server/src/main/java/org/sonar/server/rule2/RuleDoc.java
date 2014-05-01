@@ -120,6 +120,6 @@ class RuleDoc implements Rule {
 
   @Override
   public Date updatedAt() {
-    return (Date) fields.get(RuleField.UDPATED_AT.key());
+    return (Date) fields.get(RuleField.UPDATED_AT.key());
   }
 }

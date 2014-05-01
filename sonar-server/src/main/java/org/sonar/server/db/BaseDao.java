@@ -65,9 +65,10 @@ public abstract class BaseDao<E extends Dto<K>, K extends Serializable>
 
   @Override
   public E update(E item, DbSession session) {
+    this.doUpdate(item, session);
     session.enqueue(new IndexAction(this.getIndexName(),
-      IndexAction.Method.UPDATE, item.getKey()));
-    return this.doUpdate(item, session);
+      IndexAction.Method.UPDATE, item));
+    return item;
   }
 
   @Override
@@ -84,10 +85,9 @@ public abstract class BaseDao<E extends Dto<K>, K extends Serializable>
 
   @Override
   public E insert(E item, DbSession session) {
-    IndexAction action = new IndexAction(this.getIndexName(),
-      IndexAction.Method.INSERT, item.getKey());
-    session.enqueue(action);
     this.doInsert(item, session);
+    session.enqueue(new IndexAction(this.getIndexName(),
+      IndexAction.Method.INSERT, item));
     return item;
   }
 

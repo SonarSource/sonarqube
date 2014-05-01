@@ -22,10 +22,11 @@ package org.sonar.server.search;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.cluster.QueueAction;
+import org.sonar.core.db.Dto;
 
 import java.io.Serializable;
 
-public class IndexAction<K extends Serializable> extends QueueAction {
+public class IndexAction extends QueueAction {
 
   private static final Logger LOG = LoggerFactory.getLogger(IndexAction.class);
 
@@ -35,16 +36,16 @@ public class IndexAction<K extends Serializable> extends QueueAction {
   }
 
   private String indexName;
-  private K key;
+  private Object item;
   private Method method;
-  private Index<K> index;
+  private Index index;
 
 
-  public IndexAction(String indexName, Method method, K key){
+  public IndexAction(String indexName, Method method, Object item){
     super();
     this.indexName = indexName;
     this.method = method;
-    this.key = key;
+    this.item = item;
   }
 
   public Method getMethod(){
@@ -59,12 +60,12 @@ public class IndexAction<K extends Serializable> extends QueueAction {
     this.indexName = indexName;
   }
 
-  public K getKey() {
-    return key;
+  public Object getItem() {
+    return item;
   }
 
-  public void setKey(K key) {
-    this.key = key;
+  public void setItem(Object item) {
+    this.item = item;
   }
 
   public void setMethod(Method method) {
@@ -74,25 +75,32 @@ public class IndexAction<K extends Serializable> extends QueueAction {
   @Override
   public void doExecute() {
     long start = System.currentTimeMillis();
-    if (this.getMethod().equals(Method.DELETE)) {
-      index.delete(this.getKey());
-    } else if (this.getMethod().equals(Method.INSERT)) {
-      index.insert(this.getKey());
-    } else if (this.getMethod().equals(Method.UPDATE)) {
-      index.update(this.getKey());
+    try {
+      if (this.getMethod().equals(Method.DELETE)) {
+        index.delete(this.getItem());
+      } else if (this.getMethod().equals(Method.INSERT)) {
+        index.insert(this.getItem());
+      } else if (this.getMethod().equals(Method.UPDATE)) {
+        index.update(this.getItem());
+      }
+      LOG.debug("Action {} in {} took {}ms", this.getMethod(),
+        this.getIndexName(), (System.currentTimeMillis() - start));
+    } catch (Exception e) {
+      LOG.error("Index {} cannot execute {} with {}", this.getIndexName(),
+        this.getMethod(), this.getItem().toString());
+    } catch (InvalidIndexActionException e) {
+      LOG.error("Index {} cannot execute {} with {}", this.getIndexName(),
+        this.getMethod(), this.getItem().toString());
     }
-    //TODO execute ACtion when DTO available
-    LOG.debug("Action {} in {} took {}ms", this.getMethod(),
-      this.getIndexName(), (System.currentTimeMillis() - start));
   }
 
   @SuppressWarnings("unchecked")
-  public void setIndex(Index<?> index) {
-    this.index = (Index<K>) index;
+  public void setIndex(Index index) {
+    this.index = index;
   }
 
   @Override
   public String toString(){
-    return "{IndexAction {key: " + getKey()+"}";
+    return "{IndexAction {key: " + getItem()+"}";
   }
 }

@@ -36,14 +36,14 @@ public class LocalQueueWorker extends ThreadPoolExecutor
 
   private static final Logger LOG = LoggerFactory.getLogger(LocalQueueWorker.class);
 
-  private Map<String, Index<?>> indexes;
+  private Map<String, Index> indexes;
 
-  public LocalQueueWorker(LocalNonBlockingWorkQueue queue, Index<?>... allIndexes) {
+  public LocalQueueWorker(LocalNonBlockingWorkQueue queue, Index... allIndexes) {
     super(10, 10, 500l, TimeUnit.MILLISECONDS, queue);
 
     // Save all instances of Index<?>
-    this.indexes = new HashMap<String, Index<?>>();
-    for (Index<?> index : allIndexes) {
+    this.indexes = new HashMap<String, Index>();
+    for (Index index : allIndexes) {
       this.indexes.put(index.getIndexName(), index);
     }
   }
@@ -52,7 +52,7 @@ public class LocalQueueWorker extends ThreadPoolExecutor
     LOG.debug("Starting task: {}",r);
     super.beforeExecute(t, r);
     if(r.getClass().isAssignableFrom(IndexAction.class)){
-      IndexAction<?> ia = (IndexAction<?>)r;
+      IndexAction ia = (IndexAction)r;
       LOG.trace("Task is an IndexAction for {}",ia.getIndexName());
       ia.setIndex(indexes.get(ia.getIndexName()));
     }
