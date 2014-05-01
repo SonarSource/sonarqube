@@ -173,6 +173,7 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
     QueryBuilder qb;
     if (query.getQueryText() != null && !query.getQueryText().isEmpty()) {
       qb = QueryBuilders.multiMatchQuery(query.getQueryText(),
+        "_id",
         RuleField.NAME.key(),
         RuleField.NAME.key()+".search",
         RuleField.DESCRIPTION.key(),
@@ -201,20 +202,25 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
       mainQuery = qb;
     }
     esSearch.setQuery(mainQuery);
+    System.out.println(mainQuery.toString());
 
     /* integrate Option's Fields */
-    if(options.getFieldsToReturn() == null ||
-      options.getFieldsToReturn().isEmpty()){
-      esSearch.addField("_all");
-    } else {
+    if (options.getFieldsToReturn() != null &&
+      !options.getFieldsToReturn().isEmpty()) {
       for(String field:options.getFieldsToReturn()) {
         esSearch.addField(field);
+      }
+    } else {
+      for (RuleField field : RuleField.values()) {
+        esSearch.addField(field.key());
       }
     }
 
 
     /* Get results */
     SearchResponse esResult = esSearch.get();
+
+    System.out.println(esResult);
 
     /* Integrate ES Results */
     Results results = new Results()

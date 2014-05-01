@@ -90,8 +90,10 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     indexField(RuleField.LANGUAGE.key(), rule.getLanguage(), document);
     indexField(RuleField.INTERNAL_KEY.key(), rule.getConfigKey(), document);
     indexField(RuleField.TEMPLATE.key(), rule.getCardinality() == Cardinality.MULTIPLE, document);
-    indexField(RuleField.TAGS.key(), rule.getName(), document);
-    indexField(RuleField.SYSTEM_TAGS.key(), rule.getName(), document);
+
+    //TODO get tags
+    indexField(RuleField.TAGS.key(), "", document);
+    indexField(RuleField.SYSTEM_TAGS.key(), "", document);
 
     // document.startArray("active");
     // for (ActiveRuleDto activeRule : activeRuleDao.selectByRuleId(rule.getId())) {
