@@ -130,6 +130,13 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
       .endObject();
   }
 
+  private void addFindField(XContentBuilder mapping, String field, String type) throws IOException {
+    mapping.startObject(field)
+      .field("type", type)
+      .field("index", "analyzed")
+      .endObject();
+  }
+
   @Override
   protected XContentBuilder getMapping() throws IOException {
     XContentBuilder mapping = jsonBuilder().startObject()
@@ -140,6 +147,7 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
     addMatchField(mapping, RuleField.KEY.key(), "string");
     addMatchField(mapping, RuleField.REPOSITORY.key(), "string");
     addMatchField(mapping, RuleField.SEVERITY.key(), "string");
+    addMatchField(mapping, RuleField.STATUS.key(), "string");
 
     mapping.startObject(RuleField.NAME.key())
         .field("type", "multi_field")
