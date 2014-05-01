@@ -35,6 +35,10 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
+import org.sonar.core.rule.RuleRuleTagDto;
+import org.sonar.core.rule.RuleTagDao;
+import org.sonar.core.rule.RuleTagDto;
+import org.sonar.core.rule.RuleTagType;
 import org.sonar.server.search.Hit;
 import org.sonar.server.tester.ServerTester;
 
@@ -129,8 +133,6 @@ public class RuleServiceMediumTest {
     assertThat(Iterables.getLast(rule.params(), null).key()).isEqualTo("max");
   }
 
-  //TODO test delete, update, tags, params
-
   @Test
   public void insert_and_index_activeRules() {
     DbSession dbSession = tester.get(MyBatis.class).openSession(false);
@@ -160,6 +162,60 @@ public class RuleServiceMediumTest {
 
     RuleService service = tester.get(RuleService.class);
     Rule rule = service.getByKey(ruleKey);
+  }
+
+  //TODO test delete, update, tags, params
+
+  @Test
+  public void insert_and_index_tags() {
+    DbSession dbSession = tester.get(MyBatis.class).openSession(false);
+    RuleTagDao ruleTagDao = tester.get(RuleTagDao.class);
+
+    // insert db
+    RuleKey ruleKey = RuleKey.of("javascript", "S001");
+    RuleDto ruleDto = newRuleDto(ruleKey);
+    dao.insert(ruleDto, dbSession);
+    RuleTagDto tag1 = new RuleTagDto()
+      .setTag("hello");
+    RuleTagDto tag2 = new RuleTagDto()
+      .setTag("world");
+    RuleTagDto tag3 = new RuleTagDto()
+      .setTag("AdMiN");
+    ruleTagDao.insert(tag1,dbSession);
+    ruleTagDao.insert(tag2,dbSession);
+    ruleTagDao.insert(tag3,dbSession);
+
+    RuleRuleTagDto rTag1 = new RuleRuleTagDto()
+      .setTagId(tag1.getId())
+      .setRuleId(ruleDto.getId())
+      .setType(RuleTagType.ADMIN);
+    RuleRuleTagDto rTag2 = new RuleRuleTagDto()
+      .setTagId(tag2.getId())
+      .setRuleId(ruleDto.getId())
+      .setType(RuleTagType.ADMIN);
+    RuleRuleTagDto rTag3 = new RuleRuleTagDto()
+      .setTagId(tag3.getId())
+      .setRuleId(ruleDto.getId())
+      .setType(RuleTagType.SYSTEM);
+    dao.insert(rTag1, dbSession);
+    dao.insert(rTag2, dbSession);
+    dao.insert(rTag3, dbSession);
+    dbSession.commit();
+
+    // verify that tags are persisted in db
+    List<RuleRuleTagDto> persistedDtos = dao.selectTagsByRuleId(ruleDto.getId());
+    assertThat(persistedDtos).hasSize(3);
+
+    // verify that tags are indexed in es
+    index.refresh();
+    Hit hit = index.getByKey(ruleKey);
+    assertThat(hit).isNotNull();
+    assertThat(hit.getField(RuleNormalizer.RuleField.TAGS.key())).isNotNull();
+
+    RuleService service = tester.get(RuleService.class);
+    Rule rule = service.getByKey(ruleKey);
+    assertThat(rule.tags()).containsExactly("hello","world");
+    assertThat(rule.systemTags()).containsExactly("AdMiN");
   }
 
 

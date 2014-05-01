@@ -27,9 +27,11 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.rule.RuleRuleTagDto;
+import org.sonar.core.rule.RuleTagType;
 import org.sonar.server.search.BaseNormalizer;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
@@ -149,29 +151,29 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
     /* Normalize the tags */
     List<RuleRuleTagDto> tags = ruleDao.selectTagsByRuleId(rule.getId());
-    if (!tags.isEmpty()) {
-      XContentBuilder sysTags = document.startArray(RuleField.SYSTEM_TAGS.key());
-      XContentBuilder adminTags = document.startArray(RuleField.TAGS.key());
-
+    if (tags != null && !tags.isEmpty()) {
+      ArrayList<String> sys = new ArrayList<String>();
+      ArrayList<String> admin = new ArrayList<String>();
       for (RuleRuleTagDto tag : tags) {
-        switch (tag.getType()) {
-          case SYSTEM:
-            sysTags.startObject(tag.getTag()).endObject();
-            break;
-          case ADMIN:
-            adminTags.startObject(tag.getTag()).endObject();
-            break;
+        if (tag.getType().equals(RuleTagType.SYSTEM)) {
+          sys.add(tag.getTag());
+        } else {
+          admin.add(tag.getTag());
         }
       }
-      sysTags.endArray();
-      adminTags.endArray();
+      if (!admin.isEmpty()) {
+        document.array(RuleField.TAGS.key(), admin.toArray(new String[admin.size()]));
+      }
+      if (!sys.isEmpty()) {
+        document.array(RuleField.SYSTEM_TAGS.key(), sys.toArray(new String[sys.size()]));
+      }
     }
 
     /* Normalize the params */
     List<RuleParamDto> params = ruleDao.selectParametersByRuleId(rule.getId());
     if (!params.isEmpty()) {
       document.startArray(RuleField.PARAMS.key());
-      for (RuleParamDto param :params) {
+      for (RuleParamDto param : params) {
         document.startObject();
         indexField(RuleParamField.NAME.key(), param.getName(), document);
         indexField(RuleParamField.TYPE.key(), param.getType(), document);
@@ -184,7 +186,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
     /* Normalize activeRules */
     List<ActiveRuleDto> activeRules = activeRuleDao.selectByRuleId(rule.getId());
-    if(!activeRules.isEmpty()) {
+    if (!activeRules.isEmpty()) {
       document.startArray(RuleField.ACTIVE.key());
       for (ActiveRuleDto activeRule : activeRules) {
         document.startObject();

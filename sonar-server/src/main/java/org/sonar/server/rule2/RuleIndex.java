@@ -170,12 +170,12 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
         .endObject()
       .endObject();
 
-    mapping.startObject("active")
+    mapping.startObject(RuleField.ACTIVE.key())
       .field("type", "nested")
       .field("dynamic", true)
       .endObject();
 
-    mapping.startObject("params")
+    mapping.startObject(RuleField.PARAMS.key())
       .field("type", "nested")
       .field("dynamic", true)
       .endObject();
