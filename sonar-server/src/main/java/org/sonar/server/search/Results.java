@@ -32,12 +32,14 @@ public class Results {
 
   private long time;
 
-  public Results() {
-    this.hits = new ArrayList<Hit>();
-  }
 
   public Collection<Hit> getHits() {
     return hits;
+  }
+
+  public Results setHits(Collection<Hit> hits) {
+    this.hits = hits;
+    return this;
   }
 
   public int getTotal() {

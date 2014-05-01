@@ -22,21 +22,23 @@ package org.sonar.server.search;
 import javax.annotation.CheckForNull;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class Hit implements Comparable<Hit> {
 
-  private Map<String, Object> fields;
+  private SortedMap<String, Object> fields;
 
   private Integer rank;
   private Float score;
 
   public Hit(Integer rank) {
-    this.fields = new HashMap<String, Object>();
+    this.fields = new TreeMap<String, Object>();
     this.rank = rank;
   }
 
   public Hit(Float score){
-    this.fields = new HashMap<String, Object>();
+    this.fields = new TreeMap<String, Object>();
     this.score = score;
   }
 
@@ -73,12 +75,20 @@ public class Hit implements Comparable<Hit> {
   }
 
   public static Hit fromMap(Integer rank, Map<String, Object> fieldMap) {
+    return fromMap(rank, new TreeMap<String, Object>(fieldMap));
+  }
+
+  public static Hit fromMap(Integer rank, SortedMap<String, Object> fieldMap) {
     Hit hit = new Hit(0);
     hit.fields = fieldMap;
     return hit;
   }
 
   public static Hit fromMap(float score, Map<String, Object> fieldMap) {
+    return fromMap(score, new TreeMap<String, Object>(fieldMap));
+  }
+
+  public static Hit fromMap(float score, SortedMap<String, Object> fieldMap) {
     Hit hit = new Hit(score);
     hit.fields = fieldMap;
     return hit;

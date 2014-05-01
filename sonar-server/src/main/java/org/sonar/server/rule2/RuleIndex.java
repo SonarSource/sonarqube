@@ -27,8 +27,6 @@ import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHitField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RuleKey;
@@ -39,13 +37,10 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.server.es.ESNode;
 import org.sonar.server.rule2.RuleNormalizer.RuleField;
 import org.sonar.server.search.BaseIndex;
-import org.sonar.server.search.Hit;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Results;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
@@ -170,6 +165,10 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
 
   public Results search(RuleQuery query, QueryOptions options) {
 
+    SearchRequestBuilder esSearch = getClient()
+      .prepareSearch(this.getIndexName())
+      .setIndices(this.getIndexName());
+
     /* Build main query (search based) */
     QueryBuilder qb;
     if (query.getQueryText() != null && !query.getQueryText().isEmpty()) {
@@ -186,55 +185,42 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
 
     /* Build main filter (match based) */
     BoolFilterBuilder fb = FilterBuilders.boolFilter();
-
     this.addTermFilter(RuleField.LANGUAGE.key(), query.getLanguages(), fb);
     this.addTermFilter(RuleField.REPOSITORY.key(), query.getRepositories(), fb);
     this.addTermFilter(RuleField.SEVERITY.key(), query.getSeverities(), fb);
     this.addTermFilter(RuleField.KEY.key(), query.getKey(), fb);
 
-
+    /* Integrate Query */
     QueryBuilder mainQuery;
-
     if((query.getLanguages() != null && !query.getLanguages().isEmpty()) ||
       (query.getRepositories() != null && !query.getRepositories().isEmpty()) ||
       (query.getSeverities() != null && !query.getSeverities().isEmpty()) ||
       (query.getKey() != null && !query.getKey().isEmpty())) {
-
       mainQuery = QueryBuilders.filteredQuery(qb, fb);
     } else {
       mainQuery = qb;
     }
+    esSearch.setQuery(mainQuery);
 
-    /* GetFields to return (defaults to *) */
-    Set<String> fields = new HashSet<String>();
-    fields.addAll(options.getFieldsToReturn());
-    fields.add(RuleField.KEY.key());
+    /* integrate Option's Fields */
+    if(options.getFieldsToReturn() == null ||
+      options.getFieldsToReturn().isEmpty()){
+      esSearch.addField("_all");
+    } else {
+      for(String field:options.getFieldsToReturn()) {
+        esSearch.addField(field);
+      }
+    }
 
-    /* Create ES query Object */
-    SearchRequestBuilder esSearch = getClient()
-      .prepareSearch(this.getIndexName())
-      .setQuery(mainQuery)
-      .addFields(fields.toArray(new String[fields.size()]));
 
-
+    /* Get results */
     SearchResponse esResult = esSearch.get();
 
-
+    /* Integrate ES Results */
     Results results = new Results()
       .setTotal((int) esResult.getHits().totalHits())
-      .setTime(esResult.getTookInMillis());
-
-    for (SearchHit esHit : esResult.getHits().getHits()) {
-      Hit hit = new Hit(esHit.score());
-      for (Map.Entry<String, SearchHitField> entry : esHit.fields().entrySet()) {
-        if (entry.getValue().getValues().size() > 1) {
-          hit.getFields().put(entry.getKey(), entry.getValue().getValues());
-        } else {
-          hit.getFields().put(entry.getKey(), entry.getValue().getValue());
-        }
-      }
-      results.getHits().add(hit);
-    }
+      .setTime(esResult.getTookInMillis())
+      .setHits(this.toHit(esResult.getHits()));
 
     return results;
   }

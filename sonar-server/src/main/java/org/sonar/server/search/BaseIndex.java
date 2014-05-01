@@ -28,6 +28,9 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHitField;
+import org.elasticsearch.search.SearchHits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.cluster.WorkQueue;
@@ -37,7 +40,10 @@ import org.sonar.server.es.ESNode;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implements Index<E, K> {
@@ -300,5 +306,21 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
       filter.must(FilterBuilders.termFilter(field, value));
     }
     return filter;
+  }
+
+  protected Collection<Hit> toHit(SearchHits hits){
+    List<Hit> results = new ArrayList<Hit>();
+    for (SearchHit esHit : hits.getHits()) {
+      Hit hit = new Hit(esHit.score());
+      for (Map.Entry<String, SearchHitField> entry : esHit.fields().entrySet()) {
+        if (entry.getValue().getValues().size() > 1) {
+          hit.getFields().put(entry.getKey(), entry.getValue().getValues());
+        } else {
+          hit.getFields().put(entry.getKey(), entry.getValue().getValue());
+        }
+      }
+      results.add(hit);
+    }
+    return results;
   }
 }
