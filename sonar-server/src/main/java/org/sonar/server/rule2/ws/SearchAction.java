@@ -52,8 +52,18 @@ public class SearchAction implements RequestHandler {
   private static final String PARAM_SEVERITIES = "severities";
   private static final String PARAM_STATUSES = "statuses";
   private static final String PARAM_LANGUAGES = "languages";
+  private static final String PARAM_DEBT_CHARACTERISTICS = "debtCharacteristics";
+  private static final String PARAM_HAS_DEBT_CHARACTERISTIC = "hasDebtCharacteristic";
   private static final String PARAM_TAGS = "tags";
+  private static final String PARAM_ALL_OF_TAGS = "allOfTags";
 
+
+  // generic search parameters
+  private static final String PARAM_PAGE = "p";
+  private static final String PARAM_PAGE_SIZE = "ps";
+  private static final String PARAM_FIELDS = "f";
+  private static final String PARAM_SORT = "s";
+  private static final String PARAM_ASCENDING = "asc";
 
   private final RuleService service;
 
@@ -85,13 +95,33 @@ public class SearchAction implements RequestHandler {
       .setExampleValue("CRITICAL,BLOCKER");
 
     action
+      .createParam(PARAM_LANGUAGES)
+      .setDescription("Comma-separated list of languages")
+      .setExampleValue("java,js");
+
+    action
       .createParam(PARAM_STATUSES)
       .setDescription("Comma-separated list of status codes")
       .setPossibleValues(RuleStatus.values())
       .setExampleValue(RuleStatus.READY.toString());
 
     action
-      .createParam("tags")
+      .createParam(PARAM_DEBT_CHARACTERISTICS)
+      .setDescription("Comma-separated list of technical debt characteristics or sub-characteristics")
+      .setExampleValue("RELIABILITY");
+
+    action
+      .createParam(PARAM_HAS_DEBT_CHARACTERISTIC)
+      .setDescription("Filter rules that have a technical debt characteristic")
+      .setPossibleValues("false", "true");
+
+    action
+      .createParam(PARAM_TAGS)
+      .setDescription("Comma-separated list of tags. Returned rules match any of the tags (OR operator)")
+      .setExampleValue("security,java8");
+
+    action
+      .createParam(PARAM_ALL_OF_TAGS)
       .setDescription("Comma-separated list of tags. Returned rules match all the tags (AND operator)")
       .setExampleValue("security,java8");
 
@@ -106,10 +136,34 @@ public class SearchAction implements RequestHandler {
       .setExampleValue("java:Sonar way");
 
     action
-      .createParam("fields")
+      .createParam(PARAM_FIELDS)
       .setDescription("Comma-separated list of the fields to be returned in response. All the fields are returned by default.")
       .setPossibleValues(RuleIndex.PUBLIC_FIELDS)
       .setExampleValue(String.format("%s,%s,%s", RuleNormalizer.RuleField.KEY, RuleNormalizer.RuleField.REPOSITORY, RuleNormalizer.RuleField.LANGUAGE));
+
+    action
+      .createParam(PARAM_PAGE)
+      .setDescription("1-based page number")
+      .setExampleValue("42")
+      .setDefaultValue("1");
+
+    action
+      .createParam(PARAM_PAGE_SIZE)
+      .setDescription("Page size. Must be greater than 0.")
+      .setExampleValue("10")
+      .setDefaultValue("25");
+
+    // TODO limit the fields to sort on + document possible values + default value ?
+    action
+      .createParam(PARAM_SORT)
+      .setDescription("Sort field")
+      .setExampleValue(RuleNormalizer.RuleField.LANGUAGE.key());
+
+    action
+      .createParam(PARAM_ASCENDING)
+      .setDescription("Ascending sort")
+      .setPossibleValues("false", "true")
+      .setDefaultValue("true");
   }
 
   @Override
@@ -120,9 +174,33 @@ public class SearchAction implements RequestHandler {
     query.setRepositories(request.paramAsStrings(PARAM_REPOSITORIES));
     query.setStatuses(toStatuses(request.paramAsStrings(PARAM_STATUSES)));
     query.setLanguages(request.paramAsStrings(PARAM_LANGUAGES));
+    query.setDebtCharacteristics(request.paramAsStrings(PARAM_DEBT_CHARACTERISTICS));
+    query.setHasDebtCharacteristic(request.paramAsBoolean(PARAM_HAS_DEBT_CHARACTERISTIC));
 
-    Results results = service.search(query, new QueryOptions());
-    JsonWriter json = response.newJsonWriter().beginObject().name("hits").beginArray();
+    // TODO move to QueryOptions ?
+    query.setSortField(RuleQuery.SortField.valueOfOrNull(request.param(PARAM_SORT)));
+    query.setAscendingSort(request.paramAsBoolean(PARAM_ASCENDING, true));
+
+    QueryOptions options = new QueryOptions();
+    options.setFieldsToReturn(request.paramAsStrings(PARAM_FIELDS));
+    options.setPage(
+      request.paramAsInt(PARAM_PAGE, 1),
+      request.paramAsInt(PARAM_PAGE_SIZE, 25));
+
+    Results results = service.search(query, options);
+    JsonWriter json = response.newJsonWriter().beginObject();
+    writeStatistics(results, json);
+    writeHits(results, json);
+    json.close();
+  }
+
+  private void writeStatistics(Results results, JsonWriter json) {
+    json.prop("total", results.getTotal());
+    json.prop("time", results.getTime());
+  }
+
+  private void writeHits(Results results, JsonWriter json) {
+    json.name("hits").beginArray();
     for (Hit hit : results.getHits()) {
       json.beginObject();
       for (Map.Entry<String, Object> entry : hit.getFields().entrySet()) {
@@ -132,7 +210,7 @@ public class SearchAction implements RequestHandler {
       json.endObject();
     }
     json.endArray();
-    json.endObject().close();
+    json.endObject();
   }
 
   @CheckForNull

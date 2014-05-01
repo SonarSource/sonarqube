@@ -25,6 +25,7 @@ import com.google.common.collect.Sets;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,15 +37,12 @@ public class QueryOptions {
 
   public static final int DEFAULT_OFFSET = 0;
   public static final int DEFAULT_LIMIT = 10;
-  public static final boolean DEFAULT_ASCENDING = true;
 
   private int offset = DEFAULT_OFFSET;
   private int limit = DEFAULT_LIMIT;
-  private boolean ascending = DEFAULT_ASCENDING;
-  private String sortField;
   private Set<String> fieldsToReturn;
 
-  public QueryOptions(){
+  public QueryOptions() {
     fieldsToReturn = new HashSet<String>();
   }
 
@@ -65,6 +63,17 @@ public class QueryOptions {
   }
 
   /**
+   * Set offset and limit according to page approach
+   */
+  public QueryOptions setPage(int page, int pageSize) {
+    Preconditions.checkArgument(page > 0, "Page must be positive");
+    Preconditions.checkArgument(pageSize >= 0, "Page size must be positive or greater than 0");
+    this.offset = (page * pageSize) - pageSize;
+    this.limit = pageSize;
+    return this;
+  }
+
+  /**
    * Limit on the number of results to return. Defaults to {@link #DEFAULT_LIMIT}.
    */
   public int getLimit() {
@@ -79,35 +88,13 @@ public class QueryOptions {
     return this;
   }
 
-  /**
-   * Is ascending sort ? Defaults to {@link #DEFAULT_ASCENDING}
-   */
-  public boolean isAscending() {
-    return ascending;
-  }
-
-  public QueryOptions setAscending(boolean ascending) {
-    this.ascending = ascending;
-    return this;
-  }
-
-  @CheckForNull
-  public String getSortField() {
-    return sortField;
-  }
-
-  public QueryOptions setSortField(@Nullable String sortField) {
-    this.sortField = sortField;
-    return this;
-  }
-
   @CheckForNull
   public Set<String> getFieldsToReturn() {
     return fieldsToReturn;
   }
 
-  public QueryOptions setFieldsToReturn(@Nullable Set<String> c) {
-    this.fieldsToReturn = c;
+  public QueryOptions setFieldsToReturn(@Nullable Collection<String> c) {
+    this.fieldsToReturn = (c == null ? null : Sets.newHashSet(c));
     return this;
   }
 
@@ -118,6 +105,15 @@ public class QueryOptions {
       } else {
         fieldsToReturn.addAll(c);
       }
+    }
+    return this;
+  }
+
+  public QueryOptions addFieldsToReturn(String... c) {
+    if (fieldsToReturn == null) {
+      fieldsToReturn = Sets.newHashSet(c);
+    } else {
+      fieldsToReturn.addAll(Arrays.asList(c));
     }
     return this;
   }

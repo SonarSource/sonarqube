@@ -164,7 +164,7 @@ public class WebServiceEngineTest {
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "fail_with_undeclared_parameter");
 
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Parameter 'unknown' is undefined for action 'fail_with_undeclared_parameter'\"}]}");
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"BUG - parameter 'unknown' is undefined for action 'fail_with_undeclared_parameter'\"}]}");
   }
 
   @Test

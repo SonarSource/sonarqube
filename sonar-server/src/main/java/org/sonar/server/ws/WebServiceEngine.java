@@ -126,7 +126,9 @@ public class WebServiceEngine implements ServerComponent, Startable {
       public String param(String key) {
         Param paramDef = action.param(key);
         if (paramDef == null) {
-          throw new BadRequestException(String.format("Parameter '%s' is undefined for action '%s'", key, action.key()));
+          String message = String.format("BUG - parameter '%s' is undefined for action '%s'", key, action.key());
+          LoggerFactory.getLogger(getClass()).error(message);
+          throw new IllegalStateException(message);
         }
         String value = StringUtils.defaultString(super.param(key), paramDef.defaultValue());
 

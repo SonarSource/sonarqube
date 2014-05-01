@@ -30,7 +30,38 @@ import java.util.Collection;
 public class RuleQuery {
 
   public static enum SortField {
-    NAME, CREATED_AT
+    KEY(RuleNormalizer.RuleField.KEY),
+    REPOSITORY(RuleNormalizer.RuleField.REPOSITORY),
+    NAME(RuleNormalizer.RuleField.NAME),
+    CREATED_AT(RuleNormalizer.RuleField.CREATED_AT),
+    DESCRIPTION(RuleNormalizer.RuleField.DESCRIPTION),
+    SEVERITY(RuleNormalizer.RuleField.SEVERITY),
+    STATUS(RuleNormalizer.RuleField.STATUS),
+    LANGUAGE(RuleNormalizer.RuleField.LANGUAGE);
+
+    private final RuleNormalizer.RuleField field;
+
+    private SortField(RuleNormalizer.RuleField field) {
+      this.field = field;
+    }
+
+    RuleNormalizer.RuleField field() {
+      return field;
+    }
+
+    @Override
+    public String toString() {
+      return field.toString();
+    }
+
+    /**
+     * Same than {@link #valueOf(String)} but returns <code>null</code> if parameter
+     * is <code>null</code>
+     */
+    @CheckForNull
+    public static SortField valueOfOrNull(@Nullable String s) {
+      return s == null ? null : valueOf(s);
+    }
   }
 
   private String key;

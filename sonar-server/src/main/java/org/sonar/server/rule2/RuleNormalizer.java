@@ -37,7 +37,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
   private RuleDao ruleDao;
 
-  public enum RuleField {
+  public static enum RuleField {
     KEY("key"),
     REPOSITORY("repo"),
     NAME("name"),

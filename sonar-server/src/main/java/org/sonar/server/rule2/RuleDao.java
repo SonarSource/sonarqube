@@ -26,7 +26,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.db.UnsuportedException;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleConstants;
@@ -37,7 +36,6 @@ import org.sonar.core.rule.RuleRuleTagDto;
 import org.sonar.server.db.BaseDao;
 
 import javax.annotation.CheckForNull;
-
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
@@ -77,12 +75,12 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
 
   @Override
   protected void doDelete(RuleDto item, SqlSession session) {
-    throw new UnsuportedException("Rules cannot be deleted");
+    throw new UnsupportedOperationException("Rules cannot be deleted");
   }
 
   @Override
   protected void doDeleteByKey(RuleKey key, SqlSession session) {
-    throw new UnsuportedException("Rules cannot be deleted");
+    throw new UnsupportedOperationException("Rules cannot be deleted");
   }
 
   public List<RuleDto> selectAll() {
