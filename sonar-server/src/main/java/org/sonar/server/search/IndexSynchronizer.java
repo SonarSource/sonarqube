@@ -51,7 +51,7 @@ public class IndexSynchronizer<K extends Serializable> {
       if (LOG.isTraceEnabled()) {
         LOG.trace("Adding {} to workQueue for {}", key, index.getClass().getSimpleName());
       }
-      workQueue.enqueue(new IndexAction(index.getIndexName(), IndexAction.Method.INSERT, key));
+      workQueue.enqueue(new KeyIndexAction<K>(index.getIndexName(), IndexAction.Method.INSERT, key));
     }
 
     return this;

@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 public class LocalNonBlockingWorkQueue extends LinkedBlockingQueue<Runnable>
   implements ServerComponent, WorkQueue {
 
+
   public LocalNonBlockingWorkQueue() {
     super();
   }

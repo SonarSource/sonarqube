@@ -19,6 +19,7 @@
  */
 package org.sonar.server.search;
 
+import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,19 +30,34 @@ import java.io.Serializable;
 
 public abstract class BaseNormalizer<E extends Dto<K>, K extends Serializable> {
 
-  public abstract XContentBuilder normalize(K key) throws IOException;
+  public boolean canNormalize(Class<?> objectClass, Class<?> keyClass) {
+    try {
+      return this.getClass().getMethod("normalize", objectClass, keyClass) != null;
+    } catch (NoSuchMethodException e) {
+      return false;
+    }
+  }
 
-  public abstract XContentBuilder normalize(E dto) throws IOException;
+  public UpdateRequest normalizeOther(Object object, K key) throws Exception {
+    return (UpdateRequest) this.getClass()
+      .getMethod("normalize", object.getClass(), key.getClass())
+      .invoke(this, object, key);
+  }
+
+  public abstract UpdateRequest normalize(K key) throws IOException;
+
+  public abstract UpdateRequest normalize(E dto) throws IOException;
 
   private static final Logger LOG = LoggerFactory.getLogger(BaseNormalizer.class);
 
-  protected void indexField(String field, Object value, XContentBuilder document){
+  protected void indexField(String field, Object value, XContentBuilder document) {
     try {
-      document.field(field,value);
+      document.field(field, value);
     } catch (IOException e) {
       LOG.error("Could not set {} to {} in ESDocument", field, value);
     }
   }
+
 
 //  protected void indexField(Fields field, Object dto, XContentBuilder document) {
 //    try {
@@ -75,8 +91,6 @@ public abstract class BaseNormalizer<E extends Dto<K>, K extends Serializable> {
 //  }
 //  return null;
 //}
-
-
 
 
 }

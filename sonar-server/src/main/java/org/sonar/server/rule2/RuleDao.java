@@ -34,6 +34,9 @@ import org.sonar.core.rule.RuleMapper;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.rule.RuleRuleTagDto;
 import org.sonar.server.db.BaseDao;
+import org.sonar.server.search.DtoIndexAction;
+import org.sonar.server.search.EmbeddedIndexAction;
+import org.sonar.server.search.IndexAction;
 
 import javax.annotation.CheckForNull;
 import java.sql.Timestamp;
@@ -174,6 +177,8 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
     DbSession session = mybatis.openSession(true);
     try {
       for (RuleDto rule : rules) {
+        session.enqueue(new DtoIndexAction<RuleDto>(this.getIndexName(),
+          IndexAction.Method.INSERT, rule));
         getMapper(session).batchInsert(rule);
       }
       session.commit();
@@ -230,12 +235,15 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
     return dtos;
   }
 
-  public void insert(RuleParamDto param, SqlSession session) {
+  public void insert(RuleParamDto param, DbSession session) {
     getMapper(session).insertParameter(param);
+    session.enqueue(new EmbeddedIndexAction<RuleKey>(this.getIndexName(),
+      IndexAction.Method.INSERT, param,
+      this.selectById(param.getRuleId(), session).getKey()));
   }
 
   public void insert(RuleParamDto param) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       insert(param, session);
       session.commit();
@@ -244,12 +252,15 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
     }
   }
 
-  public void update(RuleParamDto param, SqlSession session) {
+  public void update(RuleParamDto param, DbSession session) {
     getMapper(session).updateParameter(param);
+    session.enqueue(new EmbeddedIndexAction<RuleKey>(this.getIndexName(),
+      IndexAction.Method.UPDATE, param,
+      this.selectById(param.getRuleId(), session).getKey()));
   }
 
   public void update(RuleParamDto param) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       update(param, session);
       session.commit();
@@ -271,20 +282,33 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
   // Methods for Rule Tags
   // ***************************
 
-  public void insert(RuleRuleTagDto newTag, SqlSession session) {
+  public void insert(RuleRuleTagDto newTag, DbSession session) {
+    System.out.println("newTag = [" + newTag + "], session = [" + session + "]");
     getMapper(session).insertTag(newTag);
+    session.enqueue(new EmbeddedIndexAction<RuleKey>(this.getIndexName(),
+      IndexAction.Method.INSERT, newTag,
+      this.selectById(newTag.getRuleId(), session).getKey()));
   }
 
-  public void deleteParam(RuleParamDto persistedParam, SqlSession sqlSession) {
-    getMapper(sqlSession).deleteParameter(persistedParam.getId());
+  public void deleteParam(RuleParamDto persistedParam, DbSession session) {
+    getMapper(session).deleteParameter(persistedParam.getId());
+    session.enqueue(new EmbeddedIndexAction<RuleKey>(this.getIndexName(),
+      IndexAction.Method.DELETE, persistedParam,
+      this.selectById(persistedParam.getRuleId(), session).getKey()));
   }
 
-  public void deleteTag(RuleRuleTagDto tagToDelete, SqlSession session) {
+  public void deleteTag(RuleRuleTagDto tagToDelete, DbSession session) {
     getMapper(session).deleteTag(tagToDelete.getId().intValue());
+    session.enqueue(new EmbeddedIndexAction<RuleKey>(this.getIndexName(),
+      IndexAction.Method.DELETE, tagToDelete,
+      this.selectById(tagToDelete.getRuleId(), session).getKey()));
   }
 
-  public void update(RuleRuleTagDto existingTag, SqlSession session) {
+  public void update(RuleRuleTagDto existingTag, DbSession session) {
     getMapper(session).updateTag(existingTag);
+    session.enqueue(new EmbeddedIndexAction<RuleKey>(this.getIndexName(),
+      IndexAction.Method.UPDATE, existingTag,
+      this.selectById(existingTag.getRuleId(), session).getKey()));
   }
 
   public List<RuleRuleTagDto> selectTags(SqlSession session) {

@@ -103,6 +103,8 @@ public class RuleServiceMediumTest {
     RuleKey ruleKey = RuleKey.of("javascript", "S001");
     RuleDto ruleDto = newRuleDto(ruleKey);
     dao.insert(ruleDto, dbSession);
+    dbSession.commit();
+
     RuleParamDto minParamDto = new RuleParamDto()
       .setRuleId(ruleDto.getId())
       .setName("min")
@@ -163,7 +165,6 @@ public class RuleServiceMediumTest {
     assertThat(hit).isNotNull();
     assertThat(hit.getField(RuleNormalizer.RuleField.ACTIVE.key())).isNotNull();
 
-
     RuleService service = tester.get(RuleService.class);
     Rule rule = service.getByKey(ruleKey);
   }
@@ -177,11 +178,17 @@ public class RuleServiceMediumTest {
     RuleDto ruleDto = newRuleDto(ruleKey);
     dao.insert(ruleDto, dbSession);
 
-    RuleParamDto ruleParam = new RuleParamDto()
+    RuleParamDto minParam = new RuleParamDto()
       .setRuleId(ruleDto.getId())
-      .setName("test")
+      .setName("min")
       .setType("STRING");
-    dao.insert(ruleParam);
+    dao.insert(minParam, dbSession);
+
+    RuleParamDto maxParam = new RuleParamDto()
+      .setRuleId(ruleDto.getId())
+      .setName("max")
+      .setType("STRING");
+    dao.insert(maxParam, dbSession);
 
 
     ActiveRuleDto activeRule = new ActiveRuleDto()
@@ -191,32 +198,46 @@ public class RuleServiceMediumTest {
       .setSeverity(Severity.BLOCKER);
     activeRuleDao.insert(activeRule, dbSession);
 
-    ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto()
+    ActiveRuleParamDto activeRuleMinParam = new ActiveRuleParamDto()
       .setActiveRuleId(activeRule.getId())
-      .setKey(ruleParam.getName())
-      .setValue("world")
-      .setRulesParameterId(ruleParam.getId());
-    activeRuleDao.insert(activeRuleParam, dbSession);
+      .setKey(minParam.getName())
+      .setValue("minimum")
+      .setRulesParameterId(minParam.getId());
+    activeRuleDao.insert(activeRuleMinParam, dbSession);
+
+    ActiveRuleParamDto activeRuleMaxParam = new ActiveRuleParamDto()
+      .setActiveRuleId(activeRule.getId())
+      .setKey(maxParam.getName())
+      .setValue("maximum")
+      .setRulesParameterId(maxParam.getId());
+    activeRuleDao.insert(activeRuleMaxParam, dbSession);
 
     dbSession.commit();
 
     // verify that activeRulesParams are persisted in db
     List<ActiveRuleParamDto> persistedDtos = activeRuleDao.selectParamsByActiveRuleId(activeRule.getId());
-    assertThat(persistedDtos).hasSize(1);
+    assertThat(persistedDtos).hasSize(2);
 
     // verify that activeRulesParams are indexed in es
     index.refresh();
     Hit hit = index.getByKey(ruleKey);
     assertThat(hit).isNotNull();
 
-    //Check that we have an ActiveRuleParam
-    List<Map<String, Object>> activeRules = (List<Map<String, Object>>) hit.getField(RuleNormalizer.RuleField.ACTIVE.key());
-    assertThat(Iterables.getFirst(activeRules, null).get(RuleNormalizer.ActiveRuleField.PARAMS.key())).isNotNull();
-
-    List<Map<String, String>> params = (List<Map<String, String>>) activeRules.get(0).get(RuleNormalizer.ActiveRuleField.PARAMS.key());
-    assertThat(Iterables.getFirst(params,null).get(RuleNormalizer.RuleParamField.NAME.key())).isEqualTo(ruleParam.getName());
-
     index.search(new RuleQuery(), new QueryOptions());
+
+    Map<String, Map> _activeRules = (Map<String, Map>) hit.getField(RuleNormalizer.RuleField.ACTIVE.key());
+    assertThat(_activeRules).isNotNull().hasSize(1);
+
+    Map<String, Object> _activeRule = (Map<String, Object>) Iterables.getFirst(_activeRules.values(),null);
+    assertThat(_activeRule.get(RuleNormalizer.RuleField.SEVERITY.key())).isEqualTo(Severity.BLOCKER);
+
+    Map<String, Map> _activeRuleParams = (Map<String, Map>) _activeRule.get(RuleNormalizer.RuleField.PARAMS.key());
+    assertThat(_activeRuleParams).isNotNull().hasSize(2);
+
+    Map<String, String> _activeRuleParamValue = (Map<String, String>) _activeRuleParams.get(maxParam.getName());
+    assertThat(_activeRuleParamValue).isNotNull().hasSize(1);
+    assertThat(_activeRuleParamValue.get(RuleNormalizer.RuleParamField.VALUE.key())).isEqualTo("maximum");
+
   }
 
   //TODO test delete, update, tags, params
@@ -230,26 +251,32 @@ public class RuleServiceMediumTest {
     RuleKey ruleKey = RuleKey.of("javascript", "S001");
     RuleDto ruleDto = newRuleDto(ruleKey);
     dao.insert(ruleDto, dbSession);
+    dbSession.commit();
+
     RuleTagDto tag1 = new RuleTagDto()
       .setTag("hello");
     RuleTagDto tag2 = new RuleTagDto()
       .setTag("world");
     RuleTagDto tag3 = new RuleTagDto()
       .setTag("AdMiN");
-    ruleTagDao.insert(tag1,dbSession);
-    ruleTagDao.insert(tag2,dbSession);
+    ruleTagDao.insert(tag1, dbSession);
+    ruleTagDao.insert(tag2, dbSession);
     ruleTagDao.insert(tag3, dbSession);
+    dbSession.commit();
 
     RuleRuleTagDto rTag1 = new RuleRuleTagDto()
       .setTagId(tag1.getId())
+      .setTag(tag1.getTag())
       .setRuleId(ruleDto.getId())
       .setType(RuleTagType.ADMIN);
     RuleRuleTagDto rTag2 = new RuleRuleTagDto()
       .setTagId(tag2.getId())
+      .setTag(tag2.getTag())
       .setRuleId(ruleDto.getId())
       .setType(RuleTagType.ADMIN);
     RuleRuleTagDto rTag3 = new RuleRuleTagDto()
       .setTagId(tag3.getId())
+      .setTag(tag3.getTag())
       .setRuleId(ruleDto.getId())
       .setType(RuleTagType.SYSTEM);
     dao.insert(rTag1, dbSession);
@@ -261,8 +288,11 @@ public class RuleServiceMediumTest {
     List<RuleRuleTagDto> persistedDtos = dao.selectTagsByRuleId(ruleDto.getId());
     assertThat(persistedDtos).hasSize(3);
 
+
     // verify that tags are indexed in es
     index.refresh();
+
+    index.search(new RuleQuery(), new QueryOptions());
     Hit hit = index.getByKey(ruleKey);
     assertThat(hit).isNotNull();
     assertThat(hit.getField(RuleNormalizer.RuleField.TAGS.key())).isNotNull();

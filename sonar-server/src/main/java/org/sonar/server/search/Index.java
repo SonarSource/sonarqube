@@ -23,7 +23,6 @@ import org.picocontainer.Startable;
 import org.sonar.core.db.Dto;
 
 import javax.annotation.CheckForNull;
-
 import java.io.Serializable;
 
 public interface Index<E extends Dto<K>, K extends Serializable> extends Startable {
@@ -35,23 +34,23 @@ public interface Index<E extends Dto<K>, K extends Serializable> extends Startab
 
   void refresh();
 
-  void insert(Object obj) throws InvalidIndexActionException;
+  void insert(Object obj, K key) throws Exception;
 
   void insertByKey(K key);
 
-  void insertByDto(E item);
+  void insertByDto(E dto);
 
-  void update(Object obj) throws InvalidIndexActionException;
+  void update(Object obj, K key) throws Exception;
 
   void updateByKey(K key);
 
-  void updateByDto(E item);
+  void updateByDto(E dto);
 
-  void delete(Object obj) throws InvalidIndexActionException;
+  void delete(Object obj, K key) throws Exception;
 
   void deleteByKey(K key);
 
-  void deleteByDto(E item);
+  void deleteByDto(E dto);
 
   Long getLastSynchronization();
 

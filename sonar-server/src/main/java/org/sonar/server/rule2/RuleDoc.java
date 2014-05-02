@@ -27,7 +27,6 @@ import org.sonar.server.rule2.RuleNormalizer.RuleField;
 import org.sonar.server.search.Hit;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -99,8 +98,8 @@ class RuleDoc implements Rule {
   public List<RuleParam> params() {
     List<RuleParam> params = new ArrayList<RuleParam>();
     if(this.fields.get(RuleField.PARAMS.key()) != null) {
-      Collection<Map<String, Object>> esParams = (Collection<Map<String, Object>>) this.fields.get(RuleField.PARAMS.key());
-      for (final Map<String, Object> param : esParams) {
+      Map<String, Map<String, Object>> esParams = (Map<String, Map<String, Object>>) this.fields.get(RuleField.PARAMS.key());
+      for (final Map<String, Object> param : esParams.values()) {
         params.add(new RuleParam() {
           {
             this.fields = param;

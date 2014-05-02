@@ -24,7 +24,9 @@ import org.sonar.core.db.Dao;
 import org.sonar.core.db.Dto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.server.search.DtoIndexAction;
 import org.sonar.server.search.IndexAction;
+import org.sonar.server.search.KeyIndexAction;
 
 import java.io.Serializable;
 
@@ -66,7 +68,7 @@ public abstract class BaseDao<E extends Dto<K>, K extends Serializable>
   @Override
   public E update(E item, DbSession session) {
     this.doUpdate(item, session);
-    session.enqueue(new IndexAction(this.getIndexName(),
+    session.enqueue(new DtoIndexAction<E>(this.getIndexName(),
       IndexAction.Method.UPDATE, item));
     return item;
   }
@@ -86,7 +88,7 @@ public abstract class BaseDao<E extends Dto<K>, K extends Serializable>
   @Override
   public E insert(E item, DbSession session) {
     this.doInsert(item, session);
-    session.enqueue(new IndexAction(this.getIndexName(),
+    session.enqueue(new DtoIndexAction<E>(this.getIndexName(),
       IndexAction.Method.INSERT, item));
     return item;
   }
@@ -105,8 +107,8 @@ public abstract class BaseDao<E extends Dto<K>, K extends Serializable>
 
   @Override
   public void delete(E item, DbSession session) {
-    session.enqueue(new IndexAction(this.getIndexName(),
-      IndexAction.Method.DELETE, item.getKey()));
+    session.enqueue(new DtoIndexAction<E>(this.getIndexName(),
+      IndexAction.Method.DELETE, item));
     this.doDelete(item, session);
   }
 
@@ -123,7 +125,7 @@ public abstract class BaseDao<E extends Dto<K>, K extends Serializable>
 
   @Override
   public void deleteByKey(K key, DbSession session) {
-    session.enqueue(new IndexAction(this.getIndexName(),
+    session.enqueue(new KeyIndexAction<K>(this.getIndexName(),
       IndexAction.Method.DELETE, key));
     this.doDeleteByKey(key, session);
   }

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule2;
 
+import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Cardinality;
@@ -28,14 +29,12 @@ import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.rule.RuleRuleTagDto;
+import org.sonar.core.rule.RuleTagDao;
 import org.sonar.core.rule.RuleTagType;
 import org.sonar.server.search.BaseNormalizer;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
@@ -43,6 +42,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
   private final RuleDao ruleDao;
   private final ActiveRuleDao activeRuleDao;
+  private final RuleTagDao ruleTagDao;
 
   public static enum RuleField {
     KEY("key"),
@@ -127,18 +127,19 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     }
   }
 
-  public RuleNormalizer(RuleDao ruleDao, ActiveRuleDao activeRuleDao) {
+  public RuleNormalizer(RuleDao ruleDao, ActiveRuleDao activeRuleDao, RuleTagDao ruleTagDao) {
     this.ruleDao = ruleDao;
     this.activeRuleDao = activeRuleDao;
+    this.ruleTagDao = ruleTagDao;
   }
 
   @Override
-  public XContentBuilder normalize(RuleKey key) throws IOException {
+  public UpdateRequest normalize(RuleKey key) throws IOException {
     return normalize(ruleDao.getByKey(key));
   }
 
   @Override
-  public XContentBuilder normalize(RuleDto rule) throws IOException {
+  public UpdateRequest normalize(RuleDto rule) throws IOException {
     XContentBuilder document = jsonBuilder().startObject();
     indexField(RuleField.KEY.key(), rule.getRuleKey(), document);
     indexField(RuleField.REPOSITORY.key(), rule.getRepositoryKey(), document);
@@ -152,47 +153,16 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     indexField(RuleField.INTERNAL_KEY.key(), rule.getConfigKey(), document);
     indexField(RuleField.TEMPLATE.key(), rule.getCardinality() == Cardinality.MULTIPLE, document);
 
-
-    /* Normalize the tags */
-    List<RuleRuleTagDto> tags = ruleDao.selectTagsByRuleId(rule.getId());
-    ArrayList<String> sys = new ArrayList<String>();
-    ArrayList<String> admin = new ArrayList<String>();
-    if (tags != null && !tags.isEmpty()) {
-      for (RuleRuleTagDto tag : tags) {
-        if (tag.getType().equals(RuleTagType.SYSTEM)) {
-          sys.add(tag.getTag());
-        } else {
-          admin.add(tag.getTag());
-        }
-      }
-    }
-    document.array(RuleField.TAGS.key(), admin.toArray(new String[admin.size()]));
-    document.array(RuleField.SYSTEM_TAGS.key(), sys.toArray(new String[sys.size()]));
-
-
-    /* Normalize the params */
-    List<RuleParamDto> params = ruleDao.selectParametersByRuleId(rule.getId());
-    Map<Integer, String> paramIdNameLookup = new HashMap<Integer, String>();
-    document.startArray(RuleField.PARAMS.key());
-    if (!params.isEmpty()) {
-      for (RuleParamDto param : params) {
-        paramIdNameLookup.put(param.getId(), param.getName());
-        document.startObject();
-        indexField(RuleParamField.NAME.key(), param.getName(), document);
-        indexField(RuleParamField.TYPE.key(), param.getType(), document);
-        indexField(RuleParamField.DESCRIPTION.key(), param.getDescription(), document);
-        indexField(RuleParamField.VALUE.key(), param.getDefaultValue(), document);
-        document.endObject();
-      }
-    }
-    document.endArray();
+    document.startArray(RuleField.TAGS.key()).endArray();
+    document.startArray(RuleField.SYSTEM_TAGS.key()).endArray();
+    document.startObject(RuleField.PARAMS.key()).endObject();
 
     /* Normalize activeRules */
     List<ActiveRuleDto> activeRules = activeRuleDao.selectByRuleId(rule.getId());
-    document.startArray(RuleField.ACTIVE.key());
+    document.startObject(RuleField.ACTIVE.key());
     if (!activeRules.isEmpty()) {
       for (ActiveRuleDto activeRule : activeRules) {
-        document.startObject();
+        document.startObject(activeRule.getProfileId().toString());
         indexField(ActiveRuleField.OVERRIDE.key(), activeRule.doesOverride(), document);
         indexField(ActiveRuleField.INHERITANCE.key(), activeRule.getInheritance(), document);
         indexField(ActiveRuleField.NOTE_CREATED.key(), activeRule.getNoteCreatedAt(), document);
@@ -206,21 +176,54 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
         /* Get all activeRuleParams */
         List<ActiveRuleParamDto> activeRuleParams = activeRuleDao.selectParamsByActiveRuleId(activeRule.getId());
         if(!activeRuleParams.isEmpty()) {
-          document.startArray(ActiveRuleField.PARAMS.key());
+          document.startObject(ActiveRuleField.PARAMS.key());
           for (ActiveRuleParamDto param : activeRuleParams) {
-            document.startObject();
-            indexField(RuleParamField.NAME.key(), param.getKey(), document);
+            document.startObject(param.getKey());
             indexField(RuleParamField.VALUE.key(), param.getValue(), document);
             document.endObject();
           }
-          document.endArray();
+          document.endObject();
         }
         document.endObject();
       }
     }
-    document.endArray();
+    document.endObject();
 
     /* Done normalizing for Rule */
-    return document.endObject();
+    document.endObject();
+
+    /* Creating updateRequest */
+    UpdateRequest request =  new UpdateRequest().doc(document);
+    request.docAsUpsert(true);
+    return request;
+  }
+
+  public UpdateRequest normalize(RuleParamDto param, RuleKey key) throws IOException {
+     /* Normalize the params */
+    XContentBuilder document = jsonBuilder().startObject();
+    document.startObject(RuleField.PARAMS.key());
+    document.startObject(param.getName());
+    indexField(RuleParamField.NAME.key(), param.getName(), document);
+    indexField(RuleParamField.TYPE.key(), param.getType(), document);
+    indexField(RuleParamField.DESCRIPTION.key(), param.getDescription(), document);
+    indexField(RuleParamField.VALUE.key(), param.getDefaultValue(), document);
+    document.endObject();
+    document.endObject();
+
+    /* Creating updateRequest */
+    UpdateRequest request =  new UpdateRequest().doc(document);
+    request.docAsUpsert(true);
+    return request;
+
+  }
+
+  public UpdateRequest normalize(RuleRuleTagDto tag, RuleKey key) throws IOException {
+    String field = RuleField.TAGS.key();
+    if(tag.getType().equals(RuleTagType.SYSTEM)){
+      field = RuleField.SYSTEM_TAGS.key();
+    }
+    return new UpdateRequest()
+      .script("ctx._source."+field+" += tag")
+      .addScriptParam("tag",tag.getTag());
   }
 }
