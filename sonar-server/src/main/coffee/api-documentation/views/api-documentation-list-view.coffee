@@ -11,7 +11,6 @@ define [
     className: 'navigator-results-list'
     itemView: ApiDocumentationWebServiceView
 
-
     itemViewOptions: (model) ->
       app: @options.app
       highlighted: model.get('path') == @highlighted

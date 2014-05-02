@@ -46,17 +46,23 @@ requirejs [
     else
       App.layout.detailsRegion.reset()
 
+  App.refresh = ->
+    App.apiDocumentationListView = new ApiDocumentationListView
+      collection: App.webServices
+      app: App
+    App.layout.resultsRegion.reset()
+    App.layout.resultsRegion.show App.apiDocumentationListView
+    if (Backbone.history.fragment)
+      App.router.show Backbone.history.fragment, trigger: true
+
   # Construct layout
   App.addInitializer ->
-    @layout = new ApiDocumentationLayout app: @
+    @layout = new ApiDocumentationLayout app: App
     jQuery('#body').append @layout.render().el
 
   # Construct sidebar
   App.addInitializer ->
-    @apiDocumentationListView = new ApiDocumentationListView
-      collection: @webServices
-      app: @
-    @layout.resultsRegion.show @apiDocumentationListView
+    App.refresh()
 
   # Start router
   App.addInitializer ->

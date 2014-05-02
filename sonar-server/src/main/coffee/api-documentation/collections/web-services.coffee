@@ -9,11 +9,22 @@ define [
   class WebServices extends Backbone.Collection
     model: WebService
 
+    initialize: ->
+      @includeInternals = false
+
     url: ->
-      "#{baseUrl}/api/webservices/list"
+      "#{baseUrl}/api/webservices/list?includeInternals=#{@includeInternals}"
 
     parse: (r) ->
       r.webServices.map (webService) ->
         _.extend webService
 
     comparator: (item) -> item.get('path')
+
+    toggleInternals: ->
+      if @includeInternals
+        @includeInternals = false
+      else
+        @includeInternals = true
+
+      @.fetch()
