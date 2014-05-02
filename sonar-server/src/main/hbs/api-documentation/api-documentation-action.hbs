@@ -18,8 +18,20 @@
   	</td<>
   	<td>
   		<p>{{description}}</p>
+  		{{#if possibleValues}}
+  		<p>
+  		<em>Possible values:</em>
+  		<ul>
+  		{{#each possibleValues}}
+  			<li><code>{{this}}</code></li>
+  		{{/each}}
+  		</ul>
+  		</p>
+  		{{/if}}
   		{{#if exampleValue}}
+  		<p>
   		<em>Example value:</em> <code>{{exampleValue}}</code>
+  		</p>
   		{{/if}}
   	</td>
   </tr>

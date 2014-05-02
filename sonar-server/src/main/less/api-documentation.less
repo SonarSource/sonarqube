@@ -89,6 +89,23 @@
 				td {
 					padding: 10px 0;
 					margin: 5px;
+					vertical-align: top;
+
+					ul {
+						display: inline;
+
+						li {
+							display: inline;
+
+							&:before {
+								content: ', '
+							}
+
+							&:first-child:before {
+								content: ''
+							}
+						}
+					}
 				}
 			}
 		}
