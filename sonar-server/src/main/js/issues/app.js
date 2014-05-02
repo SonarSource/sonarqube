@@ -286,7 +286,7 @@ requirejs(
 
         window.onBulkIssues = function () {
           app.fetchFirstPage();
-          jQuery('.ui-dialog, .ui-widget-overlay').remove();
+          jQuery('#modal').dialog('close');
         };
 
         window.onSaveAs = window.onCopy = window.onEdit = function (id) {
