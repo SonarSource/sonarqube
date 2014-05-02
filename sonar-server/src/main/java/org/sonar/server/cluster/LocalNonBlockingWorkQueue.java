@@ -19,9 +19,6 @@
  */
 package org.sonar.server.cluster;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.sonar.api.ServerComponent;
 import org.sonar.core.cluster.QueueAction;
 import org.sonar.core.cluster.WorkQueue;
@@ -34,8 +31,6 @@ import java.util.concurrent.TimeUnit;
 public class LocalNonBlockingWorkQueue extends LinkedBlockingQueue<Runnable>
   implements ServerComponent, WorkQueue {
 
-  private static final Logger LOG = LoggerFactory.getLogger(LocalNonBlockingWorkQueue.class);
-
   public LocalNonBlockingWorkQueue() {
     super();
   }
@@ -46,9 +41,9 @@ public class LocalNonBlockingWorkQueue extends LinkedBlockingQueue<Runnable>
     action.setLatch(latch);
     try {
       this.offer(action, 1000, TimeUnit.SECONDS);
-      latch.await();
+      latch.await(1500, TimeUnit.MILLISECONDS);
     } catch (InterruptedException e) {
-      LOG.error("ES update has been interrupted: {}", e.getMessage());
+      throw new IllegalStateException("ES update has been interrupted: ");
     }
   }
 
@@ -60,9 +55,9 @@ public class LocalNonBlockingWorkQueue extends LinkedBlockingQueue<Runnable>
         action.setLatch(latch);
         this.offer(action, 1000, TimeUnit.SECONDS);
       }
-      latch.await();
+      latch.await(1500, TimeUnit.MILLISECONDS);
     } catch (InterruptedException e) {
-      LOG.error("ES update has been interrupted: {}", e.getMessage());
+      throw new IllegalStateException("ES update has been interrupted: ");
     }
   }
 }
