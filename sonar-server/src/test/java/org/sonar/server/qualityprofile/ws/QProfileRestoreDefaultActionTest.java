@@ -25,15 +25,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.server.ws.WsTester;
 import org.sonar.server.qualityprofile.QProfileBackup;
 import org.sonar.server.qualityprofile.QProfileResult;
+import org.sonar.server.ws.WsTester;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class QProfileBackupWsHandlerTest {
+public class QProfileRestoreDefaultActionTest {
 
   @Mock
   QProfileBackup qProfileBackup;
@@ -42,7 +42,7 @@ public class QProfileBackupWsHandlerTest {
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new QProfilesWs(new QProfileBackupWsHandler(qProfileBackup)));
+    tester = new WsTester(new QProfilesWs(new QProfileRestoreDefaultAction(qProfileBackup)));
   }
 
   @Test

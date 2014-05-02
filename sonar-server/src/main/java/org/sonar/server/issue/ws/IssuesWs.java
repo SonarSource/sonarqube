@@ -293,7 +293,6 @@ public class IssuesWs implements WebService {
       .setRequired(true)
       .setExampleValue("01fc972e-2a3c-433e-bcae-0bd7f88f5123,01fc972e-2a3c-433e-bcae-0bd7f88f9999");
     action.createParam("actions")
-      // TODO It's not possible to load actions as actions defined by plugins are not availables
       .setDescription("Comma-separated list of actions to perform. Possible values: assign | set_severity | plan | do_transition.")
       .setRequired(true)
       .setExampleValue("assign,plan");

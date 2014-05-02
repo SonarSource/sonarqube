@@ -21,6 +21,7 @@ package org.sonar.server.issue.ws;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.io.Resources;
 import org.sonar.api.component.Component;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.*;
@@ -80,14 +81,16 @@ public class IssueShowAction implements RequestHandler {
     this.durations = durations;
   }
 
-  void define (WebService.NewController controller) {
+  void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("show")
       .setDescription("Detail of issue")
       .setSince("4.2")
       .setInternal(true)
-      .setHandler(this);
+      .setHandler(this)
+      .setResponseExample(Resources.getResource(this.getClass(), "example-show.json"));
     action.createParam("key")
-      .setDescription("Issue key");
+      .setDescription("Issue key")
+      .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef");
   }
 
   @Override
@@ -237,7 +240,6 @@ public class IssueShowAction implements RequestHandler {
     json.endArray();
   }
 
-  // TODO all available actions should be returned by ActionService or another service
   private List<String> actions(DefaultIssue issue) {
     List<String> actions = newArrayList();
     String login = UserSession.get().login();

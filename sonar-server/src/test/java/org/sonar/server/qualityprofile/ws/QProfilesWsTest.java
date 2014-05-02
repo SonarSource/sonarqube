@@ -23,40 +23,92 @@ package org.sonar.server.qualityprofile.ws;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.qualityprofile.QProfileBackup;
 import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfilesWsTest {
-
-  @Mock
-  QProfileBackupWsHandler qProfileBackupWsHandler;
 
   WsTester tester;
 
   @Before
   public void setUp() {
-    tester = new WsTester(new QProfilesWs(qProfileBackupWsHandler));
+    tester = new WsTester(new QProfilesWs(new QProfileRestoreDefaultAction(mock(QProfileBackup.class))));
   }
 
   @Test
-  public void define_ws() throws Exception {
+  public void define_controller() throws Exception {
     WebService.Controller controller = tester.controller("api/qprofiles");
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/qprofiles");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(1);
+    assertThat(controller.actions()).hasSize(6);
+  }
+
+  @Test
+  public void define_restore_default_action() throws Exception {
+    WebService.Controller controller = tester.controller("api/qprofiles");
 
     WebService.Action restoreProfiles = controller.action("restore_default");
     assertThat(restoreProfiles).isNotNull();
-    assertThat(restoreProfiles.handler()).isSameAs(qProfileBackupWsHandler);
-    assertThat(restoreProfiles.since()).isEqualTo("4.4");
-    assertThat(restoreProfiles.isPost()).isFalse();
-    assertThat(restoreProfiles.isInternal()).isFalse();
+    assertThat(restoreProfiles.handler()).isNotNull();
     assertThat(restoreProfiles.params()).hasSize(1);
+  }
+
+  @Test
+  public void define_list_action() throws Exception {
+    WebService.Controller controller = tester.controller("api/qprofiles");
+
+    WebService.Action restoreProfiles = controller.action("list");
+    assertThat(restoreProfiles).isNotNull();
+    assertThat(restoreProfiles.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(restoreProfiles.responseExampleAsString()).isNotEmpty();
+    assertThat(restoreProfiles.params()).hasSize(2);
+  }
+
+  @Test
+  public void define_backup_action() throws Exception {
+    WebService.Controller controller = tester.controller("api/qprofiles");
+
+    WebService.Action restoreProfiles = controller.action("backup");
+    assertThat(restoreProfiles).isNotNull();
+    assertThat(restoreProfiles.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(restoreProfiles.params()).hasSize(2);
+  }
+
+  @Test
+  public void define_restore_action() throws Exception {
+    WebService.Controller controller = tester.controller("api/qprofiles");
+
+    WebService.Action restoreProfiles = controller.action("restore");
+    assertThat(restoreProfiles).isNotNull();
+    assertThat(restoreProfiles.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(restoreProfiles.params()).hasSize(1);
+  }
+
+  @Test
+  public void define_destroy_action() throws Exception {
+    WebService.Controller controller = tester.controller("api/qprofiles");
+
+    WebService.Action restoreProfiles = controller.action("destroy");
+    assertThat(restoreProfiles).isNotNull();
+    assertThat(restoreProfiles.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(restoreProfiles.params()).hasSize(2);
+  }
+
+  @Test
+  public void define_set_as_default_action() throws Exception {
+    WebService.Controller controller = tester.controller("api/qprofiles");
+
+    WebService.Action restoreProfiles = controller.action("set_as_default");
+    assertThat(restoreProfiles).isNotNull();
+    assertThat(restoreProfiles.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(restoreProfiles.params()).hasSize(2);
   }
 }

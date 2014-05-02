@@ -23,16 +23,27 @@ package org.sonar.server.qualityprofile.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.qualityprofile.QProfileBackup;
 import org.sonar.server.qualityprofile.QProfileResult;
 
-public class QProfileBackupWsHandler implements RequestHandler {
+public class QProfileRestoreDefaultAction implements RequestHandler {
 
   private final QProfileBackup qProfileBackup;
 
-  public QProfileBackupWsHandler(QProfileBackup qProfileBackup) {
+  public QProfileRestoreDefaultAction(QProfileBackup qProfileBackup) {
     this.qProfileBackup = qProfileBackup;
+  }
+
+  void define(WebService.NewController controller){
+    WebService.NewAction restoreDefault = controller.createAction("restore_default")
+      .setDescription("Restore default profiles")
+      .setSince("4.4")
+      .setHandler(this);
+    restoreDefault.createParam("language")
+      .setDescription("Restore default profiles for this language")
+    .setExampleValue("java");
   }
 
   @Override

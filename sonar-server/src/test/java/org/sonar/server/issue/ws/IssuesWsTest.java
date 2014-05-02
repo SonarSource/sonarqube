@@ -68,6 +68,7 @@ public class IssuesWsTest {
     assertThat(action.isPost()).isFalse();
     assertThat(action.isInternal()).isTrue();
     assertThat(action.handler()).isSameAs(showAction);
+    assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.params()).hasSize(1);
 
     WebService.Param key = action.param("key");

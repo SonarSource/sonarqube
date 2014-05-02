@@ -20,14 +20,16 @@
 
 package org.sonar.server.qualityprofile.ws;
 
+import com.google.common.io.Resources;
+import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
 public class QProfilesWs implements WebService {
 
-  private final QProfileBackupWsHandler qProfileBackupWsHandler;
+  private final QProfileRestoreDefaultAction qProfileRestoreDefaultAction;
 
-  public QProfilesWs(QProfileBackupWsHandler qProfileBackupWsHandler) {
-    this.qProfileBackupWsHandler = qProfileBackupWsHandler;
+  public QProfilesWs(QProfileRestoreDefaultAction qProfileRestoreDefaultAction) {
+    this.qProfileRestoreDefaultAction = qProfileRestoreDefaultAction;
   }
 
   @Override
@@ -35,13 +37,92 @@ public class QProfilesWs implements WebService {
     NewController controller = context.createController("api/qprofiles")
       .setDescription("Quality profiles management");
 
-    NewAction restoreDefault = controller.createAction("restore_default")
-      .setDescription("Restore default profiles")
-      .setSince("4.4")
-      .setHandler(qProfileBackupWsHandler);
-    restoreDefault.createParam("language")
-      .setDescription("Restore default profiles for this language");
+    qProfileRestoreDefaultAction.define(controller);
+    defineListAction(controller);
+    defineBackupAction(controller);
+    defineRestoreAction(controller);
+    defineDestroyAction(controller);
+    defineSetAsDefaultAction(controller);
 
     controller.done();
   }
+
+  private void defineListAction(NewController controller) {
+    WebService.NewAction action = controller.createAction("list")
+      .setDescription("Get a list of profiles.")
+      .setSince("3.3")
+      .setHandler(RailsHandler.INSTANCE)
+      .setResponseExample(Resources.getResource(this.getClass(), "example-list.json"));
+
+    action.createParam("language")
+      .setDescription("Profile language.")
+      .setRequired(true)
+      .setExampleValue("java");
+    action.createParam("project")
+      .setDescription("Project key or id.")
+      .setExampleValue("org.codehaus.sonar:sonar");
+  }
+
+  private void defineBackupAction(NewController controller) {
+    WebService.NewAction action = controller.createAction("backup")
+      .setDescription("Backup a quality profile. Requires Administer Quality Profiles permission.")
+      .setSince("3.1")
+      .setPost(true)
+      .setHandler(RailsHandler.INSTANCE);
+
+    action.createParam("language")
+      .setDescription("Profile language.")
+      .setRequired(true)
+      .setExampleValue("java");
+    action.createParam("name")
+      .setDescription("Profile name. If not set, the default profile for the selected language is used.")
+      .setExampleValue("Sonar way");
+  }
+
+  private void defineRestoreAction(NewController controller) {
+    WebService.NewAction action = controller.createAction("restore")
+      .setDescription("Restore a quality profile backup. Requires Administer Quality Profiles permission.")
+      .setSince("3.1")
+      .setPost(true)
+      .setHandler(RailsHandler.INSTANCE);
+
+    action.createParam("backup")
+      .setRequired(true)
+      .setDescription("Path to the file containing the backup (HTML format)");
+  }
+
+  private void defineDestroyAction(NewController controller) {
+    WebService.NewAction action = controller.createAction("destroy")
+      .setDescription("Delete a quality profile. Requires Administer Quality Profiles permission.")
+      .setSince("3.3")
+      .setPost(true)
+      .setHandler(RailsHandler.INSTANCE);
+
+    action.createParam("language")
+      .setDescription("Profile language.")
+      .setRequired(true)
+      .setExampleValue("java");
+    action.createParam("name")
+      .setDescription("Profile name.")
+      .setRequired(true)
+      .setExampleValue("Sonar way");
+  }
+
+  private void defineSetAsDefaultAction(NewController controller) {
+    WebService.NewAction action = controller.createAction("set_as_default")
+      .setDescription("Set a quality profile as Default. Requires Administer Quality Profiles permission.")
+      .setSince("3.3")
+      .setPost(true)
+      .setHandler(RailsHandler.INSTANCE);
+
+    action.createParam("language")
+      .setDescription("Profile language.")
+      .setRequired(true)
+      .setExampleValue("java");
+    action.createParam("name")
+      .setDescription("Profile name.")
+      .setRequired(true)
+      .setExampleValue("Sonar way");
+  }
+
 }
