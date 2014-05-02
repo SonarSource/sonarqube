@@ -2,20 +2,89 @@
 @import "mixins";
 @import "navigator/config";
 
-.web-services-list {
-	width: 100%;
-	margin: 10px;
+@apiDocumentationSidebarWidth: 230px;
 
-	td {
-		vertical-align: top;
-		padding-bottom: 10px;
-	}
+.api-documentation-navigator {
 
-	.web-service-description {
-		margin-bottom: 20px;
-	}
+  .navigator-side {
+    display: table-cell;
+    vertical-align: top;
+    width: @apiDocumentationSidebarWidth + 2 * @navigatorPadding;
+    min-width: 0;
+  }
+
+  .navigator-header {
+    margin-left: 0;
+    .spinner { margin-top: 9px; }
+  }
+
+  .navigator-actions {
+    height: @navigatorHeaderHeight;
+    width: @apiDocumentationSidebarWidth;
+    margin: @navigatorPadding;
+    padding: 0 @navigatorPadding;
+
+    .navigator-header-title {
+      color: @baseFontColor;
+      font-size: 13px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+  }
+
+  .navigator-results {
+    width: @apiDocumentationSidebarWidth;
+    min-width: 0;
+  }
+
+  .navigator-details { margin-left: 0; }
+
+}
+
+
+.api-documentation-nav {
+
+  .navigator-results-list {
+
+    & > li {
+      border-color: transparent;
+
+      &:hover:not(.active):not(.empty) {
+        background-color: @navigatorBarBackground;
+      }
+
+      &.active {
+        border-color: #4B9FD5;
+      }
+
+      &.empty {
+        cursor: default;
+      }
+
+      .line {
+        padding-top: 2px;
+        padding-bottom: 2px;
+      }
+    }
+  } 
+}
+
+.api-documentation-actions {
+  margin-top: 10px;
+  margin-left: 5px;
 
 	.api-documentation-action {
-		margin-bottom: 10px;
+		margin-top: 30px;
+
+		& > code {
+			display: block;
+			padding: 10px 5px;
+			border: 1px solid @navigatorBorderLightColor;
+			background: @navigatorBarBackground
+		}
+
+		& > p {
+			margin-top: 5px;
+		}
 	}
 }

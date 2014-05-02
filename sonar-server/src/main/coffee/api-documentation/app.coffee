@@ -24,20 +24,27 @@ requirejs [
   'backbone', 'backbone.marionette', 'handlebars',
   'api-documentation/collections/web-services',
   'api-documentation/views/api-documentation-list-view',
+  'api-documentation/router',
   'api-documentation/layout',
   'common/handlebars-extensions'
 ], (
   Backbone, Marionette, Handlebars,
   WebServices,
   ApiDocumentationListView,
+  ApiDocumentationRouter,
   ApiDocumentationLayout
 ) ->
 
   # Create a Quality Gate Application
   App = new Marionette.Application
 
-
   App.webServices = new WebServices
+
+  App.openFirstWebService = ->
+    if @webServices.length > 0
+      @router.navigate "#{@webServices.models[0].get('path')}", trigger: true
+    else
+      App.layout.detailsRegion.reset()
 
   # Construct layout
   App.addInitializer ->
@@ -50,6 +57,16 @@ requirejs [
       collection: @webServices
       app: @
     @layout.resultsRegion.show @apiDocumentationListView
+
+  # Start router
+  App.addInitializer ->
+    @router = new ApiDocumentationRouter app: @
+    Backbone.history.start()
+
+  # Open first Web Service when page is opened
+  App.addInitializer ->
+    initial = Backbone.history.fragment == ''
+    App.openFirstWebService() if initial
 
   webServicesXHR = App.webServices.fetch()
 

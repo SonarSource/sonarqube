@@ -7,10 +7,16 @@ define [
 ) ->
 
   class ApiDocumentationListView extends Marionette.CollectionView
-    tagName: 'table'
-    className: 'web-services-list'
+    tagName: 'ol'
+    className: 'navigator-results-list'
     itemView: ApiDocumentationWebServiceView
 
 
     itemViewOptions: (model) ->
       app: @options.app
+      highlighted: model.get('path') == @highlighted
+
+
+    highlight: (path) ->
+      @highlighted = path
+      @render()

@@ -10,22 +10,22 @@ define [
   ApiDocumentationActionsListView
 ) ->
 
-  class ApiDocumentationWebServiceView extends Marionette.Layout
-    tagName: 'tr'
+  class ApiDocumentationWebServiceView extends Marionette.ItemView
+    tagName: 'li'
     template: Templates['api-documentation-web-service']
     spinner: '<i class="spinner"></i>'
 
-    regions:
-      actionsRegion: '.web-service-actions'
+    modelEvents:
+      'change': 'render'
+
+
+    events:
+      'click': 'showWebService'
+
 
     onRender: ->
-      @showActions()
+      @$el.toggleClass 'active', @options.highlighted
 
 
-    showActions: ->
-      actions = new WebServiceActions @model.get('actions')
-      view = new ApiDocumentationActionsListView
-        app: @options.app
-        collection: actions
-        webService: @model
-      @actionsRegion.show view
+    showWebService: ->
+      @options.app.router.navigate "#{@model.get('path')}", trigger: true

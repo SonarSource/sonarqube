@@ -7,8 +7,9 @@ define [
 ) ->
 
   class AppLayout extends Marionette.Layout
-    className: 'api-documentation-layout'
+    className: 'navigator quality-gates-navigator'
     template: Templates['api-documentation-layout']
 
     regions:
-      resultsRegion: '.api-documentation-results'
+      resultsRegion: '.navigator-results'
+      detailsRegion: '.navigator-details'
