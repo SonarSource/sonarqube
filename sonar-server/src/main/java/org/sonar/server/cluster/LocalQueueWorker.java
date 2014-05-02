@@ -41,7 +41,7 @@ public class LocalQueueWorker extends ThreadPoolExecutor
   public LocalQueueWorker(LocalNonBlockingWorkQueue queue, Index... allIndexes) {
     super(10, 10, 500l, TimeUnit.MILLISECONDS, queue);
 
-    // Save all instances of Index<?>
+    /* Save all instances of Index<?> */
     this.indexes = new HashMap<String, Index>();
     for (Index index : allIndexes) {
       this.indexes.put(index.getIndexName(), index);
@@ -49,18 +49,20 @@ public class LocalQueueWorker extends ThreadPoolExecutor
   }
 
   protected void beforeExecute(Thread t, Runnable r) {
-    LOG.debug("Starting task: {}",r);
+    LOG.debug("Starting task: {}", r);
     super.beforeExecute(t, r);
-    if(r.getClass().isAssignableFrom(IndexAction.class)){
-      IndexAction ia = (IndexAction)r;
-      LOG.trace("Task is an IndexAction for {}",ia.getIndexName());
+    if (IndexAction.class.isAssignableFrom(r.getClass())) {
+      IndexAction ia = (IndexAction) r;
+      LOG.debug("Task is an IndexAction for {}", ia.getIndexName());
       ia.setIndex(indexes.get(ia.getIndexName()));
     }
   }
 
   protected void afterExecute(Runnable r, Throwable t) {
     super.afterExecute(r, t);
-    //TODO throw throwable
+    if (t != null) {
+      throw new IllegalStateException(t);
+    }
   }
 
   @Override
