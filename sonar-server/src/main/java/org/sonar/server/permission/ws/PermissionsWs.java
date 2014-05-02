@@ -48,11 +48,10 @@ public class PermissionsWs implements WebService {
       .setSince("3.7")
       .setPost(true)
       .setHandler(RailsHandler.INSTANCE);
-
     action.createParam("permission")
       .setDescription("Key of the permission to add.")
       .setRequired(true)
-      .setPossibleValues(new ImmutableSet.Builder().<String>addAll(GlobalPermissions.ALL).<String>addAll(ComponentPermissions.ALL).build())
+      .setPossibleValues(ImmutableSet.<String>builder().addAll(GlobalPermissions.ALL).addAll(ComponentPermissions.ALL).build())
       .setExampleValue("shareDashboard");
     action.createParam("user")
       .setDescription("User login. Required if group is not set.")
@@ -76,7 +75,7 @@ public class PermissionsWs implements WebService {
     action.createParam("permission")
       .setDescription("Key of the permission to remove.")
       .setRequired(true)
-      .setPossibleValues(new ImmutableSet.Builder().<String>addAll(GlobalPermissions.ALL).<String>addAll(ComponentPermissions.ALL).build())
+      .setPossibleValues(ImmutableSet.<String>builder().addAll(GlobalPermissions.ALL).addAll(ComponentPermissions.ALL).build())
       .setExampleValue("shareDashboard");
     action.createParam("user")
       .setDescription("User login. Required if group is not set.")
