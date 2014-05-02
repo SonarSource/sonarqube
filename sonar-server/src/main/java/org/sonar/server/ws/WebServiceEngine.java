@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ws;
 
+import com.google.common.base.Splitter;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.picocontainer.Startable;
@@ -42,6 +43,8 @@ import java.io.OutputStreamWriter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * @since 4.2
@@ -130,13 +133,17 @@ public class WebServiceEngine implements ServerComponent, Startable {
           LoggerFactory.getLogger(getClass()).error(message);
           throw new IllegalStateException(message);
         }
-        String value = StringUtils.defaultString(super.param(key), paramDef.defaultValue());
-
-        List<String> possibleValues = paramDef.possibleValues();
-        if (value != null && possibleValues != null && !possibleValues.contains(value)) {
-          throw new BadRequestException(String.format("Value of parameter '%s' can only be one of %s", key, possibleValues));
+        String value = super.param(key);
+        if (value != null) {
+          List<String> values = newArrayList(Splitter.on(',').omitEmptyStrings().trimResults().split(value));
+          List<String> possibleValues = paramDef.possibleValues();
+          for (String currentValue : values) {
+            if (possibleValues != null && !possibleValues.contains(currentValue)) {
+              throw new BadRequestException(String.format("Value of parameter '%s' can only be in %s", key, possibleValues));
+            }
+          }
         }
-        return value;
+        return StringUtils.defaultString(super.param(key), paramDef.defaultValue());
       }
     };
   }
