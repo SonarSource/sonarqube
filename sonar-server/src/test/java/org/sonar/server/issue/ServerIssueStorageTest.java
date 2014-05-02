@@ -37,8 +37,8 @@ import static org.fest.assertions.Fail.fail;
 public class ServerIssueStorageTest extends AbstractDaoTestCase {
 
   @Test
-  public void should_load_component_id_from_db() throws Exception {
-    setupData("should_load_component_id_from_db");
+  public void load_component_id_from_db() throws Exception {
+    setupData("load_component_id_from_db");
 
     ServerIssueStorage storage = new ServerIssueStorage(getMyBatis(), new FakeRuleFinder(), new ResourceDao(getMyBatis()));
     long componentId = storage.componentId(new DefaultIssue().setComponentKey("struts:Action.java"));
@@ -47,8 +47,8 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_fail_to_load_component_id_if_unknown_component() throws Exception {
-    setupData("should_fail_to_load_component_id_if_unknown_component");
+  public void fail_to_load_component_id_if_unknown_component() throws Exception {
+    setupData("empty");
 
     ServerIssueStorage storage = new ServerIssueStorage(getMyBatis(), new FakeRuleFinder(), new ResourceDao(getMyBatis()));
     try {
@@ -60,25 +60,25 @@ public class ServerIssueStorageTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void should_load_project_id_from_db() throws Exception {
-    setupData("should_load_project_id_from_db");
+  public void load_project_id_from_db() throws Exception {
+    setupData("load_project_id_from_db");
 
     ServerIssueStorage storage = new ServerIssueStorage(getMyBatis(), new FakeRuleFinder(), new ResourceDao(getMyBatis()));
-    long projectId = storage.projectId(new DefaultIssue().setComponentKey("struts:Action.java"));
+    long projectId = storage.projectId(new DefaultIssue().setProjectKey("struts"));
 
     assertThat(projectId).isEqualTo(1);
   }
 
   @Test
-  public void should_fail_to_load_project_id_if_unknown_component() throws Exception {
-    setupData("should_fail_to_load_project_id_if_unknown_component");
+  public void fail_to_load_project_id_if_unknown_component() throws Exception {
+    setupData("empty");
 
     ServerIssueStorage storage = new ServerIssueStorage(getMyBatis(), new FakeRuleFinder(), new ResourceDao(getMyBatis()));
     try {
-      storage.projectId(new DefaultIssue().setComponentKey("struts:Action.java"));
+      storage.projectId(new DefaultIssue().setProjectKey("struts"));
       fail();
     } catch (Exception e) {
-      assertThat(e).hasMessage("Unknown component: struts:Action.java");
+      assertThat(e).hasMessage("Unknown project: struts");
     }
   }
 

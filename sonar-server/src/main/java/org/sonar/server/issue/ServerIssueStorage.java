@@ -28,8 +28,6 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
 
-import javax.annotation.Nullable;
-
 /**
  * @since 3.6
  */
@@ -45,20 +43,19 @@ public class ServerIssueStorage extends IssueStorage implements ServerComponent 
   @Override
   protected long componentId(DefaultIssue issue) {
     ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(issue.componentKey()));
-    validate(issue, resourceDto);
+    if (resourceDto == null) {
+      throw new IllegalStateException("Unknown component: " + issue.componentKey());
+    }
     return resourceDto.getId();
   }
 
   @Override
   protected long projectId(DefaultIssue issue) {
-    ResourceDto resourceDto = resourceDao.getRootProjectByComponentKey(issue.componentKey());
-    validate(issue, resourceDto);
+    ResourceDto resourceDto = resourceDao.getResource(ResourceQuery.create().setKey(issue.projectKey()));
+    if (resourceDto == null) {
+      throw new IllegalStateException("Unknown project: " + issue.projectKey());
+    }
     return resourceDto.getId();
   }
 
-  private void validate(DefaultIssue issue, @Nullable ResourceDto resourceDto) {
-    if (resourceDto == null) {
-      throw new IllegalStateException("Unknown component: " + issue.componentKey());
-    }
-  }
 }
