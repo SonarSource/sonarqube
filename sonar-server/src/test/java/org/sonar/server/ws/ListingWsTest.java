@@ -59,6 +59,15 @@ public class ListingWsTest {
   }
 
   @Test
+  public void list_including_internals() throws Exception {
+    WsTester tester = new WsTester(ws, new MetricWebService());
+    tester.newGetRequest("api/webservices", "list")
+      .setParam("includeInternals", "true")
+      .execute()
+      .assertJson(getClass(), "list_including_internals.json");
+  }
+
+  @Test
   public void response_example() throws Exception {
     WsTester tester = new WsTester(ws, new MetricWebService());
     tester
@@ -89,7 +98,6 @@ public class ListingWsTest {
         .setDescription("Create metric")
         .setSince("4.1")
         .setPost(true)
-        .setInternal(true)
         .setResponseExample(Resources.getResource(getClass(), "ListingWsTest/metrics_example.json"))
         .setHandler(new RequestHandler() {
           @Override
@@ -104,6 +112,14 @@ public class ListingWsTest {
         .setExampleValue("INFO")
         .setDefaultValue("BLOCKER");
       create.createParam("name");
+
+      newController.createAction("internalAction").setInternal(true).setHandler(new RequestHandler() {
+        @Override
+        public void handle(Request request, Response response) throws Exception {
+
+        }
+      });
+
       newController.done();
     }
   }

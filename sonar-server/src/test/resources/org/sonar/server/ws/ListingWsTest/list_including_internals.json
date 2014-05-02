@@ -27,6 +27,13 @@
         ]
       },
       {
+        "key": "internalAction",
+        "since": "3.2",
+        "internal": true,
+        "post": false,
+        "hasResponseExample": false
+      },
+      {
         "key": "show",
         "since": "3.2",
         "internal": false,
