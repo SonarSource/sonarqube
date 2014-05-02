@@ -19,7 +19,6 @@
  */
 package org.sonar.server.source.ws;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.source.SourceService;
@@ -35,13 +34,7 @@ public class ScmActionTest {
 
   SourceService sourceService = mock(SourceService.class);
   ScmWriter scmWriter = mock(ScmWriter.class);
-
-  WsTester tester;
-
-  @Before
-  public void setUp() throws Exception {
-    tester = new WsTester(new SourcesWs(mock(ShowAction.class), new ScmAction(sourceService, scmWriter)));
-  }
+  WsTester tester = new WsTester(new SourcesWs(mock(ShowAction.class), new ScmAction(sourceService, scmWriter)));
 
   @Test
   public void get_scm() throws Exception {
@@ -49,7 +42,7 @@ public class ScmActionTest {
     when(sourceService.getScmAuthorData(fileKey)).thenReturn("1=julien");
     when(sourceService.getScmDateData(fileKey)).thenReturn("1=2013-01-01");
 
-    WsTester.TestRequest request = tester.newRequest("scm").setParam("key", fileKey);
+    WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", fileKey);
     request.execute();
     verify(scmWriter).write(eq("1=julien"), eq("1=2013-01-01"), eq(1), eq(Integer.MAX_VALUE), eq(true), any(JsonWriter.class));
   }
@@ -60,7 +53,7 @@ public class ScmActionTest {
     when(sourceService.getScmAuthorData(fileKey)).thenReturn("1=julien");
     when(sourceService.getScmDateData(fileKey)).thenReturn("1=2013-01-01");
 
-    WsTester.TestRequest request = tester.newRequest("scm").setParam("key", fileKey).setParam("groupCommits", "false");
+    WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", fileKey).setParam("groupCommits", "false");
     request.execute();
     verify(scmWriter).write(eq("1=julien"), eq("1=2013-01-01"), eq(1), eq(Integer.MAX_VALUE), eq(false), any(JsonWriter.class));
   }
@@ -71,7 +64,7 @@ public class ScmActionTest {
     when(sourceService.getScmAuthorData(fileKey)).thenReturn("1=julien");
     when(sourceService.getScmDateData(fileKey)).thenReturn("1=2013-01-01");
 
-    WsTester.TestRequest request = tester.newRequest("scm").setParam("key", fileKey).setParam("from", "3").setParam("to", "20");
+    WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", fileKey).setParam("from", "3").setParam("to", "20");
     request.execute();
     verify(scmWriter).write(eq("1=julien"), eq("1=2013-01-01"), eq(3), eq(20), eq(true), any(JsonWriter.class));
   }
@@ -82,7 +75,7 @@ public class ScmActionTest {
     when(sourceService.getScmAuthorData(fileKey)).thenReturn("1=julien");
     when(sourceService.getScmDateData(fileKey)).thenReturn("1=2013-01-01");
 
-    WsTester.TestRequest request = tester.newRequest("scm").setParam("key", fileKey).setParam("from", "-3").setParam("to", "20");
+    WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", fileKey).setParam("from", "-3").setParam("to", "20");
     request.execute();
     verify(scmWriter).write(eq("1=julien"), eq("1=2013-01-01"), eq(1), eq(20), eq(true), any(JsonWriter.class));
   }

@@ -20,6 +20,7 @@
 package org.sonar.server.source.ws;
 
 import com.google.common.io.Resources;
+import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -81,8 +82,8 @@ public class ShowAction implements RequestHandler {
   @Override
   public void handle(Request request, Response response) {
     String fileKey = request.mandatoryParam("key");
-    int from = Math.max(request.paramAsInt("from", 1), 1);
-    int to = request.paramAsInt("to", Integer.MAX_VALUE);
+    int from = Math.max(request.mandatoryParamAsInt("from"), 1);
+    int to = (Integer) ObjectUtils.defaultIfNull(request.paramAsInt("to"), Integer.MAX_VALUE);
 
     List<String> sourceHtml = sourceService.getLinesAsHtml(fileKey, from, to);
     if (sourceHtml.isEmpty()) {
@@ -92,10 +93,10 @@ public class ShowAction implements RequestHandler {
     JsonWriter json = response.newJsonWriter().beginObject();
     writeSource(sourceHtml, from, json);
 
-    if (request.paramAsBoolean("scm", false)) {
+    if (request.mandatoryParamAsBoolean("scm")) {
       String scmAuthorData = sourceService.getScmAuthorData(fileKey);
       String scmDataData = sourceService.getScmDateData(fileKey);
-      scmWriter.write(scmAuthorData, scmDataData, from, to, request.paramAsBoolean("groupCommits", true), json);
+      scmWriter.write(scmAuthorData, scmDataData, from, to, request.mandatoryParamAsBoolean("groupCommits"), json);
     }
 
     json.endObject().close();

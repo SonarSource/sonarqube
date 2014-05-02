@@ -61,7 +61,7 @@ public class ShowActionTest {
       new DefaultIssueFilter().setId(13L).setName("Blocker issues").setDescription("All Blocker Issues").setData("severity=BLOCKER").setUser("simon").setShared(true)
     );
 
-    tester.newRequest("show").setParam("id", "13").execute()
+    tester.newGetRequest("api/issue_filters", "show").setParam("id", "13").execute()
       .assertJson(getClass(), "show_filter.json");
   }
 
@@ -71,7 +71,7 @@ public class ShowActionTest {
     when(service.find(42L, session)).thenThrow(new NotFoundException("Filter 42 does not exist"));
 
     try {
-      tester.newRequest("show").setParam("id", "42").execute();
+      tester.newGetRequest("api/issue_filters", "show").setParam("id", "42").execute();
       fail();
     } catch (NotFoundException e) {
       assertThat(e).hasMessage("Filter 42 does not exist");

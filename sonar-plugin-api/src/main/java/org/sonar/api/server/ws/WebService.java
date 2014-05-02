@@ -23,6 +23,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -37,6 +38,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Defines a web service. Note that contrary to the deprecated {@link org.sonar.api.web.Webservice}
@@ -434,7 +436,7 @@ public interface WebService extends ServerExtension {
   class NewParam {
     private String key, description, exampleValue, defaultValue;
     private boolean required = false;
-    private Collection<Object> possibleValues = null;
+    private Set<String> possibleValues = null;
 
     private NewParam(String key) {
       this.key = key;
@@ -469,9 +471,8 @@ public interface WebService extends ServerExtension {
      *
      * @since 4.4
      */
-    public NewParam setPossibleValues(@Nullable Object... s) {
-      this.possibleValues = (s == null ? null : Arrays.asList(s));
-      return this;
+    public NewParam setPossibleValues(@Nullable Object... values) {
+      return setPossibleValues(values == null ? (Collection) null : Arrays.asList(values));
     }
 
     /**
@@ -480,8 +481,15 @@ public interface WebService extends ServerExtension {
      *
      * @since 4.4
      */
-    public NewParam setPossibleValues(@Nullable Collection c) {
-      this.possibleValues = c;
+    public NewParam setPossibleValues(@Nullable Collection values) {
+      if (values == null) {
+        this.possibleValues = null;
+      } else {
+        this.possibleValues = Sets.newLinkedHashSet();
+        for (Object value : values) {
+          this.possibleValues.add(value.toString());
+        }
+      }
       return this;
     }
 
@@ -503,7 +511,7 @@ public interface WebService extends ServerExtension {
   class Param {
     private final String key, description, exampleValue, defaultValue;
     private final boolean required;
-    private final List<String> possibleValues;
+    private final Set<String> possibleValues;
 
     public Param(NewParam newParam) {
       this.key = newParam.key;
@@ -511,15 +519,7 @@ public interface WebService extends ServerExtension {
       this.exampleValue = newParam.exampleValue;
       this.defaultValue = newParam.defaultValue;
       this.required = newParam.required;
-      if (newParam.possibleValues == null) {
-        this.possibleValues = null;
-      } else {
-        ImmutableList.Builder<String> builder = ImmutableList.builder();
-        for (Object possibleValue : newParam.possibleValues) {
-          builder.add(possibleValue.toString());
-        }
-        this.possibleValues = builder.build();
-      }
+      this.possibleValues = newParam.possibleValues;
     }
 
     public String key() {
@@ -552,7 +552,7 @@ public interface WebService extends ServerExtension {
      * @since 4.4
      */
     @CheckForNull
-    public List<String> possibleValues() {
+    public Set<String> possibleValues() {
       return possibleValues;
     }
 

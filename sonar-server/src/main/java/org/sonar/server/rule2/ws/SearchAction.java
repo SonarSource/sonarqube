@@ -52,11 +52,10 @@ public class SearchAction implements RequestHandler {
   private static final String PARAM_SEVERITIES = "severities";
   private static final String PARAM_STATUSES = "statuses";
   private static final String PARAM_LANGUAGES = "languages";
-  private static final String PARAM_DEBT_CHARACTERISTICS = "debtCharacteristics";
-  private static final String PARAM_HAS_DEBT_CHARACTERISTIC = "hasDebtCharacteristic";
+  private static final String PARAM_DEBT_CHARACTERISTICS = "debt_characteristics";
+  private static final String PARAM_HAS_DEBT_CHARACTERISTIC = "has_debt_characteristic";
   private static final String PARAM_TAGS = "tags";
-  private static final String PARAM_ALL_OF_TAGS = "allOfTags";
-
+  private static final String PARAM_ALL_OF_TAGS = "all_of_tags";
 
   // generic search parameters
   private static final String PARAM_PAGE = "p";
@@ -126,14 +125,15 @@ public class SearchAction implements RequestHandler {
       .setExampleValue("security,java8");
 
     action
-      .createParam("qProfile")
+      .createParam("qprofile")
       .setDescription("Key of Quality profile")
       .setExampleValue("java:Sonar way");
 
     action
       .createParam("activation")
-      .setDescription("Used only if 'qProfile' is set. Possible values are: true | false | all")
-      .setExampleValue("java:Sonar way");
+      .setDescription("Used only if 'qprofile' is set")
+      .setExampleValue("java:Sonar way")
+      .setPossibleValues("false", "true", "all");
 
     action
       .createParam(PARAM_FIELDS)
@@ -179,13 +179,13 @@ public class SearchAction implements RequestHandler {
 
     // TODO move to QueryOptions ?
     query.setSortField(RuleQuery.SortField.valueOfOrNull(request.param(PARAM_SORT)));
-    query.setAscendingSort(request.paramAsBoolean(PARAM_ASCENDING, true));
+    query.setAscendingSort(request.mandatoryParamAsBoolean(PARAM_ASCENDING));
 
     QueryOptions options = new QueryOptions();
     options.setFieldsToReturn(request.paramAsStrings(PARAM_FIELDS));
     options.setPage(
-      request.paramAsInt(PARAM_PAGE, 1),
-      request.paramAsInt(PARAM_PAGE_SIZE, 25));
+      request.mandatoryParamAsInt(PARAM_PAGE),
+      request.mandatoryParamAsInt(PARAM_PAGE_SIZE));
 
     Results results = service.search(query, options);
     JsonWriter json = response.newJsonWriter().beginObject();

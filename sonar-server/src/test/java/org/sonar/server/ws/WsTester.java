@@ -19,22 +19,21 @@
  */
 package org.sonar.server.ws;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.skyscreamer.jsonassert.JSONAssert;
-import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
 
 import javax.annotation.CheckForNull;
-
+import javax.annotation.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -42,21 +41,13 @@ import java.util.Map;
  */
 public class WsTester {
 
-  public static class TestRequest extends Request {
+  public static class TestRequest extends InternalRequest {
 
-    private final WebService.Controller controller;
-    private final WebService.Action action;
-    private String method = "GET";
-    private Map<String, String> params = new HashMap<String, String>();
+    private final String method;
+    private Map<String, String> params = Maps.newHashMap();
 
-    private TestRequest(WebService.Controller controller, WebService.Action action) {
-      this.controller = controller;
-      this.action = action;
-    }
-
-    @Override
-    public WebService.Action action() {
-      return action;
+    private TestRequest(String method) {
+      this.method = method;
     }
 
     @Override
@@ -64,17 +55,12 @@ public class WsTester {
       return method;
     }
 
-    public TestRequest setMethod(String s) {
-      this.method = s;
-      return this;
-    }
-
     public TestRequest setParams(Map<String, String> m) {
       this.params = m;
       return this;
     }
 
-    public TestRequest setParam(String key, @CheckForNull String value) {
+    public TestRequest setParam(String key, @Nullable String value) {
       if (value != null) {
         params.put(key, value);
       }
@@ -82,14 +68,13 @@ public class WsTester {
     }
 
     @Override
-    @CheckForNull
-    public String param(String key) {
+    protected String readParam(String key) {
       return params.get(key);
     }
 
     public Result execute() throws Exception {
       TestResponse response = new TestResponse();
-      action.handler().handle(this, response);
+      action().handler().handle(this, response);
       return new Result(response);
     }
   }
@@ -208,25 +193,32 @@ public class WsTester {
   }
 
   @CheckForNull
-  public WebService.Controller controller(String path) {
-    return context.controller(path);
+  public WebService.Controller controller(String key) {
+    return context.controller(key);
   }
 
-  public TestRequest newRequest(String actionKey) {
-    if (context.controllers().size() != 1) {
-      throw new IllegalStateException("The method newRequest(String) requires to define one, and only one, controller");
+  @CheckForNull
+  public WebService.Action action(String controllerKey, String actionKey) {
+    WebService.Controller controller = context.controller(controllerKey);
+    if (controller != null) {
+      return controller.action(actionKey);
     }
-    WebService.Controller controller = context.controllers().get(0);
-    WebService.Action action = controller.action(actionKey);
-    if (action == null) {
-      throw new IllegalArgumentException("Action not found: " + actionKey);
-    }
-    return new TestRequest(controller, action);
+    return null;
   }
 
-  public TestRequest newRequest(String controllerPath, String actionKey) {
-    WebService.Controller controller = context.controller(controllerPath);
+  public TestRequest newGetRequest(String controllerKey, String actionKey) {
+    return newRequest(controllerKey, actionKey, "GET");
+  }
+
+  public TestRequest newPostRequest(String controllerKey, String actionKey) {
+    return newRequest(controllerKey, actionKey, "POST");
+  }
+
+  private TestRequest newRequest(String controllerKey, String actionKey, String method) {
+    TestRequest request = new TestRequest(method);
+    WebService.Controller controller = context.controller(controllerKey);
     WebService.Action action = controller.action(actionKey);
-    return new TestRequest(controller, action);
+    request.setAction(action);
+    return request;
   }
 }

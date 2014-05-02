@@ -89,7 +89,7 @@ public class RuleShowWsHandlerTest {
     when(languages.get("xoo")).thenReturn(language);
 
     MockUserSession.set();
-    WsTester.TestRequest request = tester.newRequest("show").setParam("key", ruleKey);
+    WsTester.TestRequest request = tester.newGetRequest("api/rules", "show").setParam("key", ruleKey);
     request.execute().assertJson(getClass(), "show_rule.json");
   }
 
@@ -100,7 +100,7 @@ public class RuleShowWsHandlerTest {
     when(rules.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(null);
 
     MockUserSession.set();
-    WsTester.TestRequest request = tester.newRequest("show").setParam("key", ruleKey);
+    WsTester.TestRequest request = tester.newGetRequest("api/rules", "show").setParam("key", ruleKey);
 
     try {
       request.execute();
@@ -124,7 +124,7 @@ public class RuleShowWsHandlerTest {
     when(i18n.formatDateTime(any(Locale.class), eq(date2))).thenReturn("Jan 23, 2014 10:03 AM");
 
     MockUserSession.set();
-    WsTester.TestRequest request = tester.newRequest("show").setParam("key", rule.ruleKey().toString());
+    WsTester.TestRequest request = tester.newGetRequest("api/rules", "show").setParam("key", rule.ruleKey().toString());
     request.execute().assertJson(getClass(), "show_rule_with_dates.json");
   }
 
@@ -139,7 +139,7 @@ public class RuleShowWsHandlerTest {
     when(rules.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(rule);
 
     MockUserSession.set();
-    WsTester.TestRequest request = tester.newRequest("show").setParam("key", rule.ruleKey().toString());
+    WsTester.TestRequest request = tester.newGetRequest("api/rules", "show").setParam("key", rule.ruleKey().toString());
     request.execute().assertJson(getClass(), "show_rule_with_note.json");
   }
 
@@ -153,7 +153,7 @@ public class RuleShowWsHandlerTest {
     when(rules.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(rule);
 
     MockUserSession.set();
-    WsTester.TestRequest request = tester.newRequest("show").setParam("key", rule.ruleKey().toString());
+    WsTester.TestRequest request = tester.newGetRequest("api/rules", "show").setParam("key", rule.ruleKey().toString());
     request.execute().assertJson(getClass(), "show_rule_with_tags.json");
   }
 
@@ -164,7 +164,7 @@ public class RuleShowWsHandlerTest {
       org.sonar.api.rules.Rule.create("manual", "api", "API").setDescription("API rule description"));
 
     MockUserSession.set();
-    WsTester.TestRequest request = tester.newRequest("show").setParam("key", ruleKey);
+    WsTester.TestRequest request = tester.newGetRequest("api/rules", "show").setParam("key", ruleKey);
     request.execute();
     request.execute().assertJson(getClass(), "show_manuel_rule.json");
   }
@@ -181,7 +181,7 @@ public class RuleShowWsHandlerTest {
     when(ruleFinder.findByKey(RuleKey.of("manual", "api"))).thenReturn(rule);
 
     MockUserSession.set();
-    WsTester.TestRequest request = tester.newRequest("show").setParam("key", ruleKey);
+    WsTester.TestRequest request = tester.newGetRequest("api/rules", "show").setParam("key", ruleKey);
     request.execute();
     request.execute().assertJson(getClass(), "show_manuel_rule.json");
   }
@@ -193,7 +193,7 @@ public class RuleShowWsHandlerTest {
     when(rules.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(null);
 
     MockUserSession.set();
-    WsTester.TestRequest request = tester.newRequest("show").setParam("key", ruleKey);
+    WsTester.TestRequest request = tester.newGetRequest("api/rules", "show").setParam("key", ruleKey);
 
     try {
       request.execute();

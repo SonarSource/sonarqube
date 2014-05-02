@@ -46,7 +46,9 @@ public class AppAction implements RequestHandler {
       .setDescription("Data required for rendering the page 'Issues'")
       .setInternal(true)
       .setHandler(this);
-    action.createParam("id").setDescription("Optionally, the ID of the current filter");
+    action
+      .createParam("id")
+      .setDescription("Optionally, the ID of the current filter");
   }
 
   @Override
@@ -57,9 +59,9 @@ public class AppAction implements RequestHandler {
     json.beginObject();
 
     // Current filter (optional)
-    int filterId = request.paramAsInt("id", -1);
+    Integer filterId = request.paramAsInt("id");
     DefaultIssueFilter filter = null;
-    if (filterId >= 0) {
+    if (filterId != null && filterId >= 0) {
       filter = service.find((long) filterId, session);
     }
 

@@ -19,8 +19,6 @@
  */
 package org.sonar.server.ws;
 
-import com.google.common.base.Splitter;
-import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.common.collect.Lists;
 import org.picocontainer.Startable;
 import org.slf4j.LoggerFactory;
@@ -28,7 +26,6 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.BadRequestException.Message;
@@ -38,13 +35,10 @@ import org.sonar.server.plugins.MimeTypes;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.OutputStreamWriter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * @since 4.2
@@ -87,8 +81,7 @@ public class WebServiceEngine implements ServerComponent, Startable {
       WebService.Action action = getAction(controllerPath, actionKey);
       request.setAction(action);
       verifyRequest(action, request);
-      InternalRequest wrapped = wrapWithDefaults(action, request);
-      action.handler().handle(wrapped, response);
+      action.handler().handle(request, response);
 
     } catch (IllegalArgumentException e) {
       // TODO replace by BadRequestException in Request#mandatoryParam()
@@ -121,31 +114,6 @@ public class WebServiceEngine implements ServerComponent, Startable {
     if (action.isPost() && !"POST".equals(request.method())) {
       throw new ServerException(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "HTTP method POST is required");
     }
-  }
-
-  private InternalRequest wrapWithDefaults(final WebService.Action action, InternalRequest request) {
-    return new InternalRequestWrapper(request) {
-      @Override
-      public String param(String key) {
-        Param paramDef = action.param(key);
-        if (paramDef == null) {
-          String message = String.format("BUG - parameter '%s' is undefined for action '%s'", key, action.key());
-          LoggerFactory.getLogger(getClass()).error(message);
-          throw new IllegalStateException(message);
-        }
-        String value = super.param(key);
-        if (value != null) {
-          List<String> values = newArrayList(Splitter.on(',').omitEmptyStrings().trimResults().split(value));
-          List<String> possibleValues = paramDef.possibleValues();
-          for (String currentValue : values) {
-            if (possibleValues != null && !possibleValues.contains(currentValue)) {
-              throw new BadRequestException(String.format("Value of parameter '%s' can only be in %s", key, possibleValues));
-            }
-          }
-        }
-        return StringUtils.defaultString(super.param(key), paramDef.defaultValue());
-      }
-    };
   }
 
   private void sendError(BadRequestException e, ServletResponse response) {

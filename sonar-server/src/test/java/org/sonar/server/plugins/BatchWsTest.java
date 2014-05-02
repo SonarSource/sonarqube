@@ -62,7 +62,7 @@ public class BatchWsTest {
     ws.start();
     WsTester tester = new WsTester(ws);
 
-    String index = tester.newRequest("index").execute().outputAsString();
+    String index = tester.newGetRequest("batch", "index").execute().outputAsString();
     assertThat(index).isEqualTo("sonar-batch.jar|acbd18db4cc2f85cedef654fccc4a4d8" + CharUtils.LF);
 
     ws.stop();
@@ -74,7 +74,7 @@ public class BatchWsTest {
     ws.start();
     WsTester tester = new WsTester(ws);
 
-    String jar = tester.newRequest("file").setParam("name", "sonar-batch.jar").execute().outputAsString();
+    String jar = tester.newGetRequest("batch", "file").setParam("name", "sonar-batch.jar").execute().outputAsString();
     assertThat(jar).isEqualTo("foo");
   }
 
@@ -91,7 +91,7 @@ public class BatchWsTest {
     ws.start();
     WsTester tester = new WsTester(ws);
 
-    tester.newRequest("file").setParam("name", "../sonar-batch.jar").execute();
+    tester.newGetRequest("batch", "file").setParam("name", "../sonar-batch.jar").execute();
   }
 
   @Test
@@ -103,6 +103,6 @@ public class BatchWsTest {
     ws.start();
     WsTester tester = new WsTester(ws);
 
-    tester.newRequest("file").setParam("name", "other.jar").execute();
+    tester.newGetRequest("batch", "file").setParam("name", "other.jar").execute();
   }
 }

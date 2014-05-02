@@ -20,7 +20,6 @@
 package org.sonar.server.ws;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.util.Map;
 
 public class ServletRequest extends InternalRequest {
@@ -39,12 +38,12 @@ public class ServletRequest extends InternalRequest {
   }
 
   @Override
-  public String param(String key) {
-    String parameter = source.getParameter(key);
-    if (parameter == null) {
-      parameter = params.get(key);
+  protected String readParam(String key) {
+    String value = source.getParameter(key);
+    if (value == null) {
+      value = params.get(key);
     }
-    return parameter;
+    return value;
   }
 
 }

@@ -74,7 +74,7 @@ public class RuleTagsWsTest {
   @Test
   public void list_tags() throws Exception {
     when(ruleTags.listAllTags()).thenReturn(ImmutableList.of("tag1", "tag2", "tag3"));
-    tester.newRequest("list").execute().assertJson(getClass(), "list.json");
+    tester.newGetRequest("api/rule_tags", "list").execute().assertJson(getClass(), "list.json");
     verify(ruleTags).listAllTags();
   }
 
@@ -85,14 +85,14 @@ public class RuleTagsWsTest {
     RuleTagDto newTag = new RuleTagDto().setId(tagId).setTag(tag);
     when(ruleTags.create("newtag")).thenReturn(newTag);
 
-    WsTester.TestRequest request = tester.newRequest("create").setParam("tag", tag);
+    WsTester.TestRequest request = tester.newPostRequest("api/rule_tags", "create").setParam("tag", tag);
     request.execute().assertJson(getClass(), "create_ok.json");
     verify(ruleTags).create(tag);
   }
 
   @Test
   public void create_missing_parameter() throws Exception {
-    WsTester.TestRequest request = tester.newRequest("create");
+    WsTester.TestRequest request = tester.newPostRequest("api/rule_tags", "create");
     try {
       request.execute();
       fail();

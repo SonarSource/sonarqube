@@ -57,7 +57,7 @@ public class FavoritesActionTest {
   public void favorites_of_anonymous() throws Exception {
     MockUserSession.set();
 
-    tester.newRequest("favorites").execute()
+    tester.newGetRequest("api/issue_filters", "favorites").execute()
       .assertJson("{'favoriteFilters': []}");
   }
 
@@ -68,7 +68,7 @@ public class FavoritesActionTest {
       new DefaultIssueFilter().setId(13L).setName("Blocker issues").setData("severity=BLOCKER").setUser("simon").setShared(true)
     ));
 
-    tester.newRequest("favorites").execute()
+    tester.newGetRequest("api/issue_filters", "favorites").execute()
       .assertJson("{'favoriteFilters': [{'id': 13, 'name': 'Blocker issues', 'user': 'simon', 'shared': true}]}");
   }
 

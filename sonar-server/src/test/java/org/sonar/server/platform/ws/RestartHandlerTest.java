@@ -21,10 +21,10 @@ package org.sonar.server.platform.ws;
 
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.server.ws.WsTester;
 import org.sonar.api.utils.System2;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.Platform;
+import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.mock;
@@ -47,7 +47,7 @@ public class RestartHandlerTest {
     SystemWs ws = new SystemWs(restartHandler);
 
     WsTester tester = new WsTester(ws);
-    tester.newRequest("restart").execute();
+    tester.newPostRequest("api/system", "restart").execute();
 
     verify(platform).restart();
   }
@@ -61,7 +61,7 @@ public class RestartHandlerTest {
 
     WsTester tester = new WsTester(ws);
     try {
-      tester.newRequest("restart").execute();
+      tester.newPostRequest("api/system", "restart").execute();
       fail();
     } catch (ForbiddenException e) {
       verifyZeroInteractions(platform);
@@ -81,7 +81,7 @@ public class RestartHandlerTest {
 
     WsTester tester = new WsTester(ws);
     try {
-      tester.newRequest("restart").execute();
+      tester.newPostRequest("api/system", "restart").execute();
       fail();
     } catch (ForbiddenException e) {
       verifyZeroInteractions(platform);

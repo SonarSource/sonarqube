@@ -19,6 +19,7 @@
  */
 package org.sonar.server.source.ws;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -71,14 +72,14 @@ public class ScmAction implements RequestHandler {
     String fileKey = request.mandatoryParam("key");
     service.checkPermission(fileKey);
 
-    int from = Math.max(request.paramAsInt("from", 1), 1);
-    int to = request.paramAsInt("to", Integer.MAX_VALUE);
+    int from = Math.max(request.mandatoryParamAsInt("from"), 1);
+    int to = (Integer) ObjectUtils.defaultIfNull(request.paramAsInt("to"), Integer.MAX_VALUE);
 
     String authors = service.getScmAuthorData(fileKey);
     String dates = service.getScmDateData(fileKey);
 
     JsonWriter json = response.newJsonWriter().beginObject();
-    scmWriter.write(authors, dates, from, to, request.paramAsBoolean("groupCommits", true), json);
+    scmWriter.write(authors, dates, from, to, request.mandatoryParamAsBoolean("groupCommits"), json);
     json.endObject().close();
   }
 }

@@ -28,11 +28,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.server.ws.WsTester;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.Rules;
 import org.sonar.server.user.MockUserSession;
+import org.sonar.server.ws.WsTester;
 
 import java.util.List;
 
@@ -62,7 +62,7 @@ public class RemoveTagsWsHandlerTest {
     when(rules.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(rule);
 
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-    WsTester.TestRequest request = tester.newRequest("remove_tags").setParam("key", ruleKey).setParam("tags", "admin2,admin3,polop");
+    WsTester.TestRequest request = tester.newPostRequest("api/rules", "remove_tags").setParam("key", ruleKey).setParam("tags", "admin2,admin3,polop");
     request.execute().assertNoContent();
 
     ArgumentCaptor<Object> newTagsCaptor = ArgumentCaptor.forClass(Object.class);

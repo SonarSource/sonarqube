@@ -23,14 +23,8 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 
 public abstract class InternalRequest extends Request {
-  private WebService.Action action;
-
   @Override
-  public WebService.Action action() {
-    return action;
-  }
-
-  void setAction(WebService.Action action) {
-    this.action = action;
+  protected void setAction(WebService.Action action) {
+    super.setAction(action);
   }
 }

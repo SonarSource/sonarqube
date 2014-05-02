@@ -55,14 +55,14 @@ public class ListingWsTest {
   @Test
   public void list() throws Exception {
     WsTester tester = new WsTester(ws, new MetricWebService());
-    tester.newRequest("api/webservices", "list").execute().assertJson(getClass(), "list.json");
+    tester.newGetRequest("api/webservices", "list").execute().assertJson(getClass(), "list.json");
   }
 
   @Test
   public void response_example() throws Exception {
     WsTester tester = new WsTester(ws, new MetricWebService());
     tester
-      .newRequest("api/webservices", "responseExample")
+      .newGetRequest("api/webservices", "responseExample")
       .setParam("controller", "api/metric")
       .setParam("action", "create")
       .execute().assertJson(getClass(), "response_example.json");

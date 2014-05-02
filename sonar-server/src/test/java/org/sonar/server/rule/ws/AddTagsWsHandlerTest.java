@@ -20,8 +20,6 @@
 
 package org.sonar.server.rule.ws;
 
-import org.sonar.server.exceptions.NotFoundException;
-
 import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,11 +28,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.server.ws.WsTester;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.Rules;
 import org.sonar.server.user.MockUserSession;
+import org.sonar.server.ws.WsTester;
 
 import java.util.List;
 
@@ -64,7 +63,7 @@ public class AddTagsWsHandlerTest {
     when(rules.findByKey(RuleKey.of("squid", "AvoidCycle"))).thenReturn(rule);
 
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-    WsTester.TestRequest request = tester.newRequest("add_tags").setParam("key", ruleKey).setParam("tags", "tag1,tag2");
+    WsTester.TestRequest request = tester.newPostRequest("api/rules", "add_tags").setParam("key", ruleKey).setParam("tags", "tag1,tag2");
     request.execute().assertNoContent();
 
     ArgumentCaptor<Object> newTagsCaptor = ArgumentCaptor.forClass(Object.class);
@@ -76,7 +75,7 @@ public class AddTagsWsHandlerTest {
 
   @Test(expected = NotFoundException.class)
   public void add_tags_key_not_found() throws Exception {
-    tester.newRequest("add_tags").setParam("key", "polop:palap").setParam("tags", "tag1,tag2").execute();
+    tester.newPostRequest("api/rules", "add_tags").setParam("key", "polop:palap").setParam("tags", "tag1,tag2").execute();
   }
 
   private Rule create(String repoKey, String key, String name, String description) {

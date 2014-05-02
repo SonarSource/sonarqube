@@ -19,7 +19,6 @@
  */
 package org.sonar.server.source.ws;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
@@ -65,7 +64,7 @@ public class ShowActionTest {
       "}"
     ));
 
-    WsTester.TestRequest request = tester.newRequest("show").setParam("key", componentKey);
+    WsTester.TestRequest request = tester.newGetRequest("api/sources", "show").setParam("key", componentKey);
     request.execute().assertJson(getClass(), "show_source.json");
   }
 
@@ -82,7 +81,7 @@ public class ShowActionTest {
     when(sourceService.getLinesAsHtml(anyString(), anyInt(), anyInt())).thenReturn(Collections.<String>emptyList());
 
     try {
-      WsTester.TestRequest request = tester.newRequest("show").setParam("key", componentKey);
+      WsTester.TestRequest request = tester.newGetRequest("api/sources", "show").setParam("key", componentKey);
       request.execute();
       fail();
     } catch (Exception e) {
@@ -92,13 +91,17 @@ public class ShowActionTest {
 
   @Test
   public void show_source_with_from_and_to_params() throws Exception {
-    String componentKey = "src/Foo.java";
-    when(sourceService.getLinesAsHtml(componentKey, 3, 5)).thenReturn(newArrayList(
+    String fileKey = "src/Foo.java";
+    when(sourceService.getLinesAsHtml(fileKey, 3, 5)).thenReturn(newArrayList(
       " */",
       "",
       "public class <span class=\"sym-31 sym\">HelloWorld</span> {"
     ));
-    WsTester.TestRequest request = tester.newRequest("show").setParam("key", componentKey).setParam("from", "3").setParam("to", "5");
+    WsTester.TestRequest request = tester
+      .newGetRequest("api/sources", "show")
+      .setParam("key", fileKey)
+      .setParam("from", "3")
+      .setParam("to", "5");
     request.execute().assertJson(getClass(), "show_source_with_params_from_and_to.json");
   }
 
@@ -110,7 +113,11 @@ public class ShowActionTest {
       "",
       "public class <span class=\"sym-31 sym\">HelloWorld</span> {"
     ));
-    WsTester.TestRequest request = tester.newRequest("show").setParam("key", fileKey).setParam("from", "0").setParam("to", "5");
+    WsTester.TestRequest request = tester
+      .newGetRequest("api/sources", "show")
+      .setParam("key", fileKey)
+      .setParam("from", "0")
+      .setParam("to", "5");
     request.execute();
     verify(sourceService).getLinesAsHtml(fileKey, 1, 5);
   }
@@ -125,7 +132,10 @@ public class ShowActionTest {
     when(sourceService.getScmAuthorData(fileKey)).thenReturn("1=julien;");
     when(sourceService.getScmDateData(fileKey)).thenReturn("1=2013-03-13T16:22:31+0100;");
 
-    WsTester.TestRequest request = tester.newRequest("show").setParam("key", fileKey).setParam("scm", "true");
+    WsTester.TestRequest request = tester
+      .newGetRequest("api/sources", "show")
+      .setParam("key", fileKey)
+      .setParam("scm", "true");
     request.execute().assertJson(getClass(), "show_source_with_grouped_scm_commits.json");
   }
 
@@ -139,7 +149,11 @@ public class ShowActionTest {
     when(sourceService.getScmAuthorData(fileKey)).thenReturn("1=julien;");
     when(sourceService.getScmDateData(fileKey)).thenReturn("1=2013-03-13T16:22:31+0100;");
 
-    WsTester.TestRequest request = tester.newRequest("show").setParam("key", fileKey).setParam("scm", "true").setParam("groupCommits", "false");
+    WsTester.TestRequest request = tester
+      .newGetRequest("api/sources", "show")
+      .setParam("key", fileKey)
+      .setParam("scm", "true")
+      .setParam("groupCommits", "false");
     request.execute().assertJson(getClass(), "show_source_with_scm_commits.json");
   }
 

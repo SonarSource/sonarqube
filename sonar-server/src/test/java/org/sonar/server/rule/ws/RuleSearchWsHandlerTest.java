@@ -84,7 +84,7 @@ public class RuleSearchWsHandlerTest {
     when(languages.get("java")).thenReturn(lang);
 
     MockUserSession.set();
-    WsTester.TestRequest request = tester.newRequest("list").setParam("ps", "10").setParam("p", "2");
+    WsTester.TestRequest request = tester.newGetRequest("api/rules", "list").setParam("ps", "10").setParam("p", "2");
     request.execute().assertJson(getClass(), "search_rules.json");
   }
 
@@ -99,7 +99,7 @@ public class RuleSearchWsHandlerTest {
     when(languages.get("java")).thenReturn(lang);
 
     MockUserSession.set();
-    WsTester.TestRequest request = tester.newRequest("list").setParam("k", ruleKey);
+    WsTester.TestRequest request = tester.newGetRequest("api/rules", "list").setParam("k", ruleKey);
     request.execute().assertJson(getClass(), "search_rules.json");
   }
 
@@ -111,7 +111,7 @@ public class RuleSearchWsHandlerTest {
       new PagedResult<Rule>(ImmutableList.of(rule), PagingResult.create(10, 1, 1)));
 
     MockUserSession.set();
-    tester.newRequest("list")
+    tester.newGetRequest("api/rules", "list")
       .setParam("languages", "java,js")
       .setParam("repositories", "squid,pmd")
       .setParam("severities", "MAJOR,MINOR")

@@ -20,6 +20,7 @@
 package org.sonar.server.ws;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -34,11 +35,8 @@ import org.sonar.server.exceptions.BadRequestException.Message;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.plugins.MimeTypes;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -52,17 +50,21 @@ import static org.mockito.Mockito.when;
 public class WebServiceEngineTest {
 
   private static class SimpleRequest extends InternalRequest {
-    private String method = "GET";
-    private Map<String, String> params = new HashMap<String, String>();
+    private final String method;
+    private Map<String, String> params = Maps.newHashMap();
+
+    private SimpleRequest(String method) {
+      this.method = method;
+    }
 
     @Override
     public String method() {
       return method;
     }
 
-    public SimpleRequest setMethod(String s) {
-      this.method = s;
-      return this;
+    @Override
+    protected String readParam(String key) {
+      return params.get(key);
     }
 
     public SimpleRequest setParams(Map<String, String> m) {
@@ -75,12 +77,6 @@ public class WebServiceEngineTest {
         params.put(key, value);
       }
       return this;
-    }
-
-    @Override
-    @CheckForNull
-    public String param(String key) {
-      return params.get(key);
     }
 
   }
@@ -106,7 +102,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void execute_request() throws Exception {
-    InternalRequest request = new SimpleRequest();
+    InternalRequest request = new SimpleRequest("GET");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "health");
 
@@ -115,7 +111,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void no_content() throws Exception {
-    InternalRequest request = new SimpleRequest();
+    InternalRequest request = new SimpleRequest("GET");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "alive");
 
@@ -124,7 +120,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void bad_controller() throws Exception {
-    InternalRequest request = new SimpleRequest();
+    InternalRequest request = new SimpleRequest("GET");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/xxx", "health");
 
@@ -133,7 +129,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void bad_action() throws Exception {
-    InternalRequest request = new SimpleRequest();
+    InternalRequest request = new SimpleRequest("GET");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "xxx");
 
@@ -142,7 +138,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void method_get_not_allowed() throws Exception {
-    InternalRequest request = new SimpleRequest();
+    InternalRequest request = new SimpleRequest("GET");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "ping");
 
@@ -151,7 +147,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void method_post_required() throws Exception {
-    InternalRequest request = new SimpleRequest().setMethod("POST");
+    InternalRequest request = new SimpleRequest("POST");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "ping");
 
@@ -160,7 +156,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void unknown_parameter_is_set() throws Exception {
-    InternalRequest request = new SimpleRequest().setParam("unknown", "Unknown");
+    InternalRequest request = new SimpleRequest("GET").setParam("unknown", "Unknown");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "fail_with_undeclared_parameter");
 
@@ -169,7 +165,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void required_parameter_is_not_set() throws Exception {
-    InternalRequest request = new SimpleRequest();
+    InternalRequest request = new SimpleRequest("GET");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "print");
 
@@ -178,7 +174,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void optional_parameter_is_not_set() throws Exception {
-    InternalRequest request = new SimpleRequest().setParam("message", "Hello World");
+    InternalRequest request = new SimpleRequest("GET").setParam("message", "Hello World");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "print");
 
@@ -187,7 +183,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void optional_parameter_is_set() throws Exception {
-    InternalRequest request = new SimpleRequest()
+    InternalRequest request = new SimpleRequest("GET")
       .setParam("message", "Hello World")
       .setParam("author", "Marcel");
     ServletResponse response = new ServletResponse();
@@ -198,7 +194,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void param_value_is_in_possible_values() throws Exception {
-    InternalRequest request = new SimpleRequest()
+    InternalRequest request = new SimpleRequest("GET")
       .setParam("message", "Hello World")
       .setParam("format", "json");
     ServletResponse response = new ServletResponse();
@@ -209,40 +205,18 @@ public class WebServiceEngineTest {
 
   @Test
   public void param_value_is_not_in_possible_values() throws Exception {
-    InternalRequest request = new SimpleRequest()
+    InternalRequest request = new SimpleRequest("GET")
       .setParam("message", "Hello World")
       .setParam("format", "html");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "print");
 
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Value of parameter 'format' can only be in [json, xml]\"}]}");
-  }
-
-  @Test
-  public void param_values_is_in_possible_values() throws Exception {
-    InternalRequest request = new SimpleRequest()
-      .setParam("message", "Hello World")
-      .setParam("formats", "json,xml");
-    ServletResponse response = new ServletResponse();
-    engine.execute(request, response, "api/system", "print");
-
-    assertThat(response.stream().outputAsString()).isEqualTo("Hello World by -");
-  }
-
-  @Test
-  public void param_values_is_not_in_possible_values() throws Exception {
-    InternalRequest request = new SimpleRequest()
-      .setParam("message", "Hello World")
-      .setParam("formats", "json,html");
-    ServletResponse response = new ServletResponse();
-    engine.execute(request, response, "api/system", "print");
-
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Value of parameter 'formats' can only be in [json, xml]\"}]}");
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Value of parameter 'format' (html) must be one of: [json, xml]\"}]}");
   }
 
   @Test
   public void internal_error() throws Exception {
-    InternalRequest request = new SimpleRequest();
+    InternalRequest request = new SimpleRequest("GET");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "fail");
 
@@ -253,7 +227,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void bad_request_with_i18n_message() throws Exception {
-    InternalRequest request = new SimpleRequest().setParam("count", "3");
+    InternalRequest request = new SimpleRequest("GET").setParam("count", "3");
     ServletResponse response = new ServletResponse();
     when(i18n.message(eq(Locale.getDefault()), eq("bad.request.reason"), anyString(), eq(0))).thenReturn("Bad request reason #0");
 
@@ -268,7 +242,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void bad_request_with_multiple_messages() throws Exception {
-    InternalRequest request = new SimpleRequest().setParam("count", "3");
+    InternalRequest request = new SimpleRequest("GET").setParam("count", "3");
     ServletResponse response = new ServletResponse();
 
     engine.execute(request, response, "api/system", "fail_with_multiple_messages");
@@ -284,7 +258,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void bad_request_with_multiple_i18n_messages() throws Exception {
-    InternalRequest request = new SimpleRequest().setParam("count", "3");
+    InternalRequest request = new SimpleRequest("GET").setParam("count", "3");
     ServletResponse response = new ServletResponse();
     when(i18n.message(Locale.getDefault(), "bad.request.reason", null, 0)).thenReturn("Bad request reason #0");
     when(i18n.message(Locale.getDefault(), "bad.request.reason", null, 1)).thenReturn("Bad request reason #1");
@@ -303,7 +277,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void server_exception_with_i18n_message() throws Exception {
-    InternalRequest request = new SimpleRequest();
+    InternalRequest request = new SimpleRequest("GET");
     ServletResponse response = new ServletResponse();
     when(i18n.message(eq(Locale.getDefault()), eq("not.found"), anyString())).thenReturn("Element is not found");
 
@@ -395,25 +369,23 @@ public class WebServiceEngineTest {
         });
 
       newController.createAction("fail_with_undeclared_parameter")
-      .setHandler(new RequestHandler() {
-        @Override
-        public void handle(Request request, Response response) {
-          response.newJsonWriter().prop("unknown", request.param("unknown"));
-        }
-      });
+        .setHandler(new RequestHandler() {
+          @Override
+          public void handle(Request request, Response response) {
+            response.newJsonWriter().prop("unknown", request.param("unknown"));
+          }
+        });
 
       // parameter "message" is required but not "author"
       NewAction print = newController.createAction("print");
       print.createParam("message").setDescription("required message").setRequired(true);
       print.createParam("author").setDescription("optional author").setDefaultValue("-");
       print.createParam("format").setDescription("optional format").setPossibleValues("json", "xml");
-      print.createParam("formats").setDescription("optional formats").setPossibleValues("json", "xml");
       print.setHandler(new RequestHandler() {
         @Override
         public void handle(Request request, Response response) {
           try {
             request.param("format");
-            request.paramAsStrings("formats");
             IOUtils.write(
               request.mandatoryParam("message") + " by " + request.param("author", "nobody"), response.stream().output());
           } catch (IOException e) {

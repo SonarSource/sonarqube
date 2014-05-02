@@ -55,13 +55,13 @@ public class AppActionTest {
   @Test
   public void anonymous_app() throws Exception {
     MockUserSession.set().setLogin(null);
-    tester.newRequest("app").execute().assertJson(getClass(), "anonymous_page.json");
+    tester.newGetRequest("api/issue_filters", "app").execute().assertJson(getClass(), "anonymous_page.json");
   }
 
   @Test
   public void logged_in_app() throws Exception {
     MockUserSession.set().setLogin("eric").setUserId(123);
-    tester.newRequest("app").execute()
+    tester.newGetRequest("api/issue_filters", "app").execute()
       .assertJson(getClass(), "logged_in_page.json");
   }
 
@@ -72,7 +72,7 @@ public class AppActionTest {
       new DefaultIssueFilter().setId(6L).setName("My issues"),
       new DefaultIssueFilter().setId(13L).setName("Blocker issues")
     ));
-    tester.newRequest("app").execute()
+    tester.newGetRequest("api/issue_filters", "app").execute()
       .assertJson(getClass(), "logged_in_page_with_favorites.json");
   }
 
@@ -83,7 +83,7 @@ public class AppActionTest {
       new DefaultIssueFilter().setId(13L).setName("Blocker issues").setData("severity=BLOCKER").setUser("eric")
     );
 
-    tester.newRequest("app").setParam("id", "13").execute()
+    tester.newGetRequest("api/issue_filters", "app").setParam("id", "13").execute()
       .assertJson(getClass(), "logged_in_page_with_selected_filter.json");
   }
 
@@ -95,7 +95,7 @@ public class AppActionTest {
       new DefaultIssueFilter().setId(13L).setName("Blocker issues").setData("severity=BLOCKER").setUser("simon").setShared(true)
     );
 
-    tester.newRequest("app").setParam("id", "13").execute()
+    tester.newGetRequest("api/issue_filters", "app").setParam("id", "13").execute()
       .assertJson(getClass(), "selected_filter_can_not_be_modified.json");
   }
 

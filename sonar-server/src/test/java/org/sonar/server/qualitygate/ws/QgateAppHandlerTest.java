@@ -31,12 +31,16 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
-import org.sonar.server.ws.WsTester;
 import org.sonar.core.timemachine.Periods;
+import org.sonar.server.qualitygate.QgateProjectFinder;
 import org.sonar.server.qualitygate.QualityGates;
+import org.sonar.server.ws.WsTester;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -60,7 +64,7 @@ public class QgateAppHandlerTest {
 
   @Before
   public void setUp() {
-    tester = new WsTester(new QualityGatesWs(qGates, null, new QgateAppHandler(qGates, periods, i18n)));
+    tester = new WsTester(new QualityGatesWs(qGates, mock(QgateProjectFinder.class), new QgateAppHandler(qGates, periods, i18n)));
   }
 
   @Test
@@ -82,7 +86,7 @@ public class QgateAppHandlerTest {
     when(metric.isHidden()).thenReturn(false);
     when(qGates.gateMetrics()).thenReturn(ImmutableList.of(metric));
 
-    String json = tester.newRequest("app").execute().outputAsString();
+    String json = tester.newGetRequest("api/qualitygates", "app").execute().outputAsString();
 
     Map responseJson = (Map) JSONValue.parse(json);
     assertThat((Boolean) responseJson.get("edit")).isFalse();
@@ -90,7 +94,7 @@ public class QgateAppHandlerTest {
     assertThat(periods).hasSize(5);
     Map messages = (Map) responseJson.get("messages");
     assertThat(messages).isNotNull().isNotEmpty().hasSize(54);
-    for (Entry message: (Set<Entry>) messages.entrySet()) {
+    for (Entry message : (Set<Entry>) messages.entrySet()) {
       assertThat(message.getKey()).isEqualTo(message.getValue());
     }
     Collection<Map> metrics = (Collection<Map>) responseJson.get("metrics");
