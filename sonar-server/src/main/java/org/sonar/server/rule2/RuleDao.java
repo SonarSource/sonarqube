@@ -237,9 +237,12 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
 
   public void insert(RuleParamDto param, DbSession session) {
     getMapper(session).insertParameter(param);
-    session.enqueue(new EmbeddedIndexAction<RuleKey>(this.getIndexName(),
-      IndexAction.Method.INSERT, param,
-      this.selectById(param.getRuleId(), session).getKey()));
+    RuleDto dto = this.selectById(param.getRuleId(), session);
+    if(dto != null){
+      session.enqueue(new EmbeddedIndexAction<RuleKey>(this.getIndexName(),
+        IndexAction.Method.INSERT, param,
+        dto.getKey()));
+    }
   }
 
   public void insert(RuleParamDto param) {
@@ -254,9 +257,12 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
 
   public void update(RuleParamDto param, DbSession session) {
     getMapper(session).updateParameter(param);
-    session.enqueue(new EmbeddedIndexAction<RuleKey>(this.getIndexName(),
-      IndexAction.Method.UPDATE, param,
-      this.selectById(param.getRuleId(), session).getKey()));
+    RuleDto dto = this.selectById(param.getRuleId(), session);
+    if(dto != null) {
+      session.enqueue(new EmbeddedIndexAction<RuleKey>(this.getIndexName(),
+        IndexAction.Method.UPDATE, param,
+        dto.getKey()));
+    }
   }
 
   public void update(RuleParamDto param) {
