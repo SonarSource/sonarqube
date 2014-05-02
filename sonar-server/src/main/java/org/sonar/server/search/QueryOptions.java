@@ -32,18 +32,39 @@ import java.util.Set;
 
 /**
  * Options about paging, sorting and fields to return
+ * @since 4.4
  */
 public class QueryOptions {
 
   public static final int DEFAULT_OFFSET = 0;
   public static final int DEFAULT_LIMIT = 10;
+  public static final boolean DEFAULT_FACET = true;
 
   private int offset = DEFAULT_OFFSET;
   private int limit = DEFAULT_LIMIT;
+
+  private boolean facet = DEFAULT_FACET;
+
   private Set<String> fieldsToReturn;
 
   public QueryOptions() {
     fieldsToReturn = new HashSet<String>();
+  }
+
+  /**
+   * Whether or not the search returns facets for the domain. Defaults to {@link #DEFAULT_OFFSET}
+   */
+  public boolean isFacet() {
+    return facet;
+  }
+
+  /**
+   * Sets whether or not the search returns facets for the domain.
+   * @param facet
+   */
+  public QueryOptions setFacet(boolean facet) {
+    this.facet = facet;
+    return this;
   }
 
   /**

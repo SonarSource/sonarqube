@@ -22,7 +22,6 @@ package org.sonar.server.rule2;
 import com.google.common.collect.Iterables;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -54,7 +53,32 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  @Ignore("Fails when has no tags or no params")
+  public void facet_test_with_repository() {
+    dao.insert(newRuleDto(RuleKey.of("javascript", "S001"))
+      .setRuleKey("X001"));
+    dao.insert(newRuleDto(RuleKey.of("cobol", "S001"))
+      .setRuleKey("X001"));
+    dao.insert(newRuleDto(RuleKey.of("php", "S002")));
+    index.refresh();
+
+    RuleQuery query = new RuleQuery();
+    Results result = null;
+
+    // should not have any facet!
+    result = index.search(query, new QueryOptions().setFacet(false));
+    assertThat(result.getFacets()).isEmpty();
+
+    // Repositories Facet is preset
+    result = index.search(query, new QueryOptions().setFacet(true));
+    System.out.println(result.getFacets());
+    assertThat(result.getFacets()).isNotNull();
+    assertThat(result.getFacets()).hasSize(3);
+    assertThat(result.getFacet("Repositories").size()).isEqualTo(3);
+    assertThat(result.getFacetKeys("Repositories"))
+      .contains("javascript","cobol","php");
+  }
+
+  @Test
   public void return_all_doc_fields_by_default() {
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001")));
     index.refresh();

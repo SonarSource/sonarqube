@@ -41,6 +41,7 @@ import org.sonar.core.rule.RuleTagDao;
 import org.sonar.core.rule.RuleTagDto;
 import org.sonar.core.rule.RuleTagType;
 import org.sonar.server.search.Hit;
+import org.sonar.server.search.QueryOptions;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.List;
@@ -182,6 +183,7 @@ public class RuleServiceMediumTest {
       .setType("STRING");
     dao.insert(ruleParam);
 
+
     ActiveRuleDto activeRule = new ActiveRuleDto()
       .setInheritance("inherited")
       .setProfileId(1)
@@ -213,6 +215,8 @@ public class RuleServiceMediumTest {
 
     List<Map<String, String>> params = (List<Map<String, String>>) activeRules.get(0).get(RuleNormalizer.ActiveRuleField.PARAMS.key());
     assertThat(Iterables.getFirst(params,null).get(RuleNormalizer.RuleParamField.NAME.key())).isEqualTo(ruleParam.getName());
+
+    index.search(new RuleQuery(), new QueryOptions());
   }
 
   //TODO test delete, update, tags, params

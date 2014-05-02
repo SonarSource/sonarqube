@@ -19,14 +19,45 @@
  */
 package org.sonar.server.search;
 
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.search.facet.Facet;
+import org.elasticsearch.search.facet.terms.TermsFacet;
+
+import javax.annotation.CheckForNull;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Results {
 
   private Collection<Hit> hits;
+  private Map<String, Collection<FacetValue>> facets;
   private int total;
   private int offset;
   private long time;
+
+  private Results(){}
+
+  public Results(SearchResponse response){
+    if(response.getFacets() != null &&
+      !response.getFacets().facets().isEmpty()){
+      this.facets = new HashMap<String, Collection<FacetValue>>();
+      for(Facet facet:response.getFacets().facets()){
+        TermsFacet termFacet = (TermsFacet)facet;
+        List<FacetValue> facetValues = new ArrayList<FacetValue>();
+        for(TermsFacet.Entry facetValue:termFacet.getEntries()){
+          facetValues.add(new FacetValue<Integer>(facetValue.getTerm().string(),
+            facetValue.getCount()));
+        }
+        this.facets.put(facet.getName(), facetValues);
+      }
+    } else {
+      this.facets = Collections.emptyMap();
+    }
+  }
 
   public Collection<Hit> getHits() {
     return hits;
@@ -62,5 +93,38 @@ public class Results {
   public Results setTime(long time) {
     this.time = time;
     return this;
+  }
+
+  public Map<String, Collection<FacetValue>> getFacets(){
+    return this.facets;
+  }
+
+  @CheckForNull
+  public Collection<FacetValue> getFacet(String facetName){
+    return this.facets.get(facetName);
+  }
+
+  @CheckForNull
+  public Collection<String> getFacetKeys(String facetName){
+    if(this.facets.containsKey(facetName)){
+      List<String> keys = new ArrayList<String>();
+      for (FacetValue facetValue : facets.get(facetName)) {
+        keys.add(facetValue.getKey());
+      }
+      return keys;
+    }
+    return null;
+  }
+
+  @CheckForNull
+  public Object getFacetTermValue(String facetName, String key){
+    if(this.facets.containsKey(facetName)) {
+      for (FacetValue facetValue : facets.get(facetName)) {
+        if (facetValue.getKey().equals(key)) {
+          return facetValue.getValue();
+        }
+      }
+    }
+    return null;
   }
 }

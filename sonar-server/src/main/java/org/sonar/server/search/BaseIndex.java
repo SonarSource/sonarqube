@@ -22,6 +22,7 @@ package org.sonar.server.search;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -288,6 +289,8 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
   }
 
   /* ES QueryHelper Methods */
+
+  protected abstract void setFacets(SearchRequestBuilder query);
 
   protected BoolFilterBuilder addTermFilter(String field, Collection<String> values, BoolFilterBuilder filter) {
     if (values != null && !values.isEmpty()) {

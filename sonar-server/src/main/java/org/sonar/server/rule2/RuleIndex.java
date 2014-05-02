@@ -27,6 +27,8 @@ import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.facet.FacetBuilders;
+import org.elasticsearch.search.facet.terms.TermsFacet;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
@@ -184,6 +186,31 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
       .endObject().endObject();
   }
 
+  protected void setFacets(SearchRequestBuilder query){
+    //TODO there are no aggregation in 0.9!!! Must use facet...
+
+     /* the Lang facet */
+    query.addFacet(FacetBuilders.termsFacet("Languages")
+      .field(RuleField.LANGUAGE.key())
+      .size(10)
+      .global(true)
+      .order(TermsFacet.ComparatorType.COUNT));
+
+    /* the Tag facet */
+    query.addFacet(FacetBuilders.termsFacet("Tags")
+      .field(RuleField.TAGS.key())
+      .size(10)
+      .global(true)
+      .order(TermsFacet.ComparatorType.COUNT));
+
+    /* the Repo facet */
+    query.addFacet(FacetBuilders.termsFacet("Repositories")
+      .field(RuleField.REPOSITORY.key())
+      .size(10)
+      .global(true)
+      .order(TermsFacet.ComparatorType.COUNT));
+  }
+
   public Results search(RuleQuery query, QueryOptions options) {
 
     SearchRequestBuilder esSearch = getClient()
@@ -232,6 +259,11 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
     }
     esSearch.setQuery(mainQuery);
 
+    /* Integrate Facets */
+    if(options.isFacet()) {
+      this.setFacets(esSearch);
+    }
+
     /* integrate Query Sort */
     if(query.getSortField() != null){
       FieldSortBuilder sort = SortBuilders.fieldSort(query.getSortField().field().key());
@@ -246,7 +278,6 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
     } else {
       esSearch.addSort(RuleField.UPDATED_AT.key(), SortOrder.DESC);
     }
-
 
     /* integrate Option's Pagination */
     esSearch.setFrom(options.getOffset());
@@ -266,10 +297,9 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
 
     /* Get results */
     SearchResponse esResult = esSearch.get();
-System.out.println(esResult);
 
     /* Integrate ES Results */
-    Results results = new Results()
+    Results results = new Results(esResult)
       .setTotal((int) esResult.getHits().totalHits())
       .setTime(esResult.getTookInMillis())
       .setHits(this.toHit(esResult.getHits()));

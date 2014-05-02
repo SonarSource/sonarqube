@@ -155,9 +155,9 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
     /* Normalize the tags */
     List<RuleRuleTagDto> tags = ruleDao.selectTagsByRuleId(rule.getId());
+    ArrayList<String> sys = new ArrayList<String>();
+    ArrayList<String> admin = new ArrayList<String>();
     if (tags != null && !tags.isEmpty()) {
-      ArrayList<String> sys = new ArrayList<String>();
-      ArrayList<String> admin = new ArrayList<String>();
       for (RuleRuleTagDto tag : tags) {
         if (tag.getType().equals(RuleTagType.SYSTEM)) {
           sys.add(tag.getTag());
@@ -165,19 +165,16 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
           admin.add(tag.getTag());
         }
       }
-      if (!admin.isEmpty()) {
-        document.array(RuleField.TAGS.key(), admin.toArray(new String[admin.size()]));
-      }
-      if (!sys.isEmpty()) {
-        document.array(RuleField.SYSTEM_TAGS.key(), sys.toArray(new String[sys.size()]));
-      }
     }
+    document.array(RuleField.TAGS.key(), admin.toArray(new String[admin.size()]));
+    document.array(RuleField.SYSTEM_TAGS.key(), sys.toArray(new String[sys.size()]));
+
 
     /* Normalize the params */
     List<RuleParamDto> params = ruleDao.selectParametersByRuleId(rule.getId());
     Map<Integer, String> paramIdNameLookup = new HashMap<Integer, String>();
+    document.startArray(RuleField.PARAMS.key());
     if (!params.isEmpty()) {
-      document.startArray(RuleField.PARAMS.key());
       for (RuleParamDto param : params) {
         paramIdNameLookup.put(param.getId(), param.getName());
         document.startObject();
@@ -187,13 +184,13 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
         indexField(RuleParamField.VALUE.key(), param.getDefaultValue(), document);
         document.endObject();
       }
-      document.endArray();
     }
+    document.endArray();
 
     /* Normalize activeRules */
     List<ActiveRuleDto> activeRules = activeRuleDao.selectByRuleId(rule.getId());
+    document.startArray(RuleField.ACTIVE.key());
     if (!activeRules.isEmpty()) {
-      document.startArray(RuleField.ACTIVE.key());
       for (ActiveRuleDto activeRule : activeRules) {
         document.startObject();
         indexField(ActiveRuleField.OVERRIDE.key(), activeRule.doesOverride(), document);
@@ -220,8 +217,8 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
         }
         document.endObject();
       }
-      document.endArray();
     }
+    document.endArray();
 
     /* Done normalizing for Rule */
     return document.endObject();
