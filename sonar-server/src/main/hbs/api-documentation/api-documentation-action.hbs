@@ -1,25 +1,27 @@
-<code>
+<h3 class="big">
 	{{#if post}}POST{{else}}GET{{/if}}
-	/{{key}}{{#if params}}?{{#each params}}{{#if required}}{{key}}={{exampleValue}}&amp;{{/if}}{{/each}}{{/if}}
-</code>
-<span class="subtitle">Since {{since}}</span>
+	{{path}}
+</h3>
+<span class="subtitle">
+	{{#if since}}Since {{since}}{{#if internal}} -{{/if}}{{/if}}
+	{{#if internal}}For internal use only{{/if}}
+</span>
 <p>{{description}}</p>
-{{#if internal}}<p class="subtitle">For internal use only</p>{{/if}}
 {{#if params}}
-<table class="data">
-  <thead>
-    <tr>
-      <th>Key</th>
-      <th>Description</th>
-    </tr>
-  </thead>
+<h3>Parameters</h3>
+<table>
   {{#each params}}
   <tr>
   	<td style="width:10em">
   		<code>{{key}}</code>
   		<div class="subtitle">{{#if required}}required{{else}}optional{{/if}}</div>
   	</td<>
-  	<td>{{description}}</td>
+  	<td>
+  		<p>{{description}}</p>
+  		{{#if exampleValue}}
+  		<em>Example value:</em> <code>{{exampleValue}}</code>
+  		{{/if}}
+  	</td>
   </tr>
   {{/each}}
 </table>

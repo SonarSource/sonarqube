@@ -76,15 +76,21 @@
 	.api-documentation-action {
 		margin-top: 30px;
 
-		& > code {
-			display: block;
-			padding: 10px 5px;
-			border: 1px solid @navigatorBorderLightColor;
-			background: @navigatorBarBackground
+		& > p, & > h3 {
+			margin-top: 5px;
 		}
 
-		& > p {
-			margin-top: 5px;
+		table {
+			width: 100%;
+
+			tr {
+				border-top: 1px solid @navigatorBorderLightColor;
+
+				td {
+					padding: 10px 0;
+					margin: 5px;
+				}
+			}
 		}
 	}
 }

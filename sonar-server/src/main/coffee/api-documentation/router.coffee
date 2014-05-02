@@ -23,7 +23,7 @@ define [
       if webService
         @app.apiDocumentationListView.highlight path
 
-        actions = new WebServiceActions webService.get('actions')
+        actions = new WebServiceActions webService.get('actions'), path: path
         actionsListView = new ApiDocumentationActionsListView
           app: @app
           collection: actions
