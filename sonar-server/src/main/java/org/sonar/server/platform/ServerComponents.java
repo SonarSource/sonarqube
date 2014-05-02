@@ -81,6 +81,7 @@ import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.cluster.LocalNonBlockingWorkQueue;
 import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
+import org.sonar.server.component.ws.ProjectsWs;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
 import org.sonar.server.db.migrations.DatabaseMigrations;
 import org.sonar.server.db.migrations.DatabaseMigrator;
@@ -349,6 +350,7 @@ class ServerComponents {
     pico.addSingleton(DefaultComponentFinder.class);
     pico.addSingleton(DefaultRubyComponentService.class);
     pico.addSingleton(ComponentDao.class);
+    pico.addSingleton(ProjectsWs.class);
 
     // issues
     pico.addSingleton(ServerIssueStorage.class);
