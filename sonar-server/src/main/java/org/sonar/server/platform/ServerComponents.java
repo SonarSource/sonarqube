@@ -107,8 +107,7 @@ import org.sonar.server.plugins.*;
 import org.sonar.server.qualitygate.QgateProjectFinder;
 import org.sonar.server.qualitygate.QualityGates;
 import org.sonar.server.qualitygate.RegisterQualityGates;
-import org.sonar.server.qualitygate.ws.QgateAppHandler;
-import org.sonar.server.qualitygate.ws.QualityGatesWs;
+import org.sonar.server.qualitygate.ws.*;
 import org.sonar.server.qualityprofile.*;
 import org.sonar.server.qualityprofile.ws.QProfileRestoreDefaultAction;
 import org.sonar.server.qualityprofile.ws.QProfilesWs;
@@ -319,8 +318,23 @@ class ServerComponents {
     pico.addSingleton(QualityGates.class);
     pico.addSingleton(ProjectQgateAssociationDao.class);
     pico.addSingleton(QgateProjectFinder.class);
-    pico.addSingleton(QgateAppHandler.class);
-    pico.addSingleton(QualityGatesWs.class);
+
+    pico.addSingleton(QGatesListAction.class);
+    pico.addSingleton(QGatesSearchAction.class);
+    pico.addSingleton(QGatesShowAction.class);
+    pico.addSingleton(QGatesCreateAction.class);
+    pico.addSingleton(QGatesRenameAction.class);
+    pico.addSingleton(QGatesCopyAction.class);
+    pico.addSingleton(QGatesDestroyAction.class);
+    pico.addSingleton(QGatesSetAsDefaultAction.class);
+    pico.addSingleton(QGatesUnsetDefaultAction.class);
+    pico.addSingleton(QGatesSelectAction.class);
+    pico.addSingleton(QGatesDeselectAction.class);
+    pico.addSingleton(QGatesCreateConditionAction.class);
+    pico.addSingleton(QGatesDeleteConditionAction.class);
+    pico.addSingleton(QGatesUpdateConditionAction.class);
+    pico.addSingleton(QGatesAppAction.class);
+    pico.addSingleton(QGatesWs.class);
 
     // web services
     pico.addSingleton(WebServiceEngine.class);

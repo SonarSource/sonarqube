@@ -25,13 +25,14 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.server.qualitygate.QualityGates;
 
 import java.util.Locale;
 
-public class QgateAppHandler implements RequestHandler {
+public class QGatesAppAction implements RequestHandler {
 
   private static final String[] MESSAGE_KEYS = {
       "add_verb",
@@ -96,10 +97,18 @@ public class QgateAppHandler implements RequestHandler {
 
   private final I18n i18n;
 
-  public QgateAppHandler(QualityGates qualityGates, Periods periods, I18n i18n) {
+  public QGatesAppAction(QualityGates qualityGates, Periods periods, I18n i18n) {
     this.qualityGates = qualityGates;
     this.periods = periods;
     this.i18n = i18n;
+  }
+
+  void define(WebService.NewController controller) {
+    controller.createAction("app")
+      .setInternal(true)
+      .setDescription("Get initialization items for the admin UI. For internal use.")
+      .setSince("4.3")
+      .setHandler(this);
   }
 
   @Override

@@ -44,12 +44,10 @@ import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class QgateAppHandlerTest {
+public class QGatesAppActionTest {
 
   @Mock
   private QualityGates qGates;
@@ -64,7 +62,12 @@ public class QgateAppHandlerTest {
 
   @Before
   public void setUp() {
-    tester = new WsTester(new QualityGatesWs(qGates, mock(QgateProjectFinder.class), new QgateAppHandler(qGates, periods, i18n)));
+    tester = new WsTester(new QGatesWs(
+      new QGatesListAction(qGates), new QGatesShowAction(qGates), new QGatesSearchAction(mock(QgateProjectFinder.class)),
+      new QGatesCreateAction(qGates), new QGatesCopyAction(qGates), new QGatesDestroyAction(qGates), new QGatesRenameAction(qGates),
+      new QGatesSetAsDefaultAction(qGates), new QGatesUnsetDefaultAction(qGates),
+      new QGatesCreateConditionAction(qGates), new QGatesUpdateConditionAction(qGates), new QGatesDeleteConditionAction(qGates),
+      new QGatesSelectAction(qGates), new QGatesDeselectAction(qGates), new QGatesAppAction(qGates, periods, i18n)));
   }
 
   @Test

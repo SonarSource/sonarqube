@@ -26,12 +26,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.server.ws.WebService.Controller;
 import org.sonar.core.qualitygate.db.ProjectQgateAssociation;
 import org.sonar.core.qualitygate.db.ProjectQgateAssociationQuery;
 import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 import org.sonar.core.qualitygate.db.QualityGateDto;
+import org.sonar.core.timemachine.Periods;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualitygate.QgateProjectFinder;
 import org.sonar.server.qualitygate.QgateProjectFinder.Association;
@@ -42,12 +44,10 @@ import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class QualityGatesWsTest {
+public class QGatesWsTest {
 
   @Mock
   private QualityGates qGates;
@@ -56,13 +56,18 @@ public class QualityGatesWsTest {
   private QgateProjectFinder projectFinder;
 
   @Mock
-  private QgateAppHandler appHandler;
+  private QGatesAppAction appHandler;
 
   WsTester tester;
 
   @Before
   public void setUp() {
-    tester = new WsTester(new QualityGatesWs(qGates, projectFinder, appHandler));
+    tester = new WsTester(new QGatesWs(
+      new QGatesListAction(qGates), new QGatesShowAction(qGates), new QGatesSearchAction(projectFinder),
+      new QGatesCreateAction(qGates), new QGatesCopyAction(qGates), new QGatesDestroyAction(qGates), new QGatesRenameAction(qGates),
+      new QGatesSetAsDefaultAction(qGates), new QGatesUnsetDefaultAction(qGates),
+      new QGatesCreateConditionAction(qGates), new QGatesUpdateConditionAction(qGates), new QGatesDeleteConditionAction(qGates),
+      new QGatesSelectAction(qGates), new QGatesDeselectAction(qGates), new QGatesAppAction(qGates, mock(Periods.class), mock(I18n.class))));
   }
 
   @Test

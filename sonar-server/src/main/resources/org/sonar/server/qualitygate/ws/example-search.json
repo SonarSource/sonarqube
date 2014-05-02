@@ -1,0 +1,15 @@
+{
+  "more": true,
+  "results": [
+    {
+      "id": 1,
+      "name": "Simple Java project analyzed with the SonarQube Runner",
+      "selected": true
+    },
+    {
+      "id": 4,
+      "name": "My Project",
+      "selected": true
+    }
+  ]
+}
