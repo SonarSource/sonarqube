@@ -3,7 +3,7 @@
 
 <mapper namespace="org.sonar.api.database.model.MeasureMapper">
 
-  <insert id="insert" parameterType="MeasureModel" useGeneratedKeys="false">
+  <insert id="insert" parameterType="MeasureModel" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO project_measures (
       value, metric_id, snapshot_id, rule_id, text_value, tendency, measure_date,
       project_id, alert_status, alert_text, url, description, rule_priority, characteristic_id, variation_value_1,

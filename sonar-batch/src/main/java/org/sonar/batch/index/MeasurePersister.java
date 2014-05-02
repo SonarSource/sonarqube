@@ -20,6 +20,7 @@
 package org.sonar.batch.index;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.database.model.MeasureMapper;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.database.model.Snapshot;
@@ -34,7 +35,6 @@ import org.sonar.api.technicaldebt.batch.Characteristic;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.Cache.Entry;
 import org.sonar.batch.scan.measure.MeasureCache;
-import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 public final class MeasurePersister implements ScanPersister {
@@ -55,7 +55,7 @@ public final class MeasurePersister implements ScanPersister {
 
   @Override
   public void persist() {
-    DbSession session = mybatis.openSession(true);
+    SqlSession session = mybatis.openSession();
     try {
       MeasureMapper mapper = session.getMapper(MeasureMapper.class);
 
@@ -67,13 +67,16 @@ public final class MeasurePersister implements ScanPersister {
         if (shouldPersistMeasure(resource, measure)) {
           Snapshot snapshot = snapshotCache.get(effectiveKey);
           MeasureModel measureModel = model(measure).setSnapshotId(snapshot.getId());
-          mapper.insert(measureModel);
+          try {
+            mapper.insert(measureModel);
+          } catch (Exception e) {
+            // SONAR-4066
+            throw new SonarException(String.format("Unable to save measure for metric [%s] on component [%s]", measure.getMetricKey(), resource.getKey()), e);
+          }
         }
       }
 
       session.commit();
-    } catch (Exception e) {
-      throw new SonarException("Unable to save some measures", e);
     } finally {
       MyBatis.closeQuietly(session);
     }
