@@ -234,6 +234,7 @@ module ApplicationHelper
   # * <tt>:suffix</tt> - add a suffix. Default is ''.
   # * <tt>:period</tt> - period index, from 1 to 5. Optional. Default is nil.
   # * <tt>:default</tt> - text to return if metric or measure not found. Default is blank string.
+  # * <tt>:metric_class</tt> - css class of the metric span element. 
   #
   # === Examples
   #
@@ -266,19 +267,37 @@ module ApplicationHelper
       end
 
       alert_class=''
+      alert_class_prefix="class='"
+      alert_class_suffix="'"
       style = ''
       if !(m.alert_status.blank?)
-        alert_class="class='alert_#{m.alert_status}'" unless m.metric.val_type==Metric::VALUE_TYPE_LEVEL
+        alert_class="alert_#{m.alert_status}" unless m.metric.val_type==Metric::VALUE_TYPE_LEVEL
         link_rel=h(m.alert_text)
       elsif m.metric.val_type==Metric::VALUE_TYPE_RATING && m.color
         style = "style='background-color: #{m.color.html};padding: 2px 5px'"
+      end
+      
+      span_class=''
+      if !options[:metric_class].nil?
+      	span_class=options[:metric_class]
+        if alert_class.blank?
+      	  alert_class=span_class
+      	else
+      	  alert_class=alert_class << span_class
+        end
       end
 
       span_id=''
       unless options[:skip_span_id]
         span_id="id='m_#{m.key}'"
       end
-      html="<span #{span_id} #{alert_class} #{style}>#{html}</span>"
+      
+      span="<span #{span_id}"
+      if !alert_class.blank?
+        span= span << " #{alert_class_prefix}#{alert_class}#{alert_class_suffix}"
+      end
+      html= span << " #{style}>#{html}</span>"
+      
       if options[:prefix]
         html="#{options[:prefix]}#{html}"
       end
