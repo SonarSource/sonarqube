@@ -25,12 +25,17 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
+import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
+import org.sonar.core.rule.RuleDto;
 
 import java.util.List;
 
@@ -39,12 +44,14 @@ import static org.fest.assertions.Assertions.assertThat;
 public class ActiveRuleDaoTest extends AbstractDaoTestCase {
 
   ActiveRuleDao dao;
+  RuleDao ruleDao;
+  QualityProfileDao qDao;
 
   @Before
   public void createDao() {
 
-    RuleDao ruleDao = new RuleDao(getMyBatis());
-    QualityProfileDao qDao = new QualityProfileDao(getMyBatis());
+    ruleDao = new RuleDao(getMyBatis());
+    qDao = new QualityProfileDao(getMyBatis());
     dao = new ActiveRuleDao(getMyBatis(), qDao, ruleDao);
   }
 
@@ -289,6 +296,77 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
 
     assertThat(dao.selectAllParams()).hasSize(3);
   }
+
+  @Test
+  public void get_activeRuleKey() {
+    QualityProfileDto qdto = new QualityProfileDto()
+      .setName("name")
+      .setLanguage("lang");
+    qDao.insert(qdto);
+
+    RuleDto rdto = new RuleDto()
+      .setRuleKey("ruleKey")
+      .setRepositoryKey("repositoryKey");
+    ruleDao.insert(rdto);
+
+    ActiveRuleDto dto = new ActiveRuleDto()
+      .setProfileId(qdto.getId())
+      .setRuleId(rdto.getId())
+      .setSeverity(Severity.BLOCKER)
+      .setInheritance(null)
+      .setNoteData("text");
+    dao.insert(dto);
+
+    assertThat(dto.getKey()).isNotNull();
+
+    assertThat(dto.getKey().ruleKey()).isNotNull();
+    assertThat(dto.getKey().ruleKey().rule()).isEqualTo(rdto.getRuleKey());
+    assertThat(dto.getKey().ruleKey().repository()).isEqualTo(rdto.getRepositoryKey());
+
+    assertThat(dto.getKey().qProfile()).isNotNull();
+    assertThat(dto.getKey().qProfile().name()).isEqualTo(qdto.getName());
+    assertThat(dto.getKey().qProfile().lang()).isEqualTo(qdto.getLanguage());
+  }
+
+  @Test
+  public void select_by_activeRuleKey() {
+    QualityProfileDto qdto = new QualityProfileDto()
+      .setName("name")
+      .setLanguage("lang");
+    qDao.insert(qdto);
+
+    RuleDto rdto = new RuleDto()
+      .setRuleKey("ruleKey")
+      .setRepositoryKey("repositoryKey");
+    ruleDao.insert(rdto);
+
+    ActiveRuleDto dto = new ActiveRuleDto()
+      .setProfileId(qdto.getId())
+      .setRuleId(rdto.getId())
+      .setSeverity(Severity.BLOCKER)
+      .setInheritance(null)
+      .setNoteData("text");
+    dao.insert(dto);
+
+
+    ActiveRuleDto newDto = dao.getByKey(ActiveRuleKey.of(QualityProfileKey.of(qdto.getName(), qdto.getLanguage()),
+      RuleKey.of(rdto.getRepositoryKey(), rdto.getRuleKey())));
+
+    assertThat(newDto.getKey()).isNotNull();
+
+    assertThat(newDto.getKey().ruleKey()).isNotNull();
+    assertThat(newDto.getKey().ruleKey().rule()).isEqualTo(rdto.getRuleKey());
+    assertThat(newDto.getKey().ruleKey().repository()).isEqualTo(rdto.getRepositoryKey());
+
+    assertThat(newDto.getKey().qProfile()).isNotNull();
+    assertThat(newDto.getKey().qProfile().name()).isEqualTo(qdto.getName());
+    assertThat(newDto.getKey().qProfile().lang()).isEqualTo(qdto.getLanguage());
+
+    assertThat(newDto.getSeverityString()).isEqualTo(dto.getSeverityString());
+    assertThat(newDto.getNoteData()).isEqualTo(dto.getNoteData());
+  }
+
+
 
   private ActiveRuleDto find(final Integer id, List<ActiveRuleDto> dtos){
     return Iterables.find(dtos, new Predicate<ActiveRuleDto>(){
