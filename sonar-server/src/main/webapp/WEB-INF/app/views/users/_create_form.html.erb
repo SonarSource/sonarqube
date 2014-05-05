@@ -16,7 +16,7 @@
           <%= @user.login %>
           <%= f.hidden_field :login %>
         <% else %>
-          <%= f.text_field :login, :size => 30, :maxLength => 40 %>
+          <%= f.text_field :login, :size => 30, :maxLength => 255 %>
         <% end %>
       </div>
       <div class="modal-field">

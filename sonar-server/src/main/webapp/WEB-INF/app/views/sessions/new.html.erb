@@ -10,7 +10,7 @@
 
           <h3><%= label_tag message('login') %></h3>
           <p>
-            <%= text_field_tag 'login', '', {:maxlength => 40, :disabled => false, :style => 'width:200px;'} %>
+            <%= text_field_tag 'login', '', {:maxlength => 255, :disabled => false, :style => 'width:200px;'} %>
             <% if Property.value('sonar.allowUsersToSignUp')=='true' %>
               <br/><span class="desc"><%= message('sessions.new_account', :params => [url_for(:controller => 'users', :action => 'new')]) -%></span>
             <% end %>

@@ -34,7 +34,7 @@ import javax.persistence.Table;
 @Table(name = "users")
 public class User extends BaseIdentifiable {
 
-  @Column(name = "login", updatable = true, nullable = true, length = 40)
+  @Column(name = "login", updatable = true, nullable = true, length = 255)
   private String login;
 
   @Column(name = "name", updatable = true, nullable = true, length = 200)

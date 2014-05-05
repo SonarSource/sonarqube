@@ -23,7 +23,7 @@ class Author < ActiveRecord::Base
 
   validates_uniqueness_of :login
   validates_presence_of :person
-  validates_length_of :login, :allow_blank => false, :maximum => 100
+  validates_length_of :login, :allow_blank => false, :maximum => 255
 
   def <=>(other)
     login<=>other.login
