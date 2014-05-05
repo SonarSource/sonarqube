@@ -121,7 +121,13 @@ public class QGatesWs implements WebService {
       .setExampleValue("blocker_violations");
 
     action.createParam(PARAM_OPERATOR)
-      .setDescription("Condition operator. EQ = equals, NE = is not, LT = is lower than, GT = is greater than")
+      .setDescription("Condition operator:<br/>" +
+        "<ul>" +
+        "<li>EQ = equals</li>" +
+        "<li>NE = is not</li>" +
+        "<li>LT = is lower than</li>" +
+        "<li>GT = is greater than</li>" +
+        "</ui>")
       .setExampleValue(QualityGateConditionDto.OPERATOR_EQUALS)
       .setPossibleValues(QualityGateConditionDto.ALL_OPERATORS);
 

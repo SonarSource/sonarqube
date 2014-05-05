@@ -30,30 +30,45 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class ProjectsWsTest {
 
-  WsTester tester;
+  WebService.Controller controller;
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new ProjectsWs());
+    WsTester tester = new WsTester(new ProjectsWs());
+    controller = tester.controller("api/projects");
   }
 
   @Test
   public void define_controller() throws Exception {
-    WebService.Controller controller = tester.controller("api/projects");
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.since()).isEqualTo("4.0");
-    assertThat(controller.actions()).hasSize(1);
+    assertThat(controller.since()).isEqualTo("2.10");
+    assertThat(controller.actions()).hasSize(3);
+  }
+
+  @Test
+  public void define_index_action() throws Exception {
+    WebService.Action action = controller.action("index");
+    assertThat(action).isNotNull();
+    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.params()).hasSize(7);
   }
 
   @Test
   public void define_create_action() throws Exception {
-    WebService.Controller controller = tester.controller("api/projects");
-
     WebService.Action action = controller.action("create");
     assertThat(action).isNotNull();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
     assertThat(action.params()).hasSize(2);
+  }
+
+  @Test
+  public void define_destroy_action() throws Exception {
+    WebService.Action action = controller.action("destroy");
+    assertThat(action).isNotNull();
+    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(action.params()).hasSize(1);
   }
 
 }

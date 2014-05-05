@@ -20,6 +20,7 @@
 
 package org.sonar.server.component.ws;
 
+import com.google.common.io.Resources;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
@@ -28,17 +29,61 @@ public class ProjectsWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/projects")
-      .setSince("4.0")
+      .setSince("2.10")
       .setDescription("Projects management");
 
+    defineIndexAction(controller);
     defineCreateAction(controller);
+    defineDestroyAction(controller);
 
     controller.done();
   }
 
+  private void defineIndexAction(NewController controller) {
+    WebService.NewAction action = controller.createAction("index")
+      .setDescription("Search for projects")
+      .setSince("2.10")
+      .setPost(true)
+      .setHandler(RailsHandler.INSTANCE)
+      .setResponseExample(Resources.getResource(this.getClass(), "example-index.json"));
+
+    action.createParam("key")
+      .setDescription("id or key of the project")
+      .setExampleValue("org.codehaus.sonar:sonar");
+
+    action.createParam("search")
+      .setDescription("substring of project name, case insensitive")
+      .setExampleValue("Sonar");
+
+    action.createParam("desc")
+      .setDescription("Load project description")
+      .setDefaultValue("true")
+      .setBooleanPossibleValues();
+
+    action.createParam("subprojects")
+      .setDescription("Load sub-projects. Ignored if the parameter key is set")
+      .setDefaultValue("false")
+      .setBooleanPossibleValues();
+
+    action.createParam("views")
+      .setDescription("Load views and sub-views. Ignored if the parameter key is set")
+      .setDefaultValue("false")
+      .setBooleanPossibleValues();
+
+    action.createParam("libs")
+      .setDescription("Load libraries. Ignored if the parameter key is set")
+      .setDefaultValue("false")
+      .setBooleanPossibleValues();
+
+    action.createParam("versions")
+      .setDescription("Load version")
+      .setDefaultValue("false")
+      .setPossibleValues("true", "false", "last");
+  }
+
   private void defineCreateAction(NewController controller) {
     WebService.NewAction action = controller.createAction("create")
-      .setDescription("Provision a project. Requires Provision Projects permission.")
+      .setDescription("Provision a project. Requires Provision Projects permission")
       .setSince("4.0")
       .setPost(true)
       .setHandler(RailsHandler.INSTANCE);
@@ -52,6 +97,19 @@ public class ProjectsWs implements WebService {
       .setDescription("Name of the project")
       .setRequired(true)
       .setExampleValue("SonarQube");
+  }
+
+  private void defineDestroyAction(NewController controller) {
+    WebService.NewAction action = controller.createAction("destroy")
+      .setDescription("Delete a project. Requires Administer System permission")
+      .setSince("2.11")
+      .setPost(true)
+      .setHandler(RailsHandler.INSTANCE);
+
+    action.createParam("id")
+      .setDescription("id or key of the resource (ie: component)")
+      .setRequired(true)
+      .setExampleValue("org.codehaus.sonar:sonar");
   }
 
 }

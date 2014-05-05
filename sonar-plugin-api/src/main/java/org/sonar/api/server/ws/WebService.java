@@ -473,6 +473,13 @@ public interface WebService extends ServerExtension {
     }
 
     /**
+     * @since 4.4
+     */
+    public NewParam setBooleanPossibleValues() {
+      return setPossibleValues("true", "false");
+    }
+
+    /**
      * Exhaustive list of possible values when it makes sense, for example
      * list of severities.
      *
