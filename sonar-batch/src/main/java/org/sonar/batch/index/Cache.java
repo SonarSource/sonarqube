@@ -23,12 +23,14 @@ import com.google.common.collect.Sets;
 import com.persistit.Exchange;
 import com.persistit.Key;
 import com.persistit.KeyFilter;
+import com.persistit.Value;
 import com.persistit.exception.PersistitException;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import javax.annotation.CheckForNull;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -247,7 +249,7 @@ public class Cache<V extends Serializable> {
     try {
       Set<Object> keys = Sets.newLinkedHashSet();
       exchange.clear();
-      Exchange iteratorExchange = new Exchange(exchange);
+      Exchange iteratorExchange = newExchange(exchange);
       iteratorExchange.append(key);
       iteratorExchange.append(Key.BEFORE);
       while (iteratorExchange.next(false)) {
@@ -264,7 +266,7 @@ public class Cache<V extends Serializable> {
     try {
       Set<Object> keys = Sets.newLinkedHashSet();
       exchange.clear();
-      Exchange iteratorExchange = new Exchange(exchange);
+      Exchange iteratorExchange = newExchange(exchange);
       iteratorExchange.append(firstKey);
       iteratorExchange.append(secondKey);
       iteratorExchange.append(Key.BEFORE);
@@ -286,7 +288,7 @@ public class Cache<V extends Serializable> {
     try {
       Set<Object> keys = Sets.newLinkedHashSet();
       exchange.clear();
-      Exchange iteratorExchange = new Exchange(exchange);
+      Exchange iteratorExchange = newExchange(exchange);
       iteratorExchange.append(Key.BEFORE);
       while (iteratorExchange.next(false)) {
         keys.add(iteratorExchange.getKey().indexTo(-1).decode());
@@ -304,7 +306,7 @@ public class Cache<V extends Serializable> {
     try {
       exchange.clear();
       exchange.append(firstKey).append(secondKey).append(Key.BEFORE);
-      Exchange iteratorExchange = new Exchange(exchange);
+      Exchange iteratorExchange = newExchange(exchange);
       KeyFilter filter = new KeyFilter().append(KeyFilter.simpleTerm(firstKey)).append(KeyFilter.simpleTerm(secondKey));
       return new ValueIterable<V>(iteratorExchange, filter);
     } catch (Exception e) {
@@ -319,7 +321,7 @@ public class Cache<V extends Serializable> {
     try {
       exchange.clear();
       exchange.append(firstKey).append(Key.BEFORE);
-      Exchange iteratorExchange = new Exchange(exchange);
+      Exchange iteratorExchange = newExchange(exchange);
       KeyFilter filter = new KeyFilter().append(KeyFilter.simpleTerm(firstKey));
       return new ValueIterable<V>(iteratorExchange, filter);
     } catch (Exception e) {
@@ -333,7 +335,7 @@ public class Cache<V extends Serializable> {
   public Iterable<V> values() {
     try {
       exchange.clear().append(Key.BEFORE);
-      Exchange iteratorExchange = new Exchange(exchange);
+      Exchange iteratorExchange = newExchange(exchange);
       KeyFilter filter = new KeyFilter().append(KeyFilter.ALL);
       return new ValueIterable<V>(iteratorExchange, filter);
     } catch (Exception e) {
@@ -344,13 +346,13 @@ public class Cache<V extends Serializable> {
   public Iterable<Entry<V>> entries() {
     exchange.clear().to(Key.BEFORE);
     KeyFilter filter = new KeyFilter().append(KeyFilter.ALL);
-    return new EntryIterable<V>(new Exchange(exchange), filter);
+    return new EntryIterable<V>(newExchange(exchange), filter);
   }
 
   public Iterable<Entry<V>> entries(Object firstKey) {
     exchange.clear().append(firstKey).append(Key.BEFORE);
     KeyFilter filter = new KeyFilter().append(KeyFilter.simpleTerm(firstKey));
-    return new EntryIterable<V>(new Exchange(exchange), filter);
+    return new EntryIterable<V>(newExchange(exchange), filter);
   }
 
   private void resetKey(Object key) {
@@ -509,5 +511,18 @@ public class Cache<V extends Serializable> {
     public String toString() {
       return ToStringBuilder.reflectionToString(this);
     }
+  }
+
+  private Exchange newExchange(Exchange sourceExchange) {
+    Exchange exchange = new Exchange(sourceExchange);
+    try {
+      Method getSpareValue = Exchange.class.getDeclaredMethod("getAuxiliaryValue");
+      getSpareValue.setAccessible(true);
+      Value spareValue = (Value) getSpareValue.invoke(exchange);
+      spareValue.setMaximumSize(Value.MAXIMUM_SIZE);
+    } catch (Exception e) {
+      throw new IllegalStateException("Unable to set size of persisitit value");
+    }
+    return exchange;
   }
 }

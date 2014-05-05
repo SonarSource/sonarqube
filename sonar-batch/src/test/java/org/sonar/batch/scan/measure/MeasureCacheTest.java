@@ -138,10 +138,10 @@ public class MeasureCacheTest {
   }
 
   /**
-   * This test fails when compression is not enabled for measures. Size exceed PersistIt max value.
+   * This test fails with stock PersisitIt.
    */
   @Test
-  public void should_add_measure_with_too_big_data_for_persistit() throws Exception {
+  public void should_add_measure_with_too_big_data_for_persistit_pre_patch() throws Exception {
     MeasureCache cache = new MeasureCache(caches);
     Project p = new Project("struts");
 
@@ -177,7 +177,7 @@ public class MeasureCacheTest {
   }
 
   @Test
-  public void should_add_measure_with_too_big_data_for_persistit_with_compression() throws Exception {
+  public void should_add_measure_with_too_big_data_for_persistit() throws Exception {
     MeasureCache cache = new MeasureCache(caches);
     Project p = new Project("struts");
 
@@ -186,9 +186,10 @@ public class MeasureCacheTest {
     assertThat(cache.byResource(p)).hasSize(0);
 
     Measure m = new Measure(CoreMetrics.NCLOC, 1.0).setDate(new Date());
-    StringBuilder data = new StringBuilder();
-    for (int i = 0; i < 50000000; i++) {
-      data.append((char) ('z' * Math.random()));
+    StringBuilder data = new StringBuilder(64 * 1024 * 1024 + 1);
+    // Limit is 64Mo
+    for (int i = 0; i < (64 * 1024 * 1024 + 1); i++) {
+      data.append('a');
     }
     m.setData(data.toString());
 

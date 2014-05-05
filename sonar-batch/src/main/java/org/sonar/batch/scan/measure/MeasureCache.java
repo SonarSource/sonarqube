@@ -34,9 +34,11 @@ import org.sonar.batch.index.Caches;
 public class MeasureCache implements BatchComponent {
 
   private final Cache<Measure> cache;
+  private final Cache<String> dataCache;
 
   public MeasureCache(Caches caches) {
     cache = caches.createCache("measures");
+    dataCache = caches.createCache("measuresData");
   }
 
   public Iterable<Entry<Measure>> entries() {
