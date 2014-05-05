@@ -96,6 +96,8 @@ import org.sonar.server.issue.filter.IssueFilterWriter;
 import org.sonar.server.issue.filter.IssueFilterWs;
 import org.sonar.server.issue.ws.IssueShowAction;
 import org.sonar.server.issue.ws.IssuesWs;
+import org.sonar.server.measure.ws.ResourcesWs;
+import org.sonar.server.measure.ws.TimeMachineWs;
 import org.sonar.server.notifications.NotificationCenter;
 import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.permission.InternalPermissionService;
@@ -317,6 +319,7 @@ class ServerComponents {
     pico.addSingleton(MeasureFilterEngine.class);
     pico.addSingleton(DefaultMetricFinder.class);
     pico.addSingleton(ServerLifecycleNotifier.class);
+    pico.addSingleton(TimeMachineWs.class);
 
     // quality gates
     pico.addSingleton(QualityGateDao.class);
@@ -370,6 +373,7 @@ class ServerComponents {
     pico.addSingleton(DefaultComponentFinder.class);
     pico.addSingleton(DefaultRubyComponentService.class);
     pico.addSingleton(ComponentDao.class);
+    pico.addSingleton(ResourcesWs.class);
     pico.addSingleton(ProjectsWs.class);
 
     // issues

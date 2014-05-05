@@ -159,7 +159,7 @@ public interface WebService extends ServerExtension {
     }
 
     /**
-     * Optional plain-text description
+     * Optional description (accept HTML)
      */
     public NewController setDescription(@Nullable String s) {
       this.description = s;

@@ -41,7 +41,7 @@ public class TimeMachineWs implements WebService {
       .setDescription("Get a list of past measures. Requires Browse permission on project")
       .setSince("2.10")
       .setHandler(RailsHandler.INSTANCE)
-      .setResponseExample(Resources.getResource(this.getClass(), "example-index.json"));
+      .setResponseExample(Resources.getResource(this.getClass(), "timemachine-example-index.json"));
 
     action.createParam("resource")
       .setDescription("id or key of the resource (ie: component)")
@@ -49,7 +49,7 @@ public class TimeMachineWs implements WebService {
       .setExampleValue("org.codehaus.sonar:sonar");
 
     action.createParam("metrics")
-      .setDescription("Comma-separated list of metric keys/ids")
+      .setDescription("Comma-separated list of <a href=\"http://docs.codehaus.org/display/SONAR/Metric+definitions\">metric keys/ids</a>")
       .setRequired(true)
       .setExampleValue("coverage,violations_density");
 

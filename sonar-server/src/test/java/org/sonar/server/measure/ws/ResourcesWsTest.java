@@ -28,14 +28,14 @@ import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class TimeMachineWsTest {
+public class ResourcesWsTest {
 
   WebService.Controller controller;
 
   @Before
   public void setUp() throws Exception {
-    WsTester tester = new WsTester(new TimeMachineWs());
-    controller = tester.controller("api/timemachine");
+    WsTester tester = new WsTester(new ResourcesWs());
+    controller = tester.controller("api/resources");
   }
 
   @Test
@@ -43,7 +43,7 @@ public class TimeMachineWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("2.10");
     assertThat(controller.description()).isNull();
-    assertThat(controller.actions()).hasSize(1);
+    assertThat(controller.actions()).hasSize(2);
   }
 
   @Test
@@ -52,7 +52,17 @@ public class TimeMachineWsTest {
     assertThat(action).isNotNull();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(4);
+    assertThat(action.params()).hasSize(10);
+  }
+
+  @Test
+  public void define_search_action() throws Exception {
+    WebService.Action action = controller.action("search");
+    assertThat(action).isNotNull();
+    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(action.isInternal()).isTrue();
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.params()).hasSize(7);
   }
 
 }
