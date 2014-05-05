@@ -1,0 +1,17 @@
+[
+  {
+    "key": "findbugs",
+    "name": "Findbugs",
+    "version": "2.1"
+  },
+  {
+    "key": "l10nfr",
+    "name": "French Pack",
+    "version": "1.10"
+  },
+  {
+    "key": "jira",
+    "name": "JIRA",
+    "version": "1.2"
+  }
+]

@@ -102,6 +102,7 @@ import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.InternalPermissionTemplateService;
 import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.platform.ws.RestartHandler;
+import org.sonar.server.platform.ws.ServerWs;
 import org.sonar.server.platform.ws.SystemWs;
 import org.sonar.server.plugins.*;
 import org.sonar.server.qualitygate.QgateProjectFinder;
@@ -132,6 +133,7 @@ import org.sonar.server.ui.JRubyI18n;
 import org.sonar.server.ui.JRubyProfiling;
 import org.sonar.server.ui.PageDecorations;
 import org.sonar.server.ui.Views;
+import org.sonar.server.updatecenter.ws.UpdateCenterWs;
 import org.sonar.server.user.*;
 import org.sonar.server.util.*;
 import org.sonar.server.ws.ListingWs;
@@ -238,8 +240,6 @@ class ServerComponents {
 
   void startLevel4Components(ComponentContainer pico) {
     pico.addSingleton(ESIndex.class);
-    pico.addSingleton(UpdateCenterClient.class);
-    pico.addSingleton(UpdateCenterMatrixFactory.class);
     pico.addSingleton(PluginDownloader.class);
     pico.addSingleton(ChartFactory.class);
     pico.addSingleton(Languages.class);
@@ -251,6 +251,12 @@ class ServerComponents {
     pico.addSingleton(PreviewCache.class);
     pico.addSingleton(DefaultResourcePermissions.class);
     pico.addSingleton(Periods.class);
+    pico.addSingleton(ServerWs.class);
+
+    // update center
+    pico.addSingleton(UpdateCenterClient.class);
+    pico.addSingleton(UpdateCenterMatrixFactory.class);
+    pico.addSingleton(UpdateCenterWs.class);
 
     // quality profile
     pico.addSingleton(XMLProfileParser.class);
