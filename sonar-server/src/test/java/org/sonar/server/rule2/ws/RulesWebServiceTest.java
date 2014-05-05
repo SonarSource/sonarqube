@@ -33,15 +33,17 @@ public class RulesWebServiceTest {
     RuleService service = mock(RuleService.class);
     SearchAction search = new SearchAction(service);
     ShowAction show = new ShowAction(service);
-    RulesWebService ws = new RulesWebService(search, show);
+    TagsAction tags = new TagsAction(service);
+    RulesWebService ws = new RulesWebService(search, show, tags);
 
     WebService.Context context = new WebService.Context();
     ws.define(context);
 
     WebService.Controller controller = context.controller("api/rules2");
     assertThat(controller).isNotNull();
-    assertThat(controller.actions()).hasSize(2);
+    assertThat(controller.actions()).hasSize(3);
     assertThat(controller.action("search")).isNotNull();
     assertThat(controller.action("show")).isNotNull();
+    assertThat(controller.action("tags")).isNotNull();
   }
 }

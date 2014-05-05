@@ -19,30 +19,39 @@
  */
 package org.sonar.server.rule2.ws;
 
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.RequestHandler;
+import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.server.rule2.RuleService;
 
-public class RulesWebService implements WebService {
+import java.util.List;
 
-  private final SearchAction search;
-  private final ShowAction show;
-  private final TagsAction tags;
+public class TagsAction implements RequestHandler {
 
-  public RulesWebService(SearchAction search, ShowAction show, TagsAction tags) {
-    this.search = search;
-    this.show = show;
-    this.tags = tags;
+  private final RuleService service;
+
+  public TagsAction(RuleService service) {
+    this.service = service;
+  }
+
+  void define(WebService.NewController controller) {
+    controller
+      .createAction("tags")
+      .setDescription("Search for a collection of relevant rules matching a specified query")
+      .setSince("4.4")
+      .setHandler(this);
   }
 
   @Override
-  public void define(Context context) {
-    NewController controller = context
-      .createController("api/rules2")
-      .setDescription("Coding rules");
-
-    search.define(controller);
-    show.define(controller);
-    tags.define(controller);
-
-    controller.done();
+  public void handle(Request request, Response response) {
+    List<String> tags = service.listTags();
+    JsonWriter json = response.newJsonWriter().beginObject();
+    json.name("tags").beginArray();
+    for (String tag : tags) {
+      json.value(tag);
+    }
+    json.endArray().endObject().close();
   }
 }

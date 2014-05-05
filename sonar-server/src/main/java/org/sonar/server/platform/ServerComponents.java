@@ -119,6 +119,7 @@ import org.sonar.server.rule.ws.*;
 import org.sonar.server.rule2.RuleService;
 import org.sonar.server.rule2.ws.RulesWebService;
 import org.sonar.server.rule2.ws.SearchAction;
+import org.sonar.server.rule2.ws.TagsAction;
 import org.sonar.server.search.IndexUtils;
 import org.sonar.server.source.CodeColorizers;
 import org.sonar.server.source.DeprecatedSourceDecorator;
@@ -305,6 +306,7 @@ class ServerComponents {
     pico.addSingleton(RulesWebService.class);
     pico.addSingleton(SearchAction.class);
     pico.addSingleton(org.sonar.server.rule2.ws.ShowAction.class);
+    pico.addSingleton(TagsAction.class);
 
     // rule tags
     pico.addSingleton(ESRuleTags.class);

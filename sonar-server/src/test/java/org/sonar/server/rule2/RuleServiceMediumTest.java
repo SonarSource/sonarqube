@@ -288,10 +288,9 @@ public class RuleServiceMediumTest {
     List<RuleRuleTagDto> persistedDtos = dao.selectTagsByRuleId(ruleDto.getId());
     assertThat(persistedDtos).hasSize(3);
 
-
-    // verify that tags are indexed in es
     index.refresh();
 
+    // verify that tags are indexed in es
     index.search(new RuleQuery(), new QueryOptions());
     Hit hit = index.getByKey(ruleKey);
     assertThat(hit).isNotNull();
@@ -301,6 +300,8 @@ public class RuleServiceMediumTest {
     Rule rule = service.getByKey(ruleKey);
     assertThat(rule.tags()).containsExactly("hello","world");
     assertThat(rule.systemTags()).containsExactly("AdMiN");
+
+    //TODO assertThat(service.listTags()).contains("hello", "world", "AdMiN");
   }
 
 

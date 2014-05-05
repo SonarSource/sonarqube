@@ -27,6 +27,7 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Results;
 
 import javax.annotation.CheckForNull;
+import java.util.List;
 
 /**
  * @since 4.4
@@ -59,6 +60,13 @@ public class RuleService implements ServerComponent {
     options.filterFieldsToReturn(RuleIndex.PUBLIC_FIELDS);
     options.addFieldsToReturn(RuleNormalizer.RuleField.REPOSITORY.key(), RuleNormalizer.RuleField.KEY.key());
     return index.search(query, options);
+  }
+
+  /**
+   * List all tags
+   */
+  public List<String> listTags() {
+    throw new UnsupportedOperationException("TODO");
   }
 
   public RuleService refresh(){
