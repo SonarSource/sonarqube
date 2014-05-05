@@ -20,17 +20,17 @@
 
 package org.sonar.core.qualityprofile.db;
 
-import org.sonar.core.rule.SeverityUtil;
-
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.core.db.Dto;
+import org.sonar.core.rule.SeverityUtil;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.persistence.Transient;
-
 import java.util.Date;
 
-public class ActiveRuleDto {
+public class ActiveRuleDto implements Dto<ActiveRuleKey> {
 
   public static final String INHERITED = "INHERITED";
   public static final String OVERRIDES = "OVERRIDES";
@@ -44,6 +44,13 @@ public class ActiveRuleDto {
   private Date noteUpdatedAt;
   private String noteUserLogin;
   private String noteData;
+
+  private RuleKey ruleKey;
+  private QProfileKey qProfileKey;
+
+  public ActiveRuleKey getKey(){
+    return ActiveRuleKey.of(qProfileKey, ruleKey);
+  }
 
   // This field do not exists in db, it's only retrieve by joins
   @Transient

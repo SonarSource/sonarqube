@@ -236,7 +236,7 @@ public class RuleServiceMediumTest {
 
     Map<String, String> _activeRuleParamValue = (Map<String, String>) _activeRuleParams.get(maxParam.getName());
     assertThat(_activeRuleParamValue).isNotNull().hasSize(1);
-    assertThat(_activeRuleParamValue.get(RuleNormalizer.RuleParamField.VALUE.key())).isEqualTo("maximum");
+    assertThat(_activeRuleParamValue.get(RuleNormalizer.RuleParamField.DEFAULT_VALUE.key())).isEqualTo("maximum");
 
   }
 

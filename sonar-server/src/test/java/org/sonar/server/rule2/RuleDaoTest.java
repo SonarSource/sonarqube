@@ -22,7 +22,6 @@ package org.sonar.server.rule2;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
@@ -31,6 +30,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 
@@ -133,7 +133,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   @Test
   public void select_non_manual() throws Exception {
     setupData("selectNonManual");
-    SqlSession session = getMyBatis().openSession();
+    DbSession session = getMyBatis().openSession(false);
     List<RuleDto> ruleDtos = dao.selectNonManual(session);
     session.commit();
     session.close();

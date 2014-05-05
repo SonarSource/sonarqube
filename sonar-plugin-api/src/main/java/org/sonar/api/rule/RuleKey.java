@@ -32,9 +32,9 @@ import java.io.Serializable;
 public class RuleKey implements Serializable {
   private final String repository, rule;
 
-  private RuleKey(String repository, String rule) {
-    this.repository = repository;
-    this.rule = rule;
+  protected RuleKey(String repositoryKey, String ruleKey) {
+    this.repository = repositoryKey;
+    this.rule = ruleKey;
   }
 
   /**

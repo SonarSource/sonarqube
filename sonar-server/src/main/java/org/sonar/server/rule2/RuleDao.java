@@ -22,7 +22,6 @@ package org.sonar.server.rule2;
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
@@ -46,11 +45,11 @@ import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class RuleDao extends BaseDao<RuleDto, RuleKey>
+public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey>
   implements BatchComponent, ServerComponent {
 
   public RuleDao(MyBatis mybatis) {
-    super(mybatis);
+    super(RuleMapper.class, mybatis);
   }
 
   @Override
@@ -60,34 +59,34 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
 
   @Override
   @CheckForNull
-  protected RuleDto doGetByKey(RuleKey key, SqlSession session) {
+  protected RuleDto doGetByKey(RuleKey key, DbSession session) {
     return getMapper(session).selectByKey(key);
   }
 
   @Override
-  protected RuleDto doInsert(RuleDto item, SqlSession session) {
-    session.getMapper(RuleMapper.class).insert(item);
+  protected RuleDto doInsert(RuleDto item, DbSession session) {
+    getMapper(session).insert(item);
     return item;
   }
 
   @Override
-  protected RuleDto doUpdate(RuleDto item, SqlSession session) {
-    session.getMapper(RuleMapper.class).update(item);
+  protected RuleDto doUpdate(RuleDto item, DbSession session) {
+    getMapper(session).update(item);
     return item;
   }
 
   @Override
-  protected void doDelete(RuleDto item, SqlSession session) {
+  protected void doDelete(RuleDto item, DbSession session) {
     throw new UnsupportedOperationException("Rules cannot be deleted");
   }
 
   @Override
-  protected void doDeleteByKey(RuleKey key, SqlSession session) {
+  protected void doDeleteByKey(RuleKey key, DbSession session) {
     throw new UnsupportedOperationException("Rules cannot be deleted");
   }
 
   public List<RuleDto> selectAll() {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return selectAll(session);
     } finally {
@@ -95,12 +94,12 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
     }
   }
 
-  public List<RuleDto> selectAll(SqlSession session) {
+  public List<RuleDto> selectAll(DbSession session) {
     return getMapper(session).selectAll();
   }
 
   public List<RuleDto> selectEnablesAndNonManual() {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return selectEnablesAndNonManual(session);
     } finally {
@@ -108,16 +107,16 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
     }
   }
 
-  public List<RuleDto> selectEnablesAndNonManual(SqlSession session) {
+  public List<RuleDto> selectEnablesAndNonManual(DbSession session) {
     return getMapper(session).selectEnablesAndNonManual();
   }
 
-  public List<RuleDto> selectNonManual(SqlSession session) {
+  public List<RuleDto> selectNonManual(DbSession session) {
     return getMapper(session).selectNonManual();
   }
 
   public List<RuleDto> selectBySubCharacteristicId(Integer characteristicOrSubCharacteristicId) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return selectBySubCharacteristicId(characteristicOrSubCharacteristicId, session);
     } finally {
@@ -128,18 +127,18 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
   /**
    * Return all rules (even the REMOVED ones) linked on to a sub characteristic
    */
-  public List<RuleDto> selectBySubCharacteristicId(Integer subCharacteristicId, SqlSession session) {
+  public List<RuleDto> selectBySubCharacteristicId(Integer subCharacteristicId, DbSession session) {
     return getMapper(session).selectBySubCharacteristicId(subCharacteristicId);
   }
 
   @CheckForNull
-  public RuleDto selectById(Integer id, SqlSession session) {
+  public RuleDto selectById(Integer id, DbSession session) {
     return getMapper(session).selectById(id);
   }
 
   @CheckForNull
   public RuleDto selectById(Integer id) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return selectById(id, session);
     } finally {
@@ -148,14 +147,14 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
   }
 
   @CheckForNull
-  public RuleDto selectByKey(RuleKey ruleKey, SqlSession session) {
+  public RuleDto selectByKey(RuleKey ruleKey, DbSession session) {
     return getMapper(session).selectByKey(ruleKey);
   }
 
 
   @CheckForNull
   public RuleDto selectByKey(RuleKey ruleKey) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return selectByKey(ruleKey, session);
     } finally {
@@ -165,7 +164,7 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
 
   @CheckForNull
   public RuleDto selectByName(String name) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return getMapper(session).selectByName(name);
     } finally {
@@ -192,7 +191,7 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
   // ******************************
 
   public List<RuleParamDto> selectParameters() {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return selectParameters(session);
     } finally {
@@ -200,12 +199,12 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
     }
   }
 
-  public List<RuleParamDto> selectParameters(SqlSession session) {
+  public List<RuleParamDto> selectParameters(DbSession session) {
     return getMapper(session).selectAllParams();
   }
 
   public List<RuleParamDto> selectParametersByRuleId(Integer ruleId) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return selectParametersByRuleId(ruleId, session);
     } finally {
@@ -213,12 +212,12 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
     }
   }
 
-  public List<RuleParamDto> selectParametersByRuleId(Integer ruleId, SqlSession session) {
+  public List<RuleParamDto> selectParametersByRuleId(Integer ruleId, DbSession session) {
     return selectParametersByRuleIds(newArrayList(ruleId));
   }
 
   public List<RuleParamDto> selectParametersByRuleIds(List<Integer> ruleIds) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return selectParametersByRuleIds(ruleIds, session);
     } finally {
@@ -226,7 +225,7 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
     }
   }
 
-  public List<RuleParamDto> selectParametersByRuleIds(List<Integer> ruleIds, SqlSession session) {
+  public List<RuleParamDto> selectParametersByRuleIds(List<Integer> ruleIds, DbSession session) {
     List<RuleParamDto> dtos = newArrayList();
     List<List<Integer>> partitionList = Lists.partition(newArrayList(ruleIds), 1000);
     for (List<Integer> partition : partitionList) {
@@ -276,12 +275,8 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
   }
 
   @CheckForNull
-  public RuleParamDto selectParamByRuleAndKey(Integer ruleId, String key, SqlSession session) {
+  public RuleParamDto selectParamByRuleAndKey(Integer ruleId, String key, DbSession session) {
     return getMapper(session).selectParamByRuleAndKey(ruleId, key);
-  }
-
-  private RuleMapper getMapper(SqlSession session) {
-    return session.getMapper(RuleMapper.class);
   }
 
   // ***************************
@@ -317,12 +312,12 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
       this.selectById(existingTag.getRuleId(), session).getKey()));
   }
 
-  public List<RuleRuleTagDto> selectTags(SqlSession session) {
+  public List<RuleRuleTagDto> selectTags(DbSession session) {
     return getMapper(session).selectAllTags();
   }
 
   public List<RuleRuleTagDto> selectTagsByRuleId(Integer ruleId) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return selectTagsByRuleIds(ruleId, session);
     } finally {
@@ -330,12 +325,12 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
     }
   }
 
-  public List<RuleRuleTagDto> selectTagsByRuleIds(Integer ruleId, SqlSession session) {
+  public List<RuleRuleTagDto> selectTagsByRuleIds(Integer ruleId, DbSession session) {
     return selectTagsByRuleIds(newArrayList(ruleId), session);
   }
 
   public List<RuleRuleTagDto> selectTagsByRuleIds(List<Integer> ruleIds) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return selectTagsByRuleIds(ruleIds, session);
     } finally {
@@ -343,7 +338,7 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
     }
   }
 
-  public List<RuleRuleTagDto> selectTagsByRuleIds(List<Integer> ruleIds, SqlSession session) {
+  public List<RuleRuleTagDto> selectTagsByRuleIds(List<Integer> ruleIds, DbSession session) {
     List<RuleRuleTagDto> dtos = newArrayList();
     List<List<Integer>> partitionList = Lists.partition(newArrayList(ruleIds), 1000);
     for (List<Integer> partition : partitionList) {
@@ -354,7 +349,7 @@ public class RuleDao extends BaseDao<RuleDto, RuleKey>
 
   @Override
   public Collection<RuleKey> keysOfRowsUpdatedAfter(long timestamp) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       final List<RuleKey> keys = Lists.newArrayList();
       session.select("selectKeysOfRulesUpdatedSince", new Timestamp(timestamp), new ResultHandler() {

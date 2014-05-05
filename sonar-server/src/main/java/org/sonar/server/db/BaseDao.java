@@ -19,7 +19,6 @@
  */
 package org.sonar.server.db;
 
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.core.db.Dao;
 import org.sonar.core.db.Dto;
 import org.sonar.core.persistence.DbSession;
@@ -30,27 +29,32 @@ import org.sonar.server.search.KeyIndexAction;
 
 import java.io.Serializable;
 
-public abstract class BaseDao<E extends Dto<K>, K extends Serializable>
+public abstract class BaseDao<T, E extends Dto<K>, K extends Serializable>
   implements Dao<E, K> {
 
   protected final MyBatis mybatis;
+  private Class<T> mapperClass;
 
-  protected BaseDao(MyBatis myBatis) {
+  protected BaseDao(Class<T> mapperClass, MyBatis myBatis) {
+    this.mapperClass = mapperClass;
     this.mybatis = myBatis;
   }
 
   protected abstract String getIndexName();
 
-  protected abstract E doGetByKey(K key, SqlSession session);
+  protected abstract E doGetByKey(K key, DbSession session);
 
-  protected abstract E doInsert(E item, SqlSession session);
+  protected abstract E doInsert(E item, DbSession session);
 
-  protected abstract E doUpdate(E item, SqlSession session);
+  protected abstract E doUpdate(E item, DbSession session);
 
-  protected abstract void doDelete(E item, SqlSession session);
+  protected abstract void doDelete(E item, DbSession session);
 
-  protected abstract void doDeleteByKey(K key, SqlSession session);
+  protected abstract void doDeleteByKey(K key, DbSession session);
 
+  protected T getMapper(DbSession session) {
+    return session.getMapper(mapperClass);
+  }
   protected MyBatis getMyBatis() {
     return this.mybatis;
   }
