@@ -24,11 +24,12 @@ import org.sonar.api.utils.DateUtils;
 import javax.annotation.Nullable;
 import java.io.Writer;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Writes JSON as a stream. This class allows plugins to not directly depend
  * on the underlying JSON library.
- *
+ * <p/>
  * <h3>How to use</h3>
  * <pre>
  *   StringWriter json = new StringWriter();
@@ -173,6 +174,55 @@ public class JsonWriter {
     try {
       stream.value(value);
       return this;
+    } catch (Exception e) {
+      throw rethrow(e);
+    }
+  }
+
+  /**
+   * Encodes an object that can be a :
+   * <ul>
+   * <li>primitive types: String, Number, Boolean</li>
+   * <li>java.util.Date: encoded as datetime (see {@link #valueDateTime(java.util.Date)}</li>
+   * <li><code>Map<Object, Object></code>. Method toString is called for the key.</li>
+   * <li>Iterable</li>
+   * </ul>
+   *
+   * @throws org.sonar.api.utils.text.WriterException on any failure
+   */
+  public JsonWriter valueObject(@Nullable Object value) {
+    try {
+      if (value == null) {
+        stream.nullValue();
+      } else {
+        if (value instanceof String) {
+          stream.value((String) value);
+        } else if (value instanceof Number) {
+          stream.value((Number) value);
+        } else if (value instanceof Boolean) {
+          stream.value((Boolean) value);
+        } else if (value instanceof Date) {
+          valueDateTime((Date) value);
+        } else if (value instanceof Map) {
+          stream.beginObject();
+          for (Map.Entry<Object, Object> entry : ((Map<Object, Object>) value).entrySet()) {
+            stream.name(entry.getKey().toString());
+            valueObject(entry.getValue());
+          }
+          stream.endObject();
+        } else if (value instanceof Iterable) {
+          stream.beginArray();
+          for (Object o : (Iterable<Object>) value) {
+            valueObject(o);
+          }
+          stream.endArray();
+        } else {
+          throw new IllegalArgumentException(getClass() + " does not support encoding of type: " + value.getClass());
+        }
+      }
+      return this;
+    } catch (IllegalArgumentException e) {
+      throw e;
     } catch (Exception e) {
       throw rethrow(e);
     }

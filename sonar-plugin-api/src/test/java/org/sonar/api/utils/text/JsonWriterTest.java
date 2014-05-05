@@ -19,6 +19,7 @@
  */
 package org.sonar.api.utils.text;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -28,9 +29,11 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -116,7 +119,37 @@ public class JsonWriterTest {
       .prop("foo", "<hello \"world\">")
       .endObject().close();
     expect("{\"foo\":\"<hello \\\"world\\\">\"}");
+  }
 
+  @Test
+  public void valueObject() throws Exception {
+    writer.beginObject()
+      .name("aString").valueObject("stringValue")
+      .name("aBoolean").valueObject(true)
+      .name("aInt").valueObject(42)
+      .name("aFloat").valueObject(3.14)
+      .name("aLong").valueObject(42L)
+      .name("aList").valueObject(Arrays.asList("one", 2, "three"))
+      .name("aMap").valueObject(ImmutableMap.of("hello", "world", "good", "bye"))
+      .endObject().close();
+    expect("{\"aString\":\"stringValue\",\"aBoolean\":true,\"aInt\":42,\"aFloat\":3.14,\"aLong\":42,\"aList\":[\"one\",2,\"three\"],\"aMap\":{\"hello\":\"world\",\"good\":\"bye\"}}");
+  }
+
+  @Test
+  public void valueObject_recursive() throws Exception {
+    Map map = ImmutableMap.of("a", ImmutableMap.of("b", "c"));
+    writer.valueObject(map).close();
+    expect("{\"a\":{\"b\":\"c\"}}");
+  }
+
+  @Test
+  public void valueObject_unsupported_type() throws Exception {
+    try {
+      writer.beginObject().valueObject(new StringWriter()).endObject().close();
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("class org.sonar.api.utils.text.JsonWriter does not support encoding of type: class java.io.StringWriter");
+    }
   }
 
   @Test
