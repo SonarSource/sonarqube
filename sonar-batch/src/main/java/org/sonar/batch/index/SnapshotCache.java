@@ -22,10 +22,14 @@ package org.sonar.batch.index;
 import com.google.common.collect.Maps;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.database.model.Snapshot;
+import org.sonar.api.resources.Library;
 
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Does not contains snapshots of {@link Library} as effectiveKey can be the same than a project.
+ */
 public class SnapshotCache implements BatchComponent {
   // snapshots by component key
   private final Map<String, Snapshot> snapshots = Maps.newHashMap();

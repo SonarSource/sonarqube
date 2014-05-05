@@ -78,7 +78,10 @@ public final class DefaultResourcePersister implements ResourcePersister {
     if (snapshot != null) {
       snapshotsByResource.put(resource, snapshot);
       resourceCache.add(resource);
-      snapshotCache.put(resource.getEffectiveKey(), snapshot);
+      if (!(resource instanceof Library)) {
+        // Maven libraries can have the same effective key than a project so we can't cache by effectiveKey
+        snapshotCache.put(resource.getEffectiveKey(), snapshot);
+      }
     }
   }
 
