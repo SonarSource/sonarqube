@@ -196,6 +196,7 @@ public class SearchAction implements RequestHandler {
 
   private void writeStatistics(Results results, JsonWriter json) {
     json.prop("total", results.getTotal());
+    // TODO replace ES time by complete time
     json.prop("time", results.getTime());
   }
 
@@ -204,8 +205,7 @@ public class SearchAction implements RequestHandler {
     for (Hit hit : results.getHits()) {
       json.beginObject();
       for (Map.Entry<String, Object> entry : hit.getFields().entrySet()) {
-        Object value = entry.getValue();
-        json.prop(entry.getKey(), value == null ? null : value.toString());
+        json.name(entry.getKey()).valueObject(entry.getValue());
       }
       json.endObject();
     }

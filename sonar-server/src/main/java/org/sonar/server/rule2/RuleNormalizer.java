@@ -81,7 +81,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     NAME("name"),
     TYPE("type"),
     DESCRIPTION("description"),
-    VALUE("value");
+    DEFAULT_VALUE("defaultValue");
 
     private final String key;
 
@@ -114,6 +114,26 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     private final String key;
 
     private ActiveRuleField(final String key) {
+      this.key = key;
+    }
+
+    public String key() {
+      return key;
+    }
+
+    @Override
+    public String toString() {
+      return key;
+    }
+  }
+
+  public static enum ActiveRuleParamField {
+    NAME("name"),
+    VALUE("value");
+
+    private final String key;
+
+    private ActiveRuleParamField(final String key) {
       this.key = key;
     }
 
@@ -179,7 +199,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
           document.startObject(ActiveRuleField.PARAMS.key());
           for (ActiveRuleParamDto param : activeRuleParams) {
             document.startObject(param.getKey());
-            indexField(RuleParamField.VALUE.key(), param.getValue(), document);
+            indexField(ActiveRuleParamField.VALUE.key(), param.getValue(), document);
             document.endObject();
           }
           document.endObject();
@@ -206,7 +226,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     indexField(RuleParamField.NAME.key(), param.getName(), document);
     indexField(RuleParamField.TYPE.key(), param.getType(), document);
     indexField(RuleParamField.DESCRIPTION.key(), param.getDescription(), document);
-    indexField(RuleParamField.VALUE.key(), param.getDefaultValue(), document);
+    indexField(RuleParamField.DEFAULT_VALUE.key(), param.getDefaultValue(), document);
     document.endObject();
     document.endObject();
 

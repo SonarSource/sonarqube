@@ -119,7 +119,7 @@ class RuleDoc implements Rule {
 
           @Override
           public String defaultValue() {
-            return (String) param.get(RuleNormalizer.RuleParamField.VALUE.key());
+            return (String) param.get(RuleNormalizer.RuleParamField.DEFAULT_VALUE.key());
           }
 
           @Override
