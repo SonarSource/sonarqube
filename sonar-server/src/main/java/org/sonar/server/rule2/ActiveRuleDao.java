@@ -30,7 +30,11 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleMapper;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
+import org.sonar.core.qualityprofile.db.QualityProfileDao;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleConstants;
+import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.BaseDao;
 
 import javax.annotation.CheckForNull;
@@ -43,8 +47,14 @@ import static com.google.common.collect.Lists.newArrayList;
 public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, ActiveRuleKey>
   implements ServerComponent {
 
-  public ActiveRuleDao(MyBatis mybatis) {
+  /** this is temporary to build RuleKey and QProfileKey */
+  private RuleDao ruleDao;
+  private QualityProfileDao qDao;
+
+  public ActiveRuleDao(MyBatis mybatis, QualityProfileDao qDao, RuleDao ruleDao) {
     super(ActiveRuleMapper.class, mybatis);
+    this.ruleDao = ruleDao;
+    this.qDao = qDao;
   }
 
   @Override
@@ -59,8 +69,9 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
 
   @Override
   protected ActiveRuleDto doGetByKey(ActiveRuleKey key, DbSession session) {
-    //return getMapper(session).selectByKey(key);
-    throw new NotYetImplementedException("Need to implement ActiveRuleDto.doGetByKey() method");
+    QualityProfileDto qDto = qDao.selectByNameAndLanguage(key.qProfile().name(), key.qProfile().lang(), session);
+    RuleDto ruleDto = ruleDao.selectByKey(key.ruleKey());
+    return this.selectByProfileAndRule(qDto.getId(), ruleDto.getId(), session);
   }
 
   @Override
@@ -85,6 +96,23 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
     throw new NotYetImplementedException("Need to implement ActiveRuleDto.doDeleteByKey() method");
   }
 
+  /** Helper methods to get the RuleKey and QualityProfileKey -- Temporary */
+
+  private ActiveRuleDto setActiveRuleKey(ActiveRuleDto dto){
+    RuleDto ruleDto = ruleDao.selectById(dto.getId());
+    QualityProfileDto qDto = qDao.selectById(dto.getId());
+    if(qDto != null && ruleDto != null) {
+      dto.setKey(QualityProfileKey.of(qDto.getName(), qDto.getLanguage()), ruleDto.getKey());
+    }
+    return dto;
+  }
+
+  private List<ActiveRuleDto> setActiveRuleKey(List<ActiveRuleDto> dtos){
+    for(ActiveRuleDto dto:dtos) {
+      setActiveRuleKey(dto);
+    }
+    return dtos;
+  }
 
 
   public void delete(int activeRuleId, SqlSession session) {
@@ -148,7 +176,7 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
       List<ActiveRuleDto> dtos = session.selectList("org.sonar.core.qualityprofile.db.ActiveRuleMapper.selectByIds", newArrayList(idsPartition));
       dtosList.addAll(dtos);
     }
-    return dtosList;
+    return setActiveRuleKey(dtosList);
   }
 
   public List<ActiveRuleDto> selectAll() {
@@ -161,7 +189,7 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
   }
 
   public List<ActiveRuleDto> selectAll(SqlSession session) {
-    return session.getMapper(ActiveRuleMapper.class).selectAll();
+    return setActiveRuleKey(session.getMapper(ActiveRuleMapper.class).selectAll());
   }
 
   public List<ActiveRuleDto> selectByRuleId(int ruleId) {
@@ -174,7 +202,7 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
   }
 
   public List<ActiveRuleDto> selectByRuleId(int ruleId, SqlSession session) {
-    return session.getMapper(ActiveRuleMapper.class).selectByRuleId(ruleId);
+    return setActiveRuleKey(session.getMapper(ActiveRuleMapper.class).selectByRuleId(ruleId));
   }
 
   public List<ActiveRuleDto> selectByProfileId(int profileId) {
@@ -187,7 +215,7 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
   }
 
   public List<ActiveRuleDto> selectByProfileId(int profileId, SqlSession session) {
-    return session.getMapper(ActiveRuleMapper.class).selectByProfileId(profileId);
+    return setActiveRuleKey(session.getMapper(ActiveRuleMapper.class).selectByProfileId(profileId));
   }
 
 
@@ -203,7 +231,7 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
 
   @CheckForNull
   public ActiveRuleDto selectById(int id, SqlSession session) {
-    return session.getMapper(ActiveRuleMapper.class).selectById(id);
+    return setActiveRuleKey(session.getMapper(ActiveRuleMapper.class).selectById(id));
   }
 
   @CheckForNull
@@ -218,7 +246,7 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
 
   @CheckForNull
   public ActiveRuleDto selectByProfileAndRule(int profileId, int ruleId, SqlSession session) {
-    return session.getMapper(ActiveRuleMapper.class).selectByProfileAndRule(profileId, ruleId);
+    return setActiveRuleKey(session.getMapper(ActiveRuleMapper.class).selectByProfileAndRule(profileId, ruleId));
   }
 
   public void insert(ActiveRuleParamDto dto, SqlSession session) {

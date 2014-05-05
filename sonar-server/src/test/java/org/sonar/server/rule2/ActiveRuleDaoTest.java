@@ -30,6 +30,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
+import org.sonar.core.qualityprofile.db.QualityProfileDao;
 
 import java.util.List;
 
@@ -41,7 +42,10 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
 
   @Before
   public void createDao() {
-    dao = new ActiveRuleDao(getMyBatis());
+
+    RuleDao ruleDao = new RuleDao(getMyBatis());
+    QualityProfileDao qDao = new QualityProfileDao(getMyBatis());
+    dao = new ActiveRuleDao(getMyBatis(), qDao, ruleDao);
   }
 
   @Test
