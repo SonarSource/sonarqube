@@ -21,6 +21,8 @@ package org.sonar.server.search;
 
 import com.google.common.collect.ImmutableList;
 import org.sonar.server.cluster.LocalQueueWorker;
+import org.sonar.server.rule2.ActiveRuleIndex;
+import org.sonar.server.rule2.ActiveRuleNormalizer;
 import org.sonar.server.rule2.RuleIndex;
 import org.sonar.server.rule2.RuleNormalizer;
 
@@ -33,7 +35,9 @@ public final class IndexUtils {
   public static List<Class> getIndexClasses() {
     return ImmutableList.<Class>of(
       RuleNormalizer.class,
+      ActiveRuleNormalizer.class,
       RuleIndex.class,
+      ActiveRuleIndex.class,
       LocalQueueWorker.class
     );
   }

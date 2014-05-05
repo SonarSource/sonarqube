@@ -184,7 +184,8 @@ class ServerComponents {
       TempFolderCleaner.class,
       new TempFolderProvider(),
       System2.INSTANCE,
-      org.sonar.server.rule2.RuleDao.class
+      org.sonar.server.rule2.RuleDao.class,
+      org.sonar.server.rule2.ActiveRuleDao.class
     ));
     components.addAll(CorePropertyDefinitions.all());
     components.addAll(DatabaseMigrations.CLASSES);

@@ -38,15 +38,15 @@ public abstract class BaseNormalizer<E extends Dto<K>, K extends Serializable> {
     }
   }
 
-  public UpdateRequest normalizeOther(Object object, K key) throws Exception {
+  public UpdateRequest normalizeOther(Object object, Object key) throws Exception {
     return (UpdateRequest) this.getClass()
       .getMethod("normalize", object.getClass(), key.getClass())
       .invoke(this, object, key);
   }
 
-  public abstract UpdateRequest normalize(K key) throws IOException;
+  public abstract UpdateRequest normalize(K key) throws IOException, Exception;
 
-  public abstract UpdateRequest normalize(E dto) throws IOException;
+  public abstract UpdateRequest normalize(E dto) throws Exception;
 
   private static final Logger LOG = LoggerFactory.getLogger(BaseNormalizer.class);
 

@@ -19,44 +19,9 @@
  */
 package org.sonar.server.search;
 
-import org.picocontainer.Startable;
-import org.sonar.core.db.Dto;
-
-import javax.annotation.CheckForNull;
-import java.io.Serializable;
-
-public interface Index<E extends Dto<K>, K extends Serializable> extends Startable {
-
-  @CheckForNull
-  Hit getByKey(K item);
-
-  String getIndexType();
+public interface IndexDefinition {
 
   String getIndexName();
 
-  void refresh();
-
-  void insert(Object obj, K key) throws Exception;
-
-  void insertByKey(K key);
-
-  void insertByDto(E dto);
-
-  void update(Object obj, K key) throws Exception;
-
-  void updateByKey(K key);
-
-  void updateByDto(E dto);
-
-  void delete(Object obj, K key) throws Exception;
-
-  void deleteByKey(K key);
-
-  void deleteByDto(E dto);
-
-  Long getLastSynchronization();
-
-  void setLastSynchronization(Long time);
-
-
+  String getIndexType();
 }

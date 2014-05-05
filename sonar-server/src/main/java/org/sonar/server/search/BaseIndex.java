@@ -46,23 +46,39 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implements Index<E, K> {
+public abstract class BaseIndex<E extends Dto<K>, K extends Serializable> implements Index<E, K> {
 
   private static final Logger LOG = LoggerFactory.getLogger(BaseIndex.class);
 
   private final Profiling profiling;
   private final ESNode node;
   protected BaseNormalizer<E, K> normalizer;
+  protected final IndexDefinition indexDefinition;
 
-  public BaseIndex(BaseNormalizer<E, K> normalizer, WorkQueue workQueue,
+  public BaseIndex(IndexDefinition indexDefinition, BaseNormalizer<E, K> normalizer, WorkQueue workQueue,
                    Profiling profiling, ESNode node) {
     this.normalizer = normalizer;
     this.profiling = profiling;
     this.node = node;
+    this.indexDefinition = indexDefinition;
+  }
+
+  @Override
+  public String getIndexName() {
+    return this.indexDefinition.getIndexName();
+  }
+
+  @Override
+  public String getIndexType() {
+    return this.indexDefinition.getIndexType();
   }
 
   protected Client getClient() {
     return node.client();
+  }
+
+  protected ESNode getNode() {
+    return this.node;
   }
 
   /* Component Methods */
@@ -81,7 +97,7 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
 
   /* Cluster And ES Stats/Client methods */
 
-  private void initializeIndex() {
+  protected void initializeIndex() {
 
     String index = this.getIndexName();
 
@@ -94,7 +110,7 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
         LOG.info("Setup of index {}", this.getIndexName());
         getClient().admin().indices().prepareCreate(index)
           .setSettings(getIndexSettings())
-          .addMapping(getType(), getMapping())
+          .addMapping(this.indexDefinition.getIndexType(), getMapping())
           .execute().actionGet();
       } catch (Exception e) {
         throw new RuntimeException("Invalid configuration for index " + this.getIndexName(), e);
@@ -105,8 +121,6 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
   /* Index management methods */
 
   protected abstract XContentBuilder getIndexSettings() throws IOException;
-
-  protected abstract String getType();
 
   protected abstract XContentBuilder getMapping() throws IOException;
 
@@ -121,21 +135,21 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
 
   @Override
   public Hit getByKey(K key) {
-    GetResponse result = getClient().prepareGet(this.getIndexName(), this.getType(), this.getKeyValue(key))
+    GetResponse result = getClient().prepareGet(this.getIndexName(),
+      this.indexDefinition.getIndexType(), this.getKeyValue(key))
       .get();
     return Hit.fromMap(0, result.getSourceAsMap());
   }
 
-  private void insertDocument(UpdateRequest request, String key) throws Exception {
-    LOG.debug("INSERT _id:{} in index {}", key, this.getIndexName());
+  private void insertDocument(UpdateRequest request, K key) throws Exception {
+    LOG.debug("INSERT _id:{} in index {}", this.getKeyValue(key), this.getIndexName());
     updateDocument(request, key);
   }
 
   @Override
   public void insert(Object obj, K key) throws Exception {
     if (this.normalizer.canNormalize(obj.getClass(), key.getClass())) {
-      this.updateDocument(this.normalizer.normalizeOther(obj, key),
-        this.getKeyValue(key));
+      this.updateDocument(this.normalizer.normalizeOther(obj, key),key);
     } else {
       throw new IllegalStateException("No normalizer method available for "+
         obj.getClass().getSimpleName()+ " in "+ normalizer.getClass().getSimpleName());
@@ -146,16 +160,12 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
   public void insertByDto(E item) {
     try {
       UpdateRequest doc = normalizer.normalize(item);
-      String keyValue = getKeyValue(item.getKey());
-      if (doc != null && keyValue != null && !keyValue.isEmpty()) {
-        insertDocument(doc, keyValue);
-      } else {
-        LOG.error("Could not normalize document {} for insert in {}",
-          keyValue, getIndexName());
-      }
+      insertDocument(doc, item.getKey());
     } catch (Exception e) {
-      LOG.error("Could not update document for index {}: {}",
-        getIndexName(), e.getMessage());
+      throw new IllegalStateException(this.getClass().getSimpleName() +
+        "cannot execute INSERT_BY_DTO for " + item.getClass().getSimpleName() +
+        " as " + this.getIndexType() +
+        " on key: "+ item.getKey(), e);
     }
   }
 
@@ -163,33 +173,29 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
   public void insertByKey(K key) {
     try {
       UpdateRequest doc = normalizer.normalize(key);
-      String keyValue = getKeyValue(key);
-      if (doc != null && keyValue != null && !keyValue.isEmpty()) {
-        insertDocument(doc, keyValue);
-      } else {
-        LOG.error("Could not normalize document {} for insert in {}",
-          key, getIndexName());
-      }
+      insertDocument(doc, key);
     } catch (Exception e) {
-      LOG.error("Could not update document for index {}: {}",
-        getIndexName(), e.getMessage());
+      throw new IllegalStateException(this.getClass().getSimpleName() +
+        "cannot execute INSERT_BY_KEY for " + key.getClass().getSimpleName() +
+        " as " + this.getIndexType() +
+        " on key: "+ key, e);
     }
   }
 
 
-  private void updateDocument(UpdateRequest request, String key) throws Exception {
+  protected void updateDocument(UpdateRequest request, K key) throws Exception {
     LOG.debug("UPDATE _id:{} in index {}", key, this.getIndexName());
-    getClient().update(request.id(key)
-      .type(this.getType())
-      .index(this.getIndexName())).get();
+    getClient().update(request
+      .index(this.getIndexName())
+      .id(this.getKeyValue(key))
+      .type(this.getIndexType())).get();
   }
 
 
   @Override
   public void update(Object obj, K key) throws Exception {
     if (this.normalizer.canNormalize(obj.getClass(), key.getClass())) {
-      this.updateDocument(this.normalizer.normalizeOther(obj, key),
-        this.getKeyValue(key));
+      this.updateDocument(this.normalizer.normalizeOther(obj, key),key);
     } else {
       throw new IllegalStateException("Index " + this.getIndexName() +
         " cannot execute INSERT for class: " + obj.getClass());
@@ -200,8 +206,7 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
   public void updateByDto(E item) {
     try {
       UpdateRequest doc = normalizer.normalize(item);
-      String keyValue = getKeyValue(item.getKey());
-      this.updateDocument(doc, keyValue);
+      this.updateDocument(doc, item.getKey());
     } catch (Exception e) {
       LOG.error("Could not update document for index {}: {}",
         this.getIndexName(), e.getMessage());
@@ -212,18 +217,20 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
   public void updateByKey(K key) {
     try {
       UpdateRequest doc = normalizer.normalize(key);
-      String keyValue = getKeyValue(key);
-      this.updateDocument(doc, keyValue);
+      this.updateDocument(doc, key);
     } catch (Exception e) {
       LOG.error("Could not update document for index {}: {}",
         this.getIndexName(), e.getMessage());
     }
   }
 
-  private void deleteDocument(String key) throws ExecutionException, InterruptedException {
+  private void deleteDocument(K key) throws ExecutionException, InterruptedException {
     LOG.debug("DELETE _id:{} in index {}", key, this.getIndexName());
     getClient()
-      .prepareDelete(this.getIndexName(), this.getType(), key)
+      .prepareDelete()
+      .setIndex(this.getIndexName())
+      .setType(this.indexDefinition.getIndexType())
+      .setIndex(this.getKeyValue(key))
       .get();
   }
 
@@ -240,7 +247,7 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
   @Override
   public void deleteByKey(K key) {
     try {
-      this.deleteDocument(this.getKeyValue(key));
+      this.deleteDocument(key);
     } catch (Exception e) {
       LOG.error("Could not DELETE _id:{} for index {}: {}",
         this.getKeyValue(key), this.getIndexName(), e.getMessage());
@@ -250,7 +257,7 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
   @Override
   public void deleteByDto(E item) {
     try {
-      this.deleteDocument(this.getKeyValue(item.getKey()));
+      this.deleteDocument(item.getKey());
     } catch (Exception e) {
       LOG.error("Could not DELETE _id:{} for index {}: {}",
         this.getKeyValue(item.getKey()), this.getIndexName(), e.getMessage());

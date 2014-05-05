@@ -25,6 +25,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.search.DtoIndexAction;
 import org.sonar.server.search.IndexAction;
+import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.KeyIndexAction;
 
 import java.io.Serializable;
@@ -34,13 +35,21 @@ public abstract class BaseDao<T, E extends Dto<K>, K extends Serializable>
 
   protected final MyBatis mybatis;
   private Class<T> mapperClass;
+  protected final IndexDefinition indexDefinition;
 
-  protected BaseDao(Class<T> mapperClass, MyBatis myBatis) {
+  protected BaseDao(IndexDefinition indexDefinition, Class<T> mapperClass, MyBatis myBatis) {
+    this.indexDefinition = indexDefinition;
     this.mapperClass = mapperClass;
     this.mybatis = myBatis;
   }
 
-  protected abstract String getIndexName();
+  public String getIndexName() {
+    return this.indexDefinition.getIndexName();
+  }
+
+  public String getIndexType() {
+    return this.indexDefinition.getIndexType();
+  }
 
   protected abstract E doGetByKey(K key, DbSession session);
 
@@ -55,6 +64,7 @@ public abstract class BaseDao<T, E extends Dto<K>, K extends Serializable>
   protected T getMapper(DbSession session) {
     return session.getMapper(mapperClass);
   }
+
   protected MyBatis getMyBatis() {
     return this.mybatis;
   }
@@ -72,7 +82,7 @@ public abstract class BaseDao<T, E extends Dto<K>, K extends Serializable>
   @Override
   public E update(E item, DbSession session) {
     this.doUpdate(item, session);
-    session.enqueue(new DtoIndexAction<E>(this.getIndexName(),
+    session.enqueue(new DtoIndexAction<E>(this.getIndexType(),
       IndexAction.Method.UPDATE, item));
     return item;
   }
@@ -92,7 +102,7 @@ public abstract class BaseDao<T, E extends Dto<K>, K extends Serializable>
   @Override
   public E insert(E item, DbSession session) {
     this.doInsert(item, session);
-    session.enqueue(new DtoIndexAction<E>(this.getIndexName(),
+    session.enqueue(new DtoIndexAction<E>(this.getIndexType(),
       IndexAction.Method.INSERT, item));
     return item;
   }
@@ -111,9 +121,9 @@ public abstract class BaseDao<T, E extends Dto<K>, K extends Serializable>
 
   @Override
   public void delete(E item, DbSession session) {
-    session.enqueue(new DtoIndexAction<E>(this.getIndexName(),
-      IndexAction.Method.DELETE, item));
     this.doDelete(item, session);
+    session.enqueue(new DtoIndexAction<E>(this.getIndexType(),
+      IndexAction.Method.DELETE, item));
   }
 
   @Override
@@ -129,9 +139,9 @@ public abstract class BaseDao<T, E extends Dto<K>, K extends Serializable>
 
   @Override
   public void deleteByKey(K key, DbSession session) {
-    session.enqueue(new KeyIndexAction<K>(this.getIndexName(),
-      IndexAction.Method.DELETE, key));
     this.doDeleteByKey(key, session);
+    session.enqueue(new KeyIndexAction<K>(this.getIndexType(),
+      IndexAction.Method.DELETE, key));
   }
 
   @Override

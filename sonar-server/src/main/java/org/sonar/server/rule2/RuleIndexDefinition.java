@@ -17,11 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.rule;
+package org.sonar.server.rule2;
 
-public class RuleConstants {
+import org.sonar.server.search.IndexDefinition;
 
-  public static final String INDEX_NAME = "rules2";
-  public static final String ES_TYPE = "rule2";
+public final class RuleIndexDefinition implements IndexDefinition {
 
+  private static final String INDEX_NAME = "rules2";
+  private static final String INDEX_DOMAIN = "rules";
+  private static final String INDEX_TYPE = "rule2";
+
+  @Override
+  public String getIndexName() {
+    return RuleIndexDefinition.INDEX_NAME;
+  }
+
+  @Override
+  public String getIndexType() {
+    return RuleIndexDefinition.INDEX_TYPE;
+  }
 }

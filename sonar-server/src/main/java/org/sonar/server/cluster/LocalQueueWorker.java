@@ -44,7 +44,7 @@ public class LocalQueueWorker extends ThreadPoolExecutor
     /* Save all instances of Index<?> */
     this.indexes = new HashMap<String, Index>();
     for (Index index : allIndexes) {
-      this.indexes.put(index.getIndexName(), index);
+      this.indexes.put(index.getIndexType(), index);
     }
   }
 
@@ -53,8 +53,8 @@ public class LocalQueueWorker extends ThreadPoolExecutor
     super.beforeExecute(t, r);
     if (IndexAction.class.isAssignableFrom(r.getClass())) {
       IndexAction ia = (IndexAction) r;
-      LOG.debug("Task is an IndexAction for {}", ia.getIndexName());
-      ia.setIndex(indexes.get(ia.getIndexName()));
+      LOG.debug("Task is an IndexAction for {}", ia.getIndexType());
+      ia.setIndex(indexes.get(ia.getIndexType()));
     }
   }
 

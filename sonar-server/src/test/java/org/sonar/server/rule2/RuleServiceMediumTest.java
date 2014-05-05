@@ -31,9 +31,10 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
+import org.sonar.core.qualityprofile.db.QualityProfileDao;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.rule.RuleRuleTagDto;
@@ -52,9 +53,13 @@ import static org.fest.assertions.Assertions.assertThat;
 public class RuleServiceMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester()
+    .setProperty("sonar.es.http.port","8888");
 
   RuleDao dao = tester.get(RuleDao.class);
+
+  QualityProfileDao qualityProfileDao = tester.get(QualityProfileDao.class);
+
   RuleIndex index = tester.get(RuleIndex.class);
 
   @Before
@@ -140,20 +145,31 @@ public class RuleServiceMediumTest {
   }
 
   @Test
-  public void insert_and_index_activeRules() {
+  public void insert_and_index_activeRules() throws InterruptedException {
     DbSession dbSession = tester.get(MyBatis.class).openSession(false);
     ActiveRuleDao activeRuleDao = tester.get(ActiveRuleDao.class);
+
+    QualityProfileDto profileDto = new QualityProfileDto()
+      .setName("myprofile")
+      .setLanguage("java");
+    qualityProfileDao.insert(profileDto, dbSession);
+
     // insert db
     RuleKey ruleKey = RuleKey.of("javascript", "S001");
     RuleDto ruleDto = newRuleDto(ruleKey);
     dao.insert(ruleDto, dbSession);
+    dbSession.commit();
+
     ActiveRuleDto activeRule = new ActiveRuleDto()
       .setInheritance("inherited")
-      .setProfileId(1)
+      .setProfileId(profileDto.getId())
       .setRuleId(ruleDto.getId())
       .setSeverity(Severity.BLOCKER);
+
     activeRuleDao.insert(activeRule, dbSession);
     dbSession.commit();
+
+    dbSession.close();
 
     // verify that activeRules are persisted in db
     List<ActiveRuleDto> persistedDtos = activeRuleDao.selectByRuleId(ruleDto.getId());
@@ -161,18 +177,26 @@ public class RuleServiceMediumTest {
 
     // verify that activeRules are indexed in es
     index.refresh();
+
+
     Hit hit = index.getByKey(ruleKey);
     assertThat(hit).isNotNull();
     assertThat(hit.getField(RuleNormalizer.RuleField.ACTIVE.key())).isNotNull();
 
-    RuleService service = tester.get(RuleService.class);
-    Rule rule = service.getByKey(ruleKey);
+    Map<String, Object> activeRules = (Map<String, Object>) hit.getField(RuleNormalizer.RuleField.ACTIVE.key());
+    assertThat(activeRules).hasSize(1);
   }
 
   @Test
-  public void insert_and_index_activeRuleParams() {
+  public void insert_and_index_activeRuleParams() throws InterruptedException {
     DbSession dbSession = tester.get(MyBatis.class).openSession(false);
     ActiveRuleDao activeRuleDao = tester.get(ActiveRuleDao.class);
+
+    QualityProfileDto profileDto = new QualityProfileDto()
+      .setName("myprofile")
+      .setLanguage("java");
+    qualityProfileDao.insert(profileDto, dbSession);
+
     // insert db
     RuleKey ruleKey = RuleKey.of("javascript", "S001");
     RuleDto ruleDto = newRuleDto(ruleKey);
@@ -193,7 +217,7 @@ public class RuleServiceMediumTest {
 
     ActiveRuleDto activeRule = new ActiveRuleDto()
       .setInheritance("inherited")
-      .setProfileId(1)
+      .setProfileId(profileDto.getId())
       .setRuleId(ruleDto.getId())
       .setSeverity(Severity.BLOCKER);
     activeRuleDao.insert(activeRule, dbSession);
@@ -213,6 +237,7 @@ public class RuleServiceMediumTest {
     activeRuleDao.insert(activeRuleMaxParam, dbSession);
 
     dbSession.commit();
+    dbSession.close();
 
     // verify that activeRulesParams are persisted in db
     List<ActiveRuleParamDto> persistedDtos = activeRuleDao.selectParamsByActiveRuleId(activeRule.getId());
@@ -220,6 +245,7 @@ public class RuleServiceMediumTest {
 
     // verify that activeRulesParams are indexed in es
     index.refresh();
+
     Hit hit = index.getByKey(ruleKey);
     assertThat(hit).isNotNull();
 
@@ -236,7 +262,7 @@ public class RuleServiceMediumTest {
 
     Map<String, String> _activeRuleParamValue = (Map<String, String>) _activeRuleParams.get(maxParam.getName());
     assertThat(_activeRuleParamValue).isNotNull().hasSize(1);
-    assertThat(_activeRuleParamValue.get(RuleNormalizer.ActiveRuleParamField.VALUE.key())).isEqualTo("maximum");
+    assertThat(_activeRuleParamValue.get(ActiveRuleNormalizer.ActiveRuleParamField.VALUE.key())).isEqualTo("maximum");
 
   }
 
@@ -283,6 +309,8 @@ public class RuleServiceMediumTest {
     dao.insert(rTag2, dbSession);
     dao.insert(rTag3, dbSession);
     dbSession.commit();
+    dbSession.close();
+
 
     // verify that tags are persisted in db
     List<RuleRuleTagDto> persistedDtos = dao.selectTagsByRuleId(ruleDto.getId());

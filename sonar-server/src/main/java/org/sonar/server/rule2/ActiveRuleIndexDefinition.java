@@ -17,46 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.search;
+package org.sonar.server.rule2;
 
-import org.picocontainer.Startable;
-import org.sonar.core.db.Dto;
+import org.sonar.server.search.IndexDefinition;
 
-import javax.annotation.CheckForNull;
-import java.io.Serializable;
+public class ActiveRuleIndexDefinition implements IndexDefinition {
 
-public interface Index<E extends Dto<K>, K extends Serializable> extends Startable {
+  private static final String INDEX_NAME = "rules2";
+  private static final String INDEX_TYPE = "activeRule2";
 
-  @CheckForNull
-  Hit getByKey(K item);
+  @Override
+  public String getIndexName() {
+    return ActiveRuleIndexDefinition.INDEX_NAME;
+  }
 
-  String getIndexType();
-
-  String getIndexName();
-
-  void refresh();
-
-  void insert(Object obj, K key) throws Exception;
-
-  void insertByKey(K key);
-
-  void insertByDto(E dto);
-
-  void update(Object obj, K key) throws Exception;
-
-  void updateByKey(K key);
-
-  void updateByDto(E dto);
-
-  void delete(Object obj, K key) throws Exception;
-
-  void deleteByKey(K key);
-
-  void deleteByDto(E dto);
-
-  Long getLastSynchronization();
-
-  void setLastSynchronization(Long time);
-
-
+  @Override
+  public String getIndexType() {
+    return ActiveRuleIndexDefinition.INDEX_TYPE;
+  }
 }

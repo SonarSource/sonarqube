@@ -25,8 +25,8 @@ public class DtoIndexAction<E extends Dto> extends IndexAction {
 
   private final E item;
 
-  public DtoIndexAction(String indexName, Method method, E item) {
-    super(indexName, method);
+  public DtoIndexAction(String indexType, Method method, E item) {
+    super(indexType, method);
     this.item = item;
   }
 
@@ -41,11 +41,10 @@ public class DtoIndexAction<E extends Dto> extends IndexAction {
         index.updateByDto(this.item);
       }
     } catch (Exception e) {
-      e.printStackTrace();
-
-      throw new IllegalStateException("Index " + this.getIndexName() + " cannot execute " +
-        this.getMethod() + " for " + item.getKey());
-
+      throw new IllegalStateException(this.getClass().getSimpleName() +
+        " cannot execute " + this.getMethod() + " for " + this.item.getClass().getSimpleName() +
+        " as " + this.getIndexType() +
+        " on key: "+ this.item.getKey(), e);
     }
   }
 

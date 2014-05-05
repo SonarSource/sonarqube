@@ -25,8 +25,8 @@ public class KeyIndexAction<K extends Serializable> extends IndexAction {
 
   private final K key;
 
-  public KeyIndexAction(String indexName, Method method, K key) {
-    super(indexName, method);
+  public KeyIndexAction(String indexType, Method method, K key) {
+    super(indexType, method);
     this.key = key;
   }
 
@@ -41,8 +41,10 @@ public class KeyIndexAction<K extends Serializable> extends IndexAction {
         index.updateByKey(this.key);
       }
     } catch (Exception e) {
-      throw new IllegalStateException("Index " + this.getIndexName() + " cannot execute " +
-        this.getMethod() + " for " + key);
+      throw new IllegalStateException(this.getClass().getSimpleName() +
+        "cannot execute " + this.getMethod() + " for " + this.key.getClass().getSimpleName() +
+        " on type: " + this.getIndexType() +
+        " on key: "+ this.key, e);
     }
   }
 }

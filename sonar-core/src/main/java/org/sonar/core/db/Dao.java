@@ -44,4 +44,5 @@ public interface Dao<E extends Dto<K>, K extends Serializable> {
   void deleteByKey(K key, DbSession session);
 
   Iterable<K> keysOfRowsUpdatedAfter(long timestamp);
+
 }

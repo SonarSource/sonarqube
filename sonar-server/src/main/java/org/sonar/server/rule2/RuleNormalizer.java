@@ -23,26 +23,19 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Cardinality;
-import org.sonar.core.qualityprofile.db.ActiveRuleDao;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.rule.RuleRuleTagDto;
-import org.sonar.core.rule.RuleTagDao;
 import org.sonar.core.rule.RuleTagType;
 import org.sonar.server.search.BaseNormalizer;
 
 import java.io.IOException;
-import java.util.List;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
   private final RuleDao ruleDao;
-  private final ActiveRuleDao activeRuleDao;
-  private final RuleTagDao ruleTagDao;
 
   public static enum RuleField {
     KEY("key"),
@@ -99,54 +92,8 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     }
   }
 
-  public static enum ActiveRuleField {
-    OVERRIDE("override"),
-    INHERITANCE("inheritance"),
-    PROFILE_ID("profile"),
-    SEVERITY("severity"),
-    PARENT_ID("parent"),
-    PARAMS("params");
-
-    private final String key;
-
-    private ActiveRuleField(final String key) {
-      this.key = key;
-    }
-
-    public String key() {
-      return key;
-    }
-
-    @Override
-    public String toString() {
-      return key;
-    }
-  }
-
-  public static enum ActiveRuleParamField {
-    NAME("name"),
-    VALUE("value");
-
-    private final String key;
-
-    private ActiveRuleParamField(final String key) {
-      this.key = key;
-    }
-
-    public String key() {
-      return key;
-    }
-
-    @Override
-    public String toString() {
-      return key;
-    }
-  }
-
-  public RuleNormalizer(RuleDao ruleDao, ActiveRuleDao activeRuleDao, RuleTagDao ruleTagDao) {
+  public RuleNormalizer(RuleDao ruleDao){
     this.ruleDao = ruleDao;
-    this.activeRuleDao = activeRuleDao;
-    this.ruleTagDao = ruleTagDao;
   }
 
   @Override
@@ -172,34 +119,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     document.startArray(RuleField.TAGS.key()).endArray();
     document.startArray(RuleField.SYSTEM_TAGS.key()).endArray();
     document.startObject(RuleField.PARAMS.key()).endObject();
-
-    /* Normalize activeRules */
-    List<ActiveRuleDto> activeRules = activeRuleDao.selectByRuleId(rule.getId());
-    document.startObject(RuleField.ACTIVE.key());
-    if (!activeRules.isEmpty()) {
-      for (ActiveRuleDto activeRule : activeRules) {
-        document.startObject(activeRule.getProfileId().toString());
-        indexField(ActiveRuleField.OVERRIDE.key(), activeRule.doesOverride(), document);
-        indexField(ActiveRuleField.INHERITANCE.key(), activeRule.getInheritance(), document);
-        indexField(ActiveRuleField.PROFILE_ID.key(), activeRule.getProfileId(), document);
-        indexField(ActiveRuleField.SEVERITY.key(), activeRule.getSeverityString(), document);
-        indexField(ActiveRuleField.PARENT_ID.key(), activeRule.getParentId(), document);
-
-        /* Get all activeRuleParams */
-        List<ActiveRuleParamDto> activeRuleParams = activeRuleDao.selectParamsByActiveRuleId(activeRule.getId());
-        if(!activeRuleParams.isEmpty()) {
-          document.startObject(ActiveRuleField.PARAMS.key());
-          for (ActiveRuleParamDto param : activeRuleParams) {
-            document.startObject(param.getKey());
-            indexField(ActiveRuleParamField.VALUE.key(), param.getValue(), document);
-            document.endObject();
-          }
-          document.endObject();
-        }
-        document.endObject();
-      }
-    }
-    document.endObject();
+    document.startObject(RuleField.ACTIVE.key()).endObject();
 
     /* Done normalizing for Rule */
     document.endObject();

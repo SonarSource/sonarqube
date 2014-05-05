@@ -38,7 +38,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.profiling.Profiling;
-import org.sonar.core.rule.RuleConstants;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.es.ESNode;
 import org.sonar.server.rule2.RuleNormalizer.RuleField;
@@ -53,7 +52,7 @@ import java.util.Set;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
-public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
+public class RuleIndex extends BaseIndex<RuleDto, RuleKey> {
 
   private static final Logger LOG = LoggerFactory.getLogger(RuleIndex.class);
 
@@ -76,17 +75,7 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
 
   public RuleIndex(RuleNormalizer normalizer, WorkQueue workQueue,
                    Profiling profiling, ESNode node) {
-    super(normalizer, workQueue, profiling, node);
-  }
-
-  @Override
-  public String getIndexName() {
-    return RuleConstants.INDEX_NAME;
-  }
-
-  @Override
-  protected String getType() {
-    return RuleConstants.ES_TYPE;
+    super(new RuleIndexDefinition(), normalizer, workQueue, profiling, node);
   }
 
   protected String getKeyValue(RuleKey key) {
@@ -149,7 +138,7 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
   @Override
   protected XContentBuilder getMapping() throws IOException {
     XContentBuilder mapping = jsonBuilder().startObject()
-      .startObject(this.getType())
+      .startObject(this.indexDefinition.getIndexType())
       .field("dynamic", true)
       .startObject("properties");
 

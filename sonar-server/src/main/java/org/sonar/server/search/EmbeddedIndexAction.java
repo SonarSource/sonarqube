@@ -26,9 +26,9 @@ public class EmbeddedIndexAction<K extends Serializable> extends IndexAction {
   private final Object item;
   private final K key;
 
-  public EmbeddedIndexAction(String indexName, Method method, Object item, K key){
-    super(indexName, method);
-    this.indexName = indexName;
+  public EmbeddedIndexAction(String indexType, Method method, Object item, K key){
+    super(indexType, method);
+    this.indexType = indexType;
     this.method = method;
     this.key = key;
     this.item = item;
@@ -45,8 +45,9 @@ public class EmbeddedIndexAction<K extends Serializable> extends IndexAction {
         index.update(this.item, this.key);
       }
     } catch (Exception e) {
-      throw new IllegalStateException("Index " + this.getIndexName() + " cannot execute " +
-        this.getMethod() + " for " +this.item.getClass().getSimpleName() +
+      throw new IllegalStateException(this.getClass().getSimpleName() +
+        "cannot execute " + this.getMethod() + " for " + this.item.getClass().getSimpleName() +
+        " as " + this.getIndexType() +
         " on key: "+ this.key, e);
     }
   }

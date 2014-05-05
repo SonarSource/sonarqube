@@ -31,14 +31,14 @@ public abstract class IndexAction extends QueueAction {
     INSERT, UPDATE, DELETE
   }
 
-  protected String indexName;
+  protected String indexType;
   protected Method method;
   protected Index index;
 
 
-  public IndexAction(String indexName, Method method){
+  public IndexAction(String indexType, Method method){
     super();
-    this.indexName = indexName;
+    this.indexType = indexType;
     this.method = method;
   }
 
@@ -46,12 +46,12 @@ public abstract class IndexAction extends QueueAction {
     return this.method;
   }
 
-  public String getIndexName() {
-    return indexName;
+  public String getIndexType() {
+    return indexType;
   }
 
-  public void setIndexName(String indexName) {
-    this.indexName = indexName;
+  public void setIndexType(String indexType) {
+    this.indexType = indexType;
   }
 
   public void setMethod(Method method) {
