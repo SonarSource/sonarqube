@@ -31,23 +31,23 @@ import java.io.Serializable;
  * @since 4.4
  */
 public class ActiveRuleKey implements Serializable{
-  private final QProfileKey qProfileKey;
+  private final QualityProfileKey qualityProfileKey;
   private final RuleKey ruleKey;
 
-  protected ActiveRuleKey(QProfileKey qProfileKey, RuleKey ruleKey) {
-    this.qProfileKey = qProfileKey;
+  protected ActiveRuleKey(QualityProfileKey qualityProfileKey, RuleKey ruleKey) {
+    this.qualityProfileKey = qualityProfileKey;
     this.ruleKey = ruleKey;
   }
 
   /**
    * Create a key. Parameters are NOT null.
    */
-  public static ActiveRuleKey of(QProfileKey qProfileKey, RuleKey ruleKey) {
-    Preconditions.checkArgument(!Strings.isNullOrEmpty(qProfileKey.qProfile()), "QProfile is missing key");
-    Preconditions.checkArgument(!Strings.isNullOrEmpty(qProfileKey.lang()), "QProfile is missing lang");
+  public static ActiveRuleKey of(QualityProfileKey qualityProfileKey, RuleKey ruleKey) {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(qualityProfileKey.name()), "QProfile is missing name");
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(qualityProfileKey.lang()), "QProfile is missing lang");
     Preconditions.checkArgument(!Strings.isNullOrEmpty(ruleKey.repository()), "RuleKey is missing repository");
     Preconditions.checkArgument(!Strings.isNullOrEmpty(ruleKey.rule()), "RuleKey is missing key");
-    return new ActiveRuleKey(qProfileKey, ruleKey);
+    return new ActiveRuleKey(qualityProfileKey, ruleKey);
   }
 
   /**
@@ -57,7 +57,7 @@ public class ActiveRuleKey implements Serializable{
   public static ActiveRuleKey parse(String s) {
     String[] split = s.split(":");
     Preconditions.checkArgument(split.length == 4, "Bad format of activeRule key: " + s);
-    return ActiveRuleKey.of(QProfileKey.of(split[0], split[1]),
+    return ActiveRuleKey.of(QualityProfileKey.of(split[0], split[1]),
                              RuleKey.of(split[2], split[3]));
   }
 
@@ -71,8 +71,8 @@ public class ActiveRuleKey implements Serializable{
   /**
    * Never null
    */
-  public QProfileKey qProfile() {
-    return qProfileKey;
+  public QualityProfileKey qProfile() {
+    return qualityProfileKey;
   }
 
   @Override
@@ -84,7 +84,7 @@ public class ActiveRuleKey implements Serializable{
       return false;
     }
     ActiveRuleKey activeRuleKey = (ActiveRuleKey) o;
-    if (!qProfileKey.equals(activeRuleKey.qProfileKey)) {
+    if (!qualityProfileKey.equals(activeRuleKey.qualityProfileKey)) {
       return false;
     }
     if (!ruleKey.equals(activeRuleKey.ruleKey)) {
@@ -95,7 +95,7 @@ public class ActiveRuleKey implements Serializable{
 
   @Override
   public int hashCode() {
-    int result = qProfileKey.hashCode();
+    int result = qualityProfileKey.hashCode();
     result = 31 * result + ruleKey.hashCode();
     return result;
   }
@@ -105,7 +105,7 @@ public class ActiveRuleKey implements Serializable{
    */
   @Override
   public String toString() {
-    return String.format("%s:%s", ruleKey.toString(), qProfileKey.toString());
+    return String.format("%s:%s", ruleKey.toString(), qualityProfileKey.toString());
   }
 }
 

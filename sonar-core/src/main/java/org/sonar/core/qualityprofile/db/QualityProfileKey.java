@@ -29,31 +29,31 @@ import java.io.Serializable;
  *
  * @since 4.4
  */
-public class QProfileKey implements Serializable{
-  private final String qProfile, lang;
+public class QualityProfileKey implements Serializable{
+  private final String name, lang;
 
-  protected QProfileKey(String qProfile, String lang) {
+  protected QualityProfileKey(String name, String lang) {
     this.lang = lang;
-    this.qProfile = qProfile;
+    this.name = name;
   }
 
   /**
    * Create a key. Parameters are NOT null.
    */
-  public static QProfileKey of(String qProfile, String lang) {
-    Preconditions.checkArgument(!Strings.isNullOrEmpty(qProfile), "QProfile must be set");
+  public static QualityProfileKey of(String name, String lang) {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(name), "Name must be set");
     Preconditions.checkArgument(!Strings.isNullOrEmpty(lang), "Lang must be set");
-    return new QProfileKey(qProfile, lang);
+    return new QualityProfileKey(name, lang);
   }
 
   /**
    * Create a key from a string representation (see {@link #toString()}. An {@link IllegalArgumentException} is raised
    * if the format is not valid.
    */
-  public static QProfileKey parse(String s) {
+  public static QualityProfileKey parse(String s) {
     String[] split = s.split(":");
     Preconditions.checkArgument(split.length == 3, "Bad format of activeRule key: " + s);
-    return QProfileKey.of(split[0], split[1]);
+    return QualityProfileKey.of(split[0], split[1]);
   }
 
   /**
@@ -66,8 +66,8 @@ public class QProfileKey implements Serializable{
   /**
    * Never null
    */
-  public String qProfile() {
-    return qProfile;
+  public String name() {
+    return name;
   }
 
 
@@ -79,11 +79,11 @@ public class QProfileKey implements Serializable{
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    QProfileKey qProfileKey = (QProfileKey) o;
-    if (!lang.equals(qProfileKey.lang)) {
+    QualityProfileKey qualityProfileKey = (QualityProfileKey) o;
+    if (!lang.equals(qualityProfileKey.lang)) {
       return false;
     }
-    if (!qProfile.equals(qProfileKey.qProfile)) {
+    if (!name.equals(qualityProfileKey.name)) {
       return false;
     }
     return true;
@@ -91,7 +91,7 @@ public class QProfileKey implements Serializable{
 
   @Override
   public int hashCode() {
-    int result = qProfile.hashCode();
+    int result = name.hashCode();
     result = 31 * result + lang.hashCode();
     return result;
   }
@@ -101,6 +101,6 @@ public class QProfileKey implements Serializable{
    */
   @Override
   public String toString() {
-    return String.format("%s:%s", qProfile, lang);
+    return String.format("%s:%s", name, lang);
   }
 }

@@ -77,13 +77,13 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
   @Override
   protected ActiveRuleDto doInsert(ActiveRuleDto item, DbSession session) {
     getMapper(session).insert(item);
-    return item;
+    return setActiveRuleKey(item);
   }
 
   @Override
   protected ActiveRuleDto doUpdate(ActiveRuleDto item, DbSession session) {
     getMapper(session).update(item);
-    return item;
+    return setActiveRuleKey(item);
   }
 
   @Override

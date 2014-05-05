@@ -45,11 +45,14 @@ public class ActiveRuleDto implements Dto<ActiveRuleKey> {
   private String noteUserLogin;
   private String noteData;
 
-  private RuleKey ruleKey;
-  private QProfileKey qProfileKey;
+  private ActiveRuleKey key;
+
+  public void setKey(QualityProfileKey qKey, RuleKey rKey){
+    this.key = ActiveRuleKey.of(qKey, rKey);
+  }
 
   public ActiveRuleKey getKey(){
-    return ActiveRuleKey.of(qProfileKey, ruleKey);
+    return this.key;
   }
 
   // This field do not exists in db, it's only retrieve by joins
