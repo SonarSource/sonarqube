@@ -34,7 +34,6 @@ public class RuleQuery {
     REPOSITORY(RuleNormalizer.RuleField.REPOSITORY),
     NAME(RuleNormalizer.RuleField.NAME),
     CREATED_AT(RuleNormalizer.RuleField.CREATED_AT),
-    DESCRIPTION(RuleNormalizer.RuleField.DESCRIPTION),
     SEVERITY(RuleNormalizer.RuleField.SEVERITY),
     STATUS(RuleNormalizer.RuleField.STATUS),
     LANGUAGE(RuleNormalizer.RuleField.LANGUAGE);

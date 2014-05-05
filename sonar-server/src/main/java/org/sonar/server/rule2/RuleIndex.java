@@ -60,7 +60,7 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
   public static final Set<String> PUBLIC_FIELDS = ImmutableSet.of(
     RuleField.KEY.key(),
     RuleField.NAME.key(),
-    RuleField.DESCRIPTION.key(),
+    RuleField.HTML_DESCRIPTION.key(),
     RuleField.LANGUAGE.key(),
     RuleField.SEVERITY.key(),
     RuleField.STATUS.key(),
@@ -70,6 +70,8 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
     RuleField.REPOSITORY.key(),
     RuleField.PARAMS.key(),
     RuleField.ACTIVE.key(),
+    RuleField.TEMPLATE.key(),
+    RuleField.INTERNAL_KEY.key(),
     RuleField.UPDATED_AT.key());
 
   public RuleIndex(RuleNormalizer normalizer, WorkQueue workQueue,
@@ -224,7 +226,7 @@ public class RuleIndex extends BaseIndex<RuleKey, RuleDto> {
         "_id",
         RuleField.NAME.key(),
         RuleField.NAME.key()+".search",
-        RuleField.DESCRIPTION.key(),
+        RuleField.HTML_DESCRIPTION.key(),
         RuleField.KEY.key(),
         RuleField.LANGUAGE.key(),
         RuleField.TAGS.key());

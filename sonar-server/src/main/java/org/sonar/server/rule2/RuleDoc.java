@@ -53,6 +53,11 @@ class RuleDoc implements Rule {
   }
 
   @Override
+  public String internalKey() {
+    return (String) fields.get(RuleField.INTERNAL_KEY.key());
+  }
+
+  @Override
   public String language() {
     return (String) fields.get(RuleField.LANGUAGE.key());
   }
@@ -63,8 +68,8 @@ class RuleDoc implements Rule {
   }
 
   @Override
-  public String description() {
-    return (String) fields.get(RuleField.DESCRIPTION.key());
+  public String htmlDescription() {
+    return (String) fields.get(RuleField.HTML_DESCRIPTION.key());
   }
 
   @Override
@@ -97,7 +102,7 @@ class RuleDoc implements Rule {
   @Override
   public List<RuleParam> params() {
     List<RuleParam> params = new ArrayList<RuleParam>();
-    if(this.fields.get(RuleField.PARAMS.key()) != null) {
+    if (this.fields.get(RuleField.PARAMS.key()) != null) {
       Map<String, Map<String, Object>> esParams = (Map<String, Map<String, Object>>) this.fields.get(RuleField.PARAMS.key());
       for (final Map<String, Object> param : esParams.values()) {
         params.add(new RuleParam() {

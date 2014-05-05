@@ -49,7 +49,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     REPOSITORY("repo"),
     NAME("name"),
     CREATED_AT("createdAt"),
-    DESCRIPTION("desc"),
+    HTML_DESCRIPTION("htmlDesc"),
     SEVERITY("severity"),
     STATUS("status"),
     LANGUAGE("lang"),
@@ -102,10 +102,6 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
   public static enum ActiveRuleField {
     OVERRIDE("override"),
     INHERITANCE("inheritance"),
-    NOTE_CREATED("noteCreatedAt"),
-    NOTE_UPDATED("noteUpdatedAt"),
-    NOTE_DATA("noteData"),
-    NOTE_USER("noteUser"),
     PROFILE_ID("profile"),
     SEVERITY("severity"),
     PARENT_ID("parent"),
@@ -166,7 +162,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     indexField(RuleField.NAME.key(), rule.getName(), document);
     indexField(RuleField.CREATED_AT.key(), rule.getCreatedAt(), document);
     indexField(RuleField.UPDATED_AT.key(), rule.getUpdatedAt(), document);
-    indexField(RuleField.DESCRIPTION.key(), rule.getDescription(), document);
+    indexField(RuleField.HTML_DESCRIPTION.key(), rule.getDescription(), document);
     indexField(RuleField.SEVERITY.key(), rule.getSeverityString(), document);
     indexField(RuleField.STATUS.key(), rule.getStatus(), document);
     indexField(RuleField.LANGUAGE.key(), rule.getLanguage(), document);
@@ -185,10 +181,6 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
         document.startObject(activeRule.getProfileId().toString());
         indexField(ActiveRuleField.OVERRIDE.key(), activeRule.doesOverride(), document);
         indexField(ActiveRuleField.INHERITANCE.key(), activeRule.getInheritance(), document);
-        indexField(ActiveRuleField.NOTE_CREATED.key(), activeRule.getNoteCreatedAt(), document);
-        indexField(ActiveRuleField.NOTE_UPDATED.key(), activeRule.getNoteUpdatedAt(), document);
-        indexField(ActiveRuleField.NOTE_DATA.key(), activeRule.getNoteData(), document);
-        indexField(ActiveRuleField.NOTE_USER.key(), activeRule.getNoteUserLogin(), document);
         indexField(ActiveRuleField.PROFILE_ID.key(), activeRule.getProfileId(), document);
         indexField(ActiveRuleField.SEVERITY.key(), activeRule.getSeverityString(), document);
         indexField(ActiveRuleField.PARENT_ID.key(), activeRule.getParentId(), document);

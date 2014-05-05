@@ -196,8 +196,6 @@ public class SearchAction implements RequestHandler {
 
   private void writeStatistics(Results results, JsonWriter json) {
     json.prop("total", results.getTotal());
-    // TODO replace ES time by complete time
-    json.prop("time", results.getTime());
   }
 
   private void writeHits(Results results, JsonWriter json) {

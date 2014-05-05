@@ -83,7 +83,7 @@ public class RuleServiceMediumTest {
     assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.KEY.key())).isEqualTo(ruleKey.rule());
     assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.LANGUAGE.key())).isEqualTo("js");
     assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.NAME.key())).isEqualTo("Rule S001");
-    assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.DESCRIPTION.key())).isEqualTo("Description S001");
+    assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.HTML_DESCRIPTION.key())).isEqualTo("Description S001");
     assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.STATUS.key())).isEqualTo(RuleStatus.READY.toString());
     assertThat(hit.getField(RuleNormalizer.RuleField.CREATED_AT.key())).isNotNull();
     assertThat(hit.getField(RuleNormalizer.RuleField.UPDATED_AT.key())).isNotNull();

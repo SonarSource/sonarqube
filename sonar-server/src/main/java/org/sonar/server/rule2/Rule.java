@@ -38,7 +38,7 @@ public interface Rule {
 
   String name();
 
-  String description();
+  String htmlDescription();
 
   /**
    * Default severity when activated on a Quality profile
@@ -79,4 +79,6 @@ public interface Rule {
 
   Date updatedAt();
 
+  @CheckForNull
+  String internalKey();
 }
