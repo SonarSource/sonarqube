@@ -82,7 +82,7 @@ public class BatchWs implements WebService, Startable {
         public void handle(Request request, Response response) {
           index(response);
         }
-      });
+      }).setResponseExample(getClass().getResource("example-batch-index.txt"));
     controller.createAction("file")
       .setInternal(true)
       .setDescription("Download a JAR file required by source analyzer")
@@ -91,7 +91,9 @@ public class BatchWs implements WebService, Startable {
         public void handle(Request request, Response response) {
           file(request, response);
         }
-      }).createParam("name", "Filename");
+      }).createParam("name")
+        .setDescription("File name")
+        .setExampleValue("batch-library-2.3.jar");
 
     controller.done();
   }

@@ -32,13 +32,10 @@ import org.sonar.api.ServerExtension;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Defines a web service. Note that contrary to the deprecated {@link org.sonar.api.web.Webservice}
@@ -67,7 +64,7 @@ import java.util.Set;
  *             .close();
  *         }
  *      })
- *      .createParam("key", "Example key");
+ *      .createParam("key").setDescription("Example key").setRequired(true);
  *
  *    // important to apply changes
  *    controller.done();
