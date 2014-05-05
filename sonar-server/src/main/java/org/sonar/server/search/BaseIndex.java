@@ -178,7 +178,7 @@ public abstract class BaseIndex<K extends Serializable, E extends Dto<K>> implem
 
 
   private void updateDocument(UpdateRequest request, String key) throws Exception {
-    LOG.info("UPDATE _id:{} in index {}", key, this.getIndexName());
+    LOG.debug("UPDATE _id:{} in index {}", key, this.getIndexName());
     getClient().update(request.id(key)
       .type(this.getType())
       .index(this.getIndexName())).get();
