@@ -137,6 +137,7 @@ import org.sonar.server.ui.PageDecorations;
 import org.sonar.server.ui.Views;
 import org.sonar.server.updatecenter.ws.UpdateCenterWs;
 import org.sonar.server.user.*;
+import org.sonar.server.user.ws.UsersWs;
 import org.sonar.server.util.*;
 import org.sonar.server.ws.ListingWs;
 import org.sonar.server.ws.WebServiceEngine;
@@ -358,6 +359,7 @@ class ServerComponents {
     pico.addSingleton(NewUserNotifier.class);
     pico.addSingleton(DefaultUserFinder.class);
     pico.addSingleton(DefaultUserService.class);
+    pico.addSingleton(UsersWs.class);
 
     // groups
     pico.addSingleton(GroupMembershipService.class);

@@ -43,7 +43,6 @@ public class ProjectsWs implements WebService {
     WebService.NewAction action = controller.createAction("index")
       .setDescription("Search for projects")
       .setSince("2.10")
-      .setPost(true)
       .setHandler(RailsHandler.INSTANCE)
       .setResponseExample(Resources.getResource(this.getClass(), "example-index.json"));
 
