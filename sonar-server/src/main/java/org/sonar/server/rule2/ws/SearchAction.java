@@ -38,6 +38,7 @@ import org.sonar.server.search.Results;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -112,7 +113,7 @@ public class SearchAction implements RequestHandler {
     action
       .createParam(PARAM_HAS_DEBT_CHARACTERISTIC)
       .setDescription("Filter rules that have a technical debt characteristic")
-      .setPossibleValues("false", "true");
+      .setBooleanPossibleValues();
 
     action
       .createParam(PARAM_TAGS)
@@ -162,7 +163,7 @@ public class SearchAction implements RequestHandler {
     action
       .createParam(PARAM_ASCENDING)
       .setDescription("Ascending sort")
-      .setPossibleValues("false", "true")
+      .setBooleanPossibleValues()
       .setDefaultValue("true");
   }
 

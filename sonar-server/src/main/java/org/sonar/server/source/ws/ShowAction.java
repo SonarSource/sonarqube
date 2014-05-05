@@ -43,7 +43,7 @@ public class ShowAction implements RequestHandler {
 
   void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("show")
-      .setDescription("Get source code. Parameter 'output' with value 'raw' is missing before being marked as a public WS.")
+      .setDescription("Get source code. Parameter 'output' with value 'raw' is missing before being marked as a public WS")
       .setSince("4.2")
       .setInternal(true)
       .setResponseExample(Resources.getResource(getClass(), "example-show.json"))
@@ -57,7 +57,7 @@ public class ShowAction implements RequestHandler {
 
     action
       .createParam("from")
-      .setDescription("First line to return. Starts at 1.")
+      .setDescription("First line to return. Starts at 1")
       .setExampleValue("10")
       .setDefaultValue("1");
 
@@ -69,13 +69,12 @@ public class ShowAction implements RequestHandler {
     action
       .createParam("scm")
       .setDescription("Enable loading of SCM information per line")
-      .setPossibleValues("true", "false")
-      .setDefaultValue("false");
+      .setBooleanPossibleValues();
 
     action
       .createParam("group_commits")
       .setDescription("Group lines by SCM commit. Used only if 'scm' is 'true'")
-      .setPossibleValues("false", "true")
+      .setBooleanPossibleValues()
       .setDefaultValue("true");
   }
 

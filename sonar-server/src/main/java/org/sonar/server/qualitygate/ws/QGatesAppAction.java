@@ -106,7 +106,7 @@ public class QGatesAppAction implements RequestHandler {
   void define(WebService.NewController controller) {
     controller.createAction("app")
       .setInternal(true)
-      .setDescription("Get initialization items for the admin UI. For internal use.")
+      .setDescription("Get initialization items for the admin UI. For internal use")
       .setSince("4.3")
       .setHandler(this);
   }

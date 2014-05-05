@@ -61,8 +61,8 @@ public class ListingWs implements WebService {
     action
       .createParam("include_internals")
       .setDescription("Include web services that are implemented for internal use only. Their forward-compatibility is " +
-        "not assured.")
-      .setPossibleValues("false", "true")
+        "not assured")
+      .setBooleanPossibleValues()
       .setDefaultValue("false");
   }
 

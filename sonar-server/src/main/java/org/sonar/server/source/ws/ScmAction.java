@@ -63,7 +63,7 @@ public class ScmAction implements RequestHandler {
     action
       .createParam("group_commits")
       .setDescription("Group lines by SCM commit")
-      .setPossibleValues("false", "true")
+      .setBooleanPossibleValues()
       .setDefaultValue("true");
   }
 

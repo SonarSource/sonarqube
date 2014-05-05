@@ -50,11 +50,11 @@ public class ResourcesWs implements WebService {
 
     action.createParam("metrics")
       .setDescription("Comma-separated list of <a href=\"http://docs.codehaus.org/display/SONAR/Metric+definitions\">metric keys/ids</a>. " +
-        "Load measures on selected metrics. If only one metric is set, then measures are ordered by value.")
+        "Load measures on selected metrics. If only one metric is set, then measures are ordered by value")
       .setExampleValue("lines,blocker_violations");
 
     action.createParam("depth")
-      .setDescription("Used only when resource is set.<br/>" +
+      .setDescription("Used only when resource is set:<br/>" +
         "<ul>" +
         "<li>0: only selected resource</li>" +
         "<li>-1: all children, including selected resource</li>" +
@@ -89,8 +89,7 @@ public class ResourcesWs implements WebService {
     action.createParam("verbose")
       .setDescription("Add some data to response")
       .setDefaultValue("false")
-      .setPossibleValues("true", "false")
-      .setExampleValue("true");
+      .setBooleanPossibleValues();
 
     action.createParam("limit")
       .setDescription("Limit the number of results. Only used if one metric, and only one, is set")
@@ -100,14 +99,12 @@ public class ResourcesWs implements WebService {
       .setDescription("Include trends and period variations in response: add <trend> (1 if better, else worse), <var> (1 if measure value increases) " +
         "and nodes <p*> for period variations")
       .setDefaultValue("false")
-      .setPossibleValues("true", "false")
-      .setExampleValue("true");
+      .setBooleanPossibleValues();
 
     action.createParam("includealerts")
       .setDescription("Include alerts data: add nodes <alert> (ERROR, WARN, OK) and <alert_text>")
       .setDefaultValue("false")
-      .setPossibleValues("true", "false")
-      .setExampleValue("true");
+      .setBooleanPossibleValues();
 
     action.createParam("rules")
       .setDescription("Filter on rules: setting it to true will return rules id and rule name for measure having such info " +
@@ -131,8 +128,7 @@ public class ResourcesWs implements WebService {
     action.createParam("display_key")
       .setDescription("Return the resource key instead of the resource id")
       .setDefaultValue("false")
-      .setPossibleValues("true", "false")
-      .setExampleValue("true");
+      .setBooleanPossibleValues();
 
     action.createParam("q")
       .setDescription("Comma-separated list of qualifiers")

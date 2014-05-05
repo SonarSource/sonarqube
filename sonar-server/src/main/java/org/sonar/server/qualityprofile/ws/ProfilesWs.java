@@ -42,39 +42,39 @@ public class ProfilesWs implements WebService {
 
   private void defineListAction(NewController controller) {
     WebService.NewAction action = controller.createAction("list")
-      .setDescription("Get a list of profiles.")
+      .setDescription("Get a list of profiles")
       .setSince("3.3")
       .setHandler(RailsHandler.INSTANCE)
       .setResponseExample(Resources.getResource(this.getClass(), "example-list.json"));
 
     action.createParam("language")
-      .setDescription("Profile language.")
+      .setDescription("Profile language")
       .setRequired(true)
       .setExampleValue("java");
     action.createParam("project")
-      .setDescription("Project key or id.")
+      .setDescription("Project key or id")
       .setExampleValue("org.codehaus.sonar:sonar");
   }
 
   private void defineBackupAction(NewController controller) {
     WebService.NewAction action = controller.createAction("backup")
-      .setDescription("Backup a quality profile. Requires Administer Quality Profiles permission.")
+      .setDescription("Backup a quality profile. Requires Administer Quality Profiles permission")
       .setSince("3.1")
       .setPost(true)
       .setHandler(RailsHandler.INSTANCE);
 
     action.createParam("language")
-      .setDescription("Profile language.")
+      .setDescription("Profile language")
       .setRequired(true)
       .setExampleValue("java");
     action.createParam("name")
-      .setDescription("Profile name. If not set, the default profile for the selected language is used.")
+      .setDescription("Profile name. If not set, the default profile for the selected language is used")
       .setExampleValue("Sonar way");
   }
 
   private void defineRestoreAction(NewController controller) {
     WebService.NewAction action = controller.createAction("restore")
-      .setDescription("Restore a quality profile backup. Requires Administer Quality Profiles permission.")
+      .setDescription("Restore a quality profile backup. Requires Administer Quality Profiles permission")
       .setSince("3.1")
       .setPost(true)
       .setHandler(RailsHandler.INSTANCE);
@@ -86,34 +86,34 @@ public class ProfilesWs implements WebService {
 
   private void defineDestroyAction(NewController controller) {
     WebService.NewAction action = controller.createAction("destroy")
-      .setDescription("Delete a quality profile. Requires Administer Quality Profiles permission.")
+      .setDescription("Delete a quality profile. Requires Administer Quality Profiles permission")
       .setSince("3.3")
       .setPost(true)
       .setHandler(RailsHandler.INSTANCE);
 
     action.createParam("language")
-      .setDescription("Profile language.")
+      .setDescription("Profile language")
       .setRequired(true)
       .setExampleValue("java");
     action.createParam("name")
-      .setDescription("Profile name.")
+      .setDescription("Profile name")
       .setRequired(true)
       .setExampleValue("Sonar way");
   }
 
   private void defineSetAsDefaultAction(NewController controller) {
     WebService.NewAction action = controller.createAction("set_as_default")
-      .setDescription("Set a quality profile as Default. Requires Administer Quality Profiles permission.")
+      .setDescription("Set a quality profile as Default. Requires Administer Quality Profiles permission")
       .setSince("3.3")
       .setPost(true)
       .setHandler(RailsHandler.INSTANCE);
 
     action.createParam("language")
-      .setDescription("Profile language.")
+      .setDescription("Profile language")
       .setRequired(true)
       .setExampleValue("java");
     action.createParam("name")
-      .setDescription("Profile name.")
+      .setDescription("Profile name")
       .setRequired(true)
       .setExampleValue("Sonar way");
   }
