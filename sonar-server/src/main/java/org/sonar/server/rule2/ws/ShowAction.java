@@ -95,9 +95,11 @@ public class ShowAction implements RequestHandler {
     json.name("params").beginArray();
     for (RuleParam param : rule.params()) {
       json
+        .beginObject()
         .prop("key", param.key())
         .prop("desc", param.description())
-        .prop("defaultValue", param.defaultValue());
+        .prop("defaultValue", param.defaultValue())
+        .endObject();
     }
     json.endArray();
   }
