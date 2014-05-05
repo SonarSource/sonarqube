@@ -53,7 +53,7 @@ public class ScmActionTest {
     when(sourceService.getScmAuthorData(fileKey)).thenReturn("1=julien");
     when(sourceService.getScmDateData(fileKey)).thenReturn("1=2013-01-01");
 
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", fileKey).setParam("groupCommits", "false");
+    WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", fileKey).setParam("group_commits", "false");
     request.execute();
     verify(scmWriter).write(eq("1=julien"), eq("1=2013-01-01"), eq(1), eq(Integer.MAX_VALUE), eq(false), any(JsonWriter.class));
   }

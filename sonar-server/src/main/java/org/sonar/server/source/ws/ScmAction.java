@@ -61,7 +61,7 @@ public class ScmAction implements RequestHandler {
       .setExampleValue("20");
 
     action
-      .createParam("groupCommits")
+      .createParam("group_commits")
       .setDescription("Group lines by SCM commit")
       .setPossibleValues("false", "true")
       .setDefaultValue("true");
@@ -79,7 +79,7 @@ public class ScmAction implements RequestHandler {
     String dates = service.getScmDateData(fileKey);
 
     JsonWriter json = response.newJsonWriter().beginObject();
-    scmWriter.write(authors, dates, from, to, request.mandatoryParamAsBoolean("groupCommits"), json);
+    scmWriter.write(authors, dates, from, to, request.mandatoryParamAsBoolean("group_commits"), json);
     json.endObject().close();
   }
 }

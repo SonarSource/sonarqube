@@ -73,7 +73,7 @@ public class ShowAction implements RequestHandler {
       .setDefaultValue("false");
 
     action
-      .createParam("groupCommits")
+      .createParam("group_commits")
       .setDescription("Group lines by SCM commit. Used only if 'scm' is 'true'")
       .setPossibleValues("false", "true")
       .setDefaultValue("true");
@@ -96,7 +96,7 @@ public class ShowAction implements RequestHandler {
     if (request.mandatoryParamAsBoolean("scm")) {
       String scmAuthorData = sourceService.getScmAuthorData(fileKey);
       String scmDataData = sourceService.getScmDateData(fileKey);
-      scmWriter.write(scmAuthorData, scmDataData, from, to, request.mandatoryParamAsBoolean("groupCommits"), json);
+      scmWriter.write(scmAuthorData, scmDataData, from, to, request.mandatoryParamAsBoolean("group_commits"), json);
     }
 
     json.endObject().close();

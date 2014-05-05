@@ -13,7 +13,7 @@ define [
       @includeInternals = false
 
     url: ->
-      "#{baseUrl}/api/webservices/list?includeInternals=#{@includeInternals}"
+      "#{baseUrl}/api/webservices/list?include_internals=#{@includeInternals}"
 
     parse: (r) ->
       r.webServices.map (webService) ->

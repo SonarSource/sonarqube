@@ -153,7 +153,7 @@ public class ShowActionTest {
       .newGetRequest("api/sources", "show")
       .setParam("key", fileKey)
       .setParam("scm", "true")
-      .setParam("groupCommits", "false");
+      .setParam("group_commits", "false");
     request.execute().assertJson(getClass(), "show_source_with_scm_commits.json");
   }
 

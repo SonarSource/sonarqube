@@ -49,7 +49,7 @@ public class ListingWsTest {
     assertThat(index.isPost()).isFalse();
     assertThat(index.isInternal()).isFalse();
 
-    assertThat(controller.action("responseExample")).isNotNull();
+    assertThat(controller.action("response_example")).isNotNull();
   }
 
   @Test
@@ -62,7 +62,7 @@ public class ListingWsTest {
   public void list_including_internals() throws Exception {
     WsTester tester = new WsTester(ws, new MetricWebService());
     tester.newGetRequest("api/webservices", "list")
-      .setParam("includeInternals", "true")
+      .setParam("include_internals", "true")
       .execute()
       .assertJson(getClass(), "list_including_internals.json");
   }
@@ -71,7 +71,7 @@ public class ListingWsTest {
   public void response_example() throws Exception {
     WsTester tester = new WsTester(ws, new MetricWebService());
     tester
-      .newGetRequest("api/webservices", "responseExample")
+      .newGetRequest("api/webservices", "response_example")
       .setParam("controller", "api/metric")
       .setParam("action", "create")
       .execute().assertJson(getClass(), "response_example.json");
@@ -113,7 +113,7 @@ public class ListingWsTest {
         .setDefaultValue("BLOCKER");
       create.createParam("name");
 
-      newController.createAction("internalAction").setInternal(true).setHandler(new RequestHandler() {
+      newController.createAction("internal_action").setInternal(true).setHandler(new RequestHandler() {
         @Override
         public void handle(Request request, Response response) throws Exception {
 

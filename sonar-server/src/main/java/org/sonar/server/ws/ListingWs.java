@@ -59,7 +59,7 @@ public class ListingWs implements WebService {
         }
       });
     action
-      .createParam("includeInternals")
+      .createParam("include_internals")
       .setDescription("Include web services that are implemented for internal use only. Their forward-compatibility is " +
         "not assured.")
       .setPossibleValues("false", "true")
@@ -68,7 +68,7 @@ public class ListingWs implements WebService {
 
   private void defineResponseExample(final Context context, NewController controller) {
     NewAction action = controller
-      .createAction("responseExample")
+      .createAction("response_example")
       .setHandler(new RequestHandler() {
         @Override
         public void handle(Request request, Response response) throws Exception {
@@ -96,7 +96,7 @@ public class ListingWs implements WebService {
   }
 
   void handleList(List<Controller> controllers, Request request, Response response) {
-    boolean includeInternals = request.mandatoryParamAsBoolean("includeInternals");
+    boolean includeInternals = request.mandatoryParamAsBoolean("include_internals");
     JsonWriter writer = response.newJsonWriter();
     writer.beginObject();
     writer.name("webServices").beginArray();
