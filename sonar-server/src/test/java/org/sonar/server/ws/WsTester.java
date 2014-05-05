@@ -30,6 +30,7 @@ import org.sonar.api.utils.text.XmlWriter;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -217,7 +218,15 @@ public class WsTester {
   private TestRequest newRequest(String controllerKey, String actionKey, String method) {
     TestRequest request = new TestRequest(method);
     WebService.Controller controller = context.controller(controllerKey);
+    if (controller == null) {
+      throw new IllegalArgumentException(
+        String.format("Controller '%s' is unknown, did you forget to call NewController.done()?", controllerKey));
+    }
     WebService.Action action = controller.action(actionKey);
+    if (action == null) {
+      throw new IllegalArgumentException(
+        String.format("Action '%s' not found on controller '%s'.", actionKey, controllerKey));
+    }
     request.setAction(action);
     return request;
   }

@@ -24,20 +24,13 @@ import com.google.common.io.Resources;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
-public class QProfilesWs implements WebService {
-
-  private final QProfileRestoreDefaultAction qProfileRestoreDefaultAction;
-
-  public QProfilesWs(QProfileRestoreDefaultAction qProfileRestoreDefaultAction) {
-    this.qProfileRestoreDefaultAction = qProfileRestoreDefaultAction;
-  }
+public class ProfilesWs implements WebService {
 
   @Override
   public void define(Context context) {
-    NewController controller = context.createController("api/qprofiles")
+    NewController controller = context.createController("api/profiles")
       .setDescription("Quality profiles management");
 
-    qProfileRestoreDefaultAction.define(controller);
     defineListAction(controller);
     defineBackupAction(controller);
     defineRestoreAction(controller);

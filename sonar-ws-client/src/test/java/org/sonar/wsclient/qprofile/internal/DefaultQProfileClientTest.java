@@ -43,7 +43,7 @@ public class DefaultQProfileClientTest {
     DefaultQProfileClient client = new DefaultQProfileClient(requestFactory);
     QProfileResult result = client.restoreDefault("java");
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/qprofiles/restore_default");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/qualityprofiles/restore_default");
     assertThat(httpServer.requestParams()).includes(
       entry("language", "java")
     );

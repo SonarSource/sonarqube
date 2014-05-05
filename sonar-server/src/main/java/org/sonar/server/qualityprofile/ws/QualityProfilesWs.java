@@ -17,30 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.qualityprofile.ws;
 
-package org.sonar.wsclient.qprofile.internal;
+import org.sonar.api.server.ws.WebService;
 
-import org.json.simple.JSONValue;
-import org.sonar.wsclient.internal.HttpRequestFactory;
-import org.sonar.wsclient.qprofile.QProfileClient;
-import org.sonar.wsclient.qprofile.QProfileResult;
+public class QualityProfilesWs implements WebService {
 
-import java.util.Collections;
-import java.util.Map;
+  private final QProfileRestoreDefaultAction qProfileRestoreDefaultAction;
 
-public class DefaultQProfileClient implements QProfileClient {
-
-  private final HttpRequestFactory requestFactory;
-
-  public DefaultQProfileClient(HttpRequestFactory requestFactory) {
-    this.requestFactory = requestFactory;
+  public QualityProfilesWs(QProfileRestoreDefaultAction qProfileRestoreDefaultAction) {
+    this.qProfileRestoreDefaultAction = qProfileRestoreDefaultAction;
   }
 
   @Override
-  public QProfileResult restoreDefault(String language) {
-    String json = requestFactory.post("/api/qualityprofiles/restore_default", Collections.singletonMap("language", (Object) language));
-    Map jsonRoot = (Map) JSONValue.parse(json);
-    return new DefaultQProfileResult(jsonRoot);
-  }
+  public void define(Context context) {
+    NewController controller = context.createController("api/qualityprofiles")
+      .setDescription("Quality profiles management");
 
+    qProfileRestoreDefaultAction.define(controller);
+
+    controller.done();
+  }
 }

@@ -42,14 +42,14 @@ public class QProfileRestoreDefaultActionTest {
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new QProfilesWs(new QProfileRestoreDefaultAction(qProfileBackup)));
+    tester = new WsTester(new QualityProfilesWs(new QProfileRestoreDefaultAction(qProfileBackup)));
   }
 
   @Test
   public void return_empty_result_when_no_infos_or_warnings() throws Exception {
     when(qProfileBackup.restoreDefaultProfilesByLanguage("java")).thenReturn(new QProfileResult());
 
-    WsTester.TestRequest request = tester.newPostRequest("api/qprofiles", "restore_default").setParam("language", "java");
+    WsTester.TestRequest request = tester.newPostRequest("api/qualityprofiles", "restore_default").setParam("language", "java");
     request.execute().assertNoContent();
   }
 
@@ -57,7 +57,7 @@ public class QProfileRestoreDefaultActionTest {
   public void show_infos() throws Exception {
     when(qProfileBackup.restoreDefaultProfilesByLanguage("java")).thenReturn(new QProfileResult().addInfos(newArrayList("Some info")));
 
-    WsTester.TestRequest request = tester.newPostRequest("api/qprofiles", "restore_default").setParam("language", "java");
+    WsTester.TestRequest request = tester.newPostRequest("api/qualityprofiles", "restore_default").setParam("language", "java");
     request.execute().assertJson(getClass(), "show_infos.json");
   }
 
@@ -65,7 +65,7 @@ public class QProfileRestoreDefaultActionTest {
   public void show_warnings() throws Exception {
     when(qProfileBackup.restoreDefaultProfilesByLanguage("java")).thenReturn(new QProfileResult().addWarnings(newArrayList("Some warning")));
 
-    WsTester.TestRequest request = tester.newPostRequest("api/qprofiles", "restore_default").setParam("language", "java");
+    WsTester.TestRequest request = tester.newPostRequest("api/qualityprofiles", "restore_default").setParam("language", "java");
     request.execute().assertJson(getClass(), "show_warnings.json");
   }
 
@@ -73,7 +73,7 @@ public class QProfileRestoreDefaultActionTest {
   public void show_infos_and_warnings() throws Exception {
     when(qProfileBackup.restoreDefaultProfilesByLanguage("java")).thenReturn(new QProfileResult().addInfos(newArrayList("Some info")).addWarnings(newArrayList("Some warning")));
 
-    WsTester.TestRequest request = tester.newPostRequest("api/qprofiles", "restore_default").setParam("language", "java");
+    WsTester.TestRequest request = tester.newPostRequest("api/qualityprofiles", "restore_default").setParam("language", "java");
     request.execute().assertJson(getClass(), "show_infos_and_warnings.json");
   }
 }
