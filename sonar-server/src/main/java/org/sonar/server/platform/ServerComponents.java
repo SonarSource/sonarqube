@@ -131,6 +131,7 @@ import org.sonar.server.source.ws.ScmWriter;
 import org.sonar.server.source.ws.ShowAction;
 import org.sonar.server.source.ws.SourcesWs;
 import org.sonar.server.startup.*;
+import org.sonar.server.test.ws.TestsWs;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.text.RubyTextService;
 import org.sonar.server.ui.JRubyI18n;
@@ -450,6 +451,9 @@ class ServerComponents {
     pico.addSingleton(NotificationService.class);
     pico.addSingleton(NotificationCenter.class);
     pico.addSingleton(DefaultNotificationManager.class);
+
+    // Tests
+    pico.addSingleton(TestsWs.class);
 
     // graphs and perspective related classes
     pico.addSingleton(TestablePerspectiveLoader.class);

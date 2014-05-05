@@ -1,0 +1,49 @@
+{
+  "key": "org.codehaus.sonar.plugins:sonar-cpd-plugin:src/main/java/org/sonar/plugins/cpd/SonarBridgeEngine.java",
+  "name": "SonarBridgeEngine.java",
+  "longName": "src/main/java/org/sonar/plugins/cpd/SonarBridgeEngine.java",
+  "coveredLines": [
+    56,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    76,
+    77,
+    146,
+    147,
+    148,
+    150,
+    155,
+    156,
+    157,
+    158,
+    160,
+    166,
+    167,
+    168,
+    170,
+    171,
+    174
+  ],
+  "coverages": [
+    {
+      "lines": [
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        76,
+        77
+      ],
+      "name": "test_engine",
+      "status": "OK",
+      "durationInMs": 2,
+      "testPlan": "org.codehaus.sonar.plugins:sonar-cpd-plugin:src/test/java/org/sonar/plugins/cpd/CpdSensorTest.java"
+    }
+  ]
+}

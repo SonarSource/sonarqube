@@ -1,0 +1,41 @@
+{
+  "key": "org.codehaus.sonar.plugins:sonar-cpd-plugin:src/test/java/org/sonar/plugins/cpd/SonarBridgeEngineTest.java",
+  "name": "SonarBridgeEngineTest.java",
+  "longName": "src/test/java/org/sonar/plugins/cpd/SonarBridgeEngineTest.java",
+  "testCases": [
+    {
+      "name": "shouldReturnDefaultBlockSize",
+      "type": "UNIT",
+      "durationInMs": 2,
+      "status": "OK",
+      "coverages": [
+        {
+          "key": "org.codehaus.sonar.plugins:sonar-cpd-plugin:src/main/java/org/sonar/plugins/cpd/SonarBridgeEngine.java",
+          "name": "SonarBridgeEngine.java",
+          "longName": "src/main/java/org/sonar/plugins/cpd/SonarBridgeEngine.java",
+          "lines": [
+            68,
+            69,
+            70,
+            71,
+            72,
+            73,
+            155,
+            156,
+            157,
+            158,
+            160
+          ]
+        },
+        {
+          "key": "org.codehaus.sonar.plugins:sonar-cpd-plugin:src/main/java/org/sonar/plugins/cpd/CpdEngine.java",
+          "name": "CpdEngine.java",
+          "longName": "src/main/java/org/sonar/plugins/cpd/CpdEngine.java",
+          "lines": [
+            27
+          ]
+        }
+      ]
+    }
+  ]
+}
