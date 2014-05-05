@@ -1,10 +1,15 @@
 #!/bin/sh
 
-# Shortcut to start server. It must be already built.
+if ! ls sonar-application/target/sonarqube-*.zip &> /dev/null; then
+  echo 'Sources are not built'
+  ./quick-build.sh
+fi
 
 cd sonar-application/target/
-unzip sonarqube-*.zip
+if ! ls sonarqube-*/bin/macosx-universal-64/sonar.sh &> /dev/null; then
+  unzip sonarqube-*.zip
+fi
 cd sonarqube-*
-bin/macosx-universal-64/sonar.sh start
+bin/macosx-universal-64/sonar.sh restart
 sleep 1
 tail -100f logs/sonar.log
