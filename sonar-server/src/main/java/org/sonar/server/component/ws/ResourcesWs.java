@@ -96,13 +96,13 @@ public class ResourcesWs implements WebService {
       .setExampleValue("10");
 
     action.createParam("includetrends")
-      .setDescription("Include trends and period variations in response: add <trend> (1 if better, else worse), <var> (1 if measure value increases) " +
-        "and nodes <p*> for period variations")
+      .setDescription("Include trends and period variations in response: add &lttrend&gt (1 if better, else worse), &ltvar&gt (1 if measure value increases) " +
+        "and nodes &ltp*&gt for period variations")
       .setDefaultValue("false")
       .setBooleanPossibleValues();
 
     action.createParam("includealerts")
-      .setDescription("Include alerts data: add nodes <alert> (ERROR, WARN, OK) and <alert_text>")
+      .setDescription("Include alerts data: add nodes &ltalert&gt (ERROR, WARN, OK) and &ltalert_text&gt")
       .setDefaultValue("false")
       .setBooleanPossibleValues();
 
