@@ -6,7 +6,7 @@
 	{{#if since}}Since {{since}}{{#if internal}} -{{/if}}{{/if}}
 	{{#if internal}}For internal use only{{/if}}
 </span>
-<p>{{description}}</p>
+<p>{{{description}}}</p>
 {{#if params}}
 <h3>Parameters</h3>
 <table>
@@ -17,7 +17,7 @@
   		<div class="subtitle">{{#if required}}required{{else}}optional{{/if}}</div>
   	</td<>
   	<td>
-  		<p>{{description}}</p>
+  		<p>{{{description}}}</p>
   		{{#if possibleValues}}
   		<p>
   		<em>Possible values:</em>
