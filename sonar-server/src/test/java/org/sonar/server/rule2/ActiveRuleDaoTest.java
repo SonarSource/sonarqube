@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
-import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 
@@ -38,7 +37,7 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class ActiveRuleDaoTest extends AbstractDaoTestCase {
 
-  org.sonar.core.qualityprofile.db.ActiveRuleDao dao;
+  ActiveRuleDao dao;
 
   @Before
   public void createDao() {
