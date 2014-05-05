@@ -186,7 +186,7 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void insert_parameter() {
-    setupData("empty");
+    setupData("insert_parameter");
 
     ActiveRuleParamDto dto = new ActiveRuleParamDto()
       .setActiveRuleId(1)
