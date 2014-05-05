@@ -96,11 +96,19 @@
 					margin: 5px;
 					vertical-align: top;
 
-					ul {
+          ul {
+            li {
+              list-style: square;
+              margin-left: 2em;
+            }
+          }
+
+					ul.possible-values {
 						display: inline;
 
 						li {
 							display: inline;
+              margin: 0;
 
 							&:before {
 								content: ', '
