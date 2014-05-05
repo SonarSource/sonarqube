@@ -81,7 +81,9 @@ import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.cluster.LocalNonBlockingWorkQueue;
 import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
+import org.sonar.server.component.ws.ComponentsWs;
 import org.sonar.server.component.ws.ProjectsWs;
+import org.sonar.server.component.ws.ResourcesWs;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
 import org.sonar.server.db.migrations.DatabaseMigrations;
 import org.sonar.server.db.migrations.DatabaseMigrator;
@@ -96,7 +98,6 @@ import org.sonar.server.issue.filter.IssueFilterWriter;
 import org.sonar.server.issue.filter.IssueFilterWs;
 import org.sonar.server.issue.ws.IssueShowAction;
 import org.sonar.server.issue.ws.IssuesWs;
-import org.sonar.server.measure.ws.ResourcesWs;
 import org.sonar.server.measure.ws.TimeMachineWs;
 import org.sonar.server.notifications.NotificationCenter;
 import org.sonar.server.notifications.NotificationService;
@@ -112,8 +113,8 @@ import org.sonar.server.qualitygate.QualityGates;
 import org.sonar.server.qualitygate.RegisterQualityGates;
 import org.sonar.server.qualitygate.ws.*;
 import org.sonar.server.qualityprofile.*;
-import org.sonar.server.qualityprofile.ws.QProfileRestoreDefaultAction;
 import org.sonar.server.qualityprofile.ws.ProfilesWs;
+import org.sonar.server.qualityprofile.ws.QProfileRestoreDefaultAction;
 import org.sonar.server.rule.*;
 import org.sonar.server.rule.ws.*;
 import org.sonar.server.rule2.RuleService;
@@ -378,6 +379,7 @@ class ServerComponents {
     pico.addSingleton(DefaultRubyComponentService.class);
     pico.addSingleton(ComponentDao.class);
     pico.addSingleton(ResourcesWs.class);
+    pico.addSingleton(ComponentsWs.class);
     pico.addSingleton(ProjectsWs.class);
 
     // issues

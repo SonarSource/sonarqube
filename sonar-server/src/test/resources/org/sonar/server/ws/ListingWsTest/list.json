@@ -48,10 +48,10 @@
         "params": [
           {
             "key": "include_internals",
-            "description": "Include web services that are implemented for internal use only. Their forward-compatibility is not assured.",
+            "description": "Include web services that are implemented for internal use only. Their forward-compatibility is not assured",
             "required": false,
             "defaultValue": "false",
-            "possibleValues": ["false", "true"]
+            "possibleValues": ["true", "false"]
           }
         ]
       },

@@ -69,7 +69,8 @@ public class ShowAction implements RequestHandler {
     action
       .createParam("scm")
       .setDescription("Enable loading of SCM information per line")
-      .setBooleanPossibleValues();
+      .setBooleanPossibleValues()
+      .setDefaultValue("false");
 
     action
       .createParam("group_commits")

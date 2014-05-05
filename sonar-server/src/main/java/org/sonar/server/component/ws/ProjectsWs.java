@@ -44,14 +44,14 @@ public class ProjectsWs implements WebService {
       .setDescription("Search for projects")
       .setSince("2.10")
       .setHandler(RailsHandler.INSTANCE)
-      .setResponseExample(Resources.getResource(this.getClass(), "example-index.json"));
+      .setResponseExample(Resources.getResource(this.getClass(), "projects-example-index.json"));
 
     action.createParam("key")
       .setDescription("id or key of the project")
       .setExampleValue("org.codehaus.sonar:sonar");
 
     action.createParam("search")
-      .setDescription("substring of project name, case insensitive")
+      .setDescription("Substring of project name, case insensitive")
       .setExampleValue("Sonar");
 
     action.createParam("desc")
