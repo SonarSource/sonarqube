@@ -37,7 +37,6 @@ public final class Unmarshallers {
     unmarshallers.put(Resource.class, new ResourceUnmarshaller());
     unmarshallers.put(Property.class, new PropertyUnmarshaller());
     unmarshallers.put(Source.class, new SourceUnmarshaller());
-    unmarshallers.put(Violation.class, new ViolationUnmarshaller());
     unmarshallers.put(Server.class, new ServerUnmarshaller());
     unmarshallers.put(ServerSetup.class, new ServerSetupUnmarshaller());
     unmarshallers.put(DependencyTree.class, new DependencyTreeUnmarshaller());
