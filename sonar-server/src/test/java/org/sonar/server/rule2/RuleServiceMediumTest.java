@@ -53,8 +53,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class RuleServiceMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester()
-    .setProperty("sonar.es.http.port","8888");
+  public static ServerTester tester = new ServerTester();
 
   RuleDao dao = tester.get(RuleDao.class);
 
