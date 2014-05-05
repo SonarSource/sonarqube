@@ -19,10 +19,6 @@
  */
 package org.sonar.server.search;
 
-/**
- * Created by gamars on 02/05/14.
- * @since 4.4
- */
 public class FacetValue<K extends Comparable<K>> implements Comparable<FacetValue<K>>{
 
   String key;

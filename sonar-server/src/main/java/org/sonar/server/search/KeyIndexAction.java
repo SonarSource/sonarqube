@@ -21,10 +21,6 @@ package org.sonar.server.search;
 
 import java.io.Serializable;
 
-/**
- * Created by gamars on 02/05/14.
- * @since 4.4
- */
 public class KeyIndexAction<K extends Serializable> extends IndexAction {
 
   private final K key;

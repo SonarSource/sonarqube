@@ -21,10 +21,6 @@ package org.sonar.server.search;
 
 import org.sonar.core.db.Dto;
 
-/**
- * Created by gamars on 02/05/14.
- * @since 4.4
- */
 public class DtoIndexAction<E extends Dto> extends IndexAction {
 
   private final E item;
