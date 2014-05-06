@@ -38,7 +38,7 @@ class IncreaseSizeOfUserLogin < ActiveRecord::Migration
     change_column :issues,  :reporter,             :string,    :null => true,	  :limit => 255
     change_column :issues,  :assignee,             :string,    :null => true,	  :limit => 255
     change_column :issues, :author_login,         :string,    :null => true,    :limit => 255
-    change_column :issue_filter_favourites, :user_login, :string, :null => false, :limit => 255
+    change_column :issue_filter_favourites, :user_login, :string, :limit => 255
     change_column :issue_filters, :user_login, :string, :null => true, :limit => 255
     change_column 'manual_measures', :user_login, :string, :null => true, :limit => 255
     change_column :rules, :note_user_login, :string, :null => true, :limit => 255
