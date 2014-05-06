@@ -27,9 +27,11 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.server.qualityprofile.QProfileBackup;
 import org.sonar.server.qualityprofile.QProfileResult;
+import org.sonar.server.qualityprofile.RuleActivationService;
 import org.sonar.server.ws.WsTester;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -42,7 +44,9 @@ public class QProfileRestoreDefaultActionTest {
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new QualityProfilesWs(new QProfileRestoreDefaultAction(qProfileBackup)));
+    tester = new WsTester(new QProfilesWs(
+      new QProfileRestoreDefaultAction(qProfileBackup),
+      new ActivateRuleAction(mock(RuleActivationService.class))));
   }
 
   @Test

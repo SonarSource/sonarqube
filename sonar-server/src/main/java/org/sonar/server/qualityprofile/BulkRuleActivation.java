@@ -17,25 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualityprofile.ws;
+package org.sonar.server.qualityprofile;
 
-import org.sonar.api.server.ws.WebService;
+public class BulkRuleActivation {
 
-public class QualityProfilesWs implements WebService {
-
-  private final QProfileRestoreDefaultAction qProfileRestoreDefaultAction;
-
-  public QualityProfilesWs(QProfileRestoreDefaultAction qProfileRestoreDefaultAction) {
-    this.qProfileRestoreDefaultAction = qProfileRestoreDefaultAction;
-  }
-
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController("api/qualityprofiles")
-      .setDescription("Quality profiles management");
-
-    qProfileRestoreDefaultAction.define(controller);
-
-    controller.done();
-  }
 }
