@@ -25,10 +25,14 @@ import org.sonar.core.db.Dto;
 import javax.annotation.CheckForNull;
 import java.io.Serializable;
 
-public interface Index<E extends Dto<K>, K extends Serializable> extends Startable {
+public interface Index<R, Q, E extends Dto<K>, K extends Serializable> extends Startable {
 
   @CheckForNull
-  Hit getByKey(K item);
+  R getByKey(K item);
+
+  Result<R> search(Q query, QueryOptions options);
+
+  Result<R> search(Q query);
 
   String getIndexType();
 

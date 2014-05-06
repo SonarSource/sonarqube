@@ -22,15 +22,17 @@ package org.sonar.server.search;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHitField;
-import org.elasticsearch.search.SearchHits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.cluster.WorkQueue;
@@ -40,13 +42,13 @@ import org.sonar.server.es.ESNode;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-public abstract class BaseIndex<E extends Dto<K>, K extends Serializable> implements Index<E, K> {
+public abstract class BaseIndex<R, Q, E extends Dto<K>, K extends Serializable>
+  implements Index<R, Q, E, K> {
 
   private static final Logger LOG = LoggerFactory.getLogger(BaseIndex.class);
 
@@ -120,25 +122,71 @@ public abstract class BaseIndex<E extends Dto<K>, K extends Serializable> implem
 
   /* Index management methods */
 
+  protected abstract String getKeyValue(K key);
+
   protected abstract XContentBuilder getIndexSettings() throws IOException;
 
   protected abstract XContentBuilder getMapping() throws IOException;
-
-  /* Base CRUD methods */
-
-  protected abstract String getKeyValue(K key);
 
   @Override
   public void refresh() {
     getClient().admin().indices().prepareRefresh(this.getIndexName()).get();
   }
 
+  /* Search methods */
+
+  protected abstract QueryBuilder getQuery(Q query, QueryOptions options);
+
+  protected abstract FilterBuilder getFilter(Q query, QueryOptions options);
+
+  protected abstract SearchRequestBuilder buildRequest(Q query, QueryOptions options);
+
   @Override
-  public Hit getByKey(K key) {
+  public Result<R> search(Q query) {
+    return this.search(query, new QueryOptions());
+  }
+
+  public Result<R> search(Q query, QueryOptions options) {
+
+    SearchRequestBuilder esSearch = this.buildRequest(query, options);
+    FilterBuilder fb = this.getFilter(query, options);
+    QueryBuilder qb = this.getQuery(query, options);
+
+    esSearch.setQuery(QueryBuilders.filteredQuery(qb, fb));
+
+    SearchResponse esResult = esSearch.get();
+
+    Result<R> result = new Result<R>(esResult)
+      .setTotal((int) esResult.getHits().totalHits())
+      .setTime(esResult.getTookInMillis());
+
+    for (SearchHit hit : esResult.getHits()) {
+      result.getHits().add(this.getSearchResult(hit));
+    }
+
+    return result;
+  }
+
+  /* Transform Methods */
+
+  protected abstract R getSearchResult(Map<String, Object> fields);
+
+  protected R getSearchResult(SearchHit hit){
+    Map<String, Object> fields = new HashMap<String, Object>();
+    for (Map.Entry<String, SearchHitField> field:hit.getFields().entrySet()){
+      fields.put(field.getKey(),field.getValue().getValue());
+    }
+    return this.getSearchResult(fields);
+  }
+
+  /* Base CRUD methods */
+
+  @Override
+  public R getByKey(K key) {
     GetResponse result = getClient().prepareGet(this.getIndexName(),
       this.indexDefinition.getIndexType(), this.getKeyValue(key))
       .get();
-    return Hit.fromMap(0, result.getSourceAsMap());
+    return this.getSearchResult(result.getSourceAsMap());
   }
 
   private void insertDocument(UpdateRequest request, K key) throws Exception {
@@ -149,10 +197,10 @@ public abstract class BaseIndex<E extends Dto<K>, K extends Serializable> implem
   @Override
   public void insert(Object obj, K key) throws Exception {
     if (this.normalizer.canNormalize(obj.getClass(), key.getClass())) {
-      this.updateDocument(this.normalizer.normalizeOther(obj, key),key);
+      this.updateDocument(this.normalizer.normalizeOther(obj, key), key);
     } else {
-      throw new IllegalStateException("No normalizer method available for "+
-        obj.getClass().getSimpleName()+ " in "+ normalizer.getClass().getSimpleName());
+      throw new IllegalStateException("No normalizer method available for " +
+        obj.getClass().getSimpleName() + " in " + normalizer.getClass().getSimpleName());
     }
   }
 
@@ -165,7 +213,7 @@ public abstract class BaseIndex<E extends Dto<K>, K extends Serializable> implem
       throw new IllegalStateException(this.getClass().getSimpleName() +
         "cannot execute INSERT_BY_DTO for " + item.getClass().getSimpleName() +
         " as " + this.getIndexType() +
-        " on key: "+ item.getKey(), e);
+        " on key: " + item.getKey(), e);
     }
   }
 
@@ -178,7 +226,7 @@ public abstract class BaseIndex<E extends Dto<K>, K extends Serializable> implem
       throw new IllegalStateException(this.getClass().getSimpleName() +
         "cannot execute INSERT_BY_KEY for " + key.getClass().getSimpleName() +
         " as " + this.getIndexType() +
-        " on key: "+ key, e);
+        " on key: " + key, e);
     }
   }
 
@@ -195,7 +243,7 @@ public abstract class BaseIndex<E extends Dto<K>, K extends Serializable> implem
   @Override
   public void update(Object obj, K key) throws Exception {
     if (this.normalizer.canNormalize(obj.getClass(), key.getClass())) {
-      this.updateDocument(this.normalizer.normalizeOther(obj, key),key);
+      this.updateDocument(this.normalizer.normalizeOther(obj, key), key);
     } else {
       throw new IllegalStateException("Index " + this.getIndexName() +
         " cannot execute INSERT for class: " + obj.getClass());
@@ -288,8 +336,6 @@ public abstract class BaseIndex<E extends Dto<K>, K extends Serializable> implem
 
   /* ES QueryHelper Methods */
 
-  protected abstract void setFacets(SearchRequestBuilder query);
-
   protected BoolFilterBuilder addTermFilter(String field, Collection<String> values, BoolFilterBuilder filter) {
     if (values != null && !values.isEmpty()) {
       BoolFilterBuilder valuesFilter = FilterBuilders.boolFilter();
@@ -307,21 +353,5 @@ public abstract class BaseIndex<E extends Dto<K>, K extends Serializable> implem
       filter.must(FilterBuilders.termFilter(field, value));
     }
     return filter;
-  }
-
-  protected Collection<Hit> toHit(SearchHits hits) {
-    List<Hit> results = new ArrayList<Hit>();
-    for (SearchHit esHit : hits.getHits()) {
-      Hit hit = new Hit(esHit.score());
-      for (Map.Entry<String, SearchHitField> entry : esHit.fields().entrySet()) {
-        if (entry.getValue().getValues().size() > 1) {
-          hit.getFields().put(entry.getKey(), entry.getValue().getValues());
-        } else {
-          hit.getFields().put(entry.getKey(), entry.getValue().getValue());
-        }
-      }
-      results.add(hit);
-    }
-    return results;
   }
 }

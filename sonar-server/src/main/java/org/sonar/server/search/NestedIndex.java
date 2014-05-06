@@ -30,15 +30,15 @@ import org.sonar.core.profiling.Profiling;
 
 import java.io.Serializable;
 
-public abstract class NestedIndex<E extends Dto<K>, K extends Serializable>
-  extends BaseIndex<E, K> {
+public abstract class NestedIndex<R, Q, E extends Dto<K>, K extends Serializable>
+  extends BaseIndex<R, Q, E, K> {
 
   private static final Logger LOG = LoggerFactory.getLogger(NestedIndex.class);
 
-  protected BaseIndex<?, ?> parentIndex;
+  protected BaseIndex<?,?,?,?> parentIndex;
 
   public NestedIndex(IndexDefinition indexDefinition, BaseNormalizer<E, K> normalizer, WorkQueue workQueue,
-                     Profiling profiling, BaseIndex<?,?> index) {
+                     Profiling profiling, BaseIndex<?,?,?,?> index) {
     super(indexDefinition, normalizer, workQueue, profiling, index.getNode());
     this.parentIndex = index;
   }
@@ -66,10 +66,10 @@ public abstract class NestedIndex<E extends Dto<K>, K extends Serializable>
   }
 
   @Override
-  public Hit getByKey(K key) {
+  public R getByKey(K key) {
     GetResponse result = getClient().prepareGet(this.getIndexName(), this.indexDefinition.getIndexType(), this.getKeyValue(key))
       .get();
-    return Hit.fromMap(0, ((java.util.Map<String, Object>) result.getSourceAsMap().get(getIndexField())));
+    return this.getSearchResult((java.util.Map<String, Object>) result.getSourceAsMap().get(getIndexField()));
   }
 
   @Override

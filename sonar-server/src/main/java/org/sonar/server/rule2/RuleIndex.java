@@ -21,9 +21,9 @@ package org.sonar.server.rule2;
 
 import com.google.common.collect.ImmutableSet;
 import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.BoolFilterBuilder;
+import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -43,16 +43,16 @@ import org.sonar.server.es.ESNode;
 import org.sonar.server.rule2.RuleNormalizer.RuleField;
 import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.QueryOptions;
-import org.sonar.server.search.Results;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
-public class RuleIndex extends BaseIndex<RuleDto, RuleKey> {
+public class RuleIndex extends BaseIndex<Rule, RuleQuery, RuleDto, RuleKey> {
 
   private static final Logger LOG = LoggerFactory.getLogger(RuleIndex.class);
 
@@ -177,78 +177,11 @@ public class RuleIndex extends BaseIndex<RuleDto, RuleKey> {
       .endObject().endObject();
   }
 
-  protected void setFacets(SearchRequestBuilder query){
-    //TODO there are no aggregation in 0.9!!! Must use facet...
-
-     /* the Lang facet */
-    query.addFacet(FacetBuilders.termsFacet("Languages")
-      .field(RuleField.LANGUAGE.key())
-      .size(10)
-      .global(true)
-      .order(TermsFacet.ComparatorType.COUNT));
-
-    /* the Tag facet */
-    query.addFacet(FacetBuilders.termsFacet("Tags")
-      .field(RuleField.TAGS.key())
-      .size(10)
-      .global(true)
-      .order(TermsFacet.ComparatorType.COUNT));
-
-    /* the Repo facet */
-    query.addFacet(FacetBuilders.termsFacet("Repositories")
-      .field(RuleField.REPOSITORY.key())
-      .size(10)
-      .global(true)
-      .order(TermsFacet.ComparatorType.COUNT));
-  }
-
-  public Results search(RuleQuery query, QueryOptions options) {
-
+  @Override
+  protected SearchRequestBuilder buildRequest(RuleQuery query, QueryOptions options) {
     SearchRequestBuilder esSearch = getClient()
       .prepareSearch(this.getIndexName())
       .setIndices(this.getIndexName());
-
-    /* Build main query (search based) */
-    QueryBuilder qb;
-    if (query.getQueryText() != null && !query.getQueryText().isEmpty()) {
-      qb = QueryBuilders.multiMatchQuery(query.getQueryText(),
-        "_id",
-        RuleField.NAME.key(),
-        RuleField.NAME.key()+".search",
-        RuleField.HTML_DESCRIPTION.key(),
-        RuleField.KEY.key(),
-        RuleField.LANGUAGE.key(),
-        RuleField.TAGS.key());
-    } else {
-      qb = QueryBuilders.matchAllQuery();
-    }
-
-    /* Build main filter (match based) */
-    BoolFilterBuilder fb = FilterBuilders.boolFilter();
-    this.addTermFilter(RuleField.LANGUAGE.key(), query.getLanguages(), fb);
-    this.addTermFilter(RuleField.REPOSITORY.key(), query.getRepositories(), fb);
-    this.addTermFilter(RuleField.SEVERITY.key(), query.getSeverities(), fb);
-    this.addTermFilter(RuleField.KEY.key(), query.getKey(), fb);
-    if(query.getStatuses() != null && !query.getStatuses().isEmpty()) {
-      Collection<String> stringStatus = new ArrayList<String>();
-      for (RuleStatus status : query.getStatuses()) {
-        stringStatus.add(status.name());
-      }
-      this.addTermFilter(RuleField.STATUS.key(), stringStatus, fb);
-    }
-
-    /* Integrate Query */
-    QueryBuilder mainQuery;
-    if((query.getLanguages() != null && !query.getLanguages().isEmpty()) ||
-      (query.getRepositories() != null && !query.getRepositories().isEmpty()) ||
-      (query.getSeverities() != null && !query.getSeverities().isEmpty()) ||
-      (query.getStatuses() != null && !query.getStatuses().isEmpty()) ||
-      (query.getKey() != null && !query.getKey().isEmpty())) {
-      mainQuery = QueryBuilders.filteredQuery(qb, fb);
-    } else {
-      mainQuery = qb;
-    }
-    esSearch.setQuery(mainQuery);
 
     /* Integrate Facets */
     if(options.isFacet()) {
@@ -285,16 +218,91 @@ public class RuleIndex extends BaseIndex<RuleDto, RuleKey> {
         esSearch.addField(field.key());
       }
     }
+    //Add required fields:
+    esSearch.addField(RuleField.KEY.key());
+    esSearch.addField(RuleField.REPOSITORY.key());
 
-    /* Get results */
-    SearchResponse esResult = esSearch.get();
+    return esSearch;
+  }
 
-    /* Integrate ES Results */
-    Results results = new Results(esResult)
-      .setTotal((int) esResult.getHits().totalHits())
-      .setTime(esResult.getTookInMillis())
-      .setHits(this.toHit(esResult.getHits()));
+  /* Build main query (search based) */
+  @Override
+  protected QueryBuilder getQuery(RuleQuery query, QueryOptions options) {
+    QueryBuilder qb;
+    if (query.getQueryText() != null && !query.getQueryText().isEmpty()) {
+      qb = QueryBuilders.multiMatchQuery(query.getQueryText(),
+        "_id",
+        RuleField.NAME.key(),
+        RuleField.NAME.key()+".search",
+        RuleField.HTML_DESCRIPTION.key(),
+        RuleField.KEY.key(),
+        RuleField.LANGUAGE.key(),
+        RuleField.TAGS.key());
+    } else {
+      qb = QueryBuilders.matchAllQuery();
+    }
+    return qb;
+  }
 
-    return results;
+  /* Build main filter (match based) */
+  @Override
+  protected FilterBuilder getFilter(RuleQuery query, QueryOptions options) {
+    BoolFilterBuilder fb = FilterBuilders.boolFilter();
+    boolean hasFilter = false;
+    this.addTermFilter(RuleField.LANGUAGE.key(), query.getLanguages(), fb);
+    this.addTermFilter(RuleField.REPOSITORY.key(), query.getRepositories(), fb);
+    this.addTermFilter(RuleField.SEVERITY.key(), query.getSeverities(), fb);
+    this.addTermFilter(RuleField.KEY.key(), query.getKey(), fb);
+    if(query.getStatuses() != null && !query.getStatuses().isEmpty()) {
+      Collection<String> stringStatus = new ArrayList<String>();
+      for (RuleStatus status : query.getStatuses()) {
+        stringStatus.add(status.name());
+      }
+      this.addTermFilter(RuleField.STATUS.key(), stringStatus, fb);
+    }
+
+    if((query.getLanguages() != null && !query.getLanguages().isEmpty()) ||
+      (query.getRepositories() != null && !query.getRepositories().isEmpty()) ||
+      (query.getSeverities() != null && !query.getSeverities().isEmpty()) ||
+      (query.getStatuses() != null && !query.getStatuses().isEmpty()) ||
+      (query.getKey() != null && !query.getKey().isEmpty())) {
+      return fb;
+    } else {
+      return FilterBuilders.matchAllFilter();
+    }
+  }
+
+  private void setFacets(SearchRequestBuilder query){
+    //TODO there are no aggregation in 0.9!!! Must use facet...
+
+     /* the Lang facet */
+    query.addFacet(FacetBuilders.termsFacet("Languages")
+      .field(RuleField.LANGUAGE.key())
+      .size(10)
+      .global(true)
+      .order(TermsFacet.ComparatorType.COUNT));
+
+    /* the Tag facet */
+    query.addFacet(FacetBuilders.termsFacet("Tags")
+      .field(RuleField.TAGS.key())
+      .size(10)
+      .global(true)
+      .order(TermsFacet.ComparatorType.COUNT));
+
+    /* the Repo facet */
+    query.addFacet(FacetBuilders.termsFacet("Repositories")
+      .field(RuleField.REPOSITORY.key())
+      .size(10)
+      .global(true)
+      .order(TermsFacet.ComparatorType.COUNT));
+  }
+
+
+  @Override
+  protected Rule getSearchResult(Map<String, Object> response) {
+    if(response == null){
+      throw new IllegalStateException("Cannot construct Rule with null map!!!");
+    }
+    return new RuleDoc(response);
   }
 }

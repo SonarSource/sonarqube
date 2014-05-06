@@ -28,20 +28,19 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.server.rule2.Rule;
 import org.sonar.server.rule2.RuleIndex;
 import org.sonar.server.rule2.RuleNormalizer;
+import org.sonar.server.rule2.RuleParam;
 import org.sonar.server.rule2.RuleQuery;
 import org.sonar.server.rule2.RuleService;
-import org.sonar.server.search.Hit;
 import org.sonar.server.search.QueryOptions;
-import org.sonar.server.search.Results;
+import org.sonar.server.search.Result;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @since 4.4
@@ -188,28 +187,42 @@ public class SearchAction implements RequestHandler {
       request.mandatoryParamAsInt(PARAM_PAGE),
       request.mandatoryParamAsInt(PARAM_PAGE_SIZE));
 
-    Results results = service.search(query, options);
+    Result<Rule> results = service.search(query, options);
     JsonWriter json = response.newJsonWriter().beginObject();
     writeStatistics(results, json);
-    writeHits(results, json);
+    writeRules(results, json);
     json.close();
   }
 
-  private void writeStatistics(Results results, JsonWriter json) {
+  private void writeStatistics(Result results, JsonWriter json) {
     json.prop("total", results.getTotal());
   }
 
-  private void writeHits(Results results, JsonWriter json) {
-    json.name("hits").beginArray();
-    for (Hit hit : results.getHits()) {
-      json.beginObject();
-      for (Map.Entry<String, Object> entry : hit.getFields().entrySet()) {
-        json.name(entry.getKey()).valueObject(entry.getValue());
+  private void writeRules(Result<Rule> result, JsonWriter json) {
+    for(Rule rule:result.getHits()) {
+      json
+        .prop("repo", rule.key().repository())
+        .prop("key", rule.key().rule())
+        .prop("lang", rule.language())
+        .prop("name", rule.name())
+        .prop("htmlDesc", rule.htmlDescription())
+        .prop("status", rule.status().toString())
+        .prop("template", rule.template())
+        .prop("internalKey", rule.internalKey())
+        .prop("severity", rule.severity().toString())
+        .name("tags").beginArray().values(rule.tags()).endArray()
+        .name("sysTags").beginArray().values(rule.systemTags()).endArray();
+      json.name("params").beginArray();
+      for (RuleParam param : rule.params()) {
+        json
+          .beginObject()
+          .prop("key", param.key())
+          .prop("desc", param.description())
+          .prop("defaultValue", param.defaultValue())
+          .endObject();
       }
-      json.endObject();
+      json.endArray();
     }
-    json.endArray();
-    json.endObject();
   }
 
   @CheckForNull

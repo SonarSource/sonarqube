@@ -29,9 +29,8 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
 import org.sonar.core.rule.RuleDto;
-import org.sonar.server.search.Hit;
 import org.sonar.server.search.QueryOptions;
-import org.sonar.server.search.Results;
+import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.Arrays;
@@ -42,7 +41,8 @@ import static org.fest.assertions.Assertions.assertThat;
 public class RuleIndexMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester()
+    .setProperty("sonar.es.http.port","8888");
 
   RuleDao dao = tester.get(RuleDao.class);
   RuleIndex index = tester.get(RuleIndex.class);
@@ -62,7 +62,7 @@ public class RuleIndexMediumTest {
     index.refresh();
 
     RuleQuery query = new RuleQuery();
-    Results result = null;
+    Result result = null;
 
     // should not have any facet!
     result = index.search(query, new QueryOptions().setFacet(false));
@@ -84,16 +84,14 @@ public class RuleIndexMediumTest {
     index.refresh();
 
     QueryOptions options = new QueryOptions().setFieldsToReturn(null);
-    Results results = index.search(new RuleQuery(), options);
+    Result<Rule> results = index.search(new RuleQuery(), options);
     assertThat(results.getHits()).hasSize(1);
-    Hit hit = Iterables.getFirst(results.getHits(), null);
-    assertThat(hit.getFields()).hasSize(RuleNormalizer.RuleField.values().length);
+    Rule hit = Iterables.getFirst(results.getHits(), null);
 
     options = new QueryOptions().setFieldsToReturn(Collections.<String>emptyList());
     results = index.search(new RuleQuery(), options);
     assertThat(results.getHits()).hasSize(1);
     hit = Iterables.getFirst(results.getHits(), null);
-    assertThat(hit.getFields()).hasSize(RuleNormalizer.RuleField.values().length);
   }
 
   @Test
@@ -103,13 +101,13 @@ public class RuleIndexMediumTest {
 
     QueryOptions options = new QueryOptions();
     options.addFieldsToReturn(RuleNormalizer.RuleField.LANGUAGE.key(), RuleNormalizer.RuleField.STATUS.key());
-    Results results = index.search(new RuleQuery(), options);
-
+    Result<Rule> results = index.search(new RuleQuery(), options);
     assertThat(results.getHits()).hasSize(1);
-    Hit hit = Iterables.getFirst(results.getHits(), null);
-    assertThat(hit.getFields()).hasSize(2);
-    assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.LANGUAGE.key())).isEqualTo("js");
-    assertThat(hit.getFieldAsString(RuleNormalizer.RuleField.STATUS.key())).isEqualTo(RuleStatus.READY.name());
+
+    Rule hit = Iterables.getFirst(results.getHits(), null);
+    assertThat(hit.language()).isEqualTo("js");
+    assertThat(hit.status()).isEqualTo(RuleStatus.READY);
+    assertThat(hit.htmlDescription()).isNull();
   }
 
   @Test
@@ -163,7 +161,7 @@ public class RuleIndexMediumTest {
     dao.insert(newRuleDto(RuleKey.of("java", "S002")));
     index.refresh();
 
-    Results results = index.search(new RuleQuery(), new QueryOptions());
+    Result results = index.search(new RuleQuery(), new QueryOptions());
 
     assertThat(results.getTotal()).isEqualTo(2);
     assertThat(results.getHits()).hasSize(2);
@@ -176,9 +174,9 @@ public class RuleIndexMediumTest {
     index.refresh();
 
     RuleQuery query = new RuleQuery().setRepositories(Arrays.asList("checkstyle", "pmd"));
-    Results results = index.search(query, new QueryOptions());
+    Result<Rule> results = index.search(query, new QueryOptions());
     assertThat(results.getHits()).hasSize(1);
-    assertThat(Iterables.getFirst(results.getHits(), null).getFieldAsString("key")).isEqualTo("S002");
+    assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S002");
 
     // no results
     query = new RuleQuery().setRepositories(Arrays.asList("checkstyle"));
@@ -195,10 +193,13 @@ public class RuleIndexMediumTest {
     dao.insert(newRuleDto(RuleKey.of("javascript", "S002")).setLanguage("js"));
     index.refresh();
 
+
+
     RuleQuery query = new RuleQuery().setLanguages(Arrays.asList("cobol", "js"));
-    Results results = index.search(query, new QueryOptions());
+    Result<Rule> results = index.search(query, new QueryOptions());
+
     assertThat(results.getHits()).hasSize(1);
-    assertThat(Iterables.getFirst(results.getHits(), null).getFieldAsString("key")).isEqualTo("S002");
+    assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S002");
 
     // no results
     query = new RuleQuery().setLanguages(Arrays.asList("cpp"));
@@ -211,6 +212,8 @@ public class RuleIndexMediumTest {
     // null list => no filter
     query = new RuleQuery().setLanguages(null);
     assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(2);
+
+
   }
 
   @Test
@@ -220,9 +223,9 @@ public class RuleIndexMediumTest {
     index.refresh();
 
     RuleQuery query = new RuleQuery().setSeverities(Arrays.asList(Severity.INFO, Severity.MINOR));
-    Results results = index.search(query, new QueryOptions());
+    Result<Rule> results = index.search(query, new QueryOptions());
     assertThat(results.getHits()).hasSize(1);
-    assertThat(Iterables.getFirst(results.getHits(), null).getFieldAsString("key")).isEqualTo("S002");
+    assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S002");
 
     // no results
     query = new RuleQuery().setSeverities(Arrays.asList(Severity.MINOR));
@@ -244,9 +247,9 @@ public class RuleIndexMediumTest {
     index.refresh();
 
     RuleQuery query = new RuleQuery().setStatuses(Arrays.asList(RuleStatus.DEPRECATED, RuleStatus.READY));
-    Results results = index.search(query, new QueryOptions());
+    Result<Rule> results = index.search(query, new QueryOptions());
     assertThat(results.getHits()).hasSize(1);
-    assertThat(Iterables.getFirst(results.getHits(), null).getFieldAsString("key")).isEqualTo("S002");
+    assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S002");
 
     // no results
     query = new RuleQuery().setStatuses(Arrays.asList(RuleStatus.DEPRECATED));
@@ -270,17 +273,17 @@ public class RuleIndexMediumTest {
 
     // ascending
     RuleQuery query = new RuleQuery().setSortField(RuleQuery.SortField.NAME);
-    Results results = index.search(query, new QueryOptions());
+    Result<Rule> results = index.search(query, new QueryOptions());
     assertThat(results.getHits()).hasSize(3);
-    assertThat(Iterables.getFirst(results.getHits(), null).getFieldAsString("key")).isEqualTo("S002");
-    assertThat(Iterables.getLast(results.getHits(), null).getFieldAsString("key")).isEqualTo("S003");
+    assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S002");
+    assertThat(Iterables.getLast(results.getHits(), null).key().rule()).isEqualTo("S003");
 
     // descending
     query = new RuleQuery().setSortField(RuleQuery.SortField.NAME).setAscendingSort(false);
     results = index.search(query, new QueryOptions());
     assertThat(results.getHits()).hasSize(3);
-    assertThat(Iterables.getFirst(results.getHits(), null).getFieldAsString("key")).isEqualTo("S003");
-    assertThat(Iterables.getLast(results.getHits(), null).getFieldAsString("key")).isEqualTo("S002");
+    assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S003");
+    assertThat(Iterables.getLast(results.getHits(), null).key().rule()).isEqualTo("S002");
   }
 
   @Test
@@ -291,15 +294,15 @@ public class RuleIndexMediumTest {
 
     // ascending
     RuleQuery query = new RuleQuery().setSortField(RuleQuery.SortField.LANGUAGE);
-    Results results = index.search(query, new QueryOptions());
-    assertThat(Iterables.getFirst(results.getHits(), null).getFieldAsString("key")).isEqualTo("S001");
-    assertThat(Iterables.getLast(results.getHits(), null).getFieldAsString("key")).isEqualTo("S002");
+    Result<Rule> results = index.search(query, new QueryOptions());
+    assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S001");
+    assertThat(Iterables.getLast(results.getHits(), null).key().rule()).isEqualTo("S002");
 
     // descending
     query = new RuleQuery().setSortField(RuleQuery.SortField.LANGUAGE).setAscendingSort(false);
     results = index.search(query, new QueryOptions());
-    assertThat(Iterables.getFirst(results.getHits(), null).getFieldAsString("key")).isEqualTo("S002");
-    assertThat(Iterables.getLast(results.getHits(), null).getFieldAsString("key")).isEqualTo("S001");
+    assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S002");
+    assertThat(Iterables.getLast(results.getHits(), null).key().rule()).isEqualTo("S001");
   }
 
   @Test
@@ -312,7 +315,7 @@ public class RuleIndexMediumTest {
     // from 0 to 1 included
     QueryOptions options = new QueryOptions();
     options.setOffset(0).setLimit(2);
-    Results results = index.search(new RuleQuery(), options);
+    Result results = index.search(new RuleQuery(), options);
     assertThat(results.getTotal()).isEqualTo(3);
     assertThat(results.getHits()).hasSize(2);
 

@@ -22,9 +22,8 @@ package org.sonar.server.rule2;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.rule.RuleDao;
-import org.sonar.server.search.Hit;
 import org.sonar.server.search.QueryOptions;
-import org.sonar.server.search.Results;
+import org.sonar.server.search.Result;
 
 import javax.annotation.CheckForNull;
 import java.util.List;
@@ -44,9 +43,9 @@ public class RuleService implements ServerComponent {
 
   @CheckForNull
   public Rule getByKey(RuleKey key) {
-    Hit hit = index.getByKey(key);
+    Rule hit = index.getByKey(key);
     if (hit != null) {
-      return new RuleDoc(hit);
+      return hit;
     }
     return null;
   }
@@ -55,7 +54,7 @@ public class RuleService implements ServerComponent {
     return new RuleQuery();
   }
 
-  public Results search(RuleQuery query, QueryOptions options) {
+  public Result search(RuleQuery query, QueryOptions options) {
     // keep only supported fields and add the fields to always return
     options.filterFieldsToReturn(RuleIndex.PUBLIC_FIELDS);
     options.addFieldsToReturn(RuleNormalizer.RuleField.REPOSITORY.key(), RuleNormalizer.RuleField.KEY.key());

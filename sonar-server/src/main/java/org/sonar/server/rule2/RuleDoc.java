@@ -24,8 +24,8 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.server.rule2.RuleNormalizer.RuleField;
-import org.sonar.server.search.Hit;
 
+import javax.annotation.CheckForNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -38,68 +38,78 @@ class RuleDoc implements Rule {
 
   private final Map<String, Object> fields;
 
-  RuleDoc(Map<String, Object> fields) {
+  public RuleDoc(Map<String, Object> fields) {
     this.fields = fields;
-  }
-
-  RuleDoc(Hit hit) {
-    this.fields = hit.getFields();
   }
 
   @Override
   public RuleKey key() {
-    return RuleKey.of((String) fields.get(RuleField.REPOSITORY.key()),
-      (String) fields.get(RuleField.KEY.key()));
+    String repo = (String) fields.get(RuleField.REPOSITORY.key());
+    String key = (String) fields.get(RuleField.KEY.key());
+    if(repo == null || key == null
+      || repo.isEmpty() || key.isEmpty()){
+      throw new IllegalStateException("Missing values for RuleKey in RuleDoc");
+    } else {
+      return RuleKey.of(repo, key);
+    }
   }
 
   @Override
+  @CheckForNull
   public String internalKey() {
     return (String) fields.get(RuleField.INTERNAL_KEY.key());
   }
 
   @Override
+  @CheckForNull
   public String language() {
     return (String) fields.get(RuleField.LANGUAGE.key());
   }
 
   @Override
+  @CheckForNull
   public String name() {
     return (String) fields.get(RuleField.NAME.key());
   }
 
   @Override
+  @CheckForNull
   public String htmlDescription() {
     return (String) fields.get(RuleField.HTML_DESCRIPTION.key());
   }
 
   @Override
+  @CheckForNull
   public String severity() {
     return (String) fields.get(RuleField.SEVERITY.key());
   }
 
   @Override
+  @CheckForNull
   public RuleStatus status() {
     return RuleStatus.valueOf((String) fields.get(RuleField.STATUS.key()));
   }
 
   @Override
+  @CheckForNull
   public boolean template() {
     return (Boolean) fields.get(RuleField.TEMPLATE.key());
   }
 
   @Override
-  @SuppressWarnings("unchecked")
+  @CheckForNull
   public List<String> tags() {
     return (List<String>) fields.get(RuleField.TAGS.key());
   }
 
   @Override
-  @SuppressWarnings("unchecked")
+  @CheckForNull
   public List<String> systemTags() {
     return (List<String>) fields.get(RuleField.SYSTEM_TAGS.key());
   }
 
   @Override
+  @CheckForNull
   public List<RuleParam> params() {
     List<RuleParam> params = new ArrayList<RuleParam>();
     if (this.fields.get(RuleField.PARAMS.key()) != null) {
@@ -139,26 +149,31 @@ class RuleDoc implements Rule {
   }
 
   @Override
+  @CheckForNull
   public String debtCharacteristicKey() {
     throw new UnsupportedOperationException("TODO");
   }
 
   @Override
+  @CheckForNull
   public String debtSubCharacteristicKey() {
     throw new UnsupportedOperationException("TODO");
   }
 
   @Override
+  @CheckForNull
   public DebtRemediationFunction debtRemediationFunction() {
     throw new UnsupportedOperationException("TODO");
   }
 
   @Override
+  @CheckForNull
   public Date createdAt() {
     return (Date) fields.get(RuleField.CREATED_AT.key());
   }
 
   @Override
+  @CheckForNull
   public Date updatedAt() {
     return (Date) fields.get(RuleField.UPDATED_AT.key());
   }

@@ -31,17 +31,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Results {
+public class Result<K> {
 
-  private Collection<Hit> hits;
+  private Collection<K> hits;
   private Map<String, Collection<FacetValue>> facets;
   private int total;
   private int offset;
   private long time;
 
-  private Results(){}
+  private Result(){}
 
-  public Results(SearchResponse response){
+  public Result(SearchResponse response){
+    hits = new ArrayList<K>();
     if(response.getFacets() != null &&
       !response.getFacets().facets().isEmpty()){
       this.facets = new HashMap<String, Collection<FacetValue>>();
@@ -59,11 +60,11 @@ public class Results {
     }
   }
 
-  public Collection<Hit> getHits() {
+  public Collection<K> getHits() {
     return hits;
   }
 
-  public Results setHits(Collection<Hit> hits) {
+  public Result setHits(Collection<K> hits) {
     this.hits = hits;
     return this;
   }
@@ -76,12 +77,12 @@ public class Results {
     return offset;
   }
 
-  public Results setTotal(int total) {
+  public Result setTotal(int total) {
     this.total = total;
     return this;
   }
 
-  public Results setOffset(int offset) {
+  public Result setOffset(int offset) {
     this.offset = offset;
     return this;
   }
@@ -90,7 +91,7 @@ public class Results {
     return time;
   }
 
-  public Results setTime(long time) {
+  public Result setTime(long time) {
     this.time = time;
     return this;
   }
