@@ -27,7 +27,7 @@ class IncreaseSizeOfUserLogin < ActiveRecord::Migration
   def self.up
     if dialect()=='sqlserver'
       remove_index :users, :name => 'users_login'
-      remove_index :users, :name => 'uniq_author_logins'
+      remove_index :authors, :name => 'uniq_author_logins'
       remove_index :issue_filter_favourites, :name => 'issue_filter_favs_user'
       remove_index :issues, :name => 'issues_assignee'
     end
@@ -40,8 +40,8 @@ class IncreaseSizeOfUserLogin < ActiveRecord::Migration
     change_column :issues, :author_login,         :string,    :null => true,    :limit => 255
     change_column :issue_filter_favourites, :user_login, :string, :null => false, :limit => 255
     change_column :issue_filters, :user_login, :string, :null => true, :limit => 255
-    change_column 'manual_measures', 'user_login', :string, :null => true, :limit => 255
-    change_column 'rules', :note_user_login, :string, :null => true, :limit => 255
+    change_column 'manual_measures', :user_login, :string, :null => true, :limit => 255
+    change_column :rules, :note_user_login, :string, :null => true, :limit => 255
     change_column :users, :login, :string, :limit => 255, :unique => true
 
     if dialect()=='sqlserver'
