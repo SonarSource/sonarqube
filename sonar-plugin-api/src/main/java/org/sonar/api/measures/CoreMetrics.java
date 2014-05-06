@@ -312,6 +312,7 @@ public final class CoreMetrics {
    */
   public static final Metric COMPLEXITY_IN_CLASSES = new Metric.Builder(COMPLEXITY_IN_CLASSES_KEY, "Complexity in classes", Metric.ValueType.INT)
     .setDescription("Cyclomatic complexity in classes")
+    .setHidden(true)
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_COMPLEXITY)
@@ -343,6 +344,7 @@ public final class CoreMetrics {
    */
   public static final Metric COMPLEXITY_IN_FUNCTIONS = new Metric.Builder(COMPLEXITY_IN_FUNCTIONS_KEY, "Complexity in functions", Metric.ValueType.INT)
     .setDescription("Cyclomatic complexity in functions")
+    .setHidden(true)
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_COMPLEXITY)
