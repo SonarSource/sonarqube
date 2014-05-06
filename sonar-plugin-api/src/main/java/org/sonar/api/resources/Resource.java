@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.Serializable;
 
 /**
@@ -177,8 +178,9 @@ public abstract class Resource implements Serializable {
   public abstract String getDescription();
 
   /**
-   * @return the language
+   * @return the language of the resource. Only {@link File}s have a non null value.
    */
+  @CheckForNull
   public abstract Language getLanguage();
 
   /**
