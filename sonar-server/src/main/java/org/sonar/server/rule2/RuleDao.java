@@ -277,7 +277,6 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey>
   // ***************************
 
   public void insert(RuleRuleTagDto newTag, DbSession session) {
-    System.out.println("newTag = [" + newTag + "], session = [" + session + "]");
     getMapper(session).insertTag(newTag);
     session.enqueue(new EmbeddedIndexAction<RuleKey>(this.getIndexType(),
       IndexAction.Method.INSERT, newTag,
