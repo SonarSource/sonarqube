@@ -6,5 +6,5 @@ define [
 
   class WebServiceActionResponse extends Backbone.Model
 
-  	url: ->
+    url: ->
       "#{baseUrl}/api/webservices/response_example?controller=#{@get('controller')}&action=#{@get('action')}"

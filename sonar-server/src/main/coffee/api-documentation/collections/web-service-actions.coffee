@@ -11,5 +11,5 @@ define [
     comparator: 'key'
 
     initialize: (models, options) ->
-    	_.each models, (model) ->
-    		model.path = options.path + '/' + model.key
+      _.each models, (model) ->
+        model.path = options.path + '/' + model.key

@@ -21,8 +21,8 @@ define [
 
     fetchExampleResponse: (event) ->
       exampleResponse = new WebServiceActionResponse
-      	controller: @model.get('path').substring(0, @model.get('path').length - @model.get('key').length - 1)
-      	action: @model.get('key')
+        controller: @model.get('path').substring(0, @model.get('path').length - @model.get('key').length - 1)
+        action: @model.get('key')
       @listenTo(exampleResponse, 'change', @appendExampleView)
       exampleResponse.fetch()
 

@@ -1,10 +1,10 @@
 <h3 class="big">
-	{{#if post}}POST{{else}}GET{{/if}}
-	{{path}}
+  {{#if post}}POST{{else}}GET{{/if}}
+  {{path}}
 </h3>
 <span class="subtitle">
-	{{#if since}}Since {{since}}{{#if internal}} -{{/if}}{{/if}}
-	{{#if internal}}<span class="internal">For internal use only</span>{{/if}}
+  {{#if since}}Since {{since}}{{#if internal}} -{{/if}}{{/if}}
+  {{#if internal}}<span class="internal">For internal use only</span>{{/if}}
 </span>
 <p>{{{description}}}</p>
 {{#if params}}
@@ -12,28 +12,28 @@
 <table>
   {{#each params}}
   <tr>
-  	<td style="width:10em">
-  		<code>{{key}}</code>
-  		<div class="subtitle">{{#if required}}required{{else}}optional{{/if}}</div>
-  	</td<>
-  	<td>
-  		<p>{{{description}}}</p>
-  		{{#if possibleValues}}
-  		<p>
-  		<em>Possible values:</em>
-  		<ul class="possible-values">
-  		{{#each possibleValues}}
-  			<li><code>{{this}}</code></li>
-  		{{/each}}
-  		</ul>
-  		</p>
-  		{{/if}}
-  		{{#if exampleValue}}
-  		<p>
-  		<em>Example value:</em> <code>{{exampleValue}}</code>
-  		</p>
-  		{{/if}}
-  	</td>
+    <td style="width:10em">
+      <code>{{key}}</code>
+      <div class="subtitle">{{#if required}}required{{else}}optional{{/if}}</div>
+    </td<>
+    <td>
+      <p>{{{description}}}</p>
+      {{#if possibleValues}}
+      <p>
+      <em>Possible values:</em>
+      <ul class="possible-values">
+      {{#each possibleValues}}
+        <li><code>{{this}}</code></li>
+      {{/each}}
+      </ul>
+      </p>
+      {{/if}}
+      {{#if exampleValue}}
+      <p>
+      <em>Example value:</em> <code>{{exampleValue}}</code>
+      </p>
+      {{/if}}
+    </td>
   </tr>
   {{/each}}
 </table>
