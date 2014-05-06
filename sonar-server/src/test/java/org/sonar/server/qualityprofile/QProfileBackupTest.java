@@ -306,7 +306,7 @@ public class QProfileBackupTest {
   }
 
   @Test
-  public void restore_default_profiles_from_language() throws Exception {
+  public void recreate_built_in_profiles_from_language() throws Exception {
     String name = "Default";
     String language = "java";
 
@@ -324,7 +324,7 @@ public class QProfileBackupTest {
 
     when(qProfileOperations.newProfile(eq(name), eq(language), eq(true), any(UserSession.class), eq(session))).thenReturn(new QProfile().setId(1));
 
-    backup.restoreDefaultProfilesByLanguage(language);
+    backup.recreateBuiltInProfilesByLanguage(language);
 
     verify(qProfileActiveRuleOperations).createActiveRule(eq(1), eq(10), eq("BLOCKER"), eq(session));
     verify(qProfileActiveRuleOperations).updateActiveRuleParam(any(ActiveRuleDto.class), eq("max"), eq("10"), eq(session));
@@ -336,7 +336,7 @@ public class QProfileBackupTest {
   }
 
   @Test
-  public void restore_default_profiles_from_language_with_multiple_profiles_with_same_name_and_same_language() throws Exception {
+  public void recreate_built_in_profiles_from_language_with_multiple_profiles_with_same_name_and_same_language() throws Exception {
     RulesProfile profile1 = RulesProfile.create("Default", "java");
     profile1.activateRule(Rule.create("pmd", "rule").setSeverity(RulePriority.BLOCKER), null);
     ProfileDefinition profileDefinition1 = mock(ProfileDefinition.class);
@@ -354,7 +354,7 @@ public class QProfileBackupTest {
 
     when(qProfileOperations.newProfile(eq("Default"), eq("java"), eq(true), any(UserSession.class), eq(session))).thenReturn(new QProfile().setId(1));
 
-    backup.restoreDefaultProfilesByLanguage("java");
+    backup.recreateBuiltInProfilesByLanguage("java");
 
     verify(qProfileActiveRuleOperations).createActiveRule(eq(1), eq(10), eq("BLOCKER"), eq(session));
     verify(qProfileActiveRuleOperations).createActiveRule(eq(1), eq(11), eq("MAJOR"), eq(session));
@@ -366,7 +366,7 @@ public class QProfileBackupTest {
   }
 
   @Test
-  public void fail_to_restore_profile_when_rule_not_found() throws Exception {
+  public void fail_to_recreate_built_in_profile_when_rule_not_found() throws Exception {
     String name = "Default";
     String language = "java";
 
@@ -383,7 +383,7 @@ public class QProfileBackupTest {
     when(qProfileOperations.newProfile(eq(name), eq(language), eq(true), any(UserSession.class), eq(session))).thenReturn(new QProfile().setId(1));
 
     try {
-      backup.restoreDefaultProfilesByLanguage(language);
+      backup.recreateBuiltInProfilesByLanguage(language);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(NotFoundException.class);
@@ -393,14 +393,14 @@ public class QProfileBackupTest {
   }
 
   @Test
-  public void not_restore_default_profiles_from_another_language() throws Exception {
+  public void not_recreate_built_in_profiles_from_another_language() throws Exception {
     RulesProfile profile = RulesProfile.create("Default", "java");
     profile.activateRule(Rule.create("pmd", "rule").setSeverity(RulePriority.BLOCKER), null);
     ProfileDefinition profileDefinition = mock(ProfileDefinition.class);
     when(profileDefinition.createProfile(any(ValidationMessages.class))).thenReturn(profile);
     definitions.add(profileDefinition);
 
-    backup.restoreDefaultProfilesByLanguage("js");
+    backup.recreateBuiltInProfilesByLanguage("js");
 
     verifyZeroInteractions(qProfileOperations);
     verifyZeroInteractions(qProfileActiveRuleOperations);

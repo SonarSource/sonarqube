@@ -82,7 +82,7 @@ public class QProfilesMediumTest {
   }
 
   @Test
-  public void restore_provided_profile_from_language() throws Exception {
+  public void recreate_built_in_profile_from_language() throws Exception {
     MockUserSession.set().setLogin("julien").setName("Julien").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     QProfiles qProfiles = serverTester.get(QProfiles.class);
@@ -106,7 +106,7 @@ public class QProfilesMediumTest {
     qProfiles.renameProfile(profile.id(), "Old Basic");
 
     // Restore default profiles of xoo
-    qProfileBackup.restoreDefaultProfilesByLanguage("xoo");
+    qProfileBackup.recreateBuiltInProfilesByLanguage("xoo");
 
     // Reload profile
     profile = qProfiles.profile("Basic", "xoo");
@@ -123,14 +123,14 @@ public class QProfilesMediumTest {
   }
 
   @Test
-  public void fail_to_restore_provided_profile_from_language_if_default_profile_already_exists() throws Exception {
+  public void fail_to_recreate_built_in_profile_from_language_if_default_profile_already_exists() throws Exception {
     MockUserSession.set().setLogin("julien").setName("Julien").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     QProfileBackup qProfileBackup = serverTester.get(QProfileBackup.class);
 
     try {
       // Restore default profiles of xoo -> fail as it already exists
-      qProfileBackup.restoreDefaultProfilesByLanguage("xoo");
+      qProfileBackup.recreateBuiltInProfilesByLanguage("xoo");
       fail();
     } catch (BadRequestException e) {
       assertThat(e.l10nKey()).isEqualTo("quality_profiles.profile_x_already_exists");

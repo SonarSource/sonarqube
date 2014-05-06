@@ -59,9 +59,9 @@ class ProfilesController < ApplicationController
     redirect_to :action => 'index'
   end
 
-  # Modal window to restore default profiles
-  # GET /profiles/restore_default_form/<profile id>
-  def restore_default_form
+  # Modal window to recreate built-in profiles
+  # GET /profiles/recreate_built_in_form/<profile id>
+  def recreate_built_in_form
     verify_ajax_request
     require_parameters 'language'
     @language = java_facade.getLanguages().find { |l| l.getKey()==params[:language].to_s }
@@ -70,15 +70,15 @@ class ProfilesController < ApplicationController
       profiles = Internal.quality_profiles.profilesByLanguage(@language.getKey()).to_a
       @existing_default_profiles = profiles.select{|p| @default_profile_names.find{|default_profile| default_profile == p.name()}}.collect{|p| p.name()}
     end
-    render :partial => 'profiles/restore_default_form'
+    render :partial => 'profiles/recreate_built_in_form'
   end
 
-  # POST /profiles/restore_default?language=<language>
-  def restore_default
+  # POST /profiles/recreate_built_in_form?language=<language>
+  def recreate_built_in
     verify_post_request
     require_parameters 'language'
     call_backend do
-      @result = Internal.profile_backup.restoreDefaultProfilesByLanguage(params[:language].to_s)
+      @result = Internal.profile_backup.recreateBuiltInProfilesByLanguage(params[:language].to_s)
       flash_result(@result)
     end
     redirect_to :action => 'index'

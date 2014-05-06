@@ -138,10 +138,10 @@ public class QProfileBackup implements ServerComponent {
   }
 
   /**
-   * Restore provided profile for a given language.
+   * Recreate built-in profile for a given language.
    * If a profile with same name than default profile already exists, an exception will be thrown.
    */
-  public QProfileResult restoreDefaultProfilesByLanguage(String language) {
+  public QProfileResult recreateBuiltInProfilesByLanguage(String language) {
     checkPermission(UserSession.get());
     QProfileResult result = new QProfileResult();
 

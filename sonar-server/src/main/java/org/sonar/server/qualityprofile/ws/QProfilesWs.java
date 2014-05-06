@@ -23,20 +23,21 @@ import org.sonar.api.server.ws.WebService;
 
 public class QProfilesWs implements WebService {
 
-  private final QProfileRestoreDefaultAction restoreDefaultAction;
+  private final QProfileRecreateBuiltInAction recreateBuiltInAction;
   private final ActivateRuleAction activateRuleAction;
 
-  public QProfilesWs(QProfileRestoreDefaultAction qProfileRestoreDefaultAction, ActivateRuleAction activateRuleAction) {
-    this.restoreDefaultAction = qProfileRestoreDefaultAction;
+  public QProfilesWs(QProfileRecreateBuiltInAction recreateBuiltInAction, ActivateRuleAction activateRuleAction) {
+    this.recreateBuiltInAction = recreateBuiltInAction;
     this.activateRuleAction = activateRuleAction;
   }
 
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/qualityprofiles")
-      .setDescription("Quality profiles management");
+      .setDescription("Quality profiles management")
+      .setSince("4.4");
 
-    restoreDefaultAction.define(controller);
+    recreateBuiltInAction.define(controller);
     activateRuleAction.define(controller);
 
     controller.done();

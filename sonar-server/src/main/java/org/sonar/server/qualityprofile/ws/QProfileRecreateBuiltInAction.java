@@ -28,28 +28,29 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.qualityprofile.QProfileBackup;
 import org.sonar.server.qualityprofile.QProfileResult;
 
-public class QProfileRestoreDefaultAction implements RequestHandler {
+public class QProfileRecreateBuiltInAction implements RequestHandler {
 
   private final QProfileBackup qProfileBackup;
 
-  public QProfileRestoreDefaultAction(QProfileBackup qProfileBackup) {
+  public QProfileRecreateBuiltInAction(QProfileBackup qProfileBackup) {
     this.qProfileBackup = qProfileBackup;
   }
 
   void define(WebService.NewController controller){
-    WebService.NewAction restoreDefault = controller.createAction("restore_default")
-      .setDescription("Restore default profiles")
+    WebService.NewAction restoreDefault = controller.createAction("recreate_built_in")
+      .setDescription("Recreate Built-in Profiles")
       .setSince("4.4")
+      .setPost(true)
       .setHandler(this);
     restoreDefault.createParam("language")
-      .setDescription("Restore default profiles for this language")
+      .setDescription("Recreate built-in profiles for this language")
     .setExampleValue("java");
   }
 
   @Override
   public void handle(Request request, Response response) {
     final String language = request.mandatoryParam("language");
-    QProfileResult result = qProfileBackup.restoreDefaultProfilesByLanguage(language);
+    QProfileResult result = qProfileBackup.recreateBuiltInProfilesByLanguage(language);
 
     if (!result.infos().isEmpty() || !result.warnings().isEmpty()) {
       JsonWriter json = response.newJsonWriter();

@@ -115,7 +115,7 @@ import org.sonar.server.qualitygate.ws.*;
 import org.sonar.server.qualityprofile.*;
 import org.sonar.server.qualityprofile.ws.ActivateRuleAction;
 import org.sonar.server.qualityprofile.ws.ProfilesWs;
-import org.sonar.server.qualityprofile.ws.QProfileRestoreDefaultAction;
+import org.sonar.server.qualityprofile.ws.QProfileRecreateBuiltInAction;
 import org.sonar.server.qualityprofile.ws.QProfilesWs;
 import org.sonar.server.rule.*;
 import org.sonar.server.rule.ws.*;
@@ -284,7 +284,7 @@ class ServerComponents {
     pico.addSingleton(QProfileRepositoryExporter.class);
     pico.addSingleton(DefaultProfilesCache.class);
     pico.addSingleton(ESActiveRule.class);
-    pico.addSingleton(QProfileRestoreDefaultAction.class);
+    pico.addSingleton(QProfileRecreateBuiltInAction.class);
     pico.addSingleton(QProfilesWs.class);
     pico.addSingleton(ProfilesWs.class);
     pico.addSingleton(ActivateRuleAction.class);
