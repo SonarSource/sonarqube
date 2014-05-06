@@ -22,4 +22,4 @@ define [
 
     initialize: (app) ->
       @app = app.app
-      @.listenTo(@app.webServices, "change", @app.refresh)
+      @listenTo(@app.webServices, 'sync', @app.refresh)

@@ -50,7 +50,6 @@ requirejs [
     App.apiDocumentationListView = new ApiDocumentationListView
       collection: App.webServices
       app: App
-    App.layout.resultsRegion.reset()
     App.layout.resultsRegion.show App.apiDocumentationListView
     if (Backbone.history.fragment)
       App.router.show Backbone.history.fragment, trigger: true

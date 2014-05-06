@@ -8,6 +8,7 @@ define [
 
   class WebServices extends Backbone.Collection
     model: WebService
+    comparator: 'path'
 
     initialize: ->
       @includeInternals = false
@@ -19,12 +20,10 @@ define [
       r.webServices.map (webService) ->
         _.extend webService
 
-    comparator: (item) -> item.get('path')
-
     toggleInternals: ->
       if @includeInternals
         @includeInternals = false
       else
         @includeInternals = true
 
-      @.fetch()
+      @fetch()

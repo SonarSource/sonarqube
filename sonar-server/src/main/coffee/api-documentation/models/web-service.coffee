@@ -5,4 +5,7 @@ define [
 ) ->
 
   class WebService extends Backbone.Model
-  	idAttribute: 'path'
+    idAttribute: 'path'
+
+    initialize: (options) ->
+      @set 'internal', _.every options.actions, (action) -> action.internal
