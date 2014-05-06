@@ -30,7 +30,6 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.ibatis.session.SqlSession;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +44,7 @@ import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
-import org.sonar.core.rule.RuleDao;
+import org.sonar.server.rule2.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.rule.RuleRuleTagDto;
@@ -142,7 +141,7 @@ public class RegisterRules implements Startable {
     // nothing
   }
 
-  private void selectRulesFromDb(Buffer buffer, SqlSession sqlSession) {
+  private void selectRulesFromDb(Buffer buffer, DbSession sqlSession) {
     for (RuleDto ruleDto : ruleDao.selectNonManual(sqlSession)) {
       buffer.add(ruleDto);
       buffer.markUnprocessed(ruleDto);
@@ -322,7 +321,7 @@ public class RegisterRules implements Startable {
     return changed;
   }
 
-  private void mergeParams(Buffer buffer, SqlSession sqlSession, RulesDefinition.Rule ruleDef, RuleDto dto) {
+  private void mergeParams(Buffer buffer, DbSession sqlSession, RulesDefinition.Rule ruleDef, RuleDto dto) {
     Collection<RuleParamDto> paramDtos = buffer.paramsForRuleId(dto.getId());
     Set<String> persistedParamKeys = Sets.newHashSet();
     for (RuleParamDto paramDto : paramDtos) {
@@ -370,7 +369,7 @@ public class RegisterRules implements Startable {
     return changed;
   }
 
-  private void mergeTags(Buffer buffer, SqlSession sqlSession, RulesDefinition.Rule ruleDef, RuleDto dto) {
+  private void mergeTags(Buffer buffer, DbSession sqlSession, RulesDefinition.Rule ruleDef, RuleDto dto) {
     Set<String> existingSystemTags = Sets.newHashSet();
 
     Collection<RuleRuleTagDto> tagDtos = ImmutableList.copyOf(buffer.tagsForRuleId(dto.getId()));
@@ -412,7 +411,7 @@ public class RegisterRules implements Startable {
     }
   }
 
-  private long getOrCreateReferenceTagId(Buffer buffer, String tag, SqlSession sqlSession) {
+  private long getOrCreateReferenceTagId(Buffer buffer, String tag, DbSession sqlSession) {
     // End-user tag is converted to system tag
     long tagId = 0L;
     if (buffer.referenceTagExists(tag)) {
@@ -494,7 +493,7 @@ public class RegisterRules implements Startable {
     }
   }
 
-  private void index(Buffer buffer, SqlSession sqlSession) {
+  private void index(Buffer buffer, DbSession sqlSession) {
     String[] ids = ruleRegistry.reindex(buffer.rulesById.values(), sqlSession);
     ruleRegistry.removeDeletedRules(ids);
     esRuleTags.putAllTags(buffer.referenceTagsByTagValue.values());

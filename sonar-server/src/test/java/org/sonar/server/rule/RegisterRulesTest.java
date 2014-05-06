@@ -38,7 +38,7 @@ import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
-import org.sonar.core.rule.RuleDao;
+import org.sonar.server.rule2.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleTagDao;
 import org.sonar.core.rule.RuleTagDto;
@@ -296,7 +296,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     // There is already one rule in DB
     assertThat(ruleDao.selectAll()).hasSize(BigRepository.SIZE + 1);
     assertThat(ruleDao.selectParameters()).hasSize(BigRepository.SIZE * 20);
-    assertThat(ruleDao.selectTags(getMyBatis().openSession())).hasSize(BigRepository.SIZE * 3);
+    assertThat(ruleDao.selectTags(getMyBatis().openSession(false))).hasSize(BigRepository.SIZE * 3);
   }
 
   @Test
