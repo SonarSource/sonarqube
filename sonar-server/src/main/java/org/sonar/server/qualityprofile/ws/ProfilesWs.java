@@ -23,12 +23,16 @@ import com.google.common.io.Resources;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
+/**
+ * List of quality profiles WS implemented in Rails.
+ * New WS on quality profiles MUST be declared in {@link org.sonar.server.qualityprofile.ws.QProfilesWs}
+ */
 public class ProfilesWs implements WebService {
 
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/profiles")
-      .setDescription("Quality profiles management");
+      .setDescription("Quality profiles management (implemented in Rails)");
 
     defineListAction(controller);
     defineBackupAction(controller);
