@@ -29,8 +29,6 @@ import org.sonar.core.rule.RuleRuleTagDto;
 import org.sonar.core.rule.RuleTagType;
 import org.sonar.server.search.BaseNormalizer;
 
-import java.io.IOException;
-
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
@@ -92,70 +90,84 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     }
   }
 
-  public RuleNormalizer(RuleDao ruleDao){
+  public RuleNormalizer(RuleDao ruleDao) {
     this.ruleDao = ruleDao;
   }
 
   @Override
-  public UpdateRequest normalize(RuleKey key) throws IOException {
+  public UpdateRequest normalize(RuleKey key) {
     return normalize(ruleDao.getByKey(key));
   }
 
   @Override
-  public UpdateRequest normalize(RuleDto rule) throws IOException {
-    XContentBuilder document = jsonBuilder().startObject();
-    indexField(RuleField.KEY.key(), rule.getRuleKey(), document);
-    indexField(RuleField.REPOSITORY.key(), rule.getRepositoryKey(), document);
-    indexField(RuleField.NAME.key(), rule.getName(), document);
-    indexField(RuleField.CREATED_AT.key(), rule.getCreatedAt(), document);
-    indexField(RuleField.UPDATED_AT.key(), rule.getUpdatedAt(), document);
-    indexField(RuleField.HTML_DESCRIPTION.key(), rule.getDescription(), document);
-    indexField(RuleField.SEVERITY.key(), rule.getSeverityString(), document);
-    indexField(RuleField.STATUS.key(), rule.getStatus(), document);
-    indexField(RuleField.LANGUAGE.key(), rule.getLanguage(), document);
-    indexField(RuleField.INTERNAL_KEY.key(), rule.getConfigKey(), document);
-    indexField(RuleField.TEMPLATE.key(), rule.getCardinality() == Cardinality.MULTIPLE, document);
+  public UpdateRequest normalize(RuleDto rule) {
+    try {
+      XContentBuilder document = jsonBuilder().startObject();
+      indexField(RuleField.KEY.key(), rule.getRuleKey(), document);
+      indexField(RuleField.REPOSITORY.key(), rule.getRepositoryKey(), document);
+      indexField(RuleField.NAME.key(), rule.getName(), document);
+      indexField(RuleField.CREATED_AT.key(), rule.getCreatedAt(), document);
+      indexField(RuleField.UPDATED_AT.key(), rule.getUpdatedAt(), document);
+      indexField(RuleField.HTML_DESCRIPTION.key(), rule.getDescription(), document);
+      indexField(RuleField.SEVERITY.key(), rule.getSeverityString(), document);
+      indexField(RuleField.STATUS.key(), rule.getStatus(), document);
+      indexField(RuleField.LANGUAGE.key(), rule.getLanguage(), document);
+      indexField(RuleField.INTERNAL_KEY.key(), rule.getConfigKey(), document);
+      indexField(RuleField.TEMPLATE.key(), rule.getCardinality() == Cardinality.MULTIPLE, document);
 
-    document.startArray(RuleField.TAGS.key()).endArray();
-    document.startArray(RuleField.SYSTEM_TAGS.key()).endArray();
-    document.startObject(RuleField.PARAMS.key()).endObject();
-    document.startObject(RuleField.ACTIVE.key()).endObject();
+      document.startArray(RuleField.TAGS.key()).endArray();
+      document.startArray(RuleField.SYSTEM_TAGS.key()).endArray();
+      document.startObject(RuleField.PARAMS.key()).endObject();
+      document.startObject(RuleField.ACTIVE.key()).endObject();
 
     /* Done normalizing for Rule */
-    document.endObject();
+      document.endObject();
 
     /* Creating updateRequest */
-    UpdateRequest request =  new UpdateRequest().doc(document);
-    request.docAsUpsert(true);
-    return request;
-  }
-
-  public UpdateRequest normalize(RuleParamDto param, RuleKey key) throws IOException {
-     /* Normalize the params */
-    XContentBuilder document = jsonBuilder().startObject();
-    document.startObject(RuleField.PARAMS.key());
-    document.startObject(param.getName());
-    indexField(RuleParamField.NAME.key(), param.getName(), document);
-    indexField(RuleParamField.TYPE.key(), param.getType(), document);
-    indexField(RuleParamField.DESCRIPTION.key(), param.getDescription(), document);
-    indexField(RuleParamField.DEFAULT_VALUE.key(), param.getDefaultValue(), document);
-    document.endObject();
-    document.endObject();
-
-    /* Creating updateRequest */
-    UpdateRequest request =  new UpdateRequest().doc(document);
-    request.docAsUpsert(true);
-    return request;
-
-  }
-
-  public UpdateRequest normalize(RuleRuleTagDto tag, RuleKey key) throws IOException {
-    String field = RuleField.TAGS.key();
-    if(tag.getType().equals(RuleTagType.SYSTEM)){
-      field = RuleField.SYSTEM_TAGS.key();
+      UpdateRequest request = new UpdateRequest().doc(document);
+      request.docAsUpsert(true);
+      return request;
+    } catch (Exception e) {
+      throw new IllegalStateException(String.format("Could not normalize RuleDto with key %s", rule.getKey().toString()), e);
     }
-    return new UpdateRequest()
-      .script("ctx._source."+field+" += tag")
-      .addScriptParam("tag",tag.getTag());
+  }
+
+  public UpdateRequest normalize(RuleParamDto param, RuleKey key) {
+    try {
+     /* Normalize the params */
+      XContentBuilder document = jsonBuilder().startObject();
+      document.startObject(RuleField.PARAMS.key());
+      document.startObject(param.getName());
+      indexField(RuleParamField.NAME.key(), param.getName(), document);
+      indexField(RuleParamField.TYPE.key(), param.getType(), document);
+      indexField(RuleParamField.DESCRIPTION.key(), param.getDescription(), document);
+      indexField(RuleParamField.DEFAULT_VALUE.key(), param.getDefaultValue(), document);
+      document.endObject();
+      document.endObject();
+
+    /* Creating updateRequest */
+      UpdateRequest request = new UpdateRequest().doc(document);
+      request.docAsUpsert(true);
+      return request;
+    } catch (Exception e) {
+      throw new IllegalStateException(String.format("Could not normalize Object (%s) for key %s",
+        param.getClass().getSimpleName(), key.toString()), e);
+    }
+
+  }
+
+  public UpdateRequest normalize(RuleRuleTagDto tag, RuleKey key) {
+    try {
+      String field = RuleField.TAGS.key();
+      if (tag.getType().equals(RuleTagType.SYSTEM)) {
+        field = RuleField.SYSTEM_TAGS.key();
+      }
+      return new UpdateRequest()
+        .script("ctx._source." + field + " += tag")
+        .addScriptParam("tag", tag.getTag());
+    } catch (Exception e) {
+      throw new IllegalStateException(String.format("Could not normalize Object (%s) for key %s",
+        tag.getClass().getSimpleName(), key.toString()), e);
+    }
   }
 }
