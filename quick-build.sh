@@ -38,4 +38,4 @@ echo ''
 echo ''
 echo ''
 
-mvn clean install -Dtest=false -DfailIfNoTests=false $*
+mvn install -Dtest=false -DfailIfNoTests=false $*
