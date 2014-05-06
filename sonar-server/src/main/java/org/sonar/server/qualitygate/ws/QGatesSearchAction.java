@@ -56,9 +56,9 @@ public class QGatesSearchAction implements RequestHandler {
 
     action.createParam(QGatesWs.PARAM_SELECTED)
       .setDescription("If \"selected\", search for projects associated to the quality gate")
-      .setDefaultValue("selected")
-      .setPossibleValues("selected", "deselected")
-      .setExampleValue("deselected");
+      .setDefaultValue(ProjectQgateAssociationQuery.IN)
+      .setPossibleValues(ProjectQgateAssociationQuery.AVAILABLE_MEMBERSHIP)
+      .setExampleValue(ProjectQgateAssociationQuery.OUT);
 
     action.createParam(QGatesWs.PARAM_PAGE)
       .setDescription("Page number")
