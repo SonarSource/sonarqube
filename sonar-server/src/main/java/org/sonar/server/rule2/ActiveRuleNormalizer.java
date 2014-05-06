@@ -81,51 +81,64 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
   }
 
   @Override
-  public UpdateRequest normalize(ActiveRuleKey key)  throws Exception {
+  public UpdateRequest normalize(ActiveRuleKey key) {
     return normalize(activeRuleDao.getByKey(key));
   }
 
-  public UpdateRequest normalize(ActiveRuleParamDto param, ActiveRuleKey key) throws Exception {
-    XContentBuilder document = jsonBuilder().startObject();
-    document.startObject(RuleNormalizer.RuleField.ACTIVE.key());
-    document.startObject(key.toString());
-    document.startObject(ActiveRuleField.PARAMS.key());
-    document.startObject(param.getKey());
-    indexField(ActiveRuleParamField.VALUE.key(), param.getValue(), document);
-    document.endObject();
-    document.endObject();
-    document.endObject();
-    document.endObject();
-    document.endObject();
+  public UpdateRequest normalize(ActiveRuleParamDto param, ActiveRuleKey key) {
+    try {
+      XContentBuilder document = jsonBuilder().startObject();
+      document.startObject(RuleNormalizer.RuleField.ACTIVE.key());
+      document.startObject(key.toString());
+      document.startObject(ActiveRuleField.PARAMS.key());
+      document.startObject(param.getKey());
+      indexField(ActiveRuleParamField.VALUE.key(), param.getValue(), document);
+      document.endObject();
+      document.endObject();
+      document.endObject();
+      document.endObject();
+      document.endObject();
 
     /* Creating updateRequest */
-    UpdateRequest request =  new UpdateRequest()
-      .doc(document);
-    request.docAsUpsert(true);
-    return request;
-
+      UpdateRequest request = new UpdateRequest()
+        .doc(document);
+      request.docAsUpsert(true);
+      return request;
+    } catch (Exception e) {
+      throw new IllegalStateException(String.format("Could not normalize Object with key %s", key.toString()), e);
+    }
   }
 
   @Override
-  public UpdateRequest normalize(ActiveRuleDto rule) throws Exception {
-    XContentBuilder document = jsonBuilder().startObject();
+  public UpdateRequest normalize(ActiveRuleDto rule) {
+    try {
 
-    document.startObject(RuleNormalizer.RuleField.ACTIVE.key());
-    document.startObject(rule.getKey().toString());
-    indexField(ActiveRuleField.OVERRIDE.key(), rule.doesOverride(), document);
-    indexField(ActiveRuleField.INHERITANCE.key(), rule.getInheritance(), document);
-    indexField(ActiveRuleField.PROFILE_ID.key(), rule.getProfileId(), document);
-    indexField(ActiveRuleField.SEVERITY.key(), rule.getSeverityString(), document);
-    indexField(ActiveRuleField.PARENT_ID.key(), rule.getParentId(), document);
+      XContentBuilder document = jsonBuilder().startObject();
+
+      ActiveRuleKey key = rule.getKey();
+      if(key == null){
+        throw new IllegalStateException("Cannot normalize ActiveRuleDto with null key");
+      }
+
+      document.startObject(RuleNormalizer.RuleField.ACTIVE.key());
+      document.startObject(key.toString());
+      indexField(ActiveRuleField.OVERRIDE.key(), rule.doesOverride(), document);
+      indexField(ActiveRuleField.INHERITANCE.key(), rule.getInheritance(), document);
+      indexField(ActiveRuleField.PROFILE_ID.key(), rule.getProfileId(), document);
+      indexField(ActiveRuleField.SEVERITY.key(), rule.getSeverityString(), document);
+      indexField(ActiveRuleField.PARENT_ID.key(), rule.getParentId(), document);
 
     /* Done normalizing for Rule */
-    document.endObject();
-    document.endObject();
+      document.endObject();
+      document.endObject();
 
     /* Creating updateRequest */
-    UpdateRequest request =  new UpdateRequest()
-      .doc(document);
-    request.docAsUpsert(true);
-    return request;
+      UpdateRequest request = new UpdateRequest()
+        .doc(document);
+      request.docAsUpsert(true);
+      return request;
+    } catch (Exception e) {
+      throw new IllegalStateException(String.format("Could not normalize Object with key %s", rule.getKey().toString()), e);
+    }
   }
 }

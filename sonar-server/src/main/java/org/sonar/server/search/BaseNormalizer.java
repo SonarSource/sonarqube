@@ -38,15 +38,19 @@ public abstract class BaseNormalizer<E extends Dto<K>, K extends Serializable> {
     }
   }
 
-  public UpdateRequest normalizeOther(Object object, Object key) throws Exception {
-    return (UpdateRequest) this.getClass()
-      .getMethod("normalize", object.getClass(), key.getClass())
-      .invoke(this, object, key);
+  public UpdateRequest normalizeOther(Object object, Object key) {
+    try {
+      return (UpdateRequest) this.getClass()
+        .getMethod("normalize", object.getClass(), key.getClass())
+        .invoke(this, object, key);
+    } catch (Exception e) {
+      throw new IllegalStateException("Could not invoke Normalizer Method", e);
+    }
   }
 
-  public abstract UpdateRequest normalize(K key) throws IOException, Exception;
+  public abstract UpdateRequest normalize(K key);
 
-  public abstract UpdateRequest normalize(E dto) throws Exception;
+  public abstract UpdateRequest normalize(E dto);
 
   private static final Logger LOG = LoggerFactory.getLogger(BaseNormalizer.class);
 
@@ -57,40 +61,4 @@ public abstract class BaseNormalizer<E extends Dto<K>, K extends Serializable> {
       LOG.error("Could not set {} to {} in ESDocument", field, value);
     }
   }
-
-
-//  protected void indexField(Fields field, Object dto, XContentBuilder document) {
-//    try {
-//      document.field(field.key(), field.method.invoke(dto));
-//    } catch (IllegalArgumentException e) {
-//      // TODO Auto-generated catch block
-//      e.printStackTrace();
-//    } catch (IOException e) {
-//      // TODO Auto-generated catch block
-//      e.printStackTrace();
-//    } catch (IllegalAccessException e) {
-//      // TODO Auto-generated catch block
-//      e.printStackTrace();
-//    } catch (InvocationTargetException e) {
-//      // TODO Auto-generated catch block
-//      e.printStackTrace();
-//    }
-//  }
-//
-//
-//
-//private static Method getReadMethod(String method){
-//  try {
-//    return RuleDto.class.getDeclaredMethod(method);
-//  } catch (SecurityException e) {
-//    // TODO Auto-generated catch block
-//    e.printStackTrace();
-//  } catch (NoSuchMethodException e) {
-//    // TODO Auto-generated catch block
-//    e.printStackTrace();
-//  }
-//  return null;
-//}
-
-
 }
