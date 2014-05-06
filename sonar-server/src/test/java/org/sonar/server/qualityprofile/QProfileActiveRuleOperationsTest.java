@@ -45,6 +45,7 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
@@ -406,6 +407,25 @@ public class QProfileActiveRuleOperationsTest {
     assertThat(argumentCaptor.getValue().getValue()).isEqualTo("30");
 
     verify(typeValidations).validate(eq("30"), eq("INTEGER"), anyList());
+    verifyZeroInteractions(session);
+    verifyZeroInteractions(profilesManager);
+    verifyZeroInteractions(esActiveRule);
+  }
+
+  @Test
+  public void fail_to_update_active_rule_param_from_active_rule_when_active_rule_param_does_not_exists() throws Exception {
+    ActiveRuleDto activeRule = new ActiveRuleDto().setId(5).setProfileId(1).setRuleId(10).setSeverity(Severity.MINOR);
+    RuleParamDto ruleParam = new RuleParamDto().setRuleId(10).setName("max").setDefaultValue("20").setType(PropertyType.INTEGER.name());
+    when(ruleDao.selectParamByRuleAndKey(10, "max", session)).thenReturn(ruleParam);
+    when(activeRuleDao.selectParamByActiveRuleAndKey(5, "max", session)).thenReturn(null);
+
+    try {
+      operations.updateActiveRuleParam(activeRule, "max", "30", session);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("No active rule parameter 'max' has been found on active rule id '5'");
+    }
+    verify(activeRuleDao, never()).update(any(ActiveRuleParamDto.class), eq(session));
     verifyZeroInteractions(session);
     verifyZeroInteractions(profilesManager);
     verifyZeroInteractions(esActiveRule);

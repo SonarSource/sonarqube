@@ -38,6 +38,7 @@ import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
 
@@ -239,20 +240,19 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     notifyParamsDeleted(activeRule, newArrayList(activeRuleParam), session, userSession);
   }
 
-  void updateActiveRuleParam(ActiveRuleDto activeRule, String key, String value, SqlSession session) {
+  void updateActiveRuleParam(ActiveRuleDto activeRule, String key, String sanitizedValue, SqlSession session) {
     RuleParamDto ruleParam = findRuleParamNotNull(activeRule.getRulId(), key, session);
-    ActiveRuleParamDto activeRuleParam = findActiveRuleParam(activeRule.getId(), key, session);
-    validateParam(ruleParam, value);
+    ActiveRuleParamDto activeRuleParam = findActiveRuleParamNotNull(activeRule.getId(), key, session);
+    validateParam(ruleParam, sanitizedValue);
 
-    activeRuleParam.setValue(value);
+    activeRuleParam.setValue(sanitizedValue);
     activeRuleDao.update(activeRuleParam, session);
   }
 
-  private void updateActiveRuleParam(ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam, String value, UserSession userSession, SqlSession session) {
+  private void updateActiveRuleParam(ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam, String sanitizedValue, UserSession userSession, SqlSession session) {
     RuleParamDto ruleParam = findRuleParamNotNull(activeRule.getRulId(), activeRuleParam.getKey(), session);
-    validateParam(ruleParam, value);
+    validateParam(ruleParam, sanitizedValue);
 
-    String sanitizedValue = Strings.emptyToNull(value);
     String oldValue = activeRuleParam.getValue();
     activeRuleParam.setValue(sanitizedValue);
     activeRuleDao.update(activeRuleParam, session);
@@ -503,6 +503,14 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   @CheckForNull
   private ActiveRuleParamDto findActiveRuleParam(int activeRuleId, String key, SqlSession session) {
     return activeRuleDao.selectParamByActiveRuleAndKey(activeRuleId, key, session);
+  }
+
+  private ActiveRuleParamDto findActiveRuleParamNotNull(int activeRuleId, String key, SqlSession session) {
+    ActiveRuleParamDto activeRuleParam = findActiveRuleParam(activeRuleId, key, session);
+    if (activeRuleParam == null) {
+      throw new NotFoundException(String.format("No active rule parameter '%s' has been found on active rule id '%s'", key, activeRuleId));
+    }
+    return activeRuleParam;
   }
 
 }
