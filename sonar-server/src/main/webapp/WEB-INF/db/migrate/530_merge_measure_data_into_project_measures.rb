@@ -30,6 +30,8 @@ class MergeMeasureDataIntoProjectMeasures < ActiveRecord::Migration
   def self.up
     unless ProjectMeasure.column_names.include?('measure_data')
       add_column :project_measures, 'measure_data', :binary, :null => true
+      # Required for MSSQL to unlock the table PROJECT_MEASURES
+      ActiveRecord::Base.connection.commit_db_transaction
     end
     ProjectMeasure.reset_column_information
     Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().executeMigration('org.sonar.server.db.migrations.v44.MeasureDataMigration')
