@@ -1,3 +1,3 @@
 #!/bin/sh
 
-mvn install $*
+mvn clean install $*
