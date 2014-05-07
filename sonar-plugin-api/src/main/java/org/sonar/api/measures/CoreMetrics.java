@@ -85,6 +85,21 @@ public final class CoreMetrics {
     .setFormula(new SumChildValuesFormula(false))
     .create();
 
+  /**
+   * @since 4.4
+   */
+  public static final String NCLOC_LANGUAGE_DISTRIBUTION_KEY = "ncloc_language_distribution";
+
+  /**
+   * @since 4.4
+   */
+  public static final Metric NCLOC_LANGUAGE_DISTRIBUTION = new Metric.Builder(NCLOC_LANGUAGE_DISTRIBUTION_KEY, "Lines of code per language", Metric.ValueType.DATA)
+    .setDescription("Non Commenting Lines of Code Distributed By Language")
+    .setDirection(Metric.DIRECTION_WORST)
+    .setQualitative(false)
+    .setDomain(DOMAIN_SIZE)
+    .create();
+
   public static final String GENERATED_NCLOC_KEY = "generated_ncloc";
   public static final Metric GENERATED_NCLOC = new Metric.Builder(GENERATED_NCLOC_KEY, "Generated lines of code", Metric.ValueType.INT)
     .setDescription("Generated non Commenting Lines of Code")

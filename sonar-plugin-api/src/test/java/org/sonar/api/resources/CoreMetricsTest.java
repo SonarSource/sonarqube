@@ -28,10 +28,12 @@ import java.util.List;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class CoreMetricsTest {
+
   @Test
-  public void shouldReadMetricsFromClassReflection() {
+  public void read_metrics_from_class_reflection() {
     List<Metric> metrics = CoreMetrics.getMetrics();
-    assertThat(metrics).hasSize(151);
+    assertThat(metrics).hasSize(152);
     assertThat(metrics).contains(CoreMetrics.NCLOC, CoreMetrics.DIRECTORIES);
   }
+
 }

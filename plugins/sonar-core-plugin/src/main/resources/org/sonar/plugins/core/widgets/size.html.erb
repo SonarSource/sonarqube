@@ -1,6 +1,7 @@
 <%
   lines=measure('lines')
   ncloc=measure('ncloc')
+  ncloc_language_distribution=measure('ncloc_language_distribution')
   classes=measure('classes')
   files=measure('files')
   functions=measure('functions')
@@ -8,6 +9,7 @@
   if measure('lines') || ncloc
     files=measure('files')
     statements=measure('statements')
+    languages = Api::Utils.java_facade.getLanguages()
 %>
 <table width="100%">
   <tr>
@@ -15,7 +17,16 @@
       <div class="dashbox">
 
         <% if ncloc %>
-          <h3><%= message('widget.size.lines_of_code') -%></h3>
+          <%
+             ncloc_language_dist_hash = Hash[*(ncloc_language_distribution.data.split(';').map { |elt| elt.split('=') }.flatten)] if ncloc_language_distribution
+             if ncloc_language_dist_hash && ncloc_language_dist_hash.size == 1
+               language_key = ncloc_language_dist_hash.first()[0].to_s
+               language = languages.find { |l| l.getKey()==language_key }
+          %>
+            <h3><%= message('widget.size.lines_of_code_with_language', :params => (language ? language.getName() : language_key)) -%></h3>
+          <% else %>
+            <h3><%= message('widget.size.lines_of_code') -%></h3>
+          <% end %>
           <p>
             <span class="big"><%= format_measure(ncloc, :suffix => '', :url => url_for_drilldown(ncloc)) -%></span>
             <%= dashboard_configuration.selected_period? ? format_variation(ncloc) : trend_icon(ncloc) -%>
@@ -44,6 +55,28 @@
         <% end %>
         <% if projects %>
           <p><%= format_measure(projects, :suffix => message('widget.size.projects.suffix')) -%> <%= dashboard_configuration.selected_period? ? format_variation(projects) : trend_icon(projects) -%></p>
+        <% end %>
+
+        <% if ncloc_language_dist_hash && ncloc_language_dist_hash.size > 1 %>
+          <table class="clear width100">
+            <%
+               max = ncloc_language_dist_hash.max_by{|_k,v| v.to_i}[1].to_i
+               # Sort lines language distribution by reverse number of lines
+               ncloc_language_dist_hash.sort {|v1,v2| v2[1].to_i <=> v1[1].to_i }.each do |language_key, language_ncloc|
+                tooltip = ncloc.format_numeric_value(language_ncloc) + message('widget.size.lines_of_code.suffix')
+            %>
+            <tr>
+              <td>
+                <% language = languages.find { |l| l.getKey()==language_key.to_s } -%>
+                <%= language ? language.getName() : language_key -%>
+              </td>
+              <td>&nbsp;</td>
+              <td align="left" style="padding-bottom:2px; padding-top:2px;">
+                <%= barchart(:width => 70, :percent => (100 * language_ncloc.to_i / max).to_i, :tooltip => tooltip)%>
+              </td>
+            </tr>
+            <% end %>
+          </table>
         <% end %>
       </div>
     </td>
