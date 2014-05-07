@@ -25,10 +25,6 @@
       <artifactId>akiban-persistit</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.esotericsoftware.kryo</groupId>
-      <artifactId>kryo</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-core</artifactId>
     </dependency>

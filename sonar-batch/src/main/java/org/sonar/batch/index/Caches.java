@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.index;
 
-import com.esotericsoftware.kryo.Kryo;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import com.persistit.Exchange;
@@ -29,7 +28,6 @@ import com.persistit.Volume;
 import com.persistit.exception.PersistitException;
 import com.persistit.logging.Slf4jAdapter;
 import org.apache.commons.io.FileUtils;
-import org.objenesis.strategy.SerializingInstantiatorStrategy;
 import org.picocontainer.Startable;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
@@ -53,7 +51,6 @@ public class Caches implements BatchComponent, Startable {
   private Persistit persistit;
   private Volume volume;
   private final TempFolder tempFolder;
-  private Kryo kryo;
 
   public Caches(TempFolder tempFolder) {
     this.tempFolder = tempFolder;
@@ -65,8 +62,6 @@ public class Caches implements BatchComponent, Startable {
       tempDir = tempFolder.newDir("caches");
       persistit = new Persistit();
       persistit.setPersistitLogger(new Slf4jAdapter(LoggerFactory.getLogger("PERSISTIT")));
-      kryo = new Kryo();
-      kryo.setInstantiatorStrategy(new SerializingInstantiatorStrategy());
       Properties props = new Properties();
       props.setProperty("datapath", tempDir.getAbsolutePath());
       props.setProperty("logpath", "${datapath}/log");
