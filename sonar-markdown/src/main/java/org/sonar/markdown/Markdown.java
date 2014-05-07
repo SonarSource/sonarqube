@@ -35,6 +35,7 @@ public final class Markdown {
       .addChannel(new HtmlEndOfLineChannel())
       .addChannel(new HtmlEmphasisChannel())
       .addChannel(new HtmlListChannel())
+      .addChannel(new HtmlHeadingChannel())
       .addChannel(new HtmlCodeChannel())
       .addChannel(new HtmlMultilineCodeChannel())
       .addChannel(new IdentifierAndNumberChannel())

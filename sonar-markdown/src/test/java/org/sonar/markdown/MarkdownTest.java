@@ -53,6 +53,13 @@ public class MarkdownTest {
   }
 
   @Test
+  public void shouldDecorateHeadings() {
+    assertThat(Markdown.convertToHtml("  = Top\r== Sub\r\n=== Subsub\n ==== \n 1.five"))
+        .isEqualTo("<h1>Top\r</h1><h2>Sub\r\n</h2><h3>Subsub\n</h3><h4></h4> 1.five");
+  }
+
+
+  @Test
   public void shouldDecorateMixedOrderedAndUnorderedList() {
     assertThat(Markdown.convertToHtml("  1. one\r* two\r\n1. three\n * \n 1.five"))
         .isEqualTo("<ol><li>one</li>\r</ol><ul><li>two</li>\r\n</ul><ol><li>three</li>\n</ol><ul><li> </li>\n</ul> 1.five");
