@@ -24,12 +24,14 @@ import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.SonarIndex;
+import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.DefaultDecoratorContext;
 import org.sonar.batch.events.EventBus;
+import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.core.measure.MeasurementFilters;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -64,7 +66,7 @@ public class DecoratorsExecutorTest {
     doThrow(new SonarException()).when(decorator).decorate(any(Resource.class), any(DecoratorContext.class));
 
     DecoratorsExecutor executor = new DecoratorsExecutor(mock(BatchExtensionDictionnary.class), new Project("key"), mock(SonarIndex.class),
-      mock(EventBus.class), mock(MeasurementFilters.class));
+      mock(EventBus.class), mock(MeasurementFilters.class), mock(MeasureCache.class), mock(MetricFinder.class));
     try {
       executor.executeDecorator(decorator, mock(DefaultDecoratorContext.class), File.create("src/org/foo/Bar.java", "org/foo/Bar.java", null, false));
       fail("Exception has not been thrown");

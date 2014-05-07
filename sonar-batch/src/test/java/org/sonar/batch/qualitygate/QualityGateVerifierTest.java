@@ -39,7 +39,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
-import org.sonar.batch.index.DefaultIndex;
 import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 import org.sonar.core.timemachine.Periods;
 
@@ -70,7 +69,6 @@ public class QualityGateVerifierTest {
   Periods periods;
   I18n i18n;
   Durations durations;
-  private DefaultIndex index;
 
   @Before
   public void before() {
@@ -91,8 +89,7 @@ public class QualityGateVerifierTest {
     snapshot = mock(Snapshot.class);
     qualityGate = mock(QualityGate.class);
     when(qualityGate.isEnabled()).thenReturn(true);
-    index = mock(DefaultIndex.class);
-    verifier = new QualityGateVerifier(qualityGate, snapshot, periods, i18n, durations, index);
+    verifier = new QualityGateVerifier(qualityGate, snapshot, periods, i18n, durations);
     project = new Project("foo");
   }
 
@@ -133,8 +130,8 @@ public class QualityGateVerifierTest {
 
     verifier.decorate(project, context);
 
-    verify(index).updateMeasure(eq(project), argThat(hasLevel(measureClasses, Metric.Level.OK)));
-    verify(index).updateMeasure(eq(project), argThat(hasLevel(measureCoverage, Metric.Level.OK)));
+    verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.OK)));
+    verify(context).saveMeasure(argThat(hasLevel(measureCoverage, Metric.Level.OK)));
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.ALERT_STATUS, Metric.Level.OK.toString())));
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.QUALITY_GATE_DETAILS, "{\"level\":\"OK\","
       + "\"conditions\":"
@@ -169,8 +166,8 @@ public class QualityGateVerifierTest {
 
     verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.WARN, null)));
 
-    verify(index).updateMeasure(eq(project), argThat(hasLevel(measureClasses, Metric.Level.OK)));
-    verify(index).updateMeasure(eq(project), argThat(hasLevel(measureCoverage, Metric.Level.WARN)));
+    verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.OK)));
+    verify(context).saveMeasure(argThat(hasLevel(measureCoverage, Metric.Level.WARN)));
 
   }
 
@@ -187,8 +184,8 @@ public class QualityGateVerifierTest {
 
     verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR, null)));
 
-    verify(index).updateMeasure(eq(project), argThat(hasLevel(measureClasses, Metric.Level.WARN)));
-    verify(index).updateMeasure(eq(project), argThat(hasLevel(measureCoverage, Metric.Level.ERROR)));
+    verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.WARN)));
+    verify(context).saveMeasure(argThat(hasLevel(measureCoverage, Metric.Level.ERROR)));
   }
 
   @Test
@@ -258,9 +255,9 @@ public class QualityGateVerifierTest {
 
     verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.OK, null)));
 
-    verify(index).updateMeasure(eq(project), argThat(hasLevel(measureClasses, Metric.Level.OK)));
-    verify(index).updateMeasure(eq(project), argThat(hasLevel(measureCoverage, Metric.Level.OK)));
-    verify(index).updateMeasure(eq(project), argThat(hasLevel(measureComplexity, Metric.Level.OK)));
+    verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.OK)));
+    verify(context).saveMeasure(argThat(hasLevel(measureCoverage, Metric.Level.OK)));
+    verify(context).saveMeasure(argThat(hasLevel(measureComplexity, Metric.Level.OK)));
   }
 
   @Test
@@ -286,9 +283,9 @@ public class QualityGateVerifierTest {
 
     verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.WARN, null)));
 
-    verify(index).updateMeasure(eq(project), argThat(hasLevel(measureClasses, Metric.Level.WARN)));
-    verify(index).updateMeasure(eq(project), argThat(hasLevel(measureCoverage, Metric.Level.WARN)));
-    verify(index).updateMeasure(eq(project), argThat(hasLevel(measureComplexity, Metric.Level.WARN)));
+    verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.WARN)));
+    verify(context).saveMeasure(argThat(hasLevel(measureCoverage, Metric.Level.WARN)));
+    verify(context).saveMeasure(argThat(hasLevel(measureComplexity, Metric.Level.WARN)));
   }
 
   @Test
@@ -302,7 +299,7 @@ public class QualityGateVerifierTest {
     verifier.decorate(project, context);
 
     verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.OK, null)));
-    verify(index).updateMeasure(eq(project), argThat(hasLevel(measureClasses, Metric.Level.OK)));
+    verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.OK)));
   }
 
   @Test
@@ -320,7 +317,7 @@ public class QualityGateVerifierTest {
     verifier.decorate(project, context);
 
     verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.OK, null)));
-    verify(index).updateMeasure(eq(project), argThat(hasLevel(measureRatingMetric, Metric.Level.OK)));
+    verify(context).saveMeasure(argThat(hasLevel(measureRatingMetric, Metric.Level.OK)));
   }
 
   @Test
@@ -335,7 +332,7 @@ public class QualityGateVerifierTest {
     verifier.decorate(project, context);
 
     verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.WARN, null)));
-    verify(index).updateMeasure(eq(project), argThat(hasLevel(measureClasses, Metric.Level.WARN)));
+    verify(context).saveMeasure(argThat(hasLevel(measureClasses, Metric.Level.WARN)));
   }
 
   @Test(expected = NotImplementedException.class)
@@ -408,7 +405,7 @@ public class QualityGateVerifierTest {
     verifier.decorate(project, context);
 
     // First call to saveMeasure is for the update of debt
-    verify(index).updateMeasure(eq(project), argThat(matchesMetric(metric, Level.ERROR, "The Debt > 1h")));
+    verify(context).saveMeasure(argThat(matchesMetric(metric, Level.ERROR, "The Debt > 1h")));
     verify(context).saveMeasure(argThat(matchesMetric(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR, "The Debt > 1h")));
     verify(context).saveMeasure(argThat(new IsMeasure(CoreMetrics.QUALITY_GATE_DETAILS, "{\"level\":\"ERROR\","
       + "\"conditions\":"
