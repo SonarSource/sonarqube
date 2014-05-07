@@ -21,6 +21,7 @@
 package org.sonar.core.qualityprofile.db;
 
 import org.apache.ibatis.annotations.Param;
+import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
 
@@ -73,6 +74,5 @@ public interface ActiveRuleMapper {
   List<ActiveRuleParamDto> selectParamsByProfileId(int profileId);
 
   List<ActiveRuleParamDto> selectAllParams();
-
 
 }

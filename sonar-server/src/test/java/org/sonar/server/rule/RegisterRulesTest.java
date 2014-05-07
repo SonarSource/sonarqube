@@ -38,7 +38,7 @@ import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
-import org.sonar.server.rule2.RuleDao;
+import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleTagDao;
 import org.sonar.core.rule.RuleTagDto;

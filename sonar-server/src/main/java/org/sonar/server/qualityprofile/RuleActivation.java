@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
@@ -48,10 +49,11 @@ public class RuleActivation {
   }
 
   public RuleActivation setParam(String key, @Nullable String value) {
+    String sanitizedValue = Strings.emptyToNull(value);
     if (value == null) {
       parameters.remove(key);
     } else {
-      parameters.put(key, value);
+      parameters.put(key, sanitizedValue);
     }
     return this;
   }

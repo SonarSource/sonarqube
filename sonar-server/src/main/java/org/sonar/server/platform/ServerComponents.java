@@ -288,7 +288,8 @@ class ServerComponents {
     pico.addSingleton(QProfilesWs.class);
     pico.addSingleton(ProfilesWs.class);
     pico.addSingleton(ActivateRuleAction.class);
-    pico.addSingleton(RuleActivationService.class);
+    pico.addSingleton(ActiveRuleService.class);
+    pico.addSingleton(RuleActivationContextFactory.class);
 
     // rule
     pico.addSingleton(AnnotationRuleParser.class);

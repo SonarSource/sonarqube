@@ -24,13 +24,13 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.qualityprofile.RuleActivationService;
+import org.sonar.server.qualityprofile.ActiveRuleService;
 
 public class ActivateRuleAction implements RequestHandler {
 
-  private final RuleActivationService service;
+  private final ActiveRuleService service;
 
-  public ActivateRuleAction(RuleActivationService service) {
+  public ActivateRuleAction(ActiveRuleService service) {
     this.service = service;
   }
 

@@ -197,6 +197,5 @@
     SELECT <include refid="activeRuleParamColumns"/>
     FROM active_rule_parameters p
   </select>
-
 </mapper>
 

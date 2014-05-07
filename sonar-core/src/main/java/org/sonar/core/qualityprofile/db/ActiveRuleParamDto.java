@@ -20,6 +20,8 @@
 
 package org.sonar.core.qualityprofile.db;
 
+import org.sonar.core.rule.RuleParamDto;
+
 public class ActiveRuleParamDto {
 
   private Integer id;
@@ -50,6 +52,7 @@ public class ActiveRuleParamDto {
     return rulesParameterId;
   }
 
+  // TODO set private or drop
   public ActiveRuleParamDto setRulesParameterId(Integer rulesParameterId) {
     this.rulesParameterId = rulesParameterId;
     return this;
@@ -73,4 +76,10 @@ public class ActiveRuleParamDto {
     return this;
   }
 
+  public static ActiveRuleParamDto createFor(RuleParamDto minParam) {
+    ActiveRuleParamDto dto = new ActiveRuleParamDto();
+    dto.setKey(minParam.getName());
+    dto.setRulesParameterId(minParam.getId());
+    return dto;
+  }
 }

@@ -44,7 +44,7 @@ import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
-import org.sonar.server.rule2.RuleDao;
+import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.rule.RuleRuleTagDto;
@@ -58,7 +58,6 @@ import org.sonar.server.startup.RegisterDebtModel;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -294,7 +293,7 @@ public class RegisterRules implements Startable {
       hasDebt ? def.effortToFixDescription() : null);
   }
 
-  private boolean mergeDebtDefinitions(RulesDefinition.Rule def, RuleDto dto,@Nullable  Integer characteristicId, @Nullable String remediationFunction,
+  private boolean mergeDebtDefinitions(RulesDefinition.Rule def, RuleDto dto, @Nullable Integer characteristicId, @Nullable String remediationFunction,
                                        @Nullable String remediationCoefficient, @Nullable String remediationOffset, @Nullable String effortToFixDescription) {
     boolean changed = false;
 
@@ -571,7 +570,7 @@ public class RegisterRules implements Startable {
       unprocessedRuleIds.remove(ruleDto.getId());
     }
 
-    CharacteristicDto characteristic(@Nullable String subCharacteristic, String repo, String ruleKey, @Nullable Integer overridingCharacteristicId){
+    CharacteristicDto characteristic(@Nullable String subCharacteristic, String repo, String ruleKey, @Nullable Integer overridingCharacteristicId) {
       // Rule is not linked to a default characteristic or characteristic has been disabled by user
       if (subCharacteristic == null) {
         return null;

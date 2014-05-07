@@ -20,9 +20,10 @@
 
 package org.sonar.core.qualityprofile.db;
 
+import com.google.common.base.Preconditions;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.core.db.Dto;
+import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.SeverityUtil;
 
 import javax.annotation.CheckForNull;
@@ -45,13 +46,14 @@ public class ActiveRuleDto implements Dto<ActiveRuleKey> {
   private String noteUserLogin;
   private String noteData;
 
-  private ActiveRuleKey key;
+  private transient ActiveRuleKey key;
 
-  public void setKey(QualityProfileKey qKey, RuleKey rKey){
-    this.key = ActiveRuleKey.of(qKey, rKey);
+  public ActiveRuleDto setKey(@Nullable ActiveRuleKey key) {
+    this.key = key;
+    return this;
   }
 
-  public ActiveRuleKey getKey(){
+  public ActiveRuleKey getKey() {
     return this.key;
   }
 
@@ -72,6 +74,7 @@ public class ActiveRuleDto implements Dto<ActiveRuleKey> {
     return profileId;
   }
 
+  // TODO mark as private
   public ActiveRuleDto setProfileId(Integer profileId) {
     this.profileId = profileId;
     return this;
@@ -81,6 +84,7 @@ public class ActiveRuleDto implements Dto<ActiveRuleKey> {
     return ruleId;
   }
 
+  // TODO mark as private
   public ActiveRuleDto setRuleId(Integer ruleId) {
     this.ruleId = ruleId;
     return this;
@@ -173,5 +177,12 @@ public class ActiveRuleDto implements Dto<ActiveRuleKey> {
     return StringUtils.equals(OVERRIDES, inheritance);
   }
 
+  public static ActiveRuleDto createFor(QualityProfileDto profileDto, RuleDto ruleDto) {
+    ActiveRuleDto dto = new ActiveRuleDto();
+    dto.setProfileId(profileDto.getId());
+    dto.setRuleId(ruleDto.getId());
+    dto.setKey(ActiveRuleKey.of(QualityProfileKey.of(profileDto.getName(), profileDto.getLanguage()), ruleDto.getKey()));
+    return dto;
+  }
 
 }

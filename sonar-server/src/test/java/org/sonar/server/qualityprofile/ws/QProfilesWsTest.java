@@ -23,8 +23,8 @@ package org.sonar.server.qualityprofile.ws;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.qualityprofile.ActiveRuleService;
 import org.sonar.server.qualityprofile.QProfileBackup;
-import org.sonar.server.qualityprofile.RuleActivationService;
 import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -36,7 +36,7 @@ public class QProfilesWsTest {
 
   @Before
   public void setUp() {
-    controller = new WsTester(new QProfilesWs(new QProfileRecreateBuiltInAction(mock(QProfileBackup.class)), new ActivateRuleAction(mock(RuleActivationService.class))))
+    controller = new WsTester(new QProfilesWs(new QProfileRecreateBuiltInAction(mock(QProfileBackup.class)), new ActivateRuleAction(mock(ActiveRuleService.class))))
       .controller("api/qualityprofiles");
   }
 

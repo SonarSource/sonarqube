@@ -27,6 +27,7 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.*;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.jpa.dao.BaseDao;
+import org.sonar.api.rules.ActiveRuleChange;
 import org.sonar.jpa.dao.RulesDao;
 
 import javax.annotation.CheckForNull;

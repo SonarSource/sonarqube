@@ -82,4 +82,5 @@ public class RuleParamDto {
     this.description = description;
     return this;
   }
+
 }

@@ -22,6 +22,7 @@ package org.sonar.server.rule2;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.rule.RuleDao;
+import org.sonar.server.search.Hit;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 
@@ -33,11 +34,9 @@ import java.util.List;
  */
 public class RuleService implements ServerComponent {
 
-  private RuleDao dao;
   private RuleIndex index;
 
-  public RuleService(RuleDao dao, RuleIndex index) {
-    this.dao = dao;
+  public RuleService(RuleIndex index) {
     this.index = index;
   }
 
@@ -68,7 +67,7 @@ public class RuleService implements ServerComponent {
     throw new UnsupportedOperationException("TODO");
   }
 
-  public RuleService refresh(){
+  public RuleService refresh() {
     this.index.refresh();
     return this;
   }

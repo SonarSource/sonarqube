@@ -20,6 +20,7 @@
 package org.sonar.server.rule2;
 
 import com.google.common.collect.Iterables;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -31,14 +32,8 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
-import org.sonar.core.rule.RuleRuleTagDto;
-import org.sonar.core.rule.RuleTagDao;
-import org.sonar.core.rule.RuleTagDto;
-import org.sonar.core.rule.RuleTagType;
-import org.sonar.server.search.QueryOptions;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.List;
@@ -50,25 +45,31 @@ public class RuleServiceMediumTest {
   @ClassRule
   public static ServerTester tester = new ServerTester();
 
+  MyBatis myBatis = tester.get(MyBatis.class);
   RuleDao dao = tester.get(RuleDao.class);
-
-  QualityProfileDao qualityProfileDao = tester.get(QualityProfileDao.class);
-
   RuleIndex index = tester.get(RuleIndex.class);
+  DbSession dbSession;
 
   @Before
-  public void clear_data_store() {
+  public void before() {
     tester.clearDataStores();
+    dbSession = myBatis.openSession(false);
+  }
+
+  @After
+  public void after() {
+    dbSession.close();
   }
 
   @Test
   public void insert_in_db_and_index_in_es() {
     // insert db
     RuleKey ruleKey = RuleKey.of("javascript", "S001");
-    dao.insert(newRuleDto(ruleKey));
+    dao.insert(newRuleDto(ruleKey), dbSession);
+    dbSession.commit();
 
     // verify that rule is persisted in db
-    RuleDto persistedDto = dao.selectByKey(ruleKey);
+    RuleDto persistedDto = dao.getByKey(ruleKey, dbSession);
     assertThat(persistedDto).isNotNull();
     assertThat(persistedDto.getId()).isGreaterThanOrEqualTo(0);
     assertThat(persistedDto.getRuleKey()).isEqualTo(ruleKey.rule());
@@ -93,12 +94,11 @@ public class RuleServiceMediumTest {
 
     //TODO    assertThat((Collection) hit.getField(RuleNormalizer.RuleField.SYSTEM_TAGS.key())).isEmpty();
     //TODO    assertThat((Collection) hit.getField(RuleNormalizer.RuleField.TAGS.key())).isEmpty();
+
   }
 
   @Test
   public void insert_and_index_rule_parameters() {
-    DbSession dbSession = tester.get(MyBatis.class).openSession(false);
-
     // insert db
     RuleKey ruleKey = RuleKey.of("javascript", "S001");
     RuleDto ruleDto = newRuleDto(ruleKey);
@@ -106,23 +106,21 @@ public class RuleServiceMediumTest {
     dbSession.commit();
 
     RuleParamDto minParamDto = new RuleParamDto()
-      .setRuleId(ruleDto.getId())
       .setName("min")
       .setType(RuleParamType.INTEGER.type())
       .setDefaultValue("2")
       .setDescription("Minimum");
-    dao.insert(minParamDto, dbSession);
+    dao.addRuleParam(ruleDto, minParamDto, dbSession);
     RuleParamDto maxParamDto = new RuleParamDto()
-      .setRuleId(ruleDto.getId())
       .setName("max")
       .setType(RuleParamType.INTEGER.type())
       .setDefaultValue("10")
       .setDescription("Maximum");
-    dao.insert(maxParamDto, dbSession);
+    dao.addRuleParam(ruleDto, maxParamDto, dbSession);
     dbSession.commit();
 
     // verify that parameters are persisted in db
-    List<RuleParamDto> persistedDtos = dao.selectParametersByRuleId(ruleDto.getId());
+    List<RuleParamDto> persistedDtos = dao.findRuleParamsByRuleKey(ruleKey, dbSession);
     assertThat(persistedDtos).hasSize(2);
 
     // verify that parameters are indexed in es
@@ -138,74 +136,6 @@ public class RuleServiceMediumTest {
     assertThat(rule.params()).hasSize(2);
     assertThat(Iterables.getLast(rule.params(), null).key()).isEqualTo("max");
   }
-
-  //TODO test delete, update, tags, params
-
-  @Test
-  public void insert_and_index_tags() {
-    DbSession dbSession = tester.get(MyBatis.class).openSession(false);
-    RuleTagDao ruleTagDao = tester.get(RuleTagDao.class);
-
-    // insert db
-    RuleKey ruleKey = RuleKey.of("javascript", "S001");
-    RuleDto ruleDto = newRuleDto(ruleKey);
-    dao.insert(ruleDto, dbSession);
-    dbSession.commit();
-
-    RuleTagDto tag1 = new RuleTagDto()
-      .setTag("hello");
-    RuleTagDto tag2 = new RuleTagDto()
-      .setTag("world");
-    RuleTagDto tag3 = new RuleTagDto()
-      .setTag("AdMiN");
-    ruleTagDao.insert(tag1, dbSession);
-    ruleTagDao.insert(tag2, dbSession);
-    ruleTagDao.insert(tag3, dbSession);
-    dbSession.commit();
-
-    RuleRuleTagDto rTag1 = new RuleRuleTagDto()
-      .setTagId(tag1.getId())
-      .setTag(tag1.getTag())
-      .setRuleId(ruleDto.getId())
-      .setType(RuleTagType.ADMIN);
-    RuleRuleTagDto rTag2 = new RuleRuleTagDto()
-      .setTagId(tag2.getId())
-      .setTag(tag2.getTag())
-      .setRuleId(ruleDto.getId())
-      .setType(RuleTagType.ADMIN);
-    RuleRuleTagDto rTag3 = new RuleRuleTagDto()
-      .setTagId(tag3.getId())
-      .setTag(tag3.getTag())
-      .setRuleId(ruleDto.getId())
-      .setType(RuleTagType.SYSTEM);
-    dao.insert(rTag1, dbSession);
-    dao.insert(rTag2, dbSession);
-    dao.insert(rTag3, dbSession);
-    dbSession.commit();
-    dbSession.close();
-
-
-    // verify that tags are persisted in db
-    List<RuleRuleTagDto> persistedDtos = dao.selectTagsByRuleId(ruleDto.getId());
-    assertThat(persistedDtos).hasSize(3);
-
-    index.refresh();
-
-    // verify that tags are indexed in es
-    index.search(new RuleQuery(), new QueryOptions());
-    Rule hit = index.getByKey(ruleKey);
-    assertThat(hit).isNotNull();
-    assertThat(hit.tags()).containsExactly("hello","world");
-    assertThat(hit.systemTags()).containsExactly("AdMiN");
-
-    RuleService service = tester.get(RuleService.class);
-    Rule rule = service.getByKey(ruleKey);
-    assertThat(rule.tags()).containsExactly("hello","world");
-    assertThat(rule.systemTags()).containsExactly("AdMiN");
-
-    //TODO assertThat(service.listTags()).contains("hello", "world", "AdMiN");
-  }
-
 
   private RuleDto newRuleDto(RuleKey ruleKey) {
     return new RuleDto()

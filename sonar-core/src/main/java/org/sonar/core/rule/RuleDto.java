@@ -19,21 +19,19 @@
  */
 package org.sonar.core.rule;
 
-import org.sonar.api.rule.RuleKey;
-
-import org.sonar.core.db.Dto;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Cardinality;
+import org.sonar.core.db.Dto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Date;
 
-public final class RuleDto implements Dto<RuleKey>{
+public final class RuleDto implements Dto<RuleKey> {
 
   public static final Integer DISABLED_CHARACTERISTIC_ID = -1;
 
@@ -64,9 +62,14 @@ public final class RuleDto implements Dto<RuleKey>{
   private Date createdAt;
   private Date updatedAt;
 
+  private transient RuleKey key;
+
   @Override
   public RuleKey getKey() {
-    return RuleKey.of(this.getRepositoryKey(), this.getRuleKey());
+    if (key == null) {
+      key = RuleKey.of(getRepositoryKey(), getRuleKey());
+    }
+    return key;
   }
 
   public Integer getId() {
@@ -149,7 +152,6 @@ public final class RuleDto implements Dto<RuleKey>{
     this.severity = severity;
     return this;
   }
-
 
   public Cardinality getCardinality() {
     return cardinality;

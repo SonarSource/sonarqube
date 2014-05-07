@@ -130,28 +130,36 @@
   </delete>
 
   <sql id="paramColumns">
-    id, rule_id as "ruleId", name, param_type as "type", default_value as "defaultValue", description
+    p.id as "id", p.rule_id as "ruleId", p.name as "name", p.param_type as "type", p.default_value as "defaultValue",
+    p.description as "description"
   </sql>
 
   <select id="selectAllParams" resultType="RuleParam">
     select <include refid="paramColumns"/>
-    from rules_parameters
+    from rules_parameters p
   </select>
 
   <select id="selectParamsByRuleIds" resultType="RuleParam">
     SELECT <include refid="paramColumns"/>
-    FROM rules_parameters
+    FROM rules_parameters p
     <where>
-      AND (<foreach item="id" index="index" collection="ruleIds" open="(" separator=" or " close=")">rule_id=#{id}</foreach>)
+      AND (<foreach item="id" index="index" collection="ruleIds" open="(" separator=" or " close=")">p.rule_id=#{id}</foreach>)
     </where>
+  </select>
+
+  <select id="selectParamsByRuleKey" resultType="RuleParam" parameterType="org.sonar.api.rule.RuleKey">
+    SELECT <include refid="paramColumns"/>
+    FROM rules_parameters p, rules r
+    WHERE p.rule_id=r.id
+    AND r.PLUGIN_NAME=#{repository} AND r.PLUGIN_RULE_KEY=#{rule}
   </select>
 
   <select id="selectParamByRuleAndKey" resultType="RuleParam">
     SELECT <include refid="paramColumns"/>
-    FROM rules_parameters
+    FROM rules_parameters p
     <where>
-      AND rule_id=#{ruleId}
-      AND name=#{key}
+      AND p.rule_id=#{ruleId}
+      AND p.name=#{key}
     </where>
   </select>
 

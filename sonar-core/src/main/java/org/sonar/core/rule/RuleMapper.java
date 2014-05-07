@@ -50,6 +50,8 @@ public interface RuleMapper {
 
   List<RuleParamDto> selectParamsByRuleIds(@Param("ruleIds") List<Integer> ruleIds);
 
+  List<RuleParamDto> selectParamsByRuleKey(RuleKey ruleKey);
+
   RuleParamDto selectParamByRuleAndKey(@Param("ruleId") Integer ruleId, @Param("key") String key);
 
   void insertParameter(RuleParamDto param);

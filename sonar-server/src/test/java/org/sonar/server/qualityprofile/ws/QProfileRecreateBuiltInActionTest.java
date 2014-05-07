@@ -25,9 +25,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.server.qualityprofile.ActiveRuleService;
 import org.sonar.server.qualityprofile.QProfileBackup;
 import org.sonar.server.qualityprofile.QProfileResult;
-import org.sonar.server.qualityprofile.RuleActivationService;
 import org.sonar.server.ws.WsTester;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -46,7 +46,7 @@ public class QProfileRecreateBuiltInActionTest {
   public void setUp() throws Exception {
     tester = new WsTester(new QProfilesWs(
       new QProfileRecreateBuiltInAction(qProfileBackup),
-      new ActivateRuleAction(mock(RuleActivationService.class))));
+      new ActivateRuleAction(mock(ActiveRuleService.class))));
   }
 
   @Test

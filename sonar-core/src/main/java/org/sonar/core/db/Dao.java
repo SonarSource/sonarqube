@@ -21,28 +21,22 @@ package org.sonar.core.db;
 
 import org.sonar.core.persistence.DbSession;
 
+import javax.annotation.CheckForNull;
 import java.io.Serializable;
 
 public interface Dao<E extends Dto<K>, K extends Serializable> {
 
-  E getByKey(K key);
-
-  E update(E item);
+  @CheckForNull
+  E getByKey(K key, DbSession session);
 
   E update(E item, DbSession session);
 
-  E insert(E item);
-
   E insert(E item, DbSession session);
-
-  void delete(E item);
 
   void delete(E item, DbSession session);
 
-  void deleteByKey(K key);
-
   void deleteByKey(K key, DbSession session);
 
-  Iterable<K> keysOfRowsUpdatedAfter(long timestamp);
+  Iterable<K> keysOfRowsUpdatedAfter(long timestamp, DbSession session);
 
 }

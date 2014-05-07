@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule2;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -46,22 +47,26 @@ public class ActiveRuleIndexMediumTest {
   @ClassRule
   public static ServerTester tester = new ServerTester();
 
-  RuleDao dao = tester.get(RuleDao.class);
-
+  MyBatis myBatis = tester.get(MyBatis.class);
   QualityProfileDao qualityProfileDao = tester.get(QualityProfileDao.class);
-
+  ActiveRuleDao activeRuleDao = tester.get(ActiveRuleDao.class);
+  RuleDao dao = tester.get(RuleDao.class);
   RuleIndex index = tester.get(RuleIndex.class);
+  DbSession dbSession;
 
   @Before
-  public void clear_data_store() {
+  public void before() {
     tester.clearDataStores();
+    dbSession = myBatis.openSession(false);
+  }
+
+  @After
+  public void after() {
+    dbSession.close();
   }
 
   @Test
   public void insert_and_index_activeRules() throws InterruptedException {
-    DbSession dbSession = tester.get(MyBatis.class).openSession(false);
-    ActiveRuleDao activeRuleDao = tester.get(ActiveRuleDao.class);
-
     QualityProfileDto profileDto = new QualityProfileDto()
       .setName("myprofile")
       .setLanguage("java");
@@ -71,21 +76,16 @@ public class ActiveRuleIndexMediumTest {
     RuleKey ruleKey = RuleKey.of("javascript", "S001");
     RuleDto ruleDto = newRuleDto(ruleKey);
     dao.insert(ruleDto, dbSession);
-    dbSession.commit();
 
-    ActiveRuleDto activeRule = new ActiveRuleDto()
+    ActiveRuleDto activeRule = ActiveRuleDto.createFor(profileDto, ruleDto)
       .setInheritance("inherited")
-      .setProfileId(profileDto.getId())
-      .setRuleId(ruleDto.getId())
       .setSeverity(Severity.BLOCKER);
 
     activeRuleDao.insert(activeRule, dbSession);
     dbSession.commit();
 
-    dbSession.close();
-
     // verify that activeRules are persisted in db
-    List<ActiveRuleDto> persistedDtos = activeRuleDao.selectByRuleId(ruleDto.getId());
+    List<ActiveRuleDto> persistedDtos = activeRuleDao.findByRule(ruleDto, dbSession);
     assertThat(persistedDtos).hasSize(1);
 
     // verify that activeRules are indexed in es
@@ -102,9 +102,6 @@ public class ActiveRuleIndexMediumTest {
 
   @Test
   public void insert_and_index_activeRuleParams() throws InterruptedException {
-    DbSession dbSession = tester.get(MyBatis.class).openSession(false);
-    ActiveRuleDao activeRuleDao = tester.get(ActiveRuleDao.class);
-
     QualityProfileDto profileDto = new QualityProfileDto()
       .setName("myprofile")
       .setLanguage("java");
@@ -116,44 +113,33 @@ public class ActiveRuleIndexMediumTest {
     dao.insert(ruleDto, dbSession);
 
     RuleParamDto minParam = new RuleParamDto()
-      .setRuleId(ruleDto.getId())
       .setName("min")
       .setType("STRING");
-    dao.insert(minParam, dbSession);
+    dao.addRuleParam(ruleDto, minParam, dbSession);
 
     RuleParamDto maxParam = new RuleParamDto()
-      .setRuleId(ruleDto.getId())
       .setName("max")
       .setType("STRING");
-    dao.insert(maxParam, dbSession);
+    dao.addRuleParam(ruleDto, maxParam, dbSession);
 
 
-    ActiveRuleDto activeRule = new ActiveRuleDto()
+    ActiveRuleDto activeRule = ActiveRuleDto.createFor(profileDto, ruleDto)
       .setInheritance("inherited")
-      .setProfileId(profileDto.getId())
-      .setRuleId(ruleDto.getId())
       .setSeverity(Severity.BLOCKER);
     activeRuleDao.insert(activeRule, dbSession);
 
-    ActiveRuleParamDto activeRuleMinParam = new ActiveRuleParamDto()
-      .setActiveRuleId(activeRule.getId())
-      .setKey(minParam.getName())
-      .setValue("minimum")
-      .setRulesParameterId(minParam.getId());
-    activeRuleDao.insert(activeRuleMinParam, dbSession);
+    ActiveRuleParamDto activeRuleMinParam = ActiveRuleParamDto.createFor(minParam)
+      .setValue("minimum");
+    activeRuleDao.addParam(activeRule, activeRuleMinParam, dbSession);
 
-    ActiveRuleParamDto activeRuleMaxParam = new ActiveRuleParamDto()
-      .setActiveRuleId(activeRule.getId())
-      .setKey(maxParam.getName())
-      .setValue("maximum")
-      .setRulesParameterId(maxParam.getId());
-    activeRuleDao.insert(activeRuleMaxParam, dbSession);
+    ActiveRuleParamDto activeRuleMaxParam = ActiveRuleParamDto.createFor(maxParam)
+      .setValue("maximum");
+    activeRuleDao.addParam(activeRule, activeRuleMaxParam, dbSession);
 
     dbSession.commit();
-    dbSession.close();
 
     // verify that activeRulesParams are persisted in db
-    List<ActiveRuleParamDto> persistedDtos = activeRuleDao.selectParamsByActiveRuleId(activeRule.getId());
+    List<ActiveRuleParamDto> persistedDtos = activeRuleDao.findParamsByActiveRule(activeRule, dbSession);
     assertThat(persistedDtos).hasSize(2);
 
     // verify that activeRulesParams are indexed in es

@@ -20,7 +20,6 @@
 package org.sonar.core.qualityprofile.db;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import org.sonar.api.rule.RuleKey;
 
 import java.io.Serializable;
@@ -30,7 +29,7 @@ import java.io.Serializable;
  *
  * @since 4.4
  */
-public class ActiveRuleKey implements Serializable{
+public class ActiveRuleKey implements Serializable {
   private final QualityProfileKey qualityProfileKey;
   private final RuleKey ruleKey;
 
@@ -43,10 +42,8 @@ public class ActiveRuleKey implements Serializable{
    * Create a key. Parameters are NOT null.
    */
   public static ActiveRuleKey of(QualityProfileKey qualityProfileKey, RuleKey ruleKey) {
-    Preconditions.checkArgument(!Strings.isNullOrEmpty(qualityProfileKey.name()), "QProfile is missing name");
-    Preconditions.checkArgument(!Strings.isNullOrEmpty(qualityProfileKey.lang()), "QProfile is missing lang");
-    Preconditions.checkArgument(!Strings.isNullOrEmpty(ruleKey.repository()), "RuleKey is missing repository");
-    Preconditions.checkArgument(!Strings.isNullOrEmpty(ruleKey.rule()), "RuleKey is missing key");
+    Preconditions.checkArgument(qualityProfileKey != null, "QProfile is missing");
+    Preconditions.checkArgument(ruleKey != null, "RuleKey is missing key");
     return new ActiveRuleKey(qualityProfileKey, ruleKey);
   }
 
@@ -58,7 +55,7 @@ public class ActiveRuleKey implements Serializable{
     String[] split = s.split(":");
     Preconditions.checkArgument(split.length == 4, "Bad format of activeRule key: " + s);
     return ActiveRuleKey.of(QualityProfileKey.of(split[0], split[1]),
-                             RuleKey.of(split[2], split[3]));
+      RuleKey.of(split[2], split[3]));
   }
 
   /**

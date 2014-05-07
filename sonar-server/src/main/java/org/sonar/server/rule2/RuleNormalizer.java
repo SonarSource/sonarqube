@@ -23,6 +23,8 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Cardinality;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.rule.RuleRuleTagDto;
@@ -90,13 +92,19 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     }
   }
 
-  public RuleNormalizer(RuleDao ruleDao) {
+  public RuleNormalizer(MyBatis myBatis, RuleDao ruleDao) {
+    super(myBatis);
     this.ruleDao = ruleDao;
   }
 
   @Override
   public UpdateRequest normalize(RuleKey key) {
-    return normalize(ruleDao.getByKey(key));
+    DbSession dbSession = getMyBatis().openSession(false);
+    try {
+      return normalize(ruleDao.getByKey(key, dbSession));
+    } finally {
+      dbSession.close();
+    }
   }
 
   @Override

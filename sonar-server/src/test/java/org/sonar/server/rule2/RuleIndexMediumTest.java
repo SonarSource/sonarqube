@@ -20,6 +20,7 @@
 package org.sonar.server.rule2;
 
 import com.google.common.collect.Iterables;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -28,7 +29,10 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.server.search.Hit;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
@@ -41,31 +45,35 @@ import static org.fest.assertions.Assertions.assertThat;
 public class RuleIndexMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester()
-    .setProperty("sonar.es.http.port","8888");
+  public static ServerTester tester = new ServerTester();
 
+  MyBatis myBatis = tester.get(MyBatis.class);
   RuleDao dao = tester.get(RuleDao.class);
   RuleIndex index = tester.get(RuleIndex.class);
+  DbSession dbSession;
 
   @Before
-  public void clear_data_store() {
+  public void before() {
     tester.clearDataStores();
+    dbSession = myBatis.openSession(false);
+  }
+
+  @After
+  public void after() {
+    dbSession.close();
   }
 
   @Test
   public void facet_test_with_repository() {
-    dao.insert(newRuleDto(RuleKey.of("javascript", "S001"))
-      .setRuleKey("X001"));
-    dao.insert(newRuleDto(RuleKey.of("cobol", "S001"))
-      .setRuleKey("X001"));
-    dao.insert(newRuleDto(RuleKey.of("php", "S002")));
+    dao.insert(newRuleDto(RuleKey.of("javascript", "S001")).setRuleKey("X001"), dbSession);
+    dao.insert(newRuleDto(RuleKey.of("cobol", "S001")).setRuleKey("X001"), dbSession);
+    dao.insert(newRuleDto(RuleKey.of("php", "S002")), dbSession);
+    dbSession.commit();
     index.refresh();
 
-    RuleQuery query = new RuleQuery();
-    Result result = null;
-
     // should not have any facet!
-    result = index.search(query, new QueryOptions().setFacet(false));
+    RuleQuery query = new RuleQuery();
+    Result result = index.search(query, new QueryOptions().setFacet(false));
     assertThat(result.getFacets()).isEmpty();
 
     // Repositories Facet is preset
@@ -75,12 +83,13 @@ public class RuleIndexMediumTest {
     assertThat(result.getFacets()).hasSize(3);
     assertThat(result.getFacet("Repositories").size()).isEqualTo(3);
     assertThat(result.getFacetKeys("Repositories"))
-      .contains("javascript","cobol","php");
+      .contains("javascript", "cobol", "php");
   }
 
   @Test
   public void return_all_doc_fields_by_default() {
-    dao.insert(newRuleDto(RuleKey.of("javascript", "S001")));
+    dao.insert(newRuleDto(RuleKey.of("javascript", "S001")), dbSession);
+    dbSession.commit();
     index.refresh();
 
     QueryOptions options = new QueryOptions().setFieldsToReturn(null);
@@ -96,7 +105,8 @@ public class RuleIndexMediumTest {
 
   @Test
   public void select_doc_fields_to_return() {
-    dao.insert(newRuleDto(RuleKey.of("javascript", "S001")));
+    dao.insert(newRuleDto(RuleKey.of("javascript", "S001")), dbSession);
+    dbSession.commit();
     index.refresh();
 
     QueryOptions options = new QueryOptions();
@@ -113,7 +123,8 @@ public class RuleIndexMediumTest {
   @Test
   public void search_name_by_query() {
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001"))
-      .setName("testing the partial match and matching of rule"));
+      .setName("testing the partial match and matching of rule"), dbSession);
+    dbSession.commit();
     index.refresh();
 
     // substring
@@ -136,10 +147,11 @@ public class RuleIndexMediumTest {
   @Test
   public void search_key_by_query() {
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001"))
-      .setRuleKey("X001"));
+      .setRuleKey("X001"), dbSession);
     dao.insert(newRuleDto(RuleKey.of("cobol", "S001"))
-      .setRuleKey("X001"));
-    dao.insert(newRuleDto(RuleKey.of("php", "S002")));
+      .setRuleKey("X001"), dbSession);
+    dao.insert(newRuleDto(RuleKey.of("php", "S002")), dbSession);
+    dbSession.commit();
     index.refresh();
 
     // key
@@ -157,8 +169,9 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_all_rules() {
-    dao.insert(newRuleDto(RuleKey.of("javascript", "S001")));
-    dao.insert(newRuleDto(RuleKey.of("java", "S002")));
+    dao.insert(newRuleDto(RuleKey.of("javascript", "S001")), dbSession);
+    dao.insert(newRuleDto(RuleKey.of("java", "S002")), dbSession);
+    dbSession.commit();
     index.refresh();
 
     Result results = index.search(new RuleQuery(), new QueryOptions());
@@ -169,8 +182,9 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_by_any_of_repositories() {
-    dao.insert(newRuleDto(RuleKey.of("findbugs", "S001")));
-    dao.insert(newRuleDto(RuleKey.of("pmd", "S002")));
+    dao.insert(newRuleDto(RuleKey.of("findbugs", "S001")), dbSession);
+    dao.insert(newRuleDto(RuleKey.of("pmd", "S002")), dbSession);
+    dbSession.commit();
     index.refresh();
 
     RuleQuery query = new RuleQuery().setRepositories(Arrays.asList("checkstyle", "pmd"));
@@ -189,11 +203,10 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_by_any_of_languages() throws InterruptedException {
-    dao.insert(newRuleDto(RuleKey.of("java", "S001")).setLanguage("java"));
-    dao.insert(newRuleDto(RuleKey.of("javascript", "S002")).setLanguage("js"));
+    dao.insert(newRuleDto(RuleKey.of("java", "S001")).setLanguage("java"), dbSession);
+    dao.insert(newRuleDto(RuleKey.of("javascript", "S002")).setLanguage("js"), dbSession);
+    dbSession.commit();
     index.refresh();
-
-
 
     RuleQuery query = new RuleQuery().setLanguages(Arrays.asList("cobol", "js"));
     Result<Rule> results = index.search(query, new QueryOptions());
@@ -212,14 +225,13 @@ public class RuleIndexMediumTest {
     // null list => no filter
     query = new RuleQuery().setLanguages(null);
     assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(2);
-
-
   }
 
   @Test
   public void search_by_any_of_severities() throws InterruptedException {
-    dao.insert(newRuleDto(RuleKey.of("java", "S001")).setSeverity(Severity.BLOCKER));
-    dao.insert(newRuleDto(RuleKey.of("java", "S002")).setSeverity(Severity.INFO));
+    dao.insert(newRuleDto(RuleKey.of("java", "S001")).setSeverity(Severity.BLOCKER), dbSession);
+    dao.insert(newRuleDto(RuleKey.of("java", "S002")).setSeverity(Severity.INFO), dbSession);
+    dbSession.commit();
     index.refresh();
 
     RuleQuery query = new RuleQuery().setSeverities(Arrays.asList(Severity.INFO, Severity.MINOR));
@@ -242,8 +254,9 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_by_any_of_statuses() throws InterruptedException {
-    dao.insert(newRuleDto(RuleKey.of("java", "S001")).setStatus(RuleStatus.BETA.name()));
-    dao.insert(newRuleDto(RuleKey.of("java", "S002")).setStatus(RuleStatus.READY.name()));
+    dao.insert(newRuleDto(RuleKey.of("java", "S001")).setStatus(RuleStatus.BETA.name()), dbSession);
+    dao.insert(newRuleDto(RuleKey.of("java", "S002")).setStatus(RuleStatus.READY.name()), dbSession);
+    dbSession.commit();
     index.refresh();
 
     RuleQuery query = new RuleQuery().setStatuses(Arrays.asList(RuleStatus.DEPRECATED, RuleStatus.READY));
@@ -266,9 +279,10 @@ public class RuleIndexMediumTest {
 
   @Test
   public void sort_by_name() {
-    dao.insert(newRuleDto(RuleKey.of("java", "S001")).setName("abcd"));
-    dao.insert(newRuleDto(RuleKey.of("java", "S002")).setName("ABC"));
-    dao.insert(newRuleDto(RuleKey.of("java", "S003")).setName("FGH"));
+    dao.insert(newRuleDto(RuleKey.of("java", "S001")).setName("abcd"), dbSession);
+    dao.insert(newRuleDto(RuleKey.of("java", "S002")).setName("ABC"), dbSession);
+    dao.insert(newRuleDto(RuleKey.of("java", "S003")).setName("FGH"), dbSession);
+    dbSession.commit();
     index.refresh();
 
     // ascending
@@ -288,8 +302,9 @@ public class RuleIndexMediumTest {
 
   @Test
   public void sort_by_language() {
-    dao.insert(newRuleDto(RuleKey.of("java", "S001")).setLanguage("java"));
-    dao.insert(newRuleDto(RuleKey.of("java", "S002")).setLanguage("php"));
+    dao.insert(newRuleDto(RuleKey.of("java", "S001")).setLanguage("java"), dbSession);
+    dao.insert(newRuleDto(RuleKey.of("java", "S002")).setLanguage("php"), dbSession);
+    dbSession.commit();
     index.refresh();
 
     // ascending
@@ -307,9 +322,10 @@ public class RuleIndexMediumTest {
 
   @Test
   public void paging() {
-    dao.insert(newRuleDto(RuleKey.of("java", "S001")));
-    dao.insert(newRuleDto(RuleKey.of("java", "S002")));
-    dao.insert(newRuleDto(RuleKey.of("java", "S003")));
+    dao.insert(newRuleDto(RuleKey.of("java", "S001")), dbSession);
+    dao.insert(newRuleDto(RuleKey.of("java", "S002")), dbSession);
+    dao.insert(newRuleDto(RuleKey.of("java", "S003")), dbSession);
+    dbSession.commit();
     index.refresh();
 
     // from 0 to 1 included

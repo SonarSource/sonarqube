@@ -21,6 +21,8 @@ package org.sonar.server.rule2;
 
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
@@ -30,7 +32,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRuleKey> {
 
-  ActiveRuleDao activeRuleDao;
+  private final ActiveRuleDao activeRuleDao;
 
   public static enum ActiveRuleField {
     OVERRIDE("override"),
@@ -76,13 +78,19 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
     }
   }
 
-  public ActiveRuleNormalizer(ActiveRuleDao activeRuleDao) {
+  public ActiveRuleNormalizer(MyBatis mybatis, ActiveRuleDao activeRuleDao) {
+    super(mybatis);
     this.activeRuleDao = activeRuleDao;
   }
 
   @Override
   public UpdateRequest normalize(ActiveRuleKey key) {
-    return normalize(activeRuleDao.getByKey(key));
+    DbSession dbSession = getMyBatis().openSession(false);
+    try {
+      return normalize(activeRuleDao.getByKey(key, dbSession));
+    } finally {
+      dbSession.close();
+    }
   }
 
   public UpdateRequest normalize(ActiveRuleParamDto param, ActiveRuleKey key) {

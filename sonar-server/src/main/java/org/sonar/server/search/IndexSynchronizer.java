@@ -42,17 +42,17 @@ public class IndexSynchronizer<K extends Serializable> {
 
   public IndexSynchronizer<K> start() {
 
-    LOG.info("Starting synchronization thread for ", index.getClass().getSimpleName());
-
-    Long since = index.getLastSynchronization();
-    index.setLastSynchronization(System.currentTimeMillis());
-
-    for (K key : dao.keysOfRowsUpdatedAfter(since)) {
-      if (LOG.isTraceEnabled()) {
-        LOG.trace("Adding {} to workQueue for {}", key, index.getClass().getSimpleName());
-      }
-      workQueue.enqueue(new KeyIndexAction<K>(index.getIndexName(), IndexAction.Method.INSERT, key));
-    }
+//    LOG.info("Starting synchronization thread for ", index.getClass().getSimpleName());
+//
+//    Long since = index.getLastSynchronization();
+//    index.setLastSynchronization(System.currentTimeMillis());
+//
+//    for (K key : dao.keysOfRowsUpdatedAfter(since)) {
+//      if (LOG.isTraceEnabled()) {
+//        LOG.trace("Adding {} to workQueue for {}", key, index.getClass().getSimpleName());
+//      }
+//      workQueue.enqueue(new KeyIndexAction<K>(index.getIndexName(), IndexAction.Method.INSERT, key));
+//    }
 
     return this;
   }
