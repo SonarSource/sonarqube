@@ -22,25 +22,31 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
+import org.elasticsearch.common.collect.Maps;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Component;
-import org.sonar.core.component.ComponentDto;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.user.AuthorizationDao;
+import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 
 import java.util.List;
+import java.util.Map;
 
 public class QProfileProjectLookup implements ServerComponent {
 
   private final MyBatis myBatis;
   private final QualityProfileDao qualityProfileDao;
+  private final AuthorizationDao authorizationDao;
 
-  public QProfileProjectLookup(MyBatis myBatis, QualityProfileDao qualityProfileDao) {
+  public QProfileProjectLookup(MyBatis myBatis, QualityProfileDao qualityProfileDao, AuthorizationDao authorizationDao) {
     this.myBatis = myBatis;
     this.qualityProfileDao = qualityProfileDao;
+    this.authorizationDao = authorizationDao;
   }
 
   public List<Component> projects(int profileId) {
@@ -48,9 +54,22 @@ public class QProfileProjectLookup implements ServerComponent {
     try {
       QualityProfileDto qualityProfile = qualityProfileDao.selectById(profileId, session);
       QProfileValidations.checkProfileIsNotNull(qualityProfile);
-      List<ComponentDto> componentDtos = qualityProfileDao.selectProjects(
-        qualityProfile.getName(), QProfileOperations.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage(), session);
-      return Lists.<Component>newArrayList(componentDtos);
+      Map<String, Component> componentsByKeys = Maps.newHashMap();
+      for (Component component: qualityProfileDao.selectProjects(
+          qualityProfile.getName(), QProfileOperations.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage(), session
+        )) {
+        componentsByKeys.put(component.key(), component);
+      }
+
+      UserSession userSession = UserSession.get();
+      List<Component> result = Lists.newArrayList();
+      for (String key: authorizationDao.keepAuthorizedComponentKeys(
+          componentsByKeys.keySet(), userSession.userId(), UserRole.USER
+        )) {
+        result.add(componentsByKeys.get(key));
+      }
+
+      return result;
     } finally {
       MyBatis.closeQuietly(session);
     }

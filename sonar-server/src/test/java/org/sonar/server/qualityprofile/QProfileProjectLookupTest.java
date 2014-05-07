@@ -20,22 +20,28 @@
 
 package org.sonar.server.qualityprofile;
 
+import org.elasticsearch.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.user.MockUserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
+import static org.mockito.Matchers.anySet;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -54,19 +60,30 @@ public class QProfileProjectLookupTest {
   @Mock
   PropertiesDao propertiesDao;
 
+  @Mock
+  AuthorizationDao authorizationDao;
+
   QProfileProjectLookup lookup;
 
   @Before
   public void setUp() throws Exception {
     when(myBatis.openSession(false)).thenReturn(session);
-    lookup = new QProfileProjectLookup(myBatis, qualityProfileDao);
+    lookup = new QProfileProjectLookup(myBatis, qualityProfileDao, authorizationDao);
   }
 
   @Test
   public void search_projects() throws Exception {
+    int userId = 42;
+    MockUserSession.set().setUserId(userId);
     QualityProfileDto qualityProfile = new QualityProfileDto().setId(1).setName("My profile").setLanguage("java");
     when(qualityProfileDao.selectById(1, session)).thenReturn(qualityProfile);
-    when(qualityProfileDao.selectProjects("My profile", "sonar.profile.java", session)).thenReturn(newArrayList(new ComponentDto().setId(1L).setKey("org.codehaus.sonar:sonar").setName("SonarQube")));
+    String key1 = "org.codehaus.sonar:sonar1";
+    String key2 = "org.codehaus.sonar:sonar2";
+    when(qualityProfileDao.selectProjects("My profile", "sonar.profile.java", session)).thenReturn(newArrayList(
+      new ComponentDto().setId(1L).setKey(key1).setName("SonarQube One"),
+      new ComponentDto().setId(1L).setKey(key2).setName("SonarQube Two")));
+
+    when(authorizationDao.keepAuthorizedComponentKeys(anySet(), eq(userId), eq(UserRole.USER))).thenReturn(Sets.newHashSet(key1));
 
     assertThat(lookup.projects(1)).hasSize(1);
   }
