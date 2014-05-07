@@ -203,6 +203,9 @@ module.exports = (grunt) ->
 
 
     clean:
+      options: {
+        force: true
+      },
       css: ['<%= pkg.assets %>css/']
       js: ['<%= pkg.assets %>js/']
       build: ['<%= pkg.assets %>build/']
