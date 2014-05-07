@@ -34,7 +34,9 @@ public class SourcesWs implements WebService {
 
   @Override
   public void define(Context context) {
-    NewController controller = context.createController("api/sources");
+    NewController controller = context.createController("api/sources")
+      .setSince("4.2")
+      .setDescription("Display sources information");
     showAction.define(controller);
     scmAction.define(controller);
     controller.done();

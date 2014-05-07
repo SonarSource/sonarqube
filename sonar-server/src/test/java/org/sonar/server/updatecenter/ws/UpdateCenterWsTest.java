@@ -42,7 +42,7 @@ public class UpdateCenterWsTest {
     WebService.Controller controller = tester.controller("api/updatecenter");
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("2.10");
-    assertThat(controller.description()).isNull();
+    assertThat(controller.description()).isNotEmpty();
     assertThat(controller.actions()).hasSize(1);
   }
 

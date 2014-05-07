@@ -37,26 +37,37 @@ public class ActivateRuleAction implements RequestHandler {
   void define(WebService.NewController controller) {
     WebService.NewAction action = controller
       .createAction("activate_rule")
+      .setDescription("Activate a rule on a Quality profile")
       .setHandler(this)
       .setPost(true)
       .setSince("4.4");
 
     action.createParam("profile_lang")
-      .setRequired(true);
+      .setDescription("Profile language")
+      .setRequired(true)
+      .setExampleValue("java");
 
     action.createParam("profile_name")
-      .setRequired(true);
+      .setDescription("Profile name")
+      .setRequired(true)
+      .setExampleValue("My profile");
 
     action.createParam("rule_repo")
-      .setRequired(true);
+      .setDescription("Rule repository")
+      .setRequired(true)
+      .setExampleValue("squid");
 
     action.createParam("rule_key")
-      .setRequired(true);
+      .setDescription("Rule key")
+      .setRequired(true)
+      .setExampleValue("AvoidCycles");
 
     action.createParam("severity")
+      .setDescription("Severity")
       .setPossibleValues(Severity.ALL);
 
-    action.createParam("params");
+    action.createParam("params")
+      .setDescription("Parameters");
   }
 
   @Override

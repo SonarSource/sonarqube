@@ -29,6 +29,7 @@ public class TimeMachineWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/timemachine")
+      .setDescription("Get a list of past measures")
       .setSince("2.10");
 
     defineSystemAction(controller);

@@ -32,6 +32,7 @@ public class SystemWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/system")
+      .setDescription("Restart server")
       .setSince("4.3");
 
     restartHandler.define(controller);

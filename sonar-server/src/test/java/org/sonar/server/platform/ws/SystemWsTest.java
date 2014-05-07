@@ -42,6 +42,8 @@ public class SystemWsTest {
 
     assertThat(context.controllers()).hasSize(1);
     assertThat(context.controller("api/system")).isNotNull();
+    assertThat(context.controller("api/system").description()).isNotEmpty();
+    assertThat(context.controller("api/system").since()).isEqualTo("4.3");
     assertThat(context.controller("api/system").actions()).isNotEmpty();
   }
 }

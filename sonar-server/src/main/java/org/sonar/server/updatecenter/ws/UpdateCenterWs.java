@@ -29,6 +29,7 @@ public class UpdateCenterWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/updatecenter")
+      .setDescription("Get list of installed plugins")
       .setSince("2.10");
 
     defineInstalledPluginsAction(controller);

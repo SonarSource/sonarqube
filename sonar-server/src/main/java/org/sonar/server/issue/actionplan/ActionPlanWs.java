@@ -29,7 +29,7 @@ public class ActionPlanWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/action_plans");
-    controller.setDescription("Action plans");
+    controller.setDescription("Action plans management");
 
     WebService.NewAction search = controller.createAction("search")
       .setDescription("Get a list of action plans. Requires Browse permission on project")

@@ -29,6 +29,7 @@ public class ServerWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/server")
+      .setDescription("Get system properties and upgrade db")
       .setSince("2.10");
 
     defineSystemAction(controller);

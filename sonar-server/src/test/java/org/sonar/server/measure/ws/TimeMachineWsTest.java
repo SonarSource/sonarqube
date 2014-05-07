@@ -42,7 +42,7 @@ public class TimeMachineWsTest {
   public void define_controller() throws Exception {
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("2.10");
-    assertThat(controller.description()).isNull();
+    assertThat(controller.description()).isNotEmpty();
     assertThat(controller.actions()).hasSize(1);
   }
 

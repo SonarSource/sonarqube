@@ -45,10 +45,12 @@
   {
     "path": "api/webservices",
     "description": "List web services",
+    "since": "4.2",
     "actions": [
       {
         "key": "list",
         "since": "4.2",
+        "description": "List web services",
         "internal": false,
         "post": false,
         "hasResponseExample": false,
@@ -64,17 +66,23 @@
       },
       {
         "key": "response_example",
+        "since": "4.4",
+        "description": "Display web service response example",
         "internal": false,
         "post": false,
         "hasResponseExample": false,
         "params": [
           {
             "key": "action",
-            "required": true
+            "required": true,
+            "description": "Action of the web service",
+            "exampleValue": "search"
           },
           {
             "key": "controller",
-            "required": true
+            "required": true,
+            "description": "Controller of the web service",
+            "exampleValue": "api/issues"
           }
         ]
       }

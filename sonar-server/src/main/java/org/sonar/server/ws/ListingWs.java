@@ -42,6 +42,7 @@ public class ListingWs implements WebService {
   public void define(final Context context) {
     NewController controller = context
       .createController("api/webservices")
+      .setSince("4.2")
       .setDescription("List web services");
     defineList(context, controller);
     defineResponseExample(context, controller);
@@ -52,6 +53,7 @@ public class ListingWs implements WebService {
     NewAction action = controller
       .createAction("list")
       .setSince("4.2")
+      .setDescription("List web services")
       .setHandler(new RequestHandler() {
         @Override
         public void handle(Request request, Response response) {
@@ -69,6 +71,8 @@ public class ListingWs implements WebService {
   private void defineResponseExample(final Context context, NewController controller) {
     NewAction action = controller
       .createAction("response_example")
+      .setDescription("Display web service response example")
+      .setSince("4.4")
       .setHandler(new RequestHandler() {
         @Override
         public void handle(Request request, Response response) throws Exception {
@@ -77,8 +81,14 @@ public class ListingWs implements WebService {
           handleResponseExample(action, response);
         }
       });
-    action.createParam("controller").setRequired(true);
-    action.createParam("action").setRequired(true);
+    action.createParam("controller")
+      .setRequired(true)
+      .setDescription("Controller of the web service")
+      .setExampleValue("api/issues");
+    action.createParam("action")
+      .setRequired(true)
+      .setDescription("Action of the web service")
+      .setExampleValue("search");
   }
 
   private void handleResponseExample(Action action, Response response) throws IOException {

@@ -73,7 +73,9 @@ public class BatchWs implements WebService, Startable {
 
   @Override
   public void define(Context context) {
-    NewController controller = context.createController("batch");
+    NewController controller = context.createController("batch")
+      .setSince("4.4")
+      .setDescription("Get JAR files for batch");
     controller.createAction("index")
       .setInternal(true)
       .setDescription("List the JAR files to be downloaded by source analyzer")

@@ -26,9 +26,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.ws.WsTester;
 import org.sonar.core.rule.RuleTagDto;
 import org.sonar.server.rule.RuleTags;
+import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -53,6 +53,7 @@ public class RuleTagsWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/rule_tags");
     assertThat(controller.description()).isNotEmpty();
+    assertThat(controller.actions()).hasSize(2);
 
     WebService.Action search = controller.action("list");
     assertThat(search).isNotNull();

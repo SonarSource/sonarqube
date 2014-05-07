@@ -38,7 +38,7 @@ public class RuleTagsWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/rule_tags")
-      .setDescription("Rule tags");
+      .setDescription("Rule tags management");
 
     controller.createAction("list")
       .setDescription("List all available rule tags")
@@ -60,7 +60,9 @@ public class RuleTagsWs implements WebService {
           create(request, response);
         }
       })
-      .createParam("tag").setDescription("Value of the new rule tag");
+      .createParam("tag")
+      .setDescription("Value of the new rule tag")
+      .setExampleValue("java8");
 
     controller.done();
   }

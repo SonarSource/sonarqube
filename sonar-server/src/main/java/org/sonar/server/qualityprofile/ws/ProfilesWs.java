@@ -32,7 +32,7 @@ public class ProfilesWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/profiles")
-      .setDescription("Quality profiles management (implemented in Rails)");
+      .setDescription("Former quality profiles web service");
 
     defineListAction(controller);
     defineBackupAction(controller);

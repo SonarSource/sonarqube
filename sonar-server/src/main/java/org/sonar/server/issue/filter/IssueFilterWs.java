@@ -37,7 +37,7 @@ public class IssueFilterWs implements WebService {
   public void define(Context context) {
     NewController controller = context.createController("api/issue_filters")
       .setSince("4.2")
-      .setDescription("Issue Filters");
+      .setDescription("Issue Filters management");
     appAction.define(controller);
     showAction.define(controller);
     favoritesAction.define(controller);

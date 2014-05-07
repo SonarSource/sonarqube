@@ -38,6 +38,7 @@ public class ListingWsTest {
     WebService.Controller controller = tester.controller("api/webservices");
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/webservices");
+    assertThat(controller.since()).isEqualTo("4.2");
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.actions()).hasSize(2);
 

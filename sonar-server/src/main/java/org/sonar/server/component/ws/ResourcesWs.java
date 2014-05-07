@@ -29,6 +29,7 @@ public class ResourcesWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/resources")
+      .setDescription("Former components web service")
       .setSince("2.10");
 
     defineSystemAction(controller);

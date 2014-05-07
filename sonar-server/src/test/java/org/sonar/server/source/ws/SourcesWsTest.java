@@ -38,7 +38,8 @@ public class SourcesWsTest {
   public void define_ws() throws Exception {
     WebService.Controller controller = tester.controller("api/sources");
     assertThat(controller).isNotNull();
-    assertThat(controller.description()).isNull();
+    assertThat(controller.since()).isEqualTo("4.2");
+    assertThat(controller.description()).isNotEmpty();
 
     WebService.Action show = controller.action("show");
     assertThat(show).isNotNull();
