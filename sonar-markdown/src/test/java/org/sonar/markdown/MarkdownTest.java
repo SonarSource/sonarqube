@@ -37,10 +37,25 @@ public class MarkdownTest {
   }
 
   @Test
-  public void shouldDecorateList() {
+  public void shouldDecorateUnorderedList() {
     assertThat(Markdown.convertToHtml("  * one\r* two\r\n* three\n * \n *five"))
         .isEqualTo("<ul><li>one</li>\r<li>two</li>\r\n<li>three</li>\n<li> </li>\n</ul> *five");
     assertThat(Markdown.convertToHtml("  * one\r* two")).isEqualTo("<ul><li>one</li>\r<li>two</li></ul>");
+    assertThat(Markdown.convertToHtml("* \r*")).isEqualTo("<ul><li> </li>\r</ul>*");
+  }
+
+  @Test
+  public void shouldDecorateOrderedList() {
+    assertThat(Markdown.convertToHtml("  1. one\r1. two\r\n1. three\n 1. \n 1.five"))
+        .isEqualTo("<ol><li>one</li>\r<li>two</li>\r\n<li>three</li>\n<li> </li>\n</ol> 1.five");
+    assertThat(Markdown.convertToHtml("  1. one\r1. two")).isEqualTo("<ol><li>one</li>\r<li>two</li></ol>");
+    assertThat(Markdown.convertToHtml("1. \r1.")).isEqualTo("<ol><li> </li>\r</ol>1.");
+  }
+
+  @Test
+  public void shouldDecorateMixedOrderedAndUnorderedList() {
+    assertThat(Markdown.convertToHtml("  1. one\r* two\r\n1. three\n * \n 1.five"))
+        .isEqualTo("<ol><li>one</li>\r</ol><ul><li>two</li>\r\n</ul><ol><li>three</li>\n</ol><ul><li> </li>\n</ul> 1.five");
   }
 
   @Test

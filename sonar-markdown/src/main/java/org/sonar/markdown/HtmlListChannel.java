@@ -23,21 +23,61 @@ import org.sonar.channel.Channel;
 import org.sonar.channel.CodeReader;
 import org.sonar.channel.RegexChannel;
 
+/**
+ * Lists come in two flavors:
+ * <ul>
+ *  <li>Unordered lists, triggered by lines that start with a <code>*</code></li>
+ *  <li>Ordered lists (added in 4.4), triggered by lines that start with a digit followed by a <code>.</code></li>
+ * </ul>
+
+ * E.g., the input:
+ * <pre>
+ * * One
+ * * Two
+ * * Three
+ * </pre>
+ * will produce:
+ * {@literal<ul>}{@literal<li>}One{@literal</li>}
+ * {@literal<li>}Two{@literal</li>}
+ * {@literal<li>}Three{@literal</li>}{@literal</ul>}
+ *
+ * Whereas the input:
+ * <pre>
+ * 1. One
+ * 1. Two
+ * 1. Three
+ * </pre>
+ * will produce:
+ * {@literal<ol>}{@literal<li>}One{@literal</li>}
+ * {@literal<li>}Two{@literal</li>}
+ * {@literal<li>}Three{@literal</li>}{@literal</ol>}
+ *
+ * @since 2.10.1
+ */
 class HtmlListChannel extends Channel<MarkdownOutput> {
 
-  private ListElementChannel listElement = new ListElementChannel();
+  private OrderedListElementChannel orderedListElement = new OrderedListElementChannel();
+  private UnorderedListElementChannel unorderedListElement = new UnorderedListElementChannel();
   private EndOfLine endOfLine = new EndOfLine();
   private boolean pendingListConstruction;
 
   @Override
   public boolean consume(CodeReader code, MarkdownOutput output) {
     try {
-      if (code.getColumnPosition() == 0 && listElement.consume(code, output)) {
-        while (endOfLine.consume(code, output) && listElement.consume(code, output)) {
-          // consume input
+      ListElementChannel currentChannel = null;
+      if (code.getColumnPosition() == 0) {
+        if (orderedListElement.consume(code, output)) {
+          currentChannel = orderedListElement;
+        } else if (unorderedListElement.consume(code, output)) {
+          currentChannel = unorderedListElement;
         }
-        output.append("</ul>");
-        return true;
+        if (currentChannel != null) {
+          while (endOfLine.consume(code, output) && currentChannel.consume(code, output)) {
+            // consume input
+          }
+          output.append("</" + currentChannel.listElement + ">");
+          return true;
+        }
       }
       return false;
     } finally {
@@ -45,16 +85,31 @@ class HtmlListChannel extends Channel<MarkdownOutput> {
     }
   }
 
-  private class ListElementChannel extends RegexChannel<MarkdownOutput> {
+  private class OrderedListElementChannel extends ListElementChannel {
+    public OrderedListElementChannel() {
+      super("\\d\\.", "ol");
+    }
+  }
 
-    public ListElementChannel() {
-      super("\\s*+\\*\\s[^\r\n]*+");
+  private class UnorderedListElementChannel extends ListElementChannel {
+    public UnorderedListElementChannel() {
+      super("\\*", "ul");
+    }
+  }
+
+  private abstract class ListElementChannel extends RegexChannel<MarkdownOutput> {
+
+    private String listElement;
+
+    protected ListElementChannel(String markerRegexp, String listElement) {
+      super("\\s*+" + markerRegexp + "\\s[^\r\n]*+");
+      this.listElement = listElement;
     }
 
     @Override
     protected void consume(CharSequence token, MarkdownOutput output) {
       if (!pendingListConstruction) {
-        output.append("<ul>");
+        output.append("<" + listElement + ">");
         pendingListConstruction = true;
       }
       output.append("<li>");
@@ -64,8 +119,12 @@ class HtmlListChannel extends Channel<MarkdownOutput> {
 
     private int searchIndexOfFirstCharacter(CharSequence token) {
       for (int index = 0; index < token.length(); index++) {
-        if (token.charAt(index) == '*') {
-          while (++index<token.length()) {
+        if (token.charAt(index) == '*'
+          || Character.isDigit(token.charAt(index))) {
+          if (token.charAt(index + 1) == '.') {
+            index ++;
+          }
+          while (++ index < token.length()) {
             if (token.charAt(index) != ' ') {
               return index;
             }
