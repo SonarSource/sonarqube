@@ -69,7 +69,7 @@
 
   <!-- Execution of measure filters -->
   <logger name="org.sonar.MEASURE_FILTER">
-    <level value="WARN"/>
+    <level value="INFO"/>
   </logger>
 
   <!-- Turn off ElasticSearch logging -->
