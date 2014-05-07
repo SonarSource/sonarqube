@@ -68,7 +68,7 @@ public abstract class SecurityRealm implements ServerExtension {
   /**
    * @since 4.3
    */
-  public List<Authenticator> getAuthenticators() {
+  public List<? extends Authenticator> getAuthenticators() {
     // this method is not overridden when deprecated doGetAuthenticator
     // or getLoginPasswordAuthenticator is used
     return Collections.singletonList(doGetAuthenticator());
