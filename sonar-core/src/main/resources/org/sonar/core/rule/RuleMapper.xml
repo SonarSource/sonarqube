@@ -28,6 +28,8 @@
     r.remediation_offset as "remediationOffset",
     r.default_remediation_offset as "defaultRemediationOffset",
     r.effort_to_fix_description as "effortToFixDescription",
+    r.tags as "tagsField",
+    r.system_tags as "systemTagsField",
     r.created_at as "createdAt",
     r.updated_at as "updatedAt"
   </sql>
@@ -101,7 +103,7 @@
     (plugin_rule_key, plugin_name, description, status, name, plugin_config_key, priority, cardinality, language, parent_id,
     characteristic_id, default_characteristic_id, remediation_function, default_remediation_function,
     remediation_coeff, default_remediation_coeff, remediation_offset, default_remediation_offset,
-    effort_to_fix_description,
+    effort_to_fix_description, tags, system_tags,
     created_at, updated_at)
   </sql>
 
@@ -111,7 +113,7 @@
       #{severity}, #{cardinality}, #{language}, #{parentId},
       #{subCharacteristicId}, #{defaultSubCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
       #{remediationCoefficient}, #{defaultRemediationCoefficient}, #{remediationOffset}, #{defaultRemediationOffset},
-      #{effortToFixDescription},
+      #{effortToFixDescription}, #{tagsField}, #{systemTagsField},
       #{createdAt}, #{updatedAt})
   </insert>
 
@@ -121,7 +123,7 @@
     #{severity}, #{cardinality}, #{language}, #{parentId},
     #{subCharacteristicId}, #{defaultSubCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
     #{remediationCoefficient}, #{defaultRemediationCoefficient}, #{remediationOffset}, #{defaultRemediationOffset},
-    #{effortToFixDescription},
+    #{effortToFixDescription}, #{tagsField}, #{systemTagsField},
     #{createdAt}, #{updatedAt})
   </insert>
 

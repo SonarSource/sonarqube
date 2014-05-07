@@ -74,6 +74,8 @@ public class RuleServiceMediumTest {
     assertThat(persistedDto.getId()).isGreaterThanOrEqualTo(0);
     assertThat(persistedDto.getRuleKey()).isEqualTo(ruleKey.rule());
     assertThat(persistedDto.getLanguage()).isEqualTo("js");
+    assertThat(persistedDto.getTags()).containsOnly("tag1", "tag2");
+    assertThat(persistedDto.getSystemTags()).containsOnly("systag1", "systag2");
 
     // verify that rule is indexed in es
     index.refresh();
@@ -91,9 +93,8 @@ public class RuleServiceMediumTest {
     assertThat(hit.internalKey()).isEqualTo("InternalKeyS001");
     assertThat(hit.severity()).isEqualTo("INFO");
     assertThat(hit.template()).isFalse();
-
-    //TODO    assertThat((Collection) hit.getField(RuleNormalizer.RuleField.SYSTEM_TAGS.key())).isEmpty();
-    //TODO    assertThat((Collection) hit.getField(RuleNormalizer.RuleField.TAGS.key())).isEmpty();
+    assertThat(hit.tags()).containsOnly("tag1", "tag2");
+    assertThat(hit.systemTags()).containsOnly("systag1", "systag2");
 
   }
 
@@ -155,6 +156,8 @@ public class RuleServiceMediumTest {
       .setRemediationOffset("5min")
       .setDefaultRemediationOffset("10h")
       .setEffortToFixDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix")
+      .setTags(new String[]{"tag1", "tag2"})
+      .setSystemTags(new String[]{"systag1", "systag2"})
       .setCreatedAt(DateUtils.parseDate("2013-12-16"))
       .setUpdatedAt(DateUtils.parseDate("2013-12-17"));
   }

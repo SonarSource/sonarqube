@@ -19,6 +19,8 @@
  */
 package org.sonar.core.rule;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
@@ -59,6 +61,8 @@ public final class RuleDto implements Dto<RuleKey> {
   private String remediationOffset;
   private String defaultRemediationOffset;
   private String effortToFixDescription;
+  private String tags;
+  private String systemTags;
   private Date createdAt;
   private Date updatedAt;
 
@@ -304,6 +308,40 @@ public final class RuleDto implements Dto<RuleKey> {
 
   public RuleDto setEffortToFixDescription(@Nullable String effortToFixDescription) {
     this.effortToFixDescription = effortToFixDescription;
+    return this;
+  }
+
+  public String[] getTags() {
+    return tags == null ? ArrayUtils.EMPTY_STRING_ARRAY : StringUtils.split(tags, ',');
+  }
+
+  public String[] getSystemTags() {
+    return systemTags == null ? ArrayUtils.EMPTY_STRING_ARRAY : StringUtils.split(systemTags, ',');
+  }
+
+  private String getTagsField() {
+    return tags;
+  }
+
+  private String getSystemTagsField() {
+    return systemTags;
+  }
+
+  private void setTagsField(String s) {
+    tags = s;
+  }
+
+  private void setSystemTagsField(String s) {
+    systemTags = s;
+  }
+
+  public RuleDto setTags(String[] tags) {
+    this.tags = StringUtils.join(tags, ',');
+    return this;
+  }
+
+  public RuleDto setSystemTags(String[] tags) {
+    this.systemTags = StringUtils.join(tags, ',');
     return this;
   }
 

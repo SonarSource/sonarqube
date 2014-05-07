@@ -72,40 +72,4 @@ public abstract class BaseNormalizer<E extends Dto<K>, K extends Serializable> {
       LOG.error("Could not set {} to {} in ESDocument", field, value);
     }
   }
-
-
-//  protected void indexField(Fields field, Object dto, XContentBuilder document) {
-//    try {
-//      document.field(field.key(), field.method.invoke(dto));
-//    } catch (IllegalArgumentException e) {
-//      // TODO Auto-generated catch block
-//      e.printStackTrace();
-//    } catch (IOException e) {
-//      // TODO Auto-generated catch block
-//      e.printStackTrace();
-//    } catch (IllegalAccessException e) {
-//      // TODO Auto-generated catch block
-//      e.printStackTrace();
-//    } catch (InvocationTargetException e) {
-//      // TODO Auto-generated catch block
-//      e.printStackTrace();
-//    }
-//  }
-//
-//
-//
-//private static Method getReadMethod(String method){
-//  try {
-//    return RuleDto.class.getDeclaredMethod(method);
-//  } catch (SecurityException e) {
-//    // TODO Auto-generated catch block
-//    e.printStackTrace();
-//  } catch (NoSuchMethodException e) {
-//    // TODO Auto-generated catch block
-//    e.printStackTrace();
-//  }
-//  return null;
-//}
-
-
 }

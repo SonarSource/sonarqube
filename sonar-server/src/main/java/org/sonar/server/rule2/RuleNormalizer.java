@@ -27,8 +27,6 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
-import org.sonar.core.rule.RuleRuleTagDto;
-import org.sonar.core.rule.RuleTagType;
 import org.sonar.server.search.BaseNormalizer;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
@@ -123,8 +121,8 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       indexField(RuleField.INTERNAL_KEY.key(), rule.getConfigKey(), document);
       indexField(RuleField.TEMPLATE.key(), rule.getCardinality() == Cardinality.MULTIPLE, document);
 
-      document.startArray(RuleField.TAGS.key()).endArray();
-      document.startArray(RuleField.SYSTEM_TAGS.key()).endArray();
+      document.array(RuleField.TAGS.key(), rule.getTags());
+      document.array(RuleField.SYSTEM_TAGS.key(), rule.getSystemTags());
       document.startObject(RuleField.PARAMS.key()).endObject();
       document.startObject(RuleField.ACTIVE.key()).endObject();
 
@@ -162,20 +160,5 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
         param.getClass().getSimpleName(), key.toString()), e);
     }
 
-  }
-
-  public UpdateRequest normalize(RuleRuleTagDto tag, RuleKey key) {
-    try {
-      String field = RuleField.TAGS.key();
-      if (tag.getType().equals(RuleTagType.SYSTEM)) {
-        field = RuleField.SYSTEM_TAGS.key();
-      }
-      return new UpdateRequest()
-        .script("ctx._source." + field + " += tag")
-        .addScriptParam("tag", tag.getTag());
-    } catch (Exception e) {
-      throw new IllegalStateException(String.format("Could not normalize Object (%s) for key %s",
-        tag.getClass().getSimpleName(), key.toString()), e);
-    }
   }
 }

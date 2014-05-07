@@ -1,6 +1,6 @@
 <dataset>
 
-  <rules id="2" name="bar" description="test2" plugin_config_key="checker/bar"
+  <rules tags="[null]" system_tags="[null]" id="2" name="bar" description="test2" plugin_config_key="checker/bar"
          plugin_rule_key="checkstyle.rule2" plugin_name="plugin" status="READY" cardinality="SINGLE" parent_id="[null]"/>
   <rules_profiles id="1" version="1" used_profile="true" name="parent" language="java" parent_name="[null]" />
 

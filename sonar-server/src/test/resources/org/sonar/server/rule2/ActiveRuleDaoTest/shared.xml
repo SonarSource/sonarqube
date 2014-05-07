@@ -1,8 +1,8 @@
 <dataset>
-    <rules id="10" plugin_rule_key="Parent1" plugin_name="checkstyle" name="Parent Rule 1" description="Parent Rule 1" status="READY"
+    <rules tags="[null]" system_tags="[null]" id="10" plugin_rule_key="Parent1" plugin_name="checkstyle" name="Parent Rule 1" description="Parent Rule 1" status="READY"
            plugin_config_key="Parent1" priority="2" cardinality="SINGLE" language="golo" created_at="1981-10-24 15:20:00" />
 
-    <rules id="11" plugin_rule_key="Parent2" plugin_name="checkstyle" name="Parent Rule 2" description="Parent Rule 2" status="READY"
+    <rules tags="[null]" system_tags="[null]" id="11" plugin_rule_key="Parent2" plugin_name="checkstyle" name="Parent Rule 2" description="Parent Rule 2" status="READY"
            plugin_config_key="Parent1" priority="2" cardinality="SINGLE" language="golo" created_at="1981-10-24 15:20:00" />
 
     <active_rules id="1" profile_id="1" rule_id="10" failure_level="2" inheritance="INHERITED"

@@ -19,13 +19,9 @@
  */
 package org.sonar.server.search;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.core.cluster.QueueAction;
 
 public abstract class IndexAction extends QueueAction {
-
-  private static final Logger LOG = LoggerFactory.getLogger(IndexAction.class);
 
   public enum Method {
     INSERT, UPDATE, DELETE
@@ -36,13 +32,13 @@ public abstract class IndexAction extends QueueAction {
   protected Index index;
 
 
-  public IndexAction(String indexType, Method method){
+  public IndexAction(String indexType, Method method) {
     super();
     this.indexType = indexType;
     this.method = method;
   }
 
-  public Method getMethod(){
+  public Method getMethod() {
     return this.method;
   }
 
