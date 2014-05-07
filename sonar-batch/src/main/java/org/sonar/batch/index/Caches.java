@@ -35,7 +35,6 @@ import org.sonar.api.utils.TempFolder;
 
 import java.io.File;
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.util.Properties;
 import java.util.Set;
 
@@ -84,11 +83,7 @@ public class Caches implements BatchComponent, Startable {
     Preconditions.checkState(!cacheNames.contains(cacheName), "Cache is already created: " + cacheName);
     try {
       Exchange exchange = persistit.getExchange(volume, cacheName, true);
-      exchange.getValue().setMaximumSize(Value.MAXIMUM_SIZE);
-      Method getSpareValue = Exchange.class.getDeclaredMethod("getAuxiliaryValue");
-      getSpareValue.setAccessible(true);
-      Value spareValue = (Value) getSpareValue.invoke(exchange);
-      spareValue.setMaximumSize(Value.MAXIMUM_SIZE);
+      exchange.setMaximumValueSize(Value.MAXIMUM_SIZE);
       Cache<V> cache = new Cache<V>(cacheName, exchange);
       cacheNames.add(cacheName);
       return cache;

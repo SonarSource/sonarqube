@@ -21,8 +21,8 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.akiban</groupId>
-      <artifactId>akiban-persistit</artifactId>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-persistit</artifactId>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
