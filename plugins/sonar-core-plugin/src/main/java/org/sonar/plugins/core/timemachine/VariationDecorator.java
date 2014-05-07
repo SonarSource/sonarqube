@@ -40,6 +40,7 @@ import org.sonar.api.technicaldebt.batch.Characteristic;
 import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
+import org.sonar.batch.index.DefaultIndex;
 
 import java.util.Collection;
 import java.util.List;
@@ -52,16 +53,19 @@ public class VariationDecorator implements Decorator {
   private MetricFinder metricFinder;
   private PastMeasuresLoader pastMeasuresLoader;
   private RuleFinder ruleFinder;
+  private final DefaultIndex sonarIndex;
 
-  public VariationDecorator(PastMeasuresLoader pastMeasuresLoader, MetricFinder metricFinder, TimeMachineConfiguration timeMachineConfiguration, RuleFinder ruleFinder) {
-    this(pastMeasuresLoader, metricFinder, timeMachineConfiguration.getProjectPastSnapshots(), ruleFinder);
+  public VariationDecorator(PastMeasuresLoader pastMeasuresLoader, MetricFinder metricFinder, TimeMachineConfiguration timeMachineConfiguration, RuleFinder ruleFinder,
+    DefaultIndex index) {
+    this(pastMeasuresLoader, metricFinder, timeMachineConfiguration.getProjectPastSnapshots(), ruleFinder, index);
   }
 
-  VariationDecorator(PastMeasuresLoader pastMeasuresLoader, MetricFinder metricFinder, List<PastSnapshot> projectPastSnapshots, RuleFinder ruleFinder) {
+  VariationDecorator(PastMeasuresLoader pastMeasuresLoader, MetricFinder metricFinder, List<PastSnapshot> projectPastSnapshots, RuleFinder ruleFinder, DefaultIndex index) {
     this.pastMeasuresLoader = pastMeasuresLoader;
     this.projectPastSnapshots = projectPastSnapshots;
     this.metricFinder = metricFinder;
     this.ruleFinder = ruleFinder;
+    this.sonarIndex = index;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -112,7 +116,7 @@ public class VariationDecorator implements Decorator {
 
       Object[] pastMeasure = pastMeasuresByKey.get(new MeasureKey(metricId, characteristicId, personId, ruleId));
       if (updateVariation(measure, pastMeasure, index)) {
-        context.saveMeasure(measure);
+        sonarIndex.updateMeasure(resource, measure);
       }
     }
   }

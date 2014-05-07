@@ -76,14 +76,14 @@ public interface DecoratorContext {
   Collection<Measure> getChildrenMeasures(Metric metric);
 
   /**
-   * Add a new measure on the current resource. It can not be executed from children contexts.
+   * Add a measure on the current resource. It can not be executed from children contexts.
    * 
    * @return the same context
    */
   DecoratorContext saveMeasure(Measure measure);
 
   /**
-   * Add a new measure on the current resource. It can not be executed from children contexts.
+   * Add a measure on the current resource. It can not be executed from children contexts.
    * 
    * @return the current object
    */

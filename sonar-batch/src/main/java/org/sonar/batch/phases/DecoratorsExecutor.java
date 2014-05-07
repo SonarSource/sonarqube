@@ -19,13 +19,14 @@
  */
 package org.sonar.batch.phases;
 
+import org.sonar.core.measure.MeasurementFilters;
+
 import com.google.common.collect.Lists;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.BatchExtensionDictionnary;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.SonarIndex;
-import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.MessageException;
@@ -33,8 +34,6 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.batch.DecoratorsSelector;
 import org.sonar.batch.DefaultDecoratorContext;
 import org.sonar.batch.events.EventBus;
-import org.sonar.batch.scan.measure.MeasureCache;
-import org.sonar.core.measure.MeasurementFilters;
 
 import java.util.Collection;
 import java.util.List;
@@ -46,13 +45,9 @@ public class DecoratorsExecutor implements BatchComponent {
   private EventBus eventBus;
   private Project project;
   private MeasurementFilters measurementFilters;
-  private MeasureCache measureCache;
-  private MetricFinder metricFinder;
 
   public DecoratorsExecutor(BatchExtensionDictionnary batchExtDictionnary,
-    Project project, SonarIndex index, EventBus eventBus, MeasurementFilters measurementFilters, MeasureCache measureCache, MetricFinder metricFinder) {
-    this.measureCache = measureCache;
-    this.metricFinder = metricFinder;
+      Project project, SonarIndex index, EventBus eventBus, MeasurementFilters measurementFilters) {
     this.decoratorsSelector = new DecoratorsSelector(batchExtDictionnary);
     this.index = index;
     this.eventBus = eventBus;
@@ -72,12 +67,11 @@ public class DecoratorsExecutor implements BatchComponent {
     for (Resource child : index.getChildren(resource)) {
       boolean isModule = child instanceof Project;
       DefaultDecoratorContext childContext = (DefaultDecoratorContext) decorateResource(child, decorators, !isModule);
-      childrenContexts.add(childContext.lock());
+      childrenContexts.add(childContext.setReadOnly(true));
     }
 
-    DefaultDecoratorContext context = new DefaultDecoratorContext(resource, index, childrenContexts, measurementFilters, measureCache, metricFinder);
+    DefaultDecoratorContext context = new DefaultDecoratorContext(resource, index, childrenContexts, measurementFilters);
     if (executeDecorators) {
-      context.init();
       for (Decorator decorator : decorators) {
         executeDecorator(decorator, context, resource);
       }

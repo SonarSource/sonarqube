@@ -38,6 +38,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
 import org.sonar.batch.components.PeriodsDefinition;
+import org.sonar.batch.index.DefaultIndex;
 import org.sonar.core.DryRunIncompatible;
 
 import java.util.List;
@@ -52,9 +53,11 @@ public class TendencyDecorator implements Decorator {
   private TimeMachineQuery query;
   private TendencyAnalyser analyser;
   private List<Metric> metrics;
+  private final DefaultIndex index;
 
-  public TendencyDecorator(TimeMachine timeMachine, MetricFinder metricFinder) {
+  public TendencyDecorator(TimeMachine timeMachine, MetricFinder metricFinder, DefaultIndex index) {
     this.timeMachine = timeMachine;
+    this.index = index;
     this.analyser = new TendencyAnalyser();
     this.metrics = Lists.newLinkedList();
     for (Metric metric : metricFinder.findAll()) {
@@ -64,10 +67,11 @@ public class TendencyDecorator implements Decorator {
     }
   }
 
-  TendencyDecorator(TimeMachine timeMachine, TimeMachineQuery query, TendencyAnalyser analyser) {
+  TendencyDecorator(TimeMachine timeMachine, TimeMachineQuery query, TendencyAnalyser analyser, DefaultIndex index) {
     this.timeMachine = timeMachine;
     this.query = query;
     this.analyser = analyser;
+    this.index = index;
   }
 
   @DependsUpon
@@ -114,7 +118,7 @@ public class TendencyDecorator implements Decorator {
           values.add(measure.getValue());
 
           measure.setTendency(analyser.analyseLevel(valuesPerMetric.get(metric)));
-          context.saveMeasure(measure);
+          index.updateMeasure(resource, measure);
         }
       }
     }

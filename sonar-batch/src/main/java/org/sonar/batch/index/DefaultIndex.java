@@ -31,20 +31,8 @@ import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.design.Dependency;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.MeasuresFilter;
-import org.sonar.api.measures.MeasuresFilters;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.MetricFinder;
-import org.sonar.api.resources.Directory;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectLink;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
-import org.sonar.api.resources.Scopes;
+import org.sonar.api.measures.*;
+import org.sonar.api.resources.*;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.scan.filesystem.PathResolver;
@@ -53,6 +41,7 @@ import org.sonar.api.violations.ViolationQuery;
 import org.sonar.batch.ProjectTree;
 import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.batch.issue.ModuleIssues;
+import org.sonar.batch.qualitygate.QualityGateVerifier;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.component.ScanGraph;
@@ -60,15 +49,7 @@ import org.sonar.core.component.ScanGraph;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class DefaultIndex extends SonarIndex {
 
@@ -219,6 +200,17 @@ public class DefaultIndex extends SonarIndex {
       measureCache.put(resource, measure);
     }
     return measure;
+  }
+
+  /**
+   * Used by some core features like TendencyDecorator, {@link QualityGateVerifier}, VariationDecorator 
+   * that need to update some existing measures
+   */
+  public void updateMeasure(Resource resource, Measure measure) {
+    if (!measureCache.contains(resource, measure)) {
+      throw new SonarException("Can't update measure on " + resource + ": " + measure);
+    }
+    measureCache.put(resource, measure);
   }
 
   //

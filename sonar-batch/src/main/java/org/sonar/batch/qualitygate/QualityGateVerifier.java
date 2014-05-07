@@ -38,6 +38,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
+import org.sonar.batch.index.DefaultIndex;
 import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 import org.sonar.core.timemachine.Periods;
 
@@ -63,13 +64,15 @@ public class QualityGateVerifier implements Decorator {
   private Periods periods;
   private I18n i18n;
   private Durations durations;
+  private final DefaultIndex index;
 
-  public QualityGateVerifier(QualityGate qualityGate, Snapshot snapshot, Periods periods, I18n i18n, Durations durations) {
+  public QualityGateVerifier(QualityGate qualityGate, Snapshot snapshot, Periods periods, I18n i18n, Durations durations, DefaultIndex index) {
     this.qualityGate = qualityGate;
     this.snapshot = snapshot;
     this.periods = periods;
     this.i18n = i18n;
     this.durations = durations;
+    this.index = index;
   }
 
   @DependedUpon
@@ -120,7 +123,7 @@ public class QualityGateVerifier implements Decorator {
           labels.add(text);
         }
 
-        context.saveMeasure(measure);
+        index.updateMeasure(resource, measure);
 
         if (Metric.Level.WARN == level && globalLevel != Metric.Level.ERROR) {
           globalLevel = Metric.Level.WARN;

@@ -28,6 +28,7 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.index.DefaultIndex;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -53,7 +54,7 @@ public class TendencyDecoratorTest {
     MetricFinder metricFinder = mock(MetricFinder.class);
     when(metricFinder.findAll()).thenReturn(Arrays.asList(CoreMetrics.LINES, CoreMetrics.COVERAGE, CoreMetrics.COVERAGE_LINE_HITS_DATA, CoreMetrics.PROFILE));
 
-    TendencyDecorator decorator = new TendencyDecorator(null, metricFinder);
+    TendencyDecorator decorator = new TendencyDecorator(null, metricFinder, mock(DefaultIndex.class));
 
     TimeMachineQuery query = decorator.initQuery(project);
     assertThat(query.getMetrics().size(), is(2));
@@ -80,7 +81,7 @@ public class TendencyDecoratorTest {
     when(context.getMeasure(CoreMetrics.LINES)).thenReturn(new Measure(CoreMetrics.LINES, 1400.0));
     when(context.getMeasure(CoreMetrics.COVERAGE)).thenReturn(new Measure(CoreMetrics.LINES, 90.0));
 
-    TendencyDecorator decorator = new TendencyDecorator(timeMachine, query, analyser);
+    TendencyDecorator decorator = new TendencyDecorator(timeMachine, query, analyser, mock(DefaultIndex.class));
     decorator.decorate(new Directory("org/foo"), context);
 
     verify(analyser).analyseLevel(Arrays.asList(1200.0, 1300.0, 1150.0, 1400.0));
@@ -99,7 +100,7 @@ public class TendencyDecoratorTest {
       ));
 
     DecoratorContext context = mock(DecoratorContext.class);
-    TendencyDecorator decorator = new TendencyDecorator(timeMachine, query, analyser);
+    TendencyDecorator decorator = new TendencyDecorator(timeMachine, query, analyser, mock(DefaultIndex.class));
     decorator.decorate(new Directory("org/foo"), context);
 
     verify(analyser, never()).analyseLevel(anyList());
