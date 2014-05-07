@@ -156,12 +156,16 @@ public abstract class BaseIndex<R, Q, E extends Dto<K>, K extends Serializable>
 
     SearchResponse esResult = esSearch.get();
 
-    Result<R> result = new Result<R>(esResult)
-      .setTotal((int) esResult.getHits().totalHits())
-      .setTime(esResult.getTookInMillis());
+    Result<R> result = new Result<R>(esResult);
 
-    for (SearchHit hit : esResult.getHits()) {
-      result.getHits().add(this.getSearchResult(hit));
+    if(esResult != null){
+      result
+        .setTotal((int) esResult.getHits().totalHits())
+        .setTime(esResult.getTookInMillis());
+
+      for (SearchHit hit : esResult.getHits()) {
+        result.getHits().add(this.getSearchResult(hit));
+      }
     }
 
     return result;
@@ -186,7 +190,7 @@ public abstract class BaseIndex<R, Q, E extends Dto<K>, K extends Serializable>
     GetResponse result = getClient().prepareGet(this.getIndexName(),
       this.indexDefinition.getIndexType(), this.getKeyValue(key))
       .get();
-    return this.getSearchResult(result.getSourceAsMap());
+    return this.getSearchResult(result.getSource());
   }
 
   private void insertDocument(UpdateRequest request, K key) throws Exception {

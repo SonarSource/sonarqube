@@ -147,6 +147,16 @@ public class RuleIndex extends BaseIndex<Rule, RuleQuery, RuleDto, RuleKey> {
     addMatchField(mapping, RuleField.SEVERITY.key(), "string");
     addMatchField(mapping, RuleField.STATUS.key(), "string");
 
+    mapping.startObject(RuleField.CREATED_AT.key())
+      .field("type", "date")
+      .field("format", "date_time")
+      .endObject();
+
+    mapping.startObject(RuleField.UPDATED_AT.key())
+      .field("type", "date")
+      .field("format", "date_time")
+      .endObject();
+
     mapping.startObject(RuleField.NAME.key())
         .field("type", "multi_field")
         .startObject("fields")

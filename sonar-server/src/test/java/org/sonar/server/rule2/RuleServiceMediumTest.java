@@ -43,7 +43,8 @@ import static org.fest.assertions.Assertions.assertThat;
 public class RuleServiceMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester()
+    .setProperty("sonar.es.http.port","9200");
 
   MyBatis myBatis = tester.get(MyBatis.class);
   RuleDao dao = tester.get(RuleDao.class);
@@ -62,7 +63,7 @@ public class RuleServiceMediumTest {
   }
 
   @Test
-  public void insert_in_db_and_index_in_es() {
+  public void insert_in_db_and_index_in_es() throws InterruptedException {
     // insert db
     RuleKey ruleKey = RuleKey.of("javascript", "S001");
     dao.insert(newRuleDto(ruleKey), dbSession);
@@ -79,6 +80,10 @@ public class RuleServiceMediumTest {
 
     // verify that rule is indexed in es
     index.refresh();
+
+//    Thread.sleep(10000000);
+
+
     Rule hit = index.getByKey(ruleKey);
     assertThat(hit).isNotNull();
     assertThat(hit.key().repository()).isEqualTo(ruleKey.repository());
@@ -87,9 +92,8 @@ public class RuleServiceMediumTest {
     assertThat(hit.name()).isEqualTo("Rule S001");
     assertThat(hit.htmlDescription()).isEqualTo("Description S001");
     assertThat(hit.status()).isEqualTo(RuleStatus.READY);
-    //TODO fix date in ES
-//    assertThat(hit.createdAt()).isNotNull();
-//    assertThat(hit.updatedAt()).isNotNull();
+    assertThat(hit.createdAt()).isNotNull();
+    assertThat(hit.updatedAt()).isNotNull();
     assertThat(hit.internalKey()).isEqualTo("InternalKeyS001");
     assertThat(hit.severity()).isEqualTo("INFO");
     assertThat(hit.template()).isFalse();

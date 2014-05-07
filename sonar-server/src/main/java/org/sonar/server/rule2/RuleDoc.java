@@ -26,6 +26,8 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.server.rule2.RuleNormalizer.RuleField;
 
 import javax.annotation.CheckForNull;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -46,8 +48,8 @@ class RuleDoc implements Rule {
   public RuleKey key() {
     String repo = (String) fields.get(RuleField.REPOSITORY.key());
     String key = (String) fields.get(RuleField.KEY.key());
-    if(repo == null || key == null
-      || repo.isEmpty() || key.isEmpty()){
+    if (repo == null || key == null
+      || repo.isEmpty() || key.isEmpty()) {
       throw new IllegalStateException("Missing values for RuleKey in RuleDoc");
     } else {
       return RuleKey.of(repo, key);
@@ -169,12 +171,22 @@ class RuleDoc implements Rule {
   @Override
   @CheckForNull
   public Date createdAt() {
-    return (Date) fields.get(RuleField.CREATED_AT.key());
+    SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'" );
+    try {
+      return sdf.parse((String) fields.get(RuleField.CREATED_AT.key()));
+    } catch (ParseException e) {
+      throw new IllegalStateException("Cannot parse date", e);
+    }
   }
 
   @Override
   @CheckForNull
   public Date updatedAt() {
-    return (Date) fields.get(RuleField.UPDATED_AT.key());
+    SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'" );
+    try {
+      return sdf.parse((String) fields.get(RuleField.UPDATED_AT.key()));
+    } catch (ParseException e) {
+      throw new IllegalStateException("Cannot parse date", e);
+    }
   }
 }
