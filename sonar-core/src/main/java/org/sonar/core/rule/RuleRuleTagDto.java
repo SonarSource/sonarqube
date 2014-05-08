@@ -78,4 +78,8 @@ public class RuleRuleTagDto {
     return String.format("RuleRuleTag[id=%d, ruleId=%d, tagId=%d, tag=%s, type=%s]",
         id, ruleId, tagId, tag, type);
   }
+
+  public boolean isSystemTag(){
+    return this.getType().equals(RuleTagType.SYSTEM);
+  }
 }

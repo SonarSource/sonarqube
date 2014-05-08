@@ -19,7 +19,6 @@
  */
 package org.sonar.core.rule;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -31,7 +30,10 @@ import org.sonar.core.db.Dto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 public final class RuleDto implements Dto<RuleKey> {
 
@@ -311,12 +313,16 @@ public final class RuleDto implements Dto<RuleKey> {
     return this;
   }
 
-  public String[] getTags() {
-    return tags == null ? ArrayUtils.EMPTY_STRING_ARRAY : StringUtils.split(tags, ',');
+  public List<String> getTags() {
+    return tags == null ?
+      Collections.EMPTY_LIST :
+      Arrays.asList(StringUtils.split(tags, ','));
   }
 
-  public String[] getSystemTags() {
-    return systemTags == null ? ArrayUtils.EMPTY_STRING_ARRAY : StringUtils.split(systemTags, ',');
+  public List<String> getSystemTags() {
+    return systemTags == null ?
+      Collections.EMPTY_LIST :
+      Arrays.asList(StringUtils.split(systemTags, ','));
   }
 
   private String getTagsField() {
