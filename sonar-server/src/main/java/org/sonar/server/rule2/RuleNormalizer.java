@@ -121,8 +121,8 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       indexField(RuleField.INTERNAL_KEY.key(), rule.getConfigKey(), document);
       indexField(RuleField.TEMPLATE.key(), rule.getCardinality() == Cardinality.MULTIPLE, document);
 
-      document.array(RuleField.TAGS.key(), rule.getTags());
-      document.array(RuleField.SYSTEM_TAGS.key(), rule.getSystemTags());
+      document.array(RuleField.TAGS.key(), rule.getTags().toArray(new String[rule.getTags().size()]));
+      document.array(RuleField.SYSTEM_TAGS.key(), rule.getSystemTags().toArray(new String[rule.getSystemTags().size()]));
       document.startObject(RuleField.PARAMS.key()).endObject();
       document.startObject(RuleField.ACTIVE.key()).endObject();
 
