@@ -23,6 +23,7 @@ import org.sonar.core.persistence.DbSession;
 
 import javax.annotation.CheckForNull;
 import java.io.Serializable;
+import java.util.List;
 
 public interface Dao<E extends Dto<K>, K extends Serializable> {
 
@@ -31,9 +32,15 @@ public interface Dao<E extends Dto<K>, K extends Serializable> {
 
   E update(E item, DbSession session);
 
+  List<E> update(List<E> items, DbSession session);
+
   E insert(E item, DbSession session);
 
+   List<E> insert(List<E> items, DbSession session);
+
   void delete(E item, DbSession session);
+
+  void delete(List<E> items, DbSession session);
 
   void deleteByKey(K key, DbSession session);
 

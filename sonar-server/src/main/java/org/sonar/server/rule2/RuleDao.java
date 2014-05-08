@@ -20,6 +20,7 @@
 package org.sonar.server.rule2;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
@@ -36,6 +37,7 @@ import org.sonar.server.search.IndexAction;
 
 import javax.annotation.CheckForNull;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -69,14 +71,6 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> implements Ba
     throw new UnsupportedOperationException("Rules cannot be deleted");
   }
 
-  @Override
-  public RuleKey getKey(RuleDto item, DbSession session) {
-    if (item.getKey() != null) {
-      return item.getKey();
-    }
-    return RuleKey.of(item.getRepositoryKey(), item.getRuleKey());
-  }
-
   @CheckForNull
   @Deprecated
   public RuleDto getById(int id, DbSession session) {
@@ -94,14 +88,28 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> implements Ba
       }
     });
     return keys;
-
   }
 
-  public List<RuleParamDto> findRuleParamsByRuleKey(RuleKey ruleKey, DbSession dbSession) {
-    return mapper(dbSession).selectParamsByRuleKey(ruleKey);
+  /** Finder methods for Rules */
+
+  public List<RuleDto> findByNonManual(DbSession session){
+    return mapper(session).selectNonManual();
   }
 
+  public List<RuleDto> findAll(DbSession session) {
+    return mapper(session).selectAll();
+  }
 
+  public List<RuleDto> findByEnabledAndNotManual(DbSession session) {
+    return mapper(session).selectEnablesAndNonManual();
+  }
+
+  public List<RuleDto> findByName(String name, DbSession session) {
+    //TODO change selectByName to return a list
+    return ImmutableList.of(mapper(session).selectByName(name));
+  }
+
+  /** Nested DTO RuleParams */
 
   public void addRuleParam(RuleDto rule, RuleParamDto paramDto, DbSession session) {
     Preconditions.checkNotNull(rule.getId(), "Rule id must be set");
@@ -110,10 +118,37 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> implements Ba
     session.enqueue(new EmbeddedIndexAction<RuleKey>(this.getIndexType(), IndexAction.Method.INSERT, paramDto, rule.getKey()));
   }
 
-  public void updateRuleParam(RuleDto rule, RuleParamDto paramDto, DbSession session) {
+  public RuleParamDto updateRuleParam(RuleDto rule, RuleParamDto paramDto, DbSession session) {
     Preconditions.checkNotNull(rule.getId(), "Rule id must be set");
+    Preconditions.checkNotNull(paramDto.getId(), "Param is not yet persisted must be set");
     paramDto.setRuleId(rule.getId());
-    mapper(session).updateParameter(paramDto);
+    System.out.println("paramDto = " + paramDto);
     session.enqueue(new EmbeddedIndexAction<RuleKey>(this.getIndexType(), IndexAction.Method.UPDATE, paramDto, rule.getKey()));
+     mapper(session).updateParameter(paramDto);
+    return paramDto;
+  }
+
+  public void removeRuleParam(RuleDto rule, RuleParamDto param, DbSession session) {
+    Preconditions.checkNotNull(param.getId(), "Param is not persisted");
+    mapper(session).deleteParameter(param.getId());
+    session.enqueue(new EmbeddedIndexAction<RuleKey>(this.getIndexType(), IndexAction.Method.DELETE, param, rule.getKey()));
+  }
+
+  /** Finder methods for RuleParams */
+
+  public List<RuleParamDto> findAllRuleParams(DbSession session) {
+    return mapper(session).selectAllParams();
+  }
+
+  public List<RuleParamDto> findRuleParamsByRuleKey(RuleKey key, DbSession session) {
+    return mapper(session).selectParamsByRuleKey(key);
+  }
+
+  public List<RuleParamDto> findRuleParamsByRules(List<RuleDto> ruleDtos, DbSession session) {
+    List<RuleParamDto> ruleParamDtos = new ArrayList<RuleParamDto>();
+    for(RuleDto rule:ruleDtos){
+      ruleParamDtos.addAll(findRuleParamsByRuleKey(rule.getKey(), session));
+    }
+    return ruleParamDtos;
   }
 }

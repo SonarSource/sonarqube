@@ -23,13 +23,14 @@ import com.google.common.base.Preconditions;
 import org.sonar.core.db.Dao;
 import org.sonar.core.db.Dto;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
 import org.sonar.server.search.DtoIndexAction;
 import org.sonar.server.search.IndexAction;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.KeyIndexAction;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * naming convention for DAO
@@ -115,8 +116,6 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
 
   protected abstract E doGetByKey(K key, DbSession session);
 
-  protected abstract K getKey(E item, DbSession session);
-
   protected abstract E doInsert(E item, DbSession session);
 
   protected abstract E doUpdate(E item, DbSession session);
@@ -139,6 +138,16 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   }
 
   @Override
+  public List<E>  update(List<E> items, DbSession session) {
+    //TODO check for bulk inserts
+    List<E> results = new ArrayList<E>();
+    for(E item:items) {
+      results.add(this.update(item, session));
+    }
+    return items;
+  }
+
+  @Override
   public E insert(E item, DbSession session) {
     this.doInsert(item, session);
     session.enqueue(new DtoIndexAction<E>(this.getIndexType(), IndexAction.Method.INSERT, item));
@@ -146,8 +155,26 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   }
 
   @Override
+  public List<E>  insert(List<E> items, DbSession session) {
+    //TODO check for bulk inserts
+    List<E> results = new ArrayList<E>();
+    for(E item:items) {
+      results.add(this.insert(item, session));
+    }
+    return items;
+  }
+
+  @Override
   public void delete(E item, DbSession session) {
-    deleteByKey(getKey(item, session), session);
+    deleteByKey(item.getKey(), session);
+  }
+
+  @Override
+  public void delete(List<E> items, DbSession session) {
+    //TODO check for bulk inserts
+    for(E item:items) {
+      this.delete(item, session);
+    }
   }
 
   @Override
@@ -156,5 +183,4 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
     doDeleteByKey(key, session);
     session.enqueue(new KeyIndexAction<K>(this.getIndexType(), IndexAction.Method.DELETE, key));
   }
-
 }

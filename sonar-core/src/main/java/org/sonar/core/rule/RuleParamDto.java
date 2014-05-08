@@ -20,6 +20,9 @@
 
 package org.sonar.core.rule;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 public class RuleParamDto {
 
   private int id;
@@ -28,6 +31,10 @@ public class RuleParamDto {
   private String type;
   private String defaultValue;
   private String description;
+
+  public RuleParamDto() {
+
+  }
 
   public int getId() {
     return id;
@@ -81,6 +88,15 @@ public class RuleParamDto {
   public RuleParamDto setDescription(String description) {
     this.description = description;
     return this;
+  }
+
+  @Override
+  public String toString() {
+    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
+  }
+
+  public static RuleParamDto createFor(RuleDto rule) {
+    return new RuleParamDto();
   }
 
 }

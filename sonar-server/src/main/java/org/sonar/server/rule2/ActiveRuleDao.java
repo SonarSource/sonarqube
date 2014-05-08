@@ -21,7 +21,6 @@
 package org.sonar.server.rule2;
 
 import com.google.common.base.Preconditions;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
@@ -29,7 +28,6 @@ import org.sonar.core.qualityprofile.db.ActiveRuleMapper;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.BaseDao;
 import org.sonar.server.search.EmbeddedIndexAction;
@@ -46,15 +44,6 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
     super(new ActiveRuleIndexDefinition(), ActiveRuleMapper.class);
     this.ruleDao = ruleDao;
     this.profileDao = profileDao;
-  }
-
-  @Override
-  public ActiveRuleKey getKey(ActiveRuleDto item, DbSession session) {
-    if (item.getKey() != null) {
-      return item.getKey();
-    }
-    fixIdsAndKeys(item, session);
-    return item.getKey();
   }
 
   @Override
@@ -76,29 +65,6 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
     Preconditions.checkArgument(item.getId() == null, "ActiveRule is already persisted");
     mapper(session).insert(item);
     return item;
-  }
-
-  private void fixIdsAndKeys(ActiveRuleDto item, DbSession session) {
-    if (item.getKey() != null) {
-      if (item.getProfileId() == null) {
-        QualityProfileDto profile = profileDao.selectByNameAndLanguage(item.getKey().qProfile().name(), item.getKey().qProfile().lang(), session);
-        // TODO fail if profile not found
-        item.setProfileId(profile.getId());
-      }
-      if (item.getRulId() == null) {
-        RuleDto rule = ruleDao.getByKey(item.getKey().ruleKey(), session);
-        // TODO fail if rule not found
-        item.setRuleId(rule.getId());
-      }
-    } else {
-      // key is null
-      if (item.getProfileId() != null && item.getRulId() != null) {
-        QualityProfileDto profile = profileDao.selectById(item.getProfileId(), session);
-        RuleDto rule = ruleDao.getById(item.getRulId(), session);
-        RuleKey ruleKey = ruleDao.getKey(rule, session);
-        item.setKey(ActiveRuleKey.of(QualityProfileKey.of(profile.getName(), profile.getLanguage()), ruleKey));
-      }
-    }
   }
 
   @Override
