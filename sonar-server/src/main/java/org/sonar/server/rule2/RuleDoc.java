@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule2;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
@@ -188,5 +189,10 @@ class RuleDoc implements Rule {
     } catch (ParseException e) {
       throw new IllegalStateException("Cannot parse date", e);
     }
+  }
+
+  @Override
+  public String toString() {
+    return ReflectionToStringBuilder.toString(this);
   }
 }

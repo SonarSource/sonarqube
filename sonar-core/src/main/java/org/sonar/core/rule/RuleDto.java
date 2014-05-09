@@ -33,7 +33,8 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public final class RuleDto implements Dto<RuleKey> {
 
@@ -313,16 +314,16 @@ public final class RuleDto implements Dto<RuleKey> {
     return this;
   }
 
-  public List<String> getTags() {
+  public Set<String> getTags() {
     return tags == null ?
-      Collections.EMPTY_LIST :
-      Arrays.asList(StringUtils.split(tags, ','));
+      Collections.EMPTY_SET :
+      new TreeSet<String>(Arrays.asList(StringUtils.split(tags, ',')));
   }
 
-  public List<String> getSystemTags() {
+  public Set<String> getSystemTags() {
     return systemTags == null ?
-      Collections.EMPTY_LIST :
-      Arrays.asList(StringUtils.split(systemTags, ','));
+      Collections.EMPTY_SET :
+      new TreeSet<String>(Arrays.asList(StringUtils.split(systemTags, ',')));
   }
 
   private String getTagsField() {
@@ -341,12 +342,12 @@ public final class RuleDto implements Dto<RuleKey> {
     systemTags = s;
   }
 
-  public RuleDto setTags(String[] tags) {
+  public RuleDto setTags(Set<String> tags) {
     this.tags = StringUtils.join(tags, ',');
     return this;
   }
 
-  public RuleDto setSystemTags(String[] tags) {
+  public RuleDto setSystemTags(Set<String> tags) {
     this.systemTags = StringUtils.join(tags, ',');
     return this;
   }

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule2;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import org.junit.After;
 import org.junit.Before;
@@ -153,6 +154,8 @@ public class RuleServiceMediumTest {
       .setSeverity(Severity.INFO)
       .setCardinality(Cardinality.SINGLE)
       .setLanguage("js")
+      .setTags(ImmutableSet.of("tag1", "tag2"))
+      .setSystemTags(ImmutableSet.of("systag1", "systag2"))
       .setRemediationFunction("linear")
       .setDefaultRemediationFunction("linear_offset")
       .setRemediationCoefficient("1h")
@@ -160,8 +163,6 @@ public class RuleServiceMediumTest {
       .setRemediationOffset("5min")
       .setDefaultRemediationOffset("10h")
       .setEffortToFixDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix")
-      .setTags(new String[]{"tag1", "tag2"})
-      .setSystemTags(new String[]{"systag1", "systag2"})
       .setCreatedAt(DateUtils.parseDate("2013-12-16"))
       .setUpdatedAt(DateUtils.parseDate("2013-12-17"));
   }

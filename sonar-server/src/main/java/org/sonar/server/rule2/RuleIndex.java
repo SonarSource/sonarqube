@@ -258,11 +258,13 @@ public class RuleIndex extends BaseIndex<Rule, RuleQuery, RuleDto, RuleKey> {
   @Override
   protected FilterBuilder getFilter(RuleQuery query, QueryOptions options) {
     BoolFilterBuilder fb = FilterBuilders.boolFilter();
-    boolean hasFilter = false;
     this.addTermFilter(RuleField.LANGUAGE.key(), query.getLanguages(), fb);
     this.addTermFilter(RuleField.REPOSITORY.key(), query.getRepositories(), fb);
     this.addTermFilter(RuleField.SEVERITY.key(), query.getSeverities(), fb);
     this.addTermFilter(RuleField.KEY.key(), query.getKey(), fb);
+
+    this.addMultiFieldTermFilter(query.getTags(), fb, RuleField.TAGS.key(), RuleField.SYSTEM_TAGS.key());
+
     if(query.getStatuses() != null && !query.getStatuses().isEmpty()) {
       Collection<String> stringStatus = new ArrayList<String>();
       for (RuleStatus status : query.getStatuses()) {
@@ -274,6 +276,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleQuery, RuleDto, RuleKey> {
     if((query.getLanguages() != null && !query.getLanguages().isEmpty()) ||
       (query.getRepositories() != null && !query.getRepositories().isEmpty()) ||
       (query.getSeverities() != null && !query.getSeverities().isEmpty()) ||
+      (query.getTags() != null && !query.getTags().isEmpty()) ||
       (query.getStatuses() != null && !query.getStatuses().isEmpty()) ||
       (query.getKey() != null && !query.getKey().isEmpty())) {
       return fb;

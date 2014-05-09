@@ -42,6 +42,7 @@ import org.sonar.server.es.ESNode;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -158,7 +159,7 @@ public abstract class BaseIndex<R, Q, E extends Dto<K>, K extends Serializable>
 
     Result<R> result = new Result<R>(esResult);
 
-    if(esResult != null){
+    if (esResult != null) {
       result
         .setTotal((int) esResult.getHits().totalHits())
         .setTime(esResult.getTookInMillis());
@@ -175,10 +176,10 @@ public abstract class BaseIndex<R, Q, E extends Dto<K>, K extends Serializable>
 
   protected abstract R getSearchResult(Map<String, Object> fields);
 
-  protected R getSearchResult(SearchHit hit){
+  protected R getSearchResult(SearchHit hit) {
     Map<String, Object> fields = new HashMap<String, Object>();
-    for (Map.Entry<String, SearchHitField> field:hit.getFields().entrySet()){
-      fields.put(field.getKey(),field.getValue().getValue());
+    for (Map.Entry<String, SearchHitField> field : hit.getFields().entrySet()) {
+      fields.put(field.getKey(), field.getValue().getValue());
     }
     return this.getSearchResult(fields);
   }
@@ -339,6 +340,24 @@ public abstract class BaseIndex<R, Q, E extends Dto<K>, K extends Serializable>
   }
 
   /* ES QueryHelper Methods */
+
+
+  protected BoolFilterBuilder addMultiFieldTermFilter(Collection<String> values, BoolFilterBuilder filter, String... fields) {
+    if (values != null && !values.isEmpty()) {
+      BoolFilterBuilder valuesFilter = FilterBuilders.boolFilter();
+      for (String value : values) {
+        Collection<FilterBuilder> filterBuilders = new ArrayList<FilterBuilder>();
+        for(String field:fields) {
+          filterBuilders.add(FilterBuilders.termFilter(field, value));
+        }
+        valuesFilter.should(FilterBuilders.orFilter(filterBuilders.toArray(new FilterBuilder[filterBuilders.size()])));
+      }
+      filter.must(valuesFilter);
+    }
+    return filter;
+  }
+
+
 
   protected BoolFilterBuilder addTermFilter(String field, Collection<String> values, BoolFilterBuilder filter) {
     if (values != null && !values.isEmpty()) {

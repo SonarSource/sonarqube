@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule2;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import org.junit.After;
 import org.junit.Before;
@@ -32,7 +33,6 @@ import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
-import org.sonar.server.search.Hit;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
@@ -318,6 +318,48 @@ public class RuleIndexMediumTest {
     results = index.search(query, new QueryOptions());
     assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S002");
     assertThat(Iterables.getLast(results.getHits(), null).key().rule()).isEqualTo("S001");
+  }
+  @Test
+  public void search_by_tag() {
+    dao.insert(newRuleDto(RuleKey.of("java", "S001")).setTags(ImmutableSet.of("tag1")), dbSession);
+    dao.insert(newRuleDto(RuleKey.of("java", "S002")).setTags(ImmutableSet.of("tag2")), dbSession);
+    dbSession.commit();
+    index.refresh();
+
+    // find all
+    RuleQuery query = new RuleQuery();
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(2);
+
+    // tag1 in query
+    query = new RuleQuery().setQueryText("tag1");
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(1);
+    assertThat(Iterables.getFirst(index.search(query, new QueryOptions()).getHits(),null).tags()).containsExactly("tag1");
+
+    // tag1 and tag2 in query
+    query = new RuleQuery().setQueryText("tag1 tag2");
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(2);
+
+    // tag2 in filter
+    query = new RuleQuery().setTags(ImmutableSet.of("tag2"));
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(1);
+    assertThat(Iterables.getFirst(index.search(query, new QueryOptions()).getHits(),null).tags()).containsExactly("tag2");
+
+    // tag2 in filter and tag1 tag2 in query
+    query = new RuleQuery().setTags(ImmutableSet.of("tag2")).setQueryText("tag1");
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(0);
+
+    // tag2 in filter and tag1 in query
+    query = new RuleQuery().setTags(ImmutableSet.of("tag2")).setQueryText("tag1 tag2");
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(1);
+    assertThat(Iterables.getFirst(index.search(query, new QueryOptions()).getHits(),null).tags()).containsExactly("tag2");
+
+    // null list => no filter
+    query = new RuleQuery().setTags(Collections.<String>emptySet());
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(2);
+
+    // null list => no filter
+    query = new RuleQuery().setTags(null);
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(2);
   }
 
   @Test
