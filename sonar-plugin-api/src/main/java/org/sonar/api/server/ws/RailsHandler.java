@@ -38,4 +38,24 @@ public class RailsHandler implements RequestHandler {
     throw new UnsupportedOperationException("This web service is implemented in rails");
   }
 
+  public static WebService.NewParam addFormatParam(WebService.NewAction action) {
+    return action.createParam("format")
+      .setDescription("Response format can be set through:" +
+        "<ul>" +
+        "<li>Parameter format: xml | json</li>" +
+        "<li>Or the 'Accept' property in the HTTP header:" +
+        "<ul>" +
+        "<li>Accept:text/xml</li>" +
+        "<li>Accept:application/json</li>" +
+        "</ul></li></ul>" +
+        "If nothing is set, json is used")
+      .setPossibleValues("json", "xml");
+  }
+
+  public static WebService.NewParam addJsonOnlyFormatParam(WebService.NewAction action) {
+    return action.createParam("format")
+      .setDescription("Only json response format is available")
+      .setPossibleValues("json");
+  }
+
 }

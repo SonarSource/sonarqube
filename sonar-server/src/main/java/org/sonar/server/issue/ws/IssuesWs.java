@@ -42,15 +42,17 @@ public class IssuesWs implements WebService {
 
     showHandler.define(controller);
     defineSearchAction(controller);
+    defineChangelogAction(controller);
     defineAssignAction(controller);
     defineAddCommentAction(controller);
     defineDeleteCommentAction(controller);
     defineEditCommentAction(controller);
-    defineChangeSeverityAction(controller);
+    defineSetSeverityAction(controller);
     definePlanAction(controller);
     defineDoTransitionAction(controller);
     defineTransitionsAction(controller);
     defineCreateAction(controller);
+    defineDoActionAction(controller);
     defineBulkChangeAction(controller);
 
     controller.done();
@@ -124,6 +126,21 @@ public class IssuesWs implements WebService {
       .setDescription("Index of the selected page")
       .setDefaultValue("1")
       .setExampleValue("2");
+    RailsHandler.addFormatParam(action);
+  }
+
+  private void defineChangelogAction(NewController controller) {
+    WebService.NewAction action = controller.createAction("changelog")
+      .setDescription("Display changelog of an issue")
+      .setSince("4.1")
+      .setHandler(RailsHandler.INSTANCE)
+      .setResponseExample(Resources.getResource(this.getClass(), "example-changelog.json"));
+
+    action.createParam("issue")
+      .setDescription("Key of the issue")
+      .setRequired(true)
+      .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef");
+    RailsHandler.addFormatParam(action);
   }
 
   private void defineAssignAction(NewController controller) {
@@ -140,6 +157,7 @@ public class IssuesWs implements WebService {
     action.createParam("assignee")
       .setDescription("Login of the assignee")
       .setExampleValue("admin");
+    RailsHandler.addFormatParam(action);
   }
 
   private void defineAddCommentAction(NewController controller) {
@@ -156,6 +174,7 @@ public class IssuesWs implements WebService {
     action.createParam("text")
       .setDescription("Comment")
       .setExampleValue("blabla...");
+    RailsHandler.addFormatParam(action);
   }
 
   private void defineDeleteCommentAction(NewController controller) {
@@ -185,9 +204,10 @@ public class IssuesWs implements WebService {
     action.createParam("text")
       .setDescription("New comment")
       .setExampleValue("blabla2...");
+    RailsHandler.addFormatParam(action);
   }
 
-  private void defineChangeSeverityAction(NewController controller) {
+  private void defineSetSeverityAction(NewController controller) {
     WebService.NewAction action = controller.createAction("set_severity")
       .setDescription("Change severity. Requires authentication and Browse permission on project")
       .setSince("3.6")
@@ -202,6 +222,7 @@ public class IssuesWs implements WebService {
       .setDescription("New severity")
       .setExampleValue(Severity.BLOCKER)
       .setPossibleValues(Severity.ALL);
+    RailsHandler.addFormatParam(action);
   }
 
   private void definePlanAction(NewController controller) {
@@ -218,6 +239,7 @@ public class IssuesWs implements WebService {
     action.createParam("plan")
       .setDescription("Key of the action plan")
       .setExampleValue("3f19de90-1521-4482-a737-a311758ff513");
+    RailsHandler.addFormatParam(action);
   }
 
   private void defineDoTransitionAction(NewController controller) {
@@ -235,6 +257,7 @@ public class IssuesWs implements WebService {
       .setDescription("Transition")
       .setExampleValue("reopen")
       .setPossibleValues(DefaultTransitions.ALL);
+    RailsHandler.addFormatParam(action);
   }
 
   private void defineTransitionsAction(NewController controller) {
@@ -276,6 +299,24 @@ public class IssuesWs implements WebService {
     action.createParam("message")
       .setDescription("Description of the issue")
       .setExampleValue("blabla...");
+    RailsHandler.addFormatParam(action);
+  }
+
+  private void defineDoActionAction(NewController controller) {
+    WebService.NewAction action = controller.createAction("do_action")
+      .setDescription("Do workflow transition on an issue. Requires authentication and Browse permission on project")
+      .setSince("3.6")
+      .setHandler(RailsHandler.INSTANCE)
+      .setPost(true);
+
+    action.createParam("issue")
+      .setDescription("Key of the issue")
+      .setRequired(true)
+      .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef");
+    action.createParam("actionKey")
+      .setDescription("Action to perform")
+      .setExampleValue("link-to-jira");
+    RailsHandler.addFormatParam(action);
   }
 
   private void defineBulkChangeAction(NewController controller) {
@@ -314,6 +355,7 @@ public class IssuesWs implements WebService {
       .setDescription("Available since version 4.0")
       .setDefaultValue("false")
       .setBooleanPossibleValues();
+    RailsHandler.addFormatParam(action);
   }
 
 }

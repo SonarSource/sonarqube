@@ -62,6 +62,7 @@ public class PermissionsWs implements WebService {
     action.createParam("component")
       .setDescription("Key of the project. Required if a project permission is set. Available since version 4.0")
       .setExampleValue("org.codehaus.sonar");
+    RailsHandler.addFormatParam(action);
   }
 
   private void defineRemoveAction(NewController controller) {
@@ -86,6 +87,7 @@ public class PermissionsWs implements WebService {
     action.createParam("component")
       .setDescription("Key of the project. Required if a project permission is set. Available since version 4.0")
       .setExampleValue("org.codehaus.sonar");
+    RailsHandler.addFormatParam(action);
   }
 
 }

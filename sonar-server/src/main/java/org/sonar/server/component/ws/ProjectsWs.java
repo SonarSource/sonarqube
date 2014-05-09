@@ -78,6 +78,8 @@ public class ProjectsWs implements WebService {
       .setDescription("Load version")
       .setDefaultValue("false")
       .setPossibleValues("true", "false", "last");
+
+    RailsHandler.addFormatParam(action);
   }
 
   private void defineCreateAction(NewController controller) {
@@ -85,7 +87,8 @@ public class ProjectsWs implements WebService {
       .setDescription("Provision a project. Requires Provision Projects permission")
       .setSince("4.0")
       .setPost(true)
-      .setHandler(RailsHandler.INSTANCE);
+      .setHandler(RailsHandler.INSTANCE)
+      .setResponseExample(Resources.getResource(this.getClass(), "projects-example-create.json"));
 
     action.createParam("key")
       .setDescription("Key of the project")
@@ -96,6 +99,8 @@ public class ProjectsWs implements WebService {
       .setDescription("Name of the project")
       .setRequired(true)
       .setExampleValue("SonarQube");
+
+    RailsHandler.addFormatParam(action);
   }
 
   private void defineDestroyAction(NewController controller) {

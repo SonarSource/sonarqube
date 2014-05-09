@@ -31,13 +31,19 @@ public class AuthenticationWs implements WebService {
     NewController controller = context.createController("api/authentication");
     controller.setDescription("Check authentication credentials");
 
-    controller.createAction("validate")
+    defineValidateAction(controller);
+
+    controller.done();
+  }
+
+  private void defineValidateAction(NewController controller) {
+    NewAction action = controller.createAction("validate")
       .setDescription("Check credentials")
       .setSince("3.3")
       .setHandler(RailsHandler.INSTANCE)
       .setResponseExample(Resources.getResource(this.getClass(), "example-validate.json"));
 
-    controller.done();
+    RailsHandler.addFormatParam(action);
   }
 
 }

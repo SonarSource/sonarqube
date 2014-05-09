@@ -47,7 +47,7 @@ public class ActionPlanWsTest {
     assertThat(action).isNotNull();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(1);
+    assertThat(action.params()).hasSize(2);
   }
 
   @Test
@@ -57,7 +57,7 @@ public class ActionPlanWsTest {
     WebService.Action action = controller.action("create");
     assertThat(action).isNotNull();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(action.params()).hasSize(4);
+    assertThat(action.params()).hasSize(5);
   }
 
   @Test
@@ -67,7 +67,7 @@ public class ActionPlanWsTest {
     WebService.Action action = controller.action("delete");
     assertThat(action).isNotNull();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(action.params()).hasSize(1);
+    assertThat(action.params()).hasSize(2);
   }
 
   @Test
@@ -77,7 +77,7 @@ public class ActionPlanWsTest {
     WebService.Action action = controller.action("update");
     assertThat(action).isNotNull();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(action.params()).hasSize(4);
+    assertThat(action.params()).hasSize(5);
   }
 
   @Test
@@ -87,7 +87,7 @@ public class ActionPlanWsTest {
     WebService.Action action = controller.action("open");
     assertThat(action).isNotNull();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(action.params()).hasSize(1);
+    assertThat(action.params()).hasSize(2);
   }
 
   @Test
@@ -97,6 +97,6 @@ public class ActionPlanWsTest {
     WebService.Action action = controller.action("close");
     assertThat(action).isNotNull();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(action.params()).hasSize(1);
+    assertThat(action.params()).hasSize(2);
   }
 }

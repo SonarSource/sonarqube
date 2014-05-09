@@ -52,7 +52,7 @@ public class ResourcesWsTest {
     assertThat(action).isNotNull();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(10);
+    assertThat(action.params()).hasSize(11);
   }
 
   @Test
@@ -62,7 +62,7 @@ public class ResourcesWsTest {
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
     assertThat(action.isInternal()).isTrue();
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(7);
+    assertThat(action.params()).hasSize(8);
   }
 
 }

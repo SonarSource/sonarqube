@@ -31,55 +31,80 @@ public class ActionPlanWs implements WebService {
     NewController controller = context.createController("api/action_plans");
     controller.setDescription("Action plans management");
 
-    WebService.NewAction search = controller.createAction("search")
+    defineSearchAction(controller);
+    defineCreateAction(controller);
+    defineUpdateAction(controller);
+    defineDeleteAction(controller);
+    defineOpenAction(controller);
+    defineCloseAction(controller);
+
+    controller.done();
+  }
+
+  private void defineSearchAction(NewController controller) {
+    WebService.NewAction action = controller.createAction("search")
       .setDescription("Get a list of action plans. Requires Browse permission on project")
       .setSince("3.6")
       .setHandler(RailsHandler.INSTANCE)
       .setResponseExample(Resources.getResource(this.getClass(), "example-search.json"));
-    addProjectParam(search);
+    addProjectParam(action);
+    addFormatParam(action);
+  }
 
-    WebService.NewAction create = controller.createAction("create")
+  private void defineCreateAction(NewController controller) {
+    WebService.NewAction action = controller.createAction("create")
       .setDescription("Create an action plan. Requires Administer permission on project")
       .setSince("3.6")
       .setPost(true)
       .setHandler(RailsHandler.INSTANCE);
-    addNameParam(create);
-    addDescriptionParam(create);
-    addDeadLineParam(create);
-    addProjectParam(create);
+    addNameParam(action);
+    addDescriptionParam(action);
+    addDeadLineParam(action);
+    addProjectParam(action);
+    addFormatParam(action);
+  }
 
-    WebService.NewAction update = controller.createAction("update")
+  private void defineUpdateAction(NewController controller) {
+    WebService.NewAction action = controller.createAction("update")
       .setDescription("Update an action plan. Requires Administer permission on project")
       .setSince("3.6")
       .setPost(true)
       .setHandler(RailsHandler.INSTANCE);
-    addKeyParam(update);
-    addNameParam(update);
-    addDescriptionParam(update);
-    addDeadLineParam(update);
+    addKeyParam(action);
+    addNameParam(action);
+    addDescriptionParam(action);
+    addDeadLineParam(action);
+    addFormatParam(action);
+  }
 
-    WebService.NewAction delete = controller.createAction("delete")
+  private void defineDeleteAction(NewController controller) {
+    WebService.NewAction action = controller.createAction("delete")
       .setDescription("Delete an action plan. Requires Administer permission on project")
       .setSince("3.6")
       .setPost(true)
       .setHandler(RailsHandler.INSTANCE);
-    addKeyParam(delete);
+    addKeyParam(action);
+    addFormatParam(action);
+  }
 
-    WebService.NewAction open = controller.createAction("open")
+  private void defineOpenAction(NewController controller) {
+    WebService.NewAction action = controller.createAction("open")
       .setDescription("Open an action plan. Requires Administer permission on project")
       .setSince("3.6")
       .setPost(true)
       .setHandler(RailsHandler.INSTANCE);
-    addKeyParam(open);
+    addKeyParam(action);
+    addFormatParam(action);
+  }
 
-    WebService.NewAction close = controller.createAction("close")
+  private void defineCloseAction(NewController controller) {
+    WebService.NewAction action = controller.createAction("close")
       .setDescription("Close an action plan. Requires Administer permission on project")
       .setSince("3.6")
       .setPost(true)
       .setHandler(RailsHandler.INSTANCE);
-    addKeyParam(close);
-
-    controller.done();
+    addKeyParam(action);
+    addFormatParam(action);
   }
 
   private static NewParam addKeyParam(WebService.NewAction action) {
@@ -113,5 +138,9 @@ public class ActionPlanWs implements WebService {
       .setDescription("Project key")
       .setExampleValue("org.codehaus.sonar:sonar")
       .setRequired(true);
+  }
+
+  private static NewParam addFormatParam(WebService.NewAction action) {
+    return RailsHandler.addFormatParam(action);
   }
 }

@@ -53,7 +53,7 @@ public class PermissionsWsTest {
     WebService.Action action = controller.action("add");
     assertThat(action).isNotNull();
     assertThat(action.handler()).isInstanceOf(RailsHandler.INSTANCE.getClass());
-    assertThat(action.params()).hasSize(4);
+    assertThat(action.params()).hasSize(5);
 
     WebService.Param permission = action.param("permission");
     assertThat(permission).isNotNull();
@@ -67,6 +67,6 @@ public class PermissionsWsTest {
     WebService.Action action = controller.action("remove");
     assertThat(action).isNotNull();
     assertThat(action.handler()).isInstanceOf(RailsHandler.INSTANCE.getClass());
-    assertThat(action.params()).hasSize(4);
+    assertThat(action.params()).hasSize(5);
   }
 }

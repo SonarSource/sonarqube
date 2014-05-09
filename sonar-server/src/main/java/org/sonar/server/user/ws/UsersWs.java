@@ -55,6 +55,8 @@ public class UsersWs implements WebService {
     action.createParam("logins")
       .setDescription("Comma-separated list of user logins")
       .setExampleValue("admin,sbrandhof");
+
+    RailsHandler.addFormatParam(action);
   }
 
   private void defineCreateAction(NewController controller) {
@@ -86,6 +88,8 @@ public class UsersWs implements WebService {
     action.createParam("email")
       .setDescription("User email")
       .setExampleValue("myname@email.com");
+
+    RailsHandler.addFormatParam(action);
   }
 
   private void defineUpdateAction(NewController controller) {
@@ -107,6 +111,8 @@ public class UsersWs implements WebService {
     action.createParam("email")
       .setDescription("User email")
       .setExampleValue("mynewname@email.com");
+
+    RailsHandler.addFormatParam(action);
   }
 
   private void defineDeactivateAction(NewController controller) {
@@ -120,6 +126,8 @@ public class UsersWs implements WebService {
       .setDescription("User login")
       .setRequired(true)
       .setExampleValue("myuser");
+
+    RailsHandler.addFormatParam(action);
   }
 
 }

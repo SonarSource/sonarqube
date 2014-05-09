@@ -50,6 +50,7 @@ public class TestsWs implements WebService {
       .setRequired(true)
       .setDescription("id or key of the test resource")
       .setExampleValue("org.codehaus.sonar.plugins:sonar-cpd-plugin:src/test/java/org/sonar/plugins/cpd/SonarBridgeEngineTest.java");
+    RailsHandler.addJsonOnlyFormatParam(action);
   }
 
   private void defineTestableAction(NewController controller) {
@@ -64,6 +65,7 @@ public class TestsWs implements WebService {
       .setRequired(true)
       .setDescription("id or key of the resource")
       .setExampleValue("org.codehaus.sonar.plugins:sonar-cpd-plugin:src/main/java/org/sonar/plugins/cpd/SonarBridgeEngine.java");
+    RailsHandler.addJsonOnlyFormatParam(action);
   }
 
 }

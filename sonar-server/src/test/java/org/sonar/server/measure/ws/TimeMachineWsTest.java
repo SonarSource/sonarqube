@@ -52,7 +52,7 @@ public class TimeMachineWsTest {
     assertThat(action).isNotNull();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(4);
+    assertThat(action.params()).hasSize(5);
   }
 
 }

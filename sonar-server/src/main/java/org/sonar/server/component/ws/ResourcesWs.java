@@ -32,13 +32,13 @@ public class ResourcesWs implements WebService {
       .setDescription("Former components web service")
       .setSince("2.10");
 
-    defineSystemAction(controller);
+    defineIndexAction(controller);
     defineSearchAction(controller);
 
     controller.done();
   }
 
-  private void defineSystemAction(NewController controller) {
+  private void defineIndexAction(NewController controller) {
     NewAction action = controller.createAction("index")
       .setDescription("Get a list of components. Requires Browse permission on resource")
       .setSince("2.10")
@@ -112,6 +112,8 @@ public class ResourcesWs implements WebService {
         "(such as 'blocker_violations', 'critical_violations', ..., 'new_blocker_violations', ...). Possible values: true | false | list of rule ids")
       .setDefaultValue("false")
       .setExampleValue("true");
+
+    RailsHandler.addFormatParam(action);
   }
 
   private void defineSearchAction(NewController controller) {
@@ -152,6 +154,8 @@ public class ResourcesWs implements WebService {
       .setDescription("Page size")
       .setDefaultValue("10")
       .setExampleValue("15");
+
+    RailsHandler.addJsonOnlyFormatParam(action);
   }
 
 }

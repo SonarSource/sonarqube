@@ -53,7 +53,7 @@ public class UsersWsTest {
     assertThat(action.isPost()).isFalse();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(2);
+    assertThat(action.params()).hasSize(3);
   }
 
   @Test
@@ -62,7 +62,7 @@ public class UsersWsTest {
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isTrue();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(action.params()).hasSize(5);
+    assertThat(action.params()).hasSize(6);
   }
 
   @Test
@@ -71,7 +71,7 @@ public class UsersWsTest {
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isTrue();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(action.params()).hasSize(3);
+    assertThat(action.params()).hasSize(4);
   }
 
   @Test
@@ -80,7 +80,7 @@ public class UsersWsTest {
     assertThat(action).isNotNull();
     assertThat(action.isPost()).isTrue();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(action.params()).hasSize(1);
+    assertThat(action.params()).hasSize(2);
   }
 
 }

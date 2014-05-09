@@ -54,7 +54,7 @@ public class IssuesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("3.6");
-    assertThat(controller.actions()).hasSize(12);
+    assertThat(controller.actions()).hasSize(14);
   }
 
   @Test
@@ -89,7 +89,18 @@ public class IssuesWsTest {
     assertThat(show.isInternal()).isFalse();
     assertThat(show.handler()).isInstanceOf(RailsHandler.class);
     assertThat(show.responseExampleAsString()).isNotEmpty();
-    assertThat(show.params()).hasSize(17);
+    assertThat(show.params()).hasSize(18);
+  }
+
+  @Test
+  public void define_changelog_action() throws Exception {
+    WebService.Controller controller = tester.controller("api/issues");
+
+    WebService.Action action = controller.action("changelog");
+    assertThat(action).isNotNull();
+    assertThat(action.handler()).isNotNull();
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.params()).hasSize(2);
   }
 
   @Test
@@ -103,7 +114,7 @@ public class IssuesWsTest {
     assertThat(action.isPost()).isTrue();
     assertThat(action.isInternal()).isFalse();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(action.params()).hasSize(2);
+    assertThat(action.params()).hasSize(3);
   }
 
   @Test
@@ -117,7 +128,7 @@ public class IssuesWsTest {
     assertThat(action.isPost()).isTrue();
     assertThat(action.isInternal()).isFalse();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(action.params()).hasSize(2);
+    assertThat(action.params()).hasSize(3);
   }
 
   @Test
@@ -145,7 +156,7 @@ public class IssuesWsTest {
     assertThat(action.isPost()).isTrue();
     assertThat(action.isInternal()).isFalse();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(action.params()).hasSize(2);
+    assertThat(action.params()).hasSize(3);
   }
 
   @Test
@@ -159,7 +170,7 @@ public class IssuesWsTest {
     assertThat(action.isPost()).isTrue();
     assertThat(action.isInternal()).isFalse();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(action.params()).hasSize(2);
+    assertThat(action.params()).hasSize(3);
   }
 
   @Test
@@ -173,7 +184,7 @@ public class IssuesWsTest {
     assertThat(action.isPost()).isTrue();
     assertThat(action.isInternal()).isFalse();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(action.params()).hasSize(2);
+    assertThat(action.params()).hasSize(3);
   }
 
   @Test
@@ -187,7 +198,7 @@ public class IssuesWsTest {
     assertThat(action.isPost()).isTrue();
     assertThat(action.isInternal()).isFalse();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(action.params()).hasSize(2);
+    assertThat(action.params()).hasSize(3);
   }
 
   @Test
@@ -215,7 +226,20 @@ public class IssuesWsTest {
     assertThat(action.since()).isEqualTo("3.6");
     assertThat(action.isPost()).isTrue();
     assertThat(action.isInternal()).isFalse();
-    assertThat(action.params()).hasSize(5);
+    assertThat(action.params()).hasSize(6);
+  }
+
+  @Test
+  public void define_do_action_action() throws Exception {
+    WebService.Controller controller = tester.controller("api/issues");
+
+    WebService.Action action = controller.action("do_action");
+    assertThat(action).isNotNull();
+    assertThat(action.handler()).isNotNull();
+    assertThat(action.since()).isEqualTo("3.6");
+    assertThat(action.isPost()).isTrue();
+    assertThat(action.isInternal()).isFalse();
+    assertThat(action.params()).hasSize(3);
   }
 
   @Test
@@ -229,7 +253,7 @@ public class IssuesWsTest {
     assertThat(action.isPost()).isTrue();
     assertThat(action.isInternal()).isFalse();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(action.params()).hasSize(8);
+    assertThat(action.params()).hasSize(9);
   }
 
 }

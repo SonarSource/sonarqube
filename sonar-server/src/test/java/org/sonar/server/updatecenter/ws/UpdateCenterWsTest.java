@@ -54,7 +54,7 @@ public class UpdateCenterWsTest {
     assertThat(action).isNotNull();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).isEmpty();
+    assertThat(action.params()).hasSize(1);
   }
 
 }

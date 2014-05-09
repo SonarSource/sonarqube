@@ -49,6 +49,8 @@ public class ComponentsWs implements WebService {
       .setRequired(true)
       .setDescription("Substring of project key (minimum 2 characters)")
       .setExampleValue("sonar");
+
+    RailsHandler.addJsonOnlyFormatParam(action);
   }
 
 }

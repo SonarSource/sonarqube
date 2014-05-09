@@ -35,6 +35,7 @@ public class ProfilesWs implements WebService {
       .setDescription("Former quality profiles web service");
 
     defineListAction(controller);
+    defineIndexAction(controller);
     defineBackupAction(controller);
     defineRestoreAction(controller);
     defineDestroyAction(controller);
@@ -57,6 +58,24 @@ public class ProfilesWs implements WebService {
     action.createParam("project")
       .setDescription("Project key or id")
       .setExampleValue("org.codehaus.sonar:sonar");
+    RailsHandler.addJsonOnlyFormatParam(action);
+  }
+
+  private void defineIndexAction(NewController controller) {
+    WebService.NewAction action = controller.createAction("index")
+      .setDescription("Get a profile")
+      .setSince("3.3")
+      .setHandler(RailsHandler.INSTANCE)
+      .setResponseExample(Resources.getResource(this.getClass(), "example-index.json"));
+
+    action.createParam("language")
+      .setDescription("Profile language")
+      .setRequired(true)
+      .setExampleValue("java");
+    action.createParam("name")
+      .setDescription("Profile name. If no profile name is given, default profile for the given language will be returned")
+      .setExampleValue("Sonar way");
+    RailsHandler.addFormatParam(action);
   }
 
   private void defineBackupAction(NewController controller) {
@@ -73,6 +92,7 @@ public class ProfilesWs implements WebService {
     action.createParam("name")
       .setDescription("Profile name. If not set, the default profile for the selected language is used")
       .setExampleValue("Sonar way");
+    RailsHandler.addFormatParam(action);
   }
 
   private void defineRestoreAction(NewController controller) {
@@ -85,6 +105,7 @@ public class ProfilesWs implements WebService {
     action.createParam("backup")
       .setRequired(true)
       .setDescription("Path to the file containing the backup (HTML format)");
+    RailsHandler.addJsonOnlyFormatParam(action);
   }
 
   private void defineDestroyAction(NewController controller) {

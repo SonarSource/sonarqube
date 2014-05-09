@@ -54,7 +54,7 @@ public class TestsWsTest {
     assertThat(action.isPost()).isFalse();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(1);
+    assertThat(action.params()).hasSize(2);
   }
 
   @Test
@@ -65,7 +65,7 @@ public class TestsWsTest {
     assertThat(action.isPost()).isFalse();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(1);
+    assertThat(action.params()).hasSize(2);
   }
 
 }

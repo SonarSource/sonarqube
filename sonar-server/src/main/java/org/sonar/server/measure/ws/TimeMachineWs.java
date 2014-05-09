@@ -61,6 +61,10 @@ public class TimeMachineWs implements WebService {
     action.createParam("toDateTime")
       .setDescription("ISO-8601 datetime (inclusive)")
       .setExampleValue("2010-12-25T23:59:59+0100");
+
+    action.createParam("format")
+      .setDescription("Response format")
+      .setPossibleValues("json", "csv");
   }
 
 }

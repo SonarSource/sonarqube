@@ -32,27 +32,50 @@ public class ServerWs implements WebService {
       .setDescription("Get system properties and upgrade db")
       .setSince("2.10");
 
+    defineIndexAction(controller);
     defineSystemAction(controller);
     defineSetupAction(controller);
 
     controller.done();
   }
 
+  private void defineIndexAction(NewController controller) {
+    NewAction action = controller.createAction("index")
+      .setDescription("Get the server status:" +
+        "<ul>" +
+        "<li>UP</li>" +
+        "<li>DOWN (generally for database connection failures)</li>" +
+        "<li>SETUP (if the server must be upgraded)</li>" +
+        "<li>MIGRATION_RUNNING (the upgrade process is currently running)</li>" +
+        "</ul>")
+      .setSince("2.10")
+      .setHandler(RailsHandler.INSTANCE)
+      .setResponseExample(Resources.getResource(this.getClass(), "example-index.json"));
+
+    RailsHandler.addFormatParam(action);
+  }
+
   private void defineSystemAction(NewController controller) {
-    controller.createAction("system")
+    NewAction action = controller.createAction("system")
       .setDescription("Get the system properties, server info (Java, OS), database configuration, JVM statistics and installed plugins. Requires Administer System permission")
       .setSince("2.10")
       .setHandler(RailsHandler.INSTANCE)
       .setResponseExample(Resources.getResource(this.getClass(), "example-system.json"));
+
+    RailsHandler.addFormatParam(action);
   }
 
   private void defineSetupAction(NewController controller) {
-    controller.createAction("setup")
+    NewAction action = controller.createAction("setup")
       .setDescription("Upgrade the SonarQube database")
       .setSince("2.10")
       .setPost(true)
       .setHandler(RailsHandler.INSTANCE)
       .setResponseExample(Resources.getResource(this.getClass(), "example-setup.json"));
+
+    action.createParam("format")
+      .setDescription("Response format")
+      .setPossibleValues("json", "csv", "text");
   }
 
 }

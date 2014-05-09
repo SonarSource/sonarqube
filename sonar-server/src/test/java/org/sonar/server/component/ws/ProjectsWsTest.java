@@ -52,7 +52,7 @@ public class ProjectsWsTest {
     assertThat(action).isNotNull();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(7);
+    assertThat(action.params()).hasSize(8);
   }
 
   @Test
@@ -60,7 +60,8 @@ public class ProjectsWsTest {
     WebService.Action action = controller.action("create");
     assertThat(action).isNotNull();
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
-    assertThat(action.params()).hasSize(2);
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.params()).hasSize(3);
   }
 
   @Test

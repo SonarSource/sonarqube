@@ -42,6 +42,6 @@ public class AuthenticationWsTest {
     assertThat(validate).isNotNull();
     assertThat(validate.handler()).isInstanceOf(RailsHandler.class);
     assertThat(validate.responseExampleAsString()).isNotEmpty();
-    assertThat(validate.params()).isEmpty();
+    assertThat(validate.params()).hasSize(1);
   }
 }
