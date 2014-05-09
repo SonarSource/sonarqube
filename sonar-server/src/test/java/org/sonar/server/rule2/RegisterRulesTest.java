@@ -108,7 +108,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     ruleTagOperations = new RuleTagOperations(ruleTagDao, esRuleTags);
     characteristicDao = new CharacteristicDao(myBatis);
     task = new RegisterRules(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RulesDefinition[]{new FakeRepository()}),
-      profilesManager, myBatis, ruleDao, ruleTagOperations, activeRuleDao, characteristicDao, system);
+      profilesManager, myBatis, ruleDao, activeRuleDao, characteristicDao, system);
     session = myBatis.openSession(false);
   }
 
@@ -191,8 +191,6 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
   }
 
   @Test
-  @Ignore
-  //TODO Check cascade in RuleDao.delete(RuleDto dto)
   public void disable_deprecated_active_rule_params() {
     setupData("disable_deprecated_active_rule_params");
     task.start();
@@ -201,7 +199,6 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
   }
 
   @Test
-  @Ignore
   //TODO check with mergeTag what happens on removal.
   public void disable_deprecated_rules() {
     setupData("disable_deprecated_rules");

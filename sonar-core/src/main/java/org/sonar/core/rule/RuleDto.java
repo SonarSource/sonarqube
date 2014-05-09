@@ -397,4 +397,11 @@ public final class RuleDto implements Dto<RuleKey> {
   public String toString() {
     return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
   }
+
+  public static RuleDto createFor(RuleKey key){
+    return new RuleDto()
+      .setRepositoryKey(key.repository())
+      .setRuleKey(key.rule());
+  }
+
 }

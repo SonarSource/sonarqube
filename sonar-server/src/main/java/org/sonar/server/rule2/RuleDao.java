@@ -77,6 +77,12 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> implements Ba
     return mapper(session).selectById(id);
   }
 
+  @CheckForNull
+  public RuleDto getParent(RuleDto rule, DbSession session){
+    Preconditions.checkNotNull(rule.getParentId(), "Rule has no persisted parent!");
+    return mapper(session).selectById(rule.getParentId());
+  }
+
   @Override
   public Collection<RuleKey> keysOfRowsUpdatedAfter(long timestamp, DbSession session) {
     final List<RuleKey> keys = Lists.newArrayList();
