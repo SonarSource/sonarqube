@@ -900,8 +900,12 @@ th.operations, td.operations {
   vertical-align: sub;
 }
 
-.code-issue-comment li {
+.code-issue-comment ul li {
   list-style: square inside;
+}
+
+.code-issue-comment ol li {
+  list-style: decimal inside;
 }
 
 .code-issue-comment pre {
@@ -1103,26 +1107,30 @@ th.operations, td.operations {
   line-height: 1.5em;
   margin: 0;
   padding: 5px 10px;
-}
 
-.discussionComment h4 {
-  font-size: 90%;
-  margin-bottom: 2px;
-}
+  h4 {
+    font-size: 90%;
+    margin-bottom: 2px;
+  }
 
-.discussionComment h4 img {
-  vertical-align: sub;
-}
+  h4 img {
+    vertical-align: sub;
+  }
 
-.discussionComment li {
-  list-style: square inside;
-}
+  ol li {
+    list-style: decimal inside;
+  }
 
-.discussionComment pre {
-  padding: 10px;
-  border: 1px dashed #DDD;
-  color: #444;
-  font-size: 12px;
+  ul li {
+    list-style: square inside;
+  }
+
+  pre {
+    padding: 10px;
+    border: 1px dashed #DDD;
+    color: #444;
+    font-size: 12px;
+  }
 }
 
 div.comment-excerpt {
