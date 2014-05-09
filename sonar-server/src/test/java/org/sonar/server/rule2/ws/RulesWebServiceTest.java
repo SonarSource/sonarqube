@@ -19,31 +19,111 @@
  */
 package org.sonar.server.rule2.ws;
 
+import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.check.Cardinality;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.rule.RuleDto;
+import org.sonar.server.rule2.RuleDao;
 import org.sonar.server.rule2.RuleService;
+import org.sonar.server.tester.ServerTester;
+import org.sonar.server.user.MockUserSession;
+import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class RulesWebServiceTest {
 
+  @ClassRule
+  public static ServerTester tester = new ServerTester();
+
+
+  private RulesWebService ws;
+  private RuleDao ruleDao;
+
+  WsTester wsTester;
+
+  @Before
+  public void setUp() throws Exception {
+    ruleDao = tester.get(RuleDao.class);
+    ws = tester.get(RulesWebService.class);
+    wsTester = new WsTester(ws);
+
+  }
+
   @Test
   public void define() throws Exception {
-    RuleService service = mock(RuleService.class);
-    SearchAction search = new SearchAction(service);
-    ShowAction show = new ShowAction(service);
-    TagsAction tags = new TagsAction(service);
-    RulesWebService ws = new RulesWebService(search, show, tags);
 
     WebService.Context context = new WebService.Context();
     ws.define(context);
 
     WebService.Controller controller = context.controller("api/rules2");
+
     assertThat(controller).isNotNull();
     assertThat(controller.actions()).hasSize(3);
     assertThat(controller.action("search")).isNotNull();
     assertThat(controller.action("show")).isNotNull();
     assertThat(controller.action("tags")).isNotNull();
   }
+
+  @Test
+  public void search_no_rules() throws Exception {
+
+    MockUserSession.set();
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules2", "search");
+    System.out.println("request.toString() = " + request.toString());
+
+    WsTester.Result result = request.execute();
+    assertThat(result.outputAsString()).isEqualTo("{\"total\":0,\"rules\":[]}");
+  }
+
+  @Test
+  public void search_2_rules() throws Exception {
+
+    DbSession session = tester.get(MyBatis.class).openSession(false);
+    ruleDao.insert(newRuleDto(RuleKey.of("javascript", "S001")), session);
+    ruleDao.insert(newRuleDto(RuleKey.of("javascript", "S002")), session);
+    session.commit();
+    session.close();
+    tester.get(RuleService.class).refresh();
+
+    MockUserSession.set();
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules2", "search");
+    System.out.println("request.toString() = " + request.toString());
+
+    WsTester.Result result = request.execute();
+    System.out.println("result.outputAsString() = " + result.outputAsString());
+  }
+
+
+  private RuleDto newRuleDto(RuleKey ruleKey) {
+    return new RuleDto()
+      .setRuleKey(ruleKey.rule())
+      .setRepositoryKey(ruleKey.repository())
+      .setName("Rule " + ruleKey.rule())
+      .setDescription("Description " + ruleKey.rule())
+      .setStatus(RuleStatus.READY.toString())
+      .setConfigKey("InternalKey" + ruleKey.rule())
+      .setSeverity(Severity.INFO)
+      .setCardinality(Cardinality.SINGLE)
+      .setLanguage("js")
+      .setRemediationFunction("linear")
+      .setDefaultRemediationFunction("linear_offset")
+      .setRemediationCoefficient("1h")
+      .setDefaultRemediationCoefficient("5d")
+      .setRemediationOffset("5min")
+      .setDefaultRemediationOffset("10h")
+      .setEffortToFixDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix")
+      .setCreatedAt(DateUtils.parseDate("2013-12-16"))
+      .setUpdatedAt(DateUtils.parseDate("2013-12-17"));
+  }
 }
+
+

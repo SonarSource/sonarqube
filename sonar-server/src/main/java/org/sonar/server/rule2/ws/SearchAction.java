@@ -188,9 +188,11 @@ public class SearchAction implements RequestHandler {
       request.mandatoryParamAsInt(PARAM_PAGE_SIZE));
 
     Result<Rule> results = service.search(query, options);
+
     JsonWriter json = response.newJsonWriter().beginObject();
     writeStatistics(results, json);
     writeRules(results, json);
+    json.endObject();
     json.close();
   }
 
@@ -199,7 +201,10 @@ public class SearchAction implements RequestHandler {
   }
 
   private void writeRules(Result<Rule> result, JsonWriter json) {
+    json.name("rules").beginArray();
+
     for(Rule rule:result.getHits()) {
+      json.beginObject();
       json
         .prop("repo", rule.key().repository())
         .prop("key", rule.key().rule())
@@ -222,7 +227,9 @@ public class SearchAction implements RequestHandler {
           .endObject();
       }
       json.endArray();
+      json.endObject();
     }
+    json.endArray();
   }
 
   @CheckForNull
