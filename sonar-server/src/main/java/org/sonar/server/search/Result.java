@@ -19,6 +19,7 @@
  */
 package org.sonar.server.search;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.facet.Facet;
 import org.elasticsearch.search.facet.terms.TermsFacet;
@@ -127,5 +128,10 @@ public class Result<K> {
       }
     }
     return null;
+  }
+
+  @Override
+  public String toString() {
+    return ReflectionToStringBuilder.toString(this);
   }
 }
