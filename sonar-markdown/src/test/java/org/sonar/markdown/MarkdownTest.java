@@ -32,6 +32,13 @@ public class MarkdownTest {
   }
 
   @Test
+  public void shouldDecorateDocumentedLink() {
+    assertThat(Markdown.convertToHtml("For more details, please [check online documentation](http://docs.codehaus.org/display/SONAR)."))
+        .isEqualTo("For more details, please <a href=\"http://docs.codehaus.org/display/SONAR\" target=\"_blank\">check online documentation</a>.");
+  }
+
+
+  @Test
   public void shouldDecorateEndOfLine() {
     assertThat(Markdown.convertToHtml("1\r2\r\n3\n")).isEqualTo("1<br/>2<br/>3<br/>");
   }

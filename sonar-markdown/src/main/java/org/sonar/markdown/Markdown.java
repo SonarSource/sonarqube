@@ -31,6 +31,7 @@ public final class Markdown {
 
   private Markdown() {
     dispatcher = ChannelDispatcher.builder()
+      .addChannel(new HtmlLinkChannel())
       .addChannel(new HtmlUrlChannel())
       .addChannel(new HtmlEndOfLineChannel())
       .addChannel(new HtmlEmphasisChannel())
