@@ -31,8 +31,8 @@ import org.sonar.core.db.Dto;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -316,13 +316,13 @@ public final class RuleDto implements Dto<RuleKey> {
 
   public Set<String> getTags() {
     return tags == null ?
-      Collections.EMPTY_SET :
+      new HashSet<String>() :
       new TreeSet<String>(Arrays.asList(StringUtils.split(tags, ',')));
   }
 
   public Set<String> getSystemTags() {
     return systemTags == null ?
-      Collections.EMPTY_SET :
+      new HashSet<String>() :
       new TreeSet<String>(Arrays.asList(StringUtils.split(systemTags, ',')));
   }
 
