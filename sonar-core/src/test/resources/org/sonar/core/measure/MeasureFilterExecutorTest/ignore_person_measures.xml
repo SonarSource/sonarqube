@@ -6,7 +6,7 @@
 
   <projects kee="java_project" long_name="Java project" scope="PRJ" qualifier="TRK" name="Java project"
             id="1" root_id="[null]"
-            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+            description="[null]" enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]"/>
 
   <snapshots id="101" project_id="1" root_project_id="1" root_snapshot_id="[null]" parent_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" path="" depth="0"

@@ -119,7 +119,7 @@ public class MeasureFilterExecutorTest {
   @Test
   public void projects_without_measure_conditions() throws SQLException {
     db.prepareDbUnit(getClass(), "shared.xml");
-    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setSortOn(MeasureFilterSort.Field.LANGUAGE);
+    MeasureFilter filter = new MeasureFilter().setResourceQualifiers(Arrays.asList("TRK")).setSortOn(MeasureFilterSort.Field.DATE);
     List<MeasureFilterRow> rows = executor.execute(filter, new MeasureFilterContext());
 
     assertThat(rows).hasSize(2);

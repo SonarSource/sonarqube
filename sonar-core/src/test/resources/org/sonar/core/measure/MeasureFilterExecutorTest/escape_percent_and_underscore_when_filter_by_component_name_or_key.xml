@@ -3,7 +3,7 @@
   <!-- java project -->
   <projects kee="java_project:org.sonar.bar" long_name="org.sonar.bar" scope="FIL" qualifier="CLA" name="org.sonar.bar"
             id="1" root_id="[null]"
-            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"
+            description="[null]" enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]"
             created_at="2008-12-19 00:00:00.00"/>
 
   <projects kee="java_project:org.sonar.foo" scope="FIL" qualifier="CLA" long_name="org.sonar.foo" name="org.sonar.foo"

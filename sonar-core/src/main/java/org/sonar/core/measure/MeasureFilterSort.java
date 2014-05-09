@@ -24,7 +24,7 @@ import org.sonar.api.measures.Metric;
 
 class MeasureFilterSort {
   public static enum Field {
-    KEY, NAME, VERSION, LANGUAGE, METRIC, SHORT_NAME, DESCRIPTION,
+    KEY, NAME, VERSION, METRIC, SHORT_NAME, DESCRIPTION,
     // Sort by last analysis date
     DATE,
     // Sort by project creation date
@@ -110,9 +110,6 @@ class MeasureFilterSort {
         break;
       case VERSION:
         column = "s.version";
-        break;
-      case LANGUAGE:
-        column = "p.language";
         break;
       case DATE:
         column = "s.created_at";

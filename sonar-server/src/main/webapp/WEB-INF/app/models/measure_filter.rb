@@ -158,7 +158,8 @@ class MeasureFilter < ActiveRecord::Base
       @criteria = self.data.split(CRITERIA_SEPARATOR).inject(HashWithIndifferentAccess.new) do |h, s|
         k, v=s.split('=')
         if k && v
-          v=v.split(CRITERIA_KEY_VALUE_SEPARATOR) if v.include?(CRITERIA_KEY_VALUE_SEPARATOR)
+          # Empty values are removed
+          v=v.split(CRITERIA_KEY_VALUE_SEPARATOR).select{|v| !v.empty?} if v.include?(CRITERIA_KEY_VALUE_SEPARATOR)
           h[k]=v
         end
         h
