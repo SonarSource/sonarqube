@@ -58,6 +58,11 @@ public class MarkdownTest {
         .isEqualTo("<h1>Top\r</h1><h2>Sub\r\n</h2><h3>Subsub\n</h3><h4></h4> 1.five");
   }
 
+  @Test
+  public void shouldDecorateBlockquote() {
+    assertThat(Markdown.convertToHtml("> Yesterday it worked\n> Today it is not working\r\n> Software is like that\r"))
+        .isEqualTo("<blockquote>Yesterday it worked<br/>\nToday it is not working<br/>\r\nSoftware is like that<br/>\r</blockquote>");
+  }
 
   @Test
   public void shouldDecorateMixedOrderedAndUnorderedList() {
