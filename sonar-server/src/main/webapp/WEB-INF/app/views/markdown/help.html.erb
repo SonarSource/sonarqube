@@ -17,11 +17,40 @@
       <td><a href="http://sonarqube.org">http://sonarqube.org</a></td>
     </tr>
     <tr class="even">
-      <td valign="top">* bulleted point</td>
-      <td class="discussionComment">
+      <td valign="top">* first item<br>
+      * second item</td>
+      <td class="discussionComment" style="background-color: inherit">
         <ul>
-          <li>bulleted point</li>
+          <li>first item</li>
+          <li>second item</li>
         </ul>
+      </td>
+    </tr>
+    <tr class="odd">
+      <td valign="top">1. first item<br>
+      1. second item</td>
+      <td class="discussionComment" style="background-color: inherit">
+        <ol>
+          <li>first item</li>
+          <li>second item</li>
+        </ol>
+      </td>
+    </tr>
+    <tr class="even">
+      <td valign="top">
+        = Heading Level 1<br>
+        == Heading Level 2<br>
+        === Heading Level 3<br>
+        ==== Heading Level 4<br>
+        ===== Heading Level 5<br>
+        ====== Heading Level 6<br>
+      <td valign="top">
+      <h1>Heading Level 1</h1>
+      <h2>Heading Level 2</h2>
+      <h3>Heading Level 3</h3>
+      <h4>Heading Level 4</h4>
+      <h5>Heading Level 5</h5>
+      <h6>Heading Level 6</h6>
       </td>
     </tr>
     <tr class="odd">
@@ -41,10 +70,30 @@
 <code>
   // code on multiple lines
   public void foo() {
-  // do some logic here
+    // do some logic here
   }
 </code>
       </pre>
+      </td>
+    </tr>
+    <tr class="odd">
+      <td valign="top">
+        Standard text<br>
+        > Blockquoted text<br>
+        > that spans multiple lines<br>
+      </td>
+      <td valign="top">
+      <p>Standard text</p>
+      <blockquote>Blockquoted text<br>
+      that spans multiple lines<br></blockquote>
+      </td>
+    </tr>
+    <tr class="even">
+      <td valign="top">
+        [SonarQube™ Home Page](http://www.sonarqube.org)
+      </td>
+      <td valign="top">
+      <a href="http://www.sonarqube.org" target="_blank">SonarQube™ Home Page</a>
       </td>
     </tr>
     </tbody>
