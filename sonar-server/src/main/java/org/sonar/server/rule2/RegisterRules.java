@@ -151,7 +151,7 @@ public class RegisterRules implements Startable {
 
   private Map<RuleKey, RuleDto> getRulesByKey(DbSession session) {
     Map<RuleKey, RuleDto> rules = new HashMap<RuleKey, RuleDto>();
-    for (RuleDto rule : ruleDao.findAll(session)) {
+    for (RuleDto rule : ruleDao.findByNonManual(session)) {
       rules.put(rule.getKey(), rule);
     }
     return rules;
