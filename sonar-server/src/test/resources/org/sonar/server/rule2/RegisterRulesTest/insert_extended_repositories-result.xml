@@ -1,9 +1,9 @@
 <dataset>
 
-  <rules tags="[null]" system_tags="[null]" id="1" plugin_rule_key="rule1" plugin_name="findbugs" plugin_config_key="[null]" name="Rule One" description="Description of Rule One"
+  <rules tags="" system_tags="" id="1" plugin_rule_key="rule1" plugin_name="findbugs" plugin_config_key="[null]" name="Rule One" description="Description of Rule One"
      status="READY" priority="2" cardinality="SINGLE" parent_id="[null]" language="java"/>
 
-    <rules tags="[null]" system_tags="[null]" id="2" plugin_rule_key="rule2" plugin_name="findbugs" plugin_config_key="[null]" name="Rule Two" description="Description of Rule Two"
+    <rules tags="" system_tags="" id="2" plugin_rule_key="rule2" plugin_name="findbugs" plugin_config_key="[null]" name="Rule Two" description="Description of Rule Two"
          status="READY" priority="2" cardinality="SINGLE" parent_id="[null]" language="java"/>
 
 </dataset>

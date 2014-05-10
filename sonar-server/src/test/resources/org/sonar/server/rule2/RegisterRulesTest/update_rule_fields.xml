@@ -12,7 +12,7 @@
 
   <rules_parameters id="1" rule_id="1" name="param1" description="[null]" param_type="STRING"/>
 
-  <rules tags="[null]" system_tags="[null]" id="2" plugin_rule_key="rule2" plugin_name="fake" plugin_config_key="old_config_key2" name="old name2" description="old description2"
+  <rules tags="" system_tags="" id="2" plugin_rule_key="rule2" plugin_name="fake" plugin_config_key="old_config_key2" name="old name2" description="old description2"
          status="READY" priority="1" cardinality="SINGLE" parent_id="[null]"/>
 
 
