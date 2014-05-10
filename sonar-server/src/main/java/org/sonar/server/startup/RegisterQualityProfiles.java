@@ -33,18 +33,27 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.platform.PersistentSettings;
-import org.sonar.server.qualityprofile.*;
-import org.sonar.server.rule.RegisterRules;
+import org.sonar.server.qualityprofile.DefaultProfilesCache;
+import org.sonar.server.qualityprofile.ESActiveRule;
+import org.sonar.server.qualityprofile.QProfile;
+import org.sonar.server.qualityprofile.QProfileBackup;
+import org.sonar.server.qualityprofile.QProfileLookup;
+import org.sonar.server.qualityprofile.QProfileOperations;
+import org.sonar.server.rule2.RegisterRules;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
-
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class RegisterQualityProfiles {
 
@@ -106,7 +115,7 @@ public class RegisterQualityProfiles {
     // As long ProfileDefinition API will be used, then we'll have to use this commit as Hibernate is used by plugin to load rules when creating their profiles.
     sessionFactory.getSession().commit();
 
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
       ListMultimap<String, RulesProfile> profilesByLanguage = profilesByLanguage();
       for (String language : profilesByLanguage.keySet()) {
@@ -141,7 +150,7 @@ public class RegisterQualityProfiles {
     }
   }
 
-  private void register(String language, String name, Collection<RulesProfile> profiles, SqlSession session) {
+  private void register(String language, String name, Collection<RulesProfile> profiles, DbSession session) {
     LOGGER.info("Register " + language + " profile: " + name);
 
     QProfile profile = qProfileLookup.profile(name, language, session);
