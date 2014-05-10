@@ -77,6 +77,7 @@ public class RegisterRules implements Startable {
     this(defLoader, profilesManager, myBatis, ruleDao, activeRuleDao, characteristicDao, System2.INSTANCE);
   }
 
+
   @VisibleForTesting
   RegisterRules(RuleDefinitionsLoader defLoader, ProfilesManager profilesManager,
                 MyBatis myBatis, RuleDao ruleDao, ActiveRuleDao activeRuleDao,

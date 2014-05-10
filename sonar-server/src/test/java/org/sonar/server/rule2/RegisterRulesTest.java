@@ -19,10 +19,8 @@
  */
 package org.sonar.server.rule2;
 
-import org.apache.ibatis.session.SqlSession;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -49,14 +47,12 @@ import org.sonar.server.rule.ESRuleTags;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.rule.RuleRepositories;
-import org.sonar.server.rule.RuleTagOperations;
 
 import java.util.Collection;
 import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -85,7 +81,6 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
   @Captor
   ArgumentCaptor<Collection<RuleTagDto>> ruleTagsCaptor;
 
-  RuleTagOperations ruleTagOperations;
   MyBatis myBatis;
   RuleDao ruleDao;
   RuleTagDao ruleTagDao;
@@ -105,7 +100,6 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     ruleDao = new RuleDao();
     ruleTagDao = new RuleTagDao(myBatis);
     activeRuleDao = new ActiveRuleDao(new QualityProfileDao(myBatis), ruleDao);
-    ruleTagOperations = new RuleTagOperations(ruleTagDao, esRuleTags);
     characteristicDao = new CharacteristicDao(myBatis);
     task = new RegisterRules(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RulesDefinition[]{new FakeRepository()}),
       profilesManager, myBatis, ruleDao, activeRuleDao, characteristicDao, system);
@@ -113,25 +107,8 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
   }
 
   @After
-  public void after(){
+  public void after() {
     session.close();
-  }
-
-
-  @Test
-  @Ignore
-  public void insert_new_rules() {
-    setupData("shared");
-    task.start();
-
-    verify(ruleRegistry).reindex(rulesCaptor.capture(), any(SqlSession.class));
-    assertThat(rulesCaptor.getValue()).hasSize(3);
-    verify(ruleRegistry).removeDeletedRules(any(String[].class));
-
-    verify(esRuleTags).putAllTags(ruleTagsCaptor.capture());
-    assertThat(ruleTagsCaptor.getValue()).hasSize(3);
-
-    checkTables("insert_new_rules", EXCLUDED_COLUMN_NAMES, "rules", "rules_parameters", "rules_rule_tags", "rule_tags");
   }
 
   @Test
@@ -298,32 +275,34 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     checkTables("not_disable_manual_rules", EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT, "rules");
   }
 
-//  @Test
-//  public void test_high_number_of_rules() {
-//    task = new RegisterRules(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RulesDefinition[]{new BigRepository()}),
-//      profilesManager, ruleTagOperations, myBatis, ruleDao, activeRuleDao, characteristicDao, mock(RegisterDebtModel.class));
-//
-//    setupData("shared");
-//    task.start();
-//
-//    // There is already one rule in DB
-//    assertThat(ruleDao.selectAll()).hasSize(BigRepository.SIZE + 1);
-//    assertThat(ruleDao.selectParameters()).hasSize(BigRepository.SIZE * 20);
-//    assertThat(ruleDao.selectTags(getMyBatis().openSession(false))).hasSize(BigRepository.SIZE * 3);
-//  }
+  @Test
+  public void test_high_number_of_rules() {
+    task = new RegisterRules(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RulesDefinition[]{new BigRepository()}),
+      profilesManager, myBatis, ruleDao, activeRuleDao, characteristicDao);
 
-//  @Test
-//  public void insert_extended_repositories() {
-//    task = new RegisterRules(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RulesDefinition[]{
-//      new FindbugsRepository(), new FbContribRepository()}),
-//      profilesManager, ruleRegistry, esRuleTags, ruleTagOperations, myBatis, ruleDao, ruleTagDao, activeRuleDao, characteristicDao, mock(RegisterDebtModel.class)
-//    );
-//
-//    setupData("empty");
-//    task.start();
-//
-//    checkTables("insert_extended_repositories", EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT, "rules");
-//  }
+    setupData("shared");
+    task.start();
+
+
+    // There is already one rule in DB
+    assertThat(ruleDao.findAll(session)).hasSize(BigRepository.SIZE + 1);
+    assertThat(ruleDao.findAllRuleParams(session)).hasSize(BigRepository.SIZE * 20);
+//    assertThat(ruleDao.selectTags(getMyBatis().openSession(false))).hasSize(BigRepository.SIZE * 3);
+  }
+
+  @Test
+  public void insert_extended_repositories() {
+    task = new RegisterRules(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RulesDefinition[]{
+      new FindbugsRepository(), new FbContribRepository()}),
+      profilesManager, myBatis, ruleDao, activeRuleDao, characteristicDao
+    );
+
+
+    setupData("empty");
+    task.start();
+
+    checkTables("insert_extended_repositories", EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT, "rules");
+  }
 
   static class FakeRepository implements RulesDefinition {
     @Override

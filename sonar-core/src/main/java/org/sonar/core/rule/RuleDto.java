@@ -343,12 +343,12 @@ public final class RuleDto implements Dto<RuleKey> {
   }
 
   public RuleDto setTags(Set<String> tags) {
-    this.tags = StringUtils.join(tags, ',');
+    this.tags = tags.isEmpty()?null:StringUtils.join(tags, ',');
     return this;
   }
 
   public RuleDto setSystemTags(Set<String> tags) {
-    this.systemTags = StringUtils.join(tags, ',');
+    this.systemTags =  tags.isEmpty()?null:StringUtils.join(tags, ',');
     return this;
   }
 
