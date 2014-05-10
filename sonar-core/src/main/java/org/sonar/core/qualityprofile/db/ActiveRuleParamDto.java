@@ -76,10 +76,15 @@ public class ActiveRuleParamDto {
     return this;
   }
 
-  public static ActiveRuleParamDto createFor(RuleParamDto minParam) {
-    ActiveRuleParamDto dto = new ActiveRuleParamDto();
-    dto.setKey(minParam.getName());
-    dto.setRulesParameterId(minParam.getId());
-    return dto;
+  public static ActiveRuleParamDto createFor(RuleParamDto param) {
+    return  new ActiveRuleParamDto()
+      .setKey(param.getName())
+      .setRulesParameterId(param.getId());
+  }
+
+  public static ActiveRuleParamDto createFrom(ActiveRuleParamDto parentParam) {
+    return  new ActiveRuleParamDto()
+      .setKey(parentParam.getKey())
+      .setRulesParameterId(parentParam.getId());
   }
 }

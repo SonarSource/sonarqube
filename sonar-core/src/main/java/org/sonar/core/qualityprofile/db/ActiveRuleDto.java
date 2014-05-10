@@ -20,8 +20,9 @@
 
 package org.sonar.core.qualityprofile.db;
 
-import com.google.common.base.Preconditions;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.core.db.Dto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.SeverityUtil;
@@ -184,5 +185,11 @@ public class ActiveRuleDto implements Dto<ActiveRuleKey> {
     dto.setKey(ActiveRuleKey.of(QualityProfileKey.of(profileDto.getName(), profileDto.getLanguage()), ruleDto.getKey()));
     return dto;
   }
+
+  @Override
+  public String toString() {
+    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
+  }
+
 
 }
