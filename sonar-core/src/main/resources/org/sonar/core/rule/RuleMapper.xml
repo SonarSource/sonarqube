@@ -95,7 +95,9 @@
     remediation_offset=#{remediationOffset},
     default_remediation_offset=#{defaultRemediationOffset},
     effort_to_fix_description=#{effortToFixDescription},
-    updated_at=#{updatedAt}
+    updated_at=#{updatedAt},
+    tags=#{tagsField},
+    system_tags=#{systemTagsField}
     WHERE id=#{id}
   </update>
 

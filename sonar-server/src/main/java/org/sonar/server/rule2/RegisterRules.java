@@ -50,6 +50,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -178,7 +179,8 @@ public class RegisterRules implements Startable {
       .setLanguage(ruleDef.repository().language())
       .setName(ruleDef.name())
       .setSeverity(ruleDef.severity())
-      .setStatus(ruleDef.status().name());
+      .setStatus(ruleDef.status().name())
+      .setSystemTags(ruleDef.tags());
 
     return ruleDao.insert(ruleDto, session);
   }
@@ -314,26 +316,16 @@ public class RegisterRules implements Startable {
     boolean changed = false;
 
     //the Rule is not active and dto has tags
-    if (!Rule.STATUS_REMOVED.equals(ruleDef.status())) {
+    if (Rule.STATUS_REMOVED.equals(ruleDef.status())) {
       dto.setSystemTags(Collections.EMPTY_SET);
       dto.setTags(Collections.EMPTY_SET);
       changed = true;
     } else if (!dto.getSystemTags().containsAll(ruleDef.tags())) {
-      dto.getSystemTags().addAll(ruleDef.tags());
+      Set<String> tags = dto.getTags();
+      tags.addAll(ruleDef.tags());
+      dto.setSystemTags(tags);
       changed = true;
     }
-//    //TODO Check that with JUNIT for tag removal
-//    for (String tag : tags) {
-//      // tag previously declared by plugin
-//      if (!ruleDef.tags().contains(tag)) {
-//        // not declared anymore
-//        dto.getSystemTags().remove(tag);
-//        buffer.removeTag(tag, dto.getId());
-//      } else {
-//        dto.getSystemTags().add(tag);
-//        existingSystemTags.add(tag);
-//      }
-//    }
     return changed;
   }
 
