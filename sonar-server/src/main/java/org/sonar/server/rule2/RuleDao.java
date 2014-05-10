@@ -157,4 +157,9 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> implements Ba
     }
     return ruleParamDtos;
   }
+
+  public RuleParamDto getRuleParamByRuleAndParamKey(RuleDto rule, String key, DbSession session) {
+    Preconditions.checkNotNull(rule.getId(), "Rule is not persisted");
+    return mapper(session).selectParamByRuleAndKey(rule.getId(), key);
+  }
 }

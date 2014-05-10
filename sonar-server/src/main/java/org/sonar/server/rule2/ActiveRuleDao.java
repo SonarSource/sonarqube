@@ -51,6 +51,11 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
     throw new UnsupportedOperationException("Need to implement ActiveRuleDto.doGetByKey() method");
   }
 
+  @Deprecated
+  public ActiveRuleDto getById(int activeRuleId, DbSession session) {
+    return mapper(session).selectById(activeRuleId);
+  }
+
   @Override
   protected ActiveRuleDto doGetByKey(ActiveRuleKey key, DbSession session) {
     QualityProfileDto qDto = profileDao.selectByNameAndLanguage(key.qProfile().name(), key.qProfile().lang(), session);
@@ -82,7 +87,7 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
   }
 
   public List<ActiveRuleParamDto> findParamsByActiveRule(ActiveRuleDto dto, DbSession session) {
-    Preconditions.checkArgument(dto.getId()!=null, "ActiveRule is not persisted");
+    Preconditions.checkArgument(dto.getId() != null, "ActiveRule is not persisted");
     return mapper(session).selectParamsByActiveRuleId(dto.getId());
   }
 
@@ -100,5 +105,28 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
   public List<ActiveRuleDto> findByRule(RuleDto rule, DbSession dbSession) {
     Preconditions.checkArgument(rule.getId()!=null, "Rule is not persisted");
     return mapper(dbSession).selectByRuleId(rule.getId());
+  }
+
+  public void removeAllParam(ActiveRuleDto activeRule, DbSession session) {
+    Preconditions.checkArgument(activeRule.getId()!=null, "ActiveRule is not persisted");
+    mapper(session).deleteParameters(activeRule.getId());
+  }
+
+  public void removeParam(ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam, DbSession session) {
+    Preconditions.checkArgument(activeRule.getId()!=null, "ActiveRule is not persisted");
+    Preconditions.checkArgument(activeRuleParam.getId()!=null, "ActiveRuleParam is not persisted");
+    mapper(session).deleteParameter(activeRuleParam.getId());
+  }
+
+  public void updateParam(ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam, DbSession session) {
+    Preconditions.checkArgument(activeRule.getId()!=null, "ActiveRule is not persisted");
+    Preconditions.checkArgument(activeRuleParam.getId()!=null, "ActiveRuleParam is not persisted");
+    mapper(session).updateParameter(activeRuleParam);
+  }
+
+  public ActiveRuleParamDto getParamsByActiveRuleAndKey(ActiveRuleDto activeRule, String key, DbSession session) {
+    Preconditions.checkArgument(activeRule.getId()!=null, "ActiveRule is not persisted");
+    Preconditions.checkArgument(key!=null, "Param key cannot be null");
+    return mapper(session).selectParamByActiveRuleAndKey(activeRule.getId(), key);
   }
 }
