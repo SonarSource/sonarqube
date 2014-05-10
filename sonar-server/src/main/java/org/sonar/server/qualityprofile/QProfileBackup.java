@@ -33,6 +33,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
@@ -145,7 +146,7 @@ public class QProfileBackup implements ServerComponent {
     checkPermission(UserSession.get());
     QProfileResult result = new QProfileResult();
 
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
       ListMultimap<String, RulesProfile> profilesByName = profilesByName(language, result);
       for (Map.Entry<String, Collection<RulesProfile>> entry : profilesByName.asMap().entrySet()) {
@@ -180,7 +181,7 @@ public class QProfileBackup implements ServerComponent {
   /**
    * Used by {@link org.sonar.server.startup.RegisterQualityProfiles}
    */
-  public void restoreFromActiveRules(QProfile profile, RulesProfile rulesProfile, SqlSession session) {
+  public void restoreFromActiveRules(QProfile profile, RulesProfile rulesProfile, DbSession session) {
     for (org.sonar.api.rules.ActiveRule activeRule : rulesProfile.getActiveRules()) {
       RuleKey ruleKey = RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey());
       RuleDto rule = ruleDao.selectByKey(ruleKey, session);
