@@ -48,6 +48,7 @@ class Connectors {
     for (Connector connector : connectors) {
       tomcat.getService().addConnector(connector);
     }
+    verify(connectors);
   }
 
   private static void verify(List<Connector> connectors) {
