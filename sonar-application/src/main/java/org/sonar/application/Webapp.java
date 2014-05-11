@@ -40,7 +40,9 @@ class Webapp {
       context.addParameter(PROPERTY_LOG_CONSOLE, props.of(PROPERTY_LOG_CONSOLE, "false"));
       configureRailsMode(props, context);
       context.setJarScanner(new NullJarScanner());
-
+      if(props.of("sonar.web.https.loginCert", "false").equals("true")){
+        context.getPipeline().addValve(new ClientCertValve());
+      }
     } catch (Exception e) {
       throw new IllegalStateException("Fail to configure webapp", e);
     }

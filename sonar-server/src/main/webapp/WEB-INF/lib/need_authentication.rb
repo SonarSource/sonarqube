@@ -24,11 +24,17 @@
 class DefaultRealm
   def authenticate?(username, password, servlet_request)
     result=nil
-    if !username.blank? && !password.blank?
+    if with_cert?(username, servlet_request)
+      result=User.find_active_by_login(username)
+    else
       user=User.find_active_by_login(username)
       result=user if user && user.authenticated?(password)
     end
     result
+  end
+
+  def with_cert?(username, servlet_request)
+    !username.blank? && servlet_request['javax.servlet.request.X509Certificate']
   end
 
   def editable_password?
