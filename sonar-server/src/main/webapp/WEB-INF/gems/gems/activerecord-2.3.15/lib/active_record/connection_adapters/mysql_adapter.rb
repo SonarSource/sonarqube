@@ -182,7 +182,12 @@ module ActiveRecord
       QUOTED_TRUE, QUOTED_FALSE = '1'.freeze, '0'.freeze
 
       NATIVE_DATABASE_TYPES = {
-        :primary_key => "int(11) DEFAULT NULL auto_increment PRIMARY KEY".freeze,
+        # SonarQube
+        # Compatibility with mysql 5.7
+        # See https://github.com/rails/rails/commit/26cea8fabe828e7b0535275044cb8316fff1c590
+        #:primary_key => "int(11) DEFAULT NULL auto_increment PRIMARY KEY".freeze,
+        :primary_key => "int(11) auto_increment PRIMARY KEY".freeze,
+        # /SonarQube
         :string      => { :name => "varchar", :limit => 255 },
         :text        => { :name => "text" },
         :integer     => { :name => "int", :limit => 4 },
