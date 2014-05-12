@@ -46,7 +46,7 @@ public class QProfileRecreateBuiltInActionTest {
   public void setUp() throws Exception {
     tester = new WsTester(new QProfilesWs(
       new QProfileRecreateBuiltInAction(qProfileBackup),
-      new ActivateRuleAction(mock(ActiveRuleService.class))));
+      new RuleActivationActions(mock(ActiveRuleService.class))));
   }
 
   @Test

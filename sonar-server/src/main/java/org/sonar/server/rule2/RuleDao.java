@@ -24,7 +24,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
-import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.persistence.DbSession;
@@ -42,7 +41,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> implements BatchComponent, ServerComponent {
+public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> implements ServerComponent {
 
   public RuleDao() {
     super(new RuleIndexDefinition(), RuleMapper.class);
@@ -78,7 +77,7 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> implements Ba
   }
 
   @CheckForNull
-  public RuleDto getParent(RuleDto rule, DbSession session){
+  public RuleDto getParent(RuleDto rule, DbSession session) {
     Preconditions.checkNotNull(rule.getParentId(), "Rule has no persisted parent!");
     return mapper(session).selectById(rule.getParentId());
   }
@@ -96,9 +95,11 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> implements Ba
     return keys;
   }
 
-  /** Finder methods for Rules */
+  /**
+   * Finder methods for Rules
+   */
 
-  public List<RuleDto> findByNonManual(DbSession session){
+  public List<RuleDto> findByNonManual(DbSession session) {
     return mapper(session).selectNonManual();
   }
 
@@ -115,7 +116,9 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> implements Ba
     return ImmutableList.of(mapper(session).selectByName(name));
   }
 
-  /** Nested DTO RuleParams */
+  /**
+   * Nested DTO RuleParams
+   */
 
   public void addRuleParam(RuleDto rule, RuleParamDto paramDto, DbSession session) {
     Preconditions.checkNotNull(rule.getId(), "Rule id must be set");
@@ -130,7 +133,7 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> implements Ba
     paramDto.setRuleId(rule.getId());
     System.out.println("paramDto = " + paramDto);
     session.enqueue(new EmbeddedIndexAction<RuleKey>(this.getIndexType(), IndexAction.Method.UPDATE, paramDto, rule.getKey()));
-     mapper(session).updateParameter(paramDto);
+    mapper(session).updateParameter(paramDto);
     return paramDto;
   }
 
@@ -140,7 +143,9 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> implements Ba
     session.enqueue(new EmbeddedIndexAction<RuleKey>(this.getIndexType(), IndexAction.Method.DELETE, param, rule.getKey()));
   }
 
-  /** Finder methods for RuleParams */
+  /**
+   * Finder methods for RuleParams
+   */
 
   public List<RuleParamDto> findAllRuleParams(DbSession session) {
     return mapper(session).selectAllParams();
@@ -152,7 +157,7 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> implements Ba
 
   public List<RuleParamDto> findRuleParamsByRules(List<RuleDto> ruleDtos, DbSession session) {
     List<RuleParamDto> ruleParamDtos = new ArrayList<RuleParamDto>();
-    for(RuleDto rule:ruleDtos){
+    for (RuleDto rule : ruleDtos) {
       ruleParamDtos.addAll(findRuleParamsByRuleKey(rule.getKey(), session));
     }
     return ruleParamDtos;

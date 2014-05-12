@@ -36,7 +36,7 @@ public class QProfilesWsTest {
 
   @Before
   public void setUp() {
-    controller = new WsTester(new QProfilesWs(new QProfileRecreateBuiltInAction(mock(QProfileBackup.class)), new ActivateRuleAction(mock(ActiveRuleService.class))))
+    controller = new WsTester(new QProfilesWs(new QProfileRecreateBuiltInAction(mock(QProfileBackup.class)), new RuleActivationActions(mock(ActiveRuleService.class))))
       .controller("api/qualityprofiles");
   }
 
@@ -45,11 +45,11 @@ public class QProfilesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/qualityprofiles");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(2);
+    assertThat(controller.actions()).hasSize(3);
   }
 
   @Test
-  public void define_recreate_built_in_action() throws Exception {
+  public void define_recreate_built_action() throws Exception {
     WebService.Action restoreProfiles = controller.action("recreate_built_in");
     assertThat(restoreProfiles).isNotNull();
     assertThat(restoreProfiles.isPost()).isTrue();
@@ -57,11 +57,19 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_activate_rule_in_action() throws Exception {
+  public void define_activate_rule_action() throws Exception {
     WebService.Action restoreProfiles = controller.action("activate_rule");
     assertThat(restoreProfiles).isNotNull();
     assertThat(restoreProfiles.isPost()).isTrue();
     assertThat(restoreProfiles.params()).hasSize(6);
+  }
+
+  @Test
+  public void define_deactivate_rule_action() throws Exception {
+    WebService.Action restoreProfiles = controller.action("deactivate_rule");
+    assertThat(restoreProfiles).isNotNull();
+    assertThat(restoreProfiles.isPost()).isTrue();
+    assertThat(restoreProfiles.params()).hasSize(4);
   }
 
 }

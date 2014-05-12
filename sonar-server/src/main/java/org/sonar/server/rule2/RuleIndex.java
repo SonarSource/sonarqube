@@ -32,8 +32,6 @@ import org.elasticsearch.search.facet.terms.TermsFacet;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.core.cluster.WorkQueue;
@@ -53,8 +51,6 @@ import java.util.Set;
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 public class RuleIndex extends BaseIndex<Rule, RuleQuery, RuleDto, RuleKey> {
-
-  private static final Logger LOG = LoggerFactory.getLogger(RuleIndex.class);
 
   public static final Set<String> PUBLIC_FIELDS = ImmutableSet.of(
     RuleField.KEY.key(),
@@ -86,38 +82,38 @@ public class RuleIndex extends BaseIndex<Rule, RuleQuery, RuleDto, RuleKey> {
   protected XContentBuilder getIndexSettings() throws IOException {
     return jsonBuilder().startObject()
       .startObject("index")
-        .field("number_of_replicas", 0)
-        .field("number_of_shards", 3)
-        .startObject("mapper")
-          .field("dynamic", true)
-        .endObject()
-        .startObject("analysis")
-          .startObject("analyzer")
-            .startObject("path_analyzer")
-              .field("type", "custom")
-              .field("tokenizer", "path_hierarchy")
-            .endObject()
-            .startObject("sortable")
-              .field("type", "custom")
-              .field("tokenizer", "keyword")
-              .field("filter", "lowercase")
-            .endObject()
-            .startObject("rule_name")
-              .field("type", "custom")
-              .field("tokenizer", "standard")
-              .array("filter", "lowercase", "rule_name_ngram")
-            .endObject()
-          .endObject()
-          .startObject("filter")
-            .startObject("rule_name_ngram")
-              .field("type", "nGram")
-              .field("min_gram", 3)
-              .field("max_gram", 5)
-              .array("token_chars", "letter", "digit")
-            .endObject()
-          .endObject()
-        .endObject()
-       .endObject()
+      .field("number_of_replicas", 0)
+      .field("number_of_shards", 3)
+      .startObject("mapper")
+      .field("dynamic", true)
+      .endObject()
+      .startObject("analysis")
+      .startObject("analyzer")
+      .startObject("path_analyzer")
+      .field("type", "custom")
+      .field("tokenizer", "path_hierarchy")
+      .endObject()
+      .startObject("sortable")
+      .field("type", "custom")
+      .field("tokenizer", "keyword")
+      .field("filter", "lowercase")
+      .endObject()
+      .startObject("rule_name")
+      .field("type", "custom")
+      .field("tokenizer", "standard")
+      .array("filter", "lowercase", "rule_name_ngram")
+      .endObject()
+      .endObject()
+      .startObject("filter")
+      .startObject("rule_name_ngram")
+      .field("type", "nGram")
+      .field("min_gram", 3)
+      .field("max_gram", 5)
+      .array("token_chars", "letter", "digit")
+      .endObject()
+      .endObject()
+      .endObject()
+      .endObject()
       .endObject();
   }
 
@@ -158,19 +154,19 @@ public class RuleIndex extends BaseIndex<Rule, RuleQuery, RuleDto, RuleKey> {
       .endObject();
 
     mapping.startObject(RuleField.NAME.key())
-        .field("type", "multi_field")
-        .startObject("fields")
-          .startObject(RuleField.NAME.key())
-            .field("type", "string")
-            .field("index", "analyzed")
-          .endObject()
-          .startObject("search")
-            .field("type", "string")
-            .field("index", "analyzed")
-            .field("index_analyzer", "rule_name")
-            .field("search_analyzer", "standard")
-          .endObject()
-        .endObject()
+      .field("type", "multi_field")
+      .startObject("fields")
+      .startObject(RuleField.NAME.key())
+      .field("type", "string")
+      .field("index", "analyzed")
+      .endObject()
+      .startObject("search")
+      .field("type", "string")
+      .field("index", "analyzed")
+      .field("index_analyzer", "rule_name")
+      .field("search_analyzer", "standard")
+      .endObject()
+      .endObject()
       .endObject();
 
     mapping.startObject(RuleField.ACTIVE.key())
@@ -194,20 +190,20 @@ public class RuleIndex extends BaseIndex<Rule, RuleQuery, RuleDto, RuleKey> {
       .setIndices(this.getIndexName());
 
     /* Integrate Facets */
-    if(options.isFacet()) {
+    if (options.isFacet()) {
       this.setFacets(esSearch);
     }
 
     /* integrate Query Sort */
-    if(query.getSortField() != null){
+    if (query.getSortField() != null) {
       FieldSortBuilder sort = SortBuilders.fieldSort(query.getSortField().field().key());
-      if(query.isAscendingSort()){
+      if (query.isAscendingSort()) {
         sort.order(SortOrder.ASC);
       } else {
         sort.order(SortOrder.DESC);
       }
       esSearch.addSort(sort);
-    } else if(query.getQueryText() != null && !query.getQueryText().isEmpty()){
+    } else if (query.getQueryText() != null && !query.getQueryText().isEmpty()) {
       esSearch.addSort(SortBuilders.scoreSort());
     } else {
       esSearch.addSort(RuleField.UPDATED_AT.key(), SortOrder.DESC);
@@ -220,7 +216,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleQuery, RuleDto, RuleKey> {
     /* integrate Option's Fields */
     if (options.getFieldsToReturn() != null &&
       !options.getFieldsToReturn().isEmpty()) {
-      for(String field:options.getFieldsToReturn()) {
+      for (String field : options.getFieldsToReturn()) {
         esSearch.addField(field);
       }
     } else {
@@ -243,7 +239,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleQuery, RuleDto, RuleKey> {
       qb = QueryBuilders.multiMatchQuery(query.getQueryText(),
         "_id",
         RuleField.NAME.key(),
-        RuleField.NAME.key()+".search",
+        RuleField.NAME.key() + ".search",
         RuleField.HTML_DESCRIPTION.key(),
         RuleField.KEY.key(),
         RuleField.LANGUAGE.key(),
@@ -265,7 +261,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleQuery, RuleDto, RuleKey> {
 
     this.addMultiFieldTermFilter(query.getTags(), fb, RuleField.TAGS.key(), RuleField.SYSTEM_TAGS.key());
 
-    if(query.getStatuses() != null && !query.getStatuses().isEmpty()) {
+    if (query.getStatuses() != null && !query.getStatuses().isEmpty()) {
       Collection<String> stringStatus = new ArrayList<String>();
       for (RuleStatus status : query.getStatuses()) {
         stringStatus.add(status.name());
@@ -273,7 +269,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleQuery, RuleDto, RuleKey> {
       this.addTermFilter(RuleField.STATUS.key(), stringStatus, fb);
     }
 
-    if((query.getLanguages() != null && !query.getLanguages().isEmpty()) ||
+    if ((query.getLanguages() != null && !query.getLanguages().isEmpty()) ||
       (query.getRepositories() != null && !query.getRepositories().isEmpty()) ||
       (query.getSeverities() != null && !query.getSeverities().isEmpty()) ||
       (query.getTags() != null && !query.getTags().isEmpty()) ||
@@ -285,7 +281,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleQuery, RuleDto, RuleKey> {
     }
   }
 
-  private void setFacets(SearchRequestBuilder query){
+  private void setFacets(SearchRequestBuilder query) {
     //TODO there are no aggregation in 0.9!!! Must use facet...
 
      /* the Lang facet */
@@ -313,7 +309,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleQuery, RuleDto, RuleKey> {
 
   @Override
   protected Rule getSearchResult(Map<String, Object> response) {
-    if(response == null){
+    if (response == null) {
       throw new IllegalStateException("Cannot construct Rule with null map!!!");
     }
     return new RuleDoc(response);

@@ -32,7 +32,7 @@ import java.io.Serializable;
 public class QualityProfileKey implements Serializable{
   private final String name, lang;
 
-  protected QualityProfileKey(String name, String lang) {
+  private QualityProfileKey(String name, String lang) {
     this.lang = lang;
     this.name = name;
   }

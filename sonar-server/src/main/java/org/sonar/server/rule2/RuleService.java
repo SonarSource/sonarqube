@@ -21,32 +21,34 @@ package org.sonar.server.rule2;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.rule.RuleDao;
-import org.sonar.server.search.Hit;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.rule.RuleDto;
+import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
+import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
-import java.util.List;
+import java.util.Set;
 
 /**
  * @since 4.4
  */
 public class RuleService implements ServerComponent {
 
-  private RuleIndex index;
+  private final RuleIndex index;
+  private final DbClient db;
 
-  public RuleService(RuleIndex index) {
+  public RuleService(RuleIndex index, DbClient db) {
     this.index = index;
+    this.db = db;
   }
 
   @CheckForNull
   public Rule getByKey(RuleKey key) {
-    Rule hit = index.getByKey(key);
-    if (hit != null) {
-      return hit;
-    }
-    return null;
+    return index.getByKey(key);
   }
 
   public RuleQuery newRuleQuery() {
@@ -63,8 +65,31 @@ public class RuleService implements ServerComponent {
   /**
    * List all tags
    */
-  public List<String> listTags() {
+  public Set<String> listTags() {
     throw new UnsupportedOperationException("TODO");
+  }
+
+  public void setTags(RuleKey ruleKey, Set<String> tags) {
+    checkAdminPermission(UserSession.get());
+
+    DbSession dbSession = db.openSession(false);
+    try {
+      RuleDto rule = db.ruleDao().getByKey(ruleKey, dbSession);
+      if (rule == null) {
+        throw new NotFoundException(String.format("Rule %s not found", ruleKey));
+      }
+      boolean changed = RuleTagHelper.applyTags(rule, tags);
+      if (changed) {
+        db.ruleDao().update(rule, dbSession);
+        dbSession.commit();
+      }
+    } finally {
+      dbSession.close();
+    }
+  }
+
+  private void checkAdminPermission(UserSession userSession) {
+    userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
   public RuleService refresh() {

@@ -19,9 +19,6 @@
  */
 package org.sonar.core.persistence;
 
-import org.sonar.core.cluster.NullQueue;
-
-import org.sonar.core.cluster.WorkQueue;
 import com.google.common.collect.Maps;
 import com.google.common.io.Closeables;
 import org.apache.commons.io.FileUtils;
@@ -33,7 +30,11 @@ import org.dbunit.DatabaseUnitException;
 import org.dbunit.IDatabaseTester;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.IDatabaseConnection;
-import org.dbunit.dataset.*;
+import org.dbunit.dataset.CompositeDataSet;
+import org.dbunit.dataset.DataSetException;
+import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.ITable;
+import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.ext.mssql.InsertIdentityOperation;
@@ -43,6 +44,8 @@ import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
+import org.sonar.core.cluster.NullQueue;
+import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.config.Logback;
 
 import java.io.File;
@@ -56,10 +59,10 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.mockito.Mockito.mock;
 import static org.junit.Assert.fail;
 
 public abstract class AbstractDaoTestCase {
+
   private static final Logger LOG = LoggerFactory.getLogger(AbstractDaoTestCase.class);
   private static Database database;
   private static DatabaseCommands databaseCommands;
@@ -90,7 +93,7 @@ public abstract class AbstractDaoTestCase {
       databaseCommands = DatabaseCommands.forDialect(database.getDialect());
       databaseTester = new DataSourceDatabaseTester(database.getDataSource());
 
-      myBatis = new MyBatis(database, new Logback(),queue);
+      myBatis = new MyBatis(database, new Logback(), queue);
       myBatis.start();
     }
 

@@ -48,13 +48,19 @@ public class RuleActivation {
     return this;
   }
 
-  public RuleActivation setParam(String key, @Nullable String value) {
+  public RuleActivation setParameter(String key, @Nullable String value) {
     String sanitizedValue = Strings.emptyToNull(value);
     if (value == null) {
       parameters.remove(key);
     } else {
       parameters.put(key, sanitizedValue);
     }
+    return this;
+  }
+
+  public RuleActivation setParameters(Map<String, String> m) {
+    parameters.clear();
+    parameters.putAll(m);
     return this;
   }
 

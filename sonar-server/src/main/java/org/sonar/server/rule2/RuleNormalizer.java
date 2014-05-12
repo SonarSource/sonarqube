@@ -27,13 +27,12 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.search.BaseNormalizer;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
-
-  private final RuleDao ruleDao;
 
   public static enum RuleField {
     KEY("key"),
@@ -90,16 +89,15 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     }
   }
 
-  public RuleNormalizer(MyBatis myBatis, RuleDao ruleDao) {
-    super(myBatis);
-    this.ruleDao = ruleDao;
+  public RuleNormalizer(DbClient db) {
+    super(db);
   }
 
   @Override
   public UpdateRequest normalize(RuleKey key) {
-    DbSession dbSession = getMyBatis().openSession(false);
+    DbSession dbSession = db().openSession(false);
     try {
-      return normalize(ruleDao.getByKey(key, dbSession));
+      return normalize(db().ruleDao().getByKey(key, dbSession));
     } finally {
       dbSession.close();
     }

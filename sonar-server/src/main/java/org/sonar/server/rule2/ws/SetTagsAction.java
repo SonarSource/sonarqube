@@ -17,61 +17,54 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualityprofile.ws;
+package org.sonar.server.rule2.ws;
 
-import org.sonar.api.rule.Severity;
+import com.google.common.collect.Sets;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.qualityprofile.ActiveRuleService;
+import org.sonar.server.rule2.RuleService;
 
-public class ActivateRuleAction implements RequestHandler {
+import java.util.Set;
 
-  private final ActiveRuleService service;
+public class SetTagsAction implements RequestHandler {
 
-  public ActivateRuleAction(ActiveRuleService service) {
+  private final RuleService service;
+
+  public SetTagsAction(RuleService service) {
     this.service = service;
   }
 
   void define(WebService.NewController controller) {
-    WebService.NewAction action = controller
-      .createAction("activate_rule")
-      .setDescription("Activate a rule on a Quality profile")
-      .setHandler(this)
+    WebService.NewAction setTags = controller
+      .createAction("set_tags")
+      .setDescription("Set the tags of a coding rule")
+      .setSince("4.4")
       .setPost(true)
-      .setSince("4.4");
-
-    action.createParam("profile_lang")
-      .setDescription("Profile language")
+      .setHandler(this);
+    setTags
+      .createParam("repo")
       .setRequired(true)
-      .setExampleValue("java");
-
-    action.createParam("profile_name")
-      .setDescription("Profile name")
+      .setDescription("Repository key")
+      .setExampleValue("javascript");
+    setTags
+      .createParam("key")
       .setRequired(true)
-      .setExampleValue("My profile");
-
-    action.createParam("rule_repo")
-      .setDescription("Rule repository")
-      .setRequired(true)
-      .setExampleValue("squid");
-
-    action.createParam("rule_key")
       .setDescription("Rule key")
+      .setExampleValue("EmptyBlock");
+    setTags
+      .createParam("tags")
+      .setDescription("Comma-separated list of tags. Blank value is used to remove all tags.")
       .setRequired(true)
-      .setExampleValue("AvoidCycles");
-
-    action.createParam("severity")
-      .setDescription("Severity")
-      .setPossibleValues(Severity.ALL);
-
-    action.createParam("params")
-      .setDescription("Parameters");
+      .setExampleValue("java8,security");
   }
 
   @Override
-  public void handle(Request request, Response response) throws Exception {
-
+  public void handle(Request request, Response response) {
+    RuleKey key = RuleKey.of(request.mandatoryParam("repo"), request.mandatoryParam("key"));
+    Set<String> tags = Sets.newHashSet(request.paramAsStrings("tags"));
+    service.setTags(key, tags);
   }
 }

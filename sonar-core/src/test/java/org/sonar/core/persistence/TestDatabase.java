@@ -19,9 +19,6 @@
  */
 package org.sonar.core.persistence;
 
-import org.sonar.core.cluster.NullQueue;
-
-import org.sonar.core.cluster.WorkQueue;
 import com.google.common.collect.Maps;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.dbutils.DbUtils;
@@ -48,6 +45,8 @@ import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
+import org.sonar.core.cluster.NullQueue;
+import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.config.Logback;
 import org.sonar.core.persistence.dialect.Dialect;
 
@@ -65,7 +64,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.mockito.Mockito.mock;
 import static org.junit.Assert.fail;
 
 /**

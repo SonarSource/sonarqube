@@ -17,41 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule2.ws;
+package org.sonar.server.rule2;
 
-import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
-import org.sonar.api.server.ws.Response;
-import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.server.rule2.RuleService;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Sets;
+import org.sonar.api.server.rule.RuleTagFormat;
+import org.sonar.core.rule.RuleDto;
 
+import javax.annotation.Nullable;
 import java.util.Set;
 
-public class TagsAction implements RequestHandler {
+class RuleTagHelper {
 
-  private final RuleService service;
-
-  public TagsAction(RuleService service) {
-    this.service = service;
+  private RuleTagHelper() {
+    // only static stuff
   }
 
-  void define(WebService.NewController controller) {
-    controller
-      .createAction("tags")
-      .setDescription("List all rule tags")
-      .setSince("4.4")
-      .setHandler(this);
-  }
-
-  @Override
-  public void handle(Request request, Response response) {
-    Set<String> tags = service.listTags();
-    JsonWriter json = response.newJsonWriter().beginObject();
-    json.name("tags").beginArray();
+  /**
+   * Validates tags and resolves conflicts between user and system tags.
+   */
+  static boolean applyTags(RuleDto rule, Set<String> tags) {
     for (String tag : tags) {
-      json.value(tag);
+      RuleTagFormat.validate(tag);
     }
-    json.endArray().endObject().close();
+
+    Set<String> initialTags = rule.getTags();
+    final Set<String> systemTags = rule.getSystemTags();
+    Set<String> withoutSystemTags = Sets.filter(tags, new Predicate<String>() {
+      @Override
+      public boolean apply(@Nullable String input) {
+        return input != null && !systemTags.contains(input);
+      }
+    });
+    rule.setTags(withoutSystemTags);
+    return Sets.difference(initialTags, withoutSystemTags).size() > 0;
   }
 }

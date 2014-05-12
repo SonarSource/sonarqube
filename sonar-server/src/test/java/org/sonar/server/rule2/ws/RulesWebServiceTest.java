@@ -67,10 +67,11 @@ public class RulesWebServiceTest {
     WebService.Controller controller = context.controller("api/rules2");
 
     assertThat(controller).isNotNull();
-    assertThat(controller.actions()).hasSize(3);
+    assertThat(controller.actions()).hasSize(4);
     assertThat(controller.action("search")).isNotNull();
     assertThat(controller.action("show")).isNotNull();
     assertThat(controller.action("tags")).isNotNull();
+    assertThat(controller.action("set_tags")).isNotNull();
   }
 
   @Test
@@ -86,7 +87,6 @@ public class RulesWebServiceTest {
 
   @Test
   public void search_2_rules() throws Exception {
-
     DbSession session = tester.get(MyBatis.class).openSession(false);
     ruleDao.insert(newRuleDto(RuleKey.of("javascript", "S001")), session);
     ruleDao.insert(newRuleDto(RuleKey.of("javascript", "S002")), session);
@@ -96,10 +96,8 @@ public class RulesWebServiceTest {
 
     MockUserSession.set();
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules2", "search");
-    System.out.println("request.toString() = " + request.toString());
-
     WsTester.Result result = request.execute();
-    System.out.println("result.outputAsString() = " + result.outputAsString());
+    //TODO
   }
 
 

@@ -19,13 +19,15 @@
  */
 package org.sonar.core.db;
 
+import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.DbSession;
 
 import javax.annotation.CheckForNull;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
-public interface Dao<E extends Dto<K>, K extends Serializable> {
+public interface Dao<E extends Dto<K>, K extends Serializable> extends ServerComponent {
 
   @CheckForNull
   E getByKey(K key, DbSession session);
@@ -36,11 +38,11 @@ public interface Dao<E extends Dto<K>, K extends Serializable> {
 
   E insert(E item, DbSession session);
 
-   List<E> insert(List<E> items, DbSession session);
+  List<E> insert(List<E> items, DbSession session);
 
   void delete(E item, DbSession session);
 
-  void delete(List<E> items, DbSession session);
+  void delete(Collection<E> items, DbSession session);
 
   void deleteByKey(K key, DbSession session);
 

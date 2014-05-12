@@ -24,21 +24,23 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.db.Dto;
-import org.sonar.core.persistence.MyBatis;
+import org.sonar.server.db.DbClient;
 
 import java.io.IOException;
 import java.io.Serializable;
 
 public abstract class BaseNormalizer<E extends Dto<K>, K extends Serializable> {
 
-  private MyBatis myBatis;
+  private static final Logger LOG = LoggerFactory.getLogger(BaseNormalizer.class);
 
-  protected BaseNormalizer(MyBatis mybatis) {
-    this.myBatis = mybatis;
+  private final DbClient db;
+
+  protected BaseNormalizer(DbClient db) {
+    this.db = db;
   }
 
-  protected MyBatis getMyBatis() {
-    return myBatis;
+  protected DbClient db() {
+    return db;
   }
 
   public boolean canNormalize(Class<?> objectClass, Class<?> keyClass) {
@@ -62,8 +64,6 @@ public abstract class BaseNormalizer<E extends Dto<K>, K extends Serializable> {
   public abstract UpdateRequest normalize(K key);
 
   public abstract UpdateRequest normalize(E dto);
-
-  private static final Logger LOG = LoggerFactory.getLogger(BaseNormalizer.class);
 
   protected void indexField(String field, Object value, XContentBuilder document) {
     try {

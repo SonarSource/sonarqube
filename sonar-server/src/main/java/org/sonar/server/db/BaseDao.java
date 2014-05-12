@@ -30,6 +30,7 @@ import org.sonar.server.search.KeyIndexAction;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -170,10 +171,9 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   }
 
   @Override
-  public void delete(List<E> items, DbSession session) {
-    //TODO check for bulk inserts
+  public void delete(Collection<E> items, DbSession session) {
     for(E item:items) {
-      this.delete(item, session);
+      delete(item, session);
     }
   }
 

@@ -24,11 +24,11 @@ import org.sonar.api.server.ws.WebService;
 public class QProfilesWs implements WebService {
 
   private final QProfileRecreateBuiltInAction recreateBuiltInAction;
-  private final ActivateRuleAction activateRuleAction;
+  private final RuleActivationActions ruleActivationActions;
 
-  public QProfilesWs(QProfileRecreateBuiltInAction recreateBuiltInAction, ActivateRuleAction activateRuleAction) {
+  public QProfilesWs(QProfileRecreateBuiltInAction recreateBuiltInAction, RuleActivationActions ruleActivationActions) {
     this.recreateBuiltInAction = recreateBuiltInAction;
-    this.activateRuleAction = activateRuleAction;
+    this.ruleActivationActions = ruleActivationActions;
   }
 
   @Override
@@ -38,7 +38,7 @@ public class QProfilesWs implements WebService {
       .setSince("4.4");
 
     recreateBuiltInAction.define(controller);
-    activateRuleAction.define(controller);
+    ruleActivationActions.define(controller);
 
     controller.done();
   }

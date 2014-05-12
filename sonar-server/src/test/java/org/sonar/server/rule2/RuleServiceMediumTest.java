@@ -21,9 +21,11 @@ package org.sonar.server.rule2;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -31,25 +33,32 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
+import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.ServerTester;
+import org.sonar.server.user.MockUserSession;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class RuleServiceMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester()
-    .setProperty("sonar.es.http.port","9200");
+  public static ServerTester tester = new ServerTester();
 
   MyBatis myBatis = tester.get(MyBatis.class);
   RuleDao dao = tester.get(RuleDao.class);
   RuleIndex index = tester.get(RuleIndex.class);
+  RuleService service = tester.get(RuleService.class);
   DbSession dbSession;
 
   @Before
@@ -81,10 +90,6 @@ public class RuleServiceMediumTest {
 
     // verify that rule is indexed in es
     index.refresh();
-
-//    Thread.sleep(10000000);
-
-
     Rule hit = index.getByKey(ruleKey);
     assertThat(hit).isNotNull();
     assertThat(hit.key().repository()).isEqualTo(ruleKey.repository());
@@ -100,7 +105,6 @@ public class RuleServiceMediumTest {
     assertThat(hit.template()).isFalse();
     assertThat(hit.tags()).containsOnly("tag1", "tag2");
     assertThat(hit.systemTags()).containsOnly("systag1", "systag2");
-
   }
 
   @Test
@@ -135,12 +139,60 @@ public class RuleServiceMediumTest {
     assertThat(hit).isNotNull();
     assertThat(hit.key()).isNotNull();
 
-
     RuleService service = tester.get(RuleService.class);
     Rule rule = service.getByKey(ruleKey);
 
     assertThat(rule.params()).hasSize(2);
     assertThat(Iterables.getLast(rule.params(), null).key()).isEqualTo("max");
+  }
+
+  @Test
+  @Ignore
+  public void setTags() {
+    MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+
+    // insert db
+    RuleKey rule1 = RuleKey.of("javascript", "S001");
+    dao.insert(newRuleDto(rule1)
+        .setTags(Sets.newHashSet("security"))
+        .setSystemTags(Collections.<String>emptySet()),
+      dbSession
+    );
+
+    RuleKey rule2 = RuleKey.of("java", "S001");
+    dao.insert(newRuleDto(rule2)
+      .setTags(Sets.newHashSet("toberemoved"))
+      .setSystemTags(Sets.newHashSet("bug")), dbSession);
+    dbSession.commit();
+
+    service.setTags(rule2, Sets.newHashSet("bug", "security"));
+
+    // verify that tags are indexed in es
+    service.refresh();
+    Set<String> tags = service.listTags();
+    assertThat(tags).containsOnly("security", "java8", "bug");
+  }
+
+  @Test
+  public void setTags_fail_if_rule_does_not_exist() {
+    try {
+      MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+      service.setTags(RuleKey.of("java", "S001"), Sets.newHashSet("bug", "security"));
+      fail();
+    } catch (NotFoundException e) {
+      assertThat(e).hasMessage("Rule java:S001 not found");
+    }
+  }
+
+  @Test
+  public void setTags_fail_if_not_permitted() {
+    try {
+      MockUserSession.set();
+      service.setTags(RuleKey.of("java", "S001"), Sets.newHashSet("bug", "security"));
+      fail();
+    } catch (ForbiddenException e) {
+      assertThat(e).hasMessage("Insufficient privileges");
+    }
   }
 
   private RuleDto newRuleDto(RuleKey ruleKey) {

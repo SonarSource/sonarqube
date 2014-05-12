@@ -26,25 +26,19 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
-import org.sonar.server.rule2.ActiveRuleDao;
-import org.sonar.server.rule2.RuleDao;
+import org.sonar.server.db.DbClient;
 
 import java.util.Collection;
 
 public class RuleActivationContextFactory implements ServerComponent {
 
-  private final ActiveRuleDao activeRuleDao;
-  private final RuleDao ruleDao;
-  private final QualityProfileDao profileDao;
+  private final DbClient db;
 
-  public RuleActivationContextFactory(ActiveRuleDao activeRuleDao, RuleDao ruleDao, QualityProfileDao profileDao) {
-    this.activeRuleDao = activeRuleDao;
-    this.ruleDao = ruleDao;
-    this.profileDao = profileDao;
+  public RuleActivationContextFactory(DbClient db) {
+    this.db = db;
   }
 
   public RuleActivationContext create(ActiveRuleKey key, DbSession session) {
@@ -68,7 +62,7 @@ public class RuleActivationContextFactory implements ServerComponent {
   }
 
   private RuleDto initRule(RuleKey ruleKey, RuleActivationContext context, DbSession dbSession) {
-    RuleDto rule = ruleDao.getByKey(ruleKey, dbSession);
+    RuleDto rule = db.ruleDao().getByKey(ruleKey, dbSession);
     if (rule == null) {
       throw new IllegalArgumentException("Rule not found: " + ruleKey);
     }
@@ -76,12 +70,12 @@ public class RuleActivationContextFactory implements ServerComponent {
       throw new IllegalArgumentException("Rule was removed: " + ruleKey);
     }
     context.setRule(rule);
-    context.setRuleParams(ruleDao.findRuleParamsByRuleKey(rule.getKey(), dbSession));
+    context.setRuleParams(db.ruleDao().findRuleParamsByRuleKey(rule.getKey(), dbSession));
     return rule;
   }
 
   private QualityProfileDto initProfile(ActiveRuleKey key, RuleActivationContext context, DbSession session, boolean parent) {
-    QualityProfileDto profile = profileDao.selectByNameAndLanguage(
+    QualityProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(
       key.qProfile().name(), key.qProfile().lang());
     if (profile == null) {
       throw new IllegalArgumentException("Quality profile not found: " + key.qProfile());
@@ -95,10 +89,10 @@ public class RuleActivationContextFactory implements ServerComponent {
   }
 
   private void initActiveRules(ActiveRuleKey key, RuleActivationContext context, DbSession session, boolean parent) {
-    ActiveRuleDto activeRule = activeRuleDao.getByKey(key, session);
+    ActiveRuleDto activeRule = db.activeRuleDao().getByKey(key, session);
     Collection<ActiveRuleParamDto> activeRuleParams = null;
     if (activeRule != null) {
-      context.setActiveRuleParams(activeRuleDao.findParamsByActiveRule(activeRule, session));
+      context.setActiveRuleParams(db.activeRuleDao().findParamsByActiveRule(activeRule, session));
     }
     if (parent) {
       context.setParentActiveRule(activeRule);
