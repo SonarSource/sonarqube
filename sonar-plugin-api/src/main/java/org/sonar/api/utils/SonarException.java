@@ -21,8 +21,11 @@ package org.sonar.api.utils;
 
 /**
  * Because we don't like checked exceptions !
+ *
  * @since 1.10
- * @deprecated since 4.4. See SONAR-5283
+ * @deprecated in 4.4. Use standard exceptions like {@link java.lang.IllegalArgumentException}
+ * or {@link java.lang.IllegalStateException}. Use {@link org.sonar.api.utils.MessageException}
+ * for raising errors to end-users without displaying stackstrace.
  */
 @Deprecated
 public class SonarException extends RuntimeException {
