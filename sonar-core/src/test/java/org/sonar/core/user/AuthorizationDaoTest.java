@@ -54,25 +54,6 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void user_should_have_global_authorization() {
-    // is not in an authorized group
-    setupData("user_should_have_global_permission");
-
-    AuthorizationDao authorization = new AuthorizationDao(getMyBatis());
-    Set<String> componentIds = authorization.keepAuthorizedComponentKeys(
-      Sets.<String>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT, EMPTY_PROJECT),
-      USER, "project_admin");
-
-    assertThat(componentIds).containsOnly(PROJECT, PACKAGE, FILE, EMPTY_PROJECT);
-
-    // user does not have the role "profile_admin"
-    componentIds = authorization.keepAuthorizedComponentKeys(
-      Sets.<String>newHashSet(PROJECT, PACKAGE, FILE),
-      USER, "profile_admin");
-    assertThat(componentIds).isEmpty();
-  }
-
-  @Test
   public void group_should_be_authorized() {
     // user is in an authorized group
     setupData("group_should_be_authorized");
@@ -83,13 +64,6 @@ public class AuthorizationDaoTest extends AbstractDaoTestCase {
       USER, "user");
 
     assertThat(componentIds).containsOnly(PROJECT, PACKAGE, FILE, EMPTY_PROJECT);
-
-    // user is in group that doesn't have user right
-    componentIds = authorization.keepAuthorizedComponentKeys(
-      Sets.<String>newHashSet(PROJECT, PACKAGE, FILE, FILE_IN_OTHER_PROJECT, EMPTY_PROJECT),
-      200, "user");
-
-    assertThat(componentIds).containsOnly(EMPTY_PROJECT);
 
     // group does not have the role "admin"
     componentIds = authorization.keepAuthorizedComponentKeys(
