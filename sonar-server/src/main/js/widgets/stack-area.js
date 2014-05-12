@@ -105,7 +105,9 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         })])
         .nice();
 
-    this.color = function(i) { return widget.colors()[i % cl][0]; };
+    this.color = function(i) {
+      return widget.colors()[i % cl][0];
+    };
 
 
     // Configure the axis

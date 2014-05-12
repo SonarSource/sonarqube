@@ -378,6 +378,38 @@ define(
 
 
 
+      var IssuesDetailsFavoriteFilterView = FavoriteFiltersModule.DetailsFavoriteFilterView.extend({
+        template: Handlebars.compile(jQuery('#issues-details-favorite-filter-template').html() || ''),
+
+
+        applyFavorite: function (e) {
+          var id = $j(e.target).data('id'),
+              filter = new FavoriteFilter({ id: id }),
+              app = this.options.filterView.options.app;
+
+          filter.fetch({
+            success: function () {
+              app.state.set('search', false);
+              app.favoriteFilter.clear({ silent: true });
+              app.favoriteFilter.set(filter.toJSON());
+            }
+          });
+
+          this.options.filterView.hideDetails();
+        },
+
+
+        serializeData: function () {
+          return _.extend({}, this.model.toJSON(), {
+            items: _.sortBy(this.model.get('choices'), function(item) {
+              return item.name.toLowerCase();
+            })
+          });
+        }
+      });
+
+
+
       var IssuesFavoriteFilterView = FavoriteFiltersModule.FavoriteFilterView.extend({
 
         initialize: function () {
@@ -543,37 +575,6 @@ define(
 
       });
 
-
-
-      var IssuesDetailsFavoriteFilterView = FavoriteFiltersModule.DetailsFavoriteFilterView.extend({
-        template: Handlebars.compile(jQuery('#issues-details-favorite-filter-template').html() || ''),
-
-
-        applyFavorite: function (e) {
-          var id = $j(e.target).data('id'),
-              filter = new FavoriteFilter({ id: id }),
-              app = this.options.filterView.options.app;
-
-          filter.fetch({
-            success: function () {
-              app.state.set('search', false);
-              app.favoriteFilter.clear({ silent: true });
-              app.favoriteFilter.set(filter.toJSON());
-            }
-          });
-
-          this.options.filterView.hideDetails();
-        },
-
-
-        serializeData: function () {
-          return _.extend({}, this.model.toJSON(), {
-            items: _.sortBy(this.model.get('choices'), function(item) {
-              return item.name.toLowerCase();
-            })
-          });
-        }
-      });
 
 
       var IssuesRouter = Backbone.Router.extend({

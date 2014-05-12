@@ -71,7 +71,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
     var validData = this.components().reduce(function(p, c) {
-      return p && !!c.measures[widget.metricsPriority()[0]]
+      return p && !!c.measures[widget.metricsPriority()[0]];
     }, true);
 
     if (!validData) {

@@ -416,7 +416,7 @@ requirejs(
             sort: sort.value,
             sortText: jQuery('[data-sort=' + sort.value + ']:first').text(),
             asc: asc.value === 'true'
-          }
+          };
         }
       };
 
