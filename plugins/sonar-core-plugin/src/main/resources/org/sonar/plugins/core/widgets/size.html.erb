@@ -1,7 +1,10 @@
 <%
   lines=measure('lines')
   ncloc=measure('ncloc')
-  ncloc_language_distribution=measure('ncloc_language_distribution')
+  ncloc_language_distribution = measure('ncloc_language_distribution')
+  ncloc_language_dist_hash = Hash[*(ncloc_language_distribution.data.split(';').map { |elt| elt.split('=') }.flatten)] if ncloc && ncloc_language_distribution
+  generated_ncloc=measure('generated_ncloc')
+  generated_lines=measure('generated_lines')
   classes=measure('classes')
   files=measure('files')
   functions=measure('functions')
@@ -15,68 +18,39 @@
   <tr>
     <td valign="top" width="48%" nowrap>
       <div class="dashbox">
-
         <% if ncloc %>
-          <%
-             ncloc_language_dist_hash = Hash[*(ncloc_language_distribution.data.split(';').map { |elt| elt.split('=') }.flatten)] if ncloc_language_distribution
-             if ncloc_language_dist_hash && ncloc_language_dist_hash.size == 1
-               language_key = ncloc_language_dist_hash.first()[0].to_s
-               language = languages.find { |l| l.getKey()==language_key }
-          %>
-            <h3><%= message('widget.size.lines_of_code_with_language', :params => (language ? language.getName() : language_key)) -%></h3>
-          <% else %>
-            <h3><%= message('widget.size.lines_of_code') -%></h3>
-          <% end %>
+          <h3><%= message('widget.size.lines_of_code') -%></h3>
           <p>
             <span class="big"><%= format_measure(ncloc, :suffix => '', :url => url_for_drilldown(ncloc)) -%></span>
             <%= dashboard_configuration.selected_period? ? format_variation(ncloc) : trend_icon(ncloc) -%>
           </p>
-          <%
-            generated_ncloc=measure('generated_ncloc')
-            if generated_ncloc && generated_ncloc.value>0
-          %>
-            <p>+<%= format_measure(generated_ncloc, :suffix => message('widget.size.generated.suffix'), :url => url_for_drilldown(generated_ncloc)) -%> <%= dashboard_configuration.selected_period? ? format_variation(generated_ncloc) : trend_icon(generated_ncloc) -%></p>
+          <% if ncloc_language_dist_hash %>
+            <table class="clear width100">
+              <%
+                 max = ncloc_language_dist_hash.max_by{|_k,v| v.to_i}[1].to_i
+                 # Sort lines language distribution by reverse number of lines
+                 ncloc_language_dist_hash.sort {|v1,v2| v2[1].to_i <=> v1[1].to_i }.each do |language_key, language_ncloc|
+              %>
+              <tr>
+                <td>
+                  <% language = languages.find { |l| l.getKey()==language_key.to_s } -%>
+                  <%= language ? language.getName() : language_key -%>
+                </td>
+                <td style="padding: 0 5px;" align="right">
+                  <%= ncloc.format_numeric_value(language_ncloc) %>
+                </td>
+                <td>&nbsp;</td>
+                <td align="left" style="padding-bottom:2px; padding-top:2px;">
+                  <%= barchart(:width => 70, :percent => (100 * language_ncloc.to_i / max).to_i)%>
+                </td>
+              </tr>
+              <% end %>
+            </table>
           <% end %>
-            <p><%= format_measure(lines, :suffix => message('widget.size.lines.suffix'), :url => url_for_drilldown(lines)) -%> <%= dashboard_configuration.selected_period? ? format_variation(lines) : trend_icon(lines) -%></p>
-        <% else%>
-            <h3><%= message('widget.size.lines') -%></h3>
-            <p><span class="big"><%= format_measure(lines, :suffix => '', :url => url_for_drilldown(lines)) -%> <%= trend_icon(lines) -%></span></p>
-        <% end %>
-        <%
-          generated_lines=measure('generated_lines')
-          if generated_lines && generated_lines.value>0
-        %>
-          <p>incl. <%= format_measure(generated_lines, :suffix => message('widget.size.generated.suffix'), :url => url_for_drilldown(generated_lines)) -%> <%= dashboard_configuration.selected_period? ? format_variation(generated_lines) : trend_icon(generated_lines) -%></p>
-        <% end %>
-        <% if statements %>
-          <p>
-          <%= format_measure(statements, :suffix => message('widget.size.statements.suffix'), :url => url_for_drilldown(statements)) -%> <%= dashboard_configuration.selected_period? ? format_variation(statements) : trend_icon(statements) -%>
-          </p>
-        <% end %>
-        <% if projects %>
-          <p><%= format_measure(projects, :suffix => message('widget.size.projects.suffix')) -%> <%= dashboard_configuration.selected_period? ? format_variation(projects) : trend_icon(projects) -%></p>
-        <% end %>
 
-        <% if ncloc_language_dist_hash && ncloc_language_dist_hash.size > 1 %>
-          <table class="clear width100">
-            <%
-               max = ncloc_language_dist_hash.max_by{|_k,v| v.to_i}[1].to_i
-               # Sort lines language distribution by reverse number of lines
-               ncloc_language_dist_hash.sort {|v1,v2| v2[1].to_i <=> v1[1].to_i }.each do |language_key, language_ncloc|
-                tooltip = ncloc.format_numeric_value(language_ncloc) + message('widget.size.lines_of_code.suffix')
-            %>
-            <tr>
-              <td>
-                <% language = languages.find { |l| l.getKey()==language_key.to_s } -%>
-                <%= language ? language.getName() : language_key -%>
-              </td>
-              <td>&nbsp;</td>
-              <td align="left" style="padding-bottom:2px; padding-top:2px;">
-                <%= barchart(:width => 70, :percent => (100 * language_ncloc.to_i / max).to_i, :tooltip => tooltip)%>
-              </td>
-            </tr>
-            <% end %>
-          </table>
+        <% else %>
+          <h3><%= message('widget.size.lines') -%></h3>
+          <p><span class="big"><%= format_measure(lines, :suffix => '', :url => url_for_drilldown(lines)) -%> <%= trend_icon(lines) -%></span></p>
         <% end %>
       </div>
     </td>
@@ -89,14 +63,25 @@
           <%= dashboard_configuration.selected_period? ? format_variation(files) : trend_icon(files) -%>
         </p>
         <p><%= format_measure('directories', :suffix => message('widget.size.directories.suffix'), :url => url_for_drilldown('directories')) -%> <%= dashboard_configuration.selected_period? ? format_variation('directories') : trend_icon('directories') -%></p>
+        <% if ncloc && generated_ncloc && generated_ncloc.value>0 %>
+          <p>+<%= format_measure(generated_ncloc, :suffix => message('widget.size.generated.suffix'), :url => url_for_drilldown(generated_ncloc)) -%> <%= dashboard_configuration.selected_period? ? format_variation(generated_ncloc) : trend_icon(generated_ncloc) -%></p>
+        <% end %>
+        <p><%= format_measure(lines, :suffix => message('widget.size.lines.suffix'), :url => url_for_drilldown(lines)) -%> <%= dashboard_configuration.selected_period? ? format_variation(lines) : trend_icon(lines) -%></p>
         <% if classes %>
         <p><%= format_measure(classes, :url => url_for_drilldown(classes), :suffix => message('widget.size.classes.suffix')) -%></span> <%= dashboard_configuration.selected_period? ? format_variation(classes) : trend_icon(classes) -%></p>
         <% end %>
         <p><%= format_measure(functions, :suffix => message('widget.size.methods.suffix'), :url => url_for_drilldown(functions)) -%> <%= dashboard_configuration.selected_period? ? format_variation(functions) : trend_icon(functions) -%></p>
-        <%
-          if measure('accessors')
-        %>
+        <% if measure('accessors') %>
           <p><%= format_measure('accessors', :suffix => message('widget.size.accessors.suffix'), :url => url_for_drilldown('accessors')) -%> <%= dashboard_configuration.selected_period? ? format_variation('accessors') : trend_icon('accessors') -%></p>
+        <% end %>
+        <%  if generated_lines && generated_lines.value>0 %>
+          <p>incl. <%= format_measure(generated_lines, :suffix => message('widget.size.generated.suffix'), :url => url_for_drilldown(generated_lines)) -%> <%= dashboard_configuration.selected_period? ? format_variation(generated_lines) : trend_icon(generated_lines) -%></p>
+        <% end %>
+        <% if statements %>
+          <p> <%= format_measure(statements, :suffix => message('widget.size.statements.suffix'), :url => url_for_drilldown(statements)) -%> <%= dashboard_configuration.selected_period? ? format_variation(statements) : trend_icon(statements) -%></p>
+        <% end %>
+        <% if projects %>
+          <p><%= format_measure(projects, :suffix => message('widget.size.projects.suffix')) -%> <%= dashboard_configuration.selected_period? ? format_variation(projects) : trend_icon(projects) -%></p>
         <% end %>
       </div>
     </td>

@@ -378,6 +378,7 @@ module ApplicationHelper
   # * width: container width in pixels. Default is 150.
   # * percent: integer between -100 and 100. Size of the bar inside the container. Default is 100. Bar is aligned to right if the value is negative.
   # * color: the bar HTML color. Default value is '#777'
+  # * tooltip: tooltip to display on the bar
   #
   def barchart(options)
     percent = (options[:percent] || 100).to_i
