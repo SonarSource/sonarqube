@@ -970,12 +970,17 @@ th.operations, td.operations {
 }
 
 .code-issue-list {
-  font-size: 0;
-  white-space: nowrap;
   background-color: #E4ECF3;
 }
 
-.code-issue-list > li {
+.code-issue-bar,
+.code-issue-list {
+  font-size: 0;
+  white-space: nowrap;
+}
+
+.code-issue-list > li,
+.code-issue-bar > li {
   display: inline-block;
   vertical-align: middle;
   height: 14px;
@@ -986,12 +991,14 @@ th.operations, td.operations {
   font-size: 12px;
 }
 
-.code-issue-list > li:first-child {
+.code-issue-list > li:first-child,
+.code-issue-bar > li:first-child {
   padding-left: 0;
   border-left: none;
 }
 
-.code-issue-list > li:last-child {
+.code-issue-list > li:last-child,
+.code-issue-bar > li:last-child {
   padding-right: 0;
   border-right: none;
 }

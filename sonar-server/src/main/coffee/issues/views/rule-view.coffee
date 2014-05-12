@@ -7,7 +7,6 @@ define [
 ) ->
 
   class IssueDetailRuleView extends Marionette.ItemView
-    className: 'rule-desc'
     template: Templates['rule']
 
     modelEvents:
