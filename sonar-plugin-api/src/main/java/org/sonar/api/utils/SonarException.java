@@ -22,7 +22,9 @@ package org.sonar.api.utils;
 /**
  * Because we don't like checked exceptions !
  * @since 1.10
+ * @deprecated since 4.4. See SONAR-5283
  */
+@Deprecated
 public class SonarException extends RuntimeException {
   public SonarException() {
   }
