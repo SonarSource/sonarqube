@@ -264,7 +264,7 @@
         <executions>
           <execution>
             <id>download-branding-resources</id>
-            <phase>process-resources</phase>
+            <phase>prepare-package</phase>
             <goals>
               <goal>run</goal>
             </goals>
