@@ -104,6 +104,7 @@ import org.sonar.server.notifications.NotificationService;
 import org.sonar.server.permission.InternalPermissionService;
 import org.sonar.server.permission.InternalPermissionTemplateService;
 import org.sonar.server.permission.PermissionFinder;
+import org.sonar.server.permission.ws.PermissionsWs;
 import org.sonar.server.platform.ws.RestartHandler;
 import org.sonar.server.platform.ws.ServerWs;
 import org.sonar.server.platform.ws.SystemWs;
@@ -381,6 +382,7 @@ class ServerComponents {
     pico.addSingleton(InternalPermissionService.class);
     pico.addSingleton(InternalPermissionTemplateService.class);
     pico.addSingleton(PermissionFinder.class);
+    pico.addSingleton(PermissionsWs.class);
 
     // components
     pico.addSingleton(DefaultComponentFinder.class);
