@@ -43,7 +43,7 @@ public class ShowAction implements RequestHandler {
     WebService.NewAction action = controller.createAction("show")
       .setDescription("Get source code")
       .setSince("4.4")
-      .setResponseExample(Resources.getResource(getClass(), "show-example-show.json"))
+      .setResponseExample(Resources.getResource(getClass(), "example-show.json"))
       .setHandler(this);
 
     action

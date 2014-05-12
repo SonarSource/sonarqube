@@ -19,6 +19,7 @@
  */
 package org.sonar.server.source.ws;
 
+import com.google.common.io.Resources;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
@@ -41,6 +42,7 @@ public class ScmAction implements RequestHandler {
     WebService.NewAction action = controller.createAction("scm")
       .setDescription("Get SCM information of source files")
       .setSince("4.4")
+      .setResponseExample(Resources.getResource(getClass(), "example-scm.json"))
       .setHandler(this);
 
     action

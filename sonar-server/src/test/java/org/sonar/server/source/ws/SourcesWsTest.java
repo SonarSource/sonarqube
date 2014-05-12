@@ -52,9 +52,9 @@ public class SourcesWsTest {
     WebService.Action scm = controller.action("scm");
     assertThat(scm).isNotNull();
     assertThat(scm.handler()).isSameAs(scmAction);
-    assertThat(show.since()).isEqualTo("4.4");
-    assertThat(show.isInternal()).isFalse();
-    assertThat(show.responseExampleAsString()).isNotEmpty();
+    assertThat(scm.since()).isEqualTo("4.4");
+    assertThat(scm.isInternal()).isFalse();
+    assertThat(scm.responseExampleAsString()).isNotEmpty();
     assertThat(scm.params()).hasSize(4);
   }
 }
