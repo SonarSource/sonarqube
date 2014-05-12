@@ -30,7 +30,7 @@ import static org.mockito.Mockito.mock;
 
 public class SourcesWsTest {
 
-  ShowAction showAction = new ShowAction(mock(SourceService.class), new ScmWriter());
+  ShowAction showAction = new ShowAction(mock(SourceService.class));
   ScmAction scmAction = new ScmAction(mock(SourceService.class), new ScmWriter());
   WsTester tester = new WsTester(new SourcesWs(showAction, scmAction));
 
@@ -44,11 +44,17 @@ public class SourcesWsTest {
     WebService.Action show = controller.action("show");
     assertThat(show).isNotNull();
     assertThat(show.handler()).isSameAs(showAction);
-    assertThat(show.params()).hasSize(5);
+    assertThat(show.since()).isEqualTo("4.4");
+    assertThat(show.isInternal()).isFalse();
+    assertThat(show.responseExampleAsString()).isNotEmpty();
+    assertThat(show.params()).hasSize(3);
 
     WebService.Action scm = controller.action("scm");
     assertThat(scm).isNotNull();
     assertThat(scm.handler()).isSameAs(scmAction);
+    assertThat(show.since()).isEqualTo("4.4");
+    assertThat(show.isInternal()).isFalse();
+    assertThat(show.responseExampleAsString()).isNotEmpty();
     assertThat(scm.params()).hasSize(4);
   }
 }

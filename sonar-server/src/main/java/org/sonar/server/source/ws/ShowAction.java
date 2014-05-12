@@ -34,19 +34,16 @@ import java.util.List;
 public class ShowAction implements RequestHandler {
 
   private final SourceService sourceService;
-  private final ScmWriter scmWriter;
 
-  public ShowAction(SourceService sourceService, ScmWriter scmWriter) {
+  public ShowAction(SourceService sourceService) {
     this.sourceService = sourceService;
-    this.scmWriter = scmWriter;
   }
 
   void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("show")
       .setDescription("Get source code. Parameter 'output' with value 'raw' is missing before being marked as a public WS")
-      .setSince("4.2")
-      .setInternal(true)
-      .setResponseExample(Resources.getResource(getClass(), "example-show.json"))
+      .setSince("4.4")
+      .setResponseExample(Resources.getResource(getClass(), "show-example-show.json"))
       .setHandler(this);
 
     action
@@ -65,18 +62,6 @@ public class ShowAction implements RequestHandler {
       .createParam("to")
       .setDescription("Last line to return (inclusive)")
       .setExampleValue("20");
-
-    action
-      .createParam("scm")
-      .setDescription("Enable loading of SCM information per line")
-      .setBooleanPossibleValues()
-      .setDefaultValue("false");
-
-    action
-      .createParam("group_commits")
-      .setDescription("Group lines by SCM commit. Used only if 'scm' is 'true'")
-      .setBooleanPossibleValues()
-      .setDefaultValue("true");
   }
 
   @Override
@@ -93,21 +78,18 @@ public class ShowAction implements RequestHandler {
     JsonWriter json = response.newJsonWriter().beginObject();
     writeSource(sourceHtml, from, json);
 
-    if (request.mandatoryParamAsBoolean("scm")) {
-      String scmAuthorData = sourceService.getScmAuthorData(fileKey);
-      String scmDataData = sourceService.getScmDateData(fileKey);
-      scmWriter.write(scmAuthorData, scmDataData, from, to, request.mandatoryParamAsBoolean("group_commits"), json);
-    }
-
     json.endObject().close();
   }
 
   private void writeSource(List<String> lines, int from, JsonWriter json) {
-    json.name("source").beginObject();
+    json.name("sources").beginArray();
     for (int i = 0; i < lines.size(); i++) {
       String line = lines.get(i);
-      json.prop(Integer.toString(i + from), line);
+      json.beginArray();
+      json.value(i + from);
+      json.value(line);
+      json.endArray();
     }
-    json.endObject();
+    json.endArray();
   }
 }

@@ -21,13 +21,10 @@ package org.sonar.server.source.ws;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.ws.WsTester;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -36,20 +33,17 @@ import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ShowActionTest {
 
   SourceService sourceService = mock(SourceService.class);
-  ScmWriter scmWriter = new FakeScmWriter();
 
   WsTester tester;
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new SourcesWs(new ShowAction(sourceService, scmWriter), new ScmAction(sourceService, scmWriter)));
+    tester = new WsTester(new SourcesWs(new ShowAction(sourceService), new ScmAction(sourceService, mock(ScmWriter.class))));
   }
 
   @Test
@@ -66,13 +60,6 @@ public class ShowActionTest {
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "show").setParam("key", componentKey);
     request.execute().assertJson(getClass(), "show_source.json");
-  }
-
-  @Test
-  public void response_example_exists() throws Exception {
-    WebService.Action show = tester.controller("api/sources").action("show");
-    assertThat(show.responseExampleFormat()).isEqualTo("json");
-    assertThat(show.responseExampleAsString()).isNotEmpty();
   }
 
   @Test
@@ -122,45 +109,4 @@ public class ShowActionTest {
     verify(sourceService).getLinesAsHtml(fileKey, 1, 5);
   }
 
-  @Test
-  public void show_source_with_grouped_scm_commits() throws Exception {
-    String fileKey = "src/Foo.java";
-    when(sourceService.getLinesAsHtml(eq(fileKey), anyInt(), anyInt())).thenReturn(newArrayList(
-      "public class <span class=\"sym-31 sym\">HelloWorld</span> {}"
-    ));
-
-    when(sourceService.getScmAuthorData(fileKey)).thenReturn("1=julien;");
-    when(sourceService.getScmDateData(fileKey)).thenReturn("1=2013-03-13T16:22:31+0100;");
-
-    WsTester.TestRequest request = tester
-      .newGetRequest("api/sources", "show")
-      .setParam("key", fileKey)
-      .setParam("scm", "true");
-    request.execute().assertJson(getClass(), "show_source_with_grouped_scm_commits.json");
-  }
-
-  @Test
-  public void show_source_with_scm_commits() throws Exception {
-    String fileKey = "src/Foo.java";
-    when(sourceService.getLinesAsHtml(eq(fileKey), anyInt(), anyInt())).thenReturn(newArrayList(
-      "public class <span class=\"sym-31 sym\">HelloWorld</span> {}"
-    ));
-
-    when(sourceService.getScmAuthorData(fileKey)).thenReturn("1=julien;");
-    when(sourceService.getScmDateData(fileKey)).thenReturn("1=2013-03-13T16:22:31+0100;");
-
-    WsTester.TestRequest request = tester
-      .newGetRequest("api/sources", "show")
-      .setParam("key", fileKey)
-      .setParam("scm", "true")
-      .setParam("group_commits", "false");
-    request.execute().assertJson(getClass(), "show_source_with_scm_commits.json");
-  }
-
-  class FakeScmWriter extends ScmWriter {
-    @Override
-    void write(@Nullable String authorsData, @Nullable String datesDate, int from, int to, boolean group, JsonWriter json) {
-      json.prop("scm", "done,group=" + group);
-    }
-  }
 }

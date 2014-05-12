@@ -1,0 +1,10 @@
+{
+  "sources": [
+    [20, "<span class=\"k\">package </span>org.sonar.check;"],
+    [21, ""],
+    [22, "<span class=\"k\">public </span><span class=\"k\">enum </span><span class=\"sym-922 sym\">Priority</span> {"],
+    [23, "  <span class=\"cppd\">/**</span>"],
+    [24, "<span class=\"cppd\">   * WARNING : DO NOT CHANGE THE ENUMERATION ORDER</span>"],
+    [25, "<span class=\"cppd\">   * the enum ordinal is used for db persistence</span>"]
+  ]
+}
