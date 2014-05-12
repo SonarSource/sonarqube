@@ -40,8 +40,6 @@ import org.sonar.server.user.MockUserSession;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
-import static org.mockito.Matchers.anySet;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -83,7 +81,7 @@ public class QProfileProjectLookupTest {
       new ComponentDto().setId(1L).setKey(key1).setName("SonarQube One"),
       new ComponentDto().setId(1L).setKey(key2).setName("SonarQube Two")));
 
-    when(authorizationDao.keepAuthorizedComponentKeys(anySet(), eq(userId), eq(UserRole.USER))).thenReturn(Sets.newHashSet(key1));
+    when(authorizationDao.selectAuthorizedRootProjectsKeys(userId, UserRole.USER)).thenReturn(Sets.newHashSet(key1));
 
     assertThat(lookup.projects(1)).hasSize(1);
   }

@@ -34,6 +34,7 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -63,10 +64,11 @@ public class QProfileProjectLookup implements ServerComponent {
 
       UserSession userSession = UserSession.get();
       List<Component> result = Lists.newArrayList();
-      for (String key: authorizationDao.keepAuthorizedComponentKeys(
-          componentsByKeys.keySet(), userSession.userId(), UserRole.USER
-        )) {
-        result.add(componentsByKeys.get(key));
+      Collection<String> authorizedProjectKeys = authorizationDao.selectAuthorizedRootProjectsKeys(userSession.userId(), UserRole.USER);
+      for (String key: componentsByKeys.keySet()) {
+        if (authorizedProjectKeys.contains(key)) {
+          result.add(componentsByKeys.get(key));
+        }
       }
 
       return result;
