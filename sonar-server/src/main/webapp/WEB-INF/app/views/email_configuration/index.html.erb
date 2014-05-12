@@ -86,7 +86,7 @@
     </tr>
     <tr class="property">
       <th><label for="message"><h3><%= message('email_configuration.test.message') -%></h3></label></th>
-      <td><%= text_area_tag 'message', message('email_configuration.test.message_text'), {:cols => 40, :rows => 6} %></td>
+      <td><%= text_area_tag 'message', message('email_configuration.test.message_text') + ' ' + @server_base_url, {:cols => 40, :rows => 6} %></td>
     </tr>
     </tbody>
   </table>
