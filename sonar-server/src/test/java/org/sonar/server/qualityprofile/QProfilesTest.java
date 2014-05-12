@@ -327,18 +327,6 @@ public class QProfilesTest {
   }
 
   @Test
-  public void create_active_rule_note() throws Exception {
-    qProfiles.updateActiveRuleNote(50, "My note");
-    verify(activeRuleOperations).updateActiveRuleNote(eq(50), eq("My note"), any(UserSession.class));
-  }
-
-  @Test
-  public void delete_active_rule_note() throws Exception {
-    qProfiles.deleteActiveRuleNote(50);
-    verify(activeRuleOperations).deleteActiveRuleNote(eq(50), any(UserSession.class));
-  }
-
-  @Test
   public void count_active_rules() throws Exception {
     qProfiles.countActiveRules(10);
     verify(rules).countProfileRules(eq(10));

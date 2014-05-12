@@ -46,7 +46,6 @@ public class QProfileRule {
   private final Integer activeRuleParentId;
   private final String severity;
   private final String inheritance;
-  private final RuleNote activeRuleNote;
   private final List<QProfileRuleParam> params;
 
   // TODO move this in a parser class
@@ -56,25 +55,12 @@ public class QProfileRule {
       activeRuleId = null;
       severity = (String) ruleSource.get(ActiveRuleDocument.FIELD_SEVERITY);
       inheritance = null;
-      activeRuleNote = null;
       activeRuleParentId = null;
     } else {
       activeRuleId = (Integer) activeRuleSource.get(ActiveRuleDocument.FIELD_ID);
       severity = (String) activeRuleSource.get(ActiveRuleDocument.FIELD_SEVERITY);
       inheritance = (String) activeRuleSource.get(ActiveRuleDocument.FIELD_INHERITANCE);
       activeRuleParentId = (Integer) activeRuleSource.get(ActiveRuleDocument.FIELD_ACTIVE_RULE_PARENT_ID);
-
-      if (activeRuleSource.containsKey(ActiveRuleDocument.FIELD_NOTE)) {
-        Map<String, Object> ruleNoteDocument = (Map<String, Object>) activeRuleSource.get(ActiveRuleDocument.FIELD_NOTE);
-        activeRuleNote = new RuleNote(
-          (String) ruleNoteDocument.get(ActiveRuleDocument.FIELD_NOTE_DATA),
-          (String) ruleNoteDocument.get(ActiveRuleDocument.FIELD_NOTE_USER_LOGIN),
-          RuleDocumentParser.parseOptionalDate(ActiveRuleDocument.FIELD_NOTE_CREATED_AT, ruleNoteDocument),
-          RuleDocumentParser.parseOptionalDate(ActiveRuleDocument.FIELD_NOTE_UPDATED_AT, ruleNoteDocument)
-        );
-      } else {
-        activeRuleNote = null;
-      }
     }
 
     params = Lists.newArrayList();
@@ -194,11 +180,6 @@ public class QProfileRule {
 
   public List<QProfileRuleParam> params() {
     return params;
-  }
-
-  @CheckForNull
-  public RuleNote activeRuleNote() {
-    return activeRuleNote;
   }
 
   @Override

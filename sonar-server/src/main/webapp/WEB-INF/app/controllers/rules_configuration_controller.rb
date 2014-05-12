@@ -320,32 +320,6 @@ class RulesConfigurationController < ApplicationController
     render :partial => 'rule_note', :locals => {:rule => rule}
   end
 
-
-  def update_active_rule_note
-    verify_post_request
-    require_parameters :active_rule_id, :note
-
-    rule = nil
-    call_backend do
-      Internal.quality_profiles.updateActiveRuleNote(params[:active_rule_id].to_i, params[:note])
-      rule = Internal.quality_profiles.findByActiveRuleId(params[:active_rule_id].to_i)
-    end
-    render :partial => 'active_rule_note', :locals => {:rule => rule}
-  end
-
-
-  def delete_active_rule_note
-    verify_post_request
-    require_parameters :active_rule_id
-
-    rule = nil
-    call_backend do
-      Internal.quality_profiles.deleteActiveRuleNote(params[:active_rule_id].to_i)
-      rule = Internal.quality_profiles.findByActiveRuleId(params[:active_rule_id].to_i)
-    end
-    render :partial => 'active_rule_note', :locals => {:rule => rule}
-  end
-
   def show_select_tags
     rule = Internal.quality_profiles.findByRule(params[:rule_id].to_i)
     tags = tag_selection_for_rule(rule)

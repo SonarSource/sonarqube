@@ -230,14 +230,6 @@ public class QProfiles implements ServerComponent {
     activeRuleOperations.revertActiveRule(activeRuleId, UserSession.get());
   }
 
-  public void updateActiveRuleNote(int activeRuleId, String note) {
-    activeRuleOperations.updateActiveRuleNote(activeRuleId, note, UserSession.get());
-  }
-
-  public void deleteActiveRuleNote(int activeRuleId) {
-    activeRuleOperations.deleteActiveRuleNote(activeRuleId, UserSession.get());
-  }
-
   @CheckForNull
   public QProfileRule parentProfileRule(QProfileRule rule) {
     return rules.findParentProfileRule(rule);

@@ -29,12 +29,6 @@ public class ActiveRuleDocument {
   public static final String FIELD_ACTIVE_RULE_PARENT_ID = "activeRuleParentId";
   public static final String FIELD_PARAMS = "params";
 
-  public static final String FIELD_NOTE = "note";
-  public static final String FIELD_NOTE_DATA = "data";
-  public static final String FIELD_NOTE_USER_LOGIN = "userLogin";
-  public static final String FIELD_NOTE_CREATED_AT = "createdAt";
-  public static final String FIELD_NOTE_UPDATED_AT = "updatedAt";
-
   public static final String FIELD_PARAM_KEY = "key";
   public static final String FIELD_PARAM_VALUE = "value";
 

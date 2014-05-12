@@ -102,12 +102,6 @@
       </table>
     <% end %>
 
-    <% if is_activated %>
-      <div id="active_rule_note_<%= rule.activeRuleId -%>">
-        <%= render :partial => 'active_rule_note', :locals => {:rule => rule} %>
-      </div>
-    <% end %>
-
     <% if profiles_administrator? %>
       <% if rule.template? %>
         <%= link_to message('rules_configuration.copy_rule'), {:action => 'new', :id => profile.id, :rule_id => rule.id}, :id => "copy-#{u rule_key(rule)}", :class => 'link-action spacer-right' %>

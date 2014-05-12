@@ -26,7 +26,6 @@ import com.google.common.collect.Iterables;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.List;
@@ -66,8 +65,7 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
       .setProfileId(1)
       .setRuleId(10)
       .setSeverity(Severity.BLOCKER)
-      .setInheritance(null)
-      .setNoteData("text");
+      .setInheritance(null);
 
     dao.update(dto);
 
@@ -111,10 +109,6 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
     assertThat(result.getRulId()).isEqualTo(10);
     assertThat(result.getSeverityString()).isEqualTo(Severity.MAJOR);
     assertThat(result.getInheritance()).isEqualTo("INHERITED");
-    assertThat(result.getNoteData()).isEqualTo("some note");
-    assertThat(result.getNoteUserLogin()).isEqualTo("henry");
-    assertThat(result.getNoteCreatedAt()).isEqualTo(DateUtils.parseDate("2013-12-18"));
-    assertThat(result.getNoteUpdatedAt()).isEqualTo(DateUtils.parseDate("2013-12-18"));
   }
 
   @Test
@@ -138,10 +132,6 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
     assertThat(result.getRulId()).isEqualTo(10);
     assertThat(result.getSeverityString()).isEqualTo(Severity.MAJOR);
     assertThat(result.getInheritance()).isEqualTo("INHERITED");
-    assertThat(result.getNoteData()).isEqualTo("some note");
-    assertThat(result.getNoteUserLogin()).isEqualTo("henry");
-    assertThat(result.getNoteCreatedAt()).isEqualTo(DateUtils.parseDate("2013-12-18"));
-    assertThat(result.getNoteUpdatedAt()).isEqualTo(DateUtils.parseDate("2013-12-18"));
   }
 
   @Test
@@ -284,8 +274,8 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
     assertThat(dao.selectAllParams()).hasSize(3);
   }
 
-  private ActiveRuleDto find(final Integer id, List<ActiveRuleDto> dtos){
-    return Iterables.find(dtos, new Predicate<ActiveRuleDto>(){
+  private ActiveRuleDto find(final Integer id, List<ActiveRuleDto> dtos) {
+    return Iterables.find(dtos, new Predicate<ActiveRuleDto>() {
       @Override
       public boolean apply(ActiveRuleDto input) {
         return input.getId().equals(id);

@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.profiles.RulesProfile;
 
+import javax.annotation.CheckForNull;
 import javax.persistence.*;
 
 import java.util.ArrayList;
@@ -63,21 +64,6 @@ public class ActiveRule implements Cloneable {
 
   @Column(name = "inheritance", updatable = true, nullable = true)
   private String inheritance;
-
-  @Lob
-  @Column(name = "note_data", updatable = true, nullable = true)
-  private String noteData;
-
-  @Column(name = "note_user_login", updatable = true, nullable = true)
-  private String noteUserLogin;
-
-  @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "note_created_at", updatable = true, nullable = true)
-  private Date noteCreatedAt;
-
-  @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "note_updated_at", updatable = true, nullable = true)
-  private Date noteUpdatedAt;
 
   /**
    * @deprecated visibility should be reduced to protected or package
@@ -252,30 +238,42 @@ public class ActiveRule implements Cloneable {
 
   /**
    * @since 4.2
+   * @deprecated in 4.4. Feature dropped.
    */
+  @CheckForNull
+  @Deprecated
   public String getNoteData() {
-    return noteData;
+    return null;
   }
 
   /**
    * @since 4.2
+   * @deprecated in 4.4. Feature dropped.
    */
+  @CheckForNull
+  @Deprecated
   public String getNoteUserLogin() {
-    return noteUserLogin;
+    return null;
   }
 
   /**
    * @since 4.2
+   * @deprecated in 4.4. Feature dropped.
    */
+  @CheckForNull
+  @Deprecated
   public Date getNoteCreatedAt() {
-    return noteCreatedAt;
+    return null;
   }
 
   /**
    * @since 4.2
+   * @deprecated in 4.4. Feature dropped.
    */
+  @CheckForNull
+  @Deprecated
   public Date getNoteUpdatedAt() {
-    return noteUpdatedAt;
+    return null;
   }
 
   @Override
