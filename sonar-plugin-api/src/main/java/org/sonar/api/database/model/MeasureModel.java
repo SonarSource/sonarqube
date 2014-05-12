@@ -47,7 +47,7 @@ import java.util.Date;
 @Table(name = "project_measures")
 public class MeasureModel implements Cloneable {
 
-  public static final int TEXT_VALUE_LENGTH = 96;
+  public static final int TEXT_VALUE_LENGTH = 4000;
 
   @Id
   @Column(name = "id")

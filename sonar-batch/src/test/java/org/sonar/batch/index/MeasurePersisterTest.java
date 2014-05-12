@@ -50,9 +50,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
   @org.junit.Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private static final String SHORT = "SHORT";
-  private static final String LONG = StringUtils.repeat("0123456789", 10);
-  private static final String TOO_LONG = StringUtils.repeat("0123456789", 401);
+  private static final String TOO_LONG_FOR_VARCHAR_4000 = StringUtils.repeat("0123456789", 401);
 
   public static final int PROJECT_SNAPSHOT_ID = 3001;
   public static final int PACKAGE_SNAPSHOT_ID = 3002;
@@ -100,7 +98,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
   public void should_display_message_when_error_during_insert_measure() {
     setupData("empty");
 
-    Measure measure = new Measure(ncloc()).setValue(1234.0).setAlertText(TOO_LONG);
+    Measure measure = new Measure(ncloc()).setValue(1234.0).setAlertText(TOO_LONG_FOR_VARCHAR_4000);
     when(measureCache.entries()).thenReturn(Arrays.asList(new Cache.Entry<Measure>(new String[] {"foo", "ncloc"}, measure)));
 
     thrown.expect(SonarException.class);
@@ -128,7 +126,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
   public void should_insert_measure_with_text_data() {
     setupData("empty");
 
-    Measure withLargeData = new Measure(ncloc()).setData(LONG);
+    Measure withLargeData = new Measure(ncloc()).setData(TOO_LONG_FOR_VARCHAR_4000);
     when(measureCache.entries()).thenReturn(Arrays.asList(new Cache.Entry<Measure>(new String[] {"foo", "ncloc"}, withLargeData)));
 
     measurePersister.persist();
