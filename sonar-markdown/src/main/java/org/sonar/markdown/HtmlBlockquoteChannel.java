@@ -65,7 +65,7 @@ class HtmlBlockquoteChannel extends Channel<MarkdownOutput> {
   private class QuotedLineElementChannel extends RegexChannel<MarkdownOutput> {
 
     protected QuotedLineElementChannel() {
-      super(">\\s[^\r\n]*+");
+      super("&gt;\\s[^\r\n]*+");
     }
 
     @Override
@@ -80,7 +80,8 @@ class HtmlBlockquoteChannel extends Channel<MarkdownOutput> {
 
     private int searchIndexOfFirstCharacter(CharSequence token) {
       for (int index = 0; index < token.length(); index++) {
-        if (token.charAt(index) == '>') {
+        if (token.charAt(index) == '&') {
+          index += 4;
           while (++ index < token.length()) {
             if (token.charAt(index) != ' ') {
               return index;

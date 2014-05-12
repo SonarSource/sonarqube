@@ -67,8 +67,10 @@ public class MarkdownTest {
 
   @Test
   public void shouldDecorateBlockquote() {
-    assertThat(Markdown.convertToHtml("> Yesterday it worked\n> Today it is not working\r\n> Software is like that\r"))
-        .isEqualTo("<blockquote>Yesterday it worked<br/>\nToday it is not working<br/>\r\nSoftware is like that<br/>\r</blockquote>");
+    assertThat(Markdown.convertToHtml("> Yesterday <br/> it worked\n> Today it is not working\r\n> Software is like that\r"))
+        .isEqualTo("<blockquote>Yesterday &lt;br/&gt; it worked<br/>\nToday it is not working<br/>\r\nSoftware is like that<br/>\r</blockquote>");
+    assertThat(Markdown.convertToHtml("HTML elements should <em>not</em> be quoted!"))
+        .isEqualTo("HTML elements should &lt;em&gt;not&lt;/em&gt; be quoted!");
   }
 
   @Test

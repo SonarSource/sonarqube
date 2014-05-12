@@ -19,7 +19,6 @@
  */
 package org.sonar.server.text;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.source.HtmlSourceDecorator;
@@ -46,8 +45,7 @@ public class RubyTextService implements ServerComponent {
 
   // TODO add ruby example
   public String markdownToHtml(String markdown) {
-    // TODO move HTML escaping to sonar-markdown
-    return Markdown.convertToHtml(StringEscapeUtils.escapeHtml(markdown));
+    return Markdown.convertToHtml(markdown);
   }
 
   // TODO add ruby example
