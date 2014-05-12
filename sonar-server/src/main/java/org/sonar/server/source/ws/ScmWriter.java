@@ -25,6 +25,7 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
 
 import javax.annotation.Nullable;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -33,7 +34,7 @@ import static com.google.common.collect.Lists.newArrayList;
 public class ScmWriter implements ServerComponent {
 
   void write(@Nullable String authorsData, @Nullable String datesDate, int from, int to, boolean group, JsonWriter json) {
-    json.name("scm").beginObject();
+    json.name("scm").beginArray();
     if (authorsData != null) {
       List<String> authors = splitLine(authorsData);
       List<String> dates = splitLine(datesDate);
@@ -51,7 +52,8 @@ public class ScmWriter implements ServerComponent {
         String formattedDate = DateUtils.formatDate(DateUtils.parseDateTime(date));
         if (line >= from && line <= to) {
           if (!started || !group || !isSameCommit(date, previousDate, author, previousAuthor)) {
-            json.name(Integer.toString(line)).beginArray();
+            json.beginArray();
+            json.value(line);
             json.value(author);
             json.value(formattedDate);
             json.endArray();
@@ -62,7 +64,7 @@ public class ScmWriter implements ServerComponent {
         previousDate = date;
       }
     }
-    json.endObject();
+    json.endArray();
   }
 
   private List<String> splitLine(@Nullable String line) {

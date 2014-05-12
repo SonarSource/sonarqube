@@ -34,7 +34,7 @@ public class ScmWriterTest {
   public void write_authors_and_dates() throws Exception {
     // same commit on lines 1 and 2
     test("1=julien;2=julien;3=simon;", "1=2013-03-13T16:22:31+0100;2=2013-03-13T16:22:31+0100;3=2014-01-01T16:22:31+0100;", 1, Integer.MAX_VALUE, false,
-      "{\"scm\": {\"1\": [\"julien\", \"2013-03-13\"], \"2\": [\"julien\", \"2013-03-13\"], \"3\": [\"simon\", \"2014-01-01\"]}}");
+      "{\"scm\": [[1, \"julien\", \"2013-03-13\"], [2, \"julien\", \"2013-03-13\"], [3, \"simon\", \"2014-01-01\"]]}");
   }
 
   @Test
@@ -42,9 +42,9 @@ public class ScmWriterTest {
     String authors = "1=julien;2=simon;";
     String dates = "1=2013-03-13T16:22:31+0100;2=2014-01-01T16:22:31+0100;";
 
-    test(authors, dates, 2, 200, false, "{\"scm\": {\"2\": [\"simon\", \"2014-01-01\"]}}");
-    test(authors, dates, 3, 5, false, "{\"scm\": {}}");
-    test(authors, dates, -2, 1, false, "{\"scm\": {\"1\": [\"julien\", \"2013-03-13\"]}}");
+    test(authors, dates, 2, 200, false, "{\"scm\": [[2, \"simon\", \"2014-01-01\"]]}");
+    test(authors, dates, 3, 5, false, "{\"scm\": []}");
+    test(authors, dates, -2, 1, false, "{\"scm\": [[1, \"julien\", \"2013-03-13\"]]}");
   }
 
   @Test
@@ -54,13 +54,13 @@ public class ScmWriterTest {
     String dates = "1=2013-03-13T16:22:31+0100;2=2013-03-13T16:22:31+0100;3=2013-03-14T16:22:31+0100;4=2014-01-01T16:22:31+0100";
 
     test(authors, dates, 1, Integer.MAX_VALUE, true,
-      "{\"scm\": {\"1\": [\"julien\", \"2013-03-13\"], \"3\": [\"julien\", \"2013-03-14\"], \"4\": [\"simon\", \"2014-01-01\"]}}");
+      "{\"scm\": [[1, \"julien\", \"2013-03-13\"], [3, \"julien\", \"2013-03-14\"], [4, \"simon\", \"2014-01-01\"]]}");
 
     test(authors, dates, 2, 4, true,
-      "{\"scm\": {\"2\": [\"julien\", \"2013-03-13\"], \"3\": [\"julien\", \"2013-03-14\"], \"4\": [\"simon\", \"2014-01-01\"]}}");
+      "{\"scm\": [[2, \"julien\", \"2013-03-13\"], [3, \"julien\", \"2013-03-14\"], [4, \"simon\", \"2014-01-01\"]]}");
 
-    test(authors, dates, 1, 2, true, "{\"scm\": {\"1\": [\"julien\", \"2013-03-13\"]}}");
-    test(authors, dates, 10, 20, true, "{\"scm\": {}}");
+    test(authors, dates, 1, 2, true, "{\"scm\": [[1, \"julien\", \"2013-03-13\"]]}");
+    test(authors, dates, 10, 20, true, "{\"scm\": []}");
   }
 
 

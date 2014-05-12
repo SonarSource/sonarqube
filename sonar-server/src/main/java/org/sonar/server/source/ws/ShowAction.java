@@ -41,7 +41,7 @@ public class ShowAction implements RequestHandler {
 
   void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("show")
-      .setDescription("Get source code. Parameter 'output' with value 'raw' is missing before being marked as a public WS")
+      .setDescription("Get source code")
       .setSince("4.4")
       .setResponseExample(Resources.getResource(getClass(), "show-example-show.json"))
       .setHandler(this);
