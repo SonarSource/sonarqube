@@ -20,6 +20,7 @@
 package org.sonar.server.db;
 
 import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
@@ -31,17 +32,23 @@ import org.sonar.server.rule2.RuleDao;
  */
 public class DbClient implements ServerComponent {
 
+  private final Database db;
   private final MyBatis myBatis;
   private final RuleDao ruleDao;
   private final ActiveRuleDao activeRuleDao;
   private final QualityProfileDao qProfileDao;
 
-  public DbClient(MyBatis myBatis, RuleDao ruleDao, ActiveRuleDao activeRuleDao,
+  public DbClient(Database db, MyBatis myBatis, RuleDao ruleDao, ActiveRuleDao activeRuleDao,
                   QualityProfileDao qProfileDao) {
+    this.db = db;
     this.myBatis = myBatis;
     this.ruleDao = ruleDao;
     this.activeRuleDao = activeRuleDao;
     this.qProfileDao = qProfileDao;
+  }
+
+  public Database database() {
+    return db;
   }
 
   public DbSession openSession(boolean batch) {

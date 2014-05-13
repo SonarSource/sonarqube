@@ -43,8 +43,9 @@ public class DbClientTest {
     ActiveRuleDao activeRuleDao = mock(ActiveRuleDao.class);
     QualityProfileDao qualityProfileDao = mock(QualityProfileDao.class);
 
-    DbClient client = new DbClient(myBatis, ruleDao, activeRuleDao, qualityProfileDao);
+    DbClient client = new DbClient(db.database(), myBatis, ruleDao, activeRuleDao, qualityProfileDao);
 
+    assertThat(client.database()).isSameAs(db.database());
     DbSession dbSession = client.openSession(true);
     assertThat(dbSession).isNotNull();
     assertThat(dbSession.getConnection().isClosed()).isFalse();

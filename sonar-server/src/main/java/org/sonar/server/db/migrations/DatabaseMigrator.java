@@ -26,9 +26,8 @@ import org.picocontainer.Startable;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.platform.ServerUpgradeStatus;
-import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DdlUtils;
-import org.sonar.core.persistence.MyBatis;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.plugins.ServerPluginRepository;
 
 import java.sql.Connection;
@@ -41,29 +40,27 @@ import java.sql.Connection;
  */
 public class DatabaseMigrator implements ServerComponent, Startable {
 
-  private final MyBatis myBatis;
-  private final Database database;
+  private final DbClient dbClient;
   private final DatabaseMigration[] migrations;
   private final ServerUpgradeStatus serverUpgradeStatus;
 
   /**
    * ServerPluginRepository is used to ensure H2 schema creation is done only after copy of bundle plugins have been done
    */
-  public DatabaseMigrator(MyBatis myBatis, Database database, DatabaseMigration[] migrations, ServerUpgradeStatus serverUpgradeStatus,
+  public DatabaseMigrator(DbClient dbClient, DatabaseMigration[] migrations, ServerUpgradeStatus serverUpgradeStatus,
                           ServerPluginRepository serverPluginRepository) {
-    this.myBatis = myBatis;
-    this.database = database;
+    this.dbClient = dbClient;
     this.migrations = migrations;
     this.serverUpgradeStatus = serverUpgradeStatus;
   }
 
   @Override
-  public void start(){
+  public void start() {
     createDatabase();
   }
 
   @Override
-  public void stop(){
+  public void stop() {
     // Nothing to do
   }
 
@@ -72,17 +69,16 @@ public class DatabaseMigrator implements ServerComponent, Startable {
    */
   @VisibleForTesting
   boolean createDatabase() {
-    if (DdlUtils.supportsDialect(database.getDialect().getId()) && serverUpgradeStatus.isFreshInstall()) {
+    if (DdlUtils.supportsDialect(dbClient.database().getDialect().getId()) && serverUpgradeStatus.isFreshInstall()) {
       LoggerFactory.getLogger(getClass()).info("Create database");
-      SqlSession session = null;
+      SqlSession session = dbClient.openSession(false);
       Connection connection = null;
       try {
-        session = myBatis.openSession(false);
         connection = session.getConnection();
-        createSchema(connection, database.getDialect().getId());
+        createSchema(connection, dbClient.database().getDialect().getId());
         return true;
       } finally {
-        MyBatis.closeQuietly(session);
+        session.close();
 
         // The connection is probably already closed by session.close()
         // but it's not documented in mybatis javadoc.

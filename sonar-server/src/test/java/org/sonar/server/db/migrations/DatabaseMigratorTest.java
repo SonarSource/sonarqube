@@ -23,20 +23,22 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.core.persistence.AbstractDaoTestCase;
-import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.persistence.dialect.Dialect;
 import org.sonar.core.persistence.dialect.H2;
 import org.sonar.core.persistence.dialect.MySql;
+import org.sonar.server.db.DbClient;
 
 import java.sql.Connection;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DatabaseMigratorTest extends AbstractDaoTestCase {
@@ -44,24 +46,22 @@ public class DatabaseMigratorTest extends AbstractDaoTestCase {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  MyBatis mybatis = mock(MyBatis.class);
-  Database database = mock(Database.class);
+  DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
   DatabaseMigration[] migrations = new DatabaseMigration[]{new FakeMigration()};
   ServerUpgradeStatus serverUpgradeStatus = mock(ServerUpgradeStatus.class);
-
   DatabaseMigrator migrator;
 
   @Before
   public void setUp() throws Exception {
-    migrator = new DatabaseMigrator(mybatis, database, migrations, serverUpgradeStatus, null);
+    migrator = new DatabaseMigrator(dbClient, migrations, serverUpgradeStatus, null);
   }
 
   @Test
   public void should_support_only_creation_of_h2_database() throws Exception {
-    when(database.getDialect()).thenReturn(new MySql());
+    when(dbClient.database().getDialect()).thenReturn(new MySql());
 
     assertThat(migrator.createDatabase()).isFalse();
-    verifyZeroInteractions(mybatis);
+    verify(dbClient, never()).openSession(anyBoolean());
   }
 
   @Test
@@ -82,14 +82,14 @@ public class DatabaseMigratorTest extends AbstractDaoTestCase {
   @Test
   public void should_create_schema_on_h2() throws Exception {
     Dialect supportedDialect = new H2();
-    when(database.getDialect()).thenReturn(supportedDialect);
+    when(dbClient.database().getDialect()).thenReturn(supportedDialect);
     Connection connection = mock(Connection.class);
     DbSession session = mock(DbSession.class);
     when(session.getConnection()).thenReturn(connection);
-    when(mybatis.openSession(false)).thenReturn(session);
+    when(dbClient.openSession(false)).thenReturn(session);
     when(serverUpgradeStatus.isFreshInstall()).thenReturn(true);
 
-    DatabaseMigrator databaseMigrator = new DatabaseMigrator(mybatis, database, migrations, serverUpgradeStatus, null) {
+    DatabaseMigrator databaseMigrator = new DatabaseMigrator(dbClient, migrations, serverUpgradeStatus, null) {
       @Override
       protected void createSchema(Connection connection, String dialectId) {
       }
@@ -100,6 +100,7 @@ public class DatabaseMigratorTest extends AbstractDaoTestCase {
 
   public static class FakeMigration implements DatabaseMigration {
     static boolean executed = false;
+
     @Override
     public void execute() {
       executed = true;
