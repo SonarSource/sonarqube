@@ -67,7 +67,7 @@ class Api::UsersController < Api::ApiController
   def create
     verify_post_request
     access_denied unless has_role?(:admin)
-    require_parameters :login, :password, :password_confirmation
+    require_parameters :login, :name, :password, :password_confirmation
 
     user = User.find_by_login(params[:login])
 
