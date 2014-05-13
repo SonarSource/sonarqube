@@ -19,5 +19,19 @@
  */
 package org.sonar.server.rule2;
 
-public class ActiveRuleQuery {
+import org.sonar.core.qualityprofile.db.ActiveRuleKey;
+
+import java.util.Map;
+
+public interface ActiveRule {
+
+  public ActiveRuleKey key();
+
+  public Boolean override();
+
+  public String severity();
+
+  public String inherit();
+
+  public Map<String, String> params();
 }

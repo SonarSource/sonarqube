@@ -20,9 +20,28 @@
 package org.sonar.core.db;
 
 import java.io.Serializable;
+import java.util.Date;
 
-public interface Dto<K extends Serializable> {
+public abstract class Dto<K extends Serializable> {
 
-  K getKey();
+  private Date createdAt;
+  private Date updatedAt;
 
+  public abstract K getKey();
+
+  public void setCreatedAt(Date datetime){
+    this.createdAt = datetime;
+  }
+
+  public void setUpdatedAt(Date datetime){
+    this.updatedAt = datetime;
+  }
+
+  public Date getCreatedAt(){
+    return this.createdAt;
+  }
+
+  public Date getUpdatedAt(){
+    return this.updatedAt;
+  }
 }

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule2;
+package org.sonar.server.rule2.persistence;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -28,6 +28,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
@@ -38,16 +39,20 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class RuleDaoTest extends AbstractDaoTestCase {
 
   private RuleDao dao;
   private DbSession session;
+  private System2 system2;
 
   @Before
   public void before() throws Exception {
     this.session = getMyBatis().openSession(false);
-    this.dao = new RuleDao();
+    this.system2 = mock(System2.class);
+    this.dao = new RuleDao(system2);
   }
 
   @After
@@ -176,6 +181,9 @@ public class RuleDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void update() {
+
+    when(system2.now()).thenReturn(DateUtils.parseDate("2014-01-01").getTime());
+
     setupData("update");
 
     RuleDto ruleToUpdate = new RuleDto()
@@ -202,8 +210,8 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDefaultRemediationCoefficient("5d")
       .setRemediationOffset("5min")
       .setDefaultRemediationOffset("10h")
-      .setEffortToFixDescription("squid.S115.effortToFix")
-      .setUpdatedAt(DateUtils.parseDate("2013-12-17"));
+      .setEffortToFixDescription("squid.S115.effortToFix");
+
 
     dao.update(ruleToUpdate, session);
     session.commit();
@@ -213,6 +221,9 @@ public class RuleDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void insert() {
+
+    when(system2.now()).thenReturn(DateUtils.parseDate("2013-12-16").getTime());
+
     setupData("empty");
 
     RuleDto ruleToInsert = new RuleDto()
@@ -235,9 +246,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDefaultRemediationCoefficient("5d")
       .setRemediationOffset("5min")
       .setDefaultRemediationOffset("10h")
-      .setEffortToFixDescription("squid.S115.effortToFix")
-      .setCreatedAt(DateUtils.parseDate("2013-12-16"))
-      .setUpdatedAt(DateUtils.parseDate("2013-12-17"));
+      .setEffortToFixDescription("squid.S115.effortToFix");
 
     dao.insert(ruleToInsert, session);
     session.commit();
@@ -247,6 +256,8 @@ public class RuleDaoTest extends AbstractDaoTestCase {
 
   @Test
   public void insert_all() {
+    when(system2.now()).thenReturn(DateUtils.parseDate("2013-12-16").getTime());
+
     setupData("empty");
 
     RuleDto ruleToInsert1 = new RuleDto()
@@ -269,9 +280,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDefaultRemediationCoefficient("5d")
       .setRemediationOffset("5min")
       .setDefaultRemediationOffset("10h")
-      .setEffortToFixDescription("squid.S115.effortToFix")
-      .setCreatedAt(DateUtils.parseDate("2013-12-16"))
-      .setUpdatedAt(DateUtils.parseDate("2013-12-17"));
+      .setEffortToFixDescription("squid.S115.effortToFix");
 
     RuleDto ruleToInsert2 = new RuleDto()
       .setId(2)
@@ -293,9 +302,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDefaultRemediationCoefficient("1h")
       .setRemediationOffset("10h")
       .setDefaultRemediationOffset("5min")
-      .setEffortToFixDescription("squid.S115.effortToFix2")
-      .setCreatedAt(DateUtils.parseDate("2013-12-14"))
-      .setUpdatedAt(DateUtils.parseDate("2013-12-15"));
+      .setEffortToFixDescription("squid.S115.effortToFix2");
 
     dao.insert(ImmutableList.of(ruleToInsert1, ruleToInsert2), session);
     session.commit();
@@ -378,7 +385,6 @@ public class RuleDaoTest extends AbstractDaoTestCase {
 
     dao.updateRuleParam(rule1, param, session);
     session.commit();
-    System.out.println("param = " + param);
 
     checkTables("update_parameter", "rules_parameters");
   }

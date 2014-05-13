@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.rule2;
+package org.sonar.server.rule2.persistence;
 
 import com.google.common.base.Preconditions;
 import org.sonar.core.persistence.DbSession;
@@ -30,8 +30,9 @@ import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.BaseDao;
-import org.sonar.server.search.EmbeddedIndexAction;
-import org.sonar.server.search.IndexAction;
+import org.sonar.server.rule2.index.ActiveRuleIndexDefinition;
+import org.sonar.server.search.action.EmbeddedIndexAction;
+import org.sonar.server.search.action.IndexAction;
 
 import java.util.List;
 

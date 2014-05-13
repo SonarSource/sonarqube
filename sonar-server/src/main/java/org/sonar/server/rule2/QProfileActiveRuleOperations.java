@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.qualityprofile;
+package org.sonar.server.rule2;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
@@ -32,22 +32,31 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
+import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.rule.RuleDao;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.qualityprofile.ESActiveRule;
+import org.sonar.server.qualityprofile.ProfileRuleQuery;
+import org.sonar.server.qualityprofile.ProfilesManager;
+import org.sonar.server.qualityprofile.QProfileRuleLookup;
+import org.sonar.server.qualityprofile.QProfileValidations;
+import org.sonar.server.rule2.persistence.ActiveRuleDao;
+import org.sonar.server.rule2.persistence.RuleDao;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -88,7 +97,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     validatePermission(userSession);
     validateSeverity(severity);
 
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
       QualityProfileDto profile = findProfileNotNull(profileId, session);
       RuleDto rule = findRuleNotNull(ruleId, session);
@@ -103,7 +112,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     }
   }
 
-  private ActiveRuleDto activateRule(int profileId, int ruleId, String severity, UserSession userSession, SqlSession session) {
+  private ActiveRuleDto activateRule(int profileId, int ruleId, String severity, UserSession userSession, DbSession session) {
     ActiveRuleDto activeRule = createActiveRule(profileId, ruleId, severity, session);
     session.commit();
     ProfilesManager.RuleInheritanceActions actions = profilesManager.activated(profileId, activeRule.getId(), getLoggedName(userSession));
@@ -111,28 +120,26 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     return activeRule;
   }
 
-  ActiveRuleDto createActiveRule(int profileId, int ruleId, String severity, SqlSession session) {
-    ActiveRuleDto activeRule = new ActiveRuleDto()
-      .setProfileId(profileId)
-      .setRuleId(ruleId)
+  ActiveRuleDto createActiveRule(int profileId, int ruleId, String severity, DbSession session) {
+    RuleDto rule = ruleDao.getById(ruleId, session);
+    QualityProfileDto profile = profileDao.selectById(profileId, session);
+    ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(severity);
     activeRuleDao.insert(activeRule, session);
 
-    List<RuleParamDto> ruleParams = ruleDao.selectParametersByRuleId(ruleId, session);
+    List<RuleParamDto> ruleParams = ruleDao.findRuleParamsByRuleKey(rule.getKey(), session);
     List<ActiveRuleParamDto> activeRuleParams = newArrayList();
     for (RuleParamDto ruleParam : ruleParams) {
-      ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto()
-        .setActiveRuleId(activeRule.getId())
-        .setRulesParameterId(ruleParam.getId())
+      ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(ruleParam)
         .setKey(ruleParam.getName())
         .setValue(ruleParam.getDefaultValue());
       activeRuleParams.add(activeRuleParam);
-      activeRuleDao.insert(activeRuleParam, session);
+      activeRuleDao.addParam(activeRule, activeRuleParam, session);
     }
     return activeRule;
   }
 
-  private void updateSeverity(ActiveRuleDto activeRule, String newSeverity, UserSession userSession, SqlSession session) {
+  private void updateSeverity(ActiveRuleDto activeRule, String newSeverity, UserSession userSession, DbSession session) {
     String oldSeverity = activeRule.getSeverityString();
     activeRule.setSeverity(newSeverity);
     activeRuleDao.update(activeRule, session);
@@ -144,7 +151,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   public int activateRules(int profileId, ProfileRuleQuery query, UserSession userSession) {
     validatePermission(userSession);
 
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
       List<Integer> ruleIdsToActivate = rules.searchInactiveProfileRuleIds(query);
       for (Integer ruleId : ruleIdsToActivate) {
@@ -159,7 +166,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
 
   public boolean deactivateRule(int profileId, int ruleId, UserSession userSession) {
     validatePermission(userSession);
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
       ActiveRuleDto activeRule = findActiveRuleNotNull(profileId, ruleId, session);
       return deactivateRule(activeRule, userSession, session);
@@ -168,12 +175,12 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     }
   }
 
-  private boolean deactivateRule(ActiveRuleDto activeRule, UserSession userSession, SqlSession session) {
+  private boolean deactivateRule(ActiveRuleDto activeRule, UserSession userSession, DbSession session) {
     if (activeRule.getInheritance() == null) {
       ProfilesManager.RuleInheritanceActions actions = profilesManager.deactivated(activeRule.getProfileId(), activeRule.getId(), getLoggedName(userSession));
 
-      activeRuleDao.deleteParameters(activeRule.getId(), session);
-      activeRuleDao.delete(activeRule.getId(), session);
+      activeRuleDao.removeAllParam(activeRule, session);
+      activeRuleDao.delete(activeRule, session);
       actions.addToDelete(activeRule.getId());
       session.commit();
 
@@ -186,7 +193,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   public int deactivateRules(ProfileRuleQuery query, UserSession userSession) {
     validatePermission(userSession);
 
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     int numberOfDeactivatedRules = 0;
     try {
       List<Integer> activeRuleIdsToDeactivate = rules.searchProfileRuleIds(query);
@@ -205,7 +212,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   public void updateActiveRuleParam(int activeRuleId, String key, @Nullable String value, UserSession userSession) {
     validatePermission(userSession);
 
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
       String sanitizedValue = Strings.emptyToNull(value);
       ActiveRuleParamDto activeRuleParam = findActiveRuleParam(activeRuleId, key, session);
@@ -224,11 +231,13 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     }
   }
 
-  private void createActiveRuleParam(ActiveRuleDto activeRule, String key, String value, UserSession userSession, SqlSession session) {
+  private void createActiveRuleParam(ActiveRuleDto activeRule, String key, String value, UserSession userSession, DbSession session) {
     RuleParamDto ruleParam = findRuleParamNotNull(activeRule.getRulId(), key, session);
     validateParam(ruleParam, value);
-    ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setActiveRuleId(activeRule.getId()).setKey(key).setValue(value).setRulesParameterId(ruleParam.getId());
-    activeRuleDao.insert(activeRuleParam, session);
+    ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(ruleParam)
+      .setKey(key)
+      .setValue(value);
+    activeRuleDao.addParam(activeRule, activeRuleParam, session);
     session.commit();
 
     ProfilesManager.RuleInheritanceActions actions = profilesManager.ruleParamChanged(
@@ -236,28 +245,28 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     reindexInheritanceResult(actions, session);
   }
 
-  private void deleteActiveRuleParam(ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam, UserSession userSession, SqlSession session) {
-    activeRuleDao.deleteParameter(activeRuleParam.getId(), session);
+  private void deleteActiveRuleParam(ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam, UserSession userSession, DbSession session) {
+    activeRuleDao.removeParam(activeRule, activeRuleParam, session);
     session.commit();
     notifyParamsDeleted(activeRule, newArrayList(activeRuleParam), session, userSession);
   }
 
-  void updateActiveRuleParam(ActiveRuleDto activeRule, String key, String sanitizedValue, SqlSession session) {
+  void updateActiveRuleParam(ActiveRuleDto activeRule, String key, String sanitizedValue, DbSession session) {
     RuleParamDto ruleParam = findRuleParamNotNull(activeRule.getRulId(), key, session);
     ActiveRuleParamDto activeRuleParam = findActiveRuleParamNotNull(activeRule.getId(), key, session);
     validateParam(ruleParam, sanitizedValue);
 
     activeRuleParam.setValue(sanitizedValue);
-    activeRuleDao.update(activeRuleParam, session);
+    activeRuleDao.updateParam(activeRule, activeRuleParam, session);
   }
 
-  private void updateActiveRuleParam(ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam, String sanitizedValue, UserSession userSession, SqlSession session) {
+  private void updateActiveRuleParam(ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam, String sanitizedValue, UserSession userSession, DbSession session) {
     RuleParamDto ruleParam = findRuleParamNotNull(activeRule.getRulId(), activeRuleParam.getKey(), session);
     validateParam(ruleParam, sanitizedValue);
 
     String oldValue = activeRuleParam.getValue();
     activeRuleParam.setValue(sanitizedValue);
-    activeRuleDao.update(activeRuleParam, session);
+    activeRuleDao.updateParam(activeRule, activeRuleParam, session);
     session.commit();
 
     ProfilesManager.RuleInheritanceActions actions = profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), activeRuleParam.getKey(), oldValue,
@@ -268,7 +277,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   public void revertActiveRule(int activeRuleId, UserSession userSession) {
     validatePermission(userSession);
 
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
       ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId, session);
       if (activeRule.doesOverride()) {
@@ -279,7 +288,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     }
   }
 
-  private void revertActiveRule(ActiveRuleDto activeRule, UserSession userSession, SqlSession session) {
+  private void revertActiveRule(ActiveRuleDto activeRule, UserSession userSession, DbSession session) {
     ProfilesManager.RuleInheritanceActions actions = new ProfilesManager.RuleInheritanceActions();
     ActiveRuleDto parent = getParent(activeRule, session);
 
@@ -294,10 +303,10 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     reindexActiveRule(activeRule, newParams);
   }
 
-  private ActiveRuleDto getParent(ActiveRuleDto activeRule, SqlSession session) {
+  private ActiveRuleDto getParent(ActiveRuleDto activeRule, DbSession session) {
     Integer parentId = activeRule.getParentId();
     if (parentId != null) {
-      ActiveRuleDto parent = activeRuleDao.selectById(parentId, session);
+      ActiveRuleDto parent = activeRuleDao.getById(parentId, session);
       if (parent != null) {
         return parent;
       }
@@ -306,10 +315,10 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   }
 
   private List<ActiveRuleParamDto> restoreActiveParametersFromActiveRuleParent(ActiveRuleDto activeRule, ActiveRuleDto parent, ProfilesManager.RuleInheritanceActions actions,
-                                                                               UserSession userSession, SqlSession session) {
+                                                                               UserSession userSession, DbSession session) {
     // Restore all parameters from parent
-    List<ActiveRuleParamDto> parentParams = activeRuleDao.selectParamsByActiveRuleId(parent.getId(), session);
-    List<ActiveRuleParamDto> activeRuleParams = activeRuleDao.selectParamsByActiveRuleId(activeRule.getId(), session);
+    List<ActiveRuleParamDto> parentParams = activeRuleDao.findParamsByActiveRule(parent, session);
+    List<ActiveRuleParamDto> activeRuleParams = activeRuleDao.findParamsByActiveRule(activeRule, session);
     List<ActiveRuleParamDto> newParams = newArrayList();
     List<String> paramKeys = newArrayList();
     for (ActiveRuleParamDto param : activeRuleParams) {
@@ -324,12 +333,12 @@ public class QProfileActiveRuleOperations implements ServerComponent {
         String oldValue = param.getValue();
         String newValue = parentParam.getValue();
         param.setValue(newValue);
-        activeRuleDao.update(param, session);
+        activeRuleDao.updateParam(activeRule, param, session);
         session.commit();
         newParams.add(param);
         actions.add(profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), key, oldValue, newValue, getLoggedName(userSession)));
       } else {
-        activeRuleDao.deleteParameter(param.getId(), session);
+        activeRuleDao.removeParam(activeRule, param, session);
         session.commit();
         actions.add(profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), key, param.getValue(), null, getLoggedName(userSession)));
       }
@@ -337,9 +346,10 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     }
     for (ActiveRuleParamDto parentParam : parentParams) {
       if (!paramKeys.contains(parentParam.getKey())) {
-        ActiveRuleParamDto activeRuleParam = new ActiveRuleParamDto().setActiveRuleId(activeRule.getId())
-          .setKey(parentParam.getKey()).setValue(parentParam.getValue()).setRulesParameterId(parentParam.getRulesParameterId());
-        activeRuleDao.insert(activeRuleParam, session);
+        ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFrom(parentParam)
+          .setKey(parentParam.getKey())
+          .setValue(parentParam.getValue());
+        activeRuleDao.addParam(activeRule, activeRuleParam, session);
         session.commit();
         newParams.add(activeRuleParam);
         actions.add(profilesManager.ruleParamChanged(activeRule.getProfileId(), activeRule.getId(), parentParam.getKey(), null, parentParam.getValue(),
@@ -350,7 +360,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   }
 
   private void restoreSeverityFromActiveRuleParent(ActiveRuleDto activeRule, ActiveRuleDto parent, ProfilesManager.RuleInheritanceActions actions,
-                                                   UserSession userSession, SqlSession session) {
+                                                   UserSession userSession, DbSession session) {
     String oldSeverity = activeRule.getSeverityString();
     String newSeverity = parent.getSeverityString();
     if (!oldSeverity.equals(newSeverity)) {
@@ -359,6 +369,51 @@ public class QProfileActiveRuleOperations implements ServerComponent {
       session.commit();
       actions.add(profilesManager.ruleSeverityChanged(activeRule.getProfileId(), activeRule.getId(),
         RulePriority.valueOf(oldSeverity), RulePriority.valueOf(newSeverity), getLoggedName(userSession)));
+    }
+  }
+
+  public void updateActiveRuleNote(int activeRuleId, String note, UserSession userSession) {
+    validatePermission(userSession);
+    DbSession session = myBatis.openSession(false);
+
+    try {
+      ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId, session);
+      String sanitizedNote = Strings.emptyToNull(note);
+      if (sanitizedNote != null) {
+        Date now = new Date(system.now());
+        if (activeRule.getNoteData() == null) {
+          activeRule.setNoteCreatedAt(now);
+          activeRule.setNoteUserLogin(userSession.login());
+        }
+        activeRule.setNoteUpdatedAt(now);
+        activeRule.setNoteData(note);
+        activeRuleDao.update(activeRule, session);
+        session.commit();
+
+        reindexActiveRule(activeRule, session);
+      }
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void deleteActiveRuleNote(int activeRuleId, UserSession userSession) {
+    validatePermission(userSession);
+
+    DbSession session = myBatis.openSession(false);
+    try {
+      ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId, session);
+
+      activeRule.setNoteData(null);
+      activeRule.setNoteUserLogin(null);
+      activeRule.setNoteCreatedAt(null);
+      activeRule.setNoteUpdatedAt(null);
+      activeRuleDao.update(activeRule, session);
+      session.commit();
+
+      reindexActiveRule(activeRule, session);
+    } finally {
+      MyBatis.closeQuietly(session);
     }
   }
 
@@ -383,10 +438,12 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     esActiveRule.bulkIndexActiveRuleIds(actions.idsToIndex(), session);
   }
 
-  private void reindexActiveRule(ActiveRuleDto activeRuleDto, SqlSession session) {
-    reindexActiveRule(activeRuleDto, activeRuleDao.selectParamsByActiveRuleId(activeRuleDto.getId(), session));
+  @Deprecated
+  private void reindexActiveRule(ActiveRuleDto activeRuleDto, DbSession session) {
+    reindexActiveRule(activeRuleDto, activeRuleDao.findParamsByActiveRule(activeRuleDto, session));
   }
 
+  @Deprecated
   private void reindexActiveRule(ActiveRuleDto activeRuleDto, List<ActiveRuleParamDto> params) {
     esActiveRule.save(activeRuleDto, params);
   }
@@ -420,49 +477,54 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     return name;
   }
 
-  private RuleParamDto findRuleParamNotNull(Integer ruleId, String key, SqlSession session) {
-    RuleParamDto ruleParam = ruleDao.selectParamByRuleAndKey(ruleId, key, session);
+  private RuleParamDto findRuleParamNotNull(Integer ruleId, String key, DbSession session) {
+    RuleDto rule = ruleDao.getById(ruleId, session);
+    RuleParamDto ruleParam = ruleDao.getRuleParamByRuleAndParamKey(rule, key, session);
     if (ruleParam == null) {
       throw new IllegalArgumentException("No rule param found");
     }
     return ruleParam;
   }
 
-  private QualityProfileDto findProfileNotNull(int profileId, SqlSession session) {
+  private QualityProfileDto findProfileNotNull(int profileId, DbSession session) {
     QualityProfileDto profile = profileDao.selectById(profileId, session);
     QProfileValidations.checkProfileIsNotNull(profile);
     return profile;
   }
 
-  private RuleDto findRuleNotNull(int ruleId, SqlSession session) {
-    RuleDto rule = ruleDao.selectById(ruleId, session);
+  private RuleDto findRuleNotNull(int ruleId, DbSession session) {
+    RuleDto rule = ruleDao.getById(ruleId, session);
     QProfileValidations.checkRuleIsNotNull(rule);
     return rule;
   }
 
   @CheckForNull
-  private ActiveRuleDto findActiveRule(int profileId, int ruleId, SqlSession session) {
-    return activeRuleDao.selectByProfileAndRule(profileId, ruleId, session);
+  private ActiveRuleDto findActiveRule(int profileId, int ruleId, DbSession session) {
+    QualityProfileDto profile = profileDao.selectById(profileId, session);
+    RuleDto rule = ruleDao.getById(ruleId, session);
+    return activeRuleDao.getByKey(
+      ActiveRuleKey.of(QualityProfileKey.of(profile.getName(), profile.getLanguage()),rule.getKey()), session);
   }
 
-  private ActiveRuleDto findActiveRuleNotNull(int profileId, int ruleId, SqlSession session) {
+  private ActiveRuleDto findActiveRuleNotNull(int profileId, int ruleId, DbSession session) {
     ActiveRuleDto activeRule = findActiveRule(profileId, ruleId, session);
     QProfileValidations.checkActiveRuleIsNotNull(activeRule);
     return activeRule;
   }
 
-  private ActiveRuleDto findActiveRuleNotNull(int activeRuleId, SqlSession session) {
-    ActiveRuleDto activeRule = activeRuleDao.selectById(activeRuleId, session);
+  private ActiveRuleDto findActiveRuleNotNull(int activeRuleId, DbSession session) {
+    ActiveRuleDto activeRule = activeRuleDao.getById(activeRuleId, session);
     QProfileValidations.checkActiveRuleIsNotNull(activeRule);
     return activeRule;
   }
 
   @CheckForNull
-  private ActiveRuleParamDto findActiveRuleParam(int activeRuleId, String key, SqlSession session) {
-    return activeRuleDao.selectParamByActiveRuleAndKey(activeRuleId, key, session);
+  private ActiveRuleParamDto findActiveRuleParam(int activeRuleId, String key, DbSession session) {
+    ActiveRuleDto activeRule = activeRuleDao.getById(activeRuleId, session);
+    return activeRuleDao.getParamsByActiveRuleAndKey(activeRule, key, session);
   }
 
-  private ActiveRuleParamDto findActiveRuleParamNotNull(int activeRuleId, String key, SqlSession session) {
+  private ActiveRuleParamDto findActiveRuleParamNotNull(int activeRuleId, String key, DbSession session) {
     ActiveRuleParamDto activeRuleParam = findActiveRuleParam(activeRuleId, key, session);
     if (activeRuleParam == null) {
       throw new NotFoundException(String.format("No active rule parameter '%s' has been found on active rule id '%s'", key, activeRuleId));

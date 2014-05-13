@@ -31,8 +31,6 @@ import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHitField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.cluster.WorkQueue;
@@ -44,12 +42,10 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-public abstract class BaseIndex<R, Q, E extends Dto<K>, K extends Serializable>
-  implements Index<R, Q, E, K> {
+public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
+  implements Index<D, E, K> {
 
   private static final Logger LOG = LoggerFactory.getLogger(BaseIndex.class);
 
@@ -136,62 +132,24 @@ public abstract class BaseIndex<R, Q, E extends Dto<K>, K extends Serializable>
 
   /* Search methods */
 
-  protected abstract QueryBuilder getQuery(Q query, QueryOptions options);
-
-  protected abstract FilterBuilder getFilter(Q query, QueryOptions options);
-
-  protected abstract SearchRequestBuilder buildRequest(Q query, QueryOptions options);
-
   @Override
-  public Result<R> search(Q query) {
-    return this.search(query, new QueryOptions());
-  }
+  public SearchResponse search(SearchRequestBuilder request,
+                               FilterBuilder filter, QueryBuilder query) {
 
-  public Result<R> search(Q query, QueryOptions options) {
-
-    SearchRequestBuilder esSearch = this.buildRequest(query, options);
-    FilterBuilder fb = this.getFilter(query, options);
-    QueryBuilder qb = this.getQuery(query, options);
-
-    esSearch.setQuery(QueryBuilders.filteredQuery(qb, fb));
-
-    SearchResponse esResult = esSearch.get();
-
-    Result<R> result = new Result<R>(esResult);
-
-    if (esResult != null) {
-      result
-        .setTotal((int) esResult.getHits().totalHits())
-        .setTime(esResult.getTookInMillis());
-
-      for (SearchHit hit : esResult.getHits()) {
-        result.getHits().add(this.getSearchResult(hit));
-      }
-    }
-
-    return result;
-  }
-
-  /* Transform Methods */
-
-  protected abstract R getSearchResult(Map<String, Object> fields);
-
-  protected R getSearchResult(SearchHit hit) {
-    Map<String, Object> fields = new HashMap<String, Object>();
-    for (Map.Entry<String, SearchHitField> field : hit.getFields().entrySet()) {
-      fields.put(field.getKey(), field.getValue().getValue());
-    }
-    return this.getSearchResult(fields);
+    request.setQuery(QueryBuilders.filteredQuery(query, filter));
+    SearchResponse esResult = request.get();
+    return esResult;
   }
 
   /* Base CRUD methods */
 
-  @Override
-  public R getByKey(K key) {
-    GetResponse result = getClient().prepareGet(this.getIndexName(),
+  public abstract D toDoc(GetResponse response);
+
+
+  public D getByKey(K key) {
+    return toDoc(getClient().prepareGet(this.getIndexName(),
       this.indexDefinition.getIndexType(), this.getKeyValue(key))
-      .get();
-    return this.getSearchResult(result.getSource());
+      .get());
   }
 
   private void insertDocument(UpdateRequest request, K key) throws Exception {
@@ -340,6 +298,22 @@ public abstract class BaseIndex<R, Q, E extends Dto<K>, K extends Serializable>
   }
 
   /* ES QueryHelper Methods */
+
+
+  protected void addMatchField(XContentBuilder mapping, String field, String type) throws IOException {
+    mapping.startObject(field)
+      .field("type", type)
+      .field("index", "not_analyzed")
+      .endObject();
+  }
+
+  protected void addFindField(XContentBuilder mapping, String field, String type) throws IOException {
+    mapping.startObject(field)
+      .field("type", type)
+      .field("index", "analyzed")
+      .endObject();
+  }
+
 
 
   protected BoolFilterBuilder addMultiFieldTermFilter(Collection<String> values, BoolFilterBuilder filter, String... fields) {

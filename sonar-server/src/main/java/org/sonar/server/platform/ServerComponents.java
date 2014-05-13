@@ -185,7 +185,6 @@ import org.sonar.server.qualityprofile.ws.QProfileRecreateBuiltInAction;
 import org.sonar.server.qualityprofile.ws.QProfilesWs;
 import org.sonar.server.rule.DeprecatedRulesDefinition;
 import org.sonar.server.rule.ESRuleTags;
-import org.sonar.server.rule.RegisterRules;
 import org.sonar.server.rule.RubyRuleService;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.RuleOperations;
@@ -202,6 +201,8 @@ import org.sonar.server.rule.ws.RuleShowWsHandler;
 import org.sonar.server.rule.ws.RuleTagsWs;
 import org.sonar.server.rule.ws.RulesWs;
 import org.sonar.server.rule2.RuleService;
+import org.sonar.server.rule2.persistence.ActiveRuleDao;
+import org.sonar.server.rule2.persistence.RuleDao;
 import org.sonar.server.rule2.ws.RulesWebService;
 import org.sonar.server.rule2.ws.SearchAction;
 import org.sonar.server.rule2.ws.SetTagsAction;
@@ -294,8 +295,8 @@ class ServerComponents {
       TempFolderCleaner.class,
       new TempFolderProvider(),
       System2.INSTANCE,
-      org.sonar.server.rule2.RuleDao.class,
-      org.sonar.server.rule2.ActiveRuleDao.class,
+      RuleDao.class,
+      ActiveRuleDao.class,
       DbClient.class
     ));
     components.addAll(CorePropertyDefinitions.all());
@@ -608,7 +609,7 @@ class ServerComponents {
     startupContainer.addSingleton(GwtPublisher.class);
     startupContainer.addSingleton(RegisterMetrics.class);
     startupContainer.addSingleton(RegisterQualityGates.class);
-    startupContainer.addSingleton(RegisterRules.class);
+    startupContainer.addSingleton(org.sonar.server.rule2.RegisterRules.class);
     startupContainer.addSingleton(RegisterQualityProfiles.class);
     startupContainer.addSingleton(JdbcDriverDeployer.class);
     startupContainer.addSingleton(RegisterDebtModel.class);

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule2;
+package org.sonar.server.rule2.index;
 
 import org.junit.After;
 import org.junit.Before;
@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -36,6 +35,10 @@ import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
+import org.sonar.server.rule2.Rule;
+import org.sonar.server.rule2.persistence.ActiveRuleDao;
+import org.sonar.server.rule2.persistence.RuleDao;
+import org.sonar.server.search.QueryOptions;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.List;
@@ -93,6 +96,8 @@ public class ActiveRuleIndexMediumTest {
 
 
     Rule hit = index.getByKey(ruleKey);
+
+
     assertThat(hit).isNotNull();
 //    assertThat(hit.getField(RuleNormalizer.RuleField.ACTIVE.key())).isNotNull();
 //
@@ -145,6 +150,11 @@ public class ActiveRuleIndexMediumTest {
     // verify that activeRulesParams are indexed in es
     index.refresh();
 
+    RuleResult results = index.search(new RuleQuery(), new QueryOptions());
+
+    assertThat(results.getActiveRules()).hasSize(1);
+
+
 //    Hit hit = index.getByKey(ruleKey);
 //    assertThat(hit).isNotNull();
 //
@@ -185,8 +195,6 @@ public class ActiveRuleIndexMediumTest {
       .setDefaultRemediationCoefficient("5d")
       .setRemediationOffset("5min")
       .setDefaultRemediationOffset("10h")
-      .setEffortToFixDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix")
-      .setCreatedAt(DateUtils.parseDate("2013-12-16"))
-      .setUpdatedAt(DateUtils.parseDate("2013-12-17"));
+      .setEffortToFixDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix");
   }
 }

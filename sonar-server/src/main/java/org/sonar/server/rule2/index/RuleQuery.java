@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule2;
+package org.sonar.server.rule2.index;
 
 import com.google.common.base.Preconditions;
 import org.sonar.api.rule.RuleStatus;
@@ -76,9 +76,9 @@ public class RuleQuery {
   private boolean ascendingSort = true;
 
   /**
-   * @see RuleService#newRuleQuery()
+   * @see org.sonar.server.rule2.RuleService#newRuleQuery()
    */
-  RuleQuery() {
+  public RuleQuery() {
   }
 
   @CheckForNull

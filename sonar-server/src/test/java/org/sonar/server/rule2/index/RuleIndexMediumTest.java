@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule2;
+package org.sonar.server.rule2.index;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -28,11 +28,12 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.server.rule2.Rule;
+import org.sonar.server.rule2.persistence.RuleDao;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
@@ -78,7 +79,7 @@ public class RuleIndexMediumTest {
 
     // Repositories Facet is preset
     result = index.search(query, new QueryOptions().setFacet(true));
-    System.out.println(result.getFacets());
+
     assertThat(result.getFacets()).isNotNull();
     assertThat(result.getFacets()).hasSize(3);
     assertThat(result.getFacet("Repositories").size()).isEqualTo(3);
@@ -319,6 +320,7 @@ public class RuleIndexMediumTest {
     assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S002");
     assertThat(Iterables.getLast(results.getHits(), null).key().rule()).isEqualTo("S001");
   }
+
   @Test
   public void search_by_tag() {
     dao.insert(newRuleDto(RuleKey.of("java", "S001")).setTags(ImmutableSet.of("tag1")), dbSession);
@@ -407,8 +409,6 @@ public class RuleIndexMediumTest {
       .setDefaultRemediationCoefficient("5d")
       .setRemediationOffset("5min")
       .setDefaultRemediationOffset("10h")
-      .setEffortToFixDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix")
-      .setCreatedAt(DateUtils.parseDate("2013-12-16"))
-      .setUpdatedAt(DateUtils.parseDate("2013-12-17"));
+      .setEffortToFixDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix");
   }
 }

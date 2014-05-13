@@ -17,34 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.search;
+package org.sonar.server.rule2.index;
 
-import java.io.Serializable;
+import org.sonar.server.search.IndexDefinition;
 
-public class KeyIndexAction<K extends Serializable> extends IndexAction {
+public final class RuleIndexDefinition implements IndexDefinition {
 
-  private final K key;
+  private static final String INDEX_NAME = "rules2";
+  private static final String INDEX_DOMAIN = "rules";
+  private static final String INDEX_TYPE = "rule2";
 
-  public KeyIndexAction(String indexType, Method method, K key) {
-    super(indexType, method);
-    this.key = key;
+  @Override
+  public String getIndexName() {
+    return RuleIndexDefinition.INDEX_NAME;
   }
 
   @Override
-  public void doExecute() {
-    try {
-      if (this.getMethod().equals(Method.DELETE)) {
-        index.deleteByKey(this.key);
-      } else if (this.getMethod().equals(Method.INSERT)) {
-        index.insertByKey(this.key);
-      } else if (this.getMethod().equals(Method.UPDATE)) {
-        index.updateByKey(this.key);
-      }
-    } catch (Exception e) {
-      throw new IllegalStateException(this.getClass().getSimpleName() +
-        "cannot execute " + this.getMethod() + " for " + this.key.getClass().getSimpleName() +
-        " on type: " + this.getIndexType() +
-        " on key: "+ this.key, e);
-    }
+  public String getIndexType() {
+    return RuleIndexDefinition.INDEX_TYPE;
   }
 }

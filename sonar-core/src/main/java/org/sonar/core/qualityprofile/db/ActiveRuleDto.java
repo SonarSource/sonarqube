@@ -32,7 +32,7 @@ import javax.annotation.Nullable;
 import javax.persistence.Transient;
 import java.util.Date;
 
-public class ActiveRuleDto implements Dto<ActiveRuleKey> {
+public class ActiveRuleDto extends Dto<ActiveRuleKey> {
 
   public static final String INHERITED = "INHERITED";
   public static final String OVERRIDES = "OVERRIDES";

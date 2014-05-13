@@ -17,14 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule2;
+package org.sonar.server.rule2.index;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RuleParamType;
-import org.sonar.server.rule2.RuleNormalizer.RuleField;
+import org.sonar.server.rule2.Rule;
+import org.sonar.server.rule2.RuleParam;
+import org.sonar.server.rule2.index.RuleNormalizer;
+import org.sonar.server.rule2.index.RuleNormalizer.RuleField;
 
 import javax.annotation.CheckForNull;
 import java.text.ParseException;

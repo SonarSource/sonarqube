@@ -24,8 +24,8 @@ import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
-import org.sonar.server.rule2.ActiveRuleDao;
-import org.sonar.server.rule2.RuleDao;
+import org.sonar.server.rule2.persistence.ActiveRuleDao;
+import org.sonar.server.rule2.persistence.RuleDao;
 
 /**
  * Facade for all db components

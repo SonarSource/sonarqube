@@ -20,17 +20,19 @@
 package org.sonar.server.db;
 
 import com.google.common.base.Preconditions;
+import org.sonar.api.utils.System2;
 import org.sonar.core.db.Dao;
 import org.sonar.core.db.Dto;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.search.DtoIndexAction;
-import org.sonar.server.search.IndexAction;
+import org.sonar.server.search.action.DtoIndexAction;
+import org.sonar.server.search.action.IndexAction;
 import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.KeyIndexAction;
+import org.sonar.server.search.action.KeyIndexAction;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -105,10 +107,16 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
 
   protected final IndexDefinition indexDefinition;
   private Class<M> mapperClass;
+  private System2 system2;
 
   protected BaseDao(IndexDefinition indexDefinition, Class<M> mapperClass) {
-    this.indexDefinition = indexDefinition;
+    this(indexDefinition, mapperClass, System2.INSTANCE);
+  }
+
+  protected BaseDao(IndexDefinition indexDefinition, Class<M> mapperClass, System2 system2) {
     this.mapperClass = mapperClass;
+    this.indexDefinition = indexDefinition;
+    this.system2 = system2;
   }
 
   public String getIndexType() {
@@ -133,16 +141,17 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
 
   @Override
   public E update(E item, DbSession session) {
+    item.setUpdatedAt(new Date(system2.now()));
     this.doUpdate(item, session);
     session.enqueue(new DtoIndexAction<E>(this.getIndexType(), IndexAction.Method.UPDATE, item));
     return item;
   }
 
   @Override
-  public List<E>  update(List<E> items, DbSession session) {
+  public List<E> update(List<E> items, DbSession session) {
     //TODO check for bulk inserts
     List<E> results = new ArrayList<E>();
-    for(E item:items) {
+    for (E item : items) {
       results.add(this.update(item, session));
     }
     return items;
@@ -150,16 +159,18 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
 
   @Override
   public E insert(E item, DbSession session) {
+    item.setCreatedAt(new Date(system2.now()));
+    item.setUpdatedAt(item.getCreatedAt());
     this.doInsert(item, session);
     session.enqueue(new DtoIndexAction<E>(this.getIndexType(), IndexAction.Method.INSERT, item));
     return item;
   }
 
   @Override
-  public List<E>  insert(List<E> items, DbSession session) {
+  public List<E> insert(List<E> items, DbSession session) {
     //TODO check for bulk inserts
     List<E> results = new ArrayList<E>();
-    for(E item:items) {
+    for (E item : items) {
       results.add(this.insert(item, session));
     }
     return items;
@@ -172,7 +183,7 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
 
   @Override
   public void delete(Collection<E> items, DbSession session) {
-    for(E item:items) {
+    for (E item : items) {
       delete(item, session);
     }
   }

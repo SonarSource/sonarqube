@@ -40,13 +40,18 @@ import org.sonar.core.technicaldebt.db.RequirementDao;
 import org.sonar.core.technicaldebt.db.RequirementDto;
 import org.sonar.server.db.migrations.MassUpdater;
 import org.sonar.server.db.migrations.SqlUtil;
-import org.sonar.server.rule.RegisterRules;
 import org.sonar.server.rule.RuleRegistry;
+import org.sonar.server.rule2.RegisterRules;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.Collection;
 import java.util.List;
 

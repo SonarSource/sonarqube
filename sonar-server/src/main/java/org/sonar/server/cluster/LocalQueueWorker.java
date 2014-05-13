@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.server.search.Index;
-import org.sonar.server.search.IndexAction;
+import org.sonar.server.search.action.IndexAction;
 
 import java.util.HashMap;
 import java.util.Map;

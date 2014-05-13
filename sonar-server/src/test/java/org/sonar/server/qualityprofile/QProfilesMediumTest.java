@@ -20,6 +20,7 @@
 
 package org.sonar.server.qualityprofile;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
@@ -45,6 +46,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
+@Ignore
 public class QProfilesMediumTest {
 
   @org.junit.Rule

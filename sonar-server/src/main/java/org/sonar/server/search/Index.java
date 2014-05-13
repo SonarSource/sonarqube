@@ -19,20 +19,23 @@
  */
 package org.sonar.server.search;
 
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.picocontainer.Startable;
 import org.sonar.core.db.Dto;
 
 import javax.annotation.CheckForNull;
 import java.io.Serializable;
 
-public interface Index<R, Q, E extends Dto<K>, K extends Serializable> extends Startable {
+public interface Index<D, E extends Dto<K>, K extends Serializable> extends Startable {
 
   @CheckForNull
-  R getByKey(K item);
+  D getByKey(K item);
 
-  Result<R> search(Q query, QueryOptions options);
-
-  Result<R> search(Q query);
+  SearchResponse search(SearchRequestBuilder request,
+                               FilterBuilder filter, QueryBuilder query);
 
   String getIndexType();
 

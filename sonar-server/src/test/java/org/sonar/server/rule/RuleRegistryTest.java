@@ -27,6 +27,7 @@ import com.google.common.io.Resources;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -58,6 +59,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
+@Ignore
 public class RuleRegistryTest {
 
   EsSetup esSetup;

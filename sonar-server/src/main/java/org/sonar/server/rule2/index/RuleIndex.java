@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule2;
+package org.sonar.server.rule2.index;
 
 import com.google.common.collect.ImmutableSet;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
@@ -38,36 +40,36 @@ import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.es.ESNode;
-import org.sonar.server.rule2.RuleNormalizer.RuleField;
+import org.sonar.server.rule2.Rule;
 import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.QueryOptions;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
-public class RuleIndex extends BaseIndex<Rule, RuleQuery, RuleDto, RuleKey> {
+public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
   public static final Set<String> PUBLIC_FIELDS = ImmutableSet.of(
-    RuleField.KEY.key(),
-    RuleField.NAME.key(),
-    RuleField.HTML_DESCRIPTION.key(),
-    RuleField.LANGUAGE.key(),
-    RuleField.SEVERITY.key(),
-    RuleField.STATUS.key(),
-    RuleField.TAGS.key(),
-    RuleField.SYSTEM_TAGS.key(),
-    RuleField.CREATED_AT.key(),
-    RuleField.REPOSITORY.key(),
-    RuleField.PARAMS.key(),
-    RuleField.ACTIVE.key(),
-    RuleField.TEMPLATE.key(),
-    RuleField.INTERNAL_KEY.key(),
-    RuleField.UPDATED_AT.key());
+    RuleNormalizer.RuleField.KEY.key(),
+    RuleNormalizer.RuleField.NAME.key(),
+    RuleNormalizer.RuleField.HTML_DESCRIPTION.key(),
+    RuleNormalizer.RuleField.LANGUAGE.key(),
+    RuleNormalizer.RuleField.SEVERITY.key(),
+    RuleNormalizer.RuleField.STATUS.key(),
+    RuleNormalizer.RuleField.TAGS.key(),
+    RuleNormalizer.RuleField.SYSTEM_TAGS.key(),
+    RuleNormalizer.RuleField.CREATED_AT.key(),
+    RuleNormalizer.RuleField.REPOSITORY.key(),
+    RuleNormalizer.RuleField.PARAMS.key(),
+    RuleNormalizer.RuleField.ACTIVE.key(),
+    RuleNormalizer.RuleField.TEMPLATE.key(),
+    RuleNormalizer.RuleField.INTERNAL_KEY.key(),
+    RuleNormalizer.RuleField.UPDATED_AT.key());
 
   public RuleIndex(RuleNormalizer normalizer, WorkQueue workQueue,
                    Profiling profiling, ESNode node) {
@@ -117,20 +119,6 @@ public class RuleIndex extends BaseIndex<Rule, RuleQuery, RuleDto, RuleKey> {
       .endObject();
   }
 
-  private void addMatchField(XContentBuilder mapping, String field, String type) throws IOException {
-    mapping.startObject(field)
-      .field("type", type)
-      .field("index", "not_analyzed")
-      .endObject();
-  }
-
-  private void addFindField(XContentBuilder mapping, String field, String type) throws IOException {
-    mapping.startObject(field)
-      .field("type", type)
-      .field("index", "analyzed")
-      .endObject();
-  }
-
   @Override
   protected XContentBuilder getMapping() throws IOException {
     XContentBuilder mapping = jsonBuilder().startObject()
@@ -138,25 +126,25 @@ public class RuleIndex extends BaseIndex<Rule, RuleQuery, RuleDto, RuleKey> {
       .field("dynamic", true)
       .startObject("properties");
 
-    addMatchField(mapping, RuleField.KEY.key(), "string");
-    addMatchField(mapping, RuleField.REPOSITORY.key(), "string");
-    addMatchField(mapping, RuleField.SEVERITY.key(), "string");
-    addMatchField(mapping, RuleField.STATUS.key(), "string");
+    addMatchField(mapping, RuleNormalizer.RuleField.KEY.key(), "string");
+    addMatchField(mapping, RuleNormalizer.RuleField.REPOSITORY.key(), "string");
+    addMatchField(mapping, RuleNormalizer.RuleField.SEVERITY.key(), "string");
+    addMatchField(mapping, RuleNormalizer.RuleField.STATUS.key(), "string");
 
-    mapping.startObject(RuleField.CREATED_AT.key())
+    mapping.startObject(RuleNormalizer.RuleField.CREATED_AT.key())
       .field("type", "date")
       .field("format", "date_time")
       .endObject();
 
-    mapping.startObject(RuleField.UPDATED_AT.key())
+    mapping.startObject(RuleNormalizer.RuleField.UPDATED_AT.key())
       .field("type", "date")
       .field("format", "date_time")
       .endObject();
 
-    mapping.startObject(RuleField.NAME.key())
+    mapping.startObject(RuleNormalizer.RuleField.NAME.key())
       .field("type", "multi_field")
       .startObject("fields")
-      .startObject(RuleField.NAME.key())
+      .startObject(RuleNormalizer.RuleField.NAME.key())
       .field("type", "string")
       .field("index", "analyzed")
       .endObject()
@@ -169,12 +157,12 @@ public class RuleIndex extends BaseIndex<Rule, RuleQuery, RuleDto, RuleKey> {
       .endObject()
       .endObject();
 
-    mapping.startObject(RuleField.ACTIVE.key())
+    mapping.startObject(RuleNormalizer.RuleField.ACTIVE.key())
       .field("type", "nested")
       .field("dynamic", true)
       .endObject();
 
-    mapping.startObject(RuleField.PARAMS.key())
+    mapping.startObject(RuleNormalizer.RuleField.PARAMS.key())
       .field("type", "nested")
       .field("dynamic", true)
       .endObject();
@@ -183,7 +171,6 @@ public class RuleIndex extends BaseIndex<Rule, RuleQuery, RuleDto, RuleKey> {
       .endObject().endObject();
   }
 
-  @Override
   protected SearchRequestBuilder buildRequest(RuleQuery query, QueryOptions options) {
     SearchRequestBuilder esSearch = getClient()
       .prepareSearch(this.getIndexName())
@@ -206,7 +193,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleQuery, RuleDto, RuleKey> {
     } else if (query.getQueryText() != null && !query.getQueryText().isEmpty()) {
       esSearch.addSort(SortBuilders.scoreSort());
     } else {
-      esSearch.addSort(RuleField.UPDATED_AT.key(), SortOrder.DESC);
+      esSearch.addSort(RuleNormalizer.RuleField.UPDATED_AT.key(), SortOrder.DESC);
     }
 
     /* integrate Option's Pagination */
@@ -220,30 +207,29 @@ public class RuleIndex extends BaseIndex<Rule, RuleQuery, RuleDto, RuleKey> {
         esSearch.addField(field);
       }
     } else {
-      for (RuleField field : RuleField.values()) {
+      for (RuleNormalizer.RuleField field : RuleNormalizer.RuleField.values()) {
         esSearch.addField(field.key());
       }
     }
     //Add required fields:
-    esSearch.addField(RuleField.KEY.key());
-    esSearch.addField(RuleField.REPOSITORY.key());
+    esSearch.addField(RuleNormalizer.RuleField.KEY.key());
+    esSearch.addField(RuleNormalizer.RuleField.REPOSITORY.key());
 
     return esSearch;
   }
 
   /* Build main query (search based) */
-  @Override
   protected QueryBuilder getQuery(RuleQuery query, QueryOptions options) {
     QueryBuilder qb;
     if (query.getQueryText() != null && !query.getQueryText().isEmpty()) {
       qb = QueryBuilders.multiMatchQuery(query.getQueryText(),
         "_id",
-        RuleField.NAME.key(),
-        RuleField.NAME.key() + ".search",
-        RuleField.HTML_DESCRIPTION.key(),
-        RuleField.KEY.key(),
-        RuleField.LANGUAGE.key(),
-        RuleField.TAGS.key());
+        RuleNormalizer.RuleField.NAME.key(),
+        RuleNormalizer.RuleField.NAME.key() + ".search",
+        RuleNormalizer.RuleField.HTML_DESCRIPTION.key(),
+        RuleNormalizer.RuleField.KEY.key(),
+        RuleNormalizer.RuleField.LANGUAGE.key(),
+        RuleNormalizer.RuleField.TAGS.key());
     } else {
       qb = QueryBuilders.matchAllQuery();
     }
@@ -251,22 +237,21 @@ public class RuleIndex extends BaseIndex<Rule, RuleQuery, RuleDto, RuleKey> {
   }
 
   /* Build main filter (match based) */
-  @Override
   protected FilterBuilder getFilter(RuleQuery query, QueryOptions options) {
     BoolFilterBuilder fb = FilterBuilders.boolFilter();
-    this.addTermFilter(RuleField.LANGUAGE.key(), query.getLanguages(), fb);
-    this.addTermFilter(RuleField.REPOSITORY.key(), query.getRepositories(), fb);
-    this.addTermFilter(RuleField.SEVERITY.key(), query.getSeverities(), fb);
-    this.addTermFilter(RuleField.KEY.key(), query.getKey(), fb);
+    this.addTermFilter(RuleNormalizer.RuleField.LANGUAGE.key(), query.getLanguages(), fb);
+    this.addTermFilter(RuleNormalizer.RuleField.REPOSITORY.key(), query.getRepositories(), fb);
+    this.addTermFilter(RuleNormalizer.RuleField.SEVERITY.key(), query.getSeverities(), fb);
+    this.addTermFilter(RuleNormalizer.RuleField.KEY.key(), query.getKey(), fb);
 
-    this.addMultiFieldTermFilter(query.getTags(), fb, RuleField.TAGS.key(), RuleField.SYSTEM_TAGS.key());
+    this.addMultiFieldTermFilter(query.getTags(), fb, RuleNormalizer.RuleField.TAGS.key(), RuleNormalizer.RuleField.SYSTEM_TAGS.key());
 
     if (query.getStatuses() != null && !query.getStatuses().isEmpty()) {
       Collection<String> stringStatus = new ArrayList<String>();
       for (RuleStatus status : query.getStatuses()) {
         stringStatus.add(status.name());
       }
-      this.addTermFilter(RuleField.STATUS.key(), stringStatus, fb);
+      this.addTermFilter(RuleNormalizer.RuleField.STATUS.key(), stringStatus, fb);
     }
 
     if ((query.getLanguages() != null && !query.getLanguages().isEmpty()) ||
@@ -281,37 +266,72 @@ public class RuleIndex extends BaseIndex<Rule, RuleQuery, RuleDto, RuleKey> {
     }
   }
 
-  private void setFacets(SearchRequestBuilder query) {
+  protected void setFacets(SearchRequestBuilder query) {
     //TODO there are no aggregation in 0.9!!! Must use facet...
 
      /* the Lang facet */
     query.addFacet(FacetBuilders.termsFacet("Languages")
-      .field(RuleField.LANGUAGE.key())
+      .field(RuleNormalizer.RuleField.LANGUAGE.key())
       .size(10)
       .global(true)
       .order(TermsFacet.ComparatorType.COUNT));
 
     /* the Tag facet */
     query.addFacet(FacetBuilders.termsFacet("Tags")
-      .field(RuleField.TAGS.key())
+      .field(RuleNormalizer.RuleField.TAGS.key())
       .size(10)
       .global(true)
       .order(TermsFacet.ComparatorType.COUNT));
 
     /* the Repo facet */
     query.addFacet(FacetBuilders.termsFacet("Repositories")
-      .field(RuleField.REPOSITORY.key())
+      .field(RuleNormalizer.RuleField.REPOSITORY.key())
       .size(10)
       .global(true)
       .order(TermsFacet.ComparatorType.COUNT));
   }
 
+  public RuleResult search(RuleQuery query, QueryOptions options) {
 
-  @Override
-  protected Rule getSearchResult(Map<String, Object> response) {
+    SearchRequestBuilder esSearch = this.buildRequest(query, options);
+    FilterBuilder fb = this.getFilter(query, options);
+    QueryBuilder qb = this.getQuery(query, options);
+
+    esSearch.setQuery(QueryBuilders.filteredQuery(qb, fb));
+
+    SearchResponse esResult = esSearch.get();
+
+    return new RuleResult(esResult);
+  }
+
+
+  public Rule toDoc(GetResponse response) {
     if (response == null) {
-      throw new IllegalStateException("Cannot construct Rule with null map!!!");
+      throw new IllegalStateException("Cannot construct Rule with null response!!!");
     }
-    return new RuleDoc(response);
+    return new RuleDoc(response.getSource());
+  }
+
+  public Set<String> terms(String... fields) {
+    Set<String> tags  = new HashSet<String>();
+
+    SearchRequestBuilder request = this.getClient()
+      .prepareSearch(this.getIndexName())
+      .setQuery(QueryBuilders.matchAllQuery())
+      .addFacet(FacetBuilders.termsFacet("tags")
+        .allTerms(false)
+        .fields(fields)
+        .global(true)
+        .size(Integer.MAX_VALUE));
+
+    SearchResponse esResponse =  request.get();
+
+    TermsFacet termFacet = esResponse
+      .getFacets().facet("tags");
+
+    for (TermsFacet.Entry facetValue : termFacet.getEntries()) {
+      tags.add(facetValue.getTerm().string());
+    }
+    return tags;
   }
 }

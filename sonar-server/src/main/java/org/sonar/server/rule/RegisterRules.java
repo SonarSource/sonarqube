@@ -200,8 +200,6 @@ public class RegisterRules implements Startable {
       .setRepositoryKey(ruleDef.repository().key())
       .setRuleKey(ruleDef.key())
       .setSeverity(ruleDef.severity())
-      .setCreatedAt(buffer.now())
-      .setUpdatedAt(buffer.now())
       .setStatus(ruleDef.status().name());
 
     CharacteristicDto characteristic = buffer.characteristic(ruleDef.debtSubCharacteristic(), ruleDef.repository().key(), ruleDef.key(), null);

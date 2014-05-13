@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule2;
+package org.sonar.server.rule2.persistence;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -26,13 +27,15 @@ import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleMapper;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.BaseDao;
-import org.sonar.server.search.EmbeddedIndexAction;
-import org.sonar.server.search.IndexAction;
+import org.sonar.server.rule2.index.RuleIndexDefinition;
+import org.sonar.server.search.action.EmbeddedIndexAction;
+import org.sonar.server.search.action.IndexAction;
 
 import javax.annotation.CheckForNull;
 import java.sql.Timestamp;
@@ -45,6 +48,11 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> implements Se
 
   public RuleDao() {
     super(new RuleIndexDefinition(), RuleMapper.class);
+  }
+
+  @VisibleForTesting
+  RuleDao(System2 system) {
+    super(new RuleIndexDefinition(), RuleMapper.class, system);
   }
 
   @CheckForNull

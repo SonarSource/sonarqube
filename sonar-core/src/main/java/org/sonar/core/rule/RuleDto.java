@@ -36,7 +36,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-public final class RuleDto implements Dto<RuleKey> {
+public final class RuleDto extends Dto<RuleKey> {
 
   public static final Integer DISABLED_CHARACTERISTIC_ID = -1;
 
@@ -66,8 +66,6 @@ public final class RuleDto implements Dto<RuleKey> {
   private String effortToFixDescription;
   private String tags;
   private String systemTags;
-  private Date createdAt;
-  private Date updatedAt;
 
   private transient RuleKey key;
 
@@ -151,8 +149,7 @@ public final class RuleDto implements Dto<RuleKey> {
   }
 
   public RuleDto setSeverity(String severity) {
-    this.severity = SeverityUtil.getOrdinalFromSeverity(severity);
-    return this;
+    return this.setSeverity(SeverityUtil.getOrdinalFromSeverity(severity));
   }
 
   public RuleDto setSeverity(Integer severity) {
@@ -349,24 +346,6 @@ public final class RuleDto implements Dto<RuleKey> {
 
   public RuleDto setSystemTags(Set<String> tags) {
     this.systemTags =  tags.isEmpty()?null:StringUtils.join(tags, ',');
-    return this;
-  }
-
-  public Date getCreatedAt() {
-    return createdAt;
-  }
-
-  public RuleDto setCreatedAt(Date createdAt) {
-    this.createdAt = createdAt;
-    return this;
-  }
-
-  public Date getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public RuleDto setUpdatedAt(Date updatedAt) {
-    this.updatedAt = updatedAt;
     return this;
   }
 

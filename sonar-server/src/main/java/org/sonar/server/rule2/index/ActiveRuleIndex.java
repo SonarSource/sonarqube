@@ -36,14 +36,10 @@
 * along with this program; if not, write to the Free Software Foundation,
 * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
-package org.sonar.server.rule2;
+package org.sonar.server.rule2.index;
 
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.profiling.Profiling;
@@ -51,22 +47,24 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.NestedIndex;
-import org.sonar.server.search.QueryOptions;
 
 import java.io.IOException;
-import java.util.Map;
 
-public class ActiveRuleIndex extends NestedIndex<ActiveRule, ActiveRuleQuery, ActiveRuleDto, ActiveRuleKey> {
+public class ActiveRuleIndex extends NestedIndex<ActiveRule, ActiveRuleDto, ActiveRuleKey> {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ActiveRuleIndex.class);
 
-  public ActiveRuleIndex(ActiveRuleNormalizer normalizer, WorkQueue workQueue, Profiling profiling, BaseIndex<?,?,?,?> index) {
+  public ActiveRuleIndex(ActiveRuleNormalizer normalizer, WorkQueue workQueue, Profiling profiling, BaseIndex<?,?,?> index) {
     super(new ActiveRuleIndexDefinition(), normalizer, workQueue, profiling, index);
   }
 
   @Override
   protected String getParentKeyValue(ActiveRuleKey key) {
     return key.ruleKey().toString();
+  }
+
+  @Override
+  protected String getParentIndexType() {
+    return "rule2";
   }
 
   @Override
@@ -85,22 +83,8 @@ public class ActiveRuleIndex extends NestedIndex<ActiveRule, ActiveRuleQuery, Ac
   }
 
   @Override
-  protected QueryBuilder getQuery(ActiveRuleQuery query, QueryOptions options) {
+  public ActiveRule toDoc(GetResponse key) {
     return null;
   }
 
-  @Override
-  protected FilterBuilder getFilter(ActiveRuleQuery query, QueryOptions options) {
-    return null;
-  }
-
-  @Override
-  protected ActiveRule getSearchResult(Map<String, Object> response) {
-    return null;
-  }
-
-  @Override
-  protected SearchRequestBuilder buildRequest(ActiveRuleQuery query, QueryOptions options) {
-    return null;
-  }
 }

@@ -21,10 +21,10 @@ package org.sonar.server.search;
 
 import com.google.common.collect.ImmutableList;
 import org.sonar.server.cluster.LocalQueueWorker;
-import org.sonar.server.rule2.ActiveRuleIndex;
-import org.sonar.server.rule2.ActiveRuleNormalizer;
-import org.sonar.server.rule2.RuleIndex;
-import org.sonar.server.rule2.RuleNormalizer;
+import org.sonar.server.rule2.index.ActiveRuleIndex;
+import org.sonar.server.rule2.index.ActiveRuleNormalizer;
+import org.sonar.server.rule2.index.RuleIndex;
+import org.sonar.server.rule2.index.RuleNormalizer;
 
 import java.util.List;
 

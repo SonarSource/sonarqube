@@ -26,13 +26,12 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
-import org.sonar.server.rule2.RuleDao;
 import org.sonar.server.rule2.RuleService;
+import org.sonar.server.rule2.persistence.RuleDao;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
@@ -82,7 +81,7 @@ public class RulesWebServiceTest {
     System.out.println("request.toString() = " + request.toString());
 
     WsTester.Result result = request.execute();
-    assertThat(result.outputAsString()).isEqualTo("{\"total\":0,\"rules\":[]}");
+    assertThat(result.outputAsString()).isEqualTo("{\"total\":0,\"rules\":[],\"activeRules\":[]}");
   }
 
   @Test
@@ -118,9 +117,7 @@ public class RulesWebServiceTest {
       .setDefaultRemediationCoefficient("5d")
       .setRemediationOffset("5min")
       .setDefaultRemediationOffset("10h")
-      .setEffortToFixDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix")
-      .setCreatedAt(DateUtils.parseDate("2013-12-16"))
-      .setUpdatedAt(DateUtils.parseDate("2013-12-17"));
+      .setEffortToFixDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix");
   }
 }
 

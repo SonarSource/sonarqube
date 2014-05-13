@@ -28,19 +28,21 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.server.rule2.ActiveRule;
 import org.sonar.server.rule2.Rule;
-import org.sonar.server.rule2.RuleIndex;
-import org.sonar.server.rule2.RuleNormalizer;
 import org.sonar.server.rule2.RuleParam;
-import org.sonar.server.rule2.RuleQuery;
 import org.sonar.server.rule2.RuleService;
+import org.sonar.server.rule2.index.RuleIndex;
+import org.sonar.server.rule2.index.RuleNormalizer;
+import org.sonar.server.rule2.index.RuleQuery;
+import org.sonar.server.rule2.index.RuleResult;
 import org.sonar.server.search.QueryOptions;
-import org.sonar.server.search.Result;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @since 4.4
@@ -187,7 +189,7 @@ public class SearchAction implements RequestHandler {
       request.mandatoryParamAsInt(PARAM_PAGE),
       request.mandatoryParamAsInt(PARAM_PAGE_SIZE));
 
-    Result<Rule> results = service.search(query, options);
+    RuleResult results = service.search(query, options);
 
     JsonWriter json = response.newJsonWriter().beginObject();
     writeStatistics(results, json);
@@ -196,14 +198,14 @@ public class SearchAction implements RequestHandler {
     json.close();
   }
 
-  private void writeStatistics(Result results, JsonWriter json) {
+  private void writeStatistics(RuleResult results, JsonWriter json) {
     json.prop("total", results.getTotal());
   }
 
-  private void writeRules(Result<Rule> result, JsonWriter json) {
-    json.name("rules").beginArray();
+  private void writeRules(RuleResult result, JsonWriter json) {
 
-    for(Rule rule:result.getHits()) {
+    json.name("rules").beginArray();
+    for (Rule rule : result.getHits()) {
       json.beginObject();
       json
         .prop("repo", rule.key().repository())
@@ -230,7 +232,26 @@ public class SearchAction implements RequestHandler {
       json.endObject();
     }
     json.endArray();
+
+    json.name("activeRules").beginArray();
+
+    for (ActiveRule activeRule : result.getActiveRules()) {
+      json
+        .beginObject()
+        .prop("severity", activeRule.severity())
+        .name("params").beginArray();
+      for (Map.Entry<String, String> param : activeRule.params().entrySet()) {
+        json
+          .prop("key", param.getKey())
+          .prop("value", param.getValue())
+          .endObject();
+      }
+      json.endArray();
+      json.endObject();
+    }
+    json.endArray();
   }
+
 
   @CheckForNull
   private Collection<RuleStatus> toStatuses(@Nullable List<String> statuses) {

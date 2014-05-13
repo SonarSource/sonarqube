@@ -17,40 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.search;
+package org.sonar.server.search.action;
 
-import org.sonar.core.db.Dto;
+import java.io.Serializable;
 
-public class DtoIndexAction<E extends Dto> extends IndexAction {
+public class KeyIndexAction<K extends Serializable> extends IndexAction {
 
-  private final E item;
+  private final K key;
 
-  public DtoIndexAction(String indexType, Method method, E item) {
+  public KeyIndexAction(String indexType, Method method, K key) {
     super(indexType, method);
-    this.item = item;
+    this.key = key;
   }
 
   @Override
   public void doExecute() {
     try {
       if (this.getMethod().equals(Method.DELETE)) {
-        index.deleteByDto(this.item);
+        index.deleteByKey(this.key);
       } else if (this.getMethod().equals(Method.INSERT)) {
-        index.insertByDto(this.item);
+        index.insertByKey(this.key);
       } else if (this.getMethod().equals(Method.UPDATE)) {
-        index.updateByDto(this.item);
+        index.updateByKey(this.key);
       }
     } catch (Exception e) {
       throw new IllegalStateException(this.getClass().getSimpleName() +
-        " cannot execute " + this.getMethod() + " for " + this.item.getClass().getSimpleName() +
-        " as " + this.getIndexType() +
-        " on key: "+ this.item.getKey(), e);
+        "cannot execute " + this.getMethod() + " for " + this.key.getClass().getSimpleName() +
+        " on type: " + this.getIndexType() +
+        " on key: "+ this.key, e);
     }
   }
-
-  @Override
-  public String toString() {
-    return "{DtoIndexItem {key: " + item.getKey() + "}";
-  }
 }
-

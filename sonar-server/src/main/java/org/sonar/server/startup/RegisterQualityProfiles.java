@@ -45,7 +45,7 @@ import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.qualityprofile.QProfileBackup;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.qualityprofile.QProfileOperations;
-import org.sonar.server.rule.RegisterRules;
+import org.sonar.server.rule2.RegisterRules;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;

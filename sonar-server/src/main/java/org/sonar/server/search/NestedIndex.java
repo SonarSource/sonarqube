@@ -19,7 +19,6 @@
  */
 package org.sonar.server.search;
 
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
@@ -30,15 +29,15 @@ import org.sonar.core.profiling.Profiling;
 
 import java.io.Serializable;
 
-public abstract class NestedIndex<R, Q, E extends Dto<K>, K extends Serializable>
-  extends BaseIndex<R, Q, E, K> {
+public abstract class NestedIndex<D, E extends Dto<K>, K extends Serializable>
+  extends BaseIndex<D, E, K> {
 
   private static final Logger LOG = LoggerFactory.getLogger(NestedIndex.class);
 
-  protected BaseIndex<?,?,?,?> parentIndex;
+  protected BaseIndex<?,?,?> parentIndex;
 
   public NestedIndex(IndexDefinition indexDefinition, BaseNormalizer<E, K> normalizer, WorkQueue workQueue,
-                     Profiling profiling, BaseIndex<?,?,?,?> index) {
+                     Profiling profiling, BaseIndex<?,?,?> index) {
     super(indexDefinition, normalizer, workQueue, profiling, index.getNode());
     this.parentIndex = index;
   }
@@ -51,14 +50,12 @@ public abstract class NestedIndex<R, Q, E extends Dto<K>, K extends Serializable
 
   protected abstract String getParentKeyValue(K key);
 
+  protected abstract String getParentIndexType();
+
   protected abstract String getIndexField();
 
   protected String getKeyValue(K key){
     return this.getParentKeyValue(key);
-  }
-
-  public String getParentIndexType(){
-    return "rule2";
   }
 
   protected void initializeIndex() {
@@ -66,10 +63,9 @@ public abstract class NestedIndex<R, Q, E extends Dto<K>, K extends Serializable
   }
 
   @Override
-  public R getByKey(K key) {
-    GetResponse result = getClient().prepareGet(this.getIndexName(), this.indexDefinition.getIndexType(), this.getKeyValue(key))
-      .get();
-    return this.getSearchResult((java.util.Map<String, Object>) result.getSourceAsMap().get(getIndexField()));
+  public D getByKey(K key) {
+    return toDoc( getClient().prepareGet(this.getIndexName(), this.indexDefinition.getIndexType(), this.getKeyValue(key))
+      .get());
   }
 
   @Override

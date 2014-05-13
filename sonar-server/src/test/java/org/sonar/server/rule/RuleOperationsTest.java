@@ -295,7 +295,7 @@ public class RuleOperationsTest {
   @Test
   public void delete_custom_rule() throws Exception {
     final int ruleId = 11;
-    RuleDto rule = new RuleDto().setId(ruleId).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setConfigKey("Xpath").setUpdatedAt(DateUtils.parseDate("2013-12-23"));
+    RuleDto rule = new RuleDto().setId(ruleId).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setConfigKey("Xpath");//.setUpdatedAt(DateUtils.parseDate("2013-12-23"));
     RuleParamDto param = new RuleParamDto().setId(21).setName("max").setDefaultValue("20");
     when(ruleDao.selectParametersByRuleId(eq(ruleId), eq(session))).thenReturn(newArrayList(param));
     ArrayList<RuleRuleTagDto> ruleTags = newArrayList(new RuleRuleTagDto().setId(30L).setTag("style").setType(RuleTagType.SYSTEM));

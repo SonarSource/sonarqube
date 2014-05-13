@@ -154,9 +154,7 @@ public class RuleOperations implements ServerComponent {
         .setDefaultSubCharacteristicId(templateRule.getDefaultSubCharacteristicId())
         .setDefaultRemediationFunction(templateRule.getDefaultRemediationFunction())
         .setDefaultRemediationCoefficient(templateRule.getDefaultRemediationCoefficient())
-        .setDefaultRemediationOffset(templateRule.getDefaultRemediationOffset())
-        .setCreatedAt(new Date(system.now()))
-        .setUpdatedAt(new Date(system.now()));
+        .setDefaultRemediationOffset(templateRule.getDefaultRemediationOffset());
       ruleDao.insert(rule, session);
 
       List<RuleParamDto> templateRuleParams = ruleDao.selectParametersByRuleId(templateRule.getId(), session);

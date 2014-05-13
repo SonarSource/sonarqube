@@ -17,22 +17,48 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule2;
+package org.sonar.server.search.action;
 
-import org.sonar.server.search.IndexDefinition;
+import org.sonar.core.cluster.QueueAction;
+import org.sonar.server.search.Index;
 
-public class ActiveRuleIndexDefinition implements IndexDefinition {
+public abstract class IndexAction extends QueueAction {
 
-  private static final String INDEX_NAME = "rules2";
-  private static final String INDEX_TYPE = "activeRule2";
+  public enum Method {
+    INSERT, UPDATE, DELETE
+  }
 
-  @Override
-  public String getIndexName() {
-    return ActiveRuleIndexDefinition.INDEX_NAME;
+  protected String indexType;
+  protected Method method;
+  protected Index index;
+
+
+  public IndexAction(String indexType, Method method) {
+    super();
+    this.indexType = indexType;
+    this.method = method;
+  }
+
+  public Method getMethod() {
+    return this.method;
+  }
+
+  public String getIndexType() {
+    return indexType;
+  }
+
+  public void setIndexType(String indexType) {
+    this.indexType = indexType;
+  }
+
+  public void setMethod(Method method) {
+    this.method = method;
   }
 
   @Override
-  public String getIndexType() {
-    return ActiveRuleIndexDefinition.INDEX_TYPE;
+  public abstract void doExecute();
+
+  public void setIndex(Index index) {
+    this.index = index;
   }
 }

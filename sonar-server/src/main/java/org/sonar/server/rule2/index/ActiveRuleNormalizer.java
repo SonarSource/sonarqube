@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule2;
+package org.sonar.server.rule2.index;
 
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -127,6 +127,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
 
       document.startObject(RuleNormalizer.RuleField.ACTIVE.key());
       document.startObject(key.toString());
+      indexField("_id", rule.getKey(), document);
       indexField(ActiveRuleField.OVERRIDE.key(), rule.doesOverride(), document);
       indexField(ActiveRuleField.INHERITANCE.key(), rule.getInheritance(), document);
       indexField(ActiveRuleField.PROFILE_ID.key(), rule.getProfileId(), document);

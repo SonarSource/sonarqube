@@ -21,6 +21,8 @@ package org.sonar.server.search;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHitField;
 import org.elasticsearch.search.facet.Facet;
 import org.elasticsearch.search.facet.terms.TermsFacet;
 
@@ -32,7 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Result<K> {
+public abstract class Result<K> {
 
   private Collection<K> hits;
   private Map<String, Collection<FacetValue>> facets;
@@ -40,34 +42,52 @@ public class Result<K> {
   private int offset;
   private long time;
 
-  private Result(){}
+  public Result(SearchResponse response) {
 
-  public Result(SearchResponse response){
     hits = new ArrayList<K>();
-    if(response.getFacets() != null &&
-      !response.getFacets().facets().isEmpty()){
-      this.facets = new HashMap<String, Collection<FacetValue>>();
-      for(Facet facet:response.getFacets().facets()){
-        TermsFacet termFacet = (TermsFacet)facet;
-        List<FacetValue> facetValues = new ArrayList<FacetValue>();
-        for(TermsFacet.Entry facetValue:termFacet.getEntries()){
-          facetValues.add(new FacetValue<Integer>(facetValue.getTerm().string(),
-            facetValue.getCount()));
-        }
-        this.facets.put(facet.getName(), facetValues);
+
+    if (response != null) {
+      this.total = (int) response.getHits().totalHits();
+      this.time = response.getTookInMillis();
+
+
+      for (SearchHit hit : response.getHits()) {
+        this.hits.add(getSearchResult(hit));
       }
-    } else {
-      this.facets = Collections.emptyMap();
+
+
+      if (response.getFacets() != null &&
+        !response.getFacets().facets().isEmpty()) {
+        this.facets = new HashMap<String, Collection<FacetValue>>();
+        for (Facet facet : response.getFacets().facets()) {
+          TermsFacet termFacet = (TermsFacet) facet;
+          List<FacetValue> facetValues = new ArrayList<FacetValue>();
+          for (TermsFacet.Entry facetValue : termFacet.getEntries()) {
+            facetValues.add(new FacetValue<Integer>(facetValue.getTerm().string(),
+              facetValue.getCount()));
+          }
+          this.facets.put(facet.getName(), facetValues);
+        }
+      } else {
+        this.facets = Collections.emptyMap();
+      }
     }
+  }
+
+  /* Transform Methods */
+
+  protected abstract K getSearchResult(Map<String, Object> fields);
+
+  protected K getSearchResult(SearchHit hit) {
+    Map<String, Object> fields = new HashMap<String, Object>();
+    for (Map.Entry<String, SearchHitField> field : hit.getFields().entrySet()) {
+      fields.put(field.getKey(), field.getValue().getValue());
+    }
+    return this.getSearchResult(fields);
   }
 
   public Collection<K> getHits() {
     return hits;
-  }
-
-  public Result setHits(Collection<K> hits) {
-    this.hits = hits;
-    return this;
   }
 
   public int getTotal() {
@@ -78,37 +98,22 @@ public class Result<K> {
     return offset;
   }
 
-  public Result setTotal(int total) {
-    this.total = total;
-    return this;
-  }
-
-  public Result setOffset(int offset) {
-    this.offset = offset;
-    return this;
-  }
-
   public long getTime() {
     return time;
   }
 
-  public Result setTime(long time) {
-    this.time = time;
-    return this;
-  }
-
-  public Map<String, Collection<FacetValue>> getFacets(){
+  public Map<String, Collection<FacetValue>> getFacets() {
     return this.facets;
   }
 
   @CheckForNull
-  public Collection<FacetValue> getFacet(String facetName){
+  public Collection<FacetValue> getFacet(String facetName) {
     return this.facets.get(facetName);
   }
 
   @CheckForNull
-  public Collection<String> getFacetKeys(String facetName){
-    if(this.facets.containsKey(facetName)){
+  public Collection<String> getFacetKeys(String facetName) {
+    if (this.facets.containsKey(facetName)) {
       List<String> keys = new ArrayList<String>();
       for (FacetValue facetValue : facets.get(facetName)) {
         keys.add(facetValue.getKey());
@@ -119,8 +124,8 @@ public class Result<K> {
   }
 
   @CheckForNull
-  public Object getFacetTermValue(String facetName, String key){
-    if(this.facets.containsKey(facetName)) {
+  public Object getFacetTermValue(String facetName, String key) {
+    if (this.facets.containsKey(facetName)) {
       for (FacetValue facetValue : facets.get(facetName)) {
         if (facetValue.getKey().equals(key)) {
           return facetValue.getValue();

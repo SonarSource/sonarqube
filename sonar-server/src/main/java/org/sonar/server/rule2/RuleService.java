@@ -26,8 +26,11 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.rule2.index.RuleIndex;
+import org.sonar.server.rule2.index.RuleNormalizer;
+import org.sonar.server.rule2.index.RuleQuery;
+import org.sonar.server.rule2.index.RuleResult;
 import org.sonar.server.search.QueryOptions;
-import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -55,7 +58,7 @@ public class RuleService implements ServerComponent {
     return new RuleQuery();
   }
 
-  public Result search(RuleQuery query, QueryOptions options) {
+  public RuleResult search(RuleQuery query, QueryOptions options) {
     // keep only supported fields and add the fields to always return
     options.filterFieldsToReturn(RuleIndex.PUBLIC_FIELDS);
     options.addFieldsToReturn(RuleNormalizer.RuleField.REPOSITORY.key(), RuleNormalizer.RuleField.KEY.key());
@@ -66,7 +69,8 @@ public class RuleService implements ServerComponent {
    * List all tags
    */
   public Set<String> listTags() {
-    throw new UnsupportedOperationException("TODO");
+    return index.terms(RuleNormalizer.RuleField.TAGS.key(),
+      RuleNormalizer.RuleField.SYSTEM_TAGS.key());
   }
 
   public void setTags(RuleKey ruleKey, Set<String> tags) {

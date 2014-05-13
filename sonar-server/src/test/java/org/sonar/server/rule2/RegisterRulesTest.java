@@ -48,6 +48,8 @@ import org.sonar.server.rule.ESRuleTags;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.rule.RuleRepositories;
+import org.sonar.server.rule2.persistence.ActiveRuleDao;
+import org.sonar.server.rule2.persistence.RuleDao;
 
 import java.util.Collection;
 import java.util.Date;

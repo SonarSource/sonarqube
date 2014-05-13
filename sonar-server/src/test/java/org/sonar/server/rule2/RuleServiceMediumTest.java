@@ -25,13 +25,11 @@ import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleParamType;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
@@ -40,6 +38,8 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.rule2.index.RuleIndex;
+import org.sonar.server.rule2.persistence.RuleDao;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
@@ -87,6 +87,8 @@ public class RuleServiceMediumTest {
     assertThat(persistedDto.getLanguage()).isEqualTo("js");
     assertThat(persistedDto.getTags()).containsOnly("tag1", "tag2");
     assertThat(persistedDto.getSystemTags()).containsOnly("systag1", "systag2");
+    assertThat(persistedDto.getCreatedAt()).isNotNull();
+    assertThat(persistedDto.getUpdatedAt()).isNotNull();
 
     // verify that rule is indexed in es
     index.refresh();
@@ -129,8 +131,13 @@ public class RuleServiceMediumTest {
     dao.addRuleParam(ruleDto, maxParamDto, dbSession);
     dbSession.commit();
 
+    //Verify that RuleDto has date from insertion
+    RuleDto theRule= dao.getByKey(ruleKey, dbSession);
+    assertThat(theRule.getCreatedAt()).isNotNull();
+    assertThat(theRule.getUpdatedAt()).isNotNull();
+
     // verify that parameters are persisted in db
-    List<RuleParamDto> persistedDtos = dao.findRuleParamsByRuleKey(ruleKey, dbSession);
+    List<RuleParamDto> persistedDtos = dao.findRuleParamsByRuleKey(theRule.getKey(), dbSession);
     assertThat(persistedDtos).hasSize(2);
 
     // verify that parameters are indexed in es
@@ -147,8 +154,7 @@ public class RuleServiceMediumTest {
   }
 
   @Test
-  @Ignore
-  public void setTags() {
+  public void setTags() throws InterruptedException {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     // insert db
@@ -168,9 +174,11 @@ public class RuleServiceMediumTest {
     service.setTags(rule2, Sets.newHashSet("bug", "security"));
 
     // verify that tags are indexed in es
+
     service.refresh();
+
     Set<String> tags = service.listTags();
-    assertThat(tags).containsOnly("security", "java8", "bug");
+    assertThat(tags).containsOnly("security", "bug");
   }
 
   @Test
@@ -214,8 +222,6 @@ public class RuleServiceMediumTest {
       .setDefaultRemediationCoefficient("5d")
       .setRemediationOffset("5min")
       .setDefaultRemediationOffset("10h")
-      .setEffortToFixDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix")
-      .setCreatedAt(DateUtils.parseDate("2013-12-16"))
-      .setUpdatedAt(DateUtils.parseDate("2013-12-17"));
+      .setEffortToFixDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix");
   }
 }
