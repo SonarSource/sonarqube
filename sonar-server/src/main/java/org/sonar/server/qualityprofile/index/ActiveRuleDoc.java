@@ -42,24 +42,29 @@ public class ActiveRuleDoc implements ActiveRule {
 
   @Override
   public Boolean override() {
-    return (Boolean) this.fields.get(ActiveRuleNormalizer.ActiveRuleField.OVERRIDE);
+    return (Boolean) this.fields.get(ActiveRuleNormalizer.ActiveRuleField.OVERRIDE.key());
   }
 
   @Override
   public String severity() {
-    return (String) this.fields.get(ActiveRuleNormalizer.ActiveRuleField.SEVERITY);
+    return (String) this.fields.get(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.key());
   }
 
   @Override
   public String inherit() {
-    return (String) this.fields.get(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE);
+    return (String) this.fields.get(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.key());
+  }
+
+  @Override
+  public String parent() {
+    return (String) this.fields.get(ActiveRuleNormalizer.ActiveRuleField.PARENT_ID.key());
   }
 
   @Override
   public Map<String, String> params() {
     Map<String, String> params = new HashMap<String, String>();
-    if (this.fields.containsKey(ActiveRuleNormalizer.ActiveRuleField.PARAMS)) {
-      Map<String, Map<String, String>> allParams = (Map<String, Map<String, String>>) this.fields.get(ActiveRuleNormalizer.ActiveRuleField.PARAMS);
+    if (this.fields.containsKey(ActiveRuleNormalizer.ActiveRuleField.PARAMS.key())) {
+      Map<String, Map<String, String>> allParams = (Map<String, Map<String, String>>) this.fields.get(ActiveRuleNormalizer.ActiveRuleField.PARAMS.key());
       for (Map.Entry<String, Map<String, String>> param : allParams.entrySet()) {
         params.put(param.getKey(), param.getValue().get(ActiveRuleNormalizer.ActiveRuleParamField.VALUE.key()));
       }

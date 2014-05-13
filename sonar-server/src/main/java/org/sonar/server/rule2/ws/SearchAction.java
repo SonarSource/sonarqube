@@ -241,7 +241,7 @@ public class SearchAction implements RequestHandler {
         .prop("severity", activeRule.severity())
         .name("params").beginArray();
       for (Map.Entry<String, String> param : activeRule.params().entrySet()) {
-        json
+        json.beginObject()
           .prop("key", param.getKey())
           .prop("value", param.getValue())
           .endObject();

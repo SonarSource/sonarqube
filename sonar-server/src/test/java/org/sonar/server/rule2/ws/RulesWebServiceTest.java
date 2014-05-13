@@ -31,9 +31,11 @@ import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
+import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
 import org.sonar.server.rule2.RuleService;
 import org.sonar.server.rule2.persistence.RuleDao;
@@ -108,7 +110,8 @@ public class RulesWebServiceTest {
     MockUserSession.set();
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules2", "search");
     WsTester.Result result = request.execute();
-    //TODO
+
+    //TODO make JSON assertions here.
   }
 
   @Test
@@ -123,16 +126,53 @@ public class RulesWebServiceTest {
     tester.get(ActiveRuleDao.class).insert(activeRule, session);
 
     session.commit();
+
     tester.get(RuleService.class).refresh();
 
 
     MockUserSession.set();
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules2", "search");
+    request.setParam("q","S001");
     WsTester.Result result = request.execute();
 
-//    System.out.println("result = " + result.outputAsString());
+    //TODO make JSON assertions here.
 
   }
+
+  @Test
+  public void search_active_rules_params() throws Exception {
+    QualityProfileDto profile = newQualityProfile();
+    tester.get(QualityProfileDao.class).insert(profile, session);
+
+    RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"));
+    ruleDao.insert(rule,  session);
+
+    RuleParamDto param = RuleParamDto.createFor(rule)
+      .setDefaultValue("some value")
+      .setType("string")
+      .setDescription("My small description")
+      .setName("my_var");
+    ruleDao.addRuleParam(rule,param, session);
+
+    ActiveRuleDto activeRule = newActiveRule(profile, rule);
+    tester.get(ActiveRuleDao.class).insert(activeRule, session);
+    ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(param)
+      .setValue("The VALUE");
+    tester.get(ActiveRuleDao.class).addParam(activeRule, activeRuleParam, session);
+
+    session.commit();
+
+    tester.get(RuleService.class).refresh();
+
+
+    MockUserSession.set();
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules2", "search");
+    request.setParam("q","S001");
+    WsTester.Result result = request.execute();
+
+    //TODO make JSON assertions here.
+  }
+
 
 
   private QualityProfileDto newQualityProfile() {

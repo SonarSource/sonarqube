@@ -33,5 +33,7 @@ public interface ActiveRule {
 
   String inherit();
 
+  String parent();
+
   Map<String, String> params();
 }
