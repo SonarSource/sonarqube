@@ -18,6 +18,7 @@
     </td>
     <td>
       <p>{{{description}}}</p>
+
       {{#if possibleValues}}
       <p>
       <em>Possible values:</em>
@@ -28,6 +29,13 @@
       </ul>
       </p>
       {{/if}}
+
+      {{#if defaultValue}}
+      <p>
+      <em>Default value:</em> <code>{{defaultValue}}</code>
+      </p>
+      {{/if}}
+
       {{#if exampleValue}}
       <p>
       <em>Example value:</em> <code>{{exampleValue}}</code>
