@@ -19,7 +19,10 @@
  */
 package org.sonar.server.qualityprofile;
 
-
+/**
+ * @deprecated to be dropped in 4.4
+ */
+@Deprecated
 public class ActiveRuleDocument {
 
   public static final String FIELD_ID = "id";

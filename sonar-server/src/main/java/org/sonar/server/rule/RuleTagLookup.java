@@ -23,6 +23,10 @@ import org.sonar.api.ServerComponent;
 
 import java.util.Collection;
 
+/**
+ * @deprecated to be dropped in 4.4
+ */
+@Deprecated
 public class RuleTagLookup implements ServerComponent  {
 
   private final ESRuleTags esRuleTags;

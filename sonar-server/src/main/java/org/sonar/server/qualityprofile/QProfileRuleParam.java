@@ -26,6 +26,10 @@ import org.sonar.server.rule.RuleParam;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+/**
+ * @deprecated to be dropped in 4.4
+ */
+@Deprecated
 public class QProfileRuleParam {
 
   private RuleParam param;

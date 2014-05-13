@@ -26,12 +26,10 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.server.rule2.Rule;
 import org.sonar.server.rule2.RuleParam;
-import org.sonar.server.rule2.index.RuleNormalizer;
 import org.sonar.server.rule2.index.RuleNormalizer.RuleField;
+import org.sonar.server.search.IndexUtils;
 
 import javax.annotation.CheckForNull;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -175,23 +173,13 @@ class RuleDoc implements Rule {
   @Override
   @CheckForNull
   public Date createdAt() {
-    SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'" );
-    try {
-      return sdf.parse((String) fields.get(RuleField.CREATED_AT.key()));
-    } catch (ParseException e) {
-      throw new IllegalStateException("Cannot parse date", e);
-    }
+    return IndexUtils.parseDateTime((String) fields.get(RuleField.CREATED_AT.key()));
   }
 
   @Override
   @CheckForNull
   public Date updatedAt() {
-    SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'" );
-    try {
-      return sdf.parse((String) fields.get(RuleField.UPDATED_AT.key()));
-    } catch (ParseException e) {
-      throw new IllegalStateException("Cannot parse date", e);
-    }
+    return IndexUtils.parseDateTime((String) fields.get(RuleField.UPDATED_AT.key()));
   }
 
   @Override

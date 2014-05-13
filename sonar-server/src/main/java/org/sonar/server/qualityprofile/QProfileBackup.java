@@ -56,8 +56,9 @@ import java.util.Map;
 import static com.google.common.collect.Lists.newArrayList;
 
 /**
- * Used through ruby code <pre>Internal.profile_backup</pre>
+ * @deprecated to be dropped in 4.4
  */
+@Deprecated
 public class QProfileBackup implements ServerComponent {
 
   private final DatabaseSessionFactory sessionFactory;

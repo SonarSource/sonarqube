@@ -67,10 +67,9 @@ import java.util.Set;
 import static com.google.common.collect.Lists.newArrayList;
 
 /**
- * Register rules at server startup
- *
- * @since 4.2
+ * @deprecated to be dropped in 4.4
  */
+@Deprecated
 public class RegisterRules implements Startable {
 
   private static final Logger LOG = LoggerFactory.getLogger(RegisterRules.class);

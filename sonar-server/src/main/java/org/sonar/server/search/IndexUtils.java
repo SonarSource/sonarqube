@@ -19,26 +19,23 @@
  */
 package org.sonar.server.search;
 
-import com.google.common.collect.ImmutableList;
-import org.sonar.server.cluster.LocalQueueWorker;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
-import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
-import org.sonar.server.rule2.index.RuleIndex;
-import org.sonar.server.rule2.index.RuleNormalizer;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-import java.util.List;
+public class IndexUtils {
 
-public final class IndexUtils {
+  private IndexUtils() {
+    // only static stuff
+  }
 
-
-  @SuppressWarnings("unchecked")
-  public static List<Class> getIndexClasses() {
-    return ImmutableList.<Class>of(
-      RuleNormalizer.class,
-      ActiveRuleNormalizer.class,
-      RuleIndex.class,
-      ActiveRuleIndex.class,
-      LocalQueueWorker.class
-    );
+  public static Date parseDateTime(String s) {
+    DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    try {
+      return sdf.parse(s);
+    } catch (ParseException e) {
+      throw new IllegalArgumentException("Cannot parse ES date: " + s, e);
+    }
   }
 }

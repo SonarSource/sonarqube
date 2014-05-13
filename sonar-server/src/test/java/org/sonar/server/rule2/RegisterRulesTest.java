@@ -24,9 +24,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -34,24 +31,18 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
-import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.core.rule.RuleTagDao;
-import org.sonar.core.rule.RuleTagDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.ProfilesManager;
 import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
-import org.sonar.server.rule.ESRuleTags;
 import org.sonar.server.rule.RuleDefinitionsLoader;
-import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.rule2.persistence.RuleDao;
 
-import java.util.Collection;
 import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -68,32 +59,15 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     "effort_to_fix_description"};
 
   RegisterRules task;
-
-  @Mock
-  ProfilesManager profilesManager;
-
-  @Mock
-  RuleRegistry ruleRegistry;
-
-  @Mock
-  ESRuleTags esRuleTags;
-
-  @Captor
-  ArgumentCaptor<Collection<RuleDto>> rulesCaptor;
-
-  @Captor
-  ArgumentCaptor<Collection<RuleTagDto>> ruleTagsCaptor;
-
+  ProfilesManager profilesManager = mock(ProfilesManager.class);
   MyBatis myBatis;
   RuleDao ruleDao;
-  RuleTagDao ruleTagDao;
   ActiveRuleDao activeRuleDao;
   CharacteristicDao characteristicDao;
   System2 system;
-  WorkQueue queue;
   Date date = DateUtils.parseDateTime("2014-03-17T19:10:03+0100");
-
-  private DbSession session;
+  DbSession session;
+  DbClient dbClient;
 
   @Before
   public void before() {
@@ -101,11 +75,13 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     when(system.now()).thenReturn(date.getTime());
     myBatis = getMyBatis();
     ruleDao = new RuleDao();
-    ruleTagDao = new RuleTagDao(myBatis);
     activeRuleDao = new ActiveRuleDao(new QualityProfileDao(myBatis), ruleDao);
+    dbClient = new DbClient(getDatabase(), getMyBatis(), ruleDao, activeRuleDao, new QualityProfileDao(getMyBatis()));
     characteristicDao = new CharacteristicDao(myBatis);
-    task = new RegisterRules(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RulesDefinition[]{new FakeRepository()}),
-      profilesManager, myBatis, ruleDao, activeRuleDao, characteristicDao, system);
+    task = new RegisterRules(new RuleDefinitionsLoader(mock(RuleRepositories.class),
+      new RulesDefinition[]{new FakeRepository()}),
+      profilesManager, dbClient, characteristicDao, system
+    );
     session = myBatis.openSession(false);
   }
 
@@ -289,7 +265,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
   @Test
   public void test_high_number_of_rules() {
     task = new RegisterRules(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RulesDefinition[]{new BigRepository()}),
-      profilesManager, myBatis, ruleDao, activeRuleDao, characteristicDao);
+      profilesManager, dbClient, characteristicDao);
 
     setupData("shared");
     task.start();
@@ -305,7 +281,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
   public void insert_extended_repositories() {
     task = new RegisterRules(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RulesDefinition[]{
       new FindbugsRepository(), new FbContribRepository()}),
-      profilesManager, myBatis, ruleDao, activeRuleDao, characteristicDao
+      profilesManager, dbClient, characteristicDao
     );
 
 

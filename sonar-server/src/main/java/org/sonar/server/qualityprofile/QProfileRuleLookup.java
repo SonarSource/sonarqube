@@ -52,6 +52,10 @@ import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.sonar.server.rule.RuleRegistry.INDEX_RULES;
 import static org.sonar.server.rule.RuleRegistry.TYPE_RULE;
 
+/**
+ * @deprecated to be dropped in 4.4
+ */
+@Deprecated
 public class QProfileRuleLookup implements ServerExtension {
 
   private static final int PAGE_SIZE = 100;

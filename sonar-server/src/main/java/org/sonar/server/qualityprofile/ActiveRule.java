@@ -17,17 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule;
+package org.sonar.server.qualityprofile;
 
-/**
- * @deprecated to be dropped in 4.4
- */
-@Deprecated
-public class RuleTagDocument {
+import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 
-  public static final String FIELD_VALUE = "value";
+import java.util.Map;
 
-  private RuleTagDocument() {
-    // Only constants
-  }
+public interface ActiveRule {
+
+  ActiveRuleKey key();
+
+  String severity();
+
+  Boolean override();
+
+  String inherit();
+
+  Map<String, String> params();
 }

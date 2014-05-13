@@ -31,6 +31,10 @@ import org.sonar.server.user.UserSession;
 
 import java.util.Set;
 
+/**
+ * @deprecated to be dropped in 4.4
+ */
+@Deprecated
 public class RuleTagOperations implements ServerExtension {
 
   private final RuleTagDao ruleTagDao;

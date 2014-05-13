@@ -39,7 +39,6 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.server.es.ESIndex;
 import org.sonar.server.es.SearchQuery;
-import org.sonar.server.rule.RuleDocument;
 import org.sonar.server.rule.RuleRegistry;
 
 import java.io.IOException;
@@ -48,6 +47,10 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+/**
+ * @deprecated to be dropped in 4.4
+ */
+@Deprecated
 public class ESActiveRule {
 
   public static final String TYPE_ACTIVE_RULE = "active_rule";

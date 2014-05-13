@@ -26,8 +26,9 @@ import org.sonar.server.user.UserSession;
 import java.util.Collection;
 
 /**
- * Used through ruby code <pre>Internal.rule_tags</pre>
+ * @deprecated to be dropped in 4.4
  */
+@Deprecated
 public class RuleTags implements ServerExtension {
 
   private final RuleTagLookup ruleTagLookup;

@@ -20,7 +20,7 @@
 package org.sonar.server.qualityprofile.index;
 
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
-import org.sonar.server.rule2.ActiveRule;
+import org.sonar.server.qualityprofile.ActiveRule;
 
 import java.util.HashMap;
 import java.util.Map;

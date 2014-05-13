@@ -30,6 +30,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 
+/**
+ * @deprecated to be dropped in 4.4
+ */
+@Deprecated
 public class Rule {
 
   public static final String MANUAL_REPOSITORY_KEY = "manual";

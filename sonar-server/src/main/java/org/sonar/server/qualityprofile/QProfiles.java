@@ -36,8 +36,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Used through ruby code <pre>Internal.quality_profiles</pre>
+ * @deprecated to be dropped in 4.4
  */
+@Deprecated
 public class QProfiles implements ServerComponent {
 
   private static final String LANGUAGE_PARAM = "language";

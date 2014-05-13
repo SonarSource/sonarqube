@@ -20,6 +20,10 @@
 
 package org.sonar.server.rule;
 
+/**
+ * @deprecated to be dropped in 4.4
+ */
+@Deprecated
 public final class RuleDocument {
 
   public static final String FIELD_ID = "id";

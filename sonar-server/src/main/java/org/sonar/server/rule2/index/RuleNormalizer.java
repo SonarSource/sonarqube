@@ -24,7 +24,6 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;

@@ -31,6 +31,10 @@ import org.sonar.server.es.ESIndex;
 import java.io.IOException;
 import java.util.Collection;
 
+/**
+ * @deprecated to be dropped in 4.4
+ */
+@Deprecated
 public class ESRuleTags {
 
   public static final String TYPE_TAG = "tag";

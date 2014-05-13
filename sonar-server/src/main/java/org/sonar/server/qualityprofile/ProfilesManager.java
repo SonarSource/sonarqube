@@ -33,7 +33,12 @@ import org.sonar.jpa.dao.RulesDao;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.List;
+import org.sonar.api.rules.ActiveRule;
 
+/**
+ * @deprecated to be dropped in 4.4
+ */
+@Deprecated
 public class ProfilesManager extends BaseDao {
 
   private RulesDao rulesDao;

@@ -35,15 +35,13 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.ProfilesManager;
-import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
 import org.sonar.server.rule.RuleDefinitionsLoader;
-import org.sonar.server.rule2.persistence.RuleDao;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -67,38 +65,33 @@ public class RegisterRules implements Startable {
 
   private final RuleDefinitionsLoader defLoader;
   private final ProfilesManager profilesManager;
-  private final MyBatis myBatis;
-  private final RuleDao ruleDao;
-  private final ActiveRuleDao activeRuleDao;
+  private final DbClient dbClient;
   private final CharacteristicDao characteristicDao;
 
 
   public RegisterRules(RuleDefinitionsLoader defLoader, ProfilesManager profilesManager,
-                       MyBatis myBatis, RuleDao ruleDao, ActiveRuleDao activeRuleDao,
+                       DbClient dbClient,
                        CharacteristicDao characteristicDao) {
-    this(defLoader, profilesManager, myBatis, ruleDao, activeRuleDao, characteristicDao, System2.INSTANCE);
+    this(defLoader, profilesManager, dbClient, characteristicDao, System2.INSTANCE);
   }
 
 
   @VisibleForTesting
   RegisterRules(RuleDefinitionsLoader defLoader, ProfilesManager profilesManager,
-                MyBatis myBatis, RuleDao ruleDao, ActiveRuleDao activeRuleDao,
+                DbClient dbClient,
                 CharacteristicDao characteristicDao, System2 system) {
     this.defLoader = defLoader;
     this.profilesManager = profilesManager;
-    this.myBatis = myBatis;
-    this.ruleDao = ruleDao;
-    this.activeRuleDao = activeRuleDao;
+    this.dbClient = dbClient;
     this.characteristicDao = characteristicDao;
   }
 
   @Override
   public void start() {
     TimeProfiler profiler = new TimeProfiler().start("Register rules");
-    DbSession session = myBatis.openSession(false);
+    DbSession session = dbClient.openSession(false);
     try {
-
-      Map<RuleKey, RuleDto> allRules = getRulesByKey(session);
+      Map<RuleKey, RuleDto> allRules = loadRules(session);
 
       RulesDefinition.Context context = defLoader.load();
       for (RulesDefinition.ExtendedRepository repoDef : getRepositories(context)) {
@@ -106,16 +99,14 @@ public class RegisterRules implements Startable {
 
           RuleKey ruleKey = RuleKey.of(ruleDef.repository().key(), ruleDef.key());
 
-          RuleDto rule = allRules.containsKey(ruleKey) ?
-            allRules.remove(ruleKey) :
-            this.createRuleDto(ruleDef, session);
+          RuleDto rule = allRules.containsKey(ruleKey) ? allRules.remove(ruleKey) : createRuleDto(ruleDef, session);
 
           boolean executeUpdate = false;
           if (mergeRule(ruleDef, rule)) {
             executeUpdate = true;
           }
 
-          if(rule.getSubCharacteristicId() != null) {
+          if (rule.getSubCharacteristicId() != null) {
             CharacteristicDto characteristicDto = characteristicDao.selectById(rule.getSubCharacteristicId(), session);
             if (characteristicDto != null && mergeDebtDefinitions(ruleDef, rule, characteristicDto)) {
               executeUpdate = true;
@@ -127,16 +118,15 @@ public class RegisterRules implements Startable {
           }
 
           if (executeUpdate) {
-            ruleDao.update(rule, session);
+            dbClient.ruleDao().update(rule, session);
           }
 
           mergeParams(ruleDef, rule, session);
-
         }
+        session.commit();
       }
       List<RuleDto> activeRules = processRemainingDbRules(allRules.values(), session);
       removeActiveRulesOnStillExistingRepositories(activeRules, context);
-
       session.commit();
 
     } finally {
@@ -151,9 +141,9 @@ public class RegisterRules implements Startable {
     // nothing
   }
 
-  private Map<RuleKey, RuleDto> getRulesByKey(DbSession session) {
+  private Map<RuleKey, RuleDto> loadRules(DbSession session) {
     Map<RuleKey, RuleDto> rules = new HashMap<RuleKey, RuleDto>();
-    for (RuleDto rule : ruleDao.findByNonManual(session)) {
+    for (RuleDto rule : dbClient.ruleDao().findByNonManual(session)) {
       rules.put(rule.getKey(), rule);
     }
     return rules;
@@ -185,7 +175,7 @@ public class RegisterRules implements Startable {
       .setStatus(ruleDef.status().name())
       .setSystemTags(ruleDef.tags());
 
-    return ruleDao.insert(ruleDto, session);
+    return dbClient.ruleDao().insert(ruleDto, session);
   }
 
   private boolean mergeRule(RulesDefinition.Rule def, RuleDto dto) {
@@ -268,7 +258,7 @@ public class RegisterRules implements Startable {
   }
 
   private void mergeParams(RulesDefinition.Rule ruleDef, RuleDto rule, DbSession session) {
-    List<RuleParamDto> paramDtos = ruleDao.findRuleParamsByRuleKey(rule.getKey(), session);
+    List<RuleParamDto> paramDtos = dbClient.ruleDao().findRuleParamsByRuleKey(rule.getKey(), session);
     List<String> existingParamDtoNames = new ArrayList<String>();
 
     for (RuleParamDto paramDto : paramDtos) {
@@ -276,12 +266,12 @@ public class RegisterRules implements Startable {
       if (paramDef == null) {
         //TODO cascade on the activeRule upon RuleDeletion
         //activeRuleDao.removeRuleParam(paramDto, sqlSession);
-        ruleDao.removeRuleParam(rule, paramDto, session);
+        dbClient.ruleDao().removeRuleParam(rule, paramDto, session);
       } else {
         // TODO validate that existing active rules still match constraints
         // TODO store param name
         if (mergeParam(paramDto, paramDef)) {
-          ruleDao.updateRuleParam(rule, paramDto, session);
+          dbClient.ruleDao().updateRuleParam(rule, paramDto, session);
         }
         existingParamDtoNames.add(paramDto.getName());
       }
@@ -293,7 +283,7 @@ public class RegisterRules implements Startable {
           .setDescription(param.description())
           .setDefaultValue(param.defaultValue())
           .setType(param.type().toString());
-        ruleDao.addRuleParam(rule, paramDto, session);
+        dbClient.ruleDao().addRuleParam(rule, paramDto, session);
       }
     }
   }
@@ -338,7 +328,7 @@ public class RegisterRules implements Startable {
       boolean toBeRemoved = true;
       // Update custom rules from template
       if (ruleDto.getParentId() != null) {
-        RuleDto parent = ruleDao.getParent(ruleDto, session);
+        RuleDto parent = dbClient.ruleDao().getParent(ruleDto, session);
         if (parent != null && !Rule.STATUS_REMOVED.equals(parent.getStatus())) {
           ruleDto.setLanguage(parent.getLanguage());
           ruleDto.setStatus(parent.getStatus());
@@ -347,7 +337,7 @@ public class RegisterRules implements Startable {
           ruleDto.setDefaultRemediationCoefficient(parent.getDefaultRemediationCoefficient());
           ruleDto.setDefaultRemediationOffset(parent.getDefaultRemediationOffset());
           ruleDto.setEffortToFixDescription(parent.getEffortToFixDescription());
-          ruleDao.update(ruleDto, session);
+          dbClient.ruleDao().update(ruleDto, session);
           toBeRemoved = false;
         }
       }
@@ -358,7 +348,7 @@ public class RegisterRules implements Startable {
         ruleDto.setTags(Collections.EMPTY_SET);
       }
 
-      ruleDao.update(ruleDto, session);
+      dbClient.ruleDao().update(ruleDto, session);
       removedRules.add(ruleDto);
       if (removedRules.size() % 100 == 0) {
         session.commit();
@@ -392,6 +382,7 @@ public class RegisterRules implements Startable {
     for (RuleDto rule : removedRules) {
       // SONAR-4642 Remove active rules only when repository still exists
       if (repositoryKeys.contains(rule.getRepositoryKey())) {
+        // TODO
         profilesManager.removeActivatedRules(rule.getId());
       }
     }

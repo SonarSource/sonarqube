@@ -17,17 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule;
+@ParametersAreNonnullByDefault
+package org.sonar.server.qualityprofile.index;
 
-/**
- * @deprecated to be dropped in 4.4
- */
-@Deprecated
-public class RuleTagDocument {
-
-  public static final String FIELD_VALUE = "value";
-
-  private RuleTagDocument() {
-    // Only constants
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

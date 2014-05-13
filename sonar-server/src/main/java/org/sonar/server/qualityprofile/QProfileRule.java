@@ -35,6 +35,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @deprecated to be dropped in 4.4
+ */
+@Deprecated
 public class QProfileRule {
 
   public static final String INHERITED = "INHERITED";

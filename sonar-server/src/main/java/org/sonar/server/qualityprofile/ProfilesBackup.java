@@ -31,9 +31,14 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.*;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.jpa.dao.RulesDao;
+import org.sonar.api.rules.ActiveRule;
 
 import java.util.*;
 
+/**
+ * @deprecated to be dropped in 4.4
+ */
+@Deprecated
 public class ProfilesBackup {
 
   private static final String KEY = "key";

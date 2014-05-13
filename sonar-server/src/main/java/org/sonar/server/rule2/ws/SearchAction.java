@@ -28,7 +28,7 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.server.rule2.ActiveRule;
+import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule2.Rule;
 import org.sonar.server.rule2.RuleParam;
 import org.sonar.server.rule2.RuleService;

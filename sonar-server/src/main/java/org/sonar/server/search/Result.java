@@ -36,41 +36,34 @@ import java.util.Map;
 
 public abstract class Result<K> {
 
-  private Collection<K> hits;
-  private Map<String, Collection<FacetValue>> facets;
-  private int total;
-  private int offset;
-  private long time;
+  private final Collection<K> hits;
+  private final Map<String, Collection<FacetValue>> facets;
+  private final long total;
+  private final long timeInMillis;
 
   public Result(SearchResponse response) {
+    this.hits = new ArrayList<K>();
+    this.total = (int) response.getHits().totalHits();
+    this.timeInMillis = response.getTookInMillis();
 
-    hits = new ArrayList<K>();
+    for (SearchHit hit : response.getHits()) {
+      this.hits.add(getSearchResult(hit));
+    }
 
-    if (response != null) {
-      this.total = (int) response.getHits().totalHits();
-      this.time = response.getTookInMillis();
-
-
-      for (SearchHit hit : response.getHits()) {
-        this.hits.add(getSearchResult(hit));
-      }
-
-
-      if (response.getFacets() != null &&
-        !response.getFacets().facets().isEmpty()) {
-        this.facets = new HashMap<String, Collection<FacetValue>>();
-        for (Facet facet : response.getFacets().facets()) {
-          TermsFacet termFacet = (TermsFacet) facet;
-          List<FacetValue> facetValues = new ArrayList<FacetValue>();
-          for (TermsFacet.Entry facetValue : termFacet.getEntries()) {
-            facetValues.add(new FacetValue<Integer>(facetValue.getTerm().string(),
-              facetValue.getCount()));
-          }
-          this.facets.put(facet.getName(), facetValues);
+    if (response.getFacets() != null &&
+      !response.getFacets().facets().isEmpty()) {
+      this.facets = new HashMap<String, Collection<FacetValue>>();
+      for (Facet facet : response.getFacets().facets()) {
+        TermsFacet termFacet = (TermsFacet) facet;
+        List<FacetValue> facetValues = new ArrayList<FacetValue>();
+        for (TermsFacet.Entry facetValue : termFacet.getEntries()) {
+          facetValues.add(new FacetValue<Integer>(facetValue.getTerm().string(),
+            facetValue.getCount()));
         }
-      } else {
-        this.facets = Collections.emptyMap();
+        this.facets.put(facet.getName(), facetValues);
       }
+    } else {
+      this.facets = Collections.emptyMap();
     }
   }
 
@@ -90,16 +83,12 @@ public abstract class Result<K> {
     return hits;
   }
 
-  public int getTotal() {
+  public long getTotal() {
     return total;
   }
 
-  public int getOffset() {
-    return offset;
-  }
-
-  public long getTime() {
-    return time;
+  public long getTimeInMillis() {
+    return timeInMillis;
   }
 
   public Map<String, Collection<FacetValue>> getFacets() {

@@ -25,6 +25,10 @@ import org.sonar.api.server.rule.RuleParamType;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+/**
+ * @deprecated to be dropped in 4.4
+ */
+@Deprecated
 public class RuleParam {
 
   private final String key;

@@ -85,6 +85,7 @@ import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
 import org.sonar.server.authentication.ws.AuthenticationWs;
 import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.cluster.LocalNonBlockingWorkQueue;
+import org.sonar.server.cluster.LocalQueueWorker;
 import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.component.ws.ComponentsWs;
@@ -180,6 +181,8 @@ import org.sonar.server.qualityprofile.QProfileRuleLookup;
 import org.sonar.server.qualityprofile.QProfiles;
 import org.sonar.server.qualityprofile.RegisterQualityProfiles;
 import org.sonar.server.qualityprofile.RuleActivationContextFactory;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
+import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
 import org.sonar.server.qualityprofile.ws.ProfilesWs;
 import org.sonar.server.qualityprofile.ws.QProfileRecreateBuiltInAction;
@@ -204,6 +207,8 @@ import org.sonar.server.rule.ws.RuleTagsWs;
 import org.sonar.server.rule.ws.RulesWs;
 import org.sonar.server.rule2.RegisterRules;
 import org.sonar.server.rule2.RuleService;
+import org.sonar.server.rule2.index.RuleIndex;
+import org.sonar.server.rule2.index.RuleNormalizer;
 import org.sonar.server.rule2.persistence.RuleDao;
 import org.sonar.server.rule2.ws.RulesWebService;
 import org.sonar.server.rule2.ws.SearchAction;
@@ -348,12 +353,18 @@ class ServerComponents {
       ThreadLocalDatabaseSessionFactory.class,
       new DatabaseSessionProvider(),
       ServerMetadataPersister.class,
-      ESNode.class,
       HttpDownloader.class,
       UriReader.class,
-      ServerIdGenerator.class
+      ServerIdGenerator.class,
+
+      // Elasticsearch
+      ESNode.class,
+      RuleNormalizer.class,
+      ActiveRuleNormalizer.class,
+      RuleIndex.class,
+      ActiveRuleIndex.class,
+      LocalQueueWorker.class
     );
-    components.addAll(IndexUtils.getIndexClasses());
     return components;
   }
 

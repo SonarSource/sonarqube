@@ -17,21 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule2;
+@ParametersAreNonnullByDefault
+package org.sonar.server.rule2.index;
 
-import org.sonar.core.qualityprofile.db.ActiveRuleKey;
-
-import java.util.Map;
-
-public interface ActiveRule {
-
-  public ActiveRuleKey key();
-
-  public Boolean override();
-
-  public String severity();
-
-  public String inherit();
-
-  public Map<String, String> params();
-}
+import javax.annotation.ParametersAreNonnullByDefault;

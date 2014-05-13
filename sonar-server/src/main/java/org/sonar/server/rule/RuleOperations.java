@@ -64,6 +64,10 @@ import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+/**
+ * @deprecated to be dropped in 4.4
+ */
+@Deprecated
 public class RuleOperations implements ServerComponent {
 
   private final MyBatis myBatis;

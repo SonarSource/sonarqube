@@ -33,8 +33,9 @@ import java.util.*;
 import static com.google.common.collect.Lists.newArrayList;
 
 /**
- * @since 4.2
+ * @deprecated to be dropped in 4.4
  */
+@Deprecated
 public class ProfileRuleQuery {
 
   public static final String SORT_BY_CREATION_DATE = "SORT_BY_CREATION_DATE";

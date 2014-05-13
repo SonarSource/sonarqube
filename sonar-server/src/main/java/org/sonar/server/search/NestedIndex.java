@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.db.Dto;
-import org.sonar.core.profiling.Profiling;
 
 import java.io.Serializable;
 
@@ -34,11 +33,11 @@ public abstract class NestedIndex<D, E extends Dto<K>, K extends Serializable>
 
   private static final Logger LOG = LoggerFactory.getLogger(NestedIndex.class);
 
-  protected BaseIndex<?,?,?> parentIndex;
+  protected BaseIndex<?, ?, ?> parentIndex;
 
   public NestedIndex(IndexDefinition indexDefinition, BaseNormalizer<E, K> normalizer, WorkQueue workQueue,
-                     Profiling profiling, BaseIndex<?,?,?> index) {
-    super(indexDefinition, normalizer, workQueue, profiling, index.getNode());
+                     BaseIndex<?, ?, ?> index) {
+    super(indexDefinition, normalizer, workQueue, index.getNode());
     this.parentIndex = index;
   }
 
@@ -54,17 +53,16 @@ public abstract class NestedIndex<D, E extends Dto<K>, K extends Serializable>
 
   protected abstract String getIndexField();
 
-  protected String getKeyValue(K key){
+  protected String getKeyValue(K key) {
     return this.getParentKeyValue(key);
   }
 
   protected void initializeIndex() {
-    ;
   }
 
   @Override
   public D getByKey(K key) {
-    return toDoc( getClient().prepareGet(this.getIndexName(), this.indexDefinition.getIndexType(), this.getKeyValue(key))
+    return toDoc(getClient().prepareGet(this.getIndexName(), this.indexDefinition.getIndexType(), this.getKeyValue(key))
       .get());
   }
 

@@ -71,11 +71,11 @@ import static org.elasticsearch.index.query.FilterBuilders.*;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.sonar.api.rules.Rule.STATUS_REMOVED;
 
+
 /**
- * Fill search index with rules
- *
- * @since 4.1
+ * @deprecated to be dropped in 4.4
  */
+@Deprecated
 public class RuleRegistry {
 
   private static final Logger LOG = LoggerFactory.getLogger(RuleRegistry.class);

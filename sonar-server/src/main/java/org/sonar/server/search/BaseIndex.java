@@ -35,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.db.Dto;
-import org.sonar.core.profiling.Profiling;
 import org.sonar.server.es.ESNode;
 
 import java.io.IOException;
@@ -49,15 +48,13 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
 
   private static final Logger LOG = LoggerFactory.getLogger(BaseIndex.class);
 
-  private final Profiling profiling;
   private final ESNode node;
   protected BaseNormalizer<E, K> normalizer;
   protected final IndexDefinition indexDefinition;
 
-  public BaseIndex(IndexDefinition indexDefinition, BaseNormalizer<E, K> normalizer, WorkQueue workQueue,
-                   Profiling profiling, ESNode node) {
+  public BaseIndex(IndexDefinition indexDefinition, BaseNormalizer<E, K> normalizer,
+                   WorkQueue workQueue, ESNode node) {
     this.normalizer = normalizer;
-    this.profiling = profiling;
     this.node = node;
     this.indexDefinition = indexDefinition;
   }
@@ -86,7 +83,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
   public void start() {
 
     /* Setup the index if necessary */
-    this.initializeIndex();
+    initializeIndex();
   }
 
   @Override
@@ -97,7 +94,6 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
   /* Cluster And ES Stats/Client methods */
 
   protected void initializeIndex() {
-
     String index = this.getIndexName();
 
     IndicesExistsResponse indexExistsResponse = getClient().admin().indices()
@@ -315,13 +311,12 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
   }
 
 
-
   protected BoolFilterBuilder addMultiFieldTermFilter(Collection<String> values, BoolFilterBuilder filter, String... fields) {
     if (values != null && !values.isEmpty()) {
       BoolFilterBuilder valuesFilter = FilterBuilders.boolFilter();
       for (String value : values) {
         Collection<FilterBuilder> filterBuilders = new ArrayList<FilterBuilder>();
-        for(String field:fields) {
+        for (String field : fields) {
           filterBuilders.add(FilterBuilders.termFilter(field, value));
         }
         valuesFilter.should(FilterBuilders.orFilter(filterBuilders.toArray(new FilterBuilder[filterBuilders.size()])));
@@ -330,7 +325,6 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
     }
     return filter;
   }
-
 
 
   protected BoolFilterBuilder addTermFilter(String field, Collection<String> values, BoolFilterBuilder filter) {

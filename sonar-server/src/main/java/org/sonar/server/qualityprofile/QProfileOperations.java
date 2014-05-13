@@ -40,6 +40,10 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @deprecated to be dropped in 4.4
+ */
+@Deprecated
 public class QProfileOperations implements ServerComponent {
 
   public static final String PROFILE_PROPERTY_PREFIX = "sonar.profile.";

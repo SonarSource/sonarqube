@@ -42,6 +42,10 @@ import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+/**
+ * @deprecated to be dropped in 4.4
+ */
+@Deprecated
 public class Rules implements ServerExtension {
 
   private final RuleDao ruleDao;

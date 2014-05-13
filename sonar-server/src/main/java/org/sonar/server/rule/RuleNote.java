@@ -21,6 +21,10 @@ package org.sonar.server.rule;
 
 import java.util.Date;
 
+/**
+ * @deprecated to be dropped in 4.4
+ */
+@Deprecated
 public class RuleNote {
 
   private final String data;

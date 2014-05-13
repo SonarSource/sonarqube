@@ -42,7 +42,6 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.core.cluster.WorkQueue;
-import org.sonar.core.profiling.Profiling;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.server.rule2.index.RuleNormalizer;
@@ -53,9 +52,8 @@ import java.io.IOException;
 
 public class ActiveRuleIndex extends NestedIndex<ActiveRule, ActiveRuleDto, ActiveRuleKey> {
 
-
-  public ActiveRuleIndex(ActiveRuleNormalizer normalizer, WorkQueue workQueue, Profiling profiling, BaseIndex<?,?,?> index) {
-    super(new ActiveRuleIndexDefinition(), normalizer, workQueue, profiling, index);
+  public ActiveRuleIndex(ActiveRuleNormalizer normalizer, WorkQueue workQueue, BaseIndex<?, ?, ?> index) {
+    super(new ActiveRuleIndexDefinition(), normalizer, workQueue, index);
   }
 
   @Override

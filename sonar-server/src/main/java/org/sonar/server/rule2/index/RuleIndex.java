@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule2.index;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -37,7 +38,6 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.core.cluster.WorkQueue;
-import org.sonar.core.profiling.Profiling;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.es.ESNode;
 import org.sonar.server.rule2.Rule;
@@ -71,9 +71,8 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     RuleNormalizer.RuleField.INTERNAL_KEY.key(),
     RuleNormalizer.RuleField.UPDATED_AT.key());
 
-  public RuleIndex(RuleNormalizer normalizer, WorkQueue workQueue,
-                   Profiling profiling, ESNode node) {
-    super(new RuleIndexDefinition(), normalizer, workQueue, profiling, node);
+  public RuleIndex(RuleNormalizer normalizer, WorkQueue workQueue, ESNode node) {
+    super(new RuleIndexDefinition(), normalizer, workQueue, node);
   }
 
   protected String getKeyValue(RuleKey key) {
@@ -292,7 +291,6 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   }
 
   public RuleResult search(RuleQuery query, QueryOptions options) {
-
     SearchRequestBuilder esSearch = this.buildRequest(query, options);
     FilterBuilder fb = this.getFilter(query, options);
     QueryBuilder qb = this.getQuery(query, options);
@@ -306,14 +304,12 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
 
   public Rule toDoc(GetResponse response) {
-    if (response == null) {
-      throw new IllegalStateException("Cannot construct Rule with null response!!!");
-    }
+    Preconditions.checkArgument(response != null, "Cannot construct Rule with null response!!!");
     return new RuleDoc(response.getSource());
   }
 
   public Set<String> terms(String... fields) {
-    Set<String> tags  = new HashSet<String>();
+    Set<String> tags = new HashSet<String>();
 
     SearchRequestBuilder request = this.getClient()
       .prepareSearch(this.getIndexName())
@@ -324,7 +320,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
         .global(true)
         .size(Integer.MAX_VALUE));
 
-    SearchResponse esResponse =  request.get();
+    SearchResponse esResponse = request.get();
 
     TermsFacet termFacet = esResponse
       .getFacets().facet("tags");

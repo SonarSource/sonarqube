@@ -24,7 +24,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
-import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
@@ -43,7 +42,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> implements ServerComponent {
+public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
 
   public RuleDao() {
     super(new RuleIndexDefinition(), RuleMapper.class);
@@ -138,7 +137,6 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> implements Se
     Preconditions.checkNotNull(rule.getId(), "Rule id must be set");
     Preconditions.checkNotNull(paramDto.getId(), "Param is not yet persisted must be set");
     paramDto.setRuleId(rule.getId());
-    System.out.println("paramDto = " + paramDto);
     session.enqueue(new EmbeddedIndexAction<RuleKey>(this.getIndexType(), IndexAction.Method.UPDATE, paramDto, rule.getKey()));
     mapper(session).updateParameter(paramDto);
     return paramDto;

@@ -24,18 +24,19 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.picocontainer.Startable;
+import org.sonar.api.ServerComponent;
 import org.sonar.core.db.Dto;
 
 import javax.annotation.CheckForNull;
 import java.io.Serializable;
 
-public interface Index<D, E extends Dto<K>, K extends Serializable> extends Startable {
+public interface Index<D, E extends Dto<K>, K extends Serializable> extends Startable, ServerComponent {
 
   @CheckForNull
   D getByKey(K item);
 
   SearchResponse search(SearchRequestBuilder request,
-                               FilterBuilder filter, QueryBuilder query);
+                        FilterBuilder filter, QueryBuilder query);
 
   String getIndexType();
 
