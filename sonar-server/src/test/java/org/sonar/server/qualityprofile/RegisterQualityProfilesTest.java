@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.startup;
+package org.sonar.server.qualityprofile;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -40,12 +40,6 @@ import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.platform.PersistentSettings;
-import org.sonar.server.qualityprofile.DefaultProfilesCache;
-import org.sonar.server.qualityprofile.ESActiveRule;
-import org.sonar.server.qualityprofile.QProfile;
-import org.sonar.server.qualityprofile.QProfileBackup;
-import org.sonar.server.qualityprofile.QProfileLookup;
-import org.sonar.server.qualityprofile.QProfileOperations;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
@@ -60,7 +54,15 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 @Ignore
-//TODO remove, this is now in org.sonar.server.qprofile
+/* FIXME this test has the following errors:
+java.lang.IllegalArgumentException: Name must be set
+	at com.google.common.base.Preconditions.checkArgument(Preconditions.java:88)
+	at org.sonar.core.qualityprofile.db.QualityProfileKey.of(QualityProfileKey.java:44)
+	at org.sonar.server.qualityprofile.RegisterQualityProfiles.register(RegisterQualityProfiles.java:158)
+	at org.sonar.server.qualityprofile.RegisterQualityProfiles.start(RegisterQualityProfiles.java:123)
+	at org.sonar.server.qualityprofile.RegisterQualityProfilesTest.delete_existing_profile_if_template_is_empty(RegisterQualityProfilesTest.java:338)
+  ...
+ */
 public class RegisterQualityProfilesTest {
 
   @Mock
