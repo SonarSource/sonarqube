@@ -20,7 +20,6 @@
 
 package org.sonar.server.qualityprofile;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
@@ -32,6 +31,7 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.paging.Paging;
 import org.sonar.server.rule.Rule;
@@ -46,7 +46,6 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
-@Ignore
 public class QProfilesMediumTest {
 
   @org.junit.Rule
@@ -96,11 +95,11 @@ public class QProfilesMediumTest {
     // Update rule x1 : update severity and update param value
     Rule rule1 = rules.find(RuleQuery.builder().searchQuery("x1").build()).results().iterator().next();
     qProfiles.updateActiveRuleParam(qProfiles.findByProfileAndRule(profile.id(), rule1.id()).activeRuleId(), "acceptWhitespace", "false");
-    qProfiles.activateRule(profile.id(), rule1.id(), "INFO");
+    qProfiles.activateRule(profileKey(profile), rule1.ruleKey(), "INFO");
 
     // Disable rule x2
     Rule rule2 = rules.find(RuleQuery.builder().searchQuery("x2").build()).results().iterator().next();
-    qProfiles.deactivateRule(qProfiles.profile("Basic", "xoo").id(), rule2.id());
+    qProfiles.deactivateRule(QualityProfileKey.of(profile.name(), profile.language()), rule2.ruleKey());
 
     assertThat(qProfileBackup.findDefaultProfileNamesByLanguage("xoo")).hasSize(1);
 
@@ -173,5 +172,9 @@ public class QProfilesMediumTest {
         .setSeverity(Severity.MAJOR);
       repository.done();
     }
+  }
+
+  private QualityProfileKey profileKey(QProfile profile){
+    return QualityProfileKey.of(profile.name(), profile.language());
   }
 }

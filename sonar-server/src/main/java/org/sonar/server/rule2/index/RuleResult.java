@@ -22,6 +22,7 @@ package org.sonar.server.rule2.index;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
+import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
 import org.sonar.server.rule2.ActiveRule;
 import org.sonar.server.rule2.Rule;
 import org.sonar.server.search.Result;

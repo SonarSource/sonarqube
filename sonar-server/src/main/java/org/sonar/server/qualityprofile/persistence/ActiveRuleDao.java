@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.rule2.persistence;
+package org.sonar.server.qualityprofile.persistence;
 
 import com.google.common.base.Preconditions;
 import org.sonar.core.persistence.DbSession;
@@ -30,7 +30,9 @@ import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.BaseDao;
-import org.sonar.server.rule2.index.ActiveRuleIndexDefinition;
+import org.sonar.server.qualityprofile.QProfile;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexDefinition;
+import org.sonar.server.rule2.persistence.RuleDao;
 import org.sonar.server.search.action.EmbeddedIndexAction;
 import org.sonar.server.search.action.IndexAction;
 
@@ -61,7 +63,11 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
   protected ActiveRuleDto doGetByKey(ActiveRuleKey key, DbSession session) {
     QualityProfileDto qDto = profileDao.selectByNameAndLanguage(key.qProfile().name(), key.qProfile().lang(), session);
     RuleDto ruleDto = ruleDao.getByKey(key.ruleKey(), session);
-    return mapper(session).selectByProfileAndRule(qDto.getId(), ruleDto.getId());
+    ActiveRuleDto activeRule = mapper(session).selectByProfileAndRule(qDto.getId(), ruleDto.getId());
+    if(activeRule.getKey() == null){
+      activeRule.setKey(key);
+    }
+    return activeRule;
   }
 
   @Override
@@ -84,7 +90,9 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
 
   @Override
   protected void doDeleteByKey(ActiveRuleKey key, DbSession session) {
-    throw new UnsupportedOperationException("TODO");
+    ActiveRuleDto rule = this.getByKey(key,session);
+    //TODO write the SQL statement for deleteByKey and deprecate deleteById.
+    mapper(session).delete(rule.getId());
   }
 
   public List<ActiveRuleParamDto> findParamsByActiveRule(ActiveRuleDto dto, DbSession session) {
@@ -129,5 +137,19 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
     Preconditions.checkArgument(activeRule.getId()!=null, "ActiveRule is not persisted");
     Preconditions.checkArgument(key!=null, "Param key cannot be null");
     return mapper(session).selectParamByActiveRuleAndKey(activeRule.getId(), key);
+  }
+
+  @Deprecated
+  //FIXME this should be deleteByProfile(QualityProfileKey... waiting for QualitiProfileDaoV2
+  public void deleteByProfile(QProfile profile, DbSession session) {
+    //TODO put that in a loop so we can have a the ActiveRuleKey and use DAO's delete for ES synch
+    mapper(session).deleteFromProfile(profile.id());
+  }
+
+  @Deprecated
+  //FIXME this should be removeParamByProfile(QualityProfileKey... waiting for QualitiProfileDaoV2
+  public void removeParamByProfile(QProfile profile, DbSession session) {
+    //TODO synch ES for deletion
+    mapper(session).deleteParametersFromProfile(profile.id());
   }
 }

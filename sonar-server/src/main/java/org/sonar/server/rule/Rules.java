@@ -23,19 +23,20 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.rule.RuleDao;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.paging.PagedResult;
 import org.sonar.server.qualityprofile.QProfileValidations;
+import org.sonar.server.rule2.persistence.RuleDao;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 import org.sonar.server.util.Validation;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.List;
 import java.util.Map;
 
@@ -46,11 +47,13 @@ public class Rules implements ServerExtension {
   private final RuleDao ruleDao;
   private final RuleOperations ruleOperations;
   private final RuleRegistry ruleRegistry;
+  private final MyBatis myBatis;
 
-  public Rules(RuleDao ruleDao, RuleOperations ruleOperations, RuleRegistry ruleRegistry) {
+  public Rules(MyBatis myBatis, RuleDao ruleDao, RuleOperations ruleOperations, RuleRegistry ruleRegistry) {
     this.ruleOperations = ruleOperations;
     this.ruleDao = ruleDao;
     this.ruleRegistry = ruleRegistry;
+    this.myBatis = myBatis;
   }
 
   /**
@@ -146,17 +149,21 @@ public class Rules implements ServerExtension {
   }
 
   private RuleDto findRuleNotNull(int ruleId) {
-    RuleDto rule = ruleDao.selectById(ruleId);
+    DbSession session = myBatis.openSession(false);
+    RuleDto rule = ruleDao.getById(ruleId, session);
     QProfileValidations.checkRuleIsNotNull(rule);
+    session.close();
     return rule;
   }
 
 
   private void checkRuleNotAlreadyExists(@Nullable Integer updatingRuleId, String name, List<BadRequestException.Message> messages) {
-    RuleDto existingRule = ruleDao.selectByName(name);
+    DbSession session = myBatis.openSession(false);
+    RuleDto existingRule = ruleDao.getByName(name, session);
     boolean isModifyingCurrentRule = updatingRuleId != null && existingRule != null && existingRule.getId().equals(updatingRuleId);
     if (!isModifyingCurrentRule && existingRule != null) {
       messages.add(BadRequestException.Message.ofL10n(Validation.IS_ALREADY_USED_MESSAGE, "Name"));
     }
+    session.close();
   }
 }

@@ -21,8 +21,8 @@ package org.sonar.server.search;
 
 import com.google.common.collect.ImmutableList;
 import org.sonar.server.cluster.LocalQueueWorker;
-import org.sonar.server.rule2.index.ActiveRuleIndex;
-import org.sonar.server.rule2.index.ActiveRuleNormalizer;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
+import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule2.index.RuleIndex;
 import org.sonar.server.rule2.index.RuleNormalizer;
 

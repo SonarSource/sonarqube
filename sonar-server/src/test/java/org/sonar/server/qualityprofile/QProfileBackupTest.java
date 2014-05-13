@@ -42,12 +42,13 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.rule.RuleDao;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.rule2.persistence.RuleDao;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
@@ -320,13 +321,15 @@ public class QProfileBackupTest {
     when(profileDefinition.createProfile(any(ValidationMessages.class))).thenReturn(profile);
     definitions.add(profileDefinition);
 
-    when(ruleDao.selectByKey(RuleKey.of("pmd", "rule"), session)).thenReturn(new RuleDto().setId(10).setSeverity("INFO"));
+    when(ruleDao.getByKey(RuleKey.of("pmd", "rule"), session)).thenReturn(new RuleDto().setId(10).setSeverity("INFO"));
 
     when(qProfileOperations.newProfile(eq(name), eq(language), eq(true), any(UserSession.class), eq(session))).thenReturn(new QProfile().setId(1));
 
     backup.recreateBuiltInProfilesByLanguage(language);
 
-    verify(qProfileActiveRuleOperations).createActiveRule(eq(1), eq(10), eq("BLOCKER"), eq(session));
+    verify(qProfileActiveRuleOperations).createActiveRule(
+      eq(QualityProfileKey.of(name, language)), eq(RuleKey.of("pmd", "rule"))
+      , eq("BLOCKER"), eq(session));
     verify(qProfileActiveRuleOperations).updateActiveRuleParam(any(ActiveRuleDto.class), eq("max"), eq("10"), eq(session));
     verifyNoMoreInteractions(qProfileActiveRuleOperations);
 
@@ -349,15 +352,19 @@ public class QProfileBackupTest {
     when(profileDefinition2.createProfile(any(ValidationMessages.class))).thenReturn(profile2);
     definitions.add(profileDefinition2);
 
-    when(ruleDao.selectByKey(RuleKey.of("pmd", "rule"), session)).thenReturn(new RuleDto().setId(10).setSeverity("INFO"));
-    when(ruleDao.selectByKey(RuleKey.of("checkstyle", "rule"), session)).thenReturn(new RuleDto().setId(11).setSeverity("INFO"));
+    when(ruleDao.getByKey(RuleKey.of("pmd", "rule"), session)).thenReturn(new RuleDto().setId(10).setSeverity("INFO"));
+    when(ruleDao.getByKey(RuleKey.of("checkstyle", "rule"), session)).thenReturn(new RuleDto().setId(11).setSeverity("INFO"));
 
     when(qProfileOperations.newProfile(eq("Default"), eq("java"), eq(true), any(UserSession.class), eq(session))).thenReturn(new QProfile().setId(1));
 
     backup.recreateBuiltInProfilesByLanguage("java");
 
-    verify(qProfileActiveRuleOperations).createActiveRule(eq(1), eq(10), eq("BLOCKER"), eq(session));
-    verify(qProfileActiveRuleOperations).createActiveRule(eq(1), eq(11), eq("MAJOR"), eq(session));
+    verify(qProfileActiveRuleOperations).createActiveRule(
+      eq(QualityProfileKey.of("Default", "java")),
+      eq(RuleKey.of("pmd", "rule")), eq("BLOCKER"), eq(session));
+    verify(qProfileActiveRuleOperations).createActiveRule(
+      eq(QualityProfileKey.of("Default", "java")),
+      eq(RuleKey.of("checkstyle", "rule")), eq("MAJOR"), eq(session));
     verifyNoMoreInteractions(qProfileActiveRuleOperations);
 
     verify(esActiveRule).bulkIndexProfile(eq(1), eq(session));
@@ -378,7 +385,7 @@ public class QProfileBackupTest {
     when(profileDefinition.createProfile(any(ValidationMessages.class))).thenReturn(profile);
     definitions.add(profileDefinition);
 
-    when(ruleDao.selectByKey(RuleKey.of("pmd", "rule"), session)).thenReturn(null);
+    when(ruleDao.getByKey(RuleKey.of("pmd", "rule"), session)).thenReturn(null);
 
     when(qProfileOperations.newProfile(eq(name), eq(language), eq(true), any(UserSession.class), eq(session))).thenReturn(new QProfile().setId(1));
 

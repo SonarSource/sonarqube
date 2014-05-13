@@ -41,8 +41,8 @@ import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.qualityprofile.ProfilesManager;
+import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
 import org.sonar.server.rule.RuleDefinitionsLoader;
-import org.sonar.server.rule2.persistence.ActiveRuleDao;
 import org.sonar.server.rule2.persistence.RuleDao;
 
 import javax.annotation.Nullable;

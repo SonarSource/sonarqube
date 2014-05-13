@@ -21,7 +21,6 @@ package org.sonar.server.rule2.persistence;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
@@ -119,9 +118,9 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> implements Se
     return mapper(session).selectEnablesAndNonManual();
   }
 
-  public List<RuleDto> findByName(String name, DbSession session) {
+  public RuleDto getByName(String name, DbSession session) {
     //TODO change selectByName to return a list
-    return ImmutableList.of(mapper(session).selectByName(name));
+    return mapper(session).selectByName(name);
   }
 
   /**

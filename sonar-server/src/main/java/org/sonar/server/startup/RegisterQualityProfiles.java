@@ -35,6 +35,7 @@ import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.jpa.session.DatabaseSessionFactory;
@@ -160,7 +161,9 @@ public class RegisterQualityProfiles {
     profile = qProfileOperations.newProfile(name, language, true, UserSession.get(), session);
 
     for (RulesProfile currentRulesProfile : profiles) {
-      qProfileBackup.restoreFromActiveRules(profile, currentRulesProfile, session);
+      qProfileBackup.restoreFromActiveRules(
+        QualityProfileKey.of(profile.name(),profile.language()),
+        currentRulesProfile, session);
     }
 
     loadedTemplateDao.insert(new LoadedTemplateDto(templateKey(language, name), LoadedTemplateDto.QUALITY_PROFILE_TYPE), session);

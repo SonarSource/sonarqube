@@ -25,7 +25,6 @@ import org.sonar.api.rule.RuleKey;
 import java.io.Serializable;
 
 /**
- * Created by gamars on 05/05/14.
  *
  * @since 4.4
  */

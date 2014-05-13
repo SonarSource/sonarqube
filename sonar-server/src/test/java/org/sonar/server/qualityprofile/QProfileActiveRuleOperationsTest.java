@@ -60,7 +60,7 @@
 //import org.sonar.core.persistence.MyBatis;
 //import org.sonar.core.qualityprofile.db.*;
 //import org.sonar.server.rule2.persistence.RuleDao;
-//import org.sonar.server.rule2.persistence.ActiveRuleDao;
+//import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
 //import org.sonar.core.rule.RuleDto;
 //import org.sonar.core.rule.RuleParamDto;
 //import org.sonar.server.exceptions.BadRequestException;

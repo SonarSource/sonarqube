@@ -34,11 +34,17 @@ import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.platform.PersistentSettings;
-import org.sonar.server.qualityprofile.*;
+import org.sonar.server.qualityprofile.DefaultProfilesCache;
+import org.sonar.server.qualityprofile.ESActiveRule;
+import org.sonar.server.qualityprofile.QProfile;
+import org.sonar.server.qualityprofile.QProfileBackup;
+import org.sonar.server.qualityprofile.QProfileLookup;
+import org.sonar.server.qualityprofile.QProfileOperations;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
@@ -112,7 +118,8 @@ public class RegisterQualityProfilesTest {
 
     registerQualityProfiles.start();
 
-    verify(qProfileBackup).restoreFromActiveRules(eq(profile), eq(rulesProfile), eq(session));
+    verify(qProfileBackup).restoreFromActiveRules(
+      QualityProfileKey.of(eq(profile).name(),eq(profile).language()) , eq(rulesProfile), eq(session));
 
     ArgumentCaptor<LoadedTemplateDto> templateCaptor = ArgumentCaptor.forClass(LoadedTemplateDto.class);
     verify(loadedTemplateDao).insert(templateCaptor.capture(), eq(session));
@@ -147,8 +154,10 @@ public class RegisterQualityProfilesTest {
 
     registerQualityProfiles.start();
 
-    verify(qProfileBackup).restoreFromActiveRules(eq(profile1), eq(rulesProfile1), eq(session));
-    verify(qProfileBackup).restoreFromActiveRules(eq(profile2), eq(rulesProfile2), eq(session));
+    verify(qProfileBackup).restoreFromActiveRules(
+      QualityProfileKey.of(eq(profile1).name(),eq(profile1).language()), eq(rulesProfile1), eq(session));
+    verify(qProfileBackup).restoreFromActiveRules(
+      QualityProfileKey.of(eq(profile2).name(),eq(profile2).language()), eq(rulesProfile2), eq(session));
     verify(loadedTemplateDao, times(2)).insert(any(LoadedTemplateDto.class), eq(session));
     verify(session).commit();
 
@@ -278,7 +287,8 @@ public class RegisterQualityProfilesTest {
     registerQualityProfiles.start();
 
     ArgumentCaptor<RulesProfile> rulesProfileCaptor = ArgumentCaptor.forClass(RulesProfile.class);
-    verify(qProfileBackup, times(2)).restoreFromActiveRules(eq(profile), rulesProfileCaptor.capture(), eq(session));
+    verify(qProfileBackup, times(2)).restoreFromActiveRules(
+      QualityProfileKey.of(eq(profile).name(),eq(profile).language()), rulesProfileCaptor.capture(), eq(session));
     assertThat(rulesProfileCaptor.getAllValues().get(0)).isEqualTo(rulesProfile1);
     assertThat(rulesProfileCaptor.getAllValues().get(1)).isEqualTo(rulesProfile2);
 
@@ -334,7 +344,8 @@ public class RegisterQualityProfilesTest {
     registerQualityProfiles.start();
 
     verify(qProfileOperations).deleteProfile(any(QProfile.class), eq(session));
-    verify(qProfileBackup).restoreFromActiveRules(eq(profile), eq(rulesProfile), eq(session));
+    verify(qProfileBackup).restoreFromActiveRules(
+      QualityProfileKey.of(eq(profile).name(),eq(profile).language()), eq(rulesProfile), eq(session));
     verify(session).commit();
   }
 

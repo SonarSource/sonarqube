@@ -25,7 +25,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.persistence.TestDatabase;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
-import org.sonar.server.rule2.persistence.ActiveRuleDao;
+import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
 import org.sonar.server.rule2.persistence.RuleDao;
 
 import static org.fest.assertions.Assertions.assertThat;

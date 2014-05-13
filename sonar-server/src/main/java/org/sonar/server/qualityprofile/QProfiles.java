@@ -23,6 +23,8 @@ package org.sonar.server.qualityprofile;
 import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Component;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.paging.Paging;
 import org.sonar.server.user.UserSession;
@@ -30,7 +32,6 @@ import org.sonar.server.util.Validation;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.List;
 import java.util.Map;
 
@@ -206,16 +207,16 @@ public class QProfiles implements ServerComponent {
     return rules.countProfileRules(ProfileRuleQuery.create(profile.id()).setInheritance(QProfileRule.OVERRIDES));
   }
 
-  public void activateRule(int profileId, int ruleId, String severity) {
-    activeRuleOperations.activateRule(profileId, ruleId, severity, UserSession.get());
+  public void activateRule(QualityProfileKey profileKey, RuleKey rulekey, String severity) {
+    activeRuleOperations.activateRule(profileKey, rulekey, severity, UserSession.get());
   }
 
-  public int bulkActivateRule(ProfileRuleQuery query) {
-    return activeRuleOperations.activateRules(query.profileId(), query, UserSession.get());
+  public int bulkActivateRule(QualityProfileKey profileKey, ProfileRuleQuery query) {
+    return activeRuleOperations.activateRules(profileKey, query, UserSession.get());
   }
 
-  public void deactivateRule(int profileId, int ruleId) {
-    activeRuleOperations.deactivateRule(profileId, ruleId, UserSession.get());
+  public void deactivateRule(QualityProfileKey profileKey, RuleKey rulekey) {
+    activeRuleOperations.deactivateRule(profileKey, rulekey, UserSession.get());
   }
 
   public int bulkDeactivateRule(ProfileRuleQuery query) {

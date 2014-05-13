@@ -132,11 +132,9 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   @Test
   public void select_by_name() throws Exception {
     setupData("select_by_name");
-    List<RuleDto> ruleDtos = dao.findByName("Avoid Null", session);
+    RuleDto ruleDto = dao.getByName("Avoid Null", session);
 
-    assertThat(ruleDtos).hasSize(1);
-
-    RuleDto ruleDto = Iterables.getFirst(ruleDtos, null);
+    assertThat(ruleDto).isNotNull();
 
     assertThat(ruleDto.getId()).isEqualTo(2);
     assertThat(ruleDto.getName()).isEqualTo("Avoid Null");

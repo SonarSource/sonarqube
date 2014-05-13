@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule2.index;
+package org.sonar.server.qualityprofile.index;
 
 import org.junit.After;
 import org.junit.Before;
@@ -35,8 +35,11 @@ import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
+import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
 import org.sonar.server.rule2.Rule;
-import org.sonar.server.rule2.persistence.ActiveRuleDao;
+import org.sonar.server.rule2.index.RuleIndex;
+import org.sonar.server.rule2.index.RuleQuery;
+import org.sonar.server.rule2.index.RuleResult;
 import org.sonar.server.rule2.persistence.RuleDao;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.tester.ServerTester;

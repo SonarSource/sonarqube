@@ -36,7 +36,7 @@
 * along with this program; if not, write to the Free Software Foundation,
 * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
-package org.sonar.server.rule2.index;
+package org.sonar.server.qualityprofile.index;
 
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -45,6 +45,7 @@ import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
+import org.sonar.server.rule2.index.RuleNormalizer;
 import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.NestedIndex;
 

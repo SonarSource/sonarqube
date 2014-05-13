@@ -24,9 +24,9 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.db.Dao;
 import org.sonar.core.db.Dto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.action.DtoIndexAction;
 import org.sonar.server.search.action.IndexAction;
-import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.action.KeyIndexAction;
 
 import java.io.Serializable;
@@ -178,6 +178,7 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
 
   @Override
   public void delete(E item, DbSession session) {
+    Preconditions.checkNotNull(item.getKey(),"Dto does not have a valid Key");
     deleteByKey(item.getKey(), session);
   }
 
@@ -190,7 +191,7 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
 
   @Override
   public void deleteByKey(K key, DbSession session) {
-    Preconditions.checkNotNull(key);
+    Preconditions.checkNotNull(key, "cannot delete Item with null key");
     doDeleteByKey(key, session);
     session.enqueue(new KeyIndexAction<K>(this.getIndexType(), IndexAction.Method.DELETE, key));
   }

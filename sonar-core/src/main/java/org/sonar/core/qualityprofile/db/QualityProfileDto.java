@@ -20,10 +20,12 @@
 
 package org.sonar.core.qualityprofile.db;
 
+import org.sonar.core.db.Dto;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-public class QualityProfileDto {
+public class QualityProfileDto extends Dto<QualityProfileKey> {
 
   private Integer id;
   private String name;
@@ -31,6 +33,19 @@ public class QualityProfileDto {
   private String parent;
   private Integer version;
   private boolean used;
+
+  /**
+   * @deprecated use QualityProfileDto.createFor instead
+   */
+  @Deprecated
+  public QualityProfileDto(){
+
+  }
+
+  @Override
+  public QualityProfileKey getKey() {
+    return QualityProfileKey.of(this.getName(), this.getLanguage());
+  }
 
   public Integer getId() {
     return id;
@@ -85,5 +100,11 @@ public class QualityProfileDto {
   public QualityProfileDto setUsed(boolean used) {
     this.used = used;
     return this;
+  }
+
+  public static QualityProfileDto createFor(String name, String language){
+    return new QualityProfileDto()
+      .setName(name)
+      .setLanguage(language);
   }
 }

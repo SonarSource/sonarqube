@@ -17,22 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.rule2.index;
+package org.sonar.server.qualityprofile.index;
 
-import org.sonar.server.search.IndexDefinition;
-
-public class ActiveRuleIndexDefinition implements IndexDefinition {
-
-  private static final String INDEX_NAME = "rules2";
-  private static final String INDEX_TYPE = "activeRule2";
-
-  @Override
-  public String getIndexName() {
-    return ActiveRuleIndexDefinition.INDEX_NAME;
-  }
-
-  @Override
-  public String getIndexType() {
-    return ActiveRuleIndexDefinition.INDEX_TYPE;
-  }
+public class ActiveRuleQuery {
 }

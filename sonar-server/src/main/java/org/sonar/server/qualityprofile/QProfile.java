@@ -21,6 +21,7 @@
 package org.sonar.server.qualityprofile;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 
 import javax.annotation.CheckForNull;
@@ -116,6 +117,6 @@ public class QProfile {
 
   @Override
   public String toString() {
-    return new ReflectionToStringBuilder(this).toString();
+    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE ).toString();
   }
 }

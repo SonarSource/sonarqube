@@ -37,11 +37,12 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.rule.RuleDao;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.rule2.persistence.RuleDao;
 import org.sonar.server.user.UserSession;
 
 import java.io.StringReader;
@@ -153,7 +154,9 @@ public class QProfileBackup implements ServerComponent {
         String name = entry.getKey();
         QProfile profile = qProfileOperations.newProfile(name, language, true, UserSession.get(), session);
         for (RulesProfile currentRulesProfile : entry.getValue()) {
-          restoreFromActiveRules(profile, currentRulesProfile, session);
+          restoreFromActiveRules(
+            QualityProfileKey.of(name, language),
+            currentRulesProfile, session);
         }
         esActiveRule.bulkIndexProfile(profile.id(), session);
       }
@@ -181,14 +184,15 @@ public class QProfileBackup implements ServerComponent {
   /**
    * Used by {@link org.sonar.server.startup.RegisterQualityProfiles}
    */
-  public void restoreFromActiveRules(QProfile profile, RulesProfile rulesProfile, DbSession session) {
+  public void restoreFromActiveRules(QualityProfileKey profileKey, RulesProfile rulesProfile, DbSession session) {
     for (org.sonar.api.rules.ActiveRule activeRule : rulesProfile.getActiveRules()) {
       RuleKey ruleKey = RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey());
-      RuleDto rule = ruleDao.selectByKey(ruleKey, session);
+      RuleDto rule = ruleDao.getByKey(ruleKey, session);
       if (rule == null) {
         throw new NotFoundException(String.format("Rule '%s' does not exists.", ruleKey));
       }
-      ActiveRuleDto activeRuleDto = qProfileActiveRuleOperations.createActiveRule(profile.id(), rule.getId(), activeRule.getSeverity().name(), session);
+
+      ActiveRuleDto activeRuleDto = qProfileActiveRuleOperations.createActiveRule(profileKey, ruleKey, activeRule.getSeverity().name(), session);
       for (RuleParam param : activeRule.getRule().getParams()) {
         String paramKey = param.getKey();
         String value = activeRule.getParameter(param.getKey());

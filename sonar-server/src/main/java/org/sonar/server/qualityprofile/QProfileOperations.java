@@ -24,19 +24,19 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.List;
 import java.util.Map;
 
@@ -129,7 +129,7 @@ public class QProfileOperations implements ServerComponent {
 
   public void deleteProfile(int profileId, UserSession userSession) {
     checkPermission(userSession);
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
       QualityProfileDto profile = findNotNull(profileId, session);
       QProfile qProfile = QProfile.from(profile);
@@ -147,9 +147,9 @@ public class QProfileOperations implements ServerComponent {
   /**
    * Delete profile without checking permission or that profile is existing or that profile can be deleted (is not defined as default, has no children, etc.)
    */
-  public void deleteProfile(QProfile profile, SqlSession session) {
-    activeRuleDao.deleteParametersFromProfile(profile.id(), session);
-    activeRuleDao.deleteFromProfile(profile.id(), session);
+  public void deleteProfile(QProfile profile, DbSession session) {
+    activeRuleDao.removeParamByProfile(profile, session);
+    activeRuleDao.deleteByProfile(profile, session);
     dao.delete(profile.id(), session);
     propertiesDao.deleteProjectProperties(PROFILE_PROPERTY_PREFIX + profile.language(), profile.name(), session);
     esActiveRule.deleteActiveRulesFromProfile(profile.id());
