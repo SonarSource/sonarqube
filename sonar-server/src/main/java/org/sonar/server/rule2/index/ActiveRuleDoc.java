@@ -58,9 +58,11 @@ public class ActiveRuleDoc implements ActiveRule {
   @Override
   public Map<String, String> params() {
     Map<String, String> params = new HashMap<String, String>();
-    Map<String, Map<String,String>> allParams = (Map<String, Map<String, String>>) this.fields.get(ActiveRuleNormalizer.ActiveRuleField.PARAMS);
-    for(Map.Entry<String, Map<String,String>> param:allParams.entrySet()){
-      params.put(param.getKey(), param.getValue().get(ActiveRuleNormalizer.ActiveRuleParamField.VALUE.key()));
+    if (this.fields.containsKey(ActiveRuleNormalizer.ActiveRuleField.PARAMS)) {
+      Map<String, Map<String, String>> allParams = (Map<String, Map<String, String>>) this.fields.get(ActiveRuleNormalizer.ActiveRuleField.PARAMS);
+      for (Map.Entry<String, Map<String, String>> param : allParams.entrySet()) {
+        params.put(param.getKey(), param.getValue().get(ActiveRuleNormalizer.ActiveRuleParamField.VALUE.key()));
+      }
     }
     return params;
   }
