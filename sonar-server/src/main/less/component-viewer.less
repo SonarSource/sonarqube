@@ -82,6 +82,7 @@
   .code th {
     height: 30px;
     .box-sizing(border-box);
+    background-color: @barBackgroundColor;
 
     &.stat {
       padding-top: 4px;
@@ -232,40 +233,64 @@
 }
 
 
-.component-viewer-measures {
-  font-size: 0;
+.component-viewer-header {
+
+  & > th {
+    background-color: @barBackgroundColor;
+    border-top: 1px solid @barBorderColor;
+    border-bottom: 1px solid @barBorderColor;
+  }
+
+  .button-full-size {
+    .size(100%, 100%);
+    margin: 0;
+  }
 }
 
-.component-viewer-measures-section {
+.component-viewer-header-main {
+  font-size: 0;
+  padding: 4px 0 4px 5px;
+}
+
+.component-viewer-header-measure {
   display: inline-block;
-  vertical-align: top;
-  width: 25%;
-  max-width: 260px;
-  padding-right: 40px;
-  .box-sizing(border-box);
+  vertical-align: bottom;
+  margin-right: 20px;
   font-size: @baseFontSize;
+}
 
-  &.brief {
-    dt { display: none; }
-    dt:first-of-type { display: block; }
-    dd { display: none; }
-    dd:first-of-type { display: block; }
-  }
+.component-viewer-header-measure-label {
+  display: block;
+  margin-top: 2px;
+  color: #777;
+  font-size: @smallFontSize;
 
-  &:not(.brief) {
-    padding-top: 3px;
-    padding-bottom: 3px;
-  }
+  &:after { content: ""; }
+}
 
-  dt {
-    float: left;
-    clear: left;
-  }
+.component-viewer-header-measure-value {
+  display: block;
+  color: @baseFontColor;
+  font-size: 14px;
+}
 
-  dd {
-    float: right;
-    font-weight: bold;
+.component-viewer-header-measure-main {
+
+  .component-viewer-header-measure-value {
+    font-size: 24px;
   }
+}
+
+.component-viewer-header-filter {
+  display: inline-block;
+  vertical-align: bottom;
+  margin-right: 20px;
+  padding-left: 20px;
+  border-left: 1px solid @barBorderColor;
+  font-size: @baseFontSize;
+  color: @darkBlue;
+
+  .button-clean { height: auto; }
 }
 
 

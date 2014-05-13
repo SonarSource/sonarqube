@@ -240,8 +240,9 @@ define [
 
     prepareSource: ->
       source = @model.get 'source'
-      _.map source, (code, line) =>
-        base = lineNumber: line, code: code
+      _.map source, (item) =>
+        line = item[0]
+        base = lineNumber: line, code: item[1]
         if @options.main.settings.get('coverage')
           _.extend base, @getLineCoverage(line), @getLineCoverageConditions(line)
         if @options.main.settings.get('duplications')

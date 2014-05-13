@@ -37,90 +37,22 @@
         </li>
       </ul>
 
-      {{qualifierIcon component.qualifier}} <span class="component-viewer-title">{{component.lname}}</span>
       {{#if component.projectLongName}}
-        <span class="component-viewer-title-separator">—</span>
         {{qualifierIcon 'TRK'}} <span class="component-viewer-title">{{component.projectLongName}}</span>
+        <span class="component-viewer-title-separator">—</span>
       {{/if}}
+      {{qualifierIcon component.qualifier}} <span class="component-viewer-title">{{component.lname}}</span>
 
       <a class="icon-not-favorite" href="#" onclick="toggleFav({{component.id}}, this); return false;"
          title="Click to add to favourites"></a>
     </th>
   </tr>
-  <tr>
-    {{#if settings.coverage}}
-      <th class="stat"></th>
-      <th class="stat"></th>
-    {{/if}}
-    {{#if settings.duplications}}
-      <th class="stat"></th>
-    {{/if}}
-    <th class="stat settings-toggle">
-      <button class="button-clean js-toggle-measures"><i class="icon-list"></i></button>
-    </th>
-    <th class="measures">
-      <ul class="component-viewer-measures">
-        <li class="component-viewer-measures-section brief">
-          <dl>
-            {{#each component.msr}}
-              <dt>{{t 'metric' key 'name'}}</dt><dd>{{frmt_val}}</dd>
-            {{/each}}
-          </dl>
-        </li>
-        {{#if settings.issues}}
-          <li class="component-viewer-measures-section brief">
-            {{#if component.issuesMeasures}}
-              {{#with component.issuesMeasures}}
-                <dl>
-                  <dt>Issues</dt>
-                  <dd>
-                    {{#if blocker_violations}}
-                      <i class="icon-severity-blocker"></i>{{blocker_violations}}&nbsp;
-                    {{/if}}
-                    {{#if critical_violations}}
-                      <i class="icon-severity-critical"></i>{{critical_violations}}&nbsp;
-                    {{/if}}
-                    {{#if major_violations}}
-                      <i class="icon-severity-major"></i>{{major_violations}}&nbsp;
-                    {{/if}}
-                    {{#if minor_violations}}
-                      <i class="icon-severity-minor"></i>{{minor_violations}}&nbsp;
-                    {{/if}}
-                    {{#if info_violations}}
-                      <i class="icon-severity-info"></i>{{info_violations}}&nbsp;
-                    {{/if}}
-                  </dd>
-                </dl>
-              {{/with}}
-            {{/if}}
-          </li>
-        {{/if}}
-        {{#if settings.coverage}}
-          <li class="component-viewer-measures-section brief">
-            {{#if component.coverageMeasures}}
-              <dl>
-                {{#each component.coverageMeasures}}
-                  <dt>{{t 'metric' key 'name'}}</dt><dd>{{frmt_val}}</dd>
-                {{/each}}
-              </dl>
-            {{/if}}
-          </li>
-        {{/if}}
-        {{#if settings.duplications}}
-          <li class="component-viewer-measures-section brief">
-            {{component.duplicationsMeasures}}
-            {{#if component.duplicationsMeasures}}
-              <dl>
-                {{#each component.duplicationsMeasures}}
-                  <dt>{{t 'metric' key 'name'}}</dt><dd>{{frmt_val}}</dd>
-                {{/each}}
-              </dl>
-            {{/if}}
-          </li>
-        {{/if}}
-      </ul>
-    </th>
-  </tr>
+
+  {{! headers }}
+  {{> '_basic-header'}}
+  {{#if settings.issues}}{{> '_issues-header'}}{{/if}}
+  {{#if settings.coverage}}{{> '_coverage-header'}}{{/if}}
+
   </thead>
   <tbody>
     <tr class="row row-hidden" data-line-number="0">

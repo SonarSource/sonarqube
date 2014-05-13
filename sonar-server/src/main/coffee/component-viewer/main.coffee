@@ -23,7 +23,7 @@ define [
   COVERAGE_METRIC_LIST = 'coverage,line_coverage,branch_coverage,' +
                          'coverage_line_hits_data,covered_conditions_by_line,conditions_by_line'
 
-  ISSUES_METRIC_LIST = 'blocker_violations,critical_violations,major_violations,minor_violations,info_violations'
+  ISSUES_METRIC_LIST = 'violations,sqale_index,blocker_violations,critical_violations,major_violations,minor_violations,info_violations'
 
   DUPLICATIONS_METRIC_LIST = 'duplicated_lines_density,duplicated_blocks,duplicated_files,duplicated_lines'
 
@@ -71,26 +71,16 @@ define [
       @sourceRegion.show @sourceView
 
 
-    requestComponent: (key, metrics) ->
-      $.get API_RESOURCES, resource: key, metrics: metrics, (data) =>
+    requestComponent: (key) ->
+      metricList = [SOURCE_METRIC_LIST, COVERAGE_METRIC_LIST, ISSUES_METRIC_LIST, DUPLICATIONS_METRIC_LIST].join ','
+      $.get API_RESOURCES, resource: key, metrics: metricList, (data) =>
         @component.set data[0]
-
-
-    requestComponentCoverage: (key) ->
-      $.get API_RESOURCES, resource: key, metrics: COVERAGE_METRIC_LIST
-
-
-    requestComponentIssues: (key) ->
-      $.get API_RESOURCES, resource: key, metrics: ISSUES_METRIC_LIST
-
-
-    requestComponentDuplications: (key) ->
-      $.get API_RESOURCES, resource: key, metrics: DUPLICATIONS_METRIC_LIST
+        @component.set 'measures', _.indexBy(data[0].msr, 'key')
 
 
     requestSource: (key) ->
       $.get API_SOURCES, key: key, (data) =>
-        @source.set source: data.source
+        @source.set source: data.sources
 
 
     extractCoverage: (data) ->
@@ -154,7 +144,7 @@ define [
     showCoverage: ->
       @settings.set 'coverage', true
       unless @source.has 'coverage'
-        @requestComponentCoverage(@key).done (data) =>
+        @requestComponent(@key).done (data) =>
           @extractCoverage data
           @sourceView.render()
       else
@@ -180,7 +170,7 @@ define [
       @settings.set 'issues', true
 
       unless @source.has 'issues'
-        @requestComponentIssues(@key).done (data) =>
+        @requestComponent(@key).done (data) =>
           @extractIssues data
           @sourceView.render()
 
@@ -197,7 +187,7 @@ define [
     showDuplications: ->
       @settings.set 'duplications', true
       unless @source.has 'duplications'
-        @requestComponentDuplications(@key).done (data) =>
+        @requestComponent(@key).done (data) =>
           @extractDuplications data
           @sourceView.render()
       else

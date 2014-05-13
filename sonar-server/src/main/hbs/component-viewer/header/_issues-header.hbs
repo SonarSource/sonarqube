@@ -1,0 +1,84 @@
+<tr class="component-viewer-header">
+  {{#if settings.coverage}}
+    <th class="stat"></th>
+    <th class="stat"></th>
+  {{/if}}
+  {{#if settings.duplications}}
+    <th class="stat"></th>
+  {{/if}}
+  <th>
+    <button class="button-clean button-full-size"><i class="icon-list"></i></button>
+  </th>
+  <th class="component-viewer-header-main">
+    <div class="component-viewer-header-measure component-viewer-header-measure-main">
+      <span class="component-viewer-header-measure-value">{{component.measures.violations.frmt_val}}</span>
+      <span class="component-viewer-header-measure-label">{{t 'metric.violations.name'}}</span>
+    </div>
+    <div class="component-viewer-header-measure component-viewer-header-measure-main">
+      <span class="component-viewer-header-measure-value">{{component.measures.sqale_index.frmt_val}}</span>
+      <span class="component-viewer-header-measure-label">{{t 'metric.sqale_index.name'}}</span>
+    </div>
+    {{#if component.measures.blocker_violations.frmt_val}}
+      <div class="component-viewer-header-measure">
+            <span class="component-viewer-header-measure-value">
+              <i class="icon-severity-blocker"></i>
+              {{component.measures.blocker_violations.frmt_val}}
+            </span>
+        <span class="component-viewer-header-measure-label">{{t 'severity.BLOCKER'}}</span>
+      </div>
+    {{/if}}
+    {{#if component.measures.critical_violations.frmt_val}}
+      <div class="component-viewer-header-measure">
+            <span class="component-viewer-header-measure-value">
+              <i class="icon-severity-critical"></i>
+              {{component.measures.critical_violations.frmt_val}}
+            </span>
+        <span class="component-viewer-header-measure-label">{{t 'severity.CRITICAL'}}</span>
+      </div>
+    {{/if}}
+    {{#if component.measures.major_violations.frmt_val}}
+      <div class="component-viewer-header-measure">
+            <span class="component-viewer-header-measure-value">
+              <i class="icon-severity-major"></i>
+              {{component.measures.major_violations.frmt_val}}
+            </span>
+        <span class="component-viewer-header-measure-label">{{t 'severity.MAJOR'}}</span>
+      </div>
+    {{/if}}
+    {{#if component.measures.minor_violations.frmt_val}}
+      <div class="component-viewer-header-measure">
+            <span class="component-viewer-header-measure-value">
+              <i class="icon-severity-minor"></i>
+              {{component.measures.minor_violations.frmt_val}}
+            </span>
+        <span class="component-viewer-header-measure-label">{{t 'severity.MINOR'}}</span>
+      </div>
+    {{/if}}
+    {{#if component.measures.info_violations.frmt_val}}
+      <div class="component-viewer-header-measure">
+            <span class="component-viewer-header-measure-value">
+              <i class="icon-severity-info"></i>
+              {{component.measures.info_violations.frmt_val}}
+            </span>
+        <span class="component-viewer-header-measure-label">{{t 'severity.INFO'}}</span>
+      </div>
+    {{/if}}
+
+    <div class="component-viewer-header-filter">
+      <button class="button-clean">
+        <i class="icon-period"></i>
+        <i class="icon-dropdown"></i>
+      </button>
+      <span class="component-viewer-header-measure-label">Time changes</span>
+    </div>
+
+    <div class="component-viewer-header-filter">
+      <button class="button-clean">
+        <i class="icon-filter"></i>
+        <i class="icon-dropdown"></i>
+      </button>
+      <span class="component-viewer-header-measure-label">All issues</span>
+    </div>
+
+  </th>
+</tr>
