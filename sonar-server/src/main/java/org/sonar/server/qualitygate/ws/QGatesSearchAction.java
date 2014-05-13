@@ -51,7 +51,7 @@ public class QGatesSearchAction implements RequestHandler {
       .setExampleValue("1");
 
     action.createParam(QGatesWs.PARAM_QUERY)
-      .setDescription("To search for projects containing this string")
+      .setDescription("To search for projects containing this string. If this parameter is set, \"selected\" is set to \"all\".")
       .setExampleValue("abc");
 
     action.createParam(QGatesWs.PARAM_SELECTED)
@@ -74,7 +74,7 @@ public class QGatesSearchAction implements RequestHandler {
   public void handle(Request request, Response response) {
     QgateProjectFinder.Association associations = projectFinder.find(ProjectQgateAssociationQuery.builder()
       .gateId(request.mandatoryParam(QGatesWs.PARAM_GATE_ID))
-      .membership(request.param(QGatesWs.PARAM_SELECTED))
+      .membership(request.param(QGatesWs.PARAM_QUERY) == null ? request.param(QGatesWs.PARAM_SELECTED) : ProjectQgateAssociationQuery.ANY)
       .projectSearch(request.param(QGatesWs.PARAM_QUERY))
       .pageIndex(request.paramAsInt(QGatesWs.PARAM_PAGE))
       .pageSize(request.paramAsInt(QGatesWs.PARAM_PAGE_SIZE))

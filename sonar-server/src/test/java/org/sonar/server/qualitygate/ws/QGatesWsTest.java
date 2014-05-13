@@ -24,6 +24,7 @@ import org.elasticsearch.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.i18n.I18n;
@@ -44,7 +45,9 @@ import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 // TODO split testcases in action tests
 @RunWith(MockitoJUnitRunner.class)
@@ -376,7 +379,7 @@ public class QGatesWsTest {
   }
 
   @Test
-  public void search_nominal() throws Exception {
+  public void search_with_query() throws Exception {
     long gateId = 12345L;
     Association assoc = mock(Association.class);
     when(assoc.hasMoreResults()).thenReturn(true);
@@ -386,13 +389,42 @@ public class QGatesWsTest {
     );
     when(assoc.projects()).thenReturn(projects);
     when(projectFinder.find(any(ProjectQgateAssociationQuery.class))).thenReturn(assoc);
+
     tester.newGetRequest("api/qualitygates", "search")
       .setParam("gateId", Long.toString(gateId))
+      .setParam("query", "Project")
       .execute()
       .assertJson("{'more':true,'results':["
         + "{'id':42,'name':'Project One','selected':false},"
         + "{'id':24,'name':'Project Two','selected':true}"
         + "]}");
+    ArgumentCaptor<ProjectQgateAssociationQuery> queryCaptor = ArgumentCaptor.forClass(ProjectQgateAssociationQuery.class);
+    verify(projectFinder).find(queryCaptor.capture());
+    ProjectQgateAssociationQuery query = queryCaptor.getValue();
+    assertThat(query.membership()).isEqualTo(ProjectQgateAssociationQuery.ANY);
+  }
+
+  @Test
+  public void search_nominal() throws Exception {
+    long gateId = 12345L;
+    Association assoc = mock(Association.class);
+    when(assoc.hasMoreResults()).thenReturn(true);
+    List<ProjectQgateAssociation> projects = ImmutableList.of(
+      new ProjectQgateAssociation().setId(24L).setName("Project Two").setMember(true)
+    );
+    when(assoc.projects()).thenReturn(projects);
+    when(projectFinder.find(any(ProjectQgateAssociationQuery.class))).thenReturn(assoc);
+
+    tester.newGetRequest("api/qualitygates", "search")
+      .setParam("gateId", Long.toString(gateId))
+      .execute()
+      .assertJson("{'more':true,'results':["
+        + "{'id':24,'name':'Project Two','selected':true}"
+        + "]}");
+    ArgumentCaptor<ProjectQgateAssociationQuery> queryCaptor = ArgumentCaptor.forClass(ProjectQgateAssociationQuery.class);
+    verify(projectFinder).find(queryCaptor.capture());
+    ProjectQgateAssociationQuery query = queryCaptor.getValue();
+    assertThat(query.membership()).isEqualTo(ProjectQgateAssociationQuery.IN);
   }
 
   @Test
