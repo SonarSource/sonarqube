@@ -83,6 +83,7 @@ public class UsersWs implements WebService {
 
     action.createParam("name")
       .setDescription("User name")
+      .setRequired(true)
       .setExampleValue("My Name");
 
     action.createParam("email")
