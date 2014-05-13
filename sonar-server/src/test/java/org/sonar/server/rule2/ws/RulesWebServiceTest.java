@@ -58,6 +58,7 @@ public class RulesWebServiceTest {
 
   @Before
   public void setUp() throws Exception {
+    tester.clearDataStores();
     ruleDao = tester.get(RuleDao.class);
     ws = tester.get(RulesWebService.class);
     wsTester = new WsTester(ws);
@@ -93,7 +94,7 @@ public class RulesWebServiceTest {
     System.out.println("request.toString() = " + request.toString());
 
     WsTester.Result result = request.execute();
-    assertThat(result.outputAsString()).isEqualTo("{\"total\":0,\"rules\":[]}");
+    assertThat(result.outputAsString()).isEqualTo("{\"total\":0,\"rules\":[],\"activeRules\":[]}");
   }
 
   @Test
