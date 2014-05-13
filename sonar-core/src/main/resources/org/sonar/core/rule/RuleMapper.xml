@@ -155,7 +155,7 @@
     SELECT <include refid="paramColumns"/>
     FROM rules_parameters p, rules r
     WHERE p.rule_id=r.id
-    AND r.PLUGIN_NAME=#{repository} AND r.PLUGIN_RULE_KEY=#{rule}
+    AND r.plugin_name=#{repository} AND r.plugin_rule_key=#{rule}
   </select>
 
   <select id="selectParamByRuleAndKey" resultType="RuleParam">
