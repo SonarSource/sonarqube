@@ -32,6 +32,10 @@ import org.sonar.server.rule.Rules;
 
 import java.util.Set;
 
+/**
+ * @deprecated to be dropped in 4.4
+ */
+@Deprecated
 public abstract class AbstractUpdateTagsWsHandler implements RequestHandler {
 
   private final Rules rules;

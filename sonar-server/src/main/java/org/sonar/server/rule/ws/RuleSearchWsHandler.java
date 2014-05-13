@@ -39,6 +39,10 @@ import javax.annotation.CheckForNull;
 import java.util.Collection;
 import java.util.Collections;
 
+/**
+ * @deprecated to be dropped in 4.4
+ */
+@Deprecated
 public class RuleSearchWsHandler implements RequestHandler {
 
   private final Rules rules;

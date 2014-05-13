@@ -27,6 +27,10 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.rule.RuleTagDto;
 import org.sonar.server.rule.RuleTags;
 
+/**
+ * @deprecated to be dropped in 4.4
+ */
+@Deprecated
 public class RuleTagsWs implements WebService {
 
   private final RuleTags ruleTags;

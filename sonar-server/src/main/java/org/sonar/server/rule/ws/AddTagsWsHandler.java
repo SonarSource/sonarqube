@@ -24,6 +24,10 @@ import org.sonar.server.rule.Rules;
 import java.util.Arrays;
 import java.util.Set;
 
+/**
+ * @deprecated to be dropped in 4.4
+ */
+@Deprecated
 public class AddTagsWsHandler extends AbstractUpdateTagsWsHandler {
 
   public AddTagsWsHandler(Rules rules) {

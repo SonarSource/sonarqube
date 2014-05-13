@@ -44,6 +44,10 @@ import javax.annotation.Nullable;
 
 import java.util.Date;
 
+/**
+ * @deprecated to be dropped in 4.4
+ */
+@Deprecated
 public class RuleShowWsHandler implements RequestHandler {
 
   private final Rules rules;

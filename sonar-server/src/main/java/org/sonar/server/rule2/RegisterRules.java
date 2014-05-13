@@ -21,6 +21,7 @@ package org.sonar.server.rule2;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -50,7 +51,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -308,15 +308,14 @@ public class RegisterRules implements Startable {
   private boolean mergeTags(RulesDefinition.Rule ruleDef, RuleDto dto) {
     boolean changed = false;
 
-    //the Rule is not active and dto has tags
     if (Rule.STATUS_REMOVED.equals(ruleDef.status())) {
       dto.setSystemTags(Collections.EMPTY_SET);
       dto.setTags(Collections.EMPTY_SET);
       changed = true;
     } else if (!dto.getSystemTags().containsAll(ruleDef.tags())) {
-      Set<String> tags = dto.getTags();
-      tags.addAll(ruleDef.tags());
-      dto.setSystemTags(tags);
+      dto.setSystemTags(ruleDef.tags());
+      // remove end-user tags that are now declared as system
+      RuleTagHelper.applyTags(dto, ImmutableSet.copyOf(dto.getTags()));
       changed = true;
     }
     return changed;
@@ -382,7 +381,6 @@ public class RegisterRules implements Startable {
     for (RuleDto rule : removedRules) {
       // SONAR-4642 Remove active rules only when repository still exists
       if (repositoryKeys.contains(rule.getRepositoryKey())) {
-        // TODO
         profilesManager.removeActivatedRules(rule.getId());
       }
     }

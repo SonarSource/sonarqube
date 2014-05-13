@@ -21,6 +21,10 @@ package org.sonar.server.rule.ws;
 
 import org.sonar.api.server.ws.WebService;
 
+/**
+ * @deprecated to be dropped in 4.4
+ */
+@Deprecated
 public class RulesWs implements WebService {
 
   private final RuleSearchWsHandler searchHandler;
