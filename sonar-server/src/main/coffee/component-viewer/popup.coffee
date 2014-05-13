@@ -13,9 +13,16 @@ define [
 
     onRender: ->
       @$el.detach().appendTo $('body')
-      @$el.css
-        top: @options.triggerEl.offset().top
-        left: @options.triggerEl.offset().left + @options.triggerEl.outerWidth()
+
+      unless @options.bottom
+        @$el.css
+          top: @options.triggerEl.offset().top
+          left: @options.triggerEl.offset().left + @options.triggerEl.outerWidth()
+      else
+        @$el.addClass 'component-viewer-popup-bottom'
+        @$el.css
+          top: @options.triggerEl.offset().top + @options.triggerEl.outerHeight()
+          left: @options.triggerEl.offset().left
 
       $('body').on 'click.coverage-popup', =>
         $('body').off 'click.coverage-popup'

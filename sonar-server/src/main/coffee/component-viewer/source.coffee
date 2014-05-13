@@ -3,6 +3,7 @@ define [
   'templates/component-viewer'
   'component-viewer/coverage-popup'
   'component-viewer/duplication-popup'
+  'component-viewer/time-changes-popup'
   'issues/issue-view'
   'issues/models/issue'
   'common/handlebars-extensions'
@@ -11,6 +12,7 @@ define [
   Templates
   CoveragePopupView
   DuplicationPopupView
+  TimeChangesPopupView
   IssueView
   Issue
 ) ->
@@ -41,6 +43,8 @@ define [
 
       'click .js-expand': 'expandBlock'
       'click .js-expand-all': 'expandAll'
+
+      'click .js-time-changes': 'toggleTimeChangePopup'
 
 
     initialize: ->
@@ -94,8 +98,9 @@ define [
       @$('.component-viewer-source-settings').toggleClass 'open'
 
 
-    toggleMeasures: ->
-      @$('.component-viewer-measures-section').toggleClass 'brief'
+    toggleMeasures: (e) ->
+      row = $(e.currentTarget).closest '.component-viewer-header'
+      row.toggleClass 'component-viewer-header-full'
 
 
     toggleSetting: (e, show, hide) ->
@@ -169,6 +174,16 @@ define [
     expandAll: ->
       @showBlocks.push from: 0, to: _.size @model.get 'source'
       @render()
+
+
+    toggleTimeChangePopup: (e) ->
+      e.stopPropagation()
+      $('body').click()
+      popup = new TimeChangesPopupView
+        triggerEl: $(e.currentTarget)
+        main: @options.main
+        bottom: true
+      popup.render()
 
 
     getLineCoverage: (line) ->

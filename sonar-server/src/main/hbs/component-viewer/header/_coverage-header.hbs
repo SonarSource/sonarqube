@@ -10,25 +10,27 @@
     <button class="button-clean button-full-size"><i class="icon-list"></i></button>
   </th>
   <th class="component-viewer-header-main">
-    <div class="component-viewer-header-measure component-viewer-header-measure-main">
-      <span class="component-viewer-header-measure-value">{{component.measures.coverage.frmt_val}}</span>
-      <span class="component-viewer-header-measure-label">{{t 'metric.coverage.name'}}</span>
-    </div>
-    <div class="component-viewer-header-measure">
-      <span class="component-viewer-header-measure-value">{{component.measures.line_coverage.frmt_val}}</span>
-      <span class="component-viewer-header-measure-label">{{t 'metric.line_coverage.name'}}</span>
-    </div>
-    <div class="component-viewer-header-measure">
-      <span class="component-viewer-header-measure-value">{{component.measures.branch_coverage.frmt_val}}</span>
-      <span class="component-viewer-header-measure-label">{{t 'metric.branch_coverage.name'}}</span>
-    </div>
+    <div class="component-viewer-header-box">
+      <div class="component-viewer-header-measure component-viewer-header-measure-main">
+        <span class="component-viewer-header-measure-value">{{component.measures.coverage.frmt_val}}</span>
+        <span class="component-viewer-header-measure-label">{{t 'metric.coverage.name'}}</span>
+      </div>
+      <div class="component-viewer-header-measure">
+        <span class="component-viewer-header-measure-value">{{component.measures.line_coverage.frmt_val}}</span>
+        <span class="component-viewer-header-measure-label">{{t 'metric.line_coverage.name'}}</span>
+      </div>
+      <div class="component-viewer-header-measure">
+        <span class="component-viewer-header-measure-value">{{component.measures.branch_coverage.frmt_val}}</span>
+        <span class="component-viewer-header-measure-label">{{t 'metric.branch_coverage.name'}}</span>
+      </div>
 
-    <div class="component-viewer-header-filter">
-      <button class="button-clean">
-        <i class="icon-period"></i>
-        <i class="icon-dropdown"></i>
-      </button>
-      <span class="component-viewer-header-measure-label">Time changes</span>
+      <div class="component-viewer-header-filter">
+        <button class="button-clean js-time-changes">
+          <i class="icon-period"></i>
+          <i class="icon-dropdown"></i>
+        </button>
+        <span class="component-viewer-header-measure-label">Time changes</span>
+      </div>
     </div>
   </th>
 </tr>

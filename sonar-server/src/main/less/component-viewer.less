@@ -252,11 +252,21 @@
   padding: 4px 0 4px 5px;
 }
 
+.component-viewer-header-box { margin-bottom: -20px; }
+
 .component-viewer-header-measure {
   display: inline-block;
   vertical-align: bottom;
-  margin-right: 20px;
+  margin: 0 20px 20px 0;
   font-size: @baseFontSize;
+}
+
+.component-viewer-header-measure-extra {
+  display: none;
+}
+
+.component-viewer-header-full .component-viewer-header-measure-extra {
+  display: inline-block;
 }
 
 .component-viewer-header-measure-label {
@@ -284,7 +294,7 @@
 .component-viewer-header-filter {
   display: inline-block;
   vertical-align: bottom;
-  margin-right: 20px;
+  margin: 0 20px 20px 0;
   padding-left: 20px;
   border-left: 1px solid @barBorderColor;
   font-size: @baseFontSize;
@@ -333,6 +343,29 @@
   }
 }
 
+.component-viewer-popup-bottom {
+  margin-top: @popupArrowSize;
+  margin-left: -16px;
+
+  .component-viewer-popup-arrow {
+    top: -@popupArrowSize;
+    left: 15px;
+    border-left-width: @popupArrowSize;
+    border-top-width: 0;
+    border-right-color: transparent;
+    border-bottom-color: @barBorderColor;
+
+    &:after {
+      left: -@popupArrowSize;
+      bottom: -@popupArrowSize - 1px;
+      border-left-width: @popupArrowSize;
+      border-top-width: 0;
+      border-right-color: transparent;
+      border-bottom-color: @white;
+    }
+  }
+}
+
 .component-viewer-popup-section + .component-viewer-popup-section {
   margin-top: 10px;
 }
@@ -344,6 +377,18 @@
 
 .component-viewer-popup-list {
   margin-top: 5px;
+
+  & > li {
+
+    & > a {
+      display: block;
+      margin: 0 -10px;
+      padding: 5px 10px;
+      .trans;
+
+      &:hover { background-color: @barBackgroundColor; }
+    }
+  }
 }
 
 .component-viewer-popup-test {
