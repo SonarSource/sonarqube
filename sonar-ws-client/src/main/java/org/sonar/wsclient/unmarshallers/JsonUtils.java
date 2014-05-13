@@ -22,6 +22,7 @@ package org.sonar.wsclient.unmarshallers;
 import org.json.simple.JSONArray;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -94,24 +95,28 @@ public final class JsonUtils {
 
   @CheckForNull
   public static Date getDateTime(Map obj, String field) {
-    return parseDate(obj, field, "yyyy-MM-dd'T'HH:mm:ssZ");
+    return parseDate(getString(obj, field), "yyyy-MM-dd'T'HH:mm:ssZ");
   }
 
   @CheckForNull
   public static Date getDate(Map obj, String field) {
-    return parseDate(obj, field, "yyyy-MM-dd");
+    return parseDate(getString(obj, field));
   }
 
   @CheckForNull
-  private static Date parseDate(Map obj, String field, String format) {
-    String value = getString(obj, field);
+  public static Date parseDate(@Nullable String value) {
+    return parseDate(value, "yyyy-MM-dd");
+  }
+
+  @CheckForNull
+  private static Date parseDate(@Nullable String value, String format) {
     if (value != null) {
       try {
         SimpleDateFormat dateFormat = new SimpleDateFormat(format);
         return dateFormat.parse(value);
 
       } catch (ParseException e) {
-        throw new IllegalArgumentException("Fail to parse date property '" + field + "': " + format, e);
+        throw new IllegalArgumentException("Fail to parse date '" + value + "': " + format, e);
       }
     }
     return null;
