@@ -7,7 +7,6 @@
 .component-viewer {
   width: 100%;
   min-width: 600px;
-  border: 1px solid @barBorderColor;
   border-left-width: 0;
   .box-sizing(border-box);
 }
@@ -76,7 +75,7 @@
 
   .code {
     width: 100%;
-    border-left: 1px solid @barBorderColor;
+    border: 1px solid @barBorderColor;
   }
 
   .code th {
@@ -186,6 +185,30 @@
     background-position: bottom;
   }
 
+  .code .scm {
+    text-align: left;
+
+    .scm-date {
+      display: inline-block;
+      vertical-align: middle;
+      padding: 2px 4px;
+      line-height: 1;
+      background-color: @barBorderColor;
+    }
+
+    .scm-author {
+      display: inline-block;
+      vertical-align: middle;
+      max-width: 120px;
+      padding: 2px 0;
+      line-height: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+  }
+
   .code .row {
 
     &.coverage-green td.stat {
@@ -233,40 +256,74 @@
 }
 
 
+
+
 .component-viewer-header {
+  margin-bottom: 10px;
+}
 
-  & > th {
-    background-color: @barBackgroundColor;
-    border-top: 1px solid @barBorderColor;
-    border-bottom: 1px solid @barBorderColor;
-  }
+.component-viewer-header-bar {
+  .clearfix;
+  border: 1px solid @barBorderColor;
+  background-color: @barBackgroundColor;
+}
 
-  .button-full-size {
-    .size(100%, 100%);
-    margin: 0;
+.component-viewer-header-bar + .component-viewer-header-bar {
+  border-top: 1px solid @barBorderColor;
+}
+
+.component-viewer-header-component {
+  float: left;
+  padding: 10px;
+}
+
+.component-viewer-header-component-project {
+  color: #777;
+  font-size: @smallFontSize;
+  margin-bottom: 4px;
+}
+
+.component-viewer-header-component-name {
+  font-weight: 600;
+}
+
+.component-viewer-header-measures {
+  float: right;
+}
+
+.component-viewer-header-measures-expand {
+  float: left;
+  padding: 10px 20px;
+  border-left: 1px solid transparent;
+  .trans(background);
+
+  &:hover { background-color: @barBorderColor; }
+
+  &:active, &.active {
+    margin-bottom: -1px;
+    border-bottom: 1px solid #fff;
+    border-left-color: @barBorderColor;
+    background-color: #fff;
   }
 }
 
-.component-viewer-header-main {
-  font-size: 0;
-  padding: 4px 0 4px 5px;
+.component-viewer-header-measures-expand + .component-viewer-header-measures-expand {
+  border-left-color: @barBorderColor;
 }
 
-.component-viewer-header-box { margin-bottom: -20px; }
+.component-viewer-header-measures-expand .icon-dropdown {
+  margin-left: 6px;
+  margin-right: -10px;
+}
 
 .component-viewer-header-measure {
   display: inline-block;
-  vertical-align: bottom;
-  margin: 0 20px 20px 0;
+  vertical-align: middle;
   font-size: @baseFontSize;
 }
 
-.component-viewer-header-measure-extra {
-  display: none;
-}
-
-.component-viewer-header-full .component-viewer-header-measure-extra {
-  display: inline-block;
+.component-viewer-header-measure + .component-viewer-header-measure {
+  margin-left: 15px;
 }
 
 .component-viewer-header-measure-label {
@@ -274,33 +331,98 @@
   margin-top: 2px;
   color: #777;
   font-size: @smallFontSize;
-
-  &:after { content: ""; }
 }
 
 .component-viewer-header-measure-value {
   display: block;
   color: @baseFontColor;
-  font-size: 14px;
+  font-size: 18px;
+
+  i { top: -3px; }
 }
 
-.component-viewer-header-measure-main {
+.component-viewer-header-measure-issues {
+  width: 60px;
+}
 
-  .component-viewer-header-measure-value {
-    font-size: 24px;
+.component-viewer-header-measure-issue {
+  min-width: 1px;
+  height: 6px;
+
+  &.s-blocker { background-color: @severityBlockerColor; }
+  &.s-critical { background-color: @severityCriticalColor; }
+  &.s-major { background-color: @severityMajorColor; }
+  &.s-minor { background-color: @severityMinorColor; }
+  &.s-info { background-color: @severityInfoColor; }
+}
+
+.component-viewer-header-measure-issue + .component-viewer-header-measure-issue {
+  margin-top: 1px;
+}
+
+.component-viewer-header-links {
+  float: right;
+  padding: 8px 10px;
+  border-left: 1px solid @barBorderColor;
+
+  a {
+    float: left;
+    clear: left;
+  }
+
+  a + a {
+    margin-top: 9px;
   }
 }
 
-.component-viewer-header-filter {
-  display: inline-block;
-  vertical-align: bottom;
-  margin: 0 20px 20px 0;
+.component-viewer-header-expanded-bar {
+  display: none;
+  .clearfix;
+  padding: 10px;
+  border: 1px solid @barBorderColor;
+  border-top: none;
+  background-color: #fff;
+}
+
+.component-viewer-header-expanded-bar-section {
+  float: left;
+  min-width: 150px;
+  max-width: 250px;
+}
+
+.component-viewer-header-expanded-bar-section + .component-viewer-header-expanded-bar-section {
+  margin-left: 20px;
   padding-left: 20px;
   border-left: 1px solid @barBorderColor;
-  font-size: @baseFontSize;
-  color: @darkBlue;
+}
 
-  .button-clean { height: auto; }
+.component-viewer-header-expanded-bar-section-title {
+  margin-bottom: 6px;
+  color: #777;
+  font-size: @smallFontSize;
+}
+
+.component-viewer-header-expanded-bar-section-list {
+
+  & > li > .item {
+    position: relative;
+    display: block;
+    padding: 2px 25px 2px 5px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    & > .number {
+      position: absolute;
+      right: 5px;
+    }
+  }
+
+  & > li > a {
+    .trans;
+
+    &:hover { background-color: @barBackgroundColor; }
+  }
 }
 
 

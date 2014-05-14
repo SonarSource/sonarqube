@@ -31,6 +31,10 @@ define(['handlebars'], function (Handlebars) {
     );
   });
 
+  Handlebars.registerHelper('percent', function(value, total) {
+    return value / total * 100;
+  });
+
   Handlebars.registerHelper('eq', function(v1, v2, options) {
     return v1 == v2 ? options.fn(this) : options.inverse(this);
   });

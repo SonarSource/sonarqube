@@ -1,90 +1,52 @@
-<tr class="component-viewer-header">
-  {{#if settings.coverage}}
-    <th class="stat"></th>
-    <th class="stat"></th>
-  {{/if}}
-  {{#if settings.duplications}}
-    <th class="stat"></th>
-  {{/if}}
-  <th></th>
-  <th class="component-viewer-header-main">
-    <div class="component-viewer-header-box">
-
-      <div class="component-viewer-header-measure component-viewer-header-measure-main">
-        <span class="component-viewer-header-measure-value">{{component.measures.violations.frmt_val}}</span>
-        <span class="component-viewer-header-measure-label">{{t 'metric.violations.name'}}</span>
-      </div>
-
-      <div class="component-viewer-header-measure component-viewer-header-measure-main">
-        <span class="component-viewer-header-measure-value">{{component.measures.sqale_index.frmt_val}}</span>
-        <span class="component-viewer-header-measure-label">{{t 'metric.sqale_index.name'}}</span>
-      </div>
-
-      {{#if component.measures.blocker_violations.frmt_val}}
-        <div class="component-viewer-header-measure">
-              <span class="component-viewer-header-measure-value">
-                <i class="icon-severity-blocker"></i>
-                {{component.measures.blocker_violations.frmt_val}}
-              </span>
-          <span class="component-viewer-header-measure-label">{{t 'severity.BLOCKER'}}</span>
-        </div>
-      {{/if}}
-
-      {{#if component.measures.critical_violations.frmt_val}}
-        <div class="component-viewer-header-measure">
-              <span class="component-viewer-header-measure-value">
-                <i class="icon-severity-critical"></i>
-                {{component.measures.critical_violations.frmt_val}}
-              </span>
-          <span class="component-viewer-header-measure-label">{{t 'severity.CRITICAL'}}</span>
-        </div>
-      {{/if}}
-
-      {{#if component.measures.major_violations.frmt_val}}
-        <div class="component-viewer-header-measure">
-              <span class="component-viewer-header-measure-value">
-                <i class="icon-severity-major"></i>
-                {{component.measures.major_violations.frmt_val}}
-              </span>
-          <span class="component-viewer-header-measure-label">{{t 'severity.MAJOR'}}</span>
-        </div>
-      {{/if}}
-
-      {{#if component.measures.minor_violations.frmt_val}}
-        <div class="component-viewer-header-measure">
-              <span class="component-viewer-header-measure-value">
-                <i class="icon-severity-minor"></i>
-                {{component.measures.minor_violations.frmt_val}}
-              </span>
-          <span class="component-viewer-header-measure-label">{{t 'severity.MINOR'}}</span>
-        </div>
-      {{/if}}
-
-      {{#if component.measures.info_violations.frmt_val}}
-        <div class="component-viewer-header-measure">
-              <span class="component-viewer-header-measure-value">
-                <i class="icon-severity-info"></i>
-                {{component.measures.info_violations.frmt_val}}
-              </span>
-          <span class="component-viewer-header-measure-label">{{t 'severity.INFO'}}</span>
-        </div>
-      {{/if}}
-
-      <div class="component-viewer-header-filter">
-        <button class="button-clean js-time-changes">
-          <i class="icon-period"></i>
-          <i class="icon-dropdown"></i>
-        </button>
-        <span class="component-viewer-header-measure-label">Time changes</span>
-      </div>
-
-      <div class="component-viewer-header-filter">
-        <button class="button-clean">
-          <i class="icon-filter"></i>
-          <i class="icon-dropdown"></i>
-        </button>
-        <span class="component-viewer-header-measure-label">All issues</span>
-      </div>
-    </div>
-  </th>
-</tr>
+<div class="component-viewer-header-expanded-bar-section">
+  <div class="component-viewer-header-expanded-bar-section-title">Rules</div>
+  <ul class="component-viewer-header-expanded-bar-section-list">
+    <li><a class="item">
+      <span>Array designators "[]" should be located after the type in method signatures</span>
+      <span class="number">2</span>
+    </a></li>
+    <li><a class="item">
+      <span>Avoid Array Loops</span>
+      <span class="number">1</span>
+    </a></li>
+    <li><a class="item">
+      <span>Useless Operation On Immutable</span>
+      <span class="number">4</span>
+    </a></li>
+  </ul>
+</div>
+<div class="component-viewer-header-expanded-bar-section">
+  <ul class="component-viewer-header-expanded-bar-section-list">
+    <li><a class="item">
+      <span><i class="icon-severity-blocker"></i> {{t 'severity.BLOCKER'}}</span>
+      <span class="number">{{component.measures.blocker_issues}}</span>
+    </a></li>
+    <li><a class="item">
+      <span><i class="icon-severity-critical"></i> {{t 'severity.CRITICAL'}}</span>
+      <span class="number">{{component.measures.critical_issues}}</span>
+    </a></li>
+    <li><a class="item">
+      <span><i class="icon-severity-major"></i> {{t 'severity.MAJOR'}}</span>
+      <span class="number">{{component.measures.major_issues}}</span>
+    </a></li>
+    <li><a class="item">
+      <span><i class="icon-severity-minor"></i> {{t 'severity.MINOR'}}</span>
+      <span class="number">{{component.measures.minor_issues}}</span>
+    </a></li>
+    <li><a class="item">
+      <span><i class="icon-severity-info"></i> {{t 'severity.INFO'}}</span>
+      <span class="number">{{component.measures.info_issues}}</span>
+    </a></li>
+  </ul>
+</div>
+<div class="component-viewer-header-expanded-bar-section">
+  <ul class="component-viewer-header-expanded-bar-section-list">
+    <li><a class="item">
+      <span>Current issue</span>
+    </a></li>
+    <li><a class="item">
+      <span>False Positive</span>
+      <span class="number">3</span>
+    </a></li>
+  </ul>
+</div>

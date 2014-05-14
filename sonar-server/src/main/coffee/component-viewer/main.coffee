@@ -4,28 +4,22 @@ define [
   'templates/component-viewer'
   'component-viewer/workspace'
   'component-viewer/source'
+  'component-viewer/header'
+
+  'component-viewer/mockjax'
 ], (
   Backbone
   Marionette
   Templates
   WorkspaceView
   SourceView
+  HeaderView
 ) ->
 
   $ = jQuery
+  API_COMPONENT = "#{baseUrl}/api/sources/app"
   API_SOURCES = "#{baseUrl}/api/sources/show"
-  API_RESOURCES = "#{baseUrl}/api/resources"
-
-  SOURCE_METRIC_LIST = 'lines,ncloc,functions,accessors,classes,statements,complexity,function_complexity,' +
-                       'comment_lines_density,comment_lines,public_documented_api_density,public_undocumented_api,' +
-                       'public_api'
-
-  COVERAGE_METRIC_LIST = 'coverage,line_coverage,branch_coverage,' +
-                         'coverage_line_hits_data,covered_conditions_by_line,conditions_by_line'
-
-  ISSUES_METRIC_LIST = 'violations,sqale_index,blocker_violations,critical_violations,major_violations,minor_violations,info_violations'
-
-  DUPLICATIONS_METRIC_LIST = 'duplicated_lines_density,duplicated_blocks,duplicated_files,duplicated_lines'
+  API_SCM = "#{baseUrl}/api/sources/scm"
 
 
 
@@ -36,6 +30,7 @@ define [
 
     regions:
       workspaceRegion: '.component-viewer-workspace'
+      headerRegion: '.component-viewer-header'
       sourceRegion: '.component-viewer-source'
 
 
@@ -50,6 +45,10 @@ define [
 
       @source = new Backbone.Model()
       @sourceView = new SourceView
+        model: @source
+        main: @
+
+      @headerView = new HeaderView
         model: @source
         main: @
 
@@ -69,13 +68,12 @@ define [
       else
         @$el.removeClass 'component-viewer-workspace-enabled'
       @sourceRegion.show @sourceView
+      @headerRegion.show @headerView
 
 
     requestComponent: (key) ->
-      metricList = [SOURCE_METRIC_LIST, COVERAGE_METRIC_LIST, ISSUES_METRIC_LIST, DUPLICATIONS_METRIC_LIST].join ','
-      $.get API_RESOURCES, resource: key, metrics: metricList, (data) =>
-        @component.set data[0]
-        @component.set 'measures', _.indexBy(data[0].msr, 'key')
+      $.get API_COMPONENT, key: key, (data) =>
+        @component.set data
 
 
     requestSource: (key) ->
@@ -83,36 +81,9 @@ define [
         @source.set source: data.sources
 
 
-    extractCoverage: (data) ->
-      toObj = (d) ->
-        q = {}
-        d?.split(';').forEach (item) ->
-          tokens = item.split '='
-          q[tokens[0]] = tokens[1]
-        q
-
-      msr = data[0].msr
-      coverage = toObj _.findWhere(msr, key: 'coverage_line_hits_data')?.data
-      coverageConditions = toObj _.findWhere(msr, key: 'covered_conditions_by_line')?.data
-      conditions = toObj _.findWhere(msr, key: 'conditions_by_line')?.data
-      @source.set
-        coverage: coverage
-        coverageConditions: coverageConditions
-        conditions: conditions
-      coverageMeasures = _.reject data[0].msr, (m) ->
-        m.key == 'coverage_line_hits_data' || m.key == 'covered_conditions_by_line' || m.key == 'conditions_by_line'
-      @component.set 'coverageMeasures', coverageMeasures
-
-
-    extractDuplications: (data) ->
-      @source.set
-        duplications: [
-          { from: 18, count: 33 }
-          { from: 24, count: 23 }
-          { from: 62, count: 33 }
-        ]
-      duplicationsMeasures = _.sortBy data[0].msr, (item) -> -(item.key == 'duplicated_lines_density')
-      @component.set 'duplicationsMeasures', duplicationsMeasures
+    requestSCM: (key) ->
+      $.get API_SCM, key: key, (data) =>
+        @source.set scm: data.scm
 
 
     extractIssues: (data) ->
@@ -131,7 +102,7 @@ define [
       @key = key
       @sourceView.showSpinner()
       source = @requestSource key
-      component = @requestComponent key, SOURCE_METRIC_LIST
+      component = @requestComponent key
       $.when(source, component).done =>
         @workspace.where(key: key).forEach (model) =>
           model.set 'component': @component.toJSON()
@@ -139,21 +110,17 @@ define [
         if @settings.get('issues') then @showIssues() else @hideIssues()
         if @settings.get('coverage') then @showCoverage() else @hideCoverage()
         if @settings.get('duplications') then @showDuplications() else @hideDuplications()
+        if @settings.get('scm') then @showSCM() else @hideSCM()
 
 
     showCoverage: ->
       @settings.set 'coverage', true
-      unless @source.has 'coverage'
-        @requestComponent(@key).done (data) =>
-          @extractCoverage data
-          @sourceView.render()
-      else
-        @sourceView.render()
+      @render()
 
 
     hideCoverage: ->
       @settings.set 'coverage', false
-      @sourceView.render()
+      @render()
 
 
     showWorkspace: ->
@@ -168,35 +135,37 @@ define [
 
     showIssues: (issues) ->
       @settings.set 'issues', true
-
-      unless @source.has 'issues'
-        @requestComponent(@key).done (data) =>
-          @extractIssues data
-          @sourceView.render()
-
       if _.isArray(issues) && issues.length > 0
         @source.set 'issues', issues
-      @sourceView.render()
+      @render()
 
 
     hideIssues: ->
       @settings.set 'issues', false
-      @sourceView.render()
+      @render()
 
 
     showDuplications: ->
       @settings.set 'duplications', true
-      unless @source.has 'duplications'
-        @requestComponent(@key).done (data) =>
-          @extractDuplications data
-          @sourceView.render()
-      else
-        @sourceView.render()
+      @render()
 
 
     hideDuplications: ->
       @settings.set 'duplications', false
-      @sourceView.render()
+      @render()
+
+
+    showSCM: ->
+      @settings.set 'scm', true
+      unless @source.has 'duplications'
+        @requestSCM(@key).done => @sourceView.render()
+      else
+        @render()
+
+
+    hideSCM: ->
+      @settings.set 'scm', false
+      @render()
 
 
     addTransition: (key, transition, optionsForCurrent, options) ->

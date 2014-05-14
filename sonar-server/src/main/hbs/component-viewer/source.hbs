@@ -1,108 +1,63 @@
-<table class="code" cellpadding="0" cellspacing="0">
-  <thead>
-  <tr>
+<table class="code">
+  <tr class="row row-hidden" data-line-number="0">
     {{#if settings.coverage}}
-      <th class="stat"></th>
-      <th class="stat"></th>
+      <td class="stat coverage-tests"></td>
+      <td class="stat coverage-conditions"></td>
     {{/if}}
     {{#if settings.duplications}}
+      <td class="stat"></td>
+    {{/if}}
+    {{#if settings.scm}}
       <th class="stat"></th>
     {{/if}}
-    <th class="stat settings-toggle">
-      <button class="button-clean js-toggle-settings">
-        <i class="icon-settings"></i></i>
-      </button>
-    </th>
-    <th class="stat settings">
-      <ul class="component-viewer-source-settings {{#if showSettings}}open{{/if}}">
-        <li>
-          <input id="source-issues" type="checkbox" {{#if settings.issues}}checked{{/if}}>
-          <label for="source-issues">Issues</label>
-        </li>
-        <li>
-          <input id="source-coverage" type="checkbox" {{#if settings.coverage}}checked{{/if}}>
-          <label for="source-coverage">Coverage</label>
-        </li>
-        <li>
-          <input id="source-duplications" type="checkbox" {{#if settings.duplications}}checked{{/if}}>
-          <label for="source-duplications">Duplications</label>
-        </li>
-        <li>
-          <input id="source-scm" type="checkbox" {{#if settings.scm}}checked{{/if}}>
-          <label for="source-scm">SCM</label>
-        </li>
-        <li>
-          <input id="source-workspace" type="checkbox" {{#if settings.workspace}}checked{{/if}}>
-          <label for="source-workspace">Workspace</label>
-        </li>
-      </ul>
-
-      {{#if component.projectLongName}}
-        {{qualifierIcon 'TRK'}} <span class="component-viewer-title">{{component.projectLongName}}</span>
-        <span class="component-viewer-title-separator">—</span>
-      {{/if}}
-      {{qualifierIcon component.qualifier}} <span class="component-viewer-title">{{component.lname}}</span>
-
-      <a class="icon-not-favorite" href="#" onclick="toggleFav({{component.id}}, this); return false;"
-         title="Click to add to favourites"></a>
-    </th>
+    <td class="stat lid"></td>
+    <td class="line"></td>
   </tr>
 
-  {{! headers }}
-  {{> '_basic-header'}}
-  {{#if settings.issues}}{{> '_issues-header'}}{{/if}}
-  {{#if settings.coverage}}{{> '_coverage-header'}}{{/if}}
+  {{#each source}}
+    {{#if show}}
+      <tr class="row {{#if ../../settings.coverage}}{{#if coverageStatus}}coverage-{{coverageStatus}}{{/if}}{{/if}}"
+          data-line-number="{{lineNumber}}">
 
-  </thead>
-  <tbody>
-    <tr class="row row-hidden" data-line-number="0">
-      {{#if settings.coverage}}
-        <td class="stat coverage-tests"></td>
-        <td class="stat coverage-conditions"></td>
-      {{/if}}
-      {{#if settings.duplications}}
-        <td class="stat"></td>
-      {{/if}}
-      <td class="stat lid"></td>
-      <td class="line"></td>
-    </tr>
+        {{#if ../../settings.coverage}}
+          <td class="stat coverage-tests">
+            {{#if coverage}}
+              <span title="Line is covered by {{coverage}} tests">{{coverage}}</span>
+            {{/if}}
+          </td>
 
-    {{#each source}}
-      {{#if show}}
-        <tr class="row {{#if ../../settings.coverage}}{{#if coverageStatus}}coverage-{{coverageStatus}}{{/if}}{{/if}}"
-            data-line-number="{{lineNumber}}">
-
-          {{#if ../../settings.coverage}}
-            <td class="stat coverage-tests">
-              {{#if coverage}}
-                <span title="Line is covered by {{coverage}} tests">{{coverage}}</span>
-              {{/if}}
-            </td>
-
-            <td class="stat coverage-conditions">
-                {{#if coverageConditions}}
-                  {{#if conditions}}
-                    <span title="{{coverageConditions}} branches are covered by tests">
-                      {{coverageConditions}}/{{conditions}}
-                    </span>
-                  {{/if}}
+          <td class="stat coverage-conditions">
+              {{#if coverageConditions}}
+                {{#if conditions}}
+                  <span title="{{coverageConditions}} branches are covered by tests">
+                    {{coverageConditions}}/{{conditions}}
+                  </span>
                 {{/if}}
-            </td>
-          {{/if}}
+              {{/if}}
+          </td>
+        {{/if}}
 
-          {{#if ../../settings.duplications}}
-            <td class="stat duplications">
-              {{#each duplications}}
-                <span class="duplication {{#if this}}duplication-exists{{/if}}"></span>
-              {{/each}}
-            </td>
-          {{/if}}
+        {{#if ../../settings.duplications}}
+          <td class="stat duplications">
+            {{#each duplications}}
+              <span class="duplication {{#if this}}duplication-exists{{/if}}"></span>
+            {{/each}}
+          </td>
+        {{/if}}
 
-          <td class="stat lid">{{lineNumber}}</td>
+        {{#if ../../settings.scm}}
+          <td class="stat {{#if scm}}scm{{/if}}">
+            {{#if scm}}
+              <span class="scm-date">{{scm.date}}</span>
+              <span class="scm-author" title="{{scm.author}}">{{scm.author}}</span>
+            {{/if}}
+          </td>
+        {{/if}}
 
-          <td class="line"><pre>{{{code}}}</pre></td>
-        </tr>
-      {{/if}}
-    {{/each}}
-  </tbody>
+        <td class="stat lid">{{lineNumber}}</td>
+
+        <td class="line"><pre>{{{code}}}</pre></td>
+      </tr>
+    {{/if}}
+  {{/each}}
 </table>

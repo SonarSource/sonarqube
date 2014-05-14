@@ -1,105 +1,113 @@
-<tr class="component-viewer-header">
-  {{#if settings.coverage}}
-    <th class="stat"></th>
-    <th class="stat"></th>
-  {{/if}}
-  {{#if settings.duplications}}
-    <th class="stat"></th>
-  {{/if}}
-  <th>
-    <button class="button-clean button-full-size js-toggle-measures"><i class="icon-list"></i></button>
-  </th>
-  <th class="component-viewer-header-main">
-    <div class="component-viewer-header-box">
-      <div class="component-viewer-header-measure component-viewer-header-measure-main">
-        <span class="component-viewer-header-measure-value">{{component.measures.ncloc.frmt_val}}</span>
-        <span class="component-viewer-header-measure-label">{{t 'metric.ncloc.name'}}</span>
-      </div>
+<div class="component-viewer-header-expanded-bar-section">
+  <div class="component-viewer-header-expanded-bar-section-title">Size</div>
+  <ul class="component-viewer-header-expanded-bar-section-list">
+    <li><span class="item">
+      <span>Accessors</span>
+      <span class="number">X</span>
+    </span></li>
+    <li><span class="item">
+      <span>Classes</span>
+      <span class="number">X</span>
+    </span></li>
+    <li><span class="item">
+      <span>Functions</span>
+      <span class="number">X</span>
+    </span></li>
+    <li><span class="item">
+      <span>Public API</span>
+      <span class="number">X</span>
+    </span></li>
+    <li><span class="item">
+      <span>Statements</span>
+      <span class="number">X</span>
+    </span></li>
+  </ul>
+</div>
 
-      {{#if component.measures.lines.frmt_val}}
-        <div class="component-viewer-header-measure">
-          <span class="component-viewer-header-measure-value">{{component.measures.lines.frmt_val}}</span>
-          <span class="component-viewer-header-measure-label">{{t 'metric.lines.name'}}</span>
-        </div>
-      {{/if}}
+<div class="component-viewer-header-expanded-bar-section">
+  <div class="component-viewer-header-expanded-bar-section-title">Lines</div>
+  <ul class="component-viewer-header-expanded-bar-section-list">
+    <li><span class="item">
+      <span>Generated lines</span>
+      <span class="number">X</span>
+    </span></li>
+    <li><span class="item">
+      <span>Generated lines of code</span>
+      <span class="number">X</span>
+    </span></li>
+    <li><span class="item">
+      <span>Lines</span>
+      <span class="number">X</span>
+    </span></li>
+    <li><span class="item">
+      <span>Lines of code</span>
+      <span class="number">X</span>
+    </span></li>
+  </ul>
+</div>
 
-      {{#if component.measures.functions.frmt_val}}
-        <div class="component-viewer-header-measure">
-          <span class="component-viewer-header-measure-value">{{component.measures.functions.frmt_val}}</span>
-          <span class="component-viewer-header-measure-label">{{t 'metric.functions.name'}}</span>
-        </div>
-      {{/if}}
+<div class="component-viewer-header-expanded-bar-section">
+  <div class="component-viewer-header-expanded-bar-section-title">Complexity</div>
+  <ul class="component-viewer-header-expanded-bar-section-list">
+    <li><span class="item">
+      <span>Complexity</span>
+      <span class="number">X</span>
+    </span></li>
+    <li><span class="item">
+      <span>Complexity /class</span>
+      <span class="number">X</span>
+    </span></li>
+    <li><span class="item">
+      <span>Complexity /file</span>
+      <span class="number">X</span>
+    </span></li>
+    <li><span class="item">
+      <span>Complexity /function</span>
+      <span class="number">X</span>
+    </span></li>
+  </ul>
+</div>
 
-      {{#if component.measures.accessors.frmt_val}}
-        <div class="component-viewer-header-measure">
-          <span class="component-viewer-header-measure-value">{{component.measures.accessors.frmt_val}}</span>
-          <span class="component-viewer-header-measure-label">{{t 'metric.accessors.name'}}</span>
-        </div>
-      {{/if}}
+<div class="component-viewer-header-expanded-bar-section">
+  <div class="component-viewer-header-expanded-bar-section-title">Design</div>
+  <ul class="component-viewer-header-expanded-bar-section-list">
+    <li><span class="item">
+      <span>File dependencies to cut</span>
+      <span class="number">X</span>
+    </span></li>
+    <li><span class="item">
+      <span>Package cycles</span>
+      <span class="number">X</span>
+    </span></li>
+    <li><span class="item">
+      <span>Package dependencies to cut</span>
+      <span class="number">X</span>
+    </span></li>
+    <li><span class="item">
+      <span>Package tangle index</span>
+      <span class="number">X</span>
+    </span></li>
+  </ul>
+</div>
 
-      {{#if component.measures.classes.frmt_val}}
-        <div class="component-viewer-header-measure">
-          <span class="component-viewer-header-measure-value">{{component.measures.classes.frmt_val}}</span>
-          <span class="component-viewer-header-measure-label">{{t 'metric.classes.name'}}</span>
-        </div>
-      {{/if}}
-
-      {{#if component.measures.complexity.frmt_val}}
-        <div class="component-viewer-header-measure component-viewer-header-measure-extra">
-          <span class="component-viewer-header-measure-value">{{component.measures.complexity.frmt_val}}</span>
-          <span class="component-viewer-header-measure-label">{{t 'metric.complexity.name'}}</span>
-        </div>
-      {{/if}}
-
-      {{#if component.measures.function_complexity.frmt_val}}
-        <div class="component-viewer-header-measure component-viewer-header-measure-extra">
-          <span class="component-viewer-header-measure-value">{{component.measures.function_complexity.frmt_val}}</span>
-          <span class="component-viewer-header-measure-label">{{t 'metric.function_complexity.name'}}</span>
-        </div>
-      {{/if}}
-
-      {{#if component.measures.comment_lines_density.frmt_val}}
-        <div class="component-viewer-header-measure component-viewer-header-measure-extra">
-          <span class="component-viewer-header-measure-value">{{component.measures.comment_lines_density.frmt_val}}</span>
-          <span class="component-viewer-header-measure-label">{{t 'metric.comment_lines_density.name'}}</span>
-        </div>
-      {{/if}}
-
-      {{#if component.measures.comment_lines.frmt_val}}
-        <div class="component-viewer-header-measure component-viewer-header-measure-extra">
-          <span class="component-viewer-header-measure-value">{{component.measures.comment_lines.frmt_val}}</span>
-          <span class="component-viewer-header-measure-label">{{t 'metric.comment_lines.name'}}</span>
-        </div>
-      {{/if}}
-
-      {{#if component.measures.public_documented_api_density.frmt_val}}
-        <div class="component-viewer-header-measure component-viewer-header-measure-extra">
-          <span class="component-viewer-header-measure-value">{{component.measures.public_documented_api_density.frmt_val}}</span>
-          <span class="component-viewer-header-measure-label">{{t 'metric.public_documented_api_density.name'}}</span>
-        </div>
-      {{/if}}
-
-      {{#if component.measures.public_undocumented_api.frmt_val}}
-        <div class="component-viewer-header-measure component-viewer-header-measure-extra">
-          <span class="component-viewer-header-measure-value">{{component.measures.public_undocumented_api.frmt_val}}</span>
-          <span class="component-viewer-header-measure-label">{{t 'metric.public_undocumented_api.name'}}</span>
-        </div>
-      {{/if}}
-
-      {{#if component.measures.public_api.frmt_val}}
-        <div class="component-viewer-header-measure component-viewer-header-measure-extra">
-          <span class="component-viewer-header-measure-value">{{component.measures.public_api.frmt_val}}</span>
-          <span class="component-viewer-header-measure-label">{{t 'metric.public_api.name'}}</span>
-        </div>
-      {{/if}}
-
-      <div class="component-viewer-header-filter">
-        <button class="button-clean js-time-changes">
-          <i class="icon-period"></i>
-          <i class="icon-dropdown"></i>
-        </button>
-        <span class="component-viewer-header-measure-label">Time changes</span>
-      </div>
-    </div>
-  </th>
-</tr>
+<div class="component-viewer-header-expanded-bar-section">
+  <div class="component-viewer-header-expanded-bar-section-title">Documentation</div>
+  <ul class="component-viewer-header-expanded-bar-section-list">
+    <li><span class="item">
+      <span>Comment lines</span>
+      <span class="number">X</span>
+    </span></li>
+    <li><span class="item">
+      <span>Comments (%)</span>
+      <span class="number">X</span>
+    </span></li>
+    <li><span class="item">
+      <span>Public documented API (%)</span>
+      <span class="number">X</span>
+    </span></li>
+    <li><span class="item">
+      <span>Public undocumented API</span>
+      <span class="number">X</span>
+    </span></li>
+  </ul>
+</div>

@@ -229,6 +229,14 @@ define [
       duplications: lineDuplications
 
 
+    augmentWithSCM: (source) ->
+      scm = @model.get('scm') || []
+      scm.forEach (s) ->
+        line = source[s[0]]
+        line.scm = author: s[1], date: s[2]
+      source
+
+
     augmentWithShow: (sourceLine) ->
       show = false
       line = sourceLine.lineNumber
@@ -255,7 +263,7 @@ define [
 
     prepareSource: ->
       source = @model.get 'source'
-      _.map source, (item) =>
+      source = _.map source, (item) =>
         line = item[0]
         base = lineNumber: line, code: item[1]
         if @options.main.settings.get('coverage')
@@ -263,7 +271,17 @@ define [
         if @options.main.settings.get('duplications')
           _.extend base, @getLineDuplications(line)
         @augmentWithShow base
+      if @options.main.settings.get('scm')
+        source = @augmentWithSCM source
+      source
 
+
+    getStatColumnsCount: ->
+      count = 1 # line number
+      count += 2 if @options.main.settings.get 'coverage'
+      count += 1 if @options.main.settings.get 'duplications'
+      count += 1 if @options.main.settings.get 'issues'
+      count
 
 
     serializeData: ->
@@ -271,3 +289,4 @@ define [
       settings: @options.main.settings.toJSON()
       showSettings: @showSettings
       component: @options.main.component.toJSON()
+      columns: @getStatColumnsCount() + 1
