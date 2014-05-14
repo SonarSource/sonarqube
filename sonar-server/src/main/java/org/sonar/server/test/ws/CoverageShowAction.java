@@ -102,7 +102,7 @@ public class CoverageShowAction implements RequestHandler {
         Integer hits = entry.getValue();
         json.beginArray();
         json.value(line);
-        json.value(hits);
+        json.value(hits > 0);
         json.endArray();
       }
     }
