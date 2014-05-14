@@ -18,50 +18,27 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.measure.db;
+package org.sonar.server.test.ws;
 
-import com.google.common.base.Charsets;
+import org.sonar.api.server.ws.WebService;
 
-import javax.annotation.CheckForNull;
+public class CoverageWs implements WebService {
 
-public class MeasureDataDto {
+  private final CoverageShowAction showAction;
 
-  private Integer id;
-
-  private Integer snapshotId;
-
-  private String textValue;
-
-  private byte[] data;
-
-  public Integer getId() {
-    return id;
+  public CoverageWs(CoverageShowAction showAction) {
+    this.showAction = showAction;
   }
 
-  public MeasureDataDto setId(Integer id) {
-    this.id = id;
-    return this;
+  @Override
+  public void define(Context context) {
+    NewController controller = context.createController("api/coverage")
+      .setSince("4.4")
+      .setDescription("Display coverage information");
+
+    showAction.define(controller);
+
+    controller.done();
   }
 
-  public Integer getSnapshotId() {
-    return snapshotId;
-  }
-
-  public MeasureDataDto setSnapshotId(Integer snapshotId) {
-    this.snapshotId = snapshotId;
-    return this;
-  }
-
-  public MeasureDataDto setData(byte[] data) {
-    this.data = data;
-    return this;
-  }
-
-  @CheckForNull
-  public String getData() {
-    if (data != null) {
-      return new String(data, Charsets.UTF_8);
-    }
-    return textValue;
-  }
 }

@@ -44,7 +44,7 @@ public class TestsWs implements WebService {
       .setSince("3.5")
       .setInternal(true)
       .setHandler(RailsHandler.INSTANCE)
-      .setResponseExample(Resources.getResource(this.getClass(), "example-plan.json"));
+      .setResponseExample(Resources.getResource(this.getClass(), "tests-example-plan.json"));
 
     action.createParam("resource")
       .setRequired(true)
@@ -59,7 +59,7 @@ public class TestsWs implements WebService {
       .setSince("3.5")
       .setInternal(true)
       .setHandler(RailsHandler.INSTANCE)
-      .setResponseExample(Resources.getResource(this.getClass(), "example-testable.json"));
+      .setResponseExample(Resources.getResource(this.getClass(), "tests-example-testable.json"));
 
     action.createParam("resource")
       .setRequired(true)

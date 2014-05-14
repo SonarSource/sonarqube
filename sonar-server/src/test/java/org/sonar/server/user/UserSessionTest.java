@@ -20,10 +20,16 @@
 package org.sonar.server.user;
 
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
+
+import javax.annotation.Nullable;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -34,6 +40,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class UserSessionTest {
+
+  @org.junit.Rule
+  public ExpectedException thrown = ExpectedException.none();
+
   @Test
   public void getSession_get_anonymous_by_default() throws Exception {
     UserSession.remove();
@@ -128,11 +138,55 @@ public class UserSessionTest {
     session.checkProjectPermission(UserRole.USER, "com.foo:Bar");
   }
 
+  @Test
+  public void check_component_permission_ok() throws Exception {
+    AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
+    ResourceDao resourceDao = mock(ResourceDao.class);
+    UserSession session = new SpyUserSession("marius", authorizationDao, resourceDao).setUserId(1);
+
+    when(resourceDao.getRootProjectByComponentKey("com.foo:Bar:BarFile.xoo")).thenReturn(new ResourceDto().setKey("com.foo:Bar"));
+    when(authorizationDao.selectAuthorizedRootProjectsKeys(1, UserRole.USER)).thenReturn(newArrayList("com.foo:Bar"));
+
+    session.checkComponentPermission(UserRole.USER, "com.foo:Bar:BarFile.xoo");
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void check_component_permission_ko() throws Exception {
+    AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
+    ResourceDao resourceDao = mock(ResourceDao.class);
+    UserSession session = new SpyUserSession("marius", authorizationDao, resourceDao).setUserId(1);
+
+    when(resourceDao.getRootProjectByComponentKey("com.foo:Bar:BarFile.xoo")).thenReturn(new ResourceDto().setKey("com.foo:Bar2"));
+    when(authorizationDao.selectAuthorizedRootProjectsKeys(1, UserRole.USER)).thenReturn(newArrayList("com.foo:Bar"));
+
+    session.checkComponentPermission(UserRole.USER, "com.foo:Bar:BarFile.xoo");
+  }
+
+  @Test
+  public void check_component_permission_when_project_not_found() throws Exception {
+    thrown.expect(NotFoundException.class);
+    thrown.expectMessage("Component 'com.foo:Bar:BarFile.xoo' does not exist");
+
+    AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
+    ResourceDao resourceDao = mock(ResourceDao.class);
+    UserSession session = new SpyUserSession("marius", authorizationDao, resourceDao).setUserId(1);
+
+    when(resourceDao.getRootProjectByComponentKey("com.foo:Bar:BarFile.xoo")).thenReturn(null);
+
+    session.checkComponentPermission(UserRole.USER, "com.foo:Bar:BarFile.xoo");
+  }
+
   static class SpyUserSession extends UserSession {
     private AuthorizationDao authorizationDao;
+    private ResourceDao resourceDao;
 
     SpyUserSession(String login, AuthorizationDao authorizationDao) {
+      this(login, authorizationDao, null);
+    }
+
+    SpyUserSession(String login, AuthorizationDao authorizationDao, @Nullable ResourceDao resourceDao) {
       this.authorizationDao = authorizationDao;
+      this.resourceDao = resourceDao;
       setLogin(login);
     }
 
@@ -140,5 +194,11 @@ public class UserSessionTest {
     AuthorizationDao authorizationDao() {
       return authorizationDao;
     }
+
+    @Override
+    ResourceDao resourceDao() {
+      return resourceDao;
+    }
+
   }
 }

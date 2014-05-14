@@ -28,8 +28,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.measure.db.MeasureDataDao;
-import org.sonar.core.resource.ResourceDao;
-import org.sonar.core.resource.ResourceDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.MockUserSession;
 
@@ -46,10 +44,7 @@ public class SourceServiceTest {
   HtmlSourceDecorator sourceDecorator;
 
   @Mock
-  DeprecatedSourceDecorator deprecatedSourceDecorator;;
-
-  @Mock
-  ResourceDao resourceDao;
+  DeprecatedSourceDecorator deprecatedSourceDecorator;
 
   @Mock
   MeasureDataDao measureDataDao;
@@ -58,15 +53,14 @@ public class SourceServiceTest {
 
   @Before
   public void setUp() throws Exception {
-    service = new SourceService(sourceDecorator, deprecatedSourceDecorator, resourceDao, measureDataDao);
+    service = new SourceService(sourceDecorator, deprecatedSourceDecorator, measureDataDao);
   }
 
   @Test
   public void get_lines() throws Exception {
     String projectKey = "org.sonar.sample";
     String componentKey = "org.sonar.sample:Sample";
-    MockUserSession.set().addProjectPermissions(UserRole.CODEVIEWER, projectKey);
-    when(resourceDao.getRootProjectByComponentKey(componentKey)).thenReturn(new ResourceDto().setKey(projectKey));
+    MockUserSession.set().addProjectPermissions(UserRole.CODEVIEWER, projectKey).addComponent(componentKey, projectKey);
 
     service.getLinesAsHtml(componentKey);
 
@@ -78,7 +72,6 @@ public class SourceServiceTest {
     String projectKey = "org.sonar.sample";
     String componentKey = "org.sonar.sample:Sample";
     MockUserSession.set().addProjectPermissions(UserRole.CODEVIEWER, projectKey);
-    when(resourceDao.getRootProjectByComponentKey(componentKey)).thenReturn(null);
 
     try {
       service.getLinesAsHtml(componentKey);
@@ -94,8 +87,7 @@ public class SourceServiceTest {
   public void get_block_of_lines() throws Exception {
     String projectKey = "org.sonar.sample";
     String componentKey = "org.sonar.sample:Sample";
-    MockUserSession.set().addProjectPermissions(UserRole.CODEVIEWER, projectKey);
-    when(resourceDao.getRootProjectByComponentKey(componentKey)).thenReturn(new ResourceDto().setKey(projectKey));
+    MockUserSession.set().addProjectPermissions(UserRole.CODEVIEWER, projectKey).addComponent(componentKey, projectKey);;
 
     service.getLinesAsHtml(componentKey, 1, 2);
 
@@ -106,8 +98,7 @@ public class SourceServiceTest {
   public void get_lines_from_deprecated_source_decorator_when_no_data_from_new_decorator() throws Exception {
     String projectKey = "org.sonar.sample";
     String componentKey = "org.sonar.sample:Sample";
-    MockUserSession.set().addProjectPermissions(UserRole.CODEVIEWER, projectKey);
-    when(resourceDao.getRootProjectByComponentKey(componentKey)).thenReturn(new ResourceDto().setKey(projectKey));
+    MockUserSession.set().addProjectPermissions(UserRole.CODEVIEWER, projectKey).addComponent(componentKey, projectKey);;
     when(sourceDecorator.getDecoratedSourceAsHtml(eq(componentKey), anyInt(), anyInt())).thenReturn(Collections.<String>emptyList());
 
     service.getLinesAsHtml(componentKey, 1, 2);

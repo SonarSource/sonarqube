@@ -6,6 +6,7 @@
   <sql id="measureDataColumns">
     pm.id,
     pm.snapshot_id as snapshotId,
+    pm.text_value as textValue,
     pm.measure_data as data
   </sql>
 

@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.source.ws;
+
+package org.sonar.server.test.ws;
 
 import com.google.common.io.Resources;
 import org.apache.commons.lang.ObjectUtils;
@@ -25,25 +26,25 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.source.SourceService;
+import org.sonar.server.test.CoverageService;
 
-import java.util.List;
+import java.util.Map;
 
-public class ShowAction implements RequestHandler {
+public class CoverageShowAction implements RequestHandler {
 
-  private final SourceService sourceService;
+  private final CoverageService coverageService;
 
-  public ShowAction(SourceService sourceService) {
-    this.sourceService = sourceService;
+  public CoverageShowAction(CoverageService coverageService) {
+    this.coverageService = coverageService;
   }
 
   void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("show")
-      .setDescription("Get source code. Require Browse permission on file's project")
+      .setDescription("Get code coverage. Require Browse permission on file's project")
       .setSince("4.4")
-      .setResponseExample(Resources.getResource(getClass(), "example-show.json"))
+      .setResponseExample(Resources.getResource(getClass(), "coverage-example-show.json"))
       .setHandler(this);
 
     action
@@ -62,33 +63,48 @@ public class ShowAction implements RequestHandler {
       .createParam("to")
       .setDescription("Last line to return (inclusive)")
       .setExampleValue("20");
+
+    action
+      .createParam("type")
+      .setDescription("Type of coverage info to return :" +
+        "<ul>" +
+        "<li>UT : Unit Tests</li>" +
+        "<li>IT : Integration Tests</li>" +
+        "<li>OVERALL : Unit and Integration Tests</li>" +
+        "</ul>")
+      .setPossibleValues("UT", "IT", "OVERALL");
   }
 
   @Override
   public void handle(Request request, Response response) {
     String fileKey = request.mandatoryParam("key");
+    coverageService.checkPermission(fileKey);
+
     int from = Math.max(request.mandatoryParamAsInt("from"), 1);
     int to = (Integer) ObjectUtils.defaultIfNull(request.paramAsInt("to"), Integer.MAX_VALUE);
 
-    List<String> sourceHtml = sourceService.getLinesAsHtml(fileKey, from, to);
-    if (sourceHtml.isEmpty()) {
-      throw new NotFoundException("File '" + fileKey + "' has no sources");
-    }
-
     JsonWriter json = response.newJsonWriter().beginObject();
-    writeSource(sourceHtml, from, json);
+
+    String hits = coverageService.getHitsData(fileKey);
+    if (hits != null) {
+      Map<Integer, Integer> hitsByLine =  KeyValueFormat.parseIntInt(hits);
+    writeCoverage(hitsByLine, from, to, json);
+    }
 
     json.endObject().close();
   }
 
-  private void writeSource(List<String> lines, int from, JsonWriter json) {
-    json.name("sources").beginArray();
-    for (int i = 0; i < lines.size(); i++) {
-      String line = lines.get(i);
-      json.beginArray();
-      json.value(i + from);
-      json.value(line);
-      json.endArray();
+  private void writeCoverage(Map<Integer, Integer> hitsByLine, int from, int to, JsonWriter json) {
+    json.name("coverage").beginArray();
+    for (Map.Entry<Integer, Integer> entry : hitsByLine.entrySet()) {
+      Integer line = entry.getKey();
+      if (line >= from && line <= to) {
+        Integer hits = entry.getValue();
+        json.beginArray();
+        json.value(line);
+        json.value(hits);
+        json.endArray();
+      }
     }
     json.endArray();
   }

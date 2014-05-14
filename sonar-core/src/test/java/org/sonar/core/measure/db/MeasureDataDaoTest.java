@@ -36,26 +36,25 @@ public class MeasureDataDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void find_by_component_key_and_metric_key() throws Exception {
+  public void find_data_by_component_key_and_metric_key() throws Exception {
     setupData("shared");
 
     MeasureDataDto result = dao.findByComponentKeyAndMetricKey("org.sonar.core.measure.db.MeasureData", "authors_by_line");
     assertThat(result.getId()).isEqualTo(20);
     assertThat(result.getSnapshotId()).isEqualTo(5);
-    assertThat(result.getText()).isNotNull();
     assertThat(result.getData()).isNotNull();
 
-    assertThat(result.getText()).isEqualTo("0123456789012345678901234567890123456789");
+    assertThat(result.getData()).isEqualTo("0123456789012345678901234567890123456789");
   }
 
   @Test
-  public void find_by_component_key_and_metric_key_without_text() throws Exception {
-    setupData("find_by_component_key_and_metric_key_without_text");
+  public void find_text_value_by_component_key_and_metric_key() throws Exception {
+    setupData("shared");
 
-    MeasureDataDto result = dao.findByComponentKeyAndMetricKey("org.sonar.core.measure.db.MeasureData", "authors_by_line");
-    assertThat(result.getId()).isEqualTo(20);
+    MeasureDataDto result = dao.findByComponentKeyAndMetricKey("org.sonar.core.measure.db.MeasureData", "coverage_line_hits_data");
+    assertThat(result.getId()).isEqualTo(21);
     assertThat(result.getSnapshotId()).isEqualTo(5);
-    assertThat(result.getText()).isNull();
-    assertThat(result.getData()).isNull();
+    assertThat(result.getData()).isEqualTo("36=1;37=1;38=1;39=1;43=1;48=1;53=1");
   }
 }
+

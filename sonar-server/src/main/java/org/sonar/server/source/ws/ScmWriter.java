@@ -19,36 +19,30 @@
  */
 package org.sonar.server.source.ws;
 
-import com.google.common.base.Splitter;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.text.JsonWriter;
 
 import javax.annotation.Nullable;
 
-import java.util.Collections;
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
+import java.util.Map;
 
 public class ScmWriter implements ServerComponent {
 
-  void write(@Nullable String authorsData, @Nullable String datesDate, int from, int to, boolean group, JsonWriter json) {
+  void write(@Nullable String authorsData, @Nullable String datesData, int from, int to, boolean group, JsonWriter json) {
     json.name("scm").beginArray();
     if (authorsData != null) {
-      List<String> authors = splitLine(authorsData);
-      List<String> dates = splitLine(datesDate);
+      Map<Integer, String> authors = KeyValueFormat.parseIntString(authorsData);
+      Map<Integer, String> dates = KeyValueFormat.parseIntString(datesData);
 
       String previousAuthor = null;
       String previousDate = null;
       boolean started = false;
-      for (int i = 0; i < authors.size(); i++) {
-        String[] authorWithLine = splitColumn(authors.get(i));
-        Integer line = Integer.parseInt(authorWithLine[0]);
-        String author = authorWithLine[1];
-
-        String[] dateWithLine = splitColumn(dates.get(i));
-        String date = dateWithLine[1];
+      for (Map.Entry<Integer, String> entry : authors.entrySet()) {
+        Integer line = entry.getKey();
+        String author = entry.getValue();
+        String date = dates.get(line);
         String formattedDate = DateUtils.formatDate(DateUtils.parseDateTime(date));
         if (line >= from && line <= to) {
           if (!started || !group || !isSameCommit(date, previousDate, author, previousAuthor)) {
@@ -65,17 +59,6 @@ public class ScmWriter implements ServerComponent {
       }
     }
     json.endArray();
-  }
-
-  private List<String> splitLine(@Nullable String line) {
-    if (line == null) {
-      return Collections.emptyList();
-    }
-    return newArrayList(Splitter.on(";").omitEmptyStrings().split(line));
-  }
-
-  private String[] splitColumn(String column) {
-    return column.split("=");
   }
 
   private boolean isSameCommit(String date, String previousDate, String author, String previousAuthor) {

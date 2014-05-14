@@ -1,9 +1,13 @@
 <dataset>
 
   <metrics id="10" name="authors_by_line"/>
+  <metrics id="11" name="coverage_line_hits_data"/>
+
   <projects id="1" kee="org.sonar.core.measure.db.MeasureData" enabled="[true]"/>
+
   <snapshots id="5" project_id="1" islast="[true]" />
 
-  <project_measures id="20" snapshot_id="5" metric_id="10" measure_data="MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OQ=="/>
+  <project_measures id="20" snapshot_id="5" metric_id="10" text_value="[null]" measure_data="MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OQ=="/>
+  <project_measures id="21" snapshot_id="5" metric_id="11" text_value="36=1;37=1;38=1;39=1;43=1;48=1;53=1" measure_data="[null]"/>
 
 </dataset>

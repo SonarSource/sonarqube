@@ -1,9 +1,0 @@
-<dataset>
-
-  <metrics id="10" name="authors_by_line"/>
-  <projects id="1" kee="org.sonar.core.measure.db.MeasureData" enabled="[true]"/>
-  <snapshots id="5" project_id="1" islast="[true]" />
-
-  <project_measures id="20" snapshot_id="5" metric_id="10" measure_data="[null]"/>
-
-</dataset>

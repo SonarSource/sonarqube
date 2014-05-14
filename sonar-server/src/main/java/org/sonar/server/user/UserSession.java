@@ -25,8 +25,11 @@ import com.google.common.collect.HashMultimap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.platform.Platform;
 
@@ -156,6 +159,17 @@ public class UserSession {
   }
 
   /**
+   * Ensures that user implies the specified project permission on a component. If not a {@link org.sonar.server.exceptions.ForbiddenException} is thrown.
+   */
+  public UserSession checkComponentPermission(String projectPermission, String componentKey) {
+    ResourceDto project = resourceDao().getRootProjectByComponentKey(componentKey);
+    if (project == null) {
+      throw new NotFoundException(String.format("Component '%s' does not exist", componentKey));
+    }
+    return checkProjectPermission(projectPermission, project.getKey());
+  }
+
+  /**
    * Does the user have the given project permission ?
    */
   public boolean hasProjectPermission(String permission, String projectKey) {
@@ -171,6 +185,10 @@ public class UserSession {
 
   AuthorizationDao authorizationDao() {
     return Platform.component(AuthorizationDao.class);
+  }
+
+  ResourceDao resourceDao() {
+    return Platform.component(ResourceDao.class);
   }
 
   public static UserSession get() {

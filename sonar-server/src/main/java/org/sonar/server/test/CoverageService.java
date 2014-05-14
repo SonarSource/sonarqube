@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.source;
+package org.sonar.server.test;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.measures.CoreMetrics;
@@ -28,39 +28,13 @@ import org.sonar.core.measure.db.MeasureDataDto;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 
-import java.util.List;
-
-public class SourceService implements ServerComponent {
-
-  private final HtmlSourceDecorator sourceDecorator;
-
-  /**
-   * Old service to colorize code
-   */
-  private final DeprecatedSourceDecorator deprecatedSourceDecorator;
+public class CoverageService implements ServerComponent {
 
   private final MeasureDataDao measureDataDao;
 
-  public SourceService(HtmlSourceDecorator sourceDecorator, DeprecatedSourceDecorator deprecatedSourceDecorator, MeasureDataDao measureDataDao) {
-    this.sourceDecorator = sourceDecorator;
-    this.deprecatedSourceDecorator = deprecatedSourceDecorator;
+  public CoverageService(MeasureDataDao measureDataDao) {
     this.measureDataDao = measureDataDao;
-  }
-
-  public List<String> getLinesAsHtml(String fileKey) {
-    return getLinesAsHtml(fileKey, null, null);
-  }
-
-  public List<String> getLinesAsHtml(String fileKey, @Nullable Integer from, @Nullable Integer to) {
-    checkPermission(fileKey);
-
-    List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml(fileKey, from, to);
-    if (!decoratedSource.isEmpty()) {
-      return decoratedSource;
-    }
-    return deprecatedSourceDecorator.getSourceAsHtml(fileKey, from, to);
   }
 
   public void checkPermission(String fileKey) {
@@ -71,16 +45,24 @@ public class SourceService implements ServerComponent {
    * Warning - does not check permission
    */
   @CheckForNull
-  public String getScmAuthorData(String fileKey) {
-    return findDataFromComponent(fileKey, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY);
+  public String getHitsData(String fileKey) {
+    return findDataFromComponent(fileKey, CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY);
   }
 
   /**
    * Warning - does not check permission
    */
   @CheckForNull
-  public String getScmDateData(String fileKey) {
+  public String getConditionsData(String fileKey) {
     return findDataFromComponent(fileKey, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY);
+  }
+
+  /**
+   * Warning - does not check permission
+   */
+  @CheckForNull
+  public String getCoveredConditionsData(String fileKey) {
+    return findDataFromComponent(fileKey, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY);
   }
 
   @CheckForNull
