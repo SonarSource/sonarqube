@@ -257,6 +257,7 @@
 
 .component-viewer-header {
   margin-bottom: 10px;
+  padding-top: 8px;
 }
 
 .component-viewer-header-bar {
@@ -288,10 +289,28 @@
   float: right;
 }
 
-.component-viewer-header-measures-expand {
+.component-viewer-header-measures-scope {
+  position: relative;
   float: left;
-  padding: 10px 20px;
   border-left: 1px solid transparent;
+}
+
+.component-viewer-header-measures-toggle-scope {
+  position: absolute;
+  top: -9px;
+  display: block;
+  .size(100%, 8px);
+  background-color: lighten(@blue, 30%);
+  .trans;
+
+  &:hover { background-color: lighten(@blue, 15%); }
+  &.active { background-color: @blue; }
+  &.inactive { background-color: transparent; }
+}
+
+.component-viewer-header-measures-expand {
+  display: block;
+  padding: 10px 20px;
   .trans(background);
 
   &:hover { background-color: @barBorderColor; }
@@ -304,7 +323,7 @@
   }
 }
 
-.component-viewer-header-measures-expand + .component-viewer-header-measures-expand {
+.component-viewer-header-measures-scope + .component-viewer-header-measures-scope {
   border-left-color: @barBorderColor;
 }
 
