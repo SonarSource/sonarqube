@@ -21,6 +21,7 @@ package org.sonar.server.rule2.ws;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
+import com.google.common.io.Resources;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Request;
@@ -76,6 +77,7 @@ public class SearchAction implements RequestHandler {
     WebService.NewAction action = controller
       .createAction("search")
       .setDescription("Search for a collection of relevant rules matching a specified query")
+      .setResponseExample(Resources.getResource(getClass(), "example-search.json"))
       .setSince("4.4")
       .setHandler(this);
 
