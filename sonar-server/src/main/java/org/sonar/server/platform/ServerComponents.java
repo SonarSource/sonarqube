@@ -120,11 +120,7 @@ import org.sonar.server.qualityprofile.RegisterQualityProfiles;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
-import org.sonar.server.qualityprofile.ws.BulkRuleActivationActions;
-import org.sonar.server.qualityprofile.ws.ProfilesWs;
-import org.sonar.server.qualityprofile.ws.QProfileRecreateBuiltInAction;
-import org.sonar.server.qualityprofile.ws.QProfilesWs;
-import org.sonar.server.qualityprofile.ws.RuleActivationActions;
+import org.sonar.server.qualityprofile.ws.*;
 import org.sonar.server.rule.*;
 import org.sonar.server.rule.ws.*;
 import org.sonar.server.rule2.RegisterRules;
@@ -340,6 +336,7 @@ class ServerComponents {
     pico.addSingleton(org.sonar.server.rule2.ws.ShowAction.class);
     pico.addSingleton(TagsAction.class);
     pico.addSingleton(SetTagsAction.class);
+    pico.addSingleton(org.sonar.server.rule2.ws.AppAction.class);
 
     // rule tags
     pico.addSingleton(ESRuleTags.class);
