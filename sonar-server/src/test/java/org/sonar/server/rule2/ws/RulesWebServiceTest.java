@@ -111,7 +111,7 @@ public class RulesWebServiceTest {
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules2", "search");
     WsTester.Result result = request.execute();
 
-    //TODO make JSON assertions here.
+    result.assertJson(this.getClass(),"search_2_rules.json");
   }
 
   @Test
@@ -135,8 +135,7 @@ public class RulesWebServiceTest {
     request.setParam("q","S001");
     WsTester.Result result = request.execute();
 
-    //TODO make JSON assertions here.
-
+    result.assertJson(this.getClass(),"search_active_rules.json");
   }
 
   @Test

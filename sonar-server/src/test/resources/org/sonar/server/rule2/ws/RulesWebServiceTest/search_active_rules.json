@@ -11,25 +11,14 @@
         "severity": "INFO",
         "tags": [],
         "sysTags": [],
-        "params": [
-            {
-                "key": "my_var",
-                "desc": "My small description",
-                "defaultValue": "some value"
-            }
-        ],
+        "params": [],
         "actives": [
             {
                 "key": "My Profile:java:java:S001",
                 "inherit": "none",
                 "override": false,
                 "severity": "BLOCKER",
-                "params": [
-                    {
-                        "key": "my_var",
-                        "value": "The VALUE"
-                    }
-                ]
+                "params": []
             }
         ]
     }

@@ -1,0 +1,32 @@
+{"total": 2, "rules": [
+    {
+        "key": "javascript:S002",
+        "repo": "javascript",
+        "lang": "js",
+        "name": "Rule S002",
+        "htmlDesc": "Description S002",
+        "status": "READY",
+        "template": false,
+        "internalKey": "InternalKeyS002",
+        "severity": "INFO",
+        "tags": [],
+        "sysTags": [],
+        "params": [],
+        "actives": []
+    },
+    {
+        "key": "javascript:S001",
+        "repo": "javascript",
+        "lang": "js",
+        "name": "Rule S001",
+        "htmlDesc": "Description S001",
+        "status": "READY",
+        "template": false,
+        "internalKey": "InternalKeyS001",
+        "severity": "INFO",
+        "tags": [],
+        "sysTags": [],
+        "params": [],
+        "actives": []
+    }
+]}

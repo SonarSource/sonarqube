@@ -210,7 +210,6 @@ public class SearchAction implements RequestHandler {
       json
         .prop("key", rule.key().toString())
         .prop("repo", rule.key().repository())
-        .prop("slug", rule.key().rule())
         .prop("lang", rule.language())
         .prop("name", rule.name())
         .prop("htmlDesc", rule.htmlDescription())
