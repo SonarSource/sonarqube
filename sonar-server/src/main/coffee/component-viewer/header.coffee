@@ -22,6 +22,16 @@ define [
     events:
       'click @ui.expandLinks': 'showExpandedBar'
 
+      'click .js-toggle-issues': 'toggleIssues'
+      'click .js-toggle-coverage': 'toggleCoverage'
+      'click .js-toggle-duplications': 'toggleDuplications'
+      'click .js-toggle-scm': 'toggleSCM'
+
+
+    initialize: (options) ->
+#      @listenTo options.main.settings, 'change', @changeSettings
+      options.main.settings.on 'change', => @changeSettings()
+
 
     onRender: ->
       @delegateEvents()
@@ -39,6 +49,39 @@ define [
         @ui.expandedBars.hide()
         if scope
           @ui.expandedBars.filter("[data-scope=#{scope}]").show()
+
+
+    changeSettings: ->
+      @$('.js-toggle-issues').toggleClass 'active', @options.main.settings.get 'issues'
+      @$('.js-toggle-coverage').toggleClass 'active', @options.main.settings.get 'coverage'
+      @$('.js-toggle-duplications').toggleClass 'active', @options.main.settings.get 'duplications'
+      @$('.js-toggle-scm').toggleClass 'active', @options.main.settings.get 'scm'
+
+
+    toggleSetting: (e, show, hide) ->
+      @showBlocks = []
+      active = $(e.currentTarget).is '.active'
+      if active then hide.call @options.main else show.call @options.main
+
+
+    toggleIssues: (e) ->
+      @toggleSetting e, @options.main.showIssues, @options.main.hideIssues
+
+
+    toggleCoverage: (e) ->
+      @toggleSetting e, @options.main.showCoverage, @options.main.hideCoverage
+
+
+    toggleDuplications: (e) ->
+      @toggleSetting e, @options.main.showDuplications, @options.main.hideDuplications
+
+
+    toggleSCM: (e) ->
+      @toggleSetting e, @options.main.showSCM, @options.main.hideSCM
+
+
+    toggleWorkspace: (e) ->
+      @toggleSetting e, @options.main.showWorkspace, @options.main.hideWorkspace
 
 
     serializeData: ->

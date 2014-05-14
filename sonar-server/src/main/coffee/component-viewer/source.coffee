@@ -25,16 +25,11 @@ define [
     expandTemplate: Templates['code-expand']
 
     LINES_AROUND_ISSUE = 4
+    LINES_AROUND_COVERED_LINE = 1
     EXPAND_LINES = 20
 
 
     events:
-      'click .js-toggle-settings': 'toggleSettings'
-      'click .js-toggle-measures': 'toggleMeasures'
-      'change #source-issues': 'toggleIssues'
-      'change #source-coverage': 'toggleCoverage'
-      'change #source-duplications': 'toggleDuplications'
-      'change #source-workspace': 'toggleWorkspace'
       'click .coverage-tests': 'showCoveragePopup'
 
       'click .duplication-exists': 'showDuplicationPopup'
@@ -103,29 +98,6 @@ define [
       row.toggleClass 'component-viewer-header-full'
 
 
-    toggleSetting: (e, show, hide) ->
-      @showBlocks = []
-      active = $(e.currentTarget).is ':checked'
-      @showSettings = true
-      if active then show.call @options.main else hide.call @options.main
-
-
-    toggleIssues: (e) ->
-      @toggleSetting e, @options.main.showIssues, @options.main.hideIssues
-
-
-    toggleCoverage: (e) ->
-      @toggleSetting e, @options.main.showCoverage, @options.main.hideCoverage
-
-
-    toggleDuplications: (e) ->
-      @toggleSetting e, @options.main.showDuplications, @options.main.hideDuplications
-
-
-    toggleWorkspace: (e) ->
-      @toggleSetting e, @options.main.showWorkspace, @options.main.hideWorkspace
-
-
     showCoveragePopup: (e) ->
       e.stopPropagation()
       $('body').click()
@@ -186,94 +158,68 @@ define [
       popup.render()
 
 
-    getLineCoverage: (line) ->
+    augmentWithCoverage: (source) ->
       coverage = @model.get 'coverage'
-
-      lineCoverage = coverage? && coverage[line]? && coverage[line]
-      lineCoverage = +lineCoverage if _.isString lineCoverage
-
-      lineCoverageStatus = null
-      if _.isNumber lineCoverage
-        lineCoverageStatus = 'red' if lineCoverage == 0
-        lineCoverageStatus = 'green' if lineCoverage > 0
-
-      coverage: lineCoverage
-      coverageStatus: lineCoverageStatus
-
-
-    getLineCoverageConditions: (line) ->
-      coverageConditions = @model.get 'coverageConditions'
-      conditions = @model.get 'conditions'
-
-      lineCoverageConditions = coverageConditions? && coverageConditions[line]? && coverageConditions[line]
-      lineCoverageConditions = +lineCoverageConditions if _.isString lineCoverageConditions
-      lineConditions = conditions? && conditions[line]? && conditions[line]
-      lineConditions = +lineConditions if _.isString lineConditions
-
-      lineCoverageConditionsStatus = null
-      if _.isNumber(lineCoverageConditions) && _.isNumber(conditions)
-        lineCoverageConditionsStatus = 'red' if lineCoverageConditions == 0
-        lineCoverageConditionsStatus = 'orange' if lineCoverageConditions > 0 && lineCoverageConditions < lineConditions
-        lineCoverageConditionsStatus = 'green' if lineCoverageConditions == lineConditions
-
-      coverageConditions: lineCoverageConditions
-      conditions: lineConditions
-      coverageConditionsStatus: lineCoverageConditionsStatus
-
-
-    getLineDuplications: (line) ->
-      duplications = @model.get('duplications') || []
-      lineDuplications = duplications.map (d) ->
-        d.from <= line && (d.from + d.count) > line
-
-      duplications: lineDuplications
+      if coverage
+        coverage.forEach (s) ->
+          line = source[s[0] - 1]
+          line.coverage =
+            covered: s[1]
+            testCases: s[2]
+            branches: s[3]
+            coveredBranches: s[4]
+          if line.coverage.branches? && line.coverage.coveredBranches?
+            line.coverage.branchCoverageStatus = 'green' if line.coverage.branches == line.coverage.coveredBranches
+            line.coverage.branchCoverageStatus = 'orange' if line.coverage.branches > line.coverage.coveredBranches
+            line.coverage.branchCoverageStatus = 'red' if line.coverage.coveredBranches == 0
+      source
 
 
     augmentWithSCM: (source) ->
       scm = @model.get('scm') || []
       scm.forEach (s) ->
-        line = source[s[0]]
+        line = source[s[0] - 1]
         line.scm = author: s[1], date: s[2]
       source
 
 
-    augmentWithShow: (sourceLine) ->
-      show = false
-      line = sourceLine.lineNumber
+    augmentWithShow: (source) ->
+      source.forEach (sourceLine) =>
+        show = false
+        line = sourceLine.lineNumber
 
-      @showBlocks.forEach (block) ->
-        if block.from <= line && block.to >= line
-          show = true
+        @showBlocks.forEach (block) ->
+          if block.from <= line && block.to >= line
+            show = true
 
-      if @options.main.settings.get('issues') && !show
-        @model.get('issues')?.forEach (issue) ->
-          if issue.line?
-            if (issue.line - LINES_AROUND_ISSUE) <= line && (issue.line + LINES_AROUND_ISSUE) >= line
+        if @options.main.settings.get('issues') && !show
+          @model.get('issues')?.forEach (issue) ->
+            currentLine = issue.line || 0
+            if (currentLine - LINES_AROUND_ISSUE) <= line && (currentLine + LINES_AROUND_ISSUE) >= line
               show = true
 
-      if @options.main.settings.get('coverage') && !show
-        show = true if sourceLine.coverageStatus
+        if @options.main.settings.get('coverage') && !show
+          @model.get('coverage')?.forEach (s) ->
+            currentLine = s[0]
+            if (currentLine - LINES_AROUND_COVERED_LINE) <= line && (currentLine + LINES_AROUND_COVERED_LINE) >= line
+              show = true
 
-      if @options.main.settings.get('duplications') && !show
-        sourceLine.duplications.forEach (d) ->
-          show = true if d
-
-      _.extend sourceLine, show: show
+        _.extend sourceLine, show: show
+      source
 
 
     prepareSource: ->
       source = @model.get 'source'
       source = _.map source, (item) =>
         line = item[0]
-        base = lineNumber: line, code: item[1]
-        if @options.main.settings.get('coverage')
-          _.extend base, @getLineCoverage(line), @getLineCoverageConditions(line)
-        if @options.main.settings.get('duplications')
-          _.extend base, @getLineDuplications(line)
-        @augmentWithShow base
-      if @options.main.settings.get('scm')
+        lineNumber: line, code: item[1]
+
+      if @options.main.settings.get 'coverage'
+        source = @augmentWithCoverage source
+      if @options.main.settings.get 'scm'
         source = @augmentWithSCM source
-      source
+
+      @augmentWithShow source
 
 
     getStatColumnsCount: ->

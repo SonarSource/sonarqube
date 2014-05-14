@@ -55,13 +55,13 @@ input[type=button] {
   outline: none;
   .trans(border-color);
 
-  &:hover {
+  &:hover, &.active {
     border-color: #5281a0;
     background: #4b9fd5;
     color: #fff;
   }
 
-  &:active, &.active {
+  &:active {
     border-color: #2790c0;
     background: #78bdea;
     color: #fff;
@@ -98,6 +98,7 @@ input[type=button] {
 .button-clean,
 .button-clean:hover,
 .button-clean:focus {
+  margin: 0;
   padding: 0;
   border: none;
   background: transparent;
@@ -121,7 +122,7 @@ input[type=button] {
     font-weight: normal;
     cursor: pointer;
 
-    &:hover, &:focus {
+    &:hover, &:focus, &:active, &.active {
       z-index: 3;
     }
   }

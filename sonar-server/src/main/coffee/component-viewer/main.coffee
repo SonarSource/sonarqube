@@ -19,6 +19,7 @@ define [
   $ = jQuery
   API_COMPONENT = "#{baseUrl}/api/sources/app"
   API_SOURCES = "#{baseUrl}/api/sources/show"
+  API_COVERAGE = "#{baseUrl}/api/coverage/show"
   API_SCM = "#{baseUrl}/api/sources/scm"
 
 
@@ -35,6 +36,14 @@ define [
 
 
     initialize: (options) ->
+      @settings = new Backbone.Model
+        issues: false
+        coverage: false
+        duplications: false
+        scm: false
+        workspace: false
+      @settings.set options.settings
+
       @component = new Backbone.Model()
       @component.set options.component if options.component?
 
@@ -51,14 +60,6 @@ define [
       @headerView = new HeaderView
         model: @source
         main: @
-
-      @settings = new Backbone.Model
-        issues: false
-        coverage: false
-        duplications: false
-        scm: false
-        workspace: false
-      @settings.set options.settings
 
 
     onRender: ->
@@ -84,6 +85,10 @@ define [
     requestSCM: (key) ->
       $.get API_SCM, key: key, (data) =>
         @source.set scm: data.scm
+
+    requestCoverage: (key) ->
+      $.get API_COVERAGE, key: key, (data) =>
+        @source.set coverage: data.coverage
 
 
     extractIssues: (data) ->
@@ -115,12 +120,16 @@ define [
 
     showCoverage: ->
       @settings.set 'coverage', true
-      @render()
+      unless @source.has 'coverage'
+        @requestCoverage(@key).done => @sourceView.render()
+      else
+        @sourceView.render()
+      @sourceView.render()
 
 
     hideCoverage: ->
       @settings.set 'coverage', false
-      @render()
+      @sourceView.render()
 
 
     showWorkspace: ->
@@ -137,35 +146,35 @@ define [
       @settings.set 'issues', true
       if _.isArray(issues) && issues.length > 0
         @source.set 'issues', issues
-      @render()
+      @sourceView.render()
 
 
     hideIssues: ->
       @settings.set 'issues', false
-      @render()
+      @sourceView.render()
 
 
     showDuplications: ->
       @settings.set 'duplications', true
-      @render()
+      @sourceView.render()
 
 
     hideDuplications: ->
       @settings.set 'duplications', false
-      @render()
+      @sourceView.render()
 
 
     showSCM: ->
       @settings.set 'scm', true
-      unless @source.has 'duplications'
+      unless @source.has 'scm'
         @requestSCM(@key).done => @sourceView.render()
       else
-        @render()
+        @sourceView.render()
 
 
     hideSCM: ->
       @settings.set 'scm', false
-      @render()
+      @sourceView.render()
 
 
     addTransition: (key, transition, optionsForCurrent, options) ->

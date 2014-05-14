@@ -97,3 +97,14 @@
 <div data-scope="duplications" class="component-viewer-header-expanded-bar">
   {{> '_duplications-header'}}
 </div>
+
+
+
+<div class="component-viewer-header-decoration">
+  <div class="button-group">
+    <button class="js-toggle-issues {{#if settings.issues}}active{{/if}}">Issues</button>
+    <button class="js-toggle-coverage {{#if settings.coverage}}active{{/if}}">Coverage</button>
+    <button class="js-toggle-duplications {{#if settings.duplications}}active{{/if}}">Duplications</button>
+    <button class="js-toggle-scm {{#if settings.scm}}active{{/if}}">SCM</button>
+  </div>
+</div>

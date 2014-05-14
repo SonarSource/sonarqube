@@ -1,5 +1,5 @@
 <table class="code">
-  <tr class="row row-hidden" data-line-number="0">
+  <tr class="row" data-line-number="0">
     {{#if settings.coverage}}
       <td class="stat coverage-tests"></td>
       <td class="stat coverage-conditions"></td>
@@ -8,7 +8,7 @@
       <td class="stat"></td>
     {{/if}}
     {{#if settings.scm}}
-      <th class="stat"></th>
+      <td class="stat"></td>
     {{/if}}
     <td class="stat lid"></td>
     <td class="line"></td>
@@ -16,26 +16,8 @@
 
   {{#each source}}
     {{#if show}}
-      <tr class="row {{#if ../../settings.coverage}}{{#if coverageStatus}}coverage-{{coverageStatus}}{{/if}}{{/if}}"
+      <tr class="row"
           data-line-number="{{lineNumber}}">
-
-        {{#if ../../settings.coverage}}
-          <td class="stat coverage-tests">
-            {{#if coverage}}
-              <span title="Line is covered by {{coverage}} tests">{{coverage}}</span>
-            {{/if}}
-          </td>
-
-          <td class="stat coverage-conditions">
-              {{#if coverageConditions}}
-                {{#if conditions}}
-                  <span title="{{coverageConditions}} branches are covered by tests">
-                    {{coverageConditions}}/{{conditions}}
-                  </span>
-                {{/if}}
-              {{/if}}
-          </td>
-        {{/if}}
 
         {{#if ../../settings.duplications}}
           <td class="stat duplications">
@@ -50,6 +32,22 @@
             {{#if scm}}
               <span class="scm-date">{{scm.date}}</span>
               <span class="scm-author" title="{{scm.author}}">{{scm.author}}</span>
+            {{/if}}
+          </td>
+        {{/if}}
+
+        {{#if ../../settings.coverage}}
+          <td class="stat coverage-tests {{#if coverage}}coverage-{{#if coverage.covered}}green{{else}}red{{/if}}{{/if}}">
+            {{#if coverage}}
+              <span>{{coverage.testCases}}</span>
+            {{/if}}
+          </td>
+
+          <td class="stat coverage-branches {{#if coverage}}{{#if coverage.branchCoverageStatus}}coverage-{{coverage.branchCoverageStatus}}{{/if}}{{/if}}">
+            {{#if coverage}}
+              {{#if coverage.branches}}
+                <span>{{coverage.coveredBranches}}/{{coverage.branches}}</span>
+              {{/if}}
             {{/if}}
           </td>
         {{/if}}

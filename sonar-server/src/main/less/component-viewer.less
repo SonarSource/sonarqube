@@ -125,8 +125,6 @@
     vertical-align: top;
     min-width: 12px;
     padding: 1px 5px;
-    border-left: 1px solid @barBorderColor;
-    border-right: 1px solid @barBorderColor;
     background-color: @barBackgroundColor;
     color: #888;
     font-size: 11px;
@@ -209,22 +207,21 @@
 
   }
 
-  .code .row {
+  .code .stat {
 
-    &.coverage-green td.stat {
+    &.coverage-green {
       background-color: lighten(@green, 15%);
-      border-color: lighten(@green, 7%);
       color: @baseFontColor;
-
-      &.lid { border-right-color: lighten(@green, 15%); }
     }
 
-    &.coverage-red td.stat {
-      background-color: lighten(@red, 15%);
-      border-color: lighten(@red, 10%);
+    &.coverage-orange {
+      background-color: lighten(@orange, 15%);
       color: @baseFontColor;
+    }
 
-      &.lid { border-right-color: lighten(@red, 15%); }
+    &.coverage-red {
+      background-color: lighten(@red, 15%);
+      color: @baseFontColor;
     }
   }
 
@@ -423,6 +420,10 @@
 
     &:hover { background-color: @barBackgroundColor; }
   }
+}
+
+.component-viewer-header-decoration {
+  margin-top: 10px;
 }
 
 
