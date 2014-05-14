@@ -96,7 +96,8 @@ public class RulesWebServiceTest {
     System.out.println("request.toString() = " + request.toString());
 
     WsTester.Result result = request.execute();
-    assertThat(result.outputAsString()).isEqualTo("{\"total\":0,\"rules\":[]}");
+
+    result.assertJson(this.getClass(), "search_no_rules.json");
   }
 
   @Test

@@ -1,4 +1,4 @@
-{"total": 2, "rules": [
+{"total": 2, "p":1,"ps":25, "rules": [
     {
         "key": "javascript:S002",
         "repo": "javascript",

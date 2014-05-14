@@ -195,6 +195,7 @@ public class SearchAction implements RequestHandler {
 
     JsonWriter json = response.newJsonWriter().beginObject();
     writeStatistics(results, json);
+    writeRequestParams(request, json);
     writeRules(results, json);
     json.endObject();
     json.close();
@@ -204,6 +205,10 @@ public class SearchAction implements RequestHandler {
     json.prop("total", results.getTotal());
   }
 
+  private void writeRequestParams(Request request,JsonWriter json ){
+    json.prop(PARAM_PAGE, request.mandatoryParamAsInt(PARAM_PAGE));
+    json.prop(PARAM_PAGE_SIZE, request.mandatoryParamAsInt(PARAM_PAGE_SIZE));
+  }
   private void writeRules(RuleResult result, JsonWriter json) {
 
     json.name("rules").beginArray();

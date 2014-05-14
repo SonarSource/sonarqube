@@ -1,4 +1,4 @@
-{"total": 1, "rules": [
+{"total": 1,"p":1,"ps":25, "rules": [
     {
         "key": "java:S001",
         "repo": "java",
