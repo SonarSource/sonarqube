@@ -1,0 +1,37 @@
+{"total": 1, "rules": [
+    {
+        "key": "java:S001",
+        "repo": "java",
+        "slug": "S001",
+        "lang": "js",
+        "name": "Rule S001",
+        "htmlDesc": "Description S001",
+        "status": "READY",
+        "template": false,
+        "internalKey": "InternalKeyS001",
+        "severity": "INFO",
+        "tags": [],
+        "sysTags": [],
+        "params": [
+            {
+                "key": "my_var",
+                "desc": "My small description",
+                "defaultValue": "some value"
+            }
+        ],
+        "actives": [
+            {
+                "key": "My Profile:java:java:S001",
+                "inherit": "none",
+                "override": false,
+                "severity": "BLOCKER",
+                "params": [
+                    {
+                        "key": "my_var",
+                        "value": "The VALUE"
+                    }
+                ]
+            }
+        ]
+    }
+]}
