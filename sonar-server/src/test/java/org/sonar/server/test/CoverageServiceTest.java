@@ -93,19 +93,19 @@ public class CoverageServiceTest {
   }
 
   @Test
-  public void get_coverered_lines() throws Exception {
+  public void get_test_cases_by_lines() throws Exception {
     MutableTestable testable = mock(MutableTestable.class);
     when(snapshotPerspectives.as(MutableTestable.class, COMPONENT_KEY)).thenReturn(testable);
 
-    service.getCoveredLines(COMPONENT_KEY);
+    service.getTestCasesByLines(COMPONENT_KEY);
     verify(testable).testCasesByLines();
   }
 
   @Test
-  public void not_get_coverered_lines_if_no_testable() throws Exception {
+  public void not_get_test_cases_by_lines_if_no_testable() throws Exception {
     when(snapshotPerspectives.as(MutableTestable.class, COMPONENT_KEY)).thenReturn(null);
 
-    assertThat(service.getCoveredLines(COMPONENT_KEY)).isNull();
+    assertThat(service.getTestCasesByLines(COMPONENT_KEY)).isNull();
   }
 
 }

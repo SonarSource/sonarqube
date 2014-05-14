@@ -76,7 +76,7 @@ public class CoverageService implements ServerComponent {
    * Warning - does not check permission
    */
   @CheckForNull
-  public Map<Integer, Integer> getCoveredLines(String fileKey) {
+  public Map<Integer, Integer> getTestCasesByLines(String fileKey) {
     Testable testable = snapshotPerspectives.as(MutableTestable.class, fileKey);
     if (testable != null) {
       return testable.testCasesByLines();
