@@ -46,7 +46,8 @@ import static org.fest.assertions.Assertions.assertThat;
 public class RuleIndexMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester()
+    .setProperty("sonar.es.http.port","9200");
 
   MyBatis myBatis = tester.get(MyBatis.class);
   RuleDao dao = tester.get(RuleDao.class);
@@ -63,6 +64,36 @@ public class RuleIndexMediumTest {
   public void after() {
     dbSession.close();
   }
+
+  @Test
+  public void insert_rule() throws InterruptedException {
+    RuleDto ruleDto = newRuleDto(RuleKey.of("javascript", "S001"));
+    dao.insert(ruleDto, dbSession);
+    dbSession.commit();
+
+    index.refresh();
+
+
+    Rule rule = index.getByKey(RuleKey.of("javascript", "S001"));
+
+    System.out.println("rule = " + rule);
+
+    assertThat(rule.htmlDescription()).isEqualTo(ruleDto.getDescription());
+    assertThat(rule.key()).isEqualTo(ruleDto.getKey());
+//
+//    assertThat(rule.debtSubCharacteristicKey())
+//      .isEqualTo(ruleDto.getDefaultSubCharacteristicId().toString());
+    assertThat(rule.debtRemediationFunction().type().name())
+      .isEqualTo(ruleDto.getRemediationFunction());
+
+
+//
+//    assertThat(rule.tags()).containsExactly(ruleDto.getTags());
+//    assertThat(rule.systemTags()).containsExactly(ruleDto.getSystemTags());
+
+
+  }
+
 
   @Test
   public void facet_test_with_repository() {
@@ -392,6 +423,7 @@ public class RuleIndexMediumTest {
     assertThat(results.getHits()).hasSize(1);
   }
 
+
   private RuleDto newRuleDto(RuleKey ruleKey) {
     return new RuleDto()
       .setRuleKey(ruleKey.rule())
@@ -403,7 +435,7 @@ public class RuleIndexMediumTest {
       .setSeverity(Severity.INFO)
       .setCardinality(Cardinality.SINGLE)
       .setLanguage("js")
-      .setRemediationFunction("linear")
+      .setRemediationFunction("LINEAR")
       .setDefaultRemediationFunction("linear_offset")
       .setRemediationCoefficient("1h")
       .setDefaultRemediationCoefficient("5d")

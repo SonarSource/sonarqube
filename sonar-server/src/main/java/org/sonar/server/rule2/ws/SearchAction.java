@@ -230,6 +230,16 @@ public class SearchAction implements RequestHandler {
         .prop("severity", rule.severity())
         .name("tags").beginArray().values(rule.tags()).endArray()
         .name("sysTags").beginArray().values(rule.systemTags()).endArray();
+      if(rule.debtSubCharacteristicKey() != null && !rule.debtSubCharacteristicKey().isEmpty()){
+        json
+          .prop("debtSubCharacteristicKey", rule.debtSubCharacteristicKey());
+      }
+      if(rule.debtRemediationFunction() != null){
+        json
+          .prop("debtRemediationFunctionType", rule.debtRemediationFunction().type().name())
+          .prop("debtRemediationFunctionCoefficient", rule.debtRemediationFunction().coefficient())
+          .prop("debtRemediationFunctionOffset", rule.debtRemediationFunction().offset());
+      }
       json.name("params").beginArray();
       for (RuleParam param : rule.params()) {
         json

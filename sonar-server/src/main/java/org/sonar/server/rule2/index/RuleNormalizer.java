@@ -49,7 +49,10 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     UPDATED_AT("updatedAt"),
     PARAMS("params"),
     ACTIVE("active"),
-    DEBT_FUNCTION("debtRemFunction");
+    DEBT_FUNCTION_TYPE("debtFunction"),
+    DEBT_FUNCTION_COEFFICIENT("debtCoefficient"),
+    DEBT_FUNCTION_OFFSET("debtOffset"),
+    SUB_CHARACTERISTIC("subCharacteristicKey");
 
     private final String key;
 
@@ -118,7 +121,31 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       indexField(RuleField.LANGUAGE.key(), rule.getLanguage(), document);
       indexField(RuleField.INTERNAL_KEY.key(), rule.getConfigKey(), document);
       indexField(RuleField.TEMPLATE.key(), rule.getCardinality() == Cardinality.MULTIPLE, document);
-      indexField(RuleField.DEBT_FUNCTION.key(), rule.getDefaultRemediationFunction(),document);
+
+      //TODO Change on key when available
+      String subChar = null;
+      if(rule.getDefaultSubCharacteristicId() != null){
+        subChar = rule.getDefaultSubCharacteristicId().toString();
+      }
+      if(rule.getSubCharacteristicId() != null){
+        subChar = rule.getSubCharacteristicId().toString();
+      }
+      indexField(RuleField.SUB_CHARACTERISTIC.key(),subChar,document);
+
+      String dType = null, dCoefficient = null, dOffset = null;
+      if(rule.getDefaultRemediationFunction() != null){
+        dType = rule.getDefaultRemediationFunction();
+        dCoefficient = rule.getDefaultRemediationCoefficient();
+        dOffset= rule.getDefaultRemediationOffset();
+      }
+      if(rule.getRemediationFunction() != null){
+        dType = rule.getRemediationFunction();
+        dCoefficient = rule.getRemediationCoefficient();
+        dOffset= rule.getRemediationOffset();
+      }
+      indexField(RuleField.DEBT_FUNCTION_TYPE.key(), dType, document);
+      indexField(RuleField.DEBT_FUNCTION_COEFFICIENT.key(), dCoefficient, document);
+      indexField(RuleField.DEBT_FUNCTION_OFFSET.key(), dOffset, document);
 
 
 

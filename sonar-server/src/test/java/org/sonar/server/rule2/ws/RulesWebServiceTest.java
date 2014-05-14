@@ -95,7 +95,6 @@ public class RulesWebServiceTest {
 
     MockUserSession.set();
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules2", "search");
-    System.out.println("request.toString() = " + request.toString());
 
     WsTester.Result result = request.execute();
 
@@ -116,6 +115,26 @@ public class RulesWebServiceTest {
 
     result.assertJson(this.getClass(),"search_2_rules.json");
   }
+
+
+  @Test
+  public void search_debt_rules() throws Exception {
+    ruleDao.insert(newRuleDto(RuleKey.of("javascript", "S001"))
+      .setDefaultRemediationCoefficient("DefaultCoef")
+      .setDefaultRemediationFunction("DefaultFunction")
+      .setDefaultRemediationCoefficient("DefaultCoef")
+      .setDefaultSubCharacteristicId(1), session);
+    session.commit();
+
+    tester.get(RuleService.class).refresh();
+
+    MockUserSession.set();
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules2", "search");
+    WsTester.Result result = request.execute();
+
+    result.assertJson(this.getClass(),"search_debt_rule.json");
+  }
+
 
   @Test
   public void search_active_rules() throws Exception {

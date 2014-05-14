@@ -1,7 +1,7 @@
 {"total": 1, "p": 1, "ps": 25, "rules": [
     {
-        "key": "java:S001",
-        "repo": "java",
+        "key": "javascript:S001",
+        "repo": "javascript",
         "lang": "js",
         "name": "Rule S001",
         "htmlDesc": "Description S001",
@@ -11,17 +11,11 @@
         "severity": "INFO",
         "tags": [],
         "sysTags": [],
+        "debtSubCharacteristicKey": "1",
         "debtRemediationFunctionType": "LINEAR",
         "debtRemediationFunctionCoefficient": "1h",
         "debtRemediationFunctionOffset": "5min",
         "params": [],
-        "actives": [
-            {
-                "key": "My Profile:java:java:S001",
-                "inherit": "NONE",
-                "severity": "BLOCKER",
-                "params": []
-            }
-        ]
+        "actives": []
     }
 ]}

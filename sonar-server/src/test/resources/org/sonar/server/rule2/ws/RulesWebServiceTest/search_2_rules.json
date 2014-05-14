@@ -1,4 +1,4 @@
-{"total": 2, "p":1,"ps":25, "rules": [
+{"total": 2, "p": 1, "ps": 25, "rules": [
     {
         "key": "javascript:S002",
         "repo": "javascript",
@@ -11,6 +11,9 @@
         "severity": "INFO",
         "tags": [],
         "sysTags": [],
+        "debtRemediationFunctionType": "LINEAR",
+        "debtRemediationFunctionCoefficient": "1h",
+        "debtRemediationFunctionOffset": "5min",
         "params": [],
         "actives": []
     },
@@ -26,6 +29,9 @@
         "severity": "INFO",
         "tags": [],
         "sysTags": [],
+        "debtRemediationFunctionType": "LINEAR",
+        "debtRemediationFunctionCoefficient": "1h",
+        "debtRemediationFunctionOffset": "5min",
         "params": [],
         "actives": []
     }

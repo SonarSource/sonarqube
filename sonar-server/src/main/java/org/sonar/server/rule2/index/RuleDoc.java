@@ -160,14 +160,34 @@ class RuleDoc implements Rule {
 
   @Override
   @CheckForNull
-  public String debtSubCharacteristicKey() {
-    throw new UnsupportedOperationException("TODO");
+  public String debtSubCharacteristicKey(){
+    return (String) fields.get(RuleField.SUB_CHARACTERISTIC.key());
   }
 
   @Override
   @CheckForNull
   public DebtRemediationFunction debtRemediationFunction() {
-    throw new UnsupportedOperationException("TODO");
+    final String function = (String) this.fields.get(RuleField.DEBT_FUNCTION_TYPE.key());
+    if(function == null || function.isEmpty()){
+      return null;
+    } else {
+      return new DebtRemediationFunction() {
+        @Override
+        public Type type() {
+          return Type.valueOf(function.toUpperCase());
+        }
+
+        @Override
+        public String coefficient() {
+          return (String) fields.get(RuleField.DEBT_FUNCTION_COEFFICIENT.key());
+        }
+
+        @Override
+        public String offset() {
+          return (String) fields.get(RuleField.DEBT_FUNCTION_OFFSET.key());
+        }
+      };
+    }
   }
 
   @Override

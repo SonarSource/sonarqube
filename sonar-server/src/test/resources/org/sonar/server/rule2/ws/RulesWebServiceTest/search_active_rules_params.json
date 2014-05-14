@@ -11,6 +11,9 @@
         "severity": "INFO",
         "tags": [],
         "sysTags": [],
+        "debtRemediationFunctionType": "LINEAR",
+        "debtRemediationFunctionCoefficient": "1h",
+        "debtRemediationFunctionOffset": "5min",
         "params": [
             {
                 "key": "my_var",
