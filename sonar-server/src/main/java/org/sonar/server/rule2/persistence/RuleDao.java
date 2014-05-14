@@ -32,8 +32,6 @@ import org.sonar.core.rule.RuleMapper;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.BaseDao;
 import org.sonar.server.rule2.index.RuleIndexDefinition;
-import org.sonar.server.search.action.EmbeddedIndexAction;
-import org.sonar.server.search.action.IndexAction;
 
 import javax.annotation.CheckForNull;
 import java.sql.Timestamp;
@@ -57,6 +55,10 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
   @Override
   public RuleDto doGetByKey(RuleKey key, DbSession session) {
     return mapper(session).selectByKey(key);
+  }
+
+  public RuleDto getByName(String name, DbSession session) {
+    return mapper(session).selectByName(name);
   }
 
   @Override
@@ -117,35 +119,30 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
     return mapper(session).selectEnablesAndNonManual();
   }
 
-  public RuleDto getByName(String name, DbSession session) {
-    //TODO change selectByName to return a list
-    return mapper(session).selectByName(name);
-  }
-
   /**
    * Nested DTO RuleParams
    */
 
-  public void addRuleParam(RuleDto rule, RuleParamDto paramDto, DbSession session) {
+  public void addRuleParam(RuleDto rule, RuleParamDto ruleParam, DbSession session) {
     Preconditions.checkNotNull(rule.getId(), "Rule id must be set");
-    paramDto.setRuleId(rule.getId());
-    mapper(session).insertParameter(paramDto);
-    session.enqueue(new EmbeddedIndexAction<RuleKey>(this.getIndexType(), IndexAction.Method.INSERT, paramDto, rule.getKey()));
+    ruleParam.setRuleId(rule.getId());
+    mapper(session).insertParameter(ruleParam);
+    this.enqueueInsert(ruleParam, rule.getKey(), session);
   }
 
-  public RuleParamDto updateRuleParam(RuleDto rule, RuleParamDto paramDto, DbSession session) {
+  public RuleParamDto updateRuleParam(RuleDto rule, RuleParamDto ruleParam, DbSession session) {
     Preconditions.checkNotNull(rule.getId(), "Rule id must be set");
-    Preconditions.checkNotNull(paramDto.getId(), "Param is not yet persisted must be set");
-    paramDto.setRuleId(rule.getId());
-    session.enqueue(new EmbeddedIndexAction<RuleKey>(this.getIndexType(), IndexAction.Method.UPDATE, paramDto, rule.getKey()));
-    mapper(session).updateParameter(paramDto);
-    return paramDto;
+    Preconditions.checkNotNull(ruleParam.getId(), "Param is not yet persisted must be set");
+    ruleParam.setRuleId(rule.getId());
+    mapper(session).updateParameter(ruleParam);
+    this.enqueueUpdate(ruleParam, rule.getKey(), session);
+    return ruleParam;
   }
 
-  public void removeRuleParam(RuleDto rule, RuleParamDto param, DbSession session) {
-    Preconditions.checkNotNull(param.getId(), "Param is not persisted");
-    mapper(session).deleteParameter(param.getId());
-    session.enqueue(new EmbeddedIndexAction<RuleKey>(this.getIndexType(), IndexAction.Method.DELETE, param, rule.getKey()));
+  public void removeRuleParam(RuleDto rule, RuleParamDto ruleParam, DbSession session) {
+    Preconditions.checkNotNull(ruleParam.getId(), "Param is not persisted");
+    mapper(session).deleteParameter(ruleParam.getId());
+    this.enqueueDelete(ruleParam, rule.getKey(), session);
   }
 
   /**

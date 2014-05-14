@@ -20,7 +20,9 @@
 
 package org.sonar.server.qualityprofile.persistence;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
@@ -33,18 +35,24 @@ import org.sonar.server.db.BaseDao;
 import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexDefinition;
 import org.sonar.server.rule2.persistence.RuleDao;
-import org.sonar.server.search.action.EmbeddedIndexAction;
-import org.sonar.server.search.action.IndexAction;
 
 import java.util.List;
 
 public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, ActiveRuleKey> {
 
+  //TODO remove once key is finalized (used only to get id for SQL statement)
   private final RuleDao ruleDao;
   private final QualityProfileDao profileDao;
 
   public ActiveRuleDao(QualityProfileDao profileDao, RuleDao ruleDao) {
     super(new ActiveRuleIndexDefinition(), ActiveRuleMapper.class);
+    this.ruleDao = ruleDao;
+    this.profileDao = profileDao;
+  }
+
+  @VisibleForTesting
+  ActiveRuleDao(QualityProfileDao profileDao, RuleDao ruleDao, System2 system) {
+    super(new ActiveRuleIndexDefinition(), ActiveRuleMapper.class, system);
     this.ruleDao = ruleDao;
     this.profileDao = profileDao;
   }
@@ -91,33 +99,39 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
   @Override
   protected void doDeleteByKey(ActiveRuleKey key, DbSession session) {
     ActiveRuleDto rule = this.getByKey(key,session);
-    //TODO write the SQL statement for deleteByKey and deprecate deleteById.
     mapper(session).delete(rule.getId());
   }
 
-  public List<ActiveRuleParamDto> findParamsByActiveRule(ActiveRuleDto dto, DbSession session) {
-    Preconditions.checkArgument(dto.getId() != null, "ActiveRule is not persisted");
-    return mapper(session).selectParamsByActiveRuleId(dto.getId());
-  }
-
-  public ActiveRuleParamDto addParam(ActiveRuleDto activeRule, ActiveRuleParamDto paramDto, DbSession session) {
-    Preconditions.checkState(activeRule.getId() != null, "ActiveRule id is not yet persisted");
-    Preconditions.checkState(paramDto.getId() == null, "ActiveRuleParam is already persisted");
-    Preconditions.checkState(paramDto.getRulesParameterId() != null, "Rule param is not persisted");
-
-    paramDto.setActiveRuleId(activeRule.getId());
-    mapper(session).insertParameter(paramDto);
-    session.enqueue(new EmbeddedIndexAction<ActiveRuleKey>(this.getIndexType(), IndexAction.Method.INSERT, paramDto, activeRule.getKey()));
-    return paramDto;
-  }
+  /**
+   * Finder methods for Rules
+   */
 
   public List<ActiveRuleDto> findByRule(RuleDto rule, DbSession dbSession) {
     Preconditions.checkArgument(rule.getId()!=null, "Rule is not persisted");
     return mapper(dbSession).selectByRuleId(rule.getId());
   }
 
+  /**
+   * Nested DTO ActiveRuleParams
+   */
+
+  public ActiveRuleParamDto addParam(ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam, DbSession session) {
+    Preconditions.checkState(activeRule.getId() != null, "ActiveRule id is not yet persisted");
+    Preconditions.checkState(activeRuleParam.getId() == null, "ActiveRuleParam is already persisted");
+    Preconditions.checkState(activeRuleParam.getRulesParameterId() != null, "Rule param is not persisted");
+
+    activeRuleParam.setActiveRuleId(activeRule.getId());
+    mapper(session).insertParameter(activeRuleParam);
+    this.enqueueInsert(activeRuleParam, activeRule.getKey(), session);
+    return activeRuleParam;
+  }
+
   public void removeAllParam(ActiveRuleDto activeRule, DbSession session) {
     Preconditions.checkArgument(activeRule.getId()!=null, "ActiveRule is not persisted");
+    //TODO Optimize this
+    for(ActiveRuleParamDto activeRuleParam:this.findParamsByActiveRule(activeRule,session)){
+      this.enqueueDelete(activeRuleParam, activeRule.getKey(), session);
+    }
     mapper(session).deleteParameters(activeRule.getId());
   }
 
@@ -125,12 +139,14 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
     Preconditions.checkArgument(activeRule.getId()!=null, "ActiveRule is not persisted");
     Preconditions.checkArgument(activeRuleParam.getId()!=null, "ActiveRuleParam is not persisted");
     mapper(session).deleteParameter(activeRuleParam.getId());
+    this.enqueueDelete(activeRuleParam, activeRule.getKey(), session);
   }
 
   public void updateParam(ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam, DbSession session) {
     Preconditions.checkArgument(activeRule.getId()!=null, "ActiveRule is not persisted");
     Preconditions.checkArgument(activeRuleParam.getId()!=null, "ActiveRuleParam is not persisted");
     mapper(session).updateParameter(activeRuleParam);
+    this.enqueueUpdate(activeRuleParam, activeRule.getKey(), session);
   }
 
   public ActiveRuleParamDto getParamsByActiveRuleAndKey(ActiveRuleDto activeRule, String key, DbSession session) {
@@ -151,5 +167,14 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
   public void removeParamByProfile(QProfile profile, DbSession session) {
     //TODO synch ES for deletion
     mapper(session).deleteParametersFromProfile(profile.id());
+  }
+
+  /**
+   * Finder methods for ActiveRuleParams
+   */
+
+  public List<ActiveRuleParamDto> findParamsByActiveRule(ActiveRuleDto dto, DbSession session) {
+    Preconditions.checkArgument(dto.getId() != null, "ActiveRule is not persisted");
+    return mapper(session).selectParamsByActiveRuleId(dto.getId());
   }
 }

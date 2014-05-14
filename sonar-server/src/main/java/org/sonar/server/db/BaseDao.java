@@ -26,6 +26,7 @@ import org.sonar.core.db.Dto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.action.DtoIndexAction;
+import org.sonar.server.search.action.EmbeddedIndexAction;
 import org.sonar.server.search.action.IndexAction;
 import org.sonar.server.search.action.KeyIndexAction;
 
@@ -194,5 +195,20 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
     Preconditions.checkNotNull(key, "cannot delete Item with null key");
     doDeleteByKey(key, session);
     session.enqueue(new KeyIndexAction<K>(this.getIndexType(), IndexAction.Method.DELETE, key));
+  }
+
+  protected void enqueueUpdate(Object nestedItem, K key, DbSession session) {
+    session.enqueue(new EmbeddedIndexAction<K>(
+      this.getIndexType(), IndexAction.Method.UPDATE, nestedItem,  key));
+  }
+
+  public void enqueueDelete(Object nestedItem, K key, DbSession session) {
+    session.enqueue(new EmbeddedIndexAction<K>(
+      this.getIndexType(), IndexAction.Method.DELETE, nestedItem,  key));
+  }
+
+  public void enqueueInsert(Object nestedItem, K key, DbSession session) {
+    session.enqueue(new EmbeddedIndexAction<K>(
+      this.getIndexType(), IndexAction.Method.INSERT, nestedItem,  key));
   }
 }
