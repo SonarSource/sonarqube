@@ -36,8 +36,12 @@ public class QProfilesWsTest {
 
   @Before
   public void setUp() {
-    controller = new WsTester(new QProfilesWs(new QProfileRecreateBuiltInAction(mock(QProfileBackup.class)), new RuleActivationActions(mock(ActiveRuleService.class))))
-      .controller("api/qualityprofiles");
+    ActiveRuleService activeRuleService = mock(ActiveRuleService.class);
+    controller = new WsTester(new QProfilesWs(new QProfileRecreateBuiltInAction(
+      mock(QProfileBackup.class)),
+      new RuleActivationActions(activeRuleService),
+      new BulkRuleActivationActions(activeRuleService)
+    )).controller("api/qualityprofiles");
   }
 
   @Test
@@ -45,7 +49,7 @@ public class QProfilesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/qualityprofiles");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(3);
+    assertThat(controller.actions()).hasSize(5);
   }
 
   @Test

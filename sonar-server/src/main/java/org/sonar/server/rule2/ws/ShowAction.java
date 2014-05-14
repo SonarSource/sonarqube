@@ -20,7 +20,6 @@
 package org.sonar.server.rule2.ws;
 
 import com.google.common.io.Resources;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
@@ -52,26 +51,15 @@ public class ShowAction implements RequestHandler {
       .setHandler(this);
 
     action
-      .createParam("repo")
-      .setDescription("Repository key. It's not marked as required for backward-compatibility reasons.")
-      .setExampleValue("javascript");
-
-    action
       .createParam("key")
-      .setDescription("Rule key. The format including the repository key is deprecated " +
-        "but still supported, for example 'javascript:EmptyBlock'.")
+      .setDescription("Rule key")
       .setRequired(true)
-      .setExampleValue("EmptyBlock");
+      .setExampleValue("javascript:EmptyBlock");
   }
 
   @Override
   public void handle(Request request, Response response) {
-    String ruleKey = request.mandatoryParam("key");
-    String repoKey = request.param("repo");
-    if (repoKey == null && ruleKey.contains(":")) {
-      repoKey = StringUtils.substringBefore(ruleKey, ":");
-    }
-    Rule rule = service.getByKey(RuleKey.of(repoKey, ruleKey));
+    Rule rule = service.getByKey(RuleKey.parse(request.mandatoryParam("key")));
     if (rule == null) {
       throw new NotFoundException("Rule not found");
     }
@@ -82,8 +70,8 @@ public class ShowAction implements RequestHandler {
 
   private void writeRule(Rule rule, JsonWriter json) {
     json
+      .prop("key", rule.key().toString())
       .prop("repo", rule.key().repository())
-      .prop("key", rule.key().rule())
       .prop("lang", rule.language())
       .prop("name", rule.name())
       .prop("htmlDesc", rule.htmlDescription())

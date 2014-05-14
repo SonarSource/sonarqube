@@ -45,15 +45,10 @@ public class SetTagsAction implements RequestHandler {
       .setPost(true)
       .setHandler(this);
     setTags
-      .createParam("repo")
-      .setRequired(true)
-      .setDescription("Repository key")
-      .setExampleValue("javascript");
-    setTags
       .createParam("key")
       .setRequired(true)
       .setDescription("Rule key")
-      .setExampleValue("EmptyBlock");
+      .setExampleValue("javascript:EmptyBlock");
     setTags
       .createParam("tags")
       .setDescription("Comma-separated list of tags. Blank value is used to remove all tags.")
@@ -63,7 +58,7 @@ public class SetTagsAction implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) {
-    RuleKey key = RuleKey.of(request.mandatoryParam("repo"), request.mandatoryParam("key"));
+    RuleKey key = RuleKey.parse(request.mandatoryParam("key"));
     Set<String> tags = Sets.newHashSet(request.paramAsStrings("tags"));
     service.setTags(key, tags);
   }

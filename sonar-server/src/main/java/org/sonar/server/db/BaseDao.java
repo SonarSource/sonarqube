@@ -110,10 +110,6 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   private Class<M> mapperClass;
   private System2 system2;
 
-  protected BaseDao(IndexDefinition indexDefinition, Class<M> mapperClass) {
-    this(indexDefinition, mapperClass, System2.INSTANCE);
-  }
-
   protected BaseDao(IndexDefinition indexDefinition, Class<M> mapperClass, System2 system2) {
     this.mapperClass = mapperClass;
     this.indexDefinition = indexDefinition;

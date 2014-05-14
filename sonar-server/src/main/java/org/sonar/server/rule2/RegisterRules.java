@@ -29,6 +29,7 @@ import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
@@ -56,8 +57,6 @@ import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Register rules at server startup
- *
- * @since 4.2
  */
 public class RegisterRules implements Startable {
 
@@ -173,6 +172,7 @@ public class RegisterRules implements Startable {
       .setName(ruleDef.name())
       .setSeverity(ruleDef.severity())
       .setStatus(ruleDef.status().name())
+      .setEffortToFixDescription(ruleDef.effortToFixDescription())
       .setSystemTags(ruleDef.tags());
 
     return dbClient.ruleDao().insert(ruleDto, session);
@@ -213,6 +213,10 @@ public class RegisterRules implements Startable {
     }
     if (!StringUtils.equals(dto.getLanguage(), def.repository().language())) {
       dto.setLanguage(def.repository().language());
+      changed = true;
+    }
+    if (!StringUtils.equals(dto.getEffortToFixDescription(), def.effortToFixDescription())) {
+      dto.setEffortToFixDescription(def.effortToFixDescription());
       changed = true;
     }
     return changed;
@@ -340,21 +344,22 @@ public class RegisterRules implements Startable {
           toBeRemoved = false;
         }
       }
-      if (toBeRemoved && !Rule.STATUS_REMOVED.equals(ruleDto.getStatus())) {
+      if (toBeRemoved && !RuleStatus.REMOVED.toString().equals(ruleDto.getStatus())) {
         LOG.info(String.format("Disable rule %s", ruleDto.getKey()));
         ruleDto.setStatus(Rule.STATUS_REMOVED);
         ruleDto.setSystemTags(Collections.EMPTY_SET);
         ruleDto.setTags(Collections.EMPTY_SET);
-      }
-
-      dbClient.ruleDao().update(ruleDto, session);
-      removedRules.add(ruleDto);
-      if (removedRules.size() % 100 == 0) {
-        session.commit();
+        dbClient.ruleDao().update(ruleDto, session);
+        removedRules.add(ruleDto);
+        if (removedRules.size() % 100 == 0) {
+          session.commit();
+        }
       }
     }
 
-    session.commit();
+    if (!removedRules.isEmpty()) {
+      session.commit();
+    }
     return removedRules;
   }
 

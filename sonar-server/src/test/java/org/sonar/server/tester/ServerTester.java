@@ -85,6 +85,10 @@ public class ServerTester extends ExternalResource {
     platform.init(properties);
     platform.addComponents(components);
     platform.doStart();
+    if (!platform.isStarted()) {
+      throw new IllegalStateException("Server not started. You should check that db migrations " +
+        "are correctly declared, for example in schema-h2.sql or DatabaseVersion");
+    }
   }
 
   private File createTempDir() {

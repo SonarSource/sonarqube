@@ -20,23 +20,20 @@
 package org.sonar.server.qualityprofile.ws;
 
 import org.sonar.api.ServerComponent;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.core.qualityprofile.db.ActiveRuleKey;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.qualityprofile.ActiveRuleService;
-import org.sonar.server.qualityprofile.RuleActivation;
+import org.sonar.server.qualityprofile.BulkRuleActivation;
+import org.sonar.server.rule2.ws.SearchAction;
 
-public class RuleActivationActions implements ServerComponent {
+public class BulkRuleActivationActions implements ServerComponent {
 
   private final ActiveRuleService service;
 
-  public RuleActivationActions(ActiveRuleService service) {
+  public BulkRuleActivationActions(ActiveRuleService service) {
     this.service = service;
   }
 
@@ -47,82 +44,60 @@ public class RuleActivationActions implements ServerComponent {
 
   private void defineActivateAction(WebService.NewController controller) {
     WebService.NewAction activate = controller
-      .createAction("activate_rule")
-      .setDescription("Activate a rule on a Quality profile")
+      .createAction("activate_rules")
+      .setDescription("Bulk-activate rules on one or several Quality profiles")
+      .setPost(true)
+      .setSince("4.4")
       .setHandler(new RequestHandler() {
         @Override
         public void handle(Request request, Response response) throws Exception {
-          activate(request, response);
+          bulkActivate(request, response);
         }
-      })
-      .setPost(true)
-      .setSince("4.4");
+      });
 
-    defineActiveRuleKeyParameters(activate);
+    SearchAction.defineSearchParameters(activate);
+    defineProfileKeyParameters(activate);
 
-    activate.createParam("severity")
+    activate.createParam("activation_severity")
       .setDescription("Severity")
       .setPossibleValues(Severity.ALL);
-
-    activate.createParam("params")
-      .setDescription("Parameters");
   }
 
   private void defineDeactivateAction(WebService.NewController controller) {
     WebService.NewAction deactivate = controller
-      .createAction("deactivate_rule")
-      .setDescription("Deactivate a rule on a Quality profile")
+      .createAction("deactivate_rules")
+      .setDescription("Bulk deactivate rules on Quality profiles")
+      .setPost(true)
+      .setSince("4.4")
       .setHandler(new RequestHandler() {
         @Override
         public void handle(Request request, Response response) throws Exception {
-          deactivate(request, response);
+          bulkDeactivate(request, response);
         }
-      })
-      .setPost(true)
-      .setSince("4.4");
-    defineActiveRuleKeyParameters(deactivate);
+      });
+
+    defineProfileKeyParameters(deactivate);
   }
 
-  private void defineActiveRuleKeyParameters(WebService.NewAction action) {
-    action.createParam("profile_lang")
+  private void defineProfileKeyParameters(WebService.NewAction action) {
+    action.createParam("target_profile_lang")
       .setDescription("Profile language")
       .setRequired(true)
       .setExampleValue("java");
 
-    action.createParam("profile_name")
+    action.createParam("target_profile_name")
       .setDescription("Profile name")
       .setRequired(true)
       .setExampleValue("My profile");
-
-    action.createParam("rule_repo")
-      .setDescription("Rule repository")
-      .setRequired(true)
-      .setExampleValue("squid");
-
-    action.createParam("rule_key")
-      .setDescription("Rule key")
-      .setRequired(true)
-      .setExampleValue("AvoidCycles");
   }
 
-  private void activate(Request request, Response response) throws Exception {
-    ActiveRuleKey key = readKey(request);
-    RuleActivation activation = new RuleActivation(key);
-    activation.setSeverity(request.param("severity"));
-    String params = request.param("params");
-    if (params != null) {
-      activation.setParameters(KeyValueFormat.parse(params));
-    }
-    service.activate(activation);
+  private void bulkActivate(Request request, Response response) throws Exception {
+    BulkRuleActivation activation = new BulkRuleActivation();
+    // TODO
+    service.bulkActivate(activation);
   }
 
-  private void deactivate(Request request, Response response) throws Exception {
-    service.deactivate(readKey(request));
-  }
-
-  private ActiveRuleKey readKey(Request request) {
-    return ActiveRuleKey.of(
-      QualityProfileKey.of(request.mandatoryParam("profile_name"), request.mandatoryParam("profile_lang")),
-      RuleKey.of(request.mandatoryParam("rule_repo"), request.mandatoryParam("rule_key")));
+  private void bulkDeactivate(Request request, Response response) throws Exception {
+    // TODO
   }
 }

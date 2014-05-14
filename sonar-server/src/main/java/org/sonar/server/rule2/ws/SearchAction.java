@@ -81,6 +81,40 @@ public class SearchAction implements RequestHandler {
       .setSince("4.4")
       .setHandler(this);
 
+    defineSearchParameters(action);
+
+    action
+      .createParam(PARAM_FIELDS)
+      .setDescription("Comma-separated list of the fields to be returned in response. All the fields are returned by default.")
+      .setPossibleValues(RuleIndex.PUBLIC_FIELDS)
+      .setExampleValue(String.format("%s,%s,%s", RuleNormalizer.RuleField.KEY, RuleNormalizer.RuleField.REPOSITORY, RuleNormalizer.RuleField.LANGUAGE));
+
+    action
+      .createParam(PARAM_PAGE)
+      .setDescription("1-based page number")
+      .setExampleValue("42")
+      .setDefaultValue("1");
+
+    action
+      .createParam(PARAM_PAGE_SIZE)
+      .setDescription("Page size. Must be greater than 0.")
+      .setExampleValue("10")
+      .setDefaultValue("25");
+
+    // TODO limit the fields to sort on + document possible values + default value ?
+    action
+      .createParam(PARAM_SORT)
+      .setDescription("Sort field")
+      .setExampleValue(RuleNormalizer.RuleField.LANGUAGE.key());
+
+    action
+      .createParam(PARAM_ASCENDING)
+      .setDescription("Ascending sort")
+      .setBooleanPossibleValues()
+      .setDefaultValue("true");
+  }
+
+  public static void defineSearchParameters(WebService.NewAction action) {
     action
       .createParam(PARAM_TEXT_QUERY)
       .setDescription("UTF-8 search query")
@@ -138,36 +172,6 @@ public class SearchAction implements RequestHandler {
       .setDescription("Used only if 'qprofile' is set")
       .setExampleValue("java:Sonar way")
       .setPossibleValues("false", "true", "all");
-
-    action
-      .createParam(PARAM_FIELDS)
-      .setDescription("Comma-separated list of the fields to be returned in response. All the fields are returned by default.")
-      .setPossibleValues(RuleIndex.PUBLIC_FIELDS)
-      .setExampleValue(String.format("%s,%s,%s", RuleNormalizer.RuleField.KEY, RuleNormalizer.RuleField.REPOSITORY, RuleNormalizer.RuleField.LANGUAGE));
-
-    action
-      .createParam(PARAM_PAGE)
-      .setDescription("1-based page number")
-      .setExampleValue("42")
-      .setDefaultValue("1");
-
-    action
-      .createParam(PARAM_PAGE_SIZE)
-      .setDescription("Page size. Must be greater than 0.")
-      .setExampleValue("10")
-      .setDefaultValue("25");
-
-    // TODO limit the fields to sort on + document possible values + default value ?
-    action
-      .createParam(PARAM_SORT)
-      .setDescription("Sort field")
-      .setExampleValue(RuleNormalizer.RuleField.LANGUAGE.key());
-
-    action
-      .createParam(PARAM_ASCENDING)
-      .setDescription("Ascending sort")
-      .setBooleanPossibleValues()
-      .setDefaultValue("true");
   }
 
   @Override
@@ -215,15 +219,15 @@ public class SearchAction implements RequestHandler {
     for (Rule rule : result.getHits()) {
       json.beginObject();
       json
-        .prop("key", rule.key().toString())
         .prop("repo", rule.key().repository())
+        .prop("key", rule.key().toString())
         .prop("lang", rule.language())
         .prop("name", rule.name())
         .prop("htmlDesc", rule.htmlDescription())
         .prop("status", rule.status().toString())
         .prop("template", rule.template())
         .prop("internalKey", rule.internalKey())
-        .prop("severity", rule.severity().toString())
+        .prop("severity", rule.severity())
         .name("tags").beginArray().values(rule.tags()).endArray()
         .name("sysTags").beginArray().values(rule.systemTags()).endArray();
       json.name("params").beginArray();

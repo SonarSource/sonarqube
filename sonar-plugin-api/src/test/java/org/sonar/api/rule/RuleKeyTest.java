@@ -89,7 +89,7 @@ public class RuleKeyTest {
       RuleKey.parse("foo");
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Bad format of rule key: foo");
+      assertThat(e).hasMessage("Invalid rule key: foo");
     }
   }
 

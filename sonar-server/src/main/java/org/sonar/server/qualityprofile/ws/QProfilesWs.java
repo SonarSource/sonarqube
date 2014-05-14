@@ -25,10 +25,13 @@ public class QProfilesWs implements WebService {
 
   private final QProfileRecreateBuiltInAction recreateBuiltInAction;
   private final RuleActivationActions ruleActivationActions;
+  private final BulkRuleActivationActions bulkRuleActivationActions;
 
-  public QProfilesWs(QProfileRecreateBuiltInAction recreateBuiltInAction, RuleActivationActions ruleActivationActions) {
+  public QProfilesWs(QProfileRecreateBuiltInAction recreateBuiltInAction, RuleActivationActions ruleActivationActions,
+                     BulkRuleActivationActions bulkRuleActivationActions) {
     this.recreateBuiltInAction = recreateBuiltInAction;
     this.ruleActivationActions = ruleActivationActions;
+    this.bulkRuleActivationActions = bulkRuleActivationActions;
   }
 
   @Override
@@ -39,6 +42,7 @@ public class QProfilesWs implements WebService {
 
     recreateBuiltInAction.define(controller);
     ruleActivationActions.define(controller);
+    bulkRuleActivationActions.define(controller);
 
     controller.done();
   }

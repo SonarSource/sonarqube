@@ -21,20 +21,18 @@ package org.sonar.server.rule2;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
+import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.ProfilesManager;
@@ -44,277 +42,219 @@ import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.rule2.persistence.RuleDao;
 
 import java.util.Date;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 public class RegisterRulesTest extends AbstractDaoTestCase {
 
-  private static final String[] EXCLUDED_COLUMN_NAMES = {"created_at", "updated_at", "note_data", "note_user_login", "note_created_at", "note_updated_at"};
-  private static final String[] EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT = {"created_at", "updated_at", "note_data", "note_user_login", "note_created_at", "note_updated_at",
-    "characteristic_id", "default_characteristic_id",
-    "remediation_function", "default_remediation_function", "remediation_coeff", "default_remediation_coeff", "remediation_offset", "default_remediation_offset",
-    "effort_to_fix_description"};
+  static final Date DATE1 = DateUtils.parseDateTime("2014-01-01T19:10:03+0100");
+  static final Date DATE2 = DateUtils.parseDateTime("2014-02-01T12:10:03+0100");
+  static final Date DATE3 = DateUtils.parseDateTime("2014-03-01T12:10:03+0100");
 
-  RegisterRules task;
   ProfilesManager profilesManager = mock(ProfilesManager.class);
-  MyBatis myBatis;
-  RuleDao ruleDao;
-  ActiveRuleDao activeRuleDao;
   CharacteristicDao characteristicDao;
   System2 system;
-  Date date = DateUtils.parseDateTime("2014-03-17T19:10:03+0100");
-  DbSession session;
   DbClient dbClient;
+  DbSession dbSession;
 
   @Before
   public void before() {
     system = mock(System2.class);
-    when(system.now()).thenReturn(date.getTime());
-    myBatis = getMyBatis();
-    ruleDao = new RuleDao();
-    activeRuleDao = new ActiveRuleDao(new QualityProfileDao(myBatis), ruleDao);
+    when(system.now()).thenReturn(DATE1.getTime());
+    RuleDao ruleDao = new RuleDao(system);
+    ActiveRuleDao activeRuleDao = new ActiveRuleDao(new QualityProfileDao(getMyBatis()), ruleDao, system);
     dbClient = new DbClient(getDatabase(), getMyBatis(), ruleDao, activeRuleDao, new QualityProfileDao(getMyBatis()));
-    characteristicDao = new CharacteristicDao(myBatis);
-    task = new RegisterRules(new RuleDefinitionsLoader(mock(RuleRepositories.class),
-      new RulesDefinition[]{new FakeRepository()}),
-      profilesManager, dbClient, characteristicDao, system
-    );
-    session = myBatis.openSession(false);
+    characteristicDao = new CharacteristicDao(getMyBatis());
+    dbSession = dbClient.openSession(false);
   }
 
   @After
-  public void after() {
-    session.close();
+  public void after() throws Exception {
+    dbSession.close();
   }
 
   @Test
-  public void update_template_rule_language() {
-    setupData("update_template_rule_language");
-    task.start();
+  public void insert_new_rules() {
+    execute(new FakeRepositoryV1());
 
-    checkTables("update_template_rule_language", EXCLUDED_COLUMN_NAMES, "rules");
-  }
+    assertThat(dbClient.ruleDao().findAll(dbSession)).hasSize(2);
+    RuleKey ruleKey1 = RuleKey.of("fake", "rule1");
+    RuleDto rule1 = dbClient.ruleDao().getByKey(ruleKey1, dbSession);
+    assertThat(rule1.getName()).isEqualTo("One");
+    assertThat(rule1.getDescription()).isEqualTo("Description of One");
+    assertThat(rule1.getSeverityString()).isEqualTo(Severity.BLOCKER);
+    assertThat(rule1.getTags()).isEmpty();
+    assertThat(rule1.getSystemTags()).containsOnly("tag1", "tag2", "tag3");
+    assertThat(rule1.getConfigKey()).isEqualTo("config1");
+    assertThat(rule1.getStatus()).isEqualTo(RuleStatus.BETA.toString());
+    assertThat(rule1.getCreatedAt()).isEqualTo(DATE1);
+    assertThat(rule1.getUpdatedAt()).isEqualTo(DATE1);
+    assertThat(rule1.getEffortToFixDescription()).isEqualTo("squid.S115.effortToFix");
+    // TODO check characteristic and remediation function
 
-  /**
-   * SONAR-4642
-   */
-  @Test
-  public void notify_for_removed_rules_when_repository_is_still_existing() {
-    setupData("notify_for_removed_rules_when_repository_is_still_existing");
-    task.start();
-
-    verify(profilesManager).removeActivatedRules(1);
-  }
-
-  /**
-   * SONAR-4642
-   */
-  @Test
-  public void not_notify_for_removed_rules_when_repository_do_not_exists_anymore() {
-    setupData("shared");
-    task.start();
-
-    verifyZeroInteractions(profilesManager);
+    List<RuleParamDto> params = dbClient.ruleDao().findRuleParamsByRuleKey(ruleKey1, dbSession);
+    assertThat(params).hasSize(2);
+    RuleParamDto param = getParam(params, "param1");
+    assertThat(param.getDescription()).isEqualTo("parameter one");
+    assertThat(param.getDefaultValue()).isEqualTo("default1");
   }
 
   @Test
-  @Ignore //TODO Check if created and updated should be at DTO/BaseDao level.
-  public void reactivate_disabled_rules() {
-    setupData("reactivate_disabled_rules");
-    task.start();
+  public void do_not_update_rules_when_no_changes() {
+    execute(new FakeRepositoryV1());
+    assertThat(dbClient.ruleDao().findAll(dbSession)).hasSize(2);
 
-    checkTables("reactivate_disabled_rules", EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT, "rules");
+    when(system.now()).thenReturn(DATE2.getTime());
+    execute(new FakeRepositoryV1());
 
-    assertThat(ruleDao.getById(1, session).getUpdatedAt()).isNotNull();
+    RuleKey ruleKey1 = RuleKey.of("fake", "rule1");
+    RuleDto rule1 = dbClient.ruleDao().getByKey(ruleKey1, dbSession);
+    assertThat(rule1.getCreatedAt()).isEqualTo(DATE1);
+    assertThat(rule1.getUpdatedAt()).isEqualTo(DATE1);
   }
 
   @Test
-  public void reactivate_disabled_template_rules() {
-    setupData("reactivate_disabled_template_rules");
-    task.start();
+  public void update_rules_on_changes() {
+    execute(new FakeRepositoryV1());
+    assertThat(dbClient.ruleDao().findAll(dbSession)).hasSize(2);
 
-    checkTables("reactivate_disabled_template_rules", EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT, "rules");
+    when(system.now()).thenReturn(DATE2.getTime());
+    execute(new FakeRepositoryV2());
+
+    // rule1 has been updated
+    RuleKey ruleKey1 = RuleKey.of("fake", "rule1");
+    RuleDto rule1 = dbClient.ruleDao().getByKey(ruleKey1, dbSession);
+    assertThat(rule1.getName()).isEqualTo("One v2");
+    assertThat(rule1.getDescription()).isEqualTo("Description of One v2");
+    assertThat(rule1.getSeverityString()).isEqualTo(Severity.INFO);
+    assertThat(rule1.getTags()).isEmpty();
+    assertThat(rule1.getSystemTags()).containsOnly("tag1", "tag4");
+    assertThat(rule1.getConfigKey()).isEqualTo("config1 v2");
+    assertThat(rule1.getStatus()).isEqualTo(RuleStatus.READY.toString());
+    assertThat(rule1.getCreatedAt()).isEqualTo(DATE1);
+    assertThat(rule1.getUpdatedAt()).isEqualTo(DATE2);
+    assertThat(rule1.getEffortToFixDescription()).isEqualTo("squid.S115.effortToFix.v2");
+    // TODO check characteristic and remediation function
+    List<RuleParamDto> params = dbClient.ruleDao().findRuleParamsByRuleKey(ruleKey1, dbSession);
+    assertThat(params).hasSize(2);
+    RuleParamDto param = getParam(params, "param1");
+    assertThat(param.getDescription()).isEqualTo("parameter one v2");
+    assertThat(param.getDefaultValue()).isEqualTo("default1 v2");
+
+    // rule2 has been removed
+    RuleDto rule2 = dbClient.ruleDao().getByKey(RuleKey.of("fake", "rule2"), dbSession);
+    assertThat(rule2.getStatus()).isEqualTo(RuleStatus.REMOVED.toString());
+    assertThat(rule2.getUpdatedAt()).isEqualTo(DATE2);
+
+    // rule3 has been created
+    RuleDto rule3 = dbClient.ruleDao().getByKey(RuleKey.of("fake", "rule3"), dbSession);
+    assertThat(rule3).isNotNull();
   }
 
   @Test
-  public void disable_deprecated_active_rules() {
-    setupData("disable_deprecated_active_rules");
-    task.start();
+  public void do_not_update_already_removed_rules() {
+    execute(new FakeRepositoryV1());
+    assertThat(dbClient.ruleDao().findAll(dbSession)).hasSize(2);
 
-    checkTables("disable_deprecated_active_rules", EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT, "rules");
+    when(system.now()).thenReturn(DATE2.getTime());
+    execute(new FakeRepositoryV2());
+    // rule2 is removed
+
+    when(system.now()).thenReturn(DATE3.getTime());
+    execute(new FakeRepositoryV2());
+    // -> rule2 is still removed, but not update at DATE3
+    RuleDto rule2 = dbClient.ruleDao().getByKey(RuleKey.of("fake", "rule2"), dbSession);
+    assertThat(rule2.getStatus()).isEqualTo(RuleStatus.REMOVED.toString());
+    assertThat(rule2.getUpdatedAt()).isEqualTo(DATE2);
   }
 
   @Test
-  @Ignore //TODO to fix with new RegisterRule
-  public void disable_deprecated_active_rule_params() {
-    setupData("disable_deprecated_active_rule_params");
-    task.start();
-
-    checkTables("disable_deprecated_active_rule_params", EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT, "rules", "rules_parameters", "active_rules", "active_rule_parameters");
+  public void mass_insert() {
+    execute(new BigRepository());
+    assertThat(dbClient.ruleDao().findAll(dbSession)).hasSize(BigRepository.SIZE);
+    assertThat(dbClient.ruleDao().findAllRuleParams(dbSession)).hasSize(BigRepository.SIZE * 20);
   }
 
   @Test
-  //TODO check with mergeTag what happens on removal.
-  public void disable_deprecated_rules() {
-    setupData("disable_deprecated_rules");
-    task.start();
-
-    checkTables("disable_deprecated_rules", EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT, "rules", "rules_parameters");
-  }
-
-  @Test
-  @Ignore //TODO to fix with new RegisterRule
-  public void not_disable_already_disabled_rules() {
-    setupData("not_disable_already_disabled_rules");
-    task.start();
-
-    checkTables("not_disable_already_disabled_rules", new String[]{"created_at", "note_data", "note_user_login", "note_created_at", "note_updated_at"}, "rules");
-  }
-
-  @Test
-  @Ignore //TODO fix in RuleRegister DAOv.2
-  public void update_rule_fields() {
-    setupData("update_rule_fields");
-    task.start();
-
-    checkTables("update_rule_fields", EXCLUDED_COLUMN_NAMES, "rules", "rules_parameters");
-  }
-
-  @Test
-  public void update_rule_parameters() {
-    setupData("update_rule_parameters");
-    task.start();
-
-    checkTables("update_rule_parameters", EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT, "rules", "rules_parameters");
-  }
-
-  @Test
-  @Ignore //TODO characteristics not yet in DAOv.2
-  public void set_no_default_characteristic_when_characteristic_not_found() {
-    setupData("set_no_characteristic_when_characteristic_not_found");
-
-    task.start();
-    // Warning log should be displayed
-
-    checkTables("set_no_characteristic_when_characteristic_not_found", EXCLUDED_COLUMN_NAMES, "rules");
-  }
-
-  @Test
-  public void set_no_default_characteristic_when_default_characteristic_not_found_and_overriding_characteristic_disabled() {
-    setupData("set_no_characteristic_when_default_characteristic_not_found_and_overriding_characteristic_disabled");
-
-    task.start();
-    // No log should be displayed
-
-    checkTables("set_no_characteristic_when_default_characteristic_not_found_and_overriding_characteristic_disabled", EXCLUDED_COLUMN_NAMES, "rules");
-  }
-
-  @Test
-  @Ignore //TODO characteristics not yet in DAOv.2
-  public void set_no_default_characteristic_when_default_characteristic_not_found_but_characteristic_has_been_overridden() {
-    setupData("set_no_default_characteristic_when_default_characteristic_not_found_but_characteristic_has_been_overridden");
-
-    task.start();
-    // No log should be displayed
-
-    checkTables("set_no_default_characteristic_when_default_characteristic_not_found_but_characteristic_has_been_overridden", EXCLUDED_COLUMN_NAMES, "rules");
-  }
-
-  @Test
-  @Ignore //TODO to fix with new RegisterRule
-  public void fail_when_rule_is_linked_on_root_characteristic() {
-    setupData("ignore_rule_debt_definitions_if_rule_is_linked_on_root_characteristic");
-
-    try {
-      task.start();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(MessageException.class).hasMessage("Rule 'fake:rule1' cannot be linked on the root characteristic 'MEMORY_EFFICIENCY'");
+  public void manage_repository_extensions() {
+    execute(new FindbugsRepository(), new FbContribRepository());
+    List<RuleDto> rules = dbClient.ruleDao().findAll(dbSession);
+    assertThat(rules).hasSize(2);
+    for (RuleDto rule : rules) {
+      assertThat(rule.getRepositoryKey()).isEqualTo("findbugs");
     }
   }
 
-  @Test
-  public void not_disable_template_rules_if_parent_is_enabled() {
-    setupData("not_disable_template_rules_if_parent_is_enabled");
+  private void execute(RulesDefinition... defs) {
+    RuleDefinitionsLoader loader = new RuleDefinitionsLoader(mock(RuleRepositories.class), defs);
+    RegisterRules task = new RegisterRules(loader, profilesManager, dbClient, characteristicDao, system);
     task.start();
-
-    checkTables("not_disable_template_rules_if_parent_is_enabled", EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT, "rules");
   }
 
-  @Test
-  @Ignore //TODO to fix with new RegisterRule
-  public void disable_template_rules_if_parent_is_disabled() {
-    setupData("disable_template_rules_if_parent_is_disabled");
-    task.start();
-
-    checkTables("disable_template_rules_if_parent_is_disabled", EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT, "rules");
+  private RuleParamDto getParam(List<RuleParamDto> params, String key) {
+    for (RuleParamDto param : params) {
+      if (param.getName().equals(key)) {
+        return param;
+      }
+    }
+    return null;
   }
 
-  @Test
-  public void not_disable_manual_rules() {
-    // the hardcoded repository "manual" is used for manual violations
-    setupData("not_disable_manual_rules");
-    task.start();
-
-    checkTables("not_disable_manual_rules", EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT, "rules");
-  }
-
-  @Test
-  public void test_high_number_of_rules() {
-    task = new RegisterRules(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RulesDefinition[]{new BigRepository()}),
-      profilesManager, dbClient, characteristicDao);
-
-    setupData("shared");
-    task.start();
-
-
-    // There is already one rule in DB
-    assertThat(ruleDao.findAll(session)).hasSize(BigRepository.SIZE + 1);
-    assertThat(ruleDao.findAllRuleParams(session)).hasSize(BigRepository.SIZE * 20);
-//    assertThat(ruleDao.selectTags(getMyBatis().openSession(false))).hasSize(BigRepository.SIZE * 3);
-  }
-
-  @Test
-  public void insert_extended_repositories() {
-    task = new RegisterRules(new RuleDefinitionsLoader(mock(RuleRepositories.class), new RulesDefinition[]{
-      new FindbugsRepository(), new FbContribRepository()}),
-      profilesManager, dbClient, characteristicDao
-    );
-
-
-    setupData("empty");
-    task.start();
-
-    checkTables("insert_extended_repositories", EXCLUDED_COLUMN_NAMES_INCLUDING_DEBT, "rules");
-  }
-
-  static class FakeRepository implements RulesDefinition {
+  static class FakeRepositoryV1 implements RulesDefinition {
     @Override
     public void define(Context context) {
       NewRepository repo = context.createRepository("fake", "java");
-
       NewRule rule1 = repo.createRule("rule1")
         .setName("One")
         .setHtmlDescription("Description of One")
         .setSeverity(Severity.BLOCKER)
         .setInternalKey("config1")
-        .setTags("tag1", "tag3", "tag5");
-
-      rule1.setDebtSubCharacteristic("MEMORY_EFFICIENCY")
-        .setDebtRemediationFunction(rule1.debtRemediationFunctions().linearWithOffset("5d", "10h"))
+        .setTags("tag1", "tag2", "tag3")
+        .setStatus(RuleStatus.BETA)
+        .setDebtSubCharacteristic("MEMORY_EFFICIENCY")
         .setEffortToFixDescription("squid.S115.effortToFix");
+      rule1.setDebtRemediationFunction(rule1.debtRemediationFunctions().linearWithOffset("5d", "10h"));
 
-      rule1.createParam("param1").setDescription("parameter one").setDefaultValue("default value one");
-      rule1.createParam("param2").setDescription("parameter two").setDefaultValue("default value two");
+      rule1.createParam("param1").setDescription("parameter one").setDefaultValue("default1");
+      rule1.createParam("param2").setDescription("parameter two").setDefaultValue("default2");
 
       repo.createRule("rule2")
         .setName("Two")
-        .setHtmlDescription("Description of Two")
+        .setHtmlDescription("Minimal rule");
+      repo.done();
+    }
+  }
+
+  /**
+   * FakeRepositoryV1 with some changes
+   */
+  static class FakeRepositoryV2 implements RulesDefinition {
+    @Override
+    public void define(Context context) {
+      NewRepository repo = context.createRepository("fake", "java");
+
+      // almost all the attributes of rule1 are changed
+      NewRule rule1 = repo.createRule("rule1")
+        .setName("One v2")
+        .setHtmlDescription("Description of One v2")
         .setSeverity(Severity.INFO)
-        .setStatus(RuleStatus.DEPRECATED);
+        .setInternalKey("config1 v2")
+          // tag2 and tag3 removed, tag4 added
+        .setTags("tag1", "tag4")
+        .setStatus(RuleStatus.READY)
+        .setDebtSubCharacteristic("MEMORY_EFFICIENCY")
+        .setEffortToFixDescription("squid.S115.effortToFix.v2");
+      rule1.setDebtRemediationFunction(rule1.debtRemediationFunctions().linearWithOffset("6d", "2h"));
+      rule1.createParam("param1").setDescription("parameter one v2").setDefaultValue("default1 v2");
+      rule1.createParam("param2").setDescription("parameter two v2").setDefaultValue("default2 v2");
+
+      // rule2 is dropped, rule3 is new
+      repo.createRule("rule3")
+        .setName("Three")
+        .setHtmlDescription("Rule Three");
       repo.done();
     }
   }
@@ -328,10 +268,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
       for (int i = 0; i < SIZE; i++) {
         NewRule rule = repo.createRule("rule" + i)
           .setName("name of " + i)
-          .setHtmlDescription("description of " + i)
-          .setSeverity(Severity.BLOCKER)
-          .setInternalKey("config1")
-          .setTags("tag1", "tag3", "tag5");
+          .setHtmlDescription("description of " + i);
         for (int j = 0; j < 20; j++) {
           rule.createParam("param" + j);
         }

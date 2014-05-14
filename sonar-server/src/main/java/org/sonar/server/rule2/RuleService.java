@@ -69,8 +69,7 @@ public class RuleService implements ServerComponent {
    * List all tags
    */
   public Set<String> listTags() {
-    return index.terms(RuleNormalizer.RuleField.TAGS.key(),
-      RuleNormalizer.RuleField.SYSTEM_TAGS.key());
+    return index.terms(RuleNormalizer.RuleField.TAGS.key(), RuleNormalizer.RuleField.SYSTEM_TAGS.key());
   }
 
   public void setTags(RuleKey ruleKey, Set<String> tags) {

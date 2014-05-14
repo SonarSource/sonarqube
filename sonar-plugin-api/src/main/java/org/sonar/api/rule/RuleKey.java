@@ -52,7 +52,7 @@ public class RuleKey implements Serializable {
    */
   public static RuleKey parse(String s) {
     String[] split = s.split(":");
-    Preconditions.checkArgument(split.length == 2, "Bad format of rule key: " + s);
+    Preconditions.checkArgument(split.length == 2, "Invalid rule key: " + s);
     return RuleKey.of(split[0], split[1]);
   }
 

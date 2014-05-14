@@ -43,11 +43,11 @@ import java.util.Map;
 public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
 
   public RuleDao() {
-    super(new RuleIndexDefinition(), RuleMapper.class);
+    this(System2.INSTANCE);
   }
 
   @VisibleForTesting
-  RuleDao(System2 system) {
+  public RuleDao(System2 system) {
     super(new RuleIndexDefinition(), RuleMapper.class, system);
   }
 

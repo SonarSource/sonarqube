@@ -44,9 +44,11 @@ public class QProfileRecreateBuiltInActionTest {
 
   @Before
   public void setUp() throws Exception {
+    ActiveRuleService activeRuleService = mock(ActiveRuleService.class);
     tester = new WsTester(new QProfilesWs(
       new QProfileRecreateBuiltInAction(qProfileBackup),
-      new RuleActivationActions(mock(ActiveRuleService.class))));
+      new RuleActivationActions(activeRuleService),
+      new BulkRuleActivationActions(activeRuleService)));
   }
 
   @Test
