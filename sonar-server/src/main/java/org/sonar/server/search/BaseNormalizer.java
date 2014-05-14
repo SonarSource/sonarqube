@@ -33,7 +33,7 @@ public abstract class BaseNormalizer<E extends Dto<K>, K extends Serializable> {
 
   private static final Logger LOG = LoggerFactory.getLogger(BaseNormalizer.class);
 
-  private final DbClient db;
+  protected final DbClient db;
 
   protected BaseNormalizer(DbClient db) {
     this.db = db;

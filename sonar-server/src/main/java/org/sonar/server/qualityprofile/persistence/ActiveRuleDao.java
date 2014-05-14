@@ -64,7 +64,13 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
 
   @Deprecated
   public ActiveRuleDto getById(int activeRuleId, DbSession session) {
-    return mapper(session).selectById(activeRuleId);
+    ActiveRuleDto rule =  mapper(session).selectById(activeRuleId);
+
+    rule.setKey(ActiveRuleKey.of(
+      profileDao.selectById(rule.getProfileId(), session).getKey(),
+      ruleDao.getById(rule.getRulId(), session).getKey()));
+
+    return rule;
   }
 
   @Override

@@ -48,7 +48,8 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     TEMPLATE("template"),
     UPDATED_AT("updatedAt"),
     PARAMS("params"),
-    ACTIVE("active");
+    ACTIVE("active"),
+    DEBT_FUNCTION("debtRemFunction");
 
     private final String key;
 
@@ -117,6 +118,10 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       indexField(RuleField.LANGUAGE.key(), rule.getLanguage(), document);
       indexField(RuleField.INTERNAL_KEY.key(), rule.getConfigKey(), document);
       indexField(RuleField.TEMPLATE.key(), rule.getCardinality() == Cardinality.MULTIPLE, document);
+      indexField(RuleField.DEBT_FUNCTION.key(), rule.getDefaultRemediationFunction(),document);
+
+
+
 
       document.array(RuleField.TAGS.key(), rule.getTags().toArray(new String[rule.getTags().size()]));
       document.array(RuleField.SYSTEM_TAGS.key(), rule.getSystemTags().toArray(new String[rule.getSystemTags().size()]));

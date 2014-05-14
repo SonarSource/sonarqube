@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile.index;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.server.qualityprofile.ActiveRule;
 
+import javax.annotation.CheckForNull;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,23 +42,28 @@ public class ActiveRuleDoc implements ActiveRule {
   }
 
   @Override
-  public Boolean override() {
-    return (Boolean) this.fields.get(ActiveRuleNormalizer.ActiveRuleField.OVERRIDE.key());
-  }
-
-  @Override
   public String severity() {
     return (String) this.fields.get(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.key());
   }
 
   @Override
-  public String inherit() {
-    return (String) this.fields.get(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.key());
+  public ActiveRule.Inheritance inheritance() {
+    String inheritance = (String) this.fields.get(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.key());
+    if(inheritance != null && !inheritance.isEmpty()){
+      return Inheritance.valueOf(inheritance);
+    } else {
+      return Inheritance.NONE;
+    }
   }
 
   @Override
-  public String parent() {
-    return (String) this.fields.get(ActiveRuleNormalizer.ActiveRuleField.PARENT_ID.key());
+  @CheckForNull
+  public ActiveRuleKey parentKey() {
+    String data = (String) this.fields.get(ActiveRuleNormalizer.ActiveRuleField.PARENT_KEY.key());
+    if(data != null && !data.isEmpty()){
+      return ActiveRuleKey.parse(data);
+    }
+    return null;
   }
 
   @Override

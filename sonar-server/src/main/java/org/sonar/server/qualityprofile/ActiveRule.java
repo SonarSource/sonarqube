@@ -21,19 +21,24 @@ package org.sonar.server.qualityprofile;
 
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 
+import javax.annotation.CheckForNull;
 import java.util.Map;
 
 public interface ActiveRule {
+
+  public enum Inheritance {
+    NONE, OVERRIDE, INHERIT
+  }
 
   ActiveRuleKey key();
 
   String severity();
 
-  Boolean override();
+  Inheritance  inheritance();
 
-  String inherit();
-
-  String parent();
+  @CheckForNull
+  ActiveRuleKey parentKey();
 
   Map<String, String> params();
+
 }

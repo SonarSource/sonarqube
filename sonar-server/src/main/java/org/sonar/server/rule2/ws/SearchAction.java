@@ -242,10 +242,9 @@ public class SearchAction implements RequestHandler {
         json
           .beginObject()
           .prop("key",activeRule.key().toString())
-          .prop("inherit", activeRule.inherit())
-          .prop("override", activeRule.override())
+          .prop("inherit", activeRule.inheritance().name())
           .prop("severity", activeRule.severity())
-          .prop("parent", activeRule.parent())
+          .prop("parent", activeRule.parentKey().toString())
           .name("params").beginArray();
         for (Map.Entry<String, String> param : activeRule.params().entrySet()) {
           json.beginObject()
