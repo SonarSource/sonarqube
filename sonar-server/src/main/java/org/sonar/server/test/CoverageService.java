@@ -22,19 +22,26 @@ package org.sonar.server.test;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.test.MutableTestable;
+import org.sonar.api.test.Testable;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.measure.db.MeasureDataDao;
 import org.sonar.core.measure.db.MeasureDataDto;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 
+import java.util.Map;
+
 public class CoverageService implements ServerComponent {
 
   private final MeasureDataDao measureDataDao;
+  private final SnapshotPerspectives snapshotPerspectives;
 
-  public CoverageService(MeasureDataDao measureDataDao) {
+  public CoverageService(MeasureDataDao measureDataDao, SnapshotPerspectives snapshotPerspectives) {
     this.measureDataDao = measureDataDao;
+    this.snapshotPerspectives = snapshotPerspectives;
   }
 
   public void checkPermission(String fileKey) {
@@ -63,6 +70,18 @@ public class CoverageService implements ServerComponent {
   @CheckForNull
   public String getCoveredConditionsData(String fileKey) {
     return findDataFromComponent(fileKey, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY);
+  }
+
+  /**
+   * Warning - does not check permission
+   */
+  @CheckForNull
+  public Map<Integer, Integer> getCoveredLines(String fileKey) {
+    Testable testable = snapshotPerspectives.as(MutableTestable.class, fileKey);
+    if (testable != null) {
+      return testable.testCasesByLines();
+    }
+    return null;
   }
 
   @CheckForNull

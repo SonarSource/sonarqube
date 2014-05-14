@@ -22,6 +22,7 @@ package org.sonar.api.test;
 import org.sonar.api.component.Perspective;
 
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 
 public interface Testable extends Perspective {
@@ -31,6 +32,8 @@ public interface Testable extends Perspective {
   TestCase testCaseByName(String key);
 
   int countTestCasesOfLine(Integer line);
+
+  Map<Integer, Integer> testCasesByLines();
 
   List<TestCase> testCasesOfLine(int line);
 

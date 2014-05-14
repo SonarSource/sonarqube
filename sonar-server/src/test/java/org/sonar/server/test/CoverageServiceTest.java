@@ -27,15 +27,16 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.test.MutableTestable;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.measure.db.MeasureDataDao;
 import org.sonar.server.user.MockUserSession;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CoverageServiceTest {
@@ -46,13 +47,16 @@ public class CoverageServiceTest {
   @Mock
   MeasureDataDao measureDataDao;
 
+  @Mock
+  SnapshotPerspectives snapshotPerspectives;
+
   static final String COMPONENT_KEY = "org.sonar.sample:Sample";
 
   CoverageService service;
 
   @Before
   public void setUp() throws Exception {
-    service = new CoverageService(measureDataDao);
+    service = new CoverageService(measureDataDao, snapshotPerspectives);
   }
 
   @Test
@@ -86,6 +90,22 @@ public class CoverageServiceTest {
   public void get_coverered_conditions_data() throws Exception {
     service.getCoveredConditionsData(COMPONENT_KEY);
     verify(measureDataDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY);
+  }
+
+  @Test
+  public void get_coverered_lines() throws Exception {
+    MutableTestable testable = mock(MutableTestable.class);
+    when(snapshotPerspectives.as(MutableTestable.class, COMPONENT_KEY)).thenReturn(testable);
+
+    service.getCoveredLines(COMPONENT_KEY);
+    verify(testable).testCasesByLines();
+  }
+
+  @Test
+  public void not_get_coverered_lines_if_no_testable() throws Exception {
+    when(snapshotPerspectives.as(MutableTestable.class, COMPONENT_KEY)).thenReturn(null);
+
+    assertThat(service.getCoveredLines(COMPONENT_KEY)).isNull();
   }
 
 }

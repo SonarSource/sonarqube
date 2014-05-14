@@ -1,6 +1,6 @@
 {
   "coverage": [
-    [3, false],
-    [4, true]
+    [3, false, null],
+    [4, true, 8],
   ]
 }

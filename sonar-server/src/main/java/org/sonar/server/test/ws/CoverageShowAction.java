@@ -30,6 +30,8 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.test.CoverageService;
 
+import javax.annotation.Nullable;
+
 import java.util.Map;
 
 public class CoverageShowAction implements RequestHandler {
@@ -86,15 +88,16 @@ public class CoverageShowAction implements RequestHandler {
     JsonWriter json = response.newJsonWriter().beginObject();
 
     String hits = coverageService.getHitsData(fileKey);
+    Map<Integer, Integer> coveredLines = coverageService.getCoveredLines(fileKey);
     if (hits != null) {
-      Map<Integer, Integer> hitsByLine =  KeyValueFormat.parseIntInt(hits);
-    writeCoverage(hitsByLine, from, to, json);
+      Map<Integer, Integer> hitsByLine = KeyValueFormat.parseIntInt(hits);
+      writeCoverage(fileKey, hitsByLine, coveredLines, from, to, json);
     }
 
     json.endObject().close();
   }
 
-  private void writeCoverage(Map<Integer, Integer> hitsByLine, int from, int to, JsonWriter json) {
+  private void writeCoverage(String fileKey, Map<Integer, Integer> hitsByLine, @Nullable Map<Integer, Integer> coveredLines, int from, int to, JsonWriter json) {
     json.name("coverage").beginArray();
     for (Map.Entry<Integer, Integer> entry : hitsByLine.entrySet()) {
       Integer line = entry.getKey();
@@ -103,6 +106,7 @@ public class CoverageShowAction implements RequestHandler {
         json.beginArray();
         json.value(line);
         json.value(hits > 0);
+        json.value(coveredLines != null ? coveredLines.get(line) : null);
         json.endArray();
       }
     }

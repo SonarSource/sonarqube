@@ -20,6 +20,7 @@
 
 package org.sonar.server.test.ws;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,6 +48,7 @@ public class CoverageShowActionTest {
   public void show_coverage() throws Exception {
     String fileKey = "src/Foo.java";
     when(coverageService.getHitsData(fileKey)).thenReturn("1=1;2=1;3=0;4=1;5=1");
+    when(coverageService.getCoveredLines(fileKey)).thenReturn(ImmutableMap.of(4, 8, 1, 2));
 
     WsTester.TestRequest request = tester.newGetRequest("api/coverage", "show").setParam("key", fileKey);
 
@@ -57,6 +59,7 @@ public class CoverageShowActionTest {
   public void show_coverage_with_from_and_to() throws Exception {
     String fileKey = "src/Foo.java";
     when(coverageService.getHitsData(fileKey)).thenReturn("1=1;2=1;3=0;4=1;5=1");
+    when(coverageService.getCoveredLines(fileKey)).thenReturn(ImmutableMap.of(4, 8, 1, 2));
 
     WsTester.TestRequest request = tester.newGetRequest("api/coverage", "show").setParam("key", fileKey).setParam("from", "3").setParam("to", "4");
 

@@ -1,9 +1,9 @@
 {
   "coverage": [
-    [1, true],
-    [2, true],
-    [3, false],
-    [4, true],
-    [5, true]
+    [1, true, 2],
+    [2, true, null],
+    [3, false, null],
+    [4, true, 8],
+    [5, true, null]
   ]
 }
