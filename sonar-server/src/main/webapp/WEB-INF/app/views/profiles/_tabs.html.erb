@@ -4,9 +4,6 @@
 %>
 <ul class="tabs">
   <li>
-    <a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => @profile.id %>" <%= "class='selected'" if selected_tab=='Coding rules' -%> id="tab-rules"><%= message('coding_rules') -%></a>
-  </li>
-  <li>
     <a href="<%= url_for :controller => 'profiles', :action => 'projects', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='Projects' -%> id="tab-projects"><%= message('projects') -%></a>
   </li>
   <li>

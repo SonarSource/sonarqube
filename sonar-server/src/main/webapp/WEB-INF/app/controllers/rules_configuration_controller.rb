@@ -30,57 +30,6 @@ class RulesConfigurationController < ApplicationController
   ANY_SELECTION = []
   RULE_PRIORITIES = Sonar::RulePriority.as_options.reverse
 
-  def index
-    require_parameters :id
-
-    call_backend do
-      @profile = Internal.quality_profiles.profile(params[:id].to_i)
-      not_found('Profile not found') unless @profile
-      @parent_profile = Internal.quality_profiles.parent(@profile) if @profile.parent()
-
-      add_breadcrumbs ProfilesController::root_breadcrumb, Api::Utils.language_name(@profile.language),
-                      {:name => @profile.name, :url => {:controller => 'rules_configuration', :action => 'index', :id => @profile.id}}
-
-      init_params
-      @criteria_params = criteria_params
-      stop_watch = Internal.profiling.start("rules", "BASIC")
-
-      @pagination = Api::Pagination.new(params)
-      paging = Java::OrgSonarServerPaging::Paging.create(@pagination.per_page.to_i, @pagination.page.to_i)
-
-      criteria = init_criteria
-      query = Java::OrgSonarServerQualityprofile::ProfileRuleQuery::parse(criteria.to_java)
-      if @activation==STATUS_ACTIVE
-        result = Internal.quality_profiles.searchProfileRules(query, paging)
-      else
-        result = Internal.quality_profiles.searchInactiveProfileRules(query, paging)
-      end
-
-      @pagination.count = result.paging.total
-      unless @searchtext.blank? && @tags.empty?
-        if @activation == STATUS_ACTIVE
-          @hidden_inactives = Internal.quality_profiles.countInactiveProfileRules(query)
-        else
-          @hidden_actives = Internal.quality_profiles.countProfileRules(query)
-        end
-      end
-      stop_watch.stop("found #{@pagination.count} rules with criteria #{criteria.to_json}, displaying #{@pagination.per_page} items")
-
-      @current_rules = result.rules
-
-      @select_repositories = ANY_SELECTION + java_facade.getRuleRepositoriesByLanguage(@profile.language).collect { |repo| [repo.name(), repo.key()] }.to_a.sort
-      @select_priority = ANY_SELECTION + RULE_PRIORITIES
-      @select_activation = [[message('active'), STATUS_ACTIVE], [message('inactive'), STATUS_INACTIVE]]
-      @select_inheritance = [[message('any'), 'any'], [message('rules_configuration.not_inherited'), 'NOT'], [message('rules_configuration.inherited'), 'INHERITED'],
-                             [message('rules_configuration.overrides'), 'OVERRIDES']]
-      @select_status = ANY_SELECTION + [[message('rules.status.beta'), Rule::STATUS_BETA],
-                                        [message('rules.status.deprecated'), Rule::STATUS_DEPRECATED],
-                                        [message('rules.status.ready'), Rule::STATUS_READY]]
-      @select_sort_by = [[message('rules_configuration.rule_name'), Rule::SORT_BY_RULE_NAME], [message('rules_configuration.creation_date'), Rule::SORT_BY_CREATION_DATE]]
-      @select_tags = ANY_SELECTION + Internal.rule_tags.listAllTags().to_a.sort
-    end
-  end
-
 
   #
   #
