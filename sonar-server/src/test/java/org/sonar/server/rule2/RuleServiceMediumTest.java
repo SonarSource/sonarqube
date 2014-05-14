@@ -132,7 +132,7 @@ public class RuleServiceMediumTest {
     dbSession.commit();
 
     //Verify that RuleDto has date from insertion
-    RuleDto theRule= dao.getByKey(ruleKey, dbSession);
+    RuleDto theRule = dao.getByKey(ruleKey, dbSession);
     assertThat(theRule.getCreatedAt()).isNotNull();
     assertThat(theRule.getUpdatedAt()).isNotNull();
 
@@ -151,6 +151,91 @@ public class RuleServiceMediumTest {
 
     assertThat(rule.params()).hasSize(2);
     assertThat(Iterables.getLast(rule.params(), null).key()).isEqualTo("max");
+  }
+
+  @Test
+  public void insert_and_update_rule() {
+
+    // insert db
+    RuleKey ruleKey = RuleKey.of("javascript", "S001");
+    RuleDto ruleDto = newRuleDto(ruleKey)
+      .setTags(ImmutableSet.of("hello"))
+      .setName("first name");
+    dao.insert(ruleDto, dbSession);
+    dbSession.commit();
+
+    // verify that parameters are indexed in es
+    index.refresh();
+    Rule hit = index.getByKey(ruleKey);
+    assertThat(hit.tags()).containsExactly("hello");
+    assertThat(hit.name()).isEqualTo("first name");
+
+    //Update in DB
+    ruleDto.setTags(ImmutableSet.of("world"))
+      .setName("second name");
+    dao.update(ruleDto, dbSession);
+    dbSession.commit();
+
+    // verify that parameters are updated in es
+    index.refresh();
+    hit = index.getByKey(ruleKey);
+    assertThat(hit.tags()).containsExactly("world");
+    assertThat(hit.name()).isEqualTo("second name");
+  }
+
+  @Test
+  public void insert_and_update_rule_param() {
+
+    // insert db
+    RuleKey ruleKey = RuleKey.of("javascript", "S001");
+    RuleDto ruleDto = newRuleDto(ruleKey)
+      .setTags(ImmutableSet.of("hello"))
+      .setName("first name");
+    dao.insert(ruleDto, dbSession);
+    dbSession.commit();
+
+    RuleParamDto minParamDto = new RuleParamDto()
+      .setName("min")
+      .setType(RuleParamType.INTEGER.type())
+      .setDefaultValue("2")
+      .setDescription("Minimum");
+    dao.addRuleParam(ruleDto, minParamDto, dbSession);
+
+    RuleParamDto maxParamDto = new RuleParamDto()
+      .setName("max")
+      .setType(RuleParamType.INTEGER.type())
+      .setDefaultValue("10")
+      .setDescription("Maximum");
+    dao.addRuleParam(ruleDto, maxParamDto, dbSession);
+    dbSession.commit();
+
+    // verify that parameters are indexed in es
+    index.refresh();
+    Rule hit = index.getByKey(ruleKey);
+    assertThat(hit.params()).hasSize(2);
+
+    RuleParam param = hit.params().get(0);
+    assertThat(param.key()).isEqualTo("min");
+    assertThat(param.defaultValue()).isEqualTo("2");
+    assertThat(param.description()).isEqualTo("Minimum");
+
+
+    //Update in DB
+    minParamDto
+      .setDefaultValue("0.5")
+      .setDescription("new description");
+    dao.updateRuleParam(ruleDto, minParamDto, dbSession);
+    dbSession.commit();
+
+    // verify that parameters are updated in es
+    index.refresh();
+    hit = index.getByKey(ruleKey);
+    assertThat(hit.params()).hasSize(2);
+
+    param = hit.params().get(0);
+    assertThat(param.key()).isEqualTo("min");
+    assertThat(param.defaultValue()).isEqualTo("0.5");
+    assertThat(param.description()).isEqualTo("new description");
   }
 
   @Test
