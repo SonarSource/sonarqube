@@ -21,8 +21,7 @@
         "actives": [
             {
                 "key": "My Profile:java:java:S001",
-                "inherit": "none",
-                "override": false,
+                "inherit": "NONE",
                 "severity": "BLOCKER",
                 "params": [
                     {

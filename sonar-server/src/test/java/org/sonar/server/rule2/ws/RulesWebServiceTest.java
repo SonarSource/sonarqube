@@ -231,7 +231,7 @@ public class RulesWebServiceTest {
 
   private ActiveRuleDto  newActiveRule(QualityProfileDto profile, RuleDto rule) {
     return ActiveRuleDto.createFor(profile, rule)
-      .setInheritance("none")
+      .setInheritance("NONE")
       .setSeverity("BLOCKER");
   }
 }
