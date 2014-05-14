@@ -28,9 +28,12 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule2.Rule;
 import org.sonar.server.rule2.RuleParam;
 import org.sonar.server.rule2.RuleService;
+
+import java.util.Map;
 
 /**
  * @since 4.4
@@ -82,8 +85,9 @@ public class ShowAction implements RequestHandler {
 
   private void writeRule(Rule rule, JsonWriter json) {
     json
+      .prop("key", rule.key().toString())
       .prop("repo", rule.key().repository())
-      .prop("key", rule.key().rule())
+      .prop("slug", rule.key().rule())
       .prop("lang", rule.language())
       .prop("name", rule.name())
       .prop("htmlDesc", rule.htmlDescription())
@@ -103,5 +107,24 @@ public class ShowAction implements RequestHandler {
         .endObject();
     }
     json.endArray();
+    json.name("actives").beginArray();
+
+    for (ActiveRule activeRule : result.getActiveRules()) {
+      json
+        .beginObject()
+        .prop("key", activeRule.key().toString())
+        .prop("inherit", activeRule.inherit())
+        .prop("override", activeRule.override())
+        .prop("severity", activeRule.severity())
+        .prop("parent", activeRule.parent())
+        .name("params").beginArray();
+      for (Map.Entry<String, String> param : activeRule.params().entrySet()) {
+        json.beginObject()
+          .prop("key", param.getKey())
+          .prop("value", param.getValue())
+          .endObject();
+      }
+      json.endArray();
+    }
   }
 }

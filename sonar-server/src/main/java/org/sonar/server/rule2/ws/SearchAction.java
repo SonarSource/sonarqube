@@ -208,9 +208,9 @@ public class SearchAction implements RequestHandler {
     for (Rule rule : result.getHits()) {
       json.beginObject();
       json
-        .prop("id", rule.key().toString())
+        .prop("key", rule.key().toString())
         .prop("repo", rule.key().repository())
-        .prop("key", rule.key().rule())
+        .prop("slug", rule.key().rule())
         .prop("lang", rule.language())
         .prop("name", rule.name())
         .prop("htmlDesc", rule.htmlDescription())
@@ -230,26 +230,25 @@ public class SearchAction implements RequestHandler {
           .endObject();
       }
       json.endArray();
-      json.endObject();
-    }
-    json.endArray();
+      json.name("actives").beginArray();
 
-    json.name("activeRules").beginArray();
-
-    for (ActiveRule activeRule : result.getActiveRules()) {
-      json
-        .beginObject()
-        .prop("id",activeRule.key().toString())
-        .prop("inherit", activeRule.inherit())
-        .prop("override", activeRule.override())
-        .prop("severity", activeRule.severity())
-        .prop("parent", activeRule.parent())
-        .name("params").beginArray();
-      for (Map.Entry<String, String> param : activeRule.params().entrySet()) {
-        json.beginObject()
-          .prop("key", param.getKey())
-          .prop("value", param.getValue())
-          .endObject();
+      for (ActiveRule activeRule : result.getActiveRules()) {
+        json
+          .beginObject()
+          .prop("key",activeRule.key().toString())
+          .prop("inherit", activeRule.inherit())
+          .prop("override", activeRule.override())
+          .prop("severity", activeRule.severity())
+          .prop("parent", activeRule.parent())
+          .name("params").beginArray();
+        for (Map.Entry<String, String> param : activeRule.params().entrySet()) {
+          json.beginObject()
+            .prop("key", param.getKey())
+            .prop("value", param.getValue())
+            .endObject();
+        }
+        json.endArray();
+        json.endObject();
       }
       json.endArray();
       json.endObject();
