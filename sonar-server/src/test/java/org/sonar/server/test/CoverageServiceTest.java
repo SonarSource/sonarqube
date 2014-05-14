@@ -33,6 +33,8 @@ import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.measure.db.MeasureDataDao;
 import org.sonar.server.user.MockUserSession;
 
+import java.util.Collections;
+
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -70,26 +72,44 @@ public class CoverageServiceTest {
 
   @Test
   public void get_hits_data() throws Exception {
-    service.getHitsData(COMPONENT_KEY);
+    service.getHits(COMPONENT_KEY, CoverageService.TYPE.UT);
     verify(measureDataDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY);
+
+    service.getHits(COMPONENT_KEY, CoverageService.TYPE.IT);
+    verify(measureDataDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.IT_COVERAGE_LINE_HITS_DATA_KEY);
+
+    service.getHits(COMPONENT_KEY, CoverageService.TYPE.OVERALL);
+    verify(measureDataDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA_KEY);
   }
 
   @Test
   public void not_get_hits_data_if_no_data() throws Exception {
     when(measureDataDao.findByComponentKeyAndMetricKey(eq(COMPONENT_KEY), anyString())).thenReturn(null);
-    assertThat(service.getHitsData(COMPONENT_KEY)).isNull();
+    assertThat(service.getHits(COMPONENT_KEY, CoverageService.TYPE.UT)).isEqualTo(Collections.emptyMap());
   }
 
   @Test
   public void get_conditions_data() throws Exception {
-    service.getConditionsData(COMPONENT_KEY);
+    service.getConditions(COMPONENT_KEY, CoverageService.TYPE.UT);
     verify(measureDataDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.CONDITIONS_BY_LINE_KEY);
+
+    service.getConditions(COMPONENT_KEY, CoverageService.TYPE.IT);
+    verify(measureDataDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.IT_CONDITIONS_BY_LINE_KEY);
+
+    service.getConditions(COMPONENT_KEY, CoverageService.TYPE.OVERALL);
+    verify(measureDataDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.OVERALL_CONDITIONS_BY_LINE_KEY);
   }
 
   @Test
-  public void get_coverered_conditions_data() throws Exception {
-    service.getCoveredConditionsData(COMPONENT_KEY);
+  public void get_covered_conditions_data() throws Exception {
+    service.getCoveredConditions(COMPONENT_KEY, CoverageService.TYPE.UT);
     verify(measureDataDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY);
+
+    service.getCoveredConditions(COMPONENT_KEY, CoverageService.TYPE.IT);
+    verify(measureDataDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE_KEY);
+
+    service.getCoveredConditions(COMPONENT_KEY, CoverageService.TYPE.OVERALL);
+    verify(measureDataDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE_KEY);
   }
 
   @Test
@@ -97,15 +117,17 @@ public class CoverageServiceTest {
     MutableTestable testable = mock(MutableTestable.class);
     when(snapshotPerspectives.as(MutableTestable.class, COMPONENT_KEY)).thenReturn(testable);
 
-    service.getTestCasesByLines(COMPONENT_KEY);
+    service.getTestCases(COMPONENT_KEY, CoverageService.TYPE.UT);
     verify(testable).testCasesByLines();
+
+    assertThat(service.getTestCases(COMPONENT_KEY, CoverageService.TYPE.IT)).isEmpty();
   }
 
   @Test
   public void not_get_test_cases_by_lines_if_no_testable() throws Exception {
     when(snapshotPerspectives.as(MutableTestable.class, COMPONENT_KEY)).thenReturn(null);
 
-    assertThat(service.getTestCasesByLines(COMPONENT_KEY)).isNull();
+    assertThat(service.getTestCases(COMPONENT_KEY, CoverageService.TYPE.UT)).isEqualTo(Collections.emptyMap());
   }
 
 }

@@ -20,20 +20,23 @@
 
 package org.sonar.server.test.ws;
 
-import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.test.CoverageService;
 
 import java.util.Map;
 
 public class CoverageShowAction implements RequestHandler {
+
+  private static final String KEY = "key";
+  private static final String FROM = "from";
+  private static final String TO = "to";
+  private static final String TYPE = "type";
 
   private final CoverageService coverageService;
 
@@ -49,54 +52,51 @@ public class CoverageShowAction implements RequestHandler {
       .setHandler(this);
 
     action
-      .createParam("key")
+      .createParam(KEY)
       .setRequired(true)
       .setDescription("File key")
       .setExampleValue("my_project:/src/foo/Bar.php");
 
     action
-      .createParam("from")
+      .createParam(FROM)
       .setDescription("First line to return. Starts at 1")
       .setExampleValue("10")
       .setDefaultValue("1");
 
     action
-      .createParam("to")
+      .createParam(TO)
       .setDescription("Last line to return (inclusive)")
       .setExampleValue("20");
 
     action
-      .createParam("type")
+      .createParam(TYPE)
       .setDescription("Type of coverage info to return :" +
         "<ul>" +
         "<li>UT : Unit Tests</li>" +
         "<li>IT : Integration Tests</li>" +
         "<li>OVERALL : Unit and Integration Tests</li>" +
         "</ul>")
-      .setPossibleValues("UT", "IT", "OVERALL")
-      .setDefaultValue("UT");
+      .setPossibleValues(CoverageService.TYPE.values())
+      .setDefaultValue(CoverageService.TYPE.UT.name());
   }
 
   @Override
   public void handle(Request request, Response response) {
-    String fileKey = request.mandatoryParam("key");
+    String fileKey = request.mandatoryParam(KEY);
     coverageService.checkPermission(fileKey);
 
-    int from = Math.max(request.mandatoryParamAsInt("from"), 1);
-    int to = (Integer) ObjectUtils.defaultIfNull(request.paramAsInt("to"), Integer.MAX_VALUE);
+    int from = Math.max(request.mandatoryParamAsInt(FROM), 1);
+    int to = (Integer) ObjectUtils.defaultIfNull(request.paramAsInt(TO), Integer.MAX_VALUE);
+    CoverageService.TYPE type = CoverageService.TYPE.valueOf(request.param(TYPE));
 
     JsonWriter json = response.newJsonWriter().beginObject();
 
-    String hits = coverageService.getHitsData(fileKey);
-    Map<Integer, Integer> testCases = coverageService.getTestCasesByLines(fileKey);
-    String conditions = coverageService.getConditionsData(fileKey);
-    String coveredConditions = coverageService.getCoveredConditionsData(fileKey);
-    if (hits != null) {
-      Map<Integer, Integer> hitsByLine = KeyValueFormat.parseIntInt(hits);
-      Map<Integer, Integer> testCasesByLine = testCases != null ? testCases : Maps.<Integer, Integer>newHashMap();
-      Map<Integer, Integer> conditionsByLine = conditions != null ? KeyValueFormat.parseIntInt(conditions) : Maps.<Integer, Integer>newHashMap();
-      Map<Integer, Integer> coveredConditionsByLine = coveredConditions != null ? KeyValueFormat.parseIntInt(coveredConditions) : Maps.<Integer, Integer>newHashMap();
-      writeCoverage(fileKey, hitsByLine, testCasesByLine, conditionsByLine, coveredConditionsByLine, from, to, json);
+    Map<Integer, Integer> hits = coverageService.getHits(fileKey, type);
+    if (!hits.isEmpty()) {
+      Map<Integer, Integer> testCases = coverageService.getTestCases(fileKey, type);
+      Map<Integer, Integer> conditions = coverageService.getConditions(fileKey, type);
+      Map<Integer, Integer> coveredConditions = coverageService.getCoveredConditions(fileKey, type);
+      writeCoverage(fileKey, hits, testCases, conditions, coveredConditions, from, to, json);
     }
 
     json.endObject().close();

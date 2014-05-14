@@ -20,10 +20,12 @@
 
 package org.sonar.server.test;
 
+import com.google.common.collect.Maps;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.test.MutableTestable;
 import org.sonar.api.test.Testable;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.core.measure.db.MeasureDataDao;
@@ -35,6 +37,10 @@ import javax.annotation.CheckForNull;
 import java.util.Map;
 
 public class CoverageService implements ServerComponent {
+
+  public enum TYPE {
+    UT, IT, OVERALL
+  }
 
   private final MeasureDataDao measureDataDao;
   private final SnapshotPerspectives snapshotPerspectives;
@@ -48,48 +54,58 @@ public class CoverageService implements ServerComponent {
     UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, fileKey);
   }
 
-  /**
-   * Warning - does not check permission
-   */
-  @CheckForNull
-  public String getHitsData(String fileKey) {
-    return findDataFromComponent(fileKey, CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY);
-  }
-
-  /**
-   * Warning - does not check permission
-   */
-  @CheckForNull
-  public String getConditionsData(String fileKey) {
-    return findDataFromComponent(fileKey, CoreMetrics.CONDITIONS_BY_LINE_KEY);
-  }
-
-  /**
-   * Warning - does not check permission
-   */
-  @CheckForNull
-  public String getCoveredConditionsData(String fileKey) {
-    return findDataFromComponent(fileKey, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY);
-  }
-
-  /**
-   * Warning - does not check permission
-   */
-  @CheckForNull
-  public Map<Integer, Integer> getTestCasesByLines(String fileKey) {
-    Testable testable = snapshotPerspectives.as(MutableTestable.class, fileKey);
-    if (testable != null) {
-      return testable.testCasesByLines();
+  public Map<Integer, Integer> getHits(String fileKey, CoverageService.TYPE type) {
+    switch (type) {
+      case IT:
+        return findDataFromComponent(fileKey, CoreMetrics.IT_COVERAGE_LINE_HITS_DATA_KEY);
+      case OVERALL:
+        return findDataFromComponent(fileKey, CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA_KEY);
+      default:
+        return findDataFromComponent(fileKey, CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY);
     }
-    return null;
+  }
+
+  public Map<Integer, Integer> getConditions(String fileKey, CoverageService.TYPE type) {
+    switch (type) {
+      case IT:
+        return findDataFromComponent(fileKey, CoreMetrics.IT_CONDITIONS_BY_LINE_KEY);
+      case OVERALL:
+        return findDataFromComponent(fileKey, CoreMetrics.OVERALL_CONDITIONS_BY_LINE_KEY);
+      default:
+        return findDataFromComponent(fileKey, CoreMetrics.CONDITIONS_BY_LINE_KEY);
+    }
+  }
+
+  public Map<Integer, Integer> getCoveredConditions(String fileKey, CoverageService.TYPE type) {
+    switch (type) {
+      case IT:
+        return findDataFromComponent(fileKey, CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE_KEY);
+      case OVERALL:
+        return findDataFromComponent(fileKey, CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE_KEY);
+      default:
+        return findDataFromComponent(fileKey, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY);
+    }
+  }
+
+  /**
+   * Test cases is only return for unit tests
+   */
+  public Map<Integer, Integer> getTestCases(String fileKey, CoverageService.TYPE type) {
+    if (TYPE.UT.equals(type)) {
+      Testable testable = snapshotPerspectives.as(MutableTestable.class, fileKey);
+      if (testable != null) {
+        return testable.testCasesByLines();
+      }
+    }
+    return Maps.newHashMap();
   }
 
   @CheckForNull
-  private String findDataFromComponent(String fileKey, String metricKey) {
+  private Map<Integer, Integer> findDataFromComponent(String fileKey, String metricKey) {
     MeasureDataDto data = measureDataDao.findByComponentKeyAndMetricKey(fileKey, metricKey);
     if (data != null) {
-      return data.getData();
+      return KeyValueFormat.parseIntInt(data.getData());
     }
-    return null;
+    return Maps.newHashMap();
   }
 }

@@ -47,12 +47,12 @@ public class CoverageShowActionTest {
   @Test
   public void show_coverage_for_unit_test() throws Exception {
     String fileKey = "src/Foo.java";
-    when(coverageService.getHitsData(fileKey)).thenReturn("1=1;2=1;3=0;4=1;5=1");
-    when(coverageService.getTestCasesByLines(fileKey)).thenReturn(ImmutableMap.of(4, 8, 1, 2));
-    when(coverageService.getConditionsData(fileKey)).thenReturn("2=3;3=2");
-    when(coverageService.getCoveredConditionsData(fileKey)).thenReturn("2=1;3=2");
+    when(coverageService.getHits(fileKey, CoverageService.TYPE.UT)).thenReturn(ImmutableMap.of(1, 1, 2, 1, 3, 0, 4, 1, 5 , 1));
+    when(coverageService.getTestCases(fileKey, CoverageService.TYPE.UT)).thenReturn(ImmutableMap.of(4, 8, 1, 2));
+    when(coverageService.getConditions(fileKey, CoverageService.TYPE.UT)).thenReturn(ImmutableMap.of(2, 3, 3, 2));
+    when(coverageService.getCoveredConditions(fileKey, CoverageService.TYPE.UT)).thenReturn(ImmutableMap.of(2, 1, 3, 2));
 
-    WsTester.TestRequest request = tester.newGetRequest("api/coverage", "show").setParam("key", fileKey);
+    WsTester.TestRequest request = tester.newGetRequest("api/coverage", "show").setParam("key", fileKey).setParam("type", "UT");
 
     request.execute().assertJson(getClass(), "show_coverage.json");
   }
@@ -60,14 +60,38 @@ public class CoverageShowActionTest {
   @Test
   public void show_coverage_for_unit_test_with_from_and_to() throws Exception {
     String fileKey = "src/Foo.java";
-    when(coverageService.getHitsData(fileKey)).thenReturn("1=1;2=1;3=0;4=1;5=1");
-    when(coverageService.getTestCasesByLines(fileKey)).thenReturn(ImmutableMap.of(4, 8, 1, 2));
-    when(coverageService.getConditionsData(fileKey)).thenReturn("2=3;3=2");
-    when(coverageService.getCoveredConditionsData(fileKey)).thenReturn("2=1;3=2");
+    when(coverageService.getHits(fileKey, CoverageService.TYPE.UT)).thenReturn(ImmutableMap.of(1, 1, 2, 1, 3, 0, 4, 1, 5 , 1));
+    when(coverageService.getTestCases(fileKey, CoverageService.TYPE.UT)).thenReturn(ImmutableMap.of(4, 8, 1, 2));
+    when(coverageService.getConditions(fileKey, CoverageService.TYPE.UT)).thenReturn(ImmutableMap.of(2, 3, 3, 2));
+    when(coverageService.getCoveredConditions(fileKey, CoverageService.TYPE.UT)).thenReturn(ImmutableMap.of(2, 1, 3, 2));
 
-    WsTester.TestRequest request = tester.newGetRequest("api/coverage", "show").setParam("key", fileKey).setParam("from", "3").setParam("to", "4");
+    WsTester.TestRequest request = tester.newGetRequest("api/coverage", "show").setParam("key", fileKey).setParam("from", "3").setParam("to", "4").setParam("type", "UT");
 
     request.execute().assertJson(getClass(), "show_coverage_with_from_and_to.json");
+  }
+
+  @Test
+  public void show_coverage_for_integration_test() throws Exception {
+    String fileKey = "src/Foo.java";
+    when(coverageService.getHits(fileKey, CoverageService.TYPE.IT)).thenReturn(ImmutableMap.of(1, 1, 2, 1, 3, 0, 4, 1, 5 , 1));
+    when(coverageService.getConditions(fileKey, CoverageService.TYPE.IT)).thenReturn(ImmutableMap.of(2, 3, 3, 2));
+    when(coverageService.getCoveredConditions(fileKey, CoverageService.TYPE.IT)).thenReturn(ImmutableMap.of(2, 1, 3, 2));
+
+    WsTester.TestRequest request = tester.newGetRequest("api/coverage", "show").setParam("key", fileKey).setParam("type", "IT");
+
+    request.execute().assertJson(getClass(), "show_coverage_for_integration_test.json");
+  }
+
+  @Test
+  public void show_coverage_for_overall_test() throws Exception {
+    String fileKey = "src/Foo.java";
+    when(coverageService.getHits(fileKey, CoverageService.TYPE.OVERALL)).thenReturn(ImmutableMap.of(1, 1, 2, 1, 3, 0, 4, 1, 5 , 1));
+    when(coverageService.getConditions(fileKey, CoverageService.TYPE.OVERALL)).thenReturn(ImmutableMap.of(2, 3, 3, 2));
+    when(coverageService.getCoveredConditions(fileKey, CoverageService.TYPE.OVERALL)).thenReturn(ImmutableMap.of(2, 1, 3, 2));
+
+    WsTester.TestRequest request = tester.newGetRequest("api/coverage", "show").setParam("key", fileKey).setParam("type", "OVERALL");
+
+    request.execute().assertJson(getClass(), "show_coverage_for_overall_test.json");
   }
 
 }
