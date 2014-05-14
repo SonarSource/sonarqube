@@ -663,22 +663,6 @@ public final class CoreMetrics {
     .setDeleteHistoricalData(true)
     .create();
 
-  /**
-   * @deprecated in 2.7. Replaced by {@link #CONDITIONS_BY_LINE_KEY} and {@link #COVERED_CONDITIONS_BY_LINE_KEY}
-   */
-  @Deprecated
-  public static final String BRANCH_COVERAGE_HITS_DATA_KEY = "branch_coverage_hits_data";
-
-  /**
-   * @deprecated in 2.7. Replaced by metrics {@link #CONDITIONS_BY_LINE} and {@link #COVERED_CONDITIONS_BY_LINE}
-   */
-  @Deprecated
-  public static final Metric BRANCH_COVERAGE_HITS_DATA = new Metric.Builder(BRANCH_COVERAGE_HITS_DATA_KEY, "Branch coverage hits", Metric.ValueType.DATA)
-    .setDomain(DOMAIN_TESTS)
-    .setDeleteHistoricalData(true)
-    .setHidden(true)
-    .create();
-
   public static final String CONDITIONS_BY_LINE_KEY = "conditions_by_line";
 
   /**

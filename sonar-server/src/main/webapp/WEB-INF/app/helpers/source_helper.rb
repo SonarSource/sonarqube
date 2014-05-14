@@ -128,7 +128,7 @@ module SourceHelper
 
   class HtmlLine
     attr_accessor :id, :index, :source, :revision, :author, :datetime, :violations, :issues, :hits, :conditions,
-                  :covered_conditions, :hidden, :displayed, :deprecated_conditions_label, :covered_lines, :has_focus
+                  :covered_conditions, :hidden, :displayed, :covered_lines, :has_focus
 
     def initialize(source, id)
       @source=source
@@ -193,20 +193,5 @@ module SourceHelper
       @has_focus=true
     end
 
-    def deprecated_conditions_label=(label)
-      if label
-        @deprecated_conditions_label=label
-        if label=='0%'
-          @conditions=2
-          @covered_conditions=0
-        elsif label=='100%'
-          @conditions=2
-          @covered_conditions=2
-        else
-          @conditions=2
-          @covered_conditions=1
-        end
-      end
-    end
   end
 end
