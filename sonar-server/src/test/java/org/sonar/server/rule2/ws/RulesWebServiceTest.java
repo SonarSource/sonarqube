@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule2.ws;
 
+import com.google.common.collect.ImmutableSet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -171,6 +172,33 @@ public class RulesWebServiceTest {
     WsTester.Result result = request.execute();
 
     result.assertJson(this.getClass(),"search_active_rules_params.json");
+  }
+
+
+
+  @Test
+  public void get_tags() throws Exception {
+    QualityProfileDto profile = newQualityProfile();
+    tester.get(QualityProfileDao.class).insert(profile, session);
+
+    RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"))
+      .setTags(ImmutableSet.of("hello", "world"));
+    ruleDao.insert(rule,  session);
+
+    RuleDto rule2 = newRuleDto(RuleKey.of(profile.getLanguage(), "S002"))
+      .setTags(ImmutableSet.of("java"))
+      .setSystemTags(ImmutableSet.of("sys1"));
+    ruleDao.insert(rule2,  session);
+
+    session.commit();
+    tester.get(RuleService.class).refresh();
+
+
+    MockUserSession.set();
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules2", "tags");
+    WsTester.Result result = request.execute();
+
+    result.assertJson(this.getClass(),"get_tags.json");
   }
 
 
