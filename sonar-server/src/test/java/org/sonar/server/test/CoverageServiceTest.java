@@ -83,7 +83,7 @@ public class CoverageServiceTest {
   @Test
   public void get_conditions_data() throws Exception {
     service.getConditionsData(COMPONENT_KEY);
-    verify(measureDataDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY);
+    verify(measureDataDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.CONDITIONS_BY_LINE_KEY);
   }
 
   @Test

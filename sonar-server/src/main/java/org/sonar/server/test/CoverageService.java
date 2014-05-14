@@ -61,7 +61,7 @@ public class CoverageService implements ServerComponent {
    */
   @CheckForNull
   public String getConditionsData(String fileKey) {
-    return findDataFromComponent(fileKey, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY);
+    return findDataFromComponent(fileKey, CoreMetrics.CONDITIONS_BY_LINE_KEY);
   }
 
   /**

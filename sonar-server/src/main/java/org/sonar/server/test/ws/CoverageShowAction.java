@@ -20,6 +20,7 @@
 
 package org.sonar.server.test.ws;
 
+import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.server.ws.Request;
@@ -29,8 +30,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.test.CoverageService;
-
-import javax.annotation.Nullable;
 
 import java.util.Map;
 
@@ -74,7 +73,8 @@ public class CoverageShowAction implements RequestHandler {
         "<li>IT : Integration Tests</li>" +
         "<li>OVERALL : Unit and Integration Tests</li>" +
         "</ul>")
-      .setPossibleValues("UT", "IT", "OVERALL");
+      .setPossibleValues("UT", "IT", "OVERALL")
+      .setDefaultValue("UT");
   }
 
   @Override
@@ -88,16 +88,25 @@ public class CoverageShowAction implements RequestHandler {
     JsonWriter json = response.newJsonWriter().beginObject();
 
     String hits = coverageService.getHitsData(fileKey);
-    Map<Integer, Integer> testCasesByLines = coverageService.getTestCasesByLines(fileKey);
+    Map<Integer, Integer> testCases = coverageService.getTestCasesByLines(fileKey);
+    String conditions = coverageService.getConditionsData(fileKey);
+    String coveredConditions = coverageService.getCoveredConditionsData(fileKey);
     if (hits != null) {
       Map<Integer, Integer> hitsByLine = KeyValueFormat.parseIntInt(hits);
-      writeCoverage(fileKey, hitsByLine, testCasesByLines, from, to, json);
+      Map<Integer, Integer> testCasesByLine = testCases != null ? testCases : Maps.<Integer, Integer>newHashMap();
+      Map<Integer, Integer> conditionsByLine = conditions != null ? KeyValueFormat.parseIntInt(conditions) : Maps.<Integer, Integer>newHashMap();
+      Map<Integer, Integer> coveredConditionsByLine = coveredConditions != null ? KeyValueFormat.parseIntInt(coveredConditions) : Maps.<Integer, Integer>newHashMap();
+      writeCoverage(fileKey, hitsByLine, testCasesByLine, conditionsByLine, coveredConditionsByLine, from, to, json);
     }
 
     json.endObject().close();
   }
 
-  private void writeCoverage(String fileKey, Map<Integer, Integer> hitsByLine, @Nullable Map<Integer, Integer> testCasesByLines, int from, int to, JsonWriter json) {
+  private void writeCoverage(String fileKey, Map<Integer, Integer> hitsByLine,
+                             Map<Integer, Integer> testCasesByLines,
+                             Map<Integer, Integer> conditionsByLine,
+                             Map<Integer, Integer> coveredConditionsByLine,
+                             int from, int to, JsonWriter json) {
     json.name("coverage").beginArray();
     for (Map.Entry<Integer, Integer> entry : hitsByLine.entrySet()) {
       Integer line = entry.getKey();
@@ -106,7 +115,9 @@ public class CoverageShowAction implements RequestHandler {
         json.beginArray();
         json.value(line);
         json.value(hits > 0);
-        json.value(testCasesByLines != null ? testCasesByLines.get(line) : null);
+        json.value(testCasesByLines.get(line));
+        json.value(conditionsByLine.get(line));
+        json.value(coveredConditionsByLine.get(line));
         json.endArray();
       }
     }
