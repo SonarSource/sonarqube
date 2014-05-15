@@ -40,7 +40,13 @@ public class ScmAction implements RequestHandler {
 
   void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("scm")
-      .setDescription("Get SCM information of source files. Require Browse permission on file's project")
+      .setDescription("Get SCM information of source files. Require Browse permission on file's project<br/>" +
+        "Each element of the result array is composed of:" +
+        "<ol>" +
+        "<li>Line number</li>" +
+        "<li>Author of the commit</li>" +
+        "<li>Date of the commit</li>" +
+        "</ol>")
       .setSince("4.4")
       .setResponseExample(Resources.getResource(getClass(), "example-scm.json"))
       .setHandler(this);

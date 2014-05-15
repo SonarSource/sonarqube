@@ -41,7 +41,12 @@ public class ShowAction implements RequestHandler {
 
   void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("show")
-      .setDescription("Get source code. Require Browse permission on file's project")
+      .setDescription("Get source code. Require Browse permission on file's project<br/>" +
+        "Each element of the result array is composed of:" +
+        "<ol>" +
+        "<li>Line number</li>" +
+        "<li>Content of the line</li>" +
+        "</ol>")
       .setSince("4.4")
       .setResponseExample(Resources.getResource(getClass(), "example-show.json"))
       .setHandler(this);

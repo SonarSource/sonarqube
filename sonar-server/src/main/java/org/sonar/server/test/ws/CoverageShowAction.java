@@ -46,7 +46,14 @@ public class CoverageShowAction implements RequestHandler {
 
   void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("show")
-      .setDescription("Get code coverage. Require Browse permission on file's project")
+      .setDescription("Get code coverage. Require Browse permission on file's project<br/>" +
+        "Each element of the result array is composed of:" +
+        "<ol>" +
+        "<li>Line number</li>" +
+        "<li>Is the line covered?</li>" +
+        "<li>Number of branches</li>" +
+        "<li>Number of branches covered</li>" +
+        "</ol>")
       .setSince("4.4")
       .setResponseExample(Resources.getResource(getClass(), "coverage-example-show.json"))
       .setHandler(this);
