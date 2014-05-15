@@ -21,9 +21,9 @@ package org.sonar.server.db;
 
 import com.google.common.base.Preconditions;
 import org.sonar.api.utils.System2;
-import org.sonar.core.db.Dao;
-import org.sonar.core.db.Dto;
+import org.sonar.core.persistence.Dto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.action.DtoIndexAction;
 import org.sonar.server.search.action.EmbeddedIndexAction;
@@ -136,6 +136,14 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
     return doGetByKey(key, session);
   }
 
+  public E getNonNullByKey(K key, DbSession session) {
+    E value = doGetByKey(key, session);
+    if (value == null) {
+      throw new NotFoundException(String.format("Key '%s' not found", key));
+    }
+    return value;
+  }
+
   @Override
   public E update(E item, DbSession session) {
     item.setUpdatedAt(new Date(system2.now()));
@@ -175,7 +183,7 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
 
   @Override
   public void delete(E item, DbSession session) {
-    Preconditions.checkNotNull(item.getKey(),"Dto does not have a valid Key");
+    Preconditions.checkNotNull(item.getKey(), "Dto does not have a valid Key");
     deleteByKey(item.getKey(), session);
   }
 
@@ -195,16 +203,16 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
 
   protected void enqueueUpdate(Object nestedItem, K key, DbSession session) {
     session.enqueue(new EmbeddedIndexAction<K>(
-      this.getIndexType(), IndexAction.Method.UPDATE, nestedItem,  key));
+      this.getIndexType(), IndexAction.Method.UPDATE, nestedItem, key));
   }
 
   public void enqueueDelete(Object nestedItem, K key, DbSession session) {
     session.enqueue(new EmbeddedIndexAction<K>(
-      this.getIndexType(), IndexAction.Method.DELETE, nestedItem,  key));
+      this.getIndexType(), IndexAction.Method.DELETE, nestedItem, key));
   }
 
   public void enqueueInsert(Object nestedItem, K key, DbSession session) {
     session.enqueue(new EmbeddedIndexAction<K>(
-      this.getIndexType(), IndexAction.Method.INSERT, nestedItem,  key));
+      this.getIndexType(), IndexAction.Method.INSERT, nestedItem, key));
   }
 }

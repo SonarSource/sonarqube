@@ -34,7 +34,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.cluster.WorkQueue;
-import org.sonar.core.db.Dto;
+import org.sonar.core.persistence.Dto;
 import org.sonar.server.es.ESNode;
 
 import java.io.IOException;

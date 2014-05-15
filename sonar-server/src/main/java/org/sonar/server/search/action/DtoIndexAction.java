@@ -19,7 +19,7 @@
  */
 package org.sonar.server.search.action;
 
-import org.sonar.core.db.Dto;
+import org.sonar.core.persistence.Dto;
 
 public class DtoIndexAction<E extends Dto> extends IndexAction {
 

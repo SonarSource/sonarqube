@@ -23,7 +23,7 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.core.db.Dto;
+import org.sonar.core.persistence.Dto;
 import org.sonar.server.db.DbClient;
 
 import java.io.IOException;

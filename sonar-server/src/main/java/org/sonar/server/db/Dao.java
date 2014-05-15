@@ -17,31 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.db;
+package org.sonar.server.db;
 
+import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.Dto;
+import org.sonar.core.persistence.DbSession;
+
+import javax.annotation.CheckForNull;
 import java.io.Serializable;
-import java.util.Date;
+import java.util.Collection;
+import java.util.List;
 
-public abstract class Dto<K extends Serializable> {
+public interface Dao<E extends Dto<K>, K extends Serializable> extends ServerComponent {
 
-  private Date createdAt;
-  private Date updatedAt;
+  @CheckForNull
+  E getByKey(K key, DbSession session);
 
-  public abstract K getKey();
+  E getNonNullByKey(K key, DbSession session);
 
-  public void setCreatedAt(Date datetime){
-    this.createdAt = datetime;
-  }
+  E update(E item, DbSession session);
 
-  public void setUpdatedAt(Date datetime){
-    this.updatedAt = datetime;
-  }
+  List<E> update(List<E> items, DbSession session);
 
-  public Date getCreatedAt(){
-    return this.createdAt;
-  }
+  E insert(E item, DbSession session);
 
-  public Date getUpdatedAt(){
-    return this.updatedAt;
-  }
+  List<E> insert(List<E> items, DbSession session);
+
+  void delete(E item, DbSession session);
+
+  void delete(Collection<E> items, DbSession session);
+
+  void deleteByKey(K key, DbSession session);
+
+  Iterable<K> keysOfRowsUpdatedAfter(long timestamp, DbSession session);
+
 }

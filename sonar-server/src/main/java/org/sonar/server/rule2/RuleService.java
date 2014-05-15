@@ -19,13 +19,13 @@
  */
 package org.sonar.server.rule2;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule2.index.RuleIndex;
 import org.sonar.server.rule2.index.RuleNormalizer;
 import org.sonar.server.rule2.index.RuleQuery;
@@ -34,6 +34,8 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import java.util.Date;
 import java.util.Set;
 
 /**
@@ -77,15 +79,41 @@ public class RuleService implements ServerComponent {
 
     DbSession dbSession = db.openSession(false);
     try {
-      RuleDto rule = db.ruleDao().getByKey(ruleKey, dbSession);
-      if (rule == null) {
-        throw new NotFoundException(String.format("Rule %s not found", ruleKey));
-      }
+      RuleDto rule = db.ruleDao().getNonNullByKey(ruleKey, dbSession);
       boolean changed = RuleTagHelper.applyTags(rule, tags);
       if (changed) {
         db.ruleDao().update(rule, dbSession);
         dbSession.commit();
       }
+    } finally {
+      dbSession.close();
+    }
+  }
+
+  /**
+   * Extend rule description by adding a note.
+   * @param ruleKey the required key
+   * @param markdownNote markdown text. <code>null</code> to remove current note.
+   */
+  public void setNote(RuleKey ruleKey, @Nullable String markdownNote) {
+    UserSession userSession = UserSession.get();
+    checkAdminPermission(userSession);
+    DbSession dbSession = db.openSession(false);
+    try {
+      RuleDto rule = db.ruleDao().getNonNullByKey(ruleKey, dbSession);
+      if (StringUtils.isBlank(markdownNote)) {
+        rule.setNoteData(null);
+        rule.setNoteCreatedAt(null);
+        rule.setNoteUpdatedAt(null);
+        rule.setNoteUserLogin(null);
+      } else {
+        rule.setNoteData(markdownNote);
+        rule.setNoteCreatedAt(rule.getNoteCreatedAt() != null ? rule.getNoteCreatedAt() : new Date());
+        rule.setNoteUpdatedAt(new Date());
+        rule.setNoteUserLogin(userSession.login());
+      }
+      db.ruleDao().update(rule, dbSession);
+      dbSession.commit();
     } finally {
       dbSession.close();
     }

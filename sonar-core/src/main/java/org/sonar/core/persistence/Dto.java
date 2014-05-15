@@ -17,7 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.core.db;
+package org.sonar.core.persistence;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import java.io.Serializable;
+import java.util.Date;
+
+public abstract class Dto<K extends Serializable> {
+
+  private Date createdAt;
+  private Date updatedAt;
+
+  public abstract K getKey();
+
+  public void setCreatedAt(Date datetime){
+    this.createdAt = datetime;
+  }
+
+  public void setUpdatedAt(Date datetime){
+    this.updatedAt = datetime;
+  }
+
+  public Date getCreatedAt(){
+    return this.createdAt;
+  }
+
+  public Date getUpdatedAt(){
+    return this.updatedAt;
+  }
+}

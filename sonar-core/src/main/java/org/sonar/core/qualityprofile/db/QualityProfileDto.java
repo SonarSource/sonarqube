@@ -20,7 +20,7 @@
 
 package org.sonar.core.qualityprofile.db;
 
-import org.sonar.core.db.Dto;
+import org.sonar.core.persistence.Dto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;

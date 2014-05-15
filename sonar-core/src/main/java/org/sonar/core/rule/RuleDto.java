@@ -26,7 +26,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Cardinality;
-import org.sonar.core.db.Dto;
+import org.sonar.core.persistence.Dto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;

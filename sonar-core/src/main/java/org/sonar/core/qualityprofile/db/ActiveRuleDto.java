@@ -23,7 +23,7 @@ package org.sonar.core.qualityprofile.db;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.core.db.Dto;
+import org.sonar.core.persistence.Dto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.SeverityUtil;
 

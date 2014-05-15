@@ -25,7 +25,7 @@ import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.picocontainer.Startable;
 import org.sonar.api.ServerComponent;
-import org.sonar.core.db.Dto;
+import org.sonar.core.persistence.Dto;
 
 import javax.annotation.CheckForNull;
 import java.io.Serializable;
