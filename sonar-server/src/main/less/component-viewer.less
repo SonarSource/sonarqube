@@ -408,26 +408,19 @@
   display: none;
   .clearfix;
   margin-top: -1px;
-  padding: 10px;
   border: 1px solid @barBorderColor;
   border-top: none;
   background-color: #fff;
 }
 
 .component-viewer-header-expanded-bar-section {
-  float: left;
-  min-width: 150px;
-  max-width: 250px;
-}
-
-.component-viewer-header-expanded-bar-section + .component-viewer-header-expanded-bar-section {
-  margin-left: 20px;
-  padding-left: 20px;
-  border-left: 1px solid @barBorderColor;
+  display: inline-block;
+  vertical-align: top;
+  width: 250px;
 }
 
 .component-viewer-header-expanded-bar-section-title {
-  margin-bottom: 6px;
+  padding: 10px 10px 6px 10px;
   color: #777;
   font-size: @smallFontSize;
 }
@@ -437,21 +430,27 @@
   & > li > .item {
     position: relative;
     display: block;
-    padding: 2px 25px 2px 5px;
+    padding: 4px 60px 4px 10px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
 
     & > .number {
       position: absolute;
-      right: 5px;
+      right: 25px;
+    }
+
+    & > i {
+      position: absolute;
+      right: 10px;
     }
   }
 
-  & > li > a {
+  & > li > a.item {
     .trans;
 
     &:hover { background-color: @barBackgroundColor; }
+    &:active, &.active { background-color: @lightBlue; }
   }
 }
 

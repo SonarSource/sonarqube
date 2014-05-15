@@ -87,11 +87,15 @@ define [
       @toggleSetting e, @options.main.showWorkspace, @options.main.hideWorkspace
 
 
-    filterByLinesToCover: ->
+    filterByLinesToCover: (e) ->
+      @$('.component-viewer-header-expanded-bar-section-list .active').removeClass 'active'
+      $(e.currentTarget).addClass 'active'
       @options.main.filterLinesByLinesToCover()
 
 
-    filterByUncoveredLines: ->
+    filterByUncoveredLines: (e) ->
+      @$('.component-viewer-header-expanded-bar-section-list .active').removeClass 'active'
+      $(e.currentTarget).addClass 'active'
       @options.main.filterLinesByUncoveredLines()
 
 
