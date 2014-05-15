@@ -26,7 +26,6 @@
           </p>
           <% if ncloc_language_dist_hash %>
             <% if ncloc_language_dist_hash.size > 1 %>
-            <div class="widget-histogram">
               <table class="clear width100">
                 <%
                    max = ncloc_language_dist_hash.max_by{|_k,v| v.to_i}[1].to_i
@@ -35,26 +34,28 @@
                    languages_by_key = Hash[languages.collect { |l| [l.getKey(), l.getName] }]
                    ncloc_language_dist_hash.sort {|v1,v2| (languages_by_key[v1[0]] ? languages_by_key[v1[0]].to_s : v1[0]) <=> (languages_by_key[v2[0]] ? languages_by_key[v2[0]].to_s : v2[0]) }.each do |language_key, language_ncloc|
                 %>
-                <tr>
-                  <td class="widget-histogram-label">
-                    <% language = languages.find { |l| l.getKey()==language_key.to_s } -%>
-                    <%= language ? language.getName() : language_key -%>
-                  </td>
-                  <td class="widget-histogram-bar">
-                    <%= barchart(:width => 70, :percent => (100 * language_ncloc.to_i / max).to_i, :value => ncloc.format_numeric_value(language_ncloc), :color => '#1f77b4')%>
-                  </td>
-                </tr>
+                  <tr>
+                    <td>
+                      <% language = languages.find { |l| l.getKey()==language_key.to_s } -%>
+                      <%= language ? language.getName() : language_key -%>
+                    </td>
+                    <td style="padding: 0 5px;" align="right">
+                      <%= ncloc.format_numeric_value(language_ncloc) %>
+                    </td>
+                    <td>&nbsp;</td>
+                    <td align="left" style="padding-bottom:2px; padding-top:2px;">
+                      <%= barchart(:width => 70, :percent => (100 * language_ncloc.to_i / max).to_i)%>
+                    </td>
+                  </tr>
                 <% end %>
               </table>
-          <% else %>
-            <%
-               language_key = ncloc_language_dist_hash.first[0]
-               language = languages.find { |l| l.getKey()==language_key.to_s } -%>
-            <%= language ? language.getName() : language_key -%>
+            <% else %>
+              <%
+                 language_key = ncloc_language_dist_hash.first[0]
+                 language = languages.find { |l| l.getKey()==language_key.to_s } -%>
+              <%= language ? language.getName() : language_key -%>
+            <% end %>
           <% end %>
-            </div>
-          <% end %>
-
         <% else %>
           <h3><%= message('widget.size.lines') -%></h3>
           <p><span class="big"><%= format_measure(lines, :suffix => '', :url => url_for_drilldown(lines)) -%> <%= trend_icon(lines) -%></span></p>
