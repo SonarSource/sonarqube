@@ -106,15 +106,6 @@ public class Rules implements ServerExtension {
     ruleOperations.deleteCustomRule(rule, UserSession.get());
   }
 
-  public void updateRuleTags(int ruleId, Object tags) {
-    RuleDto rule = findRuleNotNull(ruleId);
-    List<String> newTags = RubyUtils.toStrings(tags);
-    if (newTags == null) {
-      newTags = ImmutableList.of();
-    }
-    ruleOperations.updateRuleTags(rule, newTags, UserSession.get());
-  }
-
   @CheckForNull
   public Rule findByKey(RuleKey key) {
     return ruleRegistry.findByKey(key);

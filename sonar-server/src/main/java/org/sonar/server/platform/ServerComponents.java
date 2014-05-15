@@ -326,8 +326,6 @@ class ServerComponents {
     pico.addSingleton(RulesWs.class);
     pico.addSingleton(RuleShowWsHandler.class);
     pico.addSingleton(RuleSearchWsHandler.class);
-    pico.addSingleton(AddTagsWsHandler.class);
-    pico.addSingleton(RemoveTagsWsHandler.class);
     pico.addSingleton(RulesDefinitionXmlLoader.class);
 
     // experimental rules
@@ -338,13 +336,6 @@ class ServerComponents {
     pico.addSingleton(TagsAction.class);
     pico.addSingleton(SetTagsAction.class);
     pico.addSingleton(org.sonar.server.rule2.ws.AppAction.class);
-
-    // rule tags
-    pico.addSingleton(ESRuleTags.class);
-    pico.addSingleton(RuleTagLookup.class);
-    pico.addSingleton(RuleTagOperations.class);
-    pico.addSingleton(RuleTags.class);
-    pico.addSingleton(RuleTagsWs.class);
 
     // measure
     pico.addComponent(MeasuresDao.class, false);

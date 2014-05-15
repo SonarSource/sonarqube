@@ -38,17 +38,11 @@ public class RulesWsTest {
   @Mock
   RuleShowWsHandler showHandler;
 
-  @Mock
-  AddTagsWsHandler addTagsWsHandler;
-
-  @Mock
-  RemoveTagsWsHandler removeTagsWsHandler;
-
   WsTester tester;
 
   @Before
   public void setUp() {
-    tester = new WsTester(new RulesWs(searchHandler, showHandler, addTagsWsHandler, removeTagsWsHandler));
+    tester = new WsTester(new RulesWs(searchHandler, showHandler));
   }
 
   @Test
@@ -57,7 +51,7 @@ public class RulesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/rules");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(4);
+    assertThat(controller.actions()).hasSize(2);
 
     WebService.Action list = controller.action("list");
     assertThat(list).isNotNull();
@@ -73,21 +67,5 @@ public class RulesWsTest {
     assertThat(show.since()).isEqualTo("4.2");
     assertThat(show.isPost()).isFalse();
     assertThat(show.isInternal()).isFalse();
-
-    WebService.Action addTags = controller.action("add_tags");
-    assertThat(addTags).isNotNull();
-    assertThat(addTags.handler()).isNotNull();
-    assertThat(addTags.since()).isEqualTo("4.2");
-    assertThat(addTags.isPost()).isTrue();
-    assertThat(addTags.isInternal()).isFalse();
-    assertThat(addTags.params()).hasSize(2);
-
-    WebService.Action removeTags = controller.action("remove_tags");
-    assertThat(removeTags).isNotNull();
-    assertThat(removeTags.handler()).isNotNull();
-    assertThat(removeTags.since()).isEqualTo("4.2");
-    assertThat(removeTags.isPost()).isTrue();
-    assertThat(removeTags.isInternal()).isFalse();
-    assertThat(removeTags.params()).hasSize(2);
   }
 }

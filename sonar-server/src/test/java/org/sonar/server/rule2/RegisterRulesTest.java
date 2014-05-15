@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule2;
 
+import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -80,6 +81,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
   public void insert_new_rules() {
     execute(new FakeRepositoryV1());
 
+    // verify db
     assertThat(dbClient.ruleDao().findAll(dbSession)).hasSize(2);
     RuleKey ruleKey1 = RuleKey.of("fake", "rule1");
     RuleDto rule1 = dbClient.ruleDao().getByKey(ruleKey1, dbSession);
@@ -121,16 +123,22 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     execute(new FakeRepositoryV1());
     assertThat(dbClient.ruleDao().findAll(dbSession)).hasSize(2);
 
+    // user adds tags
+    RuleKey ruleKey1 = RuleKey.of("fake", "rule1");
+    RuleDto rule1 = dbClient.ruleDao().getByKey(ruleKey1, dbSession);
+    rule1.setTags(Sets.newHashSet("usertag1", "usertag2"));
+    dbClient.ruleDao().update(rule1, dbSession);
+    dbSession.commit();
+
     when(system.now()).thenReturn(DATE2.getTime());
     execute(new FakeRepositoryV2());
 
     // rule1 has been updated
-    RuleKey ruleKey1 = RuleKey.of("fake", "rule1");
-    RuleDto rule1 = dbClient.ruleDao().getByKey(ruleKey1, dbSession);
+    rule1 = dbClient.ruleDao().getByKey(ruleKey1, dbSession);
     assertThat(rule1.getName()).isEqualTo("One v2");
     assertThat(rule1.getDescription()).isEqualTo("Description of One v2");
     assertThat(rule1.getSeverityString()).isEqualTo(Severity.INFO);
-    assertThat(rule1.getTags()).isEmpty();
+    assertThat(rule1.getTags()).containsOnly("usertag1", "usertag2");
     assertThat(rule1.getSystemTags()).containsOnly("tag1", "tag4");
     assertThat(rule1.getConfigKey()).isEqualTo("config1 v2");
     assertThat(rule1.getStatus()).isEqualTo(RuleStatus.READY.toString());
@@ -152,6 +160,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     // rule3 has been created
     RuleDto rule3 = dbClient.ruleDao().getByKey(RuleKey.of("fake", "rule3"), dbSession);
     assertThat(rule3).isNotNull();
+    assertThat(rule3.getStatus()).isEqualTo(RuleStatus.READY.toString());
   }
 
   @Test

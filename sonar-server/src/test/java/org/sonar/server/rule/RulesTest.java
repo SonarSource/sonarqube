@@ -201,27 +201,6 @@ public class RulesTest {
   }
 
   @Test
-  public void pass_tags_to_update() {
-    final int ruleId = 11;
-    RuleDto rule = new RuleDto().setId(ruleId).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setParentId(10);
-    when(ruleDao.selectById(ruleId)).thenReturn(rule);
-
-    rules.updateRuleTags(ruleId, null);
-    verify(ruleOperations).updateRuleTags(eq(rule), isA(List.class), any(UserSession.class));
-  }
-
-  @Test
-  public void prepare_empty_tag_list() {
-    final int ruleId = 11;
-    RuleDto rule = new RuleDto().setId(ruleId).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setParentId(10);
-    when(ruleDao.selectById(ruleId)).thenReturn(rule);
-
-    List<String> tags = ImmutableList.of("tag1", "tag2");
-    rules.updateRuleTags(ruleId, tags);
-    verify(ruleOperations).updateRuleTags(eq(rule), eq(tags), any(UserSession.class));
-  }
-
-  @Test
   public void find_by_key() {
     RuleKey key = RuleKey.of("polop", "palap");
     Rule rule = mock(Rule.class);

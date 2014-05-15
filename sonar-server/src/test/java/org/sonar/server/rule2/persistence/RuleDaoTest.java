@@ -386,16 +386,4 @@ public class RuleDaoTest extends AbstractDaoTestCase {
 
     checkTables("update_parameter", "rules_parameters");
   }
-
-  @Test
-  public void select_tags_by_rule() throws Exception {
-    setupData("select_tags_by_rule_id");
-
-    RuleDto rule = dao.getById(1, session);
-    assertThat(rule.getSystemTags()).hasSize(2);
-    assertThat(rule.getTags()).hasSize(3);
-    assertThat(rule.getTags()).containsOnly("tag1", "tag2","tag3");
-    assertThat(rule.getSystemTags()).containsOnly("systag1", "systag2");
-
-  }
 }

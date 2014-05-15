@@ -36,7 +36,7 @@ import java.util.Map;
 
 public abstract class Result<K> {
 
-  private final Collection<K> hits;
+  private final List<K> hits;
   private final Map<String, Collection<FacetValue>> facets;
   private final long total;
   private final long timeInMillis;
@@ -79,7 +79,7 @@ public abstract class Result<K> {
     return this.getSearchResult(fields);
   }
 
-  public Collection<K> getHits() {
+  public List<K> getHits() {
     return hits;
   }
 

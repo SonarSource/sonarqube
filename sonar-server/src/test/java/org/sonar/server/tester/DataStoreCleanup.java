@@ -43,12 +43,12 @@ public class DataStoreCleanup implements ServerComponent {
     this.myBatis = myBatis;
   }
 
-  public void clear() {
-    truncateDb();
-    truncateEs();
+  public void clearAll() {
+    clearDb();
+    clearIndexes();
   }
 
-  private void truncateDb() {
+  public void clearDb() {
     DbSession dbSession = myBatis.openSession(false);
     Connection connection = dbSession.getConnection();
     try {
@@ -68,7 +68,7 @@ public class DataStoreCleanup implements ServerComponent {
     }
   }
 
-  private void truncateEs() {
+  public void clearIndexes() {
     LOG.info("Truncate es indices");
     Client client = esNode.client();
     client.prepareDeleteByQuery(

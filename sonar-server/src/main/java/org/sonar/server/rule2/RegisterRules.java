@@ -44,6 +44,10 @@ import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.ProfilesManager;
 import org.sonar.server.rule.RuleDefinitionsLoader;
+import org.sonar.server.rule2.index.RuleIndexDefinition;
+import org.sonar.server.search.action.EmbeddedIndexAction;
+import org.sonar.server.search.action.IndexAction;
+import org.sonar.server.search.action.KeyIndexAction;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -95,7 +99,6 @@ public class RegisterRules implements Startable {
       RulesDefinition.Context context = defLoader.load();
       for (RulesDefinition.ExtendedRepository repoDef : getRepositories(context)) {
         for (RulesDefinition.Rule ruleDef : repoDef.rules()) {
-
           RuleKey ruleKey = RuleKey.of(ruleDef.repository().key(), ruleDef.key());
 
           RuleDto rule = allRules.containsKey(ruleKey) ? allRules.remove(ruleKey) : createRuleDto(ruleDef, session);
@@ -118,6 +121,9 @@ public class RegisterRules implements Startable {
 
           if (executeUpdate) {
             dbClient.ruleDao().update(rule, session);
+          } else {
+            // TODO replace this hack by index synchronizer
+            session.enqueue(new KeyIndexAction<RuleKey>(RuleIndexDefinition.INDEX_TYPE, IndexAction.Method.UPDATE, rule.getKey()));
           }
 
           mergeParams(ruleDef, rule, session);
@@ -276,6 +282,9 @@ public class RegisterRules implements Startable {
         // TODO store param name
         if (mergeParam(paramDto, paramDef)) {
           dbClient.ruleDao().updateRuleParam(rule, paramDto, session);
+        }  else {
+          // TODO to be replaced by synchronizer
+          session.enqueue(new EmbeddedIndexAction<RuleKey>(RuleIndexDefinition.INDEX_TYPE, IndexAction.Method.UPDATE, paramDto, rule.getKey()));
         }
         existingParamDtoNames.add(paramDto.getName());
       }
@@ -312,9 +321,8 @@ public class RegisterRules implements Startable {
   private boolean mergeTags(RulesDefinition.Rule ruleDef, RuleDto dto) {
     boolean changed = false;
 
-    if (Rule.STATUS_REMOVED.equals(ruleDef.status())) {
+    if (RuleStatus.REMOVED == ruleDef.status()) {
       dto.setSystemTags(Collections.EMPTY_SET);
-      dto.setTags(Collections.EMPTY_SET);
       changed = true;
     } else if (!dto.getSystemTags().containsAll(ruleDef.tags())) {
       dto.setSystemTags(ruleDef.tags());

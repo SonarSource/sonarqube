@@ -29,14 +29,10 @@ public class RulesWs implements WebService {
 
   private final RuleSearchWsHandler searchHandler;
   private final RuleShowWsHandler showHandler;
-  private final AddTagsWsHandler addTagsWsHandler;
-  private final RemoveTagsWsHandler removeTagsWsHandler;
 
-  public RulesWs(RuleSearchWsHandler searchHandler, RuleShowWsHandler showHandler, AddTagsWsHandler addTagsWsHandler, RemoveTagsWsHandler removeTagsWsHandler) {
+  public RulesWs(RuleSearchWsHandler searchHandler, RuleShowWsHandler showHandler) {
     this.searchHandler = searchHandler;
     this.showHandler = showHandler;
-    this.addTagsWsHandler = addTagsWsHandler;
-    this.removeTagsWsHandler = removeTagsWsHandler;
   }
 
   @Override
@@ -67,23 +63,6 @@ public class RulesWs implements WebService {
       .setHandler(showHandler)
       .createParam("key", "Mandatory key of rule");
 
-    addTagParams(controller.createAction("add_tags")
-      .setDescription("Add tags to a rule")
-      .setSince("4.2")
-      .setPost(true)
-      .setHandler(addTagsWsHandler));
-
-    addTagParams(controller.createAction("remove_tags")
-      .setDescription("Remove tags from a rule")
-      .setSince("4.2")
-      .setPost(true)
-      .setHandler(removeTagsWsHandler));
-
     controller.done();
-  }
-
-  private void addTagParams(final NewAction action) {
-    action.createParam("key", "Full key of the rule");
-    action.createParam("tags", "Comma separated list of tags");
   }
 }

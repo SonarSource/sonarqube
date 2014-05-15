@@ -109,10 +109,6 @@ public class RubyRuleService implements ServerComponent, Startable {
     rules.deleteCustomRule(ruleId);
   }
 
-  public void updateRuleTags(int ruleId, Object tags) {
-    rules.updateRuleTags(ruleId, tags);
-  }
-
   @Override
   public void start() {
     // used to force pico to instantiate the singleton at startup

@@ -124,12 +124,6 @@ public class RubyRuleServiceTest {
   }
 
   @Test
-  public void update_rule_tags() {
-    facade.updateRuleTags(10, ImmutableList.of("tag1", "tag2"));
-    verify(rules).updateRuleTags(10, ImmutableList.of("tag1", "tag2"));
-  }
-
-  @Test
   public void find_by_key() {
     facade.findByKey("repo:key");
     verify(rules).findByKey(RuleKey.of("repo", "key"));

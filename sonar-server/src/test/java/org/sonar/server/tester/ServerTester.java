@@ -159,7 +159,12 @@ public class ServerTester extends ExternalResource {
    */
   public void clearDataStores() {
     checkStarted();
-    get(DataStoreCleanup.class).clear();
+    get(DataStoreCleanup.class).clearAll();
+  }
+
+  public void clearIndexes() {
+    checkStarted();
+    get(DataStoreCleanup.class).clearIndexes();
   }
 
   /**

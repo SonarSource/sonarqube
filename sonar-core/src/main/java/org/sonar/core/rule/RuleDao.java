@@ -27,7 +27,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -250,61 +249,5 @@ public class RuleDao implements BatchComponent, ServerComponent {
 
   private RuleMapper getMapper(SqlSession session) {
     return session.getMapper(RuleMapper.class);
-  }
-
-  //***************************
-  // Methods for Rule Tags
-  //***************************
-
-
-  public void insert(RuleRuleTagDto newTag, SqlSession session) {
-    getMapper(session).insertTag(newTag);
-  }
-
-  public void deleteParam(RuleParamDto persistedParam, SqlSession sqlSession) {
-    getMapper(sqlSession).deleteParameter(persistedParam.getId());
-  }
-
-  public void deleteTag(RuleRuleTagDto tagToDelete, SqlSession session) {
-    getMapper(session).deleteTag(tagToDelete.getId().intValue());
-  }
-
-  public void update(RuleRuleTagDto existingTag, SqlSession session) {
-    getMapper(session).updateTag(existingTag);
-  }
-
-  public List<RuleRuleTagDto> selectTags(SqlSession session) {
-    return getMapper(session).selectAllTags();
-  }
-
-  public List<RuleRuleTagDto> selectTagsByRuleId(Integer ruleId) {
-    SqlSession session = mybatis.openSession();
-    try {
-      return selectTagsByRuleIds(ruleId, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public List<RuleRuleTagDto> selectTagsByRuleIds(Integer ruleId, SqlSession session) {
-    return selectTagsByRuleIds(newArrayList(ruleId), session);
-  }
-
-  public List<RuleRuleTagDto> selectTagsByRuleIds(List<Integer> ruleIds) {
-    SqlSession session = mybatis.openSession();
-    try {
-      return selectTagsByRuleIds(ruleIds, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public List<RuleRuleTagDto> selectTagsByRuleIds(List<Integer> ruleIds, SqlSession session) {
-    List<RuleRuleTagDto> dtos = newArrayList();
-    List<List<Integer>> partitionList = Lists.partition(newArrayList(ruleIds), 1000);
-    for (List<Integer> partition : partitionList) {
-      dtos.addAll(getMapper(session).selectTagsByRuleIds(partition));
-    }
-    return dtos;
   }
 }

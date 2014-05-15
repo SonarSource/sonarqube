@@ -357,20 +357,6 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     checkTables("update_parameter", "rules_parameters");
   }
 
-  @Test
-  public void select_tags_by_rule_id() throws Exception {
-    setupData("select_tags_by_rule_id");
-
-    assertThat(dao.selectTagsByRuleId(3)).hasSize(2);
-  }
-
-  @Test
-  public void select_tags_by_rule_ids() throws Exception {
-    setupData("select_tags_by_rule_ids");
-
-    assertThat(dao.selectTagsByRuleIds(newArrayList(3, 4))).hasSize(3);
-  }
-
   private List<Integer> idsFromRuleDtos(List<RuleDto> ruleDtos){
     return newArrayList(Iterables.transform(ruleDtos, new Function<RuleDto, Integer>() {
       @Override

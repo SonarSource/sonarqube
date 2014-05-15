@@ -23,9 +23,8 @@ import org.sonar.server.search.IndexDefinition;
 
 public final class RuleIndexDefinition implements IndexDefinition {
 
-  private static final String INDEX_NAME = "rules2";
-  private static final String INDEX_DOMAIN = "rules";
-  private static final String INDEX_TYPE = "rule2";
+  public static final String INDEX_NAME = "rules2";
+  public static final String INDEX_TYPE = "rule2";
 
   @Override
   public String getIndexName() {

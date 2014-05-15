@@ -82,10 +82,6 @@ class Internal
     component(Java::OrgSonarServerRule::RubyRuleService.java_class)
   end
 
-  def self.rule_tags
-    component(Java::OrgSonarServerRule::RuleTags.java_class)
-  end
-
   def self.durations
     component(Java::OrgSonarApiUtils::Durations.java_class)
   end

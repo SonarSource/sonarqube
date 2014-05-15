@@ -30,7 +30,6 @@ import org.elasticsearch.ElasticSearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.common.collect.Lists;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.io.BytesStream;
 import org.elasticsearch.common.unit.TimeValue;
@@ -123,7 +122,6 @@ public class RuleRegistry {
    */
   public String[] reindex(Collection<RuleDto> rules, SqlSession session) {
     Multimap<Integer, RuleParamDto> paramsByRuleId = ArrayListMultimap.create();
-    Multimap<Integer, RuleRuleTagDto> tagsByRuleId = ArrayListMultimap.create();
     Map<Integer, CharacteristicDto> characteristicsById = newHashMap();
 
     List<Integer> ruleIds = newArrayList();
@@ -148,13 +146,10 @@ public class RuleRegistry {
     for (RuleParamDto paramDto : ruleDao.selectParametersByRuleIds(ruleIds, session)) {
       paramsByRuleId.put(paramDto.getRuleId(), paramDto);
     }
-    for (RuleRuleTagDto tagDto : ruleDao.selectTagsByRuleIds(ruleIds, session)) {
-      tagsByRuleId.put(tagDto.getRuleId(), tagDto);
-    }
     for (CharacteristicDto characteristicDto : allCharacteristicDtos) {
       characteristicsById.put(characteristicDto.getId(), characteristicDto);
     }
-    return bulkIndexRules(rules, characteristicsById, paramsByRuleId, tagsByRuleId);
+    return bulkIndexRules(rules, characteristicsById, paramsByRuleId);
   }
 
   /**
@@ -180,15 +175,13 @@ public class RuleRegistry {
         characteristicDao.selectById(parentId, session) : null;
       searchIndex.putSynchronous(INDEX_RULES, TYPE_RULE, Long.toString(ruleId), ruleDocument(rule,
         characteristic, subCharacteristic,
-        ruleDao.selectParametersByRuleIds(newArrayList(ruleId), session),
-        ruleDao.selectTagsByRuleIds(newArrayList(ruleId), session)));
+        ruleDao.selectParametersByRuleIds(newArrayList(ruleId), session)));
     } catch (IOException ioexception) {
       throw new IllegalStateException("Unable to index rule with id=" + rule.getId(), ioexception);
     }
   }
 
-  private String[] bulkIndexRules(Collection<RuleDto> rules, Map<Integer, CharacteristicDto> characteristicsById, Multimap<Integer, RuleParamDto> paramsByRule,
-    Multimap<Integer, RuleRuleTagDto> tagsByRule) {
+  private String[] bulkIndexRules(Collection<RuleDto> rules, Map<Integer, CharacteristicDto> characteristicsById, Multimap<Integer, RuleParamDto> paramsByRule) {
     try {
       String[] ids = new String[rules.size()];
       BytesStream[] docs = new BytesStream[rules.size()];
@@ -199,7 +192,7 @@ public class RuleRegistry {
         CharacteristicDto effectiveSubCharacteristic =
           characteristicsById.get(rule.getSubCharacteristicId() != null ? rule.getSubCharacteristicId() : rule.getDefaultSubCharacteristicId());
         CharacteristicDto effectiveCharacteristic = effectiveSubCharacteristic != null ? characteristicsById.get(effectiveSubCharacteristic.getParentId()) : null;
-        docs[index] = ruleDocument(rule, effectiveCharacteristic, effectiveSubCharacteristic, paramsByRule.get(rule.getId()), tagsByRule.get(rule.getId()));
+        docs[index] = ruleDocument(rule, effectiveCharacteristic, effectiveSubCharacteristic, paramsByRule.get(rule.getId()));
         index++;
       }
       TIME_PROFILER.stop();
@@ -226,7 +219,7 @@ public class RuleRegistry {
   }
 
   private XContentBuilder ruleDocument(RuleDto rule, @Nullable CharacteristicDto characteristicDto, @Nullable CharacteristicDto subCharacteristicDto,
-    Collection<RuleParamDto> params, Collection<RuleRuleTagDto> tags) throws IOException {
+    Collection<RuleParamDto> params) throws IOException {
     XContentBuilder document = XContentFactory.jsonBuilder()
       .startObject()
       .field(RuleDocument.FIELD_ID, rule.getId())
@@ -244,7 +237,6 @@ public class RuleRegistry {
     addRuleDebt(document, rule, characteristicDto, subCharacteristicDto);
     addRuleNote(document, rule);
     addRuleParams(document, rule, params);
-    addRuleTags(document, rule, tags);
     document.endObject();
     return document;
   }
@@ -287,24 +279,6 @@ public class RuleRegistry {
           .endObject();
       }
       document.endArray();
-    }
-  }
-
-  private void addRuleTags(XContentBuilder document, RuleDto rule, Collection<RuleRuleTagDto> tags) throws IOException {
-    List<String> systemTags = Lists.newArrayList();
-    List<String> adminTags = Lists.newArrayList();
-    for (RuleRuleTagDto tag : tags) {
-      if (tag.getType() == RuleTagType.SYSTEM) {
-        systemTags.add(tag.getTag());
-      } else {
-        adminTags.add(tag.getTag());
-      }
-    }
-    if (!systemTags.isEmpty()) {
-      document.array(RuleDocument.FIELD_SYSTEM_TAGS, systemTags.toArray());
-    }
-    if (!adminTags.isEmpty()) {
-      document.array(RuleDocument.FIELD_ADMIN_TAGS, adminTags.toArray());
     }
   }
 

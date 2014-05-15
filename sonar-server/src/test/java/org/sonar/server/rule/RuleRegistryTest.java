@@ -41,8 +41,6 @@ import org.sonar.core.profiling.Profiling;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
-import org.sonar.core.rule.RuleRuleTagDto;
-import org.sonar.core.rule.RuleTagType;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.es.ESIndex;
@@ -131,11 +129,6 @@ public class RuleRegistryTest {
     when(ruleDao.selectParametersByRuleIds(newArrayList(3), session)).thenReturn(newArrayList(
       new RuleParamDto().setRuleId(3).setName("name")
     ));
-
-    when(ruleDao.selectTagsByRuleIds(newArrayList(3), session)).thenReturn(newArrayList(
-      new RuleRuleTagDto().setRuleId(3).setTag("tag1").setType(RuleTagType.SYSTEM),
-      new RuleRuleTagDto().setRuleId(3).setTag("tag2").setType(RuleTagType.SYSTEM),
-      new RuleRuleTagDto().setRuleId(3).setTag("tag").setType(RuleTagType.ADMIN)));
 
     when(characteristicDao.selectCharacteristicsByIds(newHashSet(11), session)).thenReturn(newArrayList(
       new CharacteristicDto().setId(11).setKey("MODULARITY").setName("Modularity").setParentId(10)));
@@ -253,11 +246,6 @@ public class RuleRegistryTest {
     when(ruleDao.selectParametersByRuleIds(newArrayList(3), session)).thenReturn(newArrayList(
       new RuleParamDto().setRuleId(3).setName("name")
     ));
-
-    when(ruleDao.selectTagsByRuleIds(newArrayList(3), session)).thenReturn(newArrayList(
-      new RuleRuleTagDto().setRuleId(3).setTag("tag1").setType(RuleTagType.SYSTEM),
-      new RuleRuleTagDto().setRuleId(3).setTag("tag2").setType(RuleTagType.SYSTEM),
-      new RuleRuleTagDto().setRuleId(3).setTag("tag").setType(RuleTagType.ADMIN)));
 
     when(characteristicDao.selectById(11, session)).thenReturn(new CharacteristicDto().setId(11).setKey("MODULARITY").setName("Modularity").setParentId(10));
     when(characteristicDao.selectById(10, session)).thenReturn(new CharacteristicDto().setId(10).setKey("REUSABILITY").setName("Reusability"));

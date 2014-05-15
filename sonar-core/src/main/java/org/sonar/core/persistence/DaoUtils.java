@@ -38,7 +38,6 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.core.rule.RuleDao;
-import org.sonar.core.rule.RuleTagDao;
 import org.sonar.core.source.db.SnapshotDataDao;
 import org.sonar.core.source.db.SnapshotSourceDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
@@ -87,7 +86,6 @@ public final class DaoUtils {
       ResourceKeyUpdaterDao.class,
       RoleDao.class,
       RuleDao.class,
-      RuleTagDao.class,
       SemaphoreDao.class,
       SnapshotDataDao.class,
       SnapshotSourceDao.class,

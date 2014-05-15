@@ -24,9 +24,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
@@ -44,9 +41,6 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
-import org.sonar.core.rule.RuleRuleTagDto;
-import org.sonar.core.rule.RuleTagDao;
-import org.sonar.core.rule.RuleTagType;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -56,11 +50,9 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -73,28 +65,24 @@ public class RuleOperations implements ServerComponent {
   private final MyBatis myBatis;
   private final ActiveRuleDao activeRuleDao;
   private final RuleDao ruleDao;
-  private final RuleTagDao ruleTagDao;
   private final CharacteristicDao characteristicDao;
-  private final RuleTagOperations ruleTagOperations;
   private final ESActiveRule esActiveRule;
   private final RuleRegistry ruleRegistry;
 
   private final System2 system;
 
-  public RuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleTagDao ruleTagDao, CharacteristicDao characteristicDao,
-                        RuleTagOperations ruleTagOperations, ESActiveRule esActiveRule, RuleRegistry ruleRegistry) {
-    this(myBatis, activeRuleDao, ruleDao, ruleTagDao, characteristicDao, ruleTagOperations, esActiveRule, ruleRegistry, System2.INSTANCE);
+  public RuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, CharacteristicDao characteristicDao,
+                        ESActiveRule esActiveRule, RuleRegistry ruleRegistry) {
+    this(myBatis, activeRuleDao, ruleDao, characteristicDao, esActiveRule, ruleRegistry, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  RuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, RuleTagDao ruleTagDao, CharacteristicDao characteristicDao, RuleTagOperations ruleTagOperations,
+  RuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, CharacteristicDao characteristicDao,
                  ESActiveRule esActiveRule, RuleRegistry ruleRegistry, System2 system) {
     this.myBatis = myBatis;
     this.activeRuleDao = activeRuleDao;
     this.ruleDao = ruleDao;
-    this.ruleTagDao = ruleTagDao;
     this.characteristicDao = characteristicDao;
-    this.ruleTagOperations = ruleTagOperations;
     this.esActiveRule = esActiveRule;
     this.ruleRegistry = ruleRegistry;
     this.system = system;
@@ -175,16 +163,6 @@ public class RuleOperations implements ServerComponent {
         ruleDao.insert(param, session);
       }
 
-      List<RuleRuleTagDto> templateRuleTags = ruleDao.selectTagsByRuleIds(templateRule.getId(), session);
-      for (RuleRuleTagDto tag : templateRuleTags) {
-        RuleRuleTagDto newTag = new RuleRuleTagDto()
-          .setRuleId(rule.getId())
-          .setTagId(tag.getTagId())
-          .setTag(tag.getTag())
-          .setType(tag.getType());
-        ruleDao.insert(newTag, session);
-      }
-
       session.commit();
       reindexRule(rule, session);
       return rule;
@@ -241,26 +219,6 @@ public class RuleOperations implements ServerComponent {
           return input.getId();
         }
       })));
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public void updateRuleTags(RuleDto rule, List<String> newTags, UserSession userSession) {
-    checkPermission(userSession);
-    DbSession session = myBatis.openSession(false);
-    try {
-      Map<String, Long> neededTagIds = validateAndGetTagIds(newTags, session);
-
-      final Integer ruleId = rule.getId();
-
-      boolean ruleChanged = synchronizeTags(ruleId, newTags, neededTagIds, session);
-      if (ruleChanged) {
-        rule.setUpdatedAt(new Date(system.now()));
-        ruleDao.update(rule, session);
-        session.commit();
-        reindexRule(rule, session);
-      }
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -344,14 +302,14 @@ public class RuleOperations implements ServerComponent {
   }
 
   private static boolean isRuleDebtSameAsDefaultValues(RuleDto ruleDto, CharacteristicDto newSubCharacteristic, @Nullable String newFunction,
-                                              @Nullable String newCoefficient, @Nullable String newOffset) {
+                                                       @Nullable String newCoefficient, @Nullable String newOffset) {
     return newSubCharacteristic.getId().equals(ruleDto.getDefaultSubCharacteristicId()) &&
       isSameRemediationFunction(newFunction, newCoefficient, newOffset, ruleDto.getDefaultRemediationFunction(), ruleDto.getDefaultRemediationCoefficient(),
         ruleDto.getDefaultRemediationOffset());
   }
 
   private static boolean isRuleDebtSameAsOverriddenValues(RuleDto ruleDto, CharacteristicDto newSubCharacteristic, @Nullable String newFunction,
-                                                 @Nullable String newCoefficient, @Nullable String newOffset) {
+                                                          @Nullable String newCoefficient, @Nullable String newOffset) {
     return newSubCharacteristic.getId().equals(ruleDto.getSubCharacteristicId())
       && isSameRemediationFunction(newFunction, newCoefficient, newOffset, ruleDto.getRemediationFunction(), ruleDto.getRemediationCoefficient(), ruleDto.getRemediationOffset());
   }
@@ -363,50 +321,6 @@ public class RuleOperations implements ServerComponent {
       .append(oldCoefficient, newCoefficient)
       .append(oldOffset, newOffset)
       .isEquals();
-  }
-
-  private Map<String, Long> validateAndGetTagIds(List<String> newTags, SqlSession session) {
-    Map<String, Long> neededTagIds = Maps.newHashMap();
-    Set<String> unknownTags = Sets.newHashSet();
-    for (String tag : newTags) {
-      Long tagId = ruleTagDao.selectId(tag, session);
-      if (tagId == null) {
-        unknownTags.add(tag);
-      } else {
-        neededTagIds.put(tag, tagId);
-      }
-    }
-    if (!unknownTags.isEmpty()) {
-      throw new NotFoundException("The following tags are unknown and must be created before association: "
-        + StringUtils.join(unknownTags, ", "));
-    }
-    return neededTagIds;
-  }
-
-  private boolean synchronizeTags(final Integer ruleId, List<String> newTags, Map<String, Long> neededTagIds, SqlSession session) {
-    boolean ruleChanged = false;
-
-    Set<String> tagsToKeep = Sets.newHashSet();
-    List<RuleRuleTagDto> currentTags = ruleDao.selectTagsByRuleIds(ruleId, session);
-    for (RuleRuleTagDto existingTag : currentTags) {
-      if (existingTag.getType() == RuleTagType.ADMIN && !newTags.contains(existingTag.getTag())) {
-        ruleDao.deleteTag(existingTag, session);
-        ruleChanged = true;
-      } else {
-        tagsToKeep.add(existingTag.getTag());
-      }
-    }
-
-    for (String tag : newTags) {
-      if (!tagsToKeep.contains(tag)) {
-        ruleDao.insert(new RuleRuleTagDto().setRuleId(ruleId).setTagId(neededTagIds.get(tag)).setType(RuleTagType.ADMIN), session);
-        ruleChanged = true;
-      }
-    }
-
-    ruleTagOperations.deleteUnusedTags(session);
-
-    return ruleChanged;
   }
 
   private void reindexRule(RuleDto rule, SqlSession session) {

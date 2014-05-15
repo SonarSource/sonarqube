@@ -60,14 +60,4 @@ public interface RuleMapper {
 
   void deleteParameter(Integer paramId);
 
-  List<RuleRuleTagDto> selectAllTags();
-
-  void insertTag(RuleRuleTagDto newTag);
-
-  void deleteTag(Integer tagId);
-
-  void updateTag(RuleRuleTagDto existingTag);
-
-  List<RuleRuleTagDto> selectTagsByRuleIds(@Param("ruleIds") List<Integer> ruleIds);
-
 }
