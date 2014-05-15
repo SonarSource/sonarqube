@@ -27,10 +27,15 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.properties.PropertiesDao;
+import org.sonar.core.properties.PropertyDto;
+import org.sonar.core.properties.PropertyQuery;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -39,11 +44,14 @@ public class ComponentAppActionTest {
   @Mock
   ResourceDao resourceDao;
 
+  @Mock
+  PropertiesDao propertiesDao;
+
   WsTester tester;
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new ComponentsWs(new ComponentAppAction(resourceDao)));
+    tester = new WsTester(new ComponentsWs(new ComponentAppAction(resourceDao, propertiesDao)));
   }
 
   @Test
@@ -57,6 +65,7 @@ public class ComponentAppActionTest {
     when(resourceDao.selectComponentByKey(componentKey)).thenReturn(file);
     when(resourceDao.findById(5L)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API"));
     when(resourceDao.findById(1L)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
+    when(propertiesDao.selectByQuery(any(PropertyQuery.class))).thenReturn(newArrayList(new PropertyDto()));
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", componentKey);
     request.execute().assertJson(getClass(), "app.json");

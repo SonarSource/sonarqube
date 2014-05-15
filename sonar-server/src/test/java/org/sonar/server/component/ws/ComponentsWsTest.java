@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.server.ws.WsTester;
 
@@ -36,7 +37,7 @@ public class ComponentsWsTest {
 
   @Before
   public void setUp() throws Exception {
-    WsTester tester = new WsTester(new ComponentsWs(new ComponentAppAction(mock(ResourceDao.class))));
+    WsTester tester = new WsTester(new ComponentsWs(new ComponentAppAction(mock(ResourceDao.class), mock(PropertiesDao.class))));
     controller = tester.controller("api/components");
   }
 

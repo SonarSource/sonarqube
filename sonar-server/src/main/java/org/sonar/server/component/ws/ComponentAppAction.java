@@ -29,6 +29,9 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.properties.PropertiesDao;
+import org.sonar.core.properties.PropertyDto;
+import org.sonar.core.properties.PropertyQuery;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
@@ -36,14 +39,18 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.util.List;
+
 public class ComponentAppAction implements RequestHandler {
 
   private static final String KEY = "key";
 
   private final ResourceDao resourceDao;
+  private final PropertiesDao propertiesDao;
 
-  public ComponentAppAction(ResourceDao resourceDao) {
+  public ComponentAppAction(ResourceDao resourceDao, PropertiesDao propertiesDao) {
     this.resourceDao = resourceDao;
+    this.propertiesDao = propertiesDao;
   }
 
   void define(WebService.NewController controller) {
@@ -64,7 +71,8 @@ public class ComponentAppAction implements RequestHandler {
   @Override
   public void handle(Request request, Response response) {
     String fileKey = request.mandatoryParam(KEY);
-    UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, fileKey);
+    UserSession userSession = UserSession.get();
+    userSession.checkComponentPermission(UserRole.CODEVIEWER, fileKey);
 
     JsonWriter json = response.newJsonWriter();
     json.beginObject();
@@ -73,6 +81,13 @@ public class ComponentAppAction implements RequestHandler {
     if (component == null) {
       throw new NotFoundException(String.format("Component '%s' does not exists.", fileKey));
     }
+
+    List<PropertyDto> propertyDtos = propertiesDao.selectByQuery(PropertyQuery.builder()
+      .setKey("favourite")
+      .setComponentId(component.getId())
+      .setUserId(userSession.userId())
+      .build());
+    boolean isFavourite = propertyDtos.size() == 1;
 
     json.prop("key", component.key());
     json.prop("path", component.path());
@@ -85,6 +100,8 @@ public class ComponentAppAction implements RequestHandler {
     Component project = componentById(component.projectId());
     json.prop("projectName", project != null ? project.longName() : null);
 
+    json.prop("fav", isFavourite);
+
     json.endObject();
     json.close();
   }
@@ -96,5 +113,13 @@ public class ComponentAppAction implements RequestHandler {
     }
     return null;
   }
+
+//  private Map<Integer, Integer> findDataFromComponent(String fileKey, String metricKey) {
+//    MeasureDataDto data = measuresDao.findByComponentKeyAndMetricKey(fileKey, metricKey);
+//    if (data != null) {
+//      return KeyValueFormat.parseIntInt(data.getData());
+//    }
+//    return Maps.newHashMap();
+//  }
 
 }

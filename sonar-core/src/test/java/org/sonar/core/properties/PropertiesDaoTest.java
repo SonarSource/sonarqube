@@ -143,6 +143,19 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
+  public void select_by_query() {
+    setupData("select_by_query");
+
+    List<PropertyDto> results = dao.selectByQuery(PropertyQuery.builder().setKey("user.two").setComponentId(10L).setUserId(100).build());
+    assertThat(results).hasSize(1);
+    assertThat(results.get(0).getValue()).isEqualTo("two");
+
+    results = dao.selectByQuery(PropertyQuery.builder().setKey("user.one").setUserId(100).build());
+    assertThat(results).hasSize(1);
+    assertThat(results.get(0).getValue()).isEqualTo("one");
+  }
+
+  @Test
   public void setProperty_update() {
     setupData("update");
 

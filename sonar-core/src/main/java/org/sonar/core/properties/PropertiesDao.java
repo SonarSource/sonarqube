@@ -29,6 +29,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -105,6 +106,16 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
     PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
     try {
       return mapper.selectByKey(new PropertyDto().setKey(propertyKey).setResourceId(resourceId));
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<PropertyDto> selectByQuery(PropertyQuery query) {
+    SqlSession session = mybatis.openSession(false);
+    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
+    try {
+      return mapper.selectByQuery(query);
     } finally {
       MyBatis.closeQuietly(session);
     }
