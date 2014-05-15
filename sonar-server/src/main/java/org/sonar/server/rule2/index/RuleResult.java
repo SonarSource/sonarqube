@@ -44,8 +44,6 @@ public class RuleResult extends Result<Rule> {
         Map<String, Map<String, Object>> activeRulesForHit =
           hit.getFields().get(RuleNormalizer.RuleField.ACTIVE.key()).getValue();
         for (Map.Entry<String, Map<String, Object>> activeRule : activeRulesForHit.entrySet()) {
-          System.out.println("ruleKey = " + ruleKey);
-          System.out.println("activeRule = " + activeRule);
           activeRules.put(ruleKey,
             new ActiveRuleDoc(ActiveRuleKey.parse(activeRule.getKey()), activeRule.getValue()));
         }
@@ -63,7 +61,6 @@ public class RuleResult extends Result<Rule> {
   }
 
   public  Multimap<String,ActiveRuleDoc> getActiveRules() {
-    System.out.println("activeRules = " + activeRules);
     return this.activeRules;
   }
 }
