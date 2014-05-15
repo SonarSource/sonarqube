@@ -61,6 +61,8 @@ public interface ResourceMapper {
 
   List<ComponentDto> selectComponentsByIds(@Param("ids") List<Long> ids);
 
+  ComponentDto selectComponentByKey(String key);
+
   /**
    * @since 3.6
    */

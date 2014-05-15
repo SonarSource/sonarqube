@@ -179,8 +179,8 @@ public class IssueShowAction implements RequestHandler {
       return Iterables.find(result.components(), new Predicate<Component>() {
         @Override
         public boolean apply(Component input) {
-          Long groupId = component.subProjectId();
-          return groupId != null && groupId.equals(((ComponentDto) input).getId());
+          Long subProjectId = component.subProjectId();
+          return subProjectId != null && subProjectId.equals(((ComponentDto) input).getId());
         }
       }, null);
     }

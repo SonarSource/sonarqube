@@ -26,12 +26,19 @@ import org.sonar.api.server.ws.WebService;
 
 public class ComponentsWs implements WebService {
 
+  private final ComponentAppAction appAction;
+
+  public ComponentsWs(ComponentAppAction appAction) {
+    this.appAction = appAction;
+  }
+
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/components")
       .setSince("4.2")
       .setDescription("Components management");
 
+    appAction.define(controller);
     defineSuggestionsAction(controller);
 
     controller.done();

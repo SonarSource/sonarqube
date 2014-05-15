@@ -82,6 +82,7 @@ import org.sonar.server.cluster.LocalNonBlockingWorkQueue;
 import org.sonar.server.cluster.LocalQueueWorker;
 import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
+import org.sonar.server.component.ws.ComponentAppAction;
 import org.sonar.server.component.ws.ComponentsWs;
 import org.sonar.server.component.ws.ProjectsWs;
 import org.sonar.server.component.ws.ResourcesWs;
@@ -411,6 +412,7 @@ class ServerComponents {
     pico.addSingleton(ResourcesWs.class);
     pico.addSingleton(ComponentsWs.class);
     pico.addSingleton(ProjectsWs.class);
+    pico.addSingleton(ComponentAppAction.class);
 
     // issues
     pico.addSingleton(ServerIssueStorage.class);

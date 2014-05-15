@@ -46,6 +46,7 @@ import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.*;
 
@@ -144,8 +145,8 @@ public class DefaultIssueFinder implements IssueFinder {
       }
 
       Collection<Component> components = findComponents(componentIds);
-      Collection<Component> groupComponents = findGroupComponents(components);
-      Collection<Component> rootComponents = findRootComponents(components);
+      Collection<Component> groupComponents = findSubProjects(components);
+      Collection<Component> rootComponents = findProjects(components);
 
       Set<Component> allComponents = newHashSet(components);
       allComponents.addAll(groupComponents);
@@ -203,20 +204,20 @@ public class DefaultIssueFinder implements IssueFinder {
     return Lists.<Component>newArrayList(resourceDao.selectComponentsByIds(componentIds));
   }
 
-  private Collection<Component> findGroupComponents(Collection<Component> components) {
+  private Collection<Component> findSubProjects(Collection<Component> components) {
     return findComponents(newHashSet(Iterables.transform(components, new Function<Component, Long>() {
       @Override
-      public Long apply(Component input) {
-        return ((ComponentDto) input).subProjectId();
+      public Long apply(@Nullable Component input) {
+        return input != null ? ((ComponentDto) input).subProjectId() : null;
       }
     })));
   }
 
-  private Collection<Component> findRootComponents(Collection<Component> components) {
+  private Collection<Component> findProjects(Collection<Component> components) {
     return findComponents(newHashSet(Iterables.transform(components, new Function<Component, Long>() {
       @Override
-      public Long apply(Component input) {
-        return ((ComponentDto) input).projectId();
+      public Long apply(@Nullable Component input) {
+        return input != null ? ((ComponentDto) input).projectId() : null;
       }
     })));
   }

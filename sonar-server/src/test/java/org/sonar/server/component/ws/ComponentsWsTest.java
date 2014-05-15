@@ -24,9 +24,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.resource.ResourceDao;
 import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class ComponentsWsTest {
 
@@ -34,7 +36,7 @@ public class ComponentsWsTest {
 
   @Before
   public void setUp() throws Exception {
-    WsTester tester = new WsTester(new ComponentsWs());
+    WsTester tester = new WsTester(new ComponentsWs(new ComponentAppAction(mock(ResourceDao.class))));
     controller = tester.controller("api/components");
   }
 
@@ -43,7 +45,7 @@ public class ComponentsWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.since()).isEqualTo("4.2");
-    assertThat(controller.actions()).hasSize(1);
+    assertThat(controller.actions()).hasSize(2);
   }
 
   @Test
@@ -55,6 +57,17 @@ public class ComponentsWsTest {
     assertThat(action.handler()).isInstanceOf(RailsHandler.class);
     assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.params()).hasSize(2);
+  }
+
+  @Test
+  public void define_app_action() throws Exception {
+    WebService.Action action = controller.action("app");
+    assertThat(action).isNotNull();
+    assertThat(action.isInternal()).isTrue();
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.handler()).isNotNull();
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.params()).hasSize(1);
   }
 
 }
