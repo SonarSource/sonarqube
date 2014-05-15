@@ -47,6 +47,14 @@ define [
       @showBlocks = []
 
 
+    resetShowBlocks: ->
+      @showBlocks = []
+
+
+    addShowBlock: (from, to) ->
+      @showBlocks.push from: from, to: to
+
+
     onRender: ->
       @delegateEvents()
       @showSettings = false
@@ -187,23 +195,8 @@ define [
       source.forEach (sourceLine) =>
         show = false
         line = sourceLine.lineNumber
-
         @showBlocks.forEach (block) ->
-          if block.from <= line && block.to >= line
-            show = true
-
-        if @options.main.settings.get('issues') && !show
-          @model.get('issues')?.forEach (issue) ->
-            currentLine = issue.line || 0
-            if (currentLine - LINES_AROUND_ISSUE) <= line && (currentLine + LINES_AROUND_ISSUE) >= line
-              show = true
-
-        if @options.main.settings.get('coverage') && !show
-          @model.get('coverage')?.forEach (s) ->
-            currentLine = s[0]
-            if (currentLine - LINES_AROUND_COVERED_LINE) <= line && (currentLine + LINES_AROUND_COVERED_LINE) >= line
-              show = true
-
+          show = true if block.from <= line && block.to >= line
         _.extend sourceLine, show: show
       source
 

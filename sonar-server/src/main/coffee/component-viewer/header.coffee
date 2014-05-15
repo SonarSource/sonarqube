@@ -27,6 +27,9 @@ define [
       'click .js-toggle-duplications': 'toggleDuplications'
       'click .js-toggle-scm': 'toggleSCM'
 
+      'click .js-filter-line-to-cover': 'filterByLinesToCover'
+      'click .js-filter-uncovered-lines': 'filterByUncoveredLines'
+
 
     initialize: (options) ->
 #      @listenTo options.main.settings, 'change', @changeSettings
@@ -82,6 +85,14 @@ define [
 
     toggleWorkspace: (e) ->
       @toggleSetting e, @options.main.showWorkspace, @options.main.hideWorkspace
+
+
+    filterByLinesToCover: ->
+      @options.main.filterLinesByLinesToCover()
+
+
+    filterByUncoveredLines: ->
+      @options.main.filterLinesByUncoveredLines()
 
 
     serializeData: ->

@@ -17,10 +17,14 @@ define [
 ) ->
 
   $ = jQuery
+
   API_COMPONENT = "#{baseUrl}/api/sources/app"
   API_SOURCES = "#{baseUrl}/api/sources/show"
   API_COVERAGE = "#{baseUrl}/api/coverage/show"
   API_SCM = "#{baseUrl}/api/sources/scm"
+
+  LINES_AROUND_ISSUE = 4
+  LINES_AROUND_COVERED_LINE = 1
 
 
 
@@ -86,16 +90,10 @@ define [
       $.get API_SCM, key: key, (data) =>
         @source.set scm: data.scm
 
+
     requestCoverage: (key) ->
       $.get API_COVERAGE, key: key, (data) =>
         @source.set coverage: data.coverage
-
-
-    extractIssues: (data) ->
-      issuesMeasures = {}
-      data[0].msr.forEach (q) ->
-        issuesMeasures[q.key] = q.frmt_val
-      @component.set 'issuesMeasures', issuesMeasures
 
 
     open: (key) ->
@@ -124,7 +122,6 @@ define [
         @requestCoverage(@key).done => @sourceView.render()
       else
         @sourceView.render()
-      @sourceView.render()
 
 
     hideCoverage: ->
@@ -146,7 +143,9 @@ define [
       @settings.set 'issues', true
       if _.isArray(issues) && issues.length > 0
         @source.set 'issues', issues
-      @sourceView.render()
+        @filterLinesByIssues()
+      else
+        @sourceView.render()
 
 
     hideIssues: ->
@@ -174,6 +173,51 @@ define [
 
     hideSCM: ->
       @settings.set 'scm', false
+      @sourceView.render()
+
+
+    filterLinesByIssues: ->
+      issues = @source.get 'issues'
+      @sourceView.resetShowBlocks()
+      issues.forEach (issue) =>
+        line = issue.line || 0
+        @sourceView.addShowBlock line - LINES_AROUND_ISSUE, line + LINES_AROUND_ISSUE
+      @sourceView.render()
+
+
+    filterLinesByLinesToCover: ->
+      unless @source.has 'coverage'
+        @requestCoverage(@key).done => @_filterLinesByLinesToCover()
+      else
+        @_filterLinesByLinesToCover()
+
+
+    _filterLinesByLinesToCover: ->
+      coverage = @source.get 'coverage'
+      @settings.set 'coverage', true
+      @sourceView.resetShowBlocks()
+      coverage.forEach (c) =>
+        if c[1]? && c[1]
+          line = c[0]
+          @sourceView.addShowBlock line - LINES_AROUND_COVERED_LINE, line + LINES_AROUND_COVERED_LINE
+      @sourceView.render()
+
+
+    filterLinesByUncoveredLines: ->
+      unless @source.has 'coverage'
+        @requestCoverage(@key).done => @_filterLinesByUncoveredLines()
+      else
+        @_filterLinesByUncoveredLines()
+
+
+    _filterLinesByUncoveredLines: ->
+      coverage = @source.get 'coverage'
+      @settings.set 'coverage', true
+      @sourceView.resetShowBlocks()
+      coverage.forEach (c) =>
+        if c[1]? && !c[1]
+          line = c[0]
+          @sourceView.addShowBlock line - LINES_AROUND_COVERED_LINE, line + LINES_AROUND_COVERED_LINE
       @sourceView.render()
 
 
