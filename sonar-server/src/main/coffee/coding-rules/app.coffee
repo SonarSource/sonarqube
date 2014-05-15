@@ -42,6 +42,8 @@ requirejs [
   'coding-rules/views/filters/inheritance-filter-view',
   'coding-rules/views/filters/activation-filter-view',
   'coding-rules/views/filters/characteristic-filter-view',
+  'coding-rules/views/filters/repository-filter-view',
+  'coding-rules/views/filters/tag-filter-view',
 
   'coding-rules/mockjax',
   'common/handlebars-extensions'
@@ -67,9 +69,11 @@ requirejs [
   StringFilterView,
   DateFilterView,
   QualityProfileFilterView,
-  InheritanceFilterView
-  ActivationFilterView
-  CharacteristicFilterView
+  InheritanceFilterView,
+  ActivationFilterView,
+  CharacteristicFilterView,
+  RepositoryFilterView,
+  TagFilterView
 ) ->
 
   # Create a generic error handler for ajax requests
@@ -130,13 +134,13 @@ requirejs [
     @layout.showSpinner 'resultsRegion'
     @layout.showSpinner 'facetsRegion' unless fromFacets
     jQuery.ajax
-      url: "#{baseUrl}/api/codingrules/search"
+      url: "#{baseUrl}/api/rules/search"
       data: fetchQuery
     .done (r) =>
       if firstPage
-        @codingRules.reset r.codingrules
+        @codingRules.reset r.rules
       else
-        @codingRules.add r.codingrules
+        @codingRules.add r.rules
       @codingRules.paging = r.paging
       @codingRulesListView = new CodingRulesListView
         app: @
@@ -214,7 +218,7 @@ requirejs [
 
     @filters.add new BaseFilters.Filter
       name: t 'coding_rules.filters.name'
-      property: 'name'
+      property: 'q'
       type: StringFilterView
 
     @languageFilter =  new BaseFilters.Filter
@@ -244,7 +248,7 @@ requirejs [
     @filters.add new BaseFilters.Filter
       name: t 'coding_rules.filters.tag'
       property: 'tags'
-      type: ChoiceFilters.ChoiceFilterView
+      type: TagFilterView
       choices: @tags
 
     @filters.add new BaseFilters.Filter
@@ -283,13 +287,6 @@ requirejs [
       optional: true
 
     @filters.add new BaseFilters.Filter
-      name: t 'coding_rules.filters.description'
-      property: 'description'
-      type: StringFilterView
-      enabled: false
-      optional: true
-
-    @filters.add new BaseFilters.Filter
       name: t 'coding_rules.filters.inheritance'
       property: 'inheritance'
       type: InheritanceFilterView
@@ -303,18 +300,12 @@ requirejs [
         'overriden': t 'coding_rules.filters.inheritance.overriden'
 
     @filters.add new BaseFilters.Filter
-      name: t 'coding_rules.filters.key'
-      property: 'key'
-      type: StringFilterView
-      enabled: false
-      optional: true
-
-    @filters.add new BaseFilters.Filter
       name: t 'coding_rules.filters.repository'
       property: 'repositories'
-      type: ChoiceFilters.ChoiceFilterView
+      type: RepositoryFilterView
       enabled: false
       optional: true
+      languageFilter: @languageFilter
       choices: @repositories
 
     @filters.add new BaseFilters.Filter
@@ -341,7 +332,7 @@ requirejs [
 
   # Call app before start the application
   appXHR = jQuery.ajax
-    url: "#{baseUrl}/api/codingrules/app"
+    url: "#{baseUrl}/api/rules/app"
 
   jQuery.when(appXHR)
   .done (r) ->

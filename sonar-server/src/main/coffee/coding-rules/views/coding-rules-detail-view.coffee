@@ -106,7 +106,7 @@ define [
       tags = @ui.tagInput.val()
       jQuery.ajax
         type: 'POST'
-        url: "#{baseUrl}/api/codingrules/set_tags"
+        url: "#{baseUrl}/api/rules/set_tags"
         data: tags: tags
       .done =>
           if tags.length > 0
@@ -131,7 +131,7 @@ define [
       @ui.extendDescriptionSpinner.show()
       jQuery.ajax
         type: 'POST'
-        url: "#{baseUrl}/api/codingrules/extend_description"
+        url: "#{baseUrl}/api/rules/extend_description"
         dataType: 'json'
         data: text: @ui.extendDescriptionText.val()
       .done (r) =>

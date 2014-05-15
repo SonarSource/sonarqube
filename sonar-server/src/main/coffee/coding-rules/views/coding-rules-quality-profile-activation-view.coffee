@@ -27,7 +27,7 @@ define [
       @$('.modal-foot').html '<i class="spinner"></i>'
       jQuery.ajax
         type: 'POST'
-        url: "#{baseUrl}/api/codingrules/activate"
+        url: "#{baseUrl}/api/rules/activate"
         data: id: 1
       .done =>
           severity = @ui.qualityProfileSeverity.val()

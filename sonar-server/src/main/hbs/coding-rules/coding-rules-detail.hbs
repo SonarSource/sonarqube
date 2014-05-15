@@ -10,7 +10,7 @@
 <ul class="coding-rules-detail-properties">
   <li class="coding-rules-detail-property">{{severityIcon severity}} {{t "severity" severity}}</li>
   <li class="coding-rules-detail-property">
-    <span class="coding-rules-detail-status">{{language}}</span>
+    <span class="coding-rules-detail-status">{{lang}}</span>
   </li>
   {{#notEq status 'READY'}}
     <li class="coding-rules-detail-property">
@@ -25,16 +25,16 @@
     <input class="coding-rules-detail-tag-input" type="text" value="{{#if tags}}{{join tags ','}}{{/if}}">
 
     <div class="button-group">
-      <button class="coding-rules-detail-tag-edit-done">{{t 'done'}}</button>
+      <button class="coding-rules-detail-tag-edit-done">{{t 'Done'}}</button>
     </div>
   </li>
   <li class="coding-rules-detail-property">{{characteristic}}&nbsp;>&nbsp;{{subcharacteristic}}</li>
   <li class="coding-rules-detail-property">{{t 'coding_rules.available_since'}} {{fCreationDate}}</li>
-  <li class="coding-rules-detail-property">{{t 'coding_rules.repository'}} {{repositoryName}} ({{repositoryKey}})</li>
+  <li class="coding-rules-detail-property">{{t 'coding_rules.repository'}} {{repo}} ({{repositoryKey}})</li>
   <li class="coding-rules-detail-property">{{t 'coding_rules.key'}} {{key}}</li>
 </ul>
 
-<div class="coding-rules-detail-description rule-desc">{{{description}}}</div>
+<div class="coding-rules-detail-description rule-desc">{{{htmlDesc}}}</div>
 
 <div class="coding-rules-detail-description coding-rules-detail-description-extra">
   <div id="coding-rules-detail-description-extra">
@@ -75,18 +75,18 @@
 </div>
 
 
-{{#if parameters}}
+{{#if params}}
   <h3 class="coding-rules-detail-title">{{t 'coding_rules.parameters'}}</h3>
   <ul class="coding-rules-detail-parameters">
-    {{#each parameters}}
+    {{#each params}}
       <li class="coding-rules-detail-parameter">
         <h3 class="coding-rules-detail-parameter-name">{{key}}</h3>
 
         <div class="coding-rules-detail-parameter-description">
-          {{description}}
+          {{desc}}
 
-          {{#if default}}
-            <div>{{t 'coding_rules.parameters.default_value'}} {{default}}</div>
+          {{#if defaultValue}}
+            <div>{{t 'coding_rules.parameters.default_value'}} {{defaultValue}}</div>
           {{/if}}
         </div>
       </li>

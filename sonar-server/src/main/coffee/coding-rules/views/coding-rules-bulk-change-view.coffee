@@ -77,7 +77,7 @@ define [
     bulkChange: (query) ->
       jQuery.ajax
         type: 'POST'
-        url: "#{baseUrl}/api/codingrules/bulk_change"
+        url: "#{baseUrl}/api/rules/bulk_change"
         data: query
       .done =>
         @options.app.fetchFirstPage()
@@ -98,6 +98,6 @@ define [
       qualityProfileName: @options.app.qualityProfileFilter.view.renderValue()
 
       activateOnQualityProfiles: @options.app.qualityProfiles
-      deactivateOnQualityProfiles: _.reject @options.app.qualityProfiles, (q) => q.key == @options.app.getQualityProfile()
+      deactivateOnQualityProfiles: _.reject @options.app.qualityProfiles, (q) => q.name == @options.app.getQualityProfile()
 
       severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO']

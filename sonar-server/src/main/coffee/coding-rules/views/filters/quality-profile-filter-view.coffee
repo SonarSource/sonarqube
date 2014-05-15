@@ -48,4 +48,3 @@ define [
           text: r.qualityprofile.text,
           parent: r.qualityprofile.parent,
           checked: true
-

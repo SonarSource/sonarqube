@@ -24,9 +24,11 @@ define [
 
       @options.app.layout.showSpinner 'detailsRegion'
       jQuery.ajax
-        url: "#{baseUrl}/api/codingrules/show"
+        url: "#{baseUrl}/api/rules/show"
+        data:
+          key: @model.get('key')
       .done (r) =>
-        @model.set r.codingrule
+        @model.set r.rule
         @options.app.codingRulesQualityProfileActivationView.rule = @model
         @options.app.detailView = new CodingRulesDetailView
           app: @options.app
