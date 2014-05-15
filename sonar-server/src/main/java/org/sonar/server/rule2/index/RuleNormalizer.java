@@ -110,7 +110,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
   public UpdateRequest normalize(RuleDto rule) {
     try {
       XContentBuilder document = jsonBuilder().startObject();
-      indexField(RuleField.KEY.key(), rule.getRuleKey(), document);
+      indexField(RuleField.KEY.key(), rule.getKey(), document);
       indexField(RuleField.REPOSITORY.key(), rule.getRepositoryKey(), document);
       indexField(RuleField.NAME.key(), rule.getName(), document);
       indexField(RuleField.CREATED_AT.key(), rule.getCreatedAt(), document);

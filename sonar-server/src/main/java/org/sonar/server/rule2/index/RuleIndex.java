@@ -128,9 +128,11 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     XContentBuilder mapping = jsonBuilder().startObject()
       .startObject(this.indexDefinition.getIndexType())
       .field("dynamic", true)
+      .startObject("_id")
+      .field("path", RuleNormalizer.RuleField.KEY)
+      .endObject()
       .startObject("properties");
 
-    addMatchField(mapping, RuleNormalizer.RuleField.KEY.key(), "string");
     addMatchField(mapping, RuleNormalizer.RuleField.REPOSITORY.key(), "string");
     addMatchField(mapping, RuleNormalizer.RuleField.SEVERITY.key(), "string");
     addMatchField(mapping, RuleNormalizer.RuleField.STATUS.key(), "string");
@@ -143,6 +145,22 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     mapping.startObject(RuleNormalizer.RuleField.UPDATED_AT.key())
       .field("type", "date")
       .field("format", "date_time")
+      .endObject();
+
+    mapping.startObject(RuleNormalizer.RuleField.KEY.key())
+      .field("type", "multi_field")
+      .startObject("fields")
+      .startObject(RuleNormalizer.RuleField.KEY.key())
+      .field("type", "string")
+      .field("index", "analyzed")
+      .endObject()
+      .startObject("search")
+      .field("type", "string")
+      .field("index", "analyzed")
+      .field("index_analyzer", "rule_name")
+      .field("search_analyzer", "standard")
+      .endObject()
+      .endObject()
       .endObject();
 
     mapping.startObject(RuleNormalizer.RuleField.NAME.key())
@@ -227,11 +245,11 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     QueryBuilder qb;
     if (query.getQueryText() != null && !query.getQueryText().isEmpty()) {
       qb = QueryBuilders.multiMatchQuery(query.getQueryText(),
-        "_id",
         RuleNormalizer.RuleField.NAME.key(),
         RuleNormalizer.RuleField.NAME.key() + ".search",
         RuleNormalizer.RuleField.HTML_DESCRIPTION.key(),
         RuleNormalizer.RuleField.KEY.key(),
+        RuleNormalizer.RuleField.KEY.key() + ".search",
         RuleNormalizer.RuleField.LANGUAGE.key(),
         RuleNormalizer.RuleField.TAGS.key());
     } else {

@@ -155,7 +155,7 @@ public class ActiveRuleIndexMediumTest {
 
     RuleResult results = index.search(new RuleQuery(), new QueryOptions());
 
-    assertThat(results.getActiveRules()).hasSize(1);
+    assertThat(results.getActiveRules().values()).hasSize(1);
 
 
 //    Hit hit = index.getByKey(ruleKey);

@@ -188,7 +188,7 @@ public class RulesWebServiceTest {
 
     MockUserSession.set();
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules2", "search");
-    request.setParam("q","S001");
+    request.setParam("q", "S001");
     WsTester.Result result = request.execute();
 
     result.assertJson(this.getClass(),"search_active_rules_params.json");

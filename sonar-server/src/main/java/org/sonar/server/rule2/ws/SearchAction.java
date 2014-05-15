@@ -217,6 +217,8 @@ public class SearchAction implements RequestHandler {
 
     json.name("rules").beginArray();
     for (Rule rule : result.getHits()) {
+
+      /** Rule */
       json.beginObject();
       json
         .prop("repo", rule.key().repository())
@@ -240,6 +242,8 @@ public class SearchAction implements RequestHandler {
           .prop("debtRemediationFunctionCoefficient", rule.debtRemediationFunction().coefficient())
           .prop("debtRemediationFunctionOffset", rule.debtRemediationFunction().offset());
       }
+
+      /** RuleParams */
       json.name("params").beginArray();
       for (RuleParam param : rule.params()) {
         json
@@ -250,9 +254,11 @@ public class SearchAction implements RequestHandler {
           .endObject();
       }
       json.endArray();
-      json.name("actives").beginArray();
 
-      for (ActiveRule activeRule : result.getActiveRules()) {
+      /** ActiveRules */
+      System.out.println("rule.key() = " + rule.key());
+      json.name("actives").beginArray();
+      for (ActiveRule activeRule : result.getActiveRules().get(rule.key().toString())) {
         json
           .beginObject()
           .prop("key",activeRule.key().toString())

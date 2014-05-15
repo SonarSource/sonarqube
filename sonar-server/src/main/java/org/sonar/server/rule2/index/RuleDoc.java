@@ -48,13 +48,11 @@ class RuleDoc implements Rule {
 
   @Override
   public RuleKey key() {
-    String repo = (String) fields.get(RuleField.REPOSITORY.key());
     String key = (String) fields.get(RuleField.KEY.key());
-    if (repo == null || key == null
-      || repo.isEmpty() || key.isEmpty()) {
+    if (key == null || key.isEmpty()) {
       throw new IllegalStateException("Missing values for RuleKey in RuleDoc");
     } else {
-      return RuleKey.of(repo, key);
+      return RuleKey.parse(key);
     }
   }
 
