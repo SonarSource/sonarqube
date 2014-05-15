@@ -392,7 +392,13 @@ module ApplicationHelper
     end
 
     align=(percent<0 ? 'float: right;' : nil)
-    "<div class='barchart' style='width: #{width}px' title='#{options[:tooltip]}'><div style='width: #{percent.abs}%;background-color:#{color};#{align}'></div></div>"
+    html = "<div class='barchart' style='width: #{width}px' title='#{options[:tooltip]}'><div style='width: #{percent.abs}%;background-color:#{color};#{align}'></div>"
+    value = options[:value]
+    if value
+      html += "<span class='barchart-value'>#{value}</span>"
+    end
+    html += "</div>"
+    html
   end
 
   def chart(parameters, options={})
