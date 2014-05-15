@@ -63,6 +63,11 @@
   -webkit-transform: translate3d(@x, @y, @z);
           transform: translate3d(@x, @y, @z);
 }
+.transform-origin(@origin) {
+  -webkit-transform-origin: @origin;
+      -ms-transform-origin: @origin;
+          transform-origin: @origin;
+}
 
 .box-sizing(@boxmodel) {
   -moz-box-sizing: @boxmodel;

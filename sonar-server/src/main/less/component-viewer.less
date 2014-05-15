@@ -257,7 +257,6 @@
 
 .component-viewer-header {
   margin-bottom: 10px;
-  padding-top: 8px;
 }
 
 .component-viewer-header-bar {
@@ -292,18 +291,32 @@
 .component-viewer-header-measures-scope {
   position: relative;
   float: left;
-  border-left: 1px solid transparent;
+//  border-left: 1px solid transparent;
 }
 
 .component-viewer-header-measures-toggle-scope {
   position: absolute;
-  top: -9px;
+  top: 0;
   display: block;
-  .size(100%, 8px);
+  .size(100%, 6px);
+  margin-bottom: -1px;
   background-color: lighten(@blue, 30%);
+  .transform-origin(0 0);
   .trans;
 
-  &:hover { background-color: lighten(@blue, 15%); }
+  &:after {
+    content: " ";
+    position: absolute;
+    top: 100%;
+    .size(100%, 4px);
+    background-color: transparent;
+  }
+
+  &:hover {
+    background-color: lighten(@blue, 15%);
+    .scale2(1, 2);
+  }
+
   &.active { background-color: @blue; }
   &.inactive { background-color: transparent; }
 }
@@ -311,6 +324,7 @@
 .component-viewer-header-measures-expand {
   display: block;
   padding: 10px 20px;
+  white-space: nowrap;
   .trans(background);
 
   &:hover { background-color: @barBorderColor; }
@@ -379,7 +393,6 @@
 .component-viewer-header-links {
   float: right;
   padding: 8px 10px;
-  border-left: 1px solid @barBorderColor;
 
   a {
     float: left;
@@ -394,6 +407,7 @@
 .component-viewer-header-expanded-bar {
   display: none;
   .clearfix;
+  margin-top: -1px;
   padding: 10px;
   border: 1px solid @barBorderColor;
   border-top: none;

@@ -32,8 +32,6 @@
     </div>
 
     <div class="component-viewer-header-measures-scope">
-      <a data-scope="issues" title="Toggle issues"
-         class="js-toggle-issues component-viewer-header-measures-toggle-scope {{#if settings.issues}}active{{/if}}"></a>
       <a data-scope="issues" class="component-viewer-header-measures-expand">
         {{#if component.measures.debt}}
           <div class="component-viewer-header-measure">
@@ -63,11 +61,11 @@
         </div>
         <i class="icon-dropdown"></i>
       </a>
+      <a data-scope="issues" title="Toggle issues"
+         class="js-toggle-issues component-viewer-header-measures-toggle-scope {{#if settings.issues}}active{{/if}}"></a>
     </div>
 
     <div class="component-viewer-header-measures-scope">
-      <a data-scope="coverage" title="Toggle coverage"
-         class="js-toggle-coverage component-viewer-header-measures-toggle-scope {{#if settings.coverage}}active{{/if}}"></a>
       <a data-scope="coverage" class="component-viewer-header-measures-expand">
         {{#if component.measures.coverage}}
           <div class="component-viewer-header-measure">
@@ -77,11 +75,11 @@
         {{/if}}
         <i class="icon-dropdown"></i>
       </a>
+      <a data-scope="coverage" title="Toggle coverage"
+         class="js-toggle-coverage component-viewer-header-measures-toggle-scope {{#if settings.coverage}}active{{/if}}"></a>
     </div>
 
     <div class="component-viewer-header-measures-scope">
-      <a data-scope="duplications" title="Toggle duplications"
-         class="js-toggle-duplications component-viewer-header-measures-toggle-scope {{#if settings.duplications}}active{{/if}}"></a>
       <a data-scope="duplications" class="component-viewer-header-measures-expand">
         {{#if component.measures.duplication_density}}
           <div class="component-viewer-header-measure">
@@ -91,6 +89,8 @@
         {{/if}}
         <i class="icon-dropdown"></i>
       </a>
+      <a data-scope="duplications" title="Toggle duplications"
+         class="js-toggle-duplications component-viewer-header-measures-toggle-scope {{#if settings.duplications}}active{{/if}}"></a>
     </div>
   </div>
 </div>
