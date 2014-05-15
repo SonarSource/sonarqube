@@ -144,6 +144,7 @@ public class RuleServiceMediumTest {
 
     // 2. DELETE NOTE
     service.setNote(ruleKey, null);
+    dbSession.clearCache();
     dto = dao.getNonNullByKey(ruleKey, dbSession);
     assertThat(dto.getNoteData()).isNull();
     assertThat(dto.getNoteCreatedAt()).isNull();
