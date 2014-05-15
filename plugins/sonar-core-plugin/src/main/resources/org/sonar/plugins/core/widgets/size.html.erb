@@ -25,6 +25,7 @@
             <%= dashboard_configuration.selected_period? ? format_variation(ncloc) : trend_icon(ncloc) -%>
           </p>
           <% if ncloc_language_dist_hash %>
+            <% if ncloc_language_dist_hash.size > 1 %>
             <div class="widget-histogram">
               <table class="clear width100">
                 <%
@@ -32,7 +33,6 @@
 
                    # Sort lines language distribution by language name
                    languages_by_key = Hash[languages.collect { |l| [l.getKey(), l.getName] }]
-                   puts "#### " + languages_by_key.inspect
                    ncloc_language_dist_hash.sort {|v1,v2| (languages_by_key[v1[0]] ? languages_by_key[v1[0]].to_s : v1[0]) <=> (languages_by_key[v2[0]] ? languages_by_key[v2[0]].to_s : v2[0]) }.each do |language_key, language_ncloc|
                 %>
                 <tr>
@@ -46,6 +46,12 @@
                 </tr>
                 <% end %>
               </table>
+          <% else %>
+            <%
+               language_key = ncloc_language_dist_hash.first[0]
+               language = languages.find { |l| l.getKey()==language_key.to_s } -%>
+            <%= language ? language.getName() : language_key -%>
+          <% end %>
             </div>
           <% end %>
 
