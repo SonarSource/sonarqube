@@ -64,6 +64,7 @@ define [
           unless @options.main.component.has 'msr'
             @options.main.requestMeasures(@options.main.key).done =>
               @render()
+              @ui.expandLinks.filter("[data-scope=#{scope}]").addClass 'active'
               @ui.expandedBars.filter("[data-scope=#{scope}]").show()
           else
             @ui.expandedBars.filter("[data-scope=#{scope}]").show()
@@ -113,12 +114,12 @@ define [
     serializeData: ->
       component = @options.main.component.toJSON()
       if component.measures
-        component.measures.max_issues = Math.max(
-          component.measures.blocker_issues
-          component.measures.critical_issues
-          component.measures.major_issues
-          component.measures.minor_issues
-          component.measures.info_issues
+        component.measures.maxIssues = Math.max(
+          component.measures.fBlockerIssues || 0
+          component.measures.fCriticalIssues || 0
+          component.measures.fMajorIssues || 0
+          component.measures.fMinorIssues || 0
+          component.measures.fInfoIssues || 0
         )
 
       settings: @options.main.settings.toJSON()

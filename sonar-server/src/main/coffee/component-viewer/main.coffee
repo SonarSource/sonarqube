@@ -18,7 +18,7 @@ define [
 
   $ = jQuery
 
-  API_COMPONENT = "#{baseUrl}/api/sources/app"
+  API_COMPONENT = "#{baseUrl}/api/components/app"
   API_SOURCES = "#{baseUrl}/api/sources/show"
   API_COVERAGE = "#{baseUrl}/api/coverage/show"
   API_SCM = "#{baseUrl}/api/sources/scm"
