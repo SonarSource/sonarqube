@@ -119,7 +119,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void update_rules_on_changes() {
+  public void update_and_remove_rules_on_changes() {
     execute(new FakeRepositoryV1());
     assertThat(dbClient.ruleDao().findAll(dbSession)).hasSize(2);
 
@@ -152,7 +152,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     assertThat(param.getDescription()).isEqualTo("parameter one v2");
     assertThat(param.getDefaultValue()).isEqualTo("default1 v2");
 
-    // rule2 has been removed
+    // rule2 has been removed -> status set to REMOVED but db row is not deleted
     RuleDto rule2 = dbClient.ruleDao().getByKey(RuleKey.of("fake", "rule2"), dbSession);
     assertThat(rule2.getStatus()).isEqualTo(RuleStatus.REMOVED.toString());
     assertThat(rule2.getUpdatedAt()).isEqualTo(DATE2);

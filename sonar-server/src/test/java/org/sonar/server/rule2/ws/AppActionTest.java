@@ -64,10 +64,10 @@ public class AppActionTest {
 
   @Test
   public void should_generate_app_init_info() throws Exception {
+    AppAction app = new AppAction(languages, ruleRepositories, i18n, debtModel, qProfiles);
     WsTester tester = new WsTester(new RulesWebService(
       mock(SearchAction.class), mock(ShowAction.class), mock(TagsAction.class), mock(SetTagsAction.class),
-      new AppAction(languages, ruleRepositories, i18n, debtModel, qProfiles)));
-
+      mock(SetNoteAction.class), app));
 
     QProfile profile1 = new QProfile().setName("Profile One").setLanguage("bf");
     QProfile profile2 = new QProfile().setName("Profile Two").setLanguage("bf").setParent("Profile One");

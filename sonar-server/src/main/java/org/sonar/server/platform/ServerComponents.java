@@ -131,6 +131,7 @@ import org.sonar.server.rule2.index.RuleNormalizer;
 import org.sonar.server.rule2.persistence.RuleDao;
 import org.sonar.server.rule2.ws.RulesWebService;
 import org.sonar.server.rule2.ws.SearchAction;
+import org.sonar.server.rule2.ws.SetNoteAction;
 import org.sonar.server.rule2.ws.SetTagsAction;
 import org.sonar.server.rule2.ws.TagsAction;
 import org.sonar.server.source.CodeColorizers;
@@ -335,6 +336,7 @@ class ServerComponents {
     pico.addSingleton(org.sonar.server.rule2.ws.ShowAction.class);
     pico.addSingleton(TagsAction.class);
     pico.addSingleton(SetTagsAction.class);
+    pico.addSingleton(SetNoteAction.class);
     pico.addSingleton(org.sonar.server.rule2.ws.AppAction.class);
 
     // measure
