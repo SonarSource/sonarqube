@@ -91,8 +91,8 @@ define [
         @source.set scm: data.scm
 
 
-    requestCoverage: (key) ->
-      $.get API_COVERAGE, key: key, (data) =>
+    requestCoverage: (key, type = 'UT') ->
+      $.get API_COVERAGE, key: key, type: type, (data) =>
         @source.set coverage: data.coverage
 
 
@@ -185,40 +185,41 @@ define [
       @sourceView.render()
 
 
-    filterLinesByLinesToCover: ->
-      unless @source.has 'coverage'
-        @requestCoverage(@key).done => @_filterLinesByLinesToCover()
-      else
-        @_filterLinesByLinesToCover()
+    filterByCoverage: (predicate) ->
+      @requestCoverage(@key).done => @_filterByCoverage(predicate)
 
 
-    _filterLinesByLinesToCover: ->
+    filterByCoverageIT: (predicate) ->
+      @requestCoverage(@key, 'IT').done => @_filterByCoverage(predicate)
+
+
+    _filterByCoverage: (predicate) ->
       coverage = @source.get 'coverage'
       @settings.set 'coverage', true
       @sourceView.resetShowBlocks()
       coverage.forEach (c) =>
-        if c[1]? && c[1]
+        if predicate c
           line = c[0]
           @sourceView.addShowBlock line - LINES_AROUND_COVERED_LINE, line + LINES_AROUND_COVERED_LINE
       @sourceView.render()
 
 
-    filterLinesByUncoveredLines: ->
-      unless @source.has 'coverage'
-        @requestCoverage(@key).done => @_filterLinesByUncoveredLines()
-      else
-        @_filterLinesByUncoveredLines()
+    # Unit Tests
+    filterByLinesToCover: -> @filterByCoverage (c) -> c[1]?
+    filterByCoveredLines: -> @filterByCoverage (c) -> c[1]? && c[1]
+    filterLinesByUncoveredLines: -> @filterByCoverage (c) -> c[1]? && !c[1]
+    filterByBranchesToCover: -> @filterByCoverage (c) -> c[3]?
+    filterByUncoveredBranches: -> @filterByCoverage (c) -> c[3]? && c[4]? && (c[3] > c[4])
+
+    # Integration Tests
+    filterByLinesToCoverIT: -> @filterByCoverageIT (c) -> c[1]?
+    filterByCoveredLinesIT: -> @filterByCoverageIT (c) -> c[1]? && c[1]
+    filterLinesByUncoveredLinesIT: -> @filterByCoverageIT (c) -> c[1]? && !c[1]
+    filterByBranchesToCoverIT: -> @filterByCoverageIT (c) -> c[3]?
+    filterByUncoveredBranchesIT: -> @filterByCoverageIT (c) -> c[3]? && c[4]? && (c[3] > c[4])
 
 
-    _filterLinesByUncoveredLines: ->
-      coverage = @source.get 'coverage'
-      @settings.set 'coverage', true
-      @sourceView.resetShowBlocks()
-      coverage.forEach (c) =>
-        if c[1]? && !c[1]
-          line = c[0]
-          @sourceView.addShowBlock line - LINES_AROUND_COVERED_LINE, line + LINES_AROUND_COVERED_LINE
-      @sourceView.render()
+
 
 
     addTransition: (key, transition, optionsForCurrent, options) ->

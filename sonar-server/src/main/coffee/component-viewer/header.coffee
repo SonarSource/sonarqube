@@ -27,12 +27,20 @@ define [
       'click .js-toggle-duplications': 'toggleDuplications'
       'click .js-toggle-scm': 'toggleSCM'
 
-      'click .js-filter-line-to-cover': 'filterByLinesToCover'
+      'click .js-filter-lines-to-cover': 'filterByLinesToCover'
+      'click .js-filter-covered-lines': 'filterByCoveredLines'
       'click .js-filter-uncovered-lines': 'filterByUncoveredLines'
+      'click .js-filter-branches-to-cover': 'filterByBranchesToCover'
+      'click .js-filter-uncovered-branches': 'filterByUncoveredBranches'
+
+      'click .js-filter-lines-to-cover-it': 'filterByLinesToCoverIT'
+      'click .js-filter-covered-lines-it': 'filterByCoveredLinesIT'
+      'click .js-filter-uncovered-lines-it': 'filterByUncoveredLinesIT'
+      'click .js-filter-branches-to-cover-it': 'filterByBranchesToCoverIT'
+      'click .js-filter-uncovered-branches-it': 'filterByUncoveredBranchesIT'
 
 
     initialize: (options) ->
-#      @listenTo options.main.settings, 'change', @changeSettings
       options.main.settings.on 'change', => @changeSettings()
 
 
@@ -67,36 +75,30 @@ define [
       if active then hide.call @options.main else show.call @options.main
 
 
-    toggleIssues: (e) ->
-      @toggleSetting e, @options.main.showIssues, @options.main.hideIssues
+    toggleIssues: (e) -> @toggleSetting e, @options.main.showIssues, @options.main.hideIssues
+    toggleCoverage: (e) -> @toggleSetting e, @options.main.showCoverage, @options.main.hideCoverage
+    toggleDuplications: (e) -> @toggleSetting e, @options.main.showDuplications, @options.main.hideDuplications
+    toggleSCM: (e) -> @toggleSetting e, @options.main.showSCM, @options.main.hideSCM
+    toggleWorkspace: (e) -> @toggleSetting e, @options.main.showWorkspace, @options.main.hideWorkspace
 
 
-    toggleCoverage: (e) ->
-      @toggleSetting e, @options.main.showCoverage, @options.main.hideCoverage
-
-
-    toggleDuplications: (e) ->
-      @toggleSetting e, @options.main.showDuplications, @options.main.hideDuplications
-
-
-    toggleSCM: (e) ->
-      @toggleSetting e, @options.main.showSCM, @options.main.hideSCM
-
-
-    toggleWorkspace: (e) ->
-      @toggleSetting e, @options.main.showWorkspace, @options.main.hideWorkspace
-
-
-    filterByLinesToCover: (e) ->
+    filterByCoverage: (e, method) ->
       @$('.component-viewer-header-expanded-bar-section-list .active').removeClass 'active'
       $(e.currentTarget).addClass 'active'
-      @options.main.filterLinesByLinesToCover()
+      _.result @options.main, method
 
 
-    filterByUncoveredLines: (e) ->
-      @$('.component-viewer-header-expanded-bar-section-list .active').removeClass 'active'
-      $(e.currentTarget).addClass 'active'
-      @options.main.filterLinesByUncoveredLines()
+    filterByLinesToCover: (e) -> @filterByCoverage e, 'filterByLinesToCover'
+    filterByCoveredLines: (e) -> @filterByCoverage e, 'filterByCoveredLines'
+    filterByUncoveredLines: (e) -> @filterByCoverage e, 'filterByUncoveredLines'
+    filterByBranchesToCover: (e) -> @filterByCoverage e, 'filterByBranchesToCover'
+    filterByUncoveredBranches: (e) -> @filterByCoverage e, 'filterByUncoveredBranches'
+
+    filterByLinesToCoverIT: (e) -> @filterByCoverage e, 'filterByLinesToCoverIT'
+    filterByCoveredLinesIT: (e) -> @filterByCoverage e, 'filterByCoveredLinesIT'
+    filterByUncoveredLinesIT: (e) -> @filterByCoverage e, 'filterByUncoveredLinesIT'
+    filterByBranchesToCoverIT: (e) -> @filterByCoverage e, 'filterByBranchesToCoverIT'
+    filterByUncoveredBranchesIT: (e) -> @filterByCoverage e, 'filterByUncoveredBranchesIT'
 
 
     serializeData: ->
