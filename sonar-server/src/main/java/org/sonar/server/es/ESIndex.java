@@ -21,7 +21,6 @@ package org.sonar.server.es;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
-import org.elasticsearch.ElasticSearchParseException;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -170,13 +169,10 @@ public class ESIndex implements Startable {
     }
 
     watch = createWatch();
-    try {
       indices.putMapping(Requests.putMappingRequest(index).type(type).source(mapping)).actionGet();
-    } catch (ElasticSearchParseException parseException) {
-      throw new IllegalArgumentException("Invalid mapping file", parseException);
-    } finally {
+
       watch.stop("put mapping on index '%s' for type '%s'", index, type);
-    }
+
   }
 
   public List<String> findDocumentIds(SearchQuery searchQuery) {

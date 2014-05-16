@@ -26,7 +26,6 @@ import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.Multimap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
-import org.elasticsearch.ElasticSearchException;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -311,15 +310,12 @@ public class RuleRegistry {
       searchQuery.field(param.getKey(), param.getValue().split("\\|"));
     }
 
-    try {
       List<Integer> result = newArrayList();
       for (String docId : searchIndex.findDocumentIds(searchQuery)) {
         result.add(Integer.parseInt(docId));
       }
       return result;
-    } catch (ElasticSearchException searchException) {
-      throw new IllegalArgumentException("Unable to perform search, please check query", searchException);
-    }
+
   }
 
   public PagedResult<Rule> find(RuleQuery query) {
