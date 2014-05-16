@@ -50,8 +50,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class RulesWebServiceTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester()
-    .setProperty("sonar.es.http.port","9200");
+  public static ServerTester tester = new ServerTester();
 
 
   private RulesWebService ws;
