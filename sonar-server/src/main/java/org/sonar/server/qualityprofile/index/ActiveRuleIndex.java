@@ -44,31 +44,23 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
-import org.sonar.server.rule2.index.RuleNormalizer;
+import org.sonar.server.es.ESNode;
+import org.sonar.server.rule2.index.RuleIndexDefinition;
 import org.sonar.server.search.BaseIndex;
-import org.sonar.server.search.NestedIndex;
 
 import java.io.IOException;
 
-public class ActiveRuleIndex extends NestedIndex<ActiveRule, ActiveRuleDto, ActiveRuleKey> {
+import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
-  public ActiveRuleIndex(ActiveRuleNormalizer normalizer, WorkQueue workQueue, BaseIndex<?, ?, ?> index) {
-    super(new ActiveRuleIndexDefinition(), normalizer, workQueue, index);
+public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, ActiveRuleKey> {
+
+  public ActiveRuleIndex(ActiveRuleNormalizer normalizer, WorkQueue workQueue, ESNode node) {
+    super(new ActiveRuleIndexDefinition(), normalizer, workQueue, node);
   }
 
   @Override
-  protected String getParentKeyValue(ActiveRuleKey key) {
-    return key.ruleKey().toString();
-  }
-
-  @Override
-  protected String getParentIndexType() {
-    return "rule2";
-  }
-
-  @Override
-  protected String getIndexField() {
-    return RuleNormalizer.RuleField.ACTIVE.key();
+  protected String getKeyValue(ActiveRuleKey key) {
+    return key.toString();
   }
 
   @Override
@@ -78,12 +70,38 @@ public class ActiveRuleIndex extends NestedIndex<ActiveRule, ActiveRuleDto, Acti
 
   @Override
   protected XContentBuilder getMapping() throws IOException {
-    return null;
+    XContentBuilder mapping = jsonBuilder().startObject()
+      .startObject(this.indexDefinition.getIndexType())
+      .field("dynamic", "strict")
+      .startObject("_parent")
+      .field("type", new RuleIndexDefinition().getIndexType())
+      .endObject()
+      .startObject("_id")
+      .field("path", ActiveRuleNormalizer.ActiveRuleField.KEY.key())
+      .endObject()
+      .startObject("_routing")
+      .field("required", true)
+      .field("path", ActiveRuleNormalizer.ActiveRuleField.RULE_KEY.key())
+      .endObject();
+
+
+    mapping.startObject("properties");
+    addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.KEY.key(), "string");
+    addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.RULE_KEY.key(), "string");
+    addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.key(), "string");
+    addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.SEVERITY.key(), "string");
+    addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.PROFILE_ID.key(), "string");
+    mapping.startObject(ActiveRuleNormalizer.ActiveRuleField.PARAMS.key())
+      .field("type", "nested")
+      .endObject();
+    mapping.endObject();
+
+    mapping.endObject().endObject();
+    return mapping;
   }
 
   @Override
   public ActiveRule toDoc(GetResponse key) {
     return null;
   }
-
 }

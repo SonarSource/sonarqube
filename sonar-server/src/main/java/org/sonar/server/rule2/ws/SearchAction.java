@@ -256,7 +256,6 @@ public class SearchAction implements RequestHandler {
       json.endArray();
 
       /** ActiveRules */
-      System.out.println("rule.key() = " + rule.key());
       json.name("actives").beginArray();
       for (ActiveRule activeRule : result.getActiveRules().get(rule.key().toString())) {
         json

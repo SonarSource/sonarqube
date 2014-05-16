@@ -53,11 +53,10 @@ public abstract class NestedIndex<D, E extends Dto<K>, K extends Serializable>
 
   protected abstract String getIndexField();
 
-  protected String getKeyValue(K key) {
-    return this.getParentKeyValue(key);
-  }
 
-  protected void initializeIndex() {
+  @Override
+  protected String getKeyValue(K key) {
+    return key.toString();
   }
 
   @Override
@@ -71,8 +70,8 @@ public abstract class NestedIndex<D, E extends Dto<K>, K extends Serializable>
     LOG.debug("UPDATE _id:{} in index {}", key, this.getIndexName());
     getClient().update(request
       .index(this.getIndexName())
-      .id(this.getKeyValue(key))
-      .type(this.getParentIndexType())).get();
+      .id(this.getParentKeyValue(key))
+      .type("rules2")).get();
   }
 
 }

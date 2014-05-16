@@ -49,7 +49,8 @@ import static org.fest.assertions.Assertions.assertThat;
 public class RulesWebServiceTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester()
+    .setProperty("sonar.es.http.port","9200");
 
 
   private RulesWebService ws;
@@ -158,6 +159,7 @@ public class RulesWebServiceTest {
     request.setParam("q","S001");
     WsTester.Result result = request.execute();
 
+    Thread.sleep(1000000);
     result.assertJson(this.getClass(),"search_active_rules.json");
   }
 
@@ -169,6 +171,9 @@ public class RulesWebServiceTest {
     RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"));
     ruleDao.insert(rule,  session);
 
+    session.commit();
+
+
     RuleParamDto param = RuleParamDto.createFor(rule)
       .setDefaultValue("some value")
       .setType("string")
@@ -176,16 +181,22 @@ public class RulesWebServiceTest {
       .setName("my_var");
     ruleDao.addRuleParam(rule,param, session);
 
+    RuleParamDto param2 = RuleParamDto.createFor(rule)
+      .setDefaultValue("other value")
+      .setType("integer")
+      .setDescription("My small description")
+      .setName("the_var");
+    ruleDao.addRuleParam(rule,param2, session);
+
     ActiveRuleDto activeRule = newActiveRule(profile, rule);
     tester.get(ActiveRuleDao.class).insert(activeRule, session);
+
     ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(param)
       .setValue("The VALUE");
     tester.get(ActiveRuleDao.class).addParam(activeRule, activeRuleParam, session);
-
     session.commit();
 
     tester.get(RuleService.class).refresh();
-
 
     MockUserSession.set();
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules2", "search");

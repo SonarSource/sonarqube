@@ -46,7 +46,8 @@ import static org.fest.assertions.Assertions.assertThat;
 public class RuleIndexMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester()
+    .setProperty("sonar.es.http.port","9200");
 
   MyBatis myBatis = tester.get(MyBatis.class);
   RuleDao dao = tester.get(RuleDao.class);
@@ -198,7 +199,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_all_rules() {
+  public void search_all_rules() throws InterruptedException {
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001")), dbSession);
     dao.insert(newRuleDto(RuleKey.of("java", "S002")), dbSession);
     dbSession.commit();
@@ -331,12 +332,13 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void sort_by_language() {
+  public void sort_by_language() throws InterruptedException {
     dao.insert(newRuleDto(RuleKey.of("java", "S001")).setLanguage("java"), dbSession);
     dao.insert(newRuleDto(RuleKey.of("java", "S002")).setLanguage("php"), dbSession);
     dbSession.commit();
     index.refresh();
 
+    Thread.sleep(100000000);
     // ascending
     RuleQuery query = new RuleQuery().setSortField(RuleQuery.SortField.LANGUAGE);
     Result<Rule> results = index.search(query, new QueryOptions());
@@ -351,7 +353,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_by_tag() {
+  public void search_by_tag() throws InterruptedException {
     dao.insert(newRuleDto(RuleKey.of("java", "S001")).setTags(ImmutableSet.of("tag1")), dbSession);
     dao.insert(newRuleDto(RuleKey.of("java", "S002")).setTags(ImmutableSet.of("tag2")), dbSession);
     dbSession.commit();

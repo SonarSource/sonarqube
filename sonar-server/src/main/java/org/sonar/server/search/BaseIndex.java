@@ -98,18 +98,25 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
 
     IndicesExistsResponse indexExistsResponse = getClient().admin().indices()
       .prepareExists(index).execute().actionGet();
+    try {
 
-    if (!indexExistsResponse.isExists()) {
-
-      try {
-        LOG.info("Setup of index {}", this.getIndexName());
+      if (!indexExistsResponse.isExists()) {
+        LOG.info("Setup of {} for type {}", this.getIndexName(), this.getIndexType());
         getClient().admin().indices().prepareCreate(index)
           .setSettings(getIndexSettings())
-          .addMapping(this.indexDefinition.getIndexType(), getMapping())
+          .addMapping(getIndexType(), getMapping())
           .execute().actionGet();
-      } catch (Exception e) {
-        throw new RuntimeException("Invalid configuration for index " + this.getIndexName(), e);
+
+      } else {
+        LOG.info("Update of index {} for type {}", this.getIndexName(), this.getIndexType());
+        getClient().admin().indices().preparePutMapping(index)
+          .setType(getIndexType())
+          .setIgnoreConflicts(true)
+          .setSource(getMapping())
+          .execute().actionGet();
       }
+    } catch (Exception e) {
+      throw new RuntimeException("Invalid configuration for index " + this.getIndexName(), e);
     }
   }
 
@@ -196,6 +203,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
       .index(this.getIndexName())
       .id(this.getKeyValue(key))
       .type(this.getIndexType())).get();
+
   }
 
 

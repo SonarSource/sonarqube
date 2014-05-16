@@ -20,7 +20,6 @@
 package org.sonar.server.rule2.index;
 
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
@@ -29,7 +28,9 @@ import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.search.BaseNormalizer;
 
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
@@ -48,7 +49,6 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     TEMPLATE("template"),
     UPDATED_AT("updatedAt"),
     PARAMS("params"),
-    ACTIVE("active"),
     DEBT_FUNCTION_TYPE("debtFunction"),
     DEBT_FUNCTION_COEFFICIENT("debtCoefficient"),
     DEBT_FUNCTION_OFFSET("debtOffset"),
@@ -108,86 +108,74 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
   @Override
   public UpdateRequest normalize(RuleDto rule) {
-    try {
-      XContentBuilder document = jsonBuilder().startObject();
-      indexField(RuleField.KEY.key(), rule.getKey(), document);
-      indexField(RuleField.REPOSITORY.key(), rule.getRepositoryKey(), document);
-      indexField(RuleField.NAME.key(), rule.getName(), document);
-      indexField(RuleField.CREATED_AT.key(), rule.getCreatedAt(), document);
-      indexField(RuleField.UPDATED_AT.key(), rule.getUpdatedAt(), document);
-      indexField(RuleField.HTML_DESCRIPTION.key(), rule.getDescription(), document);
-      indexField(RuleField.SEVERITY.key(), rule.getSeverityString(), document);
-      indexField(RuleField.STATUS.key(), rule.getStatus(), document);
-      indexField(RuleField.LANGUAGE.key(), rule.getLanguage(), document);
-      indexField(RuleField.INTERNAL_KEY.key(), rule.getConfigKey(), document);
-      indexField(RuleField.TEMPLATE.key(), rule.getCardinality() == Cardinality.MULTIPLE, document);
 
-      //TODO Change on key when available
-      String subChar = null;
-      if(rule.getDefaultSubCharacteristicId() != null){
-        subChar = rule.getDefaultSubCharacteristicId().toString();
-      }
-      if(rule.getSubCharacteristicId() != null){
-        subChar = rule.getSubCharacteristicId().toString();
-      }
-      indexField(RuleField.SUB_CHARACTERISTIC.key(),subChar,document);
+    Map<String, Object> update = new HashMap<String, Object>();
+    update.put(RuleField.KEY.key(), rule.getKey().toString());
+    update.put(RuleField.REPOSITORY.key(), rule.getRepositoryKey());
+    update.put(RuleField.NAME.key(), rule.getName());
+    update.put(RuleField.CREATED_AT.key(), rule.getCreatedAt());
+    update.put(RuleField.UPDATED_AT.key(), rule.getUpdatedAt());
+    update.put(RuleField.HTML_DESCRIPTION.key(), rule.getDescription());
+    update.put(RuleField.SEVERITY.key(), rule.getSeverityString());
+    update.put(RuleField.STATUS.key(), rule.getStatus());
+    update.put(RuleField.LANGUAGE.key(), rule.getLanguage());
+    update.put(RuleField.INTERNAL_KEY.key(), rule.getConfigKey());
+    update.put(RuleField.TEMPLATE.key(), rule.getCardinality() == Cardinality.MULTIPLE);
 
-      String dType = null, dCoefficient = null, dOffset = null;
-      if(rule.getDefaultRemediationFunction() != null){
-        dType = rule.getDefaultRemediationFunction();
-        dCoefficient = rule.getDefaultRemediationCoefficient();
-        dOffset= rule.getDefaultRemediationOffset();
-      }
-      if(rule.getRemediationFunction() != null){
-        dType = rule.getRemediationFunction();
-        dCoefficient = rule.getRemediationCoefficient();
-        dOffset= rule.getRemediationOffset();
-      }
-      indexField(RuleField.DEBT_FUNCTION_TYPE.key(), dType, document);
-      indexField(RuleField.DEBT_FUNCTION_COEFFICIENT.key(), dCoefficient, document);
-      indexField(RuleField.DEBT_FUNCTION_OFFSET.key(), dOffset, document);
+    //TODO Change on key when available
+    String subChar = null;
+    if (rule.getDefaultSubCharacteristicId() != null) {
+      subChar = rule.getDefaultSubCharacteristicId().toString();
+    }
+    if (rule.getSubCharacteristicId() != null) {
+      subChar = rule.getSubCharacteristicId().toString();
+    }
+    update.put(RuleField.SUB_CHARACTERISTIC.key(), subChar);
+
+    String dType = null, dCoefficient = null, dOffset = null;
+    if (rule.getDefaultRemediationFunction() != null) {
+      dType = rule.getDefaultRemediationFunction();
+      dCoefficient = rule.getDefaultRemediationCoefficient();
+      dOffset = rule.getDefaultRemediationOffset();
+    }
+    if (rule.getRemediationFunction() != null) {
+      dType = rule.getRemediationFunction();
+      dCoefficient = rule.getRemediationCoefficient();
+      dOffset = rule.getRemediationOffset();
+    }
+    update.put(RuleField.DEBT_FUNCTION_TYPE.key(), dType);
+    update.put(RuleField.DEBT_FUNCTION_COEFFICIENT.key(), dCoefficient);
+    update.put(RuleField.DEBT_FUNCTION_OFFSET.key(), dOffset);
+
+    update.put(RuleField.TAGS.key(), rule.getTags());
+    update.put(RuleField.SYSTEM_TAGS.key(), rule.getSystemTags());
 
 
 
+      /* Upsert elements */
+    Map<String, Object> upsert = new HashMap<String, Object>(update);
+    upsert.put(RuleField.KEY.key(), rule.getKey().toString());
+    upsert.put(RuleField.PARAMS.key(), new ArrayList<String>());
 
-      document.array(RuleField.TAGS.key(), rule.getTags().toArray(new String[rule.getTags().size()]));
-      document.array(RuleField.SYSTEM_TAGS.key(), rule.getSystemTags().toArray(new String[rule.getSystemTags().size()]));
-      document.startObject(RuleField.PARAMS.key()).endObject();
-      document.startObject(RuleField.ACTIVE.key()).endObject();
-
-    /* Done normalizing for Rule */
-      document.endObject();
 
     /* Creating updateRequest */
-      UpdateRequest request = new UpdateRequest().doc(document);
-      request.docAsUpsert(true);
-      return request;
-    } catch (Exception e) {
-      throw new IllegalStateException(String.format("Could not normalize RuleDto with key %s", rule.getKey().toString()), e);
-    }
+    return new UpdateRequest()
+      .doc(update)
+      .upsert(upsert);
+
   }
 
   public UpdateRequest normalize(RuleParamDto param, RuleKey key) {
-    try {
-     /* Normalize the params */
-      XContentBuilder document = jsonBuilder().startObject();
-      document.startObject(RuleField.PARAMS.key());
-      document.startObject(param.getName());
-      indexField(RuleParamField.NAME.key(), param.getName(), document);
-      indexField(RuleParamField.TYPE.key(), param.getType(), document);
-      indexField(RuleParamField.DESCRIPTION.key(), param.getDescription(), document);
-      indexField(RuleParamField.DEFAULT_VALUE.key(), param.getDefaultValue(), document);
-      document.endObject();
-      document.endObject();
 
-    /* Creating updateRequest */
-      UpdateRequest request = new UpdateRequest().doc(document);
-      request.docAsUpsert(true);
-      return request;
-    } catch (Exception e) {
-      throw new IllegalStateException(String.format("Could not normalize Object (%s) for key %s",
-        param.getClass().getSimpleName(), key.toString()), e);
-    }
 
+    Map<String, Object> newParam = new HashMap<String, Object>();
+    newParam.put("_id", param.getName());
+    newParam.put(RuleParamField.NAME.key(), param.getName());
+    newParam.put(RuleParamField.TYPE.key(), param.getType());
+    newParam.put(RuleParamField.DESCRIPTION.key(), param.getDescription());
+    newParam.put(RuleParamField.DEFAULT_VALUE.key(), param.getDefaultValue());
+
+    return this.nestedUpsert(RuleField.PARAMS.key(),
+      param.getName(), newParam).id(key.toString());
   }
 }

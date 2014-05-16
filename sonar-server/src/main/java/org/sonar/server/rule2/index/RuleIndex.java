@@ -66,7 +66,6 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     RuleNormalizer.RuleField.CREATED_AT.key(),
     RuleNormalizer.RuleField.REPOSITORY.key(),
     RuleNormalizer.RuleField.PARAMS.key(),
-    RuleNormalizer.RuleField.ACTIVE.key(),
     RuleNormalizer.RuleField.TEMPLATE.key(),
     RuleNormalizer.RuleField.INTERNAL_KEY.key(),
     RuleNormalizer.RuleField.UPDATED_AT.key(),
@@ -89,7 +88,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     return jsonBuilder().startObject()
       .startObject("index")
       .field("number_of_replicas", 0)
-      .field("number_of_shards", 3)
+      .field("number_of_shards", 1)
       .startObject("mapper")
       .field("dynamic", true)
       .endObject()
@@ -179,11 +178,6 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       .endObject()
       .endObject();
 
-    mapping.startObject(RuleNormalizer.RuleField.ACTIVE.key())
-      .field("type", "nested")
-      .field("dynamic", true)
-      .endObject();
-
     mapping.startObject(RuleNormalizer.RuleField.PARAMS.key())
       .field("type", "nested")
       .field("dynamic", true)
@@ -223,19 +217,24 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     esSearch.setSize(options.getLimit());
 
     /* integrate Option's Fields */
+    Set<String> fields = new HashSet<String>();
     if (options.getFieldsToReturn() != null &&
       !options.getFieldsToReturn().isEmpty()) {
       for (String field : options.getFieldsToReturn()) {
-        esSearch.addField(field);
+        fields.add(field);
       }
     } else {
       for (RuleNormalizer.RuleField field : RuleNormalizer.RuleField.values()) {
-        esSearch.addField(field.key());
+          fields.add(field.key());
       }
     }
     //Add required fields:
-    esSearch.addField(RuleNormalizer.RuleField.KEY.key());
-    esSearch.addField(RuleNormalizer.RuleField.REPOSITORY.key());
+    fields.add(RuleNormalizer.RuleField.KEY.key());
+    fields.add(RuleNormalizer.RuleField.REPOSITORY.key());
+
+    //TODO limit source for available fields.
+    //esSearch.addFields(fields.toArray(new String[fields.size()]));
+    //esSearch.setSource(StringUtils.join(fields,','));
 
     return esSearch;
   }
@@ -319,6 +318,8 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     QueryBuilder qb = this.getQuery(query, options);
 
     esSearch.setQuery(QueryBuilders.filteredQuery(qb, fb));
+
+    System.out.println("esSearch = " + esSearch);
 
     SearchResponse esResult = esSearch.get();
 
