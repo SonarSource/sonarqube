@@ -13,7 +13,6 @@
 
   <properties>
     <gruntTask>default</gruntTask>
-    <branding.url>file:${basedir}/src/main/erb/branding</branding.url>
 
     <!-- self-analysis -->
     <sonar.sources>src/main/java,src/main/js</sonar.sources>
@@ -336,42 +335,8 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>download-branding-resources</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <configuration>
-              <target>
-                <!-- download file -->
-                <mkdir dir="${project.build.directory}/${project.build.finalName}/branding/WEB-INF/app/views/branding"/>
-                <mkdir dir="${project.build.directory}/${project.build.finalName}/branding/images"/>
-                <get src="${branding.url}/_footer.html.erb"
-                    dest="${project.build.directory}/${project.build.finalName}/branding/WEB-INF/app/views/branding"
-                    verbose="false"
-                    usetimestamp="false"/>
-                <get src="${branding.url}/logo.png"
-                    dest="${project.build.directory}/${project.build.finalName}/branding/images"
-                    verbose="false"
-                    usetimestamp="false"/>
-              </target>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
-          <webResources>
-            <resource>
-              <directory>${project.build.directory}/${project.build.finalName}/branding</directory>
-              <include>**/*</include>
-            </resource>
-          </webResources>
           <packagingExcludes>
             **/*.log,*.iml,WEB-INF/script/,WEB-INF/test/,javascripts/*-min.js,stylesheets/*-min.css,javascripts/tests/**/*,
             build/**,coffee/**,less/**,templates/**
@@ -694,8 +659,33 @@
               <skip>true</skip>
             </configuration>
           </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-war-plugin</artifactId>
+            <configuration>
+              <overlays>
+                <overlay>
+                  <groupId>com.sonarsource</groupId>
+                  <artifactId>sonarsource-branding</artifactId>
+                  <!-- branding resources are added first -->
+                </overlay>
+                <overlay>
+                  <!-- empty groupId/artifactId represents the current build => branding not overwritten -->
+                </overlay>
+              </overlays>
+            </configuration>
+          </plugin>
         </plugins>
       </build>
+      <dependencies>
+        <dependency>
+          <groupId>com.sonarsource</groupId>
+          <artifactId>sonarsource-branding</artifactId>
+          <version>0.1-SNAPSHOT</version>
+          <type>war</type>
+          <scope>runtime</scope>
+        </dependency>
+      </dependencies>
     </profile>
   </profiles>
 
