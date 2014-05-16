@@ -3,25 +3,25 @@
   <ul class="component-viewer-header-expanded-bar-section-list">
     <li><span class="item">
       <span class="label">Coverage</span>
-      <span class="number">93.6%</span>
+      <span class="number">{{component.msr.coverage}}</span>
     </span></li>
     <li><span class="item">
       <span class="label">Line coverage</span>
-      <span class="number">93.6%</span>
+      <span class="number">{{component.msr.line_coverage}}</span>
     </span></li>
     <li><a class="item js-filter-lines-to-cover">
       <span class="label">Lines to cover</span>
-      <span class="number">171</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
-    <li><a class="item js-filter-uncovered-lines">
-      <span class="label">Uncovered lines</span>
-      <span class="number">16</span>
+      <span class="number">{{component.msr.lines_to_cover}}</span>
       <i class="icon-chevron-right"></i>
     </a></li>
     <li><a class="item js-filter-covered-lines">
       <span class="label">Covered lines</span>
-      <span class="number">55</span>
+      <span class="number">{{component.msr.covered_lines}}</span>
+      <i class="icon-chevron-right"></i>
+    </a></li>
+    <li><a class="item js-filter-uncovered-lines">
+      <span class="label">Uncovered lines</span>
+      <span class="number">{{component.msr.uncovered_lines}}</span>
       <i class="icon-chevron-right"></i>
     </a></li>
   </ul>
@@ -33,16 +33,21 @@
     <li><span class="item">&nbsp;</span></li>
     <li><span class="item">
       <span class="label">Branch coverage</span>
-      <span class="number">75.0%</span>
+      <span class="number">{{component.msr.branch_coverage}}</span>
     </span></li>
     <li><a class="item js-filter-branches-to-cover">
       <span class="label">Branches to cover</span>
-      <span class="number">16</span>
+      <span class="number">{{component.msr.conditions_to_cover}}</span>
+      <i class="icon-chevron-right"></i>
+    </a></li>
+    <li><a class="item js-filter-covered-branches">
+      <span class="label">Covered branches</span>
+      <span class="number">{{component.msr.covered_conditions}}</span>
       <i class="icon-chevron-right"></i>
     </a></li>
     <li><a class="item js-filter-uncovered-branches">
       <span class="label">Uncovered branches</span>
-      <span class="number">4</span>
+      <span class="number">{{component.msr.uncovered_conditions}}</span>
       <i class="icon-chevron-right"></i>
     </a></li>
   </ul>
@@ -50,29 +55,29 @@
 
 
 <div class="component-viewer-header-expanded-bar-section">
-  <div class="component-viewer-header-expanded-bar-section-title">Unit Tests</div>
+  <div class="component-viewer-header-expanded-bar-section-title">Integration Tests</div>
   <ul class="component-viewer-header-expanded-bar-section-list">
     <li><span class="item">
       <span class="label">Coverage</span>
-      <span class="number">93.6%</span>
+      <span class="number">{{component.msr.it_coverage}}</span>
     </span></li>
     <li><span class="item">
       <span class="label">Line coverage</span>
-      <span class="number">93.6%</span>
+      <span class="number">{{component.msr.it_line_coverage}}</span>
     </span></li>
     <li><a class="item js-filter-lines-to-cover-it">
       <span class="label">Lines to cover</span>
-      <span class="number">171</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
-    <li><a class="item js-filter-uncovered-lines-it">
-      <span class="label">Uncovered lines</span>
-      <span class="number">16</span>
+      <span class="number">{{component.msr.it_lines_to_cover}}</span>
       <i class="icon-chevron-right"></i>
     </a></li>
     <li><a class="item js-filter-covered-lines-it">
       <span class="label">Covered lines</span>
-      <span class="number">55</span>
+      <span class="number">{{component.msr.it_covered_lines}}</span>
+      <i class="icon-chevron-right"></i>
+    </a></li>
+    <li><a class="item js-filter-uncovered-lines-it">
+      <span class="label">Uncovered lines</span>
+      <span class="number">{{component.msr.it_uncovered_lines}}</span>
       <i class="icon-chevron-right"></i>
     </a></li>
   </ul>
@@ -84,16 +89,21 @@
     <li><span class="item">&nbsp;</span></li>
     <li><span class="item">
       <span class="label">Branch coverage</span>
-      <span class="number">75.0%</span>
+      <span class="number">{{component.msr.it_branch_coverage}}</span>
     </span></li>
     <li><a class="item js-filter-branches-to-cover-it">
       <span class="label">Branches to cover</span>
-      <span class="number">16</span>
+      <span class="number">{{component.msr.it_conditions_to_cover}}</span>
+      <i class="icon-chevron-right"></i>
+    </a></li>
+    <li><a class="item js-filter-covered-branches-it">
+      <span class="label">Covered branches</span>
+      <span class="number">{{component.msr.it_covered_conditions}}</span>
       <i class="icon-chevron-right"></i>
     </a></li>
     <li><a class="item js-filter-uncovered-branches-it">
       <span class="label">Uncovered branches</span>
-      <span class="number">4</span>
+      <span class="number">{{component.msr.it_uncovered_conditions}}</span>
       <i class="icon-chevron-right"></i>
     </a></li>
   </ul>

@@ -31,12 +31,14 @@ define [
       'click .js-filter-covered-lines': 'filterByCoveredLines'
       'click .js-filter-uncovered-lines': 'filterByUncoveredLines'
       'click .js-filter-branches-to-cover': 'filterByBranchesToCover'
+      'click .js-filter-covered-branches': 'filterByCoveredBranches'
       'click .js-filter-uncovered-branches': 'filterByUncoveredBranches'
 
       'click .js-filter-lines-to-cover-it': 'filterByLinesToCoverIT'
       'click .js-filter-covered-lines-it': 'filterByCoveredLinesIT'
       'click .js-filter-uncovered-lines-it': 'filterByUncoveredLinesIT'
       'click .js-filter-branches-to-cover-it': 'filterByBranchesToCoverIT'
+      'click .js-filter-covered-branches-it': 'filterByCoveredBranchesIT'
       'click .js-filter-uncovered-branches-it': 'filterByUncoveredBranchesIT'
 
 
@@ -59,7 +61,12 @@ define [
         scope = el.data 'scope'
         @ui.expandedBars.hide()
         if scope
-          @ui.expandedBars.filter("[data-scope=#{scope}]").show()
+          unless @options.main.component.has 'msr'
+            @options.main.requestMeasures(@options.main.key).done =>
+              @render()
+              @ui.expandedBars.filter("[data-scope=#{scope}]").show()
+          else
+            @ui.expandedBars.filter("[data-scope=#{scope}]").show()
 
 
     changeSettings: ->
@@ -92,12 +99,14 @@ define [
     filterByCoveredLines: (e) -> @filterByCoverage e, 'filterByCoveredLines'
     filterByUncoveredLines: (e) -> @filterByCoverage e, 'filterByUncoveredLines'
     filterByBranchesToCover: (e) -> @filterByCoverage e, 'filterByBranchesToCover'
+    filterByCoveredBranches: (e) -> @filterByCoverage e, 'filterByCoveredBranches'
     filterByUncoveredBranches: (e) -> @filterByCoverage e, 'filterByUncoveredBranches'
 
     filterByLinesToCoverIT: (e) -> @filterByCoverage e, 'filterByLinesToCoverIT'
     filterByCoveredLinesIT: (e) -> @filterByCoverage e, 'filterByCoveredLinesIT'
     filterByUncoveredLinesIT: (e) -> @filterByCoverage e, 'filterByUncoveredLinesIT'
     filterByBranchesToCoverIT: (e) -> @filterByCoverage e, 'filterByBranchesToCoverIT'
+    filterByCoveredBranchesIT: (e) -> @filterByCoverage e, 'filterByCoveredBranchesIT'
     filterByUncoveredBranchesIT: (e) -> @filterByCoverage e, 'filterByUncoveredBranchesIT'
 
 

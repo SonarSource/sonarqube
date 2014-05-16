@@ -22,9 +22,23 @@ define [
   API_SOURCES = "#{baseUrl}/api/sources/show"
   API_COVERAGE = "#{baseUrl}/api/coverage/show"
   API_SCM = "#{baseUrl}/api/sources/scm"
+  API_MEASURES = "#{baseUrl}/api/resources"
 
   LINES_AROUND_ISSUE = 4
   LINES_AROUND_COVERED_LINE = 1
+
+  SOURCE_METRIC_LIST = 'lines,ncloc,functions,accessors,classes,statements,complexity,function_complexity,' +
+    'comment_lines_density,comment_lines,public_documented_api_density,public_undocumented_api,' +
+    'public_api'
+
+  COVERAGE_METRIC_LIST = 'coverage,line_coverage,lines_to_cover,covered_lines,uncovered_lines,' +
+    'branch_coverage,conditions_to_cover,uncovered_conditions,' +
+    'it_coverage,it_line_coverage,it_lines_to_cover,it_covered_lines,it_uncovered_lines,' +
+    'it_branch_coverage,it_conditions_to_cover,it_uncovered_conditions'
+
+  ISSUES_METRIC_LIST = 'blocker_violations,critical_violations,major_violations,minor_violations,info_violations'
+
+  DUPLICATIONS_METRIC_LIST = 'duplicated_lines_density,duplicated_blocks,duplicated_files,duplicated_lines'
 
 
 
@@ -79,6 +93,28 @@ define [
     requestComponent: (key) ->
       $.get API_COMPONENT, key: key, (data) =>
         @component.set data
+
+
+    requestMeasures: (key) ->
+      metrics = [SOURCE_METRIC_LIST, COVERAGE_METRIC_LIST, ISSUES_METRIC_LIST, DUPLICATIONS_METRIC_LIST].join ','
+      $.get API_MEASURES, resource: key, metrics: metrics, (data) =>
+        measuresList = data[0].msr || []
+        measures = {}
+        measuresList.forEach (m) -> measures[m.key] = m.frmt_val
+
+        if measures['lines_to_cover']? && measures['uncovered_lines']?
+          measures['covered_lines'] = measures['lines_to_cover'] - measures['uncovered_lines']
+
+        if measures['conditions_to_cover']? && measures['uncovered_conditions']?
+          measures['covered_conditions'] = measures['conditions_to_cover'] - measures['uncovered_conditions']
+
+        if measures['it_lines_to_cover']? && measures['it_uncovered_lines']?
+          measures['it_covered_lines'] = measures['it_lines_to_cover'] - measures['it_uncovered_lines']
+
+        if measures['it_conditions_to_cover']? && measures['it_uncovered_conditions']?
+          measures['it_covered_conditions'] = measures['it_conditions_to_cover'] - measures['it_uncovered_conditions']
+
+        @component.set 'msr', measures
 
 
     requestSource: (key) ->
@@ -207,15 +243,17 @@ define [
     # Unit Tests
     filterByLinesToCover: -> @filterByCoverage (c) -> c[1]?
     filterByCoveredLines: -> @filterByCoverage (c) -> c[1]? && c[1]
-    filterLinesByUncoveredLines: -> @filterByCoverage (c) -> c[1]? && !c[1]
+    filterByUncoveredLines: -> @filterByCoverage (c) -> c[1]? && !c[1]
     filterByBranchesToCover: -> @filterByCoverage (c) -> c[3]?
+    filterByCoveredBranches: -> @filterByCoverage (c) -> c[3]? && c[4]? && (c[4] > 0)
     filterByUncoveredBranches: -> @filterByCoverage (c) -> c[3]? && c[4]? && (c[3] > c[4])
 
     # Integration Tests
     filterByLinesToCoverIT: -> @filterByCoverageIT (c) -> c[1]?
     filterByCoveredLinesIT: -> @filterByCoverageIT (c) -> c[1]? && c[1]
-    filterLinesByUncoveredLinesIT: -> @filterByCoverageIT (c) -> c[1]? && !c[1]
+    filterByUncoveredLinesIT: -> @filterByCoverageIT (c) -> c[1]? && !c[1]
     filterByBranchesToCoverIT: -> @filterByCoverageIT (c) -> c[3]?
+    filterByCoveredBranchesIT: -> @filterByCoverageIT (c) -> c[3]? && c[4]? && (c[4] > 0)
     filterByUncoveredBranchesIT: -> @filterByCoverageIT (c) -> c[3]? && c[4]? && (c[3] > c[4])
 
 
