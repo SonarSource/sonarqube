@@ -22,7 +22,6 @@ package org.sonar.server.search;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHitField;
 import org.elasticsearch.search.facet.Facet;
 import org.elasticsearch.search.facet.terms.TermsFacet;
 
@@ -72,11 +71,7 @@ public abstract class Result<K> {
   protected abstract K getSearchResult(Map<String, Object> fields);
 
   protected K getSearchResult(SearchHit hit) {
-    Map<String, Object> fields = new HashMap<String, Object>();
-    for (Map.Entry<String, SearchHitField> field : hit.getFields().entrySet()) {
-      fields.put(field.getKey(), field.getValue().getValue());
-    }
-    return this.getSearchResult(fields);
+    return this.getSearchResult(hit.getSource());
   }
 
   public List<K> getHits() {

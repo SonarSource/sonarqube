@@ -48,7 +48,8 @@ import static org.fest.assertions.Assertions.assertThat;
 public class RuleDataMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester()
+    .setProperty("sonar.es.http.port","9200");
 
   RuleDao dao = tester.get(RuleDao.class);
   RuleIndex index = tester.get(RuleIndex.class);
@@ -176,7 +177,7 @@ public class RuleDataMediumTest {
   }
 
   @Test
-  public void insert_and_update_rule_param() {
+  public void insert_and_update_rule_param() throws InterruptedException {
 
     // insert db
     RuleKey ruleKey = RuleKey.of("javascript", "S001");
