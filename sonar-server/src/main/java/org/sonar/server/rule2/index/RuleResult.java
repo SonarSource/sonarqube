@@ -22,7 +22,6 @@ package org.sonar.server.rule2.index;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.SearchHit;
 import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
 import org.sonar.server.rule2.Rule;
 import org.sonar.server.search.Result;
@@ -32,23 +31,11 @@ import java.util.Map;
 
 public class RuleResult extends Result<Rule> {
 
-  private Multimap<String,ActiveRuleDoc> activeRules = ArrayListMultimap.create();
+  private Multimap<String,ActiveRuleDoc> activeRules;
 
   public RuleResult(SearchResponse response) {
     super(response);
-
-    for (SearchHit hit : response.getHits()) {
-
-      String ruleKey = (String) hit.getSource().get(RuleNormalizer.RuleField.KEY.key());
-//      if (hit.getFields().containsKey(RuleNormalizer.RuleField.ACTIVE.key())) {
-//        Map<String, Map<String, Object>> activeRulesForHit =
-//          hit.getFields().get(RuleNormalizer.RuleField.ACTIVE.key()).getValue();
-//        for (Map.Entry<String, Map<String, Object>> activeRule : activeRulesForHit.entrySet()) {
-//          activeRules.put(ruleKey,
-//            new ActiveRuleDoc(ActiveRuleKey.parse(activeRule.getKey()), activeRule.getValue()));
-//        }
-//      }
-    }
+    activeRules = ArrayListMultimap.create();
   }
 
   @Override
