@@ -15,15 +15,35 @@
       <td id="resource_language"><%= Api::Utils.language_name(@project.language) -%></td>
     </tr>
     <% end %>
+    
     <%
-      profile_measure=@snapshot.measure(Metric::PROFILE)
-      if profile_measure
+      profiles_measure = measure(Metric::PROFILES)
+      if profiles_measure && !profiles_measure.data.blank?
+        profiles = JSON.parse profiles_measure.data
+    %>
+    <tr>
+      <td><%= message('widget.description.profiles') -%>:</td>
+      <td><span id="resource_profile">
+        <% profiles.each_with_index do |profile, i| %>
+          <%= Api::Utils.language_name(profile['language']) -%>: <%= link_to profile['name'], {:controller => '/rules_configuration', :action => 'index', :id => profile['id']}, :id => profile['language'] + '_profile_link' -%></span> (<%= message('widget.description.profile_version_x', :params => profile['version']) -%>)
+          <% if i < (profiles.size - 1) %>
+          <br/>
+          <% end %>
+        <% end %>
+      </td>
+    </tr>
+    <%
+      else
+        profile_measure=@snapshot.measure(Metric::PROFILE)
+        if profile_measure
     %>
     <tr>
       <td><%= message('widget.description.profile') -%>:</td>
       <td><span id="resource_profile"><%= link_to profile_measure.data, {:controller => '/rules_configuration', :action => 'index', :id => profile_measure.value.to_i}, :id => 'profile_link' -%></span> (<%= message('widget.description.profile_version_x', :params => format_measure('profile_version', :default => '1')) -%>)</td>
     </tr>
-    <% end %>
+    <%   end
+      end %>
+    
     <%
       using_default=false
       quality_gate=Property.value('sonar.qualitygate', @resource && @resource.id, nil)

@@ -31,7 +31,11 @@ import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class QProfileSensorTest extends AbstractDaoTestCase {
 
@@ -76,9 +80,6 @@ public class QProfileSensorTest extends AbstractDaoTestCase {
     sensor.analyse(project, sensorContext);
 
     checkTable("mark_profiles_as_used", "rules_profiles");
-
-    // no measures on multi-language modules
-    verifyZeroInteractions(sensorContext);
   }
 
   @Test
@@ -97,5 +98,26 @@ public class QProfileSensorTest extends AbstractDaoTestCase {
 
     verify(sensorContext).saveMeasure(argThat(new IsMeasure(CoreMetrics.PROFILE, "Java Two")));
     verify(sensorContext).saveMeasure(argThat(new IsMeasure(CoreMetrics.PROFILE_VERSION, 20.0)));
+    verify(sensorContext).saveMeasure(
+      argThat(new IsMeasure(CoreMetrics.PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"}]")));
+  }
+
+  @Test
+  public void store_measures_on_multi_lang_module() throws Exception {
+    setupData("shared");
+
+    QualityProfileDao dao = new QualityProfileDao(getMyBatis());
+    when(moduleQProfiles.findByLanguage("java")).thenReturn(new ModuleQProfiles.QProfile(dao.selectById(2)));
+    when(moduleQProfiles.findByLanguage("php")).thenReturn(new ModuleQProfiles.QProfile(dao.selectById(3)));
+    when(moduleQProfiles.findByLanguage("abap")).thenReturn(null);
+    fs.addLanguages("java", "php");
+
+    QProfileSensor sensor = new QProfileSensor(moduleQProfiles, fs, dao);
+    assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
+    sensor.analyse(project, sensorContext);
+
+    verify(sensorContext).saveMeasure(
+      argThat(new IsMeasure(CoreMetrics.PROFILES,
+        "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"},{\"id\":3,\"name\":\"Php One\",\"version\":30,\"language\":\"php\"}]")));
   }
 }

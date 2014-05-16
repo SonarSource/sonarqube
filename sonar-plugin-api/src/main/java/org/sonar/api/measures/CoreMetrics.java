@@ -2216,7 +2216,15 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_GENERAL)
     .create();
 
+  /**
+   * @deprecated since 4.4 doesn't support multi-language. See {@link #PROFILES_KEY}
+   */
+  @Deprecated
   public static final String PROFILE_KEY = "profile";
+  /**
+   * @deprecated since 4.4 doesn't support multi-language. See {@link #PROFILES_KEY}
+   */
+  @Deprecated
   public static final Metric PROFILE = new Metric.Builder(PROFILE_KEY, "Profile", Metric.ValueType.DATA)
     .setDescription("Selected quality profile")
     .setDomain(DOMAIN_GENERAL)
@@ -2224,14 +2232,32 @@ public final class CoreMetrics {
 
   /**
    * @since 2.9
+   * @deprecated since 4.4 doesn't support multi-language. See {@link #PROFILES_KEY}
    */
+  @Deprecated
   public static final String PROFILE_VERSION_KEY = "profile_version";
-
   /**
    * @since 2.9
+   * @deprecated since 4.4 doesn't support multi-language. See {@link #PROFILES_KEY}
    */
+  @Deprecated
   public static final Metric PROFILE_VERSION = new Metric.Builder(PROFILE_VERSION_KEY, "Profile version", Metric.ValueType.INT)
     .setDescription("Selected quality profile version")
+    .setQualitative(false)
+    .setDomain(DOMAIN_GENERAL)
+    .setHidden(true)
+    .create();
+
+  /**
+   * @since 4.4
+   */
+  public static final String PROFILES_KEY = "profiles";
+
+  /**
+   * @since 4.4
+   */
+  public static final Metric PROFILES = new Metric.Builder(PROFILES_KEY, "Profiles", Metric.ValueType.DATA)
+    .setDescription("Details of quality profiles used during analysis")
     .setQualitative(false)
     .setDomain(DOMAIN_GENERAL)
     .setHidden(true)

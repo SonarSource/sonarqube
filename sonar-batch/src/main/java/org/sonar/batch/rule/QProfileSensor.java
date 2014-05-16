@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.rule;
 
-import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FileSystem;
@@ -27,6 +27,8 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
+
+import java.util.List;
 
 /**
  * Stores which Quality profiles have been used on the current module.
@@ -44,25 +46,32 @@ public class QProfileSensor implements Sensor {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return true;
+    // Should be only executed on leaf modules
+    return project.getModules().isEmpty();
   }
 
   public void analyse(Project project, SensorContext context) {
+    List<ModuleQProfiles.QProfile> profiles = Lists.newArrayList();
     for (String language : fs.languages()) {
       ModuleQProfiles.QProfile qProfile = moduleQProfiles.findByLanguage(language);
       if (qProfile != null) {
         dao.updateUsedColumn(qProfile.id(), true);
+        profiles.add(qProfile);
       }
     }
-    if (fs.languages().size() == 1) {
-      String language = Iterables.getOnlyElement(fs.languages());
-      ModuleQProfiles.QProfile qProfile = moduleQProfiles.findByLanguage(language);
-      if (qProfile != null) {
-        Measure measure = new Measure(CoreMetrics.PROFILE, qProfile.name()).setValue((double)qProfile.id());
-        Measure measureVersion = new Measure(CoreMetrics.PROFILE_VERSION, qProfile.version().doubleValue());
-        context.saveMeasure(measure);
-        context.saveMeasure(measureVersion);
-      }
+    if (profiles.size() > 0) {
+      UsedQProfiles used = UsedQProfiles.fromProfiles(profiles);
+      Measure detailsMeasure = new Measure(CoreMetrics.PROFILES, used.toJSON());
+      context.saveMeasure(detailsMeasure);
+    }
+
+    // For backward compatibility
+    if (profiles.size() == 1) {
+      ModuleQProfiles.QProfile qProfile = profiles.get(0);
+      Measure measure = new Measure(CoreMetrics.PROFILE, qProfile.name()).setValue((double) qProfile.id());
+      Measure measureVersion = new Measure(CoreMetrics.PROFILE_VERSION, qProfile.version().doubleValue());
+      context.saveMeasure(measure);
+      context.saveMeasure(measureVersion);
     }
   }
 
