@@ -1,110 +1,52 @@
-<div class="component-viewer-header-expanded-bar-section">
-  <div class="component-viewer-header-expanded-bar-section-title">Unit Tests</div>
-  <ul class="component-viewer-header-expanded-bar-section-list">
-    <li><span class="item">
-      <span class="label">Coverage</span>
-      <span class="number">{{component.msr.coverage}}</span>
-    </span></li>
-    <li><span class="item">
-      <span class="label">Line coverage</span>
-      <span class="number">{{component.msr.line_coverage}}</span>
-    </span></li>
-    <li><a class="item js-filter-lines-to-cover">
-      <span class="label">Lines to cover</span>
-      <span class="number">{{component.msr.lines_to_cover}}</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
-    <li><a class="item js-filter-covered-lines">
-      <span class="label">Covered lines</span>
-      <span class="number">{{component.msr.covered_lines}}</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
-    <li><a class="item js-filter-uncovered-lines">
-      <span class="label">Uncovered lines</span>
-      <span class="number">{{component.msr.uncovered_lines}}</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
-  </ul>
-</div>
+{{#with component.msr}}
+  <div class="component-viewer-header-expanded-bar-section">
+    <div class="component-viewer-header-expanded-bar-section-title">Unit Tests</div>
+    <ul class="component-viewer-header-expanded-bar-section-list">
+      {{{componentViewerHeaderItem coverage 'coverage'}}}
+      {{{componentViewerHeaderItem line_coverage 'line_coverage'}}}
+      {{{componentViewerHeaderLink lines_to_cover 'lines_to_cover' 'js-filter-lines-to-cover'}}}
+      {{{componentViewerHeaderLink covered_lines 'lines_to_cover' 'js-filter-covered-lines'}}}
+      {{{componentViewerHeaderLink uncovered_lines 'uncovered_lines' 'js-filter-uncovered-lines'}}}
+    </ul>
+  </div>
 
-<div class="component-viewer-header-expanded-bar-section">
-  <div class="component-viewer-header-expanded-bar-section-title">&nbsp;</div>
-  <ul class="component-viewer-header-expanded-bar-section-list">
-    <li><span class="item">&nbsp;</span></li>
-    <li><span class="item">
-      <span class="label">Branch coverage</span>
-      <span class="number">{{component.msr.branch_coverage}}</span>
-    </span></li>
-    <li><a class="item js-filter-branches-to-cover">
-      <span class="label">Branches to cover</span>
-      <span class="number">{{component.msr.conditions_to_cover}}</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
-    <li><a class="item js-filter-covered-branches">
-      <span class="label">Covered branches</span>
-      <span class="number">{{component.msr.covered_conditions}}</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
-    <li><a class="item js-filter-uncovered-branches">
-      <span class="label">Uncovered branches</span>
-      <span class="number">{{component.msr.uncovered_conditions}}</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
-  </ul>
-</div>
+  {{#any branch_coverage conditions_to_cover covered_conditions uncovered_conditions}}
+    <div class="component-viewer-header-expanded-bar-section">
+      <div class="component-viewer-header-expanded-bar-section-title">&nbsp;</div>
+      <ul class="component-viewer-header-expanded-bar-section-list">
+        <li><span class="item">&nbsp;</span></li>
+        {{{componentViewerHeaderItem branch_coverage 'branch_coverage'}}}
+        {{{componentViewerHeaderLink conditions_to_cover 'conditions_to_cover' 'js-filter-branches-to-cover'}}}
+        {{{componentViewerHeaderLink covered_conditions 'covered_conditions' 'js-filter-covered-branches'}}}
+        {{{componentViewerHeaderLink uncovered_conditions 'uncovered_conditions' 'js-filter-uncovered-branches'}}}
+      </ul>
+    </div>
+  {{/any}}
 
 
-<div class="component-viewer-header-expanded-bar-section">
-  <div class="component-viewer-header-expanded-bar-section-title">Integration Tests</div>
-  <ul class="component-viewer-header-expanded-bar-section-list">
-    <li><span class="item">
-      <span class="label">Coverage</span>
-      <span class="number">{{component.msr.it_coverage}}</span>
-    </span></li>
-    <li><span class="item">
-      <span class="label">Line coverage</span>
-      <span class="number">{{component.msr.it_line_coverage}}</span>
-    </span></li>
-    <li><a class="item js-filter-lines-to-cover-it">
-      <span class="label">Lines to cover</span>
-      <span class="number">{{component.msr.it_lines_to_cover}}</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
-    <li><a class="item js-filter-covered-lines-it">
-      <span class="label">Covered lines</span>
-      <span class="number">{{component.msr.it_covered_lines}}</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
-    <li><a class="item js-filter-uncovered-lines-it">
-      <span class="label">Uncovered lines</span>
-      <span class="number">{{component.msr.it_uncovered_lines}}</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
-  </ul>
-</div>
+  {{#any it_coverage it_line_coverage it_lines_to_cover it_covered_lines it_uncovered_lines}}
+    <div class="component-viewer-header-expanded-bar-section">
+      <div class="component-viewer-header-expanded-bar-section-title">Integration Tests</div>
+      <ul class="component-viewer-header-expanded-bar-section-list">
+        {{{componentViewerHeaderItem it_coverage 'coverage'}}}
+        {{{componentViewerHeaderItem it_line_coverage 'line_coverage'}}}
+        {{{componentViewerHeaderLink it_lines_to_cover 'lines_to_cover' 'js-filter-lines-to-cover-it'}}}
+        {{{componentViewerHeaderLink it_covered_lines 'lines_to_cover' 'js-filter-covered-lines-it'}}}
+        {{{componentViewerHeaderLink it_uncovered_lines 'uncovered_lines' 'js-filter-uncovered-lines-it'}}}
+      </ul>
+    </div>
+  {{/any}}
 
-<div class="component-viewer-header-expanded-bar-section">
-  <div class="component-viewer-header-expanded-bar-section-title">&nbsp;</div>
-  <ul class="component-viewer-header-expanded-bar-section-list">
-    <li><span class="item">&nbsp;</span></li>
-    <li><span class="item">
-      <span class="label">Branch coverage</span>
-      <span class="number">{{component.msr.it_branch_coverage}}</span>
-    </span></li>
-    <li><a class="item js-filter-branches-to-cover-it">
-      <span class="label">Branches to cover</span>
-      <span class="number">{{component.msr.it_conditions_to_cover}}</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
-    <li><a class="item js-filter-covered-branches-it">
-      <span class="label">Covered branches</span>
-      <span class="number">{{component.msr.it_covered_conditions}}</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
-    <li><a class="item js-filter-uncovered-branches-it">
-      <span class="label">Uncovered branches</span>
-      <span class="number">{{component.msr.it_uncovered_conditions}}</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
-  </ul>
-</div>
+  {{#any it_branch_coverage it_conditions_to_cover it_covered_conditions it_uncovered_conditions}}
+    <div class="component-viewer-header-expanded-bar-section">
+      <div class="component-viewer-header-expanded-bar-section-title">&nbsp;</div>
+      <ul class="component-viewer-header-expanded-bar-section-list">
+        <li><span class="item">&nbsp;</span></li>
+        {{{componentViewerHeaderItem it_branch_coverage 'branch_coverage'}}}
+        {{{componentViewerHeaderLink it_conditions_to_cover 'conditions_to_cover' 'js-filter-branches-to-cover-it'}}}
+        {{{componentViewerHeaderLink it_covered_conditions 'covered_conditions' 'js-filter-covered-branches-it'}}}
+        {{{componentViewerHeaderLink it_uncovered_conditions 'uncovered_conditions' 'js-filter-uncovered-branches-it'}}}
+      </ul>
+    </div>
+  {{/any}}
+{{/with}}

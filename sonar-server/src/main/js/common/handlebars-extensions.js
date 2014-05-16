@@ -47,6 +47,10 @@ define(['handlebars'], function (Handlebars) {
     return v1 != v2 ? options.fn(this) : options.inverse(this);
   });
 
+  Handlebars.registerHelper('notNull', function(value, options) {
+    return value != null ? options.fn(this) : options.inverse(this);
+  });
+
   Handlebars.registerHelper('all', function() {
     var args = Array.prototype.slice.call(arguments, 0, -1),
         options = arguments[arguments.length - 1],
@@ -59,10 +63,10 @@ define(['handlebars'], function (Handlebars) {
   Handlebars.registerHelper('any', function() {
     var args = Array.prototype.slice.call(arguments, 0, -1),
         options = arguments[arguments.length - 1],
-        all = args.reduce(function(prev, current) {
+        any = args.reduce(function(prev, current) {
           return prev || current;
-        }, true);
-    return all ? options.fn(this) : options.inverse(this);
+        }, false);
+    return any ? options.fn(this) : options.inverse(this);
   });
 
   Handlebars.registerHelper('inArray', function(array, element, options) {
@@ -190,6 +194,28 @@ define(['handlebars'], function (Handlebars) {
     return ops.reduce(function(prev, current) {
       return prev + options.fn(current);
     }, '');
+  });
+
+  Handlebars.registerHelper('componentViewerHeaderLink', function(value, label, cl, hash) {
+    var name = '_header-link';
+    if (value != null) {
+      var ps = Handlebars.partials;
+      if (typeof ps[name] !== 'function') {
+        ps[name] = Handlebars.compile(ps[name]);
+      }
+      return ps[name]({ value: value, label: label, cl: cl}, hash);
+    }
+  });
+
+  Handlebars.registerHelper('componentViewerHeaderItem', function(value, label, hash) {
+    var name = '_header-item';
+    if (value != null) {
+      var ps = Handlebars.partials;
+      if (typeof ps[name] !== 'function') {
+        ps[name] = Handlebars.compile(ps[name]);
+      }
+      return ps[name]({ value: value, label: label}, hash);
+    }
   });
 
 });
