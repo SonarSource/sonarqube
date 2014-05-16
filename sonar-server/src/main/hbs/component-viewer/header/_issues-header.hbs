@@ -1,62 +1,63 @@
 <div class="component-viewer-header-expanded-bar-section">
+  <div class="component-viewer-header-expanded-bar-section-title">Severities</div>
+  <ul class="component-viewer-header-expanded-bar-section-list">
+    {{#if component.msr.blocker_violations}}
+      <li><a class="item">
+        <span><i class="icon-severity-blocker"></i> {{t 'severity.BLOCKER'}}</span>
+        <span class="number">{{component.msr.blocker_violations}}</span>
+        <i class="icon-chevron-right"></i>
+      </a></li>
+    {{/if}}
+    {{#if component.msr.critical_violations}}
+      <li><a class="item">
+        <span><i class="icon-severity-critical"></i> {{t 'severity.CRITICAL'}}</span>
+        <span class="number">{{component.msr.critical_violations}}</span>
+        <i class="icon-chevron-right"></i>
+      </a></li>
+    {{/if}}
+    {{#if component.msr.major_violations}}
+      <li><a class="item">
+        <span><i class="icon-severity-major"></i> {{t 'severity.MAJOR'}}</span>
+        <span class="number">{{component.msr.major_violations}}</span>
+        <i class="icon-chevron-right"></i>
+      </a></li>
+    {{/if}}
+    {{#if component.msr.minor_violations}}
+      <li><a class="item">
+        <span><i class="icon-severity-minor"></i> {{t 'severity.MINOR'}}</span>
+        <span class="number">{{component.msr.minor_violations}}</span>
+        <i class="icon-chevron-right"></i>
+      </a></li>
+    {{/if}}
+    {{#if component.msr.info_violations}}
+      <li><a class="item">
+        <span><i class="icon-severity-info"></i> {{t 'severity.INFO'}}</span>
+        <span class="number">{{component.msr.info_violations}}</span>
+        <i class="icon-chevron-right"></i>
+      </a></li>
+    {{/if}}
+  </ul>
+</div>
+
+<div class="component-viewer-header-expanded-bar-section">
   <div class="component-viewer-header-expanded-bar-section-title">Rules</div>
   <ul class="component-viewer-header-expanded-bar-section-list">
-    <li><a class="item">
-      <span>Array designators "[]" should be located after the type in method signatures</span>
-      <span class="number">2</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
-    <li><a class="item">
-      <span>Avoid Array Loops</span>
-      <span class="number">1</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
-    <li><a class="item">
-      <span>Useless Operation On Immutable</span>
-      <span class="number">4</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
   </ul>
 </div>
+
 <div class="component-viewer-header-expanded-bar-section">
-  <ul class="component-viewer-header-expanded-bar-section-list">
-    <li><a class="item">
-      <span><i class="icon-severity-blocker"></i> {{t 'severity.BLOCKER'}}</span>
-      <span class="number">{{component.measures.blocker_issues}}</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
-    <li><a class="item">
-      <span><i class="icon-severity-critical"></i> {{t 'severity.CRITICAL'}}</span>
-      <span class="number">{{component.measures.critical_issues}}</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
-    <li><a class="item">
-      <span><i class="icon-severity-major"></i> {{t 'severity.MAJOR'}}</span>
-      <span class="number">{{component.measures.major_issues}}</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
-    <li><a class="item">
-      <span><i class="icon-severity-minor"></i> {{t 'severity.MINOR'}}</span>
-      <span class="number">{{component.measures.minor_issues}}</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
-    <li><a class="item">
-      <span><i class="icon-severity-info"></i> {{t 'severity.INFO'}}</span>
-      <span class="number">{{component.measures.info_issues}}</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
-  </ul>
-</div>
-<div class="component-viewer-header-expanded-bar-section">
+  <div class="component-viewer-header-expanded-bar-section-title">&nbsp;</div>
   <ul class="component-viewer-header-expanded-bar-section-list">
     <li><a class="item">
       <span>Current issue</span>
       <i class="icon-chevron-right"></i>
     </a></li>
-    <li><a class="item">
-      <span>False Positive</span>
-      <span class="number">3</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
+    {{#if component.msr.false_positive_issues}}
+      <li><a class="item">
+        <span>False Positive</span>
+        <span class="number">{{component.msr.false_positive_issues}}</span>
+        <i class="icon-chevron-right"></i>
+      </a></li>
+    {{/if}}
   </ul>
 </div>

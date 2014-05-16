@@ -31,6 +31,10 @@ define(['handlebars'], function (Handlebars) {
     );
   });
 
+  Handlebars.registerHelper('default', function(value, defaultValue) {
+    return value != null ? value : defaultValue;
+  });
+
   Handlebars.registerHelper('percent', function(value, total) {
     return (value || 0) / total * 100;
   });
