@@ -8,12 +8,15 @@
   "fav": true,
   "periods": [],
   "measures": {
-    "ncloc": 200,
-    "coverage": 2,
-    "duplication_density": 1,
-    "debt": 1,
-    "issues": 1,
-    "blocker_issues": 1,
-    "info_issues": 1
+    "fNcloc": "200",
+    "fCoverage": "95.4%",
+    "fDuplicationDensity": "7.4%",
+    "fDebt": "3d 2h",
+    "fIssues": "14",
+    "fBlockerIssues": "1",
+    "fCriticalIssues": "2",
+    "fMajorIssues": "5",
+    "fMinorIssues": "4",
+    "fInfoIssues": "2"
   }
 }

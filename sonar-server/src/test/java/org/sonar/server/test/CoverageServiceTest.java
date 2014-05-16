@@ -30,7 +30,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.test.MutableTestable;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.SnapshotPerspectives;
-import org.sonar.core.measure.db.MeasureDataDao;
+import org.sonar.core.measure.db.MeasureDao;
 import org.sonar.server.user.MockUserSession;
 
 import java.util.Collections;
@@ -47,7 +47,7 @@ public class CoverageServiceTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Mock
-  MeasureDataDao measureDataDao;
+  MeasureDao measureDao;
 
   @Mock
   SnapshotPerspectives snapshotPerspectives;
@@ -58,7 +58,7 @@ public class CoverageServiceTest {
 
   @Before
   public void setUp() throws Exception {
-    service = new CoverageService(measureDataDao, snapshotPerspectives);
+    service = new CoverageService(measureDao, snapshotPerspectives);
   }
 
   @Test
@@ -73,43 +73,43 @@ public class CoverageServiceTest {
   @Test
   public void get_hits_data() throws Exception {
     service.getHits(COMPONENT_KEY, CoverageService.TYPE.UT);
-    verify(measureDataDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY);
+    verify(measureDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY);
 
     service.getHits(COMPONENT_KEY, CoverageService.TYPE.IT);
-    verify(measureDataDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.IT_COVERAGE_LINE_HITS_DATA_KEY);
+    verify(measureDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.IT_COVERAGE_LINE_HITS_DATA_KEY);
 
     service.getHits(COMPONENT_KEY, CoverageService.TYPE.OVERALL);
-    verify(measureDataDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA_KEY);
+    verify(measureDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA_KEY);
   }
 
   @Test
   public void not_get_hits_data_if_no_data() throws Exception {
-    when(measureDataDao.findByComponentKeyAndMetricKey(eq(COMPONENT_KEY), anyString())).thenReturn(null);
+    when(measureDao.findByComponentKeyAndMetricKey(eq(COMPONENT_KEY), anyString())).thenReturn(null);
     assertThat(service.getHits(COMPONENT_KEY, CoverageService.TYPE.UT)).isEqualTo(Collections.emptyMap());
   }
 
   @Test
   public void get_conditions_data() throws Exception {
     service.getConditions(COMPONENT_KEY, CoverageService.TYPE.UT);
-    verify(measureDataDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.CONDITIONS_BY_LINE_KEY);
+    verify(measureDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.CONDITIONS_BY_LINE_KEY);
 
     service.getConditions(COMPONENT_KEY, CoverageService.TYPE.IT);
-    verify(measureDataDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.IT_CONDITIONS_BY_LINE_KEY);
+    verify(measureDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.IT_CONDITIONS_BY_LINE_KEY);
 
     service.getConditions(COMPONENT_KEY, CoverageService.TYPE.OVERALL);
-    verify(measureDataDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.OVERALL_CONDITIONS_BY_LINE_KEY);
+    verify(measureDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.OVERALL_CONDITIONS_BY_LINE_KEY);
   }
 
   @Test
   public void get_covered_conditions_data() throws Exception {
     service.getCoveredConditions(COMPONENT_KEY, CoverageService.TYPE.UT);
-    verify(measureDataDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY);
+    verify(measureDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY);
 
     service.getCoveredConditions(COMPONENT_KEY, CoverageService.TYPE.IT);
-    verify(measureDataDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE_KEY);
+    verify(measureDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE_KEY);
 
     service.getCoveredConditions(COMPONENT_KEY, CoverageService.TYPE.OVERALL);
-    verify(measureDataDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE_KEY);
+    verify(measureDao).findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE_KEY);
   }
 
   @Test

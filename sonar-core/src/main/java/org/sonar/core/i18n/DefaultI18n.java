@@ -39,7 +39,9 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.MessageFormat;
+import java.text.NumberFormat;
 import java.util.*;
 
 public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Startable {
@@ -94,7 +96,8 @@ public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Start
     }
     LOG.debug(String.format("Loaded %d properties from l10n bundles", propertyToBundles.size()));
   }
-  private void addPlugin(String pluginKey){
+
+  private void addPlugin(String pluginKey) {
     try {
       String bundleKey = BUNDLE_PACKAGE + pluginKey;
       ResourceBundle bundle = ResourceBundle.getBundle(bundleKey, Locale.ENGLISH, this.classloader, control);
@@ -154,6 +157,17 @@ public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Start
 
   public String formatDate(Locale locale, Date date) {
     return DateFormat.getDateInstance(DateFormat.DEFAULT, locale).format(date);
+  }
+
+  public String formatDouble(Locale locale, Double value) {
+    NumberFormat format = DecimalFormat.getNumberInstance(locale);
+    format.setMinimumFractionDigits(1);
+    format.setMaximumFractionDigits(1);
+    return format.format(value);
+  }
+
+  public String formatInteger(Locale locale, Integer value) {
+    return NumberFormat.getNumberInstance(locale).format(value);
   }
 
   /**

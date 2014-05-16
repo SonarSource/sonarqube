@@ -5,5 +5,17 @@
   "q": "FIL",
   "subProjectName": "SonarQube :: Plugin API",
   "projectName": "SonarQube",
-  "fav": true
+  "fav": true,
+  "measures": {
+    "fNcloc": "200",
+    "fCoverage": "95.4%",
+    "fDuplicationDensity": "7.4%",
+    "fDebt": "3h 2min",
+    "fIssues": "14",
+    "fBlockerIssues": "1",
+    "fCriticalIssues": "2",
+    "fMajorIssues": "5",
+    "fMinorIssues": "4",
+    "fInfoIssues": "2"
+  }
 }

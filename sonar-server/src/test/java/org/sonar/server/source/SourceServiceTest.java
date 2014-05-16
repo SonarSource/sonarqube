@@ -27,7 +27,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.measure.db.MeasureDataDao;
+import org.sonar.core.measure.db.MeasureDao;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.MockUserSession;
 
@@ -47,13 +47,13 @@ public class SourceServiceTest {
   DeprecatedSourceDecorator deprecatedSourceDecorator;
 
   @Mock
-  MeasureDataDao measureDataDao;
+  MeasureDao measureDao;
 
   SourceService service;
 
   @Before
   public void setUp() throws Exception {
-    service = new SourceService(sourceDecorator, deprecatedSourceDecorator, measureDataDao);
+    service = new SourceService(sourceDecorator, deprecatedSourceDecorator, measureDao);
   }
 
   @Test
@@ -110,13 +110,13 @@ public class SourceServiceTest {
   public void get_scm_author_data() throws Exception {
     String componentKey = "org.sonar.sample:Sample";
     service.getScmAuthorData(componentKey);
-    verify(measureDataDao).findByComponentKeyAndMetricKey(componentKey, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY);
+    verify(measureDao).findByComponentKeyAndMetricKey(componentKey, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY);
   }
 
   @Test
   public void not_get_scm_author_data_if_no_data() throws Exception {
     String componentKey = "org.sonar.sample:Sample";
-    when(measureDataDao.findByComponentKeyAndMetricKey(eq(componentKey), anyString())).thenReturn(null);
+    when(measureDao.findByComponentKeyAndMetricKey(eq(componentKey), anyString())).thenReturn(null);
     assertThat(service.getScmAuthorData(componentKey)).isNull();
   }
 
@@ -124,13 +124,13 @@ public class SourceServiceTest {
   public void get_scm_date_data() throws Exception {
     String componentKey = "org.sonar.sample:Sample";
     service.getScmDateData(componentKey);
-    verify(measureDataDao).findByComponentKeyAndMetricKey(componentKey, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY);
+    verify(measureDao).findByComponentKeyAndMetricKey(componentKey, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY);
   }
 
   @Test
   public void not_get_scm_date_data_if_no_data() throws Exception {
     String componentKey = "org.sonar.sample:Sample";
-    when(measureDataDao.findByComponentKeyAndMetricKey(eq(componentKey), anyString())).thenReturn(null);
+    when(measureDao.findByComponentKeyAndMetricKey(eq(componentKey), anyString())).thenReturn(null);
     assertThat(service.getScmDateData(componentKey)).isNull();
   }
 }

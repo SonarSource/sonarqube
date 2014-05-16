@@ -22,13 +22,19 @@ package org.sonar.server.component.ws;
 
 import com.google.common.io.Resources;
 import org.sonar.api.component.Component;
+import org.sonar.api.i18n.I18n;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.measure.db.MeasureDao;
+import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.properties.PropertyQuery;
@@ -46,11 +52,17 @@ public class ComponentAppAction implements RequestHandler {
   private static final String KEY = "key";
 
   private final ResourceDao resourceDao;
+  private final MeasureDao measureDao;
   private final PropertiesDao propertiesDao;
+  private final Durations durations;
+  private final I18n i18n;
 
-  public ComponentAppAction(ResourceDao resourceDao, PropertiesDao propertiesDao) {
+  public ComponentAppAction(ResourceDao resourceDao, MeasureDao measureDao, PropertiesDao propertiesDao, Durations durations, I18n i18n) {
     this.resourceDao = resourceDao;
+    this.measureDao = measureDao;
     this.propertiesDao = propertiesDao;
+    this.durations = durations;
+    this.i18n = i18n;
   }
 
   void define(WebService.NewController controller) {
@@ -102,6 +114,19 @@ public class ComponentAppAction implements RequestHandler {
 
     json.prop("fav", isFavourite);
 
+    json.name("measures").beginObject();
+    json.prop("fNcloc", formattedMeasure(fileKey, CoreMetrics.NCLOC));
+    json.prop("fCoverage", formattedMeasure(fileKey, CoreMetrics.COVERAGE));
+    json.prop("fDuplicationDensity", formattedMeasure(fileKey, CoreMetrics.DUPLICATED_LINES_DENSITY));
+    json.prop("fDebt", formattedMeasure(fileKey, CoreMetrics.TECHNICAL_DEBT));
+    json.prop("fIssues", formattedMeasure(fileKey, CoreMetrics.VIOLATIONS));
+    json.prop("fBlockerIssues", formattedMeasure(fileKey, CoreMetrics.BLOCKER_VIOLATIONS));
+    json.prop("fCriticalIssues", formattedMeasure(fileKey, CoreMetrics.CRITICAL_VIOLATIONS));
+    json.prop("fMajorIssues", formattedMeasure(fileKey, CoreMetrics.MAJOR_VIOLATIONS));
+    json.prop("fMinorIssues", formattedMeasure(fileKey, CoreMetrics.MINOR_VIOLATIONS));
+    json.prop("fInfoIssues", formattedMeasure(fileKey, CoreMetrics.INFO_VIOLATIONS));
+    json.endObject();
+
     json.endObject();
     json.close();
   }
@@ -114,12 +139,24 @@ public class ComponentAppAction implements RequestHandler {
     return null;
   }
 
-//  private Map<Integer, Integer> findDataFromComponent(String fileKey, String metricKey) {
-//    MeasureDataDto data = measuresDao.findByComponentKeyAndMetricKey(fileKey, metricKey);
-//    if (data != null) {
-//      return KeyValueFormat.parseIntInt(data.getData());
-//    }
-//    return Maps.newHashMap();
-//  }
+  @CheckForNull
+  private String formattedMeasure(String fileKey, Metric metric) {
+    MeasureDto measureDto = measureDao.findByComponentKeyAndMetricKey(fileKey, metric.getKey());
+    if (measureDto != null) {
+      Double value = measureDto.getValue();
+      if (value != null) {
+        if (metric.getType().equals(Metric.ValueType.FLOAT)) {
+          return i18n.formatDouble(UserSession.get().locale(), value);
+        } else if (metric.getType().equals(Metric.ValueType.INT)) {
+          return i18n.formatInteger(UserSession.get().locale(), value.intValue());
+        } else if (metric.getType().equals(Metric.ValueType.PERCENT)) {
+          return i18n.formatDouble(UserSession.get().locale(), value) + "%";
+        } else if (metric.getType().equals(Metric.ValueType.WORK_DUR)) {
+          return durations.format(UserSession.get().locale(), durations.create(value.longValue()), Durations.DurationFormat.SHORT);
+        }
+      }
+    }
+    return null;
+  }
 
 }

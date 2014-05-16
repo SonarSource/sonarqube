@@ -20,48 +20,26 @@
 
 package org.sonar.core.measure.db;
 
-import com.google.common.base.Charsets;
+import org.apache.ibatis.session.SqlSession;
+import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.MyBatis;
 
-import javax.annotation.CheckForNull;
+public class MeasureDao implements ServerComponent {
 
-public class MeasureDataDto {
+  private MyBatis mybatis;
 
-  private Integer id;
-
-  private Integer snapshotId;
-
-  private String textValue;
-
-  private byte[] data;
-
-  public Integer getId() {
-    return id;
+  public MeasureDao(MyBatis mybatis) {
+    this.mybatis = mybatis;
   }
 
-  public MeasureDataDto setId(Integer id) {
-    this.id = id;
-    return this;
-  }
-
-  public Integer getSnapshotId() {
-    return snapshotId;
-  }
-
-  public MeasureDataDto setSnapshotId(Integer snapshotId) {
-    this.snapshotId = snapshotId;
-    return this;
-  }
-
-  public MeasureDataDto setData(byte[] data) {
-    this.data = data;
-    return this;
-  }
-
-  @CheckForNull
-  public String getData() {
-    if (data != null) {
-      return new String(data, Charsets.UTF_8);
+  public MeasureDto findByComponentKeyAndMetricKey(String componentKey, String metricKey) {
+    SqlSession session = mybatis.openSession(false);
+    try {
+      MeasureMapper mapper = session.getMapper(MeasureMapper.class);
+      return mapper.findByComponentKeyAndMetricKey(componentKey, metricKey);
+    } finally {
+      MyBatis.closeQuietly(session);
     }
-    return textValue;
   }
+
 }

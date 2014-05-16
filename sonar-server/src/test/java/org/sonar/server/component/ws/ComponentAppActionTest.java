@@ -25,8 +25,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.i18n.I18n;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.utils.Duration;
+import org.sonar.api.utils.Durations;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.measure.db.MeasureDao;
+import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.properties.PropertyQuery;
@@ -34,41 +40,77 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
+import java.util.Locale;
+
 import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ComponentAppActionTest {
 
+  static final String PROJECT_KEY = "org.codehaus.sonar:sonar-plugin-api:api";
+  static final String COMPONENT_KEY = "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/Plugin.java";
+
   @Mock
   ResourceDao resourceDao;
 
   @Mock
+  MeasureDao measureDao;
+
+  @Mock
   PropertiesDao propertiesDao;
+
+  @Mock
+  Durations durations;
+
+  @Mock
+  I18n i18n;
 
   WsTester tester;
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new ComponentsWs(new ComponentAppAction(resourceDao, propertiesDao)));
+    tester = new WsTester(new ComponentsWs(new ComponentAppAction(resourceDao, measureDao, propertiesDao, durations, i18n)));
   }
 
   @Test
   public void app() throws Exception {
-    String projectKey = "org.codehaus.sonar:sonar-plugin-api:api";
-    String componentKey = "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/Plugin.java";
-    MockUserSession.set().addProjectPermissions(UserRole.CODEVIEWER, projectKey).addComponent(componentKey, projectKey);
+    MockUserSession.set().addProjectPermissions(UserRole.CODEVIEWER, PROJECT_KEY).addComponent(COMPONENT_KEY, PROJECT_KEY);
 
-    ComponentDto file = new ComponentDto().setId(10L).setQualifier("FIL").setKey(componentKey).setName("Plugin.java")
+    ComponentDto file = new ComponentDto().setId(10L).setQualifier("FIL").setKey(COMPONENT_KEY).setName("Plugin.java")
       .setPath("src/main/java/org/sonar/api/Plugin.java").setSubProjectId(5L).setProjectId(1L);
-    when(resourceDao.selectComponentByKey(componentKey)).thenReturn(file);
+    when(resourceDao.selectComponentByKey(COMPONENT_KEY)).thenReturn(file);
     when(resourceDao.findById(5L)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API"));
     when(resourceDao.findById(1L)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
     when(propertiesDao.selectByQuery(any(PropertyQuery.class))).thenReturn(newArrayList(new PropertyDto()));
 
-    WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", componentKey);
+    addMeasure(CoreMetrics.NCLOC_KEY, 200);
+    addMeasure(CoreMetrics.COVERAGE_KEY, 95.4);
+    addMeasure(CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, 7.4);
+    addMeasure(CoreMetrics.VIOLATIONS_KEY, 14);
+    addMeasure(CoreMetrics.BLOCKER_VIOLATIONS_KEY, 1);
+    addMeasure(CoreMetrics.CRITICAL_VIOLATIONS_KEY, 2);
+    addMeasure(CoreMetrics.MAJOR_VIOLATIONS_KEY, 5);
+    addMeasure(CoreMetrics.MINOR_VIOLATIONS_KEY, 4);
+    addMeasure(CoreMetrics.INFO_VIOLATIONS_KEY, 2);
+
+    when(measureDao.findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.TECHNICAL_DEBT_KEY)).thenReturn(new MeasureDto().setValue(182.0));
+    when(durations.format(any(Locale.class), any(Duration.class), eq(Durations.DurationFormat.SHORT))).thenReturn("3h 2min");
+
+    WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
     request.execute().assertJson(getClass(), "app.json");
+  }
+
+  private void addMeasure(String metricKey, Integer value){
+    when(measureDao.findByComponentKeyAndMetricKey(COMPONENT_KEY, metricKey)).thenReturn(new MeasureDto().setValue(value.doubleValue()));
+    when(i18n.formatInteger(any(Locale.class), eq(value.intValue()))).thenReturn(Integer.toString(value));
+  }
+
+  private void addMeasure(String metricKey, Double value){
+    when(measureDao.findByComponentKeyAndMetricKey(COMPONENT_KEY, metricKey)).thenReturn(new MeasureDto().setValue(value));
+    when(i18n.formatDouble(any(Locale.class), eq(value))).thenReturn(Double.toString(value));
   }
 
 }

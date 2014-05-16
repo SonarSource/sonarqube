@@ -26,20 +26,30 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class MeasureDataDaoTest extends AbstractDaoTestCase {
+public class MeasureDaoTest extends AbstractDaoTestCase {
 
-  private MeasureDataDao dao;
+  private MeasureDao dao;
 
   @Before
   public void createDao() {
-    dao = new MeasureDataDao(getMyBatis());
+    dao = new MeasureDao(getMyBatis());
+  }
+
+  @Test
+  public void find_value_by_component_key_and_metric_key() throws Exception {
+    setupData("shared");
+
+    MeasureDto result = dao.findByComponentKeyAndMetricKey("org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc");
+    assertThat(result.getId()).isEqualTo(22);
+    assertThat(result.getSnapshotId()).isEqualTo(5);
+    assertThat(result.getValue()).isEqualTo(10d);
   }
 
   @Test
   public void find_data_by_component_key_and_metric_key() throws Exception {
     setupData("shared");
 
-    MeasureDataDto result = dao.findByComponentKeyAndMetricKey("org.sonar.core.measure.db.MeasureData", "authors_by_line");
+    MeasureDto result = dao.findByComponentKeyAndMetricKey("org.struts:struts-core:src/org/struts/RequestContext.java", "authors_by_line");
     assertThat(result.getId()).isEqualTo(20);
     assertThat(result.getSnapshotId()).isEqualTo(5);
     assertThat(result.getData()).isNotNull();
@@ -51,10 +61,9 @@ public class MeasureDataDaoTest extends AbstractDaoTestCase {
   public void find_text_value_by_component_key_and_metric_key() throws Exception {
     setupData("shared");
 
-    MeasureDataDto result = dao.findByComponentKeyAndMetricKey("org.sonar.core.measure.db.MeasureData", "coverage_line_hits_data");
+    MeasureDto result = dao.findByComponentKeyAndMetricKey("org.struts:struts-core:src/org/struts/RequestContext.java", "coverage_line_hits_data");
     assertThat(result.getId()).isEqualTo(21);
     assertThat(result.getSnapshotId()).isEqualTo(5);
     assertThat(result.getData()).isEqualTo("36=1;37=1;38=1;39=1;43=1;48=1;53=1");
   }
 }
-

@@ -178,6 +178,18 @@ public class DefaultI18nTest {
     assertThat(manager.formatDate(Locale.ENGLISH, DateUtils.parseDateTime("2014-01-22T19:10:03+0100"))).isEqualTo("Jan 22, 2014");
   }
 
+  @Test
+  public void format_double() {
+    assertThat(manager.formatDouble(Locale.FRENCH, 10.56)).isEqualTo("10,6");
+    assertThat(manager.formatDouble(Locale.FRENCH, 10d)).isEqualTo("10,0");
+  }
+
+  @Test
+  public void format_integer() {
+    assertThat(manager.formatInteger(Locale.ENGLISH, 10)).isEqualTo("10");
+    assertThat(manager.formatInteger(Locale.ENGLISH, 100000)).isEqualTo("100,000");
+  }
+
   static URLClassLoader newCheckstyleClassloader() {
     return newClassLoader("/org/sonar/core/i18n/I18nClassloaderTest/");
   }

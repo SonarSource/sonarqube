@@ -25,7 +25,7 @@ import org.sonar.core.dashboard.DashboardDao;
 import org.sonar.core.duplication.DuplicationDao;
 import org.sonar.core.graph.jdbc.GraphDao;
 import org.sonar.core.issue.db.*;
-import org.sonar.core.measure.db.MeasureDataDao;
+import org.sonar.core.measure.db.MeasureDao;
 import org.sonar.core.measure.db.MeasureFilterDao;
 import org.sonar.core.notification.db.NotificationQueueDao;
 import org.sonar.core.permission.PermissionDao;
@@ -71,7 +71,7 @@ public final class DaoUtils {
       IssueFilterDao.class,
       IssueFilterFavouriteDao.class,
       LoadedTemplateDao.class,
-      MeasureDataDao.class,
+      MeasureDao.class,
       MeasureFilterDao.class,
       NotificationQueueDao.class,
       PermissionDao.class,

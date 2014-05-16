@@ -28,8 +28,8 @@ import org.sonar.api.test.Testable;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.SnapshotPerspectives;
-import org.sonar.core.measure.db.MeasureDataDao;
-import org.sonar.core.measure.db.MeasureDataDto;
+import org.sonar.core.measure.db.MeasureDao;
+import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -42,11 +42,11 @@ public class CoverageService implements ServerComponent {
     UT, IT, OVERALL
   }
 
-  private final MeasureDataDao measureDataDao;
+  private final MeasureDao measureDao;
   private final SnapshotPerspectives snapshotPerspectives;
 
-  public CoverageService(MeasureDataDao measureDataDao, SnapshotPerspectives snapshotPerspectives) {
-    this.measureDataDao = measureDataDao;
+  public CoverageService(MeasureDao measureDao, SnapshotPerspectives snapshotPerspectives) {
+    this.measureDao = measureDao;
     this.snapshotPerspectives = snapshotPerspectives;
   }
 
@@ -102,7 +102,7 @@ public class CoverageService implements ServerComponent {
 
   @CheckForNull
   private Map<Integer, Integer> findDataFromComponent(String fileKey, String metricKey) {
-    MeasureDataDto data = measureDataDao.findByComponentKeyAndMetricKey(fileKey, metricKey);
+    MeasureDto data = measureDao.findByComponentKeyAndMetricKey(fileKey, metricKey);
     if (data != null) {
       return KeyValueFormat.parseIntInt(data.getData());
     }

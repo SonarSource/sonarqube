@@ -24,30 +24,18 @@ import com.google.common.io.Closeables;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.Environment;
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.ibatis.session.*;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.apache.ibatis.type.JdbcType;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.database.model.MeasureMapper;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.db.ComponentMapper;
 import org.sonar.core.config.Logback;
-import org.sonar.core.dashboard.ActiveDashboardDto;
-import org.sonar.core.dashboard.ActiveDashboardMapper;
-import org.sonar.core.dashboard.DashboardDto;
-import org.sonar.core.dashboard.DashboardMapper;
-import org.sonar.core.dashboard.WidgetDto;
-import org.sonar.core.dashboard.WidgetMapper;
-import org.sonar.core.dashboard.WidgetPropertyDto;
-import org.sonar.core.dashboard.WidgetPropertyMapper;
+import org.sonar.core.dashboard.*;
 import org.sonar.core.dependency.DependencyDto;
 import org.sonar.core.dependency.DependencyMapper;
 import org.sonar.core.dependency.ResourceSnapshotDto;
@@ -56,52 +44,21 @@ import org.sonar.core.duplication.DuplicationMapper;
 import org.sonar.core.duplication.DuplicationUnitDto;
 import org.sonar.core.graph.jdbc.GraphDto;
 import org.sonar.core.graph.jdbc.GraphDtoMapper;
-import org.sonar.core.issue.db.ActionPlanDto;
-import org.sonar.core.issue.db.ActionPlanMapper;
-import org.sonar.core.issue.db.ActionPlanStatsDto;
-import org.sonar.core.issue.db.ActionPlanStatsMapper;
-import org.sonar.core.issue.db.IssueChangeDto;
-import org.sonar.core.issue.db.IssueChangeMapper;
-import org.sonar.core.issue.db.IssueDto;
-import org.sonar.core.issue.db.IssueFilterDto;
-import org.sonar.core.issue.db.IssueFilterFavouriteDto;
-import org.sonar.core.issue.db.IssueFilterFavouriteMapper;
-import org.sonar.core.issue.db.IssueFilterMapper;
-import org.sonar.core.issue.db.IssueMapper;
-import org.sonar.core.issue.db.IssueStatsMapper;
-import org.sonar.core.measure.db.MeasureDataDto;
-import org.sonar.core.measure.db.MeasureDataMapper;
+import org.sonar.core.issue.db.*;
+import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.measure.db.MeasureFilterDto;
 import org.sonar.core.measure.db.MeasureFilterMapper;
+import org.sonar.core.measure.db.MeasureMapper;
 import org.sonar.core.notification.db.NotificationQueueDto;
 import org.sonar.core.notification.db.NotificationQueueMapper;
-import org.sonar.core.permission.GroupWithPermissionDto;
-import org.sonar.core.permission.PermissionTemplateDto;
-import org.sonar.core.permission.PermissionTemplateGroupDto;
-import org.sonar.core.permission.PermissionTemplateMapper;
-import org.sonar.core.permission.PermissionTemplateUserDto;
-import org.sonar.core.permission.UserWithPermissionDto;
+import org.sonar.core.permission.*;
 import org.sonar.core.properties.PropertiesMapper;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.purge.PurgeMapper;
 import org.sonar.core.purge.PurgeableSnapshotDto;
-import org.sonar.core.qualitygate.db.ProjectQgateAssociationDto;
-import org.sonar.core.qualitygate.db.ProjectQgateAssociationMapper;
-import org.sonar.core.qualitygate.db.QualityGateConditionDto;
-import org.sonar.core.qualitygate.db.QualityGateConditionMapper;
-import org.sonar.core.qualitygate.db.QualityGateDto;
-import org.sonar.core.qualitygate.db.QualityGateMapper;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleMapper;
-import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.qualityprofile.db.QualityProfileMapper;
-import org.sonar.core.resource.ResourceDto;
-import org.sonar.core.resource.ResourceIndexDto;
-import org.sonar.core.resource.ResourceIndexerMapper;
-import org.sonar.core.resource.ResourceKeyUpdaterMapper;
-import org.sonar.core.resource.ResourceMapper;
-import org.sonar.core.resource.SnapshotDto;
+import org.sonar.core.qualitygate.db.*;
+import org.sonar.core.qualityprofile.db.*;
+import org.sonar.core.resource.*;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleMapper;
 import org.sonar.core.rule.RuleParamDto;
@@ -114,16 +71,7 @@ import org.sonar.core.technicaldebt.db.RequirementDto;
 import org.sonar.core.technicaldebt.db.RequirementMapper;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.core.template.LoadedTemplateMapper;
-import org.sonar.core.user.AuthorDto;
-import org.sonar.core.user.AuthorMapper;
-import org.sonar.core.user.GroupDto;
-import org.sonar.core.user.GroupMembershipDto;
-import org.sonar.core.user.GroupMembershipMapper;
-import org.sonar.core.user.GroupRoleDto;
-import org.sonar.core.user.RoleMapper;
-import org.sonar.core.user.UserDto;
-import org.sonar.core.user.UserMapper;
-import org.sonar.core.user.UserRoleDto;
+import org.sonar.core.user.*;
 
 import java.io.InputStream;
 
@@ -183,7 +131,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "Widget", WidgetDto.class);
     loadAlias(conf, "WidgetProperty", WidgetPropertyDto.class);
     loadAlias(conf, "MeasureModel", MeasureModel.class);
-    loadAlias(conf, "MeasureData", MeasureDataDto.class);
+    loadAlias(conf, "Measure", MeasureDto.class);
     loadAlias(conf, "Issue", IssueDto.class);
     loadAlias(conf, "IssueChange", IssueChangeDto.class);
     loadAlias(conf, "IssueFilter", IssueFilterDto.class);
@@ -214,10 +162,10 @@ public class MyBatis implements BatchComponent, ServerComponent {
       LoadedTemplateMapper.class, MeasureFilterMapper.class, PermissionTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class,
       ResourceKeyUpdaterMapper.class, ResourceIndexerMapper.class, ResourceSnapshotMapper.class, RoleMapper.class, RuleMapper.class,
       SchemaMigrationMapper.class, SemaphoreMapper.class, UserMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
-      MeasureMapper.class, SnapshotDataMapper.class, SnapshotSourceMapper.class, ActionPlanMapper.class, ActionPlanStatsMapper.class,
+      org.sonar.api.database.model.MeasureMapper.class, SnapshotDataMapper.class, SnapshotSourceMapper.class, ActionPlanMapper.class, ActionPlanStatsMapper.class,
       NotificationQueueMapper.class, CharacteristicMapper.class,
       GroupMembershipMapper.class, QualityProfileMapper.class, ActiveRuleMapper.class,
-      MeasureDataMapper.class, QualityGateMapper.class, QualityGateConditionMapper.class, ComponentMapper.class, ProjectQgateAssociationMapper.class,
+      MeasureMapper.class, QualityGateMapper.class, QualityGateConditionMapper.class, ComponentMapper.class, ProjectQgateAssociationMapper.class,
       RequirementMapper.class
     };
     loadMappers(conf, mappers);

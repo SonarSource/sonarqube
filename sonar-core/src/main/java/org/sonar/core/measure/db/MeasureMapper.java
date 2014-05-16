@@ -20,26 +20,10 @@
 
 package org.sonar.core.measure.db;
 
-import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.ServerComponent;
-import org.sonar.core.persistence.MyBatis;
+import org.apache.ibatis.annotations.Param;
 
-public class MeasureDataDao implements ServerComponent {
+public interface MeasureMapper {
 
-  private MyBatis mybatis;
-
-  public MeasureDataDao(MyBatis mybatis) {
-    this.mybatis = mybatis;
-  }
-
-  public MeasureDataDto findByComponentKeyAndMetricKey(String componentKey, String metricKey) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      MeasureDataMapper mapper = session.getMapper(MeasureDataMapper.class);
-      return mapper.findByComponentKeyAndMetricKey(componentKey, metricKey);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
+  MeasureDto findByComponentKeyAndMetricKey(@Param("componentKey") String componentKey, @Param("metricKey") String metricKey);
 
 }

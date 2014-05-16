@@ -23,8 +23,8 @@ package org.sonar.server.source;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.measure.db.MeasureDataDao;
-import org.sonar.core.measure.db.MeasureDataDto;
+import org.sonar.core.measure.db.MeasureDao;
+import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -41,12 +41,12 @@ public class SourceService implements ServerComponent {
    */
   private final DeprecatedSourceDecorator deprecatedSourceDecorator;
 
-  private final MeasureDataDao measureDataDao;
+  private final MeasureDao measureDao;
 
-  public SourceService(HtmlSourceDecorator sourceDecorator, DeprecatedSourceDecorator deprecatedSourceDecorator, MeasureDataDao measureDataDao) {
+  public SourceService(HtmlSourceDecorator sourceDecorator, DeprecatedSourceDecorator deprecatedSourceDecorator, MeasureDao measureDao) {
     this.sourceDecorator = sourceDecorator;
     this.deprecatedSourceDecorator = deprecatedSourceDecorator;
-    this.measureDataDao = measureDataDao;
+    this.measureDao = measureDao;
   }
 
   public List<String> getLinesAsHtml(String fileKey) {
@@ -85,7 +85,7 @@ public class SourceService implements ServerComponent {
 
   @CheckForNull
   private String findDataFromComponent(String fileKey, String metricKey) {
-    MeasureDataDto data = measureDataDao.findByComponentKeyAndMetricKey(fileKey, metricKey);
+    MeasureDto data = measureDao.findByComponentKeyAndMetricKey(fileKey, metricKey);
     if (data != null) {
       return data.getData();
     }
