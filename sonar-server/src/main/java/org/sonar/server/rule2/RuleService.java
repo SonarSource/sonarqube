@@ -26,6 +26,8 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.qualityprofile.ActiveRule;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule2.index.RuleIndex;
 import org.sonar.server.rule2.index.RuleNormalizer;
 import org.sonar.server.rule2.index.RuleQuery;
@@ -44,10 +46,12 @@ import java.util.Set;
 public class RuleService implements ServerComponent {
 
   private final RuleIndex index;
+  private final ActiveRuleIndex activeRuleIndex;
   private final DbClient db;
 
-  public RuleService(RuleIndex index, DbClient db) {
+  public RuleService(ActiveRuleIndex activeRuleIndex, RuleIndex index, DbClient db) {
     this.index = index;
+    this.activeRuleIndex = activeRuleIndex;
     this.db = db;
   }
 
@@ -64,7 +68,14 @@ public class RuleService implements ServerComponent {
     // keep only supported fields and add the fields to always return
     options.filterFieldsToReturn(RuleIndex.PUBLIC_FIELDS);
     options.addFieldsToReturn(RuleNormalizer.RuleField.REPOSITORY.key(), RuleNormalizer.RuleField.KEY.key());
-    return index.search(query, options);
+
+    RuleResult result =  index.search(query, options);
+    for(Rule rule:result.getHits()){
+      for(ActiveRule activeRule:activeRuleIndex.findByRule(rule.key())){
+        result.getActiveRules().put(rule.key().toString(),activeRule);
+      }
+    }
+    return result;
   }
 
   /**

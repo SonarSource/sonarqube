@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableSet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -139,8 +138,6 @@ public class RulesWebServiceTest {
 
 
   @Test
-  @Ignore
-  //FIXME
   public void search_active_rules() throws Exception {
     QualityProfileDto profile = newQualityProfile();
     tester.get(QualityProfileDao.class).insert(profile, session);
@@ -165,8 +162,6 @@ public class RulesWebServiceTest {
   }
 
   @Test
-  @Ignore
-  //FIXME
   public void search_active_rules_params() throws Exception {
     QualityProfileDto profile = newQualityProfile();
     tester.get(QualityProfileDao.class).insert(profile, session);
@@ -197,6 +192,10 @@ public class RulesWebServiceTest {
     ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(param)
       .setValue("The VALUE");
     tester.get(ActiveRuleDao.class).addParam(activeRule, activeRuleParam, session);
+
+    ActiveRuleParamDto activeRuleParam2 = ActiveRuleParamDto.createFor(param2)
+      .setValue("The Other Value");
+    tester.get(ActiveRuleDao.class).addParam(activeRule, activeRuleParam2, session);
     session.commit();
 
     tester.get(RuleService.class).refresh();

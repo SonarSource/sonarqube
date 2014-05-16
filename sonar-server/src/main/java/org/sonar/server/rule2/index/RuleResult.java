@@ -22,7 +22,7 @@ package org.sonar.server.rule2.index;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import org.elasticsearch.action.search.SearchResponse;
-import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
+import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule2.Rule;
 import org.sonar.server.search.Result;
 
@@ -31,7 +31,7 @@ import java.util.Map;
 
 public class RuleResult extends Result<Rule> {
 
-  private Multimap<String,ActiveRuleDoc> activeRules;
+  private Multimap<String,ActiveRule> activeRules;
 
   public RuleResult(SearchResponse response) {
     super(response);
@@ -47,7 +47,7 @@ public class RuleResult extends Result<Rule> {
     return super.getHits();
   }
 
-  public  Multimap<String,ActiveRuleDoc> getActiveRules() {
+  public  Multimap<String,ActiveRule> getActiveRules() {
     return this.activeRules;
   }
 }

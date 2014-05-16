@@ -54,11 +54,12 @@ public class ActiveRuleDoc implements ActiveRule {
   @Override
   public ActiveRule.Inheritance inheritance() {
     String inheritance = (String) this.fields.get(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.key());
-    if(inheritance == null || inheritance.isEmpty()){
+    if(inheritance == null || inheritance.isEmpty() ||
+      inheritance.toLowerCase().contains("none")){
       return Inheritance.NONE;
-    } else if(inheritance.toLowerCase().indexOf("herit") > 0) {
+    } else if(inheritance.toLowerCase().contains("herit")) {
       return Inheritance.INHERIT;
-    } else if(inheritance.toLowerCase().indexOf("over") > 0) {
+    } else if(inheritance.toLowerCase().contains("over")) {
       return Inheritance.OVERRIDE;
     } else {
       throw new IllegalStateException("Value \"" +inheritance+"\" is not valid for rule's inheritance");
