@@ -319,8 +319,6 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     esSearch.setQuery(QueryBuilders.filteredQuery(qb, fb));
 
-    System.out.println("esSearch = " + esSearch);
-
     SearchResponse esResult = esSearch.get();
 
     return new RuleResult(esResult);
