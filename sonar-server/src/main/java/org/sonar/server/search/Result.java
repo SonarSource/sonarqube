@@ -28,30 +28,31 @@ import org.elasticsearch.search.facet.terms.TermsFacet;
 import javax.annotation.CheckForNull;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class Result<K> {
+public  abstract class Result<K> {
 
   private final List<K> hits;
   private final Map<String, Collection<FacetValue>> facets;
-  private final long total;
-  private final long timeInMillis;
+  private long total;
+  private long timeInMillis;
+
 
   public Result(SearchResponse response) {
     this.hits = new ArrayList<K>();
+    this.facets = new HashMap<String, Collection<FacetValue>>();
+
     this.total = (int) response.getHits().totalHits();
     this.timeInMillis = response.getTookInMillis();
 
     for (SearchHit hit : response.getHits()) {
-      this.hits.add(getSearchResult(hit));
+      this.hits.add(getSearchResult(hit.getSource()));
     }
 
     if (response.getFacets() != null &&
       !response.getFacets().facets().isEmpty()) {
-      this.facets = new HashMap<String, Collection<FacetValue>>();
       for (Facet facet : response.getFacets().facets()) {
         TermsFacet termFacet = (TermsFacet) facet;
         List<FacetValue> facetValues = new ArrayList<FacetValue>();
@@ -61,18 +62,11 @@ public abstract class Result<K> {
         }
         this.facets.put(facet.getName(), facetValues);
       }
-    } else {
-      this.facets = Collections.emptyMap();
     }
   }
 
   /* Transform Methods */
-
   protected abstract K getSearchResult(Map<String, Object> fields);
-
-  protected K getSearchResult(SearchHit hit) {
-    return this.getSearchResult(hit.getSource());
-  }
 
   public List<K> getHits() {
     return hits;
@@ -103,18 +97,6 @@ public abstract class Result<K> {
         keys.add(facetValue.getKey());
       }
       return keys;
-    }
-    return null;
-  }
-
-  @CheckForNull
-  public Object getFacetTermValue(String facetName, String key) {
-    if (this.facets.containsKey(facetName)) {
-      for (FacetValue facetValue : facets.get(facetName)) {
-        if (facetValue.getKey().equals(key)) {
-          return facetValue.getValue();
-        }
-      }
     }
     return null;
   }

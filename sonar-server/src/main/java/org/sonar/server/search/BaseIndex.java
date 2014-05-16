@@ -148,10 +148,12 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
 
   public abstract D toDoc(GetResponse response);
 
-
   public D getByKey(K key) {
-    return toDoc(getClient().prepareGet(this.getIndexName(),
-      this.indexDefinition.getIndexType(), this.getKeyValue(key))
+    return toDoc(getClient().prepareGet()
+      .setType(this.getIndexType())
+      .setIndex(this.getIndexName())
+      .setId(this.getKeyValue(key))
+      .setRouting(this.getKeyValue(key))
       .get());
   }
 
@@ -203,7 +205,6 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
       .index(this.getIndexName())
       .id(this.getKeyValue(key))
       .type(this.getIndexType())).get();
-
   }
 
 
@@ -213,7 +214,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
       this.updateDocument(this.normalizer.normalizeOther(obj, key), key);
     } else {
       throw new IllegalStateException("Index " + this.getIndexName() +
-        " cannot execute INSERT for class: " + obj.getClass());
+        " cannot execute UPDATE for class: " + obj.getClass());
     }
   }
 
