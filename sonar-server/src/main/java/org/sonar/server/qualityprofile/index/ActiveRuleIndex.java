@@ -39,16 +39,24 @@
 package org.sonar.server.qualityprofile.index;
 
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.sonar.api.rules.ActiveRule;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.es.ESNode;
+import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule2.index.RuleIndexDefinition;
 import org.sonar.server.search.BaseIndex;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
@@ -92,8 +100,18 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
     addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.SEVERITY.key(), "string");
     addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.PROFILE_ID.key(), "string");
     mapping.startObject(ActiveRuleNormalizer.ActiveRuleField.PARAMS.key())
-      .field("type", "nested")
-      .endObject();
+      .field("type", "object")
+      .startObject("properties")
+      .startObject("_id")
+      .field("type","string")
+      .endObject()
+      .startObject(ActiveRuleNormalizer.ActiveRuleParamField.NAME.key())
+        .field("type", "string")
+        .endObject()
+        .startObject(ActiveRuleNormalizer.ActiveRuleParamField.VALUE.key())
+        .field("type", "string")
+        .endObject()
+        .endObject();
     mapping.endObject();
 
     mapping.endObject().endObject();
@@ -101,7 +119,35 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
   }
 
   @Override
-  public ActiveRule toDoc(GetResponse key) {
+  public ActiveRule toDoc(GetResponse response) {
+    return new ActiveRuleDoc(response.getSource());
+  }
+
+  /** finder methods */
+  public List<ActiveRule> findByRule(RuleKey key){
+
+    SearchRequestBuilder request = getClient().prepareSearch(this.getIndexName())
+      .setQuery(QueryBuilders
+        .hasParentQuery(this.getParentType(),
+          QueryBuilders.idsQuery(this.getParentType())
+          .addIds(key.toString())))
+      .setRouting(key.toString());
+
+    SearchResponse response = request.get();
+
+    List<ActiveRule> activeRules = new ArrayList<ActiveRule>();
+    for(SearchHit hit:response.getHits()){
+      activeRules.add(new ActiveRuleDoc(hit.getSource()));
+    }
+
+    return activeRules;
+  }
+
+  private String getParentType() {
+    return new RuleIndexDefinition().getIndexType();
+  }
+
+  public ActiveRule getByRuleKeyAndProfileKey(RuleKey ruleKey, QualityProfileKey qualityProfileKey){
     return null;
   }
 }

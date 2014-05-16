@@ -101,7 +101,7 @@ public class ActiveRuleKey implements Serializable {
    */
   @Override
   public String toString() {
-    return String.format("%s:%s", ruleKey.toString(), qualityProfileKey.toString());
+    return String.format("%s:%s",  qualityProfileKey.toString(), ruleKey.toString());
   }
 }
 

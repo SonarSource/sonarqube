@@ -35,15 +35,12 @@ import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
+import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
-import org.sonar.server.rule2.Rule;
-import org.sonar.server.rule2.index.RuleIndex;
-import org.sonar.server.rule2.index.RuleQuery;
-import org.sonar.server.rule2.index.RuleResult;
 import org.sonar.server.rule2.persistence.RuleDao;
-import org.sonar.server.search.QueryOptions;
 import org.sonar.server.tester.ServerTester;
 
+import java.util.Collection;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -57,7 +54,7 @@ public class ActiveRuleIndexMediumTest {
   QualityProfileDao qualityProfileDao = tester.get(QualityProfileDao.class);
   ActiveRuleDao activeRuleDao = tester.get(ActiveRuleDao.class);
   RuleDao dao = tester.get(RuleDao.class);
-  RuleIndex index = tester.get(RuleIndex.class);
+  ActiveRuleIndex index = tester.get(ActiveRuleIndex.class);
   DbSession dbSession;
 
   @Before
@@ -84,7 +81,7 @@ public class ActiveRuleIndexMediumTest {
     dao.insert(ruleDto, dbSession);
 
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profileDto, ruleDto)
-      .setInheritance("inherited")
+      .setInheritance(ActiveRule.Inheritance.INHERIT.name())
       .setSeverity(Severity.BLOCKER);
 
     activeRuleDao.insert(activeRule, dbSession);
@@ -98,14 +95,13 @@ public class ActiveRuleIndexMediumTest {
     index.refresh();
 
 
-    Rule hit = index.getByKey(ruleKey);
-
+    ActiveRule hit = index.getByKey(activeRule.getKey());
 
     assertThat(hit).isNotNull();
-//    assertThat(hit.getField(RuleNormalizer.RuleField.ACTIVE.key())).isNotNull();
-//
-//    Map<String, Object> activeRules = (Map<String, Object>) hit.getField(RuleNormalizer.RuleField.ACTIVE.key());
-//    assertThat(activeRules).hasSize(1);
+    assertThat(hit.key()).isEqualTo(activeRule.getKey());
+    assertThat(hit.inheritance().name()).isEqualTo(activeRule.getInheritance());
+    assertThat(hit.parentKey()).isEqualTo(activeRule.getParentId());
+    assertThat(hit.severity()).isEqualTo(activeRule.getSeverityString());
   }
 
   @Test
@@ -132,7 +128,7 @@ public class ActiveRuleIndexMediumTest {
 
 
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profileDto, ruleDto)
-      .setInheritance("inherited")
+      .setInheritance(ActiveRule.Inheritance.INHERIT.name())
       .setSeverity(Severity.BLOCKER);
     activeRuleDao.insert(activeRule, dbSession);
 
@@ -153,28 +149,63 @@ public class ActiveRuleIndexMediumTest {
     // verify that activeRulesParams are indexed in es
     index.refresh();
 
-    RuleResult results = index.search(new RuleQuery(), new QueryOptions());
+    ActiveRule rule = index.getByKey(activeRule.getKey());
+    assertThat(rule.params()).hasSize(2);
+    assertThat(rule.params().keySet()).containsOnly("min","max");
+    assertThat(rule.params().values()).containsOnly("minimum","maximum");
+    assertThat(rule.params().get("min")).isEqualTo("minimum");
+  }
 
-    assertThat(results.getActiveRules().values()).hasSize(1);
+  @Test
+  public void find_activeRules_by_ruleKey() throws InterruptedException {
+    QualityProfileDto profileDto = new QualityProfileDto()
+      .setName("myprofile")
+      .setLanguage("java");
 
+    QualityProfileDto profileDto2 = new QualityProfileDto()
+      .setName("other-profile")
+      .setLanguage("java");
+    qualityProfileDao.insert(profileDto, dbSession);
+    qualityProfileDao.insert(profileDto2, dbSession);
 
-//    Hit hit = index.getByKey(ruleKey);
-//    assertThat(hit).isNotNull();
-//
-//    index.search(new RuleQuery(), new QueryOptions());
-//
-//    Map<String, Map> _activeRules = (Map<String, Map>) hit.getField(RuleNormalizer.RuleField.ACTIVE.key());
-//    assertThat(_activeRules).isNotNull().hasSize(1);
-//
-//    Map<String, Object> _activeRule = (Map<String, Object>) Iterables.getFirst(_activeRules.values(),null);
-//    assertThat(_activeRule.get(RuleNormalizer.RuleField.SEVERITY.key())).isEqualTo(Severity.BLOCKER);
-//
-//    Map<String, Map> _activeRuleParams = (Map<String, Map>) _activeRule.get(RuleNormalizer.RuleField.PARAMS.key());
-//    assertThat(_activeRuleParams).isNotNull().hasSize(2);
-//
-//    Map<String, String> _activeRuleParamValue = (Map<String, String>) _activeRuleParams.get(maxParam.getName());
-//    assertThat(_activeRuleParamValue).isNotNull().hasSize(1);
-//    assertThat(_activeRuleParamValue.get(ActiveRuleNormalizer.ActiveRuleParamField.VALUE.key())).isEqualTo("maximum");
+    // insert db
+    RuleDto ruleDto = newRuleDto(RuleKey.of("javascript", "S001"));
+    dao.insert(ruleDto, dbSession);
+
+    // insert db
+    RuleDto ruleDto2 = newRuleDto(RuleKey.of("javascript", "S002"));
+    dao.insert(ruleDto2, dbSession);
+
+    ActiveRuleDto find1 = ActiveRuleDto.createFor(profileDto, ruleDto)
+      .setInheritance(ActiveRule.Inheritance.INHERIT.name())
+      .setSeverity(Severity.BLOCKER);
+
+    ActiveRuleDto find2 = ActiveRuleDto.createFor(profileDto2, ruleDto)
+      .setInheritance(ActiveRule.Inheritance.INHERIT.name())
+      .setSeverity(Severity.BLOCKER);
+
+    ActiveRuleDto notFound = ActiveRuleDto.createFor(profileDto2, ruleDto2)
+      .setInheritance(ActiveRule.Inheritance.INHERIT.name())
+      .setSeverity(Severity.BLOCKER);
+
+    activeRuleDao.insert(find1, dbSession);
+    activeRuleDao.insert(find2, dbSession);
+    activeRuleDao.insert(notFound, dbSession);
+    dbSession.commit();
+
+    // verify that activeRules are persisted in db
+    List<ActiveRuleDto> persistedDtos = activeRuleDao.findByRule(ruleDto, dbSession);
+    assertThat(persistedDtos).hasSize(2);
+    persistedDtos = activeRuleDao.findByRule(ruleDto2, dbSession);
+    assertThat(persistedDtos).hasSize(1);
+
+    // verify that activeRules are indexed in es
+    index.refresh();
+
+    Collection<ActiveRule> hits = index.findByRule(RuleKey.of("javascript", "S001"));
+
+    assertThat(hits).isNotNull();
+    assertThat(hits).hasSize(2);
 
   }
 

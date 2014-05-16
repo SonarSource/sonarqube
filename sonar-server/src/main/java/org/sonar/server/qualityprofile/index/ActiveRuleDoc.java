@@ -24,6 +24,7 @@ import org.sonar.server.qualityprofile.ActiveRule;
 
 import javax.annotation.CheckForNull;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ActiveRuleDoc implements ActiveRule {
@@ -31,7 +32,11 @@ public class ActiveRuleDoc implements ActiveRule {
   private final Map<String, Object> fields;
   private final ActiveRuleKey key;
 
-  public ActiveRuleDoc(ActiveRuleKey key, Map<String, Object> fields) {
+  public ActiveRuleDoc(Map<String, Object> fields) {
+    ActiveRuleKey key = ActiveRuleKey.parse((String)fields.get(ActiveRuleNormalizer.ActiveRuleField.KEY.key()));
+    if(key == null){
+      throw new IllegalStateException("Invalid ActiveRuleKey!");
+    }
     this.fields = fields;
     this.key = key;
   }
@@ -49,10 +54,14 @@ public class ActiveRuleDoc implements ActiveRule {
   @Override
   public ActiveRule.Inheritance inheritance() {
     String inheritance = (String) this.fields.get(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.key());
-    if(inheritance != null && !inheritance.isEmpty()){
-      return Inheritance.valueOf(inheritance);
-    } else {
+    if(inheritance == null || inheritance.isEmpty()){
       return Inheritance.NONE;
+    } else if(inheritance.toLowerCase().indexOf("herit") > 0) {
+      return Inheritance.INHERIT;
+    } else if(inheritance.toLowerCase().indexOf("over") > 0) {
+      return Inheritance.OVERRIDE;
+    } else {
+      throw new IllegalStateException("Value \"" +inheritance+"\" is not valid for rule's inheritance");
     }
   }
 
@@ -70,9 +79,10 @@ public class ActiveRuleDoc implements ActiveRule {
   public Map<String, String> params() {
     Map<String, String> params = new HashMap<String, String>();
     if (this.fields.containsKey(ActiveRuleNormalizer.ActiveRuleField.PARAMS.key())) {
-      Map<String, Map<String, String>> allParams = (Map<String, Map<String, String>>) this.fields.get(ActiveRuleNormalizer.ActiveRuleField.PARAMS.key());
-      for (Map.Entry<String, Map<String, String>> param : allParams.entrySet()) {
-        params.put(param.getKey(), param.getValue().get(ActiveRuleNormalizer.ActiveRuleParamField.VALUE.key()));
+      List<Map<String, String>> allParams = (List<Map<String, String>>) this.fields.get(ActiveRuleNormalizer.ActiveRuleField.PARAMS.key());
+      for (Map<String, String> param : allParams) {
+        params.put(param.get(ActiveRuleNormalizer.ActiveRuleParamField.NAME.key()),
+          param.get(ActiveRuleNormalizer.ActiveRuleParamField.VALUE.key()));
       }
     }
     return params;

@@ -103,7 +103,8 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
     newParam.put(ActiveRuleParamField.NAME.key(), param.getKey());
     newParam.put(ActiveRuleParamField.VALUE.key(), param.getValue());
 
-    return this.nestedUpsert(ActiveRuleField.PARAMS.key(), param.getKey(), newParam);
+    return this.nestedUpsert(ActiveRuleField.PARAMS.key(), param.getKey(), newParam)
+      .routing(key.ruleKey().toString());
   }
 
   @Override
@@ -135,6 +136,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
 
     /* Creating updateRequest */
    return new UpdateRequest()
+      .routing(key.ruleKey().toString())
       .id(rule.getKey().toString())
       .parent(rule.getKey().ruleKey().toString())
       .doc(newRule)
