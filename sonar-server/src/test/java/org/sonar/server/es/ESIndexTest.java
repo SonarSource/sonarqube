@@ -25,6 +25,7 @@ import org.elasticsearch.common.io.BytesStream;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.core.profiling.Profiling;
@@ -36,6 +37,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@Ignore
+@Deprecated
 public class ESIndexTest {
 
   private EsSetup esSetup;

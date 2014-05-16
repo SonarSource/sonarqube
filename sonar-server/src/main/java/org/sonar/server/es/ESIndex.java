@@ -55,6 +55,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * @deprecated  since 4.4
+ */
+@Deprecated
 public class ESIndex implements Startable {
 
   private static final String BULK_EXECUTE_FAILED = "Execution of bulk operation failed";

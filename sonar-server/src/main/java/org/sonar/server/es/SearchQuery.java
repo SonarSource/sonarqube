@@ -39,14 +39,14 @@ import static org.elasticsearch.index.query.FilterBuilders.*;
  * This class can be used to build "AND" form queries, to be passed e.g to {@link ESIndex#findDocumentIds(SearchQuery)}
  * For instance the following code:
  * <blockquote>
-   SearchQuery.create("polop")
-      .field("field1", "value1")
-      .field("field2", "value2")
-   </blockquote>
+ SearchQuery.create("polop")
+ .field("field1", "value1")
+ .field("field2", "value2")
+ </blockquote>
  * ...corresponds to the following query string:<br/>
  * <blockquote>
-   polop AND field1:value1 AND field2:value2
-   </blockquote>
+ polop AND field1:value1 AND field2:value2
+ </blockquote>
  * @since 4.1
  */
 public class SearchQuery {
