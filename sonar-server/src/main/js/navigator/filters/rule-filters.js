@@ -11,6 +11,12 @@ define([
     },
 
 
+    fetch: function(options) {
+      options.data.f = 'key,name,lang';
+      return AjaxSelectFilters.Suggestions.prototype.fetch.call(this, options);
+    },
+
+
     parse: function(r) {
       this.more = r.p * r.ps < r.total;
       return r.rules.map(function(r) {
