@@ -6,7 +6,11 @@
   "subProjectName": "SonarQube :: Plugin API",
   "projectName": "SonarQube",
   "fav": true,
-  "periods": [],
+  "periods": [
+    {"1" : "since previous analysis (May 08 2014)"},
+    {"2" : "over 365 days (May 17 2013)"},
+    {"3" : "since previous version (4.3 - Apr 17 2014)"}
+  ],
   "measures": {
     "fNcloc": "200",
     "fCoverage": "95.4%",

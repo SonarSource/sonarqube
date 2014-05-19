@@ -27,6 +27,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.i18n.I18n;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.text.ParseException;
@@ -44,38 +45,46 @@ public class Periods implements BatchExtension, ServerComponent {
     this.i18n = i18n;
   }
 
+  @CheckForNull
   public String label(Snapshot snapshot, int periodIndex) {
     return label(snapshot.getPeriodMode(periodIndex), snapshot.getPeriodModeParameter(periodIndex), snapshot.getPeriodDate(periodIndex));
   }
 
+  @CheckForNull
   public String abbreviation(Snapshot snapshot, int periodIndex) {
     return abbreviation(snapshot.getPeriodMode(periodIndex), snapshot.getPeriodModeParameter(periodIndex), snapshot.getPeriodDate(periodIndex));
   }
 
+  @CheckForNull
   public String label(int periodIndex) {
     String periodProperty = settings.getString(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + periodIndex);
     PeriodParameters periodParameters = new PeriodParameters(periodProperty);
     return label(periodParameters.getMode(), periodParameters.getParam(), periodParameters.getDate());
   }
 
+  @CheckForNull
   public String abbreviation(int periodIndex) {
     String periodProperty = settings.getString(CoreProperties.TIMEMACHINE_PERIOD_PREFIX + periodIndex);
     PeriodParameters periodParameters = new PeriodParameters(periodProperty);
     return abbreviation(periodParameters.getMode(), periodParameters.getParam(), periodParameters.getDate());
   }
 
+  @CheckForNull
   public String label(String mode, String param, Date date) {
     return label(mode, param, convertDate(date), false);
   }
 
+  @CheckForNull
   public String label(String mode, String param, String date) {
     return label(mode, param, date, false);
   }
 
+  @CheckForNull
   public String abbreviation(String mode, String param, Date date) {
     return label(mode, param, convertDate(date), true);
   }
 
+  @CheckForNull
   private String label(String mode, @Nullable String param, @Nullable String date, boolean shortLabel) {
     String label;
     if (CoreProperties.TIMEMACHINE_MODE_DAYS.equals(mode)) {
@@ -117,6 +126,7 @@ public class Periods implements BatchExtension, ServerComponent {
     return i18n.message(getLocale(), msgKey, null, parameters);
   }
 
+  @CheckForNull
   private String convertDate(Date date) {
     if (date != null) {
       SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy MMM dd");

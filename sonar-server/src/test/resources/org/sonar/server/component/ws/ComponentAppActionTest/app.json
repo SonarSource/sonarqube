@@ -6,6 +6,9 @@
   "subProjectName": "SonarQube :: Plugin API",
   "projectName": "SonarQube",
   "fav": true,
+  "periods": [
+    {"1" : "since previous analysis (May 08 2014)"}
+  ],
   "measures": {
     "fNcloc": "200",
     "fCoverage": "95.4%",

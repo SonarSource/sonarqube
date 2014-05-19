@@ -37,14 +37,16 @@ import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.properties.PropertyQuery;
 import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.SnapshotDto;
+import org.sonar.core.timemachine.Periods;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
+import java.util.Date;
 import java.util.Locale;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -63,6 +65,9 @@ public class ComponentAppActionTest {
   PropertiesDao propertiesDao;
 
   @Mock
+  Periods periods;
+
+  @Mock
   Durations durations;
 
   @Mock
@@ -72,7 +77,7 @@ public class ComponentAppActionTest {
 
   @Before
   public void setUp() throws Exception {
-    tester = new WsTester(new ComponentsWs(new ComponentAppAction(resourceDao, measureDao, propertiesDao, durations, i18n)));
+    tester = new WsTester(new ComponentsWs(new ComponentAppAction(resourceDao, measureDao, propertiesDao, periods, durations, i18n)));
   }
 
   @Test
@@ -98,6 +103,9 @@ public class ComponentAppActionTest {
 
     when(measureDao.findByComponentKeyAndMetricKey(COMPONENT_KEY, CoreMetrics.TECHNICAL_DEBT_KEY)).thenReturn(new MeasureDto().setValue(182.0));
     when(durations.format(any(Locale.class), any(Duration.class), eq(Durations.DurationFormat.SHORT))).thenReturn("3h 2min");
+
+    when(resourceDao.getLastSnapshotByResourceId(eq(1L))).thenReturn(new SnapshotDto().setPeriod1Mode("previous_analysis"));
+    when(periods.label(anyString(), anyString(), any(Date.class))).thenReturn("since previous analysis (May 08 2014)");
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
     request.execute().assertJson(getClass(), "app.json");

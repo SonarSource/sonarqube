@@ -37,6 +37,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class MeasureFilterExecutorTest {
+
   private static final long JAVA_PROJECT_ID = 1L;
   private static final long JAVA_FILE_BIG_ID = 3L;
   private static final long JAVA_FILE_TINY_ID = 4L;

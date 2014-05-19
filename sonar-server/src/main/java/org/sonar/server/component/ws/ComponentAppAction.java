@@ -39,6 +39,8 @@ import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.properties.PropertyQuery;
 import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.resource.SnapshotDto;
+import org.sonar.core.timemachine.Periods;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
@@ -54,13 +56,15 @@ public class ComponentAppAction implements RequestHandler {
   private final ResourceDao resourceDao;
   private final MeasureDao measureDao;
   private final PropertiesDao propertiesDao;
+  private final Periods periods;
   private final Durations durations;
   private final I18n i18n;
 
-  public ComponentAppAction(ResourceDao resourceDao, MeasureDao measureDao, PropertiesDao propertiesDao, Durations durations, I18n i18n) {
+  public ComponentAppAction(ResourceDao resourceDao, MeasureDao measureDao, PropertiesDao propertiesDao, Periods periods, Durations durations, I18n i18n) {
     this.resourceDao = resourceDao;
     this.measureDao = measureDao;
     this.propertiesDao = propertiesDao;
+    this.periods = periods;
     this.durations = durations;
     this.i18n = i18n;
   }
@@ -93,27 +97,37 @@ public class ComponentAppAction implements RequestHandler {
     if (component == null) {
       throw new NotFoundException(String.format("Component '%s' does not exists.", fileKey));
     }
+    Long projectId = component.projectId();
+    Long subProjectId = component.subProjectId();
+    // projectId and subProjectId can't be null here
+    if (projectId != null && subProjectId != null) {
+      List<PropertyDto> propertyDtos = propertiesDao.selectByQuery(PropertyQuery.builder()
+        .setKey("favourite")
+        .setComponentId(component.getId())
+        .setUserId(userSession.userId())
+        .build());
+      boolean isFavourite = propertyDtos.size() == 1;
 
-    List<PropertyDto> propertyDtos = propertiesDao.selectByQuery(PropertyQuery.builder()
-      .setKey("favourite")
-      .setComponentId(component.getId())
-      .setUserId(userSession.userId())
-      .build());
-    boolean isFavourite = propertyDtos.size() == 1;
+      json.prop("key", component.key());
+      json.prop("path", component.path());
+      json.prop("name", component.name());
+      json.prop("q", component.qualifier());
 
-    json.prop("key", component.key());
-    json.prop("path", component.path());
-    json.prop("name", component.name());
-    json.prop("q", component.qualifier());
+      Component subProject = componentById(subProjectId);
+      json.prop("subProjectName", subProject != null ? subProject.longName() : null);
 
-    Component subProject = componentById(component.subProjectId());
-    json.prop("subProjectName", subProject != null ? subProject.longName() : null);
+      Component project = componentById(projectId);
+      json.prop("projectName", project != null ? project.longName() : null);
 
-    Component project = componentById(component.projectId());
-    json.prop("projectName", project != null ? project.longName() : null);
+      json.prop("fav", isFavourite);
+      appendPeriods(json, projectId);
+      appendMeasures(json, fileKey);
+    }
+    json.endObject();
+    json.close();
+  }
 
-    json.prop("fav", isFavourite);
-
+  private void appendMeasures(JsonWriter json, String fileKey) {
     json.name("measures").beginObject();
     json.prop("fNcloc", formattedMeasure(fileKey, CoreMetrics.NCLOC));
     json.prop("fCoverage", formattedMeasure(fileKey, CoreMetrics.COVERAGE));
@@ -126,9 +140,23 @@ public class ComponentAppAction implements RequestHandler {
     json.prop("fMinorIssues", formattedMeasure(fileKey, CoreMetrics.MINOR_VIOLATIONS));
     json.prop("fInfoIssues", formattedMeasure(fileKey, CoreMetrics.INFO_VIOLATIONS));
     json.endObject();
+  }
 
-    json.endObject();
-    json.close();
+  private void appendPeriods(JsonWriter json, Long projectId) {
+    json.name("periods").beginArray();
+    SnapshotDto snapshotDto = resourceDao.getLastSnapshotByResourceId(projectId);
+    if (snapshotDto != null) {
+      for (int i = 1; i <= 5; i++) {
+        String mode = snapshotDto.getPeriodMode(i);
+        if (mode != null) {
+          String label = periods.label(mode, snapshotDto.getPeriodModeParameter(i), snapshotDto.getPeriodDate(i));
+          if (label != null) {
+            json.beginObject().prop(Integer.toString(i), label).endObject();
+          }
+        }
+      }
+    }
+    json.endArray();
   }
 
   @CheckForNull

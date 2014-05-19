@@ -439,6 +439,22 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
     assertThat(dao.selectProvisionedProject("unknown")).isNull();
   }
 
+  @Test
+  public void get_last_snapshot_by_resource_id() {
+    setupData("fixture");
+
+    SnapshotDto snapshotDto = dao.getLastSnapshotByResourceId(1L);
+    assertThat(snapshotDto.getId()).isEqualTo(1);
+
+    snapshotDto = dao.getLastSnapshotByResourceId(2L);
+    assertThat(snapshotDto.getId()).isEqualTo(2L);
+
+    snapshotDto = dao.getLastSnapshotByResourceId(3L);
+    assertThat(snapshotDto.getId()).isEqualTo(3L);
+
+    assertThat(dao.getLastSnapshotByResourceId(42L)).isNull();
+  }
+
   private List<String> getKeys(final List<Component> components) {
     return newArrayList(Iterables.transform(components, new Function<Component, String>() {
       @Override

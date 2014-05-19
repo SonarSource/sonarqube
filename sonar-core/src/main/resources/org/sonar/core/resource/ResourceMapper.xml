@@ -48,6 +48,21 @@
     <result property="path" column="path"/>
     <result property="depth" column="depth"/>
     <result property="rootProjectId" column="root_project_id"/>
+    <result property="period1Mode" column="period1_mode"/>
+    <result property="period2Mode" column="period2_mode"/>
+    <result property="period3Mode" column="period3_mode"/>
+    <result property="period4Mode" column="period4_mode"/>
+    <result property="period5Mode" column="period5_mode"/>
+    <result property="period1Param" column="period1_param"/>
+    <result property="period2Param" column="period2_param"/>
+    <result property="period3Param" column="period3_param"/>
+    <result property="period4Param" column="period4_param"/>
+    <result property="period5Param" column="period5_param"/>
+    <result property="period1Date" column="period1_date"/>
+    <result property="period2Date" column="period2_date"/>
+    <result property="period3Date" column="period3_date"/>
+    <result property="period4Date" column="period4_date"/>
+    <result property="period5Date" column="period5_date"/>
   </resultMap>
 
   <resultMap id="resourceResultMap" type="Resource">
@@ -111,12 +126,21 @@
   </select>
 
   <select id="selectLastSnapshotByResourceKey" parameterType="string" resultMap="snapshotResultMap">
-    select s.* from snapshots s, projects p where p.kee=#{id} and p.enabled=${_true} and p.copy_resource_id is null and s.islast=${_true} and p.id=s.project_id
+    SELECT s.* FROM snapshots s
+      INNER JOIN projects p on p.id=s.project_id AND p.enabled=${_true} AND p.copy_resource_id IS NULL
+    <where>
+      AND p.kee=#{id}
+      AND s.islast=${_true}
+    </where>
   </select>
 
   <select id="selectLastSnapshotByResourceId" parameterType="string" resultMap="snapshotResultMap">
-      select s.* from snapshots s where s.project_id=#{id} and s.islast=${_true}
-    </select>
+    SELECT s.* from snapshots s
+    <where>
+      AND s.project_id=#{id}
+      AND s.islast=${_true}
+    </where>
+  </select>
 
   <select id="selectDescendantProjects" parameterType="long" resultMap="resourceResultMap">
     select * from projects where scope='PRJ' and root_id=#{id}

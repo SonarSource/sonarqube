@@ -29,6 +29,7 @@ import org.sonar.api.utils.Durations;
 import org.sonar.core.measure.db.MeasureDao;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.timemachine.Periods;
 import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -41,7 +42,7 @@ public class ComponentsWsTest {
   @Before
   public void setUp() throws Exception {
     WsTester tester = new WsTester(new ComponentsWs(new ComponentAppAction(mock(ResourceDao.class), mock(MeasureDao.class), mock(PropertiesDao.class),
-      mock(Durations.class), mock(I18n.class))));
+      mock(Periods.class), mock(Durations.class), mock(I18n.class))));
     controller = tester.controller("api/components");
   }
 

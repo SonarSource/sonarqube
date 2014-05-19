@@ -102,10 +102,22 @@ public class ResourceDao {
     return session.getMapper(ResourceMapper.class).selectResource(projectId);
   }
 
+  @CheckForNull
   public SnapshotDto getLastSnapshot(String resourceKey, SqlSession session) {
     return session.getMapper(ResourceMapper.class).selectLastSnapshotByResourceKey(resourceKey);
   }
 
+  @CheckForNull
+  public SnapshotDto getLastSnapshotByResourceId(long resourceId) {
+    SqlSession session = mybatis.openSession(false);
+    try {
+      return getLastSnapshotByResourceId(resourceId, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  @CheckForNull
   public SnapshotDto getLastSnapshotByResourceId(long resourceId, SqlSession session) {
     return session.getMapper(ResourceMapper.class).selectLastSnapshotByResourceId(resourceId);
   }
