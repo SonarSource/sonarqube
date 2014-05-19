@@ -103,15 +103,15 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
       .field("type", "object")
       .startObject("properties")
       .startObject("_id")
-      .field("type","string")
+      .field("type", "string")
       .endObject()
       .startObject(ActiveRuleNormalizer.ActiveRuleParamField.NAME.key())
-        .field("type", "string")
-        .endObject()
-        .startObject(ActiveRuleNormalizer.ActiveRuleParamField.VALUE.key())
-        .field("type", "string")
-        .endObject()
-        .endObject();
+      .field("type", "string")
+      .endObject()
+      .startObject(ActiveRuleNormalizer.ActiveRuleParamField.VALUE.key())
+      .field("type", "string")
+      .endObject()
+      .endObject();
     mapping.endObject();
 
     mapping.endObject().endObject();
@@ -123,20 +123,23 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
     return new ActiveRuleDoc(response.getSource());
   }
 
-  /** finder methods */
-  public List<ActiveRule> findByRule(RuleKey key){
+  /**
+   * finder methods
+   */
+  public List<ActiveRule> findByRule(RuleKey key) {
 
     SearchRequestBuilder request = getClient().prepareSearch(this.getIndexName())
       .setQuery(QueryBuilders
         .hasParentQuery(this.getParentType(),
           QueryBuilders.idsQuery(this.getParentType())
-          .addIds(key.toString())))
+            .addIds(key.toString())
+        ))
       .setRouting(key.toString());
 
     SearchResponse response = request.get();
 
     List<ActiveRule> activeRules = new ArrayList<ActiveRule>();
-    for(SearchHit hit:response.getHits()){
+    for (SearchHit hit : response.getHits()) {
       activeRules.add(new ActiveRuleDoc(hit.getSource()));
     }
 
@@ -147,7 +150,12 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
     return new RuleIndexDefinition().getIndexType();
   }
 
-  public ActiveRule getByRuleKeyAndProfileKey(RuleKey ruleKey, QualityProfileKey qualityProfileKey){
-    return null;
+  public ActiveRule getByRuleKeyAndProfileKey(RuleKey ruleKey, QualityProfileKey qualityProfileKey) {
+    return toDoc(getClient().prepareGet()
+      .setRouting(ruleKey.toString())
+      .setType(this.getIndexType())
+      .setIndex(this.getIndexName())
+      .setId(ActiveRuleKey.of(qualityProfileKey, ruleKey).toString())
+      .get());
   }
 }

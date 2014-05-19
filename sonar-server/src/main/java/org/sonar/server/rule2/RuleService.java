@@ -24,6 +24,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.ActiveRule;
@@ -38,6 +39,7 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -65,15 +67,33 @@ public class RuleService implements ServerComponent {
   }
 
   public RuleResult search(RuleQuery query, QueryOptions options) {
-    // keep only supported fields and add the fields to always return
+
+    /** keep only supported fields and add the fields to always return */
     options.filterFieldsToReturn(RuleIndex.PUBLIC_FIELDS);
 
-    RuleResult result =  index.search(query, options);
-    for(Rule rule:result.getHits()){
-      for(ActiveRule activeRule:activeRuleIndex.findByRule(rule.key())){
-        result.getActiveRules().put(rule.key().toString(),activeRule);
+    RuleResult result = index.search(query, options);
+
+    /** Check for activation */
+    if (query.getActivation() != null && !query.getActivation().isEmpty()) {
+      if (query.getActivation().equalsIgnoreCase("true")) {
+        for (Rule rule : result.getHits()) {
+          if(query.getqProfileKey() == null){
+            throw new IllegalStateException("\"activation=true\" requires a profile key!");
+          }
+          QualityProfileKey qualityProfileKey =  QualityProfileKey.parse(query.getqProfileKey());
+          result.getActiveRules().put(rule.key().toString(),
+            activeRuleIndex.getByRuleKeyAndProfileKey(rule.key(),qualityProfileKey));
+        }
+      } else if (query.getActivation().equalsIgnoreCase("all")) {
+        for (Rule rule : result.getHits()) {
+          List<ActiveRule> activeRules = activeRuleIndex.findByRule(rule.key());
+          for (ActiveRule activeRule : activeRules) {
+            result.getActiveRules().put(rule.key().toString(), activeRule);
+          }
+        }
       }
     }
+
     return result;
   }
 
@@ -102,7 +122,8 @@ public class RuleService implements ServerComponent {
 
   /**
    * Extend rule description by adding a note.
-   * @param ruleKey the required key
+   *
+   * @param ruleKey      the required key
    * @param markdownNote markdown text. <code>null</code> to remove current note.
    */
   public void setNote(RuleKey ruleKey, @Nullable String markdownNote) {

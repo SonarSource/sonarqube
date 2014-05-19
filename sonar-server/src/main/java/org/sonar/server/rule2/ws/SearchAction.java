@@ -52,6 +52,8 @@ public class SearchAction implements RequestHandler {
 
   private static final String PARAM_TEXT_QUERY = "q";
   private static final String PARAM_REPOSITORIES = "repositories";
+  private static final String PARAM_ACTIVATION = "activation";
+  private static final String PARAM_QPROFILE = "qprofile";
   private static final String PARAM_SEVERITIES = "severities";
   private static final String PARAM_STATUSES = "statuses";
   private static final String PARAM_LANGUAGES = "languages";
@@ -163,12 +165,12 @@ public class SearchAction implements RequestHandler {
       .setExampleValue("security,java8");
 
     action
-      .createParam("qprofile")
+      .createParam(PARAM_QPROFILE)
       .setDescription("Key of Quality profile")
       .setExampleValue("java:Sonar way");
 
     action
-      .createParam("activation")
+      .createParam(PARAM_ACTIVATION)
       .setDescription("Used only if 'qprofile' is set")
       .setExampleValue("java:Sonar way")
       .setPossibleValues("false", "true", "all");
@@ -184,6 +186,8 @@ public class SearchAction implements RequestHandler {
     query.setLanguages(request.paramAsStrings(PARAM_LANGUAGES));
     query.setDebtCharacteristics(request.paramAsStrings(PARAM_DEBT_CHARACTERISTICS));
     query.setHasDebtCharacteristic(request.paramAsBoolean(PARAM_HAS_DEBT_CHARACTERISTIC));
+    query.setActivation(request.param(PARAM_ACTIVATION));
+    query.setqProfileKey(request.param(PARAM_QPROFILE));
 
     // TODO move to QueryOptions ?
     query.setSortField(RuleQuery.SortField.valueOfOrNull(request.param(PARAM_SORT)));

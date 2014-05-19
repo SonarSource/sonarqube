@@ -25,7 +25,6 @@ import com.google.common.base.Strings;
 import java.io.Serializable;
 
 /**
- * Created by gamars on 05/05/14.
  *
  * @since 4.4
  */
@@ -51,8 +50,8 @@ public class QualityProfileKey implements Serializable{
    * if the format is not valid.
    */
   public static QualityProfileKey parse(String s) {
-    String[] split = s.split(":");
-    Preconditions.checkArgument(split.length == 3, "Bad format of activeRule key: " + s);
+    String[] split = s.trim().split(":");
+    Preconditions.checkArgument(split.length == 2, "Bad format of QualityProfileKey: " + s);
     return QualityProfileKey.of(split[0], split[1]);
   }
 
@@ -97,7 +96,7 @@ public class QualityProfileKey implements Serializable{
   }
 
   /**
-   * Format is "qProfile:lang", for example "Java:javascript"
+   * Format is "profile:lang", for example "Java:javascript"
    */
   @Override
   public String toString() {

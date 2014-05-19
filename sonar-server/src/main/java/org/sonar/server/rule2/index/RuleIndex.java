@@ -190,6 +190,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   protected SearchRequestBuilder buildRequest(RuleQuery query, QueryOptions options) {
     SearchRequestBuilder esSearch = getClient()
       .prepareSearch(this.getIndexName())
+      .setTypes(this.getIndexType())
       .setIndices(this.getIndexName());
 
     /* Integrate Facets */

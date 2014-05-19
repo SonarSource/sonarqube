@@ -32,11 +32,18 @@ import org.sonar.check.Cardinality;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.qualityprofile.db.ActiveRuleDto;
+import org.sonar.core.qualityprofile.db.QualityProfileDao;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
 import org.sonar.server.rule2.index.RuleIndex;
+import org.sonar.server.rule2.index.RuleQuery;
+import org.sonar.server.rule2.index.RuleResult;
 import org.sonar.server.rule2.persistence.RuleDao;
+import org.sonar.server.search.QueryOptions;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
@@ -49,7 +56,8 @@ import static org.fest.assertions.Fail.fail;
 public class RuleServiceMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester()
+    .setProperty("sonar.es.http.port","9200");
 
   RuleDao dao = tester.get(RuleDao.class);
   RuleIndex index = tester.get(RuleIndex.class);
@@ -157,6 +165,62 @@ public class RuleServiceMediumTest {
 //    assertThat(rule.getNoteCreatedAt()).isNull();
 //    assertThat(rule.getNoteUpdatedAt()).isNull();
 //    assertThat(rule.getNoteUserLogin()).isNull();
+
+  }
+
+  @Test
+  public void test_search_activation_on_rules() throws InterruptedException {
+
+    // 1. Create in DB
+    QualityProfileDto qprofile1 = QualityProfileDto.createFor("profile1","java");
+    QualityProfileDto qprofile2 = QualityProfileDto.createFor("profile2","java");
+    tester.get(QualityProfileDao.class).insert(qprofile1, dbSession);
+    tester.get(QualityProfileDao.class).insert(qprofile2, dbSession);
+
+    RuleDto rule1 = newRuleDto(RuleKey.of("test", "rule1"));
+    RuleDto rule2 = newRuleDto(RuleKey.of("test", "rule2"));
+    tester.get(RuleDao.class).insert(rule1, dbSession);
+    tester.get(RuleDao.class).insert(rule2, dbSession);
+
+    ActiveRuleDto activeRule1 = ActiveRuleDto.createFor(qprofile1, rule1)
+      .setSeverity(Severity.BLOCKER);
+    ActiveRuleDto activeRule2 = ActiveRuleDto.createFor(qprofile1, rule2)
+      .setSeverity(Severity.BLOCKER);
+    ActiveRuleDto activeRule3 = ActiveRuleDto.createFor(qprofile2, rule2)
+      .setSeverity(Severity.BLOCKER);
+    tester.get(ActiveRuleDao.class).insert(activeRule1, dbSession);
+    tester.get(ActiveRuleDao.class).insert(activeRule2, dbSession);
+    tester.get(ActiveRuleDao.class).insert(activeRule3, dbSession);
+
+    dbSession.commit();
+    service.refresh();
+
+
+    // 2. test in DB
+    assertThat(tester.get(RuleDao.class).findAll(dbSession)).hasSize(2);
+    assertThat(tester.get(ActiveRuleDao.class).findByRule(rule1, dbSession)).hasSize(1);
+    assertThat(tester.get(ActiveRuleDao.class).findByRule(rule2, dbSession)).hasSize(2);
+
+
+    // 3. Test for ALL activations
+    RuleQuery query = new RuleQuery()
+      .setActivation("all");
+    RuleResult result = service.search(query, new QueryOptions());
+    assertThat(result.getActiveRules().values()).hasSize(3);
+
+    // 4. Test for NO active rules
+    query = new RuleQuery()
+      .setActivation("false");
+    result = service.search(query, new QueryOptions());
+    assertThat(result.getActiveRules().values()).hasSize(0);
+
+    // 4. Test for  active rules of QProfile
+    query = new RuleQuery()
+      .setActivation("true")
+      .setqProfileKey(qprofile1.getKey().toString());
+    result = service.search(query, new QueryOptions());
+    assertThat(result.getActiveRules().values()).hasSize(2);
+
 
   }
 

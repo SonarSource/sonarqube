@@ -145,7 +145,7 @@ public class RulesWebServiceTest {
 
 
   @Test
-  public void search_active_rules() throws Exception {
+  public void search_all_active_rules() throws Exception {
     QualityProfileDto profile = newQualityProfile();
     tester.get(QualityProfileDao.class).insert(profile, session);
 
@@ -163,13 +163,71 @@ public class RulesWebServiceTest {
     MockUserSession.set();
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
     request.setParam("q","S001");
+    request.setParam("activation","all");
     WsTester.Result result = request.execute();
 
     result.assertJson(this.getClass(),"search_active_rules.json");
   }
 
   @Test
-  public void search_active_rules_params() throws Exception {
+  public void search_no_active_rules() throws Exception {
+    QualityProfileDto profile = newQualityProfile();
+    tester.get(QualityProfileDao.class).insert(profile, session);
+
+    RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"));
+    ruleDao.insert(rule,  session);
+
+    ActiveRuleDto activeRule = newActiveRule(profile, rule);
+    tester.get(ActiveRuleDao.class).insert(activeRule, session);
+
+    session.commit();
+
+    tester.get(RuleService.class).refresh();
+
+
+    MockUserSession.set();
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules2", "search");
+    request.setParam("q","S001");
+    request.setParam("activation","false");
+    WsTester.Result result = request.execute();
+
+    result.assertJson(this.getClass(),"search_no_active_rules.json");
+  }
+
+  @Test
+  public void search_profile_active_rules() throws Exception {
+    QualityProfileDto profile = newQualityProfile().setName("p1");
+    tester.get(QualityProfileDao.class).insert(profile, session);
+
+    QualityProfileDto profile2 = newQualityProfile().setName("p2");
+    tester.get(QualityProfileDao.class).insert(profile2, session);
+
+    session.commit();
+
+    RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"));
+    ruleDao.insert(rule,  session);
+
+    ActiveRuleDto activeRule = newActiveRule(profile, rule);
+    tester.get(ActiveRuleDao.class).insert(activeRule, session);
+    ActiveRuleDto activeRule2 = newActiveRule(profile2, rule);
+    tester.get(ActiveRuleDao.class).insert(activeRule2, session);
+
+    session.commit();
+    tester.get(RuleService.class).refresh();
+
+
+    MockUserSession.set();
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules2", "search");
+    request.setParam("q","S001");
+    request.setParam("activation","true");
+    request.setParam("qprofile",profile2.getKey().toString());
+    WsTester.Result result = request.execute();
+
+    result.assertJson(this.getClass(),"search_profile_active_rules.json");
+  }
+
+  @Test
+  public void search_all_active_rules_params() throws Exception {
     QualityProfileDto profile = newQualityProfile();
     tester.get(QualityProfileDao.class).insert(profile, session);
 
@@ -177,7 +235,6 @@ public class RulesWebServiceTest {
     ruleDao.insert(rule, session);
 
     session.commit();
-
 
     RuleParamDto param = RuleParamDto.createFor(rule)
       .setDefaultValue("some value")
@@ -210,8 +267,11 @@ public class RulesWebServiceTest {
     MockUserSession.set();
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
     request.setParam("q", "S001");
+    request.setParam("activation", "all");
+
     WsTester.Result result = request.execute();
 
+    System.out.println("result.outputAsString() = " + result.outputAsString());
     result.assertJson(this.getClass(),"search_active_rules_params.json");
   }
 
@@ -272,7 +332,7 @@ public class RulesWebServiceTest {
 
   private ActiveRuleDto  newActiveRule(QualityProfileDto profile, RuleDto rule) {
     return ActiveRuleDto.createFor(profile, rule)
-      .setInheritance("NONE")
+      .setInheritance("none")
       .setSeverity("BLOCKER");
   }
 }
