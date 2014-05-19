@@ -19,11 +19,15 @@
  */
 package org.sonar.server.rule2.ws;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.io.Resources;
+import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -114,7 +118,10 @@ public class RulesWebServiceTest {
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules2", "search");
     WsTester.Result result = request.execute();
 
-    result.assertJson(this.getClass(),"search_2_rules.json");
+    String json = result.outputAsString();
+    String expectedJson = Resources.toString(getClass().getResource("RulesWebServiceTest/search_2_rules.json"), Charsets.UTF_8);
+
+    JSONAssert.assertEquals(expectedJson, json, false);
   }
 
 

@@ -210,6 +210,8 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       esSearch.addSort(SortBuilders.scoreSort());
     } else {
       esSearch.addSort(RuleNormalizer.RuleField.UPDATED_AT.key(), SortOrder.DESC);
+      // deterministic sort when exactly the same updated_at (same millisecond)
+      esSearch.addSort(RuleNormalizer.RuleField.KEY.key(), SortOrder.ASC);
     }
 
     /* integrate Option's Pagination */
