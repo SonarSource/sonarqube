@@ -90,7 +90,6 @@ public class MassUpdater {
     ResultSet rs = null;
     Connection writeConnection = null;
     PreparedStatement writeStatement = null;
-    PreparedStatement updateStatement = null;
     try {
       writeConnection = db.getDataSource().getConnection();
       writeConnection.setAutoCommit(false);
