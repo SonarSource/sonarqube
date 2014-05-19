@@ -30,7 +30,7 @@ class UpdateWorkUnitsBySizePointPropertyToMinutes < ActiveRecord::Migration
 
   def self.up
     hours_in_day_prop = Property.find_by_prop_key('sonar.technicalDebt.hoursInDay')
-    hours_in_day = hours_in_day_prop ? hours_in_day_prop : 8
+    hours_in_day = hours_in_day_prop && hours_in_day_prop.text_value ? hours_in_day_prop.text_value.to_i : 8
     work_units_by_size_point = Property.find_by_prop_key('workUnitsBySizePoint')
     if work_units_by_size_point && work_units_by_size_point.text_value && work_units_by_size_point.text_value.to_f
       work_units_by_size_point.text_value = convert_days_to_minutes(work_units_by_size_point.text_value.to_f, hours_in_day)

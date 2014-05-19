@@ -34,7 +34,7 @@ class UpdateMeasureFiltersOnDebtToMinutes < ActiveRecord::Migration
 
   def self.up
     hours_in_day_prop = Property.find_by_prop_key('sonar.technicalDebt.hoursInDay')
-    hours_in_day = hours_in_day_prop ? hours_in_day_prop : 8
+    hours_in_day = hours_in_day_prop && hours_in_day_prop.text_value ? hours_in_day_prop.text_value.to_i : 8
 
     filters = MeasureFilter.all(:conditions => "data LIKE '%_metric=sqale_index%' OR data LIKE '%_metric=new_technical_debt%'" +
         " OR data LIKE '%_metric=sqale_effort_to_grade_a%' OR data LIKE '%_metric=sqale_effort_to_grade_b%' OR data LIKE '%_metric=sqale_effort_to_grade_c%' " +
