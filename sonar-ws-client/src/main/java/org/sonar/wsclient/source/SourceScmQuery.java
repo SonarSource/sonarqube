@@ -21,18 +21,59 @@
 package org.sonar.wsclient.source;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
-import java.util.Date;
+public class SourceScmQuery {
 
-public interface Scm {
+  private String key;
+  private String from;
+  private String to;
+  private Boolean groupCommits;
+
+  private SourceScmQuery() {
+    // Nothing here
+  }
+
+  public String key() {
+    return key;
+  }
+
+  public SourceScmQuery setKey(String key) {
+    this.key = key;
+    return this;
+  }
 
   @CheckForNull
-  Integer lineIndex();
+  public String from() {
+    return from;
+  }
+
+  public SourceScmQuery setFrom(@Nullable String from) {
+    this.from = from;
+    return this;
+  }
 
   @CheckForNull
-  String author();
+  public String to() {
+    return to;
+  }
+
+  public SourceScmQuery setTo(@Nullable String to) {
+    this.to = to;
+    return this;
+  }
 
   @CheckForNull
-  Date date();
+  public Boolean groupCommits() {
+    return groupCommits;
+  }
 
+  public SourceScmQuery setGroupCommits(@Nullable Boolean groupCommits) {
+    this.groupCommits = groupCommits;
+    return this;
+  }
+
+  public static SourceScmQuery create(){
+    return new SourceScmQuery();
+  }
 }

@@ -21,18 +21,49 @@
 package org.sonar.wsclient.source;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
-import java.util.Date;
+public class SourceShowQuery {
 
-public interface Scm {
+  private String key;
+  private String from;
+  private String to;
+
+  private SourceShowQuery() {
+    // Nothing here
+  }
+
+  public String key() {
+    return key;
+  }
+
+  public SourceShowQuery setKey(String key) {
+    this.key = key;
+    return this;
+  }
 
   @CheckForNull
-  Integer lineIndex();
+  public String from() {
+    return from;
+  }
+
+  public SourceShowQuery setFrom(@Nullable String from) {
+    this.from = from;
+    return this;
+  }
 
   @CheckForNull
-  String author();
+  public String to() {
+    return to;
+  }
 
-  @CheckForNull
-  Date date();
+  public SourceShowQuery setTo(@Nullable String to) {
+    this.to = to;
+    return this;
+  }
+
+  public static SourceShowQuery create(){
+    return new SourceShowQuery();
+  }
 
 }

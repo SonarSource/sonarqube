@@ -37,9 +37,15 @@ public class DefaultScm implements Scm {
   }
 
   @Override
-  public long index() {
-    return (Long) json.get(0);
+  @CheckForNull
+  public Integer lineIndex() {
+    Object value = json.get(0);
+    if (value != null) {
+      return ((Long) value).intValue();
+    }
+    return null;
   }
+
 
   @Override
   @CheckForNull

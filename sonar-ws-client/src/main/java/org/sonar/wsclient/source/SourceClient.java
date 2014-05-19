@@ -20,18 +20,17 @@
 
 package org.sonar.wsclient.source;
 
-import javax.annotation.Nullable;
-
 import java.util.List;
 
 /**
  * Display sources information
+ *
  * @since 4.4
  */
 public interface SourceClient {
 
-  List<Source> show(String key, @Nullable String from, @Nullable String to);
+  List<Source> show(SourceShowQuery query);
 
-  List<Scm> scm(String key, @Nullable String from, @Nullable String to, @Nullable Boolean groupCommits);
+  List<Scm> scm(SourceScmQuery query);
 
 }

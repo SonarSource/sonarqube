@@ -22,6 +22,8 @@ package org.sonar.wsclient.source.internal;
 
 import org.sonar.wsclient.source.Source;
 
+import javax.annotation.CheckForNull;
+
 import java.util.List;
 
 public class DefaultSource implements Source {
@@ -33,12 +35,18 @@ public class DefaultSource implements Source {
   }
 
   @Override
-  public long index() {
-    return (Long) json.get(0);
+  @CheckForNull
+  public Integer lineIndex() {
+    Object value = json.get(0);
+    if (value != null) {
+      return ((Long) value).intValue();
+    }
+    return null;
   }
 
   @Override
-  public String line() {
+  @CheckForNull
+  public String lineAsHtml() {
     return (String) json.get(1);
   }
 }

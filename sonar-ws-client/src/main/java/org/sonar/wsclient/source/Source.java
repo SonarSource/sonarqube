@@ -20,13 +20,17 @@
 
 package org.sonar.wsclient.source;
 
+import javax.annotation.CheckForNull;
+
 /**
  * @since 4.4
  */
 public interface Source {
 
-  long index();
+  @CheckForNull
+  Integer lineIndex();
 
-  String line();
+  @CheckForNull
+  String lineAsHtml();
 
 }

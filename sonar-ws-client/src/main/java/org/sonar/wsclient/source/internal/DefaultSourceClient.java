@@ -23,11 +23,7 @@ package org.sonar.wsclient.source.internal;
 import org.json.simple.JSONValue;
 import org.sonar.wsclient.internal.EncodingUtils;
 import org.sonar.wsclient.internal.HttpRequestFactory;
-import org.sonar.wsclient.source.Scm;
-import org.sonar.wsclient.source.Source;
-import org.sonar.wsclient.source.SourceClient;
-
-import javax.annotation.Nullable;
+import org.sonar.wsclient.source.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,8 +38,8 @@ public class DefaultSourceClient implements SourceClient {
   }
 
   @Override
-  public List<Source> show(String key, @Nullable String from, @Nullable String to) {
-    Map<String, Object> params = EncodingUtils.toMap("key", key, "from", from, "to", to);
+  public List<Source> show(SourceShowQuery query) {
+    Map<String, Object> params = EncodingUtils.toMap("key", query.key(), "from", query.from(), "to", query.to());
     String json = requestFactory.get("/api/sources/show", params);
 
     List<Source> sources = new ArrayList<Source>();
@@ -58,9 +54,9 @@ public class DefaultSourceClient implements SourceClient {
   }
 
   @Override
-  public List<Scm> scm(String key, @Nullable String from, @Nullable String to, @Nullable Boolean groupCommits) {
-    Map<String, Object> params = EncodingUtils.toMap("key", key, "from", from, "to", to);
-    params.put("group_commits", groupCommits);
+  public List<Scm> scm(SourceScmQuery query) {
+    Map<String, Object> params = EncodingUtils.toMap("key", query.key(), "from", query.from(), "to", query.to());
+    params.put("group_commits", query.groupCommits());
     String json = requestFactory.get("/api/sources/scm", params);
 
     List<Scm> result = new ArrayList<Scm>();
