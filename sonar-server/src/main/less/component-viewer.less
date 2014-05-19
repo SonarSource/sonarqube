@@ -325,15 +325,18 @@
   display: block;
   padding: 10px 20px;
   white-space: nowrap;
-  .trans(background);
 
-  &:hover { background-color: @barBorderColor; }
+  a& {
+    .trans(background);
 
-  &:active, &.active {
-    margin-bottom: -1px;
-    border-bottom: 1px solid #fff;
-    border-left-color: @barBorderColor;
-    background-color: #fff;
+    &:hover { background-color: @barBorderColor; }
+
+    &:active, &.active {
+      margin-bottom: -1px;
+      border-bottom: 1px solid #fff;
+      border-left-color: @barBorderColor;
+      background-color: #fff;
+    }
   }
 }
 
@@ -368,7 +371,10 @@
   color: @baseFontColor;
   font-size: 18px;
 
-  i { top: -3px; }
+  i {
+    position: relative;
+    top: -2px;
+  }
 }
 
 .component-viewer-header-measure-issues {

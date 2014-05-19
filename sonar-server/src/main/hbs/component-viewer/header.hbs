@@ -19,7 +19,7 @@
 
   <div class="component-viewer-header-measures">
     <div class="component-viewer-header-measures-scope">
-      <span data-scope="coverage" class="js-toggle-coverage component-viewer-header-measures-toggle-scope inactive"></span>
+      <span data-scope="basic" class="js-toggle-coverage component-viewer-header-measures-toggle-scope inactive"></span>
       <a data-scope="basic" class="component-viewer-header-measures-expand">
         <div class="component-viewer-header-measure">
           <span class="component-viewer-header-measure-value">{{component.measures.fNcloc}}</span>
@@ -90,6 +90,17 @@
            class="js-toggle-duplications component-viewer-header-measures-toggle-scope {{#if settings.duplications}}active{{/if}}"></a>
       </div>
     {{/if}}
+
+    <div class="component-viewer-header-measures-scope">
+      <span data-scope="scm" class="component-viewer-header-measures-expand">
+        <div class="component-viewer-header-measure">
+          <span class="component-viewer-header-measure-value"><i class="icon-calendar"></i></span>
+          <span class="component-viewer-header-measure-label">SCM</span>
+        </div>
+      </span>
+      <a data-scope="scm" title="{{t 'component_viewer.header.toggle_duplications'}}"
+         class="js-toggle-scm component-viewer-header-measures-toggle-scope {{#if settings.scm}}active{{/if}}"></a>
+    </div>
   </div>
 </div>
 
