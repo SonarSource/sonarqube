@@ -407,6 +407,7 @@
 .component-viewer-header-expanded-bar {
   display: none;
   .clearfix;
+  position: relative;
   margin-top: -1px;
   border: 1px solid @barBorderColor;
   border-top: none;
@@ -453,6 +454,18 @@
     &:active, &.active { background-color: @lightBlue; }
   }
 }
+
+.component-viewer-header-expanded-bar-bulk-change {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding: 4px 10px;
+  font-size: @smallFontSize;
+  .trans;
+
+  &:hover { background-color: @barBackgroundColor; }
+}
+
 
 .component-viewer-header-decoration {
   margin-top: 10px;

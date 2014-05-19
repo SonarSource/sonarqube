@@ -27,6 +27,8 @@ define [
       'click .js-toggle-duplications': 'toggleDuplications'
       'click .js-toggle-scm': 'toggleSCM'
 
+      'click .js-issues-bulk-change': 'issuesBulkChange'
+
       'click .js-filter-current-issue': 'filterByCurrentIssue'
       'click .js-filter-all-issues': 'filterByAllIssues'
       'click .js-filter-resolved-issues': 'filterByResolvedIssues'
@@ -98,6 +100,13 @@ define [
     toggleDuplications: (e) -> @toggleSetting e, @options.main.showDuplications, @options.main.hideDuplications
     toggleSCM: (e) -> @toggleSetting e, @options.main.showSCM, @options.main.hideSCM
     toggleWorkspace: (e) -> @toggleSetting e, @options.main.showWorkspace, @options.main.hideWorkspace
+
+
+    issuesBulkChange: ->
+      issues = @model.get('activeIssues')?.map (issue) -> issue.key
+      if issues.length > 0
+        url = "#{baseUrl}/issues/bulk_change_form?issues=#{issues.join()}"
+        openModalWindow url, {}
 
 
     filterLines: (e, method) ->
