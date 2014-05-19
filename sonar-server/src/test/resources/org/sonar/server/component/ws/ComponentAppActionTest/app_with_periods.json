@@ -5,8 +5,10 @@
   "q": "FIL",
   "subProjectName": "SonarQube :: Plugin API",
   "projectName": "SonarQube",
-  "fav": true,
-  "periods": [],
+  "fav": false,
+  "periods": [
+    [1, "since previous analysis (May 08 2014)", "2014-05-08T00:00:00+0200"]
+  ],
   "severities": [],
   "rules": [],
   "measures": {}

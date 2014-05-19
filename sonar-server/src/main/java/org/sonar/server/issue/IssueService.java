@@ -21,6 +21,8 @@ package org.sonar.server.issue;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.ActionPlan;
@@ -39,6 +41,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssueBuilder;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
+import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
@@ -46,6 +49,7 @@ import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
+import org.sonar.core.rule.RuleDto;
 import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.user.UserSession;
@@ -67,21 +71,24 @@ public class IssueService implements ServerComponent {
   private final ActionPlanService actionPlanService;
   private final RuleFinder ruleFinder;
   private final ResourceDao resourceDao;
+  private final IssueDao issueDao;
   private final AuthorizationDao authorizationDao;
   private final UserFinder userFinder;
   private final PreviewCache dryRunCache;
 
+
   public IssueService(DefaultIssueFinder finder,
-    IssueWorkflow workflow,
-    IssueStorage issueStorage,
-    IssueUpdater issueUpdater,
-    IssueNotifications issueNotifications,
-    ActionPlanService actionPlanService,
-    RuleFinder ruleFinder,
-    ResourceDao resourceDao,
-    AuthorizationDao authorizationDao,
-    UserFinder userFinder,
-    PreviewCache dryRunCache) {
+                      IssueWorkflow workflow,
+                      IssueStorage issueStorage,
+                      IssueUpdater issueUpdater,
+                      IssueNotifications issueNotifications,
+                      ActionPlanService actionPlanService,
+                      RuleFinder ruleFinder,
+                      ResourceDao resourceDao,
+                      IssueDao issueDao,
+                      AuthorizationDao authorizationDao,
+                      UserFinder userFinder,
+                      PreviewCache dryRunCache) {
     this.finder = finder;
     this.workflow = workflow;
     this.issueStorage = issueStorage;
@@ -90,6 +97,7 @@ public class IssueService implements ServerComponent {
     this.ruleFinder = ruleFinder;
     this.issueNotifications = issueNotifications;
     this.resourceDao = resourceDao;
+    this.issueDao = issueDao;
     this.authorizationDao = authorizationDao;
     this.userFinder = userFinder;
     this.dryRunCache = dryRunCache;
@@ -243,7 +251,7 @@ public class IssueService implements ServerComponent {
     return issue;
   }
 
-  private Rule findRule (RuleKey ruleKey) {
+  private Rule findRule(RuleKey ruleKey) {
     Rule rule = ruleFinder.findByKey(ruleKey);
     if (rule == null) {
       throw new IllegalArgumentException("Unknown rule: " + ruleKey);
@@ -269,6 +277,24 @@ public class IssueService implements ServerComponent {
       // must be logged
       throw new IllegalStateException("User is not logged in");
     }
+  }
+
+  // TODO result should be replaced by an aggregation object in IssueIndex
+  public RulesAggregation findRulesByComponent(String componentKey) {
+    RulesAggregation rulesAggregation = new RulesAggregation();
+    for (RuleDto ruleDto : issueDao.findRulesByComponent(componentKey)) {
+      rulesAggregation.add(ruleDto);
+    }
+    return rulesAggregation;
+  }
+
+  // TODO result should be replaced by an aggregation object in IssueIndex
+  public Multiset<String> findSeveritiesByComponent(String componentKey) {
+    Multiset<String> aggregation = HashMultiset.create();
+    for (String severity : issueDao.findSeveritiesByComponent(componentKey)) {
+      aggregation.add(severity);
+    }
+    return aggregation;
   }
 
 }

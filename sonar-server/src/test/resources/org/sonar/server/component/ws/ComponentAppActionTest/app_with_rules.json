@@ -5,9 +5,11 @@
   "q": "FIL",
   "subProjectName": "SonarQube :: Plugin API",
   "projectName": "SonarQube",
-  "fav": true,
+  "fav": false,
   "periods": [],
   "severities": [],
-  "rules": [],
+  "rules": [
+    ["squid:AvoidCycle", "Avoid Cycle", 1]
+  ],
   "measures": {}
 }

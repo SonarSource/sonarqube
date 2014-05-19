@@ -314,5 +314,27 @@
     </where>
   </sql>
 
+  <select id="findRulesByComponent" parameterType="String" resultType="Rule">
+    SELECT <include refid="org.sonar.core.rule.RuleMapper.selectColumns" />
+    FROM issues i
+    INNER JOIN projects p on p.id=i.component_id
+    INNER JOIN rules r on r.id=i.rule_id
+    <where>
+      AND p.kee=#{componentKey}
+      AND i.resolution IS NULL
+    </where>
+  </select>
+
+  <select id="findSeveritiesByComponent" parameterType="String" resultType="String">
+    SELECT i.severity
+    FROM issues i
+    INNER JOIN projects on projects.id=i.component_id
+    INNER JOIN rules on rules.id=i.rule_id
+    <where>
+      AND projects.kee=#{componentKey}
+      AND i.resolution IS NULL
+    </where>
+  </select>
+
 </mapper>
 

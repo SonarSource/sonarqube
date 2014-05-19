@@ -20,6 +20,7 @@
 
 package org.sonar.server.component.ws;
 
+import com.google.common.collect.Multiset;
 import com.google.common.io.Resources;
 import org.sonar.api.component.Component;
 import org.sonar.api.i18n.I18n;
@@ -29,6 +30,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
@@ -42,11 +44,14 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.SnapshotDto;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.issue.IssueService;
+import org.sonar.server.issue.RulesAggregation;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.util.Date;
 import java.util.List;
 
 public class ComponentAppAction implements RequestHandler {
@@ -56,14 +61,16 @@ public class ComponentAppAction implements RequestHandler {
   private final ResourceDao resourceDao;
   private final MeasureDao measureDao;
   private final PropertiesDao propertiesDao;
+  private final IssueService issueService;
   private final Periods periods;
   private final Durations durations;
   private final I18n i18n;
 
-  public ComponentAppAction(ResourceDao resourceDao, MeasureDao measureDao, PropertiesDao propertiesDao, Periods periods, Durations durations, I18n i18n) {
+  public ComponentAppAction(ResourceDao resourceDao, MeasureDao measureDao, PropertiesDao propertiesDao, IssueService issueService, Periods periods, Durations durations, I18n i18n) {
     this.resourceDao = resourceDao;
     this.measureDao = measureDao;
     this.propertiesDao = propertiesDao;
+    this.issueService = issueService;
     this.periods = periods;
     this.durations = durations;
     this.i18n = i18n;
@@ -121,6 +128,7 @@ public class ComponentAppAction implements RequestHandler {
 
       json.prop("fav", isFavourite);
       appendPeriods(json, projectId);
+      appendRulesAggregation(json, component.key());
       appendMeasures(json, fileKey);
     }
     json.endObject();
@@ -149,12 +157,41 @@ public class ComponentAppAction implements RequestHandler {
       for (int i = 1; i <= 5; i++) {
         String mode = snapshotDto.getPeriodMode(i);
         if (mode != null) {
-          String label = periods.label(mode, snapshotDto.getPeriodModeParameter(i), snapshotDto.getPeriodDate(i));
+          Date periodDate = snapshotDto.getPeriodDate(i);
+          String label = periods.label(mode, snapshotDto.getPeriodModeParameter(i), periodDate);
           if (label != null) {
-            json.beginObject().prop(Integer.toString(i), label).endObject();
+            json.beginArray()
+              .value(i)
+              .value(label)
+              .value(periodDate != null ? DateUtils.formatDateTime(periodDate) : null)
+              .endArray();
           }
         }
       }
+    }
+    json.endArray();
+  }
+
+  private void appendRulesAggregation(JsonWriter json, String componentKey) {
+    json.name("severities").beginArray();
+    Multiset<String> severities = issueService.findSeveritiesByComponent(componentKey);
+    for (String severity : severities.elementSet()) {
+      json.beginArray()
+        .value(severity)
+        .value(i18n.message(UserSession.get().locale(), "severity." + severity, null))
+        .value(severities.count(severity))
+        .endArray();
+    }
+    json.endArray();
+
+    json.name("rules").beginArray();
+    RulesAggregation rulesAggregation = issueService.findRulesByComponent(componentKey);
+    for (RulesAggregation.Rule rule : rulesAggregation.rules()) {
+      json.beginArray()
+        .value(rule.ruleKey().toString())
+        .value(rule.name())
+        .value(rulesAggregation.countRule(rule))
+        .endArray();
     }
     json.endArray();
   }

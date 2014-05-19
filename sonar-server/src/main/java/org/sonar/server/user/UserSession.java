@@ -61,6 +61,7 @@ public class UserSession {
   List<String> globalPermissions = null;
 
   HashMultimap<String, String> projectKeyByPermission = HashMultimap.create();
+  HashMultimap<String, String> componentKeyByPermission = HashMultimap.create();
   List<String> projectPermissions = newArrayList();
 
   UserSession() {

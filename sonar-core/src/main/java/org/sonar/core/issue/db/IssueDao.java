@@ -28,6 +28,7 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.rule.RuleDto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -137,5 +138,25 @@ public class IssueDao implements BatchComponent, ServerComponent {
       dtosList.addAll(dtos);
     }
     return dtosList;
+  }
+
+  // TODO replace by aggregation in IssueIndex
+  public List<RuleDto> findRulesByComponent(String componentKey) {
+    SqlSession session = mybatis.openSession(false);
+    try {
+      return session.getMapper(IssueMapper.class).findRulesByComponent(componentKey);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  // TODO replace by aggregation in IssueIndex
+  public List<String> findSeveritiesByComponent(String componentKey) {
+    SqlSession session = mybatis.openSession(false);
+    try {
+      return session.getMapper(IssueMapper.class).findSeveritiesByComponent(componentKey);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 }

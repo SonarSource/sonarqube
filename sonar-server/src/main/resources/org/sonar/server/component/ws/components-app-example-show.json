@@ -7,20 +7,40 @@
   "projectName": "SonarQube",
   "fav": true,
   "periods": [
-    {"1" : "since previous analysis (May 08 2014)"},
-    {"2" : "over 365 days (May 17 2013)"},
-    {"3" : "since previous version (4.3 - Apr 17 2014)"}
+    [
+      1,
+      "since previous analysis (2014 May 08)",
+      "2014-05-08T23:40:12+0200"
+    ],
+    [
+      2,
+      "over 365 days (2013 May 17)",
+      "2013-05-17T23:52:45+0200"
+    ],
+    [
+      3,
+      "since previous version (4.3 - 2014 Apr 17)",
+      "2014-04-17T23:34:08+0200"
+    ]
+  ],
+  "severities": [
+    [
+      "INFO",
+      "Info",
+      4
+    ]
+  ],
+  "rules": [
+    [
+      "squid:S1133",
+      "Deprecated code should be removed eventually",
+      4
+    ]
   ],
   "measures": {
-    "fNcloc": "200",
-    "fCoverage": "95.4%",
-    "fDuplicationDensity": "7.4%",
-    "fDebt": "3d 2h",
-    "fIssues": "14",
-    "fBlockerIssues": "1",
-    "fCriticalIssues": "2",
-    "fMajorIssues": "5",
-    "fMinorIssues": "4",
-    "fInfoIssues": "2"
+    "fNcloc": "12",
+    "fDebt": "4h",
+    "fIssues": "4",
+    "fInfoIssues": "4"
   }
 }

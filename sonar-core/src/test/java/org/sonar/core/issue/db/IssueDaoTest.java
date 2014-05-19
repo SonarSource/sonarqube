@@ -27,8 +27,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.rule.RuleDto;
 
 import java.util.List;
 
@@ -426,6 +428,22 @@ public class IssueDaoTest extends AbstractDaoTestCase {
     assertThat(issue.getRule()).isEqualTo("AvoidCycle");
     assertThat(issue.getComponentKey()).isEqualTo("Action.java");
     assertThat(issue.getRootComponentKey()).isEqualTo("struts");
+  }
+
+  @Test
+  public void find_rules_by_component() {
+    setupData("shared", "find_rules_by_component");
+
+    List<RuleDto> results = dao.findRulesByComponent("Action.java");
+    assertThat(results).hasSize(3);
+  }
+
+  @Test
+  public void find_severities_by_component() {
+    setupData("shared", "find_severities_by_component");
+
+    List<String> results = dao.findSeveritiesByComponent("Action.java");
+    assertThat(results).containsExactly(Severity.BLOCKER, Severity.MAJOR, Severity.BLOCKER);
   }
 
   private List<Long> getIssueIds(List<IssueDto> issues) {

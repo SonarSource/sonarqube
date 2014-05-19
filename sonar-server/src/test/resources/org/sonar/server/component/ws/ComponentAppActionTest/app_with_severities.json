@@ -5,9 +5,11 @@
   "q": "FIL",
   "subProjectName": "SonarQube :: Plugin API",
   "projectName": "SonarQube",
-  "fav": true,
+  "fav": false,
   "periods": [],
-  "severities": [],
+  "severities": [
+    ["MAJOR", "Major", 5]
+  ],
   "rules": [],
   "measures": {}
 }

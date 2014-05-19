@@ -21,6 +21,7 @@ package org.sonar.core.issue.db;
 
 import org.apache.ibatis.annotations.Param;
 import org.sonar.api.issue.IssueQuery;
+import org.sonar.core.rule.RuleDto;
 
 import javax.annotation.Nullable;
 
@@ -46,6 +47,10 @@ public interface IssueMapper {
   List<IssueDto> selectIssues(@Param("query") IssueQuery query, @Param("componentRootKeys") Collection<String> componentRootKeys,
                                 @Nullable @Param("userId") Integer userId, @Nullable @Param("role") String role);
 
+
+  List<RuleDto> findRulesByComponent(String componentKey);
+
+  List<String> findSeveritiesByComponent(String componentKey);
 
   void insert(IssueDto issue);
 

@@ -41,6 +41,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
+import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
@@ -93,6 +94,9 @@ public class IssueServiceTest {
   ResourceDao resourceDao;
 
   @Mock
+  IssueDao issueDao;
+
+  @Mock
   AuthorizationDao authorizationDao;
 
   @Mock
@@ -130,8 +134,8 @@ public class IssueServiceTest {
     when(resource.getKey()).thenReturn("org.sonar.Sample");
     when(project.getKey()).thenReturn("Sample");
 
-    issueService = new IssueService(finder, workflow, issueStorage, issueUpdater, issueNotifications, actionPlanService, ruleFinder, resourceDao, authorizationDao, userFinder,
-      mock(PreviewCache.class));
+    issueService = new IssueService(finder, workflow, issueStorage, issueUpdater, issueNotifications, actionPlanService, ruleFinder, resourceDao, issueDao,
+      authorizationDao, userFinder, mock(PreviewCache.class));
   }
 
   @Test
