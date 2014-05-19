@@ -246,9 +246,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       fields = RuleNormalizer.RuleField.ALL_KEYS;
     }
 
-    //TODO limit source for available fields.
-    //esSearch.addFields(fields.toArray(new String[fields.size()]));
-    //esSearch.setSource(StringUtils.join(fields, ','));
+    esSearch.setFetchSource(fields.toArray(new String[fields.size()]),null);
 
     return esSearch;
   }
@@ -333,8 +331,11 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     esSearch.setQuery(QueryBuilders.filteredQuery(qb, fb));
 
+    System.out.println("esSearch = " + esSearch);
+
     SearchResponse esResult = esSearch.get();
 
+    System.out.println("esResult = " + esResult);
     return new RuleResult(esResult);
   }
 

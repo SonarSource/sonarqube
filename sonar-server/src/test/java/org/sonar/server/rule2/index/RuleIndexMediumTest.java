@@ -25,7 +25,6 @@ import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -137,7 +136,6 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  @Ignore
   public void select_doc_fields_to_return() {
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001")), dbSession);
     dbSession.commit();
