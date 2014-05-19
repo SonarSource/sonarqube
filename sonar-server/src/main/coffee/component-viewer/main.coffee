@@ -59,7 +59,7 @@ define [
     initialize: (options) ->
       @settings = new Backbone.Model
         issues: false
-        coverage: true
+        coverage: false
         duplications: false
         scm: false
         workspace: false
@@ -270,6 +270,9 @@ define [
 
     # False Positive
     filterByFalsePositiveIssues: -> @filterByIssues (issue) -> issue.resolution == 'FALSE-POSITIVE'
+
+    # Rule
+    filterByRule: (rule) -> @filterByIssues (issue) -> issue.rule == rule
 
     # Severity
     filterByBlockerIssues: -> @filterByIssues (issue) -> issue.severity == 'BLOCKER' && !issue.resolution

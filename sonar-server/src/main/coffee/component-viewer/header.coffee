@@ -31,14 +31,15 @@ define [
 
       'click .js-filter-current-issue': 'filterByCurrentIssue'
       'click .js-filter-all-issues': 'filterByAllIssues'
+      'click .js-filter-rule': 'filterByRule'
       'click .js-filter-resolved-issues': 'filterByResolvedIssues'
       'click .js-filter-unresolved-issues': 'filterByUnresolvedIssues'
       'click .js-filter-false-positive-issues': 'filterByFalsePositiveIssues'
-      'click .js-filter-blocker-issues': 'filterByBlockerIssues'
-      'click .js-filter-critical-issues': 'filterByCriticalIssues'
-      'click .js-filter-major-issues': 'filterByMajorIssues'
-      'click .js-filter-minor-issues': 'filterByMinorIssues'
-      'click .js-filter-info-issues': 'filterByInfoIssues'
+      'click .js-filter-BLOCKER-issues': 'filterByBlockerIssues'
+      'click .js-filter-CRITICAL-issues': 'filterByCriticalIssues'
+      'click .js-filter-MAJOR-issues': 'filterByMajorIssues'
+      'click .js-filter-MINOR-issues': 'filterByMinorIssues'
+      'click .js-filter-INFO-issues': 'filterByInfoIssues'
 
       'click .js-filter-lines-to-cover': 'filterByLinesToCover'
       'click .js-filter-covered-lines': 'filterByCoveredLines'
@@ -109,10 +110,11 @@ define [
         openModalWindow url, {}
 
 
-    filterLines: (e, method) ->
+    filterLines: (e, methodName, extra) ->
       @$('.component-viewer-header-expanded-bar-section-list .active').removeClass 'active'
       $(e.currentTarget).addClass 'active'
-      _.result @options.main, method
+      method = @options.main[methodName]
+      method.call @options.main, extra
 
 
     # Issues
@@ -121,6 +123,8 @@ define [
     filterByResolvedIssues: (e) -> @filterLines e, 'filterByResolvedIssues'
     filterByUnresolvedIssues: (e) -> @filterLines e, 'filterByUnresolvedIssues'
     filterByFalsePositiveIssues: (e) -> @filterLines e, 'filterByFalsePositiveIssues'
+
+    filterByRule: (e) -> @filterLines e, 'filterByRule', $(e.currentTarget).data 'rule'
 
     filterByBlockerIssues: (e) -> @filterLines e, 'filterByBlockerIssues'
     filterByCriticalIssues: (e) -> @filterLines e, 'filterByCriticalIssues'
@@ -155,6 +159,11 @@ define [
           component.measures.fMinorIssues || 0
           component.measures.fInfoIssues || 0
         )
+
+      if component.severities
+        order = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO']
+        component.severities = _.sortBy component.severities, (s) -> order.indexOf s[0]
+
 
       settings: @options.main.settings.toJSON()
       showSettings: @showSettings

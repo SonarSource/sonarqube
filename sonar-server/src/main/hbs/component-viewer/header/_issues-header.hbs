@@ -4,41 +4,13 @@
       {{t 'component_viewer.measure_section.severities'}}
     </div>
     <ul class="component-viewer-header-expanded-bar-section-list">
-      {{#if component.msr.blocker_violations}}
-        <li><a class="item js-filter-blocker-issues">
-          <span><i class="icon-severity-blocker"></i> {{t 'severity.BLOCKER'}}</span>
-          <span class="number">{{component.msr.blocker_violations}}</span>
+      {{#each component.severities}}
+        <li><a class="item js-filter-{{this.[0]}}-issues">
+          <span>{{severityIcon this.[0]}} {{t 'severity' this.[0]}}</span>
+          <span class="number">{{this.[2]}}</span>
           <i class="icon-chevron-right"></i>
         </a></li>
-      {{/if}}
-      {{#if component.msr.critical_violations}}
-        <li><a class="item js-filter-critical-issues">
-          <span><i class="icon-severity-critical"></i> {{t 'severity.CRITICAL'}}</span>
-          <span class="number">{{component.msr.critical_violations}}</span>
-          <i class="icon-chevron-right"></i>
-        </a></li>
-      {{/if}}
-      {{#if component.msr.major_violations}}
-        <li><a class="item js-filter-major-issues">
-          <span><i class="icon-severity-major"></i> {{t 'severity.MAJOR'}}</span>
-          <span class="number">{{component.msr.major_violations}}</span>
-          <i class="icon-chevron-right"></i>
-        </a></li>
-      {{/if}}
-      {{#if component.msr.minor_violations}}
-        <li><a class="item js-filter-minor-issues">
-          <span><i class="icon-severity-minor"></i> {{t 'severity.MINOR'}}</span>
-          <span class="number">{{component.msr.minor_violations}}</span>
-          <i class="icon-chevron-right"></i>
-        </a></li>
-      {{/if}}
-      {{#if component.msr.info_violations}}
-        <li><a class="item js-filter-info-issues">
-          <span><i class="icon-severity-info"></i> {{t 'severity.INFO'}}</span>
-          <span class="number">{{component.msr.info_violations}}</span>
-          <i class="icon-chevron-right"></i>
-        </a></li>
-      {{/if}}
+      {{/each}}
     </ul>
   </div>
 {{/if}}
@@ -49,6 +21,13 @@
       {{t 'component_viewer.measure_section.rules'}}
     </div>
     <ul class="component-viewer-header-expanded-bar-section-list">
+      {{#each component.rules}}
+        <li><a class="item js-filter-rule" data-rule="{{this.[0]}}">
+          <span>{{this.[1]}}</span>
+          <span class="number">{{this.[2]}}</span>
+          <i class="icon-chevron-right"></i>
+        </a></li>
+      {{/each}}
     </ul>
   </div>
 {{/if}}
