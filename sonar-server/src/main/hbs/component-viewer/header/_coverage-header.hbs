@@ -1,6 +1,8 @@
 {{#with component.msr}}
   <div class="component-viewer-header-expanded-bar-section">
-    <div class="component-viewer-header-expanded-bar-section-title">Unit Tests</div>
+    <div class="component-viewer-header-expanded-bar-section-title">
+      {{t 'component_viewer.measure_section.unit_tests'}}
+    </div>
     <ul class="component-viewer-header-expanded-bar-section-list">
       {{{componentViewerHeaderItem coverage 'coverage'}}}
       {{{componentViewerHeaderItem line_coverage 'line_coverage'}}}
@@ -26,7 +28,9 @@
 
   {{#any it_coverage it_line_coverage it_lines_to_cover it_covered_lines it_uncovered_lines}}
     <div class="component-viewer-header-expanded-bar-section">
-      <div class="component-viewer-header-expanded-bar-section-title">Integration Tests</div>
+      <div class="component-viewer-header-expanded-bar-section-title">
+        {{t 'component_viewer.measure_section.integration_tests'}}
+      </div>
       <ul class="component-viewer-header-expanded-bar-section-list">
         {{{componentViewerHeaderItem it_coverage 'coverage'}}}
         {{{componentViewerHeaderItem it_line_coverage 'line_coverage'}}}

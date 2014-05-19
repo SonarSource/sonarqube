@@ -1,113 +1,46 @@
-<div class="component-viewer-header-expanded-bar-section">
-  <div class="component-viewer-header-expanded-bar-section-title">Size</div>
-  <ul class="component-viewer-header-expanded-bar-section-list">
-    <li><span class="item">
-      <span>Accessors</span>
-      <span class="number">X</span>
-    </span></li>
-    <li><span class="item">
-      <span>Classes</span>
-      <span class="number">X</span>
-    </span></li>
-    <li><span class="item">
-      <span>Functions</span>
-      <span class="number">X</span>
-    </span></li>
-    <li><span class="item">
-      <span>Public API</span>
-      <span class="number">X</span>
-    </span></li>
-    <li><span class="item">
-      <span>Statements</span>
-      <span class="number">X</span>
-    </span></li>
-  </ul>
-</div>
+{{#with component.msr}}
+  <div class="component-viewer-header-expanded-bar-section">
+    <div class="component-viewer-header-expanded-bar-section-title">
+      {{t 'component_viewer.measure_section.size'}}
+    </div>
+    <ul class="component-viewer-header-expanded-bar-section-list">
+      {{{componentViewerHeaderItem lines 'lines'}}}
+      {{{componentViewerHeaderItem ncloc 'ncloc'}}}
+    </ul>
+  </div>
 
-<div class="component-viewer-header-expanded-bar-section">
-  <div class="component-viewer-header-expanded-bar-section-title">Lines</div>
-  <ul class="component-viewer-header-expanded-bar-section-list">
-    <li><span class="item">
-      <span>Generated lines</span>
-      <span class="number">X</span>
-    </span></li>
-    <li><span class="item">
-      <span>Generated lines of code</span>
-      <span class="number">X</span>
-    </span></li>
-    <li><span class="item">
-      <span>Lines</span>
-      <span class="number">X</span>
-    </span></li>
-    <li><span class="item">
-      <span>Lines of code</span>
-      <span class="number">X</span>
-    </span></li>
-  </ul>
-</div>
+  <div class="component-viewer-header-expanded-bar-section">
+    <div class="component-viewer-header-expanded-bar-section-title">
+      {{t 'component_viewer.measure_section.complexity'}}
+    </div>
+    <ul class="component-viewer-header-expanded-bar-section-list">
+      {{{componentViewerHeaderItem complexity 'complexity'}}}
+      {{{componentViewerHeaderItem function_complexity 'function_complexity'}}}
+    </ul>
+  </div>
 
-<div class="component-viewer-header-expanded-bar-section">
-  <div class="component-viewer-header-expanded-bar-section-title">Complexity</div>
-  <ul class="component-viewer-header-expanded-bar-section-list">
-    <li><span class="item">
-      <span>Complexity</span>
-      <span class="number">X</span>
-    </span></li>
-    <li><span class="item">
-      <span>Complexity /class</span>
-      <span class="number">X</span>
-    </span></li>
-    <li><span class="item">
-      <span>Complexity /file</span>
-      <span class="number">X</span>
-    </span></li>
-    <li><span class="item">
-      <span>Complexity /function</span>
-      <span class="number">X</span>
-    </span></li>
-  </ul>
-</div>
+  <div class="component-viewer-header-expanded-bar-section">
+    <div class="component-viewer-header-expanded-bar-section-title">
+      {{t 'component_viewer.measure_section.structure'}}
+    </div>
+    <ul class="component-viewer-header-expanded-bar-section-list">
+      {{{componentViewerHeaderItem classes 'classes'}}}
+      {{{componentViewerHeaderItem functions 'functions'}}}
+      {{{componentViewerHeaderItem accessors 'accessors'}}}
+      {{{componentViewerHeaderItem statements 'statements'}}}
+    </ul>
+  </div>
 
-<div class="component-viewer-header-expanded-bar-section">
-  <div class="component-viewer-header-expanded-bar-section-title">Design</div>
-  <ul class="component-viewer-header-expanded-bar-section-list">
-    <li><span class="item">
-      <span>File dependencies to cut</span>
-      <span class="number">X</span>
-    </span></li>
-    <li><span class="item">
-      <span>Package cycles</span>
-      <span class="number">X</span>
-    </span></li>
-    <li><span class="item">
-      <span>Package dependencies to cut</span>
-      <span class="number">X</span>
-    </span></li>
-    <li><span class="item">
-      <span>Package tangle index</span>
-      <span class="number">X</span>
-    </span></li>
-  </ul>
-</div>
-
-<div class="component-viewer-header-expanded-bar-section">
-  <div class="component-viewer-header-expanded-bar-section-title">Documentation</div>
-  <ul class="component-viewer-header-expanded-bar-section-list">
-    <li><span class="item">
-      <span>Comment lines</span>
-      <span class="number">X</span>
-    </span></li>
-    <li><span class="item">
-      <span>Comments (%)</span>
-      <span class="number">X</span>
-    </span></li>
-    <li><span class="item">
-      <span>Public documented API (%)</span>
-      <span class="number">X</span>
-    </span></li>
-    <li><span class="item">
-      <span>Public undocumented API</span>
-      <span class="number">X</span>
-    </span></li>
-  </ul>
-</div>
+  <div class="component-viewer-header-expanded-bar-section">
+    <div class="component-viewer-header-expanded-bar-section-title">
+      {{t 'component_viewer.measure_section.documentation'}}
+    </div>
+    <ul class="component-viewer-header-expanded-bar-section-list">
+      {{{componentViewerHeaderItem comment_lines 'comment_lines'}}}
+      {{{componentViewerHeaderItem comment_lines_density 'comment_lines_density'}}}
+      {{{componentViewerHeaderItem public_api 'public_api'}}}
+      {{{componentViewerHeaderItem public_undocumented_api 'public_undocumented_api'}}}
+      {{{componentViewerHeaderItem public_documented_api_density 'public_documented_api_density'}}}
+    </ul>
+  </div>
+{{/with}}

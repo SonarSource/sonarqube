@@ -33,7 +33,7 @@
       <a data-scope="issues" class="component-viewer-header-measures-expand">
           <div class="component-viewer-header-measure">
             <span class="component-viewer-header-measure-value">{{default component.measures.fDebt 0}}</span>
-            <span class="component-viewer-header-measure-label">Debt</span>
+            <span class="component-viewer-header-measure-label">{{t 'component_viewer.header.debt'}}</span>
           </div>
         {{#if component.measures.fIssues}}
           <div class="component-viewer-header-measure">
@@ -45,21 +45,21 @@
           <div class="component-viewer-header-measure">
             <div class="component-viewer-header-measure-issues">
               <div class="component-viewer-header-measure-issue s-blocker"
-                   style="width: {{percent component.measures.fBlockerIssues component.measures.maxIssues}}%;"></div>
+                   style="width: {{percent component.measures.fBlockerIssues component.measures.maxIssues}};"></div>
               <div class="component-viewer-header-measure-issue s-critical"
-                   style="width: {{percent component.measures.fCriticalIssues component.measures.maxIssues}}%;"></div>
+                   style="width: {{percent component.measures.fCriticalIssues component.measures.maxIssues}};"></div>
               <div class="component-viewer-header-measure-issue s-major"
-                   style="width: {{percent component.measures.fMajorIssues component.measures.maxIssues}}%;"></div>
+                   style="width: {{percent component.measures.fMajorIssues component.measures.maxIssues}};"></div>
               <div class="component-viewer-header-measure-issue s-minor"
-                   style="width: {{percent component.measures.fMinorIssues component.measures.maxIssues}}%;"></div>
+                   style="width: {{percent component.measures.fMinorIssues component.measures.maxIssues}};"></div>
               <div class="component-viewer-header-measure-issue s-info"
-                   style="width: {{percent component.measures.fInfoIssues component.measures.maxIssues}}%;"></div>
+                   style="width: {{percent component.measures.fInfoIssues component.measures.maxIssues}};"></div>
             </div>
           </div>
         {{/if}}
         <i class="icon-dropdown"></i>
       </a>
-      <a data-scope="issues" title="Toggle issues"
+      <a data-scope="issues" title="{{t 'component_viewer.header.toggle_issues'}}"
          class="js-toggle-issues component-viewer-header-measures-toggle-scope {{#if settings.issues}}active{{/if}}"></a>
     </div>
 
@@ -72,7 +72,7 @@
             </div>
           <i class="icon-dropdown"></i>
         </a>
-        <a data-scope="coverage" title="Toggle coverage"
+        <a data-scope="coverage" title="{{t 'component_viewer.header.toggle_coverage'}}"
            class="js-toggle-coverage component-viewer-header-measures-toggle-scope {{#if settings.coverage}}active{{/if}}"></a>
       </div>
     {{/if}}
@@ -82,11 +82,11 @@
         <a data-scope="duplications" class="component-viewer-header-measures-expand">
             <div class="component-viewer-header-measure">
               <span class="component-viewer-header-measure-value">{{component.measures.fDuplicationDensity}}</span>
-              <span class="component-viewer-header-measure-label">Duplications</span>
+              <span class="component-viewer-header-measure-label">{{t 'metric.duplicated_lines_density.name'}}</span>
             </div>
           <i class="icon-dropdown"></i>
         </a>
-        <a data-scope="duplications" title="Toggle duplications"
+        <a data-scope="duplications" title="{{t 'component_viewer.header.toggle_duplications'}}"
            class="js-toggle-duplications component-viewer-header-measures-toggle-scope {{#if settings.duplications}}active{{/if}}"></a>
       </div>
     {{/if}}

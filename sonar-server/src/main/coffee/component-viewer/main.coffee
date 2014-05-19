@@ -28,9 +28,10 @@ define [
   LINES_AROUND_ISSUE = 4
   LINES_AROUND_COVERED_LINE = 1
 
-  SOURCE_METRIC_LIST = 'lines,ncloc,functions,accessors,classes,statements,complexity,function_complexity,' +
-    'comment_lines_density,comment_lines,public_documented_api_density,public_undocumented_api,' +
-    'public_api'
+  SOURCE_METRIC_LIST = 'accessors,classes,functions,public_api,statements,' +
+    'generated_lines,generated_ncloc,lines,ncloc,' +
+    'complexity,class_complexity,function_complexity' +
+    ''
 
   COVERAGE_METRIC_LIST = 'coverage,line_coverage,lines_to_cover,covered_lines,uncovered_lines,' +
     'branch_coverage,conditions_to_cover,uncovered_conditions,' +

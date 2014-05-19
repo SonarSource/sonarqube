@@ -1,6 +1,8 @@
 {{#if component.measures.fIssues}}
   <div class="component-viewer-header-expanded-bar-section">
-    <div class="component-viewer-header-expanded-bar-section-title">Severities</div>
+    <div class="component-viewer-header-expanded-bar-section-title">
+      {{t 'component_viewer.measure_section.severities'}}
+    </div>
     <ul class="component-viewer-header-expanded-bar-section-list">
       {{#if component.msr.blocker_violations}}
         <li><a class="item js-filter-blocker-issues">
@@ -43,29 +45,33 @@
 
 {{#if component.measures.fIssues}}
   <div class="component-viewer-header-expanded-bar-section">
-    <div class="component-viewer-header-expanded-bar-section-title">Rules</div>
+    <div class="component-viewer-header-expanded-bar-section-title">
+      {{t 'component_viewer.measure_section.rules'}}
+    </div>
     <ul class="component-viewer-header-expanded-bar-section-list">
     </ul>
   </div>
 {{/if}}
 
 <div class="component-viewer-header-expanded-bar-section">
-  <div class="component-viewer-header-expanded-bar-section-title">Issues</div>
+  <div class="component-viewer-header-expanded-bar-section-title">
+    {{t 'component_viewer.measure_section.issues'}}
+  </div>
   <ul class="component-viewer-header-expanded-bar-section-list">
     <li><a class="item js-filter-current-issue">
-      <span>Current Issue</span>
+      <span>{{t 'component_viewer.issues.current_issue'}}</span>
       <i class="icon-chevron-right"></i>
     </a></li>
     {{#if component.measures.fIssues}}
       <li><a class="item js-filter-unresolved-issues">
-        <span>Unresolved Issues</span>
+        <span>{{t 'component_viewer.issues.unresolved_issues'}}</span>
         <span class="number">{{component.measures.fIssues}}</span>
         <i class="icon-chevron-right"></i>
       </a></li>
     {{/if}}
     {{#if component.msr.false_positive_issues}}
       <li><a class="item js-filter-false-positive-issues">
-        <span>False Positive</span>
+        <span>{{t 'component_viewer.issues.false_positive_issues'}}</span>
         <span class="number">{{component.msr.false_positive_issues}}</span>
         <i class="icon-chevron-right"></i>
       </a></li>
@@ -74,5 +80,5 @@
 </div>
 
 <a class="component-viewer-header-expanded-bar-bulk-change js-issues-bulk-change">
-  <i class="icon-bulk-change"></i> Bulk Change
+  <i class="icon-bulk-change"></i> {{t 'bulk_change'}}
 </a>
