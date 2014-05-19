@@ -144,12 +144,23 @@ define([
             });
             that.updateLists();
             that.$el.removeClass('fetching');
+            that.$('.navigator-filter-search').removeClass('fetching-error');
+          },
+          error: function() {
+            console.log(arguments);
+            that.showSearchError();
           }
         });
       } else {
         this.resetChoices();
         this.updateLists();
       }
+    },
+
+
+    showSearchError: function() {
+      this.$el.removeClass('fetching');
+      this.$('.navigator-filter-search').addClass('fetching-error');
     },
 
 
