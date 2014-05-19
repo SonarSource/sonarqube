@@ -1,3 +1,12 @@
+<button class="button-clean component-viewer-workspace-toggle js-toggle-workspace">
+  {{#if settings.workspace}}
+    <i class="icon-double-chevron-left"></i>
+  {{else}}
+    <i class="icon-double-chevron-right"></i>
+  {{/if}}
+
+</button>
+
 <ul class="component-viewer-workspace-list">
   {{#eachReverse workspace}}
     <li class="component-viewer-workspace-item">

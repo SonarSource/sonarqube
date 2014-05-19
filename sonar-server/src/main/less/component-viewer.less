@@ -1,7 +1,7 @@
 @import "variables";
 @import "mixins";
 
-@workspaceWidth: 260px;
+@workspaceWidth: 220px;
 
 
 .component-viewer {
@@ -12,10 +12,7 @@
 }
 
 .component-viewer-workspace-enabled {
-  border-left-width: 1px;
-
-  .component-viewer-workspace { display: block; }
-  .component-viewer-source { border-left: @workspaceWidth solid @barBackgroundColor; }
+  .component-viewer-workspace .component-viewer-workspace-list { display: block; }
 }
 
 
@@ -31,20 +28,28 @@
 
 
 .component-viewer-workspace {
-  display: none;
-  float: left;
-  width: @workspaceWidth;
-  .box-sizing(border-box);
+  position: relative;
+  display: table-cell;
+  vertical-align: top;
+  padding-right: 30px;
+  border: 1px solid @barBorderColor;
+  background-color: @barBackgroundColor;
 
   a:hover { text-decoration: underline; }
 }
 
 .component-viewer-workspace-list {
-  margin: 8px 0;
+  display: none;
+  width: @workspaceWidth;
+  padding: 8px 0;
+  .box-sizing(border-box);
 }
 
 .component-viewer-workspace-item {
   padding: 0 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
   &:first-child > a { font-weight: bold; }
 }
@@ -70,8 +75,21 @@
   &.active > a { font-weight: bold; }
 }
 
+.component-viewer-workspace-toggle {
+  position: absolute;
+  top: 0; right: 0;
+  .size(30px, 30px);
+  .trans;
+
+  &:hover { background-color: @barBorderColor; }
+}
+
 
 .component-viewer-source {
+  display: table-cell;
+  vertical-align: top;
+  width: 100%;
+  padding-left: 10px;
 
   .code {
     width: 100%;

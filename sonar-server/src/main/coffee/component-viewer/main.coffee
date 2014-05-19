@@ -59,7 +59,7 @@ define [
     initialize: (options) ->
       @settings = new Backbone.Model
         issues: false
-        coverage: false
+        coverage: true
         duplications: false
         scm: false
         workspace: false
@@ -86,11 +86,8 @@ define [
 
 
     onRender: ->
-      if @settings.get 'workspace'
-        @workspaceRegion.show @workspaceView
-        @$el.addClass 'component-viewer-workspace-enabled'
-      else
-        @$el.removeClass 'component-viewer-workspace-enabled'
+      @workspaceRegion.show @workspaceView
+      @$el.toggleClass 'component-viewer-workspace-enabled', @settings.get 'workspace'
       @sourceRegion.show @sourceView
       @headerRegion.show @headerView
 
@@ -124,6 +121,7 @@ define [
 
     requestSource: (key) ->
       $.get API_SOURCES, key: key, (data) =>
+        @source.clear()
         @source.set source: data.sources
 
 
@@ -174,6 +172,10 @@ define [
     hideCoverage: ->
       @settings.set 'coverage', false
       @sourceView.render()
+
+
+    toggleWorkspace: ->
+      if @settings.get 'workspace' then @hideWorkspace() else @showWorkspace()
 
 
     showWorkspace: ->

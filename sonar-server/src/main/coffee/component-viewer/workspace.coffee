@@ -14,12 +14,18 @@ define [
 
 
     events:
+      'click .js-toggle-workspace': 'toggleWorkspace'
+
       'click .component-viewer-workspace-item > a[data-key]': 'goToWorkspaceItem'
       'click .component-viewer-workspace-option > a[data-key]': 'goToWorkspaceOption'
 
 
     onRender: ->
       @delegateEvents()
+
+
+    toggleWorkspace: ->
+      @options.main.toggleWorkspace()
 
 
     goToWorkspaceItem: (e) ->
