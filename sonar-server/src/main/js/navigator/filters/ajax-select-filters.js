@@ -98,6 +98,7 @@ define([
   var AjaxSelectDetailsFilterView = ChoiceFilters.DetailsChoiceFilterView.extend({
     template: getTemplate('#ajax-select-filter-template'),
     listTemplate: getTemplate('#choice-filter-template'),
+    searchKey: 's',
 
 
     render: function() {
@@ -129,12 +130,11 @@ define([
       this.query = this.$('.navigator-filter-search input').val();
       if (this.query.length > 1) {
         this.$el.addClass('fetching');
-        var selected = that.options.filterView.getSelected();
+        var selected = that.options.filterView.getSelected(),
+            data = { ps: PAGE_SIZE };
+        data[this.searchKey] = this.query;
         this.options.filterView.choices.fetch({
-          data: {
-            s: this.query,
-            ps: PAGE_SIZE
-          },
+          data: data,
           success: function() {
             selected.forEach(function(item) {
               that.options.filterView.choices.unshift(item);
@@ -197,9 +197,9 @@ define([
 
   var AjaxSelectFilterView = ChoiceFilters.ChoiceFilterView.extend({
 
-    initialize: function() {
+    initialize: function(options) {
       ChoiceFilters.ChoiceFilterView.prototype.initialize.call(this, {
-        detailsView: AjaxSelectDetailsFilterView
+        detailsView: (options && options.detailsView) ? options.detailsView : AjaxSelectDetailsFilterView
       });
     },
 

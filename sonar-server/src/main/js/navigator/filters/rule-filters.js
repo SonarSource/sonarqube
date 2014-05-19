@@ -7,24 +7,31 @@ define([
   var RuleSuggestions = AjaxSelectFilters.Suggestions.extend({
 
     url: function() {
-      return baseUrl + '/api/rules/list';
+      return baseUrl + '/api/rules/search';
     },
 
 
     parse: function(r) {
-      this.more = r.more;
-      return r.results.map(function(r) {
-         return { id: r.key, text: r.name, category: r.language };
+      this.more = r.p * r.ps < r.total;
+      return r.rules.map(function(r) {
+         return { id: r.key, text: r.name, category: r.lang };
       });
     }
 
   });
 
+
+
+  var RuleDetailsFilterView = AjaxSelectFilters.AjaxSelectDetailsFilterView.extend({
+    searchKey: 'q'
+  });
+
+
   return AjaxSelectFilters.AjaxSelectFilterView.extend({
 
     initialize: function() {
       AjaxSelectFilters.AjaxSelectFilterView.prototype.initialize.call(this, {
-        detailsView: AjaxSelectFilters.AjaxSelectDetailsFilterView
+        detailsView: RuleDetailsFilterView
       });
 
       this.choices = new RuleSuggestions();
