@@ -60,7 +60,6 @@ public class QueryOptions {
 
   /**
    * Sets whether or not the search returns facets for the domain.
-   * @param facet
    */
   public QueryOptions setFacet(boolean facet) {
     this.facet = facet;

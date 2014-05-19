@@ -337,7 +337,8 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   }
 
 
-  public Rule toDoc(GetResponse response) {
+  @Override
+  protected Rule toDoc(GetResponse response) {
     Preconditions.checkArgument(response != null, "Cannot construct Rule with null response!!!");
     return new RuleDoc(response.getSource());
   }

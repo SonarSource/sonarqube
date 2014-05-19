@@ -146,7 +146,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
 
   /* Base CRUD methods */
 
-  public abstract D toDoc(GetResponse response);
+  protected abstract D toDoc(GetResponse response);
 
   public D getByKey(K key) {
     GetResponse response = getClient().prepareGet()
