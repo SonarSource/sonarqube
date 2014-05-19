@@ -34,7 +34,7 @@ class UpdateConditionsOnDebtToMinutes < ActiveRecord::Migration
 
   def self.up
     hours_in_day_prop = Property.find_by_prop_key('sonar.technicalDebt.hoursInDay')
-    hours_in_day = hours_in_day_prop ? hours_in_day_prop : 8
+    hours_in_day = hours_in_day_prop && hours_in_day_prop.text_value ? hours_in_day_prop.text_value.to_i : 8
 
     metrics = Metric.find(:all, :conditions => ['name in (?)', ['sqale_index', 'new_technical_debt',
                                                                 'sqale_effort_to_grade_a', 'sqale_effort_to_grade_b', 'sqale_effort_to_grade_c', 'sqale_effort_to_grade_d',
