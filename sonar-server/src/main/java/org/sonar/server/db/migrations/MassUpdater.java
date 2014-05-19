@@ -28,7 +28,13 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.dialect.MySql;
 
-import java.sql.*;
+import javax.annotation.Nullable;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * Update a table by iterating a sub-set of rows. For each row a SQL UPDATE request
@@ -37,11 +43,17 @@ import java.sql.*;
 public class MassUpdater {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MassUpdater.class);
-  private static final int GROUP_SIZE = 1000;
+  private static final int DEFAULT_GROUP_SIZE = 1000;
   private final Database db;
+  private final int groupSize;
 
   public MassUpdater(Database db) {
+    this(db, DEFAULT_GROUP_SIZE);
+  }
+
+  public MassUpdater(Database db, int groupSize) {
     this.db = db;
+    this.groupSize = groupSize;
   }
 
   public static interface InputLoader<S> {
@@ -59,13 +71,26 @@ public class MassUpdater {
     boolean convert(S input, PreparedStatement updateStatement) throws SQLException;
   }
 
+  public static interface PeriodicUpdater {
+
+    /**
+     * Return false if you do not want to update this statement
+     */
+    boolean update(Connection writeConnection) throws SQLException;
+  }
+
   public <S> void execute(InputLoader<S> inputLoader, InputConverter<S> converter) {
+    execute(inputLoader, converter, null);
+  }
+
+  public <S> void execute(InputLoader<S> inputLoader, InputConverter<S> converter, @Nullable PeriodicUpdater periodicUpdater) {
     long count = 0;
     Connection readConnection = null;
     Statement stmt = null;
     ResultSet rs = null;
     Connection writeConnection = null;
     PreparedStatement writeStatement = null;
+    PreparedStatement updateStatement = null;
     try {
       writeConnection = db.getDataSource().getConnection();
       writeConnection.setAutoCommit(false);
@@ -75,11 +100,10 @@ public class MassUpdater {
       readConnection.setAutoCommit(false);
 
       stmt = readConnection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-      stmt.setFetchSize(GROUP_SIZE);
       if (db.getDialect().getId().equals(MySql.ID)) {
         stmt.setFetchSize(Integer.MIN_VALUE);
       } else {
-        stmt.setFetchSize(GROUP_SIZE);
+        stmt.setFetchSize(groupSize);
       }
       rs = stmt.executeQuery(convertSelectSql(inputLoader.selectSql(), db));
 
@@ -87,18 +111,25 @@ public class MassUpdater {
       while (rs.next()) {
         if (converter.convert(inputLoader.load(rs), writeStatement)) {
           writeStatement.addBatch();
+          writeStatement.clearParameters();
           cursor++;
           count++;
         }
 
-        if (cursor == GROUP_SIZE) {
+        if (cursor == groupSize) {
           writeStatement.executeBatch();
+          if (periodicUpdater != null) {
+            periodicUpdater.update(writeConnection);
+          }
           writeConnection.commit();
           cursor = 0;
         }
       }
       if (cursor > 0) {
         writeStatement.executeBatch();
+        if (periodicUpdater != null) {
+          periodicUpdater.update(writeConnection);
+        }
         writeConnection.commit();
       }
 
@@ -123,7 +154,7 @@ public class MassUpdater {
   }
 
   @VisibleForTesting
-  static String convertSelectSql(String selectSql, Database db){
+  static String convertSelectSql(String selectSql, Database db) {
     String newSelectSql = selectSql;
     newSelectSql = newSelectSql.replace("${_true}", db.getDialect().getTrueSqlValue());
     newSelectSql = newSelectSql.replace("${_false}", db.getDialect().getFalseSqlValue());

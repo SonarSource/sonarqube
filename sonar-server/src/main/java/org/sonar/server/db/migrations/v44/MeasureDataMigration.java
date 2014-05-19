@@ -20,14 +20,18 @@
 
 package org.sonar.server.db.migrations.v44;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.DatabaseMigration;
 import org.sonar.server.db.migrations.MassUpdater;
 import org.sonar.server.db.migrations.SqlUtil;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * SONAR-5249
@@ -46,41 +50,62 @@ public class MeasureDataMigration implements DatabaseMigration {
 
   @Override
   public void execute() {
-    new MassUpdater(db).execute(
+    final List<Long> ids = new ArrayList<Long>();
+    new MassUpdater(db, 50).execute(
       new MassUpdater.InputLoader<Row>() {
         @Override
         public String selectSql() {
-          return "SELECT md.measure_id, md.data FROM measure_data md";
+          return "SELECT md.measure_id FROM measure_data md";
         }
 
         @Override
         public Row load(ResultSet rs) throws SQLException {
           Row row = new Row();
           row.measure_id = SqlUtil.getLong(rs, 1);
-          // Don't use getBlob as it fails on Postgres and mssql
-          row.data = rs.getBytes(2);
           return row;
         }
       },
       new MassUpdater.InputConverter<Row>() {
+
         @Override
         public String updateSql() {
-          return "UPDATE project_measures SET measure_data=? WHERE id=?";
+          return "UPDATE project_measures m SET m.measure_data = (SELECT md.data FROM measure_data md WHERE md.measure_id = ?) WHERE m.id=?";
         }
 
         @Override
         public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
-          updateStatement.setBytes(1, row.data);
+          ids.add(row.measure_id);
+          updateStatement.setLong(1, row.measure_id);
           updateStatement.setLong(2, row.measure_id);
           return true;
         }
+      },
+      new MassUpdater.PeriodicUpdater() {
+
+        @Override
+        public boolean update(Connection connection) throws SQLException {
+          if (ids.size() > 0) {
+            String deleteSql = new StringBuilder().append("DELETE measure_data where measure_id in (")
+              .append(StringUtils.repeat("?", ",", ids.size())).append(")").toString();
+            PreparedStatement s = connection.prepareStatement(deleteSql);
+            int i = 1;
+            for (Long id : ids) {
+              s.setLong(i++, id);
+            }
+            s.executeUpdate();
+            s.close();
+            ids.clear();
+            return true;
+          }
+          return false;
+        }
+
       }
       );
   }
 
   private static class Row {
     private Long measure_id;
-    private byte[] data;
   }
 
 }
