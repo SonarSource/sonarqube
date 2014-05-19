@@ -170,13 +170,17 @@ public class WsTester {
      * @param expectedJsonFilename name of the file containing the expected JSON
      */
     public Result assertJson(Class clazz, String expectedJsonFilename) throws Exception {
+      return assertJson(clazz, expectedJsonFilename, true);
+    }
+
+    public Result assertJson(Class clazz, String expectedJsonFilename, boolean strict) throws Exception {
       String path = clazz.getSimpleName() + "/" + expectedJsonFilename;
       URL url = clazz.getResource(path);
       if (url == null) {
         throw new IllegalStateException("Cannot find " + path);
       }
       String json = outputAsString();
-      JSONAssert.assertEquals(IOUtils.toString(url), json, true);
+      JSONAssert.assertEquals(IOUtils.toString(url), json, strict);
       return this;
     }
   }

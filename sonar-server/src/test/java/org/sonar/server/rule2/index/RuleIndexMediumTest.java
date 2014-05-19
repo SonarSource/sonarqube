@@ -43,6 +43,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class RuleIndexMediumTest {
 
@@ -149,7 +150,13 @@ public class RuleIndexMediumTest {
     Rule hit = Iterables.getFirst(results.getHits(), null);
     assertThat(hit.language()).isEqualTo("js");
     assertThat(hit.status()).isEqualTo(RuleStatus.READY);
-    assertThat(hit.htmlDescription()).isNull();
+
+    try {
+      hit.htmlDescription();
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("Field htmlDesc not specified in query options");
+    }
   }
 
   @Test

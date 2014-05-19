@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
@@ -338,9 +339,9 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
 
   @Override
-  protected Rule toDoc(GetResponse response) {
-    Preconditions.checkArgument(response != null, "Cannot construct Rule with null response!!!");
-    return new RuleDoc(response.getSource());
+  protected Rule toDoc(Map<String,Object> fields, QueryOptions options) {
+    Preconditions.checkArgument(fields != null, "Cannot construct Rule with null response!!!");
+    return new RuleDoc(fields);
   }
 
   public Set<String> terms(String... fields) {

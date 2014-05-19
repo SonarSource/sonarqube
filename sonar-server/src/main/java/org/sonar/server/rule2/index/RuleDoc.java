@@ -27,6 +27,7 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.server.rule2.Rule;
 import org.sonar.server.rule2.RuleParam;
 import org.sonar.server.rule2.index.RuleNormalizer.RuleField;
+import org.sonar.server.search.BaseDoc;
 import org.sonar.server.search.IndexUtils;
 
 import javax.annotation.CheckForNull;
@@ -38,17 +39,15 @@ import java.util.Map;
 /**
  * Implementation of Rule based on an Elasticsearch document
  */
-class RuleDoc implements Rule {
-
-  private final Map<String, Object> fields;
+class RuleDoc extends BaseDoc implements Rule {
 
   public RuleDoc(Map<String, Object> fields) {
-    this.fields = fields;
+    super(fields);
   }
 
   @Override
   public RuleKey key() {
-    String key = (String) fields.get(RuleField.KEY.key());
+    String key = get(RuleField.KEY.key());
     if (key == null || key.isEmpty()) {
       throw new IllegalStateException("Missing values for RuleKey in RuleDoc");
     } else {
@@ -59,68 +58,68 @@ class RuleDoc implements Rule {
   @Override
   @CheckForNull
   public String internalKey() {
-    return (String) fields.get(RuleField.INTERNAL_KEY.key());
+    return get(RuleField.INTERNAL_KEY.key());
   }
 
   @Override
   public String markdownNote() {
-    return (String) fields.get(RuleField.NOTE.key());
+    return get(RuleField.NOTE.key());
   }
 
   @Override
   @CheckForNull
   public String language() {
-    return (String) fields.get(RuleField.LANGUAGE.key());
+    return get(RuleField.LANGUAGE.key());
   }
 
   @Override
   @CheckForNull
   public String name() {
-    return (String) fields.get(RuleField.NAME.key());
+    return get(RuleField.NAME.key());
   }
 
   @Override
   @CheckForNull
   public String htmlDescription() {
-    return (String) fields.get(RuleField.HTML_DESCRIPTION.key());
+    return get(RuleField.HTML_DESCRIPTION.key());
   }
 
   @Override
   @CheckForNull
   public String severity() {
-    return (String) fields.get(RuleField.SEVERITY.key());
+    return (String) get(RuleField.SEVERITY.key());
   }
 
   @Override
   @CheckForNull
   public RuleStatus status() {
-    return RuleStatus.valueOf((String) fields.get(RuleField.STATUS.key()));
+    return RuleStatus.valueOf((String) get(RuleField.STATUS.key()));
   }
 
   @Override
   @CheckForNull
   public boolean template() {
-    return (Boolean) fields.get(RuleField.TEMPLATE.key());
+    return (Boolean) get(RuleField.TEMPLATE.key());
   }
 
   @Override
   @CheckForNull
   public List<String> tags() {
-    return (List<String>) fields.get(RuleField.TAGS.key());
+    return (List<String>) get(RuleField.TAGS.key());
   }
 
   @Override
   @CheckForNull
   public List<String> systemTags() {
-    return (List<String>) fields.get(RuleField.SYSTEM_TAGS.key());
+    return (List<String>) get(RuleField.SYSTEM_TAGS.key());
   }
 
   @Override
   @CheckForNull
   public List<RuleParam> params() {
     List<RuleParam> params = new ArrayList<RuleParam>();
-    if (this.fields.get(RuleField.PARAMS.key()) != null) {
-      List<Map<String, Object>> esParams = (List<Map<String, Object>>) this.fields.get(RuleField.PARAMS.key());
+    if (this.get(RuleField.PARAMS.key()) != null) {
+      List<Map<String, Object>> esParams = this.get(RuleField.PARAMS.key());
       for (final Map<String, Object> param : esParams) {
         params.add(new RuleParam() {
           {
@@ -165,13 +164,13 @@ class RuleDoc implements Rule {
   @Override
   @CheckForNull
   public String debtSubCharacteristicKey(){
-    return (String) fields.get(RuleField.SUB_CHARACTERISTIC.key());
+    return (String) get(RuleField.SUB_CHARACTERISTIC.key());
   }
 
   @Override
   @CheckForNull
   public DebtRemediationFunction debtRemediationFunction() {
-    final String function = (String) this.fields.get(RuleField.DEBT_FUNCTION_TYPE.key());
+    final String function = this.get(RuleField.DEBT_FUNCTION_TYPE.key());
     if(function == null || function.isEmpty()){
       return null;
     } else {
@@ -183,12 +182,12 @@ class RuleDoc implements Rule {
 
         @Override
         public String coefficient() {
-          return (String) fields.get(RuleField.DEBT_FUNCTION_COEFFICIENT.key());
+          return (String) get(RuleField.DEBT_FUNCTION_COEFFICIENT.key());
         }
 
         @Override
         public String offset() {
-          return (String) fields.get(RuleField.DEBT_FUNCTION_OFFSET.key());
+          return (String) get(RuleField.DEBT_FUNCTION_OFFSET.key());
         }
       };
     }
@@ -197,29 +196,29 @@ class RuleDoc implements Rule {
   @Override
   @CheckForNull
   public String noteLogin() {
-    return (String) fields.get(RuleField.NOTE_LOGIN.key());
+    return (String) get(RuleField.NOTE_LOGIN.key());
   }
 
   @Override
   public Date noteCreatedAt() {
-    return IndexUtils.parseDateTime((String) fields.get(RuleField.NOTE_CREATED_AT.key()));
+    return IndexUtils.parseDateTime((String) get(RuleField.NOTE_CREATED_AT.key()));
   }
 
   @Override
   public Date noteUpdatedAt() {
-    return IndexUtils.parseDateTime((String) fields.get(RuleField.NOTE_UPDATED_AT.key()));
+    return IndexUtils.parseDateTime((String) get(RuleField.NOTE_UPDATED_AT.key()));
   }
 
   @Override
   @CheckForNull
   public Date createdAt() {
-    return IndexUtils.parseDateTime((String) fields.get(RuleField.CREATED_AT.key()));
+    return IndexUtils.parseDateTime((String)get(RuleField.CREATED_AT.key()));
   }
 
   @Override
   @CheckForNull
   public Date updatedAt() {
-    return IndexUtils.parseDateTime((String) fields.get(RuleField.UPDATED_AT.key()));
+    return IndexUtils.parseDateTime((String) get(RuleField.UPDATED_AT.key()));
   }
 
   @Override

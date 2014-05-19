@@ -19,26 +19,24 @@
  */
 package org.sonar.server.qualityprofile.index;
 
+import com.google.common.base.Preconditions;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.server.qualityprofile.ActiveRule;
+import org.sonar.server.search.BaseDoc;
 
 import javax.annotation.CheckForNull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ActiveRuleDoc implements ActiveRule {
+public class ActiveRuleDoc extends BaseDoc implements ActiveRule {
 
-  private final Map<String, Object> fields;
   private final ActiveRuleKey key;
 
   public ActiveRuleDoc(Map<String, Object> fields) {
-    ActiveRuleKey key = ActiveRuleKey.parse((String)fields.get(ActiveRuleNormalizer.ActiveRuleField.KEY.key()));
-    if(key == null){
-      throw new IllegalStateException("Invalid ActiveRuleKey!");
-    }
-    this.fields = fields;
-    this.key = key;
+    super(fields);
+    this.key = ActiveRuleKey.parse((String) get(ActiveRuleNormalizer.ActiveRuleField.KEY.key()));
+    Preconditions.checkArgument(key!=null, "Invalid ActiveRuleKey!");
   }
 
   @Override
@@ -48,29 +46,29 @@ public class ActiveRuleDoc implements ActiveRule {
 
   @Override
   public String severity() {
-    return (String) this.fields.get(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.key());
+    return (String) get(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.key());
   }
 
   @Override
   public ActiveRule.Inheritance inheritance() {
-    String inheritance = (String) this.fields.get(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.key());
-    if(inheritance == null || inheritance.isEmpty() ||
-      inheritance.toLowerCase().contains("none")){
+    String inheritance = get(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.key());
+    if (inheritance == null || inheritance.isEmpty() ||
+      inheritance.toLowerCase().contains("none")) {
       return Inheritance.NONE;
-    } else if(inheritance.toLowerCase().contains("herit")) {
+    } else if (inheritance.toLowerCase().contains("herit")) {
       return Inheritance.INHERIT;
-    } else if(inheritance.toLowerCase().contains("over")) {
+    } else if (inheritance.toLowerCase().contains("over")) {
       return Inheritance.OVERRIDE;
     } else {
-      throw new IllegalStateException("Value \"" +inheritance+"\" is not valid for rule's inheritance");
+      throw new IllegalStateException("Value \"" + inheritance + "\" is not valid for rule's inheritance");
     }
   }
 
   @Override
   @CheckForNull
   public ActiveRuleKey parentKey() {
-    String data = (String) this.fields.get(ActiveRuleNormalizer.ActiveRuleField.PARENT_KEY.key());
-    if(data != null && !data.isEmpty()){
+    String data = get(ActiveRuleNormalizer.ActiveRuleField.PARENT_KEY.key());
+    if (data != null && !data.isEmpty()) {
       return ActiveRuleKey.parse(data);
     }
     return null;
@@ -79,8 +77,8 @@ public class ActiveRuleDoc implements ActiveRule {
   @Override
   public Map<String, String> params() {
     Map<String, String> params = new HashMap<String, String>();
-    if (this.fields.containsKey(ActiveRuleNormalizer.ActiveRuleField.PARAMS.key())) {
-      List<Map<String, String>> allParams = (List<Map<String, String>>) this.fields.get(ActiveRuleNormalizer.ActiveRuleField.PARAMS.key());
+    List<Map<String, String>> allParams = get(ActiveRuleNormalizer.ActiveRuleField.PARAMS.key());
+    if (allParams != null) {
       for (Map<String, String> param : allParams) {
         params.put(param.get(ActiveRuleNormalizer.ActiveRuleParamField.NAME.key()),
           param.get(ActiveRuleNormalizer.ActiveRuleParamField.VALUE.key()));

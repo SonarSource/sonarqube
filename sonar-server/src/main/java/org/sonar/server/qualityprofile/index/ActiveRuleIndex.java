@@ -53,10 +53,12 @@ import org.sonar.server.es.ESNode;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule2.index.RuleIndexDefinition;
 import org.sonar.server.search.BaseIndex;
+import org.sonar.server.search.QueryOptions;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
@@ -119,15 +121,14 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
   }
 
   @Override
-  public ActiveRule toDoc(GetResponse response) {
-    return new ActiveRuleDoc(response.getSource());
+  public ActiveRule toDoc(Map<String,Object> fields, QueryOptions options) {
+    return new ActiveRuleDoc(fields);
   }
 
   /**
    * finder methods
    */
   public List<ActiveRule> findByRule(RuleKey key) {
-
     SearchRequestBuilder request = getClient().prepareSearch(this.getIndexName())
       .setQuery(QueryBuilders
         .hasParentQuery(this.getParentType(),
@@ -140,7 +141,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
 
     List<ActiveRule> activeRules = new ArrayList<ActiveRule>();
     for (SearchHit hit : response.getHits()) {
-      activeRules.add(new ActiveRuleDoc(hit.getSource()));
+      activeRules.add(toDoc(hit.getSource(), QueryOptions.DEFAULT));
     }
 
     return activeRules;
@@ -156,6 +157,6 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
       .setType(this.getIndexType())
       .setIndex(this.getIndexName())
       .setId(ActiveRuleKey.of(qualityProfileKey, ruleKey).toString())
-      .get());
+      .get().getSource(), QueryOptions.DEFAULT);
   }
 }

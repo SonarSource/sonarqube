@@ -19,14 +19,11 @@
  */
 package org.sonar.server.rule2.ws;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.io.Resources;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -72,7 +69,7 @@ public class RulesWebServiceTest {
   }
 
   @After
-  public void after(){
+  public void after() {
     session.close();
   }
 
@@ -117,10 +114,7 @@ public class RulesWebServiceTest {
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
     WsTester.Result result = request.execute();
 
-    String json = result.outputAsString();
-    String expectedJson = Resources.toString(getClass().getResource("RulesWebServiceTest/search_2_rules.json"), Charsets.UTF_8);
-
-    JSONAssert.assertEquals(expectedJson, json, false);
+    result.assertJson(getClass(), "search_2_rules.json", false);
   }
 
 
@@ -139,7 +133,7 @@ public class RulesWebServiceTest {
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
     WsTester.Result result = request.execute();
 
-    result.assertJson(this.getClass(),"search_debt_rule.json");
+    result.assertJson(this.getClass(), "search_debt_rule.json");
   }
 
 
@@ -149,7 +143,7 @@ public class RulesWebServiceTest {
     tester.get(QualityProfileDao.class).insert(profile, session);
 
     RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"));
-    ruleDao.insert(rule,  session);
+    ruleDao.insert(rule, session);
 
     ActiveRuleDto activeRule = newActiveRule(profile, rule);
     tester.get(ActiveRuleDao.class).insert(activeRule, session);
@@ -161,11 +155,11 @@ public class RulesWebServiceTest {
 
     MockUserSession.set();
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
-    request.setParam("q","S001");
-    request.setParam("activation","all");
+    request.setParam("q", "S001");
+    request.setParam("activation", "all");
     WsTester.Result result = request.execute();
 
-    result.assertJson(this.getClass(),"search_active_rules.json");
+    result.assertJson(this.getClass(), "search_active_rules.json");
   }
 
   @Test
@@ -174,7 +168,7 @@ public class RulesWebServiceTest {
     tester.get(QualityProfileDao.class).insert(profile, session);
 
     RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"));
-    ruleDao.insert(rule,  session);
+    ruleDao.insert(rule, session);
 
     ActiveRuleDto activeRule = newActiveRule(profile, rule);
     tester.get(ActiveRuleDao.class).insert(activeRule, session);
@@ -186,11 +180,11 @@ public class RulesWebServiceTest {
 
     MockUserSession.set();
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
-    request.setParam("q","S001");
-    request.setParam("activation","false");
+    request.setParam("q", "S001");
+    request.setParam("activation", "false");
     WsTester.Result result = request.execute();
 
-    result.assertJson(this.getClass(),"search_no_active_rules.json");
+    result.assertJson(this.getClass(), "search_no_active_rules.json");
   }
 
   @Test
@@ -204,7 +198,7 @@ public class RulesWebServiceTest {
     session.commit();
 
     RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"));
-    ruleDao.insert(rule,  session);
+    ruleDao.insert(rule, session);
 
     ActiveRuleDto activeRule = newActiveRule(profile, rule);
     tester.get(ActiveRuleDao.class).insert(activeRule, session);
@@ -217,12 +211,12 @@ public class RulesWebServiceTest {
 
     MockUserSession.set();
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
-    request.setParam("q","S001");
-    request.setParam("activation","true");
-    request.setParam("qprofile",profile2.getKey().toString());
+    request.setParam("q", "S001");
+    request.setParam("activation", "true");
+    request.setParam("qprofile", profile2.getKey().toString());
     WsTester.Result result = request.execute();
 
-    result.assertJson(this.getClass(),"search_profile_active_rules.json");
+    result.assertJson(this.getClass(), "search_profile_active_rules.json");
   }
 
   @Test
@@ -240,14 +234,14 @@ public class RulesWebServiceTest {
       .setType("string")
       .setDescription("My small description")
       .setName("my_var");
-    ruleDao.addRuleParam(rule,param, session);
+    ruleDao.addRuleParam(rule, param, session);
 
     RuleParamDto param2 = RuleParamDto.createFor(rule)
       .setDefaultValue("other value")
       .setType("integer")
       .setDescription("My small description")
       .setName("the_var");
-    ruleDao.addRuleParam(rule,param2, session);
+    ruleDao.addRuleParam(rule, param2, session);
 
     ActiveRuleDto activeRule = newActiveRule(profile, rule);
     tester.get(ActiveRuleDao.class).insert(activeRule, session);
@@ -270,9 +264,8 @@ public class RulesWebServiceTest {
 
     WsTester.Result result = request.execute();
 
-    result.assertJson(this.getClass(),"search_active_rules_params.json");
+    result.assertJson(this.getClass(), "search_active_rules_params.json", false);
   }
-
 
 
   @Test
@@ -282,12 +275,12 @@ public class RulesWebServiceTest {
 
     RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"))
       .setTags(ImmutableSet.of("hello", "world"));
-    ruleDao.insert(rule,  session);
+    ruleDao.insert(rule, session);
 
     RuleDto rule2 = newRuleDto(RuleKey.of(profile.getLanguage(), "S002"))
       .setTags(ImmutableSet.of("java"))
       .setSystemTags(ImmutableSet.of("sys1"));
-    ruleDao.insert(rule2,  session);
+    ruleDao.insert(rule2, session);
 
     session.commit();
     tester.get(RuleService.class).refresh();
@@ -297,7 +290,7 @@ public class RulesWebServiceTest {
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "tags");
     WsTester.Result result = request.execute();
 
-    result.assertJson(this.getClass(),"get_tags.json");
+    result.assertJson(this.getClass(), "get_tags.json", false);
   }
 
   @Test
@@ -307,7 +300,7 @@ public class RulesWebServiceTest {
 
     RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"))
       .setNoteData("Note1");
-    ruleDao.insert(rule,  session);
+    ruleDao.insert(rule, session);
 
     session.commit();
     tester.get(RuleService.class).refresh();
@@ -317,12 +310,8 @@ public class RulesWebServiceTest {
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
     WsTester.Result result = request.execute();
 
-    System.out.println("result.outputAsString() = " + result.outputAsString());
-
-
-    result.assertJson(this.getClass(),"get_notes.json");
+    result.assertJson(this.getClass(), "get_notes.json");
   }
-
 
 
   private QualityProfileDto newQualityProfile() {
@@ -351,7 +340,7 @@ public class RulesWebServiceTest {
       .setEffortToFixDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix");
   }
 
-  private ActiveRuleDto  newActiveRule(QualityProfileDto profile, RuleDto rule) {
+  private ActiveRuleDto newActiveRule(QualityProfileDto profile, RuleDto rule) {
     return ActiveRuleDto.createFor(profile, rule)
       .setInheritance("none")
       .setSeverity("BLOCKER");

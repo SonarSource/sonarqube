@@ -17,7 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualityprofile.index;
+package org.sonar.server.search;
 
-public class ActiveRuleQuery {
+import java.util.Map;
+
+public class SourceFields {
+
+  public static String get(String key, Map<String,Object> source, QueryOptions options) {
+    return null;
+  }
 }

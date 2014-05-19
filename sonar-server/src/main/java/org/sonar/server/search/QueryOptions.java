@@ -36,6 +36,8 @@ import java.util.Set;
  */
 public class QueryOptions {
 
+  public static final QueryOptions DEFAULT = new QueryOptions();
+
   public static final int DEFAULT_OFFSET = 0;
   public static final int DEFAULT_LIMIT = 10;
   public static final boolean DEFAULT_FACET = true;

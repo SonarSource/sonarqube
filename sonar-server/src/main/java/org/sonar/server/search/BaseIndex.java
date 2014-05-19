@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
@@ -146,7 +147,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
 
   /* Base CRUD methods */
 
-  protected abstract D toDoc(GetResponse response);
+  protected abstract D toDoc(Map<String,Object> fields, QueryOptions options);
 
   public D getByKey(K key) {
     GetResponse response = getClient().prepareGet()
@@ -156,7 +157,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
       .setRouting(this.getKeyValue(key))
       .get();
     if (response.isExists()) {
-      return toDoc(response);
+      return toDoc(response.getSource(), QueryOptions.DEFAULT);
     }
     return null;
   }

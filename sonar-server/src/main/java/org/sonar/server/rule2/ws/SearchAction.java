@@ -219,9 +219,7 @@ public class SearchAction implements RequestHandler {
     json.prop(PARAM_PAGE_SIZE, request.mandatoryParamAsInt(PARAM_PAGE_SIZE));
   }
 
-
   private void writeRules(RuleResult result, JsonWriter json) {
-
     json.name("rules").beginArray();
     for (Rule rule : result.getHits()) {
 
@@ -270,9 +268,10 @@ public class SearchAction implements RequestHandler {
           .prop("key",activeRule.key())
           .prop("inherit", activeRule.inheritance())
           .prop("severity", activeRule.severity());
-        if(activeRule.parentKey() != null){
-          json.prop("parent",activeRule.parentKey());
-        }
+        // TODO
+//        if(activeRule.parentKey() != null){
+//          json.prop("parent",activeRule.parentKey());
+//        }
 
         json
           .name("params").beginArray();
