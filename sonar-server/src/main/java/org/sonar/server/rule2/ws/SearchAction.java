@@ -234,6 +234,8 @@ public class SearchAction implements RequestHandler {
         .prop("template", rule.template())
         .prop("internalKey", rule.internalKey())
         .prop("severity", rule.severity())
+        .prop("markdownNote", rule.markdownNote())
+        .prop("noteLogin", rule.noteLogin())
         .name("tags").beginArray().values(rule.tags()).endArray()
         .name("sysTags").beginArray().values(rule.systemTags()).endArray();
       if(rule.debtSubCharacteristicKey() != null && !rule.debtSubCharacteristicKey().isEmpty()){

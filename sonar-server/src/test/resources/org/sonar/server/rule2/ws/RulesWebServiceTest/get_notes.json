@@ -1,0 +1,26 @@
+{
+    "p": 1,
+    "ps": 25,
+    "rules": [
+        {
+            "actives": [],
+            "debtRemediationFunctionCoefficient": "1h",
+            "debtRemediationFunctionOffset": "5min",
+            "debtRemediationFunctionType": "LINEAR",
+            "htmlDesc": "Description S001",
+            "internalKey": "InternalKeyS001",
+            "key": "java:S001",
+            "lang": "js",
+            "markdownNote": "Note1",
+            "name": "Rule S001",
+            "params": [],
+            "repo": "java",
+            "severity": "INFO",
+            "status": "READY",
+            "sysTags": [],
+            "tags": [],
+            "template": false
+        }
+    ],
+    "total": 1
+}

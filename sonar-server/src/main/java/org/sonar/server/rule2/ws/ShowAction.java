@@ -79,6 +79,8 @@ public class ShowAction implements RequestHandler {
       .prop("template", rule.template())
       .prop("internalKey", rule.internalKey())
       .prop("severity", rule.severity().toString())
+      .prop("markdownNote", rule.markdownNote())
+      .prop("noteLogin", rule.noteLogin())
       .name("tags").beginArray().values(rule.tags()).endArray()
       .name("sysTags").beginArray().values(rule.systemTags()).endArray();
     json.name("params").beginArray();
