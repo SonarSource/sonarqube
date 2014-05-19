@@ -149,12 +149,16 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
   public abstract D toDoc(GetResponse response);
 
   public D getByKey(K key) {
-    return toDoc(getClient().prepareGet()
+    GetResponse response = getClient().prepareGet()
       .setType(this.getIndexType())
       .setIndex(this.getIndexName())
       .setId(this.getKeyValue(key))
       .setRouting(this.getKeyValue(key))
-      .get());
+      .get();
+    if (response.isExists()) {
+      return toDoc(response);
+    }
+    return null;
   }
 
   private void insertDocument(UpdateRequest request, K key) throws Exception {

@@ -102,30 +102,6 @@ class RulesConfigurationController < ApplicationController
     @rule = Internal.quality_profiles.findByRule(params[:rule_id].to_i)
   end
 
-  #
-  #
-  # POST /rules_configuration/create/<profile id>?rule_id=<rule id>&rule[name]=<new name>&...
-  #
-  #
-  def create
-    verify_post_request
-    require_parameters :id, :rule_id
-
-    profile_id = params[:id].to_i
-    rule_id = params[:rule_id].to_i
-    new_rule = nil
-    call_backend do
-      new_rule_id = Internal.rules.createCustomRule(rule_id, params[:rule][:name], params[:rule][:priority], params[:rule][:description], params[:rule_param])
-      new_rule = Internal.quality_profiles.findByRule(new_rule_id)
-    end
-
-    if new_rule
-      redirect_to :action => 'index', :id => profile_id, :searchtext => "\"#{new_rule.name()}\"", :rule_activation => 'INACTIVE', "plugins[]" => new_rule.repositoryKey()
-    else
-      redirect_to :action => 'new', :id => profile_id, :rule_id => rule_id
-    end
-  end
-
 
   # deprecated since 2.3
   def export
@@ -154,46 +130,6 @@ class RulesConfigurationController < ApplicationController
     end
   end
 
-  #
-  #
-  # POST /rules_configuration/update/<profile id>?rule_id=<rule id>&rule[name]=<new name>&...
-  #
-  #
-  def update
-    verify_post_request
-    require_parameters :id, :rule_id
-
-    profile_id = params[:id].to_i
-    rule_id = params[:rule_id].to_i
-    rule = nil
-    call_backend do
-      Internal.rules.updateCustomRule(rule_id, params[:rule][:name], params[:rule][:priority], params[:rule][:description], params[:rule_param])
-      rule = Internal.quality_profiles.findByRule(rule_id)
-    end
-
-    if rule
-      redirect_to :action => 'index', :id => profile_id, :searchtext => "\"#{rule.name()}\"", :rule_activation => '', "plugins[]" => rule.repositoryKey()
-    else
-      redirect_to :action => 'new', :id => profile_id, :rule_id => rule_id
-    end
-  end
-
-
-  #
-  #
-  # POST /rules_configuration/delete/<profile id>?rule_id=<rule id>
-  #
-  #
-  def delete
-    verify_post_request
-    require_parameters :id, :rule_id
-
-    call_backend do
-      Internal.rules.deleteCustomRule(params[:rule_id].to_i)
-      flash[:notice]=message('rules_configuration.rule_deleted')
-    end
-    redirect_to :action => 'index', :id => params[:id]
-  end
 
   #
   #
@@ -234,59 +170,6 @@ class RulesConfigurationController < ApplicationController
 
     url_parameters=request.query_parameters.merge({:action => 'index', :bulk_action => nil, :id => @profile.id, :rule_activation => activation})
     redirect_to url_parameters
-  end
-
-
-  def update_param
-    verify_post_request
-
-    access_denied unless has_role?(:profileadmin)
-    require_parameters :param_id, :active_rule_id, :profile_id
-
-    rule = nil
-    profile_id = params[:profile_id].to_i
-    active_rule_id = params[:active_rule_id].to_i
-    call_backend do
-      Internal.quality_profiles.updateActiveRuleParam(active_rule_id, params[:param_id], params[:value])
-      rule = Internal.quality_profiles.findByActiveRuleId(active_rule_id)
-    end
-
-    profile = Internal.quality_profiles.profile(profile_id)
-    parent_profile = Internal.quality_profiles.parent(profile)
-    render :partial => 'rule', :locals => {:rule => rule, :profile => profile, :parent_profile => parent_profile}
-  end
-
-
-  def update_rule_note
-    verify_post_request
-    require_parameters :rule_id, :active_rule_id
-
-    rule = nil
-    call_backend do
-      Internal.rules.updateRuleNote(params[:rule_id].to_i, params[:text])
-      rule = Internal.quality_profiles.findByActiveRuleId(params[:active_rule_id].to_i)
-    end
-    render :partial => 'rule_note', :locals => {:rule => rule}
-  end
-
-  def show_select_tags
-    rule = Internal.quality_profiles.findByRule(params[:rule_id].to_i)
-    tags = tag_selection_for_rule(rule)
-    render :partial => 'select_tags', :locals => { :rule => rule, :tags => tags, :profile_id => params[:profile_id] }
-  end
-
-  def select_tags
-    Internal.rules.updateRuleTags(params[:rule_id].to_i, params[:tags])
-    rule = Internal.quality_profiles.findByRule(params[:rule_id].to_i)
-    render :partial => 'rule_tags', :locals => {:rule => rule}
-  end
-
-  def create_tag
-    Internal.rule_tags.create(params[:new_tag])
-    rule = Internal.quality_profiles.findByRule(params[:rule_id].to_i)
-    tags = tag_selection_for_rule(rule)
-
-    render :partial => 'select_tags_list', :locals => {:tags => tags}
   end
 
   private

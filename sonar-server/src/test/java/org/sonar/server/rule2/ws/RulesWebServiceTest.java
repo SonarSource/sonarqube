@@ -83,7 +83,7 @@ public class RulesWebServiceTest {
     WebService.Context context = new WebService.Context();
     ws.define(context);
 
-    WebService.Controller controller = context.controller("api/rules2");
+    WebService.Controller controller = context.controller("api/rules");
 
     assertThat(controller).isNotNull();
     assertThat(controller.actions()).hasSize(6);
@@ -99,7 +99,7 @@ public class RulesWebServiceTest {
   public void search_no_rules() throws Exception {
 
     MockUserSession.set();
-    WsTester.TestRequest request = wsTester.newGetRequest("api/rules2", "search");
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
 
     WsTester.Result result = request.execute();
 
@@ -115,7 +115,7 @@ public class RulesWebServiceTest {
     tester.get(RuleService.class).refresh();
 
     MockUserSession.set();
-    WsTester.TestRequest request = wsTester.newGetRequest("api/rules2", "search");
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
     WsTester.Result result = request.execute();
 
     String json = result.outputAsString();
@@ -137,7 +137,7 @@ public class RulesWebServiceTest {
     tester.get(RuleService.class).refresh();
 
     MockUserSession.set();
-    WsTester.TestRequest request = wsTester.newGetRequest("api/rules2", "search");
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
     WsTester.Result result = request.execute();
 
     result.assertJson(this.getClass(),"search_debt_rule.json");
@@ -161,7 +161,7 @@ public class RulesWebServiceTest {
 
 
     MockUserSession.set();
-    WsTester.TestRequest request = wsTester.newGetRequest("api/rules2", "search");
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
     request.setParam("q","S001");
     WsTester.Result result = request.execute();
 
@@ -208,7 +208,7 @@ public class RulesWebServiceTest {
     tester.get(RuleService.class).refresh();
 
     MockUserSession.set();
-    WsTester.TestRequest request = wsTester.newGetRequest("api/rules2", "search");
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
     request.setParam("q", "S001");
     WsTester.Result result = request.execute();
 
@@ -236,7 +236,7 @@ public class RulesWebServiceTest {
 
 
     MockUserSession.set();
-    WsTester.TestRequest request = wsTester.newGetRequest("api/rules2", "tags");
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "tags");
     WsTester.Result result = request.execute();
 
     result.assertJson(this.getClass(),"get_tags.json");

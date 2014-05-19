@@ -17,7 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.rule.ws;
+package org.sonar.server.rule2.index;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.junit.Test;
+
+import static org.fest.assertions.Assertions.assertThat;
+
+public class RuleFieldTest {
+
+  @Test
+  public void all_rule_fields() throws Exception {
+    assertThat(RuleNormalizer.RuleField.ALL_KEYS).contains(
+      RuleNormalizer.RuleField.KEY.key(), RuleNormalizer.RuleField.REPOSITORY.key(), RuleNormalizer.RuleField.TAGS.key(),
+      RuleNormalizer.RuleField.CREATED_AT.key());
+  }
+
+  @Test
+  public void key_of_rule_field() throws Exception {
+    assertThat(RuleNormalizer.RuleField.INTERNAL_KEY.key()).isEqualTo("internalKey");
+  }
+}

@@ -153,7 +153,8 @@ class RuleDoc implements Rule {
   @Override
   @CheckForNull
   public String debtCharacteristicKey() {
-    throw new UnsupportedOperationException("TODO");
+    // TO BE IMPLEMENTED
+    return null;
   }
 
   @Override
@@ -186,6 +187,20 @@ class RuleDoc implements Rule {
         }
       };
     }
+  }
+
+  @Override
+  @CheckForNull
+  public String noteAsMarkdown() {
+    // TODO
+    return null;
+  }
+
+  @Override
+  @CheckForNull
+  public String noteLogin() {
+    // TODO
+    return null;
   }
 
   @Override

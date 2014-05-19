@@ -105,6 +105,6 @@ public class AppActionTest {
     char2.setId(24).setParentId(parentId).setKey("MODULARITY").setName("Modularity");
     when(debtModel.allCharacteristics()).thenReturn(ImmutableList.<DebtCharacteristic>of(char1, char2));
 
-    tester.newGetRequest("api/rules2", "app").execute().assertJson(this.getClass(), "app.json");
+    tester.newGetRequest("api/rules", "app").execute().assertJson(this.getClass(), "app.json");
   }
 }

@@ -81,4 +81,10 @@ public interface Rule {
 
   @CheckForNull
   String internalKey();
+
+  @CheckForNull
+  String noteAsMarkdown();
+
+  @CheckForNull
+  String noteLogin();
 }

@@ -123,10 +123,12 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     execute(new FakeRepositoryV1());
     assertThat(dbClient.ruleDao().findAll(dbSession)).hasSize(2);
 
-    // user adds tags
+    // user adds tags and sets markdown note
     RuleKey ruleKey1 = RuleKey.of("fake", "rule1");
     RuleDto rule1 = dbClient.ruleDao().getByKey(ruleKey1, dbSession);
     rule1.setTags(Sets.newHashSet("usertag1", "usertag2"));
+    rule1.setNoteData("user *note*");
+    rule1.setNoteUserLogin("marius");
     dbClient.ruleDao().update(rule1, dbSession);
     dbSession.commit();
 
@@ -141,6 +143,8 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     assertThat(rule1.getTags()).containsOnly("usertag1", "usertag2");
     assertThat(rule1.getSystemTags()).containsOnly("tag1", "tag4");
     assertThat(rule1.getConfigKey()).isEqualTo("config1 v2");
+    assertThat(rule1.getNoteData()).isEqualTo("user *note*");
+    assertThat(rule1.getNoteUserLogin()).isEqualTo("marius");
     assertThat(rule1.getStatus()).isEqualTo(RuleStatus.READY.toString());
     assertThat(rule1.getCreatedAt()).isEqualTo(DATE1);
     assertThat(rule1.getUpdatedAt()).isEqualTo(DATE2);

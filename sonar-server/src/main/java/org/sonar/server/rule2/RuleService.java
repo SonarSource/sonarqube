@@ -67,7 +67,6 @@ public class RuleService implements ServerComponent {
   public RuleResult search(RuleQuery query, QueryOptions options) {
     // keep only supported fields and add the fields to always return
     options.filterFieldsToReturn(RuleIndex.PUBLIC_FIELDS);
-    options.addFieldsToReturn(RuleNormalizer.RuleField.REPOSITORY.key(), RuleNormalizer.RuleField.KEY.key());
 
     RuleResult result =  index.search(query, options);
     for(Rule rule:result.getHits()){

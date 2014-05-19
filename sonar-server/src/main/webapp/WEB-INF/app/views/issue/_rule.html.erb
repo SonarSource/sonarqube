@@ -1,21 +1,21 @@
-<h1 class="marginbottom10"><%= h @rule.name %></h1>
+<h1 class="marginbottom10"><%= h @rule.name() -%></h1>
 
 <div class="marginbottom10">
-  <% if @rule.description.strip.start_with?('<p>') %>
-    <%= Internal.text.interpretMacros(@rule.description) %>
+  <% if @rule.htmlDescription.strip.start_with?('<p>') %>
+    <%= Internal.text.interpretMacros(@rule.htmlDescription) %>
   <% else %>
-    <p><%= Internal.text.interpretMacros(@rule.description) %></p>
+    <p><%= Internal.text.interpretMacros(@rule.htmlDescription) %></p>
   <% end %>
 </div>
 
-<% if @rule.ruleNote() %>
+<% if @rule.noteAsMarkdown() %>
   <div class="marginbottom10">
-    <%= Api::Utils.markdown_to_html(@rule.ruleNote().data()) -%>
+    <%= Api::Utils.markdown_to_html(@rule.noteAsMarkdown()) -%>
   </div>
 <% end %>
 
 <p class="note">
-  <span class="spacer-right"><%= h @rule.ruleKey() -%></span>
+  <span class="spacer-right"><%= h @rule.key() -%></span>
   <%= image_tag 'sep12.png', :class => 'spacer-right' -%>
   <% if @characteristic && @sub_characteristic %>
     <%= @characteristic.name -%>&nbsp;&gt;&nbsp;<%= @sub_characteristic.name -%>

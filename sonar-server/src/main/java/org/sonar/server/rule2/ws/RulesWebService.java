@@ -43,7 +43,7 @@ public class RulesWebService implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context
-      .createController("api/rules2")
+      .createController("api/rules")
       .setDescription("Coding rules");
 
     search.define(controller);

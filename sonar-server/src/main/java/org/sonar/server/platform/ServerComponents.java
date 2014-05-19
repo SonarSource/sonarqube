@@ -124,7 +124,6 @@ import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
 import org.sonar.server.qualityprofile.ws.*;
 import org.sonar.server.rule.*;
-import org.sonar.server.rule.ws.*;
 import org.sonar.server.rule2.RegisterRules;
 import org.sonar.server.rule2.RuleService;
 import org.sonar.server.rule2.index.RuleIndex;
@@ -326,9 +325,6 @@ class ServerComponents {
     pico.addSingleton(RuleRepositories.class);
     pico.addSingleton(DeprecatedRulesDefinition.class);
     pico.addSingleton(RuleDefinitionsLoader.class);
-    pico.addSingleton(RulesWs.class);
-    pico.addSingleton(RuleShowWsHandler.class);
-    pico.addSingleton(RuleSearchWsHandler.class);
     pico.addSingleton(RulesDefinitionXmlLoader.class);
 
     // experimental rules

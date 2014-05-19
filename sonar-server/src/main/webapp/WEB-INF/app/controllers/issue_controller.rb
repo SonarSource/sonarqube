@@ -186,7 +186,7 @@ class IssueController < ApplicationController
     verify_ajax_request
     require_parameters :id
 
-    @rule = Internal.rules.findByKey(params[:id])
+    @rule = Internal.rules.getByKey(Java::OrgSonarApiRule::RuleKey.parse(params[:id]))
     if @rule.debtCharacteristicKey()
       @characteristic = Internal.debt.characteristicByKey(@rule.debtCharacteristicKey())
       @sub_characteristic = Internal.debt.characteristicByKey(@rule.debtSubCharacteristicKey())

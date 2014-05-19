@@ -93,10 +93,6 @@ public class RubyRuleService implements ServerComponent, Startable {
       .setDebtRemediationOffset(Strings.emptyToNull((String) params.get("debtRemediationOffset"))));
   }
 
-  public void updateRuleNote(int ruleId, String note) {
-    rules.updateRuleNote(ruleId, note);
-  }
-
   public Integer createCustomRule(int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
     return rules.createCustomRule(ruleId, name, severity, description, paramsByKey);
   }

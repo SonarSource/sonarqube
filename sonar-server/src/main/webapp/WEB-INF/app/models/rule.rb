@@ -256,34 +256,6 @@ class Rule < ActiveRecord::Base
     csv
   end
 
-
-  # 'unused' parameter used to be available to inject java_facade, kept for compatibility w/ plugins (e.g sqale)
-  # options :language => nil, :repositories => [], :searchtext => '', :profile => nil, :priorities => [], :activation => '', :status => [], :sort_by => nil
-  def self.search(unused, options={})
-    # First, perform search with rule-specific criteria
-    java_hash = {}
-    options.each do |key, value|
-      java_hash[key.to_s] = Array(value).join("|")
-    end
-    params = java.util.HashMap.new(java_hash)
-
-    # SONAR-5048 Group results by 1000 due to fix issue on Oracle db
-    rules = []
-    matching_rule_ids = Array(Internal.rules.findIds(params))
-    unless matching_rule_ids.empty?
-      ids_grouped = matching_rule_ids.each_slice(1000).to_a
-      ids_condition = []
-      ids_grouped.each do |group|
-        ids_condition << 'id in (' + group.join(',') + ')'
-      end
-
-      includes=(options[:include_parameters_and_notes] ? [:rules_parameters] : nil)
-      rules = Rule.all(:include => includes, :conditions => [ids_condition.join(' or ')])
-      rules = Rule.sort_by(rules, options[:sort_by])
-    end
-    filter(rules, options)
-  end
-
   def self.remove_blank(array)
     if array
       array = array - ['']

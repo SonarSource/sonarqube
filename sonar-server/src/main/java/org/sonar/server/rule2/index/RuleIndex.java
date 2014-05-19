@@ -220,23 +220,19 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     /* integrate Option's Fields */
     Set<String> fields = new HashSet<String>();
-    if (options.getFieldsToReturn() != null &&
-      !options.getFieldsToReturn().isEmpty()) {
-      for (String field : options.getFieldsToReturn()) {
-        fields.add(field);
-      }
+    if (options.getFieldsToReturn() != null && !options.getFieldsToReturn().isEmpty()) {
+      fields.addAll(options.getFieldsToReturn());
+      // required fields
+      // TODO remove REPOSITORY ? Move this list to RuleField constant ?
+      fields.add(RuleNormalizer.RuleField.KEY.key());
+      fields.add(RuleNormalizer.RuleField.REPOSITORY.key());
     } else {
-      for (RuleNormalizer.RuleField field : RuleNormalizer.RuleField.values()) {
-          fields.add(field.key());
-      }
+      fields = RuleNormalizer.RuleField.ALL_KEYS;
     }
-    //Add required fields:
-    fields.add(RuleNormalizer.RuleField.KEY.key());
-    fields.add(RuleNormalizer.RuleField.REPOSITORY.key());
 
     //TODO limit source for available fields.
     //esSearch.addFields(fields.toArray(new String[fields.size()]));
-    //esSearch.setSource(StringUtils.join(fields,','));
+    //esSearch.setSource(StringUtils.join(fields, ','));
 
     return esSearch;
   }

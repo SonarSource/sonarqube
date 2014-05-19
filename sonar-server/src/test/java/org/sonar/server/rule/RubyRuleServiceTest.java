@@ -19,7 +19,6 @@
  */
 package org.sonar.server.rule;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.junit.Before;
@@ -33,7 +32,6 @@ import org.sonar.api.rule.Severity;
 
 import java.util.Map;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -100,12 +98,6 @@ public class RubyRuleServiceTest {
   }
 
   @Test
-  public void update_rule_note() {
-    facade.updateRuleNote(10, "My note");
-    verify(rules).updateRuleNote(10, "My note");
-  }
-
-  @Test
   public void create_custom_rule() {
     facade.createCustomRule(10, "Rule name", Severity.MAJOR, "My note", ImmutableMap.of("max", "20"));
     verify(rules).createCustomRule(10, "Rule name", Severity.MAJOR, "My note", ImmutableMap.of("max", "20"));
@@ -127,40 +119,6 @@ public class RubyRuleServiceTest {
   public void find_by_key() {
     facade.findByKey("repo:key");
     verify(rules).findByKey(RuleKey.of("repo", "key"));
-  }
-
-  @Test
-  public void find_by_params() {
-    Map<String, Object> params = newHashMap();
-    params.put("searchQuery", "NPE");
-    params.put("key", "rule");
-    params.put("languages", newArrayList("java", "xoo"));
-    params.put("repositories", newArrayList("pmd", "checkstyle"));
-    params.put("severities", newArrayList("MINOR", "MAJOR"));
-    params.put("statuses", newArrayList("READY", "BETA"));
-    params.put("tags", newArrayList("has-params", "keep-enabled"));
-    params.put("debtCharacteristics", newArrayList("MODULARITY", "REUSABILITY"));
-    params.put("hasDebtCharacteristic", "true");
-
-    params.put("pageSize", 10l);
-    params.put("pageIndex", 50);
-
-    facade.find(params);
-    ArgumentCaptor<RuleQuery> ruleQueryCaptor = ArgumentCaptor.forClass(RuleQuery.class);
-    verify(rules).find(ruleQueryCaptor.capture());
-
-    RuleQuery query = ruleQueryCaptor.getValue();
-    assertThat(query.searchQuery()).isEqualTo("NPE");
-    assertThat(query.key()).isEqualTo("rule");
-    assertThat(query.languages()).containsOnly("java", "xoo");
-    assertThat(query.repositories()).containsOnly("pmd", "checkstyle");
-    assertThat(query.severities()).containsOnly("MINOR", "MAJOR");
-    assertThat(query.statuses()).containsOnly("READY", "BETA");
-    assertThat(query.tags()).containsOnly("has-params", "keep-enabled");
-    assertThat(query.debtCharacteristics()).containsOnly("MODULARITY", "REUSABILITY");
-    assertThat(query.hasDebtCharacteristic()).isTrue();
-    assertThat(query.pageSize()).isEqualTo(10);
-    assertThat(query.pageIndex()).isEqualTo(50);
   }
 
   @Test

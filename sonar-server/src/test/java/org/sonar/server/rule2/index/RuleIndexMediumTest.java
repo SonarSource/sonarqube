@@ -21,6 +21,7 @@ package org.sonar.server.rule2.index;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -66,7 +67,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void insert_rule() throws InterruptedException {
+  public void getByKey() throws InterruptedException {
     RuleDto ruleDto = newRuleDto(RuleKey.of("javascript", "S001"));
     dao.insert(ruleDto, dbSession);
     dbSession.commit();
@@ -78,20 +79,22 @@ public class RuleIndexMediumTest {
 
     assertThat(rule.htmlDescription()).isEqualTo(ruleDto.getDescription());
     assertThat(rule.key()).isEqualTo(ruleDto.getKey());
-//
+
 //    assertThat(rule.debtSubCharacteristicKey())
 //      .isEqualTo(ruleDto.getDefaultSubCharacteristicId().toString());
     assertThat(rule.debtRemediationFunction().type().name())
       .isEqualTo(ruleDto.getRemediationFunction());
 
-
-//
-//    assertThat(rule.tags()).containsExactly(ruleDto.getTags());
-//    assertThat(rule.systemTags()).containsExactly(ruleDto.getSystemTags());
-
-
+    assertThat(Sets.newHashSet(rule.tags())).isEqualTo(ruleDto.getTags());
+    assertThat(Sets.newHashSet(rule.systemTags())).isEqualTo(ruleDto.getSystemTags());
   }
 
+  @Test
+  public void getByKey_null_if_not_found() throws InterruptedException {
+    Rule rule = index.getByKey(RuleKey.of("javascript", "unknown"));
+
+    assertThat(rule).isNull();
+  }
 
   @Test
   public void facet_test_with_repository() {
@@ -135,7 +138,6 @@ public class RuleIndexMediumTest {
 
   @Test
   @Ignore
-  //TODO discuss if enforced in WS only.
   public void select_doc_fields_to_return() {
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001")), dbSession);
     dbSession.commit();
@@ -367,7 +369,7 @@ public class RuleIndexMediumTest {
     // tag1 in query
     query = new RuleQuery().setQueryText("tag1");
     assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(1);
-    assertThat(Iterables.getFirst(index.search(query, new QueryOptions()).getHits(),null).tags()).containsExactly("tag1");
+    assertThat(Iterables.getFirst(index.search(query, new QueryOptions()).getHits(), null).tags()).containsExactly("tag1");
 
     // tag1 and tag2 in query
     query = new RuleQuery().setQueryText("tag1 tag2");
@@ -376,7 +378,7 @@ public class RuleIndexMediumTest {
     // tag2 in filter
     query = new RuleQuery().setTags(ImmutableSet.of("tag2"));
     assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(1);
-    assertThat(Iterables.getFirst(index.search(query, new QueryOptions()).getHits(),null).tags()).containsExactly("tag2");
+    assertThat(Iterables.getFirst(index.search(query, new QueryOptions()).getHits(), null).tags()).containsExactly("tag2");
 
     // tag2 in filter and tag1 tag2 in query
     query = new RuleQuery().setTags(ImmutableSet.of("tag2")).setQueryText("tag1");
@@ -385,7 +387,7 @@ public class RuleIndexMediumTest {
     // tag2 in filter and tag1 in query
     query = new RuleQuery().setTags(ImmutableSet.of("tag2")).setQueryText("tag1 tag2");
     assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(1);
-    assertThat(Iterables.getFirst(index.search(query, new QueryOptions()).getHits(),null).tags()).containsExactly("tag2");
+    assertThat(Iterables.getFirst(index.search(query, new QueryOptions()).getHits(), null).tags()).containsExactly("tag2");
 
     // null list => no filter
     query = new RuleQuery().setTags(Collections.<String>emptySet());

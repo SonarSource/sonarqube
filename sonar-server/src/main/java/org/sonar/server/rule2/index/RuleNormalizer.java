@@ -19,6 +19,10 @@
  */
 package org.sonar.server.rule2.index;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Cardinality;
@@ -28,9 +32,11 @@ import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.search.BaseNormalizer;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
@@ -68,6 +74,13 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     public String toString() {
       return key;
     }
+
+    public static final Set<String> ALL_KEYS = ImmutableSet.copyOf(Collections2.transform(Lists.newArrayList(RuleField.values()), new Function<RuleField, String>() {
+      @Override
+      public String apply(@Nullable RuleField input) {
+        return input != null ? input.key : null;
+      }
+    }));
   }
 
   public static enum RuleParamField {
