@@ -60,6 +60,7 @@ import org.sonar.batch.qualitygate.QualityGateVerifier;
 import org.sonar.batch.rule.ActiveRulesProvider;
 import org.sonar.batch.rule.ModuleQProfiles;
 import org.sonar.batch.rule.QProfileDecorator;
+import org.sonar.batch.rule.QProfileEventsDecorator;
 import org.sonar.batch.rule.QProfileSensor;
 import org.sonar.batch.rule.QProfileVerifier;
 import org.sonar.batch.rule.RulesProfileProvider;
@@ -157,6 +158,7 @@ public class ModuleScanContainer extends ComponentContainer {
       new RulesProfileProvider(),
       QProfileSensor.class,
       QProfileDecorator.class,
+      QProfileEventsDecorator.class,
       CheckFactory.class,
 
       // report

@@ -25,7 +25,7 @@
       <td><%= message('widget.description.profiles') -%>:</td>
       <td><span id="resource_profile">
         <% profiles.each_with_index do |profile, i| %>
-          <%= Api::Utils.language_name(profile['language']) -%>: <%= link_to profile['name'], {:controller => '/rules_configuration', :action => 'index', :id => profile['id']}, :id => profile['language'] + '_profile_link' -%></span> (<%= message('widget.description.profile_version_x', :params => profile['version']) -%>)
+          <%= Api::Utils.language_name(profile['language']) -%>: <%= link_to profile['name'], {:controller => '/profiles', :action => 'show', :id => profile['id']}, :id => profile['language'] + '_profile_link' -%></span> (<%= message('widget.description.profile_version_x', :params => profile['version']) -%>)
           <% if i < (profiles.size - 1) %>
           <br/>
           <% end %>
@@ -39,7 +39,7 @@
     %>
     <tr>
       <td><%= message('widget.description.profile') -%>:</td>
-      <td><span id="resource_profile"><%= link_to profile_measure.data, {:controller => '/rules_configuration', :action => 'index', :id => profile_measure.value.to_i}, :id => 'profile_link' -%></span> (<%= message('widget.description.profile_version_x', :params => format_measure('profile_version', :default => '1')) -%>)</td>
+      <td><span id="resource_profile"><%= link_to profile_measure.data, {:controller => '/profiles', :action => 'show', :id => profile_measure.value.to_i}, :id => 'profile_link' -%></span> (<%= message('widget.description.profile_version_x', :params => format_measure('profile_version', :default => '1')) -%>)</td>
     </tr>
     <%   end
       end %>

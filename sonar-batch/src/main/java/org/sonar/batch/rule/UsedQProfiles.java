@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.rule;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -36,7 +37,7 @@ import java.util.Map;
 @Immutable
 public class UsedQProfiles {
 
-  private Map<String, Map<Integer, ModuleQProfiles.QProfile>> profilesByLanguage = Maps.newLinkedHashMap();
+  private Map<Integer, ModuleQProfiles.QProfile> profilesById = Maps.newLinkedHashMap();
 
   private UsedQProfiles() {
   }
@@ -71,15 +72,13 @@ public class UsedQProfiles {
     StringWriter json = new StringWriter();
     JsonWriter writer = JsonWriter.of(json);
     writer.beginArray();
-    for (String languageKey : profilesByLanguage.keySet()) {
-      for (ModuleQProfiles.QProfile qProfile : profilesByLanguage.get(languageKey).values()) {
-        writer.beginObject()
-          .prop("id", qProfile.id())
-          .prop("name", qProfile.name())
-          .prop("version", qProfile.version())
-          .prop("language", qProfile.language())
-          .endObject();
-      }
+    for (ModuleQProfiles.QProfile qProfile : profilesById.values()) {
+      writer.beginObject()
+        .prop("id", qProfile.id())
+        .prop("name", qProfile.name())
+        .prop("version", qProfile.version())
+        .prop("language", qProfile.language())
+        .endObject();
     }
     writer.endArray();
     writer.close();
@@ -91,14 +90,11 @@ public class UsedQProfiles {
   }
 
   private void add(ModuleQProfiles.QProfile profile) {
-    if (!profilesByLanguage.containsKey(profile.language())) {
-      profilesByLanguage.put(profile.language(), Maps.<Integer, ModuleQProfiles.QProfile>newLinkedHashMap());
-    }
-    QProfile alreadyAdded = profilesByLanguage.get(profile.language()).get(profile.id());
+    QProfile alreadyAdded = profilesById.get(profile.id());
     if (alreadyAdded == null
       // Keep only latest version
       || profile.version() > alreadyAdded.version()) {
-      profilesByLanguage.get(profile.language()).put(profile.id(), profile);
+      profilesById.put(profile.id(), profile);
     }
   }
 
@@ -110,10 +106,12 @@ public class UsedQProfiles {
   }
 
   private UsedQProfiles mergeInPlace(UsedQProfiles other) {
-    for (Map<Integer, QProfile> byIds : other.profilesByLanguage.values()) {
-      this.addAll(byIds.values());
-    }
+    this.addAll(other.profilesById.values());
     return this;
+  }
+
+  public Map<Integer, ModuleQProfiles.QProfile> profilesById() {
+    return ImmutableMap.copyOf(profilesById);
   }
 
 }

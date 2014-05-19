@@ -21,8 +21,10 @@ package org.sonar.batch.rule;
 
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
@@ -31,6 +33,11 @@ import org.sonar.api.resources.ResourceUtils;
  * Aggregate which Quality profiles have been used on the current module.
  */
 public class QProfileDecorator implements Decorator {
+
+  @DependedUpon
+  public Metric provides() {
+    return CoreMetrics.PROFILES;
+  }
 
   public boolean shouldExecuteOnProject(Project project) {
     return project.getModules().size() > 0;
