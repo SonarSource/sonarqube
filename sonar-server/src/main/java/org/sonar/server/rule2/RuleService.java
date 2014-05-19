@@ -105,6 +105,7 @@ public class RuleService implements ServerComponent {
   }
 
   public void setTags(RuleKey ruleKey, Set<String> tags) {
+
     checkAdminPermission(UserSession.get());
 
     DbSession dbSession = db.openSession(false);

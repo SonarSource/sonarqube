@@ -22,6 +22,7 @@ package org.sonar.server.rule2.ws;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.io.Resources;
+import com.google.gson.Gson;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Request;
@@ -217,6 +218,8 @@ public class SearchAction implements RequestHandler {
     json.prop(PARAM_PAGE, request.mandatoryParamAsInt(PARAM_PAGE));
     json.prop(PARAM_PAGE_SIZE, request.mandatoryParamAsInt(PARAM_PAGE_SIZE));
   }
+
+
   private void writeRules(RuleResult result, JsonWriter json) {
 
     json.name("rules").beginArray();
@@ -230,18 +233,16 @@ public class SearchAction implements RequestHandler {
         .prop("lang", rule.language())
         .prop("name", rule.name())
         .prop("htmlDesc", rule.htmlDescription())
-        .prop("status", rule.status().toString())
+        .prop("status", rule.status())
         .prop("template", rule.template())
         .prop("internalKey", rule.internalKey())
         .prop("severity", rule.severity())
         .prop("markdownNote", rule.markdownNote())
         .prop("noteLogin", rule.noteLogin())
         .name("tags").beginArray().values(rule.tags()).endArray()
-        .name("sysTags").beginArray().values(rule.systemTags()).endArray();
-      if(rule.debtSubCharacteristicKey() != null && !rule.debtSubCharacteristicKey().isEmpty()){
-        json
-          .prop("debtSubCharacteristicKey", rule.debtSubCharacteristicKey());
-      }
+        .name("sysTags").beginArray().values(rule.systemTags()).endArray()
+        .prop("debtSubCharacteristicKey", rule.debtSubCharacteristicKey());
+
       if(rule.debtRemediationFunction() != null){
         json
           .prop("debtRemediationFunctionType", rule.debtRemediationFunction().type().name())
@@ -266,11 +267,11 @@ public class SearchAction implements RequestHandler {
       for (ActiveRule activeRule : result.getActiveRules().get(rule.key().toString())) {
         json
           .beginObject()
-          .prop("key",activeRule.key().toString())
-          .prop("inherit", activeRule.inheritance().name())
+          .prop("key",activeRule.key())
+          .prop("inherit", activeRule.inheritance())
           .prop("severity", activeRule.severity());
         if(activeRule.parentKey() != null){
-          json.prop("parent",activeRule.parentKey().toString());
+          json.prop("parent",activeRule.parentKey());
         }
 
         json
