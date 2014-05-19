@@ -156,7 +156,7 @@ define(
                 jQuery('.navigator-details').removeClass('navigator-fetching');
                 app.detailsRegion.show(componentViewer);
                 componentViewer.open(that.model.get('component')).done(function() {
-                  componentViewer.showIssues([that.model.toJSON()], true);
+                  componentViewer.showIssues(that.model.toJSON(), true);
 
                   var row = componentViewer.$('.code-issue:first').closest('.row');
                   if (row.data('line-number') > 0) {

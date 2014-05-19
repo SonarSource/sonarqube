@@ -70,10 +70,12 @@ define(['handlebars'], function (Handlebars) {
   });
 
   Handlebars.registerHelper('inArray', function(array, element, options) {
-    if (array.indexOf(element) !== -1) {
-      return options.fn(this);
-    } else {
-      return options.inverse(this);
+    if (_.isArray(array)) {
+      if (array.indexOf(element) !== -1) {
+        return options.fn(this);
+      } else {
+        return options.inverse(this);
+      }
     }
   });
 

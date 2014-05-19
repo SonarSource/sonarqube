@@ -59,7 +59,7 @@ define [
       @delegateEvents()
       @showSettings = false
       @renderExpandButtons()
-      @renderIssues() if @options.main.settings.get('issues') && @model.has('issues')
+      @renderIssues() if @options.main.settings.get('issues') && @model.has('activeIssues')
 
 
     renderExpandButtons: ->
@@ -81,7 +81,7 @@ define [
 
 
     renderIssues: ->
-      issues = @model.get 'issues'
+      issues = @model.get 'activeIssues'
       issues.forEach (issue) =>
         line = issue.line || 0
         row = @$("[data-line-number=#{line}]")

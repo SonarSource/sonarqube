@@ -31,32 +31,32 @@
 
     <div class="component-viewer-header-measures-scope">
       <a data-scope="issues" class="component-viewer-header-measures-expand">
-        {{#if component.measures.fDebt}}
           <div class="component-viewer-header-measure">
-            <span class="component-viewer-header-measure-value">{{component.measures.fDebt}}</span>
+            <span class="component-viewer-header-measure-value">{{default component.measures.fDebt 0}}</span>
             <span class="component-viewer-header-measure-label">Debt</span>
           </div>
-        {{/if}}
         {{#if component.measures.fIssues}}
           <div class="component-viewer-header-measure">
             <span class="component-viewer-header-measure-value">{{component.measures.fIssues}}</span>
             <span class="component-viewer-header-measure-label">{{t 'metric.violations.name'}}</span>
           </div>
         {{/if}}
-        <div class="component-viewer-header-measure">
-          <div class="component-viewer-header-measure-issues">
-            <div class="component-viewer-header-measure-issue s-blocker"
-                 style="width: {{percent component.measures.fBlockerIssues component.measures.maxIssues}}%;"></div>
-            <div class="component-viewer-header-measure-issue s-critical"
-                 style="width: {{percent component.measures.fCriticalIssues component.measures.maxIssues}}%;"></div>
-            <div class="component-viewer-header-measure-issue s-major"
-                 style="width: {{percent component.measures.fMajorIssues component.measures.maxIssues}}%;"></div>
-            <div class="component-viewer-header-measure-issue s-minor"
-                 style="width: {{percent component.measures.fMinorIssues component.measures.maxIssues}}%;"></div>
-            <div class="component-viewer-header-measure-issue s-info"
-                 style="width: {{percent component.measures.fInfoIssues component.measures.maxIssues}}%;"></div>
+        {{#if component.measures.fIssues}}
+          <div class="component-viewer-header-measure">
+            <div class="component-viewer-header-measure-issues">
+              <div class="component-viewer-header-measure-issue s-blocker"
+                   style="width: {{percent component.measures.fBlockerIssues component.measures.maxIssues}}%;"></div>
+              <div class="component-viewer-header-measure-issue s-critical"
+                   style="width: {{percent component.measures.fCriticalIssues component.measures.maxIssues}}%;"></div>
+              <div class="component-viewer-header-measure-issue s-major"
+                   style="width: {{percent component.measures.fMajorIssues component.measures.maxIssues}}%;"></div>
+              <div class="component-viewer-header-measure-issue s-minor"
+                   style="width: {{percent component.measures.fMinorIssues component.measures.maxIssues}}%;"></div>
+              <div class="component-viewer-header-measure-issue s-info"
+                   style="width: {{percent component.measures.fInfoIssues component.measures.maxIssues}}%;"></div>
+            </div>
           </div>
-        </div>
+        {{/if}}
         <i class="icon-dropdown"></i>
       </a>
       <a data-scope="issues" title="Toggle issues"

@@ -27,13 +27,23 @@ define [
       'click .js-toggle-duplications': 'toggleDuplications'
       'click .js-toggle-scm': 'toggleSCM'
 
+      'click .js-filter-current-issue': 'filterByCurrentIssue'
+      'click .js-filter-all-issues': 'filterByAllIssues'
+      'click .js-filter-resolved-issues': 'filterByResolvedIssues'
+      'click .js-filter-unresolved-issues': 'filterByUnresolvedIssues'
+      'click .js-filter-false-positive-issues': 'filterByFalsePositiveIssues'
+      'click .js-filter-blocker-issues': 'filterByBlockerIssues'
+      'click .js-filter-critical-issues': 'filterByCriticalIssues'
+      'click .js-filter-major-issues': 'filterByMajorIssues'
+      'click .js-filter-minor-issues': 'filterByMinorIssues'
+      'click .js-filter-info-issues': 'filterByInfoIssues'
+
       'click .js-filter-lines-to-cover': 'filterByLinesToCover'
       'click .js-filter-covered-lines': 'filterByCoveredLines'
       'click .js-filter-uncovered-lines': 'filterByUncoveredLines'
       'click .js-filter-branches-to-cover': 'filterByBranchesToCover'
       'click .js-filter-covered-branches': 'filterByCoveredBranches'
       'click .js-filter-uncovered-branches': 'filterByUncoveredBranches'
-
       'click .js-filter-lines-to-cover-it': 'filterByLinesToCoverIT'
       'click .js-filter-covered-lines-it': 'filterByCoveredLinesIT'
       'click .js-filter-uncovered-lines-it': 'filterByUncoveredLinesIT'
@@ -90,25 +100,40 @@ define [
     toggleWorkspace: (e) -> @toggleSetting e, @options.main.showWorkspace, @options.main.hideWorkspace
 
 
-    filterByCoverage: (e, method) ->
+    filterLines: (e, method) ->
       @$('.component-viewer-header-expanded-bar-section-list .active').removeClass 'active'
       $(e.currentTarget).addClass 'active'
       _.result @options.main, method
 
 
-    filterByLinesToCover: (e) -> @filterByCoverage e, 'filterByLinesToCover'
-    filterByCoveredLines: (e) -> @filterByCoverage e, 'filterByCoveredLines'
-    filterByUncoveredLines: (e) -> @filterByCoverage e, 'filterByUncoveredLines'
-    filterByBranchesToCover: (e) -> @filterByCoverage e, 'filterByBranchesToCover'
-    filterByCoveredBranches: (e) -> @filterByCoverage e, 'filterByCoveredBranches'
-    filterByUncoveredBranches: (e) -> @filterByCoverage e, 'filterByUncoveredBranches'
+    # Issues
+    filterByCurrentIssue: (e) -> @filterLines e, 'filterByCurrentIssue'
+    filterByAllIssues: (e) -> @filterLines e, 'filterByAllIssues'
+    filterByResolvedIssues: (e) -> @filterLines e, 'filterByResolvedIssues'
+    filterByUnresolvedIssues: (e) -> @filterLines e, 'filterByUnresolvedIssues'
+    filterByFalsePositiveIssues: (e) -> @filterLines e, 'filterByFalsePositiveIssues'
 
-    filterByLinesToCoverIT: (e) -> @filterByCoverage e, 'filterByLinesToCoverIT'
-    filterByCoveredLinesIT: (e) -> @filterByCoverage e, 'filterByCoveredLinesIT'
-    filterByUncoveredLinesIT: (e) -> @filterByCoverage e, 'filterByUncoveredLinesIT'
-    filterByBranchesToCoverIT: (e) -> @filterByCoverage e, 'filterByBranchesToCoverIT'
-    filterByCoveredBranchesIT: (e) -> @filterByCoverage e, 'filterByCoveredBranchesIT'
-    filterByUncoveredBranchesIT: (e) -> @filterByCoverage e, 'filterByUncoveredBranchesIT'
+    filterByBlockerIssues: (e) -> @filterLines e, 'filterByBlockerIssues'
+    filterByCriticalIssues: (e) -> @filterLines e, 'filterByCriticalIssues'
+    filterByMajorIssues: (e) -> @filterLines e, 'filterByMajorIssues'
+    filterByMinorIssues: (e) -> @filterLines e, 'filterByMinorIssues'
+    filterByInfoIssues: (e) -> @filterLines e, 'filterByInfoIssues'
+
+
+    # Coverage
+    filterByLinesToCover: (e) -> @filterLines e, 'filterByLinesToCover'
+    filterByCoveredLines: (e) -> @filterLines e, 'filterByCoveredLines'
+    filterByUncoveredLines: (e) -> @filterLines e, 'filterByUncoveredLines'
+    filterByBranchesToCover: (e) -> @filterLines e, 'filterByBranchesToCover'
+    filterByCoveredBranches: (e) -> @filterLines e, 'filterByCoveredBranches'
+    filterByUncoveredBranches: (e) -> @filterLines e, 'filterByUncoveredBranches'
+
+    filterByLinesToCoverIT: (e) -> @filterLines e, 'filterByLinesToCoverIT'
+    filterByCoveredLinesIT: (e) -> @filterLines e, 'filterByCoveredLinesIT'
+    filterByUncoveredLinesIT: (e) -> @filterLines e, 'filterByUncoveredLinesIT'
+    filterByBranchesToCoverIT: (e) -> @filterLines e, 'filterByBranchesToCoverIT'
+    filterByCoveredBranchesIT: (e) -> @filterLines e, 'filterByCoveredBranchesIT'
+    filterByUncoveredBranchesIT: (e) -> @filterLines e, 'filterByUncoveredBranchesIT'
 
 
     serializeData: ->
