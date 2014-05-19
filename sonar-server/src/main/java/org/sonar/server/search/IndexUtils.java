@@ -19,6 +19,7 @@
  */
 package org.sonar.server.search;
 
+import javax.annotation.CheckForNull;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -30,12 +31,17 @@ public class IndexUtils {
     // only static stuff
   }
 
+  @CheckForNull
   public static Date parseDateTime(String s) {
     DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-    try {
-      return sdf.parse(s);
-    } catch (ParseException e) {
-      throw new IllegalArgumentException("Cannot parse ES date: " + s, e);
+    if (s == null) {
+      return null;
+    } else {
+      try {
+        return sdf.parse(s);
+      } catch (ParseException e) {
+        throw new IllegalArgumentException("Cannot parse ES date: " + s, e);
+      }
     }
   }
 }

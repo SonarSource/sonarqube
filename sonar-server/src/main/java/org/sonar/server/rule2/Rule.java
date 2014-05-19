@@ -83,8 +83,14 @@ public interface Rule {
   String internalKey();
 
   @CheckForNull
-  String noteAsMarkdown();
+  String markdownNote();
 
   @CheckForNull
   String noteLogin();
+
+  @CheckForNull
+  Date noteCreatedAt();
+
+  @CheckForNull
+  Date noteUpdatedAt();
 }

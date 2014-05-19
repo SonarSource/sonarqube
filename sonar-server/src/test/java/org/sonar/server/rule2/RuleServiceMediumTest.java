@@ -145,10 +145,10 @@ public class RuleServiceMediumTest {
     index.refresh();
     Rule rule = index.getByKey(ruleKey);
     // TODO
-//    assertThat(rule.getNote()).isEqualTo("my *note*");
-//    assertThat(rule.getNoteCreatedAt()).isNotNull();
-//    assertThat(rule.getNoteUpdatedAt()).isNotNull();
-//    assertThat(rule.getNoteUserLogin()).isEqualTo("marius");
+    assertThat(rule.markdownNote()).isEqualTo("my *note*");
+    assertThat(rule.noteCreatedAt()).isNotNull();
+    assertThat(rule.noteUpdatedAt()).isNotNull();
+    assertThat(rule.noteLogin()).isEqualTo("marius");
 
     // 2. DELETE NOTE
     service.setNote(ruleKey, null);
@@ -160,11 +160,10 @@ public class RuleServiceMediumTest {
     assertThat(dto.getNoteUserLogin()).isNull();
     index.refresh();
     rule = index.getByKey(ruleKey);
-    // TODO
-    //    assertThat(rule.getNote()).isNull();
-//    assertThat(rule.getNoteCreatedAt()).isNull();
-//    assertThat(rule.getNoteUpdatedAt()).isNull();
-//    assertThat(rule.getNoteUserLogin()).isNull();
+    assertThat(rule.markdownNote()).isNull();
+    assertThat(rule.noteCreatedAt()).isNull();
+    assertThat(rule.noteUpdatedAt()).isNull();
+    assertThat(rule.noteLogin()).isNull();
 
   }
 

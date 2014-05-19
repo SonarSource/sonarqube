@@ -67,6 +67,10 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     RuleNormalizer.RuleField.REPOSITORY.key(),
     RuleNormalizer.RuleField.PARAMS.key(),
     RuleNormalizer.RuleField.TEMPLATE.key(),
+    RuleNormalizer.RuleField.NOTE.key(),
+    RuleNormalizer.RuleField.NOTE_CREATED_AT.key(),
+    RuleNormalizer.RuleField.NOTE_UPDATED_AT.key(),
+    RuleNormalizer.RuleField.NOTE_LOGIN.key(),
     RuleNormalizer.RuleField.INTERNAL_KEY.key(),
     RuleNormalizer.RuleField.UPDATED_AT.key(),
     RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.key(),
@@ -135,6 +139,17 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     addMatchField(mapping, RuleNormalizer.RuleField.REPOSITORY.key(), "string");
     addMatchField(mapping, RuleNormalizer.RuleField.SEVERITY.key(), "string");
     addMatchField(mapping, RuleNormalizer.RuleField.STATUS.key(), "string");
+
+
+    mapping.startObject(RuleNormalizer.RuleField.NOTE_CREATED_AT.key())
+      .field("type", "date")
+      .field("format", "date_time")
+      .endObject();
+
+    mapping.startObject(RuleNormalizer.RuleField.NOTE_UPDATED_AT.key())
+      .field("type", "date")
+      .field("format", "date_time")
+      .endObject();
 
     mapping.startObject(RuleNormalizer.RuleField.CREATED_AT.key())
       .field("type", "date")

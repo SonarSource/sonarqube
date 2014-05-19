@@ -58,7 +58,11 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     DEBT_FUNCTION_TYPE("debtFunction"),
     DEBT_FUNCTION_COEFFICIENT("debtCoefficient"),
     DEBT_FUNCTION_OFFSET("debtOffset"),
-    SUB_CHARACTERISTIC("subCharacteristicKey");
+    SUB_CHARACTERISTIC("subCharacteristicKey"),
+    NOTE("note"),
+    NOTE_LOGIN("noteLogin"),
+    NOTE_CREATED_AT("noteCreatedAt"),
+    NOTE_UPDATED_AT("noteUpdatedAt");
 
     private final String key;
 
@@ -134,6 +138,11 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     update.put(RuleField.LANGUAGE.key(), rule.getLanguage());
     update.put(RuleField.INTERNAL_KEY.key(), rule.getConfigKey());
     update.put(RuleField.TEMPLATE.key(), rule.getCardinality() == Cardinality.MULTIPLE);
+
+    update.put(RuleField.NOTE.key(), rule.getNoteData());
+    update.put(RuleField.NOTE_LOGIN.key(), rule.getNoteUserLogin());
+    update.put(RuleField.NOTE_CREATED_AT.key(), rule.getNoteCreatedAt());
+    update.put(RuleField.NOTE_UPDATED_AT.key(), rule.getNoteUpdatedAt());
 
     //TODO Change on key when available
     String subChar = null;

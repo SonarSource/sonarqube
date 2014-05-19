@@ -63,6 +63,11 @@ class RuleDoc implements Rule {
   }
 
   @Override
+  public String markdownNote() {
+    return (String) fields.get(RuleField.NOTE.key());
+  }
+
+  @Override
   @CheckForNull
   public String language() {
     return (String) fields.get(RuleField.LANGUAGE.key());
@@ -191,16 +196,18 @@ class RuleDoc implements Rule {
 
   @Override
   @CheckForNull
-  public String noteAsMarkdown() {
-    // TODO
-    return null;
+  public String noteLogin() {
+    return (String) fields.get(RuleField.NOTE_LOGIN.key());
   }
 
   @Override
-  @CheckForNull
-  public String noteLogin() {
-    // TODO
-    return null;
+  public Date noteCreatedAt() {
+    return IndexUtils.parseDateTime((String) fields.get(RuleField.NOTE_CREATED_AT.key()));
+  }
+
+  @Override
+  public Date noteUpdatedAt() {
+    return IndexUtils.parseDateTime((String) fields.get(RuleField.NOTE_UPDATED_AT.key()));
   }
 
   @Override

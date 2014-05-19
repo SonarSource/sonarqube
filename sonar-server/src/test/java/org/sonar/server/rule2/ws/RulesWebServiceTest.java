@@ -42,6 +42,7 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
 import org.sonar.server.rule2.RuleService;
+import org.sonar.server.rule2.index.RuleNormalizer;
 import org.sonar.server.rule2.persistence.RuleDao;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
@@ -297,6 +298,33 @@ public class RulesWebServiceTest {
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "tags");
     WsTester.Result result = request.execute();
 
+    result.assertJson(this.getClass(),"get_tags.json");
+  }
+
+  @Test
+  public void get_notes() throws Exception {
+    QualityProfileDto profile = newQualityProfile();
+    tester.get(QualityProfileDao.class).insert(profile, session);
+
+    RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"))
+      .setNoteData("Note1");
+    ruleDao.insert(rule,  session);
+
+    RuleDto rule2 = newRuleDto(RuleKey.of(profile.getLanguage(), "S002"))
+      .setNoteData("Note2");
+    ruleDao.insert(rule2,  session);
+
+    session.commit();
+    tester.get(RuleService.class).refresh();
+
+
+    MockUserSession.set();
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
+    request.setParam("f", RuleNormalizer.RuleField.NOTE.key());
+    WsTester.Result result = request.execute();
+
+    System.out.println("result.outputAsString() = " + result.outputAsString());
+    
     result.assertJson(this.getClass(),"get_tags.json");
   }
 
