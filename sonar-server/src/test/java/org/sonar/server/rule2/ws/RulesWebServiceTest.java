@@ -22,7 +22,6 @@ package org.sonar.server.rule2.ws;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Resources;
-import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -271,7 +270,6 @@ public class RulesWebServiceTest {
 
     WsTester.Result result = request.execute();
 
-    System.out.println("result.outputAsString() = " + result.outputAsString());
     result.assertJson(this.getClass(),"search_active_rules_params.json");
   }
 

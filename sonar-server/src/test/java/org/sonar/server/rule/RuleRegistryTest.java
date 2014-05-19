@@ -372,7 +372,6 @@ public class RuleRegistryTest {
   public void find_rules_by_name_with_number_in_name() {
     registry.reindex(new RuleDto().setId(10).setRepositoryKey("repo").setRuleKey("rule1").setName("MyRule 1").setSeverity(Severity.MINOR));
     registry.reindex(new RuleDto().setId(11).setRepositoryKey("repo").setRuleKey("rule2").setName("MyRule 2").setSeverity(Severity.MINOR));
-    System.out.println("MY RESULT: " + registry.find(RuleQuery.builder().searchQuery("MyRule 1").build()).results());
     assertThat(registry.find(RuleQuery.builder().searchQuery("MyRule 1").build()).results()).hasSize(1);
   }
 
