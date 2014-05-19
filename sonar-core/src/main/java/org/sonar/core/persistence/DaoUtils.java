@@ -24,9 +24,14 @@ import org.sonar.core.dashboard.ActiveDashboardDao;
 import org.sonar.core.dashboard.DashboardDao;
 import org.sonar.core.duplication.DuplicationDao;
 import org.sonar.core.graph.jdbc.GraphDao;
-import org.sonar.core.issue.db.*;
+import org.sonar.core.issue.db.ActionPlanDao;
+import org.sonar.core.issue.db.ActionPlanStatsDao;
+import org.sonar.core.issue.db.IssueChangeDao;
+import org.sonar.core.issue.db.IssueDao;
+import org.sonar.core.issue.db.IssueFilterDao;
+import org.sonar.core.issue.db.IssueFilterFavouriteDao;
+import org.sonar.core.issue.db.IssueStatsDao;
 import org.sonar.core.measure.db.MeasureDao;
-import org.sonar.core.measure.db.MeasureFilterDao;
 import org.sonar.core.notification.db.NotificationQueueDao;
 import org.sonar.core.permission.PermissionDao;
 import org.sonar.core.permission.PermissionTemplateDao;
@@ -43,13 +48,18 @@ import org.sonar.core.source.db.SnapshotSourceDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.RequirementDao;
 import org.sonar.core.template.LoadedTemplateDao;
-import org.sonar.core.user.*;
+import org.sonar.core.user.AuthorDao;
+import org.sonar.core.user.AuthorizationDao;
+import org.sonar.core.user.GroupMembershipDao;
+import org.sonar.core.user.RoleDao;
+import org.sonar.core.user.UserDao;
 
 import java.util.List;
 
 public final class DaoUtils {
 
   private DaoUtils() {
+    // only static stuff
   }
 
   @SuppressWarnings("unchecked")
@@ -72,7 +82,6 @@ public final class DaoUtils {
       IssueFilterFavouriteDao.class,
       LoadedTemplateDao.class,
       MeasureDao.class,
-      MeasureFilterDao.class,
       NotificationQueueDao.class,
       PermissionDao.class,
       PermissionTemplateDao.class,

@@ -49,9 +49,10 @@ import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.workflow.FunctionExecutor;
 import org.sonar.core.issue.workflow.IssueWorkflow;
-import org.sonar.core.measure.MeasureFilterEngine;
-import org.sonar.core.measure.MeasureFilterExecutor;
-import org.sonar.core.measure.MeasureFilterFactory;
+import org.sonar.core.measure.db.MeasureFilterDao;
+import org.sonar.server.measure.MeasureFilterEngine;
+import org.sonar.server.measure.MeasureFilterExecutor;
+import org.sonar.server.measure.MeasureFilterFactory;
 import org.sonar.core.metric.DefaultMetricFinder;
 import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.permission.PermissionFacade;
@@ -201,8 +202,9 @@ class ServerComponents {
       System2.INSTANCE,
       RuleDao.class,
       ActiveRuleDao.class,
-      DbClient.class
-    ));
+      DbClient.class,
+      MeasureFilterDao.class
+      ));
     components.addAll(CorePropertyDefinitions.all());
     components.addAll(DatabaseMigrations.CLASSES);
     components.addAll(DaoUtils.getDaoClasses());

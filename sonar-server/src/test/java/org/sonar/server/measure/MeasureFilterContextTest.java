@@ -17,12 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.measure;
+package org.sonar.server.measure;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
-
-import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
