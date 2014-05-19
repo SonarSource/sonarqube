@@ -185,7 +185,7 @@ public class RulesWebServiceTest {
 
 
     MockUserSession.set();
-    WsTester.TestRequest request = wsTester.newGetRequest("api/rules2", "search");
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
     request.setParam("q","S001");
     request.setParam("activation","false");
     WsTester.Result result = request.execute();
@@ -216,7 +216,7 @@ public class RulesWebServiceTest {
 
 
     MockUserSession.set();
-    WsTester.TestRequest request = wsTester.newGetRequest("api/rules2", "search");
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
     request.setParam("q","S001");
     request.setParam("activation","true");
     request.setParam("qprofile",profile2.getKey().toString());
