@@ -32,12 +32,12 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.server.qualityprofile.QProfile;
-import org.sonar.server.qualityprofile.QProfiles;
 import org.sonar.server.qualityprofile.QualityProfileService;
 import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.rule.RuleRepositories.Repository;
+import org.sonar.server.user.UserSession;
 
 import java.util.Locale;
 import java.util.Map;
@@ -79,6 +79,7 @@ public class AppAction implements RequestHandler {
     "coding_rules.activate_in_quality_profile", // Activate In Quality Profile
     "coding_rules.activate_in_all_quality_profiles", // Activate In All {0} Profiles
     "coding_rules.add_note", // Add Note
+    "coding_rules.add_tags", // Add Tags
     "coding_rules.available_since", // Available Since
     "coding_rules.bulk_change", // Bulk Change
     "coding_rules.change_severity", // Change Severity
@@ -152,6 +153,7 @@ public class AppAction implements RequestHandler {
   public void handle(Request request, Response response) throws Exception {
     JsonWriter json = response.newJsonWriter();
     json.beginObject();
+    addPermissions(json);
     addProfiles(json);
     addLanguages(json);
     addRuleRepositories(json);
@@ -159,6 +161,10 @@ public class AppAction implements RequestHandler {
     addCharacteristics(json);
     addMessages(json);
     json.endObject().close();
+  }
+
+  private void addPermissions(JsonWriter json) {
+    json.prop("canWrite", UserSession.get().hasGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN));
   }
 
   private void addProfiles(JsonWriter json) {

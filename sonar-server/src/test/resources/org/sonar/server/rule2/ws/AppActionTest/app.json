@@ -1,4 +1,5 @@
 {
+  "canWrite": true,
   "qualityprofiles": [
     {"name": "Profile One", "lang": "bf"},
     {"name": "Profile Two", "lang": "bf", "parent": "Profile One"}
@@ -52,6 +53,7 @@
     "coding_rules.activate_in_quality_profile": "coding_rules.activate_in_quality_profile",
     "coding_rules.activate_in_all_quality_profiles": "coding_rules.activate_in_all_quality_profiles",
     "coding_rules.add_note": "coding_rules.add_note",
+    "coding_rules.add_tags": "coding_rules.add_tags",
     "coding_rules.available_since": "coding_rules.available_since",
     "coding_rules.bulk_change": "coding_rules.bulk_change",
     "coding_rules.change_severity": "coding_rules.change_severity",

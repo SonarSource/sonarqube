@@ -32,9 +32,11 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.debt.DebtModel;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.qualityprofile.QualityProfileService;
 import org.sonar.server.rule.RuleRepositories;
+import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
 import java.util.Locale;
@@ -68,6 +70,8 @@ public class AppActionTest {
     WsTester tester = new WsTester(new RulesWebService(
       mock(SearchAction.class), mock(ShowAction.class), mock(TagsAction.class), mock(SetTagsAction.class),
       mock(SetNoteAction.class), app));
+
+    MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     QualityProfileDto profile1 = QualityProfileDto.createFor("Profile One","bf");
     QualityProfileDto profile2 = QualityProfileDto.createFor("Profile Two","bf").setParent("Profile One");
