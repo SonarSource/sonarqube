@@ -30,6 +30,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.BadRequestException.Message;
 import org.sonar.server.exceptions.ServerException;
@@ -49,7 +50,7 @@ import static org.mockito.Mockito.when;
 
 public class WebServiceEngineTest {
 
-  private static class SimpleRequest extends InternalRequest {
+  private static class SimpleRequest extends ValidatingRequest {
     private final String method;
     private Map<String, String> params = Maps.newHashMap();
 
@@ -102,7 +103,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void execute_request() throws Exception {
-    InternalRequest request = new SimpleRequest("GET");
+    ValidatingRequest request = new SimpleRequest("GET");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "health");
 
@@ -111,7 +112,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void no_content() throws Exception {
-    InternalRequest request = new SimpleRequest("GET");
+    ValidatingRequest request = new SimpleRequest("GET");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "alive");
 
@@ -120,7 +121,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void bad_controller() throws Exception {
-    InternalRequest request = new SimpleRequest("GET");
+    ValidatingRequest request = new SimpleRequest("GET");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/xxx", "health");
 
@@ -129,7 +130,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void bad_action() throws Exception {
-    InternalRequest request = new SimpleRequest("GET");
+    ValidatingRequest request = new SimpleRequest("GET");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "xxx");
 
@@ -138,7 +139,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void method_get_not_allowed() throws Exception {
-    InternalRequest request = new SimpleRequest("GET");
+    ValidatingRequest request = new SimpleRequest("GET");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "ping");
 
@@ -147,7 +148,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void method_post_required() throws Exception {
-    InternalRequest request = new SimpleRequest("POST");
+    ValidatingRequest request = new SimpleRequest("POST");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "ping");
 
@@ -156,7 +157,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void unknown_parameter_is_set() throws Exception {
-    InternalRequest request = new SimpleRequest("GET").setParam("unknown", "Unknown");
+    ValidatingRequest request = new SimpleRequest("GET").setParam("unknown", "Unknown");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "fail_with_undeclared_parameter");
 
@@ -165,7 +166,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void required_parameter_is_not_set() throws Exception {
-    InternalRequest request = new SimpleRequest("GET");
+    ValidatingRequest request = new SimpleRequest("GET");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "print");
 
@@ -174,7 +175,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void optional_parameter_is_not_set() throws Exception {
-    InternalRequest request = new SimpleRequest("GET").setParam("message", "Hello World");
+    ValidatingRequest request = new SimpleRequest("GET").setParam("message", "Hello World");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "print");
 
@@ -183,7 +184,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void optional_parameter_is_set() throws Exception {
-    InternalRequest request = new SimpleRequest("GET")
+    ValidatingRequest request = new SimpleRequest("GET")
       .setParam("message", "Hello World")
       .setParam("author", "Marcel");
     ServletResponse response = new ServletResponse();
@@ -194,7 +195,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void param_value_is_in_possible_values() throws Exception {
-    InternalRequest request = new SimpleRequest("GET")
+    ValidatingRequest request = new SimpleRequest("GET")
       .setParam("message", "Hello World")
       .setParam("format", "json");
     ServletResponse response = new ServletResponse();
@@ -205,7 +206,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void param_value_is_not_in_possible_values() throws Exception {
-    InternalRequest request = new SimpleRequest("GET")
+    ValidatingRequest request = new SimpleRequest("GET")
       .setParam("message", "Hello World")
       .setParam("format", "html");
     ServletResponse response = new ServletResponse();
@@ -216,7 +217,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void internal_error() throws Exception {
-    InternalRequest request = new SimpleRequest("GET");
+    ValidatingRequest request = new SimpleRequest("GET");
     ServletResponse response = new ServletResponse();
     engine.execute(request, response, "api/system", "fail");
 
@@ -227,7 +228,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void bad_request_with_i18n_message() throws Exception {
-    InternalRequest request = new SimpleRequest("GET").setParam("count", "3");
+    ValidatingRequest request = new SimpleRequest("GET").setParam("count", "3");
     ServletResponse response = new ServletResponse();
     when(i18n.message(eq(Locale.getDefault()), eq("bad.request.reason"), anyString(), eq(0))).thenReturn("Bad request reason #0");
 
@@ -242,7 +243,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void bad_request_with_multiple_messages() throws Exception {
-    InternalRequest request = new SimpleRequest("GET").setParam("count", "3");
+    ValidatingRequest request = new SimpleRequest("GET").setParam("count", "3");
     ServletResponse response = new ServletResponse();
 
     engine.execute(request, response, "api/system", "fail_with_multiple_messages");
@@ -258,7 +259,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void bad_request_with_multiple_i18n_messages() throws Exception {
-    InternalRequest request = new SimpleRequest("GET").setParam("count", "3");
+    ValidatingRequest request = new SimpleRequest("GET").setParam("count", "3");
     ServletResponse response = new ServletResponse();
     when(i18n.message(Locale.getDefault(), "bad.request.reason", null, 0)).thenReturn("Bad request reason #0");
     when(i18n.message(Locale.getDefault(), "bad.request.reason", null, 1)).thenReturn("Bad request reason #1");
@@ -277,7 +278,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void server_exception_with_i18n_message() throws Exception {
-    InternalRequest request = new SimpleRequest("GET");
+    ValidatingRequest request = new SimpleRequest("GET");
     ServletResponse response = new ServletResponse();
     when(i18n.message(eq(Locale.getDefault()), eq("not.found"), anyString())).thenReturn("Element is not found");
 

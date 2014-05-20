@@ -26,6 +26,7 @@ import org.sonar.server.search.Result;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -92,16 +93,18 @@ public class SearchOptions {
     return options;
   }
 
-  public static void defineGenericParameters(WebService.NewAction action, Object... possibleValues) {
+  public static void defineFieldsParam(WebService.NewAction action, @Nullable Collection<String> possibleFields) {
     WebService.NewParam newParam = action
       .createParam(PARAM_FIELDS)
       .setDescription("Comma-separated list of the fields to be returned in response. All the fields are returned by default.")
-      .setPossibleValues(possibleValues);
-    if (newParam.possibleValues() != null && newParam.possibleValues().size() > 1) {
-      Iterator<String> it = newParam.possibleValues().iterator();
+      .setPossibleValues(possibleFields);
+    if (possibleFields != null && possibleFields.size() > 1) {
+      Iterator<String> it = possibleFields.iterator();
       newParam.setExampleValue(String.format("%s,%s", it.next(), it.next()));
     }
+  }
 
+  public static void definePageParams(WebService.NewAction action) {
     action
       .createParam(PARAM_PAGE)
       .setDescription("1-based page number")

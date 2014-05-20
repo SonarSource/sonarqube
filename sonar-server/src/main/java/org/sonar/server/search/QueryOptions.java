@@ -29,7 +29,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Options about paging, sorting and fields to return
+ * Various Elasticsearch request options: paging, sorting, fields and facets
  *
  * @since 4.4
  */
@@ -39,13 +39,11 @@ public class QueryOptions {
 
   public static final int DEFAULT_OFFSET = 0;
   public static final int DEFAULT_LIMIT = 10;
-  public static final boolean DEFAULT_FACET = true;
+  public static final boolean DEFAULT_FACET = false;
 
   private int offset = DEFAULT_OFFSET;
   private int limit = DEFAULT_LIMIT;
-
   private boolean facet = DEFAULT_FACET;
-
   private Set<String> fieldsToReturn = new HashSet<String>();
 
   /**
@@ -83,10 +81,10 @@ public class QueryOptions {
    * Set offset and limit according to page approach
    */
   public QueryOptions setPage(int page, int pageSize) {
-    Preconditions.checkArgument(page > 0, "Page must be positive");
-    Preconditions.checkArgument(pageSize >= 0, "Page size must be positive or greater than 0");
-    this.offset = (page * pageSize) - pageSize;
-    this.limit = pageSize;
+    Preconditions.checkArgument(page >= 1, "Page must be greater or equal to 1 (got " + page + ")");
+    Preconditions.checkArgument(pageSize >= 0, "Page size must be greater or equal to 0 (got " + pageSize + ")");
+    setOffset((page * pageSize) - pageSize);
+    setLimit(pageSize);
     return this;
   }
 
@@ -128,9 +126,5 @@ public class QueryOptions {
   public QueryOptions addFieldsToReturn(String... c) {
     fieldsToReturn.addAll(Arrays.asList(c));
     return this;
-  }
-
-  public boolean hasFieldToReturn(String key) {
-    return fieldsToReturn.isEmpty() || fieldsToReturn.contains(key);
   }
 }

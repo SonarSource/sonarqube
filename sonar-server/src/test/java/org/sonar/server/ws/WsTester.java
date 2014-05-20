@@ -25,6 +25,7 @@ import org.apache.commons.io.IOUtils;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
 
@@ -42,7 +43,7 @@ import java.util.Map;
  */
 public class WsTester {
 
-  public static class TestRequest extends InternalRequest {
+  public static class TestRequest extends ValidatingRequest {
 
     private final String method;
     private Map<String, String> params = Maps.newHashMap();

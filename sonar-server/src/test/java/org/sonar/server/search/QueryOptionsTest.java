@@ -26,12 +26,49 @@ import org.junit.Test;
 import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class QueryOptionsTest {
 
+  QueryOptions options = new QueryOptions();
+
+  @Test
+  public void page_shortcut_for_limit_and_offset() throws Exception {
+    options.setPage(3, 10);
+
+    assertThat(options.getLimit()).isEqualTo(10);
+    assertThat(options.getOffset()).isEqualTo(20);
+  }
+
+  @Test
+  public void page_starts_at_one() throws Exception {
+    options.setPage(1, 10);
+    assertThat(options.getLimit()).isEqualTo(10);
+    assertThat(options.getOffset()).isEqualTo(0);
+  }
+
+  @Test
+  public void page_must_be_strictly_positive() throws Exception {
+    try {
+      options.setPage(0, 10);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Page must be greater or equal to 1 (got 0)");
+    }
+  }
+
+  @Test
+  public void page_size_must_be_positive() throws Exception {
+    try {
+      options.setPage(2, -1);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Page size must be greater or equal to 0 (got -1)");
+    }
+  }
+
   @Test
   public void fields_to_return() throws Exception {
-    QueryOptions options = new QueryOptions();
     assertThat(options.getFieldsToReturn()).isEmpty();
 
     options.setFieldsToReturn(Arrays.asList("one", "two"));
@@ -46,8 +83,6 @@ public class QueryOptionsTest {
 
   @Test
   public void support_immutable_fields() throws Exception {
-    QueryOptions options = new QueryOptions();
-
     options.setFieldsToReturn(ImmutableList.of("one", "two"));
     assertThat(options.getFieldsToReturn()).containsOnly("one", "two");
 
@@ -56,5 +91,13 @@ public class QueryOptionsTest {
 
     options.addFieldsToReturn("four");
     assertThat(options.getFieldsToReturn()).containsOnly("one", "two", "three", "four");
+  }
+
+  @Test
+  public void do_not_request_facets_by_default() throws Exception {
+    assertThat(options.isFacet()).isFalse();
+
+    options.setFacet(true);
+    assertThat(options.isFacet()).isTrue();
   }
 }

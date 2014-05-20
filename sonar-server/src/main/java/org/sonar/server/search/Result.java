@@ -39,7 +39,6 @@ public abstract class Result<K> {
   private long total;
   private long timeInMillis;
 
-
   public Result(SearchResponse response) {
     this.hits = new ArrayList<K>();
     this.facets = new HashMap<String, Collection<FacetValue>>();

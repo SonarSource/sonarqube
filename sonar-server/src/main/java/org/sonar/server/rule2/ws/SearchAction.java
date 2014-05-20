@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule2.ws;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.Resources;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -71,7 +72,9 @@ public class SearchAction implements RequestHandler {
       .setSince("4.4")
       .setHandler(this);
 
-    SearchOptions.defineGenericParameters(action, mapping.supportedFields(), "actives");
+    SearchOptions.defineFieldsParam(action,
+      ImmutableList.<String>builder().addAll(mapping.supportedFields()).add("actives").build());
+    SearchOptions.definePageParams(action);
     defineRuleSearchParameters(action);
   }
 

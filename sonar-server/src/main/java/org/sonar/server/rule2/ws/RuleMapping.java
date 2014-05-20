@@ -29,6 +29,9 @@ import org.sonar.server.rule2.index.RuleNormalizer;
 import org.sonar.server.search.ws.BaseMapping;
 import org.sonar.server.text.MacroInterpreter;
 
+/**
+ * Conversion between RuleDoc and WS JSON response
+ */
 public class RuleMapping extends BaseMapping {
 
   private final Languages languages;

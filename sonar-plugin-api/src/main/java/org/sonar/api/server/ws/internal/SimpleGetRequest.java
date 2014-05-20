@@ -17,14 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.ws;
+package org.sonar.api.server.ws.internal;
 
+import com.google.common.collect.Maps;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.WebService;
 
-public abstract class InternalRequest extends Request {
+import javax.annotation.Nullable;
+import java.util.Map;
+
+/**
+ * Fake implementation of {@link org.sonar.api.server.ws.Request} used
+ * for testing. Call the method {@link #setParam(String, String)} to
+ * emulate some parameter values.
+ */
+public class SimpleGetRequest extends Request {
+
+  private final Map<String, String> params = Maps.newHashMap();
+
   @Override
-  protected void setAction(WebService.Action action) {
-    super.setAction(action);
+  public String method() {
+    return "GET";
   }
+
+  @Override
+  public String param(String key) {
+    return params.get(key);
+  }
+
+  public SimpleGetRequest setParam(String key, @Nullable String value) {
+    if (value != null) {
+      params.put(key, value);
+    }
+    return this;
+  }
+
 }

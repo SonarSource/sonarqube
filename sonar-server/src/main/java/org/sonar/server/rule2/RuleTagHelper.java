@@ -50,6 +50,6 @@ class RuleTagHelper {
       }
     });
     rule.setTags(withoutSystemTags);
-    return Sets.difference(initialTags, withoutSystemTags).size() > 0;
+    return withoutSystemTags.size()!=initialTags.size() || !withoutSystemTags.containsAll(initialTags);
   }
 }

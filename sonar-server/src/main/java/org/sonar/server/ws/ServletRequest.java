@@ -19,10 +19,12 @@
  */
 package org.sonar.server.ws;
 
+import org.sonar.api.server.ws.internal.ValidatingRequest;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
-public class ServletRequest extends InternalRequest {
+public class ServletRequest extends ValidatingRequest {
 
   private final HttpServletRequest source;
   private final Map<String, String> params;

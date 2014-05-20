@@ -26,6 +26,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.BadRequestException.Message;
@@ -75,7 +76,7 @@ public class WebServiceEngine implements ServerComponent, Startable {
     return context.controllers();
   }
 
-  public void execute(InternalRequest request, ServletResponse response,
+  public void execute(ValidatingRequest request, ServletResponse response,
                       String controllerPath, String actionKey) {
     try {
       WebService.Action action = getAction(controllerPath, actionKey);

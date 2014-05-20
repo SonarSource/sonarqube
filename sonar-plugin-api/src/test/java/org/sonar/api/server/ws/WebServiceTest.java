@@ -256,7 +256,7 @@ public class WebServiceTest {
         NewController newController = context.createController("api/rule");
         NewAction create = newController.createAction("create").setHandler(mock(RequestHandler.class));
         create.createParam("key").setDescription("Key of the new rule");
-        create.createParam("severity").setDefaultValue("MAJOR");
+        create.createParam("severity").setDefaultValue("MAJOR").setPossibleValues("INFO", "MAJOR", "BLOCKER");
         newController.done();
       }
     }.define(context);
@@ -271,6 +271,7 @@ public class WebServiceTest {
     assertThat(action.param("severity").key()).isEqualTo("severity");
     assertThat(action.param("severity").description()).isNull();
     assertThat(action.param("severity").defaultValue()).isEqualTo("MAJOR");
+    assertThat(action.param("severity").possibleValues()).containsOnly("INFO", "MAJOR", "BLOCKER");
   }
 
   @Test

@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.server.ws.internal.ValidatingRequest;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -33,7 +34,7 @@ import static org.mockito.Mockito.mock;
 
 public class RequestTest {
 
-  private static class SimpleRequest extends Request {
+  private static class SimpleRequest extends ValidatingRequest {
 
     private final Map<String, String> params = Maps.newHashMap();
 
