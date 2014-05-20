@@ -71,6 +71,9 @@ define [
           model: @contextProfile
         @listenTo @contextProfile, 'destroy', @hideContext
 
+      @model.set 'lang', @options.app.languages[@model.get 'lang']
+      repoKey = @model.get 'repo'
+      @model.set 'repository', _.find(@options.app.repositories, (repo) -> repo.key == repoKey).name
 
     onRender: ->
       @qualityProfilesRegion.show @qualityProfilesView
@@ -131,9 +134,11 @@ define [
       @ui.extendDescriptionSpinner.show()
       jQuery.ajax
         type: 'POST'
-        url: "#{baseUrl}/api/rules/extend_description"
+        url: "#{baseUrl}/api/rules/set_note"
         dataType: 'json'
-        data: text: @ui.extendDescriptionText.val()
+        data:
+          key: @model.get 'key'
+          text: @ui.extendDescriptionText.val()
       .done (r) =>
         @model.set extra: r.extra, extraRaw: r.extraRaw
         @render()

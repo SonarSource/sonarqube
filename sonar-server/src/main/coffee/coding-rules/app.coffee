@@ -137,6 +137,10 @@ requirejs [
       url: "#{baseUrl}/api/rules/search"
       data: fetchQuery
     .done (r) =>
+      _.map(r.rules, (rule) ->
+        rule.language = App.languages[rule.lang]
+      )
+
       if firstPage
         @codingRules.reset r.rules
       else
@@ -305,7 +309,7 @@ requirejs [
       type: RepositoryFilterView
       enabled: false
       optional: true
-      languageFilter: @languageFilter
+      app: @
       choices: @repositories
 
     @filters.add new BaseFilters.Filter
