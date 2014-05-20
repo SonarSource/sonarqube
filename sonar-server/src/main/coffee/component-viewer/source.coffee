@@ -30,6 +30,8 @@ define [
 
 
     events:
+      'click .sym': 'highlightUsages'
+
       'click .coverage-tests': 'showCoveragePopup'
 
       'click .duplication-exists': 'showDuplicationPopup'
@@ -94,6 +96,12 @@ define [
 
     showSpinner: ->
       @$el.html '<div style="padding: 10px;"><i class="spinner"></i></div>'
+
+
+    highlightUsages: (e) ->
+      key = e.currentTarget.className.split(/\s+/)[0]
+      @$('.sym.highlighted').removeClass 'highlighted'
+      @$(".sym.#{key}").addClass 'highlighted'
 
 
     toggleSettings: ->
