@@ -56,7 +56,6 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
   static final Date DATE3 = DateUtils.parseDateTime("2014-03-01T12:10:03+0100");
 
   ProfilesManager profilesManager = mock(ProfilesManager.class);
-  CharacteristicDao characteristicDao;
   System2 system;
   DbClient dbClient;
   DbSession dbSession;
@@ -67,8 +66,8 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     when(system.now()).thenReturn(DATE1.getTime());
     RuleDao ruleDao = new RuleDao(system);
     ActiveRuleDao activeRuleDao = new ActiveRuleDao(new QualityProfileDao(getMyBatis()), ruleDao, system);
-    dbClient = new DbClient(getDatabase(), getMyBatis(), ruleDao, activeRuleDao, new QualityProfileDao(getMyBatis()));
-    characteristicDao = new CharacteristicDao(getMyBatis());
+    dbClient = new DbClient(getDatabase(), getMyBatis(), ruleDao, activeRuleDao,
+      new QualityProfileDao(getMyBatis()), new CharacteristicDao(getMyBatis()));
     dbSession = dbClient.openSession(false);
   }
 
@@ -203,7 +202,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
 
   private void execute(RulesDefinition... defs) {
     RuleDefinitionsLoader loader = new RuleDefinitionsLoader(mock(RuleRepositories.class), defs);
-    RegisterRules task = new RegisterRules(loader, profilesManager, dbClient, characteristicDao, system);
+    RegisterRules task = new RegisterRules(loader, profilesManager, dbClient, system);
     task.start();
   }
 

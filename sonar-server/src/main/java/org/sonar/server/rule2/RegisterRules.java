@@ -73,20 +73,18 @@ public class RegisterRules implements Startable {
 
 
   public RegisterRules(RuleDefinitionsLoader defLoader, ProfilesManager profilesManager,
-                       DbClient dbClient,
-                       CharacteristicDao characteristicDao) {
-    this(defLoader, profilesManager, dbClient, characteristicDao, System2.INSTANCE);
+                       DbClient dbClient) {
+    this(defLoader, profilesManager, dbClient, System2.INSTANCE);
   }
 
 
   @VisibleForTesting
   RegisterRules(RuleDefinitionsLoader defLoader, ProfilesManager profilesManager,
-                DbClient dbClient,
-                CharacteristicDao characteristicDao, System2 system) {
+                DbClient dbClient, System2 system) {
     this.defLoader = defLoader;
     this.profilesManager = profilesManager;
     this.dbClient = dbClient;
-    this.characteristicDao = characteristicDao;
+    this.characteristicDao = dbClient.getDao(CharacteristicDao.class);
   }
 
   @Override
