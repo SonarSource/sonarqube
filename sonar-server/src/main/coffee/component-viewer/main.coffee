@@ -57,12 +57,7 @@ define [
 
 
     initialize: (options) ->
-      @settings = new Backbone.Model
-        issues: false
-        coverage: false
-        duplications: false
-        scm: false
-        workspace: false
+      @settings = new Backbone.Model @getDefaultSettings()
       @settings.set options.settings
 
       @component = new Backbone.Model()
@@ -83,6 +78,20 @@ define [
         main: @
 
       @requestIssuesOnce = false
+
+
+    getDefaultSettings: ->
+      componentViewerSettings = localStorage.getItem 'componentViewerSettings'
+      if componentViewerSettings? then JSON.parse componentViewerSettings else
+        issues: false
+        coverage: false
+        duplications: false
+        scm: false
+        workspace: false
+
+
+    storeSettings: ->
+      localStorage.setItem 'componentViewerSettings', JSON.stringify @settings.toJSON()
 
 
     onRender: ->
@@ -161,35 +170,41 @@ define [
         if @settings.get('scm') then @showSCM() else @hideSCM()
 
 
-    showCoverage: ->
+    showCoverage: (store = false) ->
       @settings.set 'coverage', true
+      @storeSettings() if store
       unless @source.has 'coverage'
         @requestCoverage(@key).done => @sourceView.render()
       else
         @sourceView.render()
 
 
-    hideCoverage: ->
+    hideCoverage: (store = false) ->
       @settings.set 'coverage', false
+      @storeSettings() if store
       @sourceView.render()
 
 
-    toggleWorkspace: ->
+    toggleWorkspace: (store = false) ->
       if @settings.get 'workspace' then @hideWorkspace() else @showWorkspace()
+      @storeSettings() if store
 
 
-    showWorkspace: ->
+    showWorkspace: (store = false) ->
       @settings.set 'workspace', true
+      @storeSettings() if store
       @render()
 
 
-    hideWorkspace: ->
+    hideWorkspace: (store = false) ->
       @settings.set 'workspace', false
+      @storeSettings() if store
       @render()
 
 
-    showIssues: (issue) ->
+    showIssues: (store = false, issue) ->
       @settings.set 'issues', true
+      @storeSettings() if store
       if issue?
         @currentIssue = issue.key
         @source.set 'issues', [issue]
@@ -198,31 +213,36 @@ define [
         @sourceView.render()
 
 
-    hideIssues: ->
+    hideIssues: (store = false) ->
       @settings.set 'issues', false
+      @storeSettings() if store
       @sourceView.render()
 
 
-    showDuplications: ->
+    showDuplications: (store = false) ->
       @settings.set 'duplications', true
+      @storeSettings() if store
       @sourceView.render()
 
 
-    hideDuplications: ->
+    hideDuplications: (store = false) ->
       @settings.set 'duplications', false
+      @storeSettings() if store
       @sourceView.render()
 
 
-    showSCM: ->
+    showSCM: (store = false) ->
       @settings.set 'scm', true
+      @storeSettings() if store
       unless @source.has 'scm'
         @requestSCM(@key).done => @sourceView.render()
       else
         @sourceView.render()
 
 
-    hideSCM: ->
+    hideSCM: (store = false) ->
       @settings.set 'scm', false
+      @storeSettings() if store
       @sourceView.render()
 
 

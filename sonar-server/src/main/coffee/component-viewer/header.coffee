@@ -93,7 +93,10 @@ define [
     toggleSetting: (e, show, hide) ->
       @showBlocks = []
       active = $(e.currentTarget).is '.active'
-      if active then hide.call @options.main else show.call @options.main
+      if active
+        hide.call @options.main, true
+      else
+        show.call @options.main, true
 
 
     toggleIssues: (e) -> @toggleSetting e, @options.main.showIssues, @options.main.hideIssues
