@@ -21,6 +21,7 @@ package org.sonar.jpa.session;
 
 import org.sonar.api.database.DatabaseSession;
 
+@Deprecated
 public interface DatabaseSessionFactory {
 
   DatabaseSession getSession();
