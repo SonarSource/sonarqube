@@ -31,7 +31,6 @@ import org.sonar.api.utils.text.XmlWriter;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -181,7 +180,6 @@ public class WsTester {
         throw new IllegalStateException("Cannot find " + path);
       }
       String json = outputAsString();
-      System.out.println("GOT " + json);
       JSONAssert.assertEquals(IOUtils.toString(url), json, strict);
       return this;
     }
