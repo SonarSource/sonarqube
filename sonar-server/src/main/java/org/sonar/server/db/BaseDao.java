@@ -22,14 +22,16 @@ package org.sonar.server.db;
 import com.google.common.base.Preconditions;
 import org.sonar.api.DaoComponent;
 import org.sonar.api.utils.System2;
-import org.sonar.core.persistence.Dto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.Dto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.action.DtoIndexAction;
 import org.sonar.server.search.action.EmbeddedIndexAction;
 import org.sonar.server.search.action.IndexAction;
 import org.sonar.server.search.action.KeyIndexAction;
+
+import javax.annotation.Nullable;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -107,18 +109,26 @@ import java.util.List;
  */
 public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> implements Dao<E, K>, DaoComponent {
 
-  protected final IndexDefinition indexDefinition;
+  protected IndexDefinition indexDefinition;
   private Class<M> mapperClass;
   private System2 system2;
 
-  protected BaseDao(IndexDefinition indexDefinition, Class<M> mapperClass, System2 system2) {
+  private boolean hasIndex() {
+    return indexDefinition != null;
+  }
+
+  protected BaseDao(@Nullable IndexDefinition indexDefinition, Class<M> mapperClass, System2 system2) {
     this.mapperClass = mapperClass;
     this.indexDefinition = indexDefinition;
     this.system2 = system2;
   }
 
+  protected BaseDao(Class<M> mapperClass, System2 system2) {
+    this(null, mapperClass, system2);
+  }
+
   public String getIndexType() {
-    return this.indexDefinition.getIndexType();
+    return indexDefinition != null ? this.indexDefinition.getIndexType() : null;
   }
 
   protected abstract E doGetByKey(K key, DbSession session);
@@ -149,7 +159,9 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   public E update(E item, DbSession session) {
     item.setUpdatedAt(new Date(system2.now()));
     this.doUpdate(item, session);
-    session.enqueue(new DtoIndexAction<E>(this.getIndexType(), IndexAction.Method.UPDATE, item));
+    if (hasIndex()) {
+      session.enqueue(new DtoIndexAction<E>(this.getIndexType(), IndexAction.Method.UPDATE, item));
+    }
     return item;
   }
 
@@ -168,7 +180,9 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
     item.setCreatedAt(new Date(system2.now()));
     item.setUpdatedAt(item.getCreatedAt());
     this.doInsert(item, session);
-    session.enqueue(new DtoIndexAction<E>(this.getIndexType(), IndexAction.Method.INSERT, item));
+    if (hasIndex()) {
+      session.enqueue(new DtoIndexAction<E>(this.getIndexType(), IndexAction.Method.INSERT, item));
+    }
     return item;
   }
 
@@ -199,21 +213,29 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   public void deleteByKey(K key, DbSession session) {
     Preconditions.checkNotNull(key, "cannot delete Item with null key");
     doDeleteByKey(key, session);
-    session.enqueue(new KeyIndexAction<K>(this.getIndexType(), IndexAction.Method.DELETE, key));
+    if (hasIndex()) {
+      session.enqueue(new KeyIndexAction<K>(this.getIndexType(), IndexAction.Method.DELETE, key));
+    }
   }
 
   protected void enqueueUpdate(Object nestedItem, K key, DbSession session) {
-    session.enqueue(new EmbeddedIndexAction<K>(
-      this.getIndexType(), IndexAction.Method.UPDATE, nestedItem, key));
+    if (hasIndex()) {
+      session.enqueue(new EmbeddedIndexAction<K>(
+        this.getIndexType(), IndexAction.Method.UPDATE, nestedItem, key));
+    }
   }
 
   public void enqueueDelete(Object nestedItem, K key, DbSession session) {
-    session.enqueue(new EmbeddedIndexAction<K>(
-      this.getIndexType(), IndexAction.Method.DELETE, nestedItem, key));
+    if (hasIndex()) {
+      session.enqueue(new EmbeddedIndexAction<K>(
+        this.getIndexType(), IndexAction.Method.DELETE, nestedItem, key));
+    }
   }
 
   public void enqueueInsert(Object nestedItem, K key, DbSession session) {
-    session.enqueue(new EmbeddedIndexAction<K>(
-      this.getIndexType(), IndexAction.Method.INSERT, nestedItem, key));
+    if (hasIndex()) {
+      session.enqueue(new EmbeddedIndexAction<K>(
+        this.getIndexType(), IndexAction.Method.INSERT, nestedItem, key));
+    }
   }
 }

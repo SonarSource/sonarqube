@@ -21,7 +21,6 @@ package org.sonar.server.user;
 
 import com.google.common.collect.HashMultimap;
 import org.sonar.core.resource.ResourceDao;
-import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.user.AuthorizationDao;
 
 import javax.annotation.Nullable;
@@ -32,7 +31,6 @@ import java.util.Locale;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class MockUserSession extends UserSession {
 
@@ -88,8 +86,9 @@ public class MockUserSession extends UserSession {
     return this;
   }
 
-  public MockUserSession addComponent(String componentKey, String projectKey) {
-    when(resourceDao.getRootProjectByComponentKey(componentKey)).thenReturn(new ResourceDto().setKey(projectKey));
+  public MockUserSession addComponentPermission(String projectPermission, String projectKey, String componentKey) {
+    this.projectKeyByComponentKey.put(componentKey, projectKey);
+    addProjectPermissions(projectPermission, projectKey);
     return this;
   }
 

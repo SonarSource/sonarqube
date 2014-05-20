@@ -26,10 +26,8 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Durations;
-import org.sonar.core.measure.db.MeasureDao;
-import org.sonar.core.properties.PropertiesDao;
-import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.timemachine.Periods;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.ws.WsTester;
 
@@ -42,8 +40,7 @@ public class ComponentsWsTest {
 
   @Before
   public void setUp() throws Exception {
-    WsTester tester = new WsTester(new ComponentsWs(new ComponentAppAction(mock(ResourceDao.class), mock(MeasureDao.class), mock(PropertiesDao.class),
-      mock(IssueService.class), mock(Periods.class), mock(Durations.class), mock(I18n.class))));
+    WsTester tester = new WsTester(new ComponentsWs(new ComponentAppAction(mock(DbClient.class), mock(IssueService.class), mock(Periods.class), mock(Durations.class), mock(I18n.class))));
     controller = tester.controller("api/components");
   }
 

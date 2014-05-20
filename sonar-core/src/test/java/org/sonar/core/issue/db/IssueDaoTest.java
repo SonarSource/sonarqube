@@ -23,6 +23,7 @@ package org.sonar.core.issue.db;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import org.apache.ibatis.executor.result.DefaultResultHandler;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.issue.IssueQuery;
@@ -30,6 +31,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 
 import java.util.List;
@@ -40,11 +42,19 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class IssueDaoTest extends AbstractDaoTestCase {
 
+  DbSession session;
+
   IssueDao dao;
 
   @Before
   public void createDao() {
+    session = getMyBatis().openSession(false);
     dao = new IssueDao(getMyBatis());
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    session.close();
   }
 
   @Test
@@ -434,7 +444,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void find_rules_by_component() {
     setupData("shared", "find_rules_by_component");
 
-    List<RuleDto> results = dao.findRulesByComponent("Action.java");
+    List<RuleDto> results = dao.findRulesByComponent("Action.java", session);
     assertThat(results).hasSize(3);
   }
 
@@ -442,7 +452,7 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void find_severities_by_component() {
     setupData("shared", "find_severities_by_component");
 
-    List<String> results = dao.findSeveritiesByComponent("Action.java");
+    List<String> results = dao.findSeveritiesByComponent("Action.java", session);
     assertThat(results).containsExactly(Severity.BLOCKER, Severity.MAJOR, Severity.BLOCKER);
   }
 

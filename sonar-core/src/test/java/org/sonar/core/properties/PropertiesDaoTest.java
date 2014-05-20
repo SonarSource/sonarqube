@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.persistence.DbSession;
 
 import java.util.List;
 
@@ -34,6 +35,8 @@ import static org.junit.Assert.assertThat;
 
 public class PropertiesDaoTest extends AbstractDaoTestCase {
 
+  private DbSession session;
+
   private PropertiesDao dao;
 
   @Rule
@@ -42,6 +45,7 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
   @Before
   public void createDao() {
     dao = new PropertiesDao(getMyBatis());
+    session = getMyBatis().openSession(false);
   }
 
   @Test
@@ -146,11 +150,11 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
   public void select_by_query() {
     setupData("select_by_query");
 
-    List<PropertyDto> results = dao.selectByQuery(PropertyQuery.builder().setKey("user.two").setComponentId(10L).setUserId(100).build());
+    List<PropertyDto> results = dao.selectByQuery(PropertyQuery.builder().setKey("user.two").setComponentId(10L).setUserId(100).build(), session);
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getValue()).isEqualTo("two");
 
-    results = dao.selectByQuery(PropertyQuery.builder().setKey("user.one").setUserId(100).build());
+    results = dao.selectByQuery(PropertyQuery.builder().setKey("user.one").setUserId(100).build(), session);
     assertThat(results).hasSize(1);
     assertThat(results.get(0).getValue()).isEqualTo("one");
   }

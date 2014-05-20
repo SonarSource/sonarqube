@@ -24,6 +24,7 @@ import com.google.common.base.Strings;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.DaoComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -33,7 +34,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public class PropertiesDao implements BatchComponent, ServerComponent {
+public class PropertiesDao implements BatchComponent, ServerComponent, DaoComponent {
 
   private static final String NOTIFICATION_PREFIX = "notification.";
   private MyBatis mybatis;
@@ -111,14 +112,8 @@ public class PropertiesDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public List<PropertyDto> selectByQuery(PropertyQuery query) {
-    SqlSession session = mybatis.openSession(false);
-    PropertiesMapper mapper = session.getMapper(PropertiesMapper.class);
-    try {
-      return mapper.selectByQuery(query);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+  public List<PropertyDto> selectByQuery(PropertyQuery query, DbSession session) {
+    return session.getMapper(PropertiesMapper.class).selectByQuery(query);
   }
 
   public void setProperty(PropertyDto property, SqlSession session) {

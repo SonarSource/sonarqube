@@ -8,11 +8,29 @@
     pm.snapshot_id as snapshotId,
     pm.value as value,
     pm.text_value as textValue,
-    pm.measure_data as data
+    pm.measure_data as data,
+    p.kee as componentKey,
+    metric.name as metricKey
   </sql>
 
-  <select id="findByComponentKeyAndMetricKey" parameterType="map" resultType="Measure">
+  <select id="selectByKey" parameterType="map" resultType="Measure">
     SELECT
+    <include refid="measureColumns"/>
+    FROM project_measures pm
+    INNER JOIN snapshots s ON s.id=pm.snapshot_id AND s.islast=${_true}
+    INNER JOIN metrics metric ON metric.id=pm.metric_id
+    INNER JOIN projects p ON p.id=s.project_id AND p.enabled=${_true}
+    <where>
+      AND p.kee = #{key.componentKey}
+      AND metric.name = #{key.metricKey}
+      AND pm.rule_id IS NULL
+      AND pm.characteristic_id IS NULL
+      AND pm.person_id IS NULL
+    </where>
+  </select>
+
+  <select id="selectByComponentAndMetrics" parameterType="map" resultType="Measure">
+    SELECT metric.name as metric_name,
     <include refid="measureColumns"/>
     FROM project_measures pm
     INNER JOIN snapshots s ON s.id=pm.snapshot_id AND s.islast=${_true}
@@ -20,7 +38,7 @@
     INNER JOIN metrics metric ON metric.id=pm.metric_id
     <where>
       AND p.kee = #{componentKey}
-      AND metric.name = #{metricKey}
+      AND <foreach item="metricKey" index="index" collection="metricKeys" open="(" separator=" or " close=")">metric.name=#{metricKey}</foreach>
       AND pm.rule_id IS NULL
       AND pm.characteristic_id IS NULL
       AND pm.person_id IS NULL

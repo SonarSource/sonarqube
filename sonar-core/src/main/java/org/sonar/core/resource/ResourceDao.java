@@ -23,8 +23,10 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.api.DaoComponent;
 import org.sonar.api.component.Component;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
@@ -37,7 +39,7 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class ResourceDao {
+public class ResourceDao implements DaoComponent {
   private MyBatis mybatis;
 
   public ResourceDao(MyBatis mybatis) {
@@ -108,16 +110,6 @@ public class ResourceDao {
   }
 
   @CheckForNull
-  public SnapshotDto getLastSnapshotByResourceId(long resourceId) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      return getLastSnapshotByResourceId(resourceId, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  @CheckForNull
   public SnapshotDto getLastSnapshotByResourceId(long resourceId, SqlSession session) {
     return session.getMapper(ResourceMapper.class).selectLastSnapshotByResourceId(resourceId);
   }
@@ -184,29 +176,14 @@ public class ResourceDao {
   }
 
   @CheckForNull
-  public ComponentDto selectComponentByKey(String key) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      return session.getMapper(ResourceMapper.class).selectComponentByKey(key);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+  public ComponentDto selectComponentByKey(String key, DbSession session) {
+    return session.getMapper(ResourceMapper.class).selectComponentByKey(key);
   }
 
   @CheckForNull
   public Component findByKey(String key) {
     ResourceDto resourceDto = getResource(ResourceQuery.create().setKey(key));
     return resourceDto != null ? toComponent(resourceDto) : null;
-  }
-
-  @CheckForNull
-  public Component findById(Long id) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      return findById(id, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   @CheckForNull

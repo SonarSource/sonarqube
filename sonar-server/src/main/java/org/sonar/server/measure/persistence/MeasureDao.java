@@ -1,0 +1,86 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+package org.sonar.server.measure.persistence;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
+import org.sonar.api.DaoComponent;
+import org.sonar.api.ServerComponent;
+import org.sonar.api.utils.System2;
+import org.sonar.core.measure.db.MeasureDto;
+import org.sonar.core.measure.db.MeasureKey;
+import org.sonar.core.measure.db.MeasureMapper;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.server.db.BaseDao;
+
+import java.util.Collections;
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
+
+public class MeasureDao extends BaseDao<MeasureMapper, MeasureDto, MeasureKey> implements ServerComponent, DaoComponent {
+
+  public MeasureDao() {
+    this(System2.INSTANCE);
+  }
+
+  @VisibleForTesting
+  public MeasureDao(System2 system) {
+    super(MeasureMapper.class, system);
+  }
+
+  @Override
+  protected MeasureDto doGetByKey(MeasureKey key, DbSession session) {
+    return session.getMapper(MeasureMapper.class).selectByKey(key);
+  }
+
+  public List<MeasureDto> findByComponentKeyAndMetricKeys(String componentKey, List<String> metricKeys, DbSession session){
+    if (metricKeys.isEmpty()) {
+      return Collections.emptyList();
+    }
+    List<MeasureDto> dtos = newArrayList();
+    List<List<String>> partitions = Lists.partition(newArrayList(metricKeys), 1000);
+    for (List<String> partition : partitions) {
+      dtos.addAll(session.getMapper(MeasureMapper.class).selectByComponentAndMetrics(componentKey, partition));
+    }
+    return dtos;
+  }
+
+  @Override
+  protected MeasureDto doInsert(MeasureDto item, DbSession session) {
+    throw new IllegalStateException("Not implemented yet");
+  }
+
+  @Override
+  protected MeasureDto doUpdate(MeasureDto item, DbSession session) {
+    throw new IllegalStateException("Not implemented yet");
+  }
+
+  @Override
+  protected void doDeleteByKey(MeasureKey key, DbSession session) {
+    throw new IllegalStateException("Not implemented yet");
+  }
+
+  @Override
+  public Iterable<MeasureKey> keysOfRowsUpdatedAfter(long timestamp, DbSession session) {
+    throw new IllegalStateException("Not implemented yet");
+  }
+}

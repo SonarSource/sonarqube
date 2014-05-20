@@ -45,6 +45,7 @@ import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
@@ -280,18 +281,18 @@ public class IssueService implements ServerComponent {
   }
 
   // TODO result should be replaced by an aggregation object in IssueIndex
-  public RulesAggregation findRulesByComponent(String componentKey) {
+  public RulesAggregation findRulesByComponent(String componentKey, DbSession session) {
     RulesAggregation rulesAggregation = new RulesAggregation();
-    for (RuleDto ruleDto : issueDao.findRulesByComponent(componentKey)) {
+    for (RuleDto ruleDto : issueDao.findRulesByComponent(componentKey, session)) {
       rulesAggregation.add(ruleDto);
     }
     return rulesAggregation;
   }
 
   // TODO result should be replaced by an aggregation object in IssueIndex
-  public Multiset<String> findSeveritiesByComponent(String componentKey) {
+  public Multiset<String> findSeveritiesByComponent(String componentKey, DbSession session) {
     Multiset<String> aggregation = HashMultiset.create();
-    for (String severity : issueDao.findSeveritiesByComponent(componentKey)) {
+    for (String severity : issueDao.findSeveritiesByComponent(componentKey, session)) {
       aggregation.add(severity);
     }
     return aggregation;

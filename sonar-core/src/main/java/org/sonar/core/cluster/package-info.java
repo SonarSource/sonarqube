@@ -18,16 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.measure.db;
+@ParametersAreNonnullByDefault
+package org.sonar.core.cluster;
 
-import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
-
-public interface MeasureMapper {
-
-  MeasureDto selectByKey(@Param("key") MeasureKey key);
-
-  List<MeasureDto> selectByComponentAndMetrics(@Param("componentKey") String componentKey, @Param("metricKeys") List<String> metricKeys);
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

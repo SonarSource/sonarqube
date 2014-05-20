@@ -29,6 +29,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.persistence.DbSession;
 
 import javax.annotation.Nullable;
 
@@ -41,10 +42,13 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class ResourceDaoTest extends AbstractDaoTestCase {
 
+  private DbSession session;
+
   private ResourceDao dao;
 
   @Before
   public void createDao() {
+    session = getMyBatis().openSession(false);
     dao = new ResourceDao(getMyBatis());
   }
 
@@ -213,8 +217,8 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   public void select_component_by_key() {
     setupData("fixture");
 
-    assertThat(dao.selectComponentByKey("org.struts:struts-core:src/org/struts/RequestContext.java")).isNotNull();
-    assertThat(dao.selectComponentByKey("unknown")).isNull();
+    assertThat(dao.selectComponentByKey("org.struts:struts-core:src/org/struts/RequestContext.java", session)).isNotNull();
+    assertThat(dao.selectComponentByKey("unknown", session)).isNull();
   }
 
   @Test
@@ -377,9 +381,9 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   public void should_find_component_by_id() {
     setupData("fixture");
 
-    assertThat(dao.findById(1L)).isNotNull();
-    assertThat(dao.findById(4L)).isNotNull();
-    assertThat(dao.findById(555L)).isNull();
+    assertThat(dao.findById(1L, session)).isNotNull();
+    assertThat(dao.findById(4L, session)).isNotNull();
+    assertThat(dao.findById(555L, session)).isNull();
   }
 
   @Test
@@ -443,16 +447,16 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   public void get_last_snapshot_by_resource_id() {
     setupData("fixture");
 
-    SnapshotDto snapshotDto = dao.getLastSnapshotByResourceId(1L);
+    SnapshotDto snapshotDto = dao.getLastSnapshotByResourceId(1L, session);
     assertThat(snapshotDto.getId()).isEqualTo(1);
 
-    snapshotDto = dao.getLastSnapshotByResourceId(2L);
+    snapshotDto = dao.getLastSnapshotByResourceId(2L, session);
     assertThat(snapshotDto.getId()).isEqualTo(2L);
 
-    snapshotDto = dao.getLastSnapshotByResourceId(3L);
+    snapshotDto = dao.getLastSnapshotByResourceId(3L, session);
     assertThat(snapshotDto.getId()).isEqualTo(3L);
 
-    assertThat(dao.getLastSnapshotByResourceId(42L)).isNull();
+    assertThat(dao.getLastSnapshotByResourceId(42L, session)).isNull();
   }
 
   private List<String> getKeys(final List<Component> components) {

@@ -20,9 +20,13 @@
 package org.sonar.api.measures;
 
 import com.google.common.annotations.Beta;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.SonarException;
+
+import javax.annotation.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -2285,5 +2289,14 @@ public final class CoreMetrics {
 
   public static List<Metric> getMetrics() {
     return METRICS;
+  }
+
+  public static Metric getMetric(final String key) {
+    return Iterables.find(METRICS, new Predicate<Metric>() {
+      @Override
+      public boolean apply(@Nullable Metric input) {
+        return input != null && input.getKey().equals(key);
+      }
+    });
   }
 }

@@ -20,6 +20,7 @@
 
 package org.sonar.server.issue;
 
+import com.google.common.collect.Multiset;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,10 +46,12 @@ import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueStorage;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.issue.workflow.Transition;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
+import org.sonar.core.rule.RuleDto;
 import org.sonar.core.user.AuthorizationDao;
 import org.sonar.core.user.DefaultUser;
 import org.sonar.server.issue.actionplan.ActionPlanService;
@@ -499,4 +502,30 @@ public class IssueServiceTest {
     verifyZeroInteractions(issueStorage);
   }
 
+  @Test
+  public void find_rules_by_component() throws Exception {
+    DbSession session = mock(DbSession.class);
+    String componentKey = "org.sonar.Sample";
+
+    when(issueDao.findRulesByComponent(componentKey, session)).thenReturn(newArrayList(
+        RuleDto.createFor(RuleKey.of("repo", "rule")).setName("Rule name"),
+        RuleDto.createFor(RuleKey.of("repo", "rule")).setName("Rule name")
+    ));
+
+    RulesAggregation result = issueService.findRulesByComponent(componentKey, session);
+    assertThat(result.rules()).hasSize(1);
+  }
+
+  @Test
+  public void find_rules_by_severity() throws Exception {
+    DbSession session = mock(DbSession.class);
+    String componentKey = "org.sonar.Sample";
+
+    when(issueDao.findSeveritiesByComponent(componentKey, session)).thenReturn(newArrayList("MAJOR", "MAJOR", "INFO"));
+
+    Multiset<String> result = issueService.findSeveritiesByComponent(componentKey, session);
+    assertThat(result.count("MAJOR")).isEqualTo(2);
+    assertThat(result.count("INFO")).isEqualTo(1);
+    assertThat(result.count("UNKNOWN")).isEqualTo(0);
+  }
 }

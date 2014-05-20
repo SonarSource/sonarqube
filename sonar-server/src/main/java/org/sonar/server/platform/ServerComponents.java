@@ -50,9 +50,6 @@ import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.workflow.FunctionExecutor;
 import org.sonar.core.issue.workflow.IssueWorkflow;
 import org.sonar.core.measure.db.MeasureFilterDao;
-import org.sonar.server.measure.MeasureFilterEngine;
-import org.sonar.server.measure.MeasureFilterExecutor;
-import org.sonar.server.measure.MeasureFilterFactory;
 import org.sonar.core.metric.DefaultMetricFinder;
 import org.sonar.core.notification.DefaultNotificationManager;
 import org.sonar.core.permission.PermissionFacade;
@@ -102,6 +99,10 @@ import org.sonar.server.issue.filter.IssueFilterWriter;
 import org.sonar.server.issue.filter.IssueFilterWs;
 import org.sonar.server.issue.ws.IssueShowAction;
 import org.sonar.server.issue.ws.IssuesWs;
+import org.sonar.server.measure.MeasureFilterEngine;
+import org.sonar.server.measure.MeasureFilterExecutor;
+import org.sonar.server.measure.MeasureFilterFactory;
+import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.measure.ws.TimeMachineWs;
 import org.sonar.server.notifications.NotificationCenter;
 import org.sonar.server.notifications.NotificationService;
@@ -129,11 +130,7 @@ import org.sonar.server.rule2.RuleService;
 import org.sonar.server.rule2.index.RuleIndex;
 import org.sonar.server.rule2.index.RuleNormalizer;
 import org.sonar.server.rule2.persistence.RuleDao;
-import org.sonar.server.rule2.ws.RulesWebService;
-import org.sonar.server.rule2.ws.SearchAction;
-import org.sonar.server.rule2.ws.SetNoteAction;
-import org.sonar.server.rule2.ws.SetTagsAction;
-import org.sonar.server.rule2.ws.TagsAction;
+import org.sonar.server.rule2.ws.*;
 import org.sonar.server.source.CodeColorizers;
 import org.sonar.server.source.DeprecatedSourceDecorator;
 import org.sonar.server.source.HtmlSourceDecorator;
@@ -201,6 +198,7 @@ class ServerComponents {
       System2.INSTANCE,
       RuleDao.class,
       ActiveRuleDao.class,
+      MeasureDao.class,
       DbClient.class,
       MeasureFilterDao.class
       ));

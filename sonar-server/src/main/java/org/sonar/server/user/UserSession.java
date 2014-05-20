@@ -36,12 +36,10 @@ import org.sonar.server.platform.Platform;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * Part of the current HTTP session
@@ -61,7 +59,7 @@ public class UserSession {
   List<String> globalPermissions = null;
 
   HashMultimap<String, String> projectKeyByPermission = HashMultimap.create();
-  HashMultimap<String, String> componentKeyByPermission = HashMultimap.create();
+  Map<String, String> projectKeyByComponentKey = newHashMap();
   List<String> projectPermissions = newArrayList();
 
   UserSession() {
@@ -163,11 +161,17 @@ public class UserSession {
    * Ensures that user implies the specified project permission on a component. If not a {@link org.sonar.server.exceptions.ForbiddenException} is thrown.
    */
   public UserSession checkComponentPermission(String projectPermission, String componentKey) {
-    ResourceDto project = resourceDao().getRootProjectByComponentKey(componentKey);
-    if (project == null) {
-      throw new NotFoundException(String.format("Component '%s' does not exist", componentKey));
+    String projectKey = projectKeyByComponentKey.get(componentKey);
+    if (projectKey == null) {
+      ResourceDto project = resourceDao().getRootProjectByComponentKey(componentKey);
+      if (project == null) {
+        throw new NotFoundException(String.format("Component '%s' does not exist", componentKey));
+      }
+      projectKey = project.getKey();
     }
-    return checkProjectPermission(projectPermission, project.getKey());
+    UserSession userSession = checkProjectPermission(projectPermission, projectKey);
+    projectKeyByComponentKey.put(componentKey, projectKey);
+    return userSession;
   }
 
   /**

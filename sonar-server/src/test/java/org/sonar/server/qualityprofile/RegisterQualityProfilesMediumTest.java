@@ -82,8 +82,7 @@ public class RegisterQualityProfilesMediumTest {
 
     // 2. Check Default Profile
     PropertiesDao propertiesDao = serverTester.get(PropertiesDao.class);
-    List<PropertyDto> xooDefault = propertiesDao.selectByQuery(PropertyQuery.builder()
-      .setKey("sonar.profile.xoo").build());
+    List<PropertyDto> xooDefault = propertiesDao.selectByQuery(PropertyQuery.builder().setKey("sonar.profile.xoo").build(), session);
     assertThat(xooDefault).hasSize(1);
     assertThat(xooDefault.get(0).getValue()).isEqualTo("Basic");
 

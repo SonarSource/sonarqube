@@ -44,7 +44,7 @@ public class LocalNonBlockingWorkQueue extends LinkedBlockingQueue<Runnable>
       this.offer(action, 1000, TimeUnit.SECONDS);
       latch.await(1500, TimeUnit.MILLISECONDS);
     } catch (InterruptedException e) {
-      throw new IllegalStateException("ES update has been interrupted: ");
+      throw new IllegalStateException("ES update has been interrupted", e);
     }
   }
 
@@ -58,7 +58,7 @@ public class LocalNonBlockingWorkQueue extends LinkedBlockingQueue<Runnable>
       }
       latch.await(1500, TimeUnit.MILLISECONDS);
     } catch (InterruptedException e) {
-      throw new IllegalStateException("ES update has been interrupted: ");
+      throw new IllegalStateException("ES update has been interrupted", e);
     }
   }
 }

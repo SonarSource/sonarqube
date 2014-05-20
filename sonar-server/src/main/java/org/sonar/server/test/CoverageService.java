@@ -28,8 +28,11 @@ import org.sonar.api.test.Testable;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.SnapshotPerspectives;
-import org.sonar.core.measure.db.MeasureDao;
 import org.sonar.core.measure.db.MeasureDto;
+import org.sonar.core.measure.db.MeasureKey;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
+import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -42,10 +45,12 @@ public class CoverageService implements ServerComponent {
     UT, IT, OVERALL
   }
 
+  private final MyBatis myBatis;
   private final MeasureDao measureDao;
   private final SnapshotPerspectives snapshotPerspectives;
 
-  public CoverageService(MeasureDao measureDao, SnapshotPerspectives snapshotPerspectives) {
+  public CoverageService(MyBatis myBatis, MeasureDao measureDao, SnapshotPerspectives snapshotPerspectives) {
+    this.myBatis = myBatis;
     this.measureDao = measureDao;
     this.snapshotPerspectives = snapshotPerspectives;
   }
@@ -102,10 +107,15 @@ public class CoverageService implements ServerComponent {
 
   @CheckForNull
   private Map<Integer, Integer> findDataFromComponent(String fileKey, String metricKey) {
-    MeasureDto data = measureDao.findByComponentKeyAndMetricKey(fileKey, metricKey);
-    if (data != null) {
-      return KeyValueFormat.parseIntInt(data.getData());
+    DbSession session = myBatis.openSession(false);
+    try {
+      MeasureDto data = measureDao.getByKey(MeasureKey.of(fileKey, metricKey), session);
+      if (data != null) {
+        return KeyValueFormat.parseIntInt(data.getData());
+      }
+      return Maps.newHashMap();
+    } finally {
+      MyBatis.closeQuietly(session);
     }
-    return Maps.newHashMap();
   }
 }

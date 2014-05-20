@@ -21,21 +21,28 @@
 package org.sonar.core.measure.db;
 
 import com.google.common.base.Charsets;
+import org.sonar.core.persistence.Dto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-public class MeasureDto {
+public class MeasureDto extends Dto<MeasureKey>{
 
   private Integer id;
 
-  private Integer snapshotId;
+  private String metricKey;
+
+  private String componentKey;
 
   private Double value;
 
   private String textValue;
 
   private byte[] data;
+
+  private MeasureDto(){
+    // Nothing here
+  }
 
   public Integer getId() {
     return id;
@@ -46,12 +53,13 @@ public class MeasureDto {
     return this;
   }
 
-  public Integer getSnapshotId() {
-    return snapshotId;
+  private MeasureDto setMetricKey(String metricKey) {
+    this.metricKey = metricKey;
+    return this;
   }
 
-  public MeasureDto setSnapshotId(Integer snapshotId) {
-    this.snapshotId = snapshotId;
+  private MeasureDto setComponentKey(String componentKey) {
+    this.componentKey = componentKey;
     return this;
   }
 
@@ -82,5 +90,16 @@ public class MeasureDto {
       return new String(data, Charsets.UTF_8);
     }
     return textValue;
+  }
+
+  @Override
+  public MeasureKey getKey() {
+    return MeasureKey.of(componentKey, metricKey);
+  }
+
+  public static MeasureDto createFor(MeasureKey key){
+    return new MeasureDto()
+      .setComponentKey(key.componentKey())
+      .setMetricKey(key.metricKey());
   }
 }

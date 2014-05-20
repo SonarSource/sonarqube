@@ -20,6 +20,8 @@
 
 package org.sonar.server.component.ws;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multiset;
 import com.google.common.io.Resources;
 import org.sonar.api.component.Component;
@@ -35,17 +37,20 @@ import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.measure.db.MeasureDao;
 import org.sonar.core.measure.db.MeasureDto;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.properties.PropertyQuery;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.SnapshotDto;
 import org.sonar.core.timemachine.Periods;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.RulesAggregation;
+import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -54,22 +59,27 @@ import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 public class ComponentAppAction implements RequestHandler {
 
   private static final String KEY = "key";
 
+  private final DbClient dbClient;
+
   private final ResourceDao resourceDao;
-  private final MeasureDao measureDao;
   private final PropertiesDao propertiesDao;
+  private final MeasureDao measureDao;
   private final IssueService issueService;
   private final Periods periods;
   private final Durations durations;
   private final I18n i18n;
 
-  public ComponentAppAction(ResourceDao resourceDao, MeasureDao measureDao, PropertiesDao propertiesDao, IssueService issueService, Periods periods, Durations durations, I18n i18n) {
-    this.resourceDao = resourceDao;
-    this.measureDao = measureDao;
-    this.propertiesDao = propertiesDao;
+  public ComponentAppAction(DbClient dbClient, IssueService issueService, Periods periods, Durations durations, I18n i18n) {
+    this.dbClient = dbClient;
+    this.resourceDao = dbClient.getDao(ResourceDao.class);
+    this.propertiesDao = dbClient.getDao(PropertiesDao.class);
+    this.measureDao = dbClient.getDao(MeasureDao.class);
     this.issueService = issueService;
     this.periods = periods;
     this.durations = durations;
@@ -100,59 +110,74 @@ public class ComponentAppAction implements RequestHandler {
     JsonWriter json = response.newJsonWriter();
     json.beginObject();
 
-    ComponentDto component = resourceDao.selectComponentByKey(fileKey);
-    if (component == null) {
-      throw new NotFoundException(String.format("Component '%s' does not exists.", fileKey));
+    DbSession session = dbClient.openSession(false);
+    try {
+      ComponentDto component = resourceDao.selectComponentByKey(fileKey, session);
+      if (component == null) {
+        throw new NotFoundException(String.format("Component '%s' does not exists.", fileKey));
+      }
+      Long projectId = component.projectId();
+      Long subProjectId = component.subProjectId();
+      // projectId and subProjectId can't be null here
+      if (projectId != null && subProjectId != null) {
+        List<PropertyDto> propertyDtos = propertiesDao.selectByQuery(PropertyQuery.builder()
+            .setKey("favourite")
+            .setComponentId(component.getId())
+            .setUserId(userSession.userId())
+            .build(),
+          session
+        );
+        boolean isFavourite = propertyDtos.size() == 1;
+
+        json.prop("key", component.key());
+        json.prop("path", component.path());
+        json.prop("name", component.name());
+        json.prop("q", component.qualifier());
+
+        Component subProject = componentById(subProjectId, session);
+        json.prop("subProjectName", subProject != null ? subProject.longName() : null);
+
+        Component project = componentById(projectId, session);
+        json.prop("projectName", project != null ? project.longName() : null);
+
+        json.prop("fav", isFavourite);
+        appendPeriods(json, projectId, session);
+        appendRulesAggregation(json, component.key(), session);
+        appendMeasures(json, fileKey, session);
+      }
+    } finally {
+      MyBatis.closeQuietly(session);
     }
-    Long projectId = component.projectId();
-    Long subProjectId = component.subProjectId();
-    // projectId and subProjectId can't be null here
-    if (projectId != null && subProjectId != null) {
-      List<PropertyDto> propertyDtos = propertiesDao.selectByQuery(PropertyQuery.builder()
-        .setKey("favourite")
-        .setComponentId(component.getId())
-        .setUserId(userSession.userId())
-        .build());
-      boolean isFavourite = propertyDtos.size() == 1;
 
-      json.prop("key", component.key());
-      json.prop("path", component.path());
-      json.prop("name", component.name());
-      json.prop("q", component.qualifier());
-
-      Component subProject = componentById(subProjectId);
-      json.prop("subProjectName", subProject != null ? subProject.longName() : null);
-
-      Component project = componentById(projectId);
-      json.prop("projectName", project != null ? project.longName() : null);
-
-      json.prop("fav", isFavourite);
-      appendPeriods(json, projectId);
-      appendRulesAggregation(json, component.key());
-      appendMeasures(json, fileKey);
-    }
     json.endObject();
     json.close();
   }
 
-  private void appendMeasures(JsonWriter json, String fileKey) {
+  private void appendMeasures(JsonWriter json, String fileKey, DbSession session) {
     json.name("measures").beginObject();
-    json.prop("fNcloc", formattedMeasure(fileKey, CoreMetrics.NCLOC));
-    json.prop("fCoverage", formattedMeasure(fileKey, CoreMetrics.COVERAGE));
-    json.prop("fDuplicationDensity", formattedMeasure(fileKey, CoreMetrics.DUPLICATED_LINES_DENSITY));
-    json.prop("fDebt", formattedMeasure(fileKey, CoreMetrics.TECHNICAL_DEBT));
-    json.prop("fIssues", formattedMeasure(fileKey, CoreMetrics.VIOLATIONS));
-    json.prop("fBlockerIssues", formattedMeasure(fileKey, CoreMetrics.BLOCKER_VIOLATIONS));
-    json.prop("fCriticalIssues", formattedMeasure(fileKey, CoreMetrics.CRITICAL_VIOLATIONS));
-    json.prop("fMajorIssues", formattedMeasure(fileKey, CoreMetrics.MAJOR_VIOLATIONS));
-    json.prop("fMinorIssues", formattedMeasure(fileKey, CoreMetrics.MINOR_VIOLATIONS));
-    json.prop("fInfoIssues", formattedMeasure(fileKey, CoreMetrics.INFO_VIOLATIONS));
+
+    List<MeasureDto> measures = measureDao.findByComponentKeyAndMetricKeys(fileKey,
+      newArrayList(CoreMetrics.NCLOC_KEY, CoreMetrics.COVERAGE_KEY, CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, CoreMetrics.TECHNICAL_DEBT_KEY, CoreMetrics.VIOLATIONS_KEY,
+        CoreMetrics.BLOCKER_VIOLATIONS_KEY, CoreMetrics.MAJOR_VIOLATIONS_KEY, CoreMetrics.MAJOR_VIOLATIONS_KEY, CoreMetrics.MINOR_VIOLATIONS_KEY, CoreMetrics.INFO_VIOLATIONS_KEY),
+      session
+    );
+
+    json.prop("fNcloc", formattedMeasure(CoreMetrics.NCLOC_KEY, measures));
+    json.prop("fCoverage", formattedMeasure(CoreMetrics.COVERAGE_KEY, measures));
+    json.prop("fDuplicationDensity", formattedMeasure(CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, measures));
+    json.prop("fDebt", formattedMeasure(CoreMetrics.TECHNICAL_DEBT_KEY, measures));
+    json.prop("fIssues", formattedMeasure(CoreMetrics.VIOLATIONS_KEY, measures));
+    json.prop("fBlockerIssues", formattedMeasure(CoreMetrics.BLOCKER_VIOLATIONS_KEY, measures));
+    json.prop("fCriticalIssues", formattedMeasure(CoreMetrics.CRITICAL_VIOLATIONS_KEY, measures));
+    json.prop("fMajorIssues", formattedMeasure(CoreMetrics.MAJOR_VIOLATIONS_KEY, measures));
+    json.prop("fMinorIssues", formattedMeasure(CoreMetrics.MINOR_VIOLATIONS_KEY, measures));
+    json.prop("fInfoIssues", formattedMeasure(CoreMetrics.INFO_VIOLATIONS_KEY, measures));
     json.endObject();
   }
 
-  private void appendPeriods(JsonWriter json, Long projectId) {
+  private void appendPeriods(JsonWriter json, Long projectId, DbSession session) {
     json.name("periods").beginArray();
-    SnapshotDto snapshotDto = resourceDao.getLastSnapshotByResourceId(projectId);
+    SnapshotDto snapshotDto = resourceDao.getLastSnapshotByResourceId(projectId, session);
     if (snapshotDto != null) {
       for (int i = 1; i <= 5; i++) {
         String mode = snapshotDto.getPeriodMode(i);
@@ -172,9 +197,9 @@ public class ComponentAppAction implements RequestHandler {
     json.endArray();
   }
 
-  private void appendRulesAggregation(JsonWriter json, String componentKey) {
+  private void appendRulesAggregation(JsonWriter json, String componentKey, DbSession session) {
     json.name("severities").beginArray();
-    Multiset<String> severities = issueService.findSeveritiesByComponent(componentKey);
+    Multiset<String> severities = issueService.findSeveritiesByComponent(componentKey, session);
     for (String severity : severities.elementSet()) {
       json.beginArray()
         .value(severity)
@@ -185,7 +210,7 @@ public class ComponentAppAction implements RequestHandler {
     json.endArray();
 
     json.name("rules").beginArray();
-    RulesAggregation rulesAggregation = issueService.findRulesByComponent(componentKey);
+    RulesAggregation rulesAggregation = issueService.findRulesByComponent(componentKey, session);
     for (RulesAggregation.Rule rule : rulesAggregation.rules()) {
       json.beginArray()
         .value(rule.ruleKey().toString())
@@ -197,18 +222,19 @@ public class ComponentAppAction implements RequestHandler {
   }
 
   @CheckForNull
-  private Component componentById(@Nullable Long componentId) {
+  private Component componentById(@Nullable Long componentId, DbSession session) {
     if (componentId != null) {
-      return resourceDao.findById(componentId);
+      return resourceDao.findById(componentId, session);
     }
     return null;
   }
 
   @CheckForNull
-  private String formattedMeasure(String fileKey, Metric metric) {
-    MeasureDto measureDto = measureDao.findByComponentKeyAndMetricKey(fileKey, metric.getKey());
-    if (measureDto != null) {
-      Double value = measureDto.getValue();
+  private String formattedMeasure(final String metricKey, List<MeasureDto> measures) {
+    MeasureDto measure = measureByMetricKey(metricKey, measures);
+    if (measure != null) {
+      Metric metric = CoreMetrics.getMetric(measure.getKey().metricKey());
+      Double value = measure.getValue();
       if (value != null) {
         if (metric.getType().equals(Metric.ValueType.FLOAT)) {
           return i18n.formatDouble(UserSession.get().locale(), value);
@@ -222,6 +248,16 @@ public class ComponentAppAction implements RequestHandler {
       }
     }
     return null;
+  }
+
+  @CheckForNull
+  private static MeasureDto measureByMetricKey(final String metricKey, List<MeasureDto> measures) {
+    return Iterables.find(measures, new Predicate<MeasureDto>() {
+      @Override
+      public boolean apply(@Nullable MeasureDto input) {
+        return input != null && metricKey.equals(input.getKey().metricKey());
+      }
+    }, null);
   }
 
 }

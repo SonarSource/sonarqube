@@ -23,8 +23,11 @@ package org.sonar.server.source;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.measure.db.MeasureDao;
 import org.sonar.core.measure.db.MeasureDto;
+import org.sonar.core.measure.db.MeasureKey;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.MyBatis;
+import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -33,6 +36,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class SourceService implements ServerComponent {
+
+  private final MyBatis myBatis;
 
   private final HtmlSourceDecorator sourceDecorator;
 
@@ -43,7 +48,8 @@ public class SourceService implements ServerComponent {
 
   private final MeasureDao measureDao;
 
-  public SourceService(HtmlSourceDecorator sourceDecorator, DeprecatedSourceDecorator deprecatedSourceDecorator, MeasureDao measureDao) {
+  public SourceService(MyBatis myBatis, HtmlSourceDecorator sourceDecorator, DeprecatedSourceDecorator deprecatedSourceDecorator, MeasureDao measureDao) {
+    this.myBatis = myBatis;
     this.sourceDecorator = sourceDecorator;
     this.deprecatedSourceDecorator = deprecatedSourceDecorator;
     this.measureDao = measureDao;
@@ -85,10 +91,15 @@ public class SourceService implements ServerComponent {
 
   @CheckForNull
   private String findDataFromComponent(String fileKey, String metricKey) {
-    MeasureDto data = measureDao.findByComponentKeyAndMetricKey(fileKey, metricKey);
-    if (data != null) {
-      return data.getData();
+    DbSession session = myBatis.openSession(false);
+    try {
+      MeasureDto data = measureDao.getByKey(MeasureKey.of(fileKey, metricKey), session);
+      if (data != null) {
+        return data.getData();
+      }
+      return null;
+    } finally {
+      MyBatis.closeQuietly(session);
     }
-    return null;
   }
 }

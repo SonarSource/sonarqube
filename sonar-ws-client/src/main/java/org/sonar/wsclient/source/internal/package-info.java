@@ -18,28 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.core.measure.db;
+@ParametersAreNonnullByDefault
+package org.sonar.wsclient.source.internal;
 
-import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.ServerComponent;
-import org.sonar.core.persistence.MyBatis;
-
-public class MeasureDao implements ServerComponent {
-
-  private MyBatis mybatis;
-
-  public MeasureDao(MyBatis mybatis) {
-    this.mybatis = mybatis;
-  }
-
-  public MeasureDto findByComponentKeyAndMetricKey(String componentKey, String metricKey) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      MeasureMapper mapper = session.getMapper(MeasureMapper.class);
-      return mapper.findByComponentKeyAndMetricKey(componentKey, metricKey);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

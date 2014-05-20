@@ -27,6 +27,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.issue.IssueQuery;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
 
@@ -94,11 +95,11 @@ public class IssueDao implements BatchComponent, ServerComponent {
   /**
    * The returned IssueDto list contains only the issue id and the sort column
    */
-  public List<IssueDto> selectIssueIds(IssueQuery query, @Nullable Integer userId, SqlSession session){
+  public List<IssueDto> selectIssueIds(IssueQuery query, @Nullable Integer userId, SqlSession session) {
     return selectIssueIds(query, userId, query.maxResults(), session);
   }
 
-  private List<IssueDto> selectIssueIds(IssueQuery query, @Nullable Integer userId, Integer maxResults, SqlSession session){
+  private List<IssueDto> selectIssueIds(IssueQuery query, @Nullable Integer userId, Integer maxResults, SqlSession session) {
     IssueMapper mapper = session.getMapper(IssueMapper.class);
     return mapper.selectIssueIds(query, query.componentRoots(), userId, query.requiredRole(), maxResults);
   }
@@ -112,7 +113,7 @@ public class IssueDao implements BatchComponent, ServerComponent {
     }
   }
 
-  public List<IssueDto> selectIssues(IssueQuery query, @Nullable Integer userId, SqlSession session){
+  public List<IssueDto> selectIssues(IssueQuery query, @Nullable Integer userId, SqlSession session) {
     IssueMapper mapper = session.getMapper(IssueMapper.class);
     return mapper.selectIssues(query, query.componentRoots(), userId, query.requiredRole());
   }
@@ -141,22 +142,12 @@ public class IssueDao implements BatchComponent, ServerComponent {
   }
 
   // TODO replace by aggregation in IssueIndex
-  public List<RuleDto> findRulesByComponent(String componentKey) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      return session.getMapper(IssueMapper.class).findRulesByComponent(componentKey);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+  public List<RuleDto> findRulesByComponent(String componentKey, DbSession session) {
+    return session.getMapper(IssueMapper.class).findRulesByComponent(componentKey);
   }
 
   // TODO replace by aggregation in IssueIndex
-  public List<String> findSeveritiesByComponent(String componentKey) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      return session.getMapper(IssueMapper.class).findSeveritiesByComponent(componentKey);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
+  public List<String> findSeveritiesByComponent(String componentKey, DbSession session) {
+    return session.getMapper(IssueMapper.class).findSeveritiesByComponent(componentKey);
   }
 }
