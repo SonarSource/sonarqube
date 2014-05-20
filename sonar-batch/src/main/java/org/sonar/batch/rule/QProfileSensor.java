@@ -59,11 +59,9 @@ public class QProfileSensor implements Sensor {
         profiles.add(qProfile);
       }
     }
-    if (profiles.size() > 0) {
-      UsedQProfiles used = UsedQProfiles.fromProfiles(profiles);
-      Measure detailsMeasure = new Measure(CoreMetrics.PROFILES, used.toJSON());
-      context.saveMeasure(detailsMeasure);
-    }
+    UsedQProfiles used = UsedQProfiles.fromProfiles(profiles);
+    Measure detailsMeasure = new Measure(CoreMetrics.PROFILES, used.toJSON());
+    context.saveMeasure(detailsMeasure);
 
     // For backward compatibility
     if (profiles.size() == 1) {
