@@ -3,6 +3,7 @@
  
 function alert_user {
 echo "${1}"
+which -s osascript && osascript -e "display notification \"${1}\" with title \"SonarQube -- Build\""
 which -s growlnotify && growlnotify `basename $0` -m "${1}"
 }
 
