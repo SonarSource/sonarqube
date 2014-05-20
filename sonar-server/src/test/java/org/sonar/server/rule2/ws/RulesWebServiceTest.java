@@ -163,30 +163,6 @@ public class RulesWebServiceTest {
     result.assertJson(this.getClass(), "search_active_rules.json");
   }
 
-  @Test
-  public void search_no_active_rules() throws Exception {
-    QualityProfileDto profile = newQualityProfile();
-    tester.get(QualityProfileDao.class).insert(profile, session);
-
-    RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"));
-    ruleDao.insert(rule, session);
-
-    ActiveRuleDto activeRule = newActiveRule(profile, rule);
-    tester.get(ActiveRuleDao.class).insert(activeRule, session);
-
-    session.commit();
-
-    tester.get(RuleService.class).refresh();
-
-
-    MockUserSession.set();
-    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
-    request.setParam("q", "S001");
-    request.setParam("activation", "false");
-    WsTester.Result result = request.execute();
-
-    result.assertJson(this.getClass(), "search_no_active_rules.json");
-  }
 
   @Test
   public void search_profile_active_rules() throws Exception {
