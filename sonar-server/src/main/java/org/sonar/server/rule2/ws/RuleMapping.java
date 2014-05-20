@@ -46,7 +46,7 @@ public class RuleMapping extends BaseMapping {
   protected void doInit() {
     addIndexField("repo", RuleNormalizer.RuleField.REPOSITORY.key());
     addIndexField("name", RuleNormalizer.RuleField.NAME.key());
-    addIndexField("htmlDesc", RuleNormalizer.RuleField.HTML_DESCRIPTION.key());
+    addField("htmlDesc", new HtmlDescField(macroInterpreter));
     addIndexField("severity", RuleNormalizer.RuleField.SEVERITY.key());
     addIndexField("status", RuleNormalizer.RuleField.STATUS.key());
     addIndexField("internalKey", RuleNormalizer.RuleField.INTERNAL_KEY.key());
@@ -109,6 +109,22 @@ public class RuleMapping extends BaseMapping {
       String markdownNote = rule.markdownNote();
       if (markdownNote != null) {
         json.prop("htmlNote", macroInterpreter.interpret(Markdown.convertToHtml(markdownNote)));
+      }
+    }
+  }
+
+  private static class HtmlDescField implements Field<Rule> {
+    private final MacroInterpreter macroInterpreter;
+
+    private HtmlDescField(MacroInterpreter macroInterpreter) {
+      this.macroInterpreter = macroInterpreter;
+    }
+
+    @Override
+    public void write(JsonWriter json, Rule rule) {
+      String html = rule.htmlDescription();
+      if (html != null) {
+        json.prop("htmlDesc", macroInterpreter.interpret(html));
       }
     }
   }
