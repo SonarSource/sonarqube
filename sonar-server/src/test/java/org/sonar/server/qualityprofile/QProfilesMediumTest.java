@@ -40,8 +40,6 @@ import org.sonar.server.rule.Rules;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
-import java.util.List;
-
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -50,37 +48,6 @@ public class QProfilesMediumTest {
 
   @org.junit.Rule
   public ServerTester serverTester = new ServerTester().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
-
-  @Test
-  public void register_profile_at_startup() throws Exception {
-    QProfiles qProfiles = serverTester.get(QProfiles.class);
-    List<QProfile> profiles = qProfiles.profilesByLanguage("xoo");
-    assertThat(profiles).hasSize(1);
-
-    QProfile profile = profiles.get(0);
-    assertThat(profile.id()).isNotNull();
-    assertThat(profile.name()).isEqualTo("Basic");
-    assertThat(profile.language()).isEqualTo("xoo");
-    assertThat(qProfiles.defaultProfile("xoo").name()).isEqualTo("Basic");
-
-    assertThat(qProfiles.searchProfileRules(ProfileRuleQuery.create(profile.id()), Paging.create(10, 1)).rules()).hasSize(2);
-
-    // Rule x1
-    QProfileRule qProfileRule1 = qProfiles.searchProfileRules(ProfileRuleQuery.create(profile.id()).setNameOrKey("x1"), Paging.create(10, 1)).rules().get(0);
-    assertThat(qProfileRule1.key()).isEqualTo("x1");
-    assertThat(qProfileRule1.severity()).isEqualTo("MAJOR");
-    assertThat(qProfileRule1.params()).hasSize(1);
-
-    QProfileRuleParam qProfileRule1Param = qProfileRule1.params().get(0);
-    assertThat(qProfileRule1Param.key()).isEqualTo("acceptWhitespace");
-    assertThat(qProfileRule1Param.value()).isEqualTo("true");
-
-    // Rule x2
-    QProfileRule qProfileRule2 = qProfiles.searchProfileRules(ProfileRuleQuery.create(profile.id()).setNameOrKey("x2"), Paging.create(10, 1)).rules().get(0);
-    assertThat(qProfileRule2.key()).isEqualTo("x2");
-    assertThat(qProfileRule2.severity()).isEqualTo("BLOCKER");
-    assertThat(qProfileRule2.params()).isEmpty();
-  }
 
   @Test
   public void recreate_built_in_profile_from_language() throws Exception {

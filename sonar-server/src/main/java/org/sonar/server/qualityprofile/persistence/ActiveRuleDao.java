@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile.persistence;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
@@ -32,12 +33,15 @@ import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.BaseDao;
 import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexDefinition;
 import org.sonar.server.rule2.persistence.RuleDao;
 
 import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, ActiveRuleKey> {
 
@@ -61,6 +65,26 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
     throw new UnsupportedOperationException("Need to implement ActiveRuleDto.doGetByKey() method");
   }
 
+
+  public ActiveRuleDto createActiveRule(QualityProfileKey profileKey, RuleKey ruleKey, String severity, DbSession session) {
+    RuleDto ruleDto = ruleDao.getByKey(ruleKey, session);
+    QualityProfileDto profileDto = profileDao.selectByNameAndLanguage(profileKey.name(), profileKey.lang(), session);
+    ActiveRuleDto activeRule = ActiveRuleDto.createFor(profileDto, ruleDto)
+      .setSeverity(severity);
+    this.insert(activeRule, session);
+
+    List<RuleParamDto> ruleParams = ruleDao.findRuleParamsByRuleKey(ruleKey, session);
+    List<ActiveRuleParamDto> activeRuleParams = newArrayList();
+    for (RuleParamDto ruleParam : ruleParams) {
+      ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(ruleParam)
+        .setKey(ruleParam.getName())
+        .setValue(ruleParam.getDefaultValue());
+      activeRuleParams.add(activeRuleParam);
+      this.addParam(activeRule, activeRuleParam, session);
+    }
+    return activeRule;
+  }
+
   @Deprecated
   public ActiveRuleDto getById(int activeRuleId, DbSession session) {
     ActiveRuleDto rule = mapper(session).selectById(activeRuleId);
@@ -74,13 +98,8 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
 
   @Override
   protected ActiveRuleDto doGetByKey(ActiveRuleKey key, DbSession session) {
-    QualityProfileDto qDto = profileDao.selectByNameAndLanguage(key.qProfile().name(), key.qProfile().lang(), session);
-    RuleDto ruleDto = ruleDao.getByKey(key.ruleKey(), session);
-    ActiveRuleDto activeRule = mapper(session).selectByProfileAndRule(qDto.getId(), ruleDto.getId());
-    if (activeRule.getKey() == null) {
-      activeRule.setKey(key);
-    }
-    return activeRule;
+    return mapper(session).selectByKey(key.qProfile().name(), key.qProfile().lang(),
+      key.ruleKey().repository(), key.ruleKey().rule());
   }
 
   @Override
@@ -180,8 +199,8 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
 
   @Deprecated
   //TODO Needed until SQL rewrite with KEY fields.
-  private int getQualityProfileId(QualityProfileKey profileKey, DbSession sesison){
-    return 0;
+  private int getQualityProfileId(QualityProfileKey profileKey, DbSession session){
+    return profileDao.selectByNameAndLanguage(profileKey.name(), profileKey.lang(), session).getId();
   }
 
   /**

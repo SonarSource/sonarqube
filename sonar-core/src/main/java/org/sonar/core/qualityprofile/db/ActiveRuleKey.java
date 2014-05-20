@@ -29,6 +29,7 @@ import java.io.Serializable;
  * @since 4.4
  */
 public class ActiveRuleKey implements Serializable {
+
   private final QualityProfileKey qualityProfileKey;
   private final RuleKey ruleKey;
 

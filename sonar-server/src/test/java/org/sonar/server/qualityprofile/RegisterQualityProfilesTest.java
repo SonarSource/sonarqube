@@ -63,7 +63,9 @@ java.lang.IllegalArgumentException: Name must be set
 	at org.sonar.server.qualityprofile.RegisterQualityProfilesTest.delete_existing_profile_if_template_is_empty(RegisterQualityProfilesTest.java:338)
   ...
  */
+//TODO check with J.L.
 public class RegisterQualityProfilesTest {
+
 
   @Mock
   QualityProfileDao qualityProfileDao;
@@ -107,8 +109,8 @@ public class RegisterQualityProfilesTest {
     when(sessionFactory.getSession()).thenReturn(mock(DatabaseSession.class));
 
     definitions = newArrayList();
-    registerQualityProfiles = new RegisterQualityProfiles(sessionFactory, myBatis, settings, esActiveRule, loadedTemplateDao, qProfileBackup, qProfileOperations, qProfileLookup,
-      defaultProfilesCache, null, definitions);
+//    registerQualityProfiles = new RegisterQualityProfiles(sessionFactory, myBatis,  loadedTemplateDao, qProfileBackup, qProfileOperations, qProfileLookup,
+//      defaultProfilesCache, null, definitions);
   }
 
   @Test

@@ -20,16 +20,18 @@
 
 package org.sonar.core.qualityprofile.db;
 
+import com.google.common.base.Preconditions;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.DaoComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
 import java.util.List;
 
-public class QualityProfileDao implements DaoComponent, ServerComponent {
+public class QualityProfileDao implements ServerComponent, DaoComponent {
 
   private final MyBatis mybatis;
 
@@ -65,10 +67,27 @@ public class QualityProfileDao implements DaoComponent, ServerComponent {
     }
   }
 
+
+  public void delete(QualityProfileDto profile, DbSession session) {
+    Preconditions.checkNotNull(profile.getId(), "Profile is not persisted");
+    session.getMapper(QualityProfileMapper.class).delete(profile.getId());
+  }
+
+  /**
+   * @deprecated use {@link #delete(QualityProfileDto, DbSession)}
+   * @param id
+   * @param session
+   */
+  @Deprecated
   public void delete(int id, SqlSession session) {
     session.getMapper(QualityProfileMapper.class).delete(id);
   }
 
+  /**
+   * @deprecated use {@link #delete(QualityProfileDto, DbSession)}
+   * @param id
+   */
+  @Deprecated
   public void delete(int id) {
     SqlSession session = mybatis.openSession(false);
     try {

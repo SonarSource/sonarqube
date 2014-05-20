@@ -30,17 +30,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.utils.SonarException;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.*;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
+import org.sonar.core.qualityprofile.db.ActiveRuleDto;
+import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.rule.RuleDto;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.jpa.session.DatabaseSessionFactory;
+import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.platform.PersistentSettings;
-import org.sonar.server.rule2.RegisterRules;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
@@ -55,52 +62,29 @@ public class RegisterQualityProfiles {
   private static final Logger LOGGER = LoggerFactory.getLogger(RegisterQualityProfiles.class);
   private static final String DEFAULT_PROFILE_NAME = "Sonar way";
 
-  private final LoadedTemplateDao loadedTemplateDao;
-  private final QProfileBackup qProfileBackup;
-  private final QProfileOperations qProfileOperations;
   private final PersistentSettings settings;
-  private final QProfileLookup qProfileLookup;
-  private final ESActiveRule esActiveRule;
   private final List<ProfileDefinition> definitions;
   private final DefaultProfilesCache defaultProfilesCache;
   private final DatabaseSessionFactory sessionFactory;
-  private final MyBatis myBatis;
+  private final DbClient dbClient;
 
   public RegisterQualityProfiles(DatabaseSessionFactory sessionFactory,
-                                 MyBatis myBatis,
                                  PersistentSettings settings,
-                                 ESActiveRule esActiveRule,
-                                 LoadedTemplateDao loadedTemplateDao,
-                                 QProfileBackup qProfileBackup,
-                                 QProfileOperations qProfileOperations,
-                                 QProfileLookup qProfileLookup,
-                                 DefaultProfilesCache defaultProfilesCache,
-                                 RegisterRules registerRulesBefore) {
-    this(sessionFactory, myBatis, settings, esActiveRule, loadedTemplateDao, qProfileBackup, qProfileOperations, qProfileLookup, defaultProfilesCache, registerRulesBefore,
+                                 DefaultProfilesCache defaultProfilesCache, DbClient dbClient) {
+    this(sessionFactory, settings, defaultProfilesCache, dbClient,
       Collections.<ProfileDefinition>emptyList());
   }
 
   public RegisterQualityProfiles(DatabaseSessionFactory sessionFactory,
-                                 MyBatis myBatis,
                                  PersistentSettings settings,
-                                 ESActiveRule esActiveRule,
-                                 LoadedTemplateDao loadedTemplateDao,
-                                 QProfileBackup qProfileBackup,
-                                 QProfileOperations qProfileOperations,
-                                 QProfileLookup qProfileLookup,
                                  DefaultProfilesCache defaultProfilesCache,
-                                 RegisterRules registerRulesBefore,
+                                 DbClient dbClient,
                                  List<ProfileDefinition> definitions) {
     this.sessionFactory = sessionFactory;
-    this.myBatis = myBatis;
     this.settings = settings;
-    this.esActiveRule = esActiveRule;
-    this.qProfileBackup = qProfileBackup;
-    this.qProfileOperations = qProfileOperations;
-    this.qProfileLookup = qProfileLookup;
     this.defaultProfilesCache = defaultProfilesCache;
     this.definitions = definitions;
-    this.loadedTemplateDao = loadedTemplateDao;
+    this.dbClient = dbClient;
   }
 
   public void start() {
@@ -110,7 +94,7 @@ public class RegisterQualityProfiles {
     // As long ProfileDefinition API will be used, then we'll have to use this commit as Hibernate is used by plugin to load rules when creating their profiles.
     sessionFactory.getSession().commit();
 
-    DbSession session = myBatis.openSession(false);
+    DbSession session = dbClient.openSession(false);
     try {
       ListMultimap<String, RulesProfile> profilesByLanguage = profilesByLanguage();
       for (String language : profilesByLanguage.keySet()) {
@@ -127,7 +111,6 @@ public class RegisterQualityProfiles {
         setDefault(language, profiles, session);
       }
       session.commit();
-      esActiveRule.bulkRegisterActiveRules();
     } finally {
       MyBatis.closeQuietly(session);
       profiler.stop();
@@ -141,26 +124,65 @@ public class RegisterQualityProfiles {
 
     Set<String> defaultProfileNames = defaultProfileNames(profiles);
     if (defaultProfileNames.size() > 1) {
-      throw new SonarException("Several Quality Profiles are flagged as default for the language " + language + ": " + defaultProfileNames);
+      throw new IllegalStateException("Several Quality Profiles are flagged as default for the language " + language + ": " + defaultProfileNames);
     }
+  }
+
+  private void checkPermission(UserSession userSession) {
+    userSession.checkLoggedIn();
+    userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+  }
+
+  private QualityProfileDto newQualityProfileDto(String name, String language, DbSession session) {
+    checkPermission(UserSession.get());
+      if (dbClient.qualityProfileDao().selectByNameAndLanguage(name, language, session) != null) {
+        throw BadRequestException.ofL10n("quality_profiles.profile_x_already_exists", name);
+      }
+
+    QualityProfileDto profile =  QualityProfileDto.createFor(name, language)
+      .setVersion(1).setUsed(false);
+    dbClient.qualityProfileDao().insert(profile, session);
+    return profile;
   }
 
   private void register(String language, String name, Collection<RulesProfile> profiles, DbSession session) {
     LOGGER.info("Register " + language + " profile: " + name);
 
-    QProfile profile = qProfileLookup.profile(name, language, session);
+    QualityProfileDto profile = dbClient.qualityProfileDao().selectByNameAndLanguage(name, language, session);
     if (profile != null) {
-      qProfileOperations.deleteProfile(profile, session);
+      dbClient.activeRuleDao().deleteByProfileKey(profile.getKey(), session);
+      dbClient.qualityProfileDao().delete(profile, session);
     }
-    profile = qProfileOperations.newProfile(name, language, true, UserSession.get(), session);
+    profile = newQualityProfileDto(name, language, session);
 
     for (RulesProfile currentRulesProfile : profiles) {
-      qProfileBackup.restoreFromActiveRules(
-        QualityProfileKey.of(profile.name(),profile.language())
-        , currentRulesProfile, session);
+      //TODO trapped on legacy Hibernate object.
+      for (org.sonar.api.rules.ActiveRule activeRule : currentRulesProfile.getActiveRules()) {
+        RuleKey ruleKey = RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey());
+        RuleDto rule = dbClient.ruleDao().getByKey(ruleKey, session);
+        if (rule == null) {
+          throw new NotFoundException(String.format("Rule '%s' does not exists.", ruleKey));
+        }
+
+        ActiveRuleDto activeRuleDto = dbClient.activeRuleDao().createActiveRule(
+          profile.getKey(), ruleKey, activeRule.getSeverity().name(), session);
+
+        //TODO trapped on legacy Hibernate object.
+        for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
+          String paramKey = param.getKey();
+          String value = param.getValue();
+          ActiveRuleParamDto paramDto = dbClient.activeRuleDao()
+            .getParamsByActiveRuleAndKey(activeRuleDto, paramKey, session);
+          if (value != null && !paramDto.getValue().equals(value)) {
+            paramDto.setValue(value);
+            dbClient.activeRuleDao().updateParam(activeRuleDto, paramDto, session);
+          }
+        }
+      }
     }
 
-    loadedTemplateDao.insert(new LoadedTemplateDto(templateKey(language, name), LoadedTemplateDto.QUALITY_PROFILE_TYPE), session);
+    dbClient.getDao(LoadedTemplateDao.class)
+      .insert(new LoadedTemplateDto(templateKey(language, name), LoadedTemplateDto.QUALITY_PROFILE_TYPE), session);
   }
 
   private void setDefault(String language, List<RulesProfile> profiles, SqlSession session) {
@@ -226,7 +248,8 @@ public class RegisterQualityProfiles {
   }
 
   private boolean shouldRegister(String language, String profileName, SqlSession session) {
-    return loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.QUALITY_PROFILE_TYPE, templateKey(language, profileName), session) == 0;
+    return dbClient.getDao(LoadedTemplateDao.class)
+      .countByTypeAndKey(LoadedTemplateDto.QUALITY_PROFILE_TYPE, templateKey(language, profileName), session) == 0;
   }
 
   private static String templateKey(String language, String profileName) {

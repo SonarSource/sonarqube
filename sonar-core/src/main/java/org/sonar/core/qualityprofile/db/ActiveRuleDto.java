@@ -23,6 +23,7 @@ package org.sonar.core.qualityprofile.db;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.core.persistence.Dto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.SeverityUtil;
@@ -37,6 +38,11 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
   public static final String INHERITED = "INHERITED";
   public static final String OVERRIDES = "OVERRIDES";
 
+  private String repository;
+  private String rule;
+  private String language;
+  private String profile;
+
   private Integer id;
   private Integer profileId;
   private Integer ruleId;
@@ -47,15 +53,18 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
   private String noteUserLogin;
   private String noteData;
 
-  private transient ActiveRuleKey key;
-
-  public ActiveRuleDto setKey(@Nullable ActiveRuleKey key) {
-    this.key = key;
+  @Deprecated
+  public ActiveRuleDto setKey(ActiveRuleKey key) {
+    this.repository = key.ruleKey().repository();
+    this.rule = key.ruleKey().rule();
+    this.language = key.qProfile().lang();
+    this.profile = key.qProfile().name();
     return this;
   }
 
   public ActiveRuleKey getKey() {
-    return this.key;
+  return ActiveRuleKey.of(QualityProfileKey.of(this.profile, this.language),
+    RuleKey.of(this.repository, this.rule));
   }
 
   // This field do not exists in db, it's only retrieve by joins

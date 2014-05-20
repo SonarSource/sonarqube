@@ -21,10 +21,8 @@
 package org.sonar.core.qualityprofile.db;
 
 import org.apache.ibatis.annotations.Param;
-import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.CheckForNull;
-
 import java.util.List;
 
 public interface ActiveRuleMapper {
@@ -75,4 +73,6 @@ public interface ActiveRuleMapper {
 
   List<ActiveRuleParamDto> selectAllParams();
 
+  ActiveRuleDto selectByKey(@Param("profile") String profile, @Param("language") String language,
+                            @Param("repository") String repository, @Param("rule") String rule );
 }
