@@ -158,23 +158,6 @@ public class UserSession {
   }
 
   /**
-   * Ensures that user implies the specified project permission on a component. If not a {@link org.sonar.server.exceptions.ForbiddenException} is thrown.
-   */
-  public UserSession checkComponentPermission(String projectPermission, String componentKey) {
-    String projectKey = projectKeyByComponentKey.get(componentKey);
-    if (projectKey == null) {
-      ResourceDto project = resourceDao().getRootProjectByComponentKey(componentKey);
-      if (project == null) {
-        throw new NotFoundException(String.format("Component '%s' does not exist", componentKey));
-      }
-      projectKey = project.getKey();
-    }
-    UserSession userSession = checkProjectPermission(projectPermission, projectKey);
-    projectKeyByComponentKey.put(componentKey, projectKey);
-    return userSession;
-  }
-
-  /**
    * Does the user have the given project permission ?
    */
   public boolean hasProjectPermission(String permission, String projectKey) {
@@ -186,6 +169,36 @@ public class UserSession {
       projectPermissions.add(permission);
     }
     return projectKeyByPermission.get(permission).contains(projectKey);
+  }
+
+  /**
+   * Ensures that user implies the specified project permission on a component. If not a {@link org.sonar.server.exceptions.ForbiddenException} is thrown.
+   */
+  public UserSession checkComponentPermission(String projectPermission, String componentKey) {
+    if (!hasComponentPermission(projectPermission, componentKey)) {
+      throw new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
+    }
+    return this;
+  }
+
+  /**
+   * Does the user have the given project permission for a component ?
+   */
+  public boolean hasComponentPermission(String permission, String componentKey) {
+    String projectKey = projectKeyByComponentKey.get(componentKey);
+    if (projectKey == null) {
+      ResourceDto project = resourceDao().getRootProjectByComponentKey(componentKey);
+      if (project == null) {
+        throw new NotFoundException(String.format("Component '%s' does not exist", componentKey));
+      }
+      projectKey = project.getKey();
+    }
+    boolean hasComponentPermission = hasProjectPermission(permission, projectKey);
+    if (hasComponentPermission) {
+      projectKeyByComponentKey.put(componentKey, projectKey);
+      return true;
+    }
+    return false;
   }
 
   AuthorizationDao authorizationDao() {

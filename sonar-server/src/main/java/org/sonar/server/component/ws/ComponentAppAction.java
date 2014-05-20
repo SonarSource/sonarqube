@@ -98,7 +98,7 @@ public class ComponentAppAction implements RequestHandler {
       .createParam(KEY)
       .setRequired(true)
       .setDescription("File key")
-      .setExampleValue("my_project:/src/foo/Bar.php");
+      .setExampleValue("org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/Plugin.java");
   }
 
   @Override
@@ -121,6 +121,7 @@ public class ComponentAppAction implements RequestHandler {
       // projectId and subProjectId can't be null here
       if (projectId != null && subProjectId != null) {
         appendComponent(json, component, projectId, subProjectId, userSession, session);
+        appendPermissions(json, component, userSession);
         appendPeriods(json, projectId, session);
         appendIssuesAggregation(json, component.key(), session);
         appendMeasures(json, fileKey, session);
@@ -155,6 +156,11 @@ public class ComponentAppAction implements RequestHandler {
     json.prop("projectName", project.longName());
 
     json.prop("fav", isFavourite);
+  }
+
+  private void appendPermissions(JsonWriter json, ComponentDto component, UserSession userSession) {
+    json.prop("canMarkAsFavourite", userSession.isLoggedIn() && userSession.hasComponentPermission(UserRole.CODEVIEWER, component.key()));
+    json.prop("canBulkChange", userSession.isLoggedIn());
   }
 
   private void appendMeasures(JsonWriter json, String fileKey, DbSession session) {

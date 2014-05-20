@@ -6,6 +6,8 @@
   "subProjectName": "SonarQube :: Plugin API",
   "projectName": "SonarQube",
   "fav": false,
+  "canMarkAsFavourite": false,
+  "canBulkChange": false,
   "periods": [],
   "severities": [],
   "rules": [

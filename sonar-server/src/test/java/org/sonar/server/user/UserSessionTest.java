@@ -139,6 +139,21 @@ public class UserSessionTest {
   }
 
   @Test
+  public void has_component_permission() throws Exception {
+    AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
+    ResourceDao resourceDao = mock(ResourceDao.class);
+    UserSession session = new SpyUserSession("marius", authorizationDao, resourceDao).setUserId(1);
+
+    String componentKey = "com.foo:Bar:BarFile.xoo";
+    when(resourceDao.getRootProjectByComponentKey(componentKey)).thenReturn(new ResourceDto().setKey(componentKey));
+    when(authorizationDao.selectAuthorizedRootProjectsKeys(1, UserRole.USER)).thenReturn(newArrayList(componentKey));
+
+    assertThat(session.hasComponentPermission(UserRole.USER, componentKey)).isTrue();
+    assertThat(session.hasComponentPermission(UserRole.CODEVIEWER, componentKey)).isFalse();
+    assertThat(session.hasComponentPermission(UserRole.ADMIN, componentKey)).isFalse();
+  }
+
+  @Test
   public void check_component_permission_ok() throws Exception {
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     ResourceDao resourceDao = mock(ResourceDao.class);
