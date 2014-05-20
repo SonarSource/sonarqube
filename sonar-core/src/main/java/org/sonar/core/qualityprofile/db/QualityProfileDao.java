@@ -21,15 +21,15 @@
 package org.sonar.core.qualityprofile.db;
 
 import org.apache.ibatis.session.SqlSession;
+import org.sonar.api.DaoComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
-
 import java.util.List;
 
-public class QualityProfileDao implements ServerComponent {
+public class QualityProfileDao implements DaoComponent, ServerComponent {
 
   private final MyBatis mybatis;
 

@@ -33,6 +33,7 @@ import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.BaseDao;
+import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexDefinition;
 import org.sonar.server.rule2.persistence.RuleDao;
 
@@ -190,5 +191,15 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
   public List<ActiveRuleParamDto> findParamsByActiveRule(ActiveRuleDto dto, DbSession session) {
     Preconditions.checkArgument(dto.getId() != null, "ActiveRule is not persisted");
     return mapper(session).selectParamsByActiveRuleId(dto.getId());
+  }
+
+  @Deprecated
+  public void removeParamByProfile(QProfile profile, DbSession session) {
+    mapper(session).deleteParametersFromProfile(profile.id());
+  }
+
+  @Deprecated
+  public void deleteByProfile(QProfile profile, DbSession session) {
+    mapper(session).deleteFromProfile(profile.id());
   }
 }
