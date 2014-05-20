@@ -40,6 +40,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
 import org.sonar.server.rule2.index.RuleIndex;
+import org.sonar.server.rule2.index.RuleNormalizer;
 import org.sonar.server.rule2.index.RuleQuery;
 import org.sonar.server.rule2.index.RuleResult;
 import org.sonar.server.rule2.persistence.RuleDao;
@@ -163,6 +164,34 @@ public class RuleServiceMediumTest {
     assertThat(rule.noteCreatedAt()).isNull();
     assertThat(rule.noteUpdatedAt()).isNull();
     assertThat(rule.noteLogin()).isNull();
+
+  }
+
+  @Test
+  public void test_list_tags() throws InterruptedException {
+    // insert db
+    RuleKey rule1 = RuleKey.of("javascript", "S001");
+    dao.insert(newRuleDto(rule1)
+        .setTags(Sets.newHashSet("security"))
+        .setSystemTags(Sets.newHashSet("java-coding","stephane.gamard@sonarsource.com")),
+      dbSession);
+
+    RuleKey rule2 = RuleKey.of("java", "S001");
+    dao.insert(newRuleDto(rule2)
+      .setTags(Sets.newHashSet("mytag"))
+      .setSystemTags(Sets.newHashSet("")), dbSession);
+    dbSession.commit();
+
+    index.refresh();
+
+    Set<String> tags = index.terms(RuleNormalizer.RuleField.TAGS.key(),
+      RuleNormalizer.RuleField.SYSTEM_TAGS.key());
+    assertThat(tags).containsOnly("java-coding","security",
+      "stephane.gamard@sonarsource.com","mytag");
+
+    tags = index.terms(RuleNormalizer.RuleField.SYSTEM_TAGS.key());
+    assertThat(tags).containsOnly("java-coding",
+      "stephane.gamard@sonarsource.com");
 
   }
 

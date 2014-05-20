@@ -21,7 +21,6 @@ package org.sonar.server.rule2.index;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -140,6 +139,20 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     addMatchField(mapping, RuleNormalizer.RuleField.REPOSITORY.key(), "string");
     addMatchField(mapping, RuleNormalizer.RuleField.SEVERITY.key(), "string");
     addMatchField(mapping, RuleNormalizer.RuleField.STATUS.key(), "string");
+
+    addMatchField(mapping, RuleNormalizer.RuleField.LANGUAGE.key(), "string");
+
+    mapping.startObject(RuleNormalizer.RuleField.TAGS.key())
+      .field("type", "string")
+      .endObject();
+
+    mapping.startObject(RuleNormalizer.RuleField.SYSTEM_TAGS.key())
+      .field("type", "string")
+      .field("analyzer","whitespace")
+      .endObject();
+//
+//    addMatchArray(mapping, RuleNormalizer.RuleField.TAGS.key(), "string");
+//    addMatchArray(mapping, RuleNormalizer.RuleField.SYSTEM_TAGS.key(), "string");
 
 
     mapping.startObject(RuleNormalizer.RuleField.NOTE_CREATED_AT.key())
