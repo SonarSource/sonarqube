@@ -28,6 +28,9 @@ import org.sonar.server.rule2.RuleService;
 
 public class SetNoteAction implements RequestHandler {
 
+  private static final String PARAM_KEY = "key";
+  private static final String PARAM_TEXT = "markdown_text";
+
   private final RuleService service;
 
   public SetNoteAction(RuleService service) {
@@ -42,12 +45,12 @@ public class SetNoteAction implements RequestHandler {
       .setPost(true)
       .setHandler(this);
     setTags
-      .createParam("key")
+      .createParam(PARAM_KEY)
       .setRequired(true)
       .setDescription("Rule key")
       .setExampleValue("javascript:EmptyBlock");
     setTags
-      .createParam("text")
+      .createParam(PARAM_TEXT)
       .setDescription("Markdown text. Set to blank to remove the note.")
       .setRequired(true)
       .setExampleValue("java8,security");
@@ -55,7 +58,7 @@ public class SetNoteAction implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) {
-    RuleKey key = RuleKey.parse(request.mandatoryParam("key"));
-    service.setNote(key, request.mandatoryParam("text"));
+    RuleKey key = RuleKey.parse(request.mandatoryParam(PARAM_KEY));
+    service.setNote(key, request.mandatoryParam(PARAM_TEXT));
   }
 }
