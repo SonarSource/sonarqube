@@ -39,6 +39,8 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.es.ESNode;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexDefinition;
+import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule2.Rule;
 import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.QueryOptions;
@@ -150,10 +152,6 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       .field("type", "string")
       .field("analyzer","whitespace")
       .endObject();
-//
-//    addMatchArray(mapping, RuleNormalizer.RuleField.TAGS.key(), "string");
-//    addMatchArray(mapping, RuleNormalizer.RuleField.SYSTEM_TAGS.key(), "string");
-
 
     mapping.startObject(RuleNormalizer.RuleField.NOTE_CREATED_AT.key())
       .field("type", "date")
@@ -258,7 +256,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       fields = RuleNormalizer.RuleField.ALL_KEYS;
     }
 
-    esSearch.setFetchSource(fields.toArray(new String[fields.size()]),null);
+    esSearch.setFetchSource(fields.toArray(new String[fields.size()]), null);
 
     return esSearch;
   }
@@ -299,12 +297,32 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       this.addTermFilter(RuleNormalizer.RuleField.STATUS.key(), stringStatus, fb);
     }
 
+    /** Implementation of activation query */
+    if(query.getActivation() != null && !query.getActivation().isEmpty()){
+      if(query.getActivation().equals("false")){
+        /** these are inactive rules */
+        fb.mustNot(FilterBuilders.hasChildFilter(new ActiveRuleIndexDefinition().getIndexType(),
+          QueryBuilders.matchAllQuery()));
+      } else if(query.getActivation().equals("all")){
+        /** these are active rules */
+        fb.must(FilterBuilders.hasChildFilter(new ActiveRuleIndexDefinition().getIndexType(),
+          QueryBuilders.matchAllQuery()));
+      } else if(query.getActivation().equals("true")){
+        /** these are active rules for a given profile*/
+        fb.must(FilterBuilders.hasChildFilter(new ActiveRuleIndexDefinition().getIndexType(),
+          QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.key(),
+            query.getQProfileKey())));
+      }
+    }
+
+
     if ((query.getLanguages() != null && !query.getLanguages().isEmpty()) ||
       (query.getRepositories() != null && !query.getRepositories().isEmpty()) ||
       (query.getSeverities() != null && !query.getSeverities().isEmpty()) ||
       (query.getTags() != null && !query.getTags().isEmpty()) ||
       (query.getStatuses() != null && !query.getStatuses().isEmpty()) ||
-      (query.getKey() != null && !query.getKey().isEmpty())) {
+      (query.getKey() != null && !query.getKey().isEmpty()) ||
+      (query.getActivation() != null && !query.getActivation().isEmpty())) {
       return fb;
     } else {
       return FilterBuilders.matchAllFilter();

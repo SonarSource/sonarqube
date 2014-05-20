@@ -99,7 +99,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
     addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.RULE_KEY.key(), "string");
     addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.key(), "string");
     addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.SEVERITY.key(), "string");
-    addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.PROFILE_ID.key(), "string");
+    addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.key(), "string");
     mapping.startObject(ActiveRuleNormalizer.ActiveRuleField.PARAMS.key())
       .field("type", "object")
       .startObject("properties")

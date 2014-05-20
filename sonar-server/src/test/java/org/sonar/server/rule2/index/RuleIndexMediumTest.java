@@ -33,7 +33,12 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.qualityprofile.db.ActiveRuleDto;
+import org.sonar.core.qualityprofile.db.QualityProfileDao;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.server.db.DbClient;
+import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
 import org.sonar.server.rule2.Rule;
 import org.sonar.server.rule2.persistence.RuleDao;
 import org.sonar.server.search.QueryOptions;
@@ -54,6 +59,7 @@ public class RuleIndexMediumTest {
   MyBatis myBatis = tester.get(MyBatis.class);
   RuleDao dao = tester.get(RuleDao.class);
   RuleIndex index = tester.get(RuleIndex.class);
+  DbClient dbClient = tester.get(DbClient.class);
   DbSession dbSession;
 
   @Before
@@ -359,6 +365,58 @@ public class RuleIndexMediumTest {
     results = index.search(query, new QueryOptions());
     assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S002");
     assertThat(Iterables.getLast(results.getHits(), null).key().rule()).isEqualTo("S001");
+  }
+
+  @Test
+  public void search_by_profile() throws InterruptedException {
+    QualityProfileDto qualityProfileDto1 = QualityProfileDto.createFor("profile1", "java");
+    QualityProfileDto qualityProfileDto2 = QualityProfileDto.createFor("profile2", "java");
+    dbClient.getDao(QualityProfileDao.class).insert(qualityProfileDto1);
+    dbClient.getDao(QualityProfileDao.class).insert(qualityProfileDto2);
+
+    RuleDto rule1 = newRuleDto(RuleKey.of("java", "S001"));
+    dao.insert(rule1, dbSession);
+    RuleDto rule2 = newRuleDto(RuleKey.of("java", "S002"));
+    dao.insert(rule2, dbSession);
+    RuleDto rule3 = newRuleDto(RuleKey.of("java", "S003"));
+    dao.insert(rule3, dbSession);
+
+    dbClient.getDao(ActiveRuleDao.class).insert(
+      ActiveRuleDto.createFor(qualityProfileDto1, rule1)
+      .setSeverity("BLOCKER"), dbSession);
+
+    dbClient.getDao(ActiveRuleDao.class).insert(
+      ActiveRuleDto.createFor(qualityProfileDto2, rule1)
+        .setSeverity("BLOCKER"), dbSession);
+
+    dbClient.getDao(ActiveRuleDao.class).insert(
+      ActiveRuleDto.createFor(qualityProfileDto1, rule2)
+        .setSeverity("BLOCKER"), dbSession);
+
+
+    dbSession.commit();
+    index.refresh();
+
+    RuleResult result;
+
+    // 1. get all active rules.
+    result = index.search(new RuleQuery().setActivation("all"),
+      new QueryOptions());
+    assertThat(result.getHits()).hasSize(2);
+
+    // 2. get all inactive rules.
+    result = index.search(new RuleQuery().setActivation("false"),
+      new QueryOptions());
+    assertThat(result.getHits()).hasSize(1);
+    assertThat(result.getHits().get(0).name()).isEqualTo(rule3.getName());
+
+    // 3. get all active rules. for qualityProfileDto2
+    result = index.search(new RuleQuery().setActivation("true")
+      .setQProfileKey(qualityProfileDto2.getKey().toString()),
+      new QueryOptions());
+    assertThat(result.getRules()).hasSize(1);
+    assertThat(result.getHits().get(0).name()).isEqualTo(rule1.getName());
+
   }
 
   @Test
