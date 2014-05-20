@@ -20,6 +20,7 @@
 package org.sonar.server.db;
 
 import com.google.common.base.Preconditions;
+import org.sonar.api.DaoComponent;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Dto;
 import org.sonar.core.persistence.DbSession;
@@ -104,7 +105,7 @@ import java.util.List;
  * @param <E> Produced DTO class from this dao
  * @param <K> DTO Key class
  */
-public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> implements Dao<E, K> {
+public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> implements Dao<E, K>, DaoComponent {
 
   protected final IndexDefinition indexDefinition;
   private Class<M> mapperClass;

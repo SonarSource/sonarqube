@@ -19,6 +19,7 @@
  */
 package org.sonar.server.db;
 
+import org.sonar.api.DaoComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DbSession;
@@ -27,6 +28,9 @@ import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
 import org.sonar.server.rule2.persistence.RuleDao;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Facade for all db components
  */
@@ -34,17 +38,17 @@ public class DbClient implements ServerComponent {
 
   private final Database db;
   private final MyBatis myBatis;
-  private final RuleDao ruleDao;
-  private final ActiveRuleDao activeRuleDao;
-  private final QualityProfileDao qProfileDao;
+  private final Map<Class<?>, DaoComponent> daoComponents;
 
-  public DbClient(Database db, MyBatis myBatis, RuleDao ruleDao, ActiveRuleDao activeRuleDao,
-                  QualityProfileDao qProfileDao) {
+
+  public DbClient(Database db, MyBatis myBatis, DaoComponent... daoComponents) {
     this.db = db;
     this.myBatis = myBatis;
-    this.ruleDao = ruleDao;
-    this.activeRuleDao = activeRuleDao;
-    this.qProfileDao = qProfileDao;
+    this.daoComponents = new HashMap<Class<?>, DaoComponent>();
+
+    for(DaoComponent daoComponent : daoComponents){
+      this.daoComponents.put(daoComponent.getClass(), daoComponent);
+    }
   }
 
   public Database database() {
@@ -55,15 +59,19 @@ public class DbClient implements ServerComponent {
     return myBatis.openSession(batch);
   }
 
+  public <K> K getDao(Class<K> clazz){
+    return (K) this.daoComponents.get(clazz);
+  }
+
   public RuleDao ruleDao() {
-    return ruleDao;
+    return this.getDao(RuleDao.class);
   }
 
   public ActiveRuleDao activeRuleDao() {
-    return activeRuleDao;
+    return this.getDao(ActiveRuleDao.class);
   }
 
   public QualityProfileDao qualityProfileDao() {
-    return qProfileDao;
+    return this.getDao(QualityProfileDao.class);
   }
 }

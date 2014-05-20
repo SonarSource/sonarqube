@@ -52,8 +52,8 @@ public class DbClientTest {
     dbSession.close();
 
     // DAO
-    assertThat(client.ruleDao()).isSameAs(ruleDao);
-    assertThat(client.activeRuleDao()).isSameAs(activeRuleDao);
-    assertThat(client.qualityProfileDao()).isSameAs(qualityProfileDao);
+    assertThat(client.getDao(qualityProfileDao.getClass())).isSameAs(qualityProfileDao);
+    assertThat(client.getDao(activeRuleDao.getClass())).isSameAs(activeRuleDao);
+    assertThat(client.getDao(ruleDao.getClass())).isSameAs(ruleDao);
   }
 }

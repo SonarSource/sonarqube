@@ -30,9 +30,9 @@ import org.sonar.core.qualityprofile.db.ActiveRuleMapper;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.BaseDao;
-import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexDefinition;
 import org.sonar.server.rule2.persistence.RuleDao;
 
@@ -62,7 +62,7 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
 
   @Deprecated
   public ActiveRuleDto getById(int activeRuleId, DbSession session) {
-    ActiveRuleDto rule =  mapper(session).selectById(activeRuleId);
+    ActiveRuleDto rule = mapper(session).selectById(activeRuleId);
 
     rule.setKey(ActiveRuleKey.of(
       profileDao.selectById(rule.getProfileId(), session).getKey(),
@@ -159,18 +159,28 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
     return mapper(session).selectParamByActiveRuleAndKey(activeRule.getId(), key);
   }
 
-  @Deprecated
-  //FIXME this should be deleteByProfile(QualityProfileKey... waiting for QualitiProfileDaoV2
-  public void deleteByProfile(QProfile profile, DbSession session) {
-    //TODO put that in a loop so we can have a the ActiveRuleKey and use DAO's delete for ES synch
-    mapper(session).deleteFromProfile(profile.id());
+  public void deleteByProfileKey(QualityProfileKey profileKey, DbSession session) {
+    /** Functional cascade for params */
+    this.removeParamByProfileKey(profileKey, session);
+    for (ActiveRuleDto activeRule : this.findByProfileKey(profileKey, session)) {
+      this.delete(activeRule, session);
+    }
+  }
+
+  public List<ActiveRuleDto> findByProfileKey(QualityProfileKey profileKey, DbSession session) {
+    int id = this.getQualityProfileId(profileKey, session);
+    return mapper(session).selectByProfileId(id);
+  }
+
+  public void removeParamByProfileKey(QualityProfileKey profileKey, DbSession session) {
+    int id = this.getQualityProfileId(profileKey, session);
+    mapper(session).deleteParametersFromProfile(id);
   }
 
   @Deprecated
-  //FIXME this should be removeParamByProfile(QualityProfileKey... waiting for QualitiProfileDaoV2
-  public void removeParamByProfile(QProfile profile, DbSession session) {
-    //TODO synch ES for deletion
-    mapper(session).deleteParametersFromProfile(profile.id());
+  //TODO Needed until SQL rewrite with KEY fields.
+  private int getQualityProfileId(QualityProfileKey profileKey, DbSession sesison){
+    return 0;
   }
 
   /**

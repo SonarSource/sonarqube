@@ -21,10 +21,11 @@ package org.sonar.core.template;
 
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.DaoComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 
-public class LoadedTemplateDao implements BatchComponent, ServerComponent {
+public class LoadedTemplateDao implements DaoComponent, BatchComponent, ServerComponent {
 
   private MyBatis mybatis;
 
