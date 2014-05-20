@@ -59,7 +59,7 @@ public class SetTagsAction implements RequestHandler {
   @Override
   public void handle(Request request, Response response) {
     RuleKey key = RuleKey.parse(request.mandatoryParam("key"));
-    Set<String> tags = Sets.newHashSet(request.paramAsStrings("tags"));
+    Set<String> tags = Sets.newHashSet(request.mandatoryParamAsStrings("tags"));
     service.setTags(key, tags);
   }
 }
