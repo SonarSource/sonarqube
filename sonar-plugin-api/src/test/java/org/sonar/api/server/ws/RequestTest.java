@@ -22,6 +22,7 @@ package org.sonar.api.server.ws;
 import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.rule.RuleStatus;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -68,10 +69,12 @@ public class RequestTest {
       action.createParam("a_string");
       action.createParam("a_boolean");
       action.createParam("a_number");
+      action.createParam("a_enum");
 
       action.createParam("a_required_string").setRequired(true);
       action.createParam("a_required_boolean").setRequired(true);
       action.createParam("a_required_number").setRequired(true);
+      action.createParam("a_required_enum").setRequired(true);
 
       action.createParam("has_default_string").setDefaultValue("the_default_string");
       action.createParam("has_default_number").setDefaultValue("10");
@@ -107,11 +110,13 @@ public class RequestTest {
     request.setParam("a_required_string", "foo");
     request.setParam("a_required_number", "42");
     request.setParam("a_required_boolean", "true");
+    request.setParam("a_required_enum", "BETA");
 
     assertThat(request.mandatoryParam("a_required_string")).isEqualTo("foo");
     assertThat(request.mandatoryParamAsBoolean("a_required_boolean")).isTrue();
     assertThat(request.mandatoryParamAsInt("a_required_number")).isEqualTo(42);
     assertThat(request.mandatoryParamAsLong("a_required_number")).isEqualTo(42L);
+    assertThat(request.mandatoryParamAsEnum("a_required_enum", RuleStatus.class)).isEqualTo(RuleStatus.BETA);
   }
 
   @Test
@@ -158,6 +163,17 @@ public class RequestTest {
   public void param_as_boolean() throws Exception {
     assertThat(request.setParam("a_boolean", "true").paramAsBoolean("a_boolean")).isTrue();
     assertThat(request.setParam("a_boolean", "false").paramAsBoolean("a_boolean")).isFalse();
+  }
+
+  @Test
+  public void param_as_enum() throws Exception {
+    assertThat(request.setParam("a_enum", "BETA").paramAsEnum("a_enum", RuleStatus.class)).isEqualTo(RuleStatus.BETA);
+  }
+
+  @Test
+  public void param_as_enums() throws Exception {
+    assertThat(request.setParam("a_enum", "BETA,READY").paramAsEnums("a_enum", RuleStatus.class)).containsOnly(
+      RuleStatus.BETA, RuleStatus.READY);
   }
 
   @Test

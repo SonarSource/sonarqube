@@ -202,7 +202,7 @@ class ServerComponents {
       ComponentDao.class,
       DbClient.class,
       MeasureFilterDao.class
-      ));
+    ));
     components.addAll(CorePropertyDefinitions.all());
     components.addAll(DatabaseMigrations.CLASSES);
     components.addAll(DaoUtils.getDaoClasses());
@@ -327,8 +327,6 @@ class ServerComponents {
     pico.addSingleton(DeprecatedRulesDefinition.class);
     pico.addSingleton(RuleDefinitionsLoader.class);
     pico.addSingleton(RulesDefinitionXmlLoader.class);
-
-    // experimental rules
     pico.addSingleton(RuleService.class);
     pico.addSingleton(RulesWebService.class);
     pico.addSingleton(SearchAction.class);
@@ -336,6 +334,7 @@ class ServerComponents {
     pico.addSingleton(TagsAction.class);
     pico.addSingleton(SetTagsAction.class);
     pico.addSingleton(SetNoteAction.class);
+    pico.addSingleton(RuleMapping.class);
     pico.addSingleton(org.sonar.server.rule2.ws.AppAction.class);
 
     // measure

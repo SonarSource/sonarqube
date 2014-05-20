@@ -93,6 +93,10 @@ public abstract class Request {
     return Long.parseLong(s);
   }
 
+  public <E extends Enum<E>> E mandatoryParamAsEnum(String key, Class<E> enumClass) {
+    return Enum.valueOf(enumClass, mandatoryParam(key));
+  }
+
   public List<String> mandatoryParamAsStrings(String key) {
     List<String> values = paramAsStrings(key);
     if (values == null) {
@@ -128,6 +132,22 @@ public abstract class Request {
       validate(s, definition);
     }
     return values;
+  }
+
+  @CheckForNull
+  public <E extends Enum<E>> List<E> paramAsEnums(String key, Class<E> enumClass) {
+    WebService.Param definition = action.param(key);
+    String value = readParamOrDefaultValue(key, definition);
+    if (value == null) {
+      return null;
+    }
+    Iterable<String> values = Splitter.on(',').omitEmptyStrings().trimResults().split(value);
+    List<E> result = Lists.newArrayList();
+    for (String s : values) {
+      validate(s, definition);
+      result.add(Enum.valueOf(enumClass, s));
+    }
+    return result;
   }
 
   @CheckForNull
@@ -211,5 +231,11 @@ public abstract class Request {
   public Long paramAsLong(String key) {
     String s = param(key);
     return s == null ? null : Long.parseLong(s);
+  }
+
+  @CheckForNull
+  public <E extends Enum<E>> E paramAsEnum(String key, Class<E> enumClass) {
+    String s = param(key);
+    return s == null ? null : Enum.valueOf(enumClass, s);
   }
 }

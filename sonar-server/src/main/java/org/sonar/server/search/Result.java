@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public  abstract class Result<K> {
+public abstract class Result<K> {
 
   private final List<K> hits;
   private final Map<String, Collection<FacetValue>> facets;

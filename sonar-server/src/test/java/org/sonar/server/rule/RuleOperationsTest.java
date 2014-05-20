@@ -460,7 +460,9 @@ public class RuleOperationsTest {
   public void disable_rule_debt_when_update_rule_with_no_sub_characteristic() throws Exception {
     RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
       .setDefaultSubCharacteristicId(6).setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("10min")
-      .setSubCharacteristicId(6).setRemediationFunction("CONSTANT_ISSUE").setRemediationOffset("10min");
+      .setSubCharacteristicId(6)
+      .setRemediationFunction("CONSTANT_ISSUE")
+      .setRemediationOffset("10min");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
     when(ruleDao.selectByKey(ruleKey, session)).thenReturn(dto);

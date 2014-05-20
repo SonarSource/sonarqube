@@ -31,6 +31,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.server.debt.DebtCharacteristic;
+import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -357,8 +358,13 @@ public class DebtModelOperationsTest {
 
     when(ruleDao.selectBySubCharacteristicId(2, batchSession)).thenReturn(newArrayList(
       new RuleDto()
-        .setSubCharacteristicId(2).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("2h").setRemediationOffset("5min")
-        .setDefaultSubCharacteristicId(10).setDefaultRemediationFunction("LINEAR_OFFSET").setDefaultRemediationCoefficient("4h").setDefaultRemediationOffset("15min")
+        .setSubCharacteristicId(2)
+        .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
+        .setRemediationCoefficient("2h").setRemediationOffset("5min")
+        .setDefaultSubCharacteristicId(10)
+        .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
+        .setDefaultRemediationCoefficient("4h")
+        .setDefaultRemediationOffset("15min")
     ));
     when(dao.selectById(2, batchSession)).thenReturn(subCharacteristicDto);
 
@@ -439,7 +445,10 @@ public class DebtModelOperationsTest {
     when(mybatis.openSession(true)).thenReturn(batchSession);
 
     when(ruleDao.selectBySubCharacteristicId(subCharacteristicDto.getId(), batchSession)).thenReturn(newArrayList(
-      new RuleDto().setSubCharacteristicId(subCharacteristicDto.getId()).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("2h").setRemediationOffset("5min")
+      new RuleDto().setSubCharacteristicId(subCharacteristicDto.getId())
+        .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
+        .setRemediationCoefficient("2h")
+        .setRemediationOffset("5min")
     ));
     when(dao.selectCharacteristicsByParentId(1, batchSession)).thenReturn(newArrayList(
       subCharacteristicDto

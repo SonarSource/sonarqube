@@ -75,7 +75,6 @@ public interface Rule {
   @CheckForNull
   DebtRemediationFunction debtRemediationFunction();
 
-
   Date createdAt();
 
   Date updatedAt();

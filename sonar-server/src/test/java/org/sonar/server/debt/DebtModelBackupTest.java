@@ -166,7 +166,11 @@ public class DebtModelBackupTest {
 
     when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
       // Rule with overridden debt values
-      new RuleDto().setRepositoryKey("squid").setRuleKey("UselessImportCheck").setSubCharacteristicId(2).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("2h").setRemediationOffset("15min"),
+      new RuleDto().setRepositoryKey("squid").setRuleKey("UselessImportCheck")
+        .setSubCharacteristicId(2)
+        .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
+        .setRemediationCoefficient("2h")
+        .setRemediationOffset("15min"),
 
       // Rule with default debt values
       new RuleDto().setRepositoryKey("squid").setRuleKey("AvoidNPE").setDefaultSubCharacteristicId(2).setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("2h")
@@ -232,8 +236,12 @@ public class DebtModelBackupTest {
       // Rule with default debt values : default value is linear (only coefficient is set) and overridden value is constant per issue (only offset is set)
       // -> Ony offset should be set
       new RuleDto().setRepositoryKey("squid").setRuleKey("AvoidNPE")
-        .setDefaultSubCharacteristicId(2).setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("2h")
-        .setSubCharacteristicId(2).setRemediationFunction("CONSTANT_ISSUE").setRemediationOffset("15min")
+        .setDefaultSubCharacteristicId(2)
+        .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
+        .setDefaultRemediationCoefficient("2h")
+        .setSubCharacteristicId(2)
+        .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.toString())
+        .setRemediationOffset("15min")
     ));
 
     debtModelBackup.backup();
@@ -264,11 +272,16 @@ public class DebtModelBackupTest {
 
     when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
       new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck").setLanguage("java")
-        .setSubCharacteristicId(2).setRemediationFunction("CONSTANT_ISSUE").setRemediationOffset("15min"),
+        .setSubCharacteristicId(2)
+        .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.toString())
+        .setRemediationOffset("15min"),
 //        .setCreatedAt(oldDate).setUpdatedAt(oldDate),
       // Should be ignored
-      new RuleDto().setId(2).setRepositoryKey("checkstyle").setLanguage("java2")
-        .setSubCharacteristicId(3).setRemediationFunction("LINEAR").setRemediationCoefficient("2h")
+      new RuleDto().setId(2).setRepositoryKey("checkstyle")
+        .setLanguage("java2")
+        .setSubCharacteristicId(3)
+        .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
+        .setRemediationCoefficient("2h")
 //        .setCreatedAt(oldDate).setUpdatedAt(oldDate)
     ));
 
@@ -415,9 +428,13 @@ public class DebtModelBackupTest {
 
     when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
       new RuleDto().setRepositoryKey("squid").setRuleKey("NPE")
-        .setDefaultSubCharacteristicId(10).setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("2h")
-        .setSubCharacteristicId(2).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("2h").setRemediationOffset("15min")
-//        .setCreatedAt(oldDate).setUpdatedAt(oldDate)
+        .setDefaultSubCharacteristicId(10)
+        .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
+        .setDefaultRemediationCoefficient("2h")
+        .setSubCharacteristicId(2)
+        .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
+        .setRemediationCoefficient("2h")
+        .setRemediationOffset("15min")
     ));
 
     RulesDefinition.Context context = new RulesDefinition.Context();
@@ -473,9 +490,13 @@ public class DebtModelBackupTest {
 
     when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
       new RuleDto().setRepositoryKey("squid").setRuleKey("NPE")
-        .setDefaultSubCharacteristicId(10).setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("2h")
-        .setSubCharacteristicId(2).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("2h").setRemediationOffset("15min")
-        //.setCreatedAt(oldDate).setUpdatedAt(oldDate)
+        .setDefaultSubCharacteristicId(10)
+        .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
+        .setDefaultRemediationCoefficient("2h")
+        .setSubCharacteristicId(2)
+        .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
+        .setRemediationCoefficient("2h")
+        .setRemediationOffset("15min")
     ));
 
     RulesDefinition.Context context = new RulesDefinition.Context();
@@ -523,12 +544,16 @@ public class DebtModelBackupTest {
     when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
       // Template rule
       new RuleDto().setId(5).setRepositoryKey("squid").setRuleKey("XPath")
-        .setSubCharacteristicId(2).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("2h").setRemediationOffset("15min"),
-      //  .setCreatedAt(oldDate).setUpdatedAt(oldDate),
+        .setSubCharacteristicId(2)
+        .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
+        .setRemediationCoefficient("2h")
+        .setRemediationOffset("15min"),
       // Custom rule
       new RuleDto().setId(6).setRepositoryKey("squid").setRuleKey("XPath_1369910135").setParentId(5)
-        .setSubCharacteristicId(2).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("2h").setRemediationOffset("15min")
-//        .setCreatedAt(oldDate).setUpdatedAt(oldDate)
+        .setSubCharacteristicId(2)
+        .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
+        .setRemediationCoefficient("2h")
+        .setRemediationOffset("15min")
     ));
 
     RulesDefinition.Context context = new RulesDefinition.Context();
@@ -668,12 +693,14 @@ public class DebtModelBackupTest {
 
     when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
       new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck").setLanguage("java")
-        .setDefaultSubCharacteristicId(10).setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("2h"),
-//        .setCreatedAt(oldDate).setUpdatedAt(oldDate),
+        .setDefaultSubCharacteristicId(10)
+        .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
+        .setDefaultRemediationCoefficient("2h"),
       // Should be ignored
       new RuleDto().setId(2).setRepositoryKey("checkstyle").setLanguage("java2")
-        .setSubCharacteristicId(3).setRemediationFunction("LINEAR").setRemediationCoefficient("2h")
-//        .setCreatedAt(oldDate).setUpdatedAt(oldDate)
+        .setSubCharacteristicId(3)
+        .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
+        .setRemediationCoefficient("2h")
     ));
 
     debtModelBackup.restoreFromXml("<xml/>", "java");
@@ -717,8 +744,10 @@ public class DebtModelBackupTest {
       // Rule does not exits in XML -> debt will be disabled
       new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck").setLanguage("java")
         .setDefaultSubCharacteristicId(2).setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("2h")
-        .setSubCharacteristicId(2).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("2h").setRemediationOffset("15min")
-//        .setCreatedAt(oldDate).setUpdatedAt(oldDate)
+        .setSubCharacteristicId(2)
+        .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
+        .setRemediationCoefficient("2h")
+        .setRemediationOffset("15min")
     ));
 
     debtModelBackup.restoreFromXml("<xml/>", "java");

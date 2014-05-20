@@ -1,32 +1,34 @@
 {
-    "p": 1,
-    "ps": 25,
-    "rules": [
-        {
-            "actives": [
-                {
-                    "inherit": "NONE",
-                    "key": "p2:java:java:S001",
-                    "params": [],
-                    "severity": "BLOCKER"
-                }
-            ],
-            "debtRemediationFunctionCoefficient": "1h",
-            "debtRemediationFunctionOffset": "5min",
-            "debtRemediationFunctionType": "LINEAR",
-            "htmlDesc": "Description S001",
-            "internalKey": "InternalKeyS001",
-            "key": "java:S001",
-            "lang": "js",
-            "name": "Rule S001",
-            "params": [],
-            "repo": "java",
-            "severity": "INFO",
-            "status": "READY",
-            "sysTags": [],
-            "tags": [],
-            "template": false
-        }
-    ],
-    "total": 1
+  "total": 1,
+  "p": 1,
+  "ps": 25,
+  "rules": [
+    {
+      "key": "java:S001",
+      "repo": "java",
+      "name": "Rule S001",
+      "lang": "js",
+      "htmlDesc": "Description S001",
+      "status": "READY",
+      "severity": "INFO",
+      "template": false,
+      "internalKey": "InternalKeyS001",
+      "tags": [],
+      "sysTags": [],
+      "debtRemFnType": "LINEAR",
+      "debtRemFnCoeff": "1h",
+      "debtRemFnOffset": "5min",
+      "params": []
+    }
+  ],
+  "actives": {
+    "java:S001": [
+      {
+        "qProfile": "p2:java",
+        "inherit": "NONE",
+        "severity": "BLOCKER",
+        "params": []
+      }
+    ]
+  }
 }

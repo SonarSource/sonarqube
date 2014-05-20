@@ -55,7 +55,7 @@ public class BulkRuleActivationActions implements ServerComponent {
         }
       });
 
-    SearchAction.defineSearchParameters(activate);
+    SearchAction.defineRuleSearchParameters(activate);
     defineProfileKeyParameters(activate);
 
     activate.createParam("activation_severity")

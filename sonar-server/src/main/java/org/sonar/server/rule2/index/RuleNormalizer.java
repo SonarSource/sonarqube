@@ -55,10 +55,13 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     TEMPLATE("template"),
     UPDATED_AT("updatedAt"),
     PARAMS("params"),
+    //TODO to be renamed debtRemFnXxx
     DEBT_FUNCTION_TYPE("debtFunction"),
     DEBT_FUNCTION_COEFFICIENT("debtCoefficient"),
     DEBT_FUNCTION_OFFSET("debtOffset"),
+    // TODO to be renamed debtSubChar
     SUB_CHARACTERISTIC("subCharacteristicKey"),
+    // TODO to be renamed markdownNote
     NOTE("note"),
     NOTE_LOGIN("noteLogin"),
     NOTE_CREATED_AT("noteCreatedAt"),
@@ -188,8 +191,6 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
   }
 
   public UpdateRequest normalize(RuleParamDto param, RuleKey key) {
-
-
     Map<String, Object> newParam = new HashMap<String, Object>();
     newParam.put("_id", param.getName());
     newParam.put(RuleParamField.NAME.key(), param.getName());

@@ -327,17 +327,6 @@ public class JsonWriter {
   /**
    * @throws org.sonar.api.utils.text.WriterException on any failure
    */
-  public JsonWriter prop(String name, @Nullable Object value) {
-    if(value != null) {
-      return name(name).value(value.toString());
-    } else {
-      return this;
-    }
-  }
-
-  /**
-   * @throws org.sonar.api.utils.text.WriterException on any failure
-   */
   public JsonWriter prop(String name, boolean value) {
     return name(name).value(value);
   }

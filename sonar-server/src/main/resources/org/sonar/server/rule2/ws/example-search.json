@@ -3,6 +3,7 @@
         "key": "squid:S1067",
         "repo": "squid",
         "lang": "java",
+        "langName": "Java",
         "name": "Expressions should not be too complex",
         "htmlDesc": "<p>\nThe complexity of an expression is defined by the number of <code>&&</code>, <code>||</code> and <code>condition ? ifTrue : ifFalse</code> operators it contains.\nA single expression's complexity should not become too high to keep the code readable.\n</p>\n\n<p>The following code, with a maximum complexity of 3:</p>\n\n<pre>\nif (condition1 && condition2 && condition3 && condition4) { /* ... */ }  // Non-Compliant\n</pre>\n\n<p>could be refactored into something like:</p>\n\n<pre>\nif (relevantMethodName1() && relevantMethodName2()) { /* ... */ }        // Compliant\n\n/* ... */\n\nprivate boolean relevantMethodName1() {\n  return condition1 && condition2;\n}\n\nprivate boolean relevantMethodName2() {\n  return condition3 && condition4;\n}\n</pre>",
         "status": "READY",

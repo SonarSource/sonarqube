@@ -19,7 +19,6 @@
  */
 package org.sonar.server.search;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.junit.Test;
 
@@ -32,30 +31,30 @@ import static org.fest.assertions.Fail.fail;
 public class BaseDocTest {
 
   @Test
-  public void get() throws Exception {
-    Map<String,Object> fields = Maps.newHashMap();
+  public void getField() throws Exception {
+    Map<String, Object> fields = Maps.newHashMap();
     fields.put("a_string", "foo");
     fields.put("a_int", 42);
     fields.put("a_null", null);
     BaseDoc doc = new BaseDoc(fields) {
     };
 
-    assertThat(doc.get("a_string")).isEqualTo("foo");
-    assertThat(doc.get("a_int")).isEqualTo(42);
-    assertThat(doc.get("a_null")).isNull();
+    assertThat(doc.getField("a_string")).isEqualTo("foo");
+    assertThat(doc.getField("a_int")).isEqualTo(42);
+    assertThat(doc.getField("a_null")).isNull();
   }
 
   @Test
-  public void get_fails_if_missing_field() throws Exception {
-    Map<String,Object> fields = Collections.emptyMap();
+  public void getField_fails_if_missing_field() throws Exception {
+    Map<String, Object> fields = Collections.emptyMap();
     BaseDoc doc = new BaseDoc(fields) {
     };
 
     try {
-      doc.get("a_string");
+      doc.getField("a_string");
       fail();
     } catch (IllegalStateException e) {
-     assertThat(e).hasMessage("Field a_string not specified in query options");
+      assertThat(e).hasMessage("Field a_string not specified in query options");
     }
   }
 }

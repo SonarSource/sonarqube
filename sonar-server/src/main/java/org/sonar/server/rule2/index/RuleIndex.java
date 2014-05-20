@@ -252,10 +252,8 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     Set<String> fields = new HashSet<String>();
     if (options.getFieldsToReturn() != null && !options.getFieldsToReturn().isEmpty()) {
       fields.addAll(options.getFieldsToReturn());
-      // required fields
-      // TODO remove REPOSITORY ? Move this list to RuleField constant ?
+      // required field
       fields.add(RuleNormalizer.RuleField.KEY.key());
-      fields.add(RuleNormalizer.RuleField.REPOSITORY.key());
     } else {
       fields = RuleNormalizer.RuleField.ALL_KEYS;
     }

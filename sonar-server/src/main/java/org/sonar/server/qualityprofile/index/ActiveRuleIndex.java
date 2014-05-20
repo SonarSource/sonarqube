@@ -38,7 +38,6 @@
 */
 package org.sonar.server.qualityprofile.index;
 
-import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;

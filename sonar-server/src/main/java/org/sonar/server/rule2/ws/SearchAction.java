@@ -19,10 +19,7 @@
  */
 package org.sonar.server.rule2.ws;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
 import com.google.common.io.Resources;
-import com.google.gson.Gson;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Request;
@@ -32,18 +29,14 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule2.Rule;
-import org.sonar.server.rule2.RuleParam;
 import org.sonar.server.rule2.RuleService;
-import org.sonar.server.rule2.index.RuleIndex;
+import org.sonar.server.rule2.index.RuleDoc;
 import org.sonar.server.rule2.index.RuleNormalizer;
 import org.sonar.server.rule2.index.RuleQuery;
 import org.sonar.server.rule2.index.RuleResult;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.ws.SearchOptions;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -51,7 +44,6 @@ import java.util.Map;
  */
 public class SearchAction implements RequestHandler {
 
-  private static final String PARAM_TEXT_QUERY = "q";
   private static final String PARAM_REPOSITORIES = "repositories";
   private static final String PARAM_ACTIVATION = "activation";
   private static final String PARAM_QPROFILE = "qprofile";
@@ -63,17 +55,12 @@ public class SearchAction implements RequestHandler {
   private static final String PARAM_TAGS = "tags";
   private static final String PARAM_ALL_OF_TAGS = "all_of_tags";
 
-  // generic search parameters
-  private static final String PARAM_PAGE = "p";
-  private static final String PARAM_PAGE_SIZE = "ps";
-  private static final String PARAM_FIELDS = "f";
-  private static final String PARAM_SORT = "s";
-  private static final String PARAM_ASCENDING = "asc";
-
   private final RuleService service;
+  private final RuleMapping mapping;
 
-  public SearchAction(RuleService service) {
+  public SearchAction(RuleService service, RuleMapping mapping) {
     this.service = service;
+    this.mapping = mapping;
   }
 
   void define(WebService.NewController controller) {
@@ -84,42 +71,16 @@ public class SearchAction implements RequestHandler {
       .setSince("4.4")
       .setHandler(this);
 
-    defineSearchParameters(action);
-
-    action
-      .createParam(PARAM_FIELDS)
-      .setDescription("Comma-separated list of the fields to be returned in response. All the fields are returned by default.")
-      .setPossibleValues(RuleIndex.PUBLIC_FIELDS)
-      .setExampleValue(String.format("%s,%s,%s", RuleNormalizer.RuleField.KEY, RuleNormalizer.RuleField.REPOSITORY, RuleNormalizer.RuleField.LANGUAGE));
-
-    action
-      .createParam(PARAM_PAGE)
-      .setDescription("1-based page number")
-      .setExampleValue("42")
-      .setDefaultValue("1");
-
-    action
-      .createParam(PARAM_PAGE_SIZE)
-      .setDescription("Page size. Must be greater than 0.")
-      .setExampleValue("10")
-      .setDefaultValue("25");
-
-    // TODO limit the fields to sort on + document possible values + default value ?
-    action
-      .createParam(PARAM_SORT)
-      .setDescription("Sort field")
-      .setExampleValue(RuleNormalizer.RuleField.LANGUAGE.key());
-
-    action
-      .createParam(PARAM_ASCENDING)
-      .setDescription("Ascending sort")
-      .setBooleanPossibleValues()
-      .setDefaultValue("true");
+    SearchOptions.defineGenericParameters(action, mapping.supportedFields(), "actives");
+    defineRuleSearchParameters(action);
   }
 
-  public static void defineSearchParameters(WebService.NewAction action) {
+  /**
+   * public visibility because used by {@link org.sonar.server.qualityprofile.ws.BulkRuleActivationActions}
+   */
+  public static void defineRuleSearchParameters(WebService.NewAction action) {
     action
-      .createParam(PARAM_TEXT_QUERY)
+      .createParam(SearchOptions.PARAM_TEXT_QUERY)
       .setDescription("UTF-8 search query")
       .setExampleValue("null pointer");
 
@@ -175,132 +136,88 @@ public class SearchAction implements RequestHandler {
       .setDescription("Used only if 'qprofile' is set")
       .setExampleValue("java:Sonar way")
       .setPossibleValues("false", "true", "all");
+
+    // TODO limit the fields to sort on + document possible values + default value ?
+    action
+      .createParam(SearchOptions.PARAM_SORT)
+      .setDescription("Sort field")
+      .setExampleValue(RuleNormalizer.RuleField.LANGUAGE.key());
+
+    action
+      .createParam(SearchOptions.PARAM_ASCENDING)
+      .setDescription("Ascending sort")
+      .setBooleanPossibleValues()
+      .setDefaultValue("true");
   }
 
   @Override
   public void handle(Request request, Response response) {
-    RuleQuery query = service.newRuleQuery();
-    query.setQueryText(request.param(PARAM_TEXT_QUERY));
-    query.setSeverities(request.paramAsStrings(PARAM_SEVERITIES));
-    query.setRepositories(request.paramAsStrings(PARAM_REPOSITORIES));
-    query.setStatuses(toStatuses(request.paramAsStrings(PARAM_STATUSES)));
-    query.setLanguages(request.paramAsStrings(PARAM_LANGUAGES));
-    query.setDebtCharacteristics(request.paramAsStrings(PARAM_DEBT_CHARACTERISTICS));
-    query.setHasDebtCharacteristic(request.paramAsBoolean(PARAM_HAS_DEBT_CHARACTERISTIC));
-    query.setActivation(request.param(PARAM_ACTIVATION));
-    query.setqProfileKey(request.param(PARAM_QPROFILE));
+    RuleQuery query = createRuleQuery(request);
+    SearchOptions searchOptions = SearchOptions.create(request);
 
-    // TODO move to QueryOptions ?
-    query.setSortField(RuleQuery.SortField.valueOfOrNull(request.param(PARAM_SORT)));
-    query.setAscendingSort(request.mandatoryParamAsBoolean(PARAM_ASCENDING));
-
-    QueryOptions options = new QueryOptions();
-    options.setFieldsToReturn(request.paramAsStrings(PARAM_FIELDS));
-    options.setPage(
-      request.mandatoryParamAsInt(PARAM_PAGE),
-      request.mandatoryParamAsInt(PARAM_PAGE_SIZE));
-
-    RuleResult results = service.search(query, options);
+    RuleResult results = service.search(query, mapping.newQueryOptions(searchOptions));
 
     JsonWriter json = response.newJsonWriter().beginObject();
-    writeStatistics(results, json);
-    writeRequestParams(request, json);
-    writeRules(results, json);
+    searchOptions.writeStatistics(json, results);
+    writeRules(results, json, searchOptions);
+    if (searchOptions.hasField("actives")) {
+      writeActiveRules(results, json);
+    }
     json.endObject();
     json.close();
   }
 
-  private void writeStatistics(RuleResult results, JsonWriter json) {
-    json.prop("total", results.getTotal());
+  private RuleQuery createRuleQuery(Request request) {
+    RuleQuery query = service.newRuleQuery();
+    query.setQueryText(request.param(SearchOptions.PARAM_TEXT_QUERY));
+    query.setSeverities(request.paramAsStrings(PARAM_SEVERITIES));
+    query.setRepositories(request.paramAsStrings(PARAM_REPOSITORIES));
+    query.setStatuses(request.paramAsEnums(PARAM_STATUSES, RuleStatus.class));
+    query.setLanguages(request.paramAsStrings(PARAM_LANGUAGES));
+    query.setDebtCharacteristics(request.paramAsStrings(PARAM_DEBT_CHARACTERISTICS));
+    query.setHasDebtCharacteristic(request.paramAsBoolean(PARAM_HAS_DEBT_CHARACTERISTIC));
+    query.setActivation(request.param(PARAM_ACTIVATION));
+    query.setQProfileKey(request.param(PARAM_QPROFILE));
+    query.setSortField(RuleQuery.SortField.valueOfOrNull(request.param(SearchOptions.PARAM_SORT)));
+    query.setAscendingSort(request.mandatoryParamAsBoolean(SearchOptions.PARAM_ASCENDING));
+    return query;
   }
 
-  private void writeRequestParams(Request request,JsonWriter json ){
-    json.prop(PARAM_PAGE, request.mandatoryParamAsInt(PARAM_PAGE));
-    json.prop(PARAM_PAGE_SIZE, request.mandatoryParamAsInt(PARAM_PAGE_SIZE));
-  }
-
-  private void writeRules(RuleResult result, JsonWriter json) {
+  private void writeRules(RuleResult result, JsonWriter json, SearchOptions options) {
     json.name("rules").beginArray();
     for (Rule rule : result.getHits()) {
-
-      /** Rule */
-      json.beginObject();
-      json
-        .prop("repo", rule.key().repository())
-        .prop("key", rule.key().toString())
-        .prop("lang", rule.language())
-        .prop("name", rule.name())
-        .prop("htmlDesc", rule.htmlDescription())
-        .prop("status", rule.status())
-        .prop("template", rule.template())
-        .prop("internalKey", rule.internalKey())
-        .prop("severity", rule.severity())
-        .prop("markdownNote", rule.markdownNote())
-        .prop("noteLogin", rule.noteLogin())
-        .name("tags").beginArray().values(rule.tags()).endArray()
-        .name("sysTags").beginArray().values(rule.systemTags()).endArray()
-        .prop("debtSubCharacteristicKey", rule.debtSubCharacteristicKey());
-
-      if(rule.debtRemediationFunction() != null){
-        json
-          .prop("debtRemediationFunctionType", rule.debtRemediationFunction().type().name())
-          .prop("debtRemediationFunctionCoefficient", rule.debtRemediationFunction().coefficient())
-          .prop("debtRemediationFunctionOffset", rule.debtRemediationFunction().offset());
-      }
-
-      /** RuleParams */
-      json.name("params").beginArray();
-      for (RuleParam param : rule.params()) {
-        json
-          .beginObject()
-          .prop("key", param.key())
-          .prop("desc", param.description())
-          .prop("defaultValue", param.defaultValue())
-          .endObject();
-      }
-      json.endArray();
-
-      /** ActiveRules */
-      json.name("actives").beginArray();
-      for (ActiveRule activeRule : result.getActiveRules().get(rule.key().toString())) {
-        json
-          .beginObject()
-          .prop("key",activeRule.key())
-          .prop("inherit", activeRule.inheritance())
-          .prop("severity", activeRule.severity());
-        // TODO
-//        if(activeRule.parentKey() != null){
-//          json.prop("parent",activeRule.parentKey());
-//        }
-
-        json
-          .name("params").beginArray();
-        for (Map.Entry<String, String> param : activeRule.params().entrySet()) {
-          json.beginObject()
-            .prop("key", param.getKey())
-            .prop("value", param.getValue())
-            .endObject();
-        }
-        json.endArray();
-        json.endObject();
-      }
-      json.endArray();
-      json.endObject();
+      mapping.write((RuleDoc) rule, json, options.fields());
     }
     json.endArray();
   }
 
-
-  @CheckForNull
-  private Collection<RuleStatus> toStatuses(@Nullable List<String> statuses) {
-    if (statuses == null) {
-      return null;
-    }
-    return Collections2.transform(statuses, new Function<String, RuleStatus>() {
-      @Override
-      public RuleStatus apply(@Nullable String input) {
-        return input == null ? null : RuleStatus.valueOf(input);
+  private void writeActiveRules(RuleResult result, JsonWriter json) {
+    json.name("actives").beginObject();
+    for (Map.Entry<String, Collection<ActiveRule>> entry : result.getActiveRules().asMap().entrySet()) {
+      // rule key
+      json.name(entry.getKey());
+      json.beginArray();
+      for (ActiveRule activeRule : entry.getValue()) {
+        json
+          .beginObject()
+          .prop("qProfile", activeRule.key().qProfile().toString())
+          .prop("inherit", activeRule.inheritance().toString())
+          .prop("severity", activeRule.severity());
+        if (activeRule.parentKey() != null) {
+          json.prop("parent", activeRule.parentKey().toString());
+        }
+        json.name("params").beginArray();
+        for (Map.Entry<String, String> param : activeRule.params().entrySet()) {
+          json
+            .beginObject()
+            .prop("key", param.getKey())
+            .prop("value", param.getValue())
+            .endObject();
+        }
+        json.endArray().endObject();
       }
-    });
+      json.endArray();
+    }
+    json.endObject();
   }
 }

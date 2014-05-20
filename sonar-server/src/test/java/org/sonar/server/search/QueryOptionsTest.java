@@ -21,8 +21,6 @@
 package org.sonar.server.search;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -44,9 +42,6 @@ public class QueryOptionsTest {
 
     options.addFieldsToReturn("four");
     assertThat(options.getFieldsToReturn()).containsOnly("one", "two", "three", "four");
-
-    options.filterFieldsToReturn(Sets.newHashSet("one", "four", "five"));
-    assertThat(options.getFieldsToReturn()).containsOnly("one", "four");
   }
 
   @Test
@@ -61,8 +56,5 @@ public class QueryOptionsTest {
 
     options.addFieldsToReturn("four");
     assertThat(options.getFieldsToReturn()).containsOnly("one", "two", "three", "four");
-
-    options.filterFieldsToReturn(ImmutableSet.of("one", "four", "five"));
-    assertThat(options.getFieldsToReturn()).containsOnly("one", "four");
   }
 }

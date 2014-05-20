@@ -1,52 +1,48 @@
-{
-    "p": 1,
-    "ps": 25,
-    "rules": [
+{"total": 1, "p": 1, "ps": 25, "rules": [
+  {
+    "key": "java:S001",
+    "repo": "java",
+    "name": "Rule S001",
+    "lang": "js",
+    "htmlDesc": "Description S001",
+    "status": "READY",
+    "severity": "INFO",
+    "template": false,
+    "internalKey": "InternalKeyS001",
+    "tags": [],
+    "sysTags": [],
+    "debtRemFnType": "LINEAR",
+    "debtRemFnCoeff": "1h",
+    "debtRemFnOffset": "5min",
+    "params": [
+      {
+        "key": "my_var",
+        "desc": "My small description",
+        "defaultValue": "some value"
+      },
+      {
+        "key": "the_var",
+        "desc": "My small description",
+        "defaultValue": "other value"
+      }
+    ]
+  }
+], "actives": {
+  "java:S001": [
+    {
+      "qProfile": "My Profile:java",
+      "inherit": "NONE",
+      "severity": "BLOCKER",
+      "params": [
         {
-            "actives": [
-                {
-                    "inherit": "NONE",
-                    "key": "My Profile:java:java:S001",
-                    "params": [
-                        {
-                            "key": "the_var",
-                            "value": "The Other Value"
-                        },
-                        {
-                            "key": "my_var",
-                            "value": "The VALUE"
-                        }
-                    ],
-                    "severity": "BLOCKER"
-                }
-            ],
-            "debtRemediationFunctionCoefficient": "1h",
-            "debtRemediationFunctionOffset": "5min",
-            "debtRemediationFunctionType": "LINEAR",
-            "htmlDesc": "Description S001",
-            "internalKey": "InternalKeyS001",
-            "key": "java:S001",
-            "lang": "js",
-            "name": "Rule S001",
-            "params": [
-                {
-                    "defaultValue": "some value",
-                    "desc": "My small description",
-                    "key": "my_var"
-                },
-                {
-                    "defaultValue": "other value",
-                    "desc": "My small description",
-                    "key": "the_var"
-                }
-            ],
-            "repo": "java",
-            "severity": "INFO",
-            "status": "READY",
-            "sysTags": [],
-            "tags": [],
-            "template": false
+          "key": "the_var",
+          "value": "The Other Value"
+        },
+        {
+          "key": "my_var",
+          "value": "The VALUE"
         }
-    ],
-    "total": 1
-}
+      ]
+    }
+  ]
+}}

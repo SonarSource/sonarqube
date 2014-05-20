@@ -33,8 +33,12 @@ public abstract class BaseDoc {
     this.fields = fields;
   }
 
+  public String keyField() {
+    return (String)fields.get("key");
+  }
+
   @CheckForNull
-  protected <K> K get(String key) {
+  public <K> K getField(String key) {
     if (!fields.containsKey(key)) {
       throw new IllegalStateException(String.format("Field %s not specified in query options", key));
     }

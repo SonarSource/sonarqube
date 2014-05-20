@@ -29,8 +29,6 @@ import java.util.Collection;
 
 public class RuleQuery {
 
-
-
   public static enum SortField {
     KEY(RuleNormalizer.RuleField.KEY),
     REPOSITORY(RuleNormalizer.RuleField.REPOSITORY),
@@ -81,17 +79,18 @@ public class RuleQuery {
 
 
   /**
+   * TODO should not be public
    * @see org.sonar.server.rule2.RuleService#newRuleQuery()
    */
   public RuleQuery() {
   }
 
   @CheckForNull
-  public String getqProfileKey() {
+  public String getQProfileKey() {
     return qProfileKey;
   }
 
-  public RuleQuery setqProfileKey(String qProfileKey) {
+  public RuleQuery setQProfileKey(String qProfileKey) {
     this.qProfileKey = qProfileKey;
     return this;
   }

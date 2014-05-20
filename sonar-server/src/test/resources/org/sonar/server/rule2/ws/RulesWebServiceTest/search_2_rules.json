@@ -1,38 +1,36 @@
 {"total": 2, "p": 1, "ps": 25, "rules": [
   {
-    "key": "javascript:S001",
+    "key": "javascript:S002",
     "repo": "javascript",
+    "name": "Rule S002",
     "lang": "js",
-    "name": "Rule S001",
-    "htmlDesc": "Description S001",
+    "htmlDesc": "Description S002",
     "status": "READY",
-    "template": false,
-    "internalKey": "InternalKeyS001",
     "severity": "INFO",
+    "template": false,
+    "internalKey": "InternalKeyS002",
     "tags": [],
     "sysTags": [],
-    "debtRemediationFunctionType": "LINEAR",
-    "debtRemediationFunctionCoefficient": "1h",
-    "debtRemediationFunctionOffset": "5min",
-    "params": [],
-    "actives": []
+    "debtRemFnType": "LINEAR",
+    "debtRemFnCoeff": "1h",
+    "debtRemFnOffset": "5min",
+    "params": []
   },
-    {
-        "key": "javascript:S002",
-        "repo": "javascript",
-        "lang": "js",
-        "name": "Rule S002",
-        "htmlDesc": "Description S002",
-        "status": "READY",
-        "template": false,
-        "internalKey": "InternalKeyS002",
-        "severity": "INFO",
-        "tags": [],
-        "sysTags": [],
-        "debtRemediationFunctionType": "LINEAR",
-        "debtRemediationFunctionCoefficient": "1h",
-        "debtRemediationFunctionOffset": "5min",
-        "params": [],
-        "actives": []
-    }
-]}
+  {
+    "key": "javascript:S001",
+    "repo": "javascript",
+    "name": "Rule S001",
+    "lang": "js",
+    "htmlDesc": "Description S001",
+    "status": "READY",
+    "severity": "INFO",
+    "template": false,
+    "internalKey": "InternalKeyS001",
+    "tags": [],
+    "sysTags": [],
+    "debtRemFnType": "LINEAR",
+    "debtRemFnCoeff": "1h",
+    "debtRemFnOffset": "5min",
+    "params": []
+  }
+], "actives": {}}

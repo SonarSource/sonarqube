@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
@@ -243,8 +244,8 @@ public class RuleDataMediumTest {
       .setLanguage("js")
       .setTags(ImmutableSet.of("tag1", "tag2"))
       .setSystemTags(ImmutableSet.of("systag1", "systag2"))
-      .setRemediationFunction("linear")
-      .setDefaultRemediationFunction("linear_offset")
+      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
+      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
       .setRemediationCoefficient("1h")
       .setDefaultRemediationCoefficient("5d")
       .setRemediationOffset("5min")

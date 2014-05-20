@@ -20,8 +20,6 @@
 package org.sonar.server.search;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Sets;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -32,6 +30,7 @@ import java.util.Set;
 
 /**
  * Options about paging, sorting and fields to return
+ *
  * @since 4.4
  */
 public class QueryOptions {
@@ -47,11 +46,7 @@ public class QueryOptions {
 
   private boolean facet = DEFAULT_FACET;
 
-  private Set<String> fieldsToReturn;
-
-  public QueryOptions() {
-    fieldsToReturn = new HashSet<String>();
-  }
+  private Set<String> fieldsToReturn = new HashSet<String>();
 
   /**
    * Whether or not the search returns facets for the domain. Defaults to {@link #DEFAULT_OFFSET}
@@ -116,41 +111,26 @@ public class QueryOptions {
   }
 
   public QueryOptions setFieldsToReturn(@Nullable Collection<String> c) {
-    this.fieldsToReturn = (c == null ? null : Sets.newHashSet(c));
+    this.fieldsToReturn.clear();
+    if (c != null) {
+      this.fieldsToReturn.addAll(c);
+    }
     return this;
   }
 
   public QueryOptions addFieldsToReturn(@Nullable Collection<String> c) {
     if (c != null) {
-      if (fieldsToReturn == null) {
-        fieldsToReturn = Sets.newHashSet(c);
-      } else {
-        fieldsToReturn.addAll(c);
-      }
+      fieldsToReturn.addAll(c);
     }
     return this;
   }
 
   public QueryOptions addFieldsToReturn(String... c) {
-    if (fieldsToReturn == null) {
-      fieldsToReturn = Sets.newHashSet(c);
-    } else {
-      fieldsToReturn.addAll(Arrays.asList(c));
-    }
+    fieldsToReturn.addAll(Arrays.asList(c));
     return this;
   }
 
-  public QueryOptions filterFieldsToReturn(final Set<String> keep) {
-    if (fieldsToReturn == null) {
-      fieldsToReturn = Sets.newHashSet(keep);
-    } else {
-      fieldsToReturn = Sets.filter(fieldsToReturn, new Predicate<String>() {
-        @Override
-        public boolean apply(@Nullable String input) {
-          return input != null && keep.contains(input);
-        }
-      });
-    }
-    return this;
+  public boolean hasFieldToReturn(String key) {
+    return fieldsToReturn.isEmpty() || fieldsToReturn.contains(key);
   }
 }

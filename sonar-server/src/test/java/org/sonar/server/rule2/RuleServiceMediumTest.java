@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.check.Cardinality;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
@@ -244,7 +245,7 @@ public class RuleServiceMediumTest {
     // 4. Test for  active rules of QProfile
     query = new RuleQuery()
       .setActivation("true")
-      .setqProfileKey(qprofile1.getKey().toString());
+      .setQProfileKey(qprofile1.getKey().toString());
     result = service.search(query, new QueryOptions());
     assertThat(result.getActiveRules().values()).hasSize(2);
 
@@ -264,8 +265,8 @@ public class RuleServiceMediumTest {
       .setLanguage("js")
       .setTags(ImmutableSet.of("tag1", "tag2"))
       .setSystemTags(ImmutableSet.of("systag1", "systag2"))
-      .setRemediationFunction("linear")
-      .setDefaultRemediationFunction("linear_offset")
+      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
+      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
       .setRemediationCoefficient("1h")
       .setDefaultRemediationCoefficient("5d")
       .setRemediationOffset("5min")

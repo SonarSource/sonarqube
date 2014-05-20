@@ -67,20 +67,16 @@ public class RuleService implements ServerComponent {
   }
 
   public RuleResult search(RuleQuery query, QueryOptions options) {
-
-    /** keep only supported fields and add the fields to always return */
-    options.filterFieldsToReturn(RuleIndex.PUBLIC_FIELDS);
-
     RuleResult result = index.search(query, options);
 
     /** Check for activation */
     if (query.getActivation() != null && !query.getActivation().isEmpty()) {
       if (query.getActivation().equalsIgnoreCase("true")) {
         for (Rule rule : result.getHits()) {
-          if(query.getqProfileKey() == null){
+          if(query.getQProfileKey() == null){
             throw new IllegalStateException("\"activation=true\" requires a profile key!");
           }
-          QualityProfileKey qualityProfileKey =  QualityProfileKey.parse(query.getqProfileKey());
+          QualityProfileKey qualityProfileKey =  QualityProfileKey.parse(query.getQProfileKey());
           result.getActiveRules().put(rule.key().toString(),
             activeRuleIndex.getByRuleKeyAndProfileKey(rule.key(),qualityProfileKey));
         }
@@ -98,7 +94,7 @@ public class RuleService implements ServerComponent {
   }
 
   /**
-   * List all tags
+   * List all tags, including system tags, defined on rules
    */
   public Set<String> listTags() {
     return index.terms(RuleNormalizer.RuleField.TAGS.key(), RuleNormalizer.RuleField.SYSTEM_TAGS.key());

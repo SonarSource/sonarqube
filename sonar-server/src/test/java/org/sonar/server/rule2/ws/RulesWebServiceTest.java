@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
@@ -294,12 +295,12 @@ public class RulesWebServiceTest {
   }
 
   @Test
-  public void get_notes() throws Exception {
+  public void get_note_as_markdown_and_html() throws Exception {
     QualityProfileDto profile = newQualityProfile();
     tester.get(QualityProfileDao.class).insert(profile, session);
 
     RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"))
-      .setNoteData("Note1");
+      .setNoteData("this is *bold*");
     ruleDao.insert(rule, session);
 
     session.commit();
@@ -310,7 +311,7 @@ public class RulesWebServiceTest {
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
     WsTester.Result result = request.execute();
 
-    result.assertJson(this.getClass(), "get_notes.json");
+    result.assertJson(this.getClass(), "get_note_as_markdown_and_html.json");
   }
 
 
@@ -331,8 +332,8 @@ public class RulesWebServiceTest {
       .setSeverity(Severity.INFO)
       .setCardinality(Cardinality.SINGLE)
       .setLanguage("js")
-      .setRemediationFunction("linear")
-      .setDefaultRemediationFunction("linear_offset")
+      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
+      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
       .setRemediationCoefficient("1h")
       .setDefaultRemediationCoefficient("5d")
       .setRemediationOffset("5min")

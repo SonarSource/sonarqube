@@ -180,6 +180,7 @@ public class WsTester {
         throw new IllegalStateException("Cannot find " + path);
       }
       String json = outputAsString();
+      System.out.println("GOT " + json);
       JSONAssert.assertEquals(IOUtils.toString(url), json, strict);
       return this;
     }

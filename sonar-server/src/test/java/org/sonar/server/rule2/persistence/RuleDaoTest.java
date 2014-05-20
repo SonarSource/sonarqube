@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.check.Cardinality;
@@ -202,8 +203,8 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setNoteUpdatedAt(DateUtils.parseDate("2013-12-20"))
       .setSubCharacteristicId(100)
       .setDefaultSubCharacteristicId(101)
-      .setRemediationFunction("linear")
-      .setDefaultRemediationFunction("linear_offset")
+      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
+      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
       .setRemediationCoefficient("1h")
       .setDefaultRemediationCoefficient("5d")
       .setRemediationOffset("5min")
@@ -238,8 +239,8 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setParentId(3)
       .setSubCharacteristicId(100)
       .setDefaultSubCharacteristicId(101)
-      .setRemediationFunction("linear")
-      .setDefaultRemediationFunction("linear_offset")
+      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
+      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
       .setRemediationCoefficient("1h")
       .setDefaultRemediationCoefficient("5d")
       .setRemediationOffset("5min")
@@ -272,8 +273,8 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setParentId(3)
       .setSubCharacteristicId(100)
       .setDefaultSubCharacteristicId(101)
-      .setRemediationFunction("linear")
-      .setDefaultRemediationFunction("linear_offset")
+      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
+      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
       .setRemediationCoefficient("1h")
       .setDefaultRemediationCoefficient("5d")
       .setRemediationOffset("5min")
@@ -294,8 +295,8 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setParentId(null)
       .setSubCharacteristicId(102)
       .setDefaultSubCharacteristicId(103)
-      .setRemediationFunction("linear_offset")
-      .setDefaultRemediationFunction("linear")
+      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
+      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
       .setRemediationCoefficient("5d")
       .setDefaultRemediationCoefficient("1h")
       .setRemediationOffset("10h")

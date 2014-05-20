@@ -32,10 +32,12 @@ import org.sonar.api.ServerExtension;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Defines a web service. Note that contrary to the deprecated {@link org.sonar.api.web.Webservice}
@@ -465,11 +467,30 @@ public interface WebService extends ServerExtension {
     /**
      * Exhaustive list of possible values when it makes sense, for example
      * list of severities.
+     * <p/>
+     * Note that the parameter supports values with type Iterable, for example :
+     * <pre>
+     *   setPossibleValues(Arrays.asList("one", "two"), "three", "four");
+     * </pre>
      *
      * @since 4.4
      */
     public NewParam setPossibleValues(@Nullable Object... values) {
-      return setPossibleValues(values == null ? (Collection) null : Arrays.asList(values));
+      if (values == null) {
+        this.possibleValues = null;
+      } else {
+        this.possibleValues = Sets.newLinkedHashSet();
+        for (Object value : values) {
+          if (value instanceof Iterable) {
+            for (Object o : (Iterable) value) {
+              this.possibleValues.add(o.toString());
+            }
+          } else {
+            this.possibleValues.add(value.toString());
+          }
+        }
+      }
+      return this;
     }
 
     /**
@@ -480,29 +501,36 @@ public interface WebService extends ServerExtension {
     }
 
     /**
-     * Exhaustive list of possible values when it makes sense, for example
-     * list of severities.
-     *
-     * @since 4.4
-     */
-    public NewParam setPossibleValues(@Nullable Collection values) {
-      if (values == null) {
-        this.possibleValues = null;
-      } else {
-        this.possibleValues = Sets.newLinkedHashSet();
-        for (Object value : values) {
-          this.possibleValues.add(value.toString());
-        }
-      }
-      return this;
-    }
-
-    /**
      * @since 4.4
      */
     public NewParam setDefaultValue(@Nullable String s) {
       this.defaultValue = s;
       return this;
+    }
+
+    @CheckForNull
+    public String description() {
+      return description;
+    }
+
+    @CheckForNull
+    public String exampleValue() {
+      return exampleValue;
+    }
+
+    @CheckForNull
+    public String defaultValue() {
+      return defaultValue;
+    }
+
+    @CheckForNull
+    public boolean isRequired() {
+      return required;
+    }
+
+    @CheckForNull
+    public Set<String> possibleValues() {
+      return possibleValues;
     }
 
     @Override

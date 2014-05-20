@@ -1,7 +1,7 @@
 {"total": 1, "p": 1, "ps": 25, "rules": [
   {
-    "key": "javascript:S001",
-    "repo": "javascript",
+    "key": "java:S001",
+    "repo": "java",
     "name": "Rule S001",
     "lang": "js",
     "htmlDesc": "Description S001",
@@ -9,9 +9,10 @@
     "severity": "INFO",
     "template": false,
     "internalKey": "InternalKeyS001",
+    "mdNote": "this is *bold*",
+    "htmlNote": "this is <em>bold</em>",
     "tags": [],
     "sysTags": [],
-    "debtSubChar": "1",
     "debtRemFnType": "LINEAR",
     "debtRemFnCoeff": "1h",
     "debtRemFnOffset": "5min",

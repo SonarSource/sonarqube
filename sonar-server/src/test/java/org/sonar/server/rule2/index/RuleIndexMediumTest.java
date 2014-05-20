@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -443,8 +444,8 @@ public class RuleIndexMediumTest {
       .setSeverity(Severity.INFO)
       .setCardinality(Cardinality.SINGLE)
       .setLanguage("js")
-      .setRemediationFunction("LINEAR")
-      .setDefaultRemediationFunction("linear_offset")
+      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
+      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
       .setRemediationCoefficient("1h")
       .setDefaultRemediationCoefficient("5d")
       .setRemediationOffset("5min")
