@@ -27,7 +27,6 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.NotFoundException;
 
 import javax.annotation.Nullable;
 
@@ -177,11 +176,8 @@ public class UserSessionTest {
     session.checkComponentPermission(UserRole.USER, "com.foo:Bar:BarFile.xoo");
   }
 
-  @Test
+  @Test(expected = ForbiddenException.class)
   public void check_component_permission_when_project_not_found() throws Exception {
-    thrown.expect(NotFoundException.class);
-    thrown.expectMessage("Component 'com.foo:Bar:BarFile.xoo' does not exist");
-
     AuthorizationDao authorizationDao = mock(AuthorizationDao.class);
     ResourceDao resourceDao = mock(ResourceDao.class);
     UserSession session = new SpyUserSession("marius", authorizationDao, resourceDao).setUserId(1);

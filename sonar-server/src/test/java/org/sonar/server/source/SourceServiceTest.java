@@ -30,7 +30,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.measure.db.MeasureKey;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.user.MockUserSession;
 
@@ -55,6 +55,9 @@ public class SourceServiceTest {
   @Mock
   MeasureDao measureDao;
 
+  static final String PROJECT_KEY = "org.sonar.sample";
+  static final String COMPONENT_KEY = "org.sonar.sample:Sample";
+
   SourceService service;
 
   @Before
@@ -66,79 +69,68 @@ public class SourceServiceTest {
 
   @Test
   public void get_lines() throws Exception {
-    String projectKey = "org.sonar.sample";
-    String componentKey = "org.sonar.sample:Sample";
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, projectKey, componentKey);
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
 
-    service.getLinesAsHtml(componentKey);
+    service.getLinesAsHtml(COMPONENT_KEY);
 
-    verify(sourceDecorator).getDecoratedSourceAsHtml(componentKey, null, null);
-  }
-
-  @Test
-  public void fail_to_get_lines_if_file_not_found() throws Exception {
-    String projectKey = "org.sonar.sample";
-    String componentKey = "org.sonar.sample:Sample";
-    MockUserSession.set().addProjectPermissions(UserRole.CODEVIEWER, projectKey);
-
-    try {
-      service.getLinesAsHtml(componentKey);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(NotFoundException.class);
-    }
-
-    verifyZeroInteractions(sourceDecorator);
+    verify(sourceDecorator).getDecoratedSourceAsHtml(COMPONENT_KEY, null, null);
   }
 
   @Test
   public void get_block_of_lines() throws Exception {
-    String projectKey = "org.sonar.sample";
-    String componentKey = "org.sonar.sample:Sample";
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, projectKey, componentKey);
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
 
-    service.getLinesAsHtml(componentKey, 1, 2);
+    service.getLinesAsHtml(COMPONENT_KEY, 1, 2);
 
-    verify(sourceDecorator).getDecoratedSourceAsHtml(componentKey, 1, 2);
+    verify(sourceDecorator).getDecoratedSourceAsHtml(COMPONENT_KEY, 1, 2);
   }
 
   @Test
   public void get_lines_from_deprecated_source_decorator_when_no_data_from_new_decorator() throws Exception {
-    String projectKey = "org.sonar.sample";
-    String componentKey = "org.sonar.sample:Sample";
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, projectKey, componentKey);
-    when(sourceDecorator.getDecoratedSourceAsHtml(eq(componentKey), anyInt(), anyInt())).thenReturn(Collections.<String>emptyList());
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+    when(sourceDecorator.getDecoratedSourceAsHtml(eq(COMPONENT_KEY), anyInt(), anyInt())).thenReturn(Collections.<String>emptyList());
 
-    service.getLinesAsHtml(componentKey, 1, 2);
+    service.getLinesAsHtml(COMPONENT_KEY, 1, 2);
 
-    verify(deprecatedSourceDecorator).getSourceAsHtml(componentKey, 1, 2);
+    verify(deprecatedSourceDecorator).getSourceAsHtml(COMPONENT_KEY, 1, 2);
   }
 
   @Test
   public void get_scm_author_data() throws Exception {
-    String componentKey = "org.sonar.sample:Sample";
-    service.getScmAuthorData(componentKey);
-    verify(measureDao).getByKey(MeasureKey.of(componentKey, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY), session);
+    service.getScmAuthorData(COMPONENT_KEY);
+    verify(measureDao).getByKey(MeasureKey.of(COMPONENT_KEY, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY), session);
+  }
+
+  @Test
+  public void fail_to_get_scm_author_data_if_no_permission() throws Exception {
+    MockUserSession.set().setLogin("johh");
+    try {
+      service.getScmAuthorData(COMPONENT_KEY);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(ForbiddenException.class);
+    }
+    verifyZeroInteractions(measureDao);
   }
 
   @Test
   public void not_get_scm_author_data_if_no_data() throws Exception {
-    String componentKey = "org.sonar.sample:Sample";
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
     when(measureDao.getByKey(any(MeasureKey.class), eq(session))).thenReturn(null);
-    assertThat(service.getScmAuthorData(componentKey)).isNull();
+    assertThat(service.getScmAuthorData(COMPONENT_KEY)).isNull();
   }
 
   @Test
   public void get_scm_date_data() throws Exception {
-    String componentKey = "org.sonar.sample:Sample";
-    service.getScmDateData(componentKey);
-    verify(measureDao).getByKey(MeasureKey.of(componentKey, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY), session);
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+    service.getScmDateData(COMPONENT_KEY);
+    verify(measureDao).getByKey(MeasureKey.of(COMPONENT_KEY, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY), session);
   }
 
   @Test
   public void not_get_scm_date_data_if_no_data() throws Exception {
-    String componentKey = "org.sonar.sample:Sample";
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
     when(measureDao.getByKey(any(MeasureKey.class), eq(session))).thenReturn(null);
-    assertThat(service.getScmDateData(componentKey)).isNull();
+    assertThat(service.getScmDateData(COMPONENT_KEY)).isNull();
   }
 }

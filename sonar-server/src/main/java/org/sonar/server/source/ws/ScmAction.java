@@ -78,15 +78,13 @@ public class ScmAction implements RequestHandler {
   @Override
   public void handle(Request request, Response response) {
     String fileKey = request.mandatoryParam("key");
-    service.checkPermission(fileKey);
-
-    int from = Math.max(request.mandatoryParamAsInt("from"), 1);
-    int to = (Integer) ObjectUtils.defaultIfNull(request.paramAsInt("to"), Integer.MAX_VALUE);
 
     String authors = service.getScmAuthorData(fileKey);
     String dates = service.getScmDateData(fileKey);
 
     JsonWriter json = response.newJsonWriter().beginObject();
+    int from = Math.max(request.mandatoryParamAsInt("from"), 1);
+    int to = (Integer) ObjectUtils.defaultIfNull(request.paramAsInt("to"), Integer.MAX_VALUE);
     scmWriter.write(authors, dates, from, to, request.mandatoryParamAsBoolean("group_commits"), json);
     json.endObject().close();
   }

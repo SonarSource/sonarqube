@@ -29,7 +29,6 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.platform.Platform;
 
@@ -189,7 +188,7 @@ public class UserSession {
     if (projectKey == null) {
       ResourceDto project = resourceDao().getRootProjectByComponentKey(componentKey);
       if (project == null) {
-        throw new NotFoundException(String.format("Component '%s' does not exist", componentKey));
+       return false;
       }
       projectKey = project.getKey();
     }

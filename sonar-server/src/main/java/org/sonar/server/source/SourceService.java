@@ -69,24 +69,20 @@ public class SourceService implements ServerComponent {
     return deprecatedSourceDecorator.getSourceAsHtml(fileKey, from, to);
   }
 
-  public void checkPermission(String fileKey) {
-    UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, fileKey);
-  }
-
-  /**
-   * Warning - does not check permission
-   */
   @CheckForNull
   public String getScmAuthorData(String fileKey) {
+    checkPermission(fileKey);
     return findDataFromComponent(fileKey, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY);
   }
 
-  /**
-   * Warning - does not check permission
-   */
   @CheckForNull
   public String getScmDateData(String fileKey) {
+    checkPermission(fileKey);
     return findDataFromComponent(fileKey, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY);
+  }
+
+  private void checkPermission(String fileKey) {
+    UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, fileKey);
   }
 
   @CheckForNull
@@ -102,4 +98,5 @@ public class SourceService implements ServerComponent {
       MyBatis.closeQuietly(session);
     }
   }
+
 }
