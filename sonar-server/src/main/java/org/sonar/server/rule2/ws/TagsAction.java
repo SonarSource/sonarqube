@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule2.ws;
 
+import com.google.common.io.Resources;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -41,7 +42,8 @@ public class TagsAction implements RequestHandler {
       .createAction("tags")
       .setDescription("List all rule tags")
       .setSince("4.4")
-      .setHandler(this);
+      .setHandler(this)
+      .setResponseExample(Resources.getResource(getClass(), "example-tags.json"));
   }
 
   @Override

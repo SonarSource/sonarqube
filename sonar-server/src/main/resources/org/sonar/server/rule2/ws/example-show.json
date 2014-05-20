@@ -1,5 +1,29 @@
 {
   "rule": {
-    "key": "javascript"
+    "key": "squid:XPath",
+    "repo": "squid",
+    "name": "XPath rule",
+    "htmlDesc": "<p>\nThis rule allows to define some homemade Java rules with help of an XPath expression.\n</p>\n\n<p>\nIssues are created depending on the return value of the XPath expression. If the XPath expression returns:\n</p>\n<ul>\n <li>a single or list of AST nodes, then a line issue with the given message is created for each node</li>\n <li>a boolean, then a file issue with the given message is created only if the boolean is true</li>\n <li>anything else, no issue is created</li>\n</ul>\n\n<p>\nHere is an example of an XPath expression to log an issue on each if statement : //ifStatement\n</p>",
+    "severity": "MAJOR",
+    "status": "READY",
+    "internalKey": "XPath",
+    "template": true,
+    "tags": [ ],
+    "sysTags": [ ],
+    "lang": "java",
+    "langName": "Java",
+    "params": [
+      {
+        "key": "message",
+        "desc": "The issue message",
+        "defaultValue": "The XPath expression matches this piece of code"
+      },
+      {
+        "key": "xpathQuery",
+        "desc": "The XPath query",
+        "defaultValue": ""
+      }
+    ]
   }
+
 }
