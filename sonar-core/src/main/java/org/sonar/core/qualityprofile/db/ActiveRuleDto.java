@@ -31,7 +31,6 @@ import org.sonar.core.rule.SeverityUtil;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.persistence.Transient;
-import java.util.Date;
 
 public class ActiveRuleDto extends Dto<ActiveRuleKey> {
 
@@ -48,10 +47,6 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
   private Integer ruleId;
   private Integer severity;
   private String inheritance;
-  private Date noteCreatedAt;
-  private Date noteUpdatedAt;
-  private String noteUserLogin;
-  private String noteData;
 
   @Deprecated
   public ActiveRuleDto setKey(ActiveRuleKey key) {
@@ -63,8 +58,8 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
   }
 
   public ActiveRuleKey getKey() {
-  return ActiveRuleKey.of(QualityProfileKey.of(this.profile, this.language),
-    RuleKey.of(this.repository, this.rule));
+    return ActiveRuleKey.of(QualityProfileKey.of(this.profile, this.language),
+      RuleKey.of(this.repository, this.rule));
   }
 
   // This field do not exists in db, it's only retrieve by joins
@@ -127,47 +122,6 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
     this.inheritance = inheritance;
     return this;
   }
-
-  @CheckForNull
-  public Date getNoteCreatedAt() {
-    return noteCreatedAt;
-  }
-
-  public ActiveRuleDto setNoteCreatedAt(@Nullable Date noteCreatedAt) {
-    this.noteCreatedAt = noteCreatedAt;
-    return this;
-  }
-
-  @CheckForNull
-  public Date getNoteUpdatedAt() {
-    return noteUpdatedAt;
-  }
-
-  public ActiveRuleDto setNoteUpdatedAt(@Nullable Date noteUpdatedAt) {
-    this.noteUpdatedAt = noteUpdatedAt;
-    return this;
-  }
-
-  @CheckForNull
-  public String getNoteUserLogin() {
-    return noteUserLogin;
-  }
-
-  public ActiveRuleDto setNoteUserLogin(@Nullable String noteUserLogin) {
-    this.noteUserLogin = noteUserLogin;
-    return this;
-  }
-
-  @CheckForNull
-  public String getNoteData() {
-    return noteData;
-  }
-
-  public ActiveRuleDto setNoteData(@Nullable String noteData) {
-    this.noteData = noteData;
-    return this;
-  }
-
 
   @CheckForNull
   public Integer getParentId() {

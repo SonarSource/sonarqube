@@ -374,51 +374,6 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     }
   }
 
-  public void updateActiveRuleNote(int activeRuleId, String note, UserSession userSession) {
-    validatePermission(userSession);
-    DbSession session = myBatis.openSession(false);
-
-    try {
-      ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId, session);
-      String sanitizedNote = Strings.emptyToNull(note);
-      if (sanitizedNote != null) {
-        Date now = new Date(system.now());
-        if (activeRule.getNoteData() == null) {
-          activeRule.setNoteCreatedAt(now);
-          activeRule.setNoteUserLogin(userSession.login());
-        }
-        activeRule.setNoteUpdatedAt(now);
-        activeRule.setNoteData(note);
-        activeRuleDao.update(activeRule, session);
-        session.commit();
-
-        reindexActiveRule(activeRule, session);
-      }
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public void deleteActiveRuleNote(int activeRuleId, UserSession userSession) {
-    validatePermission(userSession);
-
-    DbSession session = myBatis.openSession(false);
-    try {
-      ActiveRuleDto activeRule = findActiveRuleNotNull(activeRuleId, session);
-
-      activeRule.setNoteData(null);
-      activeRule.setNoteUserLogin(null);
-      activeRule.setNoteCreatedAt(null);
-      activeRule.setNoteUpdatedAt(null);
-      activeRuleDao.update(activeRule, session);
-      session.commit();
-
-      reindexActiveRule(activeRule, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   private void notifyParamsDeleted(ActiveRuleDto activeRule, List<ActiveRuleParamDto> params, SqlSession session, UserSession userSession) {
     ProfilesManager.RuleInheritanceActions actions = new ProfilesManager.RuleInheritanceActions();
     for (ActiveRuleParamDto activeRuleParam : params) {

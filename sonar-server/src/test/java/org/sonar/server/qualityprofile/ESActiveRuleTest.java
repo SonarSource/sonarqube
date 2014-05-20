@@ -225,8 +225,7 @@ public class ESActiveRuleTest {
 
   @Test
   public void bulk_index_active_rules_checking_into_db() throws IOException {
-    List<ActiveRuleDto> activeRules = newArrayList(new ActiveRuleDto().setId(1).setProfileId(10).setRuleId(1).setSeverity(Severity.MAJOR).setParentId(5)
-      .setNoteData("polop").setNoteCreatedAt(new Date()).setNoteUserLogin("godin"));
+    List<ActiveRuleDto> activeRules = newArrayList(new ActiveRuleDto().setId(1).setProfileId(10).setRuleId(1).setSeverity(Severity.MAJOR).setParentId(5));
 
     DbSession session = mock(DbSession.class);
     when(myBatis.openSession(false)).thenReturn(session);

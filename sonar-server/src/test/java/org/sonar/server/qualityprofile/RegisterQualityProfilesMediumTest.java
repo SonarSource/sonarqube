@@ -57,7 +57,7 @@ public class RegisterQualityProfilesMediumTest {
   @org.junit.Rule
   public ServerTester serverTester = new ServerTester().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
 
-  private DbSession session;
+  DbSession session;
 
   @Before
   public void setup(){

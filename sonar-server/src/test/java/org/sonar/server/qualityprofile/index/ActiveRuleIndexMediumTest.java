@@ -60,7 +60,7 @@ public class ActiveRuleIndexMediumTest {
 
   @Before
   public void before() {
-    tester.clearDataStores();
+    tester.clearDbAndEs();
     dbSession = myBatis.openSession(false);
   }
 

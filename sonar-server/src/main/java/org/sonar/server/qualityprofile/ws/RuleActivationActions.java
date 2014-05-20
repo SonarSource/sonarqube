@@ -84,25 +84,15 @@ public class RuleActivationActions implements ServerComponent {
   }
 
   private void defineActiveRuleKeyParameters(WebService.NewAction action) {
-    action.createParam("profile_lang")
-      .setDescription("Profile language")
+    action.createParam("profile_key")
+      .setDescription("Key of Quality profile")
       .setRequired(true)
-      .setExampleValue("java");
-
-    action.createParam("profile_name")
-      .setDescription("Profile name")
-      .setRequired(true)
-      .setExampleValue("My profile");
-
-    action.createParam("rule_repo")
-      .setDescription("Rule repository")
-      .setRequired(true)
-      .setExampleValue("squid");
+      .setExampleValue("Sonar way:java");
 
     action.createParam("rule_key")
-      .setDescription("Rule key")
+      .setDescription("Key of the rule to activate")
       .setRequired(true)
-      .setExampleValue("AvoidCycles");
+      .setExampleValue("squid:AvoidCycles");
   }
 
   private void activate(Request request, Response response) throws Exception {
@@ -122,7 +112,7 @@ public class RuleActivationActions implements ServerComponent {
 
   private ActiveRuleKey readKey(Request request) {
     return ActiveRuleKey.of(
-      QualityProfileKey.of(request.mandatoryParam("profile_name"), request.mandatoryParam("profile_lang")),
-      RuleKey.of(request.mandatoryParam("rule_repo"), request.mandatoryParam("rule_key")));
+      QualityProfileKey.parse(request.mandatoryParam("profile_key")),
+      RuleKey.parse(request.mandatoryParam("rule_key")));
   }
 }

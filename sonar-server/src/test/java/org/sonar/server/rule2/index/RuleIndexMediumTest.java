@@ -58,7 +58,7 @@ public class RuleIndexMediumTest {
 
   @Before
   public void before() {
-    tester.clearDataStores();
+    tester.clearDbAndEs();
     dbSession = myBatis.openSession(false);
   }
 

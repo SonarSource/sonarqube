@@ -65,7 +65,7 @@ public class QProfilesWsTest {
     WebService.Action restoreProfiles = controller.action("activate_rule");
     assertThat(restoreProfiles).isNotNull();
     assertThat(restoreProfiles.isPost()).isTrue();
-    assertThat(restoreProfiles.params()).hasSize(6);
+    assertThat(restoreProfiles.params()).hasSize(4);
   }
 
   @Test
@@ -73,7 +73,7 @@ public class QProfilesWsTest {
     WebService.Action restoreProfiles = controller.action("deactivate_rule");
     assertThat(restoreProfiles).isNotNull();
     assertThat(restoreProfiles.isPost()).isTrue();
-    assertThat(restoreProfiles.params()).hasSize(4);
+    assertThat(restoreProfiles.params()).hasSize(2);
   }
 
 }

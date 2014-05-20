@@ -105,8 +105,6 @@ public class RegisterRulesMediumTest {
         .setType(RuleParamType.BOOLEAN)
         .setDescription("Accept whitespaces on the line");
 
-
-
       repository.createRule("x2")
         .setName("x2 name")
         .setHtmlDescription("x2 desc")

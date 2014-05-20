@@ -74,7 +74,7 @@ public class ActiveRuleService implements ServerComponent {
 
       // TODO apply changes to children
 
-      persist(changes, dbSession);
+      persist(changes, context, dbSession);
       dbSession.commit();
 
       // TODO filter changes without any differences
@@ -85,11 +85,10 @@ public class ActiveRuleService implements ServerComponent {
     }
   }
 
-  private void persist(Collection<ActiveRuleChange> changes, DbSession dbSession) {
+  private void persist(Collection<ActiveRuleChange> changes, RuleActivationContext context, DbSession dbSession) {
     for (ActiveRuleChange change : changes) {
       if (change.getType() == ActiveRuleChange.Type.ACTIVATED) {
-        ActiveRuleDto activeRule = ActiveRuleDto.createFor(null, null /* TODO */)
-          .setKey(change.getKey())
+        ActiveRuleDto activeRule = ActiveRuleDto.createFor(context.profile(), context.rule())
           .setSeverity(change.getSeverity());
         db.activeRuleDao().insert(activeRule, dbSession);
 
@@ -99,7 +98,10 @@ public class ActiveRuleService implements ServerComponent {
         db.activeRuleDao().deleteByKey(change.getKey(), dbSession);
 
       } else if (change.getType() == ActiveRuleChange.Type.UPDATED) {
-
+        ActiveRuleDto activeRule = context.activeRule();
+        activeRule.setSeverity(change.getSeverity());
+        db.activeRuleDao().update(activeRule, dbSession);
+        // TODO insert activeruelparams
       }
     }
   }

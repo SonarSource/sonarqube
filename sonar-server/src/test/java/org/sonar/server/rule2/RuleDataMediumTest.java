@@ -57,7 +57,7 @@ public class RuleDataMediumTest {
 
   @Before
   public void before() {
-    tester.clearDataStores();
+    tester.clearDbAndEs();
     dbSession = tester.get(MyBatis.class).openSession(false);
   }
 

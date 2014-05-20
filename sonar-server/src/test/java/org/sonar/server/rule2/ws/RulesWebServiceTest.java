@@ -62,7 +62,7 @@ public class RulesWebServiceTest {
 
   @Before
   public void setUp() throws Exception {
-    tester.clearDataStores();
+    tester.clearDbAndEs();
     ruleDao = tester.get(RuleDao.class);
     ws = tester.get(RulesWebService.class);
     wsTester = new WsTester(ws);

@@ -40,7 +40,6 @@ public class DbClient implements ServerComponent {
   private final MyBatis myBatis;
   private final Map<Class<?>, DaoComponent> daoComponents;
 
-
   public DbClient(Database db, MyBatis myBatis, DaoComponent... daoComponents) {
     this.db = db;
     this.myBatis = myBatis;

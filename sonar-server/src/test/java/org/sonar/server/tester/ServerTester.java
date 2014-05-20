@@ -157,7 +157,7 @@ public class ServerTester extends ExternalResource {
   /**
    * Truncate all db tables and es indices. Can be executed only if ServerTester is started.
    */
-  public void clearDataStores() {
+  public void clearDbAndEs() {
     checkStarted();
     get(DataStoreCleanup.class).clearAll();
   }
