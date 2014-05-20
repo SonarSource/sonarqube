@@ -342,6 +342,7 @@ requirejs [
   .done (r) ->
       App.appState = new Backbone.Model
       App.state = new Backbone.Model
+      App.canWrite = r.canWrite
       App.qualityProfiles = r.qualityprofiles
       App.languages = r.languages
       App.repositories = r.repositories

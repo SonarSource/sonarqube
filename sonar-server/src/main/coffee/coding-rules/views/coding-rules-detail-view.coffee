@@ -74,6 +74,7 @@ define [
       @model.set 'lang', @options.app.languages[@model.get 'lang']
       repoKey = @model.get 'repo'
       @model.set 'repository', _.find(@options.app.repositories, (repo) -> repo.key == repoKey).name
+      @model.set 'canWrite', @options.app.canWrite
 
     onRender: ->
       @qualityProfilesRegion.show @qualityProfilesView
@@ -110,7 +111,9 @@ define [
       jQuery.ajax
         type: 'POST'
         url: "#{baseUrl}/api/rules/set_tags"
-        data: tags: tags
+        data:
+          key: @model.get 'key'
+          tags: tags
       .done =>
           if tags.length > 0
             @model.set 'tags', tags.split ','

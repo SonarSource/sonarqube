@@ -58,5 +58,6 @@ define [
 
     serializeData: ->
       _.extend super,
+        canWrite: @options.app.canWrite
         paging: @collection.paging
         sorting: @collection.sorting
