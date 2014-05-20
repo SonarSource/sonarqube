@@ -19,6 +19,7 @@
  */
 package org.sonar.server.component.persistence;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
@@ -39,6 +40,11 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   public void createDao() throws Exception {
     session = getMyBatis().openSession(false);
     dao = new ComponentDao();
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    session.close();
   }
 
   @Test

@@ -20,6 +20,7 @@
 package org.sonar.core.properties;
 
 import com.google.common.collect.ImmutableMap;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,6 +47,11 @@ public class PropertiesDaoTest extends AbstractDaoTestCase {
   public void createDao() {
     dao = new PropertiesDao(getMyBatis());
     session = getMyBatis().openSession(false);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    session.close();
   }
 
   @Test

@@ -22,6 +22,7 @@ package org.sonar.core.resource;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import org.apache.ibatis.session.SqlSession;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.component.Component;
@@ -50,6 +51,11 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   public void createDao() {
     session = getMyBatis().openSession(false);
     dao = new ResourceDao(getMyBatis());
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    session.close();
   }
 
   @Test
