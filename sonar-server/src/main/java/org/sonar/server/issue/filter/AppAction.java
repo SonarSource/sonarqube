@@ -20,6 +20,7 @@
 
 package org.sonar.server.issue.filter;
 
+import com.google.common.io.Resources;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -45,7 +46,8 @@ public class AppAction implements RequestHandler {
     action
       .setDescription("Data required for rendering the page 'Issues'")
       .setInternal(true)
-      .setHandler(this);
+      .setHandler(this)
+      .setResponseExample(Resources.getResource(this.getClass(), "app-example-show.json"));
     action
       .createParam("id")
       .setDescription("Optionally, the ID of the current filter");

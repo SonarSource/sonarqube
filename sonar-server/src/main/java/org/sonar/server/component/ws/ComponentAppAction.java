@@ -120,29 +120,9 @@ public class ComponentAppAction implements RequestHandler {
       Long subProjectId = component.subProjectId();
       // projectId and subProjectId can't be null here
       if (projectId != null && subProjectId != null) {
-        List<PropertyDto> propertyDtos = propertiesDao.selectByQuery(PropertyQuery.builder()
-            .setKey("favourite")
-            .setComponentId(component.getId())
-            .setUserId(userSession.userId())
-            .build(),
-          session
-        );
-        boolean isFavourite = propertyDtos.size() == 1;
-
-        json.prop("key", component.key());
-        json.prop("path", component.path());
-        json.prop("name", component.name());
-        json.prop("q", component.qualifier());
-
-        Component subProject = componentById(subProjectId, session);
-        json.prop("subProjectName", subProject != null ? subProject.longName() : null);
-
-        Component project = componentById(projectId, session);
-        json.prop("projectName", project != null ? project.longName() : null);
-
-        json.prop("fav", isFavourite);
+        appendComponent(json, component, projectId, subProjectId, userSession, session);
         appendPeriods(json, projectId, session);
-        appendRulesAggregation(json, component.key(), session);
+        appendIssuesAggregation(json, component.key(), session);
         appendMeasures(json, fileKey, session);
       }
     } finally {
@@ -151,6 +131,30 @@ public class ComponentAppAction implements RequestHandler {
 
     json.endObject();
     json.close();
+  }
+
+  private void appendComponent(JsonWriter json, ComponentDto component, Long projectId, Long subProjectId, UserSession userSession, DbSession session) {
+    List<PropertyDto> propertyDtos = propertiesDao.selectByQuery(PropertyQuery.builder()
+        .setKey("favourite")
+        .setComponentId(component.getId())
+        .setUserId(userSession.userId())
+        .build(),
+      session
+    );
+    boolean isFavourite = propertyDtos.size() == 1;
+
+    json.prop("key", component.key());
+    json.prop("path", component.path());
+    json.prop("name", component.name());
+    json.prop("q", component.qualifier());
+
+    Component subProject = componentById(subProjectId, session);
+    json.prop("subProjectName", subProject.longName());
+
+    Component project = componentById(projectId, session);
+    json.prop("projectName", project.longName());
+
+    json.prop("fav", isFavourite);
   }
 
   private void appendMeasures(JsonWriter json, String fileKey, DbSession session) {
@@ -197,7 +201,7 @@ public class ComponentAppAction implements RequestHandler {
     json.endArray();
   }
 
-  private void appendRulesAggregation(JsonWriter json, String componentKey, DbSession session) {
+  private void appendIssuesAggregation(JsonWriter json, String componentKey, DbSession session) {
     json.name("severities").beginArray();
     Multiset<String> severities = issueService.findSeveritiesByComponent(componentKey, session);
     for (String severity : severities.elementSet()) {
