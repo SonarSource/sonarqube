@@ -34,16 +34,8 @@ import org.sonar.server.text.MacroInterpreter;
  */
 public class RuleMapping extends BaseMapping {
 
-  private final Languages languages;
-  private final MacroInterpreter macroInterpreter;
-
   public RuleMapping(Languages languages, MacroInterpreter macroInterpreter) {
-    this.languages = languages;
-    this.macroInterpreter = macroInterpreter;
-  }
-
-  @Override
-  protected void doInit() {
+    super();
     addIndexField("repo", RuleNormalizer.RuleField.REPOSITORY.key());
     addIndexField("name", RuleNormalizer.RuleField.NAME.key());
     addField("htmlDesc", new HtmlDescField(macroInterpreter));
@@ -63,6 +55,7 @@ public class RuleMapping extends BaseMapping {
     addIndexField("noteLogin", RuleNormalizer.RuleField.NOTE_LOGIN.key());
     addIndexField("lang", RuleNormalizer.RuleField.LANGUAGE.key());
     addField("langName", new LangNameField(languages));
+    // TODO how to require field "params" ?
     addField("params", new ParamsField());
   }
 

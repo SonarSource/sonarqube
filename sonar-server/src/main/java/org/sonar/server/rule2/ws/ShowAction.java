@@ -28,18 +28,22 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule2.Rule;
-import org.sonar.server.rule2.RuleParam;
 import org.sonar.server.rule2.RuleService;
+import org.sonar.server.search.BaseDoc;
 
 /**
  * @since 4.4
  */
 public class ShowAction implements RequestHandler {
 
-  private final RuleService service;
+  private static final String PARAM_KEY = "key";
 
-  public ShowAction(RuleService service) {
+  private final RuleService service;
+  private final RuleMapping mapping;
+
+  public ShowAction(RuleService service, RuleMapping mapping) {
     this.service = service;
+    this.mapping = mapping;
   }
 
   void define(WebService.NewController controller) {
@@ -51,7 +55,7 @@ public class ShowAction implements RequestHandler {
       .setHandler(this);
 
     action
-      .createParam("key")
+      .createParam(PARAM_KEY)
       .setDescription("Rule key")
       .setRequired(true)
       .setExampleValue("javascript:EmptyBlock");
@@ -59,39 +63,13 @@ public class ShowAction implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) {
-    Rule rule = service.getByKey(RuleKey.parse(request.mandatoryParam("key")));
+    RuleKey key = RuleKey.parse(request.mandatoryParam(PARAM_KEY));
+    Rule rule = service.getByKey(key);
     if (rule == null) {
-      throw new NotFoundException("Rule not found");
+      throw new NotFoundException("Rule not found: " + key);
     }
-    JsonWriter json = response.newJsonWriter().beginObject().name("rule").beginObject();
-    writeRule(rule, json);
-    json.endObject().endObject().close();
-  }
-
-  private void writeRule(Rule rule, JsonWriter json) {
-    json
-      .prop("key", rule.key().toString())
-      .prop("repo", rule.key().repository())
-      .prop("lang", rule.language())
-      .prop("name", rule.name())
-      .prop("htmlDesc", rule.htmlDescription())
-      .prop("status", rule.status().toString())
-      .prop("template", rule.template())
-      .prop("internalKey", rule.internalKey())
-      .prop("severity", rule.severity().toString())
-      .prop("markdownNote", rule.markdownNote())
-      .prop("noteLogin", rule.noteLogin())
-      .name("tags").beginArray().values(rule.tags()).endArray()
-      .name("sysTags").beginArray().values(rule.systemTags()).endArray();
-    json.name("params").beginArray();
-    for (RuleParam param : rule.params()) {
-      json
-        .beginObject()
-        .prop("key", param.key())
-        .prop("desc", param.description())
-        .prop("defaultValue", param.defaultValue())
-        .endObject();
-    }
-    json.endArray();
+    JsonWriter json = response.newJsonWriter().beginObject().name("rule");
+    mapping.write((BaseDoc) rule, json);
+    json.endObject().close();
   }
 }

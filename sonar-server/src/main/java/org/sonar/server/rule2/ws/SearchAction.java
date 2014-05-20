@@ -189,7 +189,7 @@ public class SearchAction implements RequestHandler {
   private void writeRules(RuleResult result, JsonWriter json, SearchOptions options) {
     json.name("rules").beginArray();
     for (Rule rule : result.getHits()) {
-      mapping.write((RuleDoc) rule, json, options.fields());
+      mapping.write((RuleDoc) rule, json, options);
     }
     json.endArray();
   }

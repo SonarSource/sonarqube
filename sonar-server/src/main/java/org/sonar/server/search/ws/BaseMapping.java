@@ -21,7 +21,6 @@ package org.sonar.server.search.ws;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
-import org.picocontainer.Startable;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.search.BaseDoc;
@@ -29,29 +28,16 @@ import org.sonar.server.search.IndexUtils;
 import org.sonar.server.search.QueryOptions;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 /**
  * Mapping of search documents (see BaseDoc) to WS JSON responses
  */
-public abstract class BaseMapping implements ServerComponent, Startable {
+public abstract class BaseMapping implements ServerComponent {
 
   private final Multimap<String, String> indexFields = LinkedHashMultimap.create();
   private final Multimap<String, BaseMapping.Field> fields = LinkedHashMultimap.create();
-
-  @Override
-  public final void start() {
-    doInit();
-  }
-
-  protected abstract void doInit();
-
-  @Override
-  public final void stop() {
-    // do nothing
-  }
 
   public Set<String> supportedFields() {
     return fields.keySet();
@@ -69,16 +55,20 @@ public abstract class BaseMapping implements ServerComponent, Startable {
     return result;
   }
 
-  public void write(BaseDoc doc, JsonWriter json, @Nullable Collection<String> fieldsToReturn) {
+  public void write(BaseDoc doc, JsonWriter json) {
+    write(doc, json, null);
+  }
+
+  public void write(BaseDoc doc, JsonWriter json, @Nullable SearchOptions options) {
     json.beginObject();
     json.prop("key", doc.keyField());
-    if (fieldsToReturn == null || fieldsToReturn.isEmpty()) {
+    if (options == null || options.fields() == null) {
       // return all fields
       for (BaseMapping.Field field : fields.values()) {
         field.write(json, doc);
       }
     } else {
-      for (String optionField : fieldsToReturn) {
+      for (String optionField : options.fields()) {
         for (BaseMapping.Field field : fields.get(optionField)) {
           field.write(json, doc);
         }
