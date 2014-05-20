@@ -34,7 +34,6 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class QProfileSensorTest extends AbstractDaoTestCase {
@@ -62,7 +61,7 @@ public class QProfileSensorTest extends AbstractDaoTestCase {
     sensor.analyse(project, sensorContext);
 
     // measures are not saved
-    verifyZeroInteractions(sensorContext);
+    verify(sensorContext).saveMeasure(argThat(new IsMeasure(CoreMetrics.PROFILES, "[]")));
   }
 
   @Test
