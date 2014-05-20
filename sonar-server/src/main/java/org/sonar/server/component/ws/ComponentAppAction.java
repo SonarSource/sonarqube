@@ -52,6 +52,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.RulesAggregation;
 import org.sonar.server.measure.persistence.MeasureDao;
+import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -69,13 +70,15 @@ public class ComponentAppAction implements RequestHandler {
   private final DbClient dbClient;
 
   private final IssueService issueService;
+  private final SourceService sourceService;
   private final Periods periods;
   private final Durations durations;
   private final I18n i18n;
 
-  public ComponentAppAction(DbClient dbClient, IssueService issueService, Periods periods, Durations durations, I18n i18n) {
+  public ComponentAppAction(DbClient dbClient, IssueService issueService, SourceService sourceService, Periods periods, Durations durations, I18n i18n) {
     this.dbClient = dbClient;
     this.issueService = issueService;
+    this.sourceService = sourceService;
     this.periods = periods;
     this.durations = durations;
     this.i18n = i18n;
@@ -146,6 +149,7 @@ public class ComponentAppAction implements RequestHandler {
     json.prop("projectName", project.longName());
 
     json.prop("fav", isFavourite);
+    json.prop("scmAvailable", sourceService.hasScmData(component.key(), session));
   }
 
   private void appendPermissions(JsonWriter json, ComponentDto component, UserSession userSession) {

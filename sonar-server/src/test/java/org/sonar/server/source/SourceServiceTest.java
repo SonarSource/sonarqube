@@ -29,7 +29,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.measure.db.MeasureKey;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.user.MockUserSession;
@@ -62,9 +62,10 @@ public class SourceServiceTest {
 
   @Before
   public void setUp() throws Exception {
-    MyBatis myBatis = mock(MyBatis.class);
-    when(myBatis.openSession(false)).thenReturn(session);
-    service = new SourceService(myBatis, sourceDecorator, deprecatedSourceDecorator, measureDao);
+    DbClient dbClient = mock(DbClient.class);
+    when(dbClient.openSession(false)).thenReturn(session);
+    when(dbClient.getDao(MeasureDao.class)).thenReturn(measureDao);
+    service = new SourceService(dbClient, sourceDecorator, deprecatedSourceDecorator);
   }
 
   @Test
@@ -132,5 +133,13 @@ public class SourceServiceTest {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
     when(measureDao.getByKey(any(MeasureKey.class), eq(session))).thenReturn(null);
     assertThat(service.getScmDateData(COMPONENT_KEY)).isNull();
+  }
+
+  @Test
+  public void has_scm_data() throws Exception {
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+
+    when(measureDao.exists(any(MeasureKey.class), eq(session))).thenReturn(true);
+    assertThat(service.hasScmData(COMPONENT_KEY)).isTrue();
   }
 }

@@ -29,6 +29,7 @@ import org.sonar.api.utils.Durations;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.IssueService;
+import org.sonar.server.source.SourceService;
 import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -40,7 +41,8 @@ public class ComponentsWsTest {
 
   @Before
   public void setUp() throws Exception {
-    WsTester tester = new WsTester(new ComponentsWs(new ComponentAppAction(mock(DbClient.class), mock(IssueService.class), mock(Periods.class), mock(Durations.class), mock(I18n.class))));
+    WsTester tester = new WsTester(new ComponentsWs(new ComponentAppAction(mock(DbClient.class), mock(IssueService.class), mock(SourceService.class),
+      mock(Periods.class), mock(Durations.class), mock(I18n.class))));
     controller = tester.controller("api/components");
   }
 

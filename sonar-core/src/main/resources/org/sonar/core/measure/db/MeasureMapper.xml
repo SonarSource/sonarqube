@@ -45,4 +45,19 @@
     </where>
   </select>
 
+  <select id="count" parameterType="map" resultType="long">
+    SELECT count(pm.id)
+    FROM project_measures pm
+    INNER JOIN snapshots s ON s.id=pm.snapshot_id AND s.islast=${_true}
+    INNER JOIN metrics metric ON metric.id=pm.metric_id
+    INNER JOIN projects p ON p.id=s.project_id AND p.enabled=${_true}
+    <where>
+      AND p.kee = #{key.componentKey}
+      AND metric.name = #{key.metricKey}
+      AND pm.rule_id IS NULL
+      AND pm.characteristic_id IS NULL
+      AND pm.person_id IS NULL
+    </where>
+  </select>
+
 </mapper>

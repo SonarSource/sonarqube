@@ -27,6 +27,7 @@ import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.measure.db.MeasureKey;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.user.UserSession;
 
@@ -37,7 +38,7 @@ import java.util.List;
 
 public class SourceService implements ServerComponent {
 
-  private final MyBatis myBatis;
+  private final DbClient dbClient;
 
   private final HtmlSourceDecorator sourceDecorator;
 
@@ -48,11 +49,11 @@ public class SourceService implements ServerComponent {
 
   private final MeasureDao measureDao;
 
-  public SourceService(MyBatis myBatis, HtmlSourceDecorator sourceDecorator, DeprecatedSourceDecorator deprecatedSourceDecorator, MeasureDao measureDao) {
-    this.myBatis = myBatis;
+  public SourceService(DbClient dbClient, HtmlSourceDecorator sourceDecorator, DeprecatedSourceDecorator deprecatedSourceDecorator) {
+    this.dbClient = dbClient;
     this.sourceDecorator = sourceDecorator;
     this.deprecatedSourceDecorator = deprecatedSourceDecorator;
-    this.measureDao = measureDao;
+    this.measureDao = dbClient.getDao(MeasureDao.class);
   }
 
   public List<String> getLinesAsHtml(String fileKey) {
@@ -81,13 +82,27 @@ public class SourceService implements ServerComponent {
     return findDataFromComponent(fileKey, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY);
   }
 
+  public boolean hasScmData(String fileKey, DbSession session) {
+    return measureDao.exists(MeasureKey.of(fileKey, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY), session);
+  }
+
+  public boolean hasScmData(String fileKey) {
+    checkPermission(fileKey);
+    DbSession session = dbClient.openSession(false);
+    try {
+      return hasScmData(fileKey, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
   private void checkPermission(String fileKey) {
     UserSession.get().checkComponentPermission(UserRole.CODEVIEWER, fileKey);
   }
 
   @CheckForNull
   private String findDataFromComponent(String fileKey, String metricKey) {
-    DbSession session = myBatis.openSession(false);
+    DbSession session = dbClient.openSession(false);
     try {
       MeasureDto data = measureDao.getByKey(MeasureKey.of(fileKey, metricKey), session);
       if (data != null) {

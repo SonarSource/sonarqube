@@ -4,6 +4,7 @@
   "q": "TRK",
   "projectName": "SonarQube",
   "fav": true,
+  "scmAvailable": false,
   "canMarkAsFavourite": true,
   "canBulkChange": true,
   "periods": [],

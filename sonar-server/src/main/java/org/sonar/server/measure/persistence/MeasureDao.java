@@ -52,6 +52,10 @@ public class MeasureDao extends BaseDao<MeasureMapper, MeasureDto, MeasureKey> i
     return session.getMapper(MeasureMapper.class).selectByKey(key);
   }
 
+  public boolean exists(MeasureKey key, DbSession session) {
+    return session.getMapper(MeasureMapper.class).count(key) > 0;
+  }
+
   public List<MeasureDto> findByComponentKeyAndMetricKeys(String componentKey, List<String> metricKeys, DbSession session){
     if (metricKeys.isEmpty()) {
       return Collections.emptyList();

@@ -30,4 +30,6 @@ public interface MeasureMapper {
 
   List<MeasureDto> selectByComponentAndMetrics(@Param("componentKey") String componentKey, @Param("metricKeys") List<String> metricKeys);
 
+  long count(@Param("key") MeasureKey key);
+
 }
