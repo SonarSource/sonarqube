@@ -48,91 +48,91 @@ import java.util.Map;
 public class AppAction implements RequestHandler {
 
   private static final String[] MESSAGES = {
-    "all", // All
-    "any", // Any
-    "apply", // Apply
-    "are_you_sure", // Are you sure?
-    "bold", // Bold
-    "bulk_change", // Bulk Change
-    "bulleted_point", // Bulleted point
-    "cancel", // Cancel
-    "change_verb", // Change
-    "code", // Code
-    "delete", // Delete
-    "Done", // Done
-    "edit", // Edit
-    "markdown.helplink", // Markdown Help
-    "moreCriteria", // + More Criteria
-    "save", // Save
-    "search_verb", // Search
-    "severity", // Severity
-    "update_verb", // Update
+    "all",
+    "any",
+    "apply",
+    "are_you_sure",
+    "bold",
+    "bulk_change",
+    "bulleted_point",
+    "cancel",
+    "change_verb",
+    "code",
+    "delete",
+    "Done",
+    "edit",
+    "markdown.helplink",
+    "moreCriteria",
+    "save",
+    "search_verb",
+    "severity",
+    "update_verb",
 
-    "severity.BLOCKER", // Blocker
-    "severity.CRITICAL", // Critical
-    "severity.MAJOR", // Major
-    "severity.MINOR", // Minor
-    "severity.INFO", // Info
+    "severity.BLOCKER",
+    "severity.CRITICAL",
+    "severity.MAJOR",
+    "severity.MINOR",
+    "severity.INFO",
 
-    "coding_rules.activate", // Activate
-    "coding_rules.activate_in", // Activate In
-    "coding_rules.activate_in_quality_profile", // Activate In Quality Profile
-    "coding_rules.activate_in_all_quality_profiles", // Activate In All {0} Profiles
-    "coding_rules.add_note", // Add Note
-    "coding_rules.add_tags", // Add Tags
-    "coding_rules.available_since", // Available Since
-    "coding_rules.bulk_change", // Bulk Change
-    "coding_rules.change_severity", // Change Severity
-    "coding_rules.change_severity_in", // Change Severity In
-    "coding_rules.change_details", // Change Details of Quality Profile
-    "coding_rules.extend_description", // Extend Description
-    "coding_rules.deactivate_in", // Deactivate In
-    "coding_rules.deactivate", // Deactivate
-    "coding_rules.deactivate_in_quality_profile", // Deactivate In Quality Profile
-    "coding_rules.deactivate_in_all_quality_profiles", // Deactivate In All {0} Profiles
-    "coding_rules.found", // Found
-    "coding_rules.inherits", // "{0}" inherits "{1}"
-    "coding_rules.key", // Key:
-    "coding_rules.new_search", // New Search
-    "coding_rules.no_results", // No Coding Rules
-    "coding_rules.no_tags", // No tags
-    "coding_rules.order", // Order
-    "coding_rules.ordered_by", // Ordered By
-    "coding_rules.original", // Original:
-    "coding_rules.page", // Coding Rules
-    "coding_rules.parameters", // Parameters
-    "coding_rules.parameters.default_value", // Default Value:
-    "coding_rules.permalink", // Permalink
-    "coding_rules.quality_profiles", // Quality Profiles
-    "coding_rules.quality_profile", // Quality Profile
-    "coding_rules.repository", // Repository:
-    "coding_rules.revert_to_parent_definition", // Revert to Parent Definition
-    "coding_rules._rules", // rules
-    "coding_rules.select_tag", // Select Tag
+    "coding_rules.activate",
+    "coding_rules.activate_in",
+    "coding_rules.activate_in_quality_profile",
+    "coding_rules.activate_in_all_quality_profiles",
+    "coding_rules.add_note",
+    "coding_rules.add_tags",
+    "coding_rules.available_since",
+    "coding_rules.bulk_change",
+    "coding_rules.change_severity",
+    "coding_rules.change_severity_in",
+    "coding_rules.change_details",
+    "coding_rules.extend_description",
+    "coding_rules.deactivate_in",
+    "coding_rules.deactivate",
+    "coding_rules.deactivate_in_quality_profile",
+    "coding_rules.deactivate_in_all_quality_profiles",
+    "coding_rules.found",
+    "coding_rules.inherits",
+    "coding_rules.key",
+    "coding_rules.new_search",
+    "coding_rules.no_results",
+    "coding_rules.no_tags",
+    "coding_rules.order",
+    "coding_rules.ordered_by",
+    "coding_rules.original",
+    "coding_rules.page",
+    "coding_rules.parameters",
+    "coding_rules.parameters.default_value",
+    "coding_rules.permalink",
+    "coding_rules.quality_profiles",
+    "coding_rules.quality_profile",
+    "coding_rules.repository",
+    "coding_rules.revert_to_parent_definition",
+    "coding_rules._rules",
+    "coding_rules.select_tag",
 
-    "coding_rules.filters.activation", // Activation
-    "coding_rules.filters.activation.active", // Active
-    "coding_rules.filters.activation.inactive", // Inactive
-    "coding_rules.filters.activation.help", // Activation criterion is available when a quality profile is selected
-    "coding_rules.filters.availableSince", // Available Since
-    "coding_rules.filters.characteristic", // Characteristic
-    "coding_rules.filters.description", // Description
-    "coding_rules.filters.quality_profile", // Quality Profile
-    "coding_rules.filters.inheritance", // Inheritance
-    "coding_rules.filters.inheritance.inactive", // Inheritance criterion is available when an inherited quality profile is selected
-    "coding_rules.filters.inheritance.not_inherited", // Not Inherited
-    "coding_rules.filters.inheritance.inherited", // Inherited
-    "coding_rules.filters.inheritance.overriden", // Overriden
-    "coding_rules.filters.key", // Key
-    "coding_rules.filters.language", // Language
-    "coding_rules.filters.name", // Name
-    "coding_rules.filters.repository", // Repository
-    "coding_rules.filters.severity", // Severity
-    "coding_rules.filters.status", // Status
-    "coding_rules.filters.tag", // Tag
+    "coding_rules.filters.activation",
+    "coding_rules.filters.activation.active",
+    "coding_rules.filters.activation.inactive",
+    "coding_rules.filters.activation.help",
+    "coding_rules.filters.availableSince",
+    "coding_rules.filters.characteristic",
+    "coding_rules.filters.description",
+    "coding_rules.filters.quality_profile",
+    "coding_rules.filters.inheritance",
+    "coding_rules.filters.inheritance.inactive",
+    "coding_rules.filters.inheritance.not_inherited",
+    "coding_rules.filters.inheritance.inherited",
+    "coding_rules.filters.inheritance.overriden",
+    "coding_rules.filters.key",
+    "coding_rules.filters.language",
+    "coding_rules.filters.name",
+    "coding_rules.filters.repository",
+    "coding_rules.filters.severity",
+    "coding_rules.filters.status",
+    "coding_rules.filters.tag",
 
-    "coding_rules.sort.creation_date", // Creation Date
-    "coding_rules.sort.name" // Name
+    "coding_rules.sort.creation_date",
+    "coding_rules.sort.name"
   };
 
   private final Languages languages;
