@@ -55,13 +55,14 @@ public class MeasureDataMigration implements DatabaseMigration {
       new MassUpdater.InputLoader<Row>() {
         @Override
         public String selectSql() {
-          return "SELECT md.measure_id FROM measure_data md";
+          return "SELECT md.id, md.measure_id FROM measure_data md";
         }
 
         @Override
         public Row load(ResultSet rs) throws SQLException {
           Row row = new Row();
-          row.measure_id = SqlUtil.getLong(rs, 1);
+          row.id = SqlUtil.getLong(rs, 1);
+          row.measure_id = SqlUtil.getLong(rs, 2);
           return row;
         }
       },
@@ -69,13 +70,13 @@ public class MeasureDataMigration implements DatabaseMigration {
 
         @Override
         public String updateSql() {
-          return "UPDATE project_measures m SET m.measure_data = (SELECT md.data FROM measure_data md WHERE md.measure_id = ?) WHERE m.id=?";
+          return "UPDATE project_measures m SET m.measure_data = (SELECT md.data FROM measure_data md WHERE md.id = ?) WHERE m.id=?";
         }
 
         @Override
         public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
-          ids.add(row.measure_id);
-          updateStatement.setLong(1, row.measure_id);
+          ids.add(row.id);
+          updateStatement.setLong(1, row.id);
           updateStatement.setLong(2, row.measure_id);
           return true;
         }
@@ -85,7 +86,7 @@ public class MeasureDataMigration implements DatabaseMigration {
         @Override
         public boolean update(Connection connection) throws SQLException {
           if (ids.size() > 0) {
-            String deleteSql = new StringBuilder().append("DELETE measure_data where measure_id in (")
+            String deleteSql = new StringBuilder().append("DELETE FROM measure_data WHERE id IN (")
               .append(StringUtils.repeat("?", ",", ids.size())).append(")").toString();
             PreparedStatement s = connection.prepareStatement(deleteSql);
             int i = 1;
@@ -105,6 +106,7 @@ public class MeasureDataMigration implements DatabaseMigration {
   }
 
   private static class Row {
+    private Long id;
     private Long measure_id;
   }
 
