@@ -20,11 +20,12 @@
 package org.sonar.core.component;
 
 import org.sonar.api.component.Component;
+import org.sonar.core.persistence.Dto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-public class ComponentDto implements Component {
+public class ComponentDto extends Dto<String> implements Component {
 
   private Long id;
   private String kee;
@@ -115,6 +116,11 @@ public class ComponentDto implements Component {
   }
 
   @Override
+  public String getKey() {
+    return kee;
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -136,4 +142,5 @@ public class ComponentDto implements Component {
   public int hashCode() {
     return id.hashCode();
   }
+
 }

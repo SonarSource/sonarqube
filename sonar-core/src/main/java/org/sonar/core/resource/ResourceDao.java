@@ -26,7 +26,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.DaoComponent;
 import org.sonar.api.component.Component;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
@@ -173,11 +172,6 @@ public class ResourceDao implements DaoComponent {
     } finally {
       MyBatis.closeQuietly(session);
     }
-  }
-
-  @CheckForNull
-  public ComponentDto selectComponentByKey(String key, DbSession session) {
-    return session.getMapper(ResourceMapper.class).selectComponentByKey(key);
   }
 
   @CheckForNull

@@ -179,16 +179,6 @@
     </where>
   </select>
 
-  <select id="selectComponentByKey" parameterType="String" resultType="Component">
-    select <include refid="componentColumns"/>
-    from projects p
-    inner join snapshots s on s.project_id=p.id and s.islast=${_true}
-    <where>
-      p.enabled=${_true}
-      and p.kee=#{key}
-    </where>
-  </select>
-
   <select id="selectProjectsIncludingNotCompletedOnesByQualifiers" parameterType="map" resultMap="resourceResultMap">
     select * from projects p
     <where>

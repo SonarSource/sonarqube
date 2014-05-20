@@ -5,7 +5,12 @@
   <sql id="componentColumns">
     p.id,
     p.kee as kee,
-    p.qualifier
+    p.name as name,
+    p.long_name as longName,
+    p.qualifier as qualifier,
+    s.root_project_id as projectId,
+    p.root_id as subProjectId,
+    p.path as path
   </sql>
 
   <sql id="sortColumn">
@@ -33,9 +38,30 @@
     </if>
   </sql>
 
+  <select id="selectByKey" parameterType="String" resultType="Component">
+    SELECT <include refid="componentColumns"/>
+    FROM projects p
+    INNER JOIN snapshots s on s.project_id=p.id and s.islast=${_true}
+    <where>
+      AND p.enabled=${_true}
+      AND p.kee=#{key}
+    </where>
+  </select>
+
+  <select id="selectById" parameterType="Long" resultType="Component">
+    SELECT <include refid="componentColumns"/>
+    FROM projects p
+    INNER JOIN snapshots s on s.project_id=p.id and s.islast=${_true}
+    <where>
+      AND p.enabled=${_true}
+      AND p.id=#{id}
+    </where>
+  </select>
+
   <select id="selectComponents" parameterType="map" resultType="Issue">
     select <include refid="componentColumns"/>
     from projects p
+    INNER JOIN snapshots s on s.project_id=p.id and s.islast=${_true}
     <include refid="selectQueryConditions"/>
   </select>
 

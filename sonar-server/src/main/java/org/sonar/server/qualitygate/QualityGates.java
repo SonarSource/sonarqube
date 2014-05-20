@@ -31,8 +31,8 @@ import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.component.ComponentQuery;
-import org.sonar.core.component.db.ComponentDao;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
@@ -40,6 +40,7 @@ import org.sonar.core.qualitygate.db.QualityGateConditionDao;
 import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 import org.sonar.core.qualitygate.db.QualityGateDao;
 import org.sonar.core.qualitygate.db.QualityGateDto;
+import org.sonar.server.component.persistence.ComponentDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.BadRequestException.Message;
 import org.sonar.server.exceptions.NotFoundException;
@@ -213,16 +214,28 @@ public class QualityGates {
 
   public void associateProject(Long qGateId, Long projectId) {
     checkPermission(UserSession.get());
-    getNonNullQgate(qGateId);
-    checkNonNullProject(projectId);
-    propertiesDao.setProperty(new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setResourceId(projectId).setValue(qGateId.toString()));
+
+    DbSession session = myBatis.openSession(false);
+    try {
+      getNonNullQgate(qGateId);
+      checkNonNullProject(projectId, session);
+      propertiesDao.setProperty(new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setResourceId(projectId).setValue(qGateId.toString()));
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   public void dissociateProject(Long qGateId, Long projectId) {
     checkPermission(UserSession.get());
-    getNonNullQgate(qGateId);
-    checkNonNullProject(projectId);
-    propertiesDao.deleteProjectProperty(SONAR_QUALITYGATE_PROPERTY, projectId);
+
+    DbSession session = myBatis.openSession(false);
+    try {
+      getNonNullQgate(qGateId);
+      checkNonNullProject(projectId, session);
+      propertiesDao.deleteProjectProperty(SONAR_QUALITYGATE_PROPERTY, projectId);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
   }
 
   public Collection<Metric> gateMetrics() {
@@ -337,8 +350,8 @@ public class QualityGates {
     return condition;
   }
 
-  private void checkNonNullProject(long projectId) {
-    if (componentDao.selectComponent(ComponentQuery.create().addIds(projectId).addQualifiers(Qualifiers.PROJECT)).isEmpty()) {
+  private void checkNonNullProject(long projectId, DbSession session) {
+    if (componentDao.findByQuery(ComponentQuery.create().addIds(projectId).addQualifiers(Qualifiers.PROJECT), session).isEmpty()) {
       throw new NotFoundException("There is no project with id=" + projectId);
     }
   }

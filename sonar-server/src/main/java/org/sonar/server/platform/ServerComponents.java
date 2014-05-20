@@ -38,7 +38,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.core.component.SnapshotPerspectives;
-import org.sonar.core.component.db.ComponentDao;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.DefaultI18n;
@@ -80,6 +79,7 @@ import org.sonar.server.cluster.LocalNonBlockingWorkQueue;
 import org.sonar.server.cluster.LocalQueueWorker;
 import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
+import org.sonar.server.component.persistence.ComponentDao;
 import org.sonar.server.component.ws.ComponentAppAction;
 import org.sonar.server.component.ws.ComponentsWs;
 import org.sonar.server.component.ws.ProjectsWs;
@@ -199,6 +199,7 @@ class ServerComponents {
       RuleDao.class,
       ActiveRuleDao.class,
       MeasureDao.class,
+      ComponentDao.class,
       DbClient.class,
       MeasureFilterDao.class
       ));

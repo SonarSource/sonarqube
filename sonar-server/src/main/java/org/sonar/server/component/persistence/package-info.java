@@ -17,22 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.component.db;
 
-import org.apache.ibatis.annotations.Param;
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.component.ComponentQuery;
+@ParametersAreNonnullByDefault
+package org.sonar.server.component.persistence;
 
-import java.util.Collection;
-
-/**
- * @since 4.3
- */
-public interface ComponentMapper {
-
-  ComponentDto selectByKey(String key);
-
-  ComponentDto selectById(Long id);
-
-  Collection<ComponentDto> selectComponents(@Param("query") ComponentQuery query);
-}
+import javax.annotation.ParametersAreNonnullByDefault;

@@ -44,6 +44,7 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.SnapshotDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.timemachine.Periods;
+import org.sonar.server.component.persistence.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.RulesAggregation;
@@ -68,6 +69,9 @@ public class ComponentAppActionTest {
 
   @Mock
   DbSession session;
+
+  @Mock
+  ComponentDao componentDao;
 
   @Mock
   ResourceDao resourceDao;
@@ -98,13 +102,14 @@ public class ComponentAppActionTest {
   public void setUp() throws Exception {
     DbClient dbClient = mock(DbClient.class);
     when(dbClient.openSession(false)).thenReturn(session);
+    when(dbClient.getDao(ComponentDao.class)).thenReturn(componentDao);
     when(dbClient.getDao(ResourceDao.class)).thenReturn(resourceDao);
     when(dbClient.getDao(PropertiesDao.class)).thenReturn(propertiesDao);
     when(dbClient.getDao(MeasureDao.class)).thenReturn(measureDao);
 
-    when(issueService.findSeveritiesByComponent(COMPONENT_KEY, session)).thenReturn(mock(Multiset.class));
-    when(issueService.findRulesByComponent(COMPONENT_KEY, session)).thenReturn(mock(RulesAggregation.class));
-    when(measureDao.findByComponentKeyAndMetricKeys(eq(COMPONENT_KEY), anyListOf(String.class), eq(session))).thenReturn(measures);
+    when(issueService.findSeveritiesByComponent(anyString(), eq(session))).thenReturn(mock(Multiset.class));
+    when(issueService.findRulesByComponent(anyString(), eq(session))).thenReturn(mock(RulesAggregation.class));
+    when(measureDao.findByComponentKeyAndMetricKeys(anyString(), anyListOf(String.class), eq(session))).thenReturn(measures);
 
     tester = new WsTester(new ComponentsWs(new ComponentAppAction(dbClient, issueService, periods, durations, i18n)));
   }
@@ -115,13 +120,27 @@ public class ComponentAppActionTest {
 
     ComponentDto file = new ComponentDto().setId(10L).setQualifier("FIL").setKey(COMPONENT_KEY).setName("Plugin.java")
       .setPath("src/main/java/org/sonar/api/Plugin.java").setSubProjectId(5L).setProjectId(1L);
-    when(resourceDao.selectComponentByKey(COMPONENT_KEY, session)).thenReturn(file);
-    when(resourceDao.findById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API"));
-    when(resourceDao.findById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
+    when(componentDao.getByKey(COMPONENT_KEY, session)).thenReturn(file);
+    when(componentDao.getById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API"));
+    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
     when(propertiesDao.selectByQuery(any(PropertyQuery.class), eq(session))).thenReturn(newArrayList(new PropertyDto()));
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
     request.execute().assertJson(getClass(), "app.json");
+  }
+
+  @Test
+  public void app_without_sub_project() throws Exception {
+    String componentKey = "org.codehaus.sonar:sonar";
+    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.CODEVIEWER, componentKey, componentKey);
+
+    ComponentDto file = new ComponentDto().setId(1L).setQualifier("TRK").setKey(componentKey).setName("SonarQube").setProjectId(1L);
+    when(componentDao.getByKey(componentKey, session)).thenReturn(file);
+    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
+    when(propertiesDao.selectByQuery(any(PropertyQuery.class), eq(session))).thenReturn(newArrayList(new PropertyDto()));
+
+    WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", componentKey);
+    request.execute().assertJson(getClass(), "app_without_sub_project.json");
   }
 
   @Test
@@ -193,9 +212,9 @@ public class ComponentAppActionTest {
   private void addProjectSample() {
     ComponentDto file = new ComponentDto().setId(10L).setQualifier("FIL").setKey(COMPONENT_KEY).setName("Plugin.java")
       .setPath("src/main/java/org/sonar/api/Plugin.java").setSubProjectId(5L).setProjectId(1L);
-    when(resourceDao.selectComponentByKey(COMPONENT_KEY, session)).thenReturn(file);
-    when(resourceDao.findById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API"));
-    when(resourceDao.findById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
+    when(componentDao.getByKey(COMPONENT_KEY, session)).thenReturn(file);
+    when(componentDao.getById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API"));
+    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
   }
 
   private void addMeasure(String metricKey, Integer value) {

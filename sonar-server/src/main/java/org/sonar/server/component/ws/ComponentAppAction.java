@@ -46,6 +46,7 @@ import org.sonar.core.properties.PropertyQuery;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.SnapshotDto;
 import org.sonar.core.timemachine.Periods;
+import org.sonar.server.component.persistence.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueService;
@@ -67,9 +68,6 @@ public class ComponentAppAction implements RequestHandler {
 
   private final DbClient dbClient;
 
-  private final ResourceDao resourceDao;
-  private final PropertiesDao propertiesDao;
-  private final MeasureDao measureDao;
   private final IssueService issueService;
   private final Periods periods;
   private final Durations durations;
@@ -77,9 +75,6 @@ public class ComponentAppAction implements RequestHandler {
 
   public ComponentAppAction(DbClient dbClient, IssueService issueService, Periods periods, Durations durations, I18n i18n) {
     this.dbClient = dbClient;
-    this.resourceDao = dbClient.getDao(ResourceDao.class);
-    this.propertiesDao = dbClient.getDao(PropertiesDao.class);
-    this.measureDao = dbClient.getDao(MeasureDao.class);
     this.issueService = issueService;
     this.periods = periods;
     this.durations = durations;
@@ -112,20 +107,15 @@ public class ComponentAppAction implements RequestHandler {
 
     DbSession session = dbClient.openSession(false);
     try {
-      ComponentDto component = resourceDao.selectComponentByKey(fileKey, session);
+      ComponentDto component = dbClient.getDao(ComponentDao.class).getByKey(fileKey, session);
       if (component == null) {
         throw new NotFoundException(String.format("Component '%s' does not exists.", fileKey));
       }
-      Long projectId = component.projectId();
-      Long subProjectId = component.subProjectId();
-      // projectId and subProjectId can't be null here
-      if (projectId != null && subProjectId != null) {
-        appendComponent(json, component, projectId, subProjectId, userSession, session);
-        appendPermissions(json, component, userSession);
-        appendPeriods(json, projectId, session);
-        appendIssuesAggregation(json, component.key(), session);
-        appendMeasures(json, fileKey, session);
-      }
+      appendComponent(json, component, userSession, session);
+      appendPermissions(json, component, userSession);
+      appendPeriods(json, component.projectId(), session);
+      appendIssuesAggregation(json, component.key(), session);
+      appendMeasures(json, fileKey, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -134,8 +124,8 @@ public class ComponentAppAction implements RequestHandler {
     json.close();
   }
 
-  private void appendComponent(JsonWriter json, ComponentDto component, Long projectId, Long subProjectId, UserSession userSession, DbSession session) {
-    List<PropertyDto> propertyDtos = propertiesDao.selectByQuery(PropertyQuery.builder()
+  private void appendComponent(JsonWriter json, ComponentDto component, UserSession userSession, DbSession session) {
+    List<PropertyDto> propertyDtos = dbClient.getDao(PropertiesDao.class).selectByQuery(PropertyQuery.builder()
         .setKey("favourite")
         .setComponentId(component.getId())
         .setUserId(userSession.userId())
@@ -149,10 +139,10 @@ public class ComponentAppAction implements RequestHandler {
     json.prop("name", component.name());
     json.prop("q", component.qualifier());
 
-    Component subProject = componentById(subProjectId, session);
-    json.prop("subProjectName", subProject.longName());
+    Component subProject = componentById(component.subProjectId(), session);
+    json.prop("subProjectName", subProject != null ? subProject.longName() : null);
 
-    Component project = componentById(projectId, session);
+    Component project = componentById(component.projectId(), session);
     json.prop("projectName", project.longName());
 
     json.prop("fav", isFavourite);
@@ -166,7 +156,7 @@ public class ComponentAppAction implements RequestHandler {
   private void appendMeasures(JsonWriter json, String fileKey, DbSession session) {
     json.name("measures").beginObject();
 
-    List<MeasureDto> measures = measureDao.findByComponentKeyAndMetricKeys(fileKey,
+    List<MeasureDto> measures = dbClient.getDao(MeasureDao.class).findByComponentKeyAndMetricKeys(fileKey,
       newArrayList(CoreMetrics.NCLOC_KEY, CoreMetrics.COVERAGE_KEY, CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, CoreMetrics.TECHNICAL_DEBT_KEY, CoreMetrics.VIOLATIONS_KEY,
         CoreMetrics.BLOCKER_VIOLATIONS_KEY, CoreMetrics.MAJOR_VIOLATIONS_KEY, CoreMetrics.MAJOR_VIOLATIONS_KEY, CoreMetrics.MINOR_VIOLATIONS_KEY, CoreMetrics.INFO_VIOLATIONS_KEY),
       session
@@ -187,7 +177,7 @@ public class ComponentAppAction implements RequestHandler {
 
   private void appendPeriods(JsonWriter json, Long projectId, DbSession session) {
     json.name("periods").beginArray();
-    SnapshotDto snapshotDto = resourceDao.getLastSnapshotByResourceId(projectId, session);
+    SnapshotDto snapshotDto = dbClient.getDao(ResourceDao.class).getLastSnapshotByResourceId(projectId, session);
     if (snapshotDto != null) {
       for (int i = 1; i <= 5; i++) {
         String mode = snapshotDto.getPeriodMode(i);
@@ -234,7 +224,7 @@ public class ComponentAppAction implements RequestHandler {
   @CheckForNull
   private Component componentById(@Nullable Long componentId, DbSession session) {
     if (componentId != null) {
-      return resourceDao.findById(componentId, session);
+      return dbClient.getDao(ComponentDao.class).getById(componentId, session);
     }
     return null;
   }

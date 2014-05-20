@@ -36,7 +36,6 @@ import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.ComponentQuery;
-import org.sonar.core.component.db.ComponentDao;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -46,6 +45,7 @@ import org.sonar.core.qualitygate.db.QualityGateConditionDao;
 import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 import org.sonar.core.qualitygate.db.QualityGateDao;
 import org.sonar.core.qualitygate.db.QualityGateDto;
+import org.sonar.server.component.persistence.ComponentDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -63,33 +63,33 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QualityGatesTest {
 
   @Mock
-  private QualityGateDao dao;
+  DbSession session;
 
   @Mock
-  private QualityGateConditionDao conditionDao;
+  QualityGateDao dao;
 
   @Mock
-  private MetricFinder metricFinder;
+  QualityGateConditionDao conditionDao;
 
   @Mock
-  private PropertiesDao propertiesDao;
+  MetricFinder metricFinder;
 
   @Mock
-  private ComponentDao componentDao;
+  PropertiesDao propertiesDao;
 
   @Mock
-  private MyBatis myBatis;
+  ComponentDao componentDao;
 
-  private QualityGates qGates;
+  @Mock
+  MyBatis myBatis;
+
+  QualityGates qGates;
 
   UserSession authorizedUserSession = MockUserSession.create().setLogin("gaudol").setName("Olivier").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   UserSession unauthenticatedUserSession = MockUserSession.create();
@@ -97,6 +97,7 @@ public class QualityGatesTest {
 
   @Before
   public void initialize() {
+    when(myBatis.openSession(false)).thenReturn(session);
     qGates = new QualityGates(dao, conditionDao, metricFinder, propertiesDao, componentDao, myBatis);
     UserSessionTestUtils.setUserSession(authorizedUserSession);
   }
@@ -492,10 +493,10 @@ public class QualityGatesTest {
     Long qGateId = 42L;
     Long projectId = 24L;
     when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
-    when(componentDao.selectComponent(any(ComponentQuery.class))).thenReturn(ImmutableList.of(new ComponentDto().setId(projectId)));
+    when(componentDao.findByQuery(any(ComponentQuery.class), eq(session))).thenReturn(ImmutableList.of(new ComponentDto().setId(projectId)));
     qGates.associateProject(qGateId , projectId);
     verify(dao).selectById(qGateId);
-    verify(componentDao).selectComponent(any(ComponentQuery.class));
+    verify(componentDao).findByQuery(any(ComponentQuery.class), eq(session));
     ArgumentCaptor<PropertyDto> propertyCaptor = ArgumentCaptor.forClass(PropertyDto.class);
     verify(propertiesDao).setProperty(propertyCaptor.capture());
     PropertyDto property = propertyCaptor.getValue();
@@ -517,10 +518,10 @@ public class QualityGatesTest {
     Long qGateId = 42L;
     Long projectId = 24L;
     when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
-    when(componentDao.selectComponent(any(ComponentQuery.class))).thenReturn(ImmutableList.of(new ComponentDto().setId(projectId)));
+    when(componentDao.findByQuery(any(ComponentQuery.class), eq(session))).thenReturn(ImmutableList.of(new ComponentDto().setId(projectId)));
     qGates.dissociateProject(qGateId , projectId);
     verify(dao).selectById(qGateId);
-    verify(componentDao).selectComponent(any(ComponentQuery.class));
+    verify(componentDao).findByQuery(any(ComponentQuery.class), eq(session));
     verify(propertiesDao).deleteProjectProperty("sonar.qualitygate", projectId);
   }
 

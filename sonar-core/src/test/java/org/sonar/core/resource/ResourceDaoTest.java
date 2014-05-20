@@ -214,14 +214,6 @@ public class ResourceDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_component_by_key() {
-    setupData("fixture");
-
-    assertThat(dao.selectComponentByKey("org.struts:struts-core:src/org/struts/RequestContext.java", session)).isNotNull();
-    assertThat(dao.selectComponentByKey("unknown", session)).isNull();
-  }
-
-  @Test
   public void select_components_by_ids_on_huge_number_of_ids() {
     setupData("fixture");
 
