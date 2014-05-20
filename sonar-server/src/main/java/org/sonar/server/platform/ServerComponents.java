@@ -295,7 +295,9 @@ class ServerComponents {
     pico.addComponent(ProfilesManager.class, false);
     pico.addSingleton(AnnotationProfileParser.class);
     pico.addSingleton(QProfileRuleLookup.class);
-    pico.addSingleton(QProfiles.class);
+
+    pico.addSingleton(QualityProfileService.class);
+    //pico.addSingleton(QProfiles.class);
     pico.addSingleton(QProfileLookup.class);
     pico.addSingleton(QProfileOperations.class);
     pico.addSingleton(QProfileActiveRuleOperations.class);

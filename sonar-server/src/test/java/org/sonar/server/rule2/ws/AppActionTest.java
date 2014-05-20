@@ -32,8 +32,8 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.debt.DebtModel;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
-import org.sonar.server.qualityprofile.QProfile;
-import org.sonar.server.qualityprofile.QProfiles;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.server.qualityprofile.QualityProfileService;
 import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.ws.WsTester;
 
@@ -60,18 +60,18 @@ public class AppActionTest {
   DebtModel debtModel;
 
   @Mock
-  QProfiles qProfiles;
+  QualityProfileService qualityProfileService;
 
   @Test
   public void should_generate_app_init_info() throws Exception {
-    AppAction app = new AppAction(languages, ruleRepositories, i18n, debtModel, qProfiles);
+    AppAction app = new AppAction(languages, ruleRepositories, i18n, debtModel, qualityProfileService);
     WsTester tester = new WsTester(new RulesWebService(
       mock(SearchAction.class), mock(ShowAction.class), mock(TagsAction.class), mock(SetTagsAction.class),
       mock(SetNoteAction.class), app));
 
-    QProfile profile1 = new QProfile().setName("Profile One").setLanguage("bf");
-    QProfile profile2 = new QProfile().setName("Profile Two").setLanguage("bf").setParent("Profile One");
-    when(qProfiles.allProfiles()).thenReturn(ImmutableList.of(profile1, profile2));
+    QualityProfileDto profile1 = QualityProfileDto.createFor("Profile One","bf");
+    QualityProfileDto profile2 = QualityProfileDto.createFor("Profile Two","bf").setParent("Profile One");
+    when(qualityProfileService.findAll()).thenReturn(ImmutableList.of(profile1, profile2));
 
     Language brainfsck = mock(Language.class);
     when(brainfsck.getKey()).thenReturn("bf");

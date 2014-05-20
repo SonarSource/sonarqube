@@ -32,8 +32,10 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.qualityprofile.QProfiles;
+import org.sonar.server.qualityprofile.QualityProfileService;
 import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.rule.RuleRepositories.Repository;
 
@@ -136,14 +138,14 @@ public class AppAction implements RequestHandler {
   private final RuleRepositories ruleRepositories;
   private final I18n i18n;
   private final DebtModel debtModel;
-  private final QProfiles qProfiles;
+  private final QualityProfileService qualityProfileService;
 
-  public AppAction(Languages languages, RuleRepositories ruleRepositories, I18n i18n, DebtModel debtModel, QProfiles qProfiles) {
+  public AppAction(Languages languages, RuleRepositories ruleRepositories, I18n i18n, DebtModel debtModel, QualityProfileService qualityProfileService) {
     this.languages = languages;
     this.ruleRepositories = ruleRepositories;
     this.i18n = i18n;
     this.debtModel = debtModel;
-    this.qProfiles = qProfiles;
+    this.qualityProfileService = qualityProfileService;
   }
 
   @Override
@@ -161,11 +163,11 @@ public class AppAction implements RequestHandler {
 
   private void addProfiles(JsonWriter json) {
     json.name("qualityprofiles").beginArray();
-    for (QProfile profile: qProfiles.allProfiles()) {
+    for (QualityProfileDto profile: qualityProfileService.findAll()) {
       json.beginObject()
-        .prop("name", profile.name())
-        .prop("lang", profile.language())
-        .prop("parent", profile.parent())
+        .prop("name", profile.getName())
+        .prop("lang", profile.getLanguage())
+        .prop("parent", profile.getParent())
         .endObject();
     }
     json.endArray();
