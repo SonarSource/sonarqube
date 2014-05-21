@@ -33,4 +33,5 @@ define [
         @options.app.detailView = new CodingRulesDetailView
           app: @options.app
           model: @model
+          actives: r.actives
         @options.app.layout.detailsRegion.show @options.app.detailView

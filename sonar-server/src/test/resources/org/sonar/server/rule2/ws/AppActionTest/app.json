@@ -1,8 +1,8 @@
 {
   "canWrite": true,
   "qualityprofiles": [
-    {"name": "Profile One", "lang": "bf"},
-    {"name": "Profile Two", "lang": "bf", "parent": "Profile One"}
+    {"key": "Profile One:bf", "name": "Profile One", "lang": "bf"},
+    {"key": "Profile Two:bf", "name": "Profile Two", "lang": "bf", "parent": "Profile One"}
   ],
   "languages": {
     "bf": "Brainf*ck",

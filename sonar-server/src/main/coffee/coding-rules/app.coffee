@@ -131,6 +131,9 @@ requirejs [
 
     @storeQuery query, @codingRules.sorting
 
+    # Optimize requested fields
+    _.extend fetchQuery, f: 'name,lang,status'
+
     @layout.showSpinner 'resultsRegion'
     @layout.showSpinner 'facetsRegion' unless fromFacets
     jQuery.ajax
@@ -257,14 +260,14 @@ requirejs [
 
     @filters.add new BaseFilters.Filter
       name: t 'coding_rules.filters.characteristic'
-      property: 'characteristic'
+      property: 'debt_characteristics'
       type: CharacteristicFilterView
       choices: @characteristics
       multiple: false
 
     @qualityProfileFilter = new BaseFilters.Filter
       name: t 'coding_rules.filters.quality_profile'
-      property: 'quality_profile'
+      property: 'qprofile'
       type: QualityProfileFilterView
       multiple: false
     @filters.add @qualityProfileFilter

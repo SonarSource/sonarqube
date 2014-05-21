@@ -55,7 +55,7 @@ define [
 
 
     initialize: (options) ->
-      qualityProfiles = new Backbone.Collection options.model.get 'qualityProfiles'
+      qualityProfiles = new Backbone.Collection options.actives
       @qualityProfilesView = new CodingRulesDetailQualityProfilesView
         app: @options.app
         collection: qualityProfiles

@@ -27,6 +27,10 @@ define [
       'click @ui.deactivate': 'deactivate'
 
 
+    initialize: ->
+      super
+      @model.set _.findWhere(@options.app.qualityProfiles, key: @model.get('qProfile'))
+
     change: ->
       @options.app.codingRulesQualityProfileActivationView.model = @model
       @options.app.codingRulesQualityProfileActivationView.show()
@@ -50,8 +54,8 @@ define [
 
 
     getParent: ->
-      return null unless @model.get 'inherits'
-      @options.qualityProfiles.findWhere(key: @model.get('inherits')).toJSON()
+      return null if @model.get('inherit') == 'NONE'
+      _.findWhere(@options.qualityProfiles, key: @model.get('inherit')).toJSON()
 
 
     enhanceParameters: ->
