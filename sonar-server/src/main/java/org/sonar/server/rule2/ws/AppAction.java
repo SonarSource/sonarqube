@@ -171,6 +171,7 @@ public class AppAction implements RequestHandler {
     json.name("qualityprofiles").beginArray();
     for (QualityProfileDto profile: qualityProfileService.findAll()) {
       json.beginObject()
+        .prop("key", profile.getKey().toString())
         .prop("name", profile.getName())
         .prop("lang", profile.getLanguage())
         .prop("parent", profile.getParent())
