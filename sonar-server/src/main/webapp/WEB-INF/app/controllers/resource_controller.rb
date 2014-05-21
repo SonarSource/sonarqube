@@ -155,17 +155,6 @@ class ResourceController < ApplicationController
         end
       end
 
-      if @snapshot.measure("#{it_prefix}conditions_by_line").nil?
-        # TODO remove this code when branch_coverage_hits_data is fully removed from CoreMetrics
-        deprecated_branches_by_line = load_distribution(@snapshot, "#{it_prefix}branch_coverage_hits_data")
-        deprecated_branches_by_line.each_pair do |line_id, label|
-          line = @lines[line_id-1]
-          if line
-            line.deprecated_conditions_label = label
-          end
-        end
-      end
-
       to = (@period && @snapshot.period_datetime(@period) ? Java::JavaUtil::Date.new(@snapshot.period_datetime(@period).to_f * 1000) : nil)
       @filtered = true
       if ('lines_to_cover'==@coverage_filter || 'coverage'==@coverage_filter || 'line_coverage'==@coverage_filter ||
