@@ -2,7 +2,7 @@
 @import "mixins";
 
 body {
-  font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 
@@ -50,6 +50,11 @@ a {
 .highlighted-link {
   color: @darkBlue;
   .link;
+}
+
+.widget-link {
+  .highlighted-link;
+  border-bottom: 1px solid @lightBlue;
 }
 
 

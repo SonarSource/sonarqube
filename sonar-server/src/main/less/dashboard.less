@@ -291,3 +291,120 @@
   -moz-box-shadow: 8px 8px 8px #ddd;
   -webkit-box-shadow: 8px 8px 8px #ddd;
 }
+
+
+
+/*
+ * Widget Components
+ */
+
+.widget-row {
+  font-size: 0;
+  margin: 0 -10px -20px;
+}
+
+.widget-span {
+  display: inline-block;
+  vertical-align: top;
+  padding: 0 10px 20px;
+  .box-sizing(border-box);
+  font-size: @baseFontSize;
+}
+
+.widget-span-1  { width: 8.33333333333333%; }
+.widget-span-2  { width: 16.66666666666667%; }
+.widget-span-3  { width: 25%; }
+.widget-span-3-5  { width: 29.16666666666667%; }
+.widget-span-4  { width: 33.33333333333333%; }
+.widget-span-5  { width: 41.66666666666667%; }
+.widget-span-6  { width: 50%; }
+.widget-span-7  { width: 58.33333333333333%; }
+.widget-span-8  { width: 66.666666666667%; }
+.widget-span-9  { width: 75%; }
+.widget-span-10 { width: 83.333333333333%; }
+.widget-span-11 { width: 91.666666666667%; }
+.widget-span-12 { width: 100%; }
+
+.widget-label {
+  display: block;
+  color: @secondFontColor;
+  font-size: @smallFontSize;
+  line-height: 1.2;
+  font-weight: 300;
+}
+
+.widget-big {
+  line-height: 1.5;
+  font-size: 24px;
+  font-weight: 300;
+}
+
+.widget-medium {
+  line-height: 1.5;
+  font-size: 18px;
+  font-weight: 300;
+}
+
+.widget-measure {
+  display: inline-block;
+  vertical-align: top;
+  margin: 0 15px 10px 0;
+}
+
+.widget-measure-main {
+  display: block;
+}
+
+.widget-measure-container {
+  margin-bottom: -10px;
+}
+
+// Widget Histogram
+
+.widget-histogram {
+  margin-bottom: 10px;
+}
+
+.widget-histogram-line {
+  font-size: 0;
+  white-space: nowrap;
+}
+
+.widget-histogram-line + .widget-histogram-line {
+  padding-top: 1px;
+}
+
+.widget-histogram-line-label,
+.widget-histogram-line-bar,
+.widget-histogram-line-bar-fill,
+.widget-histogram-line-value {
+  display: inline-block;
+  vertical-align: middle;
+  height: 16px;
+  line-height: 16px;
+}
+
+.widget-histogram-line-label,
+.widget-histogram-line-value {
+  font-size: @smallFontSize;
+  font-weight: 300;
+}
+
+.widget-histogram-line-label {
+  width: 60px;
+  margin-right: 8px;
+  overflow: hidden;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.widget-histogram-line-value {
+  margin-left: 5px;
+
+}
+
+.widget-histogram-line-bar {
+  min-width: 1px;
+  background-color: @blue;
+}

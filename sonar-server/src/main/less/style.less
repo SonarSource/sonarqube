@@ -1502,6 +1502,14 @@ span.empty_widget {
   vertical-align: top;
   text-align: left;
   padding: 0 10px 7px 0;
+
+  h3 {
+    color: @secondFontColor;
+    font-size: @smallFontSize;
+    font-weight: normal;
+  }
+
+  a { .widget-link; }
 }
 
 .big {
@@ -2065,11 +2073,11 @@ table.matrix tbody td.title {
   padding: 5px 0 0 5px;
 }
 
-a.nolink, .dashbox a, .dashbox a:visited {
+a.nolink {
   text-decoration: none;
 }
 
-a.nolink:hover, .dashbox a:hover, .dashbox a.action, .dashbox a.action:visited {
+a.nolink:hover {
   text-decoration: underline;
 }
 
