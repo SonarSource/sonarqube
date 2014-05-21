@@ -171,7 +171,6 @@ import org.sonar.server.qualitygate.ws.QGatesUpdateConditionAction;
 import org.sonar.server.qualitygate.ws.QGatesWs;
 import org.sonar.server.qualityprofile.ActiveRuleService;
 import org.sonar.server.qualityprofile.DefaultProfilesCache;
-import org.sonar.server.qualityprofile.ESActiveRule;
 import org.sonar.server.qualityprofile.ProfilesManager;
 import org.sonar.server.qualityprofile.QProfileActiveRuleOperations;
 import org.sonar.server.qualityprofile.QProfileBackup;
@@ -180,7 +179,6 @@ import org.sonar.server.qualityprofile.QProfileOperations;
 import org.sonar.server.qualityprofile.QProfileProjectLookup;
 import org.sonar.server.qualityprofile.QProfileProjectOperations;
 import org.sonar.server.qualityprofile.QProfileRepositoryExporter;
-import org.sonar.server.qualityprofile.QProfileRuleLookup;
 import org.sonar.server.qualityprofile.QProfiles;
 import org.sonar.server.qualityprofile.QualityProfileService;
 import org.sonar.server.qualityprofile.RegisterQualityProfiles;
@@ -399,7 +397,6 @@ class ServerComponents {
     pico.addComponent(ProfilesDao.class, false);
     pico.addComponent(ProfilesManager.class, false);
     pico.addSingleton(AnnotationProfileParser.class);
-    pico.addSingleton(QProfileRuleLookup.class);
 
     pico.addSingleton(QualityProfileService.class);
     pico.addSingleton(QProfiles.class);
@@ -411,7 +408,6 @@ class ServerComponents {
     pico.addSingleton(QProfileBackup.class);
     pico.addSingleton(QProfileRepositoryExporter.class);
     pico.addSingleton(DefaultProfilesCache.class);
-    pico.addSingleton(ESActiveRule.class);
     pico.addSingleton(QProfileRecreateBuiltInAction.class);
     pico.addSingleton(QProfilesWs.class);
     pico.addSingleton(ProfilesWs.class);

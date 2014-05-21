@@ -20,58 +20,36 @@
 
 package org.sonar.server.rule;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.check.Cardinality;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.qualityprofile.db.ActiveRuleDao;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
-import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.qualityprofile.ESActiveRule;
 import org.sonar.server.rule.RuleOperations.RuleChange;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -84,16 +62,10 @@ public class RuleOperationsTest {
   DbSession session;
 
   @Mock
-  ActiveRuleDao activeRuleDao;
-
-  @Mock
   RuleDao ruleDao;
 
   @Mock
   CharacteristicDao characteristicDao;
-
-  @Mock
-  ESActiveRule esActiveRule;
 
   @Mock
   RuleRegistry ruleRegistry;
@@ -106,10 +78,7 @@ public class RuleOperationsTest {
   @Captor
   ArgumentCaptor<RuleDto> ruleCaptor;
 
-  Integer currentId = 1;
-
   UserSession authorizedUserSession = MockUserSession.create().setLogin("nicolas").setName("Nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-  UserSession unauthorizedUserSession = MockUserSession.create().setLogin("nicolas").setName("Nicolas");
 
   RuleOperations operations;
 
@@ -119,177 +88,7 @@ public class RuleOperationsTest {
 
     when(system.now()).thenReturn(now.getTime());
 
-    // Associate an id when inserting an object to simulate the db id generator
-    doAnswer(new Answer() {
-      public Object answer(InvocationOnMock invocation) {
-        Object[] args = invocation.getArguments();
-        ActiveRuleDto dto = (ActiveRuleDto) args[0];
-        dto.setId(currentId++);
-        return null;
-      }
-    }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(SqlSession.class));
-
-    operations = new RuleOperations(myBatis, activeRuleDao, ruleDao, characteristicDao, esActiveRule, ruleRegistry, system);
-  }
-
-  @Test
-  public void update_rule_note_when_no_existing_note() throws Exception {
-    RuleDto rule = new RuleDto().setId(10).setNoteCreatedAt(null).setNoteData(null);
-
-    List<RuleParamDto> ruleParams = newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10"));
-    when(ruleDao.selectParametersByRuleId(eq(10), eq(session))).thenReturn(ruleParams);
-
-    operations.updateRuleNote(rule, "My note", authorizedUserSession);
-
-    ArgumentCaptor<RuleDto> argumentCaptor = ArgumentCaptor.forClass(RuleDto.class);
-    verify(ruleDao).update(argumentCaptor.capture());
-    assertThat(argumentCaptor.getValue().getNoteData()).isEqualTo("My note");
-    assertThat(argumentCaptor.getValue().getNoteUserLogin()).isEqualTo("nicolas");
-    assertThat(argumentCaptor.getValue().getNoteCreatedAt()).isEqualTo(now);
-    assertThat(argumentCaptor.getValue().getNoteUpdatedAt()).isEqualTo(now);
-
-    verify(session).commit();
-    verify(ruleRegistry).reindex(eq(rule), eq(session));
-  }
-
-  @Test
-  public void fail_to_update_rule_note_without_profile_admin_permission() throws Exception {
-    RuleDto rule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle");
-
-    try {
-      operations.updateRuleNote(rule, "My note", unauthorizedUserSession);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(ForbiddenException.class);
-    }
-    verifyNoMoreInteractions(ruleDao);
-    verify(session, never()).commit();
-  }
-
-  @Test
-  public void update_rule_note_when_already_note() throws Exception {
-    Date createdAt = DateUtils.parseDate("2013-12-20");
-    RuleDto rule = new RuleDto().setId(10).setNoteCreatedAt(createdAt).setNoteData("My previous note").setNoteUserLogin("nicolas");
-
-    List<RuleParamDto> ruleParams = newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10"));
-    when(ruleDao.selectParametersByRuleId(eq(10), eq(session))).thenReturn(ruleParams);
-
-    operations.updateRuleNote(rule, "My new note", MockUserSession.create().setLogin("guy").setName("Guy").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN));
-
-    ArgumentCaptor<RuleDto> argumentCaptor = ArgumentCaptor.forClass(RuleDto.class);
-    verify(ruleDao).update(argumentCaptor.capture());
-    assertThat(argumentCaptor.getValue().getNoteData()).isEqualTo("My new note");
-    assertThat(argumentCaptor.getValue().getNoteUserLogin()).isEqualTo("nicolas");
-    assertThat(argumentCaptor.getValue().getNoteCreatedAt()).isEqualTo(createdAt);
-    assertThat(argumentCaptor.getValue().getNoteUpdatedAt()).isEqualTo(now);
-
-    verify(session).commit();
-    verify(ruleRegistry).reindex(eq(rule), eq(session));
-  }
-
-  @Test
-  public void delete_rule_note() throws Exception {
-    Date createdAt = DateUtils.parseDate("2013-12-20");
-    RuleDto rule = new RuleDto().setId(10).setNoteData("My note").setNoteUserLogin("nicolas").setNoteCreatedAt(createdAt).setNoteUpdatedAt(createdAt);
-
-    List<RuleParamDto> ruleParams = newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10"));
-    when(ruleDao.selectParametersByRuleId(eq(10), eq(session))).thenReturn(ruleParams);
-
-    long now = System.currentTimeMillis();
-    doReturn(now).when(system).now();
-
-    operations.deleteRuleNote(rule, authorizedUserSession);
-
-    ArgumentCaptor<RuleDto> argumentCaptor = ArgumentCaptor.forClass(RuleDto.class);
-    verify(ruleDao).update(argumentCaptor.capture());
-    assertThat(argumentCaptor.getValue().getNoteData()).isNull();
-    assertThat(argumentCaptor.getValue().getNoteUserLogin()).isNull();
-    assertThat(argumentCaptor.getValue().getNoteCreatedAt()).isNull();
-    assertThat(argumentCaptor.getValue().getNoteUpdatedAt()).isNull();
-
-    verify(session).commit();
-    verify(ruleRegistry).reindex(eq(rule), eq(session));
-  }
-
-  @Test
-  public void create_custom_rule() throws Exception {
-    RuleDto templateRule = new RuleDto().setId(10).setRepositoryKey("squid").setRuleKey("AvoidCycle").setConfigKey("Xpath")
-      .setDefaultSubCharacteristicId(2).setDefaultRemediationFunction("LINEAR_OFFSET").setDefaultRemediationCoefficient("2h").setDefaultRemediationOffset("15min");
-    when(ruleDao.selectParametersByRuleId(eq(10), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(20).setName("max").setDefaultValue("10")));
-
-    Map<String, String> paramsByKey = ImmutableMap.of("max", "20");
-    RuleDto result = operations.createCustomRule(templateRule, "My New Rule", Severity.BLOCKER, "Rule Description", paramsByKey, authorizedUserSession);
-    assertThat(result).isNotNull();
-
-    ArgumentCaptor<RuleDto> ruleArgument = ArgumentCaptor.forClass(RuleDto.class);
-    verify(ruleDao).insert(ruleArgument.capture(), eq(session));
-    assertThat(ruleArgument.getValue().getParentId()).isEqualTo(10);
-    assertThat(ruleArgument.getValue().getName()).isEqualTo("My New Rule");
-    assertThat(ruleArgument.getValue().getDescription()).isEqualTo("Rule Description");
-    assertThat(ruleArgument.getValue().getSeverityString()).isEqualTo(Severity.BLOCKER);
-    assertThat(ruleArgument.getValue().getConfigKey()).isEqualTo("Xpath");
-    assertThat(ruleArgument.getValue().getRepositoryKey()).isEqualTo("squid");
-    assertThat(ruleArgument.getValue().getRuleKey()).startsWith("AvoidCycle");
-    assertThat(ruleArgument.getValue().getStatus()).isEqualTo("READY");
-    assertThat(ruleArgument.getValue().getCardinality()).isEqualTo(Cardinality.SINGLE);
-    assertThat(ruleArgument.getValue().getDefaultSubCharacteristicId()).isEqualTo(2);
-    assertThat(ruleArgument.getValue().getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
-    assertThat(ruleArgument.getValue().getDefaultRemediationCoefficient()).isEqualTo("2h");
-    assertThat(ruleArgument.getValue().getDefaultRemediationOffset()).isEqualTo("15min");
-
-    ArgumentCaptor<RuleParamDto> ruleParamArgument = ArgumentCaptor.forClass(RuleParamDto.class);
-    verify(ruleDao).insert(ruleParamArgument.capture(), eq(session));
-    assertThat(ruleParamArgument.getValue().getName()).isEqualTo("max");
-    assertThat(ruleParamArgument.getValue().getDefaultValue()).isEqualTo("20");
-
-    verify(session).commit();
-    verify(ruleRegistry).reindex(eq(ruleArgument.getValue()), eq(session));
-  }
-
-  @Test
-  public void update_custom_rule() throws Exception {
-    RuleDto rule = new RuleDto().setId(11).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setConfigKey("Xpath");
-    when(ruleDao.selectParametersByRuleId(eq(11), eq(session))).thenReturn(newArrayList(new RuleParamDto().setId(21).setName("max").setDefaultValue("20")));
-
-    Map<String, String> paramsByKey = ImmutableMap.of("max", "21");
-    operations.updateCustomRule(rule, "Updated Rule", Severity.MAJOR, "Updated Description", paramsByKey, authorizedUserSession);
-
-    ArgumentCaptor<RuleDto> ruleArgument = ArgumentCaptor.forClass(RuleDto.class);
-    verify(ruleDao).update(ruleArgument.capture(), eq(session));
-    assertThat(ruleArgument.getValue().getName()).isEqualTo("Updated Rule");
-    assertThat(ruleArgument.getValue().getDescription()).isEqualTo("Updated Description");
-    assertThat(ruleArgument.getValue().getSeverityString()).isEqualTo(Severity.MAJOR);
-
-    ArgumentCaptor<RuleParamDto> ruleParamArgument = ArgumentCaptor.forClass(RuleParamDto.class);
-    verify(ruleDao).update(ruleParamArgument.capture(), eq(session));
-    assertThat(ruleParamArgument.getValue().getDefaultValue()).isEqualTo("21");
-
-    verify(session).commit();
-    verify(ruleRegistry).reindex(eq(ruleArgument.getValue()), eq(session));
-  }
-
-  @Test
-  public void delete_custom_rule() throws Exception {
-    final int ruleId = 11;
-    RuleDto rule = new RuleDto().setId(ruleId).setRepositoryKey("squid").setRuleKey("XPath_1387869254").setConfigKey("Xpath");//.setUpdatedAt(DateUtils.parseDate("2013-12-23"));
-    RuleParamDto param = new RuleParamDto().setId(21).setName("max").setDefaultValue("20");
-    when(ruleDao.selectParametersByRuleId(eq(ruleId), eq(session))).thenReturn(newArrayList(param));
-
-    final int activeRuleId = 5;
-    ActiveRuleDto activeRule = new ActiveRuleDto().setId(activeRuleId).setProfileId(1).setRuleId(ruleId).setSeverity(Severity.MINOR);
-    when(activeRuleDao.selectByRuleId(ruleId)).thenReturn(newArrayList(activeRule));
-
-    operations.deleteCustomRule(rule, authorizedUserSession);
-
-    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
-    assertThat(ruleCaptor.getValue().getStatus()).isEqualTo(Rule.STATUS_REMOVED);
-    assertThat(ruleCaptor.getValue().getUpdatedAt()).isEqualTo(now);
-
-    verify(ruleRegistry).reindex(eq(ruleCaptor.getValue()), eq(session));
-    verify(activeRuleDao).deleteParameters(eq(activeRuleId), eq(session));
-    verify(activeRuleDao).deleteFromRule(eq(ruleId), eq(session));
-    verify(session, times(2)).commit();
-    verify(esActiveRule).deleteActiveRules(newArrayList(activeRuleId));
+    operations = new RuleOperations(myBatis, ruleDao, characteristicDao, ruleRegistry, system);
   }
 
   @Test

@@ -27,7 +27,6 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
-import org.sonar.server.qualityprofile.ProfilesManager;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

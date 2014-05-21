@@ -34,10 +34,6 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-/**
- * @deprecated to be dropped in 4.4
- */
-@Deprecated
 public class QProfileLookup implements ServerComponent {
 
   private final MyBatis myBatis;

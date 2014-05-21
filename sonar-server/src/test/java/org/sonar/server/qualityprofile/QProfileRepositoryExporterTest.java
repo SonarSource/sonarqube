@@ -73,9 +73,6 @@ public class QProfileRepositoryExporterTest {
   @Mock
   ActiveRuleDao activeRuleDao;
 
-  @Mock
-  ESActiveRule esActiveRule;
-
   List<ProfileImporter> importers = newArrayList();
   List<ProfileExporter> exporters = newArrayList();
 
@@ -97,7 +94,7 @@ public class QProfileRepositoryExporterTest {
       }
     }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(SqlSession.class));
 
-    operations = new QProfileRepositoryExporter(sessionFactory, activeRuleDao, esActiveRule, importers, exporters);
+    operations = new QProfileRepositoryExporter(sessionFactory, activeRuleDao, importers, exporters);
   }
 
   @Test
@@ -127,8 +124,6 @@ public class QProfileRepositoryExporterTest {
     verify(activeRuleDao).insert(activeRuleParamArgument.capture(), eq(session));
     assertThat(activeRuleParamArgument.getValue().getKey()).isEqualTo("max");
     assertThat(activeRuleParamArgument.getValue().getValue()).isEqualTo("10");
-
-    verify(esActiveRule).bulkIndexActiveRules(anyListOf(ActiveRuleDto.class), any(Multimap.class));
   }
 
   @Test

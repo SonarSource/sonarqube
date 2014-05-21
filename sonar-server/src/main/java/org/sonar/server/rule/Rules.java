@@ -19,28 +19,12 @@
  */
 package org.sonar.server.rule;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import org.sonar.api.ServerExtension;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.paging.PagedResult;
-import org.sonar.server.qualityprofile.QProfileValidations;
-import org.sonar.server.rule2.persistence.RuleDao;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.util.RubyUtils;
-import org.sonar.server.util.Validation;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Map;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * @deprecated to be dropped in 4.4
@@ -48,16 +32,12 @@ import static com.google.common.collect.Lists.newArrayList;
 @Deprecated
 public class Rules implements ServerExtension {
 
-  private final RuleDao ruleDao;
   private final RuleOperations ruleOperations;
   private final RuleRegistry ruleRegistry;
-  private final MyBatis myBatis;
 
-  public Rules(MyBatis myBatis, RuleDao ruleDao, RuleOperations ruleOperations, RuleRegistry ruleRegistry) {
+  public Rules(RuleOperations ruleOperations, RuleRegistry ruleRegistry) {
     this.ruleOperations = ruleOperations;
-    this.ruleDao = ruleDao;
     this.ruleRegistry = ruleRegistry;
-    this.myBatis = myBatis;
   }
 
   /**
@@ -65,45 +45,6 @@ public class Rules implements ServerExtension {
    */
   public void updateRule(RuleOperations.RuleChange ruleChange) {
     ruleOperations.updateRule(ruleChange, UserSession.get());
-  }
-
-  public void updateRuleNote(int ruleId, String note) {
-    RuleDto rule = findRuleNotNull(ruleId);
-    String sanitizedNote = Strings.emptyToNull(note);
-    if (sanitizedNote != null) {
-      ruleOperations.updateRuleNote(rule, note, UserSession.get());
-    } else {
-      ruleOperations.deleteRuleNote(rule, UserSession.get());
-    }
-  }
-
-  /**
-   * Create custom rule
-   */
-  public Integer createCustomRule(int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
-    RuleDto rule = findRuleNotNull(ruleId);
-    validateRule(null, name, severity, description);
-    RuleDto newRule = ruleOperations.createCustomRule(rule, name, severity, description, paramsByKey, UserSession.get());
-    return newRule.getId();
-  }
-
-  /**
-   * Update custom rule
-   */
-  public void updateCustomRule(int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
-    RuleDto rule = findRuleNotNull(ruleId);
-    validateRuleParent(rule);
-    validateRule(ruleId, name, severity, description);
-    ruleOperations.updateCustomRule(rule, name, severity, description, paramsByKey, UserSession.get());
-  }
-
-  /**
-   * Delete custom rule
-   */
-  public void deleteCustomRule(int ruleId) {
-    RuleDto rule = findRuleNotNull(ruleId);
-    validateRuleParent(rule);
-    ruleOperations.deleteCustomRule(rule, UserSession.get());
   }
 
   @CheckForNull
@@ -115,50 +56,4 @@ public class Rules implements ServerExtension {
     return ruleRegistry.find(query);
   }
 
-  //
-  // Rule validation
-  //
-
-  private void validateRule(@Nullable Integer updatingRuleId, @Nullable String name, @Nullable String severity, @Nullable String description) {
-    List<BadRequestException.Message> messages = newArrayList();
-    if (Strings.isNullOrEmpty(name)) {
-      messages.add(BadRequestException.Message.ofL10n(Validation.CANT_BE_EMPTY_MESSAGE, "Name"));
-    } else {
-      checkRuleNotAlreadyExists(updatingRuleId, name, messages);
-    }
-    if (Strings.isNullOrEmpty(description)) {
-      messages.add(BadRequestException.Message.ofL10n(Validation.CANT_BE_EMPTY_MESSAGE, "Description"));
-    }
-    if (Strings.isNullOrEmpty(severity)) {
-      messages.add(BadRequestException.Message.ofL10n(Validation.CANT_BE_EMPTY_MESSAGE, "Severity"));
-    }
-    if (!messages.isEmpty()) {
-      throw BadRequestException.of(messages);
-    }
-  }
-
-  private void validateRuleParent(RuleDto rule) {
-    if (rule.getParentId() == null) {
-      throw new NotFoundException("Unknown rule");
-    }
-  }
-
-  private RuleDto findRuleNotNull(int ruleId) {
-    DbSession session = myBatis.openSession(false);
-    RuleDto rule = ruleDao.getById(ruleId, session);
-    QProfileValidations.checkRuleIsNotNull(rule);
-    session.close();
-    return rule;
-  }
-
-
-  private void checkRuleNotAlreadyExists(@Nullable Integer updatingRuleId, String name, List<BadRequestException.Message> messages) {
-    DbSession session = myBatis.openSession(false);
-    RuleDto existingRule = ruleDao.getByName(name, session);
-    boolean isModifyingCurrentRule = updatingRuleId != null && existingRule != null && existingRule.getId().equals(updatingRuleId);
-    if (!isModifyingCurrentRule && existingRule != null) {
-      messages.add(BadRequestException.Message.ofL10n(Validation.IS_ALREADY_USED_MESSAGE, "Name"));
-    }
-    session.close();
-  }
 }

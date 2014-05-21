@@ -63,7 +63,13 @@ import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfileBackupTest {
@@ -98,9 +104,6 @@ public class QProfileBackupTest {
   @Mock
   RuleDao ruleDao;
 
-  @Mock
-  ESActiveRule esActiveRule;
-
   DefaultProfilesCache defaultProfilesCache = new DefaultProfilesCache();
 
   @Mock
@@ -118,7 +121,7 @@ public class QProfileBackupTest {
     definitions = newArrayList();
 
     backup = new QProfileBackup(sessionFactory, xmlProfileParser, xmlProfileSerializer, myBatis, qProfileLookup, qProfileOperations, qProfileActiveRuleOperations, ruleDao,
-      esActiveRule, definitions, defaultProfilesCache, dryRunCache);
+      definitions, defaultProfilesCache, dryRunCache);
 
     MockUserSession.set().setLogin("nicolas").setName("Nicolas").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
@@ -148,7 +151,6 @@ public class QProfileBackupTest {
 
     assertThat(result.profile()).isNotNull();
     verify(hibernateSession).saveWithoutFlush(profile);
-    verify(esActiveRule).bulkIndexProfile(anyInt(), eq(session));
     verify(dryRunCache).reportGlobalModification(session);
     verify(session).commit();
   }
@@ -163,7 +165,6 @@ public class QProfileBackupTest {
       assertThat(e).isInstanceOf(ForbiddenException.class);
     }
     verify(hibernateSession, never()).saveWithoutFlush(any(RulesProfile.class));
-    verifyZeroInteractions(esActiveRule);
     verifyZeroInteractions(dryRunCache);
   }
 
@@ -184,7 +185,6 @@ public class QProfileBackupTest {
     }
 
     verify(hibernateSession, never()).saveWithoutFlush(any(RulesProfile.class));
-    verifyZeroInteractions(esActiveRule);
     verifyZeroInteractions(dryRunCache);
   }
 
@@ -205,8 +205,6 @@ public class QProfileBackupTest {
 
     assertThat(result.profile()).isNotNull();
     verify(hibernateSession).removeWithoutFlush(eq(existingProfile));
-    verify(esActiveRule).deleteActiveRulesFromProfile(eq(1));
-    verify(esActiveRule).bulkIndexProfile(anyInt(), eq(session));
     verify(dryRunCache).reportGlobalModification(session);
     verify(session).commit();
   }
@@ -266,7 +264,6 @@ public class QProfileBackupTest {
     }
 
     verify(hibernateSession, never()).saveWithoutFlush(any(RulesProfile.class));
-    verifyZeroInteractions(esActiveRule);
     verifyZeroInteractions(dryRunCache);
   }
 
@@ -280,7 +277,6 @@ public class QProfileBackupTest {
 
     assertThat(result.profile()).isNull();
     verify(hibernateSession, never()).saveWithoutFlush(any(RulesProfile.class));
-    verifyZeroInteractions(esActiveRule);
     verifyZeroInteractions(dryRunCache);
   }
 
@@ -302,7 +298,6 @@ public class QProfileBackupTest {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Restore of the profile has failed.");
     }
 
-    verifyZeroInteractions(esActiveRule);
     verifyZeroInteractions(dryRunCache);
   }
 
@@ -333,7 +328,6 @@ public class QProfileBackupTest {
     verify(qProfileActiveRuleOperations).updateActiveRuleParam(any(ActiveRuleDto.class), eq("max"), eq("10"), eq(session));
     verifyNoMoreInteractions(qProfileActiveRuleOperations);
 
-    verify(esActiveRule).bulkIndexProfile(eq(1), eq(session));
     verify(dryRunCache).reportGlobalModification(session);
     verify(session).commit();
   }
@@ -367,7 +361,6 @@ public class QProfileBackupTest {
       eq(RuleKey.of("checkstyle", "rule")), eq("MAJOR"), eq(session));
     verifyNoMoreInteractions(qProfileActiveRuleOperations);
 
-    verify(esActiveRule).bulkIndexProfile(eq(1), eq(session));
     verify(dryRunCache).reportGlobalModification(session);
     verify(session).commit();
   }
@@ -396,7 +389,6 @@ public class QProfileBackupTest {
       assertThat(e).isInstanceOf(NotFoundException.class);
     }
     verifyZeroInteractions(qProfileActiveRuleOperations);
-    verifyZeroInteractions(esActiveRule);
   }
 
   @Test
@@ -411,7 +403,6 @@ public class QProfileBackupTest {
 
     verifyZeroInteractions(qProfileOperations);
     verifyZeroInteractions(qProfileActiveRuleOperations);
-    verifyZeroInteractions(esActiveRule);
   }
 
   @Test

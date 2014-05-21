@@ -40,10 +40,6 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @deprecated to be dropped in 4.4
- */
-@Deprecated
 public class QProfileOperations implements ServerComponent {
 
   public static final String PROFILE_PROPERTY_PREFIX = "sonar.profile.";
@@ -54,12 +50,11 @@ public class QProfileOperations implements ServerComponent {
   private final PropertiesDao propertiesDao;
   private final QProfileRepositoryExporter exporter;
   private final PreviewCache dryRunCache;
-  private final ESActiveRule esActiveRule;
   private final QProfileLookup profileLookup;
   private final ProfilesManager profilesManager;
 
   public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao,
-                            QProfileRepositoryExporter exporter, PreviewCache dryRunCache, ESActiveRule esActiveRule, QProfileLookup profileLookup,
+                            QProfileRepositoryExporter exporter, PreviewCache dryRunCache, QProfileLookup profileLookup,
                             ProfilesManager profilesManager) {
     this.myBatis = myBatis;
     this.dao = dao;
@@ -67,7 +62,6 @@ public class QProfileOperations implements ServerComponent {
     this.propertiesDao = propertiesDao;
     this.exporter = exporter;
     this.dryRunCache = dryRunCache;
-    this.esActiveRule = esActiveRule;
     this.profileLookup = profileLookup;
     this.profilesManager = profilesManager;
   }
@@ -156,7 +150,7 @@ public class QProfileOperations implements ServerComponent {
     activeRuleDao.deleteByProfile(profile, session);
     dao.delete(profile.id(), session);
     propertiesDao.deleteProjectProperties(PROFILE_PROPERTY_PREFIX + profile.language(), profile.name(), session);
-    esActiveRule.deleteActiveRulesFromProfile(profile.id());
+    //esActiveRule.deleteActiveRulesFromProfile(profile.id());
     dryRunCache.reportGlobalModification(session);
   }
 
@@ -191,8 +185,8 @@ public class QProfileOperations implements ServerComponent {
       dao.update(profile, session);
       session.commit();
 
-      esActiveRule.deleteActiveRules(actions.idsToDelete());
-      esActiveRule.bulkIndexActiveRuleIds(actions.idsToIndex(), session);
+      //esActiveRule.deleteActiveRules(actions.idsToDelete());
+      //esActiveRule.bulkIndexActiveRuleIds(actions.idsToIndex(), session);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -207,7 +201,7 @@ public class QProfileOperations implements ServerComponent {
       int copyProfileId = profilesManager.copyProfile(profileId, copyProfileName);
 
       // Cannot reuse same session as hibernate as create active rules in another session
-      esActiveRule.bulkIndexProfile(copyProfileId);
+//      esActiveRule.bulkIndexProfile(copyProfileId);
     } finally {
       MyBatis.closeQuietly(session);
     }

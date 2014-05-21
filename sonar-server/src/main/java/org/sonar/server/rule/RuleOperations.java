@@ -21,40 +21,28 @@
 package org.sonar.server.rule;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.api.utils.System2;
-import org.sonar.check.Cardinality;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.qualityprofile.db.ActiveRuleDao;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
-import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.qualityprofile.ESActiveRule;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * @deprecated to be dropped in 4.4
@@ -63,166 +51,27 @@ import static com.google.common.collect.Lists.newArrayList;
 public class RuleOperations implements ServerComponent {
 
   private final MyBatis myBatis;
-  private final ActiveRuleDao activeRuleDao;
   private final RuleDao ruleDao;
   private final CharacteristicDao characteristicDao;
-  private final ESActiveRule esActiveRule;
   private final RuleRegistry ruleRegistry;
 
   private final System2 system;
 
-  public RuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, CharacteristicDao characteristicDao,
-                        ESActiveRule esActiveRule, RuleRegistry ruleRegistry) {
-    this(myBatis, activeRuleDao, ruleDao, characteristicDao, esActiveRule, ruleRegistry, System2.INSTANCE);
+  public RuleOperations(MyBatis myBatis, RuleDao ruleDao, CharacteristicDao characteristicDao,
+                        RuleRegistry ruleRegistry) {
+    this(myBatis, ruleDao, characteristicDao, ruleRegistry, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  RuleOperations(MyBatis myBatis, ActiveRuleDao activeRuleDao, RuleDao ruleDao, CharacteristicDao characteristicDao,
-                 ESActiveRule esActiveRule, RuleRegistry ruleRegistry, System2 system) {
+  RuleOperations(MyBatis myBatis, RuleDao ruleDao, CharacteristicDao characteristicDao,
+                 RuleRegistry ruleRegistry, System2 system) {
     this.myBatis = myBatis;
-    this.activeRuleDao = activeRuleDao;
     this.ruleDao = ruleDao;
     this.characteristicDao = characteristicDao;
-    this.esActiveRule = esActiveRule;
     this.ruleRegistry = ruleRegistry;
     this.system = system;
   }
 
-  public void updateRuleNote(RuleDto rule, String note, UserSession userSession) {
-    checkPermission(userSession);
-    Date now = new Date(system.now());
-
-    SqlSession session = myBatis.openSession(false);
-    try {
-      if (rule.getNoteData() == null) {
-        rule.setNoteCreatedAt(now);
-        rule.setNoteUserLogin(getLoggedLogin(userSession));
-      }
-      rule.setNoteUpdatedAt(now);
-      rule.setNoteData(note);
-      ruleDao.update(rule);
-      session.commit();
-
-      reindexRule(rule, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public void deleteRuleNote(RuleDto rule, UserSession userSession) {
-    checkPermission(userSession);
-
-    SqlSession session = myBatis.openSession(false);
-    try {
-      rule.setNoteData(null);
-      rule.setNoteUserLogin(null);
-      rule.setNoteCreatedAt(null);
-      rule.setNoteUpdatedAt(null);
-      ruleDao.update(rule);
-      session.commit();
-
-      reindexRule(rule, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public RuleDto createCustomRule(RuleDto templateRule, String name, String severity, String description, Map<String, String> paramsByKey,
-                                  UserSession userSession) {
-    checkPermission(userSession);
-    DbSession session = myBatis.openSession(false);
-    try {
-      RuleDto rule = new RuleDto()
-        .setParentId(templateRule.getId())
-        .setName(name)
-        .setDescription(description)
-        .setSeverity(severity)
-        .setRepositoryKey(templateRule.getRepositoryKey())
-        .setConfigKey(templateRule.getConfigKey())
-        .setRuleKey(templateRule.getRuleKey() + "_" + system.now())
-        .setCardinality(Cardinality.SINGLE)
-        .setStatus(Rule.STATUS_READY)
-        .setLanguage(templateRule.getLanguage())
-        .setDefaultSubCharacteristicId(templateRule.getDefaultSubCharacteristicId())
-        .setDefaultRemediationFunction(templateRule.getDefaultRemediationFunction())
-        .setDefaultRemediationCoefficient(templateRule.getDefaultRemediationCoefficient())
-        .setDefaultRemediationOffset(templateRule.getDefaultRemediationOffset());
-      ruleDao.insert(rule, session);
-
-      List<RuleParamDto> templateRuleParams = ruleDao.selectParametersByRuleId(templateRule.getId(), session);
-      for (RuleParamDto templateRuleParam : templateRuleParams) {
-        String key = templateRuleParam.getName();
-        String value = paramsByKey.get(key);
-
-        RuleParamDto param = new RuleParamDto()
-          .setRuleId(rule.getId())
-          .setName(key)
-          .setDescription(templateRuleParam.getDescription())
-          .setType(templateRuleParam.getType())
-          .setDefaultValue(Strings.emptyToNull(value));
-        ruleDao.insert(param, session);
-      }
-
-      session.commit();
-      reindexRule(rule, session);
-      return rule;
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public void updateCustomRule(RuleDto rule, String name, String severity, String description, Map<String, String> paramsByKey,
-                               UserSession userSession) {
-    checkPermission(userSession);
-    DbSession session = myBatis.openSession(false);
-    try {
-      rule.setName(name)
-        .setDescription(description)
-        .setSeverity(severity)
-        .setUpdatedAt(new Date(system.now()));
-      ruleDao.update(rule, session);
-
-      List<RuleParamDto> ruleParams = ruleDao.selectParametersByRuleId(rule.getId(), session);
-      for (RuleParamDto ruleParam : ruleParams) {
-        String value = paramsByKey.get(ruleParam.getName());
-        ruleParam.setDefaultValue(Strings.emptyToNull(value));
-        ruleDao.update(ruleParam, session);
-      }
-      session.commit();
-      reindexRule(rule, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public void deleteCustomRule(RuleDto rule, UserSession userSession) {
-    checkPermission(userSession);
-    DbSession session = myBatis.openSession(false);
-    try {
-      // Set status REMOVED on rule
-      rule.setStatus(Rule.STATUS_REMOVED)
-        .setUpdatedAt(new Date(system.now()));
-      ruleDao.update(rule, session);
-      session.commit();
-      reindexRule(rule, session);
-
-      // Delete all active rules and active rule params linked to the rule
-      List<ActiveRuleDto> activeRules = activeRuleDao.selectByRuleId(rule.getId());
-      for (ActiveRuleDto activeRule : activeRules) {
-        activeRuleDao.deleteParameters(activeRule.getId(), session);
-      }
-      activeRuleDao.deleteFromRule(rule.getId(), session);
-      session.commit();
-      esActiveRule.deleteActiveRules(newArrayList(Iterables.transform(activeRules, new Function<ActiveRuleDto, Integer>() {
-        @Override
-        public Integer apply(ActiveRuleDto input) {
-          return input.getId();
-        }
-      })));
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
 
   public void updateRule(RuleChange ruleChange, UserSession userSession) {
     checkPermission(userSession);
@@ -330,14 +179,6 @@ public class RuleOperations implements ServerComponent {
   private void checkPermission(UserSession userSession) {
     userSession.checkLoggedIn();
     userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-  }
-
-  private String getLoggedLogin(UserSession userSession) {
-    String login = userSession.login();
-    if (Strings.isNullOrEmpty(login)) {
-      throw new BadRequestException("User login can't be null");
-    }
-    return login;
   }
 
   public static class RuleChange {

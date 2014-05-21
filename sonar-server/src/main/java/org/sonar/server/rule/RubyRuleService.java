@@ -93,18 +93,6 @@ public class RubyRuleService implements ServerComponent, Startable {
       .setDebtRemediationOffset(Strings.emptyToNull((String) params.get("debtRemediationOffset"))));
   }
 
-  public Integer createCustomRule(int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
-    return rules.createCustomRule(ruleId, name, severity, description, paramsByKey);
-  }
-
-  public void updateCustomRule(int ruleId, @Nullable String name, @Nullable String severity, @Nullable String description, Map<String, String> paramsByKey) {
-    rules.updateCustomRule(ruleId, name, severity, description, paramsByKey);
-  }
-
-  public void deleteCustomRule(int ruleId) {
-    rules.deleteCustomRule(ruleId);
-  }
-
   @Override
   public void start() {
     // used to force pico to instantiate the singleton at startup

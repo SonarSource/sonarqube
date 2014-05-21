@@ -23,10 +23,7 @@ package org.sonar.server.qualityprofile;
 import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Component;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.paging.Paging;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
@@ -35,10 +32,6 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @deprecated to be dropped in 4.4
- */
-@Deprecated
 public class QProfiles implements ServerComponent {
 
   private static final String LANGUAGE_PARAM = "language";
@@ -47,18 +40,13 @@ public class QProfiles implements ServerComponent {
   private final QProfileProjectLookup projectLookup;
   private final QProfileLookup profileLookup;
   private final QProfileOperations operations;
-  private final QProfileActiveRuleOperations activeRuleOperations;
-  private final QProfileRuleLookup rules;
 
   public QProfiles(QProfileProjectOperations projectOperations, QProfileProjectLookup projectLookup,
-                   QProfileLookup profileLookup, QProfileOperations operations, QProfileActiveRuleOperations activeRuleOperations,
-                   QProfileRuleLookup rules) {
+                   QProfileLookup profileLookup, QProfileOperations operations) {
     this.projectOperations = projectOperations;
     this.projectLookup = projectLookup;
     this.profileLookup = profileLookup;
     this.operations = operations;
-    this.activeRuleOperations = activeRuleOperations;
-    this.rules = rules;
   }
 
   public List<QProfile> allProfiles() {
@@ -168,77 +156,15 @@ public class QProfiles implements ServerComponent {
 
 
   // PROFILE RULES
-
-  @CheckForNull
-  public QProfileRule findByRule(int ruleId) {
-    return rules.findByRuleId(ruleId);
-  }
-
-  @CheckForNull
-  public QProfileRule findByActiveRuleId(int activeRuleId) {
-    return rules.findByActiveRuleId(activeRuleId);
-  }
-
-  @CheckForNull
-  public QProfileRule findByProfileAndRule(int profileId, int ruleId) {
-    return rules.findByProfileIdAndRuleId(profileId, ruleId);
-  }
-
-  public QProfileRuleLookup.QProfileRuleResult searchProfileRules(ProfileRuleQuery query, Paging paging) {
-    return rules.search(query, paging);
-  }
-
-  public long countProfileRules(ProfileRuleQuery query) {
-    return rules.countProfileRules(query);
-  }
-
-  public QProfileRuleLookup.QProfileRuleResult searchInactiveProfileRules(ProfileRuleQuery query, Paging paging) {
-    return rules.searchInactives(query, paging);
-  }
-
-  public long countInactiveProfileRules(ProfileRuleQuery query) {
-    return rules.countInactiveProfileRules(query);
-  }
-
   public long countProfileRules(QProfile profile) {
-    return rules.countProfileRules(ProfileRuleQuery.create(profile.id()));
+    // TODO
+    return -1;
   }
 
   public long countOverridingProfileRules(QProfile profile) {
-    return rules.countProfileRules(ProfileRuleQuery.create(profile.id()).setInheritance(QProfileRule.OVERRIDES));
-  }
-
-  public void activateRule(QualityProfileKey profileKey, RuleKey rulekey, String severity) {
-    activeRuleOperations.activateRule(profileKey, rulekey, severity, UserSession.get());
-  }
-
-  public int bulkActivateRule(QualityProfileKey profileKey, ProfileRuleQuery query) {
-    return activeRuleOperations.activateRules(profileKey, query, UserSession.get());
-  }
-
-  public void deactivateRule(QualityProfileKey profileKey, RuleKey rulekey) {
-    activeRuleOperations.deactivateRule(profileKey, rulekey, UserSession.get());
-  }
-
-  public int bulkDeactivateRule(ProfileRuleQuery query) {
-    return activeRuleOperations.deactivateRules(query, UserSession.get());
-  }
-
-  public void updateActiveRuleParam(int activeRuleId, String key, @Nullable String value) {
-    activeRuleOperations.updateActiveRuleParam(activeRuleId, key, value, UserSession.get());
-  }
-
-  public void revertActiveRule(int activeRuleId) {
-    activeRuleOperations.revertActiveRule(activeRuleId, UserSession.get());
-  }
-
-  @CheckForNull
-  public QProfileRule parentProfileRule(QProfileRule rule) {
-    return rules.findParentProfileRule(rule);
-  }
-
-  public long countActiveRules(int ruleId) {
-    return rules.countProfileRules(ruleId);
+    // TODO
+    return -1;
+    //return rules.countProfileRules(ProfileRuleQuery.create(profile.id()).setInheritance(QProfileRule.OVERRIDES));
   }
 
   private void checkProfileNameParam(String name) {

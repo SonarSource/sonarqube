@@ -19,7 +19,6 @@
  */
 package org.sonar.server.rule;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +27,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
 
 import java.util.Map;
 
@@ -95,24 +93,6 @@ public class RubyRuleServiceTest {
     assertThat(ruleChange.debtRemediationFunction()).isEqualTo("LINEAR_OFFSET");
     assertThat(ruleChange.debtRemediationCoefficient()).isEqualTo("1h");
     assertThat(ruleChange.debtRemediationOffset()).isEqualTo("10min");
-  }
-
-  @Test
-  public void create_custom_rule() {
-    facade.createCustomRule(10, "Rule name", Severity.MAJOR, "My note", ImmutableMap.of("max", "20"));
-    verify(rules).createCustomRule(10, "Rule name", Severity.MAJOR, "My note", ImmutableMap.of("max", "20"));
-  }
-
-  @Test
-  public void update_custom_rule() {
-    facade.updateCustomRule(10, "Rule name", Severity.MAJOR, "My note", ImmutableMap.of("max", "20"));
-    verify(rules).updateCustomRule(10, "Rule name", Severity.MAJOR, "My note", ImmutableMap.of("max", "20"));
-  }
-
-  @Test
-  public void delete_Custom_rule() {
-    facade.deleteCustomRule(10);
-    verify(rules).deleteCustomRule(10);
   }
 
   @Test

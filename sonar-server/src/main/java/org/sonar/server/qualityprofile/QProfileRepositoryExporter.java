@@ -57,22 +57,20 @@ public class QProfileRepositoryExporter implements ServerComponent {
 
   private final DatabaseSessionFactory sessionFactory;
   private final ActiveRuleDao activeRuleDao;
-  private final ESActiveRule ruleRegistry;
   private final List<ProfileExporter> exporters;
   private final List<ProfileImporter> importers;
 
   /**
    * Used by pico when no plugin provide profile exporter / importer
    */
-  public QProfileRepositoryExporter(DatabaseSessionFactory sessionFactory, ActiveRuleDao activeRuleDao, ESActiveRule esActiveRule) {
-    this(sessionFactory, activeRuleDao, esActiveRule, Lists.<ProfileImporter>newArrayList(), Lists.<ProfileExporter>newArrayList());
+  public QProfileRepositoryExporter(DatabaseSessionFactory sessionFactory, ActiveRuleDao activeRuleDao) {
+    this(sessionFactory, activeRuleDao, Lists.<ProfileImporter>newArrayList(), Lists.<ProfileExporter>newArrayList());
   }
 
-  public QProfileRepositoryExporter(DatabaseSessionFactory sessionFactory, ActiveRuleDao activeRuleDao, ESActiveRule esActiveRule,
+  public QProfileRepositoryExporter(DatabaseSessionFactory sessionFactory, ActiveRuleDao activeRuleDao,
                                     List<ProfileImporter> importers, List<ProfileExporter> exporters) {
     this.sessionFactory = sessionFactory;
     this.activeRuleDao = activeRuleDao;
-    this.ruleRegistry = esActiveRule;
     this.importers = importers;
     this.exporters = exporters;
   }
@@ -116,7 +114,7 @@ public class QProfileRepositoryExporter implements ServerComponent {
         paramsByActiveRule.put(activeRuleDto.getId(), activeRuleParamDto);
       }
     }
-    ruleRegistry.bulkIndexActiveRules(activeRuleDtos, paramsByActiveRule);
+    //ruleRegistry.bulkIndexActiveRules(activeRuleDtos, paramsByActiveRule);
   }
 
   private void processValidationMessages(ValidationMessages messages, QProfileResult result) {

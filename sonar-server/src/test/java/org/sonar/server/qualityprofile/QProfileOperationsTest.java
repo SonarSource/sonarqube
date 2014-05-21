@@ -53,10 +53,15 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfileOperationsTest {
@@ -78,9 +83,6 @@ public class QProfileOperationsTest {
 
   @Mock
   PreviewCache dryRunCache;
-
-  @Mock
-  ESActiveRule esActiveRule;
 
   @Mock
   QProfileLookup profileLookup;
@@ -120,7 +122,7 @@ public class QProfileOperationsTest {
       }
     }).when(qualityProfileDao).insert(any(QualityProfileDto.class), any(SqlSession.class));
 
-    operations = new QProfileOperations(myBatis, qualityProfileDao, activeRuleDao, propertiesDao, exporter, dryRunCache, esActiveRule, profileLookup, profilesManager);
+    operations = new QProfileOperations(myBatis, qualityProfileDao, activeRuleDao, propertiesDao, exporter, dryRunCache, profileLookup, profilesManager);
   }
 
   @Test
@@ -256,8 +258,6 @@ public class QProfileOperationsTest {
 
     verify(session).commit();
     verify(profilesManager).profileParentChanged(1, "Parent", "Nicolas");
-    verify(esActiveRule).deleteActiveRules(anyListOf(Integer.class));
-    verify(esActiveRule).bulkIndexActiveRuleIds(anyListOf(Integer.class), eq(session));
   }
 
   @Test
@@ -276,8 +276,6 @@ public class QProfileOperationsTest {
 
     verify(session).commit();
     verify(profilesManager).profileParentChanged(1, "Parent", "Nicolas");
-    verify(esActiveRule).deleteActiveRules(anyListOf(Integer.class));
-    verify(esActiveRule).bulkIndexActiveRuleIds(anyListOf(Integer.class), eq(session));
   }
 
   @Test
@@ -297,8 +295,6 @@ public class QProfileOperationsTest {
 
     verify(session).commit();
     verify(profilesManager).profileParentChanged(1, null, "Nicolas");
-    verify(esActiveRule).deleteActiveRules(anyListOf(Integer.class));
-    verify(esActiveRule).bulkIndexActiveRuleIds(anyListOf(Integer.class), eq(session));
   }
 
   @Test
@@ -363,7 +359,6 @@ public class QProfileOperationsTest {
 //    verify(activeRuleDao).deleteByProfile(profile, session);
     verify(qualityProfileDao).delete(1, session);
     verify(propertiesDao).deleteProjectProperties("sonar.profile.java", "Default", session);
-    verify(esActiveRule).deleteActiveRulesFromProfile(1);
     verify(dryRunCache).reportGlobalModification(session);
   }
 
@@ -383,7 +378,6 @@ public class QProfileOperationsTest {
     verifyZeroInteractions(activeRuleDao);
     verify(qualityProfileDao, never()).delete(anyInt(), eq(session));
     verifyZeroInteractions(propertiesDao);
-    verifyZeroInteractions(esActiveRule);
   }
 
   @Test
@@ -394,7 +388,6 @@ public class QProfileOperationsTest {
     operations.copyProfile(1, "Copy Default", authorizedUserSession);
 
     verify(profilesManager).copyProfile(1, "Copy Default");
-    verify(esActiveRule).bulkIndexProfile(2);
   }
 
   @Test
@@ -411,7 +404,6 @@ public class QProfileOperationsTest {
 
     verifyZeroInteractions(profilesManager);
     verify(session, never()).commit();
-    verifyZeroInteractions(esActiveRule);
   }
 
   @Test
@@ -429,7 +421,6 @@ public class QProfileOperationsTest {
 
     verifyZeroInteractions(profilesManager);
     verify(session, never()).commit();
-    verifyZeroInteractions(esActiveRule);
   }
 
 }

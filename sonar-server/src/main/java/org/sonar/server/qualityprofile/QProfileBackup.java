@@ -55,10 +55,6 @@ import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-/**
- * @deprecated to be dropped in 4.4
- */
-@Deprecated
 public class QProfileBackup implements ServerComponent {
 
   private final DatabaseSessionFactory sessionFactory;
@@ -70,21 +66,20 @@ public class QProfileBackup implements ServerComponent {
   private final QProfileOperations qProfileOperations;
   private final QProfileActiveRuleOperations qProfileActiveRuleOperations;
   private final RuleDao ruleDao;
-  private final ESActiveRule esActiveRule;
   private final List<ProfileDefinition> definitions;
   private final DefaultProfilesCache defaultProfilesCache;
   private final PreviewCache dryRunCache;
 
   public QProfileBackup(DatabaseSessionFactory sessionFactory, XMLProfileParser xmlProfileParser, XMLProfileSerializer xmlProfileSerializer, MyBatis myBatis,
                         QProfileLookup qProfileLookup, QProfileOperations qProfileOperations, QProfileActiveRuleOperations qProfileActiveRuleOperations, RuleDao ruleDao,
-                        ESActiveRule esActiveRule, DefaultProfilesCache defaultProfilesCache, PreviewCache dryRunCache) {
-    this(sessionFactory, xmlProfileParser, xmlProfileSerializer, myBatis, qProfileLookup, qProfileOperations, qProfileActiveRuleOperations, ruleDao, esActiveRule,
+                        DefaultProfilesCache defaultProfilesCache, PreviewCache dryRunCache) {
+    this(sessionFactory, xmlProfileParser, xmlProfileSerializer, myBatis, qProfileLookup, qProfileOperations, qProfileActiveRuleOperations, ruleDao,
       Collections.<ProfileDefinition>emptyList(), defaultProfilesCache, dryRunCache);
   }
 
   public QProfileBackup(DatabaseSessionFactory sessionFactory, XMLProfileParser xmlProfileParser, XMLProfileSerializer xmlProfileSerializer, MyBatis myBatis,
                         QProfileLookup qProfileLookup, QProfileOperations qProfileOperations, QProfileActiveRuleOperations qProfileActiveRuleOperations, RuleDao ruleDao,
-                        ESActiveRule esActiveRule, List<ProfileDefinition> definitions, DefaultProfilesCache defaultProfilesCache, PreviewCache dryRunCache) {
+                        List<ProfileDefinition> definitions, DefaultProfilesCache defaultProfilesCache, PreviewCache dryRunCache) {
     this.sessionFactory = sessionFactory;
     this.xmlProfileParser = xmlProfileParser;
     this.xmlProfileSerializer = xmlProfileSerializer;
@@ -93,7 +88,6 @@ public class QProfileBackup implements ServerComponent {
     this.qProfileOperations = qProfileOperations;
     this.qProfileActiveRuleOperations = qProfileActiveRuleOperations;
     this.ruleDao = ruleDao;
-    this.esActiveRule = esActiveRule;
     this.definitions = definitions;
     this.defaultProfilesCache = defaultProfilesCache;
     this.dryRunCache = dryRunCache;
@@ -129,7 +123,7 @@ public class QProfileBackup implements ServerComponent {
         if (newProfile == null) {
           throw new BadRequestException("Restore of the profile has failed.");
         }
-        esActiveRule.bulkIndexProfile(newProfile.id(), session);
+        //esActiveRule.bulkIndexProfile(newProfile.id(), session);
         dryRunCache.reportGlobalModification(session);
         session.commit();
         result.setProfile(newProfile);
@@ -159,7 +153,7 @@ public class QProfileBackup implements ServerComponent {
             QualityProfileKey.of(name, language),
             currentRulesProfile, session);
         }
-        esActiveRule.bulkIndexProfile(profile.id(), session);
+        //esActiveRule.bulkIndexProfile(profile.id(), session);
       }
       dryRunCache.reportGlobalModification(session);
       session.commit();
@@ -182,9 +176,6 @@ public class QProfileBackup implements ServerComponent {
     return profilesByName;
   }
 
-  /**
-   * Used by {@link org.sonar.server.startup.RegisterQualityProfiles}
-   */
   public void restoreFromActiveRules(QualityProfileKey profileKey, RulesProfile rulesProfile, DbSession session) {
     for (org.sonar.api.rules.ActiveRule activeRule : rulesProfile.getActiveRules()) {
       RuleKey ruleKey = RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey());
@@ -220,7 +211,7 @@ public class QProfileBackup implements ServerComponent {
       // Warning, profile with children can be deleted as no check is done!
       hibernateSession.removeWithoutFlush(existingProfile);
       hibernateSession.commit();
-      esActiveRule.deleteActiveRulesFromProfile(existingProfile.getId());
+      //esActiveRule.deleteActiveRulesFromProfile(existingProfile.getId());
     }
   }
 

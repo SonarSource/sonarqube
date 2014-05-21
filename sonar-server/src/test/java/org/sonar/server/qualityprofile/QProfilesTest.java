@@ -22,13 +22,11 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Maps;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.paging.Paging;
 import org.sonar.server.user.UserSession;
 
 import java.util.Map;
@@ -38,7 +36,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfilesTest {
@@ -55,17 +53,11 @@ public class QProfilesTest {
   @Mock
   QProfileOperations profileOperations;
 
-  @Mock
-  QProfileActiveRuleOperations activeRuleOperations;
-
-  @Mock
-  QProfileRuleLookup rules;
-
   QProfiles qProfiles;
 
   @Before
   public void setUp() throws Exception {
-    qProfiles = new QProfiles(projectOperations, projectLookup, profileLookup, profileOperations, activeRuleOperations, rules);
+    qProfiles = new QProfiles(projectOperations, projectLookup, profileLookup, profileOperations);
   }
 
   @Test
@@ -215,126 +207,4 @@ public class QProfilesTest {
     qProfiles.removeAllProjects(1);
     verify(projectOperations).removeAllProjects(eq(1), any(UserSession.class));
   }
-
-  @Test
-  public void parent_active_rule() throws Exception {
-    QProfileRule rule = mock(QProfileRule.class);
-    qProfiles.parentProfileRule(rule);
-    verify(rules).findParentProfileRule(rule);
-  }
-
-  @Test
-  public void find_by_rule() throws Exception {
-    qProfiles.findByRule(1);
-    verify(rules).findByRuleId(1);
-  }
-
-  @Test
-  public void find_by_active_rule() throws Exception {
-    qProfiles.findByActiveRuleId(1);
-    verify(rules).findByActiveRuleId(1);
-  }
-
-  @Test
-  public void find_by_profile_an_rule() throws Exception {
-    qProfiles.findByProfileAndRule(1, 2);
-    verify(rules).findByProfileIdAndRuleId(1, 2);
-  }
-
-  @Test
-  public void search_active_rules() throws Exception {
-    ProfileRuleQuery query = ProfileRuleQuery.create(42);
-    Paging paging = Paging.create(20, 1);
-    qProfiles.searchProfileRules(query, paging);
-    verify(rules).search(query, paging);
-  }
-
-  @Test
-  public void count_profile_rules() throws Exception {
-    ProfileRuleQuery query = ProfileRuleQuery.create(1);
-    qProfiles.countProfileRules(query);
-    verify(rules).countProfileRules(query);
-  }
-
-  @Test
-  public void count_profile_rules_from_profile() throws Exception {
-    QProfile profile = new QProfile().setId(1);
-    qProfiles.countProfileRules(profile);
-    verify(rules).countProfileRules(any(ProfileRuleQuery.class));
-  }
-
-  @Test
-  public void count_overriding_profile_rules() throws Exception {
-    QProfile profile = new QProfile().setId(1);
-    qProfiles.countOverridingProfileRules(profile);
-    verify(rules).countProfileRules(any(ProfileRuleQuery.class));
-  }
-
-  @Test
-  public void search_inactive_rules() throws Exception {
-    final int profileId = 42;
-    ProfileRuleQuery query = ProfileRuleQuery.create(profileId);
-    Paging paging = Paging.create(20, 1);
-    QProfileRuleLookup.QProfileRuleResult result = mock(QProfileRuleLookup.QProfileRuleResult.class);
-    when(rules.searchInactives(query, paging)).thenReturn(result);
-    assertThat(qProfiles.searchInactiveProfileRules(query, paging)).isEqualTo(result);
-  }
-
-  @Test
-  public void count_inactive_rules() throws Exception {
-    ProfileRuleQuery query = ProfileRuleQuery.create(1);
-    qProfiles.countInactiveProfileRules(query);
-    verify(rules).countInactiveProfileRules(query);
-  }
-
-  @Test
-  @Ignore
-  //FIXME do not use IDs in tests.
-  public void activate_rule() throws Exception {
-//    qProfiles.activateRule(1, 10, Severity.BLOCKER);
-//    verify(activeRuleOperations).activateRule(eq(1), eq(10), eq(Severity.BLOCKER), any(UserSession.class));
-  }
-
-  @Test
-  @Ignore
-  //FIXME do not use IDs in tests.
-  public void bulk_activate_rule() throws Exception {
-//    ProfileRuleQuery query = ProfileRuleQuery.create(1);
-//    qProfiles.bulkActivateRule(query);
-//    verify(activeRuleOperations).activateRules(eq(1), eq(query), any(UserSession.class));
-  }
-
-  @Test
-  @Ignore
-  //FIXME do not use IDs in tests.
-  public void deactivate_rule() throws Exception {
-//    qProfiles.deactivateRule(1, 10);
-//    verify(activeRuleOperations).deactivateRule(eq(1), eq(10), any(UserSession.class));
-  }
-
-  @Test
-  public void bulk_deactivate_rule() throws Exception {
-    ProfileRuleQuery query = ProfileRuleQuery.create(1);
-    qProfiles.bulkDeactivateRule(query);
-    verify(activeRuleOperations).deactivateRules(eq(query), any(UserSession.class));
-  }
-
-  @Test
-  public void update_active_rule_param() throws Exception {
-    qProfiles.updateActiveRuleParam(50, "max", "20");
-    verify(activeRuleOperations).updateActiveRuleParam(eq(50), eq("max"), eq("20"), any(UserSession.class));
-  }
-
-  @Test
-  public void revert_active_rule() throws Exception {
-    qProfiles.revertActiveRule(50);
-    verify(activeRuleOperations).revertActiveRule(eq(50), any(UserSession.class));
-  }
-
-  @Test
-  public void count_active_rules() throws Exception {
-    qProfiles.countActiveRules(10);
-    verify(rules).countProfileRules(eq(10));
-  }
-
 }

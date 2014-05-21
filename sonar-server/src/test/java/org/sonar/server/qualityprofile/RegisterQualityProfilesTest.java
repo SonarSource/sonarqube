@@ -50,7 +50,12 @@ import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 @Ignore
@@ -81,9 +86,6 @@ public class RegisterQualityProfilesTest {
 
   @Mock
   QProfileLookup qProfileLookup;
-
-  @Mock
-  ESActiveRule esActiveRule;
 
   DefaultProfilesCache defaultProfilesCache = new DefaultProfilesCache();
 
@@ -126,7 +128,7 @@ public class RegisterQualityProfilesTest {
     registerQualityProfiles.start();
 
     verify(qProfileBackup).restoreFromActiveRules(
-      QualityProfileKey.of(eq(profile).name(),eq(profile).language()) , eq(rulesProfile), eq(session));
+      QualityProfileKey.of(eq(profile).name(), eq(profile).language()), eq(rulesProfile), eq(session));
 
     ArgumentCaptor<LoadedTemplateDto> templateCaptor = ArgumentCaptor.forClass(LoadedTemplateDto.class);
     verify(loadedTemplateDao).insert(templateCaptor.capture(), eq(session));
@@ -138,7 +140,6 @@ public class RegisterQualityProfilesTest {
     assertThat(defaultProfilesCache.byLanguage("java")).containsOnly("Default");
 
     verify(session).commit();
-    verify(esActiveRule).bulkRegisterActiveRules();
   }
 
   @Test
@@ -162,9 +163,9 @@ public class RegisterQualityProfilesTest {
     registerQualityProfiles.start();
 
     verify(qProfileBackup).restoreFromActiveRules(
-      QualityProfileKey.of(eq(profile1).name(),eq(profile1).language()), eq(rulesProfile1), eq(session));
+      QualityProfileKey.of(eq(profile1).name(), eq(profile1).language()), eq(rulesProfile1), eq(session));
     verify(qProfileBackup).restoreFromActiveRules(
-      QualityProfileKey.of(eq(profile2).name(),eq(profile2).language()), eq(rulesProfile2), eq(session));
+      QualityProfileKey.of(eq(profile2).name(), eq(profile2).language()), eq(rulesProfile2), eq(session));
     verify(loadedTemplateDao, times(2)).insert(any(LoadedTemplateDto.class), eq(session));
     verify(session).commit();
 
@@ -295,7 +296,7 @@ public class RegisterQualityProfilesTest {
 
     ArgumentCaptor<RulesProfile> rulesProfileCaptor = ArgumentCaptor.forClass(RulesProfile.class);
     verify(qProfileBackup, times(2)).restoreFromActiveRules(
-      QualityProfileKey.of(eq(profile).name(),eq(profile).language()), rulesProfileCaptor.capture(), eq(session));
+      QualityProfileKey.of(eq(profile).name(), eq(profile).language()), rulesProfileCaptor.capture(), eq(session));
     assertThat(rulesProfileCaptor.getAllValues().get(0)).isEqualTo(rulesProfile1);
     assertThat(rulesProfileCaptor.getAllValues().get(1)).isEqualTo(rulesProfile2);
 
@@ -352,7 +353,7 @@ public class RegisterQualityProfilesTest {
 
     verify(qProfileOperations).deleteProfile(any(QProfile.class), eq(session));
     verify(qProfileBackup).restoreFromActiveRules(
-      QualityProfileKey.of(eq(profile).name(),eq(profile).language()), eq(rulesProfile), eq(session));
+      QualityProfileKey.of(eq(profile).name(), eq(profile).language()), eq(rulesProfile), eq(session));
     verify(session).commit();
   }
 
