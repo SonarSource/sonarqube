@@ -1,3 +1,16 @@
+@import "mixins";
+@import "variables";
+@import "ui";
+
+.dashboard-page {
+  background-color: @barBackgroundColor;
+}
+
+.dashboard-page #ftlinks {
+  border-top-color: @barBorderColor;
+  background-color: @barBackgroundColor;
+}
+
 /* LAYOUT */
 #dashboard {
   position: relative;
@@ -21,11 +34,18 @@
   overflow-y: hidden;
   padding: 10px;
   margin: 0;
-  border: 1px solid #ddd;
+}
+
+#dashboard .widget .big {
+  line-height: 1.5;
+  font-size: 24px;
+  font-weight: 300;
 }
 
 #dashboard .block {
   margin: 0 0 10px 0;
+  border: 1px solid @barBorderColor;
+  background-color: @white;
 }
 
 #dashboard .configure_widget {
@@ -44,15 +64,23 @@
 }
 
 #dashboard .widget-title {
-  background-color: #4B9FD5;
-  color: #FEFEFE;
-  padding: 0 5px;
-  height: 24px;
-  line-height: 24px;
+  padding: 10px;
+  line-height: 1;
+  border-bottom: 1px solid @barBorderColor;
+  color: @baseFontColor;
+  font-size: 16px;
+  font-weight: 300;
+  text-transform: uppercase;
 }
 
 #dashboard .widget-title a {
-  color: #FEFEFE;
+  .base-link;
+  .chevron-link;
+
+  &:after {
+    position: relative;
+    top: -2px;
+  }
 }
 
 /*CONFIGURATION*/

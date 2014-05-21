@@ -1,5 +1,6 @@
 @import "mixins";
 @import "variables";
+@import "ui";
 
 /*
  * SonarQube, open source software quality management tool.
@@ -38,8 +39,7 @@
   text-align: center;
   border-top: 1px solid #fff;
   font-size: 85%;
-  padding: 4px 0;
-  margin-top: 10px;
+  padding: 10px 0;
 }
 
 .ie-warn {
@@ -383,10 +383,14 @@ h1 img, .h1 img, h2 img, .h2 img, h3 img, .h3 img, h4 img, .h4 img {
 }
 
 table.data > thead > tr > th {
+  vertical-align: top;
   font-size: 93%;
   padding: 4px 7px 4px 3px;
-  font-weight: bold;
-  vertical-align: top;
+  text-transform: uppercase;
+
+  & > a {
+    .base-link;
+  }
 }
 
 table.data > tfoot > tr > td {
@@ -410,7 +414,7 @@ table.data th img, table.data td img {
 }
 
 table.data.zebra tbody tr:nth-child(odd) {
-  background-color: #EFEFEF;
+  background-color: #f5f5f5;
 }
 
 .data thead tr.total {
@@ -429,9 +433,7 @@ table.data.zebra tbody tr:nth-child(odd) {
 }
 
 .data tr.highlight {
-  background-color: #CAE3F2;
-  border-top: 1px solid #4B9FD5;
-  border-bottom: 1px solid #4B9FD5;
+  background-color: @lightBlue;
 }
 
 .data input, .data select, .data button {
@@ -608,6 +610,7 @@ ul.operations li.last {
 }
 
 ul.operations li a {
+  .base-link;
   color: #555;
 }
 
@@ -2079,17 +2082,11 @@ h4 a, h4 a:visited, .gray, table.data tfoot a, table.data tfoot a:visited {
 }
 
 .even, table.sortable tr.rowodd {
-  background-color: #EFEFEF;
+  background-color: #f5f5f5;
 }
 
-.bordered, table.data > thead {
+.bordered {
   border-bottom: 1px solid #ddd;
-}
-
-table.data > tbody {
-  border-bottom: 1px solid #ddd;
-  border-right: 1px solid #ddd;
-  border-left: 1px solid #ddd;
 }
 
 table.data, table.spaced, .gwt-SourcePanel .sources {

@@ -50,9 +50,9 @@ module MeasuresHelper
       end
 
     elsif column.key=='name'
-      "#{qualifier_icon(row.snapshot)} #{link_to(h(row.snapshot.resource.name(true)), {:controller => 'dashboard', :id => row.snapshot.resource_id}, :title => h(row.snapshot.resource.key))}"
+      "#{qualifier_icon(row.snapshot)} #{link_to(h(row.snapshot.resource.name(true)), {:controller => 'dashboard', :id => row.snapshot.resource_id}, {:title => h(row.snapshot.resource.key), :class => 'highlighted-link chevron-link'})}"
     elsif column.key=='short_name'
-      "#{qualifier_icon(row.snapshot)} #{link_to(h(row.snapshot.resource.name(false)), {:controller => 'dashboard', :id => row.snapshot.resource_id}, :title => h(row.snapshot.resource.key))}"
+      "#{qualifier_icon(row.snapshot)} #{link_to(h(row.snapshot.resource.name(false)), {:controller => 'dashboard', :id => row.snapshot.resource_id}, {:title => h(row.snapshot.resource.key), :class => 'highlighted-link'})}"
     elsif column.key=='date'
       human_short_date(row.snapshot.created_at)
     elsif column.key=='project_creation_date'

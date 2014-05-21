@@ -1,6 +1,63 @@
 @import "variables";
 @import "mixins";
 
+body {
+  font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+
+/*
+ * Links
+ */
+
+a {
+  cursor: pointer;
+}
+
+.link() {
+  text-decoration: none;
+  .trans;
+
+  &:hover { color: @blue; }
+
+  &:active, &:focus {
+    color: @darkBlue;
+    outline: none;
+    text-shadow: 0 0 3px @blue;
+  }
+}
+
+.chevron-link {
+  &:after {
+    content: "\f105";
+    vertical-align: middle;
+    margin-left: 0.4em;
+    font-family: 'sonar';
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+  }
+}
+
+.base-link {
+  color: @baseFontColor;
+  .link;
+}
+
+.highlighted-link {
+  color: @darkBlue;
+  .link;
+}
+
+
+
+/*
+ * Inputs
+ */
+
 input[type=text],
 input[type=password],
 input[type=email],

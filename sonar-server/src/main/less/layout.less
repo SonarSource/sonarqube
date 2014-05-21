@@ -1,3 +1,7 @@
+@import "mixins";
+@import "variables";
+@import "ui";
+
 @media print {
   /* ------------------- PRINT ------------------- */
   html, body {
@@ -62,21 +66,10 @@ body, a {
 }
 
 #hd a {
-  color: #FFF;
-  text-decoration: none;
+  .base-link;
+  color: #e5e5e5;
 
-  &:focus, &:hover { text-decoration: underline; }
-
-  &.selected { color: #4B9FD5; }
-
-  &.with-icon {
-
-    &:hover, &:focus {
-      text-decoration: none;
-      span { text-decoration: underline; }
-    }
-
-  }
+  &.selected { color: @blue; }
 }
 
 #nav-left {
@@ -94,12 +87,20 @@ body, a {
   vertical-align: text-bottom;
 }
 
-#nav-left > ul> li {
+#nav-left > ul > li {
   float: left;
   padding: 0 20px 0 0;
 }
 
-#nav > ul> li {
+#nav-left > ul > li > a,
+#nav > ul > li > a {
+  font-size: 12px;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+#nav > ul > li {
   float: right;
   padding: 0 0 0 15px;
 }
@@ -184,7 +185,7 @@ body, a {
 }
 
 #footer {
-  margin: 10px;
+  padding: 4px 0;
   clear: both;
 }
 
@@ -298,9 +299,9 @@ ul.sidebar select, ul.sidebar input {
 }
 
 .blue-sidebar {
-  background-color: #CAE3F2;
-  color: #262626;
-  border: 2px solid #4b9fd5;
+  background-color: @lightBlue;
+  color: @baseFontColor;
+  border: 1px solid @blue;
   border-top: none;
 }
 
