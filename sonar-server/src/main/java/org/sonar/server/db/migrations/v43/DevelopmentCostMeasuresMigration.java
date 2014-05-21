@@ -20,8 +20,8 @@
 
 package org.sonar.server.db.migrations.v43;
 
-import org.sonar.api.config.Settings;
 import org.sonar.core.persistence.Database;
+import org.sonar.core.properties.PropertiesDao;
 import org.sonar.server.db.migrations.DatabaseMigration;
 import org.sonar.server.db.migrations.MassUpdater;
 import org.sonar.server.db.migrations.SqlUtil;
@@ -41,9 +41,9 @@ public class DevelopmentCostMeasuresMigration implements DatabaseMigration {
   private final WorkDurationConvertor workDurationConvertor;
   private final Database db;
 
-  public DevelopmentCostMeasuresMigration(Database database, Settings settings) {
+  public DevelopmentCostMeasuresMigration(Database database, PropertiesDao propertiesDao) {
     this.db = database;
-    this.workDurationConvertor = new WorkDurationConvertor(settings);
+    this.workDurationConvertor = new WorkDurationConvertor(propertiesDao);
   }
 
   @Override

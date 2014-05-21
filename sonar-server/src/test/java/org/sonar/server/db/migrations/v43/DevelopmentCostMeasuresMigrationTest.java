@@ -24,9 +24,13 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.config.Settings;
 import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.properties.PropertiesDao;
+import org.sonar.core.properties.PropertyDto;
+
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DevelopmentCostMeasuresMigrationTest {
@@ -34,16 +38,16 @@ public class DevelopmentCostMeasuresMigrationTest {
   @ClassRule
   public static TestDatabase db = new TestDatabase().schema(DevelopmentCostMeasuresMigrationTest.class, "schema.sql");
 
-  Settings settings;
+  @Mock
+  PropertiesDao propertiesDao;
 
   DevelopmentCostMeasuresMigration migration;
 
   @Before
   public void setUp() throws Exception {
-    settings = new Settings();
-    settings.setProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY, 8);
+    when(propertiesDao.selectGlobalProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY)).thenReturn(new PropertyDto().setValue("8"));
 
-    migration = new DevelopmentCostMeasuresMigration(db.database(), settings);
+    migration = new DevelopmentCostMeasuresMigration(db.database(), propertiesDao);
   }
 
   @Test
