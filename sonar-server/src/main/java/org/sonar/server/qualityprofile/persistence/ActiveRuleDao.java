@@ -188,8 +188,13 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
   }
 
   public List<ActiveRuleDto> findByProfileKey(QualityProfileKey profileKey, DbSession session) {
-    int id = this.getQualityProfileId(profileKey, session);
-    return mapper(session).selectByProfileId(id);
+    //TODO try/catch due to legacy selectByProfileId SQL.
+    try {
+      int id = this.getQualityProfileId(profileKey, session);
+      return mapper(session).selectByProfileId(id);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Quality profile not found: "+profileKey.toString());
+    }
   }
 
   public void removeParamByProfileKey(QualityProfileKey profileKey, DbSession session) {

@@ -302,7 +302,6 @@ public class ActiveRuleServiceMediumTest {
   }
 
   @Test
-  @Ignore
   public void deactivate() throws Exception {
     // activation
     grantPermission();
@@ -343,7 +342,6 @@ public class ActiveRuleServiceMediumTest {
   }
 
   @Test
-  @Ignore
   public void deactivation_fails_if_profile_not_found() throws Exception {
     grantPermission();
     ActiveRuleKey key = ActiveRuleKey.of(QualityProfileKey.of("other", "js"), RuleKey.of("xoo", "x1"));
@@ -352,7 +350,6 @@ public class ActiveRuleServiceMediumTest {
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Quality profile not found: other:js");
-      verifyZeroActiveRules(key);
     }
   }
 

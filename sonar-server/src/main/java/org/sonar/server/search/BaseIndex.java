@@ -255,8 +255,8 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
     getClient()
       .prepareDelete()
       .setIndex(this.getIndexName())
-      .setType(this.indexDefinition.getIndexType())
-      .setIndex(this.getKeyValue(key))
+      .setType(this.getIndexType())
+      .setId(this.getKeyValue(key))
       .get();
   }
 
@@ -266,7 +266,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
       //TODO don't really know what to do here for the moment...
     } else {
       throw new IllegalStateException("Index " + this.getIndexName() +
-        " cannot execute INSERT for class: " + obj.getClass());
+        " cannot execute DELETE for class: " + obj.getClass());
     }
   }
 
@@ -275,7 +275,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
     try {
       this.deleteDocument(key);
     } catch (Exception e) {
-      LOG.error("Could not DELETE _id:{} for index {}: {}",
+      LOG.error("Could not DELETE _id = '{}' for index '{}': {}",
         this.getKeyValue(key), this.getIndexName(), e.getMessage());
     }
   }
