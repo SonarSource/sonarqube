@@ -21,11 +21,11 @@ package org.sonar.server.component.persistence;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.core.persistence.DaoComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.db.ComponentMapper;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 
@@ -62,21 +62,25 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
 
   @Override
   protected ComponentDto doInsert(ComponentDto item, DbSession session) {
-    throw new IllegalStateException("Not implemented yet");
+    throw notImplemented();
   }
 
   @Override
   protected ComponentDto doUpdate(ComponentDto item, DbSession session) {
-    throw new IllegalStateException("Not implemented yet");
+    throw notImplemented();
   }
 
   @Override
   protected void doDeleteByKey(String key, DbSession session) {
-    throw new IllegalStateException("Not implemented yet");
+    throw notImplemented();
   }
 
   @Override
   public Iterable<String> keysOfRowsUpdatedAfter(long timestamp, DbSession session) {
+    throw notImplemented();
+  }
+
+  private static IllegalStateException notImplemented() {
     throw new IllegalStateException("Not implemented yet");
   }
 }
