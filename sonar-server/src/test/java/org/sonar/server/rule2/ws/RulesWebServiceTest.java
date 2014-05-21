@@ -92,6 +92,31 @@ public class RulesWebServiceTest {
   }
 
   @Test
+  public void show_rule() throws Exception {
+    QualityProfileDto profile = newQualityProfile();
+    tester.get(QualityProfileDao.class).insert(profile, session);
+
+    RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"));
+    ruleDao.insert(rule, session);
+
+    ActiveRuleDto activeRuleDto = ActiveRuleDto.createFor(profile, rule)
+      .setSeverity("BLOCKER");
+    tester.get(ActiveRuleDao.class).insert(activeRuleDto, session);
+
+    session.commit();
+
+    MockUserSession.set();
+
+    // 1. Default Activation
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show");
+    request.setParam("key", rule.getKey().toString());
+    WsTester.Result result = request.execute();
+
+    result.assertJson(this.getClass(), "show_rule_active.json");
+  }
+
+
+  @Test
   public void search_no_rules() throws Exception {
 
     MockUserSession.set();

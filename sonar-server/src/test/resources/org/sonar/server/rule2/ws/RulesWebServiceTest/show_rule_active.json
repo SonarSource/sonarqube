@@ -1,0 +1,27 @@
+{
+    "actives": [
+        {
+            "inherit": "NONE",
+            "params": [],
+            "qProfile": "My Profile:java",
+            "severity": "BLOCKER"
+        }
+    ],
+    "rule": {
+        "debtRemFnCoeff": "1h",
+        "debtRemFnOffset": "5min",
+        "debtRemFnType": "LINEAR",
+        "htmlDesc": "Description S001",
+        "internalKey": "InternalKeyS001",
+        "key": "java:S001",
+        "lang": "js",
+        "name": "Rule S001",
+        "params": [],
+        "repo": "java",
+        "severity": "INFO",
+        "status": "READY",
+        "sysTags": [],
+        "tags": [],
+        "template": false
+    }
+}

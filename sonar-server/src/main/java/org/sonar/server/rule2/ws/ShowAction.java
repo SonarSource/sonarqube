@@ -27,9 +27,14 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.qualityprofile.ActiveRule;
+import org.sonar.server.qualityprofile.ActiveRuleService;
 import org.sonar.server.rule2.Rule;
 import org.sonar.server.rule2.RuleService;
 import org.sonar.server.search.BaseDoc;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @since 4.4
@@ -37,13 +42,16 @@ import org.sonar.server.search.BaseDoc;
 public class ShowAction implements RequestHandler {
 
   private static final String PARAM_KEY = "key";
+  private static final String PARAM_ACTIVATION = "activation";
 
   private final RuleService service;
   private final RuleMapping mapping;
+  private final ActiveRuleService activeRuleService;
 
-  public ShowAction(RuleService service, RuleMapping mapping) {
+  public ShowAction(RuleService service, ActiveRuleService activeRuleService, RuleMapping mapping) {
     this.service = service;
     this.mapping = mapping;
+    this.activeRuleService = activeRuleService;
   }
 
   void define(WebService.NewController controller) {
@@ -59,6 +67,14 @@ public class ShowAction implements RequestHandler {
       .setDescription("Rule key")
       .setRequired(true)
       .setExampleValue("javascript:EmptyBlock");
+
+    action
+      .createParam(PARAM_ACTIVATION)
+      .setDescription("Show rule's activations for all profiles (ActiveRules)")
+      .setRequired(false)
+      .setDefaultValue("true")
+      .setBooleanPossibleValues()
+      .setExampleValue("true");
   }
 
   @Override
@@ -70,6 +86,38 @@ public class ShowAction implements RequestHandler {
     }
     JsonWriter json = response.newJsonWriter().beginObject().name("rule");
     mapping.write((BaseDoc) rule, json);
+
+    /** add activeRules (or not) */
+    if (request.paramAsBoolean(PARAM_ACTIVATION)) {
+      writeActiveRules(key, activeRuleService.findByRuleKey(key), json);
+    }
+
     json.endObject().close();
+  }
+
+  private void writeActiveRules(RuleKey key, List<ActiveRule> activeRules, JsonWriter json) {
+    json.name("actives").beginArray();
+    for (ActiveRule activeRule : activeRules) {
+      json
+        .beginObject()
+        .prop("qProfile", activeRule.key().qProfile().toString())
+        .prop("inherit", activeRule.inheritance().toString())
+        .prop("severity", activeRule.severity());
+      if (activeRule.parentKey() != null) {
+        json.prop("parent", activeRule.parentKey().toString());
+      }
+      json.name("params").beginArray();
+      for (Map.Entry<String, String> param : activeRule.params().entrySet()) {
+        json
+          .beginObject()
+          .prop("key", param.getKey())
+          .prop("value", param.getValue())
+          .endObject();
+      }
+      json.endArray()
+        .endObject();
+    }
+    json.endArray();
+
   }
 }
