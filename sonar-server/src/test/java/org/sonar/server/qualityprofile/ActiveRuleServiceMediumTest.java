@@ -32,12 +32,16 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
+import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
+import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
+import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
+import org.sonar.server.rule2.persistence.RuleDao;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
@@ -350,6 +354,41 @@ public class ActiveRuleServiceMediumTest {
       assertThat(e).hasMessage("Quality profile not found: other:js");
       verifyZeroActiveRules(key);
     }
+  }
+
+  @Test
+  public void find_by_ruleKey() throws Exception {
+    QualityProfileDto profile = QualityProfileDto.createFor("name","java");
+    dbClient.getDao(QualityProfileDao.class).insert(profile, dbSession);
+
+    RuleDto rule = RuleDto.createFor(RuleKey.of("java", "r1"))
+      .setSeverity("MAJOR");
+    dbClient.getDao(RuleDao.class).insert(rule, dbSession);
+
+
+    RuleDto rule2 = RuleDto.createFor(RuleKey.of("java", "r2"))
+      .setSeverity("MAJOR");
+    dbClient.getDao(RuleDao.class).insert(rule2, dbSession);
+
+    dbClient.getDao(ActiveRuleDao.class).insert(
+      ActiveRuleDto.createFor(profile, rule).setSeverity("MINOR"),
+      dbSession);
+
+    dbClient.getDao(ActiveRuleDao.class).insert(
+      ActiveRuleDto.createFor(profile, rule2).setSeverity("BLOCKER"),
+      dbSession);
+
+    dbSession.commit();
+
+    assertThat(service.findByRuleKey(rule.getKey())).hasSize(1);
+    assertThat(service.findByRuleKey(rule.getKey()).get(0)
+    .severity()).isEqualTo("MINOR");
+
+    assertThat(service.findByRuleKey(rule2.getKey())).hasSize(1);
+    assertThat(service.findByRuleKey(rule2.getKey()).get(0)
+      .severity()).isEqualTo("BLOCKER");
+
+
   }
 
   private void grantPermission() {

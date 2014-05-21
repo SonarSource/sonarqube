@@ -23,6 +23,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
@@ -32,7 +33,9 @@ import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
+import org.sonar.server.search.IndexClient;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
 
@@ -49,11 +52,13 @@ public class ActiveRuleService implements ServerComponent {
   private final TypeValidations typeValidations;
   private final RuleActivationContextFactory contextFactory;
   private final PreviewCache previewCache;
+  private final IndexClient index;
 
-  public ActiveRuleService(DbClient db,
+  public ActiveRuleService(DbClient db, IndexClient index,
                            RuleActivationContextFactory contextFactory, TypeValidations typeValidations,
                            PreviewCache previewCache) {
     this.db = db;
+    this.index = index;
     this.contextFactory = contextFactory;
     this.typeValidations = typeValidations;
     this.previewCache = previewCache;
@@ -186,5 +191,9 @@ public class ActiveRuleService implements ServerComponent {
         typeValidations.validate(value, ruleParamType.type(), ruleParamType.values());
       }
     }
+  }
+
+  public List<ActiveRule> findByRuleKey(RuleKey ruleKey){
+    return index.get(ActiveRuleIndex.class).findByRule(ruleKey);
   }
 }
