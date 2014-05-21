@@ -26,6 +26,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
@@ -47,12 +48,15 @@ public class ActiveRuleService implements ServerComponent {
   private final DbClient db;
   private final TypeValidations typeValidations;
   private final RuleActivationContextFactory contextFactory;
+  private final PreviewCache previewCache;
 
   public ActiveRuleService(DbClient db,
-                           RuleActivationContextFactory contextFactory, TypeValidations typeValidations) {
+                           RuleActivationContextFactory contextFactory, TypeValidations typeValidations,
+                           PreviewCache previewCache) {
     this.db = db;
     this.contextFactory = contextFactory;
     this.typeValidations = typeValidations;
+    this.previewCache = previewCache;
   }
 
   /**
@@ -82,6 +86,7 @@ public class ActiveRuleService implements ServerComponent {
       changes.add(change);
       persist(changes, context, dbSession);
       dbSession.commit();
+      previewCache.reportGlobalModification();
 
       // TODO filter changes without any differences
       return changes;
@@ -134,11 +139,30 @@ public class ActiveRuleService implements ServerComponent {
   }
 
   /**
-   * Deactivate a rule on a Quality profile. Does nothing if the rule is not activated.
+   * Deactivate a rule on a Quality profile. Does nothing if the rule is not activated, but
+   * fails (fast) if the rule or the profile does not exist.
    */
   public List<ActiveRuleChange> deactivate(ActiveRuleKey key) {
     verifyPermission(UserSession.get());
-    throw new UnsupportedOperationException("TODO");
+    DbSession dbSession = db.openSession(false);
+    List<ActiveRuleChange> changes = Lists.newArrayList();
+    try {
+      RuleActivationContext context = contextFactory.create(key, dbSession);
+      ActiveRuleChange change;
+      if (context.activeRule() == null) {
+        // not activated !
+        return changes;
+      }
+      change = new ActiveRuleChange(ActiveRuleChange.Type.DEACTIVATED, key);
+      changes.add(change);
+      persist(changes, context, dbSession);
+      dbSession.commit();
+      previewCache.reportGlobalModification();
+      return changes;
+
+    } finally {
+      dbSession.close();
+    }
   }
 
   public List<ActiveRuleChange> bulkActivate(BulkRuleActivation activation) {
