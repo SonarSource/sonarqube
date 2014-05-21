@@ -23,7 +23,7 @@ import java.util.concurrent.CountDownLatch;
 
 public abstract class QueueAction implements Runnable {
 
-  private CountDownLatch latch;
+  protected CountDownLatch latch;
 
   public QueueAction(CountDownLatch latch){
     this.latch = latch;

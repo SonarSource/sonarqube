@@ -150,9 +150,4 @@ public class RuleService implements ServerComponent {
   private void checkAdminPermission(UserSession userSession) {
     userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
-
-  public RuleService refresh() {
-    this.index.refresh();
-    return this;
-  }
 }

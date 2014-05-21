@@ -39,7 +39,6 @@ import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
-import org.sonar.server.rule2.RuleService;
 import org.sonar.server.rule2.persistence.RuleDao;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
@@ -109,8 +108,6 @@ public class RulesWebServiceTest {
     ruleDao.insert(newRuleDto(RuleKey.of("javascript", "S002")), session);
     session.commit();
 
-    tester.get(RuleService.class).refresh();
-
     MockUserSession.set();
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
     WsTester.Result result = request.execute();
@@ -128,7 +125,6 @@ public class RulesWebServiceTest {
       .setDefaultSubCharacteristicId(1), session);
     session.commit();
 
-    tester.get(RuleService.class).refresh();
 
     MockUserSession.set();
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
@@ -150,8 +146,6 @@ public class RulesWebServiceTest {
     tester.get(ActiveRuleDao.class).insert(activeRule, session);
 
     session.commit();
-
-    tester.get(RuleService.class).refresh();
 
 
     MockUserSession.set();
@@ -183,7 +177,6 @@ public class RulesWebServiceTest {
     tester.get(ActiveRuleDao.class).insert(activeRule2, session);
 
     session.commit();
-    tester.get(RuleService.class).refresh();
 
 
     MockUserSession.set();
@@ -232,7 +225,6 @@ public class RulesWebServiceTest {
     tester.get(ActiveRuleDao.class).addParam(activeRule, activeRuleParam2, session);
     session.commit();
 
-    tester.get(RuleService.class).refresh();
 
     MockUserSession.set();
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
@@ -260,8 +252,6 @@ public class RulesWebServiceTest {
     ruleDao.insert(rule2, session);
 
     session.commit();
-    tester.get(RuleService.class).refresh();
-
 
     MockUserSession.set();
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "tags");
@@ -280,7 +270,6 @@ public class RulesWebServiceTest {
     ruleDao.insert(rule, session);
 
     session.commit();
-    tester.get(RuleService.class).refresh();
 
 
     MockUserSession.set();
@@ -298,11 +287,11 @@ public class RulesWebServiceTest {
       .setSystemTags(ImmutableSet.of("tag2")), session);
 
     session.commit();
-    tester.get(RuleService.class).refresh();
+
 
     MockUserSession.set();
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
-    request.setParam("tags","tag1");
+    request.setParam("tags", "tag1");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "filter_by_tags.json");
   }

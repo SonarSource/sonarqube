@@ -95,10 +95,7 @@ public class RuleServiceMediumTest {
 
     service.setTags(rule2, Sets.newHashSet("bug", "security"));
 
-    // verify that tags are indexed in es
-
-    service.refresh();
-
+    // verify that tags are indexed in index
     Set<String> tags = service.listTags();
     assertThat(tags).containsOnly("security", "bug");
   }
@@ -221,7 +218,7 @@ public class RuleServiceMediumTest {
     tester.get(ActiveRuleDao.class).insert(activeRule3, dbSession);
 
     dbSession.commit();
-    service.refresh();
+
 
 
     // 2. test in DB

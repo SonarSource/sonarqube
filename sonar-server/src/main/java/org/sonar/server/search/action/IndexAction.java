@@ -56,6 +56,17 @@ public abstract class IndexAction extends QueueAction {
   }
 
   @Override
+  public void run(){
+    this.doExecute();
+    if(method.equals(Method.UPDATE) || method.equals(Method.INSERT)){
+      index.refresh();
+    }
+    if(latch != null){
+      latch.countDown();
+    }
+  }
+
+  @Override
   public abstract void doExecute();
 
   public void setIndex(Index index) {

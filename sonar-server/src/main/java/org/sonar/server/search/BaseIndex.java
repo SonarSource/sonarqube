@@ -131,7 +131,12 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
 
   @Override
   public void refresh() {
-    getClient().admin().indices().prepareRefresh(this.getIndexName()).get();
+    getClient()
+      .admin()
+      .indices()
+      .prepareRefresh(this.getIndexName())
+      .setForce(true)
+      .get();
   }
 
   /* Search methods */
