@@ -33,7 +33,7 @@ class UpdateWorkUnitsBySizePointPropertyToMinutes < ActiveRecord::Migration
     hours_in_day = hours_in_day_prop && hours_in_day_prop.text_value ? hours_in_day_prop.text_value.to_i : 8
     work_units_by_size_point = Property.find_by_prop_key('workUnitsBySizePoint')
     if work_units_by_size_point && work_units_by_size_point.text_value && work_units_by_size_point.text_value.to_f
-      work_units_by_size_point.text_value = convert_days_to_minutes(work_units_by_size_point.text_value.to_f, hours_in_day)
+      work_units_by_size_point.text_value = convert_days_to_minutes(work_units_by_size_point.text_value.to_f, hours_in_day).to_s
       work_units_by_size_point.save!
     end
 
@@ -43,7 +43,7 @@ class UpdateWorkUnitsBySizePointPropertyToMinutes < ActiveRecord::Migration
       values.each do |value|
         prop = Property.find_by_prop_key('languageSpecificParameters.' + value + '.man_days')
         if prop && prop.text_value && prop.text_value.to_f
-          prop.text_value = convert_days_to_minutes(prop.text_value.to_f, hours_in_day)
+          prop.text_value = convert_days_to_minutes(prop.text_value.to_f, hours_in_day).to_s
           prop.save!
         end
       end
