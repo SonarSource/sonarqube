@@ -87,13 +87,11 @@ public class ActiveRuleService implements ServerComponent {
         verifyParam(ruleParamDto, value);
         change.setParameter(ruleParamDto.getName(), StringUtils.defaultIfEmpty(value, ruleParamDto.getDefaultValue()));
       }
-
       changes.add(change);
-      persist(changes, context, dbSession);
-      dbSession.commit();
-      previewCache.reportGlobalModification();
-
       // TODO filter changes without any differences
+
+      persist(changes, context, dbSession);
+
       return changes;
 
     } finally {
@@ -141,6 +139,10 @@ public class ActiveRuleService implements ServerComponent {
         }
       }
     }
+    if (!changes.isEmpty()) {
+      dbSession.commit();
+      previewCache.reportGlobalModification();
+    }
   }
 
   /**
@@ -161,8 +163,6 @@ public class ActiveRuleService implements ServerComponent {
       change = new ActiveRuleChange(ActiveRuleChange.Type.DEACTIVATED, key);
       changes.add(change);
       persist(changes, context, dbSession);
-      dbSession.commit();
-      previewCache.reportGlobalModification();
       return changes;
 
     } finally {
