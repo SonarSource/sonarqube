@@ -135,7 +135,6 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
       .admin()
       .indices()
       .prepareRefresh(this.getIndexName())
-      .setForce(true)
       .get();
   }
 
