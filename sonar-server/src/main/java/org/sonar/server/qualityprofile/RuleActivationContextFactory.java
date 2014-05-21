@@ -49,7 +49,7 @@ public class RuleActivationContextFactory implements ServerComponent {
     QualityProfileDto profile = initProfile(key, context, session, false);
     initActiveRules(key, context, session, false);
     if (!profile.getLanguage().equals(rule.getLanguage())) {
-      throw new IllegalArgumentException(String.format("Rule %s and profile %s have different languages", rule.getKey(), profile));
+      throw new IllegalArgumentException(String.format("Rule %s and profile %s have different languages", rule.getKey(), profile.getKey()));
     }
 
     if (profile.getParent() != null) {
@@ -92,7 +92,7 @@ public class RuleActivationContextFactory implements ServerComponent {
     ActiveRuleDto activeRule = db.activeRuleDao().getByKey(key, session);
     Collection<ActiveRuleParamDto> activeRuleParams = null;
     if (activeRule != null) {
-      context.setActiveRuleParams(db.activeRuleDao().findParamsByActiveRule(activeRule, session));
+      activeRuleParams = db.activeRuleDao().findParamsByActiveRule(activeRule, session);
     }
     if (parent) {
       context.setParentActiveRule(activeRule);

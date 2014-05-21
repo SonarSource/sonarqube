@@ -34,10 +34,10 @@ import java.util.Map;
 class RuleActivationContext {
 
   private RuleDto rule;
-  private Map<String, RuleParamDto> ruleParams;
+  private final Map<String, RuleParamDto> ruleParams = Maps.newHashMap();
   private QualityProfileDto profile, parentProfile;
   private ActiveRuleDto activeRule, parentActiveRule;
-  private Map<String, ActiveRuleParamDto> activeRuleParams, parentActiveRuleParams;
+  private final Map<String, ActiveRuleParamDto> activeRuleParams = Maps.newHashMap(), parentActiveRuleParams = Maps.newHashMap();
 
   RuleDto rule() {
     return rule;
@@ -57,7 +57,7 @@ class RuleActivationContext {
   }
 
   RuleActivationContext setRuleParams(Collection<RuleParamDto> ruleParams) {
-    this.ruleParams = Maps.newHashMap();
+    this.ruleParams.clear();
     for (RuleParamDto ruleParam : ruleParams) {
       this.ruleParams.put(ruleParam.getName(), ruleParam);
     }
@@ -110,14 +110,12 @@ class RuleActivationContext {
 
   @CheckForNull
   Collection<ActiveRuleParamDto> activeRuleParams() {
-    return activeRuleParams != null ? activeRuleParams.values() : null;
+    return activeRuleParams.values();
   }
 
   RuleActivationContext setActiveRuleParams(@Nullable Collection<ActiveRuleParamDto> a) {
-    if (a == null) {
-      this.activeRuleParams = null;
-    } else {
-      this.activeRuleParams = Maps.newHashMap();
+    activeRuleParams.clear();
+    if (a != null) {
       for (ActiveRuleParamDto ar : a) {
         this.activeRuleParams.put(ar.getKey(), ar);
       }
@@ -131,10 +129,8 @@ class RuleActivationContext {
   }
 
   RuleActivationContext setParentActiveRuleParams(@Nullable Collection<ActiveRuleParamDto> a) {
-    if (a == null) {
-      this.parentActiveRuleParams = null;
-    } else {
-      this.parentActiveRuleParams = Maps.newHashMap();
+    parentActiveRuleParams.clear();
+    if (a != null) {
       for (ActiveRuleParamDto ar : a) {
         this.parentActiveRuleParams.put(ar.getKey(), ar);
       }

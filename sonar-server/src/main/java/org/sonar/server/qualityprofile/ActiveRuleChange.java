@@ -20,7 +20,6 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Maps;
-import org.apache.commons.lang.ObjectUtils;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 
 import javax.annotation.CheckForNull;
@@ -37,7 +36,7 @@ public class ActiveRuleChange {
   private final ActiveRuleKey key;
   private boolean inheritedChange = false;
   private String previousSeverity = null, severity = null;
-  private Map<String, String> previousParameters = null, parameters = null;
+  private Map<String, String> parameters = Maps.newHashMap();
 
   ActiveRuleChange(Type type, ActiveRuleKey key) {
     this.type = type;
@@ -79,30 +78,12 @@ public class ActiveRuleChange {
   }
 
   @CheckForNull
-  public Map<String, String> getPreviousParameters() {
-    return previousParameters;
-  }
-
-  public void setPreviousParameters(@Nullable Map<String, String> previousParameters) {
-    this.previousParameters = previousParameters;
-  }
-
-  @CheckForNull
   public Map<String, String> getParameters() {
     return parameters;
   }
 
-  public void setParameters(@Nullable Map<String, String> parameters) {
-    this.parameters = parameters;
+  public void setParameter(String key, @Nullable String value) {
+    parameters.put(key, value);
   }
 
-  boolean hasDifferences() {
-    if (!ObjectUtils.equals(severity, previousSeverity)) {
-      return true;
-    }
-    if (!ObjectUtils.equals(parameters, previousParameters)) {
-      return parameters == null || previousParameters != null || !Maps.difference(parameters, previousParameters).areEqual();
-    }
-    return false;
-  }
 }

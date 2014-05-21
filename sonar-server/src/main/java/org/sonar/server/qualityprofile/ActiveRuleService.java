@@ -28,13 +28,17 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
+import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -69,11 +73,13 @@ public class ActiveRuleService implements ServerComponent {
         change = new ActiveRuleChange(ActiveRuleChange.Type.UPDATED, activation.getKey());
       }
       change.setSeverity(StringUtils.defaultIfEmpty(activation.getSeverity(), context.defaultSeverity()));
-      // TODO params
+      for (RuleParamDto ruleParamDto : context.ruleParams()) {
+        String value = activation.getParameters().get(ruleParamDto.getName());
+        verifyParam(ruleParamDto, value);
+        change.setParameter(ruleParamDto.getName(), StringUtils.defaultIfEmpty(value, ruleParamDto.getDefaultValue()));
+      }
+
       changes.add(change);
-
-      // TODO apply changes to children
-
       persist(changes, context, dbSession);
       dbSession.commit();
 
@@ -86,22 +92,43 @@ public class ActiveRuleService implements ServerComponent {
   }
 
   private void persist(Collection<ActiveRuleChange> changes, RuleActivationContext context, DbSession dbSession) {
+    ActiveRuleDao dao = db.activeRuleDao();
     for (ActiveRuleChange change : changes) {
       if (change.getType() == ActiveRuleChange.Type.ACTIVATED) {
-        ActiveRuleDto activeRule = ActiveRuleDto.createFor(context.profile(), context.rule())
-          .setSeverity(change.getSeverity());
-        db.activeRuleDao().insert(activeRule, dbSession);
-
-        // TODO insert activeruelparams
+        ActiveRuleDto activeRule = ActiveRuleDto.createFor(context.profile(), context.rule());
+        activeRule.setSeverity(change.getSeverity());
+        dao.insert(activeRule, dbSession);
+        for (Map.Entry<String, String> param : change.getParameters().entrySet()) {
+          ActiveRuleParamDto paramDto = ActiveRuleParamDto.createFor(context.ruleParamsByKeys().get(param.getKey()));
+          paramDto.setValue(param.getValue());
+          dao.addParam(activeRule, paramDto, dbSession);
+        }
 
       } else if (change.getType() == ActiveRuleChange.Type.DEACTIVATED) {
-        db.activeRuleDao().deleteByKey(change.getKey(), dbSession);
+        dao.deleteByKey(change.getKey(), dbSession);
 
       } else if (change.getType() == ActiveRuleChange.Type.UPDATED) {
         ActiveRuleDto activeRule = context.activeRule();
         activeRule.setSeverity(change.getSeverity());
-        db.activeRuleDao().update(activeRule, dbSession);
-        // TODO insert activeruelparams
+        dao.update(activeRule, dbSession);
+
+        for (Map.Entry<String, String> param : change.getParameters().entrySet()) {
+          ActiveRuleParamDto activeRuleParamDto = context.activeRuleParamsAsMap().get(param.getKey());
+          if (activeRuleParamDto == null) {
+            // did not exist
+            activeRuleParamDto = ActiveRuleParamDto.createFor(context.ruleParamsByKeys().get(param.getKey()));
+            activeRuleParamDto.setValue(param.getValue());
+            dao.addParam(activeRule, activeRuleParamDto, dbSession);
+          } else {
+            activeRuleParamDto.setValue(param.getValue());
+            dao.updateParam(activeRule, activeRuleParamDto, dbSession);
+          }
+        }
+        for (ActiveRuleParamDto activeRuleParamDto : context.activeRuleParams()) {
+          if (!change.getParameters().containsKey(activeRuleParamDto.getKey())) {
+            // TODO delete param
+          }
+        }
       }
     }
   }
@@ -125,13 +152,15 @@ public class ActiveRuleService implements ServerComponent {
     userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
-  private void verifyParam(RuleParamDto ruleParam, String value) {
-    RuleParamType ruleParamType = RuleParamType.parse(ruleParam.getType());
-    if (ruleParamType.multiple()) {
-      List<String> values = newArrayList(Splitter.on(",").split(value));
-      typeValidations.validate(values, ruleParamType.type(), ruleParamType.values());
-    } else {
-      typeValidations.validate(value, ruleParamType.type(), ruleParamType.values());
+  private void verifyParam(RuleParamDto ruleParam, @Nullable String value) {
+    if (value != null) {
+      RuleParamType ruleParamType = RuleParamType.parse(ruleParam.getType());
+      if (ruleParamType.multiple()) {
+        List<String> values = newArrayList(Splitter.on(",").split(value));
+        typeValidations.validate(values, ruleParamType.type(), ruleParamType.values());
+      } else {
+        typeValidations.validate(value, ruleParamType.type(), ruleParamType.values());
+      }
     }
   }
 }
