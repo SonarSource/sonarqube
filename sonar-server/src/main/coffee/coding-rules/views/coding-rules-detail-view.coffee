@@ -143,9 +143,9 @@ define [
         dataType: 'json'
         data:
           key: @model.get 'key'
-          text: @ui.extendDescriptionText.val()
+          markdown_text: @ui.extendDescriptionText.val()
       .done (r) =>
-        @model.set extra: r.extra, extraRaw: r.extraRaw
+        @model.set htmlNote: r.htmlNote, mdNote: r.mdNote
         @render()
 
 
