@@ -29,8 +29,6 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.measures.MetricFinder;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.core.component.ComponentQuery;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -351,7 +349,7 @@ public class QualityGates {
   }
 
   private void checkNonNullProject(long projectId, DbSession session) {
-    if (componentDao.findByQuery(ComponentQuery.create().addIds(projectId).addQualifiers(Qualifiers.PROJECT), session).isEmpty()) {
+    if (!componentDao.existsById(projectId, session)) {
       throw new NotFoundException("There is no project with id=" + projectId);
     }
   }

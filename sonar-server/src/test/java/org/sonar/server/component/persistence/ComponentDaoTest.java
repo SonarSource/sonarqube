@@ -22,9 +22,7 @@ package org.sonar.server.component.persistence;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.component.ComponentQuery;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 
@@ -88,13 +86,10 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void find_by_query() {
+  public void count_by_id() {
     setupData("shared");
-    assertThat(dao.findByQuery(ComponentQuery.create(), session)).hasSize(4);
-    assertThat(dao.findByQuery(ComponentQuery.create().addIds(1L), session)).hasSize(1);
-    assertThat(dao.findByQuery(ComponentQuery.create().addQualifiers(Qualifiers.PROJECT), session)).hasSize(1);
-    assertThat(dao.findByQuery(ComponentQuery.create().addQualifiers(Qualifiers.PROJECT, Qualifiers.MODULE), session)).hasSize(2);
-    assertThat(dao.findByQuery(ComponentQuery.create().addIds(1L).addQualifiers(Qualifiers.PROJECT), session)).hasSize(1);
-    assertThat(dao.findByQuery(ComponentQuery.create().addIds(1L).addQualifiers(Qualifiers.MODULE), session)).hasSize(0);
+
+    assertThat(dao.existsById(4L, session)).isTrue();
+    assertThat(dao.existsById(111L, session)).isFalse();
   }
 }

@@ -45,7 +45,7 @@
     </where>
   </select>
 
-  <select id="count" parameterType="map" resultType="long">
+  <select id="countByKey" parameterType="map" resultType="long">
     SELECT count(pm.id)
     FROM project_measures pm
     INNER JOIN snapshots s ON s.id=pm.snapshot_id AND s.islast=${_true}

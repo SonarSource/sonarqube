@@ -25,12 +25,9 @@ import org.sonar.api.DaoComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.component.ComponentQuery;
 import org.sonar.core.component.db.ComponentMapper;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
-
-import java.util.Collection;
 
 /**
  * @since 4.3
@@ -50,8 +47,8 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
     return getMapper(session).selectById(id);
   }
 
-  public Collection<ComponentDto> findByQuery(ComponentQuery query, SqlSession session) {
-    return getMapper(session).selectComponents(query);
+  public boolean existsById(Long id, SqlSession session) {
+    return getMapper(session).countById(id) > 0;
   }
 
   private ComponentMapper getMapper(SqlSession session) {

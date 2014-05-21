@@ -34,8 +34,6 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.measures.MetricFinder;
-import org.sonar.core.component.ComponentDto;
-import org.sonar.core.component.ComponentQuery;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
@@ -493,10 +491,9 @@ public class QualityGatesTest {
     Long qGateId = 42L;
     Long projectId = 24L;
     when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
-    when(componentDao.findByQuery(any(ComponentQuery.class), eq(session))).thenReturn(ImmutableList.of(new ComponentDto().setId(projectId)));
-    qGates.associateProject(qGateId , projectId);
+    when(componentDao.existsById(projectId, session)).thenReturn(true);
+    qGates.associateProject(qGateId, projectId);
     verify(dao).selectById(qGateId);
-    verify(componentDao).findByQuery(any(ComponentQuery.class), eq(session));
     ArgumentCaptor<PropertyDto> propertyCaptor = ArgumentCaptor.forClass(PropertyDto.class);
     verify(propertiesDao).setProperty(propertyCaptor.capture());
     PropertyDto property = propertyCaptor.getValue();
@@ -506,7 +503,7 @@ public class QualityGatesTest {
   }
 
   @Test(expected = NotFoundException.class)
-  public void should_fail_associate_project_on_unexisting_project() {
+  public void should_fail_associate_project_on_not_existing_project() {
     Long qGateId = 42L;
     Long projectId = 24L;
     when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
@@ -518,10 +515,9 @@ public class QualityGatesTest {
     Long qGateId = 42L;
     Long projectId = 24L;
     when(dao.selectById(qGateId)).thenReturn(new QualityGateDto().setId(qGateId));
-    when(componentDao.findByQuery(any(ComponentQuery.class), eq(session))).thenReturn(ImmutableList.of(new ComponentDto().setId(projectId)));
-    qGates.dissociateProject(qGateId , projectId);
+    when(componentDao.existsById(projectId, session)).thenReturn(true);
+    qGates.dissociateProject(qGateId, projectId);
     verify(dao).selectById(qGateId);
-    verify(componentDao).findByQuery(any(ComponentQuery.class), eq(session));
     verify(propertiesDao).deleteProjectProperty("sonar.qualitygate", projectId);
   }
 

@@ -95,10 +95,10 @@ public class MeasureDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void exists() throws Exception {
+  public void exists_by_key() throws Exception {
     setupData("shared");
 
-    assertThat(dao.exists(MeasureKey.of("org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc"), session)).isTrue();
-    assertThat(dao.exists(MeasureKey.of("org.struts:struts-core:src/org/struts/RequestContext.java", "unknown"), session)).isFalse();
+    assertThat(dao.existsByKey(MeasureKey.of("org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc"), session)).isTrue();
+    assertThat(dao.existsByKey(MeasureKey.of("org.struts:struts-core:src/org/struts/RequestContext.java", "unknown"), session)).isFalse();
   }
 }

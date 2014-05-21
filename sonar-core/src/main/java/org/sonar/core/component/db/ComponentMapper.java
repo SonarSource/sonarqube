@@ -19,11 +19,7 @@
  */
 package org.sonar.core.component.db;
 
-import org.apache.ibatis.annotations.Param;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.component.ComponentQuery;
-
-import java.util.Collection;
 
 /**
  * @since 4.3
@@ -34,5 +30,5 @@ public interface ComponentMapper {
 
   ComponentDto selectById(Long id);
 
-  Collection<ComponentDto> selectComponents(@Param("query") ComponentQuery query);
+  long countById(Long id);
 }

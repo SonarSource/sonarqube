@@ -83,7 +83,7 @@ public class SourceService implements ServerComponent {
   }
 
   public boolean hasScmData(String fileKey, DbSession session) {
-    return measureDao.exists(MeasureKey.of(fileKey, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY), session);
+    return measureDao.existsByKey(MeasureKey.of(fileKey, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY), session);
   }
 
   public boolean hasScmData(String fileKey) {

@@ -13,31 +13,6 @@
     p.path as path
   </sql>
 
-  <sql id="sortColumn">
-    <if test="query.sort() != null">,
-      <choose>
-        <when test="'SEVERITY'.equals(query.sort())">
-          p.severity as severity
-        </when>
-        <when test="'STATUS'.equals(query.sort())">
-          p.status as status
-        </when>
-        <when test="'ASSIGNEE'.equals(query.sort())">
-          p.assignee as assignee
-        </when>
-        <when test="'CREATION_DATE'.equals(query.sort())">
-          p.issue_creation_date as issueCreationDate
-        </when>
-        <when test="'UPDATE_DATE'.equals(query.sort())">
-          p.issue_update_date as issueUpdateDate
-        </when>
-        <when test="'CLOSE_DATE'.equals(query.sort())">
-          p.issue_close_date as issueCloseDate
-        </when>
-      </choose>
-    </if>
-  </sql>
-
   <select id="selectByKey" parameterType="String" resultType="Component">
     SELECT <include refid="componentColumns"/>
     FROM projects p
@@ -58,25 +33,14 @@
     </where>
   </select>
 
-  <select id="selectComponents" parameterType="map" resultType="Issue">
-    select <include refid="componentColumns"/>
-    from projects p
-    INNER JOIN snapshots s on s.project_id=p.id and s.islast=${_true}
-    <include refid="selectQueryConditions"/>
-  </select>
-
-  <sql id="selectQueryConditions">
+  <select id="countById" parameterType="Long" resultType="long">
+    SELECT count(p.id)
+    FROM projects p
     <where>
-      <if test="query.ids().size()>0">
-        and <foreach item="id" index="index" collection="query.ids()" open="(" separator=" or " close=")">p.id=#{id}
-        </foreach>
-      </if>
-      <if test="query.qualifiers().size()>0">
-        and <foreach item="qualifier" index="index" collection="query.qualifiers()" open="(" separator=" or " close=")">p.qualifier=#{qualifier}
-        </foreach>
-      </if>
+      AND p.enabled=${_true}
+      AND p.id=#{id}
     </where>
-  </sql>
+  </select>
 
 </mapper>
 
