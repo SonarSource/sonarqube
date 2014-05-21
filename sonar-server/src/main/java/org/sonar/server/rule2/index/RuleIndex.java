@@ -309,6 +309,9 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
           QueryBuilders.matchAllQuery()));
       } else if(query.getActivation().equals("true")){
         /** these are active rules for a given profile*/
+        if(query.getQProfileKey() == null || query.getQProfileKey().isEmpty()){
+          throw new IllegalStateException("qProfile is required when \"activation=true\"");
+        }
         fb.must(FilterBuilders.hasChildFilter(new ActiveRuleIndexDefinition().getIndexType(),
           QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.key(),
             query.getQProfileKey())));

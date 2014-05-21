@@ -410,7 +410,16 @@ public class RuleIndexMediumTest {
     assertThat(result.getHits()).hasSize(1);
     assertThat(result.getHits().get(0).name()).isEqualTo(rule3.getName());
 
-    // 3. get all active rules. for qualityProfileDto2
+    // 3. get all active rules missing profile.
+    try {
+      index.search(new RuleQuery().setActivation("true"),
+        new QueryOptions());
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("qProfile is required when \"activation=true\"");
+    }
+
+    // 4. get all active rules. for qualityProfileDto2
     result = index.search(new RuleQuery().setActivation("true")
       .setQProfileKey(qualityProfileDto2.getKey().toString()),
       new QueryOptions());
