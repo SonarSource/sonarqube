@@ -59,6 +59,7 @@ define [
       @qualityProfilesView = new CodingRulesDetailQualityProfilesView
         app: @options.app
         collection: qualityProfiles
+        rule: @model
 
       qualityProfile = @options.app.getQualityProfile()
       if qualityProfile
@@ -69,6 +70,7 @@ define [
         @contextQualityProfileView = new CodingRulesDetailQualityProfileView
           app: @options.app
           model: @contextProfile
+          rule: @model
         @listenTo @contextProfile, 'destroy', @hideContext
 
       @model.set 'lang', @options.app.languages[@model.get 'lang']

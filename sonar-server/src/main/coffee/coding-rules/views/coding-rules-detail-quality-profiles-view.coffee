@@ -11,4 +11,5 @@ define [
 
     itemViewOptions: ->
       app: @options.app
+      rule: @options.rule
       qualityProfiles: @collection

@@ -46,7 +46,14 @@ define [
 
     deactivate: ->
       if confirm t 'are_you_sure'
-        @model.destroy()
+        jQuery.ajax
+          type: 'POST'
+          url: "#{baseUrl}/api/qualityprofiles/deactivate_rule"
+          data:
+            profile_key: @model.get('qProfile')
+            rule_key: @options.rule.get('key')
+        .done =>
+          @model.destroy()
 
 
     enableUpdate: ->

@@ -24,23 +24,29 @@ define [
 
 
     activate: ->
+      profileKey = @ui.qualityProfileSelect.val()
+      if @model
+        profileKey = @model.get('qProfile')
+      severity = @ui.qualityProfileSeverity.val()
+
       @$('.modal-foot').html '<i class="spinner"></i>'
       jQuery.ajax
         type: 'POST'
-        url: "#{baseUrl}/api/rules/activate"
-        data: id: 1
+        url: "#{baseUrl}/api/qualityprofiles/activate_rule"
+        data:
+            profile_key: profileKey
+            rule_key: @rule.get('key')
+            severity: severity
       .done =>
-          severity = @ui.qualityProfileSeverity.val()
           parameters = @ui.qualityProfileParameters.map(->
             key: jQuery(@).prop('name'), value: jQuery(@).val() || jQuery(@).prop('placeholder')).get()
 
           if @model
             @model.set severity: severity, parameters: parameters
           else
-            key = @ui.qualityProfileSelect.val()
             model = new Backbone.Model
-              name: _.findWhere(@options.app.qualityProfiles, key: key).name
-              key: key
+              name: _.findWhere(@options.app.qualityProfiles, key: profileKey).name
+              key: profileKey
               severity: severity
               parameters: parameters
             @options.app.detailView.qualityProfilesView.collection.add model
