@@ -183,6 +183,7 @@ public class SearchAction implements RequestHandler {
     query.setQProfileKey(request.param(PARAM_QPROFILE));
     query.setSortField(RuleQuery.SortField.valueOfOrNull(request.param(SearchOptions.PARAM_SORT)));
     query.setAscendingSort(request.mandatoryParamAsBoolean(SearchOptions.PARAM_ASCENDING));
+    query.setTags(request.paramAsStrings(PARAM_TAGS));
     return query;
   }
 

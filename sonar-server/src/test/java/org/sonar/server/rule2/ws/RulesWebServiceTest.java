@@ -290,6 +290,23 @@ public class RulesWebServiceTest {
     result.assertJson(this.getClass(), "get_note_as_markdown_and_html.json");
   }
 
+  @Test
+  public void filter_by_tags() throws Exception {
+    ruleDao.insert(newRuleDto(RuleKey.of("java", "S001"))
+      .setSystemTags(ImmutableSet.of("tag1")), session);
+    ruleDao.insert(newRuleDto(RuleKey.of("java", "S002"))
+      .setSystemTags(ImmutableSet.of("tag2")), session);
+
+    session.commit();
+    tester.get(RuleService.class).refresh();
+
+    MockUserSession.set();
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
+    request.setParam("tags","tag1");
+    WsTester.Result result = request.execute();
+    result.assertJson(this.getClass(), "filter_by_tags.json");
+  }
+
 
   private QualityProfileDto newQualityProfile() {
     return new QualityProfileDto()
