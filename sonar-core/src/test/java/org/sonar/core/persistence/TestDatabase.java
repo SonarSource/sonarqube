@@ -67,7 +67,8 @@ import java.util.Properties;
 import static org.junit.Assert.fail;
 
 /**
- * This class should be call using @ClassRule in order to create the schema once (ft @Rule is used the schema will be recreated before each test).
+ * This class should be call using @ClassRule in order to create the schema once (ft @Rule is used
+ * the schema will be recreated before each test).
  * Data will be truncated each time you call prepareDbUnit().
  */
 public class TestDatabase extends ExternalResource {
@@ -224,6 +225,7 @@ public class TestDatabase extends ExternalResource {
     IDatabaseConnection connection = null;
     try {
       connection = dbUnitConnection();
+
       IDataSet dataSet = connection.createDataSet();
       String path = "/" + testClass.getName().replace('.', '/') + "/" + filename;
       IDataSet expectedDataSet = dbUnitDataSet(testClass.getResourceAsStream(path));

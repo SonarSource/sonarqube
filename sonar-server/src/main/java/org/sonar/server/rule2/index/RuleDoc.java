@@ -55,6 +55,13 @@ public class RuleDoc extends BaseDoc implements Rule {
     }
   }
 
+  /**
+   * Alias for backward-compatibility with SQALE
+   */
+  public RuleKey ruleKey() {
+    return key();
+  }
+
   @Override
   @CheckForNull
   public String internalKey() {

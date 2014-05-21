@@ -19,11 +19,10 @@
   </sql>
 
   <select id="selectRequirements" parameterType="map" resultType="Requirement">
-    select <include refid="requirementsColumns"/>
+    select
+    <include refid="requirementsColumns"/>
     from characteristics c
-    <where>
-      and c.rule_id IS NOT NULL
-    </where>
+    where c.rule_id IS NOT NULL
   </select>
 
 </mapper>

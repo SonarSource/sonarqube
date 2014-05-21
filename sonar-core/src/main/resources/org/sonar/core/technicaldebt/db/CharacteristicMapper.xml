@@ -107,5 +107,8 @@
     where id=#{id}
   </update>
 
+  <delete id="deleteRequirementsFromCharacteristicsTable">
+    DELETE FROM characteristics WHERE rule_id IS NOT NULL
+  </delete>
 </mapper>
 

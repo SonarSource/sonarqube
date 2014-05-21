@@ -40,12 +40,11 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Manages the ElasticSearch Node instance used to connect to the index.
- * @since 4.1
+ * ElasticSearch Node used to connect to index.
  */
 public class ESNode implements Startable {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ESIndex.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ESNode.class);
 
   private static final String HTTP_ENABLED = "http.enabled";
   static final String DATA_DIR = "data/es";

@@ -26,7 +26,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Only used in {@link org.sonar.server.startup.CopyRequirementsFromCharacteristicsToRules}
+ * Only used in CopyRequirementsFromCharacteristicsToRules
  */
 public class RequirementDto implements Serializable {
 

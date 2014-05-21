@@ -20,12 +20,15 @@
 package org.sonar.server.rule;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
-import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.server.paging.PagedResult;
+import org.sonar.server.paging.PagingResult;
+import org.sonar.server.rule2.RuleService;
+import org.sonar.server.rule2.index.RuleResult;
+import org.sonar.server.search.QueryOptions;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.CheckForNull;
@@ -36,59 +39,48 @@ import java.util.Map;
  */
 public class RubyRuleService implements ServerComponent, Startable {
 
-  private final Rules rules;
-  private final RuleRegistry ruleRegistry;
+  private final RuleService service;
 
-  private static final String OPTIONS_STATUS = "status";
-  private static final String OPTIONS_LANGUAGE = "language";
-
-  public RubyRuleService(Rules rules, RuleRegistry ruleRegistry) {
-    this.rules = rules;
-    this.ruleRegistry = ruleRegistry;
+  public RubyRuleService(RuleService service) {
+    this.service = service;
   }
 
-  public Integer[] findIds(Map<String, String> options) {
-    Map<String, String> params = Maps.newHashMap();
-    translateNonBlankKey(options, params, OPTIONS_STATUS, OPTIONS_STATUS);
-    translateNonBlankKey(options, params, "repositories", "repositoryKey");
-    translateNonBlankKey(options, params, OPTIONS_LANGUAGE, OPTIONS_LANGUAGE);
-    translateNonBlankKey(options, params, "searchtext", "nameOrKey");
-    return ruleRegistry.findIds(params).toArray(new Integer[0]);
-  }
-
-  private static void translateNonBlankKey(Map<String, String> options, Map<String, String> params, String optionKey, String paramKey) {
-    if (options.get(optionKey) != null && StringUtils.isNotBlank(options.get(optionKey).toString())) {
-      params.put(paramKey, options.get(optionKey).toString());
-    }
-  }
-
+  /**
+   * Used in issues_controller.rb
+   */
   @CheckForNull
-  public Rule findByKey(String ruleKey) {
-    return rules.findByKey(RuleKey.parse(ruleKey));
+  public org.sonar.server.rule2.Rule findByKey(String ruleKey) {
+    return service.getByKey(RuleKey.parse(ruleKey));
   }
 
-  public PagedResult<Rule> find(Map<String, Object> params) {
-    return rules.find(RuleQuery.builder()
-      .searchQuery(Strings.emptyToNull((String) params.get("searchQuery")))
-      .key(Strings.emptyToNull((String) params.get("key")))
-      .languages(RubyUtils.toStrings(params.get("languages")))
-      .repositories(RubyUtils.toStrings(params.get("repositories")))
-      .severities(RubyUtils.toStrings(params.get("severities")))
-      .statuses(RubyUtils.toStrings(params.get("statuses")))
-      .tags(RubyUtils.toStrings(params.get("tags")))
-      .debtCharacteristics(RubyUtils.toStrings(params.get("debtCharacteristics")))
-      .hasDebtCharacteristic(RubyUtils.toBoolean(params.get("hasDebtCharacteristic")))
-      .pageSize(RubyUtils.toInteger(params.get("pageSize")))
-      .pageIndex(RubyUtils.toInteger(params.get("pageIndex"))).build());
+  /**
+   * Used in SQALE
+   */
+  public PagedResult<org.sonar.server.rule2.Rule> find(Map<String, Object> params) {
+    org.sonar.server.rule2.index.RuleQuery query = service.newRuleQuery();
+    query.setQueryText(Strings.emptyToNull((String) params.get("searchQuery")));
+    query.setKey(Strings.emptyToNull((String) params.get("key")));
+    query.setLanguages(RubyUtils.toStrings(params.get("languages")));
+    query.setRepositories(RubyUtils.toStrings(params.get("repositories")));
+    query.setSeverities(RubyUtils.toStrings(params.get("severities")));
+    query.setStatuses(RubyUtils.toEnums(params.get("statuses"), RuleStatus.class));
+    query.setTags(RubyUtils.toStrings(params.get("tags")));
+    query.setDebtCharacteristics(RubyUtils.toStrings(params.get("debtCharacteristics")));
+    query.setHasDebtCharacteristic(RubyUtils.toBoolean(params.get("hasDebtCharacteristic")));
+
+    QueryOptions options = new QueryOptions();
+    RuleResult rules = service.search(query, options);
+    return new PagedResult<org.sonar.server.rule2.Rule>(rules.getRules(), PagingResult.create(options.getLimit(), 1, rules.getTotal()));
   }
 
+  // sqale
   public void updateRule(Map<String, Object> params) {
-    rules.updateRule(new RuleOperations.RuleChange()
-      .setRuleKey(RuleKey.parse((String) params.get("ruleKey")))
-      .setDebtCharacteristicKey(Strings.emptyToNull((String) params.get("debtCharacteristicKey")))
-      .setDebtRemediationFunction((String) params.get("debtRemediationFunction"))
-      .setDebtRemediationCoefficient(Strings.emptyToNull((String) params.get("debtRemediationCoefficient")))
-      .setDebtRemediationOffset(Strings.emptyToNull((String) params.get("debtRemediationOffset"))));
+//    rules.updateRule(new RuleOperations.RuleChange()
+//      .setRuleKey(RuleKey.parse((String) params.get("ruleKey")))
+//      .setDebtCharacteristicKey(Strings.emptyToNull((String) params.get("debtCharacteristicKey")))
+//      .setDebtRemediationFunction((String) params.get("debtRemediationFunction"))
+//      .setDebtRemediationCoefficient(Strings.emptyToNull((String) params.get("debtRemediationCoefficient")))
+//      .setDebtRemediationOffset(Strings.emptyToNull((String) params.get("debtRemediationOffset"))));
   }
 
   @Override

@@ -39,7 +39,7 @@ import org.sonar.server.rule2.persistence.RuleDao;
 import java.util.Map;
 
 /**
- * Facade for all db components
+ * Facade for all db components, mainly DAOs
  */
 public class DbClient implements ServerComponent {
 

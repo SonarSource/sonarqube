@@ -22,6 +22,7 @@ package org.sonar.core.technicaldebt.db;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.persistence.DbSession;
 
 import java.util.List;
 
@@ -31,25 +32,22 @@ public class RequirementDaoTest extends AbstractDaoTestCase {
 
   private static final String[] EXCLUDED_COLUMNS = new String[]{"id", "created_at", "updated_at"};
 
-  RequirementDao dao;
-
-  @Before
-  public void createDao() {
-    dao = new RequirementDao(getMyBatis());
-  }
+  RequirementDao dao = new RequirementDao();
 
   @Test
   public void select_requirements() {
     setupData("shared");
-
-    assertThat(dao.selectRequirements()).hasSize(2);
+    DbSession session = getMyBatis().openSession(false);
+    assertThat(dao.selectRequirements(session)).hasSize(2);
+    session.close();
   }
 
   @Test
   public void select_requirement() {
     setupData("select_requirement");
 
-    List<RequirementDto> dtos = dao.selectRequirements();
+    DbSession session = getMyBatis().openSession(false);
+    List<RequirementDto> dtos = dao.selectRequirements(session);
     assertThat(dtos).hasSize(1);
 
     RequirementDto dto = dtos.get(0);
@@ -64,6 +62,8 @@ public class RequirementDaoTest extends AbstractDaoTestCase {
     assertThat(dto.isEnabled()).isTrue();
     assertThat(dto.getCreatedAt()).isNotNull();
     assertThat(dto.getUpdatedAt()).isNull();
+
+    session.close();
   }
 
 }

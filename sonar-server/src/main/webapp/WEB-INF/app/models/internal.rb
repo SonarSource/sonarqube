@@ -79,7 +79,7 @@ class Internal
   end
 
   def self.rules
-    component(Java::OrgSonarServerRule2::RuleService.java_class)
+    component(Java::OrgSonarServerRule::RubyRuleService.java_class)
   end
 
   def self.durations

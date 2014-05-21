@@ -27,7 +27,6 @@ import org.sonar.api.utils.DateUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Date;
 import java.util.List;
 
@@ -55,6 +54,26 @@ public class RubyUtils {
   }
 
   @CheckForNull
+  public static <E extends Enum<E>> List<E> toEnums(@Nullable Object o, Class<E> enumClass) {
+    if (o == null) {
+      return null;
+    }
+    List<E> result = Lists.newArrayList();
+    if (o instanceof List) {
+      for (String s : (List<String>) o) {
+        result.add(Enum.valueOf(enumClass, s));
+      }
+    } else if (o instanceof CharSequence) {
+      for (String s : Splitter.on(',').omitEmptyStrings().split((CharSequence) o)) {
+        result.add(Enum.valueOf(enumClass, s));
+      }
+    } else {
+      throw new IllegalArgumentException("Unsupported type: " + o.getClass());
+    }
+    return result;
+  }
+
+  @CheckForNull
   public static Integer toInteger(@Nullable Object o) {
     if (o == null) {
       return null;
@@ -66,7 +85,7 @@ public class RubyUtils {
       return Ints.checkedCast((Long) o);
     }
     if (o instanceof String) {
-      if (StringUtils.isBlank((String)o)) {
+      if (StringUtils.isBlank((String) o)) {
         return null;
       }
       return Integer.parseInt((String) o);
@@ -89,7 +108,7 @@ public class RubyUtils {
       return ((Long) o).doubleValue();
     }
     if (o instanceof String) {
-      if (StringUtils.isBlank((String)o)) {
+      if (StringUtils.isBlank((String) o)) {
         return null;
       }
       return Double.parseDouble((String) o);
@@ -106,7 +125,7 @@ public class RubyUtils {
       return (Date) o;
     }
     if (o instanceof String) {
-      if (StringUtils.isBlank((String)o)) {
+      if (StringUtils.isBlank((String) o)) {
         return null;
       }
       Date date = DateUtils.parseDateTimeQuietly((String) o);
@@ -127,7 +146,7 @@ public class RubyUtils {
       return (Boolean) o;
     }
     if (o instanceof String) {
-      if (StringUtils.isBlank((String)o)) {
+      if (StringUtils.isBlank((String) o)) {
         return null;
       }
       return Boolean.parseBoolean((String) o);
@@ -141,13 +160,13 @@ public class RubyUtils {
       return null;
     }
     if (o instanceof Integer) {
-      return ((Integer)o).longValue();
+      return ((Integer) o).longValue();
     }
     if (o instanceof Long) {
       return (Long) o;
     }
     if (o instanceof String) {
-      if (StringUtils.isBlank((String)o)) {
+      if (StringUtils.isBlank((String) o)) {
         return null;
       }
       return Long.parseLong((String) o);

@@ -48,4 +48,5 @@ public interface CharacteristicMapper {
 
   int update(CharacteristicDto characteristic);
 
+  void deleteRequirementsFromCharacteristicsTable();
 }

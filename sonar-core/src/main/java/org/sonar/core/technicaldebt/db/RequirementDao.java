@@ -21,31 +21,15 @@ package org.sonar.core.technicaldebt.db;
 
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
-import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.persistence.DaoComponent;
 
 import java.util.List;
 
-public class RequirementDao implements ServerComponent {
-
-  private final MyBatis mybatis;
-
-  public RequirementDao(MyBatis mybatis) {
-    this.mybatis = mybatis;
-  }
-
-  public List<RequirementDto> selectRequirements() {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      return selectRequirements(session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
+public class RequirementDao implements DaoComponent, ServerComponent {
 
   public List<RequirementDto> selectRequirements(SqlSession session) {
     return session.getMapper(RequirementMapper.class).selectRequirements();
   }
-
 
 
 }

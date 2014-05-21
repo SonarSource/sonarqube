@@ -22,11 +22,13 @@ package org.sonar.server.util;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
 
 import static java.util.Arrays.asList;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class RubyUtilsTest {
 
@@ -34,12 +36,33 @@ public class RubyUtilsTest {
   public ExpectedException throwable = ExpectedException.none();
 
   @Test
-  public void should_parse_list_of_strings() {
+  public void toStrings() {
     assertThat(RubyUtils.toStrings(null)).isNull();
     assertThat(RubyUtils.toStrings("")).isEmpty();
     assertThat(RubyUtils.toStrings("foo")).containsOnly("foo");
     assertThat(RubyUtils.toStrings("foo,bar")).containsOnly("foo", "bar");
     assertThat(RubyUtils.toStrings(asList("foo", "bar"))).containsOnly("foo", "bar");
+  }
+
+  @Test
+  public void toEnums() {
+    assertThat(RubyUtils.toEnums(null, RuleStatus.class)).isNull();
+    assertThat(RubyUtils.toEnums("", RuleStatus.class)).isEmpty();
+    assertThat(RubyUtils.toEnums("BETA", RuleStatus.class)).containsOnly(RuleStatus.BETA);
+    assertThat(RubyUtils.toEnums("BETA,READY", RuleStatus.class)).containsOnly(RuleStatus.BETA, RuleStatus.READY);
+    assertThat(RubyUtils.toEnums(asList("BETA", "READY"), RuleStatus.class)).containsOnly(RuleStatus.BETA, RuleStatus.READY);
+    try {
+      RubyUtils.toEnums("xxx", RuleStatus.class);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("No enum constant org.sonar.api.rule.RuleStatus.xxx");
+    }
+    try {
+      RubyUtils.toEnums(1, RuleStatus.class);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Unsupported type: class java.lang.Integer");
+    }
   }
 
   @Test
