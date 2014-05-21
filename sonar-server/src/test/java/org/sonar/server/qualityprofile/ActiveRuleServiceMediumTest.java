@@ -356,22 +356,22 @@ public class ActiveRuleServiceMediumTest {
   @Test
   public void find_by_ruleKey() throws Exception {
     QualityProfileDto profile = QualityProfileDto.createFor("name","java");
-    dbClient.getDao(QualityProfileDao.class).insert(profile, dbSession);
+    dbClient.qualityProfileDao().insert(profile, dbSession);
 
     RuleDto rule = RuleDto.createFor(RuleKey.of("java", "r1"))
       .setSeverity("MAJOR");
-    dbClient.getDao(RuleDao.class).insert(rule, dbSession);
+    dbClient.ruleDao().insert(rule, dbSession);
 
 
     RuleDto rule2 = RuleDto.createFor(RuleKey.of("java", "r2"))
       .setSeverity("MAJOR");
-    dbClient.getDao(RuleDao.class).insert(rule2, dbSession);
+    dbClient.ruleDao().insert(rule2, dbSession);
 
-    dbClient.getDao(ActiveRuleDao.class).insert(
+    dbClient.activeRuleDao().insert(
       ActiveRuleDto.createFor(profile, rule).setSeverity("MINOR"),
       dbSession);
 
-    dbClient.getDao(ActiveRuleDao.class).insert(
+    dbClient.activeRuleDao().insert(
       ActiveRuleDto.createFor(profile, rule2).setSeverity("BLOCKER"),
       dbSession);
 

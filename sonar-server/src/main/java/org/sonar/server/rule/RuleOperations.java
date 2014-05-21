@@ -23,7 +23,6 @@ package org.sonar.server.rule;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtRemediationFunction;
@@ -32,10 +31,9 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
-import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
@@ -50,34 +48,25 @@ import java.util.Date;
 @Deprecated
 public class RuleOperations implements ServerComponent {
 
-  private final MyBatis myBatis;
-  private final RuleDao ruleDao;
-  private final CharacteristicDao characteristicDao;
-  private final RuleRegistry ruleRegistry;
-
+  private final DbClient dbClient;
   private final System2 system;
 
-  public RuleOperations(MyBatis myBatis, RuleDao ruleDao, CharacteristicDao characteristicDao,
-                        RuleRegistry ruleRegistry) {
-    this(myBatis, ruleDao, characteristicDao, ruleRegistry, System2.INSTANCE);
+  public RuleOperations(DbClient dbClient) {
+    this(dbClient, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  RuleOperations(MyBatis myBatis, RuleDao ruleDao, CharacteristicDao characteristicDao,
-                 RuleRegistry ruleRegistry, System2 system) {
-    this.myBatis = myBatis;
-    this.ruleDao = ruleDao;
-    this.characteristicDao = characteristicDao;
-    this.ruleRegistry = ruleRegistry;
+  RuleOperations(DbClient dbClient, System2 system) {
+    this.dbClient = dbClient;
     this.system = system;
   }
 
 
   public void updateRule(RuleChange ruleChange, UserSession userSession) {
     checkPermission(userSession);
-    DbSession session = myBatis.openSession(false);
+    DbSession session = dbClient.openSession(false);
     try {
-      RuleDto ruleDto = ruleDao.selectByKey(ruleChange.ruleKey(), session);
+      RuleDto ruleDto = dbClient.ruleDao().getByKey(ruleChange.ruleKey(), session);
       if (ruleDto == null) {
         throw new NotFoundException(String.format("Unknown rule '%s'", ruleChange.ruleKey()));
       }
@@ -86,7 +75,7 @@ public class RuleOperations implements ServerComponent {
 
       // A sub-characteristic is given -> update rule debt if given values are different from overridden ones and from default ones
       if (!Strings.isNullOrEmpty(subCharacteristicKey)) {
-        subCharacteristic = characteristicDao.selectByKey(subCharacteristicKey, session);
+        subCharacteristic = dbClient.debtCharacteristicDao().selectByKey(subCharacteristicKey, session);
         if (subCharacteristic == null) {
           throw new NotFoundException(String.format("Unknown sub characteristic '%s'", ruleChange.debtCharacteristicKey()));
         }
@@ -96,7 +85,6 @@ public class RuleOperations implements ServerComponent {
         new Date(system.now()), session);
       if (needUpdate) {
         session.commit();
-        reindexRule(ruleDto, session);
       }
     } catch (IllegalArgumentException e) {
       throw BadRequestException.of(e.getMessage());
@@ -144,8 +132,7 @@ public class RuleOperations implements ServerComponent {
     }
 
     if (needUpdate) {
-      ruleDto.setUpdatedAt(updateDate);
-      ruleDao.update(ruleDto, session);
+      dbClient.ruleDao().update(ruleDto, session);
     }
     return needUpdate;
   }
@@ -170,10 +157,6 @@ public class RuleOperations implements ServerComponent {
       .append(oldCoefficient, newCoefficient)
       .append(oldOffset, newOffset)
       .isEquals();
-  }
-
-  private void reindexRule(RuleDto rule, SqlSession session) {
-    ruleRegistry.reindex(rule, session);
   }
 
   private void checkPermission(UserSession userSession) {

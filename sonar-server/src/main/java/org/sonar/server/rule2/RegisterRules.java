@@ -84,7 +84,7 @@ public class RegisterRules implements Startable {
     this.defLoader = defLoader;
     this.profilesManager = profilesManager;
     this.dbClient = dbClient;
-    this.characteristicDao = dbClient.getDao(CharacteristicDao.class);
+    this.characteristicDao = dbClient.debtCharacteristicDao();
   }
 
   @Override
@@ -280,7 +280,7 @@ public class RegisterRules implements Startable {
         // TODO store param name
         if (mergeParam(paramDto, paramDef)) {
           dbClient.ruleDao().updateRuleParam(rule, paramDto, session);
-        }  else {
+        } else {
           // TODO to be replaced by synchronizer
           session.enqueue(new EmbeddedIndexAction<RuleKey>(RuleIndexDefinition.INDEX_TYPE, IndexAction.Method.UPDATE, paramDto, rule.getKey()));
         }

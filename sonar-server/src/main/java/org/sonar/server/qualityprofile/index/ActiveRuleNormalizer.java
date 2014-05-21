@@ -123,7 +123,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
     DbSession session = db.openSession(false);
     try {
       //TODO because DTO uses legacy ID pattern
-      QualityProfileDto profile = db.getDao(QualityProfileDao.class)
+      QualityProfileDto profile = db.qualityProfileDao()
         .selectById(activeRuleDto.getProfileId());
       newRule.put(ActiveRuleField.PROFILE_KEY.key(), profile.getKey().toString());
 

@@ -335,30 +335,6 @@ public class RuleRegistryTest {
   }
 
   @Test
-  public void remove_all_rules_when_ro_rule_registered() {
-    String[] ids = registry.reindex(session);
-    registry.removeDeletedRules(ids);
-    assertThat(registry.findIds(new HashMap<String, String>())).hasSize(0);
-  }
-
-  @Test
-  public void update_existing_rules_and_forget_deleted_rules() {
-    when(ruleDao.selectEnablesAndNonManual(session)).thenReturn(newArrayList(
-      new RuleDto().setId(1).setRepositoryKey("xoo").setRuleKey("key1").setSeverity(Severity.MINOR),
-      new RuleDto().setId(2).setRepositoryKey("xoo").setRuleKey("key2").setSeverity(Severity.MINOR)
-    ));
-    assertThat(esSetup.exists("rules", "rule", "3")).isTrue();
-
-    String[] ids = registry.reindex(session);
-    registry.removeDeletedRules(ids);
-
-    assertThat(registry.findIds(ImmutableMap.of("repositoryKey", "xoo")))
-      .hasSize(2)
-      .containsOnly(1, 2);
-    assertThat(esSetup.exists("rules", "rule", "3")).isFalse();
-  }
-
-  @Test
   public void filter_removed_rules() {
     assertThat(registry.findIds(new HashMap<String, String>())).containsOnly(1, 2, 3);
   }

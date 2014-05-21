@@ -20,7 +20,7 @@
 package org.sonar.server.db;
 
 import com.google.common.base.Preconditions;
-import org.sonar.api.DaoComponent;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.Dto;

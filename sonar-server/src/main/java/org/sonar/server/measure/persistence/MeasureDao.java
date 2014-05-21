@@ -22,7 +22,7 @@ package org.sonar.server.measure.persistence;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
-import org.sonar.api.DaoComponent;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.System2;
 import org.sonar.core.measure.db.MeasureDto;

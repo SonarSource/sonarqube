@@ -112,7 +112,7 @@ public class RuleRegistry {
     }
   }
 
-  public String[] reindex(SqlSession session) {
+  String[] reindex(SqlSession session) {
     return reindex(ruleDao.selectEnablesAndNonManual(session), session);
   }
 
@@ -154,7 +154,7 @@ public class RuleRegistry {
   /**
    * Reindex one rule
    */
-  public void reindex(RuleDto rule) {
+  void reindex(RuleDto rule) {
     SqlSession sqlSession = myBatis.openSession(false);
     try {
       reindex(rule, sqlSession);
@@ -204,16 +204,6 @@ public class RuleRegistry {
       return ids;
     } catch (IOException ioe) {
       throw new IllegalStateException("Unable to index rules", ioe);
-    }
-  }
-
-  public void removeDeletedRules(String[] ids) {
-    List<String> indexIds = searchIndex.findDocumentIds(SearchQuery.create().index(INDEX_RULES).type(TYPE_RULE));
-    indexIds.removeAll(Arrays.asList(ids));
-    if (!indexIds.isEmpty()) {
-      TIME_PROFILER.start("Remove deleted rule documents");
-      searchIndex.bulkDelete(INDEX_RULES, TYPE_RULE, indexIds.toArray(new String[0]));
-      TIME_PROFILER.stop();
     }
   }
 

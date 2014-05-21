@@ -23,7 +23,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.DaoComponent;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.api.component.Component;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.MyBatis;

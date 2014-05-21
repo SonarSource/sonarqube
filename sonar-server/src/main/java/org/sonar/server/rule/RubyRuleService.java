@@ -29,8 +29,6 @@ import org.sonar.server.paging.PagedResult;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.util.Map;
 
 /**

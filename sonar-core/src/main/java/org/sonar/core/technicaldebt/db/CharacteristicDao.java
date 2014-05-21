@@ -23,7 +23,7 @@ package org.sonar.core.technicaldebt.db;
 import com.google.common.collect.Lists;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
-import org.sonar.api.DaoComponent;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.MyBatis;
 

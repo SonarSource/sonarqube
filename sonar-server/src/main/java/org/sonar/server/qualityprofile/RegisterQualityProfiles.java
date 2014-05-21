@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.*;
+import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
@@ -41,7 +41,6 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
-import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.db.DbClient;
@@ -135,11 +134,11 @@ public class RegisterQualityProfiles {
 
   private QualityProfileDto newQualityProfileDto(String name, String language, DbSession session) {
     checkPermission(UserSession.get());
-      if (dbClient.qualityProfileDao().selectByNameAndLanguage(name, language, session) != null) {
-        throw BadRequestException.ofL10n("quality_profiles.profile_x_already_exists", name);
-      }
+    if (dbClient.qualityProfileDao().selectByNameAndLanguage(name, language, session) != null) {
+      throw BadRequestException.ofL10n("quality_profiles.profile_x_already_exists", name);
+    }
 
-    QualityProfileDto profile =  QualityProfileDto.createFor(name, language)
+    QualityProfileDto profile = QualityProfileDto.createFor(name, language)
       .setVersion(1).setUsed(false);
     dbClient.qualityProfileDao().insert(profile, session);
     return profile;
@@ -181,7 +180,7 @@ public class RegisterQualityProfiles {
       }
     }
 
-    dbClient.getDao(LoadedTemplateDao.class)
+    dbClient.loadedTemplateDao()
       .insert(new LoadedTemplateDto(templateKey(language, name), LoadedTemplateDto.QUALITY_PROFILE_TYPE), session);
   }
 
@@ -248,7 +247,7 @@ public class RegisterQualityProfiles {
   }
 
   private boolean shouldRegister(String language, String profileName, SqlSession session) {
-    return dbClient.getDao(LoadedTemplateDao.class)
+    return dbClient.loadedTemplateDao()
       .countByTypeAndKey(LoadedTemplateDto.QUALITY_PROFILE_TYPE, templateKey(language, profileName), session) == 0;
   }
 

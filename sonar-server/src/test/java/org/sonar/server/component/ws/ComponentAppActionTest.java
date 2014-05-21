@@ -106,10 +106,10 @@ public class ComponentAppActionTest {
   public void setUp() throws Exception {
     DbClient dbClient = mock(DbClient.class);
     when(dbClient.openSession(false)).thenReturn(session);
-    when(dbClient.getDao(ComponentDao.class)).thenReturn(componentDao);
-    when(dbClient.getDao(ResourceDao.class)).thenReturn(resourceDao);
-    when(dbClient.getDao(PropertiesDao.class)).thenReturn(propertiesDao);
-    when(dbClient.getDao(MeasureDao.class)).thenReturn(measureDao);
+    when(dbClient.componentDao()).thenReturn(componentDao);
+    when(dbClient.resourceDao()).thenReturn(resourceDao);
+    when(dbClient.propertiesDao()).thenReturn(propertiesDao);
+    when(dbClient.measureDao()).thenReturn(measureDao);
 
     when(issueService.findSeveritiesByComponent(anyString(), eq(session))).thenReturn(mock(Multiset.class));
     when(issueService.findRulesByComponent(anyString(), eq(session))).thenReturn(mock(RulesAggregation.class));

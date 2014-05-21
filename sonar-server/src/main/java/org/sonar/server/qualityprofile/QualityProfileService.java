@@ -20,7 +20,6 @@
 package org.sonar.server.qualityprofile;
 
 import org.sonar.api.ServerComponent;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.db.DbClient;
 
@@ -33,11 +32,11 @@ public class QualityProfileService implements ServerComponent {
 
   private final DbClient dbClient;
 
-  public QualityProfileService(DbClient dbClient){
+  public QualityProfileService(DbClient dbClient) {
     this.dbClient = dbClient;
   }
 
   public List<QualityProfileDto> findAll() {
-    return dbClient.getDao(QualityProfileDao.class).selectAll();
+    return dbClient.qualityProfileDao().selectAll();
   }
 }

@@ -371,8 +371,8 @@ public class RuleIndexMediumTest {
   public void search_by_profile() throws InterruptedException {
     QualityProfileDto qualityProfileDto1 = QualityProfileDto.createFor("profile1", "java");
     QualityProfileDto qualityProfileDto2 = QualityProfileDto.createFor("profile2", "java");
-    dbClient.getDao(QualityProfileDao.class).insert(qualityProfileDto1);
-    dbClient.getDao(QualityProfileDao.class).insert(qualityProfileDto2);
+    dbClient.qualityProfileDao().insert(qualityProfileDto1);
+    dbClient.qualityProfileDao().insert(qualityProfileDto2);
 
     RuleDto rule1 = newRuleDto(RuleKey.of("java", "S001"));
     dao.insert(rule1, dbSession);
@@ -381,15 +381,15 @@ public class RuleIndexMediumTest {
     RuleDto rule3 = newRuleDto(RuleKey.of("java", "S003"));
     dao.insert(rule3, dbSession);
 
-    dbClient.getDao(ActiveRuleDao.class).insert(
+    dbClient.activeRuleDao().insert(
       ActiveRuleDto.createFor(qualityProfileDto1, rule1)
       .setSeverity("BLOCKER"), dbSession);
 
-    dbClient.getDao(ActiveRuleDao.class).insert(
+    dbClient.activeRuleDao().insert(
       ActiveRuleDto.createFor(qualityProfileDto2, rule1)
         .setSeverity("BLOCKER"), dbSession);
 
-    dbClient.getDao(ActiveRuleDao.class).insert(
+    dbClient.activeRuleDao().insert(
       ActiveRuleDto.createFor(qualityProfileDto1, rule2)
         .setSeverity("BLOCKER"), dbSession);
 

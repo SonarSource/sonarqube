@@ -29,7 +29,6 @@ import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
 import org.sonar.server.rule2.persistence.RuleDao;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class DbClientTest {
 
@@ -39,9 +38,9 @@ public class DbClientTest {
   @Test
   public void facade() throws Exception {
     MyBatis myBatis = db.myBatis();
-    RuleDao ruleDao = mock(RuleDao.class);
-    ActiveRuleDao activeRuleDao = mock(ActiveRuleDao.class);
-    QualityProfileDao qualityProfileDao = mock(QualityProfileDao.class);
+    RuleDao ruleDao = new RuleDao();
+    QualityProfileDao qualityProfileDao = new QualityProfileDao(myBatis);
+    ActiveRuleDao activeRuleDao = new ActiveRuleDao(qualityProfileDao, ruleDao);
 
     DbClient client = new DbClient(db.database(), myBatis, ruleDao, activeRuleDao, qualityProfileDao);
 
@@ -52,8 +51,8 @@ public class DbClientTest {
     dbSession.close();
 
     // DAO
-    assertThat(client.getDao(qualityProfileDao.getClass())).isSameAs(qualityProfileDao);
-    assertThat(client.getDao(activeRuleDao.getClass())).isSameAs(activeRuleDao);
-    assertThat(client.getDao(ruleDao.getClass())).isSameAs(ruleDao);
+    assertThat(client.qualityProfileDao()).isSameAs(qualityProfileDao);
+    assertThat(client.activeRuleDao()).isSameAs(activeRuleDao);
+    assertThat(client.ruleDao()).isSameAs(ruleDao);
   }
 }

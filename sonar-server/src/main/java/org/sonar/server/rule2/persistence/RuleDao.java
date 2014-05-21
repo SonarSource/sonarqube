@@ -169,4 +169,12 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
     Preconditions.checkNotNull(rule.getId(), "Rule is not persisted");
     return mapper(session).selectParamByRuleAndKey(rule.getId(), key);
   }
+
+  public List<RuleDto> findRulesByDebtSubCharacteristicId(int id, DbSession session) {
+    return mapper(session).selectBySubCharacteristicId(id);
+  }
+
+  public List<RuleDto> selectEnabledAndNonManual(DbSession session) {
+    return mapper(session).selectEnablesAndNonManual();
+  }
 }

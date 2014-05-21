@@ -64,7 +64,7 @@ public class SourceServiceTest {
   public void setUp() throws Exception {
     DbClient dbClient = mock(DbClient.class);
     when(dbClient.openSession(false)).thenReturn(session);
-    when(dbClient.getDao(MeasureDao.class)).thenReturn(measureDao);
+    when(dbClient.measureDao()).thenReturn(measureDao);
     service = new SourceService(dbClient, sourceDecorator, deprecatedSourceDecorator);
   }
 

@@ -21,7 +21,7 @@ package org.sonar.server.component.persistence;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.DaoComponent;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;

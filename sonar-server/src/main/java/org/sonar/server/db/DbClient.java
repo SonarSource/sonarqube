@@ -19,16 +19,23 @@
  */
 package org.sonar.server.db;
 
-import org.sonar.api.DaoComponent;
+import com.google.common.collect.Maps;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
+import org.sonar.core.resource.ResourceDao;
+import org.sonar.core.technicaldebt.db.CharacteristicDao;
+import org.sonar.core.technicaldebt.db.RequirementDao;
+import org.sonar.core.template.LoadedTemplateDao;
+import org.sonar.server.component.persistence.ComponentDao;
+import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
 import org.sonar.server.rule2.persistence.RuleDao;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -38,16 +45,35 @@ public class DbClient implements ServerComponent {
 
   private final Database db;
   private final MyBatis myBatis;
-  private final Map<Class<?>, DaoComponent> daoComponents;
+  private final RuleDao ruleDao;
+  private final ActiveRuleDao activeRuleDao;
+  private final QualityProfileDao qualityProfileDao;
+  private final CharacteristicDao debtCharacteristicDao;
+  private final LoadedTemplateDao loadedTemplateDao;
+  private final PropertiesDao propertiesDao;
+  private final ComponentDao componentDao;
+  private final ResourceDao resourceDao;
+  private final MeasureDao measureDao;
+  private final RequirementDao debtRequirementDao;
 
   public DbClient(Database db, MyBatis myBatis, DaoComponent... daoComponents) {
     this.db = db;
     this.myBatis = myBatis;
-    this.daoComponents = new HashMap<Class<?>, DaoComponent>();
 
-    for(DaoComponent daoComponent : daoComponents){
-      this.daoComponents.put(daoComponent.getClass(), daoComponent);
+    Map<Class, DaoComponent> map = Maps.newHashMap();
+    for (DaoComponent daoComponent : daoComponents) {
+      map.put(daoComponent.getClass(), daoComponent);
     }
+    ruleDao = getDao(map, RuleDao.class);
+    activeRuleDao = getDao(map, ActiveRuleDao.class);
+    debtCharacteristicDao = getDao(map, CharacteristicDao.class);
+    qualityProfileDao = getDao(map, QualityProfileDao.class);
+    loadedTemplateDao = getDao(map, LoadedTemplateDao.class);
+    propertiesDao = getDao(map, PropertiesDao.class);
+    componentDao = getDao(map, ComponentDao.class);
+    resourceDao = getDao(map, ResourceDao.class);
+    measureDao = getDao(map, MeasureDao.class);
+    debtRequirementDao = getDao(map, RequirementDao.class);
   }
 
   public Database database() {
@@ -58,19 +84,47 @@ public class DbClient implements ServerComponent {
     return myBatis.openSession(batch);
   }
 
-  public <K> K getDao(Class<K> clazz){
-    return (K) this.daoComponents.get(clazz);
-  }
-
   public RuleDao ruleDao() {
-    return this.getDao(RuleDao.class);
+    return ruleDao;
   }
 
   public ActiveRuleDao activeRuleDao() {
-    return this.getDao(ActiveRuleDao.class);
+    return activeRuleDao;
   }
 
   public QualityProfileDao qualityProfileDao() {
-    return this.getDao(QualityProfileDao.class);
+    return qualityProfileDao;
+  }
+
+  public CharacteristicDao debtCharacteristicDao() {
+    return debtCharacteristicDao;
+  }
+
+  public LoadedTemplateDao loadedTemplateDao() {
+    return loadedTemplateDao;
+  }
+
+  public PropertiesDao propertiesDao() {
+    return propertiesDao;
+  }
+
+  public ComponentDao componentDao() {
+    return componentDao;
+  }
+
+  public ResourceDao resourceDao() {
+    return resourceDao;
+  }
+
+  public MeasureDao measureDao() {
+    return measureDao;
+  }
+
+  public RequirementDao debtRequirementDao() {
+    return debtRequirementDao;
+  }
+
+  private <K> K getDao(Map<Class, DaoComponent> map, Class<K> clazz) {
+    return (K) map.get(clazz);
   }
 }

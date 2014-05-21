@@ -109,7 +109,7 @@ public class ComponentAppAction implements RequestHandler {
 
     DbSession session = dbClient.openSession(false);
     try {
-      ComponentDto component = dbClient.getDao(ComponentDao.class).getByKey(fileKey, session);
+      ComponentDto component = dbClient.componentDao().getByKey(fileKey, session);
       if (component == null) {
         throw new NotFoundException(String.format("Component '%s' does not exists.", fileKey));
       }
@@ -129,7 +129,7 @@ public class ComponentAppAction implements RequestHandler {
   }
 
   private void appendComponent(JsonWriter json, ComponentDto component, UserSession userSession, DbSession session) {
-    List<PropertyDto> propertyDtos = dbClient.getDao(PropertiesDao.class).selectByQuery(PropertyQuery.builder()
+    List<PropertyDto> propertyDtos = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
         .setKey("favourite")
         .setComponentId(component.getId())
         .setUserId(userSession.userId())
@@ -164,7 +164,7 @@ public class ComponentAppAction implements RequestHandler {
   private void appendMeasures(JsonWriter json, String fileKey, DbSession session) {
     json.name("measures").beginObject();
 
-    List<MeasureDto> measures = dbClient.getDao(MeasureDao.class).findByComponentKeyAndMetricKeys(fileKey,
+    List<MeasureDto> measures = dbClient.measureDao().findByComponentKeyAndMetricKeys(fileKey,
       newArrayList(CoreMetrics.NCLOC_KEY, CoreMetrics.COVERAGE_KEY, CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, CoreMetrics.TECHNICAL_DEBT_KEY, CoreMetrics.VIOLATIONS_KEY,
         CoreMetrics.BLOCKER_VIOLATIONS_KEY, CoreMetrics.MAJOR_VIOLATIONS_KEY, CoreMetrics.MAJOR_VIOLATIONS_KEY, CoreMetrics.MINOR_VIOLATIONS_KEY, CoreMetrics.INFO_VIOLATIONS_KEY),
       session
@@ -185,7 +185,7 @@ public class ComponentAppAction implements RequestHandler {
 
   private void appendPeriods(JsonWriter json, Long projectId, DbSession session) {
     json.name("periods").beginArray();
-    SnapshotDto snapshotDto = dbClient.getDao(ResourceDao.class).getLastSnapshotByResourceId(projectId, session);
+    SnapshotDto snapshotDto = dbClient.resourceDao().getLastSnapshotByResourceId(projectId, session);
     if (snapshotDto != null) {
       for (int i = 1; i <= 5; i++) {
         String mode = snapshotDto.getPeriodMode(i);
@@ -232,7 +232,7 @@ public class ComponentAppAction implements RequestHandler {
   @CheckForNull
   private Component componentById(@Nullable Long componentId, DbSession session) {
     if (componentId != null) {
-      return dbClient.getDao(ComponentDao.class).getById(componentId, session);
+      return dbClient.componentDao().getById(componentId, session);
     }
     return null;
   }

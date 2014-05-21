@@ -24,7 +24,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
@@ -38,21 +37,18 @@ import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
-import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtModelXMLExporter.DebtModel;
 import org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.RuleOperations;
-import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.Reader;
 import java.util.Date;
 import java.util.List;
@@ -63,40 +59,34 @@ public class DebtModelBackup implements ServerComponent {
 
   private static final Logger LOG = LoggerFactory.getLogger(DebtModelBackup.class);
 
-  private final MyBatis mybatis;
-  private final CharacteristicDao dao;
-  private final RuleDao ruleDao;
+  private final DbClient dbClient;
   private final DebtModelOperations debtModelOperations;
   private final RuleOperations ruleOperations;
   private final DebtModelPluginRepository debtModelPluginRepository;
   private final DebtCharacteristicsXMLImporter characteristicsXMLImporter;
   private final DebtRulesXMLImporter rulesXMLImporter;
   private final DebtModelXMLExporter debtModelXMLExporter;
-  private final RuleRegistry ruleRegistry;
   private final RuleDefinitionsLoader defLoader;
   private final System2 system2;
 
-  public DebtModelBackup(MyBatis mybatis, CharacteristicDao dao, RuleDao ruleDao, DebtModelOperations debtModelOperations, RuleOperations ruleOperations,
+  public DebtModelBackup(DbClient dbClient, DebtModelOperations debtModelOperations, RuleOperations ruleOperations,
                          DebtModelPluginRepository debtModelPluginRepository, DebtCharacteristicsXMLImporter characteristicsXMLImporter, DebtRulesXMLImporter rulesXMLImporter,
-                         DebtModelXMLExporter debtModelXMLExporter, RuleRegistry ruleRegistry, RuleDefinitionsLoader defLoader) {
-    this(mybatis, dao, ruleDao, debtModelOperations, ruleOperations, debtModelPluginRepository, characteristicsXMLImporter, rulesXMLImporter, debtModelXMLExporter, ruleRegistry,
+                         DebtModelXMLExporter debtModelXMLExporter, RuleDefinitionsLoader defLoader) {
+    this(dbClient, debtModelOperations, ruleOperations, debtModelPluginRepository, characteristicsXMLImporter, rulesXMLImporter, debtModelXMLExporter,
       defLoader, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  DebtModelBackup(MyBatis mybatis, CharacteristicDao dao, RuleDao ruleDao, DebtModelOperations debtModelOperations, RuleOperations ruleOperations,
+  DebtModelBackup(DbClient dbClient, DebtModelOperations debtModelOperations, RuleOperations ruleOperations,
                   DebtModelPluginRepository debtModelPluginRepository, DebtCharacteristicsXMLImporter characteristicsXMLImporter, DebtRulesXMLImporter rulesXMLImporter,
-                  DebtModelXMLExporter debtModelXMLExporter, RuleRegistry ruleRegistry, RuleDefinitionsLoader defLoader, System2 system2) {
-    this.mybatis = mybatis;
-    this.dao = dao;
-    this.ruleDao = ruleDao;
+                  DebtModelXMLExporter debtModelXMLExporter, RuleDefinitionsLoader defLoader, System2 system2) {
+    this.dbClient = dbClient;
     this.debtModelOperations = debtModelOperations;
     this.ruleOperations = ruleOperations;
     this.debtModelPluginRepository = debtModelPluginRepository;
     this.characteristicsXMLImporter = characteristicsXMLImporter;
     this.rulesXMLImporter = rulesXMLImporter;
     this.debtModelXMLExporter = debtModelXMLExporter;
-    this.ruleRegistry = ruleRegistry;
     this.defLoader = defLoader;
     this.system2 = system2;
   }
@@ -112,10 +102,10 @@ public class DebtModelBackup implements ServerComponent {
   private String backupFromLanguage(@Nullable String languageKey) {
     checkPermission();
 
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = dbClient.openSession(false);
     try {
       DebtModel debtModel = new DebtModel();
-      List<CharacteristicDto> characteristicDtos = dao.selectEnabledCharacteristics(session);
+      List<CharacteristicDto> characteristicDtos = dbClient.debtCharacteristicDao().selectEnabledCharacteristics(session);
       for (CharacteristicDto characteristicDto : characteristicDtos) {
         if (characteristicDto.getParentId() == null) {
           debtModel.addRootCharacteristic(toDebtCharacteristic(characteristicDto));
@@ -126,7 +116,7 @@ public class DebtModelBackup implements ServerComponent {
       }
 
       List<RuleDebt> rules = newArrayList();
-      for (RuleDto rule : ruleDao.selectEnablesAndNonManual(session)) {
+      for (RuleDto rule : dbClient.ruleDao().selectEnabledAndNonManual(session)) {
         if (languageKey == null || languageKey.equals(rule.getLanguage())) {
           RuleDebt ruleDebt = toRuleDebt(rule, debtModel);
           if (ruleDebt != null) {
@@ -147,13 +137,13 @@ public class DebtModelBackup implements ServerComponent {
     checkPermission();
 
     Date updateDate = new Date(system2.now());
-    DbSession session = mybatis.openSession(false);
+    DbSession session = dbClient.openSession(false);
     try {
       // Restore characteristics
       List<CharacteristicDto> allCharacteristicDtos = restoreCharacteristics(loadModelFromPlugin(DebtModelPluginRepository.DEFAULT_MODEL), updateDate, session);
 
       // Restore rules
-      List<RuleDto> ruleDtos = ruleDao.selectEnablesAndNonManual(session);
+      List<RuleDto> ruleDtos = dbClient.ruleDao().selectEnabledAndNonManual(session);
       if (!ruleDtos.isEmpty()) {
 
         // Load default rule definitions
@@ -172,7 +162,7 @@ public class DebtModelBackup implements ServerComponent {
     }
   }
 
-  private void resetRules(List<RuleDto> ruleDtos, List<RulesDefinition.Rule> rules, List<CharacteristicDto> allCharacteristicDtos, Date updateDate, DbSession session){
+  private void resetRules(List<RuleDto> ruleDtos, List<RulesDefinition.Rule> rules, List<CharacteristicDto> allCharacteristicDtos, Date updateDate, DbSession session) {
     for (RuleDto rule : ruleDtos) {
       // Restore default debt definitions
 
@@ -202,9 +192,8 @@ public class DebtModelBackup implements ServerComponent {
       rule.setRemediationCoefficient(null);
       rule.setRemediationOffset(null);
       rule.setUpdatedAt(updateDate);
-      ruleDao.update(rule, session);
+      dbClient.ruleDao().update(rule, session);
     }
-    ruleRegistry.reindex(ruleDtos, session);
   }
 
   /**
@@ -226,7 +215,7 @@ public class DebtModelBackup implements ServerComponent {
 
     ValidationMessages validationMessages = ValidationMessages.create();
     Date updateDate = new Date(system2.now());
-    DbSession session = mybatis.openSession(false);
+    DbSession session = dbClient.openSession(false);
     try {
       List<CharacteristicDto> allCharacteristicDtos = restoreCharacteristics(characteristicsXMLImporter.importXML(xml), updateDate, session);
       restoreRules(allCharacteristicDtos, rules(languageKey, session), rulesXMLImporter.importXML(xml, validationMessages), validationMessages, updateDate, session);
@@ -254,7 +243,6 @@ public class DebtModelBackup implements ServerComponent {
       rule.setUpdatedAt(updateDate);
       ruleDebts.remove(ruleDebt);
     }
-    ruleRegistry.reindex(rules, session);
 
     for (RuleDebt ruleDebt : ruleDebts) {
       validationMessages.addWarningText(String.format("The rule '%s' does not exist.", ruleDebt.ruleKey()));
@@ -263,7 +251,7 @@ public class DebtModelBackup implements ServerComponent {
 
   @VisibleForTesting
   List<CharacteristicDto> restoreCharacteristics(DebtModel targetModel, Date updateDate, DbSession session) {
-    List<CharacteristicDto> sourceCharacteristics = dao.selectEnabledCharacteristics(session);
+    List<CharacteristicDto> sourceCharacteristics = dbClient.debtCharacteristicDao().selectEnabledCharacteristics(session);
 
     List<CharacteristicDto> result = newArrayList();
 
@@ -285,11 +273,11 @@ public class DebtModelBackup implements ServerComponent {
   }
 
   private CharacteristicDto restoreCharacteristic(DebtCharacteristic targetCharacteristic, @Nullable Integer parentId, List<CharacteristicDto> sourceCharacteristics,
-                                                  Date updateDate, SqlSession session) {
+                                                  Date updateDate, DbSession session) {
     CharacteristicDto sourceCharacteristic = characteristicByKey(targetCharacteristic.key(), sourceCharacteristics, false);
     if (sourceCharacteristic == null) {
       CharacteristicDto newCharacteristic = toDto(targetCharacteristic, parentId).setCreatedAt(updateDate);
-      dao.insert(newCharacteristic, session);
+      dbClient.debtCharacteristicDao().insert(newCharacteristic, session);
       return newCharacteristic;
     } else {
       // Update only if modifications
@@ -300,7 +288,7 @@ public class DebtModelBackup implements ServerComponent {
         sourceCharacteristic.setOrder(targetCharacteristic.order());
         sourceCharacteristic.setParentId(parentId);
         sourceCharacteristic.setUpdatedAt(updateDate);
-        dao.update(sourceCharacteristic, session);
+        dbClient.debtCharacteristicDao().update(sourceCharacteristic, session);
       }
       return sourceCharacteristic;
     }
@@ -316,8 +304,8 @@ public class DebtModelBackup implements ServerComponent {
     }
   }
 
-  private List<RuleDto> rules(@Nullable final String languageKey, SqlSession session) {
-    List<RuleDto> rules = ruleDao.selectEnablesAndNonManual(session);
+  private List<RuleDto> rules(@Nullable final String languageKey, DbSession session) {
+    List<RuleDto> rules = dbClient.ruleDao().selectEnabledAndNonManual(session);
     if (languageKey == null) {
       return rules;
     } else {

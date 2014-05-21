@@ -37,15 +37,14 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.rule.RuleRegistry;
+import org.sonar.server.rule2.persistence.RuleDao;
 import org.sonar.server.user.MockUserSession;
 
 import java.util.Date;
@@ -72,13 +71,10 @@ public class DebtModelOperationsTest {
   RuleDao ruleDao;
 
   @Mock
-  MyBatis mybatis;
+  DbClient dbClient;
 
   @Mock
   DbSession session;
-
-  @Mock
-  RuleRegistry ruleRegistry;
 
   @Mock
   System2 system2;
@@ -126,8 +122,10 @@ public class DebtModelOperationsTest {
       }
     }).when(dao).insert(any(CharacteristicDto.class), any(SqlSession.class));
 
-    when(mybatis.openSession(false)).thenReturn(session);
-    service = new DebtModelOperations(mybatis, dao, ruleDao, ruleRegistry, system2);
+    when(dbClient.openSession(false)).thenReturn(session);
+    when(dbClient.ruleDao()).thenReturn(ruleDao);
+    when(dbClient.debtCharacteristicDao()).thenReturn(dao);
+    service = new DebtModelOperations(dbClient, system2);
   }
 
   @Test
@@ -354,9 +352,9 @@ public class DebtModelOperationsTest {
   @Test
   public void delete_sub_characteristic() {
     DbSession batchSession = mock(DbSession.class);
-    when(mybatis.openSession(true)).thenReturn(batchSession);
+    when(dbClient.openSession(true)).thenReturn(batchSession);
 
-    when(ruleDao.selectBySubCharacteristicId(2, batchSession)).thenReturn(newArrayList(
+    when(ruleDao.findRulesByDebtSubCharacteristicId(2, batchSession)).thenReturn(newArrayList(
       new RuleDto()
         .setSubCharacteristicId(2)
         .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
@@ -394,16 +392,14 @@ public class DebtModelOperationsTest {
     assertThat(characteristicDto.getId()).isEqualTo(2);
     assertThat(characteristicDto.isEnabled()).isFalse();
     assertThat(characteristicDto.getUpdatedAt()).isEqualTo(now);
-
-    verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), batchSession);
   }
 
   @Test
   public void delete_sub_characteristic_disable_default_rules_debt_if_default_characteristic_is_deleted() {
     DbSession batchSession = mock(DbSession.class);
-    when(mybatis.openSession(true)).thenReturn(batchSession);
+    when(dbClient.openSession(true)).thenReturn(batchSession);
 
-    when(ruleDao.selectBySubCharacteristicId(2, batchSession)).thenReturn(newArrayList(
+    when(ruleDao.findRulesByDebtSubCharacteristicId(2, batchSession)).thenReturn(newArrayList(
       new RuleDto()
         .setSubCharacteristicId(10).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("2h").setRemediationOffset("5min")
         .setDefaultSubCharacteristicId(2).setDefaultRemediationFunction("LINEAR_OFFSET").setDefaultRemediationCoefficient("4h").setDefaultRemediationOffset("15min")
@@ -414,7 +410,6 @@ public class DebtModelOperationsTest {
 
     verify(ruleDao).update(ruleCaptor.capture(), eq(batchSession));
     RuleDto ruleDto = ruleCaptor.getValue();
-    assertThat(ruleDto.getUpdatedAt()).isEqualTo(now);
 
     // Default debt data are disabled
     assertThat(ruleDto.getDefaultSubCharacteristicId()).isNull();
@@ -435,16 +430,14 @@ public class DebtModelOperationsTest {
     assertThat(characteristicDto.getId()).isEqualTo(2);
     assertThat(characteristicDto.isEnabled()).isFalse();
     assertThat(characteristicDto.getUpdatedAt()).isEqualTo(now);
-
-    verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), batchSession);
   }
 
   @Test
   public void delete_characteristic() {
     DbSession batchSession = mock(DbSession.class);
-    when(mybatis.openSession(true)).thenReturn(batchSession);
+    when(dbClient.openSession(true)).thenReturn(batchSession);
 
-    when(ruleDao.selectBySubCharacteristicId(subCharacteristicDto.getId(), batchSession)).thenReturn(newArrayList(
+    when(ruleDao.findRulesByDebtSubCharacteristicId(subCharacteristicDto.getId(), batchSession)).thenReturn(newArrayList(
       new RuleDto().setSubCharacteristicId(subCharacteristicDto.getId())
         .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
         .setRemediationCoefficient("2h")
@@ -472,14 +465,12 @@ public class DebtModelOperationsTest {
     assertThat(characteristicDto.getId()).isEqualTo(1);
     assertThat(characteristicDto.isEnabled()).isFalse();
     assertThat(characteristicDto.getUpdatedAt()).isEqualTo(now);
-
-    verify(ruleRegistry).reindex(ruleCaptor.getAllValues(), batchSession);
   }
 
   @Test
   public void not_delete_already_disabled_characteristic() {
     DbSession batchSession = mock(DbSession.class);
-    when(mybatis.openSession(true)).thenReturn(batchSession);
+    when(dbClient.openSession(true)).thenReturn(batchSession);
 
     when(dao.selectById(1, batchSession)).thenReturn(new CharacteristicDto()
       .setId(1)

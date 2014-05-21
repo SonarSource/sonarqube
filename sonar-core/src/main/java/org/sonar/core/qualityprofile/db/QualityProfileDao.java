@@ -22,7 +22,7 @@ package org.sonar.core.qualityprofile.db;
 
 import com.google.common.base.Preconditions;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.DaoComponent;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;

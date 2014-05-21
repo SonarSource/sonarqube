@@ -31,47 +31,38 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.rule.RuleDao;
 import org.sonar.core.rule.RuleDto;
-import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.rule.RuleRegistry;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Date;
 import java.util.List;
 
 public class DebtModelOperations implements ServerComponent {
 
-  private final MyBatis mybatis;
-  private final CharacteristicDao dao;
-  private final RuleDao ruleDao;
+  private final DbClient dbClient;
   private final System2 system2;
-  private final RuleRegistry ruleRegistry;
 
-  public DebtModelOperations(MyBatis mybatis, CharacteristicDao dao, RuleDao ruleDao, RuleRegistry ruleRegistry) {
-    this(mybatis, dao, ruleDao, ruleRegistry, System2.INSTANCE);
+  public DebtModelOperations(DbClient dbClient) {
+    this(dbClient, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  DebtModelOperations(MyBatis mybatis, CharacteristicDao dao, RuleDao ruleDao, RuleRegistry ruleRegistry, System2 system2) {
-    this.mybatis = mybatis;
-    this.dao = dao;
-    this.ruleDao = ruleDao;
-    this.ruleRegistry = ruleRegistry;
+  DebtModelOperations(DbClient dbClient, System2 system2) {
+    this.dbClient = dbClient;
     this.system2 = system2;
   }
 
   public DebtCharacteristic create(String name, @Nullable Integer parentId) {
     checkPermission();
 
-    SqlSession session = mybatis.openSession(false);
+    SqlSession session = dbClient.openSession(false);
     try {
       checkNotAlreadyExists(name, session);
 
@@ -90,9 +81,9 @@ public class DebtModelOperations implements ServerComponent {
         newCharacteristic.setParentId(parent.getId());
       } else {
         // New root characteristic
-        newCharacteristic.setOrder(dao.selectMaxCharacteristicOrder(session) + 1);
+        newCharacteristic.setOrder(dbClient.debtCharacteristicDao().selectMaxCharacteristicOrder(session) + 1);
       }
-      dao.insert(newCharacteristic, session);
+      dbClient.debtCharacteristicDao().insert(newCharacteristic, session);
       session.commit();
       return toCharacteristic(newCharacteristic);
     } finally {
@@ -103,7 +94,7 @@ public class DebtModelOperations implements ServerComponent {
   public DebtCharacteristic rename(int characteristicId, String newName) {
     checkPermission();
 
-    SqlSession session = mybatis.openSession(false);
+    SqlSession session = dbClient.openSession(false);
     try {
       checkNotAlreadyExists(newName, session);
 
@@ -111,7 +102,7 @@ public class DebtModelOperations implements ServerComponent {
       if (!dto.getName().equals(newName)) {
         dto.setName(newName);
         dto.setUpdatedAt(new Date(system2.now()));
-        dao.update(dto, session);
+        dbClient.debtCharacteristicDao().update(dto, session);
         session.commit();
       }
       return toCharacteristic(dto);
@@ -131,7 +122,7 @@ public class DebtModelOperations implements ServerComponent {
   private DebtCharacteristic move(int characteristicId, boolean moveUpOrDown) {
     checkPermission();
 
-    SqlSession session = mybatis.openSession(false);
+    SqlSession session = dbClient.openSession(false);
     try {
       final CharacteristicDto dto = findCharacteristic(characteristicId, session);
       if (dto.getParentId() != null) {
@@ -148,11 +139,11 @@ public class DebtModelOperations implements ServerComponent {
       int nextOrder = getOrder(dtoToSwitchOrderWith);
       dtoToSwitchOrderWith.setOrder(currentOrder);
       dtoToSwitchOrderWith.setUpdatedAt(new Date(system2.now()));
-      dao.update(dtoToSwitchOrderWith, session);
+      dbClient.debtCharacteristicDao().update(dtoToSwitchOrderWith, session);
 
       dto.setOrder(nextOrder);
       dto.setUpdatedAt(new Date(system2.now()));
-      dao.update(dto, session);
+      dbClient.debtCharacteristicDao().update(dto, session);
 
       session.commit();
       return toCharacteristic(dto);
@@ -161,8 +152,8 @@ public class DebtModelOperations implements ServerComponent {
     }
   }
 
-  private int getOrder(CharacteristicDto characteristicDto){
-    Integer order= characteristicDto.getOrder();
+  private int getOrder(CharacteristicDto characteristicDto) {
+    Integer order = characteristicDto.getOrder();
     if (order == null) {
       throw new IllegalArgumentException(String.format("The order of the characteristic '%s' should not be null", characteristicDto.getKey()));
     }
@@ -172,7 +163,7 @@ public class DebtModelOperations implements ServerComponent {
   @CheckForNull
   private CharacteristicDto findCharacteristicToSwitchWith(final CharacteristicDto dto, final boolean moveUpOrDown, SqlSession session) {
     // characteristics should be sort by 'order'
-    List<CharacteristicDto> rootCharacteristics = dao.selectEnabledRootCharacteristics(session);
+    List<CharacteristicDto> rootCharacteristics = dbClient.debtCharacteristicDao().selectEnabledRootCharacteristics(session);
     int currentPosition = Iterables.indexOf(rootCharacteristics, new Predicate<CharacteristicDto>() {
       @Override
       public boolean apply(@Nullable CharacteristicDto input) {
@@ -191,7 +182,7 @@ public class DebtModelOperations implements ServerComponent {
     checkPermission();
 
     Date updateDate = new Date(system2.now());
-    DbSession session = mybatis.openSession(true);
+    DbSession session = dbClient.openSession(true);
     try {
       delete(findCharacteristic(characteristicId, session), updateDate, session);
       session.commit();
@@ -209,7 +200,7 @@ public class DebtModelOperations implements ServerComponent {
     if (characteristicOrSubCharacteristic.isEnabled()) {
       // When root characteristic, browse sub characteristics and disable rule debt on each sub characteristic then disable it
       if (characteristicOrSubCharacteristic.getParentId() == null) {
-        List<CharacteristicDto> subCharacteristics = dao.selectCharacteristicsByParentId(characteristicOrSubCharacteristic.getId(), session);
+        List<CharacteristicDto> subCharacteristics = dbClient.debtCharacteristicDao().selectCharacteristicsByParentId(characteristicOrSubCharacteristic.getId(), session);
         for (CharacteristicDto subCharacteristic : subCharacteristics) {
           disableSubCharacteristic(subCharacteristic, updateDate, session);
         }
@@ -223,14 +214,14 @@ public class DebtModelOperations implements ServerComponent {
 
   private void disableSubCharacteristic(CharacteristicDto subCharacteristic, Date updateDate, DbSession session) {
     // Disable debt on all rules (even REMOVED ones, in order to have no issue if they are reactivated) linked to the sub characteristic
-    disableRulesDebt(ruleDao.selectBySubCharacteristicId(subCharacteristic.getId(), session), subCharacteristic.getId(), updateDate, session);
+    disableRulesDebt(dbClient.ruleDao().findRulesByDebtSubCharacteristicId(subCharacteristic.getId(), session), subCharacteristic.getId(), updateDate, session);
     disableCharacteristic(subCharacteristic, updateDate, session);
   }
 
   private void disableCharacteristic(CharacteristicDto characteristic, Date updateDate, SqlSession session) {
     characteristic.setEnabled(false);
     characteristic.setUpdatedAt(updateDate);
-    dao.update(characteristic, session);
+    dbClient.debtCharacteristicDao().update(characteristic, session);
   }
 
   private void disableRulesDebt(List<RuleDto> ruleDtos, Integer subCharacteristicId, Date updateDate, DbSession session) {
@@ -248,14 +239,12 @@ public class DebtModelOperations implements ServerComponent {
         ruleDto.setDefaultRemediationCoefficient(null);
         ruleDto.setDefaultRemediationOffset(null);
       }
-      ruleDto.setUpdatedAt(updateDate);
-      ruleDao.update(ruleDto, session);
+      dbClient.ruleDao().update(ruleDto, session);
     }
-    ruleRegistry.reindex(ruleDtos, session);
   }
 
   private CharacteristicDto findCharacteristic(Integer id, SqlSession session) {
-    CharacteristicDto dto = dao.selectById(id, session);
+    CharacteristicDto dto = dbClient.debtCharacteristicDao().selectById(id, session);
     if (dto == null) {
       throw new NotFoundException(String.format("Characteristic with id %s does not exists.", id));
     }
@@ -263,7 +252,7 @@ public class DebtModelOperations implements ServerComponent {
   }
 
   private void checkNotAlreadyExists(String name, SqlSession session) {
-    if (dao.selectByName(name, session) != null) {
+    if (dbClient.debtCharacteristicDao().selectByName(name, session) != null) {
       throw BadRequestException.ofL10n(Validation.IS_ALREADY_USED_MESSAGE, name);
     }
   }
