@@ -35,7 +35,6 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
-import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule2.index.RuleIndex;
@@ -244,7 +243,7 @@ public class RuleDataMediumTest {
       .setEnabled(true)
       .setKey("c1")
       .setName("char1");
-    db.getDao(CharacteristicDao.class).insert(char1, dbSession);
+    db.debtCharacteristicDao().insert(char1, dbSession);
     dbSession.commit();
 
     CharacteristicDto char11 = new CharacteristicDto()
@@ -252,7 +251,7 @@ public class RuleDataMediumTest {
       .setKey("c11")
       .setName("char11")
       .setParentId(char1.getId());
-    db.getDao(CharacteristicDao.class).insert(char11, dbSession);
+    db.debtCharacteristicDao().insert(char11, dbSession);
 
     RuleKey ruleKey = RuleKey.of("test","r1");
     RuleDto ruleDto = newRuleDto(ruleKey)
@@ -262,10 +261,10 @@ public class RuleDataMediumTest {
 
 
     // 0. assert chars in DB
-    assertThat(db.getDao(CharacteristicDao.class).selectByKey("c1",dbSession)).isNotNull();
-    assertThat(db.getDao(CharacteristicDao.class).selectByKey("c1",dbSession).getParentId()).isNull();
-    assertThat(db.getDao(CharacteristicDao.class).selectByKey("c11",dbSession)).isNotNull();
-    assertThat(db.getDao(CharacteristicDao.class).selectByKey("c11",dbSession).getParentId()).isEqualTo(char1.getId());
+    assertThat(db.debtCharacteristicDao().selectByKey("c1",dbSession)).isNotNull();
+    assertThat(db.debtCharacteristicDao().selectByKey("c1",dbSession).getParentId()).isNull();
+    assertThat(db.debtCharacteristicDao().selectByKey("c11",dbSession)).isNotNull();
+    assertThat(db.debtCharacteristicDao().selectByKey("c11",dbSession).getParentId()).isEqualTo(char1.getId());
 
     // 1. find char and subChar from rule
     Rule rule = index.getByKey(ruleKey);
@@ -277,14 +276,14 @@ public class RuleDataMediumTest {
       .setEnabled(true)
       .setKey("c2")
       .setName("char2");
-    db.getDao(CharacteristicDao.class).insert(char2, dbSession);
+    db.debtCharacteristicDao().insert(char2, dbSession);
 
     CharacteristicDto char21 = new CharacteristicDto()
       .setEnabled(true)
       .setKey("c21")
       .setName("char21")
       .setParentId(char2.getId());
-    db.getDao(CharacteristicDao.class).insert(char21, dbSession);
+    db.debtCharacteristicDao().insert(char21, dbSession);
 
     ruleDto.setSubCharacteristicId(char21.getId());
     dao.update(ruleDto, dbSession);

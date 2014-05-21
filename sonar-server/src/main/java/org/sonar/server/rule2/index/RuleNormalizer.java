@@ -29,7 +29,6 @@ import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
-import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.search.BaseNormalizer;
@@ -150,16 +149,16 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     //TODO Legacy ID in DTO should be Key
     CharacteristicDto characteristic = null;
     if (rule.getDefaultSubCharacteristicId() != null) {
-      characteristic = db.getDao(CharacteristicDao.class).selectById(rule.getDefaultSubCharacteristicId());
+      characteristic = db.debtCharacteristicDao().selectById(rule.getDefaultSubCharacteristicId());
     }
     if (rule.getSubCharacteristicId() != null) {
-      characteristic = db.getDao(CharacteristicDao.class).selectById(rule.getSubCharacteristicId());
+      characteristic = db.debtCharacteristicDao().selectById(rule.getSubCharacteristicId());
     }
     if(characteristic !=  null) {
       update.put(RuleField.SUB_CHARACTERISTIC.key(), characteristic.getKey());
       if(characteristic.getParentId() != null) {
         update.put(RuleField.CHARACTERISTIC.key(),
-          db.getDao(CharacteristicDao.class).selectById(characteristic.getParentId()).getKey());
+          db.debtCharacteristicDao().selectById(characteristic.getParentId()).getKey());
       }
     }
 
