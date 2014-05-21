@@ -20,7 +20,8 @@
 
 package org.sonar.server.db.migrations.v43;
 
-import org.sonar.api.config.Settings;
+import org.sonar.core.properties.PropertiesDao;
+import org.sonar.core.properties.PropertyDto;
 
 class WorkDurationConvertor {
 
@@ -28,10 +29,10 @@ class WorkDurationConvertor {
 
   static final String HOURS_IN_DAY_PROPERTY = "sonar.technicalDebt.hoursInDay";
 
-  private final Settings settings;
+  private final PropertiesDao propertiesDao;
 
-  WorkDurationConvertor(Settings settings) {
-    this.settings = settings;
+  WorkDurationConvertor(PropertiesDao propertiesDao) {
+    this.propertiesDao = propertiesDao;
   }
 
   long createFromLong(long durationInLong) {
@@ -65,12 +66,11 @@ class WorkDurationConvertor {
   }
 
   private int hoursInDay() {
-    int hoursInDay = settings.getInt(HOURS_IN_DAY_PROPERTY);
+    PropertyDto propertyDto = propertiesDao.selectGlobalProperty(HOURS_IN_DAY_PROPERTY);
+    String value = propertyDto != null ? propertyDto.getValue() : "8";
+    int hoursInDay = Integer.valueOf(value);
     if (hoursInDay < 0) {
       throw new IllegalArgumentException(String.format("Bad value of %s: %d", HOURS_IN_DAY_PROPERTY, hoursInDay));
-    }
-    if (hoursInDay == 0) {
-      hoursInDay = 8;
     }
     return hoursInDay;
   }

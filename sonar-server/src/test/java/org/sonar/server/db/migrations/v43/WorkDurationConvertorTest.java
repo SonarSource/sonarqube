@@ -21,24 +21,28 @@
 package org.sonar.server.db.migrations.v43;
 
 import org.junit.Test;
-import org.sonar.api.config.Settings;
+import org.sonar.core.properties.PropertiesDao;
+import org.sonar.core.properties.PropertyDto;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-public class DebtMigrationExecutorTest {
+public class WorkDurationConvertorTest {
 
   static final int HOURS_IN_DAY = 8;
   static final Long ONE_MINUTE = 1L;
   static final Long ONE_HOUR_IN_MINUTES = ONE_MINUTE * 60;
   static final Long ONE_DAY_IN_MINUTES = ONE_HOUR_IN_MINUTES * HOURS_IN_DAY;
 
-  Settings settings = new Settings();
-  WorkDurationConvertor convertor = new WorkDurationConvertor(settings);
+  PropertiesDao propertiesDao = mock(PropertiesDao.class);
+
+  WorkDurationConvertor convertor = new WorkDurationConvertor(propertiesDao);
 
   @Test
   public void convert_from_long() throws Exception {
-    settings.setProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY, HOURS_IN_DAY);
+    when(propertiesDao.selectGlobalProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY)).thenReturn(new PropertyDto().setValue(Integer.toString(HOURS_IN_DAY)));
 
     assertThat(convertor.createFromLong(1)).isEqualTo(ONE_MINUTE);
     assertThat(convertor.createFromLong(100)).isEqualTo(ONE_HOUR_IN_MINUTES);
@@ -54,7 +58,7 @@ public class DebtMigrationExecutorTest {
   @Test
   public void fail_convert_from_long_on_bad_hours_in_day_property() throws Exception {
     try {
-      settings.setProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY, -2);
+      when(propertiesDao.selectGlobalProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY)).thenReturn(new PropertyDto().setValue("-2"));
       convertor.createFromLong(1);
       fail();
     } catch (Exception e) {
@@ -64,7 +68,7 @@ public class DebtMigrationExecutorTest {
 
   @Test
   public void convert_from_days() throws Exception {
-    settings.setProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY, HOURS_IN_DAY);
+    when(propertiesDao.selectGlobalProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY)).thenReturn(new PropertyDto().setValue(Integer.toString(HOURS_IN_DAY)));
 
     assertThat(convertor.createFromDays(1.0)).isEqualTo(ONE_DAY_IN_MINUTES);
     assertThat(convertor.createFromDays(0.1)).isEqualTo(48L);

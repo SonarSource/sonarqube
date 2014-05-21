@@ -26,10 +26,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.config.Settings;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.TestDatabase;
+import org.sonar.core.properties.PropertiesDao;
+import org.sonar.core.properties.PropertyDto;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -43,17 +44,17 @@ public class IssueChangelogMigrationTest {
   @Mock
   System2 system2;
 
-  Settings settings;
+  @Mock
+  PropertiesDao propertiesDao;
 
   IssueChangelogMigration migration;
 
   @Before
   public void setUp() throws Exception {
     when(system2.now()).thenReturn(DateUtils.parseDateTime("2014-02-19T19:10:03+0100").getTime());
-    settings = new Settings();
-    settings.setProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY, 8);
+    when(propertiesDao.selectGlobalProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY)).thenReturn(new PropertyDto().setValue("8"));
 
-    migration = new IssueChangelogMigration(db.database(), settings, system2);
+    migration = new IssueChangelogMigration(db.database(), propertiesDao, system2);
   }
 
   @Test

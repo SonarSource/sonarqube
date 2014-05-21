@@ -21,9 +21,9 @@
 package org.sonar.server.db.migrations.v43;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
+import org.sonar.core.properties.PropertiesDao;
 import org.sonar.server.db.migrations.DatabaseMigration;
 import org.sonar.server.db.migrations.MassUpdater;
 import org.sonar.server.db.migrations.SqlUtil;
@@ -43,14 +43,14 @@ public class IssueMigration implements DatabaseMigration {
   private final System2 system2;
   private final Database db;
 
-  public IssueMigration(Database database, Settings settings) {
-    this(database, settings, System2.INSTANCE);
+  public IssueMigration(Database database, PropertiesDao propertiesDao) {
+    this(database, propertiesDao, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  IssueMigration(Database database, Settings settings, System2 system2) {
+  IssueMigration(Database database, PropertiesDao propertiesDao, System2 system2) {
     this.db = database;
-    this.workDurationConvertor = new WorkDurationConvertor(settings);
+    this.workDurationConvertor = new WorkDurationConvertor(propertiesDao);
     this.system2 = system2;
   }
 

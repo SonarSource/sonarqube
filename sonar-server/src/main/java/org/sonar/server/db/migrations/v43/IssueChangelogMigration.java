@@ -22,9 +22,9 @@ package org.sonar.server.db.migrations.v43;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
-import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
+import org.sonar.core.properties.PropertiesDao;
 import org.sonar.server.db.migrations.DatabaseMigration;
 import org.sonar.server.db.migrations.MassUpdater;
 import org.sonar.server.db.migrations.SqlUtil;
@@ -46,14 +46,14 @@ public class IssueChangelogMigration implements DatabaseMigration {
   private final System2 system2;
   private final Database db;
 
-  public IssueChangelogMigration(Database database, Settings settings) {
-    this(database, settings, System2.INSTANCE);
+  public IssueChangelogMigration(Database database, PropertiesDao propertiesDao) {
+    this(database, propertiesDao, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  IssueChangelogMigration(Database database, Settings settings, System2 system2) {
+  IssueChangelogMigration(Database database, PropertiesDao propertiesDao, System2 system2) {
     this.db = database;
-    this.workDurationConvertor = new WorkDurationConvertor(settings);
+    this.workDurationConvertor = new WorkDurationConvertor(propertiesDao);
     this.system2 = system2;
   }
 
