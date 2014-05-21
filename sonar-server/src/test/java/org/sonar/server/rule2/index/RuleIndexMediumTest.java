@@ -34,11 +34,9 @@ import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
 import org.sonar.server.rule2.Rule;
 import org.sonar.server.rule2.persistence.RuleDao;
 import org.sonar.server.search.QueryOptions;
@@ -79,7 +77,7 @@ public class RuleIndexMediumTest {
     dao.insert(ruleDto, dbSession);
     dbSession.commit();
 
-    index.refresh();
+
 
 
     Rule rule = index.getByKey(RuleKey.of("javascript", "S001"));
@@ -109,7 +107,7 @@ public class RuleIndexMediumTest {
     dao.insert(newRuleDto(RuleKey.of("cobol", "S001")).setRuleKey("X001"), dbSession);
     dao.insert(newRuleDto(RuleKey.of("php", "S002")), dbSession);
     dbSession.commit();
-    index.refresh();
+
 
     // should not have any facet!
     RuleQuery query = new RuleQuery();
@@ -130,7 +128,7 @@ public class RuleIndexMediumTest {
   public void return_all_doc_fields_by_default() {
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001")), dbSession);
     dbSession.commit();
-    index.refresh();
+
 
     QueryOptions options = new QueryOptions().setFieldsToReturn(null);
     Result<Rule> results = index.search(new RuleQuery(), options);
@@ -147,7 +145,7 @@ public class RuleIndexMediumTest {
   public void select_doc_fields_to_return() {
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001")), dbSession);
     dbSession.commit();
-    index.refresh();
+
 
     QueryOptions options = new QueryOptions();
     options.addFieldsToReturn(RuleNormalizer.RuleField.LANGUAGE.key(), RuleNormalizer.RuleField.STATUS.key());
@@ -171,7 +169,7 @@ public class RuleIndexMediumTest {
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001"))
       .setName("testing the partial match and matching of rule"), dbSession);
     dbSession.commit();
-    index.refresh();
+
 
     // substring
     RuleQuery query = new RuleQuery().setQueryText("test");
@@ -198,7 +196,7 @@ public class RuleIndexMediumTest {
       .setRuleKey("X001"), dbSession);
     dao.insert(newRuleDto(RuleKey.of("php", "S002")), dbSession);
     dbSession.commit();
-    index.refresh();
+
 
     // key
     RuleQuery query = new RuleQuery().setQueryText("X001");
@@ -219,7 +217,7 @@ public class RuleIndexMediumTest {
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001")), dbSession);
     dao.insert(newRuleDto(RuleKey.of("java", "S002")), dbSession);
     dbSession.commit();
-    index.refresh();
+
 
     Result results = index.search(new RuleQuery(), new QueryOptions());
 
@@ -232,7 +230,7 @@ public class RuleIndexMediumTest {
     dao.insert(newRuleDto(RuleKey.of("findbugs", "S001")), dbSession);
     dao.insert(newRuleDto(RuleKey.of("pmd", "S002")), dbSession);
     dbSession.commit();
-    index.refresh();
+
 
     RuleQuery query = new RuleQuery().setRepositories(Arrays.asList("checkstyle", "pmd"));
     Result<Rule> results = index.search(query, new QueryOptions());
@@ -253,7 +251,7 @@ public class RuleIndexMediumTest {
     dao.insert(newRuleDto(RuleKey.of("java", "S001")).setLanguage("java"), dbSession);
     dao.insert(newRuleDto(RuleKey.of("javascript", "S002")).setLanguage("js"), dbSession);
     dbSession.commit();
-    index.refresh();
+
 
     RuleQuery query = new RuleQuery().setLanguages(Arrays.asList("cobol", "js"));
     Result<Rule> results = index.search(query, new QueryOptions());
@@ -279,7 +277,7 @@ public class RuleIndexMediumTest {
     dao.insert(newRuleDto(RuleKey.of("java", "S001")).setSeverity(Severity.BLOCKER), dbSession);
     dao.insert(newRuleDto(RuleKey.of("java", "S002")).setSeverity(Severity.INFO), dbSession);
     dbSession.commit();
-    index.refresh();
+
 
     RuleQuery query = new RuleQuery().setSeverities(Arrays.asList(Severity.INFO, Severity.MINOR));
     Result<Rule> results = index.search(query, new QueryOptions());
@@ -304,7 +302,7 @@ public class RuleIndexMediumTest {
     dao.insert(newRuleDto(RuleKey.of("java", "S001")).setStatus(RuleStatus.BETA.name()), dbSession);
     dao.insert(newRuleDto(RuleKey.of("java", "S002")).setStatus(RuleStatus.READY.name()), dbSession);
     dbSession.commit();
-    index.refresh();
+
 
     RuleQuery query = new RuleQuery().setStatuses(Arrays.asList(RuleStatus.DEPRECATED, RuleStatus.READY));
     Result<Rule> results = index.search(query, new QueryOptions());
@@ -330,7 +328,7 @@ public class RuleIndexMediumTest {
     dao.insert(newRuleDto(RuleKey.of("java", "S002")).setName("ABC"), dbSession);
     dao.insert(newRuleDto(RuleKey.of("java", "S003")).setName("FGH"), dbSession);
     dbSession.commit();
-    index.refresh();
+
 
     // ascending
     RuleQuery query = new RuleQuery().setSortField(RuleQuery.SortField.NAME);
@@ -352,7 +350,7 @@ public class RuleIndexMediumTest {
     dao.insert(newRuleDto(RuleKey.of("java", "S001")).setLanguage("java"), dbSession);
     dao.insert(newRuleDto(RuleKey.of("java", "S002")).setLanguage("php"), dbSession);
     dbSession.commit();
-    index.refresh();
+
 
     // ascending
     RuleQuery query = new RuleQuery().setSortField(RuleQuery.SortField.LANGUAGE);
@@ -395,7 +393,7 @@ public class RuleIndexMediumTest {
 
 
     dbSession.commit();
-    index.refresh();
+
 
     RuleResult result;
 
@@ -433,7 +431,7 @@ public class RuleIndexMediumTest {
     dao.insert(newRuleDto(RuleKey.of("java", "S001")).setTags(ImmutableSet.of("tag1")), dbSession);
     dao.insert(newRuleDto(RuleKey.of("java", "S002")).setTags(ImmutableSet.of("tag2")), dbSession);
     dbSession.commit();
-    index.refresh();
+
 
     // find all
     RuleQuery query = new RuleQuery();
@@ -477,7 +475,7 @@ public class RuleIndexMediumTest {
     dao.insert(newRuleDto(RuleKey.of("java", "S002")), dbSession);
     dao.insert(newRuleDto(RuleKey.of("java", "S003")), dbSession);
     dbSession.commit();
-    index.refresh();
+
 
     // from 0 to 1 included
     QueryOptions options = new QueryOptions();

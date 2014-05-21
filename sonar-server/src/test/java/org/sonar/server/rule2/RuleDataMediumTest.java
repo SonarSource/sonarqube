@@ -89,7 +89,7 @@ public class RuleDataMediumTest {
     assertThat(persistedDto.getUpdatedAt()).isNotNull();
 
     // verify that rule is indexed in es
-    index.refresh();
+
     Rule hit = index.getByKey(ruleKey);
     assertThat(hit).isNotNull();
     assertThat(hit.key().repository()).isEqualTo(ruleKey.repository());
@@ -139,7 +139,7 @@ public class RuleDataMediumTest {
     assertThat(persistedDtos).hasSize(2);
 
     // verify that parameters are indexed in es
-    index.refresh();
+
     Rule hit = index.getByKey(ruleKey);
     assertThat(hit).isNotNull();
     assertThat(hit.key()).isNotNull();
@@ -162,7 +162,7 @@ public class RuleDataMediumTest {
     dbSession.commit();
 
     // verify that parameters are indexed in es
-    index.refresh();
+
     Rule hit = index.getByKey(ruleKey);
     assertThat(hit.tags()).containsExactly("hello");
     assertThat(hit.name()).isEqualTo("first name");
@@ -174,7 +174,7 @@ public class RuleDataMediumTest {
     dbSession.commit();
 
     // verify that parameters are updated in es
-    index.refresh();
+
     hit = index.getByKey(ruleKey);
     assertThat(hit.tags()).containsExactly("world");
     assertThat(hit.name()).isEqualTo("second name");
@@ -207,7 +207,7 @@ public class RuleDataMediumTest {
     dbSession.commit();
 
     // verify that parameters are indexed in es
-    index.refresh();
+
     Rule hit = index.getByKey(ruleKey);
     assertThat(hit.params()).hasSize(2);
 
@@ -225,7 +225,7 @@ public class RuleDataMediumTest {
     dbSession.commit();
 
     // verify that parameters are updated in es
-    index.refresh();
+
     hit = index.getByKey(ruleKey);
     assertThat(hit.params()).hasSize(2);
 

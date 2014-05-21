@@ -140,7 +140,7 @@ public class RuleServiceMediumTest {
     assertThat(dto.getNoteUserLogin()).isEqualTo("marius");
 
     // verify es
-    index.refresh();
+
     Rule rule = index.getByKey(ruleKey);
     // TODO
     assertThat(rule.markdownNote()).isEqualTo("my *note*");
@@ -156,7 +156,7 @@ public class RuleServiceMediumTest {
     assertThat(dto.getNoteCreatedAt()).isNull();
     assertThat(dto.getNoteUpdatedAt()).isNull();
     assertThat(dto.getNoteUserLogin()).isNull();
-    index.refresh();
+
     rule = index.getByKey(ruleKey);
     assertThat(rule.markdownNote()).isNull();
     assertThat(rule.noteCreatedAt()).isNull();
@@ -180,7 +180,7 @@ public class RuleServiceMediumTest {
       .setSystemTags(Sets.newHashSet("")), dbSession);
     dbSession.commit();
 
-    index.refresh();
+
 
     Set<String> tags = index.terms(RuleNormalizer.RuleField.TAGS.key(),
       RuleNormalizer.RuleField.SYSTEM_TAGS.key());

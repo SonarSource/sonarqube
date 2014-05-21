@@ -93,7 +93,7 @@ public class ActiveRuleIndexMediumTest {
     assertThat(persistedDtos).hasSize(1);
 
     // verify that activeRules are indexed in es
-    index.refresh();
+
 
 
     ActiveRule hit = index.getByKey(activeRule.getKey());
@@ -148,7 +148,7 @@ public class ActiveRuleIndexMediumTest {
     assertThat(persistedDtos).hasSize(2);
 
     // verify that activeRulesParams are indexed in es
-    index.refresh();
+
 
     ActiveRule rule = index.getByKey(activeRule.getKey());
     assertThat(rule.params()).hasSize(2);
@@ -201,7 +201,7 @@ public class ActiveRuleIndexMediumTest {
     assertThat(persistedDtos).hasSize(1);
 
     // verify that activeRules are indexed in es
-    index.refresh();
+
 
     Collection<ActiveRule> hits = index.findByRule(RuleKey.of("javascript", "S001"));
 

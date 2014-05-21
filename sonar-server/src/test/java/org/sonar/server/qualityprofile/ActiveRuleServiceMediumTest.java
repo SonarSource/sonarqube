@@ -32,7 +32,6 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
@@ -40,8 +39,6 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
-import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
-import org.sonar.server.rule2.persistence.RuleDao;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
@@ -93,7 +90,7 @@ public class ActiveRuleServiceMediumTest {
     assertThat(params.get(0).getValue()).isEqualTo("7");
 
     // verify es
-    index.refresh();
+
     ActiveRule activeRule = index.getByKey(activation.getKey());
     assertThat(activeRule).isNotNull();
     assertThat(activeRule.severity()).isEqualTo(Severity.BLOCKER);
@@ -118,7 +115,7 @@ public class ActiveRuleServiceMediumTest {
     assertThat(params.get(0).getValue()).isEqualTo("10");
 
     // verify es
-    index.refresh();
+
     ActiveRule activeRule = index.getByKey(activation.getKey());
     assertThat(activeRule).isNotNull();
     assertThat(activeRule.severity()).isEqualTo(Severity.MINOR);
@@ -151,7 +148,7 @@ public class ActiveRuleServiceMediumTest {
     assertThat(params.get(0).getValue()).isEqualTo("42");
 
     // verify es
-    index.refresh();
+
     ActiveRule activeRule = index.getByKey(activation.getKey());
     assertThat(activeRule).isNotNull();
     assertThat(activeRule.severity()).isEqualTo(Severity.CRITICAL);
@@ -188,7 +185,7 @@ public class ActiveRuleServiceMediumTest {
     assertThat(params.get(0).getValue()).isEqualTo("42");
 
     // verify es
-    index.refresh();
+
     ActiveRule activeRule = index.getByKey(activation.getKey());
     assertThat(activeRule).isNotNull();
     assertThat(activeRule.severity()).isEqualTo(Severity.CRITICAL);
@@ -220,7 +217,7 @@ public class ActiveRuleServiceMediumTest {
     assertThat(params.get(0).getValue()).isEqualTo("10");
 
     // verify es
-    index.refresh();
+
     ActiveRule activeRule = index.getByKey(activation.getKey());
     assertThat(activeRule).isNotNull();
     assertThat(activeRule.severity()).isEqualTo(Severity.MINOR);
@@ -399,7 +396,7 @@ public class ActiveRuleServiceMediumTest {
     //TODO test params
 
     // verify es
-    index.refresh();
+
     ActiveRule activeRule = index.getByKey(key);
     assertThat(activeRule).isNull();
   }

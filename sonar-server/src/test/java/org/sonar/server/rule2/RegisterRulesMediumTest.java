@@ -50,7 +50,7 @@ public class RegisterRulesMediumTest {
     verifyRulesInDb();
 
     RuleIndex index = tester.get(RuleIndex.class);
-    index.refresh();
+
 
     RuleResult searchResult = index.search(new RuleQuery(), new QueryOptions());
     assertThat(searchResult.getTotal()).isEqualTo(2);
@@ -74,7 +74,7 @@ public class RegisterRulesMediumTest {
     tester.get(Platform.class).restart();
 
     index = tester.get(RuleIndex.class);
-    index.refresh();
+
     verifyRulesInDb();
     searchResult = index.search(new RuleQuery().setKey("xoo:x1"), new QueryOptions());
     assertThat(searchResult.getTotal()).isEqualTo(1);
