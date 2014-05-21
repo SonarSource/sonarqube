@@ -157,8 +157,7 @@ public class RuleDoc extends BaseDoc implements Rule {
   @Override
   @CheckForNull
   public String debtCharacteristicKey() {
-    // TO BE IMPLEMENTED
-    return null;
+      return (String) getField(RuleField.CHARACTERISTIC.key());
   }
 
   @Override

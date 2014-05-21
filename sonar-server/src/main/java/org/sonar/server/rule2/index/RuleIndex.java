@@ -78,7 +78,8 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.key(),
     RuleNormalizer.RuleField.DEBT_FUNCTION_COEFFICIENT.key(),
     RuleNormalizer.RuleField.DEBT_FUNCTION_OFFSET.key(),
-    RuleNormalizer.RuleField.SUB_CHARACTERISTIC.key());
+    RuleNormalizer.RuleField.SUB_CHARACTERISTIC.key(),
+    RuleNormalizer.RuleField.CHARACTERISTIC.key());
 
 
   public RuleIndex(RuleNormalizer normalizer, WorkQueue workQueue, ESNode node) {

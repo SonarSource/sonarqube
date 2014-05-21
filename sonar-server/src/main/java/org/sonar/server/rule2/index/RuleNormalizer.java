@@ -29,6 +29,8 @@ import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
+import org.sonar.core.technicaldebt.db.CharacteristicDao;
+import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.search.BaseNormalizer;
 
@@ -59,6 +61,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     DEBT_FUNCTION_COEFFICIENT("debtRemFnCoefficient"),
     DEBT_FUNCTION_OFFSET("debtRemFnOffset"),
     SUB_CHARACTERISTIC("debtSubChar"),
+    CHARACTERISTIC("debtChar"),
     NOTE("markdownNote"),
     NOTE_LOGIN("noteLogin"),
     NOTE_CREATED_AT("noteCreatedAt"),
@@ -144,15 +147,21 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     update.put(RuleField.NOTE_CREATED_AT.key(), rule.getNoteCreatedAt());
     update.put(RuleField.NOTE_UPDATED_AT.key(), rule.getNoteUpdatedAt());
 
-    //TODO Change on key when available
-    String subChar = null;
+    //TODO Legacy ID in DTO should be Key
+    CharacteristicDto characteristic = null;
     if (rule.getDefaultSubCharacteristicId() != null) {
-      subChar = rule.getDefaultSubCharacteristicId().toString();
+      characteristic = db.getDao(CharacteristicDao.class).selectById(rule.getDefaultSubCharacteristicId());
     }
     if (rule.getSubCharacteristicId() != null) {
-      subChar = rule.getSubCharacteristicId().toString();
+      characteristic = db.getDao(CharacteristicDao.class).selectById(rule.getSubCharacteristicId());
     }
-    update.put(RuleField.SUB_CHARACTERISTIC.key(), subChar);
+    if(characteristic !=  null) {
+      update.put(RuleField.SUB_CHARACTERISTIC.key(), characteristic.getKey());
+      if(characteristic.getParentId() != null) {
+        update.put(RuleField.CHARACTERISTIC.key(),
+          db.getDao(CharacteristicDao.class).selectById(characteristic.getParentId()).getKey());
+      }
+    }
 
     String dType = null, dCoefficient = null, dOffset = null;
     if (rule.getDefaultRemediationFunction() != null) {

@@ -35,6 +35,9 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
+import org.sonar.core.technicaldebt.db.CharacteristicDao;
+import org.sonar.core.technicaldebt.db.CharacteristicDto;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.rule2.index.RuleIndex;
 import org.sonar.server.rule2.persistence.RuleDao;
 import org.sonar.server.tester.ServerTester;
@@ -49,15 +52,18 @@ import static org.fest.assertions.Assertions.assertThat;
 public class RuleDataMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester()
+    .setProperty("sonar.es.http.port","9200");
 
   RuleDao dao = tester.get(RuleDao.class);
   RuleIndex index = tester.get(RuleIndex.class);
+  DbClient db;
   DbSession dbSession;
 
   @Before
   public void before() {
     tester.clearDbAndEs();
+    db = tester.get(DbClient.class);
     dbSession = tester.get(MyBatis.class).openSession(false);
   }
 
@@ -229,6 +235,66 @@ public class RuleDataMediumTest {
     assertThat(param.key()).isEqualTo("min");
     assertThat(param.defaultValue()).isEqualTo("0.5");
     assertThat(param.description()).isEqualTo("new description");
+  }
+
+  @Test
+  public void insert_update_characteristics() throws Exception {
+
+    CharacteristicDto char1 = new CharacteristicDto()
+      .setEnabled(true)
+      .setKey("c1")
+      .setName("char1");
+    db.getDao(CharacteristicDao.class).insert(char1, dbSession);
+    dbSession.commit();
+
+    CharacteristicDto char11 = new CharacteristicDto()
+      .setEnabled(true)
+      .setKey("c11")
+      .setName("char11")
+      .setParentId(char1.getId());
+    db.getDao(CharacteristicDao.class).insert(char11, dbSession);
+
+    RuleKey ruleKey = RuleKey.of("test","r1");
+    RuleDto ruleDto = newRuleDto(ruleKey)
+      .setDefaultSubCharacteristicId(char11.getId());
+    dao.insert(ruleDto, dbSession);
+    dbSession.commit();
+
+
+    // 0. assert chars in DB
+    assertThat(db.getDao(CharacteristicDao.class).selectByKey("c1",dbSession)).isNotNull();
+    assertThat(db.getDao(CharacteristicDao.class).selectByKey("c1",dbSession).getParentId()).isNull();
+    assertThat(db.getDao(CharacteristicDao.class).selectByKey("c11",dbSession)).isNotNull();
+    assertThat(db.getDao(CharacteristicDao.class).selectByKey("c11",dbSession).getParentId()).isEqualTo(char1.getId());
+
+    // 1. find char and subChar from rule
+    Rule rule = index.getByKey(ruleKey);
+    assertThat(rule.debtCharacteristicKey()).isEqualTo(char1.getKey());
+    assertThat(rule.debtSubCharacteristicKey()).isEqualTo(char11.getKey());
+
+    // 3. set Non-default characteristics
+    CharacteristicDto char2 = new CharacteristicDto()
+      .setEnabled(true)
+      .setKey("c2")
+      .setName("char2");
+    db.getDao(CharacteristicDao.class).insert(char2, dbSession);
+
+    CharacteristicDto char21 = new CharacteristicDto()
+      .setEnabled(true)
+      .setKey("c21")
+      .setName("char21")
+      .setParentId(char2.getId());
+    db.getDao(CharacteristicDao.class).insert(char21, dbSession);
+
+    ruleDto.setSubCharacteristicId(char21.getId());
+    dao.update(ruleDto, dbSession);
+
+    dbSession.commit();
+
+    // 4. Get non-default chars from Rule
+    rule = index.getByKey(ruleKey);
+    assertThat(rule.debtCharacteristicKey()).isEqualTo(char2.getKey());
+    assertThat(rule.debtSubCharacteristicKey()).isEqualTo(char21.getKey());
   }
 
   private RuleDto newRuleDto(RuleKey ruleKey) {
