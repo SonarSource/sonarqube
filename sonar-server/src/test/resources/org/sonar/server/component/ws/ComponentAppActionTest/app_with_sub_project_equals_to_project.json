@@ -1,0 +1,15 @@
+{
+  "key": "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/Plugin.java",
+  "path": "src/main/java/org/sonar/api/Plugin.java",
+  "name": "Plugin.java",
+  "q": "FIL",
+  "projectName": "SonarQube",
+  "fav": true,
+  "scmAvailable": true,
+  "canMarkAsFavourite": true,
+  "canBulkChange": true,
+  "periods": [],
+  "severities": [],
+  "rules": [],
+  "measures": {}
+}

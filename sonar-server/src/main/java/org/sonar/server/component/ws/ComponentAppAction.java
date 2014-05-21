@@ -103,7 +103,6 @@ public class ComponentAppAction implements RequestHandler {
   public void handle(Request request, Response response) {
     String fileKey = request.mandatoryParam(KEY);
     UserSession userSession = UserSession.get();
-    userSession.checkComponentPermission(UserRole.CODEVIEWER, fileKey);
 
     JsonWriter json = response.newJsonWriter();
     json.beginObject();
@@ -114,6 +113,8 @@ public class ComponentAppAction implements RequestHandler {
       if (component == null) {
         throw new NotFoundException(String.format("Component '%s' does not exists.", fileKey));
       }
+      userSession.checkComponentPermission(UserRole.CODEVIEWER, fileKey);
+
       appendComponent(json, component, userSession, session);
       appendPermissions(json, component, userSession);
       appendPeriods(json, component.projectId(), session);
@@ -142,10 +143,13 @@ public class ComponentAppAction implements RequestHandler {
     json.prop("name", component.name());
     json.prop("q", component.qualifier());
 
-    Component subProject = componentById(component.subProjectId(), session);
-    json.prop("subProjectName", subProject != null ? subProject.longName() : null);
+    ComponentDto subProject = (ComponentDto) componentById(component.subProjectId(), session);
+    ComponentDto project = (ComponentDto) componentById(component.projectId(), session);
 
-    Component project = componentById(component.projectId(), session);
+    // Do not display sub project long name if sub project and project are the same
+    boolean displaySubProjectLongName = subProject != null && !subProject.getId().equals(project.getId());
+
+    json.prop("subProjectName", displaySubProjectLongName ? subProject.longName() : null);
     json.prop("projectName", project.longName());
 
     json.prop("fav", isFavourite);

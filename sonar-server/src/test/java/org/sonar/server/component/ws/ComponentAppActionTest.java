@@ -149,6 +149,21 @@ public class ComponentAppActionTest {
   }
 
   @Test
+  public void app_with_sub_project_equals_to_project() throws Exception {
+    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+
+    ComponentDto file = new ComponentDto().setId(10L).setQualifier("FIL").setKey(COMPONENT_KEY).setName("Plugin.java")
+      .setPath("src/main/java/org/sonar/api/Plugin.java").setSubProjectId(1L).setProjectId(1L);
+    when(componentDao.getByKey(COMPONENT_KEY, session)).thenReturn(file);
+    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
+    when(propertiesDao.selectByQuery(any(PropertyQuery.class), eq(session))).thenReturn(newArrayList(new PropertyDto()));
+    when(sourceService.hasScmData(eq(COMPONENT_KEY), eq(session))).thenReturn(true);
+
+    WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
+    request.execute().assertJson(getClass(), "app_with_sub_project_equals_to_project.json");
+  }
+
+  @Test
   public void app_with_measures() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
 

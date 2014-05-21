@@ -156,8 +156,8 @@ public class IssueShowAction implements RequestHandler {
 
     String projectName = project != null ? project.longName() != null ? project.longName() : project.name() : null;
     // Do not display sub project long name if sub project and project are the same
-    boolean shoudDisplaySubProjectLongName = subProject != null && project != null && !subProject.getId().equals(project.getId());
-    String subProjectName = shoudDisplaySubProjectLongName ? subProject.longName() != null ? subProject.longName() : subProject.name() : null;
+    boolean displaySubProjectLongName = subProject != null && project != null && !subProject.getId().equals(project.getId());
+    String subProjectName = displaySubProjectLongName ? subProject.longName() != null ? subProject.longName() : subProject.name() : null;
 
     json
       .prop("component", issue.componentKey())
@@ -165,7 +165,6 @@ public class IssueShowAction implements RequestHandler {
       .prop("componentQualifier", component != null ? component.qualifier() : null)
       .prop("project", issue.projectKey())
       .prop("projectName", projectName)
-        // Do not display sub project long name if sub project and project are the same
       .prop("subProjectName", subProjectName)
     ;
   }
