@@ -55,14 +55,11 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     TEMPLATE("template"),
     UPDATED_AT("updatedAt"),
     PARAMS("params"),
-    //TODO to be renamed debtRemFnXxx
-    DEBT_FUNCTION_TYPE("debtFunction"),
-    DEBT_FUNCTION_COEFFICIENT("debtCoefficient"),
-    DEBT_FUNCTION_OFFSET("debtOffset"),
-    // TODO to be renamed debtSubChar
-    SUB_CHARACTERISTIC("subCharacteristicKey"),
-    // TODO to be renamed markdownNote
-    NOTE("note"),
+    DEBT_FUNCTION_TYPE("debtRemFnType"),
+    DEBT_FUNCTION_COEFFICIENT("debtRemFnCoefficient"),
+    DEBT_FUNCTION_OFFSET("debtRemFnOffset"),
+    SUB_CHARACTERISTIC("debtSubChar"),
+    NOTE("markdownNote"),
     NOTE_LOGIN("noteLogin"),
     NOTE_CREATED_AT("noteCreatedAt"),
     NOTE_UPDATED_AT("noteUpdatedAt");
