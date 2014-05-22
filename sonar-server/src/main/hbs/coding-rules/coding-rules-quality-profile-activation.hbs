@@ -40,9 +40,9 @@
           <th><h3>{{key}}</h3></th>
           <td>
             {{#eq type 'TEXT'}}
-              <textarea class="width100" rows="3" name="{{key}}"placeholder="{{default}}">{{value}}</textarea>
+              <textarea class="width100" rows="3" name="{{key}}" placeholder="{{defaultValue}}">{{value}}</textarea>
             {{else}}
-              <input type="text" name="{{key}}" value="{{value}}" placeholder="{{default}}">
+              <input type="text" name="{{key}}" value="{{value}}" placeholder="{{defaultValue}}">
             {{/eq}}
             <div class="note">{{description}}</div>
             {{#if extra}}

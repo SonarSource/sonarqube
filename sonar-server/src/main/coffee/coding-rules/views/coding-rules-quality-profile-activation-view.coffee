@@ -28,6 +28,8 @@ define [
       params = @ui.qualityProfileParameters.map(->
         key: jQuery(@).prop('name'), value: jQuery(@).val() || jQuery(@).prop('placeholder')).get()
 
+      paramsHash = _.reduce((params.map (param) -> param.key + '=' + param.value), ((hash, param) -> hash + ';' + param), '')
+
       if @model
         profileKey = @model.get('qProfile')
       severity = @ui.qualityProfileSeverity.val()
@@ -40,7 +42,7 @@ define [
             profile_key: profileKey
             rule_key: @rule.get('key')
             severity: severity
-            params: params
+            params: paramsHash
       .done =>
           if @model
             @model.set severity: severity, params: params
