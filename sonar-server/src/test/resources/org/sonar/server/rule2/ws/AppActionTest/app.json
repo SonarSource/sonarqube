@@ -2,7 +2,7 @@
   "canWrite": true,
   "qualityprofiles": [
     {"key": "Profile One:bf", "name": "Profile One", "lang": "bf"},
-    {"key": "Profile Two:bf", "name": "Profile Two", "lang": "bf", "parent": "Profile One"}
+    {"key": "Profile Two:bf", "name": "Profile Two", "lang": "bf", "parent": "Profile One", "parentKey": "Profile One:bf"}
   ],
   "languages": {
     "bf": "Brainf*ck",

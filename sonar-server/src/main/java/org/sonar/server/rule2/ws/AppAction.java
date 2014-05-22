@@ -169,13 +169,18 @@ public class AppAction implements RequestHandler {
 
   private void addProfiles(JsonWriter json) {
     json.name("qualityprofiles").beginArray();
-    for (QualityProfileDto profile: qualityProfileService.findAll()) {
+    for (QualityProfileDto profile : qualityProfileService.findAll()) {
       json.beginObject()
         .prop("key", profile.getKey().toString())
         .prop("name", profile.getName())
         .prop("lang", profile.getLanguage())
-        .prop("parent", profile.getParent())
-        .prop("parentKey", profile.getParentKey().toString())
+        .prop("parent", profile.getParent());
+      if (profile.getParentKey() != null) {
+        json
+          .prop("parentKey", profile.getParentKey().toString());
+
+      }
+      json
         .endObject();
     }
     json.endArray();
@@ -183,7 +188,7 @@ public class AppAction implements RequestHandler {
 
   private void addLanguages(JsonWriter json) {
     json.name("languages").beginObject();
-    for (Language language: languages.all()) {
+    for (Language language : languages.all()) {
       json.prop(language.getKey(), language.getName());
     }
     json.endObject();
@@ -191,7 +196,7 @@ public class AppAction implements RequestHandler {
 
   private void addRuleRepositories(JsonWriter json) {
     json.name("repositories").beginArray();
-    for (Repository repo: ruleRepositories.repositories()) {
+    for (Repository repo : ruleRepositories.repositories()) {
       json.beginObject()
         .prop("key", repo.key())
         .prop("name", repo.name())
@@ -203,7 +208,7 @@ public class AppAction implements RequestHandler {
 
   private void addStatuses(JsonWriter json) {
     json.name("statuses").beginObject();
-    for (RuleStatus status: RuleStatus.values()) {
+    for (RuleStatus status : RuleStatus.values()) {
       if (status != RuleStatus.REMOVED) {
         json.prop(status.toString(), i18n.message(Locale.getDefault(), "rules.status." + status.toString().toLowerCase(), status.toString()));
       }
@@ -213,12 +218,12 @@ public class AppAction implements RequestHandler {
 
   private void addCharacteristics(JsonWriter json) {
     Map<Integer, DefaultDebtCharacteristic> caracById = Maps.newHashMap();
-    for (DebtCharacteristic carac: debtModel.allCharacteristics()) {
+    for (DebtCharacteristic carac : debtModel.allCharacteristics()) {
       DefaultDebtCharacteristic fullCarac = (DefaultDebtCharacteristic) carac;
       caracById.put(fullCarac.id(), fullCarac);
     }
     json.name("characteristics").beginObject();
-    for (DefaultDebtCharacteristic carac: caracById.values()) {
+    for (DefaultDebtCharacteristic carac : caracById.values()) {
       json.prop(carac.key(), carac.isSub() ? caracById.get(carac.parentId()).name() + ": " + carac.name() : carac.name());
     }
     json.endObject();
@@ -226,7 +231,7 @@ public class AppAction implements RequestHandler {
 
   private void addMessages(JsonWriter json) {
     json.name("messages").beginObject();
-    for (String message: MESSAGES) {
+    for (String message : MESSAGES) {
       json.prop(message, i18n.message(Locale.getDefault(), message, message));
     }
     json.endObject();
