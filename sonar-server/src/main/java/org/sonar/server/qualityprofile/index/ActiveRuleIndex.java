@@ -52,7 +52,6 @@ import org.sonar.server.es.ESNode;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule2.index.RuleIndexDefinition;
 import org.sonar.server.search.BaseIndex;
-import org.sonar.server.search.QueryOptions;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -120,7 +119,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
   }
 
   @Override
-  public ActiveRule toDoc(Map<String,Object> fields, QueryOptions options) {
+  public ActiveRule toDoc(Map<String, Object> fields) {
     return new ActiveRuleDoc(fields);
   }
 
@@ -140,7 +139,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
 
     List<ActiveRule> activeRules = new ArrayList<ActiveRule>();
     for (SearchHit hit : response.getHits()) {
-      activeRules.add(toDoc(hit.getSource(), QueryOptions.DEFAULT));
+      activeRules.add(toDoc(hit.getSource()));
     }
 
     return activeRules;
@@ -156,6 +155,6 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
       .setType(this.getIndexType())
       .setIndex(this.getIndexName())
       .setId(ActiveRuleKey.of(qualityProfileKey, ruleKey).toString())
-      .get().getSource(), QueryOptions.DEFAULT);
+      .get().getSource());
   }
 }

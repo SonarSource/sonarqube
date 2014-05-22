@@ -19,10 +19,7 @@
  */
 package org.sonar.server.rule2.index;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import org.elasticsearch.action.search.SearchResponse;
-import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule2.Rule;
 import org.sonar.server.search.Result;
 
@@ -31,11 +28,8 @@ import java.util.Map;
 
 public class RuleResult extends Result<Rule> {
 
-  private Multimap<String,ActiveRule> activeRules;
-
   public RuleResult(SearchResponse response) {
     super(response);
-    activeRules = ArrayListMultimap.create();
   }
 
   @Override
@@ -45,9 +39,5 @@ public class RuleResult extends Result<Rule> {
 
   public Collection<Rule> getRules() {
     return super.getHits();
-  }
-
-  public  Multimap<String,ActiveRule> getActiveRules() {
-    return this.activeRules;
   }
 }

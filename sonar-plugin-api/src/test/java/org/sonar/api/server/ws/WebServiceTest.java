@@ -21,9 +21,11 @@ package org.sonar.api.server.ws;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
+import org.sonar.api.rule.RuleStatus;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -272,6 +274,58 @@ public class WebServiceTest {
     assertThat(action.param("severity").description()).isNull();
     assertThat(action.param("severity").defaultValue()).isEqualTo("MAJOR");
     assertThat(action.param("severity").possibleValues()).containsOnly("INFO", "MAJOR", "BLOCKER");
+  }
+
+  @Test
+  public void param_metadata_as_objects() {
+    new WebService() {
+      @Override
+      public void define(Context context) {
+        NewController newController = context.createController("api/rule");
+        NewAction create = newController.createAction("create").setHandler(mock(RequestHandler.class));
+        create.createParam("status")
+          .setDefaultValue(RuleStatus.BETA)
+          .setPossibleValues(RuleStatus.BETA, RuleStatus.READY)
+          .setExampleValue(RuleStatus.BETA);
+        create.createParam("max")
+          .setDefaultValue(11)
+          .setPossibleValues(11, 13, 17)
+          .setExampleValue(17);
+        newController.done();
+      }
+    }.define(context);
+
+    WebService.Action action = context.controller("api/rule").action("create");
+    assertThat(action.param("status").defaultValue()).isEqualTo("BETA");
+    assertThat(action.param("status").possibleValues()).containsOnly("BETA", "READY");
+    assertThat(action.param("status").exampleValue()).isEqualTo("BETA");
+    assertThat(action.param("max").defaultValue()).isEqualTo("11");
+    assertThat(action.param("max").possibleValues()).containsOnly("11", "13", "17");
+    assertThat(action.param("max").exampleValue()).isEqualTo("17");
+  }
+
+  @Test
+  public void param_null_metadata() {
+    new WebService() {
+      @Override
+      public void define(Context context) {
+        NewController newController = context.createController("api/rule");
+        NewAction create = newController.createAction("create").setHandler(mock(RequestHandler.class));
+        create.createParam("status")
+          .setDefaultValue(null)
+          .setPossibleValues((Collection) null)
+          .setExampleValue(null);
+        create.createParam("max")
+          .setPossibleValues((String[]) null);
+        newController.done();
+      }
+    }.define(context);
+
+    WebService.Action action = context.controller("api/rule").action("create");
+    assertThat(action.param("status").defaultValue()).isNull();
+    assertThat(action.param("status").possibleValues()).isNull();
+    assertThat(action.param("status").exampleValue()).isNull();
+    assertThat(action.param("max").possibleValues()).isNull();
   }
 
   @Test

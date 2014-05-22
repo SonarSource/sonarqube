@@ -151,7 +151,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
 
   /* Base CRUD methods */
 
-  protected abstract D toDoc(Map<String,Object> fields, QueryOptions options);
+  protected abstract D toDoc(Map<String,Object> fields);
 
   public D getByKey(K key) {
     GetResponse response = getClient().prepareGet()
@@ -161,7 +161,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
       .setRouting(this.getKeyValue(key))
       .get();
     if (response.isExists()) {
-      return toDoc(response.getSource(), QueryOptions.DEFAULT);
+      return toDoc(response.getSource());
     }
     return null;
   }

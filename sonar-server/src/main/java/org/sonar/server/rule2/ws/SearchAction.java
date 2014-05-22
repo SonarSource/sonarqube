@@ -28,7 +28,6 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule2.Rule;
 import org.sonar.server.rule2.RuleService;
 import org.sonar.server.rule2.index.RuleDoc;
@@ -47,23 +46,25 @@ import java.util.Map;
  */
 public class SearchAction implements RequestHandler {
 
-  private static final String PARAM_REPOSITORIES = "repositories";
-  private static final String PARAM_ACTIVATION = "activation";
-  private static final String PARAM_QPROFILE = "qprofile";
-  private static final String PARAM_SEVERITIES = "severities";
-  private static final String PARAM_STATUSES = "statuses";
-  private static final String PARAM_LANGUAGES = "languages";
-  private static final String PARAM_DEBT_CHARACTERISTICS = "debt_characteristics";
-  private static final String PARAM_HAS_DEBT_CHARACTERISTIC = "has_debt_characteristic";
-  private static final String PARAM_TAGS = "tags";
-  private static final String PARAM_ALL_OF_TAGS = "all_of_tags";
-  private static final String PARAM_FACETS = "facets";
+  public static final String PARAM_REPOSITORIES = "repositories";
+  public static final String PARAM_ACTIVATION = "activation";
+  public static final String PARAM_QPROFILE = "qprofile";
+  public static final String PARAM_SEVERITIES = "severities";
+  public static final String PARAM_STATUSES = "statuses";
+  public static final String PARAM_LANGUAGES = "languages";
+  public static final String PARAM_DEBT_CHARACTERISTICS = "debt_characteristics";
+  public static final String PARAM_HAS_DEBT_CHARACTERISTIC = "has_debt_characteristic";
+  public static final String PARAM_TAGS = "tags";
+  public static final String PARAM_ALL_OF_TAGS = "all_of_tags";
+  public static final String PARAM_FACETS = "facets";
 
-  private final RuleService service;
+  private final RuleService ruleService;
+  private final ActiveRuleCompleter activeRuleCompleter;
   private final RuleMapping mapping;
 
-  public SearchAction(RuleService service, RuleMapping mapping) {
-    this.service = service;
+  public SearchAction(RuleService service, ActiveRuleCompleter activeRuleCompleter, RuleMapping mapping) {
+    this.ruleService = service;
+    this.activeRuleCompleter = activeRuleCompleter;
     this.mapping = mapping;
   }
 
@@ -97,7 +98,7 @@ public class SearchAction implements RequestHandler {
     action
       .createParam(SearchOptions.PARAM_TEXT_QUERY)
       .setDescription("UTF-8 search query")
-      .setExampleValue("null pointer");
+      .setExampleValue("xpath");
 
     action
       .createParam(PARAM_REPOSITORIES)
@@ -119,7 +120,7 @@ public class SearchAction implements RequestHandler {
       .createParam(PARAM_STATUSES)
       .setDescription("Comma-separated list of status codes")
       .setPossibleValues(RuleStatus.values())
-      .setExampleValue(RuleStatus.READY.toString());
+      .setExampleValue(RuleStatus.READY);
 
     action
       .createParam(PARAM_DEBT_CHARACTERISTICS)
@@ -142,15 +143,15 @@ public class SearchAction implements RequestHandler {
       .setExampleValue("security,java8");
 
     action
-      .createParam(PARAM_QPROFILE)
-      .setDescription("Key of Quality profile")
-      .setExampleValue("java:Sonar way");
+      .createParam(PARAM_ACTIVATION)
+      .setDescription("TODO")
+      .setBooleanPossibleValues();
 
     action
-      .createParam(PARAM_ACTIVATION)
-      .setDescription("Used only if 'qprofile' is set")
-      .setExampleValue("java:Sonar way")
-      .setPossibleValues("false", "true", "all");
+      .createParam(PARAM_QPROFILE)
+      .setDescription("Key of Quality profile to filter on. Used only if the parameter '" +
+        PARAM_ACTIVATION + "' is set.")
+      .setExampleValue("java:Sonar way");
 
     // TODO limit the fields to sort on + document possible values + default value ?
     action
@@ -162,7 +163,7 @@ public class SearchAction implements RequestHandler {
       .createParam(SearchOptions.PARAM_ASCENDING)
       .setDescription("Ascending sort")
       .setBooleanPossibleValues()
-      .setDefaultValue("true");
+      .setDefaultValue(true);
   }
 
   @Override
@@ -172,23 +173,22 @@ public class SearchAction implements RequestHandler {
     QueryOptions queryOptions = mapping.newQueryOptions(searchOptions);
     queryOptions.setFacet(request.mandatoryParamAsBoolean(PARAM_FACETS));
 
-    RuleResult results = service.search(query, queryOptions);
+    RuleResult results = ruleService.search(query, queryOptions);
 
     JsonWriter json = response.newJsonWriter().beginObject();
     searchOptions.writeStatistics(json, results);
     writeRules(results, json, searchOptions);
     if (searchOptions.hasField("actives")) {
-      writeActiveRules(results, json);
+      activeRuleCompleter.completeSearch(query, results.getRules(), json);
     }
     if (queryOptions.isFacet()) {
-
       writeFacets(results, json);
     }
     json.endObject().close();
   }
 
   private RuleQuery createRuleQuery(Request request) {
-    RuleQuery query = service.newRuleQuery();
+    RuleQuery query = ruleService.newRuleQuery();
     query.setQueryText(request.param(SearchOptions.PARAM_TEXT_QUERY));
     query.setSeverities(request.paramAsStrings(PARAM_SEVERITIES));
     query.setRepositories(request.paramAsStrings(PARAM_REPOSITORIES));
@@ -196,11 +196,12 @@ public class SearchAction implements RequestHandler {
     query.setLanguages(request.paramAsStrings(PARAM_LANGUAGES));
     query.setDebtCharacteristics(request.paramAsStrings(PARAM_DEBT_CHARACTERISTICS));
     query.setHasDebtCharacteristic(request.paramAsBoolean(PARAM_HAS_DEBT_CHARACTERISTIC));
-    query.setActivation(request.param(PARAM_ACTIVATION));
+    query.setActivation(request.paramAsBoolean(PARAM_ACTIVATION));
     query.setQProfileKey(request.param(PARAM_QPROFILE));
     query.setSortField(RuleQuery.SortField.valueOfOrNull(request.param(SearchOptions.PARAM_SORT)));
     query.setAscendingSort(request.mandatoryParamAsBoolean(SearchOptions.PARAM_ASCENDING));
     query.setTags(request.paramAsStrings(PARAM_TAGS));
+    query.setAllOfTags(request.paramAsStrings(PARAM_ALL_OF_TAGS));
     return query;
   }
 
@@ -212,58 +213,19 @@ public class SearchAction implements RequestHandler {
     json.endArray();
   }
 
-  private void writeActiveRules(RuleResult result, JsonWriter json) {
-    json.name("actives").beginObject();
-    for (Map.Entry<String, Collection<ActiveRule>> entry : result.getActiveRules().asMap().entrySet()) {
-      // rule key
-      json.name(entry.getKey());
-      json.beginArray();
-      for (ActiveRule activeRule : entry.getValue()) {
-        writeActiveRule(json, activeRule);
-      }
-      json.endArray();
-    }
-    json.endObject();
-  }
-
-  /**
-   * This method is static and package protected because it's used by {@link org.sonar.server.rule2.ws.ShowAction}
-   */
-  static void writeActiveRule(JsonWriter json, ActiveRule activeRule) {
-    json
-      .beginObject()
-      .prop("qProfile", activeRule.key().qProfile().toString())
-      .prop("inherit", activeRule.inheritance().toString())
-      .prop("severity", activeRule.severity());
-    if (activeRule.parentKey() != null) {
-      json.prop("parent", activeRule.parentKey().toString());
-    }
-    json.name("params").beginArray();
-    for (Map.Entry<String, String> param : activeRule.params().entrySet()) {
-      json
-        .beginObject()
-        .prop("key", param.getKey())
-        .prop("value", param.getValue())
-        .endObject();
-    }
-    json.endArray().endObject();
-  }
-
   private void writeFacets(RuleResult results, JsonWriter json) {
     json.name("facets").beginArray();
     for (Map.Entry<String, Collection<FacetValue>> facet : results.getFacets().entrySet()) {
-      System.out.println("facet = " + facet);
       json.beginObject();
       json.prop("name", facet.getKey());
       json.name("values").beginArray();
       for (FacetValue facetValue : facet.getValue()) {
         json.beginObject();
         json.prop("val", facetValue.getKey());
-        json.prop("count", (Integer) facetValue.getValue());
+        json.prop("count", facetValue.getValue());
         json.endObject();
       }
-      json.endArray();
-      json.endObject();
+      json.endArray().endObject();
     }
     json.endArray();
   }

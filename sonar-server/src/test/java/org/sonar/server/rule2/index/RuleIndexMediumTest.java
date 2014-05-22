@@ -474,27 +474,24 @@ public class RuleIndexMediumTest {
     RuleResult result;
 
     // 1. get all active rules.
-    result = index.search(new RuleQuery().setActivation("all"),
+    result = index.search(new RuleQuery().setActivation(true),
       new QueryOptions());
     assertThat(result.getHits()).hasSize(2);
 
     // 2. get all inactive rules.
-    result = index.search(new RuleQuery().setActivation("false"),
+    result = index.search(new RuleQuery().setActivation(false),
       new QueryOptions());
     assertThat(result.getHits()).hasSize(1);
     assertThat(result.getHits().get(0).name()).isEqualTo(rule3.getName());
 
-    // 3. get all active rules missing profile.
-    try {
-      index.search(new RuleQuery().setActivation("true"),
+    // 3. get all rules not active on profile
+    index.search(new RuleQuery().setActivation(false).setQProfileKey(qualityProfileDto2.getKey().toString()),
         new QueryOptions());
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("qProfile is required when \"activation=true\"");
-    }
+    // TODO
+    assertThat(result.getRules()).hasSize(1);
 
-    // 4. get all active rules. for qualityProfileDto2
-    result = index.search(new RuleQuery().setActivation("true")
+    // 4. get all active rules on profile
+    result = index.search(new RuleQuery().setActivation(true)
         .setQProfileKey(qualityProfileDto2.getKey().toString()),
       new QueryOptions()
     );

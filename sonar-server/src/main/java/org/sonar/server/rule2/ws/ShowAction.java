@@ -27,30 +27,26 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.qualityprofile.ActiveRule;
-import org.sonar.server.qualityprofile.ActiveRuleService;
 import org.sonar.server.rule2.Rule;
 import org.sonar.server.rule2.RuleService;
 import org.sonar.server.search.BaseDoc;
-
-import java.util.List;
 
 /**
  * @since 4.4
  */
 public class ShowAction implements RequestHandler {
 
-  private static final String PARAM_KEY = "key";
-  private static final String PARAM_ACTIVATION = "activation";
+  public static final String PARAM_KEY = "key";
+  public static final String PARAM_ACTIVES = "actives";
 
   private final RuleService service;
   private final RuleMapping mapping;
-  private final ActiveRuleService activeRuleService;
+  private final ActiveRuleCompleter activeRuleCompleter;
 
-  public ShowAction(RuleService service, ActiveRuleService activeRuleService, RuleMapping mapping) {
+  public ShowAction(RuleService service, ActiveRuleCompleter activeRuleCompleter, RuleMapping mapping) {
     this.service = service;
     this.mapping = mapping;
-    this.activeRuleService = activeRuleService;
+    this.activeRuleCompleter = activeRuleCompleter;
   }
 
   void define(WebService.NewController controller) {
@@ -68,10 +64,10 @@ public class ShowAction implements RequestHandler {
       .setExampleValue("javascript:EmptyBlock");
 
     action
-      .createParam(PARAM_ACTIVATION)
-      .setDescription("Show rule's activations for all profiles (ActiveRules)")
-      .setDefaultValue("true")
-      .setBooleanPossibleValues();
+      .createParam(PARAM_ACTIVES)
+      .setDescription("Show rule's activations for all profiles (\"active rules\")")
+      .setBooleanPossibleValues()
+      .setDefaultValue(false);
   }
 
   @Override
@@ -84,19 +80,10 @@ public class ShowAction implements RequestHandler {
     JsonWriter json = response.newJsonWriter().beginObject().name("rule");
     mapping.write((BaseDoc) rule, json);
 
-    if (request.mandatoryParamAsBoolean(PARAM_ACTIVATION)) {
-      writeActiveRules(activeRuleService.findByRuleKey(key), json);
+    if (request.mandatoryParamAsBoolean(PARAM_ACTIVES)) {
+      activeRuleCompleter.completeShow(rule, json);
     }
 
     json.endObject().close();
-  }
-
-  void writeActiveRules(List<ActiveRule> activeRules, JsonWriter json) {
-    json.name("actives").beginArray();
-    for (ActiveRule activeRule : activeRules) {
-      SearchAction.writeActiveRule(json, activeRule);
-    }
-    json.endArray();
-
   }
 }

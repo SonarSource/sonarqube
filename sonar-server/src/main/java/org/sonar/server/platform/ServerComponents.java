@@ -334,6 +334,7 @@ class ServerComponents {
     pico.addSingleton(SetTagsAction.class);
     pico.addSingleton(SetNoteAction.class);
     pico.addSingleton(RuleMapping.class);
+    pico.addSingleton(ActiveRuleCompleter.class);
     pico.addSingleton(org.sonar.server.rule2.ws.AppAction.class);
 
     // measure

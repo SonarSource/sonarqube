@@ -32,10 +32,13 @@ import org.sonar.api.ServerExtension;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Defines a web service. Note that contrary to the deprecated {@link org.sonar.api.web.Webservice}
@@ -457,8 +460,8 @@ public interface WebService extends ServerExtension {
     /**
      * @since 4.4
      */
-    public NewParam setExampleValue(@Nullable String s) {
-      this.exampleValue = s;
+    public NewParam setExampleValue(@Nullable Object s) {
+      this.exampleValue = (s != null ? s.toString() : null);
       return this;
     }
 
@@ -500,8 +503,8 @@ public interface WebService extends ServerExtension {
     /**
      * @since 4.4
      */
-    public NewParam setDefaultValue(@Nullable String s) {
-      this.defaultValue = s;
+    public NewParam setDefaultValue(@Nullable Object o) {
+      this.defaultValue = (o != null ? o.toString() : null);
       return this;
     }
 

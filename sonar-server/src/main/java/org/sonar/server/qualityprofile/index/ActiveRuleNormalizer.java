@@ -25,7 +25,6 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.search.BaseNormalizer;

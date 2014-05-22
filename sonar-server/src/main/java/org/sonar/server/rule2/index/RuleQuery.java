@@ -70,16 +70,18 @@ public class RuleQuery {
   private Collection<String> severities;
   private Collection<RuleStatus> statuses;
   private Collection<String> tags;
+  private Collection<String> allOfTags;
   private Collection<String> debtCharacteristics;
   private Boolean hasDebtCharacteristic;
   private SortField sortField;
   private boolean ascendingSort = true;
-  private String activation;
+  private Boolean activation;
   private String qProfileKey;
 
 
   /**
    * TODO should not be public
+   *
    * @see org.sonar.server.rule2.RuleService#newRuleQuery()
    */
   public RuleQuery() {
@@ -95,13 +97,13 @@ public class RuleQuery {
     return this;
   }
 
-  public RuleQuery setActivation(String activation) {
+  public RuleQuery setActivation(@Nullable Boolean activation) {
     this.activation = activation;
     return this;
   }
 
   @CheckForNull
-  public String getActivation(){
+  public Boolean getActivation() {
     return this.activation;
   }
 
@@ -181,6 +183,16 @@ public class RuleQuery {
   }
 
   @CheckForNull
+  public Collection<String> getAllOfTags() {
+    return allOfTags;
+  }
+
+  public RuleQuery setAllOfTags(@Nullable Collection<String> tags) {
+    this.allOfTags = tags;
+    return this;
+  }
+
+  @CheckForNull
   public Collection<String> getDebtCharacteristics() {
     return debtCharacteristics;
   }
@@ -195,8 +207,8 @@ public class RuleQuery {
     return hasDebtCharacteristic;
   }
 
-  public RuleQuery setHasDebtCharacteristic(@Nullable Boolean hasDebtCharacteristic) {
-    this.hasDebtCharacteristic = hasDebtCharacteristic;
+  public RuleQuery setHasDebtCharacteristic(@Nullable Boolean b) {
+    this.hasDebtCharacteristic = b;
     return this;
   }
 

@@ -31,6 +31,7 @@ import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
@@ -39,6 +40,7 @@ import org.sonar.server.search.IndexClient;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
@@ -62,6 +64,15 @@ public class ActiveRuleService implements ServerComponent {
     this.contextFactory = contextFactory;
     this.typeValidations = typeValidations;
     this.previewCache = previewCache;
+  }
+
+  @CheckForNull
+  public ActiveRule getByKey(ActiveRuleKey key) {
+    return index.get(ActiveRuleIndex.class).getByKey(key);
+  }
+
+  public List<ActiveRule> findByRuleKey(RuleKey key){
+    return index.get(ActiveRuleIndex.class).findByRule(key);
   }
 
   /**
@@ -191,9 +202,5 @@ public class ActiveRuleService implements ServerComponent {
         typeValidations.validate(value, ruleParamType.type(), ruleParamType.values());
       }
     }
-  }
-
-  public List<ActiveRule> findByRuleKey(RuleKey ruleKey){
-    return index.get(ActiveRuleIndex.class).findByRule(ruleKey);
   }
 }

@@ -114,7 +114,8 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     addMatchField(mapping, RuleNormalizer.RuleField.REPOSITORY.key(), "string");
     addMatchField(mapping, RuleNormalizer.RuleField.SEVERITY.key(), "string");
-    addMatchField(mapping, RuleNormalizer.RuleField.STATUS.key(), "string");;
+    addMatchField(mapping, RuleNormalizer.RuleField.STATUS.key(), "string");
+    ;
     addMatchField(mapping, RuleNormalizer.RuleField.LANGUAGE.key(), "string");
 
     mapping.startObject(RuleNormalizer.RuleField.CHARACTERISTIC.key())
@@ -293,27 +294,32 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     }
 
     /** Implementation of activation query */
-    if (query.getActivation() != null && !query.getActivation().isEmpty()) {
-      if (query.getActivation().equals("false")) {
-        /** these are inactive rules */
-        fb.mustNot(FilterBuilders.hasChildFilter(new ActiveRuleIndexDefinition().getIndexType(),
-          QueryBuilders.matchAllQuery()));
-      } else if (query.getActivation().equals("all")) {
-        /** these are active rules */
+    if (query.getActivation() == Boolean.TRUE) {
+      if (query.getQProfileKey() == null) {
+        // the rules that are activated at least once
         fb.must(FilterBuilders.hasChildFilter(new ActiveRuleIndexDefinition().getIndexType(),
           QueryBuilders.matchAllQuery()));
-      } else if (query.getActivation().equals("true")) {
-        /** these are active rules for a given profile*/
-        if (query.getQProfileKey() == null || query.getQProfileKey().isEmpty()) {
-          throw new IllegalStateException("qProfile is required when \"activation=true\"");
-        }
+      } else {
+        // the rules that are activated on this profile
         fb.must(FilterBuilders.hasChildFilter(new ActiveRuleIndexDefinition().getIndexType(),
           QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.key(),
             query.getQProfileKey())
         ));
       }
-    }
+    } else if (query.getActivation() == Boolean.FALSE) {
+      if (query.getQProfileKey() == null) {
+        // the rules that are never activated, on any profile
+        fb.mustNot(FilterBuilders.hasChildFilter(new ActiveRuleIndexDefinition().getIndexType(),
+          QueryBuilders.matchAllQuery()));
 
+      } else {
+        // the rules that are not activated on this profile
+        fb.mustNot(FilterBuilders.hasChildFilter(new ActiveRuleIndexDefinition().getIndexType(),
+          QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.key(),
+            query.getQProfileKey())
+        ));
+      }
+    }
 
     if ((query.getLanguages() != null && !query.getLanguages().isEmpty()) ||
       (query.getRepositories() != null && !query.getRepositories().isEmpty()) ||
@@ -322,7 +328,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       (query.getStatuses() != null && !query.getStatuses().isEmpty()) ||
       (query.getKey() != null && !query.getKey().isEmpty()) ||
       (query.getDebtCharacteristics() != null && !query.getDebtCharacteristics().isEmpty()) ||
-      (query.getActivation() != null && !query.getActivation().isEmpty())) {
+      (query.getActivation() != null)) {
       return fb;
     } else {
       return FilterBuilders.matchAllFilter();
@@ -331,7 +337,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
   protected void setFacets(SearchRequestBuilder query) {
 
-          /* the Lang facet */
+    /* the Lang facet */
     query.addAggregation(AggregationBuilders
       .terms("Languages")
       .field(RuleNormalizer.RuleField.LANGUAGE.key())
@@ -371,7 +377,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
 
   @Override
-  protected Rule toDoc(Map<String, Object> fields, QueryOptions options) {
+  protected Rule toDoc(Map<String, Object> fields) {
     Preconditions.checkArgument(fields != null, "Cannot construct Rule with null response!!!");
     return new RuleDoc(fields);
   }
@@ -391,9 +397,9 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     SearchResponse esResponse = request.get();
 
-    Terms aggregation = (Terms) esResponse.getAggregations().get(key);
+    Terms aggregation = esResponse.getAggregations().get(key);
 
-    for (Terms.Bucket value : aggregation.getBuckets()){
+    for (Terms.Bucket value : aggregation.getBuckets()) {
       tags.add(value.getKey());
     }
     return tags;

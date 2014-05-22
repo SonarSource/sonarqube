@@ -24,11 +24,8 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.qualityprofile.ActiveRule;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule2.index.RuleIndex;
 import org.sonar.server.rule2.index.RuleNormalizer;
 import org.sonar.server.rule2.index.RuleQuery;
@@ -39,7 +36,6 @@ import org.sonar.server.user.UserSession;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -48,12 +44,10 @@ import java.util.Set;
 public class RuleService implements ServerComponent {
 
   private final RuleIndex index;
-  private final ActiveRuleIndex activeRuleIndex;
   private final DbClient db;
 
-  public RuleService(ActiveRuleIndex activeRuleIndex, RuleIndex index, DbClient db) {
+  public RuleService(RuleIndex index, DbClient db) {
     this.index = index;
-    this.activeRuleIndex = activeRuleIndex;
     this.db = db;
   }
 
@@ -67,30 +61,7 @@ public class RuleService implements ServerComponent {
   }
 
   public RuleResult search(RuleQuery query, QueryOptions options) {
-    RuleResult result = index.search(query, options);
-
-    /** Check for activation */
-    if (query.getActivation() != null && !query.getActivation().isEmpty()) {
-      if (query.getActivation().equalsIgnoreCase("true")) {
-        for (Rule rule : result.getHits()) {
-          if(query.getQProfileKey() == null){
-            throw new IllegalStateException("\"activation=true\" requires a profile key!");
-          }
-          QualityProfileKey qualityProfileKey =  QualityProfileKey.parse(query.getQProfileKey());
-          result.getActiveRules().put(rule.key().toString(),
-            activeRuleIndex.getByRuleKeyAndProfileKey(rule.key(),qualityProfileKey));
-        }
-      } else if (query.getActivation().equalsIgnoreCase("all")) {
-        for (Rule rule : result.getHits()) {
-          List<ActiveRule> activeRules = activeRuleIndex.findByRule(rule.key());
-          for (ActiveRule activeRule : activeRules) {
-            result.getActiveRules().put(rule.key().toString(), activeRule);
-          }
-        }
-      }
-    }
-
-    return result;
+    return index.search(query, options);
   }
 
   /**
@@ -104,11 +75,10 @@ public class RuleService implements ServerComponent {
   /**
    * Set tags for rule.
    *
-   * @param ruleKey  the required key
-   * @param tags     Set of tags. <code>null</code> to remove all tags.
+   * @param ruleKey the required key
+   * @param tags    Set of tags. <code>null</code> to remove all tags.
    */
   public void setTags(RuleKey ruleKey, Set<String> tags) {
-
     checkAdminPermission(UserSession.get());
 
     DbSession dbSession = db.openSession(false);
