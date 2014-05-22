@@ -79,6 +79,16 @@ public class QualityProfileDto extends Dto<QualityProfileKey> {
     return parent;
   }
 
+  @CheckForNull
+  public QualityProfileKey getParentKey() {
+    if(getParent() != null && !getParent().isEmpty()) {
+      return QualityProfileKey.of(this.getParent(), this.getLanguage());
+    } else {
+      return null;
+    }
+  }
+
+
   public QualityProfileDto setParent(@Nullable String parent) {
     this.parent = parent;
     return this;

@@ -175,6 +175,7 @@ public class AppAction implements RequestHandler {
         .prop("name", profile.getName())
         .prop("lang", profile.getLanguage())
         .prop("parent", profile.getParent())
+        .prop("parentKey", profile.getParentKey().toString())
         .endObject();
     }
     json.endArray();
