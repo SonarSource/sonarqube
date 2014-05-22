@@ -20,12 +20,11 @@
 package org.sonar.server.search;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -44,7 +43,7 @@ public class QueryOptions {
   private int offset = DEFAULT_OFFSET;
   private int limit = DEFAULT_LIMIT;
   private boolean facet = DEFAULT_FACET;
-  private Set<String> fieldsToReturn = new HashSet<String>();
+  private Set<String> fieldsToReturn = Sets.newHashSet();
 
   /**
    * Whether or not the search returns facets for the domain. Defaults to {@link #DEFAULT_OFFSET}
@@ -103,15 +102,14 @@ public class QueryOptions {
     return this;
   }
 
-  @CheckForNull
   public Set<String> getFieldsToReturn() {
     return fieldsToReturn;
   }
 
   public QueryOptions setFieldsToReturn(@Nullable Collection<String> c) {
-    this.fieldsToReturn.clear();
+    fieldsToReturn.clear();
     if (c != null) {
-      this.fieldsToReturn.addAll(c);
+      this.fieldsToReturn = Sets.newHashSet(c);
     }
     return this;
   }
@@ -124,7 +122,6 @@ public class QueryOptions {
   }
 
   public QueryOptions addFieldsToReturn(String... c) {
-    fieldsToReturn.addAll(Arrays.asList(c));
-    return this;
+    return addFieldsToReturn(Arrays.asList(c));
   }
 }

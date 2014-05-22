@@ -34,7 +34,6 @@ import org.sonar.server.rule2.RuleService;
 import org.sonar.server.search.BaseDoc;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @since 4.4
@@ -71,10 +70,8 @@ public class ShowAction implements RequestHandler {
     action
       .createParam(PARAM_ACTIVATION)
       .setDescription("Show rule's activations for all profiles (ActiveRules)")
-      .setRequired(false)
       .setDefaultValue("true")
-      .setBooleanPossibleValues()
-      .setExampleValue("true");
+      .setBooleanPossibleValues();
   }
 
   @Override
@@ -87,35 +84,17 @@ public class ShowAction implements RequestHandler {
     JsonWriter json = response.newJsonWriter().beginObject().name("rule");
     mapping.write((BaseDoc) rule, json);
 
-    /** add activeRules (or not) */
-    if (request.paramAsBoolean(PARAM_ACTIVATION)) {
-      writeActiveRules(key, activeRuleService.findByRuleKey(key), json);
+    if (request.mandatoryParamAsBoolean(PARAM_ACTIVATION)) {
+      writeActiveRules(activeRuleService.findByRuleKey(key), json);
     }
 
     json.endObject().close();
   }
 
-  private void writeActiveRules(RuleKey key, List<ActiveRule> activeRules, JsonWriter json) {
+  void writeActiveRules(List<ActiveRule> activeRules, JsonWriter json) {
     json.name("actives").beginArray();
     for (ActiveRule activeRule : activeRules) {
-      json
-        .beginObject()
-        .prop("qProfile", activeRule.key().qProfile().toString())
-        .prop("inherit", activeRule.inheritance().toString())
-        .prop("severity", activeRule.severity());
-      if (activeRule.parentKey() != null) {
-        json.prop("parent", activeRule.parentKey().toString());
-      }
-      json.name("params").beginArray();
-      for (Map.Entry<String, String> param : activeRule.params().entrySet()) {
-        json
-          .beginObject()
-          .prop("key", param.getKey())
-          .prop("value", param.getValue())
-          .endObject();
-      }
-      json.endArray()
-        .endObject();
+      SearchAction.writeActiveRule(json, activeRule);
     }
     json.endArray();
 

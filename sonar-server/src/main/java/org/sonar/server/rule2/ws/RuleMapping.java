@@ -36,31 +36,34 @@ public class RuleMapping extends BaseMapping {
 
   public RuleMapping(Languages languages, MacroInterpreter macroInterpreter) {
     super();
-    addIndexField("repo", RuleNormalizer.RuleField.REPOSITORY.key());
-    addIndexField("name", RuleNormalizer.RuleField.NAME.key());
+    addIndexStringField("repo", RuleNormalizer.RuleField.REPOSITORY.key());
+    addIndexStringField("name", RuleNormalizer.RuleField.NAME.key());
     addIndexDatetimeField("createdAt", RuleNormalizer.RuleField.CREATED_AT.key());
     addField("htmlDesc", new HtmlDescField(macroInterpreter));
-    addIndexField("severity", RuleNormalizer.RuleField.SEVERITY.key());
-    addIndexField("status", RuleNormalizer.RuleField.STATUS.key());
-    addIndexField("internalKey", RuleNormalizer.RuleField.INTERNAL_KEY.key());
+    addIndexStringField("severity", RuleNormalizer.RuleField.SEVERITY.key());
+    addIndexStringField("status", RuleNormalizer.RuleField.STATUS.key());
+    addIndexStringField("internalKey", RuleNormalizer.RuleField.INTERNAL_KEY.key());
     addIndexBooleanField("template", RuleNormalizer.RuleField.TEMPLATE.key());
     addIndexArrayField("tags", RuleNormalizer.RuleField.TAGS.key());
     addIndexArrayField("sysTags", RuleNormalizer.RuleField.SYSTEM_TAGS.key());
-    addIndexField("debtSubChar", RuleNormalizer.RuleField.SUB_CHARACTERISTIC.key());
-    addField("debtRemFn", new IndexField("debtRemFnType", RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.key()));
-    addField("debtRemFn", new IndexField("debtRemFnCoeff", RuleNormalizer.RuleField.DEBT_FUNCTION_COEFFICIENT.key()));
-    addField("debtRemFn", new IndexField("debtRemFnOffset", RuleNormalizer.RuleField.DEBT_FUNCTION_OFFSET.key()));
-    addIndexField("mdNote", RuleNormalizer.RuleField.NOTE.key());
-    // TODO how to require NOTE ?
+    addField("debtChar", new IndexStringField("debtChar", RuleNormalizer.RuleField.CHARACTERISTIC.key()));
+    addField("debtChar", new IndexStringField("debtSubChar", RuleNormalizer.RuleField.SUB_CHARACTERISTIC.key()));
+    addField("debtRemFn", new IndexStringField("debtRemFnType", RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.key()));
+    addField("debtRemFn", new IndexStringField("debtRemFnCoeff", RuleNormalizer.RuleField.DEBT_FUNCTION_COEFFICIENT.key()));
+    addField("debtRemFn", new IndexStringField("debtRemFnOffset", RuleNormalizer.RuleField.DEBT_FUNCTION_OFFSET.key()));
+    addIndexStringField("mdNote", RuleNormalizer.RuleField.NOTE.key());
     addField("htmlNote", new HtmlNoteField(macroInterpreter));
-    addIndexField("noteLogin", RuleNormalizer.RuleField.NOTE_LOGIN.key());
-    addIndexField("lang", RuleNormalizer.RuleField.LANGUAGE.key());
+    addIndexStringField("noteLogin", RuleNormalizer.RuleField.NOTE_LOGIN.key());
+    addIndexStringField("lang", RuleNormalizer.RuleField.LANGUAGE.key());
     addField("langName", new LangNameField(languages));
-    // TODO how to require field "params" ?
     addField("params", new ParamsField());
   }
 
-  private static class ParamsField implements Field<Rule> {
+  private static class ParamsField extends IndexField<Rule> {
+    ParamsField() {
+      super(RuleNormalizer.RuleField.PARAMS.key());
+    }
+
     @Override
     public void write(JsonWriter json, Rule rule) {
       json.name("params").beginArray();
@@ -76,10 +79,11 @@ public class RuleMapping extends BaseMapping {
     }
   }
 
-  private static class LangNameField implements Field<Rule> {
+  private static class LangNameField extends IndexField<Rule> {
     private final Languages languages;
 
     private LangNameField(Languages languages) {
+      super(RuleNormalizer.RuleField.LANGUAGE.key());
       this.languages = languages;
     }
 
@@ -91,10 +95,11 @@ public class RuleMapping extends BaseMapping {
     }
   }
 
-  private static class HtmlNoteField implements Field<Rule> {
+  private static class HtmlNoteField extends IndexField<Rule> {
     private final MacroInterpreter macroInterpreter;
 
     private HtmlNoteField(MacroInterpreter macroInterpreter) {
+      super(RuleNormalizer.RuleField.NOTE.key());
       this.macroInterpreter = macroInterpreter;
     }
 

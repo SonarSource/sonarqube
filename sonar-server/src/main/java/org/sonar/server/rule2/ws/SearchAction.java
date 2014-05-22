@@ -219,27 +219,34 @@ public class SearchAction implements RequestHandler {
       json.name(entry.getKey());
       json.beginArray();
       for (ActiveRule activeRule : entry.getValue()) {
-        json
-          .beginObject()
-          .prop("qProfile", activeRule.key().qProfile().toString())
-          .prop("inherit", activeRule.inheritance().toString())
-          .prop("severity", activeRule.severity());
-        if (activeRule.parentKey() != null) {
-          json.prop("parent", activeRule.parentKey().toString());
-        }
-        json.name("params").beginArray();
-        for (Map.Entry<String, String> param : activeRule.params().entrySet()) {
-          json
-            .beginObject()
-            .prop("key", param.getKey())
-            .prop("value", param.getValue())
-            .endObject();
-        }
-        json.endArray().endObject();
+        writeActiveRule(json, activeRule);
       }
       json.endArray();
     }
     json.endObject();
+  }
+
+  /**
+   * This method is static and package protected because it's used by {@link org.sonar.server.rule2.ws.ShowAction}
+   */
+  static void writeActiveRule(JsonWriter json, ActiveRule activeRule) {
+    json
+      .beginObject()
+      .prop("qProfile", activeRule.key().qProfile().toString())
+      .prop("inherit", activeRule.inheritance().toString())
+      .prop("severity", activeRule.severity());
+    if (activeRule.parentKey() != null) {
+      json.prop("parent", activeRule.parentKey().toString());
+    }
+    json.name("params").beginArray();
+    for (Map.Entry<String, String> param : activeRule.params().entrySet()) {
+      json
+        .beginObject()
+        .prop("key", param.getKey())
+        .prop("value", param.getValue())
+        .endObject();
+    }
+    json.endArray().endObject();
   }
 
   private void writeFacets(RuleResult results, JsonWriter json) {

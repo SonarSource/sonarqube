@@ -22,6 +22,7 @@ package org.sonar.server.search.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 
 import javax.annotation.CheckForNull;
@@ -65,13 +66,18 @@ public class SearchOptions {
     this.page = page;
   }
 
+  /**
+   * The fields to be returned in JSON response. <code>null</code> means that
+   * all the fields must be returned.
+   */
   @CheckForNull
   public List<String> fields() {
     return fields;
   }
 
-  public void setFields(@Nullable List<String> fields) {
+  public SearchOptions setFields(@Nullable List<String> fields) {
     this.fields = fields;
+    return this;
   }
 
   public boolean hasField(String key) {
@@ -87,9 +93,14 @@ public class SearchOptions {
 
   public static SearchOptions create(Request request) {
     SearchOptions options = new SearchOptions();
+
+    // both parameters have default values
     options.setPage(request.mandatoryParamAsInt(PARAM_PAGE));
     options.setPageSize(request.mandatoryParamAsInt(PARAM_PAGE_SIZE));
+
+    // optional field
     options.setFields(request.paramAsStrings(PARAM_FIELDS));
+
     return options;
   }
 
@@ -114,7 +125,7 @@ public class SearchOptions {
     action
       .createParam(PARAM_PAGE_SIZE)
       .setDescription("Page size. Must be greater than 0.")
-      .setExampleValue("10")
-      .setDefaultValue("25");
+      .setExampleValue("20")
+      .setDefaultValue(String.valueOf(QueryOptions.DEFAULT_LIMIT));
   }
 }

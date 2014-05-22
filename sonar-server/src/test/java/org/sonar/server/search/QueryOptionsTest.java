@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -68,7 +69,7 @@ public class QueryOptionsTest {
   }
 
   @Test
-  public void fields_to_return() throws Exception {
+  public void getFieldsToReturn() throws Exception {
     assertThat(options.getFieldsToReturn()).isEmpty();
 
     options.setFieldsToReturn(Arrays.asList("one", "two"));

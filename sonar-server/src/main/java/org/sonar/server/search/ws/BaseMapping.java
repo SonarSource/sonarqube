@@ -28,6 +28,7 @@ import org.sonar.server.search.IndexUtils;
 import org.sonar.server.search.QueryOptions;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -77,32 +78,28 @@ public abstract class BaseMapping implements ServerComponent {
     json.endObject();
   }
 
-  protected BaseMapping addIndexField(String key, String indexKey) {
-    indexFields.put(key, indexKey);
-    fields.put(key, new BaseMapping.IndexField(key, indexKey));
-    return this;
+  protected BaseMapping addIndexStringField(String key, String indexKey) {
+    return addField(key, new IndexStringField(key, indexKey));
   }
 
   protected BaseMapping addIndexBooleanField(String key, String indexKey) {
-    indexFields.put(key, indexKey);
-    fields.put(key, new BaseMapping.IndexBooleanField(key, indexKey));
-    return this;
+    return addField(key, new IndexBooleanField(key, indexKey));
   }
 
   protected BaseMapping addIndexDatetimeField(String key, String indexKey) {
-    indexFields.put(key, indexKey);
-    fields.put(key, new BaseMapping.IndexDatetimeField(key, indexKey));
-    return this;
+    return addField(key, new IndexDatetimeField(key, indexKey));
   }
 
   protected BaseMapping addIndexArrayField(String key, String indexKey) {
-    indexFields.put(key, indexKey);
-    fields.put(key, new BaseMapping.IndexArrayField(key, indexKey));
-    return this;
+    return addField(key, new IndexArrayField(key, indexKey));
   }
 
-  protected BaseMapping addField(String key, BaseMapping.Field field) {
+  protected BaseMapping addField(String key, Field field) {
     fields.put(key, field);
+    if (field instanceof IndexField) {
+      IndexField indexField = (IndexField) field;
+      indexFields.putAll(key, Arrays.asList(indexField.indexFields()));
+    }
     return this;
   }
 
@@ -110,65 +107,77 @@ public abstract class BaseMapping implements ServerComponent {
     void write(JsonWriter json, D doc);
   }
 
+  public static abstract class IndexField<D> implements Field<D> {
+    protected final String[] indexFields;
+
+    protected IndexField(String... indexFields) {
+      this.indexFields = indexFields;
+    }
+
+    String[] indexFields() {
+      return indexFields;
+    }
+  }
+
   /**
    * String field
    */
-  public static class IndexField implements Field<BaseDoc> {
-    private final String key, indexKey;
+  public static class IndexStringField extends IndexField<BaseDoc> {
+    private final String key;
 
-    public IndexField(String key, String indexKey) {
+    public IndexStringField(String key, String indexKey) {
+      super(indexKey);
       this.key = key;
-      this.indexKey = indexKey;
     }
 
     @Override
     public void write(JsonWriter json, BaseDoc doc) {
-      Object val = doc.getField(indexKey);
+      Object val = doc.getField(indexFields[0]);
       json.prop(key, val != null ? val.toString() : null);
     }
   }
 
-  public static class IndexBooleanField implements Field<BaseDoc> {
-    private final String key, indexKey;
+  public static class IndexBooleanField extends IndexField<BaseDoc> {
+    private final String key;
 
     public IndexBooleanField(String key, String indexKey) {
+      super(indexKey);
       this.key = key;
-      this.indexKey = indexKey;
     }
 
     @Override
     public void write(JsonWriter json, BaseDoc doc) {
-      Boolean val = doc.getField(indexKey);
+      Boolean val = doc.getField(indexFields[0]);
       json.prop(key, val != null ? val.booleanValue() : null);
     }
   }
 
-  public static class IndexArrayField implements Field<BaseDoc> {
-    private final String key, indexKey;
+  public static class IndexArrayField extends IndexField<BaseDoc> {
+    private final String key;
 
     public IndexArrayField(String key, String indexKey) {
+      super(indexKey);
       this.key = key;
-      this.indexKey = indexKey;
     }
 
     @Override
     public void write(JsonWriter json, BaseDoc doc) {
-      Iterable<String> values = doc.getField(indexKey);
+      Iterable<String> values = doc.getField(indexFields[0]);
       json.name(key).beginArray().values(values).endArray();
     }
   }
 
-  public static class IndexDatetimeField implements Field<BaseDoc> {
-    private final String key, indexKey;
+  public static class IndexDatetimeField extends IndexField<BaseDoc> {
+    private final String key;
 
     public IndexDatetimeField(String key, String indexKey) {
+      super(indexKey);
       this.key = key;
-      this.indexKey = indexKey;
     }
 
     @Override
     public void write(JsonWriter json, BaseDoc doc) {
-      String val = doc.getField(indexKey);
+      String val = doc.getField(indexFields[0]);
       if (val != null) {
         json.propDateTime(key, IndexUtils.parseDateTime(val));
       }

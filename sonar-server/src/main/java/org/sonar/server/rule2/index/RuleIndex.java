@@ -20,7 +20,6 @@
 package org.sonar.server.rule2.index;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -55,32 +54,6 @@ import java.util.Set;
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
-
-  public static final Set<String> PUBLIC_FIELDS = ImmutableSet.of(
-    RuleNormalizer.RuleField.KEY.key(),
-    RuleNormalizer.RuleField.NAME.key(),
-    RuleNormalizer.RuleField.HTML_DESCRIPTION.key(),
-    RuleNormalizer.RuleField.LANGUAGE.key(),
-    RuleNormalizer.RuleField.SEVERITY.key(),
-    RuleNormalizer.RuleField.STATUS.key(),
-    RuleNormalizer.RuleField.TAGS.key(),
-    RuleNormalizer.RuleField.SYSTEM_TAGS.key(),
-    RuleNormalizer.RuleField.CREATED_AT.key(),
-    RuleNormalizer.RuleField.REPOSITORY.key(),
-    RuleNormalizer.RuleField.PARAMS.key(),
-    RuleNormalizer.RuleField.TEMPLATE.key(),
-    RuleNormalizer.RuleField.NOTE.key(),
-    RuleNormalizer.RuleField.NOTE_CREATED_AT.key(),
-    RuleNormalizer.RuleField.NOTE_UPDATED_AT.key(),
-    RuleNormalizer.RuleField.NOTE_LOGIN.key(),
-    RuleNormalizer.RuleField.INTERNAL_KEY.key(),
-    RuleNormalizer.RuleField.UPDATED_AT.key(),
-    RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.key(),
-    RuleNormalizer.RuleField.DEBT_FUNCTION_COEFFICIENT.key(),
-    RuleNormalizer.RuleField.DEBT_FUNCTION_OFFSET.key(),
-    RuleNormalizer.RuleField.SUB_CHARACTERISTIC.key(),
-    RuleNormalizer.RuleField.CHARACTERISTIC.key());
-
 
   public RuleIndex(RuleNormalizer normalizer, WorkQueue workQueue, ESNode node) {
     super(new RuleIndexDefinition(), normalizer, workQueue, node);
@@ -264,7 +237,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     /* integrate Option's Fields */
     Set<String> fields = new HashSet<String>();
-    if (options.getFieldsToReturn() != null && !options.getFieldsToReturn().isEmpty()) {
+    if (!options.getFieldsToReturn().isEmpty()) {
       fields.addAll(options.getFieldsToReturn());
       // required field
       fields.add(RuleNormalizer.RuleField.KEY.key());
