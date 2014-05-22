@@ -206,8 +206,7 @@ public class DefaultI18n implements I18n, ServerExtension, BatchExtension, Start
     return result;
   }
 
-  @VisibleForTesting
-  Set<String> getPropertyKeys() {
+  public Set<String> getPropertyKeys() {
     return propertyToBundles.keySet();
   }
 
