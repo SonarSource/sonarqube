@@ -214,6 +214,13 @@ public class CopyRequirementsFromCharacteristicsToRules {
       ruleRow.setCoefficient(convertDuration(enabledRequirement.getCoefficientValue(), enabledRequirement.getCoefficientUnit()));
       ruleRow.setOffset(convertDuration(enabledRequirement.getOffsetValue(), enabledRequirement.getOffsetUnit()));
 
+      // Constant/issue with coefficient is replaced by Constant/issue with offset (with no coefficient)
+      if (DebtRemediationFunction.Type.CONSTANT_ISSUE.name().equals(ruleRow.getFunction())
+        && ruleRow.getCoefficient() != null) {
+        ruleRow.setOffset(ruleRow.getCoefficient());
+        ruleRow.setCoefficient(null);
+      }
+
       // If the coefficient of a linear or linear with offset function is null, it should be replaced by 0
       if ((DebtRemediationFunction.Type.LINEAR.name().equals(ruleRow.getFunction()) ||
         DebtRemediationFunction.Type.LINEAR_OFFSET.name().equals(ruleRow.getFunction()))

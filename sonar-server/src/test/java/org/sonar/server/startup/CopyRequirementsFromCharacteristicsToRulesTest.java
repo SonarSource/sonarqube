@@ -87,6 +87,22 @@ public class CopyRequirementsFromCharacteristicsToRulesTest extends AbstractDaoT
     verify(ruleRegistry).reindex();
   }
 
+  /**
+   * SONAR-5335
+   */
+  @Test
+  public void convert_constant_issue_with_coeff_to_constant_issue_with_offset() throws Exception {
+    setupData("convert_constant_issue_with_coeff_to_constant_issue_with_offset_requirements");
+    db.prepareDbUnit(getClass(), "convert_constant_issue_with_coeff_to_constant_issue_with_offset.xml");
+
+    when(status.isUpgraded()).thenReturn(true);
+    when(status.getInitialDbVersion()).thenReturn(498);
+
+    service.start();
+
+    db.assertDbUnit(getClass(), "convert_constant_issue_with_coeff_to_constant_issue_with_offset_result.xml", "rules");
+  }
+
   @Test
   public void convert_duration() throws Exception {
     assertThat(CopyRequirementsFromCharacteristicsToRules.convertDuration(1.0, "h")).isEqualTo("1h");
