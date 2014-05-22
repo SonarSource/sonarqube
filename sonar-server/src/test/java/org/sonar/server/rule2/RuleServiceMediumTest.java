@@ -140,9 +140,7 @@ public class RuleServiceMediumTest {
     assertThat(dto.getNoteUserLogin()).isEqualTo("marius");
 
     // verify es
-
     Rule rule = index.getByKey(ruleKey);
-    // TODO
     assertThat(rule.markdownNote()).isEqualTo("my *note*");
     assertThat(rule.noteCreatedAt()).isNotNull();
     assertThat(rule.noteUpdatedAt()).isNotNull();
@@ -245,8 +243,6 @@ public class RuleServiceMediumTest {
       .setQProfileKey(qprofile1.getKey().toString());
     result = service.search(query, new QueryOptions());
     assertThat(result.getActiveRules().values()).hasSize(2);
-
-
   }
 
   private RuleDto newRuleDto(RuleKey ruleKey) {

@@ -39,12 +39,15 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule2.Rule;
 import org.sonar.server.rule2.persistence.RuleDao;
+import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -77,9 +80,6 @@ public class RuleIndexMediumTest {
     dao.insert(ruleDto, dbSession);
     dbSession.commit();
 
-
-
-
     Rule rule = index.getByKey(RuleKey.of("javascript", "S001"));
 
     assertThat(rule.htmlDescription()).isEqualTo(ruleDto.getDescription());
@@ -102,12 +102,12 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void facet_test_with_repository() {
+  public void global_facet_on_repositories() {
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001")).setRuleKey("X001"), dbSession);
-    dao.insert(newRuleDto(RuleKey.of("cobol", "S001")).setRuleKey("X001"), dbSession);
-    dao.insert(newRuleDto(RuleKey.of("php", "S002")), dbSession);
+    dao.insert(newRuleDto(RuleKey.of("php", "S001")), dbSession);
+    dao.insert(newRuleDto(RuleKey.of("javascript", "S002")).setRuleKey("X002"), dbSession);
     dbSession.commit();
-
+    index.refresh();
 
     // should not have any facet!
     RuleQuery query = new RuleQuery();
@@ -119,9 +119,12 @@ public class RuleIndexMediumTest {
 
     assertThat(result.getFacets()).isNotNull();
     assertThat(result.getFacets()).hasSize(3);
-    assertThat(result.getFacet("Repositories").size()).isEqualTo(3);
-    assertThat(result.getFacetKeys("Repositories"))
-      .contains("javascript", "cobol", "php");
+    List<FacetValue> repoFacets = result.getFacet("repositories");
+    assertThat(repoFacets).hasSize(2);
+    assertThat(repoFacets.get(0).getKey()).isEqualTo("javascript");
+    assertThat(repoFacets.get(0).getValue()).isEqualTo(2);
+    assertThat(repoFacets.get(1).getKey()).isEqualTo("php");
+    assertThat(repoFacets.get(1).getValue()).isEqualTo(1);
   }
 
   @Test
@@ -134,11 +137,13 @@ public class RuleIndexMediumTest {
     Result<Rule> results = index.search(new RuleQuery(), options);
     assertThat(results.getHits()).hasSize(1);
     Rule hit = Iterables.getFirst(results.getHits(), null);
+    // TODO complete
 
     options = new QueryOptions().setFieldsToReturn(Collections.<String>emptyList());
     results = index.search(new RuleQuery(), options);
     assertThat(results.getHits()).hasSize(1);
     hit = Iterables.getFirst(results.getHits(), null);
+    // TODO complete
   }
 
   @Test
@@ -381,15 +386,18 @@ public class RuleIndexMediumTest {
 
     dbClient.activeRuleDao().insert(
       ActiveRuleDto.createFor(qualityProfileDto1, rule1)
-      .setSeverity("BLOCKER"), dbSession);
+        .setSeverity("BLOCKER"), dbSession
+    );
 
     dbClient.activeRuleDao().insert(
       ActiveRuleDto.createFor(qualityProfileDto2, rule1)
-        .setSeverity("BLOCKER"), dbSession);
+        .setSeverity("BLOCKER"), dbSession
+    );
 
     dbClient.activeRuleDao().insert(
       ActiveRuleDto.createFor(qualityProfileDto1, rule2)
-        .setSeverity("BLOCKER"), dbSession);
+        .setSeverity("BLOCKER"), dbSession
+    );
 
 
     dbSession.commit();
@@ -419,8 +427,9 @@ public class RuleIndexMediumTest {
 
     // 4. get all active rules. for qualityProfileDto2
     result = index.search(new RuleQuery().setActivation("true")
-      .setQProfileKey(qualityProfileDto2.getKey().toString()),
-      new QueryOptions());
+        .setQProfileKey(qualityProfileDto2.getKey().toString()),
+      new QueryOptions()
+    );
     assertThat(result.getRules()).hasSize(1);
     assertThat(result.getHits().get(0).name()).isEqualTo(rule1.getName());
 
@@ -496,7 +505,6 @@ public class RuleIndexMediumTest {
     assertThat(results.getTotal()).isEqualTo(3);
     assertThat(results.getHits()).hasSize(1);
   }
-
 
   private RuleDto newRuleDto(RuleKey ruleKey) {
     return new RuleDto()

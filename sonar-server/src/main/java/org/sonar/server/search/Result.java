@@ -35,13 +35,13 @@ import java.util.Map;
 public abstract class Result<K> {
 
   private final List<K> hits;
-  private final Map<String, Collection<FacetValue>> facets;
+  private final Map<String, List<FacetValue>> facets;
   private long total;
   private long timeInMillis;
 
   public Result(SearchResponse response) {
     this.hits = new ArrayList<K>();
-    this.facets = new HashMap<String, Collection<FacetValue>>();
+    this.facets = new HashMap<String, List<FacetValue>>();
 
     this.total = (int) response.getHits().totalHits();
     this.timeInMillis = response.getTookInMillis();
@@ -79,12 +79,12 @@ public abstract class Result<K> {
     return timeInMillis;
   }
 
-  public Map<String, Collection<FacetValue>> getFacets() {
+  public Map<String, List<FacetValue>> getFacets() {
     return this.facets;
   }
 
   @CheckForNull
-  public Collection<FacetValue> getFacet(String facetName) {
+  public List<FacetValue> getFacet(String facetName) {
     return this.facets.get(facetName);
   }
 

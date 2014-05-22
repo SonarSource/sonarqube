@@ -337,21 +337,21 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     //TODO there are no aggregation in 0.9!!! Must use facet...
 
      /* the Lang facet */
-    query.addFacet(FacetBuilders.termsFacet("Languages")
+    query.addFacet(FacetBuilders.termsFacet("languages")
       .field(RuleNormalizer.RuleField.LANGUAGE.key())
       .size(10)
       .global(true)
       .order(TermsFacet.ComparatorType.COUNT));
 
     /* the Tag facet */
-    query.addFacet(FacetBuilders.termsFacet("Tags")
+    query.addFacet(FacetBuilders.termsFacet("tags")
       .field(RuleNormalizer.RuleField.TAGS.key())
       .size(10)
       .global(true)
       .order(TermsFacet.ComparatorType.COUNT));
 
     /* the Repo facet */
-    query.addFacet(FacetBuilders.termsFacet("Repositories")
+    query.addFacet(FacetBuilders.termsFacet("repositories")
       .field(RuleNormalizer.RuleField.REPOSITORY.key())
       .size(10)
       .global(true)

@@ -35,9 +35,12 @@ import org.sonar.server.rule2.index.RuleDoc;
 import org.sonar.server.rule2.index.RuleNormalizer;
 import org.sonar.server.rule2.index.RuleQuery;
 import org.sonar.server.rule2.index.RuleResult;
+import org.sonar.server.search.FacetValue;
+import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.ws.SearchOptions;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -55,6 +58,7 @@ public class SearchAction implements RequestHandler {
   private static final String PARAM_HAS_DEBT_CHARACTERISTIC = "has_debt_characteristic";
   private static final String PARAM_TAGS = "tags";
   private static final String PARAM_ALL_OF_TAGS = "all_of_tags";
+  private static final String PARAM_FACETS = "facets";
 
   private final RuleService service;
   private final RuleMapping mapping;
@@ -72,10 +76,19 @@ public class SearchAction implements RequestHandler {
       .setSince("4.4")
       .setHandler(this);
 
+    // Generic search parameters
     SearchOptions.defineFieldsParam(action,
       ImmutableList.<String>builder().addAll(mapping.supportedFields()).add("actives").build());
     SearchOptions.definePageParams(action);
+
+    // Rule-specific search parameters
     defineRuleSearchParameters(action);
+
+    // Other parameters
+    action.createParam(PARAM_FACETS)
+      .setDescription("Compute predefined facets")
+      .setBooleanPossibleValues()
+      .setDefaultValue("false");
   }
 
   /**
@@ -157,8 +170,10 @@ public class SearchAction implements RequestHandler {
   public void handle(Request request, Response response) {
     RuleQuery query = createRuleQuery(request);
     SearchOptions searchOptions = SearchOptions.create(request);
+    QueryOptions queryOptions = mapping.newQueryOptions(searchOptions);
+    queryOptions.setFacet(request.mandatoryParamAsBoolean(PARAM_FACETS));
 
-    RuleResult results = service.search(query, mapping.newQueryOptions(searchOptions));
+    RuleResult results = service.search(query, queryOptions);
 
     JsonWriter json = response.newJsonWriter().beginObject();
     searchOptions.writeStatistics(json, results);
@@ -166,8 +181,10 @@ public class SearchAction implements RequestHandler {
     if (searchOptions.hasField("actives")) {
       writeActiveRules(results, json);
     }
-    json.endObject();
-    json.close();
+    if (queryOptions.isFacet()) {
+      writeFacets(results, json);
+    }
+    json.endObject().close();
   }
 
   private RuleQuery createRuleQuery(Request request) {
@@ -219,6 +236,22 @@ public class SearchAction implements RequestHandler {
             .endObject();
         }
         json.endArray().endObject();
+      }
+      json.endArray();
+    }
+    json.endObject();
+  }
+
+  private void writeFacets(RuleResult results, JsonWriter json) {
+    json.name("facets").beginObject();
+    for (Map.Entry<String, List<FacetValue>> facet : results.getFacets().entrySet()) {
+      json.prop("name", facet.getKey());
+      json.name("values").beginArray();
+      for (FacetValue facetValue : facet.getValue()) {
+        json.beginObject();
+        json.prop("val", facetValue.getKey());
+        json.prop("count", (Integer) facetValue.getValue());
+        json.endObject();
       }
       json.endArray();
     }
