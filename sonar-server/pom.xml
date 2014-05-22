@@ -682,7 +682,7 @@
         <dependency>
           <groupId>com.sonarsource</groupId>
           <artifactId>sonarsource-branding</artifactId>
-          <version>0.1-SNAPSHOT</version>
+          <version>1.0</version>
           <type>war</type>
           <scope>runtime</scope>
         </dependency>
