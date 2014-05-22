@@ -19,13 +19,21 @@
  */
 package org.sonar.server.search;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.Multimap;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.cluster.WorkQueue;
+import org.sonar.server.search.action.EmbeddedIndexAction;
 import org.sonar.server.search.action.IndexAction;
+import org.sonar.server.search.action.KeyIndexAction;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -62,33 +70,73 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
         throw new IllegalStateException("ES update has been interrupted", e);
       }
     } else if (actions.size() > 1) {
-      /* Bulkize set of update */
 
-      // DTO action -> take the latest in any Method
-
-      // Key action -> clears the stack for DTO based on key for any method
-
-      // Object actions -> after any other stack for its key from DTO and Key stack
-
-      CountDownLatch latch = new CountDownLatch(actions.size());
-      try {
-        for (IndexAction action : actions) {
-          action.setLatch(latch);
-          this.offer(action, 1000, TimeUnit.SECONDS);
-        }
-        latch.await(1500, TimeUnit.MILLISECONDS);
-
-        //Now all actions must have their index != null;
-        Set<String> refreshedIndexes = new HashSet<String>();
-        for (IndexAction action : actions) {
-          if (!refreshedIndexes.contains(action.getIndexType())) {
-            action.getIndex().refresh();
-            refreshedIndexes.add(action.getIndexType());
+      /* Purge actions that would be overridden  */
+      Map<String, Integer> itemOffset = new HashMap<String, Integer>();
+      ArrayListMultimap<String, IndexAction> itemActions = ArrayListMultimap.create();
+      List<IndexAction> embeddedActions = new LinkedList<IndexAction>();
+      for (IndexAction action : actions) {
+        if(EmbeddedIndexAction.class.isAssignableFrom(action.getClass())){
+          embeddedActions.add(action);
+        } else {
+          String actionKey = action.getKey();
+          Integer offset = 0;
+          if(!itemOffset.containsKey(actionKey)){
+            itemOffset.put(actionKey, offset);
+            itemActions.put(actionKey, action);
+          } else {
+            offset = itemOffset.get(actionKey);
+            if(KeyIndexAction.class.isAssignableFrom(action.getClass())){
+              itemOffset.put(actionKey, 0);
+              itemActions.get(actionKey).set(0, action);
+            } else {
+              itemActions.get(actionKey).set(offset, action);
+            }
           }
         }
+      }
+
+      try {
+        /* execute all item actions */
+        Multimap<String, IndexAction> itemBulks = makeBulkByType(itemActions);
+          CountDownLatch itemLatch = new CountDownLatch(itemBulks.size());
+        for (IndexAction action : itemBulks.values()) {
+          action.setLatch(itemLatch);
+          this.offer(action, 1000, TimeUnit.SECONDS);
+        }
+        itemLatch.await(1500, TimeUnit.MILLISECONDS);
+
+        /* and now push the embedded */
+        Multimap<String, IndexAction> embeddedBulks = makeBulkByType(itemActions);
+        CountDownLatch embeddedLatch = new CountDownLatch(embeddedBulks.size());
+        for (IndexAction action : embeddedBulks.values()) {
+          action.setLatch(embeddedLatch);
+          this.offer(action, 1000, TimeUnit.SECONDS);
+        }
+        embeddedLatch.await(1500, TimeUnit.MILLISECONDS);
+
+        /* Finally refresh affected indexes */
+        Set<String> refreshedIndexes = new HashSet<String>();
+        for (IndexAction action : actions) {
+          if (action.getIndex() != null &&
+            !refreshedIndexes.contains(action.getIndex().getIndexName())){
+            action.getIndex().refresh();
+            refreshedIndexes.add(action.getIndex().getIndexName());
+          }
+        }
+
       } catch (InterruptedException e) {
         throw new IllegalStateException("ES update has been interrupted", e);
       }
     }
   }
+
+  private Multimap<String, IndexAction> makeBulkByType(ArrayListMultimap<String, IndexAction> itemActions) {
+    Multimap<String, IndexAction> bulks = LinkedListMultimap.create();
+    for (IndexAction action : itemActions.values()) {
+      bulks.put(action.getIndexType(), action);
+    }
+    return bulks;
+  }
+
 }

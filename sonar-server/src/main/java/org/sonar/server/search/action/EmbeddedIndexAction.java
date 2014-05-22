@@ -26,7 +26,7 @@ public class EmbeddedIndexAction<K extends Serializable> extends IndexAction {
   private final Object item;
   private final K key;
 
-  public EmbeddedIndexAction(String indexType, Method method, Object item, K key){
+  public EmbeddedIndexAction(String indexType, Method method, Object item, K key) {
     super(indexType, method);
     this.indexType = indexType;
     this.method = method;
@@ -41,6 +41,7 @@ public class EmbeddedIndexAction<K extends Serializable> extends IndexAction {
 
   @Override
   public void doExecute() {
+
     try {
       if (this.getMethod().equals(Method.DELETE)) {
         index.delete(this.item, this.key);
@@ -51,7 +52,7 @@ public class EmbeddedIndexAction<K extends Serializable> extends IndexAction {
       throw new IllegalStateException(this.getClass().getSimpleName() +
         "cannot execute " + this.getMethod() + " for " + this.item.getClass().getSimpleName() +
         " as " + this.getIndexType() +
-        " on key: "+ this.key, e);
+        " on key: " + this.key, e);
     }
   }
 }

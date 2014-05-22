@@ -47,7 +47,7 @@ public class KeyIndexAction<K extends Serializable> extends IndexAction {
       throw new IllegalStateException(this.getClass().getSimpleName() +
         "cannot execute " + this.getMethod() + " for " + this.key.getClass().getSimpleName() +
         " on type: " + this.getIndexType() +
-        " on key: "+ this.key, e);
+        " on key: " + this.key, e);
     }
   }
 }

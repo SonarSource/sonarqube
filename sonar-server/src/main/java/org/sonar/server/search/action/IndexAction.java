@@ -33,6 +33,10 @@ public abstract class IndexAction extends QueueAction {
   protected Method method;
   protected Index index;
 
+  public IndexAction(String indexType) {
+    this(indexType, null);
+  }
+
   public IndexAction(String indexType, Method method) {
     super();
     this.indexType = indexType;
@@ -52,9 +56,6 @@ public abstract class IndexAction extends QueueAction {
   public void setMethod(Method method) {
     this.method = method;
   }
-
-  @Override
-  public abstract void doExecute();
 
   public void setIndex(Index index) {
     this.index = index;

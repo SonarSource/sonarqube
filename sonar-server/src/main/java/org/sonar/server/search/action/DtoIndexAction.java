@@ -47,13 +47,8 @@ public class DtoIndexAction<E extends Dto> extends IndexAction {
       throw new IllegalStateException(this.getClass().getSimpleName() +
         " cannot execute " + this.getMethod() + " for " + this.item.getClass().getSimpleName() +
         " as " + this.getIndexType() +
-        " on key: "+ this.item.getKey(), e);
+        " on key: " + this.item.getKey(), e);
     }
-  }
-
-  @Override
-  public String toString() {
-    return "{DtoIndexItem {key: " + item.getKey() + "}";
   }
 }
 
