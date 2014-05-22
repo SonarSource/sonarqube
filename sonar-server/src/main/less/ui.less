@@ -47,6 +47,7 @@ a {
 }
 
 .link() {
+  outline: none;
   text-decoration: none;
   .trans;
 
@@ -54,14 +55,14 @@ a {
 
   &:active, &:focus {
     color: @darkBlue;
-    outline: none;
-    text-shadow: 0 0 3px @blue;
   }
 }
 
 .chevron-link {
   &:after {
     content: "\f105";
+    position: relative;
+    top: -1px;
     vertical-align: middle;
     margin-left: 0.4em;
     font-family: 'sonar';
