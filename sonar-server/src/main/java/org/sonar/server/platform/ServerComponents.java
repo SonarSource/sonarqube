@@ -81,8 +81,6 @@ import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
 import org.sonar.server.authentication.ws.AuthenticationWs;
 import org.sonar.server.charts.ChartFactory;
-import org.sonar.server.cluster.LocalNonBlockingWorkQueue;
-import org.sonar.server.cluster.LocalQueueWorker;
 import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.component.persistence.ComponentDao;
@@ -209,6 +207,8 @@ import org.sonar.server.rule2.ws.SetNoteAction;
 import org.sonar.server.rule2.ws.SetTagsAction;
 import org.sonar.server.rule2.ws.TagsAction;
 import org.sonar.server.search.IndexClient;
+import org.sonar.server.search.IndexQueue;
+import org.sonar.server.search.IndexQueueWorker;
 import org.sonar.server.source.CodeColorizers;
 import org.sonar.server.source.DeprecatedSourceDecorator;
 import org.sonar.server.source.HtmlSourceDecorator;
@@ -287,7 +287,7 @@ class ServerComponents {
       EmbeddedDatabaseFactory.class,
       DefaultDatabase.class,
       MyBatis.class,
-      LocalNonBlockingWorkQueue.class,
+      IndexQueue.class,
       DatabaseServerCompatibility.class,
       DatabaseVersion.class,
       PurgeProfiler.class,
@@ -303,7 +303,16 @@ class ServerComponents {
       MeasureDao.class,
       ComponentDao.class,
       DbClient.class,
-      MeasureFilterDao.class
+      MeasureFilterDao.class,
+
+      // Elasticsearch
+      ESNode.class,
+      RuleNormalizer.class,
+      ActiveRuleNormalizer.class,
+      RuleIndex.class,
+      ActiveRuleIndex.class,
+      IndexQueueWorker.class,
+      IndexClient.class
     ));
     components.addAll(CorePropertyDefinitions.all());
     components.addAll(DatabaseMigrations.CLASSES);
@@ -355,16 +364,8 @@ class ServerComponents {
       ServerMetadataPersister.class,
       HttpDownloader.class,
       UriReader.class,
-      ServerIdGenerator.class,
+      ServerIdGenerator.class
 
-      // Elasticsearch
-      ESNode.class,
-      RuleNormalizer.class,
-      ActiveRuleNormalizer.class,
-      RuleIndex.class,
-      ActiveRuleIndex.class,
-      LocalQueueWorker.class,
-      IndexClient.class
     );
     return components;
   }

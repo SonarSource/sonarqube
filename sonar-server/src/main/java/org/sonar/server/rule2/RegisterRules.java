@@ -121,7 +121,7 @@ public class RegisterRules implements Startable {
             dbClient.ruleDao().update(rule, session);
           } else {
             // TODO replace this hack by index synchronizer
-            session.enqueue(new KeyIndexAction<RuleKey>(RuleIndexDefinition.INDEX_TYPE, IndexAction.Method.UPDATE, rule.getKey()));
+            session.enqueue(new KeyIndexAction<RuleKey>(RuleIndexDefinition.INDEX_TYPE, IndexAction.Method.UPSERT, rule.getKey()));
           }
 
           mergeParams(ruleDef, rule, session);
@@ -282,7 +282,7 @@ public class RegisterRules implements Startable {
           dbClient.ruleDao().updateRuleParam(rule, paramDto, session);
         } else {
           // TODO to be replaced by synchronizer
-          session.enqueue(new EmbeddedIndexAction<RuleKey>(RuleIndexDefinition.INDEX_TYPE, IndexAction.Method.UPDATE, paramDto, rule.getKey()));
+          session.enqueue(new EmbeddedIndexAction<RuleKey>(RuleIndexDefinition.INDEX_TYPE, IndexAction.Method.UPSERT, paramDto, rule.getKey()));
         }
         existingParamDtoNames.add(paramDto.getName());
       }

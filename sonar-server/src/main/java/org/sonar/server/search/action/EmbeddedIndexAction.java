@@ -35,14 +35,17 @@ public class EmbeddedIndexAction<K extends Serializable> extends IndexAction {
   }
 
   @Override
+  public String getKey() {
+    return this.key.toString();
+  }
+
+  @Override
   public void doExecute() {
     try {
       if (this.getMethod().equals(Method.DELETE)) {
         index.delete(this.item, this.key);
-      } else if (this.getMethod().equals(Method.INSERT)) {
-        index.insert(this.item, this.key);
-      } else if (this.getMethod().equals(Method.UPDATE)) {
-        index.update(this.item, this.key);
+      } else if (this.getMethod().equals(Method.UPSERT)) {
+        index.upsert(this.item, this.key);
       }
     } catch (Exception e) {
       throw new IllegalStateException(this.getClass().getSimpleName() +

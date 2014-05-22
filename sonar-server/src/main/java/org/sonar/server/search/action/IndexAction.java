@@ -24,20 +24,22 @@ import org.sonar.server.search.Index;
 
 public abstract class IndexAction extends QueueAction {
 
+
   public enum Method {
-    INSERT, UPDATE, DELETE
+    UPSERT, DELETE
   }
 
   protected String indexType;
   protected Method method;
   protected Index index;
 
-
   public IndexAction(String indexType, Method method) {
     super();
     this.indexType = indexType;
     this.method = method;
   }
+
+  public abstract String getKey();
 
   public Method getMethod() {
     return this.method;
@@ -47,21 +49,8 @@ public abstract class IndexAction extends QueueAction {
     return indexType;
   }
 
-  public void setIndexType(String indexType) {
-    this.indexType = indexType;
-  }
-
   public void setMethod(Method method) {
     this.method = method;
-  }
-
-  @Override
-  public void run(){
-    this.doExecute();
-    index.refresh();
-    if(latch != null){
-      latch.countDown();
-    }
   }
 
   @Override
@@ -69,5 +58,9 @@ public abstract class IndexAction extends QueueAction {
 
   public void setIndex(Index index) {
     this.index = index;
+  }
+
+  public Index getIndex() {
+    return index;
   }
 }

@@ -129,6 +129,8 @@ public class MyBatis implements BatchComponent, ServerComponent {
   private final Database database;
   private final Logback logback;
   private SqlSessionFactory sessionFactory;
+
+  //TODO this queue should directly be an IndexQueue. Pending move of persistence to sonar-server
   private WorkQueue queue;
 
   public MyBatis(Database database, Logback logback, WorkQueue queue) {

@@ -31,14 +31,17 @@ public class KeyIndexAction<K extends Serializable> extends IndexAction {
   }
 
   @Override
+  public String getKey() {
+    return this.key.toString();
+  }
+
+  @Override
   public void doExecute() {
     try {
       if (this.getMethod().equals(Method.DELETE)) {
         index.deleteByKey(this.key);
-      } else if (this.getMethod().equals(Method.INSERT)) {
-        index.insertByKey(this.key);
-      } else if (this.getMethod().equals(Method.UPDATE)) {
-        index.updateByKey(this.key);
+      } else if (this.getMethod().equals(Method.UPSERT)) {
+        index.upsertByKey(this.key);
       }
     } catch (Exception e) {
       throw new IllegalStateException(this.getClass().getSimpleName() +

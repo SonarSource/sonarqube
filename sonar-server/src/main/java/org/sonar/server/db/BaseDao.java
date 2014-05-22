@@ -160,7 +160,7 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
     item.setUpdatedAt(new Date(system2.now()));
     this.doUpdate(item, session);
     if (hasIndex()) {
-      session.enqueue(new DtoIndexAction<E>(this.getIndexType(), IndexAction.Method.UPDATE, item));
+      session.enqueue(new DtoIndexAction<E>(this.getIndexType(), IndexAction.Method.UPSERT, item));
     }
     return item;
   }
@@ -181,7 +181,7 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
     item.setUpdatedAt(item.getCreatedAt());
     this.doInsert(item, session);
     if (hasIndex()) {
-      session.enqueue(new DtoIndexAction<E>(this.getIndexType(), IndexAction.Method.INSERT, item));
+      session.enqueue(new DtoIndexAction<E>(this.getIndexType(), IndexAction.Method.UPSERT, item));
     }
     return item;
   }
@@ -221,7 +221,7 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   protected void enqueueUpdate(Object nestedItem, K key, DbSession session) {
     if (hasIndex()) {
       session.enqueue(new EmbeddedIndexAction<K>(
-        this.getIndexType(), IndexAction.Method.UPDATE, nestedItem, key));
+        this.getIndexType(), IndexAction.Method.UPSERT, nestedItem, key));
     }
   }
 
@@ -235,7 +235,7 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   public void enqueueInsert(Object nestedItem, K key, DbSession session) {
     if (hasIndex()) {
       session.enqueue(new EmbeddedIndexAction<K>(
-        this.getIndexType(), IndexAction.Method.INSERT, nestedItem, key));
+        this.getIndexType(), IndexAction.Method.UPSERT, nestedItem, key));
     }
   }
 }

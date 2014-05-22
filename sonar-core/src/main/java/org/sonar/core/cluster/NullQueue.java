@@ -19,11 +19,10 @@
  */
 package org.sonar.core.cluster;
 
-import java.util.Collection;
+import java.util.List;
 
 
-
-public class NullQueue implements WorkQueue {
+public class NullQueue implements WorkQueue<QueueAction> {
 
   @Override
   public void enqueue(QueueAction action) {
@@ -31,7 +30,7 @@ public class NullQueue implements WorkQueue {
   }
 
   @Override
-  public void enqueue(Collection<QueueAction> actions) {
+  public void enqueue(List<QueueAction> actions) {
 
   }
 }

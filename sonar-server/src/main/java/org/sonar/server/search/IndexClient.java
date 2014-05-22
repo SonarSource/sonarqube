@@ -20,8 +20,6 @@
 package org.sonar.server.search;
 
 import org.sonar.api.ServerComponent;
-import org.sonar.core.persistence.Database;
-import org.sonar.core.persistence.MyBatis;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +31,7 @@ public class IndexClient implements ServerComponent {
 
   private final Map<Class<?>, Index<?,?,?>> indexComponents;
 
-  public IndexClient(Database db, MyBatis myBatis, Index<?,?,?>... indexComponents) {
+  public IndexClient(Index<?,?,?>... indexComponents) {
 
     this.indexComponents = new HashMap<Class<?>,  Index<?,?,?>>();
 
@@ -42,7 +40,16 @@ public class IndexClient implements ServerComponent {
     }
   }
 
-  public <K> K get(Class<K> clazz){
+  public <K extends Index> K get(Class<K> clazz){
     return (K) this.indexComponents.get(clazz);
+  }
+
+  public <K extends Index> K getByType(String indexType) {
+    for(Index<?,?,?> index:indexComponents.values()){
+      if(index.getIndexType().equals(indexType)){
+        return (K) index;
+      }
+    }
+    throw new IllegalStateException("no index for tyle '"+indexType+"' is registered");
   }
 }

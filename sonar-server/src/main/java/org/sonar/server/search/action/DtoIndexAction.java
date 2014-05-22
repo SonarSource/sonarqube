@@ -31,14 +31,17 @@ public class DtoIndexAction<E extends Dto> extends IndexAction {
   }
 
   @Override
+  public String getKey() {
+    return item.getKey().toString();
+  }
+
+  @Override
   public void doExecute() {
     try {
       if (this.getMethod().equals(Method.DELETE)) {
         index.deleteByDto(this.item);
-      } else if (this.getMethod().equals(Method.INSERT)) {
-        index.insertByDto(this.item);
-      } else if (this.getMethod().equals(Method.UPDATE)) {
-        index.updateByDto(this.item);
+      } else if (this.getMethod().equals(Method.UPSERT)) {
+        index.upsertByDto(this.item);
       }
     } catch (Exception e) {
       throw new IllegalStateException(this.getClass().getSimpleName() +

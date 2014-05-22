@@ -44,17 +44,11 @@ public interface Index<D, E extends Dto<K>, K extends Serializable> extends Star
 
   void refresh();
 
-  void insert(Object obj, K key) throws Exception;
+  void upsert(Object obj, K key) throws Exception;
 
-  void insertByKey(K key);
+  void upsertByKey(K key);
 
-  void insertByDto(E dto);
-
-  void update(Object obj, K key) throws Exception;
-
-  void updateByKey(K key);
-
-  void updateByDto(E dto);
+  void upsertByDto(E dto);
 
   void delete(Object obj, K key) throws Exception;
 

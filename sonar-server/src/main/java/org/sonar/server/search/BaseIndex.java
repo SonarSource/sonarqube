@@ -166,48 +166,6 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
     return null;
   }
 
-  private void insertDocument(UpdateRequest request, K key) throws Exception {
-    LOG.debug("INSERT _id:{} in index {}", this.getKeyValue(key), this.getIndexName());
-    updateDocument(request, key);
-  }
-
-  @Override
-  public void insert(Object obj, K key) throws Exception {
-    if (this.normalizer.canNormalize(obj.getClass(), key.getClass())) {
-      this.updateDocument(this.normalizer.normalizeOther(obj, key), key);
-    } else {
-      throw new IllegalStateException("No normalizer method available for " +
-        obj.getClass().getSimpleName() + " in " + normalizer.getClass().getSimpleName());
-    }
-  }
-
-  @Override
-  public void insertByDto(E item) {
-    try {
-      UpdateRequest doc = normalizer.normalize(item);
-      insertDocument(doc, item.getKey());
-    } catch (Exception e) {
-      throw new IllegalStateException(this.getClass().getSimpleName() +
-        "cannot execute INSERT_BY_DTO for " + item.getClass().getSimpleName() +
-        " as " + this.getIndexType() +
-        " on key: " + item.getKey(), e);
-    }
-  }
-
-  @Override
-  public void insertByKey(K key) {
-    try {
-      UpdateRequest doc = normalizer.normalize(key);
-      insertDocument(doc, key);
-    } catch (Exception e) {
-      throw new IllegalStateException(this.getClass().getSimpleName() +
-        "cannot execute INSERT_BY_KEY for " + key.getClass().getSimpleName() +
-        " as " + this.getIndexType() +
-        " on key: " + key, e);
-    }
-  }
-
-
   protected void updateDocument(UpdateRequest request, K key) throws Exception {
     LOG.debug("UPDATE _id:{} in index {}", key, this.getIndexName());
     getClient().update(request
@@ -218,7 +176,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
 
 
   @Override
-  public void update(Object obj, K key) throws Exception {
+  public void upsert(Object obj, K key) throws Exception {
     if (this.normalizer.canNormalize(obj.getClass(), key.getClass())) {
       this.updateDocument(this.normalizer.normalizeOther(obj, key), key);
     } else {
@@ -228,7 +186,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
   }
 
   @Override
-  public void updateByDto(E item) {
+  public void upsertByDto(E item) {
     try {
       UpdateRequest doc = normalizer.normalize(item);
       this.updateDocument(doc, item.getKey());
@@ -239,7 +197,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
   }
 
   @Override
-  public void updateByKey(K key) {
+  public void upsertByKey(K key) {
     try {
       UpdateRequest doc = normalizer.normalize(key);
       this.updateDocument(doc, key);

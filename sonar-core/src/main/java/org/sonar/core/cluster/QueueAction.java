@@ -25,10 +25,6 @@ public abstract class QueueAction implements Runnable {
 
   protected CountDownLatch latch;
 
-  public QueueAction(CountDownLatch latch){
-    this.latch = latch;
-  }
-
   public QueueAction() {
     this.latch = null;
   }
