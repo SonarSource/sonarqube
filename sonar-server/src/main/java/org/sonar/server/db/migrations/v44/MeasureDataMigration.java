@@ -70,7 +70,7 @@ public class MeasureDataMigration implements DatabaseMigration {
 
         @Override
         public String updateSql() {
-          return "UPDATE project_measures m SET m.measure_data = (SELECT md.data FROM measure_data md WHERE md.id = ?) WHERE m.id=?";
+          return "UPDATE project_measures SET measure_data = (SELECT md.data FROM measure_data md WHERE md.id = ?) WHERE id=?";
         }
 
         @Override
