@@ -38,6 +38,7 @@ public class RuleMapping extends BaseMapping {
     super();
     addIndexField("repo", RuleNormalizer.RuleField.REPOSITORY.key());
     addIndexField("name", RuleNormalizer.RuleField.NAME.key());
+    addIndexDatetimeField("createdAt", RuleNormalizer.RuleField.CREATED_AT.key());
     addField("htmlDesc", new HtmlDescField(macroInterpreter));
     addIndexField("severity", RuleNormalizer.RuleField.SEVERITY.key());
     addIndexField("status", RuleNormalizer.RuleField.STATUS.key());
