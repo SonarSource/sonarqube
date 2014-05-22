@@ -55,7 +55,7 @@ public class RubyUtilsTest {
       RubyUtils.toEnums("xxx", RuleStatus.class);
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("No enum constant org.sonar.api.rule.RuleStatus.xxx");
+      // success
     }
     try {
       RubyUtils.toEnums(1, RuleStatus.class);
