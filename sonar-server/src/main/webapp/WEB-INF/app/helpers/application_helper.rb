@@ -388,7 +388,7 @@ module ApplicationHelper
     elsif options[:negative_color] && percent<0
       color = options[:negative_color]
     else
-      color = options[:color]||'#777'
+      color = options[:color]||'#236a97'
     end
 
     align=(percent<0 ? 'float: right;' : nil)
@@ -527,7 +527,7 @@ module ApplicationHelper
 
         if options[:style]!='light'
           formatted_val=(val>=0 ? "+" : "") + formatted_val
-          formatted_val="<b>(#{formatted_val})</b>"
+          formatted_val="(#{formatted_val})"
         else
           # if zero, then we do not put a '+' before in the 'light' case
           formatted_val=(val>0 ? "+" : "") + formatted_val

@@ -20,7 +20,7 @@
 <div class="widget-row widget-row-x">
 
   <div class="widget-span widget-span-3-5">
-    <div class=" widget-measure-container">
+    <div class="widget-measure-container">
       <% if ncloc %>
         <p class="widget-measure widget-measure-main">
           <span class="widget-label"><%= message('metric.ncloc.name') -%></span>
@@ -29,27 +29,31 @@
             <%= dashboard_configuration.selected_period? ? format_variation(ncloc) : trend_icon(ncloc) -%>
           </span>
         </p>
+
         <% if ncloc_language_dist_hash %>
           <% if ncloc_language_dist_hash.size > 1 %>
-            <div class="widget-histogram">
+            <table class="data zebra widget-barchar">
               <%
-                max = ncloc_language_dist_hash.max_by{|_k,v| v.to_i}[1].to_i
+                 max = ncloc_language_dist_hash.max_by{|_k,v| v.to_i}[1].to_i
 
-                # Sort lines language distribution by language name
-                languages_by_key = Hash[languages.collect { |l| [l.getKey(), l.getName] }]
-                ncloc_language_dist_hash.sort {|v1,v2| (languages_by_key[v1[0]] ? languages_by_key[v1[0]].to_s : v1[0]) <=> (languages_by_key[v2[0]] ? languages_by_key[v2[0]].to_s : v2[0]) }.each do |language_key, language_ncloc|
+                 # Sort lines language distribution by language name
+                 languages_by_key = Hash[languages.collect { |l| [l.getKey(), l.getName] }]
+                 ncloc_language_dist_hash.sort {|v1,v2| (languages_by_key[v1[0]] ? languages_by_key[v1[0]].to_s : v1[0]) <=> (languages_by_key[v2[0]] ? languages_by_key[v2[0]].to_s : v2[0]) }.each do |language_key, language_ncloc|
               %>
-                <div class="widget-histogram-line">
-                  <span class="widget-histogram-line-bar"
-                        style="width: <%= (40 * language_ncloc.to_i / max).to_i -%>%"></span>
-                  <span class="widget-histogram-line-label">
+                <tr>
+                  <td>
                     <% language = languages.find { |l| l.getKey()==language_key.to_s } -%>
-                      <%= language ? language.getName() : language_key -%>
-                  </span>
-                  <span class="widget-histogram-line-value"><%= ncloc.format_numeric_value(language_ncloc) %></span>
-                </div>
+                    <%= language ? language.getName() : language_key -%>
+                  </td>
+                  <td class="thin right">
+                    <%= ncloc.format_numeric_value(language_ncloc) %>
+                  </td>
+                  <td>
+                    <%= barchart(:width => 70, :percent => (40 * language_ncloc.to_i / max).to_i) %>
+                  </td>
+                </tr>
               <% end %>
-            </div>
+            </table>
           <% else %>
             <%
               language_key = ncloc_language_dist_hash.first[0]
