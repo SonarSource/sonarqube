@@ -76,7 +76,7 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
       ArrayListMultimap<String, IndexAction> itemActions = ArrayListMultimap.create();
       List<IndexAction> embeddedActions = new LinkedList<IndexAction>();
       for (IndexAction action : actions) {
-        if(EmbeddedIndexAction.class.isAssignableFrom(action.getClass())){
+        if(action.getClass().isAssignableFrom(EmbeddedIndexAction.class)){
           embeddedActions.add(action);
         } else {
           String actionKey = action.getKey();
@@ -86,7 +86,7 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
             itemActions.put(actionKey, action);
           } else {
             offset = itemOffset.get(actionKey);
-            if(KeyIndexAction.class.isAssignableFrom(action.getClass())){
+            if(action.getClass().isAssignableFrom(KeyIndexAction.class)){
               itemOffset.put(actionKey, 0);
               itemActions.get(actionKey).set(0, action);
             } else {
@@ -107,9 +107,8 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
         itemLatch.await(1500, TimeUnit.MILLISECONDS);
 
         /* and now push the embedded */
-        Multimap<String, IndexAction> embeddedBulks = makeBulkByType(itemActions);
-        CountDownLatch embeddedLatch = new CountDownLatch(embeddedBulks.size());
-        for (IndexAction action : embeddedBulks.values()) {
+        CountDownLatch embeddedLatch = new CountDownLatch(embeddedActions.size());
+        for (IndexAction action : embeddedActions) {
           action.setLatch(embeddedLatch);
           this.offer(action, 1000, TimeUnit.SECONDS);
         }
@@ -131,9 +130,9 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
     }
   }
 
-  private Multimap<String, IndexAction> makeBulkByType(ArrayListMultimap<String, IndexAction> itemActions) {
+  private Multimap<String, IndexAction> makeBulkByType(ArrayListMultimap<String, IndexAction> actions) {
     Multimap<String, IndexAction> bulks = LinkedListMultimap.create();
-    for (IndexAction action : itemActions.values()) {
+    for (IndexAction action : actions.values()) {
       bulks.put(action.getIndexType(), action);
     }
     return bulks;
