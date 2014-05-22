@@ -22,7 +22,6 @@ package org.sonar.server.test.ws;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.server.ws.WsTester;
@@ -36,7 +35,8 @@ public class TestsWsTest {
 
   @Before
   public void setUp() throws Exception {
-    WsTester tester = new WsTester(new TestsWs(new TestsTestableAction(mock(SnapshotPerspectives.class))));
+    SnapshotPerspectives snapshotPerspectives = mock(SnapshotPerspectives.class);
+    WsTester tester = new WsTester(new TestsWs(new TestsTestableAction(snapshotPerspectives), new TestsPlanAction(snapshotPerspectives)));
     controller = tester.controller("api/tests");
   }
 
@@ -52,9 +52,9 @@ public class TestsWsTest {
   public void define_plan_action() throws Exception {
     WebService.Action action = controller.action("plan");
     assertThat(action).isNotNull();
-    assertThat(action.isInternal()).isTrue();
+    assertThat(action.isInternal()).isFalse();
     assertThat(action.isPost()).isFalse();
-    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(action.handler()).isNotNull();
     assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.params()).hasSize(2);
   }

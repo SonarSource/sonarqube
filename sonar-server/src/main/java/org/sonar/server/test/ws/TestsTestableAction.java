@@ -76,16 +76,14 @@ public class TestsTestableAction implements RequestHandler {
     int line = request.mandatoryParamAsInt(LINE);
 
     Testable testable = snapshotPerspectives.as(MutableTestable.class, fileKey);
+    JsonWriter json = response.newJsonWriter().beginObject();
     if (testable != null) {
-      JsonWriter json = response.newJsonWriter().beginObject();
-
       Map<String, Integer> refByTestPlan = newHashMap();
       Map<String, Component> componentsByKey = newHashMap();
       writeTests(testable, line, refByTestPlan, componentsByKey, json);
       writeFiles(refByTestPlan, componentsByKey, json);
-
-      json.endObject().close();
     }
+    json.endObject().close();
   }
 
   private void writeTests(Testable testable, Integer line, Map<String, Integer> refByTestPlan, Map<String, Component> componentsByKey, JsonWriter json) {

@@ -143,10 +143,7 @@ import org.sonar.server.source.ws.ShowAction;
 import org.sonar.server.source.ws.SourcesWs;
 import org.sonar.server.startup.*;
 import org.sonar.server.test.CoverageService;
-import org.sonar.server.test.ws.CoverageShowAction;
-import org.sonar.server.test.ws.CoverageWs;
-import org.sonar.server.test.ws.TestsTestableAction;
-import org.sonar.server.test.ws.TestsWs;
+import org.sonar.server.test.ws.*;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonar.server.text.RubyTextService;
 import org.sonar.server.ui.JRubyI18n;
@@ -484,11 +481,12 @@ class ServerComponents {
     pico.addSingleton(DefaultNotificationManager.class);
 
     // Tests
-    pico.addSingleton(TestsWs.class);
     pico.addSingleton(CoverageService.class);
     pico.addSingleton(CoverageWs.class);
     pico.addSingleton(CoverageShowAction.class);
+    pico.addSingleton(TestsWs.class);
     pico.addSingleton(TestsTestableAction.class);
+    pico.addSingleton(TestsPlanAction.class);
 
     // graphs and perspective related classes
     pico.addSingleton(TestablePerspectiveLoader.class);

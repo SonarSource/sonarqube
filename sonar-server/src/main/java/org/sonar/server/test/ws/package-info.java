@@ -18,30 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+@ParametersAreNonnullByDefault
 package org.sonar.server.test.ws;
 
-import org.sonar.api.server.ws.WebService;
-
-public class TestsWs implements WebService {
-
-  private final TestsTestableAction testableAction;
-  private final TestsPlanAction planAction;
-
-  public TestsWs(TestsTestableAction testableAction, TestsPlanAction planAction) {
-    this.testableAction = testableAction;
-    this.planAction = planAction;
-  }
-
-  @Override
-  public void define(Context context) {
-    NewController controller = context.createController("api/tests")
-      .setSince("4.4")
-      .setDescription("Tests management");
-
-    testableAction.define(controller);
-    planAction.define(controller);
-
-    controller.done();
-  }
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

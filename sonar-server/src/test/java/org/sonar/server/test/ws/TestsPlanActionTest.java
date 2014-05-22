@@ -25,58 +25,62 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.test.MutableTestable;
-import org.sonar.api.test.TestCase;
-import org.sonar.api.test.TestPlan;
+import org.sonar.api.test.CoverageBlock;
+import org.sonar.api.test.MutableTestCase;
+import org.sonar.api.test.MutableTestPlan;
+import org.sonar.api.test.Testable;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
+import java.util.Arrays;
+
 import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TestsTestableActionTest {
+public class TestsPlanActionTest {
 
-  static final String FILE_KEY = "src/main/java/org/foo/Foo.java";
+  static final String FILE_KEY = "src/test/java/org/foo/BarTest.java";
 
   @Mock
-  MutableTestable testable;
+  MutableTestPlan testPlan;
 
   WsTester tester;
 
   @Before
   public void setUp() throws Exception {
     SnapshotPerspectives snapshotPerspectives = mock(SnapshotPerspectives.class);
-    when(snapshotPerspectives.as(MutableTestable.class, FILE_KEY)).thenReturn(testable);
-    tester = new WsTester(new TestsWs(new TestsTestableAction(snapshotPerspectives), mock(TestsPlanAction.class)));
+    when(snapshotPerspectives.as(MutableTestPlan.class, FILE_KEY)).thenReturn(testPlan);
+    tester = new WsTester(new TestsWs(mock(TestsTestableAction.class), new TestsPlanAction(snapshotPerspectives)));
   }
 
   @Test
-  public void testable() throws Exception {
+  public void plan() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "SonarQube", FILE_KEY);
 
-    TestCase testCase1 = testCase("test1", TestCase.Status.OK, 10L, "org.foo.BarTest.java", "src/test/java/org/foo/BarTest.java");
-    TestCase testCase2 = testCase("test2", TestCase.Status.ERROR, 97L, "org.foo.FileTest.java", "src/test/java/org/foo/FileTest.java");
-    when(testable.testCasesOfLine(10)).thenReturn(newArrayList(testCase1, testCase2));
+    MutableTestCase testCase1 = testCase("org.foo.Bar.java", "src/main/java/org/foo/Bar.java", 10);
+    MutableTestCase testCase2 = testCase("org.foo.File.java", "src/main/java/org/foo/File.java", 3);
+    when(testPlan.testCasesByName("my_test")).thenReturn(newArrayList(testCase1, testCase2));
 
-    WsTester.TestRequest request = tester.newGetRequest("api/tests", "testable").setParam("key", FILE_KEY).setParam("line", "10");
+    WsTester.TestRequest request = tester.newGetRequest("api/tests", "plan").setParam("key", FILE_KEY).setParam("test", "my_test");
 
-    request.execute().assertJson(getClass(), "testable.json");
+    request.execute().assertJson(getClass(), "plan.json");
   }
 
-  private TestCase testCase(String name, TestCase.Status status, Long durationInMs, String testPlanKey, String testPlanLongName) {
-    TestCase testCase = mock(TestCase.class);
-    when(testCase.name()).thenReturn(name);
-    when(testCase.status()).thenReturn(status);
-    when(testCase.durationInMs()).thenReturn(durationInMs);
+  private MutableTestCase testCase(String fileKey, String fileLongName, int coveredLines) {
+    Testable testable = mock(Testable.class);
+    when(testable.component()).thenReturn(new ComponentDto().setKey(fileKey).setLongName(fileLongName));
 
-    TestPlan testPlan = mock(TestPlan.class);
-    when(testPlan.component()).thenReturn(new ComponentDto().setKey(testPlanKey).setLongName(testPlanLongName));
-    when(testCase.testPlan()).thenReturn(testPlan);
+    CoverageBlock block = mock(CoverageBlock.class);
+    when(block.testable()).thenReturn(testable);
+    when(block.lines()).thenReturn(Arrays.asList(new Integer[coveredLines]));
+
+    MutableTestCase testCase = mock(MutableTestCase.class);
+    when(testCase.coverageBlocks()).thenReturn(newArrayList(block));
     return testCase;
   }
 
