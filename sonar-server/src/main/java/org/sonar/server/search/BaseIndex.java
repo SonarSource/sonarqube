@@ -39,6 +39,7 @@ import org.sonar.server.es.ESNode;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -276,6 +277,21 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
       .field("type", type)
       .field("index", "not_analyzed")
       .endObject();
+  }
+
+  protected BoolFilterBuilder addMultiFieldTermFilter(Collection<String> values, BoolFilterBuilder filter, String... fields) {
+    if (values != null && !values.isEmpty()) {
+      BoolFilterBuilder valuesFilter = FilterBuilders.boolFilter();
+      for (String value : values) {
+        Collection<FilterBuilder> filterBuilders = new ArrayList<FilterBuilder>();
+        for (String field : fields) {
+          filterBuilders.add(FilterBuilders.termFilter(field, value));
+        }
+        valuesFilter.should(FilterBuilders.orFilter(filterBuilders.toArray(new FilterBuilder[filterBuilders.size()])));
+      }
+      filter.must(valuesFilter);
+    }
+    return filter;
   }
 
 

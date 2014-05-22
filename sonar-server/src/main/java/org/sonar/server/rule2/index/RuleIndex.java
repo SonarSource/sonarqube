@@ -141,9 +141,18 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     addMatchField(mapping, RuleNormalizer.RuleField.REPOSITORY.key(), "string");
     addMatchField(mapping, RuleNormalizer.RuleField.SEVERITY.key(), "string");
-    addMatchField(mapping, RuleNormalizer.RuleField.STATUS.key(), "string");
-
+    addMatchField(mapping, RuleNormalizer.RuleField.STATUS.key(), "string");;
     addMatchField(mapping, RuleNormalizer.RuleField.LANGUAGE.key(), "string");
+
+    mapping.startObject(RuleNormalizer.RuleField.CHARACTERISTIC.key())
+      .field("type", "string")
+      .field("analyzer", "whitespace")
+      .endObject();
+
+    mapping.startObject(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.key())
+      .field("type", "string")
+      .field("analyzer", "whitespace")
+      .endObject();
 
     mapping.startObject(RuleNormalizer.RuleField._TAGS.key())
       .field("type", "string")
@@ -279,6 +288,8 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
         RuleNormalizer.RuleField.KEY.key(),
         RuleNormalizer.RuleField.KEY.key() + ".search",
         RuleNormalizer.RuleField.LANGUAGE.key(),
+        RuleNormalizer.RuleField.CHARACTERISTIC.key(),
+        RuleNormalizer.RuleField.SUB_CHARACTERISTIC.key(),
         RuleNormalizer.RuleField._TAGS.key());
     } else {
       qb = QueryBuilders.matchAllQuery();
@@ -288,7 +299,11 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
   /* Build main filter (match based) */
   protected FilterBuilder getFilter(RuleQuery query, QueryOptions options) {
+
     BoolFilterBuilder fb = FilterBuilders.boolFilter();
+    this.addMultiFieldTermFilter(query.getDebtCharacteristics(), fb,
+      RuleNormalizer.RuleField.SUB_CHARACTERISTIC.key(),
+      RuleNormalizer.RuleField.CHARACTERISTIC.key());
     this.addTermFilter(RuleNormalizer.RuleField.LANGUAGE.key(), query.getLanguages(), fb);
     this.addTermFilter(RuleNormalizer.RuleField.REPOSITORY.key(), query.getRepositories(), fb);
     this.addTermFilter(RuleNormalizer.RuleField.SEVERITY.key(), query.getSeverities(), fb);
@@ -333,6 +348,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       (query.getTags() != null && !query.getTags().isEmpty()) ||
       (query.getStatuses() != null && !query.getStatuses().isEmpty()) ||
       (query.getKey() != null && !query.getKey().isEmpty()) ||
+      (query.getDebtCharacteristics() != null && !query.getDebtCharacteristics().isEmpty()) ||
       (query.getActivation() != null && !query.getActivation().isEmpty())) {
       return fb;
     } else {

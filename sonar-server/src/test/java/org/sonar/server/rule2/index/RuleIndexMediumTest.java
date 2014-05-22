@@ -36,6 +36,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule2.Rule;
 import org.sonar.server.rule2.persistence.RuleDao;
@@ -258,7 +259,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_by_any_of_languages() throws InterruptedException {
+   public void search_by_any_of_languages() throws InterruptedException {
     dao.insert(newRuleDto(RuleKey.of("java", "S001")).setLanguage("java"), dbSession);
     dao.insert(newRuleDto(RuleKey.of("javascript", "S002")).setLanguage("js"), dbSession);
     dbSession.commit();
@@ -281,6 +282,67 @@ public class RuleIndexMediumTest {
     // null list => no filter
     query = new RuleQuery().setLanguages(null);
     assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(2);
+  }
+
+
+  @Test
+  public void search_by_characteristics() throws InterruptedException {
+
+    CharacteristicDto char1 = new CharacteristicDto().setName("char1")
+      .setKey("char1")
+      .setEnabled(true);
+    dbClient.debtCharacteristicDao().insert(char1, dbSession);
+    dbSession.commit();
+
+    CharacteristicDto char11 = new CharacteristicDto().setName("char11")
+      .setKey("char11")
+      .setEnabled(true)
+      .setParentId(char1.getId());
+    dbClient.debtCharacteristicDao().insert(char11, dbSession);
+    dbSession.commit();
+
+    dao.insert(newRuleDto(RuleKey.of("java", "S001"))
+      .setSubCharacteristicId(char11.getId()), dbSession);
+
+    dao.insert(newRuleDto(RuleKey.of("javascript", "S002")), dbSession);
+
+    dbSession.commit();
+
+
+    RuleQuery query;
+    Result<Rule> results;
+
+    // 0. we have 2 rules in index
+    results = index.search(new RuleQuery(), new QueryOptions());
+    assertThat(results.getHits()).hasSize(2);
+
+    // filter by non-subChar
+    query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of("toto"));
+    assertThat(index.search(query, new QueryOptions()).getHits()).isEmpty();
+
+    // filter by subChar
+    query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char11.getKey()));
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(1);
+
+    // filter by Char
+    query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char1.getKey()));
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(1);
+
+    // filter by Char and SubChar
+    query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char11.getKey(), char1.getKey()));
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(1);
+
+    // search by Char
+    query = new RuleQuery().setQueryText(char1.getKey());
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(1);
+
+    // search by SubChar
+    query = new RuleQuery().setQueryText(char11.getKey());
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(1);
+
+    // search by SubChar & Char
+    query = new RuleQuery().setQueryText(char11.getKey()+" "+char1.getKey());
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(1);
   }
 
   @Test
