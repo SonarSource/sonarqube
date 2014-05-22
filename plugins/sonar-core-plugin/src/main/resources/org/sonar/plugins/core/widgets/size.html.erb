@@ -24,8 +24,10 @@
       <% if ncloc %>
         <p class="widget-measure widget-measure-main">
           <span class="widget-label"><%= message('metric.ncloc.name') -%></span>
-          <a class="widget-link widget-big" href="<%= url_for_drilldown(ncloc) -%>"><%= ncloc.formatted_value -%></a>
-          <%= dashboard_configuration.selected_period? ? format_variation(ncloc) : trend_icon(ncloc) -%>
+          <span class="nowrap">
+            <%= format_measure(ncloc, :url => url_for_drilldown(ncloc)) -%>
+            <%= dashboard_configuration.selected_period? ? format_variation(ncloc) : trend_icon(ncloc) -%>
+          </span>
         </p>
         <% if ncloc_language_dist_hash %>
           <% if ncloc_language_dist_hash.size > 1 %>
@@ -38,15 +40,13 @@
                 ncloc_language_dist_hash.sort {|v1,v2| (languages_by_key[v1[0]] ? languages_by_key[v1[0]].to_s : v1[0]) <=> (languages_by_key[v2[0]] ? languages_by_key[v2[0]].to_s : v2[0]) }.each do |language_key, language_ncloc|
               %>
                 <div class="widget-histogram-line">
+                  <span class="widget-histogram-line-bar"
+                        style="width: <%= (40 * language_ncloc.to_i / max).to_i -%>%"></span>
                   <span class="widget-histogram-line-label">
                     <% language = languages.find { |l| l.getKey()==language_key.to_s } -%>
-                    <%= language ? language.getName() : language_key -%>
+                      <%= language ? language.getName() : language_key -%>
                   </span>
-                  <span class="widget-histogram-line-bar"
-                        style="width: <%= (50 * language_ncloc.to_i / max).to_i -%>px"></span>
-                  <span class="widget-histogram-line-value">
-                    <%= ncloc.format_numeric_value(language_ncloc) %>
-                  </span>
+                  <span class="widget-histogram-line-value"><%= ncloc.format_numeric_value(language_ncloc) %></span>
                 </div>
               <% end %>
             </div>
@@ -61,8 +61,10 @@
       <% else %>
         <p class="widget-measure widget-measure-main">
           <span class="widget-label"><%= message('metric.lines.name') -%></span>
-          <a class="widget-link widget-big" href="<%= url_for_drilldown(lines) -%>"><%= lines.formatted_value -%></a>
-          <%= dashboard_configuration.selected_period? ? format_variation(lines) : trend_icon(lines) -%>
+          <span class="nowrap">
+            <%= format_measure(lines, :url => url_for_drilldown(ncloc)) -%>
+            <%= dashboard_configuration.selected_period? ? format_variation(lines) : trend_icon(lines) -%>
+          </span>
         </p>
       <% end %>
     </div>
@@ -72,28 +74,38 @@
     <div class="widget-measure-container">
       <p class="widget-measure widget-measure-main">
         <span class="widget-label"><%= message('metric.files.name') -%></span>
-        <a class="widget-link widget-big" href="<%= url_for_drilldown(files) -%>"><%= files.formatted_value -%></a>
-        <%= dashboard_configuration.selected_period? ? format_variation(files) : trend_icon(files) -%>
+        <span class="nowrap">
+          <%= format_measure(files, :url => url_for_drilldown(ncloc)) -%>
+          <%= dashboard_configuration.selected_period? ? format_variation(files) : trend_icon(files) -%>
+        </span>
       </p>
 
-      <p class="widget-measure">
-        <span class="widget-label"><%= message('metric.directories.name') -%></span>
-        <a class="widget-link widget-medium" href="<%= url_for_drilldown(directories) -%>"><%= directories.formatted_value -%></a>
-        <%= dashboard_configuration.selected_period? ? format_variation(directories) : trend_icon(directories) -%>
-      </p>
+      <% if directories %>
+        <p class="widget-measure">
+          <span class="widget-label"><%= message('metric.directories.name') -%></span>
+          <span class="nowrap">
+            <%= format_measure(directories, :url => url_for_drilldown(directories)) -%>
+            <%= dashboard_configuration.selected_period? ? format_variation(directories) : trend_icon(directories) -%>
+          </span>
+        </p>
+      <% end %>
 
       <% if ncloc && generated_ncloc && generated_ncloc.value > 0 %>
         <p>
-          <a class="widget-link widget-medium" href="<%= url_for_drilldown(generated_ncloc) -%>">+<%= generated_ncloc.formatted_value -%></a>
-          <%= dashboard_configuration.selected_period? ? format_variation(generated_ncloc) : trend_icon(generated_ncloc) -%>
-          <span class="widget-label"><%= message('metric.generated.name.suffix') -%></span>
+          <%= format_measure(generated_ncloc, :url => url_for_drilldown(generated_ncloc)) -%>
+          <span class="nowrap">
+            <%= dashboard_configuration.selected_period? ? format_variation(generated_ncloc) : trend_icon(generated_ncloc) -%>
+            <span class="widget-label"><%= message('metric.generated.name.suffix') -%></span>
+          </span>
         </p>
       <% end %>
 
       <p class="widget-measure">
         <span class="widget-label"><%= message('metric.lines.name') -%></span>
-        <a class="widget-link widget-medium" href="<%= url_for_drilldown(lines) -%>"><%= lines.formatted_value -%></a>
-        <%= dashboard_configuration.selected_period? ? format_variation(lines) : trend_icon(lines) -%>
+        <span class="nowrap">
+          <%= format_measure(lines, :url => url_for_drilldown(lines)) -%>
+          <%= dashboard_configuration.selected_period? ? format_variation(lines) : trend_icon(lines) -%>
+        </span>
       </p>
 
       <%  if generated_lines && generated_lines.value>0 %>
@@ -101,40 +113,56 @@
       <% end %>
 
       <% if projects %>
-        <p><%= format_measure(projects, :suffix => message('metric.projects.name.suffix')) -%> <%= dashboard_configuration.selected_period? ? format_variation(projects) : trend_icon(projects) -%></p>
+        <p class="widget-measure">
+          <span class="widget-label"><%= message('projects') -%></span>
+          <span class="nowrap">
+            <span class="widget-number"><%= format_measure(projects) -%></span>
+            <%= dashboard_configuration.selected_period? ? format_variation(projects) : trend_icon(projects) -%>
+          </span>
+        </p>
       <% end %>
     </div>
   </div>
 
   <div class="widget-span widget-span-5">
     <div class="widget-measure-container">
-      <p class="widget-measure widget-measure-main">
-        <span class="widget-label"><%= message('metric.functions.name') -%></span>
-        <a class="widget-link widget-big" href="<%= url_for_drilldown(functions) -%>"><%= functions.formatted_value -%></a>
-        <%= dashboard_configuration.selected_period? ? format_variation(functions) : trend_icon(functions) -%>
-      </p>
+      <% if functions %>
+        <p class="widget-measure widget-measure-main">
+          <span class="widget-label"><%= message('metric.functions.name') -%></span>
+          <span class="nowrap">
+            <%= format_measure(functions, :url => url_for_drilldown(functions)) -%>
+            <%= dashboard_configuration.selected_period? ? format_variation(functions) : trend_icon(functions) -%>
+          </span>
+        </p>
+      <% end %>
 
       <% if classes %>
         <p class="widget-measure">
           <span class="widget-label"><%= message('metric.classes.name') -%></span>
-          <a class="widget-link widget-medium" href="<%= url_for_drilldown(classes) -%>"><%= classes.formatted_value -%></a>
-          <%= dashboard_configuration.selected_period? ? format_variation(classes) : trend_icon(classes) -%>
+          <span class="nowrap">
+            <%= format_measure(classes, :url => url_for_drilldown(classes)) -%>
+            <%= dashboard_configuration.selected_period? ? format_variation(classes) : trend_icon(classes) -%>
+          </span>
         </p>
       <% end %>
 
       <% if statements %>
         <p class="widget-measure">
           <span class="widget-label"><%= message('metric.statements.name') -%></span>
-          <a class="widget-link widget-medium" href="<%= url_for_drilldown(statements) -%>"><%= statements.formatted_value -%></a>
-          <%= dashboard_configuration.selected_period? ? format_variation(statements) : trend_icon(statements) -%>
+          <span class="nowrap">
+            <%= format_measure(statements, :url => url_for_drilldown(statements)) -%>
+            <%= dashboard_configuration.selected_period? ? format_variation(statements) : trend_icon(statements) -%>
+          </span>
         </p>
       <% end %>
 
       <% if accessors %>
         <p class="widget-measure">
           <span class="widget-label"><%= message('metric.accessors.name') -%></span>
-          <a class="widget-link widget-medium" href="<%= url_for_drilldown(accessors) -%>"><%= accessors.formatted_value -%></a>
-          <%= dashboard_configuration.selected_period? ? format_variation(accessors) : trend_icon(accessors) -%>
+          <span class="nowrap">
+            <%= format_measure(accessors, :url => url_for_drilldown(accessors)) -%>
+            <%= dashboard_configuration.selected_period? ? format_variation(accessors) : trend_icon(accessors) -%>
+          </span>
         </p>
       <% end %>
     </div>

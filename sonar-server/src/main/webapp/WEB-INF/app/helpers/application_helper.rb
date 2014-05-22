@@ -295,7 +295,7 @@ module ApplicationHelper
           link_class=''
         end
         # Do not put url between simple quotes to prevent problem if url contain simple quote
-        html='<a href="'+ url +'"'+ " class='#{link_class}' rel='#{link_rel}' title='#{link_rel}'>#{html}</a>"
+        html='<a href="'+ url +'"'+ " class='widget-link #{link_class}' rel='#{link_rel}' title='#{link_rel}'>#{html}</a>"
       end
     end
     html

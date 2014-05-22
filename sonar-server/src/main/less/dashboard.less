@@ -333,6 +333,10 @@
   font-weight: 300;
 }
 
+.widget-number {
+  color: @darkBlue;
+}
+
 .widget-big {
   line-height: 1.5;
   font-size: 24px;
@@ -349,10 +353,17 @@
   display: inline-block;
   vertical-align: top;
   margin: 0 15px 10px 0;
+
+  .widget-link, .widget-number { .widget-medium; }
 }
 
 .widget-measure-main {
   display: block;
+
+  .widget-link, .widget-number { .widget-big; }
+  .widget-label {
+    text-transform: uppercase;
+  }
 }
 
 .widget-measure-container {
@@ -387,21 +398,18 @@
 .widget-histogram-line-label,
 .widget-histogram-line-value {
   font-size: @smallFontSize;
-  font-weight: 300;
 }
 
 .widget-histogram-line-label {
-  width: 60px;
-  margin-right: 8px;
-  overflow: hidden;
-  text-align: right;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  margin-left: 5px;
+  font-weight: 300;
 }
 
 .widget-histogram-line-value {
   margin-left: 5px;
 
+  &:before { content: "("; font-weight: 300; }
+  &:after { content: ")"; font-weight: 300; }
 }
 
 .widget-histogram-line-bar {
