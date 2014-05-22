@@ -20,7 +20,7 @@
 
 class Issue
 
-  def self.to_hash(issue)
+  def self.to_hash(issue, extra_params={})
     hash = {
         :key => issue.key,
         :component => issue.componentKey,
@@ -46,6 +46,10 @@ class Issue
     hash[:attr] = issue.attributes.to_hash unless issue.attributes.isEmpty()
     if issue.comments.size>0
       hash[:comments] = issue.comments.map { |c| comment_to_hash(c) }
+    end
+    unless extra_params.blank?
+      hash[:actions] = Internal.issues.listActions(issue).map { |t| t.key() } if extra_params.include? 'actions'
+      hash[:transitions] = Internal.issues.listTransitions(issue).map { |t| t.key() } if extra_params.include? 'transitions'
     end
     hash
   end

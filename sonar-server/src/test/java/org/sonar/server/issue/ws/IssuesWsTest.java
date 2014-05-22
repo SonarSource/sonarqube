@@ -89,7 +89,7 @@ public class IssuesWsTest {
     assertThat(show.isInternal()).isFalse();
     assertThat(show.handler()).isInstanceOf(RailsHandler.class);
     assertThat(show.responseExampleAsString()).isNotEmpty();
-    assertThat(show.params()).hasSize(18);
+    assertThat(show.params()).hasSize(19);
   }
 
   @Test

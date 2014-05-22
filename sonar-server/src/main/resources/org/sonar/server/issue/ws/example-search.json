@@ -28,6 +28,12 @@
           "htmlText": "foooooo",
           "createdAt": "2013-05-13T18:08:34+0200"
         }
+      ],
+      "actions": ["link-to-jira"],
+      "transitions": [
+        "unconfirm",
+        "resolve",
+        "falsepositive"
       ]
     }
   ],

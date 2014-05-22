@@ -111,6 +111,9 @@ public class IssuesWs implements WebService {
     action.createParam("assigned")
       .setDescription("To retrieve assigned or unassigned issues")
       .setBooleanPossibleValues();
+    action.createParam("extra_fields")
+      .setDescription("Add some extra fields on each issue. Available since 4.4")
+      .setPossibleValues("actions", "transitions");
     action.createParam("createdAfter")
       .setDescription("To retrieve issues created after the given date (inclusive). Format: date or datetime ISO formats")
       .setExampleValue("2013-05-01 (or 2013-05-01T13:00:00+0100)");
