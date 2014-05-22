@@ -148,7 +148,11 @@ requirejs [
         @codingRules.reset r.rules
       else
         @codingRules.add r.rules
-      @codingRules.paging = r.paging
+      @codingRules.paging =
+        total: r.total
+        pageIndex: r.p
+        pageSize: r.ps
+        pages: 1 + (r.total / r.ps)
       @codingRulesListView = new CodingRulesListView
         app: @
         collection: @codingRules

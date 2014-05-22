@@ -21,7 +21,7 @@
       </td>
 
       <td class="coding-rules-detail-quality-profile-parameters">
-        {{#each parameters}}
+        {{#each params}}
           <div class="coding-rules-detail-quality-profile-parameter">
             <span class="key">{{key}}</span><span class="sep">:&nbsp;</span><span class="value" title="{{value}}">{{value}}</span>
             {{#if ../parent}}{{#notEq value original}}
@@ -34,6 +34,7 @@
         &nbsp;
       </td>
 
+      {{#if canWrite}}
       <td class="coding-rules-detail-quality-profile-actions">
         <div class="button-group">
           <button class="coding-rules-detail-quality-profile-change">{{t 'change_verb'}}</button>
@@ -47,12 +48,15 @@
           </button>
         </div>
       </td>
+      {{/if}}
     {{else}}
+      {{#if canWrite}}
       <td class="coding-rules-detail-quality-profile-actions">
         <div class="button-group">
           <button class="coding-rules-detail-quality-profile-activate">{{t 'coding_rules.activate'}}</button>
         </div>
       </td>
+      {{/if}}
     {{/if}}
   </tr>
   </tbody>

@@ -77,3 +77,4 @@ define [
       _.extend super,
         parent: @getParent()
         parameters: @enhanceParameters()
+        canWrite: @options.app.canWrite

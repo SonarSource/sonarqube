@@ -77,6 +77,8 @@ define [
       repoKey = @model.get 'repo'
       @model.set 'repository', _.find(@options.app.repositories, (repo) -> repo.key == repoKey).name
       @model.set 'canWrite', @options.app.canWrite
+      @model.set 'subcharacteristic', @options.app.characteristics[@model.get 'debtSubChar']
+      @model.set 'createdAt', new Date(@model.get 'createdAt')
 
     onRender: ->
       @qualityProfilesRegion.show @qualityProfilesView

@@ -25,6 +25,9 @@ define [
 
     activate: ->
       profileKey = @ui.qualityProfileSelect.val()
+      params = @ui.qualityProfileParameters.map(->
+        key: jQuery(@).prop('name'), value: jQuery(@).val() || jQuery(@).prop('placeholder')).get()
+
       if @model
         profileKey = @model.get('qProfile')
       severity = @ui.qualityProfileSeverity.val()
@@ -37,18 +40,16 @@ define [
             profile_key: profileKey
             rule_key: @rule.get('key')
             severity: severity
+            params: params
       .done =>
-          parameters = @ui.qualityProfileParameters.map(->
-            key: jQuery(@).prop('name'), value: jQuery(@).val() || jQuery(@).prop('placeholder')).get()
-
           if @model
-            @model.set severity: severity, parameters: parameters
+            @model.set severity: severity, params: params
           else
             model = new Backbone.Model
               name: _.findWhere(@options.app.qualityProfiles, key: profileKey).name
               key: profileKey
               severity: severity
-              parameters: parameters
+              params: params
             @options.app.detailView.qualityProfilesView.collection.add model
 
           @hide()
@@ -98,16 +99,16 @@ define [
 
 
     serializeData: ->
-      parameters = @rule.get 'parameters'
+      params = @rule.get 'params'
       if @model
-        modelParameters = @model.get 'parameters'
-        if modelParameters
-          parameters = parameters.map (p) ->
-            _.extend p, value: _.findWhere(modelParameters, key: p.key).value
+        modelParams = @model.get 'params'
+        if modelParams
+          params = params.map (p) ->
+            _.extend p, value: _.findWhere(modelParams, key: p.key).value
 
       _.extend super,
         rule: @rule.toJSON()
         change: @model && @model.has 'severity'
-        parameters: parameters
+        params: params
         qualityProfiles: @getAvailableQualityProfiles()
         severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO']

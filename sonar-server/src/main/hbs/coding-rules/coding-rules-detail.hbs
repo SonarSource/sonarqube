@@ -2,7 +2,7 @@
 
 <h3 class="coding-rules-detail-header">
   {{name}}
-  <a class="coding-rules-detail-permalink" href="#key={{key}}">
+  <a class="coding-rules-detail-permalink" href="#q={{key}}">
     <i class="icon-link"></i> {{t 'coding_rules.permalink'}}
   </a>
 </h3>
@@ -41,8 +41,8 @@
     </div>
   </li>{{/if}}
 
-  <li class="coding-rules-detail-property">{{characteristic}}&nbsp;>&nbsp;{{subcharacteristic}}</li>
-  <li class="coding-rules-detail-property">{{t 'coding_rules.available_since'}} {{fCreationDate}}</li>
+  <li class="coding-rules-detail-property">{{subcharacteristic}}</li>
+  <li class="coding-rules-detail-property">{{t 'coding_rules.available_since'}} {{d createdAt}}</li>
   <li class="coding-rules-detail-property">{{t 'coding_rules.repository'}} {{repository}} ({{repo}})</li>
   <li class="coding-rules-detail-property">{{t 'coding_rules.key'}} {{key}}</li>
 </ul>
