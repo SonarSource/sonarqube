@@ -20,9 +20,7 @@
 
 package org.sonar.server.qualityprofile;
 
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.rule.RuleDto;
 import org.sonar.server.exceptions.NotFoundException;
 
 import javax.annotation.Nullable;
@@ -40,17 +38,4 @@ public class QProfileValidations {
     return profile;
   }
 
-  public static RuleDto checkRuleIsNotNull(@Nullable RuleDto rule) {
-    if (rule == null) {
-      throw new NotFoundException("This rule does not exists.");
-    }
-    return rule;
-  }
-
-  public static ActiveRuleDto checkActiveRuleIsNotNull(@Nullable ActiveRuleDto activeRule) {
-    if (activeRule == null) {
-      throw new NotFoundException("This active rule does not exists.");
-    }
-    return activeRule;
-  }
 }

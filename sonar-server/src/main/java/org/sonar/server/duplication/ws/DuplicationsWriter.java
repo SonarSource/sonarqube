@@ -75,17 +75,7 @@ public class DuplicationsWriter implements ServerComponent {
           String size = bCursor.getAttrValue("l");
           String componentKey = bCursor.getAttrValue("r");
           if (from != null && size != null && componentKey != null) {
-            String ref = refByComponentKey.get(componentKey);
-            if (ref == null) {
-              ref = Integer.toString(refByComponentKey.size() + 1);
-              refByComponentKey.put(componentKey, Integer.toString(refByComponentKey.size() + 1));
-            }
-
-            json.beginObject();
-            json.prop("from", Integer.valueOf(from));
-            json.prop("size", Integer.valueOf(size));
-            json.prop("_ref", ref);
-            json.endObject();
+            writeDuplication(refByComponentKey, from, size, componentKey, json);
           }
         }
         json.endArray().endObject();
@@ -93,6 +83,20 @@ public class DuplicationsWriter implements ServerComponent {
     } catch (XMLStreamException e) {
       throw new IllegalStateException("XML is not valid", e);
     }
+  }
+
+  private void writeDuplication(Map<String, String> refByComponentKey, String from, String size, String componentKey, JsonWriter json) {
+    String ref = refByComponentKey.get(componentKey);
+    if (ref == null) {
+      ref = Integer.toString(refByComponentKey.size() + 1);
+      refByComponentKey.put(componentKey, Integer.toString(refByComponentKey.size() + 1));
+    }
+
+    json.beginObject();
+    json.prop("from", Integer.valueOf(from));
+    json.prop("size", Integer.valueOf(size));
+    json.prop("_ref", ref);
+    json.endObject();
   }
 
   private void writeFiles(Map<String, String> refByComponentKey, JsonWriter json, DbSession session) {

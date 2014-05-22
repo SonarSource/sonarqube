@@ -40,18 +40,14 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.properties.PropertyQuery;
-import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.SnapshotDto;
 import org.sonar.core.timemachine.Periods;
-import org.sonar.server.component.persistence.ComponentDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.RulesAggregation;
-import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
 
