@@ -243,8 +243,9 @@ public class SearchAction implements RequestHandler {
   }
 
   private void writeFacets(RuleResult results, JsonWriter json) {
-    json.name("facets").beginObject();
+    json.name("facets").beginArray();
     for (Map.Entry<String, List<FacetValue>> facet : results.getFacets().entrySet()) {
+      json.beginObject();
       json.prop("name", facet.getKey());
       json.name("values").beginArray();
       for (FacetValue facetValue : facet.getValue()) {
@@ -254,7 +255,8 @@ public class SearchAction implements RequestHandler {
         json.endObject();
       }
       json.endArray();
+      json.endObject();
     }
-    json.endObject();
+    json.endArray();
   }
 }
