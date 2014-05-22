@@ -26,14 +26,20 @@ import org.sonar.api.server.ws.WebService;
 
 public class TestsWs implements WebService {
 
+  private final TestsTestableAction testsTestableAction;
+
+  public TestsWs(TestsTestableAction testsTestableAction) {
+    this.testsTestableAction = testsTestableAction;
+  }
+
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/tests")
-      .setSince("3.5")
+      .setSince("4.4")
       .setDescription("Tests management");
 
     definePlanAction(controller);
-    defineTestableAction(controller);
+    testsTestableAction.define(controller);
 
     controller.done();
   }
@@ -50,21 +56,6 @@ public class TestsWs implements WebService {
       .setRequired(true)
       .setDescription("id or key of the test resource")
       .setExampleValue("org.codehaus.sonar.plugins:sonar-cpd-plugin:src/test/java/org/sonar/plugins/cpd/SonarBridgeEngineTest.java");
-    RailsHandler.addJsonOnlyFormatParam(action);
-  }
-
-  private void defineTestableAction(NewController controller) {
-    NewAction action = controller.createAction("testable")
-      .setDescription("Get the details of a given resource : test plan, test cases covering lines. Requires Browse permission on resource")
-      .setSince("3.5")
-      .setInternal(true)
-      .setHandler(RailsHandler.INSTANCE)
-      .setResponseExample(Resources.getResource(this.getClass(), "tests-example-testable.json"));
-
-    action.createParam("resource")
-      .setRequired(true)
-      .setDescription("id or key of the resource")
-      .setExampleValue("org.codehaus.sonar.plugins:sonar-cpd-plugin:src/main/java/org/sonar/plugins/cpd/SonarBridgeEngine.java");
     RailsHandler.addJsonOnlyFormatParam(action);
   }
 

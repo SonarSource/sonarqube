@@ -24,9 +24,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class TestsWsTest {
 
@@ -34,14 +36,14 @@ public class TestsWsTest {
 
   @Before
   public void setUp() throws Exception {
-    WsTester tester = new WsTester(new TestsWs());
+    WsTester tester = new WsTester(new TestsWs(new TestsTestableAction(mock(SnapshotPerspectives.class))));
     controller = tester.controller("api/tests");
   }
 
   @Test
   public void define_controller() throws Exception {
     assertThat(controller).isNotNull();
-    assertThat(controller.since()).isEqualTo("3.5");
+    assertThat(controller.since()).isEqualTo("4.4");
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.actions()).hasSize(2);
   }
@@ -61,9 +63,9 @@ public class TestsWsTest {
   public void define_testable_action() throws Exception {
     WebService.Action action = controller.action("testable");
     assertThat(action).isNotNull();
-    assertThat(action.isInternal()).isTrue();
+    assertThat(action.isInternal()).isFalse();
     assertThat(action.isPost()).isFalse();
-    assertThat(action.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(action.handler()).isNotNull();
     assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.params()).hasSize(2);
   }

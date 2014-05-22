@@ -89,7 +89,7 @@ public class DuplicationsWriter implements ServerComponent {
     String ref = refByComponentKey.get(componentKey);
     if (ref == null) {
       ref = Integer.toString(refByComponentKey.size() + 1);
-      refByComponentKey.put(componentKey, Integer.toString(refByComponentKey.size() + 1));
+      refByComponentKey.put(componentKey, ref);
     }
 
     json.beginObject();
