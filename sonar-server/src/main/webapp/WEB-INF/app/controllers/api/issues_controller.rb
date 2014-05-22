@@ -32,7 +32,8 @@ class Api::IssuesController < Api::ApiController
     hash = {
       :maxResultsReached => results.maxResultsReached,
       :paging => paging_to_hash(results.paging),
-      :issues => results.issues.map { |issue| Issue.to_hash(issue, params[:extra_fields]) },
+      # If the user is not loggued, extra fields should not be taking into account to not load actions and transitions
+      :issues => results.issues.map { |issue| Issue.to_hash(issue, logged_in? ? params[:extra_fields] : nil) },
       :components => results.components.map { |component| component_to_hash(component) },
       :projects => results.projects.map { |project| component_to_hash(project) },
       :rules => results.rules.map { |rule| Rule.to_hash(rule) },
