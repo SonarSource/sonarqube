@@ -1,4 +1,20 @@
-define(['handlebars'], function (Handlebars) {
+requirejs.config({
+  paths: {
+    'moment': 'third-party/moment',
+    'handlebars': 'third-party/handlebars'
+  },
+
+  shim: {
+    'moment': {
+      exports: 'moment'
+    },
+    'handlebars': {
+      exports: 'Handlebars'
+    }
+  }
+});
+
+define(['handlebars', 'moment'], function (Handlebars, moment) {
 
   /*
    * Shortcut for templates retrieving
@@ -127,6 +143,14 @@ define(['handlebars'], function (Handlebars) {
   Handlebars.registerHelper('tp', function() {
     var args = Array.prototype.slice.call(arguments, 0, -1);
     return window.tp.apply(this, args);
+  });
+
+  Handlebars.registerHelper('d', function(date) {
+    return moment(date).format('LL');
+  });
+
+  Handlebars.registerHelper('dt', function(date) {
+    return moment(date).format('LLL');
   });
 
   Handlebars.registerHelper('pluginActions', function(actions, options) {
