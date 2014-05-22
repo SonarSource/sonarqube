@@ -10,188 +10,186 @@
    technical_debt = @snapshot.measure('sqale_index')
    new_technical_debt = @snapshot.measure('new_technical_debt')
 %>
-<table width="100%">
-  <tr>
-    <td width="50%" valign="top">
-      <div class="dashbox">
-        <h3><%= message('widget.rules.issues') -%></h3>
-
-        <div class="marginbottom10">
-            <span class="big link-<%= widget.key %>-issues">
-              <%= format_measure(issues, :url => url_for(:controller => 'drilldown', :action => 'issues', :id => @project.key)) -%>
-            </span>
+<div class="widget-row">
+  <div class="widget-span widget-span-4">
+    <div class="widget-measure-container">
+      <div class="widget-measure widget-measure-main">
+        <span class="widget-label"><%= message('widget.rules.issues') -%></span>
+        <span class="nowrap">
+          <span class="link-<%= widget.key %>-issues">
+            <%= format_measure(issues, :url => url_for(:controller => 'drilldown', :action => 'issues', :id => @project.key)) -%>
+          </span>
           <%= dashboard_configuration.selected_period? ? format_variation(issues) : trend_icon(issues) -%>
+        </span>
+        <%
+           if @dashboard_configuration.selected_period?
+             issues_variation = variation_value(issues)
+             new_issues_variation = variation_value(new_issues)
+             estimated_cleared_issues = (new_issues_variation - issues_variation).to_i if issues_variation && new_issues_variation
+        %>
+          <% if new_issues_variation && new_issues_variation > 0 %>
+            <br/>
+                    <span style="font-weight: bold">
+                      <%= message('widget.rules.added') -%>&nbsp;
+                      <a href="<%= url_for(:controller => 'drilldown', :action => 'issues', :id => @project.key, :period => dashboard_configuration.period_index) -%>"
+                         class="varw link-<%= widget.key %>-new-issues">
+                        <%= format_variation(new_issues, :style => 'none', :default => '-') -%></a>
+                    </span>
+          <% end %>
+          <% if estimated_cleared_issues && estimated_cleared_issues > 0 %>
+            <br/>
+                    <span style="font-weight: bold">
+                      <%= message('widget.rules.removed') -%>&nbsp;
+                      <span class="varb"><%= number_with_precision(estimated_cleared_issues, :precision => 0) -%></span>
+                    </span>
+          <% end %>
+        <% end %>
+      </div>
+      <% if technical_debt %>
+        <div class="widget-measure widget-measure-main">
+          <span class="widget-label"><%= message('widget.rules.technical_debt') -%></span>
+          <span class="nowrap">
+            <%= format_measure(technical_debt, :url => url_for_drilldown('sqale_index')) %>
+            <%= dashboard_configuration.selected_period? ? format_variation(technical_debt) : trend_icon(technical_debt) -%>
+          </span>
           <%
              if @dashboard_configuration.selected_period?
-               issues_variation = variation_value(issues)
-               new_issues_variation = variation_value(new_issues)
-               estimated_cleared_issues = (new_issues_variation - issues_variation).to_i if issues_variation && new_issues_variation
+               technical_debt_variation = variation_value(technical_debt)
+               new_technical_debt_variation = variation_value(new_technical_debt)
+               estimated_cleared_technical_debt = (new_technical_debt_variation - technical_debt_variation).to_i if technical_debt_variation && new_technical_debt_variation
           %>
-            <% if new_issues_variation && new_issues_variation > 0 %>
+            <% if new_technical_debt_variation && new_technical_debt_variation > 0 %>
               <br/>
-                <span style="font-weight: bold">
-                  <%= message('widget.rules.added') -%>&nbsp;
-                  <a href="<%= url_for(:controller => 'drilldown', :action => 'issues', :id => @project.key, :period => dashboard_configuration.period_index) -%>"
-                     class="varw link-<%= widget.key %>-new-issues">
-                    <%= format_variation(new_issues, :style => 'none', :default => '-') -%></a>
-                </span>
+                  <span style="font-weight: bold">
+                    <%= message('widget.rules.added') -%>&nbsp;
+                    <a href="<%= url_for_drilldown('new_technical_debt', :period => @dashboard_configuration.period_index) -%>" class="varw link-<%= widget.key %>-new-debt">
+                      <%= format_variation(new_technical_debt, :style => 'none', :default => '-') -%></a>
+                  </span>
             <% end %>
-            <% if estimated_cleared_issues && estimated_cleared_issues > 0 %>
+            <% if estimated_cleared_technical_debt && estimated_cleared_technical_debt > 0 %>
               <br/>
-                <span style="font-weight: bold">
-                  <%= message('widget.rules.removed') -%>&nbsp;
-                  <span class="varb"><%= number_with_precision(estimated_cleared_issues, :precision => 0) -%></span>
-                </span>
+                  <span style="font-weight: bold">
+                    <%= message('widget.rules.removed') -%>&nbsp;
+                    <span class="varb"><%= Internal.i18n.formatLongDuration(estimated_cleared_technical_debt, 'SHORT') -%></span>
+                  </span>
             <% end %>
           <% end %>
         </div>
-        <% if technical_debt %>
-          <h3><%= message('widget.rules.technical_debt') -%></h3>
+      <% end %>
+    </div>
+  </div>
 
-          <div>
-            <span class="big">
-              <a href="<%= url_for_drilldown('sqale_index') -%>" class="link-<%= widget.key %>-debt"><%= format_measure(technical_debt) -%></a>
-            </span>
-            <span><%= dashboard_configuration.selected_period? ? format_variation(technical_debt) : trend_icon(technical_debt) -%></span>
-            <%
-               if @dashboard_configuration.selected_period?
-                 technical_debt_variation = variation_value(technical_debt)
-                 new_technical_debt_variation = variation_value(new_technical_debt)
-                 estimated_cleared_technical_debt = (new_technical_debt_variation - technical_debt_variation).to_i if technical_debt_variation && new_technical_debt_variation
-            %>
-              <% if new_technical_debt_variation && new_technical_debt_variation > 0 %>
-                <br/>
-                <span style="font-weight: bold">
-                  <%= message('widget.rules.added') -%>&nbsp;
-                  <a href="<%= url_for_drilldown('new_technical_debt', :period => @dashboard_configuration.period_index) -%>" class="varw link-<%= widget.key %>-new-debt">
-                    <%= format_variation(new_technical_debt, :style => 'none', :default => '-') -%></a>
-                </span>
-              <% end %>
-              <% if estimated_cleared_technical_debt && estimated_cleared_technical_debt > 0 %>
-                <br/>
-                <span style="font-weight: bold">
-                  <%= message('widget.rules.removed') -%>&nbsp;
-                  <span class="varb"><%= Internal.i18n.formatLongDuration(estimated_cleared_technical_debt, 'SHORT') -%></span>
-                </span>
-              <% end %>
+  <div class="widget-span widget-span-8">
+    <%
+       values = [blocker_issues, critical_issues, major_issues, minor_issues, info_issues]
+       if dashboard_configuration.selected_period?
+         values = values.map { |m| m ? (m.variation(dashboard_configuration.period_index)||0) : 0 }
+       else
+         values = values.map { |m| m ? (m.value||0) : 0 }
+       end
+       max = values.map { |val| val.abs }.max
+    %>
+    <table class="clear width100">
+      <tr>
+        <td><i class="icon-severity-blocker"></i> <%= message('blocker') -%></td>
+        <td style="padding: 0 5px;" align="right">
+          <%= link_to format_measure(blocker_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'BLOCKER'}, :class => 'nolink drilldown_BLOCKER' -%>
+        </td>
+        <td>
+          <%= dashboard_configuration.selected_period? ? format_variation(blocker_issues) : trend_icon(blocker_issues, :empty => true) -%>
+        </td>
+        <td>&nbsp;</td>
+        <td align="left" style="padding-bottom:2px; padding-top:2px;">
+          <% if max > 0 %>
+            <% if dashboard_configuration.selected_period? %>
+              <%= barchart(:width => 35, :percent => (values[0]<0 ? (100 * values[0] / max).to_i : 0), :color => '#078C00') %>
+              <%= barchart(:width => 35, :percent => (values[0]>0 ? (100 * values[0] / max).to_i : 0), :color => '#cc0000') %>
+            <% else %>
+              <%= barchart(:width => 70, :percent => (100 * values[0] / max).to_i) %>
             <% end %>
-          </div>
-        <% end %>
-      </div>
-    </td>
-
-    <td width="50%" valign="top" nowrap>
-      <%
-         values = [blocker_issues, critical_issues, major_issues, minor_issues, info_issues]
-         if dashboard_configuration.selected_period?
-           values = values.map { |m| m ? (m.variation(dashboard_configuration.period_index)||0) : 0 }
-         else
-           values = values.map { |m| m ? (m.value||0) : 0 }
-         end
-         max = values.map { |val| val.abs }.max
-      %>
-      <table class="clear width100">
-        <tr>
-          <td><i class="icon-severity-blocker"></i> <%= message('blocker') -%></td>
-          <td style="padding: 0 5px;" align="right">
-            <%= link_to format_measure(blocker_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'BLOCKER'}, :class => 'nolink drilldown_BLOCKER' -%>
-          </td>
-          <td>
-            <%= dashboard_configuration.selected_period? ? format_variation(blocker_issues) : trend_icon(blocker_issues, :empty => true) -%>
-          </td>
-          <td>&nbsp;</td>
-          <td align="left" style="padding-bottom:2px; padding-top:2px;">
-            <% if max > 0 %>
-              <% if dashboard_configuration.selected_period? %>
-                <%= barchart(:width => 35, :percent => (values[0]<0 ? (100 * values[0] / max).to_i : 0), :color => '#078C00') %>
-                <%= barchart(:width => 35, :percent => (values[0]>0 ? (100 * values[0] / max).to_i : 0), :color => '#cc0000') %>
-              <% else %>
-                <%= barchart(:width => 70, :percent => (100 * values[0] / max).to_i) %>
-              <% end %>
+          <% end %>
+        </td>
+      </tr>
+      <tr>
+        <td><i class="icon-severity-critical"></i> <%= message('critical') -%></td>
+        <td style="padding: 0 5px;" align="right">
+          <%= link_to format_measure(critical_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'CRITICAL'}, :class => 'nolink drilldown_CRITICAL' -%>
+        </td>
+        <td>
+          <%= dashboard_configuration.selected_period? ? format_variation(critical_issues) : trend_icon(critical_issues, :empty => true) -%>
+        </td>
+        <td>&nbsp;</td>
+        <td align="left" style="padding-bottom:2px; padding-top:2px;">
+          <% if max > 0 %>
+            <% if dashboard_configuration.selected_period? %>
+              <%= barchart(:width => 35, :percent => (values[1]<0 ? (100 * values[1] / max).to_i : 0), :color => '#078C00') %>
+              <%= barchart(:width => 35, :percent => (values[1]>0 ? (100 * values[1] / max).to_i : 0), :color => '#cc0000') %>
+            <% else %>
+              <%= barchart(:width => 70, :percent => (100 * values[1] / max).to_i) %>
             <% end %>
-          </td>
-        </tr>
-        <tr>
-          <td><i class="icon-severity-critical"></i> <%= message('critical') -%></td>
-          <td style="padding: 0 5px;" align="right">
-            <%= link_to format_measure(critical_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'CRITICAL'}, :class => 'nolink drilldown_CRITICAL' -%>
-          </td>
-          <td>
-            <%= dashboard_configuration.selected_period? ? format_variation(critical_issues) : trend_icon(critical_issues, :empty => true) -%>
-          </td>
-          <td>&nbsp;</td>
-          <td align="left" style="padding-bottom:2px; padding-top:2px;">
-            <% if max > 0 %>
-              <% if dashboard_configuration.selected_period? %>
-                <%= barchart(:width => 35, :percent => (values[1]<0 ? (100 * values[1] / max).to_i : 0), :color => '#078C00') %>
-                <%= barchart(:width => 35, :percent => (values[1]>0 ? (100 * values[1] / max).to_i : 0), :color => '#cc0000') %>
-              <% else %>
-                <%= barchart(:width => 70, :percent => (100 * values[1] / max).to_i) %>
-              <% end %>
+          <% end %>
+        </td>
+      </tr>
+      <tr>
+        <td><i class="icon-severity-major"></i> <%= message('major') -%></td>
+        <td style="padding: 0 5px;" align="right">
+          <%= link_to format_measure(major_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'MAJOR'}, :class => 'nolink drilldown_MAJOR' -%>
+        </td>
+        <td>
+          <%= dashboard_configuration.selected_period? ? format_variation(major_issues) : trend_icon(major_issues, :empty => true) -%>
+        </td>
+        <td>&nbsp;</td>
+        <td align="left" style="padding-bottom:2px; padding-top:2px;">
+          <% if max > 0 %>
+            <% if dashboard_configuration.selected_period? %>
+              <%= barchart(:width => 35, :percent => (values[2]<0 ? (100 * values[2] / max).to_i : 0), :color => '#078C00') %>
+              <%= barchart(:width => 35, :percent => (values[2]>0 ? (100 * values[2] / max).to_i : 0), :color => '#cc0000') %>
+            <% else %>
+              <%= barchart(:width => 70, :percent => (100 * values[2] / max).to_i) %>
             <% end %>
-          </td>
-        </tr>
-        <tr>
-          <td><i class="icon-severity-major"></i> <%= message('major') -%></td>
-          <td style="padding: 0 5px;" align="right">
-            <%= link_to format_measure(major_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'MAJOR'}, :class => 'nolink drilldown_MAJOR' -%>
-          </td>
-          <td>
-            <%= dashboard_configuration.selected_period? ? format_variation(major_issues) : trend_icon(major_issues, :empty => true) -%>
-          </td>
-          <td>&nbsp;</td>
-          <td align="left" style="padding-bottom:2px; padding-top:2px;">
-            <% if max > 0 %>
-              <% if dashboard_configuration.selected_period? %>
-                <%= barchart(:width => 35, :percent => (values[2]<0 ? (100 * values[2] / max).to_i : 0), :color => '#078C00') %>
-                <%= barchart(:width => 35, :percent => (values[2]>0 ? (100 * values[2] / max).to_i : 0), :color => '#cc0000') %>
-              <% else %>
-                <%= barchart(:width => 70, :percent => (100 * values[2] / max).to_i) %>
-              <% end %>
+          <% end %>
+        </td>
+      </tr>
+      <tr>
+        <td><i class="icon-severity-minor"></i> <%= message('minor') -%></td>
+        <td style="padding: 0 5px;" align="right">
+          <%= link_to format_measure(minor_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'MINOR'}, :class => 'nolink drilldown_MINOR' -%>
+        </td>
+        <td>
+          <%= dashboard_configuration.selected_period? ? format_variation(minor_issues) : trend_icon(minor_issues, :empty => true) -%>
+        </td>
+        <td>&nbsp;</td>
+        <td align="left" style="padding-bottom:2px; padding-top:2px;">
+          <% if max > 0 %>
+            <% if dashboard_configuration.selected_period? %>
+              <%= barchart(:width => 35, :percent => (values[3]<0 ? (100 * values[3] / max).to_i : 0), :color => '#078C00') %>
+              <%= barchart(:width => 35, :percent => (values[3]>0 ? (100 * values[3] / max).to_i : 0), :color => '#cc0000') %>
+            <% else %>
+              <%= barchart(:width => 70, :percent => (100 * values[3] / max).to_i) %>
             <% end %>
-          </td>
-        </tr>
-        <tr>
-          <td><i class="icon-severity-minor"></i> <%= message('minor') -%></td>
-          <td style="padding: 0 5px;" align="right">
-            <%= link_to format_measure(minor_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'MINOR'}, :class => 'nolink drilldown_MINOR' -%>
-          </td>
-          <td>
-            <%= dashboard_configuration.selected_period? ? format_variation(minor_issues) : trend_icon(minor_issues, :empty => true) -%>
-          </td>
-          <td>&nbsp;</td>
-          <td align="left" style="padding-bottom:2px; padding-top:2px;">
-            <% if max > 0 %>
-              <% if dashboard_configuration.selected_period? %>
-                <%= barchart(:width => 35, :percent => (values[3]<0 ? (100 * values[3] / max).to_i : 0), :color => '#078C00') %>
-                <%= barchart(:width => 35, :percent => (values[3]>0 ? (100 * values[3] / max).to_i : 0), :color => '#cc0000') %>
-              <% else %>
-                <%= barchart(:width => 70, :percent => (100 * values[3] / max).to_i) %>
-              <% end %>
+          <% end %>
+        </td>
+      </tr>
+      <tr>
+        <td><i class="icon-severity-info"></i> <%= message('info') -%></td>
+        <td style="padding: 0 5px;" align="right">
+          <%= link_to format_measure(info_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'INFO'}, :class => 'nolink drilldown_INFO' -%>
+        </td>
+        <td>
+          <%= dashboard_configuration.selected_period? ? format_variation(info_issues) : trend_icon(info_issues, :empty => true) -%>
+        </td>
+        <td>&nbsp;</td>
+        <td align="left" style="padding-bottom:2px; padding-top:2px;">
+          <% if max > 0 %>
+            <% if dashboard_configuration.selected_period? %>
+              <%= barchart(:width => 35, :percent => (values[4]<0 ? (100 * values[4] / max).to_i : 0), :color => '#078C00') %>
+              <%= barchart(:width => 35, :percent => (values[4]>0 ? (100 * values[4] / max).to_i : 0), :color => '#cc0000') %>
+            <% else %>
+              <%= barchart(:width => 70, :percent => (100 * values[4] / max).to_i) %>
             <% end %>
-          </td>
-        </tr>
-        <tr>
-          <td><i class="icon-severity-info"></i> <%= message('info') -%></td>
-          <td style="padding: 0 5px;" align="right">
-            <%= link_to format_measure(info_issues), {:controller => 'drilldown', :action => 'issues', :id => @project.key, :severity => 'INFO'}, :class => 'nolink drilldown_INFO' -%>
-          </td>
-          <td>
-            <%= dashboard_configuration.selected_period? ? format_variation(info_issues) : trend_icon(info_issues, :empty => true) -%>
-          </td>
-          <td>&nbsp;</td>
-          <td align="left" style="padding-bottom:2px; padding-top:2px;">
-            <% if max > 0 %>
-              <% if dashboard_configuration.selected_period? %>
-                <%= barchart(:width => 35, :percent => (values[4]<0 ? (100 * values[4] / max).to_i : 0), :color => '#078C00') %>
-                <%= barchart(:width => 35, :percent => (values[4]>0 ? (100 * values[4] / max).to_i : 0), :color => '#cc0000') %>
-              <% else %>
-                <%= barchart(:width => 70, :percent => (100 * values[4] / max).to_i) %>
-              <% end %>
-            <% end %>
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
+          <% end %>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>

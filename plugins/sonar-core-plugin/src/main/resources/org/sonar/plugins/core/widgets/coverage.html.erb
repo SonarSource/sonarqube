@@ -1,120 +1,155 @@
 <%
-  code_coverage_measure=measure('coverage')
-  tests_measure=measure('tests')
-  execution_time=measure('test_execution_time')
-  success_percentage=measure('test_success_density')
+   code_coverage_measure=measure('coverage')
+   tests_measure=measure('tests')
+   execution_time=measure('test_execution_time')
+   success_percentage=measure('test_success_density')
 
-  if code_coverage_measure || tests_measure
+   if code_coverage_measure || tests_measure
 %>
-<table width="100%">
-  <tr>
-    <td valign="top" width="50%" nowrap>
-      <div class="dashbox">
-        <p class="title"><%= message('widget.code_coverage.name') -%></p>
-        <p>
-          <span class="big"><%= format_measure(code_coverage_measure, :suffix => '', :url => url_for_drilldown('coverage'), :default => '-') %></span>
-          <%= dashboard_configuration.selected_period? ? format_variation(code_coverage_measure) : trend_icon(code_coverage_measure) -%>
-        </p>
-        <% line_coverage=measure('line_coverage')
-          if line_coverage %>
-          <p>
-            <%= format_measure(line_coverage, :suffix => message('widget.code_coverage.line_coverage.suffix'), :url => url_for_drilldown('uncovered_lines', :highlight =>  'line_coverage')) %>
-            <%= dashboard_configuration.selected_period? ? format_variation(line_coverage) : trend_icon(line_coverage) -%>
-          </p>
+  <div class="widget-row">
+    <div class="widget-span widget-span-6">
+      <div class="widget-measure-container">
+        <div class="widget-measure widget-measure-main">
+          <span class="widget-label"><%= message('widget.code_coverage.name') -%></span>
+          <span class="nowrap">
+            <%= format_measure(code_coverage_measure, :suffix => '', :url => url_for_drilldown('coverage'), :default => '-') %>
+            <%= dashboard_configuration.selected_period? ? format_variation(code_coverage_measure) : trend_icon(code_coverage_measure) -%>
+          </span>
+        </div>
+        <%
+           line_coverage=measure('line_coverage')
+           if line_coverage
+        %>
+          <div class="widget-measure">
+            <span class="widget-label"><%= message('widget.code_coverage.line_coverage.suffix') -%></span>
+            <span class="nowrap">
+              <%= format_measure(line_coverage, :url => url_for_drilldown('uncovered_lines', :highlight => 'line_coverage')) %>
+              <%= dashboard_configuration.selected_period? ? format_variation(line_coverage) : trend_icon(line_coverage) -%>
+            </span>
+          </div>
         <% end %>
-        <% branch_coverage=measure('branch_coverage')
-          if branch_coverage %>
-          <p>
-            <%= format_measure(branch_coverage, :suffix => message('widget.code_coverage.branch_coverage.suffix'), :url => url_for_drilldown('uncovered_conditions', :highlight =>  'branch_coverage')) %>
-            <%= dashboard_configuration.selected_period? ? format_variation(branch_coverage) : trend_icon(branch_coverage) -%>
-          </p>
+        <%
+           branch_coverage=measure('branch_coverage')
+           if branch_coverage
+        %>
+          <div class="widget-measure">
+            <span class="widget-label"><%= message('widget.code_coverage.branch_coverage.suffix') -%></span>
+            <span class="nowrap">
+              <%= format_measure(branch_coverage, :url => url_for_drilldown('uncovered_conditions', :highlight => 'branch_coverage')) %>
+              <%= dashboard_configuration.selected_period? ? format_variation(branch_coverage) : trend_icon(branch_coverage) -%>
+            </span>
+          </div>
         <% end %>
 
         <%
-        if dashboard_configuration.selected_period?
-          new_lines_to_cover_measure=measure('new_lines_to_cover')
-          if new_lines_to_cover_measure
-            new_lines=new_lines_to_cover_measure.variation(dashboard_configuration.period_index)
-            if new_lines
-              new_coverage=measure('new_coverage') if variation_value('new_coverage')
-              new_line_coverage=measure('new_line_coverage') if variation_value('new_line_coverage')
-              new_branch_coverage=measure('new_branch_coverage') if variation_value('new_branch_coverage')
-        %>  <br/>
-            <h3><%= message('widget.code_coverage.on_new_code') -%> </h3>
-            <% if new_lines.to_i==0 %>
-              <p><%= message('widget.code_coverage.no_new_lines_to_cover') -%></p>
-            <% else %>
-              <% if new_coverage %>
-                <p>
-                  <span class="big"><%= format_measure(new_coverage, :suffix => '',
-                                                       :period => dashboard_configuration.period_index,
-                                                       :url => url_for_drilldown('new_coverage', :period => dashboard_configuration.period_index)) %>
-                  </span>
-                </p>
-              <% end %>
-              <% if new_line_coverage %>
-                <p>
-                  <%= format_measure(new_line_coverage, :suffix => message('widget.code_coverage.line_coverage.suffix'),
-                                     :period => dashboard_configuration.period_index,
-                                     :url => url_for_drilldown('new_uncovered_lines', :highlight => 'new_line_coverage', :period => dashboard_configuration.period_index),
-                                     :default => '-') %>
-                </p>
-              <% end %>
-              <% if new_branch_coverage %>
-                <p>
-                  <%= format_measure(new_branch_coverage, :suffix => message('widget.code_coverage.branch_coverage.suffix'),
-                                     :period => dashboard_configuration.period_index,
-                                     :url => url_for_drilldown('new_uncovered_conditions', :highlight => 'new_branch_coverage', :period => dashboard_configuration.period_index),
-                                     :default => '-') %>
-                </p>
-              <%
-                 end
-               end
-            end
-          end
-        end
+           if dashboard_configuration.selected_period?
+             new_lines_to_cover_measure=measure('new_lines_to_cover')
+             if new_lines_to_cover_measure
+               new_lines=new_lines_to_cover_measure.variation(dashboard_configuration.period_index)
+               if new_lines
+                 new_coverage=measure('new_coverage') if variation_value('new_coverage')
+                 new_line_coverage=measure('new_line_coverage') if variation_value('new_line_coverage')
+                 new_branch_coverage=measure('new_branch_coverage') if variation_value('new_branch_coverage')
         %>
+              <% if new_lines.to_i==0 %>
+                <div class="widget-measure widget-measure-main">
+                  <span class="widget-label"><%= message('widget.code_coverage.on_new_code') -%></span>
+                  <p><%= message('widget.code_coverage.no_new_lines_to_cover') -%></p>
+                </div>
+               <% else %>
+                <% if new_coverage %>
+                  <div class="widget-measure widget-measure-main">
+                    <span class="widget-label"><%= message('widget.code_coverage.on_new_code') -%></span>
+                    <%= format_measure(new_coverage,
+                                       :period => dashboard_configuration.period_index,
+                                       :url => url_for_drilldown('new_coverage', :period => dashboard_configuration.period_index)) %>
+                  </div>
+                <% end %>
+                <% if new_line_coverage %>
+                  <div class="widget-measure">
+                    <span class="widget-label"><%= message('widget.code_coverage.line_coverage.suffix') -%></span>
+                    <%= format_measure(new_line_coverage,
+                                       :period => dashboard_configuration.period_index,
+                                       :url => url_for_drilldown('new_uncovered_lines', :highlight => 'new_line_coverage', :period => dashboard_configuration.period_index),
+                                       :default => '-') %>
+                  </div>
+                <% end %>
+                <% if new_branch_coverage %>
+                  <div class="widget-measure">
+                    <span class="widget-label"><%= message('widget.code_coverage.branch_coverage.suffix') -%></span>
+                    <%= format_measure(new_branch_coverage,
+                                       :period => dashboard_configuration.period_index,
+                                       :url => url_for_drilldown('new_uncovered_conditions', :highlight => 'new_branch_coverage', :period => dashboard_configuration.period_index),
+                                       :default => '-') %>
+                  </div>
+                <% end %>
+              <% end %>
+            <%
+               end
+               end
+               end
+            %>
       </div>
-    </td>
-    <td valign="top" width="50%" nowrap>
-  <%
-  if tests_measure
-  %>
-  <div class="dashbox">
-      <h3><%= message('widget.code_coverage.test_success') -%></h3>
-      <p><span class="big">
-        <%= format_measure(success_percentage, :suffix => '', :url => url_for_drilldown(success_percentage)) %></span>
-        <%= dashboard_configuration.selected_period? ? format_variation(success_percentage) : trend_icon(success_percentage) -%>
-      </p>
-      <p>
-        <%= format_measure(Metric::TEST_FAILURES, :suffix => message('widget.code_coverage.failures.suffix'), :url => url_for_drilldown(Metric::TEST_FAILURES)) %>
-        <%= dashboard_configuration.selected_period? ? format_variation(Metric::TEST_FAILURES) : trend_icon(Metric::TEST_FAILURES) -%>
-      </p>
-      <p>
-        <%= format_measure(Metric::TEST_ERRORS, :suffix => message('widget.code_coverage.errors.suffix'), :url => url_for_drilldown(Metric::TEST_ERRORS)) %>
-        <%= dashboard_configuration.selected_period? ? format_variation(Metric::TEST_ERRORS) : trend_icon(Metric::TEST_ERRORS) -%>
-      </p>
-      <p>
-        <%= format_measure(tests_measure, :suffix => message('widget.code_coverage.tests.suffix'), :url => url_for_drilldown('tests')) %>
-        <%= dashboard_configuration.selected_period? ? format_variation(tests_measure) : trend_icon(tests_measure) -%>
-      </p>
-      <% skipped_measure=measure(Metric::SKIPPED_TESTS)
-         if dashboard_configuration.selected_period? || (skipped_measure && skipped_measure.value && skipped_measure.value>0)
+    </div>
+    <div class="widget-span widget-span-6">
+      <%
+         if tests_measure
       %>
-      <p>
-        <%= format_measure(skipped_measure, :suffix => message('widget.code_coverage.skipped.suffix'), :url => url_for_drilldown(Metric::SKIPPED_TESTS)) %>
-        <%= dashboard_configuration.selected_period? ? format_variation(skipped_measure) : trend_icon(skipped_measure) -%>
-      </p>
+        <div class="widget-measure-container">
+          <div class="widget-measure widget-measure-main">
+            <span class="widget-label"><%= message('widget.code_coverage.test_success') -%></span>
+            <span class="nowrap">
+              <%= format_measure(success_percentage, :url => url_for_drilldown(success_percentage)) %>
+              <%= dashboard_configuration.selected_period? ? format_variation(success_percentage) : trend_icon(success_percentage) -%>
+            </span>
+          </div>
+
+          <div class="widget-measure">
+            <span class="widget-label"><%= message('widget.code_coverage.failures.suffix') -%></span>
+            <span class="nowrap">
+              <%= format_measure(Metric::TEST_FAILURES, :url => url_for_drilldown(Metric::TEST_FAILURES)) %>
+              <%= dashboard_configuration.selected_period? ? format_variation(Metric::TEST_FAILURES) : trend_icon(Metric::TEST_FAILURES) -%>
+            </span>
+          </div>
+
+          <div class="widget-measure">
+            <span class="widget-label"><%= message('widget.code_coverage.errors.suffix') -%></span>
+            <span class="nowrap">
+              <%= format_measure(Metric::TEST_ERRORS, :url => url_for_drilldown(Metric::TEST_ERRORS)) %>
+              <%= dashboard_configuration.selected_period? ? format_variation(Metric::TEST_ERRORS) : trend_icon(Metric::TEST_ERRORS) -%>
+            </span>
+          </div>
+
+          <div class="widget-measure">
+            <span class="widget-label"><%= message('widget.code_coverage.tests.suffix') -%></span>
+            <span class="nowrap">
+              <%= format_measure(tests_measure, :url => url_for_drilldown('tests')) %>
+              <%= dashboard_configuration.selected_period? ? format_variation(tests_measure) : trend_icon(tests_measure) -%>
+            </span>
+          </div>
+
+          <% skipped_measure=measure(Metric::SKIPPED_TESTS)
+             if dashboard_configuration.selected_period? || (skipped_measure && skipped_measure.value && skipped_measure.value>0)
+          %>
+            <div class="widget-measure">
+              <span class="widget-label"><%= message('widget.code_coverage.skipped.suffix') -%></span>
+              <span class="nowrap">
+                <%= format_measure(skipped_measure, :url => url_for_drilldown(Metric::SKIPPED_TESTS)) %>
+                <%= dashboard_configuration.selected_period? ? format_variation(skipped_measure) : trend_icon(skipped_measure) -%>
+              </span>
+            </div>
+          <% end %>
+
+          <div class="widget-measure">
+            <span class="nowrap">
+              <%= format_measure(execution_time, :url => url_for_drilldown('test_execution_time')) %>
+              <%= dashboard_configuration.selected_period? ? format_variation(execution_time) : trend_icon(execution_time) -%>
+            </span>
+          </div>
+        </div>
       <% end %>
-      <p>
-        <%= format_measure(execution_time, :suffix => '', :url => url_for_drilldown('test_execution_time')) %>
-        <%= dashboard_configuration.selected_period? ? format_variation(execution_time) : trend_icon(execution_time) -%>
-      </p>
+    </div>
   </div>
-  <% end %>
-</td>
-</tr>
-</table>
 <% end %>
 
 

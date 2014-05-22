@@ -327,10 +327,8 @@
 
 .widget-label {
   display: block;
-  color: @secondFontColor;
   font-size: @smallFontSize;
   line-height: 1.2;
-  font-weight: 300;
 }
 
 .widget-number {
@@ -355,19 +353,19 @@
   margin: 0 15px 10px 0;
 
   .widget-link, .widget-number { .widget-medium; }
+  .widget-label { text-transform: capitalize; }
 }
 
 .widget-measure-main {
   display: block;
+  margin-top: 10px;
 
   .widget-link, .widget-number { .widget-big; }
-  .widget-label {
-    text-transform: uppercase;
-  }
+  .widget-label { font-size: @baseFontSize; }
 }
 
 .widget-measure-container {
-  margin-bottom: -10px;
+  margin: -10px 0;
 }
 
 // Widget Histogram
