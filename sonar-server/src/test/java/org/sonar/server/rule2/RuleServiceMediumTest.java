@@ -180,8 +180,7 @@ public class RuleServiceMediumTest {
 
 
 
-    Set<String> tags = index.terms(RuleNormalizer.RuleField.TAGS.key(),
-      RuleNormalizer.RuleField.SYSTEM_TAGS.key());
+    Set<String> tags = index.terms(RuleNormalizer.RuleField._TAGS.key());
     assertThat(tags).containsOnly("java-coding","security",
       "stephane.gamard@sonarsource.com","mytag");
 

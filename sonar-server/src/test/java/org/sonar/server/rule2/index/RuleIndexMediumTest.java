@@ -103,7 +103,8 @@ public class RuleIndexMediumTest {
   @Test
   public void global_facet_on_repositories() {
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001")).setRuleKey("X001"), dbSession);
-    dao.insert(newRuleDto(RuleKey.of("php", "S001")), dbSession);
+    dao.insert(newRuleDto(RuleKey.of("php", "S001"))
+      .setSystemTags(ImmutableSet.of("sysTag")), dbSession);
     dao.insert(newRuleDto(RuleKey.of("javascript", "S002")).setRuleKey("X002")
       .setTags(ImmutableSet.of("tag1")), dbSession);
     dbSession.commit();
@@ -116,15 +117,20 @@ public class RuleIndexMediumTest {
 
     // Repositories Facet is preset
     result = index.search(query, new QueryOptions().setFacet(true));
-
     assertThat(result.getFacets()).isNotNull();
     assertThat(result.getFacets()).hasSize(3);
+
+    // Verify the value of a given facet
     Collection<FacetValue> repoFacets = result.getFacetValues("Repositories");
     assertThat(repoFacets).hasSize(2);
     assertThat(Iterables.get(repoFacets, 0).getKey()).isEqualTo("javascript");
     assertThat(Iterables.get(repoFacets, 0).getValue()).isEqualTo(2);
     assertThat(Iterables.get(repoFacets, 1).getKey()).isEqualTo("php");
     assertThat(Iterables.get(repoFacets, 1).getValue()).isEqualTo(1);
+
+    // Check that tag facet has both Tags and SystemTags values
+    Collection<FacetValue> tagFacet = result.getFacetValues("Tags");
+    assertThat(tagFacet).hasSize(2);
   }
 
   @Test

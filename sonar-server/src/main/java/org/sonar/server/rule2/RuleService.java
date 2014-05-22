@@ -97,9 +97,16 @@ public class RuleService implements ServerComponent {
    * List all tags, including system tags, defined on rules
    */
   public Set<String> listTags() {
-    return index.terms(RuleNormalizer.RuleField.TAGS.key(), RuleNormalizer.RuleField.SYSTEM_TAGS.key());
+    /** using combined _TAGS field of ES until ES update that has multiTerms aggregation */
+    return index.terms(RuleNormalizer.RuleField._TAGS.key());
   }
 
+  /**
+   * Set tags for rule.
+   *
+   * @param ruleKey  the required key
+   * @param tags     Set of tags. <code>null</code> to remove all tags.
+   */
   public void setTags(RuleKey ruleKey, Set<String> tags) {
 
     checkAdminPermission(UserSession.get());

@@ -23,6 +23,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Cardinality;
@@ -64,7 +65,8 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     NOTE("markdownNote"),
     NOTE_LOGIN("noteLogin"),
     NOTE_CREATED_AT("noteCreatedAt"),
-    NOTE_UPDATED_AT("noteUpdatedAt");
+    NOTE_UPDATED_AT("noteUpdatedAt"),
+    _TAGS("_tags");
 
     private final String key;
 
@@ -128,6 +130,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
   @Override
   public UpdateRequest normalize(RuleDto rule) {
 
+    /** Update Fields */
     Map<String, Object> update = new HashMap<String, Object>();
     update.put(RuleField.KEY.key(), rule.getKey().toString());
     update.put(RuleField.REPOSITORY.key(), rule.getRepositoryKey());
@@ -176,19 +179,18 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     update.put(RuleField.DEBT_FUNCTION_TYPE.key(), dType);
     update.put(RuleField.DEBT_FUNCTION_COEFFICIENT.key(), dCoefficient);
     update.put(RuleField.DEBT_FUNCTION_OFFSET.key(), dOffset);
-
     update.put(RuleField.TAGS.key(), rule.getTags());
     update.put(RuleField.SYSTEM_TAGS.key(), rule.getSystemTags());
+    update.put(RuleField._TAGS.key(), Sets.union(rule.getSystemTags(), rule.getTags()));
 
 
-
-      /* Upsert elements */
+    /** Upsert elements */
     Map<String, Object> upsert = new HashMap<String, Object>(update);
     upsert.put(RuleField.KEY.key(), rule.getKey().toString());
     upsert.put(RuleField.PARAMS.key(), new ArrayList<String>());
 
 
-    /* Creating updateRequest */
+    /** Creating updateRequest */
     return new UpdateRequest()
       .doc(update)
       .upsert(upsert);

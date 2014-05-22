@@ -31,8 +31,6 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.facet.FacetBuilders;
-import org.elasticsearch.search.facet.terms.TermsFacet;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
@@ -147,8 +145,14 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     addMatchField(mapping, RuleNormalizer.RuleField.LANGUAGE.key(), "string");
 
+    mapping.startObject(RuleNormalizer.RuleField._TAGS.key())
+      .field("type", "string")
+      .field("analyzer", "whitespace")
+      .endObject();
+
     mapping.startObject(RuleNormalizer.RuleField.TAGS.key())
       .field("type", "string")
+      .field("analyzer", "whitespace")
       .endObject();
 
     mapping.startObject(RuleNormalizer.RuleField.SYSTEM_TAGS.key())
@@ -275,7 +279,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
         RuleNormalizer.RuleField.KEY.key(),
         RuleNormalizer.RuleField.KEY.key() + ".search",
         RuleNormalizer.RuleField.LANGUAGE.key(),
-        RuleNormalizer.RuleField.TAGS.key());
+        RuleNormalizer.RuleField._TAGS.key());
     } else {
       qb = QueryBuilders.matchAllQuery();
     }
@@ -289,8 +293,8 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     this.addTermFilter(RuleNormalizer.RuleField.REPOSITORY.key(), query.getRepositories(), fb);
     this.addTermFilter(RuleNormalizer.RuleField.SEVERITY.key(), query.getSeverities(), fb);
     this.addTermFilter(RuleNormalizer.RuleField.KEY.key(), query.getKey(), fb);
+    this.addTermFilter(RuleNormalizer.RuleField._TAGS.key(), query.getTags(), fb);
 
-    this.addMultiFieldTermFilter(query.getTags(), fb, RuleNormalizer.RuleField.TAGS.key(), RuleNormalizer.RuleField.SYSTEM_TAGS.key());
 
     if (query.getStatuses() != null && !query.getStatuses().isEmpty()) {
       Collection<String> stringStatus = new ArrayList<String>();
@@ -349,8 +353,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
      /* the Tag facet */
     query.addAggregation(AggregationBuilders
       .terms("Tags")
-      .field(RuleNormalizer.RuleField.SYSTEM_TAGS.key())
-      .field(RuleNormalizer.RuleField.TAGS.key())
+      .field(RuleNormalizer.RuleField._TAGS.key())
       .order(Terms.Order.count(false))
       .size(10)
       .minDocCount(0));
@@ -384,25 +387,25 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     return new RuleDoc(fields);
   }
 
-  public Set<String> terms(String... fields) {
+
+  public Set<String> terms(String fields) {
     Set<String> tags = new HashSet<String>();
+    String key = "_ref";
 
     SearchRequestBuilder request = this.getClient()
       .prepareSearch(this.getIndexName())
       .setQuery(QueryBuilders.matchAllQuery())
-      .addFacet(FacetBuilders.termsFacet("tags")
-        .allTerms(false)
-        .fields(fields)
-        .global(true)
-        .size(Integer.MAX_VALUE));
+      .addAggregation(AggregationBuilders.terms(key)
+        .field(fields)
+        .size(Integer.MAX_VALUE)
+        .minDocCount(1));
 
     SearchResponse esResponse = request.get();
 
-    TermsFacet termFacet = esResponse
-      .getFacets().facet("tags");
+    Terms aggregation = (Terms) esResponse.getAggregations().get(key);
 
-    for (TermsFacet.Entry facetValue : termFacet.getEntries()) {
-      tags.add(facetValue.getTerm().string());
+    for (Terms.Bucket value : aggregation.getBuckets()){
+      tags.add(value.getKey());
     }
     return tags;
   }
