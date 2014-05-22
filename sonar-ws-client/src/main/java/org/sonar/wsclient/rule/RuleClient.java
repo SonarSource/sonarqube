@@ -25,13 +25,4 @@ package org.sonar.wsclient.rule;
  */
 public interface RuleClient {
 
-  /**
-   * Associate new tags to a rule
-   */
-  void addTags(String key, String... tags);
-
-  /**
-   * Remove tags from a rule
-   */
-  void removeTags(String key, String... tags);
 }

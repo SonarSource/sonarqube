@@ -43,7 +43,6 @@ public final class Unmarshallers {
     unmarshallers.put(Event.class, new EventUnmarshaller());
     unmarshallers.put(Favourite.class, new FavouriteUnmarshaller());
     unmarshallers.put(Plugin.class, new PluginUnmarshaller());
-    unmarshallers.put(Rule.class, new RuleUnmarshaller());
     unmarshallers.put(TimeMachine.class, new TimeMachineUnmarshaller());
     unmarshallers.put(Profile.class, new ProfileUnmarshaller());
     unmarshallers.put(ManualMeasure.class, new ManualMeasureUnmarshaller());

@@ -30,7 +30,6 @@ import org.sonar.wsclient.connectors.HttpClient4Connector;
 import org.sonar.wsclient.services.Metric;
 import org.sonar.wsclient.services.MetricQuery;
 import org.sonar.wsclient.services.Query;
-import org.sonar.wsclient.services.RuleQuery;
 import org.sonar.wsclient.services.Server;
 import org.sonar.wsclient.services.ServerQuery;
 import org.sonar.wsclient.unmarshallers.UnmarshalException;
@@ -114,17 +113,6 @@ public class SonarTest {
     Server server = sonar.find(new ServerQuery());
     assertThat(server.getId(), is("123456789"));
     assertThat(server.getVersion(), is("2.0"));
-  }
-
-  @Test
-  public void shouldPropagateUnmarshalContext() {
-    try {
-      sonar.findAll(new RuleQuery("java"));
-      fail();
-    } catch (UnmarshalException ue) {
-      assertThat(ue.getMessage(), containsString("/api/rules")); // contains request url
-      assertThat(ue.getMessage(), containsString(BadRulesServlet.JSON)); // contains response
-    }
   }
 
   static class EmptyQuery extends Query<Metric> {

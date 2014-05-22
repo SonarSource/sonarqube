@@ -21,12 +21,8 @@ package org.sonar.wsclient.rule.internal;
 
 import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
 import org.sonar.wsclient.MockHttpServerInterceptor;
 import org.sonar.wsclient.internal.HttpRequestFactory;
-
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.MapAssert.entry;
 
 public class DefaultRuleClientTest {
 
@@ -39,32 +35,6 @@ public class DefaultRuleClientTest {
   public void initClient() {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
     this.client = new DefaultRuleClient(requestFactory);
-  }
-
-  @Test
-  public void should_add_tags() {
-    httpServer.stubStatusCode(200);
-
-    final String ruleKey = "repo:rule1";
-    client.addTags(ruleKey, "tag1", "tag2", "tag3");
-
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/rules/add_tags");
-    assertThat(httpServer.requestParams()).includes(
-      entry("key", ruleKey),
-      entry("tags", "tag1,tag2,tag3"));
-  }
-
-  @Test
-  public void should_remove_tags() {
-    httpServer.stubStatusCode(200);
-
-    final String ruleKey = "repo:rule1";
-    client.removeTags(ruleKey, "tag1", "tag2", "tag3");
-
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/rules/remove_tags");
-    assertThat(httpServer.requestParams()).includes(
-      entry("key", ruleKey),
-      entry("tags", "tag1,tag2,tag3"));
   }
 
 }
