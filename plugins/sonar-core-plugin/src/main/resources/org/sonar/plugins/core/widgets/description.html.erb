@@ -1,87 +1,86 @@
 <div class="widget">
+  <h3 class="description-widget-project">
+    <i class="icon-qualifier-<%= @project.qualifier.downcase -%>"></i>
+    <%= @project.name -%>
+  </h3>
+  <span class="description-widget-key"><%= h @project.key -%></span>
+
   <% if @project.description.present? %>
-    <p class="marginbottom10"><%= h @project.description %></p>
+    <p class="description-widget-description"><%= h @project.description %></p>
   <% end %>
 
-  <table class="width100 marginbottom10">
-    <tbody>
-    <tr>
-      <td width="25%"><%= message('widget.description.key') -%>: </td>
-      <td width="75%" id="resource_key"><%= h @project.key -%></td>
-    </tr>
-    <% if @project.language %>
-    <tr>
-      <td><%= message('widget.description.language') -%>: </td>
-      <td id="resource_language"><%= Api::Utils.language_name(@project.language) -%></td>
-    </tr>
-    <% end %>
-    
-    <%
-      profiles_measure = measure(Metric::PROFILES)
-      if profiles_measure && !profiles_measure.data.blank?
-        profiles = JSON.parse profiles_measure.data
-    %>
-    <tr>
-      <td><%= message('widget.description.profiles') -%>:</td>
-      <td><span id="resource_profile">
-        <% profiles.each_with_index do |profile, i| %>
-          <%= Api::Utils.language_name(profile['language']) -%>: <%= link_to profile['name'], {:controller => '/profiles', :action => 'show', :id => profile['id']}, :id => profile['language'] + '_profile_link' -%></span> (<%= message('widget.description.profile_version_x', :params => profile['version']) -%>)
-          <% if i < (profiles.size - 1) %>
+  <%
+     profiles_measure = measure(Metric::PROFILES)
+     if profiles_measure && !profiles_measure.data.blank?
+       profiles = JSON.parse profiles_measure.data
+  %>
+    <p class="description-widget-description">
+      <%= message('widget.description.profiles') -%>:
+      <% profiles.each_with_index do |profile, i| %>
+        <span id="resource_profile">
+          <%= Api::Utils.language_name(profile['language']) -%>: <%= link_to profile['name'], {:controller => '/profiles', :action => 'show', :id => profile['id']}, :class => 'widget-link', :id => profile['language'] + '_profile_link' -%>
+        </span>
+        <span class="subtitle">(<%= message('widget.description.profile_version_x', :params => profile['version']) -%>)</span>
+        <% if i < (profiles.size - 1) %>
           <br/>
-          <% end %>
         <% end %>
-      </td>
-    </tr>
-    <%
-      else
-        profile_measure=@snapshot.measure(Metric::PROFILE)
-        if profile_measure
-    %>
-    <tr>
-      <td><%= message('widget.description.profile') -%>:</td>
-      <td><span id="resource_profile"><%= link_to profile_measure.data, {:controller => '/profiles', :action => 'show', :id => profile_measure.value.to_i}, :id => 'profile_link' -%></span> (<%= message('widget.description.profile_version_x', :params => format_measure('profile_version', :default => '1')) -%>)</td>
-    </tr>
-    <%   end
-      end %>
-    
-    <%
-      using_default=false
-      quality_gate=Property.value('sonar.qualitygate', @resource && @resource.id, nil)
-      unless quality_gate
-        quality_gate=Property.value('sonar.qualitygate', nil, nil)
-        using_default=false || quality_gate
-      end
-      if quality_gate
-        qgate = Internal.quality_gates.get(quality_gate.to_i)
-    %>
-    <tr>
-      <td><%= message('widget.description.qualitygate') -%>:</td>
-      <td><span id="resource_qgate"><%= link_to qgate.getName(), (url_for :controller => '/quality_gates') + '#show/' + quality_gate, :id => 'qgate_link' -%>
+      <% end %>
+    </p>
+  <%
+     else
+       profile_measure=@snapshot.measure(Metric::PROFILE)
+       if profile_measure
+  %>
+      <p class="description-widget-description">
+        <%= message('widget.description.profile') -%>:
+        <span id="resource_profile">
+          <%= link_to profile_measure.data, {:controller => '/profiles', :action => 'show', :id => profile_measure.value.to_i}, :class => 'widget-link', :id => 'profile_link' -%>
+        </span>
+        <span class="subtitle">(<%= message('widget.description.profile_version_x', :params => format_measure('profile_version', :default => '1')) -%>)</span>
+      </p>
+    <% end
+       end %>
+
+  <%
+     using_default=false
+     quality_gate=Property.value('sonar.qualitygate', @resource && @resource.id, nil)
+     unless quality_gate
+       quality_gate=Property.value('sonar.qualitygate', nil, nil)
+       using_default=false || quality_gate
+     end
+     if quality_gate
+       qgate = Internal.quality_gates.get(quality_gate.to_i)
+  %>
+    <p class="description-widget-description">
+      <span id="resource_qgate">
+        <%= message('widget.description.qualitygate') -%>:
+        <%= link_to qgate.getName(), (url_for :controller => '/quality_gates') + '#show/' + quality_gate, :class => 'widget-link', :id => 'qgate_link' -%>
         <% if using_default %>
           <span class="subtitle">(<%= message('default') -%>)</span>
         <% end %>
-        </span>
-      </td>
-    </tr>
-    <% end %>
-    <% unless @project.project_links.empty? %>
-      <tr>
-        <td valign="top"><%= message('widget.description.links') -%>: </td>
-        <td id="resource_links">
-        <% @project.project_links.sort.each do |link| %>
-          <div>
-            <i class="icon-<%= h link.link_type -%>"></i>
+      </span>
+    </p>
+  <% end %>
+
+  <% unless @project.project_links.empty? %>
+    <ul class="description-widget-links">
+      <% @project.project_links.sort.each do |link| %>
+        <li>
           <% if link.href.starts_with?('http') %>
-            <a target="_blank" href="<%= link.href -%>"><%= h link.name -%></a>
+            <a class="widget-link" target="_blank" href="<%= link.href -%>">
+              <i class="icon-<%= h link.link_type -%>"></i>
+              <%= h link.name -%>
+            </a>
           <% else %>
-            <a href="#" onclick="$j('#link_<%= link.id -%>').toggle();return false;"><%= h(link.name) -%></a>
-            <div id="link_<%= link.id -%>" style="padding-left: 20px; display:none"><%= h(link.href) -%></div>
+            <a class="widget-link" href="#" onclick="$j('#link_<%= link.id -%>').toggle();return false;">
+              <i class="icon-<%= h link.link_type -%>"></i>
+              <%= h(link.name) -%>
+            </a>
+
+            <div class="description-widget-link-data" id="link_<%= link.id -%>" style="display:none"><%= h(link.href) -%></div>
           <% end %>
-          </div>
-        <% end %>
-        </td>
-      </tr>
-    <% end %>
-    </tbody>
-  </table>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
 </div>

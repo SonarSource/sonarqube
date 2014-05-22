@@ -409,3 +409,49 @@
   min-width: 1px;
   background-color: @blue;
 }
+
+// Description Widget
+
+.description-widget-project {
+  display: inline-block;
+  line-height: 1.5;
+  margin-right: 10px;
+  font-size: 18px;
+  font-weight: 300;
+//  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.description-widget-description {
+  margin: 7px 0;
+  line-height: 1.5;
+}
+
+.description-widget-key {
+  color: @secondFontColor;
+  font-size: @smallFontSize;
+  font-weight: 300;
+  white-space: nowrap;
+}
+
+.description-widget-links {
+
+  & > li {
+    display: inline-block;
+    vertical-align: top;
+    padding: 5px 25px 5px 0;
+
+    & > a {
+      font-size: @baseFontSize;
+
+      & > i, & > i:before {
+        vertical-align: top;
+        font-size: 16px;
+      }
+    }
+  }
+}
+
+.description-widget-link-data {
+  margin-top: 7px;
+}
