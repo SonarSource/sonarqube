@@ -21,12 +21,12 @@ package org.sonar.server.search;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
-public class FacetValue<K extends Comparable<K>> implements Comparable<FacetValue<K>>{
+public class FacetValue {
 
   String key;
-  K value;
+  Integer value;
 
-  public FacetValue(String key, K value){
+  public FacetValue(String key, Integer value){
     this.key = key;
     this.value = value;
   }
@@ -39,17 +39,12 @@ public class FacetValue<K extends Comparable<K>> implements Comparable<FacetValu
     this.key = key;
   }
 
-  public K getValue() {
+  public Integer getValue() {
     return value;
   }
 
-  public void setValue(K value) {
+  public void setValue(Integer value) {
     this.value = value;
-  }
-
-  @Override
-  public int compareTo(FacetValue<K> o) {
-    return this.getValue().compareTo(o.getValue());
   }
 
   @Override

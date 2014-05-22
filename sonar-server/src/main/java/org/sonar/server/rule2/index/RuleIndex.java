@@ -29,6 +29,8 @@ import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.facet.FacetBuilders;
 import org.elasticsearch.search.facet.terms.TermsFacet;
 import org.elasticsearch.search.sort.FieldSortBuilder;
@@ -151,7 +153,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     mapping.startObject(RuleNormalizer.RuleField.SYSTEM_TAGS.key())
       .field("type", "string")
-      .field("analyzer","whitespace")
+      .field("analyzer", "whitespace")
       .endObject();
 
     mapping.startObject(RuleNormalizer.RuleField.NOTE_CREATED_AT.key())
@@ -299,23 +301,24 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     }
 
     /** Implementation of activation query */
-    if(query.getActivation() != null && !query.getActivation().isEmpty()){
-      if(query.getActivation().equals("false")){
+    if (query.getActivation() != null && !query.getActivation().isEmpty()) {
+      if (query.getActivation().equals("false")) {
         /** these are inactive rules */
         fb.mustNot(FilterBuilders.hasChildFilter(new ActiveRuleIndexDefinition().getIndexType(),
           QueryBuilders.matchAllQuery()));
-      } else if(query.getActivation().equals("all")){
+      } else if (query.getActivation().equals("all")) {
         /** these are active rules */
         fb.must(FilterBuilders.hasChildFilter(new ActiveRuleIndexDefinition().getIndexType(),
           QueryBuilders.matchAllQuery()));
-      } else if(query.getActivation().equals("true")){
+      } else if (query.getActivation().equals("true")) {
         /** these are active rules for a given profile*/
-        if(query.getQProfileKey() == null || query.getQProfileKey().isEmpty()){
+        if (query.getQProfileKey() == null || query.getQProfileKey().isEmpty()) {
           throw new IllegalStateException("qProfile is required when \"activation=true\"");
         }
         fb.must(FilterBuilders.hasChildFilter(new ActiveRuleIndexDefinition().getIndexType(),
           QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.key(),
-            query.getQProfileKey())));
+            query.getQProfileKey())
+        ));
       }
     }
 
@@ -334,28 +337,32 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   }
 
   protected void setFacets(SearchRequestBuilder query) {
-    //TODO there are no aggregation in 0.9!!! Must use facet...
 
-     /* the Lang facet */
-    query.addFacet(FacetBuilders.termsFacet("languages")
+          /* the Lang facet */
+    query.addAggregation(AggregationBuilders
+      .terms("Languages")
       .field(RuleNormalizer.RuleField.LANGUAGE.key())
+      .order(Terms.Order.count(false))
       .size(10)
-      .global(true)
-      .order(TermsFacet.ComparatorType.COUNT));
+      .minDocCount(0));
 
-    /* the Tag facet */
-    query.addFacet(FacetBuilders.termsFacet("tags")
+     /* the Tag facet */
+    query.addAggregation(AggregationBuilders
+      .terms("Tags")
+      .field(RuleNormalizer.RuleField.SYSTEM_TAGS.key())
       .field(RuleNormalizer.RuleField.TAGS.key())
+      .order(Terms.Order.count(false))
       .size(10)
-      .global(true)
-      .order(TermsFacet.ComparatorType.COUNT));
+      .minDocCount(0));
 
-    /* the Repo facet */
-    query.addFacet(FacetBuilders.termsFacet("repositories")
+     /* the Repo facet */
+    query.addAggregation(AggregationBuilders
+      .terms("Repositories")
       .field(RuleNormalizer.RuleField.REPOSITORY.key())
+      .order(Terms.Order.count(false))
       .size(10)
-      .global(true)
-      .order(TermsFacet.ComparatorType.COUNT));
+      .minDocCount(0));
+
   }
 
   public RuleResult search(RuleQuery query, QueryOptions options) {
@@ -372,7 +379,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
 
   @Override
-  protected Rule toDoc(Map<String,Object> fields, QueryOptions options) {
+  protected Rule toDoc(Map<String, Object> fields, QueryOptions options) {
     Preconditions.checkArgument(fields != null, "Cannot construct Rule with null response!!!");
     return new RuleDoc(fields);
   }

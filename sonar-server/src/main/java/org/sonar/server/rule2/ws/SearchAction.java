@@ -40,7 +40,6 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.ws.SearchOptions;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -182,6 +181,7 @@ public class SearchAction implements RequestHandler {
       writeActiveRules(results, json);
     }
     if (queryOptions.isFacet()) {
+
       writeFacets(results, json);
     }
     json.endObject().close();
@@ -244,7 +244,8 @@ public class SearchAction implements RequestHandler {
 
   private void writeFacets(RuleResult results, JsonWriter json) {
     json.name("facets").beginArray();
-    for (Map.Entry<String, List<FacetValue>> facet : results.getFacets().entrySet()) {
+    for (Map.Entry<String, Collection<FacetValue>> facet : results.getFacets().entrySet()) {
+      System.out.println("facet = " + facet);
       json.beginObject();
       json.prop("name", facet.getKey());
       json.name("values").beginArray();

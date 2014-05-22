@@ -154,9 +154,9 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     if (rule.getSubCharacteristicId() != null) {
       characteristic = db.debtCharacteristicDao().selectById(rule.getSubCharacteristicId());
     }
-    if(characteristic !=  null) {
+    if (characteristic != null) {
       update.put(RuleField.SUB_CHARACTERISTIC.key(), characteristic.getKey());
-      if(characteristic.getParentId() != null) {
+      if (characteristic.getParentId() != null) {
         update.put(RuleField.CHARACTERISTIC.key(),
           db.debtCharacteristicDao().selectById(characteristic.getParentId()).getKey());
       }

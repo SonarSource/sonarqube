@@ -47,7 +47,6 @@ import org.sonar.server.tester.ServerTester;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -105,7 +104,8 @@ public class RuleIndexMediumTest {
   public void global_facet_on_repositories() {
     dao.insert(newRuleDto(RuleKey.of("javascript", "S001")).setRuleKey("X001"), dbSession);
     dao.insert(newRuleDto(RuleKey.of("php", "S001")), dbSession);
-    dao.insert(newRuleDto(RuleKey.of("javascript", "S002")).setRuleKey("X002"), dbSession);
+    dao.insert(newRuleDto(RuleKey.of("javascript", "S002")).setRuleKey("X002")
+      .setTags(ImmutableSet.of("tag1")), dbSession);
     dbSession.commit();
     index.refresh();
 
@@ -119,12 +119,12 @@ public class RuleIndexMediumTest {
 
     assertThat(result.getFacets()).isNotNull();
     assertThat(result.getFacets()).hasSize(3);
-    List<FacetValue> repoFacets = result.getFacet("repositories");
+    Collection<FacetValue> repoFacets = result.getFacetValues("Repositories");
     assertThat(repoFacets).hasSize(2);
-    assertThat(repoFacets.get(0).getKey()).isEqualTo("javascript");
-    assertThat(repoFacets.get(0).getValue()).isEqualTo(2);
-    assertThat(repoFacets.get(1).getKey()).isEqualTo("php");
-    assertThat(repoFacets.get(1).getValue()).isEqualTo(1);
+    assertThat(Iterables.get(repoFacets, 0).getKey()).isEqualTo("javascript");
+    assertThat(Iterables.get(repoFacets, 0).getValue()).isEqualTo(2);
+    assertThat(Iterables.get(repoFacets, 1).getKey()).isEqualTo("php");
+    assertThat(Iterables.get(repoFacets, 1).getValue()).isEqualTo(1);
   }
 
   @Test

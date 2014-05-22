@@ -19,30 +19,30 @@
  */
 package org.sonar.server.search;
 
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.Multimap;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.facet.Facet;
-import org.elasticsearch.search.facet.terms.TermsFacet;
+import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 
 import javax.annotation.CheckForNull;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public abstract class Result<K> {
 
   private final List<K> hits;
-  private final Map<String, List<FacetValue>> facets;
+  private final Multimap<String, FacetValue> facets;
   private long total;
   private long timeInMillis;
 
   public Result(SearchResponse response) {
     this.hits = new ArrayList<K>();
-    this.facets = new HashMap<String, List<FacetValue>>();
-
+    this.facets = LinkedListMultimap.create();
     this.total = (int) response.getHits().totalHits();
     this.timeInMillis = response.getTookInMillis();
 
@@ -50,16 +50,12 @@ public abstract class Result<K> {
       this.hits.add(getSearchResult(hit.getSource()));
     }
 
-    if (response.getFacets() != null &&
-      !response.getFacets().facets().isEmpty()) {
-      for (Facet facet : response.getFacets().facets()) {
-        TermsFacet termFacet = (TermsFacet) facet;
-        List<FacetValue> facetValues = new ArrayList<FacetValue>();
-        for (TermsFacet.Entry facetValue : termFacet.getEntries()) {
-          facetValues.add(new FacetValue<Integer>(facetValue.getTerm().string(),
-            facetValue.getCount()));
+    if (response.getAggregations() != null) {
+      for (Map.Entry<String, Aggregation> facet : response.getAggregations().asMap().entrySet()) {
+        Terms aggregation = (Terms) facet.getValue();
+        for (Terms.Bucket value : aggregation.getBuckets()) {
+          this.facets.put(facet.getKey(), new FacetValue(value.getKey(), (int) value.getDocCount()));
         }
-        this.facets.put(facet.getName(), facetValues);
       }
     }
   }
@@ -79,17 +75,17 @@ public abstract class Result<K> {
     return timeInMillis;
   }
 
-  public Map<String, List<FacetValue>> getFacets() {
-    return this.facets;
+  public Map<String, Collection<FacetValue>> getFacets() {
+    return this.facets.asMap();
   }
 
   @CheckForNull
-  public List<FacetValue> getFacet(String facetName) {
+  public Collection<FacetValue> getFacetValues(String facetName) {
     return this.facets.get(facetName);
   }
 
   @CheckForNull
-  public Collection<String> getFacetKeys(String facetName) {
+  public List<String> getFacetKeys(String facetName) {
     if (this.facets.containsKey(facetName)) {
       List<String> keys = new ArrayList<String>();
       for (FacetValue facetValue : facets.get(facetName)) {
