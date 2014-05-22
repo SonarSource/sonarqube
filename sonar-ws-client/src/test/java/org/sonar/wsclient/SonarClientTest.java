@@ -20,6 +20,7 @@
 package org.sonar.wsclient;
 
 import org.junit.Test;
+import org.sonar.wsclient.duplication.internal.DefaultDuplicationClient;
 import org.sonar.wsclient.issue.internal.DefaultActionPlanClient;
 import org.sonar.wsclient.issue.internal.DefaultIssueClient;
 import org.sonar.wsclient.permissions.internal.DefaultPermissionClient;
@@ -27,7 +28,9 @@ import org.sonar.wsclient.project.internal.DefaultProjectClient;
 import org.sonar.wsclient.qprofile.internal.DefaultQProfileClient;
 import org.sonar.wsclient.qualitygate.internal.DefaultQualityGateClient;
 import org.sonar.wsclient.rule.internal.DefaultRuleClient;
+import org.sonar.wsclient.source.internal.DefaultSourceClient;
 import org.sonar.wsclient.system.internal.DefaultSystemClient;
+import org.sonar.wsclient.test.internal.DefaultCoverageClient;
 import org.sonar.wsclient.user.internal.DefaultUserClient;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -45,6 +48,9 @@ public class SonarClientTest {
     assertThat(client.ruleClient()).isNotNull().isInstanceOf(DefaultRuleClient.class);
     assertThat(client.qualityGateClient()).isNotNull().isInstanceOf(DefaultQualityGateClient.class);
     assertThat(client.qProfileClient()).isNotNull().isInstanceOf(DefaultQProfileClient.class);
+    assertThat(client.sourceClient()).isNotNull().isInstanceOf(DefaultSourceClient.class);
+    assertThat(client.coverageClient()).isNotNull().isInstanceOf(DefaultCoverageClient.class);
+    assertThat(client.duplicationClient()).isNotNull().isInstanceOf(DefaultDuplicationClient.class);
     assertThat(client.systemClient()).isNotNull().isInstanceOf(DefaultSystemClient.class);
   }
 

@@ -51,6 +51,7 @@ public class CoverageShowAction implements RequestHandler {
         "<ol>" +
         "<li>Line number</li>" +
         "<li>Is the line covered?</li>" +
+        "<li>Number of tests covering this line</li>" +
         "<li>Number of branches</li>" +
         "<li>Number of branches covered</li>" +
         "</ol>")

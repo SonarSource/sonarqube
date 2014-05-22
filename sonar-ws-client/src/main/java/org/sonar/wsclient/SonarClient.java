@@ -19,6 +19,8 @@
  */
 package org.sonar.wsclient;
 
+import org.sonar.wsclient.duplication.DuplicationClient;
+import org.sonar.wsclient.duplication.internal.DefaultDuplicationClient;
 import org.sonar.wsclient.internal.HttpRequestFactory;
 import org.sonar.wsclient.issue.ActionPlanClient;
 import org.sonar.wsclient.issue.IssueClient;
@@ -34,8 +36,12 @@ import org.sonar.wsclient.qualitygate.QualityGateClient;
 import org.sonar.wsclient.qualitygate.internal.DefaultQualityGateClient;
 import org.sonar.wsclient.rule.RuleClient;
 import org.sonar.wsclient.rule.internal.DefaultRuleClient;
+import org.sonar.wsclient.source.SourceClient;
+import org.sonar.wsclient.source.internal.DefaultSourceClient;
 import org.sonar.wsclient.system.SystemClient;
 import org.sonar.wsclient.system.internal.DefaultSystemClient;
+import org.sonar.wsclient.test.CoverageClient;
+import org.sonar.wsclient.test.internal.DefaultCoverageClient;
 import org.sonar.wsclient.user.UserClient;
 import org.sonar.wsclient.user.internal.DefaultUserClient;
 
@@ -130,6 +136,26 @@ public class SonarClient {
     return new DefaultQProfileClient(requestFactory);
   }
 
+  /**
+   * New client to interact with web services related to source
+   */
+  public SourceClient sourceClient() {
+    return new DefaultSourceClient(requestFactory);
+  }
+
+  /**
+   * New client to interact with web services related to coverage
+   */
+  public CoverageClient coverageClient() {
+    return new DefaultCoverageClient(requestFactory);
+  }
+
+  /**
+   * New client to interact with web services related to duplication
+   */
+  public DuplicationClient duplicationClient() {
+    return new DefaultDuplicationClient(requestFactory);
+  }
 
   public SystemClient systemClient() {
     return new DefaultSystemClient(requestFactory);
