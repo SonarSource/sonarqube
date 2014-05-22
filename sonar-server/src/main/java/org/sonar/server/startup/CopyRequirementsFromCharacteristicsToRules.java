@@ -42,6 +42,7 @@ import org.sonar.server.rule2.RegisterRules;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -144,6 +145,13 @@ public class CopyRequirementsFromCharacteristicsToRules implements ServerCompone
     ruleRow.setRemediationFunction(enabledRequirement.getFunction().toUpperCase());
     ruleRow.setRemediationCoefficient(convertDuration(enabledRequirement.getCoefficientValue(), enabledRequirement.getCoefficientUnit()));
     ruleRow.setRemediationOffset(convertDuration(enabledRequirement.getOffsetValue(), enabledRequirement.getOffsetUnit()));
+
+    // Constant/issue with coefficient is replaced by Constant/issue with offset (with no coefficient)
+    if (DebtRemediationFunction.Type.CONSTANT_ISSUE.name().equals(ruleRow.getRemediationFunction())
+      && ruleRow.getRemediationCoefficient() != null) {
+      ruleRow.setRemediationOffset(ruleRow.getRemediationCoefficient());
+      ruleRow.setRemediationCoefficient(null);
+    }
 
     // If the coefficient of a linear or linear with offset function is null, it should be replaced by 0
     if ((DebtRemediationFunction.Type.LINEAR.name().equals(ruleRow.getRemediationFunction()) ||

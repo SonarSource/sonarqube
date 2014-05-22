@@ -69,6 +69,21 @@ public class CopyRequirementsFromCharacteristicsToRulesTest {
     db.assertDbUnit(getClass(), "copy_requirements_from_characteristics_to_rules_result.xml", "rules");
   }
 
+  /**
+   * SONAR-5335
+   */
+  @Test
+  public void convert_constant_issue_with_coeff_to_constant_issue_with_offset() throws Exception {
+    db.prepareDbUnit(getClass(), "convert_constant_issue_with_coeff_to_constant_issue_with_offset.xml");
+
+    when(status.isUpgraded()).thenReturn(true);
+    when(status.getInitialDbVersion()).thenReturn(498);
+
+    service.start();
+
+    db.assertDbUnit(getClass(), "convert_constant_issue_with_coeff_to_constant_issue_with_offset_result.xml", "rules");
+  }
+
   @Test
   public void remove_requirements_data_from_characteristics() throws Exception {
     db.prepareDbUnit(getClass(), "remove_requirements_data_from_characteristics.xml");
