@@ -21,15 +21,15 @@ package org.sonar.server.startup;
 
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.platform.ServerUpgradeStatus;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.TestDatabase;
 import org.sonar.core.rule.RuleDto;
-import org.sonar.core.technicaldebt.db.RequirementDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule2.persistence.RuleDao;
 
@@ -45,16 +45,19 @@ public class CopyRequirementsFromCharacteristicsToRulesTest {
   @Mock
   ServerUpgradeStatus status;
 
+  @Mock
+  System2 system2;
+
   CopyRequirementsFromCharacteristicsToRules service;
 
   @Before
   public void setUp() throws Exception {
-    DbClient dbClient = new DbClient(db.database(), db.myBatis(), new RequirementDao(), new RuleDao());
+    when(system2.now()).thenReturn(DateUtils.parseDate("2014-03-13").getTime());
+    DbClient dbClient = new DbClient(db.database(), db.myBatis(), new RuleDao(system2));
     service = new CopyRequirementsFromCharacteristicsToRules(dbClient, status, null);
   }
 
   @Test
-  @Ignore("to be fixed")
   public void copy_requirements_from_characteristics_to_rules() throws Exception {
     db.prepareDbUnit(getClass(), "copy_requirements_from_characteristics_to_rules.xml");
 

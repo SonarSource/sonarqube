@@ -23,6 +23,7 @@ package org.sonar.core.technicaldebt.db;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 public interface CharacteristicMapper {
 
@@ -49,4 +50,6 @@ public interface CharacteristicMapper {
   int update(CharacteristicDto characteristic);
 
   void deleteRequirementsFromCharacteristicsTable();
+
+  List<Map<String, Object>> selectDeprecatedRequirements();
 }

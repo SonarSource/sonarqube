@@ -37,7 +37,6 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.technicaldebt.db.CharacteristicMapper;
-import org.sonar.core.technicaldebt.db.RequirementDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule2.RegisterRules;
 
@@ -45,6 +44,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This script copy every requirements from characteristics table (every row where rule_id is not null) to the rules table.
@@ -87,9 +87,10 @@ public class CopyRequirementsFromCharacteristicsToRules implements ServerCompone
     DbSession dbSession = dbClient.openSession(true);
 
     try {
-      List<RequirementDto> requirementDtos = dbClient.debtRequirementDao().selectRequirements(dbSession);
+      List<Map<String, Object>> requirementDtos = dbSession.getMapper(CharacteristicMapper.class).selectDeprecatedRequirements();
       final Multimap<Integer, RequirementDto> requirementsByRuleId = ArrayListMultimap.create();
-      for (RequirementDto requirementDto : requirementDtos) {
+      for (Map<String, Object> map : requirementDtos) {
+        RequirementDto requirementDto = new RequirementDto(map);
         requirementsByRuleId.put(requirementDto.getRuleId(), requirementDto);
       }
 
@@ -197,4 +198,59 @@ public class CopyRequirementsFromCharacteristicsToRules implements ServerCompone
       MyBatis.closeQuietly(dbSession);
     }
   }
+
+  static class RequirementDto {
+
+    private final Map<String, Object> map;
+
+    RequirementDto(Map<String, Object> map) {
+      this.map = map;
+    }
+
+    public Integer getId() {
+      return (Integer) map.get("ID");
+    }
+
+    public Integer getParentId() {
+      return (Integer) map.get("PARENTID");
+    }
+
+    public Integer getRuleId() {
+      return (Integer) map.get("RULEID");
+    }
+
+    public String getFunction() {
+      return (String) map.get("FUNCTIONKEY");
+    }
+
+    @CheckForNull
+    public Double getCoefficientValue() {
+      return (Double) map.get("COEFFICIENTVALUE");
+    }
+
+
+    @CheckForNull
+    public String getCoefficientUnit() {
+      return (String) map.get("COEFFICIENTUNIT");
+    }
+
+
+    @CheckForNull
+    public Double getOffsetValue() {
+      return (Double) map.get("OFFSETVALUE");
+    }
+
+
+    @CheckForNull
+    public String getOffsetUnit() {
+      return (String) map.get("OFFSETUNIT");
+    }
+
+    public boolean isEnabled() {
+      return (Boolean) map.get("ENABLED");
+    }
+
+
+  }
+
 }

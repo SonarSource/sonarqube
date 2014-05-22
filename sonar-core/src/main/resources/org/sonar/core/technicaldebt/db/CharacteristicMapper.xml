@@ -107,6 +107,21 @@
     where id=#{id}
   </update>
 
+  <select id="selectDeprecatedRequirements" resultType="map">
+    select id as id,
+    parent_id as parentId,
+    root_id as rootId,
+    rule_id as ruleId,
+    function_key as functionKey,
+    factor_value as coefficientValue,
+    factor_unit as coefficientUnit,
+    offset_value as offsetValue,
+    offset_unit as offsetUnit,
+    enabled as enabled
+    from characteristics
+    where rule_id IS NOT NULL
+  </select>
+
   <delete id="deleteRequirementsFromCharacteristicsTable">
     DELETE FROM characteristics WHERE rule_id IS NOT NULL
   </delete>
