@@ -487,6 +487,7 @@ class ServerComponents {
     pico.addSingleton(TestsWs.class);
     pico.addSingleton(TestsTestableAction.class);
     pico.addSingleton(TestsPlanAction.class);
+    pico.addSingleton(TestsShowAction.class);
 
     // graphs and perspective related classes
     pico.addSingleton(TestablePerspectiveLoader.class);

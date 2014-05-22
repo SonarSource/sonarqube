@@ -36,7 +36,7 @@ public class TestsWsTest {
   @Before
   public void setUp() throws Exception {
     SnapshotPerspectives snapshotPerspectives = mock(SnapshotPerspectives.class);
-    WsTester tester = new WsTester(new TestsWs(new TestsTestableAction(snapshotPerspectives), new TestsPlanAction(snapshotPerspectives)));
+    WsTester tester = new WsTester(new TestsWs(new TestsShowAction(snapshotPerspectives), new TestsTestableAction(snapshotPerspectives), new TestsPlanAction(snapshotPerspectives)));
     controller = tester.controller("api/tests");
   }
 
@@ -45,7 +45,18 @@ public class TestsWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.since()).isEqualTo("4.4");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(2);
+    assertThat(controller.actions()).hasSize(3);
+  }
+
+  @Test
+  public void define_show_action() throws Exception {
+    WebService.Action action = controller.action("show");
+    assertThat(action).isNotNull();
+    assertThat(action.isInternal()).isFalse();
+    assertThat(action.isPost()).isFalse();
+    assertThat(action.handler()).isNotNull();
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.params()).hasSize(1);
   }
 
   @Test

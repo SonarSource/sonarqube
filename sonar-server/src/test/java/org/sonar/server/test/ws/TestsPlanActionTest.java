@@ -44,7 +44,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class TestsPlanActionTest {
 
-  static final String FILE_KEY = "src/test/java/org/foo/BarTest.java";
+  static final String TEST_PLAN_KEY = "src/test/java/org/foo/BarTest.java";
 
   @Mock
   MutableTestPlan testPlan;
@@ -54,21 +54,34 @@ public class TestsPlanActionTest {
   @Before
   public void setUp() throws Exception {
     SnapshotPerspectives snapshotPerspectives = mock(SnapshotPerspectives.class);
-    when(snapshotPerspectives.as(MutableTestPlan.class, FILE_KEY)).thenReturn(testPlan);
-    tester = new WsTester(new TestsWs(mock(TestsTestableAction.class), new TestsPlanAction(snapshotPerspectives)));
+    when(snapshotPerspectives.as(MutableTestPlan.class, TEST_PLAN_KEY)).thenReturn(testPlan);
+    tester = new WsTester(new TestsWs(mock(TestsShowAction.class), mock(TestsTestableAction.class), new TestsPlanAction(snapshotPerspectives)));
   }
 
   @Test
   public void plan() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "SonarQube", FILE_KEY);
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "SonarQube", TEST_PLAN_KEY);
 
     MutableTestCase testCase1 = testCase("org.foo.Bar.java", "src/main/java/org/foo/Bar.java", 10);
     MutableTestCase testCase2 = testCase("org.foo.File.java", "src/main/java/org/foo/File.java", 3);
     when(testPlan.testCasesByName("my_test")).thenReturn(newArrayList(testCase1, testCase2));
 
-    WsTester.TestRequest request = tester.newGetRequest("api/tests", "plan").setParam("key", FILE_KEY).setParam("test", "my_test");
+    WsTester.TestRequest request = tester.newGetRequest("api/tests", "plan").setParam("key", TEST_PLAN_KEY).setParam("test", "my_test");
 
-    request.execute().assertJson(getClass(), "plan.json");
+    request.execute().assertJson("{\n" +
+      "  \"files\": [\n" +
+      "    {\n" +
+      "      \"key\": \"org.foo.Bar.java\",\n" +
+      "      \"longName\": \"src/main/java/org/foo/Bar.java\",\n" +
+      "      \"coveredLines\" : 10\n" +
+      "    },\n" +
+      "    {\n" +
+      "      \"key\": \"org.foo.File.java\",\n" +
+      "      \"longName\": \"src/main/java/org/foo/File.java\",\n" +
+      "      \"coveredLines\" : 3\n" +
+      "    }\n" +
+      "  ]\n" +
+      "}\n");
   }
 
   private MutableTestCase testCase(String fileKey, String fileLongName, int coveredLines) {

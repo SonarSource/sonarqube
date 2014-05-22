@@ -25,11 +25,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.test.MutableTestable;
+import org.sonar.api.test.MutableTestCase;
+import org.sonar.api.test.MutableTestPlan;
 import org.sonar.api.test.TestCase;
-import org.sonar.api.test.TestPlan;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.component.ComponentDto;
 import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
@@ -39,31 +38,31 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TestsTestableActionTest {
+public class TestsShowActionTest {
 
-  static final String FILE_KEY = "src/main/java/org/foo/Foo.java";
+  static final String TEST_PLAN_KEY = "src/test/java/org/foo/BarTest.java";
 
   @Mock
-  MutableTestable testable;
+  MutableTestPlan testPlan;
 
   WsTester tester;
 
   @Before
   public void setUp() throws Exception {
     SnapshotPerspectives snapshotPerspectives = mock(SnapshotPerspectives.class);
-    when(snapshotPerspectives.as(MutableTestable.class, FILE_KEY)).thenReturn(testable);
-    tester = new WsTester(new TestsWs(mock(TestsShowAction.class), new TestsTestableAction(snapshotPerspectives), mock(TestsPlanAction.class)));
+    when(snapshotPerspectives.as(MutableTestPlan.class, TEST_PLAN_KEY)).thenReturn(testPlan);
+    tester = new WsTester(new TestsWs(new TestsShowAction(snapshotPerspectives), mock(TestsTestableAction.class), mock(TestsPlanAction.class)));
   }
 
   @Test
-  public void testable() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "SonarQube", FILE_KEY);
+  public void show() throws Exception {
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "SonarQube", TEST_PLAN_KEY);
 
-    TestCase testCase1 = testCase("test1", TestCase.Status.OK, 10L, "org.foo.BarTest.java", "src/test/java/org/foo/BarTest.java");
-    TestCase testCase2 = testCase("test2", TestCase.Status.ERROR, 97L, "org.foo.FileTest.java", "src/test/java/org/foo/FileTest.java");
-    when(testable.testCasesOfLine(10)).thenReturn(newArrayList(testCase1, testCase2));
+    MutableTestCase testCase1 = testCase("test1", TestCase.Status.OK, 10L, 32);
+    MutableTestCase testCase2 = testCase("test2", TestCase.Status.ERROR, 97L, 21);
+    when(testPlan.testCases()).thenReturn(newArrayList(testCase1, testCase2));
 
-    WsTester.TestRequest request = tester.newGetRequest("api/tests", "testable").setParam("key", FILE_KEY).setParam("line", "10");
+    WsTester.TestRequest request = tester.newGetRequest("api/tests", "show").setParam("key", TEST_PLAN_KEY);
 
     request.execute().assertJson("{\n" +
       "  \"tests\": [\n" +
@@ -71,37 +70,24 @@ public class TestsTestableActionTest {
       "      \"name\": \"test1\",\n" +
       "      \"status\": \"OK\",\n" +
       "      \"durationInMs\": 10,\n" +
-      "      \"_ref\": \"1\"\n" +
+      "      \"coveredLines\": 32\n" +
       "    },\n" +
       "    {\n" +
       "      \"name\": \"test2\",\n" +
       "      \"status\": \"ERROR\",\n" +
       "      \"durationInMs\": 97,\n" +
-      "      \"_ref\": \"2\"\n" +
+      "      \"coveredLines\": 21\n" +
       "    }\n" +
       "  ],\n" +
-      "  \"files\": {\n" +
-      "    \"1\": {\n" +
-      "      \"key\": \"org.foo.BarTest.java\",\n" +
-      "      \"longName\": \"src/test/java/org/foo/BarTest.java\"\n" +
-      "    },\n" +
-      "    \"2\": {\n" +
-      "      \"key\": \"org.foo.FileTest.java\",\n" +
-      "      \"longName\": \"src/test/java/org/foo/FileTest.java\"\n" +
-      "    }\n" +
-      "  }\n" +
-      "}");
+      "}\n");
   }
 
-  private TestCase testCase(String name, TestCase.Status status, Long durationInMs, String testPlanKey, String testPlanLongName) {
-    TestCase testCase = mock(TestCase.class);
+  private MutableTestCase testCase(String name, TestCase.Status status, Long durationInMs, int coveredLines) {
+    MutableTestCase testCase = mock(MutableTestCase.class);
     when(testCase.name()).thenReturn(name);
     when(testCase.status()).thenReturn(status);
     when(testCase.durationInMs()).thenReturn(durationInMs);
-
-    TestPlan testPlan = mock(TestPlan.class);
-    when(testPlan.component()).thenReturn(new ComponentDto().setKey(testPlanKey).setLongName(testPlanLongName));
-    when(testCase.testPlan()).thenReturn(testPlan);
+    when(testCase.countCoveredLines()).thenReturn(coveredLines);
     return testCase;
   }
 
