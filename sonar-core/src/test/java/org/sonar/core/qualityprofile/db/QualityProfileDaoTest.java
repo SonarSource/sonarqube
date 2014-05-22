@@ -187,6 +187,7 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
     assertThat(dto1.getName()).isEqualTo("Child1");
     assertThat(dto1.getLanguage()).isEqualTo("java");
     assertThat(dto1.getParent()).isEqualTo("Parent");
+    assertThat(dto1.getParentKey().toString()).isEqualTo("Parent:java");
 
     QualityProfileDto dto2 = dtos.get(1);
     assertThat(dto2.getId()).isEqualTo(2);
