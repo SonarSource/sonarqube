@@ -9,15 +9,15 @@
         a.rule_id as ruleId,
         a.failure_level as severity,
         a.inheritance as inheritance,
-        rule.plugin_rule_key as rule,
-        rule.plugin_name as repository,
-        profile.name as profile,
-        profile.language as language
+        r.plugin_rule_key as ruleField,
+        r.plugin_name as repository,
+        qp.name as profile,
+        qp.language as language
     </sql>
 
     <sql id="activeRuleKeyJoin">
-        LEFT JOIN rules_profiles profile ON profile.id=a.profile_id
-        LEFT JOIN rules rule ON rule.id = a.rule_id
+        LEFT JOIN rules_profiles qp ON qp.id=a.profile_id
+        LEFT JOIN rules r ON r.id = a.rule_id
     </sql>
 
 
@@ -31,8 +31,8 @@
   </sql>
 
   <sql id="activeRuleJoin">
-    LEFT JOIN rules_profiles profile ON profile.id=a.profile_id
-    LEFT JOIN rules_profiles profile_parent ON profile_parent.name=profile.parent_name and profile_parent.language=profile.language
+    LEFT JOIN rules_profiles qp ON qp.id=a.profile_id
+    LEFT JOIN rules_profiles profile_parent ON profile_parent.name=qp.parent_name and profile_parent.language=qp.language
     LEFT JOIN active_rules active_rule_parent ON active_rule_parent.profile_id=profile_parent.id AND a.rule_id=active_rule_parent.rule_id
   </sql>
 
@@ -89,10 +89,10 @@
         FROM active_rules a
         <include refid="activeRuleKeyJoin"/>
         <where>
-            AND profile.name = #{profile}
-            AND profile.language = #{language}
-            AND rule.plugin_rule_key = #{rule}
-            AND rule.plugin_name = #{repository}
+            AND qp.name = #{profile}
+            AND qp.language = #{language}
+            AND r.plugin_rule_key = #{rule}
+            AND r.plugin_name = #{repository}
         </where>
     </select>
 

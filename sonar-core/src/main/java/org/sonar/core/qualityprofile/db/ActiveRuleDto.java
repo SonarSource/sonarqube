@@ -39,7 +39,7 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
   public static final String OVERRIDES = "OVERRIDES";
 
   private String repository;
-  private String rule;
+  private String ruleField;
   private String language;
   private String profile;
 
@@ -52,7 +52,7 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
   @Deprecated
   public ActiveRuleDto setKey(ActiveRuleKey key) {
     this.repository = key.ruleKey().repository();
-    this.rule = key.ruleKey().rule();
+    this.ruleField = key.ruleKey().rule();
     this.language = key.qProfile().lang();
     this.profile = key.qProfile().name();
     return this;
@@ -60,7 +60,7 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
 
   public ActiveRuleKey getKey() {
     return ActiveRuleKey.of(QualityProfileKey.of(this.profile, this.language),
-      RuleKey.of(this.repository, this.rule));
+      RuleKey.of(this.repository, this.ruleField));
   }
 
   // This field do not exists in db, it's only retrieve by joins
