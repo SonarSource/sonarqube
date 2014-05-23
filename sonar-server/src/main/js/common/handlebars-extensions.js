@@ -160,20 +160,12 @@ define(['handlebars', 'moment'], function (Handlebars, moment) {
     }, '');
   });
 
-  Handlebars.registerHelper('ifHasExtraTransitions', function(transitions, options) {
-    if (transitions && transitions.length > 1) {
-      return options.fn(this);
-    } else {
-      return '';
-    }
-  });
-
   Handlebars.registerHelper('ifHasExtraActions', function(actions, options) {
-    var actionsLeft = _.difference(actions, _.without(defaultActions, 'set_severity'));
+    var actionsLeft = _.difference(actions, defaultActions);
     if (actionsLeft.length > 0) {
       return options.fn(this);
     } else {
-      return '';
+      return options.inverse(this);
     }
   });
 

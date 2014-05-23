@@ -2232,13 +2232,13 @@ table.nowrap td.small, td.nowrap.small, th.nowrap.small {
 /* Used on links which are located inside a dense text place or in tables */
 /* in order to rapidly identify them                                      */
 .link-action {
-  text-decoration: underline !important;
-  color: #4183C4 !important;
-  cursor: pointer;
+  .widget-link;
+
+  &.link-red { .widget-link-red; }
 }
 
 .link-red {
-  color: #990000 !important;
+  color: @red !important;
 }
 
 .link-more {
@@ -2293,7 +2293,8 @@ table.nowrap td.small, td.nowrap.small, th.nowrap.small {
 
 .dropdown-menu a {
   text-decoration: none !important;
-  color: #333 !important;
+  border-bottom: none !important;
+  color: @baseFontColor !important;
 }
 
 .form-key-cell {

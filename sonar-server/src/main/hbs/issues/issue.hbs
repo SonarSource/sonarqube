@@ -25,23 +25,9 @@
       {{#if resolution}}({{translate "resolutions" resolution}}){{/if}}
 
       {{#ifNotEmpty transitions}}
-        {{#withFirst transitions}}
+        {{#each transitions}}
           <a class="link-action issue-transition spacer-left" data-transition="{{this}}">{{translate "transitions" this}}</a>
-        {{/withFirst}}
-
-        {{#ifHasExtraTransitions transitions}}
-          <div class="dropdown">
-            <a class="link-action link-more" onclick="showDropdownMenuOnElement($j(this).next('.dropdown-menu')); return false;"></a>
-            <ul style="display: none" class="dropdown-menu">
-              {{#withoutFirst transitions}}
-                <li>
-                  <a class="link-action issue-transition" data-transition="{{this}}">{{translate "transitions" this}}</a>
-                </li>
-              {{/withoutFirst}}
-            </ul>
-          </div>
-
-        {{/ifHasExtraTransitions}}
+        {{/each}}
       {{/ifNotEmpty}}
     </li>
 
@@ -97,6 +83,12 @@
           </ul>
         </div>
       </li>
+    {{else}}
+      {{#inArray actions "set_severity"}}
+        <li>
+          <a id="issue-set-severity" class="link-action">{{translate "actions.set_severity"}}</a>
+        </li>
+      {{/inArray}}
     {{/ifHasExtraActions}}
 
     {{#if debt}}
