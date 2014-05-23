@@ -37,8 +37,8 @@ import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.BaseDao;
 import org.sonar.server.qualityprofile.QProfile;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndexDefinition;
 import org.sonar.server.rule2.persistence.RuleDao;
+import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.action.IndexAction;
 import org.sonar.server.search.action.KeyIndexAction;
 
@@ -58,7 +58,7 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
 
   @VisibleForTesting
   public ActiveRuleDao(QualityProfileDao profileDao, RuleDao ruleDao, System2 system) {
-    super(new ActiveRuleIndexDefinition(), ActiveRuleMapper.class, system);
+    super(IndexDefinition.ACTIVE_RULE, ActiveRuleMapper.class, system);
     this.ruleDao = ruleDao;
     this.profileDao = profileDao;
   }
@@ -75,6 +75,7 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
         session.enqueue(new KeyIndexAction<ActiveRuleKey>(getIndexType(), IndexAction.Method.UPSERT, key));
       }
     });
+    session.commit();
   }
 
 
@@ -135,6 +136,7 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
   @Override
   protected void doDeleteByKey(ActiveRuleKey key, DbSession session) {
     ActiveRuleDto rule = this.getByKey(key, session);
+    mapper(session).deleteParameters(rule.getId());
     mapper(session).delete(rule.getId());
   }
 
@@ -201,7 +203,6 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
 
   public void deleteByProfileKey(QualityProfileKey profileKey, DbSession session) {
     /** Functional cascade for params */
-    this.removeParamByProfileKey(profileKey, session);
     for (ActiveRuleDto activeRule : this.findByProfileKey(profileKey, session)) {
       this.delete(activeRule, session);
     }

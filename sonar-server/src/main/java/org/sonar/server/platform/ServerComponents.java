@@ -538,6 +538,9 @@ class ServerComponents {
     startupContainer.addSingleton(CleanPreviewAnalysisCache.class);
     startupContainer.addSingleton(CopyRequirementsFromCharacteristicsToRules.class);
 
+    /** Index startup Synchronization */
+    startupContainer.addSingleton(IndexSynchronizer.class);
+
     DoPrivileged.execute(new DoPrivileged.Task() {
       @Override
       protected void doPrivileged() {

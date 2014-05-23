@@ -19,12 +19,18 @@
  */
 package org.sonar.server.search;
 
-  import org.sonar.server.db.DbClient;
+import org.picocontainer.Startable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.server.db.DbClient;
 
 /**
  * @since 4.4
  */
-public class IndexSynchronizer {
+public class IndexSynchronizer implements Startable {
+
+  private static final Logger LOG = LoggerFactory.getLogger(IndexSynchronizer.class);
 
   private final DbClient db;
   private final IndexClient index;
@@ -32,5 +38,21 @@ public class IndexSynchronizer {
   public IndexSynchronizer(DbClient db, IndexClient index) {
     this.db = db;
     this.index = index;
+  }
+
+  @Override
+  public void start() {
+    /* synchronize all activeRules until we have mng tables in INDEX */
+    DbSession session = db.openSession(true);
+    LOG.info("Starting DB to Index synchronization");
+    long start = System.currentTimeMillis();
+    db.activeRuleDao().synchronizeAfter(0, session);
+    LOG.info("Synchronization done in {}ms...", (System.currentTimeMillis()-start));
+    session.close();
+  }
+
+  @Override
+  public void stop() {
+
   }
 }
