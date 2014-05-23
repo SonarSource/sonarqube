@@ -44,6 +44,7 @@ import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.platform.Platform;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
 import org.sonar.server.tester.ServerTester;
 
@@ -65,6 +66,48 @@ public class RegisterQualityProfilesMediumTest {
     if (tester != null) {
       tester.stop();
     }
+  }
+
+  @Test
+  public void register_existing_profile_definitions() throws Exception {
+    tester = new ServerTester().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
+    tester.start();
+    dbSession = dbClient().openSession(false);
+    QualityProfileKey qualityProfileKey = QualityProfileKey.of("Basic", "xoo");
+
+    // Check Profile in DB
+    QualityProfileDao qualityProfileDao = dbClient().qualityProfileDao();
+    assertThat(qualityProfileDao.findAll(dbSession)).hasSize(1);
+    assertThat(qualityProfileDao.getByKey(qualityProfileKey, dbSession)).isNotNull();
+
+    // Check ActiveRules in DB
+    ActiveRuleDao activeRuleDao = dbClient().activeRuleDao();
+    assertThat(activeRuleDao.findByProfileKey(qualityProfileKey, dbSession)).hasSize(2);
+    RuleKey ruleKey = RuleKey.of("xoo", "x1");
+
+    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(qualityProfileKey, ruleKey);
+
+    // 0. Check and clear ES
+    assertThat(tester.get(ActiveRuleIndex.class).getByKey(activeRuleKey)).isNotNull();
+    tester.clearIndexes();
+    assertThat(tester.get(ActiveRuleIndex.class).getByKey(activeRuleKey)).isNull();
+    tester.get(Platform.class).restart();
+    assertThat(tester.get(ActiveRuleIndex.class).getByKey(activeRuleKey)).isNotNull();
+
+
+    // Check ActiveRules in ES
+    org.sonar.server.qualityprofile.ActiveRule activeRule = tester.get(ActiveRuleIndex.class).getByKey(activeRuleKey);
+    assertThat(activeRule.key().qProfile()).isEqualTo(qualityProfileKey);
+    assertThat(activeRule.key().ruleKey()).isEqualTo(ruleKey);
+    assertThat(activeRule.severity()).isEqualTo(Severity.CRITICAL);
+
+//    // Check ActiveRuleParameters in DB
+//    Map<String, ActiveRuleParamDto> params = ActiveRuleParamDto.groupByKey(activeRuleDao.findParamsByActiveRule(activeRule, dbSession));
+//    assertThat(params).hasSize(2);
+//    // set by profile
+//    assertThat(params.get("acceptWhitespace").getValue()).isEqualTo("true");
+//    // default value
+//    assertThat(params.get("max").getValue()).isEqualTo("10");
   }
 
   @Test

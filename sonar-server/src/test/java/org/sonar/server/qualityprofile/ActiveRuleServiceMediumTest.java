@@ -20,7 +20,6 @@
 package org.sonar.server.qualityprofile;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
@@ -353,6 +352,32 @@ public class ActiveRuleServiceMediumTest {
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Quality profile not found: other:js");
     }
+  }
+
+  @Test
+  public void synchronize_index() throws Exception {
+    QualityProfileDto profile1 = QualityProfileDto.createFor("p1", "java");
+    dbClient.qualityProfileDao().insert(dbSession, profile1);
+
+    RuleDto rule1 = RuleDto.createFor(RuleKey.of("java", "r1")).setSeverity(Severity.MAJOR);
+    dbClient.ruleDao().insert(rule1, dbSession);
+
+    ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile1, rule1).setSeverity("BLOCKER");
+    dbClient.activeRuleDao().insert(activeRule, dbSession);
+    dbSession.commit();
+
+    tester.clearIndexes();
+
+    // 0. Assert that we have no rules in Is.
+    assertThat(index.getByKey(activeRule.getKey())).isNull();
+
+
+    // 1. Synchronize since 0
+    dbClient.activeRuleDao().synchronizeAfter(0,dbSession);
+
+    // 2. Assert that we have the rule in Index
+    assertThat(index.getByKey(activeRule.getKey())).isNotNull();
+
   }
 
   @Test

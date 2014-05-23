@@ -50,8 +50,8 @@ import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.es.ESNode;
 import org.sonar.server.qualityprofile.ActiveRule;
-import org.sonar.server.rule2.index.RuleIndexDefinition;
 import org.sonar.server.search.BaseIndex;
+import org.sonar.server.search.IndexDefinition;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -63,7 +63,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, ActiveRuleKey> {
 
   public ActiveRuleIndex(ActiveRuleNormalizer normalizer, WorkQueue workQueue, ESNode node) {
-    super(new ActiveRuleIndexDefinition(), normalizer, workQueue, node);
+    super(IndexDefinition.ACTIVE_RULE, normalizer, workQueue, node);
   }
 
   @Override
@@ -82,7 +82,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
       .startObject(this.indexDefinition.getIndexType())
       .field("dynamic", "strict")
       .startObject("_parent")
-      .field("type", new RuleIndexDefinition().getIndexType())
+      .field("type", this.getParentType())
       .endObject()
       .startObject("_id")
       .field("path", ActiveRuleNormalizer.ActiveRuleField.KEY.key())
@@ -159,7 +159,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
   }
 
   private String getParentType() {
-    return new RuleIndexDefinition().getIndexType();
+    return IndexDefinition.RULE.getIndexType();
   }
 
 

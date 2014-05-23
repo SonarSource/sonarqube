@@ -30,7 +30,7 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleMapper;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.BaseDao;
-import org.sonar.server.rule2.index.RuleIndexDefinition;
+import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.action.IndexAction;
 import org.sonar.server.search.action.KeyIndexAction;
 
@@ -48,7 +48,7 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
 
   @VisibleForTesting
   public RuleDao(System2 system) {
-    super(new RuleIndexDefinition(), RuleMapper.class, system);
+    super(IndexDefinition.RULE, RuleMapper.class, system);
   }
 
   @CheckForNull

@@ -21,6 +21,7 @@ package org.sonar.server.rule2.index;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -33,10 +34,12 @@ import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.search.BaseNormalizer;
+import org.sonar.server.search.IndexDefinition;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -123,21 +126,26 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
   }
 
   public RuleNormalizer(DbClient db) {
-    super(db);
+    super(IndexDefinition.RULE, db);
   }
 
   @Override
-  public UpdateRequest normalize(RuleKey key) {
-    DbSession dbSession = db().openSession(false);
+  public List<UpdateRequest> normalize(RuleKey key) {
+    DbSession dbSession = db.openSession(false);
+    List<UpdateRequest> requests = new ArrayList<UpdateRequest>();
     try {
-      return normalize(db().ruleDao().getByKey(key, dbSession));
+      requests.addAll(normalize(db.ruleDao().getByKey(key, dbSession)));
+      for(RuleParamDto param : db.ruleDao().findRuleParamsByRuleKey(key, dbSession)){
+        requests.addAll(normalize(param, key));
+      }
     } finally {
       dbSession.close();
     }
+    return requests;
   }
 
   @Override
-  public UpdateRequest normalize(RuleDto rule) {
+  public List<UpdateRequest> normalize(RuleDto rule) {
 
     /** Update Fields */
     Map<String, Object> update = new HashMap<String, Object>();
@@ -203,13 +211,12 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
 
     /** Creating updateRequest */
-    return new UpdateRequest()
+    return ImmutableList.of(new UpdateRequest()
       .doc(update)
-      .upsert(upsert);
-
+      .upsert(upsert));
   }
 
-  public UpdateRequest normalize(RuleParamDto param, RuleKey key) {
+  public List<UpdateRequest> normalize(RuleParamDto param, RuleKey key) {
     Map<String, Object> newParam = new HashMap<String, Object>();
     newParam.put("_id", param.getName());
     newParam.put(RuleParamField.NAME.key(), param.getName());
@@ -217,7 +224,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     newParam.put(RuleParamField.DESCRIPTION.key(), param.getDescription());
     newParam.put(RuleParamField.DEFAULT_VALUE.key(), param.getDefaultValue());
 
-    return this.nestedUpsert(RuleField.PARAMS.key(),
-      param.getName(), newParam).id(key.toString());
+    return ImmutableList.of(this.nestedUpsert(RuleField.PARAMS.key(),
+      param.getName(), newParam).id(key.toString()));
   }
 }

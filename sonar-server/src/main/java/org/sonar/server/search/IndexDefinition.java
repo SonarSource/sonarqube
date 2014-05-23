@@ -19,9 +19,24 @@
  */
 package org.sonar.server.search;
 
-public interface IndexDefinition {
+public class IndexDefinition {
 
-  String getIndexName();
+  private final String indexName;
+  private final String indexType;
 
-  String getIndexType();
+  private IndexDefinition(String indexName, String indexType) {
+    this.indexName = indexName;
+    this.indexType = indexType;
+  }
+
+  public String getIndexName() {
+    return indexName;
+  }
+
+  public String getIndexType() {
+    return indexType;
+  }
+
+  public static IndexDefinition RULE = new IndexDefinition("rules","rules");
+  public static IndexDefinition ACTIVE_RULE = new IndexDefinition("rules","activeRules");
 }

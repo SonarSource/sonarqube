@@ -44,7 +44,7 @@ import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.ProfilesManager;
 import org.sonar.server.rule.RuleDefinitionsLoader;
-import org.sonar.server.rule2.index.RuleIndexDefinition;
+import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.action.EmbeddedIndexAction;
 import org.sonar.server.search.action.IndexAction;
 import org.sonar.server.search.action.KeyIndexAction;
@@ -121,7 +121,8 @@ public class RegisterRules implements Startable {
             dbClient.ruleDao().update(rule, session);
           } else {
             // TODO replace this hack by index synchronizer
-            session.enqueue(new KeyIndexAction<RuleKey>(RuleIndexDefinition.INDEX_TYPE, IndexAction.Method.UPSERT, rule.getKey()));
+            session.enqueue(new KeyIndexAction<RuleKey>(IndexDefinition.RULE.getIndexType(),
+              IndexAction.Method.UPSERT, rule.getKey()));
           }
 
           mergeParams(ruleDef, rule, session);
@@ -282,7 +283,8 @@ public class RegisterRules implements Startable {
           dbClient.ruleDao().updateRuleParam(rule, paramDto, session);
         } else {
           // TODO to be replaced by synchronizer
-          session.enqueue(new EmbeddedIndexAction<RuleKey>(RuleIndexDefinition.INDEX_TYPE, IndexAction.Method.UPSERT, paramDto, rule.getKey()));
+          session.enqueue(new EmbeddedIndexAction<RuleKey>(IndexDefinition.RULE.getIndexType(),
+            IndexAction.Method.UPSERT, paramDto, rule.getKey()));
         }
         existingParamDtoNames.add(paramDto.getName());
       }

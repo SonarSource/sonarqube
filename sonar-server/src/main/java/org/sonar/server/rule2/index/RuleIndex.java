@@ -38,10 +38,10 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.es.ESNode;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndexDefinition;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule2.Rule;
 import org.sonar.server.search.BaseIndex;
+import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.QueryOptions;
 
 import java.io.IOException;
@@ -56,7 +56,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
   public RuleIndex(RuleNormalizer normalizer, WorkQueue workQueue, ESNode node) {
-    super(new RuleIndexDefinition(), normalizer, workQueue, node);
+    super(IndexDefinition.RULE, normalizer, workQueue, node);
   }
 
   protected String getKeyValue(RuleKey key) {
@@ -297,11 +297,11 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     if (query.getActivation() == Boolean.TRUE) {
       if (query.getQProfileKey() == null) {
         // the rules that are activated at least once
-        fb.must(FilterBuilders.hasChildFilter(new ActiveRuleIndexDefinition().getIndexType(),
+        fb.must(FilterBuilders.hasChildFilter(IndexDefinition.ACTIVE_RULE.getIndexType(),
           QueryBuilders.matchAllQuery()));
       } else {
         // the rules that are activated on this profile
-        fb.must(FilterBuilders.hasChildFilter(new ActiveRuleIndexDefinition().getIndexType(),
+        fb.must(FilterBuilders.hasChildFilter(IndexDefinition.ACTIVE_RULE.getIndexType(),
           QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.key(),
             query.getQProfileKey())
         ));
@@ -309,12 +309,12 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     } else if (query.getActivation() == Boolean.FALSE) {
       if (query.getQProfileKey() == null) {
         // the rules that are never activated, on any profile
-        fb.mustNot(FilterBuilders.hasChildFilter(new ActiveRuleIndexDefinition().getIndexType(),
+        fb.mustNot(FilterBuilders.hasChildFilter(IndexDefinition.ACTIVE_RULE.getIndexType(),
           QueryBuilders.matchAllQuery()));
 
       } else {
         // the rules that are not activated on this profile
-        fb.mustNot(FilterBuilders.hasChildFilter(new ActiveRuleIndexDefinition().getIndexType(),
+        fb.mustNot(FilterBuilders.hasChildFilter(IndexDefinition.ACTIVE_RULE.getIndexType(),
           QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.key(),
             query.getQProfileKey())
         ));

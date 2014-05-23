@@ -20,6 +20,7 @@
 package org.sonar.server.search;
 
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -166,12 +167,16 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
     return null;
   }
 
-  protected void updateDocument(UpdateRequest request, K key) throws Exception {
+  protected void updateDocument(Collection<UpdateRequest> requests, K key) throws Exception {
     LOG.debug("UPDATE _id:{} in index {}", key, this.getIndexName());
-    getClient().update(request
+    BulkRequestBuilder bulkRequest = getClient().prepareBulk();
+    for(UpdateRequest request : requests){
+      bulkRequest.add(request
       .index(this.getIndexName())
       .id(this.getKeyValue(key))
-      .type(this.getIndexType())).get();
+      .type(this.getIndexType()));
+    }
+    bulkRequest.get();
   }
 
 
@@ -188,8 +193,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
   @Override
   public void upsertByDto(E item) {
     try {
-      UpdateRequest doc = normalizer.normalize(item);
-      this.updateDocument(doc, item.getKey());
+      this.updateDocument(normalizer.normalize(item), item.getKey());
     } catch (Exception e) {
       LOG.error("Could not update document for index {}: {}",
         this.getIndexName(), e.getMessage());
@@ -199,8 +203,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
   @Override
   public void upsertByKey(K key) {
     try {
-      UpdateRequest doc = normalizer.normalize(key);
-      this.updateDocument(doc, key);
+      this.updateDocument(normalizer.normalize(key), key);
     } catch (Exception e) {
       LOG.error("Could not update document for index {}: {}",
         this.getIndexName(), e.getMessage());

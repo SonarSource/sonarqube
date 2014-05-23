@@ -20,14 +20,13 @@
 package org.sonar.server.search;
 
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.persistence.Dto;
 import org.sonar.server.db.DbClient;
 
-import java.io.IOException;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 public abstract class BaseNormalizer<E extends Dto<K>, K extends Serializable> {
@@ -35,13 +34,11 @@ public abstract class BaseNormalizer<E extends Dto<K>, K extends Serializable> {
   private static final Logger LOG = LoggerFactory.getLogger(BaseNormalizer.class);
 
   protected final DbClient db;
+  protected final IndexDefinition definition;
 
-  protected BaseNormalizer(DbClient db) {
+  protected BaseNormalizer(IndexDefinition definition, DbClient db) {
     this.db = db;
-  }
-
-  protected DbClient db() {
-    return db;
+    this.definition = definition;
   }
 
   public boolean canNormalize(Class<?> objectClass, Class<?> keyClass) {
@@ -52,9 +49,9 @@ public abstract class BaseNormalizer<E extends Dto<K>, K extends Serializable> {
     }
   }
 
-  public UpdateRequest normalizeOther(Object object, Object key) {
+  public List<UpdateRequest> normalizeOther(Object object, Object key) {
     try {
-      return (UpdateRequest) this.getClass()
+      return (List<UpdateRequest>) this.getClass()
         .getMethod("normalize", object.getClass(), key.getClass())
         .invoke(this, object, key);
     } catch (Exception e) {
@@ -62,18 +59,9 @@ public abstract class BaseNormalizer<E extends Dto<K>, K extends Serializable> {
     }
   }
 
-  public abstract UpdateRequest normalize(K key);
+  public abstract java.util.List<UpdateRequest> normalize(K key);
 
-  public abstract UpdateRequest normalize(E dto);
-
-  protected void indexField(String field, Object value, XContentBuilder document) {
-    try {
-      document.field(field, value);
-    } catch (IOException e) {
-      LOG.error("Could not set {} to {} in ESDocument", field, value);
-    }
-  }
-
+  public abstract java.util.List<UpdateRequest> normalize(E dto);
 
   protected UpdateRequest nestedUpsert(String field, String key, Map<String, Object> item) {
     return new UpdateRequest()

@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile.index;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
@@ -28,9 +29,11 @@ import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.search.BaseNormalizer;
+import org.sonar.server.search.IndexDefinition;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRuleKey> {
@@ -81,20 +84,25 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
   }
 
   public ActiveRuleNormalizer(DbClient db) {
-    super(db);
+    super(IndexDefinition.ACTIVE_RULE, db);
   }
 
   @Override
-  public UpdateRequest normalize(ActiveRuleKey key) {
-    DbSession dbSession = db().openSession(false);
+  public List<UpdateRequest> normalize(ActiveRuleKey key) {
+    DbSession dbSession = db.openSession(false);
+    List<UpdateRequest> requests = new ArrayList<UpdateRequest>();
     try {
-      return normalize(db().activeRuleDao().getByKey(key, dbSession));
+      requests.addAll(normalize(db.activeRuleDao().getByKey(key, dbSession)));
+      for (ActiveRuleParamDto param : db.activeRuleDao().findParamsByKey(key, dbSession)) {
+        requests.addAll(this.normalize(param, key));
+      }
     } finally {
       dbSession.close();
     }
+    return requests;
   }
 
-  public UpdateRequest normalize(ActiveRuleParamDto param, ActiveRuleKey key) {
+  public List<UpdateRequest> normalize(ActiveRuleParamDto param, ActiveRuleKey key) {
     Preconditions.checkArgument(key != null, "Cannot normalize ActiveRuleParamDto for null key of ActiveRule");
 
     Map<String, Object> newParam = new HashMap<String, Object>();
@@ -102,12 +110,12 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
     newParam.put(ActiveRuleParamField.NAME.key(), param.getKey());
     newParam.put(ActiveRuleParamField.VALUE.key(), param.getValue());
 
-    return this.nestedUpsert(ActiveRuleField.PARAMS.key(), param.getKey(), newParam)
-      .routing(key.ruleKey().toString());
+    return ImmutableList.of(this.nestedUpsert(ActiveRuleField.PARAMS.key(), param.getKey(), newParam)
+      .routing(key.ruleKey().toString()));
   }
 
   @Override
-  public UpdateRequest normalize(ActiveRuleDto activeRuleDto) {
+  public List<UpdateRequest> normalize(ActiveRuleDto activeRuleDto) {
     ActiveRuleKey key = activeRuleDto.getKey();
     Preconditions.checkArgument(key != null, "Cannot normalize ActiveRuleDto with null key");
 
@@ -143,11 +151,11 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
     upsert.put(ActiveRuleField.PARAMS.key(), new ArrayList());
 
     /* Creating updateRequest */
-    return new UpdateRequest()
+    return ImmutableList.of(new UpdateRequest()
       .routing(key.ruleKey().toString())
       .id(activeRuleDto.getKey().toString())
       .parent(activeRuleDto.getKey().ruleKey().toString())
       .doc(newRule)
-      .upsert(upsert);
+      .upsert(upsert));
   }
 }
