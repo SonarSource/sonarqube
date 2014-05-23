@@ -46,7 +46,7 @@ import java.util.List;
 import static org.fest.assertions.Assertions.assertThat;
 
 /**
- * Test persistence in db and indexation in es (--> integration of daos and indexes)
+ * Test persistence in db and indexation in es (--> integration of DAOs and Indexes)
  */
 public class RuleDataMediumTest {
 

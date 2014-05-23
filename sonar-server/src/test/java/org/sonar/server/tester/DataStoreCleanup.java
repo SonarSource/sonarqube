@@ -71,9 +71,10 @@ public class DataStoreCleanup implements ServerComponent {
   public void clearIndexes() {
     LOG.info("Truncate es indices");
     Client client = esNode.client();
-    client.prepareDeleteByQuery(
-      client.admin().cluster().prepareState().get().getState().getMetaData().concreteAllIndices()
-    ).setQuery(QueryBuilders.matchAllQuery()).get();
+    client.prepareDeleteByQuery(client.admin().cluster().prepareState().get()
+        .getState().getMetaData().concreteAllIndices())
+      .setQuery(QueryBuilders.matchAllQuery())
+      .get();
 
   }
 }
