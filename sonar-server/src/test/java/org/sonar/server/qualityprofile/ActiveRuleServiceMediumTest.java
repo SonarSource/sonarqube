@@ -162,10 +162,16 @@ public class ActiveRuleServiceMediumTest {
   public void update_activation_but_new_parameter() throws Exception {
     // initial activation
     grantPermission();
-    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(profileKey, RuleKey.of("xoo", "x1")));
+    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profileKey, RuleKey.of("xoo", "x1"));
+    RuleActivation activation = new RuleActivation(activeRuleKey);
     activation.setSeverity(Severity.BLOCKER);
     service.activate(activation);
-    // TODO delete activeruleparam max
+
+
+    assertThat(dbClient.activeRuleDao().getParamsByKeyAndName(activeRuleKey,"max",dbSession)).isNotNull();
+    dbClient.activeRuleDao().removeParamByKeyAndName(activeRuleKey,"max",dbSession);
+    dbSession.commit();
+    assertThat(dbClient.activeRuleDao().getParamsByKeyAndName(activeRuleKey,"max",dbSession)).isNull();
 
 
     // update
