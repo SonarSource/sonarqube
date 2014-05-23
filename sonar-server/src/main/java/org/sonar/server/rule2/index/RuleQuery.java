@@ -59,7 +59,8 @@ public class RuleQuery {
      */
     @CheckForNull
     public static SortField valueOfOrNull(@Nullable String s) {
-      return s == null ? null : valueOf(s);
+      RuleNormalizer.RuleField ruleField = RuleNormalizer.RuleField.fromKey(s);
+      return ruleField == null ? null : SortField.valueOf(ruleField.name());
     }
   }
 

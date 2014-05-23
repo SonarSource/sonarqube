@@ -78,6 +78,15 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       return key;
     }
 
+    public static RuleField fromKey(String key){
+      for(RuleField ruleField : RuleField.values()){
+        if(ruleField.key().equals(key)){
+          return ruleField;
+        }
+      }
+      return null;
+    }
+
     @Override
     public String toString() {
       return key;
