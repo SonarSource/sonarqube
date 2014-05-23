@@ -24,10 +24,8 @@
 class AddDatesToActiveRulesTable < ActiveRecord::Migration
 
   def self.up
-    def self.up
-      add_column 'active_rules', :created_at, :datetime, :null => true
-      add_column 'active_rules', :updated_at, :datetime, :null => true
-    end
+    add_column 'active_rules', :created_at, :datetime, :null => true
+    add_column 'active_rules', :updated_at, :datetime, :null => true
   end
 end
 

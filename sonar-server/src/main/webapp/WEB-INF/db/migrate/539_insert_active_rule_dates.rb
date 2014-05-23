@@ -27,6 +27,7 @@ class InsertActiveRuleDates < ActiveRecord::Migration
   end
 
   def self.up
+    ActiveRule.reset_column_information
     now = Time.now
     ActiveRule.find(:all).each do |active_rule|
       active_rule.created_at=now
