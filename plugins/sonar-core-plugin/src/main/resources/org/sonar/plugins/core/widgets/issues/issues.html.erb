@@ -31,15 +31,14 @@
         %>
           <% if new_issues_variation && new_issues_variation > 0 %>
                     <p class="small">
-                      <%= message('widget.rules.added') -%>
+                      <%= message('widget.rules.added') %>
                       <a href="<%= url_for(:controller => 'drilldown', :action => 'issues', :id => @project.key, :period => dashboard_configuration.period_index) -%>"
-                         class="varw widget-link widget-link-red link-<%= widget.key %>-new-issues">
-                        <%= format_variation(new_issues, :style => 'none', :default => '-') -%></a>
+                         class="varw widget-link widget-link-red link-<%= widget.key %>-new-issues"><%= format_variation(new_issues, :style => 'none', :default => '-') -%></a>
                     </p>
           <% end %>
           <% if estimated_cleared_issues && estimated_cleared_issues > 0 %>
                     <p class="small">
-                      <%= message('widget.rules.removed') -%>
+                      <%= message('widget.rules.removed') %>
                       <span class="varb"><%= number_with_precision(estimated_cleared_issues, :precision => 0) -%></span>
                     </p>
           <% end %>
@@ -69,15 +68,14 @@
           %>
             <% if new_technical_debt_variation && new_technical_debt_variation > 0 %>
                     <p class="small">
-                      <%= message('widget.rules.added') -%>&nbsp;
+                      <%= message('widget.rules.added') %>
                       <a href="<%= url_for_drilldown('new_technical_debt', :period => @dashboard_configuration.period_index) -%>"
-                         class="varw widget-link widget-link-red link-<%= widget.key %>-new-debt">
-                        <%= format_variation(new_technical_debt, :style => 'none', :default => '-') -%></a>
+                         class="varw widget-link widget-link-red link-<%= widget.key %>-new-debt"><%= format_variation(new_technical_debt, :style => 'none', :default => '-') -%></a>
                     </p>
             <% end %>
             <% if estimated_cleared_technical_debt && estimated_cleared_technical_debt > 0 %>
                     <p class="small">
-                      <%= message('widget.rules.removed') -%>&nbsp;
+                      <%= message('widget.rules.removed') %>
                       <span class="varb"><%= Internal.i18n.formatLongDuration(estimated_cleared_technical_debt, 'SHORT') -%></span>
                     </p>
             <% end %>
