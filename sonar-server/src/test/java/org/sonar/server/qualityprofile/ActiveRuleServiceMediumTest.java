@@ -396,7 +396,6 @@ public class ActiveRuleServiceMediumTest {
     //TODO test params
 
     // verify es
-
     ActiveRule activeRule = index.getByKey(key);
     assertThat(activeRule).isNull();
   }

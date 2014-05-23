@@ -20,7 +20,12 @@
 
 package org.sonar.core.qualityprofile.db;
 
+import com.google.common.base.Preconditions;
 import org.sonar.core.rule.RuleParamDto;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ActiveRuleParamDto {
 
@@ -77,14 +82,17 @@ public class ActiveRuleParamDto {
   }
 
   public static ActiveRuleParamDto createFor(RuleParamDto param) {
-    return  new ActiveRuleParamDto()
+    Preconditions.checkArgument(param.getId() != null, "Parameter is not persisted");
+    return new ActiveRuleParamDto()
       .setKey(param.getName())
       .setRulesParameterId(param.getId());
   }
 
-  public static ActiveRuleParamDto createFrom(ActiveRuleParamDto parentParam) {
-    return  new ActiveRuleParamDto()
-      .setKey(parentParam.getKey())
-      .setRulesParameterId(parentParam.getId());
+  public static Map<String,ActiveRuleParamDto> groupByKey(Collection<ActiveRuleParamDto> params) {
+    Map<String, ActiveRuleParamDto> result = new HashMap<String, ActiveRuleParamDto>();
+    for (ActiveRuleParamDto param : params) {
+      result.put(param.getKey(), param);
+    }
+    return result;
   }
 }

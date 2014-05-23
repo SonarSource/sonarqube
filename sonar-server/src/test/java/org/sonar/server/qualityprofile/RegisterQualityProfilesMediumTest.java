@@ -34,20 +34,20 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.properties.PropertyQuery;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
+import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
-import org.sonar.core.rule.RuleDto;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
-import org.sonar.server.rule2.persistence.RuleDao;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -57,11 +57,13 @@ public class RegisterQualityProfilesMediumTest {
   @org.junit.Rule
   public ServerTester serverTester = new ServerTester().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
 
+  DbClient dbClient;
   DbSession session;
 
   @Before
-  public void setup(){
-    session  = serverTester.get(MyBatis.class).openSession(false);
+  public void setup() {
+    dbClient = serverTester.get(DbClient.class);
+    session = dbClient.openSession(false);
   }
 
   @After
@@ -70,35 +72,37 @@ public class RegisterQualityProfilesMediumTest {
   }
 
   @Test
-  public void register_profile_at_startup() throws Exception {
+  public void register_profile_definitions() throws Exception {
+    QualityProfileKey qualityProfileKey = QualityProfileKey.of("Basic", "xoo");
 
-    QualityProfileKey qualityProfileKey = QualityProfileKey.of("Basic","xoo");
+    // Check Profile in DB
+    QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
+    assertThat(qualityProfileDao.findAll(session)).hasSize(1);
+    assertThat(qualityProfileDao.getByKey(qualityProfileKey, session)).isNotNull();
 
-    // 1. Check Profile in DB
-    QualityProfileDao qualityProfileDao = serverTester.get(QualityProfileDao.class);
-    assertThat(qualityProfileDao.selectAll()).hasSize(1);
-    assertThat(qualityProfileDao.selectByNameAndLanguage(qualityProfileKey.name(), qualityProfileKey.lang()))
-      .isNotNull();
-
-    // 2. Check Default Profile
-    PropertiesDao propertiesDao = serverTester.get(PropertiesDao.class);
+    // Check Default Profile
+    PropertiesDao propertiesDao = dbClient.propertiesDao();
     List<PropertyDto> xooDefault = propertiesDao.selectByQuery(PropertyQuery.builder().setKey("sonar.profile.xoo").build(), session);
     assertThat(xooDefault).hasSize(1);
     assertThat(xooDefault.get(0).getValue()).isEqualTo("Basic");
 
-    // 3. Check ActiveRules in DB
-    ActiveRuleDao activeRuleDao = serverTester.get(ActiveRuleDao.class);
-
+    // Check ActiveRules in DB
+    ActiveRuleDao activeRuleDao = dbClient.activeRuleDao();
     assertThat(activeRuleDao.findByProfileKey(qualityProfileKey, session)).hasSize(2);
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
-    RuleDto rule = serverTester.get(RuleDao.class).getByKey(ruleKey, session);
 
-
-    ActiveRuleDto activeRule = activeRuleDao.getByKey(ActiveRuleKey.of(qualityProfileKey,ruleKey), session);
-
+    ActiveRuleDto activeRule = activeRuleDao.getByKey(ActiveRuleKey.of(qualityProfileKey, ruleKey), session);
     assertThat(activeRule.getKey().qProfile()).isEqualTo(qualityProfileKey);
-    assertThat(activeRule.getKey().ruleKey()).isEqualTo(rule.getKey());
-    assertThat(activeRule.getSeverityString()).isEqualToIgnoringCase("MAJOR");
+    assertThat(activeRule.getKey().ruleKey()).isEqualTo(ruleKey);
+    assertThat(activeRule.getSeverityString()).isEqualTo(Severity.CRITICAL);
+
+    // Check ActiveRuleParameters in DB
+    Map<String, ActiveRuleParamDto> params = ActiveRuleParamDto.groupByKey(activeRuleDao.findParamsByActiveRule(activeRule, session));
+    assertThat(params).hasSize(2);
+    // set by profile
+    assertThat(params.get("acceptWhitespace").getValue()).isEqualTo("true");
+    // default value
+    assertThat(params.get("max").getValue()).isEqualTo("10");
   }
 
   public static class XooProfileDefinition extends ProfileDefinition {
@@ -107,10 +111,10 @@ public class RegisterQualityProfilesMediumTest {
       final RulesProfile profile = RulesProfile.create("Basic", "xoo");
       ActiveRule activeRule1 = profile.activateRule(
         org.sonar.api.rules.Rule.create("xoo", "x1").setParams(newArrayList(new RuleParam().setKey("acceptWhitespace"))),
-        RulePriority.MAJOR);
+        RulePriority.CRITICAL);
       activeRule1.setParameter("acceptWhitespace", "true");
 
-      profile.activateRule(org.sonar.api.rules.Rule.create("xoo", "x2"), RulePriority.BLOCKER);
+      profile.activateRule(org.sonar.api.rules.Rule.create("xoo", "x2"), RulePriority.INFO);
       return profile;
     }
   }
@@ -119,24 +123,24 @@ public class RegisterQualityProfilesMediumTest {
     @Override
     public void define(Context context) {
       NewRepository repository = context.createRepository("xoo", "xoo").setName("Xoo Repo");
-      repository.createRule("x1")
+      NewRule x1 = repository.createRule("x1")
         .setName("x1 name")
         .setHtmlDescription("x1 desc")
-        .setSeverity(Severity.MINOR)
-        .createParam("acceptWhitespace")
+        .setSeverity(Severity.MINOR);
+      x1.createParam("acceptWhitespace")
         .setDefaultValue("false")
         .setType(RuleParamType.BOOLEAN)
         .setDescription("Accept whitespaces on the line");
+      x1.createParam("max")
+        .setDefaultValue("10")
+        .setType(RuleParamType.INTEGER)
+        .setDescription("Maximum");
 
       repository.createRule("x2")
         .setName("x2 name")
         .setHtmlDescription("x2 desc")
-        .setSeverity(Severity.MAJOR);
+        .setSeverity(Severity.INFO);
       repository.done();
     }
-  }
-
-  private QualityProfileKey profileKey(QProfile profile){
-    return QualityProfileKey.of(profile.name(), profile.language());
   }
 }

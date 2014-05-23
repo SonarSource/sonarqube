@@ -20,6 +20,7 @@
 
 package org.sonar.core.qualityprofile.db;
 
+import com.google.common.base.Preconditions;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -142,6 +143,8 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
   }
 
   public static ActiveRuleDto createFor(QualityProfileDto profileDto, RuleDto ruleDto) {
+    Preconditions.checkArgument(profileDto.getId()!=null, "Profile is not persisted");
+    Preconditions.checkArgument(ruleDto.getId()!=null, "Rule is not persisted");
     ActiveRuleDto dto = new ActiveRuleDto();
     dto.setProfileId(profileDto.getId());
     dto.setRuleId(ruleDto.getId());

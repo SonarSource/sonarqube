@@ -33,6 +33,7 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.MessageException;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.persistence.*;
 
 import java.util.ArrayList;
@@ -359,7 +360,7 @@ public class RulesProfile implements Cloneable {
   /**
    * @param optionalSeverity if null, then the default rule severity is used
    */
-  public ActiveRule activateRule(final Rule rule, RulePriority optionalSeverity) {
+  public ActiveRule activateRule(final Rule rule, @Nullable RulePriority optionalSeverity) {
     if (Iterables.any(activeRules, new Predicate<ActiveRule>() {
       @Override
       public boolean apply(ActiveRule input) {

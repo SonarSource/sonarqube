@@ -38,7 +38,7 @@ public class QualityProfileDto extends Dto<QualityProfileKey> {
    * @deprecated use QualityProfileDto.createFor instead
    */
   @Deprecated
-  public QualityProfileDto(){
+  public QualityProfileDto() {
 
   }
 
@@ -81,7 +81,7 @@ public class QualityProfileDto extends Dto<QualityProfileKey> {
 
   @CheckForNull
   public QualityProfileKey getParentKey() {
-    if(getParent() != null && !getParent().isEmpty()) {
+    if (getParent() != null && !getParent().isEmpty()) {
       return QualityProfileKey.of(this.getParent(), this.getLanguage());
     } else {
       return null;
@@ -112,9 +112,13 @@ public class QualityProfileDto extends Dto<QualityProfileKey> {
     return this;
   }
 
-  public static QualityProfileDto createFor(String name, String language){
+  public static QualityProfileDto createFor(String name, String language) {
     return new QualityProfileDto()
       .setName(name)
       .setLanguage(language);
+  }
+
+  public static QualityProfileDto createFor(QualityProfileKey key) {
+    return createFor(key.name(), key.lang());
   }
 }

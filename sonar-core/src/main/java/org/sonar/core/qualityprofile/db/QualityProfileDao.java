@@ -22,9 +22,9 @@ package org.sonar.core.qualityprofile.db;
 
 import com.google.common.base.Preconditions;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.core.persistence.DaoComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
@@ -37,6 +37,15 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
 
   public QualityProfileDao(MyBatis mybatis) {
     this.mybatis = mybatis;
+  }
+
+  @CheckForNull
+  public QualityProfileDto getByKey(QualityProfileKey key, DbSession session) {
+    return session.getMapper(QualityProfileMapper.class).selectByNameAndLanguage(key.name(), key.lang());
+  }
+
+  public List<QualityProfileDto> findAll(DbSession session) {
+    return session.getMapper(QualityProfileMapper.class).selectAll();
   }
 
   public void insert(QualityProfileDto dto, SqlSession session) {
@@ -75,8 +84,6 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
 
   /**
    * @deprecated use {@link #delete(QualityProfileDto, DbSession)}
-   * @param id
-   * @param session
    */
   @Deprecated
   public void delete(int id, SqlSession session) {
@@ -84,8 +91,8 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
   }
 
   /**
-   * @deprecated use {@link #delete(QualityProfileDto, DbSession)}
    * @param id
+   * @deprecated use {@link #delete(QualityProfileDto, DbSession)}
    */
   @Deprecated
   public void delete(int id) {

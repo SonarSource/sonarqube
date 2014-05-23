@@ -71,17 +71,17 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
     QualityProfileDto profileDto = profileDao.selectByNameAndLanguage(profileKey.name(), profileKey.lang(), session);
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profileDto, ruleDto)
       .setSeverity(severity);
-    this.insert(activeRule, session);
+    insert(activeRule, session);
 
-    List<RuleParamDto> ruleParams = ruleDao.findRuleParamsByRuleKey(ruleKey, session);
-    List<ActiveRuleParamDto> activeRuleParams = newArrayList();
-    for (RuleParamDto ruleParam : ruleParams) {
-      ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(ruleParam)
-        .setKey(ruleParam.getName())
-        .setValue(ruleParam.getDefaultValue());
-      activeRuleParams.add(activeRuleParam);
-      this.addParam(activeRule, activeRuleParam, session);
-    }
+//    List<RuleParamDto> ruleParams = ruleDao.findRuleParamsByRuleKey(ruleKey, session);
+//    List<ActiveRuleParamDto> activeRuleParams = newArrayList();
+//    for (RuleParamDto ruleParam : ruleParams) {
+//      ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(ruleParam)
+//        .setKey(ruleParam.getName())
+//        .setValue(ruleParam.getDefaultValue());
+//      activeRuleParams.add(activeRuleParam);
+//      addParam(activeRule, activeRuleParam, session);
+//    }
     return activeRule;
   }
 

@@ -25,7 +25,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 public class RuleParamDto {
 
-  private int id;
+  private Integer id;
   private Integer ruleId;
   private String name;
   private String type;
@@ -36,11 +36,11 @@ public class RuleParamDto {
 
   }
 
-  public int getId() {
+  public Integer getId() {
     return id;
   }
 
-  public RuleParamDto setId(int id) {
+  public RuleParamDto setId(Integer id) {
     this.id = id;
     return this;
   }

@@ -25,29 +25,23 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
-import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.ServerComponent;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
+import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.rule.RuleDto;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.template.LoadedTemplateDto;
-import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.platform.PersistentSettings;
-import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -56,7 +50,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class RegisterQualityProfiles {
+/**
+ * Synchronize Quality profiles during server startup
+ */
+public class RegisterQualityProfiles implements ServerComponent {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RegisterQualityProfiles.class);
   private static final String DEFAULT_PROFILE_NAME = "Sonar way";
@@ -64,34 +61,33 @@ public class RegisterQualityProfiles {
   private final PersistentSettings settings;
   private final List<ProfileDefinition> definitions;
   private final DefaultProfilesCache defaultProfilesCache;
-  private final DatabaseSessionFactory sessionFactory;
   private final DbClient dbClient;
+  private final ActiveRuleService activeRuleService;
 
-  public RegisterQualityProfiles(DatabaseSessionFactory sessionFactory,
-                                 PersistentSettings settings,
-                                 DefaultProfilesCache defaultProfilesCache, DbClient dbClient) {
-    this(sessionFactory, settings, defaultProfilesCache, dbClient,
-      Collections.<ProfileDefinition>emptyList());
-  }
-
-  public RegisterQualityProfiles(DatabaseSessionFactory sessionFactory,
-                                 PersistentSettings settings,
+  /**
+   * To be kept when no ProfileDefinition are injected
+   */
+  public RegisterQualityProfiles(PersistentSettings settings,
                                  DefaultProfilesCache defaultProfilesCache,
                                  DbClient dbClient,
+                                 ActiveRuleService activeRuleService) {
+    this(settings, defaultProfilesCache, dbClient, activeRuleService, Collections.<ProfileDefinition>emptyList());
+  }
+
+  public RegisterQualityProfiles(PersistentSettings settings,
+                                 DefaultProfilesCache defaultProfilesCache,
+                                 DbClient dbClient,
+                                 ActiveRuleService activeRuleService,
                                  List<ProfileDefinition> definitions) {
-    this.sessionFactory = sessionFactory;
     this.settings = settings;
     this.defaultProfilesCache = defaultProfilesCache;
-    this.definitions = definitions;
     this.dbClient = dbClient;
+    this.activeRuleService = activeRuleService;
+    this.definitions = definitions;
   }
 
   public void start() {
     TimeProfiler profiler = new TimeProfiler(LOGGER).start("Register Quality Profiles");
-
-    // Hibernate session can contain an invalid cache of rules.
-    // As long ProfileDefinition API will be used, then we'll have to use this commit as Hibernate is used by plugin to load rules when creating their profiles.
-    sessionFactory.getSession().commit();
 
     DbSession session = dbClient.openSession(false);
     try {
@@ -101,11 +97,12 @@ public class RegisterQualityProfiles {
         verifyLanguage(language, profiles);
 
         for (Map.Entry<String, Collection<RulesProfile>> entry : profilesByName(profiles).entrySet()) {
-          String name = entry.getKey();
-          if (shouldRegister(language, name, session)) {
-            register(language, name, entry.getValue(), session);
+          String profileName = entry.getKey();
+          QualityProfileKey profileKey = QualityProfileKey.of(profileName, language);
+          if (shouldRegister(profileKey, session)) {
+            register(profileKey, entry.getValue(), session);
           }
-          defaultProfilesCache.put(language, name);
+          defaultProfilesCache.put(language, profileName);
         }
         setDefault(language, profiles, session);
       }
@@ -127,69 +124,52 @@ public class RegisterQualityProfiles {
     }
   }
 
-  private void checkPermission(UserSession userSession) {
-    userSession.checkLoggedIn();
-    userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-  }
+  private void register(QualityProfileKey key, Collection<RulesProfile> profiles, DbSession session) {
+    LOGGER.info("Register profile " + key);
 
-  private QualityProfileDto newQualityProfileDto(String name, String language, DbSession session) {
-    checkPermission(UserSession.get());
-    if (dbClient.qualityProfileDao().selectByNameAndLanguage(name, language, session) != null) {
-      throw BadRequestException.ofL10n("quality_profiles.profile_x_already_exists", name);
+    QualityProfileDto profileDto = dbClient.qualityProfileDao().getByKey(key, session);
+    if (profileDto != null) {
+      // cleanup
+      cleanUp(key, profileDto, session);
     }
+    insertNewProfile(key, session);
 
-    QualityProfileDto profile = QualityProfileDto.createFor(name, language)
-      .setVersion(1).setUsed(false);
-    dbClient.qualityProfileDao().insert(profile, session);
-    return profile;
-  }
-
-  private void register(String language, String name, Collection<RulesProfile> profiles, DbSession session) {
-    LOGGER.info("Register " + language + " profile: " + name);
-
-    QualityProfileDto profile = dbClient.qualityProfileDao().selectByNameAndLanguage(name, language, session);
-    if (profile != null) {
-      dbClient.activeRuleDao().deleteByProfileKey(profile.getKey(), session);
-      dbClient.qualityProfileDao().delete(profile, session);
-    }
-    profile = newQualityProfileDto(name, language, session);
-
-    for (RulesProfile currentRulesProfile : profiles) {
-      //TODO trapped on legacy Hibernate object.
-      for (org.sonar.api.rules.ActiveRule activeRule : currentRulesProfile.getActiveRules()) {
+    for (RulesProfile profile : profiles) {
+      for (org.sonar.api.rules.ActiveRule activeRule : profile.getActiveRules()) {
         RuleKey ruleKey = RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey());
-        RuleDto rule = dbClient.ruleDao().getByKey(ruleKey, session);
-        if (rule == null) {
-          throw new NotFoundException(String.format("Rule '%s' does not exists.", ruleKey));
-        }
-
-        ActiveRuleDto activeRuleDto = dbClient.activeRuleDao().createActiveRule(
-          profile.getKey(), ruleKey, activeRule.getSeverity().name(), session);
-
-        //TODO trapped on legacy Hibernate object.
+        RuleActivation activation = new RuleActivation(ActiveRuleKey.of(key, ruleKey));
+        activation.setSeverity(activeRule.getSeverity() != null ? activeRule.getSeverity().name() : null);
         for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
-          String paramKey = param.getKey();
-          String value = param.getValue();
-          ActiveRuleParamDto paramDto = dbClient.activeRuleDao()
-            .getParamsByActiveRuleAndKey(activeRuleDto, paramKey, session);
-          if (value != null && !paramDto.getValue().equals(value)) {
-            paramDto.setValue(value);
-            dbClient.activeRuleDao().updateParam(activeRuleDto, paramDto, session);
-          }
+          activation.setParameter(param.getKey(), param.getValue());
         }
+        activeRuleService.activate(activation, session);
       }
     }
 
-    dbClient.loadedTemplateDao()
-      .insert(new LoadedTemplateDto(templateKey(language, name), LoadedTemplateDto.QUALITY_PROFILE_TYPE), session);
+    LoadedTemplateDto template = new LoadedTemplateDto(templateKey(key), LoadedTemplateDto.QUALITY_PROFILE_TYPE);
+    dbClient.loadedTemplateDao().insert(template, session);
   }
 
-  private void setDefault(String language, List<RulesProfile> profiles, SqlSession session) {
+  private void cleanUp(QualityProfileKey key, QualityProfileDto profileDto, DbSession session) {
+    dbClient.activeRuleDao().deleteByProfileKey(key, session);
+    dbClient.qualityProfileDao().delete(profileDto, session);
+    session.commit();
+  }
+
+  private void insertNewProfile(QualityProfileKey key, DbSession session) {
+    QualityProfileDto profile = QualityProfileDto.createFor(key).setVersion(1).setUsed(false);
+    dbClient.qualityProfileDao().insert(profile, session);
+    session.commit();
+  }
+
+  private void setDefault(String language, List<RulesProfile> profiles, DbSession session) {
     String propertyKey = "sonar.profile." + language;
     if (settings.getString(propertyKey) == null) {
       String defaultProfileName = defaultProfileName(profiles);
       LOGGER.info("Set default " + language + " profile: " + defaultProfileName);
       settings.saveProperty(propertyKey, defaultProfileName);
+    } else {
+      //TODO check that the declared default profile exists, else fix
     }
   }
 
@@ -246,12 +226,12 @@ public class RegisterQualityProfiles {
     return names;
   }
 
-  private boolean shouldRegister(String language, String profileName, SqlSession session) {
+  private boolean shouldRegister(QualityProfileKey key, DbSession session) {
     return dbClient.loadedTemplateDao()
-      .countByTypeAndKey(LoadedTemplateDto.QUALITY_PROFILE_TYPE, templateKey(language, profileName), session) == 0;
+      .countByTypeAndKey(LoadedTemplateDto.QUALITY_PROFILE_TYPE, templateKey(key), session) == 0;
   }
 
-  private static String templateKey(String language, String profileName) {
-    return StringUtils.lowerCase(language) + ":" + profileName;
+  private static String templateKey(QualityProfileKey key) {
+    return StringUtils.lowerCase(key.lang()) + ":" + key.name();
   }
 }

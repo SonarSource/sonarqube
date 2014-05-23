@@ -31,7 +31,6 @@ import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
@@ -71,7 +70,7 @@ public class ActiveRuleService implements ServerComponent {
     return index.get(ActiveRuleIndex.class).getByKey(key);
   }
 
-  public List<ActiveRule> findByRuleKey(RuleKey key){
+  public List<ActiveRule> findByRuleKey(RuleKey key) {
     return index.get(ActiveRuleIndex.class).findByRule(key);
   }
 
@@ -81,33 +80,42 @@ public class ActiveRuleService implements ServerComponent {
    */
   public List<ActiveRuleChange> activate(RuleActivation activation) {
     verifyPermission(UserSession.get());
-
     DbSession dbSession = db.openSession(false);
-    List<ActiveRuleChange> changes = Lists.newArrayList();
     try {
-      RuleActivationContext context = contextFactory.create(activation.getKey(), dbSession);
-      ActiveRuleChange change;
-      if (context.activeRule() == null) {
-        change = new ActiveRuleChange(ActiveRuleChange.Type.ACTIVATED, activation.getKey());
-      } else {
-        change = new ActiveRuleChange(ActiveRuleChange.Type.UPDATED, activation.getKey());
+      List<ActiveRuleChange> changes = activate(activation, dbSession);
+      if (!changes.isEmpty()) {
+        dbSession.commit();
+        previewCache.reportGlobalModification();
       }
-      change.setSeverity(StringUtils.defaultIfEmpty(activation.getSeverity(), context.defaultSeverity()));
-      for (RuleParamDto ruleParamDto : context.ruleParams()) {
-        String value = activation.getParameters().get(ruleParamDto.getName());
-        verifyParam(ruleParamDto, value);
-        change.setParameter(ruleParamDto.getName(), StringUtils.defaultIfEmpty(value, ruleParamDto.getDefaultValue()));
-      }
-      changes.add(change);
-      // TODO filter changes without any differences
-
-      persist(changes, context, dbSession);
-
       return changes;
-
     } finally {
       dbSession.close();
     }
+  }
+
+  /**
+   * Activate the rule WITHOUT committing db session and WITHOUT checking permissions
+   */
+  List<ActiveRuleChange> activate(RuleActivation activation, DbSession dbSession) {
+    List<ActiveRuleChange> changes = Lists.newArrayList();
+    RuleActivationContext context = contextFactory.create(activation.getKey(), dbSession);
+    ActiveRuleChange change;
+    if (context.activeRule() == null) {
+      change = new ActiveRuleChange(ActiveRuleChange.Type.ACTIVATED, activation.getKey());
+    } else {
+      change = new ActiveRuleChange(ActiveRuleChange.Type.UPDATED, activation.getKey());
+    }
+    change.setSeverity(StringUtils.defaultIfEmpty(activation.getSeverity(), context.defaultSeverity()));
+    for (RuleParamDto ruleParamDto : context.ruleParams()) {
+      String value = activation.getParameters().get(ruleParamDto.getName());
+      verifyParam(ruleParamDto, value);
+      change.setParameter(ruleParamDto.getName(), StringUtils.defaultIfEmpty(value, ruleParamDto.getDefaultValue()));
+    }
+    changes.add(change);
+    // TODO filter changes without any differences
+
+    persist(changes, context, dbSession);
+    return changes;
   }
 
   private void persist(Collection<ActiveRuleChange> changes, RuleActivationContext context, DbSession dbSession) {
@@ -150,10 +158,6 @@ public class ActiveRuleService implements ServerComponent {
         }
       }
     }
-    if (!changes.isEmpty()) {
-      dbSession.commit();
-      previewCache.reportGlobalModification();
-    }
   }
 
   /**
@@ -174,6 +178,7 @@ public class ActiveRuleService implements ServerComponent {
       change = new ActiveRuleChange(ActiveRuleChange.Type.DEACTIVATED, key);
       changes.add(change);
       persist(changes, context, dbSession);
+      dbSession.commit();
       return changes;
 
     } finally {
