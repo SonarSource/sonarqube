@@ -1504,12 +1504,16 @@ span.empty_widget {
   padding: 0 10px 7px 0;
 
   h3 {
-    color: @secondFontColor;
-    font-size: @smallFontSize;
+    line-height: 1.2;
+    font-size: @bigFontSize;
     font-weight: 300;
   }
 
-  a { .widget-link; }
+  a {
+    .widget-link;
+
+    .rating { color: #fff; }
+  }
 }
 
 .big {

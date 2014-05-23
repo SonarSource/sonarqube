@@ -322,8 +322,9 @@
 
 .widget-label {
   display: block;
-  font-size: @smallFontSize;
+  font-size: @baseFontSize;
   line-height: 1.2;
+  font-weight: 300;
 }
 
 .widget-number {
@@ -356,7 +357,7 @@
   margin-top: 10px;
 
   .widget-link, .widget-number { .widget-big; }
-  .widget-label { font-size: @baseFontSize; }
+  .widget-label { font-size: @bigFontSize; }
 }
 
 .widget-measure-container {
@@ -389,9 +390,8 @@
   display: inline-block;
   line-height: 1.5;
   margin-right: 10px;
-  font-size: 18px;
+  font-size: @bigFontSize;
   font-weight: 300;
-//  text-transform: uppercase;
   white-space: nowrap;
 }
 
