@@ -27,4 +27,5 @@ public interface LoadedTemplateMapper {
 
   void insert(LoadedTemplateDto template);
 
+  void delete(@Param("type") String type, @Param("key") String key);
 }

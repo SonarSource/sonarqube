@@ -21,6 +21,7 @@
 package org.sonar.server.qualityprofile;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
@@ -40,6 +41,7 @@ import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
+import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
@@ -153,6 +155,27 @@ public class RegisterQualityProfilesMediumTest {
     tester.get(Platform.class).restart();
     // restart must keep "two" as default profile, even if "one" is marked as it
     verifyProperty("sonar.profile.xoo", "two");
+  }
+
+  /**
+   * Probably for db migration
+   */
+  @Test
+  @Ignore
+  public void clean_up_profiles_if_missing_loaded_template() throws Exception {
+    tester = new ServerTester().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
+    tester.start();
+
+    dbSession = dbClient().openSession(false);
+    String templateKey = RegisterQualityProfiles.templateKey(QualityProfileKey.of("Basic", "xoo"));
+    dbClient().loadedTemplateDao().delete(dbSession, LoadedTemplateDto.QUALITY_PROFILE_TYPE, templateKey);
+    dbSession.commit();
+    assertThat(dbClient().loadedTemplateDao().countByTypeAndKey(LoadedTemplateDto.QUALITY_PROFILE_TYPE, templateKey, dbSession)).isEqualTo(0);
+    dbSession.close();
+
+    tester.get(Platform.class).restart();
+
+    // do not fail
   }
 
   private void verifyProperty(String key, String value) {

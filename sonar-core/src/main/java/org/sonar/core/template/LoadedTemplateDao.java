@@ -23,6 +23,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 public class LoadedTemplateDao implements DaoComponent, BatchComponent, ServerComponent {
@@ -61,4 +62,7 @@ public class LoadedTemplateDao implements DaoComponent, BatchComponent, ServerCo
     session.getMapper(LoadedTemplateMapper.class).insert(loadedTemplateDto);
   }
 
+  public void delete(DbSession session, String type, String key) {
+    session.getMapper(LoadedTemplateMapper.class).delete(type, key);
+  }
 }

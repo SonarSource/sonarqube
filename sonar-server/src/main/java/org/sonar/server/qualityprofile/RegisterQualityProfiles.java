@@ -239,7 +239,7 @@ public class RegisterQualityProfiles implements ServerComponent {
       .countByTypeAndKey(LoadedTemplateDto.QUALITY_PROFILE_TYPE, templateKey(key), session) == 0;
   }
 
-  private static String templateKey(QualityProfileKey key) {
+  static String templateKey(QualityProfileKey key) {
     return StringUtils.lowerCase(key.lang()) + ":" + key.name();
   }
 }
