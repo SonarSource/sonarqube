@@ -131,4 +131,19 @@
     $(window).on('resize', debounce);
   };
 
+
+
+  $(function () {
+    var $sidebar = jQuery('#sidebar');
+    console.log($sidebar);
+    if ($sidebar.length > 0) {
+      var $window = jQuery(window),
+          topOffset = $sidebar.offset().top;
+      $window.on('scroll', function () {
+        var scrollTop = $window.scrollTop();
+        $sidebar.toggleClass('sticky', scrollTop > topOffset);
+      });
+    }
+  });
+
 })(jQuery);

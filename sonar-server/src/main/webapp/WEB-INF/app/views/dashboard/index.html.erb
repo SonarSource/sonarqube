@@ -31,11 +31,4 @@
 
 <script>
   jQuery('html').addClass('dashboard-page');
-  var $window = jQuery(window),
-      $sidebar = jQuery('#sidebar'),
-      topOffset = $sidebar.offset().top;
-  $window.on('scroll', function() {
-    var scrollTop = $window.scrollTop();
-    $sidebar.toggleClass('sticky', scrollTop > topOffset);
-  });
 </script>
