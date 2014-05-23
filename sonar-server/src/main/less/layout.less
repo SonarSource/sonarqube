@@ -179,13 +179,13 @@ body, a {
   margin: 50px 180px 0;
 }
 
-#body {
-  /*  position: relative;*/
-}
-
 #footer {
   padding: 4px 0;
   clear: both;
+}
+
+#body {
+  position: relative;
 }
 
 .with_sidebar {
@@ -198,11 +198,13 @@ body, a {
 }
 
 #sidebar {
+  position: absolute;
+  top: 0; left: 10px;
   width: 150px;
-  float: left;
-  margin: 0 0 0 10px;
-  top: 0;
-  left: 0;
+
+  &.sticky {
+    position: fixed;
+  }
 }
 
 ul.sidebar {
@@ -216,12 +218,9 @@ ul.sidebar li {
   padding: 3px 10px;
 }
 
-ul.sidebar li a {
-  text-decoration: none;
-}
-
-ul.sidebar li a:hover {
-  text-decoration: underline;
+ul.sidebar li > a {
+  .highlighted-link;
+  .chevron-link;
 }
 
 ul.sidebar li.active {
@@ -298,10 +297,12 @@ ul.sidebar select, ul.sidebar input {
 }
 
 .blue-sidebar {
+  height: 100%;
+  border-left: 1px solid @blue;
+  border-right: 1px solid @blue;
+  border-bottom: 1px solid @blue;
   background-color: @lightBlue;
   color: @baseFontColor;
-  border: 1px solid @blue;
-  border-top: none;
 }
 
 .nolayout {
