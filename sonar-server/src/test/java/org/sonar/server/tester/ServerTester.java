@@ -115,9 +115,7 @@ public class ServerTester extends ExternalResource {
    * This method should not be called by test when ServerTester is annotated with {@link org.junit.Rule}
    */
   public void stop() {
-    if (platform.isStarted()) {
-      platform.doStop();
-    }
+    platform.doStop();
     FileUtils.deleteQuietly(homeDir);
   }
 

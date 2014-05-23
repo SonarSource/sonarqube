@@ -35,17 +35,16 @@ import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
-import org.sonar.core.properties.PropertyQuery;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.platform.Platform;
 import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
 import org.sonar.server.tester.ServerTester;
 
-import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -79,10 +78,7 @@ public class RegisterQualityProfilesMediumTest {
     assertThat(qualityProfileDao.getByKey(qualityProfileKey, dbSession)).isNotNull();
 
     // Check Default Profile
-    PropertiesDao propertiesDao = dbClient().propertiesDao();
-    List<PropertyDto> xooDefault = propertiesDao.selectByQuery(PropertyQuery.builder().setKey("sonar.profile.xoo").build(), dbSession);
-    assertThat(xooDefault).hasSize(1);
-    assertThat(xooDefault.get(0).getValue()).isEqualTo("Basic");
+    verifyProperty("sonar.profile.xoo", "Basic");
 
     // Check ActiveRules in DB
     ActiveRuleDao activeRuleDao = dbClient().activeRuleDao();
@@ -119,11 +115,7 @@ public class RegisterQualityProfilesMediumTest {
     tester = new ServerTester().addComponents(new SimpleProfileDefinition("one", false), new SimpleProfileDefinition("two", true));
 
     tester.start();
-    dbSession = dbClient().openSession(false);
-    PropertiesDao propertiesDao = dbClient().propertiesDao();
-    List<PropertyDto> props = propertiesDao.selectByQuery(PropertyQuery.builder().setKey("sonar.profile.xoo").build(), dbSession);
-    assertThat(props).hasSize(1);
-    assertThat(props.get(0).getValue()).isEqualTo("two");
+    verifyProperty("sonar.profile.xoo", "two");
   }
 
   @Test
@@ -131,11 +123,42 @@ public class RegisterQualityProfilesMediumTest {
     tester = new ServerTester().addComponents(new SimpleProfileDefinition("Sonar way", false), new SimpleProfileDefinition("Other way", false));
 
     tester.start();
-    dbSession = dbClient().openSession(false);
+    verifyProperty("sonar.profile.xoo", "Sonar way");
+  }
+
+  @Test
+  public void fix_default_profile_if_invalid() throws Exception {
+    tester = new ServerTester().addComponents(new SimpleProfileDefinition("one", true));
+    tester.start();
+
     PropertiesDao propertiesDao = dbClient().propertiesDao();
-    List<PropertyDto> props = propertiesDao.selectByQuery(PropertyQuery.builder().setKey("sonar.profile.xoo").build(), dbSession);
-    assertThat(props).hasSize(1);
-    assertThat(props.get(0).getValue()).isEqualTo("Sonar way");
+    propertiesDao.updateProperties("sonar.profile.xoo", "one", "invalid");
+    // -> properties are corrupted. Default profile "invalid" does not exist
+    verifyProperty("sonar.profile.xoo", "invalid");
+
+    tester.get(Platform.class).restart();
+    // restart must resolve the pb
+    verifyProperty("sonar.profile.xoo", "one");
+  }
+
+  @Test
+  public void do_not_reset_default_profile_if_still_valid() throws Exception {
+    tester = new ServerTester().addComponents(new SimpleProfileDefinition("one", true), new SimpleProfileDefinition("two", false));
+    tester.start();
+
+    PropertiesDao propertiesDao = dbClient().propertiesDao();
+    propertiesDao.updateProperties("sonar.profile.xoo", "one", "two");
+    verifyProperty("sonar.profile.xoo", "two");
+
+    tester.get(Platform.class).restart();
+    // restart must keep "two" as default profile, even if "one" is marked as it
+    verifyProperty("sonar.profile.xoo", "two");
+  }
+
+  private void verifyProperty(String key, String value) {
+    PropertyDto prop = dbClient().propertiesDao().selectGlobalProperty(key);
+    assertThat(prop).isNotNull();
+    assertThat(prop.getValue()).isEqualTo(value);
   }
 
   private DbClient dbClient() {

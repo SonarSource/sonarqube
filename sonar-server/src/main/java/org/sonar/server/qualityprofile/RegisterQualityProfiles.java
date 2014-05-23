@@ -163,12 +163,21 @@ public class RegisterQualityProfiles implements ServerComponent {
 
   private void setDefault(String language, List<RulesProfile> profiles, DbSession session) {
     String propertyKey = "sonar.profile." + language;
-    if (settings.getString(propertyKey) == null) {
+
+    boolean upToDate = false;
+    String currentDefault = settings.getString(propertyKey);
+    if (currentDefault != null) {
+      for (RulesProfile profile : profiles) {
+        if (StringUtils.equals(currentDefault, profile.getName())) {
+          upToDate = true;
+        }
+      }
+    }
+
+    if (!upToDate) {
       String defaultProfileName = defaultProfileName(profiles);
       LOGGER.info("Set default " + language + " profile: " + defaultProfileName);
       settings.saveProperty(propertyKey, defaultProfileName);
-    } else {
-      //TODO check that the declared default profile exists, else fix
     }
   }
 
