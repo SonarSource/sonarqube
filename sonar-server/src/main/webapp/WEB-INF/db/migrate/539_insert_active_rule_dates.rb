@@ -23,8 +23,16 @@
 #
 class InsertActiveRuleDates < ActiveRecord::Migration
 
-  def self.up
+  class ActiveRule < ActiveRecord::Base
+  end
 
+  def self.up
+    now = Time.now
+    ActiveRule.find(:all).each do |active_rule|
+      active_rule.created_at=now
+      active_rule.updated_at=now
+      active_rule.save!
+    end
   end
 
 end

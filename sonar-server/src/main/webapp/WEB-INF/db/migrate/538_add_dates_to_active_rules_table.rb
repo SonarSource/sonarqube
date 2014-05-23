@@ -23,17 +23,11 @@
 #
 class AddDatesToActiveRulesTable < ActiveRecord::Migration
 
-  class ActiveRule < ActiveRecord::Base
-  end
-
   def self.up
-    now = Time.now
-    ActiveRule.find(:all).each do |active_rule|
-      active_rule.created_at=now
-      active_rule.updated_at=now
-      active_rule.save!
+    def self.up
+      add_column 'active_rules', :created_at, :datetime, :null => true
+      add_column 'active_rules', :updated_at, :datetime, :null => true
     end
   end
-
 end
 
