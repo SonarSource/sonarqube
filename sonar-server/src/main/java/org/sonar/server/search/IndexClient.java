@@ -40,6 +40,15 @@ public class IndexClient implements ServerComponent {
     }
   }
 
+  public Long getLastUpdate(String indexType){
+    for(Index<?,?,?> index:indexComponents.values()){
+      if(index.getIndexType().equals(indexType)){
+        return index.getLastSynchronization();
+      }
+    }
+    throw new IllegalStateException("no index for type '"+indexType+"' is registered");
+  }
+
   public <K extends Index> K get(Class<K> clazz){
     return (K) this.indexComponents.get(clazz);
   }
@@ -50,6 +59,6 @@ public class IndexClient implements ServerComponent {
         return (K) index;
       }
     }
-    throw new IllegalStateException("no index for tyle '"+indexType+"' is registered");
+    throw new IllegalStateException("no index for type '"+indexType+"' is registered");
   }
 }

@@ -36,6 +36,22 @@
     LEFT JOIN active_rules active_rule_parent ON active_rule_parent.profile_id=profile_parent.id AND a.rule_id=active_rule_parent.rule_id
   </sql>
 
+    <select id="selectAllKeysAfterTimestamp" parameterType="Date" resultType="map">
+        SELECT
+        rule.plugin_rule_key as rule,
+        rule.plugin_name as repository,
+        profile.name as profile,
+        profile.language as language
+        FROM active_rules a
+        <include refid="activeRuleKeyJoin"/>
+        <where>
+            AND profile.name = #{profile}
+            AND profile.language = #{language}
+            AND rule.plugin_rule_key = #{rule}
+            AND rule.plugin_name = #{repository}
+        </where>
+    </select>
+
   <insert id="insert" parameterType="ActiveRule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO active_rules (profile_id, rule_id, failure_level, inheritance)
     VALUES (#{profileId}, #{ruleId}, #{severity}, #{inheritance})

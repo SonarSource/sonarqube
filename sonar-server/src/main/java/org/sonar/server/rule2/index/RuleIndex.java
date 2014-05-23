@@ -332,7 +332,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       .field(RuleNormalizer.RuleField.LANGUAGE.key())
       .order(Terms.Order.count(false))
       .size(10)
-      .minDocCount(0));
+      .minDocCount(1));
 
      /* the Tag facet */
     query.addAggregation(AggregationBuilders
@@ -340,7 +340,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       .field(RuleNormalizer.RuleField._TAGS.key())
       .order(Terms.Order.count(false))
       .size(10)
-      .minDocCount(0));
+      .minDocCount(1));
 
      /* the Repo facet */
     query.addAggregation(AggregationBuilders
@@ -348,7 +348,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       .field(RuleNormalizer.RuleField.REPOSITORY.key())
       .order(Terms.Order.count(false))
       .size(10)
-      .minDocCount(0));
+      .minDocCount(1));
 
   }
 

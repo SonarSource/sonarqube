@@ -22,6 +22,8 @@ package org.sonar.server.qualityprofile.persistence;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
@@ -33,15 +35,14 @@ import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
-import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.BaseDao;
 import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexDefinition;
 import org.sonar.server.rule2.persistence.RuleDao;
 
+import java.util.Date;
 import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
+import java.util.Map;
 
 public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, ActiveRuleKey> {
 
@@ -61,8 +62,15 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
   }
 
   @Override
-  public Iterable<ActiveRuleKey> keysOfRowsUpdatedAfter(long timestamp, DbSession session) {
-    throw new UnsupportedOperationException("Need to implement ActiveRuleDto.doGetByKey() method");
+  public void synchronizeAfter(long timestamp, DbSession session) {
+    session.select("selectAllKeysAfterTimestamp",new Date(timestamp), new ResultHandler() {
+      @Override
+      public void handleResult(ResultContext context) {
+        Map<String, Object> resultObject = (Map<String, Object>) context.getResultObject();
+        resultObject.get(|TOTO);
+        //session.enqueue();
+      }
+    });
   }
 
 

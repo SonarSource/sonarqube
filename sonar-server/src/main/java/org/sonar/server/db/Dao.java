@@ -20,8 +20,8 @@
 package org.sonar.server.db;
 
 import org.sonar.api.ServerComponent;
-import org.sonar.core.persistence.Dto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.Dto;
 
 import javax.annotation.CheckForNull;
 import java.io.Serializable;
@@ -49,6 +49,6 @@ public interface Dao<E extends Dto<K>, K extends Serializable> extends ServerCom
 
   void deleteByKey(K key, DbSession session);
 
-  Iterable<K> keysOfRowsUpdatedAfter(long timestamp, DbSession session);
+  void synchronizeAfter(long timestamp, DbSession session);
 
 }
