@@ -4,9 +4,9 @@
       <div class="navigator-facets-list-item-name">{{name}}</div>
       <div class="navigator-facets-list-item-options">
         {{#each values}}
-          <a class="navigator-facets-list-item-option" data-key="{{key}}" data-property="{{../property}}">
-            <span class="navigator-facets-list-item-option-name">{{text}}</span>
-            <span class="navigator-facets-list-item-option-stat">{{stat}}</span>
+          <a class="navigator-facets-list-item-option" data-key="{{key}}" data-property="{{../name}}">
+            <span class="navigator-facets-list-item-option-name">{{val}}</span>
+            <span class="navigator-facets-list-item-option-stat">{{count}}</span>
           </a>
         {{/each}}
       </div>

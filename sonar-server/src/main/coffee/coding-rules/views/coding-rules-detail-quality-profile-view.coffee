@@ -61,16 +61,17 @@ define [
 
 
     getParent: ->
-      return null if @model.get('inherit') == 'NONE'
-      _.findWhere(@options.qualityProfiles, key: @model.get('inherit')).toJSON()
+      return null unless @model.get('inherit') && @model.get('inherit') != 'NONE'
+      parentKey = @model.get('parent') + ':' + @model.get('lang')
+      _.findWhere(@options.app.qualityProfiles, key: parentKey)
 
 
     enhanceParameters: ->
       parent = @getParent()
-      parameters = @model.get 'parameters'
-      return parameters unless parent
-      parameters.map (p) ->
-        _.extend p, original: _.findWhere(parent.parameters, key: p.key).value
+      params = @model.get 'params'
+      return params unless parent
+      params.map (p) ->
+        _.extend p, original: _.findWhere(parent.params, key: p.key).value
 
 
     serializeData: ->

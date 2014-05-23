@@ -1,50 +1,54 @@
 define [
-  'navigator/filters/ajax-select-filters'
+  'navigator/filters/choice-filters',
+  'templates/coding-rules'
 ], (
-  AjaxSelectFilters
+  ChoiceFilters,
+  Templates
 ) ->
 
-  class QualityProfileSuggestions extends AjaxSelectFilters.Suggestions
-
-    url: ->
-      "#{baseUrl}/api/qualityprofiles/list"
+  class QualityProfileDetailFilterView extends ChoiceFilters.DetailsChoiceFilterView
+    itemTemplate: Templates['coding-rules-profile-filter-detail']
 
 
-
-  class QualityProfileFilterView extends AjaxSelectFilters.AjaxSelectFilterView
+  class QualityProfileFilterView extends ChoiceFilters.ChoiceFilterView
 
     initialize: ->
       super
-      @choices = new QualityProfileSuggestions
-      @listenTo @model, 'change:value', @onValueChange
+        detailsView: QualityProfileDetailFilterView
+
+      @app = @model.get 'app'
+
+      @allProfiles = @model.get 'choices'
+      @updateChoices @allProfiles
+
+      @listenTo @app.languageFilter, 'change:value', @onChangeLanguage
+      @onChangeLanguage()
 
 
-    onValueChange: ->
-      @updateParentQualityProfile()
-      @highlightContext()
-
-
-    updateParentQualityProfile: ->
-      selected = @getSelected()
-      if selected.length == 1
-        @model.set 'parentQualityProfile', selected[0].get('parent')
+    onChangeLanguage: ->
+      languages = @app.languageFilter.get 'value'
+      if _.isArray(languages) && languages.length > 0
+        @filterLanguages(languages)
       else
-        @model.unset 'parentQualityProfile'
+        @updateChoices(@allProfiles)
+
+    filterLanguages: (languages) ->
+      languageProfiles = _.filter( @allProfiles, (prof) -> languages.indexOf(prof.lang) >= 0 )
+      @updateChoices(languageProfiles)
 
 
-    highlightContext: ->
-      hasContext = _.isArray(@model.get('value')) && @model.get('value').length > 0
-      @$el.toggleClass 'navigator-filter-context', hasContext
-
-
-    createRequest: (v) ->
-      jQuery.ajax
-        url: baseUrl + '/api/qualityprofiles/show'
-        type: 'GET'
-        data: key: v
-      .done (r) =>
-        @choices.add new Backbone.Model
-          id: r.qualityprofile.id,
-          text: r.qualityprofile.text,
-          parent: r.qualityprofile.parent,
-          checked: true
+    updateChoices: (collection) ->
+      languages = @app.languages
+      currentValue = @model.get('value')
+      @choices = new Backbone.Collection( _.map collection, (item, index) ->
+          new Backbone.Model
+            id: item.key
+            text: item.name
+            checked: false
+            index: index
+            language: languages[item.lang]
+        comparator: 'index'
+      )
+      if currentValue
+        @restore(currentValue)
+      @render()

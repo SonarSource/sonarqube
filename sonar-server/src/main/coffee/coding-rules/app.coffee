@@ -116,7 +116,7 @@ requirejs [
 
   App.fetchList = (firstPage, fromFacets) ->
     query = @getQuery()
-    fetchQuery = _.extend { pageIndex: @pageIndex }, query
+    fetchQuery = _.extend { p: @pageIndex, facets: !fromFacets }, query
 
     if @codingRulesFacetsView
       _.extend fetchQuery, @codingRulesFacetsView.getQuery()
@@ -125,9 +125,6 @@ requirejs [
       _.extend fetchQuery,
           sort: @codingRules.sorting.sort,
           asc: @codingRules.sorting.asc
-
-    if fromFacets
-      _.extend fetchQuery, skipFacets: true
 
     @storeQuery query, @codingRules.sorting
 
@@ -273,9 +270,10 @@ requirejs [
       name: t 'coding_rules.filters.quality_profile'
       property: 'qprofile'
       type: QualityProfileFilterView
+      app: @
+      choices: @qualityProfiles
       multiple: false
     @filters.add @qualityProfileFilter
-
 
     @activationFilter = new BaseFilters.Filter
       name: t 'coding_rules.filters.activation'
@@ -286,8 +284,8 @@ requirejs [
       multiple: false
       qualityProfileFilter: @qualityProfileFilter
       choices:
-        'active': t 'coding_rules.filters.activation.active'
-        'inactive': t 'coding_rules.filters.activation.inactive'
+        'true': t 'coding_rules.filters.activation.active'
+        'false': t 'coding_rules.filters.activation.inactive'
     @filters.add @activationFilter
 
     @filters.add new BaseFilters.Filter
