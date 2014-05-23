@@ -321,18 +321,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       }
     }
 
-    if ((query.getLanguages() != null && !query.getLanguages().isEmpty()) ||
-      (query.getRepositories() != null && !query.getRepositories().isEmpty()) ||
-      (query.getSeverities() != null && !query.getSeverities().isEmpty()) ||
-      (query.getTags() != null && !query.getTags().isEmpty()) ||
-      (query.getStatuses() != null && !query.getStatuses().isEmpty()) ||
-      (query.getKey() != null && !query.getKey().isEmpty()) ||
-      (query.getDebtCharacteristics() != null && !query.getDebtCharacteristics().isEmpty()) ||
-      (query.getActivation() != null)) {
-      return fb;
-    } else {
-      return FilterBuilders.matchAllFilter();
-    }
+    return fb.hasClauses() ? fb : FilterBuilders.matchAllFilter();
   }
 
   protected void setFacets(SearchRequestBuilder query) {

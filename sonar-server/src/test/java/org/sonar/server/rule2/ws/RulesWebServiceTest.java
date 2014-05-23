@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableSet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -41,14 +40,13 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
 import org.sonar.server.rule2.persistence.RuleDao;
+import org.sonar.server.search.ws.SearchOptions;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-@Ignore
-//TODO FIx BaseDoc for unknown fields in Mapper
 public class RulesWebServiceTest {
 
   @ClassRule
@@ -110,12 +108,18 @@ public class RulesWebServiceTest {
 
     MockUserSession.set();
 
-    // 1. Default Activation
+    // 1. With Activation
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show");
-    request.setParam("key", rule.getKey().toString());
+    request.setParam(ShowAction.PARAM_KEY, rule.getKey().toString());
+    request.setParam(ShowAction.PARAM_ACTIVES, "true");
     WsTester.Result result = request.execute();
+    result.assertJson(this.getClass(), "show_rule_active.json", false);
 
-    result.assertJson(this.getClass(), "show_rule_active.json");
+    // 1. Default Activation (defaults to false)
+    request = wsTester.newGetRequest("api/rules", "show");
+    request.setParam(ShowAction.PARAM_KEY, rule.getKey().toString());
+    result = request.execute();
+    result.assertJson(this.getClass(), "show_rule_no_active.json", false);
   }
 
 
@@ -156,8 +160,8 @@ public class RulesWebServiceTest {
 
     MockUserSession.set();
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
+    request.setParam(SearchOptions.PARAM_FIELDS, "debtRemFn,debtChar");
     WsTester.Result result = request.execute();
-
     result.assertJson(this.getClass(), "search_debt_rule.json");
   }
 
@@ -178,8 +182,9 @@ public class RulesWebServiceTest {
 
     MockUserSession.set();
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
-    request.setParam("q", "S001");
-    request.setParam("activation", "all");
+    request.setParam(SearchOptions.PARAM_TEXT_QUERY, "S001");
+    request.setParam(SearchAction.PARAM_ACTIVATION, "true");
+    request.setParam(SearchOptions.PARAM_FIELDS, "");
     WsTester.Result result = request.execute();
 
     result.assertJson(this.getClass(), "search_active_rules.json");
@@ -209,11 +214,11 @@ public class RulesWebServiceTest {
 
     MockUserSession.set();
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
-    request.setParam("q", "S001");
-    request.setParam("activation", "true");
-    request.setParam("qprofile", profile2.getKey().toString());
+    request.setParam(SearchOptions.PARAM_TEXT_QUERY, "S001");
+    request.setParam(SearchAction.PARAM_ACTIVATION, "true");
+    request.setParam(SearchAction.PARAM_QPROFILE, profile2.getKey().toString());
+    request.setParam(SearchOptions.PARAM_FIELDS, "");
     WsTester.Result result = request.execute();
-
     result.assertJson(this.getClass(), "search_profile_active_rules.json");
   }
 
@@ -256,9 +261,9 @@ public class RulesWebServiceTest {
 
     MockUserSession.set();
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
-    request.setParam("q", "S001");
-    request.setParam("activation", "all");
-
+    request.setParam(SearchOptions.PARAM_TEXT_QUERY, "S001");
+    request.setParam(SearchAction.PARAM_ACTIVATION, "true");
+    request.setParam(SearchOptions.PARAM_FIELDS, "params");
     WsTester.Result result = request.execute();
 
     result.assertJson(this.getClass(), "search_active_rules_params.json", false);
@@ -302,8 +307,8 @@ public class RulesWebServiceTest {
 
     MockUserSession.set();
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
+    request.setParam(SearchOptions.PARAM_FIELDS, "htmlNote, mdNote");
     WsTester.Result result = request.execute();
-
     result.assertJson(this.getClass(), "get_note_as_markdown_and_html.json");
   }
 
@@ -319,7 +324,8 @@ public class RulesWebServiceTest {
 
     MockUserSession.set();
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "search");
-    request.setParam("tags", "tag1");
+    request.setParam(SearchAction.PARAM_TAGS, "tag1");
+    request.setParam(SearchOptions.PARAM_FIELDS, "sysTags, tags");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "filter_by_tags.json");
   }

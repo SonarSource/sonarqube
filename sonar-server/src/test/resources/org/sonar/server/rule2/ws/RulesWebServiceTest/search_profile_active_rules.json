@@ -1,34 +1,10 @@
 {
   "total": 1,
   "p": 1,
-  "ps": 25,
+  "ps": 10,
   "rules": [
     {
-      "key": "java:S001",
-      "repo": "java",
-      "name": "Rule S001",
-      "lang": "js",
-      "htmlDesc": "Description S001",
-      "status": "READY",
-      "severity": "INFO",
-      "template": false,
-      "internalKey": "InternalKeyS001",
-      "tags": [],
-      "sysTags": [],
-      "debtRemFnType": "LINEAR",
-      "debtRemFnCoeff": "1h",
-      "debtRemFnOffset": "5min",
-      "params": []
+      "key": "java:S001"
     }
-  ],
-  "actives": {
-    "java:S001": [
-      {
-        "qProfile": "p2:java",
-        "inherit": "NONE",
-        "severity": "BLOCKER",
-        "params": []
-      }
-    ]
-  }
+  ]
 }

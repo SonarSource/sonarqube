@@ -1,19 +1,6 @@
-{"total": 1, "p": 1, "ps": 25, "rules": [
+{"total": 1, "p": 1, "ps": 10, "rules": [
   {
     "key": "java:S001",
-    "repo": "java",
-    "name": "Rule S001",
-    "lang": "js",
-    "htmlDesc": "Description S001",
-    "status": "READY",
-    "severity": "INFO",
-    "template": false,
-    "internalKey": "InternalKeyS001",
-    "tags": [],
-    "sysTags": [],
-    "debtRemFnType": "LINEAR",
-    "debtRemFnCoeff": "1h",
-    "debtRemFnOffset": "5min",
     "params": [
       {
         "key": "my_var",
@@ -27,22 +14,5 @@
       }
     ]
   }
-], "actives": {
-  "java:S001": [
-    {
-      "qProfile": "My Profile:java",
-      "inherit": "NONE",
-      "severity": "BLOCKER",
-      "params": [
-        {
-          "key": "the_var",
-          "value": "The Other Value"
-        },
-        {
-          "key": "my_var",
-          "value": "The VALUE"
-        }
-      ]
-    }
-  ]
-}}
+]
+}

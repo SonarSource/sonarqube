@@ -1,19 +1,7 @@
-{"total": 1, "p": 1, "ps": 25, "rules": [
-    {
-        "key": "java:S001",
-        "repo": "java",
-        "name": "Rule S001",
-        "htmlDesc": "Description S001",
-        "severity": "INFO",
-        "status": "READY",
-        "internalKey": "InternalKeyS001",
-        "template": false,
-        "tags": [],
-        "sysTags": ["tag1"],
-        "debtRemFnType": "LINEAR",
-        "debtRemFnCoeff": "1h",
-        "debtRemFnOffset": "5min",
-        "lang": "js",
-        "params": []
-    }
-], "actives": {}}
+{"total": 1, "p": 1, "ps": 10, "rules": [
+  {
+    "key": "java:S001",
+    "sysTags": ["tag1"],
+    "tags": []
+  }
+]}

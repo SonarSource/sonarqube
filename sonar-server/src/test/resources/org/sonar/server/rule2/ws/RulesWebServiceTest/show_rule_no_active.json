@@ -1,12 +1,4 @@
 {
-  "actives": [
-    {
-      "inherit": "NONE",
-      "params": [],
-      "qProfile": "My Profile:java",
-      "severity": "BLOCKER"
-    }
-  ],
   "rule": {
     "debtRemFnCoeff": "1h",
     "debtRemFnOffset": "5min",
