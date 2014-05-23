@@ -32,7 +32,7 @@
 
         <% if ncloc_language_dist_hash %>
           <% if ncloc_language_dist_hash.size > 1 %>
-            <table class="data zebra widget-barchar">
+            <table class="data widget-barchar">
               <%
                  max = ncloc_language_dist_hash.max_by{|_k,v| v.to_i}[1].to_i
 

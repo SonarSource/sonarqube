@@ -17,13 +17,16 @@
     <p class="description-widget-description">
       <%= message('widget.description.profiles') -%>:
       <% profiles.each_with_index do |profile, i| %>
-        <span id="resource_profile">
-          <%= Api::Utils.language_name(profile['language']) -%>: <%= link_to profile['name'], {:controller => '/profiles', :action => 'show', :id => profile['id']}, :class => 'widget-link', :id => profile['language'] + '_profile_link' -%>
+        <span class="nowrap">
+          <span id="resource_profile">
+           <%= link_to profile['name'], {:controller => '/profiles', :action => 'show', :id => profile['id']}, :class => 'widget-link', :id => profile['language'] + '_profile_link' -%>
+          </span>
+          <span class="subtitle">
+            (<%= Api::Utils.language_name(profile['language']) -%>,
+            <%= message('widget.description.profile_version_x', :params => profile['version']) -%>)
+          </span>
+          <% if i < (profiles.size - 1) %>,<% end %>
         </span>
-        <span class="subtitle">(<%= message('widget.description.profile_version_x', :params => profile['version']) -%>)</span>
-        <% if i < (profiles.size - 1) %>
-          <br/>
-        <% end %>
       <% end %>
     </p>
   <%
