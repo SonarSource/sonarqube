@@ -34,7 +34,7 @@ define [
 
 
     makeActive: ->
-      @choices.each (item) -> item.set 'checked', item.id == 'active'
+      @choices.each (item) -> item.set 'checked', item.id == 'true'
       @detailsView.updateValue()
       @detailsView.updateLists()
       @render()

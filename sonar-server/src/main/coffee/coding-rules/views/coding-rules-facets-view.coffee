@@ -19,6 +19,16 @@ define [
       'click @ui.options': 'selectOption'
 
 
+    initialize: ->
+      super()
+      that = @
+      @options.collection.each (facet) ->
+        property = facet.get 'property'
+        facet.set 'property_message', 'coding_rules.facets.' + property
+        _.each(facet.get('values'), (value) ->
+          value.text = that.options.app.facetLabel(property, value.val)
+        )
+
     selectOption: (e) ->
       option = jQuery(e.currentTarget)
       option.toggleClass 'active'

@@ -27,6 +27,7 @@ define [
         url: "#{baseUrl}/api/rules/show"
         data:
           key: @model.get('key')
+          actives: true
       .done (r) =>
         @model.set r.rule
         @options.app.codingRulesQualityProfileActivationView.rule = @model

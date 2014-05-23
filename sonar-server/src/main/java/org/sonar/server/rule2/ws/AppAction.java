@@ -131,6 +131,10 @@ public class AppAction implements RequestHandler {
     "coding_rules.filters.status",
     "coding_rules.filters.tag",
 
+    "coding_rules.facets.tags",
+    "coding_rules.facets.languages",
+    "coding_rules.facets.repositories",
+
     "coding_rules.sort.creation_date",
     "coding_rules.sort.name"
   };

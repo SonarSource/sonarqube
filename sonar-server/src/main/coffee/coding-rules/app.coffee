@@ -166,6 +166,14 @@ requirejs [
 
 
 
+  App.facetLabel = (property, value) ->
+    return value unless App.facetPropertyToLabels[property]
+    if App.facetPropertyToLabels[property][value]
+      return App.facetPropertyToLabels[property][value]
+    else
+      return _.findWhere(App.facetPropertyToLabels[property], key: value).name
+
+
   App.fetchFirstPage = (fromFacets = false) ->
     @pageIndex = 1
     App.fetchList true, fromFacets
@@ -257,7 +265,6 @@ requirejs [
       name: t 'coding_rules.filters.tag'
       property: 'tags'
       type: TagFilterView
-      choices: @tags
 
     @filters.add new BaseFilters.Filter
       name: t 'coding_rules.filters.characteristic'
@@ -352,9 +359,12 @@ requirejs [
       App.languages = r.languages
       App.repositories = r.repositories
       App.statuses = r.statuses
-      App.tags = r.tags
       App.characteristics = r.characteristics
       window.messages = r.messages
+
+      App.facetPropertyToLabels =
+        'languages': App.languages
+        'repositories': App.repositories
 
       # Remove the initial spinner
       jQuery('#coding-rules-page-loader').remove()
