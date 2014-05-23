@@ -107,7 +107,7 @@ requirejs [
   App.storeQuery = (query, sorting) ->
     if sorting
       _.extend query,
-        sort: sorting.sort
+        s: sorting.sort
         asc: '' + sorting.asc
     queryString = _.map query, (v, k) -> "#{k}=#{encodeURIComponent(v)}"
     @router.navigate queryString.join('|'), replace: true
@@ -123,7 +123,7 @@ requirejs [
 
     if @codingRules.sorting
       _.extend fetchQuery,
-          sort: @codingRules.sorting.sort,
+          s: @codingRules.sorting.sort,
           asc: @codingRules.sorting.asc
 
     @storeQuery query, @codingRules.sorting
@@ -132,7 +132,7 @@ requirejs [
     _.extend fetchQuery, f: 'name,lang,status'
 
     @layout.showSpinner 'resultsRegion'
-    @layout.showSpinner 'facetsRegion' unless fromFacets
+    @layout.showSpinner 'facetsRegion' unless fromFacets || !firstPage
     jQuery.ajax
       url: "#{baseUrl}/api/rules/search"
       data: fetchQuery
@@ -206,7 +206,7 @@ requirejs [
   # Define coding rules
   App.addInitializer ->
     @codingRules = new Backbone.Collection
-    @codingRules.sorting = sort: 'CREATION_DATE', asc: false
+    @codingRules.sorting = sort: 'CREATED_AT', asc: false
 
 
   # Construct status bar

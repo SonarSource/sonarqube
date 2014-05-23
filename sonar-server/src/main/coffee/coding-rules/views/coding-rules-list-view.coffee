@@ -29,11 +29,22 @@ define [
       key 'up', 'list', => @selectPrev()
       key 'down', 'list', => @selectNext()
 
+      that = @
+      $scrollEl = jQuery('.navigator-results')
+      scrollEl = $scrollEl.get(0)
+      onScroll = ->
+        if (scrollEl.offsetHeight + scrollEl.scrollTop >= scrollEl.scrollHeight)
+          that.options.app.fetchNextPage()
+      throttledScroll = _.throttle(onScroll, 300)
+      $scrollEl.off('scroll').on('scroll', throttledScroll)
+
 
     close: ->
       super
       key.unbind 'up', 'list'
       key.unbind 'down', 'list'
+      scrollEl = jQuery '.navigator-results'
+      scrollEl.off 'scroll';
 
 
     selectIssue: (el, open) ->
