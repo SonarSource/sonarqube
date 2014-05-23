@@ -131,6 +131,11 @@ requirejs [
     # Optimize requested fields
     _.extend fetchQuery, f: 'name,lang,status'
 
+    if @codingRulesListView
+      scrollOffset = jQuery('.navigator-results')[0].scrollTop
+    else
+      scrollOffset = 0
+
     @layout.showSpinner 'resultsRegion'
     @layout.showSpinner 'facetsRegion' unless fromFacets || !firstPage
     jQuery.ajax
@@ -150,11 +155,15 @@ requirejs [
         pageIndex: r.p
         pageSize: r.ps
         pages: 1 + (r.total / r.ps)
+
       @codingRulesListView = new CodingRulesListView
         app: @
         collection: @codingRules
       @layout.resultsRegion.show @codingRulesListView
       @codingRulesListView.selectFirst()
+
+      unless firstPage
+        jQuery('.navigator-results')[0].scrollTop = scrollOffset
 
       unless fromFacets
         @codingRulesFacetsView = new CodingRulesFacetsView
@@ -349,25 +358,24 @@ requirejs [
   # Call app before start the application
   appXHR = jQuery.ajax
     url: "#{baseUrl}/api/rules/app"
+  .done (r) ->
+    App.appState = new Backbone.Model
+    App.state = new Backbone.Model
+    App.canWrite = r.canWrite
+    App.qualityProfiles = r.qualityprofiles
+    App.languages = r.languages
+    App.repositories = r.repositories
+    App.statuses = r.statuses
+    App.characteristics = r.characteristics
+
+    App.facetPropertyToLabels =
+      'languages': App.languages
+      'repositories': App.repositories
 
   # Message bundles
   l10nXHR = window.requestMessages()
 
-  jQuery.when(appXHR, l10nXHR)
-  .done (r) ->
-      App.appState = new Backbone.Model
-      App.state = new Backbone.Model
-      App.canWrite = r.canWrite
-      App.qualityProfiles = r.qualityprofiles
-      App.languages = r.languages
-      App.repositories = r.repositories
-      App.statuses = r.statuses
-      App.characteristics = r.characteristics
-
-      App.facetPropertyToLabels =
-        'languages': App.languages
-        'repositories': App.repositories
-
+  jQuery.when(appXHR, l10nXHR).done ->
       # Remove the initial spinner
       jQuery('#coding-rules-page-loader').remove()
 
