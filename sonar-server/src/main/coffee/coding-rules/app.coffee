@@ -350,7 +350,10 @@ requirejs [
   appXHR = jQuery.ajax
     url: "#{baseUrl}/api/rules/app"
 
-  jQuery.when(appXHR)
+  # Message bundles
+  l10nXHR = window.requestMessages()
+
+  jQuery.when(appXHR, l10nXHR)
   .done (r) ->
       App.appState = new Backbone.Model
       App.state = new Backbone.Model
@@ -360,7 +363,6 @@ requirejs [
       App.repositories = r.repositories
       App.statuses = r.statuses
       App.characteristics = r.characteristics
-      window.messages = r.messages
 
       App.facetPropertyToLabels =
         'languages': App.languages

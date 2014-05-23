@@ -5,7 +5,7 @@
     }
   };
 
-  window.t = function() {
+  window.t2 = function() {
     if (!window.messages) {
       return window.translate.apply(this, arguments);
     }
@@ -16,6 +16,17 @@
       warn('No translation for "' + key + '"');
     }
     return (window.messages && window.messages[key]) || key;
+  };
+
+  window.t = function() {
+    var args = Array.prototype.slice.call(arguments, 0),
+        key = args.join('.'),
+        storageKey = 'l10n.' + key,
+        message = localStorage.getItem(storageKey);
+    if (!message) {
+      return window.t2.apply(this, arguments);
+    }
+    return message;
   };
 
 
@@ -56,6 +67,19 @@
     }
 
     return found ? result : key;
+  };
+
+
+  window.requestMessages = function() {
+    var apiUrl = baseUrl + '/api/l10n/index';
+    jQuery.get(apiUrl, function(bundle) {
+      for (var message in bundle) {
+        if (bundle.hasOwnProperty(message)) {
+          var storageKey = 'l10n.' + message;
+          localStorage.setItem(storageKey, bundle[message]);
+        }
+      }
+    });
   };
 
 })();

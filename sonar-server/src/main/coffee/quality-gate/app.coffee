@@ -130,11 +130,13 @@ requirejs [
       App.canEdit = r.edit
       App.periods = r.periods
       App.metrics = r.metrics
-      window.messages = r.messages
 
   qualityGatesXHR = App.qualityGates.fetch()
 
-  jQuery.when(qualityGatesXHR, appXHR)
+  # Message bundles
+  l10nXHR = window.requestMessages()
+
+  jQuery.when(qualityGatesXHR, appXHR, l10nXHR)
     .done ->
       # Remove the initial spinner
       jQuery('#quality-gate-page-loader').remove()
