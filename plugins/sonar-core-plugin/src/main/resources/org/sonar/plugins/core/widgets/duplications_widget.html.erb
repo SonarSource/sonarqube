@@ -7,7 +7,7 @@
     <div class="widget-measure widget-measure-main">
       <span class="widget-label"><%= message('widget.duplications.duplications') -%></span>
       <span class="nowrap">
-        <%= format_measure(duplicated_lines_density, :url => url_for_drilldown(duplicated_lines_density, :highlight =>  'duplicated_lines_density')) %>
+        <%= format_measure(duplicated_lines_density, :url => url_for_drilldown('duplicated_lines', :highlight =>  'duplicated_lines_density')) %>
         <%= dashboard_configuration.selected_period? ? format_variation('duplicated_lines_density') : trend_icon('duplicated_lines_density') -%>
       </span>
     </div>

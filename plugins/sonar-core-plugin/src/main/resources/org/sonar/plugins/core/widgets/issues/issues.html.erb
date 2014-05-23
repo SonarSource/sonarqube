@@ -54,7 +54,9 @@
         <div class="widget-measure widget-measure-main">
           <span class="widget-label"><%= message('widget.rules.technical_debt') -%></span>
           <span class="nowrap">
-            <%= format_measure(technical_debt, :url => url_for_drilldown('sqale_index')) %>
+            <a href="<%= url_for_drilldown('sqale_index') -%>" class="widget-link link-<%= widget.key %>-debt">
+              <%= format_measure(technical_debt) -%>
+            </a>
             <%= dashboard_configuration.selected_period? ? format_variation(technical_debt) : trend_icon(technical_debt) -%>
           </span>
         </div>
