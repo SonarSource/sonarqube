@@ -5,12 +5,12 @@
 
     <sql id="activeRuleKeyColumns">
         a.id,
-        a.profile_id as profileId,
-        a.rule_id as ruleId,
-        a.failure_level as severity,
-        a.inheritance as inheritance,
-        r.plugin_rule_key as ruleField,
-        r.plugin_name as repository,
+        a.profile_id as "profileId",
+        a.rule_id as "ruleId",
+        a.failure_level as "severity",
+        a.inheritance as "inheritance",
+        r.plugin_rule_key as "rulefield",
+        r.plugin_name as "repository",
         qp.name as profile,
         qp.language as language
     </sql>
@@ -21,7 +21,7 @@
     </sql>
 
 
-    <sql id="activeRuleColumns">
+  <sql id="activeRuleColumns">
     a.id,
     a.profile_id as profileId,
     a.rule_id as ruleId,
@@ -36,18 +36,18 @@
     LEFT JOIN active_rules active_rule_parent ON active_rule_parent.profile_id=profile_parent.id AND a.rule_id=active_rule_parent.rule_id
   </sql>
 
-    <select id="selectAllKeysAfterTimestamp" parameterType="Date" resultType="map">
-        SELECT
-        r.plugin_rule_key as ruleField,
-        r.plugin_name as repositoryField,
-        qp.name as profileField,
-        qp.language as languageField
-        FROM active_rules a
-        <include refid="activeRuleKeyJoin"/>
-        <where>
-            a.updated_at IS NULL or a.updated_at &gt;= #{id}
-        </where>
-    </select>
+  <select id="selectAllKeysAfterTimestamp" parameterType="Date" resultType="map">
+    SELECT
+    r.plugin_rule_key as "rulefield",
+    r.plugin_name as "repository",
+    qp.name as "profile",
+    qp.language as "language"
+    FROM active_rules a
+    <include refid="activeRuleKeyJoin"/>
+    <where>
+    a.updated_at IS NULL or a.updated_at &gt;= #{id}
+    </where>
+  </select>
 
   <insert id="insert" parameterType="ActiveRule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO active_rules (profile_id, rule_id, failure_level, inheritance)

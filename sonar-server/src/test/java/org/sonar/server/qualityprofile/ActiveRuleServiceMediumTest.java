@@ -371,7 +371,6 @@ public class ActiveRuleServiceMediumTest {
     // 0. Assert that we have no rules in Is.
     assertThat(index.getByKey(activeRule.getKey())).isNull();
 
-
     // 1. Synchronize since 0
     dbClient.activeRuleDao().synchronizeAfter(0,dbSession);
 

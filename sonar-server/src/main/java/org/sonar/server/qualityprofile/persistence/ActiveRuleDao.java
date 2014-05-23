@@ -32,7 +32,6 @@ import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleMapper;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.BaseDao;
@@ -65,37 +64,18 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
 
   @Override
   public void synchronizeAfter(long timestamp, final DbSession session) {
-    session.select("selectAllKeysAfterTimestamp",new Timestamp(timestamp), new ResultHandler() {
+    session.select("selectAllKeysAfterTimestamp", new Timestamp(timestamp), new ResultHandler() {
       @Override
       public void handleResult(ResultContext context) {
         Map<String, Object> fields = (Map<String, Object>) context.getResultObject();
+        // "rule" is a reserved keyword in SQLServer, so "rulefield" is used
         ActiveRuleKey key = ActiveRuleKey.of(
-          QualityProfileKey.of((String) fields.get("PROFILEFIELD"), (String) fields.get("LANGUAGEFIELD")),
-          RuleKey.of((String) fields.get("REPOSITORYFIELD"), (String) fields.get("RULEFIELD")));
+          QualityProfileKey.of((String) fields.get("profile"), (String) fields.get("language")),
+          RuleKey.of((String) fields.get("repository"), (String) fields.get("rulefield")));
         session.enqueue(new KeyIndexAction<ActiveRuleKey>(getIndexType(), IndexAction.Method.UPSERT, key));
       }
     });
     session.commit();
-  }
-
-
-  public ActiveRuleDto createActiveRule(QualityProfileKey profileKey, RuleKey ruleKey, String severity, DbSession session) {
-    RuleDto ruleDto = ruleDao.getByKey(ruleKey, session);
-    QualityProfileDto profileDto = profileDao.selectByNameAndLanguage(profileKey.name(), profileKey.lang(), session);
-    ActiveRuleDto activeRule = ActiveRuleDto.createFor(profileDto, ruleDto)
-      .setSeverity(severity);
-    insert(activeRule, session);
-
-//    List<RuleParamDto> ruleParams = ruleDao.findRuleParamsByRuleKey(ruleKey, session);
-//    List<ActiveRuleParamDto> activeRuleParams = newArrayList();
-//    for (RuleParamDto ruleParam : ruleParams) {
-//      ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(ruleParam)
-//        .setKey(ruleParam.getName())
-//        .setValue(ruleParam.getDefaultValue());
-//      activeRuleParams.add(activeRuleParam);
-//      addParam(activeRule, activeRuleParam, session);
-//    }
-    return activeRule;
   }
 
   @Deprecated
@@ -214,7 +194,7 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
       int id = this.getQualityProfileId(profileKey, session);
       return mapper(session).selectByProfileId(id);
     } catch (Exception e) {
-      throw new IllegalArgumentException("Quality profile not found: "+profileKey.toString());
+      throw new IllegalArgumentException("Quality profile not found: " + profileKey.toString());
     }
   }
 
@@ -225,7 +205,7 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
 
   @Deprecated
   //TODO Needed until SQL rewrite with KEY fields.
-  private int getQualityProfileId(QualityProfileKey profileKey, DbSession session){
+  private int getQualityProfileId(QualityProfileKey profileKey, DbSession session) {
     return profileDao.selectByNameAndLanguage(profileKey.name(), profileKey.lang(), session).getId();
   }
 
@@ -235,14 +215,14 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
 
   public List<ActiveRuleParamDto> findParamsByKey(ActiveRuleKey key, DbSession session) {
     Preconditions.checkArgument(key != null, "ActiveRuleKey cannot be null");
-    ActiveRuleDto activeRule = this.getByKey(key,session);
+    ActiveRuleDto activeRule = this.getByKey(key, session);
     return mapper(session).selectParamsByActiveRuleId(activeRule.getId());
   }
 
-  public ActiveRuleParamDto getParamsByKeyAndName(ActiveRuleKey key, String name,  DbSession session) {
+  public ActiveRuleParamDto getParamsByKeyAndName(ActiveRuleKey key, String name, DbSession session) {
     Preconditions.checkArgument(key != null, "ActiveRuleKey cannot be null");
     Preconditions.checkArgument(name != null, "ParameterName cannot be null");
-    ActiveRuleDto activeRule = this.getByKey(key,session);
+    ActiveRuleDto activeRule = this.getByKey(key, session);
     return mapper(session).selectParamByActiveRuleAndKey(activeRule.getId(), name);
   }
 
