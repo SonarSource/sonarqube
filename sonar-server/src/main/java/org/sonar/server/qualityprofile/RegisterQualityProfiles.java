@@ -120,7 +120,7 @@ public class RegisterQualityProfiles implements ServerComponent {
 
     Set<String> defaultProfileNames = defaultProfileNames(profiles);
     if (defaultProfileNames.size() > 1) {
-      throw new IllegalStateException("Several Quality Profiles are flagged as default for the language " + language + ": " + defaultProfileNames);
+      throw new IllegalStateException("Several Quality profiles are flagged as default for the language " + language + ": " + defaultProfileNames);
     }
   }
 
@@ -129,7 +129,6 @@ public class RegisterQualityProfiles implements ServerComponent {
 
     QualityProfileDto profileDto = dbClient.qualityProfileDao().getByKey(key, session);
     if (profileDto != null) {
-      // cleanup
       cleanUp(key, profileDto, session);
     }
     insertNewProfile(key, session);
@@ -217,7 +216,7 @@ public class RegisterQualityProfiles implements ServerComponent {
   }
 
   private static Set<String> defaultProfileNames(Collection<RulesProfile> profiles) {
-    Set<String> names = Sets.newHashSet();
+    Set<String> names = Sets.newTreeSet();
     for (RulesProfile profile : profiles) {
       if (profile.getDefaultProfile()) {
         names.add(profile.getName());

@@ -52,9 +52,9 @@ public class QProfilesMediumTest {
   public void recreate_built_in_profile_from_language() throws Exception {
 //    MockUserSession.set().setLogin("julien").setName("Julien").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 //
-//    QProfiles qProfiles = serverTester.get(QProfiles.class);
-//    QProfileBackup qProfileBackup = serverTester.get(QProfileBackup.class);
-//    Rules rules = serverTester.get(Rules.class);
+//    QProfiles qProfiles = tester.get(QProfiles.class);
+//    QProfileBackup qProfileBackup = tester.get(QProfileBackup.class);
+//    Rules rules = tester.get(Rules.class);
 //
 //    QProfile profile = qProfiles.profile("Basic", "xoo");
 //

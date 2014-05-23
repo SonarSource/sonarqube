@@ -21,7 +21,6 @@
 package org.sonar.server.qualityprofile;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
@@ -54,55 +53,93 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class RegisterQualityProfilesMediumTest {
 
-  @org.junit.Rule
-  public ServerTester serverTester = new ServerTester().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
-
-  DbClient dbClient;
-  DbSession session;
-
-  @Before
-  public void setup() {
-    dbClient = serverTester.get(DbClient.class);
-    session = dbClient.openSession(false);
-  }
+  ServerTester tester;
+  DbSession dbSession;
 
   @After
   public void tearDown() throws Exception {
-    session.close();
+    if (dbSession != null) {
+      dbSession.close();
+    }
+    if (tester != null) {
+      tester.stop();
+    }
   }
 
   @Test
   public void register_profile_definitions() throws Exception {
+    tester = new ServerTester().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
+    tester.start();
+    dbSession = dbClient().openSession(false);
     QualityProfileKey qualityProfileKey = QualityProfileKey.of("Basic", "xoo");
 
     // Check Profile in DB
-    QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
-    assertThat(qualityProfileDao.findAll(session)).hasSize(1);
-    assertThat(qualityProfileDao.getByKey(qualityProfileKey, session)).isNotNull();
+    QualityProfileDao qualityProfileDao = dbClient().qualityProfileDao();
+    assertThat(qualityProfileDao.findAll(dbSession)).hasSize(1);
+    assertThat(qualityProfileDao.getByKey(qualityProfileKey, dbSession)).isNotNull();
 
     // Check Default Profile
-    PropertiesDao propertiesDao = dbClient.propertiesDao();
-    List<PropertyDto> xooDefault = propertiesDao.selectByQuery(PropertyQuery.builder().setKey("sonar.profile.xoo").build(), session);
+    PropertiesDao propertiesDao = dbClient().propertiesDao();
+    List<PropertyDto> xooDefault = propertiesDao.selectByQuery(PropertyQuery.builder().setKey("sonar.profile.xoo").build(), dbSession);
     assertThat(xooDefault).hasSize(1);
     assertThat(xooDefault.get(0).getValue()).isEqualTo("Basic");
 
     // Check ActiveRules in DB
-    ActiveRuleDao activeRuleDao = dbClient.activeRuleDao();
-    assertThat(activeRuleDao.findByProfileKey(qualityProfileKey, session)).hasSize(2);
+    ActiveRuleDao activeRuleDao = dbClient().activeRuleDao();
+    assertThat(activeRuleDao.findByProfileKey(qualityProfileKey, dbSession)).hasSize(2);
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
 
-    ActiveRuleDto activeRule = activeRuleDao.getByKey(ActiveRuleKey.of(qualityProfileKey, ruleKey), session);
+    ActiveRuleDto activeRule = activeRuleDao.getByKey(ActiveRuleKey.of(qualityProfileKey, ruleKey), dbSession);
     assertThat(activeRule.getKey().qProfile()).isEqualTo(qualityProfileKey);
     assertThat(activeRule.getKey().ruleKey()).isEqualTo(ruleKey);
     assertThat(activeRule.getSeverityString()).isEqualTo(Severity.CRITICAL);
 
     // Check ActiveRuleParameters in DB
-    Map<String, ActiveRuleParamDto> params = ActiveRuleParamDto.groupByKey(activeRuleDao.findParamsByActiveRule(activeRule, session));
+    Map<String, ActiveRuleParamDto> params = ActiveRuleParamDto.groupByKey(activeRuleDao.findParamsByActiveRule(activeRule, dbSession));
     assertThat(params).hasSize(2);
     // set by profile
     assertThat(params.get("acceptWhitespace").getValue()).isEqualTo("true");
     // default value
     assertThat(params.get("max").getValue()).isEqualTo("10");
+  }
+
+  @Test
+  public void fail_if_two_definitions_are_marked_as_default_on_the_same_language() throws Exception {
+    tester = new ServerTester().addComponents(new SimpleProfileDefinition("one", true), new SimpleProfileDefinition("two", true));
+
+    try {
+      tester.start();
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("Several Quality profiles are flagged as default for the language xoo: [one, two]");
+    }
+  }
+
+  @Test
+  public void mark_profile_as_default() throws Exception {
+    tester = new ServerTester().addComponents(new SimpleProfileDefinition("one", false), new SimpleProfileDefinition("two", true));
+
+    tester.start();
+    dbSession = dbClient().openSession(false);
+    PropertiesDao propertiesDao = dbClient().propertiesDao();
+    List<PropertyDto> props = propertiesDao.selectByQuery(PropertyQuery.builder().setKey("sonar.profile.xoo").build(), dbSession);
+    assertThat(props).hasSize(1);
+    assertThat(props.get(0).getValue()).isEqualTo("two");
+  }
+
+  @Test
+  public void use_sonar_way_as_default_profile_if_none_are_marked_as_default() throws Exception {
+    tester = new ServerTester().addComponents(new SimpleProfileDefinition("Sonar way", false), new SimpleProfileDefinition("Other way", false));
+
+    tester.start();
+    dbSession = dbClient().openSession(false);
+    PropertiesDao propertiesDao = dbClient().propertiesDao();
+    List<PropertyDto> props = propertiesDao.selectByQuery(PropertyQuery.builder().setKey("sonar.profile.xoo").build(), dbSession);
+    assertThat(props).hasSize(1);
+    assertThat(props.get(0).getValue()).isEqualTo("Sonar way");
+  }
+
+  private DbClient dbClient() {
+    return tester.get(DbClient.class);
   }
 
   public static class XooProfileDefinition extends ProfileDefinition {
@@ -141,6 +178,23 @@ public class RegisterQualityProfilesMediumTest {
         .setHtmlDescription("x2 desc")
         .setSeverity(Severity.INFO);
       repository.done();
+    }
+  }
+
+  public static class SimpleProfileDefinition extends ProfileDefinition {
+    private final boolean asDefault;
+    private final String name;
+
+    public SimpleProfileDefinition(String name, boolean asDefault) {
+      this.name = name;
+      this.asDefault = asDefault;
+    }
+
+    @Override
+    public RulesProfile createProfile(ValidationMessages validation) {
+      RulesProfile profile = RulesProfile.create(name, "xoo");
+      profile.setDefaultProfile(asDefault);
+      return profile;
     }
   }
 }
