@@ -74,7 +74,7 @@ define [
           qualityProfiles: qualityProfiles
         @listenTo @contextProfile, 'destroy', @hideContext
 
-      @model.set 'lang', @options.app.languages[@model.get 'lang']
+      @model.set 'language', @options.app.languages[@model.get 'lang']
       repoKey = @model.get 'repo'
       @model.set 'repository', _.find(@options.app.repositories, (repo) -> repo.key == repoKey).name
       @model.set 'canWrite', @options.app.canWrite

@@ -96,10 +96,12 @@ define [
       @$el.dialog 'close'
 
 
-    getAvailableQualityProfiles: ->
+    getAvailableQualityProfiles: (lang) ->
       activeQualityProfiles =  @options.app.detailView.qualityProfilesView.collection
-      _.reject @options.app.qualityProfiles, (profile) =>
+      inactiveProfiles = _.reject @options.app.qualityProfiles, (profile) =>
         activeQualityProfiles.findWhere key: profile.key
+      _.filter inactiveProfiles, (profile) =>
+        profile.lang == lang
 
 
     serializeData: ->
@@ -114,5 +116,5 @@ define [
         rule: @rule.toJSON()
         change: @model && @model.has 'severity'
         params: params
-        qualityProfiles: @getAvailableQualityProfiles()
+        qualityProfiles: @getAvailableQualityProfiles(@rule.get 'lang')
         severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO']
