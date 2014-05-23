@@ -135,7 +135,6 @@
 
   $(function () {
     var $sidebar = jQuery('#sidebar');
-    console.log($sidebar);
     if ($sidebar.length > 0) {
       var $window = jQuery(window),
           topOffset = $sidebar.offset().top;
