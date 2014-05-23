@@ -11,7 +11,7 @@
       <% if @snapshot.project_snapshot.periods? %>
         <% period_options = period_select_option_tags(@snapshot, 'small') %>
         <% if period_options %>
-          <form method="GET" action="<%= url_for :only_path=>true, :overwrite_params => {:period => nil} -%>" style="display: inline" class="spacer-left">
+          <form method="GET" action="<%= url_for :only_path=>true, :overwrite_params => {:period => nil} -%>" style="display: inline">
             <%= dropdown_tag 'period', period_options, {:width => '250px'}, {:id => 'select-comparison', :onchange => 'submit()'} -%>
           </form>
       <% end %>
@@ -47,7 +47,7 @@
          end
       %>
       <h3><%= message('issues_drilldown.col.severity') -%></h3>
-      <table class="spacedicon" style="border: 1px solid #ccc;">
+      <table class="spacedicon" style="border: 1px solid #e6e6e6;">
         <%= render :partial => 'severity', :locals => {:css => 'even', :severity => 'BLOCKER', :max => max, :measure => blocker_issues} %>
         <%= render :partial => 'severity', :locals => {:css => 'odd', :severity => 'CRITICAL', :max => max, :measure => critical_issues} %>
         <%= render :partial => 'severity', :locals => {:css => 'even', :severity => 'MAJOR', :max => max, :measure => major_issues} %>
@@ -96,7 +96,8 @@
                             {:controller => :drilldown, :action => :issues, :id => @resource.id, :rule => (selected ? nil : rule.key),
                                         :rule_sev => (selected ? nil : rule_measure.severity), :sid => nil, :severity => @severity, :period => @period,
                                         :rids => (selected ? nil : @selected_rids)},
-                            :title => "#{rule.plugin_name}: #{rule.plugin_rule_key}"
+                            :title => "#{rule.plugin_name}: #{rule.plugin_rule_key}",
+                            :class => 'chevron-link highlighted-link'
                     ) -%>
               </td>
               <td class="right" nowrap="nowrap">
@@ -149,16 +150,17 @@
                                      :rule => @rule ? @rule.id : @severity, :display_title => 'true' -%>"
                    onclick="window.open(this.href,'resource-<%= resource.key.parameterize -%>','height=800,width=900,scrollbars=1,resizable=1');return false;"
                    id="popup-<%= resource.key.parameterize -%>"
-                   target="_blank"><%= image_tag 'new-window-16.gif', :alt => message('new_window') -%></a>
+                   target="_blank"
+                   class="chevron-link highlighted-link"><%= image_tag 'new-window-16.gif', :alt => message('new_window') -%></a>
               <% else %>
                 <%= link_to(image_tag('zoom.png'), {:id => resource.id}, {:class => 'nolink'}) %>
               <% end %>
               <%= qualifier_icon(resource) -%>&nbsp;
               <% if resource.source_code? %>
                 <a href="#" onclick="$j('#col_<%= index -%> tr').removeClass('selected'); $j('#row_<%= index -%>_<%= row_index -%>').addClass('selected'); d(<%= resource.id -%>);"
-                   alt="<%= h resource.name(true) -%>" title="<%= h resource.name(true) -%>"><%= h resource.name(false) %></a>
+                   alt="<%= h resource.name(true) -%>" title="<%= h resource.name(true) -%>" class="chevron-link highlighted-link"><%= h resource.name(false) %></a>
               <% else %>
-                <%= link_to(h(resource.name), {:only_path => true, :overwrite_params => {:rids => (selected ? rids-[resource.id] : rids+[resource.id])}}) -%>
+                <%= link_to(h(resource.name), {:only_path => true, :overwrite_params => {:rids => (selected ? rids-[resource.id] : rids+[resource.id])}}, :class => 'chevron-link highlighted-link') -%>
               <% end %>
             </td>
             <td class="right" nowrap>
