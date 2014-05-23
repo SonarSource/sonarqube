@@ -40,8 +40,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   window.SonarWidgets.Widget.prototype.render = function(container) {
     var that = this;
 
+    this.showSpinner(container);
     d3.json(this.source(), function(error, response) {
       if (response && !error) {
+        that.hideSpinner();
         if (response.components.length > 0) {
           that.widget = new SonarWidgets[that.type()]();
           that.widget
@@ -61,6 +63,18 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         }
       }
     });
+  };
+
+
+  window.SonarWidgets.Widget.prototype.showSpinner = function(container) {
+    this.spinner = d3.select(container).append('i').classed('spinner', true);
+  };
+
+
+  window.SonarWidgets.Widget.prototype.hideSpinner = function() {
+    if (this.spinner) {
+      this.spinner.remove();
+    }
   };
 
 
