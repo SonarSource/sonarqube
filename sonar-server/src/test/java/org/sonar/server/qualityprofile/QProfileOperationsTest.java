@@ -21,7 +21,6 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Maps;
-import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -116,11 +115,11 @@ public class QProfileOperationsTest {
     doAnswer(new Answer() {
       public Object answer(InvocationOnMock invocation) {
         Object[] args = invocation.getArguments();
-        QualityProfileDto dto = (QualityProfileDto) args[0];
+        QualityProfileDto dto = (QualityProfileDto) args[1];
         dto.setId(currentId++);
         return null;
       }
-    }).when(qualityProfileDao).insert(any(QualityProfileDto.class), any(SqlSession.class));
+    }).when(qualityProfileDao).insert(any(DbSession.class), any(QualityProfileDto.class));
 
     operations = new QProfileOperations(myBatis, qualityProfileDao, activeRuleDao, propertiesDao, exporter, dryRunCache, profileLookup, profilesManager);
   }
@@ -131,10 +130,10 @@ public class QProfileOperationsTest {
     assertThat(result.profile().name()).isEqualTo("Default");
     assertThat(result.profile().language()).isEqualTo("java");
 
-    verify(qualityProfileDao).insert(any(QualityProfileDto.class), eq(session));
+    verify(qualityProfileDao).insert(eq(session), any(QualityProfileDto.class));
 
     ArgumentCaptor<QualityProfileDto> profileArgument = ArgumentCaptor.forClass(QualityProfileDto.class);
-    verify(qualityProfileDao).insert(profileArgument.capture(), eq(session));
+    verify(qualityProfileDao).insert(eq(session), profileArgument.capture());
     assertThat(profileArgument.getValue().getName()).isEqualTo("Default");
     assertThat(profileArgument.getValue().getLanguage()).isEqualTo("java");
     assertThat(profileArgument.getValue().getVersion()).isEqualTo(1);
@@ -175,7 +174,7 @@ public class QProfileOperationsTest {
     operations.renameProfile(1, "Default profile", authorizedUserSession);
 
     ArgumentCaptor<QualityProfileDto> profileArgument = ArgumentCaptor.forClass(QualityProfileDto.class);
-    verify(qualityProfileDao).update(profileArgument.capture(), eq(session));
+    verify(qualityProfileDao).update(eq(session), profileArgument.capture());
     assertThat(profileArgument.getValue().getId()).isEqualTo(1);
     assertThat(profileArgument.getValue().getName()).isEqualTo("Default profile");
     assertThat(profileArgument.getValue().getLanguage()).isEqualTo("java");
@@ -220,7 +219,7 @@ public class QProfileOperationsTest {
 
     ArgumentCaptor<QualityProfileDto> profileArgument = ArgumentCaptor.forClass(QualityProfileDto.class);
     // One call to update current profile and one other for child
-    verify(qualityProfileDao, times(2)).update(profileArgument.capture(), eq(session));
+    verify(qualityProfileDao, times(2)).update(eq(session), profileArgument.capture());
     assertThat(profileArgument.getAllValues()).hasSize(2);
     QualityProfileDto child = profileArgument.getAllValues().get(1);
     assertThat(child.getId()).isEqualTo(2);
@@ -252,7 +251,7 @@ public class QProfileOperationsTest {
 
     operations.updateParentProfile(1, 3, authorizedUserSession);
     ArgumentCaptor<QualityProfileDto> profileArgument = ArgumentCaptor.forClass(QualityProfileDto.class);
-    verify(qualityProfileDao).update(profileArgument.capture(), eq(session));
+    verify(qualityProfileDao).update(eq(session), profileArgument.capture());
     assertThat(profileArgument.getValue().getParent()).isEqualTo("Parent");
     assertThat(profileArgument.getValue().getLanguage()).isEqualTo("java");
 
@@ -270,7 +269,7 @@ public class QProfileOperationsTest {
     operations.updateParentProfile(1, 2, authorizedUserSession);
 
     ArgumentCaptor<QualityProfileDto> profileArgument = ArgumentCaptor.forClass(QualityProfileDto.class);
-    verify(qualityProfileDao).update(profileArgument.capture(), eq(session));
+    verify(qualityProfileDao).update(eq(session), profileArgument.capture());
     assertThat(profileArgument.getValue().getParent()).isEqualTo("Parent");
     assertThat(profileArgument.getValue().getLanguage()).isEqualTo("java");
 
@@ -289,7 +288,7 @@ public class QProfileOperationsTest {
     operations.updateParentProfile(1, null, authorizedUserSession);
 
     ArgumentCaptor<QualityProfileDto> profileArgument = ArgumentCaptor.forClass(QualityProfileDto.class);
-    verify(qualityProfileDao).update(profileArgument.capture(), eq(session));
+    verify(qualityProfileDao).update(eq(session), profileArgument.capture());
     assertThat(profileArgument.getValue().getParent()).isNull();
     assertThat(profileArgument.getValue().getLanguage()).isEqualTo("java");
 

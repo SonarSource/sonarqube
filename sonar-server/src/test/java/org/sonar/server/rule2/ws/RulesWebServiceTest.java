@@ -95,7 +95,7 @@ public class RulesWebServiceTest {
   @Test
   public void show_rule() throws Exception {
     QualityProfileDto profile = newQualityProfile();
-    tester.get(QualityProfileDao.class).insert(profile, session);
+    tester.get(QualityProfileDao.class).insert(session, profile);
 
     RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"));
     ruleDao.insert(rule, session);
@@ -169,7 +169,7 @@ public class RulesWebServiceTest {
   @Test
   public void search_all_active_rules() throws Exception {
     QualityProfileDto profile = newQualityProfile();
-    tester.get(QualityProfileDao.class).insert(profile, session);
+    tester.get(QualityProfileDao.class).insert(session, profile);
 
     RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"));
     ruleDao.insert(rule, session);
@@ -194,10 +194,10 @@ public class RulesWebServiceTest {
   @Test
   public void search_profile_active_rules() throws Exception {
     QualityProfileDto profile = newQualityProfile().setName("p1");
-    tester.get(QualityProfileDao.class).insert(profile, session);
+    tester.get(QualityProfileDao.class).insert(session, profile);
 
     QualityProfileDto profile2 = newQualityProfile().setName("p2");
-    tester.get(QualityProfileDao.class).insert(profile2, session);
+    tester.get(QualityProfileDao.class).insert(session, profile2);
 
     session.commit();
 
@@ -225,7 +225,7 @@ public class RulesWebServiceTest {
   @Test
   public void search_all_active_rules_params() throws Exception {
     QualityProfileDto profile = newQualityProfile();
-    tester.get(QualityProfileDao.class).insert(profile, session);
+    tester.get(QualityProfileDao.class).insert(session, profile);
 
     RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"));
     ruleDao.insert(rule, session);
@@ -273,7 +273,7 @@ public class RulesWebServiceTest {
   @Test
   public void get_tags() throws Exception {
     QualityProfileDto profile = newQualityProfile();
-    tester.get(QualityProfileDao.class).insert(profile, session);
+    tester.get(QualityProfileDao.class).insert(session, profile);
 
     RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"))
       .setTags(ImmutableSet.of("hello", "world"));
@@ -296,7 +296,7 @@ public class RulesWebServiceTest {
   @Test
   public void get_note_as_markdown_and_html() throws Exception {
     QualityProfileDto profile = newQualityProfile();
-    tester.get(QualityProfileDao.class).insert(profile, session);
+    tester.get(QualityProfileDao.class).insert(session, profile);
 
     RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"))
       .setNoteData("this is *bold*");

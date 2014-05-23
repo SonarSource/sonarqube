@@ -84,7 +84,7 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
   public void select_all() {
     setupData("shared");
 
-    List<QualityProfileDto> dtos = dao.selectAll();
+    List<QualityProfileDto> dtos = dao.findAll(getMyBatis().openSession(false));
 
     assertThat(dtos).hasSize(2);
 

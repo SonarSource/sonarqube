@@ -141,7 +141,20 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
     for (SearchHit hit : response.getHits()) {
       activeRules.add(toDoc(hit.getSource()));
     }
+    return activeRules;
+  }
 
+  public List<ActiveRule> findByQProfile(QualityProfileKey key) {
+    SearchRequestBuilder request = getClient().prepareSearch(this.getIndexName())
+      .setQuery(QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.key(), key.toString()))
+      .setRouting(key.toString());
+
+    SearchResponse response = request.get();
+
+    List<ActiveRule> activeRules = new ArrayList<ActiveRule>();
+    for (SearchHit hit : response.getHits()) {
+      activeRules.add(toDoc(hit.getSource()));
+    }
     return activeRules;
   }
 
@@ -149,12 +162,5 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
     return new RuleIndexDefinition().getIndexType();
   }
 
-  public ActiveRule getByRuleKeyAndProfileKey(RuleKey ruleKey, QualityProfileKey qualityProfileKey) {
-    return toDoc(getClient().prepareGet()
-      .setRouting(ruleKey.toString())
-      .setType(this.getIndexType())
-      .setIndex(this.getIndexName())
-      .setId(ActiveRuleKey.of(qualityProfileKey, ruleKey).toString())
-      .get().getSource());
-  }
+
 }

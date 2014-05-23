@@ -20,11 +20,11 @@
 
 package org.sonar.server.qualityprofile;
 
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Component;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
@@ -50,7 +50,7 @@ public class QProfileProjectOperations implements ServerComponent {
 
   public void addProject(int profileId, long projectId, UserSession userSession) {
     checkPermission(userSession);
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
       ComponentDto project = (ComponentDto) findProjectNotNull(projectId, session);
       QualityProfileDto qualityProfile = findNotNull(profileId, session);
@@ -65,7 +65,7 @@ public class QProfileProjectOperations implements ServerComponent {
 
   public void removeProject(int profileId, long projectId, UserSession userSession) {
     checkPermission(userSession);
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
       ComponentDto project = (ComponentDto) findProjectNotNull(projectId, session);
       QualityProfileDto qualityProfile = findNotNull(profileId, session);
@@ -79,7 +79,7 @@ public class QProfileProjectOperations implements ServerComponent {
 
   public void removeProject(String language, long projectId, UserSession userSession) {
     checkPermission(userSession);
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
       ComponentDto project = (ComponentDto) findProjectNotNull(projectId, session);
 
@@ -92,7 +92,7 @@ public class QProfileProjectOperations implements ServerComponent {
 
   public void removeAllProjects(int profileId, UserSession userSession) {
     checkPermission(userSession);
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
       QualityProfileDto qualityProfile = findNotNull(profileId, session);
 
@@ -103,13 +103,13 @@ public class QProfileProjectOperations implements ServerComponent {
     }
   }
 
-  private QualityProfileDto findNotNull(int id, SqlSession session) {
+  private QualityProfileDto findNotNull(int id, DbSession session) {
     QualityProfileDto qualityProfile = qualityProfileDao.selectById(id, session);
     QProfileValidations.checkProfileIsNotNull(qualityProfile);
     return qualityProfile;
   }
 
-  private Component findProjectNotNull(long projectId, SqlSession session) {
+  private Component findProjectNotNull(long projectId, DbSession session) {
     Component component = resourceDao.findById(projectId, session);
     if (component == null) {
       throw new NotFoundException("This project does not exists.");

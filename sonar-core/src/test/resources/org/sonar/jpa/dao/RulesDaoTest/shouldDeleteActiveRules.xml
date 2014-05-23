@@ -10,12 +10,12 @@
   <rules tags="[null]" system_tags="[null]" id="3" name="baz" description="test" plugin_config_key="checker/baz"
          plugin_rule_key="checkstyle.rule3" plugin_name="plugin" status="READY" cardinality="SINGLE" parent_id="[null]"/>
 
-  <active_rules id="1" profile_id="1" rule_id="1" failure_level="2"/>
-  <active_rules id="2" profile_id="1" rule_id="2" failure_level="2"/>
-  <active_rules id="3" profile_id="1" rule_id="3" failure_level="2"/>
+  <active_rules created_at="[null]" updated_at="[null]" id="1" profile_id="1" rule_id="1" failure_level="2"/>
+  <active_rules created_at="[null]" updated_at="[null]" id="2" profile_id="1" rule_id="2" failure_level="2"/>
+  <active_rules created_at="[null]" updated_at="[null]" id="3" profile_id="1" rule_id="3" failure_level="2"/>
 
-  <active_rules id="4" profile_id="2" rule_id="1" failure_level="2"/>
-  <active_rules id="5" profile_id="2" rule_id="2" failure_level="2"/>
-  <active_rules id="6" profile_id="2" rule_id="3" failure_level="2"/>
+  <active_rules created_at="[null]" updated_at="[null]" id="4" profile_id="2" rule_id="1" failure_level="2"/>
+  <active_rules created_at="[null]" updated_at="[null]" id="5" profile_id="2" rule_id="2" failure_level="2"/>
+  <active_rules created_at="[null]" updated_at="[null]" id="6" profile_id="2" rule_id="3" failure_level="2"/>
 
 </dataset>

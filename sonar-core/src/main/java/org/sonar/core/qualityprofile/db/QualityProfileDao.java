@@ -21,7 +21,6 @@
 package org.sonar.core.qualityprofile.db;
 
 import com.google.common.base.Preconditions;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DaoComponent;
@@ -48,55 +47,88 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
     return session.getMapper(QualityProfileMapper.class).selectAll();
   }
 
-  public void insert(QualityProfileDto dto, SqlSession session) {
-    session.getMapper(QualityProfileMapper.class).insert(dto);
-  }
-
-  public void insert(QualityProfileDto dto) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      insert(dto, session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
+  public void insert(DbSession session, QualityProfileDto profile, QualityProfileDto... otherProfiles) {
+    QualityProfileMapper mapper = session.getMapper(QualityProfileMapper.class);
+    doInsert(mapper, profile);
+    for (QualityProfileDto other : otherProfiles) {
+      doInsert(mapper, other);
     }
   }
 
-  public void update(QualityProfileDto dto, SqlSession session) {
-    session.getMapper(QualityProfileMapper.class).update(dto);
-  }
-
-  public void update(QualityProfileDto dto) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      update(dto, session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-
-  public void delete(QualityProfileDto profile, DbSession session) {
-    Preconditions.checkNotNull(profile.getId(), "Profile is not persisted");
-    session.getMapper(QualityProfileMapper.class).delete(profile.getId());
+  private void doInsert(QualityProfileMapper mapper, QualityProfileDto profile) {
+    Preconditions.checkArgument(profile.getId() == null, "Quality profile is already persisted (got id %d)", profile.getId());
+    mapper.insert(profile);
   }
 
   /**
-   * @deprecated use {@link #delete(QualityProfileDto, DbSession)}
+   * @deprecated use {@link #insert(org.sonar.core.persistence.DbSession, QualityProfileDto, QualityProfileDto...)}
    */
   @Deprecated
-  public void delete(int id, SqlSession session) {
+  public void insert(QualityProfileDto dto) {
+    DbSession session = mybatis.openSession(false);
+    try {
+      insert(session, dto);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public void update(DbSession session, QualityProfileDto profile, QualityProfileDto... otherProfiles) {
+    QualityProfileMapper mapper = session.getMapper(QualityProfileMapper.class);
+    doUpdate(mapper, profile);
+    for (QualityProfileDto otherProfile : otherProfiles) {
+      doUpdate(mapper, otherProfile);
+    }
+  }
+
+  private void doUpdate(QualityProfileMapper mapper, QualityProfileDto profile) {
+    Preconditions.checkArgument(profile.getId() != null, "Quality profile is not persisted");
+    mapper.update(profile);
+  }
+
+  /**
+   * @deprecated use {@link #update(org.sonar.core.persistence.DbSession, QualityProfileDto, QualityProfileDto...)}
+   */
+  @Deprecated
+  public void update(QualityProfileDto dto) {
+    DbSession session = mybatis.openSession(false);
+    try {
+      update(session, dto);
+      session.commit();
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+
+  public void delete(DbSession session, QualityProfileDto profile, QualityProfileDto... otherProfiles) {
+    QualityProfileMapper mapper = session.getMapper(QualityProfileMapper.class);
+    doDelete(mapper, profile);
+    for (QualityProfileDto otherProfile : otherProfiles) {
+      doDelete(mapper, otherProfile);
+    }
+  }
+
+  private void doDelete(QualityProfileMapper mapper, QualityProfileDto profile) {
+    Preconditions.checkNotNull(profile.getId(), "Quality profile is not persisted");
+    mapper.delete(profile.getId());
+  }
+
+  /**
+   * @deprecated use {@link #delete(org.sonar.core.persistence.DbSession, QualityProfileDto, QualityProfileDto...)}
+   */
+  @Deprecated
+  public void delete(int id, DbSession session) {
     session.getMapper(QualityProfileMapper.class).delete(id);
   }
 
   /**
-   * @param id
-   * @deprecated use {@link #delete(QualityProfileDto, DbSession)}
+   * @deprecated use {@link #delete(org.sonar.core.persistence.DbSession, QualityProfileDto, QualityProfileDto...)}
    */
   @Deprecated
   public void delete(int id) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       delete(id, session);
       session.commit();
@@ -106,7 +138,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
   }
 
   public List<QualityProfileDto> selectAll() {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return session.getMapper(QualityProfileMapper.class).selectAll();
     } finally {
@@ -114,12 +146,12 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
     }
   }
 
-  public QualityProfileDto selectDefaultProfile(String language, String key, SqlSession session) {
+  public QualityProfileDto selectDefaultProfile(String language, String key, DbSession session) {
     return session.getMapper(QualityProfileMapper.class).selectDefaultProfile(language, key);
   }
 
   public QualityProfileDto selectDefaultProfile(String language, String key) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return selectDefaultProfile(language, key, session);
     } finally {
@@ -128,7 +160,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
   }
 
   public QualityProfileDto selectByProjectAndLanguage(long projectId, String language, String key) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return session.getMapper(QualityProfileMapper.class).selectByProjectAndLanguage(projectId, language, key);
     } finally {
@@ -137,7 +169,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
   }
 
   public List<QualityProfileDto> selectByLanguage(String language) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return session.getMapper(QualityProfileMapper.class).selectByLanguage(language);
     } finally {
@@ -146,13 +178,13 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
   }
 
   @CheckForNull
-  public QualityProfileDto selectById(int id, SqlSession session) {
+  public QualityProfileDto selectById(int id, DbSession session) {
     return session.getMapper(QualityProfileMapper.class).selectById(id);
   }
 
   @CheckForNull
   public QualityProfileDto selectById(int id) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return selectById(id, session);
     } finally {
@@ -161,13 +193,13 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
   }
 
   @CheckForNull
-  public QualityProfileDto selectParent(int childId, SqlSession session) {
+  public QualityProfileDto selectParent(int childId, DbSession session) {
     return session.getMapper(QualityProfileMapper.class).selectParent(childId);
   }
 
   @CheckForNull
   public QualityProfileDto selectParent(int childId) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return selectParent(childId, session);
     } finally {
@@ -175,12 +207,12 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
     }
   }
 
-  public List<QualityProfileDto> selectChildren(String name, String language, SqlSession session) {
+  public List<QualityProfileDto> selectChildren(String name, String language, DbSession session) {
     return session.getMapper(QualityProfileMapper.class).selectChildren(name, language);
   }
 
   public List<QualityProfileDto> selectChildren(String name, String language) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return selectChildren(name, language, session);
     } finally {
@@ -188,12 +220,12 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
     }
   }
 
-  public int countChildren(String name, String language, SqlSession session) {
+  public int countChildren(String name, String language, DbSession session) {
     return session.getMapper(QualityProfileMapper.class).countChildren(name, language);
   }
 
   public int countChildren(String name, String language) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return countChildren(name, language, session);
     } finally {
@@ -201,12 +233,12 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
     }
   }
 
-  public QualityProfileDto selectByNameAndLanguage(String name, String language, SqlSession session) {
+  public QualityProfileDto selectByNameAndLanguage(String name, String language, DbSession session) {
     return session.getMapper(QualityProfileMapper.class).selectByNameAndLanguage(name, language);
   }
 
   public QualityProfileDto selectByNameAndLanguage(String name, String language) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return selectByNameAndLanguage(name, language, session);
     } finally {
@@ -215,7 +247,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
   }
 
   public List<ComponentDto> selectProjects(String propertyKey, String propertyValue) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return selectProjects(propertyKey, propertyValue, session);
     } finally {
@@ -223,12 +255,12 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
     }
   }
 
-  public List<ComponentDto> selectProjects(String propertyKey, String propertyValue, SqlSession session) {
+  public List<ComponentDto> selectProjects(String propertyKey, String propertyValue, DbSession session) {
     return session.getMapper(QualityProfileMapper.class).selectProjects(propertyKey, propertyValue);
   }
 
   public int countProjects(String propertyKey, String propertyValue) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       return session.getMapper(QualityProfileMapper.class).countProjects(propertyKey, propertyValue);
     } finally {
@@ -237,7 +269,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
   }
 
   public void updateUsedColumn(int profileId, boolean used) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
       session.getMapper(QualityProfileMapper.class).updatedUsedColumn(profileId, used);
       session.commit();

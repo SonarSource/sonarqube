@@ -74,7 +74,7 @@ public class ActiveRuleIndexMediumTest {
     QualityProfileDto profileDto = new QualityProfileDto()
       .setName("myprofile")
       .setLanguage("java");
-    qualityProfileDao.insert(profileDto, dbSession);
+    qualityProfileDao.insert(dbSession, profileDto);
 
     // insert db
     RuleKey ruleKey = RuleKey.of("javascript", "S001");
@@ -110,7 +110,7 @@ public class ActiveRuleIndexMediumTest {
     QualityProfileDto profileDto = new QualityProfileDto()
       .setName("myprofile")
       .setLanguage("java");
-    qualityProfileDao.insert(profileDto, dbSession);
+    qualityProfileDao.insert(dbSession, profileDto);
 
     // insert db
     RuleKey ruleKey = RuleKey.of("javascript", "S001");
@@ -158,16 +158,11 @@ public class ActiveRuleIndexMediumTest {
   }
 
   @Test
-  public void find_activeRules_by_ruleKey() throws InterruptedException {
-    QualityProfileDto profileDto = new QualityProfileDto()
-      .setName("myprofile")
-      .setLanguage("java");
-
-    QualityProfileDto profileDto2 = new QualityProfileDto()
-      .setName("other-profile")
-      .setLanguage("java");
-    qualityProfileDao.insert(profileDto, dbSession);
-    qualityProfileDao.insert(profileDto2, dbSession);
+  public void find_activeRules() throws InterruptedException {
+    QualityProfileDto profile1 = QualityProfileDto.createFor("p1", "java");
+    QualityProfileDto profile2 = QualityProfileDto.createFor("p2", "java");
+    qualityProfileDao.insert(dbSession, profile1);
+    qualityProfileDao.insert(dbSession, profile2);
 
     // insert db
     RuleDto ruleDto = newRuleDto(RuleKey.of("javascript", "S001"));
@@ -177,15 +172,15 @@ public class ActiveRuleIndexMediumTest {
     RuleDto ruleDto2 = newRuleDto(RuleKey.of("javascript", "S002"));
     dao.insert(ruleDto2, dbSession);
 
-    ActiveRuleDto find1 = ActiveRuleDto.createFor(profileDto, ruleDto)
+    ActiveRuleDto find1 = ActiveRuleDto.createFor(profile1, ruleDto)
       .setInheritance(ActiveRule.Inheritance.INHERIT.name())
       .setSeverity(Severity.BLOCKER);
 
-    ActiveRuleDto find2 = ActiveRuleDto.createFor(profileDto2, ruleDto)
+    ActiveRuleDto find2 = ActiveRuleDto.createFor(profile2, ruleDto)
       .setInheritance(ActiveRule.Inheritance.INHERIT.name())
       .setSeverity(Severity.BLOCKER);
 
-    ActiveRuleDto notFound = ActiveRuleDto.createFor(profileDto2, ruleDto2)
+    ActiveRuleDto notFound = ActiveRuleDto.createFor(profile2, ruleDto2)
       .setInheritance(ActiveRule.Inheritance.INHERIT.name())
       .setSeverity(Severity.BLOCKER);
 
@@ -198,6 +193,56 @@ public class ActiveRuleIndexMediumTest {
     List<ActiveRuleDto> persistedDtos = activeRuleDao.findByRule(ruleDto, dbSession);
     assertThat(persistedDtos).hasSize(2);
     persistedDtos = activeRuleDao.findByRule(ruleDto2, dbSession);
+    assertThat(persistedDtos).hasSize(1);
+
+    // verify that activeRules are indexed in es
+
+
+    Collection<ActiveRule> hits = index.findByRule(RuleKey.of("javascript", "S001"));
+
+    assertThat(hits).isNotNull();
+    assertThat(hits).hasSize(2);
+  }
+
+  @Test
+  public void find_activeRules_by_qprofile() throws InterruptedException {
+    QualityProfileDto profileDto = new QualityProfileDto()
+      .setName("P1")
+      .setLanguage("java");
+
+    QualityProfileDto profileDto2 = new QualityProfileDto()
+      .setName("P2")
+      .setLanguage("java");
+    qualityProfileDao.insert(dbSession, profileDto);
+    qualityProfileDao.insert(dbSession, profileDto2);
+
+    // insert db
+    RuleDto rule1 = newRuleDto(RuleKey.of("javascript", "S001"));
+    dao.insert(rule1, dbSession);
+    RuleDto rule2 = newRuleDto(RuleKey.of("javascript", "S002"));
+    dao.insert(rule2, dbSession);
+
+    ActiveRuleDto onP1 = ActiveRuleDto.createFor(profileDto, rule1)
+      .setInheritance(ActiveRule.Inheritance.INHERIT.name())
+      .setSeverity(Severity.BLOCKER);
+
+    ActiveRuleDto firstOnP1 = ActiveRuleDto.createFor(profileDto2, rule1)
+      .setInheritance(ActiveRule.Inheritance.INHERIT.name())
+      .setSeverity(Severity.BLOCKER);
+
+    ActiveRuleDto firstOnP2 = ActiveRuleDto.createFor(profileDto2, rule2)
+      .setInheritance(ActiveRule.Inheritance.INHERIT.name())
+      .setSeverity(Severity.BLOCKER);
+
+    activeRuleDao.insert(onP1, dbSession);
+    activeRuleDao.insert(firstOnP1, dbSession);
+    activeRuleDao.insert(firstOnP2, dbSession);
+    dbSession.commit();
+
+    // verify that activeRules are persisted in db
+    List<ActiveRuleDto> persistedDtos = activeRuleDao.findByRule(rule1, dbSession);
+    assertThat(persistedDtos).hasSize(2);
+    persistedDtos = activeRuleDao.findByRule(rule2, dbSession);
     assertThat(persistedDtos).hasSize(1);
 
     // verify that activeRules are indexed in es

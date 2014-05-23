@@ -23,6 +23,7 @@ package org.sonar.server.qualityprofile;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -36,10 +37,12 @@ public class QProfile {
   private Integer version;
   private boolean used;
 
+  @Deprecated
   public int id() {
     return id;
   }
 
+  @Deprecated
   QProfile setId(int id) {
     this.id = id;
     return this;
@@ -63,6 +66,10 @@ public class QProfile {
     return this;
   }
 
+  public QualityProfileKey key() {
+    return QualityProfileKey.of(name, language);
+  }
+
   @CheckForNull
   public String parent() {
     return parent;
@@ -73,6 +80,7 @@ public class QProfile {
     return this;
   }
 
+  @CheckForNull
   public Integer version() {
     return version;
   }
@@ -91,7 +99,7 @@ public class QProfile {
     return this;
   }
 
-  public boolean isInherited(){
+  public boolean isInherited() {
     return parent != null;
   }
 
@@ -117,6 +125,6 @@ public class QProfile {
 
   @Override
   public String toString() {
-    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE ).toString();
+    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
   }
 }

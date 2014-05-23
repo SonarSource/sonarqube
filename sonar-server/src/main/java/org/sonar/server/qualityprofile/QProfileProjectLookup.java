@@ -21,11 +21,11 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Lists;
-import org.apache.ibatis.session.SqlSession;
 import org.elasticsearch.common.collect.Maps;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.component.Component;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
@@ -33,7 +33,6 @@ import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -51,21 +50,21 @@ public class QProfileProjectLookup implements ServerComponent {
   }
 
   public List<Component> projects(int profileId) {
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
       QualityProfileDto qualityProfile = qualityProfileDao.selectById(profileId, session);
       QProfileValidations.checkProfileIsNotNull(qualityProfile);
       Map<String, Component> componentsByKeys = Maps.newHashMap();
-      for (Component component: qualityProfileDao.selectProjects(
-          qualityProfile.getName(), QProfileOperations.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage(), session
-        )) {
+      for (Component component : qualityProfileDao.selectProjects(
+        qualityProfile.getName(), QProfileOperations.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage(), session
+      )) {
         componentsByKeys.put(component.key(), component);
       }
 
       UserSession userSession = UserSession.get();
       List<Component> result = Lists.newArrayList();
       Collection<String> authorizedProjectKeys = authorizationDao.selectAuthorizedRootProjectsKeys(userSession.userId(), UserRole.USER);
-      for (String key: componentsByKeys.keySet()) {
+      for (String key : componentsByKeys.keySet()) {
         if (authorizedProjectKeys.contains(key)) {
           result.add(componentsByKeys.get(key));
         }

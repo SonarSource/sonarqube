@@ -67,7 +67,7 @@ public class ActiveRuleServiceMediumTest {
     index = tester.get(ActiveRuleIndex.class);
 
     // create quality profile
-    dbClient.qualityProfileDao().insert(QualityProfileDto.createFor("MyProfile", "xoo"), dbSession);
+    dbClient.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor("MyProfile", "xoo"));
     dbSession.commit();
   }
 
@@ -158,7 +158,6 @@ public class ActiveRuleServiceMediumTest {
   }
 
   @Test
-  @Ignore
   public void update_activation_but_new_parameter() throws Exception {
     // initial activation
     grantPermission();
@@ -168,10 +167,10 @@ public class ActiveRuleServiceMediumTest {
     service.activate(activation);
 
 
-    assertThat(dbClient.activeRuleDao().getParamsByKeyAndName(activeRuleKey,"max",dbSession)).isNotNull();
-    dbClient.activeRuleDao().removeParamByKeyAndName(activeRuleKey,"max",dbSession);
+    assertThat(dbClient.activeRuleDao().getParamsByKeyAndName(activeRuleKey, "max", dbSession)).isNotNull();
+    dbClient.activeRuleDao().removeParamByKeyAndName(activeRuleKey, "max", dbSession);
     dbSession.commit();
-    assertThat(dbClient.activeRuleDao().getParamsByKeyAndName(activeRuleKey,"max",dbSession)).isNull();
+    assertThat(dbClient.activeRuleDao().getParamsByKeyAndName(activeRuleKey, "max", dbSession)).isNull();
 
 
     // update
@@ -357,38 +356,45 @@ public class ActiveRuleServiceMediumTest {
   }
 
   @Test
-  public void find_by_ruleKey() throws Exception {
-    QualityProfileDto profile = QualityProfileDto.createFor("name","java");
-    dbClient.qualityProfileDao().insert(profile, dbSession);
+  public void find_active_rules() throws Exception {
+    QualityProfileDto profile1 = QualityProfileDto.createFor("p1", "java");
+    QualityProfileDto profile2 = QualityProfileDto.createFor("p2", "java");
+    dbClient.qualityProfileDao().insert(dbSession, profile1, profile2);
 
-    RuleDto rule = RuleDto.createFor(RuleKey.of("java", "r1"))
-      .setSeverity("MAJOR");
-    dbClient.ruleDao().insert(rule, dbSession);
-
-
-    RuleDto rule2 = RuleDto.createFor(RuleKey.of("java", "r2"))
-      .setSeverity("MAJOR");
+    RuleDto rule1 = RuleDto.createFor(RuleKey.of("java", "r1")).setSeverity(Severity.MAJOR);
+    RuleDto rule2 = RuleDto.createFor(RuleKey.of("java", "r2")).setSeverity(Severity.MAJOR);
+    dbClient.ruleDao().insert(rule1, dbSession);
     dbClient.ruleDao().insert(rule2, dbSession);
 
-    dbClient.activeRuleDao().insert(
-      ActiveRuleDto.createFor(profile, rule).setSeverity("MINOR"),
-      dbSession);
-
-    dbClient.activeRuleDao().insert(
-      ActiveRuleDto.createFor(profile, rule2).setSeverity("BLOCKER"),
-      dbSession);
-
+    dbClient.activeRuleDao().insert(ActiveRuleDto.createFor(profile1, rule1).setSeverity(Severity.MINOR), dbSession);
+    dbClient.activeRuleDao().insert(ActiveRuleDto.createFor(profile1, rule2).setSeverity(Severity.BLOCKER), dbSession);
+    dbClient.activeRuleDao().insert(ActiveRuleDto.createFor(profile2, rule2).setSeverity(Severity.CRITICAL), dbSession);
     dbSession.commit();
 
-    assertThat(service.findByRuleKey(rule.getKey())).hasSize(1);
-    assertThat(service.findByRuleKey(rule.getKey()).get(0)
-    .severity()).isEqualTo("MINOR");
+    // find by rule key
+    List<ActiveRule> activeRules = service.findByRuleKey(RuleKey.of("java", "r1"));
+    assertThat(activeRules).hasSize(1);
+    assertThat(activeRules.get(0).key().ruleKey()).isEqualTo(RuleKey.of("java", "r1"));
 
-    assertThat(service.findByRuleKey(rule2.getKey())).hasSize(1);
-    assertThat(service.findByRuleKey(rule2.getKey()).get(0)
-      .severity()).isEqualTo("BLOCKER");
+    activeRules = service.findByRuleKey(RuleKey.of("java", "r2"));
+    assertThat(activeRules).hasSize(2);
+    assertThat(activeRules.get(0).key().ruleKey()).isEqualTo(RuleKey.of("java", "r2"));
 
+    activeRules = service.findByRuleKey(RuleKey.of("java", "r3"));
+    assertThat(activeRules).isEmpty();
 
+    // find by profile
+    activeRules = service.findByQProfileKey(profile1.getKey());
+    assertThat(activeRules).hasSize(2);
+    assertThat(activeRules.get(0).key().qProfile()).isEqualTo(profile1.getKey());
+    assertThat(activeRules.get(1).key().qProfile()).isEqualTo(profile1.getKey());
+
+    activeRules = service.findByQProfileKey(profile2.getKey());
+    assertThat(activeRules).hasSize(1);
+    assertThat(activeRules.get(0).key().qProfile()).isEqualTo(profile2.getKey());
+
+    activeRules = service.findByQProfileKey(QualityProfileKey.of("unknown", "unknown"));
+    assertThat(activeRules).isEmpty();
   }
 
   private void grantPermission() {

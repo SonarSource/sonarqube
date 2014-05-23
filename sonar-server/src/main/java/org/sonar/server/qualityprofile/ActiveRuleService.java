@@ -31,6 +31,7 @@ import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
@@ -72,6 +73,10 @@ public class ActiveRuleService implements ServerComponent {
 
   public List<ActiveRule> findByRuleKey(RuleKey key) {
     return index.get(ActiveRuleIndex.class).findByRule(key);
+  }
+
+  public List<ActiveRule> findByQProfileKey(QualityProfileKey key) {
+    return index.get(ActiveRuleIndex.class).findByQProfile(key);
   }
 
   /**

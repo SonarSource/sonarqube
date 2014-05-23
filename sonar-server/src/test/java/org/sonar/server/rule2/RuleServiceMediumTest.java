@@ -194,8 +194,8 @@ public class RuleServiceMediumTest {
     // 1. Create in DB
     QualityProfileDto qprofile1 = QualityProfileDto.createFor("profile1", "java");
     QualityProfileDto qprofile2 = QualityProfileDto.createFor("profile2", "java");
-    tester.get(QualityProfileDao.class).insert(qprofile1, dbSession);
-    tester.get(QualityProfileDao.class).insert(qprofile2, dbSession);
+    tester.get(QualityProfileDao.class).insert(dbSession, qprofile1);
+    tester.get(QualityProfileDao.class).insert(dbSession, qprofile2);
 
     RuleDto rule1 = newRuleDto(RuleKey.of("test", "rule1"));
     RuleDto rule2 = newRuleDto(RuleKey.of("test", "rule2"));

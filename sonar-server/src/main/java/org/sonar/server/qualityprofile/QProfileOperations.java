@@ -21,7 +21,6 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
@@ -67,7 +66,7 @@ public class QProfileOperations implements ServerComponent {
   }
 
   public QProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin, UserSession userSession) {
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
       QProfile profile = newProfile(name, language, true, userSession, session);
 
@@ -85,23 +84,23 @@ public class QProfileOperations implements ServerComponent {
     }
   }
 
-  public QProfile newProfile(String name, String language, boolean failIfAlreadyExists, UserSession userSession, SqlSession session) {
+  public QProfile newProfile(String name, String language, boolean failIfAlreadyExists, UserSession userSession, DbSession session) {
     return newProfile(name, language, null, failIfAlreadyExists, userSession, session);
   }
 
-  public QProfile newProfile(String name, String language, @Nullable String parent, boolean failIfAlreadyExists, UserSession userSession, SqlSession session) {
+  public QProfile newProfile(String name, String language, @Nullable String parent, boolean failIfAlreadyExists, UserSession userSession, DbSession session) {
     checkPermission(userSession);
     if (failIfAlreadyExists) {
       checkNotAlreadyExists(name, language, session);
     }
     QualityProfileDto dto = new QualityProfileDto().setName(name).setLanguage(language).setParent(parent).setVersion(1).setUsed(false);
-    dao.insert(dto, session);
+    dao.insert(session, dto);
     return QProfile.from(dto);
   }
 
   public void renameProfile(int profileId, String newName, UserSession userSession) {
     checkPermission(userSession);
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
       QualityProfileDto profileDto = findNotNull(profileId, session);
       String oldName = profileDto.getName();
@@ -111,11 +110,11 @@ public class QProfileOperations implements ServerComponent {
         checkNotAlreadyExists(newName, profile.language(), session);
       }
       profileDto.setName(newName);
-      dao.update(profileDto, session);
+      dao.update(session, profileDto);
 
       List<QProfile> children = profileLookup.children(profile, session);
       for (QProfile child : children) {
-        dao.update(child.setParent(newName).toDto(), session);
+        dao.update(session, child.setParent(newName).toDto());
       }
       propertiesDao.updateProperties(PROFILE_PROPERTY_PREFIX + profile.language(), oldName, newName, session);
 
@@ -156,7 +155,7 @@ public class QProfileOperations implements ServerComponent {
 
   public void setDefaultProfile(int profileId, UserSession userSession) {
     checkPermission(userSession);
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
       QualityProfileDto qualityProfile = findNotNull(profileId, session);
       propertiesDao.setProperty(new PropertyDto().setKey(PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()));
@@ -168,7 +167,7 @@ public class QProfileOperations implements ServerComponent {
 
   public void updateParentProfile(int profileId, @Nullable Integer parentId, UserSession userSession) {
     checkPermission(userSession);
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
       QualityProfileDto profile = findNotNull(profileId, session);
       QualityProfileDto parentProfile = null;
@@ -182,7 +181,7 @@ public class QProfileOperations implements ServerComponent {
       // Modification of inheritance has to be done before setting new parent name in order to be able to disable rules from old parent
       ProfilesManager.RuleInheritanceActions actions = profilesManager.profileParentChanged(profile.getId(), newParentName, userSession.name());
       profile.setParent(newParentName);
-      dao.update(profile, session);
+      dao.update(session, profile);
       session.commit();
 
       //esActiveRule.deleteActiveRules(actions.idsToDelete());
@@ -194,7 +193,7 @@ public class QProfileOperations implements ServerComponent {
 
   public void copyProfile(int profileId, String copyProfileName, UserSession userSession) {
     checkPermission(userSession);
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     try {
       QualityProfileDto profileDto = findNotNull(profileId, session);
       checkNotAlreadyExists(copyProfileName, profileDto.getLanguage(), session);
@@ -208,7 +207,7 @@ public class QProfileOperations implements ServerComponent {
   }
 
   @VisibleForTesting
-  boolean isCycle(QualityProfileDto childProfile, @Nullable QualityProfileDto parentProfile, SqlSession session) {
+  boolean isCycle(QualityProfileDto childProfile, @Nullable QualityProfileDto parentProfile, DbSession session) {
     QualityProfileDto currentParent = parentProfile;
     while (currentParent != null) {
       if (childProfile.getName().equals(currentParent.getName())) {
@@ -220,7 +219,7 @@ public class QProfileOperations implements ServerComponent {
   }
 
   @CheckForNull
-  private QualityProfileDto getParent(QualityProfileDto profile, SqlSession session) {
+  private QualityProfileDto getParent(QualityProfileDto profile, DbSession session) {
     if (profile.getParent() != null) {
       return dao.selectParent(profile.getId(), session);
     }
@@ -232,13 +231,13 @@ public class QProfileOperations implements ServerComponent {
     userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
-  private QualityProfileDto findNotNull(int profileId, SqlSession session) {
+  private QualityProfileDto findNotNull(int profileId, DbSession session) {
     QualityProfileDto profile = dao.selectById(profileId, session);
     QProfileValidations.checkProfileIsNotNull(profile);
     return profile;
   }
 
-  private void checkNotAlreadyExists(String name, String language, SqlSession session) {
+  private void checkNotAlreadyExists(String name, String language, DbSession session) {
     if (dao.selectByNameAndLanguage(name, language, session) != null) {
       throw BadRequestException.ofL10n("quality_profiles.profile_x_already_exists", name);
     }

@@ -11,12 +11,12 @@
   
   <rules_profiles id="2" version="1" used_profile="true" name="child" language="java" parent_name="[null]" />
 
-  <active_rules id="1" profile_id="1" rule_id="1" failure_level="2" inheritance="[null]"/>
+  <active_rules created_at="[null]" updated_at="[null]" id="1" profile_id="1" rule_id="1" failure_level="2" inheritance="[null]"/>
 
-  <active_rules id="3" profile_id="1" rule_id="2" failure_level="2" inheritance="[null]"/>
+  <active_rules created_at="[null]" updated_at="[null]" id="3" profile_id="1" rule_id="2" failure_level="2" inheritance="[null]"/>
   <active_rule_parameters id="1" active_rule_id="3" rules_parameter_id="13" value="30"/>
 
-  <active_rules id="4" profile_id="2" rule_id="2" failure_level="2" inheritance="[null]"/>
+  <active_rules created_at="[null]" updated_at="[null]" id="4" profile_id="2" rule_id="2" failure_level="2" inheritance="[null]"/>
   <active_rule_parameters id="2" active_rule_id="4" rules_parameter_id="13" value="60"/>
 
 </dataset>

@@ -22,7 +22,6 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.profiles.ProfileDefinition;
@@ -107,7 +106,7 @@ public class QProfileBackup implements ServerComponent {
   public QProfileResult restore(String xmlBackup, boolean deleteExisting) {
     checkPermission(UserSession.get());
 
-    SqlSession session = myBatis.openSession(false);
+    DbSession session = myBatis.openSession(false);
     QProfileResult result = new QProfileResult();
     try {
       ValidationMessages messages = ValidationMessages.create();

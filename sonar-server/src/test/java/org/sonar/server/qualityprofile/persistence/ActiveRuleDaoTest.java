@@ -60,7 +60,7 @@ public class ActiveRuleDaoTest  extends AbstractDaoTestCase{
   public void get_by_key() throws Exception {
 
     QualityProfileDto profile = QualityProfileDto.createFor("profile","xoo");
-    qualityProfileDao.insert(profile, session);
+    qualityProfileDao.insert(session, profile);
 
     RuleDto rule = RuleDto.createFor(RuleKey.of("repo","rule"));
     ruleDao.insert(rule, session);
