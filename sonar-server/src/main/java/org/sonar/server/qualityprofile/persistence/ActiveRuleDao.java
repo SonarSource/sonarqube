@@ -39,8 +39,10 @@ import org.sonar.server.db.BaseDao;
 import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexDefinition;
 import org.sonar.server.rule2.persistence.RuleDao;
+import org.sonar.server.search.action.IndexAction;
+import org.sonar.server.search.action.KeyIndexAction;
 
-import java.util.Date;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
@@ -62,13 +64,15 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
   }
 
   @Override
-  public void synchronizeAfter(long timestamp, DbSession session) {
-    session.select("selectAllKeysAfterTimestamp",new Date(timestamp), new ResultHandler() {
+  public void synchronizeAfter(long timestamp, final DbSession session) {
+    session.select("selectAllKeysAfterTimestamp",new Timestamp(timestamp), new ResultHandler() {
       @Override
       public void handleResult(ResultContext context) {
-        Map<String, Object> resultObject = (Map<String, Object>) context.getResultObject();
-        resultObject.get(|TOTO);
-        //session.enqueue();
+        Map<String, Object> fields = (Map<String, Object>) context.getResultObject();
+        ActiveRuleKey key = ActiveRuleKey.of(
+          QualityProfileKey.of((String) fields.get("PROFILEFIELD"), (String) fields.get("LANGUAGEFIELD")),
+          RuleKey.of((String) fields.get("REPOSITORYFIELD"), (String) fields.get("RULEFIELD")));
+        session.enqueue(new KeyIndexAction<ActiveRuleKey>(getIndexType(), IndexAction.Method.UPSERT, key));
       }
     });
   }

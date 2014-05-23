@@ -38,17 +38,14 @@
 
     <select id="selectAllKeysAfterTimestamp" parameterType="Date" resultType="map">
         SELECT
-        rule.plugin_rule_key as rule,
-        rule.plugin_name as repository,
-        profile.name as profile,
-        profile.language as language
+        rule.plugin_rule_key as ruleField,
+        rule.plugin_name as repositoryField,
+        profile.name as profileField,
+        profile.language as languageField
         FROM active_rules a
         <include refid="activeRuleKeyJoin"/>
         <where>
-            AND profile.name = #{profile}
-            AND profile.language = #{language}
-            AND rule.plugin_rule_key = #{rule}
-            AND rule.plugin_name = #{repository}
+            WHERE a.updated_at IS NULL or a.updated_at &gt;= #{id}
         </where>
     </select>
 

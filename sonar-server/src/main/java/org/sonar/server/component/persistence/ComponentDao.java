@@ -75,12 +75,12 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
     throw notImplemented();
   }
 
-  @Override
-  public Iterable<String> keysOfRowsUpdatedAfter(long timestamp, DbSession session) {
-    throw notImplemented();
+  private static IllegalStateException notImplemented() {
+    throw new IllegalStateException("Not implemented yet");
   }
 
-  private static IllegalStateException notImplemented() {
+  @Override
+  public void synchronizeAfter(long timestamp, DbSession session) {
     throw new IllegalStateException("Not implemented yet");
   }
 }

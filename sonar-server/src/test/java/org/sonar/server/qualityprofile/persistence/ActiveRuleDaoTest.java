@@ -75,7 +75,5 @@ public class ActiveRuleDaoTest  extends AbstractDaoTestCase{
 
     assertThat(result).isNotNull();
     assertThat(result.getKey()).isNotNull();
-
-
   }
 }

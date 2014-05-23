@@ -84,7 +84,7 @@ public class MeasureDao extends BaseDao<MeasureMapper, MeasureDto, MeasureKey> i
   }
 
   @Override
-  public Iterable<MeasureKey> keysOfRowsUpdatedAfter(long timestamp, DbSession session) {
+  public void synchronizeAfter(long timestamp, DbSession session) {
     throw new IllegalStateException("Not implemented yet");
   }
 }

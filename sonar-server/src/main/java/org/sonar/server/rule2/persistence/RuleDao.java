@@ -21,7 +21,6 @@ package org.sonar.server.rule2.persistence;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
@@ -32,11 +31,12 @@ import org.sonar.core.rule.RuleMapper;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.BaseDao;
 import org.sonar.server.rule2.index.RuleIndexDefinition;
+import org.sonar.server.search.action.IndexAction;
+import org.sonar.server.search.action.KeyIndexAction;
 
 import javax.annotation.CheckForNull;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -90,17 +90,17 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
     return mapper(session).selectById(rule.getParentId());
   }
 
+
   @Override
-  public Collection<RuleKey> keysOfRowsUpdatedAfter(long timestamp, DbSession session) {
-    final List<RuleKey> keys = Lists.newArrayList();
+  public void synchronizeAfter(long timestamp, final DbSession session) {
     session.select("selectKeysOfRulesUpdatedSince", new Timestamp(timestamp), new ResultHandler() {
       @Override
       public void handleResult(ResultContext context) {
         Map<String, String> map = (Map) context.getResultObject();
-        keys.add(RuleKey.of(map.get("repo"), map.get("rule")));
+        session.enqueue(new KeyIndexAction<RuleKey>(getIndexType(), IndexAction.Method.UPSERT,
+          RuleKey.of(map.get("repoField"), map.get("ruleField"))));
       }
     });
-    return keys;
   }
 
   /**

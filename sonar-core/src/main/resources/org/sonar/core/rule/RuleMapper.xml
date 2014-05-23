@@ -186,7 +186,7 @@
   </update>
 
   <select id="selectKeysOfRulesUpdatedSince" resultType="map">
-    SELECT r.plugin_name as "repo", r.plugin_rule_key as "rule"
+    SELECT r.plugin_name as "repoField", r.plugin_rule_key as "ruleField"
     FROM rules r
     WHERE r.updated_at IS NULL or r.updated_at &gt;= #{id}
   </select>
