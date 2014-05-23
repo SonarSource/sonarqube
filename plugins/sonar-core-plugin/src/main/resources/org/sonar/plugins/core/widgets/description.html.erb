@@ -70,12 +70,12 @@
       <% @project.project_links.sort.each do |link| %>
         <li>
           <% if link.href.starts_with?('http') %>
-            <a class="widget-link" target="_blank" href="<%= link.href -%>">
+            <a class="widget-link link-<%= h link.link_type -%>" target="_blank" href="<%= link.href -%>">
               <i class="icon-<%= h link.link_type -%>"></i>
               <%= h link.name -%>
             </a>
           <% else %>
-            <a class="widget-link" href="#" onclick="$j('#link_<%= link.id -%>').toggle();return false;">
+            <a class="widget-link link-<%= h link.link_type -%>" href="#" onclick="$j('#link_<%= link.id -%>').toggle();return false;">
               <i class="icon-<%= h link.link_type -%>"></i>
               <%= h(link.name) -%>
             </a>
