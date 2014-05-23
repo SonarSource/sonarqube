@@ -122,7 +122,7 @@ public class RuleIndexMediumTest {
     assertThat(result.getFacets()).hasSize(3);
 
     // Verify the value of a given facet
-    Collection<FacetValue> repoFacets = result.getFacetValues("Repositories");
+    Collection<FacetValue> repoFacets = result.getFacetValues("repositories");
     assertThat(repoFacets).hasSize(2);
     assertThat(Iterables.get(repoFacets, 0).getKey()).isEqualTo("javascript");
     assertThat(Iterables.get(repoFacets, 0).getValue()).isEqualTo(2);
@@ -130,7 +130,7 @@ public class RuleIndexMediumTest {
     assertThat(Iterables.get(repoFacets, 1).getValue()).isEqualTo(1);
 
     // Check that tag facet has both Tags and SystemTags values
-    Collection<FacetValue> tagFacet = result.getFacetValues("Tags");
+    Collection<FacetValue> tagFacet = result.getFacetValues("tags");
     assertThat(tagFacet).hasSize(2);
   }
 

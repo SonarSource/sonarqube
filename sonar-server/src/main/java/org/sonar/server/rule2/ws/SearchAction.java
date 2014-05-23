@@ -217,7 +217,7 @@ public class SearchAction implements RequestHandler {
     json.name("facets").beginArray();
     for (Map.Entry<String, Collection<FacetValue>> facet : results.getFacets().entrySet()) {
       json.beginObject();
-      json.prop("name", facet.getKey());
+      json.prop("property", facet.getKey());
       json.name("values").beginArray();
       for (FacetValue facetValue : facet.getValue()) {
         json.beginObject();

@@ -328,7 +328,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     /* the Lang facet */
     query.addAggregation(AggregationBuilders
-      .terms("Languages")
+      .terms("languages")
       .field(RuleNormalizer.RuleField.LANGUAGE.key())
       .order(Terms.Order.count(false))
       .size(10)
@@ -336,7 +336,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
      /* the Tag facet */
     query.addAggregation(AggregationBuilders
-      .terms("Tags")
+      .terms("tags")
       .field(RuleNormalizer.RuleField._TAGS.key())
       .order(Terms.Order.count(false))
       .size(10)
@@ -344,7 +344,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
      /* the Repo facet */
     query.addAggregation(AggregationBuilders
-      .terms("Repositories")
+      .terms("repositories")
       .field(RuleNormalizer.RuleField.REPOSITORY.key())
       .order(Terms.Order.count(false))
       .size(10)
