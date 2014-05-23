@@ -63,7 +63,7 @@ define [
 
       qualityProfile = @options.app.getQualityProfile()
       if qualityProfile
-        @contextProfile = qualityProfiles.findWhere key: qualityProfile
+        @contextProfile = qualityProfiles.findWhere qProfile: qualityProfile
         unless @contextProfile
           @contextProfile = new Backbone.Model
             key: qualityProfile, name: @options.app.qualityProfileFilter.view.renderValue()
@@ -71,6 +71,7 @@ define [
           app: @options.app
           model: @contextProfile
           rule: @model
+          qualityProfiles: qualityProfiles
         @listenTo @contextProfile, 'destroy', @hideContext
 
       @model.set 'lang', @options.app.languages[@model.get 'lang']
@@ -81,6 +82,7 @@ define [
       @model.set 'createdAt', new Date(@model.get 'createdAt')
 
     onRender: ->
+      @$el.find('.open-modal').modal();
       @qualityProfilesRegion.show @qualityProfilesView
 
       if @options.app.getQualityProfile()

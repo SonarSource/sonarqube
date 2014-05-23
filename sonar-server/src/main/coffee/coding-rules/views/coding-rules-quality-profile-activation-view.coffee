@@ -32,6 +32,8 @@ define [
 
       if @model
         profileKey = @model.get('qProfile')
+        unless profileKey
+          profileKey = @model.get('key')
       severity = @ui.qualityProfileSeverity.val()
 
       @$('.modal-foot').html '<i class="spinner"></i>'

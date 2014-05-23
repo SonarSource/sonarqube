@@ -116,7 +116,7 @@ requirejs [
 
   App.fetchList = (firstPage, fromFacets) ->
     query = @getQuery()
-    fetchQuery = _.extend { p: @pageIndex, facets: !fromFacets }, query
+    fetchQuery = _.extend { p: @pageIndex, ps: 25, facets: !fromFacets }, query
 
     if @codingRulesFacetsView
       _.extend fetchQuery, @codingRulesFacetsView.getQuery()
@@ -177,10 +177,7 @@ requirejs [
 
   App.facetLabel = (property, value) ->
     return value unless App.facetPropertyToLabels[property]
-    if App.facetPropertyToLabels[property][value]
-      return App.facetPropertyToLabels[property][value]
-    else
-      return _.findWhere(App.facetPropertyToLabels[property], key: value).name
+    App.facetPropertyToLabels[property](value)
 
 
   App.fetchFirstPage = (fromFacets = false) ->
@@ -300,8 +297,8 @@ requirejs [
       multiple: false
       qualityProfileFilter: @qualityProfileFilter
       choices:
-        'true': t 'coding_rules.filters.activation.active'
-        'false': t 'coding_rules.filters.activation.inactive'
+        true: t 'coding_rules.filters.activation.active'
+        false: t 'coding_rules.filters.activation.inactive'
     @filters.add @activationFilter
 
     @filters.add new BaseFilters.Filter
@@ -369,8 +366,10 @@ requirejs [
     App.characteristics = r.characteristics
 
     App.facetPropertyToLabels =
-      'languages': App.languages
-      'repositories': App.repositories
+      'languages': (value) -> App.languages[value]
+      'repositories': (value) ->
+        repo = _.findWhere(App.repositories, key: value)
+        repo.name + ' - ' + App.languages[repo.language]
 
   # Message bundles
   l10nXHR = window.requestMessages()
