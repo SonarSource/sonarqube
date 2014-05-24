@@ -21,7 +21,6 @@
 package org.sonar.server.qualityprofile;
 
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
@@ -130,7 +129,7 @@ public class RegisterQualityProfilesMediumTest {
     assertThat(activeRuleDao.findByProfileKey(qualityProfileKey, dbSession)).hasSize(2);
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
 
-    ActiveRuleDto activeRule = activeRuleDao.getByKey(ActiveRuleKey.of(qualityProfileKey, ruleKey), dbSession);
+    ActiveRuleDto activeRule = activeRuleDao.getByKey(dbSession, ActiveRuleKey.of(qualityProfileKey, ruleKey));
     assertThat(activeRule.getKey().qProfile()).isEqualTo(qualityProfileKey);
     assertThat(activeRule.getKey().ruleKey()).isEqualTo(ruleKey);
     assertThat(activeRule.getSeverityString()).isEqualTo(Severity.CRITICAL);

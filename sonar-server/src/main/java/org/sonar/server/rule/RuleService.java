@@ -83,10 +83,10 @@ public class RuleService implements ServerComponent {
 
     DbSession dbSession = db.openSession(false);
     try {
-      RuleDto rule = db.ruleDao().getNonNullByKey(ruleKey, dbSession);
+      RuleDto rule = db.ruleDao().getNonNullByKey(dbSession, ruleKey);
       boolean changed = RuleTagHelper.applyTags(rule, tags);
       if (changed) {
-        db.ruleDao().update(rule, dbSession);
+        db.ruleDao().update(dbSession, rule);
         dbSession.commit();
       }
     } finally {
@@ -105,7 +105,7 @@ public class RuleService implements ServerComponent {
     checkAdminPermission(userSession);
     DbSession dbSession = db.openSession(false);
     try {
-      RuleDto rule = db.ruleDao().getNonNullByKey(ruleKey, dbSession);
+      RuleDto rule = db.ruleDao().getNonNullByKey(dbSession, ruleKey);
       if (StringUtils.isBlank(markdownNote)) {
         rule.setNoteData(null);
         rule.setNoteCreatedAt(null);
@@ -117,7 +117,7 @@ public class RuleService implements ServerComponent {
         rule.setNoteUpdatedAt(new Date());
         rule.setNoteUserLogin(userSession.login());
       }
-      db.ruleDao().update(rule, dbSession);
+      db.ruleDao().update(dbSession, rule);
       dbSession.commit();
     } finally {
       dbSession.close();

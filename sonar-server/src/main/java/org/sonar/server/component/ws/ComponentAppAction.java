@@ -105,7 +105,7 @@ public class ComponentAppAction implements RequestHandler {
 
     DbSession session = dbClient.openSession(false);
     try {
-      ComponentDto component = dbClient.componentDao().getByKey(fileKey, session);
+      ComponentDto component = dbClient.componentDao().getByKey(session, fileKey);
       if (component == null) {
         throw new NotFoundException(String.format("Component '%s' does not exists.", fileKey));
       }

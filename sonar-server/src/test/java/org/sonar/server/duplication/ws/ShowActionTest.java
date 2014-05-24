@@ -69,7 +69,7 @@ public class ShowActionTest {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "org.codehaus.sonar:sonar", componentKey);
 
     MeasureKey measureKey = MeasureKey.of(componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY);
-    when(measureDao.getByKey(measureKey, session)).thenReturn(
+    when(measureDao.getByKey(session, measureKey)).thenReturn(
       MeasureDto.createFor(measureKey).setTextValue("{duplications}")
     );
 
@@ -85,7 +85,7 @@ public class ShowActionTest {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "org.codehaus.sonar:sonar", componentKey);
 
     MeasureKey measureKey = MeasureKey.of(componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY);
-    when(measureDao.getByKey(measureKey, session)).thenReturn(null);
+    when(measureDao.getByKey(session, measureKey)).thenReturn(null);
 
     WsTester.TestRequest request = tester.newGetRequest("api/duplications", "show").setParam("key", componentKey);
     request.execute();

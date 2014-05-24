@@ -53,7 +53,7 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
 
   @CheckForNull
   @Override
-  public RuleDto doGetByKey(RuleKey key, DbSession session) {
+  public RuleDto doGetByKey(DbSession session, RuleKey key) {
     return mapper(session).selectByKey(key);
   }
 
@@ -62,19 +62,19 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
   }
 
   @Override
-  protected RuleDto doInsert(RuleDto item, DbSession session) {
+  protected RuleDto doInsert(DbSession session, RuleDto item) {
     mapper(session).insert(item);
     return item;
   }
 
   @Override
-  protected RuleDto doUpdate(RuleDto item, DbSession session) {
+  protected RuleDto doUpdate(DbSession session, RuleDto item) {
     mapper(session).update(item);
     return item;
   }
 
   @Override
-  protected void doDeleteByKey(RuleKey key, DbSession session) {
+  protected void doDeleteByKey(DbSession session, RuleKey key) {
     throw new UnsupportedOperationException("Rules cannot be deleted");
   }
 
@@ -92,7 +92,7 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
 
 
   @Override
-  public void synchronizeAfter(long timestamp, final DbSession session) {
+  public void synchronizeAfter(final DbSession session, long timestamp) {
     session.select("selectKeysOfRulesUpdatedSince", new Timestamp(timestamp), new ResultHandler() {
       @Override
       public void handleResult(ResultContext context) {

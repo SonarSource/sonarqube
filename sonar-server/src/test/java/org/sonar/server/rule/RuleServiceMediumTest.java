@@ -79,16 +79,15 @@ public class RuleServiceMediumTest {
 
     // insert db
     RuleKey rule1 = RuleKey.of("javascript", "S001");
-    dao.insert(newRuleDto(rule1)
+    dao.insert(dbSession, newRuleDto(rule1)
         .setTags(Sets.newHashSet("security"))
-        .setSystemTags(Collections.<String>emptySet()),
-      dbSession
+        .setSystemTags(Collections.<String>emptySet())
     );
 
     RuleKey rule2 = RuleKey.of("java", "S001");
-    dao.insert(newRuleDto(rule2)
+    dao.insert(dbSession, newRuleDto(rule2)
       .setTags(Sets.newHashSet("toberemoved"))
-      .setSystemTags(Sets.newHashSet("bug")), dbSession);
+      .setSystemTags(Sets.newHashSet("bug")));
     dbSession.commit();
 
     service.setTags(rule2, Sets.newHashSet("bug", "security"));
@@ -124,14 +123,14 @@ public class RuleServiceMediumTest {
   public void setNote() throws Exception {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("marius");
     RuleKey ruleKey = RuleKey.of("javascript", "S001");
-    dao.insert(newRuleDto(ruleKey), dbSession);
+    dao.insert(dbSession, newRuleDto(ruleKey));
     dbSession.commit();
 
     // 1. CREATE NOTE
     service.setNote(ruleKey, "my *note*");
 
     // verify db
-    RuleDto dto = dao.getNonNullByKey(ruleKey, dbSession);
+    RuleDto dto = dao.getNonNullByKey(dbSession, ruleKey);
     assertThat(dto.getNoteData()).isEqualTo("my *note*");
     assertThat(dto.getNoteCreatedAt()).isNotNull();
     assertThat(dto.getNoteUpdatedAt()).isNotNull();
@@ -147,7 +146,7 @@ public class RuleServiceMediumTest {
     // 2. DELETE NOTE
     service.setNote(ruleKey, null);
     dbSession.clearCache();
-    dto = dao.getNonNullByKey(ruleKey, dbSession);
+    dto = dao.getNonNullByKey(dbSession, ruleKey);
     assertThat(dto.getNoteData()).isNull();
     assertThat(dto.getNoteCreatedAt()).isNull();
     assertThat(dto.getNoteUpdatedAt()).isNull();
@@ -165,16 +164,15 @@ public class RuleServiceMediumTest {
   public void test_list_tags() throws InterruptedException {
     // insert db
     RuleKey rule1 = RuleKey.of("javascript", "S001");
-    dao.insert(newRuleDto(rule1)
+    dao.insert(dbSession, newRuleDto(rule1)
         .setTags(Sets.newHashSet("security"))
-        .setSystemTags(Sets.newHashSet("java-coding", "stephane.gamard@sonarsource.com")),
-      dbSession
+        .setSystemTags(Sets.newHashSet("java-coding", "stephane.gamard@sonarsource.com"))
     );
 
     RuleKey rule2 = RuleKey.of("java", "S001");
-    dao.insert(newRuleDto(rule2)
+    dao.insert(dbSession, newRuleDto(rule2)
       .setTags(Sets.newHashSet("mytag"))
-      .setSystemTags(Sets.newHashSet("")), dbSession);
+      .setSystemTags(Sets.newHashSet("")));
     dbSession.commit();
 
 
@@ -199,8 +197,8 @@ public class RuleServiceMediumTest {
 
     RuleDto rule1 = newRuleDto(RuleKey.of("test", "rule1"));
     RuleDto rule2 = newRuleDto(RuleKey.of("test", "rule2"));
-    tester.get(RuleDao.class).insert(rule1, dbSession);
-    tester.get(RuleDao.class).insert(rule2, dbSession);
+    tester.get(RuleDao.class).insert(dbSession, rule1);
+    tester.get(RuleDao.class).insert(dbSession, rule2);
 
     ActiveRuleDto activeRule1 = ActiveRuleDto.createFor(qprofile1, rule1)
       .setSeverity(Severity.BLOCKER);
@@ -208,9 +206,9 @@ public class RuleServiceMediumTest {
       .setSeverity(Severity.BLOCKER);
     ActiveRuleDto activeRule3 = ActiveRuleDto.createFor(qprofile2, rule2)
       .setSeverity(Severity.BLOCKER);
-    tester.get(ActiveRuleDao.class).insert(activeRule1, dbSession);
-    tester.get(ActiveRuleDao.class).insert(activeRule2, dbSession);
-    tester.get(ActiveRuleDao.class).insert(activeRule3, dbSession);
+    tester.get(ActiveRuleDao.class).insert(dbSession, activeRule1);
+    tester.get(ActiveRuleDao.class).insert(dbSession, activeRule2);
+    tester.get(ActiveRuleDao.class).insert(dbSession, activeRule3);
 
     dbSession.commit();
 

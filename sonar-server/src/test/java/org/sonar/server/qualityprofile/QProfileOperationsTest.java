@@ -111,7 +111,7 @@ public class QProfileOperationsTest {
         dto.setId(currentId++);
         return null;
       }
-    }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(DbSession.class));
+    }).when(activeRuleDao).insert(any(DbSession.class), any(ActiveRuleDto.class));
     doAnswer(new Answer() {
       public Object answer(InvocationOnMock invocation) {
         Object[] args = invocation.getArguments();

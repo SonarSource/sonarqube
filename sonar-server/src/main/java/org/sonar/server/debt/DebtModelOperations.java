@@ -239,7 +239,7 @@ public class DebtModelOperations implements ServerComponent {
         ruleDto.setDefaultRemediationCoefficient(null);
         ruleDto.setDefaultRemediationOffset(null);
       }
-      dbClient.ruleDao().update(ruleDto, session);
+      dbClient.ruleDao().update(session, ruleDto);
     }
   }
 

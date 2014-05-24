@@ -77,7 +77,7 @@ public class RuleIndexMediumTest {
   @Test
   public void getByKey() throws InterruptedException {
     RuleDto ruleDto = newRuleDto(RuleKey.of("javascript", "S001"));
-    dao.insert(ruleDto, dbSession);
+    dao.insert(dbSession, ruleDto);
     dbSession.commit();
 
     Rule rule = index.getByKey(RuleKey.of("javascript", "S001"));
@@ -103,11 +103,11 @@ public class RuleIndexMediumTest {
 
   @Test
   public void global_facet_on_repositories() {
-    dao.insert(newRuleDto(RuleKey.of("javascript", "S001")).setRuleKey("X001"), dbSession);
-    dao.insert(newRuleDto(RuleKey.of("php", "S001"))
-      .setSystemTags(ImmutableSet.of("sysTag")), dbSession);
-    dao.insert(newRuleDto(RuleKey.of("javascript", "S002")).setRuleKey("X002")
-      .setTags(ImmutableSet.of("tag1")), dbSession);
+    dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "S001")).setRuleKey("X001"));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("php", "S001"))
+      .setSystemTags(ImmutableSet.of("sysTag")));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "S002")).setRuleKey("X002")
+      .setTags(ImmutableSet.of("tag1")));
     dbSession.commit();
     index.refresh();
 
@@ -136,7 +136,7 @@ public class RuleIndexMediumTest {
 
   @Test
   public void return_all_doc_fields_by_default() {
-    dao.insert(newRuleDto(RuleKey.of("javascript", "S001")), dbSession);
+    dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "S001")));
     dbSession.commit();
 
 
@@ -155,7 +155,7 @@ public class RuleIndexMediumTest {
 
   @Test
   public void select_doc_fields_to_return() {
-    dao.insert(newRuleDto(RuleKey.of("javascript", "S001")), dbSession);
+    dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "S001")));
     dbSession.commit();
 
 
@@ -178,8 +178,8 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_name_by_query() {
-    dao.insert(newRuleDto(RuleKey.of("javascript", "S001"))
-      .setName("testing the partial match and matching of rule"), dbSession);
+    dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "S001"))
+      .setName("testing the partial match and matching of rule"));
     dbSession.commit();
 
 
@@ -202,11 +202,11 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_key_by_query() {
-    dao.insert(newRuleDto(RuleKey.of("javascript", "S001"))
-      .setRuleKey("X001"), dbSession);
-    dao.insert(newRuleDto(RuleKey.of("cobol", "S001"))
-      .setRuleKey("X001"), dbSession);
-    dao.insert(newRuleDto(RuleKey.of("php", "S002")), dbSession);
+    dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "S001"))
+      .setRuleKey("X001"));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("cobol", "S001"))
+      .setRuleKey("X001"));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("php", "S002")));
     dbSession.commit();
 
 
@@ -226,8 +226,8 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_all_rules() throws InterruptedException {
-    dao.insert(newRuleDto(RuleKey.of("javascript", "S001")), dbSession);
-    dao.insert(newRuleDto(RuleKey.of("java", "S002")), dbSession);
+    dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "S001")));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")));
     dbSession.commit();
 
 
@@ -239,8 +239,8 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_by_any_of_repositories() {
-    dao.insert(newRuleDto(RuleKey.of("findbugs", "S001")), dbSession);
-    dao.insert(newRuleDto(RuleKey.of("pmd", "S002")), dbSession);
+    dao.insert(dbSession, newRuleDto(RuleKey.of("findbugs", "S001")));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("pmd", "S002")));
     dbSession.commit();
 
 
@@ -260,8 +260,8 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_by_any_of_languages() throws InterruptedException {
-    dao.insert(newRuleDto(RuleKey.of("java", "S001")).setLanguage("java"), dbSession);
-    dao.insert(newRuleDto(RuleKey.of("javascript", "S002")).setLanguage("js"), dbSession);
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")).setLanguage("java"));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "S002")).setLanguage("js"));
     dbSession.commit();
 
 
@@ -301,10 +301,10 @@ public class RuleIndexMediumTest {
     dbClient.debtCharacteristicDao().insert(char11, dbSession);
     dbSession.commit();
 
-    dao.insert(newRuleDto(RuleKey.of("java", "S001"))
-      .setSubCharacteristicId(char11.getId()), dbSession);
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001"))
+      .setSubCharacteristicId(char11.getId()));
 
-    dao.insert(newRuleDto(RuleKey.of("javascript", "S002")), dbSession);
+    dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "S002")));
 
     dbSession.commit();
 
@@ -347,8 +347,8 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_by_any_of_severities() throws InterruptedException {
-    dao.insert(newRuleDto(RuleKey.of("java", "S001")).setSeverity(Severity.BLOCKER), dbSession);
-    dao.insert(newRuleDto(RuleKey.of("java", "S002")).setSeverity(Severity.INFO), dbSession);
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")).setSeverity(Severity.BLOCKER));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")).setSeverity(Severity.INFO));
     dbSession.commit();
 
 
@@ -372,8 +372,8 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_by_any_of_statuses() throws InterruptedException {
-    dao.insert(newRuleDto(RuleKey.of("java", "S001")).setStatus(RuleStatus.BETA.name()), dbSession);
-    dao.insert(newRuleDto(RuleKey.of("java", "S002")).setStatus(RuleStatus.READY.name()), dbSession);
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")).setStatus(RuleStatus.BETA.name()));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")).setStatus(RuleStatus.READY.name()));
     dbSession.commit();
 
 
@@ -397,9 +397,9 @@ public class RuleIndexMediumTest {
 
   @Test
   public void sort_by_name() {
-    dao.insert(newRuleDto(RuleKey.of("java", "S001")).setName("abcd"), dbSession);
-    dao.insert(newRuleDto(RuleKey.of("java", "S002")).setName("ABC"), dbSession);
-    dao.insert(newRuleDto(RuleKey.of("java", "S003")).setName("FGH"), dbSession);
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")).setName("abcd"));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")).setName("ABC"));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S003")).setName("FGH"));
     dbSession.commit();
 
 
@@ -420,8 +420,8 @@ public class RuleIndexMediumTest {
 
   @Test
   public void sort_by_language() throws InterruptedException {
-    dao.insert(newRuleDto(RuleKey.of("java", "S001")).setLanguage("java"), dbSession);
-    dao.insert(newRuleDto(RuleKey.of("java", "S002")).setLanguage("php"), dbSession);
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")).setLanguage("java"));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")).setLanguage("php"));
     dbSession.commit();
 
 
@@ -446,25 +446,25 @@ public class RuleIndexMediumTest {
     dbClient.qualityProfileDao().insert(qualityProfileDto2);
 
     RuleDto rule1 = newRuleDto(RuleKey.of("java", "S001"));
-    dao.insert(rule1, dbSession);
+    dao.insert(dbSession, rule1);
     RuleDto rule2 = newRuleDto(RuleKey.of("java", "S002"));
-    dao.insert(rule2, dbSession);
+    dao.insert(dbSession, rule2);
     RuleDto rule3 = newRuleDto(RuleKey.of("java", "S003"));
-    dao.insert(rule3, dbSession);
+    dao.insert(dbSession, rule3);
 
     dbClient.activeRuleDao().insert(
-      ActiveRuleDto.createFor(qualityProfileDto1, rule1)
-        .setSeverity("BLOCKER"), dbSession
+      dbSession, ActiveRuleDto.createFor(qualityProfileDto1, rule1)
+        .setSeverity("BLOCKER")
     );
 
     dbClient.activeRuleDao().insert(
-      ActiveRuleDto.createFor(qualityProfileDto2, rule1)
-        .setSeverity("BLOCKER"), dbSession
+      dbSession, ActiveRuleDto.createFor(qualityProfileDto2, rule1)
+        .setSeverity("BLOCKER")
     );
 
     dbClient.activeRuleDao().insert(
-      ActiveRuleDto.createFor(qualityProfileDto1, rule2)
-        .setSeverity("BLOCKER"), dbSession
+      dbSession, ActiveRuleDto.createFor(qualityProfileDto1, rule2)
+        .setSeverity("BLOCKER")
     );
 
 
@@ -502,8 +502,8 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_by_tag() throws InterruptedException {
-    dao.insert(newRuleDto(RuleKey.of("java", "S001")).setTags(ImmutableSet.of("tag1")), dbSession);
-    dao.insert(newRuleDto(RuleKey.of("java", "S002")).setTags(ImmutableSet.of("tag2")), dbSession);
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")).setTags(ImmutableSet.of("tag1")));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")).setTags(ImmutableSet.of("tag2")));
     dbSession.commit();
 
 
@@ -545,9 +545,9 @@ public class RuleIndexMediumTest {
 
   @Test
   public void paging() {
-    dao.insert(newRuleDto(RuleKey.of("java", "S001")), dbSession);
-    dao.insert(newRuleDto(RuleKey.of("java", "S002")), dbSession);
-    dao.insert(newRuleDto(RuleKey.of("java", "S003")), dbSession);
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S003")));
     dbSession.commit();
 
 

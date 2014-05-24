@@ -99,7 +99,7 @@ public class SourceServiceTest {
   @Test
   public void get_scm_author_data() throws Exception {
     service.getScmAuthorData(COMPONENT_KEY);
-    verify(measureDao).getByKey(MeasureKey.of(COMPONENT_KEY, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY), session);
+    verify(measureDao).getByKey(session, MeasureKey.of(COMPONENT_KEY, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY));
   }
 
   @Test
@@ -117,7 +117,7 @@ public class SourceServiceTest {
   @Test
   public void not_get_scm_author_data_if_no_data() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
-    when(measureDao.getByKey(any(MeasureKey.class), eq(session))).thenReturn(null);
+    when(measureDao.getByKey(eq(session), any(MeasureKey.class))).thenReturn(null);
     assertThat(service.getScmAuthorData(COMPONENT_KEY)).isNull();
   }
 
@@ -125,13 +125,13 @@ public class SourceServiceTest {
   public void get_scm_date_data() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
     service.getScmDateData(COMPONENT_KEY);
-    verify(measureDao).getByKey(MeasureKey.of(COMPONENT_KEY, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY), session);
+    verify(measureDao).getByKey(session, MeasureKey.of(COMPONENT_KEY, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY));
   }
 
   @Test
   public void not_get_scm_date_data_if_no_data() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
-    when(measureDao.getByKey(any(MeasureKey.class), eq(session))).thenReturn(null);
+    when(measureDao.getByKey(eq(session), any(MeasureKey.class))).thenReturn(null);
     assertThat(service.getScmDateData(COMPONENT_KEY)).isNull();
   }
 

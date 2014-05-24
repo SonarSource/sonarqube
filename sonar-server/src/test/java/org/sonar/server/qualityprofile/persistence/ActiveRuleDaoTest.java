@@ -63,15 +63,15 @@ public class ActiveRuleDaoTest  extends AbstractDaoTestCase{
     qualityProfileDao.insert(session, profile);
 
     RuleDto rule = RuleDto.createFor(RuleKey.of("repo","rule"));
-    ruleDao.insert(rule, session);
+    ruleDao.insert(session, rule);
 
     ActiveRuleDto activeRuleDto = ActiveRuleDto.createFor(profile, rule)
       .setSeverity("BLOCKER");
-    activeRuleDao.insert(activeRuleDto, session);
+    activeRuleDao.insert(session, activeRuleDto);
 
     session.commit();
 
-    ActiveRuleDto result = activeRuleDao.getByKey(activeRuleDto.getKey(), session);
+    ActiveRuleDto result = activeRuleDao.getByKey(session, activeRuleDto.getKey());
 
     assertThat(result).isNotNull();
     assertThat(result.getKey()).isNotNull();

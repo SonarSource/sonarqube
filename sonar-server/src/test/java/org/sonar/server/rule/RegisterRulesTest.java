@@ -81,7 +81,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     // verify db
     assertThat(dbClient.ruleDao().findAll(dbSession)).hasSize(2);
     RuleKey ruleKey1 = RuleKey.of("fake", "rule1");
-    RuleDto rule1 = dbClient.ruleDao().getByKey(ruleKey1, dbSession);
+    RuleDto rule1 = dbClient.ruleDao().getByKey(dbSession, ruleKey1);
     assertThat(rule1.getName()).isEqualTo("One");
     assertThat(rule1.getDescription()).isEqualTo("Description of One");
     assertThat(rule1.getSeverityString()).isEqualTo(Severity.BLOCKER);
@@ -110,7 +110,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     execute(new FakeRepositoryV1());
 
     RuleKey ruleKey1 = RuleKey.of("fake", "rule1");
-    RuleDto rule1 = dbClient.ruleDao().getByKey(ruleKey1, dbSession);
+    RuleDto rule1 = dbClient.ruleDao().getByKey(dbSession, ruleKey1);
     assertThat(rule1.getCreatedAt()).isEqualTo(DATE1);
     assertThat(rule1.getUpdatedAt()).isEqualTo(DATE1);
   }
@@ -122,18 +122,18 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
 
     // user adds tags and sets markdown note
     RuleKey ruleKey1 = RuleKey.of("fake", "rule1");
-    RuleDto rule1 = dbClient.ruleDao().getByKey(ruleKey1, dbSession);
+    RuleDto rule1 = dbClient.ruleDao().getByKey(dbSession, ruleKey1);
     rule1.setTags(Sets.newHashSet("usertag1", "usertag2"));
     rule1.setNoteData("user *note*");
     rule1.setNoteUserLogin("marius");
-    dbClient.ruleDao().update(rule1, dbSession);
+    dbClient.ruleDao().update(dbSession, rule1);
     dbSession.commit();
 
     when(system.now()).thenReturn(DATE2.getTime());
     execute(new FakeRepositoryV2());
 
     // rule1 has been updated
-    rule1 = dbClient.ruleDao().getByKey(ruleKey1, dbSession);
+    rule1 = dbClient.ruleDao().getByKey(dbSession, ruleKey1);
     assertThat(rule1.getName()).isEqualTo("One v2");
     assertThat(rule1.getDescription()).isEqualTo("Description of One v2");
     assertThat(rule1.getSeverityString()).isEqualTo(Severity.INFO);
@@ -154,12 +154,12 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     assertThat(param.getDefaultValue()).isEqualTo("default1 v2");
 
     // rule2 has been removed -> status set to REMOVED but db row is not deleted
-    RuleDto rule2 = dbClient.ruleDao().getByKey(RuleKey.of("fake", "rule2"), dbSession);
+    RuleDto rule2 = dbClient.ruleDao().getByKey(dbSession, RuleKey.of("fake", "rule2"));
     assertThat(rule2.getStatus()).isEqualTo(RuleStatus.REMOVED.toString());
     assertThat(rule2.getUpdatedAt()).isEqualTo(DATE2);
 
     // rule3 has been created
-    RuleDto rule3 = dbClient.ruleDao().getByKey(RuleKey.of("fake", "rule3"), dbSession);
+    RuleDto rule3 = dbClient.ruleDao().getByKey(dbSession, RuleKey.of("fake", "rule3"));
     assertThat(rule3).isNotNull();
     assertThat(rule3.getStatus()).isEqualTo(RuleStatus.READY.toString());
   }
@@ -176,7 +176,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     when(system.now()).thenReturn(DATE3.getTime());
     execute(new FakeRepositoryV2());
     // -> rule2 is still removed, but not update at DATE3
-    RuleDto rule2 = dbClient.ruleDao().getByKey(RuleKey.of("fake", "rule2"), dbSession);
+    RuleDto rule2 = dbClient.ruleDao().getByKey(dbSession, RuleKey.of("fake", "rule2"));
     assertThat(rule2.getStatus()).isEqualTo(RuleStatus.REMOVED.toString());
     assertThat(rule2.getUpdatedAt()).isEqualTo(DATE2);
   }

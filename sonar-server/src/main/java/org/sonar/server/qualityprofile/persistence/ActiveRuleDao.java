@@ -63,7 +63,7 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
   }
 
   @Override
-  public void synchronizeAfter(long timestamp, final DbSession session) {
+  public void synchronizeAfter(final DbSession session, long timestamp) {
     session.select("selectAllKeysAfterTimestamp", new Timestamp(timestamp), new ResultHandler() {
       @Override
       public void handleResult(ResultContext context) {
@@ -90,13 +90,13 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
   }
 
   @Override
-  protected ActiveRuleDto doGetByKey(ActiveRuleKey key, DbSession session) {
+  protected ActiveRuleDto doGetByKey(DbSession session, ActiveRuleKey key) {
     return mapper(session).selectByKey(key.qProfile().name(), key.qProfile().lang(),
       key.ruleKey().repository(), key.ruleKey().rule());
   }
 
   @Override
-  protected ActiveRuleDto doInsert(ActiveRuleDto item, DbSession session) {
+  protected ActiveRuleDto doInsert(DbSession session, ActiveRuleDto item) {
     Preconditions.checkArgument(item.getProfileId() != null, "Quality profile is not persisted (missing id)");
     Preconditions.checkArgument(item.getRulId() != null, "Rule is not persisted (missing id)");
     Preconditions.checkArgument(item.getId() == null, "ActiveRule is already persisted");
@@ -105,7 +105,7 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
   }
 
   @Override
-  protected ActiveRuleDto doUpdate(ActiveRuleDto item, DbSession session) {
+  protected ActiveRuleDto doUpdate(DbSession session, ActiveRuleDto item) {
     Preconditions.checkArgument(item.getProfileId() != null, "Quality profile is not persisted (missing id)");
     Preconditions.checkArgument(item.getRulId() != null, "Rule is not persisted (missing id)");
     Preconditions.checkArgument(item.getId() != null, "ActiveRule is not persisted");
@@ -114,8 +114,8 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
   }
 
   @Override
-  protected void doDeleteByKey(ActiveRuleKey key, DbSession session) {
-    ActiveRuleDto rule = this.getByKey(key, session);
+  protected void doDeleteByKey(DbSession session, ActiveRuleKey key) {
+    ActiveRuleDto rule = this.getByKey(session, key);
     mapper(session).deleteParameters(rule.getId());
     mapper(session).delete(rule.getId());
   }
@@ -162,7 +162,7 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
 
   public void removeParamByKeyAndName(ActiveRuleKey key, String param, DbSession session) {
     //TODO SQL rewrite to delete by key
-    ActiveRuleDto activeRule = this.getByKey(key, session);
+    ActiveRuleDto activeRule = this.getByKey(session, key);
     ActiveRuleParamDto activeRuleParam = mapper(session).selectParamByActiveRuleAndKey(activeRule.getId(), param);
     Preconditions.checkArgument(activeRuleParam.getId() != null, "ActiveRuleParam does not exist");
     mapper(session).deleteParameter(activeRuleParam.getId());
@@ -184,7 +184,7 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
   public void deleteByProfileKey(QualityProfileKey profileKey, DbSession session) {
     /** Functional cascade for params */
     for (ActiveRuleDto activeRule : this.findByProfileKey(profileKey, session)) {
-      delete(activeRule, session);
+      delete(session, activeRule);
     }
   }
 
@@ -209,14 +209,14 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
 
   public List<ActiveRuleParamDto> findParamsByKey(ActiveRuleKey key, DbSession session) {
     Preconditions.checkArgument(key != null, "ActiveRuleKey cannot be null");
-    ActiveRuleDto activeRule = this.getByKey(key, session);
+    ActiveRuleDto activeRule = this.getByKey(session, key);
     return mapper(session).selectParamsByActiveRuleId(activeRule.getId());
   }
 
   public ActiveRuleParamDto getParamsByKeyAndName(ActiveRuleKey key, String name, DbSession session) {
     Preconditions.checkArgument(key != null, "ActiveRuleKey cannot be null");
     Preconditions.checkArgument(name != null, "ParameterName cannot be null");
-    ActiveRuleDto activeRule = this.getByKey(key, session);
+    ActiveRuleDto activeRule = this.getByKey(session, key);
     return mapper(session).selectParamByActiveRuleAndKey(activeRule.getId(), name);
   }
 

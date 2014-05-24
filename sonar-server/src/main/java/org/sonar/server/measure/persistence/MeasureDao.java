@@ -48,7 +48,7 @@ public class MeasureDao extends BaseDao<MeasureMapper, MeasureDto, MeasureKey> i
   }
 
   @Override
-  protected MeasureDto doGetByKey(MeasureKey key, DbSession session) {
+  protected MeasureDto doGetByKey(DbSession session, MeasureKey key) {
     return session.getMapper(MeasureMapper.class).selectByKey(key);
   }
 
@@ -69,22 +69,22 @@ public class MeasureDao extends BaseDao<MeasureMapper, MeasureDto, MeasureKey> i
   }
 
   @Override
-  protected MeasureDto doInsert(MeasureDto item, DbSession session) {
+  protected MeasureDto doInsert(DbSession session, MeasureDto item) {
     throw new IllegalStateException("Not implemented yet");
   }
 
   @Override
-  protected MeasureDto doUpdate(MeasureDto item, DbSession session) {
+  protected MeasureDto doUpdate(DbSession session, MeasureDto item) {
     throw new IllegalStateException("Not implemented yet");
   }
 
   @Override
-  protected void doDeleteByKey(MeasureKey key, DbSession session) {
+  protected void doDeleteByKey(DbSession session, MeasureKey key) {
     throw new IllegalStateException("Not implemented yet");
   }
 
   @Override
-  public void synchronizeAfter(long timestamp, DbSession session) {
+  public void synchronizeAfter(DbSession session, long timestamp) {
     throw new IllegalStateException("Not implemented yet");
   }
 }

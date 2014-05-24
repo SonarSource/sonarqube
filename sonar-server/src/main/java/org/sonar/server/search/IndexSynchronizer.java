@@ -46,7 +46,7 @@ public class IndexSynchronizer implements Startable {
     DbSession session = db.openSession(true);
     LOG.info("Starting DB to Index synchronization");
     long start = System.currentTimeMillis();
-    db.activeRuleDao().synchronizeAfter(0, session);
+    db.activeRuleDao().synchronizeAfter(session, 0);
     LOG.info("Synchronization done in {}ms...", (System.currentTimeMillis()-start));
     session.close();
   }

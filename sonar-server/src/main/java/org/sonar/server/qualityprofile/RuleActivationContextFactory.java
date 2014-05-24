@@ -62,7 +62,7 @@ public class RuleActivationContextFactory implements ServerComponent {
   }
 
   private RuleDto initRule(RuleKey ruleKey, RuleActivationContext context, DbSession dbSession) {
-    RuleDto rule = db.ruleDao().getByKey(ruleKey, dbSession);
+    RuleDto rule = db.ruleDao().getByKey(dbSession, ruleKey);
     if (rule == null) {
       throw new IllegalArgumentException("Rule not found: " + ruleKey);
     }
@@ -89,7 +89,7 @@ public class RuleActivationContextFactory implements ServerComponent {
   }
 
   private void initActiveRules(ActiveRuleKey key, RuleActivationContext context, DbSession session, boolean parent) {
-    ActiveRuleDto activeRule = db.activeRuleDao().getByKey(key, session);
+    ActiveRuleDto activeRule = db.activeRuleDao().getByKey(session, key);
     Collection<ActiveRuleParamDto> activeRuleParams = null;
     if (activeRule != null) {
       activeRuleParams = db.activeRuleDao().findParamsByActiveRule(activeRule, session);

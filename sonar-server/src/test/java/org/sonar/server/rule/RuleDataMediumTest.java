@@ -74,11 +74,11 @@ public class RuleDataMediumTest {
   public void insert_in_db_and_index_in_es() throws InterruptedException {
     // insert db
     RuleKey ruleKey = RuleKey.of("javascript", "S001");
-    dao.insert(newRuleDto(ruleKey), dbSession);
+    dao.insert(dbSession, newRuleDto(ruleKey));
     dbSession.commit();
 
     // verify that rule is persisted in db
-    RuleDto persistedDto = dao.getByKey(ruleKey, dbSession);
+    RuleDto persistedDto = dao.getByKey(dbSession, ruleKey);
     assertThat(persistedDto).isNotNull();
     assertThat(persistedDto.getId()).isGreaterThanOrEqualTo(0);
     assertThat(persistedDto.getRuleKey()).isEqualTo(ruleKey.rule());
@@ -112,7 +112,7 @@ public class RuleDataMediumTest {
     // insert db
     RuleKey ruleKey = RuleKey.of("javascript", "S001");
     RuleDto ruleDto = newRuleDto(ruleKey);
-    dao.insert(ruleDto, dbSession);
+    dao.insert(dbSession, ruleDto);
     dbSession.commit();
 
     RuleParamDto minParamDto = new RuleParamDto()
@@ -130,7 +130,7 @@ public class RuleDataMediumTest {
     dbSession.commit();
 
     //Verify that RuleDto has date from insertion
-    RuleDto theRule = dao.getByKey(ruleKey, dbSession);
+    RuleDto theRule = dao.getByKey(dbSession, ruleKey);
     assertThat(theRule.getCreatedAt()).isNotNull();
     assertThat(theRule.getUpdatedAt()).isNotNull();
 
@@ -158,7 +158,7 @@ public class RuleDataMediumTest {
     RuleDto ruleDto = newRuleDto(ruleKey)
       .setTags(ImmutableSet.of("hello"))
       .setName("first name");
-    dao.insert(ruleDto, dbSession);
+    dao.insert(dbSession, ruleDto);
     dbSession.commit();
 
     // verify that parameters are indexed in es
@@ -170,7 +170,7 @@ public class RuleDataMediumTest {
     //Update in DB
     ruleDto.setTags(ImmutableSet.of("world"))
       .setName("second name");
-    dao.update(ruleDto, dbSession);
+    dao.update(dbSession, ruleDto);
     dbSession.commit();
 
     // verify that parameters are updated in es
@@ -188,7 +188,7 @@ public class RuleDataMediumTest {
     RuleDto ruleDto = newRuleDto(ruleKey)
       .setTags(ImmutableSet.of("hello"))
       .setName("first name");
-    dao.insert(ruleDto, dbSession);
+    dao.insert(dbSession, ruleDto);
     dbSession.commit();
 
     RuleParamDto minParamDto = new RuleParamDto()
@@ -255,7 +255,7 @@ public class RuleDataMediumTest {
     RuleKey ruleKey = RuleKey.of("test", "r1");
     RuleDto ruleDto = newRuleDto(ruleKey)
       .setDefaultSubCharacteristicId(char11.getId());
-    dao.insert(ruleDto, dbSession);
+    dao.insert(dbSession, ruleDto);
     dbSession.commit();
 
 
@@ -285,7 +285,7 @@ public class RuleDataMediumTest {
     db.debtCharacteristicDao().insert(char21, dbSession);
 
     ruleDto.setSubCharacteristicId(char21.getId());
-    dao.update(ruleDto, dbSession);
+    dao.update(dbSession, ruleDto);
 
     dbSession.commit();
 

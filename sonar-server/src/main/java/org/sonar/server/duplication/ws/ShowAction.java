@@ -82,7 +82,7 @@ public class ShowAction implements RequestHandler {
 
   @CheckForNull
   private String findDataFromComponent(String fileKey, String metricKey, DbSession session) {
-    MeasureDto data = measureDao.getByKey(MeasureKey.of(fileKey, metricKey), session);
+    MeasureDto data = measureDao.getByKey(session, MeasureKey.of(fileKey, metricKey));
     if (data != null) {
       return data.getData();
     }

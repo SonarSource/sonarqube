@@ -117,7 +117,7 @@ public class RegisterRules implements Startable {
           }
 
           if (executeUpdate) {
-            dbClient.ruleDao().update(rule, session);
+            dbClient.ruleDao().update(session, rule);
           } else {
             // TODO replace this hack by index synchronizer
             session.enqueue(new KeyIndexAction<RuleKey>(IndexDefinition.RULE.getIndexType(),
@@ -179,7 +179,7 @@ public class RegisterRules implements Startable {
       .setEffortToFixDescription(ruleDef.effortToFixDescription())
       .setSystemTags(ruleDef.tags());
 
-    return dbClient.ruleDao().insert(ruleDto, session);
+    return dbClient.ruleDao().insert(session, ruleDto);
   }
 
   private boolean mergeRule(RulesDefinition.Rule def, RuleDto dto) {
@@ -347,7 +347,7 @@ public class RegisterRules implements Startable {
           ruleDto.setDefaultRemediationCoefficient(parent.getDefaultRemediationCoefficient());
           ruleDto.setDefaultRemediationOffset(parent.getDefaultRemediationOffset());
           ruleDto.setEffortToFixDescription(parent.getEffortToFixDescription());
-          dbClient.ruleDao().update(ruleDto, session);
+          dbClient.ruleDao().update(session, ruleDto);
           toBeRemoved = false;
         }
       }
@@ -356,7 +356,7 @@ public class RegisterRules implements Startable {
         ruleDto.setStatus(Rule.STATUS_REMOVED);
         ruleDto.setSystemTags(Collections.EMPTY_SET);
         ruleDto.setTags(Collections.EMPTY_SET);
-        dbClient.ruleDao().update(ruleDto, session);
+        dbClient.ruleDao().update(session, ruleDto);
         removedRules.add(ruleDto);
         if (removedRules.size() % 100 == 0) {
           session.commit();

@@ -178,7 +178,7 @@ public class QProfileBackup implements ServerComponent {
   public void restoreFromActiveRules(QualityProfileKey profileKey, RulesProfile rulesProfile, DbSession session) {
     for (org.sonar.api.rules.ActiveRule activeRule : rulesProfile.getActiveRules()) {
       RuleKey ruleKey = RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey());
-      RuleDto rule = ruleDao.getByKey(ruleKey, session);
+      RuleDto rule = ruleDao.getByKey(session, ruleKey);
       if (rule == null) {
         throw new NotFoundException(String.format("Rule '%s' does not exists.", ruleKey));
       }

@@ -79,13 +79,13 @@ public class ActiveRuleIndexMediumTest {
     // insert db
     RuleKey ruleKey = RuleKey.of("javascript", "S001");
     RuleDto ruleDto = newRuleDto(ruleKey);
-    dao.insert(ruleDto, dbSession);
+    dao.insert(dbSession, ruleDto);
 
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profileDto, ruleDto)
       .setInheritance(ActiveRule.Inheritance.INHERIT.name())
       .setSeverity(Severity.BLOCKER);
 
-    activeRuleDao.insert(activeRule, dbSession);
+    activeRuleDao.insert(dbSession, activeRule);
     dbSession.commit();
 
     // verify that activeRules are persisted in db
@@ -115,7 +115,7 @@ public class ActiveRuleIndexMediumTest {
     // insert db
     RuleKey ruleKey = RuleKey.of("javascript", "S001");
     RuleDto ruleDto = newRuleDto(ruleKey);
-    dao.insert(ruleDto, dbSession);
+    dao.insert(dbSession, ruleDto);
 
     RuleParamDto minParam = new RuleParamDto()
       .setName("min")
@@ -131,7 +131,7 @@ public class ActiveRuleIndexMediumTest {
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profileDto, ruleDto)
       .setInheritance(ActiveRule.Inheritance.INHERIT.name())
       .setSeverity(Severity.BLOCKER);
-    activeRuleDao.insert(activeRule, dbSession);
+    activeRuleDao.insert(dbSession, activeRule);
 
     ActiveRuleParamDto activeRuleMinParam = ActiveRuleParamDto.createFor(minParam)
       .setValue("minimum");
@@ -166,11 +166,11 @@ public class ActiveRuleIndexMediumTest {
 
     // insert db
     RuleDto ruleDto = newRuleDto(RuleKey.of("javascript", "S001"));
-    dao.insert(ruleDto, dbSession);
+    dao.insert(dbSession, ruleDto);
 
     // insert db
     RuleDto ruleDto2 = newRuleDto(RuleKey.of("javascript", "S002"));
-    dao.insert(ruleDto2, dbSession);
+    dao.insert(dbSession, ruleDto2);
 
     ActiveRuleDto find1 = ActiveRuleDto.createFor(profile1, ruleDto)
       .setInheritance(ActiveRule.Inheritance.INHERIT.name())
@@ -184,9 +184,9 @@ public class ActiveRuleIndexMediumTest {
       .setInheritance(ActiveRule.Inheritance.INHERIT.name())
       .setSeverity(Severity.BLOCKER);
 
-    activeRuleDao.insert(find1, dbSession);
-    activeRuleDao.insert(find2, dbSession);
-    activeRuleDao.insert(notFound, dbSession);
+    activeRuleDao.insert(dbSession, find1);
+    activeRuleDao.insert(dbSession, find2);
+    activeRuleDao.insert(dbSession, notFound);
     dbSession.commit();
 
     // verify that activeRules are persisted in db
@@ -218,9 +218,9 @@ public class ActiveRuleIndexMediumTest {
 
     // insert db
     RuleDto rule1 = newRuleDto(RuleKey.of("javascript", "S001"));
-    dao.insert(rule1, dbSession);
+    dao.insert(dbSession, rule1);
     RuleDto rule2 = newRuleDto(RuleKey.of("javascript", "S002"));
-    dao.insert(rule2, dbSession);
+    dao.insert(dbSession, rule2);
 
     ActiveRuleDto onP1 = ActiveRuleDto.createFor(profileDto, rule1)
       .setInheritance(ActiveRule.Inheritance.INHERIT.name())
@@ -234,9 +234,9 @@ public class ActiveRuleIndexMediumTest {
       .setInheritance(ActiveRule.Inheritance.INHERIT.name())
       .setSeverity(Severity.BLOCKER);
 
-    activeRuleDao.insert(onP1, dbSession);
-    activeRuleDao.insert(firstOnP1, dbSession);
-    activeRuleDao.insert(firstOnP2, dbSession);
+    activeRuleDao.insert(dbSession, onP1);
+    activeRuleDao.insert(dbSession, firstOnP1);
+    activeRuleDao.insert(dbSession, firstOnP2);
     dbSession.commit();
 
     // verify that activeRules are persisted in db

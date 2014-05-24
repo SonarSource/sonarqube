@@ -82,7 +82,7 @@ public class RuleOperationsTest {
       .setSubCharacteristicId(6).setRemediationFunction("CONSTANT_ISSUE").setRemediationOffset("10min");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
-    when(ruleDao.getByKey(ruleKey, session)).thenReturn(dto);
+    when(ruleDao.getByKey(session, ruleKey)).thenReturn(dto);
 
     CharacteristicDto subCharacteristic = new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1);
     when(characteristicDao.selectByKey("COMPILER", session)).thenReturn(subCharacteristic);
@@ -98,7 +98,7 @@ public class RuleOperationsTest {
       authorizedUserSession
     );
 
-    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
+    verify(ruleDao).update(eq(session), ruleCaptor.capture());
     verify(session).commit();
 
     RuleDto result = ruleCaptor.getValue();
@@ -117,7 +117,7 @@ public class RuleOperationsTest {
       .setDefaultSubCharacteristicId(2).setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationOffset("10min");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
-    when(ruleDao.getByKey(ruleKey, session)).thenReturn(dto);
+    when(ruleDao.getByKey(session, ruleKey)).thenReturn(dto);
 
     CharacteristicDto subCharacteristic = new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1);
     when(characteristicDao.selectByKey("COMPILER", session)).thenReturn(subCharacteristic);
@@ -132,7 +132,7 @@ public class RuleOperationsTest {
       authorizedUserSession
     );
 
-    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
+    verify(ruleDao).update(eq(session), ruleCaptor.capture());
     verify(session).commit();
 
     RuleDto result = ruleCaptor.getValue();
@@ -150,7 +150,7 @@ public class RuleOperationsTest {
       .setSubCharacteristicId(2).setRemediationFunction("CONSTANT_ISSUE").setRemediationOffset("10min");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
-    when(ruleDao.getByKey(ruleKey, session)).thenReturn(dto);
+    when(ruleDao.getByKey(session, ruleKey)).thenReturn(dto);
 
     CharacteristicDto subCharacteristic = new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1);
     when(characteristicDao.selectByKey("COMPILER", session)).thenReturn(subCharacteristic);
@@ -161,7 +161,7 @@ public class RuleOperationsTest {
       authorizedUserSession
     );
 
-    verify(ruleDao, never()).update(any(RuleDto.class), eq(session));
+    verify(ruleDao, never()).update(eq(session), any(RuleDto.class));
     verify(session, never()).commit();
   }
 
@@ -171,7 +171,7 @@ public class RuleOperationsTest {
       .setDefaultSubCharacteristicId(2).setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationOffset("10min");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
-    when(ruleDao.getByKey(ruleKey, session)).thenReturn(dto);
+    when(ruleDao.getByKey(session, ruleKey)).thenReturn(dto);
 
     CharacteristicDto subCharacteristic = new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1);
     when(characteristicDao.selectByKey("COMPILER", session)).thenReturn(subCharacteristic);
@@ -186,7 +186,7 @@ public class RuleOperationsTest {
       authorizedUserSession
     );
 
-    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
+    verify(ruleDao).update(eq(session), ruleCaptor.capture());
     verify(session).commit();
 
     RuleDto result = ruleCaptor.getValue();
@@ -204,7 +204,7 @@ public class RuleOperationsTest {
       .setDefaultSubCharacteristicId(6).setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationOffset("10min");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
-    when(ruleDao.getByKey(ruleKey, session)).thenReturn(dto);
+    when(ruleDao.getByKey(session, ruleKey)).thenReturn(dto);
 
     CharacteristicDto subCharacteristic = new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1);
     when(characteristicDao.selectByKey("COMPILER", session)).thenReturn(subCharacteristic);
@@ -219,7 +219,7 @@ public class RuleOperationsTest {
       authorizedUserSession
     );
 
-    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
+    verify(ruleDao).update(eq(session), ruleCaptor.capture());
     verify(session).commit();
 
     RuleDto result = ruleCaptor.getValue();
@@ -240,11 +240,11 @@ public class RuleOperationsTest {
       .setRemediationOffset("10min");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
-    when(ruleDao.getByKey(ruleKey, session)).thenReturn(dto);
+    when(ruleDao.getByKey(session, ruleKey)).thenReturn(dto);
 
     operations.updateRule(new RuleChange().setRuleKey(ruleKey).setDebtCharacteristicKey(null), authorizedUserSession);
 
-    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
+    verify(ruleDao).update(eq(session), ruleCaptor.capture());
     verify(session).commit();
 
     RuleDto result = ruleCaptor.getValue();
@@ -262,7 +262,7 @@ public class RuleOperationsTest {
       .setDefaultSubCharacteristicId(6).setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationOffset("10min");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
-    when(ruleDao.getByKey(ruleKey, session)).thenReturn(dto);
+    when(ruleDao.getByKey(session, ruleKey)).thenReturn(dto);
 
     CharacteristicDto subCharacteristic = new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1);
     when(characteristicDao.selectByKey("COMPILER", session)).thenReturn(subCharacteristic);
@@ -272,7 +272,7 @@ public class RuleOperationsTest {
 
     operations.updateRule(new RuleChange().setRuleKey(ruleKey).setDebtCharacteristicKey("COMPILER"), authorizedUserSession);
 
-    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
+    verify(ruleDao).update(eq(session), ruleCaptor.capture());
     verify(session).commit();
 
     RuleDto result = ruleCaptor.getValue();
@@ -289,11 +289,11 @@ public class RuleOperationsTest {
     RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
-    when(ruleDao.getByKey(ruleKey, session)).thenReturn(dto);
+    when(ruleDao.getByKey(session, ruleKey)).thenReturn(dto);
 
     operations.updateRule(new RuleChange().setRuleKey(ruleKey).setDebtCharacteristicKey(null), authorizedUserSession);
 
-    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
+    verify(ruleDao).update(eq(session), ruleCaptor.capture());
     verify(session).commit();
 
     RuleDto result = ruleCaptor.getValue();
@@ -310,14 +310,14 @@ public class RuleOperationsTest {
     RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck").setSubCharacteristicId(-1);
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
-    when(ruleDao.getByKey(ruleKey, session)).thenReturn(dto);
+    when(ruleDao.getByKey(session, ruleKey)).thenReturn(dto);
 
     operations.updateRule(
       new RuleChange().setRuleKey(ruleKey).setDebtCharacteristicKey(null),
       authorizedUserSession
     );
 
-    verify(ruleDao, never()).update(any(RuleDto.class), eq(session));
+    verify(ruleDao, never()).update(eq(session), any(RuleDto.class));
     verify(session, never()).commit();
   }
 
@@ -325,7 +325,7 @@ public class RuleOperationsTest {
   public void fail_to_update_rule_on_unknown_rule() throws Exception {
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
-    when(ruleDao.getByKey(ruleKey, session)).thenReturn(null);
+    when(ruleDao.getByKey(session, ruleKey)).thenReturn(null);
 
     try {
       operations.updateRule(
@@ -337,7 +337,7 @@ public class RuleOperationsTest {
       assertThat(e).isInstanceOf(NotFoundException.class);
     }
 
-    verify(ruleDao, never()).update(any(RuleDto.class), eq(session));
+    verify(ruleDao, never()).update(eq(session), any(RuleDto.class));
     verify(session, never()).commit();
   }
 
@@ -347,7 +347,7 @@ public class RuleOperationsTest {
       .setSubCharacteristicId(2).setRemediationFunction("CONSTANT_ISSUE").setRemediationOffset("10min");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
-    when(ruleDao.getByKey(ruleKey, session)).thenReturn(dto);
+    when(ruleDao.getByKey(session, ruleKey)).thenReturn(dto);
 
     when(characteristicDao.selectByKey("COMPILER", session)).thenReturn(null);
 
@@ -361,7 +361,7 @@ public class RuleOperationsTest {
       assertThat(e).isInstanceOf(NotFoundException.class);
     }
 
-    verify(ruleDao, never()).update(any(RuleDto.class), eq(session));
+    verify(ruleDao, never()).update(eq(session), any(RuleDto.class));
     verify(session, never()).commit();
   }
 
@@ -371,7 +371,7 @@ public class RuleOperationsTest {
       .setSubCharacteristicId(2).setRemediationFunction("LINEAR").setRemediationCoefficient("1h");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
-    when(ruleDao.getByKey(ruleKey, session)).thenReturn(dto);
+    when(ruleDao.getByKey(session, ruleKey)).thenReturn(dto);
 
     CharacteristicDto subCharacteristic = new CharacteristicDto().setId(2).setKey("COMPILER").setName("Compiler").setParentId(1);
     when(characteristicDao.selectByKey("COMPILER", session)).thenReturn(subCharacteristic);
@@ -386,7 +386,7 @@ public class RuleOperationsTest {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Invalid coefficient: foo (Duration 'foo' is invalid, it should use the following sample format : 2d 10h 15min)");
     }
 
-    verify(ruleDao, never()).update(any(RuleDto.class), eq(session));
+    verify(ruleDao, never()).update(eq(session), any(RuleDto.class));
     verify(session, never()).commit();
   }
 }

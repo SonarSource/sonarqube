@@ -454,7 +454,7 @@ public class DebtModelBackupTest {
     verifyNoMoreInteractions(dao);
 
     verify(ruleDao).selectEnabledAndNonManual(session);
-    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
+    verify(ruleDao).update(eq(session), ruleCaptor.capture());
     verifyNoMoreInteractions(ruleDao);
 
     verify(session).commit();
@@ -513,7 +513,7 @@ public class DebtModelBackupTest {
     verifyNoMoreInteractions(dao);
 
     verify(ruleDao).selectEnabledAndNonManual(session);
-    verify(ruleDao).update(ruleCaptor.capture(), eq(session));
+    verify(ruleDao).update(eq(session), ruleCaptor.capture());
     verifyNoMoreInteractions(ruleDao);
 
     verify(session).commit();
@@ -568,7 +568,7 @@ public class DebtModelBackupTest {
     debtModelBackup.reset();
 
     verify(ruleDao).selectEnabledAndNonManual(session);
-    verify(ruleDao, times(2)).update(ruleCaptor.capture(), eq(session));
+    verify(ruleDao, times(2)).update(eq(session), ruleCaptor.capture());
     verifyNoMoreInteractions(ruleDao);
     verify(session).commit();
 
@@ -608,7 +608,7 @@ public class DebtModelBackupTest {
     verifyNoMoreInteractions(dao);
 
     verify(ruleDao).selectEnabledAndNonManual(session);
-    verify(ruleDao, never()).update(any(RuleDto.class), eq(session));
+    verify(ruleDao, never()).update(eq(session), any(RuleDto.class));
     verifyZeroInteractions(defLoader);
 
     verify(session).commit();

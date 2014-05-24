@@ -98,7 +98,7 @@ public class SourceService implements ServerComponent {
   private String findDataFromComponent(String fileKey, String metricKey) {
     DbSession session = dbClient.openSession(false);
     try {
-      MeasureDto data = dbClient.measureDao().getByKey(MeasureKey.of(fileKey, metricKey), session);
+      MeasureDto data = dbClient.measureDao().getByKey(session, MeasureKey.of(fileKey, metricKey));
       if (data != null) {
         return data.getData();
       }

@@ -360,10 +360,10 @@ public class ActiveRuleServiceMediumTest {
     dbClient.qualityProfileDao().insert(dbSession, profile1);
 
     RuleDto rule1 = RuleDto.createFor(RuleKey.of("java", "r1")).setSeverity(Severity.MAJOR);
-    dbClient.ruleDao().insert(rule1, dbSession);
+    dbClient.ruleDao().insert(dbSession, rule1);
 
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile1, rule1).setSeverity("BLOCKER");
-    dbClient.activeRuleDao().insert(activeRule, dbSession);
+    dbClient.activeRuleDao().insert(dbSession, activeRule);
     dbSession.commit();
 
     tester.clearIndexes();
@@ -372,7 +372,7 @@ public class ActiveRuleServiceMediumTest {
     assertThat(index.getByKey(activeRule.getKey())).isNull();
 
     // 1. Synchronize since 0
-    dbClient.activeRuleDao().synchronizeAfter(0,dbSession);
+    dbClient.activeRuleDao().synchronizeAfter(dbSession, 0);
 
     // 2. Assert that we have the rule in Index
     assertThat(index.getByKey(activeRule.getKey())).isNotNull();
@@ -387,12 +387,12 @@ public class ActiveRuleServiceMediumTest {
 
     RuleDto rule1 = RuleDto.createFor(RuleKey.of("java", "r1")).setSeverity(Severity.MAJOR);
     RuleDto rule2 = RuleDto.createFor(RuleKey.of("java", "r2")).setSeverity(Severity.MAJOR);
-    dbClient.ruleDao().insert(rule1, dbSession);
-    dbClient.ruleDao().insert(rule2, dbSession);
+    dbClient.ruleDao().insert(dbSession, rule1);
+    dbClient.ruleDao().insert(dbSession, rule2);
 
-    dbClient.activeRuleDao().insert(ActiveRuleDto.createFor(profile1, rule1).setSeverity(Severity.MINOR), dbSession);
-    dbClient.activeRuleDao().insert(ActiveRuleDto.createFor(profile1, rule2).setSeverity(Severity.BLOCKER), dbSession);
-    dbClient.activeRuleDao().insert(ActiveRuleDto.createFor(profile2, rule2).setSeverity(Severity.CRITICAL), dbSession);
+    dbClient.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile1, rule1).setSeverity(Severity.MINOR));
+    dbClient.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile1, rule2).setSeverity(Severity.BLOCKER));
+    dbClient.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile2, rule2).setSeverity(Severity.CRITICAL));
     dbSession.commit();
 
     // find by rule key

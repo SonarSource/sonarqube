@@ -39,13 +39,13 @@ public class BaseDaoTest {
   public void getNonNullByKey() throws Exception {
     BaseDao dao = mock(BaseDao.class);
     FakeDto dto = new FakeDto("ki");
-    when(dao.doGetByKey("ki", dbSession)).thenReturn(dto);
-    when(dao.getNonNullByKey(anyString(), any(DbSession.class))).thenCallRealMethod();
+    when(dao.doGetByKey(dbSession, "ki")).thenReturn(dto);
+    when(dao.getNonNullByKey(any(DbSession.class), anyString())).thenCallRealMethod();
 
-    assertThat(dao.getNonNullByKey("ki", dbSession)).isSameAs(dto);
+    assertThat(dao.getNonNullByKey(dbSession, "ki")).isSameAs(dto);
 
     try {
-      dao.getNonNullByKey("unknown", dbSession);
+      dao.getNonNullByKey(dbSession, "unknown");
       fail();
     } catch (NotFoundException e) {
       assertThat(e).hasMessage("Key 'unknown' not found");

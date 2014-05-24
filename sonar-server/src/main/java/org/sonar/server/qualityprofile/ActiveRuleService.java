@@ -129,7 +129,7 @@ public class ActiveRuleService implements ServerComponent {
       if (change.getType() == ActiveRuleChange.Type.ACTIVATED) {
         ActiveRuleDto activeRule = ActiveRuleDto.createFor(context.profile(), context.rule());
         activeRule.setSeverity(change.getSeverity());
-        dao.insert(activeRule, dbSession);
+        dao.insert(dbSession, activeRule);
         for (Map.Entry<String, String> param : change.getParameters().entrySet()) {
           ActiveRuleParamDto paramDto = ActiveRuleParamDto.createFor(context.ruleParamsByKeys().get(param.getKey()));
           paramDto.setValue(param.getValue());
@@ -137,12 +137,12 @@ public class ActiveRuleService implements ServerComponent {
         }
 
       } else if (change.getType() == ActiveRuleChange.Type.DEACTIVATED) {
-        dao.deleteByKey(change.getKey(), dbSession);
+        dao.deleteByKey(dbSession, change.getKey());
 
       } else if (change.getType() == ActiveRuleChange.Type.UPDATED) {
         ActiveRuleDto activeRule = context.activeRule();
         activeRule.setSeverity(change.getSeverity());
-        dao.update(activeRule, dbSession);
+        dao.update(dbSession, activeRule);
 
         for (Map.Entry<String, String> param : change.getParameters().entrySet()) {
           ActiveRuleParamDto activeRuleParamDto = context.activeRuleParamsAsMap().get(param.getKey());

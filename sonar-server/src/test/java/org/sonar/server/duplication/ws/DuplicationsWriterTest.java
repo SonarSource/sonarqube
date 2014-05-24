@@ -64,8 +64,8 @@ public class DuplicationsWriterTest {
     String key2 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyUpdateQuery.java";
     ComponentDto file2 = new ComponentDto().setId(11L).setQualifier("FIL").setKey(key2).setLongName("PropertyUpdateQuery").setProjectId(1L);
 
-    when(componentDao.getByKey(key1, session)).thenReturn(file1);
-    when(componentDao.getByKey(key2, session)).thenReturn(file2);
+    when(componentDao.getByKey(session, key1)).thenReturn(file1);
+    when(componentDao.getByKey(session, key2)).thenReturn(file2);
     when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
 
     test(
@@ -103,7 +103,7 @@ public class DuplicationsWriterTest {
         "}"
     );
 
-    verify(componentDao, times(2)).getByKey(anyString(), eq(session));
+    verify(componentDao, times(2)).getByKey(eq(session), anyString());
     verify(componentDao, times(1)).getById(anyLong(), eq(session));
   }
 

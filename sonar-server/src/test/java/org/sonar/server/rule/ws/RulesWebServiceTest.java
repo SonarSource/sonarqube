@@ -103,11 +103,11 @@ public class RulesWebServiceTest {
     tester.get(QualityProfileDao.class).insert(session, profile);
 
     RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"));
-    ruleDao.insert(rule, session);
+    ruleDao.insert(session, rule);
 
     ActiveRuleDto activeRuleDto = ActiveRuleDto.createFor(profile, rule)
       .setSeverity("BLOCKER");
-    tester.get(ActiveRuleDao.class).insert(activeRuleDto, session);
+    tester.get(ActiveRuleDao.class).insert(session, activeRuleDto);
 
     session.commit();
 
@@ -141,8 +141,8 @@ public class RulesWebServiceTest {
 
   @Test
   public void search_2_rules() throws Exception {
-    ruleDao.insert(newRuleDto(RuleKey.of("javascript", "S001")), session);
-    ruleDao.insert(newRuleDto(RuleKey.of("javascript", "S002")), session);
+    ruleDao.insert(session, newRuleDto(RuleKey.of("javascript", "S001")));
+    ruleDao.insert(session, newRuleDto(RuleKey.of("javascript", "S002")));
     session.commit();
 
     MockUserSession.set();
@@ -155,11 +155,11 @@ public class RulesWebServiceTest {
 
   @Test
   public void search_debt_rules() throws Exception {
-    ruleDao.insert(newRuleDto(RuleKey.of("javascript", "S001"))
+    ruleDao.insert(session, newRuleDto(RuleKey.of("javascript", "S001"))
       .setDefaultRemediationCoefficient("DefaultCoef")
       .setDefaultRemediationFunction("DefaultFunction")
       .setDefaultRemediationCoefficient("DefaultCoef")
-      .setDefaultSubCharacteristicId(1), session);
+      .setDefaultSubCharacteristicId(1));
     session.commit();
 
 
@@ -177,10 +177,10 @@ public class RulesWebServiceTest {
     tester.get(QualityProfileDao.class).insert(session, profile);
 
     RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"));
-    ruleDao.insert(rule, session);
+    ruleDao.insert(session, rule);
 
     ActiveRuleDto activeRule = newActiveRule(profile, rule);
-    tester.get(ActiveRuleDao.class).insert(activeRule, session);
+    tester.get(ActiveRuleDao.class).insert(session, activeRule);
 
     session.commit();
 
@@ -207,12 +207,12 @@ public class RulesWebServiceTest {
     session.commit();
 
     RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"));
-    ruleDao.insert(rule, session);
+    ruleDao.insert(session, rule);
 
     ActiveRuleDto activeRule = newActiveRule(profile, rule);
-    tester.get(ActiveRuleDao.class).insert(activeRule, session);
+    tester.get(ActiveRuleDao.class).insert(session, activeRule);
     ActiveRuleDto activeRule2 = newActiveRule(profile2, rule);
-    tester.get(ActiveRuleDao.class).insert(activeRule2, session);
+    tester.get(ActiveRuleDao.class).insert(session, activeRule2);
 
     session.commit();
 
@@ -233,7 +233,7 @@ public class RulesWebServiceTest {
     tester.get(QualityProfileDao.class).insert(session, profile);
 
     RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"));
-    ruleDao.insert(rule, session);
+    ruleDao.insert(session, rule);
 
     session.commit();
 
@@ -252,7 +252,7 @@ public class RulesWebServiceTest {
     ruleDao.addRuleParam(rule, param2, session);
 
     ActiveRuleDto activeRule = newActiveRule(profile, rule);
-    tester.get(ActiveRuleDao.class).insert(activeRule, session);
+    tester.get(ActiveRuleDao.class).insert(session, activeRule);
 
     ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(param)
       .setValue("The VALUE");
@@ -282,12 +282,12 @@ public class RulesWebServiceTest {
 
     RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"))
       .setTags(ImmutableSet.of("hello", "world"));
-    ruleDao.insert(rule, session);
+    ruleDao.insert(session, rule);
 
     RuleDto rule2 = newRuleDto(RuleKey.of(profile.getLanguage(), "S002"))
       .setTags(ImmutableSet.of("java"))
       .setSystemTags(ImmutableSet.of("sys1"));
-    ruleDao.insert(rule2, session);
+    ruleDao.insert(session, rule2);
 
     session.commit();
 
@@ -305,7 +305,7 @@ public class RulesWebServiceTest {
 
     RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"))
       .setNoteData("this is *bold*");
-    ruleDao.insert(rule, session);
+    ruleDao.insert(session, rule);
 
     session.commit();
 
@@ -319,10 +319,10 @@ public class RulesWebServiceTest {
 
   @Test
   public void filter_by_tags() throws Exception {
-    ruleDao.insert(newRuleDto(RuleKey.of("java", "S001"))
-      .setSystemTags(ImmutableSet.of("tag1")), session);
-    ruleDao.insert(newRuleDto(RuleKey.of("java", "S002"))
-      .setSystemTags(ImmutableSet.of("tag2")), session);
+    ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S001"))
+      .setSystemTags(ImmutableSet.of("tag1")));
+    ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S002"))
+      .setSystemTags(ImmutableSet.of("tag2")));
 
     session.commit();
 
@@ -337,8 +337,8 @@ public class RulesWebServiceTest {
 
   @Test
   public void sort_by_name() throws Exception {
-    ruleDao.insert(newRuleDto(RuleKey.of("java", "S001")).setName("a"), session);
-    ruleDao.insert(newRuleDto(RuleKey.of("java", "S002")).setName("b"), session);
+    ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S001")).setName("a"));
+    ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S002")).setName("b"));
     session.commit();
 
 

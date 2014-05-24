@@ -125,9 +125,9 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   @Test
   public void select_by_rule_key() throws Exception {
     setupData("select_by_rule_key");
-    assertThat(dao.getByKey(RuleKey.of("checkstyle", "AvoidComparison"), session)).isNotNull();
-    assertThat(dao.getByKey(RuleKey.of("checkstyle", "Unknown"), session)).isNull();
-    assertThat(dao.getByKey(RuleKey.of("Unknown", "AvoidComparison"), session)).isNull();
+    assertThat(dao.getByKey(session, RuleKey.of("checkstyle", "AvoidComparison"))).isNotNull();
+    assertThat(dao.getByKey(session, RuleKey.of("checkstyle", "Unknown"))).isNull();
+    assertThat(dao.getByKey(session, RuleKey.of("Unknown", "AvoidComparison"))).isNull();
   }
 
   @Test
@@ -212,7 +212,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setEffortToFixDescription("squid.S115.effortToFix");
 
 
-    dao.update(ruleToUpdate, session);
+    dao.update(session, ruleToUpdate);
     session.commit();
 
     checkTables("update", "rules");
@@ -247,7 +247,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDefaultRemediationOffset("10h")
       .setEffortToFixDescription("squid.S115.effortToFix");
 
-    dao.insert(ruleToInsert, session);
+    dao.insert(session, ruleToInsert);
     session.commit();
 
     checkTables("insert", "rules");
@@ -303,7 +303,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDefaultRemediationOffset("5min")
       .setEffortToFixDescription("squid.S115.effortToFix2");
 
-    dao.insert(ImmutableList.of(ruleToInsert1, ruleToInsert2), session);
+    dao.insert(session, ImmutableList.of(ruleToInsert1, ruleToInsert2));
     session.commit();
 
     checkTables("insert_all", "rules");

@@ -104,7 +104,7 @@ public class DuplicationsWriter implements ServerComponent {
     for (Map.Entry<String, String> entry : refByComponentKey.entrySet()) {
       String componentKey = entry.getKey();
       String ref = entry.getValue();
-      ComponentDto file = componentDao.getByKey(componentKey, session);
+      ComponentDto file = componentDao.getByKey(session, componentKey);
       if (file != null) {
         json.name(ref).beginObject();
         json.prop("key", file.key());

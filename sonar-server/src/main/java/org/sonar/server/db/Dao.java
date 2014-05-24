@@ -26,29 +26,28 @@ import org.sonar.core.persistence.Dto;
 import javax.annotation.CheckForNull;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.List;
 
 public interface Dao<E extends Dto<K>, K extends Serializable> extends ServerComponent {
 
   @CheckForNull
-  E getByKey(K key, DbSession session);
+  E getByKey(DbSession session, K key);
 
-  E getNonNullByKey(K key, DbSession session);
+  E getNonNullByKey(DbSession session, K key);
 
-  E update(E item, DbSession session);
+  E update(DbSession session, E item);
 
-  List<E> update(List<E> items, DbSession session);
+  Collection<E> update(DbSession session, Collection<E> items);
 
-  E insert(E item, DbSession session);
+  E insert(DbSession session, E item);
 
-  List<E> insert(List<E> items, DbSession session);
+  Collection<E> insert(DbSession session, Collection<E> items);
 
-  void delete(E item, DbSession session);
+  void delete(DbSession session, E item);
 
-  void delete(Collection<E> items, DbSession session);
+  void delete(DbSession session, Collection<E> items);
 
-  void deleteByKey(K key, DbSession session);
+  void deleteByKey(DbSession session, K key);
 
-  void synchronizeAfter(long timestamp, DbSession session);
+  void synchronizeAfter(DbSession session, long timestamp);
 
 }

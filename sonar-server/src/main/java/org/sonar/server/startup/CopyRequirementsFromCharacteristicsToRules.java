@@ -137,7 +137,7 @@ public class CopyRequirementsFromCharacteristicsToRules implements ServerCompone
     rule.setRemediationFunction(null);
     rule.setRemediationCoefficient(null);
     rule.setRemediationOffset(null);
-    dbClient.ruleDao().update(rule, session);
+    dbClient.ruleDao().update(session, rule);
   }
 
   private void convertEnabledRequirement(RuleDto ruleRow, RequirementDto enabledRequirement, DbSession session) {
@@ -167,7 +167,7 @@ public class CopyRequirementsFromCharacteristicsToRules implements ServerCompone
 
     if (!isDebtDefaultValuesSameAsOverriddenValues(ruleRow)) {
       // Default values on debt are not the same that ones set by SQALE, update the rule
-      dbClient.ruleDao().update(ruleRow, session);
+      dbClient.ruleDao().update(session, ruleRow);
     }
   }
 

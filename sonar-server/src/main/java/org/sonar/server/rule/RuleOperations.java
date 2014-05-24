@@ -66,7 +66,7 @@ public class RuleOperations implements ServerComponent {
     checkPermission(userSession);
     DbSession session = dbClient.openSession(false);
     try {
-      RuleDto ruleDto = dbClient.ruleDao().getByKey(ruleChange.ruleKey(), session);
+      RuleDto ruleDto = dbClient.ruleDao().getByKey(session, ruleChange.ruleKey());
       if (ruleDto == null) {
         throw new NotFoundException(String.format("Unknown rule '%s'", ruleChange.ruleKey()));
       }
@@ -132,7 +132,7 @@ public class RuleOperations implements ServerComponent {
     }
 
     if (needUpdate) {
-      dbClient.ruleDao().update(ruleDto, session);
+      dbClient.ruleDao().update(session, ruleDto);
     }
     return needUpdate;
   }

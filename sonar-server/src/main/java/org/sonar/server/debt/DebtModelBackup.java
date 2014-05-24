@@ -192,7 +192,7 @@ public class DebtModelBackup implements ServerComponent {
       rule.setRemediationCoefficient(null);
       rule.setRemediationOffset(null);
       rule.setUpdatedAt(updateDate);
-      dbClient.ruleDao().update(rule, session);
+      dbClient.ruleDao().update(session, rule);
     }
   }
 

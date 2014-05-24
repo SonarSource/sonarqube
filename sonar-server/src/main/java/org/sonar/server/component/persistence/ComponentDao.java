@@ -56,22 +56,22 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
   }
 
   @Override
-  protected ComponentDto doGetByKey(String key, DbSession session) {
+  protected ComponentDto doGetByKey(DbSession session, String key) {
     return getMapper(session).selectByKey(key);
   }
 
   @Override
-  protected ComponentDto doInsert(ComponentDto item, DbSession session) {
+  protected ComponentDto doInsert(DbSession session, ComponentDto item) {
     throw notImplemented();
   }
 
   @Override
-  protected ComponentDto doUpdate(ComponentDto item, DbSession session) {
+  protected ComponentDto doUpdate(DbSession session, ComponentDto item) {
     throw notImplemented();
   }
 
   @Override
-  protected void doDeleteByKey(String key, DbSession session) {
+  protected void doDeleteByKey(DbSession session, String key) {
     throw notImplemented();
   }
 
@@ -80,7 +80,7 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
   }
 
   @Override
-  public void synchronizeAfter(long timestamp, DbSession session) {
+  public void synchronizeAfter(DbSession session, long timestamp) {
     throw new IllegalStateException("Not implemented yet");
   }
 }

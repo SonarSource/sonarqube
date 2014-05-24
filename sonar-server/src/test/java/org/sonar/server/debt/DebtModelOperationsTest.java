@@ -368,7 +368,7 @@ public class DebtModelOperationsTest {
 
     service.delete(2);
 
-    verify(ruleDao).update(ruleCaptor.capture(), eq(batchSession));
+    verify(ruleDao).update(eq(batchSession), ruleCaptor.capture());
 
     RuleDto ruleDto = ruleCaptor.getValue();
     assertThat(ruleDto.getUpdatedAt()).isEqualTo(now);
@@ -408,7 +408,7 @@ public class DebtModelOperationsTest {
 
     service.delete(2);
 
-    verify(ruleDao).update(ruleCaptor.capture(), eq(batchSession));
+    verify(ruleDao).update(eq(batchSession), ruleCaptor.capture());
     RuleDto ruleDto = ruleCaptor.getValue();
 
     // Default debt data are disabled
@@ -450,7 +450,7 @@ public class DebtModelOperationsTest {
 
     service.delete(1);
 
-    verify(ruleDao).update(ruleCaptor.capture(), eq(batchSession));
+    verify(ruleDao).update(eq(batchSession), ruleCaptor.capture());
 
     verify(dao, times(2)).update(characteristicCaptor.capture(), eq(batchSession));
     CharacteristicDto subCharacteristicDto = characteristicCaptor.getAllValues().get(0);
