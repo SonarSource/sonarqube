@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.es;
+package org.sonar.server.search;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.FileUtils;
@@ -71,7 +71,7 @@ public class ESNode implements Startable {
 
   @Override
   public void start() {
-    LOG.info("Starting Elasticsearch...");
+    LOG.info("Start Elasticsearch...");
 
     initLogging();
     ImmutableSettings.Builder esSettings = ImmutableSettings.builder()

@@ -48,7 +48,7 @@ import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
-import org.sonar.server.es.ESNode;
+import org.sonar.server.search.ESNode;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.IndexDefinition;

@@ -102,7 +102,7 @@ import org.sonar.server.debt.DebtModelXMLExporter;
 import org.sonar.server.debt.DebtRulesXMLImporter;
 import org.sonar.server.duplication.ws.DuplicationsWriter;
 import org.sonar.server.duplication.ws.DuplicationsWs;
-import org.sonar.server.es.ESNode;
+import org.sonar.server.search.ESNode;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.AssignAction;
 import org.sonar.server.issue.CommentAction;

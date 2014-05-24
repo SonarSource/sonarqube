@@ -37,7 +37,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.rule.RuleDto;
-import org.sonar.server.es.ESNode;
+import org.sonar.server.search.ESNode;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.search.BaseIndex;

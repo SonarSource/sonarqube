@@ -27,7 +27,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.server.es.ESNode;
+import org.sonar.server.search.ESNode;
 
 import java.sql.Connection;
 
