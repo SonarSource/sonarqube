@@ -115,7 +115,6 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     addMatchField(mapping, RuleNormalizer.RuleField.REPOSITORY.key(), "string");
     addMatchField(mapping, RuleNormalizer.RuleField.SEVERITY.key(), "string");
     addMatchField(mapping, RuleNormalizer.RuleField.STATUS.key(), "string");
-    ;
     addMatchField(mapping, RuleNormalizer.RuleField.LANGUAGE.key(), "string");
 
     mapping.startObject(RuleNormalizer.RuleField.CHARACTERISTIC.key())

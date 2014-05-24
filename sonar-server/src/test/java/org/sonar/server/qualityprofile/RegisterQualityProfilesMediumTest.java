@@ -204,7 +204,6 @@ public class RegisterQualityProfilesMediumTest {
    * Probably for db migration
    */
   @Test
-  @Ignore
   public void clean_up_profiles_if_missing_loaded_template() throws Exception {
     tester = new ServerTester().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
     tester.start();

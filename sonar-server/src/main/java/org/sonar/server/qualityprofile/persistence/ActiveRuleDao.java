@@ -184,18 +184,12 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
   public void deleteByProfileKey(QualityProfileKey profileKey, DbSession session) {
     /** Functional cascade for params */
     for (ActiveRuleDto activeRule : this.findByProfileKey(profileKey, session)) {
-      this.delete(activeRule, session);
+      delete(activeRule, session);
     }
   }
 
   public List<ActiveRuleDto> findByProfileKey(QualityProfileKey profileKey, DbSession session) {
-    //TODO try/catch due to legacy selectByProfileId SQL.
-    try {
-      int id = this.getQualityProfileId(profileKey, session);
-      return mapper(session).selectByProfileId(id);
-    } catch (Exception e) {
-      throw new IllegalArgumentException("Quality profile not found: " + profileKey.toString());
-    }
+    return mapper(session).selectByProfileKey(profileKey);
   }
 
   public void removeParamByProfileKey(QualityProfileKey profileKey, DbSession session) {

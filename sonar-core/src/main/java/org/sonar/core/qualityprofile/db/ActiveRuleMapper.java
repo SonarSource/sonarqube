@@ -47,6 +47,8 @@ public interface ActiveRuleMapper {
 
   List<ActiveRuleDto> selectByProfileId(int profileId);
 
+  List<ActiveRuleDto> selectByProfileKey(QualityProfileKey key);
+
   List<ActiveRuleDto> selectAll();
 
   void insertParameter(ActiveRuleParamDto dto);

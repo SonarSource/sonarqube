@@ -118,7 +118,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
           .execute().actionGet();
       }
     } catch (Exception e) {
-      throw new RuntimeException("Invalid configuration for index " + this.getIndexName(), e);
+      throw new IllegalStateException("Invalid configuration for index " + this.getIndexName(), e);
     }
   }
 

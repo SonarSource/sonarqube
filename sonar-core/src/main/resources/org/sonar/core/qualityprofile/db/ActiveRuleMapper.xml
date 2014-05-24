@@ -109,6 +109,14 @@
         </where>
     </select>
 
+  <select id="selectByProfileKey" parameterType="map" resultType="ActiveRule">
+    SELECT <include refid="activeRuleKeyColumns"/>
+    FROM active_rules a
+    <include refid="activeRuleKeyJoin"/>
+    where qp.name = #{name}
+    AND qp.language = #{lang}
+  </select>
+
   <select id="selectByProfileAndRule" parameterType="map" resultType="ActiveRule">
     SELECT <include refid="activeRuleColumns"/>
     FROM active_rules a
