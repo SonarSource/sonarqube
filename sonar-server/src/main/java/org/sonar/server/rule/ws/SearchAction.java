@@ -1,0 +1,232 @@
+/*
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonar.server.rule.ws;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.io.Resources;
+import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.RequestHandler;
+import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.server.rule.Rule;
+import org.sonar.server.rule.RuleService;
+import org.sonar.server.rule.index.RuleDoc;
+import org.sonar.server.rule.index.RuleNormalizer;
+import org.sonar.server.rule.index.RuleQuery;
+import org.sonar.server.rule.index.RuleResult;
+import org.sonar.server.search.FacetValue;
+import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.ws.SearchOptions;
+
+import java.util.Collection;
+import java.util.Map;
+
+/**
+ * @since 4.4
+ */
+public class SearchAction implements RequestHandler {
+
+  public static final String PARAM_REPOSITORIES = "repositories";
+  public static final String PARAM_ACTIVATION = "activation";
+  public static final String PARAM_QPROFILE = "qprofile";
+  public static final String PARAM_SEVERITIES = "severities";
+  public static final String PARAM_STATUSES = "statuses";
+  public static final String PARAM_LANGUAGES = "languages";
+  public static final String PARAM_DEBT_CHARACTERISTICS = "debt_characteristics";
+  public static final String PARAM_HAS_DEBT_CHARACTERISTIC = "has_debt_characteristic";
+  public static final String PARAM_TAGS = "tags";
+  public static final String PARAM_ALL_OF_TAGS = "all_of_tags";
+  public static final String PARAM_FACETS = "facets";
+
+  private final RuleService ruleService;
+  private final ActiveRuleCompleter activeRuleCompleter;
+  private final RuleMapping mapping;
+
+  public SearchAction(RuleService service, ActiveRuleCompleter activeRuleCompleter, RuleMapping mapping) {
+    this.ruleService = service;
+    this.activeRuleCompleter = activeRuleCompleter;
+    this.mapping = mapping;
+  }
+
+  void define(WebService.NewController controller) {
+    WebService.NewAction action = controller
+      .createAction("search")
+      .setDescription("Search for a collection of relevant rules matching a specified query")
+      .setResponseExample(Resources.getResource(getClass(), "example-search.json"))
+      .setSince("4.4")
+      .setHandler(this);
+
+    // Generic search parameters
+    SearchOptions.defineFieldsParam(action,
+      ImmutableList.<String>builder().addAll(mapping.supportedFields()).add("actives").build());
+    SearchOptions.definePageParams(action);
+
+    // Rule-specific search parameters
+    defineRuleSearchParameters(action);
+
+    // Other parameters
+    action.createParam(PARAM_FACETS)
+      .setDescription("Compute predefined facets")
+      .setBooleanPossibleValues()
+      .setDefaultValue("false");
+  }
+
+  /**
+   * public visibility because used by {@link org.sonar.server.qualityprofile.ws.BulkRuleActivationActions}
+   */
+  public static void defineRuleSearchParameters(WebService.NewAction action) {
+    action
+      .createParam(SearchOptions.PARAM_TEXT_QUERY)
+      .setDescription("UTF-8 search query")
+      .setExampleValue("xpath");
+
+    action
+      .createParam(PARAM_REPOSITORIES)
+      .setDescription("Comma-separated list of repositories")
+      .setExampleValue("checkstyle,findbugs");
+
+    action
+      .createParam(PARAM_SEVERITIES)
+      .setDescription("Comma-separated list of default severities. Not the same than severity of rules in Quality profiles.")
+      .setPossibleValues(Severity.ALL)
+      .setExampleValue("CRITICAL,BLOCKER");
+
+    action
+      .createParam(PARAM_LANGUAGES)
+      .setDescription("Comma-separated list of languages")
+      .setExampleValue("java,js");
+
+    action
+      .createParam(PARAM_STATUSES)
+      .setDescription("Comma-separated list of status codes")
+      .setPossibleValues(RuleStatus.values())
+      .setExampleValue(RuleStatus.READY);
+
+    action
+      .createParam(PARAM_DEBT_CHARACTERISTICS)
+      .setDescription("Comma-separated list of technical debt characteristics or sub-characteristics")
+      .setExampleValue("RELIABILITY");
+
+    action
+      .createParam(PARAM_HAS_DEBT_CHARACTERISTIC)
+      .setDescription("Filter rules that have a technical debt characteristic")
+      .setBooleanPossibleValues();
+
+    action
+      .createParam(PARAM_TAGS)
+      .setDescription("Comma-separated list of tags. Returned rules match any of the tags (OR operator)")
+      .setExampleValue("security,java8");
+
+    action
+      .createParam(PARAM_ALL_OF_TAGS)
+      .setDescription("Comma-separated list of tags. Returned rules match all the tags (AND operator)")
+      .setExampleValue("security,java8");
+
+    action
+      .createParam(PARAM_ACTIVATION)
+      .setDescription("TODO")
+      .setBooleanPossibleValues();
+
+    action
+      .createParam(PARAM_QPROFILE)
+      .setDescription("Key of Quality profile to filter on. Used only if the parameter '" +
+        PARAM_ACTIVATION + "' is set.")
+      .setExampleValue("java:Sonar way");
+
+    // TODO limit the fields to sort on + document possible values + default value ?
+    action
+      .createParam(SearchOptions.PARAM_SORT)
+      .setDescription("Sort field")
+      .setExampleValue(RuleNormalizer.RuleField.LANGUAGE.key());
+
+    action
+      .createParam(SearchOptions.PARAM_ASCENDING)
+      .setDescription("Ascending sort")
+      .setBooleanPossibleValues()
+      .setDefaultValue(true);
+  }
+
+  @Override
+  public void handle(Request request, Response response) {
+    RuleQuery query = createRuleQuery(request);
+    SearchOptions searchOptions = SearchOptions.create(request);
+    QueryOptions queryOptions = mapping.newQueryOptions(searchOptions);
+    queryOptions.setFacet(request.mandatoryParamAsBoolean(PARAM_FACETS));
+
+    RuleResult results = ruleService.search(query, queryOptions);
+
+    JsonWriter json = response.newJsonWriter().beginObject();
+    searchOptions.writeStatistics(json, results);
+    writeRules(results, json, searchOptions);
+    if (searchOptions.hasField("actives")) {
+      activeRuleCompleter.completeSearch(query, results.getRules(), json);
+    }
+    if (queryOptions.isFacet()) {
+      writeFacets(results, json);
+    }
+    json.endObject().close();
+  }
+
+  private RuleQuery createRuleQuery(Request request) {
+    RuleQuery query = ruleService.newRuleQuery();
+    query.setQueryText(request.param(SearchOptions.PARAM_TEXT_QUERY));
+    query.setSeverities(request.paramAsStrings(PARAM_SEVERITIES));
+    query.setRepositories(request.paramAsStrings(PARAM_REPOSITORIES));
+    query.setStatuses(request.paramAsEnums(PARAM_STATUSES, RuleStatus.class));
+    query.setLanguages(request.paramAsStrings(PARAM_LANGUAGES));
+    query.setDebtCharacteristics(request.paramAsStrings(PARAM_DEBT_CHARACTERISTICS));
+    query.setHasDebtCharacteristic(request.paramAsBoolean(PARAM_HAS_DEBT_CHARACTERISTIC));
+    query.setActivation(request.paramAsBoolean(PARAM_ACTIVATION));
+    query.setQProfileKey(request.param(PARAM_QPROFILE));
+    query.setSortField(RuleQuery.SortField.valueOfOrNull(request.param(SearchOptions.PARAM_SORT)));
+    query.setAscendingSort(request.mandatoryParamAsBoolean(SearchOptions.PARAM_ASCENDING));
+    query.setTags(request.paramAsStrings(PARAM_TAGS));
+    query.setAllOfTags(request.paramAsStrings(PARAM_ALL_OF_TAGS));
+    return query;
+  }
+
+  private void writeRules(RuleResult result, JsonWriter json, SearchOptions options) {
+    json.name("rules").beginArray();
+    for (Rule rule : result.getHits()) {
+      mapping.write((RuleDoc) rule, json, options);
+    }
+    json.endArray();
+  }
+
+  private void writeFacets(RuleResult results, JsonWriter json) {
+    json.name("facets").beginArray();
+    for (Map.Entry<String, Collection<FacetValue>> facet : results.getFacets().entrySet()) {
+      json.beginObject();
+      json.prop("property", facet.getKey());
+      json.name("values").beginArray();
+      for (FacetValue facetValue : facet.getValue()) {
+        json.beginObject();
+        json.prop("val", facetValue.getKey());
+        json.prop("count", facetValue.getValue());
+        json.endObject();
+      }
+      json.endArray().endObject();
+    }
+    json.endArray();
+  }
+}

@@ -41,7 +41,7 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.rule2.persistence.RuleDao;
+import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.user.UserSession;
 
 import java.io.StringReader;

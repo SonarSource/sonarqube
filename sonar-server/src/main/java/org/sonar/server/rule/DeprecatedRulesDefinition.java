@@ -41,7 +41,6 @@ import org.sonar.server.debt.DebtRulesXMLImporter;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.Reader;
 import java.util.Collection;
 import java.util.List;
@@ -50,9 +49,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
 
 /**
- * Inject deprecated RuleRepository into RuleDefinitions for backward-compatibility.
- *
- * @since 4.2
+ * Inject deprecated RuleRepository into {@link org.sonar.api.server.rule.RulesDefinition} for backward-compatibility.
  */
 public class DeprecatedRulesDefinition implements RulesDefinition {
 

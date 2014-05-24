@@ -19,24 +19,13 @@
  */
 package org.sonar.core.rule;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.server.debt.DebtRemediationFunction;
-import org.sonar.api.utils.DateUtils;
-import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class RuleDaoTest extends AbstractDaoTestCase {
@@ -46,31 +35,6 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   @Before
   public void createDao() throws Exception {
     dao = new RuleDao(getMyBatis());
-  }
-
-  @Test
-  public void select_all() throws Exception {
-    setupData("selectAll");
-    List<RuleDto> ruleDtos = dao.selectAll();
-
-    assertThat(ruleDtos).hasSize(1);
-
-    RuleDto ruleDto = ruleDtos.get(0);
-    assertThat(ruleDto.getId()).isEqualTo(1);
-    assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
-    assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
-    assertThat(ruleDto.getStatus()).isEqualTo(Rule.STATUS_READY);
-    assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
-    assertThat(ruleDto.getNoteData()).isEqualTo("Rule note with accents \u00e9\u00e8\u00e0");
-    assertThat(ruleDto.getSubCharacteristicId()).isEqualTo(100);
-    assertThat(ruleDto.getDefaultSubCharacteristicId()).isEqualTo(101);
-    assertThat(ruleDto.getRemediationFunction()).isEqualTo("linear");
-    assertThat(ruleDto.getDefaultRemediationFunction()).isEqualTo("linear_offset");
-    assertThat(ruleDto.getRemediationCoefficient()).isEqualTo("1h");
-    assertThat(ruleDto.getDefaultRemediationCoefficient()).isEqualTo("5d");
-    assertThat(ruleDto.getRemediationOffset()).isEqualTo("5min");
-    assertThat(ruleDto.getDefaultRemediationOffset()).isEqualTo("10h");
-    assertThat(ruleDto.getEffortToFixDescription()).isEqualTo("squid.S115.effortToFix");
   }
 
   @Test
@@ -98,198 +62,6 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_by_id() throws Exception {
-    setupData("selectById");
-    RuleDto ruleDto = dao.selectById(2);
-
-    assertThat(ruleDto.getId()).isEqualTo(2);
-    assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
-    assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
-    assertThat(ruleDto.getStatus()).isEqualTo(Rule.STATUS_READY);
-    assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
-  }
-
-  @Test
-  public void select_by_rule_key() throws Exception {
-    setupData("select_by_rule_key");
-    assertThat(dao.selectByKey(RuleKey.of("checkstyle", "AvoidComparison"))).isNotNull();
-    assertThat(dao.selectByKey(RuleKey.of("checkstyle", "Unknown"))).isNull();
-    assertThat(dao.selectByKey(RuleKey.of("Unknown", "AvoidComparison"))).isNull();
-  }
-
-  @Test
-  public void select_by_name() throws Exception {
-    setupData("select_by_name");
-    RuleDto ruleDto = dao.selectByName("Avoid Null");
-
-    assertThat(ruleDto.getId()).isEqualTo(2);
-    assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
-    assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
-    assertThat(ruleDto.getStatus()).isEqualTo(Rule.STATUS_READY);
-    assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
-  }
-
-  @Test
-  public void select_non_manual() throws Exception {
-    setupData("selectNonManual");
-    SqlSession session = getMyBatis().openSession();
-    List<RuleDto> ruleDtos = dao.selectNonManual(session);
-    session.commit();
-    session.close();
-
-    assertThat(ruleDtos.size()).isEqualTo(1);
-    RuleDto ruleDto = ruleDtos.get(0);
-    assertThat(ruleDto.getId()).isEqualTo(1);
-    assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
-    assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
-    assertThat(ruleDto.getStatus()).isEqualTo(Rule.STATUS_READY);
-    assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
-  }
-
-  @Test
-  public void select_by_sub_characteristic_id(){
-    setupData("select_by_sub_characteristic_id");
-
-    // Rules from sub characteristic (even REMOVED ones are returned)
-    List<RuleDto> ruleDtos = dao.selectBySubCharacteristicId(3);
-    assertThat(ruleDtos).hasSize(3);
-    assertThat(idsFromRuleDtos(ruleDtos)).containsExactly(2, 4, 5);
-
-    // Nothing on root characteristic
-    ruleDtos = dao.selectBySubCharacteristicId(1);
-    assertThat(ruleDtos).isEmpty();
-
-    // Rules from disabled characteristic
-    ruleDtos = dao.selectBySubCharacteristicId(11);
-    assertThat(idsFromRuleDtos(ruleDtos)).containsExactly(3);
-  }
-
-  @Test
-  @Ignore
-  //TODO The date is set by BaseDao. fails because of date. Fixed in next merge from @Simon
-  public void update() {
-    setupData("update");
-
-    RuleDto ruleToUpdate = new RuleDto()
-      .setId(1)
-      .setRuleKey("NewRuleKey")
-      .setRepositoryKey("plugin")
-      .setName("new name")
-      .setDescription("new description")
-      .setStatus(Rule.STATUS_DEPRECATED)
-      .setConfigKey("NewConfigKey")
-      .setSeverity(Severity.INFO)
-      .setCardinality(Cardinality.MULTIPLE)
-      .setLanguage("dart")
-      .setParentId(3)
-      .setNoteData("My note")
-      .setNoteUserLogin("admin")
-      .setNoteCreatedAt(DateUtils.parseDate("2013-12-19"))
-      .setNoteUpdatedAt(DateUtils.parseDate("2013-12-20"))
-      .setSubCharacteristicId(100)
-      .setDefaultSubCharacteristicId(101)
-      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
-      .setRemediationCoefficient("1h")
-      .setDefaultRemediationCoefficient("5d")
-      .setRemediationOffset("5min")
-      .setDefaultRemediationOffset("10h")
-      .setEffortToFixDescription("squid.S115.effortToFix");
-
-    dao.update(ruleToUpdate);
-
-    checkTables("update", "rules");
-  }
-
-  @Test
-  @Ignore
-  //TODO The date is set by BaseDao. fails because of date. Fixed in next merge from @Simon
-  public void insert() {
-    setupData("empty");
-
-    RuleDto ruleToInsert = new RuleDto()
-      .setId(1)
-      .setRuleKey("NewRuleKey")
-      .setRepositoryKey("plugin")
-      .setName("new name")
-      .setDescription("new description")
-      .setStatus(Rule.STATUS_DEPRECATED)
-      .setConfigKey("NewConfigKey")
-      .setSeverity(Severity.INFO)
-      .setCardinality(Cardinality.MULTIPLE)
-      .setLanguage("dart")
-      .setParentId(3)
-      .setSubCharacteristicId(100)
-      .setDefaultSubCharacteristicId(101)
-      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
-      .setRemediationCoefficient("1h")
-      .setDefaultRemediationCoefficient("5d")
-      .setRemediationOffset("5min")
-      .setDefaultRemediationOffset("10h")
-      .setEffortToFixDescription("squid.S115.effortToFix");
-
-    dao.insert(ruleToInsert);
-
-    checkTables("insert", "rules");
-  }
-
-  @Test
-  @Ignore
-  //TODO The date is set by BaseDao. fails because of date. Fixed in next merge from @Simon
-  public void insert_all() {
-    setupData("empty");
-
-    RuleDto ruleToInsert1 = new RuleDto()
-      .setId(1)
-      .setRuleKey("NewRuleKey")
-      .setRepositoryKey("plugin")
-      .setName("new name")
-      .setDescription("new description")
-      .setStatus(Rule.STATUS_DEPRECATED)
-      .setConfigKey("NewConfigKey")
-      .setSeverity(Severity.INFO)
-      .setCardinality(Cardinality.MULTIPLE)
-      .setLanguage("dart")
-      .setParentId(3)
-      .setSubCharacteristicId(100)
-      .setDefaultSubCharacteristicId(101)
-      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
-      .setRemediationCoefficient("1h")
-      .setDefaultRemediationCoefficient("5d")
-      .setRemediationOffset("5min")
-      .setDefaultRemediationOffset("10h")
-      .setEffortToFixDescription("squid.S115.effortToFix");
-
-    RuleDto ruleToInsert2 = new RuleDto()
-      .setId(2)
-      .setRuleKey("NewRuleKey2")
-      .setRepositoryKey("plugin2")
-      .setName("new name2")
-      .setDescription("new description2")
-      .setStatus(Rule.STATUS_BETA)
-      .setConfigKey("NewConfigKey2")
-      .setSeverity(Severity.MAJOR)
-      .setCardinality(Cardinality.SINGLE)
-      .setLanguage("js")
-      .setParentId(null)
-      .setSubCharacteristicId(102)
-      .setDefaultSubCharacteristicId(103)
-      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
-      .setRemediationCoefficient("5d")
-      .setDefaultRemediationCoefficient("1h")
-      .setRemediationOffset("10h")
-      .setDefaultRemediationOffset("5min")
-      .setEffortToFixDescription("squid.S115.effortToFix2");
-
-    dao.insert(ImmutableList.of(ruleToInsert1, ruleToInsert2));
-
-    checkTables("insert_all", "rules");
-  }
-
-  @Test
   public void select_parameters() throws Exception {
     setupData("selectParameters");
     List<RuleParamDto> ruleDtos = dao.selectParameters();
@@ -301,69 +73,5 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getDescription()).isEqualTo("My Parameter");
     assertThat(ruleDto.getType()).isEqualTo("plop");
     assertThat(ruleDto.getDefaultValue()).isEqualTo("plouf");
-  }
-
-  @Test
-  public void select_parameters_by_rule_id() throws Exception {
-    setupData("select_parameters_by_rule_id");
-    int ruleId = 1;
-    List<RuleParamDto> ruleDtos = dao.selectParametersByRuleId(ruleId);
-
-    assertThat(ruleDtos.size()).isEqualTo(1);
-    RuleParamDto ruleDto = ruleDtos.get(0);
-    assertThat(ruleDto.getId()).isEqualTo(1);
-    assertThat(ruleDto.getName()).isEqualTo("myParameter");
-    assertThat(ruleDto.getDescription()).isEqualTo("My Parameter");
-    assertThat(ruleDto.getType()).isEqualTo("plop");
-    assertThat(ruleDto.getRuleId()).isEqualTo(ruleId);
-  }
-
-  @Test
-  public void select_parameters_by_rule_ids() throws Exception {
-    setupData("select_parameters_by_rule_ids");
-
-    assertThat(dao.selectParametersByRuleIds(newArrayList(1, 2))).hasSize(2);
-    assertThat(dao.selectParametersByRuleIds(newArrayList(1))).hasSize(1);
-  }
-
-  @Test
-  public void insert_parameter() {
-    setupData("insert_parameter");
-
-    RuleParamDto param = new RuleParamDto()
-      .setRuleId(1)
-      .setName("max")
-      .setType("INTEGER")
-      .setDefaultValue("30")
-      .setDescription("My Parameter");
-
-    dao.insert(param);
-
-    checkTables("insert_parameter", "rules_parameters");
-  }
-
-  @Test
-  public void update_parameter() {
-    setupData("update_parameter");
-
-    RuleParamDto param = new RuleParamDto()
-      .setId(1)
-      .setName("format")
-      .setType("STRING")
-      .setDefaultValue("^[a-z]+(\\.[a-z][a-z0-9]*)*$")
-      .setDescription("Regular expression used to check the package names against.");
-
-    dao.update(param);
-
-    checkTables("update_parameter", "rules_parameters");
-  }
-
-  private List<Integer> idsFromRuleDtos(List<RuleDto> ruleDtos){
-    return newArrayList(Iterables.transform(ruleDtos, new Function<RuleDto, Integer>() {
-      @Override
-      public Integer apply(RuleDto input) {
-        return input.getId();
-      }
-    }));
   }
 }

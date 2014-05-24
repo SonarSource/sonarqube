@@ -32,10 +32,6 @@ public class RuleParamDto {
   private String defaultValue;
   private String description;
 
-  public RuleParamDto() {
-
-  }
-
   public Integer getId() {
     return id;
   }

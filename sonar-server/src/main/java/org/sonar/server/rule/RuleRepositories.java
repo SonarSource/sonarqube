@@ -28,7 +28,6 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.server.rule.RulesDefinition;
 
 import javax.annotation.CheckForNull;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.SortedSet;
@@ -36,7 +35,7 @@ import java.util.SortedSet;
 /**
  * This component keeps metadata of rule repositories.
  * <p/>
- * Rule repositories are not persisted into datastores, so their metadata (name)
+ * Rule repositories are not persisted into database, so their metadata (name)
  * is kept by this component.
  *
  * @since 4.2

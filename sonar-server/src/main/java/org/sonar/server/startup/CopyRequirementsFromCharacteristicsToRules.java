@@ -38,7 +38,7 @@ import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.technicaldebt.db.CharacteristicMapper;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.rule2.RegisterRules;
+import org.sonar.server.rule.RegisterRules;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;

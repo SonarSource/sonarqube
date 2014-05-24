@@ -31,7 +31,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.TestDatabase;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.rule2.persistence.RuleDao;
+import org.sonar.server.rule.db.RuleDao;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.when;

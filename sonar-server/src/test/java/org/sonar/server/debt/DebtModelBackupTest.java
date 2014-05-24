@@ -48,7 +48,7 @@ import org.sonar.server.debt.DebtModelXMLExporter.DebtModel;
 import org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.RuleOperations;
-import org.sonar.server.rule2.persistence.RuleDao;
+import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.user.MockUserSession;
 
 import java.io.Reader;

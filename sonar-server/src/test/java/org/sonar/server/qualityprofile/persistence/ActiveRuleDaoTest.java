@@ -31,7 +31,7 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
-import org.sonar.server.rule2.persistence.RuleDao;
+import org.sonar.server.rule.db.RuleDao;
 
 import static org.fest.assertions.Assertions.assertThat;
 

@@ -23,7 +23,8 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.server.rule.RulesDefinition;
 
 /**
- * Loads all instances of RuleDefinitions and initializes RuleRepositories. Used at server startup.
+ * Loads all instances of {@link org.sonar.api.server.rule.RulesDefinition}
+ * and initializes {@link org.sonar.server.rule.RuleRepositories}. Used at server startup.
  */
 public class RuleDefinitionsLoader implements ServerComponent {
   private final RulesDefinition[] definitions;

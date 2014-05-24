@@ -27,7 +27,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.qualityprofile.ActiveRuleService;
 import org.sonar.server.qualityprofile.BulkRuleActivation;
-import org.sonar.server.rule2.ws.SearchAction;
+import org.sonar.server.rule.ws.SearchAction;
 
 public class BulkRuleActivationActions implements ServerComponent {
 

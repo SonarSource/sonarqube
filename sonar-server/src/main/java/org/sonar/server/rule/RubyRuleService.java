@@ -26,8 +26,8 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.server.paging.PagedResult;
 import org.sonar.server.paging.PagingResult;
-import org.sonar.server.rule2.RuleService;
-import org.sonar.server.rule2.index.RuleResult;
+import org.sonar.server.rule.index.RuleQuery;
+import org.sonar.server.rule.index.RuleResult;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.util.RubyUtils;
 
@@ -36,7 +36,10 @@ import java.util.Map;
 
 /**
  * Used through ruby code <pre>Internal.rules</pre>
+ *
+ * @deprecated in 4.4 because Ruby on Rails is deprecated too !
  */
+@Deprecated
 public class RubyRuleService implements ServerComponent, Startable {
 
   private final RuleService service;
@@ -49,15 +52,15 @@ public class RubyRuleService implements ServerComponent, Startable {
    * Used in issues_controller.rb
    */
   @CheckForNull
-  public org.sonar.server.rule2.Rule findByKey(String ruleKey) {
+  public org.sonar.server.rule.Rule findByKey(String ruleKey) {
     return service.getByKey(RuleKey.parse(ruleKey));
   }
 
   /**
    * Used in SQALE
    */
-  public PagedResult<org.sonar.server.rule2.Rule> find(Map<String, Object> params) {
-    org.sonar.server.rule2.index.RuleQuery query = service.newRuleQuery();
+  public PagedResult<org.sonar.server.rule.Rule> find(Map<String, Object> params) {
+    RuleQuery query = service.newRuleQuery();
     query.setQueryText(Strings.emptyToNull((String) params.get("searchQuery")));
     query.setKey(Strings.emptyToNull((String) params.get("key")));
     query.setLanguages(RubyUtils.toStrings(params.get("languages")));
@@ -70,11 +73,12 @@ public class RubyRuleService implements ServerComponent, Startable {
 
     QueryOptions options = new QueryOptions();
     RuleResult rules = service.search(query, options);
-    return new PagedResult<org.sonar.server.rule2.Rule>(rules.getRules(), PagingResult.create(options.getLimit(), 1, rules.getTotal()));
+    return new PagedResult<org.sonar.server.rule.Rule>(rules.getRules(), PagingResult.create(options.getLimit(), 1, rules.getTotal()));
   }
 
   // sqale
   public void updateRule(Map<String, Object> params) {
+    //TODO
 //    rules.updateRule(new RuleOperations.RuleChange()
 //      .setRuleKey(RuleKey.parse((String) params.get("ruleKey")))
 //      .setDebtCharacteristicKey(Strings.emptyToNull((String) params.get("debtCharacteristicKey")))

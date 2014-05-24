@@ -75,7 +75,7 @@ public class RuleRepositoriesTest {
     new RulesDefinition() {
       @Override
       public void define(Context context) {
-       context.createRepository("javascript", "js").setName("SonarQube").done();
+        context.createRepository("javascript", "js").setName("SonarQube").done();
       }
     }.define(context);
 
@@ -91,8 +91,8 @@ public class RuleRepositoriesTest {
       NewRepository repo = context.createRepository("findbugs", "java");
       repo.setName("Findbugs");
       repo.createRule("ABC")
-          .setName("ABC")
-          .setHtmlDescription("Description of ABC");
+        .setName("ABC")
+        .setHtmlDescription("Description of ABC");
       repo.done();
     }
   }
@@ -103,8 +103,8 @@ public class RuleRepositoriesTest {
       NewRepository repo = context.createRepository("squid", "java");
       repo.setName("Squid");
       repo.createRule("DEF")
-          .setName("DEF")
-          .setHtmlDescription("Description of DEF");
+        .setName("DEF")
+        .setHtmlDescription("Description of DEF");
       repo.done();
     }
   }

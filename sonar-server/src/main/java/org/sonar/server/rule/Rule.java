@@ -19,10 +19,80 @@
  */
 package org.sonar.server.rule;
 
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.server.debt.DebtRemediationFunction;
+
+import javax.annotation.CheckForNull;
+import java.util.Date;
+import java.util.List;
+
 /**
- * @deprecated to be dropped in 4.4
+ * @since 4.4
  */
-@Deprecated
-public class Rule {
+public interface Rule {
+
   public static final String MANUAL_REPOSITORY_KEY = "manual";
+
+  RuleKey key();
+
+  String language();
+
+  String name();
+
+  String htmlDescription();
+
+  /**
+   * Default severity when activated on a Quality profile
+   *
+   * @see org.sonar.api.rule.Severity
+   */
+  String severity();
+
+  /**
+   * @see org.sonar.api.rule.RuleStatus
+   */
+  RuleStatus status();
+
+  boolean template();
+
+  /**
+   * Tags that can be customized by administrators
+   */
+  List<String> tags();
+
+  /**
+   * Read-only tags defined by plugins
+   */
+  List<String> systemTags();
+
+  List<RuleParam> params();
+
+  @CheckForNull
+  String debtCharacteristicKey();
+
+  @CheckForNull
+  String debtSubCharacteristicKey();
+
+  @CheckForNull
+  DebtRemediationFunction debtRemediationFunction();
+
+  Date createdAt();
+
+  Date updatedAt();
+
+  @CheckForNull
+  String internalKey();
+
+  @CheckForNull
+  String markdownNote();
+
+  @CheckForNull
+  String noteLogin();
+
+  @CheckForNull
+  Date noteCreatedAt();
+
+  @CheckForNull
+  Date noteUpdatedAt();
 }

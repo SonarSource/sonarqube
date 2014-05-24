@@ -40,7 +40,7 @@ public class RulesDefinitionLoaderTest {
     RuleRepositories repositories = new RuleRepositories();
 
     RulesDefinition.Context context = new RuleDefinitionsLoader(repositories, new RulesDefinition[]{
-        new FindbugsDefinitions(), new SquidDefinitions()
+      new FindbugsDefinitions(), new SquidDefinitions()
     }).load();
 
     assertThat(context.repositories()).hasSize(2);
@@ -57,8 +57,8 @@ public class RulesDefinitionLoaderTest {
       NewRepository repo = context.createRepository("findbugs", "java");
       repo.setName("Findbugs");
       repo.createRule("ABC")
-          .setName("ABC")
-          .setHtmlDescription("Description of ABC");
+        .setName("ABC")
+        .setHtmlDescription("Description of ABC");
       repo.done();
     }
   }
@@ -69,8 +69,8 @@ public class RulesDefinitionLoaderTest {
       NewRepository repo = context.createRepository("squid", "java");
       repo.setName("Squid");
       repo.createRule("DEF")
-          .setName("DEF")
-          .setHtmlDescription("Description of DEF");
+        .setName("DEF")
+        .setHtmlDescription("Description of DEF");
       repo.done();
     }
   }

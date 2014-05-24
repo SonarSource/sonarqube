@@ -21,7 +21,7 @@ package org.sonar.server.search;
 
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.server.rule2.index.RuleIndex;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.tester.ServerTester;
 
 import static org.fest.assertions.Assertions.assertThat;
