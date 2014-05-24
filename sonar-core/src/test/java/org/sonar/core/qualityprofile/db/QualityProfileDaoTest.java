@@ -23,6 +23,7 @@ package org.sonar.core.qualityprofile.db;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.persistence.DbSession;
 
 import java.util.List;
 
@@ -84,25 +85,30 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
   public void select_all() {
     setupData("shared");
 
-    List<QualityProfileDto> dtos = dao.findAll(getMyBatis().openSession(false));
+    DbSession session = getMyBatis().openSession(false);
+    try {
+      List<QualityProfileDto> dtos = dao.findAll(session);
 
-    assertThat(dtos).hasSize(2);
+      assertThat(dtos).hasSize(2);
 
-    QualityProfileDto dto1 = dtos.get(0);
-    assertThat(dto1.getId()).isEqualTo(1);
-    assertThat(dto1.getName()).isEqualTo("Sonar Way");
-    assertThat(dto1.getLanguage()).isEqualTo("java");
-    assertThat(dto1.getParent()).isNull();
-    assertThat(dto1.getVersion()).isEqualTo(1);
-    assertThat(dto1.isUsed()).isFalse();
+      QualityProfileDto dto1 = dtos.get(0);
+      assertThat(dto1.getId()).isEqualTo(1);
+      assertThat(dto1.getName()).isEqualTo("Sonar Way");
+      assertThat(dto1.getLanguage()).isEqualTo("java");
+      assertThat(dto1.getParent()).isNull();
+      assertThat(dto1.getVersion()).isEqualTo(1);
+      assertThat(dto1.isUsed()).isFalse();
 
-    QualityProfileDto dto2 = dtos.get(1);
-    assertThat(dto2.getId()).isEqualTo(2);
-    assertThat(dto2.getName()).isEqualTo("Sonar Way");
-    assertThat(dto2.getLanguage()).isEqualTo("js");
-    assertThat(dto2.getParent()).isNull();
-    assertThat(dto2.getVersion()).isEqualTo(1);
-    assertThat(dto2.isUsed()).isFalse();
+      QualityProfileDto dto2 = dtos.get(1);
+      assertThat(dto2.getId()).isEqualTo(2);
+      assertThat(dto2.getName()).isEqualTo("Sonar Way");
+      assertThat(dto2.getLanguage()).isEqualTo("js");
+      assertThat(dto2.getParent()).isNull();
+      assertThat(dto2.getVersion()).isEqualTo(1);
+      assertThat(dto2.isUsed()).isFalse();
+    } finally {
+      session.close();
+    }
   }
 
   @Test
