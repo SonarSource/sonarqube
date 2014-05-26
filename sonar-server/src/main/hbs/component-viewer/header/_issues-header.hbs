@@ -22,7 +22,7 @@
     </div>
     <ul class="component-viewer-header-expanded-bar-section-list">
       {{#each component.rules}}
-        <li><a class="item js-filter-rule" data-rule="{{this.[0]}}">
+        <li><a class="item js-filter-rule" data-rule="{{this.[0]}}" title="{{this.[1]}}">
           <span>{{this.[1]}}</span>
           <span class="number">{{this.[2]}}</span>
           <i class="icon-chevron-right"></i>
@@ -48,22 +48,21 @@
         <i class="icon-chevron-right"></i>
       </a></li>
     {{/if}}
-    {{#if component.msr.false_positive_issues}}
-      <li><a class="item js-filter-false-positive-issues">
-        <span>{{t 'component_viewer.issues.false_positive_issues'}}</span>
-        <span class="number">{{component.msr.false_positive_issues}}</span>
-        <i class="icon-chevron-right"></i>
-      </a></li>
-    {{/if}}
-  </ul>
-</div>
-
-<div class="component-viewer-header-expanded-bar-section component-viewer-header-expanded-bar-section-actions">
-  <div class="component-viewer-header-expanded-bar-section-title">&nbsp;</div>
-  <ul class="component-viewer-header-expanded-bar-section-list">
-    <li><a class="item js-issues-bulk-change">
-      <span><i class="icon-bulk-change"></i> {{t 'bulk_change'}}</span>
+    <li><a class="item js-filter-false-positive-issues">
+      <span>{{t 'component_viewer.issues.false_positive_issues'}}</span>
+      <span class="number">{{component.msr.false_positive_issues}}</span>
       <i class="icon-chevron-right"></i>
     </a></li>
   </ul>
 </div>
+
+{{#if component.canBulkChange}}
+  <div class="component-viewer-header-expanded-bar-section component-viewer-header-expanded-bar-section-actions">
+    <div class="component-viewer-header-expanded-bar-section-title">&nbsp;</div>
+    <ul class="component-viewer-header-expanded-bar-section-list">
+      <li><a class="link-action js-issues-bulk-change">
+        <span><i class="icon-bulk-change"></i> {{t 'bulk_change'}}</span>
+      </a></li>
+    </ul>
+  </div>
+{{/if}}
