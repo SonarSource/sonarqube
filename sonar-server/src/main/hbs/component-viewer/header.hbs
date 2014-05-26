@@ -4,6 +4,9 @@
     {{#if component.projectName}}
       <div class="component-viewer-header-component-project">
         {{qualifierIcon 'TRK'}} {{component.projectName}}
+        {{#if component.subProjectName}}
+          / {{component.subProjectName}}
+        {{/if}}
       </div>
     {{/if}}
 
