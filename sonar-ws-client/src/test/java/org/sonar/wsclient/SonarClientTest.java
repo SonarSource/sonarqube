@@ -31,6 +31,7 @@ import org.sonar.wsclient.rule.internal.DefaultRuleClient;
 import org.sonar.wsclient.source.internal.DefaultSourceClient;
 import org.sonar.wsclient.system.internal.DefaultSystemClient;
 import org.sonar.wsclient.test.internal.DefaultCoverageClient;
+import org.sonar.wsclient.test.internal.DefaultTestClient;
 import org.sonar.wsclient.user.internal.DefaultUserClient;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -51,6 +52,7 @@ public class SonarClientTest {
     assertThat(client.sourceClient()).isNotNull().isInstanceOf(DefaultSourceClient.class);
     assertThat(client.coverageClient()).isNotNull().isInstanceOf(DefaultCoverageClient.class);
     assertThat(client.duplicationClient()).isNotNull().isInstanceOf(DefaultDuplicationClient.class);
+    assertThat(client.testClient()).isNotNull().isInstanceOf(DefaultTestClient.class);
     assertThat(client.systemClient()).isNotNull().isInstanceOf(DefaultSystemClient.class);
   }
 

@@ -41,7 +41,9 @@ import org.sonar.wsclient.source.internal.DefaultSourceClient;
 import org.sonar.wsclient.system.SystemClient;
 import org.sonar.wsclient.system.internal.DefaultSystemClient;
 import org.sonar.wsclient.test.CoverageClient;
+import org.sonar.wsclient.test.TestClient;
 import org.sonar.wsclient.test.internal.DefaultCoverageClient;
+import org.sonar.wsclient.test.internal.DefaultTestClient;
 import org.sonar.wsclient.user.UserClient;
 import org.sonar.wsclient.user.internal.DefaultUserClient;
 
@@ -155,6 +157,13 @@ public class SonarClient {
    */
   public DuplicationClient duplicationClient() {
     return new DefaultDuplicationClient(requestFactory);
+  }
+
+  /**
+   * New client to interact with web services related to test
+   */
+  public TestClient testClient() {
+    return new DefaultTestClient(requestFactory);
   }
 
   public SystemClient systemClient() {
