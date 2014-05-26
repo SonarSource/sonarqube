@@ -27,21 +27,35 @@ import java.util.Map;
  */
 public abstract class BaseDoc {
 
-  private final Map<String,Object> fields;
+  private final Map<String, Object> fields;
 
-  protected BaseDoc(Map<String,Object> fields) {
+  protected BaseDoc(Map<String, Object> fields) {
     this.fields = fields;
   }
 
   public String keyField() {
-    return (String)fields.get("key");
+    return (String) fields.get("key");
   }
 
+  /**
+   * Use this method when field value can be null
+   */
   @CheckForNull
-  public <K> K getField(String key) {
+  public <K> K getNullableField(String key) {
     if (!fields.containsKey(key)) {
       throw new IllegalStateException(String.format("Field %s not specified in query options", key));
     }
-    return (K)fields.get(key);
+    return (K) fields.get(key);
+  }
+
+  /**
+   * Use this method when you are sure that the value can't be null in ES document
+   */
+  public <K> K getField(String key) {
+    K value = getNullableField(key);
+    if (value == null) {
+      throw new IllegalStateException("Value of index field is null: " + key);
+    }
+    return value;
   }
 }

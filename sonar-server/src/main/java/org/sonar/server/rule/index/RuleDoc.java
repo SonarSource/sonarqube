@@ -29,7 +29,6 @@ import org.sonar.server.rule.RuleParam;
 import org.sonar.server.search.BaseDoc;
 import org.sonar.server.search.IndexUtils;
 
-import javax.annotation.CheckForNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -46,12 +45,7 @@ public class RuleDoc extends BaseDoc implements Rule {
 
   @Override
   public RuleKey key() {
-    String key = getField(RuleNormalizer.RuleField.KEY.key());
-    if (key == null || key.isEmpty()) {
-      throw new IllegalStateException("Missing values for RuleKey in RuleDoc");
-    } else {
-      return RuleKey.parse(key);
-    }
+    return RuleKey.parse(this.<String>getField(RuleNormalizer.RuleField.KEY.key()));
   }
 
   /**
@@ -62,97 +56,82 @@ public class RuleDoc extends BaseDoc implements Rule {
   }
 
   @Override
-  @CheckForNull
   public String internalKey() {
-    return getField(RuleNormalizer.RuleField.INTERNAL_KEY.key());
+    return getNullableField(RuleNormalizer.RuleField.INTERNAL_KEY.key());
   }
 
   @Override
-  public String markdownNote() {
-    return getField(RuleNormalizer.RuleField.NOTE.key());
-  }
-
-  @Override
-  @CheckForNull
   public String language() {
     return getField(RuleNormalizer.RuleField.LANGUAGE.key());
   }
 
   @Override
-  @CheckForNull
   public String name() {
     return getField(RuleNormalizer.RuleField.NAME.key());
   }
 
   @Override
-  @CheckForNull
   public String htmlDescription() {
-    return getField(RuleNormalizer.RuleField.HTML_DESCRIPTION.key());
+    return getNullableField(RuleNormalizer.RuleField.HTML_DESCRIPTION.key());
   }
 
   @Override
-  @CheckForNull
   public String severity() {
     return (String) getField(RuleNormalizer.RuleField.SEVERITY.key());
   }
 
   @Override
-  @CheckForNull
   public RuleStatus status() {
     return RuleStatus.valueOf((String) getField(RuleNormalizer.RuleField.STATUS.key()));
   }
 
   @Override
-  @CheckForNull
   public boolean template() {
     return (Boolean) getField(RuleNormalizer.RuleField.TEMPLATE.key());
   }
 
   @Override
-  @CheckForNull
   public List<String> tags() {
     return (List<String>) getField(RuleNormalizer.RuleField.TAGS.key());
   }
 
   @Override
-  @CheckForNull
   public List<String> systemTags() {
     return (List<String>) getField(RuleNormalizer.RuleField.SYSTEM_TAGS.key());
   }
 
   @Override
-  @CheckForNull
   public List<RuleParam> params() {
     List<RuleParam> params = new ArrayList<RuleParam>();
-    if (this.getField(RuleNormalizer.RuleField.PARAMS.key()) != null) {
-      List<Map<String, Object>> esParams = this.getField(RuleNormalizer.RuleField.PARAMS.key());
-      for (final Map<String, Object> param : esParams) {
+    List<Map<String, Object>> esParams = getNullableField(RuleNormalizer.RuleField.PARAMS.key());
+    if (esParams != null) {
+      for (final Map<String, Object> esParam : esParams) {
         params.add(new RuleParam() {
           {
-            this.fields = param;
+            this.fields = esParam;
           }
 
           Map<String, Object> fields;
 
           @Override
           public String key() {
-            return (String) param.get(RuleNormalizer.RuleParamField.NAME.key());
+            return (String) esParam.get(RuleNormalizer.RuleParamField.NAME.key());
           }
 
           @Override
           public String description() {
-            return (String) param.get(RuleNormalizer.RuleParamField.DESCRIPTION.key());
+            return (String) esParam.get(RuleNormalizer.RuleParamField.DESCRIPTION.key());
           }
 
           @Override
           public String defaultValue() {
-            return (String) param.get(RuleNormalizer.RuleParamField.DEFAULT_VALUE.key());
+            return (String) esParam.get(RuleNormalizer.RuleParamField.DEFAULT_VALUE.key());
           }
 
           @Override
           public RuleParamType type() {
             return RuleParamType
-              .parse((String) param.get(RuleNormalizer.RuleParamField.TYPE.key()));
+              .parse((String) esParam.get(RuleNormalizer.RuleParamField.TYPE.key()));
           }
         });
       }
@@ -161,21 +140,18 @@ public class RuleDoc extends BaseDoc implements Rule {
   }
 
   @Override
-  @CheckForNull
   public String debtCharacteristicKey() {
-    return (String) getField(RuleNormalizer.RuleField.CHARACTERISTIC.key());
+    return (String) getNullableField(RuleNormalizer.RuleField.CHARACTERISTIC.key());
   }
 
   @Override
-  @CheckForNull
   public String debtSubCharacteristicKey() {
-    return (String) getField(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.key());
+    return (String) getNullableField(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.key());
   }
 
   @Override
-  @CheckForNull
   public DebtRemediationFunction debtRemediationFunction() {
-    final String function = this.getField(RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.key());
+    final String function = getNullableField(RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.key());
     if (function == null || function.isEmpty()) {
       return null;
     } else {
@@ -187,43 +163,45 @@ public class RuleDoc extends BaseDoc implements Rule {
 
         @Override
         public String coefficient() {
-          return (String) getField(RuleNormalizer.RuleField.DEBT_FUNCTION_COEFFICIENT.key());
+          return (String) getNullableField(RuleNormalizer.RuleField.DEBT_FUNCTION_COEFFICIENT.key());
         }
 
         @Override
         public String offset() {
-          return (String) getField(RuleNormalizer.RuleField.DEBT_FUNCTION_OFFSET.key());
+          return (String) getNullableField(RuleNormalizer.RuleField.DEBT_FUNCTION_OFFSET.key());
         }
       };
     }
   }
 
   @Override
-  @CheckForNull
+  public String markdownNote() {
+    return getNullableField(RuleNormalizer.RuleField.NOTE.key());
+  }
+
+  @Override
   public String noteLogin() {
-    return (String) getField(RuleNormalizer.RuleField.NOTE_LOGIN.key());
+    return (String) getNullableField(RuleNormalizer.RuleField.NOTE_LOGIN.key());
   }
 
   @Override
   public Date noteCreatedAt() {
-    return IndexUtils.parseDateTime((String) getField(RuleNormalizer.RuleField.NOTE_CREATED_AT.key()));
+    return IndexUtils.parseDateTime((String) getNullableField(RuleNormalizer.RuleField.NOTE_CREATED_AT.key()));
   }
 
   @Override
   public Date noteUpdatedAt() {
-    return IndexUtils.parseDateTime((String) getField(RuleNormalizer.RuleField.NOTE_UPDATED_AT.key()));
+    return IndexUtils.parseDateTime((String) getNullableField(RuleNormalizer.RuleField.NOTE_UPDATED_AT.key()));
   }
 
   @Override
-  @CheckForNull
   public Date createdAt() {
-    return IndexUtils.parseDateTime((String) getField(RuleNormalizer.RuleField.CREATED_AT.key()));
+    return IndexUtils.parseDateTime((String) getNullableField(RuleNormalizer.RuleField.CREATED_AT.key()));
   }
 
   @Override
-  @CheckForNull
   public Date updatedAt() {
-    return IndexUtils.parseDateTime((String) getField(RuleNormalizer.RuleField.UPDATED_AT.key()));
+    return IndexUtils.parseDateTime((String) getNullableField(RuleNormalizer.RuleField.UPDATED_AT.key()));
   }
 
   @Override

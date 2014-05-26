@@ -34,11 +34,11 @@ public class IndexUtils {
 
   @CheckForNull
   public static Date parseDateTime(@Nullable String s) {
-    DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     if (s == null) {
       return null;
     }
     try {
+      DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
       return sdf.parse(s);
     } catch (ParseException e) {
       throw new IllegalArgumentException("Cannot parse ES date: " + s, e);

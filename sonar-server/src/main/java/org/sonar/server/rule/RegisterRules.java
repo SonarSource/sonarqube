@@ -230,12 +230,15 @@ public class RegisterRules implements Startable {
     // Debt definitions are set to null if the sub-characteristic and the remediation function are null
     DebtRemediationFunction debtRemediationFunction = subCharacteristic != null ? def.debtRemediationFunction() : null;
     boolean hasDebt = subCharacteristic != null && debtRemediationFunction != null;
-    return mergeDebtDefinitions(def, dto,
-      hasDebt ? subCharacteristic.getId() : null,
-      debtRemediationFunction != null ? debtRemediationFunction.type().name() : null,
-      hasDebt ? debtRemediationFunction.coefficient() : null,
-      hasDebt ? debtRemediationFunction.offset() : null,
-      hasDebt ? def.effortToFixDescription() : null);
+    if (hasDebt) {
+      return mergeDebtDefinitions(def, dto,
+        subCharacteristic.getId(),
+        debtRemediationFunction.type().name(),
+        debtRemediationFunction.coefficient(),
+        debtRemediationFunction.offset(),
+        def.effortToFixDescription());
+    }
+    return mergeDebtDefinitions(def, dto, null, null, null, null, null);
   }
 
   private boolean mergeDebtDefinitions(RulesDefinition.Rule def, RuleDto dto, @Nullable Integer characteristicId, @Nullable String remediationFunction,
@@ -354,8 +357,8 @@ public class RegisterRules implements Startable {
       if (toBeRemoved && !RuleStatus.REMOVED.toString().equals(ruleDto.getStatus())) {
         LOG.info(String.format("Disable rule %s", ruleDto.getKey()));
         ruleDto.setStatus(Rule.STATUS_REMOVED);
-        ruleDto.setSystemTags(Collections.EMPTY_SET);
-        ruleDto.setTags(Collections.EMPTY_SET);
+        ruleDto.setSystemTags(Collections.<String>emptySet());
+        ruleDto.setTags(Collections.<String>emptySet());
         dbClient.ruleDao().update(session, ruleDto);
         removedRules.add(ruleDto);
         if (removedRules.size() % 100 == 0) {

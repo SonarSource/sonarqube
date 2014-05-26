@@ -132,7 +132,7 @@ public abstract class BaseMapping implements ServerComponent {
 
     @Override
     public void write(JsonWriter json, BaseDoc doc) {
-      Object val = doc.getField(indexFields[0]);
+      Object val = doc.getNullableField(indexFields[0]);
       json.prop(key, val != null ? val.toString() : null);
     }
   }
@@ -147,7 +147,7 @@ public abstract class BaseMapping implements ServerComponent {
 
     @Override
     public void write(JsonWriter json, BaseDoc doc) {
-      Boolean val = doc.getField(indexFields[0]);
+      Boolean val = doc.getNullableField(indexFields[0]);
       json.prop(key, val != null ? val.booleanValue() : null);
     }
   }
@@ -162,7 +162,7 @@ public abstract class BaseMapping implements ServerComponent {
 
     @Override
     public void write(JsonWriter json, BaseDoc doc) {
-      Iterable<String> values = doc.getField(indexFields[0]);
+      Iterable<String> values = doc.getNullableField(indexFields[0]);
       json.name(key).beginArray().values(values).endArray();
     }
   }
@@ -177,7 +177,7 @@ public abstract class BaseMapping implements ServerComponent {
 
     @Override
     public void write(JsonWriter json, BaseDoc doc) {
-      String val = doc.getField(indexFields[0]);
+      String val = doc.getNullableField(indexFields[0]);
       if (val != null) {
         json.propDateTime(key, IndexUtils.parseDateTime(val));
       }

@@ -35,7 +35,7 @@ public class ActiveRuleDoc extends BaseDoc implements ActiveRule {
 
   public ActiveRuleDoc(Map<String, Object> fields) {
     super(fields);
-    this.key = ActiveRuleKey.parse((String) getField(ActiveRuleNormalizer.ActiveRuleField.KEY.key()));
+    this.key = ActiveRuleKey.parse((String) getNullableField(ActiveRuleNormalizer.ActiveRuleField.KEY.key()));
     Preconditions.checkArgument(key!=null, "Invalid ActiveRuleKey!");
   }
 
@@ -46,12 +46,12 @@ public class ActiveRuleDoc extends BaseDoc implements ActiveRule {
 
   @Override
   public String severity() {
-    return (String) getField(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.key());
+    return (String) getNullableField(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.key());
   }
 
   @Override
   public ActiveRule.Inheritance inheritance() {
-    String inheritance = getField(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.key());
+    String inheritance = getNullableField(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.key());
     if (inheritance == null || inheritance.isEmpty() ||
       inheritance.toLowerCase().contains("none")) {
       return Inheritance.NONE;
@@ -67,7 +67,7 @@ public class ActiveRuleDoc extends BaseDoc implements ActiveRule {
   @Override
   @CheckForNull
   public ActiveRuleKey parentKey() {
-    String data = getField(ActiveRuleNormalizer.ActiveRuleField.PARENT_KEY.key());
+    String data = getNullableField(ActiveRuleNormalizer.ActiveRuleField.PARENT_KEY.key());
     if (data != null && !data.isEmpty()) {
       return ActiveRuleKey.parse(data);
     }
@@ -77,7 +77,7 @@ public class ActiveRuleDoc extends BaseDoc implements ActiveRule {
   @Override
   public Map<String, String> params() {
     Map<String, String> params = new HashMap<String, String>();
-    List<Map<String, String>> allParams = getField(ActiveRuleNormalizer.ActiveRuleField.PARAMS.key());
+    List<Map<String, String>> allParams = getNullableField(ActiveRuleNormalizer.ActiveRuleField.PARAMS.key());
     if (allParams != null) {
       for (Map<String, String> param : allParams) {
         params.put(param.get(ActiveRuleNormalizer.ActiveRuleParamField.NAME.key()),

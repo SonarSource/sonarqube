@@ -78,6 +78,9 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
     throw new UnsupportedOperationException("Rules cannot be deleted");
   }
 
+  /**
+   * @deprecated in 4.4. Use keys.
+   */
   @CheckForNull
   @Deprecated
   public RuleDto getById(int id, DbSession session) {

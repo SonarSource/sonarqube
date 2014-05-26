@@ -93,10 +93,10 @@ public class RegisterQualityProfiles implements ServerComponent {
     try {
       ListMultimap<String, RulesProfile> profilesByLanguage = profilesByLanguage();
       for (String language : profilesByLanguage.keySet()) {
-        List<RulesProfile> profiles = profilesByLanguage.get(language);
-        verifyLanguage(language, profiles);
+        List<RulesProfile> profileDefs = profilesByLanguage.get(language);
+        verifyLanguage(language, profileDefs);
 
-        for (Map.Entry<String, Collection<RulesProfile>> entry : profilesByName(profiles).entrySet()) {
+        for (Map.Entry<String, Collection<RulesProfile>> entry : profilesByName(profileDefs).entrySet()) {
           String profileName = entry.getKey();
           QualityProfileKey profileKey = QualityProfileKey.of(profileName, language);
           if (shouldRegister(profileKey, session)) {
@@ -104,7 +104,7 @@ public class RegisterQualityProfiles implements ServerComponent {
           }
           defaultProfilesCache.put(language, profileName);
         }
-        setDefault(language, profiles, session);
+        setDefault(language, profileDefs, session);
       }
       session.commit();
     } finally {
@@ -161,21 +161,21 @@ public class RegisterQualityProfiles implements ServerComponent {
     session.commit();
   }
 
-  private void setDefault(String language, List<RulesProfile> profiles, DbSession session) {
+  private void setDefault(String language, List<RulesProfile> profileDefs, DbSession session) {
     String propertyKey = "sonar.profile." + language;
 
     boolean upToDate = false;
     String currentDefault = settings.getString(propertyKey);
     if (currentDefault != null) {
-      for (RulesProfile profile : profiles) {
-        if (StringUtils.equals(currentDefault, profile.getName())) {
-          upToDate = true;
-        }
+      // check validity
+      QualityProfileDto profile = dbClient.qualityProfileDao().getByKey(QualityProfileKey.of(currentDefault, language), session);
+      if (profile != null) {
+        upToDate = true;
       }
     }
 
     if (!upToDate) {
-      String defaultProfileName = defaultProfileName(profiles);
+      String defaultProfileName = defaultProfileName(profileDefs);
       LOGGER.info("Set default " + language + " profile: " + defaultProfileName);
       settings.saveProperty(propertyKey, defaultProfileName);
     }

@@ -39,9 +39,9 @@ public class BaseDocTest {
     BaseDoc doc = new BaseDoc(fields) {
     };
 
-    assertThat(doc.getField("a_string")).isEqualTo("foo");
-    assertThat(doc.getField("a_int")).isEqualTo(42);
-    assertThat(doc.getField("a_null")).isNull();
+    assertThat(doc.getNullableField("a_string")).isEqualTo("foo");
+    assertThat(doc.getNullableField("a_int")).isEqualTo(42);
+    assertThat(doc.getNullableField("a_null")).isNull();
   }
 
   @Test
@@ -51,7 +51,7 @@ public class BaseDocTest {
     };
 
     try {
-      doc.getField("a_string");
+      doc.getNullableField("a_string");
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Field a_string not specified in query options");
