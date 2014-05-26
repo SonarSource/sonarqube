@@ -89,7 +89,7 @@ public class CopyRequirementsFromCharacteristicsToRules implements ServerCompone
 
     try {
       List<Map<String, Object>> requirementDtos = dbSession.getMapper(CharacteristicMapper.class).selectDeprecatedRequirements();
-      final Multimap<Integer, RequirementDto> requirementsByRuleId = ArrayListMultimap.create();
+      final Multimap<Number, RequirementDto> requirementsByRuleId = ArrayListMultimap.create();
       for (Map<String, Object> map : requirementDtos) {
         RequirementDto requirementDto = new RequirementDto(map);
         requirementsByRuleId.put(requirementDto.getRuleId(), requirementDto);
@@ -141,7 +141,7 @@ public class CopyRequirementsFromCharacteristicsToRules implements ServerCompone
   }
 
   private void convertEnabledRequirement(RuleDto ruleRow, RequirementDto enabledRequirement, DbSession session) {
-    ruleRow.setSubCharacteristicId(enabledRequirement.getParentId());
+    ruleRow.setSubCharacteristicId(enabledRequirement.getParentId() != null ? enabledRequirement.getParentId().intValue() : null);
     ruleRow.setRemediationFunction(enabledRequirement.getFunction().toUpperCase());
     ruleRow.setRemediationCoefficient(convertDuration(enabledRequirement.getCoefficientValue(), enabledRequirement.getCoefficientUnit()));
     ruleRow.setRemediationOffset(convertDuration(enabledRequirement.getOffsetValue(), enabledRequirement.getOffsetUnit()));
@@ -215,16 +215,25 @@ public class CopyRequirementsFromCharacteristicsToRules implements ServerCompone
       this.map = map;
     }
 
-    public Integer getId() {
-      return (Integer) map.get("ID");
+    /**
+     * Do not use Integer because Oracle returns BigDecimal
+     */
+    public Number getId() {
+      return (Number) map.get("ID");
     }
 
-    public Integer getParentId() {
-      return (Integer) map.get("PARENTID");
+    /**
+     * Do not use Integer because Oracle returns BigDecimal
+     */
+    public Number getParentId() {
+      return (Number) map.get("PARENTID");
     }
 
-    public Integer getRuleId() {
-      return (Integer) map.get("RULEID");
+    /**
+     * Do not use Integer because Oracle returns BigDecimal
+     */
+    public Number getRuleId() {
+      return (Number) map.get("RULEID");
     }
 
     public String getFunction() {
