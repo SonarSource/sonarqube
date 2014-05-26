@@ -486,6 +486,8 @@ requirejs(
         }
       };
 
-      NavigatorApp.start();
+      window.requestMessages().done(function () {
+        NavigatorApp.start();
+      });
 
     });

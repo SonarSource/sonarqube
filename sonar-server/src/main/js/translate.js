@@ -76,7 +76,7 @@
 
   window.requestMessages = function() {
     var apiUrl = baseUrl + '/api/l10n/index';
-    jQuery.get(apiUrl, function(bundle) {
+    return jQuery.get(apiUrl, function(bundle) {
       for (var message in bundle) {
         if (bundle.hasOwnProperty(message)) {
           var storageKey = 'l10n.' + message;
