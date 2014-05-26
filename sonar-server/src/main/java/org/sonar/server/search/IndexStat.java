@@ -19,37 +19,38 @@
  */
 package org.sonar.server.search;
 
-import org.sonar.api.ServerComponent;
-
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Date;
 
 /**
- * Facade for all Index components
+ * @since 4.4
  */
-public class IndexClient implements ServerComponent {
+public class IndexStat {
 
-  private final Map<Class<?>, Index<?,?,?>> indexComponents;
+  private final Date statTime;
+  private Date lastUpdate;
+  private Long documentCount;
 
-  public IndexClient(Index<?,?,?>... indexComponents) {
-
-    this.indexComponents = new HashMap<Class<?>,  Index<?,?,?>>();
-
-    for(Index<?,?,?> indexComponent : indexComponents){
-      this.indexComponents.put(indexComponent.getClass(), indexComponent);
-    }
+  public IndexStat() {
+    this.statTime = new Date();
   }
 
-  public <K extends Index> K get(Class<K> clazz){
-    return (K) this.indexComponents.get(clazz);
+  public Date getStatTime() {
+    return statTime;
   }
 
-  public <K extends Index> K getByType(String indexType) {
-    for(Index<?,?,?> index:indexComponents.values()){
-      if(index.getIndexType().equals(indexType)){
-        return (K) index;
-      }
-    }
-    throw new IllegalStateException("no index for type '"+indexType+"' is registered");
+  public Date getLastUpdate() {
+    return lastUpdate;
+  }
+
+  public void setLastUpdate(Date lastUpdate) {
+    this.lastUpdate = lastUpdate;
+  }
+
+  public Long getDocumentCount() {
+    return documentCount;
+  }
+
+  public void setDocumentCount(Long documentCount) {
+    this.documentCount = documentCount;
   }
 }

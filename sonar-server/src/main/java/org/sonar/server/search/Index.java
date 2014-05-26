@@ -56,8 +56,8 @@ public interface Index<D, E extends Dto<K>, K extends Serializable> extends Star
 
   void deleteByDto(E dto);
 
-  Long getLastSynchronization();
+  java.util.Date getLastSynchronization();
 
-  void setLastSynchronization(Long time);
+  IndexStat getIndexStat();
 
 }

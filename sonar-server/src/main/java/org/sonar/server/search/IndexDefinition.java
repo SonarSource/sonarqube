@@ -19,15 +19,20 @@
  */
 package org.sonar.server.search;
 
+import com.google.common.annotations.VisibleForTesting;
+
 public class IndexDefinition {
 
   private final String indexName;
   private final String indexType;
 
+  private final String MANAGEMENT_INDEX = "sonarindex";
+  private final String MANAGEMENT_TYPE = "index";
+
   private IndexDefinition(String indexName, String indexType) {
     this.indexName = indexName;
     this.indexType = indexType;
-  }
+}
 
   public String getIndexName() {
     return indexName;
@@ -37,6 +42,17 @@ public class IndexDefinition {
     return indexType;
   }
 
+  public String getManagementIndex() {
+    return MANAGEMENT_INDEX;
+  }
+
+  public String getManagementType() {
+    return MANAGEMENT_TYPE;
+  }
+
   public static IndexDefinition RULE = new IndexDefinition("rules","rules");
   public static IndexDefinition ACTIVE_RULE = new IndexDefinition("rules","activeRules");
+
+  @VisibleForTesting
+  protected static IndexDefinition TEST = new IndexDefinition("test","test");
 }

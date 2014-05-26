@@ -26,6 +26,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
@@ -41,6 +42,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -50,11 +52,11 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
   private static final Logger LOG = LoggerFactory.getLogger(BaseIndex.class);
 
   private final ESNode node;
-  protected BaseNormalizer<E, K> normalizer;
+  protected final BaseNormalizer<E, K> normalizer;
   protected final IndexDefinition indexDefinition;
 
-  public BaseIndex(IndexDefinition indexDefinition, BaseNormalizer<E, K> normalizer,
-                   WorkQueue workQueue, ESNode node) {
+  protected BaseIndex(IndexDefinition indexDefinition, BaseNormalizer<E, K> normalizer,
+                      WorkQueue workQueue, ESNode node) {
     this.normalizer = normalizer;
     this.node = node;
     this.indexDefinition = indexDefinition;
@@ -94,7 +96,29 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
 
   /* Cluster And ES Stats/Client methods */
 
+  private void initializeManagementIndex() {
+    LOG.info("Setup of Management Index for ES");
+
+    String index = indexDefinition.getManagementIndex();
+
+    IndicesExistsResponse indexExistsResponse = getClient().admin().indices()
+      .prepareExists(index).execute().actionGet();
+
+    if (!indexExistsResponse.isExists()) {
+      getClient().admin().indices().prepareCreate(index)
+        .setSettings(ImmutableSettings.builder()
+          .put("mapper.dynamic", true)
+          .put("number_of_replicas", 1)
+          .put("number_of_shards", 1)
+          .build())
+        .get();
+    }
+  }
+
   protected void initializeIndex() {
+
+    initializeManagementIndex();
+
     String index = this.getIndexName();
 
     IndicesExistsResponse indexExistsResponse = getClient().admin().indices()
@@ -105,20 +129,60 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
         LOG.info("Setup of {} for type {}", this.getIndexName(), this.getIndexType());
         getClient().admin().indices().prepareCreate(index)
           .setSettings(getIndexSettings())
-          .addMapping(getIndexType(), getMapping())
           .execute().actionGet();
 
-      } else {
+      }
+
+      if (getMapping() != null) {
         LOG.info("Update of index {} for type {}", this.getIndexName(), this.getIndexType());
         getClient().admin().indices().preparePutMapping(index)
           .setType(getIndexType())
           .setIgnoreConflicts(true)
           .setSource(getMapping())
-          .execute().actionGet();
+          .get();
       }
     } catch (Exception e) {
       throw new IllegalStateException("Invalid configuration for index " + this.getIndexName(), e);
     }
+  }
+
+  public IndexStat getIndexStat() {
+    IndexStat stat = new IndexStat();
+
+    /** get total document count */
+    stat.setDocumentCount(
+      getClient().prepareCount(this.getIndexName())
+        .setQuery(QueryBuilders.matchAllQuery())
+        .get().getCount()
+    );
+
+    /** get Management information */
+    stat.setLastUpdate(getLastSynchronization());
+    return stat;
+  }
+
+  /* Synchronization methods */
+
+  private void setLastSynchronization() {
+    Date time = new Date();
+    if (time.after(getLastSynchronization())) {
+      LOG.info("Updating synchTime updating");
+      getClient().prepareUpdate()
+        .setId(indexDefinition.getIndexName())
+        .setType(indexDefinition.getManagementType())
+        .setIndex(indexDefinition.getManagementIndex())
+        .setDoc("updatedAt", time)
+        .get();
+    }
+  }
+
+  @Override
+  public Date getLastSynchronization() {
+    return (java.util.Date) getClient().prepareGet()
+      .setIndex(indexDefinition.getManagementIndex())
+      .setId(this.getIndexName())
+      .setType(indexDefinition.getManagementType())
+      .get().getField("updatedAt").getValue();
   }
 
   /* Index management methods */
@@ -151,7 +215,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
 
   /* Base CRUD methods */
 
-  protected abstract D toDoc(Map<String,Object> fields);
+  protected abstract D toDoc(Map<String, Object> fields);
 
   public D getByKey(K key) {
     GetResponse response = getClient().prepareGet()
@@ -169,11 +233,11 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
   protected void updateDocument(Collection<UpdateRequest> requests, K key) throws Exception {
     LOG.debug("UPDATE _id:{} in index {}", key, this.getIndexName());
     BulkRequestBuilder bulkRequest = getClient().prepareBulk();
-    for(UpdateRequest request : requests){
+    for (UpdateRequest request : requests) {
       bulkRequest.add(request
-      .index(this.getIndexName())
-      .id(this.getKeyValue(key))
-      .type(this.getIndexType()));
+        .index(this.getIndexName())
+        .id(this.getKeyValue(key))
+        .type(this.getIndexType()));
     }
     bulkRequest.get();
   }
@@ -247,28 +311,6 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
       LOG.error("Could not DELETE _id:{} for index {}: {}",
         this.getKeyValue(item.getKey()), this.getIndexName(), e.getMessage());
     }
-  }
-
-  /* Synchronization methods */
-
-  Long lastSynch = 0L;
-  Long cooldown = 30000L;
-
-  @Override
-  public void setLastSynchronization(Long time) {
-    if (time > (getLastSynchronization() + cooldown)) {
-      LOG.trace("Updating synchTime updating");
-      lastSynch = time;
-    } else {
-      LOG.trace("Not updating synchTime, still cooling down");
-    }
-
-  }
-
-  @Override
-  public Long getLastSynchronization() {
-    //TODO need to read that in the admin index;
-    return 0L;
   }
 
   /* ES QueryHelper Methods */
