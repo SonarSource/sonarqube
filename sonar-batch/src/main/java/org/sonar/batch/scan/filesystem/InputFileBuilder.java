@@ -20,6 +20,7 @@
 package org.sonar.batch.scan.filesystem;
 
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -34,6 +35,8 @@ import java.io.File;
 import java.util.List;
 
 class InputFileBuilder {
+
+  private static final Logger LOG = LoggerFactory.getLogger(InputFileBuilder.class);
 
   private final String moduleKey;
   private final PathResolver pathResolver;
@@ -76,8 +79,7 @@ class InputFileBuilder {
   DefaultInputFile create(File file) {
     String relativePath = pathResolver.relativePath(fs.baseDir(), file);
     if (relativePath == null) {
-      LoggerFactory.getLogger(getClass()).warn(
-        "File '%s' is ignored. It is not located in module basedir '%s'.", file.getAbsolutePath(), fs.baseDir());
+      LOG.warn("File '{}' is ignored. It is not located in module basedir '{}'.", file.getAbsolutePath(), fs.baseDir());
       return null;
     }
     DefaultInputFile inputFile = new DefaultInputFile(relativePath);
