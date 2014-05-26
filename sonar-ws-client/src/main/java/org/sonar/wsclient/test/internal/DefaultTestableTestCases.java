@@ -31,7 +31,6 @@ public class DefaultTestableTestCases implements TestableTestCases {
 
   private final List<TestCase> tests = new ArrayList<TestCase>();
   private final Map<String, File> filesByRef = new HashMap<String, File>();
-  private final Map<String, String> refsByTest = new HashMap<String, String>();
 
   @Override
   public List<TestCase> tests() {
@@ -43,15 +42,12 @@ public class DefaultTestableTestCases implements TestableTestCases {
     return new ArrayList<File>(filesByRef.values());
   }
 
-  @Override
-  public File fileByTest(String testName) {
-    String ref = refsByTest.get(testName);
-    return ref != null ? filesByRef.get(ref) : null;
+  public File fileByRef(String ref) {
+    return filesByRef.get(ref);
   }
 
-  public DefaultTestableTestCases addTest(String ref, TestCase testCase) {
+  public DefaultTestableTestCases addTest(TestCase testCase) {
     tests.add(testCase);
-    refsByTest.put(testCase.name(), ref);
     return this;
   }
 

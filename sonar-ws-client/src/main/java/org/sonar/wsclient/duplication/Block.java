@@ -28,7 +28,7 @@ import javax.annotation.CheckForNull;
 public interface Block {
 
   @CheckForNull
-  String fileRef();
+  File file();
 
   @CheckForNull
   Integer from();

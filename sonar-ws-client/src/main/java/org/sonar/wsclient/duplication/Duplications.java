@@ -20,8 +20,6 @@
 
 package org.sonar.wsclient.duplication;
 
-import javax.annotation.CheckForNull;
-
 import java.util.List;
 
 /**
@@ -32,8 +30,5 @@ public interface Duplications {
   List<Duplication> duplications();
 
   List<File> files();
-
-  @CheckForNull
-  File fileByRef(String ref);
 
 }

@@ -55,17 +55,16 @@ public class DefaultDuplicationClientTest {
     assertThat(duplication.blocks()).hasSize(2);
 
     Block block  = duplication.blocks().get(0);
-    assertThat(block.fileRef()).isEqualTo("1");
     assertThat(block.from()).isEqualTo(94);
     assertThat(block.size()).isEqualTo(101);
 
-    List<File> files = result.files();
-    assertThat(files).hasSize(2);
-
-    File file = result.fileByRef("1");
+    File file = block.file();
     assertThat(file.key()).isEqualTo("org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/utils/command/CommandExecutor.java");
     assertThat(file.name()).isEqualTo("CommandExecutor");
     assertThat(file.projectName()).isEqualTo("SonarQube");
+
+    List<File> files = result.files();
+    assertThat(files).hasSize(2);
   }
 
 }

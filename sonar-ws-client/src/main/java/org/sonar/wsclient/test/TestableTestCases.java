@@ -33,9 +33,10 @@ public interface TestableTestCases {
 
   List<TestCase> tests();
 
-  File fileByTest(String testName);
-
   interface TestCase {
+    @CheckForNull
+    File file();
+
     @CheckForNull
     String name();
 

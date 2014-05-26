@@ -44,8 +44,7 @@ public class DefaultDuplications implements Duplications {
     return new ArrayList<File>(files.values());
   }
 
-  @Override
-  public File fileByRef(String ref) {
+  File fileByRef(String ref) {
     return files.get(ref);
   }
 

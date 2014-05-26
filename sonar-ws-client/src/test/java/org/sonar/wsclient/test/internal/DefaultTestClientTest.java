@@ -74,11 +74,9 @@ public class DefaultTestClientTest {
     assertThat(testCase.status()).isEqualTo("OK");
     assertThat(testCase.durationInMs()).isEqualTo(10L);
 
-    TestableTestCases.File file = coveringTestCases.fileByTest("find_by_params");
+    TestableTestCases.File file = testCase.file();
     assertThat(file.key()).isEqualTo("org.codehaus.sonar:sonar-server:src/test/java/org/sonar/server/rule/RubyRuleServiceTest.java");
     assertThat(file.longName()).isEqualTo("src/test/java/org/sonar/server/rule/RubyRuleServiceTest.java");
-
-    assertThat(coveringTestCases.fileByTest("unknown")).isNull();
   }
 
   @Test

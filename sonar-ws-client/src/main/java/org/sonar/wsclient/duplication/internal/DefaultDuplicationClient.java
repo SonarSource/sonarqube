@@ -45,12 +45,12 @@ public class DefaultDuplicationClient implements DuplicationClient {
 
     DefaultDuplications duplications = new DefaultDuplications();
     Map jRoot = (Map) JSONValue.parse(jsonResult);
-    parseDuplications(duplications, jRoot);
     parseFiles(duplications, jRoot);
+    parseDuplications(duplications, jRoot);
     return duplications;
   }
 
-  private void parseDuplications(DefaultDuplications duplications, Map jRoot) {
+  private void parseDuplications(final DefaultDuplications duplications, Map jRoot) {
     List<Map> jsonDuplications = (List<Map>) jRoot.get("duplications");
     if (jsonDuplications != null) {
       for (Map jsonDuplication : jsonDuplications) {
@@ -59,20 +59,20 @@ public class DefaultDuplicationClient implements DuplicationClient {
         List<Map> blocks = (List<Map>) jsonDuplication.get("blocks");
         if (blocks != null) {
           for (final Map block : blocks) {
-
             blockList.add((new Block() {
-                @Override
-                public String fileRef() {
-                return JsonUtils.getString(block, "_ref");
+              @Override
+              public File file() {
+                String ref = JsonUtils.getString(block, "_ref");
+                return ref != null ? duplications.fileByRef(ref) : null;
               }
 
-                @Override
-                public Integer from() {
+              @Override
+              public Integer from() {
                 return JsonUtils.getInteger(block, "from");
               }
 
-                @Override
-                public Integer size() {
+              @Override
+              public Integer size() {
                 return JsonUtils.getInteger(block, "size");
               }
             }));
@@ -101,17 +101,17 @@ public class DefaultDuplicationClient implements DuplicationClient {
 
           duplications.addFile(ref, new File() {
             @Override
-            public String key () {
+            public String key() {
               return JsonUtils.getString(file, "key");
             }
 
             @Override
-            public String name () {
+            public String name() {
               return JsonUtils.getString(file, "name");
             }
 
             @Override
-            public String projectName () {
+            public String projectName() {
               return JsonUtils.getString(file, "projectName");
             }
           });

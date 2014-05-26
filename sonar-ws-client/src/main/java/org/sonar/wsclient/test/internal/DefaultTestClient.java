@@ -115,13 +115,40 @@ public class DefaultTestClient implements TestClient {
     String jsonResult = requestFactory.get("/api/tests/testable", params);
 
     Map jRoot = (Map) JSONValue.parse(jsonResult);
-    DefaultTestableTestCases coveringTestCases = new DefaultTestableTestCases();
+    final DefaultTestableTestCases testableTestCases = new DefaultTestableTestCases();
+
+    Map<String, Map> jsonFiles = (Map) jRoot.get("files");
+    if (jsonFiles != null) {
+      for (Map.Entry<String, Map> entry : jsonFiles.entrySet()) {
+        String ref = entry.getKey();
+        final Map file = entry.getValue();
+        if (ref != null && file != null) {
+          testableTestCases.addFile(ref, new TestableTestCases.File() {
+            @Override
+            public String key() {
+              return JsonUtils.getString(file, "key");
+            }
+
+            @Override
+            public String longName() {
+              return JsonUtils.getString(file, "longName");
+            }
+
+          });
+        }
+      }
+    }
 
     List<Map> tests = (List) jRoot.get("tests");
     if (tests != null) {
       for (final Map json : tests) {
-        String fileRef = JsonUtils.getString(json, "_ref");
-        coveringTestCases.addTest(fileRef, new TestableTestCases.TestCase() {
+        testableTestCases.addTest(new TestableTestCases.TestCase() {
+          @Override
+          public TestableTestCases.File file() {
+            String fileRef = JsonUtils.getString(json, "_ref");
+            return fileRef != null ? testableTestCases.fileByRef(fileRef) : null;
+          }
+
           @Override
           public String name() {
             return JsonUtils.getString(json, "name");
@@ -140,28 +167,6 @@ public class DefaultTestClient implements TestClient {
         });
       }
     }
-
-    Map<String, Map> jsonFiles = (Map) jRoot.get("files");
-    if (jsonFiles != null) {
-      for (Map.Entry<String, Map> entry : jsonFiles.entrySet()) {
-        String ref = entry.getKey();
-        final Map file = entry.getValue();
-        if (ref != null && file != null) {
-          coveringTestCases.addFile(ref, new TestableTestCases.File() {
-            @Override
-            public String key() {
-              return JsonUtils.getString(file, "key");
-            }
-
-            @Override
-            public String longName() {
-              return JsonUtils.getString(file, "longName");
-            }
-
-          });
-        }
-      }
-    }
-    return coveringTestCases;
+    return testableTestCases;
   }
 }
