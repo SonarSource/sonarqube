@@ -191,11 +191,28 @@ define [
       source
 
 
+    getSCMForLine: (lineNumber) ->
+      scm = @model.get('scm') || []
+      closest = -1
+      closestIndex = -1
+      scm.forEach (s, i) ->
+        line = s[0]
+        if line <= lineNumber && line > closest
+          closest = line
+          closestIndex = i
+      if closestIndex != -1 then scm[closestIndex] else null
+
+
     augmentWithSCM: (source) ->
       scm = @model.get('scm') || []
       scm.forEach (s) ->
-        line = source[s[0] - 1]
+        line = _.findWhere source, lineNumber: s[0]
         line.scm = author: s[1], date: s[2]
+      @showBlocks.forEach (block) =>
+        scmForLine = @getSCMForLine block.from
+        if scmForLine?
+          line = _.findWhere source, lineNumber: block.from
+          line.scm = author: scmForLine[1], date: scmForLine[2]
       source
 
 
@@ -212,8 +229,7 @@ define [
     prepareSource: ->
       source = @model.get 'source'
       source = _.map source, (item) =>
-        line = item[0]
-        lineNumber: line, code: item[1]
+        lineNumber: item[0], code: item[1]
 
       if @options.main.settings.get 'coverage'
         source = @augmentWithCoverage source
