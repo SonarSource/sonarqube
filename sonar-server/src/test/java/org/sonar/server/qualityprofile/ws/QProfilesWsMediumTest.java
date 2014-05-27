@@ -97,6 +97,101 @@ public class QProfilesWsMediumTest {
     assertThat(controller.action(API_BUILT_IN_METHOD)).isNotNull();
   }
 
+  @Test
+  public void deactivate_rule() throws Exception {
+    QualityProfileDto profile = getProfile("java");
+    RuleDto rule = getRule(profile.getLanguage(), "toto");
+    ActiveRuleDto activeRule = getActiveRule(rule, profile);
+    session.commit();
+
+    // 0. Assert No Active Rule for profile
+    assertThat(dbClient.activeRuleDao().findByProfileKey(profile.getKey(), session)).hasSize(1);
+
+    // 1. Deactivate Rule
+    WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_RULE_DEACTIVATE_METHOD);
+    request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
+    request.setParam(RuleActivationActions.RULE_KEY, rule.getKey().toString());
+    WsTester.Result result = request.execute();
+    session.clearCache();
+
+    // 2. Assert ActiveRule in DAO
+    assertThat(dbClient.activeRuleDao().findByProfileKey(profile.getKey(), session)).isEmpty();
+  }
+
+  @Test
+  public void bulk_deactivate_rule() throws Exception {
+    QualityProfileDto profile = getProfile("java");
+    RuleDto rule0 = getRule(profile.getLanguage(), "toto1");
+    RuleDto rule1 = getRule(profile.getLanguage(), "toto2");
+    RuleDto rule2 = getRule(profile.getLanguage(), "toto3");
+    RuleDto rule3 = getRule(profile.getLanguage(), "toto4");
+    getActiveRule(rule0, profile);
+    getActiveRule(rule2, profile);
+    getActiveRule(rule3, profile);
+    getActiveRule(rule1, profile);
+    session.commit();
+
+    // 0. Assert No Active Rule for profile
+    assertThat(dbClient.activeRuleDao().findByProfileKey(profile.getKey(), session)).hasSize(4);
+
+    // 1. Deactivate Rule
+    WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_BULK_RULE_DEACTIVATE_METHOD);
+    request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
+    WsTester.Result result = request.execute();
+    session.clearCache();
+
+    // 2. Assert ActiveRule in DAO
+    assertThat(dbClient.activeRuleDao().findByProfileKey(profile.getKey(), session)).isEmpty();
+  }
+
+  @Test
+  public void bulk_deactivate_rule_not_all() throws Exception {
+    QualityProfileDto profile = getProfile("java");
+    QualityProfileDto php = getProfile("php");
+    RuleDto rule0 = getRule(profile.getLanguage(), "toto1");
+    RuleDto rule1 = getRule(profile.getLanguage(), "toto2");
+    getActiveRule(rule0, profile);
+    getActiveRule(rule1, profile);
+    getActiveRule(rule0, php);
+    getActiveRule(rule1, php);
+    session.commit();
+
+    // 0. Assert No Active Rule for profile
+    assertThat(dbClient.activeRuleDao().findByProfileKey(profile.getKey(), session)).hasSize(2);
+
+    // 1. Deactivate Rule
+    WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_BULK_RULE_DEACTIVATE_METHOD);
+    request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
+    WsTester.Result result = request.execute();
+    session.clearCache();
+
+    // 2. Assert ActiveRule in DAO
+    assertThat(dbClient.activeRuleDao().findByProfileKey(profile.getKey(), session)).hasSize(0);
+    assertThat(dbClient.activeRuleDao().findByProfileKey(php.getKey(), session)).hasSize(2);
+  }
+
+  @Test
+  public void bulk_deactivate_rule_by_profile() throws Exception {
+    QualityProfileDto profile = getProfile("java");
+    RuleDto rule0 = getRule(profile.getLanguage(), "hello");
+    RuleDto rule1 = getRule(profile.getLanguage(), "world");
+    getActiveRule(rule0, profile);
+    getActiveRule(rule1, profile);;
+    session.commit();
+
+    // 0. Assert No Active Rule for profile
+    assertThat(dbClient.activeRuleDao().findByProfileKey(profile.getKey(), session)).hasSize(2);
+
+    // 1. Deactivate Rule
+    WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_BULK_RULE_DEACTIVATE_METHOD);
+    request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
+    request.setParam(SearchOptions.PARAM_TEXT_QUERY, "hello");
+    WsTester.Result result = request.execute();
+    session.clearCache();
+
+    // 2. Assert ActiveRule in DAO
+    assertThat(dbClient.activeRuleDao().findByProfileKey(profile.getKey(), session)).hasSize(1);
+  }
 
   @Test
   public void activate_rule() throws Exception {
@@ -112,7 +207,7 @@ public class QProfilesWsMediumTest {
     request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
     request.setParam(RuleActivationActions.RULE_KEY, rule.getKey().toString());
     WsTester.Result result = request.execute();
-    session.commit();
+    session.clearCache();
 
     // 2. Assert ActiveRule in DAO
     assertThat(dbClient.activeRuleDao().findByProfileKey(profile.getKey(), session)).hasSize(1);
@@ -133,7 +228,7 @@ public class QProfilesWsMediumTest {
       request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
       request.setParam(RuleActivationActions.RULE_KEY, rule.getKey().toString());
       WsTester.Result result = request.execute();
-      session.commit();
+      session.clearCache();
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e.getMessage()).isEqualTo("Rule blah:toto and profile test:java have different languages");
@@ -156,7 +251,7 @@ public class QProfilesWsMediumTest {
     request.setParam(RuleActivationActions.RULE_KEY, rule.getKey().toString());
     request.setParam(RuleActivationActions.SEVERITY, "MINOR");
     WsTester.Result result = request.execute();
-    session.commit();
+    session.clearCache();
 
     // 2. Assert ActiveRule in DAO
     ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), rule.getKey());
@@ -182,7 +277,7 @@ public class QProfilesWsMediumTest {
     request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
     request.setParam(SearchAction.PARAM_LANGUAGES, "java");
     WsTester.Result result = request.execute();
-    session.commit();
+    session.clearCache();
 
     // 2. Assert ActiveRule in DAO
     assertThat(dbClient.activeRuleDao().findByProfileKey(profile.getKey(), session)).hasSize(4);
@@ -204,7 +299,7 @@ public class QProfilesWsMediumTest {
     request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
     request.setParam(SearchAction.PARAM_LANGUAGES, "java");
     WsTester.Result result = request.execute();
-    session.commit();
+    session.clearCache();
 
     // 2. assert replied ignored list
     result.assertJson("{\"ignored\":[{\"key\":\"blah:toto\"}],\"activated\":[{\"key\":\"blah:tata\"}]}");
@@ -231,7 +326,7 @@ public class QProfilesWsMediumTest {
     request.setParam(RuleActivationActions.PROFILE_KEY, php.getKey().toString());
     request.setParam(SearchAction.PARAM_LANGUAGES, "php");
     WsTester.Result result = request.execute();
-    session.commit();
+    session.clearCache();
 
     // 2. Assert ActiveRule in DAO
     assertThat(dbClient.activeRuleDao().findByProfileKey(php.getKey(), session)).hasSize(2);
@@ -254,7 +349,7 @@ public class QProfilesWsMediumTest {
     request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
     request.setParam(SearchOptions.PARAM_TEXT_QUERY, "php");
     WsTester.Result result = request.execute();
-    session.commit();
+    session.clearCache();
 
     // 2. Assert ActiveRule in DAO
     assertThat(dbClient.activeRuleDao().findByProfileKey(profile.getKey(), session)).hasSize(0);

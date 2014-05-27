@@ -87,6 +87,7 @@ public class BulkRuleActivationActions implements ServerComponent {
         }
       });
 
+    SearchAction.defineRuleSearchParameters(deactivate);
     defineProfileKeyParameters(deactivate);
   }
 

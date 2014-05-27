@@ -242,7 +242,9 @@ public class ActiveRuleService implements ServerComponent {
     try {
       RuleResult result = ruleIndex.search(ruleQuery,
         QueryOptions.DEFAULT.setOffset(0)
-          .setLimit(Integer.MAX_VALUE));
+          .setLimit(Integer.MAX_VALUE)
+          .setFieldsToReturn(ImmutableSet.of("template","severity"))
+      );
 
       for (Rule rule : result.getHits()) {
         if(!rule.template()) {
@@ -273,7 +275,7 @@ public class ActiveRuleService implements ServerComponent {
       RuleResult result = ruleIndex.search(ruleQuery,
         QueryOptions.DEFAULT.setOffset(0)
           .setLimit(Integer.MAX_VALUE)
-          .setFieldsToReturn(ImmutableSet.of(""))
+          .setFieldsToReturn(ImmutableSet.of("template","severity"))
       );
 
       for (Rule rule : result.getHits()) {
