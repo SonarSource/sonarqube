@@ -238,7 +238,11 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     /* integrate Option's Fields */
     Set<String> fields = new HashSet<String>();
     if (!options.getFieldsToReturn().isEmpty()) {
-      fields.addAll(options.getFieldsToReturn());
+      for(String fieldToReturn:options.getFieldsToReturn()){
+        if(!fieldToReturn.isEmpty()){
+          fields.add(fieldToReturn);
+        }
+      }
       // required field
       fields.add(RuleNormalizer.RuleField.KEY.key());
     } else {

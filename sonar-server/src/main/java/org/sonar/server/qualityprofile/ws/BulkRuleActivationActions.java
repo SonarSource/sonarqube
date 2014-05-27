@@ -37,6 +37,9 @@ import org.sonar.server.search.ws.SearchOptions;
 
 public class BulkRuleActivationActions implements ServerComponent {
 
+  public static final String PROFILE_KEY = "profile_key";
+  public static final String SEVERITY = "severity";
+
   private final ActiveRuleService service;
   private final RuleService ruleService;
 
@@ -67,7 +70,7 @@ public class BulkRuleActivationActions implements ServerComponent {
     defineProfileKeyParameters(activate);
 
     activate.createParam("activation_severity")
-      .setDescription("Severity")
+      .setDescription(SEVERITY)
       .setPossibleValues(Severity.ALL);
   }
 
@@ -88,7 +91,7 @@ public class BulkRuleActivationActions implements ServerComponent {
   }
 
   private void defineProfileKeyParameters(WebService.NewAction action) {
-    action.createParam("profile_key")
+    action.createParam(PROFILE_KEY)
       .setDescription("Quality Profile Key. To retrieve a profileKey for a given language please see the /api/qprofile documentation")
       .setRequired(true)
       .setExampleValue("java:My Profile");
@@ -107,13 +110,15 @@ public class BulkRuleActivationActions implements ServerComponent {
   private void writeResponse(Multimap<String, String> results, Response response){
     JsonWriter json = response.newJsonWriter().beginObject();
     for(String action:results.keySet()){
-      json.name(action).beginObject();
+      json.name(action).beginArray();
       for(String key:results.get(action)){
-        json.prop("key",key);
+        json.beginObject()
+          .prop("key",key)
+          .endObject();
       }
-      json.endObject();
+      json.endArray();
     }
-    json.endObject();
+    json.endObject().close();
   }
 
   private RuleQuery createRuleQuery(Request request) {
@@ -133,6 +138,6 @@ public class BulkRuleActivationActions implements ServerComponent {
   }
 
   private QualityProfileKey readKey(Request request) {
-    return QualityProfileKey.parse(request.mandatoryParam("profile_key"));
+    return QualityProfileKey.parse(request.mandatoryParam(PROFILE_KEY));
   }
 }

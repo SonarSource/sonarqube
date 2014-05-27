@@ -34,6 +34,11 @@ import org.sonar.server.qualityprofile.RuleActivation;
 
 public class RuleActivationActions implements ServerComponent {
 
+  public static final String PROFILE_KEY = "profile_key";
+  public static final String RULE_KEY = "rule_key";
+  public static final String SEVERITY = "severity";
+  public static final String PARAMS = "params";
+
   private final ActiveRuleService service;
 
   public RuleActivationActions(ActiveRuleService service) {
@@ -60,11 +65,11 @@ public class RuleActivationActions implements ServerComponent {
 
     defineActiveRuleKeyParameters(activate);
 
-    activate.createParam("severity")
+    activate.createParam(SEVERITY)
       .setDescription("Severity")
       .setPossibleValues(Severity.ALL);
 
-    activate.createParam("params")
+    activate.createParam(PARAMS)
       .setDescription("Parameters");
   }
 
@@ -84,12 +89,12 @@ public class RuleActivationActions implements ServerComponent {
   }
 
   private void defineActiveRuleKeyParameters(WebService.NewAction action) {
-    action.createParam("profile_key")
+    action.createParam(PROFILE_KEY)
       .setDescription("Key of Quality profile")
       .setRequired(true)
       .setExampleValue("Sonar way:java");
 
-    action.createParam("rule_key")
+    action.createParam(RULE_KEY)
       .setDescription("Key of the rule to activate")
       .setRequired(true)
       .setExampleValue("squid:AvoidCycles");
@@ -98,8 +103,8 @@ public class RuleActivationActions implements ServerComponent {
   private void activate(Request request, Response response) throws Exception {
     ActiveRuleKey key = readKey(request);
     RuleActivation activation = new RuleActivation(key);
-    activation.setSeverity(request.param("severity"));
-    String params = request.param("params");
+    activation.setSeverity(request.param(SEVERITY));
+    String params = request.param(PARAMS);
     if (params != null) {
       activation.setParameters(KeyValueFormat.parse(params));
     }
@@ -112,7 +117,7 @@ public class RuleActivationActions implements ServerComponent {
 
   private ActiveRuleKey readKey(Request request) {
     return ActiveRuleKey.of(
-      QualityProfileKey.parse(request.mandatoryParam("profile_key")),
-      RuleKey.parse(request.mandatoryParam("rule_key")));
+      QualityProfileKey.parse(request.mandatoryParam(PROFILE_KEY)),
+      RuleKey.parse(request.mandatoryParam(RULE_KEY)));
   }
 }
