@@ -34,8 +34,10 @@ import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
+import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.Rule;
@@ -499,6 +501,36 @@ public class RuleIndexMediumTest {
     assertThat(result.getHits().get(0).name()).isEqualTo(rule1.getName());
 
   }
+
+  @Test
+  public void complex_param_value(){
+    String value = "//expression[primary/qualifiedIdentifier[count(IDENTIFIER) = 2]/IDENTIFIER[2]/@tokenValue = 'firstOf' and primary/identifierSuffix/arguments/expression[not(primary) or primary[not(qualifiedIdentifier) or identifierSuffix]]]";
+
+    QualityProfileDto profile = QualityProfileDto.createFor("name","Language");
+    dbClient.qualityProfileDao().insert(dbSession, profile);
+
+    RuleDto rule = newRuleDto(RuleKey.of("java", "S001"));
+    dao.insert(dbSession,rule);
+
+    RuleParamDto param = RuleParamDto.createFor(rule)
+      .setName("testing")
+      .setType("STRING")
+      .setDefaultValue(value);
+    dao.addRuleParam(rule, param, dbSession);
+
+    ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
+      .setSeverity("BLOCKER");
+
+    ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(param);
+    dbClient.activeRuleDao().insert(dbSession, activeRule);
+    dbClient.activeRuleDao().addParam(activeRule, activeRuleParam, dbSession);
+    dbSession.commit();
+
+    assertThat(index.getByKey(rule.getKey()).params().get(0).defaultValue()).isEqualTo(value);
+
+
+  }
+
 
   @Test
   public void search_by_tag() throws InterruptedException {
