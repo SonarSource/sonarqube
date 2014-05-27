@@ -163,7 +163,9 @@ public abstract class BaseMapping implements ServerComponent {
     @Override
     public void write(JsonWriter json, BaseDoc doc) {
       Iterable<String> values = doc.getNullableField(indexFields[0]);
-      json.name(key).beginArray().values(values).endArray();
+      if (values != null) {
+        json.name(key).beginArray().values(values).endArray();
+      }
     }
   }
 

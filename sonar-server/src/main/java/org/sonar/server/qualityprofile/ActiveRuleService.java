@@ -90,12 +90,12 @@ public class ActiveRuleService implements ServerComponent {
       List<ActiveRuleChange> changes = activate(activation, dbSession);
       if (!changes.isEmpty()) {
         dbSession.commit();
-    previewCache.reportGlobalModification();
-  }
-  return changes;
-} finally {
-  dbSession.close();
-  }
+        previewCache.reportGlobalModification();
+      }
+      return changes;
+    } finally {
+      dbSession.close();
+    }
   }
 
   /**

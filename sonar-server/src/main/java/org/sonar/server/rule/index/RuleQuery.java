@@ -123,6 +123,9 @@ public class RuleQuery {
     return queryText;
   }
 
+  /**
+   * Ignored if null or blank
+   */
   public RuleQuery setQueryText(@Nullable String queryText) {
     this.queryText = queryText;
     return this;

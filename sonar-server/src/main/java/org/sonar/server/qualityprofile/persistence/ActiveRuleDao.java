@@ -78,6 +78,9 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
     session.commit();
   }
 
+  /**
+   * @deprecated do not use ids but keys
+   */
   @Deprecated
   public ActiveRuleDto getById(int activeRuleId, DbSession session) {
     ActiveRuleDto rule = mapper(session).selectById(activeRuleId);

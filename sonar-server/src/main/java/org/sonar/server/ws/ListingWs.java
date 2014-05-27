@@ -77,7 +77,11 @@ public class ListingWs implements WebService {
         @Override
         public void handle(Request request, Response response) throws Exception {
           Controller controller = context.controller(request.mandatoryParam("controller"));
-          Action action = controller.action(request.mandatoryParam("action"));
+          String actionKey = request.mandatoryParam("action");
+          Action action = controller.action(actionKey);
+          if (action == null) {
+            throw new IllegalArgumentException("Action does not exist: " + actionKey);
+          }
           handleResponseExample(action, response);
         }
       });
@@ -180,11 +184,7 @@ public class ListingWs implements WebService {
     writer.prop("defaultValue", param.defaultValue());
     writer.prop("exampleValue", param.exampleValue());
     if (param.possibleValues() != null) {
-      writer.name("possibleValues").beginArray();
-      for (String s : param.possibleValues()) {
-        writer.value(s);
-      }
-      writer.endArray();
+      writer.name("possibleValues").beginArray().values(param.possibleValues()).endArray();
     }
     writer.endObject();
   }

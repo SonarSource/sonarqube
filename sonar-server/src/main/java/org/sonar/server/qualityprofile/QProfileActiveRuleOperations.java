@@ -42,10 +42,6 @@ import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-/**
- * @deprecated to be dropped in 4.4
- */
-@Deprecated
 public class QProfileActiveRuleOperations implements ServerComponent {
 
   private final ActiveRuleDao activeRuleDao;
@@ -63,7 +59,6 @@ public class QProfileActiveRuleOperations implements ServerComponent {
 
   ActiveRuleDto createActiveRule(QualityProfileKey profileKey, RuleKey ruleKey, String severity, DbSession session) {
     RuleDto ruleDto = ruleDao.getByKey(session, ruleKey);
-    //TODO use BaseDao for profileDao
     QualityProfileDto profileDto = profileDao.selectByNameAndLanguage(profileKey.name(), profileKey.lang(), session);
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profileDto, ruleDto)
       .setSeverity(severity);
