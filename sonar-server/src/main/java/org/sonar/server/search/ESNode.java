@@ -27,6 +27,7 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.logging.ESLoggerFactory;
 import org.elasticsearch.common.logging.slf4j.Slf4jESLoggerFactory;
+import org.elasticsearch.common.network.NetworkUtils;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
@@ -71,8 +72,47 @@ public class ESNode implements Startable {
 
   @Override
   public void start() {
-    LOG.info("Start Elasticsearch...");
 
+    IndexProperties.ES_TYPE type = IndexProperties.ES_TYPE.valueOf(settings.getString(IndexProperties.TYPE));
+
+    switch (type) {
+      case MEMORY:
+        initMemoryES();
+        break;
+      case TRANSPORT:
+        initTransportES();
+        break;
+      case DATA:
+      default:
+        initDataES();
+        break;
+    }
+  }
+
+  private void initMemoryES(){
+    ImmutableSettings.Builder builder = ImmutableSettings.settingsBuilder()
+      .put("node.name", "node-test-" + System.currentTimeMillis())
+      .put("node.data", true)
+      .put("cluster.name", "cluster-test-" + NetworkUtils.getLocalAddress().getHostName())
+      .put("index.store.type", "memory")
+      .put("index.store.fs.memory.enabled", "true")
+      .put("gateway.type", "none")
+      .put("index.number_of_shards", "1")
+      .put("index.number_of_replicas", "0")
+      .put("cluster.routing.schedule", "50ms")
+      .put("node.local", true);
+
+    node = NodeBuilder.nodeBuilder()
+      .settings(builder)
+      .node();
+    node.start();
+  }
+
+  private void initTransportES(){
+    throw new IllegalStateException("Not implemented yet");
+  }
+
+  private void initDataES() {
     initLogging();
     ImmutableSettings.Builder esSettings = ImmutableSettings.builder()
       .loadFromUrl(getClass().getResource("config/elasticsearch.json"));
@@ -89,10 +129,10 @@ public class ESNode implements Startable {
 
     if (
       node.client().admin().cluster().prepareHealth()
-      .setWaitForYellowStatus()
-      .setTimeout(healthTimeout)
-      .execute().actionGet()
-      .getStatus() == ClusterHealthStatus.RED) {
+        .setWaitForYellowStatus()
+        .setTimeout(healthTimeout)
+        .execute().actionGet()
+        .getStatus() == ClusterHealthStatus.RED) {
       throw new IllegalStateException(
         String.format("Elasticsearch index is corrupt, please delete directory '%s/%s' and relaunch the SonarQube server.", fileSystem.getHomeDir().getAbsolutePath(), DATA_DIR));
     }
@@ -119,7 +159,7 @@ public class ESNode implements Startable {
   }
 
   private void initRestConsole(ImmutableSettings.Builder esSettings) {
-    int httpPort = settings.getInt("sonar.es.http.port");
+    int httpPort = settings.getInt(IndexProperties.HTTP_PORT);
     if (httpPort > 0) {
       LOG.warn("Elasticsearch HTTP console enabled on port {}. Only for debugging purpose.", httpPort);
       esSettings.put(HTTP_ENABLED, true);
