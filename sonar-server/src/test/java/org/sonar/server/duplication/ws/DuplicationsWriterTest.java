@@ -32,10 +32,11 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.component.persistence.ComponentDao;
 
-import javax.annotation.Nullable;
-
 import java.io.StringWriter;
+import java.util.Collections;
+import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -68,13 +69,13 @@ public class DuplicationsWriterTest {
     when(componentDao.getByKey(session, key2)).thenReturn(file2);
     when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
 
-    test(
-      "<duplications>\n" +
-        "<g>\n" +
-        "<b s=\"57\" l=\"12\" r=\"org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java\"/>\n" +
-        "<b s=\"73\" l=\"12\" r=\"org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyUpdateQuery.java\"/>\n" +
-        "</g>\n" +
-        "</duplications>",
+    List<DuplicationsParser.Block> blocks = newArrayList();
+    blocks.add(new DuplicationsParser.Block(newArrayList(
+      new DuplicationsParser.Duplication(file1, 57, 12),
+      new DuplicationsParser.Duplication(file2, 73, 12)
+    )));
+
+    test(blocks,
       "{\n" +
         "  \"duplications\": [\n" +
         "    {\n" +
@@ -109,14 +110,14 @@ public class DuplicationsWriterTest {
 
   @Test
   public void write_nothing_when_no_data() throws Exception {
-    test(null, "{\"duplications\": [], \"files\": {}}");
+    test(Collections.<DuplicationsParser.Block>emptyList(), "{\"duplications\": [], \"files\": {}}");
   }
 
-  private void test(@Nullable String duplications, String expected) throws JSONException {
+  private void test(List<DuplicationsParser.Block> blocks, String expected) throws JSONException {
     StringWriter output = new StringWriter();
     JsonWriter jsonWriter = JsonWriter.of(output);
     jsonWriter.beginObject();
-    writer.write(duplications, jsonWriter, session);
+    writer.write(blocks, jsonWriter, session);
     jsonWriter.endObject();
     JSONAssert.assertEquals(output.toString(), expected, true);
   }

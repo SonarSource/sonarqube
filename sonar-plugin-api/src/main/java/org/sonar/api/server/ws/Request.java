@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
 
 /**
@@ -180,4 +181,10 @@ public abstract class Request {
     }
     return result;
   }
+
+//  @CheckForNull
+//  public Date paramAsDate(String key) {
+//    String s = param(key);
+//    return s == null ? null : Long.parseLong(s);
+//  }
 }

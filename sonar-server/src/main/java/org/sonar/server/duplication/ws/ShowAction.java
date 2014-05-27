@@ -28,25 +28,34 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.component.ComponentDto;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.measure.db.MeasureKey;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+import org.sonar.server.component.persistence.ComponentDao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 
+import java.util.List;
+
 public class ShowAction implements RequestHandler {
 
   private final DbClient dbClient;
+  private final ComponentDao componentDao;
   private final MeasureDao measureDao;
+  private final DuplicationsParser parser;
   private final DuplicationsWriter duplicationsWriter;
 
-  public ShowAction(DbClient dbClient, MeasureDao measureDao, DuplicationsWriter duplicationsWriter) {
+  public ShowAction(DbClient dbClient, ComponentDao componentDao, MeasureDao measureDao, DuplicationsParser parser, DuplicationsWriter duplicationsWriter) {
     this.dbClient = dbClient;
+    this.componentDao = componentDao;
     this.measureDao = measureDao;
+    this.parser = parser;
     this.duplicationsWriter = duplicationsWriter;
   }
 
@@ -71,9 +80,11 @@ public class ShowAction implements RequestHandler {
 
     DbSession session = dbClient.openSession(false);
     try {
+      ComponentDto component = findComponent(fileKey, session);
       JsonWriter json = response.newJsonWriter().beginObject();
       String duplications = findDataFromComponent(fileKey, CoreMetrics.DUPLICATIONS_DATA_KEY, session);
-      duplicationsWriter.write(duplications, json, session);
+      List<DuplicationsParser.Block> blocks = parser.parse(component, duplications, session);
+      duplicationsWriter.write(blocks, json, session);
       json.endObject().close();
     } finally {
       MyBatis.closeQuietly(session);
@@ -87,5 +98,13 @@ public class ShowAction implements RequestHandler {
       return data.getData();
     }
     return null;
+  }
+
+  private ComponentDto findComponent(String key, DbSession session) {
+    ComponentDto componentDto = componentDao.getByKey(session, key);
+    if (componentDto == null) {
+      throw new NotFoundException(String.format("Component with key '%s' not found", key));
+    }
+    return componentDto;
   }
 }

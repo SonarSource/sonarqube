@@ -21,20 +21,13 @@
 package org.sonar.server.duplication.ws;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.codehaus.staxmate.SMInputFactory;
-import org.codehaus.staxmate.in.SMHierarchicCursor;
-import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.component.persistence.ComponentDao;
 
-import javax.annotation.Nullable;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-
-import java.io.StringReader;
+import java.util.List;
 import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
@@ -48,12 +41,10 @@ public class DuplicationsWriter implements ServerComponent {
   }
 
   @VisibleForTesting
-  void write(@Nullable String duplicationsData, JsonWriter json, DbSession session) {
+  void write(List<DuplicationsParser.Block> blocks, JsonWriter json, DbSession session) {
     Map<String, String> refByComponentKey = newHashMap();
     json.name("duplications").beginArray();
-    if (duplicationsData != null) {
-      writeDuplications(duplicationsData, refByComponentKey, json, session);
-    }
+    writeDuplications(blocks, refByComponentKey, json, session);
     json.endArray();
 
     json.name("files").beginObject();
@@ -61,31 +52,18 @@ public class DuplicationsWriter implements ServerComponent {
     json.endObject();
   }
 
-  private void writeDuplications(String duplicationsData, Map<String, String> refByComponentKey, JsonWriter json, DbSession session) {
-    try {
-      SMInputFactory inputFactory = initStax();
-      SMHierarchicCursor root = inputFactory.rootElementCursor(new StringReader(duplicationsData));
-      root.advance(); // <duplications>
-      SMInputCursor cursor = root.childElementCursor("g");
-      while (cursor.getNext() != null) {
-        json.beginObject().name("blocks").beginArray();
-        SMInputCursor bCursor = cursor.childElementCursor("b");
-        while (bCursor.getNext() != null) {
-          String from = bCursor.getAttrValue("s");
-          String size = bCursor.getAttrValue("l");
-          String componentKey = bCursor.getAttrValue("r");
-          if (from != null && size != null && componentKey != null) {
-            writeDuplication(refByComponentKey, from, size, componentKey, json);
-          }
-        }
-        json.endArray().endObject();
+  private void writeDuplications(List<DuplicationsParser.Block> blocks, Map<String, String> refByComponentKey, JsonWriter json, DbSession session) {
+    for (DuplicationsParser.Block block : blocks) {
+      json.beginObject().name("blocks").beginArray();
+      for (DuplicationsParser.Duplication duplication : block.duplications()) {
+        writeDuplication(refByComponentKey, duplication, json);
       }
-    } catch (XMLStreamException e) {
-      throw new IllegalStateException("XML is not valid", e);
+      json.endArray().endObject();
     }
   }
 
-  private void writeDuplication(Map<String, String> refByComponentKey, String from, String size, String componentKey, JsonWriter json) {
+  private void writeDuplication(Map<String, String> refByComponentKey, DuplicationsParser.Duplication duplication, JsonWriter json) {
+    String componentKey = duplication.file().key();
     String ref = refByComponentKey.get(componentKey);
     if (ref == null) {
       ref = Integer.toString(refByComponentKey.size() + 1);
@@ -93,8 +71,8 @@ public class DuplicationsWriter implements ServerComponent {
     }
 
     json.beginObject();
-    json.prop("from", Integer.valueOf(from));
-    json.prop("size", Integer.valueOf(size));
+    json.prop("from", duplication.from());
+    json.prop("size", duplication.size());
     json.prop("_ref", ref);
     json.endObject();
   }
@@ -118,16 +96,6 @@ public class DuplicationsWriter implements ServerComponent {
         json.endObject();
       }
     }
-  }
-
-  private static SMInputFactory initStax() {
-    XMLInputFactory xmlFactory = XMLInputFactory.newInstance();
-    xmlFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.TRUE);
-    xmlFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, Boolean.FALSE);
-    // just so it won't try to load DTD in if there's DOCTYPE
-    xmlFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
-    xmlFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
-    return new SMInputFactory(xmlFactory);
   }
 
 }
