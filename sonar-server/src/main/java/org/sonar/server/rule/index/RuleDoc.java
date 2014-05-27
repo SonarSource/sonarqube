@@ -45,7 +45,7 @@ public class RuleDoc extends BaseDoc implements Rule {
 
   @Override
   public RuleKey key() {
-    return RuleKey.parse(this.<String>getField(RuleNormalizer.RuleField.KEY.key()));
+    return RuleKey.parse(this.<String>getField(RuleNormalizer.RuleField.KEY.field()));
   }
 
   /**
@@ -57,53 +57,53 @@ public class RuleDoc extends BaseDoc implements Rule {
 
   @Override
   public String internalKey() {
-    return getNullableField(RuleNormalizer.RuleField.INTERNAL_KEY.key());
+    return getNullableField(RuleNormalizer.RuleField.INTERNAL_KEY.field());
   }
 
   @Override
   public String language() {
-    return getField(RuleNormalizer.RuleField.LANGUAGE.key());
+    return getField(RuleNormalizer.RuleField.LANGUAGE.field());
   }
 
   @Override
   public String name() {
-    return getField(RuleNormalizer.RuleField.NAME.key());
+    return getField(RuleNormalizer.RuleField.NAME.field());
   }
 
   @Override
   public String htmlDescription() {
-    return getNullableField(RuleNormalizer.RuleField.HTML_DESCRIPTION.key());
+    return getNullableField(RuleNormalizer.RuleField.HTML_DESCRIPTION.field());
   }
 
   @Override
   public String severity() {
-    return (String) getField(RuleNormalizer.RuleField.SEVERITY.key());
+    return (String) getField(RuleNormalizer.RuleField.SEVERITY.field());
   }
 
   @Override
   public RuleStatus status() {
-    return RuleStatus.valueOf((String) getField(RuleNormalizer.RuleField.STATUS.key()));
+    return RuleStatus.valueOf((String) getField(RuleNormalizer.RuleField.STATUS.field()));
   }
 
   @Override
   public boolean template() {
-    return (Boolean) getField(RuleNormalizer.RuleField.TEMPLATE.key());
+    return (Boolean) getField(RuleNormalizer.RuleField.TEMPLATE.field());
   }
 
   @Override
   public List<String> tags() {
-    return (List<String>) getField(RuleNormalizer.RuleField.TAGS.key());
+    return (List<String>) getField(RuleNormalizer.RuleField.TAGS.field());
   }
 
   @Override
   public List<String> systemTags() {
-    return (List<String>) getField(RuleNormalizer.RuleField.SYSTEM_TAGS.key());
+    return (List<String>) getField(RuleNormalizer.RuleField.SYSTEM_TAGS.field());
   }
 
   @Override
   public List<RuleParam> params() {
     List<RuleParam> params = new ArrayList<RuleParam>();
-    List<Map<String, Object>> esParams = getNullableField(RuleNormalizer.RuleField.PARAMS.key());
+    List<Map<String, Object>> esParams = getNullableField(RuleNormalizer.RuleField.PARAMS.field());
     if (esParams != null) {
       for (final Map<String, Object> esParam : esParams) {
         params.add(new RuleParam() {
@@ -115,23 +115,23 @@ public class RuleDoc extends BaseDoc implements Rule {
 
           @Override
           public String key() {
-            return (String) esParam.get(RuleNormalizer.RuleParamField.NAME.key());
+            return (String) esParam.get(RuleNormalizer.RuleParamField.NAME.field());
           }
 
           @Override
           public String description() {
-            return (String) esParam.get(RuleNormalizer.RuleParamField.DESCRIPTION.key());
+            return (String) esParam.get(RuleNormalizer.RuleParamField.DESCRIPTION.field());
           }
 
           @Override
           public String defaultValue() {
-            return (String) esParam.get(RuleNormalizer.RuleParamField.DEFAULT_VALUE.key());
+            return (String) esParam.get(RuleNormalizer.RuleParamField.DEFAULT_VALUE.field());
           }
 
           @Override
           public RuleParamType type() {
             return RuleParamType
-              .parse((String) esParam.get(RuleNormalizer.RuleParamField.TYPE.key()));
+              .parse((String) esParam.get(RuleNormalizer.RuleParamField.TYPE.field()));
           }
         });
       }
@@ -141,17 +141,17 @@ public class RuleDoc extends BaseDoc implements Rule {
 
   @Override
   public String debtCharacteristicKey() {
-    return (String) getNullableField(RuleNormalizer.RuleField.CHARACTERISTIC.key());
+    return (String) getNullableField(RuleNormalizer.RuleField.CHARACTERISTIC.field());
   }
 
   @Override
   public String debtSubCharacteristicKey() {
-    return (String) getNullableField(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.key());
+    return (String) getNullableField(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field());
   }
 
   @Override
   public DebtRemediationFunction debtRemediationFunction() {
-    final String function = getNullableField(RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.key());
+    final String function = getNullableField(RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field());
     if (function == null || function.isEmpty()) {
       return null;
     } else {
@@ -163,12 +163,12 @@ public class RuleDoc extends BaseDoc implements Rule {
 
         @Override
         public String coefficient() {
-          return (String) getNullableField(RuleNormalizer.RuleField.DEBT_FUNCTION_COEFFICIENT.key());
+          return (String) getNullableField(RuleNormalizer.RuleField.DEBT_FUNCTION_COEFFICIENT.field());
         }
 
         @Override
         public String offset() {
-          return (String) getNullableField(RuleNormalizer.RuleField.DEBT_FUNCTION_OFFSET.key());
+          return (String) getNullableField(RuleNormalizer.RuleField.DEBT_FUNCTION_OFFSET.field());
         }
       };
     }
@@ -176,32 +176,32 @@ public class RuleDoc extends BaseDoc implements Rule {
 
   @Override
   public String markdownNote() {
-    return getNullableField(RuleNormalizer.RuleField.NOTE.key());
+    return getNullableField(RuleNormalizer.RuleField.NOTE.field());
   }
 
   @Override
   public String noteLogin() {
-    return (String) getNullableField(RuleNormalizer.RuleField.NOTE_LOGIN.key());
+    return (String) getNullableField(RuleNormalizer.RuleField.NOTE_LOGIN.field());
   }
 
   @Override
   public Date noteCreatedAt() {
-    return IndexUtils.parseDateTime((String) getNullableField(RuleNormalizer.RuleField.NOTE_CREATED_AT.key()));
+    return IndexUtils.parseDateTime((String) getNullableField(RuleNormalizer.RuleField.NOTE_CREATED_AT.field()));
   }
 
   @Override
   public Date noteUpdatedAt() {
-    return IndexUtils.parseDateTime((String) getNullableField(RuleNormalizer.RuleField.NOTE_UPDATED_AT.key()));
+    return IndexUtils.parseDateTime((String) getNullableField(RuleNormalizer.RuleField.NOTE_UPDATED_AT.field()));
   }
 
   @Override
   public Date createdAt() {
-    return IndexUtils.parseDateTime((String) getNullableField(RuleNormalizer.RuleField.CREATED_AT.key()));
+    return IndexUtils.parseDateTime((String) getNullableField(RuleNormalizer.RuleField.CREATED_AT.field()));
   }
 
   @Override
   public Date updatedAt() {
-    return IndexUtils.parseDateTime((String) getNullableField(RuleNormalizer.RuleField.UPDATED_AT.key()));
+    return IndexUtils.parseDateTime((String) getNullableField(RuleNormalizer.RuleField.UPDATED_AT.field()));
   }
 
   @Override

@@ -19,11 +19,7 @@
  */
 package org.sonar.server.rule.index;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.rule.RuleKey;
@@ -35,94 +31,49 @@ import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.search.IndexField;
+import org.sonar.server.search.Indexable;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
-  public static enum RuleField {
-    KEY("key"),
-    REPOSITORY("repo"),
-    NAME("name"),
-    CREATED_AT("createdAt"),
-    HTML_DESCRIPTION("htmlDesc"),
-    SEVERITY("severity"),
-    STATUS("status"),
-    LANGUAGE("lang"),
-    TAGS("tags"),
-    SYSTEM_TAGS("sysTags"),
-    INTERNAL_KEY("internalKey"),
-    TEMPLATE("template"),
-    UPDATED_AT("updatedAt"),
-    PARAMS("params"),
-    DEBT_FUNCTION_TYPE("debtRemFnType"),
-    DEBT_FUNCTION_COEFFICIENT("debtRemFnCoefficient"),
-    DEBT_FUNCTION_OFFSET("debtRemFnOffset"),
-    SUB_CHARACTERISTIC("debtSubChar"),
-    CHARACTERISTIC("debtChar"),
-    NOTE("markdownNote"),
-    NOTE_LOGIN("noteLogin"),
-    NOTE_CREATED_AT("noteCreatedAt"),
-    NOTE_UPDATED_AT("noteUpdatedAt"),
-    _TAGS("_tags");
+  public static class RuleField extends Indexable {
 
-    private final String key;
-
-    private RuleField(final String key) {
-      this.key = key;
-    }
-
-    public String key() {
-      return key;
-    }
-
-    public static RuleField fromKey(String key) {
-      for (RuleField ruleField : RuleField.values()) {
-        if (ruleField.key().equals(key)) {
-          return ruleField;
-        }
-      }
-      return null;
-    }
-
-    @Override
-    public String toString() {
-      return key;
-    }
-
-    public static final Set<String> ALL_KEYS = ImmutableSet.copyOf(Collections2.transform(Lists.newArrayList(RuleField.values()), new Function<RuleField, String>() {
-      @Override
-      public String apply(@Nullable RuleField input) {
-        return input != null ? input.key : null;
-      }
-    }));
+    public static IndexField KEY = add(IndexField.Type.KEY, "key");
+    public static IndexField REPOSITORY = add(IndexField.Type.STRING, "repo");
+    public static IndexField NAME = addSortable(IndexField.Type.STRING, "name");
+    public static IndexField CREATED_AT = addSortable(IndexField.Type.DATE, "createdAt");
+    public static IndexField UPDATED_AT = addSortable(IndexField.Type.DATE, "updatedAt");
+    public static IndexField HTML_DESCRIPTION = addSearchable(IndexField.Type.TEXT, "htmlDesc");
+    public static IndexField SEVERITY = add(IndexField.Type.STRING, "severity");
+    public static IndexField STATUS = add(IndexField.Type.STRING, "status");
+    public static IndexField LANGUAGE = add(IndexField.Type.STRING, "lang");
+    public static IndexField TAGS = add(IndexField.Type.LIST, "tags");
+    public static IndexField SYSTEM_TAGS = add(IndexField.Type.LIST, "sysTags");
+    public static IndexField INTERNAL_KEY = add(IndexField.Type.STRING, "internalKey");
+    public static IndexField TEMPLATE = add(IndexField.Type.BOOLEAN, "template");
+    public static IndexField PARAMS = add(IndexField.Type.LIST, "params");
+    public static IndexField DEBT_FUNCTION_TYPE = add(IndexField.Type.STRING, "debtRemFnType");
+    public static IndexField DEBT_FUNCTION_COEFFICIENT = add(IndexField.Type.STRING, "debtRemFnCoefficient");
+    public static IndexField DEBT_FUNCTION_OFFSET = add(IndexField.Type.STRING, "debtRemFnOffset");
+    public static IndexField SUB_CHARACTERISTIC = add(IndexField.Type.STRING, "debtSubChar");
+    public static IndexField CHARACTERISTIC = add(IndexField.Type.STRING, "debtChar");
+    public static IndexField NOTE = add(IndexField.Type.TEXT, "markdownNote");
+    public static IndexField NOTE_LOGIN = add(IndexField.Type.STRING, "noteLogin");
+    public static IndexField NOTE_CREATED_AT = add(IndexField.Type.DATE, "noteCreatedAt");
+    public static IndexField NOTE_UPDATED_AT = add(IndexField.Type.DATE, "noteUpdatedAt");
+    public static IndexField _TAGS = addSearchable(IndexField.Type.TEXT, "_tags");
   }
 
-  public static enum RuleParamField {
-    NAME("name"),
-    TYPE("type"),
-    DESCRIPTION("description"),
-    DEFAULT_VALUE("defaultValue");
-
-    private final String key;
-
-    private RuleParamField(final String key) {
-      this.key = key;
-    }
-
-    public String key() {
-      return key;
-    }
-
-    @Override
-    public String toString() {
-      return key;
-    }
+  public static class RuleParamField extends Indexable {
+    public static IndexField NAME = add(IndexField.Type.STRING, "name");
+    public static IndexField TYPE = add(IndexField.Type.STRING, "type");
+    public static IndexField DESCRIPTION = addSearchable(IndexField.Type.TEXT, "description");
+    public static IndexField DEFAULT_VALUE = add(IndexField.Type.STRING, "defaultValue");
   }
 
   public RuleNormalizer(DbClient db) {
@@ -149,22 +100,22 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
     /** Update Fields */
     Map<String, Object> update = new HashMap<String, Object>();
-    update.put(RuleField.KEY.key(), rule.getKey().toString());
-    update.put(RuleField.REPOSITORY.key(), rule.getRepositoryKey());
-    update.put(RuleField.NAME.key(), rule.getName());
-    update.put(RuleField.CREATED_AT.key(), rule.getCreatedAt());
-    update.put(RuleField.UPDATED_AT.key(), rule.getUpdatedAt());
-    update.put(RuleField.HTML_DESCRIPTION.key(), rule.getDescription());
-    update.put(RuleField.SEVERITY.key(), rule.getSeverityString());
-    update.put(RuleField.STATUS.key(), rule.getStatus());
-    update.put(RuleField.LANGUAGE.key(), rule.getLanguage());
-    update.put(RuleField.INTERNAL_KEY.key(), rule.getConfigKey());
-    update.put(RuleField.TEMPLATE.key(), rule.getCardinality() == Cardinality.MULTIPLE);
+    update.put(RuleField.KEY.field(), rule.getKey().toString());
+    update.put(RuleField.REPOSITORY.field(), rule.getRepositoryKey());
+    update.put(RuleField.NAME.field(), rule.getName());
+    update.put(RuleField.CREATED_AT.field(), rule.getCreatedAt());
+    update.put(RuleField.UPDATED_AT.field(), rule.getUpdatedAt());
+    update.put(RuleField.HTML_DESCRIPTION.field(), rule.getDescription());
+    update.put(RuleField.SEVERITY.field(), rule.getSeverityString());
+    update.put(RuleField.STATUS.field(), rule.getStatus());
+    update.put(RuleField.LANGUAGE.field(), rule.getLanguage());
+    update.put(RuleField.INTERNAL_KEY.field(), rule.getConfigKey());
+    update.put(RuleField.TEMPLATE.field(), rule.getCardinality() == Cardinality.MULTIPLE);
 
-    update.put(RuleField.NOTE.key(), rule.getNoteData());
-    update.put(RuleField.NOTE_LOGIN.key(), rule.getNoteUserLogin());
-    update.put(RuleField.NOTE_CREATED_AT.key(), rule.getNoteCreatedAt());
-    update.put(RuleField.NOTE_UPDATED_AT.key(), rule.getNoteUpdatedAt());
+    update.put(RuleField.NOTE.field(), rule.getNoteData());
+    update.put(RuleField.NOTE_LOGIN.field(), rule.getNoteUserLogin());
+    update.put(RuleField.NOTE_CREATED_AT.field(), rule.getNoteCreatedAt());
+    update.put(RuleField.NOTE_UPDATED_AT.field(), rule.getNoteUpdatedAt());
 
     //TODO Legacy ID in DTO should be Key
     CharacteristicDto characteristic = null;
@@ -174,15 +125,15 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     if (rule.getSubCharacteristicId() != null) {
       characteristic = db.debtCharacteristicDao().selectById(rule.getSubCharacteristicId());
     }
-    if (characteristic != null) {
-      update.put(RuleField.SUB_CHARACTERISTIC.key(), characteristic.getKey());
+    if (characteristic != null && characteristic.getId() != -1) {
+      update.put(RuleField.SUB_CHARACTERISTIC.field(), characteristic.getKey());
       if (characteristic.getParentId() != null) {
-        update.put(RuleField.CHARACTERISTIC.key(),
+        update.put(RuleField.CHARACTERISTIC.field(),
           db.debtCharacteristicDao().selectById(characteristic.getParentId()).getKey());
       }
     } else {
-      update.put(RuleField.CHARACTERISTIC.key(), null);
-      update.put(RuleField.SUB_CHARACTERISTIC.key(), null);
+      update.put(RuleField.CHARACTERISTIC.field(), null);
+      update.put(RuleField.SUB_CHARACTERISTIC.field(), null);
     }
 
     String dType = null, dCoefficient = null, dOffset = null;
@@ -196,18 +147,18 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       dCoefficient = rule.getRemediationCoefficient();
       dOffset = rule.getRemediationOffset();
     }
-    update.put(RuleField.DEBT_FUNCTION_TYPE.key(), dType);
-    update.put(RuleField.DEBT_FUNCTION_COEFFICIENT.key(), dCoefficient);
-    update.put(RuleField.DEBT_FUNCTION_OFFSET.key(), dOffset);
-    update.put(RuleField.TAGS.key(), rule.getTags());
-    update.put(RuleField.SYSTEM_TAGS.key(), rule.getSystemTags());
-    update.put(RuleField._TAGS.key(), Sets.union(rule.getSystemTags(), rule.getTags()));
+    update.put(RuleField.DEBT_FUNCTION_TYPE.field(), dType);
+    update.put(RuleField.DEBT_FUNCTION_COEFFICIENT.field(), dCoefficient);
+    update.put(RuleField.DEBT_FUNCTION_OFFSET.field(), dOffset);
+    update.put(RuleField.TAGS.field(), rule.getTags());
+    update.put(RuleField.SYSTEM_TAGS.field(), rule.getSystemTags());
+    update.put(RuleField._TAGS.field(), Sets.union(rule.getSystemTags(), rule.getTags()));
 
 
     /** Upsert elements */
     Map<String, Object> upsert = new HashMap<String, Object>(update);
-    upsert.put(RuleField.KEY.key(), rule.getKey().toString());
-    upsert.put(RuleField.PARAMS.key(), new ArrayList<String>());
+    upsert.put(RuleField.KEY.field(), rule.getKey().toString());
+    upsert.put(RuleField.PARAMS.field(), new ArrayList<String>());
 
 
     /** Creating updateRequest */
@@ -219,12 +170,12 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
   public List<UpdateRequest> normalize(RuleParamDto param, RuleKey key) {
     Map<String, Object> newParam = new HashMap<String, Object>();
     newParam.put("_id", param.getName());
-    newParam.put(RuleParamField.NAME.key(), param.getName());
-    newParam.put(RuleParamField.TYPE.key(), param.getType());
-    newParam.put(RuleParamField.DESCRIPTION.key(), param.getDescription());
-    newParam.put(RuleParamField.DEFAULT_VALUE.key(), param.getDefaultValue());
+    newParam.put(RuleParamField.NAME.field(), param.getName());
+    newParam.put(RuleParamField.TYPE.field(), param.getType());
+    newParam.put(RuleParamField.DESCRIPTION.field(), param.getDescription());
+    newParam.put(RuleParamField.DEFAULT_VALUE.field(), param.getDefaultValue());
 
-    return ImmutableList.of(this.nestedUpsert(RuleField.PARAMS.key(),
+    return ImmutableList.of(this.nestedUpsert(RuleField.PARAMS.field(),
       param.getName(), newParam).id(key.toString()));
   }
 }

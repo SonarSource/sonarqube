@@ -162,7 +162,7 @@ public class RuleIndexMediumTest {
 
 
     QueryOptions options = new QueryOptions();
-    options.addFieldsToReturn(RuleNormalizer.RuleField.LANGUAGE.key(), RuleNormalizer.RuleField.STATUS.key());
+    options.addFieldsToReturn(RuleNormalizer.RuleField.LANGUAGE.field(), RuleNormalizer.RuleField.STATUS.field());
     Result<Rule> results = index.search(new RuleQuery(), options);
     assertThat(results.getHits()).hasSize(1);
 

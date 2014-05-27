@@ -157,7 +157,7 @@ public class SearchAction implements RequestHandler {
     action
       .createParam(SearchOptions.PARAM_SORT)
       .setDescription("Sort field")
-      .setExampleValue(RuleNormalizer.RuleField.LANGUAGE.key());
+      .setExampleValue(RuleNormalizer.RuleField.LANGUAGE.field());
 
     action
       .createParam(SearchOptions.PARAM_ASCENDING)
@@ -198,7 +198,7 @@ public class SearchAction implements RequestHandler {
     query.setHasDebtCharacteristic(request.paramAsBoolean(PARAM_HAS_DEBT_CHARACTERISTIC));
     query.setActivation(request.paramAsBoolean(PARAM_ACTIVATION));
     query.setQProfileKey(request.param(PARAM_QPROFILE));
-    query.setSortField(RuleQuery.SortField.valueOfOrNull(request.param(SearchOptions.PARAM_SORT)));
+    query.setSortField(RuleNormalizer.RuleField.fromField(request.param(SearchOptions.PARAM_SORT)));
     query.setAscendingSort(request.mandatoryParamAsBoolean(SearchOptions.PARAM_ASCENDING));
     query.setTags(request.paramAsStrings(PARAM_TAGS));
     query.setAllOfTags(request.paramAsStrings(PARAM_ALL_OF_TAGS));

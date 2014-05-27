@@ -56,9 +56,9 @@ public class RuleMappingTest {
     QueryOptions queryOptions = mapping.newQueryOptions(SearchOptions.create(request));
 
     assertThat(queryOptions.getFieldsToReturn()).containsOnly(
-      RuleNormalizer.RuleField.REPOSITORY.key(),
-      RuleNormalizer.RuleField.NAME.key(),
-      RuleNormalizer.RuleField.LANGUAGE.key());
+      RuleNormalizer.RuleField.REPOSITORY.field(),
+      RuleNormalizer.RuleField.NAME.field(),
+      RuleNormalizer.RuleField.LANGUAGE.field());
   }
 
   @Test
@@ -70,7 +70,7 @@ public class RuleMappingTest {
     request.setParam("f", "langName");
     QueryOptions queryOptions = mapping.newQueryOptions(SearchOptions.create(request));
 
-    assertThat(queryOptions.getFieldsToReturn()).containsOnly(RuleNormalizer.RuleField.LANGUAGE.key());
+    assertThat(queryOptions.getFieldsToReturn()).containsOnly(RuleNormalizer.RuleField.LANGUAGE.field());
   }
 
   @Test
@@ -83,9 +83,9 @@ public class RuleMappingTest {
     QueryOptions queryOptions = mapping.newQueryOptions(SearchOptions.create(request));
 
     assertThat(queryOptions.getFieldsToReturn()).containsOnly(
-      RuleNormalizer.RuleField.DEBT_FUNCTION_COEFFICIENT.key(),
-      RuleNormalizer.RuleField.DEBT_FUNCTION_OFFSET.key(),
-      RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.key());
+      RuleNormalizer.RuleField.DEBT_FUNCTION_COEFFICIENT.field(),
+      RuleNormalizer.RuleField.DEBT_FUNCTION_OFFSET.field(),
+      RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field());
   }
 
   @Test
@@ -97,7 +97,7 @@ public class RuleMappingTest {
     request.setParam("f", "htmlNote");
     QueryOptions queryOptions = mapping.newQueryOptions(SearchOptions.create(request));
 
-    assertThat(queryOptions.getFieldsToReturn()).containsOnly(RuleNormalizer.RuleField.NOTE.key());
+    assertThat(queryOptions.getFieldsToReturn()).containsOnly(RuleNormalizer.RuleField.NOTE.field());
   }
 
   @Test
@@ -110,7 +110,7 @@ public class RuleMappingTest {
     QueryOptions queryOptions = mapping.newQueryOptions(SearchOptions.create(request));
 
     assertThat(queryOptions.getFieldsToReturn()).containsOnly(
-      RuleNormalizer.RuleField.CHARACTERISTIC.key(),
-      RuleNormalizer.RuleField.SUB_CHARACTERISTIC.key());
+      RuleNormalizer.RuleField.CHARACTERISTIC.field(),
+      RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field());
   }
 }

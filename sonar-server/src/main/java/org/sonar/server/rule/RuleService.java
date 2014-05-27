@@ -69,7 +69,7 @@ public class RuleService implements ServerComponent {
    */
   public Set<String> listTags() {
     /** using combined _TAGS field of ES until ES update that has multiTerms aggregation */
-    return index.terms(RuleNormalizer.RuleField._TAGS.key());
+    return index.terms(RuleNormalizer.RuleField._TAGS.field());
   }
 
   /**

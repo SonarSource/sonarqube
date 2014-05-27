@@ -333,7 +333,6 @@ public class RulesWebServiceTest {
   }
 
   @Test
-  @Ignore
   public void sort_by_name() throws Exception {
     ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S002")).setName("Dodgy - Consider returning a zero length array rather than null "));
     ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S001")).setName("Bad practice - Creates an empty zip file entry"));
@@ -345,7 +344,7 @@ public class RulesWebServiceTest {
     MockUserSession.set();
     WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_FIELDS, "");
-    request.setParam(SearchOptions.PARAM_SORT, RuleNormalizer.RuleField.NAME.key());
+    request.setParam(SearchOptions.PARAM_SORT, RuleNormalizer.RuleField.NAME.field());
     request.setParam(SearchOptions.PARAM_ASCENDING, Boolean.TRUE.toString());
 
     WsTester.Result result = request.execute();
@@ -354,7 +353,7 @@ public class RulesWebServiceTest {
     // 2. Sort Name ASC
     request = wsTester.newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_FIELDS, "");
-    request.setParam(SearchOptions.PARAM_SORT, RuleNormalizer.RuleField.NAME.key());
+    request.setParam(SearchOptions.PARAM_SORT, RuleNormalizer.RuleField.NAME.field());
     request.setParam(SearchOptions.PARAM_ASCENDING, Boolean.FALSE.toString());
 
     result = request.execute();

@@ -176,11 +176,11 @@ public class RuleServiceMediumTest {
     dbSession.commit();
 
 
-    Set<String> tags = index.terms(RuleNormalizer.RuleField._TAGS.key());
+    Set<String> tags = index.terms(RuleNormalizer.RuleField._TAGS.field());
     assertThat(tags).containsOnly("java-coding", "security",
       "stephane.gamard@sonarsource.com", "mytag");
 
-    tags = index.terms(RuleNormalizer.RuleField.SYSTEM_TAGS.key());
+    tags = index.terms(RuleNormalizer.RuleField.SYSTEM_TAGS.field());
     assertThat(tags).containsOnly("java-coding",
       "stephane.gamard@sonarsource.com");
 
