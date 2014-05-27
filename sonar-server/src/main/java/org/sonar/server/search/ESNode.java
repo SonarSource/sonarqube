@@ -75,6 +75,10 @@ public class ESNode implements Startable {
 
     IndexProperties.ES_TYPE type = IndexProperties.ES_TYPE.valueOf(settings.getString(IndexProperties.TYPE));
 
+    if(type == null){
+      type = IndexProperties.ES_TYPE.DATA;
+    }
+
     switch (type) {
       case MEMORY:
         initMemoryES();
