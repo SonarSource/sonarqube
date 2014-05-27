@@ -38,6 +38,7 @@ requirejs [
   'navigator/filters/choice-filters',
   'navigator/filters/string-filters',
   'navigator/filters/date-filter-view',
+  'coding-rules/views/filters/query-filter-view',
   'coding-rules/views/filters/quality-profile-filter-view',
   'coding-rules/views/filters/inheritance-filter-view',
   'coding-rules/views/filters/activation-filter-view',
@@ -68,6 +69,7 @@ requirejs [
   ChoiceFilters,
   StringFilterView,
   DateFilterView,
+  QueryFilterView,
   QualityProfileFilterView,
   InheritanceFilterView,
   ActivationFilterView,
@@ -212,7 +214,7 @@ requirejs [
   # Define coding rules
   App.addInitializer ->
     @codingRules = new Backbone.Collection
-    @codingRules.sorting = sort: 'CREATED_AT', asc: false
+    @codingRules.sorting = sort: 'createdAt', asc: false
 
 
   # Construct status bar
@@ -238,22 +240,25 @@ requirejs [
   App.addInitializer ->
     @filters = new BaseFilters.Filters
 
-    @filters.add new BaseFilters.Filter
-      name: t 'coding_rules.filters.name'
+    @queryFilter = new BaseFilters.Filter
       property: 'q'
-      type: StringFilterView
+      type: QueryFilterView
+      size: 50
+    @filters.add @queryFilter
 
     @languageFilter =  new BaseFilters.Filter
       name: t 'coding_rules.filters.language'
       property: 'languages'
       type: ChoiceFilters.ChoiceFilterView
       choices: @languages
+      optional: true
     @filters.add @languageFilter
 
     @filters.add new BaseFilters.Filter
       name: t 'coding_rules.filters.severity'
       property: 'severities'
       type: ChoiceFilters.ChoiceFilterView
+      optional: true
       choices:
         'BLOCKER': t 'severity.BLOCKER'
         'CRITICAL': t 'severity.CRITICAL'
@@ -271,6 +276,7 @@ requirejs [
       name: t 'coding_rules.filters.tag'
       property: 'tags'
       type: TagFilterView
+      optional: true
 
     @filters.add new BaseFilters.Filter
       name: t 'coding_rules.filters.characteristic'
@@ -278,6 +284,7 @@ requirejs [
       type: CharacteristicFilterView
       choices: @characteristics
       multiple: false
+      optional: true
 
     @qualityProfileFilter = new BaseFilters.Filter
       name: t 'coding_rules.filters.quality_profile'

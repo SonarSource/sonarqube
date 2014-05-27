@@ -39,3 +39,9 @@ define [
       @detailsView.updateLists()
       @render()
       super
+
+    restore: (value) ->
+      @choices.each (item) -> item.set 'checked', item.id == value
+      @detailsView.updateValue()
+      @detailsView.updateLists()
+      @render()
