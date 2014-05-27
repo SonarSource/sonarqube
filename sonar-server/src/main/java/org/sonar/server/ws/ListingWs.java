@@ -27,8 +27,11 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 
+import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 /**
  * This web service lists all the existing web services, including itself,
@@ -162,8 +165,8 @@ public class ListingWs implements WebService {
       if (!action.params().isEmpty()) {
         // sort parameters by key
         Ordering<Param> ordering = Ordering.natural().onResultOf(new Function<Param, String>() {
-          public String apply(Param param) {
-            return param.key();
+          public String apply(@Nullable Param param) {
+            return param != null ? param.key() : null;
           }
         });
         writer.name("params").beginArray();
@@ -183,8 +186,9 @@ public class ListingWs implements WebService {
     writer.prop("required", param.isRequired());
     writer.prop("defaultValue", param.defaultValue());
     writer.prop("exampleValue", param.exampleValue());
-    if (param.possibleValues() != null) {
-      writer.name("possibleValues").beginArray().values(param.possibleValues()).endArray();
+    Set<String> possibleValues = param.possibleValues();
+    if (possibleValues != null) {
+      writer.name("possibleValues").beginArray().values(possibleValues).endArray();
     }
     writer.endObject();
   }
