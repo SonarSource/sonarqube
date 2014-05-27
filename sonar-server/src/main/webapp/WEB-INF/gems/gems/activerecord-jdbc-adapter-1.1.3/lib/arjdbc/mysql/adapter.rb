@@ -87,12 +87,17 @@ module ::ArJdbc
 
 
     def modify_types(tp)
-      tp[:primary_key] = "int(11) DEFAULT NULL auto_increment PRIMARY KEY"
+      # SonarQube
+      # Compatibility with mysql 5.7
+      # See https://github.com/rails/rails/commit/26cea8fabe828e7b0535275044cb8316fff1c590
+      #tp[:primary_key] = "int(11) DEFAULT NULL auto_increment PRIMARY KEY"
+      tp[:primary_key] = "int(11) auto_increment PRIMARY KEY"
+      # /SonarQube
       tp[:decimal] = { :name => "decimal" }
       tp[:timestamp] = { :name => "datetime" }
       tp[:datetime][:limit] = nil
 
-      # sonar
+      # SonarQube
       # Ticket http://tools.assembla.com/sonar/ticket/200
 	    # Problem with mysql TEXT columns. ActiveRecord :text type is mapped to TEXT type (65535 characters).
 	    # But we would like the bigger MEDIUMTEXT for the snapshot_sources table (16777215  characters).
@@ -101,7 +106,7 @@ module ::ArJdbc
 	    tp[:text] = { :name => "mediumtext" }
       tp[:binary] = { :name => "longblob" }
       tp[:big_integer] = { :name => "bigint"}
-      # /sonar
+      # /SonarQube
 
       tp
     end
