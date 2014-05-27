@@ -22,47 +22,13 @@ package org.sonar.server.rule.index;
 import com.google.common.base.Preconditions;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.server.search.IndexField;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 
 public class RuleQuery {
-
-  public static enum SortField {
-    KEY(RuleNormalizer.RuleField.KEY),
-    REPOSITORY(RuleNormalizer.RuleField.REPOSITORY),
-    NAME(RuleNormalizer.RuleField.NAME),
-    CREATED_AT(RuleNormalizer.RuleField.CREATED_AT),
-    SEVERITY(RuleNormalizer.RuleField.SEVERITY),
-    STATUS(RuleNormalizer.RuleField.STATUS),
-    LANGUAGE(RuleNormalizer.RuleField.LANGUAGE);
-
-    private final RuleNormalizer.RuleField field;
-
-    private SortField(RuleNormalizer.RuleField field) {
-      this.field = field;
-    }
-
-    RuleNormalizer.RuleField field() {
-      return field;
-    }
-
-    @Override
-    public String toString() {
-      return field.toString();
-    }
-
-    /**
-     * Same than {@link #valueOf(String)} but returns <code>null</code> if parameter
-     * is <code>null</code>
-     */
-    @CheckForNull
-    public static SortField valueOfOrNull(@Nullable String s) {
-      RuleNormalizer.RuleField ruleField = RuleNormalizer.RuleField.fromKey(s);
-      return ruleField == null ? null : SortField.valueOf(ruleField.name());
-    }
-  }
 
   private String key;
   private String queryText;
@@ -74,10 +40,10 @@ public class RuleQuery {
   private Collection<String> allOfTags;
   private Collection<String> debtCharacteristics;
   private Boolean hasDebtCharacteristic;
-  private SortField sortField;
-  private boolean ascendingSort = true;
   private Boolean activation;
   private String qProfileKey;
+  private boolean ascendingSort;
+  private IndexField sortField;
 
 
   /**
@@ -216,11 +182,11 @@ public class RuleQuery {
     return this;
   }
 
-  public SortField getSortField() {
-    return sortField;
+  public IndexField getSortField() {
+    return this.sortField;
   }
 
-  public RuleQuery setSortField(@Nullable SortField sf) {
+  public RuleQuery setSortField(@Nullable IndexField sf) {
     this.sortField = sf;
     return this;
   }
