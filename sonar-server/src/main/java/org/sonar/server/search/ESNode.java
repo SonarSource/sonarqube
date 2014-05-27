@@ -104,6 +104,8 @@ public class ESNode implements Startable {
       .put("cluster.routing.schedule", "50ms")
       .put("node.local", true);
 
+    initDirs(builder);
+    
     node = NodeBuilder.nodeBuilder()
       .settings(builder)
       .node();
