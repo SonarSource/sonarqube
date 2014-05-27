@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
@@ -36,7 +37,12 @@ import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
+import org.sonar.server.rule.Rule;
+import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.rule.index.RuleQuery;
+import org.sonar.server.rule.index.RuleResult;
 import org.sonar.server.search.IndexClient;
+import org.sonar.server.search.QueryOptions;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
 
@@ -191,11 +197,22 @@ public class ActiveRuleService implements ServerComponent {
     }
   }
 
-  public List<ActiveRuleChange> bulkActivate(BulkRuleActivation activation) {
-    verifyPermission(UserSession.get());
-    throw new UnsupportedOperationException("TODO");
+  /**
+   * Deactivate a rule on a Quality profile WITHOUT committing db session and WITHOUT checking permissions
+   */
+  public List<ActiveRuleChange> deactivate(ActiveRuleKey key, DbSession dbSession) {
+    List<ActiveRuleChange> changes = Lists.newArrayList();
+    RuleActivationContext context = contextFactory.create(key, dbSession);
+    ActiveRuleChange change;
+    if (context.activeRule() == null) {
+      // not activated !
+      return changes;
+    }
+    change = new ActiveRuleChange(ActiveRuleChange.Type.DEACTIVATED, key);
+    changes.add(change);
+    persist(changes, context, dbSession);
+    return changes;
   }
-
 
   private void verifyPermission(UserSession userSession) {
     userSession.checkLoggedIn();
@@ -212,5 +229,52 @@ public class ActiveRuleService implements ServerComponent {
         typeValidations.validate(value, ruleParamType.type(), ruleParamType.values());
       }
     }
+  }
+
+  public void activateByRuleQuery(RuleQuery ruleQuery, QualityProfileKey profile) {
+    verifyPermission(UserSession.get());
+    RuleIndex ruleIndex = index.get(RuleIndex.class);
+    DbSession dbSession = db.openSession(false);
+
+    try {
+      RuleResult result = ruleIndex.search(ruleQuery,
+        QueryOptions.DEFAULT.setOffset(0)
+          .setLimit(Integer.MAX_VALUE)
+          .setFieldsToReturn(ImmutableSet.of(""))
+      );
+
+      for (Rule rule : result.getHits()) {
+        ActiveRuleKey key = ActiveRuleKey.of(profile, rule.key());
+        RuleActivation activation = new RuleActivation(key);
+        activation.setSeverity(rule.severity());
+        this.activate(activation, dbSession);
+      }
+      dbSession.commit();
+    } finally {
+      dbSession.close();
+    }
+  }
+
+  public void deActivateByRuleQuery(RuleQuery ruleQuery, QualityProfileKey profile) {
+    verifyPermission(UserSession.get());
+    RuleIndex ruleIndex = index.get(RuleIndex.class);
+    DbSession dbSession = db.openSession(false);
+
+    try {
+      RuleResult result = ruleIndex.search(ruleQuery,
+        QueryOptions.DEFAULT.setOffset(0)
+          .setLimit(Integer.MAX_VALUE)
+          .setFieldsToReturn(ImmutableSet.of(""))
+      );
+
+      for (Rule rule : result.getHits()) {
+        ActiveRuleKey key = ActiveRuleKey.of(profile, rule.key());
+        this.deactivate(key, dbSession);
+      }
+      dbSession.commit();
+    } finally {
+      dbSession.close();
+    }
+
   }
 }
