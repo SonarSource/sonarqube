@@ -1,5 +1,4 @@
 <div class="component-viewer-header-bar">
-
   <div class="component-viewer-header-component">
     {{#if component.projectName}}
       <div class="component-viewer-header-component-project">
@@ -16,7 +15,11 @@
   </div>
 
   <div class="component-viewer-header-links">
-    <a><i class="icon-detach"></i></a>
+    {{#if component.canMarkAsFavourite}}
+      <a class="js-favorite">
+        <i class="{{#if component.fav}}icon-favorite{{else}}icon-not-favorite{{/if}}"></i>
+      </a>
+    {{/if}}
     <a><i class="icon-link"></i></a>
   </div>
 

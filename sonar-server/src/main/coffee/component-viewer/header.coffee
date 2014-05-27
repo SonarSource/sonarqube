@@ -9,6 +9,8 @@ define [
 
   $ = jQuery
 
+  API_FAVORITE = "#{baseUrl}/api/favourites"
+
 
   class HeaderView extends Marionette.ItemView
     template: Templates['header']
@@ -20,6 +22,8 @@ define [
 
 
     events:
+      'click .js-favorite': 'toggleFavorite'
+
       'click @ui.expandLinks': 'showExpandedBar'
 
       'click .js-toggle-issues': 'toggleIssues'
@@ -61,6 +65,26 @@ define [
 
     onRender: ->
       @delegateEvents()
+
+
+    toggleFavorite: ->
+      component = @options.main.component
+      if component.get 'fav'
+        $.ajax
+          url: "#{API_FAVORITE}/#{component.get 'key'}"
+          type: 'DELETE'
+        .done =>
+          component.set 'fav', false
+          @render()
+      else
+        $.ajax
+          url: API_FAVORITE
+          type: 'POST'
+          data: key: component.get 'key'
+        .done =>
+          component.set 'fav', true
+          @render()
+
 
 
     showExpandedBar: (e) ->
