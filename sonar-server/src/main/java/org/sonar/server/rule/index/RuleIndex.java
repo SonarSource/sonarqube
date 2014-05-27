@@ -106,11 +106,6 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   @Override
   protected XContentBuilder getMapping() throws IOException {
 
-    for(IndexField indexField: RuleNormalizer.RuleField.ALL_FIELDS){
-      System.out.println("indexField = " + indexField);
-    }
-
-
     XContentBuilder mapping = jsonBuilder().startObject()
       .startObject(this.indexDefinition.getIndexType())
       .field("dynamic", true)
