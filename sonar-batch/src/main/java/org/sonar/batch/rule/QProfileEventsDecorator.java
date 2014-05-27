@@ -56,7 +56,7 @@ public class QProfileEventsDecorator implements Decorator {
 
   @DependsUpon
   public Metric dependsUpon() {
-    return CoreMetrics.PROFILES;
+    return CoreMetrics.QUALITY_PROFILES;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -70,13 +70,13 @@ public class QProfileEventsDecorator implements Decorator {
     }
 
     // Load current profiles
-    Measure profilesMeasure = context.getMeasure(CoreMetrics.PROFILES);
+    Measure profilesMeasure = context.getMeasure(CoreMetrics.QUALITY_PROFILES);
     UsedQProfiles currentProfiles = UsedQProfiles.fromJSON(profilesMeasure.getData());
 
     // Now load previous profiles
     UsedQProfiles pastProfiles;
     // First try with new metric
-    Measure pastProfilesMeasure = getPreviousMeasure(resource, CoreMetrics.PROFILES);
+    Measure pastProfilesMeasure = getPreviousMeasure(resource, CoreMetrics.QUALITY_PROFILES);
     if (pastProfilesMeasure != null) {
       pastProfiles = UsedQProfiles.fromJSON(pastProfilesMeasure.getData());
     } else {

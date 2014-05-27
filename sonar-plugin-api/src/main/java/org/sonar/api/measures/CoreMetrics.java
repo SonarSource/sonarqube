@@ -2221,12 +2221,12 @@ public final class CoreMetrics {
     .create();
 
   /**
-   * @deprecated since 4.4 doesn't support multi-language. See {@link #PROFILES_KEY}
+   * @deprecated since 4.4 doesn't support multi-language. See {@link #QUALITY_PROFILES_KEY}
    */
   @Deprecated
   public static final String PROFILE_KEY = "profile";
   /**
-   * @deprecated since 4.4 doesn't support multi-language. See {@link #PROFILES_KEY}
+   * @deprecated since 4.4 doesn't support multi-language. See {@link #QUALITY_PROFILES_KEY}
    */
   @Deprecated
   public static final Metric PROFILE = new Metric.Builder(PROFILE_KEY, "Profile", Metric.ValueType.DATA)
@@ -2236,13 +2236,13 @@ public final class CoreMetrics {
 
   /**
    * @since 2.9
-   * @deprecated since 4.4 doesn't support multi-language. See {@link #PROFILES_KEY}
+   * @deprecated since 4.4 doesn't support multi-language. See {@link #QUALITY_PROFILES_KEY}
    */
   @Deprecated
   public static final String PROFILE_VERSION_KEY = "profile_version";
   /**
    * @since 2.9
-   * @deprecated since 4.4 doesn't support multi-language. See {@link #PROFILES_KEY}
+   * @deprecated since 4.4 doesn't support multi-language. See {@link #QUALITY_PROFILES_KEY}
    */
   @Deprecated
   public static final Metric PROFILE_VERSION = new Metric.Builder(PROFILE_VERSION_KEY, "Profile version", Metric.ValueType.INT)
@@ -2255,12 +2255,12 @@ public final class CoreMetrics {
   /**
    * @since 4.4
    */
-  public static final String PROFILES_KEY = "profiles";
+  public static final String QUALITY_PROFILES_KEY = "quality_profiles";
 
   /**
    * @since 4.4
    */
-  public static final Metric PROFILES = new Metric.Builder(PROFILES_KEY, "Profiles", Metric.ValueType.DATA)
+  public static final Metric QUALITY_PROFILES = new Metric.Builder(QUALITY_PROFILES_KEY, "Profiles", Metric.ValueType.DATA)
     .setDescription("Details of quality profiles used during analysis")
     .setQualitative(false)
     .setDomain(DOMAIN_GENERAL)

@@ -378,7 +378,7 @@ class Metric < ActiveRecord::Base
   ALERT_STATUS = 'alert_status'
   QUALITY_GATE_DETAILS = 'quality_gate_details'
   PROFILE='profile'
-  PROFILES='profiles'
+  QUALITY_PROFILES='quality_profiles'
 
   private
 

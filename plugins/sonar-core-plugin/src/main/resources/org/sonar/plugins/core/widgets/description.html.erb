@@ -10,13 +10,13 @@
   <% end %>
 
   <%
-     profiles_measure = measure(Metric::PROFILES)
-     if profiles_measure && !profiles_measure.data.blank?
-       profiles = JSON.parse profiles_measure.data
+     qprofiles_measure = measure(Metric::QUALITY_PROFILES)
+     if qprofiles_measure && !qprofiles_measure.data.blank?
+       qprofiles = JSON.parse qprofiles_measure.data
   %>
     <p class="description-widget-description">
       <%= message('widget.description.profiles') -%>:
-      <% profiles.each_with_index do |profile, i| %>
+      <% qprofiles.each_with_index do |profile, i| %>
         <span class="nowrap">
           <span id="resource_profile">
            <%= link_to profile['name'], {:controller => '/profiles', :action => 'show', :id => profile['id']}, :class => 'widget-link', :id => profile['language'] + '_profile_link' -%>
@@ -25,7 +25,7 @@
             (<%= Api::Utils.language_name(profile['language']) -%>,
             <%= message('widget.description.profile_version_x', :params => profile['version']) -%>)
           </span>
-          <% if i < (profiles.size - 1) %>,<% end %>
+          <% if i < (qprofiles.size - 1) %>,<% end %>
         </span>
       <% end %>
     </p>

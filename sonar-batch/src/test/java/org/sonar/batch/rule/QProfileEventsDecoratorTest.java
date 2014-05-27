@@ -62,12 +62,12 @@ public class QProfileEventsDecoratorTest {
 
   @Test
   public void shouldDoNothingIfNoProfileChange() {
-    Measure previousMeasure = new Measure(CoreMetrics.PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"}]");
-    Measure newMeasure = new Measure(CoreMetrics.PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"}]");
+    Measure previousMeasure = new Measure(CoreMetrics.QUALITY_PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"}]");
+    Measure newMeasure = new Measure(CoreMetrics.QUALITY_PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"}]");
 
     when(timeMachine.getMeasures(any(TimeMachineQuery.class)))
       .thenReturn(Arrays.asList(previousMeasure));
-    when(decoratorContext.getMeasure(CoreMetrics.PROFILES)).thenReturn(newMeasure);
+    when(decoratorContext.getMeasure(CoreMetrics.QUALITY_PROFILES)).thenReturn(newMeasure);
 
     decorator.decorate(project, decoratorContext);
 
@@ -78,9 +78,9 @@ public class QProfileEventsDecoratorTest {
   public void shouldDoNothingIfNoProfileChange_fallbackOldProfileMeasure() {
     mockTMWithDeprecatedProfileMeasures(2, "Java Two", 20);
     when(qualityProfileDao.selectById(20)).thenReturn(new QualityProfileDto().setLanguage("java"));
-    Measure newMeasure = new Measure(CoreMetrics.PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"}]");
+    Measure newMeasure = new Measure(CoreMetrics.QUALITY_PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"}]");
 
-    when(decoratorContext.getMeasure(CoreMetrics.PROFILES)).thenReturn(newMeasure);
+    when(decoratorContext.getMeasure(CoreMetrics.QUALITY_PROFILES)).thenReturn(newMeasure);
 
     when(languages.get("java")).thenReturn(Java.INSTANCE);
 
@@ -91,13 +91,13 @@ public class QProfileEventsDecoratorTest {
 
   @Test
   public void shouldCreateEventIfProfileChange() {
-    Measure previousMeasure = new Measure(CoreMetrics.PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"}]");
+    Measure previousMeasure = new Measure(CoreMetrics.QUALITY_PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"}]");
     // Different profile
-    Measure newMeasure = new Measure(CoreMetrics.PROFILES, "[{\"id\":3,\"name\":\"Java Other\",\"version\":1,\"language\":\"java\"}]");
+    Measure newMeasure = new Measure(CoreMetrics.QUALITY_PROFILES, "[{\"id\":3,\"name\":\"Java Other\",\"version\":1,\"language\":\"java\"}]");
 
     when(timeMachine.getMeasures(any(TimeMachineQuery.class)))
       .thenReturn(Arrays.asList(previousMeasure));
-    when(decoratorContext.getMeasure(CoreMetrics.PROFILES)).thenReturn(newMeasure);
+    when(decoratorContext.getMeasure(CoreMetrics.QUALITY_PROFILES)).thenReturn(newMeasure);
 
     when(languages.get("java")).thenReturn(Java.INSTANCE);
 
@@ -114,9 +114,9 @@ public class QProfileEventsDecoratorTest {
     mockTMWithDeprecatedProfileMeasures(2, "Java Two", 20);
     when(qualityProfileDao.selectById(20)).thenReturn(new QualityProfileDto().setLanguage("java"));
     // Different profile
-    Measure newMeasure = new Measure(CoreMetrics.PROFILES, "[{\"id\":3,\"name\":\"Java Other\",\"version\":1,\"language\":\"java\"}]");
+    Measure newMeasure = new Measure(CoreMetrics.QUALITY_PROFILES, "[{\"id\":3,\"name\":\"Java Other\",\"version\":1,\"language\":\"java\"}]");
 
-    when(decoratorContext.getMeasure(CoreMetrics.PROFILES)).thenReturn(newMeasure);
+    when(decoratorContext.getMeasure(CoreMetrics.QUALITY_PROFILES)).thenReturn(newMeasure);
 
     when(languages.get("java")).thenReturn(Java.INSTANCE);
 
@@ -130,13 +130,13 @@ public class QProfileEventsDecoratorTest {
 
   @Test
   public void shouldCreateEventIfProfileVersionChange() {
-    Measure previousMeasure = new Measure(CoreMetrics.PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"}]");
+    Measure previousMeasure = new Measure(CoreMetrics.QUALITY_PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"}]");
     // Same profile, different version
-    Measure newMeasure = new Measure(CoreMetrics.PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":21,\"language\":\"java\"}]");
+    Measure newMeasure = new Measure(CoreMetrics.QUALITY_PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":21,\"language\":\"java\"}]");
 
     when(timeMachine.getMeasures(any(TimeMachineQuery.class)))
       .thenReturn(Arrays.asList(previousMeasure));
-    when(decoratorContext.getMeasure(CoreMetrics.PROFILES)).thenReturn(newMeasure);
+    when(decoratorContext.getMeasure(CoreMetrics.QUALITY_PROFILES)).thenReturn(newMeasure);
 
     when(languages.get("java")).thenReturn(Java.INSTANCE);
 
@@ -153,9 +153,9 @@ public class QProfileEventsDecoratorTest {
     mockTMWithDeprecatedProfileMeasures(2, "Java Two", 20);
     when(qualityProfileDao.selectById(20)).thenReturn(new QualityProfileDto().setLanguage("java"));
     // Same profile, different version
-    Measure newMeasure = new Measure(CoreMetrics.PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":21,\"language\":\"java\"}]");
+    Measure newMeasure = new Measure(CoreMetrics.QUALITY_PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":21,\"language\":\"java\"}]");
 
-    when(decoratorContext.getMeasure(CoreMetrics.PROFILES)).thenReturn(newMeasure);
+    when(decoratorContext.getMeasure(CoreMetrics.QUALITY_PROFILES)).thenReturn(newMeasure);
 
     when(languages.get("java")).thenReturn(Java.INSTANCE);
 
@@ -172,9 +172,9 @@ public class QProfileEventsDecoratorTest {
     mockTMWithDeprecatedProfileMeasures(2, "Java Two", null);
     when(qualityProfileDao.selectById(20)).thenReturn(new QualityProfileDto().setLanguage("java"));
     // Same profile, different version
-    Measure newMeasure = new Measure(CoreMetrics.PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":21,\"language\":\"java\"}]");
+    Measure newMeasure = new Measure(CoreMetrics.QUALITY_PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":21,\"language\":\"java\"}]");
 
-    when(decoratorContext.getMeasure(CoreMetrics.PROFILES)).thenReturn(newMeasure);
+    when(decoratorContext.getMeasure(CoreMetrics.QUALITY_PROFILES)).thenReturn(newMeasure);
 
     when(languages.get("java")).thenReturn(Java.INSTANCE);
 
@@ -188,9 +188,9 @@ public class QProfileEventsDecoratorTest {
 
   @Test
   public void shouldNotCreateEventIfFirstAnalysis() {
-    Measure newMeasure = new Measure(CoreMetrics.PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":21,\"language\":\"java\"}]");
+    Measure newMeasure = new Measure(CoreMetrics.QUALITY_PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":21,\"language\":\"java\"}]");
 
-    when(decoratorContext.getMeasure(CoreMetrics.PROFILES)).thenReturn(newMeasure);
+    when(decoratorContext.getMeasure(CoreMetrics.QUALITY_PROFILES)).thenReturn(newMeasure);
 
     when(languages.get("java")).thenReturn(Java.INSTANCE);
 

@@ -61,7 +61,7 @@ public class QProfileSensorTest extends AbstractDaoTestCase {
     sensor.analyse(project, sensorContext);
 
     // measures are not saved
-    verify(sensorContext).saveMeasure(argThat(new IsMeasure(CoreMetrics.PROFILES, "[]")));
+    verify(sensorContext).saveMeasure(argThat(new IsMeasure(CoreMetrics.QUALITY_PROFILES, "[]")));
   }
 
   @Test
@@ -98,7 +98,7 @@ public class QProfileSensorTest extends AbstractDaoTestCase {
     verify(sensorContext).saveMeasure(argThat(new IsMeasure(CoreMetrics.PROFILE, "Java Two")));
     verify(sensorContext).saveMeasure(argThat(new IsMeasure(CoreMetrics.PROFILE_VERSION, 20.0)));
     verify(sensorContext).saveMeasure(
-      argThat(new IsMeasure(CoreMetrics.PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"}]")));
+      argThat(new IsMeasure(CoreMetrics.QUALITY_PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"}]")));
   }
 
   @Test
@@ -116,7 +116,7 @@ public class QProfileSensorTest extends AbstractDaoTestCase {
     sensor.analyse(project, sensorContext);
 
     verify(sensorContext).saveMeasure(
-      argThat(new IsMeasure(CoreMetrics.PROFILES,
+      argThat(new IsMeasure(CoreMetrics.QUALITY_PROFILES,
         "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"},{\"id\":3,\"name\":\"Php One\",\"version\":30,\"language\":\"php\"}]")));
   }
 }

@@ -36,7 +36,7 @@ public class QProfileDecorator implements Decorator {
 
   @DependedUpon
   public Metric provides() {
-    return CoreMetrics.PROFILES;
+    return CoreMetrics.QUALITY_PROFILES;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -49,12 +49,12 @@ public class QProfileDecorator implements Decorator {
       return;
     }
     UsedQProfiles profiles = UsedQProfiles.empty();
-    for (Measure childProfilesMeasure : context.getChildrenMeasures(CoreMetrics.PROFILES)) {
+    for (Measure childProfilesMeasure : context.getChildrenMeasures(CoreMetrics.QUALITY_PROFILES)) {
       UsedQProfiles childProfiles = UsedQProfiles.fromJSON(childProfilesMeasure.getData());
       profiles = profiles.merge(childProfiles);
     }
 
-    Measure detailsMeasure = new Measure(CoreMetrics.PROFILES, profiles.toJSON());
+    Measure detailsMeasure = new Measure(CoreMetrics.QUALITY_PROFILES, profiles.toJSON());
     context.saveMeasure(detailsMeasure);
   }
 

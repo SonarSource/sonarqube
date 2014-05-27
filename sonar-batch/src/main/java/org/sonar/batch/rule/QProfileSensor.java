@@ -60,7 +60,7 @@ public class QProfileSensor implements Sensor {
       }
     }
     UsedQProfiles used = UsedQProfiles.fromProfiles(profiles);
-    Measure detailsMeasure = new Measure(CoreMetrics.PROFILES, used.toJSON());
+    Measure detailsMeasure = new Measure(CoreMetrics.QUALITY_PROFILES, used.toJSON());
     context.saveMeasure(detailsMeasure);
 
     // For backward compatibility

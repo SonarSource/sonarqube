@@ -55,9 +55,9 @@ public class QProfileDecoratorTest {
 
   @Test
   public void aggregate() throws Exception {
-    Measure measureModuleA = new Measure(CoreMetrics.PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"}]");
-    Measure measureModuleB = new Measure(CoreMetrics.PROFILES, "[{\"id\":3,\"name\":\"Php One\",\"version\":30,\"language\":\"php\"}]");
-    when(decoratorContext.getChildrenMeasures(CoreMetrics.PROFILES)).thenReturn(Arrays.asList(measureModuleA, measureModuleB));
+    Measure measureModuleA = new Measure(CoreMetrics.QUALITY_PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"}]");
+    Measure measureModuleB = new Measure(CoreMetrics.QUALITY_PROFILES, "[{\"id\":3,\"name\":\"Php One\",\"version\":30,\"language\":\"php\"}]");
+    when(decoratorContext.getChildrenMeasures(CoreMetrics.QUALITY_PROFILES)).thenReturn(Arrays.asList(measureModuleA, measureModuleB));
 
     when(project.getScope()).thenReturn(Scopes.PROJECT);
 
@@ -65,15 +65,15 @@ public class QProfileDecoratorTest {
     decorator.decorate(project, decoratorContext);
 
     verify(decoratorContext).saveMeasure(
-      argThat(new IsMeasure(CoreMetrics.PROFILES,
+      argThat(new IsMeasure(CoreMetrics.QUALITY_PROFILES,
         "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"},{\"id\":3,\"name\":\"Php One\",\"version\":30,\"language\":\"php\"}]")));
   }
 
   @Test
   public void aggregate_several_profile_same_language() throws Exception {
-    Measure measureModuleA = new Measure(CoreMetrics.PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"}]");
-    Measure measureModuleB = new Measure(CoreMetrics.PROFILES, "[{\"id\":3,\"name\":\"Java Three\",\"version\":30,\"language\":\"java\"}]");
-    when(decoratorContext.getChildrenMeasures(CoreMetrics.PROFILES)).thenReturn(Arrays.asList(measureModuleA, measureModuleB));
+    Measure measureModuleA = new Measure(CoreMetrics.QUALITY_PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"}]");
+    Measure measureModuleB = new Measure(CoreMetrics.QUALITY_PROFILES, "[{\"id\":3,\"name\":\"Java Three\",\"version\":30,\"language\":\"java\"}]");
+    when(decoratorContext.getChildrenMeasures(CoreMetrics.QUALITY_PROFILES)).thenReturn(Arrays.asList(measureModuleA, measureModuleB));
 
     when(project.getScope()).thenReturn(Scopes.PROJECT);
 
@@ -81,15 +81,15 @@ public class QProfileDecoratorTest {
     decorator.decorate(project, decoratorContext);
 
     verify(decoratorContext).saveMeasure(
-      argThat(new IsMeasure(CoreMetrics.PROFILES,
+      argThat(new IsMeasure(CoreMetrics.QUALITY_PROFILES,
         "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"},{\"id\":3,\"name\":\"Java Three\",\"version\":30,\"language\":\"java\"}]")));
   }
 
   @Test
   public void aggregate_several_profile_same_id() throws Exception {
-    Measure measureModuleA = new Measure(CoreMetrics.PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"}]");
-    Measure measureModuleB = new Measure(CoreMetrics.PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":30,\"language\":\"java\"}]");
-    when(decoratorContext.getChildrenMeasures(CoreMetrics.PROFILES)).thenReturn(Arrays.asList(measureModuleA, measureModuleB));
+    Measure measureModuleA = new Measure(CoreMetrics.QUALITY_PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"}]");
+    Measure measureModuleB = new Measure(CoreMetrics.QUALITY_PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":30,\"language\":\"java\"}]");
+    when(decoratorContext.getChildrenMeasures(CoreMetrics.QUALITY_PROFILES)).thenReturn(Arrays.asList(measureModuleA, measureModuleB));
 
     when(project.getScope()).thenReturn(Scopes.PROJECT);
 
@@ -97,7 +97,7 @@ public class QProfileDecoratorTest {
     decorator.decorate(project, decoratorContext);
 
     verify(decoratorContext).saveMeasure(
-      argThat(new IsMeasure(CoreMetrics.PROFILES,
+      argThat(new IsMeasure(CoreMetrics.QUALITY_PROFILES,
         "[{\"id\":2,\"name\":\"Java Two\",\"version\":30,\"language\":\"java\"}]")));
   }
 }
