@@ -20,8 +20,10 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
@@ -231,9 +233,10 @@ public class ActiveRuleService implements ServerComponent {
     }
   }
 
-  public void activateByRuleQuery(RuleQuery ruleQuery, QualityProfileKey profile) {
+  public Multimap<String, String> activateByRuleQuery(RuleQuery ruleQuery, QualityProfileKey profile) {
     verifyPermission(UserSession.get());
     RuleIndex ruleIndex = index.get(RuleIndex.class);
+    Multimap<String, String> results = ArrayListMultimap.create();
     DbSession dbSession = db.openSession(false);
 
     try {
@@ -244,20 +247,28 @@ public class ActiveRuleService implements ServerComponent {
       );
 
       for (Rule rule : result.getHits()) {
-        ActiveRuleKey key = ActiveRuleKey.of(profile, rule.key());
-        RuleActivation activation = new RuleActivation(key);
-        activation.setSeverity(rule.severity());
-        this.activate(activation, dbSession);
+        if(!rule.template()) {
+          ActiveRuleKey key = ActiveRuleKey.of(profile, rule.key());
+          RuleActivation activation = new RuleActivation(key);
+          activation.setSeverity(rule.severity());
+          for(ActiveRuleChange active : this.activate(activation, dbSession)){
+            results.put("activated",active.getKey().ruleKey().toString());
+          }
+        } else {
+          results.put("ignored",rule.key().toString());
+        }
       }
       dbSession.commit();
     } finally {
       dbSession.close();
     }
+    return results;
   }
 
-  public void deActivateByRuleQuery(RuleQuery ruleQuery, QualityProfileKey profile) {
+  public Multimap<String, String> deActivateByRuleQuery(RuleQuery ruleQuery, QualityProfileKey profile) {
     verifyPermission(UserSession.get());
     RuleIndex ruleIndex = index.get(RuleIndex.class);
+    Multimap<String, String> results = ArrayListMultimap.create();
     DbSession dbSession = db.openSession(false);
 
     try {
@@ -269,12 +280,14 @@ public class ActiveRuleService implements ServerComponent {
 
       for (Rule rule : result.getHits()) {
         ActiveRuleKey key = ActiveRuleKey.of(profile, rule.key());
-        this.deactivate(key, dbSession);
+        for(ActiveRuleChange deActive :this.deactivate(key, dbSession)){
+          results.put("deactivated",deActive.getKey().ruleKey().toString());
+        }
       }
       dbSession.commit();
     } finally {
       dbSession.close();
     }
-
+    return results;
   }
 }

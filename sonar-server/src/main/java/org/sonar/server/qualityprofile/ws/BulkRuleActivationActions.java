@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import com.google.common.collect.Multimap;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -26,6 +27,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.qualityprofile.ActiveRuleService;
 import org.sonar.server.rule.RuleService;
@@ -93,11 +95,25 @@ public class BulkRuleActivationActions implements ServerComponent {
   }
 
   private void bulkActivate(Request request, Response response) throws Exception {
-    service.activateByRuleQuery(createRuleQuery(request), readKey(request));
+    Multimap<String, String> results = service.activateByRuleQuery(createRuleQuery(request), readKey(request));
+    writeResponse(results, response);
   }
 
   private void bulkDeactivate(Request request, Response response) throws Exception {
-    service.deActivateByRuleQuery(createRuleQuery(request), readKey(request));
+    Multimap<String, String> results = service.deActivateByRuleQuery(createRuleQuery(request), readKey(request));
+    writeResponse(results, response);
+  }
+
+  private void writeResponse(Multimap<String, String> results, Response response){
+    JsonWriter json = response.newJsonWriter().beginObject();
+    for(String action:results.keySet()){
+      json.name(action).beginObject();
+      for(String key:results.get(action)){
+        json.prop("key",key);
+      }
+      json.endObject();
+    }
+    json.endObject();
   }
 
   private RuleQuery createRuleQuery(Request request) {
