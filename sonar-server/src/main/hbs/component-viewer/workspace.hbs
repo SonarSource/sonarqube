@@ -1,26 +1,27 @@
-<button class="button-clean component-viewer-workspace-toggle js-toggle-workspace">
-  {{#if settings.workspace}}
-    <i class="icon-double-chevron-left"></i>
-  {{else}}
-    <i class="icon-double-chevron-right"></i>
-  {{/if}}
+<div class="component-viewer-workspace-container">
+  <button class="button-clean component-viewer-workspace-toggle js-toggle-workspace">
+    {{#if settings.workspace}}
+      <i class="icon-double-chevron-left"></i>
+    {{else}}
+      <i class="icon-double-chevron-right"></i>
+    {{/if}}
+  </button>
 
-</button>
-
-<ul class="component-viewer-workspace-list">
-  {{#eachReverse workspace}}
-    <li class="component-viewer-workspace-item">
-      {{qualifierIcon component.qualifier}} <a data-key="{{key}}">{{component.name}}</a>
-      {{#if options}}
-        <ul class="component-viewer-workspace-options">
-          {{#each options}}
-            <li class="component-viewer-workspace-option {{#if active}}active{{/if}}">
-              <a data-workspace-key="{{../key}}" data-key="{{key}}">{{name}}</a>
-              {{#if subname}}<div class="subtitle">{{subname}}</div>{{/if}}
-            </li>
-          {{/each}}
-        </ul>
-      {{/if}}
-    </li>
-  {{/eachReverse}}
-</ul>
+  <ul class="component-viewer-workspace-list">
+    {{#eachReverse workspace}}
+      <li class="component-viewer-workspace-item">
+        {{qualifierIcon component.q}} <a data-key="{{key}}">{{component.name}}</a>
+        {{#if options}}
+          <ul class="component-viewer-workspace-options">
+            {{#each options}}
+              <li class="component-viewer-workspace-option {{#if active}}active{{/if}}">
+                <a data-workspace-key="{{../key}}" data-key="{{key}}">{{name}}</a>
+                {{#if subname}}<div class="subtitle">{{subname}}</div>{{/if}}
+              </li>
+            {{/each}}
+          </ul>
+        {{/if}}
+      </li>
+    {{/eachReverse}}
+  </ul>
+</div>

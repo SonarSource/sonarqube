@@ -19,6 +19,8 @@ define [
 
   $ = jQuery
 
+  API_COVERAGE_TESTS = "#{baseUrl}/api/tests/testable"
+
 
   class SourceView extends Marionette.ItemView
     template: Templates['source']
@@ -117,10 +119,13 @@ define [
     showCoveragePopup: (e) ->
       e.stopPropagation()
       $('body').click()
-      popup = new CoveragePopupView
-        triggerEl: $(e.currentTarget)
-        main: @options.main
-      popup.render()
+      line = $(e.currentTarget).closest('.row').data 'line-number'
+      $.get API_COVERAGE_TESTS, key: @options.main.component.get('key'), line: line, (data) =>
+        popup = new CoveragePopupView
+          model: new Backbone.Model data
+          triggerEl: $(e.currentTarget)
+          main: @options.main
+        popup.render()
 
 
     showDuplicationPopup: (e) ->

@@ -37,16 +37,18 @@
         {{/if}}
 
         {{#if ../../settings.coverage}}
-          <td class="stat coverage-tests {{#if coverage}}coverage-{{#if coverage.covered}}green{{else}}red{{/if}}{{/if}}">
+          <td class="stat {{#if coverage}}coverage-{{#if coverage.covered}}green{{else}}red{{/if}}{{/if}}">
             {{#if coverage}}
-              <span title="{{tp 'coverage_viewer.line_covered_by_x_tests' coverage.testCases}}">{{coverage.testCases}}</span>
+              <span class="coverage-tests" title="{{tp 'coverage_viewer.line_covered_by_x_tests' coverage.testCases}}">
+                {{coverage.testCases}}
+              </span>
             {{/if}}
           </td>
 
-          <td class="stat coverage-branches {{#if coverage}}{{#if coverage.branchCoverageStatus}}coverage-{{coverage.branchCoverageStatus}}{{/if}}{{/if}}">
+          <td class="stat {{#if coverage}}{{#if coverage.branchCoverageStatus}}coverage-{{coverage.branchCoverageStatus}}{{/if}}{{/if}}">
             {{#if coverage}}
               {{#if coverage.branches}}
-                <span title="{{tp 'coverage_viewer.x_covered_branches' coverage.coveredBranches}}">
+                <span class="coverage-branches" title="{{tp 'coverage_viewer.x_covered_branches' coverage.coveredBranches}}">
                   {{coverage.coveredBranches}}/{{coverage.branches}}
                 </span>
               {{/if}}

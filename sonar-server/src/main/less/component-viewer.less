@@ -38,6 +38,8 @@
   a:hover { text-decoration: underline; }
 }
 
+.component-viewer-workspace-container { position: relative; }
+
 .component-viewer-workspace-list {
   display: none;
   width: @workspaceWidth;
@@ -77,7 +79,7 @@
 
 .component-viewer-workspace-toggle {
   position: absolute;
-  top: 0; right: 0;
+  top: 0; right: -30px;
   .size(30px, 30px);
   .trans;
 
@@ -565,13 +567,15 @@
   }
 }
 
-.component-viewer-popup-section + .component-viewer-popup-section {
-  margin-top: 10px;
+.component-viewer-popup-section {
+  width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.component-viewer-popup-section-title {
-  color: #777;
-  font-size: @smallFontSize;
+.component-viewer-popup-section + .component-viewer-popup-section {
+  margin-top: 10px;
 }
 
 .component-viewer-popup-list {
@@ -593,26 +597,26 @@
 .component-viewer-popup-test {
   position: relative;
   display: block;
-  height: 24px;
-  line-height: 24px;
+  height: 16px;
+  line-height: 16px;
+}
 
-  &:hover {
-    .component-viewer-popup-test-name { text-decoration: underline; }
-  }
+.component-viewer-popup-test-file {
 }
 
 .component-viewer-popup-test-name {
   display: block;
-  width: 240px;
   border-left: 20px solid transparent;
   border-right: 44px solid transparent;
   .box-sizing(border-box);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .component-viewer-popup-test-status {
   position: absolute;
-  top: 0; left: 0;
-  line-height: 24px;
+  top: 0; left: 0
 }
 
 .component-viewer-popup-test-duration {

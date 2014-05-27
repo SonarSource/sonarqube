@@ -25,6 +25,10 @@ define(['handlebars', 'moment'], function (Handlebars, moment) {
 
   var defaultActions = ['comment', 'assign', 'assign_to_me', 'plan', 'set_severity'];
 
+  Handlebars.registerHelper('log', function(variable) {
+    console.log(variable);
+  });
+
   Handlebars.registerHelper('capitalize', function(string) {
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
   });
@@ -38,6 +42,12 @@ define(['handlebars', 'moment'], function (Handlebars, moment) {
   Handlebars.registerHelper('statusIcon', function(status) {
     return new Handlebars.SafeString(
         '<i class="icon-status-' + status.toLowerCase() + '"></i>'
+    );
+  });
+
+  Handlebars.registerHelper('alertIconClass', function(alert) {
+    return new Handlebars.SafeString(
+        'icon-alert-' + alert.toLowerCase()
     );
   });
 

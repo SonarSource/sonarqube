@@ -1,44 +1,18 @@
-<div class="component-viewer-popup-section">
-  <div class="component-viewer-popup-section-title">
-    ResourceTypeTreeTest.java
+{{#each testFiles}}
+  <div class="component-viewer-popup-section">
+    <a class="component-viewer-popup-test-file link-action" data-key="{{file.key}}" title="{{file.longName}}">
+      {{file.longName}}
+    </a>
+    <ul class="component-viewer-popup-list">
+      {{#each tests}}
+        <li class="component-viewer-popup-test" title="{{name}}">
+          <i class="component-viewer-popup-test-status {{alertIconClass status}}"></i>
+          <span class="component-viewer-popup-test-name">{{name}}</span>
+          <span class="component-viewer-popup-test-duration">{{durationInMs}}ms</span>
+        </li>
+      {{/each}}
+    </ul>
   </div>
-  <ul class="component-viewer-popup-list">
-    <li>
-      <a class="component-viewer-popup-test"
-         data-key="org.codehaus.sonar:sonar-plugin-api:src/test/java/org/sonar/api/resources/ResourceTypeTreeTest.java"
-         data-test="forbidDuplicatedType">
-        <i class="component-viewer-popup-test-status icon-alert-ok"></i>
-        <span class="component-viewer-popup-test-name">forbidDuplicatedType</span>
-        <span class="component-viewer-popup-test-duration">216ms</span>
-      </a>
-    </li>
-    <li>
-      <a class="component-viewer-popup-test"
-         data-key="org.codehaus.sonar:sonar-plugin-api:src/test/java/org/sonar/api/resources/ResourceTypeTreeTest.java"
-         data-test="forbidNullRelation">
-        <i class="component-viewer-popup-test-status icon-alert-ok"></i>
-        <span class="component-viewer-popup-test-name">forbidNullRelation</span>
-        <span class="component-viewer-popup-test-duration">216ms</span>
-      </a>
-    </li>
-  </ul>
-</div>
-
-<div class="component-viewer-popup-section">
-  <div class="component-viewer-popup-section-title">
-    ResourceTypesTest.java
-  </div>
-  <ul class="component-viewer-popup-list">
-    <li>
-      <a class="component-viewer-popup-test"
-         data-key="org.codehaus.sonar:sonar-plugin-api:src/test/java/org/sonar/api/resources/ResourceTypeTest.java"
-         data-test="fail_on_duplicated_qualifier">
-        <i class="component-viewer-popup-test-status icon-alert-ok"></i>
-        <span class="component-viewer-popup-test-name">fail_on_duplicated_qualifier</span>
-        <span class="component-viewer-popup-test-duration">115ms</span>
-      </a>
-    </li>
-  </ul>
-</div>
+{{/each}}
 
 <div class="component-viewer-popup-arrow"></div>
