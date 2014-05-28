@@ -130,16 +130,16 @@ public class ESNode implements Startable {
 
       .put("index.analysis.analyzer.sortable.type", "custom")
       .put("index.analysis.analyzer.sortable.tokenizer", "keyword")
-      .put("index.analysis.analyzer.sortable.filter", "lowercase")
+      .putArray("index.analysis.analyzer.sortable.filter", "trim","lowercase","truncate")
 
-      .put("index.analysis.analyzer.rule_name.type", "custom")
-      .put("index.analysis.analyzer.rule_name.tokenizer", "standard")
-      .putArray("index.analysis.analyzer.rule_name.filter", "lowercase", "rule_name_ngram")
+      .put("index.analysis.analyzer.string_gram.type", "custom")
+      .put("index.analysis.analyzer.string_gram.tokenizer", "whitespace")
+      .putArray("index.analysis.analyzer.string_gram.filter", "lowercase", "code_gram")
 
-      .put("index.analysis.filter.rule_name_ngram.type", "nGram")
-      .put("index.analysis.filter.rule_name_ngram.min_gram", 3)
-      .put("index.analysis.filter.rule_name_ngram.max_gram", 5)
-      .putArray("index.analysis.filter.rule_name_ngram.token_chars", "letter", "digit");
+      .put("index.analysis.filter.code_gram.type", "edgeNGram")
+      .put("index.analysis.filter.code_gram.min_gram", 2)
+      .put("index.analysis.filter.code_gram.max_gram", 15)
+      .putArray("index.analysis.filter.code_gram.token_chars", "letter", "digit", "punctuation", "symbol");
 
     initDirs(esSettings);
     initRestConsole(esSettings);

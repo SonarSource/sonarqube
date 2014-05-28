@@ -22,6 +22,7 @@ package org.sonar.server.search;
 import com.google.common.io.Resources;
 import org.apache.commons.io.FileUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
+import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
 import org.elasticsearch.client.AdminClient;
 import org.elasticsearch.client.ClusterAdminClient;
 import org.elasticsearch.cluster.ClusterState;
@@ -102,11 +103,6 @@ public class ESNodeTest {
       .execute().actionGet();
     node.client().admin().cluster().prepareHealth("polop").setWaitForYellowStatus().get(TimeValue.timeValueMillis(1000));
 
-    // default "sortable" analyzer is defined for all indices
-    assertThat(node.client().admin().indices()
-      .prepareAnalyze("polop", "This Is A Wonderful Text").setAnalyzer("sortable").get()
-      .getTokens().get(0).getTerm()).isEqualTo("this is a wonderful text");
-
     // strict mapping is enforced
     try {
       node.client().prepareIndex("polop", "type1", "666").setSource(
@@ -115,6 +111,30 @@ public class ESNodeTest {
     } finally {
       node.stop();
     }
+  }
+
+  @Test
+  public void sortable_analyzer() throws Exception {
+    ESNode node = new ESNode(fs, new Settings());
+    node.start();
+
+    node.client().admin().indices().prepareCreate("polop")
+      .addMapping("type1", "{\"type1\": {\"properties\": {\"value\": {\"type\": \"string\"}}}}")
+      .execute().actionGet();
+    node.client().admin().cluster().prepareHealth("polop").setWaitForYellowStatus().get(TimeValue.timeValueMillis(1000));
+
+    // default "sortable" analyzer is defined for all indices
+    assertThat(node.client().admin().indices()
+      .prepareAnalyze("polop", "This Is A Wonderful Text").setAnalyzer("sortable").get()
+      .getTokens().get(0).getTerm()).isEqualTo("this is a ");
+
+    // default "sortable" analyzer is defined for all indices
+    AnalyzeResponse response = node.client().admin().indices()
+      .prepareAnalyze("polop", "he.llo w@rl#d").setAnalyzer("string_gram").get();
+
+    assertThat(response.getTokens()).hasSize(10);
+    assertThat(response.getTokens().get(0).getTerm()).isEqualTo("he");
+    assertThat(response.getTokens().get(7).getTerm()).isEqualTo("w@rl");
   }
 
   @Test
