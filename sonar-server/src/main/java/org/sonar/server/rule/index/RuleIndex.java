@@ -81,127 +81,11 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
   @Override
   protected Map mapProperties() {
-
     Map<String, Object> mapping = new HashMap<String, Object>();
     for (IndexField field : RuleNormalizer.RuleField.ALL_FIELDS) {
       mapping.put(field.field(), mapField(field));
     }
-
-    System.out.println("mapping = " + mapping);
     return mapping;
-
-
-
-
-    /*
-    XContentBuilder mapping = jsonBuilder().startObject()
-      .startObject(this.indexDefinition.getIndexType())
-      .field("dynamic", true)
-      .startObject("_id")
-      .field("path", RuleNormalizer.RuleField.KEY)
-      .endObject()
-      .startObject("properties");
-
-//    for (IndexField field : RuleNormalizer.RuleField.ALL_FIELDS) {
-//      addFieldMapping(field, mapping);
-//    }
-
-    /* Adding internal concatenation of Tags)
-    mapping.startObject(RuleNormalizer.RuleField._TAGS.field())
-      .field("type", "string")
-      .field("analyzer", "whitespace")
-      .endObject();
-
-    return mapping.endObject()
-      .endObject()
-      .endObject();
-*/
-//    addMatchField(mapping, RuleNormalizer.RuleField.REPOSITORY.field(), "string");
-//    addMatchField(mapping, RuleNormalizer.RuleField.SEVERITY.field(), "string");
-//    addMatchField(mapping, RuleNormalizer.RuleField.STATUS.field(), "string");
-//    addMatchField(mapping, RuleNormalizer.RuleField.LANGUAGE.field(), "string");
-//
-//    mapping.startObject(RuleNormalizer.RuleField.CHARACTERISTIC.field())
-//      .field("type", "string")
-//      .field("analyzer", "whitespace")
-//      .endObject();
-//
-//    mapping.startObject(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field())
-//      .field("type", "string")
-//      .field("analyzer", "whitespace")
-//      .endObject();
-//
-
-//
-//    mapping.startObject(RuleNormalizer.RuleField.TAGS.field())
-//      .field("type", "string")
-//      .field("analyzer", "whitespace")
-//      .endObject();
-//
-//    mapping.startObject(RuleNormalizer.RuleField.SYSTEM_TAGS.field())
-//      .field("type", "string")
-//      .field("analyzer", "whitespace")
-//      .endObject();
-//
-//    mapping.startObject(RuleNormalizer.RuleField.NOTE_CREATED_AT.field())
-//      .field("type", "date")
-//      .field("format", "date_time")
-//      .endObject();
-//
-//    mapping.startObject(RuleNormalizer.RuleField.NOTE_UPDATED_AT.field())
-//      .field("type", "date")
-//      .field("format", "date_time")
-//      .endObject();
-//
-//    mapping.startObject(RuleNormalizer.RuleField.CREATED_AT.field())
-//      .field("type", "date")
-//      .field("format", "date_time")
-//      .endObject();
-//
-//    mapping.startObject(RuleNormalizer.RuleField.UPDATED_AT.field())
-//      .field("type", "date")
-//      .field("format", "date_time")
-//      .endObject();
-//
-//    mapping.startObject(RuleNormalizer.RuleField.KEY.field())
-//      .field("type", "multi_field")
-//      .startObject("fields")
-//      .startObject(RuleNormalizer.RuleField.KEY.field())
-//      .field("type", "string")
-//      .field("index", "analyzed")
-//      .endObject()
-//      .startObject("search")
-//      .field("type", "string")
-//      .field("index", "analyzed")
-//      .field("index_analyzer", "rule_name")
-//      .field("search_analyzer", "standard")
-//      .endObject()
-//      .endObject()
-//      .endObject();
-//
-//    mapping.startObject(RuleNormalizer.RuleField.NAME.field())
-//      .field("type", "multi_field")
-//      .startObject("fields")
-//      .startObject(RuleNormalizer.RuleField.NAME.field())
-//      .field("type", "string")
-//      .field("index", "analyzed")
-//      .endObject()
-//      .startObject("search")
-//      .field("type", "string")
-//      .field("index", "analyzed")
-//      .field("index_analyzer", "rule_name")
-//      .field("search_analyzer", "standard")
-//      .endObject()
-//      .endObject()
-//      .endObject();
-//
-//    mapping.startObject(RuleNormalizer.RuleField.PARAMS.field())
-//      .field("type", "nested")
-//      .field("dynamic", true)
-//      .endObject();
-//
-//    return mapping.endObject()
-//      .endObject().endObject();
   }
 
   protected SearchRequestBuilder buildRequest(RuleQuery query, QueryOptions options) {
@@ -274,7 +158,11 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
         RuleNormalizer.RuleField.KEY.field() + "."+IndexField.SEARCH_WORDS_SUFFIX,
         RuleNormalizer.RuleField.LANGUAGE.field(),
         RuleNormalizer.RuleField.CHARACTERISTIC.field(),
+        RuleNormalizer.RuleField.CHARACTERISTIC.field() + "."+IndexField.SEARCH_PARTIAL_SUFFIX,
+        RuleNormalizer.RuleField.CHARACTERISTIC.field() + "."+IndexField.SEARCH_WORDS_SUFFIX,
         RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(),
+        RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field() + "."+IndexField.SEARCH_PARTIAL_SUFFIX,
+        RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field() + "."+IndexField.SEARCH_WORDS_SUFFIX,
         RuleNormalizer.RuleField._TAGS.field(),
         RuleNormalizer.RuleField._TAGS.field() + "."+IndexField.SEARCH_PARTIAL_SUFFIX,
         RuleNormalizer.RuleField._TAGS.field() + "."+IndexField.SEARCH_WORDS_SUFFIX
