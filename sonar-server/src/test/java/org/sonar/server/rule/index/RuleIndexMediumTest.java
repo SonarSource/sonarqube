@@ -25,7 +25,6 @@ import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -44,6 +43,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.FacetValue;
+import org.sonar.server.search.IndexProperties;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
@@ -58,7 +58,8 @@ import static org.fest.assertions.Fail.fail;
 public class RuleIndexMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester()
+    .setProperty(IndexProperties.HTTP_PORT,"9200");
 
   MyBatis myBatis = tester.get(MyBatis.class);
   RuleDao dao = tester.get(RuleDao.class);
@@ -234,6 +235,7 @@ public class RuleIndexMediumTest {
     dbSession.commit();
 
 
+    Thread.sleep(1000000);
     Result results = index.search(new RuleQuery(), new QueryOptions());
 
     assertThat(results.getTotal()).isEqualTo(2);
@@ -399,7 +401,6 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  @Ignore //TODO FIx Sort
   public void sort_by_name() {
     dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")).setName("abcd"));
     dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")).setName("ABC"));
@@ -423,7 +424,6 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  @Ignore //TODO FIx Sort
   public void sort_by_language() throws InterruptedException {
     dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")).setLanguage("java"));
     dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")).setLanguage("php"));

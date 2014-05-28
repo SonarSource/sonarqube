@@ -44,6 +44,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -53,8 +54,8 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
   private static final Logger LOG = LoggerFactory.getLogger(BaseIndex.class);
 
   private final ESNode node;
-  protected final BaseNormalizer<E, K> normalizer;
-  protected final IndexDefinition indexDefinition;
+  private final BaseNormalizer<E, K> normalizer;
+  private final IndexDefinition indexDefinition;
 
   protected BaseIndex(IndexDefinition indexDefinition, BaseNormalizer<E, K> normalizer,
                       WorkQueue workQueue, ESNode node) {
@@ -134,14 +135,21 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
 
       }
 
-      if (getMapping() != null) {
+      Map<String, Object> mapping = new HashMap<String, Object>();
+      mapping.put("dynamic", false);
+      mapping.put("_id", mapKey());
+      mapping.put("properties", mapProperties());
+
+      //mapping.put(this.getIndexType(), mapping);
+
+
         LOG.info("Update of index {} for type {}", this.getIndexName(), this.getIndexType());
         getClient().admin().indices().preparePutMapping(index)
           .setType(getIndexType())
           .setIgnoreConflicts(true)
-          .setSource(getMapping())
+          .setSource(mapping)
           .get();
-      }
+
     } catch (Exception e) {
       throw new IllegalStateException("Invalid configuration for index " + this.getIndexName(), e);
     }
@@ -192,7 +200,9 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
 
   protected abstract Settings getIndexSettings() throws IOException;
 
-  protected abstract XContentBuilder getMapping() throws IOException;
+  protected abstract Map mapProperties();
+
+  protected abstract Map mapKey();
 
   @Override
   public void refresh() {

@@ -22,7 +22,6 @@ package org.sonar.server.search;
 
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -36,6 +35,7 @@ import org.sonar.core.cluster.NullQueue;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -97,8 +97,13 @@ public class BaseIndexTest {
       }
 
       @Override
-      protected XContentBuilder getMapping() throws IOException {
-        return null;
+      protected Map mapProperties() {
+        return Collections.emptyMap();
+      }
+
+      @Override
+      protected Map mapKey() {
+        return Collections.emptyMap();
       }
 
       @Override

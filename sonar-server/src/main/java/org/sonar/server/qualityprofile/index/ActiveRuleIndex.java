@@ -42,7 +42,6 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.sonar.api.rule.RuleKey;
@@ -57,10 +56,10 @@ import org.sonar.server.search.IndexDefinition;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, ActiveRuleKey> {
 
@@ -82,44 +81,63 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
   }
 
   @Override
-  protected XContentBuilder getMapping() throws IOException {
-    XContentBuilder mapping = jsonBuilder().startObject()
-      .startObject(this.indexDefinition.getIndexType())
-      .field("dynamic", "strict")
-      .startObject("_parent")
-      .field("type", this.getParentType())
-      .endObject()
-      .startObject("_id")
-      .field("path", ActiveRuleNormalizer.ActiveRuleField.KEY.key())
-      .endObject()
-      .startObject("_routing")
-      .field("required", true)
-      .field("path", ActiveRuleNormalizer.ActiveRuleField.RULE_KEY.key())
-      .endObject();
+  protected Map mapKey() {
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    mapping.put("path", ActiveRuleNormalizer.ActiveRuleField.KEY.key());
+    return mapping;
+  }
 
+  @Override
+  protected Map mapProperties() {
+    return Collections.emptyMap();
+  }
 
-    mapping.startObject("properties");
-    addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.KEY.key(), "string");
-    addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.RULE_KEY.key(), "string");
-    addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.key(), "string");
-    addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.SEVERITY.key(), "string");
-    addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.key(), "string");
-    mapping.startObject(ActiveRuleNormalizer.ActiveRuleField.PARAMS.key())
-      .field("type", "object")
-      .startObject("properties")
-      .startObject("_id")
-      .field("type", "string")
-      .endObject()
-      .startObject(ActiveRuleNormalizer.ActiveRuleParamField.NAME.key())
-      .field("type", "string")
-      .endObject()
-      .startObject(ActiveRuleNormalizer.ActiveRuleParamField.VALUE.key())
-      .field("type", "string")
-      .endObject()
-      .endObject();
-    mapping.endObject();
+  protected Map<String, Object> getMapping() throws IOException {
+//    XContentBuilder mapping = jsonBuilder().startObject()
+//      .startObject(this.indexDefinition.getIndexType())
+//      .field("dynamic", "strict")
+//      .startObject("_parent")
+//      .field("type", this.getParentType())
+//      .endObject()
+//      .startObject("_id")
+//      .field("path", ActiveRuleNormalizer.ActiveRuleField.KEY.key())
+//      .endObject()
+//      .startObject("_routing")
+//      .field("required", true)
+//      .field("path", ActiveRuleNormalizer.ActiveRuleField.RULE_KEY.key())
+//      .endObject();
+//
+//
+//    mapping.startObject("properties");
+//    addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.KEY.key(), "string");
+//    addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.RULE_KEY.key(), "string");
+//    addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.key(), "string");
+//    addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.SEVERITY.key(), "string");
+//    addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.key(), "string");
+//    mapping.startObject(ActiveRuleNormalizer.ActiveRuleField.PARAMS.key())
+//      .field("type", "object")
+//      .startObject("properties")
+//      .startObject("_id")
+//      .field("type", "string")
+//      .endObject()
+//      .startObject(ActiveRuleNormalizer.ActiveRuleParamField.NAME.key())
+//      .field("type", "string")
+//      .endObject()
+//      .startObject(ActiveRuleNormalizer.ActiveRuleParamField.VALUE.key())
+//      .field("type", "string")
+//      .endObject()
+//      .endObject();
+//    mapping.endObject();
+//
+//    mapping.endObject().endObject();
+//    return mapping;
 
-    mapping.endObject().endObject();
+    Map<String, Object> mapping = new HashMap<String, Object>();
+
+    Map<String, Object> dynamic = new HashMap<String, Object>();
+    dynamic.put("dynamic",false);
+    mapping.put(this.getIndexType(), dynamic);
+
     return mapping;
   }
 

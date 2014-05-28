@@ -50,11 +50,10 @@ import org.sonar.server.search.QueryOptions;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
@@ -69,14 +68,131 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   @Override
   protected Settings getIndexSettings() throws IOException {
     return ImmutableSettings.builder()
-      .put("index.number_of_replicas",0)
-      .put("index.number_of_shards",1)
+      .put("index.number_of_replicas", 0)
+      .put("index.number_of_shards", 1)
       .build();
   }
 
-  @Override
-  protected XContentBuilder getMapping() throws IOException {
 
+  private void addFieldMapping(IndexField field, XContentBuilder mapping) throws IOException {
+    switch (field.type()) {
+      case STRING:
+        break;
+      case TEXT:
+        break;
+      case DATE:
+        break;
+      case NUMERIC:
+        break;
+      case BOOLEAN:
+        break;
+      case OBJECT:
+        break;
+    }
+
+
+    mapping.startObject(field.field())
+      .field("type", "multi_field")
+      .startObject("fields")
+      .startObject(field.field())
+      .field("type", "string")
+      .field("index", "analyzed")
+      .field("analyzer", "whitespace")
+      .endObject();
+
+    if (field.sortable()) {
+      mapping.startObject("sort")
+        .field("type", "string")
+        .field("index", "analyzed")
+        .field("analyzer", "sortable")
+        .endObject();
+    }
+
+    if (field.searchable()) {
+      mapping.startObject("search")
+        .field("type", "string")
+        .field("index", "analyzed")
+        .field("index_analyzer", "string_gram")
+        .field("search_analyzer", "standard")
+        .endObject();
+    }
+    mapping.endObject()
+      .endObject();
+  }
+
+  private Map mapField(IndexField field) {
+    if(field.type() == IndexField.Type.TEXT){
+      return mapTextField(field);
+    } else if(field.type() == IndexField.Type.STRING
+      || field.type() == IndexField.Type.KEY){
+      return mapStringField(field);
+    } else if(field.type() == IndexField.Type.OBJECT){
+      return mapObjectField(field);
+    } else if(field.type() == IndexField.Type.BOOLEAN){
+      return mapBooleanField(field);
+    } else if(field.type() == IndexField.Type.DATE){
+      return mapDateField(field);
+    } else {
+      throw new IllegalStateException("Mapping does not exist for type: " + field.type());
+    }
+  }
+
+  private Map mapBooleanField(IndexField field) {
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    mapping.put("type", "boolean");
+    return mapping;
+  }
+
+  private Map mapObjectField(IndexField field) {
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    mapping.put("type", "nested");
+    mapping.put("index", "analyzed");
+    mapping.put("dynamic", "true");
+    return mapping;
+  }
+
+  private Map mapStringField(IndexField field) {
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    mapping.put("type", "string");
+    mapping.put("index", "analyzed");
+    mapping.put("analyzer", "whitespace");
+    return mapping;
+  }
+
+  private Map mapDateField(IndexField field) {
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    mapping.put("type", "date");
+    mapping.put("format", "date_time");
+    return mapping;
+  }
+
+  private Map mapTextField(IndexField field) {
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    mapping.put("type", "string");
+    mapping.put("index", "analyzed");
+    mapping.put("analyzer", "whitespace");
+    return mapping;
+  }
+
+
+  @Override
+  protected Map mapKey() {
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    mapping.put("path", RuleNormalizer.RuleField.KEY.field());
+    return mapping;
+  }
+
+  @Override
+  protected Map mapProperties() {
+
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    for (IndexField field : RuleNormalizer.RuleField.ALL_FIELDS) {
+      mapping.put(field.field(), mapField(field));
+    }
+    return mapping;
+
+
+    /*
     XContentBuilder mapping = jsonBuilder().startObject()
       .startObject(this.indexDefinition.getIndexType())
       .field("dynamic", true)
@@ -85,95 +201,106 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       .endObject()
       .startObject("properties");
 
-    addMatchField(mapping, RuleNormalizer.RuleField.REPOSITORY.field(), "string");
-    addMatchField(mapping, RuleNormalizer.RuleField.SEVERITY.field(), "string");
-    addMatchField(mapping, RuleNormalizer.RuleField.STATUS.field(), "string");
-    addMatchField(mapping, RuleNormalizer.RuleField.LANGUAGE.field(), "string");
+//    for (IndexField field : RuleNormalizer.RuleField.ALL_FIELDS) {
+//      addFieldMapping(field, mapping);
+//    }
 
-    mapping.startObject(RuleNormalizer.RuleField.CHARACTERISTIC.field())
-      .field("type", "string")
-      .field("analyzer", "whitespace")
-      .endObject();
-
-    mapping.startObject(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field())
-      .field("type", "string")
-      .field("analyzer", "whitespace")
-      .endObject();
-
+    /* Adding internal concatenation of Tags)
     mapping.startObject(RuleNormalizer.RuleField._TAGS.field())
       .field("type", "string")
       .field("analyzer", "whitespace")
       .endObject();
 
-    mapping.startObject(RuleNormalizer.RuleField.TAGS.field())
-      .field("type", "string")
-      .field("analyzer", "whitespace")
-      .endObject();
-
-    mapping.startObject(RuleNormalizer.RuleField.SYSTEM_TAGS.field())
-      .field("type", "string")
-      .field("analyzer", "whitespace")
-      .endObject();
-
-    mapping.startObject(RuleNormalizer.RuleField.NOTE_CREATED_AT.field())
-      .field("type", "date")
-      .field("format", "date_time")
-      .endObject();
-
-    mapping.startObject(RuleNormalizer.RuleField.NOTE_UPDATED_AT.field())
-      .field("type", "date")
-      .field("format", "date_time")
-      .endObject();
-
-    mapping.startObject(RuleNormalizer.RuleField.CREATED_AT.field())
-      .field("type", "date")
-      .field("format", "date_time")
-      .endObject();
-
-    mapping.startObject(RuleNormalizer.RuleField.UPDATED_AT.field())
-      .field("type", "date")
-      .field("format", "date_time")
-      .endObject();
-
-    mapping.startObject(RuleNormalizer.RuleField.KEY.field())
-      .field("type", "multi_field")
-      .startObject("fields")
-      .startObject(RuleNormalizer.RuleField.KEY.field())
-      .field("type", "string")
-      .field("index", "analyzed")
-      .endObject()
-      .startObject("search")
-      .field("type", "string")
-      .field("index", "analyzed")
-      .field("index_analyzer", "rule_name")
-      .field("search_analyzer", "standard")
-      .endObject()
-      .endObject()
-      .endObject();
-
-    mapping.startObject(RuleNormalizer.RuleField.NAME.field())
-      .field("type", "multi_field")
-      .startObject("fields")
-      .startObject(RuleNormalizer.RuleField.NAME.field())
-      .field("type", "string")
-      .field("index", "analyzed")
-      .endObject()
-      .startObject("search")
-      .field("type", "string")
-      .field("index", "analyzed")
-      .field("index_analyzer", "rule_name")
-      .field("search_analyzer", "standard")
-      .endObject()
-      .endObject()
-      .endObject();
-
-    mapping.startObject(RuleNormalizer.RuleField.PARAMS.field())
-      .field("type", "nested")
-      .field("dynamic", true)
-      .endObject();
-
     return mapping.endObject()
-      .endObject().endObject();
+      .endObject()
+      .endObject();
+*/
+//    addMatchField(mapping, RuleNormalizer.RuleField.REPOSITORY.field(), "string");
+//    addMatchField(mapping, RuleNormalizer.RuleField.SEVERITY.field(), "string");
+//    addMatchField(mapping, RuleNormalizer.RuleField.STATUS.field(), "string");
+//    addMatchField(mapping, RuleNormalizer.RuleField.LANGUAGE.field(), "string");
+//
+//    mapping.startObject(RuleNormalizer.RuleField.CHARACTERISTIC.field())
+//      .field("type", "string")
+//      .field("analyzer", "whitespace")
+//      .endObject();
+//
+//    mapping.startObject(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field())
+//      .field("type", "string")
+//      .field("analyzer", "whitespace")
+//      .endObject();
+//
+
+//
+//    mapping.startObject(RuleNormalizer.RuleField.TAGS.field())
+//      .field("type", "string")
+//      .field("analyzer", "whitespace")
+//      .endObject();
+//
+//    mapping.startObject(RuleNormalizer.RuleField.SYSTEM_TAGS.field())
+//      .field("type", "string")
+//      .field("analyzer", "whitespace")
+//      .endObject();
+//
+//    mapping.startObject(RuleNormalizer.RuleField.NOTE_CREATED_AT.field())
+//      .field("type", "date")
+//      .field("format", "date_time")
+//      .endObject();
+//
+//    mapping.startObject(RuleNormalizer.RuleField.NOTE_UPDATED_AT.field())
+//      .field("type", "date")
+//      .field("format", "date_time")
+//      .endObject();
+//
+//    mapping.startObject(RuleNormalizer.RuleField.CREATED_AT.field())
+//      .field("type", "date")
+//      .field("format", "date_time")
+//      .endObject();
+//
+//    mapping.startObject(RuleNormalizer.RuleField.UPDATED_AT.field())
+//      .field("type", "date")
+//      .field("format", "date_time")
+//      .endObject();
+//
+//    mapping.startObject(RuleNormalizer.RuleField.KEY.field())
+//      .field("type", "multi_field")
+//      .startObject("fields")
+//      .startObject(RuleNormalizer.RuleField.KEY.field())
+//      .field("type", "string")
+//      .field("index", "analyzed")
+//      .endObject()
+//      .startObject("search")
+//      .field("type", "string")
+//      .field("index", "analyzed")
+//      .field("index_analyzer", "rule_name")
+//      .field("search_analyzer", "standard")
+//      .endObject()
+//      .endObject()
+//      .endObject();
+//
+//    mapping.startObject(RuleNormalizer.RuleField.NAME.field())
+//      .field("type", "multi_field")
+//      .startObject("fields")
+//      .startObject(RuleNormalizer.RuleField.NAME.field())
+//      .field("type", "string")
+//      .field("index", "analyzed")
+//      .endObject()
+//      .startObject("search")
+//      .field("type", "string")
+//      .field("index", "analyzed")
+//      .field("index_analyzer", "rule_name")
+//      .field("search_analyzer", "standard")
+//      .endObject()
+//      .endObject()
+//      .endObject();
+//
+//    mapping.startObject(RuleNormalizer.RuleField.PARAMS.field())
+//      .field("type", "nested")
+//      .field("dynamic", true)
+//      .endObject();
+//
+//    return mapping.endObject()
+//      .endObject().endObject();
   }
 
   protected SearchRequestBuilder buildRequest(RuleQuery query, QueryOptions options) {
@@ -211,15 +338,15 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     /* integrate Option's Fields */
     Set<String> fields = new HashSet<String>();
     if (!options.getFieldsToReturn().isEmpty()) {
-      for(String fieldToReturn:options.getFieldsToReturn()){
-        if(!fieldToReturn.isEmpty()){
+      for (String fieldToReturn : options.getFieldsToReturn()) {
+        if (!fieldToReturn.isEmpty()) {
           fields.add(fieldToReturn);
         }
       }
       // required field
       fields.add(RuleNormalizer.RuleField.KEY.field());
     } else {
-      for(IndexField indexField:RuleNormalizer.RuleField.ALL_FIELDS) {
+      for (IndexField indexField : RuleNormalizer.RuleField.ALL_FIELDS) {
         fields.add(indexField.field());
       }
     }
