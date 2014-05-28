@@ -52,11 +52,11 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     public static IndexField SEVERITY = add(IndexField.Type.STRING, "severity");
     public static IndexField STATUS = add(IndexField.Type.STRING, "status");
     public static IndexField LANGUAGE = add(IndexField.Type.STRING, "lang");
-    public static IndexField TAGS = add(IndexField.Type.LIST, "tags");
-    public static IndexField SYSTEM_TAGS = add(IndexField.Type.LIST, "sysTags");
+    public static IndexField TAGS = add(IndexField.Type.STRING, "tags");
+    public static IndexField SYSTEM_TAGS = add(IndexField.Type.STRING, "sysTags");
     public static IndexField INTERNAL_KEY = add(IndexField.Type.STRING, "internalKey");
     public static IndexField TEMPLATE = add(IndexField.Type.BOOLEAN, "template");
-    public static IndexField PARAMS = add(IndexField.Type.LIST, "params");
+    public static IndexField PARAMS = add(IndexField.Type.OBJECT, "params");
     public static IndexField DEBT_FUNCTION_TYPE = add(IndexField.Type.STRING, "debtRemFnType");
     public static IndexField DEBT_FUNCTION_COEFFICIENT = add(IndexField.Type.STRING, "debtRemFnCoefficient");
     public static IndexField DEBT_FUNCTION_OFFSET = add(IndexField.Type.STRING, "debtRemFnOffset");

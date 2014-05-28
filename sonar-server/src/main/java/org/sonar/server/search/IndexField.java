@@ -25,15 +25,15 @@ import org.apache.commons.lang.builder.ToStringStyle;
 public class IndexField {
 
   public static enum Type {
-    KEY, STRING, TEXT, DATE, BOOLEAN, NUMERIC, OBJECT, LIST
+    KEY, STRING, TEXT, DATE, BOOLEAN, NUMERIC, OBJECT
   }
 
-  private Type type;
-  private String field;
+  private final Type type;
+  private final String field;
 
-  private Boolean sortable;
-  private Boolean searchable;
-  private Boolean matchable;
+  private boolean sortable;
+  private boolean searchable;
+  private boolean matchable;
 
   IndexField(Type type, String field) {
     this.type = type;
