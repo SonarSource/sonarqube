@@ -421,7 +421,7 @@ public class RuleIndexMediumTest {
     assertThat(Iterables.getLast(results.getHits(), null).key().rule()).isEqualTo("S002");
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void fail_sort_by_language() throws InterruptedException {
 
     try {
