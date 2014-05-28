@@ -34,6 +34,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.user.User;
@@ -112,7 +113,6 @@ public class IssueSearchActionTest {
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setActionPlanKey("AP-ABCD")
       .setLine(12)
-      .setEffortToFix(2.0)
       .setMessage("Fix it")
       .setResolution("FIXED")
       .setStatus("CLOSED")
@@ -125,110 +125,6 @@ public class IssueSearchActionTest {
 
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "search");
     request.execute().assertJson(getClass(), "issues.json");
-  }
-
-  @Test
-  public void issues_with_components() throws Exception {
-    String issueKey = "ABCD";
-    Issue issue = new DefaultIssue()
-      .setKey(issueKey)
-      .setComponentKey("sample:src/main/xoo/sample/Sample.xoo")
-      .setProjectKey("sample")
-      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
-      .setActionPlanKey("AP-ABCD")
-      .setLine(12)
-      .setEffortToFix(2.0)
-      .setMessage("Fix it")
-      .setResolution("FIXED")
-      .setStatus("CLOSED")
-      .setSeverity("MAJOR")
-      .setAssignee("john")
-      .setReporter("steven")
-      .setAuthorLogin("Henry")
-      .setCreationDate(issueCreationDate);
-    issues.add(issue);
-
-    ComponentDto component = new ComponentDto()
-      .setId(10L)
-      .setKey("sample:src/main/xoo/sample/Sample.xoo")
-      .setLongName("src/main/xoo/sample/Sample.xoo")
-      .setName("Sample.xoo")
-      .setQualifier("FIL")
-      .setPath("src/main/xoo/sample/Sample.xoo")
-      .setSubProjectId(7L)
-      .setProjectId(7L);
-
-    ComponentDto project = new ComponentDto()
-      .setId(7L)
-      .setKey("sample")
-      .setLongName("Sample")
-      .setName("Sample")
-      .setQualifier("TRK")
-      .setProjectId(7L);
-
-    result.addComponents(Lists.<Component>newArrayList(component, project));
-    result.addProjects(Lists.<Component>newArrayList(project));
-
-    WsTester.TestRequest request = tester.newGetRequest("api/issues", "search");
-    request.execute().assertJson(getClass(), "issues_with_components.json");
-  }
-
-  @Test
-  public void issues_with_rules() throws Exception {
-    String issueKey = "ABCD";
-    Issue issue = new DefaultIssue()
-      .setKey(issueKey)
-      .setComponentKey("sample:src/main/xoo/sample/Sample.xoo")
-      .setProjectKey("sample")
-      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
-      .setActionPlanKey("AP-ABCD")
-      .setLine(12)
-      .setEffortToFix(2.0)
-      .setMessage("Fix it")
-      .setResolution("FIXED")
-      .setStatus("CLOSED")
-      .setSeverity("MAJOR")
-      .setAssignee("john")
-      .setReporter("steven")
-      .setAuthorLogin("Henry")
-      .setCreationDate(issueCreationDate);
-    issues.add(issue);
-
-    result.addRules(newArrayList(
-      Rule.create("squid", "AvoidCycle").setName("Avoid cycle").setDescription("Avoid cycle description")
-    ));
-
-    WsTester.TestRequest request = tester.newGetRequest("api/issues", "search");
-    request.execute().assertJson(getClass(), "issues_with_rules.json");
-  }
-
-  @Test
-  public void issues_with_users() throws Exception {
-    String issueKey = "ABCD";
-    Issue issue = new DefaultIssue()
-      .setKey(issueKey)
-      .setComponentKey("sample:src/main/xoo/sample/Sample.xoo")
-      .setProjectKey("sample")
-      .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
-      .setActionPlanKey("AP-ABCD")
-      .setLine(12)
-      .setEffortToFix(2.0)
-      .setMessage("Fix it")
-      .setResolution("FIXED")
-      .setStatus("CLOSED")
-      .setSeverity("MAJOR")
-      .setAssignee("john")
-      .setReporter("steven")
-      .setAuthorLogin("Henry")
-      .setCreationDate(issueCreationDate);
-    issues.add(issue);
-
-    result.addUsers(Lists.<User>newArrayList(
-      new DefaultUser().setName("John").setLogin("john").setActive(true).setEmail("john@email.com")
-    ));
-
-    WsTester.TestRequest request = tester.newGetRequest("api/issues", "search");
-    request.execute().assertJson(getClass(), "issues_with_users.json");
   }
 
   @Test
@@ -276,6 +172,29 @@ public class IssueSearchActionTest {
   }
 
   @Test
+  public void issues_with_comments() throws Exception {
+    Issue issue = createStandardIssue()
+      .addComment(
+        new DefaultIssueComment()
+          .setKey("COMMENT-ABCD")
+          .setMarkdownText("*My comment*")
+          .setUserLogin("john")
+          .setCreatedAt(DateUtils.parseDateTime("2014-02-23T19:10:03+0100"))
+      )
+      .addComment(
+        new DefaultIssueComment()
+          .setKey("COMMENT-ABCE")
+          .setMarkdownText("Another comment")
+          .setUserLogin("arthur")
+          .setCreatedAt(DateUtils.parseDateTime("2014-02-23T19:10:03+0100"))
+      );
+    issues.add(issue);
+
+    WsTester.TestRequest request = tester.newGetRequest("api/issues", "search");
+    request.execute().assertJson(getClass(), "issues_with_comments.json");
+  }
+
+  @Test
   public void issues_with_attributes() throws Exception {
     Issue issue = createStandardIssue()
       .setAttribute("jira-issue-key", "SONAR-1234");
@@ -303,6 +222,105 @@ public class IssueSearchActionTest {
 
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "search").setParam("extra_fields", "actions,transitions,assigneeName,actionPlanName");
     request.execute().assertJson(getClass(), "issues_with_extra_fields.json");
+  }
+
+  @Test
+  public void issues_with_components() throws Exception {
+    issues.add(createStandardIssue());
+
+    ComponentDto component = new ComponentDto()
+      .setId(10L)
+      .setKey("sample:src/main/xoo/sample/Sample.xoo")
+      .setLongName("src/main/xoo/sample/Sample.xoo")
+      .setName("Sample.xoo")
+      .setQualifier("FIL")
+      .setPath("src/main/xoo/sample/Sample.xoo")
+      .setSubProjectId(7L)
+      .setProjectId(7L);
+
+    ComponentDto project = new ComponentDto()
+      .setId(7L)
+      .setKey("sample")
+      .setLongName("Sample")
+      .setName("Sample")
+      .setQualifier("TRK")
+      .setProjectId(7L);
+
+    result.addComponents(Lists.<Component>newArrayList(component, project));
+    result.addProjects(Lists.<Component>newArrayList(project));
+
+    WsTester.TestRequest request = tester.newGetRequest("api/issues", "search");
+    request.execute().assertJson(getClass(), "issues_with_components.json");
+  }
+
+  @Test
+  public void issues_with_sub_project() throws Exception {
+    Issue issue = createStandardIssue().setComponentKey("sample:sample-module:src/main/xoo/sample/Sample.xoo");
+    issues.add(issue);
+
+    // File
+    ComponentDto component = new ComponentDto()
+      .setId(10L)
+      .setKey("sample:sample-module:src/main/xoo/sample/Sample.xoo")
+      .setLongName("src/main/xoo/sample/Sample.xoo")
+      .setName("Sample.xoo")
+      .setQualifier("FIL")
+      .setPath("src/main/xoo/sample/Sample.xoo")
+      .setSubProjectId(8L)
+      .setProjectId(7L);
+
+    // Sub project
+    ComponentDto subProject = new ComponentDto()
+      .setId(8L)
+      .setKey("sample-module")
+      .setLongName("Sample Project :: Sample Module")
+      .setName("Sample Project :: Sample Module")
+      .setQualifier("BRC")
+      .setSubProjectId(7L)
+      .setProjectId(7L);
+
+    // Project
+    ComponentDto project = new ComponentDto()
+      .setId(7L)
+      .setKey("sample")
+      .setLongName("Sample Project")
+      .setName("Sample Project")
+      .setQualifier("TRK")
+      .setProjectId(7L);
+
+    result.addComponents(Lists.<Component>newArrayList(component, subProject, project));
+    result.addProjects(Lists.<Component>newArrayList(project));
+
+    WsTester.TestRequest request = tester.newGetRequest("api/issues", "search");
+    request.execute().assertJson(getClass(), "issues_with_sub_project.json");
+  }
+
+  @Test
+  public void issues_with_rules() throws Exception {
+    issues.add(createStandardIssue());
+
+    result.addRules(newArrayList(
+      Rule.create("squid", "AvoidCycle").setName("Avoid cycle").setDescription("Avoid cycle description")
+    ));
+
+    WsTester.TestRequest request = tester.newGetRequest("api/issues", "search");
+    request.execute().assertJson(getClass(), "issues_with_rules.json");
+  }
+
+  @Test
+  public void issues_with_users() throws Exception {
+    Issue issue = createStandardIssue()
+      .setAssignee("john")
+      .setReporter("steven")
+      .setAuthorLogin("Henry");
+    issues.add(issue);
+
+    result.addUsers(Lists.<User>newArrayList(
+      new DefaultUser().setName("John").setLogin("john").setActive(true).setEmail("john@email.com")
+    ));
+
+    WsTester.TestRequest request = tester.newGetRequest("api/issues", "search");
+    request.execute().assertJson(getClass(), "issues_with_users.json");
   }
 
   @Test

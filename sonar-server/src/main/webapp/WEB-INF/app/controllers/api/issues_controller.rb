@@ -22,32 +22,6 @@
 class Api::IssuesController < Api::ApiController
 
   #
-  # GET /api/issues/search?<parameters>
-  #
-  # -- Example
-  # curl -v -u admin:admin 'http://localhost:9000/api/issues/search?statuses=OPEN,RESOLVED'
-  #
-  def search
-    results = Api.issues.find(params)
-    hash = {
-      :maxResultsReached => results.maxResultsReached,
-      :paging => paging_to_hash(results.paging),
-      # If the user is not loggued, extra fields should not be taking into account to not load actions and transitions
-      :issues => results.issues.map { |issue| Issue.to_hash(issue, logged_in? ? params[:extra_fields] : nil) },
-      :components => results.components.map { |component| component_to_hash(component) },
-      :projects => results.projects.map { |project| component_to_hash(project) },
-      :rules => results.rules.map { |rule| Rule.to_hash(rule) },
-      :users => results.users.map { |user| User.to_hash(user) }
-    }
-    hash[:actionPlans] = results.actionPlans.map { |plan| ActionPlan.to_hash(plan) } if results.actionPlans.size>0
-
-    respond_to do |format|
-      format.json { render :json => jsonp(hash) }
-      format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'issues') }
-    end
-  end
-
-  #
   # since 4.1
   #
   # GET /api/issues/changelog?issue=<key>
@@ -334,31 +308,6 @@ class Api::IssuesController < Api::ApiController
       format.json { render :json => jsonp(hash), :status => result.httpStatus }
       format.xml { render :xml => hash.to_xml(:skip_types => true, :root => 'sonar', :status => (result.ok ? 200 : 400)) }
     end
-  end
-
-  def component_to_hash(component)
-    hash = {
-      :key => component.key,
-      :id => component.id,
-      :qualifier => component.qualifier
-    }
-    hash[:name] = component.name if component.name
-    hash[:longName] = component.longName if component.longName
-    hash[:path] = component.path if component.path
-    # On a root project, subProjectId is null but projectId is equal to itself, which make no sense.
-    hash[:projectId] = component.projectId if component.subProjectId && component.projectId
-    hash[:subProjectId] = component.subProjectId if component.subProjectId
-    hash
-  end
-
-  def paging_to_hash(paging)
-    {
-      :pageIndex => paging.pageIndex,
-      :pageSize => paging.pageSize,
-      :total => paging.total,
-      :fTotal => ActionController::Base.helpers.number_with_precision(paging.total, :precision => 0),
-      :pages => paging.pages
-    }
   end
 
   def result_to_hash(result)

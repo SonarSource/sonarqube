@@ -43,6 +43,7 @@ import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
+import org.sonar.markdown.Markdown;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.user.UserSession;
 
@@ -220,12 +221,28 @@ public class IssueSearchAction implements RequestHandler {
         .prop("fUpdateAge", formatAgeDate(updateDate))
         .prop("closeDate", closeDate != null ? DateUtils.formatDateTime(closeDate) : null);
 
+      writeIssueComments(issue, json);
       writeIssueAttributes(issue, json);
       writeIssueExtraFields(result, issue, extraFields, json);
       json.endObject();
     }
 
     json.endArray();
+  }
+
+  private void writeIssueComments(Issue issue, JsonWriter json) {
+    if (!issue.comments().isEmpty()) {
+      json.name("comments").beginArray();
+      for (IssueComment comment : issue.comments()) {
+        json.beginObject()
+          .prop("key", comment.key())
+          .prop("login", comment.userLogin())
+          .prop("htmlText", Markdown.convertToHtml(comment.markdownText()))
+          .prop("createdAt", DateUtils.formatDateTime(comment.createdAt()))
+          .endObject();
+      }
+      json.endArray();
+    }
   }
 
   private void writeIssueAttributes(Issue issue, JsonWriter json) {
@@ -318,51 +335,6 @@ public class IssueSearchAction implements RequestHandler {
     }
     json.endArray();
   }
-
-
-//
-//  private void writeTransitions(Issue issue, JsonWriter json) {
-//    json.name("transitions").beginArray();
-//    if (UserSession.get().isLoggedIn()) {
-//      List<Transition> transitions = issueService.listTransitions(issue, UserSession.get());
-//      for (Transition transition : transitions) {
-//        json.value(transition.key());
-//      }
-//    }
-//    json.endArray();
-//  }
-//
-//  private void writeActions(DefaultIssue issue, JsonWriter json) {
-//    json.name("actions").beginArray();
-//    for (String action : actions(issue)) {
-//      json.value(action);
-//    }
-//    json.endArray();
-//  }
-//
-//  private List<String> actions(DefaultIssue issue) {
-//    List<String> actions = newArrayList();
-//    String login = UserSession.get().login();
-//    if (login != null) {
-//      actions.add("comment");
-//      if (issue.resolution() == null) {
-//        actions.add("assign");
-//        if (!login.equals(issue.assignee())) {
-//          actions.add("assign_to_me");
-//        }
-//        actions.add("plan");
-//        String projectKey = issue.projectKey();
-//        if (projectKey != null && UserSession.get().hasProjectPermission(UserRole.ISSUE_ADMIN, projectKey)) {
-//          actions.add("set_severity");
-//        }
-//        for (Action action : actionService.listAvailableActions(issue)) {
-//          actions.add(action.key());
-//        }
-//      }
-//    }
-//    return actions;
-//  }
-//
 
   @CheckForNull
   private String formatAgeDate(@Nullable Date date) {

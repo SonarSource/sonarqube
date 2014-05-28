@@ -10,7 +10,7 @@
   "issues": [
     {
       "key": "ABCD",
-      "component": "sample:src/main/xoo/sample/Sample.xoo",
+      "component": "sample:sample-module:src/main/xoo/sample/Sample.xoo",
       "project": "sample",
       "rule": "squid:AvoidCycle",
       "creationDate": "2014-01-22T19:10:03+0100"
@@ -18,21 +18,30 @@
   ],
   "components": [
     {
-      "key": "sample:src/main/xoo/sample/Sample.xoo",
+      "key": "sample-module",
+      "id": 8,
+      "qualifier": "BRC",
+      "name": "Sample Project :: Sample Module",
+      "longName": "Sample Project :: Sample Module",
+      "projectId": 7,
+      "subProjectId": 7
+    },
+    {
+      "key": "sample:sample-module:src/main/xoo/sample/Sample.xoo",
       "id": 10,
       "qualifier": "FIL",
       "name": "Sample.xoo",
       "longName": "src/main/xoo/sample/Sample.xoo",
       "path": "src/main/xoo/sample/Sample.xoo",
       "projectId": 7,
-      "subProjectId": 7
+      "subProjectId": 8
     },
     {
       "key": "sample",
       "id": 7,
       "qualifier": "TRK",
-      "name": "Sample",
-      "longName": "Sample"
+      "name": "Sample Project",
+      "longName": "Sample Project"
     }
   ],
   "projects": [
@@ -40,8 +49,8 @@
       "key": "sample",
       "id": 7,
       "qualifier": "TRK",
-      "name": "Sample",
-      "longName": "Sample"
+      "name": "Sample Project",
+      "longName": "Sample Project"
     }
   ],
   "rules": [],
