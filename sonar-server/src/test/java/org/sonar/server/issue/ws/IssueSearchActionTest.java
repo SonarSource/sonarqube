@@ -154,7 +154,7 @@ public class IssueSearchActionTest {
     Issue issue = createStandardIssue().setDebt(debt);
     issues.add(issue);
 
-    when(durations.format(any(Locale.class), eq(debt), eq(Durations.DurationFormat.SHORT))).thenReturn("2 hours 1 minutes");
+    when(durations.encode(debt)).thenReturn("2h1min");
 
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "search");
     request.execute().assertJson(getClass(), "issues_with_debt.json");

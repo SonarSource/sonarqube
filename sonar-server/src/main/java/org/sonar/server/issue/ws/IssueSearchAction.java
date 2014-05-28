@@ -211,7 +211,7 @@ public class IssueSearchAction implements RequestHandler {
         .prop("severity", issue.severity())
         .prop("message", issue.message())
         .prop("line", issue.line())
-        .prop("debt", debt != null ? durations.format(UserSession.get().locale(), debt, Durations.DurationFormat.SHORT) : null)
+        .prop("debt", debt != null ? durations.encode(debt) : null)
         .prop("reporter", issue.reporter())
         .prop("assignee", issue.assignee())
         .prop("author", issue.authorLogin())
