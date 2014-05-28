@@ -116,13 +116,13 @@ define [
       tags = @ui.tagInput.val()
       jQuery.ajax
         type: 'POST'
-        url: "#{baseUrl}/api/rules/set_tags"
+        url: "#{baseUrl}/api/rules/update"
         data:
           key: @model.get 'key'
           tags: tags
-      .done =>
-          if tags.length > 0
-            @model.set 'tags', tags.split ','
+      .done (r) =>
+          if r.rule.tags.length > 0
+            @model.set 'tags', r.rule.tags
           else
             @model.unset 'tags'
           @render()
@@ -143,13 +143,16 @@ define [
       @ui.extendDescriptionSpinner.show()
       jQuery.ajax
         type: 'POST'
-        url: "#{baseUrl}/api/rules/set_note"
+        url: "#{baseUrl}/api/rules/update"
         dataType: 'json'
         data:
           key: @model.get 'key'
-          markdown_text: @ui.extendDescriptionText.val()
+          markdown_note: @ui.extendDescriptionText.val()
       .done (r) =>
-        @model.set htmlNote: r.htmlNote, mdNote: r.mdNote
+        console.log r
+        @model.set
+          htmlNote: r.rule.htmlNote
+          mdNote: r.rule.mdNote
         @render()
 
 
