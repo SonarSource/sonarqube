@@ -54,6 +54,9 @@ public interface Issues {
   @CheckForNull
   Component componentById(long id);
 
+  @CheckForNull
+  Component componentByKey(String key);
+
   Collection<Component> projects();
 
   @CheckForNull

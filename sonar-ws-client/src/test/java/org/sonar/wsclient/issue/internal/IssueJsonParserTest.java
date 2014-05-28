@@ -42,7 +42,6 @@ public class IssueJsonParserTest {
     Issue first = list.get(0);
     assertThat(first.key()).isEqualTo("ABCDE");
     assertThat(first.componentKey()).isEqualTo("Action.java");
-    assertThat(first.componentId()).isEqualTo(10L);
     assertThat(first.projectKey()).isEqualTo("struts");
     assertThat(first.ruleKey()).isEqualTo("squid:CycleBetweenPackages");
     assertThat(first.severity()).isEqualTo("CRITICAL");
@@ -51,7 +50,6 @@ public class IssueJsonParserTest {
     assertThat(first.status()).isEqualTo("OPEN");
     assertThat(first.assignee()).isEqualTo("karadoc");
     assertThat(first.message()).isEqualTo("the message");
-    assertThat(first.effortToFix()).isEqualTo(4.2);
     assertThat(first.debt()).isNull();
     assertThat(first.reporter()).isEqualTo("perceval");
     assertThat(first.author()).isEqualTo("pirlouis");
@@ -67,7 +65,6 @@ public class IssueJsonParserTest {
     Issue second = list.get(1);
     assertThat(second.key()).isEqualTo("FGHIJ");
     assertThat(second.line()).isNull();
-    assertThat(second.effortToFix()).isNull();
     assertThat(second.debt()).isNull();
     assertThat(second.reporter()).isNull();
     assertThat(second.author()).isNull();
@@ -111,7 +108,7 @@ public class IssueJsonParserTest {
   }
 
   @Test
-  public void should_parse_comments() throws Exception {
+  public void parse_comments() throws Exception {
     String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/issue-with-comments.json"));
     Issues issues = new IssueJsonParser().parseIssues(json);
     assertThat(issues.size()).isEqualTo(1);
@@ -133,7 +130,7 @@ public class IssueJsonParserTest {
   }
 
   @Test
-  public void should_parse_users() throws Exception {
+  public void parse_users() throws Exception {
     String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/issue-with-users.json"));
     Issues issues = new IssueJsonParser().parseIssues(json);
 
@@ -153,7 +150,7 @@ public class IssueJsonParserTest {
   }
 
   @Test
-  public void should_parse_components() throws Exception {
+  public void parse_components() throws Exception {
     String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/issue-with-components.json"));
     Issues issues = new IssueJsonParser().parseIssues(json);
 
@@ -168,11 +165,12 @@ public class IssueJsonParserTest {
     assertThat(component.subProjectId()).isEqualTo(2L);
     assertThat(component.projectId()).isEqualTo(1L);
 
+    assertThat(issues.componentByKey("struts:Action.java").key()).isEqualTo("struts:Action.java");
     assertThat(issues.componentById(10).key()).isEqualTo("struts:Action.java");
   }
 
   @Test
-  public void should_parse_projects() throws Exception {
+  public void parse_projects() throws Exception {
     String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/issue-with-projects.json"));
     Issues issues = new IssueJsonParser().parseIssues(json);
 
@@ -186,7 +184,7 @@ public class IssueJsonParserTest {
   }
 
   @Test
-  public void should_parse_action_plans() throws Exception {
+  public void parse_action_plans() throws Exception {
     String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/issue-with-action-plans.json"));
     Issues issues = new IssueJsonParser().parseIssues(json);
 
@@ -203,7 +201,7 @@ public class IssueJsonParserTest {
   }
 
   @Test
-  public void should_parse_technical_debt() throws Exception {
+  public void parse_technical_debt() throws Exception {
     String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/issue-with-technical-debt.json"));
     Issues issues = new IssueJsonParser().parseIssues(json);
     assertThat(issues.size()).isEqualTo(1);
@@ -212,9 +210,8 @@ public class IssueJsonParserTest {
     assertThat(issue.debt()).isEqualTo("3d10min");
   }
 
-
   @Test
-  public void should_parse_changelog() throws Exception {
+  public void parse_changelog() throws Exception {
     String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/changelog.json"));
     List<IssueChange> changes = new IssueJsonParser().parseChangelog(json);
 
@@ -243,7 +240,7 @@ public class IssueJsonParserTest {
   }
 
   @Test
-  public void should_parse_changelog_with_technical_debt() throws Exception {
+  public void parse_changelog_with_technical_debt() throws Exception {
     String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/changelog-with-technical-debt.json"));
     List<IssueChange> changes = new IssueJsonParser().parseChangelog(json);
 
@@ -260,7 +257,7 @@ public class IssueJsonParserTest {
   }
 
   @Test
-  public void should_parse_changelog_with_only_new_technical_debt() throws Exception {
+  public void parse_changelog_with_only_new_technical_debt() throws Exception {
     String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/changelog-with-only-new-technical-debt.json"));
     List<IssueChange> changes = new IssueJsonParser().parseChangelog(json);
 
@@ -277,7 +274,7 @@ public class IssueJsonParserTest {
   }
 
   @Test
-  public void should_parse_bulk_change() throws Exception {
+  public void parse_bulk_change() throws Exception {
     String json = IOUtils.toString(getClass().getResourceAsStream("/org/sonar/wsclient/issue/internal/IssueJsonParserTest/bulk-change.json"));
     BulkChange bulkChange = new IssueJsonParser().parseBulkChange(json);
 

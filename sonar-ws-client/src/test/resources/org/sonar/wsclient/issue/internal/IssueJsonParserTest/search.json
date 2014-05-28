@@ -3,7 +3,6 @@
     {
       "key": "ABCDE",
       "component": "Action.java",
-      "componentId": 10,
       "project": "struts",
       "rule": "squid:CycleBetweenPackages",
       "severity": "CRITICAL",
@@ -11,7 +10,6 @@
       "resolution": "FIXED",
       "status": "OPEN",
       "assignee": "karadoc",
-      "effortToFix": 4.2,
       "message": "the message",
       "title": "the title",
       "reporter": "perceval",

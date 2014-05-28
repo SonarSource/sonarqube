@@ -37,8 +37,6 @@ public interface Issue {
 
   String componentKey();
 
-  Long componentId();
-
   String projectKey();
 
   String ruleKey();
@@ -50,9 +48,6 @@ public interface Issue {
 
   @CheckForNull
   Integer line();
-
-  @CheckForNull
-  Double effortToFix();
 
   @CheckForNull
   String debt();

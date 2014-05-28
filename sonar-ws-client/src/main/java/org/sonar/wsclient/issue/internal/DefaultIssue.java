@@ -49,10 +49,6 @@ public class DefaultIssue implements Issue {
     return JsonUtils.getString(json, "component");
   }
 
-  public Long componentId() {
-    return JsonUtils.getLong(json, "componentId");
-  }
-
   public String projectKey() {
     return JsonUtils.getString(json, "project");
   }
@@ -73,11 +69,6 @@ public class DefaultIssue implements Issue {
   @CheckForNull
   public Integer line() {
     return JsonUtils.getInteger(json, "line");
-  }
-
-  @CheckForNull
-  public Double effortToFix() {
-    return JsonUtils.getDouble(json, "effortToFix");
   }
 
   @CheckForNull

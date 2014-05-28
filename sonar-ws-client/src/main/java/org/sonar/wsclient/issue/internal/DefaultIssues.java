@@ -41,6 +41,7 @@ public class DefaultIssues implements Issues {
   private final Map<String, Rule> rulesByKey = new HashMap<String, Rule>();
   private final Map<String, User> usersByKey = new HashMap<String, User>();
   private final Map<Long, Component> componentsById = new HashMap<Long, Component>();
+  private final Map<String, Component> componentsByKey = new HashMap<String, Component>();
   private final Map<String, Component> projectsByKey = new HashMap<String, Component>();
   private final Map<String, ActionPlan> actionPlansByKey = new HashMap<String, ActionPlan>();
   private Paging paging;
@@ -72,17 +73,22 @@ public class DefaultIssues implements Issues {
   }
 
   public Collection<Component> components() {
-    return componentsById.values();
+    return componentsByKey.values();
   }
 
   @CheckForNull
   public Component component(Issue issue) {
-    return componentsById.get(issue.componentId());
+    return componentsByKey.get(issue.componentKey());
   }
 
   @CheckForNull
   public Component componentById(long id) {
     return componentsById.get(id);
+  }
+
+  @CheckForNull
+  public Component componentByKey(String key) {
+    return componentsByKey.get(key);
   }
 
   public Collection<Component> projects() {
@@ -134,6 +140,7 @@ public class DefaultIssues implements Issues {
 
   DefaultIssues addComponent(Component c) {
     componentsById.put(c.id(), c);
+    componentsByKey.put(c.key(), c);
     return this;
   }
 
