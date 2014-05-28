@@ -282,6 +282,12 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   protected FilterBuilder getFilter(RuleQuery query, QueryOptions options) {
 
     BoolFilterBuilder fb = FilterBuilders.boolFilter();
+
+    /* Add enforced filter on rules that are REMOVED */
+    fb.mustNot(FilterBuilders
+      .termFilter(RuleNormalizer.RuleField.STATUS.field(),
+        RuleStatus.REMOVED.toString()));
+
     this.addMultiFieldTermFilter(query.getDebtCharacteristics(), fb,
       RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(),
       RuleNormalizer.RuleField.CHARACTERISTIC.field());
@@ -328,7 +334,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       }
     }
 
-    return fb.hasClauses() ? fb : FilterBuilders.matchAllFilter();
+    return fb;
   }
 
   protected void setFacets(SearchRequestBuilder query) {

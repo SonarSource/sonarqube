@@ -39,6 +39,8 @@ import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.rule.index.RuleQuery;
+import org.sonar.server.search.QueryOptions;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.List;
@@ -293,6 +295,32 @@ public class RuleDataMediumTest {
     rule = index.getByKey(ruleKey);
     assertThat(rule.debtCharacteristicKey()).isEqualTo(char2.getKey());
     assertThat(rule.debtSubCharacteristicKey()).isEqualTo(char21.getKey());
+  }
+
+
+  @Test
+  public void should_not_find_removed() {
+    // insert db
+    RuleKey ruleKey = RuleKey.of("javascript", "S001");
+    RuleDto ruleDto = newRuleDto(ruleKey)
+      .setStatus(RuleStatus.READY.toString());
+
+    RuleKey removedKey = RuleKey.of("javascript", "S002");
+    RuleDto removedDto = newRuleDto(removedKey)
+      .setStatus(RuleStatus.REMOVED.toString());
+    dao.insert(dbSession, ruleDto);
+    dao.insert(dbSession, removedDto);
+    dbSession.commit();
+
+    // 0. Assert rules are in DB
+    assertThat(dao.findAll(dbSession)).hasSize(2);
+
+    // 1. assert getBy for removed
+    assertThat(index.getByKey(removedKey)).isNotNull();
+
+    // 2. assert find does not get REMOVED
+    assertThat(index.search(new RuleQuery(), QueryOptions.DEFAULT)
+    .getRules()).hasSize(1);
   }
 
   private RuleDto newRuleDto(RuleKey ruleKey) {
