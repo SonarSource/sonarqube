@@ -61,6 +61,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * TODO this class should use ServerTester instead of mocking db
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class DebtModelOperationsTest {
 

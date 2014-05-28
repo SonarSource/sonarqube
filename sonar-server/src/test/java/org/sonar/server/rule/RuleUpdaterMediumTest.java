@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.api.utils.System2;
@@ -68,6 +69,21 @@ public class RuleUpdaterMediumTest {
   @After
   public void after() {
     dbSession.close();
+  }
+
+  @Test
+  public void do_not_update_rule_with_removed_status() throws Exception {
+    grantPermission();
+    db.ruleDao().insert(dbSession, RuleTests.newDto(RULE_KEY).setStatus(RuleStatus.REMOVED.name()));
+    dbSession.commit();
+
+    RuleUpdate update = new RuleUpdate(RULE_KEY).setTags(Sets.newHashSet("java9"));
+    try {
+      updater.update(update, UserSession.get());
+      fail();
+    } catch (IllegalArgumentException e) {
+     assertThat(e).hasMessage("Rule with REMOVED status cannot be updated: squid:S001");
+    }
   }
 
   @Test
