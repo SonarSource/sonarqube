@@ -69,6 +69,15 @@ public class IndexField {
     return field;
   }
 
+  public String sortField() {
+    if(this.sortable()){
+      return this.field + ((type == IndexField.Type.TEXT
+        || type == IndexField.Type.STRING)?"."+IndexField.SORT_SUFFIX:"");
+    } else {
+      throw new IllegalStateException("Cannot sort on field (Field is not sortable)");
+    }
+  }
+
   @Override
   public String toString() {
     return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);

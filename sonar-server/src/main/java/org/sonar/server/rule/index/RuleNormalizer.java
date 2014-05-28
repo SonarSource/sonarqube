@@ -43,7 +43,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
   public static class RuleField extends Indexable {
 
-    public static IndexField KEY = addSearchable(IndexField.Type.STRING, "key");
+    public static IndexField KEY = addSortableAndSearchable(IndexField.Type.STRING, "key");
     public static IndexField REPOSITORY = add(IndexField.Type.STRING, "repo");
     public static IndexField NAME = addSortableAndSearchable(IndexField.Type.STRING, "name");
 

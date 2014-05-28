@@ -22,8 +22,6 @@ package org.sonar.server.search;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
@@ -32,7 +30,6 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -325,17 +322,6 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
       .indices()
       .prepareRefresh(this.getIndexName())
       .get();
-  }
-
-  /* Search methods */
-
-  @Override
-  public SearchResponse search(SearchRequestBuilder request,
-                               FilterBuilder filter, QueryBuilder query) {
-
-    request.setQuery(QueryBuilders.filteredQuery(query, filter));
-    SearchResponse esResult = request.get();
-    return esResult;
   }
 
   /* Base CRUD methods */

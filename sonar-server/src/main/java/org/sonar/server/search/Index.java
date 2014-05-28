@@ -19,24 +19,18 @@
  */
 package org.sonar.server.search;
 
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.picocontainer.Startable;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.Dto;
 
 import javax.annotation.CheckForNull;
 import java.io.Serializable;
+import java.util.Date;
 
 public interface Index<D, E extends Dto<K>, K extends Serializable> extends Startable, ServerComponent {
 
   @CheckForNull
   D getByKey(K item);
-
-  SearchResponse search(SearchRequestBuilder request,
-                        FilterBuilder filter, QueryBuilder query);
 
   String getIndexType();
 
@@ -56,7 +50,7 @@ public interface Index<D, E extends Dto<K>, K extends Serializable> extends Star
 
   void deleteByDto(E dto);
 
-  java.util.Date getLastSynchronization();
+  Date getLastSynchronization();
 
   IndexStat getIndexStat();
 

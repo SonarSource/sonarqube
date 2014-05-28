@@ -42,7 +42,7 @@ public class RuleQuery {
   private Boolean hasDebtCharacteristic;
   private Boolean activation;
   private String qProfileKey;
-  private boolean ascendingSort;
+  private boolean ascendingSort = true;
   private IndexField sortField;
 
 
@@ -187,6 +187,9 @@ public class RuleQuery {
   }
 
   public RuleQuery setSortField(@Nullable IndexField sf) {
+    if(!sf.sortable()){
+      throw new IllegalStateException("Field '"+sf.field()+"' is not sortable!");
+    }
     this.sortField = sf;
     return this;
   }

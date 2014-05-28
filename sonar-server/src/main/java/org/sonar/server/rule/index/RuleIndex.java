@@ -217,7 +217,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     /* integrate Query Sort */
     if (query.getSortField() != null) {
-      FieldSortBuilder sort = SortBuilders.fieldSort(query.getSortField().field());
+      FieldSortBuilder sort = SortBuilders.fieldSort(query.getSortField().sortField());
       if (query.isAscendingSort()) {
         sort.order(SortOrder.ASC);
       } else {
@@ -227,9 +227,10 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     } else if (query.getQueryText() != null && !query.getQueryText().isEmpty()) {
       esSearch.addSort(SortBuilders.scoreSort());
     } else {
-      esSearch.addSort(RuleNormalizer.RuleField.UPDATED_AT.field(), SortOrder.DESC);
+      esSearch.addSort(RuleNormalizer.RuleField.UPDATED_AT.sortField(), SortOrder.DESC);
       // deterministic sort when exactly the same updated_at (same millisecond)
-      esSearch.addSort(RuleNormalizer.RuleField.KEY.field(), SortOrder.ASC);
+      esSearch.addSort(RuleNormalizer.RuleField.KEY.sortField()
+        , SortOrder.ASC);
     }
 
     /* integrate Option's Pagination */
@@ -260,17 +261,24 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   /* Build main query (search based) */
   protected QueryBuilder getQuery(RuleQuery query, QueryOptions options) {
     QueryBuilder qb;
+    //TODO Optimize this. This is plain vanilla match no weight -> bad...
     if (query.getQueryText() != null && !query.getQueryText().isEmpty()) {
       qb = QueryBuilders.multiMatchQuery(query.getQueryText(),
         RuleNormalizer.RuleField.NAME.field(),
-        RuleNormalizer.RuleField.NAME.field() + ".search",
+        RuleNormalizer.RuleField.NAME.field() + "."+IndexField.SEARCH_PARTIAL_SUFFIX,
+        RuleNormalizer.RuleField.NAME.field() + "."+IndexField.SEARCH_WORDS_SUFFIX,
         RuleNormalizer.RuleField.HTML_DESCRIPTION.field(),
+        RuleNormalizer.RuleField.HTML_DESCRIPTION.field()+"."+IndexField.SEARCH_WORDS_SUFFIX,
         RuleNormalizer.RuleField.KEY.field(),
-        RuleNormalizer.RuleField.KEY.field() + ".search",
+        RuleNormalizer.RuleField.KEY.field() + "."+IndexField.SEARCH_PARTIAL_SUFFIX,
+        RuleNormalizer.RuleField.KEY.field() + "."+IndexField.SEARCH_WORDS_SUFFIX,
         RuleNormalizer.RuleField.LANGUAGE.field(),
         RuleNormalizer.RuleField.CHARACTERISTIC.field(),
         RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(),
-        RuleNormalizer.RuleField._TAGS.field());
+        RuleNormalizer.RuleField._TAGS.field(),
+        RuleNormalizer.RuleField._TAGS.field() + "."+IndexField.SEARCH_PARTIAL_SUFFIX,
+        RuleNormalizer.RuleField._TAGS.field() + "."+IndexField.SEARCH_WORDS_SUFFIX
+      );
     } else {
       qb = QueryBuilders.matchAllQuery();
     }
@@ -370,9 +378,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     QueryBuilder qb = this.getQuery(query, options);
 
     esSearch.setQuery(QueryBuilders.filteredQuery(qb, fb));
-
     SearchResponse esResult = esSearch.get();
-
     return new RuleResult(esResult);
   }
 
