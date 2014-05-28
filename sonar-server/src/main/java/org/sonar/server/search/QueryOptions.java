@@ -34,7 +34,7 @@ import java.util.Set;
  */
 public class QueryOptions {
 
-  public static final QueryOptions DEFAULT = new QueryOptions();
+  public static final QueryOptions DEFAULT = new QueryOptions().setLimit(Integer.MAX_VALUE);
 
   public static final int DEFAULT_OFFSET = 0;
   public static final int DEFAULT_LIMIT = 10;

@@ -139,16 +139,14 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
       mapping.put("dynamic", false);
       mapping.put("_id", mapKey());
       mapping.put("properties", mapProperties());
+      LOG.debug("Index Mapping {}", mapping.get("properties"));
 
-      //mapping.put(this.getIndexType(), mapping);
-
-
-        LOG.info("Update of index {} for type {}", this.getIndexName(), this.getIndexType());
-        getClient().admin().indices().preparePutMapping(index)
-          .setType(getIndexType())
-          .setIgnoreConflicts(true)
-          .setSource(mapping)
-          .get();
+      LOG.info("Update of index {} for type {}", this.getIndexName(), this.getIndexType());
+      getClient().admin().indices().preparePutMapping(index)
+        .setType(getIndexType())
+        .setIgnoreConflicts(true)
+        .setSource(mapping)
+        .get();
 
     } catch (Exception e) {
       throw new IllegalStateException("Invalid configuration for index " + this.getIndexName(), e);
@@ -203,6 +201,122 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
   protected abstract Map mapProperties();
 
   protected abstract Map mapKey();
+
+
+  protected Map mapField(IndexField field) {
+    return mapField(field, true);
+  }
+
+  protected Map mapField(IndexField field, boolean allowRecursive) {
+    if (field.type() == IndexField.Type.TEXT) {
+      return mapTextField(field, allowRecursive);
+    } else if (field.type() == IndexField.Type.STRING) {
+      return mapStringField(field, allowRecursive);
+    } else if (field.type() == IndexField.Type.OBJECT) {
+      return mapObjectField(field);
+    } else if (field.type() == IndexField.Type.BOOLEAN) {
+      return mapBooleanField(field);
+    } else if (field.type() == IndexField.Type.DATE) {
+      return mapDateField(field);
+    } else {
+      throw new IllegalStateException("Mapping does not exist for type: " + field.type());
+    }
+  }
+
+  protected Map mapBooleanField(IndexField field) {
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    mapping.put("type", "boolean");
+    return mapping;
+  }
+
+  protected Map mapObjectField(IndexField field) {
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    mapping.put("type", "nested");
+    mapping.put("index", "analyzed");
+    mapping.put("dynamic", "true");
+    return mapping;
+  }
+
+  protected Map mapDateField(IndexField field) {
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    mapping.put("type", "date");
+    mapping.put("format", "date_time");
+    return mapping;
+  }
+
+  protected boolean needMultiField(IndexField field) {
+    return ((field.type() == IndexField.Type.TEXT
+      || field.type() == IndexField.Type.STRING)
+      && (field.sortable() || field.searchable()));
+  }
+
+  protected Map mapSortField(IndexField field) {
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    mapping.put("type", "string");
+    mapping.put("index", "analyzed");
+    mapping.put("analyzer", "sortable");
+    return mapping;
+  }
+
+  protected Map mapGramsField(IndexField field) {
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    mapping.put("type", "string");
+    mapping.put("index", "analyzed");
+    mapping.put("index_analyzer", "index_grams");
+    mapping.put("search_analyzer", "search_grams");
+    return mapping;
+  }
+
+  protected Map mapWordsField(IndexField field) {
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    mapping.put("type", "string");
+    mapping.put("index", "analyzed");
+    mapping.put("index_analyzer", "index_words");
+    mapping.put("search_analyzer", "search_words");
+    return mapping;
+  }
+
+  protected Map mapMultiField(IndexField field) {
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    if (field.sortable()) {
+      mapping.put(IndexField.SORT_SUFFIX, mapSortField(field));
+    }
+    if (field.searchable()) {
+      if (field.type() != IndexField.Type.TEXT) {
+        mapping.put(IndexField.SEARCH_PARTIAL_SUFFIX, mapGramsField(field));
+      }
+      mapping.put(IndexField.SEARCH_WORDS_SUFFIX, mapWordsField(field));
+    }
+    mapping.put(field.field(), mapField(field, false));
+    return mapping;
+  }
+
+  protected Map mapStringField(IndexField field, boolean allowRecursive) {
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    // check if the field needs to be MultiField
+    if (allowRecursive && needMultiField(field)) {
+      mapping.put("type", "multi_field");
+      mapping.put("fields", mapMultiField(field));
+    } else {
+      mapping.put("type", "string");
+      mapping.put("index", "analyzed");
+      mapping.put("analyzer", "keyword");
+    }
+    return mapping;
+  }
+
+  protected Map mapTextField(IndexField field, boolean allowRecursive) {
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    // check if the field needs to be MultiField
+    if (allowRecursive && needMultiField(field)) {
+      mapping.put("type", "multi_field");
+      mapping.put("fields", mapMultiField(field));
+    } else {
+      mapping.put("type", "string");
+      mapping.put("index", "not_analyzed");
+    }
+    return mapping;
+  }
 
   @Override
   public void refresh() {

@@ -43,9 +43,10 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
   public static class RuleField extends Indexable {
 
-    public static IndexField KEY = add(IndexField.Type.KEY, "key");
+    public static IndexField KEY = addSearchable(IndexField.Type.STRING, "key");
     public static IndexField REPOSITORY = add(IndexField.Type.STRING, "repo");
-    public static IndexField NAME = addSortable(IndexField.Type.STRING, "name");
+    public static IndexField NAME = addSortableAndSearchable(IndexField.Type.STRING, "name");
+
     public static IndexField CREATED_AT = addSortable(IndexField.Type.DATE, "createdAt");
     public static IndexField UPDATED_AT = addSortable(IndexField.Type.DATE, "updatedAt");
     public static IndexField HTML_DESCRIPTION = addSearchable(IndexField.Type.TEXT, "htmlDesc");
@@ -66,7 +67,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     public static IndexField NOTE_LOGIN = add(IndexField.Type.STRING, "noteLogin");
     public static IndexField NOTE_CREATED_AT = add(IndexField.Type.DATE, "noteCreatedAt");
     public static IndexField NOTE_UPDATED_AT = add(IndexField.Type.DATE, "noteUpdatedAt");
-    public static IndexField _TAGS = addSearchable(IndexField.Type.TEXT, "_tags");
+    public static IndexField _TAGS = addSearchable(IndexField.Type.STRING, "_tags");
   }
 
   public static class RuleParamField extends Indexable {

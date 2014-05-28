@@ -46,6 +46,15 @@ public class Indexable {
     return indexField;
   }
 
+
+  public static IndexField addSortableAndSearchable(IndexField.Type type, String field) {
+    IndexField indexField = new IndexField(type, field)
+      .searchable(true)
+      .sortable(true);
+    ALL_FIELDS.add(indexField);
+    return indexField;
+  }
+
   public static IndexField addSortable(IndexField.Type type, String field){
     IndexField indexField = new IndexField(type, field)
       .sortable(true);

@@ -24,7 +24,6 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
@@ -73,108 +72,6 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       .build();
   }
 
-
-  private void addFieldMapping(IndexField field, XContentBuilder mapping) throws IOException {
-    switch (field.type()) {
-      case STRING:
-        break;
-      case TEXT:
-        break;
-      case DATE:
-        break;
-      case NUMERIC:
-        break;
-      case BOOLEAN:
-        break;
-      case OBJECT:
-        break;
-    }
-
-
-    mapping.startObject(field.field())
-      .field("type", "multi_field")
-      .startObject("fields")
-      .startObject(field.field())
-      .field("type", "string")
-      .field("index", "analyzed")
-      .field("analyzer", "whitespace")
-      .endObject();
-
-    if (field.sortable()) {
-      mapping.startObject("sort")
-        .field("type", "string")
-        .field("index", "analyzed")
-        .field("analyzer", "sortable")
-        .endObject();
-    }
-
-    if (field.searchable()) {
-      mapping.startObject("search")
-        .field("type", "string")
-        .field("index", "analyzed")
-        .field("index_analyzer", "string_gram")
-        .field("search_analyzer", "standard")
-        .endObject();
-    }
-    mapping.endObject()
-      .endObject();
-  }
-
-  private Map mapField(IndexField field) {
-    if(field.type() == IndexField.Type.TEXT){
-      return mapTextField(field);
-    } else if(field.type() == IndexField.Type.STRING
-      || field.type() == IndexField.Type.KEY){
-      return mapStringField(field);
-    } else if(field.type() == IndexField.Type.OBJECT){
-      return mapObjectField(field);
-    } else if(field.type() == IndexField.Type.BOOLEAN){
-      return mapBooleanField(field);
-    } else if(field.type() == IndexField.Type.DATE){
-      return mapDateField(field);
-    } else {
-      throw new IllegalStateException("Mapping does not exist for type: " + field.type());
-    }
-  }
-
-  private Map mapBooleanField(IndexField field) {
-    Map<String, Object> mapping = new HashMap<String, Object>();
-    mapping.put("type", "boolean");
-    return mapping;
-  }
-
-  private Map mapObjectField(IndexField field) {
-    Map<String, Object> mapping = new HashMap<String, Object>();
-    mapping.put("type", "nested");
-    mapping.put("index", "analyzed");
-    mapping.put("dynamic", "true");
-    return mapping;
-  }
-
-  private Map mapStringField(IndexField field) {
-    Map<String, Object> mapping = new HashMap<String, Object>();
-    mapping.put("type", "string");
-    mapping.put("index", "analyzed");
-    mapping.put("analyzer", "whitespace");
-    return mapping;
-  }
-
-  private Map mapDateField(IndexField field) {
-    Map<String, Object> mapping = new HashMap<String, Object>();
-    mapping.put("type", "date");
-    mapping.put("format", "date_time");
-    return mapping;
-  }
-
-  private Map mapTextField(IndexField field) {
-    Map<String, Object> mapping = new HashMap<String, Object>();
-    mapping.put("type", "string");
-    mapping.put("index", "analyzed");
-    mapping.put("analyzer", "whitespace");
-    return mapping;
-  }
-
-
   @Override
   protected Map mapKey() {
     Map<String, Object> mapping = new HashMap<String, Object>();
@@ -189,7 +86,11 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     for (IndexField field : RuleNormalizer.RuleField.ALL_FIELDS) {
       mapping.put(field.field(), mapField(field));
     }
+
+    System.out.println("mapping = " + mapping);
     return mapping;
+
+
 
 
     /*

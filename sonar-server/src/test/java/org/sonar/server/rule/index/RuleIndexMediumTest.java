@@ -234,8 +234,6 @@ public class RuleIndexMediumTest {
     dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")));
     dbSession.commit();
 
-
-    Thread.sleep(1000000);
     Result results = index.search(new RuleQuery(), new QueryOptions());
 
     assertThat(results.getTotal()).isEqualTo(2);
@@ -337,15 +335,15 @@ public class RuleIndexMediumTest {
     query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char11.getKey(), char1.getKey()));
     assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(1);
 
-    // search by Char
+    // match by Char
     query = new RuleQuery().setQueryText(char1.getKey());
     assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(1);
 
-    // search by SubChar
+    // match by SubChar
     query = new RuleQuery().setQueryText(char11.getKey());
     assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(1);
 
-    // search by SubChar & Char
+    // match by SubChar & Char
     query = new RuleQuery().setQueryText(char11.getKey() + " " + char1.getKey());
     assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(1);
   }

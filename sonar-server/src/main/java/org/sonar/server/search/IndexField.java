@@ -25,22 +25,25 @@ import org.apache.commons.lang.builder.ToStringStyle;
 public class IndexField {
 
   public static enum Type {
-    KEY, STRING, TEXT, DATE, BOOLEAN, NUMERIC, OBJECT
+    STRING, TEXT, DATE, BOOLEAN, NUMERIC, OBJECT
   }
+
+  public static final String SORT_SUFFIX = "sort";
+  public static final String SEARCH_WORDS_SUFFIX = "words";
+  public static final String SEARCH_PARTIAL_SUFFIX = "grams";
 
   private final Type type;
   private final String field;
 
-  private boolean sortable;
-  private boolean searchable;
-  private boolean matchable;
+  private boolean sortable = false;
+  private boolean searchable = false;
 
   IndexField(Type type, String field) {
     this.type = type;
     this.field = field;
   }
 
-  public Boolean sortable() {
+  public boolean sortable() {
     return sortable;
   }
 
@@ -49,21 +52,12 @@ public class IndexField {
     return this;
   }
 
-  public Boolean searchable() {
+  public boolean searchable() {
     return searchable;
   }
 
   public IndexField searchable(Boolean searchable) {
     this.searchable = searchable;
-    return this;
-  }
-
-  public Boolean matchable() {
-    return matchable;
-  }
-
-  public IndexField matchable(Boolean matchable) {
-    this.matchable = matchable;
     return this;
   }
 
