@@ -91,9 +91,13 @@ define [
       else
         @$(@contextRegion.el).hide()
 
-      @ui.tagInput.select2
-        tags: _.difference @options.app.tags, @model.get 'tags'
-        width: '300px'
+      that = @
+      jQuery.ajax
+        url: "#{baseUrl}/api/rules/tags"
+      .done (r) =>
+        that.ui.tagInput.select2
+          tags: _.difference (_.difference r.tags, @model.get 'tags'), @model.get 'sysTags'
+          width: '300px'
       @ui.tagsEdit.hide()
 
       @ui.extendDescriptionForm.hide()
