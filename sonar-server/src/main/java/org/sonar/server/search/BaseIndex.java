@@ -297,7 +297,8 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
     } else {
       mapping.put("type", "string");
       mapping.put("index", "analyzed");
-      mapping.put("analyzer", "keyword");
+      mapping.put("index_analyzer", "keyword");
+      mapping.put("search_analyzer", "whitespace");
     }
     return mapping;
   }
