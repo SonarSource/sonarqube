@@ -29,6 +29,7 @@ import org.elasticsearch.common.logging.ESLoggerFactory;
 import org.elasticsearch.common.logging.slf4j.Slf4jESLoggerFactory;
 import org.elasticsearch.common.network.NetworkUtils;
 import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeBuilder;
 import org.picocontainer.Startable;
@@ -71,27 +72,55 @@ public class ESNode implements Startable {
 
   @Override
   public void start() {
+    initLogging();
 
     IndexProperties.ES_TYPE type = settings.hasKey(IndexProperties.TYPE) ?
       IndexProperties.ES_TYPE.valueOf(settings.getString(IndexProperties.TYPE)) :
       IndexProperties.ES_TYPE.DATA;
 
+    ImmutableSettings.Builder esSettings = ImmutableSettings.settingsBuilder();
+
     switch (type) {
       case MEMORY:
-        initMemoryES();
+        initMemoryES(esSettings);
         break;
       case TRANSPORT:
-        initTransportES();
+        initTransportES(esSettings);
         break;
       case DATA:
       default:
-        initDataES();
+        initDataES(esSettings);
         break;
     }
+
+    initAnalysis(esSettings);
+    initDirs(esSettings);
+    initRestConsole(esSettings);
+    initNetwork(esSettings);
+
+    node = NodeBuilder.nodeBuilder()
+      .settings(esSettings)
+      .node();
+    node.start();
+
+
+    if (
+      node.client().admin().cluster().prepareHealth()
+        .setWaitForYellowStatus()
+        .get(TimeValue.timeValueMillis(3000))
+        .getStatus() == ClusterHealthStatus.RED) {
+      throw new IllegalStateException(
+        String.format("Elasticsearch index is corrupt, please delete directory '%s/%s' and relaunch the SonarQube server.", fileSystem.getHomeDir().getAbsolutePath(), DATA_DIR));
+    }
+
+    addIndexTemplates();
+
+    LOG.info("Elasticsearch started");
+
   }
 
-  private void initMemoryES() {
-    ImmutableSettings.Builder builder = ImmutableSettings.settingsBuilder()
+  private void initMemoryES(ImmutableSettings.Builder builder) {
+    builder
       .put("node.name", "node-test-" + System.currentTimeMillis())
       .put("node.data", true)
       .put("cluster.name", "cluster-test-" + NetworkUtils.getLocalAddress().getHostName())
@@ -102,35 +131,41 @@ public class ESNode implements Startable {
       .put("index.number_of_replicas", "0")
       .put("cluster.routing.schedule", "50ms")
       .put("node.local", true);
-
-    initDirs(builder);
-
-    node = NodeBuilder.nodeBuilder()
-      .settings(builder)
-      .node();
-    node.start();
-
-    addIndexTemplates();
   }
 
-  private void initTransportES() {
+  private void initTransportES(ImmutableSettings.Builder builder) {
     throw new IllegalStateException("Not implemented yet");
   }
 
-  private void initDataES() {
-    initLogging();
-    ImmutableSettings.Builder esSettings = ImmutableSettings.settingsBuilder()
+  private void initDataES(ImmutableSettings.Builder builder) {
+    builder
       .put("node.name", "sonarqube-" + System.currentTimeMillis())
       .put("node.data", true)
       .put("node.local", true)
       .put("cluster.name", "sonarqube")
       .put("index.number_of_shards", "1")
-      .put("index.number_of_replicas", "0")
+      .put("index.number_of_replicas", "0");
+  }
+
+  private void addIndexTemplates() {
+    PutIndexTemplateResponse response = node.client().admin().indices()
+      .preparePutTemplate("default")
+      .setTemplate("*")
+      .addMapping("_default_", "{\"dynamic\": \"strict\"}")
+      .get();
+  }
+
+  private void initLogging() {
+    ESLoggerFactory.setDefaultFactory(new Slf4jESLoggerFactory());
+  }
+
+  private void initAnalysis(ImmutableSettings.Builder esSettings) {
+    esSettings
       .put("index.mapper.dynamic", false)
 
       .put("index.analysis.analyzer.sortable.type", "custom")
       .put("index.analysis.analyzer.sortable.tokenizer", "keyword")
-      .putArray("index.analysis.analyzer.sortable.filter", "trim","lowercase","truncate")
+      .putArray("index.analysis.analyzer.sortable.filter", "trim", "lowercase", "truncate")
 
       .put("index.analysis.analyzer.string_gram.type", "custom")
       .put("index.analysis.analyzer.string_gram.tokenizer", "whitespace")
@@ -144,41 +179,6 @@ public class ESNode implements Startable {
       .put("index.analysis.analyzer.path_analyzer.type", "custom")
       .put("index.analysis.analyzer.path_analyzer.tokenizer", "path_hierarchy");
 
-    initDirs(esSettings);
-    initRestConsole(esSettings);
-    initNetwork(esSettings);
-
-    node = NodeBuilder.nodeBuilder()
-      .settings(esSettings)
-      .node();
-    node.start();
-
-    addIndexTemplates();
-
-    if (
-      node.client().admin().cluster().prepareHealth()
-        .setWaitForYellowStatus()
-        .setTimeout(healthTimeout)
-        .execute().actionGet()
-        .getStatus() == ClusterHealthStatus.RED) {
-      throw new IllegalStateException(
-        String.format("Elasticsearch index is corrupt, please delete directory '%s/%s' and relaunch the SonarQube server.", fileSystem.getHomeDir().getAbsolutePath(), DATA_DIR));
-    }
-
-    LOG.info("Elasticsearch started");
-  }
-
-  private void addIndexTemplates() {
-
-    PutIndexTemplateResponse response = node.client().admin().indices()
-      .preparePutTemplate("default")
-      .setTemplate("*")
-      .addMapping("_default_", "{\"dynamic\": \"strict\"}")
-      .get();
-  }
-
-  private void initLogging() {
-    ESLoggerFactory.setDefaultFactory(new Slf4jESLoggerFactory());
   }
 
   private void initNetwork(ImmutableSettings.Builder esSettings) {

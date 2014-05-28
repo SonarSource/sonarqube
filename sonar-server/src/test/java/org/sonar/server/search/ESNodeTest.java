@@ -148,7 +148,6 @@ public class ESNodeTest {
   }
 
   @Test
-  @Ignore //TODO update the zip with latest changes in ES.
   public void should_restore_status_on_startup() throws Exception {
     File zip = new File(Resources.getResource(getClass(), "ESNodeTest/data-es-clean.zip").toURI());
     ZipUtils.unzip(zip, dataDir);
@@ -164,7 +163,7 @@ public class ESNodeTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  @Ignore //TODO pending update
+  @Ignore //TODO generate corrupted Index
   public void should_fail_on_corrupt_index() throws Exception {
     File zip = new File(Resources.getResource(getClass(), "ESNodeTest/data-es-corrupt.zip").toURI());
     ZipUtils.unzip(zip, dataDir);
