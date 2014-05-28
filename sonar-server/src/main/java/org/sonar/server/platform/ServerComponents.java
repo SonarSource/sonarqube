@@ -171,7 +171,8 @@ import org.sonar.server.qualitygate.ws.QGatesShowAction;
 import org.sonar.server.qualitygate.ws.QGatesUnsetDefaultAction;
 import org.sonar.server.qualitygate.ws.QGatesUpdateConditionAction;
 import org.sonar.server.qualitygate.ws.QGatesWs;
-import org.sonar.server.qualityprofile.ActiveRuleService;
+import org.sonar.server.qualityprofile.QProfileService;
+import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.DefaultProfilesCache;
 import org.sonar.server.qualityprofile.ProfilesManager;
 import org.sonar.server.qualityprofile.QProfileActiveRuleOperations;
@@ -422,7 +423,8 @@ class ServerComponents {
     pico.addSingleton(ProfilesWs.class);
     pico.addSingleton(RuleActivationActions.class);
     pico.addSingleton(BulkRuleActivationActions.class);
-    pico.addSingleton(ActiveRuleService.class);
+    pico.addSingleton(RuleActivator.class);
+    pico.addSingleton(QProfileService.class);
     pico.addSingleton(RuleActivationContextFactory.class);
 
     // rule

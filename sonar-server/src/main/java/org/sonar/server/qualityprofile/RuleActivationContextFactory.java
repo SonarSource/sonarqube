@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
@@ -68,6 +69,9 @@ public class RuleActivationContextFactory implements ServerComponent {
     }
     if (RuleStatus.REMOVED == RuleStatus.valueOf(rule.getStatus())) {
       throw new IllegalArgumentException("Rule was removed: " + ruleKey);
+    }
+    if (Cardinality.MULTIPLE.equals(rule.getCardinality())) {
+      throw new IllegalArgumentException("A rule template can't be activated on a Quality profile: " + ruleKey);
     }
     context.setRule(rule);
     context.setRuleParams(db.ruleDao().findRuleParamsByRuleKey(rule.getKey(), dbSession));

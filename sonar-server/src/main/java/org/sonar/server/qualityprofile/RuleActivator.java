@@ -26,7 +26,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
@@ -37,7 +36,6 @@ import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.index.RuleIndex;
@@ -48,7 +46,6 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
@@ -56,7 +53,10 @@ import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class ActiveRuleService implements ServerComponent {
+/**
+ * Activation and deactivation of rules in Quality profiles
+ */
+public class RuleActivator implements ServerComponent {
 
   private final DbClient db;
   private final TypeValidations typeValidations;
@@ -64,27 +64,14 @@ public class ActiveRuleService implements ServerComponent {
   private final PreviewCache previewCache;
   private final IndexClient index;
 
-  public ActiveRuleService(DbClient db, IndexClient index,
-                           RuleActivationContextFactory contextFactory, TypeValidations typeValidations,
-                           PreviewCache previewCache) {
+  public RuleActivator(DbClient db, IndexClient index,
+                       RuleActivationContextFactory contextFactory, TypeValidations typeValidations,
+                       PreviewCache previewCache) {
     this.db = db;
     this.index = index;
     this.contextFactory = contextFactory;
     this.typeValidations = typeValidations;
     this.previewCache = previewCache;
-  }
-
-  @CheckForNull
-  public ActiveRule getByKey(ActiveRuleKey key) {
-    return index.get(ActiveRuleIndex.class).getByKey(key);
-  }
-
-  public List<ActiveRule> findByRuleKey(RuleKey key) {
-    return index.get(ActiveRuleIndex.class).findByRule(key);
-  }
-
-  public List<ActiveRule> findByQProfileKey(QualityProfileKey key) {
-    return index.get(ActiveRuleIndex.class).findByQProfile(key);
   }
 
   /**
@@ -243,19 +230,19 @@ public class ActiveRuleService implements ServerComponent {
       RuleResult result = ruleIndex.search(ruleQuery,
         QueryOptions.DEFAULT.setOffset(0)
           .setLimit(Integer.MAX_VALUE)
-          .setFieldsToReturn(ImmutableSet.of("template","severity"))
+          .setFieldsToReturn(ImmutableSet.of("template", "severity"))
       );
 
       for (Rule rule : result.getHits()) {
-        if(!rule.template()) {
+        if (!rule.template()) {
           ActiveRuleKey key = ActiveRuleKey.of(profile, rule.key());
           RuleActivation activation = new RuleActivation(key);
           activation.setSeverity(rule.severity());
-          for(ActiveRuleChange active : this.activate(activation, dbSession)){
-            results.put("activated",active.getKey().ruleKey().toString());
+          for (ActiveRuleChange active : this.activate(activation, dbSession)) {
+            results.put("activated", active.getKey().ruleKey().toString());
           }
         } else {
-          results.put("ignored",rule.key().toString());
+          results.put("ignored", rule.key().toString());
         }
       }
       dbSession.commit();
@@ -275,13 +262,13 @@ public class ActiveRuleService implements ServerComponent {
       RuleResult result = ruleIndex.search(ruleQuery,
         QueryOptions.DEFAULT.setOffset(0)
           .setLimit(Integer.MAX_VALUE)
-          .setFieldsToReturn(ImmutableSet.of("template","severity"))
+          .setFieldsToReturn(ImmutableSet.of("template", "severity"))
       );
 
       for (Rule rule : result.getHits()) {
         ActiveRuleKey key = ActiveRuleKey.of(profile, rule.key());
-        for(ActiveRuleChange deActive :this.deactivate(key, dbSession)){
-          results.put("deactivated",deActive.getKey().ruleKey().toString());
+        for (ActiveRuleChange deActive : this.deactivate(key, dbSession)) {
+          results.put("deactivated", deActive.getKey().ruleKey().toString());
         }
       }
       dbSession.commit();

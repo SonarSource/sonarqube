@@ -25,7 +25,8 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.qualityprofile.ActiveRule;
-import org.sonar.server.qualityprofile.ActiveRuleService;
+import org.sonar.server.qualityprofile.QProfileService;
+import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.index.RuleQuery;
 
@@ -38,9 +39,9 @@ import java.util.Map;
  * web services.
  */
 public class ActiveRuleCompleter implements ServerComponent {
-  private final ActiveRuleService service;
+  private final QProfileService service;
 
-  public ActiveRuleCompleter(ActiveRuleService service) {
+  public ActiveRuleCompleter(QProfileService service) {
     this.service = service;
   }
 
@@ -51,7 +52,7 @@ public class ActiveRuleCompleter implements ServerComponent {
       // Load details of active rules on the selected profile
       QualityProfileKey profileKey = QualityProfileKey.parse(query.getQProfileKey());
       for (Rule rule : rules) {
-        ActiveRule activeRule = service.getByKey(ActiveRuleKey.of(profileKey, rule.key()));
+        ActiveRule activeRule = service.getActiveRule(ActiveRuleKey.of(profileKey, rule.key()));
         if (activeRule != null) {
           writeActiveRules(rule.key(), Arrays.asList(activeRule), json);
         }
@@ -59,7 +60,7 @@ public class ActiveRuleCompleter implements ServerComponent {
     } else {
       // Load details of all active rules
       for (Rule rule : rules) {
-        writeActiveRules(rule.key(), service.findByRuleKey(rule.key()), json);
+        writeActiveRules(rule.key(), service.findActiveRulesByRule(rule.key()), json);
       }
     }
     json.endObject();
@@ -67,7 +68,7 @@ public class ActiveRuleCompleter implements ServerComponent {
 
   void completeShow(Rule rule, JsonWriter json) {
     json.name("actives").beginArray();
-    for (ActiveRule activeRule : service.findByRuleKey(rule.key())) {
+    for (ActiveRule activeRule : service.findActiveRulesByRule(rule.key())) {
       writeActiveRule(activeRule, json);
     }
     json.endArray();

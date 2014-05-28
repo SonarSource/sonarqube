@@ -46,27 +46,28 @@ import java.util.List;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
-public class ActiveRuleServiceMediumTest {
+public class RuleActivatorMediumTest {
 
   @Rule
   public ServerTester tester = new ServerTester()
     .addComponents(XooRulesDefinition.class, JavaRulesDefinition.class);
 
-  QualityProfileKey profileKey = QualityProfileKey.of("MyProfile", "xoo");
-  DbClient dbClient;
+  static final QualityProfileKey PROFILE_KEY = QualityProfileKey.of("MyProfile", "xoo");
+
+  DbClient db;
   DbSession dbSession;
-  ActiveRuleService service;
+  RuleActivator ruleActivator;
   ActiveRuleIndex index;
 
   @Before
   public void before() {
-    dbClient = tester.get(DbClient.class);
-    dbSession = dbClient.openSession(false);
-    service = tester.get(ActiveRuleService.class);
+    db = tester.get(DbClient.class);
+    dbSession = db.openSession(false);
+    ruleActivator = tester.get(RuleActivator.class);
     index = tester.get(ActiveRuleIndex.class);
 
     // create quality profile
-    dbClient.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor("MyProfile", "xoo"));
+    db.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor("MyProfile", "xoo"));
     dbSession.commit();
   }
 
@@ -74,17 +75,17 @@ public class ActiveRuleServiceMediumTest {
   public void activate() throws Exception {
     grantPermission();
 
-    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(profileKey, RuleKey.of("xoo", "x1")));
+    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(PROFILE_KEY, RuleKey.of("xoo", "x1")));
     activation.setSeverity(Severity.BLOCKER);
     activation.setParameter("max", "7");
-    service.activate(activation);
+    ruleActivator.activate(activation);
 
     // verify db
-    List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().findByProfileKey(profileKey, dbSession);
+    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(PROFILE_KEY, dbSession);
     assertThat(activeRuleDtos).hasSize(1);
     assertThat(activeRuleDtos.get(0).getSeverityString()).isEqualTo(Severity.BLOCKER);
     assertThat(activeRuleDtos.get(0).getInheritance()).isNull();
-    List<ActiveRuleParamDto> params = dbClient.activeRuleDao().findParamsByActiveRule(activeRuleDtos.get(0), dbSession);
+    List<ActiveRuleParamDto> params = db.activeRuleDao().findParamsByActiveRule(activeRuleDtos.get(0), dbSession);
     assertThat(params).hasSize(1);
     assertThat(params.get(0).getValue()).isEqualTo("7");
 
@@ -101,15 +102,15 @@ public class ActiveRuleServiceMediumTest {
   @Test
   public void activate_with_default_severity_and_parameter() throws Exception {
     grantPermission();
-    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(profileKey, RuleKey.of("xoo", "x1")));
-    service.activate(activation);
+    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(PROFILE_KEY, RuleKey.of("xoo", "x1")));
+    ruleActivator.activate(activation);
 
     // verify db
-    List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().findByProfileKey(profileKey, dbSession);
+    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(PROFILE_KEY, dbSession);
     assertThat(activeRuleDtos).hasSize(1);
     assertThat(activeRuleDtos.get(0).getSeverityString()).isEqualTo(Severity.MINOR);
     assertThat(activeRuleDtos.get(0).getInheritance()).isNull();
-    List<ActiveRuleParamDto> params = dbClient.activeRuleDao().findParamsByActiveRule(activeRuleDtos.get(0), dbSession);
+    List<ActiveRuleParamDto> params = db.activeRuleDao().findParamsByActiveRule(activeRuleDtos.get(0), dbSession);
     assertThat(params).hasSize(1);
     assertThat(params.get(0).getValue()).isEqualTo("10");
 
@@ -127,22 +128,22 @@ public class ActiveRuleServiceMediumTest {
   public void update_activation_severity_and_parameters() throws Exception {
     // initial activation
     grantPermission();
-    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(profileKey, RuleKey.of("xoo", "x1")));
+    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(PROFILE_KEY, RuleKey.of("xoo", "x1")));
     activation.setSeverity(Severity.BLOCKER);
-    service.activate(activation);
+    ruleActivator.activate(activation);
 
     // update
-    RuleActivation update = new RuleActivation(ActiveRuleKey.of(profileKey, RuleKey.of("xoo", "x1")));
+    RuleActivation update = new RuleActivation(ActiveRuleKey.of(PROFILE_KEY, RuleKey.of("xoo", "x1")));
     update.setSeverity(Severity.CRITICAL);
     update.setParameter("max", "42");
-    service.activate(update);
+    ruleActivator.activate(update);
 
     // verify db
-    List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().findByProfileKey(profileKey, dbSession);
+    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(PROFILE_KEY, dbSession);
     assertThat(activeRuleDtos).hasSize(1);
     assertThat(activeRuleDtos.get(0).getSeverityString()).isEqualTo(Severity.CRITICAL);
     assertThat(activeRuleDtos.get(0).getInheritance()).isNull();
-    List<ActiveRuleParamDto> params = dbClient.activeRuleDao().findParamsByActiveRule(activeRuleDtos.get(0), dbSession);
+    List<ActiveRuleParamDto> params = db.activeRuleDao().findParamsByActiveRule(activeRuleDtos.get(0), dbSession);
     assertThat(params).hasSize(1);
     assertThat(params.get(0).getValue()).isEqualTo("42");
 
@@ -160,31 +161,31 @@ public class ActiveRuleServiceMediumTest {
   public void update_activation_but_new_parameter() throws Exception {
     // initial activation
     grantPermission();
-    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profileKey, RuleKey.of("xoo", "x1"));
+    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(PROFILE_KEY, RuleKey.of("xoo", "x1"));
     RuleActivation activation = new RuleActivation(activeRuleKey);
     activation.setSeverity(Severity.BLOCKER);
-    service.activate(activation);
+    ruleActivator.activate(activation);
 
 
-    assertThat(dbClient.activeRuleDao().getParamsByKeyAndName(activeRuleKey, "max", dbSession)).isNotNull();
-    dbClient.activeRuleDao().removeParamByKeyAndName(activeRuleKey, "max", dbSession);
+    assertThat(db.activeRuleDao().getParamsByKeyAndName(activeRuleKey, "max", dbSession)).isNotNull();
+    db.activeRuleDao().removeParamByKeyAndName(activeRuleKey, "max", dbSession);
     dbSession.commit();
-    assertThat(dbClient.activeRuleDao().getParamsByKeyAndName(activeRuleKey, "max", dbSession)).isNull();
+    assertThat(db.activeRuleDao().getParamsByKeyAndName(activeRuleKey, "max", dbSession)).isNull();
 
 
     // update
-    RuleActivation update = new RuleActivation(ActiveRuleKey.of(profileKey, RuleKey.of("xoo", "x1")));
+    RuleActivation update = new RuleActivation(ActiveRuleKey.of(PROFILE_KEY, RuleKey.of("xoo", "x1")));
     update.setSeverity(Severity.CRITICAL);
     update.setParameter("max", "42");
     // contrary to activerule, the param 'max' is supposed to be inserted but not updated
-    service.activate(update);
+    ruleActivator.activate(update);
 
     // verify db
-    List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().findByProfileKey(profileKey, dbSession);
+    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(PROFILE_KEY, dbSession);
     assertThat(activeRuleDtos).hasSize(1);
     assertThat(activeRuleDtos.get(0).getSeverityString()).isEqualTo(Severity.CRITICAL);
     assertThat(activeRuleDtos.get(0).getInheritance()).isNull();
-    List<ActiveRuleParamDto> params = dbClient.activeRuleDao().findParamsByActiveRule(activeRuleDtos.get(0), dbSession);
+    List<ActiveRuleParamDto> params = db.activeRuleDao().findParamsByActiveRule(activeRuleDtos.get(0), dbSession);
     assertThat(params).hasSize(1);
     assertThat(params.get(0).getValue()).isEqualTo("42");
 
@@ -202,21 +203,21 @@ public class ActiveRuleServiceMediumTest {
   public void revert_activation_to_default_severity_and_parameters() throws Exception {
     // initial activation
     grantPermission();
-    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(profileKey, RuleKey.of("xoo", "x1")));
+    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(PROFILE_KEY, RuleKey.of("xoo", "x1")));
     activation.setSeverity(Severity.BLOCKER);
     activation.setParameter("max", "7");
-    service.activate(activation);
+    ruleActivator.activate(activation);
 
     // update
-    RuleActivation update = new RuleActivation(ActiveRuleKey.of(profileKey, RuleKey.of("xoo", "x1")));
-    service.activate(update);
+    RuleActivation update = new RuleActivation(ActiveRuleKey.of(PROFILE_KEY, RuleKey.of("xoo", "x1")));
+    ruleActivator.activate(update);
 
     // verify db
-    List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().findByProfileKey(profileKey, dbSession);
+    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(PROFILE_KEY, dbSession);
     assertThat(activeRuleDtos).hasSize(1);
     assertThat(activeRuleDtos.get(0).getSeverityString()).isEqualTo(Severity.MINOR);
     assertThat(activeRuleDtos.get(0).getInheritance()).isNull();
-    List<ActiveRuleParamDto> params = dbClient.activeRuleDao().findParamsByActiveRule(activeRuleDtos.get(0), dbSession);
+    List<ActiveRuleParamDto> params = db.activeRuleDao().findParamsByActiveRule(activeRuleDtos.get(0), dbSession);
     assertThat(params).hasSize(1);
     assertThat(params.get(0).getValue()).isEqualTo("10");
 
@@ -233,12 +234,26 @@ public class ActiveRuleServiceMediumTest {
   @Test
   public void fail_to_activate_if_not_granted() throws Exception {
     MockUserSession.set().setLogin("marius");
-    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(profileKey, RuleKey.of("xoo", "x1")));
+    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(PROFILE_KEY, RuleKey.of("xoo", "x1")));
 
     try {
-      service.activate(activation);
+      ruleActivator.activate(activation);
       fail();
     } catch (ForbiddenException e) {
+      verifyZeroActiveRules(activation.getKey());
+    }
+  }
+
+  @Test
+  public void fail_to_activate_if_template() throws Exception {
+    grantPermission();
+    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(PROFILE_KEY, RuleKey.of("xoo", "template1")));
+
+    try {
+      ruleActivator.activate(activation);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("A rule template can't be activated on a Quality profile: xoo:template1");
       verifyZeroActiveRules(activation.getKey());
     }
   }
@@ -247,10 +262,10 @@ public class ActiveRuleServiceMediumTest {
   public void fail_to_activate_if_different_languages() throws Exception {
     // profile and rule have different languages
     grantPermission();
-    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(profileKey, RuleKey.of("squid", "j1")));
+    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(PROFILE_KEY, RuleKey.of("squid", "j1")));
 
     try {
-      service.activate(activation);
+      ruleActivator.activate(activation);
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Rule squid:j1 and profile MyProfile:xoo have different languages");
@@ -262,10 +277,10 @@ public class ActiveRuleServiceMediumTest {
   public void fail_to_activate_if_unknown_rule() throws Exception {
     // profile and rule have different languages
     grantPermission();
-    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(profileKey, RuleKey.of("xoo", "x3")));
+    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(PROFILE_KEY, RuleKey.of("xoo", "x3")));
 
     try {
-      service.activate(activation);
+      ruleActivator.activate(activation);
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Rule not found: xoo:x3");
@@ -280,7 +295,7 @@ public class ActiveRuleServiceMediumTest {
     RuleActivation activation = new RuleActivation(ActiveRuleKey.of(QualityProfileKey.of("other", "js"), RuleKey.of("xoo", "x1")));
 
     try {
-      service.activate(activation);
+      ruleActivator.activate(activation);
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Quality profile not found: other:js");
@@ -290,11 +305,11 @@ public class ActiveRuleServiceMediumTest {
   @Test
   public void fail_to_activate_if_invalid_parameter() throws Exception {
     grantPermission();
-    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(profileKey, RuleKey.of("xoo", "x1")));
+    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(PROFILE_KEY, RuleKey.of("xoo", "x1")));
     activation.setParameter("max", "foo");
 
     try {
-      service.activate(activation);
+      ruleActivator.activate(activation);
       fail();
     } catch (BadRequestException e) {
       assertThat(e.l10nKey()).isEqualTo("errors.type.notInteger");
@@ -306,14 +321,14 @@ public class ActiveRuleServiceMediumTest {
   public void deactivate() throws Exception {
     // activation
     grantPermission();
-    ActiveRuleKey key = ActiveRuleKey.of(profileKey, RuleKey.of("xoo", "x1"));
+    ActiveRuleKey key = ActiveRuleKey.of(PROFILE_KEY, RuleKey.of("xoo", "x1"));
     RuleActivation activation = new RuleActivation(key);
     activation.setSeverity(Severity.BLOCKER);
     activation.setParameter("max", "7");
-    service.activate(activation);
+    ruleActivator.activate(activation);
 
     // deactivation
-    service.deactivate(key);
+    ruleActivator.deactivate(key);
 
     verifyZeroActiveRules(key);
   }
@@ -323,8 +338,8 @@ public class ActiveRuleServiceMediumTest {
     grantPermission();
 
     // deactivation
-    ActiveRuleKey key = ActiveRuleKey.of(profileKey, RuleKey.of("xoo", "x1"));
-    service.deactivate(key);
+    ActiveRuleKey key = ActiveRuleKey.of(PROFILE_KEY, RuleKey.of("xoo", "x1"));
+    ruleActivator.deactivate(key);
 
     verifyZeroActiveRules(key);
   }
@@ -332,9 +347,9 @@ public class ActiveRuleServiceMediumTest {
   @Test
   public void deactivation_fails_if_rule_not_found() throws Exception {
     grantPermission();
-    ActiveRuleKey key = ActiveRuleKey.of(profileKey, RuleKey.of("xoo", "x3"));
+    ActiveRuleKey key = ActiveRuleKey.of(PROFILE_KEY, RuleKey.of("xoo", "x3"));
     try {
-      service.deactivate(key);
+      ruleActivator.deactivate(key);
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Rule not found: xoo:x3");
@@ -347,7 +362,7 @@ public class ActiveRuleServiceMediumTest {
     grantPermission();
     ActiveRuleKey key = ActiveRuleKey.of(QualityProfileKey.of("other", "js"), RuleKey.of("xoo", "x1"));
     try {
-      service.deactivate(key);
+      ruleActivator.deactivate(key);
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Quality profile not found: other:js");
@@ -357,13 +372,13 @@ public class ActiveRuleServiceMediumTest {
   @Test
   public void synchronize_index() throws Exception {
     QualityProfileDto profile1 = QualityProfileDto.createFor("p1", "java");
-    dbClient.qualityProfileDao().insert(dbSession, profile1);
+    db.qualityProfileDao().insert(dbSession, profile1);
 
     RuleDto rule1 = RuleDto.createFor(RuleKey.of("java", "r1")).setSeverity(Severity.MAJOR);
-    dbClient.ruleDao().insert(dbSession, rule1);
+    db.ruleDao().insert(dbSession, rule1);
 
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile1, rule1).setSeverity("BLOCKER");
-    dbClient.activeRuleDao().insert(dbSession, activeRule);
+    db.activeRuleDao().insert(dbSession, activeRule);
     dbSession.commit();
 
     tester.clearIndexes();
@@ -372,7 +387,7 @@ public class ActiveRuleServiceMediumTest {
     assertThat(index.getByKey(activeRule.getKey())).isNull();
 
     // 1. Synchronize since 0
-    dbClient.activeRuleDao().synchronizeAfter(dbSession, 0);
+    db.activeRuleDao().synchronizeAfter(dbSession, 0);
 
     // 2. Assert that we have the rule in Index
     assertThat(index.getByKey(activeRule.getKey())).isNotNull();
@@ -383,41 +398,41 @@ public class ActiveRuleServiceMediumTest {
   public void find_active_rules() throws Exception {
     QualityProfileDto profile1 = QualityProfileDto.createFor("p1", "java");
     QualityProfileDto profile2 = QualityProfileDto.createFor("p2", "java");
-    dbClient.qualityProfileDao().insert(dbSession, profile1, profile2);
+    db.qualityProfileDao().insert(dbSession, profile1, profile2);
 
     RuleDto rule1 = RuleDto.createFor(RuleKey.of("java", "r1")).setSeverity(Severity.MAJOR);
     RuleDto rule2 = RuleDto.createFor(RuleKey.of("java", "r2")).setSeverity(Severity.MAJOR);
-    dbClient.ruleDao().insert(dbSession, rule1);
-    dbClient.ruleDao().insert(dbSession, rule2);
+    db.ruleDao().insert(dbSession, rule1);
+    db.ruleDao().insert(dbSession, rule2);
 
-    dbClient.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile1, rule1).setSeverity(Severity.MINOR));
-    dbClient.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile1, rule2).setSeverity(Severity.BLOCKER));
-    dbClient.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile2, rule2).setSeverity(Severity.CRITICAL));
+    db.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile1, rule1).setSeverity(Severity.MINOR));
+    db.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile1, rule2).setSeverity(Severity.BLOCKER));
+    db.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile2, rule2).setSeverity(Severity.CRITICAL));
     dbSession.commit();
 
     // find by rule key
-    List<ActiveRule> activeRules = service.findByRuleKey(RuleKey.of("java", "r1"));
+    List<ActiveRule> activeRules = index.findByRule(RuleKey.of("java", "r1"));
     assertThat(activeRules).hasSize(1);
     assertThat(activeRules.get(0).key().ruleKey()).isEqualTo(RuleKey.of("java", "r1"));
 
-    activeRules = service.findByRuleKey(RuleKey.of("java", "r2"));
+    activeRules = index.findByRule(RuleKey.of("java", "r2"));
     assertThat(activeRules).hasSize(2);
     assertThat(activeRules.get(0).key().ruleKey()).isEqualTo(RuleKey.of("java", "r2"));
 
-    activeRules = service.findByRuleKey(RuleKey.of("java", "r3"));
+    activeRules = index.findByRule(RuleKey.of("java", "r3"));
     assertThat(activeRules).isEmpty();
 
     // find by profile
-    activeRules = service.findByQProfileKey(profile1.getKey());
+    activeRules = index.findByQProfile(profile1.getKey());
     assertThat(activeRules).hasSize(2);
     assertThat(activeRules.get(0).key().qProfile()).isEqualTo(profile1.getKey());
     assertThat(activeRules.get(1).key().qProfile()).isEqualTo(profile1.getKey());
 
-    activeRules = service.findByQProfileKey(profile2.getKey());
+    activeRules = index.findByQProfile(profile2.getKey());
     assertThat(activeRules).hasSize(1);
     assertThat(activeRules.get(0).key().qProfile()).isEqualTo(profile2.getKey());
 
-    activeRules = service.findByQProfileKey(QualityProfileKey.of("unknown", "unknown"));
+    activeRules = index.findByQProfile(QualityProfileKey.of("unknown", "unknown"));
     assertThat(activeRules).isEmpty();
   }
 
@@ -427,7 +442,7 @@ public class ActiveRuleServiceMediumTest {
 
   private void verifyZeroActiveRules(ActiveRuleKey key) {
     // verify db
-    List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().findByProfileKey(key.qProfile(), dbSession);
+    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(key.qProfile(), dbSession);
     assertThat(activeRuleDtos).isEmpty();
     //TODO test params
 
@@ -448,6 +463,13 @@ public class ActiveRuleServiceMediumTest {
         .setDefaultValue("10")
         .setType(RuleParamType.INTEGER)
         .setDescription("Maximum");
+
+      repository.createRule("template1")
+        .setName("Template1")
+        .setHtmlDescription("Template one")
+        .setSeverity(Severity.MINOR)
+        .setTemplate(true);
+
       repository.done();
     }
   }

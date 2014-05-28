@@ -29,7 +29,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
-import org.sonar.server.qualityprofile.ActiveRuleService;
+import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.RuleActivation;
 
 public class RuleActivationActions implements ServerComponent {
@@ -39,9 +39,9 @@ public class RuleActivationActions implements ServerComponent {
   public static final String SEVERITY = "severity";
   public static final String PARAMS = "params";
 
-  private final ActiveRuleService service;
+  private final RuleActivator service;
 
-  public RuleActivationActions(ActiveRuleService service) {
+  public RuleActivationActions(RuleActivator service) {
     this.service = service;
   }
 

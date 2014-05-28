@@ -62,7 +62,7 @@ public class RegisterQualityProfiles implements ServerComponent {
   private final List<ProfileDefinition> definitions;
   private final DefaultProfilesCache defaultProfilesCache;
   private final DbClient dbClient;
-  private final ActiveRuleService activeRuleService;
+  private final RuleActivator ruleActivator;
 
   /**
    * To be kept when no ProfileDefinition are injected
@@ -70,19 +70,19 @@ public class RegisterQualityProfiles implements ServerComponent {
   public RegisterQualityProfiles(PersistentSettings settings,
                                  DefaultProfilesCache defaultProfilesCache,
                                  DbClient dbClient,
-                                 ActiveRuleService activeRuleService) {
-    this(settings, defaultProfilesCache, dbClient, activeRuleService, Collections.<ProfileDefinition>emptyList());
+                                 RuleActivator ruleActivator) {
+    this(settings, defaultProfilesCache, dbClient, ruleActivator, Collections.<ProfileDefinition>emptyList());
   }
 
   public RegisterQualityProfiles(PersistentSettings settings,
                                  DefaultProfilesCache defaultProfilesCache,
                                  DbClient dbClient,
-                                 ActiveRuleService activeRuleService,
+                                 RuleActivator ruleActivator,
                                  List<ProfileDefinition> definitions) {
     this.settings = settings;
     this.defaultProfilesCache = defaultProfilesCache;
     this.dbClient = dbClient;
-    this.activeRuleService = activeRuleService;
+    this.ruleActivator = ruleActivator;
     this.definitions = definitions;
   }
 
@@ -141,7 +141,7 @@ public class RegisterQualityProfiles implements ServerComponent {
         for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
           activation.setParameter(param.getKey(), param.getValue());
         }
-        activeRuleService.activate(activation, session);
+        ruleActivator.activate(activation, session);
       }
     }
 

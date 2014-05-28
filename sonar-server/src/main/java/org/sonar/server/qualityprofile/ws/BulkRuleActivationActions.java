@@ -29,7 +29,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
-import org.sonar.server.qualityprofile.ActiveRuleService;
+import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.rule.ws.SearchAction;
@@ -40,10 +40,10 @@ public class BulkRuleActivationActions implements ServerComponent {
   public static final String PROFILE_KEY = "profile_key";
   public static final String SEVERITY = "severity";
 
-  private final ActiveRuleService service;
+  private final RuleActivator service;
   private final RuleService ruleService;
 
-  public BulkRuleActivationActions(ActiveRuleService service, RuleService ruleService) {
+  public BulkRuleActivationActions(RuleActivator service, RuleService ruleService) {
     this.service = service;
     this.ruleService = ruleService;
   }
