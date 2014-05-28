@@ -340,12 +340,12 @@ public final class RuleDto extends Dto<RuleKey> {
   }
 
   public RuleDto setTags(Set<String> tags) {
-    this.tags = tags.isEmpty()?null:StringUtils.join(tags, ',');
+    this.tags = tags.isEmpty() ? null : StringUtils.join(tags, ',');
     return this;
   }
 
   public RuleDto setSystemTags(Set<String> tags) {
-    this.systemTags =  tags.isEmpty()?null:StringUtils.join(tags, ',');
+    this.systemTags = tags.isEmpty() ? null : StringUtils.join(tags, ',');
     return this;
   }
 
@@ -377,7 +377,7 @@ public final class RuleDto extends Dto<RuleKey> {
     return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
   }
 
-  public static RuleDto createFor(RuleKey key){
+  public static RuleDto createFor(RuleKey key) {
     return new RuleDto()
       .setRepositoryKey(key.repository())
       .setRuleKey(key.rule());

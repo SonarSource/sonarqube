@@ -321,6 +321,8 @@ class ServerComponents {
     pico.addSingleton(RuleDefinitionsLoader.class);
     pico.addSingleton(RulesDefinitionXmlLoader.class);
     pico.addSingleton(RuleService.class);
+    pico.addSingleton(RuleUpdater.class);
+    pico.addSingleton(UpdateAction.class);
     pico.addSingleton(RulesWebService.class);
     pico.addSingleton(SearchAction.class);
     pico.addSingleton(org.sonar.server.rule.ws.ShowAction.class);

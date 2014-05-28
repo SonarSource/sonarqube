@@ -45,10 +45,12 @@ public class RuleService implements ServerComponent {
 
   private final RuleIndex index;
   private final DbClient db;
+  private final RuleUpdater ruleUpdater;
 
-  public RuleService(RuleIndex index, DbClient db) {
+  public RuleService(RuleIndex index, DbClient db, RuleUpdater ruleUpdater) {
     this.index = index;
     this.db = db;
+    this.ruleUpdater = ruleUpdater;
   }
 
   @CheckForNull
@@ -122,6 +124,10 @@ public class RuleService implements ServerComponent {
     } finally {
       dbSession.close();
     }
+  }
+
+  public void update(RuleUpdate update) {
+    ruleUpdater.update(update, UserSession.get());
   }
 
   private void checkAdminPermission(UserSession userSession) {

@@ -24,11 +24,14 @@ import org.picocontainer.Startable;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.server.paging.PagedResult;
 import org.sonar.server.paging.PagingResult;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.rule.index.RuleResult;
 import org.sonar.server.search.QueryOptions;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.CheckForNull;
@@ -43,9 +46,11 @@ import java.util.Map;
 public class RubyRuleService implements ServerComponent, Startable {
 
   private final RuleService service;
+  private final RuleUpdater updater;
 
-  public RubyRuleService(RuleService service) {
+  public RubyRuleService(RuleService service, RuleUpdater updater) {
     this.service = service;
+    this.updater = updater;
   }
 
   /**
@@ -78,13 +83,19 @@ public class RubyRuleService implements ServerComponent, Startable {
 
   // sqale
   public void updateRule(Map<String, Object> params) {
-    //TODO
-//    rules.updateRule(new RuleOperations.RuleChange()
-//      .setRuleKey(RuleKey.parse((String) params.get("ruleKey")))
-//      .setDebtCharacteristicKey(Strings.emptyToNull((String) params.get("debtCharacteristicKey")))
-//      .setDebtRemediationFunction((String) params.get("debtRemediationFunction"))
-//      .setDebtRemediationCoefficient(Strings.emptyToNull((String) params.get("debtRemediationCoefficient")))
-//      .setDebtRemediationOffset(Strings.emptyToNull((String) params.get("debtRemediationOffset"))));
+    RuleUpdate update = new RuleUpdate(RuleKey.parse((String) params.get("ruleKey")));
+    update.setDebtSubCharacteristic(Strings.emptyToNull((String) params.get("debtCharacteristicKey")));
+    String fn = (String) params.get("debtRemediationFunction");
+    if (fn == null) {
+      update.setDebtRemediationFunction(null);
+    } else {
+      update.setDebtRemediationFunction(new DefaultDebtRemediationFunction(
+          DebtRemediationFunction.Type.valueOf(fn),
+          Strings.emptyToNull((String) params.get("debtRemediationCoefficient")),
+          Strings.emptyToNull((String) params.get("debtRemediationOffset")))
+      );
+    }
+    updater.update(update, UserSession.get());
   }
 
   @Override

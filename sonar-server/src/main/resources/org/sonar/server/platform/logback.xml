@@ -74,13 +74,13 @@
 
   <!-- Turn off ElasticSearch logging -->
   <logger name="org.elasticsearch">
-    <level value="OFF"/>
+    <level value="DEBUG"/>
   </logger>
   <logger name="org.elasticsearch.node">
-    <level value="INFO"/>
+    <level value="DEBUG"/>
   </logger>
   <logger name="org.elasticsearch.http">
-    <level value="INFO"/>
+    <level value="DEBUG"/>
   </logger>
 
   <root>

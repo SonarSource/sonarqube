@@ -29,16 +29,13 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.ActiveRule;
-import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
-import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.Collection;
@@ -51,17 +48,14 @@ public class ActiveRuleIndexMediumTest {
   @ClassRule
   public static ServerTester tester = new ServerTester();
 
-  MyBatis myBatis = tester.get(MyBatis.class);
-  QualityProfileDao qualityProfileDao = tester.get(QualityProfileDao.class);
-  ActiveRuleDao activeRuleDao = tester.get(ActiveRuleDao.class);
-  RuleDao dao = tester.get(RuleDao.class);
+  DbClient db = tester.get(DbClient.class);
   ActiveRuleIndex index = tester.get(ActiveRuleIndex.class);
   DbSession dbSession;
 
   @Before
   public void before() {
     tester.clearDbAndEs();
-    dbSession = myBatis.openSession(false);
+    dbSession = db.openSession(false);
   }
 
   @After
@@ -74,26 +68,25 @@ public class ActiveRuleIndexMediumTest {
     QualityProfileDto profileDto = new QualityProfileDto()
       .setName("myprofile")
       .setLanguage("java");
-    qualityProfileDao.insert(dbSession, profileDto);
+    db.qualityProfileDao().insert(dbSession, profileDto);
 
     // insert db
     RuleKey ruleKey = RuleKey.of("javascript", "S001");
     RuleDto ruleDto = newRuleDto(ruleKey);
-    dao.insert(dbSession, ruleDto);
+    db.ruleDao().insert(dbSession, ruleDto);
 
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profileDto, ruleDto)
       .setInheritance(ActiveRule.Inheritance.INHERIT.name())
       .setSeverity(Severity.BLOCKER);
 
-    activeRuleDao.insert(dbSession, activeRule);
+    db.activeRuleDao().insert(dbSession, activeRule);
     dbSession.commit();
 
     // verify that activeRules are persisted in db
-    List<ActiveRuleDto> persistedDtos = activeRuleDao.findByRule(ruleDto, dbSession);
+    List<ActiveRuleDto> persistedDtos = db.activeRuleDao().findByRule(ruleDto, dbSession);
     assertThat(persistedDtos).hasSize(1);
 
     // verify that activeRules are indexed in es
-
 
 
     ActiveRule hit = index.getByKey(activeRule.getKey());
@@ -110,41 +103,41 @@ public class ActiveRuleIndexMediumTest {
     QualityProfileDto profileDto = new QualityProfileDto()
       .setName("myprofile")
       .setLanguage("java");
-    qualityProfileDao.insert(dbSession, profileDto);
+    db.qualityProfileDao().insert(dbSession, profileDto);
 
     // insert db
     RuleKey ruleKey = RuleKey.of("javascript", "S001");
     RuleDto ruleDto = newRuleDto(ruleKey);
-    dao.insert(dbSession, ruleDto);
+    db.ruleDao().insert(dbSession, ruleDto);
 
     RuleParamDto minParam = new RuleParamDto()
       .setName("min")
       .setType("STRING");
-    dao.addRuleParam(ruleDto, minParam, dbSession);
+    db.ruleDao().addRuleParam(ruleDto, minParam, dbSession);
 
     RuleParamDto maxParam = new RuleParamDto()
       .setName("max")
       .setType("STRING");
-    dao.addRuleParam(ruleDto, maxParam, dbSession);
+    db.ruleDao().addRuleParam(ruleDto, maxParam, dbSession);
 
 
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profileDto, ruleDto)
       .setInheritance(ActiveRule.Inheritance.INHERIT.name())
       .setSeverity(Severity.BLOCKER);
-    activeRuleDao.insert(dbSession, activeRule);
+    db.activeRuleDao().insert(dbSession, activeRule);
 
     ActiveRuleParamDto activeRuleMinParam = ActiveRuleParamDto.createFor(minParam)
       .setValue("minimum");
-    activeRuleDao.addParam(activeRule, activeRuleMinParam, dbSession);
+    db.activeRuleDao().addParam(activeRule, activeRuleMinParam, dbSession);
 
     ActiveRuleParamDto activeRuleMaxParam = ActiveRuleParamDto.createFor(maxParam)
       .setValue("maximum");
-    activeRuleDao.addParam(activeRule, activeRuleMaxParam, dbSession);
+    db.activeRuleDao().addParam(activeRule, activeRuleMaxParam, dbSession);
 
     dbSession.commit();
 
     // verify that activeRulesParams are persisted in db
-    List<ActiveRuleParamDto> persistedDtos = activeRuleDao.findParamsByActiveRule(activeRule, dbSession);
+    List<ActiveRuleParamDto> persistedDtos = db.activeRuleDao().findParamsByActiveRule(activeRule, dbSession);
     assertThat(persistedDtos).hasSize(2);
 
     // verify that activeRulesParams are indexed in es
@@ -152,8 +145,8 @@ public class ActiveRuleIndexMediumTest {
 
     ActiveRule rule = index.getByKey(activeRule.getKey());
     assertThat(rule.params()).hasSize(2);
-    assertThat(rule.params().keySet()).containsOnly("min","max");
-    assertThat(rule.params().values()).containsOnly("minimum","maximum");
+    assertThat(rule.params().keySet()).containsOnly("min", "max");
+    assertThat(rule.params().values()).containsOnly("minimum", "maximum");
     assertThat(rule.params().get("min")).isEqualTo("minimum");
   }
 
@@ -161,16 +154,16 @@ public class ActiveRuleIndexMediumTest {
   public void find_activeRules() throws InterruptedException {
     QualityProfileDto profile1 = QualityProfileDto.createFor("p1", "java");
     QualityProfileDto profile2 = QualityProfileDto.createFor("p2", "java");
-    qualityProfileDao.insert(dbSession, profile1);
-    qualityProfileDao.insert(dbSession, profile2);
+    db.qualityProfileDao().insert(dbSession, profile1);
+    db.qualityProfileDao().insert(dbSession, profile2);
 
     // insert db
     RuleDto ruleDto = newRuleDto(RuleKey.of("javascript", "S001"));
-    dao.insert(dbSession, ruleDto);
+    db.ruleDao().insert(dbSession, ruleDto);
 
     // insert db
     RuleDto ruleDto2 = newRuleDto(RuleKey.of("javascript", "S002"));
-    dao.insert(dbSession, ruleDto2);
+    db.ruleDao().insert(dbSession, ruleDto2);
 
     ActiveRuleDto find1 = ActiveRuleDto.createFor(profile1, ruleDto)
       .setInheritance(ActiveRule.Inheritance.INHERIT.name())
@@ -184,15 +177,15 @@ public class ActiveRuleIndexMediumTest {
       .setInheritance(ActiveRule.Inheritance.INHERIT.name())
       .setSeverity(Severity.BLOCKER);
 
-    activeRuleDao.insert(dbSession, find1);
-    activeRuleDao.insert(dbSession, find2);
-    activeRuleDao.insert(dbSession, notFound);
+    db.activeRuleDao().insert(dbSession, find1);
+    db.activeRuleDao().insert(dbSession, find2);
+    db.activeRuleDao().insert(dbSession, notFound);
     dbSession.commit();
 
     // verify that activeRules are persisted in db
-    List<ActiveRuleDto> persistedDtos = activeRuleDao.findByRule(ruleDto, dbSession);
+    List<ActiveRuleDto> persistedDtos = db.activeRuleDao().findByRule(ruleDto, dbSession);
     assertThat(persistedDtos).hasSize(2);
-    persistedDtos = activeRuleDao.findByRule(ruleDto2, dbSession);
+    persistedDtos = db.activeRuleDao().findByRule(ruleDto2, dbSession);
     assertThat(persistedDtos).hasSize(1);
 
     // verify that activeRules are indexed in es
@@ -213,14 +206,14 @@ public class ActiveRuleIndexMediumTest {
     QualityProfileDto profileDto2 = new QualityProfileDto()
       .setName("P2")
       .setLanguage("java");
-    qualityProfileDao.insert(dbSession, profileDto);
-    qualityProfileDao.insert(dbSession, profileDto2);
+    db.qualityProfileDao().insert(dbSession, profileDto);
+    db.qualityProfileDao().insert(dbSession, profileDto2);
 
     // insert db
     RuleDto rule1 = newRuleDto(RuleKey.of("javascript", "S001"));
-    dao.insert(dbSession, rule1);
     RuleDto rule2 = newRuleDto(RuleKey.of("javascript", "S002"));
-    dao.insert(dbSession, rule2);
+    db.ruleDao().insert(dbSession, rule1);
+    db.ruleDao().insert(dbSession, rule2);
 
     ActiveRuleDto onP1 = ActiveRuleDto.createFor(profileDto, rule1)
       .setInheritance(ActiveRule.Inheritance.INHERIT.name())
@@ -234,15 +227,15 @@ public class ActiveRuleIndexMediumTest {
       .setInheritance(ActiveRule.Inheritance.INHERIT.name())
       .setSeverity(Severity.BLOCKER);
 
-    activeRuleDao.insert(dbSession, onP1);
-    activeRuleDao.insert(dbSession, firstOnP1);
-    activeRuleDao.insert(dbSession, firstOnP2);
+    db.activeRuleDao().insert(dbSession, onP1);
+    db.activeRuleDao().insert(dbSession, firstOnP1);
+    db.activeRuleDao().insert(dbSession, firstOnP2);
     dbSession.commit();
 
     // verify that activeRules are persisted in db
-    List<ActiveRuleDto> persistedDtos = activeRuleDao.findByRule(rule1, dbSession);
+    List<ActiveRuleDto> persistedDtos = db.activeRuleDao().findByRule(rule1, dbSession);
     assertThat(persistedDtos).hasSize(2);
-    persistedDtos = activeRuleDao.findByRule(rule2, dbSession);
+    persistedDtos = db.activeRuleDao().findByRule(rule2, dbSession);
     assertThat(persistedDtos).hasSize(1);
 
     // verify that activeRules are indexed in es
