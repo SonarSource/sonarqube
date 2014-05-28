@@ -22,6 +22,8 @@ package org.sonar.wsclient.test.internal;
 
 import org.sonar.wsclient.test.TestableTestCases;
 
+import javax.annotation.CheckForNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +33,7 @@ public class DefaultTestableTestCases implements TestableTestCases {
 
   private final List<TestCase> tests = new ArrayList<TestCase>();
   private final Map<String, File> filesByRef = new HashMap<String, File>();
+  private final Map<String, File> filesByTest = new HashMap<String, File>();
 
   @Override
   public List<TestCase> tests() {
@@ -38,16 +41,27 @@ public class DefaultTestableTestCases implements TestableTestCases {
   }
 
   @Override
+  @CheckForNull
+  public File fileByTest(String testCase) {
+    return filesByTest.get(testCase);
+  }
+
+  @Override
   public List<File> files() {
     return new ArrayList<File>(filesByRef.values());
   }
 
+  @CheckForNull
   public File fileByRef(String ref) {
     return filesByRef.get(ref);
   }
 
-  public DefaultTestableTestCases addTest(TestCase testCase) {
+  public DefaultTestableTestCases addTest(String ref, TestCase testCase) {
     tests.add(testCase);
+    File file = fileByRef(ref);
+    if (file != null) {
+      filesByTest.put(testCase.name(), file);
+    }
     return this;
   }
 

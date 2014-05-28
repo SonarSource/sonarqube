@@ -142,13 +142,9 @@ public class DefaultTestClient implements TestClient {
     List<Map> tests = (List) jRoot.get("tests");
     if (tests != null) {
       for (final Map json : tests) {
-        testableTestCases.addTest(new TestableTestCases.TestCase() {
-          @Override
-          public TestableTestCases.File file() {
-            String fileRef = JsonUtils.getString(json, "_ref");
-            return fileRef != null ? testableTestCases.fileByRef(fileRef) : null;
-          }
+        final String fileRef = JsonUtils.getString(json, "_ref");
 
+        testableTestCases.addTest(fileRef, new TestableTestCases.TestCase() {
           @Override
           public String name() {
             return JsonUtils.getString(json, "name");
