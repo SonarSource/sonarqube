@@ -24,7 +24,6 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -67,6 +66,23 @@ public class QueryOptionsTest {
       assertThat(e).hasMessage("Page size must be greater or equal to 0 (got -1)");
     }
   }
+
+  @Test
+  public void max_limit() throws Exception {
+    options.setLimit(42);
+    assertThat(options.getLimit()).isEqualTo(42);
+
+    options.setLimit(QueryOptions.MAX_LIMIT + 10);
+    assertThat(options.getLimit()).isEqualTo(QueryOptions.MAX_LIMIT);
+  }
+
+  @Test
+  public void max_page_size() throws Exception {
+    options.setPage(3, QueryOptions.MAX_LIMIT + 10);
+    assertThat(options.getOffset()).isEqualTo(QueryOptions.MAX_LIMIT * 2);
+    assertThat(options.getLimit()).isEqualTo(QueryOptions.MAX_LIMIT);
+  }
+
 
   @Test
   public void getFieldsToReturn() throws Exception {

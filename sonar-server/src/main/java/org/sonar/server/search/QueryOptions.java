@@ -38,6 +38,7 @@ public class QueryOptions {
 
   public static final int DEFAULT_OFFSET = 0;
   public static final int DEFAULT_LIMIT = 10;
+  public static final int MAX_LIMIT = 500;
   public static final boolean DEFAULT_FACET = false;
 
   private int offset = DEFAULT_OFFSET;
@@ -82,8 +83,8 @@ public class QueryOptions {
   public QueryOptions setPage(int page, int pageSize) {
     Preconditions.checkArgument(page >= 1, "Page must be greater or equal to 1 (got " + page + ")");
     Preconditions.checkArgument(pageSize >= 0, "Page size must be greater or equal to 0 (got " + pageSize + ")");
-    setOffset((page * pageSize) - pageSize);
     setLimit(pageSize);
+    setOffset((page * getLimit()) - getLimit());
     return this;
   }
 
@@ -98,7 +99,7 @@ public class QueryOptions {
    * Sets the limit on the number of results to return.
    */
   public QueryOptions setLimit(int limit) {
-    this.limit = limit;
+    this.limit = Math.min(limit, MAX_LIMIT);
     return this;
   }
 

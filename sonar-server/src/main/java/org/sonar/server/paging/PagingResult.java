@@ -17,13 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.paging;
 
 /**
  * Heavily inspired by {@link org.sonar.api.utils.Paging}
+ *
  * @since 4.2
+ * @deprecated use {@link org.sonar.server.search.Result}
  */
+@Deprecated
 public class PagingResult extends Paging {
 
   private final long total;
@@ -44,7 +46,7 @@ public class PagingResult extends Paging {
     return p;
   }
 
-  public boolean hasNextPage(){
+  public boolean hasNextPage() {
     return pageIndex() < pages();
   }
 
@@ -64,7 +66,7 @@ public class PagingResult extends Paging {
   }
 
   protected static void checkTotalItems(long totalItems) {
-    if (totalItems<0) {
+    if (totalItems < 0) {
       throw new IllegalArgumentException("Total items must be positive. Got " + totalItems);
     }
   }

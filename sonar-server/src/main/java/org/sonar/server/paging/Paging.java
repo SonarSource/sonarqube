@@ -23,7 +23,9 @@ package org.sonar.server.paging;
 /**
  * Heavily inspired by {@link org.sonar.api.utils.Paging}
  * @since 4.2
+ * @deprecated use {@link org.sonar.server.search.Result}
  */
+@Deprecated
 public class Paging {
 
   private final int pageSize;

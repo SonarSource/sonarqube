@@ -22,8 +22,9 @@ package org.sonar.server.paging;
 import java.util.Collection;
 
 /**
- * @since 4.3
+ * @deprecated use {@link org.sonar.server.search.Result}
  */
+@Deprecated
 public class PagedResult<T> {
 
   private Collection<T> results;

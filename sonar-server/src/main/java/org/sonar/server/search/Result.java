@@ -45,7 +45,6 @@ public abstract class Result<K> {
     this.facets = LinkedListMultimap.create();
     this.total = (int) response.getHits().totalHits();
     this.timeInMillis = response.getTookInMillis();
-
     for (SearchHit hit : response.getHits()) {
       this.hits.add(getSearchResult(hit.getSource()));
     }
