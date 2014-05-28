@@ -22,8 +22,8 @@ package org.sonar.server.search;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
+import org.elasticsearch.action.admin.indices.template.put.PutIndexTemplateResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.logging.ESLoggerFactory;
 import org.elasticsearch.common.logging.slf4j.Slf4jESLoggerFactory;
@@ -38,7 +38,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ServerFileSystem;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * ElasticSearch Node used to connect to index.
@@ -73,8 +72,8 @@ public class ESNode implements Startable {
   @Override
   public void start() {
 
-    IndexProperties.ES_TYPE type = settings.hasKey(IndexProperties.TYPE)?
-      IndexProperties.ES_TYPE.valueOf(settings.getString(IndexProperties.TYPE)):
+    IndexProperties.ES_TYPE type = settings.hasKey(IndexProperties.TYPE) ?
+      IndexProperties.ES_TYPE.valueOf(settings.getString(IndexProperties.TYPE)) :
       IndexProperties.ES_TYPE.DATA;
 
     switch (type) {
@@ -91,7 +90,7 @@ public class ESNode implements Startable {
     }
   }
 
-  private void initMemoryES(){
+  private void initMemoryES() {
     ImmutableSettings.Builder builder = ImmutableSettings.settingsBuilder()
       .put("node.name", "node-test-" + System.currentTimeMillis())
       .put("node.data", true)
@@ -105,21 +104,43 @@ public class ESNode implements Startable {
       .put("node.local", true);
 
     initDirs(builder);
-    
+
     node = NodeBuilder.nodeBuilder()
       .settings(builder)
       .node();
     node.start();
+
+    addIndexTemplates();
   }
 
-  private void initTransportES(){
+  private void initTransportES() {
     throw new IllegalStateException("Not implemented yet");
   }
 
   private void initDataES() {
     initLogging();
-    ImmutableSettings.Builder esSettings = ImmutableSettings.builder()
-      .loadFromUrl(getClass().getResource("config/elasticsearch.json"));
+    ImmutableSettings.Builder esSettings = ImmutableSettings.settingsBuilder()
+      .put("node.name", "sonarqube-" + System.currentTimeMillis())
+      .put("node.data", true)
+      .put("node.local", true)
+      .put("cluster.name", "sonarqube")
+      .put("index.number_of_shards", "1")
+      .put("index.number_of_replicas", "0")
+      .put("index.mapper.dynamic", false)
+
+      .put("index.analysis.analyzer.sortable.type", "custom")
+      .put("index.analysis.analyzer.sortable.tokenizer", "keyword")
+      .put("index.analysis.analyzer.sortable.filter", "lowercase")
+
+      .put("index.analysis.analyzer.rule_name.type", "custom")
+      .put("index.analysis.analyzer.rule_name.tokenizer", "standard")
+      .putArray("index.analysis.analyzer.rule_name.filter", "lowercase", "rule_name_ngram")
+
+      .put("index.analysis.filter.rule_name_ngram.type", "nGram")
+      .put("index.analysis.filter.rule_name_ngram.min_gram", 3)
+      .put("index.analysis.filter.rule_name_ngram.max_gram", 5)
+      .putArray("index.analysis.filter.rule_name_ngram.token_chars", "letter", "digit");
+
     initDirs(esSettings);
     initRestConsole(esSettings);
     initNetwork(esSettings);
@@ -145,13 +166,12 @@ public class ESNode implements Startable {
   }
 
   private void addIndexTemplates() {
-    try {
-      node.client().admin().indices().preparePutTemplate("default")
-        .setSource(IOUtils.toString(getClass().getResource("config/templates/default.json")))
-        .execute().actionGet();
-    } catch (IOException ioe) {
-      throw new IllegalStateException("Unable to load index templates", ioe);
-    }
+
+    PutIndexTemplateResponse response = node.client().admin().indices()
+      .preparePutTemplate("default")
+      .setTemplate("*")
+      .addMapping("_default_", "{\"dynamic\": \"strict\"}")
+      .get();
   }
 
   private void initLogging() {

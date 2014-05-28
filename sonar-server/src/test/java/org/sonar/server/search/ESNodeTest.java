@@ -25,6 +25,7 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.client.AdminClient;
 import org.elasticsearch.client.ClusterAdminClient;
 import org.elasticsearch.cluster.ClusterState;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.mapper.StrictDynamicMappingException;
 import org.junit.After;
@@ -99,17 +100,18 @@ public class ESNodeTest {
     node.client().admin().indices().prepareCreate("polop")
       .addMapping("type1", "{\"type1\": {\"properties\": {\"value\": {\"type\": \"string\"}}}}")
       .execute().actionGet();
-    node.client().admin().cluster().prepareHealth("polop").setWaitForYellowStatus().execute().actionGet();
+    node.client().admin().cluster().prepareHealth("polop").setWaitForYellowStatus().get(TimeValue.timeValueMillis(1000));
 
     // default "sortable" analyzer is defined for all indices
-    assertThat(node.client().admin().indices().prepareAnalyze("polop", "This Is A Wonderful Text").setAnalyzer("sortable").execute().actionGet()
+    assertThat(node.client().admin().indices()
+      .prepareAnalyze("polop", "This Is A Wonderful Text").setAnalyzer("sortable").get()
       .getTokens().get(0).getTerm()).isEqualTo("this is a wonderful text");
 
     // strict mapping is enforced
     try {
       node.client().prepareIndex("polop", "type1", "666").setSource(
         XContentFactory.jsonBuilder().startObject().field("unknown", "plouf").endObject()
-      ).execute().actionGet();
+      ).get();
     } finally {
       node.stop();
     }
