@@ -28,6 +28,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.search.IndexProperties;
+import org.sonar.server.ws.WsTester;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -50,7 +51,7 @@ public class ServerTester extends ExternalResource {
 
   private final Platform platform;
   private final File homeDir;
-  private final List components = Lists.newArrayList(DataStoreCleanup.class);
+  private final List components = Lists.newArrayList(DataStoreCleanup.class, WsTester.class);
   private final Properties initialProps = new Properties();
 
   public ServerTester() {
@@ -173,6 +174,10 @@ public class ServerTester extends ExternalResource {
   public <C> C get(Class<C> component) {
     checkStarted();
     return platform.getContainer().getComponentByType(component);
+  }
+
+  public WsTester wsTester() {
+    return get(WsTester.class);
   }
 
   private void checkStarted() {
