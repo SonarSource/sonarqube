@@ -24,8 +24,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
+import org.sonar.api.utils.DateUtils;
 
 import javax.annotation.Nullable;
+
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -71,6 +73,7 @@ public class RequestTest {
       action.createParam("a_boolean");
       action.createParam("a_number");
       action.createParam("a_enum");
+      action.createParam("a_date");
 
       action.createParam("a_required_string").setRequired(true);
       action.createParam("a_required_boolean").setRequired(true);
@@ -175,6 +178,12 @@ public class RequestTest {
   public void param_as_enums() throws Exception {
     assertThat(request.setParam("a_enum", "BETA,READY").paramAsEnums("a_enum", RuleStatus.class)).containsOnly(
       RuleStatus.BETA, RuleStatus.READY);
+  }
+
+  @Test
+  public void param_as_date() throws Exception {
+    assertThat(request.setParam("a_date", "2014-05-27").paramAsDate("a_date")).isEqualTo(DateUtils.parseDate("2014-05-27"));
+    assertThat(request.setParam("a_date", "2014-05-27T15:50:45+0100").paramAsDate("a_date")).isEqualTo(DateUtils.parseDateTime("2014-05-27T15:50:45+0100"));
   }
 
   @Test

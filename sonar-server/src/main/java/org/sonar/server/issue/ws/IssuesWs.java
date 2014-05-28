@@ -21,17 +21,18 @@ package org.sonar.server.issue.ws;
 
 import com.google.common.io.Resources;
 import org.sonar.api.issue.DefaultTransitions;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
 public class IssuesWs implements WebService {
 
-  private final IssueShowAction showHandler;
+  private final IssueShowAction showAction;
+  private final IssueSearchAction searchAction;
 
-  public IssuesWs(IssueShowAction showHandler) {
-    this.showHandler = showHandler;
+  public IssuesWs(IssueShowAction showAction, IssueSearchAction searchAction) {
+    this.showAction = showAction;
+    this.searchAction = searchAction;
   }
 
   @Override
@@ -40,8 +41,9 @@ public class IssuesWs implements WebService {
     controller.setDescription("Coding rule issues");
     controller.setSince("3.6");
 
-    showHandler.define(controller);
-    defineSearchAction(controller);
+    showAction.define(controller);
+    searchAction.define(controller);
+
     defineChangelogAction(controller);
     defineAssignAction(controller);
     defineAddCommentAction(controller);
@@ -56,80 +58,6 @@ public class IssuesWs implements WebService {
     defineBulkChangeAction(controller);
 
     controller.done();
-  }
-
-  private void defineSearchAction(NewController controller) {
-    WebService.NewAction action = controller.createAction("search")
-      .setDescription("Get a list of issues. If the number of issues is greater than 10,000, only the first 10,000 ones are returned by the web service. " +
-        "Requires Browse permission on project(s)")
-      .setSince("3.6")
-      .setHandler(RailsHandler.INSTANCE)
-      .setResponseExample(Resources.getResource(this.getClass(), "example-search.json"));
-
-    action.createParam("issues")
-      .setDescription("Comma-separated list of issue keys")
-      .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef");
-    action.createParam("severities")
-      .setDescription("Comma-separated list of severities")
-      .setExampleValue(Severity.BLOCKER + "," + Severity.CRITICAL)
-      .setPossibleValues(Severity.ALL);
-    action.createParam("statuses")
-      .setDescription("Comma-separated list of statuses")
-      .setExampleValue(Issue.STATUS_OPEN + "," + Issue.STATUS_REOPENED)
-      .setPossibleValues(Issue.STATUSES);
-    action.createParam("resolutions")
-      .setDescription("Comma-separated list of resolutions")
-      .setExampleValue(Issue.RESOLUTION_FIXED + "," + Issue.RESOLUTION_REMOVED)
-      .setPossibleValues(Issue.RESOLUTIONS);
-    action.createParam("resolved")
-      .setDescription("To match resolved or unresolved issues")
-      .setBooleanPossibleValues();
-    action.createParam("components")
-      .setDescription("To retrieve issues associated to a specific list of components (comma-separated list of component keys). " +
-        "Note that if you set the value to a project key, only issues associated to this project are retrieved. " +
-        "Issues associated to its sub-components (such as files, packages, etc.) are not retrieved. See also componentRoots")
-      .setExampleValue("org.apache.struts:struts:org.apache.struts.Action");
-    action.createParam("componentRoots")
-      .setDescription("To retrieve issues associated to a specific list of components and their sub-components (comma-separated list of component keys). " +
-        "Views are not supported")
-      .setExampleValue("org.apache.struts:struts");
-    action.createParam("rules")
-      .setDescription("Comma-separated list of coding rule keys. Format is <repository>:<rule>")
-      .setExampleValue("squid:AvoidCycles");
-    action.createParam("actionPlans")
-      .setDescription("Comma-separated list of action plan keys (not names)")
-      .setExampleValue("3f19de90-1521-4482-a737-a311758ff513");
-    action.createParam("planned")
-      .setDescription("To retrieve issues associated to an action plan or not")
-      .setBooleanPossibleValues();
-    action.createParam("reporters")
-      .setDescription("Comma-separated list of reporter logins")
-      .setExampleValue("admin");
-    action.createParam("assignees")
-      .setDescription("Comma-separated list of assignee logins")
-      .setExampleValue("admin,usera");
-    action.createParam("assigned")
-      .setDescription("To retrieve assigned or unassigned issues")
-      .setBooleanPossibleValues();
-    action.createParam("extra_fields")
-      .setDescription("Add some extra fields on each issue. Available since 4.4")
-      .setPossibleValues("actions", "transitions");
-    action.createParam("createdAfter")
-      .setDescription("To retrieve issues created after the given date (inclusive). Format: date or datetime ISO formats")
-      .setExampleValue("2013-05-01 (or 2013-05-01T13:00:00+0100)");
-    action.createParam("createdBefore")
-      .setDescription("To retrieve issues created before the given date (exclusive). Format: date or datetime ISO formats")
-      .setExampleValue("2013-05-01 (or 2013-05-01T13:00:00+0100)");
-    action.createParam("pageSize")
-      .setDescription("Maximum number of results per page. " +
-        "Default value: 100 (except when the 'components' parameter is set, value is set to \"-1\" in this case). " +
-        "If set to \"-1\", the max possible value is used")
-      .setExampleValue("50");
-    action.createParam("pageIndex")
-      .setDescription("Index of the selected page")
-      .setDefaultValue("1")
-      .setExampleValue("2");
-    RailsHandler.addFormatParam(action);
   }
 
   private void defineChangelogAction(NewController controller) {

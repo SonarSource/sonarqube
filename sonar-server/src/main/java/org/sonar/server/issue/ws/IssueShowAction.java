@@ -25,7 +25,6 @@ import com.google.common.io.Resources;
 import org.sonar.api.component.Component;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.issue.*;
-import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
 import org.sonar.api.server.debt.DebtCharacteristic;
@@ -41,14 +40,11 @@ import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
-import org.sonar.core.issue.workflow.Transition;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.debt.DebtModelService;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueChangelog;
 import org.sonar.server.issue.IssueChangelogService;
-import org.sonar.server.issue.IssueService;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -58,24 +54,20 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
-
 public class IssueShowAction implements RequestHandler {
 
   private final IssueFinder issueFinder;
-  private final IssueService issueService;
   private final IssueChangelogService issueChangelogService;
-  private final ActionService actionService;
+  private final IssueActionsWriter actionsWriter;
   private final DebtModelService debtModel;
   private final I18n i18n;
   private final Durations durations;
 
-  public IssueShowAction(IssueFinder issueFinder, IssueService issueService, IssueChangelogService issueChangelogService, ActionService actionService,
+  public IssueShowAction(IssueFinder issueFinder, IssueChangelogService issueChangelogService, IssueActionsWriter actionsWriter,
                          DebtModelService debtModel, I18n i18n, Durations durations) {
     this.issueFinder = issueFinder;
-    this.issueService = issueService;
     this.issueChangelogService = issueChangelogService;
-    this.actionService = actionService;
+    this.actionsWriter = actionsWriter;
     this.debtModel = debtModel;
     this.i18n = i18n;
     this.durations = durations;
@@ -96,7 +88,9 @@ public class IssueShowAction implements RequestHandler {
   @Override
   public void handle(Request request, Response response) {
     String issueKey = request.mandatoryParam("key");
-    IssueQueryResult queryResult = issueFinder.find(IssueQuery.builder().issueKeys(Arrays.asList(issueKey)).build());
+    IssueQueryResult queryResult = issueFinder.find(IssueQuery.builder()
+      .requiredRole(UserRole.USER)
+      .issueKeys(Arrays.asList(issueKey)).build());
     if (queryResult.issues().size() != 1) {
       throw new NotFoundException("Issue not found: " + issueKey);
     }
@@ -106,8 +100,8 @@ public class IssueShowAction implements RequestHandler {
     json.beginObject().name("issue").beginObject();
 
     writeIssue(queryResult, issue, json);
-    writeTransitions(issue, json);
-    writeActions(issue, json);
+    actionsWriter.writeActions(issue, json);
+    actionsWriter.writeTransitions(issue, json);
     writeComments(queryResult, issue, json);
     writeChangelog(issue, json);
 
@@ -220,48 +214,6 @@ public class IssueShowAction implements RequestHandler {
     return null;
   }
 
-  private void writeTransitions(Issue issue, JsonWriter json) {
-    json.name("transitions").beginArray();
-    if (UserSession.get().isLoggedIn()) {
-      List<Transition> transitions = issueService.listTransitions(issue, UserSession.get());
-      for (Transition transition : transitions) {
-        json.value(transition.key());
-      }
-    }
-    json.endArray();
-  }
-
-  private void writeActions(DefaultIssue issue, JsonWriter json) {
-    json.name("actions").beginArray();
-    for (String action : actions(issue)) {
-      json.value(action);
-    }
-    json.endArray();
-  }
-
-  private List<String> actions(DefaultIssue issue) {
-    List<String> actions = newArrayList();
-    String login = UserSession.get().login();
-    if (login != null) {
-      actions.add("comment");
-      if (issue.resolution() == null) {
-        actions.add("assign");
-        if (!login.equals(issue.assignee())) {
-          actions.add("assign_to_me");
-        }
-        actions.add("plan");
-        String projectKey = issue.projectKey();
-        if (projectKey != null && UserSession.get().hasProjectPermission(UserRole.ISSUE_ADMIN, projectKey)) {
-          actions.add("set_severity");
-        }
-        for (Action action : actionService.listAvailableActions(issue)) {
-          actions.add(action.key());
-        }
-      }
-    }
-    return actions;
-  }
-
   private void writeComments(IssueQueryResult queryResult, Issue issue, JsonWriter json) {
     json.name("comments").beginArray();
     String login = UserSession.get().login();
@@ -311,7 +263,7 @@ public class IssueShowAction implements RequestHandler {
     json.endArray();
   }
 
-  private void addUserWithLabel(IssueQueryResult result, @Nullable String value, String field, JsonWriter json) {
+  private static void addUserWithLabel(IssueQueryResult result, @Nullable String value, String field, JsonWriter json) {
     if (value != null) {
       User user = result.user(value);
       json

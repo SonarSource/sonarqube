@@ -96,6 +96,8 @@ import org.sonar.server.issue.actionplan.ActionPlanWs;
 import org.sonar.server.issue.filter.IssueFilterService;
 import org.sonar.server.issue.filter.IssueFilterWriter;
 import org.sonar.server.issue.filter.IssueFilterWs;
+import org.sonar.server.issue.ws.IssueActionsWriter;
+import org.sonar.server.issue.ws.IssueSearchAction;
 import org.sonar.server.issue.ws.IssueShowAction;
 import org.sonar.server.issue.ws.IssuesWs;
 import org.sonar.server.measure.MeasureFilterEngine;
@@ -421,8 +423,10 @@ class ServerComponents {
     pico.addSingleton(Actions.class);
     pico.addSingleton(IssueBulkChangeService.class);
     pico.addSingleton(IssueChangelogFormatter.class);
-    pico.addSingleton(IssueShowAction.class);
     pico.addSingleton(IssuesWs.class);
+    pico.addSingleton(IssueShowAction.class);
+    pico.addSingleton(IssueSearchAction.class);
+    pico.addSingleton(IssueActionsWriter.class);
 
     // issue filters
     pico.addSingleton(IssueFilterService.class);

@@ -27,9 +27,7 @@ import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Durations;
 import org.sonar.server.debt.DebtModelService;
-import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueChangelogService;
-import org.sonar.server.issue.IssueService;
 import org.sonar.server.ws.WsTester;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -39,13 +37,22 @@ public class IssuesWsTest {
 
   IssueShowAction showAction;
 
+  IssueSearchAction searchAction;
+
   WsTester tester;
 
   @Before
   public void setUp() throws Exception {
-    showAction = new IssueShowAction(mock(IssueFinder.class), mock(IssueService.class), mock(IssueChangelogService.class), mock(ActionService.class),
-      mock(DebtModelService.class), mock(I18n.class), mock(Durations.class));
-    tester = new WsTester(new IssuesWs(showAction));
+    IssueFinder issueFinder = mock(IssueFinder.class);
+    IssueChangelogService issueChangelogService = mock(IssueChangelogService.class);
+    IssueActionsWriter actionsWriter = mock(IssueActionsWriter.class);
+    DebtModelService debtModelService = mock(DebtModelService.class);
+    I18n i18n = mock(I18n.class);
+    Durations durations = mock(Durations.class);
+
+    showAction = new IssueShowAction(issueFinder, issueChangelogService, actionsWriter, debtModelService, i18n, durations);
+    searchAction = new IssueSearchAction(issueFinder, actionsWriter, i18n, durations);
+    tester = new WsTester(new IssuesWs(showAction, searchAction));
   }
 
   @Test
@@ -87,9 +94,9 @@ public class IssuesWsTest {
     assertThat(show.since()).isEqualTo("3.6");
     assertThat(show.isPost()).isFalse();
     assertThat(show.isInternal()).isFalse();
-    assertThat(show.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(show.handler()).isSameAs(searchAction);
     assertThat(show.responseExampleAsString()).isNotEmpty();
-    assertThat(show.params()).hasSize(19);
+    assertThat(show.params()).hasSize(23);
   }
 
   @Test

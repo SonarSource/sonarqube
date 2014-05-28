@@ -29,6 +29,9 @@
           "createdAt": "2013-05-13T18:08:34+0200"
         }
       ],
+      "attr": {
+        "jira-issue-key": "SONAR-1234"
+      },
       "actions": ["link-to-jira"],
       "transitions": [
         "unconfirm",

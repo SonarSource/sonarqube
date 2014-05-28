@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.issue.ws;
 
 import com.google.common.collect.Lists;
@@ -31,7 +32,6 @@ import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueFinder;
 import org.sonar.api.issue.IssueQuery;
-import org.sonar.api.issue.action.Action;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.DefaultIssueComment;
 import org.sonar.api.issue.internal.FieldDiffs;
@@ -42,7 +42,6 @@ import org.sonar.api.user.User;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssueQueryResult;
@@ -95,7 +94,7 @@ public class IssueShowActionTest {
   List<Issue> issues;
   DefaultIssueQueryResult result;
 
-  private Date issue_creation_date;
+  Date issueCreationDate;
 
   WsTester tester;
 
@@ -108,12 +107,13 @@ public class IssueShowActionTest {
 
     when(issueChangelogService.changelog(any(Issue.class))).thenReturn(mock(IssueChangelog.class));
 
-    issue_creation_date = DateUtils.parseDateTime("2014-01-22T19:10:03+0100");
-    when(i18n.formatDateTime(any(Locale.class), eq(issue_creation_date))).thenReturn("Jan 22, 2014 10:03 AM");
+    issueCreationDate = DateUtils.parseDateTime("2014-01-22T19:10:03+0100");
+    when(i18n.formatDateTime(any(Locale.class), eq(issueCreationDate))).thenReturn("Jan 22, 2014 10:03 AM");
 
     when(i18n.message(any(Locale.class), eq("created"), eq((String) null))).thenReturn("Created");
 
-    tester = new WsTester(new IssuesWs(new IssueShowAction(issueFinder, issueService, issueChangelogService, actionService, debtModel, i18n, durations)));
+    tester = new WsTester(new IssuesWs(new IssueShowAction(issueFinder, issueChangelogService, new IssueActionsWriter(issueService, actionService), debtModel, i18n, durations),
+      mock(IssueSearchAction.class)));
   }
 
   @Test
@@ -125,18 +125,18 @@ public class IssueShowActionTest {
       .setProjectKey("org.sonar.Sonar")
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setLine(12)
-      .setEffortToFix(2.0)
       .setMessage("Fix it")
       .setResolution("FIXED")
       .setStatus("CLOSED")
       .setSeverity("MAJOR")
-      .setCreationDate(issue_creation_date);
+      .setCreationDate(issueCreationDate);
     issues.add(issue);
 
     result.addComponents(Lists.<Component>newArrayList(new ComponentDto()
         .setId(10L)
         .setKey("org.sonar.server.issue.IssueClient")
         .setLongName("SonarQube :: Issue Client")
+        .setName("SonarQube :: Issue Client")
         .setQualifier("FIL")
         .setSubProjectId(1L)
         .setProjectId(1L)
@@ -146,6 +146,7 @@ public class IssueShowActionTest {
         .setId(1L)
         .setKey("org.sonar.Sonar")
         .setLongName("SonarQube")
+        .setName("SonarQube")
         .setProjectId(1L)
     ));
 
@@ -163,12 +164,11 @@ public class IssueShowActionTest {
       .setProjectKey("org.sonar.Sonar")
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setLine(12)
-      .setEffortToFix(2.0)
       .setMessage("Fix it")
       .setResolution("FIXED")
       .setStatus("CLOSED")
       .setSeverity("MAJOR")
-      .setCreationDate(issue_creation_date);
+      .setCreationDate(issueCreationDate);
     issues.add(issue);
 
     // File
@@ -214,7 +214,7 @@ public class IssueShowActionTest {
       .setResolution("FIXED")
       .setStatus("CLOSED")
       .setSeverity("MAJOR")
-      .setCreationDate(issue_creation_date);
+      .setCreationDate(issueCreationDate);
     issues.add(issue);
 
     // File
@@ -445,59 +445,6 @@ public class IssueShowActionTest {
   }
 
   @Test
-  public void show_issue_with_set_severity_action() throws Exception {
-    DefaultIssue issue = createStandardIssue()
-      .setStatus("OPEN");
-    issues.add(issue);
-
-    MockUserSession.set().setLogin("john").addProjectPermissions(UserRole.ISSUE_ADMIN, issue.projectKey());
-    WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
-    request.execute().assertJson(getClass(), "show_issue_with_set_severity_action.json");
-  }
-
-  @Test
-  public void show_issue_with_assign_to_me_action() throws Exception {
-    DefaultIssue issue = createStandardIssue()
-      .setStatus("OPEN");
-    issues.add(issue);
-
-    MockUserSession.set().setLogin("john");
-    WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
-    request.execute().assertJson(getClass(), "show_issue_with_assign_to_me_action.json");
-  }
-
-  @Test
-  public void show_issue_without_assign_to_me_action() throws Exception {
-    DefaultIssue issue = createStandardIssue()
-      .setStatus("OPEN")
-      .setAssignee("john");
-    issues.add(issue);
-
-    result.addUsers(Lists.<User>newArrayList(
-      new DefaultUser().setLogin("john").setName("John")
-    ));
-
-    MockUserSession.set().setLogin("john");
-    WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
-    request.execute().assertJson(getClass(), "show_issue_without_assign_to_me_action.json");
-  }
-
-  @Test
-  public void show_issue_with_actions_defined_by_plugins() throws Exception {
-    Issue issue = createStandardIssue()
-      .setStatus("OPEN");
-    issues.add(issue);
-
-    Action action = mock(Action.class);
-    when(action.key()).thenReturn("link-to-jira");
-    when(actionService.listAvailableActions(issue)).thenReturn(newArrayList(action));
-
-    MockUserSession.set().setLogin("john");
-    WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
-    request.execute().assertJson(getClass(), "show_issue_with_actions_defined_by_plugins.json");
-  }
-
-  @Test
   public void show_issue_with_changelog() throws Exception {
     Issue issue = createStandardIssue();
     issues.add(issue);
@@ -538,7 +485,7 @@ public class IssueShowActionTest {
       .setComponentKey("org.sonar.server.issue.IssueClient")
       .setProjectKey("org.sonar.Sonar")
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
-      .setCreationDate(issue_creation_date);
+      .setCreationDate(issueCreationDate);
   }
 
   private void addComponentAndProject() {
