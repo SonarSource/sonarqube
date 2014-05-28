@@ -24,8 +24,6 @@ import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.core.persistence.TestDatabase;
 
-import java.util.Set;
-
 import static org.fest.assertions.Assertions.assertThat;
 
 public class ViolationMigrationTest {
@@ -55,11 +53,5 @@ public class ViolationMigrationTest {
 
   private void assertMigrationEnded() {
     assertThat(db.count("select count(id) from rule_failures")).isEqualTo(0);
-
-    // Progress thread is dead
-    Set<Thread> threads = Thread.getAllStackTraces().keySet();
-    for (Thread thread : threads) {
-      assertThat(thread.getName()).isNotEqualTo(Progress.THREAD_NAME);
-    }
   }
 }
