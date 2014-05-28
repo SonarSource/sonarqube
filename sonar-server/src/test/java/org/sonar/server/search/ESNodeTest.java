@@ -163,7 +163,7 @@ public class ESNodeTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  @Ignore //TODO generate corrupted Index
+  @Ignore //TODO should use the Mng Index
   public void should_fail_on_corrupt_index() throws Exception {
     File zip = new File(Resources.getResource(getClass(), "ESNodeTest/data-es-corrupt.zip").toURI());
     ZipUtils.unzip(zip, dataDir);
