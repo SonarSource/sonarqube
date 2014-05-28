@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 
@@ -66,10 +67,10 @@ public class RuleUpdate {
   }
 
   /**
-   * Set to <code>null</code> or empty to remove existing note.
+   * Set to <code>null</code> or blank to remove existing note.
    */
   public RuleUpdate setMarkdownNote(@Nullable String s) {
-    this.markdownNote = s;
+    this.markdownNote = (s == null ? null : StringUtils.defaultIfBlank(s, null));
     this.changeMarkdownNote = true;
     return this;
   }
@@ -80,11 +81,11 @@ public class RuleUpdate {
   }
 
   /**
-   * Set to <code>null</code> to force the characteristic "NONE". Set to value of {@link #DEFAULT_DEBT_CHARACTERISTIC}
+   * Set to <code>null</code> or blank to force the characteristic "NONE". Set to value of {@link #DEFAULT_DEBT_CHARACTERISTIC}
    * to reset to default characteristic.
    */
   public RuleUpdate setDebtSubCharacteristic(@Nullable String c) {
-    this.debtSubCharacteristicKey = c;
+    this.debtSubCharacteristicKey = (c == null ? null : StringUtils.defaultIfBlank(c, null));
     this.changeDebtSubCharacteristic = true;
     return this;
   }

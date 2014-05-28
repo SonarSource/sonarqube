@@ -69,7 +69,7 @@ public class AppActionTest {
     AppAction app = new AppAction(languages, ruleRepositories, i18n, debtModel, qualityProfileService);
     WsTester tester = new WsTester(new RulesWebService(
       mock(SearchAction.class), mock(ShowAction.class), mock(TagsAction.class), mock(SetTagsAction.class),
-      mock(SetNoteAction.class), app));
+      mock(SetNoteAction.class), app, mock(UpdateAction.class)));
 
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
