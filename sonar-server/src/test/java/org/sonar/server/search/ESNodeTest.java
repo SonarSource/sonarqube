@@ -114,7 +114,7 @@ public class ESNodeTest {
   }
 
   @Test
-  public void sortable_analyzer() throws Exception {
+  public void check_analyzer() throws Exception {
     ESNode node = new ESNode(fs, new Settings());
     node.start();
 
