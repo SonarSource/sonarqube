@@ -139,7 +139,10 @@ public class ESNode implements Startable {
       .put("index.analysis.filter.code_gram.type", "edgeNGram")
       .put("index.analysis.filter.code_gram.min_gram", 2)
       .put("index.analysis.filter.code_gram.max_gram", 15)
-      .putArray("index.analysis.filter.code_gram.token_chars", "letter", "digit", "punctuation", "symbol");
+      .putArray("index.analysis.filter.code_gram.token_chars", "letter", "digit", "punctuation", "symbol")
+
+      .put("index.analysis.analyzer.path_analyzer.type", "custom")
+      .put("index.analysis.analyzer.path_analyzer.tokenizer", "path_hierarchy");
 
     initDirs(esSettings);
     initRestConsole(esSettings);

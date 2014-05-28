@@ -128,13 +128,22 @@ public class ESNodeTest {
       .prepareAnalyze("polop", "This Is A Wonderful Text").setAnalyzer("sortable").get()
       .getTokens().get(0).getTerm()).isEqualTo("this is a ");
 
-    // default "sortable" analyzer is defined for all indices
+    // default "string_gram" analyzer is defined for all indices
     AnalyzeResponse response = node.client().admin().indices()
       .prepareAnalyze("polop", "he.llo w@rl#d").setAnalyzer("string_gram").get();
-
     assertThat(response.getTokens()).hasSize(10);
     assertThat(response.getTokens().get(0).getTerm()).isEqualTo("he");
     assertThat(response.getTokens().get(7).getTerm()).isEqualTo("w@rl");
+
+    // default "path_analyzer" analyzer is defined for all indices
+    response = node.client().admin().indices()
+      .prepareAnalyze("polop", "/temp/65236/test path/MyFile.java").setAnalyzer("path_analyzer").get();
+    // default "path_analyzer" analyzer is defined for all indices
+    assertThat(response.getTokens()).hasSize(4);
+    assertThat(response.getTokens().get(0).getTerm()).isEqualTo("/temp");
+    assertThat(response.getTokens().get(1).getTerm()).isEqualTo("/temp/65236");
+    assertThat(response.getTokens().get(2).getTerm()).isEqualTo("/temp/65236/test path");
+    assertThat(response.getTokens().get(3).getTerm()).isEqualTo("/temp/65236/test path/MyFile.java");
   }
 
   @Test
