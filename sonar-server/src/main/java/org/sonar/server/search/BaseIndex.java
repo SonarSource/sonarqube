@@ -27,6 +27,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
@@ -189,7 +190,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
 
   protected abstract String getKeyValue(K key);
 
-  protected abstract XContentBuilder getIndexSettings() throws IOException;
+  protected abstract Settings getIndexSettings() throws IOException;
 
   protected abstract XContentBuilder getMapping() throws IOException;
 

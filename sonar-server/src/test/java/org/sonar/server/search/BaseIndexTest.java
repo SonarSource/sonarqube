@@ -21,6 +21,7 @@ package org.sonar.server.search;
 
 
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
+import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.junit.After;
 import org.junit.Before;
@@ -37,7 +38,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -92,8 +92,8 @@ public class BaseIndexTest {
       }
 
       @Override
-      protected XContentBuilder getIndexSettings() throws IOException {
-        return jsonBuilder().startObject().endObject();
+      protected org.elasticsearch.common.settings.Settings getIndexSettings() throws IOException {
+        return ImmutableSettings.builder().build();
       }
 
       @Override

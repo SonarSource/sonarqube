@@ -22,6 +22,8 @@ package org.sonar.server.rule.index;
 import com.google.common.base.Preconditions;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
@@ -65,42 +67,11 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   }
 
   @Override
-  protected XContentBuilder getIndexSettings() throws IOException {
-    return jsonBuilder().startObject()
-      .startObject("index")
-      .field("number_of_replicas", 0)
-      .field("number_of_shards", 1)
-      .startObject("mapper")
-      .field("dynamic", true)
-      .endObject()
-      .startObject("analysis")
-      .startObject("analyzer")
-      .startObject("path_analyzer")
-      .field("type", "custom")
-      .field("tokenizer", "path_hierarchy")
-      .endObject()
-      .startObject("sortable")
-      .field("type", "custom")
-      .field("tokenizer", "keyword")
-      .field("filter", "lowercase")
-      .endObject()
-      .startObject("rule_name")
-      .field("type", "custom")
-      .field("tokenizer", "standard")
-      .array("filter", "lowercase", "rule_name_ngram")
-      .endObject()
-      .endObject()
-      .startObject("filter")
-      .startObject("rule_name_ngram")
-      .field("type", "nGram")
-      .field("min_gram", 3)
-      .field("max_gram", 5)
-      .array("token_chars", "letter", "digit")
-      .endObject()
-      .endObject()
-      .endObject()
-      .endObject()
-      .endObject();
+  protected Settings getIndexSettings() throws IOException {
+    return ImmutableSettings.builder()
+      .put("index.number_of_replicas",0)
+      .put("index.number_of_shards",1)
+      .build();
   }
 
   @Override

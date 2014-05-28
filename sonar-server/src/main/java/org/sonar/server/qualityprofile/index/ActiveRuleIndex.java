@@ -40,6 +40,8 @@ package org.sonar.server.qualityprofile.index;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -72,8 +74,11 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
   }
 
   @Override
-  protected XContentBuilder getIndexSettings() throws IOException {
-    return null;
+  protected Settings getIndexSettings() throws IOException {
+    return ImmutableSettings.builder()
+      .put("index.number_of_replicas",0)
+      .put("index.number_of_shards",1)
+      .build();
   }
 
   @Override
