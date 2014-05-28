@@ -31,7 +31,6 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.mapper.StrictDynamicMappingException;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -115,7 +114,35 @@ public class ESNodeTest {
   }
 
   @Test
-  public void check_analyzer() throws Exception {
+  public void check_path_analyzer() throws Exception {
+    ESNode node = new ESNode(fs, new Settings());
+    node.start();
+
+    node.client().admin().indices().prepareCreate("polop")
+      .addMapping("type1", "{\"type1\": {\"properties\": {\"value\": {\"type\": \"string\"}}}}")
+      .execute().actionGet();
+    node.client().admin().cluster().prepareHealth("polop").setWaitForYellowStatus().get(TimeValue.timeValueMillis(1000));
+
+    // default "path_analyzer" analyzer is defined for all indices
+    AnalyzeResponse response = node.client().admin().indices()
+      .prepareAnalyze("polop", "/temp/65236/test path/MyFile.java").setAnalyzer("path_analyzer").get();
+    // default "path_analyzer" analyzer is defined for all indices
+    assertThat(response.getTokens()).hasSize(4);
+    assertThat(response.getTokens().get(0).getTerm()).isEqualTo("/temp");
+    assertThat(response.getTokens().get(1).getTerm()).isEqualTo("/temp/65236");
+    assertThat(response.getTokens().get(2).getTerm()).isEqualTo("/temp/65236/test path");
+    assertThat(response.getTokens().get(3).getTerm()).isEqualTo("/temp/65236/test path/MyFile.java");
+
+    node.stop();
+  }
+
+  @Test
+  public void check_word_analyzer() throws Exception {
+
+  }
+
+  @Test
+  public void check_sortable_analyzer() throws Exception {
     ESNode node = new ESNode(fs, new Settings());
     node.start();
 
@@ -129,22 +156,26 @@ public class ESNodeTest {
       .prepareAnalyze("polop", "This Is A Wonderful Text").setAnalyzer("sortable").get()
       .getTokens().get(0).getTerm()).isEqualTo("this is a ");
 
+    node.stop();
+  }
+  @Test
+  public void check_gram_analyzer() throws Exception {
+    ESNode node = new ESNode(fs, new Settings());
+    node.start();
+
+    node.client().admin().indices().prepareCreate("polop")
+      .addMapping("type1", "{\"type1\": {\"properties\": {\"value\": {\"type\": \"string\"}}}}")
+      .execute().actionGet();
+    node.client().admin().cluster().prepareHealth("polop").setWaitForYellowStatus().get(TimeValue.timeValueMillis(1000));
+
     // default "string_gram" analyzer is defined for all indices
     AnalyzeResponse response = node.client().admin().indices()
-      .prepareAnalyze("polop", "he.llo w@rl#d").setAnalyzer("string_gram").get();
+      .prepareAnalyze("polop", "he.llo w@rl#d").setAnalyzer("index_grams").get();
     assertThat(response.getTokens()).hasSize(10);
     assertThat(response.getTokens().get(0).getTerm()).isEqualTo("he");
     assertThat(response.getTokens().get(7).getTerm()).isEqualTo("w@rl");
 
-    // default "path_analyzer" analyzer is defined for all indices
-    response = node.client().admin().indices()
-      .prepareAnalyze("polop", "/temp/65236/test path/MyFile.java").setAnalyzer("path_analyzer").get();
-    // default "path_analyzer" analyzer is defined for all indices
-    assertThat(response.getTokens()).hasSize(4);
-    assertThat(response.getTokens().get(0).getTerm()).isEqualTo("/temp");
-    assertThat(response.getTokens().get(1).getTerm()).isEqualTo("/temp/65236");
-    assertThat(response.getTokens().get(2).getTerm()).isEqualTo("/temp/65236/test path");
-    assertThat(response.getTokens().get(3).getTerm()).isEqualTo("/temp/65236/test path/MyFile.java");
+    node.stop();
   }
 
   @Test
@@ -163,7 +194,6 @@ public class ESNodeTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  @Ignore //TODO should use the Mng Index
   public void should_fail_on_corrupt_index() throws Exception {
     File zip = new File(Resources.getResource(getClass(), "ESNodeTest/data-es-corrupt.zip").toURI());
     ZipUtils.unzip(zip, dataDir);
