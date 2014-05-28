@@ -23,6 +23,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
@@ -75,6 +76,9 @@ public class RuleUpdater implements ServerComponent {
     try {
       Context context = new Context();
       context.rule = dbClient.ruleDao().getNonNullByKey(dbSession, change.getRuleKey());
+      if (RuleStatus.REMOVED.name().equals(context.rule.getStatus())) {
+        throw new IllegalArgumentException("Rule with REMOVED status cannot be updated: " + change.getRuleKey());
+      }
 
       if (change.getDebtSubCharacteristicKey() != null &&
         !change.getDebtSubCharacteristicKey().equals(RuleUpdate.DEFAULT_DEBT_CHARACTERISTIC)) {
@@ -156,7 +160,7 @@ public class RuleUpdater implements ServerComponent {
       (context.rule.getDefaultSubCharacteristicId() == null && context.rule.getSubCharacteristicId() == null) ||
         (context.rule.getSubCharacteristicId() != null && context.rule.getSubCharacteristicId().intValue() == RuleDto.DISABLED_CHARACTERISTIC_ID);
 
-    if (noChar || update.getDebtRemediationFunction()==null) {
+    if (noChar || update.getDebtRemediationFunction() == null) {
       context.rule.setRemediationFunction(null);
       context.rule.setRemediationCoefficient(null);
       context.rule.setRemediationOffset(null);
