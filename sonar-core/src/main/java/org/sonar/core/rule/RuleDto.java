@@ -25,6 +25,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.Dto;
 
@@ -44,7 +45,7 @@ public final class RuleDto extends Dto<RuleKey> {
   private String repositoryKey;
   private String ruleKey;
   private String description;
-  private String status;
+  private RuleStatus status;
   private String name;
   private String configKey;
   private Integer severity;
@@ -113,12 +114,12 @@ public final class RuleDto extends Dto<RuleKey> {
     return this;
   }
 
-  public String getStatus() {
+  public RuleStatus getStatus() {
     return status;
   }
 
-  public RuleDto setStatus(String status) {
-    this.status = status;
+  public RuleDto setStatus(@Nullable RuleStatus s) {
+    this.status = s;
     return this;
   }
 
@@ -126,7 +127,7 @@ public final class RuleDto extends Dto<RuleKey> {
     return name;
   }
 
-  public RuleDto setName(String name) {
+  public RuleDto setName(@Nullable String name) {
     this.name = name;
     return this;
   }
@@ -135,7 +136,7 @@ public final class RuleDto extends Dto<RuleKey> {
     return configKey;
   }
 
-  public RuleDto setConfigKey(String configKey) {
+  public RuleDto setConfigKey(@Nullable String configKey) {
     this.configKey = configKey;
     return this;
   }
@@ -152,7 +153,7 @@ public final class RuleDto extends Dto<RuleKey> {
     return this.setSeverity(SeverityUtil.getOrdinalFromSeverity(severity));
   }
 
-  public RuleDto setSeverity(Integer severity) {
+  public RuleDto setSeverity(@Nullable Integer severity) {
     this.severity = severity;
     return this;
   }
@@ -161,7 +162,7 @@ public final class RuleDto extends Dto<RuleKey> {
     return cardinality;
   }
 
-  public RuleDto setCardinality(Cardinality cardinality) {
+  public RuleDto setCardinality(@Nullable Cardinality cardinality) {
     this.cardinality = cardinality;
     return this;
   }

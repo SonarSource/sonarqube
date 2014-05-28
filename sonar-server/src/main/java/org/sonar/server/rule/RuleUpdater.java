@@ -76,7 +76,7 @@ public class RuleUpdater implements ServerComponent {
     try {
       Context context = new Context();
       context.rule = dbClient.ruleDao().getNonNullByKey(dbSession, change.getRuleKey());
-      if (RuleStatus.REMOVED.name().equals(context.rule.getStatus())) {
+      if (RuleStatus.REMOVED == context.rule.getStatus()) {
         throw new IllegalArgumentException("Rule with REMOVED status cannot be updated: " + change.getRuleKey());
       }
 

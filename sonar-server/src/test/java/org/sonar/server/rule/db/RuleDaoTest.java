@@ -25,8 +25,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -72,7 +72,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getId()).isEqualTo(1);
     assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
     assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
-    assertThat(ruleDto.getStatus()).isEqualTo(Rule.STATUS_READY);
+    assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.READY);
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
     assertThat(ruleDto.getNoteData()).isEqualTo("Rule note with accents \u00e9\u00e8\u00e0");
     assertThat(ruleDto.getSubCharacteristicId()).isEqualTo(100);
@@ -96,7 +96,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getId()).isEqualTo(1);
     assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
     assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
-    assertThat(ruleDto.getStatus()).isEqualTo(Rule.STATUS_READY);
+    assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.READY);
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
     assertThat(ruleDto.getNoteData()).isEqualTo("Rule note with accents \u00e9\u00e8\u00e0");
     assertThat(ruleDto.getSubCharacteristicId()).isEqualTo(100);
@@ -118,7 +118,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getId()).isEqualTo(2);
     assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
     assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
-    assertThat(ruleDto.getStatus()).isEqualTo(Rule.STATUS_READY);
+    assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.READY);
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
   }
 
@@ -140,7 +140,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getId()).isEqualTo(2);
     assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
     assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
-    assertThat(ruleDto.getStatus()).isEqualTo(Rule.STATUS_READY);
+    assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.READY);
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
   }
 
@@ -156,27 +156,9 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getId()).isEqualTo(1);
     assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
     assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
-    assertThat(ruleDto.getStatus()).isEqualTo(Rule.STATUS_READY);
+    assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.READY);
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
   }
-
-//  @Test
-//  public void select_by_sub_characteristic_id(){
-//    setupData("select_by_sub_characteristic_id");
-//
-//    // Rules from sub characteristic (even REMOVED ones are returned)
-//    List<RuleDto> ruleDtos = dao.findBySubCharacteristicId(3);
-//    assertThat(ruleDtos).hasSize(3);
-//    assertThat(idsFromRuleDtos(ruleDtos)).containsExactly(2, 4, 5);
-//
-//    // Nothing on root characteristic
-//    ruleDtos = dao.selectBySubCharacteristicId(1);
-//    assertThat(ruleDtos).isEmpty();
-//
-//    // Rules from disabled characteristic
-//    ruleDtos = dao.selectBySubCharacteristicId(11);
-//    assertThat(idsFromRuleDtos(ruleDtos)).containsExactly(3);
-//  }
 
   @Test
   public void update() {
@@ -191,7 +173,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setRepositoryKey("plugin")
       .setName("new name")
       .setDescription("new description")
-      .setStatus(Rule.STATUS_DEPRECATED)
+      .setStatus(RuleStatus.DEPRECATED)
       .setConfigKey("NewConfigKey")
       .setSeverity(Severity.INFO)
       .setCardinality(Cardinality.MULTIPLE)
@@ -231,7 +213,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setRepositoryKey("plugin")
       .setName("new name")
       .setDescription("new description")
-      .setStatus(Rule.STATUS_DEPRECATED)
+      .setStatus(RuleStatus.DEPRECATED)
       .setConfigKey("NewConfigKey")
       .setSeverity(Severity.INFO)
       .setCardinality(Cardinality.MULTIPLE)
@@ -265,7 +247,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setRepositoryKey("plugin")
       .setName("new name")
       .setDescription("new description")
-      .setStatus(Rule.STATUS_DEPRECATED)
+      .setStatus(RuleStatus.DEPRECATED)
       .setConfigKey("NewConfigKey")
       .setSeverity(Severity.INFO)
       .setCardinality(Cardinality.MULTIPLE)
@@ -287,7 +269,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setRepositoryKey("plugin2")
       .setName("new name2")
       .setDescription("new description2")
-      .setStatus(Rule.STATUS_BETA)
+      .setStatus(RuleStatus.BETA)
       .setConfigKey("NewConfigKey2")
       .setSeverity(Severity.MAJOR)
       .setCardinality(Cardinality.SINGLE)

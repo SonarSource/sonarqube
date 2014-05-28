@@ -35,6 +35,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.debt.DebtTesting;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.tester.ServerTester;
@@ -74,7 +75,7 @@ public class RuleUpdaterMediumTest {
   @Test
   public void do_not_update_rule_with_removed_status() throws Exception {
     grantPermission();
-    db.ruleDao().insert(dbSession, RuleTests.newDto(RULE_KEY).setStatus(RuleStatus.REMOVED.name()));
+    db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY).setStatus(RuleStatus.REMOVED));
     dbSession.commit();
 
     RuleUpdate update = new RuleUpdate(RULE_KEY).setTags(Sets.newHashSet("java9"));
@@ -82,14 +83,14 @@ public class RuleUpdaterMediumTest {
       updater.update(update, UserSession.get());
       fail();
     } catch (IllegalArgumentException e) {
-     assertThat(e).hasMessage("Rule with REMOVED status cannot be updated: squid:S001");
+      assertThat(e).hasMessage("Rule with REMOVED status cannot be updated: squid:S001");
     }
   }
 
   @Test
   public void no_changes() throws Exception {
     grantPermission();
-    db.ruleDao().insert(dbSession, RuleTests.newDto(RULE_KEY)
+    db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
       // the following fields are not supposed to be updated
       .setNoteData("my *note*")
       .setNoteUserLogin("me")
@@ -118,7 +119,7 @@ public class RuleUpdaterMediumTest {
   @Test
   public void set_markdown_note() throws Exception {
     grantPermission();
-    db.ruleDao().insert(dbSession, RuleTests.newDto(RULE_KEY)
+    db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setNoteData(null)
       .setNoteUserLogin(null)
 
@@ -149,9 +150,9 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void delete_markdown_note() throws Exception {
+  public void remove_markdown_note() throws Exception {
     grantPermission();
-    db.ruleDao().insert(dbSession, RuleTests.newDto(RULE_KEY)
+    db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setNoteData("my *note*")
       .setNoteUserLogin("me"));
     dbSession.commit();
@@ -171,7 +172,7 @@ public class RuleUpdaterMediumTest {
   public void set_tags() throws Exception {
     grantPermission();
     // insert db
-    db.ruleDao().insert(dbSession, RuleTests.newDto(RULE_KEY)
+    db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
         .setTags(Sets.newHashSet("security"))
         .setSystemTags(Sets.newHashSet("java8", "javadoc"))
     );
@@ -194,7 +195,7 @@ public class RuleUpdaterMediumTest {
   @Test
   public void remove_tags() throws Exception {
     grantPermission();
-    db.ruleDao().insert(dbSession, RuleTests.newDto(RULE_KEY)
+    db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setTags(Sets.newHashSet("security"))
       .setSystemTags(Sets.newHashSet("java8", "javadoc")));
     dbSession.commit();
@@ -213,10 +214,10 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void fail_to_update_if_not_granted() throws Exception {
+  public void do_not_update_if_not_granted() throws Exception {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
-    db.ruleDao().insert(dbSession, RuleTests.newDto(RULE_KEY)
+    db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setTags(Sets.newHashSet("security"))
       .setSystemTags(Sets.newHashSet("java8", "javadoc")));
     dbSession.commit();
@@ -236,7 +237,7 @@ public class RuleUpdaterMediumTest {
   public void override_debt() throws Exception {
     grantPermission();
     insertDebtCharacteristics(dbSession);
-    db.ruleDao().insert(dbSession, RuleTests.newDto(RULE_KEY)
+    db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setDefaultSubCharacteristicId(hardReliabilityId)
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
       .setDefaultRemediationCoefficient("1d")
@@ -273,7 +274,7 @@ public class RuleUpdaterMediumTest {
   public void reset_debt() throws Exception {
     grantPermission();
     insertDebtCharacteristics(dbSession);
-    db.ruleDao().insert(dbSession, RuleTests.newDto(RULE_KEY)
+    db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setDefaultSubCharacteristicId(hardReliabilityId)
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
       .setDefaultRemediationCoefficient("1d")
@@ -309,7 +310,7 @@ public class RuleUpdaterMediumTest {
   public void unset_debt() throws Exception {
     grantPermission();
     insertDebtCharacteristics(dbSession);
-    db.ruleDao().insert(dbSession, RuleTests.newDto(RULE_KEY)
+    db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setDefaultSubCharacteristicId(hardReliabilityId)
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
       .setDefaultRemediationCoefficient("1d")
@@ -346,26 +347,17 @@ public class RuleUpdaterMediumTest {
   }
 
   private void insertDebtCharacteristics(DbSession dbSession) {
-    CharacteristicDto reliability = new CharacteristicDto()
-      .setKey("RELIABILITY")
-      .setName("Reliability")
-      .setEnabled(true);
+    CharacteristicDto reliability = DebtTesting.newCharacteristicDto("RELIABILITY");
     db.debtCharacteristicDao().insert(reliability, dbSession);
     reliabilityId = reliability.getId();
 
-    CharacteristicDto softReliability = new CharacteristicDto()
-      .setKey("SOFT_RELIABILITY")
-      .setName("Software reliability")
-      .setParentId(reliability.getId())
-      .setEnabled(true);
+    CharacteristicDto softReliability = DebtTesting.newCharacteristicDto("SOFT_RELIABILITY")
+      .setParentId(reliability.getId());
     db.debtCharacteristicDao().insert(softReliability, dbSession);
     softReliabilityId = softReliability.getId();
 
-    CharacteristicDto hardReliability = new CharacteristicDto()
-      .setKey("HARD_RELIABILITY")
-      .setName("Hardware reliability")
-      .setParentId(reliability.getId())
-      .setEnabled(true);
+    CharacteristicDto hardReliability = DebtTesting.newCharacteristicDto("HARD_RELIABILITY")
+      .setParentId(reliability.getId());
     db.debtCharacteristicDao().insert(hardReliability, dbSession);
     hardReliabilityId = hardReliability.getId();
   }

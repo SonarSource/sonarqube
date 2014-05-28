@@ -17,24 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.search;
+package org.sonar.server.debt;
 
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.tester.ServerTester;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.core.technicaldebt.db.CharacteristicDto;
 
-import static org.fest.assertions.Assertions.assertThat;
+public class DebtTesting {
+  private DebtTesting() {
+    // only static helpers
+  }
 
-public class IndexClientMediumTest{
-
-  @ClassRule
-  public static ServerTester tester = new ServerTester();
-
-  @Test
-  public void get_index_class(){
-    IndexClient indexClient = tester.get(IndexClient.class);
-    assertThat(tester.get(RuleIndex.class))
-      .isEqualTo(indexClient.get(RuleIndex.class));
+  public static CharacteristicDto newCharacteristicDto(String key) {
+    return new CharacteristicDto()
+      .setKey(key)
+      .setName(StringUtils.capitalize(key))
+      .setEnabled(true);
   }
 }

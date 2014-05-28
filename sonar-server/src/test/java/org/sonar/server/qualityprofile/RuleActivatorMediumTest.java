@@ -394,48 +394,6 @@ public class RuleActivatorMediumTest {
 
   }
 
-  @Test
-  public void find_active_rules() throws Exception {
-    QualityProfileDto profile1 = QualityProfileDto.createFor("p1", "java");
-    QualityProfileDto profile2 = QualityProfileDto.createFor("p2", "java");
-    db.qualityProfileDao().insert(dbSession, profile1, profile2);
-
-    RuleDto rule1 = RuleDto.createFor(RuleKey.of("java", "r1")).setSeverity(Severity.MAJOR);
-    RuleDto rule2 = RuleDto.createFor(RuleKey.of("java", "r2")).setSeverity(Severity.MAJOR);
-    db.ruleDao().insert(dbSession, rule1);
-    db.ruleDao().insert(dbSession, rule2);
-
-    db.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile1, rule1).setSeverity(Severity.MINOR));
-    db.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile1, rule2).setSeverity(Severity.BLOCKER));
-    db.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile2, rule2).setSeverity(Severity.CRITICAL));
-    dbSession.commit();
-
-    // find by rule key
-    List<ActiveRule> activeRules = index.findByRule(RuleKey.of("java", "r1"));
-    assertThat(activeRules).hasSize(1);
-    assertThat(activeRules.get(0).key().ruleKey()).isEqualTo(RuleKey.of("java", "r1"));
-
-    activeRules = index.findByRule(RuleKey.of("java", "r2"));
-    assertThat(activeRules).hasSize(2);
-    assertThat(activeRules.get(0).key().ruleKey()).isEqualTo(RuleKey.of("java", "r2"));
-
-    activeRules = index.findByRule(RuleKey.of("java", "r3"));
-    assertThat(activeRules).isEmpty();
-
-    // find by profile
-    activeRules = index.findByProfile(profile1.getKey());
-    assertThat(activeRules).hasSize(2);
-    assertThat(activeRules.get(0).key().qProfile()).isEqualTo(profile1.getKey());
-    assertThat(activeRules.get(1).key().qProfile()).isEqualTo(profile1.getKey());
-
-    activeRules = index.findByProfile(profile2.getKey());
-    assertThat(activeRules).hasSize(1);
-    assertThat(activeRules.get(0).key().qProfile()).isEqualTo(profile2.getKey());
-
-    activeRules = index.findByProfile(QualityProfileKey.of("unknown", "unknown"));
-    assertThat(activeRules).isEmpty();
-  }
-
   private void grantPermission() {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("marius");
   }

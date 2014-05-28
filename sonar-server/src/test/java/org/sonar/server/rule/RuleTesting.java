@@ -27,15 +27,27 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.check.Cardinality;
 import org.sonar.core.rule.RuleDto;
 
-public class RuleTests {
+public class RuleTesting {
 
+  private RuleTesting() {
+    // only static helpers
+  }
+
+  /**
+   * Full RuleDto used to feed database with fake data. Tests must not rely on the
+   * field contents declared here. They should override the fields they need to test,
+   * for example:
+   * <pre>
+   *   ruleDao.insert(dbSession, RuleTesting.newDto(key).setStatus(RuleStatus.BETA));
+   * </pre>
+   */
   public static RuleDto newDto(RuleKey ruleKey) {
     return new RuleDto()
       .setRuleKey(ruleKey.rule())
       .setRepositoryKey(ruleKey.repository())
       .setName("Rule " + ruleKey.rule())
       .setDescription("Description " + ruleKey.rule())
-      .setStatus(RuleStatus.READY.toString())
+      .setStatus(RuleStatus.READY)
       .setConfigKey("InternalKey" + ruleKey.rule())
       .setSeverity(Severity.INFO)
       .setCardinality(Cardinality.SINGLE)

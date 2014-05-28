@@ -67,7 +67,7 @@ public class RuleActivationContextFactory implements ServerComponent {
     if (rule == null) {
       throw new IllegalArgumentException("Rule not found: " + ruleKey);
     }
-    if (RuleStatus.REMOVED == RuleStatus.valueOf(rule.getStatus())) {
+    if (RuleStatus.REMOVED == rule.getStatus()) {
       throw new IllegalArgumentException("Rule was removed: " + ruleKey);
     }
     if (Cardinality.MULTIPLE.equals(rule.getCardinality())) {

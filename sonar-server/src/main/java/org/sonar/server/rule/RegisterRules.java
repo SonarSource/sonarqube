@@ -175,7 +175,7 @@ public class RegisterRules implements Startable {
       .setLanguage(ruleDef.repository().language())
       .setName(ruleDef.name())
       .setSeverity(ruleDef.severity())
-      .setStatus(ruleDef.status().name())
+      .setStatus(ruleDef.status())
       .setEffortToFixDescription(ruleDef.effortToFixDescription())
       .setSystemTags(ruleDef.tags());
 
@@ -210,9 +210,8 @@ public class RegisterRules implements Startable {
       dto.setCardinality(cardinality);
       changed = true;
     }
-    String status = def.status().name();
-    if (!StringUtils.equals(dto.getStatus(), status)) {
-      dto.setStatus(status);
+    if (def.status() != dto.getStatus()) {
+      dto.setStatus(def.status());
       changed = true;
     }
     if (!StringUtils.equals(dto.getLanguage(), def.repository().language())) {
@@ -342,7 +341,7 @@ public class RegisterRules implements Startable {
       // Update custom rules from template
       if (ruleDto.getParentId() != null) {
         RuleDto parent = dbClient.ruleDao().getParent(ruleDto, session);
-        if (parent != null && !Rule.STATUS_REMOVED.equals(parent.getStatus())) {
+        if (parent != null && RuleStatus.REMOVED != parent.getStatus()) {
           ruleDto.setLanguage(parent.getLanguage());
           ruleDto.setStatus(parent.getStatus());
           ruleDto.setDefaultSubCharacteristicId(parent.getDefaultSubCharacteristicId());
@@ -354,9 +353,9 @@ public class RegisterRules implements Startable {
           toBeRemoved = false;
         }
       }
-      if (toBeRemoved && !RuleStatus.REMOVED.toString().equals(ruleDto.getStatus())) {
+      if (toBeRemoved && RuleStatus.REMOVED != ruleDto.getStatus()) {
         LOG.info(String.format("Disable rule %s", ruleDto.getKey()));
-        ruleDto.setStatus(Rule.STATUS_REMOVED);
+        ruleDto.setStatus(RuleStatus.REMOVED);
         ruleDto.setSystemTags(Collections.<String>emptySet());
         ruleDto.setTags(Collections.<String>emptySet());
         dbClient.ruleDao().update(session, ruleDto);

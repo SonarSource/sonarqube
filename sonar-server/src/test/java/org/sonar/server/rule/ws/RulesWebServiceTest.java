@@ -362,9 +362,7 @@ public class RulesWebServiceTest {
 
 
   private QualityProfileDto newQualityProfile() {
-    return new QualityProfileDto()
-      .setLanguage("java")
-      .setName("My Profile");
+    return QualityProfileDto.createFor("My Profile", "java");
   }
 
   private RuleDto newRuleDto(RuleKey ruleKey) {
@@ -373,7 +371,7 @@ public class RulesWebServiceTest {
       .setRepositoryKey(ruleKey.repository())
       .setName("Rule " + ruleKey.rule())
       .setDescription("Description " + ruleKey.rule())
-      .setStatus(RuleStatus.READY.toString())
+      .setStatus(RuleStatus.READY)
       .setConfigKey("InternalKey" + ruleKey.rule())
       .setSeverity(Severity.INFO)
       .setCardinality(Cardinality.SINGLE)

@@ -21,7 +21,7 @@ package org.sonar.core.rule;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.rules.Rule;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.List;
@@ -47,7 +47,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getId()).isEqualTo(1);
     assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
     assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
-    assertThat(ruleDto.getStatus()).isEqualTo(Rule.STATUS_READY);
+    assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.READY);
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
     assertThat(ruleDto.getNoteData()).isEqualTo("Rule note with accents \u00e9\u00e8\u00e0");
     assertThat(ruleDto.getSubCharacteristicId()).isEqualTo(100);

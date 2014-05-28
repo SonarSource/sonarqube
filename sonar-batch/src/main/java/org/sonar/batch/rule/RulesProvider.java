@@ -77,7 +77,7 @@ public class RulesProvider extends ProviderAdapter {
         .setName(ruleDto.getName())
         .setSeverity(ruleDto.getSeverityString())
         .setDescription(ruleDto.getDescription())
-        .setStatus(RuleStatus.valueOf(ruleDto.getStatus()))
+        .setStatus(ruleDto.getStatus())
         .setInternalKey(ruleDto.getConfigKey());
 
       if (hasCharacteristic(ruleDto)) {

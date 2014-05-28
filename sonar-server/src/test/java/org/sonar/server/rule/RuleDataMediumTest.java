@@ -302,12 +302,10 @@ public class RuleDataMediumTest {
   public void should_not_find_removed() {
     // insert db
     RuleKey ruleKey = RuleKey.of("javascript", "S001");
-    RuleDto ruleDto = newRuleDto(ruleKey)
-      .setStatus(RuleStatus.READY.toString());
+    RuleDto ruleDto = newRuleDto(ruleKey).setStatus(RuleStatus.READY);
 
     RuleKey removedKey = RuleKey.of("javascript", "S002");
-    RuleDto removedDto = newRuleDto(removedKey)
-      .setStatus(RuleStatus.REMOVED.toString());
+    RuleDto removedDto = newRuleDto(removedKey).setStatus(RuleStatus.REMOVED);
     dao.insert(dbSession, ruleDto);
     dao.insert(dbSession, removedDto);
     dbSession.commit();
@@ -329,7 +327,7 @@ public class RuleDataMediumTest {
       .setRepositoryKey(ruleKey.repository())
       .setName("Rule " + ruleKey.rule())
       .setDescription("Description " + ruleKey.rule())
-      .setStatus(RuleStatus.READY.toString())
+      .setStatus(RuleStatus.READY)
       .setConfigKey("InternalKey" + ruleKey.rule())
       .setSeverity(Severity.INFO)
       .setCardinality(Cardinality.SINGLE)

@@ -375,8 +375,8 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_by_any_of_statuses() throws InterruptedException {
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")).setStatus(RuleStatus.BETA.name()));
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")).setStatus(RuleStatus.READY.name()));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")).setStatus(RuleStatus.BETA));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")).setStatus(RuleStatus.READY));
     dbSession.commit();
 
 
@@ -612,7 +612,7 @@ public class RuleIndexMediumTest {
       .setRepositoryKey(ruleKey.repository())
       .setName("Rule " + ruleKey.rule())
       .setDescription("Description " + ruleKey.rule())
-      .setStatus(RuleStatus.READY.toString())
+      .setStatus(RuleStatus.READY)
       .setConfigKey("InternalKey" + ruleKey.rule())
       .setSeverity(Severity.INFO)
       .setCardinality(Cardinality.SINGLE)

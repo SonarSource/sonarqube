@@ -19,13 +19,8 @@
  */
 package org.sonar.server.rule;
 
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.persistence.DbSession;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.rule.index.RuleQuery;
@@ -34,8 +29,6 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import java.util.Date;
 import java.util.Set;
 
 /**
@@ -44,12 +37,10 @@ import java.util.Set;
 public class RuleService implements ServerComponent {
 
   private final RuleIndex index;
-  private final DbClient db;
   private final RuleUpdater ruleUpdater;
 
-  public RuleService(RuleIndex index, DbClient db, RuleUpdater ruleUpdater) {
+  public RuleService(RuleIndex index, RuleUpdater ruleUpdater) {
     this.index = index;
-    this.db = db;
     this.ruleUpdater = ruleUpdater;
   }
 
@@ -74,63 +65,7 @@ public class RuleService implements ServerComponent {
     return index.terms(RuleNormalizer.RuleField._TAGS.field());
   }
 
-  /**
-   * Set tags for rule.
-   *
-   * @param ruleKey the required key
-   * @param tags    Set of tags. <code>null</code> to remove all tags.
-   */
-  public void setTags(RuleKey ruleKey, Set<String> tags) {
-    checkAdminPermission(UserSession.get());
-
-    DbSession dbSession = db.openSession(false);
-    try {
-      RuleDto rule = db.ruleDao().getNonNullByKey(dbSession, ruleKey);
-      boolean changed = RuleTagHelper.applyTags(rule, tags);
-      if (changed) {
-        db.ruleDao().update(dbSession, rule);
-        dbSession.commit();
-      }
-    } finally {
-      dbSession.close();
-    }
-  }
-
-  /**
-   * Extend rule description by adding a note.
-   *
-   * @param ruleKey      the required key
-   * @param markdownNote markdown text. <code>null</code> to remove current note.
-   */
-  public void setNote(RuleKey ruleKey, @Nullable String markdownNote) {
-    UserSession userSession = UserSession.get();
-    checkAdminPermission(userSession);
-    DbSession dbSession = db.openSession(false);
-    try {
-      RuleDto rule = db.ruleDao().getNonNullByKey(dbSession, ruleKey);
-      if (StringUtils.isBlank(markdownNote)) {
-        rule.setNoteData(null);
-        rule.setNoteCreatedAt(null);
-        rule.setNoteUpdatedAt(null);
-        rule.setNoteUserLogin(null);
-      } else {
-        rule.setNoteData(markdownNote);
-        rule.setNoteCreatedAt(rule.getNoteCreatedAt() != null ? rule.getNoteCreatedAt() : new Date());
-        rule.setNoteUpdatedAt(new Date());
-        rule.setNoteUserLogin(userSession.login());
-      }
-      db.ruleDao().update(dbSession, rule);
-      dbSession.commit();
-    } finally {
-      dbSession.close();
-    }
-  }
-
   public void update(RuleUpdate update) {
     ruleUpdater.update(update, UserSession.get());
-  }
-
-  private void checkAdminPermission(UserSession userSession) {
-    userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 }

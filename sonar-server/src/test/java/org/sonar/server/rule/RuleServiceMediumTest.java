@@ -19,38 +19,23 @@
  */
 package org.sonar.server.rule;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rule.Severity;
-import org.sonar.api.server.debt.DebtRemediationFunction;
-import org.sonar.check.Cardinality;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.rule.RuleDto;
-import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.tester.ServerTester;
-import org.sonar.server.user.MockUserSession;
 
 import java.util.Collections;
 import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
 
 public class RuleServiceMediumTest {
 
@@ -74,191 +59,29 @@ public class RuleServiceMediumTest {
   }
 
   @Test
-  public void setTags() throws InterruptedException {
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-
-    // insert db
-    RuleKey rule1 = RuleKey.of("javascript", "S001");
-    dao.insert(dbSession, newRuleDto(rule1)
-        .setTags(Sets.newHashSet("security"))
-        .setSystemTags(Collections.<String>emptySet())
-    );
-
-    RuleKey rule2 = RuleKey.of("java", "S001");
-    dao.insert(dbSession, newRuleDto(rule2)
-      .setTags(Sets.newHashSet("toberemoved"))
-      .setSystemTags(Sets.newHashSet("bug")));
-    dbSession.commit();
-
-    service.setTags(rule2, Sets.newHashSet("bug", "security"));
-
-    // verify that tags are indexed in index
-    Set<String> tags = service.listTags();
-    assertThat(tags).containsOnly("security", "bug");
-  }
-
-  @Test
-  public void setTags_fail_if_rule_does_not_exist() {
-    try {
-      MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-      service.setTags(RuleKey.of("java", "S001"), Sets.newHashSet("bug", "security"));
-      fail();
-    } catch (NotFoundException e) {
-      assertThat(e).hasMessage("Key 'java:S001' not found");
-    }
-  }
-
-  @Test
-  public void setTags_fail_if_not_permitted() {
-    try {
-      MockUserSession.set();
-      service.setTags(RuleKey.of("java", "S001"), Sets.newHashSet("bug", "security"));
-      fail();
-    } catch (ForbiddenException e) {
-      assertThat(e).hasMessage("Insufficient privileges");
-    }
-  }
-
-  @Test
-  public void setNote() throws Exception {
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("marius");
-    RuleKey ruleKey = RuleKey.of("javascript", "S001");
-    dao.insert(dbSession, newRuleDto(ruleKey));
-    dbSession.commit();
-
-    // 1. CREATE NOTE
-    service.setNote(ruleKey, "my *note*");
-
-    // verify db
-    RuleDto dto = dao.getNonNullByKey(dbSession, ruleKey);
-    assertThat(dto.getNoteData()).isEqualTo("my *note*");
-    assertThat(dto.getNoteCreatedAt()).isNotNull();
-    assertThat(dto.getNoteUpdatedAt()).isNotNull();
-    assertThat(dto.getNoteUserLogin()).isEqualTo("marius");
-
-    // verify es
-    Rule rule = index.getByKey(ruleKey);
-    assertThat(rule.markdownNote()).isEqualTo("my *note*");
-    assertThat(rule.noteCreatedAt()).isNotNull();
-    assertThat(rule.noteUpdatedAt()).isNotNull();
-    assertThat(rule.noteLogin()).isEqualTo("marius");
-
-    // 2. DELETE NOTE
-    service.setNote(ruleKey, null);
-    dbSession.clearCache();
-    dto = dao.getNonNullByKey(dbSession, ruleKey);
-    assertThat(dto.getNoteData()).isNull();
-    assertThat(dto.getNoteCreatedAt()).isNull();
-    assertThat(dto.getNoteUpdatedAt()).isNull();
-    assertThat(dto.getNoteUserLogin()).isNull();
-
-    rule = index.getByKey(ruleKey);
-    assertThat(rule.markdownNote()).isNull();
-    assertThat(rule.noteCreatedAt()).isNull();
-    assertThat(rule.noteUpdatedAt()).isNull();
-    assertThat(rule.noteLogin()).isNull();
-
-  }
-
-  @Test
   public void test_list_tags() throws InterruptedException {
     // insert db
-    RuleKey rule1 = RuleKey.of("javascript", "S001");
-    dao.insert(dbSession, newRuleDto(rule1)
-        .setTags(Sets.newHashSet("security"))
-        .setSystemTags(Sets.newHashSet("java-coding", "stephane.gamard@sonarsource.com"))
-    );
+    RuleKey key1 = RuleKey.of("javascript", "S001");
+    dao.insert(dbSession, RuleTesting.newDto(key1)
+      .setTags(Sets.newHashSet("tag1"))
+      .setSystemTags(Sets.newHashSet("sys1", "sys2")));
 
-    RuleKey rule2 = RuleKey.of("java", "S001");
-    dao.insert(dbSession, newRuleDto(rule2)
-      .setTags(Sets.newHashSet("mytag"))
-      .setSystemTags(Sets.newHashSet("")));
+    RuleKey key2 = RuleKey.of("java", "S001");
+    dao.insert(dbSession, RuleTesting.newDto(key2)
+      .setTags(Sets.newHashSet("tag2"))
+      .setSystemTags(Collections.<String>emptySet()));
     dbSession.commit();
 
+    // all tags, including system
+    Set<String> tags = service.listTags();
+    assertThat(tags).containsOnly("tag1", "tag2", "sys1", "sys2");
 
-    Set<String> tags = index.terms(RuleNormalizer.RuleField._TAGS.field());
-    assertThat(tags).containsOnly("java-coding", "security",
-      "stephane.gamard@sonarsource.com", "mytag");
+    // verify user tags in es
+    tags = index.terms(RuleNormalizer.RuleField.TAGS.field());
+    assertThat(tags).containsOnly("tag1", "tag2");
 
+    // verify system tags in es
     tags = index.terms(RuleNormalizer.RuleField.SYSTEM_TAGS.field());
-    assertThat(tags).containsOnly("java-coding",
-      "stephane.gamard@sonarsource.com");
-
-  }
-
-  @Test
-  public void test_search_activation_on_rules() throws InterruptedException {
-
-    // 1. Create in DB
-    QualityProfileDto qprofile1 = QualityProfileDto.createFor("profile1", "java");
-    QualityProfileDto qprofile2 = QualityProfileDto.createFor("profile2", "java");
-    tester.get(QualityProfileDao.class).insert(dbSession, qprofile1);
-    tester.get(QualityProfileDao.class).insert(dbSession, qprofile2);
-
-    RuleDto rule1 = newRuleDto(RuleKey.of("test", "rule1"));
-    RuleDto rule2 = newRuleDto(RuleKey.of("test", "rule2"));
-    tester.get(RuleDao.class).insert(dbSession, rule1);
-    tester.get(RuleDao.class).insert(dbSession, rule2);
-
-    ActiveRuleDto activeRule1 = ActiveRuleDto.createFor(qprofile1, rule1)
-      .setSeverity(Severity.BLOCKER);
-    ActiveRuleDto activeRule2 = ActiveRuleDto.createFor(qprofile1, rule2)
-      .setSeverity(Severity.BLOCKER);
-    ActiveRuleDto activeRule3 = ActiveRuleDto.createFor(qprofile2, rule2)
-      .setSeverity(Severity.BLOCKER);
-    tester.get(ActiveRuleDao.class).insert(dbSession, activeRule1);
-    tester.get(ActiveRuleDao.class).insert(dbSession, activeRule2);
-    tester.get(ActiveRuleDao.class).insert(dbSession, activeRule3);
-
-    dbSession.commit();
-
-
-    // 2. test in DB
-    assertThat(tester.get(RuleDao.class).findAll(dbSession)).hasSize(2);
-    assertThat(tester.get(ActiveRuleDao.class).findByRule(rule1, dbSession)).hasSize(1);
-    assertThat(tester.get(ActiveRuleDao.class).findByRule(rule2, dbSession)).hasSize(2);
-
-
-    // 3. Test for ALL activations
-    // TODO
-//    RuleQuery query = new RuleQuery()
-//      .setActivation("all");
-//    RuleResult result = service.search(query, new QueryOptions());
-//    assertThat(result.getActiveRules().values()).hasSize(3);
-//
-//    // 4. Test for NO active rules
-//    query = new RuleQuery()
-//      .setActivation("false");
-//    result = service.search(query, new QueryOptions());
-//    assertThat(result.getActiveRules().values()).hasSize(0);
-//
-//    // 4. Test for  active rules of QProfile
-//    query = new RuleQuery()
-//      .setActivation("true")
-//      .setQProfileKey(qprofile1.getKey().toString());
-//    result = service.search(query, new QueryOptions());
-//    assertThat(result.getActiveRules().values()).hasSize(2);
-  }
-
-  private RuleDto newRuleDto(RuleKey ruleKey) {
-    return new RuleDto()
-      .setRuleKey(ruleKey.rule())
-      .setRepositoryKey(ruleKey.repository())
-      .setName("Rule " + ruleKey.rule())
-      .setDescription("Description " + ruleKey.rule())
-      .setStatus(RuleStatus.READY.toString())
-      .setConfigKey("InternalKey" + ruleKey.rule())
-      .setSeverity(Severity.INFO)
-      .setCardinality(Cardinality.SINGLE)
-      .setLanguage("js")
-      .setTags(ImmutableSet.of("tag1", "tag2"))
-      .setSystemTags(ImmutableSet.of("systag1", "systag2"))
-      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
-      .setRemediationCoefficient("1h")
-      .setDefaultRemediationCoefficient("5d")
-      .setRemediationOffset("5min")
-      .setDefaultRemediationOffset("10h")
-      .setEffortToFixDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix");
+    assertThat(tags).containsOnly("sys1", "sys2");
   }
 }

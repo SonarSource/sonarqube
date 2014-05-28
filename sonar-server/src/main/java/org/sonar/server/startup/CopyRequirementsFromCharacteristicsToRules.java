@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.platform.ServerUpgradeStatus;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.Duration;
@@ -111,7 +112,7 @@ public class CopyRequirementsFromCharacteristicsToRules implements ServerCompone
   private void convert(RuleDto rule, Collection<RequirementDto> requirementsForRule, DbSession session) {
     RequirementDto enabledRequirement = enabledRequirement(requirementsForRule);
 
-    if (enabledRequirement == null && !Rule.STATUS_REMOVED.equals(rule.getStatus())) {
+    if (enabledRequirement == null && RuleStatus.REMOVED != rule.getStatus()) {
       // If no enabled requirement is found, it means that the requirement has been disabled for this rule
       convertDisableRequirement(rule, session);
 

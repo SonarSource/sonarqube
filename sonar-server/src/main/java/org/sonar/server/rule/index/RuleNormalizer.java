@@ -107,7 +107,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     update.put(RuleField.UPDATED_AT.field(), rule.getUpdatedAt());
     update.put(RuleField.HTML_DESCRIPTION.field(), rule.getDescription());
     update.put(RuleField.SEVERITY.field(), rule.getSeverityString());
-    update.put(RuleField.STATUS.field(), rule.getStatus());
+    update.put(RuleField.STATUS.field(), rule.getStatus().name());
     update.put(RuleField.LANGUAGE.field(), rule.getLanguage());
     update.put(RuleField.INTERNAL_KEY.field(), rule.getConfigKey());
     update.put(RuleField.TEMPLATE.field(), rule.getCardinality() == Cardinality.MULTIPLE);

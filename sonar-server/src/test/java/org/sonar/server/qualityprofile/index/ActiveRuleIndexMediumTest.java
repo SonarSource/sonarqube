@@ -32,10 +32,12 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.ActiveRule;
+import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.Collection;
@@ -137,96 +139,52 @@ public class ActiveRuleIndexMediumTest {
   }
 
   @Test
-  public void find_active_rules() throws InterruptedException {
+  public void find_active_rules() throws Exception {
     QualityProfileDto profile1 = QualityProfileDto.createFor("p1", "java");
     QualityProfileDto profile2 = QualityProfileDto.createFor("p2", "java");
-    db.qualityProfileDao().insert(dbSession, profile1);
-    db.qualityProfileDao().insert(dbSession, profile2);
+    db.qualityProfileDao().insert(dbSession, profile1, profile2);
 
-    // insert db
-    RuleDto ruleDto = newRuleDto(RuleKey.of("javascript", "S001"));
-    db.ruleDao().insert(dbSession, ruleDto);
-
-    // insert db
-    RuleDto ruleDto2 = newRuleDto(RuleKey.of("javascript", "S002"));
-    db.ruleDao().insert(dbSession, ruleDto2);
-
-    ActiveRuleDto find1 = ActiveRuleDto.createFor(profile1, ruleDto)
-      .setInheritance(ActiveRule.Inheritance.INHERIT.name())
-      .setSeverity(Severity.BLOCKER);
-
-    ActiveRuleDto find2 = ActiveRuleDto.createFor(profile2, ruleDto)
-      .setInheritance(ActiveRule.Inheritance.INHERIT.name())
-      .setSeverity(Severity.BLOCKER);
-
-    ActiveRuleDto notFound = ActiveRuleDto.createFor(profile2, ruleDto2)
-      .setInheritance(ActiveRule.Inheritance.INHERIT.name())
-      .setSeverity(Severity.BLOCKER);
-
-    db.activeRuleDao().insert(dbSession, find1);
-    db.activeRuleDao().insert(dbSession, find2);
-    db.activeRuleDao().insert(dbSession, notFound);
-    dbSession.commit();
-
-    // verify that activeRules are persisted in db
-    List<ActiveRuleDto> persistedDtos = db.activeRuleDao().findByRule(ruleDto, dbSession);
-    assertThat(persistedDtos).hasSize(2);
-    persistedDtos = db.activeRuleDao().findByRule(ruleDto2, dbSession);
-    assertThat(persistedDtos).hasSize(1);
-
-    // verify that activeRules are indexed in es
-
-
-    Collection<ActiveRule> hits = index.findByRule(RuleKey.of("javascript", "S001"));
-
-    assertThat(hits).isNotNull();
-    assertThat(hits).hasSize(2);
-  }
-
-  @Test
-  public void find_activeRules_by_qprofile() throws InterruptedException {
-    QualityProfileDto profileDto = QualityProfileDto.createFor("P1", "java");
-    QualityProfileDto profileDto2 = QualityProfileDto.createFor("P2", "java");
-    db.qualityProfileDao().insert(dbSession, profileDto);
-    db.qualityProfileDao().insert(dbSession, profileDto2);
-
-    // insert db
-    RuleDto rule1 = newRuleDto(RuleKey.of("javascript", "S001"));
-    RuleDto rule2 = newRuleDto(RuleKey.of("javascript", "S002"));
+    RuleDto rule1 = RuleTesting.newDto(RuleKey.of("java", "r1")).setSeverity(Severity.MAJOR);
+    RuleDto rule2 = RuleTesting.newDto(RuleKey.of("java", "r2")).setSeverity(Severity.MAJOR);
     db.ruleDao().insert(dbSession, rule1);
     db.ruleDao().insert(dbSession, rule2);
 
-    ActiveRuleDto onP1 = ActiveRuleDto.createFor(profileDto, rule1)
-      .setInheritance(ActiveRule.Inheritance.INHERIT.name())
-      .setSeverity(Severity.BLOCKER);
-
-    ActiveRuleDto firstOnP1 = ActiveRuleDto.createFor(profileDto2, rule1)
-      .setInheritance(ActiveRule.Inheritance.INHERIT.name())
-      .setSeverity(Severity.BLOCKER);
-
-    ActiveRuleDto firstOnP2 = ActiveRuleDto.createFor(profileDto2, rule2)
-      .setInheritance(ActiveRule.Inheritance.INHERIT.name())
-      .setSeverity(Severity.BLOCKER);
-
-    db.activeRuleDao().insert(dbSession, onP1);
-    db.activeRuleDao().insert(dbSession, firstOnP1);
-    db.activeRuleDao().insert(dbSession, firstOnP2);
+    db.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile1, rule1).setSeverity(Severity.MINOR));
+    db.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile1, rule2).setSeverity(Severity.BLOCKER));
+    db.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile2, rule2).setSeverity(Severity.CRITICAL));
     dbSession.commit();
 
-    // verify that activeRules are persisted in db
-    List<ActiveRuleDto> persistedDtos = db.activeRuleDao().findByRule(rule1, dbSession);
-    assertThat(persistedDtos).hasSize(2);
-    persistedDtos = db.activeRuleDao().findByRule(rule2, dbSession);
-    assertThat(persistedDtos).hasSize(1);
+    // 1. find by rule key
 
-    // verify that activeRules are indexed in es
+    // in db
+    dbSession.clearCache();
+    assertThat(db.activeRuleDao().findByRule(rule1, dbSession)).hasSize(1);
+    assertThat(db.activeRuleDao().findByRule(rule2, dbSession)).hasSize(2);
 
+    // in es
+    List<ActiveRule> activeRules = index.findByRule(RuleKey.of("java", "r1"));
+    assertThat(activeRules).hasSize(1);
+    assertThat(activeRules.get(0).key().ruleKey()).isEqualTo(RuleKey.of("java", "r1"));
 
-    Collection<ActiveRule> hits = index.findByRule(RuleKey.of("javascript", "S001"));
+    activeRules = index.findByRule(RuleKey.of("java", "r2"));
+    assertThat(activeRules).hasSize(2);
+    assertThat(activeRules.get(0).key().ruleKey()).isEqualTo(RuleKey.of("java", "r2"));
 
-    assertThat(hits).isNotNull();
-    assertThat(hits).hasSize(2);
+    activeRules = index.findByRule(RuleKey.of("java", "r3"));
+    assertThat(activeRules).isEmpty();
 
+    // 2. find by profile
+    activeRules = index.findByProfile(profile1.getKey());
+    assertThat(activeRules).hasSize(2);
+    assertThat(activeRules.get(0).key().qProfile()).isEqualTo(profile1.getKey());
+    assertThat(activeRules.get(1).key().qProfile()).isEqualTo(profile1.getKey());
+
+    activeRules = index.findByProfile(profile2.getKey());
+    assertThat(activeRules).hasSize(1);
+    assertThat(activeRules.get(0).key().qProfile()).isEqualTo(profile2.getKey());
+
+    activeRules = index.findByProfile(QualityProfileKey.of("unknown", "unknown"));
+    assertThat(activeRules).isEmpty();
   }
 
   @Test
@@ -254,7 +212,7 @@ public class ActiveRuleIndexMediumTest {
       .setRepositoryKey(ruleKey.repository())
       .setName("Rule " + ruleKey.rule())
       .setDescription("Description " + ruleKey.rule())
-      .setStatus(RuleStatus.READY.toString())
+      .setStatus(RuleStatus.READY)
       .setConfigKey("InternalKey" + ruleKey.rule())
       .setSeverity(Severity.INFO)
       .setCardinality(Cardinality.SINGLE)

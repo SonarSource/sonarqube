@@ -373,7 +373,7 @@ public class QProfilesWsMediumTest {
     RuleDto rule = RuleDto.createFor(RuleKey.of("blah", id))
       .setLanguage(lang)
       .setSeverity(Severity.BLOCKER)
-      .setStatus(RuleStatus.READY.name());
+      .setStatus(RuleStatus.READY);
     db.ruleDao().insert(session, rule);
     return rule;
   }
