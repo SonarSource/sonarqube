@@ -174,6 +174,7 @@ public class IssueSearchAction implements RequestHandler {
     writeProjects(queryResult, json);
     writeRules(queryResult, json);
     writeUsers(queryResult, json);
+    writeActionPlans(queryResult, json);
 
     json.endObject().close();
   }
@@ -199,7 +200,6 @@ public class IssueSearchAction implements RequestHandler {
       String actionPlanKey = issue.actionPlanKey();
       Duration debt = issue.debt();
       Date updateDate = issue.updateDate();
-      Date closeDate = issue.closeDate();
 
       json
         .prop("key", issue.key())
@@ -216,10 +216,10 @@ public class IssueSearchAction implements RequestHandler {
         .prop("assignee", issue.assignee())
         .prop("author", issue.authorLogin())
         .prop("actionPlan", actionPlanKey)
-        .prop("creationDate", DateUtils.formatDateTime(issue.creationDate()))
-        .prop("updateDate", updateDate != null ? DateUtils.formatDateTime(updateDate) : null)
+        .prop("creationDate", isoDate(issue.creationDate()))
+        .prop("updateDate", isoDate(updateDate))
         .prop("fUpdateAge", formatAgeDate(updateDate))
-        .prop("closeDate", closeDate != null ? DateUtils.formatDateTime(closeDate) : null);
+        .prop("closeDate", isoDate(issue.closeDate()));
 
       writeIssueComments(issue, json);
       writeIssueAttributes(issue, json);
@@ -256,7 +256,7 @@ public class IssueSearchAction implements RequestHandler {
   }
 
   private void writeIssueExtraFields(IssueQueryResult result, Issue issue, @Nullable List<String> extraFields, JsonWriter json) {
-    if (extraFields != null) {
+    if (extraFields != null && UserSession.get().isLoggedIn()) {
       if (extraFields.contains("actions")) {
         actionsWriter.writeActions(issue, json);
       }
@@ -334,6 +334,47 @@ public class IssueSearchAction implements RequestHandler {
         .endObject();
     }
     json.endArray();
+  }
+
+  private void writeActionPlans(IssueQueryResult result, JsonWriter json) {
+    if (!result.actionPlans().isEmpty()) {
+      json.name("actionPlans").beginArray();
+      for (ActionPlan actionPlan : result.actionPlans()) {
+        Date deadLine = actionPlan.deadLine();
+        Date updatedAt = actionPlan.updatedAt();
+
+        json.beginObject()
+          .prop("key", actionPlan.key())
+          .prop("name", actionPlan.name())
+          .prop("status", actionPlan.status())
+          .prop("project", actionPlan.projectKey())
+          .prop("userLogin", actionPlan.userLogin())
+          .prop("deadLine", isoDate(deadLine))
+          .prop("fDeadLine", formatDate(deadLine))
+          .prop("createdAt", isoDate(actionPlan.createdAt()))
+          .prop("fCreatedAt", formatDate(actionPlan.createdAt()))
+          .prop("updatedAt", isoDate(actionPlan.updatedAt()))
+          .prop("fUpdatedAt", formatDate(updatedAt))
+          .endObject();
+      }
+      json.endArray();
+    }
+  }
+
+  @CheckForNull
+  private String isoDate(@Nullable Date date) {
+    if (date != null) {
+      return DateUtils.formatDateTime(date);
+    }
+    return null;
+  }
+
+  @CheckForNull
+  private String formatDate(@Nullable Date date) {
+    if (date != null) {
+      return i18n.formatDateTime(UserSession.get().locale(), date);
+    }
+    return null;
   }
 
   @CheckForNull

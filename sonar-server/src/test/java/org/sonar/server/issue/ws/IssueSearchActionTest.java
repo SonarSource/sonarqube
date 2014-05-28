@@ -166,9 +166,28 @@ public class IssueSearchActionTest {
       .setActionPlanKey("AP-ABCD");
     issues.add(issue);
 
-    MockUserSession.set();
+    Date createdAt = DateUtils.parseDateTime("2014-01-22T19:10:03+0100");
+    Date updatedAt = DateUtils.parseDateTime("2014-01-23T19:10:03+0100");
+    Date deadLine = DateUtils.parseDateTime("2014-01-24T19:10:03+0100");
+
+    when(i18n.formatDateTime(any(Locale.class), eq(createdAt))).thenReturn("Jan 22, 2014 10:03 AM");
+    when(i18n.formatDateTime(any(Locale.class), eq(updatedAt))).thenReturn("Jan 23, 2014 10:03 AM");
+    when(i18n.formatDateTime(any(Locale.class), eq(deadLine))).thenReturn("Jan 24, 2014 10:03 AM");
+
+    result.addActionPlans(Lists.<ActionPlan>newArrayList(
+      new DefaultActionPlan()
+        .setKey("AP-ABCD")
+        .setName("1.0")
+        .setStatus("OPEN")
+        .setProjectKey("sample")
+        .setUserLogin("arthur")
+        .setDeadLine(deadLine)
+        .setCreatedAt(createdAt)
+        .setUpdatedAt(updatedAt)
+    ));
+
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "search");
-    request.execute().assertJson(getClass(), "issues_with_action_plan.json");
+    request.execute().assertJson(getClass(), "issues_with_action_plans.json");
   }
 
   @Test

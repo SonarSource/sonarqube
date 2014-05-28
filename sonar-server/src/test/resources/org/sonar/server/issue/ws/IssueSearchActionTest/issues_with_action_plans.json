@@ -13,33 +13,27 @@
       "component": "sample:src/main/xoo/sample/Sample.xoo",
       "project": "sample",
       "rule": "squid:AvoidCycle",
-      "creationDate": "2014-01-22T19:10:03+0100",
-      "assignee": "john",
-      "assigneeName": "John",
       "actionPlan": "AP-ABCD",
-      "actionPlanName": "1.0",
-      "actions": [
-        "comment", "assign", "plan"
-      ],
-      "transitions": [
-        "reopen"
-      ]
+      "creationDate": "2014-01-22T19:10:03+0100"
     }
   ],
   "components": [],
   "projects": [],
   "rules": [],
-  "users": [
-    {
-      "login": "john",
-      "name": "John",
-      "active": false
-    }
-  ],
+  "users": [],
   "actionPlans": [
     {
       "key": "AP-ABCD",
-      "name": "1.0"
+      "name": "1.0",
+      "status": "OPEN",
+      "project": "sample",
+      "userLogin": "arthur",
+      "deadLine": "2014-01-24T19:10:03+0100",
+      "fDeadLine": "Jan 24, 2014 10:03 AM",
+      "createdAt": "2014-01-22T19:10:03+0100",
+      "fCreatedAt": "Jan 22, 2014 10:03 AM",
+      "updatedAt": "2014-01-23T19:10:03+0100",
+      "fUpdatedAt": "Jan 23, 2014 10:03 AM"
     }
   ]
 }
