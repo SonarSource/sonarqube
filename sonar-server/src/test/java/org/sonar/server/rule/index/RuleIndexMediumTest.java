@@ -421,24 +421,16 @@ public class RuleIndexMediumTest {
     assertThat(Iterables.getLast(results.getHits(), null).key().rule()).isEqualTo("S002");
   }
 
-  @Test
-  public void sort_by_language() throws InterruptedException {
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")).setLanguage("java"));
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")).setLanguage("php"));
-    dbSession.commit();
+  @Test(expected = IllegalStateException.class)
+  public void fail_sort_by_language() throws InterruptedException {
 
-
-    // ascending
-    RuleQuery query = new RuleQuery().setSortField(RuleNormalizer.RuleField.LANGUAGE);
-    Result<Rule> results = index.search(query, new QueryOptions());
-    assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S001");
-    assertThat(Iterables.getLast(results.getHits(), null).key().rule()).isEqualTo("S002");
-
-    // descending
-    query = new RuleQuery().setSortField(RuleNormalizer.RuleField.LANGUAGE).setAscendingSort(false);
-    results = index.search(query, new QueryOptions());
-    assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S002");
-    assertThat(Iterables.getLast(results.getHits(), null).key().rule()).isEqualTo("S001");
+    try {
+      // Sorting on a field not tagged as sortable
+      RuleQuery query = new RuleQuery().setSortField(RuleNormalizer.RuleField.LANGUAGE);
+      fail();
+    } catch (IllegalStateException e){
+      assertThat(e.getMessage()).isEqualTo("Field 'lang' is not sortable!");
+    }
   }
 
   @Test
@@ -504,14 +496,14 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void complex_param_value(){
+  public void complex_param_value() {
     String value = "//expression[primary/qualifiedIdentifier[count(IDENTIFIER) = 2]/IDENTIFIER[2]/@tokenValue = 'firstOf' and primary/identifierSuffix/arguments/expression[not(primary) or primary[not(qualifiedIdentifier) or identifierSuffix]]]";
 
-    QualityProfileDto profile = QualityProfileDto.createFor("name","Language");
+    QualityProfileDto profile = QualityProfileDto.createFor("name", "Language");
     dbClient.qualityProfileDao().insert(dbSession, profile);
 
     RuleDto rule = newRuleDto(RuleKey.of("java", "S001"));
-    dao.insert(dbSession,rule);
+    dao.insert(dbSession, rule);
 
     RuleParamDto param = RuleParamDto.createFor(rule)
       .setName("testing")
