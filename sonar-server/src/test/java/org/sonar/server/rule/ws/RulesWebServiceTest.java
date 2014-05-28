@@ -20,7 +20,11 @@
 package org.sonar.server.rule.ws;
 
 import com.google.common.collect.ImmutableSet;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -28,13 +32,13 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.rule.index.RuleNormalizer;
@@ -55,20 +59,16 @@ public class RulesWebServiceTest {
   private static final String API_SHOW_METHOD = "show";
   private static final String API_TAGS_METHOD = "tags";
 
-  private RulesWebService ws;
-  private RuleDao ruleDao;
-  private DbSession session;
-
-  WsTester wsTester;
-
+  RulesWebService ws;
+  RuleDao ruleDao;
+  DbSession session;
 
   @Before
   public void setUp() throws Exception {
     tester.clearDbAndEs();
     ruleDao = tester.get(RuleDao.class);
     ws = tester.get(RulesWebService.class);
-    wsTester = new WsTester(ws);
-    session = tester.get(MyBatis.class).openSession(false);
+    session = tester.get(DbClient.class).openSession(false);
   }
 
   @After
@@ -78,19 +78,17 @@ public class RulesWebServiceTest {
 
   @Test
   public void define() throws Exception {
-
     WebService.Context context = new WebService.Context();
     ws.define(context);
 
     WebService.Controller controller = context.controller(API_ENDPOINT);
 
     assertThat(controller).isNotNull();
-    assertThat(controller.actions()).hasSize(7);
+    assertThat(controller.actions()).hasSize(5);
     assertThat(controller.action(API_SEARCH_METHOD)).isNotNull();
     assertThat(controller.action(API_SHOW_METHOD)).isNotNull();
     assertThat(controller.action(API_TAGS_METHOD)).isNotNull();
-    assertThat(controller.action("set_tags")).isNotNull();
-    assertThat(controller.action("set_note")).isNotNull();
+    assertThat(controller.action("update")).isNotNull();
     assertThat(controller.action("app")).isNotNull();
   }
 
@@ -111,14 +109,14 @@ public class RulesWebServiceTest {
     MockUserSession.set();
 
     // 1. With Activation
-    WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_SHOW_METHOD);
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SHOW_METHOD);
     request.setParam(ShowAction.PARAM_KEY, rule.getKey().toString());
     request.setParam(ShowAction.PARAM_ACTIVES, "true");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "show_rule_active.json", false);
 
     // 1. Default Activation (defaults to false)
-    request = wsTester.newGetRequest(API_ENDPOINT, API_SHOW_METHOD);
+    request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SHOW_METHOD);
     request.setParam(ShowAction.PARAM_KEY, rule.getKey().toString());
     result = request.execute();
     result.assertJson(this.getClass(), "show_rule_no_active.json", false);
@@ -129,7 +127,7 @@ public class RulesWebServiceTest {
   public void search_no_rules() throws Exception {
 
     MockUserSession.set();
-    WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
 
     WsTester.Result result = request.execute();
 
@@ -143,7 +141,7 @@ public class RulesWebServiceTest {
     session.commit();
 
     MockUserSession.set();
-    WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     WsTester.Result result = request.execute();
 
     result.assertJson(getClass(), "search_2_rules.json", false);
@@ -161,7 +159,7 @@ public class RulesWebServiceTest {
 
 
     MockUserSession.set();
-    WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_FIELDS, "debtRemFn,debtChar");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "search_debt_rule.json");
@@ -183,7 +181,7 @@ public class RulesWebServiceTest {
 
 
     MockUserSession.set();
-    WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_TEXT_QUERY, "S001");
     request.setParam(SearchAction.PARAM_ACTIVATION, "true");
     request.setParam(SearchOptions.PARAM_FIELDS, "");
@@ -215,7 +213,7 @@ public class RulesWebServiceTest {
 
 
     MockUserSession.set();
-    WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_TEXT_QUERY, "S001");
     request.setParam(SearchAction.PARAM_ACTIVATION, "true");
     request.setParam(SearchAction.PARAM_QPROFILE, profile2.getKey().toString());
@@ -262,7 +260,7 @@ public class RulesWebServiceTest {
 
 
     MockUserSession.set();
-    WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_TEXT_QUERY, "S001");
     request.setParam(SearchAction.PARAM_ACTIVATION, "true");
     request.setParam(SearchOptions.PARAM_FIELDS, "params");
@@ -289,7 +287,7 @@ public class RulesWebServiceTest {
     session.commit();
 
     MockUserSession.set();
-    WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_TAGS_METHOD);
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_TAGS_METHOD);
     WsTester.Result result = request.execute();
 
     result.assertJson(this.getClass(), "get_tags.json", false);
@@ -308,7 +306,7 @@ public class RulesWebServiceTest {
 
 
     MockUserSession.set();
-    WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_FIELDS, "htmlNote, mdNote");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "get_note_as_markdown_and_html.json");
@@ -325,7 +323,7 @@ public class RulesWebServiceTest {
 
 
     MockUserSession.set();
-    WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchAction.PARAM_TAGS, "tag1");
     request.setParam(SearchOptions.PARAM_FIELDS, "sysTags, tags");
     WsTester.Result result = request.execute();
@@ -343,7 +341,7 @@ public class RulesWebServiceTest {
 
     // 1. Sort Name Desc
     MockUserSession.set();
-    WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_FIELDS, "");
     request.setParam(SearchOptions.PARAM_SORT, RuleNormalizer.RuleField.NAME.field());
     request.setParam(SearchOptions.PARAM_ASCENDING, Boolean.TRUE.toString());
@@ -352,7 +350,7 @@ public class RulesWebServiceTest {
     result.assertJson("{\"total\":3,\"p\":1,\"ps\":10,\"rules\":[{\"key\":\"java:S001\"},{\"key\":\"java:S002\"},{\"key\":\"java:S003\"}]}");
 
     // 2. Sort Name ASC
-    request = wsTester.newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+    request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_FIELDS, "");
     request.setParam(SearchOptions.PARAM_SORT, RuleNormalizer.RuleField.NAME.field());
     request.setParam(SearchOptions.PARAM_ASCENDING, Boolean.FALSE.toString());

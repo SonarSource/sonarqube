@@ -26,19 +26,14 @@ public class RulesWebService implements WebService {
   private final SearchAction search;
   private final ShowAction show;
   private final TagsAction tags;
-  private final SetTagsAction setTags;
-  private final SetNoteAction setNote;
   private final AppAction app;
   private final UpdateAction update;
 
   public RulesWebService(SearchAction search, ShowAction show, TagsAction tags,
-                         SetTagsAction setTags, SetNoteAction setNote, AppAction app,
-                         UpdateAction update) {
+                         AppAction app, UpdateAction update) {
     this.search = search;
     this.show = show;
     this.tags = tags;
-    this.setTags = setTags;
-    this.setNote = setNote;
     this.app = app;
     this.update = update;
   }
@@ -52,8 +47,6 @@ public class RulesWebService implements WebService {
     search.define(controller);
     show.define(controller);
     tags.define(controller);
-    setTags.define(controller);
-    setNote.define(controller);
     app.define(controller);
     update.define(controller);
 
