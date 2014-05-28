@@ -67,16 +67,18 @@ public class UpdateAction implements RequestHandler {
       .setExampleValue("javascript:NullCheck");
 
     action.createParam(PARAM_TAGS)
-      .setDescription("Optional comma-separated list of tags to set. Use empty value to remove all current tags.")
+      .setDescription("Optional comma-separated list of tags to set. Use blank value to remove current tags. Tags " +
+        "are not changed if the parameter is not set.")
       .setExampleValue("java8,security");
 
     action.createParam(PARAM_MARKDOWN_NOTE)
-      .setDescription("Optional note in markdown format. Use empty value to remove current note.")
+      .setDescription("Optional note in markdown format. Use empty value to remove current note. Note is not changed" +
+        "if the parameter is not set.")
       .setExampleValue("my *note*");
 
     action.createParam(PARAM_DEBT_SUB_CHARACTERISTIC)
-      .setDescription("Optional key of the new sub-characteristic to set. Use empty value to unset (-> none) or '" +
-        RuleUpdate.DEFAULT_DEBT_CHARACTERISTIC + "' to revert to default sub-characteristic .")
+      .setDescription("Optional key of the debt sub-characteristic. Use empty value to unset (-> none) or '" +
+        RuleUpdate.DEFAULT_DEBT_CHARACTERISTIC + "' to revert to default sub-characteristic.")
       .setExampleValue("FAULT_TOLERANCE");
 
     action.createParam(PARAM_DEBT_REMEDIATION_FN_TYPE)
