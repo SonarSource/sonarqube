@@ -423,16 +423,16 @@ public class RuleActivatorMediumTest {
     assertThat(activeRules).isEmpty();
 
     // find by profile
-    activeRules = index.findByQProfile(profile1.getKey());
+    activeRules = index.findByProfile(profile1.getKey());
     assertThat(activeRules).hasSize(2);
     assertThat(activeRules.get(0).key().qProfile()).isEqualTo(profile1.getKey());
     assertThat(activeRules.get(1).key().qProfile()).isEqualTo(profile1.getKey());
 
-    activeRules = index.findByQProfile(profile2.getKey());
+    activeRules = index.findByProfile(profile2.getKey());
     assertThat(activeRules).hasSize(1);
     assertThat(activeRules.get(0).key().qProfile()).isEqualTo(profile2.getKey());
 
-    activeRules = index.findByQProfile(QualityProfileKey.of("unknown", "unknown"));
+    activeRules = index.findByProfile(QualityProfileKey.of("unknown", "unknown"));
     assertThat(activeRules).isEmpty();
   }
 

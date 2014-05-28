@@ -51,7 +51,7 @@ public class QProfileService implements ServerComponent {
   }
 
   public List<ActiveRule> findActiveRulesByProfile(QualityProfileKey key) {
-    return index.get(ActiveRuleIndex.class).findByQProfile(key);
+    return index.get(ActiveRuleIndex.class).findByProfile(key);
   }
 
   /**

@@ -24,7 +24,6 @@ import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRespon
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -42,8 +41,6 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Ignore
-//TODO fix tempFolder
 public class BaseIndexTest {
 
   @Rule
@@ -61,18 +58,18 @@ public class BaseIndexTest {
   }
 
   @After
-  public void tearDown(){
+  public void tearDown() {
     node.stop();
   }
 
   @Test
-  public void can_load(){
+  public void can_load() {
     BaseIndex index = getIndex(this.node);
     assertThat(index).isNotNull();
   }
 
   @Test
-  public void creates_management_index(){
+  public void creates_management_index() {
     BaseIndex index = getIndex(this.node);
 
     IndicesExistsResponse indexExistsResponse = index.getClient().admin().indices()
@@ -82,12 +79,10 @@ public class BaseIndexTest {
   }
 
 
-
-
-  private BaseIndex getIndex(final ESNode esNode){
-    BaseIndex index =  new BaseIndex(
+  private BaseIndex getIndex(final ESNode esNode) {
+    BaseIndex index = new BaseIndex(
       IndexDefinition.TEST,
-      null, new NullQueue(), esNode){
+      null, new NullQueue(), esNode) {
       @Override
       protected String getKeyValue(Serializable key) {
         return null;
@@ -104,7 +99,7 @@ public class BaseIndexTest {
       }
 
       @Override
-      protected Object toDoc(Map fields) {
+      public Object toDoc(Map fields) {
         return null;
       }
     };

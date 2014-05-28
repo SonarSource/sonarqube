@@ -48,9 +48,9 @@ import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
-import org.sonar.server.search.ESNode;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.search.BaseIndex;
+import org.sonar.server.search.ESNode;
 import org.sonar.server.search.IndexDefinition;
 
 import java.io.IOException;
@@ -133,7 +133,9 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
           QueryBuilders.idsQuery(this.getParentType())
             .addIds(key.toString())
         ))
-      .setRouting(key.toString());
+      .setRouting(key.toString())
+        // TODO replace by scrolling
+      .setSize(Integer.MAX_VALUE);
 
     SearchResponse response = request.get();
 
@@ -144,11 +146,12 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
     return activeRules;
   }
 
-  public List<ActiveRule> findByQProfile(QualityProfileKey key) {
-    SearchRequestBuilder request = getClient().prepareSearch(this.getIndexName())
+  public List<ActiveRule> findByProfile(QualityProfileKey key) {
+    SearchRequestBuilder request = getClient().prepareSearch(getIndexName())
       .setQuery(QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.key(), key.toString()))
-      .setRouting(key.toString());
-
+      .setRouting(key.toString())
+      // TODO replace by scrolling
+      .setSize(Integer.MAX_VALUE);
     SearchResponse response = request.get();
 
     List<ActiveRule> activeRules = new ArrayList<ActiveRule>();
