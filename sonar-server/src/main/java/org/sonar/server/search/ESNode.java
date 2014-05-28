@@ -106,6 +106,7 @@ public class ESNode implements Startable {
     if (
       node.client().admin().cluster().prepareHealth()
         .setWaitForYellowStatus()
+        .setTimeout(healthTimeout)
         .get()
         .getStatus() == ClusterHealthStatus.RED) {
       throw new IllegalStateException(
