@@ -43,7 +43,6 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.FacetValue;
-import org.sonar.server.search.IndexProperties;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
@@ -58,8 +57,7 @@ import static org.fest.assertions.Fail.fail;
 public class RuleIndexMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester()
-    .setProperty(IndexProperties.HTTP_PORT, "9200");
+  public static ServerTester tester = new ServerTester();
 
   MyBatis myBatis = tester.get(MyBatis.class);
   RuleDao dao = tester.get(RuleDao.class);
@@ -435,35 +433,23 @@ public class RuleIndexMediumTest {
   public void search_by_profile() throws InterruptedException {
     QualityProfileDto qualityProfileDto1 = QualityProfileDto.createFor("profile1", "java");
     QualityProfileDto qualityProfileDto2 = QualityProfileDto.createFor("profile2", "java");
-    dbClient.qualityProfileDao().insert(qualityProfileDto1);
-    dbClient.qualityProfileDao().insert(qualityProfileDto2);
+    dbClient.qualityProfileDao().insert(dbSession, qualityProfileDto1, qualityProfileDto2);
 
     RuleDto rule1 = newRuleDto(RuleKey.of("java", "S001"));
-    dao.insert(dbSession, rule1);
     RuleDto rule2 = newRuleDto(RuleKey.of("java", "S002"));
-    dao.insert(dbSession, rule2);
     RuleDto rule3 = newRuleDto(RuleKey.of("java", "S003"));
-    dao.insert(dbSession, rule3);
+    dao.insert(dbSession, rule1, rule2, rule3);
 
     dbClient.activeRuleDao().insert(
-      dbSession, ActiveRuleDto.createFor(qualityProfileDto1, rule1)
-        .setSeverity("BLOCKER")
-    );
-
-    dbClient.activeRuleDao().insert(
-      dbSession, ActiveRuleDto.createFor(qualityProfileDto2, rule1)
-        .setSeverity("BLOCKER")
-    );
-
-    dbClient.activeRuleDao().insert(
-      dbSession, ActiveRuleDto.createFor(qualityProfileDto1, rule2)
-        .setSeverity("BLOCKER")
-    );
-
+      dbSession,
+      ActiveRuleDto.createFor(qualityProfileDto1, rule1)
+        .setSeverity("BLOCKER"),
+      ActiveRuleDto.createFor(qualityProfileDto2, rule1)
+        .setSeverity("BLOCKER"),
+      ActiveRuleDto.createFor(qualityProfileDto1, rule2)
+        .setSeverity("BLOCKER"));
 
     dbSession.commit();
-
-
     RuleResult result;
 
     // 1. get all active rules.
