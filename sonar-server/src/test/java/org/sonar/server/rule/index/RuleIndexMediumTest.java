@@ -59,7 +59,7 @@ public class RuleIndexMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester()
-    .setProperty(IndexProperties.HTTP_PORT,"9200");
+    .setProperty(IndexProperties.HTTP_PORT, "9200");
 
   MyBatis myBatis = tester.get(MyBatis.class);
   RuleDao dao = tester.get(RuleDao.class);
@@ -206,10 +206,8 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_key_by_query() {
-    dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "S001"))
-      .setRuleKey("X001"));
-    dao.insert(dbSession, newRuleDto(RuleKey.of("cobol", "S001"))
-      .setRuleKey("X001"));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "X001")));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("cobol", "X001")));
     dao.insert(dbSession, newRuleDto(RuleKey.of("php", "S002")));
     dbSession.commit();
 
@@ -221,7 +219,7 @@ public class RuleIndexMediumTest {
     // partial key does not match
     query = new RuleQuery().setQueryText("X00");
     //TODO fix non-partial match for Key search
-//    assertThat(index.search(query, new QueryOptions()).getHits()).isEmpty();
+    //assertThat(index.search(query, new QueryOptions()).getHits()).isEmpty();
 
     // repo:key -> nice-to-have !
     query = new RuleQuery().setQueryText("javascript:X001");
@@ -428,7 +426,7 @@ public class RuleIndexMediumTest {
       // Sorting on a field not tagged as sortable
       RuleQuery query = new RuleQuery().setSortField(RuleNormalizer.RuleField.LANGUAGE);
       fail();
-    } catch (IllegalStateException e){
+    } catch (IllegalStateException e) {
       assertThat(e.getMessage()).isEqualTo("Field 'lang' is not sortable!");
     }
   }
