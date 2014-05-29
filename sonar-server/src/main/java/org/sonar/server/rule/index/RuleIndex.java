@@ -210,7 +210,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       } else {
         // the rules that are activated on this profile
         fb.must(FilterBuilders.hasChildFilter(IndexDefinition.ACTIVE_RULE.getIndexType(),
-          QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.key(),
+          QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(),
             query.getQProfileKey())
         ));
       }
@@ -223,7 +223,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       } else {
         // the rules that are not activated on this profile
         fb.mustNot(FilterBuilders.hasChildFilter(IndexDefinition.ACTIVE_RULE.getIndexType(),
-          QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.key(),
+          QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(),
             query.getQProfileKey())
         ));
       }

@@ -53,10 +53,10 @@ import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.ESNode;
 import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.search.IndexField;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,16 +83,19 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
   @Override
   protected Map mapKey() {
     Map<String, Object> mapping = new HashMap<String, Object>();
-    mapping.put("path", ActiveRuleNormalizer.ActiveRuleField.KEY.key());
+    mapping.put("path", ActiveRuleNormalizer.ActiveRuleField.KEY.field());
     return mapping;
   }
 
   @Override
   protected Map mapProperties() {
-    return Collections.emptyMap();
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    for (IndexField field : ActiveRuleNormalizer.ActiveRuleField.ALL_FIELDS) {
+      mapping.put(field.field(), mapField(field));
+    }
+    return mapping;
   }
 
-  protected Map<String, Object> getMapping() throws IOException {
 //    XContentBuilder mapping = jsonBuilder().startObject()
 //      .startObject(this.indexDefinition.getIndexType())
 //      .field("dynamic", "strict")
@@ -100,46 +103,13 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
 //      .field("type", this.getParentType())
 //      .endObject()
 //      .startObject("_id")
-//      .field("path", ActiveRuleNormalizer.ActiveRuleField.KEY.key())
+//      .field("path", ActiveRuleNormalizer.ActiveRuleField.KEY.field())
 //      .endObject()
 //      .startObject("_routing")
 //      .field("required", true)
-//      .field("path", ActiveRuleNormalizer.ActiveRuleField.RULE_KEY.key())
+//      .field("path", ActiveRuleNormalizer.ActiveRuleField.RULE_KEY.field())
 //      .endObject();
-//
-//
-//    mapping.startObject("properties");
-//    addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.KEY.key(), "string");
-//    addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.RULE_KEY.key(), "string");
-//    addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.key(), "string");
-//    addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.SEVERITY.key(), "string");
-//    addMatchField(mapping, ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.key(), "string");
-//    mapping.startObject(ActiveRuleNormalizer.ActiveRuleField.PARAMS.key())
-//      .field("type", "object")
-//      .startObject("properties")
-//      .startObject("_id")
-//      .field("type", "string")
-//      .endObject()
-//      .startObject(ActiveRuleNormalizer.ActiveRuleParamField.NAME.key())
-//      .field("type", "string")
-//      .endObject()
-//      .startObject(ActiveRuleNormalizer.ActiveRuleParamField.VALUE.key())
-//      .field("type", "string")
-//      .endObject()
-//      .endObject();
-//    mapping.endObject();
-//
-//    mapping.endObject().endObject();
-//    return mapping;
 
-    Map<String, Object> mapping = new HashMap<String, Object>();
-
-    Map<String, Object> dynamic = new HashMap<String, Object>();
-    dynamic.put("dynamic",false);
-    mapping.put(this.getIndexType(), dynamic);
-
-    return mapping;
-  }
 
   @Override
   public ActiveRule toDoc(Map<String, Object> fields) {
@@ -171,7 +141,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
 
   public List<ActiveRule> findByProfile(QualityProfileKey key) {
     SearchRequestBuilder request = getClient().prepareSearch(getIndexName())
-      .setQuery(QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.key(), key.toString()))
+      .setQuery(QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), key.toString()))
       .setRouting(key.toString())
       // TODO replace by scrolling
       .setSize(Integer.MAX_VALUE);
