@@ -99,12 +99,12 @@ public class BulkRuleActivationActions implements ServerComponent {
   }
 
   private void bulkActivate(Request request, Response response) throws Exception {
-    Multimap<String, String> results = service.activateByRuleQuery(createRuleQuery(request), readKey(request));
+    Multimap<String, String> results = service.bulkActivate(createRuleQuery(request), readKey(request));
     writeResponse(results, response);
   }
 
   private void bulkDeactivate(Request request, Response response) throws Exception {
-    Multimap<String, String> results = service.deActivateByRuleQuery(createRuleQuery(request), readKey(request));
+    Multimap<String, String> results = service.bulkDeactivate(createRuleQuery(request), readKey(request));
     writeResponse(results, response);
   }
 

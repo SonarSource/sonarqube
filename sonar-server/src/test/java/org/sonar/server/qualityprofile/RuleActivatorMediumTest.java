@@ -48,11 +48,11 @@ import static org.fest.assertions.Fail.fail;
 
 public class RuleActivatorMediumTest {
 
+  static final QualityProfileKey PROFILE_KEY = QualityProfileKey.of("MyProfile", "xoo");
+
   @Rule
   public ServerTester tester = new ServerTester()
     .addComponents(XooRulesDefinition.class, JavaRulesDefinition.class);
-
-  static final QualityProfileKey PROFILE_KEY = QualityProfileKey.of("MyProfile", "xoo");
 
   DbClient db;
   DbSession dbSession;

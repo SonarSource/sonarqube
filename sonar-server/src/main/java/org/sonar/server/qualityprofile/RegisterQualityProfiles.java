@@ -35,7 +35,6 @@ import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
@@ -108,7 +107,7 @@ public class RegisterQualityProfiles implements ServerComponent {
       }
       session.commit();
     } finally {
-      MyBatis.closeQuietly(session);
+      session.close();
       profiler.stop();
     }
   }

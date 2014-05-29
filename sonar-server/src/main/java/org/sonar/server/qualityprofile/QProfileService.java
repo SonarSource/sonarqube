@@ -72,10 +72,10 @@ public class QProfileService implements ServerComponent {
 
 
   public Multimap<String, String> bulkActivate(RuleQuery ruleQuery, QualityProfileKey profile) {
-    return ruleActivator.activateByRuleQuery(ruleQuery, profile);
+    return ruleActivator.bulkActivate(ruleQuery, profile);
   }
 
   public Multimap<String, String> bulkDeactivate(RuleQuery ruleQuery, QualityProfileKey profile) {
-    return ruleActivator.deActivateByRuleQuery(ruleQuery, profile);
+    return ruleActivator.bulkDeactivate(ruleQuery, profile);
   }
 }

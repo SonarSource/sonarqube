@@ -32,7 +32,6 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
@@ -64,7 +63,7 @@ public class RuleBackendMediumTest {
   public void before() {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
-    dbSession = tester.get(MyBatis.class).openSession(false);
+    dbSession = tester.get(DbClient.class).openSession(false);
   }
 
   @After
@@ -317,7 +316,7 @@ public class RuleBackendMediumTest {
 
     // 2. assert find does not get REMOVED
     assertThat(index.search(new RuleQuery(), QueryOptions.DEFAULT)
-    .getRules()).hasSize(1);
+      .getRules()).hasSize(1);
   }
 
   private RuleDto newRuleDto(RuleKey ruleKey) {

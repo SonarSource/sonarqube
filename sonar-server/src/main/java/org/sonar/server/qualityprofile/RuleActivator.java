@@ -220,18 +220,18 @@ public class RuleActivator implements ServerComponent {
     }
   }
 
-  public Multimap<String, String> activateByRuleQuery(RuleQuery ruleQuery, QualityProfileKey profile) {
+  public Multimap<String, String> bulkActivate(RuleQuery ruleQuery, QualityProfileKey profile) {
     verifyPermission(UserSession.get());
     RuleIndex ruleIndex = index.get(RuleIndex.class);
     Multimap<String, String> results = ArrayListMultimap.create();
     DbSession dbSession = db.openSession(false);
 
     try {
+      // TODO pb because limited to QueryOptions.MAX_LIMIT
       RuleResult result = ruleIndex.search(ruleQuery,
         QueryOptions.DEFAULT.setOffset(0)
           .setLimit(Integer.MAX_VALUE)
-          .setFieldsToReturn(ImmutableSet.of("template", "severity"))
-      );
+          .setFieldsToReturn(ImmutableSet.of("template", "severity")));
 
       for (Rule rule : result.getHits()) {
         if (!rule.template()) {
@@ -252,7 +252,7 @@ public class RuleActivator implements ServerComponent {
     return results;
   }
 
-  public Multimap<String, String> deActivateByRuleQuery(RuleQuery ruleQuery, QualityProfileKey profile) {
+  public Multimap<String, String> bulkDeactivate(RuleQuery ruleQuery, QualityProfileKey profile) {
     verifyPermission(UserSession.get());
     RuleIndex ruleIndex = index.get(RuleIndex.class);
     Multimap<String, String> results = ArrayListMultimap.create();
@@ -261,6 +261,7 @@ public class RuleActivator implements ServerComponent {
     try {
       RuleResult result = ruleIndex.search(ruleQuery,
         QueryOptions.DEFAULT.setOffset(0)
+          // TODO pb because limited to QueryOptions.MAX_LIMIT
           .setLimit(Integer.MAX_VALUE)
           .setFieldsToReturn(ImmutableSet.of("template", "severity"))
       );

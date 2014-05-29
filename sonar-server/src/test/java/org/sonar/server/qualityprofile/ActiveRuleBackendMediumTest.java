@@ -101,6 +101,7 @@ public class ActiveRuleBackendMediumTest {
     dbSession.commit();
 
     // verify db
+    assertThat(db.activeRuleDao().getByKey(dbSession, activeRule.getKey())).isNotNull();
     List<ActiveRuleDto> persistedDtos = db.activeRuleDao().findByRule(dbSession, ruleDto);
     assertThat(persistedDtos).hasSize(1);
 

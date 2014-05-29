@@ -32,7 +32,6 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
@@ -60,16 +59,16 @@ public class RuleIndexMediumTest {
   @ClassRule
   public static ServerTester tester = new ServerTester();
 
-  MyBatis myBatis = tester.get(MyBatis.class);
   RuleDao dao = tester.get(RuleDao.class);
   RuleIndex index = tester.get(RuleIndex.class);
-  DbClient dbClient = tester.get(DbClient.class);
+  DbClient db;
   DbSession dbSession;
 
   @Before
   public void before() {
     tester.clearDbAndIndexes();
-    dbSession = myBatis.openSession(false);
+    db = tester.get(DbClient.class);
+    dbSession = db.openSession(false);
   }
 
   @After
@@ -88,6 +87,7 @@ public class RuleIndexMediumTest {
     assertThat(rule.htmlDescription()).isEqualTo(ruleDto.getDescription());
     assertThat(rule.key()).isEqualTo(ruleDto.getKey());
 
+    //TODO
 //    assertThat(rule.debtSubCharacteristicKey())
 //      .isEqualTo(ruleDto.getDefaultSubCharacteristicId().toString());
     assertThat(rule.debtRemediationFunction().type().name())
@@ -286,11 +286,11 @@ public class RuleIndexMediumTest {
   @Test
   public void search_by_characteristics() throws InterruptedException {
     CharacteristicDto char1 = DebtTesting.newCharacteristicDto("char1");
-    dbClient.debtCharacteristicDao().insert(char1, dbSession);
+    db.debtCharacteristicDao().insert(char1, dbSession);
 
     CharacteristicDto char11 = DebtTesting.newCharacteristicDto("char11")
       .setParentId(char1.getId());
-    dbClient.debtCharacteristicDao().insert(char11, dbSession);
+    db.debtCharacteristicDao().insert(char11, dbSession);
     dbSession.commit();
 
     dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001"))
@@ -412,10 +412,9 @@ public class RuleIndexMediumTest {
 
   @Test
   public void fail_sort_by_language() throws InterruptedException {
-
     try {
       // Sorting on a field not tagged as sortable
-      RuleQuery query = new RuleQuery().setSortField(RuleNormalizer.RuleField.LANGUAGE);
+      new RuleQuery().setSortField(RuleNormalizer.RuleField.LANGUAGE);
       fail();
     } catch (IllegalStateException e) {
       assertThat(e.getMessage()).isEqualTo("Field 'lang' is not sortable!");
@@ -426,14 +425,14 @@ public class RuleIndexMediumTest {
   public void search_by_profile() throws InterruptedException {
     QualityProfileDto qualityProfileDto1 = QualityProfileDto.createFor("profile1", "java");
     QualityProfileDto qualityProfileDto2 = QualityProfileDto.createFor("profile2", "java");
-    dbClient.qualityProfileDao().insert(dbSession, qualityProfileDto1, qualityProfileDto2);
+    db.qualityProfileDao().insert(dbSession, qualityProfileDto1, qualityProfileDto2);
 
     RuleDto rule1 = newRuleDto(RuleKey.of("java", "S001"));
     RuleDto rule2 = newRuleDto(RuleKey.of("java", "S002"));
     RuleDto rule3 = newRuleDto(RuleKey.of("java", "S003"));
     dao.insert(dbSession, rule1, rule2, rule3);
 
-    dbClient.activeRuleDao().insert(
+    db.activeRuleDao().insert(
       dbSession,
       ActiveRuleDto.createFor(qualityProfileDto1, rule1)
         .setSeverity("BLOCKER"),
@@ -477,7 +476,7 @@ public class RuleIndexMediumTest {
     String value = "//expression[primary/qualifiedIdentifier[count(IDENTIFIER) = 2]/IDENTIFIER[2]/@tokenValue = 'firstOf' and primary/identifierSuffix/arguments/expression[not(primary) or primary[not(qualifiedIdentifier) or identifierSuffix]]]";
 
     QualityProfileDto profile = QualityProfileDto.createFor("name", "Language");
-    dbClient.qualityProfileDao().insert(dbSession, profile);
+    db.qualityProfileDao().insert(dbSession, profile);
 
     RuleDto rule = newRuleDto(RuleKey.of("java", "S001"));
     dao.insert(dbSession, rule);
@@ -492,15 +491,12 @@ public class RuleIndexMediumTest {
       .setSeverity("BLOCKER");
 
     ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(param);
-    dbClient.activeRuleDao().insert(dbSession, activeRule);
-    dbClient.activeRuleDao().addParam(dbSession, activeRule, activeRuleParam);
+    db.activeRuleDao().insert(dbSession, activeRule);
+    db.activeRuleDao().addParam(dbSession, activeRule, activeRuleParam);
     dbSession.commit();
 
     assertThat(index.getByKey(rule.getKey()).params().get(0).defaultValue()).isEqualTo(value);
-
-
   }
-
 
   @Test
   public void search_by_tag() throws InterruptedException {
