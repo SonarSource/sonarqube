@@ -100,6 +100,7 @@ public class RegisterQualityProfilesMediumTest {
     assertThat(activeRule.key().ruleKey()).isEqualTo(ruleKey);
     assertThat(activeRule.severity()).isEqualTo(Severity.CRITICAL);
 
+    //TODO
 //    // Check ActiveRuleParameters in DB
 //    Map<String, ActiveRuleParamDto> params = ActiveRuleParamDto.groupByKey(activeRuleDao.findParamsByActiveRule(activeRule, dbSession));
 //    assertThat(params).hasSize(2);
