@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.System2;
@@ -179,7 +178,8 @@ public class RegisterRules implements Startable {
       .setEffortToFixDescription(ruleDef.effortToFixDescription())
       .setSystemTags(ruleDef.tags());
 
-    return dbClient.ruleDao().insert(session, ruleDto);
+    dbClient.ruleDao().insert(session, ruleDto);
+    return ruleDto;
   }
 
   private boolean mergeRule(RulesDefinition.Rule def, RuleDto dto) {
