@@ -22,6 +22,9 @@ package org.sonar.server.search;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import java.util.Collection;
+import java.util.Collections;
+
 public class IndexField {
 
   public static enum Type {
@@ -34,13 +37,19 @@ public class IndexField {
 
   private final Type type;
   private final String field;
+  private final Collection<IndexField> nestedFields;
 
   private boolean sortable = false;
   private boolean searchable = false;
 
   IndexField(Type type, String field) {
+    this(type, field, Collections.EMPTY_LIST);
+  }
+
+  IndexField(Type type, String field, Collection<IndexField> nestedFields) {
     this.type = type;
     this.field = field;
+    this.nestedFields = nestedFields;
   }
 
   public boolean sortable() {
@@ -67,6 +76,10 @@ public class IndexField {
 
   public String field() {
     return field;
+  }
+
+  public Collection<IndexField> nestedFields() {
+    return this.nestedFields;
   }
 
   public String sortField() {

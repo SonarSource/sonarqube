@@ -199,7 +199,6 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
 
   protected abstract Map mapKey();
 
-
   protected Map mapField(IndexField field) {
     return mapField(field, true);
   }
@@ -209,10 +208,10 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
       return mapTextField(field, allowRecursive);
     } else if (field.type() == IndexField.Type.STRING) {
       return mapStringField(field, allowRecursive);
-    } else if (field.type() == IndexField.Type.OBJECT) {
-      return mapObjectField(field);
     } else if (field.type() == IndexField.Type.BOOLEAN) {
       return mapBooleanField(field);
+    } else if (field.type() == IndexField.Type.OBJECT) {
+      return mapNestedField(field);
     } else if (field.type() == IndexField.Type.DATE) {
       return mapDateField(field);
     } else {
@@ -226,11 +225,16 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
     return mapping;
   }
 
-  protected Map mapObjectField(IndexField field) {
+  protected Map mapNestedField(IndexField field) {
     Map<String, Object> mapping = new HashMap<String, Object>();
     mapping.put("type", "nested");
-    mapping.put("index", "analyzed");
-    mapping.put("dynamic", "true");
+    Map<String, Object> mappings = new HashMap<String, Object>();
+    for (IndexField nestedField : field.nestedFields()) {
+      if(nestedField != null) {
+        mappings.put(nestedField.field(), mapField(nestedField));
+      }
+    }
+    mapping.put("properties", mappings);
     return mapping;
   }
 
