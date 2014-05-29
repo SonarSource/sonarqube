@@ -23,6 +23,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import javax.annotation.CheckForNull;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,13 +32,20 @@ import java.util.Set;
  */
 public class Indexable {
 
-  public static Set<IndexField> ALL_FIELDS = new HashSet<IndexField>();
+  private static Set<IndexField> ALL_FIELDS = new HashSet<IndexField>();
 
   public static IndexField add(IndexField.Type type, String field){
     IndexField indexField = new IndexField(type, field);
     ALL_FIELDS.add(indexField);
     return indexField;
   }
+
+  public static IndexField addEmbedded(String field, Collection<IndexField> nestedFields) {
+    IndexField indexField = new IndexField(IndexField.Type.OBJECT, field, nestedFields);
+    ALL_FIELDS.add(indexField);
+    return indexField;
+  }
+
 
   public static IndexField addSearchable(IndexField.Type type, String field){
     IndexField indexField = new IndexField(type, field)

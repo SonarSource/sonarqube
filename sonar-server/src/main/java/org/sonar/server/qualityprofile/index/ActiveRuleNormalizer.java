@@ -30,56 +30,67 @@ import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.search.IndexField;
+import org.sonar.server.search.Indexable;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRuleKey> {
 
-  public static enum ActiveRuleField {
-    KEY("key"),
-    INHERITANCE("inheritance"),
-    PROFILE_KEY("profile"),
-    SEVERITY("severity"),
-    PARENT_KEY("parentKey"),
-    PARAMS("params"),
-    RULE_KEY("ruleKey");
+  public static class ActiveRuleField extends Indexable {
 
-    private final String key;
+    public static IndexField KEY = addSortableAndSearchable(IndexField.Type.STRING,"key");
+    public static IndexField INHERITANCE = add(IndexField.Type.STRING,"inheritance");
+    public static IndexField PROFILE_KEY = add(IndexField.Type.STRING,"profile");
+    public static IndexField SEVERITY = add(IndexField.Type.STRING,"severity");
+    public static IndexField PARENT_KEY = add(IndexField.Type.STRING,"parentKey");
+    public static IndexField RULE_KEY = add(IndexField.Type.STRING,"ruleKey");
+    public static IndexField PARAMS = addEmbedded("params", ActiveRuleParamField.ALL_FIELDS);
 
-    private ActiveRuleField(final String key) {
-      this.key = key;
+    public static Set<IndexField> ALL_FIELDS = getAllFields();
+
+    private static Set<IndexField> getAllFields(){
+      Set<IndexField> fields = new HashSet<IndexField>();
+      for(Field classField :ActiveRuleField.class.getDeclaredFields()){
+        if(classField.getType().isAssignableFrom(IndexField.class)){
+          //Modifier.isStatic(classField.getModifiers())
+          try {
+            fields.add(IndexField.class.cast(classField.get(null)));
+          } catch (IllegalAccessException e) {
+            e.printStackTrace();
+          }
+        }
+      }
+      return fields;
     }
 
-    public String key() {
-      return key;
-    }
-
-    @Override
-    public String toString() {
-      return key;
-    }
   }
 
-  public static enum ActiveRuleParamField {
-    NAME("name"),
-    VALUE("value");
+  public static class ActiveRuleParamField extends Indexable {
+    public static IndexField NAME = add(IndexField.Type.STRING,"name");
+    public static IndexField VALUE = add(IndexField.Type.STRING,"value");
 
-    private final String key;
+    public static Set<IndexField> ALL_FIELDS = getAllFields();
 
-    private ActiveRuleParamField(final String key) {
-      this.key = key;
-    }
-
-    public String key() {
-      return key;
-    }
-
-    @Override
-    public String toString() {
-      return key;
+    private static Set<IndexField> getAllFields(){
+      Set<IndexField> fields = new HashSet<IndexField>();
+      for(Field classField :ActiveRuleParamField.class.getDeclaredFields()){
+        if(classField.getType().isAssignableFrom(IndexField.class)){
+          //Modifier.isStatic(classField.getModifiers())
+          try {
+            fields.add(IndexField.class.cast(classField.get(null)));
+          } catch (IllegalAccessException e) {
+            e.printStackTrace();
+          }
+        }
+      }
+      return fields;
     }
   }
 
@@ -107,10 +118,10 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
 
     Map<String, Object> newParam = new HashMap<String, Object>();
     newParam.put("_id", param.getKey());
-    newParam.put(ActiveRuleParamField.NAME.key(), param.getKey());
-    newParam.put(ActiveRuleParamField.VALUE.key(), param.getValue());
+    newParam.put(ActiveRuleParamField.NAME.field(), param.getKey());
+    newParam.put(ActiveRuleParamField.VALUE.field(), param.getValue());
 
-    return ImmutableList.of(this.nestedUpsert(ActiveRuleField.PARAMS.key(), param.getKey(), newParam)
+    return ImmutableList.of(this.nestedUpsert(ActiveRuleField.PARAMS.field(), param.getKey(), newParam)
       .routing(key.ruleKey().toString()));
   }
 
@@ -122,17 +133,17 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
 
     Map<String, Object> newRule = new HashMap<String, Object>();
     newRule.put("_parent", key.ruleKey().toString());
-    newRule.put(ActiveRuleField.RULE_KEY.key(), key.ruleKey().toString());
-    newRule.put(ActiveRuleField.KEY.key(), key.toString());
-    newRule.put(ActiveRuleField.INHERITANCE.key(), activeRuleDto.getInheritance());
-    newRule.put(ActiveRuleField.SEVERITY.key(), activeRuleDto.getSeverityString());
+    newRule.put(ActiveRuleField.RULE_KEY.field(), key.ruleKey().toString());
+    newRule.put(ActiveRuleField.KEY.field(), key.toString());
+    newRule.put(ActiveRuleField.INHERITANCE.field(), activeRuleDto.getInheritance());
+    newRule.put(ActiveRuleField.SEVERITY.field(), activeRuleDto.getSeverityString());
 
     DbSession session = db.openSession(false);
     try {
       //TODO because DTO uses legacy ID pattern
       QualityProfileDto profile = db.qualityProfileDao()
         .selectById(activeRuleDto.getProfileId());
-      newRule.put(ActiveRuleField.PROFILE_KEY.key(), profile.getKey().toString());
+      newRule.put(ActiveRuleField.PROFILE_KEY.field(), profile.getKey().toString());
 
       //TODO this should be generated by RegisterRule and modified in DTO.
       String parentKey = null;
@@ -141,14 +152,14 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
         ActiveRuleDto parentDto = db.activeRuleDao().getById(activeRuleDto.getParentId(), session);
         parentKey = parentDto.getKey().toString();
       }
-      newRule.put(ActiveRuleField.PARENT_KEY.key(), parentKey);
+      newRule.put(ActiveRuleField.PARENT_KEY.field(), parentKey);
     } finally {
       session.close();
     }
 
 
     Map<String, Object> upsert = new HashMap<String, Object>(newRule);
-    upsert.put(ActiveRuleField.PARAMS.key(), new ArrayList());
+    upsert.put(ActiveRuleField.PARAMS.field(), new ArrayList());
 
     /* Creating updateRequest */
     return ImmutableList.of(new UpdateRequest()

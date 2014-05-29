@@ -34,14 +34,42 @@ import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.Indexable;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
-  public static class RuleField extends Indexable {
+  public static final class RuleParamField extends Indexable {
+    public static IndexField NAME = add(IndexField.Type.STRING, "name");
+
+    public static IndexField TYPE = add(IndexField.Type.STRING, "type");
+    public static IndexField DESCRIPTION = addSearchable(IndexField.Type.TEXT, "description");
+    public static IndexField DEFAULT_VALUE = add(IndexField.Type.STRING, "defaultValue");
+
+    public static Set<IndexField> ALL_FIELDS = getAllFields();
+
+    private static Set<IndexField> getAllFields(){
+      Set<IndexField> fields = new HashSet<IndexField>();
+      for(Field classField :RuleParamField.class.getDeclaredFields()){
+        if(Modifier.isStatic(classField.getModifiers())){
+          try {
+            fields.add(IndexField.class.cast(classField.get(null)));
+          } catch (IllegalAccessException e) {
+            e.printStackTrace();
+          }
+        }
+      }
+      return fields;
+    }
+  }
+
+  public static final class RuleField extends Indexable {
 
     public static IndexField KEY = addSortableAndSearchable(IndexField.Type.STRING, "key");
     public static IndexField REPOSITORY = add(IndexField.Type.STRING, "repo");
@@ -57,7 +85,6 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     public static IndexField SYSTEM_TAGS = add(IndexField.Type.STRING, "sysTags");
     public static IndexField INTERNAL_KEY = add(IndexField.Type.STRING, "internalKey");
     public static IndexField TEMPLATE = add(IndexField.Type.BOOLEAN, "template");
-    public static IndexField PARAMS = add(IndexField.Type.OBJECT, "params");
     public static IndexField DEBT_FUNCTION_TYPE = add(IndexField.Type.STRING, "debtRemFnType");
     public static IndexField DEBT_FUNCTION_COEFFICIENT = add(IndexField.Type.STRING, "debtRemFnCoefficient");
     public static IndexField DEBT_FUNCTION_OFFSET = add(IndexField.Type.STRING, "debtRemFnOffset");
@@ -68,14 +95,27 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     public static IndexField NOTE_CREATED_AT = add(IndexField.Type.DATE, "noteCreatedAt");
     public static IndexField NOTE_UPDATED_AT = add(IndexField.Type.DATE, "noteUpdatedAt");
     public static IndexField _TAGS = addSearchable(IndexField.Type.STRING, "_tags");
+    public static IndexField PARAMS = addEmbedded("params", RuleParamField.ALL_FIELDS);
+
+
+    public static Set<IndexField> ALL_FIELDS = getAllFields();
+
+    private static Set<IndexField> getAllFields(){
+      Set<IndexField> fields = new HashSet<IndexField>();
+      for(Field classField :RuleField.class.getDeclaredFields()){
+        if(classField.getType().isAssignableFrom(IndexField.class)){
+          //Modifier.isStatic(classField.getModifiers())
+          try {
+            fields.add(IndexField.class.cast(classField.get(null)));
+          } catch (IllegalAccessException e) {
+            e.printStackTrace();
+          }
+        }
+      }
+      return fields;
+    }
   }
 
-  public static class RuleParamField extends Indexable {
-    public static IndexField NAME = add(IndexField.Type.STRING, "name");
-    public static IndexField TYPE = add(IndexField.Type.STRING, "type");
-    public static IndexField DESCRIPTION = addSearchable(IndexField.Type.TEXT, "description");
-    public static IndexField DEFAULT_VALUE = add(IndexField.Type.STRING, "defaultValue");
-  }
 
   public RuleNormalizer(DbClient db) {
     super(IndexDefinition.RULE, db);
