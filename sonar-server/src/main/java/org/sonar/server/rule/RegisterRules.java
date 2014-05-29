@@ -268,7 +268,7 @@ public class RegisterRules implements Startable {
   }
 
   private void mergeParams(RulesDefinition.Rule ruleDef, RuleDto rule, DbSession session) {
-    List<RuleParamDto> paramDtos = dbClient.ruleDao().findRuleParamsByRuleKey(rule.getKey(), session);
+    List<RuleParamDto> paramDtos = dbClient.ruleDao().findRuleParamsByRuleKey(session, rule.getKey());
     List<String> existingParamDtoNames = new ArrayList<String>();
 
     for (RuleParamDto paramDto : paramDtos) {
@@ -276,12 +276,12 @@ public class RegisterRules implements Startable {
       if (paramDef == null) {
         //TODO cascade on the activeRule upon RuleDeletion
         //activeRuleDao.removeRuleParam(paramDto, sqlSession);
-        dbClient.ruleDao().removeRuleParam(rule, paramDto, session);
+        dbClient.ruleDao().removeRuleParam(session, rule, paramDto);
       } else {
         // TODO validate that existing active rules still match constraints
         // TODO store param name
         if (mergeParam(paramDto, paramDef)) {
-          dbClient.ruleDao().updateRuleParam(rule, paramDto, session);
+          dbClient.ruleDao().updateRuleParam(session, rule, paramDto);
         } else {
           // TODO to be replaced by synchronizer
           session.enqueue(new EmbeddedIndexAction<RuleKey>(IndexDefinition.RULE.getIndexType(),
@@ -297,7 +297,7 @@ public class RegisterRules implements Startable {
           .setDescription(param.description())
           .setDefaultValue(param.defaultValue())
           .setType(param.type().toString());
-        dbClient.ruleDao().addRuleParam(rule, paramDto, session);
+        dbClient.ruleDao().addRuleParam(session, rule, paramDto);
       }
     }
   }

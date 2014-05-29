@@ -80,7 +80,7 @@ public class RuleDataMediumTest {
     dbSession.commit();
 
     // verify that rule is persisted in db
-    RuleDto persistedDto = dao.getByKey(dbSession, ruleKey);
+    RuleDto persistedDto = dao.getNullableByKey(dbSession, ruleKey);
     assertThat(persistedDto).isNotNull();
     assertThat(persistedDto.getId()).isGreaterThanOrEqualTo(0);
     assertThat(persistedDto.getRuleKey()).isEqualTo(ruleKey.rule());
@@ -91,7 +91,6 @@ public class RuleDataMediumTest {
     assertThat(persistedDto.getUpdatedAt()).isNotNull();
 
     // verify that rule is indexed in es
-
     Rule hit = index.getByKey(ruleKey);
     assertThat(hit).isNotNull();
     assertThat(hit.key().repository()).isEqualTo(ruleKey.repository());
@@ -122,22 +121,22 @@ public class RuleDataMediumTest {
       .setType(RuleParamType.INTEGER.type())
       .setDefaultValue("2")
       .setDescription("Minimum");
-    dao.addRuleParam(ruleDto, minParamDto, dbSession);
+    dao.addRuleParam(dbSession, ruleDto, minParamDto);
     RuleParamDto maxParamDto = new RuleParamDto()
       .setName("max")
       .setType(RuleParamType.INTEGER.type())
       .setDefaultValue("10")
       .setDescription("Maximum");
-    dao.addRuleParam(ruleDto, maxParamDto, dbSession);
+    dao.addRuleParam(dbSession, ruleDto, maxParamDto);
     dbSession.commit();
 
     //Verify that RuleDto has date from insertion
-    RuleDto theRule = dao.getByKey(dbSession, ruleKey);
+    RuleDto theRule = dao.getNullableByKey(dbSession, ruleKey);
     assertThat(theRule.getCreatedAt()).isNotNull();
     assertThat(theRule.getUpdatedAt()).isNotNull();
 
     // verify that parameters are persisted in db
-    List<RuleParamDto> persistedDtos = dao.findRuleParamsByRuleKey(theRule.getKey(), dbSession);
+    List<RuleParamDto> persistedDtos = dao.findRuleParamsByRuleKey(dbSession, theRule.getKey());
     assertThat(persistedDtos).hasSize(2);
 
     // verify that parameters are indexed in es
@@ -198,14 +197,14 @@ public class RuleDataMediumTest {
       .setType(RuleParamType.INTEGER.type())
       .setDefaultValue("2")
       .setDescription("Minimum");
-    dao.addRuleParam(ruleDto, minParamDto, dbSession);
+    dao.addRuleParam(dbSession, ruleDto, minParamDto);
 
     RuleParamDto maxParamDto = new RuleParamDto()
       .setName("max")
       .setType(RuleParamType.INTEGER.type())
       .setDefaultValue("10")
       .setDescription("Maximum");
-    dao.addRuleParam(ruleDto, maxParamDto, dbSession);
+    dao.addRuleParam(dbSession, ruleDto, maxParamDto);
     dbSession.commit();
 
     // verify that parameters are indexed in es
@@ -223,7 +222,7 @@ public class RuleDataMediumTest {
     minParamDto
       .setDefaultValue("0.5")
       .setDescription("new description");
-    dao.updateRuleParam(ruleDto, minParamDto, dbSession);
+    dao.updateRuleParam(dbSession, ruleDto, minParamDto);
     dbSession.commit();
 
     // verify that parameters are updated in es

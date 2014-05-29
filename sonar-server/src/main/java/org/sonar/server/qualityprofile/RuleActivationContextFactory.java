@@ -63,7 +63,7 @@ public class RuleActivationContextFactory implements ServerComponent {
   }
 
   private RuleDto initRule(RuleKey ruleKey, RuleActivationContext context, DbSession dbSession) {
-    RuleDto rule = db.ruleDao().getByKey(dbSession, ruleKey);
+    RuleDto rule = db.ruleDao().getNullableByKey(dbSession, ruleKey);
     if (rule == null) {
       throw new IllegalArgumentException("Rule not found: " + ruleKey);
     }
@@ -74,7 +74,7 @@ public class RuleActivationContextFactory implements ServerComponent {
       throw new IllegalArgumentException("A rule template can't be activated on a Quality profile: " + ruleKey);
     }
     context.setRule(rule);
-    context.setRuleParams(db.ruleDao().findRuleParamsByRuleKey(rule.getKey(), dbSession));
+    context.setRuleParams(db.ruleDao().findRuleParamsByRuleKey(dbSession, rule.getKey()));
     return rule;
   }
 
@@ -93,10 +93,10 @@ public class RuleActivationContextFactory implements ServerComponent {
   }
 
   private void initActiveRules(ActiveRuleKey key, RuleActivationContext context, DbSession session, boolean parent) {
-    ActiveRuleDto activeRule = db.activeRuleDao().getByKey(session, key);
+    ActiveRuleDto activeRule = db.activeRuleDao().getNullableByKey(session, key);
     Collection<ActiveRuleParamDto> activeRuleParams = null;
     if (activeRule != null) {
-      activeRuleParams = db.activeRuleDao().findParamsByActiveRule(activeRule, session);
+      activeRuleParams = db.activeRuleDao().findParamsByActiveRule(session, activeRule);
     }
     if (parent) {
       context.setParentActiveRule(activeRule);

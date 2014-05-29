@@ -79,43 +79,43 @@ public class CoverageServiceTest {
   @Test
   public void get_hits_data() throws Exception {
     service.getHits(COMPONENT_KEY, CoverageService.TYPE.UT);
-    verify(measureDao).getByKey(session, MeasureKey.of(COMPONENT_KEY, CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY));
+    verify(measureDao).getNullableByKey(session, MeasureKey.of(COMPONENT_KEY, CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY));
 
     service.getHits(COMPONENT_KEY, CoverageService.TYPE.IT);
-    verify(measureDao).getByKey(session, MeasureKey.of(COMPONENT_KEY, CoreMetrics.IT_COVERAGE_LINE_HITS_DATA_KEY));
+    verify(measureDao).getNullableByKey(session, MeasureKey.of(COMPONENT_KEY, CoreMetrics.IT_COVERAGE_LINE_HITS_DATA_KEY));
 
     service.getHits(COMPONENT_KEY, CoverageService.TYPE.OVERALL);
-    verify(measureDao).getByKey(session, MeasureKey.of(COMPONENT_KEY, CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA_KEY));
+    verify(measureDao).getNullableByKey(session, MeasureKey.of(COMPONENT_KEY, CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA_KEY));
   }
 
   @Test
   public void not_get_hits_data_if_no_data() throws Exception {
-    when(measureDao.getByKey(eq(session), any(MeasureKey.class))).thenReturn(null);
+    when(measureDao.getNullableByKey(eq(session), any(MeasureKey.class))).thenReturn(null);
     assertThat(service.getHits(COMPONENT_KEY, CoverageService.TYPE.UT)).isEqualTo(Collections.emptyMap());
   }
 
   @Test
   public void get_conditions_data() throws Exception {
     service.getConditions(COMPONENT_KEY, CoverageService.TYPE.UT);
-    verify(measureDao).getByKey(session, MeasureKey.of(COMPONENT_KEY, CoreMetrics.CONDITIONS_BY_LINE_KEY));
+    verify(measureDao).getNullableByKey(session, MeasureKey.of(COMPONENT_KEY, CoreMetrics.CONDITIONS_BY_LINE_KEY));
 
     service.getConditions(COMPONENT_KEY, CoverageService.TYPE.IT);
-    verify(measureDao).getByKey(session, MeasureKey.of(COMPONENT_KEY, CoreMetrics.IT_CONDITIONS_BY_LINE_KEY));
+    verify(measureDao).getNullableByKey(session, MeasureKey.of(COMPONENT_KEY, CoreMetrics.IT_CONDITIONS_BY_LINE_KEY));
 
     service.getConditions(COMPONENT_KEY, CoverageService.TYPE.OVERALL);
-    verify(measureDao).getByKey(session, MeasureKey.of(COMPONENT_KEY, CoreMetrics.OVERALL_CONDITIONS_BY_LINE_KEY));
+    verify(measureDao).getNullableByKey(session, MeasureKey.of(COMPONENT_KEY, CoreMetrics.OVERALL_CONDITIONS_BY_LINE_KEY));
   }
 
   @Test
   public void get_covered_conditions_data() throws Exception {
     service.getCoveredConditions(COMPONENT_KEY, CoverageService.TYPE.UT);
-    verify(measureDao).getByKey(session, MeasureKey.of(COMPONENT_KEY, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY));
+    verify(measureDao).getNullableByKey(session, MeasureKey.of(COMPONENT_KEY, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY));
 
     service.getCoveredConditions(COMPONENT_KEY, CoverageService.TYPE.IT);
-    verify(measureDao).getByKey(session, MeasureKey.of(COMPONENT_KEY, CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE_KEY));
+    verify(measureDao).getNullableByKey(session, MeasureKey.of(COMPONENT_KEY, CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE_KEY));
 
     service.getCoveredConditions(COMPONENT_KEY, CoverageService.TYPE.OVERALL);
-    verify(measureDao).getByKey(session, MeasureKey.of(COMPONENT_KEY, CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE_KEY));
+    verify(measureDao).getNullableByKey(session, MeasureKey.of(COMPONENT_KEY, CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE_KEY));
   }
 
   @Test

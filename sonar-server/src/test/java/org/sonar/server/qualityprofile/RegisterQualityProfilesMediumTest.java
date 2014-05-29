@@ -81,7 +81,7 @@ public class RegisterQualityProfilesMediumTest {
 
     // Check ActiveRules in DB
     ActiveRuleDao activeRuleDao = dbClient().activeRuleDao();
-    assertThat(activeRuleDao.findByProfileKey(qualityProfileKey, dbSession)).hasSize(2);
+    assertThat(activeRuleDao.findByProfileKey(dbSession, qualityProfileKey)).hasSize(2);
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
 
     ActiveRuleKey activeRuleKey = ActiveRuleKey.of(qualityProfileKey, ruleKey);
@@ -126,16 +126,16 @@ public class RegisterQualityProfilesMediumTest {
 
     // Check ActiveRules in DB
     ActiveRuleDao activeRuleDao = dbClient().activeRuleDao();
-    assertThat(activeRuleDao.findByProfileKey(qualityProfileKey, dbSession)).hasSize(2);
+    assertThat(activeRuleDao.findByProfileKey(dbSession, qualityProfileKey)).hasSize(2);
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
 
-    ActiveRuleDto activeRule = activeRuleDao.getByKey(dbSession, ActiveRuleKey.of(qualityProfileKey, ruleKey));
+    ActiveRuleDto activeRule = activeRuleDao.getNullableByKey(dbSession, ActiveRuleKey.of(qualityProfileKey, ruleKey));
     assertThat(activeRule.getKey().qProfile()).isEqualTo(qualityProfileKey);
     assertThat(activeRule.getKey().ruleKey()).isEqualTo(ruleKey);
     assertThat(activeRule.getSeverityString()).isEqualTo(Severity.CRITICAL);
 
     // Check ActiveRuleParameters in DB
-    Map<String, ActiveRuleParamDto> params = ActiveRuleParamDto.groupByKey(activeRuleDao.findParamsByActiveRule(activeRule, dbSession));
+    Map<String, ActiveRuleParamDto> params = ActiveRuleParamDto.groupByKey(activeRuleDao.findParamsByActiveRule(dbSession, activeRule));
     assertThat(params).hasSize(2);
     // set by profile
     assertThat(params.get("acceptWhitespace").getValue()).isEqualTo("true");

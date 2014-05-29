@@ -81,11 +81,11 @@ public class RuleActivatorMediumTest {
     ruleActivator.activate(activation);
 
     // verify db
-    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(PROFILE_KEY, dbSession);
+    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(dbSession, PROFILE_KEY);
     assertThat(activeRuleDtos).hasSize(1);
     assertThat(activeRuleDtos.get(0).getSeverityString()).isEqualTo(Severity.BLOCKER);
     assertThat(activeRuleDtos.get(0).getInheritance()).isNull();
-    List<ActiveRuleParamDto> params = db.activeRuleDao().findParamsByActiveRule(activeRuleDtos.get(0), dbSession);
+    List<ActiveRuleParamDto> params = db.activeRuleDao().findParamsByActiveRule(dbSession, activeRuleDtos.get(0));
     assertThat(params).hasSize(1);
     assertThat(params.get(0).getValue()).isEqualTo("7");
 
@@ -106,11 +106,11 @@ public class RuleActivatorMediumTest {
     ruleActivator.activate(activation);
 
     // verify db
-    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(PROFILE_KEY, dbSession);
+    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(dbSession, PROFILE_KEY);
     assertThat(activeRuleDtos).hasSize(1);
     assertThat(activeRuleDtos.get(0).getSeverityString()).isEqualTo(Severity.MINOR);
     assertThat(activeRuleDtos.get(0).getInheritance()).isNull();
-    List<ActiveRuleParamDto> params = db.activeRuleDao().findParamsByActiveRule(activeRuleDtos.get(0), dbSession);
+    List<ActiveRuleParamDto> params = db.activeRuleDao().findParamsByActiveRule(dbSession, activeRuleDtos.get(0));
     assertThat(params).hasSize(1);
     assertThat(params.get(0).getValue()).isEqualTo("10");
 
@@ -139,11 +139,11 @@ public class RuleActivatorMediumTest {
     ruleActivator.activate(update);
 
     // verify db
-    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(PROFILE_KEY, dbSession);
+    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(dbSession, PROFILE_KEY);
     assertThat(activeRuleDtos).hasSize(1);
     assertThat(activeRuleDtos.get(0).getSeverityString()).isEqualTo(Severity.CRITICAL);
     assertThat(activeRuleDtos.get(0).getInheritance()).isNull();
-    List<ActiveRuleParamDto> params = db.activeRuleDao().findParamsByActiveRule(activeRuleDtos.get(0), dbSession);
+    List<ActiveRuleParamDto> params = db.activeRuleDao().findParamsByActiveRule(dbSession, activeRuleDtos.get(0));
     assertThat(params).hasSize(1);
     assertThat(params.get(0).getValue()).isEqualTo("42");
 
@@ -168,7 +168,7 @@ public class RuleActivatorMediumTest {
 
 
     assertThat(db.activeRuleDao().getParamsByKeyAndName(activeRuleKey, "max", dbSession)).isNotNull();
-    db.activeRuleDao().removeParamByKeyAndName(activeRuleKey, "max", dbSession);
+    db.activeRuleDao().removeParamByKeyAndName(dbSession, activeRuleKey, "max");
     dbSession.commit();
     assertThat(db.activeRuleDao().getParamsByKeyAndName(activeRuleKey, "max", dbSession)).isNull();
 
@@ -181,11 +181,11 @@ public class RuleActivatorMediumTest {
     ruleActivator.activate(update);
 
     // verify db
-    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(PROFILE_KEY, dbSession);
+    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(dbSession, PROFILE_KEY);
     assertThat(activeRuleDtos).hasSize(1);
     assertThat(activeRuleDtos.get(0).getSeverityString()).isEqualTo(Severity.CRITICAL);
     assertThat(activeRuleDtos.get(0).getInheritance()).isNull();
-    List<ActiveRuleParamDto> params = db.activeRuleDao().findParamsByActiveRule(activeRuleDtos.get(0), dbSession);
+    List<ActiveRuleParamDto> params = db.activeRuleDao().findParamsByActiveRule(dbSession, activeRuleDtos.get(0));
     assertThat(params).hasSize(1);
     assertThat(params.get(0).getValue()).isEqualTo("42");
 
@@ -213,11 +213,11 @@ public class RuleActivatorMediumTest {
     ruleActivator.activate(update);
 
     // verify db
-    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(PROFILE_KEY, dbSession);
+    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(dbSession, PROFILE_KEY);
     assertThat(activeRuleDtos).hasSize(1);
     assertThat(activeRuleDtos.get(0).getSeverityString()).isEqualTo(Severity.MINOR);
     assertThat(activeRuleDtos.get(0).getInheritance()).isNull();
-    List<ActiveRuleParamDto> params = db.activeRuleDao().findParamsByActiveRule(activeRuleDtos.get(0), dbSession);
+    List<ActiveRuleParamDto> params = db.activeRuleDao().findParamsByActiveRule(dbSession, activeRuleDtos.get(0));
     assertThat(params).hasSize(1);
     assertThat(params.get(0).getValue()).isEqualTo("10");
 
@@ -400,7 +400,7 @@ public class RuleActivatorMediumTest {
 
   private void verifyZeroActiveRules(ActiveRuleKey key) {
     // verify db
-    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(key.qProfile(), dbSession);
+    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(dbSession, key.qProfile());
     assertThat(activeRuleDtos).isEmpty();
     //TODO test params
 

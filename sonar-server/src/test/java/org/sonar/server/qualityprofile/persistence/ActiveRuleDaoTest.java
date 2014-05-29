@@ -71,7 +71,7 @@ public class ActiveRuleDaoTest  extends AbstractDaoTestCase{
 
     session.commit();
 
-    ActiveRuleDto result = activeRuleDao.getByKey(session, activeRuleDto.getKey());
+    ActiveRuleDto result = activeRuleDao.getNullableByKey(session, activeRuleDto.getKey());
 
     assertThat(result).isNotNull();
     assertThat(result.getKey()).isNotNull();

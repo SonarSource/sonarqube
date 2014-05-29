@@ -316,7 +316,7 @@ public class QProfileBackupTest {
     when(profileDefinition.createProfile(any(ValidationMessages.class))).thenReturn(profile);
     definitions.add(profileDefinition);
 
-    when(ruleDao.getByKey(session, RuleKey.of("pmd", "rule"))).thenReturn(new RuleDto().setId(10).setSeverity("INFO"));
+    when(ruleDao.getNullableByKey(session, RuleKey.of("pmd", "rule"))).thenReturn(new RuleDto().setId(10).setSeverity("INFO"));
 
     when(qProfileOperations.newProfile(eq(name), eq(language), eq(true), any(UserSession.class), eq(session))).thenReturn(new QProfile().setId(1));
 
@@ -346,8 +346,8 @@ public class QProfileBackupTest {
     when(profileDefinition2.createProfile(any(ValidationMessages.class))).thenReturn(profile2);
     definitions.add(profileDefinition2);
 
-    when(ruleDao.getByKey(session, RuleKey.of("pmd", "rule"))).thenReturn(new RuleDto().setId(10).setSeverity("INFO"));
-    when(ruleDao.getByKey(session, RuleKey.of("checkstyle", "rule"))).thenReturn(new RuleDto().setId(11).setSeverity("INFO"));
+    when(ruleDao.getNullableByKey(session, RuleKey.of("pmd", "rule"))).thenReturn(new RuleDto().setId(10).setSeverity("INFO"));
+    when(ruleDao.getNullableByKey(session, RuleKey.of("checkstyle", "rule"))).thenReturn(new RuleDto().setId(11).setSeverity("INFO"));
 
     when(qProfileOperations.newProfile(eq("Default"), eq("java"), eq(true), any(UserSession.class), eq(session))).thenReturn(new QProfile().setId(1));
 
@@ -378,7 +378,7 @@ public class QProfileBackupTest {
     when(profileDefinition.createProfile(any(ValidationMessages.class))).thenReturn(profile);
     definitions.add(profileDefinition);
 
-    when(ruleDao.getByKey(session, RuleKey.of("pmd", "rule"))).thenReturn(null);
+    when(ruleDao.getNullableByKey(session, RuleKey.of("pmd", "rule"))).thenReturn(null);
 
     when(qProfileOperations.newProfile(eq(name), eq(language), eq(true), any(UserSession.class), eq(session))).thenReturn(new QProfile().setId(1));
 

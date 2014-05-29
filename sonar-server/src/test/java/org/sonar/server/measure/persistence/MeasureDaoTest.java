@@ -54,7 +54,7 @@ public class MeasureDaoTest extends AbstractDaoTestCase {
   public void get_value_by_key() throws Exception {
     setupData("shared");
 
-    MeasureDto result = dao.getByKey(session, MeasureKey.of("org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc"));
+    MeasureDto result = dao.getNullableByKey(session, MeasureKey.of("org.struts:struts-core:src/org/struts/RequestContext.java", "ncloc"));
     assertThat(result.getId()).isEqualTo(22);
     assertThat(result.getValue()).isEqualTo(10d);
   }
@@ -63,7 +63,7 @@ public class MeasureDaoTest extends AbstractDaoTestCase {
   public void get_data_by_key() throws Exception {
     setupData("shared");
 
-    MeasureDto result = dao.getByKey(session, MeasureKey.of("org.struts:struts-core:src/org/struts/RequestContext.java", "authors_by_line"));
+    MeasureDto result = dao.getNullableByKey(session, MeasureKey.of("org.struts:struts-core:src/org/struts/RequestContext.java", "authors_by_line"));
     assertThat(result.getId()).isEqualTo(20);
     assertThat(result.getData()).isEqualTo("0123456789012345678901234567890123456789");
   }
@@ -72,7 +72,7 @@ public class MeasureDaoTest extends AbstractDaoTestCase {
   public void get_text_value_by_key() throws Exception {
     setupData("shared");
 
-    MeasureDto result = dao.getByKey(session, MeasureKey.of("org.struts:struts-core:src/org/struts/RequestContext.java", "coverage_line_hits_data"));
+    MeasureDto result = dao.getNullableByKey(session, MeasureKey.of("org.struts:struts-core:src/org/struts/RequestContext.java", "coverage_line_hits_data"));
     assertThat(result.getId()).isEqualTo(21);
     assertThat(result.getData()).isEqualTo("36=1;37=1;38=1;39=1;43=1;48=1;53=1");
   }

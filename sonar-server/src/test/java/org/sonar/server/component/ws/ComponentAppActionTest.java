@@ -124,7 +124,7 @@ public class ComponentAppActionTest {
 
     ComponentDto file = new ComponentDto().setId(10L).setQualifier("FIL").setKey(COMPONENT_KEY).setName("Plugin.java")
       .setPath("src/main/java/org/sonar/api/Plugin.java").setSubProjectId(5L).setProjectId(1L);
-    when(componentDao.getByKey(session, COMPONENT_KEY)).thenReturn(file);
+    when(componentDao.getNullableByKey(session, COMPONENT_KEY)).thenReturn(file);
     when(componentDao.getById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API"));
     when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
     when(propertiesDao.selectByQuery(any(PropertyQuery.class), eq(session))).thenReturn(newArrayList(new PropertyDto()));
@@ -140,7 +140,7 @@ public class ComponentAppActionTest {
     MockUserSession.set().setLogin("john").addComponentPermission(UserRole.CODEVIEWER, componentKey, componentKey);
 
     ComponentDto file = new ComponentDto().setId(1L).setQualifier("TRK").setKey(componentKey).setName("SonarQube").setProjectId(1L);
-    when(componentDao.getByKey(session, componentKey)).thenReturn(file);
+    when(componentDao.getNullableByKey(session, componentKey)).thenReturn(file);
     when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
     when(propertiesDao.selectByQuery(any(PropertyQuery.class), eq(session))).thenReturn(newArrayList(new PropertyDto()));
 
@@ -154,7 +154,7 @@ public class ComponentAppActionTest {
 
     ComponentDto file = new ComponentDto().setId(10L).setQualifier("FIL").setKey(COMPONENT_KEY).setName("Plugin.java")
       .setPath("src/main/java/org/sonar/api/Plugin.java").setSubProjectId(1L).setProjectId(1L);
-    when(componentDao.getByKey(session, COMPONENT_KEY)).thenReturn(file);
+    when(componentDao.getNullableByKey(session, COMPONENT_KEY)).thenReturn(file);
     when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
     when(propertiesDao.selectByQuery(any(PropertyQuery.class), eq(session))).thenReturn(newArrayList(new PropertyDto()));
     when(sourceService.hasScmData(eq(COMPONENT_KEY), eq(session))).thenReturn(true);
@@ -232,7 +232,7 @@ public class ComponentAppActionTest {
   private void addProjectSample() {
     ComponentDto file = new ComponentDto().setId(10L).setQualifier("FIL").setKey(COMPONENT_KEY).setName("Plugin.java")
       .setPath("src/main/java/org/sonar/api/Plugin.java").setSubProjectId(5L).setProjectId(1L);
-    when(componentDao.getByKey(session, COMPONENT_KEY)).thenReturn(file);
+    when(componentDao.getNullableByKey(session, COMPONENT_KEY)).thenReturn(file);
     when(componentDao.getById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API"));
     when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
   }

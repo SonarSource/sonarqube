@@ -135,8 +135,8 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     DbSession dbSession = db.openSession(false);
     List<UpdateRequest> requests = new ArrayList<UpdateRequest>();
     try {
-      requests.addAll(normalize(db.ruleDao().getByKey(dbSession, key)));
-      for (RuleParamDto param : db.ruleDao().findRuleParamsByRuleKey(key, dbSession)) {
+      requests.addAll(normalize(db.ruleDao().getNullableByKey(dbSession, key)));
+      for (RuleParamDto param : db.ruleDao().findRuleParamsByRuleKey(dbSession, key)) {
         requests.addAll(normalize(param, key));
       }
     } finally {

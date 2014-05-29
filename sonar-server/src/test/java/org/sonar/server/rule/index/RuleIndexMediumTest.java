@@ -40,6 +40,7 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.debt.DebtTesting;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.FacetValue;
@@ -160,7 +161,6 @@ public class RuleIndexMediumTest {
     dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "S001")));
     dbSession.commit();
 
-
     QueryOptions options = new QueryOptions();
     options.addFieldsToReturn(RuleNormalizer.RuleField.LANGUAGE.field(), RuleNormalizer.RuleField.STATUS.field());
     Result<Rule> results = index.search(new RuleQuery(), options);
@@ -183,7 +183,6 @@ public class RuleIndexMediumTest {
     dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "S001"))
       .setName("testing the partial match and matching of rule"));
     dbSession.commit();
-
 
     // substring
     RuleQuery query = new RuleQuery().setQueryText("test");
@@ -259,10 +258,10 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_by_any_of_languages() throws InterruptedException {
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")).setLanguage("java"));
-    dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "S002")).setLanguage("js"));
+    dao.insert(dbSession,
+      newRuleDto(RuleKey.of("java", "S001")).setLanguage("java"),
+      newRuleDto(RuleKey.of("javascript", "S002")).setLanguage("js"));
     dbSession.commit();
-
 
     RuleQuery query = new RuleQuery().setLanguages(Arrays.asList("cobol", "js"));
     Result<Rule> results = index.search(query, new QueryOptions());
@@ -286,16 +285,10 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_by_characteristics() throws InterruptedException {
-
-    CharacteristicDto char1 = new CharacteristicDto().setName("char1")
-      .setKey("char1")
-      .setEnabled(true);
+    CharacteristicDto char1 = DebtTesting.newCharacteristicDto("char1");
     dbClient.debtCharacteristicDao().insert(char1, dbSession);
-    dbSession.commit();
 
-    CharacteristicDto char11 = new CharacteristicDto().setName("char11")
-      .setKey("char11")
-      .setEnabled(true)
+    CharacteristicDto char11 = DebtTesting.newCharacteristicDto("char11")
       .setParentId(char1.getId());
     dbClient.debtCharacteristicDao().insert(char11, dbSession);
     dbSession.commit();
@@ -493,14 +486,14 @@ public class RuleIndexMediumTest {
       .setName("testing")
       .setType("STRING")
       .setDefaultValue(value);
-    dao.addRuleParam(rule, param, dbSession);
+    dao.addRuleParam(dbSession, rule, param);
 
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
       .setSeverity("BLOCKER");
 
     ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(param);
     dbClient.activeRuleDao().insert(dbSession, activeRule);
-    dbClient.activeRuleDao().addParam(activeRule, activeRuleParam, dbSession);
+    dbClient.activeRuleDao().addParam(dbSession, activeRule, activeRuleParam);
     dbSession.commit();
 
     assertThat(index.getByKey(rule.getKey()).params().get(0).defaultValue()).isEqualTo(value);

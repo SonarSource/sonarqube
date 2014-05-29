@@ -58,20 +58,20 @@ public class QProfileActiveRuleOperations implements ServerComponent {
   }
 
   ActiveRuleDto createActiveRule(QualityProfileKey profileKey, RuleKey ruleKey, String severity, DbSession session) {
-    RuleDto ruleDto = ruleDao.getByKey(session, ruleKey);
+    RuleDto ruleDto = ruleDao.getNullableByKey(session, ruleKey);
     QualityProfileDto profileDto = profileDao.selectByNameAndLanguage(profileKey.name(), profileKey.lang(), session);
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profileDto, ruleDto)
       .setSeverity(severity);
     activeRuleDao.insert(session, activeRule);
 
-    List<RuleParamDto> ruleParams = ruleDao.findRuleParamsByRuleKey(ruleKey, session);
+    List<RuleParamDto> ruleParams = ruleDao.findRuleParamsByRuleKey(session, ruleKey);
     List<ActiveRuleParamDto> activeRuleParams = newArrayList();
     for (RuleParamDto ruleParam : ruleParams) {
       ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(ruleParam)
         .setKey(ruleParam.getName())
         .setValue(ruleParam.getDefaultValue());
       activeRuleParams.add(activeRuleParam);
-      activeRuleDao.addParam(activeRule, activeRuleParam, session);
+      activeRuleDao.addParam(session, activeRule, activeRuleParam);
     }
     return activeRule;
   }
@@ -82,7 +82,7 @@ public class QProfileActiveRuleOperations implements ServerComponent {
     validateParam(ruleParam, sanitizedValue);
 
     activeRuleParam.setValue(sanitizedValue);
-    activeRuleDao.updateParam(activeRule, activeRuleParam, session);
+    activeRuleDao.updateParam(session, activeRule, activeRuleParam);
   }
 
 
@@ -98,8 +98,8 @@ public class QProfileActiveRuleOperations implements ServerComponent {
 
 
   private RuleParamDto findRuleParamNotNull(Integer ruleId, String key, DbSession session) {
-    RuleDto rule = ruleDao.getById(ruleId, session);
-    RuleParamDto ruleParam = ruleDao.getRuleParamByRuleAndParamKey(rule, key, session);
+    RuleDto rule = ruleDao.getById(session, ruleId);
+    RuleParamDto ruleParam = ruleDao.getRuleParamByRuleAndParamKey(session, rule, key);
     if (ruleParam == null) {
       throw new IllegalArgumentException("No rule param found");
     }
@@ -108,8 +108,8 @@ public class QProfileActiveRuleOperations implements ServerComponent {
 
   @CheckForNull
   private ActiveRuleParamDto findActiveRuleParam(int activeRuleId, String key, DbSession session) {
-    ActiveRuleDto activeRule = activeRuleDao.getById(activeRuleId, session);
-    return activeRuleDao.getParamsByActiveRuleAndKey(activeRule, key, session);
+    ActiveRuleDto activeRule = activeRuleDao.getById(session, activeRuleId);
+    return activeRuleDao.getParamsByActiveRuleAndKey(session, activeRule, key);
   }
 
   private ActiveRuleParamDto findActiveRuleParamNotNull(int activeRuleId, String key, DbSession session) {

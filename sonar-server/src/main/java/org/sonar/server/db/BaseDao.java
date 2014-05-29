@@ -31,6 +31,7 @@ import org.sonar.server.search.action.EmbeddedIndexAction;
 import org.sonar.server.search.action.IndexAction;
 import org.sonar.server.search.action.KeyIndexAction;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Collection;
@@ -52,7 +53,7 @@ import java.util.Date;
  * - DTO is fully loaded (no field will return null)
  * - returns null (and not empty)
  * - examples:
- * - RuleDto = ruleDao.getByKey(dto.getKey());
+ * - RuleDto = ruleDao.getNullableByKey(dto.getKey());
  * <p/>
  * * FIND Methods
  * - returns a List of DTO.
@@ -128,7 +129,8 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
     return indexDefinition != null ? this.indexDefinition.getIndexType() : null;
   }
 
-  protected abstract E doGetByKey(DbSession session, K key);
+  @CheckForNull
+  protected abstract E doGetNullableByKey(DbSession session, K key);
 
   protected abstract E doInsert(DbSession session, E item);
 
@@ -140,12 +142,12 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
     return session.getMapper(mapperClass);
   }
 
-  public E getByKey(DbSession session, K key) {
-    return doGetByKey(session, key);
+  public E getNullableByKey(DbSession session, K key) {
+    return doGetNullableByKey(session, key);
   }
 
-  public E getNonNullByKey(DbSession session, K key) {
-    E value = doGetByKey(session, key);
+  public E getByKey(DbSession session, K key) {
+    E value = doGetNullableByKey(session, key);
     if (value == null) {
       throw new NotFoundException(String.format("Key '%s' not found", key));
     }
@@ -153,51 +155,83 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   }
 
   @Override
-  public void update(DbSession session, E... item) {
-    for(E _item:item) {
-      _item.setUpdatedAt(new Date(system2.now()));
-      doUpdate(session, _item);
-      if (hasIndex()) {
-        session.enqueue(new DtoIndexAction<E>(getIndexType(), IndexAction.Method.UPSERT, _item));
-      }
+  public E update(DbSession session, E item) {
+    Date now = new Date(system2.now());
+    update(session, item, now);
+    return item;
+  }
+
+  @Override
+  public E update(DbSession session, E item, E... others) {
+    Date now = new Date(system2.now());
+    update(session, item, now);
+    for (E other : others) {
+      update(session, other, now);
     }
+    return item;
   }
 
   @Override
   public Collection<E> update(DbSession session, Collection<E> items) {
-    //TODO check for bulk inserts
+    Date now = new Date(system2.now());
     for (E item : items) {
-      update(session, item);
+      update(session, item, now);
     }
     return items;
   }
 
-  @Override
-  public void insert(DbSession session, E... item) {
-    for(E _item:item) {
-      Date now = new Date(system2.now());
-      _item.setCreatedAt(now);
-      _item.setUpdatedAt(now);
-      doInsert(session, _item);
-      if (hasIndex()) {
-        session.enqueue(new DtoIndexAction<E>(this.getIndexType(), IndexAction.Method.UPSERT, _item));
-      }
+  private void update(DbSession session, E item, Date now) {
+    item.setUpdatedAt(now);
+    doUpdate(session, item);
+    if (hasIndex()) {
+      session.enqueue(new DtoIndexAction<E>(getIndexType(), IndexAction.Method.UPSERT, item));
     }
+  }
+
+  @Override
+  public E insert(DbSession session, E item) {
+    insert(session, item, new Date(system2.now()));
+    return item;
   }
 
   @Override
   public Collection<E> insert(DbSession session, Collection<E> items) {
+    Date now = new Date(system2.now());
     for (E item : items) {
-      insert(session, item);
+      insert(session, item, now);
     }
     return items;
   }
 
   @Override
-  public void delete(DbSession session, E... item) {
-    for(E _item:item) {
-      Preconditions.checkNotNull(_item.getKey(), "Dto does not have a valid Key");
-      deleteByKey(session, _item.getKey());
+  public E insert(DbSession session, E item, E... others) {
+    Date now = new Date(system2.now());
+    insert(session, item, now);
+    for (E other : others) {
+      insert(session, other, now);
+    }
+    return item;
+  }
+
+  private void insert(DbSession session, E item, Date now) {
+    item.setCreatedAt(now);
+    item.setUpdatedAt(now);
+    doInsert(session, item);
+    if (hasIndex()) {
+      session.enqueue(new DtoIndexAction<E>(getIndexType(), IndexAction.Method.UPSERT, item));
+    }
+  }
+
+  @Override
+  public void delete(DbSession session, E item) {
+    deleteByKey(session, item.getKey());
+  }
+
+  @Override
+  public void delete(DbSession session, E item, E... others) {
+    delete(session, item);
+    for (E e : others) {
+      delete(session, e);
     }
   }
 
@@ -210,7 +244,7 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
 
   @Override
   public void deleteByKey(DbSession session, K key) {
-    Preconditions.checkNotNull(key, "Cannot delete item with null key");
+    Preconditions.checkNotNull(key, "Missing key");
     doDeleteByKey(session, key);
     if (hasIndex()) {
       session.enqueue(new KeyIndexAction<K>(getIndexType(), IndexAction.Method.DELETE, key));

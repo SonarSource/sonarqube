@@ -128,7 +128,7 @@ public class RuleActivator implements ServerComponent {
         for (Map.Entry<String, String> param : change.getParameters().entrySet()) {
           ActiveRuleParamDto paramDto = ActiveRuleParamDto.createFor(context.ruleParamsByKeys().get(param.getKey()));
           paramDto.setValue(param.getValue());
-          dao.addParam(activeRule, paramDto, dbSession);
+          dao.addParam(dbSession, activeRule, paramDto);
         }
 
       } else if (change.getType() == ActiveRuleChange.Type.DEACTIVATED) {
@@ -145,10 +145,10 @@ public class RuleActivator implements ServerComponent {
             // did not exist
             activeRuleParamDto = ActiveRuleParamDto.createFor(context.ruleParamsByKeys().get(param.getKey()));
             activeRuleParamDto.setValue(param.getValue());
-            dao.addParam(activeRule, activeRuleParamDto, dbSession);
+            dao.addParam(dbSession, activeRule, activeRuleParamDto);
           } else {
             activeRuleParamDto.setValue(param.getValue());
-            dao.updateParam(activeRule, activeRuleParamDto, dbSession);
+            dao.updateParam(dbSession, activeRule, activeRuleParamDto);
           }
         }
         for (ActiveRuleParamDto activeRuleParamDto : context.activeRuleParams()) {

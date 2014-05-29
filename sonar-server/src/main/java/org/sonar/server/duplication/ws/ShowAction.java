@@ -93,7 +93,7 @@ public class ShowAction implements RequestHandler {
 
   @CheckForNull
   private String findDataFromComponent(String fileKey, String metricKey, DbSession session) {
-    MeasureDto data = measureDao.getByKey(session, MeasureKey.of(fileKey, metricKey));
+    MeasureDto data = measureDao.getNullableByKey(session, MeasureKey.of(fileKey, metricKey));
     if (data != null) {
       return data.getData();
     }
@@ -101,7 +101,7 @@ public class ShowAction implements RequestHandler {
   }
 
   private ComponentDto findComponent(String key, DbSession session) {
-    ComponentDto componentDto = componentDao.getByKey(session, key);
+    ComponentDto componentDto = componentDao.getNullableByKey(session, key);
     if (componentDto == null) {
       throw new NotFoundException(String.format("Component with key '%s' not found", key));
     }

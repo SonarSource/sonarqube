@@ -26,7 +26,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleNormalizer;
@@ -50,7 +50,7 @@ public class RuleServiceMediumTest {
   @Before
   public void before() {
     tester.clearDbAndEs();
-    dbSession = tester.get(MyBatis.class).openSession(false);
+    dbSession = tester.get(DbClient.class).openSession(false);
   }
 
   @After
@@ -62,14 +62,10 @@ public class RuleServiceMediumTest {
   public void test_list_tags() throws InterruptedException {
     // insert db
     RuleKey key1 = RuleKey.of("javascript", "S001");
-    dao.insert(dbSession, RuleTesting.newDto(key1)
-      .setTags(Sets.newHashSet("tag1"))
-      .setSystemTags(Sets.newHashSet("sys1", "sys2")));
-
     RuleKey key2 = RuleKey.of("java", "S001");
-    dao.insert(dbSession, RuleTesting.newDto(key2)
-      .setTags(Sets.newHashSet("tag2"))
-      .setSystemTags(Collections.<String>emptySet()));
+    dao.insert(dbSession,
+      RuleTesting.newDto(key1).setTags(Sets.newHashSet("tag1")).setSystemTags(Sets.newHashSet("sys1", "sys2")),
+      RuleTesting.newDto(key2).setTags(Sets.newHashSet("tag2")).setSystemTags(Collections.<String>emptySet()));
     dbSession.commit();
 
     // all tags, including system

@@ -48,7 +48,7 @@ public class MeasureDao extends BaseDao<MeasureMapper, MeasureDto, MeasureKey> i
   }
 
   @Override
-  protected MeasureDto doGetByKey(DbSession session, MeasureKey key) {
+  protected MeasureDto doGetNullableByKey(DbSession session, MeasureKey key) {
     return session.getMapper(MeasureMapper.class).selectByKey(key);
   }
 

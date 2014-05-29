@@ -357,7 +357,7 @@ public class DebtModelOperationsTest {
     DbSession batchSession = mock(DbSession.class);
     when(dbClient.openSession(true)).thenReturn(batchSession);
 
-    when(ruleDao.findRulesByDebtSubCharacteristicId(2, batchSession)).thenReturn(newArrayList(
+    when(ruleDao.findRulesByDebtSubCharacteristicId(batchSession, 2)).thenReturn(newArrayList(
       new RuleDto()
         .setSubCharacteristicId(2)
         .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
@@ -402,7 +402,7 @@ public class DebtModelOperationsTest {
     DbSession batchSession = mock(DbSession.class);
     when(dbClient.openSession(true)).thenReturn(batchSession);
 
-    when(ruleDao.findRulesByDebtSubCharacteristicId(2, batchSession)).thenReturn(newArrayList(
+    when(ruleDao.findRulesByDebtSubCharacteristicId(batchSession, 2)).thenReturn(newArrayList(
       new RuleDto()
         .setSubCharacteristicId(10).setRemediationFunction("LINEAR_OFFSET").setRemediationCoefficient("2h").setRemediationOffset("5min")
         .setDefaultSubCharacteristicId(2).setDefaultRemediationFunction("LINEAR_OFFSET").setDefaultRemediationCoefficient("4h").setDefaultRemediationOffset("15min")
@@ -440,7 +440,7 @@ public class DebtModelOperationsTest {
     DbSession batchSession = mock(DbSession.class);
     when(dbClient.openSession(true)).thenReturn(batchSession);
 
-    when(ruleDao.findRulesByDebtSubCharacteristicId(subCharacteristicDto.getId(), batchSession)).thenReturn(newArrayList(
+    when(ruleDao.findRulesByDebtSubCharacteristicId(batchSession, subCharacteristicDto.getId())).thenReturn(newArrayList(
       new RuleDto().setSubCharacteristicId(subCharacteristicDto.getId())
         .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
         .setRemediationCoefficient("2h")

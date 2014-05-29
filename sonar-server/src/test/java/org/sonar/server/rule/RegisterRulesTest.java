@@ -81,7 +81,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     // verify db
     assertThat(dbClient.ruleDao().findAll(dbSession)).hasSize(2);
     RuleKey ruleKey1 = RuleKey.of("fake", "rule1");
-    RuleDto rule1 = dbClient.ruleDao().getByKey(dbSession, ruleKey1);
+    RuleDto rule1 = dbClient.ruleDao().getNullableByKey(dbSession, ruleKey1);
     assertThat(rule1.getName()).isEqualTo("One");
     assertThat(rule1.getDescription()).isEqualTo("Description of One");
     assertThat(rule1.getSeverityString()).isEqualTo(Severity.BLOCKER);
@@ -94,7 +94,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     assertThat(rule1.getEffortToFixDescription()).isEqualTo("squid.S115.effortToFix");
     // TODO check characteristic and remediation function
 
-    List<RuleParamDto> params = dbClient.ruleDao().findRuleParamsByRuleKey(ruleKey1, dbSession);
+    List<RuleParamDto> params = dbClient.ruleDao().findRuleParamsByRuleKey(dbSession, ruleKey1);
     assertThat(params).hasSize(2);
     RuleParamDto param = getParam(params, "param1");
     assertThat(param.getDescription()).isEqualTo("parameter one");
@@ -110,7 +110,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     execute(new FakeRepositoryV1());
 
     RuleKey ruleKey1 = RuleKey.of("fake", "rule1");
-    RuleDto rule1 = dbClient.ruleDao().getByKey(dbSession, ruleKey1);
+    RuleDto rule1 = dbClient.ruleDao().getNullableByKey(dbSession, ruleKey1);
     assertThat(rule1.getCreatedAt()).isEqualTo(DATE1);
     assertThat(rule1.getUpdatedAt()).isEqualTo(DATE1);
   }
@@ -122,7 +122,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
 
     // user adds tags and sets markdown note
     RuleKey ruleKey1 = RuleKey.of("fake", "rule1");
-    RuleDto rule1 = dbClient.ruleDao().getByKey(dbSession, ruleKey1);
+    RuleDto rule1 = dbClient.ruleDao().getNullableByKey(dbSession, ruleKey1);
     rule1.setTags(Sets.newHashSet("usertag1", "usertag2"));
     rule1.setNoteData("user *note*");
     rule1.setNoteUserLogin("marius");
@@ -133,7 +133,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     execute(new FakeRepositoryV2());
 
     // rule1 has been updated
-    rule1 = dbClient.ruleDao().getByKey(dbSession, ruleKey1);
+    rule1 = dbClient.ruleDao().getNullableByKey(dbSession, ruleKey1);
     assertThat(rule1.getName()).isEqualTo("One v2");
     assertThat(rule1.getDescription()).isEqualTo("Description of One v2");
     assertThat(rule1.getSeverityString()).isEqualTo(Severity.INFO);
@@ -147,19 +147,19 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     assertThat(rule1.getUpdatedAt()).isEqualTo(DATE2);
     assertThat(rule1.getEffortToFixDescription()).isEqualTo("squid.S115.effortToFix.v2");
     // TODO check characteristic and remediation function
-    List<RuleParamDto> params = dbClient.ruleDao().findRuleParamsByRuleKey(ruleKey1, dbSession);
+    List<RuleParamDto> params = dbClient.ruleDao().findRuleParamsByRuleKey(dbSession, ruleKey1);
     assertThat(params).hasSize(2);
     RuleParamDto param = getParam(params, "param1");
     assertThat(param.getDescription()).isEqualTo("parameter one v2");
     assertThat(param.getDefaultValue()).isEqualTo("default1 v2");
 
     // rule2 has been removed -> status set to REMOVED but db row is not deleted
-    RuleDto rule2 = dbClient.ruleDao().getByKey(dbSession, RuleKey.of("fake", "rule2"));
+    RuleDto rule2 = dbClient.ruleDao().getNullableByKey(dbSession, RuleKey.of("fake", "rule2"));
     assertThat(rule2.getStatus()).isEqualTo(RuleStatus.REMOVED);
     assertThat(rule2.getUpdatedAt()).isEqualTo(DATE2);
 
     // rule3 has been created
-    RuleDto rule3 = dbClient.ruleDao().getByKey(dbSession, RuleKey.of("fake", "rule3"));
+    RuleDto rule3 = dbClient.ruleDao().getNullableByKey(dbSession, RuleKey.of("fake", "rule3"));
     assertThat(rule3).isNotNull();
     assertThat(rule3.getStatus()).isEqualTo(RuleStatus.READY);
   }
@@ -176,7 +176,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     when(system.now()).thenReturn(DATE3.getTime());
     execute(new FakeRepositoryV2());
     // -> rule2 is still removed, but not update at DATE3
-    RuleDto rule2 = dbClient.ruleDao().getByKey(dbSession, RuleKey.of("fake", "rule2"));
+    RuleDto rule2 = dbClient.ruleDao().getNullableByKey(dbSession, RuleKey.of("fake", "rule2"));
     assertThat(rule2.getStatus()).isEqualTo(RuleStatus.REMOVED);
     assertThat(rule2.getUpdatedAt()).isEqualTo(DATE2);
   }

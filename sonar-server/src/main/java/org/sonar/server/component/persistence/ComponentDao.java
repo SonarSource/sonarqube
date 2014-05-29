@@ -56,7 +56,7 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
   }
 
   @Override
-  protected ComponentDto doGetByKey(DbSession session, String key) {
+  protected ComponentDto doGetNullableByKey(DbSession session, String key) {
     return getMapper(session).selectByKey(key);
   }
 

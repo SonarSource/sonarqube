@@ -19,7 +19,6 @@
  */
 package org.sonar.server.rule.db;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.junit.After;
 import org.junit.Before;
@@ -113,7 +112,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   @Test
   public void select_by_id() throws Exception {
     setupData("selectById");
-    RuleDto ruleDto = dao.getById(2, session);
+    RuleDto ruleDto = dao.getById(session, 2);
 
     assertThat(ruleDto.getId()).isEqualTo(2);
     assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
@@ -125,9 +124,9 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   @Test
   public void select_by_rule_key() throws Exception {
     setupData("select_by_rule_key");
-    assertThat(dao.getByKey(session, RuleKey.of("checkstyle", "AvoidComparison"))).isNotNull();
-    assertThat(dao.getByKey(session, RuleKey.of("checkstyle", "Unknown"))).isNull();
-    assertThat(dao.getByKey(session, RuleKey.of("Unknown", "AvoidComparison"))).isNull();
+    assertThat(dao.getNullableByKey(session, RuleKey.of("checkstyle", "AvoidComparison"))).isNotNull();
+    assertThat(dao.getNullableByKey(session, RuleKey.of("checkstyle", "Unknown"))).isNull();
+    assertThat(dao.getNullableByKey(session, RuleKey.of("Unknown", "AvoidComparison"))).isNull();
   }
 
   @Test
@@ -285,7 +284,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDefaultRemediationOffset("5min")
       .setEffortToFixDescription("squid.S115.effortToFix2");
 
-    dao.insert(session, ImmutableList.of(ruleToInsert1, ruleToInsert2));
+    dao.insert(session, ruleToInsert1, ruleToInsert2);
     session.commit();
 
     checkTables("insert_all", "rules");
@@ -308,8 +307,8 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   @Test
   public void select_parameters_by_rule_id() throws Exception {
     setupData("select_parameters_by_rule_id");
-    RuleDto rule = dao.getById(1, session);
-    List<RuleParamDto> ruleDtos = dao.findRuleParamsByRuleKey(rule.getKey(), session);
+    RuleDto rule = dao.getById(session, 1);
+    List<RuleParamDto> ruleDtos = dao.findRuleParamsByRuleKey(session, rule.getKey());
 
     assertThat(ruleDtos.size()).isEqualTo(1);
     RuleParamDto ruleDto = ruleDtos.get(0);
@@ -324,17 +323,17 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   public void select_parameters_by_rule_ids() throws Exception {
     setupData("select_parameters_by_rule_ids");
 
-    RuleDto rule1 = dao.getById(1, session);
-    RuleDto rule2 = dao.getById(2, session);
-    assertThat(dao.findRuleParamsByRules(newArrayList(rule1, rule2), session)).hasSize(2);
-    assertThat(dao.findRuleParamsByRules(newArrayList(rule1), session)).hasSize(1);
+    RuleDto rule1 = dao.getById(session, 1);
+    RuleDto rule2 = dao.getById(session, 2);
+    assertThat(dao.findRuleParamsByRules(session, newArrayList(rule1, rule2))).hasSize(2);
+    assertThat(dao.findRuleParamsByRules(session, newArrayList(rule1))).hasSize(1);
   }
 
   @Test
   public void insert_parameter() {
     setupData("insert_parameter");
 
-    RuleDto rule1 = dao.getById(1, session);
+    RuleDto rule1 = dao.getById(session, 1);
 
     RuleParamDto param = RuleParamDto.createFor(rule1)
       .setName("max")
@@ -342,7 +341,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDefaultValue("30")
       .setDescription("My Parameter");
 
-    dao.addRuleParam(rule1, param, session);
+    dao.addRuleParam(session, rule1, param);
     session.commit();
 
     checkTables("insert_parameter", "rules_parameters");
@@ -352,9 +351,9 @@ public class RuleDaoTest extends AbstractDaoTestCase {
   public void update_parameter() {
     setupData("update_parameter");
 
-    RuleDto rule1 = dao.getById(1, session);
+    RuleDto rule1 = dao.getById(session, 1);
 
-    List<RuleParamDto> params = dao.findRuleParamsByRuleKey(rule1.getKey(), session);
+    List<RuleParamDto> params = dao.findRuleParamsByRuleKey(session, rule1.getKey());
     assertThat(params).hasSize(1);
 
     RuleParamDto param = Iterables.getFirst(params, null);
@@ -364,7 +363,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setDefaultValue("^[a-z]+(\\.[a-z][a-z0-9]*)*$")
       .setDescription("Regular expression used to check the package names against.");
 
-    dao.updateRuleParam(rule1, param, session);
+    dao.updateRuleParam(session, rule1, param);
     session.commit();
 
     checkTables("update_parameter", "rules_parameters");

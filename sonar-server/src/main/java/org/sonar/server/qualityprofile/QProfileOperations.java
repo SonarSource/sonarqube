@@ -145,8 +145,8 @@ public class QProfileOperations implements ServerComponent {
    * Delete profile without checking permission or that profile is existing or that profile can be deleted (is not defined as default, has no children, etc.)
    */
   public void deleteProfile(QProfile profile, DbSession session) {
-    activeRuleDao.removeParamByProfile(profile, session);
-    activeRuleDao.deleteByProfile(profile, session);
+    activeRuleDao.removeParamByProfile(session, profile);
+    activeRuleDao.deleteByProfile(session, profile);
     dao.delete(profile.id(), session);
     propertiesDao.deleteProjectProperties(PROFILE_PROPERTY_PREFIX + profile.language(), profile.name(), session);
     //esActiveRule.deleteActiveRulesFromProfile(profile.id());

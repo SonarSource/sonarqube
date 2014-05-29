@@ -29,22 +29,51 @@ import java.util.Collection;
 
 public interface Dao<E extends Dto<K>, K extends Serializable> extends ServerComponent {
 
+  /**
+   * Get a DTO by its key. Return <code>null</code> if the key does not exist.
+   */
   @CheckForNull
+  E getNullableByKey(DbSession session, K key);
+
+  /**
+   * Get a DTO by its key.
+   *
+   * @throws org.sonar.server.exceptions.NotFoundException if the key does not exist
+   */
   E getByKey(DbSession session, K key);
 
-  E getNonNullByKey(DbSession session, K key);
+  /**
+   * Update a table row. DTO id must be set. The field updatedAt
+   * is changed by this method.
+   */
+  E update(DbSession session, E dto);
 
-  void update(DbSession session, E... item);
+  /**
+   * Update one or more table rows. Note that the returned DTO is only
+   * the first updated one.
+   */
+  E update(DbSession session, E dto, E... others);
 
-  Collection<E> update(DbSession session, Collection<E> items);
+  Collection<E> update(DbSession session, Collection<E> dtos);
 
-  void insert(DbSession session, E... item);
+  E insert(DbSession session, E dto);
 
-  Collection<E> insert(DbSession session, Collection<E> items);
+  /**
+   * Insert one or more database rows. Note
+   * that the returned DTO is only the first inserted one.
+   */
+  E insert(DbSession session, E dto, E... others);
 
-  void delete(DbSession session, E... item);
+  Collection<E> insert(DbSession session, Collection<E> dtos);
 
-  void delete(DbSession session, Collection<E> items);
+  void delete(DbSession session, E dto);
+
+  /**
+   * Delete one or more table rows.
+   */
+  void delete(DbSession session, E dto, E... others);
+
+  void delete(DbSession session, Collection<E> dtos);
 
   void deleteByKey(DbSession session, K key);
 

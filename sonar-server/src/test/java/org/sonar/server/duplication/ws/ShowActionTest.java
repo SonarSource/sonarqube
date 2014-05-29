@@ -83,11 +83,11 @@ public class ShowActionTest {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "org.codehaus.sonar:sonar", componentKey);
 
     ComponentDto componentDto = new ComponentDto().setId(10L);
-    when(componentDao.getByKey(session, componentKey)).thenReturn(componentDto);
+    when(componentDao.getNullableByKey(session, componentKey)).thenReturn(componentDto);
 
     String data = "{duplications}";
     MeasureKey measureKey = MeasureKey.of(componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY);
-    when(measureDao.getByKey(session, measureKey)).thenReturn(
+    when(measureDao.getNullableByKey(session, measureKey)).thenReturn(
       MeasureDto.createFor(measureKey).setTextValue("{duplications}")
     );
 
@@ -106,10 +106,10 @@ public class ShowActionTest {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "org.codehaus.sonar:sonar", componentKey);
 
     ComponentDto componentDto = new ComponentDto().setId(10L);
-    when(componentDao.getByKey(session, componentKey)).thenReturn(componentDto);
+    when(componentDao.getNullableByKey(session, componentKey)).thenReturn(componentDto);
 
     MeasureKey measureKey = MeasureKey.of(componentKey, CoreMetrics.DUPLICATIONS_DATA_KEY);
-    when(measureDao.getByKey(session, measureKey)).thenReturn(null);
+    when(measureDao.getNullableByKey(session, measureKey)).thenReturn(null);
 
     WsTester.TestRequest request = tester.newGetRequest("api/duplications", "show").setParam("key", componentKey);
     request.execute();

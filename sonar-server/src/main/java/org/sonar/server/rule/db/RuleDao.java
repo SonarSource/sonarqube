@@ -51,9 +51,8 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
     super(IndexDefinition.RULE, RuleMapper.class, system);
   }
 
-  @CheckForNull
   @Override
-  public RuleDto doGetByKey(DbSession session, RuleKey key) {
+  public RuleDto doGetNullableByKey(DbSession session, RuleKey key) {
     return mapper(session).selectByKey(key);
   }
 
@@ -79,11 +78,11 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
   }
 
   /**
-   * @deprecated in 4.4. Use keys.
+   * @deprecated use keys.
    */
   @CheckForNull
   @Deprecated
-  public RuleDto getById(int id, DbSession session) {
+  public RuleDto getById(DbSession session, int id) {
     return mapper(session).selectById(id);
   }
 
@@ -126,26 +125,26 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
    * Nested DTO RuleParams
    */
 
-  public void addRuleParam(RuleDto rule, RuleParamDto ruleParam, DbSession session) {
+  public void addRuleParam(DbSession session, RuleDto rule, RuleParamDto param) {
     Preconditions.checkNotNull(rule.getId(), "Rule id must be set");
-    ruleParam.setRuleId(rule.getId());
-    mapper(session).insertParameter(ruleParam);
-    this.enqueueInsert(ruleParam, rule.getKey(), session);
+    param.setRuleId(rule.getId());
+    mapper(session).insertParameter(param);
+    this.enqueueInsert(param, rule.getKey(), session);
   }
 
-  public RuleParamDto updateRuleParam(RuleDto rule, RuleParamDto ruleParam, DbSession session) {
+  public RuleParamDto updateRuleParam(DbSession session, RuleDto rule, RuleParamDto param) {
     Preconditions.checkNotNull(rule.getId(), "Rule id must be set");
-    Preconditions.checkNotNull(ruleParam.getId(), "Param is not yet persisted must be set");
-    ruleParam.setRuleId(rule.getId());
-    mapper(session).updateParameter(ruleParam);
-    this.enqueueUpdate(ruleParam, rule.getKey(), session);
-    return ruleParam;
+    Preconditions.checkNotNull(param.getId(), "Param is not yet persisted must be set");
+    param.setRuleId(rule.getId());
+    mapper(session).updateParameter(param);
+    this.enqueueUpdate(param, rule.getKey(), session);
+    return param;
   }
 
-  public void removeRuleParam(RuleDto rule, RuleParamDto ruleParam, DbSession session) {
-    Preconditions.checkNotNull(ruleParam.getId(), "Param is not persisted");
-    mapper(session).deleteParameter(ruleParam.getId());
-    this.enqueueDelete(ruleParam, rule.getKey(), session);
+  public void removeRuleParam(DbSession session, RuleDto rule, RuleParamDto param) {
+    Preconditions.checkNotNull(param.getId(), "Param is not persisted");
+    mapper(session).deleteParameter(param.getId());
+    this.enqueueDelete(param, rule.getKey(), session);
   }
 
   /**
@@ -156,24 +155,24 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
     return mapper(session).selectAllParams();
   }
 
-  public List<RuleParamDto> findRuleParamsByRuleKey(RuleKey key, DbSession session) {
+  public List<RuleParamDto> findRuleParamsByRuleKey(DbSession session, RuleKey key) {
     return mapper(session).selectParamsByRuleKey(key);
   }
 
-  public List<RuleParamDto> findRuleParamsByRules(List<RuleDto> ruleDtos, DbSession session) {
+  public List<RuleParamDto> findRuleParamsByRules(DbSession session, List<RuleDto> ruleDtos) {
     List<RuleParamDto> ruleParamDtos = new ArrayList<RuleParamDto>();
     for (RuleDto rule : ruleDtos) {
-      ruleParamDtos.addAll(findRuleParamsByRuleKey(rule.getKey(), session));
+      ruleParamDtos.addAll(findRuleParamsByRuleKey(session, rule.getKey()));
     }
     return ruleParamDtos;
   }
 
-  public RuleParamDto getRuleParamByRuleAndParamKey(RuleDto rule, String key, DbSession session) {
+  public RuleParamDto getRuleParamByRuleAndParamKey(DbSession session, RuleDto rule, String key) {
     Preconditions.checkNotNull(rule.getId(), "Rule is not persisted");
     return mapper(session).selectParamByRuleAndKey(rule.getId(), key);
   }
 
-  public List<RuleDto> findRulesByDebtSubCharacteristicId(int id, DbSession session) {
+  public List<RuleDto> findRulesByDebtSubCharacteristicId(DbSession session, int id) {
     return mapper(session).selectBySubCharacteristicId(id);
   }
 

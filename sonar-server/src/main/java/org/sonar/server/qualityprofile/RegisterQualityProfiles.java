@@ -150,7 +150,7 @@ public class RegisterQualityProfiles implements ServerComponent {
   }
 
   private void cleanUp(QualityProfileKey key, QualityProfileDto profileDto, DbSession session) {
-    dbClient.activeRuleDao().deleteByProfileKey(key, session);
+    dbClient.activeRuleDao().deleteByProfileKey(session, key);
     dbClient.qualityProfileDao().delete(session, profileDto);
     session.commit();
   }

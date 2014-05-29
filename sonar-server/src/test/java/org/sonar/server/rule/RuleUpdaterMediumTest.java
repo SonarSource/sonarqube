@@ -106,7 +106,7 @@ public class RuleUpdaterMediumTest {
     updater.update(update, UserSession.get());
 
     dbSession.clearCache();
-    RuleDto rule = db.ruleDao().getByKey(dbSession, RULE_KEY);
+    RuleDto rule = db.ruleDao().getNullableByKey(dbSession, RULE_KEY);
     assertThat(rule.getNoteData()).isEqualTo("my *note*");
     assertThat(rule.getNoteUserLogin()).isEqualTo("me");
     assertThat(rule.getTags()).containsOnly("tag1");
@@ -136,7 +136,7 @@ public class RuleUpdaterMediumTest {
     updater.update(update, UserSession.get());
 
     dbSession.clearCache();
-    RuleDto rule = db.ruleDao().getByKey(dbSession, RULE_KEY);
+    RuleDto rule = db.ruleDao().getNullableByKey(dbSession, RULE_KEY);
     assertThat(rule.getNoteData()).isEqualTo("my *note*");
     assertThat(rule.getNoteUserLogin()).isEqualTo("me");
     assertThat(rule.getNoteCreatedAt()).isNotNull();
@@ -161,7 +161,7 @@ public class RuleUpdaterMediumTest {
     updater.update(update, UserSession.get());
 
     dbSession.clearCache();
-    RuleDto rule = db.ruleDao().getByKey(dbSession, RULE_KEY);
+    RuleDto rule = db.ruleDao().getNullableByKey(dbSession, RULE_KEY);
     assertThat(rule.getNoteData()).isNull();
     assertThat(rule.getNoteUserLogin()).isNull();
     assertThat(rule.getNoteCreatedAt()).isNull();
@@ -174,8 +174,7 @@ public class RuleUpdaterMediumTest {
     // insert db
     db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
         .setTags(Sets.newHashSet("security"))
-        .setSystemTags(Sets.newHashSet("java8", "javadoc"))
-    );
+        .setSystemTags(Sets.newHashSet("java8", "javadoc")));
     dbSession.commit();
 
     // java8 is a system tag -> ignore
@@ -183,7 +182,7 @@ public class RuleUpdaterMediumTest {
     updater.update(update, UserSession.get());
 
     dbSession.clearCache();
-    RuleDto rule = db.ruleDao().getByKey(dbSession, RULE_KEY);
+    RuleDto rule = db.ruleDao().getNullableByKey(dbSession, RULE_KEY);
     assertThat(rule.getTags()).containsOnly("bug");
     assertThat(rule.getSystemTags()).containsOnly("java8", "javadoc");
 
@@ -204,7 +203,7 @@ public class RuleUpdaterMediumTest {
     updater.update(update, UserSession.get());
 
     dbSession.clearCache();
-    RuleDto rule = db.ruleDao().getByKey(dbSession, RULE_KEY);
+    RuleDto rule = db.ruleDao().getNullableByKey(dbSession, RULE_KEY);
     assertThat(rule.getTags()).isEmpty();
     assertThat(rule.getSystemTags()).containsOnly("java8", "javadoc");
 
@@ -255,7 +254,7 @@ public class RuleUpdaterMediumTest {
 
     // verify db
     dbSession.clearCache();
-    RuleDto rule = db.ruleDao().getByKey(dbSession, RULE_KEY);
+    RuleDto rule = db.ruleDao().getNullableByKey(dbSession, RULE_KEY);
     assertThat(rule.getSubCharacteristicId()).isEqualTo(softReliabilityId);
     assertThat(rule.getRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE.name());
     assertThat(rule.getRemediationCoefficient()).isNull();
@@ -291,7 +290,7 @@ public class RuleUpdaterMediumTest {
 
     // verify db
     dbSession.clearCache();
-    RuleDto rule = db.ruleDao().getByKey(dbSession, RULE_KEY);
+    RuleDto rule = db.ruleDao().getNullableByKey(dbSession, RULE_KEY);
     assertThat(rule.getSubCharacteristicId()).isNull();
     assertThat(rule.getRemediationFunction()).isNull();
     assertThat(rule.getRemediationCoefficient()).isNull();
@@ -327,7 +326,7 @@ public class RuleUpdaterMediumTest {
 
     // verify db
     dbSession.clearCache();
-    RuleDto rule = db.ruleDao().getByKey(dbSession, RULE_KEY);
+    RuleDto rule = db.ruleDao().getNullableByKey(dbSession, RULE_KEY);
     assertThat(rule.getSubCharacteristicId()).isEqualTo(-1);
     assertThat(rule.getRemediationFunction()).isNull();
     assertThat(rule.getRemediationCoefficient()).isNull();

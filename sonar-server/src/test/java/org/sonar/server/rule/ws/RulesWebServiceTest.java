@@ -236,25 +236,25 @@ public class RulesWebServiceTest {
       .setType("string")
       .setDescription("My small description")
       .setName("my_var");
-    ruleDao.addRuleParam(rule, param, session);
+    ruleDao.addRuleParam(session, rule, param);
 
     RuleParamDto param2 = RuleParamDto.createFor(rule)
       .setDefaultValue("other value")
       .setType("integer")
       .setDescription("My small description")
       .setName("the_var");
-    ruleDao.addRuleParam(rule, param2, session);
+    ruleDao.addRuleParam(session, rule, param2);
 
     ActiveRuleDto activeRule = newActiveRule(profile, rule);
     tester.get(ActiveRuleDao.class).insert(session, activeRule);
 
     ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(param)
       .setValue("The VALUE");
-    tester.get(ActiveRuleDao.class).addParam(activeRule, activeRuleParam, session);
+    tester.get(ActiveRuleDao.class).addParam(session, activeRule, activeRuleParam);
 
     ActiveRuleParamDto activeRuleParam2 = ActiveRuleParamDto.createFor(param2)
       .setValue("The Other Value");
-    tester.get(ActiveRuleDao.class).addParam(activeRule, activeRuleParam2, session);
+    tester.get(ActiveRuleDao.class).addParam(session, activeRule, activeRuleParam2);
     session.commit();
 
 

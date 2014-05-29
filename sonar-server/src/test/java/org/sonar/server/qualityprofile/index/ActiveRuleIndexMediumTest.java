@@ -80,7 +80,7 @@ public class ActiveRuleIndexMediumTest {
     dbSession.commit();
 
     // verify db
-    List<ActiveRuleDto> persistedDtos = db.activeRuleDao().findByRule(ruleDto, dbSession);
+    List<ActiveRuleDto> persistedDtos = db.activeRuleDao().findByRule(dbSession, ruleDto);
     assertThat(persistedDtos).hasSize(1);
 
     // verify es
@@ -104,12 +104,12 @@ public class ActiveRuleIndexMediumTest {
     RuleParamDto minParam = new RuleParamDto()
       .setName("min")
       .setType("STRING");
-    db.ruleDao().addRuleParam(ruleDto, minParam, dbSession);
+    db.ruleDao().addRuleParam(dbSession, ruleDto, minParam);
 
     RuleParamDto maxParam = new RuleParamDto()
       .setName("max")
       .setType("STRING");
-    db.ruleDao().addRuleParam(ruleDto, maxParam, dbSession);
+    db.ruleDao().addRuleParam(dbSession, ruleDto, maxParam);
 
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profileDto, ruleDto)
       .setInheritance(ActiveRule.Inheritance.INHERIT.name())
@@ -118,16 +118,16 @@ public class ActiveRuleIndexMediumTest {
 
     ActiveRuleParamDto activeRuleMinParam = ActiveRuleParamDto.createFor(minParam)
       .setValue("minimum");
-    db.activeRuleDao().addParam(activeRule, activeRuleMinParam, dbSession);
+    db.activeRuleDao().addParam(dbSession, activeRule, activeRuleMinParam);
 
     ActiveRuleParamDto activeRuleMaxParam = ActiveRuleParamDto.createFor(maxParam)
       .setValue("maximum");
-    db.activeRuleDao().addParam(activeRule, activeRuleMaxParam, dbSession);
+    db.activeRuleDao().addParam(dbSession, activeRule, activeRuleMaxParam);
 
     dbSession.commit();
 
     // verify db
-    List<ActiveRuleParamDto> persistedDtos = db.activeRuleDao().findParamsByActiveRule(activeRule, dbSession);
+    List<ActiveRuleParamDto> persistedDtos = db.activeRuleDao().findParamsByActiveRule(dbSession, activeRule);
     assertThat(persistedDtos).hasSize(2);
 
     // verify es
@@ -158,8 +158,8 @@ public class ActiveRuleIndexMediumTest {
 
     // in db
     dbSession.clearCache();
-    assertThat(db.activeRuleDao().findByRule(rule1, dbSession)).hasSize(1);
-    assertThat(db.activeRuleDao().findByRule(rule2, dbSession)).hasSize(2);
+    assertThat(db.activeRuleDao().findByRule(dbSession, rule1)).hasSize(1);
+    assertThat(db.activeRuleDao().findByRule(dbSession, rule2)).hasSize(2);
 
     // in es
     List<ActiveRule> activeRules = index.findByRule(RuleKey.of("java", "r1"));

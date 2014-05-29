@@ -49,7 +49,7 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
   public void get_by_key() {
     setupData("shared");
 
-    ComponentDto result = dao.getByKey(session, "org.struts:struts-core:src/org/struts/RequestContext.java");
+    ComponentDto result = dao.getNullableByKey(session, "org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(result).isNotNull();
     assertThat(result.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(result.path()).isEqualTo("src/org/struts/RequestContext.java");
@@ -59,14 +59,14 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     assertThat(result.subProjectId()).isEqualTo(2);
     assertThat(result.projectId()).isEqualTo(1);
 
-    assertThat(dao.getByKey(session, "unknown")).isNull();
+    assertThat(dao.getNullableByKey(session, "unknown")).isNull();
   }
 
   @Test
   public void get_by_key_on_a_root_project() {
     setupData("shared");
 
-    ComponentDto result = dao.getByKey(session, "org.struts:struts");
+    ComponentDto result = dao.getNullableByKey(session, "org.struts:struts");
     assertThat(result).isNotNull();
     assertThat(result.key()).isEqualTo("org.struts:struts");
     assertThat(result.path()).isNull();

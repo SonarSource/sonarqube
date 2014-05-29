@@ -103,8 +103,8 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
     DbSession dbSession = db.openSession(false);
     List<UpdateRequest> requests = new ArrayList<UpdateRequest>();
     try {
-      requests.addAll(normalize(db.activeRuleDao().getByKey(dbSession, key)));
-      for (ActiveRuleParamDto param : db.activeRuleDao().findParamsByKey(key, dbSession)) {
+      requests.addAll(normalize(db.activeRuleDao().getNullableByKey(dbSession, key)));
+      for (ActiveRuleParamDto param : db.activeRuleDao().findParamsByKey(dbSession, key)) {
         requests.addAll(this.normalize(param, key));
       }
     } finally {
@@ -149,7 +149,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
       String parentKey = null;
       if (activeRuleDto.getParentId() != null) {
 
-        ActiveRuleDto parentDto = db.activeRuleDao().getById(activeRuleDto.getParentId(), session);
+        ActiveRuleDto parentDto = db.activeRuleDao().getById(session, activeRuleDto.getParentId());
         parentKey = parentDto.getKey().toString();
       }
       newRule.put(ActiveRuleField.PARENT_KEY.field(), parentKey);
