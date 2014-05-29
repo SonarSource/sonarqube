@@ -31,7 +31,7 @@ import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
+import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;

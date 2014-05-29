@@ -188,7 +188,7 @@ import org.sonar.server.qualityprofile.RegisterQualityProfiles;
 import org.sonar.server.qualityprofile.RuleActivationContextFactory;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
-import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
+import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.qualityprofile.ws.BulkRuleActivationActions;
 import org.sonar.server.qualityprofile.ws.ProfilesWs;
 import org.sonar.server.qualityprofile.ws.QProfileRecreateBuiltInAction;

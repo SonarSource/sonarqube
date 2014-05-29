@@ -37,7 +37,7 @@ import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.ProfilesManager;
-import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
+import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.db.RuleDao;
 
 import java.util.Date;

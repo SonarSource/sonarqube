@@ -32,7 +32,7 @@ import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.server.component.persistence.ComponentDao;
 import org.sonar.server.measure.persistence.MeasureDao;
-import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
+import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.db.RuleDao;
 
 import java.util.Map;

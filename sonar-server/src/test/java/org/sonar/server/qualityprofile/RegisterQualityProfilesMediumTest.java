@@ -44,7 +44,7 @@ import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
-import org.sonar.server.qualityprofile.persistence.ActiveRuleDao;
+import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.Map;

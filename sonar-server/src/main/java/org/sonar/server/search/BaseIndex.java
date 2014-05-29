@@ -237,7 +237,9 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
     mapping.put("type", "nested");
     Map<String, Object> mappings = new HashMap<String, Object>();
     for (IndexField nestedField : field.nestedFields()) {
-      mappings.put(nestedField.field(), mapField(nestedField));
+      if(nestedField != null) {
+        mappings.put(nestedField.field(), mapField(nestedField));
+      }
     }
     mapping.put("properties", mappings);
     return mapping;
