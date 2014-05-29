@@ -157,7 +157,9 @@ public class SearchAction implements RequestHandler {
       .createParam(SearchOptions.PARAM_SORT)
       .setDescription("Sort field")
       .setPossibleValues(RuleNormalizer.RuleField.NAME.field(),
-        RuleNormalizer.RuleField.UPDATED_AT.field())
+        RuleNormalizer.RuleField.UPDATED_AT.field(),
+        RuleNormalizer.RuleField.CREATED_AT.field(),
+        RuleNormalizer.RuleField.KEY.field())
       .setExampleValue(RuleNormalizer.RuleField.NAME.field());
 
     action
