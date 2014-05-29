@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.persistence.Dto;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -236,9 +237,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
     mapping.put("type", "nested");
     Map<String, Object> mappings = new HashMap<String, Object>();
     for (IndexField nestedField : field.nestedFields()) {
-      if(nestedField != null) {
-        mappings.put(nestedField.field(), mapField(nestedField));
-      }
+      mappings.put(nestedField.field(), mapField(nestedField));
     }
     mapping.put("properties", mappings);
     return mapping;
@@ -445,7 +444,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
       .endObject();
   }
 
-  protected BoolFilterBuilder addMultiFieldTermFilter(Collection<String> values, BoolFilterBuilder filter, String... fields) {
+  protected BoolFilterBuilder addMultiFieldTermFilter(BoolFilterBuilder filter, @Nullable Collection<String> values, String... fields) {
     if (values != null && !values.isEmpty()) {
       BoolFilterBuilder valuesFilter = FilterBuilders.boolFilter();
       for (String value : values) {
@@ -461,7 +460,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
   }
 
 
-  protected BoolFilterBuilder addTermFilter(String field, Collection<String> values, BoolFilterBuilder filter) {
+  protected BoolFilterBuilder addTermFilter(BoolFilterBuilder filter, String field, @Nullable Collection<String> values) {
     if (values != null && !values.isEmpty()) {
       BoolFilterBuilder valuesFilter = FilterBuilders.boolFilter();
       for (String value : values) {
@@ -473,7 +472,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
     return filter;
   }
 
-  protected BoolFilterBuilder addTermFilter(String field, String value, BoolFilterBuilder filter) {
+  protected BoolFilterBuilder addTermFilter(BoolFilterBuilder filter, String field, @Nullable String value) {
     if (value != null && !value.isEmpty()) {
       filter.must(FilterBuilders.termFilter(field, value));
     }

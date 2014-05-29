@@ -183,14 +183,14 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       .termFilter(RuleNormalizer.RuleField.STATUS.field(),
         RuleStatus.REMOVED.toString()));
 
-    this.addMultiFieldTermFilter(query.getDebtCharacteristics(), fb,
+    this.addMultiFieldTermFilter(fb, query.getDebtCharacteristics(),
       RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(),
       RuleNormalizer.RuleField.CHARACTERISTIC.field());
-    this.addTermFilter(RuleNormalizer.RuleField.LANGUAGE.field(), query.getLanguages(), fb);
-    this.addTermFilter(RuleNormalizer.RuleField.REPOSITORY.field(), query.getRepositories(), fb);
-    this.addTermFilter(RuleNormalizer.RuleField.SEVERITY.field(), query.getSeverities(), fb);
-    this.addTermFilter(RuleNormalizer.RuleField.KEY.field(), query.getKey(), fb);
-    this.addTermFilter(RuleNormalizer.RuleField._TAGS.field(), query.getTags(), fb);
+    this.addTermFilter(fb, RuleNormalizer.RuleField.LANGUAGE.field(), query.getLanguages());
+    this.addTermFilter(fb, RuleNormalizer.RuleField.REPOSITORY.field(), query.getRepositories());
+    this.addTermFilter(fb, RuleNormalizer.RuleField.SEVERITY.field(), query.getSeverities());
+    this.addTermFilter(fb, RuleNormalizer.RuleField.KEY.field(), query.getKey());
+    this.addTermFilter(fb, RuleNormalizer.RuleField._TAGS.field(), query.getTags());
 
 
     if (query.getStatuses() != null && !query.getStatuses().isEmpty()) {
@@ -198,7 +198,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       for (RuleStatus status : query.getStatuses()) {
         stringStatus.add(status.name());
       }
-      this.addTermFilter(RuleNormalizer.RuleField.STATUS.field(), stringStatus, fb);
+      this.addTermFilter(fb, RuleNormalizer.RuleField.STATUS.field(), stringStatus);
     }
 
     /** Implementation of activation query */

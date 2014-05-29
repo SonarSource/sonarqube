@@ -20,8 +20,6 @@
 package org.sonar.server.search;
 
 import org.elasticsearch.action.update.UpdateRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.core.persistence.Dto;
 import org.sonar.server.db.DbClient;
 
@@ -30,8 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class BaseNormalizer<E extends Dto<K>, K extends Serializable> {
-
-  private static final Logger LOG = LoggerFactory.getLogger(BaseNormalizer.class);
 
   protected final DbClient db;
   protected final IndexDefinition definition;

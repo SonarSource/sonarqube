@@ -43,7 +43,7 @@ public class IndexField {
   private boolean searchable = false;
 
   IndexField(Type type, String field) {
-    this(type, field, Collections.EMPTY_LIST);
+    this(type, field, Collections.<IndexField>emptyList());
   }
 
   IndexField(Type type, String field, Collection<IndexField> nestedFields) {
@@ -56,8 +56,8 @@ public class IndexField {
     return sortable;
   }
 
-  public IndexField sortable(Boolean sortable) {
-    this.sortable = sortable;
+  public IndexField sortable(boolean b) {
+    this.sortable = b;
     return this;
   }
 
@@ -65,8 +65,8 @@ public class IndexField {
     return searchable;
   }
 
-  public IndexField searchable(Boolean searchable) {
-    this.searchable = searchable;
+  public IndexField searchable(boolean b) {
+    this.searchable = b;
     return this;
   }
 
@@ -83,9 +83,9 @@ public class IndexField {
   }
 
   public String sortField() {
-    if(this.sortable()){
+    if (this.sortable()) {
       return this.field + ((type == IndexField.Type.TEXT
-        || type == IndexField.Type.STRING)?"."+IndexField.SORT_SUFFIX:"");
+        || type == IndexField.Type.STRING) ? "." + IndexField.SORT_SUFFIX : "");
     } else {
       throw new IllegalStateException("Cannot sort on field (Field is not sortable)");
     }

@@ -31,7 +31,7 @@ import java.util.Set;
  */
 public class Indexable {
 
-  private static Set<IndexField> ALL_FIELDS = new HashSet<IndexField>();
+  private static final Set<IndexField> ALL_FIELDS = new HashSet<IndexField>();
 
   public static IndexField add(IndexField.Type type, String field){
     IndexField indexField = new IndexField(type, field);
