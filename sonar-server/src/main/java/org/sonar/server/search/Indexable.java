@@ -22,7 +22,6 @@ package org.sonar.server.search;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import javax.annotation.CheckForNull;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -68,16 +67,6 @@ public class Indexable {
       .sortable(true);
     ALL_FIELDS.add(indexField);
     return indexField;
-  }
-
-  @CheckForNull
-  public static IndexField fromField(String field){
-    for(IndexField indexField:ALL_FIELDS){
-      if(indexField.field().equals(field)){
-        return indexField;
-      }
-    }
-    return null;
   }
 
   @Override

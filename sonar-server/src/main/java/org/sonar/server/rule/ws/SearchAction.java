@@ -153,11 +153,12 @@ public class SearchAction implements RequestHandler {
         PARAM_ACTIVATION + "' is set.")
       .setExampleValue("java:Sonar way");
 
-    // TODO limit the fields to sort on + document possible values + default value ?
     action
       .createParam(SearchOptions.PARAM_SORT)
       .setDescription("Sort field")
-      .setExampleValue(RuleNormalizer.RuleField.LANGUAGE.field());
+      .setPossibleValues(RuleNormalizer.RuleField.NAME.field(),
+        RuleNormalizer.RuleField.UPDATED_AT.field())
+      .setExampleValue(RuleNormalizer.RuleField.NAME.field());
 
     action
       .createParam(SearchOptions.PARAM_ASCENDING)
@@ -198,7 +199,7 @@ public class SearchAction implements RequestHandler {
     query.setHasDebtCharacteristic(request.paramAsBoolean(PARAM_HAS_DEBT_CHARACTERISTIC));
     query.setActivation(request.paramAsBoolean(PARAM_ACTIVATION));
     query.setQProfileKey(request.param(PARAM_QPROFILE));
-    query.setSortField(RuleNormalizer.RuleField.fromField(request.param(SearchOptions.PARAM_SORT)));
+    query.setSortField(RuleNormalizer.RuleField.of(request.param(SearchOptions.PARAM_SORT)));
     query.setAscendingSort(request.mandatoryParamAsBoolean(SearchOptions.PARAM_ASCENDING));
     query.setTags(request.paramAsStrings(PARAM_TAGS));
     query.setAllOfTags(request.paramAsStrings(PARAM_ALL_OF_TAGS));

@@ -114,6 +114,15 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       }
       return fields;
     }
+
+    public static IndexField of(String fieldName) {
+      for(IndexField field:ALL_FIELDS){
+        if(field.field().equals(fieldName)){
+          return field;
+        }
+      }
+      return null;
+    }
   }
 
 

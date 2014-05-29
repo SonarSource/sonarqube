@@ -341,7 +341,7 @@ public class RulesWebServiceTest {
     MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_FIELDS, "");
-    request.setParam(SearchOptions.PARAM_SORT, RuleNormalizer.RuleField.NAME.field());
+    request.setParam(SearchOptions.PARAM_SORT, "name");
     request.setParam(SearchOptions.PARAM_ASCENDING, Boolean.TRUE.toString());
 
     WsTester.Result result = request.execute();
