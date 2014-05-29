@@ -96,20 +96,29 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
     return mapping;
   }
 
-//    XContentBuilder mapping = jsonBuilder().startObject()
-//      .startObject(this.indexDefinition.getIndexType())
-//      .field("dynamic", "strict")
-//      .startObject("_parent")
-//      .field("type", this.getParentType())
-//      .endObject()
-//      .startObject("_id")
-//      .field("path", ActiveRuleNormalizer.ActiveRuleField.KEY.field())
-//      .endObject()
-//      .startObject("_routing")
-//      .field("required", true)
-//      .field("path", ActiveRuleNormalizer.ActiveRuleField.RULE_KEY.field())
-//      .endObject();
+  @Override
+  protected Map mapDomain(){
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    mapping.put("dynamic", false);
+    mapping.put("_id", mapKey());
+    mapping.put("_parent", mapParent());
+    mapping.put("_routing",mapRouting());
+    mapping.put("properties", mapProperties());
+    return mapping;
+  }
 
+  private Map mapRouting() {
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    mapping.put("required", true);
+    mapping.put("path", ActiveRuleNormalizer.ActiveRuleField.RULE_KEY.field());
+    return mapping;
+  }
+
+  private Object mapParent() {
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    mapping.put("type", this.getParentType());
+    return mapping;
+  }
 
   @Override
   public ActiveRule toDoc(Map<String, Object> fields) {

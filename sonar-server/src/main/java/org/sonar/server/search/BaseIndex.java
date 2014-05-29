@@ -132,17 +132,14 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
 
       }
 
-      Map<String, Object> mapping = new HashMap<String, Object>();
-      mapping.put("dynamic", false);
-      mapping.put("_id", mapKey());
-      mapping.put("properties", mapProperties());
-      LOG.debug("Index Mapping {}", mapping.get("properties"));
+
+
 
       LOG.info("Update of index {} for type {}", this.getIndexName(), this.getIndexType());
       getClient().admin().indices().preparePutMapping(index)
         .setType(getIndexType())
         .setIgnoreConflicts(true)
-        .setSource(mapping)
+        .setSource(mapDomain())
         .get();
 
     } catch (Exception e) {
@@ -198,6 +195,15 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
   protected abstract Map mapProperties();
 
   protected abstract Map mapKey();
+
+  protected Map mapDomain(){
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    mapping.put("dynamic", false);
+    mapping.put("_id", mapKey());
+    mapping.put("properties", mapProperties());
+    LOG.debug("Index Mapping {}", mapping.get("properties"));
+    return mapping;
+  }
 
   protected Map mapField(IndexField field) {
     return mapField(field, true);
