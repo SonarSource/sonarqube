@@ -153,13 +153,14 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   }
 
   @Override
-  public E update(DbSession session, E item) {
-    item.setUpdatedAt(new Date(system2.now()));
-    doUpdate(session, item);
-    if (hasIndex()) {
-      session.enqueue(new DtoIndexAction<E>(getIndexType(), IndexAction.Method.UPSERT, item));
+  public void update(DbSession session, E... item) {
+    for(E _item:item) {
+      _item.setUpdatedAt(new Date(system2.now()));
+      doUpdate(session, _item);
+      if (hasIndex()) {
+        session.enqueue(new DtoIndexAction<E>(getIndexType(), IndexAction.Method.UPSERT, _item));
+      }
     }
-    return item;
   }
 
   @Override
@@ -172,15 +173,16 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   }
 
   @Override
-  public E insert(DbSession session, E item) {
-    Date now = new Date(system2.now());
-    item.setCreatedAt(now);
-    item.setUpdatedAt(now);
-    doInsert(session, item);
-    if (hasIndex()) {
-      session.enqueue(new DtoIndexAction<E>(this.getIndexType(), IndexAction.Method.UPSERT, item));
+  public void insert(DbSession session, E... item) {
+    for(E _item:item) {
+      Date now = new Date(system2.now());
+      _item.setCreatedAt(now);
+      _item.setUpdatedAt(now);
+      doInsert(session, _item);
+      if (hasIndex()) {
+        session.enqueue(new DtoIndexAction<E>(this.getIndexType(), IndexAction.Method.UPSERT, _item));
+      }
     }
-    return item;
   }
 
   @Override
@@ -192,9 +194,11 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   }
 
   @Override
-  public void delete(DbSession session, E item) {
-    Preconditions.checkNotNull(item.getKey(), "Dto does not have a valid Key");
-    deleteByKey(session, item.getKey());
+  public void delete(DbSession session, E... item) {
+    for(E _item:item) {
+      Preconditions.checkNotNull(_item.getKey(), "Dto does not have a valid Key");
+      deleteByKey(session, _item.getKey());
+    }
   }
 
   @Override

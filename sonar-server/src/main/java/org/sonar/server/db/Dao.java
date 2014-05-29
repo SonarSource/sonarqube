@@ -34,15 +34,15 @@ public interface Dao<E extends Dto<K>, K extends Serializable> extends ServerCom
 
   E getNonNullByKey(DbSession session, K key);
 
-  E update(DbSession session, E item);
+  void update(DbSession session, E... item);
 
   Collection<E> update(DbSession session, Collection<E> items);
 
-  E insert(DbSession session, E item);
+  void insert(DbSession session, E... item);
 
   Collection<E> insert(DbSession session, Collection<E> items);
 
-  void delete(DbSession session, E item);
+  void delete(DbSession session, E... item);
 
   void delete(DbSession session, Collection<E> items);
 
