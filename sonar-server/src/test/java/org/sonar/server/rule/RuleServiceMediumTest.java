@@ -49,7 +49,7 @@ public class RuleServiceMediumTest {
 
   @Before
   public void before() {
-    tester.clearDbAndEs();
+    tester.clearDbAndIndexes();
     dbSession = tester.get(DbClient.class).openSession(false);
   }
 

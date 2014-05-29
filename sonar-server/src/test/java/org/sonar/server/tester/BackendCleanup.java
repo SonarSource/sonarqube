@@ -31,14 +31,14 @@ import org.sonar.server.search.ESNode;
 
 import java.sql.Connection;
 
-public class DataStoreCleanup implements ServerComponent {
+public class BackendCleanup implements ServerComponent {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DataStoreCleanup.class);
+  private static final Logger LOG = LoggerFactory.getLogger(BackendCleanup.class);
 
   private final ESNode esNode;
   private final MyBatis myBatis;
 
-  public DataStoreCleanup(ESNode esNode, MyBatis myBatis) {
+  public BackendCleanup(ESNode esNode, MyBatis myBatis) {
     this.esNode = esNode;
     this.myBatis = myBatis;
   }

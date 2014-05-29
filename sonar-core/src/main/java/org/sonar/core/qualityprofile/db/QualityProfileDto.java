@@ -35,7 +35,7 @@ public class QualityProfileDto extends Dto<QualityProfileKey> {
   private boolean used;
 
   /**
-   * @deprecated use QualityProfileDto.createFor instead
+   * @deprecated use {@link #createFor(String, String)}
    */
   @Deprecated
   public QualityProfileDto() {

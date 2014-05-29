@@ -67,8 +67,9 @@ public class RuleActivatorMediumTest {
     index = tester.get(ActiveRuleIndex.class);
 
     // create quality profile
-    db.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor("MyProfile", "xoo"));
+    db.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor(PROFILE_KEY));
     dbSession.commit();
+    dbSession.clearCache();
   }
 
   @Test
@@ -167,10 +168,10 @@ public class RuleActivatorMediumTest {
     ruleActivator.activate(activation);
 
 
-    assertThat(db.activeRuleDao().getParamsByKeyAndName(activeRuleKey, "max", dbSession)).isNotNull();
+    assertThat(db.activeRuleDao().getParamByKeyAndName(activeRuleKey, "max", dbSession)).isNotNull();
     db.activeRuleDao().removeParamByKeyAndName(dbSession, activeRuleKey, "max");
     dbSession.commit();
-    assertThat(db.activeRuleDao().getParamsByKeyAndName(activeRuleKey, "max", dbSession)).isNull();
+    assertThat(db.activeRuleDao().getParamByKeyAndName(activeRuleKey, "max", dbSession)).isNull();
 
 
     // update
@@ -400,9 +401,10 @@ public class RuleActivatorMediumTest {
 
   private void verifyZeroActiveRules(ActiveRuleKey key) {
     // verify db
+    dbSession.clearCache();
     List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(dbSession, key.qProfile());
     assertThat(activeRuleDtos).isEmpty();
-    //TODO test params
+    assertThat(db.activeRuleDao().findAllParams(dbSession)).isEmpty();
 
     // verify es
     ActiveRule activeRule = index.getByKey(key);

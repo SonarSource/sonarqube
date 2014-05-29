@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualityprofile.index;
+package org.sonar.server.qualityprofile;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -36,7 +35,7 @@ import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.qualityprofile.ActiveRule;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.tester.ServerTester;
 
@@ -45,28 +44,50 @@ import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ActiveRuleIndexMediumTest {
+public class ActiveRuleBackendMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
 
-  DbClient db = tester.get(DbClient.class);
-  ActiveRuleIndex index = tester.get(ActiveRuleIndex.class);
+  DbClient db;
   DbSession dbSession;
+  ActiveRuleIndex index;
 
   @Before
   public void before() {
-    tester.clearDbAndEs();
+    tester.clearDbAndIndexes();
+    db = tester.get(DbClient.class);
     dbSession = db.openSession(false);
-  }
-
-  @After
-  public void after() {
-    dbSession.close();
+    index = tester.get(ActiveRuleIndex.class);
   }
 
   @Test
-  public void insert_and_index_active_rule() throws InterruptedException {
+  public void synchronize_index() throws Exception {
+    QualityProfileDto profile1 = QualityProfileDto.createFor("p1", "java");
+    db.qualityProfileDao().insert(dbSession, profile1);
+
+    RuleDto rule1 = RuleDto.createFor(RuleKey.of("java", "r1")).setSeverity(Severity.MAJOR);
+    db.ruleDao().insert(dbSession, rule1);
+
+    ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile1, rule1).setSeverity("BLOCKER");
+    db.activeRuleDao().insert(dbSession, activeRule);
+    dbSession.commit();
+
+    tester.clearIndexes();
+
+    // 0. Assert that we have no rules in Is.
+    assertThat(index.getByKey(activeRule.getKey())).isNull();
+
+    // 1. Synchronize since 0
+    db.activeRuleDao().synchronizeAfter(dbSession, 0);
+
+    // 2. Assert that we have the rule in Index
+    assertThat(index.getByKey(activeRule.getKey())).isNotNull();
+
+  }
+
+  @Test
+  public void insert_and_index_active_rule() {
     QualityProfileDto profileDto = QualityProfileDto.createFor("myprofile", "java");
     db.qualityProfileDao().insert(dbSession, profileDto);
     RuleKey ruleKey = RuleKey.of("javascript", "S001");
@@ -93,7 +114,7 @@ public class ActiveRuleIndexMediumTest {
   }
 
   @Test
-  public void insert_and_index_active_rule_param() throws InterruptedException {
+  public void insert_and_index_active_rule_param() {
     // insert and index
     QualityProfileDto profileDto = QualityProfileDto.createFor("myprofile", "java");
     db.qualityProfileDao().insert(dbSession, profileDto);
@@ -188,7 +209,7 @@ public class ActiveRuleIndexMediumTest {
   }
 
   @Test
-  public void find_many_active_rules_by_profile() throws InterruptedException {
+  public void find_many_active_rules_by_profile() {
     // insert and index
     QualityProfileDto profileDto = QualityProfileDto.createFor("P1", "java");
     db.qualityProfileDao().insert(dbSession, profileDto);

@@ -50,7 +50,7 @@ import static org.fest.assertions.Assertions.assertThat;
 /**
  * Test persistence in db and indexation in es (--> integration of DAOs and Indexes)
  */
-public class RuleDataMediumTest {
+public class RuleBackendMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
@@ -62,7 +62,7 @@ public class RuleDataMediumTest {
 
   @Before
   public void before() {
-    tester.clearDbAndEs();
+    tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
     dbSession = tester.get(MyBatis.class).openSession(false);
   }

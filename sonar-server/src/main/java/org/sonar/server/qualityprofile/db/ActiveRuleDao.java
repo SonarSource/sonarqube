@@ -203,7 +203,7 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
     return mapper(session).selectParamsByActiveRuleId(activeRule.getId());
   }
 
-  public ActiveRuleParamDto getParamsByKeyAndName(ActiveRuleKey key, String name, DbSession session) {
+  public ActiveRuleParamDto getParamByKeyAndName(ActiveRuleKey key, String name, DbSession session) {
     Preconditions.checkNotNull(key, "ActiveRuleKey cannot be null");
     Preconditions.checkNotNull(name, "ParameterName cannot be null");
     ActiveRuleDto activeRule = getNullableByKey(session, key);
@@ -214,6 +214,10 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
   public List<ActiveRuleParamDto> findParamsByActiveRule(DbSession session, ActiveRuleDto dto) {
     Preconditions.checkNotNull(dto.getId(), "ActiveRule is not persisted");
     return mapper(session).selectParamsByActiveRuleId(dto.getId());
+  }
+
+  public List<ActiveRuleParamDto> findAllParams(DbSession session) {
+    return mapper(session).selectAllParams();
   }
 
   @Deprecated

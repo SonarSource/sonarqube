@@ -64,7 +64,7 @@ public class RulesWebServiceTest {
 
   @Before
   public void setUp() throws Exception {
-    tester.clearDbAndEs();
+    tester.clearDbAndIndexes();
     ruleDao = tester.get(RuleDao.class);
     ws = tester.get(RulesWebService.class);
     session = tester.get(DbClient.class).openSession(false);

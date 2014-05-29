@@ -63,7 +63,7 @@ public class RuleUpdaterMediumTest {
 
   @Before
   public void before() {
-    tester.clearDbAndEs();
+    tester.clearDbAndIndexes();
     dbSession = db.openSession(false);
   }
 

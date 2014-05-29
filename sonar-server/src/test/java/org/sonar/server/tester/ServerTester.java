@@ -51,7 +51,7 @@ public class ServerTester extends ExternalResource {
 
   private final Platform platform;
   private final File homeDir;
-  private final List components = Lists.newArrayList(DataStoreCleanup.class, WsTester.class);
+  private final List components = Lists.newArrayList(BackendCleanup.class, WsTester.class);
   private final Properties initialProps = new Properties();
 
   public ServerTester() {
@@ -156,16 +156,16 @@ public class ServerTester extends ExternalResource {
   }
 
   /**
-   * Truncate all db tables and es indices. Can be executed only if ServerTester is started.
+   * Truncate all db tables and Elasticsearch indexes. Can be executed only if ServerTester is started.
    */
-  public void clearDbAndEs() {
+  public void clearDbAndIndexes() {
     checkStarted();
-    get(DataStoreCleanup.class).clearAll();
+    get(BackendCleanup.class).clearAll();
   }
 
   public void clearIndexes() {
     checkStarted();
-    get(DataStoreCleanup.class).clearIndexes();
+    get(BackendCleanup.class).clearIndexes();
   }
 
   /**
