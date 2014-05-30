@@ -21,105 +21,62 @@ package org.sonar.server.qualityprofile.ws;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
-import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.RuleActivation;
+import org.sonar.server.qualityprofile.RuleActivator;
 
-public class RuleActivationActions implements ServerComponent {
+/**
+ * @Since 4.4
+ */
+public class RuleResetAction implements ServerComponent {
 
   public static final String PROFILE_KEY = "profile_key";
   public static final String RULE_KEY = "rule_key";
-  public static final String SEVERITY = "severity";
-  public static final String PARAMS = "params";
 
-  public static final String ACTIVATE_ACTION = "activate_rule";
-  public static final String DEACTIVATE_ACTION = "deactivate_rule";
+  public static final String RESET_ACTION = "reset";
 
   private final RuleActivator service;
 
-  public RuleActivationActions(RuleActivator service) {
+  public RuleResetAction(RuleActivator service) {
     this.service = service;
   }
 
   void define(WebService.NewController controller) {
-    defineActivateAction(controller);
-    defineDeactivateAction(controller);
+    defineResetAction(controller);
   }
 
-  private void defineActivateAction(WebService.NewController controller) {
-    WebService.NewAction activate = controller
-      .createAction(ACTIVATE_ACTION)
-      .setDescription("Activate a rule on a Quality profile")
+  private void defineResetAction(WebService.NewController controller) {
+    WebService.NewAction resetAction = controller
+      .createAction(RESET_ACTION)
+      .setDescription("Reset an Activate rule based on its parent profile")
       .setHandler(new RequestHandler() {
         @Override
         public void handle(Request request, Response response) throws Exception {
-          activate(request, response);
+          reset(request, response);
         }
       })
       .setPost(true)
       .setSince("4.4");
 
-    defineActiveRuleKeyParameters(activate);
-
-    activate.createParam(SEVERITY)
-      .setDescription("Severity")
-      .setPossibleValues(Severity.ALL);
-
-    activate.createParam(PARAMS)
-      .setDescription("Parameters");
-  }
-
-  private void defineDeactivateAction(WebService.NewController controller) {
-    WebService.NewAction deactivate = controller
-      .createAction(DEACTIVATE_ACTION)
-      .setDescription("Deactivate a rule on a Quality profile")
-      .setHandler(new RequestHandler() {
-        @Override
-        public void handle(Request request, Response response) throws Exception {
-          deactivate(request, response);
-        }
-      })
-      .setPost(true)
-      .setSince("4.4");
-    defineActiveRuleKeyParameters(deactivate);
-  }
-
-  private void defineActiveRuleKeyParameters(WebService.NewAction action) {
-    action.createParam(PROFILE_KEY)
+    resetAction.createParam(PROFILE_KEY)
       .setDescription("Key of Quality profile")
       .setRequired(true)
       .setExampleValue("Sonar way:java");
 
-    action.createParam(RULE_KEY)
+    resetAction.createParam(RULE_KEY)
       .setDescription("Key of the rule to activate")
       .setRequired(true)
-      .setExampleValue("squid:AvoidCycles");
-  }
-
+      .setExampleValue("squid:AvoidCycles");  }
 
   private void reset(Request request, Response response) {
-  }
-
-  private void activate(Request request, Response response) throws Exception {
     ActiveRuleKey key = readKey(request);
     RuleActivation activation = new RuleActivation(key);
-    activation.setSeverity(request.param(SEVERITY));
-    String params = request.param(PARAMS);
-    if (params != null) {
-      activation.setParameters(KeyValueFormat.parse(params));
-    }
-    service.activate(activation);
-  }
-
-  private void deactivate(Request request, Response response) throws Exception {
-    service.deactivate(readKey(request));
+    service.reset(activation);
   }
 
   private ActiveRuleKey readKey(Request request) {

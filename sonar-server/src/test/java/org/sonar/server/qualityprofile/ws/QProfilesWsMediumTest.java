@@ -50,11 +50,6 @@ public class QProfilesWsMediumTest {
   @ClassRule
   public static ServerTester tester = new ServerTester();
 
-  private static final String API_ENDPOINT = "api/qualityprofiles";
-  private static final String API_BULK_RULE_ACTIVATE_METHOD = "activate_rules";
-  private static final String API_BULK_RULE_DEACTIVATE_METHOD = "deactivate_rules";
-  private static final String API_RULE_ACTIVATE_METHOD = "activate_rule";
-  private static final String API_RULE_DEACTIVATE_METHOD = "deactivate_rule";
   private static final String API_BUILT_IN_METHOD = "recreate_built_in";
 
   QProfilesWs ws;
@@ -84,14 +79,14 @@ public class QProfilesWsMediumTest {
     WebService.Context context = new WebService.Context();
     ws.define(context);
 
-    WebService.Controller controller = context.controller(API_ENDPOINT);
+    WebService.Controller controller = context.controller(QProfilesWs.API_ENDPOINT);
 
     assertThat(controller).isNotNull();
     assertThat(controller.actions()).hasSize(5);
-    assertThat(controller.action(API_BULK_RULE_ACTIVATE_METHOD)).isNotNull();
-    assertThat(controller.action(API_BULK_RULE_DEACTIVATE_METHOD)).isNotNull();
-    assertThat(controller.action(API_RULE_ACTIVATE_METHOD)).isNotNull();
-    assertThat(controller.action(API_RULE_DEACTIVATE_METHOD)).isNotNull();
+    assertThat(controller.action(BulkRuleActivationActions.BULK_ACTIVATE_ACTION)).isNotNull();
+    assertThat(controller.action(BulkRuleActivationActions.BULK_DEACTIVATE_ACTION)).isNotNull();
+    assertThat(controller.action(RuleActivationActions.ACTIVATE_ACTION)).isNotNull();
+    assertThat(controller.action(RuleActivationActions.DEACTIVATE_ACTION)).isNotNull();
     assertThat(controller.action(API_BUILT_IN_METHOD)).isNotNull();
   }
 
@@ -106,7 +101,7 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().findByProfileKey(session, profile.getKey())).hasSize(1);
 
     // 1. Deactivate Rule
-    WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_RULE_DEACTIVATE_METHOD);
+    WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, RuleActivationActions.DEACTIVATE_ACTION);
     request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
     request.setParam(RuleActivationActions.RULE_KEY, rule.getKey().toString());
     WsTester.Result result = request.execute();
@@ -133,7 +128,7 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().findByProfileKey(session, profile.getKey())).hasSize(4);
 
     // 1. Deactivate Rule
-    WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_BULK_RULE_DEACTIVATE_METHOD);
+    WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_DEACTIVATE_ACTION);
     request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
     WsTester.Result result = request.execute();
     session.clearCache();
@@ -158,7 +153,7 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().findByProfileKey(session, profile.getKey())).hasSize(2);
 
     // 1. Deactivate Rule
-    WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_BULK_RULE_DEACTIVATE_METHOD);
+    WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_DEACTIVATE_ACTION);
     request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
     WsTester.Result result = request.execute();
     session.clearCache();
@@ -181,7 +176,7 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().findByProfileKey(session, profile.getKey())).hasSize(2);
 
     // 1. Deactivate Rule
-    WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_BULK_RULE_DEACTIVATE_METHOD);
+    WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_DEACTIVATE_ACTION);
     request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
     request.setParam(SearchOptions.PARAM_TEXT_QUERY, "hello");
     WsTester.Result result = request.execute();
@@ -201,7 +196,7 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().findByProfileKey(session, profile.getKey())).isEmpty();
 
     // 1. Activate Rule
-    WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_RULE_ACTIVATE_METHOD);
+    WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, RuleActivationActions.ACTIVATE_ACTION);
     request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
     request.setParam(RuleActivationActions.RULE_KEY, rule.getKey().toString());
     WsTester.Result result = request.execute();
@@ -222,7 +217,7 @@ public class QProfilesWsMediumTest {
 
     try {
       // 1. Activate Rule
-      WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_RULE_ACTIVATE_METHOD);
+      WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, RuleActivationActions.ACTIVATE_ACTION);
       request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
       request.setParam(RuleActivationActions.RULE_KEY, rule.getKey().toString());
       WsTester.Result result = request.execute();
@@ -244,7 +239,7 @@ public class QProfilesWsMediumTest {
 
 
     // 1. Activate Rule
-    WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_RULE_ACTIVATE_METHOD);
+    WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, RuleActivationActions.ACTIVATE_ACTION);
     request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
     request.setParam(RuleActivationActions.RULE_KEY, rule.getKey().toString());
     request.setParam(RuleActivationActions.SEVERITY, "MINOR");
@@ -271,7 +266,7 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().findByProfileKey(session, profile.getKey())).isEmpty();
 
     // 1. Activate Rule
-    WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_BULK_RULE_ACTIVATE_METHOD);
+    WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
     request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
     request.setParam(SearchAction.PARAM_LANGUAGES, "java");
     WsTester.Result result = request.execute();
@@ -293,7 +288,7 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().findByProfileKey(session, profile.getKey())).isEmpty();
 
     // 1. Activate Rule
-    WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_BULK_RULE_ACTIVATE_METHOD);
+    WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
     request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
     request.setParam(SearchAction.PARAM_LANGUAGES, "java");
     WsTester.Result result = request.execute();
@@ -320,7 +315,7 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().findByProfileKey(session, php.getKey())).isEmpty();
 
     // 1. Activate Rule
-    WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_BULK_RULE_ACTIVATE_METHOD);
+    WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
     request.setParam(RuleActivationActions.PROFILE_KEY, php.getKey().toString());
     request.setParam(SearchAction.PARAM_LANGUAGES, "php");
     WsTester.Result result = request.execute();
@@ -343,7 +338,7 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().findByProfileKey(session, profile.getKey())).isEmpty();
 
     // 1. Activate Rule with query returning 0 hits
-    WsTester.TestRequest request = wsTester.newGetRequest(API_ENDPOINT, API_BULK_RULE_ACTIVATE_METHOD);
+    WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
     request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
     request.setParam(SearchOptions.PARAM_TEXT_QUERY, "php");
     WsTester.Result result = request.execute();
@@ -353,7 +348,7 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().findByProfileKey(session, profile.getKey())).hasSize(0);
 
     // 1. Activate Rule with query returning 1 hits
-    request = wsTester.newGetRequest(API_ENDPOINT, API_BULK_RULE_ACTIVATE_METHOD);
+    request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
     request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
     request.setParam(SearchOptions.PARAM_TEXT_QUERY, "world");
     result = request.execute();
@@ -362,6 +357,42 @@ public class QProfilesWsMediumTest {
     // 2. Assert ActiveRule in DAO
     assertThat(db.activeRuleDao().findByProfileKey(session, profile.getKey())).hasSize(1);
   }
+
+  @Test
+  public void reset() throws Exception {
+
+    QualityProfileDto profile = QualityProfileDto.createFor("parent", "java");
+    QualityProfileDto subProfile = QualityProfileDto.createFor("child", "java")
+      .setParent(profile.getName());
+    db.qualityProfileDao().insert(session, profile, subProfile);
+
+    RuleDto rule = getRule(profile.getLanguage(), "rule");
+
+    ActiveRuleDto active1 = ActiveRuleDto.createFor(profile, rule)
+      .setSeverity(rule.getSeverityString());
+    ActiveRuleDto active2 = ActiveRuleDto.createFor(subProfile, rule)
+      .setSeverity("MINOR");
+    db.activeRuleDao().insert(session, active1, active2);
+
+    session.commit();
+
+    // 0. assert rule child rule is minor
+    assertThat(db.activeRuleDao().getByKey(session, active2.getKey()).getSeverityString()).isEqualTo("MINOR");
+
+    // 1. reset child rule
+    WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, RuleResetAction.RESET_ACTION);
+    request.setParam(RuleActivationActions.PROFILE_KEY, subProfile.getKey().toString());
+    request.setParam(RuleActivationActions.RULE_KEY, rule.getKey().toString());
+    WsTester.Result result = request.execute();
+    session.clearCache();
+
+    // 0. assert rule child rule is NOT minor
+    assertThat(db.activeRuleDao().getByKey(session, active2.getKey()).getSeverityString()).isNotEqualTo("MINOR");
+
+
+  }
+
+
 
   private QualityProfileDto getProfile(String lang) {
     QualityProfileDto profile = QualityProfileDto.createFor("test", lang);

@@ -40,6 +40,9 @@ public class BulkRuleActivationActions implements ServerComponent {
   public static final String PROFILE_KEY = "profile_key";
   public static final String SEVERITY = "severity";
 
+  public static final String BULK_ACTIVATE_ACTION = "activate_rules";
+  public static final String BULK_DEACTIVATE_ACTION = "deactivate_rules";
+
   private final RuleActivator service;
   private final RuleService ruleService;
 
@@ -55,7 +58,7 @@ public class BulkRuleActivationActions implements ServerComponent {
 
   private void defineActivateAction(WebService.NewController controller) {
     WebService.NewAction activate = controller
-      .createAction("activate_rules")
+      .createAction(BULK_ACTIVATE_ACTION)
       .setDescription("Bulk-activate rules on one or several Quality profiles")
       .setPost(true)
       .setSince("4.4")
@@ -76,7 +79,7 @@ public class BulkRuleActivationActions implements ServerComponent {
 
   private void defineDeactivateAction(WebService.NewController controller) {
     WebService.NewAction deactivate = controller
-      .createAction("deactivate_rules")
+      .createAction(BULK_DEACTIVATE_ACTION)
       .setDescription("Bulk deactivate rules on Quality profiles")
       .setPost(true)
       .setSince("4.4")

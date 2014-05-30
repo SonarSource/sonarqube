@@ -194,6 +194,7 @@ import org.sonar.server.qualityprofile.ws.ProfilesWs;
 import org.sonar.server.qualityprofile.ws.QProfileRecreateBuiltInAction;
 import org.sonar.server.qualityprofile.ws.QProfilesWs;
 import org.sonar.server.qualityprofile.ws.RuleActivationActions;
+import org.sonar.server.qualityprofile.ws.RuleResetAction;
 import org.sonar.server.rule.DeprecatedRulesDefinition;
 import org.sonar.server.rule.RegisterRules;
 import org.sonar.server.rule.RubyRuleService;
@@ -422,6 +423,7 @@ class ServerComponents {
     pico.addSingleton(QProfilesWs.class);
     pico.addSingleton(ProfilesWs.class);
     pico.addSingleton(RuleActivationActions.class);
+    pico.addSingleton(RuleResetAction.class);
     pico.addSingleton(BulkRuleActivationActions.class);
     pico.addSingleton(RuleActivator.class);
     pico.addSingleton(QProfileService.class);

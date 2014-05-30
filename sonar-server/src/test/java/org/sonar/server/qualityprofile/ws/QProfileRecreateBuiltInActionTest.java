@@ -50,7 +50,8 @@ public class QProfileRecreateBuiltInActionTest {
     tester = new WsTester(new QProfilesWs(
       new QProfileRecreateBuiltInAction(qProfileBackup),
       new RuleActivationActions(ruleActivator),
-      new BulkRuleActivationActions(ruleActivator, ruleService)));
+      new BulkRuleActivationActions(ruleActivator, ruleService),
+      new RuleResetAction(ruleActivator)));
   }
 
   @Test

@@ -23,8 +23,8 @@ package org.sonar.server.qualityprofile.ws;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.QProfileBackup;
+import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.ws.WsTester;
 
@@ -42,14 +42,15 @@ public class QProfilesWsTest {
     controller = new WsTester(new QProfilesWs(new QProfileRecreateBuiltInAction(
       mock(QProfileBackup.class)),
       new RuleActivationActions(ruleActivator),
-      new BulkRuleActivationActions(ruleActivator, ruleService)
-    )).controller("api/qualityprofiles");
+      new BulkRuleActivationActions(ruleActivator, ruleService),
+      new RuleResetAction(ruleActivator)
+    )).controller(QProfilesWs.API_ENDPOINT);
   }
 
   @Test
   public void define_controller() throws Exception {
     assertThat(controller).isNotNull();
-    assertThat(controller.path()).isEqualTo("api/qualityprofiles");
+    assertThat(controller.path()).isEqualTo(QProfilesWs.API_ENDPOINT);
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.actions()).hasSize(5);
   }
@@ -64,7 +65,7 @@ public class QProfilesWsTest {
 
   @Test
   public void define_activate_rule_action() throws Exception {
-    WebService.Action restoreProfiles = controller.action("activate_rule");
+    WebService.Action restoreProfiles = controller.action(RuleActivationActions.ACTIVATE_ACTION);
     assertThat(restoreProfiles).isNotNull();
     assertThat(restoreProfiles.isPost()).isTrue();
     assertThat(restoreProfiles.params()).hasSize(4);
@@ -72,7 +73,7 @@ public class QProfilesWsTest {
 
   @Test
   public void define_deactivate_rule_action() throws Exception {
-    WebService.Action restoreProfiles = controller.action("deactivate_rule");
+    WebService.Action restoreProfiles = controller.action(RuleActivationActions.DEACTIVATE_ACTION);
     assertThat(restoreProfiles).isNotNull();
     assertThat(restoreProfiles.isPost()).isTrue();
     assertThat(restoreProfiles.params()).hasSize(2);
