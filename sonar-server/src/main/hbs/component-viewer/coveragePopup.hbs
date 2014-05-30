@@ -7,7 +7,12 @@
       {{#each tests}}
         <li class="component-viewer-popup-test" title="{{name}}">
           <i class="component-viewer-popup-test-status {{alertIconClass status}}"></i>
-          <span class="component-viewer-popup-test-name">{{name}}</span>
+          <span class="component-viewer-popup-test-name">
+            <a class="component-viewer-popup-test-file link-action" title="{{name}}"
+               data-file="{{../file.key}}" data-method="{{name}}">
+              {{name}}
+            </a>
+          </span>
           <span class="component-viewer-popup-test-duration">{{durationInMs}}ms</span>
         </li>
       {{/each}}

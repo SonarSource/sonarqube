@@ -511,6 +511,7 @@
 .component-viewer-popup {
   position: absolute;
   z-index: 100;
+  max-height: 300px;
   margin-top: -16px;
   margin-left: @popupArrowSize;
   padding: 10px;
@@ -519,6 +520,7 @@
   .box-sizing(border-box);
   background-color: @white;
   box-shadow: @defaultShadow;
+  overflow-y: auto;
 }
 
 .component-viewer-popup-arrow,
@@ -568,7 +570,7 @@
 }
 
 .component-viewer-popup-section {
-  width: 300px;
+  width: 450px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
