@@ -58,6 +58,8 @@ public class SearchAction implements RequestHandler {
   public static final String PARAM_ALL_OF_TAGS = "all_of_tags";
   public static final String PARAM_FACETS = "facets";
 
+  public static final String SEARCH_ACTION = "search";
+
   private final RuleService ruleService;
   private final ActiveRuleCompleter activeRuleCompleter;
   private final RuleMapping mapping;
@@ -70,7 +72,7 @@ public class SearchAction implements RequestHandler {
 
   void define(WebService.NewController controller) {
     WebService.NewAction action = controller
-      .createAction("search")
+      .createAction(SEARCH_ACTION)
       .setDescription("Search for a collection of relevant rules matching a specified query")
       .setResponseExample(Resources.getResource(getClass(), "example-search.json"))
       .setSince("4.4")
