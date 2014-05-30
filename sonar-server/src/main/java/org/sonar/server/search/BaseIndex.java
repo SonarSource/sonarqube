@@ -19,6 +19,7 @@
  */
 package org.sonar.server.search;
 
+import com.google.common.collect.ImmutableMap;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
@@ -227,9 +228,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
   }
 
   protected Map mapBooleanField(IndexField field) {
-    Map<String, Object> mapping = new HashMap<String, Object>();
-    mapping.put("type", "boolean");
-    return mapping;
+    return ImmutableMap.of("type", "boolean");
   }
 
   protected Map mapNestedField(IndexField field) {
@@ -246,10 +245,9 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
   }
 
   protected Map mapDateField(IndexField field) {
-    Map<String, Object> mapping = new HashMap<String, Object>();
-    mapping.put("type", "date");
-    mapping.put("format", "date_time");
-    return mapping;
+    return ImmutableMap.of(
+      "type", "date",
+      "format", "date_time");
   }
 
   protected boolean needMultiField(IndexField field) {
@@ -259,29 +257,26 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
   }
 
   protected Map mapSortField(IndexField field) {
-    Map<String, Object> mapping = new HashMap<String, Object>();
-    mapping.put("type", "string");
-    mapping.put("index", "analyzed");
-    mapping.put("analyzer", "sortable");
-    return mapping;
+    return ImmutableMap.of(
+      "type", "string",
+      "index", "analyzed",
+      "analyzer", "sortable");
   }
 
   protected Map mapGramsField(IndexField field) {
-    Map<String, Object> mapping = new HashMap<String, Object>();
-    mapping.put("type", "string");
-    mapping.put("index", "analyzed");
-    mapping.put("index_analyzer", "index_grams");
-    mapping.put("search_analyzer", "search_grams");
-    return mapping;
+    return ImmutableMap.of(
+      "type", "string",
+      "index", "analyzed",
+      "index_analyzer", "index_grams",
+      "search_analyzer", "search_grams");
   }
 
   protected Map mapWordsField(IndexField field) {
-    Map<String, Object> mapping = new HashMap<String, Object>();
-    mapping.put("type", "string");
-    mapping.put("index", "analyzed");
-    mapping.put("index_analyzer", "index_words");
-    mapping.put("search_analyzer", "search_words");
-    return mapping;
+    return ImmutableMap.of(
+      "type", "string",
+      "index", "analyzed",
+      "index_analyzer", "index_words",
+      "search_analyzer", "search_words");
   }
 
   protected Map mapMultiField(IndexField field) {
