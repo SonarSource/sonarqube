@@ -88,7 +88,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
   }
 
   /**
-   * @deprecated use {@link #update(org.sonar.core.persistence.DbSession, QualityProfileDto, QualityProfileDto...)}
+   * @deprecated use {@link #update(DbSession, QualityProfileDto, QualityProfileDto...)}
    */
   @Deprecated
   public void update(QualityProfileDto dto) {
@@ -110,13 +110,14 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
     }
   }
 
+
   private void doDelete(QualityProfileMapper mapper, QualityProfileDto profile) {
     Preconditions.checkNotNull(profile.getId(), "Quality profile is not persisted");
     mapper.delete(profile.getId());
   }
 
   /**
-   * @deprecated use {@link #delete(org.sonar.core.persistence.DbSession, QualityProfileDto, QualityProfileDto...)}
+   * @deprecated use {@link #delete(DbSession, QualityProfileDto, QualityProfileDto...)}
    */
   @Deprecated
   public void delete(int id, DbSession session) {
@@ -124,7 +125,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
   }
 
   /**
-   * @deprecated use {@link #delete(org.sonar.core.persistence.DbSession, QualityProfileDto, QualityProfileDto...)}
+   * @deprecated use {@link #delete(DbSession, QualityProfileDto, QualityProfileDto...)}
    */
   @Deprecated
   public void delete(int id) {
@@ -137,6 +138,11 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
     }
   }
 
+  /**
+   * @deprecated Replaced by
+   *    {@link #findAll(DbSession)}
+   */
+  @Deprecated
   public List<QualityProfileDto> selectAll() {
     DbSession session = mybatis.openSession(false);
     try {
@@ -177,11 +183,21 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
     }
   }
 
+  /**
+   * @deprecated Replaced by
+   *    {@link #getByKey(QualityProfileKey, DbSession)}
+   */
+  @Deprecated
   @CheckForNull
   public QualityProfileDto selectById(int id, DbSession session) {
     return session.getMapper(QualityProfileMapper.class).selectById(id);
   }
 
+  /**
+   * @deprecated Replaced by
+   *    {@link #getByKey(QualityProfileKey, DbSession)}
+   */
+  @Deprecated
   @CheckForNull
   public QualityProfileDto selectById(int id) {
     DbSession session = mybatis.openSession(false);
@@ -207,10 +223,24 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
     }
   }
 
+  public List<QualityProfileDto> findByParentKey(DbSession session, QualityProfileKey key) {
+    return session.getMapper(QualityProfileMapper.class).selectChildren(key.name(), key.lang());
+  }
+
+  /**
+   * @deprecated Replaced by
+   *    {@link #findByParentKey(DbSession,QualityProfileKey)}
+   */
+  @Deprecated
   public List<QualityProfileDto> selectChildren(String name, String language, DbSession session) {
     return session.getMapper(QualityProfileMapper.class).selectChildren(name, language);
   }
 
+  /**
+   * @deprecated Replaced by
+   *    {@link #findByParentKey(DbSession,QualityProfileKey)}
+   */
+  @Deprecated
   public List<QualityProfileDto> selectChildren(String name, String language) {
     DbSession session = mybatis.openSession(false);
     try {
@@ -233,10 +263,20 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
     }
   }
 
+  /**
+   * @deprecated Replaced by
+   *    {@link #getByKey(QualityProfileKey, DbSession)}
+   */
+  @Deprecated
   public QualityProfileDto selectByNameAndLanguage(String name, String language, DbSession session) {
     return session.getMapper(QualityProfileMapper.class).selectByNameAndLanguage(name, language);
   }
 
+  /**
+   * @deprecated Replaced by
+   *    {@link #getByKey(QualityProfileKey, DbSession)}
+   */
+  @Deprecated
   public QualityProfileDto selectByNameAndLanguage(String name, String language) {
     DbSession session = mybatis.openSession(false);
     try {
