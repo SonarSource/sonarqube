@@ -121,9 +121,6 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
   }
 
   public ActiveRuleDto setInheritance(@Nullable String inheritance) {
-    if(inheritance != null && !inheritance.equals(INHERITED) && !inheritance.equals(OVERRIDES)){
-      throw new IllegalStateException("Inheritance value '"+inheritance+"' is invalid");
-    }
     this.inheritance = inheritance;
     return this;
   }
