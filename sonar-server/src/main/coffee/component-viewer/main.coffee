@@ -5,6 +5,7 @@ define [
   'component-viewer/workspace'
   'component-viewer/source'
   'component-viewer/header'
+  'component-viewer/utils'
 
   'component-viewer/mockjax'
 ], (
@@ -14,6 +15,7 @@ define [
   WorkspaceView
   SourceView
   HeaderView
+  utils
 ) ->
 
   $ = jQuery
@@ -24,9 +26,11 @@ define [
   API_COVERAGE = "#{baseUrl}/api/coverage/show"
   API_SCM = "#{baseUrl}/api/sources/scm"
   API_MEASURES = "#{baseUrl}/api/resources"
+  API_DUPLICATIONS = "#{baseUrl}/api/duplications/show"
 
   LINES_AROUND_ISSUE = 4
   LINES_AROUND_COVERED_LINE = 1
+  LINES_AROUND_DUPLICATION = 1
 
   SOURCE_METRIC_LIST = 'accessors,classes,functions,statements,' +
     'ncloc,lines,' +
@@ -104,6 +108,7 @@ define [
     requestComponent: (key) ->
       $.get API_COMPONENT, key: key, (data) =>
         @component.set data
+        @component.set 'dir', utils.splitLongName(data.path).dir
 
 
     requestMeasures: (key) ->
@@ -148,6 +153,12 @@ define [
     requestCoverage: (key, type = 'UT') ->
       $.get API_COVERAGE, key: key, type: type, (data) =>
         @source.set coverage: data.coverage
+
+
+    requestDuplications: (key) ->
+      $.get API_DUPLICATIONS, key: key, (data) =>
+        @source.set duplications: data.duplications
+        @source.set duplicationFiles: data.files
 
 
     open: (key) ->
@@ -222,7 +233,10 @@ define [
     showDuplications: (store = false) ->
       @settings.set 'duplications', true
       @storeSettings() if store
-      @sourceView.render()
+      unless @source.has 'duplications'
+        @requestDuplications(@key).done => @sourceView.render()
+      else
+        @sourceView.render()
 
 
     hideDuplications: (store = false) ->
@@ -243,6 +257,12 @@ define [
     hideSCM: (store = false) ->
       @settings.set 'scm', false
       @storeSettings() if store
+      @sourceView.render()
+
+
+    showAllLines: ->
+      @sourceView.resetShowBlocks()
+      @sourceView.showBlocks.push from: 0, to: _.size @source.get 'source'
       @sourceView.render()
 
 
@@ -338,9 +358,29 @@ define [
     filterByUncoveredBranchesIT: -> @filterByCoverageIT (c) -> c[3]? && c[4]? && (c[3] > c[4])
 
 
+    # Duplications
+    filterByDuplications: ->
+      unless @source.has 'duplications'
+        @requestDuplications(@key).done => @_filterByDuplications()
+      else
+        @_filterByDuplications()
+
+
+    _filterByDuplications: ->
+      duplications = @source.get 'duplications'
+      @settings.set 'duplications', true
+      @sourceView.resetShowBlocks()
+      duplications.forEach (d) =>
+        lineFrom = d.blocks[0].from
+        lineTo = lineFrom + d.blocks[0].size
+        @sourceView.addShowBlock lineFrom - LINES_AROUND_DUPLICATION, lineTo + LINES_AROUND_DUPLICATION
+      @sourceView.render()
+
+
     addTransition: (key, transition, optionsForCurrent, options) ->
       if optionsForCurrent?
         last = @workspace.at(@workspace.length - 1)
         last.set 'options', optionsForCurrent if last
       @workspace.add key: key, transition: transition, options: options
       @_open key
+      @showAllLines()

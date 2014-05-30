@@ -1,17 +1,9 @@
-<div class="component-viewer-header-expanded-bar-section">
-  <div class="component-viewer-header-expanded-bar-section-title">Duplications</div>
-  <ul class="component-viewer-header-expanded-bar-section-list">
-    <li><a class="item">
-      <span>Lines</span>
-      <span class="number">76</span>
-    </a></li>
-    <li><a class="item">
-      <span>Duplicated Lines</span>
-      <span class="number">16</span>
-    </a></li>
-    <li><a class="item">
-      <span>Duplicated Blocks</span>
-      <span class="number">2</span>
-    </a></li>
-  </ul>
-</div>
+{{#with component.msr}}
+  <div class="component-viewer-header-expanded-bar-section">
+    <div class="component-viewer-header-expanded-bar-section-title">{{t 'duplications'}}</div>
+    <ul class="component-viewer-header-expanded-bar-section-list">
+      {{{componentViewerHeaderLink duplicated_blocks 'duplicated_blocks' 'js-filter-duplications'}}}
+      {{{componentViewerHeaderLink duplicated_lines 'duplicated_lines' 'js-filter-duplications'}}}
+    </ul>
+  </div>
+{{/with}}

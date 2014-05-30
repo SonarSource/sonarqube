@@ -2,10 +2,12 @@ define [
   'backbone.marionette'
   'templates/component-viewer'
   'component-viewer/popup'
+  'component-viewer/utils'
 ], (
   Marionette
   Templates
   Popup
+  utils
 ) ->
 
   $ = jQuery
@@ -21,16 +23,20 @@ define [
 
     goToFile: (e) ->
       key = $(e.currentTarget).data 'key'
-      @options.main.addTransition key, 'duplication', [
-        {
-          key: 'org.codehaus.sonar:sonar-plugin-api:src/test/java/org/sonar/api/resources/ResourceTypeTree.java'
-          name: 'ResourceTypeTree.java'
-          active: true
-        }
-        {
-          key: 'org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/phases/PhaseExecutor.java'
-          name: 'PhaseExecutor.java'
-          active: false
-        }
-      ], []
+      files = @options.main.source.get('duplicationFiles')
+      @options.main.addTransition key, 'duplication', @collection.map (item) ->
+        file = files[item.get('_ref')]
+        x = utils.splitLongName file.name
+        key: file.key
+        name: x.name
+        subname: x.dir
+        active: file.key == key
 
+
+    serializeData: ->
+      files = @options.main.source.get('duplicationFiles')
+      blocks = _.groupBy _.rest(@collection.toJSON()), '_ref'
+      duplications = _.map blocks, (blocks, fileRef) ->
+        blocks: blocks
+        file: files[fileRef]
+      duplications: duplications

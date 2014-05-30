@@ -132,6 +132,10 @@ define(['handlebars', 'moment'], function (Handlebars, moment) {
     return ret;
   });
 
+  Handlebars.registerHelper('sum', function(a, b) {
+    return a + b;
+  });
+
   Handlebars.registerHelper('dashboardUrl', function(componentKey, componentQualifier) {
     var url = '/dashboard/index/' + decodeURIComponent(componentKey);
     if (componentQualifier === 'FIL' || componentQualifier === 'CLA') {

@@ -58,6 +58,8 @@ define [
       'click .js-filter-covered-branches-it': 'filterByCoveredBranchesIT'
       'click .js-filter-uncovered-branches-it': 'filterByUncoveredBranchesIT'
 
+      'click .js-filter-duplications': 'filterByDuplications'
+
 
     initialize: (options) ->
       options.main.settings.on 'change', => @changeSettings()
@@ -174,6 +176,10 @@ define [
     filterByBranchesToCoverIT: (e) -> @filterLines e, 'filterByBranchesToCoverIT'
     filterByCoveredBranchesIT: (e) -> @filterLines e, 'filterByCoveredBranchesIT'
     filterByUncoveredBranchesIT: (e) -> @filterLines e, 'filterByUncoveredBranchesIT'
+
+
+    # Duplications
+    filterByDuplications: (e) -> @filterLines e, 'filterByDuplications'
 
 
     serializeData: ->

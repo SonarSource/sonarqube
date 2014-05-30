@@ -25,7 +25,7 @@ define [
 
 
     toggleWorkspace: ->
-      @options.main.toggleWorkspace()
+      @options.main.toggleWorkspace true
 
 
     goToWorkspaceItem: (e) ->

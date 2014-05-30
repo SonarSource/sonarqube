@@ -22,7 +22,7 @@
         {{#if ../../settings.duplications}}
           <td class="stat duplications">
             {{#each duplications}}
-              <span class="duplication {{#if this}}duplication-exists{{/if}}"></span>
+              <span class="duplication {{#if this}}duplication-exists{{/if}}" data-index="{{this}}"></span>
             {{/each}}
           </td>
         {{/if}}

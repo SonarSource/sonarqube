@@ -131,9 +131,11 @@ define [
     showDuplicationPopup: (e) ->
       e.stopPropagation()
       $('body').click()
+      index = $(e.currentTarget).data 'index'
       popup = new DuplicationPopupView
         triggerEl: $(e.currentTarget)
         main: @options.main
+        collection: new Backbone.Collection @model.get('duplications')[index - 1].blocks
       popup.render()
 
 
@@ -165,8 +167,7 @@ define [
 
 
     expandAll: ->
-      @showBlocks.push from: 0, to: _.size @model.get 'source'
-      @render()
+      @options.main.showAllLines()
 
 
     toggleTimeChangePopup: (e) ->
@@ -193,6 +194,22 @@ define [
             line.coverage.branchCoverageStatus = 'green' if line.coverage.branches == line.coverage.coveredBranches
             line.coverage.branchCoverageStatus = 'orange' if line.coverage.branches > line.coverage.coveredBranches
             line.coverage.branchCoverageStatus = 'red' if line.coverage.coveredBranches == 0
+      source
+
+
+    augmentWithDuplications: (source) ->
+      duplications = @model.get 'duplications'
+      if duplications
+        duplications.forEach (d, i) ->
+          lineFrom = d.blocks[0].from
+          lineTo = d.blocks[0].from + d.blocks[0].size
+          source.forEach (line) ->
+            lineDuplications = line.duplications || []
+            if line.lineNumber >= lineFrom && (line.lineNumber <= lineTo)
+              lineDuplications.push i + 1
+            else
+              lineDuplications.push false
+            line.duplications = lineDuplications
       source
 
 
@@ -238,6 +255,8 @@ define [
 
       if @options.main.settings.get 'coverage'
         source = @augmentWithCoverage source
+      if @options.main.settings.get 'duplications'
+        source = @augmentWithDuplications source
       if @options.main.settings.get 'scm'
         source = @augmentWithSCM source
 

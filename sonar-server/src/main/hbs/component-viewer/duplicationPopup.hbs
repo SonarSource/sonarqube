@@ -1,19 +1,14 @@
-<div class="component-viewer-popup-section">
-  <div class="component-viewer-popup-section-title">
-    2 duplications
+{{#each duplications}}
+  <div class="component-viewer-popup-section">
+    <a class="component-viewer-popup-test-file link-action" data-key="{{file.key}}" title="{{file.name}}">
+      {{file.name}}
+    </a>
+    <ul class="component-viewer-popup-list">
+      {{#each blocks}}
+        <li>Lines: {{from}} – {{sum from size}}</li>
+      {{/each}}
+    </ul>
   </div>
-  <ul class="component-viewer-popup-list">
-    <li>
-      <a data-key="org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/resources/ResourceTypeTree.java">
-        <span>ResourceTypeTree.java</span>
-      </a>
-    </li>
-    <li>
-      <a data-key="org.codehaus.sonar:sonar-batch:src/main/java/org/sonar/batch/phases/PhaseExecutor.java">
-        <span>PhaseExecutor.java</span>
-      </a>
-    </li>
-  </ul>
-</div>
+{{/each}}
 
 <div class="component-viewer-popup-arrow"></div>
