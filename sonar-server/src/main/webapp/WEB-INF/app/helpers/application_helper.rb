@@ -406,10 +406,10 @@ module ApplicationHelper
 
     if current_user.favourite?(resource_id)
       css='icon-favorite'
-      title=message('click_to_remove_from_favourites')
+      title=message('click_to_remove_from_favorites')
     else
       css='icon-not-favorite'
-      title=message('click_to_add_to_favourites')
+      title=message('click_to_add_to_favorites')
     end
     link_to_function '', "toggleFav(#{resource_id}, this)", :class => css, :title => title
   end

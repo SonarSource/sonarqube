@@ -15,12 +15,13 @@
   </div>
 
   <div class="component-viewer-header-links">
+    <a><i class="icon-link"></i></a>
     {{#if component.canMarkAsFavourite}}
-      <a class="js-favorite">
+      <a class="js-favorite"
+         title="{{#if component.fav}}{{t 'click_to_remove_from_favorites'}}{{else}}{{t 'click_to_add_to_favorites'}}{{/if}}">
         <i class="{{#if component.fav}}icon-favorite{{else}}icon-not-favorite{{/if}}"></i>
       </a>
     {{/if}}
-    <a><i class="icon-link"></i></a>
   </div>
 
   <div class="component-viewer-header-measures">

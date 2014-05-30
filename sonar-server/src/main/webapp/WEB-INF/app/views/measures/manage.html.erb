@@ -11,10 +11,10 @@
           success: function (data) {
             if (data == 'true') {
               star.removeClass('icon-not-favorite').addClass('icon-favorite');
-              star.attr('title', '<%= escape_javascript message('click_to_remove_from_favourites') -%>');
+              star.attr('title', '<%= escape_javascript message('click_to_remove_from_favorites') -%>');
             } else {
               star.removeClass('icon-favorite').addClass('icon-not-favorite');
-              star.attr('title', '<%= escape_javascript message('click_to_add_to_favourites') -%>');
+              star.attr('title', '<%= escape_javascript message('click_to_add_to_favorites') -%>');
             }
             $j('#sidebar-favourites').load(baseUrl + '/measures/favourites');
           }

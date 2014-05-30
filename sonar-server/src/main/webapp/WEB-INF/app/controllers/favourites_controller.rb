@@ -27,11 +27,11 @@ class FavouritesController < ApplicationController
     if current_user.favourite?(favourite_id)
       current_user.delete_favourite(favourite_id)
       css='icon-not-favorite'
-      title=message('click_to_add_to_favourites')
+      title=message('click_to_add_to_favorites')
     else
       current_user.add_favourite(favourite_id)
       css='icon-favorite'
-      title=message('click_to_remove_from_favourites')
+      title=message('click_to_remove_from_favorites')
     end
 
     render :json => {:css => css, :title => title}, :status => 200
