@@ -95,7 +95,7 @@ public class ActiveRuleBackendMediumTest {
     db.ruleDao().insert(dbSession, ruleDto);
 
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profileDto, ruleDto)
-      .setInheritance(ActiveRule.Inheritance.INHERIT.name())
+      .setInheritance(ActiveRule.Inheritance.INHERITED.name())
       .setSeverity(Severity.BLOCKER);
     db.activeRuleDao().insert(dbSession, activeRule);
     dbSession.commit();
@@ -134,7 +134,7 @@ public class ActiveRuleBackendMediumTest {
     db.ruleDao().addRuleParam(dbSession, ruleDto, maxParam);
 
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profileDto, ruleDto)
-      .setInheritance(ActiveRule.Inheritance.INHERIT.name())
+      .setInheritance(ActiveRule.Inheritance.INHERITED.name())
       .setSeverity(Severity.BLOCKER);
     db.activeRuleDao().insert(dbSession, activeRule);
 
