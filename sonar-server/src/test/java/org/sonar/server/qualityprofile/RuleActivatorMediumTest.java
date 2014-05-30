@@ -518,7 +518,7 @@ public class RuleActivatorMediumTest {
     assertThat(activeRuleDto.getInheritance()).isEqualTo(expectedInheritance);
 
     // verify parameters in db
-    List<ActiveRuleParamDto> paramDtos = db.activeRuleDao().findParamsByActiveRule(dbSession, activeRuleDto);
+    List<ActiveRuleParamDto> paramDtos = db.activeRuleDao().findParamsByActiveRuleKey(dbSession, activeRuleDto.getKey());
     assertThat(paramDtos).hasSize(expectedParams.size());
     for (Map.Entry<String, String> entry : expectedParams.entrySet()) {
       ActiveRuleParamDto paramDto = db.activeRuleDao().getParamByKeyAndName(activeRuleDto.getKey(), entry.getKey(), dbSession);
