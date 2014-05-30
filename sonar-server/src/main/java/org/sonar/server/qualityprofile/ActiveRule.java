@@ -19,22 +19,25 @@
  */
 package org.sonar.server.qualityprofile;
 
+import com.google.common.collect.ImmutableList;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 
 import javax.annotation.CheckForNull;
+import java.util.List;
 import java.util.Map;
 
 public interface ActiveRule {
 
   public enum Inheritance {
-    NONE, OVERRIDE, INHERIT
+    NONE, OVERRIDES, INHERITED;
+    public static final List<Inheritance> ALL = ImmutableList.of(NONE, OVERRIDES, INHERITED);
   }
 
   ActiveRuleKey key();
 
   String severity();
 
-  Inheritance  inheritance();
+  Inheritance inheritance();
 
   @CheckForNull
   ActiveRuleKey parentKey();

@@ -56,9 +56,9 @@ public class ActiveRuleDoc extends BaseDoc implements ActiveRule {
       inheritance.toLowerCase().contains("none")) {
       return Inheritance.NONE;
     } else if (inheritance.toLowerCase().contains("herit")) {
-      return Inheritance.INHERIT;
+      return Inheritance.INHERITED;
     } else if (inheritance.toLowerCase().contains("over")) {
-      return Inheritance.OVERRIDE;
+      return Inheritance.OVERRIDES;
     } else {
       throw new IllegalStateException("Value \"" + inheritance + "\" is not valid for rule's inheritance");
     }

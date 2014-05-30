@@ -79,8 +79,7 @@ public class RuleActivationContextFactory implements ServerComponent {
   }
 
   private QualityProfileDto initProfile(ActiveRuleKey key, RuleActivationContext context, DbSession session, boolean parent) {
-    QualityProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage(
-      key.qProfile().name(), key.qProfile().lang());
+    QualityProfileDto profile = db.qualityProfileDao().getByKey(key.qProfile(),session);
     if (profile == null) {
       throw new IllegalArgumentException("Quality profile not found: " + key.qProfile());
     }

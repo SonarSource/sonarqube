@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.ActiveRule;
 import org.sonar.core.persistence.Dto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.SeverityUtil;
@@ -35,8 +36,8 @@ import javax.persistence.Transient;
 
 public class ActiveRuleDto extends Dto<ActiveRuleKey> {
 
-  public static final String INHERITED = "INHERITED";
-  public static final String OVERRIDES = "OVERRIDES";
+  public static final String INHERITED = ActiveRule.INHERITED;
+  public static final String OVERRIDES = ActiveRule.OVERRIDES;
 
   private String repository;
   private String ruleField;
@@ -120,6 +121,9 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
   }
 
   public ActiveRuleDto setInheritance(@Nullable String inheritance) {
+    if(inheritance != null && !inheritance.equals(INHERITED) && !inheritance.equals(OVERRIDES)){
+      throw new IllegalStateException("Inheritance value '"+inheritance+"' is invalid");
+    }
     this.inheritance = inheritance;
     return this;
   }
