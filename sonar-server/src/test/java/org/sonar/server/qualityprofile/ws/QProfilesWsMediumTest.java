@@ -82,11 +82,12 @@ public class QProfilesWsMediumTest {
     WebService.Controller controller = context.controller(QProfilesWs.API_ENDPOINT);
 
     assertThat(controller).isNotNull();
-    assertThat(controller.actions()).hasSize(5);
+    assertThat(controller.actions()).hasSize(6);
     assertThat(controller.action(BulkRuleActivationActions.BULK_ACTIVATE_ACTION)).isNotNull();
     assertThat(controller.action(BulkRuleActivationActions.BULK_DEACTIVATE_ACTION)).isNotNull();
     assertThat(controller.action(RuleActivationActions.ACTIVATE_ACTION)).isNotNull();
     assertThat(controller.action(RuleActivationActions.DEACTIVATE_ACTION)).isNotNull();
+    assertThat(controller.action(RuleResetAction.RESET_ACTION)).isNotNull();
     assertThat(controller.action(API_BUILT_IN_METHOD)).isNotNull();
   }
 
