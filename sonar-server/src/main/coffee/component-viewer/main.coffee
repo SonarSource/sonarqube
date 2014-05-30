@@ -145,7 +145,11 @@ define [
 
 
     requestIssues: (key) ->
-      $.get API_ISSUES, components: key, ps: 10000, (data) =>
+      options =
+        components: key
+        ps: 10000
+        extra_fields: 'actions,transitions,assigneeName,actionPlanName'
+      $.get API_ISSUES, options, (data) =>
         @requestIssuesOnce = true
         @source.set issues: data.issues
 
