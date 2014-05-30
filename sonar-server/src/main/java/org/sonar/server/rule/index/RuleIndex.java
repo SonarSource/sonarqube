@@ -149,23 +149,23 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     if (query.getQueryText() != null && !query.getQueryText().isEmpty()) {
       qb = QueryBuilders.multiMatchQuery(query.getQueryText(),
         RuleNormalizer.RuleField.NAME.field(),
-        RuleNormalizer.RuleField.NAME.field() + "."+IndexField.SEARCH_PARTIAL_SUFFIX,
-        RuleNormalizer.RuleField.NAME.field() + "."+IndexField.SEARCH_WORDS_SUFFIX,
+        RuleNormalizer.RuleField.NAME.field() + "." + IndexField.SEARCH_PARTIAL_SUFFIX,
+        RuleNormalizer.RuleField.NAME.field() + "." + IndexField.SEARCH_WORDS_SUFFIX,
         RuleNormalizer.RuleField.HTML_DESCRIPTION.field(),
-        RuleNormalizer.RuleField.HTML_DESCRIPTION.field()+"."+IndexField.SEARCH_WORDS_SUFFIX,
+        RuleNormalizer.RuleField.HTML_DESCRIPTION.field() + "." + IndexField.SEARCH_WORDS_SUFFIX,
         RuleNormalizer.RuleField.KEY.field(),
-        RuleNormalizer.RuleField.KEY.field() + "."+IndexField.SEARCH_PARTIAL_SUFFIX,
-        RuleNormalizer.RuleField.KEY.field() + "."+IndexField.SEARCH_WORDS_SUFFIX,
+        RuleNormalizer.RuleField.KEY.field() + "." + IndexField.SEARCH_PARTIAL_SUFFIX,
+        RuleNormalizer.RuleField.KEY.field() + "." + IndexField.SEARCH_WORDS_SUFFIX,
         RuleNormalizer.RuleField.LANGUAGE.field(),
         RuleNormalizer.RuleField.CHARACTERISTIC.field(),
-        RuleNormalizer.RuleField.CHARACTERISTIC.field() + "."+IndexField.SEARCH_PARTIAL_SUFFIX,
-        RuleNormalizer.RuleField.CHARACTERISTIC.field() + "."+IndexField.SEARCH_WORDS_SUFFIX,
+        RuleNormalizer.RuleField.CHARACTERISTIC.field() + "." + IndexField.SEARCH_PARTIAL_SUFFIX,
+        RuleNormalizer.RuleField.CHARACTERISTIC.field() + "." + IndexField.SEARCH_WORDS_SUFFIX,
         RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(),
-        RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field() + "."+IndexField.SEARCH_PARTIAL_SUFFIX,
-        RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field() + "."+IndexField.SEARCH_WORDS_SUFFIX,
+        RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field() + "." + IndexField.SEARCH_PARTIAL_SUFFIX,
+        RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field() + "." + IndexField.SEARCH_WORDS_SUFFIX,
         RuleNormalizer.RuleField._TAGS.field(),
-        RuleNormalizer.RuleField._TAGS.field() + "."+IndexField.SEARCH_PARTIAL_SUFFIX,
-        RuleNormalizer.RuleField._TAGS.field() + "."+IndexField.SEARCH_WORDS_SUFFIX
+        RuleNormalizer.RuleField._TAGS.field() + "." + IndexField.SEARCH_PARTIAL_SUFFIX,
+        RuleNormalizer.RuleField._TAGS.field() + "." + IndexField.SEARCH_WORDS_SUFFIX
       );
     } else {
       qb = QueryBuilders.matchAllQuery();
@@ -201,32 +201,27 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       this.addTermFilter(fb, RuleNormalizer.RuleField.STATUS.field(), stringStatus);
     }
 
+
+    // ActiveRule Filter (profile and inheritance)
+    BoolFilterBuilder childrenFilter = FilterBuilders.boolFilter();
+    this.addTermFilter(childrenFilter, ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), query.getQProfileKey());
+    this.addTermFilter(childrenFilter, ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field(), query.getInheritance());
+
+    // ChildQuery
+    QueryBuilder childQuery;
+    if (childrenFilter.hasClauses()) {
+      childQuery = QueryBuilders.constantScoreQuery(childrenFilter);
+    } else {
+      childQuery = QueryBuilders.matchAllQuery();
+    }
+
     /** Implementation of activation query */
     if (query.getActivation() == Boolean.TRUE) {
-      if (query.getQProfileKey() == null) {
-        // the rules that are activated at least once
-        fb.must(FilterBuilders.hasChildFilter(IndexDefinition.ACTIVE_RULE.getIndexType(),
-          QueryBuilders.matchAllQuery()));
-      } else {
-        // the rules that are activated on this profile
-        fb.must(FilterBuilders.hasChildFilter(IndexDefinition.ACTIVE_RULE.getIndexType(),
-          QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(),
-            query.getQProfileKey())
-        ));
-      }
+      fb.must(FilterBuilders.hasChildFilter(IndexDefinition.ACTIVE_RULE.getIndexType(),
+        childQuery));
     } else if (query.getActivation() == Boolean.FALSE) {
-      if (query.getQProfileKey() == null) {
-        // the rules that are never activated, on any profile
-        fb.mustNot(FilterBuilders.hasChildFilter(IndexDefinition.ACTIVE_RULE.getIndexType(),
-          QueryBuilders.matchAllQuery()));
-
-      } else {
-        // the rules that are not activated on this profile
-        fb.mustNot(FilterBuilders.hasChildFilter(IndexDefinition.ACTIVE_RULE.getIndexType(),
-          QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(),
-            query.getQProfileKey())
-        ));
-      }
+      fb.mustNot(FilterBuilders.hasChildFilter(IndexDefinition.ACTIVE_RULE.getIndexType(),
+        childQuery));
     }
 
     return fb;
@@ -264,7 +259,6 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     SearchRequestBuilder esSearch = this.buildRequest(query, options);
     FilterBuilder fb = this.getFilter(query, options);
     QueryBuilder qb = this.getQuery(query, options);
-
     esSearch.setQuery(QueryBuilders.filteredQuery(qb, fb));
     SearchResponse esResult = esSearch.get();
     return new RuleResult(esResult);

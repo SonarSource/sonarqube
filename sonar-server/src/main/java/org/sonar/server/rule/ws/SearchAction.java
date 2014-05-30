@@ -28,6 +28,7 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.index.RuleDoc;
@@ -56,6 +57,7 @@ public class SearchAction implements RequestHandler {
   public static final String PARAM_HAS_DEBT_CHARACTERISTIC = "has_debt_characteristic";
   public static final String PARAM_TAGS = "tags";
   public static final String PARAM_ALL_OF_TAGS = "all_of_tags";
+  public static final String PARAM_INHERITANCE = "inheritance";
   public static final String PARAM_FACETS = "facets";
 
   public static final String SEARCH_ACTION = "search";
@@ -156,6 +158,16 @@ public class SearchAction implements RequestHandler {
       .setExampleValue("java:Sonar way");
 
     action
+      .createParam(PARAM_INHERITANCE)
+      .setDescription("Value of inheritance for a rule within a quality profile Used only if the parameter '" +
+        PARAM_ACTIVATION + "' is set.")
+      .setPossibleValues(ActiveRule.Inheritance.NONE.name(),
+        ActiveRule.Inheritance.INHERITED.name(),
+        ActiveRule.Inheritance.OVERRIDES.name())
+      .setExampleValue(ActiveRule.Inheritance.INHERITED.name()+","+
+        ActiveRule.Inheritance.OVERRIDES.name());
+
+    action
       .createParam(SearchOptions.PARAM_SORT)
       .setDescription("Sort field")
       .setPossibleValues(RuleNormalizer.RuleField.NAME.field(),
@@ -173,7 +185,7 @@ public class SearchAction implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) {
-    RuleQuery query = createRuleQuery(request);
+    RuleQuery query = createRuleQuery(ruleService.newRuleQuery(), request);
     SearchOptions searchOptions = SearchOptions.create(request);
     QueryOptions queryOptions = mapping.newQueryOptions(searchOptions);
     queryOptions.setFacet(request.mandatoryParamAsBoolean(PARAM_FACETS));
@@ -192,8 +204,7 @@ public class SearchAction implements RequestHandler {
     json.endObject().close();
   }
 
-  private RuleQuery createRuleQuery(Request request) {
-    RuleQuery query = ruleService.newRuleQuery();
+  public static RuleQuery createRuleQuery(RuleQuery query, Request request) {
     query.setQueryText(request.param(SearchOptions.PARAM_TEXT_QUERY));
     query.setSeverities(request.paramAsStrings(PARAM_SEVERITIES));
     query.setRepositories(request.paramAsStrings(PARAM_REPOSITORIES));
@@ -207,6 +218,7 @@ public class SearchAction implements RequestHandler {
     query.setAscendingSort(request.mandatoryParamAsBoolean(SearchOptions.PARAM_ASCENDING));
     query.setTags(request.paramAsStrings(PARAM_TAGS));
     query.setAllOfTags(request.paramAsStrings(PARAM_ALL_OF_TAGS));
+    query.setInheritance(request.paramAsStrings(PARAM_INHERITANCE));
     return query;
   }
 

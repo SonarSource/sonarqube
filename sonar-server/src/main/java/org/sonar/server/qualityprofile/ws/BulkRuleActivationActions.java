@@ -21,7 +21,6 @@ package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.collect.Multimap;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
@@ -31,9 +30,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.rule.RuleService;
-import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.rule.ws.SearchAction;
-import org.sonar.server.search.ws.SearchOptions;
 
 public class BulkRuleActivationActions implements ServerComponent {
 
@@ -102,12 +99,14 @@ public class BulkRuleActivationActions implements ServerComponent {
   }
 
   private void bulkActivate(Request request, Response response) throws Exception {
-    Multimap<String, String> results = service.bulkActivate(createRuleQuery(request), readKey(request));
+    Multimap<String, String> results = service.bulkActivate(
+      SearchAction.createRuleQuery(ruleService.newRuleQuery(), request), readKey(request));
     writeResponse(results, response);
   }
 
   private void bulkDeactivate(Request request, Response response) throws Exception {
-    Multimap<String, String> results = service.bulkDeactivate(createRuleQuery(request), readKey(request));
+    Multimap<String, String> results = service.bulkDeactivate(
+      SearchAction.createRuleQuery(ruleService.newRuleQuery(), request), readKey(request));
     writeResponse(results, response);
   }
 
@@ -123,22 +122,6 @@ public class BulkRuleActivationActions implements ServerComponent {
       json.endArray();
     }
     json.endObject().close();
-  }
-
-  private RuleQuery createRuleQuery(Request request) {
-    RuleQuery query = ruleService.newRuleQuery();
-    query.setQueryText(request.param(SearchOptions.PARAM_TEXT_QUERY));
-    query.setSeverities(request.paramAsStrings(SearchAction.PARAM_SEVERITIES));
-    query.setRepositories(request.paramAsStrings(SearchAction.PARAM_REPOSITORIES));
-    query.setStatuses(request.paramAsEnums(SearchAction.PARAM_STATUSES, RuleStatus.class));
-    query.setLanguages(request.paramAsStrings(SearchAction.PARAM_LANGUAGES));
-    query.setDebtCharacteristics(request.paramAsStrings(SearchAction.PARAM_DEBT_CHARACTERISTICS));
-    query.setHasDebtCharacteristic(request.paramAsBoolean(SearchAction.PARAM_HAS_DEBT_CHARACTERISTIC));
-    query.setActivation(request.paramAsBoolean(SearchAction.PARAM_ACTIVATION));
-    query.setQProfileKey(request.param(SearchAction.PARAM_QPROFILE));
-    query.setTags(request.paramAsStrings(SearchAction.PARAM_TAGS));
-    query.setAllOfTags(request.paramAsStrings(SearchAction.PARAM_ALL_OF_TAGS));
-    return query;
   }
 
   private QualityProfileKey readKey(Request request) {

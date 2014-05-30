@@ -44,6 +44,7 @@ public class RuleQuery {
   private String qProfileKey;
   private boolean ascendingSort = true;
   private IndexField sortField;
+  private Collection<String> inheritance;
 
 
   /**
@@ -179,6 +180,16 @@ public class RuleQuery {
 
   public RuleQuery setHasDebtCharacteristic(@Nullable Boolean b) {
     this.hasDebtCharacteristic = b;
+    return this;
+  }
+
+  @CheckForNull
+  public Collection<String> getInheritance() {
+    return inheritance;
+  }
+
+  public RuleQuery setInheritance(@Nullable Collection<String> inheritance) {
+    this.inheritance = inheritance;
     return this;
   }
 

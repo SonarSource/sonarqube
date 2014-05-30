@@ -40,6 +40,7 @@ import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtTesting;
+import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.FacetValue;
@@ -439,7 +440,8 @@ public class RuleIndexMediumTest {
       ActiveRuleDto.createFor(qualityProfileDto2, rule1)
         .setSeverity("BLOCKER"),
       ActiveRuleDto.createFor(qualityProfileDto1, rule2)
-        .setSeverity("BLOCKER"));
+        .setSeverity("BLOCKER")
+    );
 
     dbSession.commit();
     RuleResult result;
@@ -469,6 +471,110 @@ public class RuleIndexMediumTest {
     assertThat(result.getRules()).hasSize(1);
     assertThat(result.getHits().get(0).name()).isEqualTo(rule1.getName());
 
+  }
+
+  @Test
+  public void search_by_profile_and_inheritance() throws InterruptedException {
+    QualityProfileDto qualityProfileDto1 = QualityProfileDto.createFor("profile1", "java");
+    QualityProfileDto qualityProfileDto2 = QualityProfileDto.createFor("profile2", "java")
+      .setParent(qualityProfileDto1.getName());
+    db.qualityProfileDao().insert(dbSession, qualityProfileDto1, qualityProfileDto2);
+
+    RuleDto rule1 = newRuleDto(RuleKey.of("java", "S001"));
+    RuleDto rule2 = newRuleDto(RuleKey.of("java", "S002"));
+    RuleDto rule3 = newRuleDto(RuleKey.of("java", "S003"));
+    RuleDto rule4 = newRuleDto(RuleKey.of("java", "S004"));
+    dao.insert(dbSession, rule1, rule2, rule3, rule4);
+
+    db.activeRuleDao().insert(
+      dbSession,
+      ActiveRuleDto.createFor(qualityProfileDto1, rule1)
+        .setSeverity("BLOCKER"),
+      ActiveRuleDto.createFor(qualityProfileDto1, rule2)
+        .setSeverity("BLOCKER"),
+      ActiveRuleDto.createFor(qualityProfileDto1, rule3)
+        .setSeverity("BLOCKER"),
+
+
+      ActiveRuleDto.createFor(qualityProfileDto2, rule1)
+        .setSeverity("MINOR")
+        .setInheritance(ActiveRule.Inheritance.INHERITED.name()),
+      ActiveRuleDto.createFor(qualityProfileDto2, rule2)
+        .setSeverity("BLOCKER")
+        .setInheritance(ActiveRule.Inheritance.OVERRIDES.name()),
+      ActiveRuleDto.createFor(qualityProfileDto2, rule3)
+        .setSeverity("BLOCKER")
+        .setInheritance(ActiveRule.Inheritance.INHERITED.name())
+    );
+
+    dbSession.commit();
+    RuleResult result;
+
+    // 0. get all rules
+    result = index.search(new RuleQuery(),
+      new QueryOptions());
+    assertThat(result.getHits()).hasSize(4);
+
+    // 1. get all active rules
+    result = index.search(new RuleQuery().setActivation(true),
+      new QueryOptions());
+    assertThat(result.getHits()).hasSize(3);
+
+    // 2. get all inactive rules.
+    result = index.search(new RuleQuery().setActivation(false),
+      new QueryOptions());
+    assertThat(result.getHits()).hasSize(1);
+    assertThat(result.getHits().get(0).name()).isEqualTo(rule4.getName());
+
+    // 3. get Inherited Rules on profile1
+    result = index.search(new RuleQuery().setActivation(true)
+        .setQProfileKey(qualityProfileDto1.getKey().toString())
+        .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
+      new QueryOptions()
+    );
+    assertThat(result.getRules()).hasSize(0);
+
+    // 4. get Inherited Rules on profile2
+    result = index.search(new RuleQuery().setActivation(true)
+        .setQProfileKey(qualityProfileDto2.getKey().toString())
+        .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
+      new QueryOptions()
+    );
+    assertThat(result.getRules()).hasSize(2);
+
+    // 5. get Overridden Rules on profile1
+    result = index.search(new RuleQuery().setActivation(true)
+        .setQProfileKey(qualityProfileDto1.getKey().toString())
+        .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
+      new QueryOptions()
+    );
+    assertThat(result.getRules()).hasSize(0);
+
+    // 6. get Overridden Rules on profile2
+    result = index.search(new RuleQuery().setActivation(true)
+        .setQProfileKey(qualityProfileDto2.getKey().toString())
+        .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
+      new QueryOptions()
+    );
+    assertThat(result.getRules()).hasSize(1);
+
+    // 7. get Inherited AND Overridden Rules on profile1
+    result = index.search(new RuleQuery().setActivation(true)
+        .setQProfileKey(qualityProfileDto1.getKey().toString())
+        .setInheritance(ImmutableSet.of(
+          ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
+      new QueryOptions()
+    );
+    assertThat(result.getRules()).hasSize(0);
+
+    // 8. get Inherited AND Overridden Rules on profile2
+    result = index.search(new RuleQuery().setActivation(true)
+        .setQProfileKey(qualityProfileDto2.getKey().toString())
+        .setInheritance(ImmutableSet.of(
+          ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
+      new QueryOptions()
+    );
+    assertThat(result.getRules()).hasSize(3);
   }
 
   @Test
