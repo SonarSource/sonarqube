@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -474,6 +475,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
+  @Ignore
   public void reset_activation_on_child_profile() throws Exception {
     grantPermission();
     createChildProfiles();
