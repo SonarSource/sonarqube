@@ -102,8 +102,8 @@ public class RuleActivator implements ServerComponent {
     DbSession dbSession = db.openSession(false);
     List<ActiveRuleChange> changes = Lists.newArrayList();
     try {
-      changes = activate(activation, dbSession);
-      if (changes.isEmpty()) {
+      changes.addAll(activate(activation, dbSession));
+      if (!changes.isEmpty()) {
         dbSession.commit();
         previewCache.reportGlobalModification();
       }
@@ -118,16 +118,9 @@ public class RuleActivator implements ServerComponent {
    */
   List<ActiveRuleChange> activate(RuleActivation activation, DbSession dbSession) {
 
-    List<ActiveRuleChange> changes = Lists.newArrayList();
-
     RuleActivationContext context = contextFactory.create(activation.getKey(), dbSession);
-
-    System.out.println("Activation for key: " + activation.getKey() +
-      " -- Inheritance: " + ((context.activeRule() == null) ? "" : context.activeRule().getInheritance()) +
-      " -- activate by inheritance: " + activation.isCascade());
-
+    List<ActiveRuleChange> changes = Lists.newArrayList();
     ActiveRuleChange change = null;
-
     if (context.activeRule() == null) {
       change = new ActiveRuleChange(ActiveRuleChange.Type.ACTIVATED, activation.getKey());
 
@@ -155,14 +148,11 @@ public class RuleActivator implements ServerComponent {
       verifyParam(ruleParamDto, value);
       change.setParameter(ruleParamDto.getName(), StringUtils.defaultIfEmpty(value, ruleParamDto.getDefaultValue()));
     }
+
     changes.add(change);
     // TODO filter changes without any differences
 
-    //Persist all changes to activeRule
-    ActiveRuleDto activeRule = persist(change, context, dbSession);
-
-    System.out.println("-- activated  key: " + activation.getKey() +
-      " -- Inheritance: " + activeRule.getInheritance());
+    persist(change, context, dbSession);
 
     // Execute the cascade on the child if NOT overrides
     changes.addAll(cascadeActivation(dbSession, activation));
