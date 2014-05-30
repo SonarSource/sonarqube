@@ -197,9 +197,9 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
    * Finder methods for ActiveRuleParams
    */
 
-  public List<ActiveRuleParamDto> findParamsByKey(DbSession session, ActiveRuleKey key) {
+  public List<ActiveRuleParamDto> findParamsByActiveRuleKey(DbSession session, ActiveRuleKey key) {
     Preconditions.checkNotNull(key, "ActiveRuleKey cannot be null");
-    ActiveRuleDto activeRule = getNullableByKey(session, key);
+    ActiveRuleDto activeRule = this.getByKey(session, key);
     return mapper(session).selectParamsByActiveRuleId(activeRule.getId());
   }
 
@@ -208,12 +208,6 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
     Preconditions.checkNotNull(name, "ParameterName cannot be null");
     ActiveRuleDto activeRule = getNullableByKey(session, key);
     return mapper(session).selectParamByActiveRuleAndKey(activeRule.getId(), name);
-  }
-
-
-  public List<ActiveRuleParamDto> findParamsByActiveRule(DbSession session, ActiveRuleDto dto) {
-    Preconditions.checkNotNull(dto.getId(), "ActiveRule is not persisted");
-    return mapper(session).selectParamsByActiveRuleId(dto.getId());
   }
 
   public List<ActiveRuleParamDto> findAllParams(DbSession session) {

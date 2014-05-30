@@ -96,7 +96,7 @@ public class RuleActivationContextFactory implements ServerComponent {
     ActiveRuleDto activeRule = db.activeRuleDao().getNullableByKey(session, key);
     Collection<ActiveRuleParamDto> activeRuleParams = null;
     if (activeRule != null) {
-      activeRuleParams = db.activeRuleDao().findParamsByActiveRule(session, activeRule);
+      activeRuleParams = db.activeRuleDao().findParamsByActiveRuleKey(session, key);
     }
     if (parent) {
       context.setParentActiveRule(activeRule);

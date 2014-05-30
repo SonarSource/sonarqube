@@ -149,7 +149,8 @@ public class ActiveRuleBackendMediumTest {
     dbSession.commit();
 
     // verify db
-    List<ActiveRuleParamDto> persistedDtos = db.activeRuleDao().findParamsByActiveRule(dbSession, activeRule);
+    List<ActiveRuleParamDto> persistedDtos =
+      db.activeRuleDao().findParamsByActiveRuleKey(dbSession, activeRule.getKey());
     assertThat(persistedDtos).hasSize(2);
 
     // verify es

@@ -104,7 +104,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
     List<UpdateRequest> requests = new ArrayList<UpdateRequest>();
     try {
       requests.addAll(normalize(db.activeRuleDao().getNullableByKey(dbSession, key)));
-      for (ActiveRuleParamDto param : db.activeRuleDao().findParamsByKey(dbSession, key)) {
+      for (ActiveRuleParamDto param : db.activeRuleDao().findParamsByActiveRuleKey(dbSession, key)) {
         requests.addAll(this.normalize(param, key));
       }
     } finally {
