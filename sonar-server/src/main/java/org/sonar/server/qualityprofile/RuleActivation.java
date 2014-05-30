@@ -34,6 +34,7 @@ public class RuleActivation {
   private final Map<String, String> parameters = Maps.newHashMap();
   private String severity = null;
   private boolean cascade = false;
+  private boolean reset = false;
 
   public RuleActivation(ActiveRuleKey key) {
     this.key = key;
@@ -45,6 +46,15 @@ public class RuleActivation {
 
   public RuleActivation isCascade(boolean cascade){
     this.cascade = cascade;
+    return this;
+  }
+
+  public boolean isReset() {
+    return this.reset;
+  }
+
+  public RuleActivation isReset(boolean reset){
+    this.reset = reset;
     return this;
   }
 

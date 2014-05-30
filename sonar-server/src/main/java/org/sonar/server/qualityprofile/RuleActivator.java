@@ -87,6 +87,7 @@ public class RuleActivator implements ServerComponent {
       ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), activation.getKey().ruleKey());
       changes.addAll(this.activate(new RuleActivation(activeRuleKey)
         .isCascade(true)
+        .isReset(activation.isReset())
         .setParameters(activation.getParameters())
         .setSeverity(activation.getSeverity()), session));
     }
@@ -129,16 +130,20 @@ public class RuleActivator implements ServerComponent {
         change.setInheritance(ActiveRule.Inheritance.INHERITED);
       }
     } else {
-      //Update propagated by inheritance on Rule that Overrides stops propagation
-      if (activation.isCascade() && context.activeRule().doesOverride()) {
-        return changes;
-      }
-
       change = new ActiveRuleChange(ActiveRuleChange.Type.UPDATED, activation.getKey());
 
-      //Updates on rule that exists with a valid parent switch them to OVERRIDE
-      if (!activation.isCascade() && context.parentProfile() != null) {
-        change.setInheritance(ActiveRule.Inheritance.OVERRIDES);
+      if(activation.isReset()){
+        change.setInheritance(ActiveRule.Inheritance.INHERITED);
+      } else {
+        //Update propagated by inheritance on Rule that Overrides stops propagation
+        if (activation.isCascade() && context.activeRule().doesOverride()){
+          return changes;
+        }
+
+        //Updates on rule that exists with a valid parent switch them to OVERRIDE
+        if (!activation.isCascade() && context.parentProfile() != null) {
+          change.setInheritance(ActiveRule.Inheritance.OVERRIDES);
+        }
       }
     }
 
@@ -339,6 +344,35 @@ public class RuleActivator implements ServerComponent {
     return results;
   }
 
-  public void reset(RuleActivation activation) {
+  public List<ActiveRuleChange> reset(RuleActivation activation) {
+    verifyPermission(UserSession.get());
+
+    DbSession dbSession = db.openSession(false);
+    List<ActiveRuleChange> changes = Lists.newArrayList();
+    try {
+      changes.addAll(this.reset(activation, dbSession));
+      if (!changes.isEmpty()) {
+        dbSession.commit();
+        previewCache.reportGlobalModification();
+      }
+
+    } finally {
+      dbSession.close();
+    }
+    return changes;
+  }
+
+  private List<ActiveRuleChange> reset(RuleActivation activation, DbSession dbSession) {
+
+    List<ActiveRuleChange> changes = Lists.newArrayList();
+    RuleActivationContext context = contextFactory.create(activation.getKey(), dbSession);
+
+    //now we instrumentalize the activation with values from parent.
+    activation.isReset(true)
+      .setParameters(context.parentActiveRuleParamsAsStringMap())
+      .setSeverity(context.defaultSeverity());
+
+    changes.addAll(this.activate(activation, dbSession));
+    return changes;
   }
 }

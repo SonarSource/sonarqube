@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -475,7 +474,6 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  @Ignore
   public void reset_activation_on_child_profile() throws Exception {
     grantPermission();
     createChildProfiles();
@@ -494,6 +492,7 @@ public class RuleActivatorMediumTest {
     activation.setSeverity(Severity.INFO);
     activation.setParameter("max", "10");
     ruleActivator.activate(activation);
+    dbSession.clearCache();
     verifyOneActiveRule(XOO_PROFILE_KEY, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
     verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.INFO, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "10"));
     verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.INFO, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "10"));
@@ -501,6 +500,7 @@ public class RuleActivatorMediumTest {
     // reset -> remove overridden values
     activation = new RuleActivation(ActiveRuleKey.of(XOO_CHILD_PROFILE_KEY, RuleKey.of("xoo", "x1")));
     ruleActivator.reset(activation);
+    dbSession.clearCache();
     verifyOneActiveRule(XOO_PROFILE_KEY, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
     verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
     verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));

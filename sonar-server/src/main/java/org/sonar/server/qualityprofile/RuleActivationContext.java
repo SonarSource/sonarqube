@@ -29,6 +29,7 @@ import org.sonar.core.rule.RuleParamDto;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 class RuleActivationContext {
@@ -106,6 +107,15 @@ class RuleActivationContext {
   @CheckForNull
   Map<String, ActiveRuleParamDto> activeRuleParamsAsMap() {
     return activeRuleParams;
+  }
+
+  @CheckForNull
+  Map<String, String> parentActiveRuleParamsAsStringMap() {
+    Map<String, String> params = new HashMap<String, String>();
+    for(Map.Entry<String, ActiveRuleParamDto> param:parentActiveRuleParams.entrySet()) {
+      params.put(param.getKey(), param.getValue().getValue());
+    }
+    return params;
   }
 
   @CheckForNull
