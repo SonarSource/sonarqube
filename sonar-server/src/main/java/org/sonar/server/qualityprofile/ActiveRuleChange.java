@@ -36,6 +36,7 @@ public class ActiveRuleChange {
   private final ActiveRuleKey key;
   private boolean inheritedChange = false;
   private String previousSeverity = null, severity = null;
+  private ActiveRule.Inheritance previousInheritance = null, inheritance = null;
   private Map<String, String> parameters = Maps.newHashMap();
 
   ActiveRuleChange(Type type, ActiveRuleKey key) {
@@ -75,6 +76,15 @@ public class ActiveRuleChange {
 
   public void setSeverity(@Nullable String severity) {
     this.severity = severity;
+  }
+
+  public void setInheritance(@Nullable ActiveRule.Inheritance inheritance) {
+    this.inheritance = inheritance;
+  }
+
+  @CheckForNull
+  public ActiveRule.Inheritance getInheritance(){
+    return this.inheritance;
   }
 
   @CheckForNull

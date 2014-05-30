@@ -33,9 +33,19 @@ public class RuleActivation {
   private final ActiveRuleKey key;
   private final Map<String, String> parameters = Maps.newHashMap();
   private String severity = null;
+  private boolean cascade = false;
 
   public RuleActivation(ActiveRuleKey key) {
     this.key = key;
+  }
+
+  public boolean isCascade(){
+    return this.cascade;
+  }
+
+  public RuleActivation isCascade(boolean cascade){
+    this.cascade = cascade;
+    return this;
   }
 
   public RuleActivation setSeverity(@Nullable String s) {
