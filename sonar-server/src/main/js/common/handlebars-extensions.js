@@ -228,6 +228,21 @@ define(['handlebars', 'moment'], function (Handlebars, moment) {
     }, '');
   });
 
+  Handlebars.registerHelper('changelog', function(diff) {
+    var message = '';
+    if (diff.newValue != null) {
+      message = tp('issue.changelog.changed_to', t('issue.changelog.field', diff.key), diff.newValue);
+    } else {
+      message = tp('issue.changelog.removed', t('issue.changelog.field', diff.key));
+    }
+    if (diff.oldValue != null) {
+      message += ' (';
+      message += tp('issue.changelog.was', diff.oldValue);
+      message += ')';
+    }
+    return message;
+  });
+
   Handlebars.registerHelper('componentViewerHeaderLink', function(value, label, cl, hash) {
     var name = '_header-link';
     if (value != null) {

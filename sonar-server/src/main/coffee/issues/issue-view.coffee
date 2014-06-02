@@ -5,6 +5,9 @@ define [
   'issues/models/rule'
   'issues/views/rule-view'
 
+  'issues/models/change-log'
+  'issues/views/change-log-view'
+
   'issues/collections/action-plans'
 
   'issues/views/assign-form-view'
@@ -18,6 +21,9 @@ define [
 
   Rule
   RuleView
+
+  ChangeLog
+  ChangeLogView
 
   ActionPlans
 
@@ -39,6 +45,7 @@ define [
     regions:
       formRegion: '.code-issue-form'
       ruleRegion: '#tab-issue-rule'
+      changeLogRegion: '#tab-issue-changelog'
 
 
     modelEvents:
@@ -51,6 +58,7 @@ define [
       'click .code-issue-toggle': 'toggleCollapsed',
 
       'click [href=#tab-issue-rule]': 'fetchRule',
+      'click [href=#tab-issue-changelog]': 'fetchChangeLog',
 
       'click #issue-comment': 'comment',
       'click .issue-comment-edit': 'editComment',
@@ -68,6 +76,8 @@ define [
       @$('.code-issue-form').hide()
       @rule = new Rule key: this.model.get('rule')
       @ruleRegion.show new RuleView model: @rule, issue: @model
+      @changeLog = new ChangeLog()
+      @changeLogRegion.show new ChangeLogView collection: @changeLog, issue: @model
 
 
     setDetailScope: ->
@@ -95,6 +105,14 @@ define [
         @$('#tab-issue-rule').addClass 'navigator-fetching'
         @rule.fetch
           success: => @$('#tab-issue-rule').removeClass 'navigator-fetching'
+
+
+    fetchChangeLog: ->
+      unless @changeLog.length > 0
+        @$('#tab-issue-changeLog').addClass 'navigator-fetching'
+        @changeLog.fetch
+          data: issue: @model.get 'key'
+          success: => @$('#tab-issue-changelog').removeClass 'navigator-fetching'
 
 
     showActionView: (view) ->

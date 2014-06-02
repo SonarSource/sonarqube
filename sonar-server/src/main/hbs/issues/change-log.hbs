@@ -1,0 +1,15 @@
+<table class="spaced">
+  <tbody>
+  {{#each items}}
+    <tr>
+      <td class="thin left top" nowrap>{{dt creationDate}}</td>
+      <td class="thin left top" nowrap>{{user}}</td>
+      <td class="left top">
+        {{#each diffs}}
+          {{changelog this}}<br>
+        {{/each}}
+      </td>
+    </tr>
+  {{/each}}
+  </tbody>
+</table>
