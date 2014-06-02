@@ -39,16 +39,20 @@
         <div class="button-group">
           <button class="coding-rules-detail-quality-profile-change">{{t 'change_verb'}}</button>
           {{#if parent}}
+            {{#eq inherit 'OVERRIDES'}}
             <button class="coding-rules-detail-quality-profile-revert button-red">
               {{t 'coding_rules.revert_to_parent_definition'}}
             </button>
+            {{/eq}}
+          {{else}}
+            <button class="coding-rules-detail-quality-profile-deactivate button-red">
+              {{t 'coding_rules.deactivate'}}
+            </button>
           {{/if}}
-          <button class="coding-rules-detail-quality-profile-deactivate button-red">
-            {{t 'coding_rules.deactivate'}}
-          </button>
         </div>
       </td>
       {{/if}}
+
     {{else}}
       {{#if canWrite}}
       <td class="coding-rules-detail-quality-profile-actions">

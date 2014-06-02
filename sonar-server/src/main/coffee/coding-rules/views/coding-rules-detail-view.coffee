@@ -55,23 +55,27 @@ define [
 
 
     initialize: (options) ->
+      super options
+
       qualityProfiles = new Backbone.Collection options.actives
       @qualityProfilesView = new CodingRulesDetailQualityProfilesView
         app: @options.app
         collection: qualityProfiles
         rule: @model
 
-      qualityProfile = @options.app.getQualityProfile()
-      if qualityProfile
-        @contextProfile = qualityProfiles.findWhere qProfile: qualityProfile
+      qualityProfileKey = @options.app.getQualityProfile()
+
+      if qualityProfileKey
+        @contextProfile = qualityProfiles.findWhere qProfile: qualityProfileKey
         unless @contextProfile
           @contextProfile = new Backbone.Model
-            key: qualityProfile, name: @options.app.qualityProfileFilter.view.renderValue()
+            key: qualityProfileKey, name: @options.app.qualityProfileFilter.view.renderValue()
         @contextQualityProfileView = new CodingRulesDetailQualityProfileView
           app: @options.app
           model: @contextProfile
           rule: @model
           qualityProfiles: qualityProfiles
+
         @listenTo @contextProfile, 'destroy', @hideContext
 
       @model.set 'language', @options.app.languages[@model.get 'lang']
@@ -153,7 +157,6 @@ define [
           key: @model.get 'key'
           markdown_note: @ui.extendDescriptionText.val()
       .done (r) =>
-        console.log r
         @model.set
           htmlNote: r.rule.htmlNote
           mdNote: r.rule.mdNote

@@ -37,25 +37,17 @@ define [
       severity = @ui.qualityProfileSeverity.val()
 
       @$('.modal-foot').html '<i class="spinner"></i>'
+      ruleKey = @rule.get('key')
       jQuery.ajax
         type: 'POST'
         url: "#{baseUrl}/api/qualityprofiles/activate_rule"
         data:
-            profile_key: profileKey
-            rule_key: @rule.get('key')
-            severity: severity
-            params: paramsHash
+          profile_key: profileKey
+          rule_key: ruleKey
+          severity: severity
+          params: paramsHash
       .done =>
-          if @model
-            @model.set severity: severity, params: params
-          else
-            model = new Backbone.Model
-              name: _.findWhere(@options.app.qualityProfiles, key: profileKey).name
-              key: profileKey
-              severity: severity
-              params: params
-            @options.app.detailView.qualityProfilesView.collection.add model
-
+          @options.app.showRule ruleKey
           @hide()
 
 

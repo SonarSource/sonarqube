@@ -28,6 +28,7 @@ requirejs [
   'coding-rules/views/actions-view',
   'coding-rules/views/filter-bar-view',
   'coding-rules/views/coding-rules-list-view',
+  'coding-rules/views/coding-rules-detail-view',
   'coding-rules/views/coding-rules-bulk-change-view',
   'coding-rules/views/coding-rules-quality-profile-activation-view',
   'coding-rules/views/coding-rules-bulk-change-dropdown-view'
@@ -60,6 +61,7 @@ requirejs [
   CodingRulesActionsView,
   CodingRulesFilterBarView,
   CodingRulesListView,
+  CodingRulesDetailView,
   CodingRulesBulkChangeView,
   CodingRulesQualityProfileActivationView,
   CodingRulesBulkChangeDropdownView
@@ -198,6 +200,23 @@ requirejs [
   App.getQualityProfile = ->
     value = @qualityProfileFilter.get('value')
     if value? && value.length == 1 then value[0] else null
+
+
+  App.showRule = (ruleKey) ->
+    App.layout.showSpinner 'detailsRegion'
+    jQuery.ajax
+      url: "#{baseUrl}/api/rules/show"
+      data:
+        key: ruleKey
+        actives: true
+    .done (r) =>
+      rule = new Backbone.Model(r.rule)
+      App.codingRulesQualityProfileActivationView.rule = rule
+      App.detailView = new CodingRulesDetailView
+        app: App
+        model: rule
+        actives: r.actives
+      App.layout.detailsRegion.show App.detailView
 
 
   # Construct layout

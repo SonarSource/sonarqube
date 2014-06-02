@@ -37,23 +37,30 @@ define [
 
 
     revert: ->
+      ruleKey = @options.rule.get('key')
       if confirm t 'are_you_sure'
-        parent = @getParent()
-        parameters = @model.get('parameters').map (p) ->
-          _.extend {}, p, value: _.findWhere(parent.parameters, key: p.key).value
-        @model.set 'parameters', parameters
+        that = @
+        jQuery.ajax
+          type: 'POST'
+          url: "#{baseUrl}/api/qualityprofiles/activate_rule"
+          data:
+              profile_key: @model.get('qProfile')
+              rule_key: ruleKey
+        .done =>
+          @options.app.showRule ruleKey
 
 
     deactivate: ->
+      ruleKey = @options.rule.get('key')
       if confirm t 'are_you_sure'
         jQuery.ajax
           type: 'POST'
           url: "#{baseUrl}/api/qualityprofiles/deactivate_rule"
           data:
             profile_key: @model.get('qProfile')
-            rule_key: @options.rule.get('key')
+            rule_key: ruleKey
         .done =>
-          @model.destroy()
+          @options.app.showRule ruleKey
 
 
     enableUpdate: ->
@@ -63,7 +70,9 @@ define [
     getParent: ->
       return null unless @model.get('inherit') && @model.get('inherit') != 'NONE'
       parentKey = @model.get('parent') + ':' + @model.get('lang')
-      _.findWhere(@options.app.qualityProfiles, key: parentKey)
+      parent = _.extend {}, _.findWhere(@options.app.qualityProfiles, key: parentKey)
+      _.extend parent, severity: @model.collection.findWhere(qProfile: parentKey).get 'severity'
+      parent
 
 
     enhanceParameters: ->
@@ -75,7 +84,7 @@ define [
 
 
     serializeData: ->
-      _.extend super,
+      hash = _.extend super,
         parent: @getParent()
         parameters: @enhanceParameters()
         canWrite: @options.app.canWrite

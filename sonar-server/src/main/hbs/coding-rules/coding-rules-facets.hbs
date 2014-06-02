@@ -1,4 +1,7 @@
 <div class="navigator-facets-list">
+  {{#unless items}}
+  {{t 'coding_rules.no_results'}}
+  {{/unless}}
   {{#each items}}
     <div class="navigator-facets-list-item" data-property="{{property}}">
       <div class="navigator-facets-list-item-name">{{t property_message}}</div>
