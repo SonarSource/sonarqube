@@ -69,11 +69,13 @@ public class RuleActivationActions implements ServerComponent {
     defineActiveRuleKeyParameters(activate);
 
     activate.createParam(SEVERITY)
-      .setDescription("Severity")
+      .setDescription("Severity. An empty value resets to the severity inherited from parent profile or to " +
+        "the default rule severity.")
       .setPossibleValues(Severity.ALL);
 
     activate.createParam(PARAMS)
-      .setDescription("Parameters");
+      .setDescription("Parameters as semi-colon list of <key>=<value>, for example 'params=key1=v1;key2=v2'. A parameter " +
+        "with empty value is reset to the value inherited from parent profile or to the parameter default value.");
   }
 
   private void defineDeactivateAction(WebService.NewController controller) {

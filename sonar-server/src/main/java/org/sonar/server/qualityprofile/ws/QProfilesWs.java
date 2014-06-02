@@ -40,7 +40,7 @@ public class QProfilesWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController(API_ENDPOINT)
-      .setDescription("Quality profiles management")
+      .setDescription("Quality Profiles")
       .setSince("4.4");
 
     recreateBuiltInAction.define(controller);

@@ -154,7 +154,8 @@ public class SearchAction implements RequestHandler {
 
     action
       .createParam(PARAM_ACTIVATION)
-      .setDescription("TODO")
+      .setDescription("Filter rules that are activated or deactivated on the selected Quality profile. Ignored if " +
+        "the parameter '" + PARAM_QPROFILE + "' is not set.")
       .setBooleanPossibleValues();
 
     action
