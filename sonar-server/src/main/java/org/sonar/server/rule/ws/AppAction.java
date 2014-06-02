@@ -81,20 +81,26 @@ public class AppAction implements RequestHandler {
   private void addProfiles(JsonWriter json) {
     json.name("qualityprofiles").beginArray();
     for (QualityProfileDto profile : qualityProfileService.findAll()) {
-      json.beginObject()
-        .prop("key", profile.getKey().toString())
-        .prop("name", profile.getName())
-        .prop("lang", profile.getLanguage())
-        .prop("parent", profile.getParent());
-      if (profile.getParentKey() != null) {
-        json
-          .prop("parentKey", profile.getParentKey().toString());
+      if (languageIsSupported(profile)) {
+        json.beginObject()
+          .prop("key", profile.getKey().toString())
+          .prop("name", profile.getName())
+          .prop("lang", profile.getLanguage())
+          .prop("parent", profile.getParent());
+        if (profile.getParentKey() != null) {
+          json
+            .prop("parentKey", profile.getParentKey().toString());
 
+        }
+        json
+          .endObject();
       }
-      json
-        .endObject();
     }
     json.endArray();
+  }
+
+  private boolean languageIsSupported(QualityProfileDto profile) {
+    return languages.get(profile.getLanguage()) != null;
   }
 
   private void addLanguages(JsonWriter json) {

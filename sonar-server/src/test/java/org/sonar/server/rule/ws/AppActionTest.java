@@ -75,7 +75,8 @@ public class AppActionTest {
 
     QualityProfileDto profile1 = QualityProfileDto.createFor("Profile One", "bf");
     QualityProfileDto profile2 = QualityProfileDto.createFor("Profile Two", "bf").setParent("Profile One");
-    when(qualityProfileService.findAll()).thenReturn(ImmutableList.of(profile1, profile2));
+    QualityProfileDto profile3 = QualityProfileDto.createFor("Profile Three", "polop");
+    when(qualityProfileService.findAll()).thenReturn(ImmutableList.of(profile1, profile2, profile3));
 
     Language brainfsck = mock(Language.class);
     when(brainfsck.getKey()).thenReturn("bf");
@@ -83,6 +84,7 @@ public class AppActionTest {
     Language whitespace = mock(Language.class);
     when(whitespace.getKey()).thenReturn("ws");
     when(whitespace.getName()).thenReturn("Whitespace");
+    when(languages.get("bf")).thenReturn(brainfsck);
     when(languages.all()).thenReturn(new Language[]{brainfsck, whitespace});
 
     RuleRepositories.Repository repo1 = mock(RuleRepositories.Repository.class);
