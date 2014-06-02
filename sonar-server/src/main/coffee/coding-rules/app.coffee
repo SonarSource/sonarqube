@@ -45,6 +45,7 @@ requirejs [
   'coding-rules/views/filters/characteristic-filter-view',
   'coding-rules/views/filters/repository-filter-view',
   'coding-rules/views/filters/tag-filter-view',
+  'coding-rules/views/filters/language-filter-view',
 
   'coding-rules/mockjax',
   'common/handlebars-extensions'
@@ -75,7 +76,8 @@ requirejs [
   ActivationFilterView,
   CharacteristicFilterView,
   RepositoryFilterView,
-  TagFilterView
+  TagFilterView,
+  LanguageFilterView
 ) ->
 
   # Create a generic error handler for ajax requests
@@ -249,7 +251,8 @@ requirejs [
     @languageFilter =  new BaseFilters.Filter
       name: t 'coding_rules.filters.language'
       property: 'languages'
-      type: ChoiceFilters.ChoiceFilterView
+      type: LanguageFilterView
+      app: @
       choices: @languages
       optional: true
     @filters.add @languageFilter
