@@ -104,9 +104,6 @@ public class RuleActivationActions implements ServerComponent {
   }
 
 
-  private void reset(Request request, Response response) {
-  }
-
   private void activate(Request request, Response response) throws Exception {
     ActiveRuleKey key = readKey(request);
     RuleActivation activation = new RuleActivation(key);

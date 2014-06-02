@@ -112,7 +112,7 @@ class RuleActivationContext {
   @CheckForNull
   Map<String, String> parentActiveRuleParamsAsStringMap() {
     Map<String, String> params = new HashMap<String, String>();
-    for(Map.Entry<String, ActiveRuleParamDto> param:parentActiveRuleParams.entrySet()) {
+    for (Map.Entry<String, ActiveRuleParamDto> param : parentActiveRuleParams.entrySet()) {
       params.put(param.getKey(), param.getValue().getValue());
     }
     return params;
@@ -133,11 +133,6 @@ class RuleActivationContext {
     return this;
   }
 
-  @CheckForNull
-  Map<String, ActiveRuleParamDto> parentActiveRuleParams() {
-    return parentActiveRuleParams;
-  }
-
   RuleActivationContext setParentActiveRuleParams(@Nullable Collection<ActiveRuleParamDto> a) {
     parentActiveRuleParams.clear();
     if (a != null) {
@@ -150,5 +145,18 @@ class RuleActivationContext {
 
   String defaultSeverity() {
     return parentActiveRule != null ? parentActiveRule.getSeverityString() : rule.getSeverityString();
+  }
+
+  @CheckForNull
+  String defaultParam(String paramKey) {
+    ActiveRuleParamDto parentParam = parentActiveRuleParams.get(paramKey);
+    if (parentParam != null) {
+      return parentParam.getValue();
+    }
+    RuleParamDto ruleParam = ruleParams.get(paramKey);
+    if (ruleParam == null) {
+      throw new IllegalStateException(String.format("Rule parameter %s does not exist", paramKey));
+    }
+    return ruleParam.getDefaultValue();
   }
 }

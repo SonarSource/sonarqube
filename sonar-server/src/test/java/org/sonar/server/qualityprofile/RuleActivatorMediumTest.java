@@ -394,7 +394,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void do_not_propagate_activation_update_on_overriding_child_profiles() throws Exception {
+  public void do_not_propagate_activation_update_on_child_overrides() throws Exception {
     grantPermission();
     createChildProfiles();
 
@@ -499,11 +499,54 @@ public class RuleActivatorMediumTest {
 
     // reset -> remove overridden values
     activation = new RuleActivation(ActiveRuleKey.of(XOO_CHILD_PROFILE_KEY, RuleKey.of("xoo", "x1")));
-    ruleActivator.reset(activation);
+    ruleActivator.activate(activation);
     dbSession.clearCache();
     verifyOneActiveRule(XOO_PROFILE_KEY, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
     verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
     verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+  }
+
+  @Test
+  public void activation_reset_does_not_propagate_to_child_overrides() throws Exception {
+    grantPermission();
+    createChildProfiles();
+
+    // activate on root profile
+    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, RuleKey.of("xoo", "x1")));
+    activation.setSeverity(Severity.BLOCKER);
+    activation.setParameter("max", "7");
+    ruleActivator.activate(activation);
+    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+
+    // override on child
+    activation = new RuleActivation(ActiveRuleKey.of(XOO_CHILD_PROFILE_KEY, RuleKey.of("xoo", "x1")));
+    activation.setSeverity(Severity.INFO);
+    activation.setParameter("max", "10");
+    ruleActivator.activate(activation);
+    dbSession.clearCache();
+    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.INFO, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "10"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.INFO, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "10"));
+
+    // override on grand child
+    activation = new RuleActivation(ActiveRuleKey.of(XOO_GRAND_CHILD_PROFILE_KEY, RuleKey.of("xoo", "x1")));
+    activation.setSeverity(Severity.MINOR);
+    activation.setParameter("max", "20");
+    ruleActivator.activate(activation);
+    dbSession.clearCache();
+    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.INFO, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "10"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.MINOR, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "20"));
+
+    // reset child -> keep the overridden grand-child
+    activation = new RuleActivation(ActiveRuleKey.of(XOO_CHILD_PROFILE_KEY, RuleKey.of("xoo", "x1")));
+    ruleActivator.activate(activation);
+    dbSession.clearCache();
+    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.MINOR, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "20"));
   }
 
   private void verifyOneActiveRule(QualityProfileKey profileKey, String expectedSeverity,
@@ -557,8 +600,6 @@ public class RuleActivatorMediumTest {
     dbSession.clearCache();
     List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(dbSession, key);
     assertThat(activeRuleDtos).isEmpty();
-    //TODO check that assertion is required with Simon
-    //assertThat(db.activeRuleDao().findParamsByActiveRuleKey(dbSession,key)).isEmpty();
 
     // verify es
     List<ActiveRule> activeRules = index.findByProfile(key);

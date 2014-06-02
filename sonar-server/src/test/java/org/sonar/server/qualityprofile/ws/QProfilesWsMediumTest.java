@@ -82,12 +82,11 @@ public class QProfilesWsMediumTest {
     WebService.Controller controller = context.controller(QProfilesWs.API_ENDPOINT);
 
     assertThat(controller).isNotNull();
-    assertThat(controller.actions()).hasSize(6);
+    assertThat(controller.actions()).hasSize(5);
     assertThat(controller.action(BulkRuleActivationActions.BULK_ACTIVATE_ACTION)).isNotNull();
     assertThat(controller.action(BulkRuleActivationActions.BULK_DEACTIVATE_ACTION)).isNotNull();
     assertThat(controller.action(RuleActivationActions.ACTIVATE_ACTION)).isNotNull();
     assertThat(controller.action(RuleActivationActions.DEACTIVATE_ACTION)).isNotNull();
-    assertThat(controller.action(RuleResetAction.RESET_ACTION)).isNotNull();
     assertThat(controller.action(API_BUILT_IN_METHOD)).isNotNull();
   }
 
@@ -95,7 +94,7 @@ public class QProfilesWsMediumTest {
   public void deactivate_rule() throws Exception {
     QualityProfileDto profile = getProfile("java");
     RuleDto rule = getRule(profile.getLanguage(), "toto");
-    ActiveRuleDto activeRule = getActiveRule(rule, profile);
+    getActiveRule(rule, profile);
     session.commit();
 
     // 0. Assert No Active Rule for profile
@@ -105,7 +104,7 @@ public class QProfilesWsMediumTest {
     WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, RuleActivationActions.DEACTIVATE_ACTION);
     request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
     request.setParam(RuleActivationActions.RULE_KEY, rule.getKey().toString());
-    WsTester.Result result = request.execute();
+    request.execute();
     session.clearCache();
 
     // 2. Assert ActiveRule in DAO
@@ -170,7 +169,8 @@ public class QProfilesWsMediumTest {
     RuleDto rule0 = getRule(profile.getLanguage(), "hello");
     RuleDto rule1 = getRule(profile.getLanguage(), "world");
     getActiveRule(rule0, profile);
-    getActiveRule(rule1, profile);;
+    getActiveRule(rule1, profile);
+    ;
     session.commit();
 
     // 0. Assert No Active Rule for profile
@@ -381,18 +381,15 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().getByKey(session, active2.getKey()).getSeverityString()).isEqualTo("MINOR");
 
     // 1. reset child rule
-    WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, RuleResetAction.RESET_ACTION);
+    WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, RuleActivationActions.ACTIVATE_ACTION);
     request.setParam(RuleActivationActions.PROFILE_KEY, subProfile.getKey().toString());
     request.setParam(RuleActivationActions.RULE_KEY, rule.getKey().toString());
-    WsTester.Result result = request.execute();
+    request.execute();
     session.clearCache();
 
-    // 0. assert rule child rule is NOT minor
+    // 2. assert rule child rule is NOT minor
     assertThat(db.activeRuleDao().getByKey(session, active2.getKey()).getSeverityString()).isNotEqualTo("MINOR");
-
-
   }
-
 
 
   private QualityProfileDto getProfile(String lang) {

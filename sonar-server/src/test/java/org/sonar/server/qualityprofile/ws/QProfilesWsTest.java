@@ -42,8 +42,7 @@ public class QProfilesWsTest {
     controller = new WsTester(new QProfilesWs(new QProfileRecreateBuiltInAction(
       mock(QProfileBackup.class)),
       new RuleActivationActions(ruleActivator),
-      new BulkRuleActivationActions(ruleActivator, ruleService),
-      new RuleResetAction(ruleActivator)
+      new BulkRuleActivationActions(ruleActivator, ruleService)
     )).controller(QProfilesWs.API_ENDPOINT);
   }
 
@@ -52,7 +51,7 @@ public class QProfilesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo(QProfilesWs.API_ENDPOINT);
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(6);
+    assertThat(controller.actions()).hasSize(5);
   }
 
   @Test

@@ -140,7 +140,7 @@ public class RegisterQualityProfiles implements ServerComponent {
         for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
           activation.setParameter(param.getKey(), param.getValue());
         }
-        ruleActivator.activate(activation, session);
+        ruleActivator.activate(session, activation);
       }
     }
 

@@ -73,8 +73,6 @@ public interface ActiveRuleMapper {
 
   List<ActiveRuleParamDto> selectParamsByProfileId(int profileId);
 
-  List<ActiveRuleParamDto> selectAllParams();
-
   ActiveRuleDto selectByKey(@Param("profile") String profile, @Param("language") String language,
                             @Param("repository") String repository, @Param("rule") String rule );
 }

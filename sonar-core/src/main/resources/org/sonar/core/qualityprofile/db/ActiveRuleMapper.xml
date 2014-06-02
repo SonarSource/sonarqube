@@ -237,9 +237,6 @@
     where ar.profile_id=#{profileId}
   </select>
 
-  <select id="selectAllParams" parameterType="map" resultType="ActiveRuleParam">
-    SELECT <include refid="activeRuleParamColumns"/>
-    FROM active_rule_parameters p
-  </select>
+
 </mapper>
 

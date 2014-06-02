@@ -182,17 +182,6 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
     return mapper(session).selectByProfileKey(profileKey);
   }
 
-  public void removeParamByProfileKey(DbSession session, QualityProfileKey profileKey) {
-    int id = this.getQualityProfileId(session, profileKey);
-    mapper(session).deleteParametersFromProfile(id);
-  }
-
-  @Deprecated
-  //TODO Needed until SQL rewrite with KEY fields.
-  private int getQualityProfileId(DbSession session, QualityProfileKey profileKey) {
-    return profileDao.selectByNameAndLanguage(profileKey.name(), profileKey.lang(), session).getId();
-  }
-
   /**
    * Finder methods for ActiveRuleParams
    */
@@ -208,10 +197,6 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
     Preconditions.checkNotNull(name, "ParameterName cannot be null");
     ActiveRuleDto activeRule = getNullableByKey(session, key);
     return mapper(session).selectParamByActiveRuleAndKey(activeRule.getId(), name);
-  }
-
-  public List<ActiveRuleParamDto> findAllParams(DbSession session) {
-    return mapper(session).selectAllParams();
   }
 
   @Deprecated

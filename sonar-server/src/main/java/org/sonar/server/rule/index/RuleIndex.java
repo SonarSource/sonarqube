@@ -272,7 +272,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
   @Override
   protected Rule toDoc(Map<String, Object> fields) {
-    Preconditions.checkArgument(fields != null, "Cannot construct Rule with null response!!!");
+    Preconditions.checkNotNull(fields, "Cannot construct Rule with null response!!!");
     return new RuleDoc(fields);
   }
 
