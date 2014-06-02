@@ -50,6 +50,7 @@ import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -698,9 +699,12 @@ public class RuleIndexMediumTest {
     List<Rule> hits = index.search(availableSinceQuery, QueryOptions.DEFAULT).getHits();
     assertThat(hits).hasSize(1);
 
-    // 2. find no new rules since now.
+    // 2. find no new rules since tomorrow.
+    Calendar c = Calendar.getInstance();
+    c.setTime(since);
+    c.add(Calendar.DATE, 1);  // number of days to add
     RuleQuery availableSinceNowQuery = new RuleQuery()
-      .setAvailableSince(new Date());
+      .setAvailableSince(c.getTime());
     assertThat(index.search(availableSinceNowQuery, QueryOptions.DEFAULT).getHits()).hasSize(0);
   }
 
