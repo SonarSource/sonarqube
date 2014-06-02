@@ -50,8 +50,10 @@ public class IndexDefinition {
     return MANAGEMENT_TYPE;
   }
 
-  public static IndexDefinition RULE = new IndexDefinition("rules","rules");
-  public static IndexDefinition ACTIVE_RULE = new IndexDefinition("rules","activeRules");
+  public static final IndexDefinition RULE = new IndexDefinition("rules","rules");
+  public static final IndexDefinition ACTIVE_RULE = new IndexDefinition("rules","activeRules");
+  public static final IndexDefinition LOG = new IndexDefinition("logs","sonarLogs");
+
 
   @VisibleForTesting
   protected static IndexDefinition TEST = new IndexDefinition("test","test");

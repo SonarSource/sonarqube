@@ -30,6 +30,7 @@ import org.sonar.server.search.BaseDoc;
 import org.sonar.server.search.IndexUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,7 @@ import java.util.Map;
  */
 public class RuleDoc extends BaseDoc implements Rule {
 
-  RuleDoc(Map<String, Object> fields) {
+  RuleDoc(@Nullable Map<String, Object> fields) {
     super(fields);
   }
 
@@ -97,7 +98,11 @@ public class RuleDoc extends BaseDoc implements Rule {
 
   @Override
   public List<String> tags() {
-    return (List<String>) getField(RuleNormalizer.RuleField.TAGS.field());
+    if(List.class.isAssignableFrom(RuleNormalizer.RuleField.TAGS.field().getClass())) {
+      return (List<String>) getField(RuleNormalizer.RuleField.TAGS.field());
+    } else {
+      return Collections.emptyList();
+    }
   }
 
   @Override

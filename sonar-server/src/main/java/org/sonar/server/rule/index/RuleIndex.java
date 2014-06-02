@@ -38,6 +38,7 @@ import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.search.*;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.*;
 
@@ -267,8 +268,8 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
 
   @Override
-  protected Rule toDoc(Map<String, Object> fields) {
-    Preconditions.checkNotNull(fields, "Cannot construct Rule with null response!!!");
+  protected Rule toDoc(@Nullable Map<String, Object> fields) {
+    Preconditions.checkArgument(fields != null, "Cannot construct Rule with null response!!!");
     return new RuleDoc(fields);
   }
 
@@ -289,8 +290,10 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     Terms aggregation = esResponse.getAggregations().get(key);
 
-    for (Terms.Bucket value : aggregation.getBuckets()) {
-      tags.add(value.getKey());
+    if(aggregation != null) {
+      for (Terms.Bucket value : aggregation.getBuckets()) {
+        tags.add(value.getKey());
+      }
     }
     return tags;
   }

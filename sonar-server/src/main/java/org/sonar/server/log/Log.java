@@ -17,27 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.search;
+package org.sonar.server.log;
 
-import org.elasticsearch.action.update.UpdateRequest;
-import org.sonar.core.persistence.Dto;
-import org.sonar.server.db.DbClient;
-
-import java.io.Serializable;
-
-public abstract class BaseNormalizer<DTO extends Dto<KEY>, KEY extends Serializable> {
-
-  protected final DbClient db;
-  protected final IndexDefinition definition;
-
-  protected BaseNormalizer(IndexDefinition definition, DbClient db) {
-    this.db = db;
-    this.definition = definition;
-  }
-
-  public abstract java.util.List<UpdateRequest> normalize(Object object, Object key);
-
-  public abstract java.util.List<UpdateRequest> normalize(K key);
-
-  public abstract java.util.List<UpdateRequest> normalize(E dto);
+/**
+ * @since 4.4
+ */
+public interface Log {
 }
