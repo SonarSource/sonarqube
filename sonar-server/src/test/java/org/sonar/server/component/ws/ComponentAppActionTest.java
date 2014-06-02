@@ -25,6 +25,8 @@ import com.google.common.collect.Multiset;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.i18n.I18n;
@@ -58,9 +60,13 @@ import java.util.List;
 import java.util.Locale;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ComponentAppActionTest {
@@ -97,6 +103,9 @@ public class ComponentAppActionTest {
 
   @Mock
   I18n i18n;
+
+  @Captor
+  ArgumentCaptor<List<String>> measureKeysCaptor;
 
   List<MeasureDto> measures = newArrayList();
 
@@ -167,7 +176,7 @@ public class ComponentAppActionTest {
   public void app_with_measures() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
 
-    addProjectSample();
+    addComponent();
 
     addMeasure(CoreMetrics.NCLOC_KEY, 200);
     addMeasure(CoreMetrics.COVERAGE_KEY, 95.4);
@@ -184,13 +193,38 @@ public class ComponentAppActionTest {
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
     request.execute().assertJson(getClass(), "app_with_measures.json");
+
+    verify(measureDao).findByComponentKeyAndMetricKeys(eq(COMPONENT_KEY), measureKeysCaptor.capture(), eq(session));
+    assertThat(measureKeysCaptor.getValue()).contains(CoreMetrics.NCLOC_KEY, CoreMetrics.COVERAGE_KEY, CoreMetrics.DUPLICATED_LINES_DENSITY_KEY,
+      CoreMetrics.TECHNICAL_DEBT_KEY, CoreMetrics.VIOLATIONS_KEY,
+      CoreMetrics.BLOCKER_VIOLATIONS_KEY, CoreMetrics.CRITICAL_VIOLATIONS_KEY, CoreMetrics.MAJOR_VIOLATIONS_KEY, CoreMetrics.MINOR_VIOLATIONS_KEY, CoreMetrics.INFO_VIOLATIONS_KEY);
+  }
+
+  @Test
+  public void app_with_tests_measure() throws Exception {
+    String componentKey = "org.codehaus.sonar:sonar-server:src/test/java/org/sonar/server/issue/PlanActionTest.java";
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, componentKey);
+
+    ComponentDto file = new ComponentDto().setId(10L).setQualifier("UTS").setKey(componentKey).setName("PlanActionTest.java")
+      .setPath("src/test/java/org/sonar/server/issue/PlanActionTest.java").setSubProjectId(5L).setProjectId(1L);
+    when(componentDao.getNullableByKey(session, componentKey)).thenReturn(file);
+    when(componentDao.getById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API"));
+    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
+
+    addMeasure(CoreMetrics.TESTS_KEY, 10);
+
+    WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", componentKey);
+    request.execute().assertJson(getClass(), "app_with_tests_measure.json");
+
+    verify(measureDao).findByComponentKeyAndMetricKeys(eq(componentKey), measureKeysCaptor.capture(), eq(session));
+    assertThat(measureKeysCaptor.getValue()).contains(CoreMetrics.TESTS_KEY);
   }
 
   @Test
   public void app_with_periods() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
 
-    addProjectSample();
+    addComponent();
 
     when(resourceDao.getLastSnapshotByResourceId(eq(1L), eq(session))).thenReturn(
       new SnapshotDto().setPeriod1Mode("previous_analysis").setPeriod1Date(DateUtils.parseDate("2014-05-08"))
@@ -205,7 +239,7 @@ public class ComponentAppActionTest {
   public void app_with_severities() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
 
-    addProjectSample();
+    addComponent();
 
     Multiset<String> severities = HashMultiset.create();
     severities.add("MAJOR", 5);
@@ -220,7 +254,7 @@ public class ComponentAppActionTest {
   public void app_with_rules() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
 
-    addProjectSample();
+    addComponent();
     when(issueService.findRulesByComponent(COMPONENT_KEY, session)).thenReturn(
       new RulesAggregation().add(new RuleDto().setRuleKey("AvoidCycle").setRepositoryKey("squid").setName("Avoid Cycle"))
     );
@@ -229,7 +263,7 @@ public class ComponentAppActionTest {
     request.execute().assertJson(getClass(), "app_with_rules.json");
   }
 
-  private void addProjectSample() {
+  private void addComponent() {
     ComponentDto file = new ComponentDto().setId(10L).setQualifier("FIL").setKey(COMPONENT_KEY).setName("Plugin.java")
       .setPath("src/main/java/org/sonar/api/Plugin.java").setSubProjectId(5L).setProjectId(1L);
     when(componentDao.getNullableByKey(session, COMPONENT_KEY)).thenReturn(file);

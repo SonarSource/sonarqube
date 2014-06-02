@@ -115,7 +115,7 @@ public class ComponentAppAction implements RequestHandler {
       appendPermissions(json, component, userSession);
       appendPeriods(json, component.projectId(), session);
       appendIssuesAggregation(json, component.key(), session);
-      appendMeasures(json, fileKey, session);
+      appendMeasures(json, component, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -157,12 +157,14 @@ public class ComponentAppAction implements RequestHandler {
     json.prop("canBulkChange", userSession.isLoggedIn());
   }
 
-  private void appendMeasures(JsonWriter json, String fileKey, DbSession session) {
+  private void appendMeasures(JsonWriter json, ComponentDto component, DbSession session) {
     json.name("measures").beginObject();
 
+    String fileKey = component.getKey();
     List<MeasureDto> measures = dbClient.measureDao().findByComponentKeyAndMetricKeys(fileKey,
       newArrayList(CoreMetrics.NCLOC_KEY, CoreMetrics.COVERAGE_KEY, CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, CoreMetrics.TECHNICAL_DEBT_KEY, CoreMetrics.VIOLATIONS_KEY,
-        CoreMetrics.BLOCKER_VIOLATIONS_KEY, CoreMetrics.MAJOR_VIOLATIONS_KEY, CoreMetrics.MAJOR_VIOLATIONS_KEY, CoreMetrics.MINOR_VIOLATIONS_KEY, CoreMetrics.INFO_VIOLATIONS_KEY),
+        CoreMetrics.BLOCKER_VIOLATIONS_KEY, CoreMetrics.CRITICAL_VIOLATIONS_KEY, CoreMetrics.MAJOR_VIOLATIONS_KEY, CoreMetrics.MINOR_VIOLATIONS_KEY,
+        CoreMetrics.INFO_VIOLATIONS_KEY, CoreMetrics.TESTS_KEY),
       session
     );
 
@@ -176,6 +178,7 @@ public class ComponentAppAction implements RequestHandler {
     json.prop("fMajorIssues", formattedMeasure(CoreMetrics.MAJOR_VIOLATIONS_KEY, measures));
     json.prop("fMinorIssues", formattedMeasure(CoreMetrics.MINOR_VIOLATIONS_KEY, measures));
     json.prop("fInfoIssues", formattedMeasure(CoreMetrics.INFO_VIOLATIONS_KEY, measures));
+    json.prop("fTests", formattedMeasure(CoreMetrics.TESTS_KEY, measures));
     json.endObject();
   }
 
