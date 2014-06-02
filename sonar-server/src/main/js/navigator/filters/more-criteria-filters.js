@@ -30,10 +30,12 @@ define([
       var filters = this.model.get('filters').map(function(filter) {
             return _.extend(filter.toJSON(), { id: filter.cid });
           }),
-          uniqueFilters = _.unique(filters, function(filter) {
+          getName = function(filter) {
             return filter.name;
-          });
-      return _.extend(this.model.toJSON(), { filters: uniqueFilters });
+          },
+          uniqueFilters = _.unique(filters, getName),
+          sortedFilters = _.sortBy(filters, getName);
+      return _.extend(this.model.toJSON(), { filters: sortedFilters });
     }
 
   });
