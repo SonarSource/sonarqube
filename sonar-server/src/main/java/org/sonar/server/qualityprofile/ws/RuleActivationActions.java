@@ -29,7 +29,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
-import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.qualityprofile.RuleActivation;
 
 public class RuleActivationActions implements ServerComponent {
@@ -42,9 +42,9 @@ public class RuleActivationActions implements ServerComponent {
   public static final String ACTIVATE_ACTION = "activate_rule";
   public static final String DEACTIVATE_ACTION = "deactivate_rule";
 
-  private final RuleActivator service;
+  private final QProfileService service;
 
-  public RuleActivationActions(RuleActivator service) {
+  public RuleActivationActions(QProfileService service) {
     this.service = service;
   }
 

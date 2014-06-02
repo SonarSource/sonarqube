@@ -28,6 +28,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
+import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.ws.SearchAction;
@@ -40,10 +41,10 @@ public class BulkRuleActivationActions implements ServerComponent {
   public static final String BULK_ACTIVATE_ACTION = "activate_rules";
   public static final String BULK_DEACTIVATE_ACTION = "deactivate_rules";
 
-  private final RuleActivator service;
+  private final QProfileService service;
   private final RuleService ruleService;
 
-  public BulkRuleActivationActions(RuleActivator service, RuleService ruleService) {
+  public BulkRuleActivationActions(QProfileService service, RuleService ruleService) {
     this.service = service;
     this.ruleService = ruleService;
   }
