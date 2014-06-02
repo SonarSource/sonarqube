@@ -80,6 +80,22 @@ class ResourceController < ApplicationController
                        :group_index => params[:group_index], :external => (resource.root_id != original_resource.root_id)}
   end
 
+  # Call by new component viewer to display plugin extension
+  def extension
+    @resource = Project.by_key(params[:id])
+    not_found('Resource not found') unless @resource
+    @resource = @resource.permanent_resource
+    access_denied unless has_role?(:user, @resource)
+
+    @snapshot = @resource.last_snapshot
+    load_extensions() if @snapshot
+    if @extension
+      render :partial => 'extension'
+    else
+      not_found('Extension not found')
+    end
+  end
+
   private
 
   def render_partial_index
@@ -367,7 +383,7 @@ class ResourceController < ApplicationController
   end
 
   def render_extension()
-    render :partial => 'extension'
+    render :partial => 'extension_with_tabs'
   end
 
   def render_nothing()
