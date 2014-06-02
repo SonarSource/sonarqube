@@ -23,33 +23,10 @@ import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
 
-import java.util.List;
-
 public class RulesDao extends BaseDao {
 
   public RulesDao(DatabaseSession session) {
     super(session);
-  }
-
-  public List<Rule> getRules() {
-    return getSession().createQuery("FROM " + Rule.class.getSimpleName() + " r WHERE r.status<>:status")
-        .setParameter("status", Rule.STATUS_REMOVED)
-        .getResultList();
-  }
-
-  public List<Rule> getRulesByRepository(String repositoryKey) {
-    return getSession().createQuery("FROM " + Rule.class.getSimpleName() + " r WHERE r.pluginName=:pluginName and r.status<>:status")
-        .setParameter("pluginName", repositoryKey)
-        .setParameter("status", Rule.STATUS_REMOVED)
-        .getResultList();
-  }
-
-  /**
-   * @deprecated since 2.5 use {@link #getRulesByRepository(String)} instead.
-   */
-  @Deprecated
-  public List<Rule> getRulesByPlugin(String pluginKey) {
-    return getRulesByRepository(pluginKey);
   }
 
   public Rule getRuleByKey(String repositoryKey, String ruleKey) {

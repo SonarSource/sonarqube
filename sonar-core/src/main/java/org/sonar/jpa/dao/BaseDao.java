@@ -22,6 +22,10 @@ package org.sonar.jpa.dao;
 
 import org.sonar.api.database.DatabaseSession;
 
+/**
+ * @deprecated stop using Hibernate
+ */
+@Deprecated
 public class BaseDao {
 
   private final DatabaseSession session;

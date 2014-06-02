@@ -24,10 +24,8 @@ import org.junit.Test;
 import org.sonar.api.rules.Rule;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class RulesDaoTest extends AbstractDbUnitTestCase {
@@ -37,18 +35,6 @@ public class RulesDaoTest extends AbstractDbUnitTestCase {
   @Before
   public void setup() {
     rulesDao = new RulesDao(getSession());
-  }
-
-  @Test
-  public void shouldGetRules() {
-    setupData("shouldGetRules");
-
-    List<Rule> rules = rulesDao.getRules();
-    assertThat(rules, notNullValue());
-    assertThat(rules.size(), is(2));
-
-    assertEquals("rule_one", rules.get(0).getKey());
-    assertEquals(1, rules.get(0).getParams().size());
   }
 
   @Test
