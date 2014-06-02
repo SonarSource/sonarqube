@@ -25,16 +25,18 @@
   </div>
 
   <div class="component-viewer-header-measures">
-    <div class="component-viewer-header-measures-scope">
-      <span data-scope="basic" class="js-toggle-coverage component-viewer-header-measures-toggle-scope inactive"></span>
-      <a data-scope="basic" class="component-viewer-header-measures-expand">
-        <div class="component-viewer-header-measure">
-          <span class="component-viewer-header-measure-value">{{component.measures.fNcloc}}</span>
-          <span class="component-viewer-header-measure-label">{{t 'metric.ncloc.name'}}</span>
-        </div>
-        <i class="icon-dropdown"></i>
-      </a>
-    </div>
+    {{#notEq component.q 'UTS'}}
+      <div class="component-viewer-header-measures-scope">
+        <span data-scope="basic" class="js-toggle-coverage component-viewer-header-measures-toggle-scope inactive"></span>
+        <a data-scope="basic" class="component-viewer-header-measures-expand">
+          <div class="component-viewer-header-measure">
+            <span class="component-viewer-header-measure-value">{{component.measures.fNcloc}}</span>
+            <span class="component-viewer-header-measure-label">{{t 'metric.ncloc.name'}}</span>
+          </div>
+          <i class="icon-dropdown"></i>
+        </a>
+      </div>
+    {{/notEq}}
 
     <div class="component-viewer-header-measures-scope">
       <a data-scope="issues" class="component-viewer-header-measures-expand">
@@ -70,33 +72,47 @@
          class="js-toggle-issues component-viewer-header-measures-toggle-scope {{#if settings.issues}}active{{/if}}"></a>
     </div>
 
-    {{#if component.measures.fCoverage}}
-      <div class="component-viewer-header-measures-scope">
-        <a data-scope="coverage" class="component-viewer-header-measures-expand">
-            <div class="component-viewer-header-measure">
-              <span class="component-viewer-header-measure-value">{{component.measures.fCoverage}}</span>
-              <span class="component-viewer-header-measure-label">{{t 'metric.coverage.name'}}</span>
-            </div>
-          <i class="icon-dropdown"></i>
-        </a>
-        <a data-scope="coverage" title="{{t 'component_viewer.header.toggle_coverage'}}"
-           class="js-toggle-coverage component-viewer-header-measures-toggle-scope {{#if settings.coverage}}active{{/if}}"></a>
-      </div>
-    {{/if}}
+    {{#notEq component.q 'UTS'}}
+      {{#if component.measures.fCoverage}}
+        <div class="component-viewer-header-measures-scope">
+          <a data-scope="coverage" class="component-viewer-header-measures-expand">
+              <div class="component-viewer-header-measure">
+                <span class="component-viewer-header-measure-value">{{component.measures.fCoverage}}</span>
+                <span class="component-viewer-header-measure-label">{{t 'metric.coverage.name'}}</span>
+              </div>
+            <i class="icon-dropdown"></i>
+          </a>
+          <a data-scope="coverage" title="{{t 'component_viewer.header.toggle_coverage'}}"
+             class="js-toggle-coverage component-viewer-header-measures-toggle-scope {{#if settings.coverage}}active{{/if}}"></a>
+        </div>
+      {{/if}}
 
-    {{#if component.measures.fDuplicationDensity}}
+      {{#if component.measures.fDuplicationDensity}}
+        <div class="component-viewer-header-measures-scope">
+          <a data-scope="duplications" class="component-viewer-header-measures-expand">
+              <div class="component-viewer-header-measure">
+                <span class="component-viewer-header-measure-value">{{component.measures.fDuplicationDensity}}</span>
+                <span class="component-viewer-header-measure-label">{{t 'metric.duplicated_lines_density.name'}}</span>
+              </div>
+            <i class="icon-dropdown"></i>
+          </a>
+          <a data-scope="duplications" title="{{t 'component_viewer.header.toggle_duplications'}}"
+             class="js-toggle-duplications component-viewer-header-measures-toggle-scope {{#if settings.duplications}}active{{/if}}"></a>
+        </div>
+      {{/if}}
+    {{/notEq}}
+
+    {{#eq component.q 'UTS'}}
       <div class="component-viewer-header-measures-scope">
         <a data-scope="duplications" class="component-viewer-header-measures-expand">
-            <div class="component-viewer-header-measure">
-              <span class="component-viewer-header-measure-value">{{component.measures.fDuplicationDensity}}</span>
-              <span class="component-viewer-header-measure-label">{{t 'metric.duplicated_lines_density.name'}}</span>
-            </div>
+          <div class="component-viewer-header-measure">
+            <span class="component-viewer-header-measure-value">{{component.measures.tests}}</span>
+            <span class="component-viewer-header-measure-label">{{t 'metric.tests.name'}}</span>
+          </div>
           <i class="icon-dropdown"></i>
         </a>
-        <a data-scope="duplications" title="{{t 'component_viewer.header.toggle_duplications'}}"
-           class="js-toggle-duplications component-viewer-header-measures-toggle-scope {{#if settings.duplications}}active{{/if}}"></a>
       </div>
-    {{/if}}
+    {{/eq}}
 
     <div class="component-viewer-header-measures-scope">
       <span data-scope="scm" class="component-viewer-header-measures-expand">
@@ -128,6 +144,12 @@
 <div data-scope="duplications" class="component-viewer-header-expanded-bar">
   {{> '_duplications-header'}}
 </div>
+
+{{#eq component.q 'UTS'}}
+  <div data-scope="tests" class="component-viewer-header-expanded-bar">
+    {{> '_tests-header'}}
+  </div>
+{{/eq}}
 
 
 

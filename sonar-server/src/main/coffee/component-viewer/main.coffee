@@ -47,6 +47,8 @@ define [
 
   DUPLICATIONS_METRIC_LIST = 'duplicated_lines_density,duplicated_blocks,duplicated_files,duplicated_lines'
 
+  TESTS_METRIC_LIST = 'tests'
+
 
 
   class ComponentViewer extends Marionette.Layout
@@ -112,7 +114,10 @@ define [
 
 
     requestMeasures: (key) ->
-      metrics = [SOURCE_METRIC_LIST, COVERAGE_METRIC_LIST, ISSUES_METRIC_LIST, DUPLICATIONS_METRIC_LIST].join ','
+      unless @component.get('q') == 'UTS'
+        metrics = [SOURCE_METRIC_LIST, COVERAGE_METRIC_LIST, ISSUES_METRIC_LIST, DUPLICATIONS_METRIC_LIST].join ','
+      else
+        metrics = [ISSUES_METRIC_LIST, TESTS_METRIC_LIST]
       $.get API_MEASURES, resource: key, metrics: metrics, (data) =>
         measuresList = data[0].msr || []
         measures = {}
