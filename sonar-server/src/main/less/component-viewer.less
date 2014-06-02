@@ -1,6 +1,7 @@
 @import "variables";
 @import "mixins";
 
+@headerHeight: 60px;
 @workspaceWidth: 250px;
 
 
@@ -289,15 +290,22 @@
   border-top: 1px solid @barBorderColor;
 }
 
+.component-viewer-header-two-lines-mixin() {
+  @lineHeight: 24px;
+  @topPadding: @headerHeight / 2 - @lineHeight;
+  line-height: @lineHeight;
+  padding: @topPadding 10px;
+}
+
 .component-viewer-header-component {
   float: left;
-  padding: 10px;
+  .component-viewer-header-two-lines-mixin;
+
 }
 
 .component-viewer-header-component-project {
   color: #777;
   font-size: @smallFontSize;
-  margin-bottom: 3px;
 }
 
 .component-viewer-header-component-name {
@@ -311,7 +319,7 @@
 .component-viewer-header-measures-scope {
   position: relative;
   float: left;
-//  border-left: 1px solid transparent;
+  height: @headerHeight;
 }
 
 .component-viewer-header-measures-toggle-scope {
@@ -343,7 +351,7 @@
 
 .component-viewer-header-measures-expand {
   display: block;
-  padding: 10px 20px;
+  padding: 11px 20px;
   white-space: nowrap;
 
   a& {
@@ -419,16 +427,9 @@
 
 .component-viewer-header-links {
   float: right;
-  padding: 8px 10px;
+  .component-viewer-header-two-lines-mixin;
 
-  a {
-    float: left;
-    clear: left;
-  }
-
-  a + a {
-    margin-top: 9px;
-  }
+  & > a { display: block; }
 }
 
 .component-viewer-header-expanded-bar {
