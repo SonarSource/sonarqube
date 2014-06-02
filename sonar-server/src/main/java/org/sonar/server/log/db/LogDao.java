@@ -47,22 +47,23 @@ public class LogDao extends BaseDao<LogMapper, LogDto, LogKey> {
 
   @Override
   protected LogDto doGetNullableByKey(DbSession session, LogKey key) {
-    return null;
+    return mapper(session).selectByKey(key);
   }
 
   @Override
   protected LogDto doInsert(DbSession session, LogDto item) {
-    return null;
+    mapper(session).insert(item);
+    return item;
   }
 
   @Override
   protected LogDto doUpdate(DbSession session, LogDto item) {
-    return null;
+   throw new IllegalStateException("Cannot update Log!");
   }
 
   @Override
   protected void doDeleteByKey(DbSession session, LogKey key) {
-
+    throw new IllegalStateException("Cannot delete Log!");
   }
 
   @Override

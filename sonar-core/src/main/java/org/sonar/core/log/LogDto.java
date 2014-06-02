@@ -20,19 +20,21 @@
 package org.sonar.core.log;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.sonar.core.persistence.Dto;
 import org.sonar.core.log.db.LogKey;
+import org.sonar.core.persistence.Dto;
 
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Date;
-import java.util.Map;
 
 /**
  * @since 4.4
  */
 public class LogDto extends Dto<LogKey> {
+
+  public static final String SYSTEM_USER = "SYSTEM";
 
   public static enum Type {
     CHANGE, LOG
@@ -49,7 +51,11 @@ public class LogDto extends Dto<LogKey> {
   private String author;
   private String data;
 
-  private LogDto(Date time, Type type) {
+  private LogDto (){
+
+  }
+
+  protected LogDto(Date time, Type type) {
     this.time = time;
     this.type = type;
   }
@@ -104,12 +110,12 @@ public class LogDto extends Dto<LogKey> {
     return this;
   }
 
-  public Map getPayload() {
+  public <K extends Serializable> K getPayload() {
     try {
       byte[] bytes = this.data.getBytes();
       ObjectInputStream ois = new ObjectInputStream(
         new ByteArrayInputStream(bytes));
-      Map payload = (Map) ois.readObject();
+      K payload = (K) ois.readObject();
       ois.close();
       return payload;
     } catch (Exception e) {
@@ -117,7 +123,7 @@ public class LogDto extends Dto<LogKey> {
     }
   }
 
-  public LogDto setPayload(Map payload) {
+  public <K extends Serializable> LogDto setPayload(K payload) {
     try {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -130,7 +136,13 @@ public class LogDto extends Dto<LogKey> {
     return this;
   }
 
-  public LogDto changeLog() {
-    return new LogDto(new Date(), Type.CHANGE);
+  public static LogDto newSystemLog(){
+    return new LogDto(new Date(), Type.LOG)
+      .setAuthor(SYSTEM_USER);
+  }
+
+  public static LogDto newSystemChange(){
+    return new LogDto(new Date(), Type.CHANGE)
+      .setAuthor(SYSTEM_USER);
   }
 }

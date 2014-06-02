@@ -19,8 +19,24 @@
  */
 package org.sonar.core.log;
 
+import java.io.Serializable;
+import java.util.Date;
+
 /**
  * @since 4.4
  */
 public interface Log {
+
+  Date time();
+
+  String author();
+
+  LogDto.Type type();
+
+  LogDto.Status status();
+
+  Long executionTime();
+
+  <K extends Serializable> K getPayload();
+
 }

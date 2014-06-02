@@ -19,6 +19,7 @@
  */
 package org.sonar.core.log.db;
 
+import org.apache.ibatis.annotations.Param;
 import org.sonar.core.log.LogDto;
 
 /**
@@ -28,4 +29,5 @@ public interface LogMapper {
 
   void insert(LogDto rule);
 
+  LogDto selectByKey(@Param("key") LogKey key);
 }

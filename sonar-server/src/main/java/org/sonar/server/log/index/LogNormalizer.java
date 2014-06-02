@@ -19,19 +19,57 @@
  */
 package org.sonar.server.log.index;
 
+import com.google.common.collect.ImmutableList;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.sonar.server.db.DbClient;
 import org.sonar.core.log.LogDto;
 import org.sonar.core.log.db.LogKey;
+import org.sonar.core.persistence.DbSession;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.search.IndexField;
+import org.sonar.server.search.Indexable;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @since 4.4
  */
 public class LogNormalizer extends BaseNormalizer<LogDto, LogKey> {
+
+
+  public static final class LogFields extends Indexable {
+
+    public static IndexField KEY = addSortableAndSearchable(IndexField.Type.STRING, "key");
+    public static IndexField TIME = addSortable(IndexField.Type.DATE, "time");
+    public static IndexField TYPE = add(IndexField.Type.STRING, "type");
+    public static IndexField STATUS = add(IndexField.Type.STRING, "status");
+    public static IndexField EXECUTION = add(IndexField.Type.NUMERIC, "executionTime");
+    public static IndexField AUTHOR = addSearchable(IndexField.Type.STRING, "executionTime");
+
+    public static Set<IndexField> ALL_FIELDS = getAllFields();
+
+    private static Set<IndexField> getAllFields() {
+      Set<IndexField> fields = new HashSet<IndexField>();
+      for (Field classField : LogFields.class.getDeclaredFields()) {
+        if (Modifier.isStatic(classField.getModifiers())) {
+          try {
+            fields.add(IndexField.class.cast(classField.get(null)));
+          } catch (IllegalAccessException e) {
+            e.printStackTrace();
+          }
+        }
+      }
+      return fields;
+    }
+  }
 
   public LogNormalizer(DbClient db) {
     super(IndexDefinition.LOG, db);
@@ -39,11 +77,34 @@ public class LogNormalizer extends BaseNormalizer<LogDto, LogKey> {
 
   @Override
   public List<UpdateRequest> normalize(LogKey logKey) {
-    return null;
+    DbSession dbSession = db.openSession(false);
+    List<UpdateRequest> requests = new ArrayList<UpdateRequest>();
+    try {
+      requests.addAll(normalize(db.logDao().getNullableByKey(dbSession, logKey)));
+    } finally {
+      dbSession.close();
+    }
+    return requests;
   }
 
   @Override
   public List<UpdateRequest> normalize(LogDto dto) {
-    return null;
+
+    Map<String, Object> logDoc = new HashMap<String, Object>();
+    logDoc.put("_id", dto.getKey());
+    logDoc.put(LogFields.KEY.field(), dto.getKey());
+    logDoc.put(LogFields.AUTHOR.field(), dto.getAuthor());
+    logDoc.put(LogFields.EXECUTION.field(), dto.getExecutionTime());
+    logDoc.put(LogFields.STATUS.field(), dto.getStatus().name());
+    logDoc.put(LogFields.TIME.field(), dto.getTime());
+    logDoc.put(LogFields.TYPE.field(), dto.getType());
+
+
+
+   /* Creating updateRequest */
+    return ImmutableList.of(new UpdateRequest()
+      .id(dto.getKey().toString())
+      .doc(logDoc)
+      .upsert(logDoc));
   }
 }

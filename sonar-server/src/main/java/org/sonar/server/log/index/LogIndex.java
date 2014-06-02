@@ -27,8 +27,10 @@ import org.sonar.core.log.db.LogKey;
 import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.ESNode;
 import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.search.IndexField;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -52,16 +54,22 @@ public class LogIndex extends BaseIndex<Log, LogDto, LogKey>{
 
   @Override
   protected Map mapProperties() {
-    return null;
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    for (IndexField field : LogNormalizer.LogFields.ALL_FIELDS) {
+      mapping.put(field.field(), mapField(field));
+    }
+    return mapping;
   }
 
   @Override
   protected Map mapKey() {
-    return null;
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    mapping.put("path", LogNormalizer.LogFields.KEY.field());
+    return mapping;
   }
 
   @Override
   protected Log toDoc(Map<String, Object> fields) {
-    return null;
+      return null;
   }
 }

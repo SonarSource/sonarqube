@@ -555,6 +555,16 @@ CREATE TABLE "PERM_TEMPLATES_GROUPS" (
   "UPDATED_AT" TIMESTAMP
 );
 
+
+CREATE TABLE "LOGS" (
+  "TIME_FIELD" TIMESTAMP,
+  "TYPE_FIELD"  VARCHAR(30),
+  "STATUS_FIELD"  VARCHAR(30),
+  "EXECUTION_TIME_FIELD" LONG,
+  "AUTHOR_FIELD" VARCHAR(30),
+  "DATA_FIELD" CLOB(2147483647)
+);
+
 -- ----------------------------------------------
 -- DDL Statements for indexes
 -- ----------------------------------------------
