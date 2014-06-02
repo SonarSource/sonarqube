@@ -29,6 +29,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
@@ -45,6 +46,9 @@ import org.sonar.server.search.ws.SearchOptions;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
+
+import java.util.Calendar;
+import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -356,6 +360,35 @@ public class RulesWebServiceTest {
     result = request.execute();
     result.assertJson("{\"total\":3,\"p\":1,\"ps\":10,\"rules\":[{\"key\":\"java:S003\"},{\"key\":\"java:S002\"},{\"key\":\"java:S001\"}]}");
 
+  }
+
+  @Test
+  public void available_since() throws Exception {
+    ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S002")));;
+    ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S001")));
+    session.commit();
+
+    Date since = new Date();
+
+    // 1. find today's rules
+    MockUserSession.set();
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+    request.setParam(SearchOptions.PARAM_FIELDS, "");
+    request.setParam(SearchAction.PARAM_AVAILABLE_SINCE, DateUtils.formatDate(since));
+    WsTester.Result result = request.execute();
+    result.assertJson("{\"total\":2,\"p\":1,\"ps\":10,\"rules\":[{\"key\":\"java:S001\"},{\"key\":\"java:S002\"}]}");
+
+    Calendar c = Calendar.getInstance();
+    c.setTime(since);
+    c.add(Calendar.DATE, 1);  // number of days to add
+
+    // 2. no rules since tomorrow
+    MockUserSession.set();
+    request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+    request.setParam(SearchOptions.PARAM_FIELDS, "");
+    request.setParam(SearchAction.PARAM_AVAILABLE_SINCE, DateUtils.formatDate(c.getTime()));
+    result = request.execute();
+    result.assertJson("{\"total\":0,\"p\":1,\"ps\":10,\"rules\":[]}");
   }
 
 

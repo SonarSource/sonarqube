@@ -44,6 +44,7 @@ import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.FacetValue;
+import org.sonar.server.search.IndexProperties;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
@@ -51,6 +52,8 @@ import org.sonar.server.tester.ServerTester;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -58,7 +61,8 @@ import static org.fest.assertions.Fail.fail;
 public class RuleIndexMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester()
+    .setProperty(IndexProperties.HTTP_PORT,"9200");
 
   RuleDao dao = tester.get(RuleDao.class);
   RuleIndex index = tester.get(RuleIndex.class);
@@ -673,6 +677,31 @@ public class RuleIndexMediumTest {
     results = index.search(new RuleQuery(), options);
     assertThat(results.getTotal()).isEqualTo(3);
     assertThat(results.getHits()).hasSize(1);
+  }
+
+  @Test
+  public void available_since() throws InterruptedException {
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")));
+    dbSession.commit();
+    Thread.sleep(1000);
+    Date since = new Date();
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")));
+    dbSession.commit();
+
+    // 0. find all rules;
+    assertThat(index.search(new RuleQuery(), QueryOptions.DEFAULT).getHits()).hasSize(2);
+
+
+    // 1. find all rules available since a date;
+    RuleQuery availableSinceQuery = new RuleQuery()
+      .setAvailableSince(since);
+    List<Rule> hits = index.search(availableSinceQuery, QueryOptions.DEFAULT).getHits();
+    assertThat(hits).hasSize(1);
+
+    // 2. find no new rules since now.
+    RuleQuery availableSinceNowQuery = new RuleQuery()
+      .setAvailableSince(new Date());
+    assertThat(index.search(availableSinceNowQuery, QueryOptions.DEFAULT).getHits()).hasSize(0);
   }
 
   private RuleDto newRuleDto(RuleKey ruleKey) {

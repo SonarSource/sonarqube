@@ -193,6 +193,11 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     this.addTermFilter(fb, RuleNormalizer.RuleField._TAGS.field(), query.getTags());
 
 
+    if(query.getAvailableSince() != null){
+      fb.must(FilterBuilders.rangeFilter(RuleNormalizer.RuleField.UPDATED_AT.field())
+      .gte(query.getAvailableSince()));
+    }
+
     if (query.getStatuses() != null && !query.getStatuses().isEmpty()) {
       Collection<String> stringStatus = new ArrayList<String>();
       for (RuleStatus status : query.getStatuses()) {

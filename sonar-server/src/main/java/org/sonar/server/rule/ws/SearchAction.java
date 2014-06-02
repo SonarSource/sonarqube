@@ -51,6 +51,7 @@ public class SearchAction implements RequestHandler {
   public static final String PARAM_ACTIVATION = "activation";
   public static final String PARAM_QPROFILE = "qprofile";
   public static final String PARAM_SEVERITIES = "severities";
+  public static final String PARAM_AVAILABLE_SINCE = "availableSince";
   public static final String PARAM_STATUSES = "statuses";
   public static final String PARAM_LANGUAGES = "languages";
   public static final String PARAM_DEBT_CHARACTERISTICS = "debt_characteristics";
@@ -125,6 +126,11 @@ public class SearchAction implements RequestHandler {
       .setDescription("Comma-separated list of status codes")
       .setPossibleValues(RuleStatus.values())
       .setExampleValue(RuleStatus.READY);
+
+    action
+      .createParam(PARAM_AVAILABLE_SINCE)
+      .setDescription("Filters rules added since date")
+      .setExampleValue("2014-06-02");
 
     action
       .createParam(PARAM_DEBT_CHARACTERISTICS)
@@ -208,6 +214,7 @@ public class SearchAction implements RequestHandler {
     query.setQueryText(request.param(SearchOptions.PARAM_TEXT_QUERY));
     query.setSeverities(request.paramAsStrings(PARAM_SEVERITIES));
     query.setRepositories(request.paramAsStrings(PARAM_REPOSITORIES));
+    query.setAvailableSince(request.paramAsDate(PARAM_AVAILABLE_SINCE));
     query.setStatuses(request.paramAsEnums(PARAM_STATUSES, RuleStatus.class));
     query.setLanguages(request.paramAsStrings(PARAM_LANGUAGES));
     query.setDebtCharacteristics(request.paramAsStrings(PARAM_DEBT_CHARACTERISTICS));

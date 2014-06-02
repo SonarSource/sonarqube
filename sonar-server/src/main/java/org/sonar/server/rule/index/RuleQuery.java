@@ -27,6 +27,7 @@ import org.sonar.server.search.IndexField;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Date;
 
 public class RuleQuery {
 
@@ -45,6 +46,7 @@ public class RuleQuery {
   private boolean ascendingSort = true;
   private IndexField sortField;
   private Collection<String> inheritance;
+  private Date availableSince;
 
 
   /**
@@ -212,5 +214,14 @@ public class RuleQuery {
   public RuleQuery setAscendingSort(boolean b) {
     this.ascendingSort = b;
     return this;
+  }
+
+  public RuleQuery setAvailableSince(Date since) {
+    this.availableSince = since;
+    return this;
+  }
+
+  public Date getAvailableSince() {
+    return this.availableSince;
   }
 }
