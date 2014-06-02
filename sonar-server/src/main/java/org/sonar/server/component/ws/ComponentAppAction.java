@@ -146,7 +146,7 @@ public class ComponentAppAction implements RequestHandler {
     json.prop("name", component.name());
     json.prop("q", component.qualifier());
 
-    ComponentDto subProject = (ComponentDto) componentById(component.subProjectId(), session);
+    ComponentDto subProject = (ComponentDto) nullableComponentById(component.subProjectId(), session);
     ComponentDto project = (ComponentDto) componentById(component.projectId(), session);
 
     // Do not display sub project long name if sub project and project are the same
@@ -175,17 +175,17 @@ public class ComponentAppAction implements RequestHandler {
       session
     );
 
-    json.prop("fNcloc", formattedMeasure(CoreMetrics.NCLOC_KEY, measures));
-    json.prop("fCoverage", formattedMeasure(CoreMetrics.COVERAGE_KEY, measures));
-    json.prop("fDuplicationDensity", formattedMeasure(CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, measures));
-    json.prop("fDebt", formattedMeasure(CoreMetrics.TECHNICAL_DEBT_KEY, measures));
-    json.prop("fIssues", formattedMeasure(CoreMetrics.VIOLATIONS_KEY, measures));
-    json.prop("fBlockerIssues", formattedMeasure(CoreMetrics.BLOCKER_VIOLATIONS_KEY, measures));
-    json.prop("fCriticalIssues", formattedMeasure(CoreMetrics.CRITICAL_VIOLATIONS_KEY, measures));
-    json.prop("fMajorIssues", formattedMeasure(CoreMetrics.MAJOR_VIOLATIONS_KEY, measures));
-    json.prop("fMinorIssues", formattedMeasure(CoreMetrics.MINOR_VIOLATIONS_KEY, measures));
-    json.prop("fInfoIssues", formattedMeasure(CoreMetrics.INFO_VIOLATIONS_KEY, measures));
-    json.prop("fTests", formattedMeasure(CoreMetrics.TESTS_KEY, measures));
+    json.prop("fNcloc", formatMeasure(CoreMetrics.NCLOC_KEY, measures));
+    json.prop("fCoverage", formatMeasure(CoreMetrics.COVERAGE_KEY, measures));
+    json.prop("fDuplicationDensity", formatMeasure(CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, measures));
+    json.prop("fDebt", formatMeasure(CoreMetrics.TECHNICAL_DEBT_KEY, measures));
+    json.prop("fIssues", formatMeasure(CoreMetrics.VIOLATIONS_KEY, measures));
+    json.prop("fBlockerIssues", formatMeasure(CoreMetrics.BLOCKER_VIOLATIONS_KEY, measures));
+    json.prop("fCriticalIssues", formatMeasure(CoreMetrics.CRITICAL_VIOLATIONS_KEY, measures));
+    json.prop("fMajorIssues", formatMeasure(CoreMetrics.MAJOR_VIOLATIONS_KEY, measures));
+    json.prop("fMinorIssues", formatMeasure(CoreMetrics.MINOR_VIOLATIONS_KEY, measures));
+    json.prop("fInfoIssues", formatMeasure(CoreMetrics.INFO_VIOLATIONS_KEY, measures));
+    json.prop("fTests", formatMeasure(CoreMetrics.TESTS_KEY, measures));
     json.endObject();
   }
 
@@ -245,7 +245,7 @@ public class ComponentAppAction implements RequestHandler {
     }
   }
 
-  private List<String> extensions(List<ViewProxy<Page>> extensions, ComponentDto component, UserSession userSession){
+  private List<String> extensions(List<ViewProxy<Page>> extensions, ComponentDto component, UserSession userSession) {
     List<String> result = newArrayList();
     List<String> providedExtensions = newArrayList("tests_viewer", "coverage", "duplications", "issues", "source");
     for (ViewProxy<Page> page : extensions) {
@@ -265,30 +265,43 @@ public class ComponentAppAction implements RequestHandler {
   }
 
   @CheckForNull
-  private Component componentById(@Nullable Long componentId, DbSession session) {
+  private Component nullableComponentById(@Nullable Long componentId, DbSession session) {
     if (componentId != null) {
-      return dbClient.componentDao().getById(componentId, session);
+      return componentById(componentId, session);
     }
     return null;
   }
 
+  private Component componentById(Long componentId, DbSession session) {
+    return dbClient.componentDao().getById(componentId, session);
+  }
+
   @CheckForNull
-  private String formattedMeasure(final String metricKey, List<MeasureDto> measures) {
+  private String formatMeasure(final String metricKey, List<MeasureDto> measures) {
     MeasureDto measure = measureByMetricKey(metricKey, measures);
     if (measure != null) {
       Metric metric = CoreMetrics.getMetric(measure.getKey().metricKey());
       Double value = measure.getValue();
       if (value != null) {
-        if (metric.getType().equals(Metric.ValueType.FLOAT)) {
-          return i18n.formatDouble(UserSession.get().locale(), value);
-        } else if (metric.getType().equals(Metric.ValueType.INT)) {
-          return i18n.formatInteger(UserSession.get().locale(), value.intValue());
-        } else if (metric.getType().equals(Metric.ValueType.PERCENT)) {
-          return i18n.formatDouble(UserSession.get().locale(), value) + "%";
-        } else if (metric.getType().equals(Metric.ValueType.WORK_DUR)) {
-          return durations.format(UserSession.get().locale(), durations.create(value.longValue()), Durations.DurationFormat.SHORT);
-        }
+        return formatValue(value, metric.getType());
       }
+    }
+    return null;
+  }
+
+  @CheckForNull
+  private String formatValue(Double value, Metric.ValueType metryType) {
+    if (metryType.equals(Metric.ValueType.FLOAT)) {
+      return i18n.formatDouble(UserSession.get().locale(), value);
+    }
+    if (metryType.equals(Metric.ValueType.INT)) {
+      return i18n.formatInteger(UserSession.get().locale(), value.intValue());
+    }
+    if (metryType.equals(Metric.ValueType.PERCENT)) {
+      return i18n.formatDouble(UserSession.get().locale(), value) + "%";
+    }
+    if (metryType.equals(Metric.ValueType.WORK_DUR)) {
+      return durations.format(UserSession.get().locale(), durations.create(value.longValue()), Durations.DurationFormat.SHORT);
     }
     return null;
   }
