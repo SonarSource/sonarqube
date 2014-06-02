@@ -73,6 +73,21 @@ public class XmlWriter {
     }
   }
 
+  /**
+   * Same as {@link #end()}. The parameter is unused. It's declared only to improve
+   * readability :
+   * <pre>
+   *   xml.write("rules");
+   *   xml.write("rule");
+   *   // many other writes
+   *   xml.end("rule");
+   *   xml.end("rules");
+   * </pre>
+   */
+  public XmlWriter end(String unused) {
+    return end();
+  }
+
   public XmlWriter prop(String nodeName, @Nullable String value) {
     if (value != null) {
       begin(nodeName).value(value).end();

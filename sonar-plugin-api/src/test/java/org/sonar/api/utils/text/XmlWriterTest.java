@@ -45,6 +45,12 @@ public class XmlWriterTest {
   }
 
   @Test
+  public void end_with_unused_parameter() {
+    writer.begin("foo").end("foo").close();
+    expect("<foo/>");
+  }
+
+  @Test
   public void only_root() throws Exception {
     writer.begin("foo").end().close();
     expect("<foo/>");
