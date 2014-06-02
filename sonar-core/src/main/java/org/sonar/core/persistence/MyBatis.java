@@ -68,6 +68,8 @@ import org.sonar.core.issue.db.IssueFilterFavouriteMapper;
 import org.sonar.core.issue.db.IssueFilterMapper;
 import org.sonar.core.issue.db.IssueMapper;
 import org.sonar.core.issue.db.IssueStatsMapper;
+import org.sonar.core.log.LogDto;
+import org.sonar.core.log.db.LogMapper;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.measure.db.MeasureFilterDto;
 import org.sonar.core.measure.db.MeasureFilterMapper;
@@ -199,6 +201,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "QualityProfile", QualityProfileDto.class);
     loadAlias(conf, "ActiveRule", ActiveRuleDto.class);
     loadAlias(conf, "ActiveRuleParam", ActiveRuleParamDto.class);
+    loadAlias(conf, "Log", LogDto.class);
 
     // AuthorizationMapper has to be loaded before IssueMapper because this last one used it
     loadMapper(conf, "org.sonar.core.user.AuthorizationMapper");
@@ -206,7 +209,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadMapper(conf, ResourceMapper.class);
 
     loadMapper(conf, "org.sonar.core.permission.PermissionMapper");
-    Class<?>[] mappers = {ActiveDashboardMapper.class, AuthorMapper.class, DashboardMapper.class,
+    Class<?>[] mappers = {LogMapper.class, ActiveDashboardMapper.class, AuthorMapper.class, DashboardMapper.class,
       DependencyMapper.class, DuplicationMapper.class, GraphDtoMapper.class,
       IssueMapper.class, IssueStatsMapper.class, IssueChangeMapper.class, IssueFilterMapper.class, IssueFilterFavouriteMapper.class,
       LoadedTemplateMapper.class, MeasureFilterMapper.class, PermissionTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class,

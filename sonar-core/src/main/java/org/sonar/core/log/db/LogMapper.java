@@ -17,10 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.log;
+package org.sonar.core.log.db;
+
+import org.sonar.core.log.LogDto;
 
 /**
  * @since 4.4
  */
-public interface Log {
+public interface LogMapper {
+
+  void insert(LogDto rule);
+
 }

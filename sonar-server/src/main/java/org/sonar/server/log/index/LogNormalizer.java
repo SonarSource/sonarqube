@@ -21,8 +21,8 @@ package org.sonar.server.log.index;
 
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.log.LogDto;
-import org.sonar.server.log.db.LogKey;
+import org.sonar.core.log.LogDto;
+import org.sonar.core.log.db.LogKey;
 import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.search.IndexDefinition;
 

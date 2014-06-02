@@ -17,12 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.log;
+package org.sonar.core.log;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.sonar.core.persistence.Dto;
-import org.sonar.server.log.db.LogKey;
-import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
+import org.sonar.core.log.db.LogKey;
 
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
@@ -107,7 +106,7 @@ public class LogDto extends Dto<LogKey> {
 
   public Map getPayload() {
     try {
-      byte[] bytes = Base64Coder.decode(this.data);
+      byte[] bytes = this.data.getBytes();
       ObjectInputStream ois = new ObjectInputStream(
         new ByteArrayInputStream(bytes));
       Map payload = (Map) ois.readObject();
@@ -124,7 +123,7 @@ public class LogDto extends Dto<LogKey> {
       ObjectOutputStream oos = new ObjectOutputStream(baos);
       oos.writeObject(payload);
       oos.close();
-      this.data = new String(Base64Coder.encode(baos.toByteArray()));
+      this.data = new String(baos.toByteArray());
     } catch (Exception e) {
       throw new IllegalStateException("Could not write payload from DB.", e);
     }

@@ -21,9 +21,9 @@ package org.sonar.server.log.index;
 
 import org.elasticsearch.common.settings.Settings;
 import org.sonar.core.cluster.WorkQueue;
-import org.sonar.server.log.Log;
-import org.sonar.server.log.LogDto;
-import org.sonar.server.log.db.LogKey;
+import org.sonar.core.log.Log;
+import org.sonar.core.log.LogDto;
+import org.sonar.core.log.db.LogKey;
 import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.ESNode;
 import org.sonar.server.search.IndexDefinition;

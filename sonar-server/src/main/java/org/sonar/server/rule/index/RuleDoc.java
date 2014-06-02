@@ -29,6 +29,7 @@ import org.sonar.server.rule.RuleParam;
 import org.sonar.server.search.BaseDoc;
 import org.sonar.server.search.IndexUtils;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;

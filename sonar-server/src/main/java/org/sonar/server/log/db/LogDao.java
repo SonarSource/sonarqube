@@ -21,9 +21,11 @@ package org.sonar.server.log.db;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.utils.System2;
+import org.sonar.core.log.LogDto;
+import org.sonar.core.log.db.LogKey;
+import org.sonar.core.log.db.LogMapper;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
-import org.sonar.server.log.LogDto;
 import org.sonar.server.search.IndexDefinition;
 
 /**
