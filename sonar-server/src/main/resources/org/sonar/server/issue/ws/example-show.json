@@ -35,7 +35,17 @@
       "set_severity",
       "link-to-jira"
     ],
-    "comments": [ ],
+    "comments": [
+      {
+        "key": "ea2fa158-18f7-4c7a-b60b-30c668c490ba",
+        "userName": "John Smith",
+        "raw": "Ignore for security reasons",
+        "html": "Ignore for security reasons",
+        "createdAt": "2014-04-14T23:04:29+0100",
+        "fCreatedAge": "2 months",
+        "updatable": false
+      }
+    ],
     "changelog": [
       {
         "creationDate": "2014-02-14T23:04:29+0100",
