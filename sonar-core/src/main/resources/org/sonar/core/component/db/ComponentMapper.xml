@@ -8,6 +8,8 @@
     p.name as name,
     p.long_name as longName,
     p.qualifier as qualifier,
+    p.scope as scope,
+    p.language as language,
     s.root_project_id as projectId,
     p.root_id as subProjectId,
     p.path as path

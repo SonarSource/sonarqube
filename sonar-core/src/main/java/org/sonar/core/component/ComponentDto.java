@@ -33,6 +33,8 @@ public class ComponentDto extends Dto<String> implements Component {
   private String name;
   private String longName;
   private String qualifier;
+  private String scope;
+  private String language;
   private Long projectId;
   private Long subProjectId;
 
@@ -93,6 +95,25 @@ public class ComponentDto extends Dto<String> implements Component {
 
   public ComponentDto setQualifier(String qualifier) {
     this.qualifier = qualifier;
+    return this;
+  }
+
+  public String scope() {
+    return scope;
+  }
+
+  public ComponentDto setScope(String scope) {
+    this.scope = scope;
+    return this;
+  }
+
+  @CheckForNull
+  public String language() {
+    return language;
+  }
+
+  public ComponentDto setLanguage(@Nullable String language) {
+    this.language = language;
     return this;
   }
 

@@ -45,5 +45,6 @@
     "fDebt": "4h",
     "fIssues": "4",
     "fInfoIssues": "4"
-  }
+  },
+  "extensions": ["metricsTab"]
 }

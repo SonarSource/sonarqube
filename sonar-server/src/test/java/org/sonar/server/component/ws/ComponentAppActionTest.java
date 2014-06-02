@@ -34,6 +34,8 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
+import org.sonar.api.web.NavigationSection;
+import org.sonar.api.web.Page;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.measure.db.MeasureDto;
@@ -52,6 +54,8 @@ import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.RulesAggregation;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.source.SourceService;
+import org.sonar.server.ui.ViewProxy;
+import org.sonar.server.ui.Views;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
@@ -96,6 +100,9 @@ public class ComponentAppActionTest {
   SourceService sourceService;
 
   @Mock
+  Views views;
+
+  @Mock
   Periods periods;
 
   @Mock
@@ -124,7 +131,7 @@ public class ComponentAppActionTest {
     when(issueService.findRulesByComponent(anyString(), eq(session))).thenReturn(mock(RulesAggregation.class));
     when(measureDao.findByComponentKeyAndMetricKeys(anyString(), anyListOf(String.class), eq(session))).thenReturn(measures);
 
-    tester = new WsTester(new ComponentsWs(new ComponentAppAction(dbClient, issueService, sourceService, periods, durations, i18n)));
+    tester = new WsTester(new ComponentsWs(new ComponentAppAction(dbClient, issueService, sourceService, views, periods, durations, i18n)));
   }
 
   @Test
@@ -263,6 +270,18 @@ public class ComponentAppActionTest {
     request.execute().assertJson(getClass(), "app_with_rules.json");
   }
 
+  @Test
+  public void app_with_extensions() throws Exception {
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+    addComponent();
+
+    when(views.getPages(anyString(), anyString(), anyString(), anyString(), any(String[].class))).thenReturn(
+      newArrayList(new ViewProxy<Page>(new MyExtension()), new ViewProxy<Page>(new MyExtensionWithRole()), new ViewProxy<Page>(new ProvidedExtension())));
+
+    WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
+    request.execute().assertJson(getClass(), "app_with_extensions.json");
+  }
+
   private void addComponent() {
     ComponentDto file = new ComponentDto().setId(10L).setQualifier("FIL").setKey(COMPONENT_KEY).setName("Plugin.java")
       .setPath("src/main/java/org/sonar/api/Plugin.java").setSubProjectId(5L).setProjectId(1L);
@@ -279,6 +298,40 @@ public class ComponentAppActionTest {
   private void addMeasure(String metricKey, Double value) {
     measures.add(MeasureDto.createFor(MeasureKey.of(COMPONENT_KEY, metricKey)).setValue(value));
     when(i18n.formatDouble(any(Locale.class), eq(value))).thenReturn(Double.toString(value));
+  }
+
+  @NavigationSection(NavigationSection.RESOURCE_TAB)
+  private static class MyExtension implements Page {
+    public String getId() {
+      return "my-extension";
+    }
+
+    public String getTitle() {
+      return "my-extension";
+    }
+  }
+
+  @NavigationSection(NavigationSection.RESOURCE_TAB)
+  @UserRole(UserRole.CODEVIEWER)
+  private static class MyExtensionWithRole implements Page {
+    public String getId() {
+      return "my-extension-with-role";
+    }
+
+    public String getTitle() {
+      return "my-extension-with-role";
+    }
+  }
+
+  @NavigationSection(NavigationSection.RESOURCE_TAB)
+  private static class ProvidedExtension implements Page {
+    public String getId() {
+      return "issues";
+    }
+
+    public String getTitle() {
+      return "issues";
+    }
   }
 
 }

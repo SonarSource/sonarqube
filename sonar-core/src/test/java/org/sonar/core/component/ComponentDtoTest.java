@@ -34,6 +34,8 @@ public class ComponentDtoTest {
       .setName("RequestContext.java")
       .setLongName("org.struts.RequestContext")
       .setQualifier("FIL")
+      .setScope("FIL")
+      .setLanguage("java")
       .setPath("src/org/struts/RequestContext.java")
       .setProjectId(2L)
       .setSubProjectId(3L);
@@ -43,7 +45,9 @@ public class ComponentDtoTest {
     assertThat(componentDto.name()).isEqualTo("RequestContext.java");
     assertThat(componentDto.longName()).isEqualTo("org.struts.RequestContext");
     assertThat(componentDto.qualifier()).isEqualTo("FIL");
+    assertThat(componentDto.scope()).isEqualTo("FIL");
     assertThat(componentDto.path()).isEqualTo("src/org/struts/RequestContext.java");
+    assertThat(componentDto.language()).isEqualTo("java");
     assertThat(componentDto.projectId()).isEqualTo(2L);
     assertThat(componentDto.subProjectId()).isEqualTo(3L);
   }

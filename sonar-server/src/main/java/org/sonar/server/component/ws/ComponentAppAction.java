@@ -35,6 +35,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.api.web.NavigationSection;
+import org.sonar.api.web.Page;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.measure.db.MeasureDto;
@@ -49,6 +51,8 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.RulesAggregation;
 import org.sonar.server.source.SourceService;
+import org.sonar.server.ui.ViewProxy;
+import org.sonar.server.ui.Views;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -67,14 +71,16 @@ public class ComponentAppAction implements RequestHandler {
 
   private final IssueService issueService;
   private final SourceService sourceService;
+  private final Views views;
   private final Periods periods;
   private final Durations durations;
   private final I18n i18n;
 
-  public ComponentAppAction(DbClient dbClient, IssueService issueService, SourceService sourceService, Periods periods, Durations durations, I18n i18n) {
+  public ComponentAppAction(DbClient dbClient, IssueService issueService, SourceService sourceService, Views views, Periods periods, Durations durations, I18n i18n) {
     this.dbClient = dbClient;
     this.issueService = issueService;
     this.sourceService = sourceService;
+    this.views = views;
     this.periods = periods;
     this.durations = durations;
     this.i18n = i18n;
@@ -116,6 +122,7 @@ public class ComponentAppAction implements RequestHandler {
       appendPeriods(json, component.projectId(), session);
       appendIssuesAggregation(json, component.key(), session);
       appendMeasures(json, component, session);
+      appendExtensions(json, component, userSession);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -226,6 +233,35 @@ public class ComponentAppAction implements RequestHandler {
         .endArray();
     }
     json.endArray();
+  }
+
+  private void appendExtensions(JsonWriter json, ComponentDto component, UserSession userSession) {
+    List<ViewProxy<Page>> extensionPages = views.getPages(NavigationSection.RESOURCE_TAB, component.scope(), component.qualifier(), component.language(), null);
+    List<String> extensions = extensions(extensionPages, component, userSession);
+    if (!extensions.isEmpty()) {
+      json.name("extensions").beginArray();
+      json.values(extensions);
+      json.endArray();
+    }
+  }
+
+  private List<String> extensions(List<ViewProxy<Page>> extensions, ComponentDto component, UserSession userSession){
+    List<String> result = newArrayList();
+    List<String> providedExtensions = newArrayList("tests_viewer", "coverage", "duplications", "issues", "source");
+    for (ViewProxy<Page> page : extensions) {
+      if (!providedExtensions.contains(page.getId())) {
+        if (page.getUserRoles().length == 0) {
+          result.add(page.getId());
+        } else {
+          for (String userRole : page.getUserRoles()) {
+            if (userSession.hasComponentPermission(userRole, component.key())) {
+              result.add(page.getId());
+            }
+          }
+        }
+      }
+    }
+    return result;
   }
 
   @CheckForNull

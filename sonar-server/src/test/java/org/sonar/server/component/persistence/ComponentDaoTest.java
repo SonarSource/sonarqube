@@ -56,6 +56,8 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     assertThat(result.name()).isEqualTo("RequestContext.java");
     assertThat(result.longName()).isEqualTo("org.struts.RequestContext");
     assertThat(result.qualifier()).isEqualTo("FIL");
+    assertThat(result.scope()).isEqualTo("FIL");
+    assertThat(result.language()).isEqualTo("java");
     assertThat(result.subProjectId()).isEqualTo(2);
     assertThat(result.projectId()).isEqualTo(1);
 
@@ -73,6 +75,8 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
     assertThat(result.name()).isEqualTo("Struts");
     assertThat(result.longName()).isEqualTo("Apache Struts");
     assertThat(result.qualifier()).isEqualTo("TRK");
+    assertThat(result.scope()).isEqualTo("PRJ");
+    assertThat(result.language()).isNull();
     assertThat(result.subProjectId()).isNull();
     assertThat(result.projectId()).isEqualTo(1);
   }
