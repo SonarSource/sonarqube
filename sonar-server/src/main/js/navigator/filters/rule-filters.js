@@ -12,7 +12,7 @@ define([
 
 
     fetch: function(options) {
-      options.data.f = 'key,name,lang';
+      options.data.f = 'name,lang';
       return AjaxSelectFilters.Suggestions.prototype.fetch.call(this, options);
     },
 
