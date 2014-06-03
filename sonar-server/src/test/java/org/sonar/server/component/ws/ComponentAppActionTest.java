@@ -136,7 +136,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app() throws Exception {
-    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
 
     ComponentDto file = new ComponentDto().setId(10L).setQualifier("FIL").setKey(COMPONENT_KEY).setName("Plugin.java")
       .setPath("src/main/java/org/sonar/api/Plugin.java").setSubProjectId(5L).setProjectId(1L);
@@ -153,7 +153,7 @@ public class ComponentAppActionTest {
   @Test
   public void app_without_sub_project() throws Exception {
     String componentKey = "org.codehaus.sonar:sonar";
-    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.CODEVIEWER, componentKey, componentKey);
+    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.USER, componentKey, componentKey);
 
     ComponentDto file = new ComponentDto().setId(1L).setQualifier("TRK").setKey(componentKey).setName("SonarQube").setProjectId(1L);
     when(componentDao.getNullableByKey(session, componentKey)).thenReturn(file);
@@ -166,7 +166,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app_with_sub_project_equals_to_project() throws Exception {
-    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
 
     ComponentDto file = new ComponentDto().setId(10L).setQualifier("FIL").setKey(COMPONENT_KEY).setName("Plugin.java")
       .setPath("src/main/java/org/sonar/api/Plugin.java").setSubProjectId(1L).setProjectId(1L);
@@ -181,7 +181,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app_with_measures() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
 
     addComponent();
 
@@ -210,7 +210,7 @@ public class ComponentAppActionTest {
   @Test
   public void app_with_tests_measure() throws Exception {
     String componentKey = "org.codehaus.sonar:sonar-server:src/test/java/org/sonar/server/issue/PlanActionTest.java";
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, componentKey);
+    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, componentKey);
 
     ComponentDto file = new ComponentDto().setId(10L).setQualifier("UTS").setKey(componentKey).setName("PlanActionTest.java")
       .setPath("src/test/java/org/sonar/server/issue/PlanActionTest.java").setSubProjectId(5L).setProjectId(1L);
@@ -229,7 +229,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app_with_periods() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
 
     addComponent();
 
@@ -244,7 +244,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app_with_severities() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
 
     addComponent();
 
@@ -259,7 +259,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app_with_rules() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
 
     addComponent();
     when(issueService.findRulesByComponent(COMPONENT_KEY, session)).thenReturn(
@@ -272,7 +272,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app_with_extension() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
     addComponent();
 
     when(views.getPages(anyString(), anyString(), anyString(), anyString(), any(String[].class))).thenReturn(
@@ -285,7 +285,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app_with_extension_having_permission() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
     addComponent();
 
     when(views.getPages(anyString(), anyString(), anyString(), anyString(), any(String[].class))).thenReturn(
@@ -325,7 +325,7 @@ public class ComponentAppActionTest {
   }
 
   @NavigationSection(NavigationSection.RESOURCE_TAB)
-  @UserRole(UserRole.CODEVIEWER)
+  @UserRole(UserRole.USER)
   private static class MyExtensionWithRole implements Page {
     public String getId() {
       return "my-extension-with-permission";

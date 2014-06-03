@@ -117,7 +117,7 @@ public class ComponentAppAction implements RequestHandler {
       if (component == null) {
         throw new NotFoundException(String.format("Component '%s' does not exists.", fileKey));
       }
-      userSession.checkComponentPermission(UserRole.CODEVIEWER, fileKey);
+      userSession.checkComponentPermission(UserRole.USER, fileKey);
 
       appendComponent(json, component, userSession, session);
       appendPermissions(json, component, userSession);
@@ -162,7 +162,7 @@ public class ComponentAppAction implements RequestHandler {
   }
 
   private void appendPermissions(JsonWriter json, ComponentDto component, UserSession userSession) {
-    json.prop("canMarkAsFavourite", userSession.isLoggedIn() && userSession.hasComponentPermission(UserRole.CODEVIEWER, component.key()));
+    json.prop("canMarkAsFavourite", userSession.isLoggedIn() && userSession.hasComponentPermission(UserRole.USER, component.key()));
     json.prop("canBulkChange", userSession.isLoggedIn());
   }
 
