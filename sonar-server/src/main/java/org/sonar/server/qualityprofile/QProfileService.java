@@ -43,11 +43,14 @@ public class QProfileService implements ServerComponent {
   private final IndexClient index;
   private final RuleActivator ruleActivator;
   private final QProfileBackuper backuper;
+  private final QProfileCopier copier;
 
-  public QProfileService(IndexClient index, RuleActivator ruleActivator, QProfileBackuper backuper) {
+  public QProfileService(IndexClient index, RuleActivator ruleActivator, QProfileBackuper backuper,
+                         QProfileCopier copier) {
     this.index = index;
     this.ruleActivator = ruleActivator;
     this.backuper = backuper;
+    this.copier = copier;
   }
 
   @CheckForNull
@@ -109,7 +112,7 @@ public class QProfileService implements ServerComponent {
 
   public void restore(Reader backup) {
     verifyAdminPermission();
-    backuper.restore(backup);
+    backuper.restore(backup, null);
   }
 
   /**
@@ -125,9 +128,9 @@ public class QProfileService implements ServerComponent {
     verifyAdminPermission();
   }
 
-  public void copy(QualityProfileKey key, String newName) {
-    // TODO
+  public void copy(QualityProfileKey from, QualityProfileKey to) {
     verifyAdminPermission();
+    copier.copy(from, to);
   }
 
   public void delete(QualityProfileKey key) {

@@ -21,6 +21,7 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
@@ -37,6 +38,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.search.IndexClient;
 
+import javax.annotation.Nullable;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import java.io.Reader;
@@ -99,7 +101,13 @@ public class QProfileBackuper implements ServerComponent {
     xml.end("profile").close();
   }
 
-  public void restore(Reader reader) {
+  /**
+   *
+   * @param reader the XML backup
+   * @param profileKey the target profile. If <code>null</code>, then use the
+   *                   key declared in the backup
+   */
+  public void restore(Reader reader, @Nullable QualityProfileKey profileKey) {
     try {
       String profileLang = null, profileName = null;
       SMInputFactory inputFactory = initStax();
@@ -115,9 +123,10 @@ public class QProfileBackuper implements ServerComponent {
           profileLang = StringUtils.trim(cursor.collectDescendantText(false));
 
         } else if (StringUtils.equals("rules", nodeName)) {
-          QualityProfileKey profileKey = QualityProfileKey.of(profileName, profileLang);
+          QualityProfileKey targetKey = (QualityProfileKey)ObjectUtils.defaultIfNull(
+            profileKey, QualityProfileKey.of(profileName, profileLang));
           SMInputCursor rulesCursor = cursor.childElementCursor("rule");
-          doRestore(rulesCursor, profileKey);
+          doRestore(rulesCursor, targetKey);
         }
       }
     } catch (XMLStreamException e) {

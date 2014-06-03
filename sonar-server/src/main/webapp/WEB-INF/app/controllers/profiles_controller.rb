@@ -31,7 +31,7 @@ class ProfilesController < ApplicationController
     call_backend do
       @profiles = Internal.quality_profiles.allProfiles().to_a
     end
-    Api::Utils.insensitive_sort!(@profiles){|profile| profile.name()}
+    Api::Utils.insensitive_sort!(@profiles) { |profile| profile.name() }
   end
 
   # GET /profiles/create_form?language=<language>
@@ -68,7 +68,7 @@ class ProfilesController < ApplicationController
     call_backend do
       @default_profile_names = Internal.profile_backup.findDefaultProfileNamesByLanguage(@language.getKey()).to_a
       profiles = Internal.quality_profiles.profilesByLanguage(@language.getKey()).to_a
-      @existing_default_profiles = profiles.select{|p| @default_profile_names.find{|default_profile| default_profile == p.name()}}.collect{|p| p.name()}
+      @existing_default_profiles = profiles.select { |p| @default_profile_names.find { |default_profile| default_profile == p.name() } }.collect { |p| p.name() }
     end
     render :partial => 'profiles/recreate_built_in_form'
   end
@@ -129,11 +129,13 @@ class ProfilesController < ApplicationController
     verify_ajax_request
     require_parameters 'id'
 
-    profile_id = params[:id].to_i
-    name = params['name']
+    source_key=profile_id_to_key(params[:id].to_i)
+    target_name = params['name']
+    target_key=Java::OrgSonarCoreQualityprofileDb::QualityProfileKey.of(target_name, source_key.lang())
+
     call_backend do
-      @profile = Internal.quality_profiles.copyProfile(profile_id, name)
-      flash[:notice]= message('quality_profiles.profile_x_not_activated', :params => name)
+      Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).copy(source_key, target_key)
+      flash[:notice]= message('quality_profiles.profile_x_not_activated', :params => target_name)
       render :text => 'ok', :status => 200
     end
   end
@@ -146,9 +148,11 @@ class ProfilesController < ApplicationController
 
     profile_key=profile_id_to_key(params[:id].to_i)
 
-    xml = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).backup(profile_key)
-    filename = profile_key.toString().gsub(' ', '_')
-    send_data(xml, :type => 'text/xml', :disposition => "attachment; filename=#{filename}.xml")
+    call_backend do
+      xml = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).backup(profile_key)
+      filename = profile_key.toString().gsub(' ', '_')
+      send_data(xml, :type => 'text/xml', :disposition => "attachment; filename=#{filename}.xml")
+    end
   end
 
 
@@ -205,8 +209,8 @@ class ProfilesController < ApplicationController
       @parent = Internal.quality_profiles.parent(@profile) if @profile.parent
       @ancestors = Internal.quality_profiles.ancestors(@profile).to_a
       @children = Internal.quality_profiles.children(@profile).to_a
-      profiles = Internal.quality_profiles.profilesByLanguage(@profile.language()).to_a.reject{|p| p.id == @profile.id() || p.parent() == @profile.name()}
-      profiles = Api::Utils.insensitive_sort(profiles) { |p| p.name()}
+      profiles = Internal.quality_profiles.profilesByLanguage(@profile.language()).to_a.reject { |p| p.id == @profile.id() || p.parent() == @profile.name() }
+      profiles = Api::Utils.insensitive_sort(profiles) { |p| p.name() }
       @select_parent = [[message('none'), nil]] + profiles.collect { |profile| [profile.name(), profile.id()] }
     end
 
@@ -234,7 +238,7 @@ class ProfilesController < ApplicationController
 
     versions = ActiveRuleChange.all(:select => 'profile_version, MAX(change_date) AS change_date', :conditions => ['profile_id=?', @profile.id], :group => 'profile_version')
     # Add false change version 1 when no change have been made in profile version 1
-    versions << ActiveRuleChange.new(:profile_version => 1, :profile_id => @profile.id) unless versions.find {|version| version.profile_version == 1}
+    versions << ActiveRuleChange.new(:profile_version => 1, :profile_id => @profile.id) unless versions.find { |version| version.profile_version == 1 }
     versions.sort! { |a, b| b.profile_version <=> a.profile_version }
 
     # SONAR-2986
@@ -370,9 +374,9 @@ class ProfilesController < ApplicationController
       @profile2 = Profile.find(params[:id2])
 
       arules1 = ActiveRule.all(:include => [{:active_rule_parameters => :rules_parameter}, :rule],
-                                :conditions => ['active_rules.profile_id=?', @profile1.id])
+                               :conditions => ['active_rules.profile_id=?', @profile1.id])
       arules2 = ActiveRule.all(:order => 'rules.plugin_name, rules.plugin_rule_key', :include => [{:active_rule_parameters => :rules_parameter}, :rule],
-                                :conditions => ['active_rules.profile_id=?', @profile2.id])
+                               :conditions => ['active_rules.profile_id=?', @profile2.id])
 
       arules1.reject! { |arule| arule.rule.removed? }
       arules2.reject! { |arule| arule.rule.removed? }
@@ -423,37 +427,37 @@ class ProfilesController < ApplicationController
 
     def status
       @status ||=
-        begin
-          if @arule1.nil?
-            @status=(@arule2 ? DIFF_IN2 : nil)
-          else
-            if @arule2
-              # compare severity and parameters
-              @removed_params=[]
-              @added_params=[]
-              @rule.parameters.each do |param|
-                v1=@arule1.value(param.id)
-                v2=@arule2.value(param.id)
-                if v1
-                  if v2
-                    if v1!=v2
-                      @removed_params<<@arule1.parameter(param.name)
-                      @added_params<<@arule2.parameter(param.name)
-                    end
-                  else
-                    @removed_params<<@arule1.parameter(param.name)
-                  end
-                elsif v2
-                  @added_params<<@arule2.parameter(param.name)
-                end
-              end
-              diff=(@arule1.priority!=@arule2.priority) || !@removed_params.empty? || !@added_params.empty?
-              @status=(diff ? DIFF_MODIFIED : DIFF_SAME)
+          begin
+            if @arule1.nil?
+              @status=(@arule2 ? DIFF_IN2 : nil)
             else
-              @status=DIFF_IN1
+              if @arule2
+                # compare severity and parameters
+                @removed_params=[]
+                @added_params=[]
+                @rule.parameters.each do |param|
+                  v1=@arule1.value(param.id)
+                  v2=@arule2.value(param.id)
+                  if v1
+                    if v2
+                      if v1!=v2
+                        @removed_params<<@arule1.parameter(param.name)
+                        @added_params<<@arule2.parameter(param.name)
+                      end
+                    else
+                      @removed_params<<@arule1.parameter(param.name)
+                    end
+                  elsif v2
+                    @added_params<<@arule2.parameter(param.name)
+                  end
+                end
+                diff=(@arule1.priority!=@arule2.priority) || !@removed_params.empty? || !@added_params.empty?
+                @status=(diff ? DIFF_MODIFIED : DIFF_SAME)
+              else
+                @status=DIFF_IN1
+              end
             end
           end
-        end
     end
 
     def <=>(other)
@@ -492,9 +496,9 @@ class ProfilesController < ApplicationController
           added = added +1
         else
           rule = active_rule1.rule # = active_rule2.rule
-                                   #compare severity
+          #compare severity
           diff = true if active_rule1.priority != active_rule2.priority
-                                   #compare parameters
+          #compare parameters
           rule.parameters.each do |param|
             diff = true if active_rule1.value(param.id) != active_rule2.value(param.id)
           end

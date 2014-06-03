@@ -125,7 +125,6 @@ public class RuleActivator implements ServerComponent {
     // 3. else defined by rule defaults
     change.setSeverity(StringUtils.defaultIfEmpty(activation.getSeverity(), context.defaultSeverity()));
     for (RuleParamDto ruleParamDto : context.ruleParams()) {
-
       String value = StringUtils.defaultIfEmpty(
         activation.getParameters().get(ruleParamDto.getName()),
         context.defaultParam(ruleParamDto.getName()));

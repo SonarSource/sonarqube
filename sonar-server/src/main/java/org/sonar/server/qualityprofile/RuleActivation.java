@@ -43,8 +43,8 @@ public class RuleActivation {
     return this.cascade;
   }
 
-  public RuleActivation isCascade(boolean cascade){
-    this.cascade = cascade;
+  public RuleActivation isCascade(boolean b){
+    this.cascade = b;
     return this;
   }
 

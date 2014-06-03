@@ -116,7 +116,8 @@ public class QProfileBackuperMediumTest {
   @Test
   public void restore_and_create_profile() throws Exception {
     tester.get(QProfileBackuper.class).restore(new StringReader(
-      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), Charsets.UTF_8)));
+        Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), Charsets.UTF_8)),
+      null);
 
     List<ActiveRule> activeRules = tester.get(QProfileService.class).findActiveRulesByProfile(XOO_PROFILE_KEY);
     assertThat(activeRules).hasSize(1);
@@ -143,7 +144,7 @@ public class QProfileBackuperMediumTest {
     // restore backup, which activates only x1
     // -> update x1 and deactivate x2
     tester.get(QProfileBackuper.class).restore(new StringReader(
-      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), Charsets.UTF_8)));
+      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), Charsets.UTF_8)), null);
 
 
     List<ActiveRule> activeRules = tester.get(QProfileService.class).findActiveRulesByProfile(XOO_PROFILE_KEY);
@@ -171,7 +172,7 @@ public class QProfileBackuperMediumTest {
 
     // restore backup of child profile -> overrides x1
     tester.get(QProfileBackuper.class).restore(new StringReader(
-      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore-child.xml"), Charsets.UTF_8)));
+      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore-child.xml"), Charsets.UTF_8)), null);
 
     // parent profile is unchanged
     List<ActiveRule> activeRules = tester.get(QProfileService.class).findActiveRulesByProfile(XOO_PROFILE_KEY);
@@ -206,7 +207,7 @@ public class QProfileBackuperMediumTest {
 
     // restore backup of parent profile -> update x1 and propagates to child
     tester.get(QProfileBackuper.class).restore(new StringReader(
-      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore-parent.xml"), Charsets.UTF_8)));
+      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore-parent.xml"), Charsets.UTF_8)), null);
 
     // parent profile is updated
     List<ActiveRule> activeRules = tester.get(QProfileService.class).findActiveRulesByProfile(XOO_PROFILE_KEY);
@@ -242,7 +243,7 @@ public class QProfileBackuperMediumTest {
     // backup of child profile does not contain x1
     try {
       tester.get(QProfileBackuper.class).restore(new StringReader(
-        Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore_fails_to_deactivate_inherited_rule.xml"), Charsets.UTF_8)));
+        Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore_fails_to_deactivate_inherited_rule.xml"), Charsets.UTF_8)), null);
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Cannot deactivate inherited rule 'xoo:x1'");
@@ -253,7 +254,7 @@ public class QProfileBackuperMediumTest {
   public void fail_to_restore_if_not_xml_backup() throws Exception {
     try {
       tester.get(QProfileBackuper.class).restore(new StringReader(
-        Resources.toString(getClass().getResource("QProfileBackuperMediumTest/not-xml-backup.txt"), Charsets.UTF_8)));
+        Resources.toString(getClass().getResource("QProfileBackuperMediumTest/not-xml-backup.txt"), Charsets.UTF_8)), null);
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Fail to restore Quality profile backup");

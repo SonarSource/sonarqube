@@ -96,7 +96,6 @@ public class RuleActivatorMediumTest {
   @After
   public void after() throws Exception {
     dbSession.close();
-
   }
 
   @Test

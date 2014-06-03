@@ -32,7 +32,7 @@ public class InheritedProfilesTest extends AbstractDbUnitTestCase {
 
   @Before
   public void setUp() {
-    profilesManager = new ProfilesManager(getSession(), null, mock(PreviewCache.class));
+    profilesManager = new ProfilesManager(getSession(), mock(PreviewCache.class));
   }
 
   @Test

@@ -24,16 +24,17 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.*;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.ActiveRuleChange;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleParam;
+import org.sonar.api.rules.RulePriority;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.jpa.dao.BaseDao;
-import org.sonar.api.rules.ActiveRuleChange;
-import org.sonar.jpa.dao.RulesDao;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.List;
-import org.sonar.api.rules.ActiveRule;
 
 /**
  * @deprecated to be dropped in 4.4
@@ -41,29 +42,11 @@ import org.sonar.api.rules.ActiveRule;
 @Deprecated
 public class ProfilesManager extends BaseDao {
 
-  private RulesDao rulesDao;
   private PreviewCache dryRunCache;
-
-  public ProfilesManager(DatabaseSession session, RulesDao rulesDao, PreviewCache dryRunCache) {
-    super(session);
-    this.rulesDao = rulesDao;
-    this.dryRunCache = dryRunCache;
-  }
 
   public ProfilesManager(DatabaseSession session, PreviewCache dryRunCache) {
     super(session);
     this.dryRunCache = dryRunCache;
-  }
-
-  public int copyProfile(int profileId, String newProfileName) {
-    RulesProfile profile = getSession().getSingleResult(RulesProfile.class, "id", profileId);
-    RulesProfile toImport = (RulesProfile) profile.clone();
-    toImport.setName(newProfileName);
-    ProfilesBackup pb = new ProfilesBackup(getSession(), dryRunCache);
-    pb.importProfile(rulesDao, toImport);
-    getSession().commit();
-    dryRunCache.reportGlobalModification();
-    return toImport.getId();
   }
 
   // Managing inheritance of profiles

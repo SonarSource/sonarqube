@@ -191,21 +191,6 @@ public class QProfileOperations implements ServerComponent {
     }
   }
 
-  public void copyProfile(int profileId, String copyProfileName, UserSession userSession) {
-    checkPermission(userSession);
-    DbSession session = myBatis.openSession(false);
-    try {
-      QualityProfileDto profileDto = findNotNull(profileId, session);
-      checkNotAlreadyExists(copyProfileName, profileDto.getLanguage(), session);
-      int copyProfileId = profilesManager.copyProfile(profileId, copyProfileName);
-
-      // Cannot reuse same session as hibernate as create active rules in another session
-//      esActiveRule.bulkIndexProfile(copyProfileId);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   @VisibleForTesting
   boolean isCycle(QualityProfileDto childProfile, @Nullable QualityProfileDto parentProfile, DbSession session) {
     QualityProfileDto currentParent = parentProfile;

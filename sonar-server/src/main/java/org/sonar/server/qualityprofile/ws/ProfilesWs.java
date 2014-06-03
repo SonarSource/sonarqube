@@ -92,6 +92,7 @@ public class ProfilesWs implements WebService {
     action.createParam("name")
       .setDescription("Profile name. If not set, the default profile for the selected language is used")
       .setExampleValue("Sonar way");
+    RailsHandler.addFormatParam(action);
   }
 
   private void defineRestoreAction(NewController controller) {
@@ -104,6 +105,7 @@ public class ProfilesWs implements WebService {
     action.createParam("backup")
       .setRequired(true)
       .setDescription("Path to the file containing the backup (HTML format)");
+    RailsHandler.addJsonOnlyFormatParam(action);
   }
 
   private void defineDestroyAction(NewController controller) {

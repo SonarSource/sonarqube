@@ -22,7 +22,6 @@ package org.sonar.server.qualityprofile;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rules.ActiveRuleChange;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
@@ -35,7 +34,7 @@ public class RuleChangeTest extends AbstractDbUnitTestCase {
 
   @Before
   public void setUp() {
-    profilesManager = new ProfilesManager(getSession(), null, mock(PreviewCache.class));
+    profilesManager = new ProfilesManager(getSession(), mock(PreviewCache.class));
   }
 
   @Test
