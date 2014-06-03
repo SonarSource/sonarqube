@@ -380,9 +380,11 @@ define [
       @settings.set 'duplications', true
       @sourceView.resetShowBlocks()
       duplications.forEach (d) =>
-        lineFrom = d.blocks[0].from
-        lineTo = lineFrom + d.blocks[0].size
-        @sourceView.addShowBlock lineFrom - LINES_AROUND_DUPLICATION, lineTo + LINES_AROUND_DUPLICATION
+        d.blocks.forEach (b) =>
+          if b._ref == '1'
+            lineFrom = b.from
+            lineTo = b.from + b.size
+            @sourceView.addShowBlock lineFrom - LINES_AROUND_DUPLICATION, lineTo + LINES_AROUND_DUPLICATION
       @sourceView.render()
 
 

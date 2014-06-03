@@ -135,7 +135,7 @@ define [
       popup = new DuplicationPopupView
         triggerEl: $(e.currentTarget)
         main: @options.main
-        collection: new Backbone.Collection _.rest @model.get('duplications')[index - 1].blocks
+        collection: new Backbone.Collection @model.get('duplications')[index - 1].blocks
       popup.render()
 
 
@@ -199,17 +199,18 @@ define [
 
     augmentWithDuplications: (source) ->
       duplications = @model.get 'duplications'
-      if duplications
+      return source unless duplications?
+      source.forEach (line) ->
+        lineDuplications = []
         duplications.forEach (d, i) ->
-          lineFrom = d.blocks[0].from
-          lineTo = d.blocks[0].from + d.blocks[0].size
-          source.forEach (line) ->
-            lineDuplications = line.duplications || []
-            if line.lineNumber >= lineFrom && (line.lineNumber <= lineTo)
-              lineDuplications.push i + 1
-            else
-              lineDuplications.push false
-            line.duplications = lineDuplications
+          duplicated = false
+          d.blocks.forEach (b) ->
+            if b._ref == '1'
+              lineFrom = b.from
+              lineTo = b.from + b.size
+              duplicated = true if line.lineNumber >= lineFrom && line.lineNumber <= lineTo
+          lineDuplications.push if duplicated then i + 1 else false
+        line.duplications = lineDuplications
       source
 
 
