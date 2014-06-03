@@ -42,6 +42,7 @@ public class IssueJsonParserTest {
     Issue first = list.get(0);
     assertThat(first.key()).isEqualTo("ABCDE");
     assertThat(first.componentKey()).isEqualTo("Action.java");
+    assertThat(first.componentId()).isEqualTo(5L);
     assertThat(first.projectKey()).isEqualTo("struts");
     assertThat(first.ruleKey()).isEqualTo("squid:CycleBetweenPackages");
     assertThat(first.severity()).isEqualTo("CRITICAL");
