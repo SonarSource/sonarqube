@@ -700,6 +700,29 @@ public class RuleIndexMediumTest {
   }
 
   @Test
+  public void search_by_template_key_with_params() throws InterruptedException {
+    RuleDto templateRule = newRuleDto(RuleKey.of("java", "S001")).setCardinality(Cardinality.MULTIPLE);
+    RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
+    dao.insert(dbSession, templateRule);
+    dao.addRuleParam(dbSession, templateRule, ruleParamDto);
+
+    RuleDto customRule = newRuleDto(RuleKey.of("java", "S001_MY_CUSTOM")).setParentId(templateRule.getId());
+    RuleParamDto customRuleParam = RuleParamDto.createFor(customRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue("a.*");
+    dao.insert(dbSession, customRule);
+    dao.addRuleParam(dbSession, customRule, customRuleParam);
+    dbSession.commit();
+
+    // find all
+    RuleQuery query = new RuleQuery();
+    Result<Rule> results = index.search(query, new QueryOptions());
+    assertThat(results.getHits()).hasSize(2);
+
+    // get params
+    assertThat(index.getByKey(templateRule.getKey()).params()).hasSize(1);
+    assertThat(index.getByKey(customRule.getKey()).params()).hasSize(1);
+  }
+
+  @Test
   public void show_custom_rule() throws InterruptedException {
     RuleDto templateRule = newRuleDto(RuleKey.of("java", "S001")).setCardinality(Cardinality.MULTIPLE);
     dao.insert(dbSession, templateRule);
