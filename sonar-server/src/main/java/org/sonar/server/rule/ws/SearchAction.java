@@ -59,6 +59,7 @@ public class SearchAction implements RequestHandler {
   public static final String PARAM_TAGS = "tags";
   public static final String PARAM_ALL_OF_TAGS = "all_of_tags";
   public static final String PARAM_INHERITANCE = "inheritance";
+  public static final String PARAM_IS_TEMPLATE = "is_template";
   public static final String PARAM_FACETS = "facets";
 
   public static final String SEARCH_ACTION = "search";
@@ -175,6 +176,11 @@ public class SearchAction implements RequestHandler {
         ActiveRule.Inheritance.OVERRIDES.name());
 
     action
+      .createParam(PARAM_IS_TEMPLATE)
+      .setDescription("Filter template rules. Available since 4.4")
+      .setBooleanPossibleValues();
+
+    action
       .createParam(SearchOptions.PARAM_SORT)
       .setDescription("Sort field")
       .setPossibleValues(RuleNormalizer.RuleField.NAME.field(),
@@ -227,6 +233,7 @@ public class SearchAction implements RequestHandler {
     query.setTags(request.paramAsStrings(PARAM_TAGS));
     query.setAllOfTags(request.paramAsStrings(PARAM_ALL_OF_TAGS));
     query.setInheritance(request.paramAsStrings(PARAM_INHERITANCE));
+    query.setIsTemplate(request.paramAsBoolean(PARAM_IS_TEMPLATE));
     return query;
   }
 

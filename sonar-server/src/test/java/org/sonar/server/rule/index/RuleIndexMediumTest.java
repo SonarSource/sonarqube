@@ -49,12 +49,7 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -63,7 +58,7 @@ public class RuleIndexMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester()
-    .setProperty(IndexProperties.HTTP_PORT,"9200");
+    .setProperty(IndexProperties.HTTP_PORT, "9200");
 
   RuleDao dao = tester.get(RuleDao.class);
   RuleIndex index = tester.get(RuleIndex.class);
@@ -649,6 +644,36 @@ public class RuleIndexMediumTest {
 
     // null list => no filter
     query = new RuleQuery().setTags(null);
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(2);
+  }
+
+  @Test
+  public void search_by_is_template() throws InterruptedException {
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")).setCardinality(Cardinality.SINGLE));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")).setCardinality(Cardinality.MULTIPLE));
+    dbSession.commit();
+
+    // find all
+    RuleQuery query = new RuleQuery();
+    Result<Rule> results = index.search(query, new QueryOptions());
+    assertThat(results.getHits()).hasSize(2);
+
+    // Only template
+    query = new RuleQuery().setIsTemplate(true);
+    results = index.search(query, new QueryOptions());
+    assertThat(results.getHits()).hasSize(1);
+    assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S002");
+    assertThat(Iterables.getFirst(results.getHits(), null).template()).isTrue();
+
+    // Only not template
+    query = new RuleQuery().setIsTemplate(false);
+    results = index.search(query, new QueryOptions());
+    assertThat(results.getHits()).hasSize(1);
+    assertThat(Iterables.getFirst(results.getHits(), null).template()).isFalse();
+    assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S001");
+
+    // null => no filter
+    query = new RuleQuery().setIsTemplate(null);
     assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(2);
   }
 

@@ -24,11 +24,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.index.query.BoolFilterBuilder;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.sort.FieldSortBuilder;
@@ -40,19 +36,10 @@ import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.Rule;
-import org.sonar.server.search.BaseIndex;
-import org.sonar.server.search.ESNode;
-import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.IndexField;
-import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
@@ -195,7 +182,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     if(query.getAvailableSince() != null){
       fb.must(FilterBuilders.rangeFilter(RuleNormalizer.RuleField.UPDATED_AT.field())
-      .gte(query.getAvailableSince()));
+        .gte(query.getAvailableSince()));
     }
 
     if (query.getStatuses() != null && !query.getStatuses().isEmpty()) {
@@ -206,6 +193,10 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       this.addTermFilter(fb, RuleNormalizer.RuleField.STATUS.field(), stringStatus);
     }
 
+    Boolean isTemplate = query.isTemplate();
+    if (isTemplate != null) {
+      this.addTermFilter(fb, RuleNormalizer.RuleField.TEMPLATE.field(), Boolean.toString(isTemplate));
+    }
 
     // ActiveRule Filter (profile and inheritance)
     BoolFilterBuilder childrenFilter = FilterBuilders.boolFilter();

@@ -26,6 +26,7 @@ import org.sonar.server.search.IndexField;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Date;
 
@@ -43,10 +44,11 @@ public class RuleQuery {
   private Boolean hasDebtCharacteristic;
   private Boolean activation;
   private String qProfileKey;
-  private boolean ascendingSort = true;
-  private IndexField sortField;
   private Collection<String> inheritance;
+  private Boolean isTemplate;
   private Date availableSince;
+  private IndexField sortField;
+  private boolean ascendingSort = true;
 
 
   /**
@@ -192,6 +194,16 @@ public class RuleQuery {
 
   public RuleQuery setInheritance(@Nullable Collection<String> inheritance) {
     this.inheritance = inheritance;
+    return this;
+  }
+
+  @CheckForNull
+  public Boolean isTemplate() {
+    return isTemplate;
+  }
+
+  public RuleQuery setIsTemplate(@Nullable Boolean b) {
+    this.isTemplate = b;
     return this;
   }
 
