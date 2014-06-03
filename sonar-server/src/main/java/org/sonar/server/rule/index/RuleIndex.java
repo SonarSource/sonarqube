@@ -198,6 +198,11 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       this.addTermFilter(fb, RuleNormalizer.RuleField.TEMPLATE.field(), Boolean.toString(isTemplate));
     }
 
+    String template = query.template();
+    if (template != null) {
+      this.addTermFilter(fb, RuleNormalizer.RuleField.TEMPLATE_KEY.field(), template);
+    }
+
     // ActiveRule Filter (profile and inheritance)
     BoolFilterBuilder childrenFilter = FilterBuilders.boolFilter();
     this.addTermFilter(childrenFilter, ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), query.getQProfileKey());

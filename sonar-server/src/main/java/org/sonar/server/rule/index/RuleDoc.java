@@ -91,6 +91,11 @@ public class RuleDoc extends BaseDoc implements Rule {
   }
 
   @Override
+  public RuleKey templateKey() {
+    return RuleKey.parse((String) getField(RuleNormalizer.RuleField.TEMPLATE_KEY.field()));
+  }
+
+  @Override
   public List<String> tags() {
     return (List<String>) getField(RuleNormalizer.RuleField.TAGS.field());
   }

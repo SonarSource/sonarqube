@@ -676,6 +676,46 @@ public class RuleIndexMediumTest {
   }
 
   @Test
+  public void search_by_template_key() throws InterruptedException {
+    RuleDto templateRule = newRuleDto(RuleKey.of("java", "S001")).setCardinality(Cardinality.MULTIPLE);
+    dao.insert(dbSession, templateRule);
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001_MY_CUSTOM")).setParentId(templateRule.getId()));
+    dbSession.commit();
+
+    // find all
+    RuleQuery query = new RuleQuery();
+    Result<Rule> results = index.search(query, new QueryOptions());
+    assertThat(results.getHits()).hasSize(2);
+
+    // Only custom rule
+    query = new RuleQuery().setTemplate("java:S001");
+    results = index.search(query, new QueryOptions());
+    assertThat(results.getHits()).hasSize(1);
+    assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S001_MY_CUSTOM");
+    assertThat(Iterables.getFirst(results.getHits(), null).templateKey()).isEqualTo(RuleKey.of("java", "S001"));
+
+    // null => no filter
+    query = new RuleQuery().setTemplate(null);
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(2);
+  }
+
+  @Test
+  public void show_custom_rule() throws InterruptedException {
+    RuleDto templateRule = newRuleDto(RuleKey.of("java", "S001")).setCardinality(Cardinality.MULTIPLE);
+    dao.insert(dbSession, templateRule);
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001_MY_CUSTOM")).setParentId(templateRule.getId()));
+    dbSession.commit();
+
+    // find all
+    RuleQuery query = new RuleQuery();
+    Result<Rule> results = index.search(query, new QueryOptions());
+    assertThat(results.getHits()).hasSize(2);
+
+    // find custom rule
+    assertThat(index.getByKey(RuleKey.of("java", "S001_MY_CUSTOM")).templateKey()).isEqualTo(RuleKey.of("java", "S001"));
+  }
+
+    @Test
   public void paging() {
     dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")));
     dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")));

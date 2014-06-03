@@ -150,7 +150,6 @@ public class RulesWebServiceTest {
     result.assertJson(getClass(), "search_2_rules.json", false);
   }
 
-
   @Test
   public void search_debt_rules() throws Exception {
     ruleDao.insert(session, newRuleDto(RuleKey.of("javascript", "S001"))
@@ -160,7 +159,6 @@ public class RulesWebServiceTest {
       .setDefaultSubCharacteristicId(1));
     session.commit();
 
-
     MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_FIELDS, "debtRemFn,debtChar");
@@ -168,6 +166,35 @@ public class RulesWebServiceTest {
     result.assertJson(this.getClass(), "search_debt_rule.json");
   }
 
+  @Test
+  public void search_template_rules() throws Exception {
+    RuleDto templateRule = newRuleDto(RuleKey.of("java", "S001")).setCardinality(Cardinality.MULTIPLE);
+    ruleDao.insert(session, templateRule);
+    ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S001_MY_CUSTOM")).setParentId(templateRule.getId()));
+    session.commit();
+
+    MockUserSession.set();
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+    request.setParam(SearchOptions.PARAM_FIELDS, "template");
+    request.setParam(SearchAction.PARAM_IS_TEMPLATE, "true");
+    WsTester.Result result = request.execute();
+    result.assertJson(this.getClass(), "search_template_rules.json");
+  }
+
+  @Test
+  public void search_custom_rules_from_template_key() throws Exception {
+    RuleDto templateRule = newRuleDto(RuleKey.of("java", "S001")).setCardinality(Cardinality.MULTIPLE);
+    ruleDao.insert(session, templateRule);
+    ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S001_MY_CUSTOM")).setParentId(templateRule.getId()));
+    session.commit();
+
+    MockUserSession.set();
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+    request.setParam(SearchOptions.PARAM_FIELDS, "templateKey");
+    request.setParam(SearchAction.PARAM_TEMPLATE, "java:S001");
+    WsTester.Result result = request.execute();
+    result.assertJson(this.getClass(), "search_rules_from_template_key.json");
+  }
 
   @Test
   public void search_all_active_rules() throws Exception {
@@ -192,7 +219,6 @@ public class RulesWebServiceTest {
 
     result.assertJson(this.getClass(), "search_active_rules.json");
   }
-
 
   @Test
   public void search_profile_active_rules() throws Exception {

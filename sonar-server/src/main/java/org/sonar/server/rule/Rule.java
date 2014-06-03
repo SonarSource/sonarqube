@@ -24,6 +24,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Date;
 import java.util.List;
 
@@ -55,6 +56,8 @@ public interface Rule {
   RuleStatus status();
 
   boolean template();
+
+  RuleKey templateKey();
 
   /**
    * Tags that can be customized by administrators
