@@ -30,7 +30,11 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.preview.PreviewCache;
-import org.sonar.core.qualityprofile.db.*;
+import org.sonar.core.qualityprofile.db.ActiveRuleDto;
+import org.sonar.core.qualityprofile.db.ActiveRuleKey;
+import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
@@ -45,7 +49,6 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
 
 import javax.annotation.Nullable;
-
 import java.util.List;
 import java.util.Map;
 
@@ -283,6 +286,10 @@ public class RuleActivator implements ServerComponent {
   }
 
   public Multimap<String, String> bulkActivate(RuleQuery ruleQuery, QualityProfileKey profile) {
+    return bulkActivate(ruleQuery, profile, null);
+  }
+
+  public Multimap<String, String> bulkActivate(RuleQuery ruleQuery, QualityProfileKey profile, @Nullable String severity) {
     verifyPermission(UserSession.get());
     RuleIndex ruleIndex = index.get(RuleIndex.class);
     Multimap<String, String> results = ArrayListMultimap.create();
@@ -300,7 +307,11 @@ public class RuleActivator implements ServerComponent {
         if (!rule.isTemplate()) {
           ActiveRuleKey key = ActiveRuleKey.of(profile, rule.key());
           RuleActivation activation = new RuleActivation(key);
-          activation.setSeverity(rule.severity());
+          if(severity != null && !severity.isEmpty()){
+            activation.setSeverity(severity);
+          } else {
+            activation.setSeverity(rule.severity());
+          }
           for (ActiveRuleChange active : this.activate(dbSession, activation)) {
             results.put("activated", active.getKey().ruleKey().toString());
           }

@@ -41,11 +41,11 @@ public class BulkRuleActivationActions implements ServerComponent {
   public static final String BULK_ACTIVATE_ACTION = "activate_rules";
   public static final String BULK_DEACTIVATE_ACTION = "deactivate_rules";
 
-  private final QProfileService service;
+  private final RuleActivator activation;
   private final RuleService ruleService;
 
-  public BulkRuleActivationActions(QProfileService service, RuleService ruleService) {
-    this.service = service;
+  public BulkRuleActivationActions(QProfileService service, RuleActivator activation, RuleService ruleService) {
+    this.activation = activation;
     this.ruleService = ruleService;
   }
 
@@ -70,8 +70,8 @@ public class BulkRuleActivationActions implements ServerComponent {
     SearchAction.defineRuleSearchParameters(activate);
     defineProfileKeyParameters(activate);
 
-    activate.createParam("activation_severity")
-      .setDescription(SEVERITY)
+    activate.createParam(SEVERITY)
+      .setDescription("Set severity of rules activated in bulk")
       .setPossibleValues(Severity.ALL);
   }
 
@@ -100,14 +100,17 @@ public class BulkRuleActivationActions implements ServerComponent {
   }
 
   private void bulkActivate(Request request, Response response) throws Exception {
-    Multimap<String, String> results = service.bulkActivate(
-      SearchAction.createRuleQuery(ruleService.newRuleQuery(), request), readKey(request));
+    Multimap<String, String> results = activation.bulkActivate(
+      SearchAction.createRuleQuery(ruleService.newRuleQuery(), request),
+      readKey(request),
+      request.param(SEVERITY));
     writeResponse(results, response);
   }
 
   private void bulkDeactivate(Request request, Response response) throws Exception {
-    Multimap<String, String> results = service.bulkDeactivate(
-      SearchAction.createRuleQuery(ruleService.newRuleQuery(), request), readKey(request));
+    Multimap<String, String> results = activation.bulkDeactivate(
+      SearchAction.createRuleQuery(ruleService.newRuleQuery(), request),
+      readKey(request));
     writeResponse(results, response);
   }
 

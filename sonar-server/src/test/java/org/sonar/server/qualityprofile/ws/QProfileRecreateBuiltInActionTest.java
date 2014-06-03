@@ -25,10 +25,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.server.qualityprofile.QProfileService;
-import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.QProfileBackup;
 import org.sonar.server.qualityprofile.QProfileResult;
+import org.sonar.server.qualityprofile.QProfileService;
+import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.ws.WsTester;
 
@@ -48,10 +48,11 @@ public class QProfileRecreateBuiltInActionTest {
   public void setUp() throws Exception {
     QProfileService profileService = mock(QProfileService.class);
     RuleService ruleService = mock(RuleService.class);
+    RuleActivator activation = mock(RuleActivator.class);
     tester = new WsTester(new QProfilesWs(
       new QProfileRecreateBuiltInAction(qProfileBackup),
       new RuleActivationActions(profileService),
-      new BulkRuleActivationActions(profileService, ruleService)));
+      new BulkRuleActivationActions(profileService, activation, ruleService)));
   }
 
   @Test

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import com.google.common.collect.ImmutableSet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -35,7 +36,11 @@ import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
+import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.rule.ws.SearchAction;
+import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.ws.SearchOptions;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
@@ -357,6 +362,34 @@ public class QProfilesWsMediumTest {
 
     // 2. Assert ActiveRule in DAO
     assertThat(db.activeRuleDao().findByProfileKey(session, profile.getKey())).hasSize(1);
+  }
+
+  @Test
+  public void bulk_activate_rule_by_query_with_severity() throws Exception {
+    QualityProfileDto profile = getProfile("java");
+    RuleDto rule0 = getRule(profile.getLanguage(), "toto");
+    RuleDto rule1 = getRule(profile.getLanguage(), "tata");
+    session.commit();
+
+    // 0. Assert No Active Rule for profile
+    assertThat(db.activeRuleDao().findByProfileKey(session, profile.getKey())).isEmpty();
+    assertThat(db.activeRuleDao().findByProfileKey(session, profile.getKey())).hasSize(0);
+
+    // 2. Assert ActiveRule with BLOCKER severity
+    assertThat(tester.get(RuleIndex.class).search(
+      new RuleQuery().setSeverities(ImmutableSet.of("BLOCKER")),
+      QueryOptions.DEFAULT).getHits()).hasSize(2);
+
+    // 1. Activate Rule with query returning 2 hits
+    WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
+    request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
+    request.setParam(RuleActivationActions.SEVERITY, "MINOR");
+    request.execute();
+    session.clearCache();
+
+    // 2. Assert ActiveRule with MINOR severity
+    assertThat(tester.get(ActiveRuleIndex.class).findByRule(rule0.getKey()).get(0).severity()).isEqualTo("MINOR");
+
   }
 
   @Test
