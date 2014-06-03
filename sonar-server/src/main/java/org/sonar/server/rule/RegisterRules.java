@@ -41,7 +41,8 @@ import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.qualityprofile.ProfilesManager;
+import org.sonar.server.qualityprofile.ActiveRule;
+import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.action.EmbeddedIndexAction;
 import org.sonar.server.search.action.IndexAction;
@@ -65,22 +66,22 @@ public class RegisterRules implements Startable {
   private static final Logger LOG = LoggerFactory.getLogger(RegisterRules.class);
 
   private final RuleDefinitionsLoader defLoader;
-  private final ProfilesManager profilesManager;
+  private final QProfileService profileService;
   private final DbClient dbClient;
   private final CharacteristicDao characteristicDao;
 
 
-  public RegisterRules(RuleDefinitionsLoader defLoader, ProfilesManager profilesManager,
+  public RegisterRules(RuleDefinitionsLoader defLoader, QProfileService profileService,
                        DbClient dbClient) {
-    this(defLoader, profilesManager, dbClient, System2.INSTANCE);
+    this(defLoader, profileService, dbClient, System2.INSTANCE);
   }
 
 
   @VisibleForTesting
-  RegisterRules(RuleDefinitionsLoader defLoader, ProfilesManager profilesManager,
+  RegisterRules(RuleDefinitionsLoader defLoader, QProfileService profileService,
                 DbClient dbClient, System2 system) {
     this.defLoader = defLoader;
-    this.profilesManager = profilesManager;
+    this.profileService = profileService;
     this.dbClient = dbClient;
     this.characteristicDao = dbClient.debtCharacteristicDao();
   }
@@ -395,7 +396,10 @@ public class RegisterRules implements Startable {
     for (RuleDto rule : removedRules) {
       // SONAR-4642 Remove active rules only when repository still exists
       if (repositoryKeys.contains(rule.getRepositoryKey())) {
-        profilesManager.removeActivatedRules(rule.getId());
+        List<ActiveRule> activeRules = profileService.findActiveRulesByRule(rule.getKey());
+        for (ActiveRule activeRule : activeRules) {
+          profileService.deactivate(activeRule.key());
+        }
       }
     }
   }

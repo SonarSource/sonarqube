@@ -27,7 +27,6 @@ import com.google.common.collect.Multimap;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.server.rule.RuleParamType;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
@@ -40,12 +39,10 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.rule.index.RuleResult;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.search.QueryOptions;
-import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
 
 import javax.annotation.Nullable;
@@ -80,8 +77,7 @@ public class RuleActivator implements ServerComponent {
    * Activate a rule on a Quality profile. Update configuration (severity/parameters) if the rule is already
    * activated.
    */
-  public List<ActiveRuleChange> activate(RuleActivation activation) {
-    verifyPermission(UserSession.get());
+  List<ActiveRuleChange> activate(RuleActivation activation) {
     DbSession dbSession = db.openSession(false);
     try {
       List<ActiveRuleChange> changes = activate(dbSession, activation);
@@ -96,7 +92,7 @@ public class RuleActivator implements ServerComponent {
   }
 
   /**
-   * Activate the rule WITHOUT committing db session and WITHOUT checking permissions
+   * Activate the rule WITHOUT committing db session
    */
   List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation) {
 
@@ -107,7 +103,7 @@ public class RuleActivator implements ServerComponent {
       change = new ActiveRuleChange(ActiveRuleChange.Type.ACTIVATED, activation.getKey());
 
       //Rules crated by default Inheritance
-      if (activation.isCascade()) {
+      if (activation.isCascade() || context.isSameAsParent(activation)) {
         change.setInheritance(ActiveRule.Inheritance.INHERITED);
       }
     } else {
@@ -119,7 +115,7 @@ public class RuleActivator implements ServerComponent {
 
       //Updates on rule that exists with a valid parent switch them to OVERRIDE
       if (!activation.isCascade() && context.parentProfile() != null) {
-        change.setInheritance(activation.isReset() ? ActiveRule.Inheritance.INHERITED : ActiveRule.Inheritance.OVERRIDES);
+        change.setInheritance(context.isSameAsParent(activation) ? ActiveRule.Inheritance.INHERITED : ActiveRule.Inheritance.OVERRIDES);
       }
     }
 
@@ -220,8 +216,7 @@ public class RuleActivator implements ServerComponent {
    * Deactivate a rule on a Quality profile. Does nothing if the rule is not activated, but
    * fails (fast) if the rule or the profile does not exist.
    */
-  public List<ActiveRuleChange> deactivate(ActiveRuleKey key) {
-    verifyPermission(UserSession.get());
+  List<ActiveRuleChange> deactivate(ActiveRuleKey key) {
     DbSession dbSession = db.openSession(false);
     List<ActiveRuleChange> changes = Lists.newArrayList();
     try {
@@ -236,17 +231,18 @@ public class RuleActivator implements ServerComponent {
   /**
    * Deactivate a rule on a Quality profile WITHOUT committing db session and WITHOUT checking permissions
    */
-  public List<ActiveRuleChange> deactivate(ActiveRuleKey key, DbSession dbSession) {
+  List<ActiveRuleChange> deactivate(ActiveRuleKey key, DbSession dbSession) {
     return cascadeDeactivation(key, dbSession, false);
   }
 
   private List<ActiveRuleChange> cascadeDeactivation(ActiveRuleKey key, DbSession dbSession, boolean isCascade) {
     List<ActiveRuleChange> changes = Lists.newArrayList();
     RuleActivationContext context = contextFactory.create(key, dbSession);
-    ActiveRuleChange change = null;
+    ActiveRuleChange change;
     if (context.activeRule() == null) {
       return changes;
-    } else if (!isCascade && (context.activeRule().isInherited() ||
+    }
+    if (!isCascade && (context.activeRule().isInherited() ||
       context.activeRule().doesOverride())) {
       throw new IllegalStateException("Cannot deactivate inherited rule '" + key.ruleKey() + "'");
     }
@@ -268,11 +264,6 @@ public class RuleActivator implements ServerComponent {
   }
 
 
-  private void verifyPermission(UserSession userSession) {
-    userSession.checkLoggedIn();
-    userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-  }
-
   private void verifyParam(RuleParamDto ruleParam, @Nullable String value) {
     if (value != null) {
       RuleParamType ruleParamType = RuleParamType.parse(ruleParam.getType());
@@ -285,12 +276,7 @@ public class RuleActivator implements ServerComponent {
     }
   }
 
-  public Multimap<String, String> bulkActivate(RuleQuery ruleQuery, QualityProfileKey profile) {
-    return bulkActivate(ruleQuery, profile, null);
-  }
-
-  public Multimap<String, String> bulkActivate(RuleQuery ruleQuery, QualityProfileKey profile, @Nullable String severity) {
-    verifyPermission(UserSession.get());
+  Multimap<String, String> bulkActivate(RuleQuery ruleQuery, QualityProfileKey profile) {
     RuleIndex ruleIndex = index.get(RuleIndex.class);
     Multimap<String, String> results = ArrayListMultimap.create();
     DbSession dbSession = db.openSession(false);
@@ -326,8 +312,7 @@ public class RuleActivator implements ServerComponent {
     return results;
   }
 
-  public Multimap<String, String> bulkDeactivate(RuleQuery ruleQuery, QualityProfileKey profile) {
-    verifyPermission(UserSession.get());
+  Multimap<String, String> bulkDeactivate(RuleQuery ruleQuery, QualityProfileKey profile) {
     RuleIndex ruleIndex = index.get(RuleIndex.class);
     Multimap<String, String> results = ArrayListMultimap.create();
     DbSession dbSession = db.openSession(false);

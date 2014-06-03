@@ -90,8 +90,6 @@ class Internal
     component(Java::OrgSonarServerUi::JRubyI18n.java_class)
   end
 
-  private
-
   def self.component(component_java_class)
     Java::OrgSonarServerPlatform::Platform.component(component_java_class)
   end

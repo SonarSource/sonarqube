@@ -92,35 +92,6 @@ public class ProfilesManager extends BaseDao {
   }
 
   /**
-   * Deactivate all active rules from profiles using a rule, then remove then.
-   */
-  public void removeActivatedRules(int ruleId) {
-    List<ActiveRule> activeRules = getSession().createQuery("FROM " + ActiveRule.class.getSimpleName() + " WHERE rule.id=:ruleId").setParameter("ruleId", ruleId).getResultList();
-    List<ActiveRule> activeRulesToRemove = Lists.newArrayList();
-
-    for (ActiveRule activeRule : activeRules) {
-      if (!activeRule.isInherited()) {
-        RulesProfile profile = activeRule.getRulesProfile();
-        incrementProfileVersionIfNeeded(profile);
-        ruleDisabled(profile, activeRule, null);
-        for (RulesProfile child : getChildren(profile.getId())) {
-          deactivate(child, activeRule.getRule(), null);
-        }
-        activeRulesToRemove.add(activeRule);
-      }
-    }
-
-    for (ActiveRule activeRule : activeRulesToRemove) {
-      // Do not use getSingleResult as it can generate an EntityNotFoundException
-      ActiveRule activeRuleToRemove = getSession().getEntity(ActiveRule.class, activeRule.getId());
-      removeActiveRule(activeRuleToRemove);
-    }
-    getSession().commit();
-    dryRunCache.reportGlobalModification();
-  }
-
-
-  /**
    * Rule was activated
    */
   public RuleInheritanceActions activated(int profileId, int activeRuleId, String userName) {

@@ -144,11 +144,11 @@ class ProfilesController < ApplicationController
     verify_post_request
     require_parameters 'id'
 
-    profile = Internal.quality_profiles.profile(params[:id].to_i)
-    not_found('Profile not found') unless profile
-    xml = Internal.profile_backup.backupProfile(profile)
-    filename = profile.name().gsub(' ', '_')
-    send_data(xml, :type => 'text/xml', :disposition => "attachment; filename=#{filename}_#{profile.language()}.xml")
+    profile_key=profile_id_to_key(params[:id].to_i)
+
+    xml = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).backup(profile_key)
+    filename = profile_key.toString().gsub(' ', '_')
+    send_data(xml, :type => 'text/xml', :disposition => "attachment; filename=#{filename}.xml")
   end
 
 
@@ -165,8 +165,9 @@ class ProfilesController < ApplicationController
       flash[:warning] = message('quality_profiles.please_upload_backup_file')
     else
       call_backend do
-        result = Internal.profile_backup.restore(Api::Utils.read_post_request_param(params[:backup]), false)
-        flash_result(result)
+        xml=Api::Utils.read_post_request_param(params[:backup])
+        Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).restore(xml)
+        #flash_result(result)
       end
     end
     redirect_to :action => 'index'
@@ -550,5 +551,11 @@ class ProfilesController < ApplicationController
 
   def set_profile_breadcrumbs
     add_breadcrumbs ProfilesController::root_breadcrumb, Api::Utils.language_name(@profile.language), {:name => @profile.name, :url => {:controller => 'rules_configuration', :action => 'index', :id => @profile.id}}
+  end
+
+  def profile_id_to_key(profile_id)
+    profile = Profile.find(profile_id)
+    not_found('Profile not found') unless profile
+    Java::OrgSonarCoreQualityprofileDb::QualityProfileKey.of(profile.name, profile.language)
   end
 end

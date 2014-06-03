@@ -23,11 +23,8 @@ package org.sonar.server.qualityprofile;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.profiles.XMLProfileParser;
-import org.sonar.api.profiles.XMLProfileSerializer;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.utils.ValidationMessages;
@@ -38,15 +35,11 @@ import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
-import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.user.UserSession;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -56,12 +49,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class QProfileBackup implements ServerComponent {
 
-  private final DatabaseSessionFactory sessionFactory;
-  private final XMLProfileParser xmlProfileParser;
-  private final XMLProfileSerializer xmlProfileSerializer;
-
   private final MyBatis myBatis;
-  private final QProfileLookup qProfileLookup;
   private final QProfileOperations qProfileOperations;
   private final QProfileActiveRuleOperations qProfileActiveRuleOperations;
   private final RuleDao ruleDao;
@@ -69,68 +57,23 @@ public class QProfileBackup implements ServerComponent {
   private final DefaultProfilesCache defaultProfilesCache;
   private final PreviewCache dryRunCache;
 
-  public QProfileBackup(DatabaseSessionFactory sessionFactory, XMLProfileParser xmlProfileParser, XMLProfileSerializer xmlProfileSerializer, MyBatis myBatis,
-                        QProfileLookup qProfileLookup, QProfileOperations qProfileOperations, QProfileActiveRuleOperations qProfileActiveRuleOperations, RuleDao ruleDao,
+  public QProfileBackup(MyBatis myBatis,
+                        QProfileOperations qProfileOperations, QProfileActiveRuleOperations qProfileActiveRuleOperations, RuleDao ruleDao,
                         DefaultProfilesCache defaultProfilesCache, PreviewCache dryRunCache) {
-    this(sessionFactory, xmlProfileParser, xmlProfileSerializer, myBatis, qProfileLookup, qProfileOperations, qProfileActiveRuleOperations, ruleDao,
+    this(myBatis, qProfileOperations, qProfileActiveRuleOperations, ruleDao,
       Collections.<ProfileDefinition>emptyList(), defaultProfilesCache, dryRunCache);
   }
 
-  public QProfileBackup(DatabaseSessionFactory sessionFactory, XMLProfileParser xmlProfileParser, XMLProfileSerializer xmlProfileSerializer, MyBatis myBatis,
-                        QProfileLookup qProfileLookup, QProfileOperations qProfileOperations, QProfileActiveRuleOperations qProfileActiveRuleOperations, RuleDao ruleDao,
+  public QProfileBackup(MyBatis myBatis,
+                        QProfileOperations qProfileOperations, QProfileActiveRuleOperations qProfileActiveRuleOperations, RuleDao ruleDao,
                         List<ProfileDefinition> definitions, DefaultProfilesCache defaultProfilesCache, PreviewCache dryRunCache) {
-    this.sessionFactory = sessionFactory;
-    this.xmlProfileParser = xmlProfileParser;
-    this.xmlProfileSerializer = xmlProfileSerializer;
     this.myBatis = myBatis;
-    this.qProfileLookup = qProfileLookup;
     this.qProfileOperations = qProfileOperations;
     this.qProfileActiveRuleOperations = qProfileActiveRuleOperations;
     this.ruleDao = ruleDao;
     this.definitions = definitions;
     this.defaultProfilesCache = defaultProfilesCache;
     this.dryRunCache = dryRunCache;
-  }
-
-  public String backupProfile(QProfile profile) {
-    DatabaseSession session = sessionFactory.getSession();
-    RulesProfile rulesProfile = session.getSingleResult(RulesProfile.class, "id", profile.id());
-    Writer writer = new StringWriter();
-    xmlProfileSerializer.write(rulesProfile, writer);
-    return writer.toString();
-  }
-
-  /**
-   * @param deleteExisting is used to not fail if profile exist but to delete it first. It's only used by WS, and it should be soon removed.
-   */
-  public QProfileResult restore(String xmlBackup, boolean deleteExisting) {
-    checkPermission(UserSession.get());
-
-    DbSession session = myBatis.openSession(false);
-    QProfileResult result = new QProfileResult();
-    try {
-      ValidationMessages messages = ValidationMessages.create();
-      RulesProfile importedProfile = xmlProfileParser.parse(new StringReader(xmlBackup), messages);
-      processValidationMessages(messages, result);
-      if (importedProfile != null) {
-        DatabaseSession hibernateSession = sessionFactory.getSession();
-        checkProfileDoesNotExists(importedProfile, deleteExisting, hibernateSession);
-        hibernateSession.saveWithoutFlush(importedProfile);
-        hibernateSession.commit();
-
-        QProfile newProfile = qProfileLookup.profile(importedProfile.getId(), session);
-        if (newProfile == null) {
-          throw new BadRequestException("Restore of the profile has failed.");
-        }
-        //esActiveRule.bulkIndexProfile(newProfile.id(), session);
-        dryRunCache.reportGlobalModification(session);
-        session.commit();
-        result.setProfile(newProfile);
-      }
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-    return result;
   }
 
   /**
@@ -199,19 +142,6 @@ public class QProfileBackup implements ServerComponent {
    */
   public Collection<String> findDefaultProfileNamesByLanguage(String language) {
     return defaultProfilesCache.byLanguage(language);
-  }
-
-  private void checkProfileDoesNotExists(RulesProfile importedProfile, boolean deleteExisting, DatabaseSession hibernateSession) {
-    RulesProfile existingProfile = hibernateSession.getSingleResult(RulesProfile.class, "name", importedProfile.getName(), "language", importedProfile.getLanguage());
-    if (existingProfile != null && !deleteExisting) {
-      throw BadRequestException.of("The profile " + existingProfile + " already exists. Please delete it before restoring.");
-    }
-    if (existingProfile != null) {
-      // Warning, profile with children can be deleted as no check is done!
-      hibernateSession.removeWithoutFlush(existingProfile);
-      hibernateSession.commit();
-      //esActiveRule.deleteActiveRulesFromProfile(existingProfile.getId());
-    }
   }
 
   private void processValidationMessages(ValidationMessages messages, QProfileResult result) {

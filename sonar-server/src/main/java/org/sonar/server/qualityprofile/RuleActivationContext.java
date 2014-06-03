@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Maps;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
@@ -29,7 +30,6 @@ import org.sonar.core.rule.RuleParamDto;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 class RuleActivationContext {
@@ -94,11 +94,6 @@ class RuleActivationContext {
     return this;
   }
 
-  @CheckForNull
-  ActiveRuleDto parentActiveRule() {
-    return parentActiveRule;
-  }
-
   RuleActivationContext setParentActiveRule(@Nullable ActiveRuleDto a) {
     this.parentActiveRule = a;
     return this;
@@ -109,9 +104,8 @@ class RuleActivationContext {
     return activeRuleParams;
   }
 
-  @CheckForNull
   Map<String, String> parentActiveRuleParamsAsStringMap() {
-    Map<String, String> params = new HashMap<String, String>();
+    Map<String, String> params = Maps.newHashMap();
     for (Map.Entry<String, ActiveRuleParamDto> param : parentActiveRuleParams.entrySet()) {
       params.put(param.getKey(), param.getValue().getValue());
     }
@@ -158,5 +152,21 @@ class RuleActivationContext {
       throw new IllegalStateException(String.format("Rule parameter %s does not exist", paramKey));
     }
     return ruleParam.getDefaultValue();
+  }
+
+  /**
+   * True if trying to override an inherited rule but with exactly the same values
+   */
+  boolean isSameAsParent(RuleActivation activation) {
+    if (parentActiveRule == null) {
+      return false;
+    }
+    if (activation.isReset()) {
+      return true;
+    }
+    if (StringUtils.equals(activation.getSeverity(), parentActiveRule.getSeverityString())) {
+      return Maps.difference(activation.getParameters(), parentActiveRuleParamsAsStringMap()).areEqual();
+    }
+    return false;
   }
 }

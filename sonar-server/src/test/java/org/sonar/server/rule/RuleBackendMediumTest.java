@@ -299,13 +299,11 @@ public class RuleBackendMediumTest {
   @Test
   public void should_not_find_removed() {
     // insert db
-    RuleKey ruleKey = RuleKey.of("javascript", "S001");
-    RuleDto ruleDto = newRuleDto(ruleKey).setStatus(RuleStatus.READY);
-
+    RuleKey readyKey = RuleKey.of("javascript", "S001");
+    RuleDto readyDto = RuleTesting.newDto(readyKey).setStatus(RuleStatus.READY);
     RuleKey removedKey = RuleKey.of("javascript", "S002");
-    RuleDto removedDto = newRuleDto(removedKey).setStatus(RuleStatus.REMOVED);
-    dao.insert(dbSession, ruleDto);
-    dao.insert(dbSession, removedDto);
+    RuleDto removedDto = RuleTesting.newDto(removedKey).setStatus(RuleStatus.REMOVED);
+    dao.insert(dbSession, readyDto, removedDto);
     dbSession.commit();
 
     // 0. Assert rules are in DB
@@ -315,8 +313,9 @@ public class RuleBackendMediumTest {
     assertThat(index.getByKey(removedKey)).isNotNull();
 
     // 2. assert find does not get REMOVED
-    assertThat(index.search(new RuleQuery(), QueryOptions.DEFAULT)
-      .getRules()).hasSize(1);
+    List<Rule> rules = index.search(new RuleQuery(), QueryOptions.DEFAULT).getHits();
+    assertThat(rules).hasSize(1);
+    assertThat(rules.get(0).key()).isEqualTo(readyKey);
   }
 
   private RuleDto newRuleDto(RuleKey ruleKey) {

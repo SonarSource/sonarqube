@@ -20,15 +20,9 @@
 package org.sonar.server.qualityprofile;
 
 import org.junit.Before;
-import org.junit.Test;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RulePriority;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class ProfilesManagerTest extends AbstractDbUnitTestCase {
@@ -38,23 +32,6 @@ public class ProfilesManagerTest extends AbstractDbUnitTestCase {
   @Before
   public void before() {
     manager = new ProfilesManager(getSession(), null, mock(PreviewCache.class));
-  }
-
-  @Test
-  public void remove_activated_rules() {
-    Rule rule1 = Rule.create("repo", "key");
-
-    RulesProfile profile1 = RulesProfile.create("profile1", "xoo");
-    ActiveRule activeRule1 = new ActiveRule(profile1, rule1, RulePriority.BLOCKER);
-
-    RulesProfile profile2 = RulesProfile.create("profile2", "foo");
-    ActiveRule activeRule2 = new ActiveRule(profile2, rule1, RulePriority.BLOCKER);
-
-    getSession().save(profile1, rule1, activeRule1, profile2, activeRule2);
-
-    manager.removeActivatedRules(rule1.getId());
-
-    assertThat(getHQLCount(ActiveRule.class)).isEqualTo(0);
   }
 
 }

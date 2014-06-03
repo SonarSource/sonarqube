@@ -101,12 +101,4 @@ public class RuleChangeTest extends AbstractDbUnitTestCase {
     checkTables("changeParentProfile", new String[]{"change_date"}, "active_rule_changes");
   }
 
-  @Test
-  public void should_track_remove_activated_rules() {
-    setupData("initialData");
-    Rule rule = getSession().reattach(Rule.class, 1);
-    profilesManager.removeActivatedRules(rule.getId());
-    checkTables("removeActivatedRules", new String[]{"change_date"}, "active_rule_changes", "active_rules");
-  }
-
 }

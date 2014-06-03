@@ -22,23 +22,32 @@ package org.sonar.server.qualityprofile;
 import com.google.common.collect.Multimap;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.IndexClient;
+import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.List;
 
 public class QProfileService implements ServerComponent {
 
   private final IndexClient index;
   private final RuleActivator ruleActivator;
+  private final QProfileBackuper backuper;
 
-  public QProfileService(IndexClient index, RuleActivator ruleActivator) {
+  public QProfileService(IndexClient index, RuleActivator ruleActivator, QProfileBackuper backuper) {
     this.index = index;
     this.ruleActivator = ruleActivator;
+    this.backuper = backuper;
   }
 
   @CheckForNull
@@ -59,6 +68,7 @@ public class QProfileService implements ServerComponent {
    * activated.
    */
   public List<ActiveRuleChange> activate(RuleActivation activation) {
+    verifyAdminPermission();
     return ruleActivator.activate(activation);
   }
 
@@ -67,15 +77,89 @@ public class QProfileService implements ServerComponent {
    * fails (fast) if the rule or the profile does not exist.
    */
   public List<ActiveRuleChange> deactivate(ActiveRuleKey key) {
+    verifyAdminPermission();
     return ruleActivator.deactivate(key);
   }
 
 
   public Multimap<String, String> bulkActivate(RuleQuery ruleQuery, QualityProfileKey profile) {
+    verifyAdminPermission();
     return ruleActivator.bulkActivate(ruleQuery, profile);
   }
 
   public Multimap<String, String> bulkDeactivate(RuleQuery ruleQuery, QualityProfileKey profile) {
+    verifyAdminPermission();
     return ruleActivator.bulkDeactivate(ruleQuery, profile);
+  }
+
+  public void backup(QualityProfileKey key, Writer writer) {
+    // Allowed to non-admin users (see http://jira.codehaus.org/browse/SONAR-2039)
+    backuper.backup(key, writer);
+  }
+
+  /**
+   * @deprecated used only by Ruby on Rails. Use {@link #backup(org.sonar.core.qualityprofile.db.QualityProfileKey, java.io.Writer)}
+   */
+  @Deprecated
+  public String backup(QualityProfileKey key) {
+    StringWriter output = new StringWriter();
+    backup(key, output);
+    return output.toString();
+  }
+
+  public void restore(Reader backup) {
+    verifyAdminPermission();
+    backuper.restore(backup);
+  }
+
+  /**
+   * @deprecated used only by Ruby on Rails. Use {@link #restore(java.io.Reader)}
+   */
+  @Deprecated
+  public void restore(String backup) {
+    restore(new StringReader(backup));
+  }
+
+  public void resetForLang(String lang) {
+    // TODO
+    verifyAdminPermission();
+  }
+
+  public void copy(QualityProfileKey key, String newName) {
+    // TODO
+    verifyAdminPermission();
+  }
+
+  public void delete(QualityProfileKey key) {
+    // TODO
+    verifyAdminPermission();
+  }
+
+  public void rename(QualityProfileKey key, String newName) {
+    // TODO
+    verifyAdminPermission();
+  }
+
+  //public void create(NewQualityProfile newProfile) {
+  // TODO
+  //verifyAdminPermission();
+  //}
+
+  public void setParent(QualityProfileKey key, @Nullable QualityProfileKey parent) {
+    // TODO
+    verifyAdminPermission();
+  }
+
+  /**
+   * Set the given quality profile as default for the related language
+   */
+  public void setDefault(QualityProfileKey key) {
+    // TODO
+    verifyAdminPermission();
+  }
+
+  private void verifyAdminPermission() {
+    UserSession.get().checkLoggedIn();
+    UserSession.get().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 }

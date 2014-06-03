@@ -29,7 +29,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.qualityprofile.QProfileService;
-import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.ws.SearchAction;
 
@@ -114,13 +113,13 @@ public class BulkRuleActivationActions implements ServerComponent {
     writeResponse(results, response);
   }
 
-  private void writeResponse(Multimap<String, String> results, Response response){
+  private void writeResponse(Multimap<String, String> results, Response response) {
     JsonWriter json = response.newJsonWriter().beginObject();
-    for(String action:results.keySet()){
+    for (String action : results.keySet()) {
       json.name(action).beginArray();
-      for(String key:results.get(action)){
+      for (String key : results.get(action)) {
         json.beginObject()
-          .prop("key",key)
+          .prop("key", key)
           .endObject();
       }
       json.endArray();

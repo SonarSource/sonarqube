@@ -135,8 +135,10 @@ class Api::ProfilesController < Api::ApiController
     else
       profile = Internal.quality_profiles.profile(params[:name], params[:language])
     end
-    not_found('Profile not found') unless profile
-    backup = Internal.profile_backup.backupProfile(profile)
+
+    profile_key=Java::OrgSonarCoreQualityprofileDb::QualityProfileKey.of(profile.name, profile.language)
+    backup = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).backup(profile_key)
+
     respond_to do |format|
       format.xml { render :xml => backup }
       format.json { render :json => jsonp({:backup => backup}) }
@@ -150,10 +152,12 @@ class Api::ProfilesController < Api::ApiController
     verify_post_request
     require_parameters :backup
 
-    result = Internal.profile_backup.restore(Api::Utils.read_post_request_param(params[:backup]), true)
+    backup = Api::Utils.read_post_request_param(params[:backup])
+    Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).restore(backup)
 
     respond_to do |format|
-      format.json { render :json => jsonp(validation_result_to_json(result)), :status => 200 }
+      #TODO format.json { render :json => jsonp(validation_result_to_json(result)), :status => 200 }
+      format.json { render :json => jsonp({}), :status => 200 }
     end
   end
 
