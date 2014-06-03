@@ -77,6 +77,9 @@ public class RuleActivator implements ServerComponent {
   /**
    * Activate a rule on a Quality profile. Update configuration (severity/parameters) if the rule is already
    * activated.
+   *
+   * @throws org.sonar.server.exceptions.BadRequestException if the profile, the rule or a rule parameter does
+   *                                                         not exist
    */
   List<ActiveRuleChange> activate(RuleActivation activation) {
     DbSession dbSession = db.openSession(false);
@@ -96,7 +99,6 @@ public class RuleActivator implements ServerComponent {
    * Activate the rule WITHOUT committing db session
    */
   List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation) {
-
     RuleActivationContext context = contextFactory.create(activation.getKey(), dbSession);
     List<ActiveRuleChange> changes = Lists.newArrayList();
     ActiveRuleChange change;
@@ -145,7 +147,6 @@ public class RuleActivator implements ServerComponent {
   }
 
   private List<ActiveRuleChange> cascadeActivation(DbSession session, RuleActivation activation) {
-
     List<ActiveRuleChange> changes = Lists.newArrayList();
 
     // get all inherited profiles
@@ -284,20 +285,15 @@ public class RuleActivator implements ServerComponent {
     try {
       // TODO pb because limited to QueryOptions.MAX_LIMIT
       RuleResult result = ruleIndex.search(ruleQuery,
-        QueryOptions.DEFAULT.setOffset(0)
-          .setLimit(Integer.MAX_VALUE)
-          .setFieldsToReturn(ImmutableSet.of(RuleNormalizer.RuleField.IS_TEMPLATE.field(), RuleNormalizer.RuleField.SEVERITY.field()))
-      );
+        new QueryOptions()
+          .setMaxLimit()
+          .setFieldsToReturn(ImmutableSet.of(RuleNormalizer.RuleField.IS_TEMPLATE.field())));
 
       for (Rule rule : result.getHits()) {
         if (!rule.isTemplate()) {
           ActiveRuleKey key = ActiveRuleKey.of(profileKey, rule.key());
           RuleActivation activation = new RuleActivation(key);
-          if (severity != null && !severity.isEmpty()) {
-            activation.setSeverity(severity);
-          } else {
-            activation.setSeverity(rule.severity());
-          }
+          activation.setSeverity(severity);
           for (ActiveRuleChange active : this.activate(dbSession, activation)) {
             results.put("activated", active.getKey().ruleKey().toString());
           }
@@ -318,12 +314,7 @@ public class RuleActivator implements ServerComponent {
     DbSession dbSession = db.openSession(false);
 
     try {
-      RuleResult result = ruleIndex.search(ruleQuery,
-        QueryOptions.DEFAULT.setOffset(0)
-          // TODO pb because limited to QueryOptions.MAX_LIMIT
-          .setLimit(Integer.MAX_VALUE)
-          .setFieldsToReturn(ImmutableSet.of(RuleNormalizer.RuleField.IS_TEMPLATE.field(), RuleNormalizer.RuleField.SEVERITY.field()))
-      );
+      RuleResult result = ruleIndex.search(ruleQuery, new QueryOptions());
 
       for (Rule rule : result.getHits()) {
         ActiveRuleKey key = ActiveRuleKey.of(profile, rule.key());

@@ -776,13 +776,13 @@ public class RuleIndexMediumTest {
     dbSession.commit();
 
     // 0. find all rules;
-    assertThat(index.search(new RuleQuery(), QueryOptions.DEFAULT).getHits()).hasSize(2);
+    assertThat(index.search(new RuleQuery(), new QueryOptions()).getHits()).hasSize(2);
 
 
     // 1. find all rules available since a date;
     RuleQuery availableSinceQuery = new RuleQuery()
       .setAvailableSince(since);
-    List<Rule> hits = index.search(availableSinceQuery, QueryOptions.DEFAULT).getHits();
+    List<Rule> hits = index.search(availableSinceQuery, new QueryOptions()).getHits();
     assertThat(hits).hasSize(1);
 
     // 2. find no new rules since tomorrow.
@@ -791,7 +791,7 @@ public class RuleIndexMediumTest {
     c.add(Calendar.DATE, 1);  // number of days to add
     RuleQuery availableSinceNowQuery = new RuleQuery()
       .setAvailableSince(c.getTime());
-    assertThat(index.search(availableSinceNowQuery, QueryOptions.DEFAULT).getHits()).hasSize(0);
+    assertThat(index.search(availableSinceNowQuery, new QueryOptions()).getHits()).hasSize(0);
   }
 
   private RuleDto newRuleDto(RuleKey ruleKey) {

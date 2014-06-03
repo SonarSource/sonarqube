@@ -188,7 +188,7 @@ public class RuleActivatorMediumTest {
     try {
       ruleActivator.activate(activation);
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (BadRequestException e) {
       assertThat(e).hasMessage("Rule template can't be activated on a Quality profile: xoo:template1");
       verifyZeroActiveRules(XOO_PROFILE_KEY);
     }
@@ -202,7 +202,7 @@ public class RuleActivatorMediumTest {
     try {
       ruleActivator.activate(activation);
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (BadRequestException e) {
       assertThat(e).hasMessage("Rule squid:j1 and profile P1:xoo have different languages");
       verifyZeroActiveRules(XOO_PROFILE_KEY);
     }
@@ -216,7 +216,7 @@ public class RuleActivatorMediumTest {
     try {
       ruleActivator.activate(activation);
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (BadRequestException e) {
       assertThat(e).hasMessage("Rule not found: xoo:x3");
       verifyZeroActiveRules(XOO_PROFILE_KEY);
     }
@@ -235,7 +235,7 @@ public class RuleActivatorMediumTest {
     try {
       ruleActivator.activate(activation);
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (BadRequestException e) {
       assertThat(e).hasMessage("Rule was removed: xoo:x1");
       verifyZeroActiveRules(XOO_PROFILE_KEY);
     }
@@ -248,7 +248,7 @@ public class RuleActivatorMediumTest {
     try {
       ruleActivator.activate(activation);
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (BadRequestException e) {
       assertThat(e).hasMessage("Manual rule can't be activated on a Quality profile: manual:m1");
       verifyZeroActiveRules(XOO_PROFILE_KEY);
     }
@@ -262,7 +262,7 @@ public class RuleActivatorMediumTest {
     try {
       ruleActivator.activate(activation);
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (BadRequestException e) {
       assertThat(e).hasMessage("Quality profile not found: other:js");
     }
   }
@@ -311,7 +311,7 @@ public class RuleActivatorMediumTest {
     try {
       ruleActivator.deactivate(key);
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (BadRequestException e) {
       assertThat(e).hasMessage("Rule not found: xoo:x3");
       verifyZeroActiveRules(XOO_PROFILE_KEY);
     }
@@ -323,7 +323,7 @@ public class RuleActivatorMediumTest {
     try {
       ruleActivator.deactivate(key);
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (BadRequestException e) {
       assertThat(e).hasMessage("Quality profile not found: other:js");
     }
   }

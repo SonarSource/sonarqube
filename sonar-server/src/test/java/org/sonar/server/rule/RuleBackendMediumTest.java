@@ -313,7 +313,7 @@ public class RuleBackendMediumTest {
     assertThat(index.getByKey(removedKey)).isNotNull();
 
     // 2. assert find does not get REMOVED
-    List<Rule> rules = index.search(new RuleQuery(), QueryOptions.DEFAULT).getHits();
+    List<Rule> rules = index.search(new RuleQuery(), new QueryOptions()).getHits();
     assertThat(rules).hasSize(1);
     assertThat(rules.get(0).key()).isEqualTo(readyKey);
   }

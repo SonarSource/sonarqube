@@ -39,27 +39,42 @@ public class RuleActivation {
     this.key = key;
   }
 
-  public boolean isCascade(){
+  /**
+   * For internal use
+   */
+  boolean isCascade() {
     return this.cascade;
   }
 
-  public RuleActivation isCascade(boolean b){
+  /**
+   * For internal use
+   */
+  RuleActivation isCascade(boolean b) {
     this.cascade = b;
     return this;
   }
 
-  public boolean isReset() {
-    return severity==null && parameters.isEmpty();
+  /**
+   * For internal use
+   */
+  boolean isReset() {
+    return severity == null && parameters.isEmpty();
   }
 
   public RuleActivation setSeverity(@Nullable String s) {
-    if (s != null) {
-      if (!Severity.ALL.contains(s)) {
-        throw new IllegalArgumentException("Unknown severity: " + s);
-      }
+    if (s != null && !Severity.ALL.contains(s)) {
+      throw new IllegalArgumentException("Unknown severity: " + s);
     }
     this.severity = s;
     return this;
+  }
+
+  /**
+   * Optional severity. Use the parent severity or default rule severity if null.
+   */
+  @CheckForNull
+  public String getSeverity() {
+    return severity;
   }
 
   public RuleActivation setParameter(String key, @Nullable String value) {
@@ -84,10 +99,5 @@ public class RuleActivation {
 
   public Map<String, String> getParameters() {
     return parameters;
-  }
-
-  @CheckForNull
-  public String getSeverity() {
-    return severity;
   }
 }

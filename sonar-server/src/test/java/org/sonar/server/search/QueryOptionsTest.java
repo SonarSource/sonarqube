@@ -77,6 +77,12 @@ public class QueryOptionsTest {
   }
 
   @Test
+  public void set_max_limit() throws Exception {
+    options.setMaxLimit();
+    assertThat(options.getLimit()).isEqualTo(QueryOptions.MAX_LIMIT);
+  }
+
+  @Test
   public void max_page_size() throws Exception {
     options.setPage(3, QueryOptions.MAX_LIMIT + 10);
     assertThat(options.getOffset()).isEqualTo(QueryOptions.MAX_LIMIT * 2);

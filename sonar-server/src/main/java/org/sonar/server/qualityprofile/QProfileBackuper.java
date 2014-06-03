@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.text.XmlWriter;
@@ -35,6 +36,7 @@ import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.search.IndexClient;
 
@@ -173,7 +175,12 @@ public class QProfileBackuper implements ServerComponent {
         RuleActivation activation = new RuleActivation(ActiveRuleKey.of(profileKey, ruleKey));
         activation.setSeverity(severity);
         activation.setParameters(parameters);
-        activator.activate(dbSession, activation);
+        try {
+          activator.activate(dbSession, activation);
+        } catch (BadRequestException e) {
+          // TODO should return warnings instead of logging warnings
+          LoggerFactory.getLogger(getClass()).warn(e.getMessage());
+        }
         rulesToDeactivate.remove(ruleKey);
       }
       for (RuleKey ruleKey : rulesToDeactivate) {

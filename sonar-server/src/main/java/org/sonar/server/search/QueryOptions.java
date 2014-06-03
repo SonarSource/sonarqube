@@ -34,8 +34,6 @@ import java.util.Set;
  */
 public class QueryOptions {
 
-  public static final QueryOptions DEFAULT = new QueryOptions().setLimit(Integer.MAX_VALUE);
-
   public static final int DEFAULT_OFFSET = 0;
   public static final int DEFAULT_LIMIT = 10;
   public static final int MAX_LIMIT = 500;
@@ -100,6 +98,11 @@ public class QueryOptions {
    */
   public QueryOptions setLimit(int limit) {
     this.limit = Math.min(limit, MAX_LIMIT);
+    return this;
+  }
+
+  public QueryOptions setMaxLimit() {
+    this.limit = MAX_LIMIT;
     return this;
   }
 

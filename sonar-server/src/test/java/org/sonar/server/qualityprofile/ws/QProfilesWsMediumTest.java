@@ -36,6 +36,7 @@ import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
@@ -226,10 +227,10 @@ public class QProfilesWsMediumTest {
       WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, RuleActivationActions.ACTIVATE_ACTION);
       request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
       request.setParam(RuleActivationActions.RULE_KEY, rule.getKey().toString());
-      WsTester.Result result = request.execute();
+      request.execute();
       session.clearCache();
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (BadRequestException e) {
       assertThat(e.getMessage()).isEqualTo("Rule blah:toto and profile test:java have different languages");
     }
   }
@@ -378,7 +379,7 @@ public class QProfilesWsMediumTest {
     // 2. Assert ActiveRule with BLOCKER severity
     assertThat(tester.get(RuleIndex.class).search(
       new RuleQuery().setSeverities(ImmutableSet.of("BLOCKER")),
-      QueryOptions.DEFAULT).getHits()).hasSize(2);
+      new QueryOptions()).getHits()).hasSize(2);
 
     // 1. Activate Rule with query returning 2 hits
     WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
