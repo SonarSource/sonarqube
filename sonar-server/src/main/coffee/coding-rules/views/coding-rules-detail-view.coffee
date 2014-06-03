@@ -117,6 +117,15 @@ define [
       @ui.tagsEdit.show()
       @ui.tagsList.hide()
       @ui.tagInput.select2 'open'
+      key.setScope 'tags'
+      key 'escape', 'tags', => @cancelEdit()
+
+
+    cancelEdit: ->
+      key.unbind 'escape', 'tags'
+      @ui.tagsList.show()
+      @ui.tagInput.select2 'close'
+      @ui.tagsEdit.hide()
 
 
     editDone: ->
