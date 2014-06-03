@@ -35,6 +35,7 @@ import org.sonar.server.user.UserSession;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.Set;
 
 public class RuleUpdater implements ServerComponent {
 
@@ -118,10 +119,11 @@ public class RuleUpdater implements ServerComponent {
   }
 
   private void updateTags(RuleUpdate update, Context context) {
-    if (update.getTags() == null || update.getTags().isEmpty()) {
+    Set<String> tags = update.getTags();
+    if (tags == null || tags.isEmpty()) {
       context.rule.setTags(Collections.<String>emptySet());
     } else {
-      RuleTagHelper.applyTags(context.rule, update.getTags());
+      RuleTagHelper.applyTags(context.rule, tags);
     }
   }
 
@@ -160,20 +162,21 @@ public class RuleUpdater implements ServerComponent {
       (context.rule.getDefaultSubCharacteristicId() == null && context.rule.getSubCharacteristicId() == null) ||
         (context.rule.getSubCharacteristicId() != null && context.rule.getSubCharacteristicId().intValue() == RuleDto.DISABLED_CHARACTERISTIC_ID);
 
-    if (noChar || update.getDebtRemediationFunction() == null) {
+    DebtRemediationFunction function = update.getDebtRemediationFunction();
+    if (noChar || function == null) {
       context.rule.setRemediationFunction(null);
       context.rule.setRemediationCoefficient(null);
       context.rule.setRemediationOffset(null);
     } else {
-      if (isSameAsDefaultFunction(update.getDebtRemediationFunction(), context.rule)) {
+      if (isSameAsDefaultFunction(function, context.rule)) {
         // reset to default
         context.rule.setRemediationFunction(null);
         context.rule.setRemediationCoefficient(null);
         context.rule.setRemediationOffset(null);
       } else {
-        context.rule.setRemediationFunction(update.getDebtRemediationFunction().type().name());
-        context.rule.setRemediationCoefficient(update.getDebtRemediationFunction().coefficient());
-        context.rule.setRemediationOffset(update.getDebtRemediationFunction().offset());
+        context.rule.setRemediationFunction(function.type().name());
+        context.rule.setRemediationCoefficient(function.coefficient());
+        context.rule.setRemediationOffset(function.offset());
       }
     }
   }
