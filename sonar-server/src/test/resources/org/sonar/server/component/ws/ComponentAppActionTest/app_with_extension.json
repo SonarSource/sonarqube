@@ -13,5 +13,7 @@
   "severities": [],
   "rules": [],
   "measures": {},
-  "extensions": ["my-extension", "my-extension-with-role"]
+  "extensions": [
+    ["my-extension", "My extension"]
+  ]
 }

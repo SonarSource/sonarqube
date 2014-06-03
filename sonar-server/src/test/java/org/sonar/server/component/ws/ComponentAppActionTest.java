@@ -271,15 +271,28 @@ public class ComponentAppActionTest {
   }
 
   @Test
-  public void app_with_extensions() throws Exception {
+  public void app_with_extension() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
     addComponent();
 
     when(views.getPages(anyString(), anyString(), anyString(), anyString(), any(String[].class))).thenReturn(
-      newArrayList(new ViewProxy<Page>(new MyExtension()), new ViewProxy<Page>(new MyExtensionWithRole()), new ViewProxy<Page>(new ProvidedExtension())));
+      // Issues extension will be ignore
+      newArrayList(new ViewProxy<Page>(new MyExtension()), new ViewProxy<Page>(new IssuesExtension())));
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
-    request.execute().assertJson(getClass(), "app_with_extensions.json");
+    request.execute().assertJson(getClass(), "app_with_extension.json");
+  }
+
+  @Test
+  public void app_with_extension_having_permission() throws Exception {
+    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
+    addComponent();
+
+    when(views.getPages(anyString(), anyString(), anyString(), anyString(), any(String[].class))).thenReturn(
+      newArrayList(new ViewProxy<Page>(new MyExtensionWithRole())));
+
+    WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
+    request.execute().assertJson(getClass(), "app_with_extension_having_permission.json");
   }
 
   private void addComponent() {
@@ -307,7 +320,7 @@ public class ComponentAppActionTest {
     }
 
     public String getTitle() {
-      return "my-extension";
+      return "My extension";
     }
   }
 
@@ -315,22 +328,22 @@ public class ComponentAppActionTest {
   @UserRole(UserRole.CODEVIEWER)
   private static class MyExtensionWithRole implements Page {
     public String getId() {
-      return "my-extension-with-role";
+      return "my-extension-with-permission";
     }
 
     public String getTitle() {
-      return "my-extension-with-role";
+      return "My extension with permission";
     }
   }
 
   @NavigationSection(NavigationSection.RESOURCE_TAB)
-  private static class ProvidedExtension implements Page {
+  private static class IssuesExtension implements Page {
     public String getId() {
       return "issues";
     }
 
     public String getTitle() {
-      return "issues";
+      return "Issues";
     }
   }
 

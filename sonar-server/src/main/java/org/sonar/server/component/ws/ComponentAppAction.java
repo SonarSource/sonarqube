@@ -60,8 +60,10 @@ import javax.annotation.Nullable;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 
 public class ComponentAppAction implements RequestHandler {
 
@@ -237,25 +239,27 @@ public class ComponentAppAction implements RequestHandler {
 
   private void appendExtensions(JsonWriter json, ComponentDto component, UserSession userSession) {
     List<ViewProxy<Page>> extensionPages = views.getPages(NavigationSection.RESOURCE_TAB, component.scope(), component.qualifier(), component.language(), null);
-    List<String> extensions = extensions(extensionPages, component, userSession);
+    Map<String, String> extensions = extensions(extensionPages, component, userSession);
     if (!extensions.isEmpty()) {
       json.name("extensions").beginArray();
-      json.values(extensions);
+      for (Map.Entry<String, String> entry : extensions.entrySet()) {
+        json.beginArray().value(entry.getKey()).value(entry.getValue()).endArray();
+      }
       json.endArray();
     }
   }
 
-  private List<String> extensions(List<ViewProxy<Page>> extensions, ComponentDto component, UserSession userSession) {
-    List<String> result = newArrayList();
+  private Map<String, String> extensions(List<ViewProxy<Page>> extensions, ComponentDto component, UserSession userSession) {
+    Map<String, String> result = newHashMap();
     List<String> providedExtensions = newArrayList("tests_viewer", "coverage", "duplications", "issues", "source");
     for (ViewProxy<Page> page : extensions) {
       if (!providedExtensions.contains(page.getId())) {
         if (page.getUserRoles().length == 0) {
-          result.add(page.getId());
+          result.put(page.getId(), page.getTitle());
         } else {
           for (String userRole : page.getUserRoles()) {
             if (userSession.hasComponentPermission(userRole, component.key())) {
-              result.add(page.getId());
+              result.put(page.getId(), page.getTitle());
             }
           }
         }
