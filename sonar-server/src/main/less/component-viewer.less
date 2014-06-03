@@ -175,7 +175,7 @@
     .duplication {
       display: inline-block;
       vertical-align: top;
-      .size(5px, 100%);
+      .size(5px, 19px);
     }
 
     .duplication + .duplication { margin-left: 2px; }
@@ -514,7 +514,6 @@
 .component-viewer-popup {
   position: absolute;
   z-index: 100;
-  max-height: 300px;
   margin-top: -16px;
   margin-left: @popupArrowSize;
   padding: 10px;
@@ -523,7 +522,6 @@
   .box-sizing(border-box);
   background-color: @white;
   box-shadow: @defaultShadow;
-  overflow-y: auto;
 }
 
 .component-viewer-popup-arrow,
@@ -572,6 +570,16 @@
   }
 }
 
+.component-viewer-popup-container {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.component-viewer-popup-title {
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
 .component-viewer-popup-section {
   width: 450px;
   overflow: hidden;
@@ -585,18 +593,6 @@
 
 .component-viewer-popup-list {
   margin-top: 5px;
-
-  & > li {
-
-    & > a {
-      display: block;
-      margin: 0 -10px;
-      padding: 5px 10px;
-      .trans;
-
-      &:hover { background-color: @barBackgroundColor; }
-    }
-  }
 }
 
 .component-viewer-popup-test {
@@ -629,6 +625,10 @@
   top: 0; right: 0;
   color: #777;
   font-size: @smallFontSize;
+}
+
+.component-viewer-popup-duplications {
+  padding: 4px 0;
 }
 
 

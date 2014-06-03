@@ -1,23 +1,27 @@
-{{#each testFiles}}
-  <div class="component-viewer-popup-section">
-    <a class="component-viewer-popup-test-file link-action" data-key="{{file.key}}" title="{{file.longName}}">
-      {{file.longName}}
-    </a>
-    <ul class="component-viewer-popup-list">
-      {{#each tests}}
-        <li class="component-viewer-popup-test" title="{{name}}">
-          <i class="component-viewer-popup-test-status {{alertIconClass status}}"></i>
-          <span class="component-viewer-popup-test-name">
-            <a class="component-viewer-popup-test-file link-action" title="{{name}}"
-               data-key="{{../file.key}}" data-method="{{name}}">
-              {{name}}
-            </a>
-          </span>
-          <span class="component-viewer-popup-test-duration">{{durationInMs}}ms</span>
-        </li>
-      {{/each}}
-    </ul>
-  </div>
-{{/each}}
+<div class="component-viewer-popup-container">
+  <div class="component-viewer-popup-title">{{t 'component_viewer.transition.coverage'}}</div>
+
+  {{#each testFiles}}
+    <div class="component-viewer-popup-section">
+      <a class="component-viewer-popup-test-file link-action" data-key="{{file.key}}" title="{{file.longName}}">
+        {{file.longName}}
+      </a>
+      <ul class="component-viewer-popup-list">
+        {{#each tests}}
+          <li class="component-viewer-popup-test" title="{{name}}">
+            <i class="component-viewer-popup-test-status {{alertIconClass status}}"></i>
+            <span class="component-viewer-popup-test-name">
+              <a class="component-viewer-popup-test-file link-action" title="{{name}}"
+                 data-key="{{../file.key}}" data-method="{{name}}">
+                {{name}}
+              </a>
+            </span>
+            <span class="component-viewer-popup-test-duration">{{durationInMs}}ms</span>
+          </li>
+        {{/each}}
+      </ul>
+    </div>
+  {{/each}}
+</div>
 
 <div class="component-viewer-popup-arrow"></div>

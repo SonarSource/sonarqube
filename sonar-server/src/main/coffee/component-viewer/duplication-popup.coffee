@@ -23,6 +23,7 @@ define [
 
     goToFile: (e) ->
       key = $(e.currentTarget).data 'key'
+      return if key == @options.main.component.get 'key'
       files = @options.main.source.get('duplicationFiles')
       @options.main.addTransition 'duplication', @collection.map (item) ->
         file = files[item.get('_ref')]

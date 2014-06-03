@@ -1,14 +1,21 @@
-{{#each duplications}}
-  <div class="component-viewer-popup-section">
-    <a class="component-viewer-popup-test-file link-action" data-key="{{file.key}}" title="{{file.name}}">
-      {{file.name}}
-    </a>
-    <ul class="component-viewer-popup-list">
-      {{#each blocks}}
-        <li>Lines: {{from}} – {{sum from size}}</li>
-      {{/each}}
-    </ul>
-  </div>
-{{/each}}
+<div class="component-viewer-popup-container">
+  <div class="component-viewer-popup-title">{{t 'component_viewer.transition.duplication'}}</div>
+
+  {{#each duplications}}
+    <div class="component-viewer-popup-section">
+      <a class="link-action" data-key="{{file.key}}" title="{{file.name}}">
+        {{file.name}}
+      </a>
+      <div class="component-viewer-popup-duplications">
+        Lines:
+        {{#joinEach blocks ','}}
+          <a class="link-action" data-key="{{../file.key}}">
+            {{from}} – {{sum from size}}
+          </a>
+        {{/joinEach}}
+      </div>
+    </div>
+  {{/each}}
+</div>
 
 <div class="component-viewer-popup-arrow"></div>
