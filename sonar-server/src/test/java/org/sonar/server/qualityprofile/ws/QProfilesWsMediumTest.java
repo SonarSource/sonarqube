@@ -382,10 +382,10 @@ public class QProfilesWsMediumTest {
 
     // 1. Activate Rule with query returning 2 hits
     WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
-    request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
-    request.setParam(RuleActivationActions.SEVERITY, "MINOR");
+    request.setParam(BulkRuleActivationActions.PROFILE_KEY, profile.getKey().toString());
+    request.setParam(BulkRuleActivationActions.SEVERITY, "MINOR");
     request.execute();
-    session.clearCache();
+    session.commit();
 
     // 2. Assert ActiveRule with MINOR severity
     assertThat(tester.get(ActiveRuleIndex.class).findByRule(rule0.getKey()).get(0).severity()).isEqualTo("MINOR");
