@@ -204,6 +204,7 @@ public class IssueSearchAction implements RequestHandler {
       json
         .prop("key", issue.key())
         .prop("component", issue.componentKey())
+        .prop("componentId", issue.componentId())
         .prop("project", issue.projectKey())
         .prop("rule", issue.ruleKey().toString())
         .prop("status", issue.status())

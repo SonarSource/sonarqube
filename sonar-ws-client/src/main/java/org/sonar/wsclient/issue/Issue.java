@@ -37,6 +37,12 @@ public interface Issue {
 
   String componentKey();
 
+  /**
+   * Deprecated since 4.4
+   */
+  @Deprecated
+  Long componentId();
+
   String projectKey();
 
   String ruleKey();

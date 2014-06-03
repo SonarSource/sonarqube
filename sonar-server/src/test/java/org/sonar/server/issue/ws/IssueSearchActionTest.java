@@ -109,6 +109,7 @@ public class IssueSearchActionTest {
     Issue issue = new DefaultIssue()
       .setKey(issueKey)
       .setComponentKey("sample:src/main/xoo/sample/Sample.xoo")
+      .setComponentId(5L)
       .setProjectKey("sample")
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setActionPlanKey("AP-ABCD")

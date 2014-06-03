@@ -11,6 +11,7 @@
     {
       "key": "ABCD",
       "component": "sample:src/main/xoo/sample/Sample.xoo",
+      "componentId": 5,
       "project": "sample",
       "rule": "squid:AvoidCycle",
       "resolution": "FIXED",
