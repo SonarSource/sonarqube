@@ -222,9 +222,15 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
       return mapNestedField(field);
     } else if (field.type() == IndexField.Type.DATE) {
       return mapDateField(field);
+    } else if (field.type() == IndexField.Type.NUMERIC) {
+      return mapNumericField(field);
     } else {
       throw new IllegalStateException("Mapping does not exist for type: " + field.type());
     }
+  }
+
+  protected Map mapNumericField(IndexField field){
+      return ImmutableMap.of("type", "double");
   }
 
   protected Map mapBooleanField(IndexField field) {

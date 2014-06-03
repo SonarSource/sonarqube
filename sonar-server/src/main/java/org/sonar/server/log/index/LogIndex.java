@@ -39,7 +39,7 @@ import java.util.Map;
  */
 public class LogIndex extends BaseIndex<Log, LogDto, LogKey>{
 
-  protected LogIndex(LogNormalizer normalizer, WorkQueue workQueue, ESNode node) {
+  public LogIndex(LogNormalizer normalizer, WorkQueue workQueue, ESNode node) {
     super(IndexDefinition.LOG, normalizer, workQueue, node);
   }
 

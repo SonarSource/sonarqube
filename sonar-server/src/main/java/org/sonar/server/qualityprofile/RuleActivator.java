@@ -36,6 +36,7 @@ import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.log.LogService;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.index.RuleIndex;
@@ -62,15 +63,17 @@ public class RuleActivator implements ServerComponent {
   private final RuleActivationContextFactory contextFactory;
   private final PreviewCache previewCache;
   private final IndexClient index;
+  private final LogService log;
 
   public RuleActivator(DbClient db, IndexClient index,
                        RuleActivationContextFactory contextFactory, TypeValidations typeValidations,
-                       PreviewCache previewCache) {
+                       PreviewCache previewCache, LogService log) {
     this.db = db;
     this.index = index;
     this.contextFactory = contextFactory;
     this.typeValidations = typeValidations;
     this.previewCache = previewCache;
+    this.log = log;
   }
 
 
@@ -86,7 +89,7 @@ public class RuleActivator implements ServerComponent {
     try {
       List<ActiveRuleChange> changes = activate(dbSession, activation);
       if (!changes.isEmpty()) {
-
+        log.write(dbSession, changes);
         dbSession.commit();
         previewCache.reportGlobalModification();
       }
@@ -144,6 +147,7 @@ public class RuleActivator implements ServerComponent {
     // Execute the cascade on the child if NOT overrides
     changes.addAll(cascadeActivation(dbSession, activation));
 
+    log.write(dbSession, changes);
     return changes;
   }
 
@@ -231,10 +235,16 @@ public class RuleActivator implements ServerComponent {
     List<ActiveRuleChange> changes = Lists.newArrayList();
     try {
       changes.addAll(this.deactivate(key, dbSession));
-      dbSession.commit();
-    } finally {
+      if (!changes.isEmpty()) {
+        log.write(dbSession, changes);
+        dbSession.commit();
+      }
+    } finally
+
+    {
       dbSession.close();
     }
+
     return changes;
   }
 

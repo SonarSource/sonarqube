@@ -47,19 +47,17 @@ public class LogNormalizer extends BaseNormalizer<LogDto, LogKey> {
 
   public static final class LogFields extends Indexable {
 
-    public static IndexField KEY = addSortableAndSearchable(IndexField.Type.STRING, "key");
-    public static IndexField TIME = addSortable(IndexField.Type.DATE, "time");
-    public static IndexField TYPE = add(IndexField.Type.STRING, "type");
-    public static IndexField STATUS = add(IndexField.Type.STRING, "status");
-    public static IndexField EXECUTION = add(IndexField.Type.NUMERIC, "executionTime");
-    public static IndexField AUTHOR = addSearchable(IndexField.Type.STRING, "executionTime");
+    public final static IndexField KEY = addSortableAndSearchable(IndexField.Type.STRING, "key");
+    public final static IndexField TIME = addSortable(IndexField.Type.DATE, "time");
+    public final static IndexField EXECUTION = add(IndexField.Type.NUMERIC, "executionTime");
+    public final static IndexField AUTHOR = addSearchable(IndexField.Type.STRING, "executionTime");
 
     public static Set<IndexField> ALL_FIELDS = getAllFields();
 
     private static Set<IndexField> getAllFields() {
       Set<IndexField> fields = new HashSet<IndexField>();
       for (Field classField : LogFields.class.getDeclaredFields()) {
-        if (Modifier.isStatic(classField.getModifiers())) {
+        if (Modifier.isFinal(classField.getModifiers()) && Modifier.isStatic(classField.getModifiers())) {
           try {
             fields.add(IndexField.class.cast(classField.get(null)));
           } catch (IllegalAccessException e) {

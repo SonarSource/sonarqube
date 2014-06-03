@@ -100,6 +100,10 @@ import org.sonar.server.issue.ws.IssueActionsWriter;
 import org.sonar.server.issue.ws.IssueSearchAction;
 import org.sonar.server.issue.ws.IssueShowAction;
 import org.sonar.server.issue.ws.IssuesWs;
+import org.sonar.server.log.LogService;
+import org.sonar.server.log.db.LogDao;
+import org.sonar.server.log.index.LogIndex;
+import org.sonar.server.log.index.LogNormalizer;
 import org.sonar.server.measure.MeasureFilterEngine;
 import org.sonar.server.measure.MeasureFilterExecutor;
 import org.sonar.server.measure.MeasureFilterFactory;
@@ -200,6 +204,7 @@ class ServerComponents {
       ComponentDao.class,
       DbClient.class,
       MeasureFilterDao.class,
+      LogDao.class,
 
       // Elasticsearch
       ESNode.class,
@@ -208,7 +213,13 @@ class ServerComponents {
       RuleIndex.class,
       ActiveRuleIndex.class,
       IndexQueueWorker.class,
-      IndexClient.class
+      IndexClient.class,
+      LogNormalizer.class,
+      LogIndex.class,
+
+      // LogService
+      LogService.class
+
     ));
     components.addAll(CorePropertyDefinitions.all());
     components.addAll(DatabaseMigrations.CLASSES);
