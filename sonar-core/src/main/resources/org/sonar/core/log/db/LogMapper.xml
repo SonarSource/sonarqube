@@ -4,21 +4,20 @@
 <mapper namespace="org.sonar.core.log.db.LogMapper">
     <insert id="insert" parameterType="Log" useGeneratedKeys="false">
         insert into logs
-        (time_field,type_field,status_field,execution_time_field,author_field,data_field)
-        values (#{time}, #{type}, #{status}, #{executionTime}, #{author}, #{data})
+        (payload_field, time_field,execution_time_field,author_field,data_field)
+        values (#{payload}, #{time}, #{executionTime}, #{author}, #{data})
     </insert>
 
     <select id="selectByKey" parameterType="map" resultType="Log">
       SELECT
+        l.payload_field as "payload",
         l.time_field as "time",
-        l.type_field as "type",
-        l.status_field as "status",
         l.execution_time_field as "executionTime",
         l.author_field as "author",
         l.data_field as "data"
       FROM logs l
       WHERE l.time_field=#{key.time}
-        AND l.type_field=#{key.type}
+        AND l.payload_field=#{key.payload}
         AND l.author_field=#{key.author}
 
     </select>

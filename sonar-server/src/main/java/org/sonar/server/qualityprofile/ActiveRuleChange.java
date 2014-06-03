@@ -20,13 +20,14 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Maps;
+import org.sonar.core.log.Activity;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-public class ActiveRuleChange {
+public class ActiveRuleChange extends Activity {
 
   static enum Type {
     ACTIVATED, DEACTIVATED, UPDATED
@@ -96,4 +97,15 @@ public class ActiveRuleChange {
     parameters.put(key, value);
   }
 
+  @Override
+  public String serialize() {
+    //TODO implement String serialization
+    return null;
+  }
+
+  @Override
+  public Activity deSerialize(String data) {
+    //TODO implement String deSerialization
+    return null;
+  }
 }

@@ -21,7 +21,7 @@ package org.sonar.server.log.db;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.utils.System2;
-import org.sonar.core.log.LogDto;
+import org.sonar.core.log.db.LogDto;
 import org.sonar.core.log.db.LogKey;
 import org.sonar.core.log.db.LogMapper;
 import org.sonar.core.persistence.DbSession;
@@ -32,8 +32,6 @@ import org.sonar.server.search.IndexDefinition;
  * @since 4.4
  */
 public class LogDao extends BaseDao<LogMapper, LogDto, LogKey> {
-
-
 
   public LogDao() {
     this(System2.INSTANCE);

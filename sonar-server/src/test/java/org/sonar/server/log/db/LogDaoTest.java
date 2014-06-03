@@ -5,7 +5,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.core.log.LogDto;
+import org.sonar.core.log.db.LogDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 
@@ -33,11 +33,20 @@ public class LogDaoTest extends AbstractDaoTestCase{
 
   @Test
   public void insert_log(){
-    LogDto log = LogDto.newSystemLog();
+
+    TestActivity activity = new TestActivity("hello world");
+
+    System.out.println("activity.getClass().getName() = " + activity.getClass().getName());
+    
+    LogDto log = new LogDto("SYSTEM_USER", activity);
+
     dao.insert(session, log);
 
-    LogDto newdto = dao.getByKey(session, log.getKey());
-    assertThat(newdto.getAuthor()).isEqualTo(log.getAuthor());
+    LogDto newDto = dao.getByKey(session, log.getKey());
+    assertThat(newDto.getAuthor()).isEqualTo(log.getAuthor());
+
+    TestActivity newActivity = newDto.getActivity();
+    assertThat(newActivity.test).isEqualTo("hello world");
 
   }
 }

@@ -20,7 +20,6 @@
 package org.sonar.core.log.db;
 
 import org.apache.ibatis.annotations.Param;
-import org.sonar.core.log.LogDto;
 
 /**
  * @since 4.4

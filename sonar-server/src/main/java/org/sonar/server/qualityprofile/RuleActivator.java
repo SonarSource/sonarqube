@@ -86,6 +86,7 @@ public class RuleActivator implements ServerComponent {
     try {
       List<ActiveRuleChange> changes = activate(dbSession, activation);
       if (!changes.isEmpty()) {
+
         dbSession.commit();
         previewCache.reportGlobalModification();
       }

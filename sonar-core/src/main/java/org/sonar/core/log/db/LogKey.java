@@ -20,7 +20,6 @@
 package org.sonar.core.log.db;
 
 import com.google.common.base.Preconditions;
-import org.sonar.core.log.LogDto;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -31,23 +30,23 @@ import java.util.Date;
 public class LogKey implements Serializable {
 
   private Date time;
-  private LogDto.Type type;
+  private LogDto.Payload payload;
   private String author;
 
-  public LogKey(Date time, LogDto.Type type, String author) {
+  public LogKey(Date time, LogDto.Payload payload, String author) {
     this.time = time;
-    this.type = type;
+    this.payload = payload;
     this.author = author;
   }
 
   /**
    * Create a key. Parameters are NOT null.
    */
-  public static LogKey of(Date time, LogDto.Type type, String author) {
+  public static LogKey of(Date time, LogDto.Payload payload, String author) {
     Preconditions.checkArgument(time != null, "Time must be set");
-    Preconditions.checkArgument(type != null, "Type must be set");
+    Preconditions.checkArgument(payload != null, "Payload must be set");
     Preconditions.checkArgument(author != null, "Author must be set");
-    return new LogKey(time, type, author);
+    return new LogKey(time, payload, author);
   }
 
   /**
@@ -58,30 +57,33 @@ public class LogKey implements Serializable {
     String[] split = s.split(":");
     Preconditions.checkArgument(split.length == 3, "Invalid log key: " + s);
     return LogKey.of(new Date(Long.getLong(split[0])),
-      LogDto.Type.valueOf(split[1]), split[2]);
+      LogDto.Payload.valueOf(split[1]), split[2]);
   }
 
   public Date getTime() {
     return time;
   }
 
-  public void setTime(Date time) {
+  public LogKey setTime(Date time) {
     this.time = time;
+    return this;
   }
 
-  public LogDto.Type getType() {
-    return type;
+  public LogDto.Payload getPayload() {
+    return payload;
   }
 
-  public void setType(LogDto.Type type) {
-    this.type = type;
+  public LogKey setPayload(LogDto.Payload payload) {
+    this.payload = payload;
+    return this;
   }
 
   public String getAuthor() {
     return author;
   }
 
-  public void setAuthor(String author) {
+  public LogKey setAuthor(String author) {
     this.author = author;
+    return this;
   }
 }

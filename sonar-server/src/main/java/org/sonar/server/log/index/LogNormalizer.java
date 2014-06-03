@@ -21,7 +21,7 @@ package org.sonar.server.log.index;
 
 import com.google.common.collect.ImmutableList;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.sonar.core.log.LogDto;
+import org.sonar.core.log.db.LogDto;
 import org.sonar.core.log.db.LogKey;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
@@ -95,9 +95,7 @@ public class LogNormalizer extends BaseNormalizer<LogDto, LogKey> {
     logDoc.put(LogFields.KEY.field(), dto.getKey());
     logDoc.put(LogFields.AUTHOR.field(), dto.getAuthor());
     logDoc.put(LogFields.EXECUTION.field(), dto.getExecutionTime());
-    logDoc.put(LogFields.STATUS.field(), dto.getStatus().name());
     logDoc.put(LogFields.TIME.field(), dto.getTime());
-    logDoc.put(LogFields.TYPE.field(), dto.getType());
 
 
 

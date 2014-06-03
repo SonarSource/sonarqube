@@ -23,17 +23,14 @@ import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.log.Log;
-import org.sonar.core.log.LogDto;
+import org.sonar.core.log.db.LogDto;
 import org.sonar.core.log.db.LogKey;
-import org.sonar.server.search.BaseDoc;
 import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.ESNode;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
 
 import java.io.IOException;
-import java.io.Serializable;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,7 +50,7 @@ public class LogIndex extends BaseIndex<Log, LogDto, LogKey>{
 
   @Override
   protected Settings getIndexSettings() throws IOException {
-    ImmutableSettings.builder().build();
+    return ImmutableSettings.builder().build();
   }
 
   @Override

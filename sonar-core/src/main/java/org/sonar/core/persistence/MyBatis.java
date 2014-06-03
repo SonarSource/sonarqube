@@ -68,7 +68,7 @@ import org.sonar.core.issue.db.IssueFilterFavouriteMapper;
 import org.sonar.core.issue.db.IssueFilterMapper;
 import org.sonar.core.issue.db.IssueMapper;
 import org.sonar.core.issue.db.IssueStatsMapper;
-import org.sonar.core.log.LogDto;
+import org.sonar.core.log.db.LogDto;
 import org.sonar.core.log.db.LogMapper;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.measure.db.MeasureFilterDto;

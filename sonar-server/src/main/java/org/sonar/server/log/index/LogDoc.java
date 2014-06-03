@@ -1,10 +1,9 @@
 package org.sonar.server.log.index;
 
+import org.sonar.core.log.Activity;
 import org.sonar.core.log.Log;
-import org.sonar.core.log.LogDto;
 import org.sonar.server.search.BaseDoc;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
@@ -28,22 +27,12 @@ public class LogDoc extends BaseDoc implements Log {
   }
 
   @Override
-  public LogDto.Type type() {
-    return LogDto.Type.valueOf((String)this.getField(LogNormalizer.LogFields.TYPE.field()));
-  }
-
-  @Override
-  public LogDto.Status status() {
-    return LogDto.Status.valueOf((String)this.getField(LogNormalizer.LogFields.STATUS.field()));
-  }
-
-  @Override
   public Long executionTime() {
     return this.getField(LogNormalizer.LogFields.EXECUTION.field());
   }
 
   @Override
-  public <K extends Serializable> K getPayload() {
+  public <K extends Activity> K getActivity() {
    return null;
   }
 }
