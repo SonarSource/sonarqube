@@ -60,7 +60,7 @@ public class SearchAction implements RequestHandler {
   public static final String PARAM_ALL_OF_TAGS = "all_of_tags";
   public static final String PARAM_INHERITANCE = "inheritance";
   public static final String PARAM_IS_TEMPLATE = "is_template";
-  public static final String PARAM_TEMPLATE = "template";
+  public static final String PARAM_TEMPLATE_KEY = "template_key";
   public static final String PARAM_FACETS = "facets";
 
   public static final String SEARCH_ACTION = "search";
@@ -182,7 +182,7 @@ public class SearchAction implements RequestHandler {
       .setBooleanPossibleValues();
 
     action
-      .createParam(PARAM_TEMPLATE)
+      .createParam(PARAM_TEMPLATE_KEY)
       .setDescription("Key of template rule to filter on. Available since 4.4")
       .setExampleValue("java:S001");
 
@@ -240,7 +240,7 @@ public class SearchAction implements RequestHandler {
     query.setAllOfTags(request.paramAsStrings(PARAM_ALL_OF_TAGS));
     query.setInheritance(request.paramAsStrings(PARAM_INHERITANCE));
     query.setIsTemplate(request.paramAsBoolean(PARAM_IS_TEMPLATE));
-    query.setTemplate(request.param(PARAM_TEMPLATE));
+    query.setTemplateKey(request.param(PARAM_TEMPLATE_KEY));
     return query;
   }
 

@@ -175,7 +175,7 @@ public class RulesWebServiceTest {
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchOptions.PARAM_FIELDS, "template");
+    request.setParam(SearchOptions.PARAM_FIELDS, "isTemplate");
     request.setParam(SearchAction.PARAM_IS_TEMPLATE, "true");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "search_template_rules.json");
@@ -191,7 +191,7 @@ public class RulesWebServiceTest {
     MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_FIELDS, "templateKey");
-    request.setParam(SearchAction.PARAM_TEMPLATE, "java:S001");
+    request.setParam(SearchAction.PARAM_TEMPLATE_KEY, "java:S001");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "search_rules_from_template_key.json");
   }

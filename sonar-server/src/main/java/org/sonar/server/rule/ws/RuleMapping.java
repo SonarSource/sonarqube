@@ -43,7 +43,7 @@ public class RuleMapping extends BaseMapping {
     addIndexStringField("severity", RuleNormalizer.RuleField.SEVERITY.field());
     addIndexStringField("status", RuleNormalizer.RuleField.STATUS.field());
     addIndexStringField("internalKey", RuleNormalizer.RuleField.INTERNAL_KEY.field());
-    addIndexBooleanField("template", RuleNormalizer.RuleField.TEMPLATE.field());
+    addIndexBooleanField("isTemplate", RuleNormalizer.RuleField.IS_TEMPLATE.field());
     addIndexStringField("templateKey", RuleNormalizer.RuleField.TEMPLATE_KEY.field());
     addIndexArrayField("tags", RuleNormalizer.RuleField.TAGS.field());
     addIndexArrayField("sysTags", RuleNormalizer.RuleField.SYSTEM_TAGS.field());

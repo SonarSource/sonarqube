@@ -102,7 +102,7 @@ public class RuleBackendMediumTest {
     assertThat(hit.updatedAt()).isNotNull();
     assertThat(hit.internalKey()).isEqualTo("InternalKeyS001");
     assertThat(hit.severity()).isEqualTo("INFO");
-    assertThat(hit.template()).isFalse();
+    assertThat(hit.isTemplate()).isFalse();
     assertThat(hit.tags()).containsOnly("tag1", "tag2");
     assertThat(hit.systemTags()).containsOnly("systag1", "systag2");
   }

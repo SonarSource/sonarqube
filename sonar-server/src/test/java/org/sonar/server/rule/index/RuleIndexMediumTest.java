@@ -661,13 +661,13 @@ public class RuleIndexMediumTest {
     results = index.search(query, new QueryOptions());
     assertThat(results.getHits()).hasSize(1);
     assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S002");
-    assertThat(Iterables.getFirst(results.getHits(), null).template()).isTrue();
+    assertThat(Iterables.getFirst(results.getHits(), null).isTemplate()).isTrue();
 
     // Only not template
     query = new RuleQuery().setIsTemplate(false);
     results = index.search(query, new QueryOptions());
     assertThat(results.getHits()).hasSize(1);
-    assertThat(Iterables.getFirst(results.getHits(), null).template()).isFalse();
+    assertThat(Iterables.getFirst(results.getHits(), null).isTemplate()).isFalse();
     assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S001");
 
     // null => no filter
@@ -688,14 +688,14 @@ public class RuleIndexMediumTest {
     assertThat(results.getHits()).hasSize(2);
 
     // Only custom rule
-    query = new RuleQuery().setTemplate("java:S001");
+    query = new RuleQuery().setTemplateKey("java:S001");
     results = index.search(query, new QueryOptions());
     assertThat(results.getHits()).hasSize(1);
     assertThat(Iterables.getFirst(results.getHits(), null).key().rule()).isEqualTo("S001_MY_CUSTOM");
     assertThat(Iterables.getFirst(results.getHits(), null).templateKey()).isEqualTo(RuleKey.of("java", "S001"));
 
     // null => no filter
-    query = new RuleQuery().setTemplate(null);
+    query = new RuleQuery().setTemplateKey(null);
     assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(2);
   }
 

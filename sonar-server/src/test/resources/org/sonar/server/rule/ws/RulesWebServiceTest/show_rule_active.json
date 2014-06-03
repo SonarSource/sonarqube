@@ -22,6 +22,6 @@
     "status": "READY",
     "sysTags": [],
     "tags": [],
-    "template": false
+    "isTemplate": false
   }
 }

@@ -86,8 +86,8 @@ public class RuleDoc extends BaseDoc implements Rule {
   }
 
   @Override
-  public boolean template() {
-    return (Boolean) getField(RuleNormalizer.RuleField.TEMPLATE.field());
+  public boolean isTemplate() {
+    return (Boolean) getField(RuleNormalizer.RuleField.IS_TEMPLATE.field());
   }
 
   @Override

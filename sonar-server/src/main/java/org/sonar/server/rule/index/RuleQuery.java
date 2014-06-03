@@ -45,7 +45,7 @@ public class RuleQuery {
   private Boolean activation;
   private String qProfileKey;
   private Collection<String> inheritance;
-  private String template;
+  private String templateKey;
   private Boolean isTemplate;
   private Date availableSince;
   private IndexField sortField;
@@ -209,12 +209,12 @@ public class RuleQuery {
   }
 
   @CheckForNull
-  public String template() {
-    return template;
+  public String templateKey() {
+    return templateKey;
   }
 
-  public RuleQuery setTemplate(@Nullable String template) {
-    this.template = template;
+  public RuleQuery setTemplateKey(@Nullable String templateKey) {
+    this.templateKey = templateKey;
     return this;
   }
 

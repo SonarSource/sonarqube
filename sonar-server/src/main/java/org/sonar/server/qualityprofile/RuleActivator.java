@@ -30,16 +30,13 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.preview.PreviewCache;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleKey;
-import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
+import org.sonar.core.qualityprofile.db.*;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.rule.index.RuleResult;
 import org.sonar.server.search.IndexClient;
@@ -48,6 +45,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
 
 import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -295,11 +293,11 @@ public class RuleActivator implements ServerComponent {
       RuleResult result = ruleIndex.search(ruleQuery,
         QueryOptions.DEFAULT.setOffset(0)
           .setLimit(Integer.MAX_VALUE)
-          .setFieldsToReturn(ImmutableSet.of("template", "severity"))
+          .setFieldsToReturn(ImmutableSet.of(RuleNormalizer.RuleField.IS_TEMPLATE.field(), RuleNormalizer.RuleField.SEVERITY.field()))
       );
 
       for (Rule rule : result.getHits()) {
-        if (!rule.template()) {
+        if (!rule.isTemplate()) {
           ActiveRuleKey key = ActiveRuleKey.of(profile, rule.key());
           RuleActivation activation = new RuleActivation(key);
           activation.setSeverity(rule.severity());
@@ -328,7 +326,7 @@ public class RuleActivator implements ServerComponent {
         QueryOptions.DEFAULT.setOffset(0)
           // TODO pb because limited to QueryOptions.MAX_LIMIT
           .setLimit(Integer.MAX_VALUE)
-          .setFieldsToReturn(ImmutableSet.of("template", "severity"))
+          .setFieldsToReturn(ImmutableSet.of(RuleNormalizer.RuleField.IS_TEMPLATE.field(), RuleNormalizer.RuleField.SEVERITY.field()))
       );
 
       for (Rule rule : result.getHits()) {

@@ -55,7 +55,7 @@ public interface Rule {
    */
   RuleStatus status();
 
-  boolean template();
+  boolean isTemplate();
 
   @CheckForNull
   RuleKey templateKey();

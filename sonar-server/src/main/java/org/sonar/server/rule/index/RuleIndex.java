@@ -195,10 +195,10 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     Boolean isTemplate = query.isTemplate();
     if (isTemplate != null) {
-      this.addTermFilter(fb, RuleNormalizer.RuleField.TEMPLATE.field(), Boolean.toString(isTemplate));
+      this.addTermFilter(fb, RuleNormalizer.RuleField.IS_TEMPLATE.field(), Boolean.toString(isTemplate));
     }
 
-    String template = query.template();
+    String template = query.templateKey();
     if (template != null) {
       this.addTermFilter(fb, RuleNormalizer.RuleField.TEMPLATE_KEY.field(), template);
     }

@@ -79,13 +79,13 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     public static IndexField TAGS = add(IndexField.Type.STRING, "tags");
     public static IndexField SYSTEM_TAGS = add(IndexField.Type.STRING, "sysTags");
     public static IndexField INTERNAL_KEY = add(IndexField.Type.STRING, "internalKey");
-    public static IndexField TEMPLATE = add(IndexField.Type.BOOLEAN, "template");
+    public static IndexField IS_TEMPLATE = add(IndexField.Type.BOOLEAN, "isTemplate");
+    public static IndexField TEMPLATE_KEY = add(IndexField.Type.STRING, "templateKey");
     public static IndexField DEBT_FUNCTION_TYPE = add(IndexField.Type.STRING, "debtRemFnType");
     public static IndexField DEBT_FUNCTION_COEFFICIENT = add(IndexField.Type.STRING, "debtRemFnCoefficient");
     public static IndexField DEBT_FUNCTION_OFFSET = add(IndexField.Type.STRING, "debtRemFnOffset");
     public static IndexField SUB_CHARACTERISTIC = add(IndexField.Type.STRING, "debtSubChar");
     public static IndexField CHARACTERISTIC = add(IndexField.Type.STRING, "debtChar");
-    public static IndexField TEMPLATE_KEY = add(IndexField.Type.STRING, "templateKey");
     public static IndexField NOTE = add(IndexField.Type.TEXT, "markdownNote");
     public static IndexField NOTE_LOGIN = add(IndexField.Type.STRING, "noteLogin");
     public static IndexField NOTE_CREATED_AT = add(IndexField.Type.DATE, "noteCreatedAt");
@@ -159,7 +159,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       update.put(RuleField.STATUS.field(), rule.getStatus().name());
       update.put(RuleField.LANGUAGE.field(), rule.getLanguage());
       update.put(RuleField.INTERNAL_KEY.field(), rule.getConfigKey());
-      update.put(RuleField.TEMPLATE.field(), rule.getCardinality() == Cardinality.MULTIPLE);
+      update.put(RuleField.IS_TEMPLATE.field(), rule.getCardinality() == Cardinality.MULTIPLE);
 
       update.put(RuleField.NOTE.field(), rule.getNoteData());
       update.put(RuleField.NOTE_LOGIN.field(), rule.getNoteUserLogin());
