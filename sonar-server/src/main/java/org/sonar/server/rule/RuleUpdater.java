@@ -81,17 +81,18 @@ public class RuleUpdater implements ServerComponent {
         throw new IllegalArgumentException("Rule with REMOVED status cannot be updated: " + change.getRuleKey());
       }
 
-      if (change.getDebtSubCharacteristicKey() != null &&
-        !change.getDebtSubCharacteristicKey().equals(RuleUpdate.DEFAULT_DEBT_CHARACTERISTIC)) {
-        CharacteristicDto characteristicDto = dbClient.debtCharacteristicDao().selectByKey(change.getDebtSubCharacteristicKey(), dbSession);
+      String subCharacteristicKey = change.getDebtSubCharacteristicKey();
+      if (subCharacteristicKey != null &&
+        !subCharacteristicKey.equals(RuleUpdate.DEFAULT_DEBT_CHARACTERISTIC)) {
+        CharacteristicDto characteristicDto = dbClient.debtCharacteristicDao().selectByKey(subCharacteristicKey, dbSession);
         if (characteristicDto == null) {
-          throw new IllegalArgumentException("Unknown debt sub-characteristic: " + change.getDebtSubCharacteristicKey());
+          throw new IllegalArgumentException("Unknown debt sub-characteristic: " + subCharacteristicKey);
         }
         if (!characteristicDto.isEnabled()) {
-          throw new IllegalArgumentException("Debt sub-characteristic is disabled: " + change.getDebtSubCharacteristicKey());
+          throw new IllegalArgumentException("Debt sub-characteristic is disabled: " + subCharacteristicKey);
         }
         if (characteristicDto.getParentId() == null) {
-          throw new IllegalArgumentException("Not a sub-characteristic: " + change.getDebtSubCharacteristicKey());
+          throw new IllegalArgumentException("Not a sub-characteristic: " + subCharacteristicKey);
         }
         context.newCharacteristic = characteristicDto;
       }
