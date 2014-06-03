@@ -293,13 +293,19 @@
 
 .coding-rules-bulk-change-dropdown-link {
   display: block;
+  max-width: 190px;
   height: 30px;
   line-height: 30px;
   padding: 0 @navigatorPadding;
   font-size: @smallFontSize;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   .trans;
 
   &:hover { background-color: @navigatorBarBackground; }
 
-  strong { font-weight: bold; }
+  strong {
+    font-weight: bold;
+  }
 }
