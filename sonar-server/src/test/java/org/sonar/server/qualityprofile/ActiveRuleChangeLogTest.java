@@ -17,21 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.log.db;
+package org.sonar.server.qualityprofile;
 
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.core.log.db.LogDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.qualityprofile.db.ActiveRuleKey;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
+import org.sonar.server.log.db.LogDao;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class LogDaoTest extends AbstractDaoTestCase{
+public class ActiveRuleChangeLogTest extends AbstractDaoTestCase{
 
 
   private LogDao dao;
@@ -53,17 +57,22 @@ public class LogDaoTest extends AbstractDaoTestCase{
   @Test
   public void insert_log(){
 
-    TestActivity activity = new TestActivity("hello world");
+    ActiveRuleKey ruleKey = ActiveRuleKey.of(
+      QualityProfileKey.of("name", "java"),
+      RuleKey.of("repository","S001"));
+    ActiveRuleChange ruleChange = new ActiveRuleChange(ActiveRuleChange.Type.ACTIVATED, ruleKey)
+      .setInheritance(ActiveRule.Inheritance.INHERITED);
 
-    LogDto log = new LogDto("SYSTEM_USER", activity);
+    LogDto log = new LogDto("SYSTEM_USER", ruleChange);
 
     dao.insert(session, log);
 
     LogDto newDto = dao.getByKey(session, log.getKey());
     assertThat(newDto.getAuthor()).isEqualTo(log.getAuthor());
 
-    TestActivity newActivity = newDto.getActivity();
-    assertThat(newActivity.test).isEqualTo("hello world");
+    ActiveRuleChange loggedRuleChange = newDto.getActivity();
+    assertThat(loggedRuleChange.getKey()).isEqualTo(ruleKey);
+    assertThat(ruleChange.getInheritance()).isEqualTo(ActiveRule.Inheritance.INHERITED);
 
   }
 }

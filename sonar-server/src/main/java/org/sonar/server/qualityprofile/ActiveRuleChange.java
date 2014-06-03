@@ -22,12 +22,18 @@ package org.sonar.server.qualityprofile;
 import com.google.common.collect.Maps;
 import org.sonar.core.log.Activity;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
+import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Map;
 
-public class ActiveRuleChange extends Activity {
+public class ActiveRuleChange extends Activity implements Serializable {
 
   static enum Type {
     ACTIVATED, DEACTIVATED, UPDATED
@@ -39,6 +45,11 @@ public class ActiveRuleChange extends Activity {
   private String previousSeverity = null, severity = null;
   private ActiveRule.Inheritance previousInheritance = null, inheritance = null;
   private Map<String, String> parameters = Maps.newHashMap();
+
+  public ActiveRuleChange(){
+    type = null;
+    key = null;
+  }
 
   ActiveRuleChange(Type type, ActiveRuleKey key) {
     this.type = type;
@@ -75,12 +86,14 @@ public class ActiveRuleChange extends Activity {
     return severity;
   }
 
-  public void setSeverity(@Nullable String severity) {
+  public ActiveRuleChange setSeverity(@Nullable String severity) {
     this.severity = severity;
+    return this;
   }
 
-  public void setInheritance(@Nullable ActiveRule.Inheritance inheritance) {
+  public ActiveRuleChange setInheritance(@Nullable ActiveRule.Inheritance inheritance) {
     this.inheritance = inheritance;
+    return this;
   }
 
   @CheckForNull
@@ -99,13 +112,30 @@ public class ActiveRuleChange extends Activity {
 
   @Override
   public String serialize() {
-    //TODO implement String serialization
-    return null;
+    //TODO do not use JDK's serialization
+    try {
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      ObjectOutputStream oos = new ObjectOutputStream(baos);
+      oos.writeObject(this);
+      oos.close();
+      return new String(Base64Coder.encode(baos.toByteArray()));
+    } catch (Exception e) {
+      throw new IllegalStateException("Could not serialize.",e);
+    }
   }
 
   @Override
-  public Activity deSerialize(String data) {
-    //TODO implement String deSerialization
-    return null;
+  public ActiveRuleChange deSerialize(String data) {
+    //TODO do not use JDK's deserialization
+    try {
+    byte [] bytes = Base64Coder.decode(data);
+    ObjectInputStream ois = new ObjectInputStream(
+      new ByteArrayInputStream(bytes));
+      ActiveRuleChange o  = (ActiveRuleChange) ois.readObject();
+    ois.close();
+    return o;
+    } catch (Exception e) {
+      throw new IllegalStateException("Could not serialize.",e);
+    }
   }
 }

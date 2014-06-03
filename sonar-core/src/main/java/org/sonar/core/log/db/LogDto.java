@@ -93,7 +93,8 @@ public final class LogDto extends Dto<LogKey> {
 
   public <K extends Activity> K getActivity() {
     try {
-      return (K) ((Activity) Class.forName(this.payload.clazz).newInstance()).deSerialize(this.data);
+      Activity activity = ((Activity) Class.forName(this.payload.clazz, true, ClassLoader.getSystemClassLoader()).newInstance());
+      return (K) activity.deSerialize(this.data);
     } catch (Exception e) {
       throw new IllegalStateException("Could not read Activity from DB. '" + this.payload
         + "' is most likely missing a public no-args ctor", e);
