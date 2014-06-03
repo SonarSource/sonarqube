@@ -26,9 +26,9 @@ define [
     activate: ->
       profileKey = @ui.qualityProfileSelect.val()
       params = @ui.qualityProfileParameters.map(->
-        key: jQuery(@).prop('name'), value: jQuery(@).val() || jQuery(@).prop('placeholder')).get()
+        key: jQuery(@).prop('name'), value: jQuery(@).val() || jQuery(@).prop('placeholder') || '').get()
 
-      paramsHash = _.reduce((params.map (param) -> param.key + '=' + param.value), ((hash, param) -> hash + ';' + param), '')
+      paramsHash = (params.map (param) -> param.key + '=' + param.value).join(';')
 
       if @model
         profileKey = @model.get('qProfile')

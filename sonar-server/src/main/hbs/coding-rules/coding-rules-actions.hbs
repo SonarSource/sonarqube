@@ -13,6 +13,6 @@
 </ul>
 <div class="navigator-actions-total">
   {{t 'coding_rules.found'}}: <strong>{{paging.total}}</strong>
-  {{#if canWrite}}<a class="navigator-actions-bulk"
-     title="{{t 'bulk_change'}}"><i class="icon-bulk-change"></i></a>{{/if}}
+  {{#if canWrite}}{{#if bulkEnabled}}<a class="navigator-actions-bulk"
+     title="{{t 'bulk_change'}}"><i class="icon-bulk-change"></i></a>{{/if}}{{/if}}
 </div>

@@ -22,9 +22,9 @@ define [
         @options.app.codingRulesBulkChangeView.show action
       else
         query = @options.app.getQuery()
-        switch action
-          when 'activate' then _.extend query, bulk_activate: [param]
-          when 'deactivate' then _.extend query, bulk_deactivate: [param]
+        _.extend query,
+          profile_key: param
+          wsAction: action
         @options.app.codingRulesBulkChangeView.bulkChange query
 
 

@@ -152,15 +152,15 @@ requirejs [
         rule.language = App.languages[rule.lang]
       )
 
-      if firstPage
-        @codingRules.reset r.rules
-      else
-        @codingRules.add r.rules
       @codingRules.paging =
         total: r.total
         pageIndex: r.p
         pageSize: r.ps
         pages: 1 + (r.total / r.ps)
+      if firstPage
+        @codingRules.reset r.rules
+      else
+        @codingRules.add r.rules
 
       @codingRulesListView = new CodingRulesListView
         app: @
@@ -201,6 +201,9 @@ requirejs [
     value = @qualityProfileFilter.get('value')
     if value? && value.length == 1 then value[0] else null
 
+
+  App.getQualityProfilesForLanguage = (language_key) ->
+    _.filter App.qualityProfiles, (p) => p.lang == language_key
 
   App.showRule = (ruleKey) ->
     App.layout.showSpinner 'detailsRegion'

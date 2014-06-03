@@ -14,27 +14,20 @@
   <div class="modal-body">
     <div class="modal-error"></div>
 
-    {{#eq action 'activate'}}
-      <div class="modal-field">
-        <label for="coding-rules-bulk-change-activate-on">{{t 'coding_rules.activate_in'}}</label>
-        <select id="coding-rules-bulk-change-activate-on" multiple>
-          {{#each activateOnQualityProfiles}}
-            <option value="{{key}}">{{name}} ({{lang}})</option>
+    {{#notEq action 'change-severity'}}
+    <div class="modal-field">
+      <label for="coding-rules-bulk-change-activate-on">
+        {{#eq action 'activate'}}{{t 'coding_rules.activate_in'}}{{/eq}}
+        {{#eq action 'deactivate'}}{{t 'coding_rules.deactivate_in'}}{{/eq}}
+      </label>
+        <select id="coding-rules-bulk-change-profile">
+          {{#each availableQualityProfiles}}
+            <option value="{{key}}">{{name}}</option>
           {{/each}}
         </select>
       </div>
-    {{/eq}}
+    {{/notEq}}
 
-    {{#eq action 'deactivate'}}
-      <div class="modal-field">
-        <label for="coding-rules-bulk-change-deactivate-on">{{t 'coding_rules.deactivate_in'}}</label>
-        <select id="coding-rules-bulk-change-deactivate-on" multiple>
-          {{#each deactivateOnQualityProfiles}}
-            <option value="{{key}}">{{name}} ({{lang}})</option>
-          {{/each}}
-        </select>
-      </div>
-    {{/eq}}
 
     {{#eq action 'change-severity'}}
       {{#if qualityProfile}}

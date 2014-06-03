@@ -28,7 +28,7 @@ define [
         resizable: false,
         title: null
 
-      @$('#coding-rules-bulk-change-activate-on, #coding-rules-bulk-change-deactivate-on').select2
+      @$('#coding-rules-bulk-change-profile').select2
         width: '250px'
         minimumResultsForSearch: 1
 
@@ -56,28 +56,26 @@ define [
     prepareQuery: ->
       query = @options.app.getQuery()
 
-      if @action == 'activate'
-        if @$('#coding-rules-bulk-change-activate-all').is ':checked'
-          _.extend query, bulk_activate: _.pluck @options.app.qualityProfiles, 'key'
-        else
-          _.extend query, bulk_activate: @$('#coding-rules-bulk-change-activate-on').val()
-
-      if @action == 'deactivate'
-        if @$('#coding-rules-bulk-change-deactivate-all').is ':checked'
-          _.extend query, bulk_deactivate: _.pluck @options.app.qualityProfiles, 'key'
-        else
-          _.extend query, bulk_deactivate: @$('#coding-rules-bulk-change-deactivate-on').val()
+      if @action == 'activate' || @action == 'deactivate'
+        _.extend query,
+          wsAction: @action
+          profile_key: @$('#coding-rules-bulk-change-profile').val()
 
       if @action == 'change-severity'
-        _.extend query, bulk_change_severity: @$('#coding-rules-bulk-change-severity').val()
+        _.extend query,
+          wsAction: 'activate'
+          profile_key: @options.app.getQualityProfile()
+          activation_severity: @$('#coding-rules-bulk-change-severity').val()
 
       query
 
 
     bulkChange: (query) ->
+      wsAction = query.wsAction
+      query = _.omit(query, 'wsAction')
       jQuery.ajax
         type: 'POST'
-        url: "#{baseUrl}/api/rules/bulk_change"
+        url: "#{baseUrl}/api/qualityprofiles/#{wsAction}_rules"
         data: query
       .done =>
         @options.app.fetchFirstPage()
@@ -88,6 +86,15 @@ define [
       @bulkChange(@prepareQuery()).done => @hide()
 
 
+    getAvailableQualityProfiles: ->
+      languages = @options.app.languageFilter.get('value')
+      singleLanguage = _.isArray(languages) && languages.length == 1
+
+      if singleLanguage
+        @options.app.getQualityProfilesForLanguage(languages[0])
+      else
+        @options.app.qualityProfiles
+
     serializeData: ->
       action: @action
 
@@ -97,7 +104,6 @@ define [
       qualityProfile: @options.app.getQualityProfile()
       qualityProfileName: @options.app.qualityProfileFilter.view.renderValue()
 
-      activateOnQualityProfiles: @options.app.qualityProfiles
-      deactivateOnQualityProfiles: _.reject @options.app.qualityProfiles, (q) => q.name == @options.app.getQualityProfile()
+      availableQualityProfiles: @getAvailableQualityProfiles()
 
       severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO']
