@@ -57,6 +57,7 @@ public interface Rule {
 
   boolean template();
 
+  @CheckForNull
   RuleKey templateKey();
 
   /**
