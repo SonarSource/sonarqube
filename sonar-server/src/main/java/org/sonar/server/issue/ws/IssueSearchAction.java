@@ -44,6 +44,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.markdown.Markdown;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.filter.IssueFilterParameters;
 import org.sonar.server.user.UserSession;
 
@@ -159,10 +160,13 @@ public class IssueSearchAction implements RequestHandler {
     action.createParam(IssueFilterParameters.ASC)
       .setDescription("Ascending sort")
       .setBooleanPossibleValues();
+    action.createParam("format")
+      .setDescription("Only json format is available. This parameter is kept only for backward compatibility and shouldn't be used anymore");
   }
 
   @Override
   public void handle(Request request, Response response) {
+    checkFormatParameter(request);
     IssueQueryResult queryResult = issueFinder.find(createQuery(request));
 
     JsonWriter json = response.newJsonWriter();
@@ -177,6 +181,13 @@ public class IssueSearchAction implements RequestHandler {
     writeActionPlans(queryResult, json);
 
     json.endObject().close();
+  }
+
+  private void checkFormatParameter(Request request) {
+    String format = request.param("format");
+    if (!Strings.isNullOrEmpty(format) && !format.equals("json")){
+      throw new BadRequestException("Only json format is supported.");
+    }
   }
 
   private void writePaging(IssueQueryResult result, JsonWriter json) {

@@ -96,7 +96,7 @@ public class IssuesWsTest {
     assertThat(show.isInternal()).isFalse();
     assertThat(show.handler()).isSameAs(searchAction);
     assertThat(show.responseExampleAsString()).isNotEmpty();
-    assertThat(show.params()).hasSize(23);
+    assertThat(show.params()).hasSize(24);
   }
 
   @Test

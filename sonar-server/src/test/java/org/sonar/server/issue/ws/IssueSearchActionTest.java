@@ -20,6 +20,7 @@
 
 package org.sonar.server.issue.ws;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,6 +48,7 @@ import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssueQueryResult;
 import org.sonar.core.issue.workflow.Transition;
 import org.sonar.core.user.DefaultUser;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.user.MockUserSession;
@@ -58,6 +60,7 @@ import java.util.*;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
@@ -134,7 +137,7 @@ public class IssueSearchActionTest {
     Date updateDate = DateUtils.parseDateTime("2014-01-23T19:10:03+0100");
     Date closedDate = DateUtils.parseDateTime("2014-01-24T19:10:03+0100");
 
-    Issue issue = createStandardIssue()
+    Issue issue = createIssue()
       .setCreationDate(creationDate)
       .setUpdateDate(updateDate)
       .setCloseDate(closedDate);
@@ -152,7 +155,7 @@ public class IssueSearchActionTest {
   @Test
   public void issues_with_debt() throws Exception {
     Duration debt = (Duration.create(7260L));
-    Issue issue = createStandardIssue().setDebt(debt);
+    Issue issue = createIssue().setDebt(debt);
     issues.add(issue);
 
     when(durations.encode(debt)).thenReturn("2h1min");
@@ -163,7 +166,7 @@ public class IssueSearchActionTest {
 
   @Test
   public void issues_with_action_plan() throws Exception {
-    Issue issue = createStandardIssue()
+    Issue issue = createIssue()
       .setActionPlanKey("AP-ABCD");
     issues.add(issue);
 
@@ -193,7 +196,7 @@ public class IssueSearchActionTest {
 
   @Test
   public void issues_with_comments() throws Exception {
-    Issue issue = createStandardIssue()
+    Issue issue = createIssue()
       .addComment(
         new DefaultIssueComment()
           .setKey("COMMENT-ABCD")
@@ -216,7 +219,7 @@ public class IssueSearchActionTest {
 
   @Test
   public void issues_with_attributes() throws Exception {
-    Issue issue = createStandardIssue()
+    Issue issue = createIssue()
       .setAttribute("jira-issue-key", "SONAR-1234");
     issues.add(issue);
 
@@ -226,7 +229,7 @@ public class IssueSearchActionTest {
 
   @Test
   public void issues_with_extra_fields() throws Exception {
-    Issue issue = createStandardIssue()
+    Issue issue = createIssue()
       .setActionPlanKey("AP-ABCD")
       .setAssignee("john");
     issues.add(issue);
@@ -246,7 +249,7 @@ public class IssueSearchActionTest {
 
   @Test
   public void issues_with_components() throws Exception {
-    issues.add(createStandardIssue());
+    issues.add(createIssue());
 
     ComponentDto component = new ComponentDto()
       .setId(10L)
@@ -275,7 +278,7 @@ public class IssueSearchActionTest {
 
   @Test
   public void issues_with_sub_project() throws Exception {
-    Issue issue = createStandardIssue().setComponentKey("sample:sample-module:src/main/xoo/sample/Sample.xoo");
+    Issue issue = createIssue().setComponentKey("sample:sample-module:src/main/xoo/sample/Sample.xoo");
     issues.add(issue);
 
     // File
@@ -317,7 +320,7 @@ public class IssueSearchActionTest {
 
   @Test
   public void issues_with_rules() throws Exception {
-    issues.add(createStandardIssue());
+    issues.add(createIssue());
 
     result.addRules(newArrayList(
       Rule.create("squid", "AvoidCycle").setName("Avoid cycle").setDescription("Avoid cycle description")
@@ -329,7 +332,7 @@ public class IssueSearchActionTest {
 
   @Test
   public void issues_with_users() throws Exception {
-    Issue issue = createStandardIssue()
+    Issue issue = createIssue()
       .setAssignee("john")
       .setReporter("steven")
       .setAuthorLogin("Henry");
@@ -399,8 +402,21 @@ public class IssueSearchActionTest {
     assertThat(query.asc()).isTrue();
   }
 
-  private DefaultIssue createStandardIssue() {
-    return createIssue();
+  @Test
+  public void verify_format_parameter() throws Exception {
+    // No error if json
+    tester.newGetRequest("api/issues", "search").setParams(ImmutableMap.of("format", "json")).execute();
+
+    // No error if empty
+    tester.newGetRequest("api/issues", "search").setParams(ImmutableMap.of("format", "")).execute();
+
+    // Error if not empty and not json
+    try {
+      tester.newGetRequest("api/issues", "search").setParams(ImmutableMap.of("format", "xml")).execute();
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class);
+    }
   }
 
   private DefaultIssue createIssue() {
