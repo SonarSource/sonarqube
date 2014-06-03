@@ -34,7 +34,7 @@ import org.sonar.api.server.debt.DebtModel;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.server.qualityprofile.QualityProfileService;
+import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
@@ -62,7 +62,7 @@ public class AppActionTest {
   DebtModel debtModel;
 
   @Mock
-  QualityProfileService qualityProfileService;
+  QProfileService qualityProfileService;
 
   @Test
   public void should_generate_app_init_info() throws Exception {

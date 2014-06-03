@@ -39,6 +39,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.rule.index.RuleResult;
 import org.sonar.server.search.IndexClient;
@@ -275,7 +276,7 @@ public class RuleActivator implements ServerComponent {
     }
   }
 
-  Multimap<String, String> bulkActivate(RuleQuery ruleQuery, QualityProfileKey profile) {
+  public Multimap<String, String> bulkActivate(RuleQuery ruleQuery, QualityProfileKey profileKey, @Nullable String severity) {
     RuleIndex ruleIndex = index.get(RuleIndex.class);
     Multimap<String, String> results = ArrayListMultimap.create();
     DbSession dbSession = db.openSession(false);
@@ -290,9 +291,9 @@ public class RuleActivator implements ServerComponent {
 
       for (Rule rule : result.getHits()) {
         if (!rule.isTemplate()) {
-          ActiveRuleKey key = ActiveRuleKey.of(profile, rule.key());
+          ActiveRuleKey key = ActiveRuleKey.of(profileKey, rule.key());
           RuleActivation activation = new RuleActivation(key);
-          if(severity != null && !severity.isEmpty()){
+          if (severity != null && !severity.isEmpty()) {
             activation.setSeverity(severity);
           } else {
             activation.setSeverity(rule.severity());
@@ -311,7 +312,7 @@ public class RuleActivator implements ServerComponent {
     return results;
   }
 
-  Multimap<String, String> bulkDeactivate(RuleQuery ruleQuery, QualityProfileKey profile) {
+  public Multimap<String, String> bulkDeactivate(RuleQuery ruleQuery, QualityProfileKey profile) {
     RuleIndex ruleIndex = index.get(RuleIndex.class);
     Multimap<String, String> results = ArrayListMultimap.create();
     DbSession dbSession = db.openSession(false);

@@ -35,16 +35,16 @@ import org.sonar.server.rule.ws.SearchAction;
 public class BulkRuleActivationActions implements ServerComponent {
 
   public static final String PROFILE_KEY = "profile_key";
-  public static final String SEVERITY = "activation_severity";
+  public static final String SEVERITY = "severity";
 
   public static final String BULK_ACTIVATE_ACTION = "activate_rules";
   public static final String BULK_DEACTIVATE_ACTION = "deactivate_rules";
 
-  private final RuleActivator activation;
+  private final QProfileService profileService;
   private final RuleService ruleService;
 
-  public BulkRuleActivationActions(QProfileService service, RuleActivator activation, RuleService ruleService) {
-    this.activation = activation;
+  public BulkRuleActivationActions(QProfileService profileService, RuleService ruleService) {
+    this.profileService = profileService;
     this.ruleService = ruleService;
   }
 
@@ -67,10 +67,10 @@ public class BulkRuleActivationActions implements ServerComponent {
       });
 
     SearchAction.defineRuleSearchParameters(activate);
-    defineProfileKeyParameters(activate);
+    defineProfileKeyParameter(activate);
 
     activate.createParam(SEVERITY)
-      .setDescription("Set severity of rules activated in bulk")
+      .setDescription("Optional severity of rules activated in bulk")
       .setPossibleValues(Severity.ALL);
   }
 
@@ -88,18 +88,18 @@ public class BulkRuleActivationActions implements ServerComponent {
       });
 
     SearchAction.defineRuleSearchParameters(deactivate);
-    defineProfileKeyParameters(deactivate);
+    defineProfileKeyParameter(deactivate);
   }
 
-  private void defineProfileKeyParameters(WebService.NewAction action) {
+  private void defineProfileKeyParameter(WebService.NewAction action) {
     action.createParam(PROFILE_KEY)
-      .setDescription("Quality Profile Key. To retrieve a profileKey for a given language please see the /api/qprofile documentation")
+      .setDescription("Quality Profile Key. To retrieve a profile key for a given language please see the api/qprofiles documentation")
       .setRequired(true)
-      .setExampleValue("java:My Profile");
+      .setExampleValue("java:MyProfile");
   }
 
   private void bulkActivate(Request request, Response response) throws Exception {
-    Multimap<String, String> results = activation.bulkActivate(
+    Multimap<String, String> results = profileService.bulkActivate(
       SearchAction.createRuleQuery(ruleService.newRuleQuery(), request),
       readKey(request),
       request.param(SEVERITY));
@@ -107,7 +107,7 @@ public class BulkRuleActivationActions implements ServerComponent {
   }
 
   private void bulkDeactivate(Request request, Response response) throws Exception {
-    Multimap<String, String> results = activation.bulkDeactivate(
+    Multimap<String, String> results = profileService.bulkDeactivate(
       SearchAction.createRuleQuery(ruleService.newRuleQuery(), request),
       readKey(request));
     writeResponse(results, response);
@@ -118,7 +118,8 @@ public class BulkRuleActivationActions implements ServerComponent {
     for (String action : results.keySet()) {
       json.name(action).beginArray();
       for (String key : results.get(action)) {
-        json.beginObject()
+        json
+          .beginObject()
           .prop("key", key)
           .endObject();
       }

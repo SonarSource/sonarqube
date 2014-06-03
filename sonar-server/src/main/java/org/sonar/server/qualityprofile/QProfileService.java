@@ -23,8 +23,11 @@ import com.google.common.collect.Multimap;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.IndexClient;
@@ -40,17 +43,32 @@ import java.util.List;
 
 public class QProfileService implements ServerComponent {
 
+  private final DbClient db;
   private final IndexClient index;
   private final RuleActivator ruleActivator;
   private final QProfileBackuper backuper;
   private final QProfileCopier copier;
 
-  public QProfileService(IndexClient index, RuleActivator ruleActivator, QProfileBackuper backuper,
+  public QProfileService(DbClient db, IndexClient index, RuleActivator ruleActivator, QProfileBackuper backuper,
                          QProfileCopier copier) {
+    this.db = db;
     this.index = index;
     this.ruleActivator = ruleActivator;
     this.backuper = backuper;
     this.copier = copier;
+  }
+
+  /**
+   * Returns all Quality profiles as DTOs. This is a temporary solution as long as
+   * profiles are not indexed and declared as a business object
+   */
+  public List<QualityProfileDto> findAll() {
+    DbSession dbSession = db.openSession(false);
+    try {
+      return db.qualityProfileDao().findAll(dbSession);
+    } finally {
+      dbSession.close();
+    }
   }
 
   @CheckForNull
@@ -85,9 +103,9 @@ public class QProfileService implements ServerComponent {
   }
 
 
-  public Multimap<String, String> bulkActivate(RuleQuery ruleQuery, QualityProfileKey profile) {
+  public Multimap<String, String> bulkActivate(RuleQuery ruleQuery, QualityProfileKey profile, @Nullable String severity) {
     verifyAdminPermission();
-    return ruleActivator.bulkActivate(ruleQuery, profile);
+    return ruleActivator.bulkActivate(ruleQuery, profile, severity);
   }
 
   public Multimap<String, String> bulkDeactivate(RuleQuery ruleQuery, QualityProfileKey profile) {

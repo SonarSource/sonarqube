@@ -34,7 +34,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.server.qualityprofile.QualityProfileService;
+import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.rule.RuleRepositories.Repository;
 import org.sonar.server.user.UserSession;
@@ -51,9 +51,10 @@ public class AppAction implements RequestHandler {
   private final RuleRepositories ruleRepositories;
   private final I18n i18n;
   private final DebtModel debtModel;
-  private final QualityProfileService qualityProfileService;
+  private final QProfileService qualityProfileService;
 
-  public AppAction(Languages languages, RuleRepositories ruleRepositories, I18n i18n, DebtModel debtModel, QualityProfileService qualityProfileService) {
+  public AppAction(Languages languages, RuleRepositories ruleRepositories, I18n i18n,
+                   DebtModel debtModel, QProfileService qualityProfileService) {
     this.languages = languages;
     this.ruleRepositories = ruleRepositories;
     this.i18n = i18n;
@@ -88,12 +89,9 @@ public class AppAction implements RequestHandler {
           .prop("lang", profile.getLanguage())
           .prop("parent", profile.getParent());
         if (profile.getParentKey() != null) {
-          json
-            .prop("parentKey", profile.getParentKey().toString());
-
+          json.prop("parentKey", profile.getParentKey().toString());
         }
-        json
-          .endObject();
+        json.endObject();
       }
     }
     json.endArray();
