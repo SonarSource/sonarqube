@@ -44,7 +44,6 @@ import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.FacetValue;
-import org.sonar.server.search.IndexProperties;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
@@ -57,8 +56,7 @@ import static org.fest.assertions.Fail.fail;
 public class RuleIndexMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester()
-    .setProperty(IndexProperties.HTTP_PORT, "9200");
+  public static ServerTester tester = new ServerTester();
 
   RuleDao dao = tester.get(RuleDao.class);
   RuleIndex index = tester.get(RuleIndex.class);
