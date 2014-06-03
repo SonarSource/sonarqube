@@ -166,7 +166,11 @@ requirejs [
         app: @
         collection: @codingRules
       @layout.resultsRegion.show @codingRulesListView
-      @codingRulesListView.selectFirst()
+
+      if @codingRules.isEmpty()
+        @layout.detailsRegion.reset()
+      else
+        @codingRulesListView.selectFirst()
 
       unless firstPage
         jQuery('.navigator-results')[0].scrollTop = scrollOffset
