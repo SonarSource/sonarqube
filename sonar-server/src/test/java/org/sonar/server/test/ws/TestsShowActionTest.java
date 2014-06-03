@@ -33,6 +33,8 @@ import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
+import javax.annotation.Nullable;
+
 import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -58,36 +60,28 @@ public class TestsShowActionTest {
   public void show() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, "SonarQube", TEST_PLAN_KEY);
 
-    MutableTestCase testCase1 = testCase("test1", TestCase.Status.OK, 10L, 32);
-    MutableTestCase testCase2 = testCase("test2", TestCase.Status.ERROR, 97L, 21);
+    MutableTestCase testCase1 = testCase("test1", TestCase.Status.OK, 10L, 32, null, null);
+    MutableTestCase testCase2 = testCase("test2", TestCase.Status.ERROR, 97L, 21, "expected:<true> but was:<false>",
+      "java.lang.AssertionError: expected:<true> but was:<false>\n\t" +
+      "at org.junit.Assert.fail(Assert.java:91)\n\t" +
+      "at org.junit.Assert.failNotEquals(Assert.java:645)\n\t" +
+      "at org.junit.Assert.assertEquals(Assert.java:126)\n\t" +
+      "at org.junit.Assert.assertEquals(Assert.java:145)\n");
     when(testPlan.testCases()).thenReturn(newArrayList(testCase1, testCase2));
 
     WsTester.TestRequest request = tester.newGetRequest("api/tests", "show").setParam("key", TEST_PLAN_KEY);
 
-    request.execute().assertJson("{\n" +
-      "  \"tests\": [\n" +
-      "    {\n" +
-      "      \"name\": \"test1\",\n" +
-      "      \"status\": \"OK\",\n" +
-      "      \"durationInMs\": 10,\n" +
-      "      \"coveredLines\": 32\n" +
-      "    },\n" +
-      "    {\n" +
-      "      \"name\": \"test2\",\n" +
-      "      \"status\": \"ERROR\",\n" +
-      "      \"durationInMs\": 97,\n" +
-      "      \"coveredLines\": 21\n" +
-      "    }\n" +
-      "  ],\n" +
-      "}\n");
+    request.execute().assertJson(getClass(), "show.json");
   }
 
-  private MutableTestCase testCase(String name, TestCase.Status status, Long durationInMs, int coveredLines) {
+  private MutableTestCase testCase(String name, TestCase.Status status, Long durationInMs, int coveredLines, @Nullable String message, @Nullable String stackTrace) {
     MutableTestCase testCase = mock(MutableTestCase.class);
     when(testCase.name()).thenReturn(name);
     when(testCase.status()).thenReturn(status);
     when(testCase.durationInMs()).thenReturn(durationInMs);
     when(testCase.countCoveredLines()).thenReturn(coveredLines);
+    when(testCase.message()).thenReturn(message);
+    when(testCase.stackTrace()).thenReturn(stackTrace);
     return testCase;
   }
 

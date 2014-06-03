@@ -77,6 +77,8 @@ public class TestsShowAction implements RequestHandler {
       json.prop("status", testCase.status().name());
       json.prop("durationInMs", testCase.durationInMs());
       json.prop("coveredLines", testCase.countCoveredLines());
+      json.prop("message", testCase.message());
+      json.prop("stackTrace", testCase.stackTrace());
       json.endObject();
     }
     json.endArray();
