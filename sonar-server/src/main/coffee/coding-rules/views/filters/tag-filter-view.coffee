@@ -24,4 +24,14 @@ define [
               id: tag
               text: tag
           ))
+
+        if that.tagToRestore
+          that.restore(that.tagToRestore)
+          that.tagToRestore = null
         that.render()
+
+    restore: (value) ->
+      unless @choices.isEmpty()
+        super(value)
+      else
+        @tagToRestore = value
