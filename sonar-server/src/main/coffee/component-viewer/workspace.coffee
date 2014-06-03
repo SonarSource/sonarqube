@@ -32,24 +32,21 @@ define [
       key = $(e.currentTarget).data 'key'
       workspace = @options.main.workspace
       workspaceItem = workspace.findWhere key: key
-      workspaceItemIndex = workspace.indexOf workspaceItem
-      workspace.reset workspace.initial(workspace.length - workspaceItemIndex)
-      @options.main.addTransition workspaceItem.get('key'), workspaceItem.get('transition')
+      workspaceItem.set 'active', true
+      workspaceItemOptions = workspaceItem.get 'options'
+      workspaceItemOptions.forEach (option) -> option.active = false
+      @options.main._open key
 
 
     goToWorkspaceOption: (e) ->
       workspaceKey = $(e.currentTarget).data 'workspace-key'
       key = $(e.currentTarget).data 'key'
-      name = $(e.currentTarget).text()
-
       workspace = @options.main.workspace
       workspaceItem = workspace.findWhere key: workspaceKey
+      workspaceItem.set 'active', false
       workspaceItemOptions = workspaceItem.get 'options'
-      workspaceItemOptions.forEach (option) -> option.active = option.name == name
-
-      @options.main.addTransition workspaceItem.get('key'), workspaceItem.get('transition'), null, [
-        { key: key, name: name }
-      ]
+      workspaceItemOptions.forEach (option) -> option.active = option.key == key
+      @options.main._open key
 
 
     serializeData: ->

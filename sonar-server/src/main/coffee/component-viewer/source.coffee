@@ -135,7 +135,7 @@ define [
       popup = new DuplicationPopupView
         triggerEl: $(e.currentTarget)
         main: @options.main
-        collection: new Backbone.Collection @model.get('duplications')[index - 1].blocks
+        collection: new Backbone.Collection _.rest @model.get('duplications')[index - 1].blocks
       popup.render()
 
 

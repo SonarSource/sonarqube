@@ -171,7 +171,7 @@ define [
 
 
     open: (key) ->
-      @workspace.reset [ key: key ]
+      @workspace.reset []
       @_open key
 
 
@@ -386,10 +386,10 @@ define [
       @sourceView.render()
 
 
-    addTransition: (key, transition, optionsForCurrent, options) ->
-      if optionsForCurrent?
-        last = @workspace.at(@workspace.length - 1)
-        last.set 'options', optionsForCurrent if last
-      @workspace.add key: key, transition: transition, options: options
-      @_open key
-      @showAllLines()
+    addTransition: (transition, options) ->
+      @workspace.add
+        key: @component.get 'key'
+        component: @component.toJSON()
+        transition: transition
+        options: options
+        active: false

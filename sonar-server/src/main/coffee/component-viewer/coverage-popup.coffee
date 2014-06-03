@@ -2,10 +2,12 @@ define [
   'backbone.marionette'
   'templates/component-viewer'
   'component-viewer/popup'
+  'component-viewer/utils'
 ], (
   Marionette
   Templates
   Popup
+  utils
 ) ->
 
   $ = jQuery
@@ -21,7 +23,14 @@ define [
 
     goToFile: (e) ->
       key = $(e.currentTarget).data 'key'
-      @options.main.addTransition key, 'coverage'
+      files = @model.get 'files'
+      @options.main.addTransition 'coverage', _.map files, (file) ->
+        x = utils.splitLongName file.longName
+        key: file.key
+        name: x.name
+        subname: x.dir
+        active: file.key == key
+      @options.main._open key
 
 
     serializeData: ->

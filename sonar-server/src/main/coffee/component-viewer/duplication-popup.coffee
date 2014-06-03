@@ -24,18 +24,19 @@ define [
     goToFile: (e) ->
       key = $(e.currentTarget).data 'key'
       files = @options.main.source.get('duplicationFiles')
-      @options.main.addTransition key, 'duplication', @collection.map (item) ->
+      @options.main.addTransition 'duplication', @collection.map (item) ->
         file = files[item.get('_ref')]
         x = utils.splitLongName file.name
         key: file.key
         name: x.name
         subname: x.dir
         active: file.key == key
+      @options.main._open key
 
 
     serializeData: ->
       files = @options.main.source.get('duplicationFiles')
-      blocks = _.groupBy _.rest(@collection.toJSON()), '_ref'
+      blocks = _.groupBy @collection.toJSON(), '_ref'
       duplications = _.map blocks, (blocks, fileRef) ->
         blocks: blocks
         file: files[fileRef]

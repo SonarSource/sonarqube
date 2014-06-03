@@ -54,7 +54,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 
-  &:first-child > a { font-weight: bold; }
+  &.active > a { font-weight: bold; }
 }
 
 .component-viewer-workspace-item + .component-viewer-workspace-item {
@@ -62,7 +62,9 @@
 }
 
 .component-viewer-workspace-transition {
-
+  margin-top: 7px;
+  margin-left: 7px;
+  font-size: @smallFontSize;
 }
 
 .component-viewer-workspace-options {
