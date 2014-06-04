@@ -60,8 +60,8 @@ public class TestsWsTest {
   }
 
   @Test
-  public void define_plan_action() throws Exception {
-    WebService.Action action = controller.action("plan");
+  public void define_covered_files_action() throws Exception {
+    WebService.Action action = controller.action("covered_files");
     assertThat(action).isNotNull();
     assertThat(action.isInternal()).isFalse();
     assertThat(action.isPost()).isFalse();
@@ -71,8 +71,8 @@ public class TestsWsTest {
   }
 
   @Test
-  public void define_testable_action() throws Exception {
-    WebService.Action action = controller.action("testable");
+  public void define_test_cases_action() throws Exception {
+    WebService.Action action = controller.action("test_cases");
     assertThat(action).isNotNull();
     assertThat(action.isInternal()).isFalse();
     assertThat(action.isPost()).isFalse();

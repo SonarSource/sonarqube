@@ -63,7 +63,7 @@ public class TestsTestCasesActionTest {
     TestCase testCase2 = testCase("test2", TestCase.Status.ERROR, 97L, "org.foo.FileTest.java", "src/test/java/org/foo/FileTest.java");
     when(testable.testCasesOfLine(10)).thenReturn(newArrayList(testCase1, testCase2));
 
-    WsTester.TestRequest request = tester.newGetRequest("api/tests", "testable").setParam("key", FILE_KEY).setParam("line", "10");
+    WsTester.TestRequest request = tester.newGetRequest("api/tests", "test_cases").setParam("key", FILE_KEY).setParam("line", "10");
 
     request.execute().assertJson("{\n" +
       "  \"tests\": [\n" +

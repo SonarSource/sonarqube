@@ -66,7 +66,7 @@ public class TestsCoveredFilesActionTest {
     MutableTestCase testCase2 = testCase("org.foo.File.java", "src/main/java/org/foo/File.java", 3);
     when(testPlan.testCasesByName("my_test")).thenReturn(newArrayList(testCase1, testCase2));
 
-    WsTester.TestRequest request = tester.newGetRequest("api/tests", "plan").setParam("key", TEST_PLAN_KEY).setParam("test", "my_test");
+    WsTester.TestRequest request = tester.newGetRequest("api/tests", "covered_files").setParam("key", TEST_PLAN_KEY).setParam("test", "my_test");
 
     request.execute().assertJson("{\n" +
       "  \"files\": [\n" +
