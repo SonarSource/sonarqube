@@ -44,7 +44,7 @@ public class ScmActionTest {
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", fileKey);
     request.execute();
-    verify(scmWriter).write(eq("1=julien"), eq("1=2013-01-01"), eq(1), eq(Integer.MAX_VALUE), eq(true), any(JsonWriter.class));
+    verify(scmWriter).write(eq("1=julien"), eq("1=2013-01-01"), eq(1), eq(Integer.MAX_VALUE), eq(false), any(JsonWriter.class));
   }
 
   @Test
@@ -53,9 +53,9 @@ public class ScmActionTest {
     when(sourceService.getScmAuthorData(fileKey)).thenReturn("1=julien");
     when(sourceService.getScmDateData(fileKey)).thenReturn("1=2013-01-01");
 
-    WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", fileKey).setParam("group_commits", "false");
+    WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", fileKey).setParam("commits_by_line", "true");
     request.execute();
-    verify(scmWriter).write(eq("1=julien"), eq("1=2013-01-01"), eq(1), eq(Integer.MAX_VALUE), eq(false), any(JsonWriter.class));
+    verify(scmWriter).write(eq("1=julien"), eq("1=2013-01-01"), eq(1), eq(Integer.MAX_VALUE), eq(true), any(JsonWriter.class));
   }
 
   @Test
@@ -66,7 +66,7 @@ public class ScmActionTest {
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", fileKey).setParam("from", "3").setParam("to", "20");
     request.execute();
-    verify(scmWriter).write(eq("1=julien"), eq("1=2013-01-01"), eq(3), eq(20), eq(true), any(JsonWriter.class));
+    verify(scmWriter).write(eq("1=julien"), eq("1=2013-01-01"), eq(3), eq(20), eq(false), any(JsonWriter.class));
   }
 
   @Test
@@ -77,6 +77,6 @@ public class ScmActionTest {
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", fileKey).setParam("from", "-3").setParam("to", "20");
     request.execute();
-    verify(scmWriter).write(eq("1=julien"), eq("1=2013-01-01"), eq(1), eq(20), eq(true), any(JsonWriter.class));
+    verify(scmWriter).write(eq("1=julien"), eq("1=2013-01-01"), eq(1), eq(20), eq(false), any(JsonWriter.class));
   }
 }

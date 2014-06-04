@@ -69,10 +69,11 @@ public class ScmAction implements RequestHandler {
       .setExampleValue("20");
 
     action
-      .createParam("group_commits")
-      .setDescription("Group lines by SCM commit")
+      .createParam("commits_by_line")
+      .setDescription("Group lines by SCM commit if value is false, else display commits for each line, even if two " +
+        "consecutive lines relate to the same commit.")
       .setBooleanPossibleValues()
-      .setDefaultValue("true");
+      .setDefaultValue("false");
   }
 
   @Override
@@ -85,7 +86,7 @@ public class ScmAction implements RequestHandler {
     JsonWriter json = response.newJsonWriter().beginObject();
     int from = Math.max(request.mandatoryParamAsInt("from"), 1);
     int to = (Integer) ObjectUtils.defaultIfNull(request.paramAsInt("to"), Integer.MAX_VALUE);
-    scmWriter.write(authors, dates, from, to, request.mandatoryParamAsBoolean("group_commits"), json);
+    scmWriter.write(authors, dates, from, to, request.mandatoryParamAsBoolean("commits_by_line"), json);
     json.endObject().close();
   }
 }

@@ -30,7 +30,7 @@ import java.util.Map;
 
 public class ScmWriter implements ServerComponent {
 
-  void write(@Nullable String authorsData, @Nullable String datesData, int from, int to, boolean group, JsonWriter json) {
+  void write(@Nullable String authorsData, @Nullable String datesData, int from, int to, boolean showCommitsByLine, JsonWriter json) {
     json.name("scm").beginArray();
     if (authorsData != null) {
       Map<Integer, String> authors = KeyValueFormat.parseIntString(authorsData);
@@ -45,7 +45,7 @@ public class ScmWriter implements ServerComponent {
         String date = dates.get(line);
         String formattedDate = DateUtils.formatDate(DateUtils.parseDateTime(date));
         if (line >= from && line <= to) {
-          if (!started || !group || !isSameCommit(date, previousDate, author, previousAuthor)) {
+          if (!started || showCommitsByLine || !isSameCommit(date, previousDate, author, previousAuthor)) {
             json.beginArray();
             json.value(line);
             json.value(author);
