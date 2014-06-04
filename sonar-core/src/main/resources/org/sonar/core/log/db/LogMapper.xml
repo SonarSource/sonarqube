@@ -11,9 +11,9 @@
     <select id="selectByKey" parameterType="map" resultType="Log">
       SELECT
         l.payload_field as "payload",
-        l.time_field as "time",
+        l.created_at as "time",
         l.execution_time_field as "executionTime",
-        l.author_field as "author",
+        l.user_login as "author",
         l.data_field as "data"
       FROM logs l
       WHERE l.time_field=#{key.time}
