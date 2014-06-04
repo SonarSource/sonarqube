@@ -115,7 +115,9 @@ public class QualityProfileDto extends Dto<QualityProfileKey> {
   public static QualityProfileDto createFor(String name, String language) {
     return new QualityProfileDto()
       .setName(name)
-      .setLanguage(language);
+      .setLanguage(language)
+      .setUsed(true)
+      .setVersion(1);
   }
 
   public static QualityProfileDto createFor(QualityProfileKey key) {
