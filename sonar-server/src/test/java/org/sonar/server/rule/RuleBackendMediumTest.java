@@ -229,7 +229,13 @@ public class RuleBackendMediumTest {
     hit = index.getByKey(ruleKey);
     assertThat(hit.params()).hasSize(2);
 
-    param = hit.params().get(0);
+    param = null;
+    for (RuleParam pparam : hit.params()) {
+      if (pparam.key().equals("min")) {
+        param = pparam;
+      }
+    }
+    assertThat(param).isNotNull();
     assertThat(param.key()).isEqualTo("min");
     assertThat(param.defaultValue()).isEqualTo("0.5");
     assertThat(param.description()).isEqualTo("new description");
