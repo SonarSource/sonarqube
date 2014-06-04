@@ -115,7 +115,7 @@ public class ActiveRuleBackendMediumTest {
   }
 
   @Test
-  public void insert_and_index_active_rule_param() {
+  public void insert_and_index_active_rule_param() throws InterruptedException {
     // insert and index
     QualityProfileDto profileDto = QualityProfileDto.createFor("myprofile", "java");
     db.qualityProfileDao().insert(dbSession, profileDto);
@@ -155,6 +155,7 @@ public class ActiveRuleBackendMediumTest {
 
     // verify es
     ActiveRule rule = index.getByKey(activeRule.getKey());
+    assertThat(rule).isNotNull();
     assertThat(rule.params()).hasSize(2);
     assertThat(rule.params().keySet()).containsOnly("min", "max");
     assertThat(rule.params().values()).containsOnly("minimum", "maximum");

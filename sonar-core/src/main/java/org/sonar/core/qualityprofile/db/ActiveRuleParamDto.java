@@ -21,6 +21,8 @@
 package org.sonar.core.qualityprofile.db;
 
 import com.google.common.base.Preconditions;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.core.rule.RuleParamDto;
 
 import java.util.Collection;
@@ -79,6 +81,11 @@ public class ActiveRuleParamDto {
   public ActiveRuleParamDto setValue(String value) {
     this.value = value;
     return this;
+  }
+
+  @Override
+  public String toString() {
+    return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
   }
 
   public static ActiveRuleParamDto createFor(RuleParamDto param) {

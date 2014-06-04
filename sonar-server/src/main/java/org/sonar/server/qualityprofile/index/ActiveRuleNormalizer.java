@@ -129,7 +129,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
 
     DbSession session = db.openSession(false);
     try {
-      //TODO because DTO uses legacy ID pattern
+      //TODO because DTO uses legacy ID patter
       QualityProfileDto profile = db.qualityProfileDao()
         .selectById(activeRuleDto.getProfileId());
       newRule.put(ActiveRuleField.PROFILE_KEY.field(), profile.getKey().toString());
@@ -167,6 +167,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
     newParam.put(ActiveRuleParamField.VALUE.field(), param.getValue());
 
     return ImmutableList.of(new UpdateRequest()
+        .routing(key.ruleKey().toString())
         .id(key.toString())
         .script(ListUpdate.NAME)
         .addScriptParam(ListUpdate.FIELD, ActiveRuleField.PARAMS.field())
