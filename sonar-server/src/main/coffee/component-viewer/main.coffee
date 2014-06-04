@@ -27,6 +27,7 @@ define [
   API_SCM = "#{baseUrl}/api/sources/scm"
   API_MEASURES = "#{baseUrl}/api/resources"
   API_DUPLICATIONS = "#{baseUrl}/api/duplications/show"
+  API_TESTS = "#{baseUrl}/api/tests/show"
 
   LINES_AROUND_ISSUE = 4
   LINES_AROUND_COVERED_LINE = 1
@@ -109,6 +110,7 @@ define [
 
     requestComponent: (key) ->
       $.get API_COMPONENT, key: key, (data) =>
+        @component.clear()
         @component.set data
         @component.set 'dir', utils.splitLongName(data.path).dir
 
@@ -170,20 +172,27 @@ define [
         @source.set duplicationFiles: data.files
 
 
+    requestTests: (key) ->
+      $.get API_TESTS, key: key, (data) =>
+        @component.set 'tests', data.tests
+
+
     open: (key) ->
       @workspace.reset []
-      @_open key
+      @_open key, false
 
 
-    _open: (key) ->
+    _open: (key, showFullSource = true) ->
       @key = key
       @sourceView.showSpinner()
       source = @requestSource key
       component = @requestComponent key
+      @currentIssue = null
       $.when(source, component).done =>
         @workspace.where(key: key).forEach (model) =>
           model.set 'component': @component.toJSON()
         @render()
+        @showAllLines() if showFullSource
         if @settings.get('issues') then @showIssues() else @hideIssues()
         if @settings.get('coverage') then @showCoverage() else @hideCoverage()
         if @settings.get('duplications') then @showDuplications() else @hideDuplications()
@@ -229,6 +238,7 @@ define [
         @currentIssue = issue.key
         @source.set 'issues', [issue]
         @filterByCurrentIssue()
+        @headerView.render()
       else
         @sourceView.render()
 
@@ -270,6 +280,7 @@ define [
 
 
     showAllLines: ->
+      console.log 1
       @sourceView.resetShowBlocks()
       @sourceView.showBlocks.push from: 0, to: _.size @source.get 'source'
       @sourceView.render()

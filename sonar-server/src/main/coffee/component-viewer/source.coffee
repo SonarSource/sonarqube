@@ -19,7 +19,7 @@ define [
 
   $ = jQuery
 
-  API_COVERAGE_TESTS = "#{baseUrl}/api/tests/testable"
+  API_COVERAGE_TESTS = "#{baseUrl}/api/tests/test_cases"
 
 
   class SourceView extends Marionette.ItemView

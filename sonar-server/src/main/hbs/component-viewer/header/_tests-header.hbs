@@ -1,0 +1,18 @@
+<div class="component-viewer-header-expanded-bar-section large">
+  <div class="component-viewer-header-expanded-bar-section-title justify">
+    <span class="ib">{{t 'component_viewer.measure_section.unit_tests'}}</span>
+    <span class="ib">Covered Lines</span>
+  </div>
+  <ul class="component-viewer-header-expanded-bar-section-list">
+    {{#each component.tests}}
+      <li><a class="item js-unit-test" data-name="{{name}}">
+        <span class="label">{{testStatusIcon status}} <span class="subtitle">{{durationInMs}}ms</span>
+          {{name}}</span>
+        {{#eq status 'OK'}}
+          <span class="number">{{coveredLines}}</span>
+        {{/eq}}
+        <i class="icon-chevron-right"></i>
+      </a></li>
+    {{/each}}
+  </ul>
+</div>

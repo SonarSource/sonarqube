@@ -57,6 +57,15 @@ select::-moz-focus-inner, input::-moz-focus-inner, button::-moz-focus-inner {
   white-space: nowrap;
 }
 
+.justify {
+  margin-bottom: -1em;
+  text-align: justify;
+
+  & > .ib { display: inline-block; }
+
+  &:after { display: inline-block; width: 100%; content: " "; }
+}
+
 
 /*
  * Links

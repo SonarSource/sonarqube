@@ -121,6 +121,22 @@ a[class^="icon-"], a[class*=" icon-"] {
 
 
 /*
+ * Test Status
+ */
+
+.icon-test-status-ok:before {
+  content: "\f013";
+  color: @green;
+  font-size: @iconFontSize;
+}
+.icon-test-status-failure:before {
+  content: "\f057";
+  color: @red;
+  font-size: @iconFontSize;
+}
+
+
+/*
  * Alert
  */
 

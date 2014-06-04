@@ -37,10 +37,12 @@
     {{t 'component_viewer.measure_section.issues'}}
   </div>
   <ul class="component-viewer-header-expanded-bar-section-list">
-    <li><a class="item js-filter-current-issue">
-      <span>{{t 'component_viewer.issues.current_issue'}}</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
+    {{#if currentIssue}}
+      <li><a class="item js-filter-current-issue">
+        <span>{{t 'component_viewer.issues.current_issue'}}</span>
+        <i class="icon-chevron-right"></i>
+      </a></li>
+    {{/if}}
     {{#if component.measures.fIssues}}
       <li><a class="item js-filter-unresolved-issues">
         <span>{{t 'component_viewer.issues.unresolved_issues'}}</span>

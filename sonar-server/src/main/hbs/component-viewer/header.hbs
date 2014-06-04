@@ -25,6 +25,18 @@
   </div>
 
   <div class="component-viewer-header-measures">
+    {{#eq component.q 'UTS'}}
+      <div class="component-viewer-header-measures-scope">
+        <a data-scope="tests" class="component-viewer-header-measures-expand">
+          <div class="component-viewer-header-measure">
+            <span class="component-viewer-header-measure-value">{{component.measures.fTests}}</span>
+            <span class="component-viewer-header-measure-label">{{t 'metric.tests.name'}}</span>
+          </div>
+          <i class="icon-dropdown"></i>
+        </a>
+      </div>
+    {{/eq}}
+
     {{#notEq component.q 'UTS'}}
       <div class="component-viewer-header-measures-scope">
         <span data-scope="basic" class="js-toggle-coverage component-viewer-header-measures-toggle-scope inactive"></span>
@@ -101,18 +113,6 @@
         </div>
       {{/if}}
     {{/notEq}}
-
-    {{#eq component.q 'UTS'}}
-      <div class="component-viewer-header-measures-scope">
-        <a data-scope="duplications" class="component-viewer-header-measures-expand">
-          <div class="component-viewer-header-measure">
-            <span class="component-viewer-header-measure-value">{{component.measures.tests}}</span>
-            <span class="component-viewer-header-measure-label">{{t 'metric.tests.name'}}</span>
-          </div>
-          <i class="icon-dropdown"></i>
-        </a>
-      </div>
-    {{/eq}}
 
     <div class="component-viewer-header-measures-scope">
       <span data-scope="scm" class="component-viewer-header-measures-expand">

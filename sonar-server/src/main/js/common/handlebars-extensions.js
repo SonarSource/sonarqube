@@ -45,6 +45,12 @@ define(['handlebars', 'moment'], function (Handlebars, moment) {
     );
   });
 
+  Handlebars.registerHelper('testStatusIcon', function(status) {
+    return new Handlebars.SafeString(
+            '<i class="icon-test-status-' + status.toLowerCase() + '"></i>'
+    );
+  });
+
   Handlebars.registerHelper('alertIconClass', function(alert) {
     return new Handlebars.SafeString(
         'icon-alert-' + alert.toLowerCase()

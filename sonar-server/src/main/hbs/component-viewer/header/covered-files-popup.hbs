@@ -1,0 +1,24 @@
+<div class="component-viewer-popup-container">
+
+{{#eq test.status 'OK'}}
+  <div class="component-viewer-popup-title">{{t 'component_viewer.transition.covers'}}</div>
+
+  {{#each items}}
+    <div class="component-viewer-popup-section">
+      <a class="component-viewer-popup-test-file link-action" data-key="{{key}}" title="{{name}}">{{name}}</a>
+      <span class="subtitle">{{tp 'component_viewer.x_lines_are_covered' coveredLines}}</span>
+      <br><span class="subtitle" title="{{dir}}">{{dir}}</span>
+    </div>
+  {{else}}
+    {{t 'none'}}
+  {{/each}}
+
+  </div>
+{{else}}
+  {{#if test.message}}
+    <div class="component-viewer-popup-title">{{test.message}}</div>
+  {{/if}}
+  <pre>{{test.stackTrace}}</pre>
+{{/eq}}
+
+<div class="component-viewer-popup-arrow"></div>

@@ -448,6 +448,8 @@
   display: inline-block;
   vertical-align: top;
   width: 250px;
+
+  &.large { width: 350px; }
 }
 
 .component-viewer-header-expanded-bar-section-actions {
@@ -473,6 +475,8 @@
     & > .number {
       position: absolute;
       right: 25px;
+      top: 50%;
+      margin-top: -8px;
     }
 
     & > i {
@@ -571,8 +575,9 @@
 }
 
 .component-viewer-popup-container {
+  min-width: 560px;
   max-height: 300px;
-  overflow-y: auto;
+  overflow: auto;
 }
 
 .component-viewer-popup-title {

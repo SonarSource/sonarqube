@@ -1,18 +1,21 @@
 define [
   'backbone.marionette'
   'templates/component-viewer'
+  'component-viewer/covered-files-popup'
   'common/handlebars-extensions'
 ], (
   Marionette
   Templates
+  CoveredFilesPopupView
 ) ->
 
   $ = jQuery
 
   API_FAVORITE = "#{baseUrl}/api/favourites"
+  API_TESTS_COVERED_FILES = "#{baseUrl}/api/tests/covered_files"
 
 
-  class HeaderView extends Marionette.ItemView
+  class HeaderView extends Marionette.Layout
     template: Templates['header']
 
 
@@ -60,6 +63,8 @@ define [
 
       'click .js-filter-duplications': 'filterByDuplications'
 
+      'click .js-unit-test': 'showCoveredFiles'
+
 
     initialize: (options) ->
       options.main.settings.on 'change', => @changeSettings()
@@ -101,7 +106,10 @@ define [
         @ui.expandedBars.hide()
         if scope
           unless @options.main.component.has 'msr'
-            @options.main.requestMeasures(@options.main.key).done =>
+            req = @options.main.requestMeasures(@options.main.key)
+            if @options.main.component.get('q') == 'UTS'
+              req = $.when req, @options.main.requestTests(@options.main.key)
+            req.done =>
               @render()
               @ui.expandLinks.filter("[data-scope=#{scope}]").addClass 'active'
               @ui.expandedBars.filter("[data-scope=#{scope}]").show()
@@ -182,6 +190,21 @@ define [
     filterByDuplications: (e) -> @filterLines e, 'filterByDuplications'
 
 
+    showCoveredFiles: (e) ->
+      e.stopPropagation()
+      $('body').click()
+      testName = $(e.currentTarget).data 'name'
+      test = _.findWhere @options.main.component.get('tests'), name: testName
+      key = @options.main.component.get('key')
+      $.get API_TESTS_COVERED_FILES, key: key, test: testName, (data) =>
+        popup = new CoveredFilesPopupView
+          triggerEl: $(e.currentTarget)
+          collection: new Backbone.Collection data.files
+          test: test
+          main: @options.main
+        popup.render()
+
+
     serializeData: ->
       component = @options.main.component.toJSON()
       if component.measures
@@ -197,7 +220,7 @@ define [
         order = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO']
         component.severities = _.sortBy component.severities, (s) -> order.indexOf s[0]
 
-
       settings: @options.main.settings.toJSON()
       showSettings: @showSettings
       component: component
+      currentIssue: @options.main.currentIssue
