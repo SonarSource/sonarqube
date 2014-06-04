@@ -131,8 +131,8 @@ public class SearchAction implements RequestHandler {
 
     action
       .createParam(PARAM_AVAILABLE_SINCE)
-      .setDescription("Filters rules added since date")
-      .setExampleValue("2014-06-02");
+      .setDescription("Filters rules added since date. Format is yyyy-MM-dd")
+      .setExampleValue("2014-06-22");
 
     action
       .createParam(PARAM_DEBT_CHARACTERISTICS)
