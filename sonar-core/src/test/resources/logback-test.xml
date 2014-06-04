@@ -29,7 +29,12 @@
     <level value="DEBUG"/>
   </logger>
 
-  <root>
+    <!-- required for DryRunDatabaseFactoryTest -->
+    <logger name="org.elasticsearch">
+        <level value="WARN"/>
+    </logger>
+
+    <root>
     <level value="INFO"/>
     <appender-ref ref="STDOUT"/>
   </root>
