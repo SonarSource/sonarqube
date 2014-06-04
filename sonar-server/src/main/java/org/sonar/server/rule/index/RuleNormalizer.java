@@ -238,7 +238,6 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
   public List<UpdateRequest> normalize(RuleParamDto param, RuleKey key) {
 
     Map<String, Object> newParam = new HashMap<String, Object>();
-    newParam.put("_id", param.getName());
     newParam.put(RuleParamField.NAME.field(), param.getName());
     newParam.put(RuleParamField.TYPE.field(), param.getType());
     newParam.put(RuleParamField.DESCRIPTION.field(), param.getDescription());
@@ -249,7 +248,8 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
         .script(ListUpdate.NAME)
         .addScriptParam(ListUpdate.FIELD, RuleField.PARAMS.field())
         .addScriptParam(ListUpdate.VALUE, newParam)
-        .addScriptParam(ListUpdate.ID, param.getName())
+        .addScriptParam(ListUpdate.ID_FIELD, RuleParamField.NAME.field())
+        .addScriptParam(ListUpdate.ID_VALUE, param.getName())
     );
   }
 }

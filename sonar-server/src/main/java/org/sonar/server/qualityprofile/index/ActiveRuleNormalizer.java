@@ -46,20 +46,20 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
 
   public static class ActiveRuleField extends Indexable {
 
-    public static IndexField KEY = addSortableAndSearchable(IndexField.Type.STRING,"key");
-    public static IndexField INHERITANCE = add(IndexField.Type.STRING,"inheritance");
-    public static IndexField PROFILE_KEY = add(IndexField.Type.STRING,"profile");
-    public static IndexField SEVERITY = add(IndexField.Type.STRING,"severity");
-    public static IndexField PARENT_KEY = add(IndexField.Type.STRING,"parentKey");
-    public static IndexField RULE_KEY = add(IndexField.Type.STRING,"ruleKey");
+    public static IndexField KEY = addSortableAndSearchable(IndexField.Type.STRING, "key");
+    public static IndexField INHERITANCE = add(IndexField.Type.STRING, "inheritance");
+    public static IndexField PROFILE_KEY = add(IndexField.Type.STRING, "profile");
+    public static IndexField SEVERITY = add(IndexField.Type.STRING, "severity");
+    public static IndexField PARENT_KEY = add(IndexField.Type.STRING, "parentKey");
+    public static IndexField RULE_KEY = add(IndexField.Type.STRING, "ruleKey");
     public static IndexField PARAMS = addEmbedded("params", ActiveRuleParamField.ALL_FIELDS);
 
     public static Set<IndexField> ALL_FIELDS = getAllFields();
 
-    private static Set<IndexField> getAllFields(){
+    private static Set<IndexField> getAllFields() {
       Set<IndexField> fields = new HashSet<IndexField>();
-      for(Field classField :ActiveRuleField.class.getDeclaredFields()){
-        if(classField.getType().isAssignableFrom(IndexField.class)){
+      for (Field classField : ActiveRuleField.class.getDeclaredFields()) {
+        if (classField.getType().isAssignableFrom(IndexField.class)) {
           //Modifier.isStatic(classField.getModifiers())
           try {
             fields.add(IndexField.class.cast(classField.get(null)));
@@ -74,15 +74,15 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
   }
 
   public static class ActiveRuleParamField extends Indexable {
-    public static IndexField NAME = add(IndexField.Type.STRING,"name");
-    public static IndexField VALUE = add(IndexField.Type.STRING,"value");
+    public static IndexField NAME = add(IndexField.Type.STRING, "name");
+    public static IndexField VALUE = add(IndexField.Type.STRING, "value");
 
     public static Set<IndexField> ALL_FIELDS = getAllFields();
 
-    private static Set<IndexField> getAllFields(){
+    private static Set<IndexField> getAllFields() {
       Set<IndexField> fields = new HashSet<IndexField>();
-      for(Field classField :ActiveRuleParamField.class.getDeclaredFields()){
-        if(classField.getType().isAssignableFrom(IndexField.class)){
+      for (Field classField : ActiveRuleParamField.class.getDeclaredFields()) {
+        if (classField.getType().isAssignableFrom(IndexField.class)) {
           //Modifier.isStatic(classField.getModifiers())
           try {
             fields.add(IndexField.class.cast(classField.get(null)));
@@ -112,23 +112,6 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
       dbSession.close();
     }
     return requests;
-  }
-
-  public List<UpdateRequest> normalize(ActiveRuleParamDto param, ActiveRuleKey key) {
-    Preconditions.checkArgument(key != null, "Cannot normalize ActiveRuleParamDto for null key of ActiveRule");
-
-    Map<String, Object> newParam = new HashMap<String, Object>();
-    newParam.put("_id", param.getKey());
-    newParam.put(ActiveRuleParamField.NAME.field(), param.getKey());
-    newParam.put(ActiveRuleParamField.VALUE.field(), param.getValue());
-
-    return ImmutableList.of(new UpdateRequest()
-        .id(key.toString())
-        .script(ListUpdate.NAME)
-        .addScriptParam(ListUpdate.FIELD, ActiveRuleField.PARAMS.field())
-        .addScriptParam(ListUpdate.VALUE, newParam)
-        .addScriptParam(ListUpdate.ID, param.getKey())
-    );
   }
 
   @Override
@@ -174,5 +157,22 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
       .parent(activeRuleDto.getKey().ruleKey().toString())
       .doc(newRule)
       .upsert(upsert));
+  }
+
+  public List<UpdateRequest> normalize(ActiveRuleParamDto param, ActiveRuleKey key) {
+    Preconditions.checkArgument(key != null, "Cannot normalize ActiveRuleParamDto for null key of ActiveRule");
+
+    Map<String, Object> newParam = new HashMap<String, Object>();
+    newParam.put(ActiveRuleParamField.NAME.field(), param.getKey());
+    newParam.put(ActiveRuleParamField.VALUE.field(), param.getValue());
+
+    return ImmutableList.of(new UpdateRequest()
+        .id(key.toString())
+        .script(ListUpdate.NAME)
+        .addScriptParam(ListUpdate.FIELD, ActiveRuleField.PARAMS.field())
+        .addScriptParam(ListUpdate.VALUE, newParam)
+        .addScriptParam(ListUpdate.ID_FIELD, ActiveRuleParamField.NAME.field())
+        .addScriptParam(ListUpdate.ID_VALUE, param.getKey())
+    );
   }
 }

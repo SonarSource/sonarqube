@@ -36,19 +36,24 @@ public class ListUpdate extends AbstractExecutableScript {
 
   public static final String NAME = "listUpdate";
 
-  public static final String ID = "id";
+  public static final String ID_FIELD = "idField";
+  public static final String ID_VALUE = "idValue";
   public static final String FIELD = "field";
   public static final String VALUE = "value";
 
   public static class UpdateListScriptFactory implements NativeScriptFactory {
     @Override
     public ExecutableScript newScript(@Nullable Map<String, Object> params) {
-      String id = XContentMapValues.nodeStringValue(params.get(ID), null);
+      String idField = XContentMapValues.nodeStringValue(params.get(ID_FIELD), null);
+      String idValue = XContentMapValues.nodeStringValue(params.get(ID_VALUE), null);
       String field = XContentMapValues.nodeStringValue(params.get(FIELD), null);
       Map value = XContentMapValues.nodeMapValue(params.get(VALUE), "Update item");
 
-      if (id == null) {
-        throw new IllegalStateException("Missing '" + ID + "' parameter");
+      if (idField == null) {
+        throw new IllegalStateException("Missing '" + ID_FIELD + "' parameter");
+      }
+      if (idValue == null) {
+        throw new IllegalStateException("Missing '" + ID_VALUE + "' parameter");
       }
       if (field == null) {
         throw new IllegalStateException("Missing '" + FIELD + "' parameter");
@@ -57,19 +62,21 @@ public class ListUpdate extends AbstractExecutableScript {
         throw new IllegalStateException("Missing '" + VALUE + "' parameter");
       }
 
-      return new ListUpdate(id, field, value);
+      return new ListUpdate(idField, idValue, field, value);
     }
   }
 
 
-  private final String id;
+  private final String idField;
+  private final String idValue;
   private final String field;
   private final Map<String, Object> value;
 
   private Map<String, Object> ctx;
 
-  public ListUpdate(String id, String field, Map<String, Object> value) {
-    this.id = id;
+  public ListUpdate(String idField, String idValue, String field, Map<String, Object> value) {
+    this.idField = idField;
+    this.idValue = idValue;
     this.field = field;
     this.value = value;
   }
@@ -105,8 +112,9 @@ public class ListUpdate extends AbstractExecutableScript {
       // 3. field is a list
       Collection items = ((Collection) fieldValue);
       for (Object item : items) {
-        String idValue = XContentMapValues.nodeStringValue(item, null);
-        if (idValue != null && idValue.equals(id)) {
+        Map<String, Object> fields = (Map<String, Object>) item;
+        String itemIdValue = XContentMapValues.nodeStringValue(fields.get(idField), null);
+        if (itemIdValue != null && itemIdValue.equals(idValue)) {
           items.remove(item);
         }
       }
