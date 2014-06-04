@@ -95,32 +95,41 @@ public class ListUpdate extends AbstractExecutableScript {
 
   @Override
   public Object run() {
+    try {
+      //Get the Document's source from ctx
+      Map<String, Object> source = XContentMapValues.nodeMapValue(ctx.get("_source"), "source from context");
 
-    //Get the Document's source from ctx
-    Map<String, Object> source = XContentMapValues.nodeMapValue(ctx.get("_source"), "source from context");
+      //Get the Object for list update
+      Object fieldValue = source.get(field);
 
-    //Get the Object for list update
-    Object fieldValue = source.get(field);
-
-    if (fieldValue == null) {
-      // 0. The field does not exist (this is a upsert then)
-      source.put(field, value);
-    } else if (!XContentMapValues.isArray(fieldValue)) {
-      // 1. The field is not yet a list
-      source.put(field, ImmutableSet.of(fieldValue, value));
-    } else {
-      // 3. field is a list
-      Collection items = ((Collection) fieldValue);
-      for (Object item : items) {
-        Map<String, Object> fields = (Map<String, Object>) item;
-        String itemIdValue = XContentMapValues.nodeStringValue(fields.get(idField), null);
-        if (itemIdValue != null && itemIdValue.equals(idValue)) {
-          items.remove(item);
+      if (fieldValue == null) {
+        // 0. The field does not exist (this is a upsert then)
+        source.put(field, value);
+      } else if (!XContentMapValues.isArray(fieldValue)) {
+        // 1. The field is not yet a list
+        source.put(field, ImmutableSet.of(fieldValue, value));
+      } else {
+        // 3. field is a list
+        Collection items = ((Collection) fieldValue);
+        Object target = null;
+        for (Object item : items) {
+          Map<String, Object> fields = (Map<String, Object>) item;
+          String itemIdValue = XContentMapValues.nodeStringValue(fields.get(idField), null);
+          if (itemIdValue != null && itemIdValue.equals(idValue)) {
+            target = item;
+            break;
+          }
         }
+        if (target != null) {
+          items.remove(target);
+        }
+        items.add(value);
+        source.put(field, items);
       }
-      items.add(value);
-      source.put(field, items);
+    } catch (Exception e) {
+      throw new IllegalStateException("failed to execute listUpdate script", e);
     }
     return null;
+
   }
 }
