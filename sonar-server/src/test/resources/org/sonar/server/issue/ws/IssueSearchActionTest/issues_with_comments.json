@@ -18,13 +18,19 @@
         {
           "key": "COMMENT-ABCD",
           "login": "john",
+          "userName": "John Smith",
           "htmlText": "<em>My comment</em>",
+          "markdown": "*My comment*",
+          "updatable": true,
           "createdAt": "2014-02-23T19:10:03+0100"
         },
         {
           "key": "COMMENT-ABCE",
           "login": "arthur",
+          "userName": "Arthur McEnroy",
           "htmlText": "Another comment",
+          "markdown": "Another comment",
+          "updatable": false,
           "createdAt": "2014-02-23T19:10:03+0100"
         }
       ]
@@ -33,5 +39,16 @@
   "components": [],
   "projects": [],
   "rules": [],
-  "users": []
+  "users": [
+    {
+      "login": "john",
+      "name": "John Smith",
+      "active": false
+    },
+    {
+      "login": "arthur",
+      "name": "Arthur McEnroy",
+      "active": false
+    }
+  ]
 }

@@ -233,7 +233,7 @@ public class IssueSearchAction implements RequestHandler {
         .prop("fUpdateAge", formatAgeDate(updateDate))
         .prop("closeDate", isoDate(issue.closeDate()));
 
-      writeIssueComments(issue, json);
+      writeIssueComments(result, issue, json);
       writeIssueAttributes(issue, json);
       writeIssueExtraFields(result, issue, extraFields, json);
       json.endObject();
@@ -242,14 +242,20 @@ public class IssueSearchAction implements RequestHandler {
     json.endArray();
   }
 
-  private void writeIssueComments(Issue issue, JsonWriter json) {
+  private void writeIssueComments(IssueQueryResult queryResult, Issue issue, JsonWriter json) {
     if (!issue.comments().isEmpty()) {
       json.name("comments").beginArray();
+      String login = UserSession.get().login();
       for (IssueComment comment : issue.comments()) {
+        String userLogin = comment.userLogin();
+        User user = userLogin != null ? queryResult.user(userLogin) : null;
         json.beginObject()
           .prop("key", comment.key())
           .prop("login", comment.userLogin())
+          .prop("userName", user != null ? user.name() : null)
           .prop("htmlText", Markdown.convertToHtml(comment.markdownText()))
+          .prop("markdown", comment.markdownText())
+          .prop("updatable", login != null && login.equals(userLogin))
           .prop("createdAt", DateUtils.formatDateTime(comment.createdAt()))
           .endObject();
       }

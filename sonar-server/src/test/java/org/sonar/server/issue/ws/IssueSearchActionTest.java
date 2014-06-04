@@ -213,6 +213,12 @@ public class IssueSearchActionTest {
       );
     issues.add(issue);
 
+    MockUserSession.set().setLogin("john");
+    result.addUsers(Lists.<User>newArrayList(
+      new DefaultUser().setName("John Smith").setLogin("john"),
+      new DefaultUser().setName("Arthur McEnroy").setLogin("arthur")
+    ));
+
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "search");
     request.execute().assertJson(getClass(), "issues_with_comments.json");
   }

@@ -163,57 +163,6 @@ public class IssueShowAction implements RequestHandler {
     ;
   }
 
-  /**
-   * Can be null on project or on removed component
-   */
-  @CheckForNull
-  private Component getSubProject(IssueQueryResult result, @Nullable final ComponentDto component) {
-    if (component != null) {
-      return Iterables.find(result.components(), new Predicate<Component>() {
-        @Override
-        public boolean apply(Component input) {
-          Long subProjectId = component.subProjectId();
-          return subProjectId != null && subProjectId.equals(((ComponentDto) input).getId());
-        }
-      }, null);
-    }
-    return null;
-  }
-
-  /**
-   * Can be null on removed component
-   */
-  @CheckForNull
-  private Component geProject(IssueQueryResult result, @Nullable final ComponentDto component) {
-    if (component != null) {
-      return Iterables.find(result.components(), new Predicate<Component>() {
-        @Override
-        public boolean apply(Component input) {
-          return component.projectId().equals(((ComponentDto) input).getId());
-        }
-      }, null);
-    }
-    return null;
-  }
-
-  private void addCharacteristics(IssueQueryResult result, DefaultIssue issue, JsonWriter json) {
-    Integer subCharacteristicId = result.rule(issue).getCharacteristicId() != null ? result.rule(issue).getCharacteristicId() : result.rule(issue).getDefaultCharacteristicId();
-    DebtCharacteristic subCharacteristic = characteristicById(subCharacteristicId);
-    if (subCharacteristic != null) {
-      json.prop("subCharacteristic", subCharacteristic.name());
-      DebtCharacteristic characteristic = characteristicById(((DefaultDebtCharacteristic) subCharacteristic).parentId());
-      json.prop("characteristic", characteristic != null ? characteristic.name() : null);
-    }
-  }
-
-  @CheckForNull
-  private DebtCharacteristic characteristicById(@Nullable Integer id) {
-    if (id != null) {
-      return debtModel.characteristicById(id);
-    }
-    return null;
-  }
-
   private void writeComments(IssueQueryResult queryResult, Issue issue, JsonWriter json) {
     json.name("comments").beginArray();
     String login = UserSession.get().login();
@@ -284,6 +233,57 @@ public class IssueShowAction implements RequestHandler {
   private String formatAgeDate(@Nullable Date date) {
     if (date != null) {
       return i18n.ageFromNow(UserSession.get().locale(), date);
+    }
+    return null;
+  }
+
+  /**
+   * Can be null on project or on removed component
+   */
+  @CheckForNull
+  private Component getSubProject(IssueQueryResult result, @Nullable final ComponentDto component) {
+    if (component != null) {
+      return Iterables.find(result.components(), new Predicate<Component>() {
+        @Override
+        public boolean apply(Component input) {
+          Long subProjectId = component.subProjectId();
+          return subProjectId != null && subProjectId.equals(((ComponentDto) input).getId());
+        }
+      }, null);
+    }
+    return null;
+  }
+
+  /**
+   * Can be null on removed component
+   */
+  @CheckForNull
+  private Component geProject(IssueQueryResult result, @Nullable final ComponentDto component) {
+    if (component != null) {
+      return Iterables.find(result.components(), new Predicate<Component>() {
+        @Override
+        public boolean apply(Component input) {
+          return component.projectId().equals(((ComponentDto) input).getId());
+        }
+      }, null);
+    }
+    return null;
+  }
+
+  private void addCharacteristics(IssueQueryResult result, DefaultIssue issue, JsonWriter json) {
+    Integer subCharacteristicId = result.rule(issue).getCharacteristicId() != null ? result.rule(issue).getCharacteristicId() : result.rule(issue).getDefaultCharacteristicId();
+    DebtCharacteristic subCharacteristic = characteristicById(subCharacteristicId);
+    if (subCharacteristic != null) {
+      json.prop("subCharacteristic", subCharacteristic.name());
+      DebtCharacteristic characteristic = characteristicById(((DefaultDebtCharacteristic) subCharacteristic).parentId());
+      json.prop("characteristic", characteristic != null ? characteristic.name() : null);
+    }
+  }
+
+  @CheckForNull
+  private DebtCharacteristic characteristicById(@Nullable Integer id) {
+    if (id != null) {
+      return debtModel.characteristicById(id);
     }
     return null;
   }

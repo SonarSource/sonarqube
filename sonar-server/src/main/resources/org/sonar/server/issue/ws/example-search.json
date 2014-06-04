@@ -24,8 +24,10 @@
       "comments": [
         {
           "key": "7d7c56f5-7b5a-41b9-87f8-36fa70caa5ba",
-          "login": "admin",
+          "login": "john.smith",
+          "userName": "John Smith",
           "htmlText": "foooooo",
+          "updatable": true,
           "createdAt": "2013-05-13T18:08:34+0200"
         }
       ],
