@@ -25,10 +25,10 @@ import org.sonar.api.server.ws.WebService;
 public class TestsWs implements WebService {
 
   private final TestsShowAction showAction;
-  private final TestsTestableAction testableAction;
-  private final TestsPlanAction planAction;
+  private final TestsTestCasesAction testableAction;
+  private final TestsCoveredFilesAction planAction;
 
-  public TestsWs(TestsShowAction showAction, TestsTestableAction testableAction, TestsPlanAction planAction) {
+  public TestsWs(TestsShowAction showAction, TestsTestCasesAction testableAction, TestsCoveredFilesAction planAction) {
     this.showAction = showAction;
     this.testableAction = testableAction;
     this.planAction = planAction;

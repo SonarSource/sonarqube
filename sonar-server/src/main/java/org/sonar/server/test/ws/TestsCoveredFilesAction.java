@@ -32,19 +32,19 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.component.SnapshotPerspectives;
 import org.sonar.server.user.UserSession;
 
-public class TestsPlanAction implements RequestHandler {
+public class TestsCoveredFilesAction implements RequestHandler {
 
   private static final String KEY = "key";
   private static final String TEST = "test";
 
   private final SnapshotPerspectives snapshotPerspectives;
 
-  public TestsPlanAction(SnapshotPerspectives snapshotPerspectives) {
+  public TestsCoveredFilesAction(SnapshotPerspectives snapshotPerspectives) {
     this.snapshotPerspectives = snapshotPerspectives;
   }
 
   void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("plan")
+    WebService.NewAction action = controller.createAction("covered_files")
       .setDescription("Get the list of files covered by a test plan. Require Browse permission on file's project")
       .setSince("4.4")
       .setResponseExample(Resources.getResource(getClass(), "tests-example-plan.json"))

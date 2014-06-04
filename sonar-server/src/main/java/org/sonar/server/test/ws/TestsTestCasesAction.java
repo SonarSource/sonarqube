@@ -38,19 +38,19 @@ import java.util.Map;
 
 import static com.google.common.collect.Maps.newHashMap;
 
-public class TestsTestableAction implements RequestHandler {
+public class TestsTestCasesAction implements RequestHandler {
 
   private static final String KEY = "key";
   private static final String LINE = "line";
 
   private final SnapshotPerspectives snapshotPerspectives;
 
-  public TestsTestableAction(SnapshotPerspectives snapshotPerspectives) {
+  public TestsTestCasesAction(SnapshotPerspectives snapshotPerspectives) {
     this.snapshotPerspectives = snapshotPerspectives;
   }
 
   void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("testable")
+    WebService.NewAction action = controller.createAction("test_cases")
       .setDescription("Get the list of test cases covering a given file and line. Require Browse permission on file's project")
       .setSince("4.4")
       .setResponseExample(Resources.getResource(getClass(), "tests-example-testable.json"))

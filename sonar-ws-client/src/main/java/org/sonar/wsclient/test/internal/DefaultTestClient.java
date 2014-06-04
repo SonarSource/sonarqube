@@ -78,9 +78,9 @@ public class DefaultTestClient implements TestClient {
   }
 
   @Override
-  public List<CoveredFile> plan(String testPlanKey, String testCase) {
+  public List<CoveredFile> coveredFiles(String testPlanKey, String testCase) {
     Map<String, Object> params = EncodingUtils.toMap("key", testPlanKey, "test", testCase);
-    String jsonResult = requestFactory.get("/api/tests/plan", params);
+    String jsonResult = requestFactory.get("/api/tests/covered_files", params);
 
     List<CoveredFile> files = new ArrayList<CoveredFile>();
     Map jRoot = (Map) JSONValue.parse(jsonResult);
@@ -109,10 +109,10 @@ public class DefaultTestClient implements TestClient {
   }
 
   @Override
-  public TestableTestCases testable(String fileKey, Integer line) {
+  public TestableTestCases testCases(String fileKey, Integer line) {
     Map<String, Object> params = EncodingUtils.toMap("key", fileKey);
     params.put("line", line);
-    String jsonResult = requestFactory.get("/api/tests/testable", params);
+    String jsonResult = requestFactory.get("/api/tests/test_cases", params);
 
     Map jRoot = (Map) JSONValue.parse(jsonResult);
     final DefaultTestableTestCases testableTestCases = new DefaultTestableTestCases();

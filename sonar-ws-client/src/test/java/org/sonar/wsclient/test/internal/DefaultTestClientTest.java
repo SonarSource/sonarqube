@@ -42,7 +42,7 @@ public class DefaultTestClientTest {
   public MockHttpServerInterceptor httpServer = new MockHttpServerInterceptor();
 
   @Test
-  public void show_test_cases() throws IOException {
+  public void show_test_case() throws IOException {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
     httpServer.stubResponseBody(Resources.toString(Resources.getResource(this.getClass(), "DefaultTestClientTest/show_test_case.json"), Charsets.UTF_8));
 
@@ -58,14 +58,14 @@ public class DefaultTestClientTest {
   }
 
   @Test
-  public void show_testable() throws IOException {
+  public void test_cases() throws IOException {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
-    httpServer.stubResponseBody(Resources.toString(Resources.getResource(this.getClass(), "DefaultTestClientTest/show_testable.json"), Charsets.UTF_8));
+    httpServer.stubResponseBody(Resources.toString(Resources.getResource(this.getClass(), "DefaultTestClientTest/test_cases.json"), Charsets.UTF_8));
 
     TestClient client = new DefaultTestClient(requestFactory);
-    TestableTestCases coveringTestCases = client.testable("MyFile", 10);
+    TestableTestCases coveringTestCases = client.testCases("MyFile", 10);
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/tests/testable?key=MyFile&line=10");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/tests/test_cases?key=MyFile&line=10");
     assertThat(coveringTestCases.tests()).hasSize(1);
     assertThat(coveringTestCases.files()).hasSize(1);
 
@@ -80,14 +80,14 @@ public class DefaultTestClientTest {
   }
 
   @Test
-  public void show_plan() throws IOException {
+  public void covered_files() throws IOException {
     HttpRequestFactory requestFactory = new HttpRequestFactory(httpServer.url());
-    httpServer.stubResponseBody(Resources.toString(Resources.getResource(this.getClass(), "DefaultTestClientTest/show_plan.json"), Charsets.UTF_8));
+    httpServer.stubResponseBody(Resources.toString(Resources.getResource(this.getClass(), "DefaultTestClientTest/covered_files.json"), Charsets.UTF_8));
 
     TestClient client = new DefaultTestClient(requestFactory);
-    List<CoveredFile> files = client.plan("MyTestFile", "find_by_params");
+    List<CoveredFile> files = client.coveredFiles("MyTestFile", "find_by_params");
 
-    assertThat(httpServer.requestedPath()).isEqualTo("/api/tests/plan?key=MyTestFile&test=find_by_params");
+    assertThat(httpServer.requestedPath()).isEqualTo("/api/tests/covered_files?key=MyTestFile&test=find_by_params");
     assertThat(files).hasSize(2);
 
     CoveredFile file = files.get(0);

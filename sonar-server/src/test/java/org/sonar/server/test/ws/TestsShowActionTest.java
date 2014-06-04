@@ -53,7 +53,7 @@ public class TestsShowActionTest {
   public void setUp() throws Exception {
     SnapshotPerspectives snapshotPerspectives = mock(SnapshotPerspectives.class);
     when(snapshotPerspectives.as(MutableTestPlan.class, TEST_PLAN_KEY)).thenReturn(testPlan);
-    tester = new WsTester(new TestsWs(new TestsShowAction(snapshotPerspectives), mock(TestsTestableAction.class), mock(TestsPlanAction.class)));
+    tester = new WsTester(new TestsWs(new TestsShowAction(snapshotPerspectives), mock(TestsTestCasesAction.class), mock(TestsCoveredFilesAction.class)));
   }
 
   @Test

@@ -39,7 +39,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TestsTestableActionTest {
+public class TestsTestCasesActionTest {
 
   static final String FILE_KEY = "src/main/java/org/foo/Foo.java";
 
@@ -52,7 +52,7 @@ public class TestsTestableActionTest {
   public void setUp() throws Exception {
     SnapshotPerspectives snapshotPerspectives = mock(SnapshotPerspectives.class);
     when(snapshotPerspectives.as(MutableTestable.class, FILE_KEY)).thenReturn(testable);
-    tester = new WsTester(new TestsWs(mock(TestsShowAction.class), new TestsTestableAction(snapshotPerspectives), mock(TestsPlanAction.class)));
+    tester = new WsTester(new TestsWs(mock(TestsShowAction.class), new TestsTestCasesAction(snapshotPerspectives), mock(TestsCoveredFilesAction.class)));
   }
 
   @Test

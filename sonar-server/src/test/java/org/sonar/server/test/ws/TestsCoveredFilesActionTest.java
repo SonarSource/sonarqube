@@ -42,7 +42,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TestsPlanActionTest {
+public class TestsCoveredFilesActionTest {
 
   static final String TEST_PLAN_KEY = "src/test/java/org/foo/BarTest.java";
 
@@ -55,7 +55,7 @@ public class TestsPlanActionTest {
   public void setUp() throws Exception {
     SnapshotPerspectives snapshotPerspectives = mock(SnapshotPerspectives.class);
     when(snapshotPerspectives.as(MutableTestPlan.class, TEST_PLAN_KEY)).thenReturn(testPlan);
-    tester = new WsTester(new TestsWs(mock(TestsShowAction.class), mock(TestsTestableAction.class), new TestsPlanAction(snapshotPerspectives)));
+    tester = new WsTester(new TestsWs(mock(TestsShowAction.class), mock(TestsTestCasesAction.class), new TestsCoveredFilesAction(snapshotPerspectives)));
   }
 
   @Test

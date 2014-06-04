@@ -36,7 +36,7 @@ public class TestsWsTest {
   @Before
   public void setUp() throws Exception {
     SnapshotPerspectives snapshotPerspectives = mock(SnapshotPerspectives.class);
-    WsTester tester = new WsTester(new TestsWs(new TestsShowAction(snapshotPerspectives), new TestsTestableAction(snapshotPerspectives), new TestsPlanAction(snapshotPerspectives)));
+    WsTester tester = new WsTester(new TestsWs(new TestsShowAction(snapshotPerspectives), new TestsTestCasesAction(snapshotPerspectives), new TestsCoveredFilesAction(snapshotPerspectives)));
     controller = tester.controller("api/tests");
   }
 

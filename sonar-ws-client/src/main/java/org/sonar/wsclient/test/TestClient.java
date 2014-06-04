@@ -37,10 +37,10 @@ public interface TestClient {
   /**
    * Return list of test cases covering a files' line
    */
-  TestableTestCases testable(String fileKey, Integer line);
+  TestableTestCases testCases(String fileKey, Integer line);
 
   /**
    * Return the list of files covered by a test plan's test case
    */
-  List<CoveredFile> plan(String testPlanKey, String testCase);
+  List<CoveredFile> coveredFiles(String testPlanKey, String testCase);
 }
