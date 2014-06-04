@@ -28,14 +28,19 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.api.utils.text.XmlWriter;
+import org.sonar.server.ws.WsTester.TestResponse.TestStream;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 /**
  * @since 4.2
@@ -82,6 +87,8 @@ public class WsTester {
 
   public static class TestResponse implements Response {
 
+    private TestStream stream;
+
     public class TestStream implements Response.Stream {
       private String mediaType;
       private int status;
@@ -127,12 +134,16 @@ public class WsTester {
 
     @Override
     public Stream stream() {
-      return new TestStream();
+      if (stream == null) {
+        stream = new TestStream();
+      }
+      return stream;
     }
 
 
     @Override
     public Response noContent() {
+      stream().setStatus(HttpURLConnection.HTTP_NO_CONTENT);
       IOUtils.closeQuietly(output);
       return this;
     }
@@ -147,8 +158,7 @@ public class WsTester {
     }
 
     public Result assertNoContent() {
-      //FIXME
-      return this;
+      return assertStatus(HttpURLConnection.HTTP_NO_CONTENT);
     }
 
     public String outputAsString() {
@@ -183,6 +193,16 @@ public class WsTester {
       JSONAssert.assertEquals(IOUtils.toString(url), json, strict);
       return this;
     }
+
+    public Result assertNotModified() {
+      return assertStatus(HttpURLConnection.HTTP_NOT_MODIFIED);
+    }
+
+    public Result assertStatus(int httpStatus) {
+      assertThat(((TestStream) response.stream()).status()).isEqualTo(httpStatus);
+      return this;
+    }
+
   }
 
   private final WebService.Context context = new WebService.Context();

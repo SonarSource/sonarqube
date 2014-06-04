@@ -217,8 +217,8 @@ public class QGatesWsTest {
     Long id = 42L;
     String name = "New QG";
     when(qGates.rename(id, name)).thenReturn(new QualityGateDto().setId(id).setName(name));
-    tester.newGetRequest("api/qualitygates", "rename").setParam("id", id.toString()).setParam("name", name).execute()
-      .assertNoContent();
+    tester.newPostRequest("api/qualitygates", "rename").setParam("id", id.toString()).setParam("name", name).execute()
+      .assertJson("{'id':42,'name':'New QG'}");;
   }
 
   @Test

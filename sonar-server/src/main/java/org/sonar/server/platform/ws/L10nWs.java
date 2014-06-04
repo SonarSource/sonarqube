@@ -20,6 +20,7 @@
 package org.sonar.server.platform.ws;
 
 import org.apache.commons.lang.LocaleUtils;
+import org.sonar.api.platform.Server;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -28,45 +29,61 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.server.user.UserSession;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.util.Date;
 import java.util.Locale;
 
 public class L10nWs implements WebService {
 
   private final DefaultI18n i18n;
+  private final Server server;
 
-  public L10nWs(DefaultI18n i18n) {
+  public L10nWs(DefaultI18n i18n, Server server) {
     this.i18n = i18n;
+    this.server = server;
   }
 
   @Override
   public void define(Context context) {
     NewController l10n = context.createController("api/l10n");
     l10n.setDescription("Localization")
-      .setSince("4.4")
-      .createAction("index")
-        .setInternal(true)
-        .setDescription("Get all localization messages for a given locale")
-        .setHandler(new RequestHandler() {
-          @Override
-          public void handle(Request request, Response response) throws Exception {
-            serializeMessages(request, response);
-          }
-        }).createParam("locale")
-          .setDescription("BCP47 language tag, used to override the browser Accept-Language header")
-          .setExampleValue("fr-CH");
+      .setSince("4.4");
+    NewAction indexAction = l10n.createAction("index")
+      .setInternal(true)
+      .setDescription("Get all localization messages for a given locale")
+      .setHandler(new RequestHandler() {
+        @Override
+        public void handle(Request request, Response response) throws Exception {
+          serializeMessages(request, response);
+        }
+      });
+    indexAction.createParam("locale")
+      .setDescription("BCP47 language tag, used to override the browser Accept-Language header")
+      .setExampleValue("fr-CH");
+    indexAction.createParam("ts")
+    .setDescription("UTC timestamp of the last cache update")
+    .setExampleValue("2014-06-04T09:31:42Z");
+
     l10n.done();
   }
 
-  protected void serializeMessages(Request request, Response response) {
-    Locale locale = UserSession.get().locale();
-    String localeParam = request.param("locale");
-    if (localeParam != null) {
-      locale = LocaleUtils.toLocale(localeParam);
+  protected void serializeMessages(Request request, Response response) throws IOException {
+    Date timestamp = request.paramAsDateTime("ts");
+    if (timestamp != null && timestamp.after(server.getStartedAt())) {
+      response.stream().setStatus(HttpURLConnection.HTTP_NOT_MODIFIED).output().close();
+    } else {
+
+      Locale locale = UserSession.get().locale();
+      String localeParam = request.param("locale");
+      if (localeParam != null) {
+        locale = LocaleUtils.toLocale(localeParam);
+      }
+      JsonWriter json = response.newJsonWriter().beginObject();
+      for (String messageKey: i18n.getPropertyKeys()) {
+        json.prop(messageKey, i18n.message(locale, messageKey, messageKey));
+      }
+      json.endObject().close();
     }
-    JsonWriter json = response.newJsonWriter().beginObject();
-    for (String messageKey: i18n.getPropertyKeys()) {
-      json.prop(messageKey, i18n.message(locale, messageKey, messageKey));
-    }
-    json.endObject().close();
   }
 }
