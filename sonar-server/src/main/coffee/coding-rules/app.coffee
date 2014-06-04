@@ -31,7 +31,7 @@ requirejs [
   'coding-rules/views/coding-rules-detail-view',
   'coding-rules/views/coding-rules-bulk-change-view',
   'coding-rules/views/coding-rules-quality-profile-activation-view',
-  'coding-rules/views/coding-rules-bulk-change-dropdown-view'
+  'coding-rules/views/coding-rules-bulk-change-dropdown-view',
   'coding-rules/views/coding-rules-facets-view'
 
   # filters
@@ -353,9 +353,9 @@ requirejs [
       multiple: false
       qualityProfileFilter: @qualityProfileFilter
       choices:
-        'not_inhertited': t 'coding_rules.filters.inheritance.not_inherited'
-        'inhertited': t 'coding_rules.filters.inheritance.inherited'
-        'overriden': t 'coding_rules.filters.inheritance.overriden'
+        'NONE': t 'coding_rules.filters.inheritance.not_inherited'
+        'INHERITED': t 'coding_rules.filters.inheritance.inherited'
+        'OVERRIDES': t 'coding_rules.filters.inheritance.overriden'
 
     @filters.add new BaseFilters.Filter
       name: t 'coding_rules.filters.repository'
@@ -373,6 +373,16 @@ requirejs [
       enabled: false
       optional: true
       choices: @statuses
+
+    @filters.add new BaseFilters.Filter
+      name: t 'coding_rules.filters.template'
+      property: 'is_template'
+      type: ChoiceFilters.ChoiceFilterView
+      optional: true
+      multiple: false
+      choices:
+        'true': t 'coding_rules.filters.template.is_template'
+        'false': t 'coding_rules.filters.template.is_not_template'
 
 
     @filterBarView = new CodingRulesFilterBarView

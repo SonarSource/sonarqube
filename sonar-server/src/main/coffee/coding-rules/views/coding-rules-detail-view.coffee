@@ -18,6 +18,7 @@ define [
 
     regions:
       qualityProfilesRegion: '#coding-rules-detail-quality-profiles'
+      customRulesRegion: '#coding-rules-detail-custom-rules'
       contextRegion: '.coding-rules-detail-context'
 
 
@@ -39,6 +40,7 @@ define [
       activateQualityProfile: '#coding-rules-quality-profile-activate'
       activateContextQualityProfile: '.coding-rules-detail-quality-profile-activate'
       changeQualityProfile: '.coding-rules-detail-quality-profile-update'
+      createCustomRule: '#coding-rules-custom-rules-create'
 
 
     events:
@@ -52,48 +54,62 @@ define [
       'click @ui.activateQualityProfile': 'activateQualityProfile'
       'click @ui.activateContextQualityProfile': 'activateContextQualityProfile'
       'click @ui.changeQualityProfile': 'changeQualityProfile'
+      'clock @ui.createCustomRule': 'createCustomRule'
 
 
     initialize: (options) ->
       super options
 
-      qualityProfiles = new Backbone.Collection options.actives
-      @qualityProfilesView = new CodingRulesDetailQualityProfilesView
-        app: @options.app
-        collection: qualityProfiles
-        rule: @model
-
-      qualityProfileKey = @options.app.getQualityProfile()
-
-      if qualityProfileKey
-        @contextProfile = qualityProfiles.findWhere qProfile: qualityProfileKey
-        unless @contextProfile
-          @contextProfile = new Backbone.Model
-            key: qualityProfileKey, name: @options.app.qualityProfileFilter.view.renderValue()
-        @contextQualityProfileView = new CodingRulesDetailQualityProfileView
+      if @model.get 'isTemplate'
+        customRules = new Backbone.Collection()
+        jQuery.ajax
+          url: "#{baseUrl}/api/rules/search"
+          data:
+            template_key: @model.get 'key'
+            f: 'name'
+        .done (r) =>
+          console.log r.rules.length
+          #customRules.add r.rules
+        #@customRulesView = new CodingrulesDetailCustomRulesView
+        #  app: @options.app
+        #  collection: customRules
+        #  rule: @model
+      else
+        qualityProfiles = new Backbone.Collection options.actives
+        @qualityProfilesView = new CodingRulesDetailQualityProfilesView
           app: @options.app
-          model: @contextProfile
+          collection: qualityProfiles
           rule: @model
-          qualityProfiles: qualityProfiles
 
-        @listenTo @contextProfile, 'destroy', @hideContext
+        qualityProfileKey = @options.app.getQualityProfile()
 
-      @model.set 'language', @options.app.languages[@model.get 'lang']
-      repoKey = @model.get 'repo'
-      @model.set 'repository', _.find(@options.app.repositories, (repo) -> repo.key == repoKey).name
-      @model.set 'canWrite', @options.app.canWrite
-      @model.set 'subcharacteristic', @options.app.characteristics[@model.get 'debtSubChar']
-      @model.set 'createdAt', new Date(@model.get 'createdAt')
+        if qualityProfileKey
+          @contextProfile = qualityProfiles.findWhere qProfile: qualityProfileKey
+          unless @contextProfile
+            @contextProfile = new Backbone.Model
+              key: qualityProfileKey, name: @options.app.qualityProfileFilter.view.renderValue()
+          @contextQualityProfileView = new CodingRulesDetailQualityProfileView
+            app: @options.app
+            model: @contextProfile
+            rule: @model
+            qualityProfiles: qualityProfiles
+
+          @listenTo @contextProfile, 'destroy', @hideContext
 
     onRender: ->
       @$el.find('.open-modal').modal();
-      @qualityProfilesRegion.show @qualityProfilesView
 
-      if @options.app.getQualityProfile()
-        @$(@contextRegion.el).show()
-        @contextRegion.show @contextQualityProfileView
-      else
+      if @model.get 'isTemplate'
         @$(@contextRegion.el).hide()
+        # @customRulesRegion.show @customRulesView
+      else
+        @qualityProfilesRegion.show @qualityProfilesView
+
+        if @options.app.getQualityProfile()
+          @$(@contextRegion.el).show()
+          @contextRegion.show @contextQualityProfileView
+        else
+          @$(@contextRegion.el).hide()
 
       that = @
       jQuery.ajax
@@ -181,11 +197,21 @@ define [
       @options.app.codingRulesQualityProfileActivationView.model = @contextProfile
       @options.app.codingRulesQualityProfileActivationView.show()
 
+    createCustomRule: ->
+      #@options.app.codingRulesCustomRuleView.model = @model
+      #@options.app.codingRulesCustomRuleView.show()
+
 
     serializeData: ->
       contextQualityProfile = @options.app.getQualityProfile()
+      repoKey = @model.get 'repo'
 
       _.extend super,
         contextQualityProfile: contextQualityProfile
         contextQualityProfileName: @options.app.qualityProfileFilter.view.renderValue()
         qualityProfile: @contextProfile
+        language: @options.app.languages[@model.get 'lang']
+        repository: _.find(@options.app.repositories, (repo) -> repo.key == repoKey).name
+        canWrite: @options.app.canWrite
+        subcharacteristic: @options.app.characteristics[@model.get 'debtSubChar']
+        createdAt: new Date(@model.get 'createdAt')
