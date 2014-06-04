@@ -87,21 +87,12 @@ public class RuleActivator implements ServerComponent {
   List<ActiveRuleChange> activate(RuleActivation activation) {
     DbSession dbSession = db.openSession(false);
     try {
-      List<ActiveRuleChange> changes = activate(dbSession, activation);
-      if (!changes.isEmpty()) {
-        log.write(dbSession, changes);
-        dbSession.commit();
-        previewCache.reportGlobalModification();
-      }
-      return changes;
+      return activate(dbSession, activation);
     } finally {
       dbSession.close();
     }
   }
 
-  /**
-   * Activate the rule WITHOUT committing db session
-   */
   List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation) {
     RuleActivationContext context = contextFactory.create(activation.getKey(), dbSession);
     List<ActiveRuleChange> changes = Lists.newArrayList();
@@ -147,7 +138,11 @@ public class RuleActivator implements ServerComponent {
     // Execute the cascade on the child if NOT overrides
     changes.addAll(cascadeActivation(dbSession, activation));
 
-    log.write(dbSession, changes);
+    if (!changes.isEmpty()) {
+      log.write(dbSession, changes);
+      dbSession.commit();
+      previewCache.reportGlobalModification();
+    }
     return changes;
   }
 
@@ -232,20 +227,11 @@ public class RuleActivator implements ServerComponent {
    */
   List<ActiveRuleChange> deactivate(ActiveRuleKey key) {
     DbSession dbSession = db.openSession(false);
-    List<ActiveRuleChange> changes = Lists.newArrayList();
     try {
-      changes.addAll(this.deactivate(key, dbSession));
-      if (!changes.isEmpty()) {
-        log.write(dbSession, changes);
-        dbSession.commit();
-      }
-    } finally
-
-    {
+      return deactivate(key, dbSession);
+    } finally {
       dbSession.close();
     }
-
-    return changes;
   }
 
   /**
@@ -278,6 +264,12 @@ public class RuleActivator implements ServerComponent {
     for (QualityProfileDto profile : profiles) {
       ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), key.ruleKey());
       changes.addAll(cascadeDeactivation(activeRuleKey, dbSession, true));
+    }
+
+    if (!changes.isEmpty()) {
+      log.write(dbSession, changes);
+      dbSession.commit();
+      previewCache.reportGlobalModification();
     }
 
     return changes;
@@ -313,7 +305,7 @@ public class RuleActivator implements ServerComponent {
           ActiveRuleKey key = ActiveRuleKey.of(profileKey, rule.key());
           RuleActivation activation = new RuleActivation(key);
           activation.setSeverity(severity);
-          for (ActiveRuleChange active : this.activate(dbSession, activation)) {
+          for (ActiveRuleChange active : activate(dbSession, activation)) {
             results.put("activated", active.getKey().ruleKey().toString());
           }
         } else {
@@ -337,7 +329,7 @@ public class RuleActivator implements ServerComponent {
 
       for (Rule rule : result.getHits()) {
         ActiveRuleKey key = ActiveRuleKey.of(profile, rule.key());
-        for (ActiveRuleChange deActive : this.deactivate(key, dbSession)) {
+        for (ActiveRuleChange deActive : deactivate(key, dbSession)) {
           results.put("deactivated", deActive.getKey().ruleKey().toString());
         }
       }
