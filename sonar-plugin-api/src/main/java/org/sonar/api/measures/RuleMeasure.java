@@ -42,7 +42,7 @@ public class RuleMeasure extends Measure {
    */
   @Deprecated
   public RuleMeasure(Metric metric, @Nullable Rule rule, @Nullable RulePriority rulePriority, @Nullable Integer ruleCategory) {
-    this(metric, rule.ruleKey(), rulePriority, ruleCategory);
+    this(metric, rule != null ? rule.ruleKey() : null, rulePriority, ruleCategory);
   }
 
   public RuleMeasure(Metric metric, @Nullable RuleKey ruleKey, @Nullable RulePriority rulePriority, @Nullable Integer ruleCategory) {
