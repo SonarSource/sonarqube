@@ -198,7 +198,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
 
   protected abstract Map mapKey();
 
-  protected Map mapDomain(){
+  protected Map mapDomain() {
     Map<String, Object> mapping = new HashMap<String, Object>();
     mapping.put("dynamic", false);
     mapping.put("_id", mapKey());
@@ -236,7 +236,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
     mapping.put("type", "nested");
     Map<String, Object> mappings = new HashMap<String, Object>();
     for (IndexField nestedField : field.nestedFields()) {
-      if(nestedField != null) {
+      if (nestedField != null) {
         mappings.put(nestedField.field(), mapField(nestedField));
       }
     }
@@ -363,12 +363,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
 
   @Override
   public void upsert(Object obj, K key) throws Exception {
-    if (this.normalizer.canNormalize(obj.getClass(), key.getClass())) {
-      this.updateDocument(this.normalizer.normalizeOther(obj, key), key);
-    } else {
-      throw new IllegalStateException("Index " + this.getIndexName() +
-        " cannot execute UPDATE for class: " + obj.getClass());
-    }
+    this.updateDocument(this.normalizer.normalize(obj, key), key);
   }
 
   @Override
@@ -403,12 +398,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
 
   @Override
   public void delete(Object obj, K key) throws Exception {
-    if (this.normalizer.canNormalize(obj.getClass(), key.getClass())) {
-      //TODO don't really know what to do here for the moment...
-    } else {
-      throw new IllegalStateException("Index " + this.getIndexName() +
-        " cannot execute DELETE for class: " + obj.getClass());
-    }
+    throw new IllegalStateException("Cannot delete nested Object from ES. Should be using Update");
   }
 
   @Override

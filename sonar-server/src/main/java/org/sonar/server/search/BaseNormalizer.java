@@ -24,7 +24,6 @@ import org.sonar.core.persistence.Dto;
 import org.sonar.server.db.DbClient;
 
 import java.io.Serializable;
-import java.util.List;
 
 public abstract class BaseNormalizer<E extends Dto<K>, K extends Serializable> {
 
@@ -36,23 +35,7 @@ public abstract class BaseNormalizer<E extends Dto<K>, K extends Serializable> {
     this.definition = definition;
   }
 
-  public boolean canNormalize(Class<?> objectClass, Class<?> keyClass) {
-    try {
-      return this.getClass().getMethod("normalize", objectClass, keyClass) != null;
-    } catch (NoSuchMethodException e) {
-      return false;
-    }
-  }
-
-  public List<UpdateRequest> normalizeOther(Object object, Object key) {
-    try {
-      return (List<UpdateRequest>) this.getClass()
-        .getMethod("normalize", object.getClass(), key.getClass())
-        .invoke(this, object, key);
-    } catch (Exception e) {
-      throw new IllegalStateException("Could not invoke Normalizer Method", e);
-    }
-  }
+  public abstract java.util.List<UpdateRequest> normalize(Object object, Object key);
 
   public abstract java.util.List<UpdateRequest> normalize(K key);
 

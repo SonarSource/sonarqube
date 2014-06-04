@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule.index;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import org.elasticsearch.action.update.UpdateRequest;
@@ -132,6 +133,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     super(IndexDefinition.RULE, db);
   }
 
+
   @Override
   public List<UpdateRequest> normalize(RuleKey key) {
     DbSession dbSession = db.openSession(false);
@@ -235,7 +237,15 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     }
   }
 
-  public List<UpdateRequest> normalize(RuleParamDto param, RuleKey key) {
+  @Override
+  public List<UpdateRequest> normalize(Object object, Object key) {
+    Preconditions.checkArgument(object.getClass().isAssignableFrom(RuleParamDto.class), "Cannot Normalize class");
+    Preconditions.checkArgument(key.getClass().isAssignableFrom(RuleKey.class), "key is not an ActiveRuleKey");
+
+    return normalize((RuleParamDto)object, (RuleKey)key);
+  }
+
+  private List<UpdateRequest> normalize(RuleParamDto param, RuleKey key) {
 
     Map<String, Object> newParam = new HashMap<String, Object>();
     newParam.put(RuleParamField.NAME.field(), param.getName());
