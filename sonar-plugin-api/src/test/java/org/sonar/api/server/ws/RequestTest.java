@@ -74,6 +74,7 @@ public class RequestTest {
       action.createParam("a_number");
       action.createParam("a_enum");
       action.createParam("a_date");
+      action.createParam("a_datetime");
 
       action.createParam("a_required_string").setRequired(true);
       action.createParam("a_required_boolean").setRequired(true);
@@ -183,7 +184,11 @@ public class RequestTest {
   @Test
   public void param_as_date() throws Exception {
     assertThat(request.setParam("a_date", "2014-05-27").paramAsDate("a_date")).isEqualTo(DateUtils.parseDate("2014-05-27"));
-    assertThat(request.setParam("a_date", "2014-05-27T15:50:45+0100").paramAsDate("a_date")).isEqualTo(DateUtils.parseDateTime("2014-05-27T15:50:45+0100"));
+  }
+
+  @Test
+  public void param_as_datetime() throws Exception {
+    assertThat(request.setParam("a_datetime", "2014-05-27T15:50:45+0100").paramAsDateTime("a_datetime")).isEqualTo(DateUtils.parseDateTime("2014-05-27T15:50:45+0100"));
   }
 
   @Test

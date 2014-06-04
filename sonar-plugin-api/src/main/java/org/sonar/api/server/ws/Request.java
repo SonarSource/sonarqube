@@ -25,7 +25,6 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.DateUtils;
 
 import javax.annotation.CheckForNull;
-
 import java.util.Date;
 import java.util.List;
 
@@ -186,13 +185,18 @@ public abstract class Request {
   }
 
   @CheckForNull
+  public Date paramAsDateTime(String key) {
+    String s = param(key);
+    if (s != null) {
+      return DateUtils.parseDateTime(s);
+    }
+    return null;
+  }
+
+  @CheckForNull
   public Date paramAsDate(String key) {
     String s = param(key);
     if (s != null) {
-      Date date = DateUtils.parseDateTimeQuietly(s);
-      if (date != null) {
-        return date;
-      }
       return DateUtils.parseDate(s);
     }
     return null;

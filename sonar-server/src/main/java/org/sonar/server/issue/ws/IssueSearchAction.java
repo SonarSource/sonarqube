@@ -435,9 +435,9 @@ public class IssueSearchAction implements RequestHandler {
       .assigned(request.paramAsBoolean(IssueFilterParameters.ASSIGNED))
       .planned(request.paramAsBoolean(IssueFilterParameters.PLANNED))
       .hideRules(request.paramAsBoolean(IssueFilterParameters.HIDE_RULES))
-      .createdAt(request.paramAsDate(IssueFilterParameters.CREATED_AT))
-      .createdAfter(request.paramAsDate(IssueFilterParameters.CREATED_AFTER))
-      .createdBefore(request.paramAsDate(IssueFilterParameters.CREATED_BEFORE))
+      .createdAt(request.paramAsDateTime(IssueFilterParameters.CREATED_AT))
+      .createdAfter(request.paramAsDateTime(IssueFilterParameters.CREATED_AFTER))
+      .createdBefore(request.paramAsDateTime(IssueFilterParameters.CREATED_BEFORE))
       .pageSize(request.paramAsInt(IssueFilterParameters.PAGE_SIZE))
       .pageIndex(request.paramAsInt(IssueFilterParameters.PAGE_INDEX));
     String sort = request.param(IssueFilterParameters.SORT);
