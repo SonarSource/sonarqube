@@ -36,6 +36,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ServerFileSystem;
+import org.sonar.server.search.es.ListUpdate;
+import org.sonar.server.search.es.ListUpdate.UpdateListScriptFactory;
 
 import java.io.File;
 
@@ -77,7 +79,9 @@ public class ESNode implements Startable {
       IndexProperties.ES_TYPE.valueOf(settings.getString(IndexProperties.TYPE)) :
       IndexProperties.ES_TYPE.DATA;
 
-    ImmutableSettings.Builder esSettings = ImmutableSettings.settingsBuilder();
+    ImmutableSettings.Builder esSettings = ImmutableSettings.settingsBuilder()
+      .put("script.default_lang", "native")
+      .put("script.native." + ListUpdate.NAME + ".type", UpdateListScriptFactory.class.getName());
 
     switch (type) {
       case MEMORY:

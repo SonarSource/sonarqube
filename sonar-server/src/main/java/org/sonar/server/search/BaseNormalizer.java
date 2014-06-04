@@ -25,7 +25,6 @@ import org.sonar.server.db.DbClient;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 public abstract class BaseNormalizer<E extends Dto<K>, K extends Serializable> {
 
@@ -58,16 +57,4 @@ public abstract class BaseNormalizer<E extends Dto<K>, K extends Serializable> {
   public abstract java.util.List<UpdateRequest> normalize(K key);
 
   public abstract java.util.List<UpdateRequest> normalize(E dto);
-
-  protected UpdateRequest nestedUpsert(String field, String key, Map<String, Object> item) {
-    return new UpdateRequest()
-      .script("for (int i = 0; i < ctx._source." + field + ".size(); i++){" +
-        "if(ctx._source." + field + "[i]._id == update_id){"
-        + " ctx._source." + field + "[i] = update_doc; "
-        + " update_done = true;}} "
-        + "if(!update_done){ ctx._source." + field + "  += update_doc; }")
-      .addScriptParam("update_id", key)
-      .addScriptParam("update_doc", item)
-      .addScriptParam("update_done", false);
-  }
 }

@@ -33,10 +33,16 @@ import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.Indexable;
+import org.sonar.server.search.es.ListUpdate;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
@@ -230,6 +236,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
   }
 
   public List<UpdateRequest> normalize(RuleParamDto param, RuleKey key) {
+
     Map<String, Object> newParam = new HashMap<String, Object>();
     newParam.put("_id", param.getName());
     newParam.put(RuleParamField.NAME.field(), param.getName());
@@ -237,7 +244,12 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     newParam.put(RuleParamField.DESCRIPTION.field(), param.getDescription());
     newParam.put(RuleParamField.DEFAULT_VALUE.field(), param.getDefaultValue());
 
-    return ImmutableList.of(this.nestedUpsert(RuleField.PARAMS.field(),
-      param.getName(), newParam).id(key.toString()));
+    return ImmutableList.of(new UpdateRequest()
+        .id(key.toString())
+        .script(ListUpdate.NAME)
+        .addScriptParam(ListUpdate.FIELD, RuleField.PARAMS.field())
+        .addScriptParam(ListUpdate.VALUE, newParam)
+        .addScriptParam(ListUpdate.ID, param.getName())
+    );
   }
 }

@@ -33,7 +33,6 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
@@ -44,11 +43,17 @@ import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.FacetValue;
+import org.sonar.server.search.IndexProperties;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -56,7 +61,8 @@ import static org.fest.assertions.Fail.fail;
 public class RuleIndexMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester()
+    .setProperty(IndexProperties.HTTP_PORT, "9200");
 
   RuleDao dao = tester.get(RuleDao.class);
   RuleIndex index = tester.get(RuleIndex.class);
@@ -576,7 +582,7 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void complex_param_value() {
+  public void complex_param_value() throws InterruptedException {
     String value = "//expression[primary/qualifiedIdentifier[count(IDENTIFIER) = 2]/IDENTIFIER[2]/@tokenValue = 'firstOf' and primary/identifierSuffix/arguments/expression[not(primary) or primary[not(qualifiedIdentifier) or identifierSuffix]]]";
 
     QualityProfileDto profile = QualityProfileDto.createFor("name", "Language");
@@ -591,14 +597,9 @@ public class RuleIndexMediumTest {
       .setDefaultValue(value);
     dao.addRuleParam(dbSession, rule, param);
 
-    ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
-      .setSeverity("BLOCKER");
-
-    ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(param);
-    db.activeRuleDao().insert(dbSession, activeRule);
-    db.activeRuleDao().addParam(dbSession, activeRule, activeRuleParam);
     dbSession.commit();
 
+    assertThat(index.getByKey(rule.getKey()).params()).hasSize(1);
     assertThat(index.getByKey(rule.getKey()).params().get(0).defaultValue()).isEqualTo(value);
   }
 
