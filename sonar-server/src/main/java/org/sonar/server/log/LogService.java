@@ -51,8 +51,9 @@ public class LogService {
   }
 
   public <K extends Activity> void write(DbSession session, K activity) {
-
-    dbClient.logDao().insert(session, new LogDto(UserSession.get().login(), activity));
+    dbClient.logDao().insert(session, new LogDto(
+      (UserSession.get().login() != null) ? UserSession.get().login() : "UNKNOWN",
+      activity));
   }
 
   public <K extends Activity> void write(DbSession session, List<K> activities) {

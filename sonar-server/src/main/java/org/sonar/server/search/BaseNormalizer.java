@@ -37,7 +37,7 @@ public abstract class BaseNormalizer<DTO extends Dto<KEY>, KEY extends Serializa
 
   public abstract java.util.List<UpdateRequest> normalize(Object object, Object key);
 
-  public abstract java.util.List<UpdateRequest> normalize(K key);
+  public abstract java.util.List<UpdateRequest> normalize(KEY key);
 
-  public abstract java.util.List<UpdateRequest> normalize(E dto);
+  public abstract java.util.List<UpdateRequest> normalize(DTO dto);
 }
