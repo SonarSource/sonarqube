@@ -174,9 +174,11 @@ public class RuleActivator implements ServerComponent {
       }
       dao.insert(dbSession, activeRule);
       for (Map.Entry<String, String> param : change.getParameters().entrySet()) {
-        ActiveRuleParamDto paramDto = ActiveRuleParamDto.createFor(context.ruleParamsByKeys().get(param.getKey()));
-        paramDto.setValue(param.getValue());
-        dao.addParam(dbSession, activeRule, paramDto);
+        if (param.getValue()!=null) {
+          ActiveRuleParamDto paramDto = ActiveRuleParamDto.createFor(context.ruleParamsByKeys().get(param.getKey()));
+          paramDto.setValue(param.getValue());
+          dao.addParam(dbSession, activeRule, paramDto);
+        }
       }
 
     } else if (change.getType() == ActiveRuleChange.Type.DEACTIVATED) {
@@ -195,12 +197,18 @@ public class RuleActivator implements ServerComponent {
         ActiveRuleParamDto activeRuleParamDto = context.activeRuleParamsAsMap().get(param.getKey());
         if (activeRuleParamDto == null) {
           // did not exist
-          activeRuleParamDto = ActiveRuleParamDto.createFor(context.ruleParamsByKeys().get(param.getKey()));
-          activeRuleParamDto.setValue(param.getValue());
-          dao.addParam(dbSession, activeRule, activeRuleParamDto);
+          if (param.getValue()!=null) {
+            activeRuleParamDto = ActiveRuleParamDto.createFor(context.ruleParamsByKeys().get(param.getKey()));
+            activeRuleParamDto.setValue(param.getValue());
+            dao.addParam(dbSession, activeRule, activeRuleParamDto);
+          }
         } else {
-          activeRuleParamDto.setValue(param.getValue());
-          dao.updateParam(dbSession, activeRule, activeRuleParamDto);
+          if (param.getValue() != null) {
+            activeRuleParamDto.setValue(param.getValue());
+            dao.updateParam(dbSession, activeRule, activeRuleParamDto);
+          } else {
+            dao.deleteParam(dbSession, activeRule, activeRuleParamDto);
+          }
         }
       }
       for (ActiveRuleParamDto activeRuleParamDto : context.activeRuleParams()) {

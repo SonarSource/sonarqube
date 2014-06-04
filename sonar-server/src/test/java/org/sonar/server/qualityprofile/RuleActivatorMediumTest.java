@@ -86,6 +86,8 @@ public class RuleActivatorMediumTest {
     db.ruleDao().insert(dbSession, javaRule, xooRule1, xooTemplateRule1, manualRule);
     db.ruleDao().addRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
       .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
+    db.ruleDao().addRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
+      .setName("min").setType(RuleParamType.INTEGER.type()));
 
     // create pre-defined profile
     db.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor(XOO_PROFILE_KEY));

@@ -165,6 +165,13 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
     this.enqueueUpdate(activeRuleParam, activeRule.getKey(), session);
   }
 
+  public void deleteParam(DbSession session, ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam) {
+    Preconditions.checkNotNull(activeRule.getId(), "ActiveRule is not persisted");
+    Preconditions.checkNotNull(activeRuleParam.getId(), "ActiveRuleParam is not persisted");
+    mapper(session).updateParameter(activeRuleParam);
+    this.enqueueUpdate(activeRuleParam, activeRule.getKey(), session);
+  }
+
   public ActiveRuleParamDto getParamsByActiveRuleAndKey(DbSession session, ActiveRuleDto activeRule, String key) {
     Preconditions.checkNotNull(activeRule.getId(), "ActiveRule is not persisted");
     Preconditions.checkNotNull(key, "Param key cannot be null");
