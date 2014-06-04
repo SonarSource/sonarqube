@@ -132,10 +132,10 @@
             &nbsp;&nbsp;
             <a class="link-action issue-comment-edit">{{t 'edit'}}</a>&nbsp;
             <a class="link-action link-red spacer-right issue-comment-delete"
-               data-confirm-msg="<%= h message('issue.comment.delete_confirm_message') -%>">{{t 'delete'}}</a>
+               data-confirm-msg="{{t 'issue.comment.delete_confirm_message'}}">{{t 'delete'}}</a>
           {{/if}}
         </h4>
-        {{{html}}}
+        {{{show html htmlText}}}
       </div>
     {{/each}}
   </div>

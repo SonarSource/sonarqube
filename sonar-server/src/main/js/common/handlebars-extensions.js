@@ -61,6 +61,17 @@ define(['handlebars', 'moment'], function (Handlebars, moment) {
     return value != null ? value : defaultValue;
   });
 
+  Handlebars.registerHelper('show', function() {
+    var args = Array.prototype.slice.call(arguments),
+        ret = null;
+    args.forEach(function(arg) {
+      if (arg != null && ret == null) {
+        ret = arg;
+      }
+    });
+    return ret;
+  });
+
   Handlebars.registerHelper('percent', function(value, total) {
     return '' + ((value || 0) / total * 100) + '%';
   });
