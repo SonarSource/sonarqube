@@ -22,10 +22,10 @@ class CreateLogTable < ActiveRecord::Migration
   def self.up
     create_table 'logs'do |t|
       t.column 'created_at',   :datetime, :null => false
-      t.column 'execution_time_field', :int
-      t.column 'user_login', :string
+      t.column 'execution_time_field', :integer
+      t.column 'user_login', :string, :limit => 255
       t.column 'data_field', :text
-      t.column 'payload_field', :string
+      t.column 'payload_field', :string, :limit => 40
     end
 
   end
