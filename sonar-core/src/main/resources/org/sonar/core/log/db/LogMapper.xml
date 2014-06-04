@@ -16,9 +16,9 @@
         l.user_login as "author",
         l.data_field as "data"
       FROM logs l
-      WHERE l.time_field=#{key.time}
+      WHERE l.created_at=#{key.time}
         AND l.payload_field=#{key.payload}
-        AND l.author_field=#{key.author}
+        AND l.user_login=#{key.author}
 
     </select>
 </mapper>
