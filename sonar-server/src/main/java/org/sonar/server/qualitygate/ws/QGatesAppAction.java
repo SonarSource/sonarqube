@@ -34,63 +34,6 @@ import java.util.Locale;
 
 public class QGatesAppAction implements RequestHandler {
 
-  private static final String[] MESSAGE_KEYS = {
-      "add_verb",
-      "alerts.error_tooltip",
-      "alerts.notes.error",
-      "alerts.notes.ok",
-      "alerts.notes.warn",
-      "alerts.select_metric",
-      "alerts.warning_tooltip",
-      "are_you_sure",
-      "cancel",
-      "copy",
-      "create",
-      "default",
-      "delete",
-      "deprecated",
-      "more",
-      "name",
-      "quality_gates.add_condition",
-      "quality_gates.conditions",
-      "quality_gates.copy",
-      "quality_gates.create",
-      "quality_gates.delete",
-      "quality_gates.health_icons",
-      "quality_gates.introduction",
-      "quality_gates.no_conditions",
-      "quality_gates.delete_condition",
-      "quality_gates.noQualityGates",
-      "quality_gates.operator.LT",
-      "quality_gates.operator.GT",
-      "quality_gates.operator.EQ",
-      "quality_gates.operator.NE",
-      "quality_gates.page",
-      "quality_gates.projects",
-      "quality_gates.projects.all",
-      "quality_gates.projects.deselect_hint",
-      "quality_gates.projects.noResults",
-      "quality_gates.projects.select_hint",
-      "quality_gates.projects.with",
-      "quality_gates.projects.without",
-      "quality_gates.projects_for_default",
-      "quality_gates.projects_for_default.edit",
-      "quality_gates.rename",
-      "quality_gates.delete.confirm.message",
-      "quality_gates.delete.confirm.default",
-      "quality_gates.delete_condition.confirm.message",
-      "quality_gates.project_period",
-      "rename",
-      "save",
-      "set_as_default",
-      "unset_as_default",
-      "update_verb",
-      "value",
-      "work_duration.x_days",
-      "work_duration.x_hours",
-      "work_duration.x_minutes",
-  };
-
   private final QualityGates qualityGates;
 
   private final Periods periods;
@@ -117,7 +60,6 @@ public class QGatesAppAction implements RequestHandler {
     addPermissions(writer);
     addPeriods(writer);
     addMetrics(writer);
-    addMessages(writer);
     writer.endObject().close();
   }
 
@@ -139,14 +81,6 @@ public class QGatesAppAction implements RequestHandler {
     writer.beginObject().prop("key", periodIndex).prop("text",
       i18n.message(Locale.getDefault(), "quality_gates.project_period", "Period " + periodIndex, periodIndex)
     ).endObject();
-  }
-
-  private void addMessages(JsonWriter writer) {
-    writer.name("messages").beginObject();
-    for (String message: MESSAGE_KEYS) {
-      writer.prop(message, i18n.message(Locale.getDefault(), message, message));
-    }
-    writer.endObject();
   }
 
   private void addMetrics(JsonWriter writer) {

@@ -39,12 +39,12 @@ import org.sonar.server.ws.WsTester;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QGatesAppActionTest {
@@ -95,11 +95,6 @@ public class QGatesAppActionTest {
     assertThat((Boolean) responseJson.get("edit")).isFalse();
     Collection<Map> periods = (Collection<Map>) responseJson.get("periods");
     assertThat(periods).hasSize(5);
-    Map messages = (Map) responseJson.get("messages");
-    assertThat(messages).isNotNull().isNotEmpty().hasSize(54);
-    for (Entry message : (Set<Entry>) messages.entrySet()) {
-      assertThat(message.getKey()).isEqualTo(message.getValue());
-    }
     Collection<Map> metrics = (Collection<Map>) responseJson.get("metrics");
     assertThat(metrics).hasSize(1);
     Map metricMap = metrics.iterator().next();
