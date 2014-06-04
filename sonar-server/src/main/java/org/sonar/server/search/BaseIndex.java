@@ -38,13 +38,10 @@ import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.persistence.Dto;
 
 import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
@@ -378,7 +375,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
       this.updateDocument(normalizer.normalize(item), item.getKey());
     } catch (Exception e) {
       LOG.error("Could not update document for index {}: {}",
-        this.getIndexName(), e.getMessage());
+        this.getIndexName(), e.getMessage(), e);
     }
   }
 
@@ -388,7 +385,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
       this.updateDocument(normalizer.normalize(key), key);
     } catch (Exception e) {
       LOG.error("Could not update document for index {}: {}",
-        this.getIndexName(), e.getMessage());
+        this.getIndexName(), e.getMessage(), e);
     }
   }
 

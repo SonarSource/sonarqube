@@ -19,164 +19,96 @@
  */
 package org.sonar.server.rule;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.server.debt.DebtRemediationFunction;
 
-import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 class NewRule {
-  private final RuleKey key;
-  private boolean template;
-  private Set<String> tags, systemTags;
-  private String language, name, htmlDescription, severity;
+
+  private boolean isTemplate;
+  private RuleKey templateKey;
+  private String name, htmlDescription, severity;
   private RuleStatus status;
-  private String internalKey;
-  private String defaultDebtCharacteristic, defaultDebtSubCharacteristic, debtCharacteristic, debtSubCharacteristic;
-  private DebtRemediationFunction defaultDebtRemediationFunction, debtRemediationFunction;
-  private String markdownNote, noteLogin;
-
-  NewRule(RuleKey key) {
-    this.key = key;
-  }
-
-  public RuleKey getKey() {
-    return key;
-  }
+  private List<NewRuleParam> params = newArrayList();
 
   public boolean isTemplate() {
-    return template;
+    return isTemplate;
   }
 
-  public void setTemplate(boolean template) {
-    this.template = template;
+  public void setIsTemplate(boolean template) {
+    this.isTemplate = template;
   }
 
-  public Set<String> getTags() {
-    return tags;
+  @CheckForNull
+  public RuleKey templateKey() {
+    return templateKey;
   }
 
-  public void setTags(Set<String> tags) {
-    this.tags = tags;
+  public NewRule setTemplateKey(@Nullable RuleKey templateKey) {
+    this.templateKey = templateKey;
+    return this;
   }
 
-  public Set<String> getSystemTags() {
-    return systemTags;
-  }
-
-  public void setSystemTags(Set<String> systemTags) {
-    this.systemTags = systemTags;
-  }
-
-  public String getLanguage() {
-    return language;
-  }
-
-  public void setLanguage(String language) {
-    this.language = language;
-  }
-
-  public String getName() {
+  public String name() {
     return name;
   }
 
-  public void setName(String name) {
+  public NewRule setName(String name) {
     this.name = name;
+    return this;
   }
 
-  public String getHtmlDescription() {
+  public String htmlDescription() {
     return htmlDescription;
   }
 
-  public void setHtmlDescription(String htmlDescription) {
+  public NewRule setHtmlDescription(String htmlDescription) {
     this.htmlDescription = htmlDescription;
+    return this;
   }
 
-  public String getSeverity() {
+  public String severity() {
     return severity;
   }
 
-  public void setSeverity(String severity) {
+  public NewRule setSeverity(String severity) {
     this.severity = severity;
+    return this;
   }
 
-  public RuleStatus getStatus() {
+  public RuleStatus status() {
     return status;
   }
 
-  public void setStatus(RuleStatus status) {
+  public NewRule setStatus(RuleStatus status) {
     this.status = status;
+    return this;
   }
 
-  public String getInternalKey() {
-    return internalKey;
+  public List<NewRuleParam> params() {
+    return params;
   }
 
-  public void setInternalKey(String internalKey) {
-    this.internalKey = internalKey;
+  @CheckForNull
+  public NewRuleParam param(final String paramKey) {
+    return Iterables.find(params, new Predicate<NewRuleParam>() {
+      @Override
+      public boolean apply(@Nullable NewRuleParam input) {
+        return input != null && input.key().equals(paramKey);
+      }
+    }, null);
   }
 
-  public String getDefaultDebtCharacteristic() {
-    return defaultDebtCharacteristic;
-  }
-
-  public void setDefaultDebtCharacteristic(String defaultDebtCharacteristic) {
-    this.defaultDebtCharacteristic = defaultDebtCharacteristic;
-  }
-
-  public String getDefaultDebtSubCharacteristic() {
-    return defaultDebtSubCharacteristic;
-  }
-
-  public void setDefaultDebtSubCharacteristic(String defaultDebtSubCharacteristic) {
-    this.defaultDebtSubCharacteristic = defaultDebtSubCharacteristic;
-  }
-
-  public String getDebtCharacteristic() {
-    return debtCharacteristic;
-  }
-
-  public void setDebtCharacteristic(String debtCharacteristic) {
-    this.debtCharacteristic = debtCharacteristic;
-  }
-
-  public String getDebtSubCharacteristic() {
-    return debtSubCharacteristic;
-  }
-
-  public void setDebtSubCharacteristic(String debtSubCharacteristic) {
-    this.debtSubCharacteristic = debtSubCharacteristic;
-  }
-
-  public DebtRemediationFunction getDefaultDebtRemediationFunction() {
-    return defaultDebtRemediationFunction;
-  }
-
-  public void setDefaultDebtRemediationFunction(DebtRemediationFunction defaultDebtRemediationFunction) {
-    this.defaultDebtRemediationFunction = defaultDebtRemediationFunction;
-  }
-
-  public DebtRemediationFunction getDebtRemediationFunction() {
-    return debtRemediationFunction;
-  }
-
-  public void setDebtRemediationFunction(DebtRemediationFunction debtRemediationFunction) {
-    this.debtRemediationFunction = debtRemediationFunction;
-  }
-
-  public String getMarkdownNote() {
-    return markdownNote;
-  }
-
-  public void setMarkdownNote(String markdownNote) {
-    this.markdownNote = markdownNote;
-  }
-
-  public String getNoteLogin() {
-    return noteLogin;
-  }
-
-  public void setNoteLogin(String noteLogin) {
-    this.noteLogin = noteLogin;
+  public NewRule setParams(List<NewRuleParam> params) {
+    this.params = params;
+    return this;
   }
 }

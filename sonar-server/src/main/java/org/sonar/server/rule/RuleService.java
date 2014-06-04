@@ -21,6 +21,7 @@ package org.sonar.server.rule;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.rule.index.RuleQuery;
@@ -29,6 +30,7 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Set;
 
 /**
@@ -66,6 +68,10 @@ public class RuleService implements ServerComponent {
   }
 
   public void update(RuleUpdate update) {
+    UserSession userSession = UserSession.get();
+    userSession.checkLoggedIn();
+    userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+
     ruleUpdater.update(update, UserSession.get());
   }
 }

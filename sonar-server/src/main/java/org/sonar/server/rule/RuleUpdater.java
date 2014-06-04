@@ -26,7 +26,6 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
@@ -48,9 +47,6 @@ public class RuleUpdater implements ServerComponent {
   }
 
   public boolean update(RuleUpdate update, UserSession userSession) {
-    userSession.checkLoggedIn();
-    userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-
     if (update.isEmpty()) {
       return false;
     }

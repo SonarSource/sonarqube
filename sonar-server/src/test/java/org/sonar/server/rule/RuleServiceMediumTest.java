@@ -25,17 +25,22 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.tester.ServerTester;
+import org.sonar.server.user.MockUserSession;
 
 import java.util.Collections;
 import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class RuleServiceMediumTest {
 
@@ -79,5 +84,47 @@ public class RuleServiceMediumTest {
     // verify system tags in es
     tags = index.terms(RuleNormalizer.RuleField.SYSTEM_TAGS.field());
     assertThat(tags).containsOnly("sys1", "sys2");
+  }
+
+  @Test
+  public void update_rule() throws Exception {
+    MockUserSession.set()
+      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
+      .setLogin("me");
+
+    RuleKey key = RuleKey.of("java", "S001");
+
+    dao.insert(dbSession, RuleTesting.newDto(key));
+    dbSession.commit();
+
+    RuleUpdate update = new RuleUpdate(key);
+    update.setMarkdownNote("my *note*");
+    service.update(update);
+
+    dbSession.clearCache();
+
+    RuleDto rule = dao.getNullableByKey(dbSession, key);
+    assertThat(rule.getNoteData()).isEqualTo("my *note*");
+    assertThat(rule.getNoteUserLogin()).isEqualTo("me");
+  }
+
+  @Test
+  public void do_not_update_if_not_granted() throws Exception {
+    MockUserSession.set().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+
+    RuleKey key = RuleKey.of("java", "S001");
+
+    dao.insert(dbSession, RuleTesting.newDto(key)
+      .setTags(Sets.newHashSet("security"))
+      .setSystemTags(Sets.newHashSet("java8", "javadoc")));
+    dbSession.commit();
+
+    try {
+      RuleUpdate update = new RuleUpdate(key).setMarkdownNote("my *note*");
+      service.update(update);
+      fail();
+    } catch (UnauthorizedException e) {
+      // ok
+    }
   }
 }

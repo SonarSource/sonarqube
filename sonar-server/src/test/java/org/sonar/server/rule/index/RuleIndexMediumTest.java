@@ -22,6 +22,7 @@ package org.sonar.server.rule.index;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang.time.DateUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -47,12 +48,7 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -777,19 +773,16 @@ public class RuleIndexMediumTest {
     // 0. find all rules;
     assertThat(index.search(new RuleQuery(), new QueryOptions()).getHits()).hasSize(2);
 
-
     // 1. find all rules available since a date;
     RuleQuery availableSinceQuery = new RuleQuery()
       .setAvailableSince(since);
     List<Rule> hits = index.search(availableSinceQuery, new QueryOptions()).getHits();
     assertThat(hits).hasSize(1);
+    assertThat(hits.get(0).key()).isEqualTo(RuleKey.of("java", "S002"));
 
     // 2. find no new rules since tomorrow.
-    Calendar c = Calendar.getInstance();
-    c.setTime(since);
-    c.add(Calendar.DATE, 1);  // number of days to add
     RuleQuery availableSinceNowQuery = new RuleQuery()
-      .setAvailableSince(c.getTime());
+      .setAvailableSince(DateUtils.addDays(since, 1));
     assertThat(index.search(availableSinceNowQuery, new QueryOptions()).getHits()).hasSize(0);
   }
 

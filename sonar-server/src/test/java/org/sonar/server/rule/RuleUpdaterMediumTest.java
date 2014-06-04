@@ -30,13 +30,11 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.api.utils.System2;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtTesting;
-import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
@@ -58,7 +56,7 @@ public class RuleUpdaterMediumTest {
   DbClient db = tester.get(DbClient.class);
   DbSession dbSession;
   System2 system = mock(System2.class);
-  RuleUpdater updater = new RuleUpdater(db, system);
+  RuleUpdater updater = tester.get(RuleUpdater.class);
   int reliabilityId, softReliabilityId, hardReliabilityId;
 
   @Before
@@ -74,7 +72,6 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void do_not_update_rule_with_removed_status() throws Exception {
-    grantPermission();
     db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY).setStatus(RuleStatus.REMOVED));
     dbSession.commit();
 
@@ -89,7 +86,6 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void no_changes() throws Exception {
-    grantPermission();
     db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
       // the following fields are not supposed to be updated
       .setNoteData("my *note*")
@@ -118,7 +114,8 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void set_markdown_note() throws Exception {
-    grantPermission();
+    MockUserSession.set().setLogin("me");
+
     db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setNoteData(null)
       .setNoteUserLogin(null)
@@ -151,7 +148,6 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void remove_markdown_note() throws Exception {
-    grantPermission();
     db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setNoteData("my *note*")
       .setNoteUserLogin("me"));
@@ -170,7 +166,6 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void set_tags() throws Exception {
-    grantPermission();
     // insert db
     db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
         .setTags(Sets.newHashSet("security"))
@@ -193,7 +188,6 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void remove_tags() throws Exception {
-    grantPermission();
     db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setTags(Sets.newHashSet("security"))
       .setSystemTags(Sets.newHashSet("java8", "javadoc")));
@@ -213,28 +207,7 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void do_not_update_if_not_granted() throws Exception {
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
-
-    db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
-      .setTags(Sets.newHashSet("security"))
-      .setSystemTags(Sets.newHashSet("java8", "javadoc")));
-    dbSession.commit();
-
-    RuleUpdater updater = new RuleUpdater(tester.get(DbClient.class), system);
-    RuleUpdate update = new RuleUpdate(RULE_KEY).setMarkdownNote("my *note*");
-
-    try {
-      updater.update(update, UserSession.get());
-      fail();
-    } catch (UnauthorizedException e) {
-      // ok
-    }
-  }
-
-  @Test
   public void override_debt() throws Exception {
-    grantPermission();
     insertDebtCharacteristics(dbSession);
     db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setDefaultSubCharacteristicId(hardReliabilityId)
@@ -271,7 +244,6 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void reset_debt() throws Exception {
-    grantPermission();
     insertDebtCharacteristics(dbSession);
     db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setDefaultSubCharacteristicId(hardReliabilityId)
@@ -307,7 +279,6 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void unset_debt() throws Exception {
-    grantPermission();
     insertDebtCharacteristics(dbSession);
     db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setDefaultSubCharacteristicId(hardReliabilityId)
@@ -337,12 +308,6 @@ public class RuleUpdaterMediumTest {
     assertThat(indexedRule.debtCharacteristicKey()).isNull();
     assertThat(indexedRule.debtSubCharacteristicKey()).isNull();
     //TODO pb with db code -1 ? assertThat(indexedRule.debtRemediationFunction()).isNull();
-  }
-
-  private void grantPermission() {
-    MockUserSession.set()
-      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
-      .setLogin("me");
   }
 
   private void insertDebtCharacteristics(DbSession dbSession) {
