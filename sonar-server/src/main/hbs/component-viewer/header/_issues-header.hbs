@@ -48,6 +48,12 @@
         <i class="icon-chevron-right"></i>
       </a></li>
     {{/if}}
+    {{#if component.measures.fIssues}}
+      <li><a class="item js-filter-fixed-issues">
+        <span>{{t 'component_viewer.issues.fixed_issues'}}</span>
+        <i class="icon-chevron-right"></i>
+      </a></li>
+    {{/if}}
     <li><a class="item js-filter-false-positive-issues">
       <span>{{t 'component_viewer.issues.false_positive_issues'}}</span>
       <span class="number">{{component.msr.false_positive_issues}}</span>

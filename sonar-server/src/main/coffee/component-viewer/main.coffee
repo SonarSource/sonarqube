@@ -312,7 +312,7 @@ define [
     filterByAllIssues: -> @filterByIssues -> true
 
     # Resolved Issues
-    filterByResolvedIssues: -> @filterByIssues (issue) -> !!issue.resolution
+    filterByFixedIssues: -> @filterByIssues (issue) -> issue.resolution == 'FIXED'
 
     # Unresolved Issues
     filterByUnresolvedIssues: -> @filterByIssues (issue) -> !issue.resolution
@@ -321,7 +321,7 @@ define [
     filterByFalsePositiveIssues: -> @filterByIssues (issue) -> issue.resolution == 'FALSE-POSITIVE'
 
     # Rule
-    filterByRule: (rule) -> @filterByIssues (issue) -> issue.rule == rule
+    filterByRule: (rule) -> @filterByIssues (issue) -> issue.rule == rule && !issue.resolution
 
     # Severity
     filterByBlockerIssues: -> @filterByIssues (issue) -> issue.severity == 'BLOCKER' && !issue.resolution

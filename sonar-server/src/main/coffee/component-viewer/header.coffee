@@ -36,7 +36,7 @@ define [
       'click .js-filter-current-issue': 'filterByCurrentIssue'
       'click .js-filter-all-issues': 'filterByAllIssues'
       'click .js-filter-rule': 'filterByRule'
-      'click .js-filter-resolved-issues': 'filterByResolvedIssues'
+      'click .js-filter-fixed-issues': 'filterByFixedIssues'
       'click .js-filter-unresolved-issues': 'filterByUnresolvedIssues'
       'click .js-filter-false-positive-issues': 'filterByFalsePositiveIssues'
       'click .js-filter-BLOCKER-issues': 'filterByBlockerIssues'
@@ -149,7 +149,7 @@ define [
     # Issues
     filterByCurrentIssue: (e) -> @filterLines e, 'filterByCurrentIssue'
     filterByAllIssues: (e) -> @filterLines e, 'filterByAllIssues'
-    filterByResolvedIssues: (e) -> @filterLines e, 'filterByResolvedIssues'
+    filterByFixedIssues: (e) -> @filterLines e, 'filterByFixedIssues'
     filterByUnresolvedIssues: (e) -> @filterLines e, 'filterByUnresolvedIssues'
     filterByFalsePositiveIssues: (e) -> @filterLines e, 'filterByFalsePositiveIssues'
 

@@ -184,6 +184,10 @@ define(['handlebars', 'moment'], function (Handlebars, moment) {
     return moment(date).format('LLL');
   });
 
+  Handlebars.registerHelper('fromNow', function(date) {
+    return moment(date).fromNow();
+  });
+
   Handlebars.registerHelper('pluginActions', function(actions, options) {
     var pluginActions = _.difference(actions, defaultActions);
     return pluginActions.reduce(function(prev, current) {
