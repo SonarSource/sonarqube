@@ -75,8 +75,33 @@
 
 
   window.requestMessages = function() {
+    var currentLocale = navigator.language.replace('-', '_');
+    var cachedLocale = localStorage.getItem('l10n.locale');
+    if (cachedLocale !== currentLocale) {
+      localStorage.removeItem('l10n.timestamp');
+    }
+
+    var bundleTimestamp = localStorage.getItem('l10n.timestamp');
+    var params = {}
+    if (bundleTimestamp !== null) {
+      params['ts'] = bundleTimestamp;
+    }
+
     var apiUrl = baseUrl + '/api/l10n/index';
-    return jQuery.get(apiUrl, function(bundle) {
+    return jQuery.ajax({
+      'url': apiUrl,
+      'data': params,
+      'statusCode': {
+        304: function() {
+          // NOP, use cached messages
+        }
+      }
+    }).success(function(bundle) {
+      bundleTimestamp = new Date().toISOString();
+      bundleTimestamp = bundleTimestamp.substr(0, bundleTimestamp.indexOf('.')) + '+0000';
+      localStorage.setItem('l10n.timestamp', bundleTimestamp);
+      localStorage.setItem('l10n.locale', currentLocale);
+
       for (var message in bundle) {
         if (bundle.hasOwnProperty(message)) {
           var storageKey = 'l10n.' + message;
