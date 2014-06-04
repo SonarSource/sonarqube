@@ -160,11 +160,13 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
   }
 
   @Override
-  public List<UpdateRequest> normalize(Object object, Object key) {
-    Preconditions.checkArgument(object.getClass().isAssignableFrom(ActiveRuleParamDto.class), "Cannot Normalize class");
-    Preconditions.checkArgument(key.getClass().isAssignableFrom(ActiveRuleKey.class), "key is not an ActiveRuleKey");
-
-    return normalize((ActiveRuleParamDto)object, (ActiveRuleKey)key);
+  public List<UpdateRequest> normalize(Object object, ActiveRuleKey key) {
+    Preconditions.checkArgument(key != null, "key cannot be null");
+    if (object.getClass().isAssignableFrom(ActiveRuleParamDto.class)) {
+      return normalize((ActiveRuleParamDto) object, key);
+    } else {
+      throw new IllegalStateException("Cannot normalize object of type '" + object.getClass() + "' in current context");
+    }
   }
 
   public List<UpdateRequest> normalize(ActiveRuleParamDto param, ActiveRuleKey key) {

@@ -74,7 +74,7 @@ public class LogNormalizer extends BaseNormalizer<LogDto, LogKey> {
   }
 
   @Override
-  public List<UpdateRequest> normalize(Object object, Object key) {
+  public List<UpdateRequest> normalize(Object object, LogKey key) {
     throw new IllegalStateException("Normalizer is not yet implemented");
   }
 

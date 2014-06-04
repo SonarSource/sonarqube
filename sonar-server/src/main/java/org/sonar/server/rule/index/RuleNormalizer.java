@@ -238,11 +238,13 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
   }
 
   @Override
-  public List<UpdateRequest> normalize(Object object, Object key) {
-    Preconditions.checkArgument(object.getClass().isAssignableFrom(RuleParamDto.class), "Cannot Normalize class");
-    Preconditions.checkArgument(key.getClass().isAssignableFrom(RuleKey.class), "key is not an ActiveRuleKey");
-
-    return normalize((RuleParamDto)object, (RuleKey)key);
+  public List<UpdateRequest> normalize(Object object, RuleKey key) {
+    Preconditions.checkArgument(key != null, "key of Rule must be set");
+    if (object.getClass().isAssignableFrom(RuleParamDto.class)) {
+      return normalize((RuleParamDto) object, key);
+    } else {
+      throw new IllegalStateException("Cannot normalize object of type '" + object.getClass() + "' in current context");
+    }
   }
 
   private List<UpdateRequest> normalize(RuleParamDto param, RuleKey key) {
