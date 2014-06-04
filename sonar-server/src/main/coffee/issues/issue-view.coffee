@@ -92,7 +92,7 @@ define [
       key = @model.get 'key'
       @model.clear silent: true
       @model.set { key: key }, { silent: true }
-      @model.fetch options
+      @model.fetch(options).done => @trigger 'reset'
 
 
     toggleCollapsed: ->

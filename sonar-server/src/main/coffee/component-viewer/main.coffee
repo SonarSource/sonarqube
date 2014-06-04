@@ -108,9 +108,9 @@ define [
       @headerRegion.show @headerView
 
 
-    requestComponent: (key) ->
+    requestComponent: (key, clear = false) ->
       $.get API_COMPONENT, key: key, (data) =>
-        @component.clear()
+        @component.clear() if clear
         @component.set data
         @component.set 'dir', utils.splitLongName(data.path).dir
 

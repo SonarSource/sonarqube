@@ -94,6 +94,10 @@ define [
         container.addClass 'issue' if line > 0
         issueView = new IssueView model: new Issue issue
         issueView.render().$el.appendTo container
+        issueView.on 'reset', =>
+          @options.main.requestComponent(@options.main.key, false).done =>
+            @options.main.headerView.render()
+            @options.main.headerView.$('.component-viewer-header-measures-expand[data-scope=issues]').click()
 
 
     showSpinner: ->
