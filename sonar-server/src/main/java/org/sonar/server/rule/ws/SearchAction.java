@@ -51,7 +51,7 @@ public class SearchAction implements RequestHandler {
   public static final String PARAM_ACTIVATION = "activation";
   public static final String PARAM_QPROFILE = "qprofile";
   public static final String PARAM_SEVERITIES = "severities";
-  public static final String PARAM_AVAILABLE_SINCE = "availableSince";
+  public static final String PARAM_AVAILABLE_SINCE = "available_since";
   public static final String PARAM_STATUSES = "statuses";
   public static final String PARAM_LANGUAGES = "languages";
   public static final String PARAM_DEBT_CHARACTERISTICS = "debt_characteristics";

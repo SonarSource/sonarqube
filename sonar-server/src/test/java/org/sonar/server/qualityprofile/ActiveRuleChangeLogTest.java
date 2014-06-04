@@ -35,8 +35,7 @@ import org.sonar.server.log.db.LogDao;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class ActiveRuleChangeLogTest extends AbstractDaoTestCase{
-
+public class ActiveRuleChangeLogTest extends AbstractDaoTestCase {
 
   private LogDao dao;
   private DbSession session;
@@ -50,16 +49,16 @@ public class ActiveRuleChangeLogTest extends AbstractDaoTestCase{
   }
 
   @After
-  public void after(){
+  public void after() {
     session.close();
   }
 
   @Test
-  public void insert_log(){
+  public void insert_log() {
 
     ActiveRuleKey ruleKey = ActiveRuleKey.of(
       QualityProfileKey.of("name", "java"),
-      RuleKey.of("repository","S001"));
+      RuleKey.of("repository", "S001"));
     ActiveRuleChange ruleChange = new ActiveRuleChange(ActiveRuleChange.Type.ACTIVATED, ruleKey)
       .setInheritance(ActiveRule.Inheritance.INHERITED);
 
