@@ -71,7 +71,8 @@ define [
       return null unless @model.get('inherit') && @model.get('inherit') != 'NONE'
       parentKey = @model.get('parent') + ':' + @model.get('lang')
       parent = _.extend {}, _.findWhere(@options.app.qualityProfiles, key: parentKey)
-      _.extend parent, severity: @model.collection.findWhere(qProfile: parentKey).get 'severity'
+      parentActiveInfo = @model.collection.findWhere(qProfile: parentKey)
+      _.extend parent, parentActiveInfo.toJSON()
       parent
 
 

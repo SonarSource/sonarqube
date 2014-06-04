@@ -102,7 +102,11 @@ define [
         modelParams = @model.get 'params'
         if modelParams
           params = params.map (p) ->
-            _.extend p, value: _.findWhere(modelParams, key: p.key).value
+            parentParam = _.findWhere(modelParams, key: p.key)
+            if parentParam
+              _.extend p, value: _.findWhere(modelParams, key: p.key).value
+            else
+              p
 
       _.extend super,
         rule: @rule.toJSON()

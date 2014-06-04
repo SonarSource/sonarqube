@@ -16,10 +16,12 @@ define [
 
 
     onChangeQualityProfile: ->
-      qualityProfile = @qualityProfileFilter.get 'value'
-      parentQualityProfile = @qualityProfileFilter.get 'parentQualityProfile'
-      if _.isArray(qualityProfile) && qualityProfile.length == 1 && parentQualityProfile
-        @makeActive()
+      qualityProfileKey = @qualityProfileFilter.get 'value'
+      if _.isArray(qualityProfileKey) && qualityProfileKey.length == 1
+        qualityProfile = @options.app.getQualityProfile qualityProfileKey
+        parentQualityProfile = @options.app.getQualityProfile qualityProfile.parent
+        if parentQualityProfile
+          @makeActive()
       else
         @makeInactive()
 
