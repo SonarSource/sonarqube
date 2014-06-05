@@ -258,21 +258,22 @@
 .navigator-facets-list-item-option {
   display: inline-block;
   vertical-align: middle;
-  margin: 0 @navigatorPadding;
+  margin: 1px @navigatorPadding;
   font-size: @baseFontSize;
   cursor: pointer;
+  background-color: @navigatorFacetInactiveBackground;
+  border: 1px solid @navigatorFacetInactiveBackground;
+  border-radius: 3px;
+  padding: 0 5px;
+  transition: all @defaultTransitionOptions;
 
   &:hover {
-    .navigator-facets-list-item-option-name {
-      text-decoration: underline;
-    }
+    border: 1px solid @blue;
   }
 
   &.active {
-    .navigator-facets-list-item-option-name {
-      font-weight: bold;
-      text-decoration: underline;
-    }
+    border: 1px solid @blue;
+    background-color: @lightBlue;
   }
 }
 
@@ -281,6 +282,8 @@
 }
 
 .navigator-facets-list-item-option-stat {
+  color: @navigatorFacetStatColor;
+
   &:before { content: "("; }
   &:after { content: ")"; }
 }

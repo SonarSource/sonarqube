@@ -178,7 +178,7 @@ requirejs [
       unless fromFacets
         @codingRulesFacetsView = new CodingRulesFacetsView
           app: @
-          collection: new Backbone.Collection r.facets
+          collection: new Backbone.Collection r.facets, comparator: 'property'
         @layout.facetsRegion.show @codingRulesFacetsView
 
       @layout.onResize()
