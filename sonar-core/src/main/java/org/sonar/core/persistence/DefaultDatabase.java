@@ -221,6 +221,6 @@ public class DefaultDatabase implements Database {
 
   @Override
   public String toString() {
-    return "Database[" + properties.getProperty(SONAR_JDBC_URL) + "]";
+    return "Database[" + (properties != null ? properties.getProperty(SONAR_JDBC_URL) : "?")+ "]";
   }
 }
