@@ -36,6 +36,7 @@ import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -142,12 +143,12 @@ public class IssueDao implements BatchComponent, ServerComponent {
   }
 
   // TODO replace by aggregation in IssueIndex
-  public List<RuleDto> findRulesByComponent(String componentKey, DbSession session) {
-    return session.getMapper(IssueMapper.class).findRulesByComponent(componentKey);
+  public List<RuleDto> findRulesByComponent(String componentKey, @Nullable Date createdAtOrAfter, DbSession session) {
+    return session.getMapper(IssueMapper.class).findRulesByComponent(componentKey, createdAtOrAfter);
   }
 
   // TODO replace by aggregation in IssueIndex
-  public List<String> findSeveritiesByComponent(String componentKey, DbSession session) {
-    return session.getMapper(IssueMapper.class).findSeveritiesByComponent(componentKey);
+  public List<String> findSeveritiesByComponent(String componentKey, @Nullable Date createdAtOrAfter, DbSession session) {
+    return session.getMapper(IssueMapper.class).findSeveritiesByComponent(componentKey, createdAtOrAfter);
   }
 }

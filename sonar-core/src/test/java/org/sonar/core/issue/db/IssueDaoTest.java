@@ -32,7 +32,6 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.rule.RuleDto;
 
 import java.util.List;
 
@@ -444,16 +443,16 @@ public class IssueDaoTest extends AbstractDaoTestCase {
   public void find_rules_by_component() {
     setupData("shared", "find_rules_by_component");
 
-    List<RuleDto> results = dao.findRulesByComponent("Action.java", session);
-    assertThat(results).hasSize(3);
+    assertThat(dao.findRulesByComponent("Action.java", null, session)).hasSize(3);
+    assertThat(dao.findRulesByComponent("Action.java", DateUtils.parseDate("2013-04-17"), session)).hasSize(2);
   }
 
   @Test
   public void find_severities_by_component() {
     setupData("shared", "find_severities_by_component");
 
-    List<String> results = dao.findSeveritiesByComponent("Action.java", session);
-    assertThat(results).containsExactly(Severity.BLOCKER, Severity.MAJOR, Severity.BLOCKER);
+    assertThat(dao.findSeveritiesByComponent("Action.java", null, session)).containsExactly(Severity.BLOCKER, Severity.MAJOR, Severity.BLOCKER);
+    assertThat(dao.findSeveritiesByComponent("Action.java", DateUtils.parseDate("2013-04-17"), session)).containsExactly(Severity.MAJOR);
   }
 
   private List<Long> getIssueIds(List<IssueDto> issues) {

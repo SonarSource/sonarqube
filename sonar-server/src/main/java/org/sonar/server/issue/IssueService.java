@@ -281,18 +281,18 @@ public class IssueService implements ServerComponent {
   }
 
   // TODO result should be replaced by an aggregation object in IssueIndex
-  public RulesAggregation findRulesByComponent(String componentKey, DbSession session) {
+  public RulesAggregation findRulesByComponent(String componentKey, @Nullable Date periodDate, DbSession session) {
     RulesAggregation rulesAggregation = new RulesAggregation();
-    for (RuleDto ruleDto : issueDao.findRulesByComponent(componentKey, session)) {
+    for (RuleDto ruleDto : issueDao.findRulesByComponent(componentKey, periodDate, session)) {
       rulesAggregation.add(ruleDto);
     }
     return rulesAggregation;
   }
 
   // TODO result should be replaced by an aggregation object in IssueIndex
-  public Multiset<String> findSeveritiesByComponent(String componentKey, DbSession session) {
+  public Multiset<String> findSeveritiesByComponent(String componentKey, @Nullable Date periodDate, DbSession session) {
     Multiset<String> aggregation = HashMultiset.create();
-    for (String severity : issueDao.findSeveritiesByComponent(componentKey, session)) {
+    for (String severity : issueDao.findSeveritiesByComponent(componentKey, periodDate, session)) {
       aggregation.add(severity);
     }
     return aggregation;

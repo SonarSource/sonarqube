@@ -58,6 +58,7 @@ import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.user.UserSession;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -507,12 +508,13 @@ public class IssueServiceTest {
     DbSession session = mock(DbSession.class);
     String componentKey = "org.sonar.Sample";
 
-    when(issueDao.findRulesByComponent(componentKey, session)).thenReturn(newArrayList(
+    Date date = new Date();
+    when(issueDao.findRulesByComponent(componentKey, date, session)).thenReturn(newArrayList(
         RuleDto.createFor(RuleKey.of("repo", "rule")).setName("Rule name"),
         RuleDto.createFor(RuleKey.of("repo", "rule")).setName("Rule name")
     ));
 
-    RulesAggregation result = issueService.findRulesByComponent(componentKey, session);
+    RulesAggregation result = issueService.findRulesByComponent(componentKey, date, session);
     assertThat(result.rules()).hasSize(1);
   }
 
@@ -521,9 +523,10 @@ public class IssueServiceTest {
     DbSession session = mock(DbSession.class);
     String componentKey = "org.sonar.Sample";
 
-    when(issueDao.findSeveritiesByComponent(componentKey, session)).thenReturn(newArrayList("MAJOR", "MAJOR", "INFO"));
+    Date date = new Date();
+    when(issueDao.findSeveritiesByComponent(componentKey, date, session)).thenReturn(newArrayList("MAJOR", "MAJOR", "INFO"));
 
-    Multiset<String> result = issueService.findSeveritiesByComponent(componentKey, session);
+    Multiset<String> result = issueService.findSeveritiesByComponent(componentKey, date, session);
     assertThat(result.count("MAJOR")).isEqualTo(2);
     assertThat(result.count("INFO")).isEqualTo(1);
     assertThat(result.count("UNKNOWN")).isEqualTo(0);

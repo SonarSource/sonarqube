@@ -74,7 +74,7 @@ public class ComponentsWsTest {
     assertThat(action.isPost()).isFalse();
     assertThat(action.handler()).isNotNull();
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(1);
+    assertThat(action.params()).hasSize(2);
   }
 
 }

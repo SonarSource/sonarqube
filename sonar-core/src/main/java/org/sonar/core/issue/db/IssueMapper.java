@@ -26,6 +26,7 @@ import org.sonar.core.rule.RuleDto;
 import javax.annotation.Nullable;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 public interface IssueMapper {
@@ -48,9 +49,9 @@ public interface IssueMapper {
                                 @Nullable @Param("userId") Integer userId, @Nullable @Param("role") String role);
 
 
-  List<RuleDto> findRulesByComponent(String componentKey);
+  List<RuleDto> findRulesByComponent(@Param("componentKey") String componentKey, @Nullable @Param("createdAt") Date createdAtOrAfter);
 
-  List<String> findSeveritiesByComponent(String componentKey);
+  List<String> findSeveritiesByComponent(@Param("componentKey") String componentKey, @Nullable @Param("createdAt") Date createdAtOrAfter);
 
   void insert(IssueDto issue);
 

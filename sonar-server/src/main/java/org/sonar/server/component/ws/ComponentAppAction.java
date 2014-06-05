@@ -24,6 +24,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multiset;
 import com.google.common.io.Resources;
+import org.elasticsearch.common.inject.internal.Strings;
 import org.sonar.api.component.Component;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.CoreMetrics;
@@ -67,7 +68,8 @@ import static com.google.common.collect.Maps.newHashMap;
 
 public class ComponentAppAction implements RequestHandler {
 
-  private static final String KEY = "key";
+  private static final String PARAM_KEY = "key";
+  private static final String PARAM_PERIOD = "period";
 
   private final DbClient dbClient;
 
@@ -97,15 +99,20 @@ public class ComponentAppAction implements RequestHandler {
       .setResponseExample(Resources.getResource(this.getClass(), "components-app-example-show.json"));
 
     action
-      .createParam(KEY)
+      .createParam(PARAM_KEY)
       .setRequired(true)
       .setDescription("File key")
       .setExampleValue("org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/Plugin.java");
+
+    action
+      .createParam(PARAM_PERIOD)
+      .setDescription("Period index in order to get differential measures")
+      .setPossibleValues(1, 2, 3, 4, 5);
   }
 
   @Override
   public void handle(Request request, Response response) {
-    String fileKey = request.mandatoryParam(KEY);
+    String fileKey = request.mandatoryParam(PARAM_KEY);
     UserSession userSession = UserSession.get();
 
     JsonWriter json = response.newJsonWriter();
@@ -119,11 +126,18 @@ public class ComponentAppAction implements RequestHandler {
       }
       userSession.checkComponentPermission(UserRole.USER, fileKey);
 
+      List<Period> periodList = periods(component.projectId(), session);
+      Integer periodIndex = request.paramAsInt(PARAM_PERIOD);
+      Date periodDate = periodDate(periodIndex, periodList);
+
+      RulesAggregation rulesAggregation = issueService.findRulesByComponent(component.key(), periodDate, session);
+      Multiset<String> severitiesAggregation = issueService.findSeveritiesByComponent(component.key(), periodDate, session);
+
       appendComponent(json, component, userSession, session);
       appendPermissions(json, component, userSession);
-      appendPeriods(json, component.projectId(), session);
-      appendIssuesAggregation(json, component.key(), session);
-      appendMeasures(json, component, session);
+      appendPeriods(json, periodList);
+      appendIssuesAggregation(json, rulesAggregation, severitiesAggregation, session);
+      appendMeasures(json, component, severitiesAggregation, periodIndex, session);
       appendExtensions(json, component, userSession);
     } finally {
       MyBatis.closeQuietly(session);
@@ -166,67 +180,53 @@ public class ComponentAppAction implements RequestHandler {
     json.prop("canBulkChange", userSession.isLoggedIn());
   }
 
-  private void appendMeasures(JsonWriter json, ComponentDto component, DbSession session) {
+  private void appendMeasures(JsonWriter json, ComponentDto component, Multiset<String> severitiesAggregation, Integer periodIndex, DbSession session) {
     json.name("measures").beginObject();
 
     String fileKey = component.getKey();
     List<MeasureDto> measures = dbClient.measureDao().findByComponentKeyAndMetricKeys(fileKey,
-      newArrayList(CoreMetrics.NCLOC_KEY, CoreMetrics.COVERAGE_KEY, CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, CoreMetrics.TECHNICAL_DEBT_KEY, CoreMetrics.VIOLATIONS_KEY,
-        CoreMetrics.BLOCKER_VIOLATIONS_KEY, CoreMetrics.CRITICAL_VIOLATIONS_KEY, CoreMetrics.MAJOR_VIOLATIONS_KEY, CoreMetrics.MINOR_VIOLATIONS_KEY,
-        CoreMetrics.INFO_VIOLATIONS_KEY, CoreMetrics.TESTS_KEY),
+      newArrayList(CoreMetrics.NCLOC_KEY, CoreMetrics.COVERAGE_KEY, CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, CoreMetrics.TECHNICAL_DEBT_KEY, CoreMetrics.TESTS_KEY),
       session
     );
 
-    json.prop("fNcloc", formatMeasure(CoreMetrics.NCLOC_KEY, measures));
-    json.prop("fCoverage", formatMeasure(CoreMetrics.COVERAGE_KEY, measures));
-    json.prop("fDuplicationDensity", formatMeasure(CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, measures));
-    json.prop("fDebt", formatMeasure(CoreMetrics.TECHNICAL_DEBT_KEY, measures));
-    json.prop("fIssues", formatMeasure(CoreMetrics.VIOLATIONS_KEY, measures));
-    json.prop("fBlockerIssues", formatMeasure(CoreMetrics.BLOCKER_VIOLATIONS_KEY, measures));
-    json.prop("fCriticalIssues", formatMeasure(CoreMetrics.CRITICAL_VIOLATIONS_KEY, measures));
-    json.prop("fMajorIssues", formatMeasure(CoreMetrics.MAJOR_VIOLATIONS_KEY, measures));
-    json.prop("fMinorIssues", formatMeasure(CoreMetrics.MINOR_VIOLATIONS_KEY, measures));
-    json.prop("fInfoIssues", formatMeasure(CoreMetrics.INFO_VIOLATIONS_KEY, measures));
-    json.prop("fTests", formatMeasure(CoreMetrics.TESTS_KEY, measures));
+    json.prop("fNcloc", formatMeasure(CoreMetrics.NCLOC_KEY, measures, periodIndex));
+    json.prop("fCoverage", formatMeasure(CoreMetrics.COVERAGE_KEY, measures, periodIndex));
+    json.prop("fDuplicationDensity", formatMeasure(CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, measures, periodIndex));
+    json.prop("fDebt", formatMeasure(CoreMetrics.TECHNICAL_DEBT_KEY, measures, periodIndex));
+    json.prop("fTests", formatMeasure(CoreMetrics.TESTS_KEY, measures, periodIndex));
+
+    json.prop("fIssues", i18n.formatInteger(UserSession.get().locale(), severitiesAggregation.size()));
+    for (String severity : severitiesAggregation.elementSet()) {
+      json.prop("f" + Strings.capitalize(severity.toLowerCase()) + "Issues", i18n.formatInteger(UserSession.get().locale(), severitiesAggregation.count(severity)));
+    }
     json.endObject();
   }
 
-  private void appendPeriods(JsonWriter json, Long projectId, DbSession session) {
+  private void appendPeriods(JsonWriter json, List<Period> periodList) {
     json.name("periods").beginArray();
-    SnapshotDto snapshotDto = dbClient.resourceDao().getLastSnapshotByResourceId(projectId, session);
-    if (snapshotDto != null) {
-      for (int i = 1; i <= 5; i++) {
-        String mode = snapshotDto.getPeriodMode(i);
-        if (mode != null) {
-          Date periodDate = snapshotDto.getPeriodDate(i);
-          String label = periods.label(mode, snapshotDto.getPeriodModeParameter(i), periodDate);
-          if (label != null) {
-            json.beginArray()
-              .value(i)
-              .value(label)
-              .value(periodDate != null ? DateUtils.formatDateTime(periodDate) : null)
-              .endArray();
-          }
-        }
-      }
+    for (Period period : periodList) {
+      Date periodDate = period.date();
+      json.beginArray()
+        .value(period.index())
+        .value(period.label())
+        .value(periodDate != null ? DateUtils.formatDateTime(periodDate) : null)
+        .endArray();
     }
     json.endArray();
   }
 
-  private void appendIssuesAggregation(JsonWriter json, String componentKey, DbSession session) {
+  private void appendIssuesAggregation(JsonWriter json, RulesAggregation rulesAggregation, Multiset<String> severitiesAggregation, DbSession session) {
     json.name("severities").beginArray();
-    Multiset<String> severities = issueService.findSeveritiesByComponent(componentKey, session);
-    for (String severity : severities.elementSet()) {
+    for (String severity : severitiesAggregation.elementSet()) {
       json.beginArray()
         .value(severity)
         .value(i18n.message(UserSession.get().locale(), "severity." + severity, null))
-        .value(severities.count(severity))
+        .value(severitiesAggregation.count(severity))
         .endArray();
     }
     json.endArray();
 
     json.name("rules").beginArray();
-    RulesAggregation rulesAggregation = issueService.findRulesByComponent(componentKey, session);
     for (RulesAggregation.Rule rule : rulesAggregation.rules()) {
       json.beginArray()
         .value(rule.ruleKey().toString())
@@ -254,18 +254,54 @@ public class ComponentAppAction implements RequestHandler {
     List<String> providedExtensions = newArrayList("tests_viewer", "coverage", "duplications", "issues", "source");
     for (ViewProxy<Page> page : extensions) {
       if (!providedExtensions.contains(page.getId())) {
-        if (page.getUserRoles().length == 0) {
+        addExtension(page, result, component, userSession);
+      }
+    }
+    return result;
+  }
+
+  private void addExtension(ViewProxy<Page> page, Map<String, String> result, ComponentDto component, UserSession userSession){
+    if (page.getUserRoles().length == 0) {
+      result.put(page.getId(), page.getTitle());
+    } else {
+      for (String userRole : page.getUserRoles()) {
+        if (userSession.hasComponentPermission(userRole, component.key())) {
           result.put(page.getId(), page.getTitle());
-        } else {
-          for (String userRole : page.getUserRoles()) {
-            if (userSession.hasComponentPermission(userRole, component.key())) {
-              result.put(page.getId(), page.getTitle());
-            }
+        }
+      }
+    }
+  }
+
+  private List<Period> periods(Long projectId, DbSession session) {
+    List<Period> periodList = newArrayList();
+    SnapshotDto snapshotDto = dbClient.resourceDao().getLastSnapshotByResourceId(projectId, session);
+    if (snapshotDto != null) {
+      for (int i = 1; i <= 5; i++) {
+        String mode = snapshotDto.getPeriodMode(i);
+        if (mode != null) {
+          Date periodDate = snapshotDto.getPeriodDate(i);
+          String label = periods.label(mode, snapshotDto.getPeriodModeParameter(i), periodDate);
+          if (label != null) {
+            periodList.add(new Period(i, label, periodDate));
           }
         }
       }
     }
-    return result;
+    return periodList;
+  }
+
+  @CheckForNull
+  private Date periodDate(@Nullable final Integer periodIndex, List<Period> periodList){
+    if (periodIndex != null) {
+      Period period = Iterables.find(periodList, new Predicate<Period>() {
+        @Override
+        public boolean apply(@Nullable Period input) {
+          return input != null && periodIndex.equals(input.index());
+        }
+      }, null);
+      return period != null ? period.date() : null;
+    }
+    return null;
   }
 
   @CheckForNull
@@ -281,30 +317,51 @@ public class ComponentAppAction implements RequestHandler {
   }
 
   @CheckForNull
-  private String formatMeasure(final String metricKey, List<MeasureDto> measures) {
+  private String formatMeasure(final String metricKey, List<MeasureDto> measures, @Nullable Integer periodIndex) {
     MeasureDto measure = measureByMetricKey(metricKey, measures);
     if (measure != null) {
       Metric metric = CoreMetrics.getMetric(measure.getKey().metricKey());
-      Double value = measure.getValue();
-      if (value != null) {
-        return formatValue(value, metric.getType());
+      if (periodIndex == null) {
+        Double value = measure.getValue();
+        if (value != null) {
+          return formatValue(value, metric.getType());
+        }
+      } else {
+        Double variation = measure.getVariation(periodIndex);
+        if (variation != null) {
+          return formatVariation(variation, metric.getType());
+        }
       }
     }
     return null;
   }
 
   @CheckForNull
-  private String formatValue(Double value, Metric.ValueType metryType) {
-    if (metryType.equals(Metric.ValueType.FLOAT)) {
+  private String formatValue(Double value, Metric.ValueType metricType) {
+    if (metricType.equals(Metric.ValueType.FLOAT)) {
       return i18n.formatDouble(UserSession.get().locale(), value);
     }
-    if (metryType.equals(Metric.ValueType.INT)) {
+    if (metricType.equals(Metric.ValueType.INT)) {
       return i18n.formatInteger(UserSession.get().locale(), value.intValue());
     }
-    if (metryType.equals(Metric.ValueType.PERCENT)) {
+    if (metricType.equals(Metric.ValueType.PERCENT)) {
       return i18n.formatDouble(UserSession.get().locale(), value) + "%";
     }
-    if (metryType.equals(Metric.ValueType.WORK_DUR)) {
+    if (metricType.equals(Metric.ValueType.WORK_DUR)) {
+      return durations.format(UserSession.get().locale(), durations.create(value.longValue()), Durations.DurationFormat.SHORT);
+    }
+    return null;
+  }
+
+  @CheckForNull
+  private String formatVariation(Double value, Metric.ValueType metricType) {
+    if (metricType.equals(Metric.ValueType.FLOAT) || metricType.equals(Metric.ValueType.PERCENT)) {
+      return i18n.formatDouble(UserSession.get().locale(), value);
+    }
+    if (metricType.equals(Metric.ValueType.INT)) {
+      return i18n.formatInteger(UserSession.get().locale(), value.intValue());
+    }
+    if (metricType.equals(Metric.ValueType.WORK_DUR)) {
       return durations.format(UserSession.get().locale(), durations.create(value.longValue()), Durations.DurationFormat.SHORT);
     }
     return null;
@@ -318,6 +375,31 @@ public class ComponentAppAction implements RequestHandler {
         return input != null && metricKey.equals(input.getKey().metricKey());
       }
     }, null);
+  }
+
+  protected static class Period {
+    Integer index;
+    String label;
+    Date date;
+
+    protected Period(Integer index, String label, @Nullable Date date) {
+      this.index = index;
+      this.label = label;
+      this.date = date;
+    }
+
+    public Integer index() {
+      return index;
+    }
+
+    public String label() {
+      return label;
+    }
+
+    @CheckForNull
+    public Date date() {
+      return date;
+    }
   }
 
 }

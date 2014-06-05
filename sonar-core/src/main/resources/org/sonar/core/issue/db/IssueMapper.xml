@@ -322,6 +322,9 @@
     <where>
       AND p.kee=#{componentKey}
       AND i.resolution IS NULL
+      <if test="createdAt != null">
+        AND i.issue_creation_date &gt;= #{createdAt}
+      </if>
     </where>
   </select>
 
@@ -333,6 +336,9 @@
     <where>
       AND projects.kee=#{componentKey}
       AND i.resolution IS NULL
+      <if test="createdAt != null">
+        AND i.issue_creation_date &gt;= #{createdAt}
+      </if>
     </where>
   </select>
 

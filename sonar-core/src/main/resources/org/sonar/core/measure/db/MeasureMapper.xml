@@ -9,6 +9,11 @@
     pm.value as value,
     pm.text_value as textValue,
     pm.measure_data as data,
+    pm.variation_value_1 as variation1,
+    pm.variation_value_2 as variation2,
+    pm.variation_value_3 as variation3,
+    pm.variation_value_4 as variation4,
+    pm.variation_value_5 as variation5,
     p.kee as componentKey,
     metric.name as metricKey
   </sql>

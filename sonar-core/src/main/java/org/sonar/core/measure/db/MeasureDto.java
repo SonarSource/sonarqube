@@ -28,6 +28,8 @@ import javax.annotation.Nullable;
 
 public class MeasureDto extends Dto<MeasureKey>{
 
+  private static final String INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5 = "Index should be in range from 1 to 5";
+
   private Integer id;
 
   private String metricKey;
@@ -39,6 +41,8 @@ public class MeasureDto extends Dto<MeasureKey>{
   private String textValue;
 
   private byte[] data;
+
+  protected Double variation1, variation2, variation3, variation4, variation5;
 
   private MeasureDto(){
     // Nothing here
@@ -90,6 +94,46 @@ public class MeasureDto extends Dto<MeasureKey>{
       return new String(data, Charsets.UTF_8);
     }
     return textValue;
+  }
+
+  public Double getVariation(int index) {
+    switch (index) {
+      case 1:
+        return variation1;
+      case 2:
+        return variation2;
+      case 3:
+        return variation3;
+      case 4:
+        return variation4;
+      case 5:
+        return variation5;
+      default:
+        throw new IndexOutOfBoundsException(INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5);
+    }
+  }
+
+  public MeasureDto setVariation(int index, Double d) {
+    switch (index) {
+      case 1:
+        variation1 = d;
+        break;
+      case 2:
+        variation2 = d;
+        break;
+      case 3:
+        variation3 = d;
+        break;
+      case 4:
+        variation4 = d;
+        break;
+      case 5:
+        variation5 = d;
+        break;
+      default:
+        throw new IndexOutOfBoundsException(INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5);
+    }
+    return this;
   }
 
   @Override

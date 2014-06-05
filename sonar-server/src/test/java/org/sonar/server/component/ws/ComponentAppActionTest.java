@@ -21,6 +21,7 @@
 package org.sonar.server.component.ws;
 
 import com.google.common.collect.HashMultiset;
+import com.google.common.collect.LinkedHashMultiset;
 import com.google.common.collect.Multiset;
 import org.junit.Before;
 import org.junit.Test;
@@ -127,8 +128,8 @@ public class ComponentAppActionTest {
     when(dbClient.propertiesDao()).thenReturn(propertiesDao);
     when(dbClient.measureDao()).thenReturn(measureDao);
 
-    when(issueService.findSeveritiesByComponent(anyString(), eq(session))).thenReturn(mock(Multiset.class));
-    when(issueService.findRulesByComponent(anyString(), eq(session))).thenReturn(mock(RulesAggregation.class));
+    when(issueService.findSeveritiesByComponent(anyString(), any(Date.class), eq(session))).thenReturn(mock(Multiset.class));
+    when(issueService.findRulesByComponent(anyString(), any(Date.class), eq(session))).thenReturn(mock(RulesAggregation.class));
     when(measureDao.findByComponentKeyAndMetricKeys(anyString(), anyListOf(String.class), eq(session))).thenReturn(measures);
 
     tester = new WsTester(new ComponentsWs(new ComponentAppAction(dbClient, issueService, sourceService, views, periods, durations, i18n)));
@@ -182,18 +183,11 @@ public class ComponentAppActionTest {
   @Test
   public void app_with_measures() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
-
     addComponent();
 
     addMeasure(CoreMetrics.NCLOC_KEY, 200);
     addMeasure(CoreMetrics.COVERAGE_KEY, 95.4);
     addMeasure(CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, 7.4);
-    addMeasure(CoreMetrics.VIOLATIONS_KEY, 14);
-    addMeasure(CoreMetrics.BLOCKER_VIOLATIONS_KEY, 1);
-    addMeasure(CoreMetrics.CRITICAL_VIOLATIONS_KEY, 2);
-    addMeasure(CoreMetrics.MAJOR_VIOLATIONS_KEY, 5);
-    addMeasure(CoreMetrics.MINOR_VIOLATIONS_KEY, 4);
-    addMeasure(CoreMetrics.INFO_VIOLATIONS_KEY, 2);
 
     measures.add(MeasureDto.createFor(MeasureKey.of(COMPONENT_KEY, CoreMetrics.TECHNICAL_DEBT_KEY)).setValue(182.0));
     when(durations.format(any(Locale.class), any(Duration.class), eq(Durations.DurationFormat.SHORT))).thenReturn("3h 2min");
@@ -203,8 +197,86 @@ public class ComponentAppActionTest {
 
     verify(measureDao).findByComponentKeyAndMetricKeys(eq(COMPONENT_KEY), measureKeysCaptor.capture(), eq(session));
     assertThat(measureKeysCaptor.getValue()).contains(CoreMetrics.NCLOC_KEY, CoreMetrics.COVERAGE_KEY, CoreMetrics.DUPLICATED_LINES_DENSITY_KEY,
-      CoreMetrics.TECHNICAL_DEBT_KEY, CoreMetrics.VIOLATIONS_KEY,
-      CoreMetrics.BLOCKER_VIOLATIONS_KEY, CoreMetrics.CRITICAL_VIOLATIONS_KEY, CoreMetrics.MAJOR_VIOLATIONS_KEY, CoreMetrics.MINOR_VIOLATIONS_KEY, CoreMetrics.INFO_VIOLATIONS_KEY);
+      CoreMetrics.TECHNICAL_DEBT_KEY);
+  }
+
+  @Test
+  public void app_with_measures_when_period_is_set() throws Exception {
+    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
+    addComponent();
+    addPeriod();
+
+    addVariationMeasure(CoreMetrics.NCLOC_KEY, 2, 1);
+    addVariationMeasure(CoreMetrics.COVERAGE_KEY, 5d, 1);
+    addVariationMeasure(CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, 1.2, 1);
+
+    measures.add(MeasureDto.createFor(MeasureKey.of(COMPONENT_KEY, CoreMetrics.TECHNICAL_DEBT_KEY)).setVariation(1, 10.0));
+    when(durations.format(any(Locale.class), any(Duration.class), eq(Durations.DurationFormat.SHORT))).thenReturn("10min");
+
+    WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY).setParam("period", "1");
+    request.execute().assertJson(getClass(), "app_with_measures_when_period_is_set.json");
+
+    verify(measureDao).findByComponentKeyAndMetricKeys(eq(COMPONENT_KEY), measureKeysCaptor.capture(), eq(session));
+    assertThat(measureKeysCaptor.getValue()).contains(CoreMetrics.NCLOC_KEY, CoreMetrics.COVERAGE_KEY, CoreMetrics.DUPLICATED_LINES_DENSITY_KEY,
+      CoreMetrics.TECHNICAL_DEBT_KEY);
+  }
+
+  @Test
+  public void app_with_issues_measures() throws Exception {
+    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
+    addComponent();
+
+    Multiset<String> severities = LinkedHashMultiset.create();
+    severities.add("BLOCKER", 1);
+    severities.add("CRITICAL", 2);
+    severities.add("MAJOR", 5);
+    severities.add("MINOR", 4);
+    severities.add("INFO", 2);
+    when(issueService.findSeveritiesByComponent(COMPONENT_KEY, null, session)).thenReturn(severities);
+    when(i18n.message(any(Locale.class), eq("severity.BLOCKER"), isNull(String.class))).thenReturn("Blocker");
+    when(i18n.message(any(Locale.class), eq("severity.CRITICAL"), isNull(String.class))).thenReturn("Critical");
+    when(i18n.message(any(Locale.class), eq("severity.MAJOR"), isNull(String.class))).thenReturn("Major");
+    when(i18n.message(any(Locale.class), eq("severity.MINOR"), isNull(String.class))).thenReturn("Minor");
+    when(i18n.message(any(Locale.class), eq("severity.INFO"), isNull(String.class))).thenReturn("Info");
+
+    when(i18n.formatInteger(any(Locale.class), eq(14))).thenReturn("14");
+    when(i18n.formatInteger(any(Locale.class), eq(1))).thenReturn("1");
+    when(i18n.formatInteger(any(Locale.class), eq(2))).thenReturn("2");
+    when(i18n.formatInteger(any(Locale.class), eq(5))).thenReturn("5");
+    when(i18n.formatInteger(any(Locale.class), eq(4))).thenReturn("4");
+
+    WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
+    request.execute().assertJson(getClass(), "app_with_issues_measures.json");
+  }
+
+  @Test
+  public void app_with_issues_measures_when_period_is_set() throws Exception {
+    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
+    addComponent();
+    addPeriod();
+
+    Multiset<String> severities = LinkedHashMultiset.create();
+    severities.add("BLOCKER", 1);
+    severities.add("CRITICAL", 2);
+    severities.add("MAJOR", 5);
+    severities.add("MINOR", 4);
+    severities.add("INFO", 2);
+    when(issueService.findSeveritiesByComponent(eq(COMPONENT_KEY), any(Date.class), eq(session))).thenReturn(severities);
+
+    when(i18n.message(any(Locale.class), eq("severity.BLOCKER"), isNull(String.class))).thenReturn("Blocker");
+    when(i18n.message(any(Locale.class), eq("severity.CRITICAL"), isNull(String.class))).thenReturn("Critical");
+    when(i18n.message(any(Locale.class), eq("severity.MAJOR"), isNull(String.class))).thenReturn("Major");
+    when(i18n.message(any(Locale.class), eq("severity.MINOR"), isNull(String.class))).thenReturn("Minor");
+    when(i18n.message(any(Locale.class), eq("severity.INFO"), isNull(String.class))).thenReturn("Info");
+
+    when(i18n.formatInteger(any(Locale.class), eq(14))).thenReturn("14");
+    when(i18n.formatInteger(any(Locale.class), eq(1))).thenReturn("1");
+    when(i18n.formatInteger(any(Locale.class), eq(2))).thenReturn("2");
+    when(i18n.formatInteger(any(Locale.class), eq(5))).thenReturn("5");
+    when(i18n.formatInteger(any(Locale.class), eq(4))).thenReturn("4");
+
+    WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY).setParam("period", "1");
+    request.execute().assertJson(getClass(), "app_with_issues_measures_when_period_is_set.json");
   }
 
   @Test
@@ -250,7 +322,7 @@ public class ComponentAppActionTest {
 
     Multiset<String> severities = HashMultiset.create();
     severities.add("MAJOR", 5);
-    when(issueService.findSeveritiesByComponent(COMPONENT_KEY, session)).thenReturn(severities);
+    when(issueService.findSeveritiesByComponent(COMPONENT_KEY, null, session)).thenReturn(severities);
     when(i18n.message(any(Locale.class), eq("severity.MAJOR"), isNull(String.class))).thenReturn("Major");
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
@@ -258,16 +330,51 @@ public class ComponentAppActionTest {
   }
 
   @Test
+  public void app_with_severities_when_period_is_set() throws Exception {
+    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
+    addComponent();
+    addPeriod();
+
+    Multiset<String> severities = HashMultiset.create();
+    severities.add("MAJOR", 5);
+    when(issueService.findSeveritiesByComponent(eq(COMPONENT_KEY), any(Date.class), eq(session))).thenReturn(severities);
+    when(i18n.message(any(Locale.class), eq("severity.MAJOR"), isNull(String.class))).thenReturn("Major");
+
+    WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY).setParam("period", "1");
+    request.execute().assertJson(getClass(), "app_with_severities_when_period_is_set.json");
+  }
+
+  @Test
   public void app_with_rules() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
 
     addComponent();
-    when(issueService.findRulesByComponent(COMPONENT_KEY, session)).thenReturn(
+    when(issueService.findRulesByComponent(COMPONENT_KEY, null, session)).thenReturn(
       new RulesAggregation().add(new RuleDto().setRuleKey("AvoidCycle").setRepositoryKey("squid").setName("Avoid Cycle"))
     );
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
     request.execute().assertJson(getClass(), "app_with_rules.json");
+  }
+
+  @Test
+  public void app_with_rules_when_period_is_set() throws Exception {
+    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
+
+    addComponent();
+
+    Date periodDate = DateUtils.parseDate("2014-05-08");
+    when(resourceDao.getLastSnapshotByResourceId(eq(1L), eq(session))).thenReturn(
+      new SnapshotDto().setPeriod1Mode("previous_analysis").setPeriod1Date(periodDate)
+    );
+    when(periods.label(anyString(), anyString(), any(Date.class))).thenReturn("since previous analysis (May 08 2014)");
+
+    when(issueService.findRulesByComponent(COMPONENT_KEY, periodDate, session)).thenReturn(
+      new RulesAggregation().add(new RuleDto().setRuleKey("AvoidCycle").setRepositoryKey("squid").setName("Avoid Cycle"))
+    );
+
+    WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY).setParam("period", "1");
+    request.execute().assertJson(getClass(), "app_with_rules_when_period_is_set.json");
   }
 
   @Test
@@ -303,6 +410,14 @@ public class ComponentAppActionTest {
     when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
   }
 
+  private void addPeriod(){
+    Date periodDate = DateUtils.parseDate("2014-05-08");
+    when(resourceDao.getLastSnapshotByResourceId(eq(1L), eq(session))).thenReturn(
+      new SnapshotDto().setPeriod1Mode("previous_analysis").setPeriod1Date(periodDate)
+    );
+    when(periods.label(anyString(), anyString(), any(Date.class))).thenReturn("since previous analysis (May 08 2014)");
+  }
+
   private void addMeasure(String metricKey, Integer value) {
     measures.add(MeasureDto.createFor(MeasureKey.of(COMPONENT_KEY, metricKey)).setValue(value.doubleValue()));
     when(i18n.formatInteger(any(Locale.class), eq(value.intValue()))).thenReturn(Integer.toString(value));
@@ -310,6 +425,16 @@ public class ComponentAppActionTest {
 
   private void addMeasure(String metricKey, Double value) {
     measures.add(MeasureDto.createFor(MeasureKey.of(COMPONENT_KEY, metricKey)).setValue(value));
+    when(i18n.formatDouble(any(Locale.class), eq(value))).thenReturn(Double.toString(value));
+  }
+
+  private void addVariationMeasure(String metricKey, Integer value, Integer periodIndex) {
+    measures.add(MeasureDto.createFor(MeasureKey.of(COMPONENT_KEY, metricKey)).setVariation(periodIndex, value.doubleValue()));
+    when(i18n.formatInteger(any(Locale.class), eq(value))).thenReturn(Integer.toString(value));
+  }
+
+  private void addVariationMeasure(String metricKey, Double value, Integer periodIndex) {
+    measures.add(MeasureDto.createFor(MeasureKey.of(COMPONENT_KEY, metricKey)).setVariation(periodIndex, value));
     when(i18n.formatDouble(any(Locale.class), eq(value))).thenReturn(Double.toString(value));
   }
 
