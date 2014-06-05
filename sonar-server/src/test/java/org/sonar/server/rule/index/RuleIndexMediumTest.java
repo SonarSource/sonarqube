@@ -227,6 +227,28 @@ public class RuleIndexMediumTest {
   }
 
   @Test
+  public void filter_by_key() {
+    dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "X001")));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("cobol", "X001")));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("php", "S002")));
+    dbSession.commit();
+
+
+    // key
+    RuleQuery query = new RuleQuery().setKey("X001");
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(2);
+
+    // partial key does not match
+    query = new RuleQuery().setQueryText("X00");
+    //TODO fix non-partial match for Key search
+    assertThat(index.search(query, new QueryOptions()).getHits()).isEmpty();
+
+    // repo:key -> nice-to-have !
+    query = new RuleQuery().setQueryText("javascript:X001");
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(1);
+  }
+
+  @Test
   public void search_all_rules() throws InterruptedException {
     dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "S001")));
     dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")));
@@ -737,7 +759,7 @@ public class RuleIndexMediumTest {
     assertThat(index.getByKey(RuleKey.of("java", "S001_MY_CUSTOM")).templateKey()).isEqualTo(RuleKey.of("java", "S001"));
   }
 
-    @Test
+  @Test
   public void paging() {
     dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")));
     dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")));

@@ -48,6 +48,7 @@ import java.util.Map;
 public class SearchAction implements RequestHandler {
 
   public static final String PARAM_REPOSITORIES = "repositories";
+  public static final String PARAM_KEY = "rule_key";
   public static final String PARAM_ACTIVATION = "activation";
   public static final String PARAM_QPROFILE = "qprofile";
   public static final String PARAM_SEVERITIES = "severities";
@@ -106,6 +107,11 @@ public class SearchAction implements RequestHandler {
       .createParam(SearchOptions.PARAM_TEXT_QUERY)
       .setDescription("UTF-8 search query")
       .setExampleValue("xpath");
+
+    action
+      .createParam(PARAM_KEY)
+      .setDescription("Single or list of keys of rule to search for")
+      .setExampleValue("squid:S001");
 
     action
       .createParam(PARAM_REPOSITORIES)
@@ -173,7 +179,7 @@ public class SearchAction implements RequestHandler {
       .setPossibleValues(ActiveRule.Inheritance.NONE.name(),
         ActiveRule.Inheritance.INHERITED.name(),
         ActiveRule.Inheritance.OVERRIDES.name())
-      .setExampleValue(ActiveRule.Inheritance.INHERITED.name()+","+
+      .setExampleValue(ActiveRule.Inheritance.INHERITED.name() + "," +
         ActiveRule.Inheritance.OVERRIDES.name());
 
     action
@@ -241,6 +247,7 @@ public class SearchAction implements RequestHandler {
     query.setInheritance(request.paramAsStrings(PARAM_INHERITANCE));
     query.setIsTemplate(request.paramAsBoolean(PARAM_IS_TEMPLATE));
     query.setTemplateKey(request.param(PARAM_TEMPLATE_KEY));
+    query.setKey(request.param(PARAM_KEY));
     return query;
   }
 

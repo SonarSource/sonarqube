@@ -139,6 +139,27 @@ public class RulesWebServiceTest {
   }
 
   @Test
+  public void filter_by_key_rules() throws Exception {
+    ruleDao.insert(session, newRuleDto(RuleKey.of("javascript", "S001")));
+    ruleDao.insert(session, newRuleDto(RuleKey.of("javascript", "S002")));
+    session.commit();
+
+    MockUserSession.set();
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+    request.setParam(SearchAction.PARAM_KEY, RuleKey.of("javascript", "S001").toString());
+    request.setParam(SearchOptions.PARAM_FIELDS, "");
+    WsTester.Result result = request.execute();
+    result.assertJson("{\"total\":1,\"p\":1,\"ps\":10,\"rules\":[{\"key\":\"javascript:S001\"}]}");
+
+    request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
+    request.setParam(SearchAction.PARAM_KEY, RuleKey.of("javascript", "S011").toString());
+    result = request.execute();
+    result.assertJson("{\"total\":0,\"p\":1,\"ps\":10,\"rules\":[],\"actives\":{}}");
+    System.out.println("result.outputAsString() = " + result.outputAsString());
+
+  }
+
+  @Test
   public void search_2_rules() throws Exception {
     ruleDao.insert(session, newRuleDto(RuleKey.of("javascript", "S001")));
     ruleDao.insert(session, newRuleDto(RuleKey.of("javascript", "S002")));
@@ -391,7 +412,8 @@ public class RulesWebServiceTest {
 
   @Test
   public void available_since() throws Exception {
-    ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S002")));;
+    ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S002")));
+    ;
     ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S001")));
     session.commit();
 
