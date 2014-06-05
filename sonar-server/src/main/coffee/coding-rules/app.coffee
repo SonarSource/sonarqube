@@ -111,7 +111,7 @@ requirejs [
 
 
   App.storeQuery = (query, sorting) ->
-    if sorting
+    if sorting && sorting.sort
       _.extend query,
         s: sorting.sort
         asc: '' + sorting.asc
@@ -127,7 +127,7 @@ requirejs [
     if @codingRulesFacetsView
       _.extend fetchQuery, @codingRulesFacetsView.getQuery()
 
-    if @codingRules.sorting
+    if @codingRules.sorting && @codingRules.sorting.sort
       _.extend fetchQuery,
           s: @codingRules.sorting.sort,
           asc: @codingRules.sorting.asc
@@ -242,7 +242,7 @@ requirejs [
   # Define coding rules
   App.addInitializer ->
     @codingRules = new Backbone.Collection
-    @codingRules.sorting = sort: 'createdAt', asc: false
+    @codingRules.sorting = sort: '', asc: ''
 
 
   # Construct status bar
