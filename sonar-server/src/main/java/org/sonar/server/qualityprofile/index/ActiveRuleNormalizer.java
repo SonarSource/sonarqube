@@ -60,7 +60,6 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
       Set<IndexField> fields = new HashSet<IndexField>();
       for (Field classField : ActiveRuleField.class.getDeclaredFields()) {
         if (classField.getType().isAssignableFrom(IndexField.class)) {
-          //Modifier.isStatic(classField.getModifiers())
           try {
             fields.add(IndexField.class.cast(classField.get(null)));
           } catch (IllegalAccessException e) {
@@ -83,7 +82,6 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
       Set<IndexField> fields = new HashSet<IndexField>();
       for (Field classField : ActiveRuleParamField.class.getDeclaredFields()) {
         if (classField.getType().isAssignableFrom(IndexField.class)) {
-          //Modifier.isStatic(classField.getModifiers())
           try {
             fields.add(IndexField.class.cast(classField.get(null)));
           } catch (IllegalAccessException e) {

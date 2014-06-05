@@ -37,7 +37,6 @@ import org.sonar.server.search.Indexable;
 import org.sonar.server.search.es.ListUpdate;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,18 +47,19 @@ import java.util.Set;
 public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
   public static final class RuleParamField extends Indexable {
-    public static IndexField NAME = add(IndexField.Type.STRING, "name");
 
-    public static IndexField TYPE = add(IndexField.Type.STRING, "type");
-    public static IndexField DESCRIPTION = addSearchable(IndexField.Type.TEXT, "description");
-    public static IndexField DEFAULT_VALUE = add(IndexField.Type.STRING, "defaultValue");
+    public static final IndexField NAME = add(IndexField.Type.STRING, "name");
+
+    public static final IndexField TYPE = add(IndexField.Type.STRING, "type");
+    public static final IndexField DESCRIPTION = addSearchable(IndexField.Type.TEXT, "description");
+    public static final IndexField DEFAULT_VALUE = add(IndexField.Type.STRING, "defaultValue");
 
     public static Set<IndexField> ALL_FIELDS = getAllFields();
 
     private static Set<IndexField> getAllFields() {
       Set<IndexField> fields = new HashSet<IndexField>();
       for (Field classField : RuleParamField.class.getDeclaredFields()) {
-        if (Modifier.isStatic(classField.getModifiers())) {
+        if (classField.getType().isAssignableFrom(IndexField.class)) {
           try {
             fields.add(IndexField.class.cast(classField.get(null)));
           } catch (IllegalAccessException e) {
@@ -107,7 +107,6 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       Set<IndexField> fields = new HashSet<IndexField>();
       for (Field classField : RuleField.class.getDeclaredFields()) {
         if (classField.getType().isAssignableFrom(IndexField.class)) {
-          //Modifier.isStatic(classField.getModifiers())
           try {
             fields.add(IndexField.class.cast(classField.get(null)));
           } catch (IllegalAccessException e) {
