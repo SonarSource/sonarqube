@@ -32,7 +32,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class UpdateCenterClientTest {
 
@@ -49,7 +54,7 @@ public class UpdateCenterClientTest {
 
   @Test
   public void downloadUpdateCenter() throws URISyntaxException {
-    when(reader.readString(new URI(BASE_URL), Charsets.UTF_8)).thenReturn("sonar.versions=2.2,2.3");
+    when(reader.readString(new URI(BASE_URL), Charsets.UTF_8)).thenReturn("publicVersions=2.2,2.3");
     UpdateCenter plugins = client.getUpdateCenter();
     verify(reader, times(1)).readString(new URI(BASE_URL), Charsets.UTF_8);
     assertThat(plugins.getSonar().getVersions()).containsOnly(Version.create("2.2"), Version.create("2.3"));

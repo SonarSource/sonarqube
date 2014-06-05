@@ -29,12 +29,12 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.UriReader;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.UpdateCenterDeserializer;
+import org.sonar.updatecenter.common.UpdateCenterDeserializer.Mode;
 
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
-
 
 /**
  * HTTP client to load data from the remote update center hosted at http://update.sonarsource.org.
@@ -103,7 +103,7 @@ public class UpdateCenterClient {
       java.util.Properties properties = new java.util.Properties();
       input = IOUtils.toInputStream(content, Charsets.UTF_8.name());
       properties.load(input);
-      return UpdateCenterDeserializer.fromProperties(properties);
+      return new UpdateCenterDeserializer(Mode.PROD, true).fromProperties(properties);
 
     } catch (Exception e) {
       LoggerFactory.getLogger(getClass()).error("Fail to connect to update center", e);
