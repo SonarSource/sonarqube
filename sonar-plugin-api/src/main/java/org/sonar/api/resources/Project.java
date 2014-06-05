@@ -62,7 +62,9 @@ public class Project extends Resource implements Component {
 
   /**
    * Enumerates the type of possible analysis
+   * @deprecated since 4.4 Since 4.3 SQ will no more run tests. So basically it's always reuse report.
    */
+  @Deprecated
   public enum AnalysisType {
     STATIC, DYNAMIC, REUSE_REPORTS;
 
@@ -201,12 +203,17 @@ public class Project extends Resource implements Component {
   }
 
   /**
-   * @return the type of analysis of the project
+   * @deprecated since 4.4 Since 4.3 SQ will no more run tests. So basically it's always reuse report.
    */
+  @Deprecated
   public AnalysisType getAnalysisType() {
     return analysisType;
   }
 
+  /**
+   * @deprecated since 4.4 Since 4.3 SQ will no more run tests. So basically it's always reuse report.
+   */
+  @Deprecated
   public Project setAnalysisType(AnalysisType at) {
     this.analysisType = at;
     return this;
