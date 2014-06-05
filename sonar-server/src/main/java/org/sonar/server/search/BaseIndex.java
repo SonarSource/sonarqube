@@ -38,10 +38,13 @@ import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.persistence.Dto;
 
 import javax.annotation.Nullable;
-
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serializable>
@@ -95,7 +98,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   /* Cluster And ES Stats/Client methods */
 
   private void initializeManagementIndex() {
-    LOG.info("Setup of Management Index for ES");
+    LOG.debug("Setup of Management Index for ES");
 
     String index = indexDefinition.getManagementIndex();
 
@@ -124,7 +127,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     try {
 
       if (!indexExistsResponse.isExists()) {
-        LOG.info("Setup of {} for type {}", this.getIndexName(), this.getIndexType());
+        LOG.debug("Setup of {} for type {}", this.getIndexName(), this.getIndexType());
         getClient().admin().indices().prepareCreate(index)
           .setSettings(getIndexSettings())
           .execute().actionGet();
@@ -132,7 +135,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       }
 
 
-      LOG.info("Update of index {} for type {}", this.getIndexName(), this.getIndexType());
+      LOG.debug("Update of index {} for type {}", this.getIndexName(), this.getIndexType());
       getClient().admin().indices().preparePutMapping(index)
         .setType(getIndexType())
         .setIgnoreConflicts(true)
@@ -164,7 +167,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   private void setLastSynchronization() {
     Date time = new Date();
     if (time.after(getLastSynchronization())) {
-      LOG.info("Updating synchTime updating");
+      LOG.debug("Updating synchTime updating");
       getClient().prepareUpdate()
         .setId(indexDefinition.getIndexName())
         .setType(indexDefinition.getManagementType())
@@ -350,7 +353,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   }
 
   protected void updateDocument(Collection<UpdateRequest> requests, KEY key) throws Exception {
-    LOG.info("UPDATE _id:{} in index {}", key, this.getIndexName());
+    LOG.debug("UPDATE _id:{} in index {}", key, this.getIndexName());
     BulkRequestBuilder bulkRequest = getClient().prepareBulk();
     for (UpdateRequest request : requests) {
       bulkRequest.add(request
@@ -399,7 +402,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
   @Override
   public void delete(Object obj, KEY key) throws Exception {
-    LOG.info("DELETE NESTED _id:{} in index {}", key, this.getIndexName());
+    LOG.debug("DELETE NESTED _id:{} in index {}", key, this.getIndexName());
     this.updateDocument(this.normalizer.deleteNested(obj, key), key);
   }
 
