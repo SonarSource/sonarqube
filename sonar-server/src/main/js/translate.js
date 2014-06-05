@@ -96,7 +96,7 @@
           // NOP, use cached messages
         }
       }
-    }).success(function(bundle) {
+    }).done(function(bundle) {
       bundleTimestamp = new Date().toISOString();
       bundleTimestamp = bundleTimestamp.substr(0, bundleTimestamp.indexOf('.')) + '+0000';
       localStorage.setItem('l10n.timestamp', bundleTimestamp);
