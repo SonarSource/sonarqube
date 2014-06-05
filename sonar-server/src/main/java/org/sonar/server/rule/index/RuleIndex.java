@@ -174,7 +174,6 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       String queryString = query.getQueryText();
 
       // Human readable type of querying
-//      qb.should(this.phraseQuery(RuleNormalizer.RuleField.KEY, queryString, 15f));
       qb.should(this.phraseQuery(RuleNormalizer.RuleField.NAME, queryString, 20f));
       qb.should(this.phraseQuery(RuleNormalizer.RuleField.HTML_DESCRIPTION, queryString, 3f));
 
@@ -215,7 +214,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     this.addTermFilter(fb, RuleNormalizer.RuleField._TAGS.field(), query.getTags());
 
 
-    if(query.getAvailableSince() != null){
+    if (query.getAvailableSince() != null) {
       fb.must(FilterBuilders.rangeFilter(RuleNormalizer.RuleField.CREATED_AT.field())
         .gte(query.getAvailableSince()));
     }
@@ -326,7 +325,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     Terms aggregation = esResponse.getAggregations().get(key);
 
-    if(aggregation != null) {
+    if (aggregation != null) {
       for (Terms.Bucket value : aggregation.getBuckets()) {
         tags.add(value.getKey());
       }
