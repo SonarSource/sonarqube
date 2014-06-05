@@ -27,10 +27,10 @@ import javax.annotation.CheckForNull;
 import java.io.Serializable;
 import java.util.Date;
 
-public interface Index<D, E extends Dto<K>, K extends Serializable> extends Startable, ServerComponent {
+public interface Index<DOMAIN, DTO extends Dto<KEY>, KEY extends Serializable> extends Startable, ServerComponent {
 
   @CheckForNull
-  D getByKey(K item);
+  DOMAIN getByKey(KEY item);
 
   String getIndexType();
 
@@ -38,17 +38,17 @@ public interface Index<D, E extends Dto<K>, K extends Serializable> extends Star
 
   void refresh();
 
-  void upsert(Object obj, K key) throws Exception;
+  void upsert(Object obj, KEY key) throws Exception;
 
-  void upsertByKey(K key);
+  void upsertByKey(KEY key);
 
-  void upsertByDto(E dto);
+  void upsertByDto(DTO dto);
 
-  void delete(Object obj, K key) throws Exception;
+  void delete(Object obj, KEY key) throws Exception;
 
-  void deleteByKey(K key);
+  void deleteByKey(KEY key);
 
-  void deleteByDto(E dto);
+  void deleteByDto(DTO dto);
 
   Date getLastSynchronization();
 

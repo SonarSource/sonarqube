@@ -152,6 +152,42 @@ public class RuleBackendMediumTest {
   }
 
   @Test
+  public void insert_and_delete_rule_parameters() {
+    // insert db
+    RuleKey ruleKey = RuleKey.of("javascript", "S001");
+    RuleDto ruleDto = newRuleDto(ruleKey);
+    dao.insert(dbSession, ruleDto);
+    dbSession.commit();
+
+    RuleParamDto minParamDto = new RuleParamDto()
+      .setName("min")
+      .setType(RuleParamType.INTEGER.type())
+      .setDefaultValue("2")
+      .setDescription("Minimum");
+    dao.addRuleParam(dbSession, ruleDto, minParamDto);
+    RuleParamDto maxParamDto = new RuleParamDto()
+      .setName("max")
+      .setType(RuleParamType.INTEGER.type())
+      .setDefaultValue("10")
+      .setDescription("Maximum");
+    dao.addRuleParam(dbSession, ruleDto, maxParamDto);
+    dbSession.commit();
+
+    // 0. Verify that RuleDto has date from insertion
+    assertThat(dao.findRuleParamsByRuleKey(dbSession, ruleKey)).hasSize(2);
+    assertThat(index.getByKey(ruleKey).params()).hasSize(2);
+
+    // 1. Delete parameter
+    dao.removeRuleParam(dbSession, ruleDto, maxParamDto);
+    dbSession.commit();
+
+    // 2. assert only one param left
+    assertThat(dao.findRuleParamsByRuleKey(dbSession, ruleKey)).hasSize(1);
+    assertThat(index.getByKey(ruleKey).params()).hasSize(1);
+  }
+
+
+  @Test
   public void insert_and_update_rule() {
     // insert db
     RuleKey ruleKey = RuleKey.of("javascript", "S001");

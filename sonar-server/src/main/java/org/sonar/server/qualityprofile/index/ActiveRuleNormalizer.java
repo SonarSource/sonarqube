@@ -106,7 +106,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
     try {
       requests.addAll(normalize(db.activeRuleDao().getNullableByKey(dbSession, key)));
       for (ActiveRuleParamDto param : db.activeRuleDao().findParamsByActiveRuleKey(dbSession, key)) {
-        requests.addAll(this.normalize(param, key));
+        requests.addAll(this.normalizeNested(param, key));
       }
     } finally {
       dbSession.close();
@@ -160,16 +160,27 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
   }
 
   @Override
-  public List<UpdateRequest> normalize(Object object, ActiveRuleKey key) {
+  public List<UpdateRequest> normalizeNested(Object object, ActiveRuleKey key) {
     Preconditions.checkArgument(key != null, "key cannot be null");
     if (object.getClass().isAssignableFrom(ActiveRuleParamDto.class)) {
-      return normalize((ActiveRuleParamDto) object, key);
+      return nestedUpdate((ActiveRuleParamDto) object, key);
     } else {
       throw new IllegalStateException("Cannot normalize object of type '" + object.getClass() + "' in current context");
     }
   }
 
-  public List<UpdateRequest> normalize(ActiveRuleParamDto param, ActiveRuleKey key) {
+
+  @Override
+  public List<UpdateRequest> deleteNested(Object object, ActiveRuleKey key) {
+    Preconditions.checkArgument(key != null, "key of Rule must be set");
+    if (object.getClass().isAssignableFrom(ActiveRuleParamDto.class)) {
+      return nestedDelete((ActiveRuleParamDto) object, key);
+    } else {
+      throw new IllegalStateException("Cannot normalize object of type '" + object.getClass() + "' in current context");
+    }
+  }
+
+  private List<UpdateRequest> nestedUpdate(ActiveRuleParamDto param, ActiveRuleKey key) {
     Preconditions.checkArgument(key != null, "Cannot normalize ActiveRuleParamDto for null key of ActiveRule");
 
     Map<String, Object> newParam = new HashMap<String, Object>();
@@ -182,6 +193,18 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
         .script(ListUpdate.NAME)
         .addScriptParam(ListUpdate.FIELD, ActiveRuleField.PARAMS.field())
         .addScriptParam(ListUpdate.VALUE, newParam)
+        .addScriptParam(ListUpdate.ID_FIELD, ActiveRuleParamField.NAME.field())
+        .addScriptParam(ListUpdate.ID_VALUE, param.getKey())
+    );
+  }
+
+  private List<UpdateRequest> nestedDelete(ActiveRuleParamDto param, ActiveRuleKey key) {
+    return ImmutableList.of(new UpdateRequest()
+        .routing(key.ruleKey().toString())
+        .id(key.toString())
+        .script(ListUpdate.NAME)
+        .addScriptParam(ListUpdate.FIELD, ActiveRuleField.PARAMS.field())
+        .addScriptParam(ListUpdate.VALUE, null)
         .addScriptParam(ListUpdate.ID_FIELD, ActiveRuleParamField.NAME.field())
         .addScriptParam(ListUpdate.ID_VALUE, param.getKey())
     );

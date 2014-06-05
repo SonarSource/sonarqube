@@ -141,7 +141,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     try {
       requests.addAll(normalize(db.ruleDao().getNullableByKey(dbSession, key)));
       for (RuleParamDto param : db.ruleDao().findRuleParamsByRuleKey(dbSession, key)) {
-        requests.addAll(normalize(param, key));
+        requests.addAll(normalizeNested(param, key));
       }
     } finally {
       dbSession.close();
@@ -238,16 +238,26 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
   }
 
   @Override
-  public List<UpdateRequest> normalize(Object object, RuleKey key) {
+  public List<UpdateRequest> normalizeNested(Object object, RuleKey key) {
     Preconditions.checkArgument(key != null, "key of Rule must be set");
     if (object.getClass().isAssignableFrom(RuleParamDto.class)) {
-      return normalize((RuleParamDto) object, key);
+      return nestedUpdate((RuleParamDto) object, key);
     } else {
       throw new IllegalStateException("Cannot normalize object of type '" + object.getClass() + "' in current context");
     }
   }
 
-  private List<UpdateRequest> normalize(RuleParamDto param, RuleKey key) {
+  @Override
+  public List<UpdateRequest> deleteNested(Object object, RuleKey key) {
+    Preconditions.checkArgument(key != null, "key of Rule must be set");
+    if (object.getClass().isAssignableFrom(RuleParamDto.class)) {
+      return nestedDelete((RuleParamDto) object, key);
+    } else {
+      throw new IllegalStateException("Cannot normalize object of type '" + object.getClass() + "' in current context");
+    }
+  }
+
+  private List<UpdateRequest> nestedUpdate(RuleParamDto param, RuleKey key) {
 
     Map<String, Object> newParam = new HashMap<String, Object>();
     newParam.put(RuleParamField.NAME.field(), param.getName());
@@ -260,6 +270,17 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
         .script(ListUpdate.NAME)
         .addScriptParam(ListUpdate.FIELD, RuleField.PARAMS.field())
         .addScriptParam(ListUpdate.VALUE, newParam)
+        .addScriptParam(ListUpdate.ID_FIELD, RuleParamField.NAME.field())
+        .addScriptParam(ListUpdate.ID_VALUE, param.getName())
+    );
+  }
+
+  private List<UpdateRequest> nestedDelete(RuleParamDto param, RuleKey key) {
+    return ImmutableList.of(new UpdateRequest()
+        .id(key.toString())
+        .script(ListUpdate.NAME)
+        .addScriptParam(ListUpdate.FIELD, RuleField.PARAMS.field())
+        .addScriptParam(ListUpdate.VALUE, null)
         .addScriptParam(ListUpdate.ID_FIELD, RuleParamField.NAME.field())
         .addScriptParam(ListUpdate.ID_VALUE, param.getName())
     );

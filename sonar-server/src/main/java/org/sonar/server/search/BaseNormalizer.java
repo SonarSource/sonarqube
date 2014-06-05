@@ -24,6 +24,7 @@ import org.sonar.core.persistence.Dto;
 import org.sonar.server.db.DbClient;
 
 import java.io.Serializable;
+import java.util.List;
 
 public abstract class BaseNormalizer<DTO extends Dto<KEY>, KEY extends Serializable> {
 
@@ -35,9 +36,15 @@ public abstract class BaseNormalizer<DTO extends Dto<KEY>, KEY extends Serializa
     this.definition = definition;
   }
 
-  public abstract java.util.List<UpdateRequest> normalize(Object object, KEY key);
+  public List<UpdateRequest> deleteNested(Object object, KEY key) {
+    throw new IllegalStateException("Nested Delete not implemented in current normalizer!");
+  }
 
-  public abstract java.util.List<UpdateRequest> normalize(KEY key);
+  public List<UpdateRequest> normalizeNested(Object object, KEY key) {
+    throw new IllegalStateException("Nested Normalize not implemented in current normalizer!");
+  }
 
-  public abstract java.util.List<UpdateRequest> normalize(DTO dto);
+  public abstract List<UpdateRequest> normalize(KEY key);
+
+  public abstract List<UpdateRequest> normalize(DTO dto);
 }

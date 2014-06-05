@@ -47,8 +47,7 @@ public class ListUpdate extends AbstractExecutableScript {
       String idField = XContentMapValues.nodeStringValue(params.get(ID_FIELD), null);
       String idValue = XContentMapValues.nodeStringValue(params.get(ID_VALUE), null);
       String field = XContentMapValues.nodeStringValue(params.get(FIELD), null);
-      Map value = XContentMapValues.nodeMapValue(params.get(VALUE), "Update item");
-
+      Map value = null;
       if (idField == null) {
         throw new IllegalStateException("Missing '" + ID_FIELD + "' parameter");
       }
@@ -58,8 +57,13 @@ public class ListUpdate extends AbstractExecutableScript {
       if (field == null) {
         throw new IllegalStateException("Missing '" + FIELD + "' parameter");
       }
-      if (value == null) {
-        throw new IllegalStateException("Missing '" + VALUE + "' parameter");
+
+      //NULL case is deletion of nested item
+      if (params.containsKey(VALUE)) {
+        Object obj = params.get(VALUE);
+        if (obj != null) {
+          value = XContentMapValues.nodeMapValue(params.get(VALUE), "Update item");
+        }
       }
 
       return new ListUpdate(idField, idValue, field, value);
@@ -102,12 +106,17 @@ public class ListUpdate extends AbstractExecutableScript {
       //Get the Object for list update
       Object fieldValue = source.get(field);
 
-      if (fieldValue == null) {
+      if (fieldValue == null && value != null) {
         // 0. The field does not exist (this is a upsert then)
         source.put(field, value);
-      } else if (!XContentMapValues.isArray(fieldValue)) {
+      } else if (!XContentMapValues.isArray(fieldValue) && value != null) {
         // 1. The field is not yet a list
-        source.put(field, ImmutableSet.of(fieldValue, value));
+        Map currentFieldValue = XContentMapValues.nodeMapValue(fieldValue, "current FieldValue");
+        if (XContentMapValues.nodeStringValue(currentFieldValue.get(idField), null).equals(idValue)) {
+          source.put(field, value);
+        } else {
+          source.put(field, ImmutableSet.of(fieldValue, value));
+        }
       } else {
         // 3. field is a list
         Collection items = ((Collection) fieldValue);
@@ -123,7 +132,11 @@ public class ListUpdate extends AbstractExecutableScript {
         if (target != null) {
           items.remove(target);
         }
-        items.add(value);
+
+        //Supporting the update by NULL = deletion case
+        if (value != null) {
+          items.add(value);
+        }
         source.put(field, items);
       }
     } catch (Exception e) {

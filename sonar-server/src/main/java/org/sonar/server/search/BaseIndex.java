@@ -44,16 +44,16 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
-public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
-  implements Index<D, E, K> {
+public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serializable>
+  implements Index<DOMAIN, DTO, KEY> {
 
   private static final Logger LOG = LoggerFactory.getLogger(BaseIndex.class);
 
   private final ESNode node;
-  private final BaseNormalizer<E, K> normalizer;
+  private final BaseNormalizer<DTO, KEY> normalizer;
   private final IndexDefinition indexDefinition;
 
-  protected BaseIndex(IndexDefinition indexDefinition, BaseNormalizer<E, K> normalizer,
+  protected BaseIndex(IndexDefinition indexDefinition, BaseNormalizer<DTO, KEY> normalizer,
                       WorkQueue workQueue, ESNode node) {
     this.normalizer = normalizer;
     this.node = node;
@@ -132,8 +132,6 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
       }
 
 
-
-
       LOG.info("Update of index {} for type {}", this.getIndexName(), this.getIndexType());
       getClient().admin().indices().preparePutMapping(index)
         .setType(getIndexType())
@@ -187,7 +185,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
 
   /* Index management methods */
 
-  protected abstract String getKeyValue(K key);
+  protected abstract String getKeyValue(KEY key);
 
   protected abstract Settings getIndexSettings() throws IOException;
 
@@ -226,8 +224,8 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
     }
   }
 
-  protected Map mapNumericField(IndexField field){
-      return ImmutableMap.of("type", "double");
+  protected Map mapNumericField(IndexField field) {
+    return ImmutableMap.of("type", "double");
   }
 
   protected Map mapBooleanField(IndexField field) {
@@ -336,9 +334,9 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
 
   /* Base CRUD methods */
 
-  protected abstract D toDoc(Map<String, Object> fields);
+  protected abstract DOMAIN toDoc(Map<String, Object> fields);
 
-  public D getByKey(K key) {
+  public DOMAIN getByKey(KEY key) {
     GetResponse response = getClient().prepareGet()
       .setType(this.getIndexType())
       .setIndex(this.getIndexName())
@@ -351,8 +349,8 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
     return null;
   }
 
-  protected void updateDocument(Collection<UpdateRequest> requests, K key) throws Exception {
-    LOG.debug("UPDATE _id:{} in index {}", key, this.getIndexName());
+  protected void updateDocument(Collection<UpdateRequest> requests, KEY key) throws Exception {
+    LOG.info("UPDATE _id:{} in index {}", key, this.getIndexName());
     BulkRequestBuilder bulkRequest = getClient().prepareBulk();
     for (UpdateRequest request : requests) {
       bulkRequest.add(request
@@ -365,12 +363,12 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
 
 
   @Override
-  public void upsert(Object obj, K key) throws Exception {
-    this.updateDocument(this.normalizer.normalize(obj, key), key);
+  public void upsert(Object obj, KEY key) throws Exception {
+    this.updateDocument(this.normalizer.normalizeNested(obj, key), key);
   }
 
   @Override
-  public void upsertByDto(E item) {
+  public void upsertByDto(DTO item) {
     try {
       this.updateDocument(normalizer.normalize(item), item.getKey());
     } catch (Exception e) {
@@ -380,7 +378,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
   }
 
   @Override
-  public void upsertByKey(K key) {
+  public void upsertByKey(KEY key) {
     try {
       this.updateDocument(normalizer.normalize(key), key);
     } catch (Exception e) {
@@ -389,7 +387,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
     }
   }
 
-  private void deleteDocument(K key) throws ExecutionException, InterruptedException {
+  private void deleteDocument(KEY key) throws ExecutionException, InterruptedException {
     LOG.debug("DELETE _id:{} in index {}", key, this.getIndexName());
     getClient()
       .prepareDelete()
@@ -400,12 +398,13 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
   }
 
   @Override
-  public void delete(Object obj, K key) throws Exception {
-    throw new IllegalStateException("Cannot delete nested Object from ES. Should be using Update");
+  public void delete(Object obj, KEY key) throws Exception {
+    LOG.info("DELETE NESTED _id:{} in index {}", key, this.getIndexName());
+    this.updateDocument(this.normalizer.deleteNested(obj, key), key);
   }
 
   @Override
-  public void deleteByKey(K key) {
+  public void deleteByKey(KEY key) {
     try {
       this.deleteDocument(key);
     } catch (Exception e) {
@@ -415,7 +414,7 @@ public abstract class BaseIndex<D, E extends Dto<K>, K extends Serializable>
   }
 
   @Override
-  public void deleteByDto(E item) {
+  public void deleteByDto(DTO item) {
     try {
       this.deleteDocument(item.getKey());
     } catch (Exception e) {
