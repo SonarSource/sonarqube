@@ -235,17 +235,13 @@ public class RuleIndexMediumTest {
 
 
     // key
-    RuleQuery query = new RuleQuery().setKey("X001");
-    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(2);
+    RuleQuery query = new RuleQuery().setKey(RuleKey.of("javascript", "X001").toString());
+    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(1);
 
     // partial key does not match
-    query = new RuleQuery().setQueryText("X00");
+    query = new RuleQuery().setKey("X001");
     //TODO fix non-partial match for Key search
     assertThat(index.search(query, new QueryOptions()).getHits()).isEmpty();
-
-    // repo:key -> nice-to-have !
-    query = new RuleQuery().setQueryText("javascript:X001");
-    assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(1);
   }
 
   @Test
