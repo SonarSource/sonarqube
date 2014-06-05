@@ -339,7 +339,7 @@ requirejs [
 
     @filters.add new BaseFilters.Filter
       name: t 'coding_rules.filters.availableSince'
-      property: 'availableSince'
+      property: 'available_since'
       type: DateFilterView
       enabled: false
       optional: true
