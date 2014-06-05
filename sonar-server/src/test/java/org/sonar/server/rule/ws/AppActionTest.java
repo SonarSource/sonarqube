@@ -68,7 +68,7 @@ public class AppActionTest {
   public void should_generate_app_init_info() throws Exception {
     AppAction app = new AppAction(languages, ruleRepositories, i18n, debtModel, qualityProfileService);
     WsTester tester = new WsTester(new RulesWebService(
-      mock(SearchAction.class), mock(ShowAction.class), mock(TagsAction.class),
+      mock(SearchAction.class), mock(ShowAction.class), mock(TagsAction.class), mock(CreateAction.class),
       app, mock(UpdateAction.class)));
 
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);

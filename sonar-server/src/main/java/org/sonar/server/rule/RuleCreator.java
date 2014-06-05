@@ -99,7 +99,7 @@ public class RuleCreator implements ServerComponent {
     dbClient.ruleDao().insert(dbSession, ruleDto);
 
     for (RuleParamDto templateRuleParamDto : dbClient.ruleDao().findRuleParamsByRuleKey(dbSession, templateRuleDto.getKey())) {
-      NewRuleParam newRuleParam = newRule.param(templateRuleParamDto.getName());
+      String newRuleParam = newRule.param(templateRuleParamDto.getName());
       if (newRuleParam == null) {
         throw new IllegalArgumentException(String.format("The parameter '%s' has not been set", templateRuleParamDto.getName()));
       }
@@ -108,12 +108,12 @@ public class RuleCreator implements ServerComponent {
     return ruleKey;
   }
 
-  private void createCustomRuleParams(NewRuleParam param, RuleDto ruleDto, RuleParamDto templateRuleParam, DbSession dbSession){
+  private void createCustomRuleParams(String param, RuleDto ruleDto, RuleParamDto templateRuleParam, DbSession dbSession){
     RuleParamDto ruleParamDto = RuleParamDto.createFor(ruleDto)
-      .setName(param.key())
+      .setName(templateRuleParam.getName())
       .setType(templateRuleParam.getType())
       .setDescription(templateRuleParam.getDescription())
-      .setDefaultValue(param.defaultValue());
+      .setDefaultValue(param);
     dbClient.ruleDao().addRuleParam(dbSession, ruleDto, ruleParamDto);
   }
 

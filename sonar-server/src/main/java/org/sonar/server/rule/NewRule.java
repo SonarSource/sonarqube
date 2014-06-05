@@ -19,16 +19,14 @@
  */
 package org.sonar.server.rule;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
+import java.util.Map;
 
 public class NewRule {
 
@@ -36,7 +34,7 @@ public class NewRule {
   private RuleKey templateKey;
   private String name, htmlDescription, severity;
   private RuleStatus status;
-  private List<NewRuleParam> params = newArrayList();
+  private final Map<String, String> params = Maps.newHashMap();
 
   public boolean isTemplate() {
     return isTemplate;
@@ -51,6 +49,9 @@ public class NewRule {
     return templateKey;
   }
 
+  /**
+   * For the creation a custom rule
+   */
   public NewRule setTemplateKey(@Nullable RuleKey templateKey) {
     this.templateKey = templateKey;
     return this;
@@ -96,22 +97,18 @@ public class NewRule {
     return this;
   }
 
-  public List<NewRuleParam> params() {
+  public Map<String, String> params() {
     return params;
   }
 
   @CheckForNull
-  public NewRuleParam param(final String paramKey) {
-    return Iterables.find(params, new Predicate<NewRuleParam>() {
-      @Override
-      public boolean apply(@Nullable NewRuleParam input) {
-        return input != null && input.key().equals(paramKey);
-      }
-    }, null);
+  public String param(final String paramKey) {
+    return params.get(paramKey);
   }
 
-  public NewRule setParams(List<NewRuleParam> params) {
-    this.params = params;
+  public NewRule setParams(Map<String, String> params) {
+    this.params.clear();
+    this.params.putAll(params);
     return this;
   }
 }

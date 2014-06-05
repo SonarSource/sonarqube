@@ -87,11 +87,12 @@ public class RulesWebServiceTest {
     WebService.Controller controller = context.controller(API_ENDPOINT);
 
     assertThat(controller).isNotNull();
-    assertThat(controller.actions()).hasSize(5);
+    assertThat(controller.actions()).hasSize(6);
     assertThat(controller.action(API_SEARCH_METHOD)).isNotNull();
     assertThat(controller.action(API_SHOW_METHOD)).isNotNull();
     assertThat(controller.action(API_TAGS_METHOD)).isNotNull();
     assertThat(controller.action("update")).isNotNull();
+    assertThat(controller.action("create")).isNotNull();
     assertThat(controller.action("app")).isNotNull();
   }
 

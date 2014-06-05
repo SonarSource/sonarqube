@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
@@ -42,7 +43,6 @@ import org.sonar.server.user.MockUserSession;
 import java.util.Collections;
 import java.util.Set;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
@@ -150,7 +150,7 @@ public class RuleServiceMediumTest {
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
-      .setParams(newArrayList(new NewRuleParam("regex").setDefaultValue("a.*")));
+      .setParams(ImmutableMap.of("regex", "a.*"));
     RuleKey customRuleKey = service.create(newRule);
 
     dbSession.clearCache();

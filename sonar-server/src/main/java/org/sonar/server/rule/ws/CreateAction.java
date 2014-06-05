@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.server.rule.NewRule;
 import org.sonar.server.rule.RuleService;
 
@@ -35,17 +36,16 @@ import org.sonar.server.rule.RuleService;
 public class CreateAction implements RequestHandler {
 
   public static final String PARAM_NAME = "name";
-  public static final String PARAM_DESCRIPTION = "description";
+  public static final String PARAM_DESCRIPTION = "html_description";
   public static final String PARAM_SEVERITY = "severity";
   public static final String PARAM_STATUS = "status";
   public static final String PARAM_TEMPLATE_KEY = "template_key";
+  public static final String PARAMS = "params";
 
   private final RuleService service;
-  private final RuleMapping mapping;
 
-  public CreateAction(RuleService service, RuleMapping mapping) {
+  public CreateAction(RuleService service) {
     this.service = service;
-    this.mapping = mapping;
   }
 
   void define(WebService.NewController controller) {
@@ -85,6 +85,9 @@ public class CreateAction implements RequestHandler {
       .setRequired(true)
       .setDefaultValue(RuleStatus.READY)
       .setPossibleValues(RuleStatus.values());
+
+    action.createParam(PARAMS)
+      .setDescription("Parameters as semi-colon list of <key>=<value>, for example 'params=key1=v1;key2=v2'.");
   }
 
   @Override
@@ -96,7 +99,10 @@ public class CreateAction implements RequestHandler {
       .setHtmlDescription(request.mandatoryParam(PARAM_DESCRIPTION))
       .setSeverity(request.mandatoryParam(PARAM_SEVERITY))
       .setStatus(RuleStatus.valueOf(request.mandatoryParam(PARAM_STATUS)));
-
+    String params = request.param(PARAMS);
+    if (params != null) {
+      newRule.setParams(KeyValueFormat.parse(params));
+    }
     service.create(newRule);
   }
 }

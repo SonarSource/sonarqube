@@ -20,6 +20,7 @@
 
 package org.sonar.server.rule;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
@@ -39,7 +40,6 @@ import org.sonar.server.tester.ServerTester;
 
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
@@ -76,7 +76,7 @@ public class RuleCreatorMediumTest {
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
-      .setParams(newArrayList(new NewRuleParam("regex").setDefaultValue("a.*")));
+      .setParams(ImmutableMap.of("regex", "a.*"));
     RuleKey customRuleKey = creator.create(newRule);
 
     dbSession.clearCache();
@@ -112,7 +112,7 @@ public class RuleCreatorMediumTest {
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
-      .setParams(newArrayList(new NewRuleParam("regex").setDefaultValue("a.*")));
+      .setParams(ImmutableMap.of("regex", "a.*"));
 
     try {
       creator.create(newRule);
@@ -133,7 +133,7 @@ public class RuleCreatorMediumTest {
       .setName("My custom")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
-      .setParams(newArrayList(new NewRuleParam("regex").setDefaultValue("a.*")));
+      .setParams(ImmutableMap.of("regex", "a.*"));
 
     try {
       creator.create(newRule);
@@ -154,7 +154,7 @@ public class RuleCreatorMediumTest {
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setStatus(RuleStatus.READY)
-      .setParams(newArrayList(new NewRuleParam("regex").setDefaultValue("a.*")));
+      .setParams(ImmutableMap.of("regex", "a.*"));
 
     try {
       creator.create(newRule);
@@ -176,7 +176,7 @@ public class RuleCreatorMediumTest {
       .setHtmlDescription("Some description")
       .setSeverity("INVALID")
       .setStatus(RuleStatus.READY)
-      .setParams(newArrayList(new NewRuleParam("regex").setDefaultValue("a.*")));
+      .setParams(ImmutableMap.of("regex", "a.*"));
 
     try {
       creator.create(newRule);
@@ -197,7 +197,7 @@ public class RuleCreatorMediumTest {
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
-      .setParams(newArrayList(new NewRuleParam("regex").setDefaultValue("a.*")));
+      .setParams(ImmutableMap.of("regex", "a.*"));
 
     try {
       creator.create(newRule);
@@ -222,7 +222,7 @@ public class RuleCreatorMediumTest {
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
-      .setParams(newArrayList(new NewRuleParam("regex").setDefaultValue("a.*")));
+      .setParams(ImmutableMap.of("regex", "a.*"));
 
     try {
       creator.create(newRule);
