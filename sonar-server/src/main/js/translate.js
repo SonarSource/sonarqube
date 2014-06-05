@@ -82,7 +82,7 @@
     }
 
     var bundleTimestamp = localStorage.getItem('l10n.timestamp');
-    var params = {}
+    var params = {};
     if (bundleTimestamp !== null) {
       params['ts'] = bundleTimestamp;
     }

@@ -34,7 +34,7 @@ define([
             return filter.name;
           },
           uniqueFilters = _.unique(filters, getName),
-          sortedFilters = _.sortBy(filters, getName);
+          sortedFilters = _.sortBy(uniqueFilters, getName);
       return _.extend(this.model.toJSON(), { filters: sortedFilters });
     }
 
