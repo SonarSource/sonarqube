@@ -116,7 +116,7 @@ public class QualityProfileDto extends Dto<QualityProfileKey> {
     return new QualityProfileDto()
       .setName(name)
       .setLanguage(language)
-      .setUsed(true)
+      .setUsed(false)
       .setVersion(1);
   }
 

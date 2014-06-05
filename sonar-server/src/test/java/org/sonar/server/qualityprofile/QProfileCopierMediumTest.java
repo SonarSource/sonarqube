@@ -37,7 +37,6 @@ import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.RuleTesting;
-import org.sonar.server.search.IndexClient;
 import org.sonar.server.tester.ServerTester;
 
 import javax.annotation.Nullable;
@@ -152,7 +151,7 @@ public class QProfileCopierMediumTest {
     copier.copy(XOO_CHILD_1, XOO_PROFILE_2);
 
     verifyOneActiveRule(XOO_PROFILE_2, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
-    QualityProfileDto profile2Dto = db.qualityProfileDao().getByKey(XOO_PROFILE_2, dbSession);
+    QualityProfileDto profile2Dto = db.qualityProfileDao().getByKey(dbSession, XOO_PROFILE_2);
     assertThat(profile2Dto.getParent()).isEqualTo(XOO_PROFILE_1.name());
   }
 

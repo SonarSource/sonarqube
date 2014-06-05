@@ -77,7 +77,7 @@ public class RegisterQualityProfilesMediumTest {
     // Check Profile in DB
     QualityProfileDao qualityProfileDao = dbClient().qualityProfileDao();
     assertThat(qualityProfileDao.findAll(dbSession)).hasSize(1);
-    assertThat(qualityProfileDao.getByKey(qualityProfileKey, dbSession)).isNotNull();
+    assertThat(qualityProfileDao.getByKey(dbSession, qualityProfileKey)).isNotNull();
 
     // Check ActiveRules in DB
     ActiveRuleDao activeRuleDao = dbClient().activeRuleDao();
@@ -121,7 +121,7 @@ public class RegisterQualityProfilesMediumTest {
     // Check Profile in DB
     QualityProfileDao qualityProfileDao = dbClient().qualityProfileDao();
     assertThat(qualityProfileDao.findAll(dbSession)).hasSize(1);
-    assertThat(qualityProfileDao.getByKey(qualityProfileKey, dbSession)).isNotNull();
+    assertThat(qualityProfileDao.getByKey(dbSession, qualityProfileKey)).isNotNull();
 
     // Check Default Profile
     verifyProperty("sonar.profile.xoo", "Basic");

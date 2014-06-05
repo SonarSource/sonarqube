@@ -225,14 +225,14 @@ public class QProfileBackuperMediumTest {
   }
 
   @Test
-  public void restore_fails_to_deactivate_inherited_rule() throws Exception {
+  public void keep_other_inherited_rules() throws Exception {
     // define two parent/child profiles
     db.qualityProfileDao().insert(dbSession,
       QualityProfileDto.createFor(XOO_PROFILE_KEY),
       QualityProfileDto.createFor(XOO_CHILD_PROFILE_KEY).setParent(XOO_PROFILE_KEY.name()));
     dbSession.commit();
 
-    // rule x1 is activated on parent profile (so inherited by child profile)
+    // rule x1 is activated on parent profile and is inherited by child profile
     RuleActivation activation = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, RuleKey.of("xoo", "x1")));
     activation.setSeverity(Severity.INFO);
     activation.setParameter("max", "10");
@@ -240,14 +240,13 @@ public class QProfileBackuperMediumTest {
     dbSession.commit();
     dbSession.clearCache();
 
-    // backup of child profile does not contain x1
-    try {
-      tester.get(QProfileBackuper.class).restore(new StringReader(
-        Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore_fails_to_deactivate_inherited_rule.xml"), Charsets.UTF_8)), null);
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Cannot deactivate inherited rule 'xoo:x1'");
-    }
+    // backup of child profile contains x2 but not x1
+    tester.get(QProfileBackuper.class).restore(new StringReader(
+      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/keep_other_inherited_rules.xml"), Charsets.UTF_8)), XOO_CHILD_PROFILE_KEY);
+
+    // x1 and x2
+    List<ActiveRule> activeRules = tester.get(QProfileService.class).findActiveRulesByProfile(XOO_CHILD_PROFILE_KEY);
+    assertThat(activeRules).hasSize(2);
   }
 
   @Test
@@ -259,6 +258,17 @@ public class QProfileBackuperMediumTest {
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Fail to restore Quality profile backup");
       assertThat(e.getCause()).isInstanceOf(XMLStreamException.class);
+    }
+  }
+
+  @Test
+  public void fail_to_restore_if_bad_xml_format() throws Exception {
+    try {
+      tester.get(QProfileBackuper.class).restore(new StringReader(
+        Resources.toString(getClass().getResource("QProfileBackuperMediumTest/bad-xml-backup.xml"), Charsets.UTF_8)), null);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Backup XML is not valid. Root element must be <profile>.");
     }
   }
 }

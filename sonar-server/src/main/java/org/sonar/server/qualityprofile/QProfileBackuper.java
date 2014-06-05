@@ -19,24 +19,21 @@
  */
 package org.sonar.server.qualityprofile;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.text.XmlWriter;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.search.IndexClient;
 
@@ -47,25 +44,23 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class QProfileBackuper implements ServerComponent {
 
-  private final RuleActivator activator;
+  private final QProfileReset reset;
   private final DbClient db;
   private final IndexClient index;
 
-  public QProfileBackuper(RuleActivator activator, DbClient db, IndexClient index) {
-    this.activator = activator;
+  public QProfileBackuper(QProfileReset reset, DbClient db, IndexClient index) {
+    this.reset = reset;
     this.db = db;
     this.index = index;
   }
 
-  public void backup(QualityProfileKey key, Writer writer) {
-    // TODO check permission
+  void backup(QualityProfileKey key, Writer writer) {
     DbSession dbSession = db.openSession(false);
     try {
-      QualityProfileDto profile = db.qualityProfileDao().getByKey(key, dbSession);
+      QualityProfileDto profile = db.qualityProfileDao().getByKey(dbSession, key);
       if (profile == null) {
         throw new IllegalArgumentException("Quality profile does not exist: " + key);
       }
@@ -99,22 +94,23 @@ public class QProfileBackuper implements ServerComponent {
       xml.end("parameters");
       xml.end("rule");
     }
-    xml.end("rules");
-    xml.end("profile").close();
+    xml.end("rules").end("profile").close();
   }
 
   /**
-   *
-   * @param reader the XML backup
+   * @param reader     the XML backup
    * @param profileKey the target profile. If <code>null</code>, then use the
    *                   key declared in the backup
    */
-  public void restore(Reader reader, @Nullable QualityProfileKey profileKey) {
+  void restore(Reader reader, @Nullable QualityProfileKey profileKey) {
     try {
       String profileLang = null, profileName = null;
       SMInputFactory inputFactory = initStax();
       SMHierarchicCursor rootC = inputFactory.rootElementCursor(reader);
       rootC.advance(); // <profile>
+      if (!rootC.getLocalName().equals("profile")) {
+        throw new IllegalArgumentException("Backup XML is not valid. Root element must be <profile>.");
+      }
       SMInputCursor cursor = rootC.childElementCursor();
       while (cursor.getNext() != null) {
         String nodeName = cursor.getLocalName();
@@ -125,7 +121,7 @@ public class QProfileBackuper implements ServerComponent {
           profileLang = StringUtils.trim(cursor.collectDescendantText(false));
 
         } else if (StringUtils.equals("rules", nodeName)) {
-          QualityProfileKey targetKey = (QualityProfileKey)ObjectUtils.defaultIfNull(
+          QualityProfileKey targetKey = (QualityProfileKey) ObjectUtils.defaultIfNull(
             profileKey, QualityProfileKey.of(profileName, profileLang));
           SMInputCursor rulesCursor = cursor.childElementCursor("rule");
           doRestore(rulesCursor, targetKey);
@@ -137,61 +133,34 @@ public class QProfileBackuper implements ServerComponent {
   }
 
   private void doRestore(SMInputCursor rulesCursor, QualityProfileKey profileKey) throws XMLStreamException {
-    Set<RuleKey> rulesToDeactivate = Sets.newHashSet();
-    DbSession dbSession = db.openSession(false);
-    try {
-      // find or create profile
-      if (db.qualityProfileDao().getByKey(profileKey, dbSession) == null) {
-        // create new profile
-        db.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor(profileKey));
-      } else {
-        // already exists. Keep reference to all the activated rules before backup restore
-        for (ActiveRuleDto activeRuleDto : db.activeRuleDao().findByProfileKey(dbSession, profileKey)) {
-          rulesToDeactivate.add(activeRuleDto.getKey().ruleKey());
+    List<RuleActivation> activations = Lists.newArrayList();
+    while (rulesCursor.getNext() != null) {
+      SMInputCursor ruleCursor = rulesCursor.childElementCursor();
+      String repositoryKey = null, key = null, severity = null;
+      Map<String, String> parameters = Maps.newHashMap();
+      while (ruleCursor.getNext() != null) {
+        String nodeName = ruleCursor.getLocalName();
+        if (StringUtils.equals("repositoryKey", nodeName)) {
+          repositoryKey = StringUtils.trim(ruleCursor.collectDescendantText(false));
+
+        } else if (StringUtils.equals("key", nodeName)) {
+          key = StringUtils.trim(ruleCursor.collectDescendantText(false));
+
+        } else if (StringUtils.equals("priority", nodeName)) {
+          severity = StringUtils.trim(ruleCursor.collectDescendantText(false));
+
+        } else if (StringUtils.equals("parameters", nodeName)) {
+          SMInputCursor propsCursor = ruleCursor.childElementCursor("parameter");
+          readParameters(propsCursor, parameters);
         }
       }
-
-      while (rulesCursor.getNext() != null) {
-        SMInputCursor ruleCursor = rulesCursor.childElementCursor();
-        String repositoryKey = null, key = null, severity = null;
-        Map<String, String> parameters = Maps.newHashMap();
-        while (ruleCursor.getNext() != null) {
-          String nodeName = ruleCursor.getLocalName();
-          if (StringUtils.equals("repositoryKey", nodeName)) {
-            repositoryKey = StringUtils.trim(ruleCursor.collectDescendantText(false));
-
-          } else if (StringUtils.equals("key", nodeName)) {
-            key = StringUtils.trim(ruleCursor.collectDescendantText(false));
-
-          } else if (StringUtils.equals("priority", nodeName)) {
-            severity = StringUtils.trim(ruleCursor.collectDescendantText(false));
-
-          } else if (StringUtils.equals("parameters", nodeName)) {
-            SMInputCursor propsCursor = ruleCursor.childElementCursor("parameter");
-            readParameters(propsCursor, parameters);
-          }
-        }
-        RuleKey ruleKey = RuleKey.of(repositoryKey, key);
-        RuleActivation activation = new RuleActivation(ActiveRuleKey.of(profileKey, ruleKey));
-        activation.setSeverity(severity);
-        activation.setParameters(parameters);
-        try {
-          activator.activate(dbSession, activation);
-        } catch (BadRequestException e) {
-          // TODO should return warnings instead of logging warnings
-          LoggerFactory.getLogger(getClass()).warn(e.getMessage());
-        }
-        rulesToDeactivate.remove(ruleKey);
-      }
-      for (RuleKey ruleKey : rulesToDeactivate) {
-        // Will fail to deactivate a rule which is activated in a parent profile
-        activator.deactivate(ActiveRuleKey.of(profileKey, ruleKey), dbSession);
-      }
-      dbSession.commit();
-
-    } finally {
-      dbSession.close();
+      RuleKey ruleKey = RuleKey.of(repositoryKey, key);
+      RuleActivation activation = new RuleActivation(ActiveRuleKey.of(profileKey, ruleKey));
+      activation.setSeverity(severity);
+      activation.setParameters(parameters);
+      activations.add(activation);
     }
+    reset.reset(profileKey, activations);
   }
 
   private void readParameters(SMInputCursor propsCursor, Map<String, String> parameters) throws XMLStreamException {
@@ -203,7 +172,6 @@ public class QProfileBackuper implements ServerComponent {
         String nodeName = propCursor.getLocalName();
         if (StringUtils.equals("key", nodeName)) {
           key = StringUtils.trim(propCursor.collectDescendantText(false));
-
         } else if (StringUtils.equals("value", nodeName)) {
           value = StringUtils.trim(propCursor.collectDescendantText(false));
         }
@@ -222,9 +190,5 @@ public class QProfileBackuper implements ServerComponent {
     xmlFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
     xmlFactory.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
     return new SMInputFactory(xmlFactory);
-  }
-
-  public void resetForLang(String language) {
-    // TODO
   }
 }

@@ -70,10 +70,6 @@ class Internal
     component(Java::OrgSonarServerQualitygate::QualityGates.java_class)
   end
 
-  def self.profile_backup
-    component(Java::OrgSonarServerQualityprofile::QProfileBackup.java_class)
-  end
-
   def self.profile_exporter
     component(Java::OrgSonarServerQualityprofile::QProfileRepositoryExporter.java_class)
   end

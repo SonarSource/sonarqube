@@ -126,7 +126,7 @@ public class RegisterQualityProfiles implements ServerComponent {
   private void register(QualityProfileKey key, Collection<RulesProfile> profiles, DbSession session) {
     LOGGER.info("Register profile " + key);
 
-    QualityProfileDto profileDto = dbClient.qualityProfileDao().getByKey(key, session);
+    QualityProfileDto profileDto = dbClient.qualityProfileDao().getByKey(session, key);
     if (profileDto != null) {
       cleanUp(key, profileDto, session);
     }
@@ -155,7 +155,7 @@ public class RegisterQualityProfiles implements ServerComponent {
   }
 
   private void insertNewProfile(QualityProfileKey key, DbSession session) {
-    QualityProfileDto profile = QualityProfileDto.createFor(key).setVersion(1).setUsed(false);
+    QualityProfileDto profile = QualityProfileDto.createFor(key);
     dbClient.qualityProfileDao().insert(session, profile);
     session.commit();
   }
@@ -167,7 +167,7 @@ public class RegisterQualityProfiles implements ServerComponent {
     String currentDefault = settings.getString(propertyKey);
     if (currentDefault != null) {
       // check validity
-      QualityProfileDto profile = dbClient.qualityProfileDao().getByKey(QualityProfileKey.of(currentDefault, language), session);
+      QualityProfileDto profile = dbClient.qualityProfileDao().getByKey(session, QualityProfileKey.of(currentDefault, language));
       if (profile != null) {
         upToDate = true;
       }

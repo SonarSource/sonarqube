@@ -36,6 +36,7 @@ import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.log.LogService;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.Rule;
@@ -174,7 +175,7 @@ public class RuleActivator implements ServerComponent {
       }
       dao.insert(dbSession, activeRule);
       for (Map.Entry<String, String> param : change.getParameters().entrySet()) {
-        if (param.getValue()!=null) {
+        if (param.getValue() != null) {
           ActiveRuleParamDto paramDto = ActiveRuleParamDto.createFor(context.ruleParamsByKeys().get(param.getKey()));
           paramDto.setValue(param.getValue());
           dao.addParam(dbSession, activeRule, paramDto);
@@ -197,7 +198,7 @@ public class RuleActivator implements ServerComponent {
         ActiveRuleParamDto activeRuleParamDto = context.activeRuleParamsAsMap().get(param.getKey());
         if (activeRuleParamDto == null) {
           // did not exist
-          if (param.getValue()!=null) {
+          if (param.getValue() != null) {
             activeRuleParamDto = ActiveRuleParamDto.createFor(context.ruleParamsByKeys().get(param.getKey()));
             activeRuleParamDto.setValue(param.getValue());
             dao.addParam(dbSession, activeRule, activeRuleParamDto);
@@ -228,7 +229,7 @@ public class RuleActivator implements ServerComponent {
   List<ActiveRuleChange> deactivate(ActiveRuleKey key) {
     DbSession dbSession = db.openSession(false);
     try {
-      return deactivate(key, dbSession);
+      return deactivate(dbSession, key);
     } finally {
       dbSession.close();
     }
@@ -237,7 +238,7 @@ public class RuleActivator implements ServerComponent {
   /**
    * Deactivate a rule on a Quality profile WITHOUT committing db session and WITHOUT checking permissions
    */
-  List<ActiveRuleChange> deactivate(ActiveRuleKey key, DbSession dbSession) {
+  List<ActiveRuleChange> deactivate(DbSession dbSession, ActiveRuleKey key) {
     return cascadeDeactivation(key, dbSession, false);
   }
 
@@ -288,7 +289,7 @@ public class RuleActivator implements ServerComponent {
     }
   }
 
-  public Multimap<String, String> bulkActivate(RuleQuery ruleQuery, QualityProfileKey profileKey, @Nullable String severity) {
+  Multimap<String, String> bulkActivate(RuleQuery ruleQuery, QualityProfileKey profileKey, @Nullable String severity) {
     RuleIndex ruleIndex = index.get(RuleIndex.class);
     Multimap<String, String> results = ArrayListMultimap.create();
     DbSession dbSession = db.openSession(false);
@@ -319,7 +320,7 @@ public class RuleActivator implements ServerComponent {
     return results;
   }
 
-  public Multimap<String, String> bulkDeactivate(RuleQuery ruleQuery, QualityProfileKey profile) {
+  Multimap<String, String> bulkDeactivate(RuleQuery ruleQuery, QualityProfileKey profile) {
     RuleIndex ruleIndex = index.get(RuleIndex.class);
     Multimap<String, String> results = ArrayListMultimap.create();
     DbSession dbSession = db.openSession(false);
@@ -329,7 +330,7 @@ public class RuleActivator implements ServerComponent {
 
       for (Rule rule : result.getHits()) {
         ActiveRuleKey key = ActiveRuleKey.of(profile, rule.key());
-        for (ActiveRuleChange deActive : deactivate(key, dbSession)) {
+        for (ActiveRuleChange deActive : deactivate(dbSession, key)) {
           results.put("deactivated", deActive.getKey().ruleKey().toString());
         }
       }
@@ -338,5 +339,63 @@ public class RuleActivator implements ServerComponent {
       dbSession.close();
     }
     return results;
+  }
+
+  void setParent(QualityProfileKey key, @Nullable QualityProfileKey parentKey) {
+    DbSession dbSession = db.openSession(false);
+    try {
+      QualityProfileDto profile = db.qualityProfileDao().getNonNullByKey(dbSession, key);
+      if (parentKey == null) {
+        // unset if parent is defined, else nothing to do
+        removeParent(dbSession, profile);
+
+      } else if (profile.getParentKey() == null || !profile.getParentKey().equals(parentKey)) {
+        QualityProfileDto parentProfile = db.qualityProfileDao().getNonNullByKey(dbSession, parentKey);
+        if (isDescendant(dbSession, profile, parentProfile)) {
+          throw new BadRequestException("Please do not select a child profile as parent.");
+        }
+        removeParent(dbSession, profile);
+
+        // set new parent
+        profile.setParent(parentKey.name());
+        db.qualityProfileDao().update(dbSession, profile);
+        for (ActiveRuleDto parentActiveRule : db.activeRuleDao().findByProfileKey(dbSession, parentKey)) {
+          RuleActivation activation = new RuleActivation(ActiveRuleKey.of(key, parentActiveRule.getKey().ruleKey()));
+          activate(dbSession, activation);
+        }
+        dbSession.commit();
+      }
+
+    } finally {
+      dbSession.close();
+    }
+  }
+
+  /**
+   * Does not commit
+   */
+  private void removeParent(DbSession dbSession, QualityProfileDto profileDto) {
+    if (profileDto.getParent() != null) {
+      profileDto.setParent(null);
+      db.qualityProfileDao().update(dbSession, profileDto);
+      for (ActiveRuleDto activeRule : db.activeRuleDao().findByProfileKey(dbSession, profileDto.getKey())) {
+        deactivate(dbSession, activeRule.getKey());
+      }
+    }
+  }
+
+  boolean isDescendant(DbSession dbSession, QualityProfileDto childProfile, @Nullable QualityProfileDto parentProfile) {
+    QualityProfileDto currentParent = parentProfile;
+    while (currentParent != null) {
+      if (childProfile.getName().equals(currentParent.getName())) {
+        return true;
+      }
+      if (currentParent.getParent() != null) {
+        currentParent = db.qualityProfileDao().getByKey(dbSession, currentParent.getParentKey());
+      } else {
+        currentParent = null;
+      }
+    }
+    return false;
   }
 }

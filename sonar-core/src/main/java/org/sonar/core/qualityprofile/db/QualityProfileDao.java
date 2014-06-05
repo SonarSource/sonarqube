@@ -39,8 +39,16 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
   }
 
   @CheckForNull
-  public QualityProfileDto getByKey(QualityProfileKey key, DbSession session) {
+  public QualityProfileDto getByKey(DbSession session, QualityProfileKey key) {
     return session.getMapper(QualityProfileMapper.class).selectByNameAndLanguage(key.name(), key.lang());
+  }
+
+  public QualityProfileDto getNonNullByKey(DbSession session, QualityProfileKey key) {
+    QualityProfileDto dto = getByKey(session, key);
+    if (dto == null) {
+      throw new IllegalArgumentException("Quality profile not found: " + key);
+    }
+    return dto;
   }
 
   public List<QualityProfileDto> findAll(DbSession session) {
@@ -185,7 +193,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
 
   /**
    * @deprecated Replaced by
-   *    {@link #getByKey(QualityProfileKey, DbSession)}
+   *    {@link #getByKey(org.sonar.core.persistence.DbSession, QualityProfileKey)}
    */
   @Deprecated
   @CheckForNull
@@ -195,7 +203,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
 
   /**
    * @deprecated Replaced by
-   *    {@link #getByKey(QualityProfileKey, DbSession)}
+   *    {@link #getByKey(org.sonar.core.persistence.DbSession, QualityProfileKey)}
    */
   @Deprecated
   @CheckForNull
@@ -265,7 +273,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
 
   /**
    * @deprecated Replaced by
-   *    {@link #getByKey(QualityProfileKey, DbSession)}
+   *    {@link #getByKey(org.sonar.core.persistence.DbSession, QualityProfileKey)}
    */
   @Deprecated
   public QualityProfileDto selectByNameAndLanguage(String name, String language, DbSession session) {
@@ -274,7 +282,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
 
   /**
    * @deprecated Replaced by
-   *    {@link #getByKey(QualityProfileKey, DbSession)}
+   *    {@link #getByKey(org.sonar.core.persistence.DbSession, QualityProfileKey)}
    */
   @Deprecated
   public QualityProfileDto selectByNameAndLanguage(String name, String language) {

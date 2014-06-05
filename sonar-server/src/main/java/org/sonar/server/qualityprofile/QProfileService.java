@@ -24,6 +24,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
@@ -39,6 +40,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.List;
 
 public class QProfileService implements ServerComponent {
@@ -48,14 +50,16 @@ public class QProfileService implements ServerComponent {
   private final RuleActivator ruleActivator;
   private final QProfileBackuper backuper;
   private final QProfileCopier copier;
+  private final QProfileReset reset;
 
   public QProfileService(DbClient db, IndexClient index, RuleActivator ruleActivator, QProfileBackuper backuper,
-                         QProfileCopier copier) {
+                         QProfileCopier copier, QProfileReset reset) {
     this.db = db;
     this.index = index;
     this.ruleActivator = ruleActivator;
     this.backuper = backuper;
     this.copier = copier;
+    this.reset = reset;
   }
 
   /**
@@ -141,9 +145,13 @@ public class QProfileService implements ServerComponent {
     restore(new StringReader(backup));
   }
 
-  public void resetForLang(String lang) {
-    // TODO
+  public void resetBuiltInProfilesForLanguage(String lang) {
     verifyAdminPermission();
+    reset.resetLanguage(lang);
+  }
+
+  public Collection<String> builtInProfileNamesForLanguage(String lang) {
+    return reset.builtInProfileNamesForLanguage(lang);
   }
 
   public void copy(QualityProfileKey from, QualityProfileKey to) {
@@ -152,13 +160,13 @@ public class QProfileService implements ServerComponent {
   }
 
   public void delete(QualityProfileKey key) {
-    // TODO
     verifyAdminPermission();
+    // TODO
   }
 
   public void rename(QualityProfileKey key, String newName) {
-    // TODO
     verifyAdminPermission();
+    // TODO
   }
 
   //public void create(NewQualityProfile newProfile) {
@@ -166,17 +174,32 @@ public class QProfileService implements ServerComponent {
   //verifyAdminPermission();
   //}
 
-  public void setParent(QualityProfileKey key, @Nullable QualityProfileKey parent) {
-    // TODO
+  /**
+   * Set or unset parent profile.
+   *
+   * @param key       key of existing profile
+   * @param parentKey key of parent profile to be inherited from. Or <code>null</code> to unset the parent.
+   */
+  public void setParent(QualityProfileKey key, @Nullable QualityProfileKey parentKey) {
     verifyAdminPermission();
+    ruleActivator.setParent(key, parentKey);
   }
 
   /**
    * Set the given quality profile as default for the related language
    */
   public void setDefault(QualityProfileKey key) {
-    // TODO
     verifyAdminPermission();
+    DbSession dbSession = db.openSession(false);
+    try {
+      QualityProfileDto profile = db.qualityProfileDao().getNonNullByKey(dbSession, key);
+      db.propertiesDao().setProperty(new PropertyDto()
+        .setKey("sonar.profile." + profile.getLanguage())
+        .setValue(profile.getName()));
+      dbSession.commit();
+    } finally {
+      dbSession.close();
+    }
   }
 
   private void verifyAdminPermission() {

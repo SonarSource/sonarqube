@@ -71,11 +71,11 @@ public class QProfileCopier implements ServerComponent {
   private void prepareProfiles(QualityProfileKey from, QualityProfileKey to) {
     DbSession dbSession = db.openSession(false);
     try {
-      QualityProfileDto fromProfile = db.qualityProfileDao().getByKey(from, dbSession);
+      QualityProfileDto fromProfile = db.qualityProfileDao().getByKey(dbSession, from);
       if (fromProfile == null) {
         throw new IllegalArgumentException("Quality profile does not exist: " + from);
       }
-      QualityProfileDto toProfile = db.qualityProfileDao().getByKey(to, dbSession);
+      QualityProfileDto toProfile = db.qualityProfileDao().getByKey(dbSession, to);
       if (toProfile == null) {
         // Do not delegate creation to QualityProfileBackuper because we need to keep
         // the parent-child association, if exists.

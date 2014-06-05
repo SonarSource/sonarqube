@@ -23,7 +23,6 @@ package org.sonar.server.qualityprofile.ws;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.qualityprofile.QProfileBackup;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.ws.WsTester;
@@ -40,7 +39,7 @@ public class QProfilesWsTest {
     QProfileService profileService = mock(QProfileService.class);
     RuleService ruleService = mock(RuleService.class);
     controller = new WsTester(new QProfilesWs(new QProfileRecreateBuiltInAction(
-      mock(QProfileBackup.class)),
+      mock(QProfileService.class)),
       new RuleActivationActions(profileService),
       new BulkRuleActivationActions(profileService, ruleService)
     )).controller(QProfilesWs.API_ENDPOINT);
