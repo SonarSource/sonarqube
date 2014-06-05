@@ -406,8 +406,12 @@ requirejs [
     App.state = new Backbone.Model
     App.canWrite = r.canWrite
     App.qualityProfiles = r.qualityprofiles
-    App.languages = r.languages
+    App.languages = _.extend r.languages, none: 'None'
     App.repositories = r.repositories
+    App.repositories.push
+      key: 'manual'
+      name: 'Manual Rules'
+      language: 'none'
     App.statuses = r.statuses
     App.characteristics = r.characteristics
 
