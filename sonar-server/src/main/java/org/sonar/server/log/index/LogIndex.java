@@ -25,6 +25,7 @@ import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.log.Log;
 import org.sonar.core.log.db.LogDto;
 import org.sonar.core.log.db.LogKey;
+import org.sonar.core.profiling.Profiling;
 import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.ESNode;
 import org.sonar.server.search.IndexDefinition;
@@ -39,8 +40,8 @@ import java.util.Map;
  */
 public class LogIndex extends BaseIndex<Log, LogDto, LogKey>{
 
-  public LogIndex(LogNormalizer normalizer, WorkQueue workQueue, ESNode node) {
-    super(IndexDefinition.LOG, normalizer, workQueue, node);
+  public LogIndex(Profiling profiling, LogNormalizer normalizer, WorkQueue workQueue, ESNode node) {
+    super(IndexDefinition.LOG, normalizer, workQueue, node, profiling);
   }
 
   @Override

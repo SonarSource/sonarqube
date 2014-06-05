@@ -46,6 +46,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.cluster.WorkQueue;
+import org.sonar.core.profiling.Profiling;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
@@ -63,8 +64,8 @@ import java.util.Map;
 
 public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, ActiveRuleKey> {
 
-  public ActiveRuleIndex(ActiveRuleNormalizer normalizer, WorkQueue workQueue, ESNode node) {
-    super(IndexDefinition.ACTIVE_RULE, normalizer, workQueue, node);
+  public ActiveRuleIndex(Profiling profiling, ActiveRuleNormalizer normalizer, WorkQueue workQueue, ESNode node) {
+    super(IndexDefinition.ACTIVE_RULE, normalizer, workQueue, node, profiling);
   }
 
   @Override

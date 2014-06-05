@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.persistence.Dto;
+import org.sonar.core.profiling.Profiling;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -55,12 +56,14 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   private final ESNode node;
   private final BaseNormalizer<DTO, KEY> normalizer;
   private final IndexDefinition indexDefinition;
+  protected final Profiling profiling;
 
   protected BaseIndex(IndexDefinition indexDefinition, BaseNormalizer<DTO, KEY> normalizer,
-                      WorkQueue workQueue, ESNode node) {
+                      WorkQueue workQueue, ESNode node, Profiling profiling) {
     this.normalizer = normalizer;
     this.node = node;
     this.indexDefinition = indexDefinition;
+    this.profiling = profiling;
   }
 
   @Override

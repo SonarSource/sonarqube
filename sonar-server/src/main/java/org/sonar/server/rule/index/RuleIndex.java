@@ -25,8 +25,10 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.query.BoolFilterBuilder;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -37,6 +39,8 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.core.cluster.WorkQueue;
+import org.sonar.core.profiling.Profiling;
+import org.sonar.core.profiling.StopWatch;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.Rule;
@@ -57,8 +61,8 @@ import java.util.Set;
 
 public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
-  public RuleIndex(RuleNormalizer normalizer, WorkQueue workQueue, ESNode node) {
-    super(IndexDefinition.RULE, normalizer, workQueue, node);
+  public RuleIndex(Profiling profiling, RuleNormalizer normalizer, WorkQueue workQueue, ESNode node) {
+    super(IndexDefinition.RULE, normalizer, workQueue, node, profiling);
   }
 
   protected String getKeyValue(RuleKey key) {
@@ -143,35 +147,42 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     return esSearch;
   }
 
+  private QueryBuilder phraseQuery(IndexField field, String query, float boost) {
+    return QueryBuilders.matchPhraseQuery(field.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, query)
+      .boost(boost)
+      .operator(MatchQueryBuilder.Operator.AND);
+  }
+
+  private QueryBuilder termQuery(IndexField field, String query, float boost) {
+    return QueryBuilders.multiMatchQuery(query,
+      field.field(), field.field() + "." + IndexField.SEARCH_PARTIAL_SUFFIX)
+      .operator(MatchQueryBuilder.Operator.AND)
+      .boost(boost);
+
+  }
+
   /* Build main query (search based) */
   protected QueryBuilder getQuery(RuleQuery query, QueryOptions options) {
-    QueryBuilder qb;
-    //TODO Optimize this. This is plain vanilla match no weight -> bad...
     if (query.getQueryText() != null && !query.getQueryText().isEmpty()) {
-      qb = QueryBuilders.multiMatchQuery(query.getQueryText(),
-        RuleNormalizer.RuleField.NAME.field(),
-        RuleNormalizer.RuleField.NAME.field() + "." + IndexField.SEARCH_PARTIAL_SUFFIX,
-        RuleNormalizer.RuleField.NAME.field() + "." + IndexField.SEARCH_WORDS_SUFFIX,
-        RuleNormalizer.RuleField.HTML_DESCRIPTION.field(),
-        RuleNormalizer.RuleField.HTML_DESCRIPTION.field() + "." + IndexField.SEARCH_WORDS_SUFFIX,
-        RuleNormalizer.RuleField.KEY.field(),
-        RuleNormalizer.RuleField.KEY.field() + "." + IndexField.SEARCH_PARTIAL_SUFFIX,
-        RuleNormalizer.RuleField.KEY.field() + "." + IndexField.SEARCH_WORDS_SUFFIX,
-        RuleNormalizer.RuleField.LANGUAGE.field(),
-        RuleNormalizer.RuleField.CHARACTERISTIC.field(),
-        RuleNormalizer.RuleField.CHARACTERISTIC.field() + "." + IndexField.SEARCH_PARTIAL_SUFFIX,
-        RuleNormalizer.RuleField.CHARACTERISTIC.field() + "." + IndexField.SEARCH_WORDS_SUFFIX,
-        RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(),
-        RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field() + "." + IndexField.SEARCH_PARTIAL_SUFFIX,
-        RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field() + "." + IndexField.SEARCH_WORDS_SUFFIX,
-        RuleNormalizer.RuleField._TAGS.field(),
-        RuleNormalizer.RuleField._TAGS.field() + "." + IndexField.SEARCH_PARTIAL_SUFFIX,
-        RuleNormalizer.RuleField._TAGS.field() + "." + IndexField.SEARCH_WORDS_SUFFIX
-      );
-    } else {
-      qb = QueryBuilders.matchAllQuery();
+      BoolQueryBuilder qb = QueryBuilders.boolQuery();
+      String queryString = query.getQueryText();
+
+      // Human readable type of querying
+      qb.should(this.phraseQuery(RuleNormalizer.RuleField.KEY, queryString, 15f));
+      qb.should(this.phraseQuery(RuleNormalizer.RuleField.NAME, queryString, 20f));
+      qb.should(this.phraseQuery(RuleNormalizer.RuleField.HTML_DESCRIPTION, queryString, 3f));
+
+      // Match and partial Match queries
+      qb.should(this.termQuery(RuleNormalizer.RuleField.KEY, queryString, 15f));
+      qb.should(this.termQuery(RuleNormalizer.RuleField.LANGUAGE, queryString, 3f));
+      qb.should(this.termQuery(RuleNormalizer.RuleField.CHARACTERISTIC, queryString, 5f));
+      qb.should(this.termQuery(RuleNormalizer.RuleField.SUB_CHARACTERISTIC, queryString, 5f));
+      qb.should(this.termQuery(RuleNormalizer.RuleField._TAGS, queryString, 10f));
+
+      return qb;
+
     }
-    return qb;
+    return QueryBuilders.matchAllQuery();
   }
 
   /* Build main filter (match based) */
@@ -271,11 +282,13 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   }
 
   public RuleResult search(RuleQuery query, QueryOptions options) {
+    StopWatch profile = profiling.start("es", Profiling.Level.FULL);
     SearchRequestBuilder esSearch = this.buildRequest(query, options);
     FilterBuilder fb = this.getFilter(query, options);
     QueryBuilder qb = this.getQuery(query, options);
     esSearch.setQuery(QueryBuilders.filteredQuery(qb, fb));
     SearchResponse esResult = esSearch.get();
+    profile.stop("query: {}\nresult:{}", esSearch, esResult);
     return new RuleResult(esResult);
   }
 

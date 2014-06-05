@@ -31,6 +31,7 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.core.cluster.NullQueue;
+import org.sonar.core.profiling.Profiling;
 
 import java.io.File;
 import java.io.IOException;
@@ -85,7 +86,7 @@ public class BaseIndexTest {
   private BaseIndex getIndex(final ESNode esNode) {
     BaseIndex index = new BaseIndex(
       IndexDefinition.TEST,
-      null, new NullQueue(), esNode) {
+      null, new NullQueue(), esNode, new Profiling(new Settings())) {
       @Override
       protected String getKeyValue(Serializable key) {
         return null;
