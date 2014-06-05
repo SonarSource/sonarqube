@@ -158,7 +158,13 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       field.field(), field.field() + "." + IndexField.SEARCH_PARTIAL_SUFFIX)
       .operator(MatchQueryBuilder.Operator.AND)
       .boost(boost);
+  }
 
+  private QueryBuilder termAnyQuery(IndexField field, String query, float boost) {
+    return QueryBuilders.multiMatchQuery(query,
+      field.field(), field.field() + "." + IndexField.SEARCH_PARTIAL_SUFFIX)
+      .operator(MatchQueryBuilder.Operator.OR)
+      .boost(boost);
   }
 
   /* Build main query (search based) */
@@ -176,8 +182,11 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       qb.should(this.termQuery(RuleNormalizer.RuleField.KEY, queryString, 15f));
       qb.should(this.termQuery(RuleNormalizer.RuleField.LANGUAGE, queryString, 3f));
       qb.should(this.termQuery(RuleNormalizer.RuleField.CHARACTERISTIC, queryString, 5f));
+      qb.should(this.termAnyQuery(RuleNormalizer.RuleField.CHARACTERISTIC, queryString, 1f));
       qb.should(this.termQuery(RuleNormalizer.RuleField.SUB_CHARACTERISTIC, queryString, 5f));
+      qb.should(this.termAnyQuery(RuleNormalizer.RuleField.SUB_CHARACTERISTIC, queryString, 1f));
       qb.should(this.termQuery(RuleNormalizer.RuleField._TAGS, queryString, 10f));
+      qb.should(this.termAnyQuery(RuleNormalizer.RuleField._TAGS, queryString, 1f));
 
       return qb;
 

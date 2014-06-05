@@ -324,7 +324,9 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       mapping.put("fields", mapMultiField(field));
     } else {
       mapping.put("type", "string");
-      mapping.put("index", "not_analyzed");
+      mapping.put("index", "analyzed");
+      mapping.put("index_analyzer", "keyword");
+      mapping.put("search_analyzer", "whitespace");
     }
     return mapping;
   }
