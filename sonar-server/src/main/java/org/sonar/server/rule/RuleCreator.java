@@ -20,47 +20,62 @@
 
 package org.sonar.server.rule;
 
+import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.rule.index.RuleIndex;
 
 public class RuleCreator implements ServerComponent {
 
-  private final RuleIndex index;
   private final DbClient dbClient;
   private final System2 system;
 
-  public RuleCreator(RuleIndex index, DbClient dbClient, System2 system) {
-    this.index = index;
+  public RuleCreator(DbClient dbClient, System2 system) {
     this.dbClient = dbClient;
     this.system = system;
   }
 
-  public Rule create(NewRule newRule) {
+  public RuleKey create(NewRule newRule) {
     DbSession dbSession = dbClient.openSession(false);
     try {
       RuleKey templateKey = newRule.templateKey();
       if (templateKey != null) {
         RuleDto templateRule = dbClient.ruleDao().getByKey(dbSession, newRule.templateKey());
-        if (templateRule == null) {
-          throw new IllegalArgumentException("Template rule does not exists: " + templateKey.toString());
-        }
         if (!Cardinality.MULTIPLE.equals(templateRule.getCardinality())) {
           throw new IllegalArgumentException("This rule is not a template rule: " + templateKey.toString());
         }
+        validateRule(newRule);
         RuleKey customRuleKey = createCustomRule(newRule, templateRule, dbSession);
         dbSession.commit();
-        return index.getByKey(customRuleKey);
+        return customRuleKey;
       }
       throw new IllegalArgumentException("Not supported");
     } finally {
       dbSession.close();
+    }
+  }
+
+  private static void validateRule(NewRule newRule) {
+    if (Strings.isNullOrEmpty(newRule.name())) {
+      throw new IllegalArgumentException("The name is missing");
+    }
+    if (Strings.isNullOrEmpty(newRule.htmlDescription())) {
+      throw new IllegalArgumentException("The description is missing");
+    }
+    String severity = newRule.severity();
+    if (Strings.isNullOrEmpty(severity)) {
+      throw new IllegalArgumentException("The severity is missing");
+    } else if (!Severity.ALL.contains(severity)) {
+      throw new IllegalArgumentException("This severity is invalid : " + severity);
+    }
+    if (newRule.status() == null) {
+      throw new IllegalArgumentException("The status is missing");
     }
   }
 
@@ -78,10 +93,10 @@ public class RuleCreator implements ServerComponent {
       .setDefaultRemediationFunction(templateRuleDto.getDefaultRemediationFunction())
       .setDefaultRemediationCoefficient(templateRuleDto.getDefaultRemediationCoefficient())
       .setDefaultRemediationOffset(templateRuleDto.getDefaultRemediationOffset())
-      .setEffortToFixDescription(templateRuleDto.getEffortToFixDescription());
+      .setEffortToFixDescription(templateRuleDto.getEffortToFixDescription())
+      .setTags(templateRuleDto.getTags())
+      .setSystemTags(templateRuleDto.getSystemTags());
     dbClient.ruleDao().insert(dbSession, ruleDto);
-
-    // TODO add tags from template rule
 
     for (RuleParamDto templateRuleParamDto : dbClient.ruleDao().findRuleParamsByRuleKey(dbSession, templateRuleDto.getKey())) {
       NewRuleParam newRuleParam = newRule.param(templateRuleParamDto.getName());

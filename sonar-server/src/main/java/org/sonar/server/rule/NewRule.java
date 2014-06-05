@@ -26,12 +26,11 @@ import org.sonar.api.rule.RuleStatus;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-class NewRule {
+public class NewRule {
 
   private boolean isTemplate;
   private RuleKey templateKey;
@@ -57,38 +56,42 @@ class NewRule {
     return this;
   }
 
+  @CheckForNull
   public String name() {
     return name;
   }
 
-  public NewRule setName(String name) {
+  public NewRule setName(@Nullable String name) {
     this.name = name;
     return this;
   }
 
+  @CheckForNull
   public String htmlDescription() {
     return htmlDescription;
   }
 
-  public NewRule setHtmlDescription(String htmlDescription) {
+  public NewRule setHtmlDescription(@Nullable String htmlDescription) {
     this.htmlDescription = htmlDescription;
     return this;
   }
 
+  @CheckForNull
   public String severity() {
     return severity;
   }
 
-  public NewRule setSeverity(String severity) {
+  public NewRule setSeverity(@Nullable String severity) {
     this.severity = severity;
     return this;
   }
 
+  @CheckForNull
   public RuleStatus status() {
     return status;
   }
 
-  public NewRule setStatus(RuleStatus status) {
+  public NewRule setStatus(@Nullable RuleStatus status) {
     this.status = status;
     return this;
   }

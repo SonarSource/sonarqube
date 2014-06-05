@@ -49,12 +49,7 @@ import org.sonar.server.search.action.IndexAction;
 import org.sonar.server.search.action.KeyIndexAction;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -324,7 +319,7 @@ public class RegisterRules implements Startable {
     boolean changed = false;
 
     if (RuleStatus.REMOVED == ruleDef.status()) {
-      dto.setSystemTags(Collections.EMPTY_SET);
+      dto.setSystemTags(Collections.<String>emptySet());
       changed = true;
     } else if (!dto.getSystemTags().containsAll(ruleDef.tags())) {
       dto.setSystemTags(ruleDef.tags());
@@ -350,6 +345,7 @@ public class RegisterRules implements Startable {
           ruleDto.setDefaultRemediationCoefficient(parent.getDefaultRemediationCoefficient());
           ruleDto.setDefaultRemediationOffset(parent.getDefaultRemediationOffset());
           ruleDto.setEffortToFixDescription(parent.getEffortToFixDescription());
+          // TODO update tags ?
           dbClient.ruleDao().update(session, ruleDto);
           toBeRemoved = false;
         }

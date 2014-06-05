@@ -30,7 +30,6 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
-
 import java.util.Set;
 
 /**
@@ -40,10 +39,12 @@ public class RuleService implements ServerComponent {
 
   private final RuleIndex index;
   private final RuleUpdater ruleUpdater;
+  private final RuleCreator ruleCreator;
 
-  public RuleService(RuleIndex index, RuleUpdater ruleUpdater) {
+  public RuleService(RuleIndex index, RuleUpdater ruleUpdater, RuleCreator ruleCreator) {
     this.index = index;
     this.ruleUpdater = ruleUpdater;
+    this.ruleCreator = ruleCreator;
   }
 
   @CheckForNull
@@ -73,5 +74,13 @@ public class RuleService implements ServerComponent {
     userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     ruleUpdater.update(update, UserSession.get());
+  }
+
+  public RuleKey create(NewRule newRule) {
+    UserSession userSession = UserSession.get();
+    userSession.checkLoggedIn();
+    userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+
+    return ruleCreator.create(newRule);
   }
 }

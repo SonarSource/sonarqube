@@ -343,6 +343,7 @@ class ServerComponents {
     pico.addSingleton(RulesWebService.class);
     pico.addSingleton(SearchAction.class);
     pico.addSingleton(org.sonar.server.rule.ws.ShowAction.class);
+    pico.addSingleton(org.sonar.server.rule.ws.CreateAction.class);
     pico.addSingleton(TagsAction.class);
     pico.addSingleton(RuleMapping.class);
     pico.addSingleton(ActiveRuleCompleter.class);

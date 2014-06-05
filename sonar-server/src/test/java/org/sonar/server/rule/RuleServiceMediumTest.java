@@ -25,6 +25,9 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
+import org.sonar.check.Cardinality;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
@@ -39,6 +42,7 @@ import org.sonar.server.user.MockUserSession;
 import java.util.Collections;
 import java.util.Set;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
@@ -122,6 +126,45 @@ public class RuleServiceMediumTest {
     try {
       RuleUpdate update = new RuleUpdate(key).setMarkdownNote("my *note*");
       service.update(update);
+      fail();
+    } catch (UnauthorizedException e) {
+      // ok
+    }
+  }
+
+  @Test
+  public void create_rule() throws Exception {
+    MockUserSession.set()
+      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
+      .setLogin("me");
+
+    RuleKey templateRuleKey = RuleKey.of("java", "S001");
+
+    dao.insert(dbSession, RuleTesting.newDto(templateRuleKey).setCardinality(Cardinality.MULTIPLE));
+    dbSession.commit();
+
+    // Create custom rule
+    NewRule newRule = new NewRule()
+      .setTemplateKey(templateRuleKey)
+      .setName("My custom")
+      .setHtmlDescription("Some description")
+      .setSeverity(Severity.MAJOR)
+      .setStatus(RuleStatus.READY)
+      .setParams(newArrayList(new NewRuleParam("regex").setDefaultValue("a.*")));
+    RuleKey customRuleKey = service.create(newRule);
+
+    dbSession.clearCache();
+
+    RuleDto rule = dao.getNullableByKey(dbSession, customRuleKey);
+    assertThat(rule).isNotNull();
+  }
+
+  @Test
+  public void do_not_create_if_not_granted() throws Exception {
+    MockUserSession.set().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+
+    try {
+      service.create(new NewRule());
       fail();
     } catch (UnauthorizedException e) {
       // ok
