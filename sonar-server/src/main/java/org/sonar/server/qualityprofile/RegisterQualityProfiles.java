@@ -59,7 +59,7 @@ public class RegisterQualityProfiles implements ServerComponent {
 
   private final PersistentSettings settings;
   private final List<ProfileDefinition> definitions;
-  private final DefaultProfilesCache defaultProfilesCache;
+  private final BuiltInProfiles builtInProfiles;
   private final DbClient dbClient;
   private final RuleActivator ruleActivator;
 
@@ -67,19 +67,19 @@ public class RegisterQualityProfiles implements ServerComponent {
    * To be kept when no ProfileDefinition are injected
    */
   public RegisterQualityProfiles(PersistentSettings settings,
-                                 DefaultProfilesCache defaultProfilesCache,
+                                 BuiltInProfiles builtInProfiles,
                                  DbClient dbClient,
                                  RuleActivator ruleActivator) {
-    this(settings, defaultProfilesCache, dbClient, ruleActivator, Collections.<ProfileDefinition>emptyList());
+    this(settings, builtInProfiles, dbClient, ruleActivator, Collections.<ProfileDefinition>emptyList());
   }
 
   public RegisterQualityProfiles(PersistentSettings settings,
-                                 DefaultProfilesCache defaultProfilesCache,
+                                 BuiltInProfiles builtInProfiles,
                                  DbClient dbClient,
                                  RuleActivator ruleActivator,
                                  List<ProfileDefinition> definitions) {
     this.settings = settings;
-    this.defaultProfilesCache = defaultProfilesCache;
+    this.builtInProfiles = builtInProfiles;
     this.dbClient = dbClient;
     this.ruleActivator = ruleActivator;
     this.definitions = definitions;
@@ -101,7 +101,7 @@ public class RegisterQualityProfiles implements ServerComponent {
           if (shouldRegister(profileKey, session)) {
             register(profileKey, entry.getValue(), session);
           }
-          defaultProfilesCache.put(language, profileName);
+          builtInProfiles.put(language, profileName);
         }
         setDefault(language, profileDefs, session);
       }

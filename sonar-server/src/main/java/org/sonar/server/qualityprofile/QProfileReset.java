@@ -50,17 +50,17 @@ public class QProfileReset implements ServerComponent {
 
   private final DbClient db;
   private final RuleActivator activator;
-  private final DefaultProfilesCache builtInProfiles;
+  private final BuiltInProfiles builtInProfiles;
   private final ProfileDefinition[] definitions;
 
-  public QProfileReset(DbClient db, RuleActivator activator, DefaultProfilesCache builtInProfiles, ProfileDefinition[] definitions) {
+  public QProfileReset(DbClient db, RuleActivator activator, BuiltInProfiles builtInProfiles, ProfileDefinition[] definitions) {
     this.db = db;
     this.activator = activator;
     this.builtInProfiles = builtInProfiles;
     this.definitions = definitions;
   }
 
-  public QProfileReset(DbClient db, RuleActivator activator, DefaultProfilesCache builtInProfiles) {
+  public QProfileReset(DbClient db, RuleActivator activator, BuiltInProfiles builtInProfiles) {
     this(db, activator, builtInProfiles, new ProfileDefinition[0]);
   }
 

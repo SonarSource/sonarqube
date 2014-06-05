@@ -99,7 +99,7 @@ public class QProfileService implements ServerComponent {
 
   /**
    * Deactivate a rule on a Quality profile. Does nothing if the rule is not activated, but
-   * fails (fast) if the rule or the profile does not exist.
+   * fails if the rule or the profile does not exist.
    */
   public List<ActiveRuleChange> deactivate(ActiveRuleKey key) {
     verifyAdminPermission();
