@@ -48,7 +48,11 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -215,7 +219,7 @@ public class RuleIndexMediumTest {
     // partial key does not match
     query = new RuleQuery().setQueryText("X00");
     //TODO fix non-partial match for Key search
-    //assertThat(index.search(query, new QueryOptions()).getHits()).isEmpty();
+    assertThat(index.search(query, new QueryOptions()).getHits()).isEmpty();
 
     // repo:key -> nice-to-have !
     query = new RuleQuery().setQueryText("javascript:X001");

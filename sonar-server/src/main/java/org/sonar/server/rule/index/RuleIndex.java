@@ -174,18 +174,19 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       String queryString = query.getQueryText();
 
       // Human readable type of querying
-      qb.should(this.phraseQuery(RuleNormalizer.RuleField.KEY, queryString, 15f));
+//      qb.should(this.phraseQuery(RuleNormalizer.RuleField.KEY, queryString, 15f));
       qb.should(this.phraseQuery(RuleNormalizer.RuleField.NAME, queryString, 20f));
       qb.should(this.phraseQuery(RuleNormalizer.RuleField.HTML_DESCRIPTION, queryString, 3f));
 
       // Match and partial Match queries
       qb.should(this.termQuery(RuleNormalizer.RuleField.KEY, queryString, 15f));
+      qb.should(this.termQuery(RuleNormalizer.RuleField._KEY, queryString, 35f));
       qb.should(this.termQuery(RuleNormalizer.RuleField.LANGUAGE, queryString, 3f));
       qb.should(this.termQuery(RuleNormalizer.RuleField.CHARACTERISTIC, queryString, 5f));
-      qb.should(this.termAnyQuery(RuleNormalizer.RuleField.CHARACTERISTIC, queryString, 1f));
       qb.should(this.termQuery(RuleNormalizer.RuleField.SUB_CHARACTERISTIC, queryString, 5f));
-      qb.should(this.termAnyQuery(RuleNormalizer.RuleField.SUB_CHARACTERISTIC, queryString, 1f));
       qb.should(this.termQuery(RuleNormalizer.RuleField._TAGS, queryString, 10f));
+      qb.should(this.termAnyQuery(RuleNormalizer.RuleField.CHARACTERISTIC, queryString, 1f));
+      qb.should(this.termAnyQuery(RuleNormalizer.RuleField.SUB_CHARACTERISTIC, queryString, 1f));
       qb.should(this.termAnyQuery(RuleNormalizer.RuleField._TAGS, queryString, 1f));
 
       return qb;

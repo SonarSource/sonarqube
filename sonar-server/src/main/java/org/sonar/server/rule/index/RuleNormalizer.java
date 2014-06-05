@@ -73,10 +73,11 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
   public static final class RuleField extends Indexable {
 
-    public static IndexField KEY = addSortableAndSearchable(IndexField.Type.STRING, "key");
+    public static IndexField KEY = addSortable(IndexField.Type.STRING, "key");
+    public static IndexField _KEY = add(IndexField.Type.STRING, "_key");
     public static IndexField REPOSITORY = add(IndexField.Type.STRING, "repo");
-    public static IndexField NAME = addSortableAndSearchable(IndexField.Type.STRING, "name");
 
+    public static IndexField NAME = addSortableAndSearchable(IndexField.Type.STRING, "name");
     public static IndexField CREATED_AT = addSortable(IndexField.Type.DATE, "createdAt");
     public static IndexField UPDATED_AT = addSortable(IndexField.Type.DATE, "updatedAt");
     public static IndexField HTML_DESCRIPTION = addSearchable(IndexField.Type.TEXT, "htmlDesc");
@@ -157,6 +158,8 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       /** Update Fields */
       Map<String, Object> update = new HashMap<String, Object>();
       update.put(RuleField.KEY.field(), rule.getKey().toString());
+      update.put(RuleField._KEY.field(), ImmutableList.of(rule.getKey().repository(), rule.getKey().rule()));
+
       update.put(RuleField.REPOSITORY.field(), rule.getRepositoryKey());
       update.put(RuleField.NAME.field(), rule.getName());
       update.put(RuleField.CREATED_AT.field(), rule.getCreatedAt());
