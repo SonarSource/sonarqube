@@ -280,7 +280,6 @@ define [
 
 
     showAllLines: ->
-      console.log 1
       @sourceView.resetShowBlocks()
       @sourceView.showBlocks.push from: 0, to: _.size @source.get 'source'
       @sourceView.render()

@@ -22,6 +22,7 @@ define [
     ui:
       expandLinks: '.component-viewer-header-measures-expand'
       expandedBars: '.component-viewer-header-expanded-bar'
+      unitTests: '.js-unit-test'
 
 
     events:
@@ -63,7 +64,7 @@ define [
 
       'click .js-filter-duplications': 'filterByDuplications'
 
-      'click .js-unit-test': 'showCoveredFiles'
+      'click @ui.unitTests': 'showCoveredFiles'
 
 
     initialize: (options) ->
@@ -72,6 +73,8 @@ define [
 
     onRender: ->
       @delegateEvents()
+      if @options.main.component.get('q') == 'UTS'
+        @ui.expandLinks.filter("[data-scope=tests]").click()
 
 
     toggleFavorite: ->
@@ -96,25 +99,27 @@ define [
 
     showExpandedBar: (e) ->
       el = $(e.currentTarget)
-      if el.is '.active'
-        @ui.expandLinks.removeClass 'active'
-        @ui.expandedBars.hide()
-      else
-        @ui.expandLinks.removeClass 'active'
+      active = el.is '.active'
+      @ui.expandLinks.removeClass 'active'
+      @ui.expandedBars.hide()
+      unless active
         el.addClass 'active'
         scope = el.data 'scope'
-        @ui.expandedBars.hide()
-        if scope
-          unless @options.main.component.has 'msr'
-            req = @options.main.requestMeasures(@options.main.key)
-            if @options.main.component.get('q') == 'UTS'
-              req = $.when req, @options.main.requestTests(@options.main.key)
-            req.done =>
-              @render()
-              @ui.expandLinks.filter("[data-scope=#{scope}]").addClass 'active'
-              @ui.expandedBars.filter("[data-scope=#{scope}]").show()
-          else
+        unless @options.main.component.has 'msr'
+          req = @options.main.requestMeasures(@options.main.key)
+          if @options.main.component.get('q') == 'UTS'
+            req = $.when req, @options.main.requestTests(@options.main.key)
+          req.done =>
+            @render()
+            @ui.expandLinks.filter("[data-scope=#{scope}]").addClass 'active'
             @ui.expandedBars.filter("[data-scope=#{scope}]").show()
+
+            method = @options.main.component.get 'selectedTest'
+            if method?
+              @options.main.component.unset 'selectedTest'
+              @ui.unitTests.filter("[data-name=#{method}]").click().addClass('active')
+        else
+          @ui.expandedBars.filter("[data-scope=#{scope}]").show()
 
 
     changeSettings: ->
@@ -193,6 +198,7 @@ define [
     showCoveredFiles: (e) ->
       e.stopPropagation()
       $('body').click()
+      @$('.component-viewer-header-expanded-bar-section-list .active').removeClass 'active'
       testName = $(e.currentTarget).data 'name'
       test = _.findWhere @options.main.component.get('tests'), name: testName
       key = @options.main.component.get('key')

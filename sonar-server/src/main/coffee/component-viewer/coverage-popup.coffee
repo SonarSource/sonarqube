@@ -22,7 +22,9 @@ define [
 
 
     goToFile: (e) ->
-      key = $(e.currentTarget).data 'key'
+      el = $(e.currentTarget)
+      key = el.data 'key'
+      method = el.data 'method'
       files = @model.get 'files'
       @options.main.addTransition 'coverage', _.map files, (file) ->
         x = utils.splitLongName file.longName
@@ -30,6 +32,8 @@ define [
         name: x.name
         subname: x.dir
         active: file.key == key
+      if method?
+        @options.main.component.set 'selectedTest', method
       @options.main._open key
 
 
