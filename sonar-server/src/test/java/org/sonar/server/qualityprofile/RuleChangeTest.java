@@ -29,6 +29,11 @@ import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+@Ignored
+@Deprecated
+/**
+ * @deprecated Medium tests executed in RegisterRuleMediumTest
+ */
 public class RuleChangeTest extends AbstractDbUnitTestCase {
   private ProfilesManager profilesManager;
 
@@ -42,13 +47,6 @@ public class RuleChangeTest extends AbstractDbUnitTestCase {
     setupData("initialData");
     profilesManager.activated(2, 3, "admin");
     checkTables("versionIncreaseIfUsed", "rules_profiles");
-  }
-
-  @Test
-  public void should_increase_version_if_used_and_in_children() {
-    setupData("initialData");
-    profilesManager.activated(1, 1, "admin");
-    checkTables("versionIncreaseIfUsedAndInChildren", "rules_profiles");
   }
 
   @Test
