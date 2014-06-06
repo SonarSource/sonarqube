@@ -16,7 +16,7 @@
 
   <div class="component-viewer-header-links">
     <a><i class="icon-link"></i></a>
-    {{#if component.canMarkAsFavourite}}
+    {{#if state.canMarkAsFavourite}}
       <a class="js-favorite"
          title="{{#if component.fav}}{{t 'click_to_remove_from_favorites'}}{{else}}{{t 'click_to_add_to_favorites'}}{{/if}}">
         <i class="{{#if component.fav}}icon-favorite{{else}}icon-not-favorite{{/if}}"></i>
@@ -25,7 +25,7 @@
   </div>
 
   <div class="component-viewer-header-measures">
-    {{#eq component.q 'UTS'}}
+    {{#if component.isUnitTest}}
       <div class="component-viewer-header-measures-scope">
         <a data-scope="tests" class="component-viewer-header-measures-expand">
           <div class="component-viewer-header-measure">
@@ -35,9 +35,9 @@
           <i class="icon-dropdown"></i>
         </a>
       </div>
-    {{/eq}}
+    {{/if}}
 
-    {{#notEq component.q 'UTS'}}
+    {{#unless component.isUnitTest}}
       <div class="component-viewer-header-measures-scope">
         <span data-scope="basic" class="js-toggle-coverage component-viewer-header-measures-toggle-scope inactive"></span>
         <a data-scope="basic" class="component-viewer-header-measures-expand">
@@ -48,7 +48,7 @@
           <i class="icon-dropdown"></i>
         </a>
       </div>
-    {{/notEq}}
+    {{/unless}}
 
     <div class="component-viewer-header-measures-scope">
       <a data-scope="issues" class="component-viewer-header-measures-expand">
@@ -84,7 +84,7 @@
          class="js-toggle-issues component-viewer-header-measures-toggle-scope {{#if settings.issues}}active{{/if}}"></a>
     </div>
 
-    {{#notEq component.q 'UTS'}}
+    {{#unless component.isUnitTest}}
       {{#if component.measures.fCoverage}}
         <div class="component-viewer-header-measures-scope">
           <a data-scope="coverage" class="component-viewer-header-measures-expand">
@@ -112,7 +112,7 @@
              class="js-toggle-duplications component-viewer-header-measures-toggle-scope {{#if settings.duplications}}active{{/if}}"></a>
         </div>
       {{/if}}
-    {{/notEq}}
+    {{/unless}}
 
     <div class="component-viewer-header-measures-scope">
       <span data-scope="scm" class="component-viewer-header-measures-expand">
@@ -125,39 +125,15 @@
          class="js-toggle-scm component-viewer-header-measures-toggle-scope {{#if settings.scm}}active{{/if}}"></a>
     </div>
   </div>
-</div>
 
-
-
-<div data-scope="basic" class="component-viewer-header-expanded-bar">
-  {{> '_basic-header'}}
-</div>
-
-<div data-scope="issues" class="component-viewer-header-expanded-bar">
-  {{> '_issues-header'}}
-</div>
-
-<div data-scope="coverage" class="component-viewer-header-expanded-bar">
-  {{> '_coverage-header'}}
-</div>
-
-<div data-scope="duplications" class="component-viewer-header-expanded-bar">
-  {{> '_duplications-header'}}
-</div>
-
-{{#eq component.q 'UTS'}}
-  <div data-scope="tests" class="component-viewer-header-expanded-bar">
-    {{> '_tests-header'}}
+  <div class="component-viewer-header-time-changes">
+    <a>
+      <i class="icon-period"></i>
+      <div>{{#if period.key}}{{period.label}}{{else}}Time<br>Changes{{/if}}</div>
+    </a>
   </div>
-{{/eq}}
+</div>
 
-
-
-<div class="component-viewer-header-decoration" style="display: none;">
-  <div class="button-group">
-    <button class="js-toggle-issues {{#if settings.issues}}active{{/if}}">Issues</button>
-    <button class="js-toggle-coverage {{#if settings.coverage}}active{{/if}}">Coverage</button>
-    <button class="js-toggle-duplications {{#if settings.duplications}}active{{/if}}">Duplications</button>
-    <button class="js-toggle-scm {{#if settings.scm}}active{{/if}}">SCM</button>
-  </div>
+<div class="component-viewer-header-expanded-bar">
+  <i class="spinner spinner-margin"></i>
 </div>

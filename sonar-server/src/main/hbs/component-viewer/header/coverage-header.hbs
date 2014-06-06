@@ -1,4 +1,4 @@
-{{#with component.msr}}
+{{#with component.measures}}
   <div class="component-viewer-header-expanded-bar-section">
     <div class="component-viewer-header-expanded-bar-section-title">
       {{t 'component_viewer.measure_section.unit_tests'}}
@@ -7,7 +7,6 @@
       {{{componentViewerHeaderItem coverage 'coverage'}}}
       {{{componentViewerHeaderItem line_coverage 'line_coverage'}}}
       {{{componentViewerHeaderLink lines_to_cover 'lines_to_cover' 'js-filter-lines-to-cover'}}}
-      {{{componentViewerHeaderLink covered_lines 'covered_lines' 'js-filter-covered-lines'}}}
       {{{componentViewerHeaderLink uncovered_lines 'uncovered_lines' 'js-filter-uncovered-lines'}}}
     </ul>
   </div>
@@ -19,7 +18,6 @@
         <li><span class="item">&nbsp;</span></li>
         {{{componentViewerHeaderItem branch_coverage 'branch_coverage'}}}
         {{{componentViewerHeaderLink conditions_to_cover 'conditions_to_cover' 'js-filter-branches-to-cover'}}}
-        {{{componentViewerHeaderLink covered_conditions 'covered_conditions' 'js-filter-covered-branches'}}}
         {{{componentViewerHeaderLink uncovered_conditions 'uncovered_conditions' 'js-filter-uncovered-branches'}}}
       </ul>
     </div>
@@ -35,7 +33,6 @@
         {{{componentViewerHeaderItem it_coverage 'coverage'}}}
         {{{componentViewerHeaderItem it_line_coverage 'line_coverage'}}}
         {{{componentViewerHeaderLink it_lines_to_cover 'lines_to_cover' 'js-filter-lines-to-cover-it'}}}
-        {{{componentViewerHeaderLink it_covered_lines 'covered_lines' 'js-filter-covered-lines-it'}}}
         {{{componentViewerHeaderLink it_uncovered_lines 'uncovered_lines' 'js-filter-uncovered-lines-it'}}}
       </ul>
     </div>
@@ -48,7 +45,6 @@
         <li><span class="item">&nbsp;</span></li>
         {{{componentViewerHeaderItem it_branch_coverage 'branch_coverage'}}}
         {{{componentViewerHeaderLink it_conditions_to_cover 'conditions_to_cover' 'js-filter-branches-to-cover-it'}}}
-        {{{componentViewerHeaderLink it_covered_conditions 'covered_conditions' 'js-filter-covered-branches-it'}}}
         {{{componentViewerHeaderLink it_uncovered_conditions 'uncovered_conditions' 'js-filter-uncovered-branches-it'}}}
       </ul>
     </div>

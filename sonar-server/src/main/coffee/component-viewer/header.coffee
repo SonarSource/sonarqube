@@ -1,27 +1,53 @@
 define [
   'backbone.marionette'
   'templates/component-viewer'
-  'component-viewer/covered-files-popup'
+
+  'component-viewer/header/basic-header'
+  'component-viewer/header/issues-header'
+  'component-viewer/header/coverage-header'
+  'component-viewer/header/duplications-header'
+  'component-viewer/header/tests-header'
+
+  'component-viewer/time-changes-popup'
+
   'common/handlebars-extensions'
 ], (
   Marionette
   Templates
-  CoveredFilesPopupView
+
+  BasicHeaderView
+  IssuesHeaderView
+  CoverageHeaderView
+  DuplicationsHeaderView
+  TestsHeaderView
+
+  TimeChangesPopupView
 ) ->
 
   $ = jQuery
 
   API_FAVORITE = "#{baseUrl}/api/favourites"
-  API_TESTS_COVERED_FILES = "#{baseUrl}/api/tests/covered_files"
+  BARS = [
+    { scope: 'basic', view: BasicHeaderView }
+    { scope: 'issues', view: IssuesHeaderView }
+    { scope: 'coverage', view: CoverageHeaderView }
+    { scope: 'duplications', view: DuplicationsHeaderView }
+    { scope: 'tests', view: TestsHeaderView }
+  ]
 
 
-  class HeaderView extends Marionette.Layout
+  class extends Marionette.Layout
     template: Templates['header']
+
+
+    regions:
+      barRegion: '.component-viewer-header-expanded-bar'
 
 
     ui:
       expandLinks: '.component-viewer-header-measures-expand'
-      expandedBars: '.component-viewer-header-expanded-bar'
+      expandedBar: '.component-viewer-header-expanded-bar'
+      spinnerBar: '.component-viewer-header-expanded-bar[data-scope=spinner]'
       unitTests: '.js-unit-test'
 
 
@@ -35,50 +61,22 @@ define [
       'click .js-toggle-duplications': 'toggleDuplications'
       'click .js-toggle-scm': 'toggleSCM'
 
-      'click .js-issues-bulk-change': 'issuesBulkChange'
-
-      'click .js-filter-current-issue': 'filterByCurrentIssue'
-      'click .js-filter-all-issues': 'filterByAllIssues'
-      'click .js-filter-rule': 'filterByRule'
-      'click .js-filter-fixed-issues': 'filterByFixedIssues'
-      'click .js-filter-unresolved-issues': 'filterByUnresolvedIssues'
-      'click .js-filter-false-positive-issues': 'filterByFalsePositiveIssues'
-      'click .js-filter-BLOCKER-issues': 'filterByBlockerIssues'
-      'click .js-filter-CRITICAL-issues': 'filterByCriticalIssues'
-      'click .js-filter-MAJOR-issues': 'filterByMajorIssues'
-      'click .js-filter-MINOR-issues': 'filterByMinorIssues'
-      'click .js-filter-INFO-issues': 'filterByInfoIssues'
-
-      'click .js-filter-lines-to-cover': 'filterByLinesToCover'
-      'click .js-filter-covered-lines': 'filterByCoveredLines'
-      'click .js-filter-uncovered-lines': 'filterByUncoveredLines'
-      'click .js-filter-branches-to-cover': 'filterByBranchesToCover'
-      'click .js-filter-covered-branches': 'filterByCoveredBranches'
-      'click .js-filter-uncovered-branches': 'filterByUncoveredBranches'
-      'click .js-filter-lines-to-cover-it': 'filterByLinesToCoverIT'
-      'click .js-filter-covered-lines-it': 'filterByCoveredLinesIT'
-      'click .js-filter-uncovered-lines-it': 'filterByUncoveredLinesIT'
-      'click .js-filter-branches-to-cover-it': 'filterByBranchesToCoverIT'
-      'click .js-filter-covered-branches-it': 'filterByCoveredBranchesIT'
-      'click .js-filter-uncovered-branches-it': 'filterByUncoveredBranchesIT'
-
-      'click .js-filter-duplications': 'filterByDuplications'
-
-      'click @ui.unitTests': 'showCoveredFiles'
+      'click .component-viewer-header-time-changes a': 'showTimeChangesPopup'
 
 
     initialize: (options) ->
       options.main.settings.on 'change', => @changeSettings()
+      @state = options.main.state
+      @component = options.main.component
+      @settings = options.main.component
 
 
     onRender: ->
       @delegateEvents()
-      if @options.main.component.get('q') == 'UTS'
-        @ui.expandLinks.filter("[data-scope=tests]").click()
 
 
     toggleFavorite: ->
-      component = @options.main.component
+      component = @component
       if component.get 'fav'
         $.ajax
           url: "#{API_FAVORITE}/#{component.get 'key'}"
@@ -96,30 +94,44 @@ define [
           @render()
 
 
+    showBarSpinner: ->
+      @ui.spinnerBar.addClass 'active'
+
+
+    hideBarSpinner: ->
+      @ui.spinnerBar.removeClass 'active'
+
+
+    resetBars: ->
+      @state.set 'activeHeaderTab', null
+      @ui.expandLinks.removeClass 'active'
+      @ui.expandedBar.removeClass 'active'
+      @barRegion.reset()
+
+
+    enableBar: (scope) ->
+      @ui.expandedBar.addClass 'active'
+      requests = []
+      unless @state.get 'hasMeasures'
+        requests.push @options.main.requestMeasures @options.main.key
+      if @component.get('isUnitTest') && !@state.get('hasTests')
+        requests.push @options.main.requestTests @options.main.key
+      $.when.apply($, requests).done =>
+        @state.set 'activeHeaderTab', scope
+        bar = _.findWhere BARS, scope: scope
+        @barRegion.show new bar.view
+          state: @state, component: @component, settings: @settings, source: @model, header: @
+        @ui.expandLinks.filter("[data-scope=#{scope}]").addClass 'active'
+
 
     showExpandedBar: (e) ->
       el = $(e.currentTarget)
       active = el.is '.active'
-      @ui.expandLinks.removeClass 'active'
-      @ui.expandedBars.hide()
+      @resetBars()
       unless active
         el.addClass 'active'
         scope = el.data 'scope'
-        unless @options.main.component.has 'msr'
-          req = @options.main.requestMeasures(@options.main.key)
-          if @options.main.component.get('q') == 'UTS'
-            req = $.when req, @options.main.requestTests(@options.main.key)
-          req.done =>
-            @render()
-            @ui.expandLinks.filter("[data-scope=#{scope}]").addClass 'active'
-            @ui.expandedBars.filter("[data-scope=#{scope}]").show()
-
-            method = @options.main.component.get 'selectedTest'
-            if method?
-              @options.main.component.unset 'selectedTest'
-              @ui.unitTests.filter("[data-name=#{method}]").click().addClass('active')
-        else
-          @ui.expandedBars.filter("[data-scope=#{scope}]").show()
+        @enableBar scope
 
 
     changeSettings: ->
@@ -145,11 +157,13 @@ define [
     toggleWorkspace: (e) -> @toggleSetting e, @options.main.showWorkspace, @options.main.hideWorkspace
 
 
-    issuesBulkChange: ->
-      issues = @model.get('activeIssues')?.map (issue) -> issue.key
-      if issues.length > 0
-        url = "#{baseUrl}/issues/bulk_change_form?issues=#{issues.join()}"
-        openModalWindow url, {}
+    showTimeChangesPopup: (e) ->
+      e.stopPropagation()
+      $('body').click()
+      popup = new TimeChangesPopupView
+        triggerEl: $(e.currentTarget)
+        main: @options.main
+      popup.render()
 
 
     filterLines: (e, methodName, extra) ->
@@ -159,60 +173,8 @@ define [
       method.call @options.main, extra
 
 
-    # Issues
-    filterByCurrentIssue: (e) -> @filterLines e, 'filterByCurrentIssue'
-    filterByAllIssues: (e) -> @filterLines e, 'filterByAllIssues'
-    filterByFixedIssues: (e) -> @filterLines e, 'filterByFixedIssues'
-    filterByUnresolvedIssues: (e) -> @filterLines e, 'filterByUnresolvedIssues'
-    filterByFalsePositiveIssues: (e) -> @filterLines e, 'filterByFalsePositiveIssues'
-
-    filterByRule: (e) -> @filterLines e, 'filterByRule', $(e.currentTarget).data 'rule'
-
-    filterByBlockerIssues: (e) -> @filterLines e, 'filterByBlockerIssues'
-    filterByCriticalIssues: (e) -> @filterLines e, 'filterByCriticalIssues'
-    filterByMajorIssues: (e) -> @filterLines e, 'filterByMajorIssues'
-    filterByMinorIssues: (e) -> @filterLines e, 'filterByMinorIssues'
-    filterByInfoIssues: (e) -> @filterLines e, 'filterByInfoIssues'
-
-
-    # Coverage
-    filterByLinesToCover: (e) -> @filterLines e, 'filterByLinesToCover'
-    filterByCoveredLines: (e) -> @filterLines e, 'filterByCoveredLines'
-    filterByUncoveredLines: (e) -> @filterLines e, 'filterByUncoveredLines'
-    filterByBranchesToCover: (e) -> @filterLines e, 'filterByBranchesToCover'
-    filterByCoveredBranches: (e) -> @filterLines e, 'filterByCoveredBranches'
-    filterByUncoveredBranches: (e) -> @filterLines e, 'filterByUncoveredBranches'
-
-    filterByLinesToCoverIT: (e) -> @filterLines e, 'filterByLinesToCoverIT'
-    filterByCoveredLinesIT: (e) -> @filterLines e, 'filterByCoveredLinesIT'
-    filterByUncoveredLinesIT: (e) -> @filterLines e, 'filterByUncoveredLinesIT'
-    filterByBranchesToCoverIT: (e) -> @filterLines e, 'filterByBranchesToCoverIT'
-    filterByCoveredBranchesIT: (e) -> @filterLines e, 'filterByCoveredBranchesIT'
-    filterByUncoveredBranchesIT: (e) -> @filterLines e, 'filterByUncoveredBranchesIT'
-
-
-    # Duplications
-    filterByDuplications: (e) -> @filterLines e, 'filterByDuplications'
-
-
-    showCoveredFiles: (e) ->
-      e.stopPropagation()
-      $('body').click()
-      @$('.component-viewer-header-expanded-bar-section-list .active').removeClass 'active'
-      testName = $(e.currentTarget).data 'name'
-      test = _.findWhere @options.main.component.get('tests'), name: testName
-      key = @options.main.component.get('key')
-      $.get API_TESTS_COVERED_FILES, key: key, test: testName, (data) =>
-        popup = new CoveredFilesPopupView
-          triggerEl: $(e.currentTarget)
-          collection: new Backbone.Collection data.files
-          test: test
-          main: @options.main
-        popup.render()
-
-
     serializeData: ->
-      component = @options.main.component.toJSON()
+      component = @component.toJSON()
       if component.measures
         component.measures.maxIssues = Math.max(
           component.measures.fBlockerIssues || 0
@@ -222,11 +184,9 @@ define [
           component.measures.fInfoIssues || 0
         )
 
-      if component.severities
-        order = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO']
-        component.severities = _.sortBy component.severities, (s) -> order.indexOf s[0]
-
       settings: @options.main.settings.toJSON()
+      state: @state.toJSON()
       showSettings: @showSettings
       component: component
       currentIssue: @options.main.currentIssue
+      period: @options.main.period?.toJSON()

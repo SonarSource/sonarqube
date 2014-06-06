@@ -174,16 +174,6 @@ define [
       @options.main.showAllLines()
 
 
-    toggleTimeChangePopup: (e) ->
-      e.stopPropagation()
-      $('body').click()
-      popup = new TimeChangesPopupView
-        triggerEl: $(e.currentTarget)
-        main: @options.main
-        bottom: true
-      popup.render()
-
-
     augmentWithCoverage: (source) ->
       coverage = @model.get 'coverage'
       if coverage

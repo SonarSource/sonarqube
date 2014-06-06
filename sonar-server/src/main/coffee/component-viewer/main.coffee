@@ -2,6 +2,16 @@ define [
   'backbone'
   'backbone.marionette'
   'templates/component-viewer'
+
+  'component-viewer/models/state'
+  'component-viewer/models/component'
+  'component-viewer/models/period'
+
+  'component-viewer/mixins/main-issues'
+  'component-viewer/mixins/main-coverage'
+  'component-viewer/mixins/main-duplications'
+  'component-viewer/mixins/main-scm'
+
   'component-viewer/workspace'
   'component-viewer/source'
   'component-viewer/header'
@@ -12,6 +22,16 @@ define [
   Backbone
   Marionette
   Templates
+
+  State
+  Component
+  Period
+
+  IssuesMixin
+  CoverageMixin
+  DuplicationsMixin
+  SCMMixin
+
   WorkspaceView
   SourceView
   HeaderView
@@ -22,16 +42,8 @@ define [
 
   API_COMPONENT = "#{baseUrl}/api/components/app"
   API_SOURCES = "#{baseUrl}/api/sources/show"
-  API_ISSUES = "#{baseUrl}/api/issues/search"
-  API_COVERAGE = "#{baseUrl}/api/coverage/show"
-  API_SCM = "#{baseUrl}/api/sources/scm"
   API_MEASURES = "#{baseUrl}/api/resources"
-  API_DUPLICATIONS = "#{baseUrl}/api/duplications/show"
   API_TESTS = "#{baseUrl}/api/tests/show"
-
-  LINES_AROUND_ISSUE = 4
-  LINES_AROUND_COVERED_LINE = 1
-  LINES_AROUND_DUPLICATION = 1
 
   SOURCE_METRIC_LIST = 'accessors,classes,functions,statements,' +
     'ncloc,lines,' +
@@ -52,7 +64,7 @@ define [
 
 
 
-  class ComponentViewer extends Marionette.Layout
+  class ComponentViewer extends utils.mixOf Marionette.Layout, IssuesMixin, CoverageMixin, DuplicationsMixin, SCMMixin
     className: 'component-viewer'
     template: Templates['layout']
 
@@ -67,7 +79,9 @@ define [
       @settings = new Backbone.Model @getDefaultSettings()
       @settings.set options.settings
 
-      @component = new Backbone.Model()
+      @state = new State()
+
+      @component = new Component()
       @component.set options.component if options.component?
 
       @workspace = new Backbone.Collection()
@@ -84,7 +98,8 @@ define [
         model: @source
         main: @
 
-      @requestIssuesOnce = false
+      @period = null
+      @periods = new Backbone.Collection [], model: Period
 
 
     getDefaultSettings: ->
@@ -109,35 +124,44 @@ define [
 
 
     requestComponent: (key, clear = false) ->
+      STATE_FIELDS = ['canBulkChange', 'canMarkAsFavourite', 'scmAvailable']
+      COMPONENT_FIELDS = ['key', 'name', 'path', 'q', 'projectName', 'subProjectName', 'measures', 'fav']
+
       $.get API_COMPONENT, key: key, (data) =>
+        # Component
         @component.clear() if clear
-        @component.set data
+        COMPONENT_FIELDS.forEach (f) => @component.set f, data[f]
         @component.set 'dir', utils.splitLongName(data.path).dir
+        @component.set 'isUnitTest', data.q == 'UTS'
+
+        # State
+        stateAttributes = {}
+        STATE_FIELDS.forEach (f) -> stateAttributes[f] = data[f]
+        rules = data.rules.map (r) -> key: r[0], name: r[1], count: r[2]
+        stateAttributes.rules = _.sortBy rules, 'name'
+        severities = data.severities.map (r) -> key: r[0], name: r[1], count: r[2]
+        stateAttributes.severities = utils.sortSeverities severities
+        @state.clear silent: true
+        @state.set _.defaults stateAttributes, @state.defaults
+
+        # Periods
+        @periods.reset [{}]
+        data.periods.forEach (p) => @periods.add key: p[0], label: p[1], sinceDate: new Date p[2]
+        @period = @periods.at 0
 
 
     requestMeasures: (key) ->
-      unless @component.get('q') == 'UTS'
+      @state.set 'hasMeasures', true
+      unless @component.get 'isUnitTest'
         metrics = [SOURCE_METRIC_LIST, COVERAGE_METRIC_LIST, ISSUES_METRIC_LIST, DUPLICATIONS_METRIC_LIST].join ','
       else
         metrics = [ISSUES_METRIC_LIST, TESTS_METRIC_LIST]
       $.get API_MEASURES, resource: key, metrics: metrics, (data) =>
         measuresList = data[0].msr || []
-        measures = {}
-        measuresList.forEach (m) -> measures[m.key] = m.frmt_val
-
-        if measures['lines_to_cover']? && measures['uncovered_lines']?
-          measures['covered_lines'] = measures['lines_to_cover'] - measures['uncovered_lines']
-
-        if measures['conditions_to_cover']? && measures['uncovered_conditions']?
-          measures['covered_conditions'] = measures['conditions_to_cover'] - measures['uncovered_conditions']
-
-        if measures['it_lines_to_cover']? && measures['it_uncovered_lines']?
-          measures['it_covered_lines'] = measures['it_lines_to_cover'] - measures['it_uncovered_lines']
-
-        if measures['it_conditions_to_cover']? && measures['it_uncovered_conditions']?
-          measures['it_covered_conditions'] = measures['it_conditions_to_cover'] - measures['it_uncovered_conditions']
-
-        @component.set 'msr', measures
+        measures = @component.get 'measures'
+        measuresList.forEach (m) ->
+          measures[m.key] = m.frmt_val
+        @component.set 'measures', measures
 
 
     requestSource: (key) ->
@@ -146,34 +170,9 @@ define [
         @source.set source: data.sources
 
 
-    requestSCM: (key) ->
-      $.get API_SCM, key: key, (data) =>
-        @source.set scm: data.scm
-
-
-    requestIssues: (key) ->
-      options =
-        components: key
-        ps: 10000
-        extra_fields: 'actions,transitions,assigneeName,actionPlanName'
-      $.get API_ISSUES, options, (data) =>
-        @requestIssuesOnce = true
-        @source.set issues: data.issues
-
-
-    requestCoverage: (key, type = 'UT') ->
-      $.get API_COVERAGE, key: key, type: type, (data) =>
-        @source.set coverage: data.coverage
-
-
-    requestDuplications: (key) ->
-      $.get API_DUPLICATIONS, key: key, (data) =>
-        @source.set duplications: data.duplications
-        @source.set duplicationFiles: data.files
-
-
     requestTests: (key) ->
       $.get API_TESTS, key: key, (data) =>
+        @state.set 'hasTests', true
         @component.set 'tests', data.tests
 
 
@@ -199,21 +198,6 @@ define [
         if @settings.get('scm') then @showSCM() else @hideSCM()
 
 
-    showCoverage: (store = false) ->
-      @settings.set 'coverage', true
-      @storeSettings() if store
-      unless @source.has 'coverage'
-        @requestCoverage(@key).done => @sourceView.render()
-      else
-        @sourceView.render()
-
-
-    hideCoverage: (store = false) ->
-      @settings.set 'coverage', false
-      @storeSettings() if store
-      @sourceView.render()
-
-
     toggleWorkspace: (store = false) ->
       if @settings.get 'workspace' then @hideWorkspace() else @showWorkspace()
       @storeSettings() if store
@@ -231,170 +215,14 @@ define [
       @render()
 
 
-    showIssues: (store = false, issue) ->
-      @settings.set 'issues', true
-      @storeSettings() if store
-      if issue?
-        @currentIssue = issue.key
-        @source.set 'issues', [issue]
-        @filterByCurrentIssue()
-        @headerView.render()
-      else
-        @sourceView.render()
-
-
-    hideIssues: (store = false) ->
-      @settings.set 'issues', false
-      @storeSettings() if store
-      @sourceView.render()
-
-
-    showDuplications: (store = false) ->
-      @settings.set 'duplications', true
-      @storeSettings() if store
-      unless @source.has 'duplications'
-        @requestDuplications(@key).done => @sourceView.render()
-      else
-        @sourceView.render()
-
-
-    hideDuplications: (store = false) ->
-      @settings.set 'duplications', false
-      @storeSettings() if store
-      @sourceView.render()
-
-
-    showSCM: (store = false) ->
-      @settings.set 'scm', true
-      @storeSettings() if store
-      unless @source.has 'scm'
-        @requestSCM(@key).done => @sourceView.render()
-      else
-        @sourceView.render()
-
-
-    hideSCM: (store = false) ->
-      @settings.set 'scm', false
-      @storeSettings() if store
-      @sourceView.render()
+    enablePeriod: (period) ->
+      @period = @periods.findWhere key: period
+      @render()
 
 
     showAllLines: ->
       @sourceView.resetShowBlocks()
       @sourceView.showBlocks.push from: 0, to: _.size @source.get 'source'
-      @sourceView.render()
-
-
-    filterLinesByIssues: ->
-      issues = @source.get 'issues'
-      @sourceView.resetShowBlocks()
-      issues.forEach (issue) =>
-        line = issue.line || 0
-        @sourceView.addShowBlock line - LINES_AROUND_ISSUE, line + LINES_AROUND_ISSUE
-      @sourceView.render()
-
-
-    filterByIssues: (predicate, requestIssues = true) ->
-      if requestIssues && !@requestIssuesOnce
-        @requestIssues(@key).done => @_filterByIssues(predicate)
-      else
-        @_filterByIssues(predicate)
-
-
-    _filterByIssues: (predicate) ->
-      issues = @source.get 'issues'
-      @settings.set 'issues', true
-      @sourceView.resetShowBlocks()
-      activeIssues = []
-      issues.forEach (issue) =>
-        if predicate issue
-          line = issue.line || 0
-          @sourceView.addShowBlock line - LINES_AROUND_ISSUE, line + LINES_AROUND_ISSUE
-          activeIssues.push issue
-      @source.set 'activeIssues', activeIssues
-      @sourceView.render()
-
-
-    # Current Issue
-    filterByCurrentIssue: -> @filterByIssues ((issue) => issue.key == @currentIssue), false
-
-    # All Issues
-    filterByAllIssues: -> @filterByIssues -> true
-
-    # Resolved Issues
-    filterByFixedIssues: -> @filterByIssues (issue) -> issue.resolution == 'FIXED'
-
-    # Unresolved Issues
-    filterByUnresolvedIssues: -> @filterByIssues (issue) -> !issue.resolution
-
-    # False Positive
-    filterByFalsePositiveIssues: -> @filterByIssues (issue) -> issue.resolution == 'FALSE-POSITIVE'
-
-    # Rule
-    filterByRule: (rule) -> @filterByIssues (issue) -> issue.rule == rule && !issue.resolution
-
-    # Severity
-    filterByBlockerIssues: -> @filterByIssues (issue) -> issue.severity == 'BLOCKER' && !issue.resolution
-    filterByCriticalIssues: -> @filterByIssues (issue) -> issue.severity == 'CRITICAL' && !issue.resolution
-    filterByMajorIssues: -> @filterByIssues (issue) -> issue.severity == 'MAJOR' && !issue.resolution
-    filterByMinorIssues: -> @filterByIssues (issue) -> issue.severity == 'MINOR' && !issue.resolution
-    filterByInfoIssues: -> @filterByIssues (issue) -> issue.severity == 'INFO' && !issue.resolution
-
-
-    filterByCoverage: (predicate) ->
-      @requestCoverage(@key).done => @_filterByCoverage(predicate)
-
-
-    filterByCoverageIT: (predicate) ->
-      @requestCoverage(@key, 'IT').done => @_filterByCoverage(predicate)
-
-
-    _filterByCoverage: (predicate) ->
-      coverage = @source.get 'coverage'
-      @settings.set 'coverage', true
-      @sourceView.resetShowBlocks()
-      coverage.forEach (c) =>
-        if predicate c
-          line = c[0]
-          @sourceView.addShowBlock line - LINES_AROUND_COVERED_LINE, line + LINES_AROUND_COVERED_LINE
-      @sourceView.render()
-
-
-    # Unit Tests
-    filterByLinesToCover: -> @filterByCoverage (c) -> c[1]?
-    filterByCoveredLines: -> @filterByCoverage (c) -> c[1]? && c[1]
-    filterByUncoveredLines: -> @filterByCoverage (c) -> c[1]? && !c[1]
-    filterByBranchesToCover: -> @filterByCoverage (c) -> c[3]?
-    filterByCoveredBranches: -> @filterByCoverage (c) -> c[3]? && c[4]? && (c[4] > 0)
-    filterByUncoveredBranches: -> @filterByCoverage (c) -> c[3]? && c[4]? && (c[3] > c[4])
-
-    # Integration Tests
-    filterByLinesToCoverIT: -> @filterByCoverageIT (c) -> c[1]?
-    filterByCoveredLinesIT: -> @filterByCoverageIT (c) -> c[1]? && c[1]
-    filterByUncoveredLinesIT: -> @filterByCoverageIT (c) -> c[1]? && !c[1]
-    filterByBranchesToCoverIT: -> @filterByCoverageIT (c) -> c[3]?
-    filterByCoveredBranchesIT: -> @filterByCoverageIT (c) -> c[3]? && c[4]? && (c[4] > 0)
-    filterByUncoveredBranchesIT: -> @filterByCoverageIT (c) -> c[3]? && c[4]? && (c[3] > c[4])
-
-
-    # Duplications
-    filterByDuplications: ->
-      unless @source.has 'duplications'
-        @requestDuplications(@key).done => @_filterByDuplications()
-      else
-        @_filterByDuplications()
-
-
-    _filterByDuplications: ->
-      duplications = @source.get 'duplications'
-      @settings.set 'duplications', true
-      @sourceView.resetShowBlocks()
-      duplications.forEach (d) =>
-        d.blocks.forEach (b) =>
-          if b._ref == '1'
-            lineFrom = b.from
-            lineTo = b.from + b.size
-            @sourceView.addShowBlock lineFrom - LINES_AROUND_DUPLICATION, lineTo + LINES_AROUND_DUPLICATION
       @sourceView.render()
 
 

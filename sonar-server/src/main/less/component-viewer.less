@@ -433,6 +433,33 @@
   & > a { display: block; }
 }
 
+.component-viewer-header-time-changes {
+  float: right;
+  max-width: 180px;
+
+  & > a {
+    display: block;
+    padding: 14px 10px;
+    border-right: 1px solid @barBorderColor;
+    font-size: @smallFontSize;
+    .trans;
+
+    &:hover { background-color: @barBorderColor; }
+
+    & > i {
+      display: block;
+      float: left;
+      margin-top: 8px;
+      margin-right: 4px;
+    }
+
+    & > div {
+      padding: 2px 0;
+      overflow: hidden;
+    }
+  }
+}
+
 .component-viewer-header-expanded-bar {
   display: none;
   .clearfix;
@@ -441,6 +468,8 @@
   border: 1px solid @barBorderColor;
   border-top: none;
   background-color: #fff;
+
+  &.active { display: block; }
 }
 
 .component-viewer-header-expanded-bar-section {
@@ -597,6 +626,8 @@
 
 .component-viewer-popup-list {
   margin-top: 5px;
+
+  & > li { padding: 2px 0; }
 }
 
 .component-viewer-popup-test {
@@ -621,7 +652,9 @@
 
 .component-viewer-popup-test-status {
   position: absolute;
-  top: 0; left: 0
+  left: 0;
+  top: 50%;
+  margin-top: -8px;
 }
 
 .component-viewer-popup-test-duration {

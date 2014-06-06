@@ -1,9 +1,9 @@
-{{#with component.msr}}
+{{#with component.measures}}
   <div class="component-viewer-header-expanded-bar-section">
     <div class="component-viewer-header-expanded-bar-section-title">{{t 'duplications'}}</div>
     <ul class="component-viewer-header-expanded-bar-section-list">
       {{{componentViewerHeaderLink duplicated_blocks 'duplicated_blocks' 'js-filter-duplications'}}}
-      {{{componentViewerHeaderLink duplicated_lines 'duplicated_lines' 'js-filter-duplications'}}}
+      {{{componentViewerHeaderItem duplicated_lines 'duplicated_lines'}}}
     </ul>
   </div>
 {{/with}}

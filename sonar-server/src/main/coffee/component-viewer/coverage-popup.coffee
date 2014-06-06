@@ -32,9 +32,10 @@ define [
         name: x.name
         subname: x.dir
         active: file.key == key
-      if method?
-        @options.main.component.set 'selectedTest', method
-      @options.main._open key
+      @options.main._open(key).done =>
+        @options.main.headerView.enableBar('tests').done =>
+          if method?
+            @options.main.headerView.enableUnitTest method
 
 
     serializeData: ->
