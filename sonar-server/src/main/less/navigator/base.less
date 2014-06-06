@@ -261,19 +261,22 @@
   margin: 1px @navigatorPadding;
   font-size: @baseFontSize;
   cursor: pointer;
-  background-color: @navigatorFacetInactiveBackground;
-  border: 1px solid @navigatorFacetInactiveBackground;
-  border-radius: 3px;
-  padding: 0 5px;
+  border-top: 1px solid @navigatorBarBackground;
+  border-left: 1px solid @navigatorBarBackground;
+  border-right: 1px solid @navigatorBarBackground;
+  border-bottom: 1px solid @navigatorBorderColor;
+  padding: 2px 5px;
   transition: all @defaultTransitionOptions;
 
   &:hover {
     border: 1px solid @blue;
+    text-decoration: none;
   }
 
   &.active {
     border: 1px solid @blue;
     background-color: @lightBlue;
+    text-decoration: none;
   }
 }
 
