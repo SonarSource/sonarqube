@@ -25,6 +25,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -33,6 +34,7 @@ import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.sort.FieldSortBuilder;
@@ -171,12 +173,21 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   /* Build main query (search based) */
   protected QueryBuilder getQuery(RuleQuery query, QueryOptions options) {
     if (query.getQueryText() != null && !query.getQueryText().isEmpty()) {
+
       BoolQueryBuilder qb = QueryBuilders.boolQuery();
       String queryString = query.getQueryText();
 
-      // Human readable type of querying
-      qb.should(this.phraseQuery(RuleNormalizer.RuleField.NAME, queryString, 20f));
-      qb.should(this.phraseQuery(RuleNormalizer.RuleField.HTML_DESCRIPTION, queryString, 3f));
+      //Human readable type of querying
+      qb.should(QueryBuilders.queryString(query.getQueryText())
+        .field(RuleNormalizer.RuleField.NAME.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 20f)
+        .field(RuleNormalizer.RuleField.HTML_DESCRIPTION.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 3f)
+        .enablePositionIncrements(true)
+        .defaultOperator(QueryStringQueryBuilder.Operator.AND)
+        .fuzziness(Fuzziness.ONE)
+        .autoGeneratePhraseQueries(true)
+        .lenient(false)
+        .useDisMax(true)
+        .boost(20f));
 
       // Match and partial Match queries
       qb.should(this.termQuery(RuleNormalizer.RuleField.KEY, queryString, 15f));
@@ -190,6 +201,38 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       qb.should(this.termAnyQuery(RuleNormalizer.RuleField._TAGS, queryString, 1f));
 
       return qb;
+
+//      PURE EDISMAX Query style
+//      return QueryBuilders.queryString(query.getQueryText())
+//        // Human readable type of querying
+//        .field(RuleNormalizer.RuleField.NAME.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 20f)
+//        .field(RuleNormalizer.RuleField.HTML_DESCRIPTION.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 3f)
+//
+//          // Match and partial Match queries
+//        .field(RuleNormalizer.RuleField.KEY.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 15f)
+//        .field(RuleNormalizer.RuleField._KEY.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 15f)
+//        .field(RuleNormalizer.RuleField.LANGUAGE.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 5f)
+//        .field(RuleNormalizer.RuleField.CHARACTERISTIC.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 5f)
+//        .field(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 5f)
+//        .field(RuleNormalizer.RuleField._TAGS.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 10f);
+
+//      PURE FIELD_MATCHING Q
+//      //Human readable type of querying
+//      qb.should(this.phraseQuery(RuleNormalizer.RuleField.NAME, queryString, 20f));
+//      qb.should(this.phraseQuery(RuleNormalizer.RuleField.HTML_DESCRIPTION, queryString, 3f));
+//
+//      // Match and partial Match queries
+//      qb.should(this.termQuery(RuleNormalizer.RuleField.KEY, queryString, 15f));
+//      qb.should(this.termQuery(RuleNormalizer.RuleField._KEY, queryString, 35f));
+//      qb.should(this.termQuery(RuleNormalizer.RuleField.LANGUAGE, queryString, 3f));
+//      qb.should(this.termQuery(RuleNormalizer.RuleField.CHARACTERISTIC, queryString, 5f));
+//      qb.should(this.termQuery(RuleNormalizer.RuleField.SUB_CHARACTERISTIC, queryString, 5f));
+//      qb.should(this.termQuery(RuleNormalizer.RuleField._TAGS, queryString, 10f));
+//      qb.should(this.termAnyQuery(RuleNormalizer.RuleField.CHARACTERISTIC, queryString, 1f));
+//      qb.should(this.termAnyQuery(RuleNormalizer.RuleField.SUB_CHARACTERISTIC, queryString, 1f));
+//      qb.should(this.termAnyQuery(RuleNormalizer.RuleField._TAGS, queryString, 1f));
+//
+//      return qb;
 
     }
     return QueryBuilders.matchAllQuery();
@@ -293,7 +336,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
 
   public RuleResult search(RuleQuery query, QueryOptions options) {
-    StopWatch profile = profiling.start("es", Profiling.Level.FULL);
+    StopWatch profile = profiling.start("es", Profiling.Level.BASIC);
 
     SearchRequestBuilder esSearch = getClient()
       .prepareSearch(this.getIndexName())
@@ -315,7 +358,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     esSearch.setQuery(QueryBuilders.filteredQuery(qb, fb));
 
     SearchResponse esResult = esSearch.get();
-    profile.stop("query: {}\nresult:{}", esSearch, esResult);
+    profile.stop("query: " + esSearch + "\nresult:" + esResult);
 
     if (options.isScroll()) {
       return new RuleResult(this, esResult);
