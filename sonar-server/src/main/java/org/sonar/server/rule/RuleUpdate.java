@@ -111,6 +111,7 @@ public class RuleUpdate {
     return this;
   }
 
+  @CheckForNull
   public String getName() {
     return name;
   }
@@ -122,6 +123,7 @@ public class RuleUpdate {
     return this;
   }
 
+  @CheckForNull
   public String getHtmlDescription() {
     return htmlDescription;
   }
@@ -133,28 +135,33 @@ public class RuleUpdate {
     return this;
   }
 
+  @CheckForNull
   public String getSeverity() {
     return severity;
   }
 
-  public RuleUpdate setSeverity(String severity) {
+  public RuleUpdate setSeverity(@Nullable String severity) {
     checkCustomRule();
     this.severity = severity;
     this.changeSeverity = true;
     return this;
   }
 
+  @CheckForNull
   public RuleStatus getStatus() {
     return status;
   }
 
-  public RuleUpdate setStatus(RuleStatus status) {
+  public RuleUpdate setStatus(@Nullable RuleStatus status) {
     checkCustomRule();
     this.status = status;
     this.changeStatus = true;
     return this;
   }
 
+  /**
+   * Parameters to be updated (only for custom rules)
+   */
   public RuleUpdate setParameters(Map<String, String> params) {
     checkCustomRule();
     this.parameters.clear();

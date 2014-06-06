@@ -177,12 +177,9 @@ public class RuleUpdater implements ServerComponent {
   }
 
   private void updateParameters(RuleUpdate update, Context context) {
-    // All parameters have to be updated
     for (RuleParamDto ruleParamDto : context.parameters) {
       String value = update.parameter(ruleParamDto.getName());
-      if (Strings.isNullOrEmpty(value)) {
-        throw new IllegalArgumentException(String.format("The parameter '%s' has not been set", ruleParamDto.getName()));
-      } else {
+      if (!Strings.isNullOrEmpty(value)) {
         ruleParamDto.setDefaultValue(value);
       }
     }
