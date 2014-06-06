@@ -31,11 +31,8 @@ import org.sonar.core.persistence.Dto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
+
+import java.util.*;
 
 public final class RuleDto extends Dto<RuleKey> {
 
@@ -141,16 +138,18 @@ public final class RuleDto extends Dto<RuleKey> {
     return this;
   }
 
+  @CheckForNull
   public Integer getSeverity() {
     return severity;
   }
 
+  @CheckForNull
   public String getSeverityString() {
-    return SeverityUtil.getSeverityFromOrdinal(severity);
+    return severity != null ? SeverityUtil.getSeverityFromOrdinal(severity) : null;
   }
 
-  public RuleDto setSeverity(String severity) {
-    return this.setSeverity(SeverityUtil.getOrdinalFromSeverity(severity));
+  public RuleDto setSeverity(@Nullable String severity) {
+    return this.setSeverity(severity != null ? SeverityUtil.getOrdinalFromSeverity(severity) : null);
   }
 
   public RuleDto setSeverity(@Nullable Integer severity) {
