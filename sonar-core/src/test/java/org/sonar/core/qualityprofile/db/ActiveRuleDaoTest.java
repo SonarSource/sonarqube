@@ -27,6 +27,7 @@ import org.sonar.core.persistence.AbstractDaoTestCase;
 
 import java.util.List;
 
+import static junit.framework.Assert.fail;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class ActiveRuleDaoTest extends AbstractDaoTestCase {
@@ -81,5 +82,32 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
     setupData("shared");
 
     assertThat(dao.selectParamsByProfileId(1)).hasSize(2);
+  }
+
+  @Test
+  public void fail_unique_rule_index() {
+    setupData("empty");
+
+    ActiveRuleDto dto = new ActiveRuleDto()
+      .setProfileId(1)
+      .setRuleId(10)
+      .setSeverity(Severity.MAJOR)
+      .setInheritance("INHERITED");
+
+    dao.insert(dto);
+
+    try {
+      ActiveRuleDto dto2 = new ActiveRuleDto()
+        .setProfileId(1)
+        .setRuleId(10)
+        .setSeverity(Severity.MAJOR)
+        .setInheritance("INHERITED");
+
+      dao.insert(dto2);
+      fail();
+    } catch (Exception e) {
+
+    }
+
   }
 }
