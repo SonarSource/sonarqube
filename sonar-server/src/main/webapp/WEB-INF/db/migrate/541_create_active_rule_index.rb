@@ -17,8 +17,14 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-class CreateLogTable < ActiveRecord::Migration
+class CreateActiveRuleIndex < ActiveRecord::Migration
 
+
+  class ActiveRuleParameters < ActiveRecord::Base
+  end
+
+  class ActiveRule < ActiveRecord::Base
+  end
 
   def self.up
 
