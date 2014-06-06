@@ -22,7 +22,7 @@ class CreateLogTable < ActiveRecord::Migration
 
   def self.up
     begin
-      add_index :active_rule, :profile_id, :rule_id => 'act_rul_id'
+      add_index :active_rules, :profile_id, :rule_id => 'act_rul_id'
     rescue
       # already exists
     end
