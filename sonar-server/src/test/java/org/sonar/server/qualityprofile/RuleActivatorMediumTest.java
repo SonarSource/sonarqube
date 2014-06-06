@@ -20,7 +20,6 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Multimap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -49,6 +48,8 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.tester.ServerTester;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -62,6 +63,7 @@ public class RuleActivatorMediumTest {
   static final QualityProfileKey XOO_GRAND_CHILD_PROFILE_KEY = QualityProfileKey.of("P3", "xoo");
   static final RuleKey MANUAL_RULE_KEY = RuleKey.of(Rule.MANUAL_REPOSITORY_KEY, "m1");
   static final RuleKey XOO_RULE_1 = RuleKey.of("xoo", "x1");
+  static final RuleKey XOO_RULE_2 = RuleKey.of("xoo", "x2");
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
@@ -84,10 +86,11 @@ public class RuleActivatorMediumTest {
       .setSeverity("MAJOR").setLanguage("java");
     RuleDto xooRule1 = RuleTesting.newDto(XOO_RULE_1)
       .setSeverity("MINOR").setLanguage("xoo");
+    RuleDto xooRule2 = RuleTesting.newDto(XOO_RULE_2).setLanguage("xoo");
     RuleDto xooTemplateRule1 = RuleTesting.newDto(RuleKey.of("xoo", "template1"))
       .setSeverity("MINOR").setLanguage("xoo").setCardinality(Cardinality.MULTIPLE);
     RuleDto manualRule = RuleTesting.newDto(MANUAL_RULE_KEY);
-    db.ruleDao().insert(dbSession, javaRule, xooRule1, xooTemplateRule1, manualRule);
+    db.ruleDao().insert(dbSession, javaRule, xooRule1, xooRule2, xooTemplateRule1, manualRule);
     db.ruleDao().addRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
       .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
     db.ruleDao().addRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
@@ -106,45 +109,53 @@ public class RuleActivatorMediumTest {
 
   @Test
   public void activate() throws Exception {
-    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, XOO_RULE_1));
+    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(XOO_PROFILE_KEY, XOO_RULE_1);
+    RuleActivation activation = new RuleActivation(activeRuleKey);
     activation.setSeverity(Severity.BLOCKER);
     activation.setParameter("max", "7");
     ruleActivator.activate(activation);
 
-    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
+    assertThat(countActiveRules(XOO_PROFILE_KEY)).isEqualTo(1);
+    verifyHasActiveRule(activeRuleKey, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
   }
 
   @Test
   public void activate_with_default_severity_and_parameter() throws Exception {
-    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, XOO_RULE_1));
+    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(XOO_PROFILE_KEY, XOO_RULE_1);
+    RuleActivation activation = new RuleActivation(activeRuleKey);
     ruleActivator.activate(activation);
 
-    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.MINOR, null, ImmutableMap.of("max", "10"));
+    assertThat(countActiveRules(XOO_PROFILE_KEY)).isEqualTo(1);
+    verifyHasActiveRule(activeRuleKey, Severity.MINOR, null, ImmutableMap.of("max", "10"));
   }
 
   @Test
   public void activation_ignores_unsupported_parameters() throws Exception {
-    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, XOO_RULE_1));
+    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(XOO_PROFILE_KEY, XOO_RULE_1);
+    RuleActivation activation = new RuleActivation(activeRuleKey);
     activation.setParameter("xxx", "yyy");
     ruleActivator.activate(activation);
 
-    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.MINOR, null, ImmutableMap.of("max", "10"));
+    assertThat(countActiveRules(XOO_PROFILE_KEY)).isEqualTo(1);
+    verifyHasActiveRule(activeRuleKey, Severity.MINOR, null, ImmutableMap.of("max", "10"));
   }
 
   @Test
   public void update_activation_severity_and_parameters() throws Exception {
     // initial activation
-    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, XOO_RULE_1));
+    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(XOO_PROFILE_KEY, XOO_RULE_1);
+    RuleActivation activation = new RuleActivation(activeRuleKey);
     activation.setSeverity(Severity.BLOCKER);
     ruleActivator.activate(activation);
 
     // update
-    RuleActivation update = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, XOO_RULE_1));
+    RuleActivation update = new RuleActivation(activeRuleKey);
     update.setSeverity(Severity.CRITICAL);
     update.setParameter("max", "42");
     ruleActivator.activate(update);
 
-    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.CRITICAL, null, ImmutableMap.of("max", "42"));
+    assertThat(countActiveRules(XOO_PROFILE_KEY)).isEqualTo(1);
+    verifyHasActiveRule(activeRuleKey, Severity.CRITICAL, null, ImmutableMap.of("max", "42"));
   }
 
   @Test
@@ -169,22 +180,25 @@ public class RuleActivatorMediumTest {
     // contrary to activerule, the param 'max' is supposed to be inserted but not updated
     ruleActivator.activate(update);
 
-    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.CRITICAL, null, ImmutableMap.of("max", "42"));
+    assertThat(countActiveRules(XOO_PROFILE_KEY)).isEqualTo(1);
+    verifyHasActiveRule(activeRuleKey, Severity.CRITICAL, null, ImmutableMap.of("max", "42"));
   }
 
   @Test
   public void revert_activation_to_default_severity_and_parameters() throws Exception {
     // initial activation
-    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, XOO_RULE_1));
+    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(XOO_PROFILE_KEY, XOO_RULE_1);
+    RuleActivation activation = new RuleActivation(activeRuleKey);
     activation.setSeverity(Severity.BLOCKER);
     activation.setParameter("max", "7");
     ruleActivator.activate(activation);
 
     // update
-    RuleActivation update = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, XOO_RULE_1));
+    RuleActivation update = new RuleActivation(activeRuleKey);
     ruleActivator.activate(update);
 
-    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.MINOR, null, ImmutableMap.of("max", "10"));
+    assertThat(countActiveRules(XOO_PROFILE_KEY)).isEqualTo(1);
+    verifyHasActiveRule(activeRuleKey, Severity.MINOR, null, ImmutableMap.of("max", "10"));
   }
 
   @Test
@@ -334,6 +348,26 @@ public class RuleActivatorMediumTest {
     }
   }
 
+  @Test
+  public void allow_to_deactivate_removed_rule() throws Exception {
+    // activation
+    ActiveRuleKey key = ActiveRuleKey.of(XOO_PROFILE_KEY, XOO_RULE_1);
+    RuleActivation activation = new RuleActivation(key);
+    ruleActivator.activate(activation);
+
+    // set rule as removed
+    RuleDto rule = db.ruleDao().getByKey(dbSession, XOO_RULE_1);
+    rule.setStatus(RuleStatus.REMOVED);
+    db.ruleDao().update(dbSession, rule);
+    dbSession.commit();
+    dbSession.clearCache();
+
+    // deactivation
+    ruleActivator.deactivate(key);
+
+    verifyZeroActiveRules(XOO_PROFILE_KEY);
+  }
+
   // INHERITANCE OF PROFILES
   @Test
   public void activate_on_child_profile() throws Exception {
@@ -346,8 +380,8 @@ public class RuleActivatorMediumTest {
     ruleActivator.activate(activation);
 
     verifyZeroActiveRules(XOO_PROFILE_KEY);
-    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
-    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
   }
 
   @Test
@@ -360,9 +394,9 @@ public class RuleActivatorMediumTest {
     activation.setParameter("max", "7");
     ruleActivator.activate(activation);
 
-    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
-    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
-    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
   }
 
   @Test
@@ -374,9 +408,9 @@ public class RuleActivatorMediumTest {
     activation.setSeverity(Severity.BLOCKER);
     activation.setParameter("max", "7");
     ruleActivator.activate(activation);
-    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
-    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
-    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
 
     // update on parent
     activation = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, XOO_RULE_1));
@@ -384,9 +418,9 @@ public class RuleActivatorMediumTest {
     activation.setParameter("max", "8");
     ruleActivator.activate(activation);
     dbSession.clearCache();
-    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.INFO, null, ImmutableMap.of("max", "8"));
-    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.INFO, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "8"));
-    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.INFO, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "8"));
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.INFO, null, ImmutableMap.of("max", "8"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.INFO, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "8"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.INFO, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "8"));
 
     // update on child -> propagate on grand child only
     activation = new RuleActivation(ActiveRuleKey.of(XOO_CHILD_PROFILE_KEY, XOO_RULE_1));
@@ -394,9 +428,9 @@ public class RuleActivatorMediumTest {
     activation.setParameter("max", "9");
     ruleActivator.activate(activation);
     dbSession.clearCache();
-    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.INFO, null, ImmutableMap.of("max", "8"));
-    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.MINOR, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "9"));
-    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.MINOR, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "9"));
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.INFO, null, ImmutableMap.of("max", "8"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.MINOR, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "9"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.MINOR, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "9"));
 
     // update on grand child
     activation = new RuleActivation(ActiveRuleKey.of(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1));
@@ -404,9 +438,9 @@ public class RuleActivatorMediumTest {
     activation.setParameter("max", "10");
     ruleActivator.activate(activation);
     dbSession.clearCache();
-    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.INFO, null, ImmutableMap.of("max", "8"));
-    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.MINOR, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "9"));
-    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "10"));
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.INFO, null, ImmutableMap.of("max", "8"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.MINOR, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "9"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "10"));
   }
 
   @Test
@@ -418,9 +452,9 @@ public class RuleActivatorMediumTest {
     activation.setSeverity(Severity.INFO);
     activation.setParameter("max", "7");
     ruleActivator.activate(activation);
-    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.INFO, null, ImmutableMap.of("max", "7"));
-    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.INFO, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
-    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.INFO, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.INFO, null, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.INFO, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.INFO, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
 
     // override on child
     activation = new RuleActivation(ActiveRuleKey.of(XOO_CHILD_PROFILE_KEY, XOO_RULE_1));
@@ -428,9 +462,9 @@ public class RuleActivatorMediumTest {
     activation.setParameter("max", "8");
     ruleActivator.activate(activation);
     dbSession.clearCache();
-    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.INFO, null, ImmutableMap.of("max", "7"));
-    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "8"));
-    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "8"));
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.INFO, null, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "8"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "8"));
 
     // change on parent -> do not propagate on children because they're overriding values
     activation = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, XOO_RULE_1));
@@ -438,9 +472,9 @@ public class RuleActivatorMediumTest {
     activation.setParameter("max", "10");
     ruleActivator.activate(activation);
     dbSession.clearCache();
-    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.CRITICAL, null, ImmutableMap.of("max", "10"));
-    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "8"));
-    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "8"));
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.CRITICAL, null, ImmutableMap.of("max", "10"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "8"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "8"));
   }
 
   @Test
@@ -452,8 +486,8 @@ public class RuleActivatorMediumTest {
     activation.setSeverity(Severity.INFO);
     activation.setParameter("max", "7");
     ruleActivator.activate(activation);
-    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.INFO, null, ImmutableMap.of("max", "7"));
-    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.INFO, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.INFO, null, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.INFO, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
 
     // override on child with same severity and params -> do nothing (still INHERITED but not OVERRIDDEN)
     activation = new RuleActivation(ActiveRuleKey.of(XOO_CHILD_PROFILE_KEY, XOO_RULE_1));
@@ -461,8 +495,8 @@ public class RuleActivatorMediumTest {
     activation.setParameter("max", "7");
     ruleActivator.activate(activation);
     dbSession.clearCache();
-    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.INFO, null, ImmutableMap.of("max", "7"));
-    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.INFO, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.INFO, null, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.INFO, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
   }
 
   @Test
@@ -474,9 +508,9 @@ public class RuleActivatorMediumTest {
     activation.setSeverity(Severity.BLOCKER);
     activation.setParameter("max", "7");
     ruleActivator.activate(activation);
-    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
-    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
-    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
 
     // deactivate on root
     ruleActivator.deactivate(activation.getKey());
@@ -495,9 +529,9 @@ public class RuleActivatorMediumTest {
     activation.setSeverity(Severity.BLOCKER);
     activation.setParameter("max", "7");
     ruleActivator.activate(activation);
-    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
-    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
-    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
 
     // try to deactivate on child
     try {
@@ -517,9 +551,9 @@ public class RuleActivatorMediumTest {
     activation.setSeverity(Severity.BLOCKER);
     activation.setParameter("max", "7");
     ruleActivator.activate(activation);
-    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
-    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
-    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
 
     // override
     activation = new RuleActivation(ActiveRuleKey.of(XOO_CHILD_PROFILE_KEY, XOO_RULE_1));
@@ -527,17 +561,17 @@ public class RuleActivatorMediumTest {
     activation.setParameter("max", "10");
     ruleActivator.activate(activation);
     dbSession.clearCache();
-    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
-    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.INFO, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "10"));
-    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.INFO, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "10"));
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.INFO, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "10"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.INFO, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "10"));
 
     // reset -> remove overridden values
     activation = new RuleActivation(ActiveRuleKey.of(XOO_CHILD_PROFILE_KEY, XOO_RULE_1));
     ruleActivator.activate(activation);
     dbSession.clearCache();
-    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
-    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
-    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
   }
 
   @Test
@@ -549,9 +583,9 @@ public class RuleActivatorMediumTest {
     activation.setSeverity(Severity.BLOCKER);
     activation.setParameter("max", "7");
     ruleActivator.activate(activation);
-    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
-    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
-    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
 
     // override on child
     activation = new RuleActivation(ActiveRuleKey.of(XOO_CHILD_PROFILE_KEY, XOO_RULE_1));
@@ -559,9 +593,9 @@ public class RuleActivatorMediumTest {
     activation.setParameter("max", "10");
     ruleActivator.activate(activation);
     dbSession.clearCache();
-    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
-    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.INFO, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "10"));
-    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.INFO, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "10"));
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.INFO, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "10"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.INFO, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "10"));
 
     // override on grand child
     activation = new RuleActivation(ActiveRuleKey.of(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1));
@@ -569,43 +603,37 @@ public class RuleActivatorMediumTest {
     activation.setParameter("max", "20");
     ruleActivator.activate(activation);
     dbSession.clearCache();
-    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
-    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.INFO, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "10"));
-    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.MINOR, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "20"));
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.INFO, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "10"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.MINOR, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "20"));
 
     // reset child -> keep the overridden grand-child
     activation = new RuleActivation(ActiveRuleKey.of(XOO_CHILD_PROFILE_KEY, XOO_RULE_1));
     ruleActivator.activate(activation);
     dbSession.clearCache();
-    verifyOneActiveRule(XOO_PROFILE_KEY, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
-    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
-    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.MINOR, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "20"));
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.MINOR, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "20"));
   }
 
   @Test
-  public void bulk_activate() {
-
+  public void bulk_activate_lot_of_rules() {
     // Generate more rules than the search's max limit
     int bulkSize = QueryOptions.MAX_LIMIT + 10;
     for (int i = 0; i < bulkSize; i++) {
-      db.ruleDao().insert(dbSession, RuleDto.createFor(
-        RuleKey.of("bulk", "r_" + i))
-        .setLanguage("xoo")
-        .setSeverity("BLOCKER")
-        .setStatus(RuleStatus.READY));
+      db.ruleDao().insert(dbSession, RuleTesting.newDto(RuleKey.of("bulk", "r_" + i)).setLanguage("xoo"));
     }
     dbSession.commit();
 
     // 0. No active rules so far (base case) and plenty rules available
     verifyZeroActiveRules(XOO_PROFILE_KEY);
     assertThat(tester.get(RuleIndex.class)
-      .search(new RuleQuery().setQueryText("bulk"), new QueryOptions()).getTotal())
+      .search(new RuleQuery().setRepositories(Arrays.asList("bulk")), new QueryOptions()).getTotal())
       .isEqualTo(bulkSize);
 
-    // 1. assert that bulk activate generates all Activation
-    Multimap<String, String> result = ruleActivator.bulkActivate(
-      new RuleQuery().setQueryText("bulk"), XOO_PROFILE_KEY, "MINOR");
-//    assertThat(result.get(RuleActivator.ACTIVATED)).hasSize(bulkSize);
+    // 1. bulk activate all the rules
+    ruleActivator.bulkActivate(
+      new RuleQuery().setRepositories(Arrays.asList("bulk")), XOO_PROFILE_KEY, "MINOR");
 
     // 2. assert that all activation has been commited to DB and ES
     dbSession.clearCache();
@@ -614,38 +642,126 @@ public class RuleActivatorMediumTest {
 
   }
 
-  private void verifyOneActiveRule(QualityProfileKey profileKey, String expectedSeverity,
-                                   @Nullable String expectedInheritance, Map<String, String> expectedParams) {
+  @Test
+  public void set_and_unset_parent_profile() {
+    // x1 is activated on the "future parent"
+    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, XOO_RULE_1));
+    activation.setSeverity("MAJOR");
+    ruleActivator.activate(activation);
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.MAJOR, null, ImmutableMap.of("max", "10"));
 
-    // verify db
+    // create profile with x2
+    QualityProfileKey childKey = QualityProfileKey.of("newChild", "xoo");
+    db.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor(childKey));
+    activation = new RuleActivation(ActiveRuleKey.of(childKey, XOO_RULE_2));
+    activation.setSeverity("MAJOR");
+    ruleActivator.activate(dbSession, activation);
+    dbSession.commit();
+    dbSession.clearCache();
+
+    // set parent -> child profile inherits rule x1 and still has x2
+    ruleActivator.setParent(childKey, XOO_PROFILE_KEY);
+    assertThat(db.qualityProfileDao().getByKey(dbSession, childKey).getParentKey()).isEqualTo(XOO_PROFILE_KEY);
+    verifyHasActiveRule(ActiveRuleKey.of(childKey, XOO_RULE_1), Severity.MAJOR, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "10"));
+    verifyHasActiveRule(ActiveRuleKey.of(childKey, XOO_RULE_2), Severity.MAJOR, null, Collections.<String, String>emptyMap());
+
+    // unset parent
+    dbSession.clearCache();
+    ruleActivator.setParent(childKey, null);
+    assertThat(countActiveRules(childKey)).isEqualTo(1);
+    assertThat(db.qualityProfileDao().getByKey(dbSession, childKey).getParentKey()).isNull();
+    verifyHasActiveRule(ActiveRuleKey.of(childKey, XOO_RULE_2), Severity.MAJOR, null, Collections.<String, String>emptyMap());
+  }
+
+  @Test
+  public void keep_overridden_rules_when_unsetting_parent() {
+    // x1 is activated on the "future parent"
+    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, XOO_RULE_1));
+    activation.setSeverity("MAJOR");
+    ruleActivator.activate(activation);
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.MAJOR, null, ImmutableMap.of("max", "10"));
+
+    // create empty profile
+    QualityProfileKey childKey = QualityProfileKey.of("newChild", "xoo");
+    db.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor(childKey));
+    dbSession.commit();
+    dbSession.clearCache();
+
+    // set parent -> child profile inherits rule x1
+    ruleActivator.setParent(childKey, XOO_PROFILE_KEY);
+    verifyOneActiveRule(childKey, XOO_RULE_1, Severity.MAJOR, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "10"));
+
+    // override x1
+    activation = new RuleActivation(ActiveRuleKey.of(childKey, XOO_RULE_1));
+    activation.setSeverity("BLOCKER").setParameter("max", "333");
+    ruleActivator.activate(activation);
+    dbSession.clearCache();
+    verifyOneActiveRule(childKey, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "333"));
+
+    // unset parent -> keep x1
+    ruleActivator.setParent(childKey, null);
+    dbSession.clearCache();
+    assertThat(db.qualityProfileDao().getByKey(dbSession, childKey).getParentKey()).isNull();
+    verifyOneActiveRule(childKey, XOO_RULE_1, Severity.BLOCKER, null, ImmutableMap.of("max", "333"));
+  }
+
+  private int countActiveRules(QualityProfileKey profileKey) {
     List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(dbSession, profileKey);
-    assertThat(activeRuleDtos).hasSize(1);
-    ActiveRuleDto activeRuleDto = activeRuleDtos.get(0);
-    assertThat(activeRuleDto.getSeverityString()).isEqualTo(expectedSeverity);
-    assertThat(activeRuleDto.getInheritance()).isEqualTo(expectedInheritance);
+    List<ActiveRule> activeRules = index.findByProfile(profileKey);
+    assertThat(activeRuleDtos.size()).as("Not same active rules between db and index").isEqualTo(activeRules.size());
+    return activeRuleDtos.size();
+  }
 
-    // verify parameters in db
-    List<ActiveRuleParamDto> paramDtos = db.activeRuleDao().findParamsByActiveRuleKey(dbSession, activeRuleDto.getKey());
-    assertThat(paramDtos).hasSize(expectedParams.size());
-    for (Map.Entry<String, String> entry : expectedParams.entrySet()) {
-      ActiveRuleParamDto paramDto = db.activeRuleDao().getParamByKeyAndName(activeRuleDto.getKey(), entry.getKey(), dbSession);
-      assertThat(paramDto).isNotNull();
-      assertThat(paramDto.getValue()).isEqualTo(entry.getValue());
+  private void verifyOneActiveRule(QualityProfileKey profileKey, RuleKey ruleKey, String expectedSeverity,
+                                   @Nullable String expectedInheritance, Map<String, String> expectedParams) {
+    assertThat(countActiveRules(profileKey)).isEqualTo(1);
+    verifyHasActiveRule(profileKey, ruleKey, expectedSeverity, expectedInheritance, expectedParams);
+  }
+
+  private void verifyHasActiveRule(QualityProfileKey profileKey, RuleKey ruleKey, String expectedSeverity,
+                                   @Nullable String expectedInheritance, Map<String, String> expectedParams) {
+    verifyHasActiveRule(ActiveRuleKey.of(profileKey, ruleKey), expectedSeverity, expectedInheritance, expectedParams);
+  }
+
+  private void verifyHasActiveRule(ActiveRuleKey activeRuleKey, String expectedSeverity,
+                                   @Nullable String expectedInheritance, Map<String, String> expectedParams) {
+    // verify db
+    boolean found = false;
+    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(dbSession, activeRuleKey.qProfile());
+    for (ActiveRuleDto activeRuleDto : activeRuleDtos) {
+      if (activeRuleDto.getKey().equals(activeRuleKey)) {
+        found = true;
+        assertThat(activeRuleDto.getSeverityString()).isEqualTo(expectedSeverity);
+        assertThat(activeRuleDto.getInheritance()).isEqualTo(expectedInheritance);
+        List<ActiveRuleParamDto> paramDtos = db.activeRuleDao().findParamsByActiveRuleKey(dbSession, activeRuleDto.getKey());
+        assertThat(paramDtos).hasSize(expectedParams.size());
+        for (Map.Entry<String, String> entry : expectedParams.entrySet()) {
+          ActiveRuleParamDto paramDto = db.activeRuleDao().getParamByKeyAndName(activeRuleDto.getKey(), entry.getKey(), dbSession);
+          assertThat(paramDto).isNotNull();
+          assertThat(paramDto.getValue()).isEqualTo(entry.getValue());
+        }
+      }
     }
+    assertThat(found).as("Rule is not activated in db").isTrue();
 
     // verify es
-    List<ActiveRule> activeRules = index.findByProfile(profileKey);
-    assertThat(activeRules).hasSize(1);
-    ActiveRule activeRule = activeRules.get(0);
-    assertThat(activeRule.severity()).isEqualTo(expectedSeverity);
-    assertThat(activeRule.inheritance()).isEqualTo(expectedInheritance == null ? ActiveRule.Inheritance.NONE : ActiveRule.Inheritance.valueOf(expectedInheritance));
+    List<ActiveRule> activeRules = index.findByProfile(activeRuleKey.qProfile());
+    found = false;
+    for (ActiveRule activeRule : activeRules) {
+      if (activeRule.key().equals(activeRuleKey)) {
+        found = true;
+        assertThat(activeRule.severity()).isEqualTo(expectedSeverity);
+        assertThat(activeRule.inheritance()).isEqualTo(expectedInheritance == null ? ActiveRule.Inheritance.NONE : ActiveRule.Inheritance.valueOf(expectedInheritance));
 
-    // verify parameters in es
-    assertThat(activeRule.params()).hasSize(expectedParams.size());
-    for (Map.Entry<String, String> entry : expectedParams.entrySet()) {
-      String value = activeRule.params().get(entry.getKey());
-      assertThat(value).isEqualTo(entry.getValue());
+        // verify parameters in es
+        assertThat(activeRule.params()).hasSize(expectedParams.size());
+        for (Map.Entry<String, String> entry : expectedParams.entrySet()) {
+          String value = activeRule.params().get(entry.getKey());
+          assertThat(value).isEqualTo(entry.getValue());
+        }
+      }
     }
+    assertThat(found).as("Rule is not activated in index").isTrue();
   }
 
   private void createChildProfiles() {

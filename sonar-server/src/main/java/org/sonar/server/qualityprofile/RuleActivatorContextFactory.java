@@ -21,8 +21,6 @@ package org.sonar.server.qualityprofile;
 
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.RuleStatus;
-import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
@@ -32,28 +30,24 @@ import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.rule.Rule;
 
 import java.util.Collection;
 
-public class RuleActivationContextFactory implements ServerComponent {
+public class RuleActivatorContextFactory implements ServerComponent {
 
   private final DbClient db;
 
-  public RuleActivationContextFactory(DbClient db) {
+  public RuleActivatorContextFactory(DbClient db) {
     this.db = db;
   }
 
-  public RuleActivationContext create(ActiveRuleKey key, DbSession session) {
-    RuleActivationContext context = new RuleActivationContext();
+  public RuleActivatorContext create(ActiveRuleKey key, DbSession session) {
+    RuleActivatorContext context = new RuleActivatorContext();
 
     RuleDto rule = initRule(key.ruleKey(), context, session);
 
     QualityProfileDto profile = initProfile(key, context, session, false);
     initActiveRules(key, context, session, false);
-    if (!profile.getLanguage().equals(rule.getLanguage())) {
-      throw new BadRequestException(String.format("Rule %s and profile %s have different languages", rule.getKey(), profile.getKey()));
-    }
 
     if (profile.getParent() != null) {
       ActiveRuleKey parentKey = ActiveRuleKey.of(
@@ -64,26 +58,17 @@ public class RuleActivationContextFactory implements ServerComponent {
     return context;
   }
 
-  private RuleDto initRule(RuleKey ruleKey, RuleActivationContext context, DbSession dbSession) {
+  private RuleDto initRule(RuleKey ruleKey, RuleActivatorContext context, DbSession dbSession) {
     RuleDto rule = db.ruleDao().getNullableByKey(dbSession, ruleKey);
     if (rule == null) {
       throw new BadRequestException("Rule not found: " + ruleKey);
-    }
-    if (RuleStatus.REMOVED == rule.getStatus()) {
-      throw new BadRequestException("Rule was removed: " + ruleKey);
-    }
-    if (Cardinality.MULTIPLE.equals(rule.getCardinality())) {
-      throw new BadRequestException("Rule template can't be activated on a Quality profile: " + ruleKey);
-    }
-    if (Rule.MANUAL_REPOSITORY_KEY.equals(rule.getRepositoryKey())) {
-      throw new BadRequestException("Manual rule can't be activated on a Quality profile: " + ruleKey);
     }
     context.setRule(rule);
     context.setRuleParams(db.ruleDao().findRuleParamsByRuleKey(dbSession, rule.getKey()));
     return rule;
   }
 
-  private QualityProfileDto initProfile(ActiveRuleKey key, RuleActivationContext context, DbSession session, boolean parent) {
+  private QualityProfileDto initProfile(ActiveRuleKey key, RuleActivatorContext context, DbSession session, boolean parent) {
     QualityProfileDto profile = db.qualityProfileDao().getByKey(session, key.qProfile());
     if (profile == null) {
       throw new BadRequestException("Quality profile not found: " + key.qProfile());
@@ -96,7 +81,7 @@ public class RuleActivationContextFactory implements ServerComponent {
     return profile;
   }
 
-  private void initActiveRules(ActiveRuleKey key, RuleActivationContext context, DbSession session, boolean parent) {
+  private void initActiveRules(ActiveRuleKey key, RuleActivatorContext context, DbSession session, boolean parent) {
     ActiveRuleDto activeRule = db.activeRuleDao().getNullableByKey(session, key);
     Collection<ActiveRuleParamDto> activeRuleParams = null;
     if (activeRule != null) {

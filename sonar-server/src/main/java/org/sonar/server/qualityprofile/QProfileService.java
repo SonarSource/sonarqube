@@ -106,7 +106,6 @@ public class QProfileService implements ServerComponent {
     return ruleActivator.deactivate(key);
   }
 
-
   public Multimap<String, String> bulkActivate(RuleQuery ruleQuery, QualityProfileKey profile, @Nullable String severity) {
     verifyAdminPermission();
     return ruleActivator.bulkActivate(ruleQuery, profile, severity);

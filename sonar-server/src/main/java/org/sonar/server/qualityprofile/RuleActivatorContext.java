@@ -21,18 +21,22 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.rule.RuleStatus;
+import org.sonar.check.Cardinality;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.rule.Rule;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Map;
 
-class RuleActivationContext {
+class RuleActivatorContext {
 
   private RuleDto rule;
   private final Map<String, RuleParamDto> ruleParams = Maps.newHashMap();
@@ -44,7 +48,7 @@ class RuleActivationContext {
     return rule;
   }
 
-  RuleActivationContext setRule(RuleDto rule) {
+  RuleActivatorContext setRule(RuleDto rule) {
     this.rule = rule;
     return this;
   }
@@ -57,7 +61,7 @@ class RuleActivationContext {
     return ruleParams.values();
   }
 
-  RuleActivationContext setRuleParams(Collection<RuleParamDto> ruleParams) {
+  RuleActivatorContext setRuleParams(Collection<RuleParamDto> ruleParams) {
     this.ruleParams.clear();
     for (RuleParamDto ruleParam : ruleParams) {
       this.ruleParams.put(ruleParam.getName(), ruleParam);
@@ -69,7 +73,7 @@ class RuleActivationContext {
     return profile;
   }
 
-  RuleActivationContext setProfile(QualityProfileDto profile) {
+  RuleActivatorContext setProfile(QualityProfileDto profile) {
     this.profile = profile;
     return this;
   }
@@ -79,7 +83,7 @@ class RuleActivationContext {
     return parentProfile;
   }
 
-  RuleActivationContext setParentProfile(@Nullable QualityProfileDto p) {
+  RuleActivatorContext setParentProfile(@Nullable QualityProfileDto p) {
     this.parentProfile = p;
     return this;
   }
@@ -89,12 +93,12 @@ class RuleActivationContext {
     return activeRule;
   }
 
-  RuleActivationContext setActiveRule(@Nullable ActiveRuleDto a) {
+  RuleActivatorContext setActiveRule(@Nullable ActiveRuleDto a) {
     this.activeRule = a;
     return this;
   }
 
-  RuleActivationContext setParentActiveRule(@Nullable ActiveRuleDto a) {
+  RuleActivatorContext setParentActiveRule(@Nullable ActiveRuleDto a) {
     this.parentActiveRule = a;
     return this;
   }
@@ -117,7 +121,7 @@ class RuleActivationContext {
     return activeRuleParams.values();
   }
 
-  RuleActivationContext setActiveRuleParams(@Nullable Collection<ActiveRuleParamDto> a) {
+  RuleActivatorContext setActiveRuleParams(@Nullable Collection<ActiveRuleParamDto> a) {
     activeRuleParams.clear();
     if (a != null) {
       for (ActiveRuleParamDto ar : a) {
@@ -127,7 +131,7 @@ class RuleActivationContext {
     return this;
   }
 
-  RuleActivationContext setParentActiveRuleParams(@Nullable Collection<ActiveRuleParamDto> a) {
+  RuleActivatorContext setParentActiveRuleParams(@Nullable Collection<ActiveRuleParamDto> a) {
     parentActiveRuleParams.clear();
     if (a != null) {
       for (ActiveRuleParamDto ar : a) {
@@ -168,5 +172,21 @@ class RuleActivationContext {
       return Maps.difference(activation.getParameters(), parentActiveRuleParamsAsStringMap()).areEqual();
     }
     return false;
+  }
+
+  void verifyForActivation() {
+    if (RuleStatus.REMOVED == rule.getStatus()) {
+      throw new BadRequestException("Rule was removed: " + rule.getKey());
+    }
+    if (Cardinality.MULTIPLE.equals(rule.getCardinality())) {
+      throw new BadRequestException("Rule template can't be activated on a Quality profile: " + rule.getKey());
+    }
+    if (Rule.MANUAL_REPOSITORY_KEY.equals(rule.getRepositoryKey())) {
+      throw new BadRequestException("Manual rule can't be activated on a Quality profile: " + rule.getKey());
+    }
+    if (!profile.getLanguage().equals(rule.getLanguage())) {
+      throw new BadRequestException(String.format("Rule %s and profile %s have different languages", rule.getKey(), profile.getKey()));
+    }
+
   }
 }

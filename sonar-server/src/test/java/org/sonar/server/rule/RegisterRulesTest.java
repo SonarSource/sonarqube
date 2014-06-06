@@ -36,7 +36,7 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.qualityprofile.QProfileService;
+import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.db.RuleDao;
 
@@ -53,7 +53,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
   static final Date DATE2 = DateUtils.parseDateTime("2014-02-01T12:10:03+0100");
   static final Date DATE3 = DateUtils.parseDateTime("2014-03-01T12:10:03+0100");
 
-  QProfileService profileService = mock(QProfileService.class);
+  RuleActivator ruleActivator = mock(RuleActivator.class);
   System2 system;
   DbClient dbClient;
   DbSession dbSession;
@@ -200,7 +200,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
 
   private void execute(RulesDefinition... defs) {
     RuleDefinitionsLoader loader = new RuleDefinitionsLoader(mock(RuleRepositories.class), defs);
-    RegisterRules task = new RegisterRules(loader, profileService, dbClient, system);
+    RegisterRules task = new RegisterRules(loader, ruleActivator, dbClient, system);
     task.start();
   }
 

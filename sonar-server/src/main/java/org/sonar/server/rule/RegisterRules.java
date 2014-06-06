@@ -41,16 +41,19 @@ import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.qualityprofile.ActiveRule;
-import org.sonar.server.qualityprofile.QProfileService;
+import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.action.EmbeddedIndexAction;
 import org.sonar.server.search.action.IndexAction;
 import org.sonar.server.search.action.KeyIndexAction;
 
 import javax.annotation.Nullable;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -62,22 +65,22 @@ public class RegisterRules implements Startable {
   private static final Logger LOG = LoggerFactory.getLogger(RegisterRules.class);
 
   private final RuleDefinitionsLoader defLoader;
-  private final QProfileService profileService;
+  private final RuleActivator ruleActivator;
   private final DbClient dbClient;
   private final CharacteristicDao characteristicDao;
 
 
-  public RegisterRules(RuleDefinitionsLoader defLoader, QProfileService profileService,
+  public RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator,
                        DbClient dbClient) {
-    this(defLoader, profileService, dbClient, System2.INSTANCE);
+    this(defLoader, ruleActivator, dbClient, System2.INSTANCE);
   }
 
 
   @VisibleForTesting
-  RegisterRules(RuleDefinitionsLoader defLoader, QProfileService profileService,
+  RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator,
                 DbClient dbClient, System2 system) {
     this.defLoader = defLoader;
-    this.profileService = profileService;
+    this.ruleActivator = ruleActivator;
     this.dbClient = dbClient;
     this.characteristicDao = dbClient.debtCharacteristicDao();
   }
@@ -392,10 +395,7 @@ public class RegisterRules implements Startable {
     for (RuleDto rule : removedRules) {
       // SONAR-4642 Remove active rules only when repository still exists
       if (repositoryKeys.contains(rule.getRepositoryKey())) {
-        List<ActiveRule> activeRules = profileService.findActiveRulesByRule(rule.getKey());
-        for (ActiveRule activeRule : activeRules) {
-          profileService.deactivate(activeRule.key());
-        }
+        ruleActivator.deactivate(rule);
       }
     }
   }

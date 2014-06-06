@@ -34,6 +34,7 @@ import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
+import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
@@ -66,13 +67,13 @@ public class RuleActivator implements ServerComponent {
 
   private final DbClient db;
   private final TypeValidations typeValidations;
-  private final RuleActivationContextFactory contextFactory;
+  private final RuleActivatorContextFactory contextFactory;
   private final PreviewCache previewCache;
   private final IndexClient index;
   private final LogService log;
 
   public RuleActivator(DbClient db, IndexClient index,
-                       RuleActivationContextFactory contextFactory, TypeValidations typeValidations,
+                       RuleActivatorContextFactory contextFactory, TypeValidations typeValidations,
                        PreviewCache previewCache, LogService log) {
     this.db = db;
     this.index = index;
@@ -100,7 +101,8 @@ public class RuleActivator implements ServerComponent {
   }
 
   List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation) {
-    RuleActivationContext context = contextFactory.create(activation.getKey(), dbSession);
+    RuleActivatorContext context = contextFactory.create(activation.getKey(), dbSession);
+    context.verifyForActivation();
     List<ActiveRuleChange> changes = Lists.newArrayList();
     ActiveRuleChange change;
     if (context.activeRule() == null) {
@@ -169,7 +171,7 @@ public class RuleActivator implements ServerComponent {
     return changes;
   }
 
-  private ActiveRuleDto persist(ActiveRuleChange change, RuleActivationContext context, DbSession dbSession) {
+  private ActiveRuleDto persist(ActiveRuleChange change, RuleActivatorContext context, DbSession dbSession) {
     ActiveRuleDao dao = db.activeRuleDao();
     ActiveRuleDto activeRule = null;
     if (change.getType() == ActiveRuleChange.Type.ACTIVATED) {
@@ -244,32 +246,55 @@ public class RuleActivator implements ServerComponent {
    * Deactivate a rule on a Quality profile WITHOUT committing db session and WITHOUT checking permissions
    */
   List<ActiveRuleChange> deactivate(DbSession dbSession, ActiveRuleKey key) {
-    return cascadeDeactivation(key, dbSession, false);
+    return deactivate(dbSession, key, false);
   }
 
-  private List<ActiveRuleChange> cascadeDeactivation(ActiveRuleKey key, DbSession dbSession, boolean isCascade) {
+  public List<ActiveRuleChange> deactivate(RuleDto ruleDto) {
+    DbSession dbSession = db.openSession(false);
+    try {
+      return deactivate(dbSession, ruleDto);
+    } finally {
+      dbSession.close();
+    }
+  }
+
+  private List<ActiveRuleChange> deactivate(DbSession dbSession, RuleDto ruleDto) {
     List<ActiveRuleChange> changes = Lists.newArrayList();
-    RuleActivationContext context = contextFactory.create(key, dbSession);
+    List<ActiveRuleDto> activeRules = db.activeRuleDao().findByRule(dbSession, ruleDto);
+    for (ActiveRuleDto activeRule : activeRules) {
+      changes.addAll(deactivate(dbSession, activeRule.getKey(), true));
+    }
+    dbSession.commit();
+    return changes;
+  }
+
+  /**
+   * @param force if true then inherited rules are deactivated
+   */
+  private List<ActiveRuleChange> deactivate(DbSession dbSession, ActiveRuleKey key, boolean force) {
+    return cascadeDeactivation(key, dbSession, false, force);
+  }
+
+  private List<ActiveRuleChange> cascadeDeactivation(ActiveRuleKey key, DbSession dbSession, boolean isCascade, boolean force) {
+    List<ActiveRuleChange> changes = Lists.newArrayList();
+    RuleActivatorContext context = contextFactory.create(key, dbSession);
     ActiveRuleChange change;
     if (context.activeRule() == null) {
       return changes;
     }
-    if (!isCascade && (context.activeRule().isInherited() ||
-      context.activeRule().doesOverride())) {
+    if (!force && !isCascade && context.activeRule().getInheritance() != null) {
       throw new IllegalStateException("Cannot deactivate inherited rule '" + key.ruleKey() + "'");
     }
     change = new ActiveRuleChange(ActiveRuleChange.Type.DEACTIVATED, key);
     changes.add(change);
     persist(change, context, dbSession);
 
-
     // get all inherited profiles
-    List<QualityProfileDto> profiles =
-      db.qualityProfileDao().findByParentKey(dbSession, key.qProfile());
+    List<QualityProfileDto> profiles = db.qualityProfileDao().findByParentKey(dbSession, key.qProfile());
 
     for (QualityProfileDto profile : profiles) {
       ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), key.ruleKey());
-      changes.addAll(cascadeDeactivation(activeRuleKey, dbSession, true));
+      changes.addAll(cascadeDeactivation(activeRuleKey, dbSession, true, force));
     }
 
     if (!changes.isEmpty()) {
@@ -370,8 +395,8 @@ public class RuleActivator implements ServerComponent {
           RuleActivation activation = new RuleActivation(ActiveRuleKey.of(key, parentActiveRule.getKey().ruleKey()));
           activate(dbSession, activation);
         }
-        dbSession.commit();
       }
+      dbSession.commit();
 
     } finally {
       dbSession.close();
@@ -386,7 +411,12 @@ public class RuleActivator implements ServerComponent {
       profileDto.setParent(null);
       db.qualityProfileDao().update(dbSession, profileDto);
       for (ActiveRuleDto activeRule : db.activeRuleDao().findByProfileKey(dbSession, profileDto.getKey())) {
-        deactivate(dbSession, activeRule.getKey());
+        if (ActiveRuleDto.INHERITED.equals(activeRule.getInheritance())) {
+          deactivate(dbSession, activeRule.getKey(), true);
+        } else if (ActiveRuleDto.OVERRIDES.equals(activeRule.getInheritance())) {
+          activeRule.setInheritance(null);
+          db.activeRuleDao().update(dbSession, activeRule);
+        }
       }
     }
   }

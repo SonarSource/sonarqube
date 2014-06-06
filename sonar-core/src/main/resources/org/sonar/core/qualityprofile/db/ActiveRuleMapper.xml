@@ -3,22 +3,22 @@
 
 <mapper namespace="org.sonar.core.qualityprofile.db.ActiveRuleMapper">
 
-    <sql id="activeRuleKeyColumns">
-        a.id,
-        a.profile_id as "profileId",
-        a.rule_id as "ruleId",
-        a.failure_level as "severity",
-        a.inheritance as "inheritance",
-        r.plugin_rule_key as "rulefield",
-        r.plugin_name as "repository",
-        qp.name as profile,
-        qp.language as language
-    </sql>
+  <sql id="activeRuleKeyColumns">
+    a.id,
+    a.profile_id as "profileId",
+    a.rule_id as "ruleId",
+    a.failure_level as "severity",
+    a.inheritance as "inheritance",
+    r.plugin_rule_key as "rulefield",
+    r.plugin_name as "repository",
+    qp.name as profile,
+    qp.language as language
+  </sql>
 
-    <sql id="activeRuleKeyJoin">
-        LEFT JOIN rules_profiles qp ON qp.id=a.profile_id
-        LEFT JOIN rules r ON r.id = a.rule_id
-    </sql>
+  <sql id="activeRuleKeyJoin">
+    LEFT JOIN rules_profiles qp ON qp.id=a.profile_id
+    LEFT JOIN rules r ON r.id = a.rule_id
+  </sql>
 
 
   <sql id="activeRuleColumns">
@@ -45,7 +45,7 @@
     FROM active_rules a
     <include refid="activeRuleKeyJoin"/>
     <where>
-    a.updated_at IS NULL or a.updated_at &gt;= #{id}
+      a.updated_at IS NULL or a.updated_at &gt;= #{id}
     </where>
   </select>
 
@@ -97,17 +97,18 @@
   </select>
 
 
-    <select id="selectByKey" parameterType="map" resultType="ActiveRule">
-        SELECT <include refid="activeRuleKeyColumns"/>
-        FROM active_rules a
-        <include refid="activeRuleKeyJoin"/>
-        <where>
-            AND qp.name = #{profile}
-            AND qp.language = #{language}
-            AND r.plugin_rule_key = #{rule}
-            AND r.plugin_name = #{repository}
-        </where>
-    </select>
+  <select id="selectByKey" parameterType="map" resultType="ActiveRule">
+    SELECT
+    <include refid="activeRuleKeyColumns"/>
+    FROM active_rules a
+    <include refid="activeRuleKeyJoin"/>
+    <where>
+      AND qp.name = #{profile}
+      AND qp.language = #{language}
+      AND r.plugin_rule_key = #{rule}
+      AND r.plugin_name = #{repository}
+    </where>
+  </select>
 
   <select id="selectByProfileKey" parameterType="map" resultType="ActiveRule">
     SELECT <include refid="activeRuleKeyColumns"/>
@@ -128,12 +129,11 @@
   </select>
 
   <select id="selectByRuleId" parameterType="Integer" resultType="ActiveRule">
-    SELECT <include refid="activeRuleColumns"/>
+    SELECT
+    <include refid="activeRuleKeyColumns"/>
     FROM active_rules a
-    <include refid="activeRuleJoin"/>
-    <where>
-      AND a.rule_id=#{ruleId}
-    </where>
+    <include refid="activeRuleKeyJoin"/>
+    WHERE a.rule_id=#{ruleId}
   </select>
 
   <select id="selectByProfileId" parameterType="Integer" resultType="ActiveRule">
@@ -215,8 +215,8 @@
     from active_rule_parameters p
     <where>
       (<foreach collection="list" item="id" open="(" separator=" or " close=")">
-        p.active_rule_id=#{id}
-      </foreach>)
+      p.active_rule_id=#{id}
+    </foreach>)
     </where>
   </select>
 
