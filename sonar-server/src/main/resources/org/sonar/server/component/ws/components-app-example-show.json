@@ -6,7 +6,6 @@
   "subProjectName": "SonarQube :: Plugin API",
   "projectName": "SonarQube",
   "fav": true,
-  "scmAvailable": true,
   "canMarkAsFavourite": true,
   "canBulkChange": false,
   "periods": [
@@ -48,5 +47,8 @@
   },
   "extensions": [
     ["metricsTab", "Metrics"]
+  ],
+  "tabs": [
+    "scn", "coverage", "duplications"
   ]
 }

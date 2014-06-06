@@ -51,7 +51,6 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.RulesAggregation;
-import org.sonar.server.source.SourceService;
 import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.UserSession;
@@ -74,16 +73,14 @@ public class ComponentAppAction implements RequestHandler {
   private final DbClient dbClient;
 
   private final IssueService issueService;
-  private final SourceService sourceService;
   private final Views views;
   private final Periods periods;
   private final Durations durations;
   private final I18n i18n;
 
-  public ComponentAppAction(DbClient dbClient, IssueService issueService, SourceService sourceService, Views views, Periods periods, Durations durations, I18n i18n) {
+  public ComponentAppAction(DbClient dbClient, IssueService issueService, Views views, Periods periods, Durations durations, I18n i18n) {
     this.dbClient = dbClient;
     this.issueService = issueService;
-    this.sourceService = sourceService;
     this.views = views;
     this.periods = periods;
     this.durations = durations;
@@ -132,12 +129,14 @@ public class ComponentAppAction implements RequestHandler {
 
       RulesAggregation rulesAggregation = issueService.findRulesByComponent(component.key(), periodDate, session);
       Multiset<String> severitiesAggregation = issueService.findSeveritiesByComponent(component.key(), periodDate, session);
+      Map<String, MeasureDto> measuresByMetricKey = measuresByMetricKey(component, session);
 
       appendComponent(json, component, userSession, session);
       appendPermissions(json, component, userSession);
       appendPeriods(json, periodList);
-      appendIssuesAggregation(json, rulesAggregation, severitiesAggregation, session);
-      appendMeasures(json, component, severitiesAggregation, periodIndex, session);
+      appendIssuesAggregation(json, rulesAggregation, severitiesAggregation);
+      appendMeasures(json, measuresByMetricKey, severitiesAggregation, periodIndex);
+      appendTabs(json, measuresByMetricKey);
       appendExtensions(json, component, userSession);
     } finally {
       MyBatis.closeQuietly(session);
@@ -172,7 +171,22 @@ public class ComponentAppAction implements RequestHandler {
     json.prop("projectName", project.longName());
 
     json.prop("fav", isFavourite);
-    json.prop("scmAvailable", sourceService.hasScmData(component.key(), session));
+  }
+
+  private void appendTabs(JsonWriter json, Map<String, MeasureDto> measuresByMetricKey) {
+    List<String> tabs = newArrayList();
+    if (measuresByMetricKey.get(CoreMetrics.SCM_AUTHORS_BY_LINE_KEY) != null) {
+      tabs.add("scm");
+    }
+    if (measuresByMetricKey.get(CoreMetrics.COVERAGE_KEY) != null) {
+      tabs.add("coverage");
+    }
+    if (measuresByMetricKey.get(CoreMetrics.DUPLICATED_LINES_KEY) != null) {
+      tabs.add("duplications");
+    }
+    if (!tabs.isEmpty()) {
+      json.name("tabs").beginArray().values(tabs).endArray();
+    }
   }
 
   private void appendPermissions(JsonWriter json, ComponentDto component, UserSession userSession) {
@@ -180,20 +194,14 @@ public class ComponentAppAction implements RequestHandler {
     json.prop("canBulkChange", userSession.isLoggedIn());
   }
 
-  private void appendMeasures(JsonWriter json, ComponentDto component, Multiset<String> severitiesAggregation, Integer periodIndex, DbSession session) {
+  private void appendMeasures(JsonWriter json, Map<String, MeasureDto> measuresByMetricKey, Multiset<String> severitiesAggregation, Integer periodIndex) {
     json.name("measures").beginObject();
 
-    String fileKey = component.getKey();
-    List<MeasureDto> measures = dbClient.measureDao().findByComponentKeyAndMetricKeys(fileKey,
-      newArrayList(CoreMetrics.NCLOC_KEY, CoreMetrics.COVERAGE_KEY, CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, CoreMetrics.TECHNICAL_DEBT_KEY, CoreMetrics.TESTS_KEY),
-      session
-    );
-
-    json.prop("fNcloc", formatMeasure(CoreMetrics.NCLOC_KEY, measures, periodIndex));
-    json.prop("fCoverage", formatMeasure(CoreMetrics.COVERAGE_KEY, measures, periodIndex));
-    json.prop("fDuplicationDensity", formatMeasure(CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, measures, periodIndex));
-    json.prop("fDebt", formatMeasure(CoreMetrics.TECHNICAL_DEBT_KEY, measures, periodIndex));
-    json.prop("fTests", formatMeasure(CoreMetrics.TESTS_KEY, measures, periodIndex));
+    json.prop("fNcloc", formatMeasure(measuresByMetricKey.get(CoreMetrics.NCLOC_KEY), periodIndex));
+    json.prop("fCoverage", formatMeasure(measuresByMetricKey.get(CoreMetrics.COVERAGE_KEY), periodIndex));
+    json.prop("fDuplicationDensity", formatMeasure(measuresByMetricKey.get(CoreMetrics.DUPLICATED_LINES_DENSITY_KEY), periodIndex));
+    json.prop("fDebt", formatMeasure(measuresByMetricKey.get(CoreMetrics.TECHNICAL_DEBT_KEY), periodIndex));
+    json.prop("fTests", formatMeasure(measuresByMetricKey.get(CoreMetrics.TESTS_KEY), periodIndex));
 
     json.prop("fIssues", i18n.formatInteger(UserSession.get().locale(), severitiesAggregation.size()));
     for (String severity : severitiesAggregation.elementSet()) {
@@ -215,7 +223,7 @@ public class ComponentAppAction implements RequestHandler {
     json.endArray();
   }
 
-  private void appendIssuesAggregation(JsonWriter json, RulesAggregation rulesAggregation, Multiset<String> severitiesAggregation, DbSession session) {
+  private void appendIssuesAggregation(JsonWriter json, RulesAggregation rulesAggregation, Multiset<String> severitiesAggregation) {
     json.name("severities").beginArray();
     for (String severity : severitiesAggregation.elementSet()) {
       json.beginArray()
@@ -260,7 +268,7 @@ public class ComponentAppAction implements RequestHandler {
     return result;
   }
 
-  private void addExtension(ViewProxy<Page> page, Map<String, String> result, ComponentDto component, UserSession userSession){
+  private void addExtension(ViewProxy<Page> page, Map<String, String> result, ComponentDto component, UserSession userSession) {
     if (page.getUserRoles().length == 0) {
       result.put(page.getId(), page.getTitle());
     } else {
@@ -290,8 +298,22 @@ public class ComponentAppAction implements RequestHandler {
     return periodList;
   }
 
+  private Map<String, MeasureDto> measuresByMetricKey(ComponentDto component, DbSession session) {
+    Map<String, MeasureDto> measuresByMetricKey = newHashMap();
+    String fileKey = component.getKey();
+    for (MeasureDto measureDto : dbClient.measureDao().findByComponentKeyAndMetricKeys(fileKey,
+      newArrayList(CoreMetrics.NCLOC_KEY, CoreMetrics.COVERAGE_KEY,
+        CoreMetrics.DUPLICATED_LINES_KEY, CoreMetrics.DUPLICATED_LINES_DENSITY_KEY, CoreMetrics.TECHNICAL_DEBT_KEY, CoreMetrics.TESTS_KEY,
+        CoreMetrics.SCM_AUTHORS_BY_LINE_KEY),
+      session)) {
+      measuresByMetricKey.put(measureDto.getKey().metricKey(), measureDto);
+    }
+    return measuresByMetricKey;
+  }
+
+
   @CheckForNull
-  private Date periodDate(@Nullable final Integer periodIndex, List<Period> periodList){
+  private Date periodDate(@Nullable final Integer periodIndex, List<Period> periodList) {
     if (periodIndex != null) {
       Period period = Iterables.find(periodList, new Predicate<Period>() {
         @Override
@@ -317,8 +339,7 @@ public class ComponentAppAction implements RequestHandler {
   }
 
   @CheckForNull
-  private String formatMeasure(final String metricKey, List<MeasureDto> measures, @Nullable Integer periodIndex) {
-    MeasureDto measure = measureByMetricKey(metricKey, measures);
+  private String formatMeasure(@Nullable MeasureDto measure, @Nullable Integer periodIndex) {
     if (measure != null) {
       Metric metric = CoreMetrics.getMetric(measure.getKey().metricKey());
       if (periodIndex == null) {
@@ -365,16 +386,6 @@ public class ComponentAppAction implements RequestHandler {
       return durations.format(UserSession.get().locale(), durations.create(value.longValue()), Durations.DurationFormat.SHORT);
     }
     return null;
-  }
-
-  @CheckForNull
-  private static MeasureDto measureByMetricKey(final String metricKey, List<MeasureDto> measures) {
-    return Iterables.find(measures, new Predicate<MeasureDto>() {
-      @Override
-      public boolean apply(@Nullable MeasureDto input) {
-        return input != null && metricKey.equals(input.getKey().metricKey());
-      }
-    }, null);
   }
 
   protected static class Period {

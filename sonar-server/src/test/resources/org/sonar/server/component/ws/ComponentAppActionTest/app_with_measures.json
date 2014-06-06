@@ -6,7 +6,6 @@
   "subProjectName": "SonarQube :: Plugin API",
   "projectName": "SonarQube",
   "fav": false,
-  "scmAvailable": false,
   "canMarkAsFavourite": false,
   "canBulkChange": false,
   "periods": [],
@@ -17,5 +16,8 @@
     "fCoverage": "95.4%",
     "fDuplicationDensity": "7.4%",
     "fDebt": "3h 2min"
-  }
+  },
+  "tabs": [
+    "coverage"
+  ]
 }

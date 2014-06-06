@@ -6,7 +6,6 @@
   "subProjectName": "SonarQube :: Plugin API",
   "projectName": "SonarQube",
   "fav": true,
-  "scmAvailable": true,
   "canMarkAsFavourite": true,
   "canBulkChange": true,
   "periods": [],

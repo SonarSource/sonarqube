@@ -32,6 +32,7 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.List;
 
 public class SourceService implements ServerComponent {
@@ -74,20 +75,6 @@ public class SourceService implements ServerComponent {
   public String getScmDateData(String fileKey) {
     checkPermission(fileKey);
     return findDataFromComponent(fileKey, CoreMetrics.SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY);
-  }
-
-  public boolean hasScmData(String fileKey, DbSession session) {
-    return dbClient.measureDao().existsByKey(MeasureKey.of(fileKey, CoreMetrics.SCM_AUTHORS_BY_LINE_KEY), session);
-  }
-
-  public boolean hasScmData(String fileKey) {
-    checkPermission(fileKey);
-    DbSession session = dbClient.openSession(false);
-    try {
-      return hasScmData(fileKey, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   private void checkPermission(String fileKey) {

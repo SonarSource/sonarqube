@@ -11,8 +11,10 @@
   "periods": [],
   "severities": [],
   "rules": [],
-  "measures": {},
-  "extensions": [
-    ["my-extension-with-permission", "My extension with permission"]
+  "measures": {
+    "fCoverage": "1.0%"
+  },
+  "tabs": [
+    "scm", "coverage", "duplications"
   ]
 }

@@ -54,7 +54,6 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.RulesAggregation;
 import org.sonar.server.measure.persistence.MeasureDao;
-import org.sonar.server.source.SourceService;
 import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.MockUserSession;
@@ -98,9 +97,6 @@ public class ComponentAppActionTest {
   IssueService issueService;
 
   @Mock
-  SourceService sourceService;
-
-  @Mock
   Views views;
 
   @Mock
@@ -132,7 +128,7 @@ public class ComponentAppActionTest {
     when(issueService.findRulesByComponent(anyString(), any(Date.class), eq(session))).thenReturn(mock(RulesAggregation.class));
     when(measureDao.findByComponentKeyAndMetricKeys(anyString(), anyListOf(String.class), eq(session))).thenReturn(measures);
 
-    tester = new WsTester(new ComponentsWs(new ComponentAppAction(dbClient, issueService, sourceService, views, periods, durations, i18n)));
+    tester = new WsTester(new ComponentsWs(new ComponentAppAction(dbClient, issueService, views, periods, durations, i18n)));
   }
 
   @Test
@@ -145,7 +141,6 @@ public class ComponentAppActionTest {
     when(componentDao.getById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API"));
     when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
     when(propertiesDao.selectByQuery(any(PropertyQuery.class), eq(session))).thenReturn(newArrayList(new PropertyDto()));
-    when(sourceService.hasScmData(eq(COMPONENT_KEY), eq(session))).thenReturn(true);
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
     request.execute().assertJson(getClass(), "app.json");
@@ -174,10 +169,22 @@ public class ComponentAppActionTest {
     when(componentDao.getNullableByKey(session, COMPONENT_KEY)).thenReturn(file);
     when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
     when(propertiesDao.selectByQuery(any(PropertyQuery.class), eq(session))).thenReturn(newArrayList(new PropertyDto()));
-    when(sourceService.hasScmData(eq(COMPONENT_KEY), eq(session))).thenReturn(true);
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
     request.execute().assertJson(getClass(), "app_with_sub_project_equals_to_project.json");
+  }
+
+  @Test
+  public void app_with_tabs() throws Exception {
+    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
+    addComponent();
+
+    addMeasure(CoreMetrics.COVERAGE_KEY, 1.0);
+    addMeasure(CoreMetrics.DUPLICATED_LINES_KEY, 2);
+    addMeasure(CoreMetrics.SCM_AUTHORS_BY_LINE_KEY, 3);
+
+    WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
+    request.execute().assertJson(getClass(), "app_with_tabs.json");
   }
 
   @Test

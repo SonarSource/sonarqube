@@ -135,11 +135,4 @@ public class SourceServiceTest {
     assertThat(service.getScmDateData(COMPONENT_KEY)).isNull();
   }
 
-  @Test
-  public void has_scm_data() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
-
-    when(measureDao.existsByKey(any(MeasureKey.class), eq(session))).thenReturn(true);
-    assertThat(service.hasScmData(COMPONENT_KEY)).isTrue();
-  }
 }
