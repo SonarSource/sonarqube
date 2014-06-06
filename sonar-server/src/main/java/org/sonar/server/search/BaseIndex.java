@@ -23,10 +23,12 @@ import com.google.common.collect.ImmutableMap;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
@@ -105,26 +107,34 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   // Scrolling within the index
   public Iterator<DOMAIN> scroll(final String scrollId) {
     return new Iterator<DOMAIN>() {
-      Queue<SearchHit> hits = new ArrayDeque<SearchHit>();
+
+      private final Queue<SearchHit> hits = new ArrayDeque<SearchHit>();
 
       private void fillQueue() {
-        if (hits.isEmpty()) {
-          for (SearchHit hit : getClient().prepareSearchScroll(scrollId)
-            .get().getHits().getHits()) {
+        try {
+          SearchScrollRequestBuilder esRequest = getClient().prepareSearchScroll(scrollId)
+            .setScroll(TimeValue.timeValueMinutes(3));
+          for (SearchHit hit : esRequest.get().getHits().getHits()) {
             hits.add(hit);
           }
+        } catch (Exception e) {
+          throw new IllegalStateException("Error while filling in the scroll buffer", e);
         }
       }
 
       @Override
       public boolean hasNext() {
-        fillQueue();
+        if (hits.isEmpty()) {
+          fillQueue();
+        }
         return !hits.isEmpty();
       }
 
       @Override
       public DOMAIN next() {
-        fillQueue();
+        if (hits.isEmpty()) {
+          fillQueue();
+        }
         return toDoc(hits.poll().getSource());
       }
 

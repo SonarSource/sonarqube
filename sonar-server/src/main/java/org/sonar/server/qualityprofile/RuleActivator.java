@@ -49,6 +49,7 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.util.TypeValidations;
 
 import javax.annotation.Nullable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -299,13 +300,14 @@ public class RuleActivator implements ServerComponent {
     DbSession dbSession = db.openSession(false);
 
     try {
-      // TODO pb because limited to QueryOptions.MAX_LIMIT
       RuleResult result = ruleIndex.search(ruleQuery,
         new QueryOptions()
-          .setMaxLimit()
+          .setScroll(true)
           .setFieldsToReturn(ImmutableSet.of(RuleNormalizer.RuleField.IS_TEMPLATE.field())));
 
-      for (Rule rule : result.getHits()) {
+      Iterator<Rule> rules = result.scroll();
+      while (rules.hasNext()) {
+        Rule rule = rules.next();
         if (!rule.isTemplate()) {
           ActiveRuleKey key = ActiveRuleKey.of(profileKey, rule.key());
           RuleActivation activation = new RuleActivation(key);
@@ -330,9 +332,10 @@ public class RuleActivator implements ServerComponent {
     DbSession dbSession = db.openSession(false);
 
     try {
-      RuleResult result = ruleIndex.search(ruleQuery, new QueryOptions());
-
-      for (Rule rule : result.getHits()) {
+      RuleResult result = ruleIndex.search(ruleQuery, new QueryOptions().setScroll(true));
+      Iterator<Rule> rules = result.scroll();
+      while (rules.hasNext()) {
+        Rule rule = rules.next();
         ActiveRuleKey key = ActiveRuleKey.of(profile, rule.key());
         for (ActiveRuleChange deActive : deactivate(dbSession, key)) {
           results.put(DEACTIVATED, deActive.getKey().ruleKey().toString());

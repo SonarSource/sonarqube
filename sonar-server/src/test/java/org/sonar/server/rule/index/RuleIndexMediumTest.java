@@ -259,13 +259,15 @@ public class RuleIndexMediumTest {
 
   @Test
   public void scroll_all_rules() throws InterruptedException {
-    dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "S001")));
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")));
+    int max = 100;
+    for (int i = 0; i < max; i++) {
+      dao.insert(dbSession, newRuleDto(RuleKey.of("java", "scroll_" + i)));
+    }
     dbSession.commit();
 
     Result results = index.search(new RuleQuery(), new QueryOptions().setScroll(true));
 
-    assertThat(results.getTotal()).isEqualTo(2);
+    assertThat(results.getTotal()).isEqualTo(max);
     assertThat(results.getHits()).hasSize(0);
 
     Iterator<Rule> it = results.scroll();
@@ -274,7 +276,7 @@ public class RuleIndexMediumTest {
       count++;
       it.next();
     }
-    assertThat(count).isEqualTo(2);
+    assertThat(count).isEqualTo(max);
 
   }
 

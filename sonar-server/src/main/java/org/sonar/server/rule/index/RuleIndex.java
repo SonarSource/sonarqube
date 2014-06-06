@@ -295,12 +295,10 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   public RuleResult search(RuleQuery query, QueryOptions options) {
     StopWatch profile = profiling.start("es", Profiling.Level.FULL);
 
-
     SearchRequestBuilder esSearch = getClient()
       .prepareSearch(this.getIndexName())
       .setTypes(this.getIndexType())
       .setIndices(this.getIndexName());
-
 
     if (options.isScroll()) {
       esSearch.setSearchType(SearchType.SCAN);
@@ -315,7 +313,6 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     FilterBuilder fb = this.getFilter(query, options);
     QueryBuilder qb = this.getQuery(query, options);
     esSearch.setQuery(QueryBuilders.filteredQuery(qb, fb));
-
 
     SearchResponse esResult = esSearch.get();
     profile.stop("query: {}\nresult:{}", esSearch, esResult);
