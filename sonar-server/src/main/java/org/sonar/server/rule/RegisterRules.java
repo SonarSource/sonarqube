@@ -49,6 +49,7 @@ import org.sonar.server.search.action.IndexAction;
 import org.sonar.server.search.action.KeyIndexAction;
 
 import javax.annotation.Nullable;
+
 import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -345,7 +346,6 @@ public class RegisterRules implements Startable {
           ruleDto.setDefaultRemediationCoefficient(parent.getDefaultRemediationCoefficient());
           ruleDto.setDefaultRemediationOffset(parent.getDefaultRemediationOffset());
           ruleDto.setEffortToFixDescription(parent.getEffortToFixDescription());
-          // TODO update tags ?
           dbClient.ruleDao().update(session, ruleDto);
           toBeRemoved = false;
         }

@@ -30,19 +30,10 @@ import java.util.Map;
 
 public class NewRule {
 
-  private boolean isTemplate;
   private RuleKey templateKey;
   private String name, htmlDescription, severity;
   private RuleStatus status;
-  private final Map<String, String> params = Maps.newHashMap();
-
-  public boolean isTemplate() {
-    return isTemplate;
-  }
-
-  public void setIsTemplate(boolean template) {
-    this.isTemplate = template;
-  }
+  private final Map<String, String> parameters = Maps.newHashMap();
 
   @CheckForNull
   public RuleKey templateKey() {
@@ -97,18 +88,18 @@ public class NewRule {
     return this;
   }
 
-  public Map<String, String> params() {
-    return params;
+  public Map<String, String> parameters() {
+    return parameters;
   }
 
   @CheckForNull
-  public String param(final String paramKey) {
-    return params.get(paramKey);
+  public String parameter(final String paramKey) {
+    return parameters.get(paramKey);
   }
 
-  public NewRule setParams(Map<String, String> params) {
-    this.params.clear();
-    this.params.putAll(params);
+  public NewRule setParameters(Map<String, String> params) {
+    this.parameters.clear();
+    this.parameters.putAll(params);
     return this;
   }
 }

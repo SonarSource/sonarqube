@@ -76,7 +76,7 @@ public class RuleCreatorMediumTest {
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
-      .setParams(ImmutableMap.of("regex", "a.*"));
+      .setParameters(ImmutableMap.of("regex", "a.*"));
     RuleKey customRuleKey = creator.create(newRule);
 
     dbSession.clearCache();
@@ -99,6 +99,14 @@ public class RuleCreatorMediumTest {
 
     List<RuleParamDto> params = db.ruleDao().findRuleParamsByRuleKey(dbSession, customRuleKey);
     assertThat(params).hasSize(1);
+
+    RuleParamDto param = params.get(0);
+    // From template rule
+    assertThat(param.getName()).isEqualTo("regex");
+    assertThat(param.getDescription()).isEqualTo("Reg ex");
+    assertThat(param.getType()).isEqualTo("STRING");
+    // From user
+    assertThat(param.getDefaultValue()).isEqualTo("a.*");
   }
 
   @Test
@@ -112,7 +120,7 @@ public class RuleCreatorMediumTest {
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
-      .setParams(ImmutableMap.of("regex", "a.*"));
+      .setParameters(ImmutableMap.of("regex", "a.*"));
 
     try {
       creator.create(newRule);
@@ -133,7 +141,7 @@ public class RuleCreatorMediumTest {
       .setName("My custom")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
-      .setParams(ImmutableMap.of("regex", "a.*"));
+      .setParameters(ImmutableMap.of("regex", "a.*"));
 
     try {
       creator.create(newRule);
@@ -154,7 +162,7 @@ public class RuleCreatorMediumTest {
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setStatus(RuleStatus.READY)
-      .setParams(ImmutableMap.of("regex", "a.*"));
+      .setParameters(ImmutableMap.of("regex", "a.*"));
 
     try {
       creator.create(newRule);
@@ -176,7 +184,7 @@ public class RuleCreatorMediumTest {
       .setHtmlDescription("Some description")
       .setSeverity("INVALID")
       .setStatus(RuleStatus.READY)
-      .setParams(ImmutableMap.of("regex", "a.*"));
+      .setParameters(ImmutableMap.of("regex", "a.*"));
 
     try {
       creator.create(newRule);
@@ -197,7 +205,7 @@ public class RuleCreatorMediumTest {
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
-      .setParams(ImmutableMap.of("regex", "a.*"));
+      .setParameters(ImmutableMap.of("regex", "a.*"));
 
     try {
       creator.create(newRule);
@@ -222,7 +230,7 @@ public class RuleCreatorMediumTest {
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
-      .setParams(ImmutableMap.of("regex", "a.*"));
+      .setParameters(ImmutableMap.of("regex", "a.*"));
 
     try {
       creator.create(newRule);

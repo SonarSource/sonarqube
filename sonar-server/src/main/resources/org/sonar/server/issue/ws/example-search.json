@@ -19,6 +19,7 @@
       "message": "'3' is a magic number.",
       "line": 530,
       "author": "Developer 1",
+      "debt": "2h1min",
       "creationDate": "2013-05-13T17:55:39+0200",
       "updateDate": "2013-05-13T17:55:39+0200",
       "comments": [

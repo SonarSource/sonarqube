@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import org.junit.After;
@@ -29,9 +30,9 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
-import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtTesting;
@@ -40,11 +41,11 @@ import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
+import java.util.List;
 import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
-import static org.mockito.Mockito.mock;
 
 public class RuleUpdaterMediumTest {
 
@@ -55,7 +56,6 @@ public class RuleUpdaterMediumTest {
 
   DbClient db = tester.get(DbClient.class);
   DbSession dbSession;
-  System2 system = mock(System2.class);
   RuleUpdater updater = tester.get(RuleUpdater.class);
   int reliabilityId, softReliabilityId, hardReliabilityId;
 
@@ -168,8 +168,8 @@ public class RuleUpdaterMediumTest {
   public void set_tags() throws Exception {
     // insert db
     db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
-        .setTags(Sets.newHashSet("security"))
-        .setSystemTags(Sets.newHashSet("java8", "javadoc")));
+      .setTags(Sets.newHashSet("security"))
+      .setSystemTags(Sets.newHashSet("java8", "javadoc")));
     dbSession.commit();
 
     // java8 is a system tag -> ignore
@@ -324,5 +324,41 @@ public class RuleUpdaterMediumTest {
       .setParentId(reliability.getId());
     db.debtCharacteristicDao().insert(hardReliability, dbSession);
     hardReliabilityId = hardReliability.getId();
+  }
+
+  @Test
+  public void update_custom_rule() throws Exception {
+    insertDebtCharacteristics(dbSession);
+    RuleDto ruledto = db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
+      .setName("Old name")
+      .setDescription("Old description")
+      .setSeverity("MINOR")
+      .setStatus(RuleStatus.BETA)
+    );
+    RuleParamDto ruleParamDto = RuleParamDto.createFor(ruledto).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
+    db.ruleDao().addRuleParam(dbSession, ruledto, ruleParamDto);
+
+    dbSession.commit();
+
+    RuleUpdate update = RuleUpdate.createForCustomRule(RULE_KEY)
+      .setName("New name")
+      .setHtmlDescription("New description")
+      .setSeverity("MAJOR")
+      .setStatus(RuleStatus.READY)
+      .setParameters(ImmutableMap.of("regex", "a.*"));
+    updater.update(update, UserSession.get());
+
+    // verify db
+    dbSession.clearCache();
+    RuleDto rule = db.ruleDao().getNullableByKey(dbSession, RULE_KEY);
+    assertThat(rule.getName()).isEqualTo("New name");
+    assertThat(rule.getDescription()).isEqualTo("New description");
+    assertThat(rule.getSeverityString()).isEqualTo("MAJOR");
+    assertThat(rule.getStatus()).isEqualTo(RuleStatus.READY);
+
+    List<RuleParamDto> params = db.ruleDao().findRuleParamsByRuleKey(dbSession, RULE_KEY);
+    assertThat(params).hasSize(1);
+    RuleParamDto param = params.get(0);
+    assertThat(param.getDefaultValue()).isEqualTo("a.*");
   }
 }

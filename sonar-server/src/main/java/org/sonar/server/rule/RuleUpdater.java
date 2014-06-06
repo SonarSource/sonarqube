@@ -19,22 +19,28 @@
  */
 package org.sonar.server.rule;
 
+import com.google.common.base.Strings;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class RuleUpdater implements ServerComponent {
 
@@ -57,6 +63,9 @@ public class RuleUpdater implements ServerComponent {
       // validate only the changes, not all the rule fields
       apply(update, context, userSession);
       dbClient.ruleDao().update(dbSession, context.rule);
+      for (RuleParamDto ruleParamDto : context.parameters) {
+        dbClient.ruleDao().updateRuleParam(dbSession, context.rule, ruleParamDto);
+      }
       dbSession.commit();
       return true;
 
@@ -76,6 +85,7 @@ public class RuleUpdater implements ServerComponent {
       if (RuleStatus.REMOVED == context.rule.getStatus()) {
         throw new IllegalArgumentException("Rule with REMOVED status cannot be updated: " + change.getRuleKey());
       }
+      context.parameters = dbClient.ruleDao().findRuleParamsByRuleKey(dbSession, change.getRuleKey());
 
       String subCharacteristicKey = change.getDebtSubCharacteristicKey();
       if (subCharacteristicKey != null &&
@@ -100,6 +110,21 @@ public class RuleUpdater implements ServerComponent {
   }
 
   private void apply(RuleUpdate update, Context context, UserSession userSession) {
+    if (update.isChangeName()) {
+      updateName(update, context);
+    }
+    if (update.isChangeDescription()) {
+      updateDescription(update, context);
+    }
+    if (update.isChangeSeverity()) {
+      updateSeverity(update, context);
+    }
+    if (update.isChangeStatus()) {
+      updateStatus(update, context);
+    }
+    if (update.isChangeParameters()) {
+      updateParameters(update, context);
+    }
     if (update.isChangeMarkdownNote()) {
       updateMarkdownNote(update, context, userSession);
     }
@@ -112,6 +137,54 @@ public class RuleUpdater implements ServerComponent {
     // order is important -> sub-characteristic must be set
     if (update.isChangeDebtRemediationFunction()) {
       updateDebtRemediationFunction(update, context);
+    }
+  }
+
+  private void updateName(RuleUpdate update, Context context) {
+    String name = update.getName();
+    if (Strings.isNullOrEmpty(name)) {
+      throw new IllegalArgumentException("The name is missing");
+    } else {
+      context.rule.setName(name);
+    }
+  }
+
+  private void updateDescription(RuleUpdate update, Context context) {
+    String description = update.getHtmlDescription();
+    if (Strings.isNullOrEmpty(description)) {
+      throw new IllegalArgumentException("The description is missing");
+    } else {
+      context.rule.setDescription(description);
+    }
+  }
+
+  private void updateSeverity(RuleUpdate update, Context context) {
+    String severity = update.getSeverity();
+    if (Strings.isNullOrEmpty(severity) || !Severity.ALL.contains(severity)) {
+      throw new IllegalArgumentException("The severity is invalid");
+    } else {
+      context.rule.setSeverity(severity);
+    }
+  }
+
+  private void updateStatus(RuleUpdate update, Context context) {
+    RuleStatus status = update.getStatus();
+    if (status == null) {
+      throw new IllegalArgumentException("The status is missing");
+    } else {
+      context.rule.setStatus(status);
+    }
+  }
+
+  private void updateParameters(RuleUpdate update, Context context) {
+    // All parameters have to be updated
+    for (RuleParamDto ruleParamDto : context.parameters) {
+      String value = update.parameter(ruleParamDto.getName());
+      if (Strings.isNullOrEmpty(value)) {
+        throw new IllegalArgumentException(String.format("The parameter '%s' has not been set", ruleParamDto.getName()));
+      } else {
+        ruleParamDto.setDefaultValue(value);
+      }
     }
   }
 
@@ -206,6 +279,7 @@ public class RuleUpdater implements ServerComponent {
    */
   private static class Context {
     private RuleDto rule;
+    private List<RuleParamDto> parameters = newArrayList();
     private CharacteristicDto newCharacteristic;
   }
 

@@ -150,7 +150,7 @@ public class RuleServiceMediumTest {
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
-      .setParams(ImmutableMap.of("regex", "a.*"));
+      .setParameters(ImmutableMap.of("regex", "a.*"));
     RuleKey customRuleKey = service.create(newRule);
 
     dbSession.clearCache();

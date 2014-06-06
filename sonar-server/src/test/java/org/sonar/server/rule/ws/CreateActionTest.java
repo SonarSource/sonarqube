@@ -73,7 +73,7 @@ public class CreateActionTest {
     assertThat(newRule.htmlDescription()).isEqualTo("Description");
     assertThat(newRule.severity()).isEqualTo("MAJOR");
     assertThat(newRule.status()).isEqualTo(RuleStatus.BETA);
-    assertThat(newRule.params()).hasSize(1);
-    assertThat(newRule.params().get("key")).isEqualTo("value");
+    assertThat(newRule.parameters()).hasSize(1);
+    assertThat(newRule.parameters().get("key")).isEqualTo("value");
   }
 }

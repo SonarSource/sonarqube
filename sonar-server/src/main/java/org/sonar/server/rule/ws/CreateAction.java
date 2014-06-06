@@ -101,7 +101,7 @@ public class CreateAction implements RequestHandler {
       .setStatus(RuleStatus.valueOf(request.mandatoryParam(PARAM_STATUS)));
     String params = request.param(PARAMS);
     if (params != null) {
-      newRule.setParams(KeyValueFormat.parse(params));
+      newRule.setParameters(KeyValueFormat.parse(params));
     }
     service.create(newRule);
   }

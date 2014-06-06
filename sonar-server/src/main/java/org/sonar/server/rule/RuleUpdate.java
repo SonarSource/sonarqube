@@ -19,12 +19,16 @@
  */
 package org.sonar.server.rule;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import java.util.Map;
 import java.util.Set;
 
 public class RuleUpdate {
@@ -33,11 +37,17 @@ public class RuleUpdate {
 
   private final RuleKey ruleKey;
 
-  private boolean changeTags = false, changeMarkdownNote = false, changeDebtSubCharacteristic = false, changeDebtRemediationFunction = false;
+  private boolean changeTags = false, changeMarkdownNote = false, changeDebtSubCharacteristic = false, changeDebtRemediationFunction = false,
+    changeName = false, changeDescription = false, changeSeverity = false, changeStatus = false, changeParameters = false;
+  private boolean isCustomRule = false;
   private Set<String> tags;
   private String markdownNote;
   private String debtSubCharacteristicKey;
   private DebtRemediationFunction debtRemediationFunction;
+
+  private String name, htmlDescription, severity;
+  private RuleStatus status;
+  private final Map<String, String> parameters = Maps.newHashMap();
 
   public RuleUpdate(RuleKey ruleKey) {
     this.ruleKey = ruleKey;
@@ -101,6 +111,67 @@ public class RuleUpdate {
     return this;
   }
 
+  public String getName() {
+    return name;
+  }
+
+  public RuleUpdate setName(@Nullable String name) {
+    checkCustomRule();
+    this.name = name;
+    this.changeName = true;
+    return this;
+  }
+
+  public String getHtmlDescription() {
+    return htmlDescription;
+  }
+
+  public RuleUpdate setHtmlDescription(@Nullable String htmlDescription) {
+    checkCustomRule();
+    this.htmlDescription = htmlDescription;
+    this.changeDescription = true;
+    return this;
+  }
+
+  public String getSeverity() {
+    return severity;
+  }
+
+  public RuleUpdate setSeverity(String severity) {
+    checkCustomRule();
+    this.severity = severity;
+    this.changeSeverity = true;
+    return this;
+  }
+
+  public RuleStatus getStatus() {
+    return status;
+  }
+
+  public RuleUpdate setStatus(RuleStatus status) {
+    checkCustomRule();
+    this.status = status;
+    this.changeStatus = true;
+    return this;
+  }
+
+  public RuleUpdate setParameters(Map<String, String> params) {
+    checkCustomRule();
+    this.parameters.clear();
+    this.parameters.putAll(params);
+    this.changeParameters = true;
+    return this;
+  }
+
+  public Map<String, String> getParameters() {
+    return parameters;
+  }
+
+  @CheckForNull
+  public String parameter(final String paramKey) {
+    return parameters.get(paramKey);
+  }
+
   public boolean isChangeTags() {
     return changeTags;
   }
@@ -117,7 +188,45 @@ public class RuleUpdate {
     return changeDebtRemediationFunction;
   }
 
-  public boolean isEmpty() {
-    return !changeMarkdownNote && !changeTags && !changeDebtSubCharacteristic && !changeDebtRemediationFunction;
+  public boolean isChangeName() {
+    return changeName;
   }
+
+  public boolean isChangeDescription() {
+    return changeDescription;
+  }
+
+  public boolean isChangeSeverity() {
+    return changeSeverity;
+  }
+
+  public boolean isChangeStatus() {
+    return changeStatus;
+  }
+
+  public boolean isChangeParameters() {
+    return changeParameters;
+  }
+
+  public boolean isEmpty() {
+    return !changeMarkdownNote && !changeTags && !changeDebtSubCharacteristic && !changeDebtRemediationFunction &&
+      !changeName && !changeDescription && !changeSeverity && !changeStatus && !changeParameters;
+  }
+
+  private void checkCustomRule(){
+    if (!isCustomRule) {
+      throw new IllegalStateException("Not a custom rule");
+    }
+  }
+
+  public static RuleUpdate createForRule(RuleKey ruleKey) {
+    return new RuleUpdate(ruleKey);
+  }
+
+  public static RuleUpdate createForCustomRule(RuleKey ruleKey) {
+    RuleUpdate ruleUpdate = new RuleUpdate(ruleKey);
+    ruleUpdate.isCustomRule = true;
+    return ruleUpdate;
+  }
+
 }
