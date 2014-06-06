@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rules.ActiveRuleChange;
 import org.sonar.api.rules.RulePriority;
@@ -29,11 +30,11 @@ import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-@Ignored
 @Deprecated
 /**
  * @deprecated Medium tests executed in RegisterRuleMediumTest
  */
+@Ignore
 public class RuleChangeTest extends AbstractDbUnitTestCase {
   private ProfilesManager profilesManager;
 
