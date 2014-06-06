@@ -22,8 +22,10 @@ package org.sonar.server.rule.index;
 import com.google.common.base.Preconditions;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
@@ -93,40 +95,8 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     return mapping;
   }
 
-  protected SearchRequestBuilder buildRequest(RuleQuery query, QueryOptions options) {
-    SearchRequestBuilder esSearch = getClient()
-      .prepareSearch(this.getIndexName())
-      .setTypes(this.getIndexType())
-      .setIndices(this.getIndexName());
-
-    /* Integrate Facets */
-    if (options.isFacet()) {
-      this.setFacets(esSearch);
-    }
-
-    /* integrate Query Sort */
-    if (query.getSortField() != null) {
-      FieldSortBuilder sort = SortBuilders.fieldSort(query.getSortField().sortField());
-      if (query.isAscendingSort()) {
-        sort.order(SortOrder.ASC);
-      } else {
-        sort.order(SortOrder.DESC);
-      }
-      esSearch.addSort(sort);
-    } else if (query.getQueryText() != null && !query.getQueryText().isEmpty()) {
-      esSearch.addSort(SortBuilders.scoreSort());
-    } else {
-      esSearch.addSort(RuleNormalizer.RuleField.UPDATED_AT.sortField(), SortOrder.DESC);
-      // deterministic sort when exactly the same updated_at (same millisecond)
-      esSearch.addSort(RuleNormalizer.RuleField.KEY.sortField()
-        , SortOrder.ASC);
-    }
-
-    /* integrate Option's Pagination */
-    esSearch.setFrom(options.getOffset());
-    esSearch.setSize(options.getLimit());
-
-    /* integrate Option's Fields */
+  private void setFields(QueryOptions options, SearchRequestBuilder esSearch) {
+  /* integrate Option's Fields */
     Set<String> fields = new HashSet<String>();
     if (!options.getFieldsToReturn().isEmpty()) {
       for (String fieldToReturn : options.getFieldsToReturn()) {
@@ -143,8 +113,39 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     }
 
     esSearch.setFetchSource(fields.toArray(new String[fields.size()]), null);
+  }
 
-    return esSearch;
+  private void setFacets(QueryOptions options, SearchRequestBuilder esSearch) {
+  /* Integrate Facets */
+    if (options.isFacet()) {
+      this.setFacets(esSearch);
+    }
+  }
+
+  private void setSorting(RuleQuery query, SearchRequestBuilder esSearch) {
+  /* integrate Query Sort */
+    if (query.getSortField() != null) {
+      FieldSortBuilder sort = SortBuilders.fieldSort(query.getSortField().sortField());
+      if (query.isAscendingSort()) {
+        sort.order(SortOrder.ASC);
+      } else {
+        sort.order(SortOrder.DESC);
+      }
+      esSearch.addSort(sort);
+    } else if (query.getQueryText() != null && !query.getQueryText().isEmpty()) {
+      esSearch.addSort(SortBuilders.scoreSort());
+    } else {
+      esSearch.addSort(RuleNormalizer.RuleField.UPDATED_AT.sortField(), SortOrder.DESC);
+      // deterministic sort when exactly the same updated_at (same millisecond)
+      esSearch.addSort(RuleNormalizer.RuleField.KEY.sortField()
+        , SortOrder.ASC);
+    }
+  }
+
+  protected void setPagination(QueryOptions options, SearchRequestBuilder esSearch) {
+  /* integrate Option's Pagination */
+    esSearch.setFrom(options.getOffset());
+    esSearch.setSize(options.getLimit());
   }
 
   private QueryBuilder phraseQuery(IndexField field, String query, float boost) {
@@ -290,15 +291,40 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
   }
 
+
   public RuleResult search(RuleQuery query, QueryOptions options) {
     StopWatch profile = profiling.start("es", Profiling.Level.FULL);
-    SearchRequestBuilder esSearch = this.buildRequest(query, options);
+
+
+    SearchRequestBuilder esSearch = getClient()
+      .prepareSearch(this.getIndexName())
+      .setTypes(this.getIndexType())
+      .setIndices(this.getIndexName());
+
+
+    if (options.isScroll()) {
+      esSearch.setSearchType(SearchType.SCAN);
+      esSearch.setScroll(TimeValue.timeValueMinutes(3));
+    }
+
+    setFacets(options, esSearch);
+    setSorting(query, esSearch);
+    setPagination(options, esSearch);
+    setFields(options, esSearch);
+
     FilterBuilder fb = this.getFilter(query, options);
     QueryBuilder qb = this.getQuery(query, options);
     esSearch.setQuery(QueryBuilders.filteredQuery(qb, fb));
+
+
     SearchResponse esResult = esSearch.get();
     profile.stop("query: {}\nresult:{}", esSearch, esResult);
-    return new RuleResult(esResult);
+
+    if (options.isScroll()) {
+      return new RuleResult(this, esResult);
+    } else {
+      return new RuleResult(esResult);
+    }
   }
 
 

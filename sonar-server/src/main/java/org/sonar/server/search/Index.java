@@ -26,6 +26,7 @@ import org.sonar.core.persistence.Dto;
 import javax.annotation.CheckForNull;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Iterator;
 
 public interface Index<DOMAIN, DTO extends Dto<KEY>, KEY extends Serializable> extends Startable, ServerComponent {
 
@@ -54,4 +55,5 @@ public interface Index<DOMAIN, DTO extends Dto<KEY>, KEY extends Serializable> e
 
   IndexStat getIndexStat();
 
+  Iterator<DOMAIN> scroll(String scrollId);
 }

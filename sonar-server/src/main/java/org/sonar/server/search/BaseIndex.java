@@ -32,6 +32,7 @@ import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.cluster.WorkQueue;
@@ -41,11 +42,14 @@ import org.sonar.core.profiling.Profiling;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 
 public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serializable>
@@ -67,20 +71,20 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   }
 
   @Override
-  public String getIndexName() {
+  public final String getIndexName() {
     return this.indexDefinition.getIndexName();
   }
 
   @Override
-  public String getIndexType() {
+  public final String getIndexType() {
     return this.indexDefinition.getIndexType();
   }
 
-  protected Client getClient() {
+  protected final Client getClient() {
     return node.client();
   }
 
-  protected ESNode getNode() {
+  private ESNode getNode() {
     return this.node;
   }
 
@@ -97,6 +101,41 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   public void stop() {
 
   }
+
+  // Scrolling within the index
+  public Iterator<DOMAIN> scroll(final String scrollId) {
+    return new Iterator<DOMAIN>() {
+      Queue<SearchHit> hits = new ArrayDeque<SearchHit>();
+
+      private void fillQueue() {
+        if (hits.isEmpty()) {
+          for (SearchHit hit : getClient().prepareSearchScroll(scrollId)
+            .get().getHits().getHits()) {
+            hits.add(hit);
+          }
+        }
+      }
+
+      @Override
+      public boolean hasNext() {
+        fillQueue();
+        return !hits.isEmpty();
+      }
+
+      @Override
+      public DOMAIN next() {
+        fillQueue();
+        return toDoc(hits.poll().getSource());
+      }
+
+      @Override
+      public void remove() {
+        throw new IllegalStateException("Cannot remove item from scroll Iterable!!!" +
+          " Use Service or DAO classes instead");
+      }
+    };
+  }
+
 
   /* Cluster And ES Stats/Client methods */
 

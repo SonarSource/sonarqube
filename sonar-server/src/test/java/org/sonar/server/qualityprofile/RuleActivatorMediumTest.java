@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Multimap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -42,6 +43,9 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleTesting;
+import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.rule.index.RuleQuery;
+import org.sonar.server.search.QueryOptions;
 import org.sonar.server.tester.ServerTester;
 
 import javax.annotation.Nullable;
@@ -576,6 +580,38 @@ public class RuleActivatorMediumTest {
     verifyOneActiveRule(XOO_PROFILE_KEY, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
     verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
     verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, Severity.MINOR, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "20"));
+  }
+
+  @Test
+  public void bulk_activate() {
+
+    // Generate more rules than the search's max limit
+    int bulkSize = QueryOptions.MAX_LIMIT + 10;
+    for (int i = 0; i < bulkSize; i++) {
+      db.ruleDao().insert(dbSession, RuleDto.createFor(
+        RuleKey.of("bulk", "r_" + i))
+        .setLanguage("xoo")
+        .setSeverity("BLOCKER")
+        .setStatus(RuleStatus.READY));
+    }
+    dbSession.commit();
+
+    // 0. No active rules so far (base case) and plenty rules available
+    verifyZeroActiveRules(XOO_PROFILE_KEY);
+    assertThat(tester.get(RuleIndex.class)
+      .search(new RuleQuery().setQueryText("bulk"), new QueryOptions()).getTotal())
+      .isEqualTo(bulkSize);
+
+    // 1. assert that bulk activate generates all Activation
+    Multimap<String, String> result = ruleActivator.bulkActivate(
+      new RuleQuery().setQueryText("bulk"), XOO_PROFILE_KEY, "MINOR");
+    assertThat(result.get(RuleActivator.ACTIVATED)).hasSize(bulkSize);
+
+    // 2. assert that all activation has been commited to DB and ES
+    dbSession.clearCache();
+    assertThat(db.activeRuleDao().findByProfileKey(dbSession, XOO_PROFILE_KEY)).hasSize(bulkSize);
+    assertThat(index.findByProfile(XOO_PROFILE_KEY)).hasSize(bulkSize);
+
   }
 
   private void verifyOneActiveRule(QualityProfileKey profileKey, String expectedSeverity,

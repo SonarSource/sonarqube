@@ -43,6 +43,7 @@ public class QueryOptions {
   private int limit = DEFAULT_LIMIT;
   private boolean facet = DEFAULT_FACET;
   private Set<String> fieldsToReturn = Sets.newHashSet();
+  private boolean scroll = false;
 
   /**
    * Whether or not the search returns facets for the domain. Defaults to {@link #DEFAULT_OFFSET}
@@ -56,6 +57,21 @@ public class QueryOptions {
    */
   public QueryOptions setFacet(boolean facet) {
     this.facet = facet;
+    return this;
+  }
+
+  /**
+   * Whether or not the search result will be scrollable using an iterator
+   */
+  public boolean isScroll() {
+    return scroll;
+  }
+
+  /**
+   * Sets whether or not the search result will be scrollable using an iterator
+   */
+  public QueryOptions setScroll(boolean scroll) {
+    this.scroll = scroll;
     return this;
   }
 

@@ -52,6 +52,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -255,6 +256,28 @@ public class RuleIndexMediumTest {
     assertThat(results.getTotal()).isEqualTo(2);
     assertThat(results.getHits()).hasSize(2);
   }
+
+  @Test
+  public void scroll_all_rules() throws InterruptedException {
+    dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "S001")));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")));
+    dbSession.commit();
+
+    Result results = index.search(new RuleQuery(), new QueryOptions().setScroll(true));
+
+    assertThat(results.getTotal()).isEqualTo(2);
+    assertThat(results.getHits()).hasSize(0);
+
+    Iterator<Rule> it = results.scroll();
+    int count = 0;
+    while (it.hasNext()) {
+      count++;
+      it.next();
+    }
+    assertThat(count).isEqualTo(2);
+
+  }
+
 
   @Test
   public void search_by_any_of_repositories() {

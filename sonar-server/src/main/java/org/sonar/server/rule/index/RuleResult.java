@@ -28,6 +28,10 @@ import java.util.Map;
 
 public class RuleResult extends Result<Rule> {
 
+  public RuleResult(RuleIndex index, SearchResponse response) {
+    super(index, response);
+  }
+
   public RuleResult(SearchResponse response) {
     super(response);
   }

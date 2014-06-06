@@ -30,6 +30,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import javax.annotation.CheckForNull;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +41,19 @@ public abstract class Result<K> {
   private long total;
   private long timeInMillis;
 
+  //scrollable iterable
+  private final String scrollId;
+  private Index<K, ?, ?> index;
+
+  public Result(Index<K, ?, ?> index, SearchResponse response) {
+    this(response);
+    this.index = index;
+  }
+
   public Result(SearchResponse response) {
+
+    scrollId = response.getScrollId();
+
     this.hits = new ArrayList<K>();
     this.facets = LinkedListMultimap.create();
     this.total = (int) response.getHits().totalHits();
@@ -59,7 +72,14 @@ public abstract class Result<K> {
     }
   }
 
-  /* Transform Methods */
+  public Iterator<K> scroll() {
+    if (scrollId == null || index == null) {
+      throw new IllegalStateException("Result is not scrollable. Please use QueryOptions.setScroll()");
+    } else {
+      return index.scroll(this.scrollId);
+    }
+  }
+
   protected abstract K getSearchResult(Map<String, Object> fields);
 
   public List<K> getHits() {

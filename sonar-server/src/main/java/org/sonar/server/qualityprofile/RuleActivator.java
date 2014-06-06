@@ -59,6 +59,10 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class RuleActivator implements ServerComponent {
 
+  public static final String ACTIVATED = "activated";
+  public static final String IGNORED = "ignored";
+  public static final String DEACTIVATED = "deactivated";
+
   private final DbClient db;
   private final TypeValidations typeValidations;
   private final RuleActivationContextFactory contextFactory;
@@ -307,10 +311,10 @@ public class RuleActivator implements ServerComponent {
           RuleActivation activation = new RuleActivation(key);
           activation.setSeverity(severity);
           for (ActiveRuleChange active : activate(dbSession, activation)) {
-            results.put("activated", active.getKey().ruleKey().toString());
+            results.put(ACTIVATED, active.getKey().ruleKey().toString());
           }
         } else {
-          results.put("ignored", rule.key().toString());
+          results.put(IGNORED, rule.key().toString());
         }
       }
       dbSession.commit();
@@ -331,7 +335,7 @@ public class RuleActivator implements ServerComponent {
       for (Rule rule : result.getHits()) {
         ActiveRuleKey key = ActiveRuleKey.of(profile, rule.key());
         for (ActiveRuleChange deActive : deactivate(dbSession, key)) {
-          results.put("deactivated", deActive.getKey().ruleKey().toString());
+          results.put(DEACTIVATED, deActive.getKey().ruleKey().toString());
         }
       }
       dbSession.commit();
