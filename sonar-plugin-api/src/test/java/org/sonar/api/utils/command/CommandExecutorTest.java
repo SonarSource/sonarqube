@@ -132,9 +132,12 @@ public class CommandExecutorTest {
       fail();
     } catch (TimeoutException e) {
       long duration = System.currentTimeMillis() - start;
-      // should test >= 300 but it strangly fails during build on windows.
-      // The timeout is raised after 297ms (??)
-      assertThat(duration).as(e.getMessage()).isGreaterThan(290L);
+      // Future.get(), which is used by CommandExecutor, has not a precise timeout.
+      // See http://stackoverflow.com/questions/23199820/future-get-timeout-precision-and-possible-alternatives
+      // The deviation seems to be in both directions, so it implies to test something like >270ms instead of >300ms
+      assertThat(duration).as(e.getMessage())
+        .isGreaterThan(270L)
+        .isLessThan(400L);
     }
   }
 
