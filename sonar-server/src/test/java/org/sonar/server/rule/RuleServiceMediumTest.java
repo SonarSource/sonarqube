@@ -44,7 +44,6 @@ import java.util.Collections;
 import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
 
 public class RuleServiceMediumTest {
 
@@ -112,7 +111,7 @@ public class RuleServiceMediumTest {
     assertThat(rule.getNoteUserLogin()).isEqualTo("me");
   }
 
-  @Test
+  @Test(expected = UnauthorizedException.class)
   public void do_not_update_if_not_granted() throws Exception {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
@@ -123,23 +122,18 @@ public class RuleServiceMediumTest {
       .setSystemTags(Sets.newHashSet("java8", "javadoc")));
     dbSession.commit();
 
-    try {
-      RuleUpdate update = new RuleUpdate(key).setMarkdownNote("my *note*");
-      service.update(update);
-      fail();
-    } catch (UnauthorizedException e) {
-      // ok
-    }
+    RuleUpdate update = new RuleUpdate(key).setMarkdownNote("my *note*");
+    service.update(update);
   }
 
   @Test
-  public void create_rule() throws Exception {
+  public void create_custom_rule() throws Exception {
     MockUserSession.set()
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
       .setLogin("me");
 
+    // Create template rule
     RuleKey templateRuleKey = RuleKey.of("java", "S001");
-
     dao.insert(dbSession, RuleTesting.newDto(templateRuleKey).setCardinality(Cardinality.MULTIPLE));
     dbSession.commit();
 
@@ -159,15 +153,42 @@ public class RuleServiceMediumTest {
     assertThat(rule).isNotNull();
   }
 
-  @Test
+  @Test(expected = UnauthorizedException.class)
   public void do_not_create_if_not_granted() throws Exception {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
-    try {
-      service.create(new NewRule());
-      fail();
-    } catch (UnauthorizedException e) {
-      // ok
-    }
+    service.create(new NewRule());
+  }
+
+  @Test
+  public void delete_custom_rule() throws Exception {
+    MockUserSession.set()
+      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
+      .setLogin("me");
+
+    // Create template rule
+    RuleKey templateRuleKey = RuleKey.of("java", "S001");
+    dao.insert(dbSession, RuleTesting.newDto(templateRuleKey).setCardinality(Cardinality.MULTIPLE));
+    dbSession.commit();
+
+    // Create custom rule
+    NewRule newRule = new NewRule()
+      .setTemplateKey(templateRuleKey)
+      .setName("My custom")
+      .setHtmlDescription("Some description")
+      .setSeverity(Severity.MAJOR)
+      .setStatus(RuleStatus.READY)
+      .setParameters(ImmutableMap.of("regex", "a.*"));
+    RuleKey customRuleKey = service.create(newRule);
+
+    // Delete custom rule
+    service.delete(customRuleKey);
+  }
+
+  @Test(expected = UnauthorizedException.class)
+  public void do_not_delete_if_not_granted() throws Exception {
+    MockUserSession.set().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
+
+    service.delete(RuleKey.of("java", "S001"));
   }
 }

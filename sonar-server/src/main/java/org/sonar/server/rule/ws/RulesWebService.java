@@ -29,15 +29,17 @@ public class RulesWebService implements WebService {
   private final CreateAction create;
   private final AppAction app;
   private final UpdateAction update;
+  private final DeleteAction delete;
 
   public RulesWebService(SearchAction search, ShowAction show, TagsAction tags, CreateAction create,
-                         AppAction app, UpdateAction update) {
+                         AppAction app, UpdateAction update, DeleteAction delete) {
     this.search = search;
     this.show = show;
     this.tags = tags;
     this.create = create;
     this.app = app;
     this.update = update;
+    this.delete = delete;
   }
 
   @Override
@@ -52,6 +54,7 @@ public class RulesWebService implements WebService {
     app.define(controller);
     update.define(controller);
     create.define(controller);
+    delete.define(controller);
 
     controller.done();
   }
