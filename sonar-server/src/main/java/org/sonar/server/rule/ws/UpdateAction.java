@@ -20,16 +20,21 @@
 package org.sonar.server.rule.ws;
 
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.RuleUpdate;
@@ -44,6 +49,11 @@ public class UpdateAction implements RequestHandler {
   public static final String PARAM_DEBT_REMEDIATION_FN_TYPE = "debt_remediation_fn_type";
   public static final String PARAM_DEBT_REMEDIATION_FN_OFFSET = "debt_remediation_fn_offset";
   public static final String PARAM_DEBT_REMEDIATION_FY_COEFF = "debt_remediation_fy_coeff";
+  public static final String PARAM_NAME = "name";
+  public static final String PARAM_DESCRIPTION = "html_description";
+  public static final String PARAM_SEVERITY = "severity";
+  public static final String PARAM_STATUS = "status";
+  public static final String PARAMS = "params";
 
   private final RuleService service;
   private final RuleMapping mapping;
@@ -89,6 +99,30 @@ public class UpdateAction implements RequestHandler {
 
     action.createParam(PARAM_DEBT_REMEDIATION_FY_COEFF)
       .setExampleValue("3min");
+
+    action
+      .createParam(PARAM_NAME)
+      .setDescription("Rule name (Only when updating a custom rule or a manual rule)")
+      .setExampleValue("My custom rule");
+
+    action
+      .createParam(PARAM_DESCRIPTION)
+      .setDescription("Rule description (Only when updating a custom rule or a manual rule)")
+      .setExampleValue("Description of my custom rule");
+
+    action
+      .createParam(PARAM_SEVERITY)
+      .setDescription("Rule severity (Only when updating a custom rule)")
+      .setPossibleValues(Severity.ALL);
+
+    action
+      .createParam(PARAM_STATUS)
+      .setDescription("Rule status (Only when updating a custom rule)")
+      .setDefaultValue(RuleStatus.READY)
+      .setPossibleValues(RuleStatus.values());
+
+    action.createParam(PARAMS)
+      .setDescription("Parameters as semi-colon list of <key>=<value>, for example 'params=key1=v1;key2=v2' (Only when updating a custom rule)");
   }
 
   @Override
@@ -100,11 +134,44 @@ public class UpdateAction implements RequestHandler {
 
   private RuleUpdate readRequest(Request request) {
     RuleKey key = RuleKey.parse(request.mandatoryParam(PARAM_KEY));
-    RuleUpdate update = new RuleUpdate(key);
+    RuleUpdate update = createRuleUpdate(key);
     readTags(request, update);
     readMarkdownNote(request, update);
     readDebt(request, update);
+
+    String name = request.param(PARAM_NAME);
+    if (!Strings.isNullOrEmpty(name)) {
+      update.setName(name);
+    }
+    String description = request.param(PARAM_DESCRIPTION);
+    if (!Strings.isNullOrEmpty(description)) {
+      update.setHtmlDescription(description);
+    }
+    String severity = request.param(PARAM_SEVERITY);
+    if (!Strings.isNullOrEmpty(severity)) {
+      update.setSeverity(severity);
+    }
+    String status = request.param(PARAM_STATUS);
+    if (!Strings.isNullOrEmpty(status)) {
+      update.setStatus(RuleStatus.valueOf(status));
+    }
+    String params = request.param(PARAMS);
+    if (!Strings.isNullOrEmpty(params)) {
+      update.setParameters(KeyValueFormat.parse(params));
+    }
     return update;
+  }
+
+  private RuleUpdate createRuleUpdate(RuleKey key){
+    Rule rule = service.getByKey(key);
+    if (rule == null) {
+      throw new NotFoundException("This rule does not exists : " + key);
+    }
+    if (rule.templateKey() != null) {
+      return RuleUpdate.createForCustomRule(key);
+    } else {
+      return RuleUpdate.createForRule(key);
+    }
   }
 
   private void readTags(Request request, RuleUpdate update) {

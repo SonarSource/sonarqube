@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule.ws;
 
+import com.google.common.base.Strings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -27,8 +28,11 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.rule.NewRule;
+import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleService;
+import org.sonar.server.search.BaseDoc;
 
 /**
  * @since 4.4
@@ -43,9 +47,11 @@ public class CreateAction implements RequestHandler {
   public static final String PARAMS = "params";
 
   private final RuleService service;
+  private final RuleMapping mapping;
 
-  public CreateAction(RuleService service) {
+  public CreateAction(RuleService service, RuleMapping mapping) {
     this.service = service;
+    this.mapping = mapping;
   }
 
   void define(WebService.NewController controller) {
@@ -87,7 +93,7 @@ public class CreateAction implements RequestHandler {
       .setPossibleValues(RuleStatus.values());
 
     action.createParam(PARAMS)
-      .setDescription("Parameters as semi-colon list of <key>=<value>, for example 'params=key1=v1;key2=v2'.");
+      .setDescription("Parameters as semi-colon list of <key>=<value>, for example 'params=key1=v1;key2=v2'");
   }
 
   @Override
@@ -100,9 +106,16 @@ public class CreateAction implements RequestHandler {
       .setSeverity(request.mandatoryParam(PARAM_SEVERITY))
       .setStatus(RuleStatus.valueOf(request.mandatoryParam(PARAM_STATUS)));
     String params = request.param(PARAMS);
-    if (params != null) {
+    if (!Strings.isNullOrEmpty(params)) {
       newRule.setParameters(KeyValueFormat.parse(params));
     }
-    service.create(newRule);
+    writeResponse(response, service.create(newRule));
+  }
+
+  private void writeResponse(Response response, RuleKey ruleKey) {
+    Rule rule = service.getByKey(ruleKey);
+    JsonWriter json = response.newJsonWriter().beginObject().name("rule");
+    mapping.write((BaseDoc) rule, json);
+    json.endObject().close();
   }
 }

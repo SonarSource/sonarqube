@@ -83,6 +83,7 @@ public class RuleCreatorMediumTest {
 
     RuleDto rule = db.ruleDao().getNullableByKey(dbSession, customRuleKey);
     assertThat(rule).isNotNull();
+    assertThat(rule.getParentId()).isEqualTo(templateRule.getId());
     assertThat(rule.getName()).isEqualTo("My custom");
     assertThat(rule.getDescription()).isEqualTo("Some description");
     assertThat(rule.getSeverityString()).isEqualTo("MAJOR");

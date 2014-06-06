@@ -30,6 +30,7 @@ import org.sonar.server.search.BaseDoc;
 import org.sonar.server.search.IndexUtils;
 
 import javax.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -93,7 +94,8 @@ public class RuleDoc extends BaseDoc implements Rule {
 
   @Override
   public RuleKey templateKey() {
-    return RuleKey.parse((String) getField(RuleNormalizer.RuleField.TEMPLATE_KEY.field()));
+    String templateKey = getNullableField(RuleNormalizer.RuleField.TEMPLATE_KEY.field());
+    return templateKey != null ? RuleKey.parse(templateKey) : null;
   }
 
   @Override
