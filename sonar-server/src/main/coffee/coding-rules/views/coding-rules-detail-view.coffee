@@ -68,8 +68,7 @@ define [
             template_key: @model.get 'key'
             f: 'name'
         .done (r) =>
-          console.log r.rules.length
-          #customRules.add r.rules
+          customRules.add r.rules
         #@customRulesView = new CodingrulesDetailCustomRulesView
         #  app: @options.app
         #  collection: customRules
@@ -118,6 +117,7 @@ define [
         that.ui.tagInput.select2
           tags: _.difference (_.difference r.tags, @model.get 'tags'), @model.get 'sysTags'
           width: '300px'
+
       @ui.tagsEdit.hide()
 
       @ui.extendDescriptionForm.hide()
@@ -132,7 +132,6 @@ define [
     changeTags: ->
       @ui.tagsEdit.show()
       @ui.tagsList.hide()
-      @ui.tagInput.select2 'open'
       key.setScope 'tags'
       key 'escape', 'tags', => @cancelEdit()
 
@@ -154,10 +153,7 @@ define [
           key: @model.get 'key'
           tags: tags
       .done (r) =>
-          if r.rule.tags.length > 0
-            @model.set 'tags', r.rule.tags
-          else
-            @model.unset 'tags'
+          @model.set 'tags', r.rule.tags
           @render()
 
 
@@ -213,5 +209,6 @@ define [
         language: @options.app.languages[@model.get 'lang']
         repository: _.find(@options.app.repositories, (repo) -> repo.key == repoKey).name
         canWrite: @options.app.canWrite
-        subcharacteristic: @options.app.characteristics[@model.get 'debtSubChar']
+        subcharacteristic: (@options.app.characteristics[@model.get 'debtSubChar'] || '').replace ': ', ' > '
         createdAt: new Date(@model.get 'createdAt')
+        allTags: _.union @model.get('sysTags'), @model.get('tags')

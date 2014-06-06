@@ -19,7 +19,5 @@ define [
 
 
     showDetail: ->
-      @$el.siblings().removeClass @activeClass
-      @$el.addClass @activeClass
-
+      @options.listView.selectIssue @$el
       @options.app.showRule @model.get('key')

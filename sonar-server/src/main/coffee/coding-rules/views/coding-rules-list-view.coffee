@@ -39,21 +39,33 @@ define [
 
 
     close: ->
+      @unbindEvents
+      super
+
+
+    unbindEvents: ->
       key.unbind 'up', 'list'
       key.unbind 'down', 'list'
       scrollEl = jQuery '.navigator-results'
       scrollEl.off 'scroll';
-      super
 
 
     selectIssue: (el, open) ->
       @$('.active').removeClass 'active'
       el.addClass 'active'
+      ruleTitle = el.find('[title]').attr('title')
+      rule = @collection.findWhere name: ruleTitle
+      @selected = @collection.indexOf(rule)
       @openRule el if open
 
 
     selectFirst: ->
       @selected = -1
+      @selectNext()
+
+
+    selectCurrent: ->
+      @selected--
       @selectNext()
 
 

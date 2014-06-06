@@ -2,38 +2,28 @@
 
 <h3 class="coding-rules-detail-header">
   {{name}}
-  <a class="coding-rules-detail-permalink" href="#q={{key}}">
+  <a class="coding-rules-detail-permalink" href="#rule_key={{key}}">
     <i class="icon-link"></i> {{t 'coding_rules.permalink'}}
   </a>
 </h3>
+<span class="subtitle">{{key}}</span>
 
 <ul class="coding-rules-detail-properties">
   <li class="coding-rules-detail-property">{{severityIcon severity}} {{t "severity" severity}}</li>
-  <li class="coding-rules-detail-property">
-    <span class="coding-rules-detail-status">{{language}}</span>
-  </li>
   {{#notEq status 'READY'}}
     <li class="coding-rules-detail-property">
       <span class="coding-rules-detail-status">{{status}}</span>
     </li>
   {{/notEq}}
 
-  <li class="coding-rules-detail-property coding-rules-detail-systag-list">
-    <i class="icon-tags"></i>
-    <span>{{#if sysTags}}{{join sysTags ', '}}{{/if}}</span>
-  </li>
+
   <li class="coding-rules-detail-property coding-rules-detail-tag-list {{#if canWrite}}coding-rules-detail-tags-change{{/if}}">
-    <span>
-      {{#if tags}}{{join tags ', '}}
-      {{else}}
-        {{#if sysTags}}
-          {{#if canWrite}}{{t 'coding_rules.add_tags'}}{{/if}}
-        {{else}}{{t 'coding_rules.no_tags'}}
-        {{/if}}
-      {{/if}}
-    </span>
+    <i class="icon-tags"></i>
+    <span>{{#if allTags}}{{join allTags ', '}}{{else}}{{t 'coding_rules.no_tags'}}{{/if}}</span>
   </li>
   {{#if canWrite}}<li class="coding-rules-detail-property coding-rules-detail-tag-edit">
+    {{#if sysTags}}<i class="icon-tags"></i>
+    <span>{{join sysTags ', '}}</span>{{/if}}
     <input class="coding-rules-detail-tag-input" type="text" value="{{#if tags}}{{join tags ','}}{{/if}}">
 
     <div class="button-group">
@@ -41,10 +31,10 @@
     </div>
   </li>{{/if}}
 
+
   <li class="coding-rules-detail-property">{{subcharacteristic}}</li>
   <li class="coding-rules-detail-property">{{t 'coding_rules.available_since'}} {{d createdAt}}</li>
-  <li class="coding-rules-detail-property">{{t 'coding_rules.repository'}} {{repository}} ({{repo}})</li>
-  <li class="coding-rules-detail-property">{{t 'coding_rules.key'}} {{key}}</li>
+  <li class="coding-rules-detail-property">{{repository}} ({{language}})</li>
 </ul>
 
 <div class="coding-rules-detail-description rule-desc">{{{htmlDesc}}}</div>

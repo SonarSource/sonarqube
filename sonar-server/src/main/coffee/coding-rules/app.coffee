@@ -39,6 +39,7 @@ requirejs [
   'navigator/filters/choice-filters',
   'navigator/filters/string-filters',
   'navigator/filters/date-filter-view',
+  'navigator/filters/read-only-filters',
   'coding-rules/views/filters/query-filter-view',
   'coding-rules/views/filters/quality-profile-filter-view',
   'coding-rules/views/filters/inheritance-filter-view',
@@ -72,6 +73,7 @@ requirejs [
   ChoiceFilters,
   StringFilterView,
   DateFilterView,
+  ReadOnlyFilterView,
   QueryFilterView,
   QualityProfileFilterView,
   InheritanceFilterView,
@@ -107,7 +109,13 @@ requirejs [
     @filterBarView.getQuery()
 
 
-  App.restoreSorting = ->
+  App.restoreSorting = (params) ->
+#    sort = _.findWhere(params, key: 's')   || {'s': ''}
+#    asc  = _.findWhere(params, key: 'asc') || {'asc': ''}
+#    if @codingRules
+#      @codingRules.sorting =
+#        sort: sort.s
+#        asc: asc.asc
 
 
   App.storeQuery = (query, sorting) ->
@@ -142,7 +150,10 @@ requirejs [
     else
       scrollOffset = 0
 
-    @layout.showSpinner 'resultsRegion'
+    if firstPage
+      @layout.showSpinner 'resultsRegion'
+    #else
+    #  @layout.showSpinner 'resultsRegion'
     @layout.showSpinner 'facetsRegion' unless fromFacets || !firstPage
     jQuery.ajax
       url: "#{baseUrl}/api/rules/search"
@@ -159,18 +170,21 @@ requirejs [
         pages: 1 + (r.total / r.ps)
       if firstPage
         @codingRules.reset r.rules
+        @codingRulesListView = new CodingRulesListView
+          app: @
+          collection: @codingRules
+        @layout.resultsRegion.show @codingRulesListView
       else
+        @codingRulesListView.unbindEvents()
         @codingRules.add r.rules
-
-      @codingRulesListView = new CodingRulesListView
-        app: @
-        collection: @codingRules
-      @layout.resultsRegion.show @codingRulesListView
+        @codingRulesListView.render()
 
       if @codingRules.isEmpty()
         @layout.detailsRegion.reset()
-      else
+      else if firstPage
         @codingRulesListView.selectFirst()
+      else
+        @codingRulesListView.selectCurrent()
 
       unless firstPage
         jQuery('.navigator-results')[0].scrollTop = scrollOffset
@@ -384,6 +398,11 @@ requirejs [
         'true': t 'coding_rules.filters.template.is_template'
         'false': t 'coding_rules.filters.template.is_not_template'
 
+    @filters.add new BaseFilters.Filter
+      name: t 'coding_rules.filters.key'
+      property: 'rule_key'
+      type: ReadOnlyFilterView
+      optional: true
 
     @filterBarView = new CodingRulesFilterBarView
       app: @
@@ -405,7 +424,7 @@ requirejs [
     App.appState = new Backbone.Model
     App.state = new Backbone.Model
     App.canWrite = r.canWrite
-    App.qualityProfiles = r.qualityprofiles
+    App.qualityProfiles = _.sortBy r.qualityprofiles, ['name', 'lang']
     App.languages = _.extend r.languages, none: 'None'
     App.repositories = r.repositories
     App.repositories.push
@@ -419,7 +438,11 @@ requirejs [
       'languages': (value) -> App.languages[value]
       'repositories': (value) ->
         repo = _.findWhere(App.repositories, key: value)
-        repo.name + ' - ' + App.languages[repo.language]
+        other_repo_with_same_name = _.find(App.repositories, (repos) -> repos.name == repo.name && repos.key != repo.key)
+        if other_repo_with_same_name
+          repo.name + ' - ' + App.languages[repo.language]
+        else
+          repo.name
 
   # Message bundles
   l10nXHR = window.requestMessages()

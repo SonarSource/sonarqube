@@ -34,10 +34,7 @@ define [
 
 
     makeActive: ->
-      @choices.each (item) -> item.set 'checked', item.id == 'true'
-      @detailsView.updateValue()
-      @detailsView.updateLists()
-      @render()
+      @restore('true')
       super
 
     restore: (value) ->
