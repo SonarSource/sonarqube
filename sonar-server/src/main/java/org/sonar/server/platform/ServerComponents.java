@@ -176,7 +176,6 @@ import org.sonar.server.qualitygate.ws.QGatesUnsetDefaultAction;
 import org.sonar.server.qualitygate.ws.QGatesUpdateConditionAction;
 import org.sonar.server.qualitygate.ws.QGatesWs;
 import org.sonar.server.qualityprofile.BuiltInProfiles;
-import org.sonar.server.qualityprofile.ProfilesManager;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileCopier;
 import org.sonar.server.qualityprofile.QProfileLookup;
@@ -421,7 +420,6 @@ class ServerComponents {
     pico.addSingleton(XMLProfileParser.class);
     pico.addSingleton(XMLProfileSerializer.class);
     pico.addComponent(ProfilesDao.class, false);
-    pico.addComponent(ProfilesManager.class, false);
     pico.addSingleton(AnnotationProfileParser.class);
     pico.addSingleton(QProfiles.class);
     pico.addSingleton(QProfileLookup.class);

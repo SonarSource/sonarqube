@@ -103,8 +103,9 @@ class ProfilesController < ApplicationController
     verify_post_request
     require_parameters 'id'
 
+    profile_key = profile_id_to_key(params[:id].to_i)
     call_backend do
-      Internal.quality_profiles.setDefaultProfile(params[:id].to_i)
+      Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).setDefault(profile_key)
     end
     redirect_to :action => 'index'
   end
@@ -223,12 +224,12 @@ class ProfilesController < ApplicationController
     access_denied unless has_role?(:profileadmin)
     require_parameters 'id'
 
-    id = params[:id].to_i
-    parent_id = params[:parent_id].to_i unless params[:parent_id].empty?
+    profile_key = profile_id_to_key(params[:id].to_i)
+    parent_key = profile_id_to_key(params[:parent_id].to_i) unless params[:parent_id].empty?
     call_backend do
-      Internal.quality_profiles.updateParentProfile(id, parent_id)
+      Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).setParent(profile_key, parent_key)
     end
-    redirect_to :action => 'inheritance', :id => id
+    redirect_to :action => 'inheritance', :id => params[:id]
   end
 
   # GET /profiles/changelog?id=<profile id>

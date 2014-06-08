@@ -148,18 +148,6 @@ public class QProfilesTest {
   }
 
   @Test
-  public void update_default_profile() throws Exception {
-    qProfiles.setDefaultProfile(1);
-    verify(profileOperations).setDefaultProfile(eq(1), any(UserSession.class));
-  }
-
-  @Test
-  public void update_parent_profile() throws Exception {
-    qProfiles.updateParentProfile(1, 2);
-    verify(profileOperations).updateParentProfile(eq(1), eq(2), any(UserSession.class));
-  }
-
-  @Test
   public void projects() throws Exception {
     qProfiles.projects(1);
     verify(projectLookup).projects(1);

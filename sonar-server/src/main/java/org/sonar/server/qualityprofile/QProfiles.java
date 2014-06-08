@@ -28,7 +28,6 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
@@ -89,10 +88,6 @@ public class QProfiles implements ServerComponent {
     operations.renameProfile(profileId, newName, UserSession.get());
   }
 
-  public void setDefaultProfile(int profileId) {
-    operations.setDefaultProfile(profileId, UserSession.get());
-  }
-
   @CheckForNull
   public QProfile parent(QProfile profile) {
     return profileLookup.parent(profile);
@@ -104,10 +99,6 @@ public class QProfiles implements ServerComponent {
 
   public List<QProfile> ancestors(QProfile profile) {
     return profileLookup.ancestors(profile);
-  }
-
-  public void updateParentProfile(int profileId, @Nullable Integer parentId) {
-    operations.updateParentProfile(profileId, parentId, UserSession.get());
   }
 
   public void deleteProfile(int profileId) {

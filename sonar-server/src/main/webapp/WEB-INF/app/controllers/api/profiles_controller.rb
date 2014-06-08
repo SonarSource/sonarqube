@@ -98,7 +98,8 @@ class Api::ProfilesController < Api::ApiController
     verify_post_request
     profile = Internal.quality_profiles.profile(params[:name], params[:language])
     not_found('Profile not found') unless profile
-    Internal.quality_profiles.setDefaultProfile(profile.id)
+    profile_key=Java::OrgSonarCoreQualityprofileDb::QualityProfileKey.of(profile.name, profile.language)
+    Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).setDefault(profile_key)
     render_success
   end
 

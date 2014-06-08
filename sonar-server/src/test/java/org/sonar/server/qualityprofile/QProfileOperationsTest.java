@@ -54,13 +54,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfileOperationsTest {
@@ -85,9 +79,6 @@ public class QProfileOperationsTest {
 
   @Mock
   QProfileLookup profileLookup;
-
-  @Mock
-  ProfilesManager profilesManager;
 
   @Mock
   QProfileRepositoryExporter exporter;
@@ -121,7 +112,7 @@ public class QProfileOperationsTest {
       }
     }).when(qualityProfileDao).insert(any(DbSession.class), any(QualityProfileDto.class));
 
-    operations = new QProfileOperations(myBatis, qualityProfileDao, activeRuleDao, propertiesDao, exporter, dryRunCache, profileLookup, profilesManager);
+    operations = new QProfileOperations(myBatis, qualityProfileDao, activeRuleDao, propertiesDao, exporter, dryRunCache, profileLookup);
   }
 
   @Test
@@ -226,121 +217,6 @@ public class QProfileOperationsTest {
     assertThat(child.getParent()).isEqualTo("Default profile");
 
     verify(session).commit();
-  }
-
-  @Test
-  public void update_default_profile() throws Exception {
-    when(qualityProfileDao.selectById(1, session)).thenReturn(new QualityProfileDto().setId(1).setName("Default").setLanguage("java"));
-
-    operations.setDefaultProfile(1, authorizedUserSession);
-
-    ArgumentCaptor<PropertyDto> argumentCaptor = ArgumentCaptor.forClass(PropertyDto.class);
-    verify(propertiesDao).setProperty(argumentCaptor.capture());
-    assertThat(argumentCaptor.getValue().getKey()).isEqualTo("sonar.profile.java");
-    assertThat(argumentCaptor.getValue().getValue()).isEqualTo("Default");
-  }
-
-  @Test
-  public void update_parent_profile() {
-    QualityProfileDto oldParent = new QualityProfileDto().setId(2).setName("Old Parent").setLanguage("java");
-    when(qualityProfileDao.selectById(1, session)).thenReturn(new QualityProfileDto().setId(1).setName("Child").setLanguage("java").setParent("Old Parent"));
-    when(qualityProfileDao.selectById(3, session)).thenReturn(new QualityProfileDto().setId(3).setName("Parent").setLanguage("java"));
-
-    when(qualityProfileDao.selectParent(2, session)).thenReturn(oldParent);
-    when(profilesManager.profileParentChanged(anyInt(), anyString(), anyString())).thenReturn(new ProfilesManager.RuleInheritanceActions());
-
-    operations.updateParentProfile(1, 3, authorizedUserSession);
-    ArgumentCaptor<QualityProfileDto> profileArgument = ArgumentCaptor.forClass(QualityProfileDto.class);
-    verify(qualityProfileDao).update(eq(session), profileArgument.capture());
-    assertThat(profileArgument.getValue().getParent()).isEqualTo("Parent");
-    assertThat(profileArgument.getValue().getLanguage()).isEqualTo("java");
-
-    verify(session).commit();
-    verify(profilesManager).profileParentChanged(1, "Parent", "Nicolas");
-  }
-
-  @Test
-  public void set_parent_profile() {
-    when(qualityProfileDao.selectById(1, session)).thenReturn(new QualityProfileDto().setId(1).setName("Child").setLanguage("java").setParent(null));
-    when(qualityProfileDao.selectById(2, session)).thenReturn(new QualityProfileDto().setId(2).setName("Parent").setLanguage("java"));
-
-    when(profilesManager.profileParentChanged(anyInt(), anyString(), anyString())).thenReturn(new ProfilesManager.RuleInheritanceActions());
-
-    operations.updateParentProfile(1, 2, authorizedUserSession);
-
-    ArgumentCaptor<QualityProfileDto> profileArgument = ArgumentCaptor.forClass(QualityProfileDto.class);
-    verify(qualityProfileDao).update(eq(session), profileArgument.capture());
-    assertThat(profileArgument.getValue().getParent()).isEqualTo("Parent");
-    assertThat(profileArgument.getValue().getLanguage()).isEqualTo("java");
-
-    verify(session).commit();
-    verify(profilesManager).profileParentChanged(1, "Parent", "Nicolas");
-  }
-
-  @Test
-  public void remove_parent_profile() {
-    QualityProfileDto parent = new QualityProfileDto().setId(2).setName("Old Parent").setLanguage("java");
-    when(qualityProfileDao.selectById(1, session)).thenReturn(new QualityProfileDto().setId(1).setName("Child").setLanguage("java").setParent("Old Parent"));
-
-    when(qualityProfileDao.selectParent(2, session)).thenReturn(parent);
-    when(profilesManager.profileParentChanged(anyInt(), anyString(), anyString())).thenReturn(new ProfilesManager.RuleInheritanceActions());
-
-    operations.updateParentProfile(1, null, authorizedUserSession);
-
-    ArgumentCaptor<QualityProfileDto> profileArgument = ArgumentCaptor.forClass(QualityProfileDto.class);
-    verify(qualityProfileDao).update(eq(session), profileArgument.capture());
-    assertThat(profileArgument.getValue().getParent()).isNull();
-    assertThat(profileArgument.getValue().getLanguage()).isEqualTo("java");
-
-    verify(session).commit();
-    verify(profilesManager).profileParentChanged(1, null, "Nicolas");
-  }
-
-  @Test
-  public void fail_to_update_parent_if_not_exists() throws Exception {
-    when(qualityProfileDao.selectById(1, session)).thenReturn(null);
-    when(qualityProfileDao.selectById(3, session)).thenReturn(new QualityProfileDto().setId(3).setName("Parent").setLanguage("java"));
-
-    try {
-      operations.updateParentProfile(1, 3, authorizedUserSession);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(NotFoundException.class);
-    }
-  }
-
-  @Test
-  public void fail_to_update_parent_on_cycle() {
-    when(qualityProfileDao.selectById(1, session)).thenReturn(new QualityProfileDto().setId(1).setName("Child").setLanguage("java").setParent("parent"));
-    when(qualityProfileDao.selectById(2, session)).thenReturn(new QualityProfileDto().setId(2).setName("Parent").setLanguage("java"));
-
-    QualityProfileDto parent = new QualityProfileDto().setId(2).setName("Parent").setLanguage("java");
-    when(qualityProfileDao.selectParent(1, session)).thenReturn(parent);
-    when(qualityProfileDao.selectParent(2, session)).thenReturn(null);
-    try {
-      operations.updateParentProfile(2, 1, authorizedUserSession);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Please do not select a child profile as parent.");
-    }
-  }
-
-  @Test
-  public void detect_cycle() {
-    QualityProfileDto level1 = new QualityProfileDto().setId(1).setName("level1").setLanguage("java");
-    QualityProfileDto level2 = new QualityProfileDto().setId(2).setName("level2").setLanguage("java").setParent("level1");
-    QualityProfileDto level3 = new QualityProfileDto().setId(3).setName("level3").setLanguage("java").setParent("level2");
-
-    when(qualityProfileDao.selectParent(1, session)).thenReturn(null);
-    when(qualityProfileDao.selectParent(2, session)).thenReturn(level1);
-    when(qualityProfileDao.selectParent(3, session)).thenReturn(level2);
-
-    assertThat(operations.isCycle(level3, level1, session)).isFalse();
-    assertThat(operations.isCycle(level1, level1, session)).isTrue();
-    assertThat(operations.isCycle(level1, level1, session)).isTrue();
-    assertThat(operations.isCycle(level1, level3, session)).isTrue();
-    assertThat(operations.isCycle(level1, level2, session)).isTrue();
-    assertThat(operations.isCycle(level2, level3, session)).isTrue();
   }
 
   @Test

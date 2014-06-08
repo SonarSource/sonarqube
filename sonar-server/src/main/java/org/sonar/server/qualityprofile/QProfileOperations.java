@@ -20,21 +20,18 @@
 
 package org.sonar.server.qualityprofile;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.properties.PropertiesDao;
-import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.user.UserSession;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
@@ -50,11 +47,9 @@ public class QProfileOperations implements ServerComponent {
   private final QProfileRepositoryExporter exporter;
   private final PreviewCache dryRunCache;
   private final QProfileLookup profileLookup;
-  private final ProfilesManager profilesManager;
 
   public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao,
-                            QProfileRepositoryExporter exporter, PreviewCache dryRunCache, QProfileLookup profileLookup,
-                            ProfilesManager profilesManager) {
+                            QProfileRepositoryExporter exporter, PreviewCache dryRunCache, QProfileLookup profileLookup) {
     this.myBatis = myBatis;
     this.dao = dao;
     this.activeRuleDao = activeRuleDao;
@@ -62,7 +57,6 @@ public class QProfileOperations implements ServerComponent {
     this.exporter = exporter;
     this.dryRunCache = dryRunCache;
     this.profileLookup = profileLookup;
-    this.profilesManager = profilesManager;
   }
 
   public QProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin, UserSession userSession) {
@@ -151,64 +145,6 @@ public class QProfileOperations implements ServerComponent {
     propertiesDao.deleteProjectProperties(PROFILE_PROPERTY_PREFIX + profile.language(), profile.name(), session);
     //esActiveRule.deleteActiveRulesFromProfile(profile.id());
     dryRunCache.reportGlobalModification(session);
-  }
-
-  public void setDefaultProfile(int profileId, UserSession userSession) {
-    checkPermission(userSession);
-    DbSession session = myBatis.openSession(false);
-    try {
-      QualityProfileDto qualityProfile = findNotNull(profileId, session);
-      propertiesDao.setProperty(new PropertyDto().setKey(PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()));
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public void updateParentProfile(int profileId, @Nullable Integer parentId, UserSession userSession) {
-    checkPermission(userSession);
-    DbSession session = myBatis.openSession(false);
-    try {
-      QualityProfileDto profile = findNotNull(profileId, session);
-      QualityProfileDto parentProfile = null;
-      if (parentId != null) {
-        parentProfile = findNotNull(parentId, session);
-      }
-      if (isCycle(profile, parentProfile, session)) {
-        throw new BadRequestException("Please do not select a child profile as parent.");
-      }
-      String newParentName = parentProfile != null ? parentProfile.getName() : null;
-      // Modification of inheritance has to be done before setting new parent name in order to be able to disable rules from old parent
-      ProfilesManager.RuleInheritanceActions actions = profilesManager.profileParentChanged(profile.getId(), newParentName, userSession.name());
-      profile.setParent(newParentName);
-      dao.update(session, profile);
-      session.commit();
-
-      //esActiveRule.deleteActiveRules(actions.idsToDelete());
-      //esActiveRule.bulkIndexActiveRuleIds(actions.idsToIndex(), session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  @VisibleForTesting
-  boolean isCycle(QualityProfileDto childProfile, @Nullable QualityProfileDto parentProfile, DbSession session) {
-    QualityProfileDto currentParent = parentProfile;
-    while (currentParent != null) {
-      if (childProfile.getName().equals(currentParent.getName())) {
-        return true;
-      }
-      currentParent = getParent(currentParent, session);
-    }
-    return false;
-  }
-
-  @CheckForNull
-  private QualityProfileDto getParent(QualityProfileDto profile, DbSession session) {
-    if (profile.getParent() != null) {
-      return dao.selectParent(profile.getId(), session);
-    }
-    return null;
   }
 
   private void checkPermission(UserSession userSession) {
