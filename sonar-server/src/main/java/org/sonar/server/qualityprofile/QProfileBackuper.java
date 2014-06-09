@@ -105,6 +105,9 @@ public class QProfileBackuper implements ServerComponent {
   void restore(Reader reader, @Nullable QualityProfileKey profileKey) {
     try {
       String profileLang = null, profileName = null;
+      List<RuleActivation> ruleActivations = Lists.newArrayList();
+      QualityProfileKey targetKey;
+
       SMInputFactory inputFactory = initStax();
       SMHierarchicCursor rootC = inputFactory.rootElementCursor(reader);
       rootC.advance(); // <profile>
@@ -121,18 +124,20 @@ public class QProfileBackuper implements ServerComponent {
           profileLang = StringUtils.trim(cursor.collectDescendantText(false));
 
         } else if (StringUtils.equals("rules", nodeName)) {
-          QualityProfileKey targetKey = (QualityProfileKey) ObjectUtils.defaultIfNull(
-            profileKey, QualityProfileKey.of(profileName, profileLang));
+          targetKey = (QualityProfileKey) ObjectUtils.defaultIfNull(profileKey, QualityProfileKey.of(profileName, profileLang));
           SMInputCursor rulesCursor = cursor.childElementCursor("rule");
-          doRestore(rulesCursor, targetKey);
+          ruleActivations = parseRuleActivations(rulesCursor, targetKey);
         }
       }
+
+      targetKey = (QualityProfileKey) ObjectUtils.defaultIfNull(profileKey, QualityProfileKey.of(profileName, profileLang));
+      reset.reset(targetKey, ruleActivations);
     } catch (XMLStreamException e) {
       throw new IllegalStateException("Fail to restore Quality profile backup", e);
     }
   }
 
-  private void doRestore(SMInputCursor rulesCursor, QualityProfileKey profileKey) throws XMLStreamException {
+  private List<RuleActivation> parseRuleActivations(SMInputCursor rulesCursor, QualityProfileKey profileKey) throws XMLStreamException {
     List<RuleActivation> activations = Lists.newArrayList();
     while (rulesCursor.getNext() != null) {
       SMInputCursor ruleCursor = rulesCursor.childElementCursor();
@@ -160,7 +165,8 @@ public class QProfileBackuper implements ServerComponent {
       activation.setParameters(parameters);
       activations.add(activation);
     }
-    reset.reset(profileKey, activations);
+    return activations;
+    //reset.reset(profileKey, activations);
   }
 
   private void readParameters(SMInputCursor propsCursor, Map<String, String> parameters) throws XMLStreamException {

@@ -271,4 +271,31 @@ public class QProfileBackuperMediumTest {
       assertThat(e).hasMessage("Backup XML is not valid. Root element must be <profile>.");
     }
   }
+
+  @Test
+  public void restore_and_override_profile_name() throws Exception {
+    QualityProfileKey targetKey = QualityProfileKey.of("newName", "xoo");
+    tester.get(QProfileBackuper.class).restore(new StringReader(
+        Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), Charsets.UTF_8)),
+      targetKey);
+
+    List<ActiveRule> activeRules = tester.get(QProfileService.class).findActiveRulesByProfile(XOO_PROFILE_KEY);
+    assertThat(activeRules).hasSize(0);
+
+    activeRules = tester.get(QProfileService.class).findActiveRulesByProfile(targetKey);
+    assertThat(activeRules).hasSize(1);
+  }
+
+  @Test
+  public void restore_profile_with_zero_rules() throws Exception {
+    tester.get(QProfileBackuper.class).restore(new StringReader(
+        Resources.toString(getClass().getResource("QProfileBackuperMediumTest/empty.xml"), Charsets.UTF_8)),
+      null);
+
+    dbSession.clearCache();
+    assertThat(db.activeRuleDao().findAll(dbSession)).hasSize(0);
+    List<QualityProfileDto> profiles = db.qualityProfileDao().findAll(dbSession);
+    assertThat(profiles).hasSize(1);
+    assertThat(profiles.get(0).getName()).isEqualTo("P1");
+  }
 }
