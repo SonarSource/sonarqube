@@ -97,7 +97,7 @@ public class RubyRuleService implements ServerComponent, Startable {
         offset += QueryOptions.MAX_LIMIT;
       }
     }
-    return new PagedResult<org.sonar.server.rule.Rule>(rules, PagingResult.create(rules.size(), 1, rules.size()));
+    return new PagedResult<org.sonar.server.rule.Rule>(rules, PagingResult.create(Integer.MAX_VALUE, 1, rules.size()));
   }
 
   // sqale
