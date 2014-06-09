@@ -29,6 +29,7 @@ define [
       @model.trigger 'change:enabled'
       unless @model.get 'value'
         @choices.each (model) -> model.set 'checked', model.id == 'true'
+        @model.set 'value', [true]
       @$el.removeClass('navigator-filter-inactive').prop 'title', ''
       @options.filterBarView.moreCriteriaFilter.view.detailsView.enableByProperty(@detailsView.model.get 'property')
       @hideDetails()
