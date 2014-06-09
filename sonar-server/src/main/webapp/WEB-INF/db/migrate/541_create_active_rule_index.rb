@@ -48,7 +48,7 @@ class CreateActiveRuleIndex < ActiveRecord::Migration
     end
 
     begin
-      add_index :active_rules, :profile_id, :rule_id => 'act_rul_id', :unique => true
+      add_index :active_rules, [:profile_id, :rule_id], :name => 'act_rul_id', :unique => true
     rescue
       # already exists
     end

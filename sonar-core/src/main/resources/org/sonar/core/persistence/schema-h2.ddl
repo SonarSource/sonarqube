@@ -1,7 +1,3 @@
--- Structure of Sonar Database
-
--- Initially this file has been generated from existing H2 DB
--- Should be updated manually, during addition of new migrations
 
 CREATE TABLE "GROUPS_USERS" (
   "USER_ID" INTEGER,
