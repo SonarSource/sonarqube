@@ -15,4 +15,4 @@ define [
 
 
     newSearch: ->
-      @options.app.router.navigate '', trigger: true
+      @options.app.router.emptyQuery()

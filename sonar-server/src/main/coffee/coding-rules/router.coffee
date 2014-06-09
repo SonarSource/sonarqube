@@ -7,7 +7,7 @@ define [
   class AppRouter extends Backbone.Router
 
     routes:
-      '': 'index'
+      '': 'emptyQuery'
       ':query': 'index'
 
 
@@ -22,7 +22,7 @@ define [
 
 
     emptyQuery: ->
-      @navigate '', trigger: true, replace: true
+      @index('')
 
 
     index: (query) ->
