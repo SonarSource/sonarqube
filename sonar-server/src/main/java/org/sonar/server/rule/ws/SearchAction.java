@@ -58,7 +58,6 @@ public class SearchAction implements RequestHandler {
   public static final String PARAM_DEBT_CHARACTERISTICS = "debt_characteristics";
   public static final String PARAM_HAS_DEBT_CHARACTERISTIC = "has_debt_characteristic";
   public static final String PARAM_TAGS = "tags";
-  public static final String PARAM_ALL_OF_TAGS = "all_of_tags";
   public static final String PARAM_INHERITANCE = "inheritance";
   public static final String PARAM_IS_TEMPLATE = "is_template";
   public static final String PARAM_TEMPLATE_KEY = "template_key";
@@ -156,11 +155,6 @@ public class SearchAction implements RequestHandler {
       .setExampleValue("security,java8");
 
     action
-      .createParam(PARAM_ALL_OF_TAGS)
-      .setDescription("Comma-separated list of tags. Returned rules match all the tags (AND operator)")
-      .setExampleValue("security,java8");
-
-    action
       .createParam(PARAM_ACTIVATION)
       .setDescription("Filter rules that are activated or deactivated on the selected Quality profile. Ignored if " +
         "the parameter '" + PARAM_QPROFILE + "' is not set.")
@@ -184,12 +178,12 @@ public class SearchAction implements RequestHandler {
 
     action
       .createParam(PARAM_IS_TEMPLATE)
-      .setDescription("Filter template rules. Available since 4.4")
+      .setDescription("Filter template rules")
       .setBooleanPossibleValues();
 
     action
       .createParam(PARAM_TEMPLATE_KEY)
-      .setDescription("Key of template rule to filter on. Available since 4.4")
+      .setDescription("Key of the template rule to filter on. Used to search for the custom rules based on this template.")
       .setExampleValue("java:S001");
 
     action
@@ -243,7 +237,6 @@ public class SearchAction implements RequestHandler {
     query.setSortField(RuleNormalizer.RuleField.of(request.param(SearchOptions.PARAM_SORT)));
     query.setAscendingSort(request.mandatoryParamAsBoolean(SearchOptions.PARAM_ASCENDING));
     query.setTags(request.paramAsStrings(PARAM_TAGS));
-    query.setAllOfTags(request.paramAsStrings(PARAM_ALL_OF_TAGS));
     query.setInheritance(request.paramAsStrings(PARAM_INHERITANCE));
     query.setIsTemplate(request.paramAsBoolean(PARAM_IS_TEMPLATE));
     query.setTemplateKey(request.param(PARAM_TEMPLATE_KEY));

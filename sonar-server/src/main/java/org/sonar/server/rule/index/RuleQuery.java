@@ -39,7 +39,6 @@ public class RuleQuery {
   private Collection<String> severities;
   private Collection<RuleStatus> statuses;
   private Collection<String> tags;
-  private Collection<String> allOfTags;
   private Collection<String> debtCharacteristics;
   private Boolean hasDebtCharacteristic;
   private Boolean activation;
@@ -155,16 +154,6 @@ public class RuleQuery {
 
   public RuleQuery setTags(@Nullable Collection<String> tags) {
     this.tags = tags;
-    return this;
-  }
-
-  @CheckForNull
-  public Collection<String> getAllOfTags() {
-    return allOfTags;
-  }
-
-  public RuleQuery setAllOfTags(@Nullable Collection<String> tags) {
-    this.allOfTags = tags;
     return this;
   }
 
