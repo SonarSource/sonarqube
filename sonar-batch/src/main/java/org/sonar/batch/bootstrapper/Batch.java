@@ -100,6 +100,15 @@ public final class Batch {
       return this;
     }
 
+    /**
+     * @deprecated since 3.7 use {@link #setBootstrapProperties(Map)}
+     */
+    @Deprecated
+    public Builder setGlobalProperties(Map<String, String> globalProperties) {
+      this.bootstrapProperties = globalProperties;
+      return this;
+    }
+
     public Builder setBootstrapProperties(Map<String, String> bootstrapProperties) {
       this.bootstrapProperties = bootstrapProperties;
       return this;
