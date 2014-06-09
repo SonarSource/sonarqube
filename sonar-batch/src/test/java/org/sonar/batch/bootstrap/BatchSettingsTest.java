@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.bootstrap;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.junit.Before;
@@ -29,7 +30,8 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.MessageException;
+import org.sonar.batch.settings.SettingsReferential;
 
 import java.util.Collections;
 
@@ -51,38 +53,24 @@ public class BatchSettingsTest {
   private static final String BRANCH_REACTOR_JSON_RESPONSE = "[{\"k\":\"sonar.cpd.cross\",\"v\":\"true\"}," +
     "{\"k\":\"sonar.java.coveragePlugin\",\"v\":\"jacoco\"}]";
 
-  ServerClient client = mock(ServerClient.class);
+  SettingsReferential settingsRef = mock(SettingsReferential.class);
   ProjectDefinition project = ProjectDefinition.create().setKey("struts");
   Configuration deprecatedConf = new BaseConfiguration();
-  BootstrapSettings bootstrapSettings;
+  BootstrapProperties bootstrapProps;
 
   private AnalysisMode mode;
 
   @Before
   public void prepare() {
-    bootstrapSettings = new BootstrapSettings(new BootstrapProperties(Collections.<String, String>emptyMap()));
+    bootstrapProps = new BootstrapProperties(Collections.<String, String>emptyMap());
     mode = mock(AnalysisMode.class);
   }
 
   @Test
-  public void should_load_system_props() {
-    when(client.request("/batch_bootstrap/properties?dryRun=false")).thenReturn(JSON_RESPONSE);
-    System.setProperty("BatchSettingsTest.testSystemProp", "system");
-    // Reconstruct bootstrap settings to get system property
-    bootstrapSettings = new BootstrapSettings(new BootstrapProperties(Collections.<String, String>emptyMap()));
-
-    BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), client, deprecatedConf, mode);
-
-    assertThat(batchSettings.getString("BatchSettingsTest.testSystemProp")).isEqualTo("system");
-  }
-
-  @Test
   public void should_load_project_props() {
-    when(client.request("/batch_bootstrap/properties?dryRun=false")).thenReturn(JSON_RESPONSE);
-    when(client.request("/batch_bootstrap/properties?project=struts&dryRun=false")).thenReturn(REACTOR_JSON_RESPONSE);
     project.setProperty("project.prop", "project");
 
-    BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), client, deprecatedConf, mode);
+    BatchSettings batchSettings = new BatchSettings(bootstrapProps, new PropertyDefinitions(), settingsRef, deprecatedConf, mode);
     batchSettings.init(new ProjectReactor(project));
 
     assertThat(batchSettings.getString("project.prop")).isEqualTo("project");
@@ -90,19 +78,18 @@ public class BatchSettingsTest {
 
   @Test
   public void should_load_global_settings() {
-    when(client.request("/batch_bootstrap/properties?dryRun=false")).thenReturn(JSON_RESPONSE);
+    when(settingsRef.globalSettings()).thenReturn(ImmutableMap.of("sonar.cpd.cross", "true"));
 
-    BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), client, deprecatedConf, mode);
+    BatchSettings batchSettings = new BatchSettings(bootstrapProps, new PropertyDefinitions(), settingsRef, deprecatedConf, mode);
 
     assertThat(batchSettings.getBoolean("sonar.cpd.cross")).isTrue();
   }
 
   @Test
   public void should_load_project_root_settings() {
-    when(client.request("/batch_bootstrap/properties?dryRun=false")).thenReturn(JSON_RESPONSE);
-    when(client.request("/batch_bootstrap/properties?project=struts&dryRun=false")).thenReturn(REACTOR_JSON_RESPONSE);
+    when(settingsRef.projectSettings("struts")).thenReturn(ImmutableMap.of("sonar.cpd.cross", "true", "sonar.java.coveragePlugin", "jacoco"));
 
-    BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), client, deprecatedConf, mode);
+    BatchSettings batchSettings = new BatchSettings(bootstrapProps, new PropertyDefinitions(), settingsRef, deprecatedConf, mode);
     batchSettings.init(new ProjectReactor(project));
 
     assertThat(batchSettings.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");
@@ -110,12 +97,11 @@ public class BatchSettingsTest {
 
   @Test
   public void should_load_project_root_settings_on_branch() {
-    when(client.request("/batch_bootstrap/properties?dryRun=false")).thenReturn(JSON_RESPONSE);
-    when(client.request("/batch_bootstrap/properties?project=struts:mybranch&dryRun=false")).thenReturn(BRANCH_REACTOR_JSON_RESPONSE);
+    project.setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "mybranch");
 
-    bootstrapSettings.properties().put(CoreProperties.PROJECT_BRANCH_PROPERTY, "mybranch");
+    when(settingsRef.projectSettings("struts:mybranch")).thenReturn(ImmutableMap.of("sonar.cpd.cross", "true", "sonar.java.coveragePlugin", "jacoco"));
 
-    BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), client, deprecatedConf, mode);
+    BatchSettings batchSettings = new BatchSettings(bootstrapProps, new PropertyDefinitions(), settingsRef, deprecatedConf, mode);
     batchSettings.init(new ProjectReactor(project));
 
     assertThat(batchSettings.getString("sonar.java.coveragePlugin")).isEqualTo("jacoco");
@@ -123,10 +109,9 @@ public class BatchSettingsTest {
 
   @Test
   public void should_not_fail_when_accessing_secured_properties() {
-    when(client.request("/batch_bootstrap/properties?dryRun=false")).thenReturn(JSON_RESPONSE_WITH_SECURED);
-    when(client.request("/batch_bootstrap/properties?project=struts&dryRun=false")).thenReturn(REACTOR_JSON_RESPONSE);
+    when(settingsRef.projectSettings("struts")).thenReturn(ImmutableMap.of("sonar.foo.secured", "bar", "sonar.foo.license.secured", "bar2"));
 
-    BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), client, deprecatedConf, mode);
+    BatchSettings batchSettings = new BatchSettings(bootstrapProps, new PropertyDefinitions(), settingsRef, deprecatedConf, mode);
     batchSettings.init(new ProjectReactor(project));
 
     assertThat(batchSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
@@ -135,38 +120,25 @@ public class BatchSettingsTest {
 
   @Test
   public void should_fail_when_accessing_secured_properties_in_dryrun() {
-    when(client.request("/batch_bootstrap/properties?dryRun=true")).thenReturn(JSON_RESPONSE_WITH_SECURED);
-    when(client.request("/batch_bootstrap/properties?project=struts&dryRun=true")).thenReturn(REACTOR_JSON_RESPONSE);
+    when(settingsRef.projectSettings("struts")).thenReturn(ImmutableMap.of("sonar.foo.secured", "bar", "sonar.foo.license.secured", "bar2"));
 
     when(mode.isPreview()).thenReturn(true);
 
-    BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), client, deprecatedConf, mode);
+    BatchSettings batchSettings = new BatchSettings(bootstrapProps, new PropertyDefinitions(), settingsRef, deprecatedConf, mode);
     batchSettings.init(new ProjectReactor(project));
 
     assertThat(batchSettings.getString("sonar.foo.license.secured")).isEqualTo("bar2");
-    thrown.expect(SonarException.class);
+    thrown.expect(MessageException.class);
     thrown
       .expectMessage("Access to the secured property 'sonar.foo.secured' is not possible in preview mode. The SonarQube plugin which requires this property must be deactivated in preview mode.");
     batchSettings.getString("sonar.foo.secured");
   }
 
   @Test
-  public void system_props_should_override_build_props() {
-    when(client.request("/batch_bootstrap/properties?dryRun=false")).thenReturn(JSON_RESPONSE);
-    System.setProperty("BatchSettingsTest.testSystemProp", "system");
-    project.setProperty("BatchSettingsTest.testSystemProp", "build");
-
-    BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), client, deprecatedConf, mode);
-
-    assertThat(batchSettings.getString("BatchSettingsTest.testSystemProp")).isEqualTo("system");
-  }
-
-  @Test
   public void should_forward_to_deprecated_commons_configuration() {
-    when(client.request("/batch_bootstrap/properties?dryRun=false")).thenReturn(JSON_RESPONSE);
-    when(client.request("/batch_bootstrap/properties?project=struts&dryRun=false")).thenReturn(REACTOR_JSON_RESPONSE);
+    when(settingsRef.projectSettings("struts")).thenReturn(ImmutableMap.of("sonar.cpd.cross", "true", "sonar.java.coveragePlugin", "jacoco"));
 
-    BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), client, deprecatedConf, mode);
+    BatchSettings batchSettings = new BatchSettings(bootstrapProps, new PropertyDefinitions(), settingsRef, deprecatedConf, mode);
     batchSettings.init(new ProjectReactor(project));
 
     assertThat(deprecatedConf.getString("sonar.cpd.cross")).isEqualTo("true");
@@ -183,8 +155,8 @@ public class BatchSettingsTest {
 
   @Test
   public void project_should_be_optional() {
-    when(client.request("/batch_bootstrap/properties?dryRun=false")).thenReturn(JSON_RESPONSE);
-    BatchSettings batchSettings = new BatchSettings(bootstrapSettings, new PropertyDefinitions(), client, deprecatedConf, mode);
+    when(settingsRef.globalSettings()).thenReturn(ImmutableMap.of("sonar.cpd.cross", "true"));
+    BatchSettings batchSettings = new BatchSettings(bootstrapProps, new PropertyDefinitions(), settingsRef, deprecatedConf, mode);
     assertThat(batchSettings.getProperties()).isNotEmpty();
   }
 }

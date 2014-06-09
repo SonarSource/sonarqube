@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.index;
 
-import java.util.Collections;
+import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.batch.bootstrap.BootstrapProperties;
-import org.sonar.batch.bootstrap.BootstrapSettings;
 import org.sonar.batch.bootstrap.TempFolderProvider;
 
 import java.io.File;
@@ -43,15 +42,12 @@ public class CachesTest {
   public static TemporaryFolder temp = new TemporaryFolder();
 
   public static Caches createCacheOnTemp(TemporaryFolder temp) {
-    BootstrapSettings bootstrapSettings = new BootstrapSettings(
-      new BootstrapProperties(Collections.<String,String>emptyMap())
-    );
     try {
-      bootstrapSettings.properties().put(CoreProperties.WORKING_DIRECTORY, temp.newFolder().getAbsolutePath());
+      BootstrapProperties bootstrapProps = new BootstrapProperties(ImmutableMap.of(CoreProperties.WORKING_DIRECTORY, temp.newFolder().getAbsolutePath()));
+      return new Caches(new TempFolderProvider().provide(bootstrapProps));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    return new Caches(new TempFolderProvider().provide(bootstrapSettings));
   }
 
   Caches caches;

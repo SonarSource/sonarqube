@@ -35,7 +35,6 @@ import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultResourceCreationLock;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.ProjectTree;
-import org.sonar.batch.bootstrap.BootstrapSettings;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
@@ -108,10 +107,10 @@ public class ProjectScanContainer extends ComponentContainer {
     if (reactor == null) {
       // OK, not present, so look for a custom ProjectBootstrapper
       ProjectBootstrapper bootstrapper = getComponentByType(ProjectBootstrapper.class);
-      BootstrapSettings settings = getComponentByType(BootstrapSettings.class);
+      Settings settings = getComponentByType(Settings.class);
       if (bootstrapper == null
         // Starting from Maven plugin 2.3 then only DefaultProjectBootstrapper should be used.
-        || "true".equals(settings.property("sonar.mojoUseRunner"))) {
+        || "true".equals(settings.getString("sonar.mojoUseRunner"))) {
         // Use default SonarRunner project bootstrapper
         ProjectReactorBuilder builder = getComponentByType(ProjectReactorBuilder.class);
         reactor = builder.execute();

@@ -19,28 +19,18 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.utils.TempFolder;
-import org.sonar.api.utils.internal.DefaultTempFolder;
+import javax.annotation.Nullable;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.Map;
 
-public class TempFolderProvider extends ProviderAdapter {
+/**
+ * Batch properties that are specific to a task (for example
+ * coming from sonar-project.properties).
+ */
+public class TaskProperties extends UserProperties {
 
-  public TempFolder provide(BootstrapProperties bootstrapProps) {
-    String workingDirPath = StringUtils.defaultIfBlank(bootstrapProps.property(CoreProperties.WORKING_DIRECTORY), CoreProperties.WORKING_DIRECTORY_DEFAULT_VALUE);
-    File workingDir = new File(workingDirPath);
-    File tempDir = new File(workingDir, ".sonartmp");
-    try {
-      FileUtils.forceMkdir(tempDir);
-    } catch (IOException e) {
-      throw new IllegalStateException("Unable to create root temp directory " + tempDir, e);
-    }
-    return new DefaultTempFolder(tempDir);
+  public TaskProperties(Map<String, String> properties, @Nullable String pathToSecretKey) {
+    super(properties, pathToSecretKey);
   }
 
 }

@@ -22,7 +22,6 @@ package org.sonar.batch.bootstrapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.sonar.batch.bootstrap.BootstrapContainer;
-import org.sonar.batch.bootstrap.BootstrapProperties;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,9 +34,11 @@ import java.util.Map;
  */
 public final class Batch {
 
+  private boolean started = false;
   private LoggingConfiguration logging;
   private List<Object> components;
   private Map<String, String> bootstrapProperties = Maps.newHashMap();
+  private BootstrapContainer bootstrapContainer;
 
   private Batch(Builder builder) {
     components = Lists.newArrayList();
@@ -57,24 +58,59 @@ public final class Batch {
     return logging;
   }
 
+  /**
+   * @deprecated since 4.4 use {@link #start()}, {@link #executeTask(Map)} and then {@link #stop()}
+   */
+  @Deprecated
   public Batch execute() {
     configureLogging();
-    startBatch();
+    start().executeTask(bootstrapProperties).stop();
     return this;
+  }
+
+  /**
+   * @since 4.4
+   */
+  public synchronized Batch start() {
+    if (started) {
+      throw new IllegalStateException("Batch is already started");
+    }
+
+    configureLogging();
+    bootstrapContainer = BootstrapContainer.create(bootstrapProperties, components);
+    bootstrapContainer.startComponents();
+    this.started = true;
+
+    return this;
+  }
+
+  /**
+   * @since 4.4
+   */
+  public Batch executeTask(Map<String, String> taskProperties) {
+    if (!started) {
+      throw new IllegalStateException("Batch is not started. Unable to execute task.");
+    }
+
+    bootstrapContainer.executeTask(taskProperties);
+    return this;
+  }
+
+  /**
+   * @since 4.4
+   */
+  public synchronized void stop() {
+    if (!started) {
+      throw new IllegalStateException("Batch is not started.");
+    }
+
+    bootstrapContainer.stopComponents();
   }
 
   private void configureLogging() {
     if (logging != null) {
       logging.configure();
     }
-  }
-
-  private void startBatch() {
-    List<Object> all = Lists.newArrayList(components);
-    all.add(new BootstrapProperties(bootstrapProperties));
-
-    BootstrapContainer bootstrapContainer = BootstrapContainer.create(all);
-    bootstrapContainer.execute();
   }
 
   public static Builder builder() {

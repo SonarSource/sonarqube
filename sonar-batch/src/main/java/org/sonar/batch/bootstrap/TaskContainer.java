@@ -26,17 +26,25 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskComponent;
 import org.sonar.api.task.TaskDefinition;
-import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.MessageException;
+import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.batch.scan.DeprecatedProjectReactorBuilder;
+import org.sonar.batch.scan.ProjectReactorBuilder;
 import org.sonar.batch.scan.ScanTask;
 import org.sonar.batch.tasks.ListTask;
 import org.sonar.batch.tasks.Tasks;
 import org.sonar.core.permission.PermissionFacade;
 import org.sonar.core.resource.DefaultResourcePermissions;
 
+import java.util.Map;
+
 public class TaskContainer extends ComponentContainer {
 
-  public TaskContainer(ComponentContainer parent) {
+  private final Map<String, String> taskProperties;
+
+  public TaskContainer(ComponentContainer parent, Map<String, String> taskProperties) {
     super(parent);
+    this.taskProperties = taskProperties;
   }
 
   @Override
@@ -46,10 +54,12 @@ public class TaskContainer extends ComponentContainer {
     installComponentsUsingTaskExtensions();
   }
 
-  private void installCoreTasks() {
+  void installCoreTasks() {
+    add(new TaskProperties(taskProperties, getParent().getComponentByType(BootstrapProperties.class).property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH)));
     add(
       ScanTask.DEFINITION, ScanTask.class,
-      ListTask.DEFINITION, ListTask.class);
+      ListTask.DEFINITION, ListTask.class,
+      projectReactorBuilder());
   }
 
   private void installTaskExtensions() {
@@ -58,6 +68,19 @@ public class TaskContainer extends ComponentContainer {
         return ExtensionUtils.isType(extension, TaskComponent.class);
       }
     });
+  }
+
+  private Class<?> projectReactorBuilder() {
+    if (isRunnerVersionLessThan2Dot4()) {
+      return DeprecatedProjectReactorBuilder.class;
+    }
+    return ProjectReactorBuilder.class;
+  }
+
+  private boolean isRunnerVersionLessThan2Dot4() {
+    EnvironmentInformation env = this.getComponentByType(EnvironmentInformation.class);
+    // Starting from SQ Runner 2.4 the key is "SonarQubeRunner"
+    return env != null && "SonarRunner".equals(env.getKey());
   }
 
   private void installComponentsUsingTaskExtensions() {
@@ -75,7 +98,7 @@ public class TaskContainer extends ComponentContainer {
 
     TaskDefinition def = getComponentByType(Tasks.class).definition(taskKey);
     if (def == null) {
-      throw new SonarException("Task " + taskKey + " does not exist");
+      throw MessageException.of("Task " + taskKey + " does not exist");
     }
     Task task = getComponentByType(def.taskClass());
     if (task != null) {

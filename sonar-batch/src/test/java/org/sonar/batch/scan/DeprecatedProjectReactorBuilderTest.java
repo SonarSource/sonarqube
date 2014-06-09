@@ -25,8 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.batch.bootstrap.BootstrapProperties;
-import org.sonar.batch.bootstrap.BootstrapSettings;
+import org.sonar.batch.bootstrap.TaskProperties;
 import org.sonar.test.TestUtils;
 
 import java.io.File;
@@ -183,8 +182,8 @@ public class DeprecatedProjectReactorBuilderTest {
       props.put(name, runnerProps.getProperty(name));
     }
     props.put("sonar.projectBaseDir", TestUtils.getResource(this.getClass(), projectFolder).getAbsolutePath());
-    BootstrapProperties bootstrapProps = new BootstrapProperties(props);
-    ProjectReactor projectReactor = new DeprecatedProjectReactorBuilder(new BootstrapSettings(bootstrapProps)).execute();
+    TaskProperties taskProps = new TaskProperties(props, null);
+    ProjectReactor projectReactor = new DeprecatedProjectReactorBuilder(taskProps).execute();
     return projectReactor.getRoot();
   }
 

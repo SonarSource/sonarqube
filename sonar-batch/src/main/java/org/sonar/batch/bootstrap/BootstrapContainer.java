@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.core.cluster.NullQueue;
-
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.sonar.api.Plugin;
 import org.sonar.api.config.EmailSettings;
@@ -31,7 +29,6 @@ import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.internal.TempFolderCleaner;
-import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PastSnapshotFinder;
 import org.sonar.batch.components.PastSnapshotFinderByDate;
@@ -39,8 +36,9 @@ import org.sonar.batch.components.PastSnapshotFinderByDays;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousAnalysis;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousVersion;
 import org.sonar.batch.components.PastSnapshotFinderByVersion;
-import org.sonar.batch.scan.DeprecatedProjectReactorBuilder;
-import org.sonar.batch.scan.ProjectReactorBuilder;
+import org.sonar.batch.settings.DefaultSettingsReferential;
+import org.sonar.batch.settings.SettingsReferential;
+import org.sonar.core.cluster.NullQueue;
 import org.sonar.core.config.Logback;
 import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.i18n.RuleI18nManager;
@@ -64,13 +62,16 @@ import java.util.Map;
 
 public class BootstrapContainer extends ComponentContainer {
 
-  private BootstrapContainer() {
+  private final Map<String, String> bootstrapProperties;
+
+  private BootstrapContainer(Map<String, String> bootstrapProperties) {
     super();
+    this.bootstrapProperties = bootstrapProperties;
   }
 
-  public static BootstrapContainer create(List objects) {
-    BootstrapContainer container = new BootstrapContainer();
-    container.add(objects);
+  public static BootstrapContainer create(Map<String, String> bootstrapProperties, List extensions) {
+    BootstrapContainer container = new BootstrapContainer(bootstrapProperties);
+    container.add(extensions);
     return container;
   }
 
@@ -84,7 +85,7 @@ public class BootstrapContainer extends ComponentContainer {
   private void addBootstrapComponents() {
     add(
       new PropertiesConfiguration(),
-      BootstrapSettings.class,
+      new BootstrapProperties(bootstrapProperties),
       AnalysisMode.class,
       PluginDownloader.class,
       BatchPluginRepository.class,
@@ -100,21 +101,10 @@ public class BootstrapContainer extends ComponentContainer {
       HttpDownloader.class,
       UriReader.class,
       new FileCacheProvider(),
-      System2.INSTANCE,
-      projectReactorBuilder());
-  }
-
-  private Class<?> projectReactorBuilder() {
-    if (isRunnerVersionLessThan2Dot4()) {
-      return DeprecatedProjectReactorBuilder.class;
+      System2.INSTANCE);
+    if (getComponentByType(SettingsReferential.class) == null) {
+      add(DefaultSettingsReferential.class);
     }
-    return ProjectReactorBuilder.class;
-  }
-
-  private boolean isRunnerVersionLessThan2Dot4() {
-    EnvironmentInformation env = this.getComponentByType(EnvironmentInformation.class);
-    // Starting from SQ Runner 2.4 the key is "SonarQubeRunner"
-    return env != null && "SonarRunner".equals(env.getKey());
   }
 
   private void addDatabaseComponents() {
@@ -163,7 +153,6 @@ public class BootstrapContainer extends ComponentContainer {
   @Override
   protected void doAfterStart() {
     installPlugins();
-    executeTask();
   }
 
   private void installPlugins() {
@@ -174,7 +163,8 @@ public class BootstrapContainer extends ComponentContainer {
     }
   }
 
-  void executeTask() {
-    new TaskContainer(this).execute();
+  public void executeTask(Map<String, String> taskProperties) {
+    new TaskContainer(this, taskProperties).execute();
   }
+
 }

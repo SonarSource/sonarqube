@@ -331,10 +331,18 @@ public class Settings implements BatchComponent, ServerComponent {
     return this;
   }
 
+  /**
+   * @deprecated since 4.4 For embedding purpose all properties should be provided by the bootstrapper
+   */
+  @Deprecated
   public Settings addSystemProperties() {
     return addProperties(System.getProperties());
   }
 
+  /**
+   * @deprecated since 4.4 For embedding purpose all properties should be provided by the bootstrapper
+   */
+  @Deprecated
   public Settings addEnvironmentVariables() {
     return addProperties(System.getenv());
   }

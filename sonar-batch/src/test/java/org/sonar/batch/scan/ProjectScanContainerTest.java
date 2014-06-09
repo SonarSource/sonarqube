@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.scan;
 
-import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.BatchExtension;
@@ -32,8 +31,6 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.task.TaskExtension;
-import org.sonar.batch.bootstrap.BootstrapProperties;
-import org.sonar.batch.bootstrap.BootstrapSettings;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
@@ -45,19 +42,23 @@ import static org.mockito.Mockito.when;
 public class ProjectScanContainerTest {
 
   private ProjectBootstrapper projectBootstrapper;
-  private BootstrapSettings bootstrapSettings;
+  private ProjectScanContainer container;
+  private Settings settings;
+  private ComponentContainer parentContainer;
 
   @Before
   public void prepare() {
     projectBootstrapper = mock(ProjectBootstrapper.class);
     when(projectBootstrapper.bootstrap()).thenReturn(new ProjectReactor(ProjectDefinition.create()));
-    bootstrapSettings = new BootstrapSettings(new BootstrapProperties(Maps.<String, String>newHashMap()));
+    settings = new Settings();
+    parentContainer = new ComponentContainer();
+    parentContainer.add(settings);
+    container = new ProjectScanContainer(parentContainer);
   }
 
   @Test
   public void should_add_fake_maven_executor_on_non_maven_env() {
-    ProjectScanContainer container = new ProjectScanContainer(new ComponentContainer());
-    container.add(mock(ExtensionInstaller.class), projectBootstrapper, bootstrapSettings);
+    container.add(mock(ExtensionInstaller.class), projectBootstrapper);
     container.doBeforeStart();
 
     assertThat(container.getComponentByType(MavenPluginExecutor.class)).isNotNull();
@@ -65,8 +66,7 @@ public class ProjectScanContainerTest {
 
   @Test
   public void should_use_maven_executor_provided_by_maven() {
-    ProjectScanContainer container = new ProjectScanContainer(new ComponentContainer());
-    container.add(mock(ExtensionInstaller.class), projectBootstrapper, bootstrapSettings);
+    container.add(mock(ExtensionInstaller.class), projectBootstrapper);
     MavenPluginExecutor mavenPluginExecutor = mock(MavenPluginExecutor.class);
     container.add(mavenPluginExecutor);
     container.doBeforeStart();
@@ -77,11 +77,7 @@ public class ProjectScanContainerTest {
 
   @Test
   public void should_activate_profiling() {
-    ComponentContainer parentContainer = new ComponentContainer();
-    Settings settings = new Settings();
-    parentContainer.add(settings);
-    ProjectScanContainer container = new ProjectScanContainer(parentContainer);
-    container.add(mock(ExtensionInstaller.class), projectBootstrapper, bootstrapSettings);
+    container.add(mock(ExtensionInstaller.class), projectBootstrapper);
     container.doBeforeStart();
 
     assertThat(container.getComponentsByType(PhasesSumUpTimeProfiler.class)).hasSize(0);
@@ -89,7 +85,7 @@ public class ProjectScanContainerTest {
     settings.setProperty(CoreProperties.PROFILING_LOG_PROPERTY, "true");
 
     container = new ProjectScanContainer(parentContainer);
-    container.add(mock(ExtensionInstaller.class), projectBootstrapper, bootstrapSettings);
+    container.add(mock(ExtensionInstaller.class), projectBootstrapper);
     container.doBeforeStart();
 
     assertThat(container.getComponentsByType(PhasesSumUpTimeProfiler.class)).hasSize(1);

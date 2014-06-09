@@ -17,20 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.batch.settings;
 
-import org.sonar.api.CoreProperties;
+import org.sonar.api.BatchComponent;
 
 import java.util.Map;
 
 /**
- * Immutable batch properties that are not specific to a task (for example
- * coming from global configuration file of sonar-runner).
+ * Settings referential
+ * @since 4.4
  */
-public class BootstrapProperties extends UserProperties {
+public interface SettingsReferential extends BatchComponent {
 
-  public BootstrapProperties(Map<String, String> properties) {
-    super(properties, properties.get(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
-  }
+  /**
+   * Provide global settings
+   */
+  Map<String, String> globalSettings();
+
+  /**
+   * Provide settings for a given project or sub-project (includes global settings)
+   * @param projectKey
+   */
+  Map<String, String> projectSettings(String projectKey);
 
 }

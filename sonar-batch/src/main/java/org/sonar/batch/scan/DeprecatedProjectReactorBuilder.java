@@ -20,7 +20,7 @@
 package org.sonar.batch.scan;
 
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.batch.bootstrap.BootstrapSettings;
+import org.sonar.batch.bootstrap.TaskProperties;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,8 +38,8 @@ public class DeprecatedProjectReactorBuilder extends ProjectReactorBuilder {
 
   private static final String PROPERTY_PROJECT_CONFIG_FILE = "sonar.projectConfigFile";
 
-  public DeprecatedProjectReactorBuilder(BootstrapSettings settings) {
-    super(settings);
+  public DeprecatedProjectReactorBuilder(TaskProperties props) {
+    super(props);
   }
 
   @Override
