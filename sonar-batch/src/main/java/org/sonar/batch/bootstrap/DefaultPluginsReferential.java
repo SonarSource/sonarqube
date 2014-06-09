@@ -24,8 +24,6 @@ import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.utils.SonarException;
 import org.sonar.core.plugins.RemotePlugin;
 import org.sonar.core.plugins.RemotePluginFile;
 import org.sonar.home.cache.FileCache;
@@ -34,19 +32,23 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class PluginDownloader implements BatchComponent {
+/**
+ * A {@link PluginsReferential} implementation that put downloaded plugins in a FS cache.
+ */
+public class DefaultPluginsReferential implements PluginsReferential {
 
-  private static final Logger LOG = LoggerFactory.getLogger(PluginDownloader.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultPluginsReferential.class);
 
   private ServerClient server;
   private FileCache fileCache;
 
-  public PluginDownloader(FileCache fileCache, ServerClient server) {
+  public DefaultPluginsReferential(FileCache fileCache, ServerClient server) {
     this.server = server;
     this.fileCache = fileCache;
   }
 
-  public File downloadPlugin(final RemotePlugin remote) {
+  @Override
+  public File pluginFile(final RemotePlugin remote) {
     try {
       final RemotePluginFile file = remote.file();
       File cachedFile = fileCache.get(file.getFilename(), file.getHash(), new FileCache.Downloader() {
@@ -63,11 +65,12 @@ public class PluginDownloader implements BatchComponent {
       return cachedFile;
 
     } catch (Exception e) {
-      throw new SonarException("Fail to download plugin: " + remote.getKey(), e);
+      throw new IllegalStateException("Fail to download plugin: " + remote.getKey(), e);
     }
   }
 
-  public List<RemotePlugin> downloadPluginIndex() {
+  @Override
+  public List<RemotePlugin> pluginList() {
     String url = "/deploy/plugins/index.txt";
     try {
       LOG.debug("Download index of plugins");
@@ -80,7 +83,7 @@ public class PluginDownloader implements BatchComponent {
       return remoteLocations;
 
     } catch (Exception e) {
-      throw new SonarException("Fail to download plugins index: " + url, e);
+      throw new IllegalStateException("Fail to download plugins index: " + url, e);
     }
   }
 

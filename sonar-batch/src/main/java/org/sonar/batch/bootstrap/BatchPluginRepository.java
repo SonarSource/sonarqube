@@ -36,7 +36,11 @@ import org.sonar.core.plugins.RemotePlugin;
 
 import java.io.File;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
@@ -46,7 +50,7 @@ public class BatchPluginRepository implements PluginRepository {
   private static final Logger LOG = LoggerFactory.getLogger(BatchPluginRepository.class);
   private static final String CORE_PLUGIN = "core";
 
-  private PluginDownloader pluginDownloader;
+  private PluginsReferential pluginsReferential;
   private Map<String, Plugin> pluginsByKey;
   private Map<String, PluginMetadata> metadataByKey;
   private Settings settings;
@@ -54,9 +58,9 @@ public class BatchPluginRepository implements PluginRepository {
   private final AnalysisMode analysisMode;
   private final BatchPluginJarInstaller pluginInstaller;
 
-  public BatchPluginRepository(PluginDownloader pluginDownloader, Settings settings, AnalysisMode analysisMode,
-                               BatchPluginJarInstaller pluginInstaller) {
-    this.pluginDownloader = pluginDownloader;
+  public BatchPluginRepository(PluginsReferential pluginsReferential, Settings settings, AnalysisMode analysisMode,
+    BatchPluginJarInstaller pluginInstaller) {
+    this.pluginsReferential = pluginsReferential;
     this.settings = settings;
     this.analysisMode = analysisMode;
     this.pluginInstaller = pluginInstaller;
@@ -64,7 +68,7 @@ public class BatchPluginRepository implements PluginRepository {
 
   public void start() {
     LOG.info("Install plugins");
-    doStart(pluginDownloader.downloadPluginIndex());
+    doStart(pluginsReferential.pluginList());
   }
 
   void doStart(List<RemotePlugin> remotePlugins) {
@@ -72,7 +76,7 @@ public class BatchPluginRepository implements PluginRepository {
     metadataByKey = Maps.newHashMap();
     for (RemotePlugin remote : remotePlugins) {
       if (filter.accepts(remote.getKey())) {
-        File pluginFile = pluginDownloader.downloadPlugin(remote);
+        File pluginFile = pluginsReferential.pluginFile(remote);
         PluginMetadata metadata = pluginInstaller.installToCache(pluginFile, remote.isCore());
         if (StringUtils.isBlank(metadata.getBasePlugin()) || filter.accepts(metadata.getBasePlugin())) {
           metadataByKey.put(metadata.getKey(), metadata);

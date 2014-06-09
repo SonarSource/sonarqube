@@ -17,39 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.rules;
+package org.sonar.batch.bootstrap;
 
-import org.sonar.api.ServerComponent;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.task.TaskComponent;
+import org.sonar.core.plugins.RemotePlugin;
 
-import javax.annotation.CheckForNull;
-
-import java.util.Collection;
+import java.io.File;
+import java.util.List;
 
 /**
- * @since 2.3
+ * Plugin referential.
+ * @since 4.4
  */
-public interface RuleFinder extends TaskComponent, ServerComponent {
+public interface PluginsReferential {
 
   /**
-   * @since 2.5
+   * Return list of plugins to be installed
    */
-  @CheckForNull
-  Rule findById(int ruleId);
-
-  @CheckForNull
-  Rule findByKey(String repositoryKey, String key);
-
-  @CheckForNull
-  Rule findByKey(RuleKey key);
+  List<RemotePlugin> pluginList();
 
   /**
-   * @throw NonUniqueResultException if more than one result
+   * Return location of a given plugin on the local FS.
    */
-  @CheckForNull
-  Rule find(RuleQuery query);
-
-  Collection<Rule> findAll(RuleQuery query);
+  File pluginFile(RemotePlugin remote);
 
 }

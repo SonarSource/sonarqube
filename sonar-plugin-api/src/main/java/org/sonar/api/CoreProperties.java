@@ -510,6 +510,11 @@ public interface CoreProperties {
   String ANALYSIS_MODE_INCREMENTAL = "incremental";
 
   /**
+   * @since 4.4
+   */
+  String ANALYSIS_MODE_SENSOR = "sensor";
+
+  /**
    * @since 4.0
    */
   String PREVIEW_INCLUDE_PLUGINS = "sonar.preview.includePlugins";

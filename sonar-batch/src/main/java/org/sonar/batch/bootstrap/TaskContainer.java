@@ -19,8 +19,8 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.task.Task;
@@ -94,7 +94,7 @@ public class TaskContainer extends ComponentContainer {
   @Override
   public void doAfterStart() {
     // default value is declared in CorePlugin
-    String taskKey = getComponentByType(Settings.class).getString(CoreProperties.TASK);
+    String taskKey = StringUtils.defaultIfEmpty(taskProperties.get(CoreProperties.TASK), CoreProperties.SCAN_TASK);
 
     TaskDefinition def = getComponentByType(Tasks.class).definition(taskKey);
     if (def == null) {

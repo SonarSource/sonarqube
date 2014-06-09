@@ -20,10 +20,13 @@
 package org.sonar.batch.bootstrap;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
 import org.sonar.api.config.EmailSettings;
+import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.platform.PluginMetadata;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.System2;
@@ -63,9 +66,11 @@ import java.util.Map;
 public class BootstrapContainer extends ComponentContainer {
 
   private final Map<String, String> bootstrapProperties;
+  private final boolean sensorMode;
 
   private BootstrapContainer(Map<String, String> bootstrapProperties) {
     super();
+    this.sensorMode = CoreProperties.ANALYSIS_MODE_SENSOR.equals(bootstrapProperties.get(CoreProperties.ANALYSIS_MODE));
     this.bootstrapProperties = bootstrapProperties;
   }
 
@@ -78,7 +83,9 @@ public class BootstrapContainer extends ComponentContainer {
   @Override
   protected void doBeforeStart() {
     addBootstrapComponents();
-    addDatabaseComponents();
+    if (!sensorMode) {
+      addDatabaseComponents();
+    }
     addCoreComponents();
   }
 
@@ -87,7 +94,6 @@ public class BootstrapContainer extends ComponentContainer {
       new PropertiesConfiguration(),
       new BootstrapProperties(bootstrapProperties),
       AnalysisMode.class,
-      PluginDownloader.class,
       BatchPluginRepository.class,
       BatchPluginJarInstaller.class,
       BatchSettings.class,
@@ -104,6 +110,15 @@ public class BootstrapContainer extends ComponentContainer {
       System2.INSTANCE);
     if (getComponentByType(SettingsReferential.class) == null) {
       add(DefaultSettingsReferential.class);
+    }
+    if (getComponentByType(PluginsReferential.class) == null) {
+      add(DefaultPluginsReferential.class);
+    }
+    if (getComponentByType(RuleFinder.class) == null) {
+      add(CacheRuleFinder.class);
+    }
+    if (getComponentByType(MetricFinder.class) == null) {
+      add(CacheMetricFinder.class);
     }
   }
 
@@ -135,8 +150,6 @@ public class BootstrapContainer extends ComponentContainer {
       MeasuresDao.class,
       RulesDao.class,
       ProfilesDao.class,
-      CacheRuleFinder.class,
-      CacheMetricFinder.class,
       HibernateUserFinder.class,
       SemaphoreUpdater.class,
       SemaphoresImpl.class,

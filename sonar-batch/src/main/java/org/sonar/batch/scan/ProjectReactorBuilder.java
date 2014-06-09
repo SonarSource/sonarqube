@@ -119,12 +119,12 @@ public class ProjectReactorBuilder {
   }
 
   protected ProjectDefinition defineProject(Properties properties, @Nullable ProjectDefinition parent) {
-    File baseDir = new File(properties.getProperty(PROPERTY_PROJECT_BASEDIR));
     if (properties.containsKey(PROPERTY_MODULES)) {
       checkMandatoryProperties(properties, MANDATORY_PROPERTIES_FOR_MULTIMODULE_PROJECT);
     } else {
       checkMandatoryProperties(properties, MANDATORY_PROPERTIES_FOR_SIMPLE_PROJECT);
     }
+    File baseDir = new File(properties.getProperty(PROPERTY_PROJECT_BASEDIR));
     final String projectKey = properties.getProperty(CoreProperties.PROJECT_KEY_PROPERTY);
     File workDir;
     if (parent == null) {
