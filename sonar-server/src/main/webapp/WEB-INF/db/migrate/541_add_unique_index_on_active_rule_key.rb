@@ -17,16 +17,18 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-class CreateActiveRuleIndex < ActiveRecord::Migration
+class AddUniqueIndexOnActiveRuleKey < ActiveRecord::Migration
 
 
-  class ActiveRuleParameters < ActiveRecord::Base
+  class ActiveRuleParameter < ActiveRecord::Base
   end
 
   class ActiveRule < ActiveRecord::Base
   end
 
   def self.up
+    ActiveRule.reset_column_information
+    ActiveRuleParameter.reset_column_information
 
     # Search for all rules activated many times on a same profile
     rule_actived_many_times_on_same_profile = ActiveRule.all(
@@ -42,7 +44,7 @@ class CreateActiveRuleIndex < ActiveRecord::Migration
       )
       # Remove duplication, keep only one active rule (first one)
       active_rules.drop(1).each do |active_rule|
-        ActiveRuleParameters.delete_all(:active_rule_id => active_rule.id)
+        ActiveRuleParameter.delete_all(:active_rule_id => active_rule.id)
         active_rule.delete
       end
     end
