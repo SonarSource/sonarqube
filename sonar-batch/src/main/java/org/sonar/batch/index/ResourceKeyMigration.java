@@ -127,13 +127,31 @@ public class ResourceKeyMigration implements BatchComponent {
           logger.warn("Directory with key " + parentOldKey + " matches both " + deprecatedDirectoryKeyMapper.get(parentOldKey) + " and "
             + parentNewKey + ". First match is arbitrary chosen.");
         }
-        resourceModel.setKey(newEffectiveKey);
+        updateKey(resourceModel, newEffectiveKey);
         resourceModel.setDeprecatedKey(oldEffectiveKey);
         logger.info(COMPONENT_CHANGED_TO, oldEffectiveKey, newEffectiveKey);
       } else {
         logger.warn(UNABLE_TO_UPDATE_COMPONENT_NO_MATCH_WAS_FOUND, oldEffectiveKey);
       }
     }
+  }
+
+  private void updateKey(ResourceModel resourceModel, String newEffectiveKey) {
+    // Look for disabled resource with conflicting key
+    List<ResourceModel> duplicateDisabledResources = session.createQuery(new StringBuilder().append("from ")
+      .append(ResourceModel.class.getSimpleName())
+      .append(" where enabled = false ")
+      .append(" and kee = :kee ")
+      .append(" and qualifier = :qualifier ").toString())
+      .setParameter("kee", newEffectiveKey)
+      .setParameter("qualifier", resourceModel.getQualifier()).getResultList();
+    if (duplicateDisabledResources.size() > 0) {
+      ResourceModel duplicateDisabledResource = duplicateDisabledResources.get(0);
+      String disabledKey = newEffectiveKey + "_renamed_by_resource_key_migration";
+      duplicateDisabledResource.setKey(disabledKey);
+      logger.info(COMPONENT_CHANGED_TO, newEffectiveKey, disabledKey);
+    }
+    resourceModel.setKey(newEffectiveKey);
   }
 
   private StringBuilder newResourceQuery() {
@@ -160,7 +178,7 @@ public class ResourceKeyMigration implements BatchComponent {
       String oldEffectiveKey = resourceModel.getKey();
       if (deprecatedDirectoryKeyMapper.containsKey(oldEffectiveKey)) {
         String newEffectiveKey = deprecatedDirectoryKeyMapper.get(oldEffectiveKey);
-        resourceModel.setKey(newEffectiveKey);
+        updateKey(resourceModel, newEffectiveKey);
         resourceModel.setDeprecatedKey(oldEffectiveKey);
         logger.info(COMPONENT_CHANGED_TO, oldEffectiveKey, newEffectiveKey);
       } else {
