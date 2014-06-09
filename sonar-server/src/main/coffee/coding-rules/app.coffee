@@ -291,15 +291,6 @@ requirejs [
       size: 50
     @filters.add @queryFilter
 
-    @languageFilter =  new BaseFilters.Filter
-      name: t 'coding_rules.filters.language'
-      property: 'languages'
-      type: LanguageFilterView
-      app: @
-      choices: @languages
-      optional: true
-    @filters.add @languageFilter
-
     @filters.add new BaseFilters.Filter
       name: t 'coding_rules.filters.severity'
       property: 'severities'
@@ -354,6 +345,15 @@ requirejs [
         false: t 'coding_rules.filters.activation.inactive'
     @filters.add @activationFilter
 
+    @languageFilter =  new BaseFilters.Filter
+      name: t 'coding_rules.filters.language'
+      property: 'languages'
+      type: LanguageFilterView
+      app: @
+      choices: @languages
+      optional: true
+    @filters.add @languageFilter
+
     @filters.add new BaseFilters.Filter
       name: t 'coding_rules.filters.availableSince'
       property: 'available_since'
@@ -405,7 +405,10 @@ requirejs [
       name: t 'coding_rules.filters.key'
       property: 'rule_key'
       type: ReadOnlyFilterView
+      enabled: false
+      inactive: true
       optional: true
+
 
     @filterBarView = new CodingRulesFilterBarView
       app: @
