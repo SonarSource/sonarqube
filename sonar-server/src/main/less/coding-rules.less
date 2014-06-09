@@ -73,7 +73,7 @@
   .coding-rules-detail-quality-profile-severity,
   .coding-rules-detail-quality-profile-parameters,
   .coding-rules-detail-quality-profile-actions {
-    vertical-align: middle;
+    vertical-align: top;
   }
   .coding-rules-detail-quality-profile-name,
   .coding-rules-detail-quality-profile-severity {
@@ -81,26 +81,33 @@
     padding-right: @navigatorPadding;
     white-space: nowrap;
   }
+
   .coding-rules-detail-quality-profile-parameter {
-    display: inline-block;
-    vertical-align: middle;
-    margin-right: @navigatorPadding;
-    white-space: nowrap;
-
-    .key, .value, .sep {
-      display: inline-block;
-      vertical-align: middle;
-    }
-
-    .value {
-      max-width: 300px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+    display: table-cell;
   }
-  .coding-rules-detail-quality-profile-parameter + .coding-rules-detail-quality-profile-parameter { margin-top: 0; }
 }
+
+.coding-rules-detail-quality-profile-parameter {
+  display: block;
+  height: 100%;
+  padding-top: 0;
+  padding-right: @navigatorPadding;
+
+  .key, .value, .sep {
+    display: inline;
+    vertical-align: top;
+  }
+
+  .value {
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: monospace;
+    vertical-align: baseline;
+  }
+}
+.coding-rules-detail-quality-profile-parameter + .coding-rules-detail-quality-profile-parameter { margin-top: 0; }
 
 .coding-rules-detail-context-actions {
 

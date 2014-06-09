@@ -60,6 +60,9 @@ define [
     initialize: (options) ->
       super options
 
+      if @model.get 'params'
+        @model.set 'params', _.sortBy(@model.get('params'), 'key')
+
       if @model.get 'isTemplate'
         customRules = new Backbone.Collection()
         jQuery.ajax
