@@ -21,8 +21,6 @@ package org.sonar.server.tester;
 
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.DatabaseVersion;
 import org.sonar.core.persistence.DbSession;
@@ -32,8 +30,6 @@ import org.sonar.server.search.ESNode;
 import java.sql.Connection;
 
 public class BackendCleanup implements ServerComponent {
-
-  private static final Logger LOG = LoggerFactory.getLogger(BackendCleanup.class);
 
   private final ESNode esNode;
   private final MyBatis myBatis;
@@ -52,7 +48,6 @@ public class BackendCleanup implements ServerComponent {
     DbSession dbSession = myBatis.openSession(false);
     Connection connection = dbSession.getConnection();
     try {
-      LOG.info("Truncate db tables");
       for (String table : DatabaseVersion.TABLES) {
         try {
           connection.createStatement().execute("TRUNCATE TABLE " + table.toLowerCase());
@@ -69,10 +64,9 @@ public class BackendCleanup implements ServerComponent {
   }
 
   public void clearIndexes() {
-    LOG.info("Truncate es indices");
     Client client = esNode.client();
     client.prepareDeleteByQuery(client.admin().cluster().prepareState().get()
-        .getState().getMetaData().concreteAllIndices())
+      .getState().getMetaData().concreteAllIndices())
       .setQuery(QueryBuilders.matchAllQuery())
       .get();
 

@@ -148,23 +148,6 @@ public class QProfileLookup implements ServerComponent {
     return ancestors;
   }
 
-  public boolean isDeletable(QProfile profile, DbSession session) {
-    QProfile defaultProfile = defaultProfile(profile.language(), session);
-    if (defaultProfile != null && (defaultProfile.id() == profile.id())) {
-      return false;
-    }
-    return countChildren(profile, session) == 0;
-  }
-
-  public boolean isDeletable(QProfile profile) {
-    DbSession session = myBatis.openSession(false);
-    try {
-      return isDeletable(profile, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   private void incrementAncestors(QProfile profile, List<QProfile> ancestors, DbSession session) {
     if (profile.parent() != null) {
       QualityProfileDto parentDto = dao.selectParent(profile.id(), session);

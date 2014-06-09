@@ -45,6 +45,23 @@ public class QProfileFactory implements ServerComponent {
     this.previewCache = previewCache;
   }
 
+  @CheckForNull
+  QualityProfileKey getDefault(String language) {
+    DbSession dbSession = db.openSession(false);
+    try {
+      QualityProfileDto profile = getDefault(dbSession, language);
+      return profile != null ? profile.getKey() : null;
+    } finally {
+      dbSession.close();
+    }
+  }
+
+  @CheckForNull
+  QualityProfileDto getDefault(DbSession session, String language) {
+    return db.qualityProfileDao().selectDefaultProfile(language, PROFILE_PROPERTY_PREFIX + language, session);
+  }
+
+
   void setDefault(QualityProfileKey key) {
     DbSession dbSession = db.openSession(false);
     try {
@@ -64,11 +81,6 @@ public class QProfileFactory implements ServerComponent {
     db.propertiesDao().setProperty(new PropertyDto()
       .setKey("sonar.profile." + profile.getLanguage())
       .setValue(profile.getName()));
-  }
-
-  @CheckForNull
-  private QualityProfileDto getDefault(DbSession session, String language) {
-    return db.qualityProfileDao().selectDefaultProfile(language, PROFILE_PROPERTY_PREFIX + language, session);
   }
 
   void delete(QualityProfileKey key) {

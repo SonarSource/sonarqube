@@ -193,6 +193,11 @@ public class QProfileService implements ServerComponent {
     factory.setDefault(key);
   }
 
+  @CheckForNull
+  public QualityProfileKey getDefault(String language) {
+    return factory.getDefault(language);
+  }
+
   private void verifyAdminPermission() {
     UserSession.get().checkLoggedIn();
     UserSession.get().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
