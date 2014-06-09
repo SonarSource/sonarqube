@@ -27,7 +27,8 @@ define [
 
     onRender: ->
       unless @collection.sorting.sortText
-        @collection.sorting.sortText = @$('[data-sort=' + @collection.sorting.sort + ']:first').text()
+        while not @collection.sorting.sortText
+          @collection.sorting.sortText = @$('[data-sort=' + @collection.sorting.sort + ']:first').text()
         @render()
 
 
