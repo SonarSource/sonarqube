@@ -66,9 +66,7 @@ class ProfilesController < ApplicationController
     require_parameters 'language'
     @language = java_facade.getLanguages().find { |l| l.getKey()==params[:language].to_s }
     call_backend do
-      @default_profile_names = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).builtInProfileNamesForLanguage(params[:language].to_s)
-      profiles = Internal.quality_profiles.profilesByLanguage(@language.getKey()).to_a
-      @existing_default_profiles = profiles.select { |p| @default_profile_names.find { |default_profile| default_profile == p.name() } }.collect { |p| p.name() }
+      @builtin_profile_names = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).builtInProfileNamesForLanguage(params[:language].to_s)
     end
     render :partial => 'profiles/recreate_built_in_form'
   end

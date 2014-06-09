@@ -7,15 +7,11 @@
     </div>
 
     <div class="modal-body">
-      <% if @existing_default_profiles.empty? %>
-        <%= h message('quality_profiles.recreate_built_in_profiles_confirmation', :params => [@default_profile_names.join('\', \''), @language.getName()]) -%>
-      <% else %>
-        <%= h message('quality_profiles.recreate_built_in_profiles_warning', :params => [@language.getName(), @existing_default_profiles.join('\', \'')]) -%>
-      <% end %>
+      <%= h message('quality_profiles.recreate_built_in_profiles_confirmation', :params => [@builtin_profile_names.join('\', \''), @language.getName()]) -%>
     </div>
 
     <div class="modal-foot">
-      <input type="submit" value="<%= h message('restore') -%>" id="recreate-built-in-profiles-submit" <%= 'disabled=disabled' unless @existing_default_profiles.empty? -%>/>
+      <input type="submit" value="<%= h message('restore') -%>" id="recreate-built-in-profiles-submit"/>
       <a href="#" onclick="return closeModalWindow()" id="recreate-built-in-profiles-cancel"><%= h message('cancel') -%></a>
     </div>
   </fieldset>
