@@ -112,7 +112,6 @@ public class ModuleScanContainer extends ComponentContainer {
       EventBus.class,
       PhaseExecutor.class,
       PhasesTimeProfiler.class,
-      UnsupportedProperties.class,
       PhaseExecutor.getPhaseClasses(),
       moduleDefinition.getContainerExtensions(),
 
