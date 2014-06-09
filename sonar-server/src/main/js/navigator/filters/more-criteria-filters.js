@@ -20,7 +20,9 @@ define([
 
 
     enableByProperty: function(property) {
-      var filter = _.find(this.model.get('filters'), function(filter) { return filter.get('property') === property; });
+      var filter = _.find(this.model.get('filters'), function(filter) {
+        return filter.get('property') === property;
+      });
       if (filter) {
         this.enableById(filter.cid);
       }
