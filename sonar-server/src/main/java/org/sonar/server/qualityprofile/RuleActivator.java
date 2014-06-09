@@ -376,30 +376,34 @@ public class RuleActivator implements ServerComponent {
   void setParent(QualityProfileKey key, @Nullable QualityProfileKey parentKey) {
     DbSession dbSession = db.openSession(false);
     try {
-      QualityProfileDto profile = db.qualityProfileDao().getNonNullByKey(dbSession, key);
-      if (parentKey == null) {
-        // unset if parent is defined, else nothing to do
-        removeParent(dbSession, profile);
-
-      } else if (profile.getParentKey() == null || !profile.getParentKey().equals(parentKey)) {
-        QualityProfileDto parentProfile = db.qualityProfileDao().getNonNullByKey(dbSession, parentKey);
-        if (isDescendant(dbSession, profile, parentProfile)) {
-          throw new BadRequestException("Please do not select a child profile as parent.");
-        }
-        removeParent(dbSession, profile);
-
-        // set new parent
-        profile.setParent(parentKey.name());
-        db.qualityProfileDao().update(dbSession, profile);
-        for (ActiveRuleDto parentActiveRule : db.activeRuleDao().findByProfileKey(dbSession, parentKey)) {
-          RuleActivation activation = new RuleActivation(ActiveRuleKey.of(key, parentActiveRule.getKey().ruleKey()));
-          activate(dbSession, activation);
-        }
-      }
+      setParent(dbSession, key, parentKey);
       dbSession.commit();
 
     } finally {
       dbSession.close();
+    }
+  }
+
+  void setParent(DbSession dbSession, QualityProfileKey key, QualityProfileKey parentKey) {
+    QualityProfileDto profile = db.qualityProfileDao().getNonNullByKey(dbSession, key);
+    if (parentKey == null) {
+      // unset if parent is defined, else nothing to do
+      removeParent(dbSession, profile);
+
+    } else if (profile.getParentKey() == null || !profile.getParentKey().equals(parentKey)) {
+      QualityProfileDto parentProfile = db.qualityProfileDao().getNonNullByKey(dbSession, parentKey);
+      if (isDescendant(dbSession, profile, parentProfile)) {
+        throw new BadRequestException("Please do not select a child profile as parent.");
+      }
+      removeParent(dbSession, profile);
+
+      // set new parent
+      profile.setParent(parentKey.name());
+      db.qualityProfileDao().update(dbSession, profile);
+      for (ActiveRuleDto parentActiveRule : db.activeRuleDao().findByProfileKey(dbSession, parentKey)) {
+        RuleActivation activation = new RuleActivation(ActiveRuleKey.of(key, parentActiveRule.getKey().ruleKey()));
+        activate(dbSession, activation);
+      }
     }
   }
 

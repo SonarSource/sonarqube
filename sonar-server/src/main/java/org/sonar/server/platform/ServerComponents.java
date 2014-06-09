@@ -178,6 +178,7 @@ import org.sonar.server.qualitygate.ws.QGatesWs;
 import org.sonar.server.qualityprofile.BuiltInProfiles;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileCopier;
+import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.qualityprofile.QProfileOperations;
 import org.sonar.server.qualityprofile.QProfileProjectLookup;
@@ -436,6 +437,7 @@ class ServerComponents {
     pico.addSingleton(RuleActivator.class);
     pico.addSingleton(QProfileService.class);
     pico.addSingleton(RuleActivatorContextFactory.class);
+    pico.addSingleton(QProfileFactory.class);
     pico.addSingleton(QProfileCopier.class);
     pico.addSingleton(QProfileBackuper.class);
     pico.addSingleton(QProfileReset.class);

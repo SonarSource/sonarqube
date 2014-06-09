@@ -24,7 +24,6 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
@@ -48,15 +47,17 @@ public class QProfileService implements ServerComponent {
   private final DbClient db;
   private final IndexClient index;
   private final RuleActivator ruleActivator;
+  private final QProfileFactory factory;
   private final QProfileBackuper backuper;
   private final QProfileCopier copier;
   private final QProfileReset reset;
 
-  public QProfileService(DbClient db, IndexClient index, RuleActivator ruleActivator, QProfileBackuper backuper,
+  public QProfileService(DbClient db, IndexClient index, RuleActivator ruleActivator, QProfileFactory factory, QProfileBackuper backuper,
                          QProfileCopier copier, QProfileReset reset) {
     this.db = db;
     this.index = index;
     this.ruleActivator = ruleActivator;
+    this.factory = factory;
     this.backuper = backuper;
     this.copier = copier;
     this.reset = reset;
@@ -160,7 +161,7 @@ public class QProfileService implements ServerComponent {
 
   public void delete(QualityProfileKey key) {
     verifyAdminPermission();
-    // TODO
+    factory.delete(key);
   }
 
   public void rename(QualityProfileKey key, String newName) {
@@ -189,16 +190,7 @@ public class QProfileService implements ServerComponent {
    */
   public void setDefault(QualityProfileKey key) {
     verifyAdminPermission();
-    DbSession dbSession = db.openSession(false);
-    try {
-      QualityProfileDto profile = db.qualityProfileDao().getNonNullByKey(dbSession, key);
-      db.propertiesDao().setProperty(new PropertyDto()
-        .setKey("sonar.profile." + profile.getLanguage())
-        .setValue(profile.getName()));
-      dbSession.commit();
-    } finally {
-      dbSession.close();
-    }
+    factory.setDefault(key);
   }
 
   private void verifyAdminPermission() {

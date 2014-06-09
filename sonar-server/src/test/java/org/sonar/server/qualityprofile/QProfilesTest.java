@@ -142,12 +142,6 @@ public class QProfilesTest {
   }
 
   @Test
-  public void delete_profile() throws Exception {
-    qProfiles.deleteProfile(1);
-    verify(profileOperations).deleteProfile(eq(1), any(UserSession.class));
-  }
-
-  @Test
   public void projects() throws Exception {
     qProfiles.projects(1);
     verify(projectLookup).projects(1);

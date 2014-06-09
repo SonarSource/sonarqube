@@ -104,13 +104,13 @@
           </td>
 
           <td>
-            <% if !is_default_profile && (children_count(profile) == 0) %>
+            <% if !is_default_profile %>
               <%= link_to_action message('delete'), "#{ApplicationController.root_context}/profiles/delete/#{profile.id()}",
                                  :class => 'link-action link-red',
                                  :id => "delete_#{key.parameterize}",
                                  :confirm_button => message('delete'),
                                  :confirm_title => 'quality_profiles.delete_confirm_title',
-                                 :confirm_msg => 'quality_profiles.are_you_sure_want_delete_profile_x',
+                                 :confirm_msg => 'quality_profiles.are_you_sure_want_delete_profile_x_and_descendants',
                                  :confirm_msg_params => [profile.name()]
               -%>
             <% end %>

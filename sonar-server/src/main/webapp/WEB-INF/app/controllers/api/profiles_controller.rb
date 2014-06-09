@@ -83,12 +83,11 @@ class Api::ProfilesController < Api::ApiController
     access_denied unless has_role?(:profileadmin)
     require_parameters :language, :name
 
-    profile = Internal.quality_profiles.profile(params[:name], params[:language])
-    if profile
-      Internal.quality_profiles.deleteProfile(profile.id())
+    profile_key=Java::OrgSonarCoreQualityprofileDb::QualityProfileKey.of(params[:name], params[:language])
+    call_backend do
+      Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).delete(profile_key)
     end
-
-    render_success(profile ? 'Profile destroyed' : 'Profile did not exist')
+    render_success('Profile destroyed')
   end
 
   # POST /api/profiles/set_as_default?language=<language>&name=<name>

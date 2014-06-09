@@ -101,10 +101,6 @@ public class QProfiles implements ServerComponent {
     return profileLookup.ancestors(profile);
   }
 
-  public void deleteProfile(int profileId) {
-    operations.deleteProfile(profileId, UserSession.get());
-  }
-
 
   // PROJECTS
 

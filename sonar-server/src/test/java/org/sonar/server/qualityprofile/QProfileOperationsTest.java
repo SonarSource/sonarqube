@@ -34,14 +34,11 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.properties.PropertiesDao;
-import org.sonar.core.properties.PropertyDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
@@ -51,10 +48,14 @@ import static org.elasticsearch.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfileOperationsTest {
@@ -67,9 +68,6 @@ public class QProfileOperationsTest {
 
   @Mock
   QualityProfileDao qualityProfileDao;
-
-  @Mock
-  ActiveRuleDao activeRuleDao;
 
   @Mock
   PropertiesDao propertiesDao;
@@ -94,15 +92,6 @@ public class QProfileOperationsTest {
   public void setUp() throws Exception {
     when(myBatis.openSession(false)).thenReturn(session);
 
-    // Associate an id when inserting an object to simulate the db id generator
-    doAnswer(new Answer() {
-      public Object answer(InvocationOnMock invocation) {
-        Object[] args = invocation.getArguments();
-        ActiveRuleDto dto = (ActiveRuleDto) args[0];
-        dto.setId(currentId++);
-        return null;
-      }
-    }).when(activeRuleDao).insert(any(DbSession.class), any(ActiveRuleDto.class));
     doAnswer(new Answer() {
       public Object answer(InvocationOnMock invocation) {
         Object[] args = invocation.getArguments();
@@ -112,7 +101,7 @@ public class QProfileOperationsTest {
       }
     }).when(qualityProfileDao).insert(any(DbSession.class), any(QualityProfileDto.class));
 
-    operations = new QProfileOperations(myBatis, qualityProfileDao, activeRuleDao, propertiesDao, exporter, dryRunCache, profileLookup);
+    operations = new QProfileOperations(myBatis, qualityProfileDao, propertiesDao, exporter, dryRunCache, profileLookup);
   }
 
   @Test
@@ -217,41 +206,5 @@ public class QProfileOperationsTest {
     assertThat(child.getParent()).isEqualTo("Default profile");
 
     verify(session).commit();
-  }
-
-  @Test
-  public void delete_profile() {
-    when(qualityProfileDao.selectById(1, session)).thenReturn(new QualityProfileDto().setId(1).setName("Default").setLanguage("java"));
-    when(profileLookup.isDeletable(any(QProfile.class), eq(session))).thenReturn(true);
-
-    operations.deleteProfile(1, authorizedUserSession);
-
-    QProfile profile = new QProfile().setId(1).setName("Default").setLanguage("java");
-    verify(session).commit();
-
-    //FIXME fails because of some magic.
-//    verify(activeRuleDao).removeParamByProfile(profile , session);
-//    verify(activeRuleDao).deleteByProfile(profile, session);
-    verify(qualityProfileDao).delete(1, session);
-    verify(propertiesDao).deleteProjectProperties("sonar.profile.java", "Default", session);
-    verify(dryRunCache).reportGlobalModification(session);
-  }
-
-  @Test
-  public void not_delete_profile_if_not_deletable() {
-    when(qualityProfileDao.selectById(1, session)).thenReturn(new QualityProfileDto().setId(1).setName("Default").setLanguage("java"));
-    when(profileLookup.isDeletable(any(QProfile.class), eq(session))).thenReturn(false);
-
-    try {
-      operations.deleteProfile(1, authorizedUserSession);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class);
-    }
-
-    verify(session, never()).commit();
-    verifyZeroInteractions(activeRuleDao);
-    verify(qualityProfileDao, never()).delete(anyInt(), eq(session));
-    verifyZeroInteractions(propertiesDao);
   }
 }

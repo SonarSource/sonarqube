@@ -29,7 +29,6 @@ import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
@@ -42,17 +41,15 @@ public class QProfileOperations implements ServerComponent {
 
   private final MyBatis myBatis;
   private final QualityProfileDao dao;
-  private final ActiveRuleDao activeRuleDao;
   private final PropertiesDao propertiesDao;
   private final QProfileRepositoryExporter exporter;
   private final PreviewCache dryRunCache;
   private final QProfileLookup profileLookup;
 
-  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, ActiveRuleDao activeRuleDao, PropertiesDao propertiesDao,
+  public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, PropertiesDao propertiesDao,
                             QProfileRepositoryExporter exporter, PreviewCache dryRunCache, QProfileLookup profileLookup) {
     this.myBatis = myBatis;
     this.dao = dao;
-    this.activeRuleDao = activeRuleDao;
     this.propertiesDao = propertiesDao;
     this.exporter = exporter;
     this.dryRunCache = dryRunCache;
@@ -116,35 +113,6 @@ public class QProfileOperations implements ServerComponent {
     } finally {
       MyBatis.closeQuietly(session);
     }
-  }
-
-  public void deleteProfile(int profileId, UserSession userSession) {
-    checkPermission(userSession);
-    DbSession session = myBatis.openSession(false);
-    try {
-      QualityProfileDto profile = findNotNull(profileId, session);
-      QProfile qProfile = QProfile.from(profile);
-      if (!profileLookup.isDeletable(QProfile.from(profile), session)) {
-        throw new BadRequestException("This profile can not be deleted");
-      } else {
-        deleteProfile(qProfile, session);
-      }
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  /**
-   * Delete profile without checking permission or that profile is existing or that profile can be deleted (is not defined as default, has no children, etc.)
-   */
-  public void deleteProfile(QProfile profile, DbSession session) {
-    activeRuleDao.removeParamByProfile(session, profile);
-    activeRuleDao.deleteByProfile(session, profile);
-    dao.delete(profile.id(), session);
-    propertiesDao.deleteProjectProperties(PROFILE_PROPERTY_PREFIX + profile.language(), profile.name(), session);
-    //esActiveRule.deleteActiveRulesFromProfile(profile.id());
-    dryRunCache.reportGlobalModification(session);
   }
 
   private void checkPermission(UserSession userSession) {

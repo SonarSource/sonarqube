@@ -89,9 +89,9 @@ class ProfilesController < ApplicationController
     verify_post_request
     require_parameters 'id'
 
-    profile_id = params[:id].to_i
+    profile_key = profile_id_to_key(params[:id].to_i)
     call_backend do
-      Internal.quality_profiles.deleteProfile(profile_id)
+      Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).delete(profile_key)
     end
 
     redirect_to(:controller => 'profiles', :action => 'index')

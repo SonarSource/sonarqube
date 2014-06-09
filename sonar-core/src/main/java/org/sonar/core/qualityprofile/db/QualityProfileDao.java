@@ -21,6 +21,7 @@
 package org.sonar.core.qualityprofile.db;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DaoComponent;
@@ -233,6 +234,18 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
 
   public List<QualityProfileDto> findByParentKey(DbSession session, QualityProfileKey key) {
     return session.getMapper(QualityProfileMapper.class).selectChildren(key.name(), key.lang());
+  }
+
+  /**
+   * All descendants, in the top-down order.
+   */
+  public List<QualityProfileDto> findDescendants(DbSession session, QualityProfileKey key) {
+    List<QualityProfileDto> descendants = Lists.newArrayList();
+    for (QualityProfileDto child : findByParentKey(session, key)) {
+      descendants.add(child);
+      descendants.addAll(findDescendants(session, child.getKey()));
+    }
+    return descendants;
   }
 
   /**

@@ -1,7 +1,0 @@
-<dataset>
-
-  <rules_profiles id="1" version="2" used_profile="false" name="parent" language="java" parent_name="[null]" />
-  
-  <rules_profiles id="2" version="2" used_profile="false" name="child" language="java" parent_name="parent" />
-
-</dataset>

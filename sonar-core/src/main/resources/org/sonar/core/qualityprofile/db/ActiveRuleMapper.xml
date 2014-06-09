@@ -237,6 +237,11 @@
     where ar.profile_id=#{profileId}
   </select>
 
+  <select id="selectAllParams" resultType="ActiveRuleParam">
+    select
+    <include refid="activeRuleParamColumns"/>
+    from active_rule_parameters p
+  </select>
 
 </mapper>
 

@@ -135,6 +135,14 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
     return mapper(dbSession).selectByRuleId(rule.getId());
   }
 
+  public List<ActiveRuleDto> findAll(DbSession dbSession) {
+    return mapper(dbSession).selectAll();
+  }
+
+  public List<ActiveRuleParamDto> findAllParams(DbSession dbSession) {
+    return mapper(dbSession).selectAllParams();
+  }
+
   /**
    * Nested DTO ActiveRuleParams
    */
@@ -170,12 +178,6 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
     Preconditions.checkNotNull(activeRuleParam.getId(), "ActiveRuleParam is not persisted");
     mapper(session).updateParameter(activeRuleParam);
     this.enqueueUpdate(activeRuleParam, activeRule.getKey(), session);
-  }
-
-  public ActiveRuleParamDto getParamsByActiveRuleAndKey(DbSession session, ActiveRuleDto activeRule, String key) {
-    Preconditions.checkNotNull(activeRule.getId(), "ActiveRule is not persisted");
-    Preconditions.checkNotNull(key, "Param key cannot be null");
-    return mapper(session).selectParamByActiveRuleAndKey(activeRule.getId(), key);
   }
 
   public void deleteByProfileKey(DbSession session, QualityProfileKey profileKey) {
