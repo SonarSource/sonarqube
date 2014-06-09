@@ -8,15 +8,36 @@ define [
 
   class LanguageFilterView extends ChoiceFilters.ChoiceFilterView
 
+    modelEvents:
+      'change:value': 'onChangeValue'
+      'change:enabled': 'focus',
+
+
     initialize: ->
       super
       @app = @model.get 'app'
       @listenTo @app.qualityProfileFilter, 'change:value', @onChangeProfile
+      @selectedFromProfile = false
 
     onChangeProfile: ->
       profiles = @app.qualityProfileFilter.get 'value'
       if _.isArray(profiles) && profiles.length > 0
         profile = _.findWhere @app.qualityProfiles, key: profiles[0]
-        @restore profile.lang
-        # force alignment of details list
-        @app.qualityProfileFilter.view.showDetails()
+        @options.filterBarView.moreCriteriaFilter.view.detailsView.enableByProperty(@detailsView.model.get 'property')
+        @choices.each (item) -> item.set 'checked', item.id == profile.lang
+        @refreshValues()
+        @selectedFromProfile = true
+      else if @selectedFromProfile
+        @choices.each (item) -> item.set 'checked', false
+        @refreshValues()
+
+    onChangeValue: ->
+      @selectedFromProfile = false
+      @renderBase()
+
+
+    refreshValues: ->
+      @detailsView.updateValue()
+      @detailsView.updateLists()
+      @render()
+      @hideDetails()

@@ -223,6 +223,9 @@ requirejs [
   App.getQualityProfilesForLanguage = (language_key) ->
     _.filter App.qualityProfiles, (p) => p.lang == language_key
 
+  App.getQualityProfileByKey = (profile_key) ->
+    _.findWhere App.qualityProfiles, key: profile_key
+
   App.showRule = (ruleKey) ->
     App.layout.showSpinner 'detailsRegion'
     jQuery.ajax
@@ -343,7 +346,7 @@ requirejs [
       property: 'activation'
       type: ActivationFilterView
       enabled: false
-      optional: false
+      optional: true
       multiple: false
       qualityProfileFilter: @qualityProfileFilter
       choices:

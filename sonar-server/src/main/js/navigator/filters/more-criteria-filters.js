@@ -13,10 +13,23 @@ define([
     },
 
 
-    enableFilter: function(e) {
-      var id = $j(e.target).data('id');
+    enableById: function(id) {
       this.model.view.options.filterBarView.enableFilter(id);
       this.model.view.hideDetails();
+    },
+
+
+    enableByProperty: function(property) {
+      var filter = _.find(this.model.get('filters'), function(filter) { return filter.get('property') === property; });
+      if (filter) {
+        this.enableById(filter.cid);
+      }
+    },
+
+
+    enableFilter: function(e) {
+      var id = $j(e.target).data('id');
+      this.enableById(id);
       this.updateCurrent(0);
     },
 

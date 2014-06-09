@@ -6,39 +6,52 @@ define [
   InheritanceFilterView
 ) ->
 
-  class DetailsActivationFilterView extends ChoiceFilters.DetailsChoiceFilterView
-
-    onCheck: (e) ->
-      id = jQuery(e.target).val()
-      selected = @options.filterView.choices.findWhere checked: true
-      unless id == selected
-        @options.filterView.choices.each (item) -> item.set 'checked', item.id == id
-      else
-        e.preventDefault()
-      @updateValue()
-      @updateLists()
-
-
-
-  class ActivationFilterView extends InheritanceFilterView
+  class ActivationFilterView extends ChoiceFilters.ChoiceFilterView
     tooltip: 'coding_rules.filters.activation.help'
 
-
     initialize: ->
-      super detailsView: DetailsActivationFilterView
+      super
+      @qualityProfileFilter = @model.get 'qualityProfileFilter'
+      @listenTo @qualityProfileFilter, 'change:value', @onChangeQualityProfile
+      @onChangeQualityProfile()
 
 
     onChangeQualityProfile: ->
-      qualityProfile = @qualityProfileFilter.get 'value'
-      if _.isArray(qualityProfile) && qualityProfile.length == 1 then @makeActive() else @makeInactive()
+      qualityProfileKey = @qualityProfileFilter.get 'value'
+      if _.isArray(qualityProfileKey) && qualityProfileKey.length == 1
+        @makeActive()
+      else
+        @makeInactive()
 
 
     makeActive: ->
-      @restore('true')
-      super
+      @model.set inactive: false, title: ''
+      @model.trigger 'change:enabled'
+      unless @model.get 'value'
+        @choices.each (model) -> model.set 'checked', model.id == 'true'
+      @$el.removeClass('navigator-filter-inactive').prop 'title', ''
+      @options.filterBarView.moreCriteriaFilter.view.detailsView.enableByProperty(@detailsView.model.get 'property')
+      @hideDetails()
+
+
+    makeInactive: ->
+      @model.set inactive: true, title: t @tooltip
+      @model.trigger 'change:enabled'
+      @choices.each (model) -> model.set 'checked', false
+      @detailsView.updateLists()
+      @detailsView.updateValue()
+      @$el.addClass('navigator-filter-inactive').prop 'title', t @tooltip
+
+
+    showDetails: ->
+      super unless @$el.is '.navigator-filter-inactive'
+
 
     restore: (value) ->
-      @choices.each (item) -> item.set 'checked', item.id == value
-      @detailsView.updateValue()
-      @detailsView.updateLists()
-      @render()
+      value = value.split(',') if _.isString(value)
+      if @choices && value.length > 0
+        @choices.each (model) -> model.set 'checked', value.indexOf(model.id) >= 0
+        @model.set value: value, enabled: true
+        @onChangeQualityProfile()
+      else
+        @clear()
