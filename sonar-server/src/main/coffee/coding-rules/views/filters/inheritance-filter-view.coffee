@@ -19,21 +19,15 @@ define [
       qualityProfileKey = @qualityProfileFilter.get 'value'
       if _.isArray(qualityProfileKey) && qualityProfileKey.length == 1
         qualityProfile = @options.app.getQualityProfileByKey qualityProfileKey[0]
-        console.log qualityProfile
         if qualityProfile.parent
-          console.log 'has parent ' + qualityProfile.parent
           parentQualityProfile = @options.app.getQualityProfile qualityProfile.parent
           if parentQualityProfile
-            console.log 'found parent'
             @makeActive()
           else
-            console.log 'parent not found'
             @makeInactive()
         else
-          console.log 'no parent'
           @makeInactive()
       else
-        console.log 'no quality profile'
         @makeInactive()
 
 
