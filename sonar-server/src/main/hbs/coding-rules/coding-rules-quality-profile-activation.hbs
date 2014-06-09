@@ -55,7 +55,7 @@
   </div>
 
   <div class="modal-foot">
-    <button id="coding-rules-quality-profile-activation-activate">
+    <button id="coding-rules-quality-profile-activation-activate" {{#unless qualityProfiles}}disabled="disabled"{{/unless}}>
       {{#if change}}{{t 'save'}}{{else}}{{t 'coding_rules.activate'}}{{/if}}
     </button>
     <a id="coding-rules-quality-profile-activation-cancel" class="action">{{t 'cancel'}}</a>
