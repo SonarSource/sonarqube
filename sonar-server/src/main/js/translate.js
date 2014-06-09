@@ -35,7 +35,7 @@
         key = args.shift(),
         storageKey = 'l10n.' + key,
         message = localStorage.getItem(storageKey);
-    if (!message) {
+    if (!message && window.messages) {
       message = window.messages[key];
     }
     if (message) {
