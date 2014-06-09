@@ -25,6 +25,7 @@ define [
 
     change: (e) ->
       @model.set 'value', $j(e.target).val()
+      @options.app.codingRules.sorting = sort: '', asc: ''
       @options.app.fetchFirstPage()
 
 

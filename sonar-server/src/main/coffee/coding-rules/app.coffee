@@ -110,12 +110,20 @@ requirejs [
 
 
   App.restoreSorting = (params) ->
-#    sort = _.findWhere(params, key: 's')   || {'s': ''}
-#    asc  = _.findWhere(params, key: 'asc') || {'asc': ''}
-#    if @codingRules
-#      @codingRules.sorting =
-#        sort: sort.s
-#        asc: asc.asc
+    sort = _.findWhere(params, key: 'sort')
+    asc = _.findWhere(params, key: 'asc')
+
+    if (sort && asc)
+      @codingRules.sorting =
+        sort: sort.value
+        asc: asc.value =='true'
+
+
+  App.restoreDefaultSorting = ->
+    params = []
+    params.push(key: 'sort', value: 'createdAt')
+    params.push(key: 'asc', value: false)
+    @restoreSorting params
 
 
   App.storeQuery = (query, sorting) ->
@@ -259,7 +267,7 @@ requirejs [
   # Define coding rules
   App.addInitializer ->
     @codingRules = new Backbone.Collection
-    @codingRules.sorting = sort: '', asc: ''
+    @restoreDefaultSorting()
 
 
   # Construct status bar

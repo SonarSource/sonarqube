@@ -22,6 +22,7 @@ define [
 
 
     emptyQuery: ->
+      @app.restoreDefaultSorting()
       @index('')
 
 
