@@ -92,12 +92,14 @@ class InitialSchema < ActiveRecord::Migration
 
     create_table :rules do |t|
       t.column :name,                :string,    :null => false, :limit => 192
-      t.column :rules_category_id,   :integer,   :null => false
       t.column :plugin_rule_key,     :string,    :null => false, :limit => 200
-      t.column :plugin_config_key,   :string,    :null => false, :limit => 200
+      t.column :plugin_config_key,   :string,    :null => true, :limit => 200
       t.column :plugin_name,         :string,    :null => false, :limit => 255
       t.column :description,         :text,      :null => true
       t.column :priority, :integer, :null => true
+      t.column :enabled, :boolean, :null => true
+      t.column :cardinality, :string, :null => true, :limit => 10
+      t.column :parent_id, :integer, :null => true
     end
 
     create_table :rule_failures do |t|
@@ -111,7 +113,7 @@ class InitialSchema < ActiveRecord::Migration
     create_table :rules_parameters do |t|
       t.column :rule_id,             :integer,   :null => false
       t.column :name,                :string,    :null => false, :limit => 128
-      t.column :description,         :string,    :null => false, :limit => 4000
+      t.column :description,         :string,    :null => true, :limit => 4000
       t.column :param_type,          :string,    :null => false, :limit => 512
     end
 

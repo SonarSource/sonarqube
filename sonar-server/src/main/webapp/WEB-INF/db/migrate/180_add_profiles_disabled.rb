@@ -23,17 +23,8 @@
 #
 class AddProfilesDisabled < ActiveRecord::Migration
 
-  class RulesProfile < ActiveRecord::Base
-  end
-
   def self.up
     add_column 'rules_profiles', 'enabled', :boolean, :null => false, :default => true
-
-    RulesProfile.reset_column_information
-    RulesProfile.find(:all).each do |profile|
-      profile.enabled=true
-      profile.save
-    end
   end
 
 end
