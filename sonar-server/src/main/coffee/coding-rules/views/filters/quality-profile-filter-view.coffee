@@ -52,3 +52,10 @@ define [
       if currentValue
         @restore(currentValue)
       @render()
+
+    render: ->
+      super
+      if @model.get 'value'
+        @$el.addClass('navigator-filter-context')
+      else
+        @$el.removeClass('navigator-filter-context')
