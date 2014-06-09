@@ -28,30 +28,31 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.qualityprofile.QProfileResult;
 import org.sonar.server.qualityprofile.QProfileService;
 
-public class QProfileRecreateBuiltInAction implements RequestHandler {
+public class QProfileRestoreBuiltInAction implements RequestHandler {
 
   private final QProfileService service;
 
-  public QProfileRecreateBuiltInAction(QProfileService service) {
+  public QProfileRestoreBuiltInAction(QProfileService service) {
     this.service = service;
   }
 
   void define(WebService.NewController controller) {
-    WebService.NewAction restoreDefault = controller.createAction("recreate_built_in")
-      .setDescription("Recreate Built-in Profiles")
+    WebService.NewAction restoreDefault = controller.createAction("restore_built_in")
+      .setDescription("Restore built-in profiles from the definitions declared by plugins. " +
+        "Missing profiles are created, existing ones are updated.")
       .setSince("4.4")
       .setPost(true)
       .setHandler(this);
     restoreDefault.createParam("language")
-      .setDescription("Recreate built-in profiles for this language")
+      .setDescription("Restore the built-in profiles defined for this language")
       .setExampleValue("java")
       .setRequired(true);
   }
 
   @Override
   public void handle(Request request, Response response) {
-    final String language = request.mandatoryParam("language");
-    service.resetBuiltInProfilesForLanguage(language);
+    String language = request.mandatoryParam("language");
+    service.restoreBuiltInProfilesForLanguage(language);
 
     // TODO
     QProfileResult result = new QProfileResult();

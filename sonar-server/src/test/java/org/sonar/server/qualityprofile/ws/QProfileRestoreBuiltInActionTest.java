@@ -25,17 +25,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.server.qualityprofile.QProfileResult;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.ws.WsTester;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class QProfileRecreateBuiltInActionTest {
+public class QProfileRestoreBuiltInActionTest {
 
   @Mock
   QProfileService profileService;
@@ -47,7 +44,7 @@ public class QProfileRecreateBuiltInActionTest {
     QProfileService profileService = mock(QProfileService.class);
     RuleService ruleService = mock(RuleService.class);
     tester = new WsTester(new QProfilesWs(
-      new QProfileRecreateBuiltInAction(this.profileService),
+      new QProfileRestoreBuiltInAction(this.profileService),
       new RuleActivationActions(profileService),
       new BulkRuleActivationActions(profileService, ruleService)));
   }
@@ -56,7 +53,7 @@ public class QProfileRecreateBuiltInActionTest {
   public void return_empty_result_when_no_infos_or_warnings() throws Exception {
     //when(profileService.resetBuiltInProfilesForLanguage("java")).thenReturn(new QProfileResult());
 
-    WsTester.TestRequest request = tester.newPostRequest("api/qualityprofiles", "recreate_built_in").setParam("language", "java");
+    WsTester.TestRequest request = tester.newPostRequest("api/qualityprofiles", "restore_built_in").setParam("language", "java");
     request.execute().assertNoContent();
   }
 

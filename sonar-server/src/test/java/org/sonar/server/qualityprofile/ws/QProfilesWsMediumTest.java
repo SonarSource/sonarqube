@@ -52,11 +52,10 @@ import static org.fest.assertions.Fail.fail;
 
 public class QProfilesWsMediumTest {
 
-
   @ClassRule
   public static ServerTester tester = new ServerTester();
 
-  private static final String API_BUILT_IN_METHOD = "recreate_built_in";
+  private static final String API_BUILT_IN_METHOD = "restore_built_in";
 
   QProfilesWs ws;
   DbClient db;

@@ -145,7 +145,7 @@ public class QProfileService implements ServerComponent {
     restore(new StringReader(backup));
   }
 
-  public void resetBuiltInProfilesForLanguage(String lang) {
+  public void restoreBuiltInProfilesForLanguage(String lang) {
     verifyAdminPermission();
     reset.resetLanguage(lang);
   }

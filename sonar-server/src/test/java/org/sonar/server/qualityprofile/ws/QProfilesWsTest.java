@@ -38,7 +38,7 @@ public class QProfilesWsTest {
   public void setUp() {
     QProfileService profileService = mock(QProfileService.class);
     RuleService ruleService = mock(RuleService.class);
-    controller = new WsTester(new QProfilesWs(new QProfileRecreateBuiltInAction(
+    controller = new WsTester(new QProfilesWs(new QProfileRestoreBuiltInAction(
       mock(QProfileService.class)),
       new RuleActivationActions(profileService),
       new BulkRuleActivationActions(profileService, ruleService)
@@ -54,8 +54,8 @@ public class QProfilesWsTest {
   }
 
   @Test
-  public void define_recreate_built_action() throws Exception {
-    WebService.Action restoreProfiles = controller.action("recreate_built_in");
+  public void define_restore_built_action() throws Exception {
+    WebService.Action restoreProfiles = controller.action("restore_built_in");
     assertThat(restoreProfiles).isNotNull();
     assertThat(restoreProfiles.isPost()).isTrue();
     assertThat(restoreProfiles.params()).hasSize(1);

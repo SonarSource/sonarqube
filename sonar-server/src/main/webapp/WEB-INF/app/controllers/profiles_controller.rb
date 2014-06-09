@@ -59,24 +59,24 @@ class ProfilesController < ApplicationController
     redirect_to :action => 'index'
   end
 
-  # Modal window to recreate built-in profiles
-  # GET /profiles/recreate_built_in_form/<profile id>
-  def recreate_built_in_form
+  # Modal window to restore built-in profiles
+  # GET /profiles/restore_built_in_form/<profile id>
+  def restore_built_in_form
     verify_ajax_request
     require_parameters 'language'
     @language = java_facade.getLanguages().find { |l| l.getKey()==params[:language].to_s }
     call_backend do
       @builtin_profile_names = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).builtInProfileNamesForLanguage(params[:language].to_s)
     end
-    render :partial => 'profiles/recreate_built_in_form'
+    render :partial => 'profiles/restore_built_in_form'
   end
 
-  # POST /profiles/recreate_built_in_form?language=<language>
-  def recreate_built_in
+  # POST /profiles/restore_built_in?language=<language>
+  def restore_built_in
     verify_post_request
     require_parameters 'language'
     call_backend do
-      Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).resetBuiltInProfilesForLanguage(params[:language].to_s)
+      Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).restoreBuiltInProfilesForLanguage(params[:language].to_s)
       #flash_result(@result)
     end
     redirect_to :action => 'index'

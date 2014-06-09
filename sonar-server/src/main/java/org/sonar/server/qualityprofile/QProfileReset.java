@@ -68,6 +68,10 @@ public class QProfileReset implements ServerComponent {
     return builtInProfiles.byLanguage(language);
   }
 
+  /**
+   * Reset built-in profiles for the given language. Missing profiles are created and
+   * existing ones are updated
+   */
   void resetLanguage(String language) {
     ListMultimap<String, RulesProfile> profilesByName = loadDefinitionsGroupedByName(language);
     for (Map.Entry<String, Collection<RulesProfile>> entry : profilesByName.asMap().entrySet()) {
