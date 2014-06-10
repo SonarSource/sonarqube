@@ -20,9 +20,10 @@
 package org.sonar.batch.rule;
 
 import org.junit.Test;
+import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.jpa.dao.ProfilesDao;
+import org.sonar.api.rules.RuleFinder;
 
 import java.util.Arrays;
 
@@ -34,18 +35,17 @@ import static org.mockito.Mockito.when;
 public class RulesProfileProviderTest {
 
   ModuleQProfiles qProfiles = mock(ModuleQProfiles.class);
+  ActiveRules activeRules = mock(ActiveRules.class);
+  RuleFinder ruleFinder = mock(RuleFinder.class);
   Settings settings = new Settings();
-  ProfilesDao dao = mock(ProfilesDao.class);
   RulesProfileProvider provider = new RulesProfileProvider();
 
   @Test
   public void merge_profiles() throws Exception {
     ModuleQProfiles.QProfile qProfile = new ModuleQProfiles.QProfile(33, "Sonar way", "java", 12);
     when(qProfiles.findAll()).thenReturn(Arrays.asList(qProfile));
-    RulesProfile hibernateProfile = new RulesProfile("Sonar way", "java");
-    when(dao.getProfile("java", "Sonar way")).thenReturn(hibernateProfile);
 
-    RulesProfile profile = provider.provide(qProfiles, settings, dao);
+    RulesProfile profile = provider.provide(qProfiles, activeRules, ruleFinder, settings);
 
     // merge of all profiles
     assertThat(profile).isNotNull().isInstanceOf(RulesProfileWrapper.class);
@@ -66,10 +66,8 @@ public class RulesProfileProviderTest {
 
     ModuleQProfiles.QProfile qProfile = new ModuleQProfiles.QProfile(33, "Sonar way", "java", 12);
     when(qProfiles.findByLanguage("java")).thenReturn(qProfile);
-    RulesProfile hibernateProfile = new RulesProfile("Sonar way", "java").setVersion(12);
-    when(dao.getProfile("java", "Sonar way")).thenReturn(hibernateProfile);
 
-    RulesProfile profile = provider.provide(qProfiles, settings, dao);
+    RulesProfile profile = provider.provide(qProfiles, activeRules, ruleFinder, settings);
 
     // no merge, directly the old hibernate profile
     assertThat(profile).isNotNull();

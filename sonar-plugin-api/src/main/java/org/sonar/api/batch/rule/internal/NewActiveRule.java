@@ -34,7 +34,7 @@ public class NewActiveRule {
   final RuleKey ruleKey;
   String severity = Severity.defaultSeverity();
   Map<String, String> params = new HashMap<String, String>();
-  String internalKey;
+  String internalKey, language;
 
   NewActiveRule(RuleKey ruleKey) {
     this.ruleKey = ruleKey;
@@ -47,6 +47,11 @@ public class NewActiveRule {
 
   public NewActiveRule setInternalKey(@Nullable String internalKey) {
     this.internalKey = internalKey;
+    return this;
+  }
+
+  public NewActiveRule setLanguage(@Nullable String language) {
+    this.language = language;
     return this;
   }
 

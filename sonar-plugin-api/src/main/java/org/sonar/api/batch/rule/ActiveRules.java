@@ -31,6 +31,7 @@ import java.util.Collection;
  * <p/>
  * Use {@link org.sonar.api.batch.rule.internal.ActiveRulesBuilder} to instantiate
  * this component in unit tests.
+ *
  * @since 4.2
  */
 public interface ActiveRules extends BatchComponent {
@@ -49,8 +50,13 @@ public interface ActiveRules extends BatchComponent {
   Collection<ActiveRule> findAll();
 
   /**
-   * The active rules for a given repository, like Findbugs
+   * The active rules for a given repository, like <code>findbugs</code>
    */
   Collection<ActiveRule> findByRepository(String repository);
+
+  /**
+   * The active rules for a given language, like <code>java</code>
+   */
+  Collection<ActiveRule> findByLanguage(String language);
 
 }

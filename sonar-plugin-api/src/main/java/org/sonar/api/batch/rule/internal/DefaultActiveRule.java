@@ -29,7 +29,7 @@ import java.util.Map;
 @Immutable
 class DefaultActiveRule implements ActiveRule {
   private final RuleKey ruleKey;
-  private final String severity, internalKey;
+  private final String severity, internalKey, language;
   private final Map<String, String> params;
 
   DefaultActiveRule(NewActiveRule newActiveRule) {
@@ -37,6 +37,7 @@ class DefaultActiveRule implements ActiveRule {
     this.internalKey = newActiveRule.internalKey;
     this.ruleKey = newActiveRule.ruleKey;
     this.params = ImmutableMap.copyOf(newActiveRule.params);
+    this.language = newActiveRule.language;
   }
 
   @Override
@@ -47,6 +48,11 @@ class DefaultActiveRule implements ActiveRule {
   @Override
   public String severity() {
     return severity;
+  }
+
+  @Override
+  public String language() {
+    return language;
   }
 
   @Override

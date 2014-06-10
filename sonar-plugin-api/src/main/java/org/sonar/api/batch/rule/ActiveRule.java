@@ -39,6 +39,11 @@ public interface ActiveRule {
   String severity();
 
   /**
+   * Language of rule, for example <code>java</code>
+   */
+  String language();
+
+  /**
    * Value of given parameter. Returns <code>null</code> if the parameter key does not
    * exist on the rule or if the parameter has no value nor default value.
    */

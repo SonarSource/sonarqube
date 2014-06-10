@@ -19,29 +19,12 @@
  */
 package org.sonar.api.rules;
 
-import javax.persistence.*;
-
-@Entity
-@Table(name = "active_rule_parameters")
 public class ActiveRuleParam implements Cloneable {
 
-  @Id
-  @Column(name = "id")
-  @GeneratedValue
   private Integer id;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "active_rule_id")
   private ActiveRule activeRule;
-
-  @ManyToOne(fetch = FetchType.LAZY, optional = true)
-  @JoinColumn(name = "rules_parameter_id")
   private RuleParam ruleParam;
-
-  @Column(name = "rules_parameter_key", updatable = false, nullable = false, length = 128)
   private String paramKey;
-
-  @Column(name = "value", updatable = false, nullable = true, length = 4000)
   private String value;
 
   public Integer getId() {

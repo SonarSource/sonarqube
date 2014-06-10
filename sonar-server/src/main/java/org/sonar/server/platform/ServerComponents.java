@@ -73,7 +73,6 @@ import org.sonar.core.timemachine.Periods;
 import org.sonar.core.user.DefaultUserFinder;
 import org.sonar.core.user.HibernateUserFinder;
 import org.sonar.jpa.dao.MeasuresDao;
-import org.sonar.jpa.dao.ProfilesDao;
 import org.sonar.jpa.dao.RulesDao;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.jpa.session.DatabaseSessionProvider;
@@ -422,7 +421,6 @@ class ServerComponents {
     // quality profile
     pico.addSingleton(XMLProfileParser.class);
     pico.addSingleton(XMLProfileSerializer.class);
-    pico.addComponent(ProfilesDao.class, false);
     pico.addSingleton(AnnotationProfileParser.class);
     pico.addSingleton(QProfiles.class);
     pico.addSingleton(QProfileLookup.class);

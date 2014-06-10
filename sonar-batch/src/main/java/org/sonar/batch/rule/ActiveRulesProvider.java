@@ -60,6 +60,7 @@ public class ActiveRulesProvider extends ProviderAdapter {
         if (rule != null) {
           NewActiveRule newActiveRule = builder.activate(rule.ruleKey());
           newActiveRule.setSeverity(activeDto.getSeverityString());
+          newActiveRule.setLanguage(rule.getLanguage());
           if (rule.getParent() != null) {
             newActiveRule.setInternalKey(rule.getParent().getConfigKey());
           } else {

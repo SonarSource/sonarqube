@@ -26,8 +26,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.profiles.RulesProfile;
 
 import javax.annotation.CheckForNull;
-import javax.persistence.*;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -35,34 +33,16 @@ import java.util.List;
 /**
  * A class to map an ActiveRule to the hibernate model
  */
-@Entity
-@Table(name = "active_rules")
 public class ActiveRule implements Cloneable {
 
   public static final String INHERITED = "INHERITED";
   public static final String OVERRIDES = "OVERRIDES";
 
-  @Id
-  @Column(name = "id")
-  @GeneratedValue
   private Integer id;
-
-  @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "rule_id", updatable = true, nullable = false)
   private Rule rule;
-
-  @Column(name = "failure_level", updatable = true, nullable = false)
-  @Enumerated(EnumType.ORDINAL)
   private RulePriority severity;
-
-  @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "profile_id", updatable = true, nullable = false)
   private RulesProfile rulesProfile;
-
-  @OneToMany(mappedBy = "activeRule", fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE })
   private List<ActiveRuleParam> activeRuleParams = new ArrayList<ActiveRuleParam>();
-
-  @Column(name = "inheritance", updatable = true, nullable = true)
   private String inheritance;
 
   /**
@@ -307,7 +287,7 @@ public class ActiveRule implements Cloneable {
   @Override
   public String toString() {
     return new ToStringBuilder(this).append("id", getId()).append("rule", rule).append("priority", severity)
-        .append("params", activeRuleParams).toString();
+      .append("params", activeRuleParams).toString();
   }
 
   @Override
@@ -330,6 +310,6 @@ public class ActiveRule implements Cloneable {
    * @since 2.6
    */
   public boolean isEnabled() {
-    return getRule()!=null && getRule().isEnabled();
+    return getRule() != null && getRule().isEnabled();
   }
 }

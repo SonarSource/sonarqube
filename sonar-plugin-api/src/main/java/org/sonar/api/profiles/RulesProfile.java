@@ -42,8 +42,6 @@ import java.util.List;
 /**
  * This class is badly named. It should be "QualityProfile". Indeed it does not relate only to rules but to metric thresholds too.
  */
-@Entity
-@Table(name = "rules_profiles")
 public class RulesProfile implements Cloneable {
 
   /**
@@ -67,30 +65,13 @@ public class RulesProfile implements Cloneable {
   @Deprecated
   public static final String SUN_CONVENTIONS_NAME = "Sun checks";
 
-  @Id
-  @Column(name = "id")
-  @GeneratedValue
   private Integer id;
-
-  @Column(name = "name", updatable = true, nullable = false)
   private String name;
-
-  @Column(name = "version", updatable = true, nullable = false)
   private int version = 1;
-
-  @Transient
   private Boolean defaultProfile = Boolean.FALSE;
-
-  @Column(name = "used_profile", updatable = true, nullable = false)
   private Boolean used = Boolean.FALSE;
-
-  @Column(name = "language", updatable = true, nullable = false, length = 20)
   private String language;
-
-  @Column(name = "parent_name", updatable = true, nullable = true)
   private String parentName;
-
-  @OneToMany(mappedBy = "rulesProfile", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REMOVE})
   private List<ActiveRule> activeRules = Lists.newArrayList();
 
   /**

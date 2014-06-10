@@ -35,14 +35,20 @@ class DefaultActiveRules implements ActiveRules {
 
   // TODO use disk-backed cache (persistit) instead of full in-memory cache ?
   private final ListMultimap<String, ActiveRule> activeRulesByRepository;
+  private final ListMultimap<String, ActiveRule> activeRulesByLanguage;
 
   public DefaultActiveRules(Collection<NewActiveRule> newActiveRules) {
-    ImmutableListMultimap.Builder<String, ActiveRule> builder = ImmutableListMultimap.builder();
+    ImmutableListMultimap.Builder<String, ActiveRule> repoBuilder = ImmutableListMultimap.builder();
+    ImmutableListMultimap.Builder<String, ActiveRule> langBuilder = ImmutableListMultimap.builder();
     for (NewActiveRule newAR : newActiveRules) {
       DefaultActiveRule ar = new DefaultActiveRule(newAR);
-      builder.put(ar.ruleKey().repository(), ar);
+      repoBuilder.put(ar.ruleKey().repository(), ar);
+      if (ar.language()!=null) {
+        langBuilder.put(ar.language(), ar);
+      }
     }
-    activeRulesByRepository = builder.build();
+    activeRulesByRepository = repoBuilder.build();
+    activeRulesByLanguage = langBuilder.build();
   }
 
   @Override
@@ -64,5 +70,10 @@ class DefaultActiveRules implements ActiveRules {
   @Override
   public Collection<ActiveRule> findByRepository(String repository) {
     return activeRulesByRepository.get(repository);
+  }
+
+  @Override
+  public Collection<ActiveRule> findByLanguage(String language) {
+    return activeRulesByLanguage.get(language);
   }
 }
