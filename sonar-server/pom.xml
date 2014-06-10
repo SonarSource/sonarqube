@@ -458,7 +458,7 @@
                 <sonar.es.http.port>9200</sonar.es.http.port>
                 <sonar.log.console>true</sonar.log.console>
                 <sonar.log.profilingLevel>FULL</sonar.log.profilingLevel>
-                <sonar.web.context>http://localhost:9000/dev</sonar.web.context>
+                <sonar.web.context>/dev/</sonar.web.context>
               </systemProperties>
             </configuration>
           </plugin>
