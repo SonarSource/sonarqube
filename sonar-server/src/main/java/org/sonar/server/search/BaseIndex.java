@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.Client;
@@ -251,7 +252,9 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   protected Map mapDomain() {
     Map<String, Object> mapping = new HashMap<String, Object>();
     mapping.put("dynamic", false);
-    mapping.put("_id", mapKey());
+    if (mapKey() != null) {
+      mapping.put("_id", mapKey());
+    }
     mapping.put("properties", mapProperties());
     LOG.debug("Index Mapping {}", mapping.get("properties"));
     return mapping;
@@ -410,10 +413,16 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     LOG.debug("UPDATE _id:{} in index {}", key, this.getIndexName());
     BulkRequestBuilder bulkRequest = getClient().prepareBulk();
     for (UpdateRequest request : requests) {
-      bulkRequest.add(request
-        .index(this.getIndexName())
-        .id(this.getKeyValue(key))
-        .type(this.getIndexType()));
+      if (request.id() == null || request.id().isEmpty()) {
+        bulkRequest.add(new IndexRequest()
+          .source(request.doc().sourceAsMap())
+          .type(this.getIndexType())
+          .index(this.getIndexName()));
+      } else {
+        bulkRequest.add(request
+          .index(this.getIndexName())
+          .type(this.getIndexType()));
+      }
     }
     bulkRequest.get();
   }
