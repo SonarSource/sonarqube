@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.sonar.core.log.Loggable;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
@@ -100,13 +101,24 @@ public class ActiveRuleChange implements Loggable {
     return parameters;
   }
 
-  public void setParameter(String key, @Nullable String value) {
+  public ActiveRuleChange setParameter(String key, @Nullable String value) {
     parameters.put(key, value);
+    return this;
   }
 
   @Override
   public Map<String, String> getDetails() {
-    return null;
+    ImmutableMap.Builder<String, String> details = ImmutableMap.<String, String>builder();
+
+    if (this.getType() != null) {
+      details.put("type", this.getType().name());
+    }
+
+    if (this.getKey() != null) {
+      details.put("key", this.getKey().toString());
+    }
+
+    return details.build();
   }
 
   @Override
