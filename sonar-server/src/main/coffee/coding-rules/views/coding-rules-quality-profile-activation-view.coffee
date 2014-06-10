@@ -108,9 +108,12 @@ define [
             else
               p
 
+      availableProfiles = @getAvailableQualityProfiles(@rule.get 'lang')
+
       _.extend super,
         rule: @rule.toJSON()
         change: @model && @model.has 'severity'
         params: params
-        qualityProfiles: @getAvailableQualityProfiles(@rule.get 'lang')
+        qualityProfiles: availableProfiles
         severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO']
+        saveEnabled: not _.isEmpty(availableProfiles) or @model.get('qProfile')
