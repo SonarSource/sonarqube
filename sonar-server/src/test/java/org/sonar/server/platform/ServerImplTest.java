@@ -121,12 +121,19 @@ public class ServerImplTest {
   @Test
   public void use_default_context_path() {
     server.start();
-    assertThat(server.getContextPath()).isEqualTo("/");
+    assertThat(server.getContextPath()).isEqualTo("");
   }
 
   @Test
   public void get_context_path_from_settings() {
     settings.setProperty("sonar.web.context", "/my_path");
+    server.start();
+    assertThat(server.getContextPath()).isEqualTo("/my_path");
+  }
+
+  @Test
+  public void sanitize_context_path_from_settings() {
+    settings.setProperty("sonar.web.context", "/my_path///");
     server.start();
     assertThat(server.getContextPath()).isEqualTo("/my_path");
   }

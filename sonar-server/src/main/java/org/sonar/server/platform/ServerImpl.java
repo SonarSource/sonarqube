@@ -73,7 +73,9 @@ public final class ServerImpl extends Server implements Startable {
 
       version = readVersion(versionPath);
       implementationBuild = read(buildProperties).getProperty("Implementation-Build");
-      contextPath = StringUtils.defaultIfBlank(settings.getString("sonar.web.context"), "/");
+      contextPath = StringUtils.defaultIfBlank(settings.getString("sonar.web.context"), "")
+        // Remove trailing slashes
+        .replaceFirst("(\\/+)$", "");
 
       sonarHome = new File(settings.getString(CoreProperties.SONAR_HOME));
       if (!sonarHome.isDirectory()) {
