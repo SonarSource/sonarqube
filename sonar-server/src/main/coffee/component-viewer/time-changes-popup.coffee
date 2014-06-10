@@ -21,7 +21,7 @@ define [
 
     enablePeriod: (e) ->
       period = $(e.currentTarget).data 'period'
-      @options.main.enablePeriod period
+      @trigger 'change', period
 
 
     serializeData: ->

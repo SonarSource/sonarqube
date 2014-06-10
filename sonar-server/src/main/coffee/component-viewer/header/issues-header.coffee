@@ -2,10 +2,12 @@ define [
   'backbone.marionette'
   'templates/component-viewer'
   'component-viewer/header/base-header'
+  'component-viewer/time-changes-popup'
 ], (
   Marionette
   Templates
   BaseHeaderView
+  TimeChangesPopupView
 ) ->
 
   $ = jQuery
@@ -17,6 +19,7 @@ define [
 
     events:
       'click .js-issues-bulk-change': 'issuesBulkChange'
+      'click .js-issues-time-changes': 'issuesTimeChanges'
 
       'click .js-filter-current-issue': 'filterByCurrentIssue'
       'click .js-filter-all-issues': 'filterByAllIssues'
@@ -38,16 +41,72 @@ define [
         openModalWindow url, {}
 
 
-    filterByCurrentIssue: (e) -> @header.filterLines e, 'filterByCurrentIssue'
-    filterByAllIssues: (e) -> @header.filterLines e, 'filterByAllIssues'
-    filterByFixedIssues: (e) -> @header.filterLines e, 'filterByFixedIssues'
-    filterByUnresolvedIssues: (e) -> @header.filterLines e, 'filterByUnresolvedIssues'
-    filterByFalsePositiveIssues: (e) -> @header.filterLines e, 'filterByFalsePositiveIssues'
+    issuesTimeChanges: (e) ->
+      e.stopPropagation()
+      $('body').click()
+      popup = new TimeChangesPopupView
+        triggerEl: $(e.currentTarget)
+        main: @options.main
+        bottom: true
+      popup.render()
+      popup.on 'change', (period) => @main.enableIssuesPeriod period
 
-    filterByRule: (e) -> @header.filterLines e, 'filterByRule', $(e.currentTarget).data 'rule'
 
-    filterByBlockerIssues: (e) -> @header.filterLines e, 'filterByBlockerIssues'
-    filterByCriticalIssues: (e) -> @header.filterLines e, 'filterByCriticalIssues'
-    filterByMajorIssues: (e) -> @header.filterLines e, 'filterByMajorIssues'
-    filterByMinorIssues: (e) -> @header.filterLines e, 'filterByMinorIssues'
-    filterByInfoIssues: (e) -> @header.filterLines e, 'filterByInfoIssues'
+    filterByCurrentIssue: (e) ->
+      @header.filterLines e, 'filterByCurrentIssue'
+      @state.set 'activeHeaderItem', '.js-filter-current-issues'
+
+
+    filterByAllIssues: (e) ->
+      @header.filterLines e, 'filterByAllIssues'
+      @state.set 'activeHeaderItem', '.js-filter-all-issues'
+
+
+    filterByFixedIssues: (e) ->
+      @header.filterLines e, 'filterByFixedIssues'
+      @state.set 'activeHeaderItem', '.js-filter-fixed-issues'
+
+
+    filterByUnresolvedIssues: (e) ->
+      @header.filterLines e, 'filterByUnresolvedIssues'
+      @state.set 'activeHeaderItem', '.js-filter-unresolved-issues'
+
+
+    filterByFalsePositiveIssues: (e) ->
+      @header.filterLines e, 'filterByFalsePositiveIssues'
+      @state.set 'activeHeaderItem', '.js-filter-false-positive-issues'
+
+
+    filterByRule: (e) ->
+      rule = $(e.currentTarget).data 'rule'
+      @header.filterLines e, 'filterByRule', rule
+      @state.set 'activeHeaderItem', ".js-filter-rule[data-rule='#{rule}']"
+
+
+    filterByBlockerIssues: (e) ->
+      @header.filterLines e, 'filterByBlockerIssues'
+      @state.set 'activeHeaderItem', '.js-filter-BLOCKER-issues'
+
+
+    filterByCriticalIssues: (e) ->
+      @header.filterLines e, 'filterByCriticalIssues'
+      @state.set 'activeHeaderItem', '.js-filter-CRITICAL-issues'
+
+
+    filterByMajorIssues: (e) ->
+      @header.filterLines e, 'filterByMajorIssues'
+      @state.set 'activeHeaderItem', '.js-filter-MAJOR-issues'
+
+
+    filterByMinorIssues: (e) ->
+      @header.filterLines e, 'filterByMinorIssues'
+      @state.set 'activeHeaderItem', '.js-filter-MINOR-issues'
+
+
+    filterByInfoIssues: (e) ->
+      @header.filterLines e, 'filterByInfoIssues'
+      @state.set 'activeHeaderItem', '.js-filter-INFO-issues'
+
+
+    serializeData: ->
+      _.extend super, period: @state.get('issuesPeriod')?.toJSON()

@@ -8,6 +8,7 @@ define [
 
     initialize: (options) ->
       super
+      @main = options.main
       @state = options.state
       @component = options.component
       @settings = options.settings
@@ -20,3 +21,4 @@ define [
         state: @state.toJSON()
         component: @component.toJSON()
         settings: @settings.toJSON()
+        periods: @main.periods.toJSON()

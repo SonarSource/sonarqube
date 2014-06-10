@@ -1,4 +1,4 @@
-{{#if component.measures.fIssues}}
+{{#ifNotEmpty state.severities}}
   <div class="component-viewer-header-expanded-bar-section">
     <div class="component-viewer-header-expanded-bar-section-title">
       {{t 'component_viewer.measure_section.severities'}}
@@ -13,9 +13,9 @@
       {{/each}}
     </ul>
   </div>
-{{/if}}
+{{/ifNotEmpty}}
 
-{{#if component.measures.fIssues}}
+{{#ifNotEmpty state.rules}}
   <div class="component-viewer-header-expanded-bar-section">
     <div class="component-viewer-header-expanded-bar-section-title">
       {{t 'component_viewer.measure_section.rules'}}
@@ -30,7 +30,7 @@
       {{/each}}
     </ul>
   </div>
-{{/if}}
+{{/ifNotEmpty}}
 
 <div class="component-viewer-header-expanded-bar-section">
   <div class="component-viewer-header-expanded-bar-section-title">
@@ -43,19 +43,14 @@
         <i class="icon-chevron-right"></i>
       </a></li>
     {{/if}}
-    {{#if component.measures.fIssues}}
-      <li><a class="item js-filter-unresolved-issues">
-        <span>{{t 'component_viewer.issues.unresolved_issues'}}</span>
-        <span class="number">{{component.measures.fIssues}}</span>
-        <i class="icon-chevron-right"></i>
-      </a></li>
-    {{/if}}
-    {{#if component.measures.fIssues}}
-      <li><a class="item js-filter-fixed-issues">
-        <span>{{t 'component_viewer.issues.fixed_issues'}}</span>
-        <i class="icon-chevron-right"></i>
-      </a></li>
-    {{/if}}
+    <li><a class="item js-filter-unresolved-issues">
+      <span>{{t 'component_viewer.issues.unresolved_issues'}}</span>
+      <i class="icon-chevron-right"></i>
+    </a></li>
+    <li><a class="item js-filter-fixed-issues">
+      <span>{{t 'component_viewer.issues.fixed_issues'}}</span>
+      <i class="icon-chevron-right"></i>
+    </a></li>
     <li><a class="item js-filter-false-positive-issues">
       <span>{{t 'component_viewer.issues.false_positive_issues'}}</span>
       <span class="number">{{component.measures.false_positive_issues}}</span>
@@ -64,13 +59,18 @@
   </ul>
 </div>
 
-{{#if state.canBulkChange}}
   <div class="component-viewer-header-expanded-bar-section component-viewer-header-expanded-bar-section-actions">
     <div class="component-viewer-header-expanded-bar-section-title">&nbsp;</div>
     <ul class="component-viewer-header-expanded-bar-section-list">
-      <li><a class="link-action js-issues-bulk-change">
-        <span><i class="icon-bulk-change"></i> {{t 'bulk_change'}}</span>
+      <li><a class="link-action js-issues-time-changes">
+        <span><i class="icon-period"></i>
+          {{#if period}}Added {{period.label}}{{else}}Time Changes{{/if}}</span>
+
       </a></li>
+      {{#if state.canBulkChange}}
+        <li><a class="link-action js-issues-bulk-change">
+          <span><i class="icon-bulk-change"></i> {{t 'bulk_change'}}</span>
+        </a></li>
+      {{/if}}
     </ul>
   </div>
-{{/if}}

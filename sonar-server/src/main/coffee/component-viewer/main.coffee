@@ -98,7 +98,6 @@ define [
         model: @source
         main: @
 
-      @period = null
       @periods = new Backbone.Collection [], model: Period
 
 
@@ -123,8 +122,8 @@ define [
       @headerRegion.show @headerView
 
 
-    requestComponent: (key, clear = false) ->
-      STATE_FIELDS = ['canBulkChange', 'canMarkAsFavourite', 'scmAvailable']
+    requestComponent: (key, clear = false, full = true) ->
+      STATE_FIELDS = ['canBulkChange', 'canMarkAsFavourite', 'tabs']
       COMPONENT_FIELDS = ['key', 'name', 'path', 'q', 'projectName', 'subProjectName', 'measures', 'fav']
 
       $.get API_COMPONENT, key: key, (data) =>
@@ -134,6 +133,7 @@ define [
         @component.set 'dir', utils.splitLongName(data.path).dir
         @component.set 'isUnitTest', data.q == 'UTS'
 
+
         # State
         stateAttributes = {}
         STATE_FIELDS.forEach (f) -> stateAttributes[f] = data[f]
@@ -141,13 +141,16 @@ define [
         stateAttributes.rules = _.sortBy rules, 'name'
         severities = data.severities.map (r) -> key: r[0], name: r[1], count: r[2]
         stateAttributes.severities = utils.sortSeverities severities
-        @state.clear silent: true
-        @state.set _.defaults stateAttributes, @state.defaults
+        if full
+          @state.clear silent: true
+          @state.set _.defaults stateAttributes, @state.defaults
+        else
+          @state.set stateAttributes
 
-        # Periods
-        @periods.reset [{}]
-        data.periods.forEach (p) => @periods.add key: p[0], label: p[1], sinceDate: new Date p[2]
-        @period = @periods.at 0
+        if full
+          # Periods
+          @periods.reset [{}]
+          data.periods.forEach (p) => @periods.add key: p[0], label: p[1], sinceDate: new Date p[2]
 
 
     requestMeasures: (key) ->
@@ -156,7 +159,8 @@ define [
         metrics = [SOURCE_METRIC_LIST, COVERAGE_METRIC_LIST, ISSUES_METRIC_LIST, DUPLICATIONS_METRIC_LIST].join ','
       else
         metrics = [ISSUES_METRIC_LIST, TESTS_METRIC_LIST]
-      $.get API_MEASURES, resource: key, metrics: metrics, (data) =>
+      data = resource: key, metrics: metrics
+      $.get API_MEASURES, data, (data) =>
         measuresList = data[0].msr || []
         measures = @component.get 'measures'
         measuresList.forEach (m) ->
@@ -212,11 +216,6 @@ define [
     hideWorkspace: (store = false) ->
       @settings.set 'workspace', false
       @storeSettings() if store
-      @render()
-
-
-    enablePeriod: (period) ->
-      @period = @periods.findWhere key: period
       @render()
 
 

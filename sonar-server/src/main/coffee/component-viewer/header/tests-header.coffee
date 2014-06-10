@@ -46,5 +46,5 @@ define [
           triggerEl: $(e.currentTarget)
           collection: new Backbone.Collection data.files
           test: test
-          main: @options.main
+          main: @main
         popup.render()

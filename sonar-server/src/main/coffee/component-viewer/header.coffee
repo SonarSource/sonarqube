@@ -8,8 +8,6 @@ define [
   'component-viewer/header/duplications-header'
   'component-viewer/header/tests-header'
 
-  'component-viewer/time-changes-popup'
-
   'common/handlebars-extensions'
 ], (
   Marionette
@@ -20,8 +18,6 @@ define [
   CoverageHeaderView
   DuplicationsHeaderView
   TestsHeaderView
-
-  TimeChangesPopupView
 ) ->
 
   $ = jQuery
@@ -61,8 +57,6 @@ define [
       'click .js-toggle-duplications': 'toggleDuplications'
       'click .js-toggle-scm': 'toggleSCM'
 
-      'click .component-viewer-header-time-changes a': 'showTimeChangesPopup'
-
 
     initialize: (options) ->
       options.main.settings.on 'change', => @changeSettings()
@@ -73,6 +67,12 @@ define [
 
     onRender: ->
       @delegateEvents()
+      activeHeaderTab = @state.get 'activeHeaderTab'
+      activeHeaderItem = @state.get 'activeHeaderItem'
+      if activeHeaderTab
+        @enableBar(activeHeaderTab).done =>
+          if activeHeaderItem
+            @enableBarItem activeHeaderItem
 
 
     toggleFavorite: ->
@@ -120,8 +120,12 @@ define [
         @state.set 'activeHeaderTab', scope
         bar = _.findWhere BARS, scope: scope
         @barRegion.show new bar.view
-          state: @state, component: @component, settings: @settings, source: @model, header: @
+          main: @options.main, state: @state, component: @component, settings: @settings, source: @model, header: @
         @ui.expandLinks.filter("[data-scope=#{scope}]").addClass 'active'
+
+
+    enableBarItem: (item) ->
+      @$(item).click()
 
 
     showExpandedBar: (e) ->
@@ -157,13 +161,8 @@ define [
     toggleWorkspace: (e) -> @toggleSetting e, @options.main.showWorkspace, @options.main.hideWorkspace
 
 
-    showTimeChangesPopup: (e) ->
-      e.stopPropagation()
-      $('body').click()
-      popup = new TimeChangesPopupView
-        triggerEl: $(e.currentTarget)
-        main: @options.main
-      popup.render()
+    showTimeChangesSpinner: ->
+      @$('.component-viewer-header-time-changes').html '<i class="spinner spinner-margin"></i>'
 
 
     filterLines: (e, methodName, extra) ->
@@ -189,4 +188,3 @@ define [
       showSettings: @showSettings
       component: component
       currentIssue: @options.main.currentIssue
-      period: @options.main.period?.toJSON()

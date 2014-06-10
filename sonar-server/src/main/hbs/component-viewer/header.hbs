@@ -42,7 +42,7 @@
         <span data-scope="basic" class="js-toggle-coverage component-viewer-header-measures-toggle-scope inactive"></span>
         <a data-scope="basic" class="component-viewer-header-measures-expand">
           <div class="component-viewer-header-measure">
-            <span class="component-viewer-header-measure-value">{{component.measures.fNcloc}}</span>
+            <span class="component-viewer-header-measure-value">{{default component.measures.fNcloc '–'}}</span>
             <span class="component-viewer-header-measure-label">{{t 'metric.ncloc.name'}}</span>
           </div>
           <i class="icon-dropdown"></i>
@@ -53,7 +53,7 @@
     <div class="component-viewer-header-measures-scope">
       <a data-scope="issues" class="component-viewer-header-measures-expand">
           <div class="component-viewer-header-measure">
-            <span class="component-viewer-header-measure-value">{{default component.measures.fDebt 0}}</span>
+            <span class="component-viewer-header-measure-value">{{default component.measures.fDebt '–'}}</span>
             <span class="component-viewer-header-measure-label">{{t 'component_viewer.header.debt'}}</span>
           </div>
         {{#if component.measures.fIssues}}
@@ -84,53 +84,46 @@
          class="js-toggle-issues component-viewer-header-measures-toggle-scope {{#if settings.issues}}active{{/if}}"></a>
     </div>
 
-    {{#unless component.isUnitTest}}
-      {{#if component.measures.fCoverage}}
-        <div class="component-viewer-header-measures-scope">
-          <a data-scope="coverage" class="component-viewer-header-measures-expand">
-              <div class="component-viewer-header-measure">
-                <span class="component-viewer-header-measure-value">{{component.measures.fCoverage}}</span>
-                <span class="component-viewer-header-measure-label">{{t 'metric.coverage.name'}}</span>
-              </div>
-            <i class="icon-dropdown"></i>
-          </a>
-          <a data-scope="coverage" title="{{t 'component_viewer.header.toggle_coverage'}}"
-             class="js-toggle-coverage component-viewer-header-measures-toggle-scope {{#if settings.coverage}}active{{/if}}"></a>
-        </div>
-      {{/if}}
+    {{#inArray state.tabs 'coverage'}}
+      <div class="component-viewer-header-measures-scope">
+        <a data-scope="coverage" class="component-viewer-header-measures-expand">
+            <div class="component-viewer-header-measure">
+              <span class="component-viewer-header-measure-value">{{default component.measures.fCoverage '–'}}</span>
+              <span class="component-viewer-header-measure-label">{{t 'metric.coverage.name'}}</span>
+            </div>
+          <i class="icon-dropdown"></i>
+        </a>
+        <a data-scope="coverage" title="{{t 'component_viewer.header.toggle_coverage'}}"
+           class="js-toggle-coverage component-viewer-header-measures-toggle-scope {{#if settings.coverage}}active{{/if}}"></a>
+      </div>
+    {{/inArray}}
 
-      {{#if component.measures.fDuplicationDensity}}
-        <div class="component-viewer-header-measures-scope">
-          <a data-scope="duplications" class="component-viewer-header-measures-expand">
-              <div class="component-viewer-header-measure">
-                <span class="component-viewer-header-measure-value">{{component.measures.fDuplicationDensity}}</span>
-                <span class="component-viewer-header-measure-label">{{t 'metric.duplicated_lines_density.name'}}</span>
-              </div>
-            <i class="icon-dropdown"></i>
-          </a>
-          <a data-scope="duplications" title="{{t 'component_viewer.header.toggle_duplications'}}"
-             class="js-toggle-duplications component-viewer-header-measures-toggle-scope {{#if settings.duplications}}active{{/if}}"></a>
-        </div>
-      {{/if}}
-    {{/unless}}
+    {{#inArray state.tabs 'duplications'}}
+      <div class="component-viewer-header-measures-scope">
+        <a data-scope="duplications" class="component-viewer-header-measures-expand">
+            <div class="component-viewer-header-measure">
+              <span class="component-viewer-header-measure-value">{{default component.measures.fDuplicationDensity '–'}}</span>
+              <span class="component-viewer-header-measure-label">{{t 'metric.duplicated_lines_density.name'}}</span>
+            </div>
+          <i class="icon-dropdown"></i>
+        </a>
+        <a data-scope="duplications" title="{{t 'component_viewer.header.toggle_duplications'}}"
+           class="js-toggle-duplications component-viewer-header-measures-toggle-scope {{#if settings.duplications}}active{{/if}}"></a>
+      </div>
+    {{/inArray}}
 
-    <div class="component-viewer-header-measures-scope">
-      <span data-scope="scm" class="component-viewer-header-measures-expand">
-        <div class="component-viewer-header-measure">
-          <span class="component-viewer-header-measure-value"><i class="icon-calendar"></i></span>
-          <span class="component-viewer-header-measure-label">SCM</span>
-        </div>
-      </span>
-      <a data-scope="scm" title="{{t 'component_viewer.header.toggle_duplications'}}"
-         class="js-toggle-scm component-viewer-header-measures-toggle-scope {{#if settings.scm}}active{{/if}}"></a>
-    </div>
-  </div>
-
-  <div class="component-viewer-header-time-changes">
-    <a>
-      <i class="icon-period"></i>
-      <div>{{#if period.key}}{{period.label}}{{else}}Time<br>Changes{{/if}}</div>
-    </a>
+    {{#inArray state.tabs 'scm'}}
+      <div class="component-viewer-header-measures-scope">
+        <span data-scope="scm" class="component-viewer-header-measures-expand">
+          <div class="component-viewer-header-measure">
+            <span class="component-viewer-header-measure-value"><i class="icon-calendar"></i></span>
+            <span class="component-viewer-header-measure-label">SCM</span>
+          </div>
+        </span>
+        <a data-scope="scm" title="{{t 'component_viewer.header.toggle_duplications'}}"
+           class="js-toggle-scm component-viewer-header-measures-toggle-scope {{#if settings.scm}}active{{/if}}"></a>
+      </div>
+    {{/inArray}}
   </div>
 </div>
 

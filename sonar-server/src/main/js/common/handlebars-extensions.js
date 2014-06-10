@@ -79,7 +79,11 @@ define(['handlebars', 'moment'], function (Handlebars, moment) {
   });
 
   Handlebars.registerHelper('percent', function(value, total) {
-    return '' + ((value || 0) / total * 100) + '%';
+    if (total > 0) {
+      return '' + ((value || 0) / total * 100) + '%';
+    } else {
+      return '0%';
+    }
   });
 
   Handlebars.registerHelper('eq', function(v1, v2, options) {
@@ -300,6 +304,14 @@ define(['handlebars', 'moment'], function (Handlebars, moment) {
         ps[name] = Handlebars.compile(ps[name]);
       }
       return ps[name]({ value: value, label: label}, hash);
+    }
+  });
+
+  Handlebars.registerHelper('ifMeasureShouldBeShown', function(measure, period, options) {
+    if (measure != null || period != null) {
+      return options.fn(this);
+    } else {
+      return options.inverse(this);
     }
   });
 

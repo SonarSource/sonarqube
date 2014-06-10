@@ -1,6 +1,7 @@
 define [], () ->
 
   $ = jQuery
+  API_COMPONENT = "#{baseUrl}/api/components/app"
   API_ISSUES = "#{baseUrl}/api/issues/search"
   LINES_AROUND_ISSUE = 4
 
@@ -35,6 +36,22 @@ define [], () ->
       @sourceView.render()
 
 
+    requestIssuesPeriod: (key, period) ->
+      $.get API_COMPONENT, key: key, period: period, (data) =>
+        rules = data.rules.map (r) -> key: r[0], name: r[1], count: r[2]
+        severities = data.severities.map (r) -> key: r[0], name: r[1], count: r[2]
+        @state.set rules: rules, severities: severities
+
+
+    enableIssuesPeriod: (periodKey) ->
+      period = if periodKey == '' then null else @periods.findWhere key: periodKey
+      @state.set 'issuesPeriod', period
+      if period?
+        @requestIssuesPeriod(@key, period.get('key')).done => @headerView.render()
+      else
+        @requestComponent(@key, false, false).done => @headerView.render()
+
+
     filterLinesByIssues: ->
       issues = @source.get 'issues'
       @sourceView.resetShowBlocks()
@@ -45,6 +62,12 @@ define [], () ->
 
 
     filterByIssues: (predicate, requestIssues = true) ->
+      issuesPeriod = @state.get('issuesPeriod')
+      if issuesPeriod
+        p = predicate
+        predicate = (issue) =>
+          (new Date(issue.creationDate) >= issuesPeriod.get('sinceDate')) && p issue
+
       if requestIssues && !@state.get 'hasIssues'
         @requestIssues(@key).done => @_filterByIssues(predicate)
       else
@@ -67,6 +90,7 @@ define [], () ->
 
     # Current Issue
     filterByCurrentIssue: -> @filterByIssues ((issue) => issue.key == @currentIssue), false
+
 
     # All Issues
     filterByAllIssues: -> @filterByIssues -> true
