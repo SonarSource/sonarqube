@@ -281,15 +281,11 @@ public class RuleBackendMediumTest {
   @Test
   public void insert_update_characteristics() throws Exception {
 
-    CharacteristicDto char1 = DebtTesting.newCharacteristicDto("c1")
-      .setEnabled(true)
-      .setName("char1");
+    CharacteristicDto char1 = DebtTesting.newCharacteristicDto("c1");
     db.debtCharacteristicDao().insert(char1, dbSession);
     dbSession.commit();
 
     CharacteristicDto char11 = DebtTesting.newCharacteristicDto("c11")
-      .setEnabled(true)
-      .setName("char11")
       .setParentId(char1.getId());
     db.debtCharacteristicDao().insert(char11, dbSession);
 
@@ -312,16 +308,10 @@ public class RuleBackendMediumTest {
     assertThat(rule.debtSubCharacteristicKey()).isEqualTo(char11.getKey());
 
     // 3. set Non-default characteristics
-    CharacteristicDto char2 = new CharacteristicDto()
-      .setEnabled(true)
-      .setKey("c2")
-      .setName("char2");
+    CharacteristicDto char2 = DebtTesting.newCharacteristicDto("c2");
     db.debtCharacteristicDao().insert(char2, dbSession);
 
-    CharacteristicDto char21 = new CharacteristicDto()
-      .setEnabled(true)
-      .setKey("c21")
-      .setName("char21")
+    CharacteristicDto char21 = DebtTesting.newCharacteristicDto("c21")
       .setParentId(char2.getId());
     db.debtCharacteristicDao().insert(char21, dbSession);
 
