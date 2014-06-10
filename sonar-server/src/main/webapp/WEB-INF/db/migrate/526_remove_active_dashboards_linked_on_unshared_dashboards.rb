@@ -32,6 +32,7 @@ class RemoveActiveDashboardsLinkedOnUnsharedDashboards < ActiveRecord::Migration
   end
 
   def self.up
+    Dashboard.reset_column_information
     ActiveDashboard.reset_column_information
 
     # Delete every active_dashboards linked on unshared dashboard not owned by the user

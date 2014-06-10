@@ -37,7 +37,6 @@ class CreateRulesProfiles < ActiveRecord::Migration
       t.column :active_rule_id,     :integer,   :null => false
       t.column :rules_parameter_id,  :integer,   :null => false
       t.column :value,               :string,    :limit => 4000, :null => true
-      t.column :default_value, :string, :null => true, :limit => 4000
     end
   end
 

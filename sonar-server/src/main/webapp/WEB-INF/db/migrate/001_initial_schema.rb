@@ -115,6 +115,7 @@ class InitialSchema < ActiveRecord::Migration
       t.column :name,                :string,    :null => false, :limit => 128
       t.column :description,         :string,    :null => true, :limit => 4000
       t.column :param_type,          :string,    :null => false, :limit => 512
+      t.column :default_value,       :string, :null => true, :limit => 4000
     end
 
     create_table :project_links do |t|
