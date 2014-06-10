@@ -78,10 +78,14 @@ define [
 
     enhanceParameters: ->
       parent = @getParent()
-      params = @model.get 'params'
+      params = _.sortBy(@model.get('params'), 'key')
       return params unless parent
       params.map (p) ->
-        _.extend p, original: _.findWhere(parent.params, key: p.key).value
+        parentParam = _.findWhere(parent.params, key: p.key)
+        if parentParam
+          _.extend p, original: _.findWhere(parent.params, key: p.key).value
+        else
+          p
 
 
     serializeData: ->
