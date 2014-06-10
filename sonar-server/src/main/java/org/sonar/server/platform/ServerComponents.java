@@ -132,6 +132,8 @@ import org.sonar.server.log.LogService;
 import org.sonar.server.log.db.LogDao;
 import org.sonar.server.log.index.LogIndex;
 import org.sonar.server.log.index.LogNormalizer;
+import org.sonar.server.log.ws.LogMapping;
+import org.sonar.server.log.ws.LogsWebService;
 import org.sonar.server.measure.MeasureFilterEngine;
 import org.sonar.server.measure.MeasureFilterExecutor;
 import org.sonar.server.measure.MeasureFilterFactory;
@@ -467,6 +469,11 @@ class ServerComponents {
     pico.addSingleton(RuleMapping.class);
     pico.addSingleton(ActiveRuleCompleter.class);
     pico.addSingleton(AppAction.class);
+
+    pico.addSingleton(LogsWebService.class);
+    pico.addSingleton(org.sonar.server.log.ws.SearchAction.class);
+    pico.addSingleton(LogMapping.class);
+
 
     // measure
     pico.addComponent(MeasuresDao.class, false);
