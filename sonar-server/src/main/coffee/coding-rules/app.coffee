@@ -105,8 +105,11 @@ requirejs [
   App = new Marionette.Application
 
 
-  App.getQuery =  ->
-    @filterBarView.getQuery()
+  App.getQuery = (includeFacetsQuery = true) ->
+    query = @filterBarView.getQuery()
+    if includeFacetsQuery and @codingRulesFacetsView
+      _.extend query, @codingRulesFacetsView.getQuery()
+    query
 
 
   App.restoreSorting = (params) ->
@@ -136,19 +139,18 @@ requirejs [
 
 
 
-  App.fetchList = (firstPage, fromFacets) ->
-    query = @getQuery()
-    fetchQuery = _.extend { p: @pageIndex, ps: 25, facets: !fromFacets }, query
+  App.fetchList = (firstPage, fromFacets = false) ->
+    pristineQuery = @getQuery(false)
+    query = @getQuery(fromFacets)
 
-    if @codingRulesFacetsView
-      _.extend fetchQuery, @codingRulesFacetsView.getQuery()
+    fetchQuery = _.extend { p: @pageIndex, ps: 25, facets: not fromFacets }, query
 
     if @codingRules.sorting && @codingRules.sorting.sort
       _.extend fetchQuery,
           s: @codingRules.sorting.sort,
           asc: @codingRules.sorting.asc
 
-    @storeQuery query, @codingRules.sorting
+    @storeQuery pristineQuery, @codingRules.sorting
 
     # Optimize requested fields
     _.extend fetchQuery, f: 'name,lang,status'
@@ -217,7 +219,7 @@ requirejs [
     App.fetchList true, fromFacets
 
 
-  App.fetchNextPage = (fromFacets = false) ->
+  App.fetchNextPage = (fromFacets = true) ->
     if @pageIndex < @codingRules.paging.pages
       @pageIndex++
       App.fetchList false, fromFacets

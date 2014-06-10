@@ -78,7 +78,7 @@ define [
         url: "#{baseUrl}/api/qualityprofiles/#{wsAction}_rules"
         data: query
       .done =>
-        @options.app.fetchFirstPage()
+        @options.app.fetchFirstPage(true)
 
 
     onSubmit: (e) ->
