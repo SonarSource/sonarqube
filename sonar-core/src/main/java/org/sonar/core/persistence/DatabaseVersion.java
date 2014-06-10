@@ -92,7 +92,8 @@ public class DatabaseVersion implements BatchComponent, ServerComponent {
     "users",
     "user_roles",
     "widgets",
-    "widget_properties"
+    "widget_properties",
+    "logs"
     );
 
   private MyBatis mybatis;

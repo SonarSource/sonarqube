@@ -101,7 +101,8 @@ public class LogBackendMediumTest {
 
   @Test
   public void massive_insert() {
-    int max = 50;
+    assertThat(dao.findAll(dbSession)).hasSize(0);
+    int max = 20;
     final String testValue = "hello world";
     for (int i = 0; i < max; i++) {
       service.write(dbSession, Log.Type.ACTIVE_RULE, testValue + "_" + i);
