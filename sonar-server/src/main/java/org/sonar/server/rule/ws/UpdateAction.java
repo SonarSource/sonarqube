@@ -118,7 +118,6 @@ public class UpdateAction implements RequestHandler {
     action
       .createParam(PARAM_STATUS)
       .setDescription("Rule status (Only when updating a custom rule)")
-      .setDefaultValue(RuleStatus.READY)
       .setPossibleValues(RuleStatus.values());
 
     action.createParam(PARAMS)
