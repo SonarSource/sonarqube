@@ -19,6 +19,7 @@
  */
 package org.sonar.core.log;
 
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -30,12 +31,14 @@ public interface Log {
     NONE, ACTIVE_RULE, SERVER
   }
 
-  Long timestamp();
+  Date time();
 
   String author();
 
-  Long executionTime();
+  Integer executionTime();
 
   Map<String, String> details();
+
+  String message();
 
 }

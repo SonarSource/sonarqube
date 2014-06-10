@@ -21,6 +21,7 @@ package org.sonar.server.log.index;
 
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.log.Log;
 import org.sonar.core.log.db.LogDto;
@@ -38,7 +39,7 @@ import java.util.Map;
 /**
  * @since 4.4
  */
-public class LogIndex extends BaseIndex<Log, LogDto, LogKey>{
+public class LogIndex extends BaseIndex<Log, LogDto, LogKey> {
 
   public LogIndex(Profiling profiling, LogNormalizer normalizer, WorkQueue workQueue, ESNode node) {
     super(IndexDefinition.LOG, normalizer, workQueue, node, profiling);
@@ -73,5 +74,12 @@ public class LogIndex extends BaseIndex<Log, LogDto, LogKey>{
   @Override
   protected Log toDoc(final Map<String, Object> fields) {
     return new LogDoc(fields);
+  }
+
+  public LogResult findAll() {
+    return new LogResult(getClient().prepareSearch(this.getIndexName())
+      .setQuery(QueryBuilders.matchAllQuery())
+      .setTypes(this.getIndexType())
+      .get());
   }
 }

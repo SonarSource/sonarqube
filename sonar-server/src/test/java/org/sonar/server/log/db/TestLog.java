@@ -44,7 +44,7 @@ public class TestLog implements Loggable {
   }
 
   @Override
-  public Long getExecutionTime() {
+  public Integer getExecutionTime() {
     return null;
   }
 }

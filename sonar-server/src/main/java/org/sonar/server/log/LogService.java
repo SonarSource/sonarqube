@@ -55,7 +55,7 @@ public class LogService {
     this.write(session, type, message, null);
   }
 
-  public void write(DbSession session, Log.Type type, String message, Long time) {
+  public void write(DbSession session, Log.Type type, String message, Integer time) {
     this.save(session, LogDto.createFor(message)
       .setType(type)
       .setExecutionTime(time));

@@ -35,7 +35,7 @@ public final class LogDto extends Dto<LogKey> {
   private Log.Type type;
   private String author;
 
-  private Long executionTime;
+  private Integer executionTime;
 
   private String data;
 
@@ -70,11 +70,11 @@ public final class LogDto extends Dto<LogKey> {
     return this;
   }
 
-  public Long getExecutionTime() {
+  public Integer getExecutionTime() {
     return executionTime;
   }
 
-  public LogDto setExecutionTime(Long executionTime) {
+  public LogDto setExecutionTime(Integer executionTime) {
     this.executionTime = executionTime;
     return this;
   }

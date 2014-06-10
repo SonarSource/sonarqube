@@ -22,6 +22,7 @@ package org.sonar.server.log.index;
 import org.sonar.core.log.Log;
 import org.sonar.server.search.BaseDoc;
 
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -34,8 +35,8 @@ public class LogDoc extends BaseDoc implements Log {
   }
 
   @Override
-  public Long timestamp() {
-    return this.getField(LogNormalizer.LogFields.TIMESTAMP.field());
+  public Date time() {
+    return this.getField(LogNormalizer.LogFields.DATE.field());
   }
 
   @Override
@@ -44,12 +45,17 @@ public class LogDoc extends BaseDoc implements Log {
   }
 
   @Override
-  public Long executionTime() {
+  public Integer executionTime() {
     return this.getField(LogNormalizer.LogFields.EXECUTION.field());
   }
 
   @Override
   public Map<String, String> details() {
     return this.getField(LogNormalizer.LogFields.DETAILS.field());
+  }
+
+  @Override
+  public String message() {
+    return this.getField(LogNormalizer.LogFields.MESSAGE.field());
   }
 }

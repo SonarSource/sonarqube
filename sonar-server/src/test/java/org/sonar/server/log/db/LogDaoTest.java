@@ -103,8 +103,8 @@ public class LogDaoTest extends AbstractDaoTestCase {
       }
 
       @Override
-      public Long getExecutionTime() {
-        return 12L;
+      public Integer getExecutionTime() {
+        return 12;
       }
     })
       .setAuthor("jUnit")
@@ -114,7 +114,7 @@ public class LogDaoTest extends AbstractDaoTestCase {
 
     LogDto newDto = dao.getByKey(session, log.getKey());
     assertThat(newDto.getAuthor()).isEqualTo(log.getAuthor());
-
+    assertThat(newDto.getExecutionTime()).isEqualTo(12);
     assertThat(newDto.getData()).isNotNull();
     Map<String, String> details = KeyValueFormat.parse(newDto.getData());
     assertThat(details.get(testKey)).isEqualTo(testValue);
