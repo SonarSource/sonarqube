@@ -36,6 +36,7 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.debt.DebtTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
@@ -280,16 +281,14 @@ public class RuleBackendMediumTest {
   @Test
   public void insert_update_characteristics() throws Exception {
 
-    CharacteristicDto char1 = new CharacteristicDto()
+    CharacteristicDto char1 = DebtTesting.newCharacteristicDto("c1")
       .setEnabled(true)
-      .setKey("c1")
       .setName("char1");
     db.debtCharacteristicDao().insert(char1, dbSession);
     dbSession.commit();
 
-    CharacteristicDto char11 = new CharacteristicDto()
+    CharacteristicDto char11 = DebtTesting.newCharacteristicDto("c11")
       .setEnabled(true)
-      .setKey("c11")
       .setName("char11")
       .setParentId(char1.getId());
     db.debtCharacteristicDao().insert(char11, dbSession);

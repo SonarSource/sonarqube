@@ -280,6 +280,33 @@ public class RuleIndexMediumTest {
 
   }
 
+  @Test
+  public void search_by_has_subChar() {
+    CharacteristicDto char1 = DebtTesting.newCharacteristicDto("c1")
+      .setEnabled(true)
+      .setName("char1");
+    db.debtCharacteristicDao().insert(char1, dbSession);
+    dbSession.commit();
+
+    CharacteristicDto char11 = DebtTesting.newCharacteristicDto("c11")
+      .setEnabled(true)
+      .setName("char11")
+      .setParentId(char1.getId());
+    db.debtCharacteristicDao().insert(char11, dbSession);
+
+    dao.insert(dbSession, newRuleDto(RuleKey.of("findbugs", "S001"))
+    .setSubCharacteristicId(char11.getId()));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("pmd", "S002")));
+    dbSession.commit();
+
+    // 0. assert base case
+    assertThat(index.search(new RuleQuery(), new QueryOptions()).getTotal()).isEqualTo(2);
+    assertThat(db.debtCharacteristicDao().selectCharacteristics()).hasSize(2);
+
+    // 1. assert hasSubChar filter
+    assertThat(index.search(new RuleQuery().setHasDebtCharacteristic(true), new QueryOptions()).getTotal())
+      .isEqualTo(1);
+  }
 
   @Test
   public void search_by_any_of_repositories() {

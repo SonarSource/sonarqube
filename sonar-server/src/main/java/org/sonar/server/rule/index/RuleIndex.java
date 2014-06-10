@@ -258,6 +258,12 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     this.addTermFilter(fb, RuleNormalizer.RuleField._TAGS.field(), query.getTags());
 
 
+    //Debt char exist filter
+    if(query.getHasDebtCharacteristic() != null && query.getHasDebtCharacteristic()) {
+      fb.must(FilterBuilders.existsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()));
+    }
+
+
     if (query.getAvailableSince() != null) {
       fb.must(FilterBuilders.rangeFilter(RuleNormalizer.RuleField.CREATED_AT.field())
         .gte(query.getAvailableSince()));
