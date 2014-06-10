@@ -20,6 +20,7 @@
 package org.sonar.core.log.db;
 
 import com.google.common.base.Preconditions;
+import org.sonar.core.log.Log;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -29,24 +30,24 @@ import java.util.Date;
  */
 public class LogKey implements Serializable {
 
-  private Date time;
-  private LogDto.Payload payload;
+  private Date createdAt;
+  private Log.Type type;
   private String author;
 
-  public LogKey(Date time, LogDto.Payload payload, String author) {
-    this.time = time;
-    this.payload = payload;
+  public LogKey(Date createdAt, Log.Type type, String author) {
+    this.createdAt = createdAt;
+    this.type = type;
     this.author = author;
   }
 
   /**
    * Create a key. Parameters are NOT null.
    */
-  public static LogKey of(Date time, LogDto.Payload payload, String author) {
-    Preconditions.checkArgument(time != null, "Time must be set");
-    Preconditions.checkArgument(payload != null, "Payload must be set");
+  public static LogKey of(Date createdAt, Log.Type type, String author) {
+    Preconditions.checkArgument(createdAt != null, "Time must be set");
+    Preconditions.checkArgument(type != null, "Type must be set");
     Preconditions.checkArgument(author != null, "Author must be set");
-    return new LogKey(time, payload, author);
+    return new LogKey(createdAt, type, author);
   }
 
   /**
@@ -57,25 +58,15 @@ public class LogKey implements Serializable {
     String[] split = s.split(":");
     Preconditions.checkArgument(split.length == 3, "Invalid log key: " + s);
     return LogKey.of(new Date(Long.getLong(split[0])),
-      LogDto.Payload.valueOf(split[1]), split[2]);
+      Log.Type.valueOf(split[1]), split[2]);
   }
 
-  public Date getTime() {
-    return time;
+  public Date getCreatedAt() {
+    return createdAt;
   }
 
-  public LogKey setTime(Date time) {
-    this.time = time;
-    return this;
-  }
-
-  public LogDto.Payload getPayload() {
-    return payload;
-  }
-
-  public LogKey setPayload(LogDto.Payload payload) {
-    this.payload = payload;
-    return this;
+  public void setCreatedAt(Date createdAt) {
+    this.createdAt = createdAt;
   }
 
   public String getAuthor() {
@@ -85,5 +76,21 @@ public class LogKey implements Serializable {
   public LogKey setAuthor(String author) {
     this.author = author;
     return this;
+  }
+
+  public Log.Type getType() {
+    return type;
+  }
+
+  public LogKey setType(Log.Type type) {
+    this.type = type;
+    return this;
+  }
+
+  @Override
+  public String toString() {
+    return this.createdAt.getTime() +
+      ":" + this.type +
+      ":" + this.getAuthor();
   }
 }

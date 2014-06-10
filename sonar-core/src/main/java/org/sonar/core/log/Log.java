@@ -19,19 +19,23 @@
  */
 package org.sonar.core.log;
 
-import java.util.Date;
+import java.util.Map;
 
 /**
  * @since 4.4
  */
 public interface Log {
 
-  Date time();
+  public static enum Type {
+    NONE, ACTIVE_RULE, SERVER
+  }
+
+  Long timestamp();
 
   String author();
 
   Long executionTime();
 
-  <K extends Activity> K getActivity();
+  Map<String, String> details();
 
 }

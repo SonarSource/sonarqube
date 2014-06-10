@@ -17,31 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.log.db;
+package org.sonar.core.log;
 
-import org.sonar.core.log.Activity;
+import java.util.Map;
 
 /**
  * @since 4.4
  */
-public class TestActivity extends Activity {
+public interface Loggable {
 
-  public String test;
+  Map<String, String> getDetails();
 
-  public TestActivity(){}
+  Long getExecutionTime();
 
-  public TestActivity(String test){
-    this.test = test;
-  }
-
-  @Override
-  public String serialize() {
-    return test;
-  }
-
-  @Override
-  public Activity deSerialize(String data) {
-    test = data;
-    return this;
-  }
 }

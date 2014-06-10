@@ -19,7 +19,8 @@
  */
 package org.sonar.server.log;
 
-import org.sonar.core.log.Activity;
+import org.sonar.core.log.Log;
+import org.sonar.core.log.Loggable;
 import org.sonar.core.log.db.LogDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
@@ -30,7 +31,7 @@ import java.util.List;
 /**
  * Log service is used to log Activity classes which represents an event to DB and Index.
  *
- * @see org.sonar.core.log.Activity
+ * @see org.sonar.core.log.Loggable
  * @since 4.4
  */
 public class LogService {
@@ -41,24 +42,33 @@ public class LogService {
     this.dbClient = dbClient;
   }
 
-  public void write(Activity activity) {
-    DbSession session = dbClient.openSession(false);
-    try {
-      this.write(session, activity);
-    } finally {
-      session.close();
+  private String getAuthor() {
+    return (UserSession.get().login() != null) ? UserSession.get().login() : "UNKNOWN";
+  }
+
+  private void save(DbSession session, LogDto log) {
+    dbClient.logDao().insert(session,
+      log.setAuthor(getAuthor()));
+  }
+
+  public void write(DbSession session, Log.Type type, String message) {
+    this.write(session, type, message, null);
+  }
+
+  public void write(DbSession session, Log.Type type, String message, Long time) {
+    this.save(session, LogDto.createFor(message)
+      .setType(type)
+      .setExecutionTime(time));
+  }
+
+  public <L extends Loggable> void write(DbSession session, Log.Type type, List<L> logs) {
+    for (Loggable log : logs) {
+      this.write(session, type, log);
     }
   }
 
-  public <K extends Activity> void write(DbSession session, K activity) {
-    dbClient.logDao().insert(session, new LogDto(
-      (UserSession.get().login() != null) ? UserSession.get().login() : "UNKNOWN",
-      activity));
-  }
-
-  public <K extends Activity> void write(DbSession session, List<K> activities) {
-    for(Activity activity:activities){
-      write(session, activity);
-    }
+  public <L extends Loggable> void write(DbSession session, Log.Type type, L log) {
+    this.save(session, LogDto.createFor(log)
+      .setType(type));
   }
 }

@@ -21,6 +21,7 @@ package org.sonar.server.log.index;
 
 import com.google.common.collect.ImmutableList;
 import org.elasticsearch.action.update.UpdateRequest;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.log.db.LogDto;
 import org.sonar.core.log.db.LogKey;
 import org.sonar.core.persistence.DbSession;
@@ -48,9 +49,10 @@ public class LogNormalizer extends BaseNormalizer<LogDto, LogKey> {
   public static final class LogFields extends Indexable {
 
     public final static IndexField KEY = addSortableAndSearchable(IndexField.Type.STRING, "key");
-    public final static IndexField TIME = addSortable(IndexField.Type.DATE, "time");
+    public final static IndexField TIMESTAMP = addSortable(IndexField.Type.DATE, "timestamp");
     public final static IndexField EXECUTION = add(IndexField.Type.NUMERIC, "executionTime");
-    public final static IndexField AUTHOR = addSearchable(IndexField.Type.STRING, "executionTime");
+    public final static IndexField AUTHOR = addSearchable(IndexField.Type.STRING, "author");
+    public final static IndexField DETAILS = addSearchable(IndexField.Type.OBJECT, "details");
 
     public static Set<IndexField> ALL_FIELDS = getAllFields();
 
@@ -93,9 +95,8 @@ public class LogNormalizer extends BaseNormalizer<LogDto, LogKey> {
     logDoc.put(LogFields.KEY.field(), dto.getKey());
     logDoc.put(LogFields.AUTHOR.field(), dto.getAuthor());
     logDoc.put(LogFields.EXECUTION.field(), dto.getExecutionTime());
-    logDoc.put(LogFields.TIME.field(), dto.getTime());
-
-
+    logDoc.put(LogFields.TIMESTAMP.field(), dto.getCreatedAt());
+    logDoc.put(LogFields.DETAILS.field(), KeyValueFormat.parse(dto.getData()));
 
    /* Creating updateRequest */
     return ImmutableList.of(new UpdateRequest()

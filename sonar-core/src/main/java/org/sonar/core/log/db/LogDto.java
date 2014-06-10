@@ -21,61 +21,53 @@ package org.sonar.core.log.db;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.core.log.Activity;
+import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.core.log.Log;
+import org.sonar.core.log.Loggable;
 import org.sonar.core.persistence.Dto;
-
-import java.util.Date;
 
 /**
  * @since 4.4
  */
 public final class LogDto extends Dto<LogKey> {
 
-
-  public static enum Payload {
-    TEST_ACTIVITY("org.sonar.server.log.db.TestActivity"),
-    ACTIVE_RULE_CHANGE("org.sonar.server.qualityprofile.ActiveRuleChange");
-
-    private final String clazz;
-
-    private Payload(String ActiveClass) {
-      clazz = ActiveClass;
-    }
-
-    public static Payload forClassName(String className){
-      for(Payload payload:Payload.values()){
-        if(payload.clazz.equals(className))
-          return payload;
-      }
-      return null;
-    }
-  }
-
-  private Date time;
-  private Payload payload;
+  private String message;
+  private Log.Type type;
   private String author;
 
   private Long executionTime;
+
   private String data;
 
   protected LogDto(){
-
-  }
-
-  public LogDto(String user, Activity activity) {
-    this.time = new Date();
-    this.author = user;
-    this.payload = Payload.forClassName(activity.getClass().getCanonicalName());
-    this.data = activity.serialize();
   }
 
   @Override
   public LogKey getKey() {
-    return LogKey.of(time, payload, author);
+    return LogKey.of(this.getCreatedAt(), type, author);
   }
 
-  public Date getTime() {
-    return time;
+  @Override
+  public String toString() {
+    return ReflectionToStringBuilder.toString(this, ToStringStyle.MULTI_LINE_STYLE);
+  }
+
+  public Log.Type getType() {
+    return type;
+  }
+
+  public LogDto setType(Log.Type type) {
+    this.type = type;
+    return this;
+  }
+
+  public String getAuthor() {
+    return author;
+  }
+
+  public LogDto setAuthor(String author) {
+    this.author = author;
+    return this;
   }
 
   public Long getExecutionTime() {
@@ -87,22 +79,32 @@ public final class LogDto extends Dto<LogKey> {
     return this;
   }
 
-  public String getAuthor() {
-    return author;
+  public String getData() {
+    return data;
   }
 
-  public <K extends Activity> K getActivity() {
-    try {
-      Activity activity = ((Activity) Class.forName(this.payload.clazz, true, ClassLoader.getSystemClassLoader()).newInstance());
-      return (K) activity.deSerialize(this.data);
-    } catch (Exception e) {
-      throw new IllegalStateException("Could not read Activity from DB. '" + this.payload
-        + "' is most likely missing a public no-args ctor", e);
-    }
+  public LogDto setData(String data) {
+    this.data = data;
+    return this;
   }
 
-  @Override
-  public String toString() {
-    return ReflectionToStringBuilder.toString(this, ToStringStyle.MULTI_LINE_STYLE);
+  public String getMessage() {
+    return message;
+  }
+
+  public LogDto setMessage(String message) {
+    this.message = message;
+    return this;
+  }
+
+  public static LogDto createFor(String message) {
+    return new LogDto()
+      .setMessage(message);
+  }
+
+  public static LogDto createFor(Loggable loggable) {
+    return new LogDto()
+      .setData(KeyValueFormat.format(loggable.getDetails()))
+      .setExecutionTime(loggable.getExecutionTime());
   }
 }

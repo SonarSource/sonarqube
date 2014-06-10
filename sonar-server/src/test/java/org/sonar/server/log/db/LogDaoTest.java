@@ -20,18 +20,24 @@
 package org.sonar.server.log.db;
 
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.System2;
+import org.sonar.core.log.Log;
+import org.sonar.core.log.Loggable;
 import org.sonar.core.log.db.LogDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 
+import java.util.Map;
+
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class LogDaoTest extends AbstractDaoTestCase{
+public class LogDaoTest extends AbstractDaoTestCase {
 
 
   private LogDao dao;
@@ -46,24 +52,72 @@ public class LogDaoTest extends AbstractDaoTestCase{
   }
 
   @After
-  public void after(){
+  public void after() {
     session.close();
   }
 
   @Test
-  public void insert_log(){
+  public void fail_insert_missing_type() {
+    String testValue = "hello world";
+    LogDto log = LogDto.createFor(testValue);
+    try {
+      dao.insert(session, log);
+    } catch (IllegalArgumentException e) {
+      assertThat(e.getMessage()).isEqualTo("Type must be set");
+    }
+  }
 
-    TestActivity activity = new TestActivity("hello world");
+  @Test
+  public void fail_insert_missing_author() {
+    String testValue = "hello world";
+    LogDto log = LogDto.createFor(testValue)
+      .setType(Log.Type.ACTIVE_RULE);
+    try {
+      dao.insert(session, log);
+    } catch (IllegalArgumentException e) {
+      assertThat(e.getMessage()).isEqualTo("Type must be set");
+    }
+  }
 
-    LogDto log = new LogDto("SYSTEM_USER", activity);
+  @Test
+  public void insert_text_log() {
+    String testValue = "hello world";
+    LogDto log = LogDto.createFor(testValue)
+      .setType(Log.Type.ACTIVE_RULE)
+      .setAuthor("jUnit");
+    dao.insert(session, log);
+    LogDto newDto = dao.getByKey(session, log.getKey());
+    assertThat(newDto.getAuthor()).isEqualTo(log.getAuthor());
+    assertThat(newDto.getMessage()).isEqualTo(testValue);
+  }
+
+  @Test
+  public void insert_loggable_log() {
+    final String testKey = "message";
+    final String testValue = "hello world";
+    LogDto log = LogDto.createFor(new Loggable() {
+
+      @Override
+      public Map<String, String> getDetails() {
+        return ImmutableMap.of(testKey, testValue);
+      }
+
+      @Override
+      public Long getExecutionTime() {
+        return 12L;
+      }
+    })
+      .setAuthor("jUnit")
+      .setType(Log.Type.ACTIVE_RULE);
 
     dao.insert(session, log);
 
     LogDto newDto = dao.getByKey(session, log.getKey());
     assertThat(newDto.getAuthor()).isEqualTo(log.getAuthor());
 
-    TestActivity newActivity = newDto.getActivity();
-    assertThat(newActivity.test).isEqualTo("hello world");
-
+    assertThat(newDto.getData()).isNotNull();
+    Map<String, String> details = KeyValueFormat.parse(newDto.getData());
+    assertThat(details.get(testKey)).isEqualTo(testValue);
   }
+
 }

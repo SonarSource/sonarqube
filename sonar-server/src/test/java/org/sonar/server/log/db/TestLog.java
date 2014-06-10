@@ -17,21 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.log;
+package org.sonar.server.log.db;
+
+import org.sonar.core.log.Loggable;
+
+import java.util.Map;
 
 /**
  * @since 4.4
  */
+public class TestLog implements Loggable {
 
-public abstract class Activity {
+  public String test;
 
-  public Activity(){}
-
-  public String getName(){
-    return this.getClass().getSimpleName();
+  public TestLog() {
   }
 
-  public abstract String serialize();
+  public TestLog(String test) {
+    this.test = test;
+  }
 
-  public abstract Activity deSerialize(String data);
+
+  @Override
+  public Map<String, String> getDetails() {
+    return null;
+  }
+
+  @Override
+  public Long getExecutionTime() {
+    return null;
+  }
 }

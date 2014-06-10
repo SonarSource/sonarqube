@@ -20,20 +20,14 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Maps;
-import org.sonar.core.log.Activity;
+import org.sonar.core.log.Loggable;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
-import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.Map;
 
-public class ActiveRuleChange extends Activity implements Serializable {
+public class ActiveRuleChange implements Loggable {
 
   static enum Type {
     ACTIVATED, DEACTIVATED, UPDATED
@@ -46,7 +40,7 @@ public class ActiveRuleChange extends Activity implements Serializable {
   private ActiveRule.Inheritance previousInheritance = null, inheritance = null;
   private Map<String, String> parameters = Maps.newHashMap();
 
-  public ActiveRuleChange(){
+  public ActiveRuleChange() {
     type = null;
     key = null;
   }
@@ -97,7 +91,7 @@ public class ActiveRuleChange extends Activity implements Serializable {
   }
 
   @CheckForNull
-  public ActiveRule.Inheritance getInheritance(){
+  public ActiveRule.Inheritance getInheritance() {
     return this.inheritance;
   }
 
@@ -111,31 +105,12 @@ public class ActiveRuleChange extends Activity implements Serializable {
   }
 
   @Override
-  public String serialize() {
-    //TODO do not use JDK's serialization
-    try {
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      ObjectOutputStream oos = new ObjectOutputStream(baos);
-      oos.writeObject(this);
-      oos.close();
-      return new String(Base64Coder.encode(baos.toByteArray()));
-    } catch (Exception e) {
-      throw new IllegalStateException("Could not serialize.",e);
-    }
+  public Map<String, String> getDetails() {
+    return null;
   }
 
   @Override
-  public ActiveRuleChange deSerialize(String data) {
-    //TODO do not use JDK's deserialization
-    try {
-    byte [] bytes = Base64Coder.decode(data);
-    ObjectInputStream ois = new ObjectInputStream(
-      new ByteArrayInputStream(bytes));
-      ActiveRuleChange o  = (ActiveRuleChange) ois.readObject();
-    ois.close();
-    return o;
-    } catch (Exception e) {
-      throw new IllegalStateException("Could not serialize.",e);
-    }
+  public Long getExecutionTime() {
+    return null;
   }
 }
