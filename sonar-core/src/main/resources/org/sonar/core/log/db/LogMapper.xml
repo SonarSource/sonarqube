@@ -22,5 +22,16 @@
       AND l.log_type=#{key.type}
 
     </select>
+
+  <select id="selectAll" parameterType="map" resultType="Log">
+    SELECT
+    l.created_at as "createdAt",
+    l.log_type as "type",
+    l.execution_time_field as "executionTime",
+    l.user_login as "author",
+    l.data_field as "data",
+    l.log_message as "message"
+    FROM logs l
+  </select>
 </mapper>
 

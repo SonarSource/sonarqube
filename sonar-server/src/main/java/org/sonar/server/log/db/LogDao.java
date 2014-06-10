@@ -28,6 +28,8 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 import org.sonar.server.search.IndexDefinition;
 
+import java.util.List;
+
 /**
  * @since 4.4
  */
@@ -41,7 +43,6 @@ public class LogDao extends BaseDao<LogMapper, LogDto, LogKey> {
   public LogDao(System2 system) {
     super(IndexDefinition.LOG, LogMapper.class, system);
   }
-
 
   @Override
   protected LogDto doGetNullableByKey(DbSession session, LogKey key) {
@@ -62,6 +63,10 @@ public class LogDao extends BaseDao<LogMapper, LogDto, LogKey> {
   @Override
   protected void doDeleteByKey(DbSession session, LogKey key) {
     throw new IllegalStateException("Cannot delete Log!");
+  }
+
+  public List<LogDto> findAll(DbSession session) {
+    return mapper(session).selectAll();
   }
 
   @Override

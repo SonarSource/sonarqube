@@ -86,6 +86,8 @@ public class LogDaoTest extends AbstractDaoTestCase {
       .setType(Log.Type.ACTIVE_RULE)
       .setAuthor("jUnit");
     dao.insert(session, log);
+
+    assertThat(dao.findAll(session)).hasSize(1);
     LogDto newDto = dao.getByKey(session, log.getKey());
     assertThat(newDto.getAuthor()).isEqualTo(log.getAuthor());
     assertThat(newDto.getMessage()).isEqualTo(testValue);
@@ -112,6 +114,7 @@ public class LogDaoTest extends AbstractDaoTestCase {
 
     dao.insert(session, log);
 
+    assertThat(dao.findAll(session)).hasSize(1);
     LogDto newDto = dao.getByKey(session, log.getKey());
     assertThat(newDto.getAuthor()).isEqualTo(log.getAuthor());
     assertThat(newDto.getExecutionTime()).isEqualTo(12);
