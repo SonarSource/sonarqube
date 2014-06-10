@@ -172,70 +172,40 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
   /* Build main query (search based) */
   protected QueryBuilder getQuery(RuleQuery query, QueryOptions options) {
-    if (query.getQueryText() != null && !query.getQueryText().isEmpty()) {
 
-      BoolQueryBuilder qb = QueryBuilders.boolQuery();
-      String queryString = query.getQueryText();
-
-      //Human readable type of querying
-      qb.should(QueryBuilders.queryString(query.getQueryText())
-        .field(RuleNormalizer.RuleField.NAME.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 20f)
-        .field(RuleNormalizer.RuleField.HTML_DESCRIPTION.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 3f)
-        .enablePositionIncrements(true)
-        .defaultOperator(QueryStringQueryBuilder.Operator.AND)
-        .fuzziness(Fuzziness.ONE)
-        .autoGeneratePhraseQueries(true)
-        .lenient(false)
-        .useDisMax(true)
-        .boost(20f));
-
-      // Match and partial Match queries
-      qb.should(this.termQuery(RuleNormalizer.RuleField.KEY, queryString, 15f));
-      qb.should(this.termQuery(RuleNormalizer.RuleField._KEY, queryString, 35f));
-      qb.should(this.termQuery(RuleNormalizer.RuleField.LANGUAGE, queryString, 3f));
-      qb.should(this.termQuery(RuleNormalizer.RuleField.CHARACTERISTIC, queryString, 5f));
-      qb.should(this.termQuery(RuleNormalizer.RuleField.SUB_CHARACTERISTIC, queryString, 5f));
-      qb.should(this.termQuery(RuleNormalizer.RuleField._TAGS, queryString, 10f));
-      qb.should(this.termAnyQuery(RuleNormalizer.RuleField.CHARACTERISTIC, queryString, 1f));
-      qb.should(this.termAnyQuery(RuleNormalizer.RuleField.SUB_CHARACTERISTIC, queryString, 1f));
-      qb.should(this.termAnyQuery(RuleNormalizer.RuleField._TAGS, queryString, 1f));
-
-      return qb;
-
-//      PURE EDISMAX Query style
-//      return QueryBuilders.queryString(query.getQueryText())
-//        // Human readable type of querying
-//        .field(RuleNormalizer.RuleField.NAME.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 20f)
-//        .field(RuleNormalizer.RuleField.HTML_DESCRIPTION.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 3f)
-//
-//          // Match and partial Match queries
-//        .field(RuleNormalizer.RuleField.KEY.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 15f)
-//        .field(RuleNormalizer.RuleField._KEY.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 15f)
-//        .field(RuleNormalizer.RuleField.LANGUAGE.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 5f)
-//        .field(RuleNormalizer.RuleField.CHARACTERISTIC.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 5f)
-//        .field(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 5f)
-//        .field(RuleNormalizer.RuleField._TAGS.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 10f);
-
-//      PURE FIELD_MATCHING Q
-//      //Human readable type of querying
-//      qb.should(this.phraseQuery(RuleNormalizer.RuleField.NAME, queryString, 20f));
-//      qb.should(this.phraseQuery(RuleNormalizer.RuleField.HTML_DESCRIPTION, queryString, 3f));
-//
-//      // Match and partial Match queries
-//      qb.should(this.termQuery(RuleNormalizer.RuleField.KEY, queryString, 15f));
-//      qb.should(this.termQuery(RuleNormalizer.RuleField._KEY, queryString, 35f));
-//      qb.should(this.termQuery(RuleNormalizer.RuleField.LANGUAGE, queryString, 3f));
-//      qb.should(this.termQuery(RuleNormalizer.RuleField.CHARACTERISTIC, queryString, 5f));
-//      qb.should(this.termQuery(RuleNormalizer.RuleField.SUB_CHARACTERISTIC, queryString, 5f));
-//      qb.should(this.termQuery(RuleNormalizer.RuleField._TAGS, queryString, 10f));
-//      qb.should(this.termAnyQuery(RuleNormalizer.RuleField.CHARACTERISTIC, queryString, 1f));
-//      qb.should(this.termAnyQuery(RuleNormalizer.RuleField.SUB_CHARACTERISTIC, queryString, 1f));
-//      qb.should(this.termAnyQuery(RuleNormalizer.RuleField._TAGS, queryString, 1f));
-//
-//      return qb;
-
+    // No contextual query case
+    if (query.getQueryText() == null || query.getQueryText().isEmpty()) {
+      return QueryBuilders.matchAllQuery();
     }
-    return QueryBuilders.matchAllQuery();
+
+    // Build RuleBased contextual query
+    BoolQueryBuilder qb = QueryBuilders.boolQuery();
+    String queryString = query.getQueryText();
+
+    //Human readable type of querying
+    qb.should(QueryBuilders.queryString(query.getQueryText())
+      .field(RuleNormalizer.RuleField.NAME.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 20f)
+      .field(RuleNormalizer.RuleField.HTML_DESCRIPTION.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 3f)
+      .enablePositionIncrements(true)
+      .defaultOperator(QueryStringQueryBuilder.Operator.AND)
+      .fuzziness(Fuzziness.ONE)
+      .autoGeneratePhraseQueries(true)
+      .lenient(false)
+      .useDisMax(true)
+      .boost(20f));
+
+    // Match and partial Match queries
+    qb.should(this.termQuery(RuleNormalizer.RuleField.KEY, queryString, 15f));
+    qb.should(this.termQuery(RuleNormalizer.RuleField._KEY, queryString, 35f));
+    qb.should(this.termQuery(RuleNormalizer.RuleField.LANGUAGE, queryString, 3f));
+    qb.should(this.termQuery(RuleNormalizer.RuleField.CHARACTERISTIC, queryString, 5f));
+    qb.should(this.termQuery(RuleNormalizer.RuleField.SUB_CHARACTERISTIC, queryString, 5f));
+    qb.should(this.termQuery(RuleNormalizer.RuleField._TAGS, queryString, 10f));
+    qb.should(this.termAnyQuery(RuleNormalizer.RuleField.CHARACTERISTIC, queryString, 1f));
+    qb.should(this.termAnyQuery(RuleNormalizer.RuleField.SUB_CHARACTERISTIC, queryString, 1f));
+    qb.should(this.termAnyQuery(RuleNormalizer.RuleField._TAGS, queryString, 1f));
+
+    return qb;
   }
 
   /* Build main filter (match based) */
@@ -259,7 +229,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
 
     //Debt char exist filter
-    if(query.getHasDebtCharacteristic() != null && query.getHasDebtCharacteristic()) {
+    if (query.getHasDebtCharacteristic() != null && query.getHasDebtCharacteristic()) {
       fb.must(FilterBuilders.existsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()));
     }
 
