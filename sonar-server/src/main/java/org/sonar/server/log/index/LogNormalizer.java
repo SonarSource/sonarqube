@@ -93,7 +93,6 @@ public class LogNormalizer extends BaseNormalizer<LogDto, LogKey> {
   public List<UpdateRequest> normalize(LogDto dto) {
 
     Map<String, Object> logDoc = new HashMap<String, Object>();
-    logDoc.put("_id", dto.getKey());
     logDoc.put(LogFields.KEY.field(), dto.getKey());
     logDoc.put(LogFields.TYPE.field(), dto.getType());
     logDoc.put(LogFields.AUTHOR.field(), dto.getAuthor());
@@ -104,7 +103,7 @@ public class LogNormalizer extends BaseNormalizer<LogDto, LogKey> {
 
    /* Creating updateRequest */
     return ImmutableList.of(new UpdateRequest()
-      .id(dto.getKey().toString())
+      //Need to make a UUID because Key does not insure unicity
       .doc(logDoc)
       .upsert(logDoc));
   }

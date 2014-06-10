@@ -98,4 +98,15 @@ public class LogBackendMediumTest {
     assertThat(log.details().get(testKey)).isEqualTo(testValue);
     assertThat(log.executionTime()).isEqualTo(12);
   }
+
+  @Test
+  public void massive_insert() {
+    int max = 50;
+    final String testValue = "hello world";
+    for (int i = 0; i < max; i++) {
+      service.write(dbSession, Log.Type.ACTIVE_RULE, testValue + "_" + i);
+    }
+    dbSession.commit();
+    assertThat(dao.findAll(dbSession)).hasSize(max);
+  }
 }

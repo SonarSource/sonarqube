@@ -19,8 +19,12 @@
  */
 package org.sonar.server.log.index;
 
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.log.Log;
@@ -31,6 +35,7 @@ import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.ESNode;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
+import org.sonar.server.search.QueryOptions;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -47,7 +52,15 @@ public class LogIndex extends BaseIndex<Log, LogDto, LogKey> {
 
   @Override
   protected String getKeyValue(LogKey key) {
-    return key.toString();
+    //FIXME too many collision with key.toString() due to lack of time precision
+    return null;//return key.toString();
+  }
+
+  @Override
+  protected Map mapKey() {
+    return null;
+//    Map<String, Object> mapping = new HashMap<String, Object>();
+//    return mapping;
   }
 
   @Override
@@ -65,13 +78,6 @@ public class LogIndex extends BaseIndex<Log, LogDto, LogKey> {
   }
 
   @Override
-  protected Map mapKey() {
-    Map<String, Object> mapping = new HashMap<String, Object>();
-    mapping.put("path", LogNormalizer.LogFields.KEY.field());
-    return mapping;
-  }
-
-  @Override
   protected Log toDoc(final Map<String, Object> fields) {
     return new LogDoc(fields);
   }
@@ -81,5 +87,29 @@ public class LogIndex extends BaseIndex<Log, LogDto, LogKey> {
       .setQuery(QueryBuilders.matchAllQuery())
       .setTypes(this.getIndexType())
       .get());
+  }
+
+  public LogResult search(LogQuery query, QueryOptions options) {
+
+    SearchRequestBuilder esSearch = getClient()
+      .prepareSearch(this.getIndexName())
+      .setTypes(this.getIndexType())
+      .setIndices(this.getIndexName());
+
+    //TODO implement query and filters based on LogQuery
+    esSearch.setQuery(QueryBuilders.matchAllQuery());
+
+    if (options.isScroll()) {
+      esSearch.setSearchType(SearchType.SCAN);
+      esSearch.setScroll(TimeValue.timeValueMinutes(3));
+    }
+
+    SearchResponse esResult = esSearch.get();
+
+    if (options.isScroll()) {
+      return new LogResult(this, esResult);
+    } else {
+      return new LogResult(esResult);
+    }
   }
 }
