@@ -92,12 +92,12 @@ public class WebappTest {
   }
 
   @Test
-  public void context_must_start_with_slash() throws Exception {
+  public void context_path_must_start_with_slash() throws Exception {
     Properties p = new Properties();
     p.setProperty("sonar.web.context", "foo");
 
     try {
-      Webapp.getContext(new Props(p));
+      Webapp.getContextPath(new Props(p));
       fail();
     } catch (IllegalStateException e) {
       assertThat(e.getMessage()).isEqualTo("Value of 'sonar.web.context' must start with a forward slash: 'foo'");
@@ -105,16 +105,16 @@ public class WebappTest {
   }
 
   @Test
-  public void root_context_must_be_blank() throws Exception {
+  public void root_context_path_must_be_blank() throws Exception {
     Properties p = new Properties();
     p.setProperty("sonar.web.context", "/");
 
-    assertThat(Webapp.getContext(new Props(p))).isEqualTo("");
+    assertThat(Webapp.getContextPath(new Props(p))).isEqualTo("");
   }
 
   @Test
-  public void default_context_is_root() throws Exception {
-    String context = Webapp.getContext(new Props(new Properties()));
+  public void default_context_path_is_root() throws Exception {
+    String context = Webapp.getContextPath(new Props(new Properties()));
     assertThat(context).isEqualTo("");
   }
 }

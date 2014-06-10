@@ -32,9 +32,8 @@ class Webapp {
   private static final String PROPERTY_LOG_CONSOLE = "sonar.log.console";
 
   static void configure(Tomcat tomcat, Env env, Props props) {
-    String ctx = getContext(props);
     try {
-      Context context = tomcat.addWebapp(ctx, env.file("web").getAbsolutePath());
+      Context context = tomcat.addWebapp(getContextPath(props), env.file("web").getAbsolutePath());
       context.setConfigFile(env.file("web/META-INF/context.xml").toURI().toURL());
       context.addParameter(PROPERTY_LOG_PROFILING_LEVEL, props.of(PROPERTY_LOG_PROFILING_LEVEL, "NONE"));
       context.addParameter(PROPERTY_LOG_CONSOLE, props.of(PROPERTY_LOG_CONSOLE, "false"));
@@ -46,7 +45,7 @@ class Webapp {
     }
   }
 
-  static String getContext(Props props) {
+  static String getContextPath(Props props) {
     String context = props.of(PROPERTY_CONTEXT, "");
     if ("/".equals(context)) {
       context = "";
