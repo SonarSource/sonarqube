@@ -73,6 +73,9 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
   public static final class RuleField extends Indexable {
 
+    @Deprecated
+    public static IndexField ID = addSortable(IndexField.Type.NUMERIC, "id");
+
     public static IndexField KEY = addSortable(IndexField.Type.STRING, "key");
     public static IndexField _KEY = add(IndexField.Type.STRING, "_key");
     public static IndexField REPOSITORY = add(IndexField.Type.STRING, "repo");
@@ -157,6 +160,9 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
       /** Update Fields */
       Map<String, Object> update = new HashMap<String, Object>();
+
+      update.put(RuleField.ID.field(), rule.getId());
+
       update.put(RuleField.KEY.field(), rule.getKey().toString());
       update.put(RuleField._KEY.field(), ImmutableList.of(rule.getKey().repository(), rule.getKey().rule()));
 

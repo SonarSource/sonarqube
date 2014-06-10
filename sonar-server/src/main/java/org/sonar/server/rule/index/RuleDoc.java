@@ -30,7 +30,6 @@ import org.sonar.server.search.BaseDoc;
 import org.sonar.server.search.IndexUtils;
 
 import javax.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -48,6 +47,14 @@ public class RuleDoc extends BaseDoc implements Rule {
   @Override
   public RuleKey key() {
     return RuleKey.parse(this.<String>getField(RuleNormalizer.RuleField.KEY.field()));
+  }
+
+  /**
+   * @deprecated Only use for sqale backward compat. Use key() instead.
+   */
+  @Deprecated
+  public Integer id() {
+    return getField(RuleNormalizer.RuleField.ID.field());
   }
 
   /**

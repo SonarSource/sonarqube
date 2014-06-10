@@ -38,6 +38,7 @@ import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtTesting;
 import org.sonar.server.rule.db.RuleDao;
+import org.sonar.server.rule.index.RuleDoc;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.QueryOptions;
@@ -277,6 +278,19 @@ public class RuleBackendMediumTest {
     assertThat(param.defaultValue()).isEqualTo("0.5");
     assertThat(param.description()).isEqualTo("new description");
   }
+
+  @Test
+  @Deprecated
+  public void has_id() throws Exception {
+
+    RuleDto ruleDto = newRuleDto(RuleKey.of("test", "r1"));
+    dao.insert(dbSession, ruleDto);
+    dbSession.commit();
+
+    assertThat(((RuleDoc) index.getByKey(RuleKey.of("test", "r1"))).id()).isEqualTo(ruleDto.getId());
+
+  }
+
 
   @Test
   public void insert_update_characteristics() throws Exception {
