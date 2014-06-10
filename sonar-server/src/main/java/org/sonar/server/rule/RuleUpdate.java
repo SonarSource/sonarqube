@@ -179,6 +179,10 @@ public class RuleUpdate {
     return parameters.get(paramKey);
   }
 
+  boolean isCustomRule() {
+    return isCustomRule;
+  }
+
   public boolean isChangeTags() {
     return changeTags;
   }
@@ -216,8 +220,11 @@ public class RuleUpdate {
   }
 
   public boolean isEmpty() {
-    return !changeMarkdownNote && !changeTags && !changeDebtSubCharacteristic && !changeDebtRemediationFunction &&
-      !changeName && !changeDescription && !changeSeverity && !changeStatus && !changeParameters;
+    return !changeMarkdownNote && !changeTags && !changeDebtSubCharacteristic && !changeDebtRemediationFunction && isCustomRuleFieldsEmpty();
+  }
+
+  private boolean isCustomRuleFieldsEmpty(){
+    return !changeName && !changeDescription && !changeSeverity && !changeStatus && !changeParameters;
   }
 
   private void checkCustomRule(){

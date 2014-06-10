@@ -20,7 +20,6 @@
 
 package org.sonar.server.rule;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -28,11 +27,11 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
+import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.qualityprofile.RuleActivation;
@@ -72,35 +71,29 @@ public class RuleDeleterMediumTest {
   @Test
   public void delete_custom_rule() throws Exception {
     // Create template rule
-    RuleKey templateRuleKey = RuleKey.of("java", "S001");
-    dao.insert(dbSession, RuleTesting.newDto(templateRuleKey)
-      .setCardinality(Cardinality.MULTIPLE)
-      .setLanguage("xoo"));
-    dbSession.commit();
+    RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001")).setLanguage("xoo");
+    dao.insert(dbSession, templateRule);
 
     // Create custom rule
-    NewRule newRule = new NewRule()
-      .setTemplateKey(templateRuleKey)
-      .setName("My custom")
-      .setHtmlDescription("Some description")
-      .setSeverity(Severity.MAJOR)
-      .setStatus(RuleStatus.READY)
-      .setParameters(ImmutableMap.of("regex", "a.*"));
-    RuleKey customRuleKey = creator.create(newRule);
+    RuleDto customRule = RuleTesting.newCustomRule(templateRule).setLanguage("xoo");
+    dao.insert(dbSession, customRule);
 
-    // Activate the custom rule
+    // Create a quality profile
     QualityProfileDto profileDto = QualityProfileDto.createFor(QualityProfileKey.of("P1", "xoo"));
     db.qualityProfileDao().insert(dbSession, profileDto);
+
     dbSession.commit();
+
+    // Activate the custom rule
     tester.get(RuleActivator.class).activate(
-      new RuleActivation(ActiveRuleKey.of(profileDto.getKey(), customRuleKey)).setSeverity(Severity.BLOCKER)
+      new RuleActivation(ActiveRuleKey.of(profileDto.getKey(), customRule.getKey())).setSeverity(Severity.BLOCKER)
     );
 
     // Delete custom rule
-    deleter.delete(customRuleKey);
+    deleter.delete(customRule.getKey());
 
     // Verify custom rule have status REMOVED
-    Rule customRuleReloaded = index.getByKey(customRuleKey);
+    Rule customRuleReloaded = index.getByKey(customRule.getKey());
     assertThat(customRuleReloaded).isNotNull();
     assertThat(customRuleReloaded.status()).isEqualTo(RuleStatus.REMOVED);
 

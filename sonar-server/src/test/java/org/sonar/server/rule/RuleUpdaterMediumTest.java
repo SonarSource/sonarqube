@@ -28,20 +28,28 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.qualityprofile.db.ActiveRuleKey;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtTesting;
+import org.sonar.server.qualityprofile.ActiveRule;
+import org.sonar.server.qualityprofile.RuleActivation;
+import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
+import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 
-import java.util.List;
 import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -55,7 +63,9 @@ public class RuleUpdaterMediumTest {
   public static ServerTester tester = new ServerTester();
 
   DbClient db = tester.get(DbClient.class);
+  RuleDao ruleDao = tester.get(RuleDao.class);
   DbSession dbSession;
+  RuleIndex ruleIndex = tester.get(RuleIndex.class);
   RuleUpdater updater = tester.get(RuleUpdater.class);
   int reliabilityId, softReliabilityId, hardReliabilityId;
 
@@ -72,7 +82,7 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void do_not_update_rule_with_removed_status() throws Exception {
-    db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY).setStatus(RuleStatus.REMOVED));
+    ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY).setStatus(RuleStatus.REMOVED));
     dbSession.commit();
 
     RuleUpdate update = new RuleUpdate(RULE_KEY).setTags(Sets.newHashSet("java9"));
@@ -86,7 +96,7 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void no_changes() throws Exception {
-    db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
+    ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
       // the following fields are not supposed to be updated
       .setNoteData("my *note*")
       .setNoteUserLogin("me")
@@ -102,7 +112,7 @@ public class RuleUpdaterMediumTest {
     updater.update(update, UserSession.get());
 
     dbSession.clearCache();
-    RuleDto rule = db.ruleDao().getNullableByKey(dbSession, RULE_KEY);
+    RuleDto rule = ruleDao.getNullableByKey(dbSession, RULE_KEY);
     assertThat(rule.getNoteData()).isEqualTo("my *note*");
     assertThat(rule.getNoteUserLogin()).isEqualTo("me");
     assertThat(rule.getTags()).containsOnly("tag1");
@@ -116,7 +126,7 @@ public class RuleUpdaterMediumTest {
   public void set_markdown_note() throws Exception {
     MockUserSession.set().setLogin("me");
 
-    db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
+    ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setNoteData(null)
       .setNoteUserLogin(null)
 
@@ -133,7 +143,7 @@ public class RuleUpdaterMediumTest {
     updater.update(update, UserSession.get());
 
     dbSession.clearCache();
-    RuleDto rule = db.ruleDao().getNullableByKey(dbSession, RULE_KEY);
+    RuleDto rule = ruleDao.getNullableByKey(dbSession, RULE_KEY);
     assertThat(rule.getNoteData()).isEqualTo("my *note*");
     assertThat(rule.getNoteUserLogin()).isEqualTo("me");
     assertThat(rule.getNoteCreatedAt()).isNotNull();
@@ -148,7 +158,7 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void remove_markdown_note() throws Exception {
-    db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
+    ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setNoteData("my *note*")
       .setNoteUserLogin("me"));
     dbSession.commit();
@@ -157,7 +167,7 @@ public class RuleUpdaterMediumTest {
     updater.update(update, UserSession.get());
 
     dbSession.clearCache();
-    RuleDto rule = db.ruleDao().getNullableByKey(dbSession, RULE_KEY);
+    RuleDto rule = ruleDao.getNullableByKey(dbSession, RULE_KEY);
     assertThat(rule.getNoteData()).isNull();
     assertThat(rule.getNoteUserLogin()).isNull();
     assertThat(rule.getNoteCreatedAt()).isNull();
@@ -167,7 +177,7 @@ public class RuleUpdaterMediumTest {
   @Test
   public void set_tags() throws Exception {
     // insert db
-    db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
+    ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setTags(Sets.newHashSet("security"))
       .setSystemTags(Sets.newHashSet("java8", "javadoc")));
     dbSession.commit();
@@ -177,7 +187,7 @@ public class RuleUpdaterMediumTest {
     updater.update(update, UserSession.get());
 
     dbSession.clearCache();
-    RuleDto rule = db.ruleDao().getNullableByKey(dbSession, RULE_KEY);
+    RuleDto rule = ruleDao.getNullableByKey(dbSession, RULE_KEY);
     assertThat(rule.getTags()).containsOnly("bug");
     assertThat(rule.getSystemTags()).containsOnly("java8", "javadoc");
 
@@ -188,7 +198,7 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void remove_tags() throws Exception {
-    db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
+    ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setTags(Sets.newHashSet("security"))
       .setSystemTags(Sets.newHashSet("java8", "javadoc")));
     dbSession.commit();
@@ -197,7 +207,7 @@ public class RuleUpdaterMediumTest {
     updater.update(update, UserSession.get());
 
     dbSession.clearCache();
-    RuleDto rule = db.ruleDao().getNullableByKey(dbSession, RULE_KEY);
+    RuleDto rule = ruleDao.getNullableByKey(dbSession, RULE_KEY);
     assertThat(rule.getTags()).isEmpty();
     assertThat(rule.getSystemTags()).containsOnly("java8", "javadoc");
 
@@ -209,7 +219,7 @@ public class RuleUpdaterMediumTest {
   @Test
   public void override_debt() throws Exception {
     insertDebtCharacteristics(dbSession);
-    db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
+    ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setDefaultSubCharacteristicId(hardReliabilityId)
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
       .setDefaultRemediationCoefficient("1d")
@@ -227,7 +237,7 @@ public class RuleUpdaterMediumTest {
 
     // verify db
     dbSession.clearCache();
-    RuleDto rule = db.ruleDao().getNullableByKey(dbSession, RULE_KEY);
+    RuleDto rule = ruleDao.getNullableByKey(dbSession, RULE_KEY);
     assertThat(rule.getSubCharacteristicId()).isEqualTo(softReliabilityId);
     assertThat(rule.getRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE.name());
     assertThat(rule.getRemediationCoefficient()).isNull();
@@ -245,7 +255,7 @@ public class RuleUpdaterMediumTest {
   @Test
   public void reset_debt() throws Exception {
     insertDebtCharacteristics(dbSession);
-    db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
+    ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setDefaultSubCharacteristicId(hardReliabilityId)
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
       .setDefaultRemediationCoefficient("1d")
@@ -262,7 +272,7 @@ public class RuleUpdaterMediumTest {
 
     // verify db
     dbSession.clearCache();
-    RuleDto rule = db.ruleDao().getNullableByKey(dbSession, RULE_KEY);
+    RuleDto rule = ruleDao.getNullableByKey(dbSession, RULE_KEY);
     assertThat(rule.getSubCharacteristicId()).isNull();
     assertThat(rule.getRemediationFunction()).isNull();
     assertThat(rule.getRemediationCoefficient()).isNull();
@@ -280,7 +290,7 @@ public class RuleUpdaterMediumTest {
   @Test
   public void unset_debt() throws Exception {
     insertDebtCharacteristics(dbSession);
-    db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
+    ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
       .setDefaultSubCharacteristicId(hardReliabilityId)
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
       .setDefaultRemediationCoefficient("1d")
@@ -297,7 +307,7 @@ public class RuleUpdaterMediumTest {
 
     // verify db
     dbSession.clearCache();
-    RuleDto rule = db.ruleDao().getNullableByKey(dbSession, RULE_KEY);
+    RuleDto rule = ruleDao.getNullableByKey(dbSession, RULE_KEY);
     assertThat(rule.getSubCharacteristicId()).isEqualTo(-1);
     assertThat(rule.getRemediationFunction()).isNull();
     assertThat(rule.getRemediationCoefficient()).isNull();
@@ -308,6 +318,89 @@ public class RuleUpdaterMediumTest {
     assertThat(indexedRule.debtCharacteristicKey()).isNull();
     assertThat(indexedRule.debtSubCharacteristicKey()).isNull();
     //TODO pb with db code -1 ? assertThat(indexedRule.debtRemediationFunction()).isNull();
+  }
+
+  @Test
+  public void update_custom_rule() throws Exception {
+    // Create template rule
+    RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
+    ruleDao.insert(dbSession, templateRule);
+    RuleParamDto templateRuleParam = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
+    ruleDao.addRuleParam(dbSession, templateRule, templateRuleParam);
+
+    // Create custom rule
+    RuleDto customRule = RuleTesting.newCustomRule(templateRule)
+      .setName("Old name")
+      .setDescription("Old description")
+      .setSeverity(Severity.MINOR)
+      .setStatus(RuleStatus.BETA);
+    ruleDao.insert(dbSession, customRule);
+    ruleDao.addRuleParam(dbSession, customRule, templateRuleParam.setDefaultValue("a.*"));
+
+    dbSession.commit();
+
+    // Update custom rule
+    RuleUpdate update = RuleUpdate.createForCustomRule(customRule.getKey())
+      .setName("New name")
+      .setHtmlDescription("New description")
+      .setSeverity("MAJOR")
+      .setStatus(RuleStatus.READY)
+      .setParameters(ImmutableMap.of("regex", "b.*"));
+    updater.update(update, UserSession.get());
+
+    dbSession.clearCache();
+
+    // Verify custom rule is updated
+    Rule customRuleReloaded = ruleIndex.getByKey(customRule.getKey());
+    assertThat(customRuleReloaded).isNotNull();
+    assertThat(customRuleReloaded.name()).isEqualTo("New name");
+    assertThat(customRuleReloaded.htmlDescription()).isEqualTo("New description");
+    assertThat(customRuleReloaded.severity()).isEqualTo("MAJOR");
+    assertThat(customRuleReloaded.status()).isEqualTo(RuleStatus.READY);
+    assertThat(customRuleReloaded.params()).hasSize(1);
+
+    RuleParam param = customRuleReloaded.params().get(0);
+    assertThat(param.defaultValue()).isEqualTo("b.*");
+  }
+
+  @Test
+  public void update_active_rule_parameters_when_updating_custom_rule() throws Exception {
+    // Create template rule with a parameter
+    RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001")).setLanguage("xoo");
+    ruleDao.insert(dbSession, templateRule);
+    RuleParamDto templateRuleParam = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
+    ruleDao.addRuleParam(dbSession, templateRule, templateRuleParam);
+
+    // Create custom rule with a parameter
+    RuleDto customRule = RuleTesting.newCustomRule(templateRule).setSeverity(Severity.MAJOR).setLanguage("xoo");
+    ruleDao.insert(dbSession, customRule);
+    ruleDao.addRuleParam(dbSession, customRule, templateRuleParam.setDefaultValue("a.*"));
+
+    // Create a quality profile
+    QualityProfileKey qualityProfileKey = QualityProfileKey.of("P1", "xoo");
+    QualityProfileDto profileDto = QualityProfileDto.createFor(qualityProfileKey);
+    db.qualityProfileDao().insert(dbSession, profileDto);
+
+    dbSession.commit();
+
+    // Activate the custom rule
+    tester.get(RuleActivator.class).activate(
+      new RuleActivation(ActiveRuleKey.of(profileDto.getKey(), customRule.getKey())).setSeverity(Severity.BLOCKER)
+    );
+
+    dbSession.clearCache();
+
+    // Update custom rule parameter
+    RuleUpdate update = RuleUpdate.createForCustomRule(customRule.getKey())
+      .setParameters(ImmutableMap.of("regex", "b.*"));
+    updater.update(update, UserSession.get());
+
+    // Verify active rule parameter has been updated
+    ActiveRule activeRule = tester.get(ActiveRuleIndex.class).getByKey(ActiveRuleKey.of(qualityProfileKey, customRule.getKey()));
+    assertThat(activeRule.params().get("regex")).isEqualTo("b.*");
+
+    // Verify that severity has not changed
+    assertThat(activeRule.severity()).isEqualTo(Severity.BLOCKER);
   }
 
   private void insertDebtCharacteristics(DbSession dbSession) {
@@ -324,41 +417,5 @@ public class RuleUpdaterMediumTest {
       .setParentId(reliability.getId());
     db.debtCharacteristicDao().insert(hardReliability, dbSession);
     hardReliabilityId = hardReliability.getId();
-  }
-
-  @Test
-  public void update_custom_rule() throws Exception {
-    insertDebtCharacteristics(dbSession);
-    RuleDto ruledto = db.ruleDao().insert(dbSession, RuleTesting.newDto(RULE_KEY)
-      .setName("Old name")
-      .setDescription("Old description")
-      .setSeverity("MINOR")
-      .setStatus(RuleStatus.BETA)
-    );
-    RuleParamDto ruleParamDto = RuleParamDto.createFor(ruledto).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
-    db.ruleDao().addRuleParam(dbSession, ruledto, ruleParamDto);
-
-    dbSession.commit();
-
-    RuleUpdate update = RuleUpdate.createForCustomRule(RULE_KEY)
-      .setName("New name")
-      .setHtmlDescription("New description")
-      .setSeverity("MAJOR")
-      .setStatus(RuleStatus.READY)
-      .setParameters(ImmutableMap.of("regex", "a.*"));
-    updater.update(update, UserSession.get());
-
-    // verify db
-    dbSession.clearCache();
-    RuleDto rule = db.ruleDao().getNullableByKey(dbSession, RULE_KEY);
-    assertThat(rule.getName()).isEqualTo("New name");
-    assertThat(rule.getDescription()).isEqualTo("New description");
-    assertThat(rule.getSeverityString()).isEqualTo("MAJOR");
-    assertThat(rule.getStatus()).isEqualTo(RuleStatus.READY);
-
-    List<RuleParamDto> params = db.ruleDao().findRuleParamsByRuleKey(dbSession, RULE_KEY);
-    assertThat(params).hasSize(1);
-    RuleParamDto param = params.get(0);
-    assertThat(param.getDefaultValue()).isEqualTo("a.*");
   }
 }

@@ -97,7 +97,7 @@ public class RuleActivator implements ServerComponent {
     }
   }
 
-  List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation) {
+  public List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation) {
     RuleActivatorContext context = contextFactory.create(activation.getKey(), dbSession);
     context.verifyForActivation();
     List<ActiveRuleChange> changes = Lists.newArrayList();
@@ -255,7 +255,10 @@ public class RuleActivator implements ServerComponent {
     }
   }
 
-  private List<ActiveRuleChange> deactivate(DbSession dbSession, RuleDto ruleDto) {
+  /**
+   * Deactivate a rule on a Quality profile WITHOUT committing db session, WITHOUT checking permissions, and forcing removal of inherited rules
+   */
+  public List<ActiveRuleChange> deactivate(DbSession dbSession, RuleDto ruleDto) {
     List<ActiveRuleChange> changes = Lists.newArrayList();
     List<ActiveRuleDto> activeRules = db.activeRuleDao().findByRule(dbSession, ruleDto);
     for (ActiveRuleDto activeRule : activeRules) {
@@ -268,7 +271,7 @@ public class RuleActivator implements ServerComponent {
   /**
    * @param force if true then inherited rules are deactivated
    */
-  private List<ActiveRuleChange> deactivate(DbSession dbSession, ActiveRuleKey key, boolean force) {
+  public List<ActiveRuleChange> deactivate(DbSession dbSession, ActiveRuleKey key, boolean force) {
     return cascadeDeactivation(key, dbSession, false, force);
   }
 

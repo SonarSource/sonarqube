@@ -45,7 +45,7 @@ public class RuleDeleter implements ServerComponent {
       if (rule.getParentId() == null) {
         throw new IllegalStateException("Only custom rules can be deleted");
       }
-      ruleActivator.deactivate(rule);
+      ruleActivator.deactivate(dbSession, rule);
 
       rule.setStatus(RuleStatus.REMOVED);
       dbClient.ruleDao().update(dbSession, rule);

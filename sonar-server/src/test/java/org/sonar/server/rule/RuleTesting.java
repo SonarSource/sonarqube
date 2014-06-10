@@ -27,6 +27,8 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.check.Cardinality;
 import org.sonar.core.rule.RuleDto;
 
+import java.util.Date;
+
 public class RuleTesting {
 
   private RuleTesting() {
@@ -61,6 +63,17 @@ public class RuleTesting {
       .setRemediationOffset("5min")
       .setDefaultRemediationOffset("10h")
       .setEffortToFixDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix");
+  }
+
+  public static RuleDto newTemplateRule(RuleKey ruleKey){
+    return newDto(ruleKey)
+      .setCardinality(Cardinality.MULTIPLE);
+  }
+
+  public static RuleDto newCustomRule(RuleDto templateRule){
+    return newDto(RuleKey.of(templateRule.getRepositoryKey(), templateRule.getRuleKey() + "_" + new Date().getTime()))
+      .setCardinality(Cardinality.SINGLE)
+      .setParentId(templateRule.getId());
   }
 
 }

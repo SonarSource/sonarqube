@@ -29,10 +29,13 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.qualityprofile.RuleActivation;
+import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.user.UserSession;
 
 import java.util.Collections;
@@ -44,10 +47,12 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class RuleUpdater implements ServerComponent {
 
+  private final RuleActivator ruleActivator;
   private final DbClient dbClient;
   private final System2 system;
 
-  public RuleUpdater(DbClient dbClient, System2 system) {
+  public RuleUpdater(RuleActivator ruleActivator, DbClient dbClient, System2 system) {
+    this.ruleActivator = ruleActivator;
     this.dbClient = dbClient;
     this.system = system;
   }
@@ -66,11 +71,24 @@ public class RuleUpdater implements ServerComponent {
       for (RuleParamDto ruleParamDto : context.parameters) {
         dbClient.ruleDao().updateRuleParam(dbSession, context.rule, ruleParamDto);
       }
+      // update related active rules (for custom rules only)
+      updateActiveRule(dbSession, update, context.rule);
       dbSession.commit();
       return true;
 
     } finally {
       dbSession.close();
+    }
+  }
+
+  private void updateActiveRule(DbSession dbSession, RuleUpdate update, RuleDto rule) {
+    if (update.isCustomRule() && update.isChangeParameters()) {
+      for (ActiveRuleDto activeRuleDto : dbClient.activeRuleDao().findByRule(dbSession, rule)) {
+        RuleActivation ruleActivation = new RuleActivation(activeRuleDto.getKey())
+          .setSeverity(activeRuleDto.getSeverityString())
+          .setParameters(update.getParameters());
+        ruleActivator.activate(dbSession, ruleActivation);
+      }
     }
   }
 
@@ -176,12 +194,16 @@ public class RuleUpdater implements ServerComponent {
     }
   }
 
+  /**
+   * Only update existing parameters, ignore the ones that are not existing in the list
+   */
   private void updateParameters(RuleUpdate update, Context context) {
     for (RuleParamDto ruleParamDto : context.parameters) {
       String value = update.parameter(ruleParamDto.getName());
       if (!Strings.isNullOrEmpty(value)) {
         ruleParamDto.setDefaultValue(value);
       }
+      // Ignore parameter not existing in update.getParameters()
     }
   }
 
