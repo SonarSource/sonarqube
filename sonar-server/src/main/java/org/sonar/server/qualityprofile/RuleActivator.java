@@ -29,11 +29,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.preview.PreviewCache;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleKey;
-import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
+import org.sonar.core.qualityprofile.db.*;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
@@ -50,6 +46,7 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.util.TypeValidations;
 
 import javax.annotation.Nullable;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -91,7 +88,7 @@ public class RuleActivator implements ServerComponent {
    * @throws org.sonar.server.exceptions.BadRequestException if the profile, the rule or a rule parameter does
    *                                                         not exist
    */
-  List<ActiveRuleChange> activate(RuleActivation activation) {
+  public List<ActiveRuleChange> activate(RuleActivation activation) {
     DbSession dbSession = db.openSession(false);
     try {
       return activate(dbSession, activation);

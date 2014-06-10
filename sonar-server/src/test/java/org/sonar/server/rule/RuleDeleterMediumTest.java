@@ -30,10 +30,19 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.qualityprofile.db.ActiveRuleKey;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.qualityprofile.ActiveRule;
+import org.sonar.server.qualityprofile.RuleActivation;
+import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.tester.ServerTester;
+
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -42,6 +51,7 @@ public class RuleDeleterMediumTest {
   @ClassRule
   public static ServerTester tester = new ServerTester();
 
+  DbClient db = tester.get(DbClient.class);
   RuleDao dao = tester.get(RuleDao.class);
   RuleIndex index = tester.get(RuleIndex.class);
   RuleCreator creator = tester.get(RuleCreator.class);
@@ -63,7 +73,9 @@ public class RuleDeleterMediumTest {
   public void delete_custom_rule() throws Exception {
     // Create template rule
     RuleKey templateRuleKey = RuleKey.of("java", "S001");
-    dao.insert(dbSession, RuleTesting.newDto(templateRuleKey).setCardinality(Cardinality.MULTIPLE));
+    dao.insert(dbSession, RuleTesting.newDto(templateRuleKey)
+      .setCardinality(Cardinality.MULTIPLE)
+      .setLanguage("xoo"));
     dbSession.commit();
 
     // Create custom rule
@@ -76,14 +88,25 @@ public class RuleDeleterMediumTest {
       .setParameters(ImmutableMap.of("regex", "a.*"));
     RuleKey customRuleKey = creator.create(newRule);
 
+    // Activate the custom rule
+    QualityProfileDto profileDto = QualityProfileDto.createFor(QualityProfileKey.of("P1", "xoo"));
+    db.qualityProfileDao().insert(dbSession, profileDto);
+    dbSession.commit();
+    tester.get(RuleActivator.class).activate(
+      new RuleActivation(ActiveRuleKey.of(profileDto.getKey(), customRuleKey)).setSeverity(Severity.BLOCKER)
+    );
+
     // Delete custom rule
     deleter.delete(customRuleKey);
 
+    // Verify custom rule have status REMOVED
     Rule customRuleReloaded = index.getByKey(customRuleKey);
     assertThat(customRuleReloaded).isNotNull();
     assertThat(customRuleReloaded.status()).isEqualTo(RuleStatus.REMOVED);
 
-    // TODO check active rules are removed
+    // Verify there's no more active rule from custom rule
+    List<ActiveRule> activeRules = tester.get(ActiveRuleIndex.class).findByProfile(profileDto.getKey());
+    assertThat(activeRules).isEmpty();
   }
 
   @Test
@@ -96,7 +119,7 @@ public class RuleDeleterMediumTest {
     try {
       // Delete rule
       deleter.delete(ruleKey);
-    } catch (Exception e){
+    } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Only custom rules can be deleted");
     }
   }

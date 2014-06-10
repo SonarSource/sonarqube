@@ -26,16 +26,16 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.qualityprofile.QProfileService;
+import org.sonar.server.qualityprofile.RuleActivator;
 
 public class RuleDeleter implements ServerComponent {
 
   private final DbClient dbClient;
-  private final QProfileService profileService;
+  private final RuleActivator ruleActivator;
 
-  public RuleDeleter(DbClient dbClient, QProfileService profileService) {
+  public RuleDeleter(DbClient dbClient, RuleActivator ruleActivator) {
     this.dbClient = dbClient;
-    this.profileService = profileService;
+    this.ruleActivator = ruleActivator;
   }
 
   public void delete(RuleKey ruleKey) {
@@ -45,7 +45,7 @@ public class RuleDeleter implements ServerComponent {
       if (rule.getParentId() == null) {
         throw new IllegalStateException("Only custom rules can be deleted");
       }
-      // TODO call profileService to deactivate active rules on the rule
+      ruleActivator.deactivate(rule);
 
       rule.setStatus(RuleStatus.REMOVED);
       dbClient.ruleDao().update(dbSession, rule);
