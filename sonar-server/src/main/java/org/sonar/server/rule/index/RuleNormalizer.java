@@ -237,6 +237,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
       /** Creating updateRequest */
       return ImmutableList.of(new UpdateRequest()
+        .id(rule.getKey().toString())
         .doc(update)
         .upsert(upsert));
 

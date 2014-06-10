@@ -413,6 +413,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     LOG.debug("UPDATE _id:{} in index {}", key, this.getIndexName());
     BulkRequestBuilder bulkRequest = getClient().prepareBulk();
     for (UpdateRequest request : requests) {
+      // if request has no ID then no upsert possible!
       if (request.id() == null || request.id().isEmpty()) {
         bulkRequest.add(new IndexRequest()
           .source(request.doc().sourceAsMap())
@@ -420,6 +421,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
           .index(this.getIndexName()));
       } else {
         bulkRequest.add(request
+          .id(this.getKeyValue(key))
           .index(this.getIndexName())
           .type(this.getIndexType()));
       }
