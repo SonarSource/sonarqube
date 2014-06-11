@@ -35,7 +35,7 @@ import org.sonar.server.rule.ws.SearchAction;
 public class BulkRuleActivationActions implements ServerComponent {
 
   public static final String PROFILE_KEY = "profile_key";
-  public static final String SEVERITY = "severity";
+  public static final String SEVERITY = "activation_severity";
 
   public static final String BULK_ACTIVATE_ACTION = "activate_rules";
   public static final String BULK_DEACTIVATE_ACTION = "deactivate_rules";
