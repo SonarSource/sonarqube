@@ -43,8 +43,9 @@ define [
         escapeMarkup: (m) -> m
 
 
-    show: (action) ->
+    show: (action, param = null) ->
       @action = action
+      @profile = param
       @render()
       @$el.dialog 'open'
 
@@ -59,12 +60,12 @@ define [
       if @action == 'activate' || @action == 'deactivate'
         _.extend query,
           wsAction: @action
-          profile_key: @$('#coding-rules-bulk-change-profile').val()
+          profile_key: @$('#coding-rules-bulk-change-profile').val() or @profile
 
       if @action == 'change-severity'
         _.extend query,
           wsAction: 'activate'
-          profile_key: @options.app.getQualityProfile()
+          profile_key: @profile
           activation_severity: @$('#coding-rules-bulk-change-severity').val()
 
       query
@@ -73,17 +74,24 @@ define [
     bulkChange: (query) ->
       wsAction = query.wsAction
       query = _.omit(query, 'wsAction')
+
+      origFooter = @$('.modal-foot').html()
+      @$('.modal-foot').html '<i class="spinner"></i>'
+
       jQuery.ajax
         type: 'POST'
         url: "#{baseUrl}/api/qualityprofiles/#{wsAction}_rules"
         data: query
       .done =>
         @options.app.fetchFirstPage(true)
+        @hide()
+      .fail =>
+        @$('.modal-foot').html origFooter
 
 
     onSubmit: (e) ->
       e.preventDefault()
-      @bulkChange(@prepareQuery()).done => @hide()
+      @bulkChange(@prepareQuery())
 
 
     getAvailableQualityProfiles: ->
@@ -101,7 +109,7 @@ define [
       paging: @options.app.codingRules.paging
       qualityProfiles: @options.app.qualityProfiles
 
-      qualityProfile: @options.app.getQualityProfile()
+      qualityProfile: @profile
       qualityProfileName: @options.app.qualityProfileFilter.view.renderValue()
 
       availableQualityProfiles: @getAvailableQualityProfiles()

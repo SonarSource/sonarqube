@@ -18,14 +18,7 @@ define [
     doAction: (e) ->
       action = jQuery(e.currentTarget).data 'action'
       param = jQuery(e.currentTarget).data 'param'
-      unless param
-        @options.app.codingRulesBulkChangeView.show action
-      else
-        query = @options.app.getQuery()
-        _.extend query,
-          profile_key: param
-          wsAction: action
-        @options.app.codingRulesBulkChangeView.bulkChange query
+      @options.app.codingRulesBulkChangeView.show action, param
 
 
     onRender: ->

@@ -36,7 +36,9 @@ define [
           profileKey = @model.get('key')
       severity = @ui.qualityProfileSeverity.val()
 
+      origFooter = @$('.modal-foot').html()
       @$('.modal-foot').html '<i class="spinner"></i>'
+
       ruleKey = @rule.get('key')
       jQuery.ajax
         type: 'POST'
@@ -49,6 +51,8 @@ define [
       .done =>
           @options.app.showRule ruleKey
           @hide()
+      .fail =>
+          @$('.modal-foot').html origFooter
 
 
     onRender: ->
