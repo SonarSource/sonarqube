@@ -108,6 +108,14 @@ class RuleActivatorContext {
     return activeRuleParams;
   }
 
+  Map<String, String> activeRuleParamsAsStringMap() {
+    Map<String, String> params = Maps.newHashMap();
+    for (Map.Entry<String, ActiveRuleParamDto> param : activeRuleParams.entrySet()) {
+      params.put(param.getKey(), param.getValue().getValue());
+    }
+    return params;
+  }
+
   Map<String, String> parentActiveRuleParamsAsStringMap() {
     Map<String, String> params = Maps.newHashMap();
     for (Map.Entry<String, ActiveRuleParamDto> param : parentActiveRuleParams.entrySet()) {

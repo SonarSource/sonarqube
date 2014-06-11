@@ -469,13 +469,46 @@ public class RuleActivatorMediumTest {
     // change on parent -> do not propagate on children because they're overriding values
     activation = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, XOO_RULE_1));
     activation.setSeverity(Severity.CRITICAL);
-    activation.setParameter("max", "10");
+    activation.setParameter("max", "9");
     ruleActivator.activate(activation);
     dbSession.clearCache();
-    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.CRITICAL, null, ImmutableMap.of("max", "10"));
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.CRITICAL, null, ImmutableMap.of("max", "9"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "8"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "8"));
+
+    // reset on parent (use default severity and params) -> do not propagate on children because they're overriding values
+    activation = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, XOO_RULE_1));
+    ruleActivator.activate(activation);
+    dbSession.clearCache();
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.MINOR, null, ImmutableMap.of("max", "10"));
     verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "8"));
     verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "8"));
   }
+
+  @Test
+  public void active_on_parent_a_rule_already_activated_on_child() throws Exception {
+    createChildProfiles();
+
+    // activate on child profile
+    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(XOO_CHILD_PROFILE_KEY, XOO_RULE_1));
+    activation.setSeverity(Severity.INFO);
+    activation.setParameter("max", "7");
+    ruleActivator.activate(activation);
+    verifyZeroActiveRules(XOO_PROFILE_KEY);
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.INFO, null, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.INFO, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+
+    // active the same rule on root profile -> mark the child profile as OVERRIDES
+    activation = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, XOO_RULE_1));
+    activation.setSeverity(Severity.MAJOR);
+    activation.setParameter("max", "8");
+    ruleActivator.activate(activation);
+    dbSession.clearCache();
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.MAJOR, null, ImmutableMap.of("max", "8"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.INFO, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.INFO, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+  }
+
 
   @Test
   public void do_not_override_on_child_if_same_values() throws Exception {
@@ -515,6 +548,37 @@ public class RuleActivatorMediumTest {
     // deactivate on root
     ruleActivator.deactivate(activation.getKey());
 
+    verifyZeroActiveRules(XOO_PROFILE_KEY);
+    verifyZeroActiveRules(XOO_CHILD_PROFILE_KEY);
+    verifyZeroActiveRules(XOO_GRAND_CHILD_PROFILE_KEY);
+  }
+
+  @Test
+  public void propagate_deactivation_even_on_child_overrides() throws Exception {
+    createChildProfiles();
+
+    // activate on root profile
+    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, XOO_RULE_1));
+    activation.setSeverity(Severity.INFO);
+    activation.setParameter("max", "7");
+    ruleActivator.activate(activation);
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.INFO, null, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.INFO, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.INFO, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
+
+    // override on child
+    activation = new RuleActivation(ActiveRuleKey.of(XOO_CHILD_PROFILE_KEY, XOO_RULE_1));
+    activation.setSeverity(Severity.BLOCKER);
+    activation.setParameter("max", "8");
+    ruleActivator.activate(activation);
+    dbSession.clearCache();
+    verifyOneActiveRule(XOO_PROFILE_KEY, XOO_RULE_1, Severity.INFO, null, ImmutableMap.of("max", "7"));
+    verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "8"));
+    verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.BLOCKER, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "8"));
+
+    // deactivate on parent -> do not propagate on children because they're overriding values
+    ruleActivator.deactivate(ActiveRuleKey.of(XOO_PROFILE_KEY, XOO_RULE_1));
+    dbSession.clearCache();
     verifyZeroActiveRules(XOO_PROFILE_KEY);
     verifyZeroActiveRules(XOO_CHILD_PROFILE_KEY);
     verifyZeroActiveRules(XOO_GRAND_CHILD_PROFILE_KEY);
@@ -617,7 +681,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void bulk_activate_lot_of_rules() {
+  public void mass_activation() {
     // Generate more rules than the search's max limit
     int bulkSize = QueryOptions.MAX_LIMIT + 10;
     for (int i = 0; i < bulkSize; i++) {

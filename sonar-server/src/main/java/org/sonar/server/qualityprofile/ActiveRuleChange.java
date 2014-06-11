@@ -106,6 +106,12 @@ public class ActiveRuleChange implements Loggable {
     return this;
   }
 
+  public ActiveRuleChange setParameters(Map<String,String> m) {
+    parameters.clear();
+    parameters.putAll(m);
+    return this;
+  }
+
   @Override
   public Map<String, String> getDetails() {
     ImmutableMap.Builder<String, String> details = ImmutableMap.<String, String>builder();

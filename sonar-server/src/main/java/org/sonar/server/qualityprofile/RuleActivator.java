@@ -106,30 +106,61 @@ public class RuleActivator implements ServerComponent {
     context.verifyForActivation();
     List<ActiveRuleChange> changes = Lists.newArrayList();
     ActiveRuleChange change;
-    if (context.activeRule() == null) {
-      change = new ActiveRuleChange(ActiveRuleChange.Type.ACTIVATED, activation.getKey());
+    boolean stopPropagation = false;
 
-      //Rules crated by default Inheritance
+    if (context.activeRule() == null) {
+      // new activation
+      change = new ActiveRuleChange(ActiveRuleChange.Type.ACTIVATED, activation.getKey());
       if (activation.isCascade() || context.isSameAsParent(activation)) {
         change.setInheritance(ActiveRule.Inheritance.INHERITED);
       }
+      applySeverityAndParamToChange(activation, context, change);
+
     } else {
-      change = new ActiveRuleChange(ActiveRuleChange.Type.UPDATED, activation.getKey());
-      // Stop propagation on overriding profiles
+      // already activated
+
       if (activation.isCascade() && context.activeRule().doesOverride()) {
+        // propagating to descendants, but child profile already overrides rule -> stop propagation
         return changes;
       }
-
-      //Updates on rule that exists with a valid parent switch them to OVERRIDE
-      if (!activation.isCascade() && context.parentProfile() != null) {
-        change.setInheritance(context.isSameAsParent(activation) ? ActiveRule.Inheritance.INHERITED : ActiveRule.Inheritance.OVERRIDES);
+      change = new ActiveRuleChange(ActiveRuleChange.Type.UPDATED, activation.getKey());
+      if (activation.isCascade() && context.activeRule().getInheritance() == null) {
+        // activate on child, then on parent -> mark child as overriding parent
+        change.setInheritance(ActiveRule.Inheritance.OVERRIDES);
+        change.setSeverity(context.activeRule().getSeverityString());
+        change.setParameters(context.activeRuleParamsAsStringMap());
+        stopPropagation = true;
+      } else {
+        applySeverityAndParamToChange(activation, context, change);
+        if (!activation.isCascade() && context.parentProfile() != null) {
+          // override rule which is already declared on parents
+          change.setInheritance(context.isSameAsParent(activation) ? ActiveRule.Inheritance.INHERITED : ActiveRule.Inheritance.OVERRIDES);
+        }
       }
     }
 
-    // Severity and parameter values are :
-    // 1. defined by end-user
-    // 2. else inherited from parent profile
-    // 3. else defined by rule defaults
+    changes.add(change);
+    persist(change, context, dbSession);
+
+    if (!stopPropagation) {
+      changes.addAll(cascadeActivation(dbSession, activation));
+    }
+
+    if (!changes.isEmpty()) {
+      log.write(dbSession, Log.Type.ACTIVE_RULE, changes);
+      dbSession.commit();
+      previewCache.reportGlobalModification();
+    }
+    return changes;
+  }
+
+  /**
+   * Severity and parameter values are :
+   * 1. defined by end-user
+   * 2. else inherited from parent profile
+   * 3. else defined by rule defaults
+   */
+  private void applySeverityAndParamToChange(RuleActivation activation, RuleActivatorContext context, ActiveRuleChange change) {
     change.setSeverity(StringUtils.defaultIfEmpty(activation.getSeverity(), context.defaultSeverity()));
     for (RuleParamDto ruleParamDto : context.ruleParams()) {
       String value = StringUtils.defaultIfEmpty(
@@ -138,21 +169,6 @@ public class RuleActivator implements ServerComponent {
       verifyParam(ruleParamDto, value);
       change.setParameter(ruleParamDto.getName(), StringUtils.defaultIfEmpty(value, ruleParamDto.getDefaultValue()));
     }
-
-    changes.add(change);
-    // TODO filter changes without any differences
-
-    persist(change, context, dbSession);
-
-    // Execute the cascade on the child if NOT overrides
-    changes.addAll(cascadeActivation(dbSession, activation));
-
-    if (!changes.isEmpty()) {
-      log.write(dbSession, Log.Type.ACTIVE_RULE, changes);
-      dbSession.commit();
-      previewCache.reportGlobalModification();
-    }
-    return changes;
   }
 
   private List<ActiveRuleChange> cascadeActivation(DbSession session, RuleActivation activation) {
