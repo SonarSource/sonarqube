@@ -160,11 +160,10 @@ requirejs [
     else
       scrollOffset = 0
 
-    if firstPage
-      @layout.showSpinner 'resultsRegion'
-    #else
-    #  @layout.showSpinner 'resultsRegion'
+    @layout.showSpinner 'resultsRegion'
     @layout.showSpinner 'facetsRegion' unless fromFacets || !firstPage
+
+
     jQuery.ajax
       url: "#{baseUrl}/api/rules/search"
       data: fetchQuery
@@ -178,16 +177,21 @@ requirejs [
         pageIndex: r.p
         pageSize: r.ps
         pages: 1 + (r.total / r.ps)
+
+      if @codingRulesListView
+        @codingRulesListView.close()
+
       if firstPage
         @codingRules.reset r.rules
         @codingRulesListView = new CodingRulesListView
           app: @
           collection: @codingRules
-        @layout.resultsRegion.show @codingRulesListView
       else
         @codingRulesListView.unbindEvents()
         @codingRules.add r.rules
-        @codingRulesListView.render()
+
+      @layout.resultsRegion.show @codingRulesListView
+
 
       if @codingRules.isEmpty()
         @layout.detailsRegion.reset()

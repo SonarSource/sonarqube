@@ -9,7 +9,6 @@ define [
   class AppLayout extends Marionette.Layout
     className: 'navigator coding-rules-navigator'
     template: Templates['coding-rules-layout']
-    spinner: '<i class="spinner"></i>'
     storageKey: 'codingRulesResultsWidth'
 
 
@@ -64,7 +63,8 @@ define [
 
 
     showSpinner: (region) ->
-      @$(@[region].el).html @spinner
+      @[region].show new Marionette.ItemView
+        template: _.template('<i class="spinner"></i>')
 
 
     startResize: (e) ->

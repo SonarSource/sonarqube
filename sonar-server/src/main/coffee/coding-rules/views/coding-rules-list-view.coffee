@@ -26,8 +26,12 @@ define [
 
 
     onRender: ->
-      key 'up', 'list', => @selectPrev()
-      key 'down', 'list', => @selectNext()
+      key 'up', 'list', (e) =>
+        @selectPrev()
+        #e.stopPropagation()
+      key 'down', 'list', (e) =>
+        @selectNext()
+        #e.stopPropagation()
 
       $scrollEl = jQuery('.navigator-results')
       scrollEl = $scrollEl.get(0)
@@ -38,16 +42,13 @@ define [
       $scrollEl.off('scroll').on 'scroll', throttledScroll
 
 
-    close: ->
-      @unbindEvents
-      super
+    onClose: ->
+      @unbindEvents()
 
 
     unbindEvents: ->
       key.unbind 'up', 'list'
       key.unbind 'down', 'list'
-      scrollEl = jQuery '.navigator-results'
-      scrollEl.off 'scroll';
 
 
     selectIssue: (el, open) ->
