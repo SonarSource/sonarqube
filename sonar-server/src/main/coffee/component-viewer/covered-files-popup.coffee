@@ -34,6 +34,8 @@ define [
 
 
     serializeData: ->
-      items: @collection.toJSON().map (file) ->
+      items = @collection.toJSON().map (file) ->
         _.extend file, utils.splitLongName file.longName
+      sortedItems = _.sortBy items, 'name'
+      items: sortedItems
       test: @options.test

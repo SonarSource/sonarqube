@@ -1,6 +1,13 @@
 <div class="component-viewer-popup-container">
 
-{{#eq test.status 'OK'}}
+{{#notEq test.status 'OK'}}
+  {{#if test.message}}
+      <div class="component-viewer-popup-title">{{test.message}}</div>
+  {{/if}}
+    <pre>{{test.stackTrace}}</pre>
+{{/notEq}}
+
+{{#notEq test.status 'ERROR'}}
   <div class="component-viewer-popup-title">{{t 'component_viewer.transition.covers'}}</div>
 
   {{#each items}}
@@ -14,11 +21,6 @@
   {{/each}}
 
   </div>
-{{else}}
-  {{#if test.message}}
-    <div class="component-viewer-popup-title">{{test.message}}</div>
-  {{/if}}
-  <pre>{{test.stackTrace}}</pre>
-{{/eq}}
+{{/notEq}}
 
 <div class="component-viewer-popup-arrow"></div>

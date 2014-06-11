@@ -50,11 +50,6 @@ define [
     'complexity,function_complexity,' +
     'comment_lines,comment_lines_density,public_api,public_undocumented_api,public_documented_api_density'
 
-  NEW_SOURCE_METRIC_LIST = 'new_accessors,classes,functions,statements,' +
-      'ncloc,lines,' +
-      'complexity,function_complexity,' +
-      'comment_lines,comment_lines_density,public_api,public_undocumented_api,public_documented_api_density'
-
   COVERAGE_METRIC_LIST = 'coverage,line_coverage,lines_to_cover,covered_lines,uncovered_lines,' +
     'branch_coverage,conditions_to_cover,uncovered_conditions,' +
     'it_coverage,it_line_coverage,it_lines_to_cover,it_covered_lines,it_uncovered_lines,' +
@@ -65,7 +60,7 @@ define [
 
   DUPLICATIONS_METRIC_LIST = 'duplicated_lines_density,duplicated_blocks,duplicated_files,duplicated_lines'
 
-  TESTS_METRIC_LIST = 'tests'
+  TESTS_METRIC_LIST = 'tests,test_success_density,test_failures,test_errors,test_execution_time'
 
 
 
@@ -206,7 +201,7 @@ define [
     requestTests: (key) ->
       $.get API_TESTS, key: key, (data) =>
         @state.set 'hasTests', true
-        @component.set 'tests', data.tests
+        @component.set 'tests', _.sortBy data.tests, 'name'
 
 
     open: (key) ->

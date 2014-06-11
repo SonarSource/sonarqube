@@ -1,3 +1,21 @@
+{{#with component.measures}}
+  <span class="nowrap">
+    {{#any test_success_density test_failures test_errors test_execution_time}}
+      <div class="component-viewer-header-expanded-bar-section">
+        <div class="component-viewer-header-expanded-bar-section-title">
+          {{t 'component_viewer.measure_section.unit_tests'}}
+        </div>
+        <ul class="component-viewer-header-expanded-bar-section-list">
+          {{{componentViewerHeaderItem test_success_density 'test_success_density'}}}
+          {{{componentViewerHeaderItem test_failures 'test_failures'}}}
+          {{{componentViewerHeaderItem test_errors 'test_errors'}}}
+          {{{componentViewerHeaderItem test_execution_time 'test_execution_time'}}}
+        </ul>
+      </div>
+    {{/any}}
+  </span>
+{{/with}}
+
 <div class="component-viewer-header-expanded-bar-section large">
   <div class="component-viewer-header-expanded-bar-section-title justify">
     <span class="ib">{{t 'component_viewer.measure_section.unit_tests'}}</span>
@@ -5,12 +23,13 @@
   </div>
   <ul class="component-viewer-header-expanded-bar-section-list">
     {{#each component.tests}}
-      <li><a class="item js-unit-test" data-name="{{name}}">
-        <span class="label">{{testStatusIcon status}} <span class="subtitle">{{durationInMs}}ms</span>
+      <li><a class="item js-unit-test" data-name="{{name}}" title="{{name}}">
+        <span class="label">{{testStatusIcon status}}
+          <span class="duration subtitle">{{durationInMs}}ms</span>
           {{name}}</span>
-        {{#eq status 'OK'}}
+        {{#if coveredLines}}
           <span class="number">{{coveredLines}}</span>
-        {{/eq}}
+        {{/if}}
         <i class="icon-chevron-right"></i>
       </a></li>
     {{/each}}
