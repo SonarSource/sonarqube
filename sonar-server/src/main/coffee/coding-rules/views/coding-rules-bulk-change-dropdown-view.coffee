@@ -44,9 +44,13 @@ define [
 
     serializeData: ->
       languages = @options.app.languageFilter.get('value')
-      activation = @options.app.activationFilter.get('value')
-      qualityProfile: @options.app.getQualityProfile()
+      activationValues = @options.app.activationFilter.get('value') or []
+      qualityProfile = @options.app.getQualityProfile()
+
+      qualityProfile: qualityProfile
       qualityProfileName: @options.app.qualityProfileFilter.view.renderValue()
-      singleLanguage: _.isArray(languages) && languages.length == 1
+      singleLanguage: _.isArray(languages) and languages.length == 1
       language: @options.app.languageFilter.view.renderValue()
-      activation: activation && activation.length == 1 && activation[0]
+      allowActivateOnProfile: qualityProfile and (activationValues.length == 0 or activationValues[0] == 'false')
+      allowDeactivateOnProfile: qualityProfile and (activationValues.length == 0 or activationValues[0] == 'true')
+      allowChangeSeverity: qualityProfile and activationValues.length > 0 and activationValues[0] == 'true'
