@@ -30,7 +30,11 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.log.Log;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.preview.PreviewCache;
-import org.sonar.core.qualityprofile.db.*;
+import org.sonar.core.qualityprofile.db.ActiveRuleDto;
+import org.sonar.core.qualityprofile.db.ActiveRuleKey;
+import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
@@ -47,7 +51,6 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.util.TypeValidations;
 
 import javax.annotation.Nullable;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -107,7 +110,7 @@ public class RuleActivator implements ServerComponent {
 
     if (context.activeRule() == null) {
       // new activation
-      change = new ActiveRuleChange(ActiveRuleChange.Type.ACTIVATED, activation.getKey());
+      change = ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, activation.getKey());
       if (activation.isCascade() || context.isSameAsParent(activation)) {
         change.setInheritance(ActiveRule.Inheritance.INHERITED);
       }
@@ -120,7 +123,7 @@ public class RuleActivator implements ServerComponent {
         // propagating to descendants, but child profile already overrides rule -> stop propagation
         return changes;
       }
-      change = new ActiveRuleChange(ActiveRuleChange.Type.UPDATED, activation.getKey());
+      change = ActiveRuleChange.createFor(ActiveRuleChange.Type.UPDATED, activation.getKey());
       if (activation.isCascade() && context.activeRule().getInheritance() == null) {
         // activate on child, then on parent -> mark child as overriding parent
         change.setInheritance(ActiveRule.Inheritance.OVERRIDES);
@@ -303,7 +306,7 @@ public class RuleActivator implements ServerComponent {
     if (!force && !isCascade && context.activeRule().getInheritance() != null) {
       throw new IllegalStateException("Cannot deactivate inherited rule '" + key.ruleKey() + "'");
     }
-    change = new ActiveRuleChange(ActiveRuleChange.Type.DEACTIVATED, key);
+    change = ActiveRuleChange.createFor(ActiveRuleChange.Type.DEACTIVATED, key);
     changes.add(change);
     persist(change, context, dbSession);
 

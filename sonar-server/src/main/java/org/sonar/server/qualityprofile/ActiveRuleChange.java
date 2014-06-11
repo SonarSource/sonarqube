@@ -41,14 +41,12 @@ public class ActiveRuleChange implements Loggable {
   private ActiveRule.Inheritance previousInheritance = null, inheritance = null;
   private Map<String, String> parameters = Maps.newHashMap();
 
-  public ActiveRuleChange() {
-    type = null;
-    key = null;
-  }
+  private long start;
 
-  ActiveRuleChange(Type type, ActiveRuleKey key) {
+  private ActiveRuleChange(Type type, ActiveRuleKey key) {
     this.type = type;
     this.key = key;
+    this.start = System.currentTimeMillis();
   }
 
   public ActiveRuleKey getKey() {
@@ -123,12 +121,15 @@ public class ActiveRuleChange implements Loggable {
     if (this.getKey() != null) {
       details.put("key", this.getKey().toString());
     }
-
     return details.build();
   }
 
   @Override
   public Integer getExecutionTime() {
-    return null;
+    return (int) (System.currentTimeMillis() - start);
+  }
+
+  public static ActiveRuleChange createFor(Type type, ActiveRuleKey key) {
+    return new ActiveRuleChange(type, key);
   }
 }

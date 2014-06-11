@@ -20,9 +20,13 @@
 package org.sonar.server.log.ws;
 
 import org.sonar.api.resources.Languages;
+import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.log.Log;
 import org.sonar.server.log.index.LogNormalizer;
 import org.sonar.server.search.ws.BaseMapping;
 import org.sonar.server.text.MacroInterpreter;
+
+import java.util.Map;
 
 /**
  * Conversion between Log and WS JSON response
@@ -38,5 +42,21 @@ public class LogMapping extends BaseMapping {
     addIndexStringField("userLogin", LogNormalizer.LogFields.AUTHOR.field());
     addIndexStringField("message", LogNormalizer.LogFields.MESSAGE.field());
     addIndexStringField("executionTime", LogNormalizer.LogFields.EXECUTION.field());
+    addField("details", new DetailField());
+  }
+
+  private static class DetailField extends IndexField<Log> {
+    DetailField() {
+      super(LogNormalizer.LogFields.DETAILS.field());
+    }
+
+    @Override
+    public void write(JsonWriter json, Log log) {
+      json.name("details").beginObject();
+      for (Map.Entry<String, String> detail : log.details().entrySet()) {
+        json.prop(detail.getKey(), detail.getValue());
+      }
+      json.endObject();
+    }
   }
 }

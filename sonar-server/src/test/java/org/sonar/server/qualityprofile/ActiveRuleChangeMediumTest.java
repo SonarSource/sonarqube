@@ -24,8 +24,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.core.log.Log;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.qualityprofile.db.ActiveRuleKey;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.log.LogService;
 import org.sonar.server.log.index.LogIndex;
@@ -58,7 +61,11 @@ public class ActiveRuleChangeMediumTest {
 
   @Test
   public void insert_find_active_rule_change() {
-    ActiveRuleChange change = new ActiveRuleChange()
+    ActiveRuleKey key = ActiveRuleKey.of(
+      QualityProfileKey.of("profile", "java"),
+      RuleKey.of("repository", "rule"));
+    ActiveRuleChange change = ActiveRuleChange
+      .createFor(ActiveRuleChange.Type.ACTIVATED, key)
       .setInheritance(ActiveRule.Inheritance.INHERITED)
       .setSeverity("BLOCKER")
       .setParameter("param1", "value1");
@@ -71,5 +78,6 @@ public class ActiveRuleChangeMediumTest {
 
     Log log = Iterables.getFirst(index.findAll().getHits(), null);
     assertThat(log).isNotNull();
+    assertThat(log.details().get("key")).isEqualTo(key.toString());
   }
 }

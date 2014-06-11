@@ -99,6 +99,9 @@ public class LogNormalizer extends BaseNormalizer<LogDto, LogKey> {
     logDoc.put(LogFields.MESSAGE.field(), dto.getMessage());
     logDoc.put(LogFields.EXECUTION.field(), dto.getExecutionTime());
     logDoc.put(LogFields.DATE.field(), dto.getCreatedAt());
+
+    System.out.println(" KeyValueFormat.parse(dto.getData()) = " + KeyValueFormat.parse(dto.getData()));
+
     logDoc.put(LogFields.DETAILS.field(), KeyValueFormat.parse(dto.getData()));
 
    /* Creating updateRequest */
