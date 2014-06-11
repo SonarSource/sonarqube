@@ -37,7 +37,9 @@ define [], () ->
 
 
     requestIssuesPeriod: (key, period) ->
-      $.get API_COMPONENT, key: key, period: period, (data) =>
+      params = key: key
+      params.period = period if period?
+      $.get API_COMPONENT, params, (data) =>
         rules = data.rules.map (r) -> key: r[0], name: r[1], count: r[2]
         severities = data.severities.map (r) -> key: r[0], name: r[1], count: r[2]
         @state.set rules: rules, severities: severities
@@ -46,10 +48,8 @@ define [], () ->
     enableIssuesPeriod: (periodKey) ->
       period = if periodKey == '' then null else @periods.findWhere key: periodKey
       @state.set 'issuesPeriod', period
-      if period?
-        @requestIssuesPeriod(@key, period.get('key')).done => @headerView.render()
-      else
-        @requestComponent(@key, false, false).done => @headerView.render()
+      periodKey = if period? then period.get 'key' else null
+      @requestIssuesPeriod(@key, periodKey).done => @headerView.render()
 
 
     filterLinesByIssues: ->

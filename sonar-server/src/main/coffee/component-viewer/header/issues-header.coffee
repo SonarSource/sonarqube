@@ -48,6 +48,7 @@ define [
         triggerEl: $(e.currentTarget)
         main: @options.main
         bottom: true
+        prefix: 'Added'
       popup.render()
       popup.on 'change', (period) => @main.enableIssuesPeriod period
 

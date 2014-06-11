@@ -27,3 +27,4 @@ define [
     serializeData: ->
       component: @options.main.component.toJSON()
       periods: @options.main.periods.toJSON()
+      prefix: @options.prefix || 'Δ'

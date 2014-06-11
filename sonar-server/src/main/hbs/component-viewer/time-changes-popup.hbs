@@ -2,7 +2,7 @@
 
 <ul class="component-viewer-popup-list">
   {{#each periods}}
-    <li><a class="link-action" data-period="{{key}}">{{label}}</a></li>
+    <li><a class="link-action" data-period="{{key}}">{{#if key}}{{../../prefix}}{{/if}} {{label}}</a></li>
   {{/each}}
 </ul>
 

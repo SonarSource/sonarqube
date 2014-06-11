@@ -30,8 +30,10 @@
         {{#if ../../settings.scm}}
           <td class="stat {{#if scm}}scm{{/if}}">
             {{#if scm}}
-              <span class="scm-date">{{scm.date}}</span>
-              <span class="scm-author" title="{{scm.author}}">{{scm.author}}</span>
+              {{#ifSCMChanged ../../../../source ../../../lineNumber}}
+                <span class="scm-date">{{scm.date}}</span>
+                <span class="scm-author" title="{{scm.author}}">{{scm.author}}</span>
+              {{/ifSCMChanged}}
             {{/if}}
           </td>
         {{/if}}

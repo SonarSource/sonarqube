@@ -89,9 +89,10 @@
 
     var apiUrl = baseUrl + '/api/l10n/index';
     return jQuery.ajax({
-      'url': apiUrl,
-      'data': params,
-      'statusCode': {
+      url: apiUrl,
+      data: params,
+      dataType: 'json',
+      statusCode: {
         304: function() {
           // NOP, use cached messages
         }

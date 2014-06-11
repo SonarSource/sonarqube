@@ -50,6 +50,11 @@ define [
     'complexity,function_complexity,' +
     'comment_lines,comment_lines_density,public_api,public_undocumented_api,public_documented_api_density'
 
+  NEW_SOURCE_METRIC_LIST = 'new_accessors,classes,functions,statements,' +
+      'ncloc,lines,' +
+      'complexity,function_complexity,' +
+      'comment_lines,comment_lines_density,public_api,public_undocumented_api,public_documented_api_density'
+
   COVERAGE_METRIC_LIST = 'coverage,line_coverage,lines_to_cover,covered_lines,uncovered_lines,' +
     'branch_coverage,conditions_to_cover,uncovered_conditions,' +
     'it_coverage,it_line_coverage,it_lines_to_cover,it_covered_lines,it_uncovered_lines,' +
@@ -150,15 +155,19 @@ define [
         if full
           # Periods
           @periods.reset [{}]
-          data.periods.forEach (p) => @periods.add key: p[0], label: p[1], sinceDate: new Date p[2]
+          data.periods.forEach (p) =>
+            d = new Date p[2]
+            d.setHours 0, 0, 0, 0
+            p = @periods.add key: p[0], label: p[1], sinceDate: d
 
 
-    requestMeasures: (key) ->
+    requestMeasures: (key, period = null) ->
       @state.set 'hasMeasures', true
+      return @requestTrends(key, period) if period?
       unless @component.get 'isUnitTest'
         metrics = [SOURCE_METRIC_LIST, COVERAGE_METRIC_LIST, ISSUES_METRIC_LIST, DUPLICATIONS_METRIC_LIST].join ','
       else
-        metrics = [ISSUES_METRIC_LIST, TESTS_METRIC_LIST]
+        metrics = [ISSUES_METRIC_LIST, TESTS_METRIC_LIST].join ','
       data = resource: key, metrics: metrics
       $.get API_MEASURES, data, (data) =>
         measuresList = data[0].msr || []
@@ -168,10 +177,30 @@ define [
         @component.set 'measures', measures
 
 
+    requestTrends: (key, period) ->
+      unless @component.get 'isUnitTest'
+        metrics = COVERAGE_METRIC_LIST
+      else
+        metrics = ''
+      metrics = metrics.split(',').map((m) -> "new_#{m}").join ','
+      data = resource: key, metrics: metrics, includetrends: true
+      $.get API_MEASURES, data, (data) =>
+        measuresList = data[0].msr || []
+        measures = @component.get 'measures'
+        measuresList.forEach (m) ->
+          key = m.key.substr(4)
+          variation = "var#{period}"
+          measures[key] = m[variation]
+        @component.set 'measures', measures
+
+
     requestSource: (key) ->
       $.get API_SOURCES, key: key, (data) =>
         @source.clear()
-        @source.set source: data.sources
+        formattedSource = _.map data.sources, (item) => lineNumber: item[0], code: item[1]
+        @source.set
+          source: data.sources
+          formattedSource: formattedSource
 
 
     requestTests: (key) ->

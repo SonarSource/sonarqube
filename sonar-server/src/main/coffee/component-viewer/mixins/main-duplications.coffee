@@ -9,9 +9,27 @@ define [], () ->
 
     requestDuplications: (key) ->
       $.get API_DUPLICATIONS, key: key, (data) =>
+        return unless data?.duplications?
         @state.set 'hasDuplications', true
         @source.set duplications: data.duplications
         @source.set duplicationFiles: data.files
+        @augmentWithDuplications data.duplications
+
+
+    augmentWithDuplications: (duplications) ->
+      formattedSource = @source.get 'formattedSource'
+      formattedSource.forEach (line) ->
+        lineDuplications = []
+        duplications.forEach (d, i) ->
+          duplicated = false
+          d.blocks.forEach (b) ->
+            if b._ref == '1'
+              lineFrom = b.from
+              lineTo = b.from + b.size
+              duplicated = true if line.lineNumber >= lineFrom && line.lineNumber <= lineTo
+          lineDuplications.push if duplicated then i + 1 else false
+        line.duplications = lineDuplications
+      @source.set 'formattedSource', formattedSource
 
 
     showDuplications: (store = false) ->

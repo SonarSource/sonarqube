@@ -174,40 +174,6 @@ define [
       @options.main.showAllLines()
 
 
-    augmentWithCoverage: (source) ->
-      coverage = @model.get 'coverage'
-      if coverage
-        coverage.forEach (s) ->
-          line = source[s[0] - 1]
-          line.coverage =
-            covered: s[1]
-            testCases: s[2]
-            branches: s[3]
-            coveredBranches: s[4]
-          if line.coverage.branches? && line.coverage.coveredBranches?
-            line.coverage.branchCoverageStatus = 'green' if line.coverage.branches == line.coverage.coveredBranches
-            line.coverage.branchCoverageStatus = 'orange' if line.coverage.branches > line.coverage.coveredBranches
-            line.coverage.branchCoverageStatus = 'red' if line.coverage.coveredBranches == 0
-      source
-
-
-    augmentWithDuplications: (source) ->
-      duplications = @model.get 'duplications'
-      return source unless duplications?
-      source.forEach (line) ->
-        lineDuplications = []
-        duplications.forEach (d, i) ->
-          duplicated = false
-          d.blocks.forEach (b) ->
-            if b._ref == '1'
-              lineFrom = b.from
-              lineTo = b.from + b.size
-              duplicated = true if line.lineNumber >= lineFrom && line.lineNumber <= lineTo
-          lineDuplications.push if duplicated then i + 1 else false
-        line.duplications = lineDuplications
-      source
-
-
     getSCMForLine: (lineNumber) ->
       scm = @model.get('scm') || []
       closest = -1
@@ -244,18 +210,9 @@ define [
 
 
     prepareSource: ->
-      source = @model.get 'source'
-      source = _.map source, (item) =>
-        lineNumber: item[0], code: item[1]
-
-      if @options.main.settings.get 'coverage'
-        source = @augmentWithCoverage source
-      if @options.main.settings.get 'duplications'
-        source = @augmentWithDuplications source
-      if @options.main.settings.get 'scm'
-        source = @augmentWithSCM source
-
-      @augmentWithShow source
+      source = @model.get 'formattedSource'
+      if source?
+        @augmentWithShow source
 
 
     getStatColumnsCount: ->

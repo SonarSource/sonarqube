@@ -6,6 +6,7 @@ define [
   'component-viewer/header/issues-header'
   'component-viewer/header/coverage-header'
   'component-viewer/header/duplications-header'
+  'component-viewer/header/scm-header'
   'component-viewer/header/tests-header'
 
   'common/handlebars-extensions'
@@ -17,6 +18,7 @@ define [
   IssuesHeaderView
   CoverageHeaderView
   DuplicationsHeaderView
+  SCMHeaderView
   TestsHeaderView
 ) ->
 
@@ -28,6 +30,7 @@ define [
     { scope: 'issues', view: IssuesHeaderView }
     { scope: 'coverage', view: CoverageHeaderView }
     { scope: 'duplications', view: DuplicationsHeaderView }
+    { scope: 'scm', view: SCMHeaderView }
     { scope: 'tests', view: TestsHeaderView }
   ]
 

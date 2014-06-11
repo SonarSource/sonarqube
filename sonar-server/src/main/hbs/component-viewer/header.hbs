@@ -114,13 +114,14 @@
 
     {{#inArray state.tabs 'scm'}}
       <div class="component-viewer-header-measures-scope">
-        <span data-scope="scm" class="component-viewer-header-measures-expand">
+        <a data-scope="scm" class="component-viewer-header-measures-expand">
           <div class="component-viewer-header-measure">
             <span class="component-viewer-header-measure-value"><i class="icon-calendar"></i></span>
             <span class="component-viewer-header-measure-label">SCM</span>
           </div>
-        </span>
-        <a data-scope="scm" title="{{t 'component_viewer.header.toggle_duplications'}}"
+          <i class="icon-dropdown"></i>
+        </a>
+        <a data-scope="scm" title="{{t 'component_viewer.header.toggle_scm'}}"
            class="js-toggle-scm component-viewer-header-measures-toggle-scope {{#if settings.scm}}active{{/if}}"></a>
       </div>
     {{/inArray}}
