@@ -54,8 +54,8 @@ define [
     selectIssue: (el, open) ->
       @$('.active').removeClass 'active'
       el.addClass 'active'
-      ruleTitle = el.find('[title]').attr('title')
-      rule = @collection.findWhere name: ruleTitle
+      ruleKey = el.find('[name]').attr('name')
+      rule = @collection.findWhere key: ruleKey
       @selected = @collection.indexOf(rule)
       @openRule el if open
 
@@ -71,9 +71,9 @@ define [
 
 
     selectNext: ->
-      if @selected < @collection.length - 1
-        @selected++
-        child = @$el.children().eq @selected
+      if @selected + 1 < @collection.length
+        @selected += 1
+        child = @$el.children().eq(@selected)
         container = jQuery('.navigator-results')
         containerHeight = container.height()
         bottom = child.position().top + child.outerHeight()
@@ -84,8 +84,8 @@ define [
 
     selectPrev: ->
       if @selected > 0
-        @selected--
-        child = @$el.children().eq @selected
+        @selected -= 1
+        child = @$el.children().eq(@selected)
         container = jQuery('.navigator-results')
         top = child.position().top
         if top < 0
