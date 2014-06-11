@@ -41,6 +41,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -207,7 +208,12 @@ public class QProfileService implements ServerComponent {
     return index.get(ActiveRuleIndex.class).countByQualityProfileKey(key);
   }
 
-  public Map<String, Long> countAllActiveRules() {
-    return index.get(ActiveRuleIndex.class).countByField(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY);
+  public Map<QualityProfileKey, Long> countAllActiveRules() {
+    Map<QualityProfileKey, Long> counts = new HashMap<QualityProfileKey, Long>();
+    for (Map.Entry<String, Long> entry : index.get(ActiveRuleIndex.class)
+      .countByField(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY).entrySet()) {
+      counts.put(QualityProfileKey.parse(entry.getKey()), entry.getValue());
+    }
+    return counts;
   }
 }
