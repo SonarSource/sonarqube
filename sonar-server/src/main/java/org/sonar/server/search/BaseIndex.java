@@ -36,6 +36,8 @@ import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.cluster.WorkQueue;
@@ -540,5 +542,25 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     return getClient().prepareCount(this.getIndexName())
       .setTypes(this.getIndexType())
       .get().getCount();
+  }
+
+  public Map<String, Long> countByField(IndexField indexField) {
+    Map<String, Long> counts = new HashMap<String, Long>();
+    Terms values = getClient().prepareSearch(this.getIndexName())
+      .setTypes(this.getIndexType())
+      .setQuery(QueryBuilders.matchAllQuery())
+      .setSize(0)
+      .addAggregation(AggregationBuilders
+        .terms(indexField.field())
+        .field(indexField.field())
+        .order(Terms.Order.count(false))
+        .size(Integer.MAX_VALUE)
+        .minDocCount(0)).get()
+      .getAggregations().get(indexField.field());
+
+    for (Terms.Bucket value : values.getBuckets()) {
+      counts.put(value.getKey(), value.getDocCount());
+    }
+    return counts;
   }
 }

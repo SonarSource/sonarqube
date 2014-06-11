@@ -29,6 +29,7 @@ import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
+import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.user.UserSession;
@@ -41,6 +42,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class QProfileService implements ServerComponent {
 
@@ -201,7 +203,11 @@ public class QProfileService implements ServerComponent {
     UserSession.get().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
-  public Long countActiveRulesByProfile(QualityProfileKey key) {
+  public long countActiveRulesByProfile(QualityProfileKey key) {
     return index.get(ActiveRuleIndex.class).countByQualityProfileKey(key);
+  }
+
+  public Map<String, Long> countAllActiveRules() {
+    return index.get(ActiveRuleIndex.class).countByField(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY);
   }
 }

@@ -36,11 +36,13 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
+import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -250,7 +252,40 @@ public class ActiveRuleBackendMediumTest {
 
     // 1. Assert by profileKey
     assertThat(index.countByQualityProfileKey(profileDto1.getKey())).isEqualTo(1);
+
+    // 2. Assert by term aggregation;
+    Map<String, Long> counts = index.countByField(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY);
+    assertThat(counts).hasSize(2);
+    assertThat(counts.values()).containsOnly(1L, 1L);
+    assertThat(counts.keySet()).containsOnly(profileDto1.getKey().toString(), profileDto2.getKey().toString());
   }
+
+  @Test
+  public void count_all_by_index_field() {
+    QualityProfileDto profileDto1 = QualityProfileDto.createFor("p1", "java");
+    QualityProfileDto profileDto2 = QualityProfileDto.createFor("p2", "java");
+    db.qualityProfileDao().insert(dbSession, profileDto1, profileDto2);
+
+    RuleKey ruleKey = RuleKey.of("javascript", "S001");
+    RuleDto ruleDto = newRuleDto(ruleKey);
+    db.ruleDao().insert(dbSession, ruleDto);
+
+    ActiveRuleDto activeRule1 = ActiveRuleDto.createFor(profileDto1, ruleDto).setSeverity(Severity.MAJOR);
+    ActiveRuleDto activeRule2 = ActiveRuleDto.createFor(profileDto2, ruleDto).setSeverity(Severity.MAJOR);
+    db.activeRuleDao().insert(dbSession, activeRule1, activeRule2);
+    dbSession.commit();
+
+    // 0. Test base case
+    assertThat(index.countAll()).isEqualTo(2);
+
+    // 1. Assert by term aggregation;
+    Map<String, Long> counts = index.countByField(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY);
+    assertThat(counts).hasSize(2);
+    assertThat(counts.values()).containsOnly(1L, 1L);
+    assertThat(counts.keySet()).containsOnly(profileDto1.getKey().toString(), profileDto2.getKey().toString());
+  }
+
+
 
 
   private RuleDto newRuleDto(RuleKey ruleKey) {
