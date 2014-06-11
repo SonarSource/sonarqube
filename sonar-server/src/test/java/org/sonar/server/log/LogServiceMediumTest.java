@@ -33,7 +33,6 @@ import org.sonar.server.log.db.LogDao;
 import org.sonar.server.log.index.LogIndex;
 import org.sonar.server.log.index.LogQuery;
 import org.sonar.server.log.index.LogResult;
-import org.sonar.server.search.IndexProperties;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.tester.ServerTester;
 
@@ -44,8 +43,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class LogServiceMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester()
-    .setProperty(IndexProperties.HTTP_PORT, "9200");
+  public static ServerTester tester = new ServerTester();
 
   LogService service = tester.get(LogService.class);
   LogDao dao = tester.get(LogDao.class);
