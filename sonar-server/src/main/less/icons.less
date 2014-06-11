@@ -130,6 +130,11 @@ a[class^="icon-"], a[class*=" icon-"] {
   font-size: @iconFontSize;
 }
 .icon-test-status-failure:before {
+  content: "\f000";
+  color: @orange;
+  font-size: @iconFontSize;
+}
+.icon-test-status-error:before {
   content: "\f057";
   color: @red;
   font-size: @iconFontSize;
