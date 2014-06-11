@@ -29,15 +29,14 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.technicaldebt.db.CharacteristicMapper;
+import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.RegisterRules;
 
@@ -60,29 +59,31 @@ public class CopyRequirementsFromCharacteristicsToRules implements ServerCompone
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CopyRequirementsFromCharacteristicsToRules.class);
 
+  private static final String TEMPLATE_KEY = "CopyRequirementsFromCharacteristicsToRules";
+
   private final DbClient dbClient;
-  private final ServerUpgradeStatus status;
 
   /**
    * @param registerRules used only to be started after init of rules
    */
-  public CopyRequirementsFromCharacteristicsToRules(DbClient dbClient, ServerUpgradeStatus status, RegisterRules registerRules) {
+  public CopyRequirementsFromCharacteristicsToRules(DbClient dbClient, RegisterRules registerRules) {
     this.dbClient = dbClient;
-    this.status = status;
   }
 
   public void start() {
-    if (status.isUpgraded() && status.getInitialDbVersion() <= 520) {
-      doExecute();
-    }
+    doExecute();
   }
 
   private void doExecute() {
-    LOGGER.info("Copying requirement from characteristics to rules");
-    copyRequirementsFromCharacteristicsToRules();
+    if (dbClient.loadedTemplateDao().countByTypeAndKey(LoadedTemplateDto.ONE_SHOT_TASK_TYPE, TEMPLATE_KEY) == 0) {
+      LOGGER.info("Copying requirement from characteristics to rules");
+      copyRequirementsFromCharacteristicsToRules();
 
-    LOGGER.info("Deleting requirements data");
-    removeRequirementsDataFromCharacteristics();
+      LOGGER.info("Deleting requirements from characteristics");
+      removeRequirementsDataFromCharacteristics();
+
+      dbClient.loadedTemplateDao().insert(new LoadedTemplateDto(TEMPLATE_KEY, LoadedTemplateDto.ONE_SHOT_TASK_TYPE));
+    }
   }
 
   private void copyRequirementsFromCharacteristicsToRules() {
@@ -90,20 +91,30 @@ public class CopyRequirementsFromCharacteristicsToRules implements ServerCompone
 
     try {
       List<Map<String, Object>> requirementDtos = dbSession.getMapper(CharacteristicMapper.class).selectDeprecatedRequirements();
-      final Multimap<Number, RequirementDto> requirementsByRuleId = ArrayListMultimap.create();
-      for (Map<String, Object> map : requirementDtos) {
-        RequirementDto requirementDto = new RequirementDto(map);
-        requirementsByRuleId.put(requirementDto.getRuleId(), requirementDto);
-      }
+      if (requirementDtos.isEmpty()) {
+        LOGGER.info("No requirement will be copied", requirementDtos);
 
-      List<RuleDto> rules = dbClient.ruleDao().findAll(dbSession);
-      for (RuleDto rule : rules) {
-        Collection<RequirementDto> requirementsForRule = requirementsByRuleId.get(rule.getId());
-        if (!requirementsForRule.isEmpty()) {
-          convert(rule, requirementsForRule, dbSession);
+      } else {
+        int requirementCopied = 0;
+
+        final Multimap<Number, RequirementDto> requirementsByRuleId = ArrayListMultimap.create();
+        for (Map<String, Object> map : requirementDtos) {
+          RequirementDto requirementDto = new RequirementDto(map);
+          requirementsByRuleId.put(requirementDto.getRuleId(), requirementDto);
         }
+
+        List<RuleDto> rules = dbClient.ruleDao().findAll(dbSession);
+        for (RuleDto rule : rules) {
+          Collection<RequirementDto> requirementsForRule = requirementsByRuleId.get(rule.getId());
+          if (!requirementsForRule.isEmpty()) {
+            convert(rule, requirementsForRule, dbSession);
+            requirementCopied++;
+          }
+        }
+        dbSession.commit();
+
+        LOGGER.info("{} requirements have been found, {} have be copied", requirementDtos.size(), requirementCopied);
       }
-      dbSession.commit();
     } finally {
       MyBatis.closeQuietly(dbSession);
     }
@@ -174,10 +185,10 @@ public class CopyRequirementsFromCharacteristicsToRules implements ServerCompone
 
   @CheckForNull
   @VisibleForTesting
-  static String convertDuration(@Nullable Double oldValue, @Nullable String oldUnit) {
-    if (oldValue != null && oldValue > 0) {
+  static String convertDuration(@Nullable Number oldValue, @Nullable String oldUnit) {
+    if (oldValue != null && oldValue.doubleValue() > 0) {
       // As value is stored in double, we have to round it in order to have an integer (for instance, if it was 1.6, we'll use 2)
-      return Integer.toString((int) Math.round(oldValue)) + convertUnit(oldUnit);
+      return Integer.toString((int) Math.round(oldValue.doubleValue())) + convertUnit(oldUnit);
     }
     return null;
   }
@@ -220,55 +231,53 @@ public class CopyRequirementsFromCharacteristicsToRules implements ServerCompone
      * Do not use Integer because Oracle returns BigDecimal
      */
     public Number getId() {
-      return (Number) map.get("ID");
+      return (Number) map.get("id");
     }
 
     /**
      * Do not use Integer because Oracle returns BigDecimal
      */
     public Number getParentId() {
-      return (Number) map.get("PARENTID");
+      return (Number) map.get("parentId");
     }
 
     /**
      * Do not use Integer because Oracle returns BigDecimal
      */
     public Number getRuleId() {
-      return (Number) map.get("RULEID");
+      return (Number) map.get("ruleId");
     }
 
     public String getFunction() {
-      return (String) map.get("FUNCTIONKEY");
+      return (String) map.get("functionKey");
     }
 
     @CheckForNull
-    public Double getCoefficientValue() {
-      return (Double) map.get("COEFFICIENTVALUE");
+    public Number getCoefficientValue() {
+      return (Number) map.get("coefficientValue");
     }
 
 
     @CheckForNull
     public String getCoefficientUnit() {
-      return (String) map.get("COEFFICIENTUNIT");
+      return (String) map.get("coefficientUnit");
     }
 
 
     @CheckForNull
-    public Double getOffsetValue() {
-      return (Double) map.get("OFFSETVALUE");
+    public Number getOffsetValue() {
+      return (Number) map.get("offsetValue");
     }
 
 
     @CheckForNull
     public String getOffsetUnit() {
-      return (String) map.get("OFFSETUNIT");
+      return (String) map.get("offsetUnit");
     }
 
     public boolean isEnabled() {
-      return (Boolean) map.get("ENABLED");
+      return (Boolean) map.get("enabled");
     }
-
-
   }
 
 }

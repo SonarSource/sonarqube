@@ -25,11 +25,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.TestDatabase;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.db.RuleDao;
 
@@ -43,30 +43,26 @@ public class CopyRequirementsFromCharacteristicsToRulesTest {
   public static TestDatabase db = new TestDatabase();
 
   @Mock
-  ServerUpgradeStatus status;
-
-  @Mock
   System2 system2;
+
+  DbClient dbClient;
 
   CopyRequirementsFromCharacteristicsToRules service;
 
   @Before
   public void setUp() throws Exception {
     when(system2.now()).thenReturn(DateUtils.parseDate("2014-03-13").getTime());
-    DbClient dbClient = new DbClient(db.database(), db.myBatis(), new RuleDao(system2));
-    service = new CopyRequirementsFromCharacteristicsToRules(dbClient, status, null);
+    dbClient = new DbClient(db.database(), db.myBatis(), new RuleDao(system2), new LoadedTemplateDao(db.myBatis()));
+    service = new CopyRequirementsFromCharacteristicsToRules(dbClient, null);
   }
 
   @Test
   public void copy_requirements_from_characteristics_to_rules() throws Exception {
     db.prepareDbUnit(getClass(), "copy_requirements_from_characteristics_to_rules.xml");
 
-    when(status.isUpgraded()).thenReturn(true);
-    when(status.getInitialDbVersion()).thenReturn(498);
-
     service.start();
 
-    db.assertDbUnit(getClass(), "copy_requirements_from_characteristics_to_rules_result.xml", "rules");
+    db.assertDbUnit(getClass(), "copy_requirements_from_characteristics_to_rules_result.xml", "rules", "loaded_templates");
   }
 
   /**
@@ -75,9 +71,6 @@ public class CopyRequirementsFromCharacteristicsToRulesTest {
   @Test
   public void convert_constant_issue_with_coeff_to_constant_issue_with_offset() throws Exception {
     db.prepareDbUnit(getClass(), "convert_constant_issue_with_coeff_to_constant_issue_with_offset.xml");
-
-    when(status.isUpgraded()).thenReturn(true);
-    when(status.getInitialDbVersion()).thenReturn(498);
 
     service.start();
 
@@ -88,12 +81,18 @@ public class CopyRequirementsFromCharacteristicsToRulesTest {
   public void remove_requirements_data_from_characteristics() throws Exception {
     db.prepareDbUnit(getClass(), "remove_requirements_data_from_characteristics.xml");
 
-    when(status.isUpgraded()).thenReturn(true);
-    when(status.getInitialDbVersion()).thenReturn(498);
-
     service.start();
 
     db.assertDbUnit(getClass(), "remove_requirements_data_from_characteristics_result.xml", "characteristics");
+  }
+
+  @Test
+  public void do_nothing_when_already_executed() throws Exception {
+    db.prepareDbUnit(getClass(), "do_nothing_when_already_executed.xml");
+
+    service.start();
+
+    db.assertDbUnit(getClass(), "do_nothing_when_already_executed_result.xml", "rules");
   }
 
   @Test
