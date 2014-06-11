@@ -165,9 +165,13 @@ define [
     showExtendDescriptionForm: ->
       @ui.descriptionExtra.hide()
       @ui.extendDescriptionForm.show()
+      key.setScope 'extraDesc'
+      key 'escape', 'extraDesc', => @hideExtendDescriptionForm()
+      @ui.extendDescriptionText.focus()
 
 
     hideExtendDescriptionForm: ->
+      key.unbind 'escape', 'extraDesc'
       @ui.descriptionExtra.show()
       @ui.extendDescriptionForm.hide()
 
