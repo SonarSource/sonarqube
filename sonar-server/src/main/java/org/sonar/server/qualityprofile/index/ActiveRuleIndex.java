@@ -38,6 +38,7 @@
 */
 package org.sonar.server.qualityprofile.index;
 
+import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.settings.ImmutableSettings;
@@ -169,4 +170,10 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
   }
 
 
+  public Long countByQualityProfileKey(QualityProfileKey key) {
+    CountRequestBuilder request = getClient().prepareCount(getIndexName())
+      .setQuery(QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), key.toString()))
+      .setRouting(key.toString());
+    return request.get().getCount();
+  }
 }

@@ -535,4 +535,10 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     }
     return filter;
   }
+
+  public Long countAll() {
+    return getClient().prepareCount(this.getIndexName())
+      .setTypes(this.getIndexType())
+      .get().getCount();
+  }
 }

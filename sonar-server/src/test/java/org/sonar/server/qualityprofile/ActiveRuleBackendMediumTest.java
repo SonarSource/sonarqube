@@ -230,6 +230,29 @@ public class ActiveRuleBackendMediumTest {
     assertThat(activeRules).hasSize(100);
   }
 
+  @Test
+  public void count_by_profile() {
+    QualityProfileDto profileDto1 = QualityProfileDto.createFor("p1", "java");
+    QualityProfileDto profileDto2 = QualityProfileDto.createFor("p2", "java");
+    db.qualityProfileDao().insert(dbSession, profileDto1, profileDto2);
+
+    RuleKey ruleKey = RuleKey.of("javascript", "S001");
+    RuleDto ruleDto = newRuleDto(ruleKey);
+    db.ruleDao().insert(dbSession, ruleDto);
+
+    ActiveRuleDto activeRule1 = ActiveRuleDto.createFor(profileDto1, ruleDto).setSeverity(Severity.MAJOR);
+    ActiveRuleDto activeRule2 = ActiveRuleDto.createFor(profileDto2, ruleDto).setSeverity(Severity.MAJOR);
+    db.activeRuleDao().insert(dbSession, activeRule1, activeRule2);
+    dbSession.commit();
+
+    // 0. Test base case
+    assertThat(index.countAll()).isEqualTo(2);
+
+    // 1. Assert by profileKey
+    assertThat(index.countByQualityProfileKey(profileDto1.getKey())).isEqualTo(1);
+  }
+
+
   private RuleDto newRuleDto(RuleKey ruleKey) {
     return new RuleDto()
       .setRuleKey(ruleKey.rule())

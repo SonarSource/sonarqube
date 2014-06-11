@@ -200,4 +200,8 @@ public class QProfileService implements ServerComponent {
     UserSession.get().checkLoggedIn();
     UserSession.get().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
+
+  public Long countActiveRulesByProfile(QualityProfileKey key) {
+    return index.get(ActiveRuleIndex.class).countByQualityProfileKey(key);
+  }
 }
