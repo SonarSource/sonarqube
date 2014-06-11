@@ -37,8 +37,8 @@ define [
 
     serializeData: ->
       files = @options.main.source.get('duplicationFiles')
-      blocks = _.groupBy @collection.toJSON(), '_ref'
-      duplications = _.map blocks, (blocks, fileRef) ->
+      groupedBlocks = _.groupBy @collection.toJSON(), '_ref'
+      duplications = _.map groupedBlocks, (blocks, fileRef) ->
         blocks: blocks
         file: files[fileRef]
       duplications: duplications

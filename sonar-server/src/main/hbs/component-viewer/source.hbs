@@ -19,14 +19,6 @@
       <tr class="row"
           data-line-number="{{lineNumber}}">
 
-        {{#if ../../settings.duplications}}
-          <td class="stat duplications">
-            {{#each duplications}}
-              <span class="duplication {{#if this}}duplication-exists{{/if}}" data-index="{{this}}"></span>
-            {{/each}}
-          </td>
-        {{/if}}
-
         {{#if ../../settings.scm}}
           <td class="stat {{#if scm}}scm{{/if}}">
             {{#if scm}}
@@ -35,6 +27,14 @@
                 <span class="scm-author" title="{{scm.author}}">{{scm.author}}</span>
               {{/ifSCMChanged}}
             {{/if}}
+          </td>
+        {{/if}}
+
+        {{#if ../../settings.duplications}}
+          <td class="stat duplications">
+            {{#each duplications}}
+              <span class="duplication {{#if this}}duplication-exists{{/if}}" data-index="{{this}}"></span>
+            {{/each}}
           </td>
         {{/if}}
 
