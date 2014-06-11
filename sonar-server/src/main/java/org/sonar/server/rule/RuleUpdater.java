@@ -30,12 +30,11 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
+import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.qualityprofile.RuleActivation;
-import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.user.UserSession;
 
 import java.util.Collections;
@@ -47,12 +46,10 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class RuleUpdater implements ServerComponent {
 
-  private final RuleActivator ruleActivator;
   private final DbClient dbClient;
   private final System2 system;
 
-  public RuleUpdater(RuleActivator ruleActivator, DbClient dbClient, System2 system) {
-    this.ruleActivator = ruleActivator;
+  public RuleUpdater(DbClient dbClient, System2 system) {
     this.dbClient = dbClient;
     this.system = system;
   }
@@ -84,10 +81,13 @@ public class RuleUpdater implements ServerComponent {
   private void updateActiveRule(DbSession dbSession, RuleUpdate update, RuleDto rule) {
     if (update.isCustomRule() && update.isChangeParameters()) {
       for (ActiveRuleDto activeRuleDto : dbClient.activeRuleDao().findByRule(dbSession, rule)) {
-        RuleActivation ruleActivation = new RuleActivation(activeRuleDto.getKey())
-          .setSeverity(activeRuleDto.getSeverityString())
-          .setParameters(update.getParameters());
-        ruleActivator.activate(dbSession, ruleActivation);
+        for (ActiveRuleParamDto activeRuleParamDto : dbClient.activeRuleDao().findParamsByActiveRuleKey(dbSession, activeRuleDto.getKey())) {
+          String newValue = update.getParameters().get(activeRuleParamDto.getKey());
+          if (!Strings.isNullOrEmpty(newValue)) {
+            activeRuleParamDto.setValue(newValue);
+            dbClient.activeRuleDao().updateParam(dbSession, activeRuleDto, activeRuleParamDto);
+          }
+        }
       }
     }
   }

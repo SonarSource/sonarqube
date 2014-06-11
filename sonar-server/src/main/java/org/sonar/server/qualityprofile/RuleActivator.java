@@ -30,11 +30,7 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.log.Log;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.preview.PreviewCache;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleKey;
-import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
+import org.sonar.core.qualityprofile.db.*;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
@@ -51,6 +47,7 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.util.TypeValidations;
 
 import javax.annotation.Nullable;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -162,6 +159,7 @@ public class RuleActivator implements ServerComponent {
    */
   private void applySeverityAndParamToChange(RuleActivation activation, RuleActivatorContext context, ActiveRuleChange change) {
     change.setSeverity(StringUtils.defaultIfEmpty(activation.getSeverity(), context.defaultSeverity()));
+    verifyParametersAreNotSetOnCustomRule(context, activation, change);
     for (RuleParamDto ruleParamDto : context.ruleParams()) {
       String value = StringUtils.defaultIfEmpty(
         activation.getParameters().get(ruleParamDto.getName()),
@@ -459,4 +457,11 @@ public class RuleActivator implements ServerComponent {
     }
     return false;
   }
+
+  private void verifyParametersAreNotSetOnCustomRule(RuleActivatorContext context, RuleActivation activation, ActiveRuleChange change){
+    if (!activation.getParameters().isEmpty() && context.rule().getParentId() != null) {
+      throw new IllegalStateException(String.format("Parameters cannot be set when activating the custom rule '%s'", activation.getKey().ruleKey()));
+    }
+  }
+
 }

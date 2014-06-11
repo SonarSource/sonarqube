@@ -28,13 +28,8 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleParamType;
-import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleKey;
-import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
+import org.sonar.core.qualityprofile.db.*;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
@@ -48,6 +43,7 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.tester.ServerTester;
 
 import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -62,6 +58,8 @@ public class RuleActivatorMediumTest {
   static final QualityProfileKey XOO_CHILD_PROFILE_KEY = QualityProfileKey.of("P2", "xoo");
   static final QualityProfileKey XOO_GRAND_CHILD_PROFILE_KEY = QualityProfileKey.of("P3", "xoo");
   static final RuleKey MANUAL_RULE_KEY = RuleKey.of(Rule.MANUAL_REPOSITORY_KEY, "m1");
+  static final RuleKey TEMPLATE_RULE_KEY = RuleKey.of("xoo", "template1");
+  static final RuleKey CUSTOM_RULE_KEY = RuleKey.of(TEMPLATE_RULE_KEY.repository(), "custom1");
   static final RuleKey XOO_RULE_1 = RuleKey.of("xoo", "x1");
   static final RuleKey XOO_RULE_2 = RuleKey.of("xoo", "x2");
 
@@ -87,14 +85,22 @@ public class RuleActivatorMediumTest {
     RuleDto xooRule1 = RuleTesting.newDto(XOO_RULE_1)
       .setSeverity("MINOR").setLanguage("xoo");
     RuleDto xooRule2 = RuleTesting.newDto(XOO_RULE_2).setLanguage("xoo");
-    RuleDto xooTemplateRule1 = RuleTesting.newDto(RuleKey.of("xoo", "template1"))
-      .setSeverity("MINOR").setLanguage("xoo").setCardinality(Cardinality.MULTIPLE);
+    RuleDto xooTemplateRule1 = RuleTesting.newTemplateRule(TEMPLATE_RULE_KEY)
+      .setSeverity("MINOR").setLanguage("xoo");
     RuleDto manualRule = RuleTesting.newDto(MANUAL_RULE_KEY);
     db.ruleDao().insert(dbSession, javaRule, xooRule1, xooRule2, xooTemplateRule1, manualRule);
     db.ruleDao().addRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
       .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
     db.ruleDao().addRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
       .setName("min").setType(RuleParamType.INTEGER.type()));
+    db.ruleDao().addRuleParam(dbSession, xooTemplateRule1, RuleParamDto.createFor(xooTemplateRule1)
+      .setName("format").setType(RuleParamType.STRING.type()));
+
+    RuleDto xooCustomRule1 = RuleTesting.newCustomRule(xooTemplateRule1).setRuleKey(CUSTOM_RULE_KEY.rule())
+      .setSeverity("MINOR").setLanguage("xoo");
+    db.ruleDao().insert(dbSession, xooCustomRule1);
+    db.ruleDao().addRuleParam(dbSession, xooTemplateRule1, RuleParamDto.createFor(xooTemplateRule1)
+      .setName("format").setDefaultValue("txt").setType(RuleParamType.STRING.type()));
 
     // create pre-defined profile
     db.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor(XOO_PROFILE_KEY));
@@ -203,7 +209,7 @@ public class RuleActivatorMediumTest {
 
   @Test
   public void fail_to_activate_if_template() throws Exception {
-    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, RuleKey.of("xoo", "template1")));
+    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, TEMPLATE_RULE_KEY));
 
     try {
       ruleActivator.activate(activation);
@@ -297,6 +303,20 @@ public class RuleActivatorMediumTest {
       fail();
     } catch (BadRequestException e) {
       assertThat(e.l10nKey()).isEqualTo("errors.type.notInteger");
+      verifyZeroActiveRules(XOO_PROFILE_KEY);
+    }
+  }
+
+  @Test
+  public void fail_to_activate_if_custom_rule_template_and_parameters_are_set() throws Exception {
+    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, CUSTOM_RULE_KEY))
+      .setParameter("format", "xls");
+
+    try {
+      ruleActivator.activate(activation);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Parameters cannot be set when activating the custom rule 'xoo:custom1'");
       verifyZeroActiveRules(XOO_PROFILE_KEY);
     }
   }
