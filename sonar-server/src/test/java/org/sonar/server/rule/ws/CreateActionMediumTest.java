@@ -79,6 +79,7 @@ public class CreateActionMediumTest {
     session.commit();
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "create")
+      .setParam("key", "MY_CUSTOM")
       .setParam("template_key", templateRule.getKey().toString())
       .setParam("name", "My custom rule")
       .setParam("html_description", "Description")

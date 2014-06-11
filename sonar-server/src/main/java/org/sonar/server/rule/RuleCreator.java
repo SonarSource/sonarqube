@@ -24,7 +24,6 @@ import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.utils.System2;
 import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
@@ -34,11 +33,9 @@ import org.sonar.server.db.DbClient;
 public class RuleCreator implements ServerComponent {
 
   private final DbClient dbClient;
-  private final System2 system;
 
-  public RuleCreator(DbClient dbClient, System2 system) {
+  public RuleCreator(DbClient dbClient) {
     this.dbClient = dbClient;
-    this.system = system;
   }
 
   public RuleKey create(NewRule newRule) {
@@ -46,12 +43,15 @@ public class RuleCreator implements ServerComponent {
     try {
       RuleKey templateKey = newRule.templateKey();
       if (templateKey != null) {
-        RuleDto templateRule = dbClient.ruleDao().getByKey(dbSession, newRule.templateKey());
+        RuleDto templateRule = dbClient.ruleDao().getByKey(dbSession, templateKey);
         if (!Cardinality.MULTIPLE.equals(templateRule.getCardinality())) {
           throw new IllegalArgumentException("This rule is not a template rule: " + templateKey.toString());
         }
         validateRule(newRule);
-        RuleKey customRuleKey = createCustomRule(newRule, templateRule, dbSession);
+
+        RuleKey customRuleKey = RuleKey.of(templateRule.getRepositoryKey(), newRule.ruleKey());
+        checkRuleKeyUnicity(customRuleKey, dbSession);
+        createCustomRule(customRuleKey, newRule, templateRule, dbSession);
         dbSession.commit();
         return customRuleKey;
       }
@@ -62,6 +62,7 @@ public class RuleCreator implements ServerComponent {
   }
 
   private static void validateRule(NewRule newRule) {
+    validateRuleKey(newRule.ruleKey());
     if (Strings.isNullOrEmpty(newRule.name())) {
       throw new IllegalArgumentException("The name is missing");
     }
@@ -79,8 +80,23 @@ public class RuleCreator implements ServerComponent {
     }
   }
 
-  private RuleKey createCustomRule(NewRule newRule, RuleDto templateRuleDto, DbSession dbSession){
-    RuleKey ruleKey = RuleKey.of(templateRuleDto.getRepositoryKey(), templateRuleDto.getRuleKey() + "_" + system.now());
+  private static void validateRuleKey(String ruleKey) {
+    if (Strings.isNullOrEmpty(ruleKey)) {
+      throw new IllegalArgumentException("The rule key is missing");
+    } else {
+      if (!ruleKey.matches("^[\\w]+$")) {
+        throw new IllegalArgumentException(String.format("The rule key '%s' is invalid, it should only contains : a-z, 0-9, '_'", ruleKey));
+      }
+    }
+  }
+
+  private void checkRuleKeyUnicity(RuleKey ruleKey, DbSession dbSession){
+    if (dbClient.ruleDao().getNullableByKey(dbSession, ruleKey) != null) {
+      throw new IllegalArgumentException(String.format("A rule with the key '%s' already exits", ruleKey.rule()));
+    }
+  }
+
+  private RuleKey createCustomRule(RuleKey ruleKey, NewRule newRule, RuleDto templateRuleDto, DbSession dbSession){
     RuleDto ruleDto = RuleDto.createFor(ruleKey)
       .setParentId(templateRuleDto.getId())
       .setConfigKey(templateRuleDto.getConfigKey())

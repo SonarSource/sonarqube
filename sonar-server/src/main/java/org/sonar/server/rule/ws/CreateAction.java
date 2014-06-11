@@ -39,6 +39,7 @@ import org.sonar.server.search.BaseDoc;
  */
 public class CreateAction implements RequestHandler {
 
+  public static final String PARAM_KEY = "key";
   public static final String PARAM_NAME = "name";
   public static final String PARAM_DESCRIPTION = "html_description";
   public static final String PARAM_SEVERITY = "severity";
@@ -61,6 +62,11 @@ public class CreateAction implements RequestHandler {
       .setSince("4.4")
       .setPost(true)
       .setHandler(this);
+
+    action
+      .createParam(PARAM_KEY)
+      .setDescription("Key of the rule")
+      .setExampleValue("Todo_should_not_be_used");
 
     action
       .createParam(PARAM_TEMPLATE_KEY)
@@ -100,6 +106,7 @@ public class CreateAction implements RequestHandler {
   public void handle(Request request, Response response) {
     String templateRuleKey = request.param(PARAM_TEMPLATE_KEY);
     NewRule newRule = new NewRule()
+      .setRuleKey(request.mandatoryParam(PARAM_KEY))
       .setTemplateKey(templateRuleKey != null ? RuleKey.parse(templateRuleKey) : null)
       .setName(request.mandatoryParam(PARAM_NAME))
       .setHtmlDescription(request.mandatoryParam(PARAM_DESCRIPTION))

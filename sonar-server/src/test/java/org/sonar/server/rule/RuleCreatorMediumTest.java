@@ -71,6 +71,7 @@ public class RuleCreatorMediumTest {
 
     // Create custom rule
     NewRule newRule = new NewRule()
+      .setRuleKey("CUSTOM_RULE")
       .setTemplateKey(templateRule.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
@@ -83,6 +84,7 @@ public class RuleCreatorMediumTest {
 
     RuleDto rule = db.ruleDao().getNullableByKey(dbSession, customRuleKey);
     assertThat(rule).isNotNull();
+    assertThat(rule.getKey()).isEqualTo(RuleKey.of("java", "CUSTOM_RULE"));
     assertThat(rule.getParentId()).isEqualTo(templateRule.getId());
     assertThat(rule.getName()).isEqualTo("My custom");
     assertThat(rule.getDescription()).isEqualTo("Some description");
@@ -111,12 +113,88 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
+  public void fail_to_create_custom_rule_when_missing_key() throws Exception {
+    // insert template rule
+    RuleDto templateRule = createTemplateRule();
+
+    NewRule newRule = new NewRule()
+      .setName("My custom")
+      .setTemplateKey(templateRule.getKey())
+      .setHtmlDescription("Some description")
+      .setSeverity(Severity.MAJOR)
+      .setStatus(RuleStatus.READY)
+      .setParameters(ImmutableMap.of("regex", "a.*"));
+
+    try {
+      creator.create(newRule);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The rule key is missing");
+    }
+  }
+
+  @Test
+  public void fail_to_create_custom_rule_when_invalid_key() throws Exception {
+    // insert template rule
+    RuleDto templateRule = createTemplateRule();
+
+    NewRule newRule = new NewRule()
+      .setRuleKey("*INVALID*")
+      .setName("My custom")
+      .setTemplateKey(templateRule.getKey())
+      .setHtmlDescription("Some description")
+      .setSeverity(Severity.MAJOR)
+      .setStatus(RuleStatus.READY)
+      .setParameters(ImmutableMap.of("regex", "a.*"));
+
+    try {
+      creator.create(newRule);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The rule key '*INVALID*' is invalid, it should only contains : a-z, 0-9, '_'");
+    }
+  }
+
+  @Test
+  public void fail_to_create_custom_rule_when_rule_key_already_exits() throws Exception {
+    // insert template rule
+    RuleDto templateRule = createTemplateRule();
+
+    // Create a custom rule
+    NewRule newRule = new NewRule()
+      .setRuleKey("CUSTOM_RULE")
+      .setName("My custom")
+      .setTemplateKey(templateRule.getKey())
+      .setHtmlDescription("Some description")
+      .setSeverity(Severity.MAJOR)
+      .setStatus(RuleStatus.READY)
+      .setParameters(ImmutableMap.of("regex", "a.*"));
+    creator.create(newRule);
+
+    try {
+      // Create another custom rule having same key
+      newRule = new NewRule()
+        .setRuleKey("CUSTOM_RULE")
+        .setName("My another custom")
+        .setTemplateKey(templateRule.getKey())
+        .setHtmlDescription("Some description")
+        .setSeverity(Severity.MAJOR)
+        .setStatus(RuleStatus.READY)
+        .setParameters(ImmutableMap.of("regex", "a.*"));
+      creator.create(newRule);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("A rule with the key 'CUSTOM_RULE' already exits");
+    }
+  }
+
+  @Test
   public void fail_to_create_custom_rule_when_missing_name() throws Exception {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
-    // Create custom rule without name
     NewRule newRule = new NewRule()
+      .setRuleKey("CUSTOM_RULE")
       .setTemplateKey(templateRule.getKey())
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -136,8 +214,8 @@ public class RuleCreatorMediumTest {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
-    // Create custom rule without description
     NewRule newRule = new NewRule()
+      .setRuleKey("CUSTOM_RULE")
       .setTemplateKey(templateRule.getKey())
       .setName("My custom")
       .setSeverity(Severity.MAJOR)
@@ -157,8 +235,8 @@ public class RuleCreatorMediumTest {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
-    // Create custom rule without description
     NewRule newRule = new NewRule()
+      .setRuleKey("CUSTOM_RULE")
       .setTemplateKey(templateRule.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
@@ -178,8 +256,8 @@ public class RuleCreatorMediumTest {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
-    // Create custom rule without description
     NewRule newRule = new NewRule()
+      .setRuleKey("CUSTOM_RULE")
       .setTemplateKey(templateRule.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
@@ -200,8 +278,8 @@ public class RuleCreatorMediumTest {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
-    // Create custom rule without description
     NewRule newRule = new NewRule()
+      .setRuleKey("CUSTOM_RULE")
       .setTemplateKey(templateRule.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
@@ -226,6 +304,7 @@ public class RuleCreatorMediumTest {
 
     // Create custom rule with unknown template rule
     NewRule newRule = new NewRule()
+      .setRuleKey("CUSTOM_RULE")
       .setTemplateKey(rule.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
@@ -246,8 +325,8 @@ public class RuleCreatorMediumTest {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
-    // Create custom rule
     NewRule newRule = new NewRule()
+      .setRuleKey("CUSTOM_RULE")
       .setTemplateKey(templateRule.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")

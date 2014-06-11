@@ -1,5 +1,6 @@
 {
   "rule": {
+    "key": "java:MY_CUSTOM",
     "repo": "java",
     "name": "My custom rule",
     "htmlDesc": "Description",

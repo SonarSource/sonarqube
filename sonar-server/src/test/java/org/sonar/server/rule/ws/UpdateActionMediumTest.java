@@ -84,6 +84,7 @@ public class UpdateActionMediumTest {
 
     // Custom rule
     NewRule newRule = new NewRule()
+      .setRuleKey("MY_CUSTOM")
       .setTemplateKey(templateRule.getKey())
       .setName("Old custom")
       .setHtmlDescription("Old description")

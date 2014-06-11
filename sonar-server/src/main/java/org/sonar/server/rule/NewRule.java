@@ -30,10 +30,20 @@ import java.util.Map;
 
 public class NewRule {
 
+  private String ruleKey;
   private RuleKey templateKey;
   private String name, htmlDescription, severity;
   private RuleStatus status;
   private final Map<String, String> parameters = Maps.newHashMap();
+
+  public String ruleKey() {
+    return ruleKey;
+  }
+
+  public NewRule setRuleKey(String ruleKey) {
+    this.ruleKey = ruleKey;
+    return this;
+  }
 
   @CheckForNull
   public RuleKey templateKey() {

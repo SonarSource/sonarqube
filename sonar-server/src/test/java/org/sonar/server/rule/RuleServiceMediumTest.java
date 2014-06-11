@@ -139,6 +139,7 @@ public class RuleServiceMediumTest {
 
     // Create custom rule
     NewRule newRule = new NewRule()
+      .setRuleKey("MY_CUSTOM")
       .setTemplateKey(templateRuleKey)
       .setName("My custom")
       .setHtmlDescription("Some description")
@@ -173,6 +174,7 @@ public class RuleServiceMediumTest {
 
     // Create custom rule
     NewRule newRule = new NewRule()
+      .setRuleKey("MY_CUSTOM")
       .setTemplateKey(templateRuleKey)
       .setName("My custom")
       .setHtmlDescription("Some description")
