@@ -46,7 +46,7 @@ define [
   API_TESTS = "#{baseUrl}/api/tests/show"
 
   SOURCE_METRIC_LIST = 'accessors,classes,functions,statements,' +
-    'ncloc,lines,' +
+    'ncloc,lines,generated_ncloc,generated_lines,' +
     'complexity,function_complexity,' +
     'comment_lines,comment_lines_density,public_api,public_undocumented_api,public_documented_api_density'
 
