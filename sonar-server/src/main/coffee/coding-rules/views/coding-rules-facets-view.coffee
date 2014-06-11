@@ -41,8 +41,9 @@ define [
 
     getQuery: ->
       q = {}
-      @ui.facets.each ->
-        property = jQuery(@).data 'property'
-        activeOptions = jQuery(@).find('.active').map(-> jQuery(@).data 'key').get()
-        q[property] = activeOptions.join ',' if activeOptions.length > 0
+      if @ui.facets.each
+        @ui.facets.each ->
+          property = jQuery(@).data 'property'
+          activeOptions = jQuery(@).find('.active').map(-> jQuery(@).data 'key').get()
+          q[property] = activeOptions.join ',' if activeOptions.length > 0
       q
