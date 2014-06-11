@@ -79,15 +79,6 @@
     ORDER BY p.name
   </select>
 
-  <select id="countChildren" parameterType="map" resultType="Integer">
-    SELECT count(p.id)
-    FROM rules_profiles p
-    <where>
-      AND p.parent_name=#{name}
-      AND p.language=#{language}
-    </where>
-  </select>
-
   <select id="selectDefaultProfile" parameterType="Integer" resultType="QualityProfile">
     SELECT <include refid="profilesColumns"/>
     FROM rules_profiles p

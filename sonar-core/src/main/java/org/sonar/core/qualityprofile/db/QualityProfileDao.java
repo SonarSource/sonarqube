@@ -271,19 +271,6 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
     }
   }
 
-  public int countChildren(String name, String language, DbSession session) {
-    return session.getMapper(QualityProfileMapper.class).countChildren(name, language);
-  }
-
-  public int countChildren(String name, String language) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      return countChildren(name, language, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   /**
    * @deprecated Replaced by
    *    {@link #getByKey(org.sonar.core.persistence.DbSession, QualityProfileKey)}

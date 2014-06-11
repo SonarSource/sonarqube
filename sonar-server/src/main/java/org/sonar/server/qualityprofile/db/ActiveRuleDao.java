@@ -35,7 +35,6 @@ import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.BaseDao;
-import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.action.IndexAction;
@@ -206,15 +205,5 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
     Preconditions.checkNotNull(name, "ParameterName cannot be null");
     ActiveRuleDto activeRule = getNullableByKey(session, key);
     return mapper(session).selectParamByActiveRuleAndKey(activeRule.getId(), name);
-  }
-
-  @Deprecated
-  public void removeParamByProfile(DbSession session, QProfile profile) {
-    mapper(session).deleteParametersFromProfile(profile.id());
-  }
-
-  @Deprecated
-  public void deleteByProfile(DbSession session, QProfile profile) {
-    mapper(session).deleteFromProfile(profile.id());
   }
 }

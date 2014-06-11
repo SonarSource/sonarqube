@@ -67,14 +67,6 @@
     DELETE FROM active_rules WHERE id=#{id}
   </update>
 
-  <update id="deleteFromRule" parameterType="Integer">
-    DELETE FROM active_rules WHERE rule_id=#{ruleId}
-  </update>
-
-  <update id="deleteFromProfile" parameterType="Integer">
-    DELETE FROM active_rules WHERE profile_id=#{profileId}
-  </update>
-
   <select id="selectByIds" parameterType="map" resultType="ActiveRule">
     select
     <include refid="activeRuleColumns"/>
@@ -116,16 +108,6 @@
     <include refid="activeRuleKeyJoin"/>
     where qp.name = #{name}
     AND qp.language = #{lang}
-  </select>
-
-  <select id="selectByProfileAndRule" parameterType="map" resultType="ActiveRule">
-    SELECT <include refid="activeRuleColumns"/>
-    FROM active_rules a
-    <include refid="activeRuleJoin"/>
-    <where>
-      AND a.profile_id=#{profileId}
-      AND a.rule_id=#{ruleId}
-    </where>
   </select>
 
   <select id="selectByRuleId" parameterType="Integer" resultType="ActiveRule">
@@ -180,25 +162,9 @@
     DELETE FROM active_rule_parameters WHERE active_rule_id=#{id}
   </update>
 
-  <update id="deleteParametersWithParamId" parameterType="Integer">
-    DELETE FROM active_rule_parameters WHERE rules_parameter_id=#{id}
-  </update>
-
-  <update id="deleteParametersFromProfile" parameterType="Integer">
-    DELETE FROM active_rule_parameters WHERE active_rule_id IN (SELECT id FROM active_rules WHERE profile_id=#{profileId})
-  </update>
-
   <update id="deleteParameter" parameterType="Integer">
     DELETE FROM active_rule_parameters WHERE id=#{id}
   </update>
-
-  <select id="selectParamById" parameterType="Integer" resultType="ActiveRuleParam">
-    SELECT <include refid="activeRuleParamColumns"/>
-    FROM active_rule_parameters p
-    <where>
-      AND p.id=#{id}
-    </where>
-  </select>
 
   <select id="selectParamsByActiveRuleId" parameterType="Integer" resultType="ActiveRuleParam">
     select

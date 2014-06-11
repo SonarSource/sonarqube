@@ -73,10 +73,6 @@ public class QProfiles implements ServerComponent {
     return profileLookup.defaultProfile(language);
   }
 
-  public int countChildren(QProfile profile) {
-    return profileLookup.countChildren(profile);
-  }
-
   public QProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin) {
     checkProfileNameParam(name);
     Validation.checkMandatoryParameter(language, LANGUAGE_PARAM);

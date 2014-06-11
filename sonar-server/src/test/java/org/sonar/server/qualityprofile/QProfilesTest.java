@@ -112,13 +112,6 @@ public class QProfilesTest {
   }
 
   @Test
-  public void count_children() throws Exception {
-    QProfile profile = new QProfile();
-    qProfiles.countChildren(profile);
-    verify(profileLookup).countChildren(profile);
-  }
-
-  @Test
   public void create_new_profile() throws Exception {
     Map<String, String> xmlProfilesByPlugin = newHashMap();
     qProfiles.newProfile("Default", "java", xmlProfilesByPlugin);

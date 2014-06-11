@@ -37,7 +37,6 @@ import org.sonar.core.rule.RuleParamDto;
 
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -317,16 +316,6 @@ public class RuleDaoTest extends AbstractDaoTestCase {
     assertThat(ruleDto.getDescription()).isEqualTo("My Parameter");
     assertThat(ruleDto.getType()).isEqualTo("plop");
     assertThat(ruleDto.getRuleId()).isEqualTo(1);
-  }
-
-  @Test
-  public void select_parameters_by_rule_ids() throws Exception {
-    setupData("select_parameters_by_rule_ids");
-
-    RuleDto rule1 = dao.getById(session, 1);
-    RuleDto rule2 = dao.getById(session, 2);
-    assertThat(dao.findRuleParamsByRules(session, newArrayList(rule1, rule2))).hasSize(2);
-    assertThat(dao.findRuleParamsByRules(session, newArrayList(rule1))).hasSize(1);
   }
 
   @Test

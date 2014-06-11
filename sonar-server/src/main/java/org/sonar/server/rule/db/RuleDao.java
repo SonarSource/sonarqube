@@ -36,7 +36,6 @@ import org.sonar.server.search.action.KeyIndexAction;
 
 import javax.annotation.CheckForNull;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -157,19 +156,6 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
 
   public List<RuleParamDto> findRuleParamsByRuleKey(DbSession session, RuleKey key) {
     return mapper(session).selectParamsByRuleKey(key);
-  }
-
-  public List<RuleParamDto> findRuleParamsByRules(DbSession session, List<RuleDto> ruleDtos) {
-    List<RuleParamDto> ruleParamDtos = new ArrayList<RuleParamDto>();
-    for (RuleDto rule : ruleDtos) {
-      ruleParamDtos.addAll(findRuleParamsByRuleKey(session, rule.getKey()));
-    }
-    return ruleParamDtos;
-  }
-
-  public RuleParamDto getRuleParamByRuleAndParamKey(DbSession session, RuleDto rule, String key) {
-    Preconditions.checkNotNull(rule.getId(), "Rule is not persisted");
-    return mapper(session).selectParamByRuleAndKey(rule.getId(), key);
   }
 
   public List<RuleDto> findRulesByDebtSubCharacteristicId(DbSession session, int id) {

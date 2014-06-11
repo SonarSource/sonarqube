@@ -58,9 +58,4 @@ module ProfilesHelper
   def profile_rules_count(qProfile)
     Internal.quality_profiles.countProfileRules(qProfile).to_i
   end
-
-  def children_count(qProfile)
-    Internal.quality_profiles.countChildren(qProfile).to_i
-  end
-
 end

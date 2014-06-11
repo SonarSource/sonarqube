@@ -160,19 +160,6 @@ public class QProfileLookup implements ServerComponent {
     }
   }
 
-  public int countChildren(QProfile profile) {
-    DbSession session = myBatis.openSession(false);
-    try {
-      return countChildren(profile, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public int countChildren(QProfile profile, DbSession session) {
-    return dao.countChildren(profile.name(), profile.language(), session);
-  }
-
   private List<QProfile> toQProfiles(List<QualityProfileDto> dtos) {
     return newArrayList(Iterables.transform(dtos, new Function<QualityProfileDto, QProfile>() {
       @Override

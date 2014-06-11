@@ -150,6 +150,9 @@ public class QProfileService implements ServerComponent {
     reset.resetLanguage(lang);
   }
 
+  /**
+   * Currently used by Ruby on Rails
+   */
   public Collection<String> builtInProfileNamesForLanguage(String lang) {
     return reset.builtInProfileNamesForLanguage(lang);
   }
@@ -168,11 +171,6 @@ public class QProfileService implements ServerComponent {
     verifyAdminPermission();
     // TODO
   }
-
-  //public void create(NewQualityProfile newProfile) {
-  // TODO
-  //verifyAdminPermission();
-  //}
 
   /**
    * Set or unset parent profile.

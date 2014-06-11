@@ -140,12 +140,6 @@ public class QProfileLookupTest {
   }
 
   @Test
-  public void count_children_profiles() throws Exception {
-    search.countChildren(new QProfile().setName("Sonar Way").setLanguage("java"));
-    verify(dao).countChildren("Sonar Way", "java", session);
-  }
-
-  @Test
   public void default_profile() throws Exception {
     when(dao.selectDefaultProfile("java", "sonar.profile.java", session)).thenReturn(
       new QualityProfileDto().setId(1).setName("Sonar Way with Findbugs").setLanguage("java").setParent("Sonar Way").setVersion(1).setUsed(false)

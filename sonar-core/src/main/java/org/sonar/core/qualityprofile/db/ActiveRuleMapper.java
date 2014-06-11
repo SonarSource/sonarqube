@@ -33,15 +33,8 @@ public interface ActiveRuleMapper {
 
   void delete(int activeRuleId);
 
-  void deleteFromRule(int ruleId);
-
-  void deleteFromProfile(int profileId);
-
   @CheckForNull
   ActiveRuleDto selectById(Integer id);
-
-  @CheckForNull
-  ActiveRuleDto selectByProfileAndRule(@Param("profileId") int profileId, @Param("ruleId") int ruleId);
 
   List<ActiveRuleDto> selectByRuleId(int ruleId);
 
@@ -58,13 +51,6 @@ public interface ActiveRuleMapper {
   void deleteParameters(int activeRuleId);
 
   void deleteParameter(int activeRuleParamId);
-
-  void deleteParametersWithParamId(int id);
-
-  void deleteParametersFromProfile(int profileId);
-
-  @CheckForNull
-  ActiveRuleParamDto selectParamById(int activeRuleParamId);
 
   @CheckForNull
   ActiveRuleParamDto selectParamByActiveRuleAndKey(@Param("activeRuleId") int activeRuleId, @Param("key") String key);

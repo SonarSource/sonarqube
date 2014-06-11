@@ -203,13 +203,6 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void count_children() {
-    setupData("inheritance");
-
-    assertThat(dao.countChildren("Parent", "java")).isEqualTo(2);
-  }
-
-  @Test
   public void select_projects() {
     setupData("projects");
 

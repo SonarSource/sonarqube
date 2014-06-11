@@ -55,8 +55,6 @@ public interface QualityProfileMapper {
 
   List<QualityProfileDto> selectChildren(@Param("name") String name, @Param("language") String language);
 
-  int countChildren(@Param("name") String name, @Param("language") String language);
-
   // PROJECTS
 
   List<ComponentDto> selectProjects(@Param("value") String propertyValue, @Param("key") String propertyKey);
