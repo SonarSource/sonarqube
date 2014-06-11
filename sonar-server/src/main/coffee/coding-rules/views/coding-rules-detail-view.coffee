@@ -117,9 +117,11 @@ define [
       jQuery.ajax
         url: "#{baseUrl}/api/rules/tags"
       .done (r) =>
-        that.ui.tagInput.select2
-          tags: _.difference (_.difference r.tags, @model.get 'tags'), @model.get 'sysTags'
-          width: '300px'
+        if @ui.tagInput.select2
+          # Prevent synchronization issue with navigation
+          @ui.tagInput.select2
+            tags: _.difference (_.difference r.tags, that.model.get 'tags'), that.model.get 'sysTags'
+            width: '300px'
 
       @ui.tagsEdit.hide()
 
