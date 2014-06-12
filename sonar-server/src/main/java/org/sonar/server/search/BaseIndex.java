@@ -437,6 +437,9 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   public void upsert(KEY key, Object object, Object... objects) throws Exception {
     long t0 = System.currentTimeMillis();
     List<UpdateRequest> requests = this.normalizer.normalizeNested(object, key);
+    for (Object additionalObject : objects) {
+      requests.addAll(this.normalizer.normalizeNested(additionalObject, key));
+    }
     long t1 = System.currentTimeMillis();
     this.updateDocument(requests, key);
     long t2 = System.currentTimeMillis();
@@ -448,9 +451,12 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   public void upsertByDto(DTO item, DTO... items) {
     try {
       long t0 = System.currentTimeMillis();
-      List<UpdateRequest> request = normalizer.normalize(item);
+      List<UpdateRequest> requests = normalizer.normalize(item);
+      for (DTO additionalItem : items) {
+        requests.addAll(normalizer.normalize(additionalItem));
+      }
       long t1 = System.currentTimeMillis();
-      this.updateDocument(request, item.getKey());
+      this.updateDocument(requests, item.getKey());
       long t2 = System.currentTimeMillis();
       LOG.debug("UPSERT [dto] time:{}ms ({}ms normalize, {}ms elastic)",
         t2 - t0, t1 - t0, t2 - t1);
@@ -463,7 +469,11 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   @Override
   public void upsertByKey(KEY key, KEY... keys) {
     try {
-      this.updateDocument(normalizer.normalize(key), key);
+      List<UpdateRequest> requests = normalizer.normalize(key);
+      for (KEY additionalKey : keys) {
+        requests.addAll(normalizer.normalize(additionalKey));
+      }
+      this.updateDocument(requests, key);
     } catch (Exception e) {
       LOG.error("Could not update document for index {}: {}",
         this.getIndexName(), e.getMessage(), e);
@@ -483,13 +493,20 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   @Override
   public void delete(KEY key, Object object, Object... objects) throws Exception {
     LOG.debug("DELETE NESTED _id:{} in index {}", key, this.getIndexName());
-    this.updateDocument(this.normalizer.deleteNested(object, key), key);
+    List<UpdateRequest> requests = this.normalizer.deleteNested(object, key);
+    for (Object additionalObject : objects) {
+      requests.addAll(this.normalizer.deleteNested(additionalObject, key));
+    }
+    this.updateDocument(requests, key);
   }
 
   @Override
   public void deleteByKey(KEY key, KEY... keys) {
     try {
       this.deleteDocument(key);
+      for (KEY additionalKey : keys) {
+        this.deleteDocument(additionalKey);
+      }
     } catch (Exception e) {
       LOG.error("Could not DELETE _id = '{}' for index '{}': {}",
         this.getKeyValue(key), this.getIndexName(), e.getMessage());
@@ -500,6 +517,9 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   public void deleteByDto(DTO item, DTO... items) {
     try {
       this.deleteDocument(item.getKey());
+      for (DTO additionalItem : items) {
+        this.deleteDocument(additionalItem.getKey());
+      }
     } catch (Exception e) {
       LOG.error("Could not DELETE _id:{} for index {}: {}",
         this.getKeyValue(item.getKey()), this.getIndexName(), e.getMessage());
