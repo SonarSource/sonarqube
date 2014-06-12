@@ -77,7 +77,10 @@ define [
         #  collection: customRules
         #  rule: @model
       else
-        qualityProfiles = new Backbone.Collection options.actives
+        _.map options.actives, (active) =>
+          _.extend active, options.app.getQualityProfileByKey active.qProfile
+        qualityProfiles = new Backbone.Collection options.actives,
+          comparator: 'name'
         @qualityProfilesView = new CodingRulesDetailQualityProfilesView
           app: @options.app
           collection: qualityProfiles

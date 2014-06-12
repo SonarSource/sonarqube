@@ -27,10 +27,6 @@ define [
       'click @ui.deactivate': 'deactivate'
 
 
-    initialize: ->
-      super
-      @model.set _.findWhere(@options.app.qualityProfiles, key: @model.get('qProfile'))
-
     change: ->
       @options.app.codingRulesQualityProfileActivationView.model = @model
       @options.app.codingRulesQualityProfileActivationView.show()
