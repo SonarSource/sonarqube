@@ -94,7 +94,7 @@ public class CopyRequirementsFromCharacteristicsToRules implements ServerCompone
     try {
       List<RequirementMigrationDto> requirementDtos = dbSession.getMapper(CharacteristicMapper.class).selectDeprecatedRequirements();
       if (requirementDtos.isEmpty()) {
-        LOGGER.info("No requirement will be copied", requirementDtos);
+        LOGGER.info("No requirement need to be copied", requirementDtos);
 
       } else {
         int requirementCopied = 0;
@@ -114,7 +114,7 @@ public class CopyRequirementsFromCharacteristicsToRules implements ServerCompone
         }
         dbSession.commit();
 
-        LOGGER.info("{} requirements have been found, {} have be copied", requirementDtos.size(), requirementCopied);
+        LOGGER.info("{} requirements have been found, {} have been copied", requirementDtos.size(), requirementCopied);
       }
     } finally {
       MyBatis.closeQuietly(dbSession);
