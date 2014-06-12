@@ -41,14 +41,14 @@ import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.RuleActivator;
-import org.sonar.server.search.IndexDefinition;
-import org.sonar.server.search.action.EmbeddedIndexAction;
-import org.sonar.server.search.action.IndexAction;
-import org.sonar.server.search.action.KeyIndexAction;
 
 import javax.annotation.Nullable;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -112,10 +112,6 @@ public class RegisterRules implements Startable {
 
           if (executeUpdate) {
             dbClient.ruleDao().update(session, rule);
-          } else {
-            // TODO replace this hack by index synchronizer
-            session.enqueue(new KeyIndexAction<RuleKey>(IndexDefinition.RULE.getIndexType(),
-              IndexAction.Method.UPSERT, rule.getKey()));
           }
 
           mergeParams(ruleDef, rule, session);
@@ -277,10 +273,6 @@ public class RegisterRules implements Startable {
         // TODO store param name
         if (mergeParam(paramDto, paramDef)) {
           dbClient.ruleDao().updateRuleParam(session, rule, paramDto);
-        } else {
-          // TODO to be replaced by synchronizer
-          session.enqueue(new EmbeddedIndexAction<RuleKey>(IndexDefinition.RULE.getIndexType(),
-            IndexAction.Method.UPSERT, paramDto, rule.getKey()));
         }
         existingParamDtoNames.add(paramDto.getName());
       }
