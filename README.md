@@ -5,41 +5,13 @@ Put your technical debt under control. For more information please see:
 * Website [sonarqube.org][1]
 * [Issue tracker][2]
 * [Wiki][3]
-
-## Sources
-
-This Git repository is core platform. Plugins are hosted in SonarCommunity and SonarSource organisations.
-
-### Checkout Sources
-
-If you have never used Git before, you need to do some setup first. Run the following commands so that GIT knows your name and email.
-
-    git config --global user.name "Your Name"
-    git config --global user.email "your@email.com"
-
-Setup line endings preferences:
-
-    # For Unix/Mac users
-    git config --global core.autocrlf input
-    git config --global core.safecrlf true
-
-    # For Windows users
-    git config --global core.autocrlf true
-    git config --global core.safecrlf true
-
-Get sources by executing:
-
-    git clone https://github.com/SonarSource/sonarqube.git
-    
-Committers must configure their SSH key (see GitHub documentation for Windows and Mac) and clone repository:
-
-    git clone git@github.com:SonarSource/sonarqube.git
+* [Developer Toolset](https://github.com/SonarSource/sonar-developer-toolset) for the configuration of Git and IDE
 
 ### Build
 
 * Install JDK 6 or greater
 * Install Maven 3.0.5 or greater
-* Execute `mvn clean install`. ZIP file of application is generated into sonar-application/target/
+* Execute `build.sh`. ZIP file of application is generated into sonar-application/target/
 
 ### Edit Ruby Code
 
