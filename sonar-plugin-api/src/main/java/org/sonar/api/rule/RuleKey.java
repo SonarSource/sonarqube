@@ -30,6 +30,8 @@ import java.io.Serializable;
  * @since 3.6
  */
 public class RuleKey implements Serializable {
+
+  public static final String MANUAL_REPOSITORY_KEY = "manual";
   private final String repository, rule;
 
   protected RuleKey(String repositoryKey, String ruleKey) {
@@ -68,6 +70,10 @@ public class RuleKey implements Serializable {
    */
   public String rule() {
     return rule;
+  }
+
+  public boolean isManual() {
+    return MANUAL_REPOSITORY_KEY.equals(repository);
   }
 
   @Override
