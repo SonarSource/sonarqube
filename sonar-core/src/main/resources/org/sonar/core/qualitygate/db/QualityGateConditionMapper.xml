@@ -3,7 +3,7 @@
 
 <mapper namespace="org.sonar.core.qualitygate.db.QualityGateConditionMapper">
 
-  <insert id="insert" parameterType="QualityGateCondition" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="QualityGateCondition" keyColumn="id" useGeneratedKeys="true" keyProperty="id" lang="raw">
     insert into quality_gate_conditions (qgate_id, metric_id, operator, value_error, value_warning, period, created_at, updated_at)
     values (#{qualityGateId}, #{metricId}, #{operator}, #{errorThreshold}, #{warningThreshold}, #{period}, #{createdAt}, #{updatedAt})
   </insert>
@@ -22,11 +22,11 @@
     select <include refid="conditionColumns"/> from quality_gate_conditions where id=#{id}
   </select>
 
-  <update id="delete" parameterType="long">
+  <update id="delete" parameterType="long" lang="raw">
     delete from quality_gate_conditions where id=#{id}
   </update>
 
-  <update id="update" parameterType="QualityGateCondition">
+  <update id="update" parameterType="QualityGateCondition" lang="raw">
     update quality_gate_conditions set
     metric_id=#{metricId},
     operator=#{operator},
@@ -37,7 +37,7 @@
     where id=#{id}
   </update>
 
-  <delete id="deleteConditionsWithInvalidMetrics">
+  <delete id="deleteConditionsWithInvalidMetrics" lang="raw">
     delete from quality_gate_conditions
     where metric_id not in (select id from metrics where enabled=${_true})
   </delete>

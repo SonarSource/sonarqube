@@ -19,29 +19,20 @@
     SELECT <include refid="componentColumns"/>
     FROM projects p
     INNER JOIN snapshots s on s.project_id=p.id and s.islast=${_true}
-    <where>
-      AND p.enabled=${_true}
-      AND p.kee=#{key}
-    </where>
+    WHERE p.enabled=${_true} AND p.kee=#{key}
   </select>
 
-  <select id="selectById" parameterType="Long" resultType="Component">
+  <select id="selectById" parameterType="long" resultType="Component">
     SELECT <include refid="componentColumns"/>
     FROM projects p
     INNER JOIN snapshots s on s.project_id=p.id and s.islast=${_true}
-    <where>
-      AND p.enabled=${_true}
-      AND p.id=#{id}
-    </where>
+    WHERE p.enabled=${_true} AND p.id=#{id}
   </select>
 
-  <select id="countById" parameterType="Long" resultType="long">
+  <select id="countById" parameterType="long" resultType="long">
     SELECT count(p.id)
     FROM projects p
-    <where>
-      AND p.enabled=${_true}
-      AND p.id=#{id}
-    </where>
+    WHERE p.enabled=${_true} AND p.id=#{id}
   </select>
 
 </mapper>

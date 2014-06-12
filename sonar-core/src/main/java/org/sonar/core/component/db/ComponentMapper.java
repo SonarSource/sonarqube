@@ -28,7 +28,7 @@ public interface ComponentMapper {
 
   ComponentDto selectByKey(String key);
 
-  ComponentDto selectById(Long id);
+  ComponentDto selectById(long id);
 
-  long countById(Long id);
+  long countById(long id);
 }

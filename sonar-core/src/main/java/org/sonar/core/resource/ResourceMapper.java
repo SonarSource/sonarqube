@@ -64,7 +64,7 @@ public interface ResourceMapper {
   /**
    * @since 3.6
    */
-  ResourceDto selectRootProjectByComponentId(@Param("componentId") Long componentId);
+  ResourceDto selectRootProjectByComponentId(@Param("componentId") long componentId);
 
   /**
    * @since 3.6

@@ -156,14 +156,13 @@
     </where>
   </select>
 
-  <select id="selectRootProjectByComponentId" parameterType="long" resultMap="resourceResultMap">
+  <select id="selectRootProjectByComponentId" parameterType="long" resultMap="resourceResultMap" lang="raw">
     select rootProject.*
     from snapshots s
     inner join projects rootProject on rootProject.id=s.root_project_id
-    <where>
-      and s.project_id=#{componentId}
+    where
+      s.project_id=#{componentId}
       and s.islast=${_true}
-    </where>
   </select>
 
   <select id="selectComponentsByIds" parameterType="long" resultType="Component">
@@ -236,14 +235,12 @@
     </where>
   </select>
 
-  <select id="selectProvisionedProject" parameterType="string" resultMap="resourceResultMap">
+  <select id="selectProvisionedProject" parameterType="string" resultMap="resourceResultMap" lang="raw">
     select p.* from projects p
     left join snapshots s on s.project_id=p.id
-    <where>
-      and s.id is null
+    where s.id is null
       and p.kee = #{key}
       and p.copy_resource_id is null
-    </where>
   </select>
 
   <select id="selectAuthorizedChildrenComponentIds" parameterType="map" resultType="int">
@@ -292,7 +289,7 @@
     </where>
   </sql>
 
-  <insert id="insert" parameterType="Resource" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="Resource" keyColumn="id" useGeneratedKeys="true" keyProperty="id" lang="raw">
     insert into projects
     (name, long_name, description, scope, qualifier, kee, deprecated_kee, path, language, root_id, copy_resource_id, person_id, enabled, created_at)
     values (
@@ -302,7 +299,7 @@
     )
   </insert>
 
-  <update id="update" parameterType="Resource">
+  <update id="update" parameterType="Resource" lang="raw">
     update projects set name=#{name}, long_name=#{longName}, description=#{description},
     scope=#{scope}, qualifier=#{qualifier}, kee=#{key}, deprecated_kee=#{deprecatedKey}, path=#{path},
     language=#{language}, root_id=#{rootId}, copy_resource_id=#{copyResourceId},

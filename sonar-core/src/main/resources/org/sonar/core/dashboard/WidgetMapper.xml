@@ -3,7 +3,7 @@
 
 <mapper namespace="org.sonar.core.dashboard.WidgetMapper">
 
-  <insert id="insert" parameterType="Widget" keyColumn="id" useGeneratedKeys="true" keyProperty ="id">
+  <insert id="insert" parameterType="Widget" keyColumn="id" useGeneratedKeys="true" keyProperty="id" lang="raw">
     INSERT INTO widgets (dashboard_id, widget_key, name, description, column_index, row_index, configured, created_at, updated_at, resource_id)
     VALUES (#{dashboardId}, #{key}, #{name}, #{description}, #{columnIndex}, 
             #{rowIndex}, #{configured}, #{createdAt}, #{updatedAt}, #{resourceId})

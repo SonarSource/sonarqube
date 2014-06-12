@@ -20,10 +20,13 @@
 package org.sonar.core.dashboard;
 
 
+import javax.annotation.CheckForNull;
+
 public interface ActiveDashboardMapper {
 
   void insert(ActiveDashboardDto activeDashboardDto);
 
+  @CheckForNull
   Integer selectMaxOrderIndexForNullUser();
 
 }

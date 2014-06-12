@@ -209,7 +209,7 @@ public class ResourceDao implements DaoComponent {
   }
 
   @CheckForNull
-  public ResourceDto getRootProjectByComponentId(Long componentId) {
+  public ResourceDto getRootProjectByComponentId(long componentId) {
     SqlSession session = mybatis.openSession(false);
     try {
       return session.getMapper(ResourceMapper.class).selectRootProjectByComponentId(componentId);

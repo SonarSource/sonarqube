@@ -3,7 +3,7 @@
 
 <mapper namespace="org.sonar.core.dependency.ResourceSnapshotMapper">
 
-  <select id="selectAll" resultType="ResourceSnapshot">
+  <select id="selectAll" resultType="ResourceSnapshot" lang="raw">
     SELECT id, project_id as projectId, version FROM snapshots
   </select>
 

@@ -3,13 +3,13 @@
 
 <mapper namespace="org.sonar.core.graph.jdbc.GraphDtoMapper">
 
-  <select id="selectBySnapshot" parameterType="map" resultType="Graph">
+  <select id="selectBySnapshot" parameterType="map" resultType="Graph" lang="raw">
     SELECT id, resource_id as resourceId, snapshot_id as snapshotId, format, version, perspective, root_vertex_id as rootVertexId, data
     FROM graphs
     WHERE snapshot_id = #{sid} AND perspective = #{perspective}
   </select>
 
-  <select id="selectByComponent" parameterType="map" resultType="Graph">
+  <select id="selectByComponent" parameterType="map" resultType="Graph" lang="raw">
     SELECT g.id, g.resource_id as resourceId, g.snapshot_id as snapshotId, g.format, g.version, g.perspective, g.root_vertex_id as rootVertexId, g.data
     FROM graphs g, snapshots s
     WHERE g.perspective = #{perspective} AND g.snapshot_id=s.id AND s.islast=${_true} and s.project_id=(
@@ -17,7 +17,7 @@
     )
   </select>
 
-  <insert id="insert" parameterType="Graph" useGeneratedKeys="false">
+  <insert id="insert" parameterType="Graph" useGeneratedKeys="false" lang="raw">
     insert into graphs
     (resource_id, snapshot_id, format, version, perspective, root_vertex_id, data, created_at, updated_at)
     values (
