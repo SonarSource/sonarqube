@@ -84,12 +84,7 @@ module.exports = (grunt) ->
             '<%= pkg.assets %>js/issue.js'
             '<%= pkg.assets %>js/recent-history.js'
           ]
-
-
-    uglify:
       build:
-        options:
-          preserveComments: false # remove all comments
         files:
           '<%= pkg.assets %>build/js/sonar.js': [
             '<%= pkg.assets %>js/translate.js'
@@ -124,7 +119,8 @@ module.exports = (grunt) ->
     requirejs:
       options:
         baseUrl: '<%= pkg.assets %>js/'
-        preserveLicenseComments: false,
+        preserveLicenseComments: false
+        optimize: 'none'
 
         paths:
           'backbone': 'third-party/backbone'
@@ -271,7 +267,7 @@ module.exports = (grunt) ->
   grunt.registerTask 'default', ['clean:css', 'clean:js',
                                  'less:build',
                                  'coffee:build', 'handlebars:build', 'copy:js',
-                                 'uglify:build',
+                                 'concat:build',
                                  'requirejs', 'clean:js', 'copy:build', 'copy:requirejs', 'clean:build']
 
   grunt.registerTask 'test', ['coffee:build', 'handlebars:build', 'copy:js', 'concat:dev', 'karma:unit']
