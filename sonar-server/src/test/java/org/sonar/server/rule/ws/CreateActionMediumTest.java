@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.check.Cardinality;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
@@ -73,7 +72,7 @@ public class CreateActionMediumTest {
       .setLogin("me");
 
     // Template rule
-    RuleDto templateRule = ruleDao.insert(session, RuleTesting.newDto(RuleKey.of("java", "S001")).setCardinality(Cardinality.MULTIPLE));
+    RuleDto templateRule = ruleDao.insert(session, RuleTesting.newTemplateRule(RuleKey.of("java", "S001")));
     RuleParamDto param = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
     ruleDao.addRuleParam(session, templateRule, param);
     session.commit();

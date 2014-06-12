@@ -33,7 +33,6 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.ValidationMessages;
-import org.sonar.check.Cardinality;
 import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtModelXMLExporter;
@@ -41,6 +40,7 @@ import org.sonar.server.debt.DebtRulesXMLImporter;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.Reader;
 import java.util.Collection;
 import java.util.List;
@@ -91,7 +91,7 @@ public class DeprecatedRulesDefinition implements RulesDefinition {
         newRule.setName(ruleName(repository.getKey(), rule));
         newRule.setHtmlDescription(ruleDescription(repository.getKey(), rule));
         newRule.setInternalKey(rule.getConfigKey());
-        newRule.setTemplate(Cardinality.MULTIPLE.equals(rule.getCardinality()));
+        newRule.setTemplate(rule.isTemplate());
         newRule.setSeverity(rule.getSeverity().toString());
         newRule.setStatus(rule.getStatus() == null ? RuleStatus.defaultStatus() : RuleStatus.valueOf(rule.getStatus()));
         newRule.setTags(rule.getTags());

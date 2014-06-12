@@ -31,7 +31,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
-import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
@@ -711,8 +710,8 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_by_is_template() throws InterruptedException {
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")).setCardinality(Cardinality.SINGLE));
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")).setCardinality(Cardinality.MULTIPLE));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")).setIsTemplate(false));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")).setIsTemplate(true));
     dbSession.commit();
 
     // find all
@@ -741,7 +740,7 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_by_template_key() throws InterruptedException {
-    RuleDto templateRule = newRuleDto(RuleKey.of("java", "S001")).setCardinality(Cardinality.MULTIPLE);
+    RuleDto templateRule = newRuleDto(RuleKey.of("java", "S001")).setIsTemplate(true);
     dao.insert(dbSession, templateRule);
     dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001_MY_CUSTOM")).setTemplateId(templateRule.getId()));
     dbSession.commit();
@@ -765,7 +764,7 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_by_template_key_with_params() throws InterruptedException {
-    RuleDto templateRule = newRuleDto(RuleKey.of("java", "S001")).setCardinality(Cardinality.MULTIPLE);
+    RuleDto templateRule = newRuleDto(RuleKey.of("java", "S001")).setIsTemplate(true);
     RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
     dao.insert(dbSession, templateRule);
     dao.addRuleParam(dbSession, templateRule, ruleParamDto);
@@ -788,7 +787,7 @@ public class RuleIndexMediumTest {
 
   @Test
   public void show_custom_rule() throws InterruptedException {
-    RuleDto templateRule = newRuleDto(RuleKey.of("java", "S001")).setCardinality(Cardinality.MULTIPLE);
+    RuleDto templateRule = newRuleDto(RuleKey.of("java", "S001")).setIsTemplate(true);
     dao.insert(dbSession, templateRule);
     dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001_MY_CUSTOM")).setTemplateId(templateRule.getId()));
     dbSession.commit();
@@ -864,7 +863,7 @@ public class RuleIndexMediumTest {
       .setStatus(RuleStatus.READY)
       .setConfigKey("InternalKey" + ruleKey.rule())
       .setSeverity(Severity.INFO)
-      .setCardinality(Cardinality.SINGLE)
+      .setIsTemplate(false)
       .setLanguage("js")
       .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())

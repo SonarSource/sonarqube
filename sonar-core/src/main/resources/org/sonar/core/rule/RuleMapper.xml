@@ -12,7 +12,7 @@
     r.name,
     r.plugin_config_key as "configKey",
     r.priority as "severity",
-    r.cardinality,
+    r.is_template as "isTemplate",
     r.language as "language",
     r.template_id as "templateId",
     r.note_data as "noteData",
@@ -79,7 +79,7 @@
     name=#{name},
     plugin_config_key=#{configKey},
     priority=#{severity},
-    cardinality=#{cardinality},
+    is_template=#{isTemplate},
     language=#{language},
     template_id=#{templateId},
     note_data=#{noteData},
@@ -102,7 +102,7 @@
   </update>
 
   <sql id="insertColumns">
-    (plugin_rule_key, plugin_name, description, status, name, plugin_config_key, priority, cardinality, language, template_id,
+    (plugin_rule_key, plugin_name, description, status, name, plugin_config_key, priority, is_template, language, template_id,
     characteristic_id, default_characteristic_id, remediation_function, default_remediation_function,
     remediation_coeff, default_remediation_coeff, remediation_offset, default_remediation_offset,
     effort_to_fix_description, tags, system_tags, note_data, note_user_login, note_created_at, note_updated_at,
@@ -112,7 +112,7 @@
   <insert id="insert" parameterType="Rule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into rules <include refid="insertColumns"/>
     values (#{ruleKey}, #{repositoryKey}, #{description}, #{status}, #{name}, #{configKey},
-      #{severity}, #{cardinality}, #{language}, #{templateId},
+      #{severity}, #{isTemplate}, #{language}, #{templateId},
       #{subCharacteristicId}, #{defaultSubCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
       #{remediationCoefficient}, #{defaultRemediationCoefficient}, #{remediationOffset}, #{defaultRemediationOffset},
       #{effortToFixDescription}, #{tagsField}, #{systemTagsField}, #{noteData}, #{noteUserLogin}, #{noteCreatedAt},
@@ -122,7 +122,7 @@
   <insert id="batchInsert" parameterType="Rule" useGeneratedKeys="false">
     insert into rules <include refid="insertColumns"/>
     values (#{ruleKey}, #{repositoryKey}, #{description}, #{status}, #{name}, #{configKey},
-    #{severity}, #{cardinality}, #{language}, #{templateId},
+    #{severity}, #{isTemplate}, #{language}, #{templateId},
     #{subCharacteristicId}, #{defaultSubCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
     #{remediationCoefficient}, #{defaultRemediationCoefficient}, #{remediationOffset}, #{defaultRemediationOffset},
     #{effortToFixDescription}, #{tagsField}, #{systemTagsField}, #{noteData}, #{noteUserLogin}, #{noteCreatedAt},

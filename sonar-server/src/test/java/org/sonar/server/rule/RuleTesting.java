@@ -24,7 +24,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
-import org.sonar.check.Cardinality;
 import org.sonar.core.rule.RuleDto;
 
 import java.util.Date;
@@ -52,7 +51,7 @@ public class RuleTesting {
       .setStatus(RuleStatus.READY)
       .setConfigKey("InternalKey" + ruleKey.rule())
       .setSeverity(Severity.INFO)
-      .setCardinality(Cardinality.SINGLE)
+      .setIsTemplate(false)
       .setTags(ImmutableSet.of("tag1", "tag2"))
       .setSystemTags(ImmutableSet.of("systag1", "systag2"))
       .setLanguage("js")
@@ -67,12 +66,11 @@ public class RuleTesting {
 
   public static RuleDto newTemplateRule(RuleKey ruleKey){
     return newDto(ruleKey)
-      .setCardinality(Cardinality.MULTIPLE);
+      .setIsTemplate(true);
   }
 
   public static RuleDto newCustomRule(RuleDto templateRule){
     return newDto(RuleKey.of(templateRule.getRepositoryKey(), templateRule.getRuleKey() + "_" + new Date().getTime()))
-      .setCardinality(Cardinality.SINGLE)
       .setTemplateId(templateRule.getId());
   }
 

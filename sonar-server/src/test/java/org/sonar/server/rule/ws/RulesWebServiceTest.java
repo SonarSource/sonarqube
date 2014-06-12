@@ -30,7 +30,6 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
@@ -191,7 +190,7 @@ public class RulesWebServiceTest {
 
   @Test
   public void search_template_rules() throws Exception {
-    RuleDto templateRule = newRuleDto(RuleKey.of("java", "S001")).setCardinality(Cardinality.MULTIPLE);
+    RuleDto templateRule = newRuleDto(RuleKey.of("java", "S001")).setIsTemplate(true);
     ruleDao.insert(session, templateRule);
     ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S001_MY_CUSTOM")).setTemplateId(templateRule.getId()));
     session.commit();
@@ -206,7 +205,7 @@ public class RulesWebServiceTest {
 
   @Test
   public void search_custom_rules_from_template_key() throws Exception {
-    RuleDto templateRule = newRuleDto(RuleKey.of("java", "S001")).setCardinality(Cardinality.MULTIPLE);
+    RuleDto templateRule = newRuleDto(RuleKey.of("java", "S001")).setIsTemplate(true);
     ruleDao.insert(session, templateRule);
     ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S001_MY_CUSTOM")).setTemplateId(templateRule.getId()));
     session.commit();
@@ -455,7 +454,7 @@ public class RulesWebServiceTest {
       .setStatus(RuleStatus.READY)
       .setConfigKey("InternalKey" + ruleKey.rule())
       .setSeverity(Severity.INFO)
-      .setCardinality(Cardinality.SINGLE)
+      .setIsTemplate(false)
       .setLanguage("js")
       .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())

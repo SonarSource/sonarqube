@@ -22,7 +22,6 @@ package org.sonar.server.qualityprofile;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.check.Cardinality;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
@@ -33,6 +32,7 @@ import org.sonar.server.rule.Rule;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Map;
 
@@ -186,7 +186,7 @@ class RuleActivatorContext {
     if (RuleStatus.REMOVED == rule.getStatus()) {
       throw new BadRequestException("Rule was removed: " + rule.getKey());
     }
-    if (Cardinality.MULTIPLE.equals(rule.getCardinality())) {
+    if (rule.isTemplate()) {
       throw new BadRequestException("Rule template can't be activated on a Quality profile: " + rule.getKey());
     }
     if (Rule.MANUAL_REPOSITORY_KEY.equals(rule.getRepositoryKey())) {

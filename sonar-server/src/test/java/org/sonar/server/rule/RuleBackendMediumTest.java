@@ -30,7 +30,6 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RuleParamType;
-import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
@@ -372,7 +371,7 @@ public class RuleBackendMediumTest {
       .setStatus(RuleStatus.READY)
       .setConfigKey("InternalKey" + ruleKey.rule())
       .setSeverity(Severity.INFO)
-      .setCardinality(Cardinality.SINGLE)
+      .setIsTemplate(false)
       .setLanguage("js")
       .setTags(ImmutableSet.of("tag1", "tag2"))
       .setSystemTags(ImmutableSet.of("systag1", "systag2"))

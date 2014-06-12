@@ -24,7 +24,6 @@ import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
-import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
@@ -44,7 +43,7 @@ public class RuleCreator implements ServerComponent {
       RuleKey templateKey = newRule.templateKey();
       if (templateKey != null) {
         RuleDto templateRule = dbClient.ruleDao().getByKey(dbSession, templateKey);
-        if (!Cardinality.MULTIPLE.equals(templateRule.getCardinality())) {
+        if (!templateRule.isTemplate()) {
           throw new IllegalArgumentException("This rule is not a template rule: " + templateKey.toString());
         }
         validateRule(newRule);
@@ -103,7 +102,6 @@ public class RuleCreator implements ServerComponent {
       .setName(newRule.name())
       .setDescription(newRule.htmlDescription())
       .setSeverity(newRule.severity())
-      .setCardinality(Cardinality.SINGLE)
       .setStatus(newRule.status())
       .setLanguage(templateRuleDto.getLanguage())
       .setDefaultSubCharacteristicId(templateRuleDto.getDefaultSubCharacteristicId())

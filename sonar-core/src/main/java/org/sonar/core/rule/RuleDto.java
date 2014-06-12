@@ -26,7 +26,6 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.Dto;
 
 import javax.annotation.CheckForNull;
@@ -46,7 +45,7 @@ public final class RuleDto extends Dto<RuleKey> {
   private String name;
   private String configKey;
   private Integer severity;
-  private Cardinality cardinality;
+  private boolean isTemplate;
   private String language;
   private Integer templateId;
   private String noteData;
@@ -157,12 +156,12 @@ public final class RuleDto extends Dto<RuleKey> {
     return this;
   }
 
-  public Cardinality getCardinality() {
-    return cardinality;
+  public boolean isTemplate() {
+    return isTemplate;
   }
 
-  public RuleDto setCardinality(@Nullable Cardinality cardinality) {
-    this.cardinality = cardinality;
+  public RuleDto setIsTemplate(boolean isTemplate) {
+    this.isTemplate = isTemplate;
     return this;
   }
 

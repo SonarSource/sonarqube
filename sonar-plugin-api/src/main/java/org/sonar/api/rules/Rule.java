@@ -107,8 +107,8 @@ public class Rule {
   private String pluginName;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "cardinality", updatable = true, nullable = false)
-  private Cardinality cardinality = Cardinality.SINGLE;
+  @Column(name = "is_template", updatable = true, nullable = false)
+  private boolean isTemplate = false;
 
   @Column(name = "status", updatable = true, nullable = true)
   private String status = STATUS_READY;
@@ -351,12 +351,35 @@ public class Rule {
     return setRepositoryKey(repositoryKey).setKey(key).setConfigKey(key);
   }
 
-  public Cardinality getCardinality() {
-    return cardinality;
+  /**
+   * @since 4.4
+   */
+  public boolean isTemplate() {
+    return isTemplate;
   }
 
+  /**
+   * @since 4.4
+   */
+  public Rule setIsTemplate(boolean isTemplate) {
+    this.isTemplate = isTemplate;
+    return this;
+  }
+
+  /**
+   * @deprecated since 4.4, use {@link #isTemplate()}
+   */
+  @Deprecated
+  public Cardinality getCardinality() {
+    return isTemplate ? Cardinality.MULTIPLE : Cardinality.SINGLE;
+  }
+
+  /**
+   * @deprecated since 4.4, use {@link #setIsTemplate(boolean)}
+   */
+  @Deprecated
   public Rule setCardinality(Cardinality c) {
-    this.cardinality = c;
+    this.isTemplate = Cardinality.MULTIPLE.equals(c);
     return this;
   }
 
@@ -544,7 +567,7 @@ public class Rule {
       .append("configKey", configKey)
       .append("plugin", pluginName)
       .append("severity", priority)
-      .append("cardinality", cardinality)
+      .append("isTemplate", isTemplate())
       .append("status", status)
       .append("language", language)
       .append("template", template)

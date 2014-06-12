@@ -34,7 +34,6 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TimeProfiler;
-import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
@@ -164,7 +163,7 @@ public class RegisterRules implements Startable {
 
   private RuleDto createRuleDto(RulesDefinition.Rule ruleDef, DbSession session) {
     RuleDto ruleDto = RuleDto.createFor(RuleKey.of(ruleDef.repository().key(), ruleDef.key()))
-      .setCardinality(ruleDef.template() ? Cardinality.MULTIPLE : Cardinality.SINGLE)
+      .setIsTemplate(ruleDef.template())
       .setConfigKey(ruleDef.internalKey())
       .setDescription(ruleDef.htmlDescription())
       .setLanguage(ruleDef.repository().language())
@@ -201,9 +200,9 @@ public class RegisterRules implements Startable {
       dto.setSeverity(severity);
       changed = true;
     }
-    Cardinality cardinality = def.template() ? Cardinality.MULTIPLE : Cardinality.SINGLE;
-    if (!cardinality.equals(dto.getCardinality())) {
-      dto.setCardinality(cardinality);
+    boolean isTemplate = def.template();
+    if (isTemplate != dto.isTemplate()) {
+      dto.setIsTemplate(isTemplate);
       changed = true;
     }
     if (def.status() != dto.getStatus()) {

@@ -26,7 +26,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
-import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
@@ -286,8 +285,6 @@ public class ActiveRuleBackendMediumTest {
   }
 
 
-
-
   private RuleDto newRuleDto(RuleKey ruleKey) {
     return new RuleDto()
       .setRuleKey(ruleKey.rule())
@@ -297,7 +294,7 @@ public class ActiveRuleBackendMediumTest {
       .setStatus(RuleStatus.READY)
       .setConfigKey("InternalKey" + ruleKey.rule())
       .setSeverity(Severity.INFO)
-      .setCardinality(Cardinality.SINGLE)
+      .setIsTemplate(false)
       .setLanguage("js")
       .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())

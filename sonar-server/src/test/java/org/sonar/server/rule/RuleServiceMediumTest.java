@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.check.Cardinality;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
@@ -134,7 +133,7 @@ public class RuleServiceMediumTest {
 
     // Create template rule
     RuleKey templateRuleKey = RuleKey.of("java", "S001");
-    dao.insert(dbSession, RuleTesting.newDto(templateRuleKey).setCardinality(Cardinality.MULTIPLE));
+    dao.insert(dbSession, RuleTesting.newTemplateRule(templateRuleKey));
     dbSession.commit();
 
     // Create custom rule
@@ -169,7 +168,7 @@ public class RuleServiceMediumTest {
 
     // Create template rule
     RuleKey templateRuleKey = RuleKey.of("java", "S001");
-    dao.insert(dbSession, RuleTesting.newDto(templateRuleKey).setCardinality(Cardinality.MULTIPLE));
+    dao.insert(dbSession, RuleTesting.newTemplateRule(templateRuleKey));
     dbSession.commit();
 
     // Create custom rule

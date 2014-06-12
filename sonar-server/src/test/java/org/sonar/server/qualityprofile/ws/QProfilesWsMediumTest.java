@@ -28,7 +28,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.check.Cardinality;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
@@ -286,7 +285,7 @@ public class QProfilesWsMediumTest {
   public void bulk_activate_rule_with_template() throws Exception {
     QualityProfileDto profile = getProfile("java");
     RuleDto rule0 = getRule(profile.getLanguage(), "toto")
-      .setCardinality(Cardinality.MULTIPLE);
+      .setIsTemplate(true);
     RuleDto rule1 = getRule(profile.getLanguage(), "tata");
     session.commit();
 

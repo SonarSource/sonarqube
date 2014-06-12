@@ -24,7 +24,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
@@ -170,7 +169,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       update.put(RuleField.STATUS.field(), rule.getStatus().name());
       update.put(RuleField.LANGUAGE.field(), rule.getLanguage());
       update.put(RuleField.INTERNAL_KEY.field(), rule.getConfigKey());
-      update.put(RuleField.IS_TEMPLATE.field(), rule.getCardinality() == Cardinality.MULTIPLE);
+      update.put(RuleField.IS_TEMPLATE.field(), rule.isTemplate());
 
       update.put(RuleField.NOTE.field(), rule.getNoteData());
       update.put(RuleField.NOTE_LOGIN.field(), rule.getNoteUserLogin());

@@ -9,7 +9,7 @@
          updated_at="2014-03-13"
          tags="[null]" system_tags="[null]"
          NOTE_CREATED_AT="[null]" NOTE_DATA="[null]" NOTE_UPDATED_AT="[null]" NOTE_USER_LOGIN="[null]" template_id="[null]" PLUGIN_CONFIG_KEY="[null]" PRIORITY="[null]"
-         cardinality="[null]" created_at="[null]" language="[null]" effort_to_fix_description="[null]"
+         is_template="[false]" created_at="[null]" language="[null]" effort_to_fix_description="[null]"
       />
 
   <!-- Constant/issue with coefficient and offset -> Update rule to Constant/issue with only offset -->
@@ -21,7 +21,7 @@
          updated_at="2014-03-13"
          tags="[null]" system_tags="[null]"
          NOTE_CREATED_AT="[null]" NOTE_DATA="[null]" NOTE_UPDATED_AT="[null]" NOTE_USER_LOGIN="[null]" template_id="[null]" PLUGIN_CONFIG_KEY="[null]" PRIORITY="[null]"
-         cardinality="[null]" created_at="[null]" language="[null]" effort_to_fix_description="[null]"
+         is_template="[false]" created_at="[null]" language="[null]" effort_to_fix_description="[null]"
       />
 
   <!-- Constant/issue with coefficient but having same value as default -> No update -->
@@ -33,7 +33,7 @@
          updated_at="2014-02-19"
          tags="[null]" system_tags="[null]"
          NOTE_CREATED_AT="[null]" NOTE_DATA="[null]" NOTE_UPDATED_AT="[null]" NOTE_USER_LOGIN="[null]" template_id="[null]" PLUGIN_CONFIG_KEY="[null]" PRIORITY="[null]"
-         cardinality="[null]" created_at="[null]" language="[null]" effort_to_fix_description="[null]"
+         is_template="[false]" created_at="[null]" language="[null]" effort_to_fix_description="[null]"
       />
 
 </dataset>

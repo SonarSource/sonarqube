@@ -30,7 +30,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
-import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
@@ -298,8 +297,7 @@ public class RuleCreatorMediumTest {
   public void fail_to_create_custom_rule_when_wrong_rule_template() throws Exception {
     // insert rule
     RuleDto rule = dao.insert(dbSession,
-      RuleTesting.newDto(RuleKey.of("java", "S001"))
-        .setCardinality(Cardinality.SINGLE));
+      RuleTesting.newDto(RuleKey.of("java", "S001")).setIsTemplate(false));
     dbSession.commit();
 
     // Create custom rule with unknown template rule
@@ -344,7 +342,7 @@ public class RuleCreatorMediumTest {
   private RuleDto createTemplateRule(){
     RuleDto templateRule = dao.insert(dbSession,
       RuleTesting.newDto(RuleKey.of("java", "S001"))
-        .setCardinality(Cardinality.MULTIPLE)
+        .setIsTemplate(true)
         .setLanguage("java")
         .setConfigKey("S001")
         .setDefaultSubCharacteristicId(1)

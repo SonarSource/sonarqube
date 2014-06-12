@@ -29,7 +29,6 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.check.Cardinality;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
@@ -174,7 +173,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setStatus(RuleStatus.DEPRECATED)
       .setConfigKey("NewConfigKey")
       .setSeverity(Severity.INFO)
-      .setCardinality(Cardinality.MULTIPLE)
+      .setIsTemplate(true)
       .setLanguage("dart")
       .setTemplateId(3)
       .setNoteData("My note")
@@ -214,7 +213,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setStatus(RuleStatus.DEPRECATED)
       .setConfigKey("NewConfigKey")
       .setSeverity(Severity.INFO)
-      .setCardinality(Cardinality.MULTIPLE)
+      .setIsTemplate(true)
       .setLanguage("dart")
       .setTemplateId(3)
       .setSubCharacteristicId(100)
@@ -248,7 +247,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setStatus(RuleStatus.DEPRECATED)
       .setConfigKey("NewConfigKey")
       .setSeverity(Severity.INFO)
-      .setCardinality(Cardinality.MULTIPLE)
+      .setIsTemplate(true)
       .setLanguage("dart")
       .setTemplateId(3)
       .setSubCharacteristicId(100)
@@ -270,7 +269,7 @@ public class RuleDaoTest extends AbstractDaoTestCase {
       .setStatus(RuleStatus.BETA)
       .setConfigKey("NewConfigKey2")
       .setSeverity(Severity.MAJOR)
-      .setCardinality(Cardinality.SINGLE)
+      .setIsTemplate(false)
       .setLanguage("js")
       .setTemplateId(null)
       .setSubCharacteristicId(102)

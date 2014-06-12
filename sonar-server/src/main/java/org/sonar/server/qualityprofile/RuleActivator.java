@@ -402,7 +402,7 @@ public class RuleActivator implements ServerComponent {
     }
   }
 
-  void setParent(DbSession dbSession, QualityProfileKey key, QualityProfileKey parentKey) {
+  void setParent(DbSession dbSession, QualityProfileKey key, @Nullable QualityProfileKey parentKey) {
     QualityProfileDto profile = db.qualityProfileDao().getNonNullByKey(dbSession, key);
     if (parentKey == null) {
       // unset if parent is defined, else nothing to do
