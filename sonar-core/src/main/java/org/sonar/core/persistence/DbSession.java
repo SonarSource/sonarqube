@@ -34,6 +34,7 @@ import java.util.Map;
 
 public class DbSession implements SqlSession {
 
+  private static final Integer IMPLICIT_COMMIT_SIZE = 200;
   private List<QueueAction> actions;
 
   private WorkQueue queue;
@@ -47,6 +48,9 @@ public class DbSession implements SqlSession {
 
   public void enqueue(QueueAction action) {
     this.actions.add(action);
+    if (this.actions.size() > IMPLICIT_COMMIT_SIZE) {
+      this.commit();
+    }
   }
 
   @Override
