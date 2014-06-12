@@ -20,19 +20,14 @@
 
 #
 # SonarQube 4.4
-# SONAR-5329
+# SONAR-5351
 #
-class CreateLogTable < ActiveRecord::Migration
+class RenameRulesParentIdToTemplateId < ActiveRecord::Migration
 
   def self.up
-    create_table 'logs'do |t|
-      t.column 'created_at',   :datetime, :null => false
-      t.column 'execution_time_field', :integer
-      t.column 'user_login', :string, :limit => 255
-      t.column 'data_field', :text
-      t.column 'payload_field', :string, :limit => 40
+    begin
+      rename_column 'rules', 'parent_id', 'template_id'
     end
-
   end
 
 end

@@ -98,7 +98,7 @@ public class RuleCreator implements ServerComponent {
 
   private RuleKey createCustomRule(RuleKey ruleKey, NewRule newRule, RuleDto templateRuleDto, DbSession dbSession){
     RuleDto ruleDto = RuleDto.createFor(ruleKey)
-      .setParentId(templateRuleDto.getId())
+      .setTemplateId(templateRuleDto.getId())
       .setConfigKey(templateRuleDto.getConfigKey())
       .setName(newRule.name())
       .setDescription(newRule.htmlDescription())

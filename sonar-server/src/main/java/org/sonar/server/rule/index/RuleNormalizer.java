@@ -37,12 +37,7 @@ import org.sonar.server.search.Indexable;
 import org.sonar.server.search.es.ListUpdate;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
@@ -183,9 +178,9 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       update.put(RuleField.NOTE_UPDATED_AT.field(), rule.getNoteUpdatedAt());
 
       //TODO Legacy PARENT_ID in DTO should be parent_key
-      Integer parentId = rule.getParentId();
-      if (parentId != null) {
-        RuleDto templateRule = db.ruleDao().getById(session, parentId);
+      Integer templateId = rule.getTemplateId();
+      if (templateId != null) {
+        RuleDto templateRule = db.ruleDao().getById(session, templateId);
         update.put(RuleField.TEMPLATE_KEY.field(), templateRule.getKey().toString());
       } else {
         update.put(RuleField.TEMPLATE_KEY.field(), null);

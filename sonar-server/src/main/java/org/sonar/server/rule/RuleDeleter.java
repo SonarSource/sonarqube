@@ -42,7 +42,7 @@ public class RuleDeleter implements ServerComponent {
     DbSession dbSession = dbClient.openSession(false);
     try {
       RuleDto rule = dbClient.ruleDao().getByKey(dbSession, ruleKey);
-      if (rule.getParentId() == null) {
+      if (rule.getTemplateId() == null) {
         throw new IllegalStateException("Only custom rules can be deleted");
       }
       ruleActivator.deactivate(dbSession, rule);

@@ -30,9 +30,7 @@ import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class AnnotationCheckFactoryTest {
 
@@ -158,7 +156,7 @@ public class AnnotationCheckFactoryTest {
   public void shouldWorkWithClonedRules() {
     RulesProfile profile = RulesProfile.create("repo", "java");
     Rule rule = Rule.create("repo", "CheckWithKey", "");
-    Rule clonedRule = Rule.create("repo", "CheckWithKey_2", "").setConfigKey("CheckWithKey").setParent(rule);
+    Rule clonedRule = Rule.create("repo", "CheckWithKey_2", "").setConfigKey("CheckWithKey").setTemplate(rule);
 
     profile.activateRule(rule, null);
     profile.activateRule(clonedRule, null);

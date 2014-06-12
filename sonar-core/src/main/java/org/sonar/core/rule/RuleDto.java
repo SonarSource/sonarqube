@@ -48,7 +48,7 @@ public final class RuleDto extends Dto<RuleKey> {
   private Integer severity;
   private Cardinality cardinality;
   private String language;
-  private Integer parentId;
+  private Integer templateId;
   private String noteData;
   private String noteUserLogin;
   private Date noteCreatedAt;
@@ -176,12 +176,12 @@ public final class RuleDto extends Dto<RuleKey> {
   }
 
   @CheckForNull
-  public Integer getParentId() {
-    return parentId;
+  public Integer getTemplateId() {
+    return templateId;
   }
 
-  public RuleDto setParentId(@Nullable Integer parentId) {
-    this.parentId = parentId;
+  public RuleDto setTemplateId(@Nullable Integer templateId) {
+    this.templateId = templateId;
     return this;
   }
 

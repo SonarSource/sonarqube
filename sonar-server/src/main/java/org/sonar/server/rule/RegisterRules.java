@@ -48,12 +48,8 @@ import org.sonar.server.search.action.IndexAction;
 import org.sonar.server.search.action.KeyIndexAction;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -339,16 +335,16 @@ public class RegisterRules implements Startable {
     for (RuleDto ruleDto : ruleDtos) {
       boolean toBeRemoved = true;
       // Update custom rules from template
-      if (ruleDto.getParentId() != null) {
-        RuleDto parent = dbClient.ruleDao().getParent(ruleDto, session);
-        if (parent != null && RuleStatus.REMOVED != parent.getStatus()) {
-          ruleDto.setLanguage(parent.getLanguage());
-          ruleDto.setStatus(parent.getStatus());
-          ruleDto.setDefaultSubCharacteristicId(parent.getDefaultSubCharacteristicId());
-          ruleDto.setDefaultRemediationFunction(parent.getDefaultRemediationFunction());
-          ruleDto.setDefaultRemediationCoefficient(parent.getDefaultRemediationCoefficient());
-          ruleDto.setDefaultRemediationOffset(parent.getDefaultRemediationOffset());
-          ruleDto.setEffortToFixDescription(parent.getEffortToFixDescription());
+      if (ruleDto.getTemplateId() != null) {
+        RuleDto template = dbClient.ruleDao().getTemplate(ruleDto, session);
+        if (template != null && RuleStatus.REMOVED != template.getStatus()) {
+          ruleDto.setLanguage(template.getLanguage());
+          ruleDto.setStatus(template.getStatus());
+          ruleDto.setDefaultSubCharacteristicId(template.getDefaultSubCharacteristicId());
+          ruleDto.setDefaultRemediationFunction(template.getDefaultRemediationFunction());
+          ruleDto.setDefaultRemediationCoefficient(template.getDefaultRemediationCoefficient());
+          ruleDto.setDefaultRemediationOffset(template.getDefaultRemediationOffset());
+          ruleDto.setEffortToFixDescription(template.getEffortToFixDescription());
           dbClient.ruleDao().update(session, ruleDto);
           toBeRemoved = false;
         }

@@ -34,19 +34,7 @@ import org.sonar.check.Cardinality;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -129,8 +117,8 @@ public class Rule {
   private String language;
 
   @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "parent_id", updatable = true, nullable = true)
-  private Rule parent = null;
+  @JoinColumn(name = "template_id", updatable = true, nullable = true)
+  private Rule template = null;
 
   @Column(name = "characteristic_id", updatable = true, nullable = true)
   private Integer characteristicId;
@@ -372,12 +360,35 @@ public class Rule {
     return this;
   }
 
+  /**
+   * @deprecated since 4.4, use {@link #getTemplate()}
+   */
+  @Deprecated
   public Rule getParent() {
-    return parent;
+    return template;
   }
 
+  /**
+   * @deprecated since 4.4, use {@link #setTemplate(Rule)}}
+   */
+  @Deprecated
   public Rule setParent(Rule parent) {
-    this.parent = parent;
+    this.template = parent;
+    return this;
+  }
+
+  /**
+   * @since 4.4
+   */
+  public Rule getTemplate() {
+    return template;
+  }
+
+  /**
+   * @since 4.4
+   */
+  public Rule setTemplate(Rule template) {
+    this.template = template;
     return this;
   }
 
@@ -536,7 +547,7 @@ public class Rule {
       .append("cardinality", cardinality)
       .append("status", status)
       .append("language", language)
-      .append("parent", parent)
+      .append("template", template)
       .toString();
   }
 

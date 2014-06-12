@@ -35,6 +35,7 @@ import org.sonar.server.search.action.IndexAction;
 import org.sonar.server.search.action.KeyIndexAction;
 
 import javax.annotation.CheckForNull;
+
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
@@ -86,9 +87,9 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
   }
 
   @CheckForNull
-  public RuleDto getParent(RuleDto rule, DbSession session) {
-    Preconditions.checkNotNull(rule.getParentId(), "Rule has no persisted parent!");
-    return mapper(session).selectById(rule.getParentId());
+  public RuleDto getTemplate(RuleDto rule, DbSession session) {
+    Preconditions.checkNotNull(rule.getTemplateId(), "Rule has no persisted template!");
+    return mapper(session).selectById(rule.getTemplateId());
   }
 
 

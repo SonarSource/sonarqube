@@ -20,6 +20,7 @@
 
 #
 # SonarQube 4.4
+# SONAR-5007
 #
 class InsertActiveRuleDates < ActiveRecord::Migration
 

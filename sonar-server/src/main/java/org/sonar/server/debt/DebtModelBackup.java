@@ -49,6 +49,7 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.Reader;
 import java.util.Date;
 import java.util.List;
@@ -167,8 +168,8 @@ public class DebtModelBackup implements ServerComponent {
       // Restore default debt definitions
 
       RulesDefinition.Rule ruleDef;
-      if (rule.getParentId() != null) {
-        RuleDto templateRule = rule(rule.getParentId(), ruleDtos);
+      if (rule.getTemplateId() != null) {
+        RuleDto templateRule = rule(rule.getTemplateId(), ruleDtos);
         ruleDef = ruleDef(templateRule.getRepositoryKey(), templateRule.getRuleKey(), rules);
       } else {
         ruleDef = ruleDef(rule.getRepositoryKey(), rule.getRuleKey(), rules);

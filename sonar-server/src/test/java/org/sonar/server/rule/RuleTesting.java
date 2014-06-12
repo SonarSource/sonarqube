@@ -73,7 +73,7 @@ public class RuleTesting {
   public static RuleDto newCustomRule(RuleDto templateRule){
     return newDto(RuleKey.of(templateRule.getRepositoryKey(), templateRule.getRuleKey() + "_" + new Date().getTime()))
       .setCardinality(Cardinality.SINGLE)
-      .setParentId(templateRule.getId());
+      .setTemplateId(templateRule.getId());
   }
 
 }

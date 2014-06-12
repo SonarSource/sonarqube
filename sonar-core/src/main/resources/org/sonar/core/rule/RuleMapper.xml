@@ -14,7 +14,7 @@
     r.priority as "severity",
     r.cardinality,
     r.language as "language",
-    r.parent_id as "parentId",
+    r.template_id as "templateId",
     r.note_data as "noteData",
     r.note_user_login as "noteUserLogin",
     r.note_created_at as "noteCreatedAt",
@@ -81,7 +81,7 @@
     priority=#{severity},
     cardinality=#{cardinality},
     language=#{language},
-    parent_id=#{parentId},
+    template_id=#{templateId},
     note_data=#{noteData},
     note_user_login=#{noteUserLogin},
     note_created_at=#{noteCreatedAt},
@@ -102,7 +102,7 @@
   </update>
 
   <sql id="insertColumns">
-    (plugin_rule_key, plugin_name, description, status, name, plugin_config_key, priority, cardinality, language, parent_id,
+    (plugin_rule_key, plugin_name, description, status, name, plugin_config_key, priority, cardinality, language, template_id,
     characteristic_id, default_characteristic_id, remediation_function, default_remediation_function,
     remediation_coeff, default_remediation_coeff, remediation_offset, default_remediation_offset,
     effort_to_fix_description, tags, system_tags, note_data, note_user_login, note_created_at, note_updated_at,
@@ -112,7 +112,7 @@
   <insert id="insert" parameterType="Rule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into rules <include refid="insertColumns"/>
     values (#{ruleKey}, #{repositoryKey}, #{description}, #{status}, #{name}, #{configKey},
-      #{severity}, #{cardinality}, #{language}, #{parentId},
+      #{severity}, #{cardinality}, #{language}, #{templateId},
       #{subCharacteristicId}, #{defaultSubCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
       #{remediationCoefficient}, #{defaultRemediationCoefficient}, #{remediationOffset}, #{defaultRemediationOffset},
       #{effortToFixDescription}, #{tagsField}, #{systemTagsField}, #{noteData}, #{noteUserLogin}, #{noteCreatedAt},
@@ -122,7 +122,7 @@
   <insert id="batchInsert" parameterType="Rule" useGeneratedKeys="false">
     insert into rules <include refid="insertColumns"/>
     values (#{ruleKey}, #{repositoryKey}, #{description}, #{status}, #{name}, #{configKey},
-    #{severity}, #{cardinality}, #{language}, #{parentId},
+    #{severity}, #{cardinality}, #{language}, #{templateId},
     #{subCharacteristicId}, #{defaultSubCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
     #{remediationCoefficient}, #{defaultRemediationCoefficient}, #{remediationOffset}, #{defaultRemediationOffset},
     #{effortToFixDescription}, #{tagsField}, #{systemTagsField}, #{noteData}, #{noteUserLogin}, #{noteCreatedAt},

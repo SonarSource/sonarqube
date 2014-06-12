@@ -193,7 +193,7 @@ public class RulesWebServiceTest {
   public void search_template_rules() throws Exception {
     RuleDto templateRule = newRuleDto(RuleKey.of("java", "S001")).setCardinality(Cardinality.MULTIPLE);
     ruleDao.insert(session, templateRule);
-    ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S001_MY_CUSTOM")).setParentId(templateRule.getId()));
+    ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S001_MY_CUSTOM")).setTemplateId(templateRule.getId()));
     session.commit();
 
     MockUserSession.set();
@@ -208,7 +208,7 @@ public class RulesWebServiceTest {
   public void search_custom_rules_from_template_key() throws Exception {
     RuleDto templateRule = newRuleDto(RuleKey.of("java", "S001")).setCardinality(Cardinality.MULTIPLE);
     ruleDao.insert(session, templateRule);
-    ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S001_MY_CUSTOM")).setParentId(templateRule.getId()));
+    ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S001_MY_CUSTOM")).setTemplateId(templateRule.getId()));
     session.commit();
 
     MockUserSession.set();

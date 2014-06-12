@@ -48,12 +48,7 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -748,7 +743,7 @@ public class RuleIndexMediumTest {
   public void search_by_template_key() throws InterruptedException {
     RuleDto templateRule = newRuleDto(RuleKey.of("java", "S001")).setCardinality(Cardinality.MULTIPLE);
     dao.insert(dbSession, templateRule);
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001_MY_CUSTOM")).setParentId(templateRule.getId()));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001_MY_CUSTOM")).setTemplateId(templateRule.getId()));
     dbSession.commit();
 
     // find all
@@ -775,7 +770,7 @@ public class RuleIndexMediumTest {
     dao.insert(dbSession, templateRule);
     dao.addRuleParam(dbSession, templateRule, ruleParamDto);
 
-    RuleDto customRule = newRuleDto(RuleKey.of("java", "S001_MY_CUSTOM")).setParentId(templateRule.getId());
+    RuleDto customRule = newRuleDto(RuleKey.of("java", "S001_MY_CUSTOM")).setTemplateId(templateRule.getId());
     RuleParamDto customRuleParam = RuleParamDto.createFor(customRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue("a.*");
     dao.insert(dbSession, customRule);
     dao.addRuleParam(dbSession, customRule, customRuleParam);
@@ -795,7 +790,7 @@ public class RuleIndexMediumTest {
   public void show_custom_rule() throws InterruptedException {
     RuleDto templateRule = newRuleDto(RuleKey.of("java", "S001")).setCardinality(Cardinality.MULTIPLE);
     dao.insert(dbSession, templateRule);
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001_MY_CUSTOM")).setParentId(templateRule.getId()));
+    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001_MY_CUSTOM")).setTemplateId(templateRule.getId()));
     dbSession.commit();
 
     // find all
