@@ -97,6 +97,7 @@ public class RuleActivator implements ServerComponent {
     try {
       return activate(dbSession, activation);
     } finally {
+      dbSession.commit();
       dbSession.close();
     }
   }
@@ -255,6 +256,7 @@ public class RuleActivator implements ServerComponent {
     try {
       return deactivate(dbSession, key);
     } finally {
+      dbSession.commit();
       dbSession.close();
     }
   }
@@ -271,6 +273,7 @@ public class RuleActivator implements ServerComponent {
     try {
       return deactivate(dbSession, ruleDto);
     } finally {
+      dbSession.commit();
       dbSession.close();
     }
   }
