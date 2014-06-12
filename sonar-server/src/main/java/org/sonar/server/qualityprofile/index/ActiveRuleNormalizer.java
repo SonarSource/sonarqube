@@ -21,6 +21,7 @@ package org.sonar.server.qualityprofile.index;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import org.elasticsearch.action.support.replication.ReplicationType;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
@@ -150,6 +151,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
 
     /* Creating updateRequest */
     return ImmutableList.of(new UpdateRequest()
+      .replicationType(ReplicationType.ASYNC)
       .routing(key.ruleKey().toString())
       .id(activeRuleDto.getKey().toString())
       .parent(activeRuleDto.getKey().ruleKey().toString())
@@ -186,6 +188,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
     newParam.put(ActiveRuleParamField.VALUE.field(), param.getValue());
 
     return ImmutableList.of(new UpdateRequest()
+        .replicationType(ReplicationType.ASYNC)
         .routing(key.ruleKey().toString())
         .id(key.toString())
         .script(ListUpdate.NAME)
@@ -198,6 +201,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
 
   private List<UpdateRequest> nestedDelete(ActiveRuleParamDto param, ActiveRuleKey key) {
     return ImmutableList.of(new UpdateRequest()
+        .replicationType(ReplicationType.ASYNC)
         .routing(key.ruleKey().toString())
         .id(key.toString())
         .script(ListUpdate.NAME)

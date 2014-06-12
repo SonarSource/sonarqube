@@ -22,6 +22,8 @@ package org.sonar.server.rule.index;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import org.elasticsearch.action.WriteConsistencyLevel;
+import org.elasticsearch.action.support.replication.ReplicationType;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.persistence.DbSession;
@@ -231,6 +233,8 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
       /** Creating updateRequest */
       return ImmutableList.of(new UpdateRequest()
+        .replicationType(ReplicationType.ASYNC)
+        .consistencyLevel(WriteConsistencyLevel.QUORUM)
         .id(rule.getKey().toString())
         .doc(update)
         .upsert(upsert));

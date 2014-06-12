@@ -36,7 +36,7 @@ public class IndexQueueWorker extends ThreadPoolExecutor
   private final IndexClient indexes;
 
   public IndexQueueWorker(IndexQueue queue, IndexClient indexes) {
-    super(1, 1, 500l, TimeUnit.MILLISECONDS, queue);
+    super(1,1, 0L, TimeUnit.MILLISECONDS, queue);
     this.indexes = indexes;
   }
 

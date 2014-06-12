@@ -20,6 +20,7 @@
 package org.sonar.server.log.index;
 
 import com.google.common.collect.ImmutableList;
+import org.elasticsearch.action.support.replication.ReplicationType;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.log.db.LogDto;
@@ -105,6 +106,7 @@ public class LogNormalizer extends BaseNormalizer<LogDto, LogKey> {
    /* Creating updateRequest */
     return ImmutableList.of(new UpdateRequest()
       //Need to make a UUID because Key does not insure unicity
+      .replicationType(ReplicationType.ASYNC)
       .doc(logDoc)
       .upsert(logDoc));
   }
