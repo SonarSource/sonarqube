@@ -27,7 +27,6 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -155,20 +154,20 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   private void initializeManagementIndex() {
     LOG.debug("Setup of Management Index for ES");
 
-    String index = indexDefinition.getManagementIndex();
-
-    IndicesExistsResponse indexExistsResponse = getClient().admin().indices()
-      .prepareExists(index).execute().actionGet();
-
-    if (!indexExistsResponse.isExists()) {
-      getClient().admin().indices().prepareCreate(index)
-        .setSettings(ImmutableSettings.builder()
-          .put("mapper.dynamic", true)
-          .put("number_of_replicas", 1)
-          .put("number_of_shards", 1)
-          .build())
-        .get();
-    }
+//    String index = indexDefinition.getManagementIndex();
+//
+//    IndicesExistsResponse indexExistsResponse = getClient().admin().indices()
+//      .prepareExists(index).execute().actionGet();
+//
+//    if (!indexExistsResponse.isExists()) {
+//      getClient().admin().indices().prepareCreate(index)
+//        .setSettings(ImmutableSettings.builder()
+//          .put("mapper.dynamic", true)
+//          .put("number_of_replicas", 1)
+//          .put("number_of_shards", 1)
+//          .build())
+//        .get();
+//    }
   }
 
   protected void initializeIndex() {
@@ -391,6 +390,8 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       .admin()
       .indices()
       .prepareRefresh(this.getIndexName())
+      .setForce(false)
+      .setIndices(this.getIndexName())
       .get();
   }
 

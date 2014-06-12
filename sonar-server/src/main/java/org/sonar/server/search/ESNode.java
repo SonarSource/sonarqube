@@ -80,6 +80,12 @@ public class ESNode implements Startable {
       IndexProperties.ES_TYPE.DATA;
 
     ImmutableSettings.Builder esSettings = ImmutableSettings.settingsBuilder()
+      .put("index.merge.policy.max_merge_at_once", "200")
+      .put("index.merge.policy.segments_per_tier", "200")
+
+      .put("indices.store.throttle.type", "merge")
+      .put("indices.store.throttle.max_bytes_per_sec", "200mb")
+
       .put("script.default_lang", "native")
       .put("script.native." + ListUpdate.NAME + ".type", UpdateListScriptFactory.class.getName());
 
@@ -146,6 +152,7 @@ public class ESNode implements Startable {
       .put("node.name", "sonarqube-" + System.currentTimeMillis())
       .put("node.data", true)
       .put("node.local", true)
+      .put("index.store.type", "mmapfs")
       .put("cluster.name", "sonarqube")
       .put("index.number_of_shards", "1")
       .put("index.number_of_replicas", "0");
