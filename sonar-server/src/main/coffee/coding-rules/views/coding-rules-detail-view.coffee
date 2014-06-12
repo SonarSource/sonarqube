@@ -3,12 +3,14 @@ define [
   'backbone.marionette'
   'coding-rules/views/coding-rules-detail-quality-profiles-view'
   'coding-rules/views/coding-rules-detail-quality-profile-view'
+  'coding-rules/views/coding-rules-detail-custom-rules-view'
   'templates/coding-rules'
 ], (
   Backbone
   Marionette
   CodingRulesDetailQualityProfilesView
   CodingRulesDetailQualityProfileView
+  CodingRulesDetailCustomRulesView
   Templates
 ) ->
 
@@ -18,7 +20,8 @@ define [
 
     regions:
       qualityProfilesRegion: '#coding-rules-detail-quality-profiles'
-      customRulesRegion: '#coding-rules-detail-custom-rules'
+      customRulesRegion: '.coding-rules-detail-custom-rules-section'
+      customRulesListRegion: '#coding-rules-detail-custom-rules'
       contextRegion: '.coding-rules-detail-context'
 
 
@@ -63,20 +66,7 @@ define [
       if @model.get 'params'
         @model.set 'params', _.sortBy(@model.get('params'), 'key')
 
-      if @model.get 'isTemplate'
-        customRules = new Backbone.Collection()
-        jQuery.ajax
-          url: "#{baseUrl}/api/rules/search"
-          data:
-            template_key: @model.get 'key'
-            f: 'name'
-        .done (r) =>
-          customRules.add r.rules
-        #@customRulesView = new CodingrulesDetailCustomRulesView
-        #  app: @options.app
-        #  collection: customRules
-        #  rule: @model
-      else
+      unless @model.get 'isTemplate'
         _.map options.actives, (active) =>
           _.extend active, options.app.getQualityProfileByKey active.qProfile
         qualityProfiles = new Backbone.Collection options.actives,
@@ -106,8 +96,35 @@ define [
 
       if @model.get 'isTemplate'
         @$(@contextRegion.el).hide()
-        # @customRulesRegion.show @customRulesView
+        @$(@qualityProfilesRegion.el).hide()
+        @$(@customRulesRegion.el).show()
+
+        customRulesOriginal = @$(@customRulesRegion.el).html()
+
+        @$(@customRulesRegion.el).html '<i class="spinner"></i>'
+
+        customRules = new Backbone.Collection()
+        jQuery.ajax
+          url: "#{baseUrl}/api/rules/search"
+          data:
+            template_key: @model.get 'key'
+            f: 'name,severity,params'
+        .done (r) =>
+          customRules.add r.rules
+
+          if customRules.isEmpty() and not @options.app.canWrite
+            @$(@customRulesRegion.el).hide()
+          else
+            @customRulesView = new CodingRulesDetailCustomRulesView
+              app: @options.app
+              collection: customRules
+              templateRule: @model
+            @$(@customRulesRegion.el).html customRulesOriginal
+            @customRulesListRegion.show @customRulesView
+
       else
+        @$(@customRulesRegion.el).hide()
+        @$(@qualityProfilesRegion.el).show()
         @qualityProfilesRegion.show @qualityProfilesView
 
         if @options.app.getQualityProfile()
@@ -206,8 +223,8 @@ define [
       @options.app.codingRulesQualityProfileActivationView.show()
 
     createCustomRule: ->
-      #@options.app.codingRulesCustomRuleView.model = @model
-      #@options.app.codingRulesCustomRuleView.show()
+      #@options.app.codingRulesCreateCustomRuleView.template = @model
+      #@options.app.codingRulesCreateCustomRuleView.show()
 
 
     serializeData: ->
