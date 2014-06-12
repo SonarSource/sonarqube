@@ -23,15 +23,17 @@ import java.io.Serializable;
 
 public class EmbeddedIndexAction<K extends Serializable> extends IndexAction {
 
-  private final Object item;
   private final K key;
+  private final Object item;
+  private final Object[] items;
 
-  public EmbeddedIndexAction(String indexType, Method method, Object item, K key) {
+  public EmbeddedIndexAction(String indexType, Method method, K key, Object item, Object... items) {
     super(indexType, method);
     this.indexType = indexType;
     this.method = method;
     this.key = key;
     this.item = item;
+    this.items = items;
   }
 
   @Override
@@ -49,9 +51,9 @@ public class EmbeddedIndexAction<K extends Serializable> extends IndexAction {
 
     try {
       if (this.getMethod().equals(Method.DELETE)) {
-        index.delete(this.item, this.key);
+        index.delete(this.key, this.item, this.items);
       } else if (this.getMethod().equals(Method.UPSERT)) {
-        index.upsert(this.item, this.key);
+        index.upsert(this.key, this.item, this.items);
       }
     } catch (Exception e) {
       throw new IllegalStateException(this.getClass().getSimpleName() +

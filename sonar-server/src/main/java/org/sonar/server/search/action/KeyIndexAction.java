@@ -24,10 +24,12 @@ import java.io.Serializable;
 public class KeyIndexAction<K extends Serializable> extends IndexAction {
 
   private final K key;
+  private final K[] keys;
 
-  public KeyIndexAction(String indexType, Method method, K key) {
+  public KeyIndexAction(String indexType, Method method, K key, K... keys) {
     super(indexType, method);
     this.key = key;
+    this.keys = keys;
   }
 
   @Override
@@ -44,9 +46,9 @@ public class KeyIndexAction<K extends Serializable> extends IndexAction {
   public void doExecute() {
     try {
       if (this.getMethod().equals(Method.DELETE)) {
-        index.deleteByKey(this.key);
+        index.deleteByKey(this.key, this.keys);
       } else if (this.getMethod().equals(Method.UPSERT)) {
-        index.upsertByKey(this.key);
+        index.upsertByKey(this.key, this.keys);
       }
     } catch (Exception e) {
       throw new IllegalStateException(this.getClass().getSimpleName() +

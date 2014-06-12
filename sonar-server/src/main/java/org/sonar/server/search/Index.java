@@ -39,17 +39,17 @@ public interface Index<DOMAIN, DTO extends Dto<KEY>, KEY extends Serializable> e
 
   void refresh();
 
-  void upsert(Object obj, KEY key) throws Exception;
+  void upsert(KEY key, Object object, Object... objects) throws Exception;
 
-  void upsertByKey(KEY key);
+  void upsertByKey(KEY key, KEY... keys);
 
-  void upsertByDto(DTO dto);
+  void upsertByDto(DTO dto, DTO... dtos);
 
-  void delete(Object obj, KEY key) throws Exception;
+  void delete(KEY key, Object object, Object... objects) throws Exception;
 
-  void deleteByKey(KEY key);
+  void deleteByKey(KEY key, KEY... keys);
 
-  void deleteByDto(DTO dto);
+  void deleteByDto(DTO dto, DTO... dtos);
 
   Date getLastSynchronization();
 

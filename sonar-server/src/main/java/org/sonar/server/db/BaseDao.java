@@ -254,21 +254,21 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   protected void enqueueUpdate(Object nestedItem, K key, DbSession session) {
     if (hasIndex()) {
       session.enqueue(new EmbeddedIndexAction<K>(
-        this.getIndexType(), IndexAction.Method.UPSERT, nestedItem, key));
+        this.getIndexType(), IndexAction.Method.UPSERT, key, nestedItem));
     }
   }
 
   public void enqueueDelete(Object nestedItem, K key, DbSession session) {
     if (hasIndex()) {
       session.enqueue(new EmbeddedIndexAction<K>(
-        this.getIndexType(), IndexAction.Method.DELETE, nestedItem, key));
+        this.getIndexType(), IndexAction.Method.DELETE, key, nestedItem));
     }
   }
 
   public void enqueueInsert(Object nestedItem, K key, DbSession session) {
     if (hasIndex()) {
       session.enqueue(new EmbeddedIndexAction<K>(
-        this.getIndexType(), IndexAction.Method.UPSERT, nestedItem, key));
+        this.getIndexType(), IndexAction.Method.UPSERT, key, nestedItem));
     }
   }
 }

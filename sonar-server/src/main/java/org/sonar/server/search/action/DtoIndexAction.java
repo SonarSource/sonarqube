@@ -24,10 +24,12 @@ import org.sonar.core.persistence.Dto;
 public class DtoIndexAction<E extends Dto> extends IndexAction {
 
   private final E item;
+  private final E[] items;
 
-  public DtoIndexAction(String indexType, Method method, E item) {
+  public DtoIndexAction(String indexType, Method method, E item, E... items) {
     super(indexType, method);
     this.item = item;
+    this.items = items;
   }
 
   @Override
@@ -44,9 +46,9 @@ public class DtoIndexAction<E extends Dto> extends IndexAction {
   public void doExecute() {
     try {
       if (this.getMethod().equals(Method.DELETE)) {
-        index.deleteByDto(this.item);
+        index.deleteByDto(this.item, this.items);
       } else if (this.getMethod().equals(Method.UPSERT)) {
-        index.upsertByDto(this.item);
+        index.upsertByDto(this.item, this.items);
       }
     } catch (Exception e) {
       throw new IllegalStateException(this.getClass().getSimpleName() +
