@@ -36,6 +36,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.technicaldebt.db.CharacteristicMapper;
+import org.sonar.core.technicaldebt.db.RequirementMigrationDto;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.RegisterRules;
@@ -45,13 +46,14 @@ import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This script copy every requirements from characteristics table (every row where rule_id is not null) to the rules table.
  * <p/>
  * This script need to be executed after rules registration because default debt columns (characteristics, function, coefficient and offset) has to be populated
  * in order to be able to compare default values with overridden values.
+ * <p/>
+ * WARNING : When updating this class, please take time to test on ALL databases!
  *
  * @since 4.3 this component could be removed after 4 or 5 releases.
  */
@@ -90,22 +92,21 @@ public class CopyRequirementsFromCharacteristicsToRules implements ServerCompone
     DbSession dbSession = dbClient.openSession(true);
 
     try {
-      List<Map<String, Object>> requirementDtos = dbSession.getMapper(CharacteristicMapper.class).selectDeprecatedRequirements();
+      List<RequirementMigrationDto> requirementDtos = dbSession.getMapper(CharacteristicMapper.class).selectDeprecatedRequirements();
       if (requirementDtos.isEmpty()) {
         LOGGER.info("No requirement will be copied", requirementDtos);
 
       } else {
         int requirementCopied = 0;
 
-        final Multimap<Number, RequirementDto> requirementsByRuleId = ArrayListMultimap.create();
-        for (Map<String, Object> map : requirementDtos) {
-          RequirementDto requirementDto = new RequirementDto(map);
+        final Multimap<Integer, RequirementMigrationDto> requirementsByRuleId = ArrayListMultimap.create();
+        for (RequirementMigrationDto requirementDto : requirementDtos) {
           requirementsByRuleId.put(requirementDto.getRuleId(), requirementDto);
         }
 
         List<RuleDto> rules = dbClient.ruleDao().findAll(dbSession);
         for (RuleDto rule : rules) {
-          Collection<RequirementDto> requirementsForRule = requirementsByRuleId.get(rule.getId());
+          Collection<RequirementMigrationDto> requirementsForRule = requirementsByRuleId.get(rule.getId());
           if (!requirementsForRule.isEmpty()) {
             convert(rule, requirementsForRule, dbSession);
             requirementCopied++;
@@ -120,8 +121,8 @@ public class CopyRequirementsFromCharacteristicsToRules implements ServerCompone
     }
   }
 
-  private void convert(RuleDto rule, Collection<RequirementDto> requirementsForRule, DbSession session) {
-    RequirementDto enabledRequirement = enabledRequirement(requirementsForRule);
+  private void convert(RuleDto rule, Collection<RequirementMigrationDto> requirementsForRule, DbSession session) {
+    RequirementMigrationDto enabledRequirement = enabledRequirement(requirementsForRule);
 
     if (enabledRequirement == null && RuleStatus.REMOVED != rule.getStatus()) {
       // If no enabled requirement is found, it means that the requirement has been disabled for this rule
@@ -135,10 +136,10 @@ public class CopyRequirementsFromCharacteristicsToRules implements ServerCompone
     }
   }
 
-  private static RequirementDto enabledRequirement(Collection<RequirementDto> requirementsForRule) {
-    return Iterables.find(requirementsForRule, new Predicate<RequirementDto>() {
+  private static RequirementMigrationDto enabledRequirement(Collection<RequirementMigrationDto> requirementsForRule) {
+    return Iterables.find(requirementsForRule, new Predicate<RequirementMigrationDto>() {
       @Override
-      public boolean apply(@Nullable RequirementDto input) {
+      public boolean apply(@Nullable RequirementMigrationDto input) {
         return input != null && input.isEnabled();
       }
     }, null);
@@ -152,8 +153,8 @@ public class CopyRequirementsFromCharacteristicsToRules implements ServerCompone
     dbClient.ruleDao().update(session, rule);
   }
 
-  private void convertEnabledRequirement(RuleDto ruleRow, RequirementDto enabledRequirement, DbSession session) {
-    ruleRow.setSubCharacteristicId(enabledRequirement.getParentId() != null ? enabledRequirement.getParentId().intValue() : null);
+  private void convertEnabledRequirement(RuleDto ruleRow, RequirementMigrationDto enabledRequirement, DbSession session) {
+    ruleRow.setSubCharacteristicId(enabledRequirement.getParentId() != null ? enabledRequirement.getParentId() : null);
     ruleRow.setRemediationFunction(enabledRequirement.getFunction().toUpperCase());
     ruleRow.setRemediationCoefficient(convertDuration(enabledRequirement.getCoefficientValue(), enabledRequirement.getCoefficientUnit()));
     ruleRow.setRemediationOffset(convertDuration(enabledRequirement.getOffsetValue(), enabledRequirement.getOffsetUnit()));
@@ -185,10 +186,10 @@ public class CopyRequirementsFromCharacteristicsToRules implements ServerCompone
 
   @CheckForNull
   @VisibleForTesting
-  static String convertDuration(@Nullable Number oldValue, @Nullable String oldUnit) {
-    if (oldValue != null && oldValue.doubleValue() > 0) {
+  static String convertDuration(@Nullable Double oldValue, @Nullable String oldUnit) {
+    if (oldValue != null && oldValue > 0) {
       // As value is stored in double, we have to round it in order to have an integer (for instance, if it was 1.6, we'll use 2)
-      return Integer.toString((int) Math.round(oldValue.doubleValue())) + convertUnit(oldUnit);
+      return Integer.toString((int) Math.round(oldValue)) + convertUnit(oldUnit);
     }
     return null;
   }
@@ -216,67 +217,6 @@ public class CopyRequirementsFromCharacteristicsToRules implements ServerCompone
       dbSession.commit();
     } finally {
       MyBatis.closeQuietly(dbSession);
-    }
-  }
-
-  static class RequirementDto {
-
-    private final Map<String, Object> map;
-
-    RequirementDto(Map<String, Object> map) {
-      this.map = map;
-    }
-
-    /**
-     * Do not use Integer because Oracle returns BigDecimal
-     */
-    public Number getId() {
-      return (Number) map.get("id");
-    }
-
-    /**
-     * Do not use Integer because Oracle returns BigDecimal
-     */
-    public Number getParentId() {
-      return (Number) map.get("parentId");
-    }
-
-    /**
-     * Do not use Integer because Oracle returns BigDecimal
-     */
-    public Number getRuleId() {
-      return (Number) map.get("ruleId");
-    }
-
-    public String getFunction() {
-      return (String) map.get("functionKey");
-    }
-
-    @CheckForNull
-    public Number getCoefficientValue() {
-      return (Number) map.get("coefficientValue");
-    }
-
-
-    @CheckForNull
-    public String getCoefficientUnit() {
-      return (String) map.get("coefficientUnit");
-    }
-
-
-    @CheckForNull
-    public Number getOffsetValue() {
-      return (Number) map.get("offsetValue");
-    }
-
-
-    @CheckForNull
-    public String getOffsetUnit() {
-      return (String) map.get("offsetUnit");
-    }
-
-    public boolean isEnabled() {
-      return (Boolean) map.get("enabled");
     }
   }
 

@@ -107,7 +107,7 @@
     where id=#{id}
   </update>
 
-  <select id="selectDeprecatedRequirements" resultType="map">
+  <select id="selectDeprecatedRequirements" resultType="RequirementMigration">
     select id as "id",
     parent_id as "parentId",
     root_id as "rootId",
