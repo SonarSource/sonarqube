@@ -31,6 +31,11 @@ public class KeyIndexAction<K extends Serializable> extends IndexAction {
   }
 
   @Override
+  public Class<?> getPayloadClass() {
+    return String.class;
+  }
+
+  @Override
   public String getKey() {
     return this.key.toString();
   }

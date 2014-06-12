@@ -40,6 +40,11 @@ public class EmbeddedIndexAction<K extends Serializable> extends IndexAction {
   }
 
   @Override
+  public Class<?> getPayloadClass() {
+    return item.getClass();
+  }
+
+  @Override
   public void doExecute() {
 
     try {

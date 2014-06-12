@@ -25,6 +25,8 @@ import org.sonar.server.search.Index;
 public abstract class IndexAction extends QueueAction {
 
 
+  public abstract Class<?> getPayloadClass();
+
   public enum Method {
     UPSERT, DELETE
   }

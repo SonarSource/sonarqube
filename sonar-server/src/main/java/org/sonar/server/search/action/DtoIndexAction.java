@@ -31,6 +31,11 @@ public class DtoIndexAction<E extends Dto> extends IndexAction {
   }
 
   @Override
+  public Class<?> getPayloadClass() {
+    return item.getClass();
+  }
+
+  @Override
   public String getKey() {
     return item.getKey().toString();
   }
