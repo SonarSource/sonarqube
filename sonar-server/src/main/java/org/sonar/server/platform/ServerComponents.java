@@ -389,10 +389,7 @@ class ServerComponents {
       ServerMetadataPersister.class,
       HttpDownloader.class,
       UriReader.class,
-      ServerIdGenerator.class,
-
-      /** Index startup Synchronization */
-      IndexSynchronizer.class
+      ServerIdGenerator.class
     );
     return components;
   }
@@ -658,7 +655,13 @@ class ServerComponents {
   }
 
   public void executeStartupTasks(ComponentContainer pico) {
+
+
     final ComponentContainer startupContainer = pico.createChild();
+
+    /** Index startup Synchronization */
+    startupContainer.addSingleton(IndexSynchronizer.class);
+
     startupContainer.addSingleton(GwtPublisher.class);
     startupContainer.addSingleton(RegisterMetrics.class);
     startupContainer.addSingleton(RegisterQualityGates.class);
@@ -679,6 +682,7 @@ class ServerComponents {
     DoPrivileged.execute(new DoPrivileged.Task() {
       @Override
       protected void doPrivileged() {
+        startupContainer.getComponentsByType(IndexSynchronizer.class).get(0).execute();
         startupContainer.startComponents();
         startupContainer.getComponentByType(ServerLifecycleNotifier.class).notifyStart();
       }

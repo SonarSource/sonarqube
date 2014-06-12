@@ -21,6 +21,7 @@ package org.sonar.server.qualityprofile;
 
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -285,6 +286,7 @@ public class ActiveRuleBackendMediumTest {
   }
 
   @Test
+  @Ignore
   public void stats_for_all() {
     QualityProfileDto profileDto1 = QualityProfileDto.createFor("p1", "java");
     QualityProfileDto profileDto2 = QualityProfileDto.createFor("p2", "java");
