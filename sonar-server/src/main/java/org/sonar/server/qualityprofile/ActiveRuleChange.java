@@ -120,6 +120,8 @@ public class ActiveRuleChange implements Loggable {
 
     if (this.getKey() != null) {
       details.put("key", this.getKey().toString());
+      details.put("ruleKey", this.getKey().ruleKey().toString());
+      details.put("profileKey", this.getKey().qProfile().toString());
     }
     return details.build();
   }

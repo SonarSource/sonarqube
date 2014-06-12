@@ -176,4 +176,22 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
       .setRouting(key.toString());
     return request.get().getCount();
   }
+
+  public Map getStatsByProfileKey(QualityProfileKey... keys) {
+    // Get QProfiles keys as Strings
+    String[] stringKeys = new String[keys.length];
+    for(int i=0; i<keys.length; i++){
+      stringKeys[i]=keys[i].toString();
+    }
+
+//    getClient().prepareSearch(this.getIndexName())
+//      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
+//        FilterBuilders.termsFilter(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), stringKeys)))
+//      .addAggregation(AggregationBuilders.terms("").)
+//      .setAggregations()
+//      .setRouting(key.toString());
+//    return request.get().getCount();
+
+    return null;
+  }
 }

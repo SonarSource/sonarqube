@@ -260,7 +260,7 @@ public class ActiveRuleBackendMediumTest {
   }
 
   @Test
-  public void count_all_by_index_field() {
+    public void count_all_by_index_field() {
     QualityProfileDto profileDto1 = QualityProfileDto.createFor("p1", "java");
     QualityProfileDto profileDto2 = QualityProfileDto.createFor("p2", "java");
     db.qualityProfileDao().insert(dbSession, profileDto1, profileDto2);
@@ -282,6 +282,33 @@ public class ActiveRuleBackendMediumTest {
     assertThat(counts).hasSize(2);
     assertThat(counts.values()).containsOnly(1L, 1L);
     assertThat(counts.keySet()).containsOnly(profileDto1.getKey().toString(), profileDto2.getKey().toString());
+  }
+
+  @Test
+  public void stats_for_all() {
+    QualityProfileDto profileDto1 = QualityProfileDto.createFor("p1", "java");
+    QualityProfileDto profileDto2 = QualityProfileDto.createFor("p2", "java");
+    db.qualityProfileDao().insert(dbSession, profileDto1, profileDto2);
+
+    RuleDto ruleDto1 = newRuleDto(RuleKey.of("javascript", "S001"));
+    RuleDto ruleDto2 = newRuleDto(RuleKey.of("javascript", "S002"));
+    db.ruleDao().insert(dbSession, ruleDto1, ruleDto2);
+
+    db.activeRuleDao().insert(dbSession,
+      ActiveRuleDto.createFor(profileDto1, ruleDto1).setSeverity(Severity.BLOCKER),
+      ActiveRuleDto.createFor(profileDto2, ruleDto1).setSeverity(Severity.MINOR),
+      ActiveRuleDto.createFor(profileDto1, ruleDto2).setSeverity(Severity.MAJOR),
+      ActiveRuleDto.createFor(profileDto2, ruleDto2).setSeverity(Severity.BLOCKER)
+      );
+    dbSession.commit();
+
+    // 0. Test base case
+    assertThat(index.countAll()).isEqualTo(2);
+
+    // 1. Assert by term aggregation;
+    Map stats = index.getStatsByProfileKey(
+      profileDto1.getKey(),
+      profileDto2.getKey());
   }
 
 
