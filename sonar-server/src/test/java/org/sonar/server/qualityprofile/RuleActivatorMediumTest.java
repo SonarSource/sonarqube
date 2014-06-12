@@ -29,13 +29,16 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.qualityprofile.db.*;
+import org.sonar.core.qualityprofile.db.ActiveRuleDto;
+import org.sonar.core.qualityprofile.db.ActiveRuleKey;
+import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
-import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
@@ -43,7 +46,6 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.tester.ServerTester;
 
 import javax.annotation.Nullable;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -57,9 +59,9 @@ public class RuleActivatorMediumTest {
   static final QualityProfileKey XOO_PROFILE_KEY = QualityProfileKey.of("P1", "xoo");
   static final QualityProfileKey XOO_CHILD_PROFILE_KEY = QualityProfileKey.of("P2", "xoo");
   static final QualityProfileKey XOO_GRAND_CHILD_PROFILE_KEY = QualityProfileKey.of("P3", "xoo");
-  static final RuleKey MANUAL_RULE_KEY = RuleKey.of(Rule.MANUAL_REPOSITORY_KEY, "m1");
+  static final RuleKey MANUAL_RULE_KEY = RuleKey.of(RuleKey.MANUAL_REPOSITORY_KEY, "m1");
   static final RuleKey TEMPLATE_RULE_KEY = RuleKey.of("xoo", "template1");
-  static final RuleKey CUSTOM_RULE_KEY = RuleKey.of(TEMPLATE_RULE_KEY.repository(), "custom1");
+  static final RuleKey CUSTOM_RULE_KEY = RuleKey.of("xoo", "custom1");
   static final RuleKey XOO_RULE_1 = RuleKey.of("xoo", "x1");
   static final RuleKey XOO_RULE_2 = RuleKey.of("xoo", "x2");
 
@@ -119,10 +121,12 @@ public class RuleActivatorMediumTest {
     RuleActivation activation = new RuleActivation(activeRuleKey);
     activation.setSeverity(Severity.BLOCKER);
     activation.setParameter("max", "7");
-    ruleActivator.activate(activation);
+    List<ActiveRuleChange> changes = ruleActivator.activate(activation);
 
     assertThat(countActiveRules(XOO_PROFILE_KEY)).isEqualTo(1);
     verifyHasActiveRule(activeRuleKey, Severity.BLOCKER, null, ImmutableMap.of("max", "7"));
+    assertThat(changes).hasSize(1);
+    assertThat(changes.get(0).getType()).isEqualTo(ActiveRuleChange.Type.ACTIVATED);
   }
 
   @Test
@@ -158,10 +162,12 @@ public class RuleActivatorMediumTest {
     RuleActivation update = new RuleActivation(activeRuleKey);
     update.setSeverity(Severity.CRITICAL);
     update.setParameter("max", "42");
-    ruleActivator.activate(update);
+    List<ActiveRuleChange> changes = ruleActivator.activate(update);
 
     assertThat(countActiveRules(XOO_PROFILE_KEY)).isEqualTo(1);
     verifyHasActiveRule(activeRuleKey, Severity.CRITICAL, null, ImmutableMap.of("max", "42"));
+    assertThat(changes).hasSize(1);
+    assertThat(changes.get(0).getType()).isEqualTo(ActiveRuleChange.Type.UPDATED);
   }
 
   @Test
@@ -701,7 +707,7 @@ public class RuleActivatorMediumTest {
   }
 
   @Test
-  public void mass_activation() {
+  public void bulk_activation() {
     // Generate more rules than the search's max limit
     int bulkSize = QueryOptions.MAX_LIMIT + 10;
     for (int i = 0; i < bulkSize; i++) {
@@ -716,13 +722,29 @@ public class RuleActivatorMediumTest {
       .isEqualTo(bulkSize);
 
     // 1. bulk activate all the rules
-    ruleActivator.bulkActivate(
+    BulkChangeResult result = ruleActivator.bulkActivate(
       new RuleQuery().setRepositories(Arrays.asList("bulk")), XOO_PROFILE_KEY, "MINOR");
 
-    // 2. assert that all activation has been commited to DB and ES
+    // 2. assert that all activation has been commit to DB and ES
     dbSession.clearCache();
     assertThat(db.activeRuleDao().findByProfileKey(dbSession, XOO_PROFILE_KEY)).hasSize(bulkSize);
     assertThat(index.findByProfile(XOO_PROFILE_KEY)).hasSize(bulkSize);
+    assertThat(result.countSucceeded()).isEqualTo(bulkSize);
+    assertThat(result.countFailed()).isEqualTo(0);
+  }
+
+  @Test
+  public void bulk_activation_ignores_errors() {
+    // 1. bulk activate all the rules, even non xoo-rules and xoo templates
+    BulkChangeResult result = ruleActivator.bulkActivate(new RuleQuery(), XOO_PROFILE_KEY, "MINOR");
+
+    // 2. assert that all activations have been commit to DB and ES
+    // -> xoo rules x1, x2 and custom1
+    dbSession.clearCache();
+    assertThat(db.activeRuleDao().findByProfileKey(dbSession, XOO_PROFILE_KEY)).hasSize(3);
+    assertThat(index.findByProfile(XOO_PROFILE_KEY)).hasSize(3);
+    assertThat(result.countSucceeded()).isEqualTo(3);
+    assertThat(result.countFailed()).isGreaterThan(0);
 
   }
 
@@ -755,6 +777,18 @@ public class RuleActivatorMediumTest {
     assertThat(countActiveRules(childKey)).isEqualTo(1);
     assertThat(db.qualityProfileDao().getByKey(dbSession, childKey).getParentKey()).isNull();
     verifyHasActiveRule(ActiveRuleKey.of(childKey, XOO_RULE_2), Severity.MAJOR, null, Collections.<String, String>emptyMap());
+  }
+
+  @Test
+  public void fail_if_set_child_as_parent() {
+    createChildProfiles();
+
+    try {
+      ruleActivator.setParent(XOO_PROFILE_KEY, XOO_GRAND_CHILD_PROFILE_KEY);
+      fail();
+    } catch (BadRequestException e) {
+      assertThat(e).hasMessage("Descendant profile 'P3:xoo' can not be selected as parent of 'P1:xoo'");
+    }
   }
 
   @Test

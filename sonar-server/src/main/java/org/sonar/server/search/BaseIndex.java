@@ -49,6 +49,7 @@ import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -117,9 +118,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
         try {
           SearchScrollRequestBuilder esRequest = getClient().prepareSearchScroll(scrollId)
             .setScroll(TimeValue.timeValueMinutes(3));
-          for (SearchHit hit : esRequest.get().getHits().getHits()) {
-            hits.add(hit);
-          }
+          Collections.addAll(hits, esRequest.get().getHits().getHits());
         } catch (Exception e) {
           throw new IllegalStateException("Error while filling in the scroll buffer", e);
         }

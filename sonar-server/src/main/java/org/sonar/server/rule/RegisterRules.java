@@ -119,7 +119,7 @@ public class RegisterRules implements Startable {
         session.commit();
       }
       List<RuleDto> activeRules = processRemainingDbRules(allRules.values(), session);
-      removeActiveRulesOnStillExistingRepositories(activeRules, context);
+      removeActiveRulesOnStillExistingRepositories(session, activeRules, context);
       session.commit();
 
     } finally {
@@ -370,7 +370,7 @@ public class RegisterRules implements Startable {
    * The side effect of this approach is that extended repositories will not be managed the same way.
    * If an extended repository do not exists anymore, then related active rules will be removed.
    */
-  private void removeActiveRulesOnStillExistingRepositories(Collection<RuleDto> removedRules, RulesDefinition.Context context) {
+  private void removeActiveRulesOnStillExistingRepositories(DbSession session, Collection<RuleDto> removedRules, RulesDefinition.Context context) {
     List<String> repositoryKeys = newArrayList(Iterables.transform(context.repositories(), new Function<RulesDefinition.Repository, String>() {
         @Override
         public String apply(RulesDefinition.Repository input) {
@@ -382,7 +382,7 @@ public class RegisterRules implements Startable {
     for (RuleDto rule : removedRules) {
       // SONAR-4642 Remove active rules only when repository still exists
       if (repositoryKeys.contains(rule.getRepositoryKey())) {
-        ruleActivator.deactivate(rule);
+        ruleActivator.deactivate(session, rule);
       }
     }
   }

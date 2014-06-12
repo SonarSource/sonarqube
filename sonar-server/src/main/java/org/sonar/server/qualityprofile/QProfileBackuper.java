@@ -102,7 +102,7 @@ public class QProfileBackuper implements ServerComponent {
    * @param profileKey the target profile. If <code>null</code>, then use the
    *                   key declared in the backup
    */
-  void restore(Reader reader, @Nullable QualityProfileKey profileKey) {
+  BulkChangeResult restore(Reader reader, @Nullable QualityProfileKey profileKey) {
     try {
       String profileLang = null, profileName = null;
       List<RuleActivation> ruleActivations = Lists.newArrayList();
@@ -131,7 +131,7 @@ public class QProfileBackuper implements ServerComponent {
       }
 
       targetKey = (QualityProfileKey) ObjectUtils.defaultIfNull(profileKey, QualityProfileKey.of(profileName, profileLang));
-      reset.reset(targetKey, ruleActivations);
+      return reset.reset(targetKey, ruleActivations);
     } catch (XMLStreamException e) {
       throw new IllegalStateException("Fail to restore Quality profile backup", e);
     }

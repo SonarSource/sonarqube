@@ -17,34 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.log.db;
+package org.sonar.server.qualityprofile;
 
-import org.sonar.core.log.Loggable;
+import com.google.common.collect.Lists;
+import org.sonar.server.exceptions.Message;
+import org.sonar.server.exceptions.Messages;
 
-import java.util.Map;
+import java.util.Collection;
+import java.util.List;
 
-/**
- * @since 4.4
- */
-public class TestLog implements Loggable {
+public class BulkChangeResult {
 
-  public String test;
+  private final Messages messages = new Messages();
+  private int succeeded = 0, failed = 0;
+  private final List<ActiveRuleChange> changes = Lists.newArrayList();
 
-  public TestLog() {
+  BulkChangeResult addMessage(Message message) {
+    this.messages.add(message);
+    return this;
   }
 
-  public TestLog(String test) {
-    this.test = test;
+  public Messages getMessages() {
+    return messages;
   }
 
-
-  @Override
-  public Map<String, String> getDetails() {
-    return null;
+  public int countSucceeded() {
+    return succeeded;
   }
 
-  @Override
-  public Integer getExecutionTime() {
-    return null;
+  public int countFailed() {
+    return failed;
+  }
+
+  void incrementSucceeded() {
+    succeeded++;
+  }
+
+  void incrementFailed() {
+    failed++;
+  }
+
+  void addChanges(Collection<ActiveRuleChange> c) {
+    this.changes.addAll(c);
   }
 }

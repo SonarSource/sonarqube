@@ -105,7 +105,7 @@ public class LogDaoTest extends AbstractDaoTestCase {
       }
 
       @Override
-      public Integer getExecutionTime() {
+      public int getExecutionTime() {
         return 12;
       }
     })

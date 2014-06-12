@@ -28,6 +28,6 @@ public interface Loggable {
 
   Map<String, String> getDetails();
 
-  Integer getExecutionTime();
+  int getExecutionTime();
 
 }

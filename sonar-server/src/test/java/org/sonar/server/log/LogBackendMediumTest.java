@@ -85,7 +85,7 @@ public class LogBackendMediumTest {
       }
 
       @Override
-      public Integer getExecutionTime() {
+      public int getExecutionTime() {
         return 12;
       }
     });

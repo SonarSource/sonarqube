@@ -94,7 +94,8 @@ public class QProfileReset implements ServerComponent {
   /**
    * Create the profile if needed.
    */
-  void reset(QualityProfileKey profileKey, Collection<RuleActivation> activations) {
+  BulkChangeResult reset(QualityProfileKey profileKey, Collection<RuleActivation> activations) {
+    BulkChangeResult result = new BulkChangeResult();
     Set<RuleKey> rulesToDeactivate = Sets.newHashSet();
     DbSession dbSession = db.openSession(false);
     try {
@@ -114,18 +115,25 @@ public class QProfileReset implements ServerComponent {
 
       for (RuleActivation activation : activations) {
         try {
-          activator.activate(dbSession, activation);
+          List<ActiveRuleChange> changes = activator.activate(dbSession, activation);
           rulesToDeactivate.remove(activation.getKey().ruleKey());
+          result.incrementSucceeded();
+          result.addChanges(changes);
         } catch (BadRequestException e) {
-          // TODO should return warnings instead of logging warnings
-          LoggerFactory.getLogger(getClass()).warn(e.getMessage());
+          result.incrementFailed();
+          //TODOresult.addMessage()
         }
       }
 
       for (RuleKey ruleKey : rulesToDeactivate) {
-        activator.deactivate(dbSession, ActiveRuleKey.of(profileKey, ruleKey));
+        try {
+          activator.deactivate(dbSession, ActiveRuleKey.of(profileKey, ruleKey));
+        } catch (BadRequestException e) {
+          // ignore, probably a rule inherited from parent that can't be deactivated
+        }
       }
       dbSession.commit();
+      return result;
 
     } finally {
       dbSession.close();

@@ -36,9 +36,8 @@ public class ActiveRuleChange implements Loggable {
 
   private final Type type;
   private final ActiveRuleKey key;
-  private boolean inheritedChange = false;
-  private String previousSeverity = null, severity = null;
-  private ActiveRule.Inheritance previousInheritance = null, inheritance = null;
+  private String severity = null;
+  private ActiveRule.Inheritance inheritance = null;
   private Map<String, String> parameters = Maps.newHashMap();
 
   private long start;
@@ -55,23 +54,6 @@ public class ActiveRuleChange implements Loggable {
 
   public Type getType() {
     return type;
-  }
-
-  public boolean isInheritedChange() {
-    return inheritedChange;
-  }
-
-  public void setInheritedChange(boolean b) {
-    this.inheritedChange = b;
-  }
-
-  @CheckForNull
-  public String getPreviousSeverity() {
-    return previousSeverity;
-  }
-
-  public void setPreviousSeverity(@Nullable String s) {
-    this.previousSeverity = s;
   }
 
   @CheckForNull
@@ -104,7 +86,7 @@ public class ActiveRuleChange implements Loggable {
     return this;
   }
 
-  public ActiveRuleChange setParameters(Map<String,String> m) {
+  public ActiveRuleChange setParameters(Map<String, String> m) {
     parameters.clear();
     parameters.putAll(m);
     return this;
@@ -112,22 +94,20 @@ public class ActiveRuleChange implements Loggable {
 
   @Override
   public Map<String, String> getDetails() {
-    ImmutableMap.Builder<String, String> details = ImmutableMap.<String, String>builder();
-
-    if (this.getType() != null) {
-      details.put("type", this.getType().name());
+    ImmutableMap.Builder<String, String> details = ImmutableMap.builder();
+    if (getType() != null) {
+      details.put("type", getType().name());
     }
-
-    if (this.getKey() != null) {
-      details.put("key", this.getKey().toString());
-      details.put("ruleKey", this.getKey().ruleKey().toString());
-      details.put("profileKey", this.getKey().qProfile().toString());
+    if (getKey() != null) {
+      details.put("key", getKey().toString());
+      details.put("ruleKey", getKey().ruleKey().toString());
+      details.put("profileKey", getKey().qProfile().toString());
     }
     return details.build();
   }
 
   @Override
-  public Integer getExecutionTime() {
+  public int getExecutionTime() {
     return (int) (System.currentTimeMillis() - start);
   }
 

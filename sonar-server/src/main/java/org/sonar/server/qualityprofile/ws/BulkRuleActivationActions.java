@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import com.google.common.collect.Multimap;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Request;
@@ -28,6 +27,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
+import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.ws.SearchAction;
@@ -99,32 +99,25 @@ public class BulkRuleActivationActions implements ServerComponent {
   }
 
   private void bulkActivate(Request request, Response response) throws Exception {
-    Multimap<String, String> results = profileService.bulkActivate(
+    BulkChangeResult result = profileService.bulkActivate(
       SearchAction.createRuleQuery(ruleService.newRuleQuery(), request),
       readKey(request),
       request.param(SEVERITY));
-    writeResponse(results, response);
+    writeResponse(result, response);
   }
 
   private void bulkDeactivate(Request request, Response response) throws Exception {
-    Multimap<String, String> results = profileService.bulkDeactivate(
+    BulkChangeResult result = profileService.bulkDeactivate(
       SearchAction.createRuleQuery(ruleService.newRuleQuery(), request),
       readKey(request));
-    writeResponse(results, response);
+    writeResponse(result, response);
   }
 
-  private void writeResponse(Multimap<String, String> results, Response response) {
+  private void writeResponse(BulkChangeResult result, Response response) {
     JsonWriter json = response.newJsonWriter().beginObject();
-    for (String action : results.keySet()) {
-      json.name(action).beginArray();
-      for (String key : results.get(action)) {
-        json
-          .beginObject()
-          .prop("key", key)
-          .endObject();
-      }
-      json.endArray();
-    }
+    json.prop("succeeded", result.countSucceeded());
+    json.prop("failed", result.countFailed());
+    result.getMessages().writeJson(json);
     json.endObject().close();
   }
 

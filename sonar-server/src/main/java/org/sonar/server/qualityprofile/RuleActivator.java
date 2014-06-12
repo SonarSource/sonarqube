@@ -20,10 +20,7 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.server.rule.RuleParamType;
@@ -43,7 +40,6 @@ import org.sonar.server.log.LogService;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.rule.index.RuleResult;
 import org.sonar.server.search.IndexClient;
@@ -61,10 +57,6 @@ import static com.google.common.collect.Lists.newArrayList;
  * Activation and deactivation of rules in Quality profiles
  */
 public class RuleActivator implements ServerComponent {
-
-  public static final String ACTIVATED = "activated";
-  public static final String IGNORED = "ignored";
-  public static final String DEACTIVATED = "deactivated";
 
   private final DbClient db;
   private final TypeValidations typeValidations;
@@ -209,7 +201,6 @@ public class RuleActivator implements ServerComponent {
 
     } else if (change.getType() == ActiveRuleChange.Type.DEACTIVATED) {
       dao.deleteByKey(dbSession, change.getKey());
-      //activeRule = null;
 
     } else if (change.getType() == ActiveRuleChange.Type.UPDATED) {
       activeRule = context.activeRule();
@@ -237,11 +228,6 @@ public class RuleActivator implements ServerComponent {
           }
         }
       }
-      for (ActiveRuleParamDto activeRuleParamDto : context.activeRuleParams()) {
-        if (!change.getParameters().containsKey(activeRuleParamDto.getKey())) {
-          // TODO delete param
-        }
-      }
     }
 
     return activeRule;
@@ -254,9 +240,10 @@ public class RuleActivator implements ServerComponent {
   List<ActiveRuleChange> deactivate(ActiveRuleKey key) {
     DbSession dbSession = db.openSession(false);
     try {
-      return deactivate(dbSession, key);
-    } finally {
+      List<ActiveRuleChange> changes = deactivate(dbSession, key);
       dbSession.commit();
+      return changes;
+    } finally {
       dbSession.close();
     }
   }
@@ -266,16 +253,6 @@ public class RuleActivator implements ServerComponent {
    */
   List<ActiveRuleChange> deactivate(DbSession dbSession, ActiveRuleKey key) {
     return deactivate(dbSession, key, false);
-  }
-
-  public List<ActiveRuleChange> deactivate(RuleDto ruleDto) {
-    DbSession dbSession = db.openSession(false);
-    try {
-      return deactivate(dbSession, ruleDto);
-    } finally {
-      dbSession.commit();
-      dbSession.close();
-    }
   }
 
   /**
@@ -340,58 +317,55 @@ public class RuleActivator implements ServerComponent {
     }
   }
 
-  Multimap<String, String> bulkActivate(RuleQuery ruleQuery, QualityProfileKey profileKey, @Nullable String severity) {
+  BulkChangeResult bulkActivate(RuleQuery ruleQuery, QualityProfileKey profileKey, @Nullable String severity) {
+    BulkChangeResult result = new BulkChangeResult();
     RuleIndex ruleIndex = index.get(RuleIndex.class);
-    Multimap<String, String> results = ArrayListMultimap.create();
     DbSession dbSession = db.openSession(false);
-
     try {
-      RuleResult result = ruleIndex.search(ruleQuery,
-        new QueryOptions()
-          .setScroll(true)
-          .setFieldsToReturn(ImmutableSet.of(RuleNormalizer.RuleField.IS_TEMPLATE.field())));
-
-      Iterator<Rule> rules = result.scroll();
+      RuleResult ruleSearchResult = ruleIndex.search(ruleQuery, new QueryOptions().setScroll(true));
+      Iterator<Rule> rules = ruleSearchResult.scroll();
       while (rules.hasNext()) {
         Rule rule = rules.next();
-        if (!rule.isTemplate()) {
+        try {
           ActiveRuleKey key = ActiveRuleKey.of(profileKey, rule.key());
           RuleActivation activation = new RuleActivation(key);
           activation.setSeverity(severity);
-          for (ActiveRuleChange active : activate(dbSession, activation)) {
-            results.put(ACTIVATED, active.getKey().ruleKey().toString());
-          }
-        } else {
-          results.put(IGNORED, rule.key().toString());
+          List<ActiveRuleChange> changes = activate(dbSession, activation);
+          result.addChanges(changes);
+          result.incrementSucceeded();
+
+        } catch (BadRequestException e) {
+          // other exceptions stop the bulk activation
+          result.incrementFailed();
+          // TODO result.addMessage
         }
       }
       dbSession.commit();
     } finally {
       dbSession.close();
     }
-    return results;
+    return result;
   }
 
-  Multimap<String, String> bulkDeactivate(RuleQuery ruleQuery, QualityProfileKey profile) {
-    RuleIndex ruleIndex = index.get(RuleIndex.class);
-    Multimap<String, String> results = ArrayListMultimap.create();
+  BulkChangeResult bulkDeactivate(RuleQuery ruleQuery, QualityProfileKey profile) {
     DbSession dbSession = db.openSession(false);
-
     try {
-      RuleResult result = ruleIndex.search(ruleQuery, new QueryOptions().setScroll(true));
-      Iterator<Rule> rules = result.scroll();
+      RuleIndex ruleIndex = index.get(RuleIndex.class);
+      BulkChangeResult result = new BulkChangeResult();
+      RuleResult ruleSearchResult = ruleIndex.search(ruleQuery, new QueryOptions().setScroll(true));
+      Iterator<Rule> rules = ruleSearchResult.scroll();
       while (rules.hasNext()) {
         Rule rule = rules.next();
         ActiveRuleKey key = ActiveRuleKey.of(profile, rule.key());
-        for (ActiveRuleChange deActive : deactivate(dbSession, key)) {
-          results.put(DEACTIVATED, deActive.getKey().ruleKey().toString());
-        }
+        List<ActiveRuleChange> changes = deactivate(dbSession, key);
+        result.addChanges(changes);
+        result.incrementSucceeded();
       }
       dbSession.commit();
+      return result;
     } finally {
       dbSession.close();
     }
-    return results;
   }
 
   void setParent(QualityProfileKey key, @Nullable QualityProfileKey parentKey) {
@@ -414,7 +388,7 @@ public class RuleActivator implements ServerComponent {
     } else if (profile.getParentKey() == null || !profile.getParentKey().equals(parentKey)) {
       QualityProfileDto parentProfile = db.qualityProfileDao().getNonNullByKey(dbSession, parentKey);
       if (isDescendant(dbSession, profile, parentProfile)) {
-        throw new BadRequestException("Please do not select a child profile as parent.");
+        throw new BadRequestException(String.format("Descendant profile '%s' can not be selected as parent of '%s'", parentKey, key));
       }
       removeParent(dbSession, profile);
 
@@ -461,7 +435,7 @@ public class RuleActivator implements ServerComponent {
     return false;
   }
 
-  private void verifyParametersAreNotSetOnCustomRule(RuleActivatorContext context, RuleActivation activation, ActiveRuleChange change){
+  private void verifyParametersAreNotSetOnCustomRule(RuleActivatorContext context, RuleActivation activation, ActiveRuleChange change) {
     if (!activation.getParameters().isEmpty() && context.rule().getTemplateId() != null) {
       throw new IllegalStateException(String.format("Parameters cannot be set when activating the custom rule '%s'", activation.getKey().ruleKey()));
     }

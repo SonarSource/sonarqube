@@ -282,31 +282,6 @@ public class QProfilesWsMediumTest {
   }
 
   @Test
-  public void bulk_activate_rule_with_template() throws Exception {
-    QualityProfileDto profile = getProfile("java");
-    RuleDto rule0 = getRule(profile.getLanguage(), "toto")
-      .setIsTemplate(true);
-    RuleDto rule1 = getRule(profile.getLanguage(), "tata");
-    session.commit();
-
-    // 0. Assert No Active Rule for profile
-    assertThat(db.activeRuleDao().findByProfileKey(session, profile.getKey())).isEmpty();
-
-    // 1. Activate Rule
-    WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
-    request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey().toString());
-    request.setParam(SearchAction.PARAM_LANGUAGES, "java");
-    WsTester.Result result = request.execute();
-    session.clearCache();
-
-    // 2. assert replied ignored list
-    result.assertJson("{\"ignored\":[{\"key\":\"blah:toto\"}],\"activated\":[{\"key\":\"blah:tata\"}]}");
-
-    // 3. Assert ActiveRule in DAO
-    assertThat(db.activeRuleDao().findByProfileKey(session, profile.getKey())).hasSize(1);
-  }
-
-  @Test
   public void bulk_activate_rule_not_all() throws Exception {
     QualityProfileDto java = getProfile("java");
     QualityProfileDto php = getProfile("php");

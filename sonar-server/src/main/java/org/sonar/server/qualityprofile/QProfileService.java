@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.collect.Multimap;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.permission.GlobalPermissions;
@@ -110,12 +109,12 @@ public class QProfileService implements ServerComponent {
     return ruleActivator.deactivate(key);
   }
 
-  public Multimap<String, String> bulkActivate(RuleQuery ruleQuery, QualityProfileKey profile, @Nullable String severity) {
+  public BulkChangeResult bulkActivate(RuleQuery ruleQuery, QualityProfileKey profile, @Nullable String severity) {
     verifyAdminPermission();
     return ruleActivator.bulkActivate(ruleQuery, profile, severity);
   }
 
-  public Multimap<String, String> bulkDeactivate(RuleQuery ruleQuery, QualityProfileKey profile) {
+  public BulkChangeResult bulkDeactivate(RuleQuery ruleQuery, QualityProfileKey profile) {
     verifyAdminPermission();
     return ruleActivator.bulkDeactivate(ruleQuery, profile);
   }

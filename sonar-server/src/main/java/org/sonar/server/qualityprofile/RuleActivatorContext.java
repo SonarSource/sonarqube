@@ -28,11 +28,9 @@ import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.rule.Rule;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Map;
 
@@ -161,7 +159,7 @@ class RuleActivatorContext {
     }
     RuleParamDto ruleParam = ruleParams.get(paramKey);
     if (ruleParam == null) {
-      throw new IllegalStateException(String.format("Rule parameter %s does not exist", paramKey));
+      throw new BadRequestException(String.format("Rule parameter %s does not exist", paramKey));
     }
     return ruleParam.getDefaultValue();
   }
@@ -189,7 +187,7 @@ class RuleActivatorContext {
     if (rule.isTemplate()) {
       throw new BadRequestException("Rule template can't be activated on a Quality profile: " + rule.getKey());
     }
-    if (Rule.MANUAL_REPOSITORY_KEY.equals(rule.getRepositoryKey())) {
+    if (rule.getKey().isManual()) {
       throw new BadRequestException("Manual rule can't be activated on a Quality profile: " + rule.getKey());
     }
     if (!profile.getLanguage().equals(rule.getLanguage())) {

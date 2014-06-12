@@ -33,8 +33,6 @@ import java.util.List;
  */
 public interface Rule {
 
-  public static final String MANUAL_REPOSITORY_KEY = "manual";
-
   RuleKey key();
 
   String language();
