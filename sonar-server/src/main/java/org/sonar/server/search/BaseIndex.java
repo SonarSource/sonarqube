@@ -52,6 +52,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ExecutionException;
@@ -435,13 +436,25 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
   @Override
   public void upsert(Object obj, KEY key) throws Exception {
-    this.updateDocument(this.normalizer.normalizeNested(obj, key), key);
+    long t0 = System.currentTimeMillis();
+    List<UpdateRequest> requests = this.normalizer.normalizeNested(obj, key);
+    long t1 = System.currentTimeMillis();
+    this.updateDocument(requests, key);
+    long t2 = System.currentTimeMillis();
+    LOG.debug("UPSERT [object] time:{}ms ({}ms normalize, {}ms elastic)",
+      t2-t0, t1-t0, t2-t1);
   }
 
   @Override
   public void upsertByDto(DTO item) {
     try {
-      this.updateDocument(normalizer.normalize(item), item.getKey());
+      long t0 = System.currentTimeMillis();
+      List<UpdateRequest> request = normalizer.normalize(item);
+      long t1 = System.currentTimeMillis();
+      this.updateDocument(request, item.getKey());
+      long t2 = System.currentTimeMillis();
+      LOG.debug("UPSERT [dto] time:{}ms ({}ms normalize, {}ms elastic)",
+        t2-t0, t1-t0, t2-t1);
     } catch (Exception e) {
       LOG.error("Could not update document for index {}: {}",
         this.getIndexName(), e.getMessage(), e);

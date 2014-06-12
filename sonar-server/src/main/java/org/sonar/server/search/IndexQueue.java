@@ -22,7 +22,12 @@ package org.sonar.server.search;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.server.search.action.EmbeddedIndexAction;
@@ -42,7 +47,9 @@ import java.util.concurrent.TimeUnit;
 public class IndexQueue extends LinkedBlockingQueue<Runnable>
   implements ServerComponent, WorkQueue<IndexAction> {
 
-  private static final Integer DEFAULT_QUEUE_SIZE = 20;
+  private static final Logger LOGGER = LoggerFactory.getLogger(IndexQueue.class);
+
+  private static final Integer DEFAULT_QUEUE_SIZE = 200;
 
   public IndexQueue() {
     super(DEFAULT_QUEUE_SIZE);
@@ -56,16 +63,32 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
   @Override
   public void enqueue(List<IndexAction> actions) {
 
+    int bcount = 0;
+    int ecount = 0;
+    List<String> refreshes = Lists.newArrayList();
+    Set<String> types = Sets.newHashSet();
+    long all_start = System.currentTimeMillis();
+    long indexTime;
+    long refreshTime;
+    long embeddedTime;
+
     if (actions.size() == 1) {
       /* Atomic update here */
       CountDownLatch latch = new CountDownLatch(1);
       IndexAction action = actions.get(0);
       action.setLatch(latch);
       try {
+        indexTime = System.currentTimeMillis();
         this.offer(action, 1000, TimeUnit.SECONDS);
-        latch.await(1500, TimeUnit.MILLISECONDS);
+        latch.await(1000, TimeUnit.MILLISECONDS);
+        bcount ++;
+        indexTime = System.currentTimeMillis() - indexTime;
         // refresh the index.
+        refreshTime = System.currentTimeMillis();
         action.getIndex().refresh();
+        refreshTime = System.currentTimeMillis() - refreshTime;
+        refreshes.add(action.getIndex().getIndexName());
+        types.add(action.getPayloadClass().getSimpleName());
       } catch (InterruptedException e) {
         throw new IllegalStateException("ES update has been interrupted", e);
       }
@@ -100,33 +123,48 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
         /* execute all item actions */
         Multimap<String, IndexAction> itemBulks = makeBulkByType(itemActions);
           CountDownLatch itemLatch = new CountDownLatch(itemBulks.size());
+        indexTime = System.currentTimeMillis();
         for (IndexAction action : itemBulks.values()) {
           action.setLatch(itemLatch);
           this.offer(action, 1000, TimeUnit.SECONDS);
+          types.add(action.getPayloadClass().getSimpleName());
+          bcount++;
+
         }
-        itemLatch.await(1500, TimeUnit.MILLISECONDS);
+        itemLatch.await(2000, TimeUnit.MILLISECONDS);
+        indexTime = System.currentTimeMillis() - indexTime;
 
         /* and now push the embedded */
         CountDownLatch embeddedLatch = new CountDownLatch(embeddedActions.size());
+        embeddedTime = System.currentTimeMillis();
         for (IndexAction action : embeddedActions) {
           action.setLatch(embeddedLatch);
           this.offer(action, 1000, TimeUnit.SECONDS);
+          types.add(action.getPayloadClass().getSimpleName());
+          ecount ++;
         }
         embeddedLatch.await(1500, TimeUnit.MILLISECONDS);
+        embeddedTime = System.currentTimeMillis() - embeddedTime;
 
         /* Finally refresh affected indexes */
         Set<String> refreshedIndexes = new HashSet<String>();
+        refreshTime = System.currentTimeMillis();
         for (IndexAction action : actions) {
           if (action.getIndex() != null &&
             !refreshedIndexes.contains(action.getIndex().getIndexName())){
-            action.getIndex().refresh();
             refreshedIndexes.add(action.getIndex().getIndexName());
+            action.getIndex().refresh();
+            refreshes.add(action.getIndex().getIndexName());
           }
         }
-
+        refreshTime = System.currentTimeMillis() - refreshTime;
       } catch (InterruptedException e) {
         throw new IllegalStateException("ES update has been interrupted", e);
       }
+      LOGGER.debug("INDEX - time:{}ms ({}ms index, {}ms embedded, {}ms refresh)\ttypes:[{}],\tbulk:{}\tembedded:{}\trefresh:[{}]",
+        (System.currentTimeMillis() - all_start), indexTime, embeddedTime, refreshTime,
+        StringUtils.join(types,","),
+        bcount, ecount, StringUtils.join(refreshes, ","));
     }
   }
 
