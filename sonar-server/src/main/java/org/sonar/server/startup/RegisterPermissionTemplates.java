@@ -87,7 +87,7 @@ public class RegisterPermissionTemplates {
   }
 
   private void addGroupPermission(PermissionTemplateDto template, String permission, String groupName) {
-    Long groupId;
+    Long groupId = null;
     if (DefaultGroups.isAnyone(groupName)) {
       groupId = null;
     } else {
@@ -95,7 +95,7 @@ public class RegisterPermissionTemplates {
       if (groupDto != null) {
         groupId = groupDto.getId();
       } else {
-        throw new IllegalArgumentException("Cannot setup default permission for group: " + groupName);
+        LOG.error("Cannot setup default permission for group: " + groupName);
       }
     }
     permissionTemplateDao.addGroupPermission(template.getId(), groupId, permission);

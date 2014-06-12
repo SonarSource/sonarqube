@@ -119,7 +119,11 @@ public class Platform {
     level4Container = level3Container.createChild();
     serverComponents.startLevel4Components(level4Container);
     currentContainer = level4Container;
+    executeStartupTasks();
+  }
 
+  public void executeStartupTasks() {
+    serverComponents.executeStartupTasks(level4Container);
   }
 
   public void restart() {

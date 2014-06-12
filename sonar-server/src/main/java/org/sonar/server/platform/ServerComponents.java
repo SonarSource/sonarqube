@@ -653,14 +653,13 @@ class ServerComponents {
     extensionInstaller.installExtensions(pico);
 
     pico.startComponents();
-    executeStartupTaks(pico);
   }
 
   void addComponents(Collection components) {
     this.level4AddedComponents.addAll(components);
   }
 
-  private void executeStartupTaks(ComponentContainer pico) {
+  public void executeStartupTasks(ComponentContainer pico) {
     final ComponentContainer startupContainer = pico.createChild();
     startupContainer.addSingleton(GwtPublisher.class);
     startupContainer.addSingleton(RegisterMetrics.class);

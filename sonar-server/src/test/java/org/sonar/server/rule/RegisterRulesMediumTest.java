@@ -22,6 +22,7 @@ package org.sonar.server.rule;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -52,26 +53,28 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class RegisterRulesMediumTest {
 
-  // Hack to restart server without x2
-  static boolean includeX1 = true, includeX2 = true;
+  static XooRulesDefinition rulesDefinition = new XooRulesDefinition();
 
-  @org.junit.Rule
-  public ServerTester tester = new ServerTester().addComponents(XooRulesDefinition.class);
+  @ClassRule
+  public static ServerTester tester = new ServerTester().addComponents(rulesDefinition);
 
   DbClient db;
   DbSession dbSession;
 
   @Before
   public void before() {
+    tester.clearDbAndIndexes();
+    rulesDefinition.includeX1 = true;
+    rulesDefinition.includeX2 = true;
+    tester.get(Platform.class).executeStartupTasks();
     db = tester.get(DbClient.class);
     dbSession = tester.get(DbClient.class).openSession(false);
+    dbSession.clearCache();
   }
 
   @After
   public void after() {
     dbSession.close();
-    includeX1 = true;
-    includeX2 = true;
   }
 
   @Test
@@ -106,7 +109,7 @@ public class RegisterRulesMediumTest {
     assertThat(searchResult.getHits()).hasSize(0);
 
     // db is not updated (same rules) but es must be reindexed
-    tester.get(Platform.class).restart();
+    tester.get(Platform.class).executeStartupTasks();
 
     index = tester.get(RuleIndex.class);
 
@@ -121,8 +124,8 @@ public class RegisterRulesMediumTest {
   public void mark_rule_as_removed() throws Exception {
     verifyTwoRulesInDb();
 
-    includeX2 = false;
-    tester.get(Platform.class).restart();
+    rulesDefinition.includeX2 = false;
+    tester.get(Platform.class).executeStartupTasks();
 
     verifyTwoRulesInDb();
     RuleDto rule = db.ruleDao().getByKey(dbSession, RuleKey.of("xoo", "x2"));
@@ -144,9 +147,9 @@ public class RegisterRulesMediumTest {
     dbSession.clearCache();
 
     // restart, x2 still exists -> deactivate x1
-    includeX1 = false;
-    includeX2 = true;
-    tester.get(Platform.class).restart();
+    rulesDefinition.includeX1 = false;
+    rulesDefinition.includeX2 = true;
+    tester.get(Platform.class).executeStartupTasks();
     dbSession.clearCache();
     assertThat(db.ruleDao().getByKey(dbSession, RuleKey.of("xoo", "x1")).getStatus()).isEqualTo(RuleStatus.REMOVED);
     assertThat(db.ruleDao().getByKey(dbSession, RuleKey.of("xoo", "x2")).getStatus()).isEqualTo(RuleStatus.READY);
@@ -168,9 +171,9 @@ public class RegisterRulesMediumTest {
     dbSession.clearCache();
 
     // restart without x1 and x2 -> keep active rule of x1
-    includeX1 = false;
-    includeX2 = false;
-    tester.get(Platform.class).restart();
+    rulesDefinition.includeX1 = false;
+    rulesDefinition.includeX2 = false;
+    tester.get(Platform.class).executeStartupTasks();
     dbSession.clearCache();
     assertThat(db.ruleDao().getByKey(dbSession, RuleKey.of("xoo", "x1")).getStatus()).isEqualTo(RuleStatus.REMOVED);
     assertThat(db.ruleDao().getByKey(dbSession, RuleKey.of("xoo", "x2")).getStatus()).isEqualTo(RuleStatus.REMOVED);
@@ -185,6 +188,8 @@ public class RegisterRulesMediumTest {
   }
 
   public static class XooRulesDefinition implements RulesDefinition {
+
+    boolean includeX1 = true, includeX2 = true;
 
     @Override
     public void define(Context context) {
