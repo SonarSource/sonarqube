@@ -102,9 +102,9 @@ public class RegisterQualityProfiles implements ServerComponent {
             register(profileKey, entry.getValue(), session);
           }
           builtInProfiles.put(language, profileName);
-        }
+          }
         setDefault(language, profileDefs, session);
-      }
+        }
       session.commit();
     } finally {
       session.close();
@@ -151,13 +151,11 @@ public class RegisterQualityProfiles implements ServerComponent {
   private void cleanUp(QualityProfileKey key, QualityProfileDto profileDto, DbSession session) {
     dbClient.activeRuleDao().deleteByProfileKey(session, key);
     dbClient.qualityProfileDao().delete(session, profileDto);
-    session.commit();
   }
 
   private void insertNewProfile(QualityProfileKey key, DbSession session) {
     QualityProfileDto profile = QualityProfileDto.createFor(key);
     dbClient.qualityProfileDao().insert(session, profile);
-    session.commit();
   }
 
   private void setDefault(String language, List<RulesProfile> profileDefs, DbSession session) {
