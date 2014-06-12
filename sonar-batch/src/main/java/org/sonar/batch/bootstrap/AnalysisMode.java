@@ -38,6 +38,7 @@ public class AnalysisMode implements BatchComponent {
   private boolean preview;
   private boolean incremental;
   private int previewReadTimeoutSec;
+  private boolean sensorMode;
 
   public AnalysisMode(BootstrapProperties bootstrapProps) {
     init(bootstrapProps);
@@ -51,20 +52,28 @@ public class AnalysisMode implements BatchComponent {
     return incremental;
   }
 
+  public boolean isSensorMode() {
+    return sensorMode;
+  }
+
   private void init(BootstrapProperties bootstrapProps) {
     if (bootstrapProps.properties().containsKey(CoreProperties.DRY_RUN)) {
       LOG.warn(MessageFormat.format("Property {0} is deprecated. Please use {1} instead.", CoreProperties.DRY_RUN, CoreProperties.ANALYSIS_MODE));
       preview = "true".equals(bootstrapProps.property(CoreProperties.DRY_RUN));
       incremental = false;
+      sensorMode = false;
     } else {
       String mode = bootstrapProps.property(CoreProperties.ANALYSIS_MODE);
       preview = CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
       incremental = CoreProperties.ANALYSIS_MODE_INCREMENTAL.equals(mode);
+      sensorMode = CoreProperties.ANALYSIS_MODE_SENSOR.equals(mode);
     }
     if (incremental) {
       LOG.info("Incremental mode");
     } else if (preview) {
       LOG.info("Preview mode");
+    } else if (sensorMode) {
+      LOG.info("Sensor mode");
     }
     // To stay compatible with plugins that use the old property to check mode
     if (incremental || preview) {

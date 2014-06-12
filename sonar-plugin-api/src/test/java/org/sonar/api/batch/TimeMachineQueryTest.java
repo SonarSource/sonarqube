@@ -21,6 +21,7 @@ package org.sonar.api.batch;
 
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Metric;
 
 import java.util.Arrays;
 
@@ -30,7 +31,7 @@ public class TimeMachineQueryTest {
 
   @Test
   public void setNullMetrics() {
-    TimeMachineQuery query = new TimeMachineQuery(null).setMetrics(Arrays.asList(CoreMetrics.LINES));
+    TimeMachineQuery query = new TimeMachineQuery(null).setMetrics(Arrays.<Metric>asList(CoreMetrics.LINES));
     assertThat(query.getMetrics()).contains(CoreMetrics.LINES);
 
     query.unsetMetrics();

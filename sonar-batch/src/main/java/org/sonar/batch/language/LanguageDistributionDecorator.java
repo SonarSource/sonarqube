@@ -44,14 +44,14 @@ public class LanguageDistributionDecorator implements Decorator {
 
   @DependsUpon
   public List<Metric> dependsUponMetrics() {
-    return ImmutableList.of(CoreMetrics.LINES);
+    return ImmutableList.<Metric>of(CoreMetrics.LINES);
   }
 
   @DependedUpon
   public List<Metric> generatesMetrics() {
     return ImmutableList.of(
       CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION
-    );
+      );
   }
 
   public void decorate(Resource resource, DecoratorContext context) {

@@ -27,7 +27,7 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.rule.ModuleQProfiles.QProfile;
+import org.sonar.batch.api.rules.QProfile;
 
 public class QProfileVerifier implements BatchComponent {
 

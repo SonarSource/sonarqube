@@ -34,11 +34,9 @@ import org.sonar.batch.index.Caches;
 public class MeasureCache implements BatchComponent {
 
   private final Cache<Measure> cache;
-  private final Cache<String> dataCache;
 
   public MeasureCache(Caches caches) {
     cache = caches.createCache("measures");
-    dataCache = caches.createCache("measuresData");
   }
 
   public Iterable<Entry<Measure>> entries() {
@@ -50,7 +48,11 @@ public class MeasureCache implements BatchComponent {
   }
 
   public Iterable<Measure> byMetric(Resource r, String metricKey) {
-    return cache.values(r.getEffectiveKey(), metricKey);
+    return byMetric(r.getEffectiveKey(), metricKey);
+  }
+
+  public Iterable<Measure> byMetric(String resourceKey, String metricKey) {
+    return cache.values(resourceKey, metricKey);
   }
 
   public MeasureCache put(Resource resource, Measure measure) {
@@ -85,4 +87,5 @@ public class MeasureCache implements BatchComponent {
     }
     return sb.toString();
   }
+
 }

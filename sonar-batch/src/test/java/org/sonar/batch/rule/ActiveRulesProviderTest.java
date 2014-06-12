@@ -27,9 +27,10 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.batch.api.rules.QProfile;
+import org.sonar.batch.rules.QProfileWithId;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
 
 import java.util.Arrays;
 
@@ -53,13 +54,12 @@ public class ActiveRulesProviderTest extends AbstractDaoTestCase {
   @Test
   public void build_active_rules() throws Exception {
     setupData("shared");
-    QualityProfileDao profileDao = new QualityProfileDao(getMyBatis());
-    when(qProfiles.findAll()).thenReturn(Arrays.asList(
+    when(qProfiles.findAll()).thenReturn(Arrays.<QProfile>asList(
       // 1 rule is enabled on java with severity INFO
-      new ModuleQProfiles.QProfile(profileDao.selectById(2)),
+      new QProfileWithId(2, "Java Two", "java", 20),
       // 1 rule is enabled on php with severity BLOCKER
-      new ModuleQProfiles.QProfile(profileDao.selectById(3))
-    ));
+      new QProfileWithId(3, "Php One", "php", 30)
+      ));
 
     ActiveRulesProvider provider = new ActiveRulesProvider();
     ActiveRuleDao activeRuleDao = new ActiveRuleDao(getMyBatis());

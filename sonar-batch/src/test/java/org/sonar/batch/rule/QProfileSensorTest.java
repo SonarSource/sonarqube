@@ -25,6 +25,8 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Project;
 import org.sonar.api.test.IsMeasure;
+import org.sonar.batch.api.rules.QProfile;
+import org.sonar.batch.rules.QProfileWithId;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 
@@ -54,7 +56,7 @@ public class QProfileSensorTest extends AbstractDaoTestCase {
   public void no_qprofiles() throws Exception {
     setupData("shared");
     QualityProfileDao dao = new QualityProfileDao(getMyBatis());
-    when(moduleQProfiles.findAll()).thenReturn(Collections.<ModuleQProfiles.QProfile>emptyList());
+    when(moduleQProfiles.findAll()).thenReturn(Collections.<QProfile>emptyList());
 
     QProfileSensor sensor = new QProfileSensor(moduleQProfiles, fs, dao);
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
@@ -69,8 +71,8 @@ public class QProfileSensorTest extends AbstractDaoTestCase {
     setupData("shared");
 
     QualityProfileDao dao = new QualityProfileDao(getMyBatis());
-    when(moduleQProfiles.findByLanguage("java")).thenReturn(new ModuleQProfiles.QProfile(dao.selectById(2)));
-    when(moduleQProfiles.findByLanguage("php")).thenReturn(new ModuleQProfiles.QProfile(dao.selectById(3)));
+    when(moduleQProfiles.findByLanguage("java")).thenReturn(new QProfileWithId(2, "Java Two", "java", 20));
+    when(moduleQProfiles.findByLanguage("php")).thenReturn(new QProfileWithId(3, "Php One", "php", 30));
     when(moduleQProfiles.findByLanguage("abap")).thenReturn(null);
     fs.addLanguages("java", "php", "abap");
 
@@ -86,8 +88,8 @@ public class QProfileSensorTest extends AbstractDaoTestCase {
     setupData("shared");
 
     QualityProfileDao dao = new QualityProfileDao(getMyBatis());
-    when(moduleQProfiles.findByLanguage("java")).thenReturn(new ModuleQProfiles.QProfile(dao.selectById(2)));
-    when(moduleQProfiles.findByLanguage("php")).thenReturn(new ModuleQProfiles.QProfile(dao.selectById(3)));
+    when(moduleQProfiles.findByLanguage("java")).thenReturn(new QProfileWithId(2, "Java Two", "java", 20));
+    when(moduleQProfiles.findByLanguage("php")).thenReturn(new QProfileWithId(3, "Php One", "php", 30));
     when(moduleQProfiles.findByLanguage("abap")).thenReturn(null);
     fs.addLanguages("java");
 
@@ -106,8 +108,8 @@ public class QProfileSensorTest extends AbstractDaoTestCase {
     setupData("shared");
 
     QualityProfileDao dao = new QualityProfileDao(getMyBatis());
-    when(moduleQProfiles.findByLanguage("java")).thenReturn(new ModuleQProfiles.QProfile(dao.selectById(2)));
-    when(moduleQProfiles.findByLanguage("php")).thenReturn(new ModuleQProfiles.QProfile(dao.selectById(3)));
+    when(moduleQProfiles.findByLanguage("java")).thenReturn(new QProfileWithId(2, "Java Two", "java", 20));
+    when(moduleQProfiles.findByLanguage("php")).thenReturn(new QProfileWithId(3, "Php One", "php", 30));
     when(moduleQProfiles.findByLanguage("abap")).thenReturn(null);
     fs.addLanguages("java", "php");
 

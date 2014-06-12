@@ -27,13 +27,15 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Java;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.MessageException;
+import org.sonar.batch.languages.DeprecatedLanguagesReferential;
+import org.sonar.batch.languages.LanguagesReferential;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class LanguageVerifierTest {
 
   Settings settings = new Settings();
-  Languages languages = new Languages(Java.INSTANCE);
+  LanguagesReferential languages = new DeprecatedLanguagesReferential(new Languages(Java.INSTANCE));
   DefaultFileSystem fs = new DefaultFileSystem();
 
   @Rule

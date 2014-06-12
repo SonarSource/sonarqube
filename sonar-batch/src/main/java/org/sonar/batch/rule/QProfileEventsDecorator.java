@@ -34,8 +34,7 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
-import org.sonar.batch.rule.ModuleQProfiles.QProfile;
+import org.sonar.batch.rules.QProfileWithId;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 
@@ -101,14 +100,14 @@ public class QProfileEventsDecorator implements Decorator {
       } else {
         pastProfileVersion = pastProfileVersionMeasure.getIntValue();
       }
-      pastProfiles = UsedQProfiles.fromProfiles(new ModuleQProfiles.QProfile(pastProfileId, pastProfileName, pastProfileLanguage, pastProfileVersion));
+      pastProfiles = UsedQProfiles.fromProfiles(new QProfileWithId(pastProfileId, pastProfileName, pastProfileLanguage, pastProfileVersion));
     }
 
     // Now create appropriate events
-    Map<Integer, QProfile> pastProfilesById = Maps.newHashMap(pastProfiles.profilesById());
-    for (QProfile profile : currentProfiles.profilesById().values()) {
+    Map<Integer, QProfileWithId> pastProfilesById = Maps.newHashMap(pastProfiles.profilesById());
+    for (QProfileWithId profile : currentProfiles.profilesById().values()) {
       if (pastProfilesById.containsKey(profile.id())) {
-        QProfile pastProfile = pastProfilesById.get(profile.id());
+        QProfileWithId pastProfile = pastProfilesById.get(profile.id());
         if (pastProfile.version() < profile.version()) {
           // New version of the same QP
           usedProfile(context, profile);
@@ -118,25 +117,25 @@ public class QProfileEventsDecorator implements Decorator {
         usedProfile(context, profile);
       }
     }
-    for (QProfile profile : pastProfilesById.values()) {
+    for (QProfileWithId profile : pastProfilesById.values()) {
       // Following profiles are no more used
       stopUsedProfile(context, profile);
     }
   }
 
-  private void stopUsedProfile(DecoratorContext context, QProfile profile) {
+  private void stopUsedProfile(DecoratorContext context, QProfileWithId profile) {
     Language language = languages.get(profile.language());
     String languageName = language != null ? language.getName() : profile.language();
     context.createEvent("Stop using " + format(profile) + " (" + languageName + ")", format(profile) + " no more used for " + languageName, Event.CATEGORY_PROFILE, null);
   }
 
-  private void usedProfile(DecoratorContext context, QProfile profile) {
+  private void usedProfile(DecoratorContext context, QProfileWithId profile) {
     Language language = languages.get(profile.language());
     String languageName = language != null ? language.getName() : profile.language();
     context.createEvent("Use " + format(profile) + " (" + languageName + ")", format(profile) + " used for " + languageName, Event.CATEGORY_PROFILE, null);
   }
 
-  private String format(QProfile profile) {
+  private String format(QProfileWithId profile) {
     return profile.name() + " version " + profile.version();
   }
 

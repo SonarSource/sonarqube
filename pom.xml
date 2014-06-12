@@ -14,6 +14,7 @@
   <modules>
     <module>sonar-application</module>
     <module>sonar-batch</module>
+    <module>sonar-batch-plugin-api</module>
     <module>sonar-batch-maven-compat</module>
     <module>sonar-check-api</module>
     <module>sonar-colorizer</module>
@@ -572,6 +573,11 @@
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-plugin-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.sonar</groupId>
+        <artifactId>sonar-batch-plugin-api</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

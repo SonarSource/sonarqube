@@ -21,8 +21,6 @@ package org.sonar.batch.scan.filesystem;
 
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.FileIndex;
-import org.sonar.api.batch.fs.internal.RelativePathIndex;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Caches;
 
@@ -69,23 +67,8 @@ public class InputFileCache implements BatchComponent {
     return this;
   }
 
-
-  public void index(String moduleKey, String indexId, Object indexValue, InputFile inputFile) {
-    // already indexed by relative path is already used
-    if (!indexId.equals(RelativePathIndex.ID)) {
-      // See limitation of org.sonar.batch.index.Cache -> fail
-      // to traverse a sub-tree, for example in order to
-      // have the following structure in InputFileCache :
-      // [index id|module key|index value]
-      throw new UnsupportedOperationException("Only relative path index is supported yet");
-    }
-  }
-
   @CheckForNull
-  public InputFile get(String moduleKey, String indexId, Object indexValue) {
-    if (!indexId.equals(RelativePathIndex.ID)) {
-      throw new UnsupportedOperationException("Only relative path index is supported yet");
-    }
-    return cache.get(moduleKey, indexValue);
+  public InputFile get(String moduleKey, String relativePath) {
+    return cache.get(moduleKey, relativePath);
   }
 }

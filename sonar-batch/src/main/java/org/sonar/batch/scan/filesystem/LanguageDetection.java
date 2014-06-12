@@ -29,14 +29,13 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.PathPattern;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.MessageException;
+import org.sonar.batch.api.languages.Language;
+import org.sonar.batch.languages.LanguagesReferential;
 
 import javax.annotation.CheckForNull;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -54,23 +53,23 @@ class LanguageDetection {
   private final List<String> languagesToConsider = Lists.newArrayList();
   private final String forcedLanguage;
 
-  LanguageDetection(Settings settings, Languages languages) {
+  LanguageDetection(Settings settings, LanguagesReferential languages) {
     for (Language language : languages.all()) {
-      String[] filePatterns = settings.getStringArray(getFileLangPatternPropKey(language.getKey()));
+      String[] filePatterns = settings.getStringArray(getFileLangPatternPropKey(language.key()));
       PathPattern[] pathPatterns = PathPattern.create(filePatterns);
       if (pathPatterns.length > 0) {
-        patternsByLanguage.put(language.getKey(), pathPatterns);
+        patternsByLanguage.put(language.key(), pathPatterns);
       } else {
         // If no custom language pattern is defined then fallback to suffixes declared by language
-        String[] patterns = Arrays.copyOf(language.getFileSuffixes(), language.getFileSuffixes().length);
+        String[] patterns = language.fileSuffixes().toArray(new String[language.fileSuffixes().size()]);
         for (int i = 0; i < patterns.length; i++) {
           String suffix = patterns[i];
           String extension = sanitizeExtension(suffix);
           patterns[i] = "**/*." + extension;
         }
         PathPattern[] defaultLanguagePatterns = PathPattern.create(patterns);
-        patternsByLanguage.put(language.getKey(), defaultLanguagePatterns);
-        LOG.debug("Declared extensions of language " + language + " were converted to " + getDetails(language.getKey()));
+        patternsByLanguage.put(language.key(), defaultLanguagePatterns);
+        LOG.debug("Declared extensions of language " + language + " were converted to " + getDetails(language.key()));
       }
     }
 

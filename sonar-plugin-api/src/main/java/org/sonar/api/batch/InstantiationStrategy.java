@@ -27,6 +27,7 @@ import java.lang.annotation.Target;
 /**
  * Define instantiation strategy of batch extensions. If an extension is not annotated, then default value
  * is {@link org.sonar.api.batch.InstantiationStrategy#PER_PROJECT}.
+ * @since 4.4
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

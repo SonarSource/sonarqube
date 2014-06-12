@@ -20,41 +20,25 @@
 package org.sonar.batch.scan2;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectBootstrapper;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
-import org.sonar.api.resources.Languages;
-import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.DefaultFileLinesContextFactory;
-import org.sonar.batch.ProjectConfigurator;
-import org.sonar.batch.ProjectTree;
+import org.sonar.batch.api.BatchComponent;
+import org.sonar.batch.api.InstantiationStrategy;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
-import org.sonar.batch.bootstrap.MetricProvider;
-import org.sonar.batch.components.PeriodsDefinition;
-import org.sonar.batch.debt.DebtModelProvider;
 import org.sonar.batch.debt.IssueChangelogDebtCalculator;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.index.ComponentDataPersister;
-import org.sonar.batch.index.DefaultIndex;
-import org.sonar.batch.index.DefaultPersistenceManager;
-import org.sonar.batch.index.DefaultResourcePersister;
-import org.sonar.batch.index.DependencyPersister;
-import org.sonar.batch.index.EventPersister;
-import org.sonar.batch.index.LinkPersister;
-import org.sonar.batch.index.MeasurePersister;
 import org.sonar.batch.index.ResourceCache;
-import org.sonar.batch.index.ResourceKeyMigration;
 import org.sonar.batch.index.SnapshotCache;
-import org.sonar.batch.index.SourcePersister;
 import org.sonar.batch.issue.DefaultProjectIssues;
 import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.batch.issue.IssueCache;
@@ -62,13 +46,10 @@ import org.sonar.batch.issue.IssuePersister;
 import org.sonar.batch.issue.ScanIssueStorage;
 import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
-import org.sonar.batch.rule.RulesProvider;
 import org.sonar.batch.scan.ProjectReactorBuilder;
-import org.sonar.batch.scan.ProjectSettingsReady;
 import org.sonar.batch.scan.filesystem.InputFileCache;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
-import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.source.HighlightableBuilder;
 import org.sonar.batch.source.SymbolizableBuilder;
 import org.sonar.core.component.ScanGraph;
@@ -76,13 +57,10 @@ import org.sonar.core.issue.IssueNotifications;
 import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.issue.workflow.FunctionExecutor;
 import org.sonar.core.issue.workflow.IssueWorkflow;
-import org.sonar.core.notification.DefaultNotificationManager;
-import org.sonar.core.technicaldebt.DefaultTechnicalDebtModel;
 import org.sonar.core.test.TestPlanBuilder;
 import org.sonar.core.test.TestPlanPerspectiveLoader;
 import org.sonar.core.test.TestableBuilder;
 import org.sonar.core.test.TestablePerspectiveLoader;
-import org.sonar.core.user.DefaultUserFinder;
 
 public class ProjectScanContainer extends ComponentContainer {
   public ProjectScanContainer(ComponentContainer taskContainer) {
@@ -102,50 +80,32 @@ public class ProjectScanContainer extends ComponentContainer {
   }
 
   private void projectBootstrap() {
-    // Old versions of bootstrappers used to pass project reactor as an extension
-    // so check if it is already present in parent container
-    ProjectReactor reactor = getComponentByType(ProjectReactor.class);
-    if (reactor == null) {
-      // OK, not present, so look for a custom ProjectBootstrapper
-      ProjectBootstrapper bootstrapper = getComponentByType(ProjectBootstrapper.class);
-      Settings settings = getComponentByType(Settings.class);
-      if (bootstrapper == null
-        // Starting from Maven plugin 2.3 then only DefaultProjectBootstrapper should be used.
-        || "true".equals(settings.getString("sonar.mojoUseRunner"))) {
-        // Use default SonarRunner project bootstrapper
-        ProjectReactorBuilder builder = getComponentByType(ProjectReactorBuilder.class);
-        reactor = builder.execute();
-      } else {
-        reactor = bootstrapper.bootstrap();
-      }
-      if (reactor == null) {
-        throw new SonarException(bootstrapper + " has returned null as ProjectReactor");
-      }
-      add(reactor);
+    ProjectReactor reactor;
+    ProjectBootstrapper bootstrapper = getComponentByType(ProjectBootstrapper.class);
+    Settings settings = getComponentByType(Settings.class);
+    if (bootstrapper == null
+      // Starting from Maven plugin 2.3 then only DefaultProjectBootstrapper should be used.
+      || "true".equals(settings.getString("sonar.mojoUseRunner"))) {
+      // Use default SonarRunner project bootstrapper
+      ProjectReactorBuilder builder = getComponentByType(ProjectReactorBuilder.class);
+      reactor = builder.execute();
+    } else {
+      reactor = bootstrapper.bootstrap();
     }
+    if (reactor == null) {
+      throw new SonarException(bootstrapper + " has returned null as ProjectReactor");
+    }
+    add(reactor);
   }
 
   private void addBatchComponents() {
     add(
-      DefaultPersistenceManager.class,
-      DependencyPersister.class,
-      EventPersister.class,
-      LinkPersister.class,
-      MeasurePersister.class,
-      DefaultResourcePersister.class,
-      SourcePersister.class,
-      DefaultNotificationManager.class,
-      MetricProvider.class,
-      ProjectConfigurator.class,
-      DefaultIndex.class,
-      ResourceKeyMigration.class,
-      DefaultFileLinesContextFactory.class,
       Caches.class,
       SnapshotCache.class,
       ResourceCache.class,
       ComponentDataCache.class,
       ComponentDataPersister.class,
-      DefaultUserFinder.class,
+      MeasureCache.class,
 
       // file system
       InputFileCache.class,
@@ -172,24 +132,10 @@ public class ProjectScanContainer extends ComponentContainer {
       GraphPersister.class,
 
       // lang
-      Languages.class,
       HighlightableBuilder.class,
       SymbolizableBuilder.class,
 
-      // technical debt
-      DefaultTechnicalDebtModel.class,
-      new DebtModelProvider(),
-
-      // rules
-      new RulesProvider(),
-
-      // Differential periods
-      PeriodsDefinition.class,
-
-      // Measures
-      MeasureCache.class,
-
-      ProjectSettingsReady.class);
+      ScanTaskObservers.class);
   }
 
   private void fixMavenExecutor() {
@@ -204,19 +150,20 @@ public class ProjectScanContainer extends ComponentContainer {
 
   @Override
   protected void doAfterStart() {
-    ProjectTree tree = getComponentByType(ProjectTree.class);
-    scanRecursively(tree.getRootProject());
+    ProjectReactor tree = getComponentByType(ProjectReactor.class);
+    scanRecursively(tree.getRoot());
+    getComponentByType(ScanTaskObservers.class).notifyEndOfScanTask();
   }
 
-  private void scanRecursively(Project module) {
-    for (Project subModules : module.getModules()) {
+  private void scanRecursively(ProjectDefinition module) {
+    for (ProjectDefinition subModules : module.getSubProjects()) {
       scanRecursively(subModules);
     }
     scan(module);
   }
 
   @VisibleForTesting
-  void scan(Project module) {
+  void scan(ProjectDefinition module) {
     new ModuleScanContainer(this, module).execute();
   }
 

@@ -53,15 +53,34 @@ public class IssueFilters implements BatchExtension {
     this(deprecatedFilters, deprecatedViolations, new org.sonar.api.issue.IssueFilter[0]);
   }
 
+  /**
+   * Used by scan2
+   */
+  public IssueFilters(org.sonar.api.issue.IssueFilter[] exclusionFilters, IssueFilter[] filters) {
+    this(null, null, exclusionFilters, filters);
+  }
+
+  public IssueFilters(org.sonar.api.issue.IssueFilter[] exclusionFilters) {
+    this(null, null, exclusionFilters, new IssueFilter[0]);
+  }
+
+  public IssueFilters(IssueFilter[] filters) {
+    this(null, null, new org.sonar.api.issue.IssueFilter[0], filters);
+  }
+
+  public IssueFilters() {
+    this(null, null, new org.sonar.api.issue.IssueFilter[0], new IssueFilter[0]);
+  }
+
   public boolean accept(DefaultIssue issue, @Nullable Violation violation) {
-    if(new DefaultIssueFilterChain(filters).accept(issue)) {
+    if (new DefaultIssueFilterChain(filters).accept(issue)) {
       // Apply deprecated rules only if filter chain accepts the current issue
       for (org.sonar.api.issue.IssueFilter filter : exclusionFilters) {
         if (!filter.accept(issue)) {
           return false;
         }
       }
-      if (!deprecatedFilters.isEmpty()) {
+      if (deprecatedFilters != null && !deprecatedFilters.isEmpty()) {
         Violation v = violation != null ? violation : deprecatedViolations.toViolation(issue);
         return !deprecatedFilters.isIgnored(v);
       }

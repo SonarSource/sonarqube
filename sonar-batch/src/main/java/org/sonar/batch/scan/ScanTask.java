@@ -24,8 +24,10 @@ import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.batch.DefaultProjectTree;
+import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.TaskContainer;
 import org.sonar.batch.phases.Phases;
+import org.sonar.batch.scan2.ProjectScanContainer;
 
 public class ScanTask implements Task {
   public static final TaskDefinition DEFINITION = TaskDefinition.builder()
@@ -41,7 +43,12 @@ public class ScanTask implements Task {
   }
 
   public void execute() {
-    scan(new ProjectScanContainer(taskContainer));
+    boolean sensorMode = CoreProperties.ANALYSIS_MODE_SENSOR.equals(taskContainer.getComponentByType(BootstrapProperties.class).property(CoreProperties.ANALYSIS_MODE));
+    if (sensorMode) {
+      new ProjectScanContainer(taskContainer).execute();
+    } else {
+      scan(new org.sonar.batch.scan.ProjectScanContainer(taskContainer));
+    }
   }
 
   // Add components specific to project scan (views will use different ones)

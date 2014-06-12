@@ -28,9 +28,11 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.rule.ModuleQProfiles.QProfile;
+import org.sonar.batch.rules.QProfileWithId;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class QProfileVerifierTest {
 
@@ -46,11 +48,11 @@ public class QProfileVerifierTest {
   @Before
   public void before() {
     profiles = mock(ModuleQProfiles.class);
-    QProfile javaProfile = mock(QProfile.class);
+    QProfileWithId javaProfile = mock(QProfileWithId.class);
     when(javaProfile.name()).thenReturn("My Java profile");
     javaRulesProfile = mock(RulesProfile.class);
     when(profiles.findByLanguage("java")).thenReturn(javaProfile);
-    QProfile cobolProfile = mock(QProfile.class);
+    QProfileWithId cobolProfile = mock(QProfileWithId.class);
     when(cobolProfile.name()).thenReturn("My Cobol profile");
     cobolRulesProfile = mock(RulesProfile.class);
     when(profiles.findByLanguage("cobol")).thenReturn(cobolProfile);

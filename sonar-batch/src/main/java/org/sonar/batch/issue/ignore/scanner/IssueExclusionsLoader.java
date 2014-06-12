@@ -22,7 +22,7 @@ package org.sonar.batch.issue.ignore.scanner;
 
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.issue.ignore.pattern.IssueExclusionPatternInitializer;
@@ -59,7 +59,7 @@ public final class IssueExclusionsLoader {
 
     for (InputFile inputFile : fileSystem.inputFiles(fileSystem.predicates().all())) {
       try {
-        String componentEffectiveKey = ((DefaultInputFile) inputFile).key();
+        String componentEffectiveKey = ((DeprecatedDefaultInputFile) inputFile).key();
         if (componentEffectiveKey != null) {
           String path = inputFile.relativePath();
           inclusionPatternInitializer.initializePatternsForPath(path, componentEffectiveKey);

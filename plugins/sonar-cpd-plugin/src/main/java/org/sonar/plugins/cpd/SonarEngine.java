@@ -31,7 +31,7 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
@@ -115,7 +115,7 @@ public class SonarEngine extends CpdEngine {
 
     for (InputFile inputFile : sourceFiles) {
       LOG.debug("Populating index from {}", inputFile);
-      String resourceEffectiveKey = ((DefaultInputFile) inputFile).key();
+      String resourceEffectiveKey = ((DeprecatedDefaultInputFile) inputFile).key();
 
       List<Statement> statements;
 
@@ -141,7 +141,7 @@ public class SonarEngine extends CpdEngine {
     try {
       for (InputFile inputFile : sourceFiles) {
         LOG.debug("Detection of duplications for {}", inputFile);
-        String resourceEffectiveKey = ((DefaultInputFile) inputFile).key();
+        String resourceEffectiveKey = ((DeprecatedDefaultInputFile) inputFile).key();
 
         Collection<Block> fileBlocks = index.getByInputFile(inputFile, resourceEffectiveKey);
 

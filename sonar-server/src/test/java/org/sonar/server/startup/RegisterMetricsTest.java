@@ -19,6 +19,7 @@
  */
 package org.sonar.server.startup;
 
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
@@ -30,7 +31,6 @@ import org.sonar.jpa.test.AbstractDbUnitTestCase;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -67,7 +67,7 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
     setupData("shouldUpdateIfAlreadyExists");
 
     RegisterMetrics synchronizer = new RegisterMetrics(new MeasuresDao(getSession()), mock(QualityGateConditionDao.class), new Metrics[0]);
-    synchronizer.register(newArrayList(new Metric.Builder("key", "new short name", Metric.ValueType.FLOAT)
+    synchronizer.register(Lists.<Metric>newArrayList(new Metric.Builder("key", "new short name", Metric.ValueType.FLOAT)
       .setDescription("new description")
       .setDirection(-1)
       .setQualitative(true)
@@ -81,7 +81,7 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
   @Test
   public void shouldAddUserManagesMetric() {
     Metrics metrics = mock(Metrics.class);
-    when(metrics.getMetrics()).thenReturn(newArrayList(new Metric.Builder("key", "new short name", Metric.ValueType.FLOAT)
+    when(metrics.getMetrics()).thenReturn(Lists.<Metric>newArrayList(new Metric.Builder("key", "new short name", Metric.ValueType.FLOAT)
       .setDescription("new description")
       .setDirection(-1)
       .setQualitative(true)
@@ -90,7 +90,7 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
       .create()));
 
     MeasuresDao measuresDao = new MeasuresDao(getSession());
-    RegisterMetrics loader = new RegisterMetrics(measuresDao, mock(QualityGateConditionDao.class), new Metrics[]{metrics});
+    RegisterMetrics loader = new RegisterMetrics(measuresDao, mock(QualityGateConditionDao.class), new Metrics[] {metrics});
     List<Metric> result = loader.getMetricsRepositories();
 
     assertThat(result).hasSize(1);
@@ -101,7 +101,7 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
     setupData("shouldNotUpdateUserManagesMetricIfAlreadyExists");
 
     Metrics metrics = mock(Metrics.class);
-    when(metrics.getMetrics()).thenReturn(newArrayList(new Metric.Builder("key", "new short name", Metric.ValueType.FLOAT)
+    when(metrics.getMetrics()).thenReturn(Lists.<Metric>newArrayList(new Metric.Builder("key", "new short name", Metric.ValueType.FLOAT)
       .setDescription("new description")
       .setDirection(-1)
       .setQualitative(true)
@@ -110,7 +110,7 @@ public class RegisterMetricsTest extends AbstractDbUnitTestCase {
       .create()));
 
     MeasuresDao measuresDao = new MeasuresDao(getSession());
-    RegisterMetrics loader = new RegisterMetrics(measuresDao, mock(QualityGateConditionDao.class), new Metrics[]{metrics});
+    RegisterMetrics loader = new RegisterMetrics(measuresDao, mock(QualityGateConditionDao.class), new Metrics[] {metrics});
     List<Metric> result = loader.getMetricsRepositories();
 
     assertThat(result).isEmpty();

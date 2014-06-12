@@ -26,7 +26,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.batch.rule.ModuleQProfiles.QProfile;
+import org.sonar.batch.rules.QProfileWithId;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -37,14 +37,14 @@ import java.util.Map;
 @Immutable
 public class UsedQProfiles {
 
-  private Map<Integer, ModuleQProfiles.QProfile> profilesById = Maps.newLinkedHashMap();
+  private Map<Integer, QProfileWithId> profilesById = Maps.newLinkedHashMap();
 
   private UsedQProfiles() {
   }
 
-  public static final UsedQProfiles fromProfiles(Iterable<QProfile> profiles) {
+  public static final UsedQProfiles fromProfiles(Iterable<QProfileWithId> profiles) {
     UsedQProfiles result = new UsedQProfiles();
-    for (QProfile qProfile : profiles) {
+    for (QProfileWithId qProfile : profiles) {
       result.add(qProfile);
     }
     return result;
@@ -54,7 +54,7 @@ public class UsedQProfiles {
     return new UsedQProfiles();
   }
 
-  public static final UsedQProfiles fromProfiles(QProfile... profiles) {
+  public static final UsedQProfiles fromProfiles(QProfileWithId... profiles) {
     return fromProfiles(Arrays.asList(profiles));
   }
 
@@ -63,7 +63,7 @@ public class UsedQProfiles {
     JsonArray root = new JsonParser().parse(json).getAsJsonArray();
     for (JsonElement elt : root) {
       JsonObject profile = elt.getAsJsonObject();
-      result.add(new QProfile(profile.get("id").getAsInt(), profile.get("name").getAsString(), profile.get("language").getAsString(), profile.get("version").getAsInt()));
+      result.add(new QProfileWithId(profile.get("id").getAsInt(), profile.get("name").getAsString(), profile.get("language").getAsString(), profile.get("version").getAsInt()));
     }
     return result;
   }
@@ -72,7 +72,7 @@ public class UsedQProfiles {
     StringWriter json = new StringWriter();
     JsonWriter writer = JsonWriter.of(json);
     writer.beginArray();
-    for (ModuleQProfiles.QProfile qProfile : profilesById.values()) {
+    for (QProfileWithId qProfile : profilesById.values()) {
       writer.beginObject()
         .prop("id", qProfile.id())
         .prop("name", qProfile.name())
@@ -89,8 +89,8 @@ public class UsedQProfiles {
     return empty().mergeInPlace(this).mergeInPlace(other);
   }
 
-  private void add(ModuleQProfiles.QProfile profile) {
-    QProfile alreadyAdded = profilesById.get(profile.id());
+  private void add(QProfileWithId profile) {
+    QProfileWithId alreadyAdded = profilesById.get(profile.id());
     if (alreadyAdded == null
       // Keep only latest version
       || profile.version() > alreadyAdded.version()) {
@@ -98,8 +98,8 @@ public class UsedQProfiles {
     }
   }
 
-  private UsedQProfiles addAll(Iterable<QProfile> profiles) {
-    for (QProfile profile : profiles) {
+  private UsedQProfiles addAll(Iterable<QProfileWithId> profiles) {
+    for (QProfileWithId profile : profiles) {
       this.add(profile);
     }
     return this;
@@ -110,7 +110,7 @@ public class UsedQProfiles {
     return this;
   }
 
-  public Map<Integer, ModuleQProfiles.QProfile> profilesById() {
+  public Map<Integer, QProfileWithId> profilesById() {
     return ImmutableMap.copyOf(profilesById);
   }
 

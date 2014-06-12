@@ -25,6 +25,12 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.MessageException;
+import org.sonar.batch.api.rules.QProfile;
+import org.sonar.batch.languages.DeprecatedLanguagesReferential;
+import org.sonar.batch.languages.LanguagesReferential;
+import org.sonar.batch.rules.DefaultQProfileReferential;
+import org.sonar.batch.rules.QProfilesReferential;
+import org.sonar.batch.rules.QProfileWithId;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 
@@ -35,31 +41,32 @@ import static org.fest.assertions.Fail.fail;
 
 public class ModuleQProfilesTest extends AbstractDaoTestCase {
 
-  Languages languages = new Languages(new SimpleLanguage("java"), new SimpleLanguage("php"));
+  LanguagesReferential languages = new DeprecatedLanguagesReferential(new Languages(new SimpleLanguage("java"), new SimpleLanguage("php")));
   Settings settings = new Settings();
 
   @Test
   public void find_profiles() throws Exception {
     setupData("shared");
     QualityProfileDao dao = new QualityProfileDao(getMyBatis());
+    QProfilesReferential ref = new DefaultQProfileReferential(dao);
 
     settings.setProperty("sonar.profile.java", "Java Two");
     settings.setProperty("sonar.profile.abap", "Abap One");
     settings.setProperty("sonar.profile.php", "Php One");
 
-    ModuleQProfiles moduleQProfiles = new ModuleQProfiles(settings, languages, dao);
-    List<ModuleQProfiles.QProfile> qProfiles = Lists.newArrayList(moduleQProfiles.findAll());
+    ModuleQProfiles moduleQProfiles = new ModuleQProfiles(settings, languages, ref);
+    List<QProfile> qProfiles = Lists.newArrayList(moduleQProfiles.findAll());
 
     assertThat(qProfiles).hasSize(2);
     assertThat(moduleQProfiles.findByLanguage("java")).isNotNull();
     assertThat(moduleQProfiles.findByLanguage("php")).isNotNull();
     assertThat(moduleQProfiles.findByLanguage("abap")).isNull();
-    ModuleQProfiles.QProfile javaProfile = qProfiles.get(0);
+    QProfileWithId javaProfile = (QProfileWithId) qProfiles.get(0);
     assertThat(javaProfile.id()).isEqualTo(2);
     assertThat(javaProfile.name()).isEqualTo("Java Two");
     assertThat(javaProfile.language()).isEqualTo("java");
     assertThat(javaProfile.version()).isEqualTo(20);
-    ModuleQProfiles.QProfile phpProfile = qProfiles.get(1);
+    QProfileWithId phpProfile = (QProfileWithId) qProfiles.get(1);
     assertThat(phpProfile.id()).isEqualTo(3);
     assertThat(phpProfile.name()).isEqualTo("Php One");
     assertThat(phpProfile.language()).isEqualTo("php");
@@ -71,22 +78,23 @@ public class ModuleQProfilesTest extends AbstractDaoTestCase {
   public void use_sonar_profile_property() throws Exception {
     setupData("shared");
     QualityProfileDao dao = new QualityProfileDao(getMyBatis());
+    QProfilesReferential ref = new DefaultQProfileReferential(dao);
 
     settings.setProperty("sonar.profile", "Java Two");
     settings.setProperty("sonar.profile.php", "Php One");
 
-    ModuleQProfiles moduleQProfiles = new ModuleQProfiles(settings, languages, dao);
-    List<ModuleQProfiles.QProfile> qProfiles = Lists.newArrayList(moduleQProfiles.findAll());
+    ModuleQProfiles moduleQProfiles = new ModuleQProfiles(settings, languages, ref);
+    List<QProfile> qProfiles = Lists.newArrayList(moduleQProfiles.findAll());
 
     assertThat(qProfiles).hasSize(2);
-    ModuleQProfiles.QProfile javaProfile = qProfiles.get(0);
+    QProfileWithId javaProfile = (QProfileWithId) qProfiles.get(0);
     assertThat(javaProfile.id()).isEqualTo(2);
     assertThat(javaProfile.name()).isEqualTo("Java Two");
     assertThat(javaProfile.language()).isEqualTo("java");
     assertThat(javaProfile.version()).isEqualTo(20);
 
     // Fallback to sonar.profile.php if no match for sonar.profile
-    ModuleQProfiles.QProfile phpProfile = qProfiles.get(1);
+    QProfileWithId phpProfile = (QProfileWithId) qProfiles.get(1);
     assertThat(phpProfile.id()).isEqualTo(3);
     assertThat(phpProfile.name()).isEqualTo("Php One");
     assertThat(phpProfile.language()).isEqualTo("php");
@@ -98,12 +106,13 @@ public class ModuleQProfilesTest extends AbstractDaoTestCase {
   public void fail_if_unknown_profile() throws Exception {
     setupData("shared");
     QualityProfileDao dao = new QualityProfileDao(getMyBatis());
+    QProfilesReferential ref = new DefaultQProfileReferential(dao);
 
     settings.setProperty("sonar.profile.java", "Unknown");
     settings.setProperty("sonar.profile.php", "Php One");
 
     try {
-      new ModuleQProfiles(settings, languages, dao);
+      new ModuleQProfiles(settings, languages, ref);
       fail();
     } catch (MessageException e) {
       assertThat(e).hasMessage("Quality profile not found : 'Unknown' on language 'java'");

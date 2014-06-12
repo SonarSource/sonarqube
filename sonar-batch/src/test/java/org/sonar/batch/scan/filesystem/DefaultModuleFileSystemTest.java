@@ -26,8 +26,9 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 
@@ -58,13 +59,13 @@ public class DefaultModuleFileSystemTest {
 
   @Test
   public void test_equals_and_hashCode() throws Exception {
-    DefaultModuleFileSystem foo1 = new DefaultModuleFileSystem(moduleInputFileCache,
+    DefaultModuleFileSystem foo1 = new DefaultModuleFileSystem(moduleInputFileCache, ProjectDefinition.create(),
       new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
-    DefaultModuleFileSystem foo2 = new DefaultModuleFileSystem(moduleInputFileCache,
+    DefaultModuleFileSystem foo2 = new DefaultModuleFileSystem(moduleInputFileCache, ProjectDefinition.create(),
       new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
-    DefaultModuleFileSystem bar = new DefaultModuleFileSystem(moduleInputFileCache,
+    DefaultModuleFileSystem bar = new DefaultModuleFileSystem(moduleInputFileCache, ProjectDefinition.create(),
       new Project("bar"), settings, fileIndexer, initializer, componentIndexer);
-    DefaultModuleFileSystem branch = new DefaultModuleFileSystem(moduleInputFileCache,
+    DefaultModuleFileSystem branch = new DefaultModuleFileSystem(moduleInputFileCache, ProjectDefinition.create(),
       new Project("bar", "branch", "My project"), settings, fileIndexer, initializer, componentIndexer);
 
     assertThat(foo1.moduleKey()).isEqualTo("foo");
@@ -79,7 +80,7 @@ public class DefaultModuleFileSystemTest {
 
   @Test
   public void default_source_encoding() {
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache,
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache, ProjectDefinition.create(),
       new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
 
     assertThat(fs.sourceCharset()).isEqualTo(Charset.defaultCharset());
@@ -89,7 +90,7 @@ public class DefaultModuleFileSystemTest {
   @Test
   public void source_encoding_is_set() {
     settings.setProperty(CoreProperties.ENCODING_PROPERTY, "Cp1124");
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache,
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache, ProjectDefinition.create(),
       new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
 
     assertThat(fs.encoding()).isEqualTo(Charset.forName("Cp1124"));
@@ -115,7 +116,7 @@ public class DefaultModuleFileSystemTest {
     when(initializer.additionalSourceFiles()).thenReturn(Arrays.asList(additionalFile));
     when(initializer.additionalTestFiles()).thenReturn(Arrays.asList(additionalTest));
 
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache,
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache, ProjectDefinition.create(),
       new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
 
     assertThat(fs.baseDir().getCanonicalPath()).isEqualTo(basedir.getCanonicalPath());
@@ -135,7 +136,7 @@ public class DefaultModuleFileSystemTest {
     when(initializer.workingDir()).thenReturn(basedir);
     when(initializer.sourceDirs()).thenReturn(Arrays.asList(new File(basedir, "src/main/java")));
 
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache,
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache, ProjectDefinition.create(),
       new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
 
     File existingDir = temp.newFolder("new_folder");
@@ -156,12 +157,12 @@ public class DefaultModuleFileSystemTest {
 
   @Test
   public void should_search_input_files() throws Exception {
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache,
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache, ProjectDefinition.create(),
       new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
 
     File mainFile = temp.newFile();
-    InputFile mainInput = new DefaultInputFile("Main.java").setFile(mainFile).setType(InputFile.Type.MAIN);
-    InputFile testInput = new DefaultInputFile("Test.java").setFile(temp.newFile()).setType(InputFile.Type.TEST);
+    InputFile mainInput = new DeprecatedDefaultInputFile("Main.java").setFile(mainFile).setType(InputFile.Type.MAIN);
+    InputFile testInput = new DeprecatedDefaultInputFile("Test.java").setFile(temp.newFile()).setType(InputFile.Type.TEST);
     when(moduleInputFileCache.inputFiles()).thenReturn(Lists.newArrayList(mainInput, testInput));
 
     fs.index();
@@ -174,7 +175,7 @@ public class DefaultModuleFileSystemTest {
 
   @Test
   public void should_index() throws Exception {
-    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache,
+    DefaultModuleFileSystem fs = new DefaultModuleFileSystem(moduleInputFileCache, ProjectDefinition.create(),
       new Project("foo"), settings, fileIndexer, initializer, componentIndexer);
 
     verifyZeroInteractions(fileIndexer);

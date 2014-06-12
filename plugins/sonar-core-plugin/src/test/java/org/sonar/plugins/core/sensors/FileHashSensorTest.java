@@ -28,7 +28,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.index.ComponentDataCache;
 import org.sonar.batch.scan.filesystem.InputFileCache;
@@ -58,8 +58,8 @@ public class FileHashSensorTest {
   @Test
   public void store_file_hashes() throws Exception {
     when(fileCache.byModule("struts")).thenReturn(Lists.<InputFile>newArrayList(
-      new DefaultInputFile("src/Foo.java").setFile(temp.newFile()).setHash("ABC"),
-      new DefaultInputFile("src/Bar.java").setFile(temp.newFile()).setHash("DEF")));
+      new DeprecatedDefaultInputFile("src/Foo.java").setFile(temp.newFile()).setHash("ABC"),
+      new DeprecatedDefaultInputFile("src/Bar.java").setFile(temp.newFile()).setHash("DEF")));
 
     SensorContext sensorContext = mock(SensorContext.class);
     sensor.analyse(project, sensorContext);
@@ -72,8 +72,8 @@ public class FileHashSensorTest {
   public void store_file_hashes_for_branches() throws Exception {
     project = new Project("struts", "branch-2.x", "Struts 2.x");
     when(fileCache.byModule("struts:branch-2.x")).thenReturn(Lists.<InputFile>newArrayList(
-      new DefaultInputFile("src/Foo.java").setFile(temp.newFile()).setHash("ABC"),
-      new DefaultInputFile("src/Bar.java").setFile(temp.newFile()).setHash("DEF")));
+      new DeprecatedDefaultInputFile("src/Foo.java").setFile(temp.newFile()).setHash("ABC"),
+      new DeprecatedDefaultInputFile("src/Bar.java").setFile(temp.newFile()).setHash("DEF")));
 
     SensorContext sensorContext = mock(SensorContext.class);
     sensor.analyse(project, sensorContext);

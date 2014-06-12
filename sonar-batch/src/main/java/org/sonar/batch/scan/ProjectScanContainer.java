@@ -40,7 +40,6 @@ import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.bootstrap.MetricProvider;
 import org.sonar.batch.components.PeriodsDefinition;
-import org.sonar.batch.debt.DebtModelProvider;
 import org.sonar.batch.debt.IssueChangelogDebtCalculator;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.ComponentDataCache;
@@ -61,9 +60,9 @@ import org.sonar.batch.issue.DeprecatedViolations;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.issue.IssuePersister;
 import org.sonar.batch.issue.ScanIssueStorage;
+import org.sonar.batch.languages.DeprecatedLanguagesReferential;
 import org.sonar.batch.phases.GraphPersister;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
-import org.sonar.batch.rule.RulesProvider;
 import org.sonar.batch.scan.filesystem.InputFileCache;
 import org.sonar.batch.scan.maven.FakeMavenPluginExecutor;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
@@ -101,27 +100,23 @@ public class ProjectScanContainer extends ComponentContainer {
   }
 
   private void projectBootstrap() {
-    // Old versions of bootstrappers used to pass project reactor as an extension
-    // so check if it is already present in parent container
-    ProjectReactor reactor = getComponentByType(ProjectReactor.class);
-    if (reactor == null) {
-      // OK, not present, so look for a custom ProjectBootstrapper
-      ProjectBootstrapper bootstrapper = getComponentByType(ProjectBootstrapper.class);
-      Settings settings = getComponentByType(Settings.class);
-      if (bootstrapper == null
-        // Starting from Maven plugin 2.3 then only DefaultProjectBootstrapper should be used.
-        || "true".equals(settings.getString("sonar.mojoUseRunner"))) {
-        // Use default SonarRunner project bootstrapper
-        ProjectReactorBuilder builder = getComponentByType(ProjectReactorBuilder.class);
-        reactor = builder.execute();
-      } else {
-        reactor = bootstrapper.bootstrap();
-      }
-      if (reactor == null) {
-        throw new SonarException(bootstrapper + " has returned null as ProjectReactor");
-      }
-      add(reactor);
+    ProjectReactor reactor;
+    // OK, not present, so look for a custom ProjectBootstrapper
+    ProjectBootstrapper bootstrapper = getComponentByType(ProjectBootstrapper.class);
+    Settings settings = getComponentByType(Settings.class);
+    if (bootstrapper == null
+      // Starting from Maven plugin 2.3 then only DefaultProjectBootstrapper should be used.
+      || "true".equals(settings.getString("sonar.mojoUseRunner"))) {
+      // Use default SonarRunner project bootstrapper
+      ProjectReactorBuilder builder = getComponentByType(ProjectReactorBuilder.class);
+      reactor = builder.execute();
+    } else {
+      reactor = bootstrapper.bootstrap();
     }
+    if (reactor == null) {
+      throw new SonarException(bootstrapper + " has returned null as ProjectReactor");
+    }
+    add(reactor);
   }
 
   private void addBatchComponents() {
@@ -175,15 +170,12 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // lang
       Languages.class,
+      DeprecatedLanguagesReferential.class,
       HighlightableBuilder.class,
       SymbolizableBuilder.class,
 
       // technical debt
       DefaultTechnicalDebtModel.class,
-      new DebtModelProvider(),
-
-      // rules
-      new RulesProvider(),
 
       // Differential periods
       PeriodsDefinition.class,

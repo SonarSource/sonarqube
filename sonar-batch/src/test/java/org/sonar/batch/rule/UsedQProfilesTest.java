@@ -20,6 +20,7 @@
 package org.sonar.batch.rule;
 
 import org.junit.Test;
+import org.sonar.batch.rules.QProfileWithId;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -28,8 +29,8 @@ public class UsedQProfilesTest {
   @Test
   public void serialization() throws Exception {
 
-    ModuleQProfiles.QProfile java = new ModuleQProfiles.QProfile(1, "Sonar Way", "java", 1);
-    ModuleQProfiles.QProfile php = new ModuleQProfiles.QProfile(2, "Sonar Way", "php", 1);
+    QProfileWithId java = new QProfileWithId(1, "Sonar Way", "java", 1);
+    QProfileWithId php = new QProfileWithId(2, "Sonar Way", "php", 1);
 
     UsedQProfiles used = UsedQProfiles.fromProfiles(java, php);
     assertThat(used.toJSON()).isEqualTo(

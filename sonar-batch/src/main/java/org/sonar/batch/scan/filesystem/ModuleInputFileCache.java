@@ -20,9 +20,10 @@
 package org.sonar.batch.scan.filesystem;
 
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.UniqueIndexPredicate;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.RelativePathPredicate;
 import org.sonar.api.resources.Project;
 
 public class ModuleInputFileCache extends DefaultFileSystem.Cache implements BatchComponent {
@@ -30,8 +31,16 @@ public class ModuleInputFileCache extends DefaultFileSystem.Cache implements Bat
   private final String moduleKey;
   private final InputFileCache projectCache;
 
-  public ModuleInputFileCache(Project module, InputFileCache projectCache) {
+  public ModuleInputFileCache(Project module, ProjectDefinition projectDef, InputFileCache projectCache) {
     this.moduleKey = module.getKey();
+    this.projectCache = projectCache;
+  }
+
+  /**
+   * Used by scan2
+   */
+  public ModuleInputFileCache(ProjectDefinition projectDef, InputFileCache projectCache) {
+    this.moduleKey = projectDef.getKey();
     this.projectCache = projectCache;
   }
 
@@ -41,17 +50,12 @@ public class ModuleInputFileCache extends DefaultFileSystem.Cache implements Bat
   }
 
   @Override
-  protected InputFile inputFile(UniqueIndexPredicate predicate) {
-    return projectCache.get(moduleKey, predicate.indexId(), predicate.value());
+  protected InputFile inputFile(RelativePathPredicate predicate) {
+    return projectCache.get(moduleKey, predicate.path());
   }
 
   @Override
   protected void doAdd(InputFile inputFile) {
     projectCache.put(moduleKey, inputFile);
-  }
-
-  @Override
-  protected void doIndex(String indexId, Object value, InputFile inputFile) {
-    projectCache.index(moduleKey, indexId, value, inputFile);
   }
 }

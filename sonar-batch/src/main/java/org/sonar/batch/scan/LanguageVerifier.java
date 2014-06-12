@@ -25,9 +25,9 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.MessageException;
+import org.sonar.batch.api.languages.Language;
+import org.sonar.batch.languages.LanguagesReferential;
 
 /**
  * Verifies that the property sonar.language is valid
@@ -37,15 +37,14 @@ public class LanguageVerifier implements Startable {
   private static final Logger LOG = LoggerFactory.getLogger(LanguageVerifier.class);
 
   private final Settings settings;
-  private final Languages languages;
+  private final LanguagesReferential languages;
   private final DefaultFileSystem fs;
 
-  public LanguageVerifier(Settings settings, Languages languages, DefaultFileSystem fs) {
+  public LanguageVerifier(Settings settings, LanguagesReferential languages, DefaultFileSystem fs) {
     this.settings = settings;
     this.languages = languages;
     this.fs = fs;
   }
-
 
   @Override
   public void start() {

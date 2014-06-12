@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 
 import java.io.File;
 
@@ -38,10 +39,10 @@ public class AdditionalFilePredicatesTest {
   public void key() throws Exception {
     FilePredicate predicate = new AdditionalFilePredicates.KeyPredicate("struts:Action.java");
 
-    DefaultInputFile inputFile = new DefaultInputFile("Action.java").setKey("struts:Action.java");
+    DefaultInputFile inputFile = new DeprecatedDefaultInputFile("Action.java").setKey("struts:Action.java");
     assertThat(predicate.apply(inputFile)).isTrue();
 
-    inputFile = new DefaultInputFile("Filter.java").setKey("struts:Filter.java");
+    inputFile = new DeprecatedDefaultInputFile("Filter.java").setKey("struts:Filter.java");
     assertThat(predicate.apply(inputFile)).isFalse();
   }
 
@@ -49,10 +50,10 @@ public class AdditionalFilePredicatesTest {
   public void deprecated_key() throws Exception {
     FilePredicate predicate = new AdditionalFilePredicates.DeprecatedKeyPredicate("struts:Action.java");
 
-    DefaultInputFile inputFile = new DefaultInputFile("Action.java").setDeprecatedKey("struts:Action.java");
+    DeprecatedDefaultInputFile inputFile = new DeprecatedDefaultInputFile("Action.java").setDeprecatedKey("struts:Action.java");
     assertThat(predicate.apply(inputFile)).isTrue();
 
-    inputFile = new DefaultInputFile("Filter.java").setDeprecatedKey("struts:Filter.java");
+    inputFile = new DeprecatedDefaultInputFile("Filter.java").setDeprecatedKey("struts:Filter.java");
     assertThat(predicate.apply(inputFile)).isFalse();
   }
 
@@ -61,10 +62,10 @@ public class AdditionalFilePredicatesTest {
     File dir = temp.newFolder();
     FilePredicate predicate = new AdditionalFilePredicates.SourceDirPredicate(dir.getAbsolutePath());
 
-    DefaultInputFile inputFile = new DefaultInputFile("Action.java").setSourceDirAbsolutePath(dir.getAbsolutePath());
+    DeprecatedDefaultInputFile inputFile = new DeprecatedDefaultInputFile("Action.java").setSourceDirAbsolutePath(dir.getAbsolutePath());
     assertThat(predicate.apply(inputFile)).isTrue();
 
-    inputFile = new DefaultInputFile("Filter.java").setSourceDirAbsolutePath(temp.newFolder().getAbsolutePath());
+    inputFile = new DeprecatedDefaultInputFile("Filter.java").setSourceDirAbsolutePath(temp.newFolder().getAbsolutePath());
     assertThat(predicate.apply(inputFile)).isFalse();
   }
 
@@ -72,10 +73,10 @@ public class AdditionalFilePredicatesTest {
   public void path_relative_to_source_dir() throws Exception {
     FilePredicate predicate = new AdditionalFilePredicates.SourceRelativePathPredicate("foo/Bar.php");
 
-    DefaultInputFile inputFile = new DefaultInputFile("src/php/foo/Bar.php").setPathRelativeToSourceDir("foo/Bar.php");
+    DeprecatedDefaultInputFile inputFile = new DeprecatedDefaultInputFile("src/php/foo/Bar.php").setPathRelativeToSourceDir("foo/Bar.php");
     assertThat(predicate.apply(inputFile)).isTrue();
 
-    inputFile = new DefaultInputFile("foo/Bar.php").setPathRelativeToSourceDir("Bar.php");
+    inputFile = new DeprecatedDefaultInputFile("foo/Bar.php").setPathRelativeToSourceDir("Bar.php");
     assertThat(predicate.apply(inputFile)).isFalse();
   }
 }

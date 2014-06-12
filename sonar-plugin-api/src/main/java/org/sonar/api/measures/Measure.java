@@ -38,7 +38,7 @@ import java.util.Date;
  *
  * @since 1.10
  */
-public class Measure implements Serializable {
+public class Measure<G extends Serializable> implements Serializable {
   private static final String INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5 = "Index should be in range from 1 to 5";
 
   protected static final int MAX_TEXT_SIZE = 96;
@@ -49,7 +49,7 @@ public class Measure implements Serializable {
   public static final int DEFAULT_PRECISION = 1;
 
   protected String metricKey;
-  protected Metric metric;
+  protected Metric<G> metric;
   protected Double value;
   protected String data;
   protected String description;
@@ -235,6 +235,38 @@ public class Measure implements Serializable {
    */
   public Double getValue() {
     return value;
+  }
+
+  /**
+   * For internal use.
+   */
+  public G value() {
+    switch (getMetric().getType()) {
+      case BOOL:
+        return (G) Boolean.valueOf(1.0 == value);
+      case INT:
+      case MILLISEC:
+        return (G) Integer.valueOf(value.intValue());
+      case FLOAT:
+      case PERCENT:
+      case RATING:
+        return (G) value;
+      case STRING:
+      case LEVEL:
+      case DATA:
+      case DISTRIB:
+        return (G) getData();
+      case WORK_DUR:
+        return (G) Long.valueOf(value.longValue());
+      default:
+        if (getMetric().isNumericType()) {
+          return (G) getValue();
+        } else if (getMetric().isDataType()) {
+          return (G) getData();
+        } else {
+          throw new UnsupportedOperationException("Unsupported type :" + getMetric().getType());
+        }
+    }
   }
 
   /**
@@ -692,4 +724,5 @@ public class Measure implements Serializable {
   public String toString() {
     return ReflectionToStringBuilder.toString(this);
   }
+
 }

@@ -46,7 +46,7 @@ import java.io.Serializable;
 @Table(name = "metrics")
 @Entity(name = "Metric")
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public class Metric implements ServerExtension, BatchExtension, Serializable {
+public class Metric<G extends Serializable> implements ServerExtension, BatchExtension, Serializable, org.sonar.batch.api.measures.Metric<G> {
 
   /**
    * A metric bigger value means a degradation
@@ -62,7 +62,28 @@ public class Metric implements ServerExtension, BatchExtension, Serializable {
   public static final int DIRECTION_NONE = 0;
 
   public enum ValueType {
-    INT, FLOAT, PERCENT, BOOL, STRING, MILLISEC, DATA, LEVEL, DISTRIB, RATING, WORK_DUR
+    INT(Integer.class),
+    FLOAT(Double.class),
+    PERCENT(Double.class),
+    BOOL(Boolean.class),
+    STRING(String.class),
+    MILLISEC(Integer.class),
+    DATA(String.class),
+    LEVEL(String.class),
+    DISTRIB(String.class),
+    RATING(String.class),
+    WORK_DUR(Long.class);
+
+    private final Class measureJavaType;
+
+    private ValueType(Class measureJavaType) {
+      this.measureJavaType = measureJavaType;
+    }
+
+    private Class measureJavaType() {
+      return measureJavaType;
+    }
+
   }
 
   public enum Level {
@@ -211,10 +232,8 @@ public class Metric implements ServerExtension, BatchExtension, Serializable {
    * @param qualitative whether the metric is qualitative
    * @param domain      the metric domain
    * @param userManaged whether the metric is user managed
-   * @deprecated since 2.7 use the {@link Builder} factory.
    */
-  @Deprecated
-  public Metric(String key, String name, String description, ValueType type, Integer direction, Boolean qualitative, @Nullable String domain,
+  private Metric(String key, String name, String description, ValueType type, Integer direction, Boolean qualitative, @Nullable String domain,
     boolean userManaged) {
     this.key = key;
     this.description = description;
@@ -225,41 +244,6 @@ public class Metric implements ServerExtension, BatchExtension, Serializable {
     this.qualitative = qualitative;
     this.userManaged = userManaged;
     this.origin = Origin.JAV;
-    if (ValueType.PERCENT.equals(this.type)) {
-      this.bestValue = (direction == DIRECTION_BETTER ? 100.0 : 0.0);
-      this.worstValue = (direction == DIRECTION_BETTER ? 0.0 : 100.0);
-    }
-  }
-
-  /**
-   * Creates a fully qualified metric. This defaults some values:
-   * <ul>
-   * <li>origin : Origin.JAV</li>
-   * <li>enabled : true</li>
-   * <li>userManaged : true</li>
-   * </ul>
-   *
-   * @param key         the metric key
-   * @param name        the metric name
-   * @param type        the metric type
-   * @param direction   the metric direction
-   * @param qualitative whether the metric is qualitative
-   * @param domain      the metric domain
-   * @param formula     the metric formula
-   * @deprecated since 2.7 use the {@link Builder} factory.
-   */
-  @Deprecated
-  public Metric(String key, String name, ValueType type, Integer direction, Boolean qualitative, String domain, Formula formula) {
-    this.key = key;
-    this.name = name;
-    this.type = type;
-    this.direction = direction;
-    this.domain = domain;
-    this.qualitative = qualitative;
-    this.origin = Origin.JAV;
-    this.enabled = true;
-    this.userManaged = false;
-    this.formula = formula;
     if (ValueType.PERCENT.equals(this.type)) {
       this.bestValue = (direction == DIRECTION_BETTER ? 100.0 : 0.0);
       this.worstValue = (direction == DIRECTION_BETTER ? 0.0 : 100.0);
@@ -803,12 +787,22 @@ public class Metric implements ServerExtension, BatchExtension, Serializable {
      *
      * @return a new {@link Metric} object
      */
-    public Metric create() {
+    public <G extends Serializable> Metric<G> create() {
       if (ValueType.PERCENT.equals(this.type)) {
         this.bestValue = (direction == DIRECTION_BETTER ? 100.0 : 0.0);
         this.worstValue = (direction == DIRECTION_BETTER ? 0.0 : 100.0);
       }
-      return new Metric(this);
+      return new Metric<G>(this);
     }
+  }
+
+  @Override
+  public String key() {
+    return getKey();
+  }
+
+  @Override
+  public Class<G> type() {
+    return getType().measureJavaType();
   }
 }

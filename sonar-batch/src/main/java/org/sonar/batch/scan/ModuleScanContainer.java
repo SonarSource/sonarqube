@@ -39,6 +39,9 @@ import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.components.TimeMachineConfiguration;
+import org.sonar.batch.debt.DebtDecorator;
+import org.sonar.batch.debt.IssueChangelogDebtCalculator;
+import org.sonar.batch.debt.NewDebtDecorator;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.index.ResourcePersister;
@@ -139,6 +142,7 @@ public class ModuleScanContainer extends ComponentContainer {
 
       TimeMachineConfiguration.class,
       DefaultSensorContext.class,
+      AnalyzerContextAdaptor.class,
       BatchExtensionDictionnary.class,
       DefaultTimeMachine.class,
       ViolationFilters.class,
@@ -178,6 +182,11 @@ public class ModuleScanContainer extends ComponentContainer {
       // language
       LanguageDistributionDecorator.class,
 
+      // Debt
+      IssueChangelogDebtCalculator.class,
+      DebtDecorator.class,
+      NewDebtDecorator.class,
+
       ScanPerspectives.class);
   }
 
@@ -191,7 +200,8 @@ public class ModuleScanContainer extends ComponentContainer {
           // Example : C# plugin adds sub-projects at runtime, even if they are not defined in root pom.
           return !ExtensionUtils.isMavenExtensionOnly(extension) || module.getPom() != null;
         }
-        return false;
+        return ExtensionUtils.isType(extension, org.sonar.batch.api.BatchComponent.class)
+          && ExtensionUtils.isInstantiationStrategy(extension, org.sonar.batch.api.InstantiationStrategy.PER_PROJECT);
       }
     });
   }

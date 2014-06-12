@@ -23,7 +23,7 @@ import com.google.common.collect.Maps;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.index.ComponentDataCache;
@@ -59,7 +59,7 @@ public final class FileHashSensor implements Sensor {
   public void analyse(Project project, SensorContext context) {
     Map<String, String> map = Maps.newHashMap();
     for (InputFile inputFile : fileCache.byModule(project.key())) {
-      String hash = ((DefaultInputFile) inputFile).hash();
+      String hash = ((DeprecatedDefaultInputFile) inputFile).hash();
       if (hash != null) {
         map.put(inputFile.relativePath(), hash);
       }

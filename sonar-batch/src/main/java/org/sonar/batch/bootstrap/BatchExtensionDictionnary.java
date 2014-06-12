@@ -21,10 +21,14 @@ package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.ClassUtils;
-import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.CheckProject;
+import org.sonar.api.batch.Sensor;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.api.analyzer.Analyzer;
+import org.sonar.batch.api.analyzer.AnalyzerContext;
+import org.sonar.batch.scan.SensorWrapper;
 
 import java.util.Collection;
 import java.util.List;
@@ -34,8 +38,13 @@ import java.util.List;
  */
 public class BatchExtensionDictionnary extends org.sonar.api.batch.BatchExtensionDictionnary {
 
-  public BatchExtensionDictionnary(ComponentContainer componentContainer) {
+  private FileSystem fs;
+  private AnalyzerContext context;
+
+  public BatchExtensionDictionnary(ComponentContainer componentContainer, FileSystem fs, AnalyzerContext context) {
     super(componentContainer);
+    this.fs = fs;
+    this.context = context;
   }
 
   public <T> Collection<T> select(Class<T> type, Project project, boolean sort, ExtensionMatcher matcher) {
@@ -48,7 +57,10 @@ public class BatchExtensionDictionnary extends org.sonar.api.batch.BatchExtensio
 
   private <T> List<T> getFilteredExtensions(Class<T> type, Project project, ExtensionMatcher matcher) {
     List<T> result = Lists.newArrayList();
-    for (BatchExtension extension : getExtensions()) {
+    for (Object extension : getExtensions()) {
+      if (type == Sensor.class && extension instanceof Analyzer) {
+        extension = new SensorWrapper((Analyzer) extension, context, fs);
+      }
       if (shouldKeep(type, extension, project, matcher)) {
         result.add((T) extension);
       }
@@ -57,7 +69,9 @@ public class BatchExtensionDictionnary extends org.sonar.api.batch.BatchExtensio
   }
 
   private boolean shouldKeep(Class type, Object extension, Project project, ExtensionMatcher matcher) {
-    boolean keep = ClassUtils.isAssignable(extension.getClass(), type) && (matcher == null || matcher.accept(extension));
+    boolean keep = (ClassUtils.isAssignable(extension.getClass(), type)
+      || (type == Sensor.class && ClassUtils.isAssignable(extension.getClass(), Analyzer.class)))
+      && (matcher == null || matcher.accept(extension));
     if (keep && project != null && ClassUtils.isAssignable(extension.getClass(), CheckProject.class)) {
       keep = ((CheckProject) extension).shouldExecuteOnProject(project);
     }

@@ -29,7 +29,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.batch.issue.ignore.pattern.IssueInclusionPatternInitializer;
@@ -101,12 +101,12 @@ public class IssueExclusionsLoaderTest {
   @Test
   public void shouldAnalyzeProject() throws IOException {
     File javaFile1 = new File(baseDir, "src/main/java/Foo.java");
-    fs.add(new DefaultInputFile("src/main/java/Foo.java")
+    fs.add(new DeprecatedDefaultInputFile("src/main/java/Foo.java")
       .setFile(javaFile1)
       .setType(InputFile.Type.MAIN)
       .setKey("polop:src/main/java/Foo.java"));
     File javaTestFile1 = new File(baseDir, "src/test/java/FooTest.java");
-    fs.add(new DefaultInputFile("src/test/java/FooTest.java")
+    fs.add(new DeprecatedDefaultInputFile("src/test/java/FooTest.java")
       .setFile(javaTestFile1)
       .setType(InputFile.Type.TEST)
       .setKey("polop:src/test/java/FooTest.java"));
@@ -126,12 +126,12 @@ public class IssueExclusionsLoaderTest {
   @Test
   public void shouldAnalyseFilesOnlyWhenRegexConfigured() throws IOException {
     File javaFile1 = new File(baseDir, "src/main/java/Foo.java");
-    fs.add(new DefaultInputFile("src/main/java/Foo.java")
+    fs.add(new DeprecatedDefaultInputFile("src/main/java/Foo.java")
       .setFile(javaFile1)
       .setType(InputFile.Type.MAIN)
       .setKey("polop:src/main/java/Foo.java"));
     File javaTestFile1 = new File(baseDir, "src/test/java/FooTest.java");
-    fs.add(new DefaultInputFile("src/test/java/FooTest.java")
+    fs.add(new DeprecatedDefaultInputFile("src/test/java/FooTest.java")
       .setFile(javaTestFile1)
       .setType(InputFile.Type.TEST)
       .setKey("polop:src/test/java/FooTest.java"));
@@ -149,7 +149,7 @@ public class IssueExclusionsLoaderTest {
   @Test
   public void shouldReportFailure() throws IOException {
     File phpFile1 = new File(baseDir, "src/Foo.php");
-    fs.add(new DefaultInputFile("src/Foo.php")
+    fs.add(new DeprecatedDefaultInputFile("src/Foo.php")
       .setFile(phpFile1)
       .setType(InputFile.Type.MAIN)
       .setKey("polop:src/Foo.php"));

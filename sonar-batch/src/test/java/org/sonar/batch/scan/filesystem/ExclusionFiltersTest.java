@@ -63,7 +63,6 @@ public class ExclusionFiltersTest {
     assertThat(filter.accept(inputFile, InputFile.Type.MAIN)).isFalse();
   }
 
-
   @Test
   public void match_at_least_one_inclusion() throws IOException {
     Settings settings = new Settings();

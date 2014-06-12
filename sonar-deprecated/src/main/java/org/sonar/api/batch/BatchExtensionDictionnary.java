@@ -30,11 +30,13 @@ import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.dag.DirectAcyclicGraph;
+import org.sonar.batch.api.analyzer.Analyzer;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -66,7 +68,7 @@ public class BatchExtensionDictionnary {
 
   public Collection<MavenPluginHandler> selectMavenPluginHandlers(Project project) {
     List<DependsUponMavenPlugin> selectedExtensions = Lists.newArrayList();
-    for (BatchExtension extension : getExtensions()) {
+    for (Object extension : getExtensions()) {
       if (ClassUtils.isAssignable(extension.getClass(), DependsUponMavenPlugin.class)) {
         selectedExtensions.add((DependsUponMavenPlugin) extension);
       }
@@ -88,22 +90,23 @@ public class BatchExtensionDictionnary {
     return handlers;
   }
 
-  protected List<BatchExtension> getExtensions() {
-    List<BatchExtension> extensions = Lists.newArrayList();
+  protected List<Object> getExtensions() {
+    List<Object> extensions = Lists.newArrayList();
     completeBatchExtensions(componentContainer, extensions);
     return extensions;
   }
 
-  private static void completeBatchExtensions(ComponentContainer container, List<BatchExtension> extensions) {
+  private static void completeBatchExtensions(ComponentContainer container, List<Object> extensions) {
     if (container != null) {
       extensions.addAll(container.getComponentsByType(BatchExtension.class));
+      extensions.addAll(container.getComponentsByType(org.sonar.batch.api.BatchExtension.class));
       completeBatchExtensions(container.getParent(), extensions);
     }
   }
 
   private <T> List<T> getFilteredExtensions(Class<T> type, Project project) {
     List<T> result = Lists.newArrayList();
-    for (BatchExtension extension : getExtensions()) {
+    for (Object extension : getExtensions()) {
       if (shouldKeep(type, extension, project)) {
         result.add((T) extension);
       }
@@ -140,15 +143,25 @@ public class BatchExtensionDictionnary {
   /**
    * Extension dependencies
    */
-  private <T> List getDependencies(T extension) {
-    return evaluateAnnotatedClasses(extension, DependsUpon.class);
+  private <T> List<Object> getDependencies(T extension) {
+    List<Object> result = new ArrayList<Object>();
+    result.addAll(evaluateAnnotatedClasses(extension, DependsUpon.class));
+    if (ClassUtils.isAssignable(extension.getClass(), Analyzer.class)) {
+      result.addAll(Arrays.asList(((Analyzer) extension).describe().dependsOn()));
+    }
+    return result;
   }
 
   /**
    * Objects that depend upon this extension.
    */
-  public <T> List getDependents(T extension) {
-    return evaluateAnnotatedClasses(extension, DependedUpon.class);
+  public <T> List<Object> getDependents(T extension) {
+    List<Object> result = new ArrayList<Object>();
+    result.addAll(evaluateAnnotatedClasses(extension, DependedUpon.class));
+    if (ClassUtils.isAssignable(extension.getClass(), Analyzer.class)) {
+      result.addAll(Arrays.asList(((Analyzer) extension).describe().provides()));
+    }
+    return result;
   }
 
   private void completePhaseDependencies(DirectAcyclicGraph dag, Object extension) {
@@ -163,7 +176,7 @@ public class BatchExtensionDictionnary {
     }
   }
 
-  protected List evaluateAnnotatedClasses(Object extension, Class<? extends Annotation> annotation) {
+  protected List<Object> evaluateAnnotatedClasses(Object extension, Class<? extends Annotation> annotation) {
     List<Object> results = Lists.newArrayList();
     Class aClass = extension.getClass();
     while (aClass != null) {

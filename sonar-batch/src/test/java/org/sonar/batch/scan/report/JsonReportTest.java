@@ -29,7 +29,7 @@ import org.junit.rules.TemporaryFolder;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.internal.DefaultIssue;
@@ -85,7 +85,7 @@ public class JsonReportTest {
     mode = mock(AnalysisMode.class);
     when(mode.isPreview()).thenReturn(true);
     userFinder = mock(UserFinder.class);
-    DefaultInputFile inputFile = new DefaultInputFile("src/main/java/org/apache/struts/Action.java");
+    DeprecatedDefaultInputFile inputFile = new DeprecatedDefaultInputFile("src/main/java/org/apache/struts/Action.java");
     inputFile.setKey("struts:src/main/java/org/apache/struts/Action.java");
     inputFile.setStatus(InputFile.Status.CHANGED);
     InputFileCache fileCache = mock(InputFileCache.class);

@@ -24,6 +24,8 @@ import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.batch.api.rules.QProfile;
+import org.sonar.batch.rules.QProfileWithId;
 
 import java.util.Arrays;
 
@@ -42,8 +44,8 @@ public class RulesProfileProviderTest {
 
   @Test
   public void merge_profiles() throws Exception {
-    ModuleQProfiles.QProfile qProfile = new ModuleQProfiles.QProfile(33, "Sonar way", "java", 12);
-    when(qProfiles.findAll()).thenReturn(Arrays.asList(qProfile));
+    QProfileWithId qProfile = new QProfileWithId(33, "Sonar way", "java", 12);
+    when(qProfiles.findAll()).thenReturn(Arrays.<QProfile>asList(qProfile));
 
     RulesProfile profile = provider.provide(qProfiles, activeRules, ruleFinder, settings);
 
@@ -64,7 +66,7 @@ public class RulesProfileProviderTest {
   public void keep_compatibility_with_single_language_projects() throws Exception {
     settings.setProperty("sonar.language", "java");
 
-    ModuleQProfiles.QProfile qProfile = new ModuleQProfiles.QProfile(33, "Sonar way", "java", 12);
+    QProfileWithId qProfile = new QProfileWithId(33, "Sonar way", "java", 12);
     when(qProfiles.findByLanguage("java")).thenReturn(qProfile);
 
     RulesProfile profile = provider.provide(qProfiles, activeRules, ruleFinder, settings);

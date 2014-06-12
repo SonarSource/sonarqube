@@ -39,6 +39,10 @@ import org.sonar.batch.components.PastSnapshotFinderByDays;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousAnalysis;
 import org.sonar.batch.components.PastSnapshotFinderByPreviousVersion;
 import org.sonar.batch.components.PastSnapshotFinderByVersion;
+import org.sonar.batch.debt.DebtModelProvider;
+import org.sonar.batch.rule.RulesProvider;
+import org.sonar.batch.rules.DefaultQProfileReferential;
+import org.sonar.batch.rules.QProfilesReferential;
 import org.sonar.batch.settings.DefaultSettingsReferential;
 import org.sonar.batch.settings.SettingsReferential;
 import org.sonar.core.cluster.NullQueue;
@@ -83,8 +87,8 @@ public class BootstrapContainer extends ComponentContainer {
     addBootstrapComponents();
     if (!sensorMode) {
       addDatabaseComponents();
+      addCoreComponents();
     }
-    addCoreComponents();
   }
 
   private void addBootstrapComponents() {
@@ -117,6 +121,9 @@ public class BootstrapContainer extends ComponentContainer {
     }
     if (getComponentByType(MetricFinder.class) == null) {
       add(CacheMetricFinder.class);
+    }
+    if (getComponentByType(QProfilesReferential.class) == null) {
+      add(DefaultQProfileReferential.class);
     }
   }
 
@@ -156,7 +163,9 @@ public class BootstrapContainer extends ComponentContainer {
       PastSnapshotFinderByPreviousVersion.class,
       PastMeasuresLoader.class,
       PastSnapshotFinder.class,
-      Durations.class);
+      Durations.class,
+      new DebtModelProvider(),
+      new RulesProvider());
   }
 
   @Override
@@ -172,8 +181,8 @@ public class BootstrapContainer extends ComponentContainer {
     }
   }
 
-  public void executeTask(Map<String, String> taskProperties) {
-    new TaskContainer(this, taskProperties).execute();
+  public void executeTask(Map<String, String> taskProperties, Object... components) {
+    new TaskContainer(this, taskProperties, components).execute();
   }
 
 }

@@ -27,11 +27,12 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFileFilter;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.MessageException;
 
 import java.io.File;
 import java.util.Collection;
@@ -44,31 +45,45 @@ import java.util.Set;
  */
 public class FileIndexer implements BatchComponent {
 
+  private static final Logger LOG = LoggerFactory.getLogger(FileIndexer.class);
+
   private static final IOFileFilter DIR_FILTER = FileFilterUtils.and(HiddenFileFilter.VISIBLE, FileFilterUtils.notFileFilter(FileFilterUtils.prefixFileFilter(".")));
   private static final IOFileFilter FILE_FILTER = HiddenFileFilter.VISIBLE;
 
   private final List<InputFileFilter> filters;
   private final InputFileCache fileCache;
-  private final Project module;
+  private final boolean isAggregator;
   private final ExclusionFilters exclusionFilters;
   private final InputFileBuilderFactory inputFileBuilderFactory;
 
   public FileIndexer(List<InputFileFilter> filters, ExclusionFilters exclusionFilters, InputFileBuilderFactory inputFileBuilderFactory,
-                     InputFileCache cache, Project module) {
+    InputFileCache cache, Project module, ProjectDefinition def) {
+    this(filters, exclusionFilters, inputFileBuilderFactory, cache, !module.getModules().isEmpty());
+  }
+
+  /**
+   * Used by scan2
+   */
+  public FileIndexer(List<InputFileFilter> filters, ExclusionFilters exclusionFilters, InputFileBuilderFactory inputFileBuilderFactory,
+    InputFileCache cache, ProjectDefinition def) {
+    this(filters, exclusionFilters, inputFileBuilderFactory, cache, !def.getSubProjects().isEmpty());
+  }
+
+  private FileIndexer(List<InputFileFilter> filters, ExclusionFilters exclusionFilters, InputFileBuilderFactory inputFileBuilderFactory,
+    InputFileCache cache, boolean isAggregator) {
     this.filters = filters;
     this.exclusionFilters = exclusionFilters;
     this.inputFileBuilderFactory = inputFileBuilderFactory;
     this.fileCache = cache;
-    this.module = module;
+    this.isAggregator = isAggregator;
   }
 
   void index(DefaultModuleFileSystem fileSystem) {
-    Logger logger = LoggerFactory.getLogger(FileIndexer.class);
-    if (!module.getModules().isEmpty()) {
+    if (isAggregator) {
       // No indexing for an aggregator module
       return;
     }
-    logger.info("Index files");
+    LOG.info("Index files");
     exclusionFilters.prepare();
 
     Progress progress = new Progress(fileCache.byModule(fileSystem.moduleKey()));
@@ -93,13 +108,13 @@ public class FileIndexer implements BatchComponent {
       fileCache.remove(fileSystem.moduleKey(), removed);
     }
 
-    logger.info(String.format("%d files indexed", progress.count()));
+    LOG.info(String.format("%d files indexed", progress.count()));
 
   }
 
   private void indexFiles(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress progress, List<File> sourceFiles, InputFile.Type type) {
     for (File sourceFile : sourceFiles) {
-      DefaultInputFile inputFile = inputFileBuilder.create(sourceFile);
+      DeprecatedDefaultInputFile inputFile = inputFileBuilder.create(sourceFile);
       if (inputFile != null && exclusionFilters.accept(inputFile, type)) {
         indexFile(inputFileBuilder, fileSystem, progress, inputFile, type);
       }
@@ -109,7 +124,7 @@ public class FileIndexer implements BatchComponent {
   private void indexDirectory(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress status, File dirToIndex, InputFile.Type type) {
     Collection<File> files = FileUtils.listFiles(dirToIndex, FILE_FILTER, DIR_FILTER);
     for (File file : files) {
-      DefaultInputFile inputFile = inputFileBuilder.create(file);
+      DeprecatedDefaultInputFile inputFile = inputFileBuilder.create(file);
       if (inputFile != null && exclusionFilters.accept(inputFile, type)) {
         indexFile(inputFileBuilder, fileSystem, status, inputFile, type);
       }
@@ -117,7 +132,7 @@ public class FileIndexer implements BatchComponent {
   }
 
   private void indexFile(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fs,
-                         Progress status, DefaultInputFile inputFile, InputFile.Type type) {
+    Progress status, DeprecatedDefaultInputFile inputFile, InputFile.Type type) {
     InputFile completedFile = inputFileBuilder.complete(inputFile, type);
     if (completedFile != null && accept(completedFile)) {
       fs.add(completedFile);
@@ -146,7 +161,7 @@ public class FileIndexer implements BatchComponent {
 
     void markAsIndexed(InputFile inputFile) {
       if (indexed.contains(inputFile)) {
-        throw new SonarException("File " + inputFile + " can't be indexed twice. Please check that inclusion/exclusion patterns produce "
+        throw MessageException.of("File " + inputFile + " can't be indexed twice. Please check that inclusion/exclusion patterns produce "
           + "disjoint sets for main and test files");
       }
       removed.remove(inputFile);

@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.platform.Server;
@@ -169,7 +169,7 @@ public class JsonReport implements BatchComponent {
     writeJsonModuleComponents(json, rootModule);
     // TODO we need to dump directories
     for (InputFile inputFile : fileCache.all()) {
-      String key = ((DefaultInputFile) inputFile).key();
+      String key = ((DeprecatedDefaultInputFile) inputFile).key();
       json
         .beginObject()
         .prop("key", key)

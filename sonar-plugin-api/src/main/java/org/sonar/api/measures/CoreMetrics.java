@@ -61,7 +61,7 @@ public final class CoreMetrics {
   public static String DOMAIN_TECHNICAL_DEBT = "Technical Debt";
 
   public static final String LINES_KEY = "lines";
-  public static final Metric LINES = new Metric.Builder(LINES_KEY, "Lines", Metric.ValueType.INT)
+  public static final Metric<Integer> LINES = new Metric.Builder(LINES_KEY, "Lines", Metric.ValueType.INT)
     .setDescription("Lines")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)

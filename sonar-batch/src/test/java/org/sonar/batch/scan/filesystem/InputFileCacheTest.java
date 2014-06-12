@@ -26,12 +26,11 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.RelativePathIndex;
+import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.batch.index.Caches;
 import org.sonar.batch.index.CachesTest;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
 
 public class InputFileCacheTest {
 
@@ -56,10 +55,9 @@ public class InputFileCacheTest {
     InputFileCache cache = new InputFileCache(caches);
     DefaultInputFile fooFile = new DefaultInputFile("src/main/java/Foo.java").setFile(temp.newFile("Foo.java"));
     cache.put("struts", fooFile);
-    cache.put("struts-core", new DefaultInputFile("src/main/java/Bar.java").setFile(temp.newFile("Bar.java")));
+    cache.put("struts-core", new DeprecatedDefaultInputFile("src/main/java/Bar.java").setFile(temp.newFile("Bar.java")));
 
-    // index by relative path is automatically fed
-    assertThat(cache.get("struts", RelativePathIndex.ID, "src/main/java/Foo.java").relativePath())
+    assertThat(cache.get("struts", "src/main/java/Foo.java").relativePath())
       .isEqualTo("src/main/java/Foo.java");
 
     assertThat(cache.byModule("struts")).hasSize(1);
@@ -78,23 +76,4 @@ public class InputFileCacheTest {
     assertThat(cache.all()).hasSize(1);
   }
 
-  @Test
-  public void only_relative_path_index_is_supported() throws Exception {
-    InputFileCache cache = new InputFileCache(caches);
-    DefaultInputFile input = new DefaultInputFile("src/main/java/Foo.java").setFile(temp.newFile("Foo.java"));
-
-    try {
-      cache.index("struts", "unsupported-index", "index-value", input);
-      fail();
-    } catch (UnsupportedOperationException e) {
-      assertThat(e).hasMessage("Only relative path index is supported yet");
-    }
-
-    try {
-      cache.get("struts", "unsupported-index", "index-value");
-      fail();
-    } catch (UnsupportedOperationException e) {
-      assertThat(e).hasMessage("Only relative path index is supported yet");
-    }
-  }
 }

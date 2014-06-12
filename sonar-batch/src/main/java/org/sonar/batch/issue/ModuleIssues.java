@@ -47,12 +47,19 @@ public class ModuleIssues {
   private final Project project;
   private final IssueFilters filters;
 
-  public ModuleIssues(ActiveRules activeRules, Rules rules, IssueCache cache, Project project, IssueFilters filters) {
+  public ModuleIssues(ActiveRules activeRules, Rules rules, IssueCache cache, @Nullable Project project, IssueFilters filters) {
     this.activeRules = activeRules;
     this.rules = rules;
     this.cache = cache;
     this.project = project;
     this.filters = filters;
+  }
+
+  /** 
+   * Used by scan2
+   */
+  public ModuleIssues(ActiveRules activeRules, Rules rules, IssueCache cache, IssueFilters filters) {
+    this(activeRules, rules, cache, null, filters);
   }
 
   public boolean initAndAddIssue(DefaultIssue issue) {
@@ -67,6 +74,7 @@ public class ModuleIssues {
   private DefaultIssue newIssue(Violation violation) {
     return (DefaultIssue) new DefaultIssueBuilder()
       .componentKey(violation.getResource().getEffectiveKey())
+      // Project can be null but Violation not used by scan2
       .projectKey(project.getRoot().getEffectiveKey())
       .ruleKey(RuleKey.of(violation.getRule().getRepositoryKey(), violation.getRule().getKey()))
       .effortToFix(violation.getCost())
@@ -107,8 +115,10 @@ public class ModuleIssues {
     if (Strings.isNullOrEmpty(issue.message())) {
       issue.setMessage(rule.name());
     }
-    issue.setCreationDate(project.getAnalysisDate());
-    issue.setUpdateDate(project.getAnalysisDate());
+    if (project != null) {
+      issue.setCreationDate(project.getAnalysisDate());
+      issue.setUpdateDate(project.getAnalysisDate());
+    }
     if (issue.severity() == null) {
       issue.setSeverity(activeRule.severity());
     }

@@ -20,9 +20,6 @@
 package org.sonar.batch.bootstrap;
 
 import com.google.common.collect.Lists;
-import org.sonar.batch.debt.DebtDecorator;
-import org.sonar.batch.debt.IssueChangelogDebtCalculator;
-import org.sonar.batch.debt.NewDebtDecorator;
 import org.sonar.batch.maven.DefaultMavenPluginExecutor;
 import org.sonar.batch.maven.MavenProjectBootstrapper;
 import org.sonar.batch.maven.MavenProjectBuilder;
@@ -36,11 +33,8 @@ public class BatchComponents {
   public static Collection all() {
     List components = Lists.newArrayList(
       // Maven
-      MavenProjectBootstrapper.class, DefaultMavenPluginExecutor.class, MavenProjectConverter.class, MavenProjectBuilder.class,
-
-      // Debt
-      IssueChangelogDebtCalculator.class, DebtDecorator.class, NewDebtDecorator.class
-    );
+      MavenProjectBootstrapper.class, DefaultMavenPluginExecutor.class, MavenProjectConverter.class, MavenProjectBuilder.class
+      );
     components.addAll(CorePropertyDefinitions.all());
     return components;
   }

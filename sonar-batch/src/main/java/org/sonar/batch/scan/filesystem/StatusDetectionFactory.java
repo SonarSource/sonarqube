@@ -21,6 +21,8 @@ package org.sonar.batch.scan.filesystem;
 
 import org.sonar.api.BatchComponent;
 
+import java.util.Collections;
+
 public class StatusDetectionFactory implements BatchComponent {
 
   private final PreviousFileHashLoader previousFileHashLoader;
@@ -29,7 +31,14 @@ public class StatusDetectionFactory implements BatchComponent {
     this.previousFileHashLoader = l;
   }
 
+  /**
+   * Used by scan2
+   */
+  public StatusDetectionFactory() {
+    this.previousFileHashLoader = null;
+  }
+
   StatusDetection create() {
-    return new StatusDetection(previousFileHashLoader.hashByRelativePath());
+    return new StatusDetection(previousFileHashLoader != null ? previousFileHashLoader.hashByRelativePath() : Collections.<String, String>emptyMap());
   }
 }

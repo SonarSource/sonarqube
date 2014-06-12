@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.test.IsMeasure;
 import org.sonar.duplications.index.CloneGroup;
@@ -46,11 +46,11 @@ public class SonarEngineTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   SensorContext context = mock(SensorContext.class);
-  DefaultInputFile inputFile;
+  DeprecatedDefaultInputFile inputFile;
 
   @Before
   public void before() throws IOException {
-    inputFile = new DefaultInputFile("src/main/java/Foo.java");
+    inputFile = new DeprecatedDefaultInputFile("src/main/java/Foo.java");
     inputFile.setFile(temp.newFile("Foo.java"));
   }
 
@@ -138,7 +138,7 @@ public class SonarEngineTest {
 
   @Test
   public void shouldEscapeXmlEntities() throws IOException {
-    InputFile csharpFile = new DefaultInputFile("Loads/File Loads/Subs & Reds/SubsRedsDelivery.cs")
+    InputFile csharpFile = new DeprecatedDefaultInputFile("Loads/File Loads/Subs & Reds/SubsRedsDelivery.cs")
       .setFile(temp.newFile("SubsRedsDelivery.cs"));
     List<CloneGroup> groups = Arrays.asList(newCloneGroup(
       new ClonePart("Loads/File Loads/Subs & Reds/SubsRedsDelivery.cs", 0, 5, 204),

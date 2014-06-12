@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.database.DatabaseSession;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.resources.Directory;
@@ -80,7 +80,7 @@ public class ResourceKeyMigration implements BatchComponent {
     Map<String, InputFile> deprecatedTestKeyMapper = new HashMap<String, InputFile>();
     Map<String, String> deprecatedDirectoryKeyMapper = new HashMap<String, String>();
     for (InputFile inputFile : inputFiles) {
-      String deprecatedKey = ((DefaultInputFile) inputFile).deprecatedKey();
+      String deprecatedKey = ((DeprecatedDefaultInputFile) inputFile).deprecatedKey();
       if (deprecatedKey != null) {
         if (InputFile.Type.TEST == inputFile.type() && !deprecatedTestKeyMapper.containsKey(deprecatedKey)) {
           deprecatedTestKeyMapper.put(deprecatedKey, inputFile);
@@ -109,7 +109,7 @@ public class ResourceKeyMigration implements BatchComponent {
       boolean isTest = Qualifiers.UNIT_TEST_FILE.equals(resourceModel.getQualifier());
       InputFile matchedFile = findInputFile(deprecatedFileKeyMapper, deprecatedTestKeyMapper, oldEffectiveKey, isTest);
       if (matchedFile != null) {
-        String newEffectiveKey = ((DefaultInputFile) matchedFile).key();
+        String newEffectiveKey = ((DeprecatedDefaultInputFile) matchedFile).key();
         // Now compute migration of the parent dir
         String oldKey = StringUtils.substringAfterLast(oldEffectiveKey, ":");
         Resource sonarFile;

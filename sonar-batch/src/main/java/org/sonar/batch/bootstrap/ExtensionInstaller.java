@@ -43,11 +43,10 @@ public class ExtensionInstaller {
   }
 
   public ExtensionInstaller install(ComponentContainer container, ExtensionMatcher matcher) {
-    boolean preview = analysisMode.isPreview();
 
     // core components
     for (Object o : BatchComponents.all()) {
-      doInstall(container, matcher, null, preview, o);
+      doInstall(container, matcher, null, o);
     }
 
     // plugin extensions
@@ -55,7 +54,7 @@ public class ExtensionInstaller {
       PluginMetadata metadata = entry.getKey();
       Plugin plugin = entry.getValue();
       for (Object extension : plugin.getExtensions()) {
-        doInstall(container, matcher, metadata, preview, extension);
+        doInstall(container, matcher, metadata, extension);
       }
     }
     List<ExtensionProvider> providers = container.getComponentsByType(ExtensionProvider.class);
@@ -63,18 +62,18 @@ public class ExtensionInstaller {
       Object object = provider.provide();
       if (object instanceof Iterable) {
         for (Object extension : (Iterable) object) {
-          doInstall(container, matcher, null, preview, extension);
+          doInstall(container, matcher, null, extension);
         }
       } else {
-        doInstall(container, matcher, null, preview, object);
+        doInstall(container, matcher, null, object);
       }
     }
     return this;
   }
 
-  private void doInstall(ComponentContainer container, ExtensionMatcher matcher, @Nullable PluginMetadata metadata, boolean dryRun, Object extension) {
+  private void doInstall(ComponentContainer container, ExtensionMatcher matcher, @Nullable PluginMetadata metadata, Object extension) {
     if (ExtensionUtils.supportsEnvironment(extension, env)
-      && (!dryRun || ExtensionUtils.supportsPreview(extension))
+      && (!analysisMode.isPreview() || ExtensionUtils.supportsPreview(extension))
       && matcher.accept(extension)) {
       container.addExtension(metadata, extension);
     } else {

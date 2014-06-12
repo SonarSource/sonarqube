@@ -21,27 +21,17 @@ package org.sonar.batch.scan2;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.BatchComponent;
-import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.platform.ComponentContainer;
-import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
-import org.sonar.batch.DefaultProjectClasspath;
-import org.sonar.batch.DefaultSensorContext;
-import org.sonar.batch.DefaultTimeMachine;
-import org.sonar.batch.ProjectTree;
-import org.sonar.batch.ResourceFilters;
-import org.sonar.batch.ViolationFilters;
+import org.sonar.batch.api.BatchComponent;
+import org.sonar.batch.api.InstantiationStrategy;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
-import org.sonar.batch.components.TimeMachineConfiguration;
 import org.sonar.batch.events.EventBus;
-import org.sonar.batch.index.DefaultIndex;
-import org.sonar.batch.index.ResourcePersister;
 import org.sonar.batch.issue.IssuableFactory;
 import org.sonar.batch.issue.IssueFilters;
 import org.sonar.batch.issue.ModuleIssues;
@@ -51,23 +41,10 @@ import org.sonar.batch.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.batch.issue.ignore.pattern.IssueInclusionPatternInitializer;
 import org.sonar.batch.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.batch.issue.ignore.scanner.IssueExclusionsRegexpScanner;
-import org.sonar.batch.language.LanguageDistributionDecorator;
-import org.sonar.batch.phases.Phase2Executor;
-import org.sonar.batch.phases.PhaseExecutor;
-import org.sonar.batch.phases.PhasesTimeProfiler;
-import org.sonar.batch.qualitygate.GenerateQualityGateEvents;
-import org.sonar.batch.qualitygate.QualityGateProvider;
-import org.sonar.batch.qualitygate.QualityGateVerifier;
-import org.sonar.batch.rule.ActiveRulesProvider;
 import org.sonar.batch.rule.ModuleQProfiles;
-import org.sonar.batch.rule.QProfileDecorator;
-import org.sonar.batch.rule.QProfileEventsDecorator;
-import org.sonar.batch.rule.QProfileSensor;
 import org.sonar.batch.rule.QProfileVerifier;
-import org.sonar.batch.rule.RulesProfileProvider;
 import org.sonar.batch.scan.LanguageVerifier;
 import org.sonar.batch.scan.ModuleSettings;
-import org.sonar.batch.scan.filesystem.ComponentIndexer;
 import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 import org.sonar.batch.scan.filesystem.DeprecatedFileFilters;
 import org.sonar.batch.scan.filesystem.ExclusionFilters;
@@ -77,46 +54,34 @@ import org.sonar.batch.scan.filesystem.InputFileBuilderFactory;
 import org.sonar.batch.scan.filesystem.LanguageDetectionFactory;
 import org.sonar.batch.scan.filesystem.ModuleFileSystemInitializer;
 import org.sonar.batch.scan.filesystem.ModuleInputFileCache;
-import org.sonar.batch.scan.filesystem.PreviousFileHashLoader;
-import org.sonar.batch.scan.filesystem.ProjectFileSystemAdapter;
 import org.sonar.batch.scan.filesystem.StatusDetectionFactory;
-import org.sonar.batch.scan.report.JsonReport;
-import org.sonar.core.component.ScanPerspectives;
-import org.sonar.core.measure.MeasurementFilters;
 
 public class ModuleScanContainer extends ComponentContainer {
   private static final Logger LOG = LoggerFactory.getLogger(ModuleScanContainer.class);
-  private final Project module;
+  private final ProjectDefinition moduleDefinition;
 
-  public ModuleScanContainer(ProjectScanContainer parent, Project module) {
+  public ModuleScanContainer(ProjectScanContainer parent, ProjectDefinition moduleDefinition) {
     super(parent);
-    this.module = module;
+    this.moduleDefinition = moduleDefinition;
   }
 
   @Override
   protected void doBeforeStart() {
-    LOG.info("-------------  Scan {}", module.getName());
+    LOG.info("-------------  Scan {}", moduleDefinition.getName());
     addCoreComponents();
     addExtensions();
   }
 
   private void addCoreComponents() {
-    ProjectDefinition moduleDefinition = getComponentByType(ProjectTree.class).getProjectDefinition(module);
     add(
       moduleDefinition,
-      module.getConfiguration(),
-      module,
-      ModuleSettings.class);
+      ModuleSettings.class,
 
-    // hack to initialize commons-configuration before ExtensionProviders
-    getComponentByType(ModuleSettings.class);
-
-    add(
       EventBus.class,
       Phase2Executor.class,
-      PhasesTimeProfiler.class,
       Phase2Executor.getPhaseClasses(),
       moduleDefinition.getContainerExtensions(),
+      AnalyzersExecutor.class,
 
       // file system
       ModuleInputFileCache.class,
@@ -126,45 +91,20 @@ public class ModuleScanContainer extends ComponentContainer {
       InputFileBuilderFactory.class,
       StatusDetectionFactory.class,
       LanguageDetectionFactory.class,
-      PreviousFileHashLoader.class,
       FileIndexer.class,
-      ComponentIndexer.class,
       LanguageVerifier.class,
       FileSystemLogger.class,
-      DefaultProjectClasspath.class,
       DefaultModuleFileSystem.class,
       ModuleFileSystemInitializer.class,
-      ProjectFileSystemAdapter.class,
       QProfileVerifier.class,
 
-      // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
-      getComponentByType(ResourcePersister.class).getSnapshot(module),
-
-      TimeMachineConfiguration.class,
-      DefaultSensorContext.class,
+      DefaultAnalyzerContext.class,
       BatchExtensionDictionnary.class,
-      DefaultTimeMachine.class,
-      ViolationFilters.class,
       IssueFilters.class,
-      MeasurementFilters.class,
-      ResourceFilters.class,
-
-      // quality gates
-      new QualityGateProvider(),
-      QualityGateVerifier.class,
-      GenerateQualityGateEvents.class,
 
       // rules
       ModuleQProfiles.class,
-      new ActiveRulesProvider(),
-      new RulesProfileProvider(),
-      QProfileSensor.class,
-      QProfileDecorator.class,
-      QProfileEventsDecorator.class,
       CheckFactory.class,
-
-      // report
-      JsonReport.class,
 
       // issues
       IssuableFactory.class,
@@ -176,36 +116,22 @@ public class ModuleScanContainer extends ComponentContainer {
       IssueExclusionsRegexpScanner.class,
       IssueExclusionsLoader.class,
       EnforceIssuesFilter.class,
-      IgnoreIssuesFilter.class,
-
-      // language
-      LanguageDistributionDecorator.class,
-
-      ScanPerspectives.class);
+      IgnoreIssuesFilter.class);
   }
 
   private void addExtensions() {
     ExtensionInstaller installer = getComponentByType(ExtensionInstaller.class);
     installer.install(this, new ExtensionMatcher() {
       public boolean accept(Object extension) {
-        if (ExtensionUtils.isType(extension, BatchComponent.class) && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_PROJECT)) {
-          // Special use-case: the extension point ProjectBuilder is used in a Maven environment to define some
-          // new sub-projects without pom.
-          // Example : C# plugin adds sub-projects at runtime, even if they are not defined in root pom.
-          return !ExtensionUtils.isMavenExtensionOnly(extension) || module.getPom() != null;
-        }
-        return false;
+        return ExtensionUtils.isType(extension, BatchComponent.class)
+          && ExtensionUtils.isInstantiationStrategy(extension, InstantiationStrategy.PER_PROJECT);
       }
     });
   }
 
   @Override
   protected void doAfterStart() {
-    DefaultIndex index = getComponentByType(DefaultIndex.class);
-    index.setCurrentProject(module,
-      getComponentByType(ModuleIssues.class));
-
-    getComponentByType(PhaseExecutor.class).execute(module);
+    getComponentByType(Phase2Executor.class).execute(moduleDefinition);
   }
 
 }

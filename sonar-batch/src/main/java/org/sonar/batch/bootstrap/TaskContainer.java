@@ -41,10 +41,12 @@ import java.util.Map;
 public class TaskContainer extends ComponentContainer {
 
   private final Map<String, String> taskProperties;
+  private final Object[] components;
 
-  public TaskContainer(ComponentContainer parent, Map<String, String> taskProperties) {
+  public TaskContainer(ComponentContainer parent, Map<String, String> taskProperties, Object... components) {
     super(parent);
     this.taskProperties = taskProperties;
+    this.components = components;
   }
 
   @Override
@@ -52,6 +54,9 @@ public class TaskContainer extends ComponentContainer {
     installCoreTasks();
     installTaskExtensions();
     installComponentsUsingTaskExtensions();
+    for (Object component : components) {
+      add(component);
+    }
   }
 
   void installCoreTasks() {

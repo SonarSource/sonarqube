@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.batch.bootstrap.AnalysisMode;
 import org.sonar.batch.util.DeprecatedKeyUtils;
@@ -76,13 +76,13 @@ class InputFileBuilder {
   }
 
   @CheckForNull
-  DefaultInputFile create(File file) {
+  DeprecatedDefaultInputFile create(File file) {
     String relativePath = pathResolver.relativePath(fs.baseDir(), file);
     if (relativePath == null) {
       LOG.warn("File '{}' is ignored. It is not located in module basedir '{}'.", file.getAbsolutePath(), fs.baseDir());
       return null;
     }
-    DefaultInputFile inputFile = new DefaultInputFile(relativePath);
+    DeprecatedDefaultInputFile inputFile = new DeprecatedDefaultInputFile(relativePath);
     inputFile.setBasedir(fs.baseDir());
     inputFile.setFile(file);
     return inputFile;
@@ -92,7 +92,7 @@ class InputFileBuilder {
    * Optimization to not set all InputFile data if the file is excluded from analysis.
    */
   @CheckForNull
-  DefaultInputFile complete(DefaultInputFile inputFile, InputFile.Type type) {
+  DeprecatedDefaultInputFile complete(DeprecatedDefaultInputFile inputFile, InputFile.Type type) {
     inputFile.setType(type);
     inputFile.setKey(new StringBuilder().append(moduleKey).append(":").append(inputFile.relativePath()).toString());
     inputFile.setBasedir(fs.baseDir());
@@ -112,7 +112,7 @@ class InputFileBuilder {
     return inputFile;
   }
 
-  private void fillDeprecatedData(DefaultInputFile inputFile) {
+  private void fillDeprecatedData(DeprecatedDefaultInputFile inputFile) {
     List<File> sourceDirs = InputFile.Type.MAIN == inputFile.type() ? fs.sourceDirs() : fs.testDirs();
     for (File sourceDir : sourceDirs) {
       String sourceRelativePath = pathResolver.relativePath(sourceDir, inputFile.file());

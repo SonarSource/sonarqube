@@ -41,12 +41,12 @@ public class MetricProviderTest {
 
   @Test
   public void should_provide_plugin_metrics() {
-    Metrics factory = new Metrics(){
+    Metrics factory = new Metrics() {
       public List<Metric> getMetrics() {
-        return Arrays.asList(new Metric.Builder("custom", "Custom", Metric.ValueType.FLOAT).create());
+        return Arrays.<Metric>asList(new Metric.Builder("custom", "Custom", Metric.ValueType.FLOAT).create());
       }
     };
-    MetricProvider provider = new MetricProvider(new Metrics[]{factory});
+    MetricProvider provider = new MetricProvider(new Metrics[] {factory});
     List<Metric> metrics = provider.provide();
 
     assertThat(metrics.size()).isEqualTo(1 + CoreMetrics.getMetrics().size());

@@ -22,7 +22,6 @@ package org.sonar.api.batch;
 import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
-import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
@@ -121,7 +120,7 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
   public abstract Resource addResource(Resource resource);
 
   @CheckForNull
-  public abstract Measure getMeasure(Resource resource, Metric metric);
+  public abstract Measure getMeasure(Resource resource, org.sonar.batch.api.measures.Metric<?> metric);
 
   @CheckForNull
   public abstract <M> M getMeasures(Resource resource, MeasuresFilter<M> filter);

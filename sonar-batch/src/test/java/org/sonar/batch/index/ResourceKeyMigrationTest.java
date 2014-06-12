@@ -28,6 +28,7 @@ import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
@@ -86,9 +87,10 @@ public class ResourceKeyMigrationTest extends AbstractDbUnitTestCase {
     File file = new File(baseDir, path);
     String effectiveKey = module.getKey() + ":" + path;
     String deprecatedEffectiveKey = module.getKey() + ":" + deprecatedKey;
-    return new DefaultInputFile(path).setFile(file)
-      .setKey(effectiveKey)
+    return new DeprecatedDefaultInputFile(path)
       .setDeprecatedKey(deprecatedEffectiveKey)
+      .setFile(file)
+      .setKey(effectiveKey)
       .setType(isTest ? InputFile.Type.TEST : InputFile.Type.MAIN);
   }
 
@@ -99,7 +101,7 @@ public class ResourceKeyMigrationTest extends AbstractDbUnitTestCase {
     Logger logger = mock(Logger.class);
     ResourceKeyMigration migration = new ResourceKeyMigration(getSession(), logger);
     migration.checkIfMigrationNeeded(multiModuleProject);
-    
+
     migration.migrateIfNeeded(javaModule, javaInputFiles);
     migration.migrateIfNeeded(phpModule, phpInputFiles);
 
@@ -110,7 +112,7 @@ public class ResourceKeyMigrationTest extends AbstractDbUnitTestCase {
     verify(logger).info("Component {} changed to {}", "b:org/foo", "b:src/main/java/org/foo");
     verify(logger).info("Component {} changed to {}", "b:[root]", "b:src/main/java");
 
-    checkTables("shouldMigrateResourceKeys", new String[]{"build_date", "created_at"}, "projects");
+    checkTables("shouldMigrateResourceKeys", new String[] {"build_date", "created_at"}, "projects");
   }
 
   private static Project newProject(String key, String language) {

@@ -178,7 +178,7 @@ public class DefaultIndex extends SonarIndex {
   }
 
   @Override
-  public Measure getMeasure(Resource resource, Metric metric) {
+  public Measure getMeasure(Resource resource, org.sonar.batch.api.measures.Metric<?> metric) {
     return getMeasures(resource, MeasuresFilters.metric(metric));
   }
 

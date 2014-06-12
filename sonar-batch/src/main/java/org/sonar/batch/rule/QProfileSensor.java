@@ -26,6 +26,7 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.rules.QProfileWithId;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 
 import java.util.List;
@@ -51,9 +52,9 @@ public class QProfileSensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext context) {
-    List<ModuleQProfiles.QProfile> profiles = Lists.newArrayList();
+    List<QProfileWithId> profiles = Lists.newArrayList();
     for (String language : fs.languages()) {
-      ModuleQProfiles.QProfile qProfile = moduleQProfiles.findByLanguage(language);
+      QProfileWithId qProfile = (QProfileWithId) moduleQProfiles.findByLanguage(language);
       if (qProfile != null) {
         dao.updateUsedColumn(qProfile.id(), true);
         profiles.add(qProfile);
@@ -65,7 +66,7 @@ public class QProfileSensor implements Sensor {
 
     // For backward compatibility
     if (profiles.size() == 1) {
-      ModuleQProfiles.QProfile qProfile = profiles.get(0);
+      QProfileWithId qProfile = profiles.get(0);
       Measure measure = new Measure(CoreMetrics.PROFILE, qProfile.name()).setValue((double) qProfile.id());
       Measure measureVersion = new Measure(CoreMetrics.PROFILE_VERSION, qProfile.version().doubleValue());
       context.saveMeasure(measure);

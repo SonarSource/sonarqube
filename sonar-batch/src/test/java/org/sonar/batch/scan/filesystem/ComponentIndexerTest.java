@@ -33,6 +33,7 @@ import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.resources.Java;
@@ -160,8 +161,9 @@ public class ComponentIndexerTest {
 
     File javaFile1 = new File(baseDir, "src/main/java/foo/bar/Foo.java");
     FileUtils.write(javaFile1, "\uFEFFpublic class Test", Charsets.UTF_8);
-    fs.add(new DefaultInputFile("src/main/java/foo/bar/Foo.java").setFile(javaFile1)
+    fs.add(new DeprecatedDefaultInputFile("src/main/java/foo/bar/Foo.java")
       .setPathRelativeToSourceDir("foo/bar/Foo.java")
+      .setFile(javaFile1)
       .setLanguage("java"));
     Languages languages = new Languages(Java.INSTANCE);
     ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class));
@@ -184,9 +186,9 @@ public class ComponentIndexerTest {
 
     File javaFile1 = new File(baseDir, "src/main/java/foo/bar/Foo.java");
     FileUtils.copyFile(getFile(testFile), javaFile1);
-    fs.add(new DefaultInputFile("src/main/java/foo/bar/Foo.java")
-      .setFile(javaFile1)
+    fs.add(new DeprecatedDefaultInputFile("src/main/java/foo/bar/Foo.java")
       .setPathRelativeToSourceDir("foo/bar/Foo.java")
+      .setFile(javaFile1)
       .setLanguage("java"));
     Languages languages = new Languages(Java.INSTANCE);
     ComponentIndexer indexer = new ComponentIndexer(project, languages, sonarIndex, settings, mock(ResourceKeyMigration.class));
@@ -210,8 +212,9 @@ public class ComponentIndexerTest {
   private DefaultInputFile newInputFile(String path, String content, String sourceRelativePath, String languageKey, boolean unitTest) throws IOException {
     File file = new File(baseDir, path);
     FileUtils.write(file, content);
-    return new DefaultInputFile(path).setFile(file)
+    return new DeprecatedDefaultInputFile(path)
       .setPathRelativeToSourceDir(sourceRelativePath)
+      .setFile(file)
       .setLanguage(languageKey)
       .setType(unitTest ? InputFile.Type.TEST : InputFile.Type.MAIN);
   }

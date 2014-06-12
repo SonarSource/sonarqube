@@ -30,11 +30,16 @@ import org.sonar.api.design.Dependency;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasuresFilter;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectLink;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
 import org.sonar.core.measure.MeasurementFilters;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -110,7 +115,7 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   @Override
-  public Measure getMeasure(Metric metric) {
+  public <G extends Serializable> Measure<G> getMeasure(Metric<G> metric) {
     return index.getMeasure(project, metric);
   }
 
@@ -130,7 +135,7 @@ public class DefaultSensorContext implements SensorContext {
   }
 
   @Override
-  public Measure getMeasure(Resource resource, Metric metric) {
+  public <G extends Serializable> Measure<G> getMeasure(Resource resource, Metric<G> metric) {
     return index.getMeasure(resource, metric);
   }
 

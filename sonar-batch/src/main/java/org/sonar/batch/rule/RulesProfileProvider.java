@@ -30,6 +30,7 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.batch.api.rules.QProfile;
 
 import java.util.Collection;
 import java.util.Map;
@@ -55,8 +56,8 @@ public class RulesProfileProvider extends ProviderAdapter {
   }
 
   private RulesProfile loadSingleLanguageProfile(ModuleQProfiles qProfiles, ActiveRules activeRules,
-                                                 RuleFinder ruleFinder, String language) {
-    ModuleQProfiles.QProfile qProfile = qProfiles.findByLanguage(language);
+    RuleFinder ruleFinder, String language) {
+    QProfile qProfile = qProfiles.findByLanguage(language);
     if (qProfile != null) {
       return new RulesProfileWrapper(select(qProfile, activeRules, ruleFinder));
     }
@@ -65,13 +66,13 @@ public class RulesProfileProvider extends ProviderAdapter {
 
   private RulesProfile loadProfiles(ModuleQProfiles qProfiles, ActiveRules activeRules, RuleFinder ruleFinder) {
     Collection<RulesProfile> dtos = Lists.newArrayList();
-    for (ModuleQProfiles.QProfile qProfile : qProfiles.findAll()) {
+    for (QProfile qProfile : qProfiles.findAll()) {
       dtos.add(select(qProfile, activeRules, ruleFinder));
     }
     return new RulesProfileWrapper(dtos);
   }
 
-  private RulesProfile select(ModuleQProfiles.QProfile qProfile, ActiveRules activeRules, RuleFinder ruleFinder) {
+  private RulesProfile select(QProfile qProfile, ActiveRules activeRules, RuleFinder ruleFinder) {
     RulesProfile deprecatedProfile = new RulesProfile();
     deprecatedProfile.setVersion(qProfile.version());
     deprecatedProfile.setName(qProfile.name());

@@ -30,6 +30,7 @@ import org.sonar.api.rules.Violation;
 
 import javax.annotation.CheckForNull;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -104,7 +105,7 @@ public interface SensorContext {
   /**
    * Find a project measure
    */
-  Measure getMeasure(Metric metric);
+  <G extends Serializable> Measure<G> getMeasure(Metric<G> metric);
 
   /**
    * All measures of the project. Never return null.
@@ -126,7 +127,7 @@ public interface SensorContext {
   /**
    * Find a measure for this project
    */
-  Measure getMeasure(Resource resource, Metric metric);
+  <G extends Serializable> Measure<G> getMeasure(Resource resource, Metric<G> metric);
 
   /**
    * Key is updated when saving the resource.

@@ -27,13 +27,14 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
-import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.MessageException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -66,11 +67,24 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
   private ComponentIndexer componentIndexer;
   private boolean initialized;
 
-  public DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, Project module, Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer,
+  /**
+   * Used by scan2 
+   */
+  public DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, ProjectDefinition def, Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer) {
+    this(moduleInputFileCache, def.getKey(), settings, indexer, initializer, null);
+  }
+
+  public DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, ProjectDefinition def, Project project, Settings settings, FileIndexer indexer,
+    ModuleFileSystemInitializer initializer,
     ComponentIndexer componentIndexer) {
+    this(moduleInputFileCache, project.getKey(), settings, indexer, initializer, componentIndexer);
+  }
+
+  private DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, String moduleKey, Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer,
+    @Nullable ComponentIndexer componentIndexer) {
     super(moduleInputFileCache);
     this.componentIndexer = componentIndexer;
-    this.moduleKey = module.getKey();
+    this.moduleKey = moduleKey;
     this.settings = settings;
     this.indexer = indexer;
     if (initializer.baseDir() != null) {
@@ -202,7 +216,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
 
   public void resetDirs(File basedir, File buildDir, List<File> sourceDirs, List<File> testDirs, List<File> binaryDirs) {
     if (initialized) {
-      throw new SonarException("Module filesystem is already initialized. Modifications of filesystem are only allowed during Initializer phase.");
+      throw MessageException.of("Module filesystem is already initialized. Modifications of filesystem are only allowed during Initializer phase.");
     }
     setBaseDir(basedir);
     this.buildDir = buildDir;
@@ -213,11 +227,13 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
 
   public void index() {
     if (initialized) {
-      throw new SonarException("Module filesystem can only be indexed once");
+      throw MessageException.of("Module filesystem can only be indexed once");
     }
     initialized = true;
     indexer.index(this);
-    componentIndexer.execute(this);
+    if (componentIndexer != null) {
+      componentIndexer.execute(this);
+    }
   }
 
   private List<File> existingDirs(List<File> dirs) {
