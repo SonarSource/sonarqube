@@ -46,12 +46,12 @@
     </where>
   </select>
 
-  <insert id="insertGroupRole" parameterType="GroupRole" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insertGroupRole" parameterType="GroupRole" keyColumn="id" useGeneratedKeys="true" keyProperty="id" lang="raw">
     INSERT INTO group_roles (group_id, resource_id, role)
     VALUES (#{groupId}, #{resourceId}, #{role})
   </insert>
 
-  <insert id="insertUserRole" parameterType="UserRole" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insertUserRole" parameterType="UserRole" keyColumn="id" useGeneratedKeys="true" keyProperty="id" lang="raw">
     INSERT INTO user_roles (user_id, resource_id, role)
     VALUES (#{userId}, #{resourceId}, #{role})
   </insert>

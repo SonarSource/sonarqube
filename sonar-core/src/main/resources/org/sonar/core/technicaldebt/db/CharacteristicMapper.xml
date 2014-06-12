@@ -18,9 +18,7 @@
   <select id="selectEnabledCharacteristics" parameterType="map" resultType="Characteristic">
     select <include refid="characteristicColumns"/>
     from characteristics c
-    <where>
-      and c.enabled=${_true}
-    </where>
+    where c.enabled=${_true}
   </select>
 
   <select id="selectCharacteristics" parameterType="map" resultType="Characteristic">
@@ -97,7 +95,7 @@
     VALUES (#{kee}, #{name}, #{parentId}, #{characteristicOrder}, #{enabled}, #{createdAt}, #{updatedAt})
   </insert>
 
-  <update id="update" parameterType="Characteristic">
+  <update id="update" parameterType="Characteristic" lang="raw">
     update characteristics set
     name=#{name},
     parent_id=#{parentId},
@@ -107,7 +105,7 @@
     where id=#{id}
   </update>
 
-  <select id="selectDeprecatedRequirements" resultType="RequirementMigration">
+  <select id="selectDeprecatedRequirements" resultType="RequirementMigration" lang="raw">
     select id as "id",
     parent_id as "parentId",
     root_id as "rootId",
@@ -122,7 +120,7 @@
     where rule_id IS NOT NULL
   </select>
 
-  <delete id="deleteRequirementsFromCharacteristicsTable">
+  <delete id="deleteRequirementsFromCharacteristicsTable" lang="raw">
     DELETE FROM characteristics WHERE rule_id IS NOT NULL
   </delete>
 </mapper>

@@ -60,7 +60,7 @@
     </if>
   </sql>
 
-  <insert id="insert" parameterType="Issue" useGeneratedKeys="false" keyProperty="id">
+  <insert id="insert" parameterType="Issue" useGeneratedKeys="false" keyProperty="id" lang="raw">
     INSERT INTO issues (kee, component_id, root_component_id, rule_id, action_plan_key, severity, manual_severity,
     message, line, effort_to_fix, technical_debt, status,
     resolution, checksum, reporter, assignee, author_login, issue_attributes, issue_creation_date, issue_update_date,
@@ -74,7 +74,7 @@
   <!--
     IMPORTANT - invariant columns can't be updated. See IssueDto#toDtoForUpdate()
   -->
-  <update id="update" parameterType="Issue">
+  <update id="update" parameterType="Issue" lang="raw">
     update issues set
     action_plan_key=#{actionPlanKey},
     severity=#{severity},
@@ -101,7 +101,7 @@
   <!--
    IMPORTANT - invariant columns can't be updated. See IssueDto#toDtoForUpdate()
  -->
-  <update id="updateIfBeforeSelectedDate" parameterType="Issue">
+  <update id="updateIfBeforeSelectedDate" parameterType="Issue" lang="raw">
     update issues set
     action_plan_key=#{actionPlanKey},
     severity=#{severity},
@@ -132,12 +132,10 @@
     inner join rules r on r.id=i.rule_id
     inner join projects p on p.id=i.component_id
     inner join projects root on root.id=i.root_component_id
-    <where>
-      and i.kee=#{kee}
-    </where>
+    where i.kee=#{kee}
   </select>
 
-  <select id="selectNonClosedIssuesByModule" parameterType="int" resultType="Issue">
+  <select id="selectNonClosedIssuesByModule" parameterType="int" resultType="Issue" lang="raw">
     select
       i.id,
       i.kee as kee,
@@ -171,9 +169,7 @@
     inner join (select p.id,p.kee from projects p where (p.root_id=#{id} and p.qualifier &lt;&gt; 'BRC') or (p.id=#{id})) p on p.id=i.component_id
     inner join rules r on r.id=i.rule_id
     left outer join projects root on root.id=i.root_component_id
-    <where>
-      and i.status &lt;&gt; 'CLOSED'
-    </where>
+    where i.status &lt;&gt; 'CLOSED'
   </select>
 
   <select id="selectByIds" parameterType="map" resultType="Issue">
@@ -183,12 +179,10 @@
     inner join rules r on r.id=i.rule_id
     inner join projects p on p.id=i.component_id
     inner join projects root on root.id=i.root_component_id
-    <where>
-      and i.id in
+    where i.id in
       <foreach collection="list" open="(" close=")" item="id" separator=",">
         #{id}
       </foreach>
-    </where>
   </select>
 
   <select id="selectIssues" parameterType="map" resultType="Issue">
@@ -319,13 +313,12 @@
     FROM issues i
     INNER JOIN projects p on p.id=i.component_id
     INNER JOIN rules r on r.id=i.rule_id
-    <where>
-      AND p.kee=#{componentKey}
+    WHERE
+      p.kee=#{componentKey}
       AND i.resolution IS NULL
       <if test="createdAt != null">
         AND i.issue_creation_date &gt;= #{createdAt}
       </if>
-    </where>
   </select>
 
   <select id="findSeveritiesByComponent" parameterType="String" resultType="String">
@@ -333,13 +326,12 @@
     FROM issues i
     INNER JOIN projects on projects.id=i.component_id
     INNER JOIN rules on rules.id=i.rule_id
-    <where>
-      AND projects.kee=#{componentKey}
+    WHERE
+      projects.kee=#{componentKey}
       AND i.resolution IS NULL
       <if test="createdAt != null">
         AND i.issue_creation_date &gt;= #{createdAt}
       </if>
-    </where>
   </select>
 
 </mapper>
