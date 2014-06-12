@@ -73,7 +73,6 @@ import org.sonar.core.timemachine.Periods;
 import org.sonar.core.user.DefaultUserFinder;
 import org.sonar.core.user.HibernateUserFinder;
 import org.sonar.jpa.dao.MeasuresDao;
-import org.sonar.jpa.dao.RulesDao;
 import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.jpa.session.DatabaseSessionProvider;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
@@ -445,7 +444,6 @@ class ServerComponents {
     // rule
     pico.addSingleton(AnnotationRuleParser.class);
     pico.addSingleton(XMLRuleParser.class);
-    pico.addComponent(RulesDao.class, false);
     pico.addSingleton(DefaultRuleFinder.class);
     pico.addSingleton(RuleOperations.class);
     pico.addSingleton(RubyRuleService.class);

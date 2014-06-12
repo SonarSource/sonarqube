@@ -55,7 +55,6 @@ import org.sonar.core.purge.PurgeProfiler;
 import org.sonar.core.rule.CacheRuleFinder;
 import org.sonar.core.user.HibernateUserFinder;
 import org.sonar.jpa.dao.MeasuresDao;
-import org.sonar.jpa.dao.RulesDao;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.JpaDatabaseSession;
 
@@ -147,7 +146,6 @@ public class BootstrapContainer extends ComponentContainer {
       DefaultI18n.class,
       RuleI18nManager.class,
       MeasuresDao.class,
-      RulesDao.class,
       HibernateUserFinder.class,
       SemaphoreUpdater.class,
       SemaphoresImpl.class,
