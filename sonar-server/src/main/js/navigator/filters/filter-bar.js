@@ -97,6 +97,7 @@ define(
         selectPrev: function() {
           var filters = this.getEnabledFilters();
           if (this.selected > 0) {
+            filters.eq(this.selected).blur();
             this.selected--;
             filters.eq(this.selected).click();
             this.$('.navigator-filter-submit').blur();
@@ -107,6 +108,7 @@ define(
         selectNext: function() {
           var filters = this.getEnabledFilters();
           if (this.selected < filters.length - 1) {
+            filters.eq(this.selected).blur();
             this.selected++;
             filters.eq(this.selected).click();
           } else {

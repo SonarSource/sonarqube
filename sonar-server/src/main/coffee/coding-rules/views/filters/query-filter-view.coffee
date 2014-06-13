@@ -21,6 +21,8 @@ define [
 
     events:
       'change input': 'change'
+      'click': 'focus'
+      'blur': 'blur'
 
 
     change: (e) ->
@@ -34,12 +36,12 @@ define [
       @focus()
 
 
-    onShow: ->
-      @focus()
-
-
     focus: ->
       @$(':input').focus();
+
+
+    blur: ->
+      @$(':input').blur();
 
 
     serializeData: ->

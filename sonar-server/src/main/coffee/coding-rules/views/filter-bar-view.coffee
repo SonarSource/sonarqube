@@ -23,6 +23,10 @@ define [
       'click .navigator-filter-submit': 'search'
 
 
+    onRender: ->
+      @selectFirst()
+
+
     getQuery: ->
       query = {}
       @collection.each (filter) ->
