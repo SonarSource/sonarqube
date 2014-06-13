@@ -37,16 +37,6 @@ class Rule < ActiveRecord::Base
   has_many :active_rules, :inverse_of => :rule
   belongs_to :parent, :class_name => 'Rule', :foreign_key => 'parent_id'
 
-=begin TODO Uncomment these lines to make rule read-only when Rule facade is complete
-  def read_only?
-    true
-  end
-
-  def before_destroy
-    raise ActiveRecord::ReadOnlyRecord
-  end
-=end
-
   def repository_key
     plugin_name
   end
@@ -72,7 +62,7 @@ class Rule < ActiveRecord::Base
   end
 
   def template?
-    cardinality=='MULTIPLE'
+    is_template
   end
 
   def ready?
@@ -182,6 +172,7 @@ class Rule < ActiveRecord::Base
                         :description => options[:description],
                         :plugin_rule_key => key,
                         :status => STATUS_READY,
+                        :is_template => false,
                         :plugin_name => MANUAL_REPOSITORY_KEY}
     Rule.create!(creation_options)
   end
