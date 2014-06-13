@@ -346,7 +346,9 @@ public class RuleDaoTest extends AbstractDaoTestCase {
 
     RuleParamDto param = Iterables.getFirst(params, null);
 
-    param.setName("format")
+    param
+      // Name will not be changed
+      .setName("format")
       .setType("STRING")
       .setDefaultValue("^[a-z]+(\\.[a-z][a-z0-9]*)*$")
       .setDescription("Regular expression used to check the package names against.");
