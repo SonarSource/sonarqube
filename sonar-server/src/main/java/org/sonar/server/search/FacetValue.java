@@ -19,16 +19,27 @@
  */
 package org.sonar.server.search;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
-public class FacetValue {
+public class FacetValue implements Comparable<FacetValue> {
 
-  String key;
-  Integer value;
+  public static enum Sort {
+    BY_KEY, BY_VALUE
+  }
+
+  private String key;
+  private Integer value;
+  private Sort sort;
+  private Multimap<String, FacetValue> subFacets;
 
   public FacetValue(String key, Integer value){
     this.key = key;
     this.value = value;
+    this.subFacets = ArrayListMultimap.create();
+    this.sort = Sort.BY_VALUE;
   }
 
   public String getKey() {
@@ -47,8 +58,25 @@ public class FacetValue {
     this.value = value;
   }
 
+  public Multimap<String, FacetValue> getSubFacets() {
+    return subFacets;
+  }
+
+  public void setSubFacets(Multimap<String, FacetValue> subFacets) {
+    this.subFacets = subFacets;
+  }
+
   @Override
   public String toString() {
-    return ReflectionToStringBuilder.toString(this);
+    return ReflectionToStringBuilder.toString(this, ToStringStyle.MULTI_LINE_STYLE);
+  }
+
+  @Override
+  public int compareTo(FacetValue other) {
+    if (this.sort.equals(Sort.BY_KEY)) {
+      return this.getKey().compareTo(other.getKey());
+    } else {
+      return this.getValue().compareTo(other.getValue());
+    }
   }
 }

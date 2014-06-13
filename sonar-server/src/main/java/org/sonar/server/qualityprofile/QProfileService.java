@@ -19,6 +19,9 @@
  */
 package org.sonar.server.qualityprofile;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.permission.GlobalPermissions;
@@ -30,6 +33,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.index.RuleQuery;
+import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.user.UserSession;
 
@@ -214,5 +218,21 @@ public class QProfileService implements ServerComponent {
       counts.put(QualityProfileKey.parse(entry.getKey()), entry.getValue());
     }
     return counts;
+  }
+
+  public Multimap<QualityProfileKey, FacetValue> getAllProfileStats() {
+
+    List<QualityProfileKey> keys = Lists.newArrayList();
+    for (QualityProfileDto profile : this.findAll()) {
+      keys.add(profile.getKey());
+    }
+
+    Multimap<QualityProfileKey, FacetValue> stats = ArrayListMultimap.create();
+
+    Collection<FacetValue> profilesStats = index.get(ActiveRuleIndex.class).getStatsByProfileKey(keys);
+    for (FacetValue profileStat : profilesStats) {
+      stats.put(QualityProfileKey.parse(profileStat.getKey()), profileStat);
+    }
+    return stats;
   }
 }

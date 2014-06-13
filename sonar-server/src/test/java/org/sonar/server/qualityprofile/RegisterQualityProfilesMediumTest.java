@@ -43,8 +43,8 @@ import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.platform.Platform;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.Map;
@@ -109,6 +109,7 @@ public class RegisterQualityProfilesMediumTest {
     assertThat(params.get("acceptWhitespace").getValue()).isEqualTo("true");
     // default value
     assertThat(params.get("max").getValue()).isEqualTo("10");
+
   }
 
   @Test
@@ -138,7 +139,7 @@ public class RegisterQualityProfilesMediumTest {
 
     // Check ActiveRuleParameters in DB
     Map<String, ActiveRuleParamDto> params =
-      ActiveRuleParamDto.groupByKey(activeRuleDao.findParamsByActiveRuleKey(dbSession, activeRule.getKey()   ));
+      ActiveRuleParamDto.groupByKey(activeRuleDao.findParamsByActiveRuleKey(dbSession, activeRule.getKey()));
     assertThat(params).hasSize(2);
     // set by profile
     assertThat(params.get("acceptWhitespace").getValue()).isEqualTo("true");

@@ -19,7 +19,9 @@
  */
 package org.sonar.server.search;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Multimap;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
@@ -35,7 +37,9 @@ import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -595,5 +599,20 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       counts.put(value.getKey(), value.getDocCount());
     }
     return counts;
+  }
+
+  // Response helpers
+  protected Multimap<String, FacetValue> processAggregations(Aggregations aggregations) {
+    Multimap<String, FacetValue> stats = ArrayListMultimap.create();
+    if (aggregations != null) {
+      for (Aggregation aggregation : aggregations.asList()) {
+        for (Terms.Bucket value : ((Terms) aggregation).getBuckets()) {
+          FacetValue facetValue = new FacetValue(value.getKey(), (int) value.getDocCount());
+          facetValue.setSubFacets(processAggregations(value.getAggregations()));
+          stats.put(aggregation.getName(), facetValue);
+        }
+      }
+    }
+    return stats;
   }
 }

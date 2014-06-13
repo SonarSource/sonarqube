@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
+import com.google.common.collect.Multimap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -33,6 +34,7 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.RuleTesting;
+import org.sonar.server.search.FacetValue;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
@@ -100,5 +102,22 @@ public class QProfileServiceMediumTest {
     );
     assertThat(counts.values()).containsOnly(1L, 1L);
 
+  }
+
+  @Test
+  public void stat_for_all_profiles() {
+    MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("me");
+
+    service.activate(new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_1, XOO_RULE_1))
+      .setSeverity("MINOR"));
+
+    service.activate(new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_2, XOO_RULE_1))
+      .setSeverity("BLOCKER"));
+
+    dbSession.commit();
+
+    Multimap<QualityProfileKey, FacetValue> stats = service.getAllProfileStats();
+    assertThat(stats.size()).isEqualTo(2);
+    assertThat(stats.get(XOO_PROFILE_1).size()).isEqualTo(1);
   }
 }

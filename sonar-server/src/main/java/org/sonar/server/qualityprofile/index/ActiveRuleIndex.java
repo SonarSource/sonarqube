@@ -38,13 +38,16 @@
 */
 package org.sonar.server.qualityprofile.index;
 
+import com.google.common.collect.Multimap;
 import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.profiling.Profiling;
@@ -54,11 +57,13 @@ import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.ESNode;
+import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,8 +82,8 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
   @Override
   protected Settings getIndexSettings() throws IOException {
     return ImmutableSettings.builder()
-      .put("index.number_of_replicas",0)
-      .put("index.number_of_shards",1)
+      .put("index.number_of_replicas", 0)
+      .put("index.number_of_shards", 1)
       .build();
   }
 
@@ -99,12 +104,12 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
   }
 
   @Override
-  protected Map mapDomain(){
+  protected Map mapDomain() {
     Map<String, Object> mapping = new HashMap<String, Object>();
     mapping.put("dynamic", false);
     mapping.put("_id", mapKey());
     mapping.put("_parent", mapParent());
-    mapping.put("_routing",mapRouting());
+    mapping.put("_routing", mapRouting());
     mapping.put("properties", mapProperties());
     return mapping;
   }
@@ -154,7 +159,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
     SearchRequestBuilder request = getClient().prepareSearch(getIndexName())
       .setQuery(QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), key.toString()))
       .setRouting(key.toString())
-      // TODO replace by scrolling
+        // TODO replace by scrolling
       .setSize(Integer.MAX_VALUE);
     SearchResponse response = request.get();
 
@@ -177,21 +182,30 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
     return request.get().getCount();
   }
 
-  public Map getStatsByProfileKey(QualityProfileKey... keys) {
+
+  public Collection<FacetValue> getStatsByProfileKey(List<QualityProfileKey> keys) {
+
     // Get QProfiles keys as Strings
-    String[] stringKeys = new String[keys.length];
-    for(int i=0; i<keys.length; i++){
-      stringKeys[i]=keys[i].toString();
+    String[] stringKeys = new String[keys.size()];
+    for (int i = 0; i < keys.size(); i++) {
+      stringKeys[i] = keys.get(i).toString();
     }
 
-//    getClient().prepareSearch(this.getIndexName())
-//      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
-//        FilterBuilders.termsFilter(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), stringKeys)))
-//      .addAggregation(AggregationBuilders.terms("").)
-//      .setAggregations()
-//      .setRouting(key.toString());
-//    return request.get().getCount();
+    SearchResponse response = getClient().prepareSearch(this.getIndexName())
+      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
+        FilterBuilders.termsFilter(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), stringKeys)))
+      .addAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field())
+        .field(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field())
+        .subAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field())
+          .field(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field())
+          .subAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field())
+            .field(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field()))))
+      .setSize(0)
+      .setTypes(this.getIndexType())
+      .get();
 
-    return null;
+    Multimap<String, FacetValue> stats = this.processAggregations(response.getAggregations());
+
+    return stats.get(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field());
   }
 }

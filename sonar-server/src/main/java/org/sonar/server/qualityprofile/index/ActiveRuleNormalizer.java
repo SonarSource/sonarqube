@@ -29,6 +29,7 @@ import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
@@ -123,7 +124,10 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
     newRule.put("_parent", key.ruleKey().toString());
     newRule.put(ActiveRuleField.RULE_KEY.field(), key.ruleKey().toString());
     newRule.put(ActiveRuleField.KEY.field(), key.toString());
-    newRule.put(ActiveRuleField.INHERITANCE.field(), activeRuleDto.getInheritance());
+    newRule.put(ActiveRuleField.INHERITANCE.field(),
+      (activeRuleDto.getInheritance() != null) ?
+        activeRuleDto.getInheritance() :
+        ActiveRule.Inheritance.NONE.name());
     newRule.put(ActiveRuleField.SEVERITY.field(), activeRuleDto.getSeverityString());
 
     DbSession session = db.openSession(false);

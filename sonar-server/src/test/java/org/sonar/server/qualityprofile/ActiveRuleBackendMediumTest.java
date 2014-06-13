@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Ignore;
@@ -38,6 +39,7 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.RuleTesting;
+import org.sonar.server.search.FacetValue;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.Collection;
@@ -297,20 +299,30 @@ public class ActiveRuleBackendMediumTest {
     db.ruleDao().insert(dbSession, ruleDto1, ruleDto2);
 
     db.activeRuleDao().insert(dbSession,
-      ActiveRuleDto.createFor(profileDto1, ruleDto1).setSeverity(Severity.BLOCKER),
-      ActiveRuleDto.createFor(profileDto2, ruleDto1).setSeverity(Severity.MINOR),
-      ActiveRuleDto.createFor(profileDto1, ruleDto2).setSeverity(Severity.MAJOR),
-      ActiveRuleDto.createFor(profileDto2, ruleDto2).setSeverity(Severity.BLOCKER)
+      ActiveRuleDto.createFor(profileDto1, ruleDto1)
+        .setInheritance(ActiveRule.Inheritance.INHERITED.name())
+        .setSeverity(Severity.BLOCKER),
+      ActiveRuleDto.createFor(profileDto2, ruleDto1)
+        .setInheritance(ActiveRule.Inheritance.INHERITED.name())
+        .setSeverity(Severity.MINOR),
+      ActiveRuleDto.createFor(profileDto1, ruleDto2)
+        .setInheritance(ActiveRule.Inheritance.OVERRIDES.name())
+        .setSeverity(Severity.MAJOR),
+      ActiveRuleDto.createFor(profileDto2, ruleDto2)
+        .setInheritance(ActiveRule.Inheritance.INHERITED.name())
+        .setSeverity(Severity.BLOCKER)
       );
     dbSession.commit();
 
     // 0. Test base case
-    assertThat(index.countAll()).isEqualTo(2);
+    assertThat(index.countAll()).isEqualTo(4);
 
     // 1. Assert by term aggregation;
-    Map stats = index.getStatsByProfileKey(
-      profileDto1.getKey(),
-      profileDto2.getKey());
+    Collection<FacetValue> stats = index.getStatsByProfileKey(
+      ImmutableList.of(profileDto1.getKey(),
+        profileDto2.getKey()));
+
+    assertThat(stats).hasSize(2);
   }
 
 
