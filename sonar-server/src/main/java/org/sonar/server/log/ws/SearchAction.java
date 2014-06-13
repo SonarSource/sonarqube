@@ -29,8 +29,8 @@ import org.sonar.core.log.Log;
 import org.sonar.server.log.LogService;
 import org.sonar.server.log.index.LogDoc;
 import org.sonar.server.log.index.LogQuery;
-import org.sonar.server.log.index.LogResult;
 import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.Result;
 import org.sonar.server.search.ws.SearchOptions;
 
 /**
@@ -75,7 +75,7 @@ public class SearchAction implements RequestHandler {
     SearchOptions searchOptions = SearchOptions.create(request);
     QueryOptions queryOptions = mapping.newQueryOptions(searchOptions);
 
-    LogResult results = logService.search(query, queryOptions);
+    Result<Log> results = logService.search(query, queryOptions);
 
     JsonWriter json = response.newJsonWriter().beginObject();
     searchOptions.writeStatistics(json, results);
@@ -88,7 +88,7 @@ public class SearchAction implements RequestHandler {
     return query;
   }
 
-  private void writeLogs(LogResult result, JsonWriter json, SearchOptions options) {
+  private void writeLogs(Result<Log> result, JsonWriter json, SearchOptions options) {
     json.name("logs").beginArray();
     for (Log log : result.getHits()) {
       mapping.write((LogDoc) log, json, options);

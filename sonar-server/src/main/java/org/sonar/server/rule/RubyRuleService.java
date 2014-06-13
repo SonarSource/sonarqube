@@ -29,15 +29,14 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.server.paging.PagedResult;
 import org.sonar.server.paging.PagingResult;
-import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.rule.index.RuleResult;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
 import java.util.Map;
 
@@ -81,22 +80,8 @@ public class RubyRuleService implements ServerComponent, Startable {
     query.setHasDebtCharacteristic(RubyUtils.toBoolean(params.get("hasDebtCharacteristic")));
     query.setSortField(RuleNormalizer.RuleField.NAME);
 
-    QueryOptions options = new QueryOptions();
-    options.setLimit(QueryOptions.MAX_LIMIT);
-
-    List<Rule> rules = Lists.newArrayList();
-    boolean more = true;
-    int offset = 0;
-    while (more) {
-      options.setOffset(offset);
-      RuleResult result = service.search(query, options);
-      rules.addAll(result.getRules());
-      if (result.getHits().size() < QueryOptions.MAX_LIMIT) {
-        more = false;
-      } else {
-        offset += QueryOptions.MAX_LIMIT;
-      }
-    }
+    QueryOptions options = new QueryOptions().setScroll(true);
+    List<Rule> rules = Lists.newArrayList(service.search(query, options).scroll());
     return new PagedResult<org.sonar.server.rule.Rule>(rules, PagingResult.create(Integer.MAX_VALUE, 1, rules.size()));
   }
 
@@ -109,10 +94,10 @@ public class RubyRuleService implements ServerComponent, Startable {
       update.setDebtRemediationFunction(null);
     } else {
       update.setDebtRemediationFunction(new DefaultDebtRemediationFunction(
-          DebtRemediationFunction.Type.valueOf(fn),
-          Strings.emptyToNull((String) params.get("debtRemediationCoefficient")),
-          Strings.emptyToNull((String) params.get("debtRemediationOffset")))
-      );
+        DebtRemediationFunction.Type.valueOf(fn),
+        Strings.emptyToNull((String) params.get("debtRemediationCoefficient")),
+        Strings.emptyToNull((String) params.get("debtRemediationOffset")))
+        );
     }
     updater.update(update, UserSession.get());
   }

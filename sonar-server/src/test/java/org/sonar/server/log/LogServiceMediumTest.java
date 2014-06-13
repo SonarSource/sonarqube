@@ -19,7 +19,6 @@
  */
 package org.sonar.server.log;
 
-
 import org.elasticsearch.common.collect.Iterables;
 import org.junit.After;
 import org.junit.Before;
@@ -32,8 +31,8 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.log.db.LogDao;
 import org.sonar.server.log.index.LogIndex;
 import org.sonar.server.log.index.LogQuery;
-import org.sonar.server.log.index.LogResult;
 import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.Iterator;
@@ -82,13 +81,13 @@ public class LogServiceMediumTest {
     dbSession.commit();
     assertThat(index.findAll().getTotal()).isEqualTo(1);
 
-    LogResult result = index.search(new LogQuery(), new QueryOptions());
+    Result<Log> result = index.search(new LogQuery(), new QueryOptions());
     assertThat(result.getTotal()).isEqualTo(1L);
   }
 
   @Test
   @Ignore
-  //TODO fix missing logs in ES.
+  // TODO fix missing logs in ES.
   public void iterate_all() throws InterruptedException {
     int max = QueryOptions.DEFAULT_LIMIT + 3;
     final String testValue = "hello world";
@@ -100,7 +99,7 @@ public class LogServiceMediumTest {
     // 0. assert Base case
     assertThat(dao.findAll(dbSession)).hasSize(max);
 
-    LogResult result = index.search(new LogQuery(), new QueryOptions().setScroll(true));
+    Result<Log> result = index.search(new LogQuery(), new QueryOptions().setScroll(true));
     assertThat(result.getTotal()).isEqualTo(max);
     assertThat(result.getHits()).hasSize(0);
     int count = 0;

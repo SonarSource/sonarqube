@@ -26,9 +26,9 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.log.index.LogIndex;
 import org.sonar.server.log.index.LogQuery;
-import org.sonar.server.log.index.LogResult;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
 
 import java.util.List;
@@ -83,7 +83,7 @@ public class LogService {
     return new LogQuery();
   }
 
-  public LogResult search(LogQuery query, QueryOptions options) {
+  public Result<Log> search(LogQuery query, QueryOptions options) {
     return indexClient.get(LogIndex.class).search(query, options);
   }
 }

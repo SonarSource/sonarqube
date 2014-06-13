@@ -30,7 +30,6 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
@@ -41,13 +40,19 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtTesting;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.Rule;
+import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -76,7 +81,7 @@ public class RuleIndexMediumTest {
 
   @Test
   public void getByKey() throws InterruptedException {
-    RuleDto ruleDto = newRuleDto(RuleKey.of("javascript", "S001"));
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("javascript", "S001"));
     dao.insert(dbSession, ruleDto);
     dbSession.commit();
 
@@ -85,9 +90,9 @@ public class RuleIndexMediumTest {
     assertThat(rule.htmlDescription()).isEqualTo(ruleDto.getDescription());
     assertThat(rule.key()).isEqualTo(ruleDto.getKey());
 
-    //TODO
-//    assertThat(rule.debtSubCharacteristicKey())
-//      .isEqualTo(ruleDto.getDefaultSubCharacteristicId().toString());
+    // TODO
+    // assertThat(rule.debtSubCharacteristicKey())
+    // .isEqualTo(ruleDto.getDefaultSubCharacteristicId().toString());
     assertThat(rule.debtRemediationFunction().type().name())
       .isEqualTo(ruleDto.getRemediationFunction());
 
@@ -103,12 +108,16 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void global_facet_on_repositories() {
-    dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "S001")).setRuleKey("X001"));
-    dao.insert(dbSession, newRuleDto(RuleKey.of("php", "S001"))
-      .setSystemTags(ImmutableSet.of("sysTag")));
-    dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "S002")).setRuleKey("X002")
-      .setTags(ImmutableSet.of("tag1")));
+  public void global_facet_on_repositories_and_tags() {
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("php", "S001"))
+      .setSystemTags(ImmutableSet.of("sysTag")))
+      .setTags(ImmutableSet.<String>of());
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("php", "S002"))
+      .setSystemTags(ImmutableSet.<String>of()))
+      .setTags(ImmutableSet.of("tag1"));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("javascript", "S002"))
+      .setTags(ImmutableSet.of("tag1", "tag2")))
+      .setSystemTags(ImmutableSet.<String>of());
     dbSession.commit();
     index.refresh();
 
@@ -125,38 +134,43 @@ public class RuleIndexMediumTest {
     // Verify the value of a given facet
     Collection<FacetValue> repoFacets = result.getFacetValues("repositories");
     assertThat(repoFacets).hasSize(2);
-    assertThat(Iterables.get(repoFacets, 0).getKey()).isEqualTo("javascript");
+    assertThat(Iterables.get(repoFacets, 0).getKey()).isEqualTo("php");
     assertThat(Iterables.get(repoFacets, 0).getValue()).isEqualTo(2);
-    assertThat(Iterables.get(repoFacets, 1).getKey()).isEqualTo("php");
+    assertThat(Iterables.get(repoFacets, 1).getKey()).isEqualTo("javascript");
     assertThat(Iterables.get(repoFacets, 1).getValue()).isEqualTo(1);
 
     // Check that tag facet has both Tags and SystemTags values
     Collection<FacetValue> tagFacet = result.getFacetValues("tags");
-    assertThat(tagFacet).hasSize(2);
+    assertThat(tagFacet).hasSize(3);
+    assertThat(Iterables.get(tagFacet, 0).getKey()).isEqualTo("tag1");
+    assertThat(Iterables.get(tagFacet, 0).getValue()).isEqualTo(2);
   }
 
   @Test
   public void return_all_doc_fields_by_default() {
-    dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "S001")));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("javascript", "S001")));
     dbSession.commit();
-
 
     QueryOptions options = new QueryOptions().setFieldsToReturn(null);
     Result<Rule> results = index.search(new RuleQuery(), options);
     assertThat(results.getHits()).hasSize(1);
     Rule hit = Iterables.getFirst(results.getHits(), null);
-    // TODO complete
+    assertThat(hit.key()).isNotNull();
+    assertThat(hit.htmlDescription()).isNotNull();
+    assertThat(hit.name()).isNotNull();
 
     options = new QueryOptions().setFieldsToReturn(Collections.<String>emptyList());
     results = index.search(new RuleQuery(), options);
     assertThat(results.getHits()).hasSize(1);
     hit = Iterables.getFirst(results.getHits(), null);
-    // TODO complete
+    assertThat(hit.key()).isNotNull();
+    assertThat(hit.htmlDescription()).isNotNull();
+    assertThat(hit.name()).isNotNull();
   }
 
   @Test
   public void select_doc_fields_to_return() {
-    dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "S001")));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("javascript", "S001")));
     dbSession.commit();
 
     QueryOptions options = new QueryOptions();
@@ -178,7 +192,7 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_name_by_query() {
-    dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "S001"))
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("javascript", "S001"))
       .setName("testing the partial match and matching of rule"));
     dbSession.commit();
 
@@ -201,11 +215,10 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_key_by_query() {
-    dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "X001")));
-    dao.insert(dbSession, newRuleDto(RuleKey.of("cobol", "X001")));
-    dao.insert(dbSession, newRuleDto(RuleKey.of("php", "S002")));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("javascript", "X001")));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("cobol", "X001")));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("php", "S002")));
     dbSession.commit();
-
 
     // key
     RuleQuery query = new RuleQuery().setQueryText("X001");
@@ -213,7 +226,7 @@ public class RuleIndexMediumTest {
 
     // partial key does not match
     query = new RuleQuery().setQueryText("X00");
-    //TODO fix non-partial match for Key search
+    // TODO fix non-partial match for Key search
     assertThat(index.search(query, new QueryOptions()).getHits()).isEmpty();
 
     // repo:key -> nice-to-have !
@@ -223,11 +236,10 @@ public class RuleIndexMediumTest {
 
   @Test
   public void filter_by_key() {
-    dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "X001")));
-    dao.insert(dbSession, newRuleDto(RuleKey.of("cobol", "X001")));
-    dao.insert(dbSession, newRuleDto(RuleKey.of("php", "S002")));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("javascript", "X001")));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("cobol", "X001")));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("php", "S002")));
     dbSession.commit();
-
 
     // key
     RuleQuery query = new RuleQuery().setKey(RuleKey.of("javascript", "X001").toString());
@@ -235,14 +247,14 @@ public class RuleIndexMediumTest {
 
     // partial key does not match
     query = new RuleQuery().setKey("X001");
-    //TODO fix non-partial match for Key search
+    // TODO fix non-partial match for Key search
     assertThat(index.search(query, new QueryOptions()).getHits()).isEmpty();
   }
 
   @Test
   public void search_all_rules() throws InterruptedException {
-    dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "S001")));
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("javascript", "S001")));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S002")));
     dbSession.commit();
 
     Result results = index.search(new RuleQuery(), new QueryOptions());
@@ -255,7 +267,7 @@ public class RuleIndexMediumTest {
   public void scroll_all_rules() throws InterruptedException {
     int max = 100;
     for (int i = 0; i < max; i++) {
-      dao.insert(dbSession, newRuleDto(RuleKey.of("java", "scroll_" + i)));
+      dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "scroll_" + i)));
     }
     dbSession.commit();
 
@@ -288,9 +300,9 @@ public class RuleIndexMediumTest {
       .setParentId(char1.getId());
     db.debtCharacteristicDao().insert(char11, dbSession);
 
-    dao.insert(dbSession, newRuleDto(RuleKey.of("findbugs", "S001"))
-    .setSubCharacteristicId(char11.getId()));
-    dao.insert(dbSession, newRuleDto(RuleKey.of("pmd", "S002")));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("findbugs", "S001"))
+      .setSubCharacteristicId(char11.getId()));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("pmd", "S002")));
     dbSession.commit();
 
     // 0. assert base case
@@ -304,10 +316,9 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_by_any_of_repositories() {
-    dao.insert(dbSession, newRuleDto(RuleKey.of("findbugs", "S001")));
-    dao.insert(dbSession, newRuleDto(RuleKey.of("pmd", "S002")));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("findbugs", "S001")));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("pmd", "S002")));
     dbSession.commit();
-
 
     RuleQuery query = new RuleQuery().setRepositories(Arrays.asList("checkstyle", "pmd"));
     Result<Rule> results = index.search(query, new QueryOptions());
@@ -326,8 +337,8 @@ public class RuleIndexMediumTest {
   @Test
   public void search_by_any_of_languages() throws InterruptedException {
     dao.insert(dbSession,
-      newRuleDto(RuleKey.of("java", "S001")).setLanguage("java"),
-      newRuleDto(RuleKey.of("javascript", "S002")).setLanguage("js"));
+      RuleTesting.newDto(RuleKey.of("java", "S001")).setLanguage("java"),
+      RuleTesting.newDto(RuleKey.of("javascript", "S002")).setLanguage("js"));
     dbSession.commit();
 
     RuleQuery query = new RuleQuery().setLanguages(Arrays.asList("cobol", "js"));
@@ -349,7 +360,6 @@ public class RuleIndexMediumTest {
     assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(2);
   }
 
-
   @Test
   public void search_by_characteristics() throws InterruptedException {
     CharacteristicDto char1 = DebtTesting.newCharacteristicDto("char1");
@@ -360,13 +370,12 @@ public class RuleIndexMediumTest {
     db.debtCharacteristicDao().insert(char11, dbSession);
     dbSession.commit();
 
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001"))
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S001"))
       .setSubCharacteristicId(char11.getId()));
 
-    dao.insert(dbSession, newRuleDto(RuleKey.of("javascript", "S002")));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("javascript", "S002")));
 
     dbSession.commit();
-
 
     RuleQuery query;
     Result<Rule> results;
@@ -406,10 +415,9 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_by_any_of_severities() throws InterruptedException {
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")).setSeverity(Severity.BLOCKER));
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")).setSeverity(Severity.INFO));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S001")).setSeverity(Severity.BLOCKER));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S002")).setSeverity(Severity.INFO));
     dbSession.commit();
-
 
     RuleQuery query = new RuleQuery().setSeverities(Arrays.asList(Severity.INFO, Severity.MINOR));
     Result<Rule> results = index.search(query, new QueryOptions());
@@ -431,10 +439,9 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_by_any_of_statuses() throws InterruptedException {
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")).setStatus(RuleStatus.BETA));
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")).setStatus(RuleStatus.READY));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S001")).setStatus(RuleStatus.BETA));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S002")).setStatus(RuleStatus.READY));
     dbSession.commit();
-
 
     RuleQuery query = new RuleQuery().setStatuses(Arrays.asList(RuleStatus.DEPRECATED, RuleStatus.READY));
     Result<Rule> results = index.search(query, new QueryOptions());
@@ -456,11 +463,10 @@ public class RuleIndexMediumTest {
 
   @Test
   public void sort_by_name() {
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")).setName("abcd"));
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")).setName("ABC"));
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S003")).setName("FGH"));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S001")).setName("abcd"));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S002")).setName("ABC"));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S003")).setName("FGH"));
     dbSession.commit();
-
 
     // ascending
     RuleQuery query = new RuleQuery().setSortField(RuleNormalizer.RuleField.NAME);
@@ -494,26 +500,21 @@ public class RuleIndexMediumTest {
     QualityProfileDto qualityProfileDto2 = QualityProfileDto.createFor("profile2", "java");
     db.qualityProfileDao().insert(dbSession, qualityProfileDto1, qualityProfileDto2);
 
-    RuleDto rule1 = newRuleDto(RuleKey.of("java", "S001"));
-    RuleDto rule2 = newRuleDto(RuleKey.of("java", "S002"));
-    RuleDto rule3 = newRuleDto(RuleKey.of("java", "S003"));
+    RuleDto rule1 = RuleTesting.newDto(RuleKey.of("java", "S001"));
+    RuleDto rule2 = RuleTesting.newDto(RuleKey.of("java", "S002"));
+    RuleDto rule3 = RuleTesting.newDto(RuleKey.of("java", "S003"));
     dao.insert(dbSession, rule1, rule2, rule3);
 
     db.activeRuleDao().insert(
       dbSession,
-      ActiveRuleDto.createFor(qualityProfileDto1, rule1)
-        .setSeverity("BLOCKER"),
-      ActiveRuleDto.createFor(qualityProfileDto2, rule1)
-        .setSeverity("BLOCKER"),
-      ActiveRuleDto.createFor(qualityProfileDto1, rule2)
-        .setSeverity("BLOCKER")
-    );
+      ActiveRuleDto.createFor(qualityProfileDto1, rule1).setSeverity("BLOCKER"),
+      ActiveRuleDto.createFor(qualityProfileDto2, rule1).setSeverity("BLOCKER"),
+      ActiveRuleDto.createFor(qualityProfileDto1, rule2).setSeverity("BLOCKER"));
 
     dbSession.commit();
-    RuleResult result;
 
     // 1. get all active rules.
-    result = index.search(new RuleQuery().setActivation(true),
+    Result<Rule> result = index.search(new RuleQuery().setActivation(true),
       new QueryOptions());
     assertThat(result.getHits()).hasSize(2);
 
@@ -527,14 +528,13 @@ public class RuleIndexMediumTest {
     index.search(new RuleQuery().setActivation(false).setQProfileKey(qualityProfileDto2.getKey().toString()),
       new QueryOptions());
     // TODO
-    assertThat(result.getRules()).hasSize(1);
+    assertThat(result.getHits()).hasSize(1);
 
     // 4. get all active rules on profile
     result = index.search(new RuleQuery().setActivation(true)
-        .setQProfileKey(qualityProfileDto2.getKey().toString()),
-      new QueryOptions()
-    );
-    assertThat(result.getRules()).hasSize(1);
+      .setQProfileKey(qualityProfileDto2.getKey().toString()),
+      new QueryOptions());
+    assertThat(result.getHits()).hasSize(1);
     assertThat(result.getHits().get(0).name()).isEqualTo(rule1.getName());
 
   }
@@ -546,10 +546,10 @@ public class RuleIndexMediumTest {
       .setParent(qualityProfileDto1.getName());
     db.qualityProfileDao().insert(dbSession, qualityProfileDto1, qualityProfileDto2);
 
-    RuleDto rule1 = newRuleDto(RuleKey.of("java", "S001"));
-    RuleDto rule2 = newRuleDto(RuleKey.of("java", "S002"));
-    RuleDto rule3 = newRuleDto(RuleKey.of("java", "S003"));
-    RuleDto rule4 = newRuleDto(RuleKey.of("java", "S004"));
+    RuleDto rule1 = RuleTesting.newDto(RuleKey.of("java", "S001"));
+    RuleDto rule2 = RuleTesting.newDto(RuleKey.of("java", "S002"));
+    RuleDto rule3 = RuleTesting.newDto(RuleKey.of("java", "S003"));
+    RuleDto rule4 = RuleTesting.newDto(RuleKey.of("java", "S004"));
     dao.insert(dbSession, rule1, rule2, rule3, rule4);
 
     db.activeRuleDao().insert(
@@ -561,7 +561,6 @@ public class RuleIndexMediumTest {
       ActiveRuleDto.createFor(qualityProfileDto1, rule3)
         .setSeverity("BLOCKER"),
 
-
       ActiveRuleDto.createFor(qualityProfileDto2, rule1)
         .setSeverity("MINOR")
         .setInheritance(ActiveRule.Inheritance.INHERITED.name()),
@@ -571,13 +570,12 @@ public class RuleIndexMediumTest {
       ActiveRuleDto.createFor(qualityProfileDto2, rule3)
         .setSeverity("BLOCKER")
         .setInheritance(ActiveRule.Inheritance.INHERITED.name())
-    );
+      );
 
     dbSession.commit();
-    RuleResult result;
 
     // 0. get all rules
-    result = index.search(new RuleQuery(),
+    Result<Rule> result = index.search(new RuleQuery(),
       new QueryOptions());
     assertThat(result.getHits()).hasSize(4);
 
@@ -594,53 +592,53 @@ public class RuleIndexMediumTest {
 
     // 3. get Inherited Rules on profile1
     result = index.search(new RuleQuery().setActivation(true)
-        .setQProfileKey(qualityProfileDto1.getKey().toString())
-        .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
+      .setQProfileKey(qualityProfileDto1.getKey().toString())
+      .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
       new QueryOptions()
-    );
-    assertThat(result.getRules()).hasSize(0);
+      );
+    assertThat(result.getHits()).hasSize(0);
 
     // 4. get Inherited Rules on profile2
     result = index.search(new RuleQuery().setActivation(true)
-        .setQProfileKey(qualityProfileDto2.getKey().toString())
-        .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
+      .setQProfileKey(qualityProfileDto2.getKey().toString())
+      .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
       new QueryOptions()
-    );
-    assertThat(result.getRules()).hasSize(2);
+      );
+    assertThat(result.getHits()).hasSize(2);
 
     // 5. get Overridden Rules on profile1
     result = index.search(new RuleQuery().setActivation(true)
-        .setQProfileKey(qualityProfileDto1.getKey().toString())
-        .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
+      .setQProfileKey(qualityProfileDto1.getKey().toString())
+      .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
       new QueryOptions()
-    );
-    assertThat(result.getRules()).hasSize(0);
+      );
+    assertThat(result.getHits()).hasSize(0);
 
     // 6. get Overridden Rules on profile2
     result = index.search(new RuleQuery().setActivation(true)
-        .setQProfileKey(qualityProfileDto2.getKey().toString())
-        .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
+      .setQProfileKey(qualityProfileDto2.getKey().toString())
+      .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
       new QueryOptions()
-    );
-    assertThat(result.getRules()).hasSize(1);
+      );
+    assertThat(result.getHits()).hasSize(1);
 
     // 7. get Inherited AND Overridden Rules on profile1
     result = index.search(new RuleQuery().setActivation(true)
-        .setQProfileKey(qualityProfileDto1.getKey().toString())
-        .setInheritance(ImmutableSet.of(
-          ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
+      .setQProfileKey(qualityProfileDto1.getKey().toString())
+      .setInheritance(ImmutableSet.of(
+        ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
       new QueryOptions()
-    );
-    assertThat(result.getRules()).hasSize(0);
+      );
+    assertThat(result.getHits()).hasSize(0);
 
     // 8. get Inherited AND Overridden Rules on profile2
     result = index.search(new RuleQuery().setActivation(true)
-        .setQProfileKey(qualityProfileDto2.getKey().toString())
-        .setInheritance(ImmutableSet.of(
-          ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
+      .setQProfileKey(qualityProfileDto2.getKey().toString())
+      .setInheritance(ImmutableSet.of(
+        ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
       new QueryOptions()
-    );
-    assertThat(result.getRules()).hasSize(3);
+      );
+    assertThat(result.getHits()).hasSize(3);
   }
 
   @Test
@@ -650,7 +648,7 @@ public class RuleIndexMediumTest {
     QualityProfileDto profile = QualityProfileDto.createFor("name", "Language");
     db.qualityProfileDao().insert(dbSession, profile);
 
-    RuleDto rule = newRuleDto(RuleKey.of("java", "S001"));
+    RuleDto rule = RuleTesting.newDto(RuleKey.of("java", "S001"));
     dao.insert(dbSession, rule);
 
     RuleParamDto param = RuleParamDto.createFor(rule)
@@ -667,10 +665,9 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_by_tag() throws InterruptedException {
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")).setTags(ImmutableSet.of("tag1")));
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")).setTags(ImmutableSet.of("tag2")));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S001")).setTags(ImmutableSet.of("tag1")));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S002")).setTags(ImmutableSet.of("tag2")));
     dbSession.commit();
-
 
     // find all
     RuleQuery query = new RuleQuery();
@@ -710,8 +707,8 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_by_is_template() throws InterruptedException {
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")).setIsTemplate(false));
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")).setIsTemplate(true));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S001")).setIsTemplate(false));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S002")).setIsTemplate(true));
     dbSession.commit();
 
     // find all
@@ -740,9 +737,9 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_by_template_key() throws InterruptedException {
-    RuleDto templateRule = newRuleDto(RuleKey.of("java", "S001")).setIsTemplate(true);
+    RuleDto templateRule = RuleTesting.newDto(RuleKey.of("java", "S001")).setIsTemplate(true);
     dao.insert(dbSession, templateRule);
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001_MY_CUSTOM")).setTemplateId(templateRule.getId()));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S001_MY_CUSTOM")).setTemplateId(templateRule.getId()));
     dbSession.commit();
 
     // find all
@@ -764,12 +761,12 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_by_template_key_with_params() throws InterruptedException {
-    RuleDto templateRule = newRuleDto(RuleKey.of("java", "S001")).setIsTemplate(true);
+    RuleDto templateRule = RuleTesting.newDto(RuleKey.of("java", "S001")).setIsTemplate(true);
     RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
     dao.insert(dbSession, templateRule);
     dao.addRuleParam(dbSession, templateRule, ruleParamDto);
 
-    RuleDto customRule = newRuleDto(RuleKey.of("java", "S001_MY_CUSTOM")).setTemplateId(templateRule.getId());
+    RuleDto customRule = RuleTesting.newDto(RuleKey.of("java", "S001_MY_CUSTOM")).setTemplateId(templateRule.getId());
     RuleParamDto customRuleParam = RuleParamDto.createFor(customRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue("a.*");
     dao.insert(dbSession, customRule);
     dao.addRuleParam(dbSession, customRule, customRuleParam);
@@ -787,9 +784,9 @@ public class RuleIndexMediumTest {
 
   @Test
   public void show_custom_rule() throws InterruptedException {
-    RuleDto templateRule = newRuleDto(RuleKey.of("java", "S001")).setIsTemplate(true);
+    RuleDto templateRule = RuleTesting.newDto(RuleKey.of("java", "S001")).setIsTemplate(true);
     dao.insert(dbSession, templateRule);
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001_MY_CUSTOM")).setTemplateId(templateRule.getId()));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S001_MY_CUSTOM")).setTemplateId(templateRule.getId()));
     dbSession.commit();
 
     // find all
@@ -803,11 +800,10 @@ public class RuleIndexMediumTest {
 
   @Test
   public void paging() {
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")));
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")));
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S003")));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S001")));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S002")));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S003")));
     dbSession.commit();
-
 
     // from 0 to 1 included
     QueryOptions options = new QueryOptions();
@@ -831,11 +827,11 @@ public class RuleIndexMediumTest {
 
   @Test
   public void available_since() throws InterruptedException {
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S001")));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S001")));
     dbSession.commit();
-    Thread.sleep(1000);
+    Thread.sleep(500);
     Date since = new Date();
-    dao.insert(dbSession, newRuleDto(RuleKey.of("java", "S002")));
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S002")));
     dbSession.commit();
 
     // 0. find all rules;
@@ -852,25 +848,5 @@ public class RuleIndexMediumTest {
     RuleQuery availableSinceNowQuery = new RuleQuery()
       .setAvailableSince(DateUtils.addDays(since, 1));
     assertThat(index.search(availableSinceNowQuery, new QueryOptions()).getHits()).hasSize(0);
-  }
-
-  private RuleDto newRuleDto(RuleKey ruleKey) {
-    return new RuleDto()
-      .setRuleKey(ruleKey.rule())
-      .setRepositoryKey(ruleKey.repository())
-      .setName("Rule " + ruleKey.rule())
-      .setDescription("Description " + ruleKey.rule())
-      .setStatus(RuleStatus.READY)
-      .setConfigKey("InternalKey" + ruleKey.rule())
-      .setSeverity(Severity.INFO)
-      .setIsTemplate(false)
-      .setLanguage("js")
-      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
-      .setRemediationCoefficient("1h")
-      .setDefaultRemediationCoefficient("5d")
-      .setRemediationOffset("5min")
-      .setDefaultRemediationOffset("10h")
-      .setEffortToFixDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix");
   }
 }

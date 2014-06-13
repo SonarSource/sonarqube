@@ -27,7 +27,11 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.log.Log;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.preview.PreviewCache;
-import org.sonar.core.qualityprofile.db.*;
+import org.sonar.core.qualityprofile.db.ActiveRuleDto;
+import org.sonar.core.qualityprofile.db.ActiveRuleKey;
+import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
@@ -37,9 +41,9 @@ import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.rule.index.RuleResult;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.Result;
 import org.sonar.server.util.TypeValidations;
 
 import javax.annotation.Nullable;
@@ -321,7 +325,7 @@ public class RuleActivator implements ServerComponent {
     RuleIndex ruleIndex = index.get(RuleIndex.class);
     DbSession dbSession = db.openSession(false);
     try {
-      RuleResult ruleSearchResult = ruleIndex.search(ruleQuery, new QueryOptions().setScroll(true));
+      Result<Rule> ruleSearchResult = ruleIndex.search(ruleQuery, new QueryOptions().setScroll(true));
       Iterator<Rule> rules = ruleSearchResult.scroll();
       while (rules.hasNext()) {
         Rule rule = rules.next();
@@ -351,7 +355,7 @@ public class RuleActivator implements ServerComponent {
     try {
       RuleIndex ruleIndex = index.get(RuleIndex.class);
       BulkChangeResult result = new BulkChangeResult();
-      RuleResult ruleSearchResult = ruleIndex.search(ruleQuery, new QueryOptions().setScroll(true));
+      Result<Rule> ruleSearchResult = ruleIndex.search(ruleQuery, new QueryOptions().setScroll(true));
       Iterator<Rule> rules = ruleSearchResult.scroll();
       while (rules.hasNext()) {
         Rule rule = rules.next();

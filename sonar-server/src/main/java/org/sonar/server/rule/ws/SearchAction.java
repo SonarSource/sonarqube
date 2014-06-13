@@ -34,9 +34,9 @@ import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.index.RuleDoc;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.rule.index.RuleResult;
 import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.Result;
 import org.sonar.server.search.ws.SearchOptions;
 
 import java.util.Collection;
@@ -209,13 +209,13 @@ public class SearchAction implements RequestHandler {
     QueryOptions queryOptions = mapping.newQueryOptions(searchOptions);
     queryOptions.setFacet(request.mandatoryParamAsBoolean(PARAM_FACETS));
 
-    RuleResult results = ruleService.search(query, queryOptions);
+    Result<Rule> results = ruleService.search(query, queryOptions);
 
     JsonWriter json = response.newJsonWriter().beginObject();
     searchOptions.writeStatistics(json, results);
     writeRules(results, json, searchOptions);
     if (searchOptions.hasField("actives")) {
-      activeRuleCompleter.completeSearch(query, results.getRules(), json);
+      activeRuleCompleter.completeSearch(query, results.getHits(), json);
     }
     if (queryOptions.isFacet()) {
       writeFacets(results, json);
@@ -244,7 +244,7 @@ public class SearchAction implements RequestHandler {
     return query;
   }
 
-  private void writeRules(RuleResult result, JsonWriter json, SearchOptions options) {
+  private void writeRules(Result<Rule> result, JsonWriter json, SearchOptions options) {
     json.name("rules").beginArray();
     for (Rule rule : result.getHits()) {
       mapping.write((RuleDoc) rule, json, options);
@@ -252,7 +252,7 @@ public class SearchAction implements RequestHandler {
     json.endArray();
   }
 
-  private void writeFacets(RuleResult results, JsonWriter json) {
+  private void writeFacets(Result<Rule> results, JsonWriter json) {
     json.name("facets").beginArray();
     for (Map.Entry<String, Collection<FacetValue>> facet : results.getFacets().entrySet()) {
       json.beginObject();

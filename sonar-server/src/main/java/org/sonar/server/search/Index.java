@@ -24,6 +24,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.Dto;
 
 import javax.annotation.CheckForNull;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Iterator;

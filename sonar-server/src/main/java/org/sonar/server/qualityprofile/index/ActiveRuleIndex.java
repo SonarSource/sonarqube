@@ -174,7 +174,6 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
     return IndexDefinition.RULE.getIndexType();
   }
 
-
   public Long countByQualityProfileKey(QualityProfileKey key) {
     CountRequestBuilder request = getClient().prepareCount(getIndexName())
       .setQuery(QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), key.toString()))

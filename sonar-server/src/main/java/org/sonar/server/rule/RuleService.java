@@ -25,8 +25,8 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.rule.index.RuleResult;
 import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -59,7 +59,7 @@ public class RuleService implements ServerComponent {
     return new RuleQuery();
   }
 
-  public RuleResult search(RuleQuery query, QueryOptions options) {
+  public Result<Rule> search(RuleQuery query, QueryOptions options) {
     return index.search(query, options);
   }
 

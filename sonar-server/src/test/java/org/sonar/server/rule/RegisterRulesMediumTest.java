@@ -43,8 +43,8 @@ import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.rule.index.RuleResult;
 import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
@@ -86,7 +86,7 @@ public class RegisterRulesMediumTest {
 
     RuleIndex index = tester.get(RuleIndex.class);
 
-    RuleResult searchResult = index.search(new RuleQuery(), new QueryOptions());
+    Result<Rule> searchResult = index.search(new RuleQuery(), new QueryOptions());
     assertThat(searchResult.getTotal()).isEqualTo(3);
     assertThat(searchResult.getHits()).hasSize(3);
   }
@@ -107,7 +107,7 @@ public class RegisterRulesMediumTest {
     // clear ES but keep db
     tester.clearIndexes();
     verifyRulesInDb();
-    RuleResult searchResult = index.search(new RuleQuery(), new QueryOptions());
+    Result<Rule> searchResult = index.search(new RuleQuery(), new QueryOptions());
     assertThat(searchResult.getTotal()).isEqualTo(0);
     assertThat(searchResult.getHits()).hasSize(0);
 
@@ -202,14 +202,14 @@ public class RegisterRulesMediumTest {
     // Update custom rule
     RuleDto customRuleDto = db.ruleDao().getByKey(dbSession, customRuleKey);
     db.ruleDao().update(dbSession, customRuleDto
-        .setLanguage("other language")
-        .setConfigKey("other config key")
-        .setDefaultSubCharacteristicId(45)
-        .setDefaultRemediationFunction("LINEAR_OFFSET")
-        .setDefaultRemediationCoefficient("1h")
-        .setDefaultRemediationOffset("5min")
-        .setEffortToFixDescription("effort to fix desc")
-    );
+      .setLanguage("other language")
+      .setConfigKey("other config key")
+      .setDefaultSubCharacteristicId(45)
+      .setDefaultRemediationFunction("LINEAR_OFFSET")
+      .setDefaultRemediationCoefficient("1h")
+      .setDefaultRemediationOffset("5min")
+      .setEffortToFixDescription("effort to fix desc")
+      );
     dbSession.commit();
     dbSession.clearCache();
 

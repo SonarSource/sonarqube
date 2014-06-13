@@ -19,6 +19,7 @@
  */
 package org.sonar.server.search;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
@@ -28,40 +29,32 @@ import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 
 import javax.annotation.CheckForNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public abstract class Result<K> {
+public class Result<K> {
 
   private final List<K> hits;
   private final Multimap<String, FacetValue> facets;
-  private long total;
-  private long timeInMillis;
-
-  //scrollable iterable
+  private final long total;
+  private final long timeInMillis;
   private final String scrollId;
-  private Index<K, ?, ?> index;
+  private final BaseIndex<K, ?, ?> index;
 
-  public Result(Index<K, ?, ?> index, SearchResponse response) {
-    this(response);
+  public Result(BaseIndex<K, ?, ?> index, SearchResponse response) {
     this.index = index;
-  }
-
-  public Result(SearchResponse response) {
-
-    scrollId = response.getScrollId();
-
-    this.hits = new ArrayList<K>();
+    this.scrollId = response.getScrollId();
     this.facets = LinkedListMultimap.create();
     this.total = (int) response.getHits().totalHits();
     this.timeInMillis = response.getTookInMillis();
+    this.hits = new ArrayList<K>();
     for (SearchHit hit : response.getHits()) {
-      this.hits.add(getSearchResult(hit.getSource()));
+      this.hits.add(index.toDoc(hit.getSource()));
     }
-
     if (response.getAggregations() != null) {
       for (Map.Entry<String, Aggregation> facet : response.getAggregations().asMap().entrySet()) {
         Terms aggregation = (Terms) facet.getValue();
@@ -73,14 +66,9 @@ public abstract class Result<K> {
   }
 
   public Iterator<K> scroll() {
-    if (scrollId == null || index == null) {
-      throw new IllegalStateException("Result is not scrollable. Please use QueryOptions.setScroll()");
-    } else {
-      return index.scroll(this.scrollId);
-    }
+    Preconditions.checkState(scrollId != null, "Result is not scrollable. Please use QueryOptions.setScroll()");
+    return index.scroll(scrollId);
   }
-
-  protected abstract K getSearchResult(Map<String, Object> fields);
 
   public List<K> getHits() {
     return hits;

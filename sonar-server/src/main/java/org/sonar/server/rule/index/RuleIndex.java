@@ -53,6 +53,7 @@ import org.sonar.server.search.ESNode;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.Result;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -311,7 +312,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   }
 
 
-  public RuleResult search(RuleQuery query, QueryOptions options) {
+  public Result<Rule> search(RuleQuery query, QueryOptions options) {
     StopWatch profile = profiling.start("es", Profiling.Level.BASIC);
 
     SearchRequestBuilder esSearch = getClient()
@@ -336,11 +337,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     SearchResponse esResult = esSearch.get();
     profile.stop("query: " + esSearch + "\nresult:" + esResult);
 
-    if (options.isScroll()) {
-      return new RuleResult(this, esResult);
-    } else {
-      return new RuleResult(esResult);
-    }
+    return new Result<Rule>(this, esResult);
   }
 
 

@@ -48,6 +48,7 @@ import org.sonar.core.persistence.Dto;
 import org.sonar.core.profiling.Profiling;
 
 import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayDeque;
@@ -73,7 +74,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   protected final Profiling profiling;
 
   protected BaseIndex(IndexDefinition indexDefinition, BaseNormalizer<DTO, KEY> normalizer,
-                      WorkQueue workQueue, ESNode node, Profiling profiling) {
+    WorkQueue workQueue, ESNode node, Profiling profiling) {
     this.normalizer = normalizer;
     this.node = node;
     this.indexDefinition = indexDefinition;
@@ -152,26 +153,25 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     };
   }
 
-
   /* Cluster And ES Stats/Client methods */
 
   private void initializeManagementIndex() {
     LOG.debug("Setup of Management Index for ES");
 
-//    String index = indexDefinition.getManagementIndex();
-//
-//    IndicesExistsResponse indexExistsResponse = getClient().admin().indices()
-//      .prepareExists(index).execute().actionGet();
-//
-//    if (!indexExistsResponse.isExists()) {
-//      getClient().admin().indices().prepareCreate(index)
-//        .setSettings(ImmutableSettings.builder()
-//          .put("mapper.dynamic", true)
-//          .put("number_of_replicas", 1)
-//          .put("number_of_shards", 1)
-//          .build())
-//        .get();
-//    }
+    // String index = indexDefinition.getManagementIndex();
+    //
+    // IndicesExistsResponse indexExistsResponse = getClient().admin().indices()
+    // .prepareExists(index).execute().actionGet();
+    //
+    // if (!indexExistsResponse.isExists()) {
+    // getClient().admin().indices().prepareCreate(index)
+    // .setSettings(ImmutableSettings.builder()
+    // .put("mapper.dynamic", true)
+    // .put("number_of_replicas", 1)
+    // .put("number_of_shards", 1)
+    // .build())
+    // .get();
+    // }
   }
 
   protected void initializeIndex() {
@@ -189,9 +189,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
         getClient().admin().indices().prepareCreate(index)
           .setSettings(getIndexSettings())
           .execute().actionGet();
-
       }
-
 
       LOG.debug("Update of index {} for type {}", this.getIndexName(), this.getIndexType());
       getClient().admin().indices().preparePutMapping(index)
@@ -212,8 +210,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     stat.setDocumentCount(
       getClient().prepareCount(this.getIndexName())
         .setQuery(QueryBuilders.matchAllQuery())
-        .get().getCount()
-    );
+        .get().getCount());
 
     /** get Management information */
     stat.setLastUpdate(getLastSynchronization());
@@ -316,8 +313,8 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
   protected boolean needMultiField(IndexField field) {
     return ((field.type() == IndexField.Type.TEXT
-      || field.type() == IndexField.Type.STRING)
-      && (field.sortable() || field.searchable()));
+    || field.type() == IndexField.Type.STRING)
+    && (field.sortable() || field.searchable()));
   }
 
   protected Map mapSortField(IndexField field) {
@@ -436,7 +433,6 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     bulkRequest.get();
   }
 
-
   @Override
   public void upsert(KEY key, Object object, Object... objects) throws Exception {
     long t0 = System.currentTimeMillis();
@@ -532,7 +528,6 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
   /* ES QueryHelper Methods */
 
-
   protected void addMatchField(XContentBuilder mapping, String field, String type) throws IOException {
     mapping.startObject(field)
       .field("type", type)
@@ -554,7 +549,6 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     }
     return filter;
   }
-
 
   protected BoolFilterBuilder addTermFilter(BoolFilterBuilder filter, String field, @Nullable Collection<String> values) {
     if (values != null && !values.isEmpty()) {
