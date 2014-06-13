@@ -71,6 +71,9 @@ public interface Rule {
   List<RuleParam> params();
 
   @CheckForNull
+  RuleParam param(final String key);
+
+  @CheckForNull
   String debtCharacteristicKey();
 
   @CheckForNull

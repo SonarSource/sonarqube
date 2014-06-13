@@ -20,6 +20,8 @@
 package org.sonar.server.rule;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -37,12 +39,7 @@ import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
-import static com.google.common.collect.Lists.newArrayList;
+import java.util.*;
 
 public class RuleUpdater implements ServerComponent {
 
@@ -65,30 +62,12 @@ public class RuleUpdater implements ServerComponent {
       // validate only the changes, not all the rule fields
       apply(update, context, userSession);
       dbClient.ruleDao().update(dbSession, context.rule);
-      for (RuleParamDto ruleParamDto : context.parameters) {
-        dbClient.ruleDao().updateRuleParam(dbSession, context.rule, ruleParamDto);
-      }
-      // update related active rules (for custom rules only)
-      updateActiveRule(dbSession, update, context.rule);
+      updateParameters(dbSession, update, context);
       dbSession.commit();
       return true;
 
     } finally {
       dbSession.close();
-    }
-  }
-
-  private void updateActiveRule(DbSession dbSession, RuleUpdate update, RuleDto rule) {
-    if (update.isCustomRule() && update.isChangeParameters()) {
-      for (ActiveRuleDto activeRuleDto : dbClient.activeRuleDao().findByRule(dbSession, rule)) {
-        for (ActiveRuleParamDto activeRuleParamDto : dbClient.activeRuleDao().findParamsByActiveRuleKey(dbSession, activeRuleDto.getKey())) {
-          String newValue = update.getParameters().get(activeRuleParamDto.getKey());
-          if (!Strings.isNullOrEmpty(newValue)) {
-            activeRuleParamDto.setValue(newValue);
-            dbClient.activeRuleDao().updateParam(dbSession, activeRuleDto, activeRuleParamDto);
-          }
-        }
-      }
     }
   }
 
@@ -103,8 +82,6 @@ public class RuleUpdater implements ServerComponent {
       if (RuleStatus.REMOVED == context.rule.getStatus()) {
         throw new IllegalArgumentException("Rule with REMOVED status cannot be updated: " + change.getRuleKey());
       }
-      context.parameters = dbClient.ruleDao().findRuleParamsByRuleKey(dbSession, change.getRuleKey());
-
       String subCharacteristicKey = change.getDebtSubCharacteristicKey();
       if (subCharacteristicKey != null &&
         !subCharacteristicKey.equals(RuleUpdate.DEFAULT_DEBT_CHARACTERISTIC)) {
@@ -139,9 +116,6 @@ public class RuleUpdater implements ServerComponent {
     }
     if (update.isChangeStatus()) {
       updateStatus(update, context);
-    }
-    if (update.isChangeParameters()) {
-      updateParameters(update, context);
     }
     if (update.isChangeMarkdownNote()) {
       updateMarkdownNote(update, context, userSession);
@@ -194,19 +168,6 @@ public class RuleUpdater implements ServerComponent {
     }
   }
 
-  /**
-   * Only update existing parameters, ignore the ones that are not existing in the list
-   */
-  private void updateParameters(RuleUpdate update, Context context) {
-    for (RuleParamDto ruleParamDto : context.parameters) {
-      String value = update.parameter(ruleParamDto.getName());
-      if (!Strings.isNullOrEmpty(value)) {
-        ruleParamDto.setDefaultValue(value);
-      }
-      // Ignore parameter not existing in update.getParameters()
-    }
-  }
-
   private void updateTags(RuleUpdate update, Context context) {
     Set<String> tags = update.getTags();
     if (tags == null || tags.isEmpty()) {
@@ -225,7 +186,7 @@ public class RuleUpdater implements ServerComponent {
       context.rule.setRemediationCoefficient(null);
       context.rule.setRemediationOffset(null);
 
-    } else if (update.getDebtSubCharacteristicKey().equals(RuleUpdate.DEFAULT_DEBT_CHARACTERISTIC)) {
+    } else if (StringUtils.equals(update.getDebtSubCharacteristicKey(), RuleUpdate.DEFAULT_DEBT_CHARACTERISTIC)) {
       // reset to default
       context.rule.setSubCharacteristicId(null);
       context.rule.setRemediationFunction(null);
@@ -293,12 +254,87 @@ public class RuleUpdater implements ServerComponent {
       .isEquals();
   }
 
+
+  private void updateParameters(DbSession dbSession, RuleUpdate update, Context context) {
+    if (update.isChangeParameters() && update.isCustomRule()) {
+      RuleDto customRule = context.rule;
+      RuleDto templateRule = dbClient.ruleDao().getById(dbSession, customRule.getTemplateId());
+      List<RuleParamDto> templateRuleParams = dbClient.ruleDao().findRuleParamsByRuleKey(dbSession, templateRule.getKey());
+      List<String> paramKeys = new ArrayList<String>();
+
+      // Load active rules and its parameters in cache
+      Multimap<RuleDto, ActiveRuleDto> activeRules = ArrayListMultimap.create();
+      Multimap<ActiveRuleDto, ActiveRuleParamDto> activeRuleParams = ArrayListMultimap.create();
+      for (ActiveRuleDto activeRuleDto : dbClient.activeRuleDao().findByRule(dbSession, customRule)) {
+        activeRules.put(customRule, activeRuleDto);
+        for (ActiveRuleParamDto activeRuleParamDto : dbClient.activeRuleDao().findParamsByActiveRuleKey(dbSession, activeRuleDto.getKey())) {
+          activeRuleParams.put(activeRuleDto, activeRuleParamDto);
+        }
+      }
+
+      // Browse custom rule parameters to update or delete them
+      for (RuleParamDto ruleParamDto : dbClient.ruleDao().findRuleParamsByRuleKey(dbSession, update.getRuleKey())) {
+        String key = ruleParamDto.getName();
+        String value = update.parameter(key);
+        if (!Strings.isNullOrEmpty(value)) {
+          // Update rule param
+          ruleParamDto.setDefaultValue(value);
+          dbClient.ruleDao().updateRuleParam(dbSession, customRule, ruleParamDto);
+
+          // Update linked active rule params
+          for (ActiveRuleDto activeRuleDto : activeRules.get(customRule)) {
+            for (ActiveRuleParamDto activeRuleParamDto : activeRuleParams.get(activeRuleDto)) {
+              if (activeRuleParamDto.getKey().equals(key)) {
+                dbClient.activeRuleDao().updateParam(dbSession, activeRuleDto, activeRuleParamDto.setValue(value));
+              }
+            }
+          }
+        } else {
+          // Delete rule param
+          dbClient.ruleDao().removeRuleParam(dbSession, customRule, ruleParamDto);
+
+          // Delete linked active rule params
+          for (ActiveRuleDto activeRuleDto : activeRules.get(customRule)) {
+            for (ActiveRuleParamDto activeRuleParamDto : activeRuleParams.get(activeRuleDto)) {
+              if (activeRuleParamDto.getKey().equals(key)) {
+                dbClient.activeRuleDao().deleteParam(dbSession, activeRuleDto, activeRuleParamDto);
+              }
+            }
+          }
+        }
+        paramKeys.add(key);
+      }
+
+      // Browse template rule parameters to create new parameters
+      for (RuleParamDto templateRuleParam : templateRuleParams) {
+        String key = templateRuleParam.getName();
+        if (!paramKeys.contains(key)) {
+          String value = update.parameter(key);
+          if (!Strings.isNullOrEmpty(value)) {
+
+            // Create new param
+            RuleParamDto paramDto = RuleParamDto.createFor(customRule)
+              .setName(key)
+              .setDescription(templateRuleParam.getDescription())
+              .setDefaultValue(value)
+              .setType(templateRuleParam.getType());
+            dbClient.ruleDao().addRuleParam(dbSession, customRule, paramDto);
+
+            // Create new active rule param
+            for (ActiveRuleDto activeRuleDto : activeRules.get(customRule)) {
+              dbClient.activeRuleDao().addParam(dbSession, activeRuleDto, ActiveRuleParamDto.createFor(paramDto).setValue(value));
+            }
+          }
+        }
+      }
+    }
+  }
+
   /**
    * Data loaded before update
    */
   private static class Context {
     private RuleDto rule;
-    private List<RuleParamDto> parameters = newArrayList();
     private CharacteristicDto newCharacteristic;
   }
 

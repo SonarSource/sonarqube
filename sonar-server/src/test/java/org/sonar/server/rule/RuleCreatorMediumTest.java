@@ -112,6 +112,26 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
+  public void not_fail_to_create_custom_rule_when_a_param_is_missing() throws Exception {
+    // insert template rule
+    RuleDto templateRule = createTemplateRule();
+
+    NewRule newRule = new NewRule()
+      .setRuleKey("CUSTOM_RULE")
+      .setTemplateKey(templateRule.getKey())
+      .setName("My custom")
+      .setHtmlDescription("Some description")
+      .setSeverity(Severity.MAJOR)
+      .setStatus(RuleStatus.READY);
+
+    RuleKey customRuleKey = creator.create(newRule);
+    dbSession.clearCache();
+
+    List<RuleParamDto> params = db.ruleDao().findRuleParamsByRuleKey(dbSession, customRuleKey);
+    assertThat(params).hasSize(0);
+  }
+
+  @Test
   public void fail_to_create_custom_rule_when_missing_key() throws Exception {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
@@ -318,28 +338,7 @@ public class RuleCreatorMediumTest {
     }
   }
 
-  @Test
-  public void fail_to_create_custom_rule_when_a_param_is_missing() throws Exception {
-    // insert template rule
-    RuleDto templateRule = createTemplateRule();
-
-    NewRule newRule = new NewRule()
-      .setRuleKey("CUSTOM_RULE")
-      .setTemplateKey(templateRule.getKey())
-      .setName("My custom")
-      .setHtmlDescription("Some description")
-      .setSeverity(Severity.MAJOR)
-      .setStatus(RuleStatus.READY);
-
-    try {
-      creator.create(newRule);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The parameter 'regex' has not been set");
-    }
-  }
-
-  private RuleDto createTemplateRule(){
+  private RuleDto createTemplateRule() {
     RuleDto templateRule = dao.insert(dbSession,
       RuleTesting.newDto(RuleKey.of("java", "S001"))
         .setIsTemplate(true)
@@ -352,7 +351,7 @@ public class RuleCreatorMediumTest {
         .setEffortToFixDescription("desc")
         .setTags(Sets.newHashSet("usertag1", "usertag2"))
         .setSystemTags(Sets.newHashSet("tag1", "tag4"))
-    );
+      );
     RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
     dao.addRuleParam(dbSession, templateRule, ruleParamDto);
     dbSession.commit();

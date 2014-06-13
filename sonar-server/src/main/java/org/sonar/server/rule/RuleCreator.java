@@ -115,10 +115,9 @@ public class RuleCreator implements ServerComponent {
 
     for (RuleParamDto templateRuleParamDto : dbClient.ruleDao().findRuleParamsByRuleKey(dbSession, templateRuleDto.getKey())) {
       String newRuleParam = newRule.parameter(templateRuleParamDto.getName());
-      if (newRuleParam == null) {
-        throw new IllegalArgumentException(String.format("The parameter '%s' has not been set", templateRuleParamDto.getName()));
+      if (newRuleParam != null) {
+        createCustomRuleParams(newRuleParam, ruleDto, templateRuleParamDto, dbSession);
       }
-      createCustomRuleParams(newRuleParam, ruleDto, templateRuleParamDto, dbSession);
     }
     return ruleKey;
   }

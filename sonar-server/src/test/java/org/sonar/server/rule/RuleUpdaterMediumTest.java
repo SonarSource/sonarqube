@@ -365,16 +365,21 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void update_active_rule_parameters_when_updating_custom_rule() throws Exception {
-    // Create template rule with a parameter
+    // Create template rule with 3 parameters
     RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001")).setLanguage("xoo");
     ruleDao.insert(dbSession, templateRule);
-    RuleParamDto templateRuleParam = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
-    ruleDao.addRuleParam(dbSession, templateRule, templateRuleParam);
+    RuleParamDto templateRuleParam1 = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
+    ruleDao.addRuleParam(dbSession, templateRule, templateRuleParam1);
+    RuleParamDto templateRuleParam2 = RuleParamDto.createFor(templateRule).setName("format").setType("STRING").setDescription("format").setDefaultValue("csv");
+    ruleDao.addRuleParam(dbSession, templateRule, templateRuleParam2);
+    RuleParamDto templateRuleParam3 = RuleParamDto.createFor(templateRule).setName("message").setType("STRING").setDescription("message");
+    ruleDao.addRuleParam(dbSession, templateRule, templateRuleParam3);
 
-    // Create custom rule with a parameter
+    // Create custom rule with 2 parameters
     RuleDto customRule = RuleTesting.newCustomRule(templateRule).setSeverity(Severity.MAJOR).setLanguage("xoo");
     ruleDao.insert(dbSession, customRule);
-    ruleDao.addRuleParam(dbSession, customRule, templateRuleParam.setDefaultValue("a.*"));
+    ruleDao.addRuleParam(dbSession, customRule, templateRuleParam1.setDefaultValue("a.*"));
+    ruleDao.addRuleParam(dbSession, customRule, templateRuleParam2.setDefaultValue("txt"));
 
     // Create a quality profile
     QualityProfileKey qualityProfileKey = QualityProfileKey.of("P1", "xoo");
@@ -390,14 +395,31 @@ public class RuleUpdaterMediumTest {
 
     dbSession.clearCache();
 
-    // Update custom rule parameter
+    // Update custom rule parameter 'regex', add 'message' and remove 'format'
     RuleUpdate update = RuleUpdate.createForCustomRule(customRule.getKey())
-      .setParameters(ImmutableMap.of("regex", "b.*"));
+      .setParameters(ImmutableMap.of("regex", "b.*", "message", "a message"));
     updater.update(update, UserSession.get());
 
-    // Verify active rule parameter has been updated
+    dbSession.clearCache();
+
+    // Verify custom rule parameters has been updated
+    Rule customRuleReloaded = ruleIndex.getByKey(customRule.getKey());
+    assertThat(customRuleReloaded.params()).hasSize(2);
+    assertThat(customRuleReloaded.param("regex")).isNotNull();
+    assertThat(customRuleReloaded.param("regex").defaultValue()).isEqualTo("b.*");
+    assertThat(customRuleReloaded.param("message")).isNotNull();
+    assertThat(customRuleReloaded.param("message").defaultValue()).isEqualTo("a message");
+    assertThat(customRuleReloaded.param("format")).isNull();
+
+    RuleParam param = customRuleReloaded.params().get(0);
+    assertThat(param.defaultValue()).isEqualTo("b.*");
+
+    // Verify active rule parameters has been updated
     ActiveRule activeRule = tester.get(ActiveRuleIndex.class).getByKey(ActiveRuleKey.of(qualityProfileKey, customRule.getKey()));
+    assertThat(activeRule.params()).hasSize(2);
     assertThat(activeRule.params().get("regex")).isEqualTo("b.*");
+    assertThat(activeRule.params().get("format")).isNull();
+    assertThat(activeRule.params().get("message")).isEqualTo("a message");
 
     // Verify that severity has not changed
     assertThat(activeRule.severity()).isEqualTo(Severity.BLOCKER);

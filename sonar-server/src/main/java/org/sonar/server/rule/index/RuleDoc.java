@@ -19,6 +19,8 @@
  */
 package org.sonar.server.rule.index;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -29,7 +31,9 @@ import org.sonar.server.rule.RuleParam;
 import org.sonar.server.search.BaseDoc;
 import org.sonar.server.search.IndexUtils;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -152,6 +156,17 @@ public class RuleDoc extends BaseDoc implements Rule {
       }
     }
     return params;
+  }
+
+  @CheckForNull
+  @Override
+  public RuleParam param(final String key) {
+    return Iterables.find(params(), new Predicate<RuleParam>() {
+      @Override
+      public boolean apply(@Nullable RuleParam input) {
+        return input != null && input.key().equals(key);
+      }
+    }, null);
   }
 
   @Override
