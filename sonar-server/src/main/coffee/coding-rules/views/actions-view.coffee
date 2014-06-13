@@ -57,15 +57,8 @@ define [
       @options.app.codingRulesBulkChangeDropdownView.toggle()
 
 
-    bulkEnabled: ->
-      return false if @collection.isEmpty()
-      resultLanguages = _.uniq(@collection.pluck 'lang')
-      resultLanguages.length == 1
-
-
     serializeData: ->
       _.extend super,
         canWrite: @options.app.canWrite
         paging: @collection.paging
         sorting: @collection.sorting
-        bulkEnabled: @bulkEnabled()

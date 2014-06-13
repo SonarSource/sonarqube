@@ -446,6 +446,8 @@ requirejs [
     App.canWrite = r.canWrite
     App.qualityProfiles = _.sortBy r.qualityprofiles, ['name', 'lang']
     App.languages = _.extend r.languages, none: 'None'
+    _.map App.qualityProfiles, (profile) ->
+      profile.language = App.languages[profile.lang]
     App.repositories = r.repositories
     App.repositories.push
       key: 'manual'

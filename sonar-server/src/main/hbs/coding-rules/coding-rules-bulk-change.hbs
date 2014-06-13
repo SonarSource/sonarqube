@@ -21,11 +21,12 @@
         {{#eq action 'deactivate'}}{{t 'coding_rules.deactivate_in'}}{{/eq}}
       </label></h3>
       {{#if qualityProfile}}
-        <h3 class="readonly-field">{{qualityProfileName}}</h3>
+        <h3 class="readonly-field">{{qualityProfileName}}{{#notEq action 'change-severity'}} —
+          {{t 'are_you_sure'}}{{/notEq}}</h3>
       {{else}}
         <select id="coding-rules-bulk-change-profile">
           {{#each availableQualityProfiles}}
-            <option value="{{key}}">{{name}}</option>
+            <option value="{{key}}">{{name}} - {{language}}</option>
           {{/each}}
         </select>
       {{/if}}
