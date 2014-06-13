@@ -262,6 +262,7 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
     if (hasIndex()) {
       session.enqueue(new EmbeddedIndexAction<K>(
         this.getIndexType(), IndexAction.Method.DELETE, key, nestedItem));
+      session.commit();
     }
   }
 
