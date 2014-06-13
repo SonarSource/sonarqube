@@ -75,7 +75,7 @@
 
 
   window.requestMessages = function() {
-    var currentLocale = navigator.language.replace('-', '_');
+    var currentLocale = (navigator.language || navigator.userLanguage).replace('-', '_');
     var cachedLocale = localStorage.getItem('l10n.locale');
     if (cachedLocale !== currentLocale) {
       localStorage.removeItem('l10n.timestamp');
