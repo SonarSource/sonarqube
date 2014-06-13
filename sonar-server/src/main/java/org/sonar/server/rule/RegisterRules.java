@@ -43,12 +43,8 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.RuleActivator;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -329,14 +325,9 @@ public class RegisterRules implements Startable {
       if (ruleDto.getTemplateId() != null) {
         RuleDto template = dbClient.ruleDao().getTemplate(ruleDto, session);
         if (template != null && RuleStatus.REMOVED != template.getStatus()) {
-          ruleDto.setLanguage(template.getLanguage());
-          ruleDto.setStatus(template.getStatus());
-          ruleDto.setDefaultSubCharacteristicId(template.getDefaultSubCharacteristicId());
-          ruleDto.setDefaultRemediationFunction(template.getDefaultRemediationFunction());
-          ruleDto.setDefaultRemediationCoefficient(template.getDefaultRemediationCoefficient());
-          ruleDto.setDefaultRemediationOffset(template.getDefaultRemediationOffset());
-          ruleDto.setEffortToFixDescription(template.getEffortToFixDescription());
-          dbClient.ruleDao().update(session, ruleDto);
+          if (updateCustomRuleFromTemplateRule(ruleDto, template)){
+            dbClient.ruleDao().update(session, ruleDto);
+          }
           toBeRemoved = false;
         }
       }
@@ -357,6 +348,39 @@ public class RegisterRules implements Startable {
       session.commit();
     }
     return removedRules;
+  }
+
+  private static boolean updateCustomRuleFromTemplateRule(RuleDto customRule, RuleDto templateRule) {
+    boolean changed = false;
+    if (!StringUtils.equals(customRule.getLanguage(), templateRule.getLanguage())) {
+      customRule.setLanguage(templateRule.getLanguage());
+      changed = true;
+    }
+    if (!StringUtils.equals(customRule.getConfigKey(), templateRule.getConfigKey())) {
+      customRule.setConfigKey(templateRule.getConfigKey());
+      changed = true;
+    }
+    if (!ObjectUtils.equals(customRule.getDefaultSubCharacteristicId(), templateRule.getDefaultSubCharacteristicId())) {
+      customRule.setDefaultSubCharacteristicId(templateRule.getDefaultSubCharacteristicId());
+      changed = true;
+    }
+    if (!StringUtils.equals(customRule.getDefaultRemediationFunction(), templateRule.getDefaultRemediationFunction())) {
+      customRule.setDefaultRemediationFunction(templateRule.getDefaultRemediationFunction());
+      changed = true;
+    }
+    if (!StringUtils.equals(customRule.getDefaultRemediationCoefficient(), templateRule.getDefaultRemediationCoefficient())) {
+      customRule.setDefaultRemediationCoefficient(templateRule.getDefaultRemediationCoefficient());
+      changed = true;
+    }
+    if (!StringUtils.equals(customRule.getDefaultRemediationOffset(), templateRule.getDefaultRemediationOffset())) {
+      customRule.setDefaultRemediationOffset(templateRule.getDefaultRemediationOffset());
+      changed = true;
+    }
+    if (!StringUtils.equals(customRule.getEffortToFixDescription(), templateRule.getEffortToFixDescription())) {
+      customRule.setEffortToFixDescription(templateRule.getEffortToFixDescription());
+      changed = true;
+    }
+    return changed;
   }
 
   /**

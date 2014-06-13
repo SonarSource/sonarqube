@@ -20,6 +20,7 @@
 
 package org.sonar.server.rule;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -47,6 +48,7 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
+import java.util.Date;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -66,6 +68,7 @@ public class RegisterRulesMediumTest {
     tester.clearDbAndIndexes();
     rulesDefinition.includeX1 = true;
     rulesDefinition.includeX2 = true;
+    rulesDefinition.includeTemplate1 = true;
     tester.get(Platform.class).executeStartupTasks();
     db = tester.get(DbClient.class);
     dbSession = tester.get(DbClient.class).openSession(false);
@@ -79,13 +82,13 @@ public class RegisterRulesMediumTest {
 
   @Test
   public void register_rules_at_startup() throws Exception {
-    verifyTwoRulesInDb();
+    verifyRulesInDb();
 
     RuleIndex index = tester.get(RuleIndex.class);
 
     RuleResult searchResult = index.search(new RuleQuery(), new QueryOptions());
-    assertThat(searchResult.getTotal()).isEqualTo(2);
-    assertThat(searchResult.getHits()).hasSize(2);
+    assertThat(searchResult.getTotal()).isEqualTo(3);
+    assertThat(searchResult.getHits()).hasSize(3);
   }
 
   /**
@@ -99,11 +102,11 @@ public class RegisterRulesMediumTest {
   public void index_even_if_no_changes() throws Exception {
     RuleIndex index = tester.get(RuleIndex.class);
 
-    verifyTwoRulesInDb();
+    verifyRulesInDb();
 
     // clear ES but keep db
     tester.clearIndexes();
-    verifyTwoRulesInDb();
+    verifyRulesInDb();
     RuleResult searchResult = index.search(new RuleQuery(), new QueryOptions());
     assertThat(searchResult.getTotal()).isEqualTo(0);
     assertThat(searchResult.getHits()).hasSize(0);
@@ -113,7 +116,7 @@ public class RegisterRulesMediumTest {
 
     index = tester.get(RuleIndex.class);
 
-    verifyTwoRulesInDb();
+    verifyRulesInDb();
     searchResult = index.search(new RuleQuery().setKey("xoo:x1"), new QueryOptions());
     assertThat(searchResult.getTotal()).isEqualTo(1);
     assertThat(searchResult.getHits()).hasSize(1);
@@ -122,12 +125,12 @@ public class RegisterRulesMediumTest {
 
   @Test
   public void mark_rule_as_removed() throws Exception {
-    verifyTwoRulesInDb();
+    verifyRulesInDb();
 
     rulesDefinition.includeX2 = false;
     tester.get(Platform.class).executeStartupTasks();
 
-    verifyTwoRulesInDb();
+    verifyRulesInDb();
     RuleDto rule = db.ruleDao().getByKey(dbSession, RuleKey.of("xoo", "x2"));
     assertThat(rule.getStatus()).isEqualTo(RuleStatus.REMOVED);
   }
@@ -170,9 +173,10 @@ public class RegisterRulesMediumTest {
     tester.get(QProfileService.class).activate(activation);
     dbSession.clearCache();
 
-    // restart without x1 and x2 -> keep active rule of x1
+    // restart without x1, x2, template1 -> keep active rule of x1
     rulesDefinition.includeX1 = false;
     rulesDefinition.includeX2 = false;
+    rulesDefinition.includeTemplate1 = false;
     tester.get(Platform.class).executeStartupTasks();
     dbSession.clearCache();
     assertThat(db.ruleDao().getByKey(dbSession, RuleKey.of("xoo", "x1")).getStatus()).isEqualTo(RuleStatus.REMOVED);
@@ -180,20 +184,126 @@ public class RegisterRulesMediumTest {
     assertThat(db.activeRuleDao().findByProfileKey(dbSession, profileKey)).hasSize(1);
   }
 
-  private void verifyTwoRulesInDb() {
+  @Test
+  public void update_custom_rule_from_template() throws Exception {
+    RuleIndex index = tester.get(RuleIndex.class);
+    Rule templateRule = index.getByKey(RuleKey.of("xoo", "template1"));
+
+    // Create custom rule
+    RuleKey customRuleKey = tester.get(RuleCreator.class).create(new NewRule()
+      .setRuleKey("CUSTOM_RULE")
+      .setTemplateKey(templateRule.key())
+      .setName("My custom")
+      .setHtmlDescription("Some description")
+      .setSeverity(Severity.MAJOR)
+      .setStatus(RuleStatus.READY)
+      .setParameters(ImmutableMap.of("format", "txt")));
+
+    // Update custom rule
+    RuleDto customRuleDto = db.ruleDao().getByKey(dbSession, customRuleKey);
+    db.ruleDao().update(dbSession, customRuleDto
+        .setLanguage("other language")
+        .setConfigKey("other config key")
+        .setDefaultSubCharacteristicId(45)
+        .setDefaultRemediationFunction("LINEAR_OFFSET")
+        .setDefaultRemediationCoefficient("1h")
+        .setDefaultRemediationOffset("5min")
+        .setEffortToFixDescription("effort to fix desc")
+    );
+    dbSession.commit();
+    dbSession.clearCache();
+
+    // Re-execute startup tasks
+    tester.get(Platform.class).executeStartupTasks();
+
+    // Verify custom rule has been restore from the template
+    Rule customRule = index.getByKey(customRuleKey);
+    assertThat(customRule.language()).isEqualTo("xoo");
+    assertThat(customRule.internalKey()).isNull();
+    assertThat(customRule.debtSubCharacteristicKey()).isNull();
+    assertThat(customRule.debtRemediationFunction()).isNull();
+  }
+
+  @Test
+  public void not_update_custom_rule_from_template_if_no_change() throws Exception {
+    RuleIndex index = tester.get(RuleIndex.class);
+    Rule templateRule = index.getByKey(RuleKey.of("xoo", "template1"));
+
+    // Create custom rule
+    RuleKey customRuleKey = tester.get(RuleCreator.class).create(new NewRule()
+      .setRuleKey("CUSTOM_RULE")
+      .setTemplateKey(templateRule.key())
+      .setName("My custom")
+      .setHtmlDescription("Some description")
+      .setSeverity(Severity.MAJOR)
+      .setStatus(RuleStatus.READY)
+      .setParameters(ImmutableMap.of("format", "txt")));
+    dbSession.commit();
+    dbSession.clearCache();
+
+    // Store updated at date
+    Date updatedAt = index.getByKey(customRuleKey).updatedAt();
+
+    // Re-execute startup tasks
+    tester.get(Platform.class).executeStartupTasks();
+
+    // Verify custom rule has not been updated
+    Rule customRuleReloaded = index.getByKey(customRuleKey);
+    assertThat(customRuleReloaded.updatedAt()).isEqualTo(updatedAt);
+  }
+
+  @Test
+  public void not_update_custom_rule_params_from_template() throws Exception {
+    RuleIndex index = tester.get(RuleIndex.class);
+    Rule templateRule = index.getByKey(RuleKey.of("xoo", "template1"));
+
+    // Create custom rule
+    RuleKey customRuleKey = tester.get(RuleCreator.class).create(new NewRule()
+      .setRuleKey("CUSTOM_RULE")
+      .setTemplateKey(templateRule.key())
+      .setName("My custom")
+      .setHtmlDescription("Some description")
+      .setSeverity(Severity.MAJOR)
+      .setStatus(RuleStatus.READY)
+      .setParameters(ImmutableMap.of("format", "txt")));
+    dbSession.commit();
+    dbSession.clearCache();
+
+    // Update custom rule param name
+    RuleDto customRuleDto = db.ruleDao().getByKey(dbSession, customRuleKey);
+    RuleParamDto customRuleParamDto = db.ruleDao().findRuleParamsByRuleKey(dbSession, customRuleKey).get(0);
+    db.ruleDao().removeRuleParam(dbSession, customRuleDto, customRuleParamDto);
+    db.ruleDao().addRuleParam(dbSession, customRuleDto, customRuleParamDto.setName("format2"));
+    dbSession.commit();
+    dbSession.clearCache();
+
+    // Verify param has been updated
+    Rule customRule = index.getByKey(customRuleKey);
+    assertThat(customRule.params()).hasSize(1);
+    assertThat(customRule.params().get(0).key()).isEqualTo("format2");
+
+    // Re-execute startup tasks
+    tester.get(Platform.class).executeStartupTasks();
+
+    // Verify custom rule param has not been changed!
+    Rule customRuleReloaded = index.getByKey(customRuleKey);
+    assertThat(customRuleReloaded.params().get(0).key()).isEqualTo("format2");
+  }
+
+  private void verifyRulesInDb() {
     List<RuleDto> rules = db.ruleDao().findAll(dbSession);
-    assertThat(rules).hasSize(2);
+    assertThat(rules).hasSize(3);
     List<RuleParamDto> ruleParams = db.ruleDao().findAllRuleParams(dbSession);
-    assertThat(ruleParams).hasSize(1);
+    assertThat(ruleParams).hasSize(2);
   }
 
   public static class XooRulesDefinition implements RulesDefinition {
 
-    boolean includeX1 = true, includeX2 = true;
+    boolean includeX1 = true, includeX2 = true, includeTemplate1 = true;
 
     @Override
     public void define(Context context) {
-      if (includeX1 || includeX2) {
+      if (includeX1 || includeX2 || includeTemplate1) {
         NewRepository repository = context.createRepository("xoo", "xoo").setName("Xoo Repo");
         if (includeX1) {
           repository.createRule("x1")
@@ -212,6 +322,19 @@ public class RegisterRulesMediumTest {
             .setHtmlDescription("x2 desc")
             .setSeverity(Severity.MAJOR);
         }
+
+        if (includeTemplate1) {
+          repository.createRule("template1")
+            .setName("template1 name")
+            .setHtmlDescription("template1 desc")
+            .setSeverity(Severity.MAJOR)
+            .setTemplate(true)
+            .createParam("format")
+            .setDefaultValue("csv")
+            .setType(RuleParamType.STRING)
+            .setDescription("format parameter");
+        }
+
         repository.done();
       }
     }

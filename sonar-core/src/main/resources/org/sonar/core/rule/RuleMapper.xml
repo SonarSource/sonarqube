@@ -170,7 +170,6 @@
 
   <update id="updateParameter" parameterType="RuleParam" lang="raw">
     UPDATE rules_parameters SET
-      name=#{name},
       param_type=#{type},
       default_value=#{defaultValue},
       description=#{description}
