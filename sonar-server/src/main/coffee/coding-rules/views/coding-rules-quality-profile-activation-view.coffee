@@ -120,4 +120,4 @@ define [
         params: params
         qualityProfiles: availableProfiles
         severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO']
-        saveEnabled: not _.isEmpty(availableProfiles) or @model.get('qProfile')
+        saveEnabled: not _.isEmpty(availableProfiles) or (@model and @model.get('qProfile'))
