@@ -19,18 +19,26 @@
 #
 
 #
-# SQ 4.4
-# SONAR-5001
+# SonarQube 4.4
+# SONAR-5397
 #
-class InverseRuleKeyIndex < ActiveRecord::Migration
+class MergeCustomRulesExtendedDescriptionWithDescription < ActiveRecord::Migration
+
+  class Rule < ActiveRecord::Base
+  end
 
   def self.up
-    begin
-      remove_index :rules, :name => 'rules_plugin_key_and_name'
-    rescue
-      #ignore
+    Rule.reset_column_information
+    Rule.all(:conditions => ['template_id IS NOT NULL and note_data IS NOT NULL']).each do |r|
+      unless r.note_data.blank?
+        r.description += '<br/>' + r.note_data
+        r.note_data = nil
+        r.note_user_login = nil
+        r.note_created_at = nil
+        r.note_updated_at = nil
+        r.save!
+      end
     end
-    add_index :rules, [:plugin_name, :plugin_rule_key], :unique => true, :name => 'rules_repo_key'
   end
 
 end
