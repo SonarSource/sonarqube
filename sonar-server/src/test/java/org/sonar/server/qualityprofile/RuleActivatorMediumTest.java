@@ -29,11 +29,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleKey;
-import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
+import org.sonar.core.qualityprofile.db.*;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
@@ -46,6 +42,7 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.tester.ServerTester;
 
 import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -101,7 +98,7 @@ public class RuleActivatorMediumTest {
     RuleDto xooCustomRule1 = RuleTesting.newCustomRule(xooTemplateRule1).setRuleKey(CUSTOM_RULE_KEY.rule())
       .setSeverity("MINOR").setLanguage("xoo");
     db.ruleDao().insert(dbSession, xooCustomRule1);
-    db.ruleDao().addRuleParam(dbSession, xooTemplateRule1, RuleParamDto.createFor(xooTemplateRule1)
+    db.ruleDao().addRuleParam(dbSession, xooCustomRule1, RuleParamDto.createFor(xooTemplateRule1)
       .setName("format").setDefaultValue("txt").setType(RuleParamType.STRING.type()));
 
     // create pre-defined profile
@@ -178,7 +175,6 @@ public class RuleActivatorMediumTest {
     activation.setSeverity(Severity.BLOCKER);
     ruleActivator.activate(activation);
 
-
     assertThat(db.activeRuleDao().getParamByKeyAndName(activeRuleKey, "max", dbSession)).isNotNull();
     db.activeRuleDao().removeParamByKeyAndName(dbSession, activeRuleKey, "max");
     dbSession.commit();
@@ -211,6 +207,22 @@ public class RuleActivatorMediumTest {
 
     assertThat(countActiveRules(XOO_PROFILE_KEY)).isEqualTo(1);
     verifyHasActiveRule(activeRuleKey, Severity.MINOR, null, ImmutableMap.of("max", "10"));
+  }
+
+  @Test
+  public void ignore_parameters_when_activating_custom_rule() throws Exception {
+    // initial activation
+    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(XOO_PROFILE_KEY, CUSTOM_RULE_KEY);
+    RuleActivation activation = new RuleActivation(activeRuleKey);
+    ruleActivator.activate(activation);
+
+    // update
+    RuleActivation update = new RuleActivation(activeRuleKey)
+      .setParameter("format", "xls");
+    ruleActivator.activate(update);
+
+    assertThat(countActiveRules(XOO_PROFILE_KEY)).isEqualTo(1);
+    verifyHasActiveRule(activeRuleKey, Severity.MINOR, null, ImmutableMap.of("format", "txt"));
   }
 
   @Test
@@ -309,20 +321,6 @@ public class RuleActivatorMediumTest {
       fail();
     } catch (BadRequestException e) {
       assertThat(e.l10nKey()).isEqualTo("errors.type.notInteger");
-      verifyZeroActiveRules(XOO_PROFILE_KEY);
-    }
-  }
-
-  @Test
-  public void fail_to_activate_if_custom_rule_template_and_parameters_are_set() throws Exception {
-    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, CUSTOM_RULE_KEY))
-      .setParameter("format", "xls");
-
-    try {
-      ruleActivator.activate(activation);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Parameters cannot be set when activating the custom rule 'xoo:custom1'");
       verifyZeroActiveRules(XOO_PROFILE_KEY);
     }
   }
@@ -534,7 +532,6 @@ public class RuleActivatorMediumTest {
     verifyOneActiveRule(XOO_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.INFO, ActiveRuleDto.OVERRIDES, ImmutableMap.of("max", "7"));
     verifyOneActiveRule(XOO_GRAND_CHILD_PROFILE_KEY, XOO_RULE_1, Severity.INFO, ActiveRuleDto.INHERITED, ImmutableMap.of("max", "7"));
   }
-
 
   @Test
   public void do_not_override_on_child_if_same_values() throws Exception {
@@ -831,18 +828,18 @@ public class RuleActivatorMediumTest {
   }
 
   private void verifyOneActiveRule(QualityProfileKey profileKey, RuleKey ruleKey, String expectedSeverity,
-                                   @Nullable String expectedInheritance, Map<String, String> expectedParams) {
+    @Nullable String expectedInheritance, Map<String, String> expectedParams) {
     assertThat(countActiveRules(profileKey)).isEqualTo(1);
     verifyHasActiveRule(profileKey, ruleKey, expectedSeverity, expectedInheritance, expectedParams);
   }
 
   private void verifyHasActiveRule(QualityProfileKey profileKey, RuleKey ruleKey, String expectedSeverity,
-                                   @Nullable String expectedInheritance, Map<String, String> expectedParams) {
+    @Nullable String expectedInheritance, Map<String, String> expectedParams) {
     verifyHasActiveRule(ActiveRuleKey.of(profileKey, ruleKey), expectedSeverity, expectedInheritance, expectedParams);
   }
 
   private void verifyHasActiveRule(ActiveRuleKey activeRuleKey, String expectedSeverity,
-                                   @Nullable String expectedInheritance, Map<String, String> expectedParams) {
+    @Nullable String expectedInheritance, Map<String, String> expectedParams) {
     // verify db
     boolean found = false;
     List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().findByProfileKey(dbSession, activeRuleKey.qProfile());

@@ -27,11 +27,7 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.log.Log;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.preview.PreviewCache;
-import org.sonar.core.qualityprofile.db.ActiveRuleDto;
-import org.sonar.core.qualityprofile.db.ActiveRuleKey;
-import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
+import org.sonar.core.qualityprofile.db.*;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
@@ -47,6 +43,7 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.util.TypeValidations;
 
 import javax.annotation.Nullable;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -66,8 +63,8 @@ public class RuleActivator implements ServerComponent {
   private final LogService log;
 
   public RuleActivator(DbClient db, IndexClient index,
-                       RuleActivatorContextFactory contextFactory, TypeValidations typeValidations,
-                       PreviewCache previewCache, LogService log) {
+    RuleActivatorContextFactory contextFactory, TypeValidations typeValidations,
+    PreviewCache previewCache, LogService log) {
     this.db = db;
     this.index = index;
     this.contextFactory = contextFactory;
@@ -75,7 +72,6 @@ public class RuleActivator implements ServerComponent {
     this.previewCache = previewCache;
     this.log = log;
   }
-
 
   /**
    * Activate a rule on a Quality profile. Update configuration (severity/parameters) if the rule is already
@@ -151,15 +147,19 @@ public class RuleActivator implements ServerComponent {
    * 1. defined by end-user
    * 2. else inherited from parent profile
    * 3. else defined by rule defaults
+   *
+   * On custom rules, it's always rule parameters that are used
    */
   private void applySeverityAndParamToChange(RuleActivation activation, RuleActivatorContext context, ActiveRuleChange change) {
     change.setSeverity(StringUtils.defaultIfEmpty(activation.getSeverity(), context.defaultSeverity()));
-    verifyParametersAreNotSetOnCustomRule(context, activation, change);
     for (RuleParamDto ruleParamDto : context.ruleParams()) {
-      String value = StringUtils.defaultIfEmpty(
-        activation.getParameters().get(ruleParamDto.getName()),
-        context.defaultParam(ruleParamDto.getName()));
-      verifyParam(ruleParamDto, value);
+      String value = null;
+      if (context.rule().getTemplateId() == null) {
+        value = StringUtils.defaultIfEmpty(
+          activation.getParameters().get(ruleParamDto.getName()),
+          context.defaultParam(ruleParamDto.getName()));
+        verifyParam(ruleParamDto, value);
+      }
       change.setParameter(ruleParamDto.getName(), StringUtils.defaultIfEmpty(value, ruleParamDto.getDefaultValue()));
     }
   }
@@ -303,7 +303,6 @@ public class RuleActivator implements ServerComponent {
 
     return changes;
   }
-
 
   private void verifyParam(RuleParamDto ruleParam, @Nullable String value) {
     if (value != null) {
