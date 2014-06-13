@@ -155,17 +155,22 @@ define [
 
 
     changeTags: ->
-      @ui.tagsEdit.show()
-      @ui.tagsList.hide()
+      if @ui.tagsEdit.show
+        @ui.tagsEdit.show()
+      if @ui.tagsList.hide
+        @ui.tagsList.hide()
       key.setScope 'tags'
       key 'escape', 'tags', => @cancelEdit()
 
 
     cancelEdit: ->
       key.unbind 'escape', 'tags'
-      @ui.tagsList.show()
-      @ui.tagInput.select2 'close'
-      @ui.tagsEdit.hide()
+      if @ui.tagsList.show
+        @ui.tagsList.show()
+      if @ui.tagInput.select2
+        @ui.tagInput.select2 'close'
+      if @ui.tagsEdit.hide
+        @ui.tagsEdit.hide()
 
 
     editDone: ->
@@ -179,7 +184,9 @@ define [
           tags: tags
       .done (r) =>
           @model.set 'tags', r.rule.tags
-          @render()
+          @cancelEdit()
+      .always =>
+        @render()
 
 
     showExtendDescriptionForm: ->
