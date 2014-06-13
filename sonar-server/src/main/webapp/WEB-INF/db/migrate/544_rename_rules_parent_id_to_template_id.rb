@@ -25,9 +25,7 @@
 class RenameRulesParentIdToTemplateId < ActiveRecord::Migration
 
   def self.up
-    begin
-      rename_column 'rules', 'parent_id', 'template_id'
-    end
+    rename_column 'rules', 'parent_id', 'template_id'
   end
 
 end

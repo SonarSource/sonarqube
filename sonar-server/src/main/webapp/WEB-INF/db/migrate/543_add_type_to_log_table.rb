@@ -25,11 +25,9 @@
 class AddTypeToLogTable < ActiveRecord::Migration
 
   def self.up
-    begin
-      remove_column 'logs', 'payload_field'
-      add_column 'logs', 'log_type', :string, :limit => 50
-      add_column 'logs', 'log_message', :string
-    end
+    remove_column 'logs', 'payload_field'
+    add_column 'logs', 'log_type', :string, :limit => 50
+    add_column 'logs', 'log_message', :string
   end
 
 end
