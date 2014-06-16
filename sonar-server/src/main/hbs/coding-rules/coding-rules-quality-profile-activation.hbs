@@ -35,6 +35,7 @@
           </select>
         </td>
       </tr>
+      {{#unless isCustomRule}}
       {{#each params}}
         <tr class="property">
           <th><h3>{{key}}</h3></th>
@@ -51,6 +52,7 @@
           </td>
         </tr>
       {{/each}}
+      {{/unless}}
     </table>
   </div>
 

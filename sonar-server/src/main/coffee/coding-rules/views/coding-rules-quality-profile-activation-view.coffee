@@ -121,3 +121,4 @@ define [
         qualityProfiles: availableProfiles
         severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO']
         saveEnabled: not _.isEmpty(availableProfiles) or (@model and @model.get('qProfile'))
+        isCustomRule: (@model and @model.has('templateKey')) or @rule.has 'templateKey'

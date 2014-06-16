@@ -7,6 +7,8 @@ define [
 ) ->
 
   class CodingRulesDetailCustomRulesView extends Marionette.CollectionView
+    tagName: 'table'
+    className: 'width100'
     itemView: CodingRulesDetailCustomRuleView
 
     itemViewOptions: ->

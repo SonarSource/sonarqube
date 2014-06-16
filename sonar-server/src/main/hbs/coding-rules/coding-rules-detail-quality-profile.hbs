@@ -26,6 +26,7 @@
         {{/notEq}}{{/if}}
       </td>
 
+      {{#unless templateKey}}
       <td class="coding-rules-detail-quality-profile-parameters">
         {{#each parameters}}
           <div class="coding-rules-detail-quality-profile-parameter">
@@ -39,6 +40,7 @@
         {{/each}}
         &nbsp;
       </td>
+      {{/unless}}
 
       {{#if canWrite}}
       <td class="coding-rules-detail-quality-profile-actions">

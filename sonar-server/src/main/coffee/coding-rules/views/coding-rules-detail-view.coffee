@@ -44,6 +44,7 @@ define [
       activateContextQualityProfile: '.coding-rules-detail-quality-profile-activate'
       changeQualityProfile: '.coding-rules-detail-quality-profile-update'
       createCustomRule: '#coding-rules-custom-rules-create'
+      changeCustomRule: '#coding-rules-detail-custom-rule-change'
 
 
     events:
@@ -58,6 +59,7 @@ define [
       'click @ui.activateContextQualityProfile': 'activateContextQualityProfile'
       'click @ui.changeQualityProfile': 'changeQualityProfile'
       'click @ui.createCustomRule': 'createCustomRule'
+      'click @ui.changeCustomRule': 'changeCustomRule'
 
 
     initialize: (options) ->
@@ -232,6 +234,11 @@ define [
     createCustomRule: ->
       @options.app.codingRulesCustomRuleCreationView.templateRule = @model
       @options.app.codingRulesCustomRuleCreationView.model = new Backbone.Model()
+      @options.app.codingRulesCustomRuleCreationView.show()
+
+
+    changeCustomRule: ->
+      @options.app.codingRulesCustomRuleCreationView.model = @model
       @options.app.codingRulesCustomRuleCreationView.show()
 
 

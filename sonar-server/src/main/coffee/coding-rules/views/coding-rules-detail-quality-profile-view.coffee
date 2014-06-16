@@ -89,3 +89,4 @@ define [
         parent: @getParent()
         parameters: @enhanceParameters()
         canWrite: @options.app.canWrite
+        templateKey: @options.rule.get 'templateKey'

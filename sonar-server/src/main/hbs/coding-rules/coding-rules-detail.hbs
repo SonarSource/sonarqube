@@ -35,10 +35,28 @@
   <li class="coding-rules-detail-property">{{subcharacteristic}}</li>
   <li class="coding-rules-detail-property">{{t 'coding_rules.available_since'}} {{d createdAt}}</li>
   <li class="coding-rules-detail-property">{{repository}} ({{language}})</li>
+
+  {{#if isTemplate}}
+    <li class="coding-rules-detail-property" title="{{t 'coding_rules.rule_template.title'}}">{{t 'coding_rules.rule_template'}}</li>
+  {{/if}}
+  {{#if templateKey}}
+    <li class="coding-rules-detail-property" title="{{t 'coding_rules.custom_rule.title'}}">{{t 'coding_rules.custom_rule'}}
+      <a href="#rule_key={{templateKey}}">{{t 'coding_rules.show_template'}}</a>
+    </li>
+  {{/if}}
 </ul>
 
 <div class="coding-rules-detail-description rule-desc">{{{htmlDesc}}}</div>
 
+{{#if templateKey}}
+  {{#if canWrite}}
+  <div class="coding-rules-detail-description">
+    <div class="button-group">
+      <button id="coding-rules-detail-custom-rule-change">{{t 'change_verb'}}</button>
+    </div>
+  </div>
+  {{/if}}
+{{else}}
 <div class="coding-rules-detail-description coding-rules-detail-description-extra">
   <div id="coding-rules-detail-description-extra">
     {{#if htmlNote}}
@@ -76,6 +94,7 @@
     <i class="spinner"></i>
   </div>{{/if}}
 </div>
+{{/if}}
 
 
 {{#if params}}
@@ -86,12 +105,18 @@
         <h3 class="coding-rules-detail-parameter-name">{{key}}</h3>
 
         <div class="coding-rules-detail-parameter-description">
-          {{desc}}
-
-          {{#if defaultValue}}
-            <div>{{t 'coding_rules.parameters.default_value'}} {{defaultValue}}</div>
+          {{#if ../../templateKey}}
+            <span class="value">{{defaultValue}}</span>
+          {{else}}
+            <div class="coding-rules-detail-parameter-description">
+              {{desc}}
+              {{#if defaultValue}}
+                <div>
+                  {{t 'coding_rules.parameters.default_value'}} {{defaultValue}}
+                </div>
+              {{/if}}
+            </div>
           {{/if}}
-        </div>
       </li>
     {{/each}}
   </ul>

@@ -31,7 +31,7 @@
         <th><h3>{{t 'description'}} <em class="mandatory">*</em></h3></th>
         <td>
           <textarea type="textarea" name="html_description" id="coding-rules-custom-rule-creation-html-description"
-            rows="4" style="width: 100%; margin-bottom: 4px;">{{{htmlDescription}}}</textarea>
+            rows="4" style="width: 100%; margin-bottom: 4px;">{{{htmlDesc}}}</textarea>
         </td>
       </tr>
       <tr class="property">
@@ -61,7 +61,7 @@
             {{#eq type 'TEXT'}}
               <textarea class="width100" rows="3" name="{{key}}" placeholder="{{defaultValue}}">{{value}}</textarea>
             {{else}}
-              <input type="text" name="{{key}}" value="{{value}}" placeholder="{{defaultValue}}">
+              <input type="text" name="{{key}}" value="{{value}}" placeholder="{{defaultValue}}"/>
             {{/eq}}
             <div class="note">{{description}}</div>
             {{#if extra}}

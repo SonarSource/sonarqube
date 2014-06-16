@@ -46,6 +46,8 @@ define [
 
     create: ->
       action = 'create'
+      if @model and @model.has 'key'
+        action = 'update'
 
       postData =
         name: @ui.customRuleCreationName.val()
@@ -71,8 +73,8 @@ define [
         type: 'POST'
         url: "#{baseUrl}/api/rules/" + action
         data: postData
-      .done =>
-          @options.app.showRule ruleKey
+      .done (r) =>
+          @options.app.showRule r.rule.key
           @hide()
       .fail =>
           @$('.modal-foot').html origFooter
@@ -120,19 +122,14 @@ define [
 
 
     serializeData: ->
-      params = @templateRule.get 'params'
-      if @model
-        modelParams = @model.get 'params'
-        if modelParams
-          params = params.map (p) ->
-            parentParam = _.findWhere(modelParams, key: p.key)
-            if parentParam
-              _.extend p, value: _.findWhere(modelParams, key: p.key).value
-            else
-              p
+      params = {}
+      if @templateRule
+        params = @templateRule.get 'params'
+      else if @model
+        params = @model.get('params').map (p) ->
+          _.extend p, value: p.defaultValue
 
       _.extend super,
-        templateRule: @templateRule.toJSON()
         change: @model && @model.has 'key'
         params: params
         severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO']

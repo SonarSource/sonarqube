@@ -7,6 +7,7 @@ define [
 ) ->
 
   class CodingRulesDetailCustomRuleView extends Marionette.ItemView
+    tagName: 'tr'
     className: 'coding-rules-detail-custom-rule'
     template: Templates['coding-rules-detail-custom-rule']
 
@@ -17,8 +18,19 @@ define [
       'click @ui.delete': 'delete'
 
     delete: ->
-      confirm('Are you sure ?')
+      if confirm('Are you sure ?')
+        origEl = @$el.html()
+        @$el.html '<i class="spinner"></i>'
 
+        jQuery.ajax
+          type: 'POST'
+          url: "#{baseUrl}/api/rules/delete"
+          data:
+            key: @model.get 'key'
+        .done =>
+          @options.app.showRule @options.templateRule.get 'key'
+        .fail =>
+          @$el.html origEl
 
     serializeData: ->
       _.extend super,
