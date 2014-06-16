@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.core.activity.ActivityLog;
@@ -27,6 +26,7 @@ import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ActiveRuleChange implements ActivityLog {
@@ -95,7 +95,7 @@ public class ActiveRuleChange implements ActivityLog {
 
   @Override
   public Map<String, String> getDetails() {
-    ImmutableMap.Builder<String, String> details = ImmutableMap.builder();
+    HashMap<String, String> details = new HashMap<String, String>();
     if (getType() != null) {
       details.put("type", getType().name());
     }
@@ -106,7 +106,9 @@ public class ActiveRuleChange implements ActivityLog {
     }
     if (!parameters.isEmpty()) {
       for (Map.Entry<String, String> param : parameters.entrySet()) {
-        details.put("param_" + param.getKey(), param.getValue());
+        if (!param.getKey().isEmpty()) {
+          details.put("param_" + param.getKey(), param.getValue());
+        }
       }
     }
     if (StringUtils.isNotEmpty(severity)) {
@@ -115,7 +117,7 @@ public class ActiveRuleChange implements ActivityLog {
     if (inheritance != null) {
       details.put("inheritance", inheritance.name());
     }
-    return details.build();
+    return details;
   }
 
   @Override
