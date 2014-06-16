@@ -25,12 +25,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.TestDatabase;
 import org.sonar.core.technicaldebt.db.RequirementDao;
+import org.sonar.core.template.LoadedTemplateDao;
 import org.sonar.server.rule.RuleRegistry;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -44,9 +44,6 @@ public class CopyRequirementsFromCharacteristicsToRulesTest extends AbstractDaoT
   public static TestDatabase db = new TestDatabase().schema(CopyRequirementsFromCharacteristicsToRulesTest.class, "schema.sql");
 
   @Mock
-  ServerUpgradeStatus status;
-
-  @Mock
   System2 system2;
 
   @Mock
@@ -57,16 +54,13 @@ public class CopyRequirementsFromCharacteristicsToRulesTest extends AbstractDaoT
   @Before
   public void setUp() throws Exception {
     when(system2.now()).thenReturn(DateUtils.parseDateTime("2014-03-13T19:10:03+0100").getTime());
-    service = new CopyRequirementsFromCharacteristicsToRules(db.database(), new RequirementDao(getMyBatis()), ruleRegistry, status, system2);
+    service = new CopyRequirementsFromCharacteristicsToRules(db.database(), new RequirementDao(getMyBatis()), ruleRegistry, new LoadedTemplateDao(getMyBatis()), system2);
   }
 
   @Test
   public void copy_requirements_from_characteristics_to_rules() throws Exception {
     setupData("requirements");
     db.prepareDbUnit(getClass(), "copy_requirements_from_characteristics_to_rules.xml");
-
-    when(status.isUpgraded()).thenReturn(true);
-    when(status.getInitialDbVersion()).thenReturn(498);
 
     service.start();
 
@@ -77,9 +71,6 @@ public class CopyRequirementsFromCharacteristicsToRulesTest extends AbstractDaoT
   @Test
   public void remove_requirements_data_from_characteristics() throws Exception {
     db.prepareDbUnit(getClass(), "remove_requirements_data_from_characteristics.xml");
-
-    when(status.isUpgraded()).thenReturn(true);
-    when(status.getInitialDbVersion()).thenReturn(498);
 
     service.start();
 
@@ -94,9 +85,6 @@ public class CopyRequirementsFromCharacteristicsToRulesTest extends AbstractDaoT
   public void convert_constant_issue_with_coeff_to_constant_issue_with_offset() throws Exception {
     setupData("convert_constant_issue_with_coeff_to_constant_issue_with_offset_requirements");
     db.prepareDbUnit(getClass(), "convert_constant_issue_with_coeff_to_constant_issue_with_offset.xml");
-
-    when(status.isUpgraded()).thenReturn(true);
-    when(status.getInitialDbVersion()).thenReturn(498);
 
     service.start();
 

@@ -29,7 +29,6 @@ import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.Duration;
@@ -38,6 +37,8 @@ import org.sonar.core.persistence.Database;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.technicaldebt.db.RequirementDao;
 import org.sonar.core.technicaldebt.db.RequirementDto;
+import org.sonar.core.template.LoadedTemplateDao;
+import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.server.db.migrations.MassUpdater;
 import org.sonar.server.db.migrations.SqlUtil;
 import org.sonar.server.rule.RegisterRules;
@@ -62,52 +63,52 @@ public class CopyRequirementsFromCharacteristicsToRules {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CopyRequirementsFromCharacteristicsToRules.class);
 
+  private static final String TEMPLATE_KEY = "CopyRequirementsFromCharacteristicsToRules";
+
   private final System2 system2;
 
   private final Database db;
-
-  private final ServerUpgradeStatus status;
 
   private final RequirementDao requirementDao;
 
   private final RuleRegistry ruleRegistry;
 
+  private final LoadedTemplateDao loadedTemplateDao;
+
   /**
    * @param registerRules used only to be started after init of rules
    */
-  public CopyRequirementsFromCharacteristicsToRules(Database database, RequirementDao requirementDao, ServerUpgradeStatus status, RuleRegistry ruleRegistry,
+  public CopyRequirementsFromCharacteristicsToRules(Database database, RequirementDao requirementDao, LoadedTemplateDao loadedTemplateDao, RuleRegistry ruleRegistry,
                                                     RegisterRules registerRules) {
-    this(database, requirementDao, ruleRegistry, status, System2.INSTANCE);
+    this(database, requirementDao, ruleRegistry, loadedTemplateDao, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  CopyRequirementsFromCharacteristicsToRules(Database database, RequirementDao requirementDao, RuleRegistry ruleRegistry, ServerUpgradeStatus status, System2 system2) {
+  CopyRequirementsFromCharacteristicsToRules(Database database, RequirementDao requirementDao, RuleRegistry ruleRegistry, LoadedTemplateDao loadedTemplateDao, System2 system2) {
     this.db = database;
     this.system2 = system2;
-    this.status = status;
+    this.loadedTemplateDao = loadedTemplateDao;
     this.requirementDao = requirementDao;
     this.ruleRegistry = ruleRegistry;
   }
 
   public void start() {
-    if (mustDoExecute()) {
       doExecute();
-    }
-  }
-
-  private boolean mustDoExecute() {
-    return status.isUpgraded() && status.getInitialDbVersion() <= 520;
   }
 
   private void doExecute() {
-    LOGGER.info("Copying requirement from characteristics to rules");
-    copyRequirementsFromCharacteristicsToRules();
+    if (loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.ONE_SHOT_TASK_TYPE, TEMPLATE_KEY) == 0) {
+      LOGGER.info("Copying requirement from characteristics to rules");
+      copyRequirementsFromCharacteristicsToRules();
 
-    LOGGER.info("Deleting requirements data");
-    removeRequirementsDataFromCharacteristics();
+      LOGGER.info("Deleting requirements data");
+      removeRequirementsDataFromCharacteristics();
 
-    LOGGER.info("Reindex rules in E/S");
-    ruleRegistry.reindex();
+      LOGGER.info("Reindex rules in E/S");
+      ruleRegistry.reindex();
+
+      loadedTemplateDao.insert(new LoadedTemplateDto(TEMPLATE_KEY, LoadedTemplateDto.ONE_SHOT_TASK_TYPE));
+    }
   }
 
   private void copyRequirementsFromCharacteristicsToRules() {
