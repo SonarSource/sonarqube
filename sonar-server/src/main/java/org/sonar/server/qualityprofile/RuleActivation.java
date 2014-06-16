@@ -57,7 +57,7 @@ public class RuleActivation {
   /**
    * For internal use
    */
-  boolean isReset() {
+  boolean useDefaults() {
     return severity == null && parameters.isEmpty();
   }
 

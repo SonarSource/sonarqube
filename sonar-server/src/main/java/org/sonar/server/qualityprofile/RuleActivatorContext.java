@@ -77,8 +77,8 @@ class RuleActivatorContext {
   }
 
   @CheckForNull
-  QualityProfileDto parentProfile() {
-    return parentProfile;
+  ActiveRuleDto parentActiveRule() {
+    return parentActiveRule;
   }
 
   RuleActivatorContext setParentProfile(@Nullable QualityProfileDto p) {
@@ -171,13 +171,29 @@ class RuleActivatorContext {
     if (parentActiveRule == null) {
       return false;
     }
-    if (activation.isReset()) {
+    if (activation.useDefaults()) {
       return true;
     }
     if (StringUtils.equals(activation.getSeverity(), parentActiveRule.getSeverityString())) {
       return Maps.difference(activation.getParameters(), parentActiveRuleParamsAsStringMap()).areEqual();
     }
     return false;
+  }
+
+  boolean isSame(ActiveRuleChange change) {
+    if (change.getInheritance()!=null && !change.getInheritance().name().equals(activeRule.getInheritance())) {
+      return false;
+    }
+    if (change.getSeverity()!=null && !change.getSeverity().equals(activeRule.getSeverityString())) {
+      return false;
+    }
+    for (Map.Entry<String, String> changeParam : change.getParameters().entrySet()) {
+      ActiveRuleParamDto param = activeRuleParams.get(changeParam.getKey());
+      if (param != null && !StringUtils.equals(changeParam.getValue(), param.getValue())) {
+        return false;
+      }
+    }
+    return true;
   }
 
   void verifyForActivation() {

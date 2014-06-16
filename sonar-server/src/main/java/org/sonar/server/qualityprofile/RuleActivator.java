@@ -124,15 +124,20 @@ public class RuleActivator implements ServerComponent {
         stopPropagation = true;
       } else {
         applySeverityAndParamToChange(activation, context, change);
-        if (!activation.isCascade() && context.parentProfile() != null) {
+        if (!activation.isCascade() && context.parentActiveRule() != null) {
           // override rule which is already declared on parents
           change.setInheritance(context.isSameAsParent(activation) ? ActiveRule.Inheritance.INHERITED : ActiveRule.Inheritance.OVERRIDES);
         }
       }
+      if (context.isSame(change)) {
+        change = null;
+      }
     }
 
-    changes.add(change);
-    persist(change, context, dbSession);
+    if (change != null) {
+      changes.add(change);
+      persist(change, context, dbSession);
+    }
 
     if (!stopPropagation) {
       changes.addAll(cascadeActivation(dbSession, activation));
@@ -339,7 +344,7 @@ public class RuleActivator implements ServerComponent {
         } catch (BadRequestException e) {
           // other exceptions stop the bulk activation
           result.incrementFailed();
-          // TODO result.addMessage
+          result.getErrors().add(e.errors());
         }
       }
       dbSession.commit();

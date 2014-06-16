@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.core.activity.ActivityLog;
@@ -41,12 +42,9 @@ public class ActiveRuleChange implements ActivityLog {
   private ActiveRule.Inheritance inheritance = null;
   private Map<String, String> parameters = Maps.newHashMap();
 
-  private long start;
-
   private ActiveRuleChange(Type type, ActiveRuleKey key) {
     this.type = type;
     this.key = key;
-    this.start = System.currentTimeMillis();
   }
 
   public ActiveRuleKey getKey() {
@@ -122,5 +120,16 @@ public class ActiveRuleChange implements ActivityLog {
 
   public static ActiveRuleChange createFor(Type type, ActiveRuleKey key) {
     return new ActiveRuleChange(type, key);
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this)
+      .add("type", type)
+      .add("key", key)
+      .add("severity", severity)
+      .add("inheritance", inheritance)
+      .add("parameters", parameters)
+      .toString();
   }
 }
