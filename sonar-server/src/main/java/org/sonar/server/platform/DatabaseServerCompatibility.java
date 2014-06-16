@@ -39,7 +39,7 @@ public class DatabaseServerCompatibility implements Startable {
       throw MessageException.of("Database relates to a more recent version of sonar. Please check your settings.");
     }
     if (status == DatabaseVersion.Status.REQUIRES_UPGRADE) {
-      LoggerFactory.getLogger(DatabaseServerCompatibility.class).info("Database must be upgraded. Please browse /setup");
+      LoggerFactory.getLogger(DatabaseServerCompatibility.class).warn("Database must be upgraded. Please browse /setup");
     }
   }
 

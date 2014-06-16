@@ -73,8 +73,6 @@ class DatabaseVersion
       upgrade_and_start()
     elsif uptodate?
       load_java_web_services
-    else
-      puts 'Database must be upgraded. Please browse /setup'
     end
     uptodate?
   end
