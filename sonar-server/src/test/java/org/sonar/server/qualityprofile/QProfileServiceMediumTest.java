@@ -33,6 +33,7 @@ import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
+import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.search.FacetValue;
 import org.sonar.server.tester.ServerTester;
@@ -117,9 +118,10 @@ public class QProfileServiceMediumTest {
     dbSession.commit();
 
     Map<QualityProfileKey, Multimap<String, FacetValue>> stats = service.getAllProfileStats();
-    System.out.println("stats = " + stats);
 
     assertThat(stats.size()).isEqualTo(2);
-    assertThat(stats.get(XOO_PROFILE_1).size()).isEqualTo(1);
+    assertThat(stats.get(XOO_PROFILE_1).size()).isEqualTo(2);
+    assertThat(stats.get(XOO_PROFILE_1).get(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field()).size()).isEqualTo(1);
+    assertThat(stats.get(XOO_PROFILE_1).get(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field()).size()).isEqualTo(1);
   }
 }

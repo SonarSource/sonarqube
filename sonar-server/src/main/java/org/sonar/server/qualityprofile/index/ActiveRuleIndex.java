@@ -200,9 +200,9 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
       .addAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field())
         .field(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field())
         .subAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field())
-          .field(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field())
-          .subAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field())
-            .field(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field()))))
+          .field(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field()))
+        .subAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field())
+          .field(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field())))
       .setSize(0)
       .setTypes(this.getIndexType())
       .get();
