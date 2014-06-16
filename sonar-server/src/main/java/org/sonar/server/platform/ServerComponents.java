@@ -464,7 +464,7 @@ class ServerComponents {
     pico.addSingleton(AppAction.class);
 
     pico.addSingleton(ActivitiesWebService.class);
-    pico.addSingleton(SearchAction.class);
+    pico.addSingleton(org.sonar.server.activity.ws.SearchAction.class);
     pico.addSingleton(ActivityMapping.class);
 
 
