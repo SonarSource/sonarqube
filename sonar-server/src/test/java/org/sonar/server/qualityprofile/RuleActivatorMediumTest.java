@@ -34,6 +34,7 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.Message;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.index.RuleIndex;
@@ -320,7 +321,8 @@ public class RuleActivatorMediumTest {
       ruleActivator.activate(activation);
       fail();
     } catch (BadRequestException e) {
-      assertThat(e.l10nKey()).isEqualTo("errors.type.notInteger");
+      Message msg = e.errors().messages().get(0);
+      assertThat(msg.getKey()).isEqualTo("errors.type.notInteger");
       verifyZeroActiveRules(XOO_PROFILE_KEY);
     }
   }

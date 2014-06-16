@@ -40,7 +40,8 @@ import org.sonar.core.qualitygate.db.QualityGateDao;
 import org.sonar.core.qualitygate.db.QualityGateDto;
 import org.sonar.server.component.persistence.ComponentDao;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.BadRequestException.Message;
+import org.sonar.server.exceptions.Errors;
+import org.sonar.server.exceptions.Message;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.UserSession;
@@ -50,10 +51,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * @since 4.3
@@ -75,7 +72,7 @@ public class QualityGates {
   private final MyBatis myBatis;
 
   public QualityGates(QualityGateDao dao, QualityGateConditionDao conditionDao, MetricFinder metricFinder, PropertiesDao propertiesDao, ComponentDao componentDao,
-                      MyBatis myBatis) {
+    MyBatis myBatis) {
     this.dao = dao;
     this.conditionDao = conditionDao;
     this.metricFinder = metricFinder;
@@ -119,10 +116,10 @@ public class QualityGates {
       dao.insert(destinationGate, session);
       for (QualityGateConditionDto sourceCondition : conditionDao.selectForQualityGate(sourceId, session)) {
         conditionDao.insert(new QualityGateConditionDto().setQualityGateId(destinationGate.getId())
-            .setMetricId(sourceCondition.getMetricId()).setOperator(sourceCondition.getOperator())
-            .setWarningThreshold(sourceCondition.getWarningThreshold()).setErrorThreshold(sourceCondition.getErrorThreshold()).setPeriod(sourceCondition.getPeriod()),
+          .setMetricId(sourceCondition.getMetricId()).setOperator(sourceCondition.getOperator())
+          .setWarningThreshold(sourceCondition.getWarningThreshold()).setErrorThreshold(sourceCondition.getErrorThreshold()).setPeriod(sourceCondition.getPeriod()),
           session
-        );
+          );
       }
       session.commit();
     } finally {
@@ -130,7 +127,6 @@ public class QualityGates {
     }
     return destinationGate;
   }
-
 
   public Collection<QualityGateDto> list() {
     return dao.selectAll();
@@ -173,7 +169,7 @@ public class QualityGates {
   }
 
   public QualityGateConditionDto createCondition(long qGateId, String metricKey, String operator,
-                                                 @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
+    @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
     checkPermission(UserSession.get());
     getNonNullQgate(qGateId);
     Metric metric = getNonNullMetric(metricKey);
@@ -186,7 +182,7 @@ public class QualityGates {
   }
 
   public QualityGateConditionDto updateCondition(long condId, String metricKey, String operator,
-                                                 @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
+    @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
     checkPermission(UserSession.get());
     QualityGateConditionDto condition = getNonNullCondition(condId);
     Metric metric = getNonNullMetric(metricKey);
@@ -257,42 +253,36 @@ public class QualityGates {
   }
 
   private void validateCondition(Metric metric, String operator, @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
-    List<Message> validationMessages = newArrayList();
-    validateMetric(metric, validationMessages);
-    validateOperator(metric, operator, validationMessages);
-    validateThresholds(warningThreshold, errorThreshold, validationMessages);
-    validatePeriod(metric, period, validationMessages);
-    if (!validationMessages.isEmpty()) {
-      throw BadRequestException.of(validationMessages);
+    Errors errors = new Errors();
+    validateMetric(metric, errors);
+    checkOperator(metric, operator, errors);
+    checkThresholds(warningThreshold, errorThreshold, errors);
+    checkPeriod(metric, period, errors);
+    if (!errors.isEmpty()) {
+      throw new BadRequestException(errors);
     }
   }
 
-  private void validatePeriod(Metric metric, @Nullable Integer period, List<Message> validationMessages) {
+  private void checkPeriod(Metric metric, @Nullable Integer period, Errors errors) {
     if (period == null) {
-      if (metric.getKey().startsWith("new_")) {
-        validationMessages.add(Message.of("A period must be selected for differential metrics."));
-      }
-    } else if (period < 1 || period > 5) {
-      validationMessages.add(Message.of("Valid periods are integers between 1 and 5 (included)."));
+      errors.check(!metric.getKey().startsWith("new_"), "A period must be selected for differential metrics.");
+
+    } else {
+      errors.check(period >= 1 && period <= 5, "Valid periods are integers between 1 and 5 (included).");
     }
   }
 
-  private void validateThresholds(@Nullable String warningThreshold, @Nullable String errorThreshold, List<Message> validationMessages) {
-    if (warningThreshold == null && errorThreshold == null) {
-      validationMessages.add(Message.of("At least one threshold (warning, error) must be set."));
-    }
+  private void checkThresholds(@Nullable String warningThreshold, @Nullable String errorThreshold, Errors errors) {
+    errors.check(warningThreshold != null || errorThreshold != null, "At least one threshold (warning, error) must be set.");
   }
 
-  private void validateOperator(Metric metric, String operator, List<Message> validationMessages) {
-    if (!QualityGateConditionDto.isOperatorAllowed(operator, metric.getType())) {
-      validationMessages.add(Message.of(String.format("Operator %s is not allowed for metric type %s.", operator, metric.getType())));
-    }
+  private void checkOperator(Metric metric, String operator, Errors errors) {
+    errors
+      .check(QualityGateConditionDto.isOperatorAllowed(operator, metric.getType()), String.format("Operator %s is not allowed for metric type %s.", operator, metric.getType()));
   }
 
-  private void validateMetric(Metric metric, List<Message> validationMessages) {
-    if (!isAlertable(metric)) {
-      validationMessages.add(Message.of(String.format("Metric '%s' cannot be used to define a condition.", metric.getKey())));
-    }
+  private void validateMetric(Metric metric, Errors errors) {
+    errors.check(isAlertable(metric), String.format("Metric '%s' cannot be used to define a condition.", metric.getKey()));
   }
 
   private boolean isAvailableForInit(Metric metric) {
@@ -355,24 +345,22 @@ public class QualityGates {
   }
 
   private void validateQualityGate(@Nullable Long updatingQgateId, @Nullable String name) {
-    List<BadRequestException.Message> messages = newArrayList();
+    Errors errors = new Errors();
     if (Strings.isNullOrEmpty(name)) {
-      messages.add(BadRequestException.Message.ofL10n(Validation.CANT_BE_EMPTY_MESSAGE, "Name"));
+      errors.add(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, "Name"));
     } else {
-      messages.addAll(checkQgateNotAlreadyExists(updatingQgateId, name));
+      checkQgateNotAlreadyExists(updatingQgateId, name, errors);
     }
-    if (!messages.isEmpty()) {
-      throw BadRequestException.of(messages);
+    if (!errors.isEmpty()) {
+      throw new BadRequestException(errors);
     }
   }
 
-  private Collection<BadRequestException.Message> checkQgateNotAlreadyExists(@Nullable Long updatingQgateId, String name) {
+  private void checkQgateNotAlreadyExists(@Nullable Long updatingQgateId, String name, Errors errors) {
     QualityGateDto existingQgate = dao.selectByName(name);
     boolean isModifyingCurrentQgate = updatingQgateId != null && existingQgate != null && existingQgate.getId().equals(updatingQgateId);
-    if (!isModifyingCurrentQgate && existingQgate != null) {
-      return Collections.singleton(BadRequestException.Message.ofL10n(Validation.IS_ALREADY_USED_MESSAGE, "Name"));
-    }
-    return Collections.emptySet();
+    errors.check(isModifyingCurrentQgate || existingQgate == null, Validation.IS_ALREADY_USED_MESSAGE, "Name");
+
   }
 
   private void checkPermission(UserSession userSession) {

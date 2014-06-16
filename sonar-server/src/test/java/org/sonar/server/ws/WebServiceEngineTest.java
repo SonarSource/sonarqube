@@ -19,12 +19,13 @@
  */
 package org.sonar.server.ws;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
@@ -32,17 +33,19 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.BadRequestException.Message;
-import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.exceptions.Errors;
+import org.sonar.server.exceptions.Message;
 import org.sonar.server.plugins.MimeTypes;
 
 import javax.annotation.Nullable;
+
 import java.io.IOException;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -83,7 +86,7 @@ public class WebServiceEngineTest {
   }
 
   I18n i18n = mock(I18n.class);
-  WebServiceEngine engine = new WebServiceEngine(new WebService[]{new SystemWebService()}, i18n);
+  WebServiceEngine engine = new WebServiceEngine(new WebService[] {new SystemWebService()}, i18n);
 
   @Before
   public void start() {
@@ -230,13 +233,13 @@ public class WebServiceEngineTest {
   public void bad_request_with_i18n_message() throws Exception {
     ValidatingRequest request = new SimpleRequest("GET").setParam("count", "3");
     ServletResponse response = new ServletResponse();
-    when(i18n.message(eq(Locale.getDefault()), eq("bad.request.reason"), anyString(), eq(0))).thenReturn("Bad request reason #0");
+    when(i18n.message(Locale.ENGLISH, "bad.request.reason", "bad.request.reason", 0)).thenReturn("reason #0");
 
     engine.execute(request, response, "api/system", "fail_with_i18n_message");
 
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":["
-      + "{\"msg\":\"Bad request reason #0\"}"
-      + "]}");
+    assertThat(response.stream().outputAsString()).isEqualTo(
+      "{\"errors\":[{\"msg\":\"reason #0\"}]}"
+    );
     assertThat(response.stream().httpStatus()).isEqualTo(400);
     assertThat(response.stream().mediaType()).isEqualTo(MimeTypes.JSON);
   }
@@ -261,31 +264,17 @@ public class WebServiceEngineTest {
   public void bad_request_with_multiple_i18n_messages() throws Exception {
     ValidatingRequest request = new SimpleRequest("GET").setParam("count", "3");
     ServletResponse response = new ServletResponse();
-    when(i18n.message(Locale.getDefault(), "bad.request.reason", null, 0)).thenReturn("Bad request reason #0");
-    when(i18n.message(Locale.getDefault(), "bad.request.reason", null, 1)).thenReturn("Bad request reason #1");
-    when(i18n.message(Locale.getDefault(), "bad.request.reason", null, 2)).thenReturn("Bad request reason #2");
+    when(i18n.message(Locale.ENGLISH, "bad.request.reason", "bad.request.reason", 0)).thenReturn("reason #0");
+    when(i18n.message(Locale.ENGLISH, "bad.request.reason", "bad.request.reason", 1)).thenReturn("reason #1");
+    when(i18n.message(Locale.ENGLISH, "bad.request.reason", "bad.request.reason", 2)).thenReturn("reason #2");
 
     engine.execute(request, response, "api/system", "fail_with_multiple_i18n_messages");
 
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":["
-      + "{\"msg\":\"Bad request reason #0\"},"
-      + "{\"msg\":\"Bad request reason #1\"},"
-      + "{\"msg\":\"Bad request reason #2\"}"
-      + "]}");
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[" +
+      "{\"msg\":\"reason #0\"}," +
+      "{\"msg\":\"reason #1\"}," +
+      "{\"msg\":\"reason #2\"}]}");
     assertThat(response.stream().httpStatus()).isEqualTo(400);
-    assertThat(response.stream().mediaType()).isEqualTo(MimeTypes.JSON);
-  }
-
-  @Test
-  public void server_exception_with_i18n_message() throws Exception {
-    ValidatingRequest request = new SimpleRequest("GET");
-    ServletResponse response = new ServletResponse();
-    when(i18n.message(eq(Locale.getDefault()), eq("not.found"), anyString())).thenReturn("Element is not found");
-
-    engine.execute(request, response, "api/system", "server_exception_with_i18n_message");
-
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Element is not found\"}]}");
-    assertThat(response.stream().httpStatus()).isEqualTo(404);
     assertThat(response.stream().mediaType()).isEqualTo(MimeTypes.JSON);
   }
 
@@ -327,7 +316,7 @@ public class WebServiceEngineTest {
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {
-            throw BadRequestException.ofL10n("bad.request.reason", 0);
+            throw new BadRequestException("bad.request.reason", 0);
           }
         });
       newController.createAction("fail_with_multiple_messages")
@@ -335,11 +324,11 @@ public class WebServiceEngineTest {
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {
-            List<BadRequestException.Message> errors = Lists.newArrayList();
+            Errors errors = new Errors();
             for (int count = 0; count < Integer.valueOf(request.param("count")); count++) {
               errors.add(Message.of("Bad request reason #" + count));
             }
-            throw BadRequestException.of(errors);
+            throw new BadRequestException(errors);
           }
         });
       newController.createAction("fail_with_multiple_i18n_messages")
@@ -347,18 +336,11 @@ public class WebServiceEngineTest {
         .setHandler(new RequestHandler() {
           @Override
           public void handle(Request request, Response response) {
-            List<BadRequestException.Message> errors = Lists.newArrayList();
+            Errors errors = new Errors();
             for (int count = 0; count < Integer.valueOf(request.param("count")); count++) {
-              errors.add(Message.ofL10n("bad.request.reason", count));
+              errors.add(Message.of("bad.request.reason", count));
             }
-            throw BadRequestException.of(errors);
-          }
-        });
-      newController.createAction("server_exception_with_i18n_message")
-        .setHandler(new RequestHandler() {
-          @Override
-          public void handle(Request request, Response response) {
-            throw new ServerException(404, null, "not.found", null);
+            throw new BadRequestException(errors);
           }
         });
       newController.createAction("alive")

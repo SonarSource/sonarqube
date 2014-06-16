@@ -62,14 +62,14 @@ public class IssueBulkChangeQuery {
     parse(props, null);
   }
 
-  private void parse(Map<String, Object> props, String comment) {
+  private void parse(Map<String, Object> props, @Nullable String comment) {
     this.issues = sanitizeList(RubyUtils.toStrings(props.get("issues")));
     if (issues == null || issues.isEmpty()) {
-      throw BadRequestException.ofL10n("issue_bulk_change.error.empty_issues");
+      throw new BadRequestException("issue_bulk_change.error.empty_issues");
     }
     actions = sanitizeList(RubyUtils.toStrings(props.get("actions")));
     if (actions == null || actions.isEmpty()) {
-      throw BadRequestException.ofL10n("issue_bulk_change.error.need_one_action");
+      throw new BadRequestException("issue_bulk_change.error.need_one_action");
     }
     for (String action : actions) {
       Map<String, Object> actionProperties = getActionProps(action, props);
@@ -83,7 +83,7 @@ public class IssueBulkChangeQuery {
     }
   }
 
-  private List<String> sanitizeList(List<String> list) {
+  private List<String> sanitizeList(@Nullable List<String> list) {
     if (list == null || list.isEmpty()) {
       return Collections.emptyList();
     }

@@ -34,20 +34,14 @@ public class Validation {
 
   public static void checkMandatoryParameter(String value, String paramName) {
     if (Strings.isNullOrEmpty(value)) {
-      throw BadRequestException.ofL10n(Validation.CANT_BE_EMPTY_MESSAGE, paramName);
-    }
-  }
-
-  public static void checkMandatoryParameter(Object value, String paramName) {
-    if (value == null) {
-      throw BadRequestException.ofL10n(Validation.CANT_BE_EMPTY_MESSAGE, paramName);
+      throw new BadRequestException(Validation.CANT_BE_EMPTY_MESSAGE, paramName);
     }
   }
 
   public static void checkMandatorySizeParameter(String value, String paramName, Integer size) {
     checkMandatoryParameter(value, paramName);
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
-      throw BadRequestException.ofL10n(Validation.IS_TOO_LONG_MESSAGE, paramName, size);
+      throw new BadRequestException(Validation.IS_TOO_LONG_MESSAGE, paramName, size);
     }
   }
 

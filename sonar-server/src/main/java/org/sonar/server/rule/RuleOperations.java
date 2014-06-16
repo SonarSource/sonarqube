@@ -87,7 +87,7 @@ public class RuleOperations implements ServerComponent {
         session.commit();
       }
     } catch (IllegalArgumentException e) {
-      throw BadRequestException.of(e.getMessage());
+      throw new BadRequestException(e.getMessage());
     } finally {
       MyBatis.closeQuietly(session);
     }

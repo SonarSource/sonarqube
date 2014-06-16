@@ -25,6 +25,7 @@ import com.google.common.collect.Iterables;
 import org.sonar.api.ServerComponent;
 import org.sonar.server.exceptions.BadRequestException;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class TypeValidations implements ServerComponent {
@@ -42,7 +43,7 @@ public class TypeValidations implements ServerComponent {
     }
   }
 
-  public void validate(String value, String type, List<String> options) {
+  public void validate(String value, String type, @Nullable List<String> options) {
     TypeValidation typeValidation = findByKey(type);
     typeValidation.validate(value, options);
   }

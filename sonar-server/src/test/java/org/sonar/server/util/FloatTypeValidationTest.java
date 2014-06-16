@@ -55,7 +55,7 @@ public class FloatTypeValidationTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class);
       BadRequestException badRequestException = (BadRequestException) e;
-      assertThat(badRequestException.l10nParams()[0]).isEqualTo("abc");
+      assertThat(badRequestException.firstError().getParams()[0]).isEqualTo("abc");
     }
   }
 

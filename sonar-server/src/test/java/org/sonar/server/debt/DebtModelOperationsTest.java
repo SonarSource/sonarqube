@@ -151,8 +151,8 @@ public class DebtModelOperationsTest {
     try {
       service.create("Compilation", 1);
       fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("A sub characteristic can not have a sub characteristic as parent.");
+    } catch (BadRequestException e) {
+      assertThat(e.firstError().getKey()).isEqualTo("A sub characteristic can not have a sub characteristic as parent.");
     }
   }
 
@@ -177,8 +177,8 @@ public class DebtModelOperationsTest {
       service.create("Compilation", 1);
       fail();
     } catch (BadRequestException e) {
-      assertThat(e.l10nKey()).isEqualTo("errors.is_already_used");
-      assertThat(e.l10nParams()[0]).isEqualTo("Compilation");
+      assertThat(e.firstError().getKey()).isEqualTo("errors.is_already_used");
+      assertThat(e.firstError().getParams()[0]).isEqualTo("Compilation");
     }
   }
 
@@ -327,10 +327,9 @@ public class DebtModelOperationsTest {
     try {
       service.moveDown(10);
       fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Sub characteristics can not be moved.");
+    } catch (BadRequestException e) {
+      assertThat(e.firstError().getKey()).isEqualTo("Sub characteristics can not be moved.");
     }
-
     verify(dao, never()).update(any(CharacteristicDto.class), eq(session));
   }
 

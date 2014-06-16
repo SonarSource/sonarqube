@@ -37,7 +37,7 @@ public class StringListTypeValidation implements TypeValidation {
   public void validate(String value, List<String> options) {
     if (!options.contains(value)) {
       String optionsAsString = StringUtils.join(options, ", ");
-      throw BadRequestException.ofL10n("errors.type.notInOptions", value, optionsAsString);
+      throw new BadRequestException("errors.type.notInOptions", value, optionsAsString);
     }
   }
 

@@ -24,8 +24,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.server.qualityprofile.QProfileResult;
 import org.sonar.server.qualityprofile.QProfileService;
 
 public class QProfileRestoreBuiltInAction implements RequestHandler {
@@ -53,31 +51,7 @@ public class QProfileRestoreBuiltInAction implements RequestHandler {
   public void handle(Request request, Response response) {
     String language = request.mandatoryParam("language");
     service.restoreBuiltInProfilesForLanguage(language);
-
-    // TODO
-    QProfileResult result = new QProfileResult();
-
-    if (!result.infos().isEmpty() || !result.warnings().isEmpty()) {
-      JsonWriter json = response.newJsonWriter();
-      json.beginObject();
-      if (!result.infos().isEmpty()) {
-        json.name("infos").beginArray();
-        for (String info : result.infos()) {
-          json.value(info);
-        }
-        json.endArray();
-      }
-      if (!result.warnings().isEmpty()) {
-        json.name("warnings").beginArray();
-        for (String warning : result.warnings()) {
-          json.value(warning);
-        }
-        json.endArray();
-      }
-      json.endObject().close();
-    } else {
-      response.noContent();
-    }
+    response.noContent();
   }
 
 }

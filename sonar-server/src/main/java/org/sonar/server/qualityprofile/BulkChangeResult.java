@@ -20,25 +20,19 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Lists;
-import org.sonar.server.exceptions.Message;
-import org.sonar.server.exceptions.Messages;
+import org.sonar.server.exceptions.Errors;
 
 import java.util.Collection;
 import java.util.List;
 
 public class BulkChangeResult {
 
-  private final Messages messages = new Messages();
+  private final Errors errors = new Errors();
   private int succeeded = 0, failed = 0;
   private final List<ActiveRuleChange> changes = Lists.newArrayList();
 
-  BulkChangeResult addMessage(Message message) {
-    this.messages.add(message);
-    return this;
-  }
-
-  public Messages getMessages() {
-    return messages;
+  public Errors getErrors() {
+    return errors;
   }
 
   public int countSucceeded() {

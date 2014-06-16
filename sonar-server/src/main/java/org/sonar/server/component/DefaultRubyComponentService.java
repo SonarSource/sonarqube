@@ -75,7 +75,7 @@ public class DefaultRubyComponentService implements RubyComponentService {
         .setCreatedAt(new Date()));
     component = (ComponentDto) resourceDao.findByKey(kee);
     if (component == null) {
-      throw new BadRequestException(String.format("%s not created: %s", null, kee));
+      throw new BadRequestException(String.format("Component not created: %s", kee));
     }
     resourceIndexerDao.indexResource(component.getId());
     return component.getId();

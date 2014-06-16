@@ -23,7 +23,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
@@ -43,8 +42,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 public class QProfileReset implements ServerComponent {
 
@@ -121,7 +118,7 @@ public class QProfileReset implements ServerComponent {
           result.addChanges(changes);
         } catch (BadRequestException e) {
           result.incrementFailed();
-          //TODOresult.addMessage()
+          result.getErrors().add(e.errors());
         }
       }
 
@@ -155,12 +152,7 @@ public class QProfileReset implements ServerComponent {
 
   private void processValidationMessages(ValidationMessages messages) {
     if (!messages.getErrors().isEmpty()) {
-      List<BadRequestException.Message> errors = newArrayList();
-      for (String error : messages.getErrors()) {
-        errors.add(BadRequestException.Message.of(error));
-      }
-      throw BadRequestException.of("Fail to restore profile", errors);
+      throw new BadRequestException(messages);
     }
   }
 }
-

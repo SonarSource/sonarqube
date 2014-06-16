@@ -36,7 +36,7 @@ public class BooleanTypeValidation implements TypeValidation {
   @Override
   public void validate(String value, List<String> options) {
     if (!StringUtils.equalsIgnoreCase(value, "true") && !StringUtils.equalsIgnoreCase(value, "false")) {
-      throw BadRequestException.ofL10n("errors.type.notBoolean", value);
+      throw new BadRequestException("errors.type.notBoolean", value);
     }
   }
 

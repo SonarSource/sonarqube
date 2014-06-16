@@ -22,11 +22,12 @@ package org.sonar.server.util;
 
 import org.sonar.api.ServerComponent;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public interface TypeValidation extends ServerComponent {
 
   String key();
 
-  void validate(String value, List<String> options);
+  void validate(String value, @Nullable List<String> options);
 }

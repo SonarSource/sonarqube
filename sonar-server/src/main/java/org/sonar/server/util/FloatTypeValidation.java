@@ -23,6 +23,7 @@ package org.sonar.server.util;
 import org.sonar.api.PropertyType;
 import org.sonar.server.exceptions.BadRequestException;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public class FloatTypeValidation implements TypeValidation {
@@ -33,11 +34,11 @@ public class FloatTypeValidation implements TypeValidation {
   }
 
   @Override
-  public void validate(String value, List<String> options) {
+  public void validate(String value, @Nullable List<String> options) {
     try {
       Double.parseDouble(value);
     } catch (NumberFormatException e) {
-      throw BadRequestException.ofL10n("errors.type.notFloat", value);
+      throw new BadRequestException("errors.type.notFloat", value);
     }
   }
 

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.ws;
 
-import org.elasticsearch.common.collect.Lists;
 import org.picocontainer.Startable;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.ServerComponent;
@@ -29,17 +28,16 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.BadRequestException.Message;
+import org.sonar.server.exceptions.Errors;
+import org.sonar.server.exceptions.Message;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.plugins.MimeTypes;
+import org.sonar.server.user.UserSession;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.OutputStreamWriter;
-import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * @since 4.2
@@ -77,7 +75,7 @@ public class WebServiceEngine implements ServerComponent, Startable {
   }
 
   public void execute(ValidatingRequest request, ServletResponse response,
-                      String controllerPath, String actionKey) {
+    String controllerPath, String actionKey) {
     try {
       WebService.Action action = getAction(controllerPath, actionKey);
       request.setAction(action);
@@ -86,15 +84,15 @@ public class WebServiceEngine implements ServerComponent, Startable {
 
     } catch (IllegalArgumentException e) {
       // TODO replace by BadRequestException in Request#mandatoryParam()
-      sendError(400, e.getMessage(), response);
+      sendErrors(response, 400, new Errors().add(Message.of(e.getMessage())));
     } catch (BadRequestException e) {
-      sendError(e, response);
+      sendErrors(response, 400, e.errors());
     } catch (ServerException e) {
-      sendError(e.httpCode(), message(e.getMessage(), e.l10nKey(), e.l10nParams()), response);
+      sendErrors(response, e.httpCode(), new Errors().add(Message.of(e.getMessage())));
     } catch (Exception e) {
       // TODO implement Request.toString()
       LoggerFactory.getLogger(getClass()).error("Fail to process request " + request, e);
-      sendError(500, e.getMessage(), response);
+      sendErrors(response, 500, new Errors().add(Message.of(e.getMessage())));
     }
   }
 
@@ -117,32 +115,7 @@ public class WebServiceEngine implements ServerComponent, Startable {
     }
   }
 
-  private void sendError(BadRequestException e, ServletResponse response) {
-    Collection<String> messages = Lists.newArrayList();
-    String exceptionMessage = message(e.getMessage(), e.l10nKey(), e.l10nParams());
-    if (exceptionMessage != null) {
-      messages.add(exceptionMessage);
-    }
-    for (Message message : e.errors()) {
-      messages.add(message(message.text(), message.l10nKey(), message.l10nParams()));
-    }
-    sendErrors(response, e.httpCode(), messages.toArray(new String[messages.size()]));
-  }
-
-  @CheckForNull
-  private String message(@Nullable String message, @Nullable String l10nKey, Object... l10nParams) {
-    if (l10nKey != null) {
-      return i18n.message(Locale.getDefault(), l10nKey, message, l10nParams);
-    } else {
-      return message;
-    }
-  }
-
-  private void sendError(int status, @Nullable String message, ServletResponse response) {
-    sendErrors(response, status, message);
-  }
-
-  private void sendErrors(ServletResponse response, int status, String... errors) {
+  private void sendErrors(ServletResponse response, int status, Errors errors) {
     ServletResponse.ServletStream stream = response.stream();
     stream.reset();
     stream.setStatus(status);
@@ -151,11 +124,7 @@ public class WebServiceEngine implements ServerComponent, Startable {
 
     try {
       json.beginObject();
-      json.name("errors").beginArray();
-      for (String message : errors) {
-        json.beginObject().prop("msg", message).endObject();
-      }
-      json.endArray();
+      errors.writeJson(json, i18n, UserSession.get().locale());
       json.endObject();
     } finally {
       // TODO if close() fails, the runtime exception should not hide the

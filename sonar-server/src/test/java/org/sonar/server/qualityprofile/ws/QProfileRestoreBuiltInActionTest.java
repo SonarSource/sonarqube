@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.i18n.I18n;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.ws.WsTester;
@@ -37,6 +38,9 @@ public class QProfileRestoreBuiltInActionTest {
   @Mock
   QProfileService profileService;
 
+  @Mock
+  I18n i18n;
+
   WsTester tester;
 
   @Before
@@ -46,7 +50,7 @@ public class QProfileRestoreBuiltInActionTest {
     tester = new WsTester(new QProfilesWs(
       new QProfileRestoreBuiltInAction(this.profileService),
       new RuleActivationActions(profileService),
-      new BulkRuleActivationActions(profileService, ruleService)));
+      new BulkRuleActivationActions(profileService, ruleService, i18n)));
   }
 
   @Test
@@ -56,29 +60,4 @@ public class QProfileRestoreBuiltInActionTest {
     WsTester.TestRequest request = tester.newPostRequest("api/qualityprofiles", "restore_built_in").setParam("language", "java");
     request.execute().assertNoContent();
   }
-
-  // TODO
-//  @Test
-//  public void show_infos() throws Exception {
-//    when(profileService.recreateBuiltInProfilesByLanguage("java")).thenReturn(new QProfileResult().addInfos(newArrayList("Some info")));
-//
-//    WsTester.TestRequest request = tester.newPostRequest("api/qualityprofiles", "recreate_built_in").setParam("language", "java");
-//    request.execute().assertJson(getClass(), "show_infos.json");
-//  }
-//
-//  @Test
-//  public void show_warnings() throws Exception {
-//    when(profileService.recreateBuiltInProfilesByLanguage("java")).thenReturn(new QProfileResult().addWarnings(newArrayList("Some warning")));
-//
-//    WsTester.TestRequest request = tester.newPostRequest("api/qualityprofiles", "recreate_built_in").setParam("language", "java");
-//    request.execute().assertJson(getClass(), "show_warnings.json");
-//  }
-//
-//  @Test
-//  public void show_infos_and_warnings() throws Exception {
-//    when(profileService.recreateBuiltInProfilesByLanguage("java")).thenReturn(new QProfileResult().addInfos(newArrayList("Some info")).addWarnings(newArrayList("Some warning")));
-//
-//    WsTester.TestRequest request = tester.newPostRequest("api/qualityprofiles", "recreate_built_in").setParam("language", "java");
-//    request.execute().assertJson(getClass(), "show_infos_and_warnings.json");
-//  }
 }

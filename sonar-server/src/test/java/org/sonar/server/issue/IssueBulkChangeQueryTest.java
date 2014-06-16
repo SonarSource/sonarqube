@@ -155,8 +155,8 @@ public class IssueBulkChangeQueryTest {
 
   private void checkBadRequestException(Exception e, String key, Object... params) {
     BadRequestException exception = (BadRequestException) e;
-    assertThat(exception.l10nKey()).isEqualTo(key);
-    assertThat(exception.l10nParams()).containsOnly(params);
+    assertThat(exception.firstError().getKey()).isEqualTo(key);
+    assertThat(exception.firstError().getParams()).containsOnly(params);
   }
 
 }

@@ -615,7 +615,7 @@ public class InternalRubyIssueService implements ServerComponent {
 
   private void checkOptionalSizeParameter(String value, String paramName, Integer size) {
     if (!Strings.isNullOrEmpty(value) && value.length() > size) {
-      throw BadRequestException.ofL10n(Validation.IS_TOO_LONG_MESSAGE, paramName, size);
+      throw new BadRequestException(Validation.IS_TOO_LONG_MESSAGE, paramName, size);
     }
   }
 

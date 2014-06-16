@@ -17,48 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.server.exceptions;
 
-package org.sonar.server.util;
-
-import org.junit.Before;
 import org.junit.Test;
-import org.sonar.server.exceptions.BadRequestException;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.fest.assertions.Fail.fail;
 
-public class BooleanTypeValidationTest {
-
-  BooleanTypeValidation validation;
-
-  @Before
-  public void setUp() throws Exception {
-    validation = new BooleanTypeValidation();
-  }
+public class VerificationsTest {
 
   @Test
-  public void key() {
-    assertThat(validation.key()).isEqualTo("BOOLEAN");
-  }
+  public void check() throws Exception {
+    // no exception
+    Verifications.check(true, "my.l10n.key", "foo", "bar");
 
-  @Test
-  public void not_fail_on_valid_boolean() {
-    validation.validate("true", null);
-    validation.validate("True", null);
-    validation.validate("false", null);
-    validation.validate("FALSE", null);
-  }
-
-  @Test
-  public void fail_on_invalid_boolean() {
     try {
-      validation.validate("abc", null);
+      Verifications.check(false, "my.l10n.key", "foo", "bar");
       fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class);
-      BadRequestException badRequestException = (BadRequestException) e;
-      assertThat(badRequestException.firstError().getParams()[0]).isEqualTo("abc");
+    } catch (BadRequestException e) {
+      assertThat(e.firstError().getKey()).isEqualTo("my.l10n.key");
+      assertThat(e.firstError().getParams()).containsOnly("foo", "bar");
     }
   }
-
 }

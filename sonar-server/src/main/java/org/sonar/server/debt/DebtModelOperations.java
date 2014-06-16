@@ -41,6 +41,7 @@ import org.sonar.server.util.Validation;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Date;
 import java.util.List;
 
@@ -253,7 +254,7 @@ public class DebtModelOperations implements ServerComponent {
 
   private void checkNotAlreadyExists(String name, SqlSession session) {
     if (dbClient.debtCharacteristicDao().selectByName(name, session) != null) {
-      throw BadRequestException.ofL10n(Validation.IS_ALREADY_USED_MESSAGE, name);
+      throw new BadRequestException(Validation.IS_ALREADY_USED_MESSAGE, name);
     }
   }
 

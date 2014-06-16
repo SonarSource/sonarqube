@@ -68,7 +68,7 @@ public class QProfileRepositoryExporter implements ServerComponent {
   }
 
   public QProfileRepositoryExporter(DatabaseSessionFactory sessionFactory, ActiveRuleDao activeRuleDao,
-                                    List<ProfileImporter> importers, List<ProfileExporter> exporters) {
+    List<ProfileImporter> importers, List<ProfileExporter> exporters) {
     this.sessionFactory = sessionFactory;
     this.activeRuleDao = activeRuleDao;
     this.importers = importers;
@@ -89,7 +89,7 @@ public class QProfileRepositoryExporter implements ServerComponent {
     DatabaseSession session = sessionFactory.getSession();
     RulesProfile rulesProfile = session.getSingleResult(RulesProfile.class, "id", profile.id());
     if (rulesProfile == null) {
-      throw new NotFoundException("This profile does not exists.");
+      throw new NotFoundException("This profile does not exist");
     }
     ProfileExporter exporter = getProfileExporter(pluginKey);
     Writer writer = new StringWriter();
@@ -114,16 +114,12 @@ public class QProfileRepositoryExporter implements ServerComponent {
         paramsByActiveRule.put(activeRuleDto.getId(), activeRuleParamDto);
       }
     }
-    //ruleRegistry.bulkIndexActiveRules(activeRuleDtos, paramsByActiveRule);
+    // TODO ruleRegistry.bulkIndexActiveRules(activeRuleDtos, paramsByActiveRule);
   }
 
   private void processValidationMessages(ValidationMessages messages, QProfileResult result) {
     if (!messages.getErrors().isEmpty()) {
-      List<BadRequestException.Message> errors = newArrayList();
-      for (String error : messages.getErrors()) {
-        errors.add(BadRequestException.Message.of(error));
-      }
-      throw BadRequestException.of("Fail to import profile", errors);
+      throw new BadRequestException(messages);
     }
     result.addWarnings(messages.getWarnings());
     result.addInfos(messages.getInfos());
@@ -154,7 +150,7 @@ public class QProfileRepositoryExporter implements ServerComponent {
         return importer;
       }
     }
-    throw BadRequestException.of("No such importer : " + importerKey);
+    throw new BadRequestException("No such importer : " + importerKey);
   }
 
   private ProfileExporter getProfileExporter(String exporterKey) {
@@ -163,7 +159,7 @@ public class QProfileRepositoryExporter implements ServerComponent {
         return exporter;
       }
     }
-    throw BadRequestException.of("No such exporter : " + exporterKey);
+    throw new BadRequestException("No such exporter : " + exporterKey);
   }
 
   public List<ProfileExporter> getProfileExportersForLanguage(String language) {

@@ -41,6 +41,7 @@ import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.resource.ResourceDto;
 import org.sonar.core.resource.ResourceQuery;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.exceptions.Message;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.filter.IssueFilterService;
 import org.sonar.server.user.UserSession;
@@ -653,8 +654,9 @@ public class InternalRubyIssueServiceTest {
 
   private void checkBadRequestException(Exception e, String key, Object... params) {
     BadRequestException exception = (BadRequestException) e;
-    assertThat(exception.l10nKey()).isEqualTo(key);
-    assertThat(exception.l10nParams()).containsOnly(params);
+    Message msg = exception.errors().messages().get(0);
+    assertThat(msg.getKey()).isEqualTo(key);
+    assertThat(msg.getParams()).containsOnly(params);
   }
 
   private String createLongString(int size) {

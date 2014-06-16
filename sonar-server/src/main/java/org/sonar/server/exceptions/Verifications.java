@@ -19,38 +19,15 @@
  */
 package org.sonar.server.exceptions;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import org.apache.commons.lang.StringUtils;
+public class Verifications {
 
-public class Message {
-
-  private final String key;
-  private final Object[] params;
-
-  private Message(String key, Object[] params) {
-    this.key = key;
-    this.params = params;
+  private Verifications() {
+    // only static stuff
   }
 
-  public String getKey() {
-    return key;
-  }
-
-  public Object[] getParams() {
-    return params;
-  }
-
-  public static Message of(String l10nKey, Object... l10nParams) {
-    Preconditions.checkArgument(StringUtils.isNotBlank(l10nKey));
-    return new Message(l10nKey, l10nParams);
-  }
-
-  @Override
-  public String toString() {
-    return Objects.toStringHelper(this)
-      .add("key", key)
-      .add("params", params)
-      .toString();
+  public static void check(boolean expression, String l10nKey, Object... l10nParams) {
+    if (!expression) {
+      throw new BadRequestException(l10nKey, l10nParams);
+    }
   }
 }

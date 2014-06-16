@@ -208,7 +208,7 @@ public class QGatesWsTest {
   @Test(expected = BadRequestException.class)
   public void create_with_duplicate_name() throws Exception {
     String name = "New QG";
-    when(qGates.create(name)).thenThrow(BadRequestException.of("Name is already used"));
+    when(qGates.create(name)).thenThrow(new BadRequestException("Name is already used"));
     tester.newGetRequest("api/qualitygates", "create").setParam("name", name).execute();
   }
 

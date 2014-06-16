@@ -147,7 +147,7 @@ public class QProfiles implements ServerComponent {
 
   private void checkProfileNameParam(String name) {
     if (Strings.isNullOrEmpty(name)) {
-      throw BadRequestException.ofL10n("quality_profiles.please_type_profile_name");
+      throw new BadRequestException("quality_profiles.please_type_profile_name");
     }
   }
 

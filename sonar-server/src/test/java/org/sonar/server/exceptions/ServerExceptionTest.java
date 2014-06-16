@@ -27,31 +27,15 @@ import static org.fest.assertions.Assertions.assertThat;
 public class ServerExceptionTest {
 
   @Test
-  public void should_create_exception_with_status(){
+  public void should_create_exception_with_status() {
     ServerException exception = new ServerException(400);
     assertThat(exception.httpCode()).isEqualTo(400);
   }
 
   @Test
-  public void should_create_exception_with_status_and_message(){
+  public void should_create_exception_with_status_and_message() {
     ServerException exception = new ServerException(404, "Not found");
     assertThat(exception.httpCode()).isEqualTo(404);
     assertThat(exception.getMessage()).isEqualTo("Not found");
-  }
-
-  @Test
-  public void should_create_exception_with_status_and_l10n_message_with_param(){
-    ServerException exception = new ServerException(404, null, "key", new String[]{"value"});
-    assertThat(exception.httpCode()).isEqualTo(404);
-    assertThat(exception.l10nKey()).isEqualTo("key");
-    assertThat(exception.l10nParams()).containsOnly("value");
-  }
-
-  @Test
-  public void should_create_exception_with_status_and_l10n_message_without_param(){
-    ServerException exception = new ServerException(404, null, "key", null);
-    assertThat(exception.httpCode()).isEqualTo(404);
-    assertThat(exception.l10nKey()).isEqualTo("key");
-    assertThat(exception.l10nParams()).isEmpty();
   }
 }

@@ -36,7 +36,7 @@ public class IntegerTypeValidation implements TypeValidation {
   @Override
   public void validate(String value, List<String> options) {
     if (!NumberUtils.isDigits(value)) {
-      throw BadRequestException.ofL10n("errors.type.notInteger", value);
+      throw new BadRequestException("errors.type.notInteger", value);
     }
   }
 

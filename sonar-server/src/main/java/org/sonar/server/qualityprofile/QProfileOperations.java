@@ -32,6 +32,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +48,7 @@ public class QProfileOperations implements ServerComponent {
   private final QProfileLookup profileLookup;
 
   public QProfileOperations(MyBatis myBatis, QualityProfileDao dao, PropertiesDao propertiesDao,
-                            QProfileRepositoryExporter exporter, PreviewCache dryRunCache, QProfileLookup profileLookup) {
+    QProfileRepositoryExporter exporter, PreviewCache dryRunCache, QProfileLookup profileLookup) {
     this.myBatis = myBatis;
     this.dao = dao;
     this.propertiesDao = propertiesDao;
@@ -128,7 +129,7 @@ public class QProfileOperations implements ServerComponent {
 
   private void checkNotAlreadyExists(String name, String language, DbSession session) {
     if (dao.selectByNameAndLanguage(name, language, session) != null) {
-      throw BadRequestException.ofL10n("quality_profiles.profile_x_already_exists", name);
+      throw new BadRequestException("quality_profiles.profile_x_already_exists", name);
     }
   }
 

@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile.ws;
 
 import org.sonar.api.ServerComponent;
+import org.sonar.api.i18n.I18n;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
@@ -31,6 +32,7 @@ import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.ws.SearchAction;
+import org.sonar.server.user.UserSession;
 
 public class BulkRuleActivationActions implements ServerComponent {
 
@@ -42,10 +44,12 @@ public class BulkRuleActivationActions implements ServerComponent {
 
   private final QProfileService profileService;
   private final RuleService ruleService;
+  private final I18n i18n;
 
-  public BulkRuleActivationActions(QProfileService profileService, RuleService ruleService) {
+  public BulkRuleActivationActions(QProfileService profileService, RuleService ruleService, I18n i18n) {
     this.profileService = profileService;
     this.ruleService = ruleService;
+    this.i18n = i18n;
   }
 
   void define(WebService.NewController controller) {
@@ -117,7 +121,7 @@ public class BulkRuleActivationActions implements ServerComponent {
     JsonWriter json = response.newJsonWriter().beginObject();
     json.prop("succeeded", result.countSucceeded());
     json.prop("failed", result.countFailed());
-    result.getMessages().writeJson(json);
+    result.getErrors().writeJsonAsWarnings(json, i18n, UserSession.get().locale());
     json.endObject().close();
   }
 
