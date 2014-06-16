@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.core.activity.db.LogMapper">
+
+  <insert id="insert" parameterType="Log" useGeneratedKeys="false" lang="raw">
+    insert into logs
+    (created_at, log_type,execution_time_field,user_login,data_field, log_message)
+    values (#{createdAt}, #{type}, #{executionTime}, #{author}, #{data}, #{message})
+  </insert>
+
+  <select id="selectByKey" parameterType="map" resultType="Log" lang="raw">
+    SELECT
+    l.created_at as "createdAt",
+    l.log_type as "type",
+    l.execution_time_field as "executionTime",
+    l.user_login as "author",
+    l.data_field as "data",
+    l.log_message as "message"
+    FROM logs l
+    WHERE l.created_at=#{key.createdAt}
+    AND l.user_login=#{key.author}
+    AND l.log_type=#{key.type}
+  </select>
+
+  <select id="selectAll" parameterType="map" resultType="Log" lang="raw">
+    SELECT
+    l.created_at as "createdAt",
+    l.log_type as "type",
+    l.execution_time_field as "executionTime",
+    l.user_login as "author",
+    l.data_field as "data",
+    l.log_message as "message"
+    FROM logs l
+  </select>
+</mapper>
+
