@@ -22,15 +22,15 @@
 # SonarQube 4.4
 # SONAR-5329
 #
-class CreateLogTable < ActiveRecord::Migration
+class CreateActivitiesTable < ActiveRecord::Migration
 
   def self.up
-    create_table 'logs'do |t|
+    create_table 'activities'do |t|
       t.column 'created_at',   :datetime, :null => false
-      t.column 'execution_time_field', :integer
       t.column 'user_login', :string, :limit => 255
       t.column 'data_field', :text
-      t.column 'payload_field', :string, :limit => 40
+      t.column 'log_type', :string, :limit => 50
+      t.column 'log_message', :string, :limit => 4000
     end
 
   end
