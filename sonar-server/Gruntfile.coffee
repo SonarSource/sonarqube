@@ -42,6 +42,18 @@ module.exports = (grunt) ->
           ]
 
 
+    cssUrlRewrite:
+      build:
+        src: '<%= pkg.assets %>css/sonar.css'
+        dest: '<%= pkg.assets %>css/sonar.css'
+        options:
+          skipExternal: true
+          rewriteUrl: (url, options, dataURI) ->
+            path = url.replace options.baseDir, ''
+            hash = require('crypto').createHash('md5').update(dataURI).digest('hex')
+            "#{path}?#{hash}"
+
+
     coffee:
       build:
         files: [
@@ -251,6 +263,7 @@ module.exports = (grunt) ->
 
   # Load grunt-contrib-* plugins
   grunt.loadNpmTasks 'grunt-contrib-less'
+  grunt.loadNpmTasks 'grunt-css-url-rewrite'
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-contrib-uglify'
   grunt.loadNpmTasks 'grunt-contrib-requirejs'
@@ -269,7 +282,7 @@ module.exports = (grunt) ->
 
 
   grunt.registerTask 'default', ['clean:css', 'clean:js',
-                                 'less:build',
+                                 'less:build', 'cssUrlRewrite:build'
                                  'coffee:build', 'handlebars:build', 'copy:js',
                                  'concat:build',
                                  'requirejs', 'clean:js', 'copy:build', 'copy:requirejs', 'clean:build']
