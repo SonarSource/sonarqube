@@ -49,10 +49,8 @@ public class ActivityNormalizer extends BaseNormalizer<ActivityDto, ActivityKey>
 
   public static final class LogFields extends Indexable {
 
-    public final static IndexField KEY = addSortableAndSearchable(IndexField.Type.STRING, "key");
     public final static IndexField TYPE = addSortable(IndexField.Type.STRING, "type");
     public final static IndexField DATE = addSortable(IndexField.Type.DATE, "date");
-    public final static IndexField EXECUTION = add(IndexField.Type.NUMERIC, "executionTime");
     public final static IndexField AUTHOR = addSearchable(IndexField.Type.STRING, "author");
     public final static IndexField DETAILS = addSearchable(IndexField.Type.OBJECT, "details");
     public final static IndexField MESSAGE = addSearchable(IndexField.Type.STRING, "message");
@@ -94,11 +92,9 @@ public class ActivityNormalizer extends BaseNormalizer<ActivityDto, ActivityKey>
   public List<UpdateRequest> normalize(ActivityDto dto) {
 
     Map<String, Object> logDoc = new HashMap<String, Object>();
-    logDoc.put(LogFields.KEY.field(), dto.getKey());
     logDoc.put(LogFields.TYPE.field(), dto.getType());
     logDoc.put(LogFields.AUTHOR.field(), dto.getAuthor());
     logDoc.put(LogFields.MESSAGE.field(), dto.getMessage());
-    logDoc.put(LogFields.EXECUTION.field(), dto.getExecutionTime());
     logDoc.put(LogFields.DATE.field(), dto.getCreatedAt());
 
     logDoc.put(LogFields.DETAILS.field(), KeyValueFormat.parse(dto.getData()));

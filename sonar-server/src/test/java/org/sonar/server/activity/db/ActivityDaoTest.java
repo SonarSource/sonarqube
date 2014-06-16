@@ -103,11 +103,6 @@ public class ActivityDaoTest extends AbstractDaoTestCase {
       public Map<String, String> getDetails() {
         return ImmutableMap.of(testKey, testValue);
       }
-
-      @Override
-      public int getExecutionTime() {
-        return 12;
-      }
     })
       .setAuthor("jUnit")
       .setType(Activity.Type.ACTIVE_RULE);
@@ -117,7 +112,6 @@ public class ActivityDaoTest extends AbstractDaoTestCase {
     assertThat(dao.findAll(session)).hasSize(1);
     ActivityDto newDto = dao.getByKey(session, log.getKey());
     assertThat(newDto.getAuthor()).isEqualTo(log.getAuthor());
-    assertThat(newDto.getExecutionTime()).isEqualTo(12);
     assertThat(newDto.getData()).isNotNull();
     Map<String, String> details = KeyValueFormat.parse(newDto.getData());
     assertThat(details.get(testKey)).isEqualTo(testValue);

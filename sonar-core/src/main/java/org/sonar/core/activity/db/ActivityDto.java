@@ -35,8 +35,6 @@ public final class ActivityDto extends Dto<ActivityKey> {
   private Activity.Type type;
   private String author;
 
-  private Integer executionTime;
-
   private String data;
 
   protected ActivityDto() {
@@ -70,12 +68,7 @@ public final class ActivityDto extends Dto<ActivityKey> {
     return this;
   }
 
-  public Integer getExecutionTime() {
-    return executionTime;
-  }
-
   public ActivityDto setExecutionTime(Integer executionTime) {
-    this.executionTime = executionTime;
     return this;
   }
 
@@ -104,7 +97,6 @@ public final class ActivityDto extends Dto<ActivityKey> {
 
   public static ActivityDto createFor(ActivityLog activityLog) {
     return new ActivityDto()
-      .setData(KeyValueFormat.format(activityLog.getDetails()))
-      .setExecutionTime(activityLog.getExecutionTime());
+      .setData(KeyValueFormat.format(activityLog.getDetails()));
   }
 }

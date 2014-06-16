@@ -28,6 +28,4 @@ public interface ActivityLog {
 
   Map<String, String> getDetails();
 
-  int getExecutionTime();
-
 }

@@ -36,12 +36,10 @@ public class ActivityMapping extends BaseMapping {
 
   public ActivityMapping(Languages languages, MacroInterpreter macroInterpreter) {
     super();
-    addIndexStringField("key", ActivityNormalizer.LogFields.KEY.field());
     addIndexStringField("type", ActivityNormalizer.LogFields.TYPE.field());
     addIndexDatetimeField("createdAt", ActivityNormalizer.LogFields.DATE.field());
     addIndexStringField("userLogin", ActivityNormalizer.LogFields.AUTHOR.field());
     addIndexStringField("message", ActivityNormalizer.LogFields.MESSAGE.field());
-    addIndexStringField("executionTime", ActivityNormalizer.LogFields.EXECUTION.field());
     addField("details", new DetailField());
   }
 

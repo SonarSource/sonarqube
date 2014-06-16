@@ -46,11 +46,6 @@ public class ActivityDoc extends BaseDoc implements Activity {
   }
 
   @Override
-  public Integer executionTime() {
-    return this.getField(ActivityNormalizer.LogFields.EXECUTION.field());
-  }
-
-  @Override
   public Map<String, String> details() {
     return this.getField(ActivityNormalizer.LogFields.DETAILS.field());
   }

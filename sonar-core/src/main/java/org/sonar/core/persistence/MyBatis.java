@@ -203,7 +203,7 @@ public class MyBatis implements BatchComponent, ServerComponent {
     loadAlias(conf, "ActiveRule", ActiveRuleDto.class);
     loadAlias(conf, "ActiveRuleParam", ActiveRuleParamDto.class);
     loadAlias(conf, "RequirementMigration", RequirementMigrationDto.class);
-    loadAlias(conf, "Log", ActivityDto.class);
+    loadAlias(conf, "Activity", ActivityDto.class);
 
     // AuthorizationMapper has to be loaded before IssueMapper because this last one used it
     loadMapper(conf, "org.sonar.core.user.AuthorizationMapper");

@@ -35,8 +35,6 @@ public interface Activity {
 
   String author();
 
-  Integer executionTime();
-
   Map<String, String> details();
 
   String message();

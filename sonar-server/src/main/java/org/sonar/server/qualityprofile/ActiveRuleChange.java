@@ -120,11 +120,6 @@ public class ActiveRuleChange implements ActivityLog {
     return details;
   }
 
-  @Override
-  public int getExecutionTime() {
-    return (int) (System.currentTimeMillis() - start);
-  }
-
   public static ActiveRuleChange createFor(Type type, ActiveRuleKey key) {
     return new ActiveRuleChange(type, key);
   }

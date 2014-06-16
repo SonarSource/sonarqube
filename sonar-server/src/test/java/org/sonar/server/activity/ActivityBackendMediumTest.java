@@ -87,10 +87,6 @@ public class ActivityBackendMediumTest {
         return ImmutableMap.of(testKey, testValue);
       }
 
-      @Override
-      public int getExecutionTime() {
-        return 12;
-      }
     });
     dbSession.commit();
 
@@ -99,7 +95,6 @@ public class ActivityBackendMediumTest {
     Activity activity = Iterables.getFirst(index.findAll().getHits(), null);
     assertThat(activity).isNotNull();
     assertThat(activity.details().get(testKey)).isEqualTo(testValue);
-    assertThat(activity.executionTime()).isEqualTo(12);
   }
 
   @Test
