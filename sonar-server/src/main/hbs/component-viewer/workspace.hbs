@@ -1,7 +1,8 @@
 <div class="component-viewer-workspace-header">
   <div class="component-viewer-workspace-title"
        title="{{t 'component_viewer.workspace.tooltip'}}">{{t 'component_viewer.workspace'}}</div>
-  <button class="button-clean component-viewer-workspace-toggle js-toggle-workspace">
+  <button class="button-clean component-viewer-workspace-toggle js-toggle-workspace"
+          title="{{#if settings.workspace}}{{t 'component_viewer.workspace.hide_workspace'}}{{else}}{{t 'component_viewer.workspace.show_workspace'}}{{/if}}">
     {{#if settings.workspace}}
       <i class="icon-double-chevron-left"></i>
     {{else}}

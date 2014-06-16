@@ -3,13 +3,33 @@
     {{#any test_success_density test_failures test_errors test_execution_time}}
       <div class="component-viewer-header-expanded-bar-section">
         <div class="component-viewer-header-expanded-bar-section-title">
-          {{t 'component_viewer.measure_section.unit_tests'}}
+          {{t 'component_viewer.measure_section.tests'}}
         </div>
         <ul class="component-viewer-header-expanded-bar-section-list">
-          {{{componentViewerHeaderItem test_success_density 'test_success_density'}}}
-          {{{componentViewerHeaderItem test_failures 'test_failures'}}}
-          {{{componentViewerHeaderItem test_errors 'test_errors'}}}
-          {{{componentViewerHeaderItem test_execution_time 'test_execution_time'}}}
+          {{#if test_success_density}}
+            <li><span class="item">
+              <span class="label">{{t 'metric.test_success_density.short_name'}}</span>
+              <span class="number">{{test_success_density}}</span>
+            </span></li>
+          {{/if}}
+          {{#if test_failures}}
+            <li><span class="item">
+              <span class="label">{{t 'metric.test_failures.short_name'}}</span>
+              <span class="number">{{test_failures}}</span>
+            </span></li>
+          {{/if}}
+          {{#if test_errors}}
+            <li><span class="item">
+              <span class="label">{{t 'metric.test_errors.short_name'}}</span>
+              <span class="number">{{test_errors}}</span>
+            </span></li>
+          {{/if}}
+          {{#if test_execution_time}}
+            <li><span class="item">
+              <span class="label">{{t 'metric.test_execution_time.short_name'}}</span>
+              <span class="number">{{test_execution_time}}</span>
+            </span></li>
+          {{/if}}
         </ul>
       </div>
     {{/any}}
@@ -18,7 +38,7 @@
 
 <div class="component-viewer-header-expanded-bar-section large">
   <div class="component-viewer-header-expanded-bar-section-title justify">
-    <span class="ib">{{t 'component_viewer.measure_section.unit_tests'}}</span>
+    <span class="ib">{{t 'component_viewer.measure_section.test_names'}}</span>
     <span class="ib">Covered Lines</span>
   </div>
   <ul class="component-viewer-header-expanded-bar-section-list">

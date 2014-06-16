@@ -13,7 +13,8 @@
 }
 
 .component-viewer-workspace-enabled {
-  .component-viewer-workspace .component-viewer-workspace-list { display: block; }
+  .component-viewer-workspace .component-viewer-workspace-list,
+  .component-viewer-workspace .component-viewer-workspace-title { display: block; }
 }
 
 
@@ -44,6 +45,7 @@
 }
 
 .component-viewer-workspace-title {
+  display: none;
   padding: 0 30px 0 10px;
   line-height: 30px;
   text-transform: uppercase;
@@ -599,7 +601,7 @@
 }
 
 .component-viewer-popup-container {
-  min-width: 560px;
+  max-width: 560px;
   max-height: 300px;
   overflow: auto;
 }
@@ -616,7 +618,8 @@
   white-space: nowrap;
 }
 
-.component-viewer-popup-section + .component-viewer-popup-section {
+.component-viewer-popup-section + .component-viewer-popup-section,
+.component-viewer-popup-section + .component-viewer-popup-title {
   margin-top: 10px;
 }
 
