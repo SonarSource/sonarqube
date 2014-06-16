@@ -27,7 +27,10 @@ define [], () ->
         @filterByCurrentIssue()
         @headerView.render()
       else
-        @sourceView.render()
+        unless @state.get 'hasIssues'
+          @requestIssues(@key).done => @sourceView.render()
+        else
+          @sourceView.render()
 
 
     hideIssues: (store = false) ->

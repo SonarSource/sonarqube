@@ -81,7 +81,7 @@ define(['handlebars', 'moment'], function (Handlebars, moment) {
         ret = arg;
       }
     });
-    return ret;
+    return ret || '';
   });
 
   Handlebars.registerHelper('percent', function(value, total) {

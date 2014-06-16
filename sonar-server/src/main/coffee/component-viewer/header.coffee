@@ -130,6 +130,10 @@ define [
           @$(activeHeaderItem).addClass 'active'
 
 
+    enableBarItem: (item) ->
+      @$(item).click()
+
+
     showExpandedBar: (e) ->
       el = $(e.currentTarget)
       active = el.is '.active'

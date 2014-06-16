@@ -28,17 +28,17 @@ define [
       additionalChoices = []
 
       if !assignee || currentUser != assignee
-        additionalChoices.push id: currentUser, text: translate('assignedToMe')
+        additionalChoices.push id: currentUser, text: t('assigned_to_me')
 
       if !!assignee
-        additionalChoices.push id: '', text: translate('unassigned')
+        additionalChoices.push id: '', text: t('unassigned')
 
       select2Options =
         allowClear: false
         width: '250px'
-        formatNoMatches: -> translate('select2.noMatches')
-        formatSearching: -> translate('select2.searching')
-        formatInputTooShort: -> translate('select2.tooShort')
+        formatNoMatches: -> t('select2.noMatches')
+        formatSearching: -> t('select2.searching')
+        formatInputTooShort: -> t('select2.tooShort')
 
       if additionalChoices.length > 0
         select2Options.minimumInputLength = 0

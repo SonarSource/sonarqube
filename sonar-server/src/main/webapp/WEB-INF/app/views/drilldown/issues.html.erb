@@ -1,3 +1,7 @@
+<% content_for :script do %>
+  <script data-main="<%= ApplicationController.root_context -%>/js/drilldown/app" src="<%= ApplicationController.root_context -%>/js/require.js"></script>
+<% end %>
+
 <%= render :partial => 'header' -%>
 
 <div class="line-block">
@@ -156,8 +160,8 @@
               <% end %>
               <%= qualifier_icon(resource) -%>&nbsp;
               <% if resource.source_code? %>
-                <a href="#" onclick="$j('#col_<%= index -%> tr').removeClass('selected'); $j('#row_<%= index -%>_<%= row_index -%>').addClass('selected'); d(<%= resource.id -%>);"
-                   alt="<%= h resource.name(true) -%>" title="<%= h resource.name(true) -%>" class="chevron-link highlighted-link"><%= h resource.name(false) %></a>
+                <a href="#" alt="<%= h resource.name(true) -%>" title="<%= h resource.name(true) -%>" data-key="<%= resource.key -%>"
+                   class="js-drilldown-link chevron-link highlighted-link"><%= h resource.name(false) %></a>
               <% else %>
                 <%= link_to(h(resource.name), {:only_path => true, :overwrite_params => {:rids => (selected ? rids-[resource.id] : rids+[resource.id])}}, :class => 'chevron-link highlighted-link') -%>
               <% end %>
@@ -216,6 +220,13 @@
   $j(document).ready(function() {
 //    displayIssues();
   });
+
+  window.drilldown = {
+    metric: <% if @metric %>'<%= @metric.id -%>'<% else %>null<% end %>,
+    rule: <% if @rule %>'<%= @rule.key -%>'<% else %>null<% end %>,
+    severity: <% if @severity %>'<%= @severity -%>'<% else %>null<% end %>,
+    period: <% if @period %><%= @period -%><% else %>null<% end %>
+  };
 </script>
 
 <div id="accordion-panel"/>

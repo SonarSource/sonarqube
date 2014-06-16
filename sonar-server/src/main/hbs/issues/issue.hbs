@@ -15,18 +15,18 @@
   <ul class="code-issue-actions code-issue-list">
     {{#inArray actions "comment"}}
       <li>
-        <a id="issue-comment" class="link-action">{{translate "actions.comment" }}</a>
+        <a id="issue-comment" class="link-action">{{t 'issue.comment.formlink' }}</a>
       </li>
     {{/inArray}}
 
 
     <li>
-      {{statusIcon status}}{{translate "statuses" status}}
-      {{#if resolution}}({{translate "resolutions" resolution}}){{/if}}
+      {{statusIcon status}}{{t 'issue.status' status}}
+      {{#if resolution}}({{t 'issue.resolution' resolution}}){{/if}}
 
       {{#ifNotEmpty transitions}}
         {{#each transitions}}
-          <a class="link-action issue-transition spacer-left" data-transition="{{this}}">{{translate "transitions" this}}</a>
+          <a class="link-action issue-transition spacer-left" data-transition="{{this}}">{{t 'issue.transition' this}}</a>
         {{/each}}
       {{/ifNotEmpty}}
     </li>
@@ -37,9 +37,9 @@
       {{#if assigneeName}}
         <a id="issue-assign" class="link-action">{{t 'assigned_to'}}</a> {{assigneeName}}</li>
       {{else}}
-        <a id="issue-assign" class="link-action">{{translate "actions.assign" }}</a>
+        <a id="issue-assign" class="link-action">{{t 'issue.assign.formlink' }}</a>
         {{#inArray actions "assign_to_me"}}
-          [<a id="issue-assign-to-me" class="link-action">{{translate "actions.assign_to_me" }}</a>]
+          [<a id="issue-assign-to-me" class="link-action">{{t 'issue.assign.to_me' }}</a>]
         {{/inArray}}
       {{/if}}
       </li>
@@ -72,12 +72,12 @@
           <ul style="display: none" class="dropdown-menu">
             {{#inArray actions "set_severity"}}
               <li>
-                <a id="issue-set-severity" class="link-action spacer-right">{{translate "actions.set_severity"}}</a>
+                <a id="issue-set-severity" class="link-action spacer-right">{{t "issue.set_severity"}}</a>
               </li>
             {{/inArray}}
             {{#pluginActions actions}}
               <li>
-                <a class="link-action spacer-right issue-action" data-action="{{this}}">{{translate "actions" this}}</a>
+                <a class="link-action spacer-right issue-action" data-action="{{this}}">{{t "actions" this}}</a>
               </li>
             {{/pluginActions}}
           </ul>
@@ -86,7 +86,7 @@
     {{else}}
       {{#inArray actions "set_severity"}}
         <li>
-          <a id="issue-set-severity" class="link-action">{{translate "actions.set_severity"}}</a>
+          <a id="issue-set-severity" class="link-action">{{t "issue.set_severity"}}</a>
         </li>
       {{/inArray}}
     {{/ifHasExtraActions}}

@@ -163,6 +163,10 @@ module.exports = (grunt) ->
         name: 'api-documentation/app'
         out: '<%= pkg.assets %>build/js/api-documentation/app.js'
 
+      drilldown: options:
+        name: 'drilldown/app'
+        out: '<%= pkg.assets %>build/js/drilldown/app.js'
+
 
     handlebars:
       options:

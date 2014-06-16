@@ -249,7 +249,7 @@ define [
       @sourceView.render()
 
 
-    enablePeriod: (periodKey, scope = 'scm') ->
+    enablePeriod: (periodKey) ->
       period = if periodKey == '' then null else @periods.findWhere key: periodKey
       @state.set 'period', period
       $.when(@requestMeasures(@key, period?.get('key')), @requestIssuesPeriod(@key, period?.get('key'))).done =>
