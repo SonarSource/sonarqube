@@ -17,45 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.log.index;
+package org.sonar.core.profiling;
 
-import org.sonar.core.log.Log;
-import org.sonar.server.search.BaseDoc;
+import org.junit.Test;
 
-import java.util.Date;
-import java.util.Map;
+public class ProfilingActivityFactoryTest {
 
-/**
- * @since 4.4
- */
-public class LogDoc extends BaseDoc implements Log {
-
-  protected LogDoc(Map<String, Object> fields) {
-    super(fields);
-  }
-
-  @Override
-  public Date time() {
-    return this.getField(LogNormalizer.LogFields.DATE.field());
-  }
-
-  @Override
-  public String author() {
-    return this.getField(LogNormalizer.LogFields.AUTHOR.field());
-  }
-
-  @Override
-  public Integer executionTime() {
-    return this.getField(LogNormalizer.LogFields.EXECUTION.field());
-  }
-
-  @Override
-  public Map<String, String> details() {
-    return this.getField(LogNormalizer.LogFields.DETAILS.field());
-  }
-
-  @Override
-  public String message() {
-    return this.getField(LogNormalizer.LogFields.MESSAGE.field());
+  @Test
+  public void just_for_coverage() throws Exception {
+    new ProfilingLogFactory().getLogger("domain");
   }
 }

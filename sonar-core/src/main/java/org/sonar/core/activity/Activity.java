@@ -17,20 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.log.db;
+package org.sonar.core.activity;
 
-import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
+import java.util.Date;
+import java.util.Map;
 
 /**
  * @since 4.4
  */
-public interface LogMapper {
+public interface Activity {
 
-  void insert(LogDto rule);
+  public static enum Type {
+    NONE, ACTIVE_RULE, SERVER
+  }
 
-  LogDto selectByKey(@Param("key") LogKey key);
+  Date time();
 
-  List<LogDto> selectAll();
+  String author();
+
+  Integer executionTime();
+
+  Map<String, String> details();
+
+  String message();
+
 }

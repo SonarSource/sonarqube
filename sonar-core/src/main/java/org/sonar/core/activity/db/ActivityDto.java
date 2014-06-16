@@ -17,34 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.log.db;
+package org.sonar.core.activity.db;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.core.log.Log;
-import org.sonar.core.log.Loggable;
+import org.sonar.core.activity.Activity;
+import org.sonar.core.activity.ActivityLog;
 import org.sonar.core.persistence.Dto;
 
 /**
  * @since 4.4
  */
-public final class LogDto extends Dto<LogKey> {
+public final class ActivityDto extends Dto<ActivityKey> {
 
   private String message;
-  private Log.Type type;
+  private Activity.Type type;
   private String author;
 
   private Integer executionTime;
 
   private String data;
 
-  protected LogDto(){
+  protected ActivityDto() {
   }
 
   @Override
-  public LogKey getKey() {
-    return LogKey.of(this.getCreatedAt(), type, author);
+  public ActivityKey getKey() {
+    return ActivityKey.of(this.getCreatedAt(), type, author);
   }
 
   @Override
@@ -52,11 +52,11 @@ public final class LogDto extends Dto<LogKey> {
     return ReflectionToStringBuilder.toString(this, ToStringStyle.MULTI_LINE_STYLE);
   }
 
-  public Log.Type getType() {
+  public Activity.Type getType() {
     return type;
   }
 
-  public LogDto setType(Log.Type type) {
+  public ActivityDto setType(Activity.Type type) {
     this.type = type;
     return this;
   }
@@ -65,7 +65,7 @@ public final class LogDto extends Dto<LogKey> {
     return author;
   }
 
-  public LogDto setAuthor(String author) {
+  public ActivityDto setAuthor(String author) {
     this.author = author;
     return this;
   }
@@ -74,7 +74,7 @@ public final class LogDto extends Dto<LogKey> {
     return executionTime;
   }
 
-  public LogDto setExecutionTime(Integer executionTime) {
+  public ActivityDto setExecutionTime(Integer executionTime) {
     this.executionTime = executionTime;
     return this;
   }
@@ -83,7 +83,7 @@ public final class LogDto extends Dto<LogKey> {
     return data;
   }
 
-  public LogDto setData(String data) {
+  public ActivityDto setData(String data) {
     this.data = data;
     return this;
   }
@@ -92,19 +92,19 @@ public final class LogDto extends Dto<LogKey> {
     return message;
   }
 
-  public LogDto setMessage(String message) {
+  public ActivityDto setMessage(String message) {
     this.message = message;
     return this;
   }
 
-  public static LogDto createFor(String message) {
-    return new LogDto()
+  public static ActivityDto createFor(String message) {
+    return new ActivityDto()
       .setMessage(message);
   }
 
-  public static LogDto createFor(Loggable loggable) {
-    return new LogDto()
-      .setData(KeyValueFormat.format(loggable.getDetails()))
-      .setExecutionTime(loggable.getExecutionTime());
+  public static ActivityDto createFor(ActivityLog activityLog) {
+    return new ActivityDto()
+      .setData(KeyValueFormat.format(activityLog.getDetails()))
+      .setExecutionTime(activityLog.getExecutionTime());
   }
 }

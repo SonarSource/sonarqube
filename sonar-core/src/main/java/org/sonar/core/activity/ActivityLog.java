@@ -17,27 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.log.ws;
+package org.sonar.core.activity;
 
-import org.sonar.api.server.ws.WebService;
+import java.util.Map;
 
-public class LogsWebService implements WebService {
+/**
+ * @since 4.4
+ */
+public interface ActivityLog {
 
-  public static final String API_ENDPOINT = "api/logs";
+  Map<String, String> getDetails();
 
-  private final SearchAction search;
+  int getExecutionTime();
 
-  public LogsWebService(SearchAction search) {
-    this.search = search;
-  }
-
-  @Override
-  public void define(Context context) {
-    NewController controller = context
-      .createController(API_ENDPOINT)
-      .setDescription("Logs search and views");
-
-    search.define(controller);
-    controller.done();
-  }
 }

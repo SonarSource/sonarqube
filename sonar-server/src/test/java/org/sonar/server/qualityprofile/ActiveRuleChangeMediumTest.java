@@ -25,13 +25,13 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.log.Log;
+import org.sonar.core.activity.Activity;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
+import org.sonar.server.activity.ActivityService;
+import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.log.LogService;
-import org.sonar.server.log.index.LogIndex;
 import org.sonar.server.tester.ServerTester;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -42,8 +42,8 @@ public class ActiveRuleChangeMediumTest {
   @ClassRule
   public static ServerTester tester = new ServerTester();
 
-  LogService service = tester.get(LogService.class);
-  LogIndex index = tester.get(LogIndex.class);
+  ActivityService service = tester.get(ActivityService.class);
+  ActivityIndex index = tester.get(ActivityIndex.class);
   DbClient db;
   DbSession dbSession;
 
@@ -70,14 +70,14 @@ public class ActiveRuleChangeMediumTest {
       .setSeverity("BLOCKER")
       .setParameter("param1", "value1");
 
-    service.write(dbSession, Log.Type.ACTIVE_RULE, change);
+    service.write(dbSession, Activity.Type.ACTIVE_RULE, change);
     dbSession.commit();
 
     // 0. AssertBase case
     assertThat(index.findAll().getHits()).hasSize(1);
 
-    Log log = Iterables.getFirst(index.findAll().getHits(), null);
-    assertThat(log).isNotNull();
-    assertThat(log.details().get("key")).isEqualTo(key.toString());
+    Activity activity = Iterables.getFirst(index.findAll().getHits(), null);
+    assertThat(activity).isNotNull();
+    assertThat(activity.details().get("key")).isEqualTo(key.toString());
   }
 }

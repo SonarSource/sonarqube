@@ -29,12 +29,9 @@ import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
 
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-public class LogServerIdTest {
+public class ActivityServerIdTest {
 
   @Mock
   private PropertiesDao dao;
@@ -60,10 +57,10 @@ public class LogServerIdTest {
     logServerId.logServerId(logger);
 
     String log =
-        "Server information:\n"
-          + "  - ID            : \"123456789\"\n"
-          + "  - Organisation  : \"SonarSource\"\n"
-          + "  - Registered IP : \"1.2.3.4\"\n";
+      "Server information:\n"
+        + "  - ID            : \"123456789\"\n"
+        + "  - Organisation  : \"SonarSource\"\n"
+        + "  - Registered IP : \"1.2.3.4\"\n";
 
     verify(logger, times(1)).info(log);
   }

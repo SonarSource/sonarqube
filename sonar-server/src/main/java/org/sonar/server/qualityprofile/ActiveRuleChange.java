@@ -21,14 +21,15 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import org.sonar.core.log.Loggable;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.core.activity.ActivityLog;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
-public class ActiveRuleChange implements Loggable {
+public class ActiveRuleChange implements ActivityLog {
 
   static enum Type {
     ACTIVATED, DEACTIVATED, UPDATED
@@ -102,6 +103,17 @@ public class ActiveRuleChange implements Loggable {
       details.put("key", getKey().toString());
       details.put("ruleKey", getKey().ruleKey().toString());
       details.put("profileKey", getKey().qProfile().toString());
+    }
+    if (!parameters.isEmpty()) {
+      for (Map.Entry<String, String> param : parameters.entrySet()) {
+        details.put("param_" + param.getKey(), param.getValue());
+      }
+    }
+    if (StringUtils.isNotEmpty(severity)) {
+      details.put("severity", severity);
+    }
+    if (inheritance != null) {
+      details.put("inheritance", inheritance.name());
     }
     return details.build();
   }

@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.log.db;
+package org.sonar.core.activity.db;
 
 import com.google.common.base.Preconditions;
-import org.sonar.core.log.Log;
+import org.sonar.core.activity.Activity;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -28,13 +28,13 @@ import java.util.Date;
 /**
  * @since 4.4
  */
-public class LogKey implements Serializable {
+public class ActivityKey implements Serializable {
 
   private Date createdAt;
-  private Log.Type type;
+  private Activity.Type type;
   private String author;
 
-  public LogKey(Date createdAt, Log.Type type, String author) {
+  public ActivityKey(Date createdAt, Activity.Type type, String author) {
     this.createdAt = createdAt;
     this.type = type;
     this.author = author;
@@ -43,22 +43,22 @@ public class LogKey implements Serializable {
   /**
    * Create a key. Parameters are NOT null.
    */
-  public static LogKey of(Date createdAt, Log.Type type, String author) {
+  public static ActivityKey of(Date createdAt, Activity.Type type, String author) {
     Preconditions.checkArgument(createdAt != null, "Time must be set");
     Preconditions.checkArgument(type != null, "Type must be set");
     Preconditions.checkArgument(author != null, "Author must be set");
-    return new LogKey(createdAt, type, author);
+    return new ActivityKey(createdAt, type, author);
   }
 
   /**
    * Create a key from a string representation (see {@link #toString()}. An {@link IllegalArgumentException} is raised
    * if the format is not valid.
    */
-  public static LogKey parse(String s) {
+  public static ActivityKey parse(String s) {
     String[] split = s.split(":");
     Preconditions.checkArgument(split.length == 3, "Invalid log key: " + s);
-    return LogKey.of(new Date(Long.getLong(split[0])),
-      Log.Type.valueOf(split[1]), split[2]);
+    return ActivityKey.of(new Date(Long.getLong(split[0])),
+      Activity.Type.valueOf(split[1]), split[2]);
   }
 
   public Date getCreatedAt() {
@@ -73,16 +73,16 @@ public class LogKey implements Serializable {
     return author;
   }
 
-  public LogKey setAuthor(String author) {
+  public ActivityKey setAuthor(String author) {
     this.author = author;
     return this;
   }
 
-  public Log.Type getType() {
+  public Activity.Type getType() {
     return type;
   }
 
-  public LogKey setType(Log.Type type) {
+  public ActivityKey setType(Activity.Type type) {
     this.type = type;
     return this;
   }

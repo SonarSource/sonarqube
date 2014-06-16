@@ -24,7 +24,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.server.rule.RuleParamType;
-import org.sonar.core.log.Log;
+import org.sonar.core.activity.Activity;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
@@ -36,7 +36,7 @@ import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.log.LogService;
+import org.sonar.server.log.ActivityService;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.index.RuleIndex;
@@ -47,7 +47,6 @@ import org.sonar.server.search.Result;
 import org.sonar.server.util.TypeValidations;
 
 import javax.annotation.Nullable;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -64,11 +63,11 @@ public class RuleActivator implements ServerComponent {
   private final RuleActivatorContextFactory contextFactory;
   private final PreviewCache previewCache;
   private final IndexClient index;
-  private final LogService log;
+  private final ActivityService log;
 
   public RuleActivator(DbClient db, IndexClient index,
-    RuleActivatorContextFactory contextFactory, TypeValidations typeValidations,
-    PreviewCache previewCache, LogService log) {
+                       RuleActivatorContextFactory contextFactory, TypeValidations typeValidations,
+                       PreviewCache previewCache, ActivityService log) {
     this.db = db;
     this.index = index;
     this.contextFactory = contextFactory;
@@ -140,7 +139,7 @@ public class RuleActivator implements ServerComponent {
     }
 
     if (!changes.isEmpty()) {
-      log.write(dbSession, Log.Type.ACTIVE_RULE, changes);
+      log.write(dbSession, Activity.Type.ACTIVE_RULE, changes);
       previewCache.reportGlobalModification();
     }
     return changes;
@@ -151,7 +150,7 @@ public class RuleActivator implements ServerComponent {
    * 1. defined by end-user
    * 2. else inherited from parent profile
    * 3. else defined by rule defaults
-   *
+   * <p/>
    * On custom rules, it's always rule parameters that are used
    */
   private void applySeverityAndParamToChange(RuleActivation activation, RuleActivatorContext context, ActiveRuleChange change) {
@@ -301,7 +300,7 @@ public class RuleActivator implements ServerComponent {
     }
 
     if (!changes.isEmpty()) {
-      log.write(dbSession, Log.Type.ACTIVE_RULE, changes);
+      log.write(dbSession, Activity.Type.ACTIVE_RULE, changes);
       previewCache.reportGlobalModification();
     }
 

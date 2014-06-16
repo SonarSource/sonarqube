@@ -17,46 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.log.index;
+package org.sonar.core.activity.db;
 
-import org.sonar.core.log.Log;
+import org.apache.ibatis.annotations.Param;
 
-import java.util.Collection;
-import java.util.Date;
+import java.util.List;
 
 /**
  * @since 4.4
  */
-public class LogQuery {
+public interface ActivityMapper {
 
-  private Date since;
-  private Date to;
-  private Collection<Log.Type> types;
+  void insert(ActivityDto rule);
 
-  public LogQuery() {
-  }
+  ActivityDto selectByKey(@Param("key") ActivityKey key);
 
-  public Date getSince() {
-    return since;
-  }
-
-  public void setSince(Date since) {
-    this.since = since;
-  }
-
-  public Date getTo() {
-    return to;
-  }
-
-  public void setTo(Date to) {
-    this.to = to;
-  }
-
-  public Collection<Log.Type> getTypes() {
-    return types;
-  }
-
-  public void setTypes(Collection<Log.Type> types) {
-    this.types = types;
-  }
+  List<ActivityDto> selectAll();
 }

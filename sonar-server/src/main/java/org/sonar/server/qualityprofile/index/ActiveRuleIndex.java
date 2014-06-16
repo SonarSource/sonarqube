@@ -63,7 +63,6 @@ import org.sonar.server.search.IndexField;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -181,30 +180,35 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
     return request.get().getCount();
   }
 
-
-  public Collection<FacetValue> getStatsByProfileKey(List<QualityProfileKey> keys) {
-
-    // Get QProfiles keys as Strings
-    String[] stringKeys = new String[keys.size()];
-    for (int i = 0; i < keys.size(); i++) {
-      stringKeys[i] = keys.get(i).toString();
-    }
+  public Multimap<String, FacetValue> getStatsByProfileKey(QualityProfileKey key) {
 
     SearchResponse response = getClient().prepareSearch(this.getIndexName())
       .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
-        FilterBuilders.termsFilter(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), stringKeys)))
+        FilterBuilders.termsFilter(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), key.toString())))
       .addAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field())
         .field(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field())
         .subAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field())
           .field(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field())
           .subAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field())
             .field(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field()))))
+      .addAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field())
+        .field(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field()))
+      .addAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field())
+        .field(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field()))
+
       .setSize(0)
       .setTypes(this.getIndexType())
       .get();
 
-    Multimap<String, FacetValue> stats = this.processAggregations(response.getAggregations());
+    return this.processAggregations(response.getAggregations());
+  }
 
-    return stats.get(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field());
+  public Map<QualityProfileKey, Multimap<String, FacetValue>> getStatsByProfileKey(List<QualityProfileKey> keys) {
+    //TODO Optimize in a single request.
+    Map<QualityProfileKey, Multimap<String, FacetValue>> stats = new HashMap<QualityProfileKey, Multimap<String, FacetValue>>();
+    for (QualityProfileKey key : keys) {
+      stats.put(key, getStatsByProfileKey(key));
+    }
+    return stats;
   }
 }

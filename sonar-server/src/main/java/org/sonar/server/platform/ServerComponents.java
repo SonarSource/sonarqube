@@ -77,6 +77,12 @@ import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.jpa.session.DatabaseSessionProvider;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
+import org.sonar.server.activity.ActivityService;
+import org.sonar.server.activity.db.ActivityDao;
+import org.sonar.server.activity.index.ActivityIndex;
+import org.sonar.server.activity.index.ActivityNormalizer;
+import org.sonar.server.activity.ws.ActivitiesWebService;
+import org.sonar.server.activity.ws.ActivityMapping;
 import org.sonar.server.authentication.ws.AuthenticationWs;
 import org.sonar.server.charts.ChartFactory;
 import org.sonar.server.component.DefaultComponentFinder;
@@ -126,12 +132,6 @@ import org.sonar.server.issue.ws.IssueActionsWriter;
 import org.sonar.server.issue.ws.IssueSearchAction;
 import org.sonar.server.issue.ws.IssueShowAction;
 import org.sonar.server.issue.ws.IssuesWs;
-import org.sonar.server.log.LogService;
-import org.sonar.server.log.db.LogDao;
-import org.sonar.server.log.index.LogIndex;
-import org.sonar.server.log.index.LogNormalizer;
-import org.sonar.server.log.ws.LogMapping;
-import org.sonar.server.log.ws.LogsWebService;
 import org.sonar.server.measure.MeasureFilterEngine;
 import org.sonar.server.measure.MeasureFilterExecutor;
 import org.sonar.server.measure.MeasureFilterFactory;
@@ -322,7 +322,7 @@ class ServerComponents {
       ComponentDao.class,
       DbClient.class,
       MeasureFilterDao.class,
-      LogDao.class,
+      ActivityDao.class,
 
       // Elasticsearch
       ESNode.class,
@@ -332,11 +332,11 @@ class ServerComponents {
       ActiveRuleIndex.class,
       IndexQueueWorker.class,
       IndexClient.class,
-      LogNormalizer.class,
-      LogIndex.class,
+      ActivityNormalizer.class,
+      ActivityIndex.class,
 
       // LogService
-      LogService.class
+      ActivityService.class
 
     ));
     components.addAll(CorePropertyDefinitions.all());
@@ -463,9 +463,9 @@ class ServerComponents {
     pico.addSingleton(ActiveRuleCompleter.class);
     pico.addSingleton(AppAction.class);
 
-    pico.addSingleton(LogsWebService.class);
-    pico.addSingleton(org.sonar.server.log.ws.SearchAction.class);
-    pico.addSingleton(LogMapping.class);
+    pico.addSingleton(ActivitiesWebService.class);
+    pico.addSingleton(SearchAction.class);
+    pico.addSingleton(ActivityMapping.class);
 
 
     // measure
