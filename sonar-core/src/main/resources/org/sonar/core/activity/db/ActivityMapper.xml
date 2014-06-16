@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.sonar.core.activity.db.LogMapper">
+<mapper namespace="org.sonar.core.activity.db.ActivityMapper">
 
-  <insert id="insert" parameterType="Log" useGeneratedKeys="false" lang="raw">
+<insert id="insert" parameterType="Log" useGeneratedKeys="false" lang="raw">
     insert into logs
     (created_at, log_type,execution_time_field,user_login,data_field, log_message)
     values (#{createdAt}, #{type}, #{executionTime}, #{author}, #{data}, #{message})
