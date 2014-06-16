@@ -119,9 +119,13 @@ public class QProfileServiceMediumTest {
 
     Map<QualityProfileKey, Multimap<String, FacetValue>> stats = service.getAllProfileStats();
 
+    System.out.println("stats = " + stats);
     assertThat(stats.size()).isEqualTo(2);
-    assertThat(stats.get(XOO_PROFILE_1).size()).isEqualTo(2);
+    assertThat(stats.get(XOO_PROFILE_1).size()).isEqualTo(3);
     assertThat(stats.get(XOO_PROFILE_1).get(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field()).size()).isEqualTo(1);
     assertThat(stats.get(XOO_PROFILE_1).get(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field()).size()).isEqualTo(1);
+    assertThat(stats.get(XOO_PROFILE_1).get("countActiveRules").size()).isEqualTo(1);
+
+
   }
 }

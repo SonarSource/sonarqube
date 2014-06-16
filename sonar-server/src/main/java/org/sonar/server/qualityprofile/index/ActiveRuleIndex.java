@@ -201,11 +201,13 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
         .subAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field())
           .field(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field()))
         .subAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field())
-          .field(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field())))
+          .field(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field()))
+        .subAggregation(AggregationBuilders.count("countActiveRules")))
       .setSize(0)
       .setTypes(this.getIndexType())
       .get();
 
+    System.out.println("response = " + response);
     Map<QualityProfileKey, Multimap<String, FacetValue>> stats = new HashMap<QualityProfileKey, Multimap<String, FacetValue>>();
     Aggregation aggregation = response.getAggregations().get(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field());
     for (Terms.Bucket value : ((Terms) aggregation).getBuckets()) {

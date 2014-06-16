@@ -40,7 +40,9 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.metrics.valuecount.InternalValueCount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.cluster.WorkQueue;
@@ -48,7 +50,6 @@ import org.sonar.core.persistence.Dto;
 import org.sonar.core.profiling.Profiling;
 
 import javax.annotation.Nullable;
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayDeque;
@@ -600,10 +601,18 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     Multimap<String, FacetValue> stats = ArrayListMultimap.create();
     if (aggregations != null) {
       for (Aggregation aggregation : aggregations.asList()) {
-        for (Terms.Bucket value : ((Terms) aggregation).getBuckets()) {
-          FacetValue facetValue = new FacetValue(value.getKey(), (int) value.getDocCount());
-          facetValue.setSubFacets(processAggregations(value.getAggregations()));
-          stats.put(aggregation.getName(), facetValue);
+        System.out.println("aggregation.getClass() = " + aggregation.getClass());
+        if (aggregation.getClass().isAssignableFrom(StringTerms.class)) {
+          for (Terms.Bucket value : ((Terms) aggregation).getBuckets()) {
+
+            FacetValue facetValue = new FacetValue(value.getKey(), (int) value.getDocCount());
+            facetValue.setSubFacets(processAggregations(value.getAggregations()));
+            stats.put(aggregation.getName(), facetValue);
+          }
+        } else if (aggregation.getClass().isAssignableFrom(InternalValueCount.class)) {
+          InternalValueCount count = ((InternalValueCount) aggregation);
+          FacetValue facetValue = new FacetValue(count.getName(), (int) count.getValue());
+          stats.put(count.getName(), facetValue);
         }
       }
     }
