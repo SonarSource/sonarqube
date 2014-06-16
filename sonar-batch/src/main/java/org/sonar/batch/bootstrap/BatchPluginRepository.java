@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
+import org.sonar.api.SonarPlugin;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.PluginMetadata;
 import org.sonar.api.platform.PluginRepository;
@@ -69,6 +70,15 @@ public class BatchPluginRepository implements PluginRepository {
   public void start() {
     LOG.info("Install plugins");
     doStart(pluginsReferential.pluginList());
+
+    Map<PluginMetadata, SonarPlugin> localPlugins = pluginsReferential.localPlugins();
+    if (!localPlugins.isEmpty()) {
+      LOG.info("Install local plugins");
+      for (Map.Entry<PluginMetadata, SonarPlugin> pluginByMetadata : localPlugins.entrySet()) {
+        metadataByKey.put(pluginByMetadata.getKey().getKey(), pluginByMetadata.getKey());
+        pluginsByKey.put(pluginByMetadata.getKey().getKey(), pluginByMetadata.getValue());
+      }
+    }
   }
 
   void doStart(List<RemotePlugin> remotePlugins) {

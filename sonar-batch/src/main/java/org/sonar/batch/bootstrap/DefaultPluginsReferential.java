@@ -24,13 +24,17 @@ import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.SonarPlugin;
+import org.sonar.api.platform.PluginMetadata;
 import org.sonar.core.plugins.RemotePlugin;
 import org.sonar.core.plugins.RemotePluginFile;
 import org.sonar.home.cache.FileCache;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A {@link PluginsReferential} implementation that put downloaded plugins in a FS cache.
@@ -85,6 +89,11 @@ public class DefaultPluginsReferential implements PluginsReferential {
     } catch (Exception e) {
       throw new IllegalStateException("Fail to download plugins index: " + url, e);
     }
+  }
+
+  @Override
+  public Map<PluginMetadata, SonarPlugin> localPlugins() {
+    return Collections.emptyMap();
   }
 
 }

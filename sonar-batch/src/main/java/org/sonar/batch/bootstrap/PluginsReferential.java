@@ -19,10 +19,13 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.api.SonarPlugin;
+import org.sonar.api.platform.PluginMetadata;
 import org.sonar.core.plugins.RemotePlugin;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Plugin referential.
@@ -31,7 +34,7 @@ import java.util.List;
 public interface PluginsReferential {
 
   /**
-   * Return list of plugins to be installed
+   * Return list of remote plugins to be installed
    */
   List<RemotePlugin> pluginList();
 
@@ -39,5 +42,10 @@ public interface PluginsReferential {
    * Return location of a given plugin on the local FS.
    */
   File pluginFile(RemotePlugin remote);
+
+  /**
+   * Return the list of local plugins to be installed
+   */
+  Map<PluginMetadata, SonarPlugin> localPlugins();
 
 }
