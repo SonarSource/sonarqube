@@ -32,8 +32,11 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.log.db.LogDao;
 import org.sonar.server.log.index.LogIndex;
+import org.sonar.server.log.index.LogQuery;
+import org.sonar.server.search.QueryOptions;
 import org.sonar.server.tester.ServerTester;
 
+import java.util.Iterator;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -101,13 +104,28 @@ public class LogBackendMediumTest {
 
   @Test
   public void massive_insert() {
+
+    // 0 Assert no logs in DB
     assertThat(dao.findAll(dbSession)).hasSize(0);
-    int max = 20;
+    int max = 200;
     final String testValue = "hello world";
     for (int i = 0; i < max; i++) {
       service.write(dbSession, Log.Type.ACTIVE_RULE, testValue + "_" + i);
     }
     dbSession.commit();
+
+    // 1. assert both backends have all logs
     assertThat(dao.findAll(dbSession)).hasSize(max);
+    assertThat(index.findAll().getHits()).hasSize(max);
+
+    // 2. assert scrollable
+    int count = 0;
+    Iterator<Log> logs = index.search(new LogQuery(), new QueryOptions().setScroll(true)).scroll();
+    while (logs.hasNext()) {
+      logs.next();
+      count++;
+    }
+    assertThat(count).isEqualTo(max);
+
   }
 }

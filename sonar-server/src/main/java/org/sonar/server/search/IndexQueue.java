@@ -19,11 +19,8 @@
  */
 package org.sonar.server.search;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -32,13 +29,9 @@ import org.sonar.api.ServerComponent;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.server.search.action.EmbeddedIndexAction;
 import org.sonar.server.search.action.IndexAction;
-import org.sonar.server.search.action.KeyIndexAction;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -95,36 +88,26 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
     } else if (actions.size() > 1) {
 
       /* Purge actions that would be overridden  */
-      Map<String, Integer> itemOffset = new HashMap<String, Integer>();
-      ArrayListMultimap<String, IndexAction> itemActions = ArrayListMultimap.create();
-      List<IndexAction> embeddedActions = new LinkedList<IndexAction>();
+      Long purgeStart = System.currentTimeMillis();
+      List<IndexAction> itemActions = Lists.newArrayList();
+      List<IndexAction> embeddedActions = Lists.newArrayList();
+
       for (IndexAction action : actions) {
         if(action.getClass().isAssignableFrom(EmbeddedIndexAction.class)){
           embeddedActions.add(action);
         } else {
-          String actionKey = action.getKey();
-          Integer offset = 0;
-          if(!itemOffset.containsKey(actionKey)){
-            itemOffset.put(actionKey, offset);
-            itemActions.put(actionKey, action);
-          } else {
-            offset = itemOffset.get(actionKey);
-            if(action.getClass().isAssignableFrom(KeyIndexAction.class)){
-              itemOffset.put(actionKey, 0);
-              itemActions.get(actionKey).set(0, action);
-            } else {
-              itemActions.get(actionKey).set(offset, action);
-            }
-          }
+          itemActions.add(action);
         }
       }
 
+      LOGGER.debug("INDEX - compressed {} items into {} in {}ms,",
+        actions.size(), itemActions.size() + embeddedActions.size(), System.currentTimeMillis() - purgeStart);
+
       try {
         /* execute all item actions */
-        Multimap<String, IndexAction> itemBulks = makeBulkByType(itemActions);
-          CountDownLatch itemLatch = new CountDownLatch(itemBulks.size());
+        CountDownLatch itemLatch = new CountDownLatch(itemActions.size());
         indexTime = System.currentTimeMillis();
-        for (IndexAction action : itemBulks.values()) {
+        for (IndexAction action : itemActions) {
           action.setLatch(itemLatch);
           this.offer(action, 1000, TimeUnit.SECONDS);
           types.add(action.getPayloadClass().getSimpleName());
@@ -167,13 +150,4 @@ public class IndexQueue extends LinkedBlockingQueue<Runnable>
         bcount, ecount, StringUtils.join(refreshes, ","));
     }
   }
-
-  private Multimap<String, IndexAction> makeBulkByType(ArrayListMultimap<String, IndexAction> actions) {
-    Multimap<String, IndexAction> bulks = LinkedListMultimap.create();
-    for (IndexAction action : actions.values()) {
-      bulks.put(action.getIndexType(), action);
-    }
-    return bulks;
-  }
-
 }

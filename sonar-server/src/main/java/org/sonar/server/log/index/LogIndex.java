@@ -87,6 +87,7 @@ public class LogIndex extends BaseIndex<Log, LogDto, LogKey> {
     return new Result<Log>(this, getClient().prepareSearch(this.getIndexName())
       .setQuery(QueryBuilders.matchAllQuery())
       .setTypes(this.getIndexType())
+      .setSize(Integer.MAX_VALUE)
       .get());
   }
 
