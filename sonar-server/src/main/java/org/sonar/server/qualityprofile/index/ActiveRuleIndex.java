@@ -207,7 +207,6 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
       .setTypes(this.getIndexType())
       .get();
 
-    System.out.println("response = " + response);
     Map<QualityProfileKey, Multimap<String, FacetValue>> stats = new HashMap<QualityProfileKey, Multimap<String, FacetValue>>();
     Aggregation aggregation = response.getAggregations().get(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field());
     for (Terms.Bucket value : ((Terms) aggregation).getBuckets()) {
