@@ -10,7 +10,7 @@
       <%
          profile_measure=@snapshot.measure(Metric::PROFILE)
       %>
-      <% if profile_measure %>Profile <%= link_to profile_measure.data, :controller => '/rules_configuration', :action => 'index', :id => profile_measure.value.to_i %>
+      <% if profile_measure %>Profile <%= link_to profile_measure.data, :controller => 'profiles', :action => 'show', :id => profile_measure.value.to_i %>
       <% end %>
       <% if @snapshot.project_snapshot.periods? %>
         <% period_options = period_select_option_tags(@snapshot, 'small') %>

@@ -319,7 +319,7 @@ public class ActiveRuleBackendMediumTest {
     assertThat(index.countAll()).isEqualTo(4);
 
     // 1. Assert by term aggregation;
-    Map<QualityProfileKey, Multimap<String, FacetValue>> stats = index.getStatsByProfileKey(
+    Map<QualityProfileKey, Multimap<String, FacetValue>> stats = index.getStatsByProfileKeys(
       ImmutableList.of(profileDto1.getKey(),
         profileDto2.getKey()));
 

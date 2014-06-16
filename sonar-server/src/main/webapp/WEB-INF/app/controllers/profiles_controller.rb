@@ -30,7 +30,7 @@ class ProfilesController < ApplicationController
     add_breadcrumbs ProfilesController::root_breadcrumb
     call_backend do
       @profiles = Internal.quality_profiles.allProfiles().to_a
-      @stats = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).getAllProfileStats()
+      @active_rule_counts = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).countAllActiveRules()
     end
     Api::Utils.insensitive_sort!(@profiles) { |profile| profile.name() }
   end
@@ -40,6 +40,9 @@ class ProfilesController < ApplicationController
     require_parameters 'id'
     call_backend do
       @profile = Internal.quality_profiles.profile(params[:id].to_i)
+      not_found('Profile not found') unless @profile
+      @active_rule_count = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).countActiveRulesByProfile(@profile.key())
+      @stats = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).getStatsByProfile(@profile.key())
     end
     set_profile_breadcrumbs
   end
@@ -87,7 +90,6 @@ class ProfilesController < ApplicationController
     require_parameters 'language'
     call_backend do
       Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).restoreBuiltInProfilesForLanguage(params[:language].to_s)
-      #flash_result(@result)
     end
     redirect_to :action => 'index'
   end
@@ -180,7 +182,6 @@ class ProfilesController < ApplicationController
       call_backend do
         xml=Api::Utils.read_post_request_param(params[:backup])
         Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).restore(xml)
-        #flash_result(result)
       end
     end
     redirect_to :action => 'index'

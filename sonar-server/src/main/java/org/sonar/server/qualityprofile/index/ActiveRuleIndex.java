@@ -184,11 +184,10 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
   }
 
   public Multimap<String, FacetValue> getStatsByProfileKey(QualityProfileKey key) {
-    return getStatsByProfileKey(ImmutableList.of(key)).get(key);
+    return getStatsByProfileKeys(ImmutableList.of(key)).get(key);
   }
 
-  public Map<QualityProfileKey, Multimap<String, FacetValue>> getStatsByProfileKey(List<QualityProfileKey> keys) {
-
+  public Map<QualityProfileKey, Multimap<String, FacetValue>> getStatsByProfileKeys(List<QualityProfileKey> keys) {
     String[] stringKeys = new String[keys.size()];
     for (int i = 0; i < keys.size(); i++) {
       stringKeys[i] = keys.get(i).toString();

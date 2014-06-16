@@ -224,11 +224,10 @@ public class QProfileService implements ServerComponent {
   }
 
   public Map<QualityProfileKey, Multimap<String, FacetValue>> getAllProfileStats() {
-
     List<QualityProfileKey> keys = Lists.newArrayList();
     for (QualityProfileDto profile : this.findAll()) {
       keys.add(profile.getKey());
     }
-    return index.get(ActiveRuleIndex.class).getStatsByProfileKey(keys);
+    return index.get(ActiveRuleIndex.class).getStatsByProfileKeys(keys);
   }
 }

@@ -45,7 +45,7 @@
             <thead>
             <tr>
               <th><a name="in1"/><%= message('quality_profiles.x_rules_only_in', :params => @in1.size) %>
-                <a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => @profile1.id -%>"><%= h @profile1.name %></a>
+                <a href="<%= url_for :controller => 'profiles', :action => 'show', :id => @profile1.id -%>"><%= h @profile1.name %></a>
               </th>
             </tr>
             </thead>
@@ -72,7 +72,7 @@
             <thead>
             <tr>
               <th><a name="in2"/><%= message('quality_profiles.x_rules_only_in', :params => @in2.size) %>
-                <a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => @profile2.id -%>"><%= h @profile2.name %></a>
+                <a href="<%= url_for :controller => 'profiles', :action => 'show', :id => @profile2.id -%>"><%= h @profile2.name %></a>
               </th>
             </tr>
             </thead>
@@ -96,11 +96,11 @@
             <thead>
             <tr>
               <th width="49%"><a name="modified"/><%= message('quality_profiles.x_rules_have_different_configuration', :params =>@modified.size) -%><br/>
-                <a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => @profile1.id -%>"><%= h @profile1.name %></a>
+                <a href="<%= url_for :controller => 'profiles', :action => 'show', :id => @profile1.id -%>"><%= h @profile1.name %></a>
               </th>
               <th width="2%"></th>
               <th width="49%">
-                <br/><a href="<%= url_for :controller => 'rules_configuration', :action => 'index', :id => @profile2.id -%>"><%= h @profile2.name %></a>
+                <br/><a href="<%= url_for :controller => 'profiles', :action => 'show', :id => @profile2.id -%>"><%= h @profile2.name %></a>
               </th>
             </tr>
             </thead>

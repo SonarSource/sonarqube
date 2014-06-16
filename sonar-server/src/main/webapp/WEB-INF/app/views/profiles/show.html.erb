@@ -2,6 +2,18 @@
   <%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'Rules'} %>
 
   <div class="tabs-panel marginbottom10 ">
-
+    <p>
+        <a href="<%= "#{ApplicationController.root_context}/coding_rules#qprofile=#{@profile.key().toString()}|activation=true|languages=#{@profile.language()}" -%>"><%= @active_rule_count -%> <%= message('coding_rules._rules') -%></a>
+    </p>
+    <br/>
+    <p>
+      Inheritance:<br/>
+      <%= @stats.get('inheritance') if @stats -%>
+    </p>
+    <br/>
+    <p>
+      Severity:<br/>
+      <%= @stats.get('severity') if @stats -%>
+    </p>
   </div>
 </div>

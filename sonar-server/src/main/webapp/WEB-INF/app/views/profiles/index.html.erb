@@ -53,9 +53,7 @@
     <% @profiles.select { |p| p.language == language.getKey() }.each do |profile| 
        key = profile_key(profile)
        projects_count = projects_count(profile)
-       profile_rules_count = profile_rules_count(profile)
        is_default_profile = !default_profile.nil? && (default_profile.name() == profile.name())
-
     %>
       <tr class="<%= cycle 'even', 'odd', :name => language.getKey() -%>" id="<%= u key %>">
         <td  width="40%">
@@ -64,7 +62,9 @@
         </td>
 
         <td align="right" width="10%">
-          <span id="activated_rules_<%= u key -%>"><%= profile_rules_count -%></span>
+          <span id="activated_rules_<%= u key -%>">
+            <%= @active_rule_counts[profile.key()] || 0 -%>
+          </span>
         </td>
 
         <td align="right" width="10%" nowrap>
