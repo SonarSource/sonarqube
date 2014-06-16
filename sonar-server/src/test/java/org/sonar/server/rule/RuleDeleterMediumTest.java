@@ -87,7 +87,7 @@ public class RuleDeleterMediumTest {
     // Activate the custom rule
     tester.get(RuleActivator.class).activate(
       new RuleActivation(ActiveRuleKey.of(profileDto.getKey(), customRule.getKey())).setSeverity(Severity.BLOCKER)
-    );
+      );
 
     // Delete custom rule
     deleter.delete(customRule.getKey());
@@ -103,7 +103,24 @@ public class RuleDeleterMediumTest {
   }
 
   @Test
-  public void fail_to_delete_if_not_custom() throws Exception {
+  public void delete_manual_rule() throws Exception {
+    // Create manual rule
+    RuleDto manualRule = RuleTesting.newManualRule("Manual_Rule");
+    dao.insert(dbSession, manualRule);
+
+    dbSession.commit();
+
+    // Delete manual rule
+    deleter.delete(manualRule.getKey());
+
+    // Verify custom rule have status REMOVED
+    Rule result = index.getByKey(manualRule.getKey());
+    assertThat(result).isNotNull();
+    assertThat(result.status()).isEqualTo(RuleStatus.REMOVED);
+  }
+
+  @Test
+  public void fail_to_delete_if_not_custom_or_not_manual() throws Exception {
     // Create rule
     RuleKey ruleKey = RuleKey.of("java", "S001");
     dao.insert(dbSession, RuleTesting.newDto(ruleKey));
@@ -113,7 +130,7 @@ public class RuleDeleterMediumTest {
       // Delete rule
       deleter.delete(ruleKey);
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Only custom rules can be deleted");
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Only custom rules and manual rules can be deleted");
     }
   }
 
