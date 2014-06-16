@@ -55,10 +55,11 @@
        projects_count = projects_count(profile)
        profile_rules_count = profile_rules_count(profile)
        is_default_profile = !default_profile.nil? && (default_profile.name() == profile.name())
+
     %>
       <tr class="<%= cycle 'even', 'odd', :name => language.getKey() -%>" id="<%= u key %>">
         <td  width="40%">
-          <a href="<%= url_for :controller => 'profiles', :action => 'projects', :id => profile.id() -%>"
+          <a href="<%= url_for :controller => 'profiles', :action => 'show', :id => profile.id() -%>"
              id="rules-<%= language.getKey() -%>-<%= u(profile.name()) -%>"><%= h profile.name() %></a>
         </td>
 
@@ -88,7 +89,6 @@
         </td>
 
         <% if profiles_administrator? %>
-
           <td align="right" nowrap>
             <form method="post" action="<%= ApplicationController.root_context -%>/profiles/backup/<%= profile.id() -%>" id="backup-<%= key.parameterize -%>-form">
               <a href="#" class="link-action" name="button_backup" id="backup_<%= u key %>" onclick="$j('#backup-<%= key.parameterize -%>-form').submit();return false;"><%= message('backup_verb') -%></a>

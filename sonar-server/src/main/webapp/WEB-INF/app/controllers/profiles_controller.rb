@@ -30,8 +30,18 @@ class ProfilesController < ApplicationController
     add_breadcrumbs ProfilesController::root_breadcrumb
     call_backend do
       @profiles = Internal.quality_profiles.allProfiles().to_a
+      @stats = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).getAllProfileStats()
     end
     Api::Utils.insensitive_sort!(@profiles) { |profile| profile.name() }
+  end
+
+  # GET /profiles/show?id=<id>
+  def show
+    require_parameters 'id'
+    call_backend do
+      @profile = Internal.quality_profiles.profile(params[:id].to_i)
+    end
+    set_profile_breadcrumbs
   end
 
   # GET /profiles/create_form?language=<language>
@@ -553,7 +563,7 @@ class ProfilesController < ApplicationController
   end
 
   def set_profile_breadcrumbs
-    add_breadcrumbs ProfilesController::root_breadcrumb, Api::Utils.language_name(@profile.language), {:name => @profile.name, :url => {:controller => 'rules_configuration', :action => 'index', :id => @profile.id}}
+    add_breadcrumbs ProfilesController::root_breadcrumb, {:name => "#{@profile.name} (#{Api::Utils.language_name(@profile.language)})"}
   end
 
   def profile_id_to_key(profile_id)
