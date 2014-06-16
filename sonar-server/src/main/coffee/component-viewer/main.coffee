@@ -234,13 +234,15 @@ define [
     showWorkspace: (store = false) ->
       @settings.set 'workspace', true
       @storeSettings() if store
-      @render()
+      @$el.addClass 'component-viewer-workspace-enabled'
+      @workspaceView.render()
 
 
     hideWorkspace: (store = false) ->
       @settings.set 'workspace', false
       @storeSettings() if store
-      @render()
+      @$el.removeClass 'component-viewer-workspace-enabled'
+      @workspaceView.render()
 
 
     showAllLines: ->
