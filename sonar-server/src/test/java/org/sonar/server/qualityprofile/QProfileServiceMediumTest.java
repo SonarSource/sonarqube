@@ -116,7 +116,7 @@ public class QProfileServiceMediumTest {
 
     dbSession.commit();
 
-    Multimap<QualityProfileKey, FacetValue> stats = service.getAllProfileStats();
+    Map<QualityProfileKey, Multimap<String, FacetValue>> stats = service.getAllProfileStats();
     assertThat(stats.size()).isEqualTo(2);
     assertThat(stats.get(XOO_PROFILE_1).size()).isEqualTo(1);
   }

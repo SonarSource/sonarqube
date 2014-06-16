@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Multimap;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Ignore;
@@ -263,7 +264,7 @@ public class ActiveRuleBackendMediumTest {
   }
 
   @Test
-    public void count_all_by_index_field() {
+  public void count_all_by_index_field() {
     QualityProfileDto profileDto1 = QualityProfileDto.createFor("p1", "java");
     QualityProfileDto profileDto2 = QualityProfileDto.createFor("p2", "java");
     db.qualityProfileDao().insert(dbSession, profileDto1, profileDto2);
@@ -311,14 +312,14 @@ public class ActiveRuleBackendMediumTest {
       ActiveRuleDto.createFor(profileDto2, ruleDto2)
         .setInheritance(ActiveRule.Inheritance.INHERITED.name())
         .setSeverity(Severity.BLOCKER)
-      );
+    );
     dbSession.commit();
 
     // 0. Test base case
     assertThat(index.countAll()).isEqualTo(4);
 
     // 1. Assert by term aggregation;
-    Collection<FacetValue> stats = index.getStatsByProfileKey(
+    Map<QualityProfileKey, Multimap<String, FacetValue>> stats = index.getStatsByProfileKey(
       ImmutableList.of(profileDto1.getKey(),
         profileDto2.getKey()));
 
