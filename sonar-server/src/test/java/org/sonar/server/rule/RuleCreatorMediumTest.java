@@ -112,6 +112,86 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
+  public void reactivate_custom_rule_if_already_exists_in_removed_status() throws Exception {
+    String key = "CUSTOM_RULE";
+
+    // insert template rule
+    RuleDto templateRule = createTemplateRule();
+
+    // insert a removed rule
+    RuleDto rule = dao.insert(dbSession, RuleTesting.newCustomRule(templateRule)
+      .setRuleKey(key)
+      .setStatus(RuleStatus.REMOVED)
+      .setName("Old name")
+      .setDescription("Old description")
+      .setSeverity(Severity.INFO));
+    dao.addRuleParam(dbSession, rule, dao.findRuleParamsByRuleKey(dbSession, templateRule.getKey()).get(0).setDefaultValue("a.*"));
+    dbSession.commit();
+    dbSession.clearCache();
+
+    // Create custom rule with same key, but with different values
+    NewRule newRule = NewRule.createForCustomRule(key, templateRule.getKey())
+      .setName("New name")
+      .setHtmlDescription("New description")
+      .setSeverity(Severity.MAJOR)
+      .setStatus(RuleStatus.READY)
+      .setParameters(ImmutableMap.of("regex", "c.*"));
+    RuleKey customRuleKey = creator.create(newRule);
+
+    dbSession.clearCache();
+
+    Rule result = ruleIndex.getByKey(customRuleKey);
+    assertThat(result.key()).isEqualTo(RuleKey.of("java", key));
+    assertThat(result.status()).isEqualTo(RuleStatus.READY);
+
+    // These values should be the same than before
+    assertThat(result.name()).isEqualTo("Old name");
+    assertThat(result.htmlDescription()).isEqualTo("Old description");
+    assertThat(result.severity()).isEqualTo(Severity.INFO);
+    assertThat(result.param("regex").defaultValue()).isEqualTo("a.*");
+
+    // Check that the id is the same
+    assertThat(db.ruleDao().getByKey(dbSession, result.key()).getId()).isEqualTo(rule.getId());
+  }
+
+  @Test
+  public void generate_reactivation_exception_when_rule_exists_in_removed_status_and_prevent_reactivation_parameter_is_true() throws Exception {
+    String key = "CUSTOM_RULE";
+
+    // insert template rule
+    RuleDto templateRule = createTemplateRule();
+
+    // insert a removed rule
+    RuleDto rule = dao.insert(dbSession, RuleTesting.newCustomRule(templateRule)
+      .setRuleKey(key)
+      .setStatus(RuleStatus.REMOVED)
+      .setName("Old name")
+      .setDescription("Old description")
+      .setSeverity(Severity.INFO));
+    dao.addRuleParam(dbSession, rule, dao.findRuleParamsByRuleKey(dbSession, templateRule.getKey()).get(0).setDefaultValue("a.*"));
+    dbSession.commit();
+    dbSession.clearCache();
+
+    // Create custom rule with same key, but with different values
+    NewRule newRule = NewRule.createForCustomRule(key, templateRule.getKey())
+      .setName("New name")
+      .setHtmlDescription("New description")
+      .setSeverity(Severity.MAJOR)
+      .setStatus(RuleStatus.READY)
+      .setParameters(ImmutableMap.of("regex", "c.*"))
+      .setPreventReactivation(true);
+
+    try {
+      creator.create(newRule);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(ReactivationException.class);
+      ReactivationException reactivationException = (ReactivationException) e;
+      assertThat(reactivationException.ruleKey()).isEqualTo(rule.getKey());
+    }
+  }
+
+  @Test
   public void not_fail_to_create_custom_rule_when_a_param_is_missing() throws Exception {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
@@ -364,6 +444,40 @@ public class RuleCreatorMediumTest {
     assertThat(rule.tags()).isEmpty();
     assertThat(rule.systemTags()).isEmpty();
     assertThat(rule.params()).isEmpty();
+  }
+
+  @Test
+  public void reactivate_manual_rule_if_already_exists_in_removed_status() throws Exception {
+    String key = "MANUAL_RULE";
+
+    // insert a removed rule
+    RuleDto rule = dao.insert(dbSession, RuleTesting.newManualRule(key)
+      .setStatus(RuleStatus.REMOVED)
+      .setName("Old name")
+      .setDescription("Old description")
+      .setSeverity(Severity.INFO));
+    dbSession.commit();
+    dbSession.clearCache();
+
+    // Create a rule with the same key and with another name, description and severity
+    NewRule newRule = NewRule.createForManualRule(key)
+      .setName("New name")
+      .setHtmlDescription("New description");
+    RuleKey ruleKey = creator.create(newRule);
+
+    dbSession.clearCache();
+
+    Rule result = ruleIndex.getByKey(ruleKey);
+    assertThat(result.key()).isEqualTo(RuleKey.of("manual", key));
+    assertThat(result.status()).isEqualTo(RuleStatus.READY);
+
+    // Name, description and severity should be the same than before
+    assertThat(result.name()).isEqualTo("Old name");
+    assertThat(result.htmlDescription()).isEqualTo("Old description");
+    assertThat(result.severity()).isEqualTo(Severity.INFO);
+
+    // Check that the id is the same
+    assertThat(db.ruleDao().getByKey(dbSession, result.key()).getId()).isEqualTo(rule.getId());
   }
 
   @Test

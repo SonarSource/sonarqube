@@ -27,6 +27,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
@@ -137,6 +139,34 @@ public class CreateActionMediumTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Either 'custom_key' or 'manual_key' parameters should be set");
     }
+  }
+
+  @Test
+  public void create_manual_rule_with_prevent_reactivation_param_to_true() throws Exception {
+    MockUserSession.set()
+      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
+      .setLogin("me");
+
+    String key = "MY_MANUAL";
+
+    // insert a removed rule
+    tester.get(RuleDao.class).insert(session, RuleTesting.newManualRule(key)
+      .setStatus(RuleStatus.REMOVED)
+      .setName("My manual rule")
+      .setDescription("Description")
+      .setSeverity(Severity.MAJOR));
+    session.commit();
+    session.clearCache();
+
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "create")
+      .setParam("manual_key", key)
+      .setParam("name", "My manual rule")
+      .setParam("html_description", "Description")
+      .setParam("severity", "MAJOR")
+      .setParam("prevent_reactivation", "true");
+    request.execute()
+      .assertJson(getClass(), "create_rule_with_prevent_reactivation_param_to_true.json", false)
+      .assertStatus(409);
   }
 
 }

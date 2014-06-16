@@ -38,7 +38,7 @@ public class NewRule {
   private RuleStatus status;
   private final Map<String, String> parameters = Maps.newHashMap();
 
-  private boolean isCustomRule = false;
+  private boolean isCustom, isManual, preventReactivation = false;
 
   private NewRule() {
     // No direct call to constructor
@@ -110,10 +110,30 @@ public class NewRule {
     return this;
   }
 
+  public boolean isPreventReactivation() {
+    return preventReactivation;
+  }
+
+  /**
+   * When true, if the rule already exists in status REMOVED, an {@link ReactivationException} will be thrown
+   */
+  public NewRule setPreventReactivation(boolean preventReactivation) {
+    this.preventReactivation = preventReactivation;
+    return this;
+  }
+
   private void checkCustomRule(){
-    if (!isCustomRule) {
+    if (!isCustom) {
       throw new IllegalStateException("Not a custom rule");
     }
+  }
+
+  public boolean isCustom() {
+    return isCustom;
+  }
+
+  public boolean isManual() {
+    return isManual;
   }
 
   public static NewRule createForCustomRule(String customKey, RuleKey templateKey) {
@@ -122,7 +142,7 @@ public class NewRule {
     NewRule newRule = new NewRule();
     newRule.ruleKey = customKey;
     newRule.templateKey = templateKey;
-    newRule.isCustomRule = true;
+    newRule.isCustom = true;
     return newRule;
   }
 
@@ -130,6 +150,7 @@ public class NewRule {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(manualKey), "Manual key should be set");
     NewRule newRule = new NewRule();
     newRule.ruleKey = manualKey;
+    newRule.isManual = true;
     return newRule;
   }
 

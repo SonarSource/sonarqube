@@ -31,6 +31,8 @@ import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.index.RuleDoc;
 
+import javax.annotation.CheckForNull;
+
 public class RuleCreator implements ServerComponent {
 
   private final DbClient dbClient;
@@ -42,35 +44,58 @@ public class RuleCreator implements ServerComponent {
   public RuleKey create(NewRule newRule) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      RuleKey templateKey = newRule.templateKey();
-      // Creation of a custom rule
-      if (templateKey != null) {
-        RuleDto templateRule = dbClient.ruleDao().getByKey(dbSession, templateKey);
-        if (!templateRule.isTemplate()) {
-          throw new IllegalArgumentException("This rule is not a template rule: " + templateKey.toString());
-        }
-        validateCustomRule(newRule);
 
-        RuleKey customRuleKey = RuleKey.of(templateRule.getRepositoryKey(), newRule.ruleKey());
-        checkRuleKeyUnicity(customRuleKey, dbSession);
-        createCustomRule(customRuleKey, newRule, templateRule, dbSession);
-
-        dbSession.commit();
-        return customRuleKey;
-      } else {
-        // Creation of a manual rule
-        validateManualRule(newRule);
-
-        RuleKey customRuleKey = RuleKey.of(RuleDoc.MANUAL_REPOSITORY, newRule.ruleKey());
-        checkRuleKeyUnicity(customRuleKey, dbSession);
-        createManualRule(customRuleKey, newRule, dbSession);
-
-        dbSession.commit();
-        return customRuleKey;
+      if (newRule.isCustom()) {
+        return createCustomRule(newRule, dbSession);
       }
+
+      if (newRule.isManual()) {
+        return createManualRule(newRule, dbSession);
+      }
+
+      throw new IllegalStateException("Only custom rule and manual rule can be created");
     } finally {
       dbSession.close();
     }
+  }
+
+  private RuleKey createCustomRule(NewRule newRule, DbSession dbSession){
+    RuleKey templateKey = newRule.templateKey();
+    if (templateKey == null) {
+      throw new IllegalArgumentException("Rule template key should not be null");
+    }
+    RuleDto templateRule = dbClient.ruleDao().getByKey(dbSession, templateKey);
+    if (!templateRule.isTemplate()) {
+      throw new IllegalArgumentException("This rule is not a template rule: " + templateKey.toString());
+    }
+    validateCustomRule(newRule);
+
+    RuleKey customRuleKey = RuleKey.of(templateRule.getRepositoryKey(), newRule.ruleKey());
+
+    RuleDto existingRule = loadRule(customRuleKey, dbSession);
+    if (existingRule != null) {
+      updateExistingRule(existingRule, newRule, dbSession);
+    } else {
+      createCustomRule(customRuleKey, newRule, templateRule, dbSession);
+    }
+
+    dbSession.commit();
+    return customRuleKey;
+  }
+
+  private RuleKey createManualRule(NewRule newRule, DbSession dbSession){
+    validateManualRule(newRule);
+
+    RuleKey customRuleKey = RuleKey.of(RuleDoc.MANUAL_REPOSITORY, newRule.ruleKey());
+    RuleDto existingRule = loadRule(customRuleKey, dbSession);
+    if (existingRule != null) {
+      updateExistingRule(existingRule, newRule, dbSession);
+    } else {
+      createManualRule(customRuleKey, newRule, dbSession);
+    }
+
+    dbSession.commit();
+    return customRuleKey;
   }
 
   private static void validateCustomRule(NewRule newRule) {
@@ -117,10 +142,9 @@ public class RuleCreator implements ServerComponent {
     }
   }
 
-  private void checkRuleKeyUnicity(RuleKey ruleKey, DbSession dbSession){
-    if (dbClient.ruleDao().getNullableByKey(dbSession, ruleKey) != null) {
-      throw new IllegalArgumentException(String.format("A rule with the key '%s' already exits", ruleKey.rule()));
-    }
+  @CheckForNull
+  private RuleDto loadRule(RuleKey ruleKey, DbSession dbSession){
+    return dbClient.ruleDao().getNullableByKey(dbSession, ruleKey);
   }
 
   private RuleKey createCustomRule(RuleKey ruleKey, NewRule newRule, RuleDto templateRuleDto, DbSession dbSession){
@@ -167,6 +191,19 @@ public class RuleCreator implements ServerComponent {
       .setStatus(RuleStatus.READY);
     dbClient.ruleDao().insert(dbSession, ruleDto);
     return ruleKey;
+  }
+
+  private void updateExistingRule(RuleDto ruleDto, NewRule newRule, DbSession dbSession){
+    if (ruleDto.getStatus().equals(RuleStatus.REMOVED)) {
+      if (newRule.isPreventReactivation()) {
+        throw new ReactivationException(String.format("A removed rule with the key '%s' already exits", ruleDto.getKey().rule()), ruleDto.getKey());
+      } else {
+        ruleDto.setStatus(RuleStatus.READY);
+        dbClient.ruleDao().update(dbSession, ruleDto);
+      }
+    } else {
+      throw new IllegalArgumentException(String.format("A rule with the key '%s' already exits", ruleDto.getKey().rule()));
+    }
   }
 
 }
