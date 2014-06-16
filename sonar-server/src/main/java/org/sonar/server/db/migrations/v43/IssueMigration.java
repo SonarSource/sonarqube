@@ -60,15 +60,22 @@ public class IssueMigration implements DatabaseMigration {
       new MassUpdater.InputLoader<Row>() {
         @Override
         public String selectSql() {
-          return "SELECT i.id, i.technical_debt FROM issues i WHERE i.technical_debt IS NOT NULL";
+          return "SELECT i.id, i.technical_debt FROM issues i";
         }
 
         @Override
         public Row load(ResultSet rs) throws SQLException {
-          Row row = new Row();
-          row.id = SqlUtil.getLong(rs, 1);
-          row.debt = SqlUtil.getLong(rs, 2);
-          return row;
+          Long debt = SqlUtil.getLong(rs, 2);
+          if (!rs.wasNull() && debt != null) {
+            // See https://jira.codehaus.org/browse/SONAR-5394
+            // The SQL request should not set the filter on technical_debt is not null. There's no index
+            // on this column, so filtering is done programmatically.
+            Row row = new Row();
+            row.id = SqlUtil.getLong(rs, 1);
+            row.debt = debt;
+            return row;
+          }
+          return null;
         }
       },
       new MassUpdater.InputConverter<Row>() {

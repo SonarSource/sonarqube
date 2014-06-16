@@ -79,7 +79,7 @@ public class MassUpdaterTest {
           return true;
         }
       }
-    );
+      );
 
     db.assertDbUnit(getClass(), "migrate_data_result.xml", "issues");
   }
@@ -112,7 +112,7 @@ public class MassUpdaterTest {
             return true;
           }
         }
-      );
+        );
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(MessageException.class);
@@ -149,11 +149,45 @@ public class MassUpdaterTest {
             return true;
           }
         }
-      );
+        );
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(MessageException.class);
     }
+  }
+
+  @Test
+  public void ignore_null_rows() throws Exception {
+    db.prepareDbUnit(getClass(), "ignore_null_rows.xml");
+
+    new MassUpdater(db.database()).execute(
+      new MassUpdater.InputLoader<Row>() {
+        @Override
+        public String selectSql() {
+          return "SELECT i.id FROM issues i";
+        }
+
+        @Override
+        public Row load(ResultSet rs) throws SQLException {
+          return null;
+        }
+      },
+      new MassUpdater.InputConverter<Row>() {
+        @Override
+        public String updateSql() {
+          return "UPDATE issues SET severity=? WHERE id=?";
+        }
+
+        @Override
+        public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
+          updateStatement.setString(1, "BLOCKER");
+          updateStatement.setLong(2, row.id);
+          return true;
+        }
+      }
+      );
+    // no changes, do not set severity to BLOCKER
+    db.assertDbUnit(getClass(), "ignore_null_rows.xml", "issues");
   }
 
   @Test

@@ -28,6 +28,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.dialect.MySql;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.sql.Connection;
@@ -59,6 +60,7 @@ public class MassUpdater {
   public static interface InputLoader<S> {
     String selectSql();
 
+    @CheckForNull
     S load(ResultSet rs) throws SQLException;
   }
 
@@ -108,7 +110,11 @@ public class MassUpdater {
 
       int cursor = 0;
       while (rs.next()) {
-        if (converter.convert(inputLoader.load(rs), writeStatement)) {
+        S row = inputLoader.load(rs);
+        if (row == null) {
+          continue;
+        }
+        if (converter.convert(row, writeStatement)) {
           writeStatement.addBatch();
           writeStatement.clearParameters();
           cursor++;
