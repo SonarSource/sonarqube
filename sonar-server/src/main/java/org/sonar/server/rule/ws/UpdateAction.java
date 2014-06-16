@@ -168,8 +168,10 @@ public class UpdateAction implements RequestHandler {
     }
     if (rule.templateKey() != null) {
       return RuleUpdate.createForCustomRule(key);
+    } else if (rule.isManual()) {
+      return RuleUpdate.createForManualRule(key);
     } else {
-      return RuleUpdate.createForRule(key);
+      return RuleUpdate.createForPluginRule(key);
     }
   }
 

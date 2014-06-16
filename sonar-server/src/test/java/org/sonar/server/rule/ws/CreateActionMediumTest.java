@@ -32,12 +32,16 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CreateActionMediumTest {
@@ -78,7 +82,7 @@ public class CreateActionMediumTest {
     session.commit();
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "create")
-      .setParam("key", "MY_CUSTOM")
+      .setParam("custom_key", "MY_CUSTOM")
       .setParam("template_key", templateRule.getKey().toString())
       .setParam("name", "My custom rule")
       .setParam("html_description", "Description")
@@ -86,6 +90,53 @@ public class CreateActionMediumTest {
       .setParam("status", "BETA")
       .setParam("params", "regex=a.*");
     request.execute().assertJson(getClass(), "create_custom_rule.json", false);
+  }
+
+  @Test
+  public void create_manual_rule() throws Exception {
+    MockUserSession.set()
+      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
+      .setLogin("me");
+
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "create")
+      .setParam("manual_key", "MY_MANUAL")
+      .setParam("name", "My manual rule")
+      .setParam("html_description", "Description")
+      .setParam("severity", "MAJOR");
+    request.execute().assertJson(getClass(), "create_manual_rule.json", false);
+  }
+
+  @Test
+  public void create_manual_rule_without_severity() throws Exception {
+    MockUserSession.set()
+      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
+      .setLogin("me");
+
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "create")
+      .setParam("manual_key", "MY_MANUAL")
+      .setParam("name", "My manual rule")
+      .setParam("html_description", "Description");
+    request.execute().assertJson(getClass(), "create_manual_rule_without_severity.json", false);
+  }
+
+  @Test
+  public void fail_if_custom_key_and_manual_key_parameters_are_not_set() throws Exception {
+    MockUserSession.set()
+      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
+      .setLogin("me");
+
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "create")
+      .setParam("key", "MY_MANUAL")
+      .setParam("name", "My manual rule")
+      .setParam("html_description", "Description")
+      .setParam("severity", "MAJOR");
+
+    try {
+      request.execute();
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Either 'custom_key' or 'manual_key' parameters should be set");
+    }
   }
 
 }

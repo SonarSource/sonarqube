@@ -99,7 +99,7 @@ public class RuleServiceMediumTest {
     dao.insert(dbSession, RuleTesting.newDto(key));
     dbSession.commit();
 
-    RuleUpdate update = new RuleUpdate(key);
+    RuleUpdate update = RuleUpdate.createForCustomRule(key);
     update.setMarkdownNote("my *note*");
     service.update(update);
 
@@ -121,12 +121,12 @@ public class RuleServiceMediumTest {
       .setSystemTags(Sets.newHashSet("java8", "javadoc")));
     dbSession.commit();
 
-    RuleUpdate update = new RuleUpdate(key).setMarkdownNote("my *note*");
+    RuleUpdate update = RuleUpdate.createForPluginRule(key).setMarkdownNote("my *note*");
     service.update(update);
   }
 
   @Test
-  public void create_custom_rule() throws Exception {
+  public void create_rule() throws Exception {
     MockUserSession.set()
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
       .setLogin("me");
@@ -137,9 +137,7 @@ public class RuleServiceMediumTest {
     dbSession.commit();
 
     // Create custom rule
-    NewRule newRule = new NewRule()
-      .setRuleKey("MY_CUSTOM")
-      .setTemplateKey(templateRuleKey)
+    NewRule newRule = NewRule.createForCustomRule("MY_CUSTOM", templateRuleKey)
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -157,11 +155,11 @@ public class RuleServiceMediumTest {
   public void do_not_create_if_not_granted() throws Exception {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
-    service.create(new NewRule());
+    service.create(NewRule.createForCustomRule("MY_CUSTOM", RuleKey.of("java", "S001")));
   }
 
   @Test
-  public void delete_custom_rule() throws Exception {
+  public void delete_rule() throws Exception {
     MockUserSession.set()
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
       .setLogin("me");
@@ -172,9 +170,7 @@ public class RuleServiceMediumTest {
     dbSession.commit();
 
     // Create custom rule
-    NewRule newRule = new NewRule()
-      .setRuleKey("MY_CUSTOM")
-      .setTemplateKey(templateRuleKey)
+    NewRule newRule = NewRule.createForCustomRule("MY_CUSTOM", templateRuleKey)
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)

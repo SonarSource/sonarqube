@@ -44,6 +44,8 @@ import java.util.Map;
  */
 public class RuleDoc extends BaseDoc implements Rule {
 
+  public final static String MANUAL_REPOSITORY = "manual";
+
   RuleDoc(@Nullable Map<String, Object> fields) {
     super(fields);
   }
@@ -69,13 +71,15 @@ public class RuleDoc extends BaseDoc implements Rule {
   }
 
   @Override
+  @CheckForNull
   public String internalKey() {
     return getNullableField(RuleNormalizer.RuleField.INTERNAL_KEY.field());
   }
 
   @Override
+  @CheckForNull
   public String language() {
-    return getField(RuleNormalizer.RuleField.LANGUAGE.field());
+    return getNullableField(RuleNormalizer.RuleField.LANGUAGE.field());
   }
 
   @Override
@@ -89,11 +93,13 @@ public class RuleDoc extends BaseDoc implements Rule {
   }
 
   @Override
+  @CheckForNull
   public String severity() {
-    return (String) getField(RuleNormalizer.RuleField.SEVERITY.field());
+    return (String) getNullableField(RuleNormalizer.RuleField.SEVERITY.field());
   }
 
   @Override
+  @CheckForNull
   public RuleStatus status() {
     return RuleStatus.valueOf((String) getField(RuleNormalizer.RuleField.STATUS.field()));
   }
@@ -104,6 +110,7 @@ public class RuleDoc extends BaseDoc implements Rule {
   }
 
   @Override
+  @CheckForNull
   public RuleKey templateKey() {
     String templateKey = getNullableField(RuleNormalizer.RuleField.TEMPLATE_KEY.field());
     return templateKey != null ? RuleKey.parse(templateKey) : null;
@@ -170,16 +177,19 @@ public class RuleDoc extends BaseDoc implements Rule {
   }
 
   @Override
+  @CheckForNull
   public String debtCharacteristicKey() {
     return (String) getNullableField(RuleNormalizer.RuleField.CHARACTERISTIC.field());
   }
 
   @Override
+  @CheckForNull
   public String debtSubCharacteristicKey() {
     return (String) getNullableField(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field());
   }
 
   @Override
+  @CheckForNull
   public DebtRemediationFunction debtRemediationFunction() {
     final String function = getNullableField(RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field());
     if (function == null || function.isEmpty()) {
@@ -205,21 +215,25 @@ public class RuleDoc extends BaseDoc implements Rule {
   }
 
   @Override
+  @CheckForNull
   public String markdownNote() {
     return getNullableField(RuleNormalizer.RuleField.NOTE.field());
   }
 
   @Override
+  @CheckForNull
   public String noteLogin() {
     return (String) getNullableField(RuleNormalizer.RuleField.NOTE_LOGIN.field());
   }
 
   @Override
+  @CheckForNull
   public Date noteCreatedAt() {
     return IndexUtils.parseDateTime((String) getNullableField(RuleNormalizer.RuleField.NOTE_CREATED_AT.field()));
   }
 
   @Override
+  @CheckForNull
   public Date noteUpdatedAt() {
     return IndexUtils.parseDateTime((String) getNullableField(RuleNormalizer.RuleField.NOTE_UPDATED_AT.field()));
   }
@@ -232,6 +246,11 @@ public class RuleDoc extends BaseDoc implements Rule {
   @Override
   public Date updatedAt() {
     return IndexUtils.parseDateTime((String) getNullableField(RuleNormalizer.RuleField.UPDATED_AT.field()));
+  }
+
+  @Override
+  public boolean isManual() {
+    return getField(RuleNormalizer.RuleField.REPOSITORY.field()).equals(MANUAL_REPOSITORY);
   }
 
   @Override

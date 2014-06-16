@@ -87,7 +87,7 @@ public class RubyRuleService implements ServerComponent, Startable {
 
   // sqale
   public void updateRule(Map<String, Object> params) {
-    RuleUpdate update = new RuleUpdate(RuleKey.parse((String) params.get("ruleKey")));
+    RuleUpdate update = RuleUpdate.createForPluginRule(RuleKey.parse((String) params.get("ruleKey")));
     update.setDebtSubCharacteristic(Strings.emptyToNull((String) params.get("debtCharacteristicKey")));
     String fn = (String) params.get("debtRemediationFunction");
     if (fn == null) {

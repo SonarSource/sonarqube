@@ -100,4 +100,6 @@ public interface Rule {
 
   @CheckForNull
   Date noteUpdatedAt();
+
+  boolean isManual();
 }

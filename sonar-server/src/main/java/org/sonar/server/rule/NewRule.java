@@ -19,6 +19,8 @@
  */
 package org.sonar.server.rule;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -36,26 +38,19 @@ public class NewRule {
   private RuleStatus status;
   private final Map<String, String> parameters = Maps.newHashMap();
 
-  public String ruleKey() {
-    return ruleKey;
+  private boolean isCustomRule = false;
+
+  private NewRule() {
+    // No direct call to constructor
   }
 
-  public NewRule setRuleKey(String ruleKey) {
-    this.ruleKey = ruleKey;
-    return this;
+  public String ruleKey() {
+    return ruleKey;
   }
 
   @CheckForNull
   public RuleKey templateKey() {
     return templateKey;
-  }
-
-  /**
-   * For the creation a custom rule
-   */
-  public NewRule setTemplateKey(@Nullable RuleKey templateKey) {
-    this.templateKey = templateKey;
-    return this;
   }
 
   @CheckForNull
@@ -94,6 +89,7 @@ public class NewRule {
   }
 
   public NewRule setStatus(@Nullable RuleStatus status) {
+    checkCustomRule();
     this.status = status;
     return this;
   }
@@ -108,8 +104,33 @@ public class NewRule {
   }
 
   public NewRule setParameters(Map<String, String> params) {
+    checkCustomRule();
     this.parameters.clear();
     this.parameters.putAll(params);
     return this;
   }
+
+  private void checkCustomRule(){
+    if (!isCustomRule) {
+      throw new IllegalStateException("Not a custom rule");
+    }
+  }
+
+  public static NewRule createForCustomRule(String customKey, RuleKey templateKey) {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(customKey), "Custom key should be set");
+    Preconditions.checkArgument(templateKey != null, "Template key should be set");
+    NewRule newRule = new NewRule();
+    newRule.ruleKey = customKey;
+    newRule.templateKey = templateKey;
+    newRule.isCustomRule = true;
+    return newRule;
+  }
+
+  public static NewRule createForManualRule(String manualKey) {
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(manualKey), "Manual key should be set");
+    NewRule newRule = new NewRule();
+    newRule.ruleKey = manualKey;
+    return newRule;
+  }
+
 }

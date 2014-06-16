@@ -23,11 +23,13 @@ package org.sonar.server.rule;
 import com.google.common.base.Strings;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.rule.index.RuleDoc;
 
 public class RuleCreator implements ServerComponent {
 
@@ -41,33 +43,41 @@ public class RuleCreator implements ServerComponent {
     DbSession dbSession = dbClient.openSession(false);
     try {
       RuleKey templateKey = newRule.templateKey();
+      // Creation of a custom rule
       if (templateKey != null) {
         RuleDto templateRule = dbClient.ruleDao().getByKey(dbSession, templateKey);
         if (!templateRule.isTemplate()) {
           throw new IllegalArgumentException("This rule is not a template rule: " + templateKey.toString());
         }
-        validateRule(newRule);
+        validateCustomRule(newRule);
 
         RuleKey customRuleKey = RuleKey.of(templateRule.getRepositoryKey(), newRule.ruleKey());
         checkRuleKeyUnicity(customRuleKey, dbSession);
         createCustomRule(customRuleKey, newRule, templateRule, dbSession);
+
+        dbSession.commit();
+        return customRuleKey;
+      } else {
+        // Creation of a manual rule
+        validateManualRule(newRule);
+
+        RuleKey customRuleKey = RuleKey.of(RuleDoc.MANUAL_REPOSITORY, newRule.ruleKey());
+        checkRuleKeyUnicity(customRuleKey, dbSession);
+        createManualRule(customRuleKey, newRule, dbSession);
+
         dbSession.commit();
         return customRuleKey;
       }
-      throw new IllegalArgumentException("Not supported");
     } finally {
       dbSession.close();
     }
   }
 
-  private static void validateRule(NewRule newRule) {
+  private static void validateCustomRule(NewRule newRule) {
     validateRuleKey(newRule.ruleKey());
-    if (Strings.isNullOrEmpty(newRule.name())) {
-      throw new IllegalArgumentException("The name is missing");
-    }
-    if (Strings.isNullOrEmpty(newRule.htmlDescription())) {
-      throw new IllegalArgumentException("The description is missing");
-    }
+    validateName(newRule);
+    validateDescription(newRule);
+
     String severity = newRule.severity();
     if (Strings.isNullOrEmpty(severity)) {
       throw new IllegalArgumentException("The severity is missing");
@@ -79,13 +89,31 @@ public class RuleCreator implements ServerComponent {
     }
   }
 
+  private static void validateManualRule(NewRule newRule) {
+    validateRuleKey(newRule.ruleKey());
+    validateName(newRule);
+    validateDescription(newRule);
+
+    if (!newRule.parameters().isEmpty()) {
+      throw new IllegalArgumentException("No parameter can be set on a manual rule");
+    }
+  }
+
+  private static void validateName(NewRule newRule){
+    if (Strings.isNullOrEmpty(newRule.name())) {
+      throw new IllegalArgumentException("The name is missing");
+    }
+  }
+
+  private static void validateDescription(NewRule newRule){
+    if (Strings.isNullOrEmpty(newRule.htmlDescription())) {
+      throw new IllegalArgumentException("The description is missing");
+    }
+  }
+
   private static void validateRuleKey(String ruleKey) {
-    if (Strings.isNullOrEmpty(ruleKey)) {
-      throw new IllegalArgumentException("The rule key is missing");
-    } else {
-      if (!ruleKey.matches("^[\\w]+$")) {
-        throw new IllegalArgumentException(String.format("The rule key '%s' is invalid, it should only contains : a-z, 0-9, '_'", ruleKey));
-      }
+    if (!ruleKey.matches("^[\\w]+$")) {
+      throw new IllegalArgumentException(String.format("The rule key '%s' is invalid, it should only contains : a-z, 0-9, '_'", ruleKey));
     }
   }
 
@@ -129,6 +157,16 @@ public class RuleCreator implements ServerComponent {
       .setDescription(templateRuleParam.getDescription())
       .setDefaultValue(param);
     dbClient.ruleDao().addRuleParam(dbSession, ruleDto, ruleParamDto);
+  }
+
+  private RuleKey createManualRule(RuleKey ruleKey, NewRule newRule, DbSession dbSession){
+    RuleDto ruleDto = RuleDto.createFor(ruleKey)
+      .setName(newRule.name())
+      .setDescription(newRule.htmlDescription())
+      .setSeverity(newRule.severity())
+      .setStatus(RuleStatus.READY);
+    dbClient.ruleDao().insert(dbSession, ruleDto);
+    return ruleKey;
   }
 
 }

@@ -82,9 +82,7 @@ public class UpdateActionMediumTest {
     session.commit();
 
     // Custom rule
-    NewRule newRule = new NewRule()
-      .setRuleKey("MY_CUSTOM")
-      .setTemplateKey(templateRule.getKey())
+    NewRule newRule = NewRule.createForCustomRule("MY_CUSTOM", templateRule.getKey())
       .setName("Old custom")
       .setHtmlDescription("Old description")
       .setSeverity(Severity.MINOR)

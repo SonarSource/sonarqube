@@ -190,9 +190,7 @@ public class RegisterRulesMediumTest {
     Rule templateRule = index.getByKey(RuleKey.of("xoo", "template1"));
 
     // Create custom rule
-    RuleKey customRuleKey = tester.get(RuleCreator.class).create(new NewRule()
-      .setRuleKey("CUSTOM_RULE")
-      .setTemplateKey(templateRule.key())
+    RuleKey customRuleKey = tester.get(RuleCreator.class).create(NewRule.createForCustomRule("CUSTOM_RULE", templateRule.key())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -230,9 +228,7 @@ public class RegisterRulesMediumTest {
     Rule templateRule = index.getByKey(RuleKey.of("xoo", "template1"));
 
     // Create custom rule
-    RuleKey customRuleKey = tester.get(RuleCreator.class).create(new NewRule()
-      .setRuleKey("CUSTOM_RULE")
-      .setTemplateKey(templateRule.key())
+    RuleKey customRuleKey = tester.get(RuleCreator.class).create(NewRule.createForCustomRule("CUSTOM_RULE", templateRule.key())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -258,9 +254,7 @@ public class RegisterRulesMediumTest {
     Rule templateRule = index.getByKey(RuleKey.of("xoo", "template1"));
 
     // Create custom rule
-    RuleKey customRuleKey = tester.get(RuleCreator.class).create(new NewRule()
-      .setRuleKey("CUSTOM_RULE")
-      .setTemplateKey(templateRule.key())
+    RuleKey customRuleKey = tester.get(RuleCreator.class).create(NewRule.createForCustomRule("CUSTOM_RULE", templateRule.key())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)

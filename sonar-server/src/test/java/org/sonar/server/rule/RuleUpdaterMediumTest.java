@@ -85,7 +85,7 @@ public class RuleUpdaterMediumTest {
     ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY).setStatus(RuleStatus.REMOVED));
     dbSession.commit();
 
-    RuleUpdate update = new RuleUpdate(RULE_KEY).setTags(Sets.newHashSet("java9"));
+    RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY).setTags(Sets.newHashSet("java9"));
     try {
       updater.update(update, UserSession.get());
       fail();
@@ -107,7 +107,7 @@ public class RuleUpdaterMediumTest {
       .setRemediationOffset("5min"));
     dbSession.commit();
 
-    RuleUpdate update = new RuleUpdate(RULE_KEY);
+    RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY);
     assertThat(update.isEmpty()).isTrue();
     updater.update(update, UserSession.get());
 
@@ -138,7 +138,7 @@ public class RuleUpdaterMediumTest {
       .setRemediationOffset("5min"));
     dbSession.commit();
 
-    RuleUpdate update = new RuleUpdate(RULE_KEY);
+    RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY);
     update.setMarkdownNote("my *note*");
     updater.update(update, UserSession.get());
 
@@ -163,7 +163,7 @@ public class RuleUpdaterMediumTest {
       .setNoteUserLogin("me"));
     dbSession.commit();
 
-    RuleUpdate update = new RuleUpdate(RULE_KEY).setMarkdownNote(null);
+    RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY).setMarkdownNote(null);
     updater.update(update, UserSession.get());
 
     dbSession.clearCache();
@@ -183,7 +183,7 @@ public class RuleUpdaterMediumTest {
     dbSession.commit();
 
     // java8 is a system tag -> ignore
-    RuleUpdate update = new RuleUpdate(RULE_KEY).setTags(Sets.newHashSet("bug", "java8"));
+    RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY).setTags(Sets.newHashSet("bug", "java8"));
     updater.update(update, UserSession.get());
 
     dbSession.clearCache();
@@ -203,7 +203,7 @@ public class RuleUpdaterMediumTest {
       .setSystemTags(Sets.newHashSet("java8", "javadoc")));
     dbSession.commit();
 
-    RuleUpdate update = new RuleUpdate(RULE_KEY).setTags(null);
+    RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY).setTags(null);
     updater.update(update, UserSession.get());
 
     dbSession.clearCache();
@@ -230,7 +230,7 @@ public class RuleUpdaterMediumTest {
     dbSession.commit();
 
     DefaultDebtRemediationFunction fn = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, "1min");
-    RuleUpdate update = new RuleUpdate(RULE_KEY)
+    RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
       .setDebtSubCharacteristic("SOFT_RELIABILITY")
       .setDebtRemediationFunction(fn);
     updater.update(update, UserSession.get());
@@ -266,7 +266,7 @@ public class RuleUpdaterMediumTest {
       .setRemediationOffset("1min"));
     dbSession.commit();
 
-    RuleUpdate update = new RuleUpdate(RULE_KEY)
+    RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
       .setDebtSubCharacteristic(RuleUpdate.DEFAULT_DEBT_CHARACTERISTIC);
     updater.update(update, UserSession.get());
 
@@ -301,7 +301,7 @@ public class RuleUpdaterMediumTest {
       .setRemediationOffset("1min"));
     dbSession.commit();
 
-    RuleUpdate update = new RuleUpdate(RULE_KEY)
+    RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
       .setDebtSubCharacteristic(null);
     updater.update(update, UserSession.get());
 
@@ -423,6 +423,125 @@ public class RuleUpdaterMediumTest {
 
     // Verify that severity has not changed
     assertThat(activeRule.severity()).isEqualTo(Severity.BLOCKER);
+  }
+
+  @Test
+  public void update_manual_rule() throws Exception {
+    // Create manual rule
+    RuleDto manualRule = RuleTesting.newManualRule("My manual")
+      .setName("Old name")
+      .setDescription("Old description")
+      .setSeverity(Severity.INFO);
+    ruleDao.insert(dbSession, manualRule);
+
+    dbSession.commit();
+
+    // Update manual rule
+    RuleUpdate update = RuleUpdate.createForManualRule(manualRule.getKey())
+      .setName("New name")
+      .setHtmlDescription("New description")
+      .setSeverity(Severity.CRITICAL);
+    updater.update(update, UserSession.get());
+
+    dbSession.clearCache();
+
+    // Verify manual rule is updated
+    Rule manualRuleReloaded = ruleIndex.getByKey(manualRule.getKey());
+    assertThat(manualRuleReloaded).isNotNull();
+    assertThat(manualRuleReloaded.name()).isEqualTo("New name");
+    assertThat(manualRuleReloaded.htmlDescription()).isEqualTo("New description");
+    assertThat(manualRuleReloaded.severity()).isEqualTo(Severity.CRITICAL);
+  }
+
+  @Test
+  public void fail_to_update_manual_rule_if_status_is_set() throws Exception {
+    // Create manual rule
+    RuleDto manualRule = RuleTesting.newManualRule("My manual");
+    ruleDao.insert(dbSession, manualRule);
+
+    dbSession.commit();
+
+    try {
+      // Update manual rule
+      RuleUpdate.createForManualRule(manualRule.getKey())
+        .setStatus(RuleStatus.BETA);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not a custom rule");
+    }
+  }
+
+  @Test
+  public void fail_to_update_manual_rule_if_parameters_are_set() throws Exception {
+    // Create manual rule
+    RuleDto manualRule = RuleTesting.newManualRule("My manual");
+    ruleDao.insert(dbSession, manualRule);
+
+    dbSession.commit();
+
+    try {
+      // Update manual rule
+      RuleUpdate.createForManualRule(manualRule.getKey())
+        .setStatus(RuleStatus.BETA)
+        .setParameters(ImmutableMap.of("regex", "b.*", "message", "a message"));
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not a custom rule");
+    }
+  }
+
+  @Test
+  public void fail_to_update_plugin_rule_if_name_is_set() throws Exception {
+    // Create rule rule
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("squid", "S01"));
+    ruleDao.insert(dbSession, ruleDto);
+
+    dbSession.commit();
+
+    try {
+      // Update rule
+      RuleUpdate.createForPluginRule(ruleDto.getKey())
+        .setName("New name");
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not a custom or a manual rule");
+    }
+  }
+
+  @Test
+  public void fail_to_update_plugin_rule_if_description_is_set() throws Exception {
+    // Create rule rule
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("squid", "S01"));
+    ruleDao.insert(dbSession, ruleDto);
+
+    dbSession.commit();
+
+    try {
+      // Update rule
+      RuleUpdate.createForPluginRule(ruleDto.getKey())
+        .setHtmlDescription("New description");
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not a custom or a manual rule");
+    }
+  }
+
+  @Test
+  public void fail_to_update_plugin_rule_if_severity_is_set() throws Exception {
+    // Create rule rule
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("squid", "S01"));
+    ruleDao.insert(dbSession, ruleDto);
+
+    dbSession.commit();
+
+    try {
+      // Update rule
+      RuleUpdate.createForPluginRule(ruleDto.getKey())
+        .setSeverity(Severity.CRITICAL);
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not a custom or a manual rule");
+    }
   }
 
   private void insertDebtCharacteristics(DbSession dbSession) {

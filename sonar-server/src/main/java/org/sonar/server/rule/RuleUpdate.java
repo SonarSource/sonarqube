@@ -39,7 +39,7 @@ public class RuleUpdate {
 
   private boolean changeTags = false, changeMarkdownNote = false, changeDebtSubCharacteristic = false, changeDebtRemediationFunction = false,
     changeName = false, changeDescription = false, changeSeverity = false, changeStatus = false, changeParameters = false;
-  private boolean isCustomRule = false;
+  private boolean isCustomRule, isManual;
   private Set<String> tags;
   private String markdownNote;
   private String debtSubCharacteristicKey;
@@ -49,7 +49,7 @@ public class RuleUpdate {
   private RuleStatus status;
   private final Map<String, String> parameters = Maps.newHashMap();
 
-  public RuleUpdate(RuleKey ruleKey) {
+  private RuleUpdate(RuleKey ruleKey) {
     this.ruleKey = ruleKey;
   }
 
@@ -117,7 +117,7 @@ public class RuleUpdate {
   }
 
   public RuleUpdate setName(@Nullable String name) {
-    checkCustomRule();
+    checkCustomOrManualRule();
     this.name = name;
     this.changeName = true;
     return this;
@@ -129,7 +129,7 @@ public class RuleUpdate {
   }
 
   public RuleUpdate setHtmlDescription(@Nullable String htmlDescription) {
-    checkCustomRule();
+    checkCustomOrManualRule();
     this.htmlDescription = htmlDescription;
     this.changeDescription = true;
     return this;
@@ -141,7 +141,7 @@ public class RuleUpdate {
   }
 
   public RuleUpdate setSeverity(@Nullable String severity) {
-    checkCustomRule();
+    checkCustomOrManualRule();
     this.severity = severity;
     this.changeSeverity = true;
     return this;
@@ -233,13 +233,39 @@ public class RuleUpdate {
     }
   }
 
-  public static RuleUpdate createForRule(RuleKey ruleKey) {
-    return new RuleUpdate(ruleKey);
+  private void checkCustomOrManualRule(){
+    if (!isCustomRule && !isManual) {
+      throw new IllegalStateException("Not a custom or a manual rule");
+    }
   }
 
+  /**
+   * Use to update a rule provided by a plugin (name, description, severity, status and parameters cannot by changed)
+   */
+  public static RuleUpdate createForPluginRule(RuleKey ruleKey) {
+    RuleUpdate ruleUpdate = new RuleUpdate(ruleKey);
+    ruleUpdate.isCustomRule = false;
+    ruleUpdate.isManual = false;
+    return ruleUpdate;
+  }
+
+  /**
+   * Use to update a custom rule
+   */
   public static RuleUpdate createForCustomRule(RuleKey ruleKey) {
     RuleUpdate ruleUpdate = new RuleUpdate(ruleKey);
     ruleUpdate.isCustomRule = true;
+    ruleUpdate.isManual = false;
+    return ruleUpdate;
+  }
+
+  /**
+   * Use to update a manual rule (status and parameters cannot by changed)
+   */
+  public static RuleUpdate createForManualRule(RuleKey ruleKey) {
+    RuleUpdate ruleUpdate = new RuleUpdate(ruleKey);
+    ruleUpdate.isManual = true;
+    ruleUpdate.isCustomRule = false;
     return ruleUpdate;
   }
 

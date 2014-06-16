@@ -74,4 +74,11 @@ public class RuleTesting {
       .setTemplateId(templateRule.getId());
   }
 
+  public static RuleDto newManualRule(String manualKey){
+    return new RuleDto().setRuleKey(manualKey)
+      .setRepositoryKey("manual")
+      .setDescription("Description " + manualKey)
+      .setStatus(RuleStatus.READY);
+  }
+
 }
