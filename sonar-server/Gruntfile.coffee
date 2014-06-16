@@ -95,6 +95,7 @@ module.exports = (grunt) ->
             '<%= pkg.assets %>js/resource.js'
             '<%= pkg.assets %>js/issue.js'
             '<%= pkg.assets %>js/recent-history.js'
+            '<%= pkg.assets %>js/latinize.js'
           ]
       build:
         files:
@@ -125,6 +126,7 @@ module.exports = (grunt) ->
             '<%= pkg.assets %>js/resource.js'
             '<%= pkg.assets %>js/issue.js'
             '<%= pkg.assets %>js/recent-history.js'
+            '<%= pkg.assets %>js/latinize.js'
           ]
 
 

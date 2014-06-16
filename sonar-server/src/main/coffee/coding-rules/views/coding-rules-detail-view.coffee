@@ -57,7 +57,7 @@ define [
       'click @ui.activateQualityProfile': 'activateQualityProfile'
       'click @ui.activateContextQualityProfile': 'activateContextQualityProfile'
       'click @ui.changeQualityProfile': 'changeQualityProfile'
-      'clock @ui.createCustomRule': 'createCustomRule'
+      'click @ui.createCustomRule': 'createCustomRule'
 
 
     initialize: (options) ->
@@ -230,8 +230,9 @@ define [
       @options.app.codingRulesQualityProfileActivationView.show()
 
     createCustomRule: ->
-      #@options.app.codingRulesCreateCustomRuleView.template = @model
-      #@options.app.codingRulesCreateCustomRuleView.show()
+      @options.app.codingRulesCustomRuleCreationView.templateRule = @model
+      @options.app.codingRulesCustomRuleCreationView.model = new Backbone.Model()
+      @options.app.codingRulesCustomRuleCreationView.show()
 
 
     serializeData: ->

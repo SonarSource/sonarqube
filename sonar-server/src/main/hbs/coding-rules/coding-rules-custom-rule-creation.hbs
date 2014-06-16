@@ -1,0 +1,82 @@
+<form>
+  <div class="modal-head">
+    {{#if change}}
+      <h2>{{t 'coding_rules.update_custom_rule'}}</h2>
+    {{else}}
+      <h2>{{t 'coding_rules.create_custom_rule'}}</h2>
+    {{/if}}
+  </div>
+
+  <div class="modal-body">
+    <div class="modal-error"></div>
+
+    <table>
+      <tr class="property">
+        <th><h3>{{t 'name'}} <em class="mandatory">*</em></h3></th>
+        <td>
+          <input type="text" name="name" id="coding-rules-custom-rule-creation-name" value="{{name}}"/>
+        </td>
+      </tr>
+      <tr class="property">
+        <th><h3>{{t 'key'}}{{#unless change}} <em class="mandatory">*</em>{{/unless}}</h3></th>
+        <td>
+          {{#if change}}
+            {{key}}
+          {{else}}
+            <input type="text" name="key" id="coding-rules-custom-rule-creation-key" value="{{internalKey}}"/>
+          {{/if}}
+        </td>
+      </tr>
+      <tr class="property">
+        <th><h3>{{t 'description'}} <em class="mandatory">*</em></h3></th>
+        <td>
+          <textarea type="textarea" name="html_description" id="coding-rules-custom-rule-creation-html-description"
+            rows="4" style="width: 100%; margin-bottom: 4px;">{{{htmlDescription}}}</textarea>
+        </td>
+      </tr>
+      <tr class="property">
+        <th><h3>{{t 'severity'}}</h3></th>
+        <td>
+          <select id="coding-rules-custom-rule-creation-severity">
+            {{#each severities}}
+              <option value="{{this}}">{{t 'severity' this}}</option>
+            {{/each}}
+          </select>
+        </td>
+      </tr>
+      <tr class="property">
+        <th><h3>{{t 'coding_rules.filters.status'}}</h3></th>
+        <td>
+          <select id="coding-rules-custom-rule-creation-status">
+            {{#each statuses}}
+              <option value="{{id}}">{{text}}</option>
+            {{/each}}
+          </select>
+        </td>
+      </tr>
+      {{#each params}}
+        <tr class="property">
+          <th><h3>{{key}}</h3></th>
+          <td>
+            {{#eq type 'TEXT'}}
+              <textarea class="width100" rows="3" name="{{key}}" placeholder="{{defaultValue}}">{{value}}</textarea>
+            {{else}}
+              <input type="text" name="{{key}}" value="{{value}}" placeholder="{{defaultValue}}">
+            {{/eq}}
+            <div class="note">{{description}}</div>
+            {{#if extra}}
+              <div class="note">{{extra}}</div>
+            {{/if}}
+          </td>
+        </tr>
+      {{/each}}
+    </table>
+  </div>
+
+  <div class="modal-foot">
+    <button id="coding-rules-custom-rule-creation-create">
+      {{#if change}}{{t 'save'}}{{else}}{{t 'create'}}{{/if}}
+    </button>
+    <a id="coding-rules-custom-rule-creation-cancel" class="action">{{t 'cancel'}}</a>
+  </div>
+</form>
