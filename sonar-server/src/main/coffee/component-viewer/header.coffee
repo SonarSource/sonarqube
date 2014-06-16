@@ -125,10 +125,9 @@ define [
         @barRegion.show new bar.view
           main: @options.main, state: @state, component: @component, settings: @settings, source: @model, header: @
         @ui.expandLinks.filter("[data-scope=#{scope}]").addClass 'active'
-
-
-    enableBarItem: (item) ->
-      @$(item).click()
+        activeHeaderItem = @state.get 'activeHeaderItem'
+        if activeHeaderItem
+          @$(activeHeaderItem).addClass 'active'
 
 
     showExpandedBar: (e) ->

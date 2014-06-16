@@ -73,11 +73,3 @@ define [], () ->
       if predicate
         @sourceView.addShowBlock scmBlockLine, _.size @source.get 'source'
       @sourceView.render()
-
-
-    enableSCMPeriod: (periodKey) ->
-      period = if periodKey == '' then null else @periods.findWhere key: periodKey
-      @state.set 'period', period
-      @requestMeasures(@key, period?.get('key')).done =>
-        @headerView.render()
-        @filterBySCM() unless @state.get('activeHeaderItem')

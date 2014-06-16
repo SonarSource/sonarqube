@@ -50,7 +50,7 @@ define [
         bottom: true
         prefix: 'Added'
       popup.render()
-      popup.on 'change', (period) => @main.enableIssuesPeriod period
+      popup.on 'change', (period) => @main.enablePeriod period
 
 
     filterByCurrentIssue: (e) ->
@@ -110,4 +110,4 @@ define [
 
 
     serializeData: ->
-      _.extend super, period: @state.get('issuesPeriod')?.toJSON()
+      _.extend super, period: @state.get('period')?.toJSON()

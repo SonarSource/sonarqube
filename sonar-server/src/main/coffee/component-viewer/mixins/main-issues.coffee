@@ -45,13 +45,6 @@ define [], () ->
         @state.set rules: rules, severities: severities
 
 
-    enableIssuesPeriod: (periodKey) ->
-      period = if periodKey == '' then null else @periods.findWhere key: periodKey
-      @state.set 'issuesPeriod', period
-      periodKey = if period? then period.get 'key' else null
-      @requestIssuesPeriod(@key, periodKey).done => @headerView.render()
-
-
     filterLinesByIssues: ->
       issues = @source.get 'issues'
       @sourceView.resetShowBlocks()
@@ -62,11 +55,11 @@ define [], () ->
 
 
     filterByIssues: (predicate, requestIssues = true) ->
-      issuesPeriod = @state.get('issuesPeriod')
-      if issuesPeriod
+      period = @state.get('period')
+      if period
         p = predicate
         predicate = (issue) =>
-          (new Date(issue.creationDate) >= issuesPeriod.get('sinceDate')) && p issue
+          (new Date(issue.creationDate) >= period.get('sinceDate')) && p issue
 
       if requestIssues && !@state.get 'hasIssues'
         @requestIssues(@key).done => @_filterByIssues(predicate)

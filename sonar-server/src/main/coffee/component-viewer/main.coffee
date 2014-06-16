@@ -249,6 +249,18 @@ define [
       @sourceView.render()
 
 
+    enablePeriod: (periodKey, scope = 'scm') ->
+      period = if periodKey == '' then null else @periods.findWhere key: periodKey
+      @state.set 'period', period
+      $.when(@requestMeasures(@key, period?.get('key')), @requestIssuesPeriod(@key, period?.get('key'))).done =>
+        @headerView.render()
+        unless @state.get('activeHeaderItem')
+          if @state.get('activeHeaderTab') == 'issues'
+            @filterByUnresolvedIssues()
+          else
+            @filterBySCM()
+
+
     addTransition: (transition, options) ->
       @workspace.add
         key: @component.get 'key'

@@ -38,7 +38,7 @@ define [
         main: @options.main
         bottom: true
       popup.render()
-      popup.on 'change', (period) => @main.enableSCMPeriod period
+      popup.on 'change', (period) => @main.enablePeriod period
 
 
     filterByLinesToCover: (e) ->
