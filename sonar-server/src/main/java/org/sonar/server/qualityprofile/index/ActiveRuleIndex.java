@@ -42,12 +42,15 @@ import com.google.common.collect.Multimap;
 import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.collect.ImmutableList;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.profiling.Profiling;
@@ -181,34 +184,36 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
   }
 
   public Multimap<String, FacetValue> getStatsByProfileKey(QualityProfileKey key) {
+    return getStatsByProfileKey(ImmutableList.of(key)).get(key);
+  }
+
+  public Map<QualityProfileKey, Multimap<String, FacetValue>> getStatsByProfileKey(List<QualityProfileKey> keys) {
+
+    String[] stringKeys = new String[keys.size()];
+    for (int i = 0; i < keys.size(); i++) {
+      stringKeys[i] = keys.get(i).toString();
+    }
 
     SearchResponse response = getClient().prepareSearch(this.getIndexName())
       .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
-        FilterBuilders.termsFilter(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), key.toString())))
+        FilterBuilders.termsFilter(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), stringKeys)))
       .addAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field())
         .field(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field())
         .subAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field())
           .field(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field())
           .subAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field())
             .field(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field()))))
-      .addAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field())
-        .field(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field()))
-      .addAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field())
-        .field(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field()))
-
       .setSize(0)
       .setTypes(this.getIndexType())
       .get();
 
-    return this.processAggregations(response.getAggregations());
-  }
-
-  public Map<QualityProfileKey, Multimap<String, FacetValue>> getStatsByProfileKey(List<QualityProfileKey> keys) {
-    //TODO Optimize in a single request.
     Map<QualityProfileKey, Multimap<String, FacetValue>> stats = new HashMap<QualityProfileKey, Multimap<String, FacetValue>>();
-    for (QualityProfileKey key : keys) {
-      stats.put(key, getStatsByProfileKey(key));
+    Aggregation aggregation = response.getAggregations().get(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field());
+    for (Terms.Bucket value : ((Terms) aggregation).getBuckets()) {
+      stats.put(QualityProfileKey.parse(value.getKey())
+        , this.processAggregations(value.getAggregations()));
     }
+
     return stats;
   }
 }

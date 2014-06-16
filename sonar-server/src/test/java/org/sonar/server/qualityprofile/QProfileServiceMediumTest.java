@@ -23,7 +23,6 @@ import com.google.common.collect.Multimap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.permission.GlobalPermissions;
@@ -106,7 +105,6 @@ public class QProfileServiceMediumTest {
   }
 
   @Test
-  @Ignore
   public void stat_for_all_profiles() {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("me");
 
@@ -119,6 +117,8 @@ public class QProfileServiceMediumTest {
     dbSession.commit();
 
     Map<QualityProfileKey, Multimap<String, FacetValue>> stats = service.getAllProfileStats();
+    System.out.println("stats = " + stats);
+
     assertThat(stats.size()).isEqualTo(2);
     assertThat(stats.get(XOO_PROFILE_1).size()).isEqualTo(1);
   }
