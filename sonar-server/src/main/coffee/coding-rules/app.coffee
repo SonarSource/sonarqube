@@ -259,6 +259,12 @@ requirejs [
       App.layout.detailsRegion.show App.detailView
 
 
+  App.manualRepository = ->
+    key: 'manual'
+    name: 'Manual Rules'
+    language: 'none'
+
+
   # Construct layout
   App.addInitializer ->
     @layout = new CodingRulesLayout app: @
@@ -456,10 +462,7 @@ requirejs [
     _.map App.qualityProfiles, (profile) ->
       profile.language = App.languages[profile.lang]
     App.repositories = r.repositories
-    App.repositories.push
-      key: 'manual'
-      name: 'Manual Rules'
-      language: 'none'
+    App.repositories.push App.manualRepository()
     App.statuses = r.statuses
     App.characteristics = r.characteristics
 

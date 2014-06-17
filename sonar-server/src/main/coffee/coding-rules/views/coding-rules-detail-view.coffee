@@ -245,6 +245,7 @@ define [
     serializeData: ->
       contextQualityProfile = @options.app.getQualityProfile()
       repoKey = @model.get 'repo'
+      isManual = (@options.app.manualRepository().key == repoKey)
 
       _.extend super,
         contextQualityProfile: contextQualityProfile
@@ -252,8 +253,9 @@ define [
         qualityProfile: @contextProfile
         language: @options.app.languages[@model.get 'lang']
         repository: _.find(@options.app.repositories, (repo) -> repo.key == repoKey).name
+        isManual: isManual
         canWrite: @options.app.canWrite
-        qualityProfilesVisible: not @model.get('isTemplate') and (@options.app.canWrite or not _.isEmpty(@options.actives))
+        qualityProfilesVisible: not @model.get('isTemplate') and not isManual and (@options.app.canWrite or not _.isEmpty(@options.actives))
         subcharacteristic: (@options.app.characteristics[@model.get 'debtSubChar'] || '').replace ': ', ' > '
         createdAt: new Date(@model.get 'createdAt')
         allTags: _.union @model.get('sysTags'), @model.get('tags')
