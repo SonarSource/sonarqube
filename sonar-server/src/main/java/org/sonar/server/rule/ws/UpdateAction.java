@@ -102,12 +102,12 @@ public class UpdateAction implements RequestHandler {
 
     action
       .createParam(PARAM_NAME)
-      .setDescription("Rule name (Only when updating a custom rule or a manual rule)")
+      .setDescription("Rule name (mandatory for custom rule and manual rule)")
       .setExampleValue("My custom rule");
 
     action
       .createParam(PARAM_DESCRIPTION)
-      .setDescription("Rule description (Only when updating a custom rule or a manual rule)")
+      .setDescription("Rule description (mandatory for custom rule and manual rule)")
       .setExampleValue("Description of my custom rule");
 
     action
