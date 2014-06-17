@@ -222,7 +222,7 @@
   });
 
   window.drilldown = {
-    metric: <% if @metric %>'<%= @metric.id -%>'<% else %>null<% end %>,
+    metric: null,
     rule: <% if @rule %>'<%= @rule.key -%>'<% else %>null<% end %>,
     severity: <% if @severity %>'<%= @severity -%>'<% else %>null<% end %>,
     period: <% if @period %><%= @period -%><% else %>null<% end %>

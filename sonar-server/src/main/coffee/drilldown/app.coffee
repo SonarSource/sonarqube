@@ -20,9 +20,11 @@ requirejs.config
 requirejs [
   'backbone.marionette'
   'component-viewer/main'
+  'drilldown/conf'
 ], (
   Marionette
   ComponentViewer
+  MetricConf
 ) ->
 
   $ = jQuery
@@ -46,7 +48,14 @@ requirejs [
     drilldown = window.drilldown || {}
     activeHeaderTab = 'issues'
     activeHeaderItem = '.js-filter-unresolved-issues'
-    if drilldown.rule?
+    if drilldown.metric?
+      metricConf = MetricConf[drilldown.metric]
+      if metricConf?
+        activeHeaderTab = metricConf.tab
+        activeHeaderItem = metricConf.item
+      else
+        activeHeaderTab = 'basic'
+    else if drilldown.rule?
       activeHeaderTab = 'issues'
       activeHeaderItem = ".js-filter-rule[data-rule='#{drilldown.rule}']"
     else if drilldown.severity?
