@@ -21,6 +21,7 @@
             enabled="true" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
 
   <!-- Java resources -->
+  
   <projects id="1004" scope="DIR" qualifier="DIR" kee="b:org/foo" root_id="1003"
             name="org/foo" long_name="org/foo" description="[null]"
             enabled="true" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
@@ -41,25 +42,42 @@
             name="RootBar" long_name="RootBar" description="[null]"
             enabled="true" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
 
+  <!-- Disabled Java resources -->
+  <projects id="1009" scope="DIR" qualifier="DIR" kee="b:src/main/java/org/foo" root_id="1003"
+            name="src/main/java/org/foo" long_name="src/main/java/org/foo" description="[null]"
+            enabled="false" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
 
+  <projects id="1010" scope="FIL" qualifier="CLA" kee="b:src.main.java.org.foo.Bar" root_id="1003"
+            name="Bar" long_name="src.main.java.org.foo.Bar" description="[null]"
+            enabled="false" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
+            
   <!-- PHP resources -->
-  <projects id="1009" scope="DIR" qualifier="DIR" kee="a:org/foo" root_id="1002"
+  <projects id="1020" scope="DIR" qualifier="DIR" kee="a:org/foo" root_id="1002"
             name="org/foo" long_name="org/foo" description="[null]"
             enabled="true" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
 
-  <projects id="1010" scope="FIL" qualifier="FIL" kee="a:org/foo/Bar.php" root_id="1002"
+  <projects id="1021" scope="FIL" qualifier="FIL" kee="a:org/foo/Bar.php" root_id="1002"
             name="Bar.php" long_name="Bar.php" description="[null]"
             enabled="true" language="php" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
 
-  <projects id="1011" scope="FIL" qualifier="UTS" kee="a:org/foo/BarTest.php" root_id="1002"
+  <projects id="1022" scope="FIL" qualifier="UTS" kee="a:org/foo/BarTest.php" root_id="1002"
             name="BarTest.php" long_name="BarTest.php" description="[null]"
             enabled="true" language="php" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
-
-  <projects id="1012" scope="DIR" qualifier="DIR" kee="a:[root]" root_id="1002"
+            
+  <projects id="1023" scope="DIR" qualifier="DIR" kee="a:[root]" root_id="1002"
           name="[root]" long_name="[root]" description="[null]"
           enabled="true" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
 
-  <projects id="1013" scope="FIL" qualifier="FIL" kee="a:RootBar.php" root_id="1002"
+  <projects id="1024" scope="FIL" qualifier="FIL" kee="a:RootBar.php" root_id="1002"
             name="RootBar.php" long_name="RootBar.php" description="[null]"
             enabled="true" language="php" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
+
+  <!-- Disabled PHP resources -->
+  <projects id="1025" scope="DIR" qualifier="DIR" kee="a:test/org/foo" root_id="1002"
+            name="test/org/foo" long_name="test/org/foo" description="[null]"
+            enabled="false" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
+            
+  <projects id="1026" scope="FIL" qualifier="UTS" kee="a:test/org/foo/BarTest.php" root_id="1002"
+            name="BarTest.php" long_name="BarTest.php" description="[null]"
+            enabled="false" language="php" copy_resource_id="[null]" person_id="[null]" path="[null]" deprecated_kee="[null]" />
 </dataset>
