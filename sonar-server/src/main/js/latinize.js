@@ -109,5 +109,5 @@
 
   String.prototype.latinize = function() {
     return removeDiacritics(this);
-  }
+  };
 })();
