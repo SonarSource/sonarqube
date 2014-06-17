@@ -55,6 +55,7 @@ requirejs [
         activeHeaderItem = metricConf.item
       else
         activeHeaderTab = 'basic'
+        activeHeaderItem = null
     else if drilldown.rule?
       activeHeaderTab = 'issues'
       activeHeaderItem = ".js-filter-rule[data-rule='#{drilldown.rule}']"
@@ -70,10 +71,10 @@ requirejs [
       viewer.open(key).done ->
         if activeHeaderTab? && activeHeaderItem?
           viewer.state.set activeHeaderTab: activeHeaderTab, activeHeaderItem: activeHeaderItem
-        if drilldown.period?
+        else if drilldown.period?
           viewer.enablePeriod drilldown.period, 'issues'
         else
-          viewer.headerView.render()
+          viewer.showAllLines()
 
 
   # Message bundles

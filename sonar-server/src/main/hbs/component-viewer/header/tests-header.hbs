@@ -43,15 +43,23 @@
   </div>
   <ul class="component-viewer-header-expanded-bar-section-list">
     {{#each component.tests}}
-      <li><a class="item js-unit-test" data-name="{{name}}" title="{{name}}">
+      {{#eq status 'SKIPPED'}}
+        <li><span class="item" title="{{name}}">
+        <span class="label">{{testStatusIcon status}}
+          <span class="duration subtitle"></span>
+          {{name}}</span>
+        </span></li>
+      {{else}}
+        <li><a class="item js-unit-test" data-name="{{name}}" title="{{name}}">
         <span class="label">{{testStatusIcon status}}
           <span class="duration subtitle">{{durationInMs}}ms</span>
           {{name}}</span>
-        {{#if coveredLines}}
-          <span class="number">{{coveredLines}}</span>
-        {{/if}}
-        <i class="icon-chevron-right"></i>
-      </a></li>
+          {{#if coveredLines}}
+            <span class="number">{{coveredLines}}</span>
+          {{/if}}
+          <i class="icon-chevron-right"></i>
+        </a></li>
+      {{/eq}}
     {{/each}}
   </ul>
 </div>
