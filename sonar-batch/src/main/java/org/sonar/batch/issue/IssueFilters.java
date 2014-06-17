@@ -34,22 +34,22 @@ public class IssueFilters implements BatchExtension {
   private final org.sonar.api.issue.IssueFilter[] exclusionFilters;
   private final IssueFilter[] filters;
 
-  public IssueFilters(ViolationFilters deprecatedFilters, DeprecatedViolations deprecatedViolations, org.sonar.api.issue.IssueFilter[] exclusionFilters, IssueFilter[] filters) {
+  public IssueFilters(@Nullable ViolationFilters deprecatedFilters, @Nullable DeprecatedViolations deprecatedViolations, org.sonar.api.issue.IssueFilter[] exclusionFilters, IssueFilter[] filters) {
     this.deprecatedFilters = deprecatedFilters;
     this.deprecatedViolations = deprecatedViolations;
     this.exclusionFilters = exclusionFilters;
     this.filters = filters;
   }
 
-  public IssueFilters(ViolationFilters deprecatedFilters, DeprecatedViolations deprecatedViolations, IssueFilter[] filters) {
+  public IssueFilters(@Nullable ViolationFilters deprecatedFilters, @Nullable DeprecatedViolations deprecatedViolations, IssueFilter[] filters) {
     this(deprecatedFilters, deprecatedViolations, new org.sonar.api.issue.IssueFilter[0], filters);
   }
 
-  public IssueFilters(ViolationFilters deprecatedFilters, DeprecatedViolations deprecatedViolations, org.sonar.api.issue.IssueFilter[] exclusionFilters) {
+  public IssueFilters(@Nullable ViolationFilters deprecatedFilters, @Nullable DeprecatedViolations deprecatedViolations, org.sonar.api.issue.IssueFilter[] exclusionFilters) {
     this(deprecatedFilters, deprecatedViolations, exclusionFilters, new IssueFilter[0]);
   }
 
-  public IssueFilters(ViolationFilters deprecatedFilters, DeprecatedViolations deprecatedViolations) {
+  public IssueFilters(@Nullable ViolationFilters deprecatedFilters, @Nullable DeprecatedViolations deprecatedViolations) {
     this(deprecatedFilters, deprecatedViolations, new org.sonar.api.issue.IssueFilter[0]);
   }
 
@@ -80,7 +80,7 @@ public class IssueFilters implements BatchExtension {
           return false;
         }
       }
-      if (deprecatedFilters != null && !deprecatedFilters.isEmpty()) {
+      if (deprecatedFilters != null && !deprecatedFilters.isEmpty() && deprecatedViolations != null) {
         Violation v = violation != null ? violation : deprecatedViolations.toViolation(issue);
         return !deprecatedFilters.isIgnored(v);
       }

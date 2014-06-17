@@ -17,19 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.cluster;
 
-import java.util.List;
+@ParametersAreNonnullByDefault
+package org.sonar.core.activity.db;
 
-public class NullQueue implements WorkQueue<QueueAction> {
-
-  @Override
-  public void enqueue(QueueAction action) {
-    // do nothing
-  }
-
-  @Override
-  public void enqueue(List<QueueAction> actions) {
-    // do nothing
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

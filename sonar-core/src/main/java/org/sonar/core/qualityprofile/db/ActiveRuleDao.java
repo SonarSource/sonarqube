@@ -38,16 +38,6 @@ public class ActiveRuleDao implements ServerComponent {
     session.getMapper(ActiveRuleMapper.class).insert(dto);
   }
 
-  public void insert(ActiveRuleDto dto) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      insert(dto, session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   public List<ActiveRuleDto> selectByProfileId(int profileId) {
     SqlSession session = mybatis.openSession(false);
     try {
@@ -59,16 +49,6 @@ public class ActiveRuleDao implements ServerComponent {
 
   public void insert(ActiveRuleParamDto dto, SqlSession session) {
     session.getMapper(ActiveRuleMapper.class).insertParameter(dto);
-  }
-
-  public void insert(ActiveRuleParamDto dto) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      insert(dto, session);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   public List<ActiveRuleParamDto> selectParamsByProfileId(int profileId) {

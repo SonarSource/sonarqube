@@ -21,7 +21,6 @@ package org.sonar.core.cluster;
 
 import java.util.List;
 
-
 public interface WorkQueue<K extends QueueAction> {
 
   void enqueue(K action);

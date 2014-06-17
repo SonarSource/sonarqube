@@ -37,12 +37,13 @@ import java.util.Map;
 @Immutable
 public class UsedQProfiles {
 
-  private Map<Integer, QProfileWithId> profilesById = Maps.newLinkedHashMap();
+  private final Map<Integer, QProfileWithId> profilesById = Maps.newLinkedHashMap();
 
   private UsedQProfiles() {
+    // only static
   }
 
-  public static final UsedQProfiles fromProfiles(Iterable<QProfileWithId> profiles) {
+  public static UsedQProfiles fromProfiles(Iterable<QProfileWithId> profiles) {
     UsedQProfiles result = new UsedQProfiles();
     for (QProfileWithId qProfile : profiles) {
       result.add(qProfile);
@@ -50,15 +51,15 @@ public class UsedQProfiles {
     return result;
   }
 
-  public static final UsedQProfiles empty() {
+  public static UsedQProfiles empty() {
     return new UsedQProfiles();
   }
 
-  public static final UsedQProfiles fromProfiles(QProfileWithId... profiles) {
+  public static UsedQProfiles fromProfiles(QProfileWithId... profiles) {
     return fromProfiles(Arrays.asList(profiles));
   }
 
-  public static final UsedQProfiles fromJSON(String json) {
+  public static UsedQProfiles fromJSON(String json) {
     UsedQProfiles result = new UsedQProfiles();
     JsonArray root = new JsonParser().parse(json).getAsJsonArray();
     for (JsonElement elt : root) {
@@ -73,7 +74,8 @@ public class UsedQProfiles {
     JsonWriter writer = JsonWriter.of(json);
     writer.beginArray();
     for (QProfileWithId qProfile : profilesById.values()) {
-      writer.beginObject()
+      writer
+        .beginObject()
         .prop("id", qProfile.id())
         .prop("name", qProfile.name())
         .prop("version", qProfile.version())

@@ -38,7 +38,7 @@ public abstract class QueueAction implements Runnable {
   @Override
   public void run(){
     this.doExecute();
-    if(latch != null){
+    if (latch != null){
       latch.countDown();
     }
   }

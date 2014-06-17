@@ -30,9 +30,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * A class to map an ActiveRule to the hibernate model
- */
 public class ActiveRule implements Cloneable {
 
   public static final String INHERITED = "INHERITED";

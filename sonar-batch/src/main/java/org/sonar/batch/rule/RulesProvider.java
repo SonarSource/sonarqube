@@ -33,7 +33,6 @@ import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.batch.rule.internal.NewRule;
 import org.sonar.api.batch.rule.internal.RulesBuilder;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.rule.RuleDao;

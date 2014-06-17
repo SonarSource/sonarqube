@@ -48,15 +48,14 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
 
   public static class ActiveRuleField extends Indexable {
 
-    public static IndexField KEY = addSortableAndSearchable(IndexField.Type.STRING, "key");
-    public static IndexField INHERITANCE = add(IndexField.Type.STRING, "inheritance");
-    public static IndexField PROFILE_KEY = add(IndexField.Type.STRING, "profile");
-    public static IndexField SEVERITY = add(IndexField.Type.STRING, "severity");
-    public static IndexField PARENT_KEY = add(IndexField.Type.STRING, "parentKey");
-    public static IndexField RULE_KEY = add(IndexField.Type.STRING, "ruleKey");
-    public static IndexField PARAMS = addEmbedded("params", ActiveRuleParamField.ALL_FIELDS);
-
-    public static Set<IndexField> ALL_FIELDS = getAllFields();
+    public static final IndexField KEY = addSortableAndSearchable(IndexField.Type.STRING, "key");
+    public static final IndexField INHERITANCE = add(IndexField.Type.STRING, "inheritance");
+    public static final IndexField PROFILE_KEY = add(IndexField.Type.STRING, "profile");
+    public static final IndexField SEVERITY = add(IndexField.Type.STRING, "severity");
+    public static final IndexField PARENT_KEY = add(IndexField.Type.STRING, "parentKey");
+    public static final IndexField RULE_KEY = add(IndexField.Type.STRING, "ruleKey");
+    public static final IndexField PARAMS = addEmbedded("params", ActiveRuleParamField.ALL_FIELDS);
+    public static final Set<IndexField> ALL_FIELDS = getAllFields();
 
     private static Set<IndexField> getAllFields() {
       Set<IndexField> fields = new HashSet<IndexField>();
@@ -65,7 +64,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
           try {
             fields.add(IndexField.class.cast(classField.get(null)));
           } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            throw new IllegalStateException("Can not introspect active rule fields", e);
           }
         }
       }
@@ -75,10 +74,9 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
   }
 
   public static class ActiveRuleParamField extends Indexable {
-    public static IndexField NAME = add(IndexField.Type.STRING, "name");
-    public static IndexField VALUE = add(IndexField.Type.STRING, "value");
-
-    public static Set<IndexField> ALL_FIELDS = getAllFields();
+    public static final IndexField NAME = add(IndexField.Type.STRING, "name");
+    public static final IndexField VALUE = add(IndexField.Type.STRING, "value");
+    public static final Set<IndexField> ALL_FIELDS = getAllFields();
 
     private static Set<IndexField> getAllFields() {
       Set<IndexField> fields = new HashSet<IndexField>();
@@ -87,7 +85,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
           try {
             fields.add(IndexField.class.cast(classField.get(null)));
           } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            throw new IllegalStateException("Can not introspect active rule param fields", e);
           }
         }
       }
@@ -106,7 +104,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
     try {
       requests.addAll(normalize(db.activeRuleDao().getNullableByKey(dbSession, key)));
       for (ActiveRuleParamDto param : db.activeRuleDao().findParamsByActiveRuleKey(dbSession, key)) {
-        requests.addAll(this.normalizeNested(param, key));
+        requests.addAll(normalizeNested(param, key));
       }
     } finally {
       dbSession.close();

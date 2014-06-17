@@ -34,7 +34,6 @@ import org.sonar.api.utils.MessageException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import javax.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;

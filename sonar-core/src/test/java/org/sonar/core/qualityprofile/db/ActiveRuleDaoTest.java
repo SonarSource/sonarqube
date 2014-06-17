@@ -22,12 +22,11 @@ package org.sonar.core.qualityprofile.db;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.rule.Severity;
 import org.sonar.core.persistence.AbstractDaoTestCase;
+import org.sonar.core.persistence.DbSession;
 
 import java.util.List;
 
-import static junit.framework.Assert.fail;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class ActiveRuleDaoTest extends AbstractDaoTestCase {
@@ -37,21 +36,6 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
   @Before
   public void createDao() {
     dao = new ActiveRuleDao(getMyBatis());
-  }
-
-  @Test
-  public void insert() {
-    setupData("empty");
-
-    ActiveRuleDto dto = new ActiveRuleDto()
-      .setProfileId(1)
-      .setRuleId(10)
-      .setSeverity(Severity.MAJOR)
-      .setInheritance("INHERITED");
-
-    dao.insert(dto);
-
-    checkTables("insert", "active_rules");
   }
 
   @Test
@@ -66,13 +50,15 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
   public void insert_parameter() {
     setupData("empty");
 
+    DbSession session = getMyBatis().openSession(false);
     ActiveRuleParamDto dto = new ActiveRuleParamDto()
       .setActiveRuleId(1)
       .setRulesParameterId(1)
       .setKey("max")
       .setValue("20");
-
-    dao.insert(dto);
+    dao.insert(dto, session);
+    session.commit();
+    session.close();
 
     checkTables("insert_parameter", "active_rule_parameters");
   }
@@ -82,32 +68,5 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
     setupData("shared");
 
     assertThat(dao.selectParamsByProfileId(1)).hasSize(2);
-  }
-
-  @Test
-  public void fail_unique_rule_index() {
-    setupData("empty");
-
-    ActiveRuleDto dto = new ActiveRuleDto()
-      .setProfileId(1)
-      .setRuleId(10)
-      .setSeverity(Severity.MAJOR)
-      .setInheritance("INHERITED");
-
-    dao.insert(dto);
-
-    try {
-      ActiveRuleDto dto2 = new ActiveRuleDto()
-        .setProfileId(1)
-        .setRuleId(10)
-        .setSeverity(Severity.MAJOR)
-        .setInheritance("INHERITED");
-
-      dao.insert(dto2);
-      fail();
-    } catch (Exception e) {
-
-    }
-
   }
 }
