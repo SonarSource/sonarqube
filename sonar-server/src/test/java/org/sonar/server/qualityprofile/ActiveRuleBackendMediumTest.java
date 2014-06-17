@@ -314,6 +314,7 @@ public class ActiveRuleBackendMediumTest {
         .setSeverity(Severity.BLOCKER)
     );
     dbSession.commit();
+    dbSession.clearCache();
 
     // 0. Test base case
     assertThat(index.countAll()).isEqualTo(4);
