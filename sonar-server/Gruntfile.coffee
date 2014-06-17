@@ -1,5 +1,7 @@
 module.exports = (grunt) ->
-  grunt.loadNpmTasks('grunt-karma');
+  grunt.loadNpmTasks('grunt-karma')
+  pkg = grunt.file.readJSON('package.json')
+
   grunt.initConfig
     pkg: grunt.file.readJSON('package.json')
 
@@ -49,9 +51,9 @@ module.exports = (grunt) ->
         options:
           skipExternal: true
           rewriteUrl: (url, options, dataURI) ->
-            path = url.replace options.baseDir, ''
+            path = url.replace pkg.assets, ''
             hash = require('crypto').createHash('md5').update(dataURI).digest('hex')
-            "#{path}?#{hash}"
+            "../#{path}?#{hash}"
 
 
     coffee:
