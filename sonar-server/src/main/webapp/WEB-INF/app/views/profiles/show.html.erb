@@ -3,17 +3,87 @@
 
   <div class="tabs-panel marginbottom10 ">
     <p>
-        <a href="<%= "#{ApplicationController.root_context}/coding_rules#qprofile=#{@profile.key().toString()}|activation=true|languages=#{@profile.language()}" -%>"><%= @active_rule_count -%> <%= message('coding_rules._rules') -%></a>
+      <% active_rules = @stats.get('countActiveRules').get(0).getValue() if @stats && @stats.get('countActiveRules') %>
+      <% active_rules ||= 0 %>
+      <a href="<%= "#{ApplicationController.root_context}/coding_rules#qprofile=#{@profile.key().toString()}|activation=true|languages=#{@profile.language()}" -%>"><%= active_rules -%> <%= message('coding_rules._rules') -%></a>
     </p>
-    <br/>
-    <p>
-      Inheritance:<br/>
-      <%= @stats.get('inheritance') if @stats -%>
-    </p>
-    <br/>
-    <p>
-      Severity:<br/>
-      <%= @stats.get('severity') if @stats -%>
-    </p>
+    <% if @stats %>
+
+      <% if @deprecated_active_rules > 0 %>
+        <br/>
+        <table class="data" style="width:120px">
+          <%
+            key = 'DEPRECATED'
+            status = key.downcase
+            value = @deprecated_active_rules
+          -%>
+          <tr>
+            <td>
+              <%= message('rules.status.' + status).upcase -%>
+            </td>
+            <td class="thin left">
+              <a href="<%= "#{ApplicationController.root_context}/coding_rules#qprofile=#{@profile.key().toString()}|activation=true|languages=#{@profile.language()}|statuses=#{key}" -%>"><%= value -%></a>
+            </td>
+          </tr>
+        </table>
+      <% end -%>
+
+      <% inheritance = @stats.get('inheritance')
+         if inheritance.size > 1
+           inheritance_stats = Hash[ *@stats.get('inheritance').collect { |v| [ v.getKey(), v ] }.flatten ] -%>
+        <br/>
+        <table class="data" style="width:120px">
+            <% if inheritance_stats['NONE'] %>
+              <tr>
+                <td>
+                  <%= message('coding_rules.filters.inheritance.not_inherited') -%>
+                </td>
+                <td class="thin left">
+                  <%= inheritance_stats['NONE'].getValue() -%>
+                </td>
+              </tr>
+            <% end -%>
+            <% if inheritance_stats['INHERITED'] %>
+              <tr>
+                <td>
+                  <%= message('coding_rules.filters.inheritance.inherited') -%>
+                </td>
+                <td class="thin left">
+                  <%= inheritance_stats['INHERITED'].getValue() -%>
+                </td>
+              </tr>
+            <% end -%>
+            <% if inheritance_stats['OVERRIDES'] %>
+              <tr>
+                <td>
+                  <%= message('coding_rules.filters.inheritance.overriden') -%>
+                </td>
+                <td class="thin left">
+                  <%= inheritance_stats['OVERRIDES'].getValue() -%>
+                </td>
+              </tr>
+            <% end -%>
+        </table>
+      <% end -%>
+
+      <br/>
+
+      <table class="data" style="width:120px">
+        <% @stats.get('severity').each do |stat|
+          key = stat.getKey()
+          severity = stat.getKey().downcase
+          value = stat.getValue()
+        -%>
+          <tr>
+            <td>
+              <i class="icon-severity-<%= severity %>"></i><%= message(severity) -%>
+            </td>
+            <td class="thin left">
+              <a href="<%= "#{ApplicationController.root_context}/coding_rules#qprofile=#{@profile.key().toString()}|activation=true|languages=#{@profile.language()}|severities=#{key}" -%>"><%= value -%></a>
+            </td>
+          </tr>
+        <% end -%>
+      </table>
+    <% end -%>
   </div>
 </div>

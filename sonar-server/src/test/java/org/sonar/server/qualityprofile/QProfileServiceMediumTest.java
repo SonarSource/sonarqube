@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
@@ -102,7 +103,6 @@ public class QProfileServiceMediumTest {
       XOO_PROFILE_1, XOO_PROFILE_2
     );
     assertThat(counts.values()).containsOnly(1L, 1L);
-
   }
 
   @Test
@@ -124,5 +124,25 @@ public class QProfileServiceMediumTest {
     assertThat(stats.get(XOO_PROFILE_1).get(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field()).size()).isEqualTo(1);
     assertThat(stats.get(XOO_PROFILE_1).get(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field()).size()).isEqualTo(1);
     assertThat(stats.get(XOO_PROFILE_1).get("countActiveRules").size()).isEqualTo(1);
+  }
+
+  @Test
+  public void count_by_deprecated() throws Exception {
+    MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("me");
+
+    // create deprecated rule
+    RuleDto deprecatedXooRule = RuleTesting.newDto(RuleKey.of("xoo", "deprecated1"))
+      .setSeverity("MINOR").setLanguage("xoo").setStatus(RuleStatus.DEPRECATED);
+    db.ruleDao().insert(dbSession, deprecatedXooRule);
+    dbSession.commit();
+
+    // active some rules
+    service.activate(new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_1, deprecatedXooRule.getKey()))
+      .setSeverity("BLOCKER"));
+    service.activate(new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_1, XOO_RULE_1))
+      .setSeverity("BLOCKER"));
+    dbSession.commit();
+
+    assertThat(service.countDeprecatedActiveRulesByProfile(XOO_PROFILE_1)).isEqualTo(1);
   }
 }

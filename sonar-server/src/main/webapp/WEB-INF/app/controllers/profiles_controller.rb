@@ -41,7 +41,7 @@ class ProfilesController < ApplicationController
     call_backend do
       @profile = Internal.quality_profiles.profile(params[:id].to_i)
       not_found('Profile not found') unless @profile
-      @active_rule_count = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).countActiveRulesByProfile(@profile.key())
+      @deprecated_active_rules = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).countDeprecatedActiveRulesByProfile(@profile.key())
       @stats = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).getStatsByProfile(@profile.key())
     end
     set_profile_breadcrumbs

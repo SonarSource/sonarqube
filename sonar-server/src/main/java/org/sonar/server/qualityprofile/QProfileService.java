@@ -19,10 +19,10 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
@@ -31,13 +31,16 @@ import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.IndexClient;
+import org.sonar.server.search.QueryOptions;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -46,6 +49,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class QProfileService implements ServerComponent {
 
@@ -58,7 +63,7 @@ public class QProfileService implements ServerComponent {
   private final QProfileReset reset;
 
   public QProfileService(DbClient db, IndexClient index, RuleActivator ruleActivator, QProfileFactory factory, QProfileBackuper backuper,
-                         QProfileCopier copier, QProfileReset reset) {
+    QProfileCopier copier, QProfileReset reset) {
     this.db = db;
     this.index = index;
     this.ruleActivator = ruleActivator;
@@ -206,10 +211,6 @@ public class QProfileService implements ServerComponent {
     UserSession.get().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
-  public long countActiveRulesByProfile(QualityProfileKey key) {
-    return index.get(ActiveRuleIndex.class).countByQualityProfileKey(key);
-  }
-
   public Map<QualityProfileKey, Long> countAllActiveRules() {
     Map<QualityProfileKey, Long> counts = new HashMap<QualityProfileKey, Long>();
     for (Map.Entry<String, Long> entry : index.get(ActiveRuleIndex.class)
@@ -224,10 +225,19 @@ public class QProfileService implements ServerComponent {
   }
 
   public Map<QualityProfileKey, Multimap<String, FacetValue>> getAllProfileStats() {
-    List<QualityProfileKey> keys = Lists.newArrayList();
+    List<QualityProfileKey> keys = newArrayList();
     for (QualityProfileDto profile : this.findAll()) {
       keys.add(profile.getKey());
     }
     return index.get(ActiveRuleIndex.class).getStatsByProfileKeys(keys);
+  }
+
+  public long countDeprecatedActiveRulesByProfile(QualityProfileKey key) {
+    return index.get(RuleIndex.class).search(
+      new RuleQuery()
+        .setQProfileKey(key.toString())
+        .setActivation(true)
+        .setStatuses(newArrayList(RuleStatus.DEPRECATED)),
+      new QueryOptions().setLimit(0)).getTotal();
   }
 }
