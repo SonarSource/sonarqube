@@ -244,9 +244,10 @@
 .navigator-facets-list-item-name {
   display: inline-block;
   vertical-align: middle;
+  min-width: 100px;
   margin-right: @navigatorPadding;
-  font-size: @baseFontSize;
-  font-weight: bold;
+  font-size: @smallFontSize;
+  font-weight: normal;
   text-transform: uppercase;
 }
 
@@ -258,15 +259,16 @@
 .navigator-facets-list-item-option {
   display: inline-block;
   vertical-align: middle;
-  margin: 1px @navigatorPadding;
-  font-size: @baseFontSize;
+  line-height: 1;
+  margin: 0 6px;
+  padding: 4px 5px;
+  border: 1px solid @barBorderColor;
+  border-radius: 2px;
+  background-color: lighten(@barBackgroundColor, 2%);
+  font-size: 0;
+  font-weight: 300;
   cursor: pointer;
-  border-top: 1px solid @navigatorBarBackground;
-  border-left: 1px solid @navigatorBarBackground;
-  border-right: 1px solid @navigatorBarBackground;
-  border-bottom: 1px solid @navigatorBorderColor;
-  padding: 2px 5px;
-  transition: all @defaultTransitionOptions;
+  .trans;
 
   &:hover {
     border: 1px solid @blue;
@@ -277,18 +279,24 @@
     border: 1px solid @blue;
     background-color: @lightBlue;
     text-decoration: none;
+
+    .navigator-facets-list-item-option-stat {
+      border-color: @blue;
+    }
   }
 }
 
 .navigator-facets-list-item-option-name {
-
+  font-size: @smallFontSize;
 }
 
 .navigator-facets-list-item-option-stat {
+  margin-left: 5px;
+  padding-left: 5px;
+  border-left: 1px solid @barBorderColor;
   color: @navigatorFacetStatColor;
-
-  &:before { content: "("; }
-  &:after { content: ")"; }
+  font-size: @smallFontSize;
+  .trans;
 }
 
 
