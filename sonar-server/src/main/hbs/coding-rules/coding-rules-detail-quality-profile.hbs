@@ -45,7 +45,9 @@
       {{#if canWrite}}
       <td class="coding-rules-detail-quality-profile-actions">
         <div class="button-group">
-          <button class="coding-rules-detail-quality-profile-change">{{t 'change_verb'}}</button>
+          {{#unless isTemplate}}
+            <button class="coding-rules-detail-quality-profile-change">{{t 'change_verb'}}</button>
+          {{/unless}}
           {{#if parent}}
             {{#eq inherit 'OVERRIDES'}}
             <button class="coding-rules-detail-quality-profile-revert button-red">
@@ -62,13 +64,13 @@
       {{/if}}
 
     {{else}}
-      {{#if canWrite}}
+      {{#if canWrite}}{{#unless isTemplate}}
       <td class="coding-rules-detail-quality-profile-actions">
         <div class="button-group">
           <button class="coding-rules-detail-quality-profile-activate">{{t 'coding_rules.activate'}}</button>
         </div>
       </td>
-      {{/if}}
+      {{/unless}}{{/if}}
     {{/if}}
   </tr>
   </tbody>

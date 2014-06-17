@@ -68,16 +68,16 @@ define [
       if @model.get 'params'
         @model.set 'params', _.sortBy(@model.get('params'), 'key')
 
-      unless @model.get 'isTemplate'
-        _.map options.actives, (active) =>
-          _.extend active, options.app.getQualityProfileByKey active.qProfile
-        qualityProfiles = new Backbone.Collection options.actives,
-          comparator: 'name'
-        @qualityProfilesView = new CodingRulesDetailQualityProfilesView
-          app: @options.app
-          collection: qualityProfiles
-          rule: @model
+      _.map options.actives, (active) =>
+        _.extend active, options.app.getQualityProfileByKey active.qProfile
+      qualityProfiles = new Backbone.Collection options.actives,
+        comparator: 'name'
+      @qualityProfilesView = new CodingRulesDetailQualityProfilesView
+        app: @options.app
+        collection: qualityProfiles
+        rule: @model
 
+      unless @model.get 'isTemplate'
         qualityProfileKey = @options.app.getQualityProfile()
 
         if qualityProfileKey
@@ -98,9 +98,13 @@ define [
 
       if @model.get 'isTemplate'
         @$(@contextRegion.el).hide()
-        @$(@qualityProfilesRegion.el).hide()
-        @$(@customRulesRegion.el).show()
 
+        if _.isEmpty(@options.actives)
+          @$(@qualityProfilesRegion.el).hide()
+        else
+          @qualityProfilesRegion.show @qualityProfilesView
+
+        @$(@customRulesRegion.el).show()
         customRulesOriginal = @$(@customRulesRegion.el).html()
 
         @$(@customRulesRegion.el).html '<i class="spinner"></i>'
@@ -247,6 +251,14 @@ define [
       repoKey = @model.get 'repo'
       isManual = (@options.app.manualRepository().key == repoKey)
 
+      qualityProfilesVisible = not isManual
+      if qualityProfilesVisible
+        if @model.get 'isTemplate'
+          qualityProfilesVisible = (not _.isEmpty(@options.actives))
+        else
+          qualityProfilesVisible = (@options.app.canWrite or not _.isEmpty(@options.actives))
+
+
       _.extend super,
         contextQualityProfile: contextQualityProfile
         contextQualityProfileName: @options.app.qualityProfileFilter.view.renderValue()
@@ -255,7 +267,7 @@ define [
         repository: _.find(@options.app.repositories, (repo) -> repo.key == repoKey).name
         isManual: isManual
         canWrite: @options.app.canWrite
-        qualityProfilesVisible: not @model.get('isTemplate') and not isManual and (@options.app.canWrite or not _.isEmpty(@options.actives))
+        qualityProfilesVisible: qualityProfilesVisible
         subcharacteristic: (@options.app.characteristics[@model.get 'debtSubChar'] || '').replace ': ', ' > '
         createdAt: new Date(@model.get 'createdAt')
         allTags: _.union @model.get('sysTags'), @model.get('tags')

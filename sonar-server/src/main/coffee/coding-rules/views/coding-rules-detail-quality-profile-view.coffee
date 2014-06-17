@@ -90,3 +90,4 @@ define [
         parameters: @enhanceParameters()
         canWrite: @options.app.canWrite
         templateKey: @options.rule.get 'templateKey'
+        isTemplate: @options.rule.get 'isTemplate'

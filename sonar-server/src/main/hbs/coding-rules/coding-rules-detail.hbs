@@ -141,9 +141,9 @@
 <div class="coding-rules-detail-quality-profiles-section">
   <h3 class="coding-rules-detail-title">{{t 'coding_rules.quality_profiles'}}</h3>
 
-  {{#if canWrite}}<div class="button-group coding-rules-detail-quality-profiles-activation">
+  {{#if canWrite}}{{#unless isTemplate}}<div class="button-group coding-rules-detail-quality-profiles-activation">
     <button id="coding-rules-quality-profile-activate">{{t 'coding_rules.activate'}}</button>
-  </div>{{/if}}
+  </div>{{/unless}}{{/if}}
   <div id="coding-rules-detail-quality-profiles"></div>
 </div>
 {{/if}}
