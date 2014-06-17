@@ -69,7 +69,7 @@ public class RubyRuleService implements ServerComponent, Startable {
   /**
    * Used in SQALE
    */
-  public PagedResult<org.sonar.server.rule.Rule> find(Map<String, Object> params) {
+  public PagedResult<Rule> find(Map<String, Object> params) {
     RuleQuery query = service.newRuleQuery();
     query.setQueryText(Strings.emptyToNull((String) params.get("searchQuery")));
     query.setKey(Strings.emptyToNull((String) params.get("key")));
@@ -84,7 +84,7 @@ public class RubyRuleService implements ServerComponent, Startable {
 
     QueryOptions options = new QueryOptions().setScroll(true);
     List<Rule> rules = newArrayList(service.search(query, options).scroll());
-    return new PagedResult<org.sonar.server.rule.Rule>(rules, PagingResult.create(Integer.MAX_VALUE, 1, rules.size()));
+    return new PagedResult<Rule>(rules, PagingResult.create(Integer.MAX_VALUE, 1, rules.size()));
   }
 
   /**
