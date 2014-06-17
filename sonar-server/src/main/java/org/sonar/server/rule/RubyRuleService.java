@@ -36,7 +36,6 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.CheckForNull;
-
 import java.util.List;
 import java.util.Map;
 
@@ -57,7 +56,7 @@ public class RubyRuleService implements ServerComponent, Startable {
   }
 
   /**
-   * Used in issues_controller.rb
+   * Used in issues_controller.rb and in manual_rules_controller.rb
    */
   @CheckForNull
   public org.sonar.server.rule.Rule findByKey(String ruleKey) {
@@ -94,12 +93,39 @@ public class RubyRuleService implements ServerComponent, Startable {
       update.setDebtRemediationFunction(null);
     } else {
       update.setDebtRemediationFunction(new DefaultDebtRemediationFunction(
-        DebtRemediationFunction.Type.valueOf(fn),
-        Strings.emptyToNull((String) params.get("debtRemediationCoefficient")),
-        Strings.emptyToNull((String) params.get("debtRemediationOffset")))
-        );
+          DebtRemediationFunction.Type.valueOf(fn),
+          Strings.emptyToNull((String) params.get("debtRemediationCoefficient")),
+          Strings.emptyToNull((String) params.get("debtRemediationOffset")))
+      );
     }
     updater.update(update, UserSession.get());
+  }
+
+  /**
+   * Used in manual_rules_controller.rb
+   */
+  public void createManualRule(Map<String, Object> params) {
+    NewRule newRule = NewRule.createForManualRule((String) params.get("manualKey"))
+      .setName((String) params.get("name"))
+      .setHtmlDescription((String) params.get("htmlDescription"));
+    service.create(newRule);
+  }
+
+  /**
+   * Used in manual_rules_controller.rb
+   */
+  public void updateManualRule(Map<String, Object> params) {
+    RuleUpdate update = RuleUpdate.createForManualRule(RuleKey.parse((String) params.get("ruleKey")))
+      .setName((String) params.get("name"))
+      .setHtmlDescription((String) params.get("htmlDescription"));
+    service.update(update);
+  }
+
+  /**
+   * Used in manual_rules_controller.rb
+   */
+  public void deleteManualRule(String ruleKey) {
+    service.delete(RuleKey.parse(ruleKey));
   }
 
   @Override
