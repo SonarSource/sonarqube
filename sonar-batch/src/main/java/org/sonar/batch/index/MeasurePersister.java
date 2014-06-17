@@ -31,11 +31,12 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.technicaldebt.batch.Characteristic;
-import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.Cache.Entry;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
+
+import javax.annotation.Nullable;
 
 public final class MeasurePersister implements ScanPersister {
   private final MyBatis mybatis;
@@ -73,15 +74,15 @@ public final class MeasurePersister implements ScanPersister {
 
       session.commit();
     } catch (Exception e) {
-      throw new SonarException("Unable to save some measures", e);
+      throw new IllegalStateException("Unable to save some measures", e);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   @VisibleForTesting
-  static boolean shouldPersistMeasure(Resource resource, Measure measure) {
-    return measure.getPersistenceMode().useDatabase() &&
+  static boolean shouldPersistMeasure(@Nullable Resource resource, @Nullable Measure measure) {
+    return resource != null && measure != null && measure.getPersistenceMode().useDatabase() &&
       !(ResourceUtils.isEntity(resource) && measure.isBestValue()) && isMeasureNotEmpty(measure);
   }
 
@@ -114,12 +115,7 @@ public final class MeasurePersister implements ScanPersister {
       model.setCharacteristicId(characteristic.id());
     }
     model.setPersonId(measure.getPersonId());
-    Double value = measure.getValue();
-    if (value != null) {
-      model.setValue(value);
-    } else {
-      model.setValue(null);
-    }
+    model.setValue(measure.getValue());
     if (measure instanceof RuleMeasure) {
       RuleMeasure ruleMeasure = (RuleMeasure) measure;
       model.setRulePriority(ruleMeasure.getSeverity());
@@ -127,7 +123,7 @@ public final class MeasurePersister implements ScanPersister {
       if (ruleKey != null) {
         Rule ruleWithId = ruleFinder.findByKey(ruleKey);
         if (ruleWithId == null) {
-          throw new SonarException("Can not save a measure with unknown rule " + ruleMeasure);
+          throw new IllegalStateException("Can not save a measure with unknown rule " + ruleMeasure);
         }
         model.setRuleId(ruleWithId.getId());
       }
