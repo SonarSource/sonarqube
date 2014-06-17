@@ -36,6 +36,7 @@ define [
       extendDescriptionLink: '#coding-rules-detail-extend-description'
       extendDescriptionForm: '.coding-rules-detail-extend-description-form'
       extendDescriptionSubmit: '#coding-rules-detail-extend-description-submit'
+      extendDescriptionRemove: '#coding-rules-detail-extend-description-remove'
       extendDescriptionText: '#coding-rules-detail-extend-description-text'
       extendDescriptionSpinner: '#coding-rules-detail-extend-description-spinner'
       cancelExtendDescription: '#coding-rules-detail-extend-description-cancel'
@@ -54,6 +55,7 @@ define [
       'click @ui.extendDescriptionLink': 'showExtendDescriptionForm'
       'click @ui.cancelExtendDescription': 'hideExtendDescriptionForm'
       'click @ui.extendDescriptionSubmit': 'submitExtendDescription'
+      'click @ui.extendDescriptionRemove': 'removeExtendedDescription'
 
       'click @ui.activateQualityProfile': 'activateQualityProfile'
       'click @ui.activateContextQualityProfile': 'activateContextQualityProfile'
@@ -224,6 +226,12 @@ define [
           htmlNote: r.rule.htmlNote
           mdNote: r.rule.mdNote
         @render()
+
+
+    removeExtendedDescription: ->
+      if confirm(t 'coding_rules.remove_extended_description.confirm')
+        @ui.extendDescriptionText.val ''
+        @submitExtendDescription()
 
 
     activateQualityProfile: ->
