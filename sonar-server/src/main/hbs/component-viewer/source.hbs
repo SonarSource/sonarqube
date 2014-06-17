@@ -1,18 +1,20 @@
 <table class="code">
-  <tr class="row row-hidden" data-line-number="0">
-    {{#if settings.coverage}}
-      <td class="stat coverage-tests"></td>
-      <td class="stat coverage-conditions"></td>
-    {{/if}}
-    {{#if settings.duplications}}
-      <td class="stat"></td>
-    {{/if}}
-    {{#if settings.scm}}
-      <td class="stat"></td>
-    {{/if}}
-    <td class="stat lid"></td>
-    <td class="line"></td>
-  </tr>
+  {{#if showZeroLine}}
+    <tr class="row row-hidden" data-line-number="0">
+      {{#if settings.coverage}}
+        <td class="stat coverage-tests"></td>
+        <td class="stat coverage-conditions"></td>
+      {{/if}}
+      {{#if settings.duplications}}
+        <td class="stat"></td>
+      {{/if}}
+      {{#if settings.scm}}
+        <td class="stat"></td>
+      {{/if}}
+      <td class="stat lid"></td>
+      <td class="line"></td>
+    </tr>
+  {{/if}}
 
   {{#each source}}
     {{#if show}}

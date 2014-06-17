@@ -61,9 +61,10 @@ requirejs [
       viewer.open(key).done ->
         if activeHeaderTab? && activeHeaderItem?
           viewer.state.set activeHeaderTab: activeHeaderTab, activeHeaderItem: activeHeaderItem
-          viewer.headerView.render()
         if drilldown.period?
-          viewer.enablePeriod drilldown.period
+          viewer.enablePeriod drilldown.period, 'issues'
+        else
+          viewer.headerView.render()
 
 
   # Message bundles

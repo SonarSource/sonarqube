@@ -55,7 +55,9 @@ define [
       @showBlocks = []
 
 
-    addShowBlock: (from, to) ->
+    addShowBlock: (from, to, forceIncludeZero = false) ->
+      if from <= 0 && !forceIncludeZero
+        from = 1
       @showBlocks.push from: from, to: to
 
 
@@ -75,6 +77,11 @@ define [
           expand = @expandTemplate from: linePrev, to: line, settings: @options.main.settings.toJSON()
           $(expand).insertBefore $(row)
 
+      firstShown = rows.first().data('line-number')
+      if firstShown > 1
+        expand = @expandTemplate from: firstShown - EXPAND_LINES, to: firstShown, settings: @options.main.settings.toJSON()
+        $(expand).insertBefore rows.first()
+
       lines = _.size @model.get 'source'
       lastShown = rows.last().data('line-number')
       if lastShown < lines
@@ -89,15 +96,15 @@ define [
       issues.forEach (issue) =>
         line = issue.line || 0
         row = @$("[data-line-number=#{line}]")
-        row.removeClass 'row-hidden'
-        container = row.children('.line')
-        container.addClass 'issue' if line > 0
-        issueView = new IssueView model: new Issue issue
-        issueView.render().$el.appendTo container
-        issueView.on 'reset', =>
-          @options.main.requestComponent(@options.main.key, false).done =>
-            @options.main.headerView.render()
-            @options.main.headerView.$('.component-viewer-header-measures-expand[data-scope=issues]').click()
+        if row.length > 0
+          row.removeClass 'row-hidden'
+          container = row.children('.line')
+          container.addClass 'issue' if line > 0
+          issueView = new IssueView model: new Issue issue
+          issueView.render().$el.appendTo container
+          issueView.on 'reset', =>
+            @options.main.requestComponent(@options.main.key, false, false).done =>
+              @options.main.headerView.render()
 
 
     showSpinner: ->
@@ -227,9 +234,17 @@ define [
       count
 
 
+    showZeroLine: ->
+      r = false
+      @showBlocks.forEach (block) ->
+        r = true if block.from <= 0
+      r
+
+
     serializeData: ->
       source: @prepareSource()
       settings: @options.main.settings.toJSON()
       showSettings: @showSettings
       component: @options.main.component.toJSON()
       columns: @getStatColumnsCount() + 1
+      showZeroLine: @showZeroLine()

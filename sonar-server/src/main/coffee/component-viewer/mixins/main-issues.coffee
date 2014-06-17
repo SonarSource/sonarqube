@@ -1,4 +1,8 @@
-define [], () ->
+define [
+  'component-viewer/utils'
+], (
+  utils
+) ->
 
   $ = jQuery
   API_COMPONENT = "#{baseUrl}/api/components/app"
@@ -45,7 +49,9 @@ define [], () ->
       $.get API_COMPONENT, params, (data) =>
         rules = data.rules.map (r) -> key: r[0], name: r[1], count: r[2]
         severities = data.severities.map (r) -> key: r[0], name: r[1], count: r[2]
-        @state.set rules: rules, severities: severities
+        @state.set
+          rules: _.sortBy(rules, 'name')
+          severities: utils.sortSeverities(severities)
 
 
     filterLinesByIssues: ->
@@ -53,7 +59,7 @@ define [], () ->
       @sourceView.resetShowBlocks()
       issues.forEach (issue) =>
         line = issue.line || 0
-        @sourceView.addShowBlock line - LINES_AROUND_ISSUE, line + LINES_AROUND_ISSUE
+        @sourceView.addShowBlock line - LINES_AROUND_ISSUE, line + LINES_AROUND_ISSUE, line == 0
       @sourceView.render()
 
 
@@ -78,7 +84,7 @@ define [], () ->
       issues.forEach (issue) =>
         if predicate issue
           line = issue.line || 0
-          @sourceView.addShowBlock line - LINES_AROUND_ISSUE, line + LINES_AROUND_ISSUE
+          @sourceView.addShowBlock line - LINES_AROUND_ISSUE, line + LINES_AROUND_ISSUE, line == 0
           activeIssues.push issue
       @source.set 'activeIssues', activeIssues
       @sourceView.render()

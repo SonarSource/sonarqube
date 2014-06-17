@@ -50,7 +50,7 @@ define [
         bottom: true
         prefix: 'Added'
       popup.render()
-      popup.on 'change', (period) => @main.enablePeriod period
+      popup.on 'change', (period) => @main.enablePeriod period, 'issues'
 
 
     filterByCurrentIssue: (e) ->
