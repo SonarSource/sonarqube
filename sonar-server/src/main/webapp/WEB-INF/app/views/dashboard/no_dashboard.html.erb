@@ -1,6 +1,11 @@
+<% content_for :script do %>
+  <script data-main="<%= ApplicationController.root_context -%>/js/dashboard/file-app" src="<%= ApplicationController.root_context -%>/js/require.js"></script>
+<% end %>
+
 <%= render :partial => 'gwt/base', :locals => {:resource => nil, :popup => false, :metric => nil} -%>
 <%= render :partial => 'gwt/resource_viewers' -%>
 
+<div class="marginbottom10"></div>
 <div id="accordion-panel"></div>
 
 <script type="text/javascript">
@@ -12,12 +17,7 @@
     anchor = stripped_url[1];
   }
 
-  openAccordionItem('<%= url_for(params.merge({:controller => 'resource', :action => :index, :id => @file.id, :display_title => 'false', :popup => 'false'})) -%>', this, false)
-      .done(function () {
-        if (anchor != null) {
-          window.location.hash = anchor;
-        }
-      });
+  window.fileKey = '<%= @file.key -%>';
 
   // refresh page after issues bulk change
   function onBulkIssues(){

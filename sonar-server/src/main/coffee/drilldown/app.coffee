@@ -81,8 +81,5 @@ requirejs [
 
 
   $.when(l10nXHR).done ->
-    # Remove the initial spinner
-    $('#coding-rules-page-loader').remove()
-
     # Start the application
     App.start()
