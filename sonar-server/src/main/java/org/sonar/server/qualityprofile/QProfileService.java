@@ -213,8 +213,7 @@ public class QProfileService implements ServerComponent {
 
   public Map<QualityProfileKey, Long> countAllActiveRules() {
     Map<QualityProfileKey, Long> counts = new HashMap<QualityProfileKey, Long>();
-    for (Map.Entry<String, Long> entry : index.get(ActiveRuleIndex.class)
-      .countByField(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY).entrySet()) {
+    for (Map.Entry<String, Long> entry : index.get(ActiveRuleIndex.class).countAllByQualityProfileKey().entrySet()) {
       counts.put(QualityProfileKey.parse(entry.getKey()), entry.getValue());
     }
     return counts;

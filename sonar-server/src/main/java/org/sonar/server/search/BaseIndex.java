@@ -576,11 +576,14 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       .get().getCount();
   }
 
-  public Map<String, Long> countByField(IndexField indexField) {
+
+  public Map<String, Long> countByField(IndexField indexField, FilterBuilder filter) {
     Map<String, Long> counts = new HashMap<String, Long>();
     Terms values = getClient().prepareSearch(this.getIndexName())
       .setTypes(this.getIndexType())
-      .setQuery(QueryBuilders.matchAllQuery())
+      .setQuery(QueryBuilders.filteredQuery(
+        QueryBuilders.matchAllQuery(),
+        filter))
       .setSize(0)
       .addAggregation(AggregationBuilders
         .terms(indexField.field())
@@ -594,6 +597,10 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
       counts.put(value.getKey(), value.getDocCount());
     }
     return counts;
+  }
+
+  public Map<String, Long> countByField(IndexField indexField) {
+    return countByField(indexField, FilterBuilders.matchAllFilter());
   }
 
   // Response helpers

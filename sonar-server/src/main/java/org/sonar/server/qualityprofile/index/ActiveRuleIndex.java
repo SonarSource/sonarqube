@@ -39,7 +39,6 @@
 package org.sonar.server.qualityprofile.index;
 
 import com.google.common.collect.Multimap;
-import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.collect.ImmutableList;
@@ -52,12 +51,14 @@ import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.qualityprofile.ActiveRule;
+import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.ESNode;
 import org.sonar.server.search.FacetValue;
@@ -177,10 +178,17 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
   }
 
   public Long countByQualityProfileKey(QualityProfileKey key) {
-    CountRequestBuilder request = getClient().prepareCount(getIndexName())
-      .setQuery(QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), key.toString()))
-      .setRouting(key.toString());
-    return request.get().getCount();
+    return countByField(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY,
+      FilterBuilders.hasParentFilter(IndexDefinition.RULE.getIndexType(),
+        FilterBuilders.notFilter(
+          FilterBuilders.termFilter(RuleNormalizer.RuleField.STATUS.field(), "REMOVED")))).get(key.toString());
+  }
+
+  public Map<String, Long> countAllByQualityProfileKey() {
+    return countByField(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY,
+      FilterBuilders.hasParentFilter(IndexDefinition.RULE.getIndexType(),
+        FilterBuilders.notFilter(
+          FilterBuilders.termFilter(RuleNormalizer.RuleField.STATUS.field(), "REMOVED"))));
   }
 
   public Multimap<String, FacetValue> getStatsByProfileKey(QualityProfileKey key) {
@@ -193,9 +201,12 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
       stringKeys[i] = keys.get(i).toString();
     }
 
-    SearchResponse response = getClient().prepareSearch(this.getIndexName())
-      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
-        FilterBuilders.termsFilter(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), stringKeys)))
+    SearchRequestBuilder request = getClient().prepareSearch(this.getIndexName())
+      .setQuery(QueryBuilders.filteredQuery(
+        QueryBuilders.termsQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), stringKeys),
+        FilterBuilders.boolFilter()
+          .mustNot(FilterBuilders.hasParentFilter(this.getParentType(),
+            FilterBuilders.termFilter(RuleNormalizer.RuleField.STATUS.field(), RuleStatus.REMOVED.name())))))
       .addAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field())
         .field(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field())
         .subAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field())
@@ -204,9 +215,10 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
           .field(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field()))
         .subAggregation(AggregationBuilders.count("countActiveRules")))
       .setSize(0)
-      .setTypes(this.getIndexType())
-      .get();
+      .setTypes(this.getIndexType());
 
+    System.out.println("request = " + request);
+    SearchResponse response = request.get();
     Map<QualityProfileKey, Multimap<String, FacetValue>> stats = new HashMap<QualityProfileKey, Multimap<String, FacetValue>>();
     Aggregation aggregation = response.getAggregations().get(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field());
     for (Terms.Bucket value : ((Terms) aggregation).getBuckets()) {
