@@ -19,6 +19,8 @@ define [
       customRuleCreationStatus: '#coding-rules-custom-rule-creation-status'
       customRuleCreationParameters: '[name]'
       customRuleCreationCreate: '#coding-rules-custom-rule-creation-create'
+      customRuleCreationReactivate: '#coding-rules-custom-rule-creation-reactivate'
+      modalFoot: '.modal-foot'
 
 
     events:
@@ -32,6 +34,7 @@ define [
 
       'click #coding-rules-custom-rule-creation-cancel': 'hide'
       'click @ui.customRuleCreationCreate': 'create'
+      'click @ui.customRuleCreationReactivate': 'reactivate'
 
 
     generateKey: ->
@@ -42,6 +45,8 @@ define [
 
     flagKey: ->
       @keyModifiedByUser = true
+      # Cannot use @ui.customRuleCreationReactivate.hide() directly since it was not there at initial render
+      jQuery(@ui.customRuleCreationReactivate.selector).hide()
 
 
     create: ->
@@ -60,24 +65,54 @@ define [
       else
         postData.template_key = @templateRule.get 'key'
         postData.custom_key = @ui.customRuleCreationKey.val()
+        postData.prevent_reactivation = true
 
       params = @ui.customRuleCreationParameters.map(->
         key: jQuery(@).prop('name'), value: jQuery(@).val() || jQuery(@).prop('placeholder') || '').get()
 
       postData.params = (params.map (param) -> param.key + '=' + param.value).join(';')
+      @sendRequest(action, postData)
 
-      origFooter = @$('.modal-foot').html()
-      @$('.modal-foot').html '<i class="spinner"></i>'
+
+    reactivate: ->
+      postData =
+        name: @existingRule.name
+        html_description: @existingRule.htmlDesc
+        severity: @existingRule.severity
+        status: @existingRule.status
+        template_key: @existingRule.templateKey
+        custom_key: @ui.customRuleCreationKey.val()
+        prevent_reactivation: false
+
+      params = @existingRule.params
+      postData.params = (params.map (param) -> param.key + '=' + param.defaultValue).join(';')
+
+      @sendRequest('create', postData)
+
+
+    sendRequest: (action, postData) ->
+      @$('.modal-error').hide()
+      @$('.modal-warning').hide()
+
+      origFooter = @ui.modalFoot.html()
+      @ui.modalFoot.html '<i class="spinner"></i>'
 
       jQuery.ajax
         type: 'POST'
         url: "#{baseUrl}/api/rules/" + action
         data: postData
+        error: () ->
       .done (r) =>
           @options.app.showRule r.rule.key
           @hide()
-      .fail =>
-          @$('.modal-foot').html origFooter
+      .fail (jqXHR, textStatus, errorThrown) =>
+          if jqXHR.status == 409
+            @existingRule = jqXHR.responseJSON.rule
+            @$('.modal-warning').show()
+            @ui.modalFoot.html Templates['coding-rules-custom-rule-reactivation'](@)
+          else
+            jQuery.ajaxSettings.error(jqXHR, textStatus, errorThrown)
+            @ui.modalFoot.html origFooter
 
 
     onRender: ->
