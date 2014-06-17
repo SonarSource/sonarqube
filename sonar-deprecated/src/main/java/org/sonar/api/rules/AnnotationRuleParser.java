@@ -39,7 +39,7 @@ import java.util.List;
 
 /**
  * @since 2.3
- * @deprecated in 4.2. Replaced by org.sonar.api.rule.RuleDefinitions#loadAnnotatedClasses()
+ * @deprecated in 4.2. Replaced by {@link org.sonar.api.server.rule.RulesDefinitionAnnotationLoader}
  */
 @Deprecated
 public final class AnnotationRuleParser implements ServerComponent {
