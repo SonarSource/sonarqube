@@ -211,6 +211,10 @@ public class QProfileService implements ServerComponent {
     UserSession.get().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
+  public long countActiveRulesByProfile(QualityProfileKey key) {
+    return index.get(ActiveRuleIndex.class).countByQualityProfileKey(key);
+  }
+
   public Map<QualityProfileKey, Long> countAllActiveRules() {
     Map<QualityProfileKey, Long> counts = new HashMap<QualityProfileKey, Long>();
     for (Map.Entry<String, Long> entry : index.get(ActiveRuleIndex.class).countAllByQualityProfileKey().entrySet()) {
