@@ -20,7 +20,6 @@
 package org.sonar.server.rule;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import org.picocontainer.Startable;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
@@ -29,6 +28,7 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.server.paging.PagedResult;
 import org.sonar.server.paging.PagingResult;
+import org.sonar.server.rule.index.RuleDoc;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.QueryOptions;
@@ -36,8 +36,11 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
 import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Used through ruby code <pre>Internal.rules</pre>
@@ -59,7 +62,7 @@ public class RubyRuleService implements ServerComponent, Startable {
    * Used in issues_controller.rb and in manual_rules_controller.rb
    */
   @CheckForNull
-  public org.sonar.server.rule.Rule findByKey(String ruleKey) {
+  public Rule findByKey(String ruleKey) {
     return service.getByKey(RuleKey.parse(ruleKey));
   }
 
@@ -80,9 +83,17 @@ public class RubyRuleService implements ServerComponent, Startable {
     query.setSortField(RuleNormalizer.RuleField.NAME);
 
     QueryOptions options = new QueryOptions().setScroll(true);
-    List<Rule> rules = Lists.newArrayList(service.search(query, options).scroll());
+    List<Rule> rules = newArrayList(service.search(query, options).scroll());
     return new PagedResult<org.sonar.server.rule.Rule>(rules, PagingResult.create(Integer.MAX_VALUE, 1, rules.size()));
   }
+
+  /**
+   * Used in manual_rules_controller.rb
+   */
+  public List<Rule> searchManualRules() {
+    return service.search(new RuleQuery().setRepositories(newArrayList(RuleDoc.MANUAL_REPOSITORY)).setSortField(RuleNormalizer.RuleField.NAME), new QueryOptions()).getHits();
+  }
+
 
   // sqale
   public void updateRule(Map<String, Object> params) {

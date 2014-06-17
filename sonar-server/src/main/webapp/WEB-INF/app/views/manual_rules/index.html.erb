@@ -29,19 +29,19 @@
         <% @rules.each do |rule| %>
           <tr class="<%= cycle('even', 'odd') -%>">
             <td class="left" nowrap>
-              <%= h rule.name -%>
+              <%= h rule.name() -%>
               &nbsp;&nbsp;
-              <span class="note"><%= h rule.description -%></span>
+              <span class="note"><%= h rule.htmlDescription() -%></span>
             </td>
             <td class="right thin nowrap">
-              <a id="edit-<%= u(rule.key) -%>" class="open-modal link-action" href="<%=ApplicationController.root_context-%>/manual_rules/edit_form?key=<%= h rule.key -%>">Edit</a>&nbsp;
-              <%= link_to_action message('delete'), "#{ApplicationController.root_context}/manual_rules/delete?key=#{rule.key}",
+              <a id="edit-<%= u(rule.key().to_s) -%>" class="open-modal link-action" href="<%=ApplicationController.root_context-%>/manual_rules/edit_form?key=<%= h rule.key().to_s -%>">Edit</a>&nbsp;
+              <%= link_to_action message('delete'), "#{ApplicationController.root_context}/manual_rules/delete?key=#{rule.key().to_s}",
                  :class => 'link-action link-red',
-                 :id => "delete_#{rule.key.parameterize}",
+                 :id => "delete_#{rule.key().to_s.parameterize}",
                  :confirm_button => message('delete'),
                  :confirm_title => message('manual_rules.delete_manual_rule'),
-                 :confirm_msg => message('manual_rules.delete_manual_rule_message', :params => [h(rule.name)]),
-                 :confirm_msg_params => [rule.name]
+                 :confirm_msg => message('manual_rules.delete_manual_rule_message', :params => [h(rule.name())]),
+                 :confirm_msg_params => [rule.name()]
               -%>
             </td>
           </tr>

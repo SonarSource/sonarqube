@@ -24,7 +24,7 @@ class ManualRulesController < ApplicationController
   SECTION=Navigation::SECTION_CONFIGURATION
 
   def index
-    @rules = Rule.manual_rules()
+    @rules = Internal.rules.searchManualRules
     render :action => 'index'
   end
 
