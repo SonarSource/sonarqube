@@ -1,32 +1,28 @@
-<% if is_admin? %>
-  <form action="<%= ApplicationController.root_context -%>/manual_rules/create" method="POST" id="manual-rules-form">
-      <fieldset>
-          <div class="modal-head">
-              <h2>Create Manual Rule</h2>
-          </div>
+<form action="<%= ApplicationController.root_context -%>/manual_rules/create" method="POST" id="manual-rules-form">
+    <fieldset>
+        <div class="modal-head">
+            <h2>Create Manual Rule</h2>
+        </div>
 
-          <div class="modal-body">
-              <% if @error  %>
-                  <p class="error"><%= h @error -%></p>
-              <% end %>
-            <div class="modal-field">
-              <label for="manual_rules[]">Name <em class="mandatory">*</em></label>
-              <input type="text" name="name" value=""/>
-            </div>
-            <div class="modal-field">
-              <label for="manual_rules[]">Description <em class="mandatory">*</em></label>
-              <textarea rows="5" cols="50" name="description"></textarea>
-              <br/>
-            </div>
+        <div class="modal-body">
+          <div class="modal-error"/>
+          <div class="modal-field">
+            <label for="manual_rules[]">Name <em class="mandatory">*</em></label>
+            <input type="text" name="name" value=""/>
           </div>
+          <div class="modal-field">
+            <label for="manual_rules[]">Description <em class="mandatory">*</em></label>
+            <textarea rows="5" cols="50" name="description"></textarea>
+            <br/>
+          </div>
+        </div>
 
-          <div class="modal-foot">
-              <input type="submit" value="<%= message('create') -%>">
-              <%= link_to 'Cancel', { :controller => 'manual_rules', :action => 'index'}, { :class => 'action' } %><br/>
-          </div>
-      </fieldset>
-  </form>
-<% end %>
+        <div class="modal-foot">
+            <input type="submit" value="<%= message('create') -%>">
+            <%= link_to 'Cancel', { :controller => 'manual_rules', :action => 'index'}, { :class => 'action' } %><br/>
+        </div>
+    </fieldset>
+</form>
 
 <script>
   $j("#manual-rules-form").modalForm();

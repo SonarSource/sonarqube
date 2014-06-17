@@ -25,69 +25,54 @@ class ManualRulesController < ApplicationController
 
   def index
     @rules = Rule.manual_rules()
-    @rule=Rule.new
     render :action => 'index'
   end
 
   def edit
     verify_post_request
-    access_denied unless is_admin?
-    begin
-      # Update rule
-      rule=Rule.manual_rule(params['id'].to_i)
-      bad_request('Unknown rule') unless rule
-      rule.name=(params[:name])
-      rule.description=params[:description]
-      rule.save!
-    rescue Exception => e
-      @error= e.message
-    end
-    @rule = rule
-    if @error
-      render :partial => 'manual_rules/edit_form', :status => 400
-    else
-      flash[:notice] = 'Manual rule saved'
+    call_backend do
+      rule_update = {
+          'ruleKey' => params[:key],
+          'name' => params[:name],
+          'htmlDescription' => params[:description]
+      }
+      Internal.rules.updateManualRule(rule_update)
       render :text => 'ok', :status => 200
     end
-
   end
 
+  # Information : if the key already exists but is removed, it will be automatically reactivated without any message to the user
   def create
     verify_post_request
-    access_denied unless is_admin?
-    begin
-        # Create rule
-        Rule.create_manual_rule(params)
-    rescue Exception => e
-      @error= e.message
-    end
-    if @error
-      render :partial => 'manual_rules/create_form', :status => 400
-    else
-      flash[:notice] = 'Manual rule created'
+    require_parameters 'name'
+
+    call_backend do
+      manual_key = params[:name].strip.downcase.gsub(/\s/, '_')
+      new_rule = {
+          'manualKey' => manual_key,
+          'name' => params[:name],
+          'htmlDescription' => params[:description]
+      }
+      Internal.rules.createManualRule(new_rule)
       render :text => 'ok', :status => 200
     end
   end
 
   def create_form
-    @rule = Rule.new
     render :partial => 'manual_rules/create_form'
   end
 
   def edit_form
-    @rule=Rule.manual_rule(params['id'].to_i)
-      render :partial => 'manual_rules/edit_form', :status => 200
+    @rule = Internal.rules.findByKey(params['key'])
+    render :partial => 'manual_rules/edit_form', :status => 200
   end
 
   def delete
     verify_post_request
-    access_denied unless is_admin?
-    rule=Rule.manual_rule(params['id'].to_i)
-    bad_request('Missing rule id') unless rule
-    rule.status=Rule::STATUS_REMOVED
-    unless rule.save
-      flash[:error]=rule.errors.to_s
+
+    call_backend do
+      Internal.rules.deleteManualRule(params['key'])
+      redirect_to :action => 'index'
     end
-    redirect_to :action => 'index'
   end
 end

@@ -34,8 +34,8 @@
               <span class="note"><%= h rule.description -%></span>
             </td>
             <td class="right thin nowrap">
-              <a id="edit-<%= u(rule.key) -%>" class="open-modal link-action" href="<%=ApplicationController.root_context-%>/manual_rules/edit_form/<%= h rule.id -%>">Edit</a>&nbsp;
-              <%= link_to_action message('delete'), "#{ApplicationController.root_context}/manual_rules/delete/#{rule.id}",
+              <a id="edit-<%= u(rule.key) -%>" class="open-modal link-action" href="<%=ApplicationController.root_context-%>/manual_rules/edit_form?key=<%= h rule.key -%>">Edit</a>&nbsp;
+              <%= link_to_action message('delete'), "#{ApplicationController.root_context}/manual_rules/delete?key=#{rule.key}",
                  :class => 'link-action link-red',
                  :id => "delete_#{rule.key.parameterize}",
                  :confirm_button => message('delete'),
