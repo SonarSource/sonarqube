@@ -23,10 +23,9 @@
         </div>
         <% if @deprecated_active_rules > 0 %>
           <div class="widget-measure">
-            <%= message('quality_profiles.including') %>&nbsp;
-            <a href="<%= "#{ApplicationController.root_context}/coding_rules#qprofile=#{@profile.key().toString()}|activation=true|languages=#{@profile.language()}|statuses=DEPRECATED" -%>">
-                <%= @deprecated_active_rules -%>
-            </a>&nbsp;<%= message('quality_profiles.deprecated') %>
+            <%= message('quality_profiles.including') %>&nbsp;<a
+              href="<%= "#{ApplicationController.root_context}/coding_rules#qprofile=#{@profile.key().toString()}|activation=true|languages=#{@profile.language()}|statuses=DEPRECATED" -%>"
+              ><%= @deprecated_active_rules -%></a>&nbsp;<%= message('quality_profiles.deprecated') %>
           </div>
         <% end %>
       </div>
