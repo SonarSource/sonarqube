@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan.filesystem;
 
+import org.sonar.api.batch.languages.Language;
+
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -30,7 +32,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.PathPattern;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.api.languages.Language;
 import org.sonar.batch.languages.LanguagesReferential;
 
 import javax.annotation.CheckForNull;

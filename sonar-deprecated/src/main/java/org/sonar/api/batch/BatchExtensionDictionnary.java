@@ -24,13 +24,14 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.ClassUtils;
 import org.sonar.api.BatchExtension;
+import org.sonar.api.batch.analyzer.Analyzer;
+import org.sonar.api.batch.analyzer.internal.DefaultAnalyzerDescriptor;
 import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.dag.DirectAcyclicGraph;
-import org.sonar.batch.api.analyzer.Analyzer;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
@@ -99,7 +100,6 @@ public class BatchExtensionDictionnary {
   private static void completeBatchExtensions(ComponentContainer container, List<Object> extensions) {
     if (container != null) {
       extensions.addAll(container.getComponentsByType(BatchExtension.class));
-      extensions.addAll(container.getComponentsByType(org.sonar.batch.api.BatchExtension.class));
       completeBatchExtensions(container.getParent(), extensions);
     }
   }
@@ -147,7 +147,9 @@ public class BatchExtensionDictionnary {
     List<Object> result = new ArrayList<Object>();
     result.addAll(evaluateAnnotatedClasses(extension, DependsUpon.class));
     if (ClassUtils.isAssignable(extension.getClass(), Analyzer.class)) {
-      result.addAll(Arrays.asList(((Analyzer) extension).describe().dependsOn()));
+      DefaultAnalyzerDescriptor descriptor = new DefaultAnalyzerDescriptor();
+      ((Analyzer) extension).describe(descriptor);
+      result.addAll(Arrays.asList(descriptor.dependsOn()));
     }
     return result;
   }
@@ -159,7 +161,9 @@ public class BatchExtensionDictionnary {
     List<Object> result = new ArrayList<Object>();
     result.addAll(evaluateAnnotatedClasses(extension, DependedUpon.class));
     if (ClassUtils.isAssignable(extension.getClass(), Analyzer.class)) {
-      result.addAll(Arrays.asList(((Analyzer) extension).describe().provides()));
+      DefaultAnalyzerDescriptor descriptor = new DefaultAnalyzerDescriptor();
+      ((Analyzer) extension).describe(descriptor);
+      result.addAll(Arrays.asList(descriptor.provides()));
     }
     return result;
   }

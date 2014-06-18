@@ -19,11 +19,12 @@
  */
 package org.sonar.batch.scan2;
 
+import org.sonar.api.batch.analyzer.AnalyzerContext;
+
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.batch.api.analyzer.AnalyzerContext;
 import org.sonar.batch.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.batch.phases.SensorsExecutor;
 import org.sonar.batch.rule.QProfileVerifier;

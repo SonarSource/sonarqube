@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.api.batch.languages.Language;
+
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +28,6 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.api.languages.Language;
 import org.sonar.batch.languages.LanguagesReferential;
 
 /**

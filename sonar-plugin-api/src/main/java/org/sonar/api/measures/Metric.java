@@ -46,7 +46,7 @@ import java.io.Serializable;
 @Table(name = "metrics")
 @Entity(name = "Metric")
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public class Metric<G extends Serializable> implements ServerExtension, BatchExtension, Serializable, org.sonar.batch.api.measures.Metric<G> {
+public class Metric<G extends Serializable> implements ServerExtension, BatchExtension, Serializable, org.sonar.api.batch.measures.Metric<G> {
 
   /**
    * A metric bigger value means a degradation

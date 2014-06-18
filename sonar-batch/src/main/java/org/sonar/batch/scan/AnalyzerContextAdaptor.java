@@ -20,7 +20,13 @@
 package org.sonar.batch.scan;
 
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.analyzer.AnalyzerContext;
+import org.sonar.api.batch.analyzer.issue.AnalyzerIssue;
+import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
+import org.sonar.api.batch.analyzer.measure.AnalyzerMeasureBuilder;
+import org.sonar.api.batch.analyzer.measure.internal.DefaultAnalyzerMeasureBuilder;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.measures.Metric;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.measures.Measure;
@@ -29,10 +35,6 @@ import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.batch.api.analyzer.AnalyzerContext;
-import org.sonar.batch.api.analyzer.issue.AnalyzerIssue;
-import org.sonar.batch.api.analyzer.measure.AnalyzerMeasure;
-import org.sonar.batch.api.measures.Metric;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -52,6 +54,11 @@ public class AnalyzerContextAdaptor implements AnalyzerContext {
   }
 
   @Override
+  public <G extends Serializable> AnalyzerMeasureBuilder<G> measureBuilder() {
+    return new DefaultAnalyzerMeasureBuilder<G>();
+  }
+
+  @Override
   public AnalyzerMeasure<?> getMeasure(String metricKey) {
     Metric<?> m = metricFinder.findByKey(metricKey);
     if (m == null) {
@@ -67,7 +74,7 @@ public class AnalyzerContextAdaptor implements AnalyzerContext {
     if (measure == null) {
       return null;
     }
-    return AnalyzerMeasure.<G>builder()
+    return this.<G>measureBuilder()
       .onProject()
       .forMetric(metric)
       .withValue(measure.value())
@@ -91,7 +98,7 @@ public class AnalyzerContextAdaptor implements AnalyzerContext {
     if (measure == null) {
       return null;
     }
-    return AnalyzerMeasure.<G>builder()
+    return this.<G>measureBuilder()
       .onFile(file)
       .forMetric(metric)
       .withValue(measure.value())

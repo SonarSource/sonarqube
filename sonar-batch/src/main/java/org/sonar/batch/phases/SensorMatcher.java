@@ -19,11 +19,12 @@
  */
 package org.sonar.batch.phases;
 
+import org.sonar.api.batch.analyzer.Analyzer;
+
 import org.apache.commons.lang.ClassUtils;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.Sensor;
-import org.sonar.batch.api.analyzer.Analyzer;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 
 /**

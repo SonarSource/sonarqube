@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.rule;
 
+import org.sonar.api.batch.rules.QProfile;
+
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.injectors.ProviderAdapter;
@@ -30,7 +32,6 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.batch.api.rules.QProfile;
 
 import java.util.Collection;
 import java.util.Map;

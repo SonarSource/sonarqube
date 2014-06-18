@@ -22,10 +22,10 @@ package org.sonar.batch.scan2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.analyzer.Analyzer;
+import org.sonar.api.batch.analyzer.AnalyzerContext;
+import org.sonar.api.batch.analyzer.internal.DefaultAnalyzerDescriptor;
 import org.sonar.api.platform.ComponentContainer;
-import org.sonar.batch.api.analyzer.Analyzer;
-import org.sonar.batch.api.analyzer.AnalyzerContext;
-import org.sonar.batch.api.analyzer.AnalyzerDescriptor;
 
 import java.util.Collection;
 
@@ -44,7 +44,8 @@ public class AnalyzersExecutor implements BatchComponent {
 
     for (Analyzer analyzer : analyzers) {
 
-      AnalyzerDescriptor descriptor = analyzer.describe();
+      DefaultAnalyzerDescriptor descriptor = new DefaultAnalyzerDescriptor();
+      analyzer.describe(descriptor);
 
       LOG.info("Execute analyzer: " + descriptor.name());
 

@@ -20,7 +20,9 @@
 package org.sonar.batch.scan2;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectBootstrapper;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
@@ -28,8 +30,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.api.BatchComponent;
-import org.sonar.batch.api.InstantiationStrategy;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
@@ -105,7 +105,7 @@ public class ProjectScanContainer extends ComponentContainer {
       ResourceCache.class,
       ComponentDataCache.class,
       ComponentDataPersister.class,
-      MeasureCache.class,
+      AnalyzerMeasureCache.class,
 
       // file system
       InputFileCache.class,

@@ -19,13 +19,14 @@
  */
 package org.sonar.batch.rule;
 
+import org.sonar.api.batch.rules.QProfile;
+
 import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.api.rules.QProfile;
 import org.sonar.batch.languages.DeprecatedLanguagesReferential;
 import org.sonar.batch.languages.LanguagesReferential;
 import org.sonar.batch.rules.DefaultQProfileReferential;

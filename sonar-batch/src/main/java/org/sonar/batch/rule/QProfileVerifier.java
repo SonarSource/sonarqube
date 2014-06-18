@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.rule;
 
+import org.sonar.api.batch.rules.QProfile;
+
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -27,7 +29,6 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.api.rules.QProfile;
 
 public class QProfileVerifier implements BatchComponent {
 

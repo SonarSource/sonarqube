@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan;
 
+import org.sonar.batch.scan2.ProjectScanContainer;
+
 import org.sonar.api.CoreProperties;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.task.Task;
@@ -27,7 +29,6 @@ import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.bootstrap.BootstrapProperties;
 import org.sonar.batch.bootstrap.TaskContainer;
 import org.sonar.batch.phases.Phases;
-import org.sonar.batch.scan2.ProjectScanContainer;
 
 public class ScanTask implements Task {
   public static final TaskDefinition DEFINITION = TaskDefinition.builder()

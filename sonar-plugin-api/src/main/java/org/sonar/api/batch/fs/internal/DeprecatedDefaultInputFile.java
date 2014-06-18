@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch.fs.internal;
 
-import org.sonar.batch.api.internal.FilenameUtils;
+import org.sonar.api.utils.PathUtils;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -51,7 +51,7 @@ public class DeprecatedDefaultInputFile extends DefaultInputFile implements org.
   }
 
   public void setBasedir(File basedir) {
-    this.basedir = FilenameUtils.normalize(basedir.getAbsolutePath());
+    this.basedir = PathUtils.sanitize(basedir.getAbsolutePath());
   }
 
   /**
@@ -92,7 +92,7 @@ public class DeprecatedDefaultInputFile extends DefaultInputFile implements org.
   }
 
   public DeprecatedDefaultInputFile setSourceDirAbsolutePath(String s) {
-    this.sourceDirAbsolutePath = FilenameUtils.normalize(s);
+    this.sourceDirAbsolutePath = PathUtils.sanitize(s);
     return this;
   }
 
@@ -105,7 +105,7 @@ public class DeprecatedDefaultInputFile extends DefaultInputFile implements org.
   }
 
   public DeprecatedDefaultInputFile setPathRelativeToSourceDir(String s) {
-    this.pathRelativeToSourceDir = FilenameUtils.normalize(s);
+    this.pathRelativeToSourceDir = PathUtils.sanitize(s);
     return this;
   }
 

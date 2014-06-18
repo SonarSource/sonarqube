@@ -21,12 +21,12 @@ package org.sonar.batch.scan2;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.scan.filesystem.FileExclusions;
-import org.sonar.batch.api.BatchComponent;
-import org.sonar.batch.api.InstantiationStrategy;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;

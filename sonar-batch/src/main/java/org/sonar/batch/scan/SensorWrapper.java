@@ -23,11 +23,12 @@ import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.analyzer.Analyzer;
+import org.sonar.api.batch.analyzer.AnalyzerContext;
+import org.sonar.api.batch.analyzer.internal.DefaultAnalyzerDescriptor;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.measures.Metric;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.api.analyzer.Analyzer;
-import org.sonar.batch.api.analyzer.AnalyzerContext;
-import org.sonar.batch.api.measures.Metric;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,31 +38,34 @@ public class SensorWrapper implements Sensor {
   private Analyzer analyzer;
   private AnalyzerContext adaptor;
   private FileSystem fs;
+  private DefaultAnalyzerDescriptor descriptor;
 
   public SensorWrapper(Analyzer analyzer, AnalyzerContext adaptor, FileSystem fs) {
     this.analyzer = analyzer;
+    descriptor = new DefaultAnalyzerDescriptor();
+    analyzer.describe(descriptor);
     this.adaptor = adaptor;
     this.fs = fs;
   }
 
   @DependedUpon
   public List<Metric<?>> provides() {
-    return Arrays.asList(analyzer.describe().provides());
+    return Arrays.asList(descriptor.provides());
   }
 
   @DependsUpon
   public List<Metric<?>> depends() {
-    return Arrays.asList(analyzer.describe().dependsOn());
+    return Arrays.asList(descriptor.dependsOn());
   }
 
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    if (!analyzer.describe().languages().isEmpty()) {
-      if (project.getLanguageKey() != null && !analyzer.describe().languages().contains(project.getLanguageKey())) {
+    if (!descriptor.languages().isEmpty()) {
+      if (project.getLanguageKey() != null && !descriptor.languages().contains(project.getLanguageKey())) {
         return false;
       }
       boolean hasFile = false;
-      for (String languageKey : analyzer.describe().languages()) {
+      for (String languageKey : descriptor.languages()) {
         hasFile |= fs.hasFiles(fs.predicates().hasLanguage(languageKey));
       }
       if (!hasFile) {

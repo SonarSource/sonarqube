@@ -100,23 +100,26 @@ public class ProjectScanContainer extends ComponentContainer {
   }
 
   private void projectBootstrap() {
-    ProjectReactor reactor;
-    // OK, not present, so look for a custom ProjectBootstrapper
-    ProjectBootstrapper bootstrapper = getComponentByType(ProjectBootstrapper.class);
-    Settings settings = getComponentByType(Settings.class);
-    if (bootstrapper == null
-      // Starting from Maven plugin 2.3 then only DefaultProjectBootstrapper should be used.
-      || "true".equals(settings.getString("sonar.mojoUseRunner"))) {
-      // Use default SonarRunner project bootstrapper
-      ProjectReactorBuilder builder = getComponentByType(ProjectReactorBuilder.class);
-      reactor = builder.execute();
-    } else {
-      reactor = bootstrapper.bootstrap();
-    }
+    // Views pass a custom ProjectReactor
+    ProjectReactor reactor = getComponentByType(ProjectReactor.class);
     if (reactor == null) {
-      throw new SonarException(bootstrapper + " has returned null as ProjectReactor");
+      // OK, not present, so look for a deprecated custom ProjectBootstrapper for old versions of SQ Runner
+      ProjectBootstrapper bootstrapper = getComponentByType(ProjectBootstrapper.class);
+      Settings settings = getComponentByType(Settings.class);
+      if (bootstrapper == null
+        // Starting from Maven plugin 2.3 then only DefaultProjectBootstrapper should be used.
+        || "true".equals(settings.getString("sonar.mojoUseRunner"))) {
+        // Use default SonarRunner project bootstrapper
+        ProjectReactorBuilder builder = getComponentByType(ProjectReactorBuilder.class);
+        reactor = builder.execute();
+      } else {
+        reactor = bootstrapper.bootstrap();
+      }
+      if (reactor == null) {
+        throw new SonarException(bootstrapper + " has returned null as ProjectReactor");
+      }
+      add(reactor);
     }
-    add(reactor);
   }
 
   private void addBatchComponents() {

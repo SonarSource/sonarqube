@@ -200,8 +200,7 @@ public class ModuleScanContainer extends ComponentContainer {
           // Example : C# plugin adds sub-projects at runtime, even if they are not defined in root pom.
           return !ExtensionUtils.isMavenExtensionOnly(extension) || module.getPom() != null;
         }
-        return ExtensionUtils.isType(extension, org.sonar.batch.api.BatchComponent.class)
-          && ExtensionUtils.isInstantiationStrategy(extension, org.sonar.batch.api.InstantiationStrategy.PER_PROJECT);
+        return false;
       }
     });
   }

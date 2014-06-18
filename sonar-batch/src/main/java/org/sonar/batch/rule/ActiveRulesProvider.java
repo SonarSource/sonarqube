@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.rule;
 
+import org.sonar.api.batch.rules.QProfile;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import org.picocontainer.injectors.ProviderAdapter;
@@ -28,7 +30,6 @@ import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleParam;
-import org.sonar.batch.api.rules.QProfile;
 import org.sonar.batch.rules.QProfileWithId;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;

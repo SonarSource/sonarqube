@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.bootstrap;
 
+import org.sonar.api.batch.analyzer.AnalyzerContext;
+
 import org.junit.Test;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.Sensor;
@@ -26,7 +28,6 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
-import org.sonar.batch.api.analyzer.AnalyzerContext;
 
 import java.util.Collection;
 

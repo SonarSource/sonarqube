@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.rule;
 
+import org.sonar.api.batch.rules.QProfile;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.rule.ActiveRule;
@@ -27,7 +29,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
-import org.sonar.batch.api.rules.QProfile;
 import org.sonar.batch.rules.QProfileWithId;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;

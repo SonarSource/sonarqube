@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.rules;
 
-import org.sonar.batch.api.rules.QProfile;
+import org.sonar.api.batch.rules.QProfile;
 
 public class QProfileWithId extends QProfile {
   private final int id;

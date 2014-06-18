@@ -19,8 +19,9 @@
  */
 package org.sonar.batch.rules;
 
+import org.sonar.api.batch.rules.QProfile;
+
 import org.sonar.api.BatchComponent;
-import org.sonar.batch.api.rules.QProfile;
 
 import javax.annotation.CheckForNull;
 

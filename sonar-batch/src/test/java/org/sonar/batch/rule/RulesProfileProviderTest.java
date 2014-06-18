@@ -19,12 +19,13 @@
  */
 package org.sonar.batch.rule;
 
+import org.sonar.api.batch.rules.QProfile;
+
 import org.junit.Test;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.RuleFinder;
-import org.sonar.batch.api.rules.QProfile;
 import org.sonar.batch.rules.QProfileWithId;
 
 import java.util.Arrays;

@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.scan2;
 
-import org.sonar.batch.api.BatchExtension;
+import org.sonar.api.BatchExtension;
 
 public interface ScanTaskObserver extends BatchExtension {
 

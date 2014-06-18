@@ -19,13 +19,14 @@
  */
 package org.sonar.batch.rule;
 
+import org.sonar.api.batch.rules.QProfile;
+
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Project;
 import org.sonar.api.test.IsMeasure;
-import org.sonar.batch.api.rules.QProfile;
 import org.sonar.batch.rules.QProfileWithId;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;

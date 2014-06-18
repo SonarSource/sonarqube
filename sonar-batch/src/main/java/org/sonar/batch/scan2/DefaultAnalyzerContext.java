@@ -19,14 +19,17 @@
  */
 package org.sonar.batch.scan2;
 
+import org.sonar.api.batch.analyzer.AnalyzerContext;
+import org.sonar.api.batch.analyzer.issue.AnalyzerIssue;
+import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
+import org.sonar.api.batch.analyzer.measure.AnalyzerMeasureBuilder;
+import org.sonar.api.batch.analyzer.measure.internal.DefaultAnalyzerMeasure;
+import org.sonar.api.batch.analyzer.measure.internal.DefaultAnalyzerMeasureBuilder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.measures.Metric;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.batch.api.analyzer.AnalyzerContext;
-import org.sonar.batch.api.analyzer.issue.AnalyzerIssue;
-import org.sonar.batch.api.analyzer.measure.AnalyzerMeasure;
-import org.sonar.batch.api.measures.Metric;
 import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.issue.DefaultIssueBuilder;
@@ -36,14 +39,19 @@ import java.util.Collection;
 
 public class DefaultAnalyzerContext implements AnalyzerContext {
 
-  private final MeasureCache measureCache;
+  private final AnalyzerMeasureCache measureCache;
   private ProjectDefinition def;
   private ModuleIssues moduleIssues;
 
-  public DefaultAnalyzerContext(ProjectDefinition def, MeasureCache measureCache, ModuleIssues moduleIssues) {
+  public DefaultAnalyzerContext(ProjectDefinition def, AnalyzerMeasureCache measureCache, ModuleIssues moduleIssues) {
     this.def = def;
     this.measureCache = measureCache;
     this.moduleIssues = moduleIssues;
+  }
+
+  @Override
+  public <G extends Serializable> AnalyzerMeasureBuilder<G> measureBuilder() {
+    return new DefaultAnalyzerMeasureBuilder<G>();
   }
 
   @Override
@@ -67,11 +75,11 @@ public class DefaultAnalyzerContext implements AnalyzerContext {
   }
 
   @Override
-  public void addMeasure(org.sonar.batch.api.analyzer.measure.AnalyzerMeasure<?> measure) {
+  public void addMeasure(AnalyzerMeasure<?> measure) {
     if (measure.inputFile() != null) {
-      measureCache.put(ComponentKeys.createEffectiveKey(def.getKey(), measure.inputFile()), measure);
+      measureCache.put(ComponentKeys.createEffectiveKey(def.getKey(), measure.inputFile()), (DefaultAnalyzerMeasure) measure);
     } else {
-      measureCache.put(def.getKey(), measure);
+      measureCache.put(def.getKey(), (DefaultAnalyzerMeasure) measure);
     }
   }
 
