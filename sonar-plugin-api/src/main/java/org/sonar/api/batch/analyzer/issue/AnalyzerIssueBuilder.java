@@ -17,30 +17,53 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.analyzer.measure;
+package org.sonar.api.batch.analyzer.issue;
 
-import org.sonar.api.batch.analyzer.Analyzer;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.measures.Metric;
+import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.Nullable;
 
-import java.io.Serializable;
-
 /**
- * A measure computed by an {@link Analyzer}.
+ * Builder for {@link AnalyzerIssue}.
+ *
  * @since 4.4
  */
-public interface AnalyzerMeasure<G extends Serializable> {
+public interface AnalyzerIssueBuilder {
 
   /**
-   * The {@link InputFile} this measure belongs to. Returns null if measure is global to the project.
+   * The {@link RuleKey} of the issue.
    */
-  @Nullable
-  InputFile inputFile();
+  AnalyzerIssueBuilder ruleKey(RuleKey ruleKey);
 
-  Metric<G> metric();
+  /**
+   * The {@link InputFile} the issue belongs to. For global issues call {@link #onProject()}.
+   */
+  AnalyzerIssueBuilder onFile(InputFile file);
 
-  G value();
+  /**
+   * Tell that the issue is global to the project.
+   */
+  AnalyzerIssueBuilder onProject();
+
+  /**
+   * Line of the issue.
+   */
+  AnalyzerIssueBuilder atLine(int line);
+
+  /**
+   * Effort to fix for the issue.
+   */
+  AnalyzerIssueBuilder effortToFix(@Nullable Double effortToFix);
+
+  /**
+   * Message of the issue.
+   */
+  AnalyzerIssueBuilder message(String message);
+
+  /**
+   * Build the issue.
+   */
+  AnalyzerIssue build();
 
 }

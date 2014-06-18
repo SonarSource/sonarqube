@@ -20,20 +20,38 @@
 package org.sonar.api.batch.analyzer;
 
 import org.sonar.api.batch.analyzer.issue.AnalyzerIssue;
+import org.sonar.api.batch.analyzer.issue.AnalyzerIssueBuilder;
 import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
 import org.sonar.api.batch.analyzer.measure.AnalyzerMeasureBuilder;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measures.Metric;
+import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.config.Settings;
 
 import javax.annotation.CheckForNull;
 
 import java.io.Serializable;
-import java.util.Collection;
 
 /**
  * @since 4.4
  */
 public interface AnalyzerContext {
+
+  /**
+   * Get settings of the current project.
+   */
+  Settings settings();
+
+  /**
+   * Get filesystem of the current project.
+   */
+  FileSystem fileSystem();
+
+  /**
+   * Get list of active rules.
+   */
+  ActiveRules activeRules();
 
   // ----------- MEASURES --------------
 
@@ -74,13 +92,13 @@ public interface AnalyzerContext {
   // ----------- ISSUES --------------
 
   /**
-   * Add an issue.
+   * Builder to create a new {@link AnalyzerIssue}.
    */
-  void addIssue(AnalyzerIssue issue);
+  AnalyzerIssueBuilder issueBuilder();
 
   /**
-   * Add a list of issues.
+   * Add an issue. Use {@link #issueBuilder()} to create the new issue.
    */
-  void addIssues(Collection<AnalyzerIssue> issues);
+  void addIssue(AnalyzerIssue issue);
 
 }

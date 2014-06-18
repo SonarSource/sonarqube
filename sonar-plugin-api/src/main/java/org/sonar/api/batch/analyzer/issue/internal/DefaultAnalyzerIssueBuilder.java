@@ -17,34 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.analyzer.measure.internal;
+package org.sonar.api.batch.analyzer.issue.internal;
 
 import com.google.common.base.Preconditions;
-import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
-import org.sonar.api.batch.analyzer.measure.AnalyzerMeasureBuilder;
+import org.sonar.api.batch.analyzer.issue.AnalyzerIssue;
+import org.sonar.api.batch.analyzer.issue.AnalyzerIssueBuilder;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.measures.Metric;
+import org.sonar.api.rule.RuleKey;
 
-import java.io.Serializable;
+import javax.annotation.Nullable;
 
-public class DefaultAnalyzerMeasureBuilder<G extends Serializable> implements AnalyzerMeasureBuilder<G> {
+public class DefaultAnalyzerIssueBuilder implements AnalyzerIssueBuilder {
 
   Boolean onProject = null;
   InputFile file;
-  Metric<G> metric;
-  G value;
+  RuleKey ruleKey;
+  String message;
+  Integer line;
+  Double effortToFix;
 
   @Override
-  public AnalyzerMeasureBuilder<G> onFile(InputFile inputFile) {
+  public DefaultAnalyzerIssueBuilder ruleKey(RuleKey ruleKey) {
+    this.ruleKey = ruleKey;
+    return this;
+  }
+
+  @Override
+  public DefaultAnalyzerIssueBuilder onFile(InputFile file) {
     Preconditions.checkState(onProject == null, "onFile or onProject can be called only once");
-    Preconditions.checkNotNull(inputFile, "inputFile should be non null");
-    this.file = inputFile;
+    Preconditions.checkNotNull(file, "InputFile should be non null");
+    this.file = file;
     this.onProject = false;
     return this;
   }
 
   @Override
-  public AnalyzerMeasureBuilder<G> onProject() {
+  public DefaultAnalyzerIssueBuilder onProject() {
     Preconditions.checkState(onProject == null, "onFile or onProject can be called only once");
     this.file = null;
     this.onProject = true;
@@ -52,23 +60,26 @@ public class DefaultAnalyzerMeasureBuilder<G extends Serializable> implements An
   }
 
   @Override
-  public AnalyzerMeasureBuilder<G> forMetric(Metric<G> metric) {
-    Preconditions.checkState(metric != null, "Metric already defined");
-    Preconditions.checkNotNull(metric, "metric should be non null");
-    this.metric = metric;
+  public DefaultAnalyzerIssueBuilder atLine(int line) {
+    this.line = line;
     return this;
   }
 
   @Override
-  public AnalyzerMeasureBuilder<G> withValue(G value) {
-    Preconditions.checkState(this.value == null, "Measure value already defined");
-    Preconditions.checkNotNull(value, "Measure value can't be null");
-    this.value = value;
+  public DefaultAnalyzerIssueBuilder effortToFix(@Nullable Double effortToFix) {
+    this.effortToFix = effortToFix;
     return this;
   }
 
   @Override
-  public AnalyzerMeasure<G> build() {
-    return new DefaultAnalyzerMeasure<G>(this);
+  public DefaultAnalyzerIssueBuilder message(String message) {
+    this.message = message;
+    return this;
   }
+
+  @Override
+  public AnalyzerIssue build() {
+    return new DefaultAnalyzerIssue(this);
+  }
+
 }

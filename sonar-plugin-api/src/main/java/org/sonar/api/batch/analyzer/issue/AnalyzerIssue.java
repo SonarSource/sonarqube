@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.analyzer.issue;
 
-import com.google.common.base.Preconditions;
 import org.sonar.api.batch.analyzer.Analyzer;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.rule.RuleKey;
@@ -31,96 +30,33 @@ import javax.annotation.Nullable;
  *
  * @since 4.4
  */
-public class AnalyzerIssue {
+public interface AnalyzerIssue {
 
-  private final InputFile inputFile;
-  private final RuleKey ruleKey;
-  private final String message;
-  private final Integer line;
-  private final Double effortToFix;
-
-  private AnalyzerIssue(Builder builder) {
-    this.inputFile = builder.file;
-    this.ruleKey = builder.ruleKey;
-    this.message = builder.message;
-    this.line = builder.line;
-    this.effortToFix = builder.effortToFix;
-  }
-
-  public static Builder builder() {
-    return new Builder();
-  }
-
+  /**
+   * The {@link InputFile} this issue belongs to. Returns null if issue is global to the project.
+   */
   @Nullable
-  public InputFile inputFile() {
-    return inputFile;
-  }
+  InputFile inputFile();
 
-  public RuleKey ruleKey() {
-    return ruleKey;
-  }
+  /**
+   * The {@link RuleKey} of this issue.
+   */
+  RuleKey ruleKey();
 
-  public String message() {
-    return message;
-  }
+  /**
+   * Message of the issue.
+   */
+  String message();
 
-  public Integer line() {
-    return line;
-  }
+  /**
+   * Line of the issue.
+   */
+  Integer line();
 
+  /**
+   * Effort to fix the issue. Used by technical debt model.
+   */
   @Nullable
-  public Double effortToFix() {
-    return effortToFix;
-  }
-
-  public static class Builder {
-
-    private Boolean onProject = null;
-    private InputFile file;
-    private RuleKey ruleKey;
-    private String message;
-    private Integer line;
-    private Double effortToFix;
-
-    public AnalyzerIssue build() {
-      return new AnalyzerIssue(this);
-    }
-
-    public Builder ruleKey(RuleKey ruleKey) {
-      this.ruleKey = ruleKey;
-      return this;
-    }
-
-    public Builder onFile(InputFile file) {
-      Preconditions.checkState(onProject == null, "onFile or onProject can be called only once");
-      Preconditions.checkNotNull(file, "InputFile should be non null");
-      this.file = file;
-      this.onProject = false;
-      return this;
-    }
-
-    public Builder onProject() {
-      Preconditions.checkState(onProject == null, "onFile or onProject can be called only once");
-      this.file = null;
-      this.onProject = true;
-      return this;
-    }
-
-    public Builder atLine(int line) {
-      this.line = line;
-      return this;
-    }
-
-    public Builder effortToFix(@Nullable Double effortToFix) {
-      this.effortToFix = effortToFix;
-      return this;
-    }
-
-    public Builder message(String message) {
-      this.message = message;
-      return this;
-    }
-
-  }
+  Double effortToFix();
 
 }

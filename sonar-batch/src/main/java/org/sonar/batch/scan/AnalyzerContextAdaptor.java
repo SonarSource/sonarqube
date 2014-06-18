@@ -22,12 +22,17 @@ package org.sonar.batch.scan;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.analyzer.AnalyzerContext;
 import org.sonar.api.batch.analyzer.issue.AnalyzerIssue;
+import org.sonar.api.batch.analyzer.issue.AnalyzerIssueBuilder;
+import org.sonar.api.batch.analyzer.issue.internal.DefaultAnalyzerIssueBuilder;
 import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
 import org.sonar.api.batch.analyzer.measure.AnalyzerMeasureBuilder;
 import org.sonar.api.batch.analyzer.measure.internal.DefaultAnalyzerMeasureBuilder;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measures.Metric;
+import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MetricFinder;
@@ -37,20 +42,45 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 
 import java.io.Serializable;
-import java.util.Collection;
 
+/**
+ * Implements {@link AnalyzerContext} but forward everything to {@link SensorContext} for backward compatibility.
+ *
+ */
 public class AnalyzerContextAdaptor implements AnalyzerContext {
 
   private SensorContext sensorContext;
   private MetricFinder metricFinder;
   private Project project;
   private ResourcePerspectives perspectives;
+  private Settings settings;
+  private FileSystem fs;
+  private ActiveRules activeRules;
 
-  public AnalyzerContextAdaptor(SensorContext sensorContext, MetricFinder metricFinder, Project project, ResourcePerspectives perspectives) {
+  public AnalyzerContextAdaptor(SensorContext sensorContext, MetricFinder metricFinder, Project project, ResourcePerspectives perspectives,
+    Settings settings, FileSystem fs, ActiveRules activeRules) {
     this.sensorContext = sensorContext;
     this.metricFinder = metricFinder;
     this.project = project;
     this.perspectives = perspectives;
+    this.settings = settings;
+    this.fs = fs;
+    this.activeRules = activeRules;
+  }
+
+  @Override
+  public Settings settings() {
+    return settings;
+  }
+
+  @Override
+  public FileSystem fileSystem() {
+    return fs;
+  }
+
+  @Override
+  public ActiveRules activeRules() {
+    return activeRules;
   }
 
   @Override
@@ -107,7 +137,7 @@ public class AnalyzerContextAdaptor implements AnalyzerContext {
 
   @Override
   public void addMeasure(AnalyzerMeasure<?> measure) {
-    org.sonar.api.measures.Metric<?> m = metricFinder.findByKey(measure.metricKey());
+    org.sonar.api.measures.Metric<?> m = metricFinder.findByKey(measure.metric().key());
 
     Measure measureToSave = new Measure(m);
     switch (m.getType()) {
@@ -150,6 +180,11 @@ public class AnalyzerContextAdaptor implements AnalyzerContext {
   }
 
   @Override
+  public AnalyzerIssueBuilder issueBuilder() {
+    return new DefaultAnalyzerIssueBuilder();
+  }
+
+  @Override
   public void addIssue(AnalyzerIssue issue) {
     Resource r;
     if (issue.inputFile() != null) {
@@ -164,13 +199,6 @@ public class AnalyzerContextAdaptor implements AnalyzerContext {
       .line(issue.line())
       .message(issue.message())
       .build());
-  }
-
-  @Override
-  public void addIssues(Collection<AnalyzerIssue> issues) {
-    for (AnalyzerIssue analyzerIssue : issues) {
-      addIssue(analyzerIssue);
-    }
   }
 
 }

@@ -17,30 +17,57 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.analyzer.measure;
+package org.sonar.api.batch.analyzer.issue.internal;
 
-import org.sonar.api.batch.analyzer.Analyzer;
+import org.sonar.api.batch.analyzer.issue.AnalyzerIssue;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.measures.Metric;
+import org.sonar.api.rule.RuleKey;
 
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
 
-/**
- * A measure computed by an {@link Analyzer}.
- * @since 4.4
- */
-public interface AnalyzerMeasure<G extends Serializable> {
+public class DefaultAnalyzerIssue implements AnalyzerIssue, Serializable {
 
-  /**
-   * The {@link InputFile} this measure belongs to. Returns null if measure is global to the project.
-   */
+  private final InputFile inputFile;
+  private final RuleKey ruleKey;
+  private final String message;
+  private final Integer line;
+  private final Double effortToFix;
+
+  DefaultAnalyzerIssue(DefaultAnalyzerIssueBuilder builder) {
+    this.inputFile = builder.file;
+    this.ruleKey = builder.ruleKey;
+    this.message = builder.message;
+    this.line = builder.line;
+    this.effortToFix = builder.effortToFix;
+  }
+
+  @Override
   @Nullable
-  InputFile inputFile();
+  public InputFile inputFile() {
+    return inputFile;
+  }
 
-  Metric<G> metric();
+  @Override
+  public RuleKey ruleKey() {
+    return ruleKey;
+  }
 
-  G value();
+  @Override
+  public String message() {
+    return message;
+  }
+
+  @Override
+  public Integer line() {
+    return line;
+  }
+
+  @Override
+  @Nullable
+  public Double effortToFix() {
+    return effortToFix;
+  }
 
 }

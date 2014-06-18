@@ -20,21 +20,43 @@
 package org.sonar.api.batch.analyzer;
 
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.languages.Language;
 import org.sonar.api.batch.measures.Metric;
 
 /**
+ * Describe what an {@link Analyzer} is doing. Information may be used by the platform
+ * to log interesting information or perform some optimization.
  * @since 4.4
  */
 public interface AnalyzerDescriptor {
 
+  /**
+   * Name of the {@link Analyzer}. Will be displayed in logs.
+   */
   AnalyzerDescriptor name(String name);
 
+  /**
+   * List {@link Metric} this {@link Analyzer} depends on. Will be used to execute Analyzers in correct order.
+   */
   AnalyzerDescriptor dependsOn(Metric<?>... metrics);
 
+  /**
+   * List {@link Metric} this {@link Analyzer} provides. Will be used to execute Analyzers in correct order.
+   */
   AnalyzerDescriptor provides(Metric<?>... metrics);
 
+  /**
+   * List {@link Language} this {@link Analyzer} work on. May be used by the platform to skip execution of the {@link Analyzer} when
+   * no file for given languages are present in the project.
+   * If no language is provided then it will be executed for all languages.
+   */
   AnalyzerDescriptor runOnLanguages(String... languageKeys);
 
+  /**
+   * List {@link InputFile.Type} this {@link Analyzer} work on. May be used by the platform to skip execution of the {@link Analyzer} when
+   * no file for given type are present in the project.
+   * If not type is provided then t will be executed for all types.
+   */
   AnalyzerDescriptor runOnTypes(InputFile.Type... types);
 
 }

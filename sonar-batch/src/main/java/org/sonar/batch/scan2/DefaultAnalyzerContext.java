@@ -21,13 +21,18 @@ package org.sonar.batch.scan2;
 
 import org.sonar.api.batch.analyzer.AnalyzerContext;
 import org.sonar.api.batch.analyzer.issue.AnalyzerIssue;
+import org.sonar.api.batch.analyzer.issue.AnalyzerIssueBuilder;
+import org.sonar.api.batch.analyzer.issue.internal.DefaultAnalyzerIssueBuilder;
 import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
 import org.sonar.api.batch.analyzer.measure.AnalyzerMeasureBuilder;
 import org.sonar.api.batch.analyzer.measure.internal.DefaultAnalyzerMeasure;
 import org.sonar.api.batch.analyzer.measure.internal.DefaultAnalyzerMeasureBuilder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measures.Metric;
+import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.config.Settings;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.issue.ModuleIssues;
@@ -35,18 +40,39 @@ import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.issue.DefaultIssueBuilder;
 
 import java.io.Serializable;
-import java.util.Collection;
 
 public class DefaultAnalyzerContext implements AnalyzerContext {
 
   private final AnalyzerMeasureCache measureCache;
   private ProjectDefinition def;
   private ModuleIssues moduleIssues;
+  private Settings settings;
+  private FileSystem fs;
+  private ActiveRules activeRules;
 
-  public DefaultAnalyzerContext(ProjectDefinition def, AnalyzerMeasureCache measureCache, ModuleIssues moduleIssues) {
+  public DefaultAnalyzerContext(ProjectDefinition def, AnalyzerMeasureCache measureCache,
+    ModuleIssues moduleIssues, Settings settings, FileSystem fs, ActiveRules activeRules) {
     this.def = def;
     this.measureCache = measureCache;
     this.moduleIssues = moduleIssues;
+    this.settings = settings;
+    this.fs = fs;
+    this.activeRules = activeRules;
+  }
+
+  @Override
+  public Settings settings() {
+    return settings;
+  }
+
+  @Override
+  public FileSystem fileSystem() {
+    return fs;
+  }
+
+  @Override
+  public ActiveRules activeRules() {
+    return activeRules;
   }
 
   @Override
@@ -84,6 +110,11 @@ public class DefaultAnalyzerContext implements AnalyzerContext {
   }
 
   @Override
+  public AnalyzerIssueBuilder issueBuilder() {
+    return new DefaultAnalyzerIssueBuilder();
+  }
+
+  @Override
   public void addIssue(AnalyzerIssue issue) {
     DefaultIssueBuilder builder = new DefaultIssueBuilder()
       .projectKey(def.getKey());
@@ -99,14 +130,6 @@ public class DefaultAnalyzerContext implements AnalyzerContext {
       .line(issue.line())
       .effortToFix(issue.effortToFix())
       .build());
-  }
-
-  @Override
-  public void addIssues(Collection<AnalyzerIssue> issues) {
-    for (AnalyzerIssue analyzerIssue : issues) {
-      addIssue(analyzerIssue);
-    }
-
   }
 
 }

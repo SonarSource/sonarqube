@@ -22,6 +22,7 @@ package org.sonar.api.batch.analyzer.measure.internal;
 import com.google.common.base.Preconditions;
 import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.measures.Metric;
 
 import javax.annotation.Nullable;
 
@@ -30,14 +31,14 @@ import java.io.Serializable;
 public class DefaultAnalyzerMeasure<G extends Serializable> implements AnalyzerMeasure<G>, Serializable {
 
   private final InputFile inputFile;
-  private final String metricKey;
+  private final Metric<G> metric;
   private final G value;
 
   DefaultAnalyzerMeasure(DefaultAnalyzerMeasureBuilder<G> builder) {
     Preconditions.checkNotNull(builder.value, "Measure value can't be null");
-    Preconditions.checkNotNull(builder.metricKey, "Measure metricKey can't be null");
+    Preconditions.checkNotNull(builder.metric, "Measure metricKey can't be null");
     this.inputFile = builder.file;
-    this.metricKey = builder.metricKey;
+    this.metric = builder.metric;
     this.value = builder.value;
   }
 
@@ -48,8 +49,8 @@ public class DefaultAnalyzerMeasure<G extends Serializable> implements AnalyzerM
   }
 
   @Override
-  public String metricKey() {
-    return metricKey;
+  public Metric<G> metric() {
+    return metric;
   }
 
   @Override
@@ -63,14 +64,14 @@ public class DefaultAnalyzerMeasure<G extends Serializable> implements AnalyzerM
       return false;
     }
     DefaultAnalyzerMeasure<?> other = (DefaultAnalyzerMeasure<?>) obj;
-    return metricKey.equals(other.metricKey)
+    return metric.equals(other.metric)
       && value.equals(other.value)
       && (inputFile == null ? other.inputFile == null : inputFile.equals(other.inputFile));
   }
 
   @Override
   public int hashCode() {
-    return metricKey.hashCode()
+    return metric.hashCode()
       + value.hashCode()
       + (inputFile != null ? inputFile.hashCode() : 0);
   }
@@ -78,7 +79,7 @@ public class DefaultAnalyzerMeasure<G extends Serializable> implements AnalyzerM
   @Override
   public String toString() {
     return "AnalyzerMeasure[" + (inputFile != null ? "inputFile=" + inputFile.toString() : "onProject")
-      + ",metricKey=" + metricKey + ",value=" + value + "]";
+      + ",metric=" + metric + ",value=" + value + "]";
   }
 
 }

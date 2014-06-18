@@ -47,15 +47,15 @@ public class AnalyzerMeasureCache implements BatchComponent {
 
   public AnalyzerMeasureCache put(String resourceKey, DefaultAnalyzerMeasure<?> measure) {
     Preconditions.checkNotNull(resourceKey);
-    Preconditions.checkNotNull(measure.metricKey());
-    cache.put(resourceKey, measure.metricKey(), measure);
+    Preconditions.checkNotNull(measure);
+    cache.put(resourceKey, measure.metric().key(), measure);
     return this;
   }
 
   public boolean contains(String resourceKey, DefaultAnalyzerMeasure<?> measure) {
     Preconditions.checkNotNull(resourceKey);
     Preconditions.checkNotNull(measure);
-    return cache.containsKey(resourceKey, measure.metricKey());
+    return cache.containsKey(resourceKey, measure.metric().key());
   }
 
   public Iterable<DefaultAnalyzerMeasure> all() {
