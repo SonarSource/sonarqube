@@ -27,6 +27,8 @@ import org.sonar.core.activity.db.ActivityMapper;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.search.action.DtoIndexAction;
+import org.sonar.server.search.action.IndexAction;
 
 import java.util.Date;
 import java.util.List;
@@ -72,6 +74,9 @@ public class ActivityDao extends BaseDao<ActivityMapper, ActivityDto, ActivityKe
 
   @Override
   public void synchronizeAfter(DbSession session, Date time) {
-
+    for(ActivityDto activity:this.findAll(session)){
+      session.enqueue(new DtoIndexAction<ActivityDto>(this.getIndexType(), IndexAction.Method.UPSERT, activity));
+    }
+    session.commit();
   }
 }
