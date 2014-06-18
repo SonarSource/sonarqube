@@ -28,6 +28,8 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 
+import java.util.Date;
+
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -146,6 +148,6 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
 
   @Test(expected = IllegalStateException.class)
   public void synchronize_after() {
-    dao.synchronizeAfter(session, 1L);
+    dao.synchronizeAfter(session, new Date(0L));
   }
 }

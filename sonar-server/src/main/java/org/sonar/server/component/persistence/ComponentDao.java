@@ -29,6 +29,8 @@ import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 
+import java.util.Date;
+
 /**
  * @since 4.3
  */
@@ -77,7 +79,7 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
   }
 
   @Override
-  public void synchronizeAfter(DbSession session, long timestamp) {
+  public void synchronizeAfter(DbSession session, Date timestamp) {
     throw notImplemented();
   }
 

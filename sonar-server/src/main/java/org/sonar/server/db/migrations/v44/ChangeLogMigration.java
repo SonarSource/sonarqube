@@ -19,6 +19,7 @@
  */
 package org.sonar.server.db.migrations.v44;
 
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.activity.Activity;
@@ -135,17 +136,21 @@ public class ChangeLogMigration implements DatabaseMigration {
 
   @Override
   public void execute() {
-    this.session = db.openSession(false);
-    executeUpsert(ActiveRuleChange.Type.ACTIVATED, allActivation);
-    executeUpsert(ActiveRuleChange.Type.UPDATED, allUpdates);
-    executeUpsert(ActiveRuleChange.Type.DEACTIVATED, allDeactivation);
-    session.commit();
-    session.close();
+    try {
+      this.session = db.openSession(false);
+      executeUpsert(ActiveRuleChange.Type.ACTIVATED, allActivation);
+      executeUpsert(ActiveRuleChange.Type.UPDATED, allUpdates);
+      executeUpsert(ActiveRuleChange.Type.DEACTIVATED, allDeactivation);
+      session.commit();
+    } finally {
+      session.close();
+    }
   }
 
   private void executeUpsert(ActiveRuleChange.Type type, String sql) {
+    Connection connection = null;
     try {
-      Connection connection = db.database().getDataSource().getConnection();
+      connection = db.database().getDataSource().getConnection();
       ResultSet result = connection.createStatement().executeQuery(sql);
 
       //startCase
@@ -172,6 +177,8 @@ public class ChangeLogMigration implements DatabaseMigration {
 
     } catch (Exception e) {
       e.printStackTrace();
+    } finally {
+      DbUtils.closeQuietly(connection);
     }
   }
 
