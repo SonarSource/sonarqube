@@ -18,7 +18,7 @@ define [
       'click @ui.delete': 'delete'
 
     delete: ->
-      if confirm('Are you sure ?')
+      if confirm(t 'are_you_sure')
         origEl = @$el.html()
         @$el.html '<i class="spinner"></i>'
 
@@ -28,7 +28,8 @@ define [
           data:
             key: @model.get 'key'
         .done =>
-          @options.app.showRule @options.templateRule.get 'key'
+          templateKey = @options.templateKey or @options.templateRule.get 'key'
+          @options.app.showRule templateKey
         .fail =>
           @$el.html origEl
 

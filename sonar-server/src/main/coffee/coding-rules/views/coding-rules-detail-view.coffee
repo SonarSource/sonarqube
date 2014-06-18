@@ -4,6 +4,7 @@ define [
   'coding-rules/views/coding-rules-detail-quality-profiles-view'
   'coding-rules/views/coding-rules-detail-quality-profile-view'
   'coding-rules/views/coding-rules-detail-custom-rules-view'
+  'coding-rules/views/coding-rules-detail-custom-rule-view'
   'templates/coding-rules'
 ], (
   Backbone
@@ -11,6 +12,7 @@ define [
   CodingRulesDetailQualityProfilesView
   CodingRulesDetailQualityProfileView
   CodingRulesDetailCustomRulesView
+  CodingRulesDetailCustomRuleView
   Templates
 ) ->
 
@@ -46,6 +48,7 @@ define [
       changeQualityProfile: '.coding-rules-detail-quality-profile-update'
       createCustomRule: '#coding-rules-custom-rules-create'
       changeCustomRule: '#coding-rules-detail-custom-rule-change'
+      deleteCustomRule: '#coding-rules-detail-custom-rule-delete'
 
 
     events:
@@ -62,6 +65,7 @@ define [
       'click @ui.changeQualityProfile': 'changeQualityProfile'
       'click @ui.createCustomRule': 'createCustomRule'
       'click @ui.changeCustomRule': 'changeCustomRule'
+      'click @ui.deleteCustomRule': 'deleteCustomRule'
 
 
     initialize: (options) ->
@@ -252,6 +256,19 @@ define [
     changeCustomRule: ->
       @options.app.codingRulesCustomRuleCreationView.model = @model
       @options.app.codingRulesCustomRuleCreationView.show()
+
+
+    deleteCustomRule: ->
+      if confirm(t 'are_you_sure')
+        jQuery.ajax
+          type: 'POST'
+          url: "#{baseUrl}/api/rules/delete"
+          data:
+            key: @model.get 'key'
+        .done =>
+          @options.app.fetchFirstPage()
+        .fail =>
+          @options.app.showRule @model.get('key')
 
 
     serializeData: ->
