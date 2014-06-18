@@ -257,6 +257,7 @@ public class TestDatabase extends ExternalResource {
       dataSet.addReplacementObject("[null]", null);
       dataSet.addReplacementObject("[false]", Boolean.FALSE);
       dataSet.addReplacementObject("[true]", Boolean.TRUE);
+
       return dataSet;
     } catch (Exception e) {
       throw translateException("Could not read the dataset stream", e);

@@ -71,6 +71,6 @@ public class ActivityDao extends BaseDao<ActivityMapper, ActivityDto, ActivityKe
 
   @Override
   public void synchronizeAfter(DbSession session, long timestamp) {
-    throw new IllegalStateException("Log Index does not synchronize!");
+
   }
 }

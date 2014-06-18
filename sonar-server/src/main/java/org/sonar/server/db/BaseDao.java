@@ -214,7 +214,9 @@ public abstract class BaseDao<M, E extends Dto<K>, K extends Serializable> imple
   }
 
   private void insert(DbSession session, E item, Date now) {
-    item.setCreatedAt(now);
+    if (item.getCreatedAt() == null) {
+      item.setCreatedAt(now);
+    }
     item.setUpdatedAt(now);
     doInsert(session, item);
     if (hasIndex()) {

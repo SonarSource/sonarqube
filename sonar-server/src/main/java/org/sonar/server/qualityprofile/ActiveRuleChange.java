@@ -32,7 +32,7 @@ import java.util.Map;
 
 public class ActiveRuleChange implements ActivityLog {
 
-  static enum Type {
+  public static enum Type {
     ACTIVATED, DEACTIVATED, UPDATED
   }
 

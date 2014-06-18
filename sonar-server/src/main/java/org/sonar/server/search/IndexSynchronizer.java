@@ -46,6 +46,7 @@ public class IndexSynchronizer {
     long start = System.currentTimeMillis();
     db.ruleDao().synchronizeAfter(session, 0);
     db.activeRuleDao().synchronizeAfter(session, 0);
+    db.activityDao().synchronizeAfter(session, 0);
     session.commit();
     LOG.info("Synchronization done in {}ms...", System.currentTimeMillis()-start);
     session.close();
