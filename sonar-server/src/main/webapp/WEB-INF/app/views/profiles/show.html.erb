@@ -53,7 +53,7 @@
                     <i class="icon-severity-<%= severity %>"></i><%= message(severity) -%>
                   </td>
                   <td class="thin left">
-                    <a href="<%= "#{ApplicationController.root_context}/coding_rules#qprofile=#{@profile.key().toString()}|activation=true|languages=#{@profile.language()}|severities=#{key}" -%>"><%= value -%></a>
+                    <%= value -%>
                   </td>
                   <td class="nowrap">
                     <% if max > 0 %>
