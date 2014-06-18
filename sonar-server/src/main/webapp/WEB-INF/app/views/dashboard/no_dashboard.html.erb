@@ -2,26 +2,11 @@
   <script data-main="<%= ApplicationController.root_context -%>/js/dashboard/file-app" src="<%= ApplicationController.root_context -%>/js/require.js"></script>
 <% end %>
 
-<%= render :partial => 'gwt/base', :locals => {:resource => nil, :popup => false, :metric => nil} -%>
-<%= render :partial => 'gwt/resource_viewers' -%>
-
 <div class="marginbottom10"></div>
 <div id="accordion-panel"></div>
 
 <script type="text/javascript">
-
-  // see if an anchor has been passed
-  var anchor;
-  var stripped_url = document.location.toString().split("#");
-  if (stripped_url.length > 1) {
-    anchor = stripped_url[1];
-  }
-
   window.fileKey = '<%= @file.key -%>';
-
-  // refresh page after issues bulk change
-  function onBulkIssues(){
-    resourceViewerOnBulkIssues();
-  }
-
+  window.metric = '<%= @metric -%>';
+  document.getElementById('crumbs').remove();
 </script>

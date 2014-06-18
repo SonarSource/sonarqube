@@ -34,6 +34,7 @@ class DashboardController < ApplicationController
       @hide_sidebar = true
       @file = @resource
       @project = @snapshot.parent.project
+      @metric=params[:metric]
       render :action => 'no_dashboard'
     end
   end

@@ -71,6 +71,11 @@ requirejs [
       viewer.open(key).done ->
         if activeHeaderTab? && activeHeaderItem?
           viewer.state.set activeHeaderTab: activeHeaderTab, activeHeaderItem: activeHeaderItem
+          viewer.render()
+        else if activeHeaderTab?
+          viewer.state.set activeHeaderTab: activeHeaderTab
+          viewer.headerView.render()
+          viewer.showAllLines()
         else if drilldown.period?
           viewer.enablePeriod drilldown.period, 'issues'
         else

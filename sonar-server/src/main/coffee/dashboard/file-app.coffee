@@ -20,12 +20,15 @@ requirejs.config
 requirejs [
   'backbone.marionette'
   'component-viewer/main'
+  'drilldown/conf'
 ], (
   Marionette
   ComponentViewer
+  MetricConf
 ) ->
 
   $ = jQuery
+
   App = new Marionette.Application()
 
 
@@ -43,7 +46,17 @@ requirejs [
 
   App.addInitializer ->
     viewer = App.requestComponentViewer()
-    viewer.open(window.fileKey).done -> viewer.showAllLines()
+    if window.metric?
+      metricConf = MetricConf[window.metric]
+      if metricConf?
+        activeHeaderTab = metricConf.tab
+        activeHeaderItem = metricConf.item
+    viewer.open(window.fileKey).done ->
+      if activeHeaderTab? && activeHeaderItem?
+        viewer.state.set activeHeaderTab: activeHeaderTab, activeHeaderItem: activeHeaderItem
+        viewer.headerView.render()
+      else
+        viewer.showAllLines()
 
 
   # Message bundles

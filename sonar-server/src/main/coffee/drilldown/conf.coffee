@@ -74,3 +74,11 @@ define
   'duplicated_blocks':                { tab: 'duplications', item: '.js-filter-duplications' }
   'duplicated_files':                 { tab: 'duplications', item: '.js-filter-duplications' }
   'duplicated_lines_density':         { tab: 'duplications', item: '.js-filter-duplications' }
+
+
+  # Tests
+  'test_success_density':             { tab: 'tests', item: null }
+  'skipped_tests':                    { tab: 'tests', item: null }
+  'test_failures':                    { tab: 'tests', item: null }
+  'test_errors':                      { tab: 'tests', item: null }
+  'test_execution_time':              { tab: 'tests', item: null }

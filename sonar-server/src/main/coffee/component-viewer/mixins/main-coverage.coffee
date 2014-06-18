@@ -51,7 +51,6 @@ define [], () ->
       if @settings.get('issues') && !@state.get('hasIssues')
         requests.push @requestIssues @key
       $.when.apply($, requests).done =>
-        @filterByUnresolvedIssues()
         @_filterByCoverage(predicate)
 
 
@@ -60,7 +59,6 @@ define [], () ->
       if @settings.get('issues') && !@state.get('hasIssues')
         requests.push @requestIssues @key
       $.when.apply($, requests).done =>
-        @filterByUnresolvedIssues()
         @_filterByCoverage(predicate)
 
 
