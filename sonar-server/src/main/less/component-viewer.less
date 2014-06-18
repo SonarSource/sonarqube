@@ -155,9 +155,10 @@
     td.line { background-color: @barBackgroundColor; }
   }
 
-  .code .row-highlighted {
-    td.stat { background-color: #e9e94d !important; }
-    td.line { background-color: #f1f1a3 !important; }
+  .code .row-highlighted,
+  .code .row-highlighted:hover {
+    td.stat { background-color: #e9e94d; }
+    td.line { background-color: #f1f1a3; }
   }
 
   .code td.line {
@@ -255,17 +256,17 @@
   .code .stat {
 
     &.coverage-green {
-      background-color: lighten(@green, 15%);
+      background-color: lighten(@green, 15%) !important;
       color: @baseFontColor;
     }
 
     &.coverage-orange {
-      background-color: lighten(@orange, 15%);
+      background-color: lighten(@orange, 15%) !important;
       color: @baseFontColor;
     }
 
     &.coverage-red {
-      background-color: lighten(@red, 15%);
+      background-color: lighten(@red, 15%) !important;
       color: @baseFontColor;
     }
   }
@@ -624,6 +625,7 @@
 
 .component-viewer-popup-section {
   width: 450px;
+  padding-bottom: 2px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

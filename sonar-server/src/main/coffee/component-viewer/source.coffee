@@ -4,6 +4,7 @@ define [
   'component-viewer/coverage-popup'
   'component-viewer/duplication-popup'
   'component-viewer/time-changes-popup'
+  'component-viewer/line-actions-popup'
   'issues/issue-view'
   'issues/models/issue'
   'common/handlebars-extensions'
@@ -13,6 +14,7 @@ define [
   CoveragePopupView
   DuplicationPopupView
   TimeChangesPopupView
+  LineActionsPopupView
   IssueView
   Issue
 ) ->
@@ -69,6 +71,7 @@ define [
       @showSettings = false
       @renderExpandButtons()
       @renderIssues() if @options.main.settings.get('issues') && @model.has('activeIssues')
+      @highlightCurrentLine()
 
 
     renderExpandButtons: ->
@@ -114,9 +117,27 @@ define [
       @$el.html '<div style="padding: 10px;"><i class="spinner"></i></div>'
 
 
+    showLineActionsPopup: (e) ->
+      e.stopPropagation()
+      $('body').click()
+      popup = new LineActionsPopupView
+        triggerEl: $(e.currentTarget)
+        main: @options.main
+        row: $(e.currentTarget).closest '.row'
+      popup.render()
+
+
     highlightLine: (e) ->
       @$(".#{HIGHLIGHTED_ROW_CLASS}").removeClass HIGHLIGHTED_ROW_CLASS
-      $(e.currentTarget).closest('.row').addClass HIGHLIGHTED_ROW_CLASS
+      row = $(e.currentTarget).closest('.row')
+      row.addClass HIGHLIGHTED_ROW_CLASS
+      @highlightedLine = row.data 'line-number'
+      @showLineActionsPopup(e)
+
+
+    highlightCurrentLine: ->
+      if @highlightedLine?
+        @$("[data-line-number=#{@highlightedLine}]").addClass HIGHLIGHTED_ROW_CLASS
 
 
     highlightUsages: (e) ->
