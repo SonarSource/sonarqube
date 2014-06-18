@@ -127,7 +127,7 @@ public class IssueShowAction implements RequestHandler {
       .prop("author", issue.authorLogin())
       .prop("actionPlan", actionPlanKey)
       .prop("actionPlanName", actionPlan != null ? actionPlan.name() : null)
-      .prop("debt", debt != null ? durations.format(UserSession.get().locale(), debt, Durations.DurationFormat.SHORT) : null)
+      .prop("debt", debt != null ? durations.encode(debt) : null)
       .prop("creationDate", DateUtils.formatDateTime(issue.creationDate()))
       .prop("fCreationDate", formatDate(issue.creationDate()))
       .prop("updateDate", updateDate != null ? DateUtils.formatDateTime(updateDate) : null)
