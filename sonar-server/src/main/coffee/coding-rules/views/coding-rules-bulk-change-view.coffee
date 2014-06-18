@@ -41,17 +41,6 @@ define [
         width: '250px'
         minimumResultsForSearch: 1
 
-      format = (state) ->
-        return state.text unless state.id
-        "<i class='icon-severity-#{state.id.toLowerCase()}'></i> #{state.text}"
-      @$('#coding-rules-bulk-change-severity').select2
-        width: '250px'
-        minimumResultsForSearch: 999
-        formatResult: format
-        formatSelection: format
-        escapeMarkup: (m) -> m
-
-
     show: (action, param = null) ->
       @action = action
       @profile = param
@@ -69,20 +58,9 @@ define [
 
 
     prepareQuery: ->
-      query = @options.app.getQuery()
-
-      if @action == 'activate' || @action == 'deactivate'
-        _.extend query,
-          wsAction: @action
-          profile_key: @$('#coding-rules-bulk-change-profile').val() or @profile
-
-      if @action == 'change-severity'
-        _.extend query,
-          wsAction: 'activate'
-          profile_key: @profile
-          activation_severity: @$('#coding-rules-bulk-change-severity').val()
-
-      query
+      _.extend @options.app.getQuery(),
+        wsAction: @action
+        profile_key: @$('#coding-rules-bulk-change-profile').val() or @profile
 
 
     bulkChange: (query) ->
@@ -140,5 +118,3 @@ define [
       qualityProfileName: @options.app.qualityProfileFilter.view.renderValue()
 
       availableQualityProfiles: @getAvailableQualityProfiles()
-
-      severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO']

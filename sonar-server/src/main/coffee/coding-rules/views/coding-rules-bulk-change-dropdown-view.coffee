@@ -53,4 +53,3 @@ define [
       language: @options.app.languageFilter.view.renderValue()
       allowActivateOnProfile: qualityProfile and (activationValues.length == 0 or activationValues[0] == 'false')
       allowDeactivateOnProfile: qualityProfile and (activationValues.length == 0 or activationValues[0] == 'true')
-      allowChangeSeverity: qualityProfile and activationValues.length > 0 and activationValues[0] == 'true'
