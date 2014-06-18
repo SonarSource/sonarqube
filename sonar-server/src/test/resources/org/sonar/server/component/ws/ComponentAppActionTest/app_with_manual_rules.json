@@ -13,7 +13,7 @@
   "severities": [],
   "rules": [],
   "measures": {},
-  "extensions": [
-    ["my-extension", "My extension"]
+  "manual_rules": [
+    {"key": "manual:API", "name": "API"}
   ]
 }

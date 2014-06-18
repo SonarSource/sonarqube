@@ -62,7 +62,8 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
 
   @Override
   protected ComponentDto doInsert(DbSession session, ComponentDto item) {
-    throw notImplemented();
+    getMapper(session).insert(item);
+    return item;
   }
 
   @Override
@@ -75,12 +76,12 @@ public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String>
     throw notImplemented();
   }
 
-  private static IllegalStateException notImplemented() {
-    throw new IllegalStateException("Not implemented yet");
-  }
-
   @Override
   public void synchronizeAfter(DbSession session, long timestamp) {
+    throw notImplemented();
+  }
+
+  private static IllegalStateException notImplemented() {
     throw new IllegalStateException("Not implemented yet");
   }
 }

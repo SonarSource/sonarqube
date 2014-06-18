@@ -37,6 +37,7 @@ public class ComponentDto extends Dto<String> implements Component {
   private String language;
   private Long projectId;
   private Long subProjectId;
+  private boolean enabled = true;
 
   public Long getId() {
     return id;
@@ -133,6 +134,15 @@ public class ComponentDto extends Dto<String> implements Component {
 
   public ComponentDto setSubProjectId(@Nullable Long subProjectId) {
     this.subProjectId = subProjectId;
+    return this;
+  }
+
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+  public ComponentDto setEnabled(boolean enabled) {
+    this.enabled = enabled;
     return this;
   }
 

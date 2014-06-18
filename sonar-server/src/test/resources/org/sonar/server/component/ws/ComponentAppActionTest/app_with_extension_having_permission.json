@@ -8,6 +8,7 @@
   "fav": false,
   "canMarkAsFavourite": false,
   "canBulkChange": false,
+  "canCreateManualIssue": false,
   "periods": [],
   "severities": [],
   "rules": [],

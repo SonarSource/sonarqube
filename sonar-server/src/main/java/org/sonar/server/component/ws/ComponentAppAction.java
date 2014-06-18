@@ -51,6 +51,12 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.RulesAggregation;
+import org.sonar.server.rule.Rule;
+import org.sonar.server.rule.RuleService;
+import org.sonar.server.rule.index.RuleDoc;
+import org.sonar.server.rule.index.RuleQuery;
+import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.Result;
 import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.UserSession;
@@ -74,14 +80,16 @@ public class ComponentAppAction implements RequestHandler {
 
   private final IssueService issueService;
   private final Views views;
+  private final RuleService ruleService;
   private final Periods periods;
   private final Durations durations;
   private final I18n i18n;
 
-  public ComponentAppAction(DbClient dbClient, IssueService issueService, Views views, Periods periods, Durations durations, I18n i18n) {
+  public ComponentAppAction(DbClient dbClient, IssueService issueService, Views views, RuleService ruleService, Periods periods, Durations durations, I18n i18n) {
     this.dbClient = dbClient;
     this.issueService = issueService;
     this.views = views;
+    this.ruleService = ruleService;
     this.periods = periods;
     this.durations = durations;
     this.i18n = i18n;
@@ -93,7 +101,7 @@ public class ComponentAppAction implements RequestHandler {
       .setSince("4.4")
       .setInternal(true)
       .setHandler(this)
-      .setResponseExample(Resources.getResource(this.getClass(), "components-app-example-show.json"));
+      .setResponseExample(Resources.getResource(this.getClass(), "components-example-app.json"));
 
     action
       .createParam(PARAM_KEY)
@@ -119,7 +127,7 @@ public class ComponentAppAction implements RequestHandler {
     try {
       ComponentDto component = dbClient.componentDao().getNullableByKey(session, fileKey);
       if (component == null) {
-        throw new NotFoundException(String.format("Component '%s' does not exists.", fileKey));
+        throw new NotFoundException(String.format("Component '%s' does not exist", fileKey));
       }
       userSession.checkComponentPermission(UserRole.USER, fileKey);
 
@@ -138,6 +146,7 @@ public class ComponentAppAction implements RequestHandler {
       appendMeasures(json, measuresByMetricKey, severitiesAggregation, periodIndex);
       appendTabs(json, measuresByMetricKey);
       appendExtensions(json, component, userSession);
+      appendManualRules(json);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -148,12 +157,12 @@ public class ComponentAppAction implements RequestHandler {
 
   private void appendComponent(JsonWriter json, ComponentDto component, UserSession userSession, DbSession session) {
     List<PropertyDto> propertyDtos = dbClient.propertiesDao().selectByQuery(PropertyQuery.builder()
-        .setKey("favourite")
-        .setComponentId(component.getId())
-        .setUserId(userSession.userId())
-        .build(),
+      .setKey("favourite")
+      .setComponentId(component.getId())
+      .setUserId(userSession.userId())
+      .build(),
       session
-    );
+      );
     boolean isFavourite = propertyDtos.size() == 1;
 
     json.prop("key", component.key());
@@ -190,8 +199,10 @@ public class ComponentAppAction implements RequestHandler {
   }
 
   private void appendPermissions(JsonWriter json, ComponentDto component, UserSession userSession) {
-    json.prop("canMarkAsFavourite", userSession.isLoggedIn() && userSession.hasComponentPermission(UserRole.USER, component.key()));
+    boolean hasBrowsePermission = userSession.hasComponentPermission(UserRole.USER, component.key());
+    json.prop("canMarkAsFavourite", userSession.isLoggedIn() && hasBrowsePermission);
     json.prop("canBulkChange", userSession.isLoggedIn());
+    json.prop("canCreateManualIssue", userSession.isLoggedIn() && hasBrowsePermission);
   }
 
   private void appendMeasures(JsonWriter json, Map<String, MeasureDto> measuresByMetricKey, Multiset<String> severitiesAggregation, Integer periodIndex) {
@@ -243,6 +254,21 @@ public class ComponentAppAction implements RequestHandler {
         .endArray();
     }
     json.endArray();
+  }
+
+  private void appendManualRules(JsonWriter json) {
+    Result<Rule> result = ruleService.search(new RuleQuery().setRepositories(newArrayList(RuleDoc.MANUAL_REPOSITORY)), new QueryOptions().setMaxLimit());
+    if (result != null && !result.getHits().isEmpty()) {
+      List<Rule> manualRules = result.getHits();
+      json.name("manual_rules").beginArray();
+      for (Rule manualRule : manualRules) {
+        json.beginObject()
+          .prop("key", manualRule.key().toString())
+          .prop("name", manualRule.name())
+        .endObject();
+      }
+      json.endArray();
+    }
   }
 
   private void appendExtensions(JsonWriter json, ComponentDto component, UserSession userSession) {
@@ -310,7 +336,6 @@ public class ComponentAppAction implements RequestHandler {
     }
     return measuresByMetricKey;
   }
-
 
   @CheckForNull
   private Date periodDate(@Nullable final Integer periodIndex, List<Period> periodList) {

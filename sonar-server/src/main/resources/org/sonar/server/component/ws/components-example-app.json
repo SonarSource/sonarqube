@@ -8,6 +8,7 @@
   "fav": true,
   "canMarkAsFavourite": true,
   "canBulkChange": false,
+  "canCreateManualIssue": false,
   "periods": [
     [
       1,
@@ -50,5 +51,8 @@
   ],
   "tabs": [
     "scn", "coverage", "duplications"
+  ],
+  "manual_rules": [
+    {"key": "manual:API", "name": "API"}
   ]
 }

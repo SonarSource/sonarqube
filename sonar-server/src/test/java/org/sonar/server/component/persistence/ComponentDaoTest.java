@@ -22,11 +22,15 @@ package org.sonar.server.component.persistence;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ComponentDaoTest extends AbstractDaoTestCase {
 
@@ -34,10 +38,13 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
 
   ComponentDao dao;
 
+  System2 system2;
+
   @Before
   public void createDao() throws Exception {
     session = getMyBatis().openSession(false);
-    dao = new ComponentDao();
+    system2 = mock(System2.class);
+    dao = new ComponentDao(system2);
   }
 
   @After
@@ -95,5 +102,50 @@ public class ComponentDaoTest extends AbstractDaoTestCase {
 
     assertThat(dao.existsById(4L, session)).isTrue();
     assertThat(dao.existsById(111L, session)).isFalse();
+  }
+
+  @Test
+  public void insert() {
+    when(system2.now()).thenReturn(DateUtils.parseDate("2014-06-18").getTime());
+    setupData("empty");
+
+    ComponentDto componentDto = new ComponentDto()
+      .setId(1L)
+      .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
+      .setName("RequestContext.java")
+      .setLongName("org.struts.RequestContext")
+      .setQualifier("FIL")
+      .setScope("FIL")
+      .setLanguage("java")
+      .setPath("src/org/struts/RequestContext.java")
+      .setSubProjectId(3L)
+      .setEnabled(true);
+
+    dao.insert(session, componentDto);
+    session.commit();
+
+    assertThat(componentDto.getId()).isNotNull();
+    checkTables("insert", "projects");
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void update() {
+    dao.update(session, new ComponentDto()
+      .setId(1L)
+      .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
+      );
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void delete() {
+    dao.delete(session, new ComponentDto()
+      .setId(1L)
+      .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
+      );
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void synchronize_after() {
+    dao.synchronizeAfter(session, 1L);
   }
 }

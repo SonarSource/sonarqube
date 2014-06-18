@@ -32,6 +32,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
@@ -54,6 +55,11 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.RulesAggregation;
 import org.sonar.server.measure.persistence.MeasureDao;
+import org.sonar.server.rule.Rule;
+import org.sonar.server.rule.RuleService;
+import org.sonar.server.rule.index.RuleQuery;
+import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.Result;
 import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.MockUserSession;
@@ -100,6 +106,9 @@ public class ComponentAppActionTest {
   Views views;
 
   @Mock
+  RuleService ruleService;
+
+  @Mock
   Periods periods;
 
   @Mock
@@ -128,7 +137,7 @@ public class ComponentAppActionTest {
     when(issueService.findRulesByComponent(anyString(), any(Date.class), eq(session))).thenReturn(mock(RulesAggregation.class));
     when(measureDao.findByComponentKeyAndMetricKeys(anyString(), anyListOf(String.class), eq(session))).thenReturn(measures);
 
-    tester = new WsTester(new ComponentsWs(new ComponentAppAction(dbClient, issueService, views, periods, durations, i18n)));
+    tester = new WsTester(new ComponentsWs(new ComponentAppAction(dbClient, issueService, views, ruleService, periods, durations, i18n)));
   }
 
   @Test
@@ -407,6 +416,22 @@ public class ComponentAppActionTest {
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
     request.execute().assertJson(getClass(), "app_with_extension_having_permission.json");
+  }
+
+  @Test
+  public void app_with_manual_rules() throws Exception {
+    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
+    addComponent();
+
+    Result<Rule> result = mock(Result.class);
+    Rule rule = mock(Rule.class);
+    when(rule.key()).thenReturn(RuleKey.of("manual", "API"));
+    when(rule.name()).thenReturn("API");
+    when(result.getHits()).thenReturn(newArrayList(rule));
+    when(ruleService.search(any(RuleQuery.class), any(QueryOptions.class))).thenReturn(result);
+
+    WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
+    request.execute().assertJson(getClass(), "app_with_manual_rules.json");
   }
 
   private void addComponent() {

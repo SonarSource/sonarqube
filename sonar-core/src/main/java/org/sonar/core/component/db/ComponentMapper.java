@@ -31,4 +31,6 @@ public interface ComponentMapper {
   ComponentDto selectById(long id);
 
   long countById(long id);
+
+  void insert(ComponentDto rule);
 }

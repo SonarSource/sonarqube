@@ -35,5 +35,14 @@
     WHERE p.enabled=${_true} AND p.id=#{id}
   </select>
 
+  <sql id="insertColumns">
+    (kee, name, long_name, qualifier, scope, language, root_id, path, created_at)
+  </sql>
+
+  <insert id="insert" parameterType="Component" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    insert into projects <include refid="insertColumns"/>
+    values (#{kee}, #{name}, #{longName}, #{qualifier}, #{scope}, #{language}, #{subProjectId}, #{path}, #{createdAt})
+  </insert>
+
 </mapper>
 
