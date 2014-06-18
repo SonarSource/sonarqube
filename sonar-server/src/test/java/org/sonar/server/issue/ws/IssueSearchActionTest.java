@@ -237,7 +237,8 @@ public class IssueSearchActionTest {
   public void issues_with_extra_fields() throws Exception {
     Issue issue = createIssue()
       .setActionPlanKey("AP-ABCD")
-      .setAssignee("john");
+      .setAssignee("john")
+      .setReporter("henry");
     issues.add(issue);
 
     MockUserSession.set().setLogin("john");
@@ -246,10 +247,11 @@ public class IssueSearchActionTest {
     result.addActionPlans(newArrayList((ActionPlan) new DefaultActionPlan().setKey("AP-ABCD").setName("1.0")));
 
     result.addUsers(Lists.<User>newArrayList(
-      new DefaultUser().setName("John").setLogin("john")
+      new DefaultUser().setName("John").setLogin("john"),
+      new DefaultUser().setName("Henry").setLogin("henry")
     ));
 
-    WsTester.TestRequest request = tester.newGetRequest("api/issues", "search").setParam("extra_fields", "actions,transitions,assigneeName,actionPlanName");
+    WsTester.TestRequest request = tester.newGetRequest("api/issues", "search").setParam("extra_fields", "actions,transitions,assigneeName,reporterName,actionPlanName");
     request.execute().assertJson(getClass(), "issues_with_extra_fields.json");
   }
 

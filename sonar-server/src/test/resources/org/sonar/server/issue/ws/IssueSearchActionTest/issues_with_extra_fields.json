@@ -16,6 +16,8 @@
       "creationDate": "2014-01-22T19:10:03+0100",
       "assignee": "john",
       "assigneeName": "John",
+      "reporter": "henry",
+      "reporterName": "Henry",
       "actionPlan": "AP-ABCD",
       "actionPlanName": "1.0",
       "actions": [
@@ -30,6 +32,11 @@
   "projects": [],
   "rules": [],
   "users": [
+    {
+      "login": "henry",
+      "name": "Henry",
+      "active": false
+    },
     {
       "login": "john",
       "name": "John",

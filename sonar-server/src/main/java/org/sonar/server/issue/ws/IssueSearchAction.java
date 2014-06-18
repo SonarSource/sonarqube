@@ -60,6 +60,12 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class IssueSearchAction implements RequestHandler {
 
+  private static final String ACTIONS_EXTRA_FIELD = "actions";
+  private static final String TRANSITIONS_EXTRA_FIELD = "transitions";
+  private static final String ASSIGNEE_NAME_EXTRA_FIELD = "assigneeName";
+  private static final String REPORTER_NAME_EXTRA_FIELD = "reporterName";
+  private static final String ACTION_PLAN_NAME_EXTRA_FIELD = "actionPlanName";
+
   private static final String EXTRA_FIELDS_PARAM = "extra_fields";
 
   private final IssueFinder issueFinder;
@@ -135,7 +141,7 @@ public class IssueSearchAction implements RequestHandler {
       .setExampleValue("java,js");
     action.createParam(EXTRA_FIELDS_PARAM)
       .setDescription("Add some extra fields on each issue. Available since 4.4")
-      .setPossibleValues("actions", "transitions", "assigneeName", "actionPlanName");
+      .setPossibleValues(ACTIONS_EXTRA_FIELD, TRANSITIONS_EXTRA_FIELD, ASSIGNEE_NAME_EXTRA_FIELD, REPORTER_NAME_EXTRA_FIELD, ACTION_PLAN_NAME_EXTRA_FIELD);
     action.createParam(IssueFilterParameters.CREATED_AT)
       .setDescription("To retrieve issues created at a given date. Format: date or datetime ISO formats")
       .setExampleValue("2013-05-01 (or 2013-05-01T13:00:00+0100)");
@@ -275,21 +281,30 @@ public class IssueSearchAction implements RequestHandler {
 
   private void writeIssueExtraFields(IssueQueryResult result, Issue issue, @Nullable List<String> extraFields, JsonWriter json) {
     if (extraFields != null && UserSession.get().isLoggedIn()) {
-      if (extraFields.contains("actions")) {
+      if (extraFields.contains(ACTIONS_EXTRA_FIELD)) {
         actionsWriter.writeActions(issue, json);
       }
-      if (extraFields.contains("transitions")) {
+
+      if (extraFields.contains(TRANSITIONS_EXTRA_FIELD)) {
         actionsWriter.writeTransitions(issue, json);
       }
+
       String assignee = issue.assignee();
-      if (extraFields.contains("assigneeName") && assignee != null) {
+      if (extraFields.contains(ASSIGNEE_NAME_EXTRA_FIELD) && assignee != null) {
         User user = result.user(assignee);
-        json.prop("assigneeName", user != null ? user.name() : null);
+        json.prop(ASSIGNEE_NAME_EXTRA_FIELD, user != null ? user.name() : null);
       }
+
+      String reporter = issue.reporter();
+      if (extraFields.contains(REPORTER_NAME_EXTRA_FIELD) && reporter != null) {
+        User user = result.user(reporter);
+        json.prop(REPORTER_NAME_EXTRA_FIELD, user != null ? user.name() : null);
+      }
+
       String actionPlanKey = issue.actionPlanKey();
-      if (extraFields.contains("actionPlanName") && actionPlanKey != null) {
+      if (extraFields.contains(ACTION_PLAN_NAME_EXTRA_FIELD) && actionPlanKey != null) {
         ActionPlan actionPlan = result.actionPlan(issue);
-        json.prop("actionPlanName", actionPlan != null ? actionPlan.name() : null);
+        json.prop(ACTION_PLAN_NAME_EXTRA_FIELD, actionPlan != null ? actionPlan.name() : null);
       }
     }
   }
