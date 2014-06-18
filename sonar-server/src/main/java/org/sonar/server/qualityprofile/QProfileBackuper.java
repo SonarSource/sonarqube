@@ -30,9 +30,7 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.text.XmlWriter;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.search.IndexClient;
@@ -40,6 +38,7 @@ import org.sonar.server.search.IndexClient;
 import javax.annotation.Nullable;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+
 import java.io.Reader;
 import java.io.Writer;
 import java.util.List;
@@ -57,19 +56,16 @@ public class QProfileBackuper implements ServerComponent {
     this.index = index;
   }
 
-  void backup(QualityProfileKey key, Writer writer) {
+  void backup(String key, Writer writer) {
+    QualityProfileDto profile;
     DbSession dbSession = db.openSession(false);
     try {
-      QualityProfileDto profile = db.qualityProfileDao().getByKey(dbSession, key);
-      if (profile == null) {
-        throw new IllegalArgumentException("Quality profile does not exist: " + key);
-      }
-      List<ActiveRule> activeRules = index.get(ActiveRuleIndex.class).findByProfile(key);
-      writeXml(writer, profile, activeRules);
-
+      profile = db.qualityProfileDao().getNonNullByKey(dbSession, key);
     } finally {
       dbSession.close();
     }
+    List<ActiveRule> activeRules = index.get(ActiveRuleIndex.class).findByProfile(profile.getKey());
+    writeXml(writer, profile, activeRules);
   }
 
   private void writeXml(Writer writer, QualityProfileDto profile, List<ActiveRule> activeRules) {
@@ -99,15 +95,13 @@ public class QProfileBackuper implements ServerComponent {
 
   /**
    * @param reader     the XML backup
-   * @param profileKey the target profile. If <code>null</code>, then use the
-   *                   key declared in the backup
+   * @param toProfileName the target profile. If <code>null</code>, then use the
+   *                   lang and name declared in the backup
    */
-  BulkChangeResult restore(Reader reader, @Nullable QualityProfileKey profileKey) {
+  BulkChangeResult restore(Reader reader, @Nullable QProfileName toProfileName) {
     try {
       String profileLang = null, profileName = null;
       List<RuleActivation> ruleActivations = Lists.newArrayList();
-      QualityProfileKey targetKey;
-
       SMInputFactory inputFactory = initStax();
       SMHierarchicCursor rootC = inputFactory.rootElementCursor(reader);
       rootC.advance(); // <profile>
@@ -124,20 +118,19 @@ public class QProfileBackuper implements ServerComponent {
           profileLang = StringUtils.trim(cursor.collectDescendantText(false));
 
         } else if (StringUtils.equals("rules", nodeName)) {
-          targetKey = (QualityProfileKey) ObjectUtils.defaultIfNull(profileKey, QualityProfileKey.of(profileName, profileLang));
           SMInputCursor rulesCursor = cursor.childElementCursor("rule");
-          ruleActivations = parseRuleActivations(rulesCursor, targetKey);
+          ruleActivations = parseRuleActivations(rulesCursor);
         }
       }
 
-      targetKey = (QualityProfileKey) ObjectUtils.defaultIfNull(profileKey, QualityProfileKey.of(profileName, profileLang));
-      return reset.reset(targetKey, ruleActivations);
+      QProfileName target = (QProfileName) ObjectUtils.defaultIfNull(toProfileName, new QProfileName(profileLang, profileName));
+      return reset.reset(target, ruleActivations);
     } catch (XMLStreamException e) {
       throw new IllegalStateException("Fail to restore Quality profile backup", e);
     }
   }
 
-  private List<RuleActivation> parseRuleActivations(SMInputCursor rulesCursor, QualityProfileKey profileKey) throws XMLStreamException {
+  private List<RuleActivation> parseRuleActivations(SMInputCursor rulesCursor) throws XMLStreamException {
     List<RuleActivation> activations = Lists.newArrayList();
     while (rulesCursor.getNext() != null) {
       SMInputCursor ruleCursor = rulesCursor.childElementCursor();
@@ -160,13 +153,12 @@ public class QProfileBackuper implements ServerComponent {
         }
       }
       RuleKey ruleKey = RuleKey.of(repositoryKey, key);
-      RuleActivation activation = new RuleActivation(ActiveRuleKey.of(profileKey, ruleKey));
+      RuleActivation activation = new RuleActivation(ruleKey);
       activation.setSeverity(severity);
       activation.setParameters(parameters);
       activations.add(activation);
     }
     return activations;
-    //reset.reset(profileKey, activations);
   }
 
   private void readParameters(SMInputCursor propsCursor, Map<String, String> parameters) throws XMLStreamException {

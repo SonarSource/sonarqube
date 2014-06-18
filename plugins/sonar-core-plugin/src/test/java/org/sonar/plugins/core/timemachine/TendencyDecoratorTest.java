@@ -52,7 +52,7 @@ public class TendencyDecoratorTest {
     when(project.getAnalysisDate()).thenReturn(date("2009-12-25"));
 
     MetricFinder metricFinder = mock(MetricFinder.class);
-    when(metricFinder.findAll()).thenReturn(Arrays.<Metric>asList(CoreMetrics.LINES, CoreMetrics.COVERAGE, CoreMetrics.COVERAGE_LINE_HITS_DATA, CoreMetrics.PROFILE));
+    when(metricFinder.findAll()).thenReturn(Arrays.<Metric>asList(CoreMetrics.LINES, CoreMetrics.COVERAGE, CoreMetrics.COVERAGE_LINE_HITS_DATA));
 
     TendencyDecorator decorator = new TendencyDecorator(null, metricFinder);
 
@@ -75,7 +75,7 @@ public class TendencyDecoratorTest {
       new Object[] {date("2009-12-02"), CoreMetrics.LINES, 1300.0},
       new Object[] {date("2009-12-02"), CoreMetrics.COVERAGE, 79.6},
       new Object[] {date("2009-12-15"), CoreMetrics.LINES, 1150.0}
-      ));
+    ));
 
     DecoratorContext context = mock(DecoratorContext.class);
     when(context.getMeasure(CoreMetrics.LINES)).thenReturn(new Measure(CoreMetrics.LINES, 1400.0));
@@ -97,7 +97,7 @@ public class TendencyDecoratorTest {
     when(timeMachine.getMeasuresFields(query)).thenReturn(Arrays.<Object[]>asList(
       new Object[] {date("2009-12-01"), CoreMetrics.LINES, 1200.0},
       new Object[] {date("2009-12-02"), CoreMetrics.LINES, 1300.0}
-      ));
+    ));
 
     DecoratorContext context = mock(DecoratorContext.class);
     TendencyDecorator decorator = new TendencyDecorator(timeMachine, query, analyser);

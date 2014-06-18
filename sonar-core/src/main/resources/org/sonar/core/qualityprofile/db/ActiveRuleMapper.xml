@@ -11,8 +11,7 @@
     a.inheritance as "inheritance",
     r.plugin_rule_key as "rulefield",
     r.plugin_name as "repository",
-    qp.name as profile,
-    qp.language as language
+    qp.kee as "profileKey"
   </sql>
 
   <sql id="activeRuleKeyJoin">
@@ -32,7 +31,7 @@
 
   <sql id="activeRuleJoin">
     LEFT JOIN rules_profiles qp ON qp.id=a.profile_id
-    LEFT JOIN rules_profiles profile_parent ON profile_parent.name=qp.parent_name and profile_parent.language=qp.language
+    LEFT JOIN rules_profiles profile_parent ON profile_parent.kee=qp.parent_kee
     LEFT JOIN active_rules active_rule_parent ON active_rule_parent.profile_id=profile_parent.id AND a.rule_id=active_rule_parent.rule_id
   </sql>
 
@@ -40,8 +39,7 @@
     SELECT
     r.plugin_rule_key as "rulefield",
     r.plugin_name as "repository",
-    qp.name as "profile",
-    qp.language as "language"
+    qp.kee as "profileKey"
     FROM active_rules a
     <include refid="activeRuleKeyJoin"/>
     <where>
@@ -63,7 +61,7 @@
     WHERE id=#{id}
   </update>
 
-  <update id="delete" parameterType="Integer">
+  <update id="delete" parameterType="int" lang="raw">
     DELETE FROM active_rules WHERE id=#{id}
   </update>
 
@@ -79,13 +77,11 @@
     </where>
   </select>
 
-  <select id="selectById" parameterType="Integer" resultType="ActiveRule">
+  <select id="selectById" parameterType="int" resultType="ActiveRule">
     SELECT <include refid="activeRuleColumns"/>
     FROM active_rules a
     <include refid="activeRuleJoin"/>
-    <where>
-      AND a.id=#{id}
-    </where>
+    WHERE a.id=#{id}
   </select>
 
 
@@ -94,20 +90,17 @@
     <include refid="activeRuleKeyColumns"/>
     FROM active_rules a
     <include refid="activeRuleKeyJoin"/>
-    <where>
-      AND qp.name = #{profile}
-      AND qp.language = #{language}
+    WHERE
+      qp.kee = #{profileKey}
       AND r.plugin_rule_key = #{rule}
       AND r.plugin_name = #{repository}
-    </where>
   </select>
 
-  <select id="selectByProfileKey" parameterType="map" resultType="ActiveRule">
+  <select id="selectByProfileKey" parameterType="string" resultType="ActiveRule">
     SELECT <include refid="activeRuleKeyColumns"/>
     FROM active_rules a
     <include refid="activeRuleKeyJoin"/>
-    where qp.name = #{name}
-    AND qp.language = #{lang}
+    where qp.kee=#{id}
   </select>
 
   <select id="selectByRuleId" parameterType="Integer" resultType="ActiveRule">
@@ -116,15 +109,6 @@
     FROM active_rules a
     <include refid="activeRuleKeyJoin"/>
     WHERE a.rule_id=#{ruleId}
-  </select>
-
-  <select id="selectByProfileId" parameterType="Integer" resultType="ActiveRule">
-    SELECT <include refid="activeRuleColumns"/>
-    FROM active_rules a
-    <include refid="activeRuleJoin"/>
-    <where>
-      AND a.profile_id=#{profileId}
-    </where>
   </select>
 
   <select id="selectAll" parameterType="map" resultType="ActiveRule">
@@ -195,12 +179,13 @@
     </where>
   </select>
 
-  <select id="selectParamsByProfileId" parameterType="int" resultType="ActiveRuleParam">
+  <select id="selectParamsByProfileKey" parameterType="string" resultType="ActiveRuleParam">
     select
     <include refid="activeRuleParamColumns"/>
     from active_rule_parameters p
     inner join active_rules ar on ar.id=p.active_rule_id
-    where ar.profile_id=#{profileId}
+    inner join rules_profiles rp on rp.id=ar.profile_id
+    where rp.kee=#{id}
   </select>
 
   <select id="selectAllParams" resultType="ActiveRuleParam">

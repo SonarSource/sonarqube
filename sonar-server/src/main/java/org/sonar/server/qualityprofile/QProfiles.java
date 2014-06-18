@@ -28,7 +28,6 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
 import javax.annotation.CheckForNull;
-
 import java.util.List;
 import java.util.Map;
 
@@ -39,14 +38,12 @@ public class QProfiles implements ServerComponent {
   private final QProfileProjectOperations projectOperations;
   private final QProfileProjectLookup projectLookup;
   private final QProfileLookup profileLookup;
-  private final QProfileOperations operations;
 
   public QProfiles(QProfileProjectOperations projectOperations, QProfileProjectLookup projectLookup,
-                   QProfileLookup profileLookup, QProfileOperations operations) {
+                   QProfileLookup profileLookup) {
     this.projectOperations = projectOperations;
     this.projectLookup = projectLookup;
     this.profileLookup = profileLookup;
-    this.operations = operations;
   }
 
   public List<QProfile> allProfiles() {
@@ -67,22 +64,6 @@ public class QProfiles implements ServerComponent {
     checkProfileNameParam(name);
     Validation.checkMandatoryParameter(language, LANGUAGE_PARAM);
     return profileLookup.profile(name, language);
-  }
-
-  @CheckForNull
-  public QProfile defaultProfile(String language) {
-    return profileLookup.defaultProfile(language);
-  }
-
-  public QProfileResult newProfile(String name, String language, Map<String, String> xmlProfilesByPlugin) {
-    checkProfileNameParam(name);
-    Validation.checkMandatoryParameter(language, LANGUAGE_PARAM);
-    return operations.newProfile(name, language, xmlProfilesByPlugin, UserSession.get());
-  }
-
-  public void renameProfile(int profileId, String newName) {
-    checkProfileNameParam(newName);
-    operations.renameProfile(profileId, newName, UserSession.get());
   }
 
   @CheckForNull
@@ -132,6 +113,7 @@ public class QProfiles implements ServerComponent {
   public void removeAllProjects(int profileId) {
     projectOperations.removeAllProjects(profileId, UserSession.get());
   }
+
 
   private void checkProfileNameParam(String name) {
     if (Strings.isNullOrEmpty(name)) {

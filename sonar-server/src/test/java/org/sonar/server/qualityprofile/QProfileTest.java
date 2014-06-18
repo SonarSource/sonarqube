@@ -28,20 +28,18 @@ public class QProfileTest {
 
   @Test
   public void test_getters_and_setters() {
-    QProfile profile = new QProfile().setId(1).setName("Default").setLanguage("java").setParent("Parent").setUsed(true).setVersion(1);
+    QProfile profile = new QProfile().setId(1).setName("Default").setLanguage("java").setParent("Parent");
 
     assertThat(profile.id()).isEqualTo(1);
     assertThat(profile.name()).isEqualTo("Default");
     assertThat(profile.language()).isEqualTo("java");
     assertThat(profile.parent()).isEqualTo("Parent");
-    assertThat(profile.used()).isTrue();
-    assertThat(profile.version()).isEqualTo(1);
   }
 
   @Test
   public void to_string() throws Exception {
-    assertThat(new QProfile().setId(1).setName("Default").setLanguage("java").setParent("Parent").setUsed(true).setVersion(1).toString())
-      .contains("[id=1,name=Default,language=java,parent=Parent,version=1,used=true]");
+    assertThat(new QProfile().setId(1).setName("Default").setLanguage("java").setParent("Parent").toString())
+      .contains("[id=1,key=<null>,name=Default,language=java,parent=Parent]");
   }
 
   @Test

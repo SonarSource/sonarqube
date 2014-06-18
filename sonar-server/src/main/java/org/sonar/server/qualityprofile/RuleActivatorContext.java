@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
+import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
@@ -31,6 +32,7 @@ import org.sonar.server.exceptions.BadRequestException;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Map;
 
@@ -38,9 +40,16 @@ class RuleActivatorContext {
 
   private RuleDto rule;
   private final Map<String, RuleParamDto> ruleParams = Maps.newHashMap();
-  private QualityProfileDto profile, parentProfile;
+  private QualityProfileDto profile;
   private ActiveRuleDto activeRule, parentActiveRule;
   private final Map<String, ActiveRuleParamDto> activeRuleParams = Maps.newHashMap(), parentActiveRuleParams = Maps.newHashMap();
+
+  RuleActivatorContext() {
+  }
+
+  ActiveRuleKey activeRuleKey() {
+    return ActiveRuleKey.of(profile.getKee(), rule.getKey());
+  }
 
   RuleDto rule() {
     return rule;
@@ -77,16 +86,6 @@ class RuleActivatorContext {
   }
 
   @CheckForNull
-  ActiveRuleDto parentActiveRule() {
-    return parentActiveRule;
-  }
-
-  RuleActivatorContext setParentProfile(@Nullable QualityProfileDto p) {
-    this.parentProfile = p;
-    return this;
-  }
-
-  @CheckForNull
   ActiveRuleDto activeRule() {
     return activeRule;
   }
@@ -94,6 +93,11 @@ class RuleActivatorContext {
   RuleActivatorContext setActiveRule(@Nullable ActiveRuleDto a) {
     this.activeRule = a;
     return this;
+  }
+
+  @CheckForNull
+  ActiveRuleDto parentActiveRule() {
+    return parentActiveRule;
   }
 
   RuleActivatorContext setParentActiveRule(@Nullable ActiveRuleDto a) {
@@ -120,11 +124,6 @@ class RuleActivatorContext {
       params.put(param.getKey(), param.getValue().getValue());
     }
     return params;
-  }
-
-  @CheckForNull
-  Collection<ActiveRuleParamDto> activeRuleParams() {
-    return activeRuleParams.values();
   }
 
   RuleActivatorContext setActiveRuleParams(@Nullable Collection<ActiveRuleParamDto> a) {
@@ -181,10 +180,10 @@ class RuleActivatorContext {
   }
 
   boolean isSame(ActiveRuleChange change) {
-    if (change.getInheritance()!=null && !change.getInheritance().name().equals(activeRule.getInheritance())) {
+    if (change.getInheritance() != null && !change.getInheritance().name().equals(activeRule.getInheritance())) {
       return false;
     }
-    if (change.getSeverity()!=null && !change.getSeverity().equals(activeRule.getSeverityString())) {
+    if (change.getSeverity() != null && !change.getSeverity().equals(activeRule.getSeverityString())) {
       return false;
     }
     for (Map.Entry<String, String> changeParam : change.getParameters().entrySet()) {

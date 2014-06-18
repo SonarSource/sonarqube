@@ -32,15 +32,18 @@ import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class QProfileDecoratorTest {
+
+  static final String JAVA_JSON = "{\"key\":\"J1\",\"language\":\"java\",\"name\":\"Java One\"}";
+  static final String JAVA2_JSON = "{\"key\":\"J2\",\"language\":\"java\",\"name\":\"Java Two\"}";
+  static final String PHP_JSON = "{\"key\":\"P1\",\"language\":\"php\",\"name\":\"Php One\"}";
 
   Project project = mock(Project.class);
   Project moduleA = mock(Project.class);
   Project moduleB = mock(Project.class);
+  Project moduleC = mock(Project.class);
   DecoratorContext decoratorContext = mock(DecoratorContext.class);
 
   @Test
@@ -49,15 +52,16 @@ public class QProfileDecoratorTest {
     when(project.getModules()).thenReturn(Collections.<Project>emptyList());
     assertThat(decorator.shouldExecuteOnProject(project)).isFalse();
 
-    when(project.getModules()).thenReturn(Arrays.asList(moduleA, moduleB));
+    when(project.getModules()).thenReturn(Arrays.asList(moduleA, moduleB, moduleC));
     assertThat(decorator.shouldExecuteOnProject(project)).isTrue();
   }
 
   @Test
   public void aggregate() throws Exception {
-    Measure measureModuleA = new Measure(CoreMetrics.QUALITY_PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"}]");
-    Measure measureModuleB = new Measure(CoreMetrics.QUALITY_PROFILES, "[{\"id\":3,\"name\":\"Php One\",\"version\":30,\"language\":\"php\"}]");
-    when(decoratorContext.getChildrenMeasures(CoreMetrics.QUALITY_PROFILES)).thenReturn(Arrays.asList(measureModuleA, measureModuleB));
+    Measure measureModuleA = new Measure(CoreMetrics.QUALITY_PROFILES, "[" + JAVA_JSON + "]");
+    Measure measureModuleB = new Measure(CoreMetrics.QUALITY_PROFILES, "[" + JAVA_JSON + "]");
+    Measure measureModuleC = new Measure(CoreMetrics.QUALITY_PROFILES, "[" + PHP_JSON + "]");
+    when(decoratorContext.getChildrenMeasures(CoreMetrics.QUALITY_PROFILES)).thenReturn(Arrays.asList(measureModuleA, measureModuleB, measureModuleC));
 
     when(project.getScope()).thenReturn(Scopes.PROJECT);
 
@@ -65,14 +69,13 @@ public class QProfileDecoratorTest {
     decorator.decorate(project, decoratorContext);
 
     verify(decoratorContext).saveMeasure(
-      argThat(new IsMeasure(CoreMetrics.QUALITY_PROFILES,
-        "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"},{\"id\":3,\"name\":\"Php One\",\"version\":30,\"language\":\"php\"}]")));
+      argThat(new IsMeasure(CoreMetrics.QUALITY_PROFILES, "[" + JAVA_JSON + "," + PHP_JSON + "]")));
   }
 
   @Test
-  public void aggregate_several_profile_same_language() throws Exception {
-    Measure measureModuleA = new Measure(CoreMetrics.QUALITY_PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"}]");
-    Measure measureModuleB = new Measure(CoreMetrics.QUALITY_PROFILES, "[{\"id\":3,\"name\":\"Java Three\",\"version\":30,\"language\":\"java\"}]");
+  public void aggregate_different_profiles_with_same_language() throws Exception {
+    Measure measureModuleA = new Measure(CoreMetrics.QUALITY_PROFILES, "[" + JAVA_JSON + "]");
+    Measure measureModuleB = new Measure(CoreMetrics.QUALITY_PROFILES, "[" + JAVA2_JSON + "]");
     when(decoratorContext.getChildrenMeasures(CoreMetrics.QUALITY_PROFILES)).thenReturn(Arrays.asList(measureModuleA, measureModuleB));
 
     when(project.getScope()).thenReturn(Scopes.PROJECT);
@@ -81,23 +84,6 @@ public class QProfileDecoratorTest {
     decorator.decorate(project, decoratorContext);
 
     verify(decoratorContext).saveMeasure(
-      argThat(new IsMeasure(CoreMetrics.QUALITY_PROFILES,
-        "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"},{\"id\":3,\"name\":\"Java Three\",\"version\":30,\"language\":\"java\"}]")));
-  }
-
-  @Test
-  public void aggregate_several_profile_same_id() throws Exception {
-    Measure measureModuleA = new Measure(CoreMetrics.QUALITY_PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"}]");
-    Measure measureModuleB = new Measure(CoreMetrics.QUALITY_PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":30,\"language\":\"java\"}]");
-    when(decoratorContext.getChildrenMeasures(CoreMetrics.QUALITY_PROFILES)).thenReturn(Arrays.asList(measureModuleA, measureModuleB));
-
-    when(project.getScope()).thenReturn(Scopes.PROJECT);
-
-    QProfileDecorator decorator = new QProfileDecorator();
-    decorator.decorate(project, decoratorContext);
-
-    verify(decoratorContext).saveMeasure(
-      argThat(new IsMeasure(CoreMetrics.QUALITY_PROFILES,
-        "[{\"id\":2,\"name\":\"Java Two\",\"version\":30,\"language\":\"java\"}]")));
+      argThat(new IsMeasure(CoreMetrics.QUALITY_PROFILES, "[" + JAVA_JSON + "," + JAVA2_JSON + "]")));
   }
 }

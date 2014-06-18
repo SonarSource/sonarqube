@@ -1,5 +1,7 @@
-{"total": 1, "p": 1, "ps": 10, "rules": [
-  {
-    "key": "java:S001"
-  }
-]}
+{
+  "total": 1, "p": 1, "ps": 10,
+  "rules": [
+    {
+      "key": "xoo:x1"
+    }
+  ]}

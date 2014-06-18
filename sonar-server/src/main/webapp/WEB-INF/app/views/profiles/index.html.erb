@@ -16,7 +16,7 @@
 
 <%
    Api::Utils.insensitive_sort(languages){|l| l.getName()}.each do |language|
-      default_profile = Internal.quality_profiles.defaultProfile(language.getKey())
+      default_profile = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).getDefault(language.getKey())
 %>
   <div class="line-block">
     <% if profiles_administrator? %>
@@ -51,32 +51,31 @@
     </thead>
     <tbody>
     <% @profiles.select { |p| p.language == language.getKey() }.each do |profile| 
-       key = profile_key(profile)
        projects_count = projects_count(profile)
-       is_default_profile = !default_profile.nil? && (default_profile.name() == profile.name())
+       is_default_profile = default_profile && default_profile==profile.key()
     %>
-      <tr class="<%= cycle 'even', 'odd', :name => language.getKey() -%>" id="<%= u key %>">
+      <tr class="<%= cycle 'even', 'odd', :name => language.getKey() -%>" id="<%= u profile.key() %>">
         <td  width="40%">
-          <a href="<%= url_for :controller => 'profiles', :action => 'show', :id => profile.id() -%>"
-             id="rules-<%= language.getKey() -%>-<%= u(profile.name()) -%>"><%= h profile.name() %></a>
+          <a href="<%= url_for :controller => 'profiles', :action => 'show', :key => profile.key() -%>"
+             id="rules-<%= profile.key() -%>"><%= h profile.name() -%></a>
         </td>
 
         <td align="right" width="10%">
-          <span id="activated_rules_<%= u key -%>">
+          <span id="activated_rules_<%= u profile.key() -%>">
             <%= @active_rule_counts[profile.key()] || 0 -%>
           </span>
         </td>
 
         <td align="right" width="10%" nowrap>
           <% unless is_default_profile %>
-            <span id="projects_<%= u key -%>"><%= projects_count -%></span>
+            <span id="projects_<%= u profile.key() -%>"><%= projects_count -%></span>
           <% end %>
         </td>
 
         <td align="right" width="10%" nowrap>
           <% if !is_default_profile && profiles_administrator? %>
             <%= link_to_action message('set_as_default'), "#{ApplicationController.root_context}/profiles/set_as_default?id=#{profile.id()}",
-                               :id => "activate_#{key.parameterize}",
+                               :id => "activate_#{profile.key().parameterize}",
                                :class => 'link-action',
                                :confirm_title => message('set_as_default'),
                                :confirm_msg => message('quality_profiles.are_you_sure_want_x_profile_as_default', :params => [profile.name()]),
@@ -84,29 +83,30 @@
             -%>
           <% end %>
           <% if is_default_profile %>
-            <i class="icon-check" id='<%= "is_active_#{u key}" -%>'></i>
+            <i class="icon-check" id='<%= "is_active_#{u profile.key()}" -%>'></i>
           <% end %>
         </td>
 
         <td align="right" nowrap>
-          <form method="post" action="<%= ApplicationController.root_context -%>/profiles/backup/<%= profile.id() -%>" id="backup-<%= key.parameterize -%>-form">
-            <a href="#" class="link-action" name="button_backup" id="backup_<%= u key %>" onclick="$j('#backup-<%= key.parameterize -%>-form').submit();return false;"><%= message('backup_verb') -%></a>
+          <form method="post" action="<%= ApplicationController.root_context -%>/profiles/backup" id="backup-<%= profile.key() -%>-form">
+            <input type="hidden" name="key" value="<%= profile.key() -%>"/>
+            <a href="#" class="link-action" name="button_backup" id="backup_<%= u profile.key() -%>" onclick="$j('#backup-<%= profile.key() -%>-form').submit();return false;"><%= message('backup_verb') -%></a>
           </form>
         </td>
         <% if profiles_administrator? %>
           <td align="right">
-            <a id="rename-<%= key.parameterize -%>" href="<%= ApplicationController.root_context -%>/profiles/rename_form/<%= profile.id() -%>" class="link-action open-modal"><%= message('rename') -%></a>
+            <a id="rename-<%= profile.key().parameterize -%>" href="<%= ApplicationController.root_context -%>/profiles/rename_form/<%= profile.id() -%>" class="link-action open-modal"><%= message('rename') -%></a>
           </td>
 
           <td align="right">
-            <a id="copy-<%= key.parameterize -%>" href="<%= ApplicationController.root_context -%>/profiles/copy_form/<%= profile.id() -%>" class="link-action open-modal"><%= message('copy') -%></a>
+            <a id="copy-<%= profile.key().parameterize -%>" href="<%= ApplicationController.root_context -%>/profiles/copy_form/<%= profile.id() -%>" class="link-action open-modal"><%= message('copy') -%></a>
           </td>
 
           <td>
             <% if !is_default_profile %>
               <%= link_to_action message('delete'), "#{ApplicationController.root_context}/profiles/delete/#{profile.id()}",
                                  :class => 'link-action link-red',
-                                 :id => "delete_#{key.parameterize}",
+                                 :id => "delete_#{profile.key().parameterize}",
                                  :confirm_button => message('delete'),
                                  :confirm_title => 'quality_profiles.delete_confirm_title',
                                  :confirm_msg => 'quality_profiles.are_you_sure_want_delete_profile_x_and_descendants',

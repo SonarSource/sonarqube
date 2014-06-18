@@ -26,7 +26,6 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
@@ -41,19 +40,31 @@ public class RuleActivatorContextFactory implements ServerComponent {
     this.db = db;
   }
 
-  public RuleActivatorContext create(ActiveRuleKey key, DbSession session) {
+  RuleActivatorContext create(String profileKey, RuleKey ruleKey, DbSession session) {
     RuleActivatorContext context = new RuleActivatorContext();
+    QualityProfileDto profile = db.qualityProfileDao().getByKey(session, profileKey);
+    if (profile == null) {
+      throw new BadRequestException("Quality profile not found: " + profileKey);
+    }
+    context.setProfile(profile);
+    return create(profile, ruleKey, session, context);
+  }
 
-    RuleDto rule = initRule(key.ruleKey(), context, session);
+  RuleActivatorContext create(QProfileName profileName, RuleKey ruleKey, DbSession session) {
+    RuleActivatorContext context = new RuleActivatorContext();
+    QualityProfileDto profile = db.qualityProfileDao().getByNameAndLanguage(profileName.getName(), profileName.getLanguage(), session);
+    if (profile == null) {
+      throw new BadRequestException("Quality profile not found: " + profileName);
+    }
+    context.setProfile(profile);
+    return create(profile, ruleKey, session, context);
+  }
 
-    QualityProfileDto profile = initProfile(key, context, session, false);
-    initActiveRules(key, context, session, false);
-
-    if (profile.getParent() != null) {
-      ActiveRuleKey parentKey = ActiveRuleKey.of(
-        QualityProfileKey.of(profile.getParent(), profile.getLanguage()), rule.getKey());
-      initProfile(parentKey, context, session, true);
-      initActiveRules(parentKey, context, session, true);
+  private RuleActivatorContext create(QualityProfileDto profile, RuleKey ruleKey, DbSession session, RuleActivatorContext context) {
+    initRule(ruleKey, context, session);
+    initActiveRules(profile.getKey(), ruleKey, context, session, false);
+    if (profile.getParentKee() != null) {
+      initActiveRules(profile.getParentKee(), ruleKey, context, session, true);
     }
     return context;
   }
@@ -68,20 +79,8 @@ public class RuleActivatorContextFactory implements ServerComponent {
     return rule;
   }
 
-  private QualityProfileDto initProfile(ActiveRuleKey key, RuleActivatorContext context, DbSession session, boolean parent) {
-    QualityProfileDto profile = db.qualityProfileDao().getByKey(session, key.qProfile());
-    if (profile == null) {
-      throw new BadRequestException("Quality profile not found: " + key.qProfile());
-    }
-    if (parent) {
-      context.setParentProfile(profile);
-    } else {
-      context.setProfile(profile);
-    }
-    return profile;
-  }
-
-  private void initActiveRules(ActiveRuleKey key, RuleActivatorContext context, DbSession session, boolean parent) {
+  private void initActiveRules(String profileKey, RuleKey ruleKey, RuleActivatorContext context, DbSession session, boolean parent) {
+    ActiveRuleKey key = ActiveRuleKey.of(profileKey, ruleKey);
     ActiveRuleDto activeRule = db.activeRuleDao().getNullableByKey(session, key);
     Collection<ActiveRuleParamDto> activeRuleParams = null;
     if (activeRule != null) {

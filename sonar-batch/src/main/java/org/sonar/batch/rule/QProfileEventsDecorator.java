@@ -26,6 +26,7 @@ import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.batch.TimeMachineQuery;
+import org.sonar.api.batch.rules.QProfile;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
@@ -34,9 +35,8 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
-import org.sonar.batch.rules.QProfileWithId;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
+
+import javax.annotation.CheckForNull;
 
 import java.util.List;
 import java.util.Map;
@@ -44,12 +44,10 @@ import java.util.Map;
 public class QProfileEventsDecorator implements Decorator {
 
   private final TimeMachine timeMachine;
-  private final QualityProfileDao qualityProfileDao;
   private final Languages languages;
 
-  public QProfileEventsDecorator(TimeMachine timeMachine, QualityProfileDao qualityProfileDao, Languages languages) {
+  public QProfileEventsDecorator(TimeMachine timeMachine, Languages languages) {
     this.timeMachine = timeMachine;
-    this.qualityProfileDao = qualityProfileDao;
     this.languages = languages;
   }
 
@@ -69,76 +67,51 @@ public class QProfileEventsDecorator implements Decorator {
     }
 
     // Load current profiles
-    Measure profilesMeasure = context.getMeasure(CoreMetrics.QUALITY_PROFILES);
-    UsedQProfiles currentProfiles = UsedQProfiles.fromJSON(profilesMeasure.getData());
+    Measure currentMeasure = context.getMeasure(CoreMetrics.QUALITY_PROFILES);
+    Map<String, QProfile> currentProfiles = UsedQProfiles.fromJson(currentMeasure.getData()).profilesByKey();
 
-    // Now load previous profiles
-    UsedQProfiles pastProfiles;
-    // First try with new metric
-    Measure pastProfilesMeasure = getPreviousMeasure(resource, CoreMetrics.QUALITY_PROFILES);
-    if (pastProfilesMeasure != null) {
-      pastProfiles = UsedQProfiles.fromJSON(pastProfilesMeasure.getData());
-    } else {
-      // Fallback to old metric
-      Measure pastProfileMeasure = getPreviousMeasure(resource, CoreMetrics.PROFILE);
-      if (pastProfileMeasure == null) {
-        // first analysis
-        return;
-      }
-      int pastProfileId = pastProfileMeasure.getIntValue();
-      String pastProfileName = pastProfileMeasure.getData();
-      QualityProfileDto pastProfile = qualityProfileDao.selectById(pastProfileId);
-      String pastProfileLanguage = "unknow";
-      if (pastProfile != null) {
-        pastProfileLanguage = pastProfile.getLanguage();
-      }
-      Measure pastProfileVersionMeasure = getPreviousMeasure(resource, CoreMetrics.PROFILE_VERSION);
-      final int pastProfileVersion;
-      // first analysis with versions
-      if (pastProfileVersionMeasure == null) {
-        pastProfileVersion = 1;
-      } else {
-        pastProfileVersion = pastProfileVersionMeasure.getIntValue();
-      }
-      pastProfiles = UsedQProfiles.fromProfiles(new QProfileWithId(pastProfileId, pastProfileName, pastProfileLanguage, pastProfileVersion));
+    // Load previous profiles
+    Map<String, QProfile> previousProfiles = Maps.newHashMap();
+    Measure previousMeasure = getPreviousMeasure(resource, CoreMetrics.QUALITY_PROFILES);
+    if (previousMeasure != null && previousMeasure.getData() != null) {
+      previousProfiles = UsedQProfiles.fromJson(previousMeasure.getData()).profilesByKey();
     }
 
-    // Now create appropriate events
-    Map<Integer, QProfileWithId> pastProfilesById = Maps.newHashMap(pastProfiles.profilesById());
-    for (QProfileWithId profile : currentProfiles.profilesById().values()) {
-      if (pastProfilesById.containsKey(profile.id())) {
-        QProfileWithId pastProfile = pastProfilesById.get(profile.id());
-        if (pastProfile.version() < profile.version()) {
-          // New version of the same QP
-          usedProfile(context, profile);
-        }
-        pastProfilesById.remove(profile.id());
+    // Detect new profiles or updated profiles
+    for (QProfile profile : currentProfiles.values()) {
+      QProfile previousProfile = previousProfiles.get(profile.key());
+      if (previousProfile != null) {
+        // TODO compare date
       } else {
         usedProfile(context, profile);
       }
     }
-    for (QProfileWithId profile : pastProfilesById.values()) {
-      // Following profiles are no more used
-      stopUsedProfile(context, profile);
+
+    // Detect profiles that are not used anymore
+    for (QProfile previousProfile : previousProfiles.values()) {
+      if (!currentProfiles.containsKey(previousProfile.key())) {
+        stopUsedProfile(context, previousProfile);
+      }
     }
   }
 
-  private void stopUsedProfile(DecoratorContext context, QProfileWithId profile) {
+  private void stopUsedProfile(DecoratorContext context, QProfile profile) {
     Language language = languages.get(profile.language());
     String languageName = language != null ? language.getName() : profile.language();
     context.createEvent("Stop using " + format(profile) + " (" + languageName + ")", format(profile) + " no more used for " + languageName, Event.CATEGORY_PROFILE, null);
   }
 
-  private void usedProfile(DecoratorContext context, QProfileWithId profile) {
+  private void usedProfile(DecoratorContext context, QProfile profile) {
     Language language = languages.get(profile.language());
     String languageName = language != null ? language.getName() : profile.language();
     context.createEvent("Use " + format(profile) + " (" + languageName + ")", format(profile) + " used for " + languageName, Event.CATEGORY_PROFILE, null);
   }
 
-  private String format(QProfileWithId profile) {
-    return profile.name() + " version " + profile.version();
+  private String format(QProfile profile) {
+    return profile.name();
   }
 
+  @CheckForNull
   private Measure getPreviousMeasure(Resource project, Metric metric) {
     TimeMachineQuery query = new TimeMachineQuery(project)
       .setOnlyLastAnalysis(true)

@@ -27,13 +27,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
@@ -41,6 +38,7 @@ import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.tester.ServerTester;
 
 import javax.xml.stream.XMLStreamException;
+
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.List;
@@ -49,9 +47,6 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
 public class QProfileBackuperMediumTest {
-
-  static final QualityProfileKey XOO_PROFILE_KEY = QualityProfileKey.of("P1", "xoo");
-  static final QualityProfileKey XOO_CHILD_PROFILE_KEY = QualityProfileKey.of("P2", "xoo");
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
@@ -66,10 +61,8 @@ public class QProfileBackuperMediumTest {
     dbSession = db.openSession(false);
 
     // create pre-defined rules
-    RuleDto xooRule1 = RuleTesting.newDto(RuleKey.of("xoo", "x1"))
-      .setSeverity("MINOR").setLanguage("xoo");
-    RuleDto xooRule2 = RuleTesting.newDto(RuleKey.of("xoo", "x2"))
-      .setSeverity("MAJOR").setLanguage("xoo");
+    RuleDto xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR").setLanguage("xoo");
+    RuleDto xooRule2 = RuleTesting.newXooX2().setSeverity("MAJOR").setLanguage("xoo");
     db.ruleDao().insert(dbSession, xooRule1, xooRule2);
     db.ruleDao().addRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
       .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
@@ -84,17 +77,17 @@ public class QProfileBackuperMediumTest {
 
   @Test
   public void backup() throws Exception {
-    // create profile with rule x1 activated
-    db.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor(XOO_PROFILE_KEY));
-    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, RuleKey.of("xoo", "x1")));
+    // create profile P1 with rule x1 activated
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
+    RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
     activation.setSeverity(Severity.BLOCKER);
     activation.setParameter("max", "7");
-    tester.get(RuleActivator.class).activate(dbSession, activation);
+    tester.get(RuleActivator.class).activate(dbSession, activation, QProfileTesting.XOO_P1_NAME);
     dbSession.commit();
     dbSession.clearCache();
 
     StringWriter output = new StringWriter();
-    tester.get(QProfileBackuper.class).backup(XOO_PROFILE_KEY, output);
+    tester.get(QProfileBackuper.class).backup(QProfileTesting.XOO_P1_KEY, output);
 
     XMLUnit.setIgnoreWhitespace(true);
     Diff diff = XMLUnit.compareXML(output.toString(),
@@ -106,20 +99,24 @@ public class QProfileBackuperMediumTest {
   @Test
   public void fail_to_backup_unknown_profile() throws Exception {
     try {
-      tester.get(QProfileBackuper.class).backup(QualityProfileKey.of("unknown", "xoo"), new StringWriter());
+      tester.get(QProfileBackuper.class).backup("unknown", new StringWriter());
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Quality profile does not exist: unknown:xoo");
+      assertThat(e).hasMessage("Quality profile not found: unknown");
     }
   }
 
   @Test
   public void restore_and_create_profile() throws Exception {
+    // Backup file declares profile P1 on xoo
     tester.get(QProfileBackuper.class).restore(new StringReader(
-        Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), Charsets.UTF_8)),
+      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), Charsets.UTF_8)),
       null);
 
-    List<ActiveRule> activeRules = tester.get(QProfileService.class).findActiveRulesByProfile(XOO_PROFILE_KEY);
+    QualityProfileDto profile = db.qualityProfileDao().getByNameAndLanguage("P1", "xoo");
+    assertThat(profile).isNotNull();
+
+    List<ActiveRule> activeRules = tester.get(QProfileService.class).findActiveRulesByProfile(profile.getKey());
     assertThat(activeRules).hasSize(1);
     assertThat(activeRules.get(0).severity()).isEqualTo("BLOCKER");
     assertThat(activeRules.get(0).inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
@@ -128,16 +125,16 @@ public class QProfileBackuperMediumTest {
 
   @Test
   public void restore_and_update_profile() throws Exception {
-    // create profile with rules x1 and x2 activated
-    db.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor(XOO_PROFILE_KEY));
-    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, RuleKey.of("xoo", "x1")));
+    // create profile P1 with rules x1 and x2 activated
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
+    RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
     activation.setSeverity(Severity.INFO);
     activation.setParameter("max", "10");
-    tester.get(RuleActivator.class).activate(dbSession, activation);
+    tester.get(RuleActivator.class).activate(dbSession, activation, QProfileTesting.XOO_P1_NAME);
 
-    activation = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, RuleKey.of("xoo", "x2")));
+    activation = new RuleActivation(RuleTesting.XOO_X2);
     activation.setSeverity(Severity.INFO);
-    tester.get(RuleActivator.class).activate(dbSession, activation);
+    tester.get(RuleActivator.class).activate(dbSession, activation, QProfileTesting.XOO_P1_NAME);
     dbSession.commit();
     dbSession.clearCache();
 
@@ -146,8 +143,7 @@ public class QProfileBackuperMediumTest {
     tester.get(QProfileBackuper.class).restore(new StringReader(
       Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), Charsets.UTF_8)), null);
 
-
-    List<ActiveRule> activeRules = tester.get(QProfileService.class).findActiveRulesByProfile(XOO_PROFILE_KEY);
+    List<ActiveRule> activeRules = tester.get(QProfileService.class).findActiveRulesByProfile(QProfileTesting.XOO_P1_KEY);
     assertThat(activeRules).hasSize(1);
     assertThat(activeRules.get(0).severity()).isEqualTo("BLOCKER");
     assertThat(activeRules.get(0).inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
@@ -158,15 +154,15 @@ public class QProfileBackuperMediumTest {
   public void restore_child_profile() throws Exception {
     // define two parent/child profiles
     db.qualityProfileDao().insert(dbSession,
-      QualityProfileDto.createFor(XOO_PROFILE_KEY),
-      QualityProfileDto.createFor(XOO_CHILD_PROFILE_KEY).setParent(XOO_PROFILE_KEY.name()));
+      QProfileTesting.newXooP1(),
+      QProfileTesting.newXooP2().setParentKee(QProfileTesting.XOO_P1_KEY));
     dbSession.commit();
 
     // rule x1 is activated on parent profile (so inherited by child profile)
-    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, RuleKey.of("xoo", "x1")));
+    RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
     activation.setSeverity(Severity.INFO);
     activation.setParameter("max", "10");
-    tester.get(RuleActivator.class).activate(dbSession, activation);
+    tester.get(RuleActivator.class).activate(dbSession, activation, QProfileTesting.XOO_P1_KEY);
     dbSession.commit();
     dbSession.clearCache();
 
@@ -175,14 +171,14 @@ public class QProfileBackuperMediumTest {
       Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore-child.xml"), Charsets.UTF_8)), null);
 
     // parent profile is unchanged
-    List<ActiveRule> activeRules = tester.get(QProfileService.class).findActiveRulesByProfile(XOO_PROFILE_KEY);
+    List<ActiveRule> activeRules = tester.get(QProfileService.class).findActiveRulesByProfile(QProfileTesting.XOO_P1_KEY);
     assertThat(activeRules).hasSize(1);
     assertThat(activeRules.get(0).severity()).isEqualTo("INFO");
     assertThat(activeRules.get(0).inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
     assertThat(activeRules.get(0).params().get("max")).isEqualTo("10");
 
     // child profile overrides parent
-    activeRules = tester.get(QProfileService.class).findActiveRulesByProfile(XOO_CHILD_PROFILE_KEY);
+    activeRules = tester.get(QProfileService.class).findActiveRulesByProfile(QProfileTesting.XOO_P2_KEY);
     assertThat(activeRules).hasSize(1);
     assertThat(activeRules.get(0).severity()).isEqualTo("BLOCKER");
     assertThat(activeRules.get(0).inheritance()).isEqualTo(ActiveRule.Inheritance.OVERRIDES);
@@ -193,15 +189,15 @@ public class QProfileBackuperMediumTest {
   public void restore_parent_profile() throws Exception {
     // define two parent/child profiles
     db.qualityProfileDao().insert(dbSession,
-      QualityProfileDto.createFor(XOO_PROFILE_KEY),
-      QualityProfileDto.createFor(XOO_CHILD_PROFILE_KEY).setParent(XOO_PROFILE_KEY.name()));
+      QProfileTesting.newXooP1(),
+      QProfileTesting.newXooP2().setParentKee(QProfileTesting.XOO_P1_KEY));
     dbSession.commit();
 
     // rule x1 is activated on parent profile (so inherited by child profile)
-    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, RuleKey.of("xoo", "x1")));
+    RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
     activation.setSeverity(Severity.INFO);
     activation.setParameter("max", "10");
-    tester.get(RuleActivator.class).activate(dbSession, activation);
+    tester.get(RuleActivator.class).activate(dbSession, activation, QProfileTesting.XOO_P1_KEY);
     dbSession.commit();
     dbSession.clearCache();
 
@@ -210,14 +206,14 @@ public class QProfileBackuperMediumTest {
       Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore-parent.xml"), Charsets.UTF_8)), null);
 
     // parent profile is updated
-    List<ActiveRule> activeRules = tester.get(QProfileService.class).findActiveRulesByProfile(XOO_PROFILE_KEY);
+    List<ActiveRule> activeRules = tester.get(QProfileService.class).findActiveRulesByProfile(QProfileTesting.XOO_P1_KEY);
     assertThat(activeRules).hasSize(1);
     assertThat(activeRules.get(0).severity()).isEqualTo("BLOCKER");
     assertThat(activeRules.get(0).inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
     assertThat(activeRules.get(0).params().get("max")).isEqualTo("7");
 
     // child profile is inherited
-    activeRules = tester.get(QProfileService.class).findActiveRulesByProfile(XOO_CHILD_PROFILE_KEY);
+    activeRules = tester.get(QProfileService.class).findActiveRulesByProfile(QProfileTesting.XOO_P2_KEY);
     assertThat(activeRules).hasSize(1);
     assertThat(activeRules.get(0).severity()).isEqualTo("BLOCKER");
     assertThat(activeRules.get(0).inheritance()).isEqualTo(ActiveRule.Inheritance.INHERITED);
@@ -228,24 +224,24 @@ public class QProfileBackuperMediumTest {
   public void keep_other_inherited_rules() throws Exception {
     // define two parent/child profiles
     db.qualityProfileDao().insert(dbSession,
-      QualityProfileDto.createFor(XOO_PROFILE_KEY),
-      QualityProfileDto.createFor(XOO_CHILD_PROFILE_KEY).setParent(XOO_PROFILE_KEY.name()));
+      QProfileTesting.newXooP1(),
+      QProfileTesting.newXooP2().setParentKee(QProfileTesting.XOO_P1_KEY));
     dbSession.commit();
 
     // rule x1 is activated on parent profile and is inherited by child profile
-    RuleActivation activation = new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_KEY, RuleKey.of("xoo", "x1")));
+    RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
     activation.setSeverity(Severity.INFO);
     activation.setParameter("max", "10");
-    tester.get(RuleActivator.class).activate(dbSession, activation);
+    tester.get(RuleActivator.class).activate(dbSession, activation, QProfileTesting.XOO_P1_KEY);
     dbSession.commit();
     dbSession.clearCache();
 
     // backup of child profile contains x2 but not x1
     tester.get(QProfileBackuper.class).restore(new StringReader(
-      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/keep_other_inherited_rules.xml"), Charsets.UTF_8)), XOO_CHILD_PROFILE_KEY);
+      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/keep_other_inherited_rules.xml"), Charsets.UTF_8)), QProfileTesting.XOO_P2_NAME);
 
     // x1 and x2
-    List<ActiveRule> activeRules = tester.get(QProfileService.class).findActiveRulesByProfile(XOO_CHILD_PROFILE_KEY);
+    List<ActiveRule> activeRules = tester.get(QProfileService.class).findActiveRulesByProfile(QProfileTesting.XOO_P2_KEY);
     assertThat(activeRules).hasSize(2);
   }
 
@@ -274,22 +270,23 @@ public class QProfileBackuperMediumTest {
 
   @Test
   public void restore_and_override_profile_name() throws Exception {
-    QualityProfileKey targetKey = QualityProfileKey.of("newName", "xoo");
     tester.get(QProfileBackuper.class).restore(new StringReader(
-        Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), Charsets.UTF_8)),
-      targetKey);
+      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), Charsets.UTF_8)),
+      QProfileTesting.XOO_P3_NAME);
 
-    List<ActiveRule> activeRules = tester.get(QProfileService.class).findActiveRulesByProfile(XOO_PROFILE_KEY);
+    List<ActiveRule> activeRules = tester.get(QProfileService.class).findActiveRulesByProfile(QProfileTesting.XOO_P1_KEY);
     assertThat(activeRules).hasSize(0);
 
-    activeRules = tester.get(QProfileService.class).findActiveRulesByProfile(targetKey);
+    QualityProfileDto target = db.qualityProfileDao().getByNameAndLanguage("P3", "xoo");
+    assertThat(target).isNotNull();
+    activeRules = tester.get(QProfileService.class).findActiveRulesByProfile(target.getKey());
     assertThat(activeRules).hasSize(1);
   }
 
   @Test
   public void restore_profile_with_zero_rules() throws Exception {
     tester.get(QProfileBackuper.class).restore(new StringReader(
-        Resources.toString(getClass().getResource("QProfileBackuperMediumTest/empty.xml"), Charsets.UTF_8)),
+      Resources.toString(getClass().getResource("QProfileBackuperMediumTest/empty.xml"), Charsets.UTF_8)),
       null);
 
     dbSession.clearCache();

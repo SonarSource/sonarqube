@@ -1,36 +1,39 @@
-{"total": 2, "p": 1, "ps": 10, "rules": [
-  {
-    "key": "javascript:S002",
-    "repo": "javascript",
-    "name": "Rule S002",
-    "lang": "js",
-    "htmlDesc": "Description S002",
-    "status": "READY",
-    "severity": "INFO",
-    "isTemplate": false,
-    "internalKey": "InternalKeyS002",
-    "tags": [],
-    "sysTags": [],
-    "debtRemFnType": "LINEAR",
-    "debtRemFnCoeff": "1h",
-    "debtRemFnOffset": "5min",
-    "params": []
-  },
-  {
-    "key": "javascript:S001",
-    "repo": "javascript",
-    "name": "Rule S001",
-    "lang": "js",
-    "htmlDesc": "Description S001",
-    "status": "READY",
-    "severity": "INFO",
-    "isTemplate": false,
-    "internalKey": "InternalKeyS001",
-    "tags": [],
-    "sysTags": [],
-    "debtRemFnType": "LINEAR",
-    "debtRemFnCoeff": "1h",
-    "debtRemFnOffset": "5min",
-    "params": []
-  }
-], "actives": {}}
+{
+  "total": 2, "p": 1, "ps": 10,
+  "rules": [
+    {
+      "key": "xoo:x2",
+      "repo": "xoo",
+      "name": "Rule x2",
+      "htmlDesc": "Description x2",
+      "severity": "INFO",
+      "status": "READY",
+      "internalKey": "InternalKeyx2",
+      "isTemplate": false,
+      "tags": ["tag1", "tag2"],
+      "sysTags": ["systag1", "systag2"],
+      "debtRemFnType": "LINEAR",
+      "debtRemFnCoeff": "1h",
+      "debtRemFnOffset": "5min",
+      "lang": "xoo",
+      "params": []
+    },
+    {
+      "key": "xoo:x1",
+      "repo": "xoo",
+      "name": "Rule x1",
+      "htmlDesc": "Description x1",
+      "severity": "INFO",
+      "status": "READY",
+      "internalKey": "InternalKeyx1",
+      "isTemplate": false,
+      "tags": ["tag1", "tag2"],
+      "sysTags": ["systag1", "systag2"],
+      "debtRemFnType": "LINEAR",
+      "debtRemFnCoeff": "1h",
+      "debtRemFnOffset": "5min",
+      "lang": "xoo",
+      "params": []
+    }
+  ],
+  "actives": {}}

@@ -20,7 +20,6 @@
 package org.sonar.batch.rules;
 
 import org.sonar.api.batch.rules.QProfile;
-
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 
@@ -37,11 +36,11 @@ public class DefaultQProfileReferential implements QProfilesReferential {
 
   @Override
   public QProfile get(String language, String name) {
-    QualityProfileDto dto = qualityProfileDao.selectByNameAndLanguage(name, language);
+    QualityProfileDto dto = qualityProfileDao.getByNameAndLanguage(name, language);
     if (dto == null) {
       return null;
     }
-    return new QProfileWithId(dto.getId(), dto.getName(), dto.getLanguage(), dto.getVersion());
+    return new QProfile(dto.getKey(), dto.getName(), dto.getLanguage());
   }
 
 }

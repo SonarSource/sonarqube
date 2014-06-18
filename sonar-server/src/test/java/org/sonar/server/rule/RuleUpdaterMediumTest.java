@@ -34,13 +34,13 @@ import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtTesting;
 import org.sonar.server.qualityprofile.ActiveRule;
+import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
@@ -382,17 +382,14 @@ public class RuleUpdaterMediumTest {
     ruleDao.addRuleParam(dbSession, customRule, templateRuleParam2.setDefaultValue("txt"));
 
     // Create a quality profile
-    QualityProfileKey qualityProfileKey = QualityProfileKey.of("P1", "xoo");
-    QualityProfileDto profileDto = QualityProfileDto.createFor(qualityProfileKey);
+    QualityProfileDto profileDto = QProfileTesting.newXooP1();
     db.qualityProfileDao().insert(dbSession, profileDto);
-
     dbSession.commit();
 
     // Activate the custom rule
-    tester.get(RuleActivator.class).activate(
-      new RuleActivation(ActiveRuleKey.of(profileDto.getKey(), customRule.getKey())).setSeverity(Severity.BLOCKER)
-    );
-
+    RuleActivation activation = new RuleActivation(customRule.getKey()).setSeverity(Severity.BLOCKER);
+    tester.get(RuleActivator.class).activate(dbSession, activation, QProfileTesting.XOO_P1_NAME);
+    dbSession.commit();
     dbSession.clearCache();
 
     // Update custom rule parameter 'regex', add 'message' and remove 'format'
@@ -415,7 +412,7 @@ public class RuleUpdaterMediumTest {
     assertThat(param.defaultValue()).isEqualTo("b.*");
 
     // Verify active rule parameters has been updated
-    ActiveRule activeRule = tester.get(ActiveRuleIndex.class).getByKey(ActiveRuleKey.of(qualityProfileKey, customRule.getKey()));
+    ActiveRule activeRule = tester.get(ActiveRuleIndex.class).getByKey(ActiveRuleKey.of(profileDto.getKey(), customRule.getKey()));
     assertThat(activeRule.params()).hasSize(2);
     assertThat(activeRule.params().get("regex")).isEqualTo("b.*");
     assertThat(activeRule.params().get("format")).isNull();

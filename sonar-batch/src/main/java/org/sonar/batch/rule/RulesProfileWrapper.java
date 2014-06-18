@@ -93,11 +93,6 @@ public class RulesProfileWrapper extends RulesProfile {
   }
 
   @Override
-  public int getVersion() {
-    return getSingleProfileOrFail().getVersion();
-  }
-
-  @Override
   public ActiveRule getActiveRule(String repositoryKey, String ruleKey) {
     for (RulesProfile profile : profiles) {
       ActiveRule activeRule = profile.getActiveRule(repositoryKey, ruleKey);

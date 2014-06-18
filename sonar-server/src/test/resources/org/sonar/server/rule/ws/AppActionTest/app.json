@@ -1,16 +1,33 @@
 {
   "canWrite": true,
   "qualityprofiles": [
-    {"key": "Profile One:bf", "name": "Profile One", "lang": "bf"},
-    {"key": "Profile Two:bf", "name": "Profile Two", "lang": "bf", "parent": "Profile One", "parentKey": "Profile One:bf"}
+    {
+      "key": "XOO_P1",
+      "name": "P1",
+      "lang": "xoo"
+    },
+    {
+      "key": "XOO_P2",
+      "name": "P2",
+      "lang": "xoo",
+      "parentKey": "XOO_P1"
+    }
   ],
   "languages": {
-    "bf": "Brainf*ck",
+    "xoo": "Xoo",
     "ws": "Whitespace"
   },
   "repositories": [
-    {"key": "squid", "name": "SonarQube", "language": "bf"},
-    {"key": "squid", "name": "SonarQube", "language": "ws"},
+    {
+      "key": "xoo",
+      "name": "SonarQube",
+      "language": "xoo"
+    },
+    {
+      "key": "squid",
+      "name": "SonarQube",
+      "language": "ws"
+    }
   ],
   "statuses": {
     "BETA": "rules.status.beta",
@@ -20,5 +37,5 @@
   "characteristics": {
     "REUSABILITY": "Reusability",
     "MODULARITY": "Reusability: Modularity"
-  }
-}
+  }}
+

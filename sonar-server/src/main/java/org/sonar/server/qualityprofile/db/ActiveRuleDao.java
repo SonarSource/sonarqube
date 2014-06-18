@@ -32,7 +32,6 @@ import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleMapper;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.BaseDao;
 import org.sonar.server.rule.db.RuleDao;
@@ -71,7 +70,7 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
         Map<String, Object> fields = (Map<String, Object>) context.getResultObject();
         // "rule" is a reserved keyword in SQLServer, so "rulefield" is used
         ActiveRuleKey key = ActiveRuleKey.of(
-          QualityProfileKey.of((String) fields.get("profile"), (String) fields.get("language")),
+          (String) fields.get("profileKey"),
           RuleKey.of((String) fields.get("repository"), (String) fields.get("rulefield")));
         session.enqueue(new KeyIndexAction<ActiveRuleKey>(getIndexType(), IndexAction.Method.UPSERT, key));
       }
@@ -89,7 +88,7 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
 
     if (activeRule != null) {
       activeRule.setKey(ActiveRuleKey.of(
-        profileDao.selectById(activeRule.getProfileId(), session).getKey(),
+        profileDao.getById(activeRule.getProfileId(), session).getKey(),
         ruleDao.getById(session, activeRule.getRulId()).getKey()));
     }
     return activeRule;
@@ -97,8 +96,7 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
 
   @Override
   protected ActiveRuleDto doGetNullableByKey(DbSession session, ActiveRuleKey key) {
-    return mapper(session).selectByKey(key.qProfile().name(), key.qProfile().lang(),
-      key.ruleKey().repository(), key.ruleKey().rule());
+    return mapper(session).selectByKey(key.qProfile(), key.ruleKey().repository(), key.ruleKey().rule());
   }
 
   @Override
@@ -180,14 +178,14 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
     this.enqueueDelete(activeRuleParam, activeRule.getKey(), session);
   }
 
-  public void deleteByProfileKey(DbSession session, QualityProfileKey profileKey) {
+  public void deleteByProfileKey(DbSession session, String profileKey) {
     /** Functional cascade for params */
-    for (ActiveRuleDto activeRule : this.findByProfileKey(session, profileKey)) {
+    for (ActiveRuleDto activeRule : findByProfileKey(session, profileKey)) {
       delete(session, activeRule);
     }
   }
 
-  public List<ActiveRuleDto> findByProfileKey(DbSession session, QualityProfileKey profileKey) {
+  public List<ActiveRuleDto> findByProfileKey(DbSession session, String profileKey) {
     return mapper(session).selectByProfileKey(profileKey);
   }
 

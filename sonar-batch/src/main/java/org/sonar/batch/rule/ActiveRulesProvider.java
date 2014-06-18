@@ -29,7 +29,6 @@ import org.sonar.api.batch.rules.QProfile;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleParam;
-import org.sonar.batch.rules.QProfileWithId;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
@@ -52,13 +51,12 @@ public class ActiveRulesProvider extends ProviderAdapter {
   private ActiveRules load(ModuleQProfiles qProfiles, ActiveRuleDao dao, RuleFinder ruleFinder) {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (QProfile qProfile : qProfiles.findAll()) {
-      QProfileWithId qProfileWithId = (QProfileWithId) qProfile;
       ListMultimap<Integer, ActiveRuleParamDto> paramDtosByActiveRuleId = ArrayListMultimap.create();
-      for (ActiveRuleParamDto dto : dao.selectParamsByProfileId(qProfileWithId.id())) {
+      for (ActiveRuleParamDto dto : dao.selectParamsByProfileKey(qProfile.key())) {
         paramDtosByActiveRuleId.put(dto.getActiveRuleId(), dto);
       }
 
-      for (ActiveRuleDto activeDto : dao.selectByProfileId(qProfileWithId.id())) {
+      for (ActiveRuleDto activeDto : dao.selectByProfileKey(qProfile.key())) {
         Rule rule = ruleFinder.findById(activeDto.getRulId());
         if (rule != null) {
           NewActiveRule newActiveRule = builder.create(rule.ruleKey());

@@ -25,9 +25,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rule.Severity;
-import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.persistence.DbSession;
@@ -38,7 +35,9 @@ import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
+import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.search.ws.SearchOptions;
@@ -47,6 +46,7 @@ import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -98,17 +98,16 @@ public class RulesWebServiceTest {
 
   @Test
   public void show_rule() throws Exception {
-    QualityProfileDto profile = newQualityProfile();
+    QualityProfileDto profile = QProfileTesting.newXooP1();
     tester.get(QualityProfileDao.class).insert(session, profile);
 
-    RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"));
+    RuleDto rule = RuleTesting.newXooX1();
     ruleDao.insert(session, rule);
 
-    ActiveRuleDto activeRuleDto = ActiveRuleDto.createFor(profile, rule)
-      .setSeverity("BLOCKER");
+    ActiveRuleDto activeRuleDto = ActiveRuleDto.createFor(profile, rule).setSeverity("BLOCKER");
     tester.get(ActiveRuleDao.class).insert(session, activeRuleDto);
-
     session.commit();
+    session.clearCache();
 
     MockUserSession.set();
 
@@ -126,10 +125,8 @@ public class RulesWebServiceTest {
     result.assertJson(this.getClass(), "show_rule_no_active.json", false);
   }
 
-
   @Test
   public void search_no_rules() throws Exception {
-
     MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
 
@@ -140,29 +137,28 @@ public class RulesWebServiceTest {
 
   @Test
   public void filter_by_key_rules() throws Exception {
-    ruleDao.insert(session, newRuleDto(RuleKey.of("javascript", "S001")));
-    ruleDao.insert(session, newRuleDto(RuleKey.of("javascript", "S002")));
+    ruleDao.insert(session, RuleTesting.newXooX1());
+    ruleDao.insert(session, RuleTesting.newXooX2());
     session.commit();
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchAction.PARAM_KEY, RuleKey.of("javascript", "S001").toString());
+    request.setParam(SearchAction.PARAM_KEY, RuleTesting.XOO_X1.toString());
     request.setParam(SearchOptions.PARAM_FIELDS, "");
     WsTester.Result result = request.execute();
-    result.assertJson("{\"total\":1,\"p\":1,\"ps\":10,\"rules\":[{\"key\":\"javascript:S001\"}]}");
+    result.assertJson("{\"total\":1,\"p\":1,\"ps\":10,\"rules\":[{\"key\":\"xoo:x1\"}]}");
 
     request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchAction.PARAM_KEY, RuleKey.of("javascript", "S011").toString());
+    request.setParam(SearchAction.PARAM_KEY, RuleKey.of("xoo", "unknown").toString());
     result = request.execute();
     result.assertJson("{\"total\":0,\"p\":1,\"ps\":10,\"rules\":[],\"actives\":{}}");
-    System.out.println("result.outputAsString() = " + result.outputAsString());
 
   }
 
   @Test
   public void search_2_rules() throws Exception {
-    ruleDao.insert(session, newRuleDto(RuleKey.of("javascript", "S001")));
-    ruleDao.insert(session, newRuleDto(RuleKey.of("javascript", "S002")));
+    ruleDao.insert(session, RuleTesting.newXooX1());
+    ruleDao.insert(session, RuleTesting.newXooX2());
     session.commit();
 
     MockUserSession.set();
@@ -174,7 +170,7 @@ public class RulesWebServiceTest {
 
   @Test
   public void search_debt_rules() throws Exception {
-    ruleDao.insert(session, newRuleDto(RuleKey.of("javascript", "S001"))
+    ruleDao.insert(session, RuleTesting.newXooX1()
       .setDefaultRemediationCoefficient("DefaultCoef")
       .setDefaultRemediationFunction("DefaultFunction")
       .setDefaultRemediationCoefficient("DefaultCoef")
@@ -190,9 +186,9 @@ public class RulesWebServiceTest {
 
   @Test
   public void search_template_rules() throws Exception {
-    RuleDto templateRule = newRuleDto(RuleKey.of("java", "S001")).setIsTemplate(true);
+    RuleDto templateRule = RuleTesting.newXooX1().setIsTemplate(true);
     ruleDao.insert(session, templateRule);
-    ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S001_MY_CUSTOM")).setTemplateId(templateRule.getId()));
+    ruleDao.insert(session, RuleTesting.newXooX2()).setTemplateId(templateRule.getId());
     session.commit();
 
     MockUserSession.set();
@@ -205,36 +201,34 @@ public class RulesWebServiceTest {
 
   @Test
   public void search_custom_rules_from_template_key() throws Exception {
-    RuleDto templateRule = newRuleDto(RuleKey.of("java", "S001")).setIsTemplate(true);
+    RuleDto templateRule = RuleTesting.newXooX1().setIsTemplate(true);
     ruleDao.insert(session, templateRule);
-    ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S001_MY_CUSTOM")).setTemplateId(templateRule.getId()));
+    ruleDao.insert(session, RuleTesting.newXooX2()).setTemplateId(templateRule.getId());
     session.commit();
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_FIELDS, "templateKey");
-    request.setParam(SearchAction.PARAM_TEMPLATE_KEY, "java:S001");
+    request.setParam(SearchAction.PARAM_TEMPLATE_KEY, "xoo:x1");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "search_rules_from_template_key.json");
   }
 
   @Test
   public void search_all_active_rules() throws Exception {
-    QualityProfileDto profile = newQualityProfile();
+    QualityProfileDto profile = QProfileTesting.newXooP1();
     tester.get(QualityProfileDao.class).insert(session, profile);
 
-    RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"));
+    RuleDto rule = RuleTesting.newXooX1();
     ruleDao.insert(session, rule);
 
     ActiveRuleDto activeRule = newActiveRule(profile, rule);
     tester.get(ActiveRuleDao.class).insert(session, activeRule);
-
     session.commit();
-
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchOptions.PARAM_TEXT_QUERY, "S001");
+    request.setParam(SearchOptions.PARAM_TEXT_QUERY, "x1");
     request.setParam(SearchAction.PARAM_ACTIVATION, "true");
     request.setParam(SearchOptions.PARAM_FIELDS, "");
     WsTester.Result result = request.execute();
@@ -244,15 +238,15 @@ public class RulesWebServiceTest {
 
   @Test
   public void search_profile_active_rules() throws Exception {
-    QualityProfileDto profile = newQualityProfile().setName("p1");
+    QualityProfileDto profile = QProfileTesting.newXooP1();
     tester.get(QualityProfileDao.class).insert(session, profile);
 
-    QualityProfileDto profile2 = newQualityProfile().setName("p2");
+    QualityProfileDto profile2 = QProfileTesting.newXooP2();
     tester.get(QualityProfileDao.class).insert(session, profile2);
 
     session.commit();
 
-    RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"));
+    RuleDto rule = RuleTesting.newXooX1();
     ruleDao.insert(session, rule);
 
     ActiveRuleDto activeRule = newActiveRule(profile, rule);
@@ -262,12 +256,11 @@ public class RulesWebServiceTest {
 
     session.commit();
 
-
     MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchOptions.PARAM_TEXT_QUERY, "S001");
+    request.setParam(SearchOptions.PARAM_TEXT_QUERY, "x1");
     request.setParam(SearchAction.PARAM_ACTIVATION, "true");
-    request.setParam(SearchAction.PARAM_QPROFILE, profile2.getKey().toString());
+    request.setParam(SearchAction.PARAM_QPROFILE, profile2.getKey());
     request.setParam(SearchOptions.PARAM_FIELDS, "");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "search_profile_active_rules.json");
@@ -275,12 +268,10 @@ public class RulesWebServiceTest {
 
   @Test
   public void search_all_active_rules_params() throws Exception {
-    QualityProfileDto profile = newQualityProfile();
+    QualityProfileDto profile = QProfileTesting.newXooP1();
     tester.get(QualityProfileDao.class).insert(session, profile);
-
-    RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"));
+    RuleDto rule = RuleTesting.newXooX1();
     ruleDao.insert(session, rule);
-
     session.commit();
 
     RuleParamDto param = RuleParamDto.createFor(rule)
@@ -309,10 +300,9 @@ public class RulesWebServiceTest {
     tester.get(ActiveRuleDao.class).addParam(session, activeRule, activeRuleParam2);
     session.commit();
 
-
     MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(SearchOptions.PARAM_TEXT_QUERY, "S001");
+    request.setParam(SearchOptions.PARAM_TEXT_QUERY, "x1");
     request.setParam(SearchAction.PARAM_ACTIVATION, "true");
     request.setParam(SearchOptions.PARAM_FIELDS, "params");
     WsTester.Result result = request.execute();
@@ -320,21 +310,20 @@ public class RulesWebServiceTest {
     result.assertJson(this.getClass(), "search_active_rules_params.json", false);
   }
 
-
   @Test
   public void get_tags() throws Exception {
-    QualityProfileDto profile = newQualityProfile();
+    QualityProfileDto profile = QProfileTesting.newXooP1();
     tester.get(QualityProfileDao.class).insert(session, profile);
 
-    RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"))
-      .setTags(ImmutableSet.of("hello", "world"));
+    RuleDto rule = RuleTesting.newXooX1().
+      setTags(ImmutableSet.of("hello", "world"))
+      .setSystemTags(Collections.<String>emptySet());
     ruleDao.insert(session, rule);
 
-    RuleDto rule2 = newRuleDto(RuleKey.of(profile.getLanguage(), "S002"))
+    RuleDto rule2 = RuleTesting.newXooX2()
       .setTags(ImmutableSet.of("java"))
       .setSystemTags(ImmutableSet.of("sys1"));
     ruleDao.insert(session, rule2);
-
     session.commit();
 
     MockUserSession.set();
@@ -346,15 +335,11 @@ public class RulesWebServiceTest {
 
   @Test
   public void get_note_as_markdown_and_html() throws Exception {
-    QualityProfileDto profile = newQualityProfile();
+    QualityProfileDto profile = QProfileTesting.newXooP1();
     tester.get(QualityProfileDao.class).insert(session, profile);
-
-    RuleDto rule = newRuleDto(RuleKey.of(profile.getLanguage(), "S001"))
-      .setNoteData("this is *bold*");
+    RuleDto rule = RuleTesting.newXooX1().setNoteData("this is *bold*");
     ruleDao.insert(session, rule);
-
     session.commit();
-
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
@@ -365,13 +350,13 @@ public class RulesWebServiceTest {
 
   @Test
   public void filter_by_tags() throws Exception {
-    ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S001"))
+    ruleDao.insert(session, RuleTesting.newXooX1()
+      .setTags(Collections.<String>emptySet())
       .setSystemTags(ImmutableSet.of("tag1")));
-    ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S002"))
+    ruleDao.insert(session, RuleTesting.newXooX2()
+      .setTags(Collections.<String>emptySet())
       .setSystemTags(ImmutableSet.of("tag2")));
-
     session.commit();
-
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
@@ -383,39 +368,38 @@ public class RulesWebServiceTest {
 
   @Test
   public void sort_by_name() throws Exception {
-    ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S002")).setName("Dodgy - Consider returning a zero length array rather than null "));
-    ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S001")).setName("Bad practice - Creates an empty zip file entry"));
-    ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S003")).setName("XPath rule"));
+    ruleDao.insert(session, RuleTesting.newXooX1().setName("Dodgy - Consider returning a zero length array rather than null "));
+    ruleDao.insert(session, RuleTesting.newXooX2().setName("Bad practice - Creates an empty zip file entry"));
+    ruleDao.insert(session, RuleTesting.newXooX3().setName("XPath rule"));
     session.commit();
 
-
-    // 1. Sort Name Desc
+    // 1. Sort Name Asc
     MockUserSession.set();
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_FIELDS, "");
     request.setParam(SearchOptions.PARAM_SORT, "name");
-    request.setParam(SearchOptions.PARAM_ASCENDING, Boolean.TRUE.toString());
+    request.setParam(SearchOptions.PARAM_ASCENDING, "true");
 
     WsTester.Result result = request.execute();
-    result.assertJson("{\"total\":3,\"p\":1,\"ps\":10,\"rules\":[{\"key\":\"java:S001\"},{\"key\":\"java:S002\"},{\"key\":\"java:S003\"}]}");
+    result.assertJson("{\"total\":3,\"p\":1,\"ps\":10,\"rules\":[{\"key\":\"xoo:x2\"},{\"key\":\"xoo:x1\"},{\"key\":\"xoo:x3\"}]}");
 
-    // 2. Sort Name ASC
+    // 2. Sort Name DESC
     request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_FIELDS, "");
     request.setParam(SearchOptions.PARAM_SORT, RuleNormalizer.RuleField.NAME.field());
-    request.setParam(SearchOptions.PARAM_ASCENDING, Boolean.FALSE.toString());
+    request.setParam(SearchOptions.PARAM_ASCENDING, "false");
 
     result = request.execute();
-    result.assertJson("{\"total\":3,\"p\":1,\"ps\":10,\"rules\":[{\"key\":\"java:S003\"},{\"key\":\"java:S002\"},{\"key\":\"java:S001\"}]}");
+    result.assertJson("{\"total\":3,\"p\":1,\"ps\":10,\"rules\":[{\"key\":\"xoo:x3\"},{\"key\":\"xoo:x1\"},{\"key\":\"xoo:x2\"}]}");
 
   }
 
   @Test
   public void available_since() throws Exception {
-    ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S002")));
-    ;
-    ruleDao.insert(session, newRuleDto(RuleKey.of("java", "S001")));
+    ruleDao.insert(session, RuleTesting.newXooX1());
+    ruleDao.insert(session, RuleTesting.newXooX2());
     session.commit();
+    session.clearCache();
 
     Date since = new Date();
 
@@ -424,12 +408,13 @@ public class RulesWebServiceTest {
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(SearchOptions.PARAM_FIELDS, "");
     request.setParam(SearchAction.PARAM_AVAILABLE_SINCE, DateUtils.formatDate(since));
+    request.setParam(SearchOptions.PARAM_SORT, RuleNormalizer.RuleField.KEY.field());
     WsTester.Result result = request.execute();
-    result.assertJson("{\"total\":2,\"p\":1,\"ps\":10,\"rules\":[{\"key\":\"java:S001\"},{\"key\":\"java:S002\"}]}");
+    result.assertJson("{\"total\":2,\"p\":1,\"ps\":10,\"rules\":[{\"key\":\"xoo:x1\"},{\"key\":\"xoo:x2\"}]}");
 
     Calendar c = Calendar.getInstance();
     c.setTime(since);
-    c.add(Calendar.DATE, 1);  // number of days to add
+    c.add(Calendar.DATE, 1); // number of days to add
 
     // 2. no rules since tomorrow
     MockUserSession.set();
@@ -440,34 +425,9 @@ public class RulesWebServiceTest {
     result.assertJson("{\"total\":0,\"p\":1,\"ps\":10,\"rules\":[]}");
   }
 
-
-  private QualityProfileDto newQualityProfile() {
-    return QualityProfileDto.createFor("My Profile", "java");
-  }
-
-  private RuleDto newRuleDto(RuleKey ruleKey) {
-    return new RuleDto()
-      .setRuleKey(ruleKey.rule())
-      .setRepositoryKey(ruleKey.repository())
-      .setName("Rule " + ruleKey.rule())
-      .setDescription("Description " + ruleKey.rule())
-      .setStatus(RuleStatus.READY)
-      .setConfigKey("InternalKey" + ruleKey.rule())
-      .setSeverity(Severity.INFO)
-      .setIsTemplate(false)
-      .setLanguage("js")
-      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
-      .setRemediationCoefficient("1h")
-      .setDefaultRemediationCoefficient("5d")
-      .setRemediationOffset("5min")
-      .setDefaultRemediationOffset("10h")
-      .setEffortToFixDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix");
-  }
-
   private ActiveRuleDto newActiveRule(QualityProfileDto profile, RuleDto rule) {
     return ActiveRuleDto.createFor(profile, rule)
-      .setInheritance("none")
+      .setInheritance(null)
       .setSeverity("BLOCKER");
   }
 }

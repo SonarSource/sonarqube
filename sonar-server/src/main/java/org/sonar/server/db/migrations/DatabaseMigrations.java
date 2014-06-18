@@ -30,8 +30,10 @@ import org.sonar.server.db.migrations.v43.NotResolvedIssuesOnRemovedComponentsMi
 import org.sonar.server.db.migrations.v43.RequirementMeasuresMigration;
 import org.sonar.server.db.migrations.v43.TechnicalDebtMeasuresMigration;
 import org.sonar.server.db.migrations.v44.ChangeLogMigration;
+import org.sonar.server.db.migrations.v44.ConvertProfileMeasures;
 import org.sonar.server.db.migrations.v44.IssueActionPlanKeyMigration;
 import org.sonar.server.db.migrations.v44.MeasureDataMigration;
+import org.sonar.server.db.migrations.v44.QProfileKeyMigration;
 
 import java.util.List;
 
@@ -55,7 +57,9 @@ public interface DatabaseMigrations {
     // 4.4
     IssueActionPlanKeyMigration.class,
     MeasureDataMigration.class,
-    ChangeLogMigration.class
+    QProfileKeyMigration.class,
+    ChangeLogMigration.class,
+    ConvertProfileMeasures.class
   );
 
 }

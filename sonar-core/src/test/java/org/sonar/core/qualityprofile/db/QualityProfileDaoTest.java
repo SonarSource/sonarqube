@@ -38,17 +38,13 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
     dao = new QualityProfileDao(getMyBatis());
   }
 
-
   @Test
   public void insert() {
     setupData("shared");
 
-    QualityProfileDto dto = new QualityProfileDto()
-      .setName("Sonar Way with Findbugs")
-      .setLanguage("xoo")
-      .setParent("Sonar Way")
-      .setVersion(2)
-      .setUsed(true);
+    QualityProfileDto dto = QualityProfileDto.createFor("abcde")
+      .setName("ABCDE")
+      .setLanguage("xoo");
 
     dao.insert(dto);
 
@@ -61,11 +57,9 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
 
     QualityProfileDto dto = new QualityProfileDto()
       .setId(1)
-      .setName("New Sonar Way with Findbugs")
+      .setName("New Name")
       .setLanguage("js")
-      .setParent("New Sonar Way")
-      .setVersion(3)
-      .setUsed(false);
+      .setParentKee("fghij");
 
     dao.update(dto);
 
@@ -82,7 +76,7 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_all() {
+  public void find_all() {
     setupData("shared");
 
     DbSession session = getMyBatis().openSession(false);
@@ -95,27 +89,23 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
       assertThat(dto1.getId()).isEqualTo(1);
       assertThat(dto1.getName()).isEqualTo("Sonar Way");
       assertThat(dto1.getLanguage()).isEqualTo("java");
-      assertThat(dto1.getParent()).isNull();
-      assertThat(dto1.getVersion()).isEqualTo(1);
-      assertThat(dto1.isUsed()).isFalse();
+      assertThat(dto1.getParentKee()).isNull();
 
       QualityProfileDto dto2 = dtos.get(1);
       assertThat(dto2.getId()).isEqualTo(2);
       assertThat(dto2.getName()).isEqualTo("Sonar Way");
       assertThat(dto2.getLanguage()).isEqualTo("js");
-      assertThat(dto2.getParent()).isNull();
-      assertThat(dto2.getVersion()).isEqualTo(1);
-      assertThat(dto2.isUsed()).isFalse();
+      assertThat(dto2.getParentKee()).isNull();
     } finally {
       session.close();
     }
   }
 
   @Test
-  public void select_all_is_sorted_by_profile_name() {
+  public void find_all_is_sorted_by_profile_name() {
     setupData("select_all_is_sorted_by_profile_name");
 
-    List<QualityProfileDto> dtos = dao.selectAll();
+    List<QualityProfileDto> dtos = dao.findAll();
 
     assertThat(dtos).hasSize(3);
     assertThat(dtos.get(0).getName()).isEqualTo("First");
@@ -124,82 +114,86 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
   }
 
   @Test
-  public void select_default_profile() {
+  public void get_default_profile() {
     setupData("shared");
 
-    assertThat(dao.selectDefaultProfile("java", "sonar.profile.java")).isNotNull();
-    assertThat(dao.selectDefaultProfile("js", "sonar.profile.js")).isNull();
+    QualityProfileDto java = dao.getDefaultProfile("java");
+    assertThat(java).isNotNull();
+    assertThat(java.getKey()).isEqualTo("java_sonar_way");
+
+    assertThat(dao.getDefaultProfile("js")).isNull();
   }
 
   @Test
-  public void select_by_name_and_language() {
+  public void get_by_name_and_language() {
     setupData("shared");
 
-    QualityProfileDto dto = dao.selectByNameAndLanguage("Sonar Way", "java");
+    QualityProfileDto dto = dao.getByNameAndLanguage("Sonar Way", "java");
     assertThat(dto.getId()).isEqualTo(1);
     assertThat(dto.getName()).isEqualTo("Sonar Way");
     assertThat(dto.getLanguage()).isEqualTo("java");
-    assertThat(dto.getParent()).isNull();
-    assertThat(dto.getVersion()).isEqualTo(1);
-    assertThat(dto.isUsed()).isFalse();
+    assertThat(dto.getParentKee()).isNull();
 
-    assertThat(dao.selectByNameAndLanguage("Sonar Way", "java")).isNotNull();
-    assertThat(dao.selectByNameAndLanguage("Sonar Way", "unknown")).isNull();
+    assertThat(dao.getByNameAndLanguage("Sonar Way", "java")).isNotNull();
+    assertThat(dao.getByNameAndLanguage("Sonar Way", "unknown")).isNull();
   }
 
   @Test
-  public void select_by_language() {
+  public void find_by_language() {
     setupData("select_by_language");
 
-    List<QualityProfileDto> result = dao.selectByLanguage("java");
+    List<QualityProfileDto> result = dao.findByLanguage("java");
     assertThat(result).hasSize(2);
     assertThat(result.get(0).getName()).isEqualTo("Sonar Way 1");
     assertThat(result.get(1).getName()).isEqualTo("Sonar Way 2");
   }
 
   @Test
-  public void select_by_id() {
+  public void get_by_id() {
     setupData("shared");
 
-    QualityProfileDto dto = dao.selectById(1);
+    QualityProfileDto dto = dao.getById(1);
     assertThat(dto.getId()).isEqualTo(1);
     assertThat(dto.getName()).isEqualTo("Sonar Way");
     assertThat(dto.getLanguage()).isEqualTo("java");
-    assertThat(dto.getParent()).isNull();
-    assertThat(dto.getVersion()).isEqualTo(1);
-    assertThat(dto.isUsed()).isFalse();
+    assertThat(dto.getParentKee()).isNull();
 
-    assertThat(dao.selectById(555)).isNull();
+    assertThat(dao.getById(555)).isNull();
   }
 
   @Test
-  public void select_parent() {
+  public void get_parent_by_id() {
     setupData("inheritance");
 
-    QualityProfileDto dto = dao.selectParent(1);
+    QualityProfileDto dto = dao.getParentById(1);
     assertThat(dto.getId()).isEqualTo(3);
   }
 
   @Test
-  public void select_children() {
+  public void find_children() {
     setupData("inheritance");
 
-    List<QualityProfileDto> dtos = dao.selectChildren("Parent", "java");
+    DbSession session = getMyBatis().openSession(false);
+    try {
+      List<QualityProfileDto> dtos = dao.findChildren(session, "java_parent");
 
-    assertThat(dtos).hasSize(2);
+      assertThat(dtos).hasSize(2);
 
-    QualityProfileDto dto1 = dtos.get(0);
-    assertThat(dto1.getId()).isEqualTo(1);
-    assertThat(dto1.getName()).isEqualTo("Child1");
-    assertThat(dto1.getLanguage()).isEqualTo("java");
-    assertThat(dto1.getParent()).isEqualTo("Parent");
-    assertThat(dto1.getParentKey().toString()).isEqualTo("Parent:java");
+      QualityProfileDto dto1 = dtos.get(0);
+      assertThat(dto1.getId()).isEqualTo(1);
+      assertThat(dto1.getName()).isEqualTo("Child1");
+      assertThat(dto1.getLanguage()).isEqualTo("java");
+      assertThat(dto1.getParentKee()).isEqualTo("java_parent");
 
-    QualityProfileDto dto2 = dtos.get(1);
-    assertThat(dto2.getId()).isEqualTo(2);
-    assertThat(dto2.getName()).isEqualTo("Child2");
-    assertThat(dto2.getLanguage()).isEqualTo("java");
-    assertThat(dto2.getParent()).isEqualTo("Parent");
+      QualityProfileDto dto2 = dtos.get(1);
+      assertThat(dto2.getId()).isEqualTo(2);
+      assertThat(dto2.getName()).isEqualTo("Child2");
+      assertThat(dto2.getLanguage()).isEqualTo("java");
+      assertThat(dto2.getParentKee()).isEqualTo("java_parent");
+
+    } finally {
+      session.close();
+    }
   }
 
   @Test
@@ -220,16 +214,7 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
   public void select_by_project_and_language() {
     setupData("projects");
 
-    QualityProfileDto dto = dao.selectByProjectAndLanguage(1L, "java", "sonar.profile.java");
+    QualityProfileDto dto = dao.getByProjectAndLanguage(1L, "java", "sonar.profile.java");
     assertThat(dto.getId()).isEqualTo(1);
-  }
-
-  @Test
-  public void update_used_column() {
-    setupData("update_used_column");
-
-    dao.updateUsedColumn(123, true);
-
-    checkTables("update_used_column", "rules_profiles");
   }
 }

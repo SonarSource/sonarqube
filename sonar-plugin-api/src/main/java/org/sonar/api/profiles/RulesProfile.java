@@ -66,7 +66,6 @@ public class RulesProfile implements Cloneable {
 
   private Integer id;
   private String name;
-  private int version = 1;
   private Boolean defaultProfile = Boolean.FALSE;
   private Boolean used = Boolean.FALSE;
   private String language;
@@ -118,19 +117,35 @@ public class RulesProfile implements Cloneable {
     return this;
   }
 
+  /**
+   * @deprecated profile versioning is dropped in 4.4. Always returns -1.
+   */
+  @Deprecated
   public int getVersion() {
-    return version;
+    return -1;
   }
 
+  /**
+   * @deprecated profile versioning is dropped in 4.4. Always returns -1.
+   */
+  @Deprecated
   public RulesProfile setVersion(int version) {
-    this.version = version;
+    // ignore
     return this;
   }
 
+  /**
+   * @deprecated profile versioning is dropped in 4.4. Always returns -1.
+   */
+  @Deprecated
   public Boolean getUsed() {
     return used;
   }
 
+  /**
+   * @deprecated profile versioning is dropped in 4.4. Always returns -1.
+   */
+  @Deprecated
   public RulesProfile setUsed(Boolean used) {
     this.used = used;
     return this;

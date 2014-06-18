@@ -27,43 +27,39 @@ import org.sonar.api.component.Component;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.user.AuthorizationDao;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 public class QProfileProjectLookup implements ServerComponent {
 
-  private final MyBatis myBatis;
-  private final QualityProfileDao qualityProfileDao;
-  private final AuthorizationDao authorizationDao;
+  private final DbClient db;
 
-  public QProfileProjectLookup(MyBatis myBatis, QualityProfileDao qualityProfileDao, AuthorizationDao authorizationDao) {
-    this.myBatis = myBatis;
-    this.qualityProfileDao = qualityProfileDao;
-    this.authorizationDao = authorizationDao;
+  public QProfileProjectLookup(DbClient db) {
+    this.db = db;
   }
 
   public List<Component> projects(int profileId) {
-    DbSession session = myBatis.openSession(false);
+    DbSession session = db.openSession(false);
     try {
-      QualityProfileDto qualityProfile = qualityProfileDao.selectById(profileId, session);
+      QualityProfileDto qualityProfile = db.qualityProfileDao().getById(profileId, session);
       QProfileValidations.checkProfileIsNotNull(qualityProfile);
       Map<String, Component> componentsByKeys = Maps.newHashMap();
-      for (Component component : qualityProfileDao.selectProjects(
+      for (Component component : db.qualityProfileDao().selectProjects(
         qualityProfile.getName(), QProfileOperations.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage(), session
-      )) {
+        )) {
         componentsByKeys.put(component.key(), component);
       }
 
       UserSession userSession = UserSession.get();
       List<Component> result = Lists.newArrayList();
-      Collection<String> authorizedProjectKeys = authorizationDao.selectAuthorizedRootProjectsKeys(userSession.userId(), UserRole.USER);
+      Collection<String> authorizedProjectKeys = db.authorizationDao().selectAuthorizedRootProjectsKeys(userSession.userId(), UserRole.USER);
       for (String key : componentsByKeys.keySet()) {
         if (authorizedProjectKeys.contains(key)) {
           result.add(componentsByKeys.get(key));
@@ -77,12 +73,12 @@ public class QProfileProjectLookup implements ServerComponent {
   }
 
   public int countProjects(QProfile profile) {
-    return qualityProfileDao.countProjects(profile.name(), QProfileOperations.PROFILE_PROPERTY_PREFIX + profile.language());
+    return db.qualityProfileDao().countProjects(profile.name(), QProfileOperations.PROFILE_PROPERTY_PREFIX + profile.language());
   }
 
   @CheckForNull
   public QProfile findProfileByProjectAndLanguage(long projectId, String language) {
-    QualityProfileDto dto = qualityProfileDao.selectByProjectAndLanguage(projectId, language, QProfileOperations.PROFILE_PROPERTY_PREFIX + language);
+    QualityProfileDto dto = db.qualityProfileDao().getByProjectAndLanguage(projectId, language, QProfileOperations.PROFILE_PROPERTY_PREFIX + language);
     if (dto != null) {
       return QProfile.from(dto);
     }

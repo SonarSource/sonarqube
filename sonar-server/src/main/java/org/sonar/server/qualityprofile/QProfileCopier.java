@@ -26,7 +26,6 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.db.DbClient;
 
 import java.io.File;
@@ -39,61 +38,64 @@ import java.io.Writer;
 public class QProfileCopier implements ServerComponent {
 
   private final DbClient db;
+  private final QProfileFactory factory;
   private final QProfileBackuper backuper;
   private final TempFolder temp;
 
-  public QProfileCopier(DbClient db, QProfileBackuper backuper, TempFolder temp) {
+  public QProfileCopier(DbClient db, QProfileFactory factory, QProfileBackuper backuper, TempFolder temp) {
     this.db = db;
+    this.factory = factory;
     this.backuper = backuper;
     this.temp = temp;
   }
 
-  void copy(QualityProfileKey from, QualityProfileKey to) {
-    verifyKeys(from, to);
-    prepareProfiles(from, to);
+  void copyToName(String fromProfileKey, String toName) {
+    QProfileName to = prepareTarget(fromProfileKey, toName);
     File backupFile = temp.newFile();
-    backup(from, backupFile);
+    backup(fromProfileKey, backupFile);
     restore(backupFile, to);
     FileUtils.deleteQuietly(backupFile);
   }
 
-  private void verifyKeys(QualityProfileKey from, QualityProfileKey to) {
-    if (from.equals(to)) {
-      throw new IllegalArgumentException(String.format(
-        "Source and target profiles are equal: %s", from));
-    }
-    if (!StringUtils.equals(from.lang(), to.lang())) {
-      throw new IllegalArgumentException(String.format(
-        "Source and target profiles do not have the same language: %s and %s", from, to));
-    }
-  }
-
-  private void prepareProfiles(QualityProfileKey from, QualityProfileKey to) {
+  private QProfileName prepareTarget(String fromProfileKey, String toName) {
     DbSession dbSession = db.openSession(false);
     try {
-      QualityProfileDto fromProfile = db.qualityProfileDao().getByKey(dbSession, from);
-      if (fromProfile == null) {
-        throw new IllegalArgumentException("Quality profile does not exist: " + from);
-      }
-      QualityProfileDto toProfile = db.qualityProfileDao().getByKey(dbSession, to);
+      QualityProfileDto fromProfile = db.qualityProfileDao().getNonNullByKey(dbSession, fromProfileKey);
+      QProfileName toProfileName = new QProfileName(fromProfile.getLanguage(), toName);
+      verify(fromProfile, toProfileName);
+      QualityProfileDto toProfile = db.qualityProfileDao().getByNameAndLanguage(toProfileName.getName(), toProfileName.getLanguage(), dbSession);
       if (toProfile == null) {
-        // Do not delegate creation to QualityProfileBackuper because we need to keep
+        // Do not delegate creation to QProfileBackuper because we need to keep
         // the parent-child association, if exists.
-        toProfile = QualityProfileDto.createFor(to).setParent(fromProfile.getParent());
-        db.qualityProfileDao().insert(dbSession, toProfile);
+        toProfile = factory.create(dbSession, toProfileName);
+        toProfile.setParentKee(fromProfile.getParentKee());
+        db.qualityProfileDao().update(dbSession, toProfile);
+        dbSession.commit();
       }
-      dbSession.commit();
+      return toProfileName;
 
     } finally {
       dbSession.close();
     }
   }
 
-  private void backup(QualityProfileKey from, File backupFile) {
+  private void verify(QualityProfileDto fromProfile, QProfileName toProfileName) {
+    if (!StringUtils.equals(fromProfile.getLanguage(), toProfileName.getLanguage())) {
+      throw new IllegalArgumentException(String.format(
+        "Source and target profiles do not have the same language: %s and %s",
+        fromProfile.getLanguage(), toProfileName.getLanguage()));
+    }
+    if (fromProfile.getName().equals(toProfileName.getName())) {
+      throw new IllegalArgumentException(String.format("Source and target profiles are equal: %s",
+        fromProfile.getName(), toProfileName.getName()));
+    }
+  }
+
+  private void backup(String profileKey, File backupFile) {
     Writer writer = null;
     try {
       writer = new OutputStreamWriter(FileUtils.openOutputStream(backupFile));
-      backuper.backup(from, writer);
+      backuper.backup(profileKey, writer);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to open temporary backup file: " + backupFile, e);
     } finally {
@@ -101,11 +103,11 @@ public class QProfileCopier implements ServerComponent {
     }
   }
 
-  private void restore(File backupFile, QualityProfileKey to) {
+  private void restore(File backupFile, QProfileName profileName) {
     Reader reader = null;
     try {
       reader = new InputStreamReader(FileUtils.openInputStream(backupFile));
-      backuper.restore(reader, to);
+      backuper.restore(reader, profileName);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to create temporary backup file: " + backupFile, e);
     } finally {

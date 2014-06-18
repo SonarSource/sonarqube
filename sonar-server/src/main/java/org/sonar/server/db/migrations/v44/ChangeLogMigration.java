@@ -28,7 +28,6 @@ import org.sonar.core.activity.Activity;
 import org.sonar.core.activity.db.ActivityDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.SeverityUtil;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.activity.db.ActivityDao;
@@ -61,8 +60,7 @@ public class ChangeLogMigration implements DatabaseMigration {
   private static final String USER_LOGIN = "user_login";
   private static final String RULE_KEY = "rule_key";
   private static final String REPOSITORY = "rule_repository";
-  private static final String PROFILE_NAME = "profile_name";
-  private static final String PROFILE_LANG = "profile_lang";
+  private static final String PROFILE_KEY = "profile_key";
 
   private final ActivityDao dao;
   private DbSession session;
@@ -75,8 +73,7 @@ public class ChangeLogMigration implements DatabaseMigration {
       "   users.login as " + USER_LOGIN + "," +
       "   rule_def.plugin_name as " + RULE_KEY + "," +
       "   rule_def.plugin_rule_key as " + REPOSITORY + "," +
-      "   profile.name as " + PROFILE_NAME + "," +
-      "   profile.language as " + PROFILE_LANG + "," +
+      "   profile.kee as " + PROFILE_KEY + "," +
       "   rule_change.new_severity as " + SEVERITY + "," +
       "   rule_def.name as " + RULE_NAME + "," +
       "   rule_def_param.name as " + PARAM_NAME + "," +
@@ -101,8 +98,7 @@ public class ChangeLogMigration implements DatabaseMigration {
       "   users.login as " + USER_LOGIN + "," +
       "   rule_def.plugin_name as " + RULE_KEY + "," +
       "   rule_def.plugin_rule_key as " + REPOSITORY + "," +
-      "   profile.name as " + PROFILE_NAME + "," +
-      "   profile.language as " + PROFILE_LANG + "," +
+      "   profile.kee as " + PROFILE_KEY + "," +
       "   rule_change.new_severity as " + SEVERITY + "," +
       "   rule_def.name as " + RULE_NAME + "," +
       "   rule_def_param.name as " + PARAM_NAME + "," +
@@ -127,8 +123,7 @@ public class ChangeLogMigration implements DatabaseMigration {
       "  users.login as " + USER_LOGIN + "," +
       "  rule_def.plugin_name as " + RULE_KEY + "," +
       "  rule_def.plugin_rule_key as " + REPOSITORY + "," +
-      "  profile.name as " + PROFILE_NAME + "," +
-      "  profile.language as " + PROFILE_LANG +
+      "  profile.kee as " + PROFILE_KEY +
       " from active_rule_changes rule_change" +
       "  left join users on users.name = rule_change.username" +
       "  left join rules rule_def on rule_def.id = rule_change.rule_id" +
@@ -238,7 +233,6 @@ public class ChangeLogMigration implements DatabaseMigration {
   private ActiveRuleChange newActiveRuleChance(ActiveRuleChange.Type type, ResultSet result) throws SQLException {
     return ActiveRuleChange.createFor(
       type, ActiveRuleKey.of(
-        QualityProfileKey.of(result.getString(PROFILE_NAME), result.getString(PROFILE_LANG)),
-        RuleKey.of(result.getString(REPOSITORY), result.getString(RULE_KEY))));
+        result.getString(PROFILE_KEY), RuleKey.of(result.getString(REPOSITORY), result.getString(RULE_KEY))));
   }
 }

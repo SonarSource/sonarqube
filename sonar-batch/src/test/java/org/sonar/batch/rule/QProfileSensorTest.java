@@ -19,27 +19,21 @@
  */
 package org.sonar.batch.rule;
 
-import org.sonar.api.batch.rules.QProfile;
-
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.rules.QProfile;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Project;
 import org.sonar.api.test.IsMeasure;
-import org.sonar.batch.rules.QProfileWithId;
-import org.sonar.core.persistence.AbstractDaoTestCase;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
 
 import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-public class QProfileSensorTest extends AbstractDaoTestCase {
+public class QProfileSensorTest {
 
   ModuleQProfiles moduleQProfiles = mock(ModuleQProfiles.class);
   Project project = mock(Project.class);
@@ -48,18 +42,15 @@ public class QProfileSensorTest extends AbstractDaoTestCase {
 
   @Test
   public void to_string() throws Exception {
-    QualityProfileDao dao = mock(QualityProfileDao.class);
-    QProfileSensor sensor = new QProfileSensor(moduleQProfiles, fs, dao);
+    QProfileSensor sensor = new QProfileSensor(moduleQProfiles, fs);
     assertThat(sensor.toString()).isEqualTo("QProfileSensor");
   }
 
   @Test
   public void no_qprofiles() throws Exception {
-    setupData("shared");
-    QualityProfileDao dao = new QualityProfileDao(getMyBatis());
     when(moduleQProfiles.findAll()).thenReturn(Collections.<QProfile>emptyList());
 
-    QProfileSensor sensor = new QProfileSensor(moduleQProfiles, fs, dao);
+    QProfileSensor sensor = new QProfileSensor(moduleQProfiles, fs);
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
     sensor.analyse(project, sensorContext);
 
@@ -69,57 +60,44 @@ public class QProfileSensorTest extends AbstractDaoTestCase {
 
   @Test
   public void mark_profiles_as_used() throws Exception {
-    setupData("shared");
-
-    QualityProfileDao dao = new QualityProfileDao(getMyBatis());
-    when(moduleQProfiles.findByLanguage("java")).thenReturn(new QProfileWithId(2, "Java Two", "java", 20));
-    when(moduleQProfiles.findByLanguage("php")).thenReturn(new QProfileWithId(3, "Php One", "php", 30));
+    when(moduleQProfiles.findByLanguage("java")).thenReturn(new QProfile("java-two", "Java Two", "java"));
+    when(moduleQProfiles.findByLanguage("php")).thenReturn(new QProfile("php-one", "Php One", "php"));
     when(moduleQProfiles.findByLanguage("abap")).thenReturn(null);
     fs.addLanguages("java", "php", "abap");
 
-    QProfileSensor sensor = new QProfileSensor(moduleQProfiles, fs, dao);
+    QProfileSensor sensor = new QProfileSensor(moduleQProfiles, fs);
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
     sensor.analyse(project, sensorContext);
-
-    checkTable("mark_profiles_as_used", "rules_profiles");
   }
 
   @Test
   public void store_measures_on_single_lang_module() throws Exception {
-    setupData("shared");
-
-    QualityProfileDao dao = new QualityProfileDao(getMyBatis());
-    when(moduleQProfiles.findByLanguage("java")).thenReturn(new QProfileWithId(2, "Java Two", "java", 20));
-    when(moduleQProfiles.findByLanguage("php")).thenReturn(new QProfileWithId(3, "Php One", "php", 30));
+    when(moduleQProfiles.findByLanguage("java")).thenReturn(new QProfile("java-two", "Java Two", "java"));
+    when(moduleQProfiles.findByLanguage("php")).thenReturn(new QProfile("php-one", "Php One", "php"));
     when(moduleQProfiles.findByLanguage("abap")).thenReturn(null);
     fs.addLanguages("java");
 
-    QProfileSensor sensor = new QProfileSensor(moduleQProfiles, fs, dao);
+    QProfileSensor sensor = new QProfileSensor(moduleQProfiles, fs);
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
     sensor.analyse(project, sensorContext);
 
-    verify(sensorContext).saveMeasure(argThat(new IsMeasure(CoreMetrics.PROFILE, "Java Two")));
-    verify(sensorContext).saveMeasure(argThat(new IsMeasure(CoreMetrics.PROFILE_VERSION, 20.0)));
     verify(sensorContext).saveMeasure(
-      argThat(new IsMeasure(CoreMetrics.QUALITY_PROFILES, "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"}]")));
+      argThat(new IsMeasure(CoreMetrics.QUALITY_PROFILES, "[{\"key\":\"java-two\",\"language\":\"java\",\"name\":\"Java Two\"}]")));
   }
 
   @Test
   public void store_measures_on_multi_lang_module() throws Exception {
-    setupData("shared");
-
-    QualityProfileDao dao = new QualityProfileDao(getMyBatis());
-    when(moduleQProfiles.findByLanguage("java")).thenReturn(new QProfileWithId(2, "Java Two", "java", 20));
-    when(moduleQProfiles.findByLanguage("php")).thenReturn(new QProfileWithId(3, "Php One", "php", 30));
+    when(moduleQProfiles.findByLanguage("java")).thenReturn(new QProfile("java-two", "Java Two", "java"));
+    when(moduleQProfiles.findByLanguage("php")).thenReturn(new QProfile("php-one", "Php One", "php"));
     when(moduleQProfiles.findByLanguage("abap")).thenReturn(null);
     fs.addLanguages("java", "php");
 
-    QProfileSensor sensor = new QProfileSensor(moduleQProfiles, fs, dao);
+    QProfileSensor sensor = new QProfileSensor(moduleQProfiles, fs);
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
     sensor.analyse(project, sensorContext);
 
     verify(sensorContext).saveMeasure(
       argThat(new IsMeasure(CoreMetrics.QUALITY_PROFILES,
-        "[{\"id\":2,\"name\":\"Java Two\",\"version\":20,\"language\":\"java\"},{\"id\":3,\"name\":\"Php One\",\"version\":30,\"language\":\"php\"}]")));
+        "[{\"key\":\"java-two\",\"language\":\"java\",\"name\":\"Java Two\"},{\"key\":\"php-one\",\"language\":\"php\",\"name\":\"Php One\"}]")));
   }
 }

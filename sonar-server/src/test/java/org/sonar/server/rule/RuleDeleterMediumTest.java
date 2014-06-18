@@ -28,12 +28,11 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.ActiveRule;
+import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
@@ -71,7 +70,7 @@ public class RuleDeleterMediumTest {
   @Test
   public void delete_custom_rule() throws Exception {
     // Create template rule
-    RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001")).setLanguage("xoo");
+    RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("xoo", "T1")).setLanguage("xoo");
     dao.insert(dbSession, templateRule);
 
     // Create custom rule
@@ -79,15 +78,13 @@ public class RuleDeleterMediumTest {
     dao.insert(dbSession, customRule);
 
     // Create a quality profile
-    QualityProfileDto profileDto = QualityProfileDto.createFor(QualityProfileKey.of("P1", "xoo"));
+    QualityProfileDto profileDto = QProfileTesting.newXooP1();
     db.qualityProfileDao().insert(dbSession, profileDto);
-
     dbSession.commit();
+    dbSession.clearCache();
 
     // Activate the custom rule
-    tester.get(RuleActivator.class).activate(
-      new RuleActivation(ActiveRuleKey.of(profileDto.getKey(), customRule.getKey())).setSeverity(Severity.BLOCKER)
-      );
+    activate(new RuleActivation(customRule.getKey()).setSeverity(Severity.BLOCKER), QProfileTesting.XOO_P1_KEY);
 
     // Delete custom rule
     deleter.delete(customRule.getKey());
@@ -132,6 +129,12 @@ public class RuleDeleterMediumTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Only custom rules and manual rules can be deleted");
     }
+  }
+
+  private void activate(RuleActivation activation, String profileKey) {
+    tester.get(RuleActivator.class).activate(dbSession, activation, profileKey);
+    dbSession.commit();
+    dbSession.clearCache();
   }
 
 }

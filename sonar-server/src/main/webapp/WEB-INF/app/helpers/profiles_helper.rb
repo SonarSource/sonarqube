@@ -48,10 +48,6 @@ module ProfilesHelper
     html
   end
 
-  def profile_key(qProfile)
-    "#{qProfile.language().to_s}_#{qProfile.name().to_s}"
-  end
-
   def projects_count(qProfile)
     Internal.quality_profiles.countProjects(qProfile).to_i
   end

@@ -28,7 +28,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.db.DbClient;
@@ -37,7 +36,6 @@ import org.sonar.server.tester.ServerTester;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class ActiveRuleChangeMediumTest {
-
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
@@ -61,9 +59,7 @@ public class ActiveRuleChangeMediumTest {
 
   @Test
   public void insert_find_active_rule_change() {
-    ActiveRuleKey key = ActiveRuleKey.of(
-      QualityProfileKey.of("profile", "java"),
-      RuleKey.of("repository", "rule"));
+    ActiveRuleKey key = ActiveRuleKey.of("XOO_P1", RuleKey.of("xoo", "X1"));
     ActiveRuleChange change = ActiveRuleChange
       .createFor(ActiveRuleChange.Type.ACTIVATED, key)
       .setInheritance(ActiveRule.Inheritance.INHERITED)

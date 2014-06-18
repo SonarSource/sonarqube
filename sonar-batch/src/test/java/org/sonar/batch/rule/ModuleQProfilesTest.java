@@ -19,10 +19,9 @@
  */
 package org.sonar.batch.rule;
 
-import org.sonar.api.batch.rules.QProfile;
-
 import com.google.common.collect.Lists;
 import org.junit.Test;
+import org.sonar.api.batch.rules.QProfile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
@@ -31,7 +30,6 @@ import org.sonar.batch.languages.DeprecatedLanguagesReferential;
 import org.sonar.batch.languages.LanguagesReferential;
 import org.sonar.batch.rules.DefaultQProfileReferential;
 import org.sonar.batch.rules.QProfilesReferential;
-import org.sonar.batch.rules.QProfileWithId;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 
@@ -47,40 +45,40 @@ public class ModuleQProfilesTest extends AbstractDaoTestCase {
 
   @Test
   public void find_profiles() throws Exception {
+    // 4 profiles in db
     setupData("shared");
     QualityProfileDao dao = new QualityProfileDao(getMyBatis());
     QProfilesReferential ref = new DefaultQProfileReferential(dao);
 
-    settings.setProperty("sonar.profile.java", "Java Two");
+    settings.setProperty("sonar.profile.java", "Java One");
     settings.setProperty("sonar.profile.abap", "Abap One");
     settings.setProperty("sonar.profile.php", "Php One");
 
     ModuleQProfiles moduleQProfiles = new ModuleQProfiles(settings, languages, ref);
     List<QProfile> qProfiles = Lists.newArrayList(moduleQProfiles.findAll());
 
+    // load only the profiles of languages detected in project
     assertThat(qProfiles).hasSize(2);
     assertThat(moduleQProfiles.findByLanguage("java")).isNotNull();
     assertThat(moduleQProfiles.findByLanguage("php")).isNotNull();
     assertThat(moduleQProfiles.findByLanguage("abap")).isNull();
-    QProfileWithId javaProfile = (QProfileWithId) qProfiles.get(0);
-    assertThat(javaProfile.id()).isEqualTo(2);
-    assertThat(javaProfile.name()).isEqualTo("Java Two");
+    QProfile javaProfile = qProfiles.get(0);
+    assertThat(javaProfile.key()).isEqualTo("java-one");
+    assertThat(javaProfile.name()).isEqualTo("Java One");
     assertThat(javaProfile.language()).isEqualTo("java");
-    assertThat(javaProfile.version()).isEqualTo(20);
-    QProfileWithId phpProfile = (QProfileWithId) qProfiles.get(1);
-    assertThat(phpProfile.id()).isEqualTo(3);
+    QProfile phpProfile = qProfiles.get(1);
+    assertThat(phpProfile.key()).isEqualTo("php-one");
     assertThat(phpProfile.name()).isEqualTo("Php One");
     assertThat(phpProfile.language()).isEqualTo("php");
-    assertThat(phpProfile.version()).isEqualTo(30);
-
   }
 
   @Test
-  public void use_sonar_profile_property() throws Exception {
+  public void supported_deprecated_property() throws Exception {
     setupData("shared");
     QualityProfileDao dao = new QualityProfileDao(getMyBatis());
     QProfilesReferential ref = new DefaultQProfileReferential(dao);
 
+    // deprecated property
     settings.setProperty("sonar.profile", "Java Two");
     settings.setProperty("sonar.profile.php", "Php One");
 
@@ -88,19 +86,16 @@ public class ModuleQProfilesTest extends AbstractDaoTestCase {
     List<QProfile> qProfiles = Lists.newArrayList(moduleQProfiles.findAll());
 
     assertThat(qProfiles).hasSize(2);
-    QProfileWithId javaProfile = (QProfileWithId) qProfiles.get(0);
-    assertThat(javaProfile.id()).isEqualTo(2);
+    QProfile javaProfile = qProfiles.get(0);
+    assertThat(javaProfile.key()).isEqualTo("java-two");
     assertThat(javaProfile.name()).isEqualTo("Java Two");
     assertThat(javaProfile.language()).isEqualTo("java");
-    assertThat(javaProfile.version()).isEqualTo(20);
 
-    // Fallback to sonar.profile.php if no match for sonar.profile
-    QProfileWithId phpProfile = (QProfileWithId) qProfiles.get(1);
-    assertThat(phpProfile.id()).isEqualTo(3);
+    // "Java Two" does not exist for PHP -> fallback to sonar.profile.php
+    QProfile phpProfile = qProfiles.get(1);
+    assertThat(phpProfile.key()).isEqualTo("php-one");
     assertThat(phpProfile.name()).isEqualTo("Php One");
     assertThat(phpProfile.language()).isEqualTo("php");
-    assertThat(phpProfile.version()).isEqualTo(30);
-
   }
 
   @Test

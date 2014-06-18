@@ -1,9 +1,8 @@
 <dataset>
 
-  <rules_profiles id="1" name="New Sonar Way with Findbugs" language="js" parent_name="New Sonar Way" version="3"
-                  used_profile="[false]"/>
+  <rules_profiles id="1" name="New Name" language="js" parent_kee="fghij" kee="java_sonar_way"/>
 
-  <rules_profiles id="2" name="Sonar Way" language="js" parent_name="[null]" version="1"
-                  used_profile="[false]"/>
+  <rules_profiles id="2" name="Sonar Way" language="js" parent_kee="[null]" kee="js_sonar_way"/>
+
 
 </dataset>

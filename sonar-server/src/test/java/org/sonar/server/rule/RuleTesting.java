@@ -28,10 +28,29 @@ import org.sonar.core.rule.RuleDto;
 
 import java.util.Date;
 
+/**
+ * Utility class for tests involving rules
+ */
 public class RuleTesting {
+
+  public static final RuleKey XOO_X1 = RuleKey.of("xoo", "x1");
+  public static final RuleKey XOO_X2 = RuleKey.of("xoo", "x2");
+  public static final RuleKey XOO_X3 = RuleKey.of("xoo", "x3");
 
   private RuleTesting() {
     // only static helpers
+  }
+
+  public static RuleDto newXooX1() {
+    return newDto(XOO_X1).setLanguage("xoo");
+  }
+
+  public static RuleDto newXooX2() {
+    return newDto(XOO_X2).setLanguage("xoo");
+  }
+
+  public static RuleDto newXooX3() {
+    return newDto(XOO_X3).setLanguage("xoo");
   }
 
   /**

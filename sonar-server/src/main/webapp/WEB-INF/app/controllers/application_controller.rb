@@ -236,10 +236,10 @@ class ApplicationController < ActionController::Base
   def java_error_message(exception)
     message = ''
     message += (exception.getMessage ? exception.getMessage : Api::Utils.message(exception.l10nKey, :params => exception.l10nParams.to_a)) if exception.getMessage or exception.l10nKey
-    has_errors = exception.java_kind_of?(Java::OrgSonarServerExceptions::BadRequestException) && !exception.errors.empty?
+    has_errors = exception.java_kind_of?(Java::OrgSonarServerExceptions::BadRequestException) && !exception.errors.isEmpty()
     message += '<br/>' unless message.blank? or !has_errors
     if has_errors
-      message += exception.errors.to_a.map{|error| error.text ? error.text : Api::Utils.message(error.l10nKey, :params => error.l10nParams)}.join('<br/>')
+      message += exception.errors().messages().to_a.map{|msg| Api::Utils.message(msg.getKey(), :params => msg.getParams().to_a)}.join('<br/>')
     end
     message
   end

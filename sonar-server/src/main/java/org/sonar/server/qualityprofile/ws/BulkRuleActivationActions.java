@@ -27,7 +27,6 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.rule.RuleService;
@@ -105,7 +104,7 @@ public class BulkRuleActivationActions implements ServerComponent {
   private void bulkActivate(Request request, Response response) throws Exception {
     BulkChangeResult result = profileService.bulkActivate(
       SearchAction.createRuleQuery(ruleService.newRuleQuery(), request),
-      readKey(request),
+      request.mandatoryParam(PROFILE_KEY),
       request.param(SEVERITY));
     writeResponse(result, response);
   }
@@ -113,7 +112,7 @@ public class BulkRuleActivationActions implements ServerComponent {
   private void bulkDeactivate(Request request, Response response) throws Exception {
     BulkChangeResult result = profileService.bulkDeactivate(
       SearchAction.createRuleQuery(ruleService.newRuleQuery(), request),
-      readKey(request));
+      request.mandatoryParam(PROFILE_KEY));
     writeResponse(result, response);
   }
 
@@ -123,9 +122,5 @@ public class BulkRuleActivationActions implements ServerComponent {
     json.prop("failed", result.countFailed());
     result.getErrors().writeJsonAsWarnings(json, i18n, UserSession.get().locale());
     json.endObject().close();
-  }
-
-  private QualityProfileKey readKey(Request request) {
-    return QualityProfileKey.parse(request.mandatoryParam(PROFILE_KEY));
   }
 }

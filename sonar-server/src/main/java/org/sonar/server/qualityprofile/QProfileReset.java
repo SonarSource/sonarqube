@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
@@ -34,7 +35,6 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 
@@ -46,19 +46,23 @@ import java.util.Set;
 public class QProfileReset implements ServerComponent {
 
   private final DbClient db;
+  private final QProfileFactory factory;
   private final RuleActivator activator;
   private final BuiltInProfiles builtInProfiles;
   private final ProfileDefinition[] definitions;
 
-  public QProfileReset(DbClient db, RuleActivator activator, BuiltInProfiles builtInProfiles, ProfileDefinition[] definitions) {
+  public QProfileReset(DbClient db, RuleActivator activator, BuiltInProfiles builtInProfiles,
+    QProfileFactory factory, ProfileDefinition[] definitions) {
     this.db = db;
     this.activator = activator;
     this.builtInProfiles = builtInProfiles;
+    this.factory = factory;
     this.definitions = definitions;
   }
 
-  public QProfileReset(DbClient db, RuleActivator activator, BuiltInProfiles builtInProfiles) {
-    this(db, activator, builtInProfiles, new ProfileDefinition[0]);
+  public QProfileReset(DbClient db, RuleActivator activator, BuiltInProfiles builtInProfiles,
+    QProfileFactory factory) {
+    this(db, activator, builtInProfiles, factory, new ProfileDefinition[0]);
   }
 
   public Collection<String> builtInProfileNamesForLanguage(String language) {
@@ -67,68 +71,62 @@ public class QProfileReset implements ServerComponent {
 
   /**
    * Reset built-in profiles for the given language. Missing profiles are created and
-   * existing ones are updated
+   * existing ones are updated.
    */
   void resetLanguage(String language) {
-    ListMultimap<String, RulesProfile> profilesByName = loadDefinitionsGroupedByName(language);
-    for (Map.Entry<String, Collection<RulesProfile>> entry : profilesByName.asMap().entrySet()) {
-      QualityProfileKey profileKey = QualityProfileKey.of(entry.getKey(), language);
-      List<RuleActivation> activations = Lists.newArrayList();
-      for (RulesProfile def : entry.getValue()) {
-        for (ActiveRule activeRule : def.getActiveRules()) {
-          RuleActivation activation = new RuleActivation(ActiveRuleKey.of(profileKey, RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey())));
-          activation.setSeverity(activeRule.getSeverity().name());
-          for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
-            activation.setParameter(param.getParamKey(), param.getValue());
+    DbSession dbSession = db.openSession(false);
+    try {
+      ListMultimap<QProfileName, RulesProfile> profilesByName = loadDefinitionsGroupedByName(language);
+      for (Map.Entry<QProfileName, Collection<RulesProfile>> entry : profilesByName.asMap().entrySet()) {
+        QProfileName profileName = entry.getKey();
+        QualityProfileDto profile = factory.getOrCreate(dbSession, profileName);
+        List<RuleActivation> activations = Lists.newArrayList();
+        for (RulesProfile def : entry.getValue()) {
+          for (ActiveRule activeRule : def.getActiveRules()) {
+            RuleActivation activation = new RuleActivation(RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey()));
+            activation.setSeverity(activeRule.getSeverity().name());
+            for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
+              activation.setParameter(param.getParamKey(), param.getValue());
+            }
+            activations.add(activation);
           }
-          activations.add(activation);
         }
+        doReset(dbSession, profile, activations);
+        dbSession.commit();
       }
-      reset(profileKey, activations);
+    } finally {
+      dbSession.close();
     }
   }
 
   /**
-   * Create the profile if needed.
+   * Reset the profile, which is created if it does not exist
    */
-  BulkChangeResult reset(QualityProfileKey profileKey, Collection<RuleActivation> activations) {
-    BulkChangeResult result = new BulkChangeResult();
-    Set<RuleKey> rulesToDeactivate = Sets.newHashSet();
+  BulkChangeResult reset(QProfileName profileName, Collection<RuleActivation> activations) {
     DbSession dbSession = db.openSession(false);
     try {
-      // find or create profile
-      if (db.qualityProfileDao().getByKey(dbSession, profileKey) == null) {
-        // create new profile
-        db.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor(profileKey));
-      } else {
-        // already exists. Keep reference to all the activated rules before backup restore
-        for (ActiveRuleDto activeRuleDto : db.activeRuleDao().findByProfileKey(dbSession, profileKey)) {
-          if (activeRuleDto.getInheritance() == null) {
-            // inherited rules can't be deactivated
-            rulesToDeactivate.add(activeRuleDto.getKey().ruleKey());
-          }
-        }
-      }
+      QualityProfileDto profile = factory.getOrCreate(dbSession, profileName);
+      BulkChangeResult result = doReset(dbSession, profile, activations);
+      dbSession.commit();
+      return result;
+    } finally {
+      dbSession.close();
+    }
+  }
 
-      for (RuleActivation activation : activations) {
-        try {
-          List<ActiveRuleChange> changes = activator.activate(dbSession, activation);
-          rulesToDeactivate.remove(activation.getKey().ruleKey());
-          result.incrementSucceeded();
-          result.addChanges(changes);
-        } catch (BadRequestException e) {
-          result.incrementFailed();
-          result.getErrors().add(e.errors());
-        }
+  /**
+   * Reset the profile.
+   * @throws java.lang.IllegalStateException if the profile does not exist.
+   */
+  BulkChangeResult resetIfExists(String profileKey, Collection<RuleActivation> activations) {
+    DbSession dbSession = db.openSession(false);
+    try {
+      QualityProfileDto profile = db.qualityProfileDao().getByKey(dbSession, profileKey);
+      if (profile == null) {
+        // not enough information to create profile
+        throw new IllegalStateException("Quality profile does not exist: " + profileKey);
       }
-
-      for (RuleKey ruleKey : rulesToDeactivate) {
-        try {
-          activator.deactivate(dbSession, ActiveRuleKey.of(profileKey, ruleKey));
-        } catch (BadRequestException e) {
-          // ignore, probably a rule inherited from parent that can't be deactivated
-        }
-      }
+      BulkChangeResult result = doReset(dbSession, profile, activations);
       dbSession.commit();
       return result;
 
@@ -137,14 +135,52 @@ public class QProfileReset implements ServerComponent {
     }
   }
 
-  private ListMultimap<String, RulesProfile> loadDefinitionsGroupedByName(String language) {
-    ListMultimap<String, RulesProfile> profilesByName = ArrayListMultimap.create();
+  /**
+   * @param dbSession
+   * @param profile must exist
+   */
+  private BulkChangeResult doReset(DbSession dbSession, QualityProfileDto profile, Collection<RuleActivation> activations) {
+    Preconditions.checkNotNull(profile.getId(), "Quality profile must be persisted");
+    BulkChangeResult result = new BulkChangeResult();
+    Set<RuleKey> ruleToBeDeactivated = Sets.newHashSet();
+    // Keep reference to all the activated rules before backup restore
+    for (ActiveRuleDto activeRuleDto : db.activeRuleDao().findByProfileKey(dbSession, profile.getKee())) {
+      if (activeRuleDto.getInheritance() == null) {
+        // inherited rules can't be deactivated
+        ruleToBeDeactivated.add(activeRuleDto.getKey().ruleKey());
+      }
+    }
+
+    for (RuleActivation activation : activations) {
+      try {
+        List<ActiveRuleChange> changes = activator.activate(dbSession, activation, profile.getKey());
+        ruleToBeDeactivated.remove(activation.getRuleKey());
+        result.incrementSucceeded();
+        result.addChanges(changes);
+      } catch (BadRequestException e) {
+        result.incrementFailed();
+        result.getErrors().add(e.errors());
+      }
+    }
+
+    for (RuleKey ruleKey : ruleToBeDeactivated) {
+      try {
+        activator.deactivate(dbSession, ActiveRuleKey.of(profile.getKee(), ruleKey));
+      } catch (BadRequestException e) {
+        // ignore, probably a rule inherited from parent that can't be deactivated
+      }
+    }
+    return result;
+  }
+
+  private ListMultimap<QProfileName, RulesProfile> loadDefinitionsGroupedByName(String language) {
+    ListMultimap<QProfileName, RulesProfile> profilesByName = ArrayListMultimap.create();
     for (ProfileDefinition definition : definitions) {
       ValidationMessages validation = ValidationMessages.create();
       RulesProfile profile = definition.createProfile(validation);
       if (language.equals(profile.getLanguage())) {
         processValidationMessages(validation);
-        profilesByName.put(profile.getName(), profile);
+        profilesByName.put(new QProfileName(profile.getLanguage(), profile.getName()), profile);
       }
     }
     return profilesByName;

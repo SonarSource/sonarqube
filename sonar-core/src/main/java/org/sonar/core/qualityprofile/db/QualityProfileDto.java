@@ -25,17 +25,16 @@ import org.sonar.core.persistence.Dto;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-public class QualityProfileDto extends Dto<QualityProfileKey> {
+public class QualityProfileDto extends Dto<String> {
 
   private Integer id;
+  private String kee;
   private String name;
   private String language;
-  private String parent;
-  private Integer version;
-  private boolean used;
+  private String parentKee;
 
   /**
-   * @deprecated use {@link #createFor(String, String)}
+   * @deprecated use {@link #createFor(String)}
    */
   @Deprecated
   public QualityProfileDto() {
@@ -43,8 +42,21 @@ public class QualityProfileDto extends Dto<QualityProfileKey> {
   }
 
   @Override
-  public QualityProfileKey getKey() {
-    return QualityProfileKey.of(this.getName(), this.getLanguage());
+  public String getKey() {
+    return kee;
+  }
+
+  public QualityProfileDto setKey(String s) {
+    return setKee(s);
+  }
+
+  public String getKee() {
+    return kee;
+  }
+
+  public QualityProfileDto setKee(String s) {
+    this.kee = s;
+    return this;
   }
 
   public Integer getId() {
@@ -75,52 +87,16 @@ public class QualityProfileDto extends Dto<QualityProfileKey> {
   }
 
   @CheckForNull
-  public String getParent() {
-    return parent;
+  public String getParentKee() {
+    return parentKee;
   }
 
-  @CheckForNull
-  public QualityProfileKey getParentKey() {
-    if (getParent() != null && !getParent().isEmpty()) {
-      return QualityProfileKey.of(this.getParent(), this.getLanguage());
-    } else {
-      return null;
-    }
-  }
-
-
-  public QualityProfileDto setParent(@Nullable String parent) {
-    this.parent = parent;
+  public QualityProfileDto setParentKee(@Nullable String s) {
+    this.parentKee = s;
     return this;
   }
 
-  public Integer getVersion() {
-    return version;
-  }
-
-  public QualityProfileDto setVersion(Integer version) {
-    this.version = version;
-    return this;
-  }
-
-  public boolean isUsed() {
-    return used;
-  }
-
-  public QualityProfileDto setUsed(boolean used) {
-    this.used = used;
-    return this;
-  }
-
-  public static QualityProfileDto createFor(String name, String language) {
-    return new QualityProfileDto()
-      .setName(name)
-      .setLanguage(language)
-      .setUsed(false)
-      .setVersion(1);
-  }
-
-  public static QualityProfileDto createFor(QualityProfileKey key) {
-    return createFor(key.name(), key.lang());
+  public static QualityProfileDto createFor(String key) {
+    return new QualityProfileDto().setKee(key);
   }
 }

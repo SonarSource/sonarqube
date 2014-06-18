@@ -36,13 +36,11 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
-import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.rule.RuleDao;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
-import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RulesProviderTest extends AbstractDaoTestCase {

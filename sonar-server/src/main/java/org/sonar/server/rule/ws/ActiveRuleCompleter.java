@@ -23,10 +23,8 @@ import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.qualityprofile.QProfileService;
-import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.index.RuleQuery;
 
@@ -50,9 +48,8 @@ public class ActiveRuleCompleter implements ServerComponent {
 
     if (query.getQProfileKey() != null) {
       // Load details of active rules on the selected profile
-      QualityProfileKey profileKey = QualityProfileKey.parse(query.getQProfileKey());
       for (Rule rule : rules) {
-        ActiveRule activeRule = service.getActiveRule(ActiveRuleKey.of(profileKey, rule.key()));
+        ActiveRule activeRule = service.getActiveRule(ActiveRuleKey.of(query.getQProfileKey(), rule.key()));
         if (activeRule != null) {
           writeActiveRules(rule.key(), Arrays.asList(activeRule), json);
         }

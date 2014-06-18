@@ -30,6 +30,7 @@ import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.resource.ResourceDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.template.LoadedTemplateDao;
+import org.sonar.core.user.AuthorizationDao;
 import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.component.persistence.ComponentDao;
 import org.sonar.server.measure.persistence.MeasureDao;
@@ -55,6 +56,7 @@ public class DbClient implements ServerComponent {
   private final ResourceDao resourceDao;
   private final MeasureDao measureDao;
   private final ActivityDao activityDao;
+  private final AuthorizationDao authorizationDao;
 
   public DbClient(Database db, MyBatis myBatis, DaoComponent... daoComponents) {
     this.db = db;
@@ -74,6 +76,7 @@ public class DbClient implements ServerComponent {
     resourceDao = getDao(map, ResourceDao.class);
     measureDao = getDao(map, MeasureDao.class);
     activityDao = getDao(map, ActivityDao.class);
+    authorizationDao = getDao(map, AuthorizationDao.class);
   }
 
   public Database database() {
@@ -122,6 +125,10 @@ public class DbClient implements ServerComponent {
 
   public ActivityDao activityDao() {
     return activityDao;
+  }
+
+  public AuthorizationDao authorizationDao() {
+    return authorizationDao;
   }
 
   private <K> K getDao(Map<Class, DaoComponent> map, Class<K> clazz) {

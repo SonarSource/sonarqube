@@ -54,7 +54,7 @@ public class AppAction implements RequestHandler {
   private final QProfileService qualityProfileService;
 
   public AppAction(Languages languages, RuleRepositories ruleRepositories, I18n i18n,
-                   DebtModel debtModel, QProfileService qualityProfileService) {
+    DebtModel debtModel, QProfileService qualityProfileService) {
     this.languages = languages;
     this.ruleRepositories = ruleRepositories;
     this.i18n = i18n;
@@ -83,15 +83,13 @@ public class AppAction implements RequestHandler {
     json.name("qualityprofiles").beginArray();
     for (QualityProfileDto profile : qualityProfileService.findAll()) {
       if (languageIsSupported(profile)) {
-        json.beginObject()
-          .prop("key", profile.getKey().toString())
+        json
+          .beginObject()
+          .prop("key", profile.getKey())
           .prop("name", profile.getName())
           .prop("lang", profile.getLanguage())
-          .prop("parent", profile.getParent());
-        if (profile.getParentKey() != null) {
-          json.prop("parentKey", profile.getParentKey().toString());
-        }
-        json.endObject();
+          .prop("parentKey", profile.getParentKee())
+          .endObject();
       }
     }
     json.endArray();

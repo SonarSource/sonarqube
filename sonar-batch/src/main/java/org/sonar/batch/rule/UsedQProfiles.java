@@ -19,67 +19,57 @@
  */
 package org.sonar.batch.rule;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.sonar.api.batch.rules.QProfile;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.batch.rules.QProfileWithId;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.io.StringWriter;
-import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedSet;
 
 @Immutable
 public class UsedQProfiles {
 
-  private final Map<Integer, QProfileWithId> profilesById = Maps.newLinkedHashMap();
-
-  private UsedQProfiles() {
-    // only static
-  }
-
-  public static UsedQProfiles fromProfiles(Iterable<QProfileWithId> profiles) {
-    UsedQProfiles result = new UsedQProfiles();
-    for (QProfileWithId qProfile : profiles) {
-      result.add(qProfile);
+  private final SortedSet<QProfile> profiles = Sets.newTreeSet(new Comparator<QProfile>() {
+    @Override
+    public int compare(QProfile o1, QProfile o2) {
+      int c = o1.language().compareTo(o2.language());
+      if (c == 0) {
+        c = o1.name().compareTo(o2.name());
+      }
+      return c;
     }
-    return result;
-  }
+  });
 
-  public static UsedQProfiles empty() {
-    return new UsedQProfiles();
-  }
-
-  public static UsedQProfiles fromProfiles(QProfileWithId... profiles) {
-    return fromProfiles(Arrays.asList(profiles));
-  }
-
-  public static UsedQProfiles fromJSON(String json) {
+  public static UsedQProfiles fromJson(String json) {
     UsedQProfiles result = new UsedQProfiles();
     JsonArray root = new JsonParser().parse(json).getAsJsonArray();
     for (JsonElement elt : root) {
       JsonObject profile = elt.getAsJsonObject();
-      result.add(new QProfileWithId(profile.get("id").getAsInt(), profile.get("name").getAsString(), profile.get("language").getAsString(), profile.get("version").getAsInt()));
+      result.add(new QProfile(profile.get("key").getAsString(), profile.get("name").getAsString(), profile.get("language").getAsString()));
     }
     return result;
   }
 
-  public final String toJSON() {
+  public String toJson() {
     StringWriter json = new StringWriter();
     JsonWriter writer = JsonWriter.of(json);
     writer.beginArray();
-    for (QProfileWithId qProfile : profilesById.values()) {
+    for (QProfile profile : profiles) {
       writer
         .beginObject()
-        .prop("id", qProfile.id())
-        .prop("name", qProfile.name())
-        .prop("version", qProfile.version())
-        .prop("language", qProfile.language())
+        .prop("key", profile.key())
+        .prop("language", profile.language())
+        .prop("name", profile.name())
         .endObject();
     }
     writer.endArray();
@@ -87,33 +77,30 @@ public class UsedQProfiles {
     return json.toString();
   }
 
-  public final UsedQProfiles merge(UsedQProfiles other) {
-    return empty().mergeInPlace(this).mergeInPlace(other);
-  }
-
-  private void add(QProfileWithId profile) {
-    QProfileWithId alreadyAdded = profilesById.get(profile.id());
-    if (alreadyAdded == null
-      // Keep only latest version
-      || profile.version() > alreadyAdded.version()) {
-      profilesById.put(profile.id(), profile);
-    }
-  }
-
-  private UsedQProfiles addAll(Iterable<QProfileWithId> profiles) {
-    for (QProfileWithId profile : profiles) {
-      this.add(profile);
-    }
+  public UsedQProfiles add(UsedQProfiles other) {
+    addAll(other.profiles);
     return this;
   }
 
-  private UsedQProfiles mergeInPlace(UsedQProfiles other) {
-    this.addAll(other.profilesById.values());
+  public UsedQProfiles add(QProfile profile) {
+    profiles.add(profile);
     return this;
   }
 
-  public Map<Integer, QProfileWithId> profilesById() {
-    return ImmutableMap.copyOf(profilesById);
+  public UsedQProfiles addAll(Collection<QProfile> profiles) {
+    this.profiles.addAll(profiles);
+    return this;
   }
 
+  public SortedSet<QProfile> profiles() {
+    return profiles;
+  }
+
+  public Map<String, QProfile> profilesByKey() {
+    Map<String,QProfile> map = new HashMap<String, QProfile>();
+    for (QProfile profile : profiles) {
+      map.put(profile.key(), profile);
+    }
+    return map;
+  }
 }

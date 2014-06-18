@@ -30,10 +30,10 @@ import java.io.Serializable;
  */
 public class ActiveRuleKey implements Serializable {
 
-  private final QualityProfileKey qualityProfileKey;
+  private final String qualityProfileKey;
   private final RuleKey ruleKey;
 
-  protected ActiveRuleKey(QualityProfileKey qualityProfileKey, RuleKey ruleKey) {
+  protected ActiveRuleKey(String qualityProfileKey, RuleKey ruleKey) {
     this.qualityProfileKey = qualityProfileKey;
     this.ruleKey = ruleKey;
   }
@@ -41,9 +41,9 @@ public class ActiveRuleKey implements Serializable {
   /**
    * Create a key. Parameters are NOT null.
    */
-  public static ActiveRuleKey of(QualityProfileKey qualityProfileKey, RuleKey ruleKey) {
-    Preconditions.checkArgument(qualityProfileKey != null, "QProfile is missing");
-    Preconditions.checkArgument(ruleKey != null, "RuleKey is missing key");
+  public static ActiveRuleKey of(String qualityProfileKey, RuleKey ruleKey) {
+    Preconditions.checkNotNull(qualityProfileKey, "QProfile is missing");
+    Preconditions.checkNotNull(ruleKey, "RuleKey is missing key");
     return new ActiveRuleKey(qualityProfileKey, ruleKey);
   }
 
@@ -53,9 +53,8 @@ public class ActiveRuleKey implements Serializable {
    */
   public static ActiveRuleKey parse(String s) {
     String[] split = s.split(":");
-    Preconditions.checkArgument(split.length == 4, "Bad format of activeRule key: " + s);
-    return ActiveRuleKey.of(QualityProfileKey.of(split[0], split[1]),
-      RuleKey.of(split[2], split[3]));
+    Preconditions.checkArgument(split.length == 3, "Bad format of activeRule key: " + s);
+    return ActiveRuleKey.of(split[0], RuleKey.of(split[1], split[2]));
   }
 
   /**
@@ -68,7 +67,7 @@ public class ActiveRuleKey implements Serializable {
   /**
    * Never null
    */
-  public QualityProfileKey qProfile() {
+  public String qProfile() {
     return qualityProfileKey;
   }
 
@@ -98,11 +97,10 @@ public class ActiveRuleKey implements Serializable {
   }
 
   /**
-   * Format is "qprofile:rule", for example "Java:squid:AvoidCycle:xpxp"
+   * Format is "qprofile:rule", for example "12345:squid:AvoidCycle"
    */
   @Override
   public String toString() {
-    return String.format("%s:%s",  qualityProfileKey.toString(), ruleKey.toString());
+    return String.format("%s:%s", qualityProfileKey.toString(), ruleKey.toString());
   }
 }
-

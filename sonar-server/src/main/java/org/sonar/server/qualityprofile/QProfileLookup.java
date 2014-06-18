@@ -24,40 +24,38 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import org.sonar.api.ServerComponent;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.server.db.DbClient;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
 public class QProfileLookup implements ServerComponent {
 
-  private final MyBatis myBatis;
-  private final QualityProfileDao dao;
+  private final DbClient db;
 
-  public QProfileLookup(MyBatis myBatis, QualityProfileDao dao) {
-    this.myBatis = myBatis;
-    this.dao = dao;
+  public QProfileLookup(DbClient db) {
+    this.db = db;
   }
 
   public List<QProfile> allProfiles() {
-    return toQProfiles(dao.selectAll());
+    return toQProfiles(db.qualityProfileDao().findAll());
   }
 
   public List<QProfile> profiles(String language) {
-    return toQProfiles(dao.selectByLanguage(language));
+    return toQProfiles(db.qualityProfileDao().findByLanguage(language));
   }
 
   @CheckForNull
   public QProfile profile(int id) {
-    DbSession session = myBatis.openSession(false);
+    DbSession session = db.openSession(false);
     try {
       return profile(id, session);
     } finally {
-      MyBatis.closeQuietly(session);
+      session.close();
     }
   }
 
@@ -80,36 +78,17 @@ public class QProfileLookup implements ServerComponent {
 
   @CheckForNull
   public QProfile profile(String name, String language) {
-    DbSession session = myBatis.openSession(false);
+    DbSession session = db.openSession(false);
     try {
       return profile(name, language, session);
     } finally {
-      MyBatis.closeQuietly(session);
+      session.close();
     }
-  }
-
-  @CheckForNull
-  public QProfile defaultProfile(String language) {
-    DbSession session = myBatis.openSession(false);
-    try {
-      return defaultProfile(language, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  @CheckForNull
-  private QProfile defaultProfile(String language, DbSession session) {
-    QualityProfileDto dto = dao.selectDefaultProfile(language, QProfileOperations.PROFILE_PROPERTY_PREFIX + language, session);
-    if (dto != null) {
-      return QProfile.from(dto);
-    }
-    return null;
   }
 
   @CheckForNull
   public QProfile parent(QProfile profile) {
-    DbSession session = myBatis.openSession(false);
+    DbSession session = db.openSession(false);
     try {
       String parent = profile.parent();
       if (parent != null) {
@@ -120,37 +99,37 @@ public class QProfileLookup implements ServerComponent {
       }
       return null;
     } finally {
-      MyBatis.closeQuietly(session);
+      session.close();
     }
   }
 
   public List<QProfile> children(QProfile profile) {
-    DbSession session = myBatis.openSession(false);
+    DbSession session = db.openSession(false);
     try {
       return children(profile, session);
     } finally {
-      MyBatis.closeQuietly(session);
+      session.close();
     }
   }
 
   public List<QProfile> children(QProfile profile, DbSession session) {
-    return toQProfiles(dao.selectChildren(profile.name(), profile.language(), session));
+    return toQProfiles(db.qualityProfileDao().findChildren(session, profile.key()));
   }
 
   public List<QProfile> ancestors(QProfile profile) {
     List<QProfile> ancestors = newArrayList();
-    DbSession session = myBatis.openSession(false);
+    DbSession session = db.openSession(false);
     try {
       incrementAncestors(profile, ancestors, session);
     } finally {
-      MyBatis.closeQuietly(session);
+      session.close();
     }
     return ancestors;
   }
 
   private void incrementAncestors(QProfile profile, List<QProfile> ancestors, DbSession session) {
     if (profile.parent() != null) {
-      QualityProfileDto parentDto = dao.selectParent(profile.id(), session);
+      QualityProfileDto parentDto = db.qualityProfileDao().getParentById(profile.id(), session);
       if (parentDto == null) {
         throw new IllegalStateException("Cannot find parent of profile : " + profile.id());
       }
@@ -171,12 +150,12 @@ public class QProfileLookup implements ServerComponent {
 
   @CheckForNull
   private QualityProfileDto findQualityProfile(int id, DbSession session) {
-    return dao.selectById(id, session);
+    return db.qualityProfileDao().getById(id, session);
   }
 
   @CheckForNull
   private QualityProfileDto findQualityProfile(String name, String language, DbSession session) {
-    return dao.selectByNameAndLanguage(name, language, session);
+    return db.qualityProfileDao().getByNameAndLanguage(name, language, session);
   }
 
 }

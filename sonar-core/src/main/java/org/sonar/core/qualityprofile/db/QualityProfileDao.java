@@ -29,6 +29,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
 
 public class QualityProfileDao implements ServerComponent, DaoComponent {
@@ -40,11 +41,11 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
   }
 
   @CheckForNull
-  public QualityProfileDto getByKey(DbSession session, QualityProfileKey key) {
-    return session.getMapper(QualityProfileMapper.class).selectByNameAndLanguage(key.name(), key.lang());
+  public QualityProfileDto getByKey(DbSession session, String key) {
+    return session.getMapper(QualityProfileMapper.class).selectByKey(key);
   }
 
-  public QualityProfileDto getNonNullByKey(DbSession session, QualityProfileKey key) {
+  public QualityProfileDto getNonNullByKey(DbSession session, String key) {
     QualityProfileDto dto = getByKey(session, key);
     if (dto == null) {
       throw new IllegalArgumentException("Quality profile not found: " + key);
@@ -110,7 +111,6 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
     }
   }
 
-
   public void delete(DbSession session, QualityProfileDto profile, QualityProfileDto... otherProfiles) {
     QualityProfileMapper mapper = session.getMapper(QualityProfileMapper.class);
     doDelete(mapper, profile);
@@ -118,7 +118,6 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
       doDelete(mapper, otherProfile);
     }
   }
-
 
   private void doDelete(QualityProfileMapper mapper, QualityProfileDto profile) {
     Preconditions.checkNotNull(profile.getId(), "Quality profile is not persisted");
@@ -152,7 +151,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
    *    {@link #findAll(DbSession)}
    */
   @Deprecated
-  public List<QualityProfileDto> selectAll() {
+  public List<QualityProfileDto> findAll() {
     DbSession session = mybatis.openSession(false);
     try {
       return session.getMapper(QualityProfileMapper.class).selectAll();
@@ -161,20 +160,23 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
     }
   }
 
-  public QualityProfileDto selectDefaultProfile(String language, String key, DbSession session) {
-    return session.getMapper(QualityProfileMapper.class).selectDefaultProfile(language, key);
+  @CheckForNull
+  public QualityProfileDto getDefaultProfile(String language, DbSession session) {
+    return session.getMapper(QualityProfileMapper.class).selectDefaultProfile(language, String.format("sonar.profile.%s", language));
   }
 
-  public QualityProfileDto selectDefaultProfile(String language, String key) {
+  @CheckForNull
+  public QualityProfileDto getDefaultProfile(String language) {
     DbSession session = mybatis.openSession(false);
     try {
-      return selectDefaultProfile(language, key, session);
+      return getDefaultProfile(language, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public QualityProfileDto selectByProjectAndLanguage(long projectId, String language, String key) {
+  @CheckForNull
+  public QualityProfileDto getByProjectAndLanguage(long projectId, String language, String key) {
     DbSession session = mybatis.openSession(false);
     try {
       return session.getMapper(QualityProfileMapper.class).selectByProjectAndLanguage(projectId, language, key);
@@ -183,7 +185,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
     }
   }
 
-  public List<QualityProfileDto> selectByLanguage(String language) {
+  public List<QualityProfileDto> findByLanguage(String language) {
     DbSession session = mybatis.openSession(false);
     try {
       return session.getMapper(QualityProfileMapper.class).selectByLanguage(language);
@@ -194,101 +196,89 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
 
   /**
    * @deprecated Replaced by
-   *    {@link #getByKey(org.sonar.core.persistence.DbSession, QualityProfileKey)}
+   *    {@link #getByKey(org.sonar.core.persistence.DbSession, String)}
    */
   @Deprecated
   @CheckForNull
-  public QualityProfileDto selectById(int id, DbSession session) {
+  public QualityProfileDto getById(int id, DbSession session) {
     return session.getMapper(QualityProfileMapper.class).selectById(id);
   }
 
   /**
    * @deprecated Replaced by
-   *    {@link #getByKey(org.sonar.core.persistence.DbSession, QualityProfileKey)}
+   *    {@link #getByKey(org.sonar.core.persistence.DbSession, String)}
    */
   @Deprecated
   @CheckForNull
-  public QualityProfileDto selectById(int id) {
+  public QualityProfileDto getById(int id) {
     DbSession session = mybatis.openSession(false);
     try {
-      return selectById(id, session);
+      return getById(id, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
   @CheckForNull
-  public QualityProfileDto selectParent(int childId, DbSession session) {
-    return session.getMapper(QualityProfileMapper.class).selectParent(childId);
+  public QualityProfileDto getParent(String childKey, DbSession session) {
+    return session.getMapper(QualityProfileMapper.class).selectParent(childKey);
   }
 
   @CheckForNull
-  public QualityProfileDto selectParent(int childId) {
+  public QualityProfileDto getParent(String childKey) {
     DbSession session = mybatis.openSession(false);
     try {
-      return selectParent(childId, session);
+      return getParent(childKey, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public List<QualityProfileDto> findByParentKey(DbSession session, QualityProfileKey key) {
-    return session.getMapper(QualityProfileMapper.class).selectChildren(key.name(), key.lang());
+  @CheckForNull
+  public QualityProfileDto getParentById(int childId, DbSession session) {
+    return session.getMapper(QualityProfileMapper.class).selectParentById(childId);
+  }
+
+  @CheckForNull
+  public QualityProfileDto getParentById(int childId) {
+    DbSession session = mybatis.openSession(false);
+    try {
+      return getParentById(childId, session);
+    } finally {
+      MyBatis.closeQuietly(session);
+    }
+  }
+
+  public List<QualityProfileDto> findChildren(DbSession session, String key) {
+    return session.getMapper(QualityProfileMapper.class).selectChildren(key);
   }
 
   /**
    * All descendants, in the top-down order.
    */
-  public List<QualityProfileDto> findDescendants(DbSession session, QualityProfileKey key) {
+  public List<QualityProfileDto> findDescendants(DbSession session, String key) {
     List<QualityProfileDto> descendants = Lists.newArrayList();
-    for (QualityProfileDto child : findByParentKey(session, key)) {
+    for (QualityProfileDto child : findChildren(session, key)) {
       descendants.add(child);
       descendants.addAll(findDescendants(session, child.getKey()));
     }
     return descendants;
   }
 
-  /**
-   * @deprecated Replaced by
-   *    {@link #findByParentKey(DbSession,QualityProfileKey)}
-   */
-  @Deprecated
-  public List<QualityProfileDto> selectChildren(String name, String language, DbSession session) {
-    return session.getMapper(QualityProfileMapper.class).selectChildren(name, language);
-  }
-
-  /**
-   * @deprecated Replaced by
-   *    {@link #findByParentKey(DbSession,QualityProfileKey)}
-   */
-  @Deprecated
-  public List<QualityProfileDto> selectChildren(String name, String language) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      return selectChildren(name, language, session);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  /**
-   * @deprecated Replaced by
-   *    {@link #getByKey(org.sonar.core.persistence.DbSession, QualityProfileKey)}
-   */
-  @Deprecated
-  public QualityProfileDto selectByNameAndLanguage(String name, String language, DbSession session) {
+  @CheckForNull
+  public QualityProfileDto getByNameAndLanguage(String name, String language, DbSession session) {
     return session.getMapper(QualityProfileMapper.class).selectByNameAndLanguage(name, language);
   }
 
   /**
    * @deprecated Replaced by
-   *    {@link #getByKey(org.sonar.core.persistence.DbSession, QualityProfileKey)}
+   *    {@link #getByNameAndLanguage(String, String, org.sonar.core.persistence.DbSession)}
    */
   @Deprecated
-  public QualityProfileDto selectByNameAndLanguage(String name, String language) {
+  public QualityProfileDto getByNameAndLanguage(String name, String language) {
     DbSession session = mybatis.openSession(false);
     try {
-      return selectByNameAndLanguage(name, language, session);
+      return getByNameAndLanguage(name, language, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
@@ -311,16 +301,6 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
     DbSession session = mybatis.openSession(false);
     try {
       return session.getMapper(QualityProfileMapper.class).countProjects(propertyKey, propertyValue);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public void updateUsedColumn(int profileId, boolean used) {
-    DbSession session = mybatis.openSession(false);
-    try {
-      session.getMapper(QualityProfileMapper.class).updatedUsedColumn(profileId, used);
-      session.commit();
     } finally {
       MyBatis.closeQuietly(session);
     }

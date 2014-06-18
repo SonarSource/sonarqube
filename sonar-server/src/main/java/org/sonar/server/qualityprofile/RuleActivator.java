@@ -31,7 +31,6 @@ import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.activity.ActivityService;
@@ -47,6 +46,7 @@ import org.sonar.server.search.Result;
 import org.sonar.server.util.TypeValidations;
 
 import javax.annotation.Nullable;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -76,25 +76,17 @@ public class RuleActivator implements ServerComponent {
     this.log = log;
   }
 
-  /**
-   * Activate a rule on a Quality profile. Update configuration (severity/parameters) if the rule is already
-   * activated.
-   *
-   * @throws org.sonar.server.exceptions.BadRequestException if the profile, the rule or a rule parameter does
-   *                                                         not exist
-   */
-  public List<ActiveRuleChange> activate(RuleActivation activation) {
-    DbSession dbSession = db.openSession(false);
-    try {
-      return activate(dbSession, activation);
-    } finally {
-      dbSession.commit();
-      dbSession.close();
-    }
+  public List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation, String profileKey) {
+    RuleActivatorContext context = contextFactory.create(profileKey, activation.getRuleKey(), dbSession);
+    return doActivate(dbSession, activation, context);
   }
 
-  public List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation) {
-    RuleActivatorContext context = contextFactory.create(activation.getKey(), dbSession);
+  public List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation, QProfileName profileName) {
+    RuleActivatorContext context = contextFactory.create(profileName, activation.getRuleKey(), dbSession);
+    return doActivate(dbSession, activation, context);
+  }
+
+  private List<ActiveRuleChange> doActivate(DbSession dbSession, RuleActivation activation, RuleActivatorContext context) {
     context.verifyForActivation();
     List<ActiveRuleChange> changes = Lists.newArrayList();
     ActiveRuleChange change;
@@ -102,7 +94,7 @@ public class RuleActivator implements ServerComponent {
 
     if (context.activeRule() == null) {
       // new activation
-      change = ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, activation.getKey());
+      change = ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, context.activeRuleKey());
       if (activation.isCascade() || context.isSameAsParent(activation)) {
         change.setInheritance(ActiveRule.Inheritance.INHERITED);
       }
@@ -115,7 +107,7 @@ public class RuleActivator implements ServerComponent {
         // propagating to descendants, but child profile already overrides rule -> stop propagation
         return changes;
       }
-      change = ActiveRuleChange.createFor(ActiveRuleChange.Type.UPDATED, activation.getKey());
+      change = ActiveRuleChange.createFor(ActiveRuleChange.Type.UPDATED, context.activeRuleKey());
       if (activation.isCascade() && context.activeRule().getInheritance() == null) {
         // activate on child, then on parent -> mark child as overriding parent
         change.setInheritance(ActiveRule.Inheritance.OVERRIDES);
@@ -140,12 +132,12 @@ public class RuleActivator implements ServerComponent {
     }
 
     if (!stopPropagation) {
-      changes.addAll(cascadeActivation(dbSession, activation));
+      changes.addAll(cascadeActivation(dbSession, activation, context.profile().getKey()));
     }
 
     if (!changes.isEmpty()) {
       log.write(dbSession, Activity.Type.QPROFILE, changes);
-      previewCache.reportGlobalModification();
+      previewCache.reportGlobalModification(dbSession);
     }
     return changes;
   }
@@ -172,72 +164,82 @@ public class RuleActivator implements ServerComponent {
     }
   }
 
-  private List<ActiveRuleChange> cascadeActivation(DbSession session, RuleActivation activation) {
+  private List<ActiveRuleChange> cascadeActivation(DbSession session, RuleActivation activation, String profileKey) {
     List<ActiveRuleChange> changes = Lists.newArrayList();
 
     // get all inherited profiles
-    List<QualityProfileDto> profiles =
-      db.qualityProfileDao().findByParentKey(session, activation.getKey().qProfile());
-
-    for (QualityProfileDto profile : profiles) {
-      ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), activation.getKey().ruleKey());
-      changes.addAll(this.activate(session, new RuleActivation(activeRuleKey)
+    List<QualityProfileDto> children = db.qualityProfileDao().findChildren(session, profileKey);
+    for (QualityProfileDto child : children) {
+      RuleActivation childActivation = new RuleActivation(activation.getRuleKey())
         .isCascade(true)
         .setParameters(activation.getParameters())
-        .setSeverity(activation.getSeverity())));
+        .setSeverity(activation.getSeverity());
+      changes.addAll(activate(session, childActivation, child.getKey()));
     }
     return changes;
   }
 
   private ActiveRuleDto persist(ActiveRuleChange change, RuleActivatorContext context, DbSession dbSession) {
-    ActiveRuleDao dao = db.activeRuleDao();
     ActiveRuleDto activeRule = null;
     if (change.getType() == ActiveRuleChange.Type.ACTIVATED) {
-      activeRule = ActiveRuleDto.createFor(context.profile(), context.rule());
-      activeRule.setSeverity(change.getSeverity());
-      if (change.getInheritance() != null) {
-        activeRule.setInheritance(change.getInheritance().name());
-      }
-      dao.insert(dbSession, activeRule);
-      for (Map.Entry<String, String> param : change.getParameters().entrySet()) {
-        if (param.getValue() != null) {
-          ActiveRuleParamDto paramDto = ActiveRuleParamDto.createFor(context.ruleParamsByKeys().get(param.getKey()));
-          paramDto.setValue(param.getValue());
-          dao.addParam(dbSession, activeRule, paramDto);
-        }
-      }
+      activeRule = doInsert(change, context, dbSession);
 
     } else if (change.getType() == ActiveRuleChange.Type.DEACTIVATED) {
+      ActiveRuleDao dao = db.activeRuleDao();
       dao.deleteByKey(dbSession, change.getKey());
 
     } else if (change.getType() == ActiveRuleChange.Type.UPDATED) {
-      activeRule = context.activeRule();
-      activeRule.setSeverity(change.getSeverity());
-      if (change.getInheritance() != null) {
-        activeRule.setInheritance(change.getInheritance().name());
-      }
-      dao.update(dbSession, activeRule);
+      activeRule = doUpdate(change, context, dbSession);
+    }
 
-      for (Map.Entry<String, String> param : change.getParameters().entrySet()) {
-        ActiveRuleParamDto activeRuleParamDto = context.activeRuleParamsAsMap().get(param.getKey());
-        if (activeRuleParamDto == null) {
-          // did not exist
-          if (param.getValue() != null) {
-            activeRuleParamDto = ActiveRuleParamDto.createFor(context.ruleParamsByKeys().get(param.getKey()));
-            activeRuleParamDto.setValue(param.getValue());
-            dao.addParam(dbSession, activeRule, activeRuleParamDto);
-          }
+    return activeRule;
+  }
+
+  private ActiveRuleDto doInsert(ActiveRuleChange change, RuleActivatorContext context, DbSession dbSession) {
+    ActiveRuleDto activeRule;ActiveRuleDao dao = db.activeRuleDao();
+    activeRule = ActiveRuleDto.createFor(context.profile(), context.rule());
+    activeRule.setSeverity(change.getSeverity());
+    if (change.getInheritance() != null) {
+      activeRule.setInheritance(change.getInheritance().name());
+    }
+    dao.insert(dbSession, activeRule);
+    for (Map.Entry<String, String> param : change.getParameters().entrySet()) {
+      if (param.getValue() != null) {
+        ActiveRuleParamDto paramDto = ActiveRuleParamDto.createFor(context.ruleParamsByKeys().get(param.getKey()));
+        paramDto.setValue(param.getValue());
+        dao.addParam(dbSession, activeRule, paramDto);
+      }
+    }
+    return activeRule;
+  }
+
+  private ActiveRuleDto doUpdate(ActiveRuleChange change, RuleActivatorContext context, DbSession dbSession) {
+    ActiveRuleDto activeRule;ActiveRuleDao dao = db.activeRuleDao();
+    activeRule = context.activeRule();
+    activeRule.setSeverity(change.getSeverity());
+    if (change.getInheritance() != null) {
+      activeRule.setInheritance(change.getInheritance().name());
+    }
+    dao.update(dbSession, activeRule);
+
+    for (Map.Entry<String, String> param : change.getParameters().entrySet()) {
+      ActiveRuleParamDto activeRuleParamDto = context.activeRuleParamsAsMap().get(param.getKey());
+      if (activeRuleParamDto == null) {
+        // did not exist
+        if (param.getValue() != null) {
+          activeRuleParamDto = ActiveRuleParamDto.createFor(context.ruleParamsByKeys().get(param.getKey()));
+          activeRuleParamDto.setValue(param.getValue());
+          dao.addParam(dbSession, activeRule, activeRuleParamDto);
+        }
+      } else {
+        if (param.getValue() != null) {
+          activeRuleParamDto.setValue(param.getValue());
+          dao.updateParam(dbSession, activeRule, activeRuleParamDto);
         } else {
-          if (param.getValue() != null) {
-            activeRuleParamDto.setValue(param.getValue());
-            dao.updateParam(dbSession, activeRule, activeRuleParamDto);
-          } else {
-            dao.deleteParam(dbSession, activeRule, activeRuleParamDto);
-          }
+          dao.deleteParam(dbSession, activeRule, activeRuleParamDto);
         }
       }
     }
-
     return activeRule;
   }
 
@@ -284,7 +286,7 @@ public class RuleActivator implements ServerComponent {
 
   private List<ActiveRuleChange> cascadeDeactivation(ActiveRuleKey key, DbSession dbSession, boolean isCascade, boolean force) {
     List<ActiveRuleChange> changes = Lists.newArrayList();
-    RuleActivatorContext context = contextFactory.create(key, dbSession);
+    RuleActivatorContext context = contextFactory.create(key.qProfile(), key.ruleKey(), dbSession);
     ActiveRuleChange change;
     if (context.activeRule() == null) {
       return changes;
@@ -297,7 +299,7 @@ public class RuleActivator implements ServerComponent {
     persist(change, context, dbSession);
 
     // get all inherited profiles
-    List<QualityProfileDto> profiles = db.qualityProfileDao().findByParentKey(dbSession, key.qProfile());
+    List<QualityProfileDto> profiles = db.qualityProfileDao().findChildren(dbSession, key.qProfile());
 
     for (QualityProfileDto profile : profiles) {
       ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), key.ruleKey());
@@ -306,7 +308,7 @@ public class RuleActivator implements ServerComponent {
 
     if (!changes.isEmpty()) {
       log.write(dbSession, Activity.Type.QPROFILE, changes);
-      previewCache.reportGlobalModification();
+      previewCache.reportGlobalModification(dbSession);
     }
 
     return changes;
@@ -324,7 +326,7 @@ public class RuleActivator implements ServerComponent {
     }
   }
 
-  BulkChangeResult bulkActivate(RuleQuery ruleQuery, QualityProfileKey profileKey, @Nullable String severity) {
+  BulkChangeResult bulkActivate(RuleQuery ruleQuery, String profileKey, @Nullable String severity) {
     BulkChangeResult result = new BulkChangeResult();
     RuleIndex ruleIndex = index.get(RuleIndex.class);
     DbSession dbSession = db.openSession(false);
@@ -334,10 +336,9 @@ public class RuleActivator implements ServerComponent {
       while (rules.hasNext()) {
         Rule rule = rules.next();
         try {
-          ActiveRuleKey key = ActiveRuleKey.of(profileKey, rule.key());
-          RuleActivation activation = new RuleActivation(key);
+          RuleActivation activation = new RuleActivation(rule.key());
           activation.setSeverity(severity);
-          List<ActiveRuleChange> changes = activate(dbSession, activation);
+          List<ActiveRuleChange> changes = activate(dbSession, activation, profileKey);
           result.addChanges(changes);
           result.incrementSucceeded();
 
@@ -354,7 +355,7 @@ public class RuleActivator implements ServerComponent {
     return result;
   }
 
-  BulkChangeResult bulkDeactivate(RuleQuery ruleQuery, QualityProfileKey profile) {
+  BulkChangeResult bulkDeactivate(RuleQuery ruleQuery, String profile) {
     DbSession dbSession = db.openSession(false);
     try {
       RuleIndex ruleIndex = index.get(RuleIndex.class);
@@ -375,7 +376,7 @@ public class RuleActivator implements ServerComponent {
     }
   }
 
-  void setParent(QualityProfileKey key, @Nullable QualityProfileKey parentKey) {
+  void setParent(String key, @Nullable String parentKey) {
     DbSession dbSession = db.openSession(false);
     try {
       setParent(dbSession, key, parentKey);
@@ -386,25 +387,30 @@ public class RuleActivator implements ServerComponent {
     }
   }
 
-  void setParent(DbSession dbSession, QualityProfileKey key, @Nullable QualityProfileKey parentKey) {
-    QualityProfileDto profile = db.qualityProfileDao().getNonNullByKey(dbSession, key);
+  void setParent(DbSession dbSession, String profileKey, @Nullable String parentKey) {
+    QualityProfileDto profile = db.qualityProfileDao().getNonNullByKey(dbSession, profileKey);
     if (parentKey == null) {
       // unset if parent is defined, else nothing to do
       removeParent(dbSession, profile);
 
-    } else if (profile.getParentKey() == null || !profile.getParentKey().equals(parentKey)) {
+    } else if (profile.getParentKee() == null || !profile.getParentKee().equals(parentKey)) {
       QualityProfileDto parentProfile = db.qualityProfileDao().getNonNullByKey(dbSession, parentKey);
       if (isDescendant(dbSession, profile, parentProfile)) {
-        throw new BadRequestException(String.format("Descendant profile '%s' can not be selected as parent of '%s'", parentKey, key));
+        throw new BadRequestException(String.format("Descendant profile '%s' can not be selected as parent of '%s'", parentKey, profileKey));
       }
       removeParent(dbSession, profile);
 
       // set new parent
-      profile.setParent(parentKey.name());
+      profile.setParentKee(parentKey);
       db.qualityProfileDao().update(dbSession, profile);
       for (ActiveRuleDto parentActiveRule : db.activeRuleDao().findByProfileKey(dbSession, parentKey)) {
-        RuleActivation activation = new RuleActivation(ActiveRuleKey.of(key, parentActiveRule.getKey().ruleKey()));
-        activate(dbSession, activation);
+        try {
+          RuleActivation activation = new RuleActivation(parentActiveRule.getKey().ruleKey());
+          activate(dbSession, activation, profileKey);
+        } catch (BadRequestException e) {
+          // for example because rule status is REMOVED
+          // TODO return errors
+        }
       }
     }
   }
@@ -413,8 +419,8 @@ public class RuleActivator implements ServerComponent {
    * Does not commit
    */
   private void removeParent(DbSession dbSession, QualityProfileDto profileDto) {
-    if (profileDto.getParent() != null) {
-      profileDto.setParent(null);
+    if (profileDto.getParentKee() != null) {
+      profileDto.setParentKee(null);
       db.qualityProfileDao().update(dbSession, profileDto);
       for (ActiveRuleDto activeRule : db.activeRuleDao().findByProfileKey(dbSession, profileDto.getKey())) {
         if (ActiveRuleDto.INHERITED.equals(activeRule.getInheritance())) {
@@ -433,19 +439,12 @@ public class RuleActivator implements ServerComponent {
       if (childProfile.getName().equals(currentParent.getName())) {
         return true;
       }
-      if (currentParent.getParent() != null) {
-        currentParent = db.qualityProfileDao().getByKey(dbSession, currentParent.getParentKey());
+      if (currentParent.getParentKee() != null) {
+        currentParent = db.qualityProfileDao().getByKey(dbSession, currentParent.getParentKee());
       } else {
         currentParent = null;
       }
     }
     return false;
   }
-
-  private void verifyParametersAreNotSetOnCustomRule(RuleActivatorContext context, RuleActivation activation, ActiveRuleChange change) {
-    if (!activation.getParameters().isEmpty() && context.rule().getTemplateId() != null) {
-      throw new IllegalStateException(String.format("Parameters cannot be set when activating the custom rule '%s'", activation.getKey().ruleKey()));
-    }
-  }
-
 }

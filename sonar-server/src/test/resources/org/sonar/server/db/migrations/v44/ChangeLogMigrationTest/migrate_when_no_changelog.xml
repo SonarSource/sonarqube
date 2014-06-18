@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <dataset>
 
-  <rules_profiles id="10" name="DB_Testing" language="java"/>
+  <rules_profiles id="10" name="DB_Testing" language="java" kee="java-p10" parent_kee="[null]"/>
 
   <rules id="1" plugin_name="xoo" plugin_rule_key="S001"/>
   <rules id="2" plugin_name="xoo" plugin_rule_key="S002"/>

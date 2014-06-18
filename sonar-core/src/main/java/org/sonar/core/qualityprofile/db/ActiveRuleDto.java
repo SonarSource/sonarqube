@@ -41,8 +41,7 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
 
   private String repository;
   private String ruleField;
-  private String language;
-  private String profile;
+  private String profileKey;
 
   private Integer id;
   private Integer profileId;
@@ -54,14 +53,12 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
   public ActiveRuleDto setKey(ActiveRuleKey key) {
     this.repository = key.ruleKey().repository();
     this.ruleField = key.ruleKey().rule();
-    this.language = key.qProfile().lang();
-    this.profile = key.qProfile().name();
+    this.profileKey = key.qProfile();
     return this;
   }
 
   public ActiveRuleKey getKey() {
-    return ActiveRuleKey.of(QualityProfileKey.of(this.profile, this.language),
-      RuleKey.of(this.repository, this.ruleField));
+    return ActiveRuleKey.of(profileKey, RuleKey.of(repository, ruleField));
   }
 
   // This field do not exists in db, it's only retrieve by joins
@@ -144,12 +141,12 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
   }
 
   public static ActiveRuleDto createFor(QualityProfileDto profileDto, RuleDto ruleDto) {
-    Preconditions.checkArgument(profileDto.getId()!=null, "Profile is not persisted");
-    Preconditions.checkArgument(ruleDto.getId()!=null, "Rule is not persisted");
+    Preconditions.checkNotNull(profileDto.getId(), "Profile is not persisted");
+    Preconditions.checkNotNull(ruleDto.getId(), "Rule is not persisted");
     ActiveRuleDto dto = new ActiveRuleDto();
     dto.setProfileId(profileDto.getId());
     dto.setRuleId(ruleDto.getId());
-    dto.setKey(ActiveRuleKey.of(QualityProfileKey.of(profileDto.getName(), profileDto.getLanguage()), ruleDto.getKey()));
+    dto.setKey(ActiveRuleKey.of(profileDto.getKee(), ruleDto.getKey()));
     return dto;
   }
 
@@ -157,6 +154,5 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
   public String toString() {
     return new ReflectionToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).toString();
   }
-
 
 }

@@ -32,14 +32,12 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.qualityprofile.db.ActiveRuleKey;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.qualityprofile.QProfileService;
+import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
@@ -140,13 +138,11 @@ public class RegisterRulesMediumTest {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("me");
 
     // create a profile and activate rule
-    QualityProfileKey profileKey = QualityProfileKey.of("P1", "xoo");
-    db.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor(profileKey));
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
     dbSession.commit();
     dbSession.clearCache();
-    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profileKey, RuleKey.of("xoo", "x1"));
-    RuleActivation activation = new RuleActivation(activeRuleKey);
-    tester.get(QProfileService.class).activate(activation);
+    RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
+    tester.get(QProfileService.class).activate(QProfileTesting.XOO_P1_KEY, activation);
     dbSession.clearCache();
 
     // restart, x2 still exists -> deactivate x1
@@ -156,7 +152,7 @@ public class RegisterRulesMediumTest {
     dbSession.clearCache();
     assertThat(db.ruleDao().getByKey(dbSession, RuleKey.of("xoo", "x1")).getStatus()).isEqualTo(RuleStatus.REMOVED);
     assertThat(db.ruleDao().getByKey(dbSession, RuleKey.of("xoo", "x2")).getStatus()).isEqualTo(RuleStatus.READY);
-    assertThat(db.activeRuleDao().findByProfileKey(dbSession, profileKey)).hasSize(0);
+    assertThat(db.activeRuleDao().findByProfileKey(dbSession, QProfileTesting.XOO_P1_KEY)).hasSize(0);
   }
 
   @Test
@@ -164,13 +160,11 @@ public class RegisterRulesMediumTest {
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("me");
 
     // create a profile and activate rule
-    QualityProfileKey profileKey = QualityProfileKey.of("P1", "xoo");
-    db.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor(profileKey));
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
     dbSession.commit();
     dbSession.clearCache();
-    ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profileKey, RuleKey.of("xoo", "x1"));
-    RuleActivation activation = new RuleActivation(activeRuleKey);
-    tester.get(QProfileService.class).activate(activation);
+    RuleActivation activation = new RuleActivation(RuleTesting.XOO_X1);
+    tester.get(QProfileService.class).activate(QProfileTesting.XOO_P1_KEY, activation);
     dbSession.clearCache();
 
     // restart without x1, x2, template1 -> keep active rule of x1
@@ -179,9 +173,9 @@ public class RegisterRulesMediumTest {
     rulesDefinition.includeTemplate1 = false;
     tester.get(Platform.class).executeStartupTasks();
     dbSession.clearCache();
-    assertThat(db.ruleDao().getByKey(dbSession, RuleKey.of("xoo", "x1")).getStatus()).isEqualTo(RuleStatus.REMOVED);
-    assertThat(db.ruleDao().getByKey(dbSession, RuleKey.of("xoo", "x2")).getStatus()).isEqualTo(RuleStatus.REMOVED);
-    assertThat(db.activeRuleDao().findByProfileKey(dbSession, profileKey)).hasSize(1);
+    assertThat(db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1).getStatus()).isEqualTo(RuleStatus.REMOVED);
+    assertThat(db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X2).getStatus()).isEqualTo(RuleStatus.REMOVED);
+    assertThat(db.activeRuleDao().findByProfileKey(dbSession, QProfileTesting.XOO_P1_KEY)).hasSize(1);
   }
 
   @Test

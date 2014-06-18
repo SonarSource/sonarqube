@@ -38,9 +38,7 @@ public interface ActiveRuleMapper {
 
   List<ActiveRuleDto> selectByRuleId(int ruleId);
 
-  List<ActiveRuleDto> selectByProfileId(int profileId);
-
-  List<ActiveRuleDto> selectByProfileKey(QualityProfileKey key);
+  List<ActiveRuleDto> selectByProfileKey(String key);
 
   List<ActiveRuleDto> selectAll();
 
@@ -57,9 +55,9 @@ public interface ActiveRuleMapper {
 
   List<ActiveRuleParamDto> selectParamsByActiveRuleId(int activeRuleId);
 
-  List<ActiveRuleParamDto> selectParamsByProfileId(int profileId);
+  List<ActiveRuleParamDto> selectParamsByProfileKey(String profileKey);
 
-  ActiveRuleDto selectByKey(@Param("profile") String profile, @Param("language") String language,
+  ActiveRuleDto selectByKey(@Param("profileKey") String profileKey,
                             @Param("repository") String repository, @Param("rule") String rule );
 
   List<ActiveRuleParamDto> selectAllParams();

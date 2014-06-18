@@ -6,7 +6,7 @@
   <span class="description-widget-key"><%= h @project.key -%></span>
 
   <% if @project.description.present? %>
-    <p class="description-widget-description"><%= h @project.description %></p>
+    <p class="description-widget-description"><%= h @project.description -%></p>
   <% end %>
 
   <%
@@ -19,11 +19,10 @@
       <% qprofiles.each_with_index do |profile, i| %>
         <span class="nowrap">
           <span id="resource_profile">
-           <%= link_to profile['name'], {:controller => '/profiles', :action => 'show', :id => profile['id']}, :class => 'widget-link', :id => profile['language'] + '_profile_link' -%>
+           <%= link_to profile['name'], {:controller => 'profiles', :action => 'show', :key => profile['key']}, :class => 'widget-link', :id => profile['language'] + '_profile_link' -%>
           </span>
           <span class="subtitle">
-            (<%= Api::Utils.language_name(profile['language']) -%>,
-            <%= message('widget.description.profile_version_x', :params => profile['version']) -%>)
+            (<%= Api::Utils.language_name(profile['language']) -%>)
           </span>
           <% if i < (qprofiles.size - 1) %>,<% end %>
         </span>

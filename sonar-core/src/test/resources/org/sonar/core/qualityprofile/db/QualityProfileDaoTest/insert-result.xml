@@ -1,12 +1,10 @@
 <dataset>
 
-  <rules_profiles id="1" name="Sonar Way" language="java" parent_name="[null]" version="1"
-                  used_profile="[false]"/>
+  <rules_profiles id="1" name="Sonar Way" language="java" parent_kee="[null]" kee="java_sonar_way"/>
 
-  <rules_profiles id="2" name="Sonar Way" language="js" parent_name="[null]" version="1"
-                  used_profile="[false]"/>
+  <rules_profiles id="2" name="Sonar Way" language="js" parent_kee="[null]" kee="js_sonar_way"/>
 
-  <rules_profiles id="3" name="Sonar Way with Findbugs" language="xoo" parent_name="Sonar Way" version="2"
-                  used_profile="[true]"/>
+  <rules_profiles id="3" name="ABCDE" language="xoo" parent_kee="[null]" kee="abcde"/>
+
 
 </dataset>

@@ -57,12 +57,6 @@ public class RulesProfileTest {
   }
 
   @Test
-  public void defaultVersionIs1() {
-    RulesProfile profile = RulesProfile.create();
-    assertThat(profile.getVersion()).isEqualTo(1);
-  }
-
-  @Test
   public void fail_to_activate_already_activated_rule() {
     RulesProfile profile = RulesProfile.create("Default", "java");
     Rule rule = Rule.create("repo", "key1", "name1").setSeverity(RulePriority.CRITICAL);

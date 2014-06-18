@@ -23,12 +23,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.qualityprofile.db.ActiveRuleKey;
+import org.sonar.core.properties.PropertyDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
@@ -40,21 +38,17 @@ import org.sonar.server.tester.ServerTester;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
+import static org.sonar.server.qualityprofile.QProfileTesting.*;
 
 public class QProfileFactoryMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
 
-  static final QualityProfileKey XOO_PROFILE_1 = QualityProfileKey.of("P1", "xoo");
-  static final QualityProfileKey XOO_PROFILE_2 = QualityProfileKey.of("P2", "xoo");
-  static final QualityProfileKey XOO_PROFILE_3 = QualityProfileKey.of("P3", "xoo");
-  static final RuleKey XOO_RULE_1 = RuleKey.of("xoo", "x1");
-  static final RuleKey XOO_RULE_2 = RuleKey.of("xoo", "x2");
-
   DbClient db;
   DbSession dbSession;
   IndexClient index;
+  QProfileFactory factory;
 
   @Before
   public void before() {
@@ -62,6 +56,7 @@ public class QProfileFactoryMediumTest {
     db = tester.get(DbClient.class);
     dbSession = db.openSession(false);
     index = tester.get(IndexClient.class);
+    factory = tester.get(QProfileFactory.class);
   }
 
   @After
@@ -70,20 +65,144 @@ public class QProfileFactoryMediumTest {
   }
 
   @Test
-  public void delete() {
-    initRules();
-    db.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor(XOO_PROFILE_1));
-    tester.get(RuleActivator.class).activate(dbSession, new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_1, XOO_RULE_1)));
+  public void create() {
+    QualityProfileDto dto = factory.create(dbSession, new QProfileName("xoo", "P1"));
+    dbSession.commit();
+    dbSession.clearCache();
+    assertThat(dto.getKey()).startsWith("xoo-p1-");
+    assertThat(dto.getName()).isEqualTo("P1");
+    assertThat(dto.getLanguage()).isEqualTo("xoo");
+    assertThat(dto.getId()).isNotNull();
+
+    // reload the dto
+    dto = db.qualityProfileDao().getByNameAndLanguage("P1", "xoo", dbSession);
+    assertThat(dto.getLanguage()).isEqualTo("xoo");
+    assertThat(dto.getName()).isEqualTo("P1");
+    assertThat(dto.getKey()).startsWith("xoo-p1");
+    assertThat(dto.getId()).isNotNull();
+    assertThat(dto.getParentKee()).isNull();
+
+    assertThat(db.qualityProfileDao().findAll(dbSession)).hasSize(1);
+  }
+
+  @Test
+  public void fail_to_create_if_already_exists() {
+    QProfileName name = new QProfileName("xoo", "P1");
+    factory.create(dbSession, name);
     dbSession.commit();
     dbSession.clearCache();
 
-    tester.get(QProfileFactory.class).delete(XOO_PROFILE_1);
+    try {
+      factory.create(dbSession, name);
+      fail();
+    } catch (BadRequestException e) {
+      assertThat(e).hasMessage("Quality profile already exists: QProfile{lang=xoo, name=P1}");
+    }
+  }
+
+  @Test
+  public void rename() {
+    QualityProfileDto dto = factory.create(dbSession, new QProfileName("xoo", "P1"));
+    dbSession.commit();
+    dbSession.clearCache();
+    String key = dto.getKey();
+
+    assertThat(factory.rename(key, "the new name")).isTrue();
+    dbSession.clearCache();
+
+    QualityProfileDto reloaded = db.qualityProfileDao().getByKey(dbSession, dto.getKee());
+    assertThat(reloaded.getKey()).isEqualTo(key);
+    assertThat(reloaded.getName()).isEqualTo("the new name");
+  }
+
+  @Test
+  public void ignore_renaming_if_same_name() {
+    QualityProfileDto dto = factory.create(dbSession, new QProfileName("xoo", "P1"));
+    dbSession.commit();
+    dbSession.clearCache();
+    String key = dto.getKey();
+
+    assertThat(factory.rename(key, "P1")).isFalse();
+    dbSession.clearCache();
+
+    QualityProfileDto reloaded = db.qualityProfileDao().getByKey(dbSession, dto.getKee());
+    assertThat(reloaded.getKey()).isEqualTo(key);
+    assertThat(reloaded.getName()).isEqualTo("P1");
+  }
+
+  @Test
+  public void fail_if_blank_renaming() {
+    QualityProfileDto dto = factory.create(dbSession, new QProfileName("xoo", "P1"));
+    dbSession.commit();
+    dbSession.clearCache();
+    String key = dto.getKey();
+
+    try {
+      factory.rename(key, " ");
+      fail();
+    } catch (BadRequestException e) {
+      assertThat(e).hasMessage("Name must be set");
+    }
+  }
+
+  @Test
+  public void fail_renaming_if_profile_not_found() {
+    try {
+      factory.rename("unknown", "the new name");
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Quality profile not found: unknown");
+    }
+  }
+
+  @Test
+  public void fail_renaming_if_name_already_exists() {
+    QualityProfileDto p1 = factory.create(dbSession, new QProfileName("xoo", "P1"));
+    QualityProfileDto p2 = factory.create(dbSession, new QProfileName("xoo", "P2"));
+    dbSession.commit();
+    dbSession.clearCache();
+
+    try {
+      factory.rename(p1.getKey(), "P2");
+      fail();
+    } catch (BadRequestException e) {
+      assertThat(e).hasMessage("Quality profile already exists: P2");
+    }
+  }
+
+  @Test
+  public void renaming_is_applied_to_default_profile_properties() {
+    QualityProfileDto p1 = factory.create(dbSession, new QProfileName("xoo", "P1"));
+    db.propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.xoo").setValue("P1"), dbSession);
+    db.propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.java").setValue("P1"), dbSession);
+    db.propertiesDao().setProperty(new PropertyDto().setKey("sonar.profile.js").setValue("JS1"), dbSession);
+    dbSession.commit();
+    dbSession.clearCache();
+
+    factory.rename(p1.getKey(), "P2");
+    dbSession.clearCache();
+
+    // do not touch java and js profiles, even if java profile has same name
+    assertThat(db.propertiesDao().selectGlobalProperty("sonar.profile.xoo").getValue()).isEqualTo("P2");
+    assertThat(db.propertiesDao().selectGlobalProperty("sonar.profile.java").getValue()).isEqualTo("P1");
+    assertThat(db.propertiesDao().selectGlobalProperty("sonar.profile.js").getValue()).isEqualTo("JS1");
+  }
+
+  @Test
+  public void delete() {
+    initRules();
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
+    tester.get(RuleActivator.class).activate(dbSession, new RuleActivation(RuleTesting.XOO_X1), XOO_P1_KEY);
+    dbSession.commit();
+    dbSession.clearCache();
+
+    factory.delete(XOO_P1_KEY);
 
     dbSession.clearCache();
     assertThat(db.qualityProfileDao().findAll(dbSession)).isEmpty();
     assertThat(db.activeRuleDao().findAll(dbSession)).isEmpty();
     assertThat(db.activeRuleDao().findAllParams(dbSession)).isEmpty();
-    assertThat(index.get(ActiveRuleIndex.class).findByProfile(XOO_PROFILE_1)).isEmpty();
+    assertThat(index.get(ActiveRuleIndex.class).findByProfile(XOO_P1_KEY)).isEmpty();
   }
 
   @Test
@@ -91,69 +210,56 @@ public class QProfileFactoryMediumTest {
     initRules();
 
     // create parent and child profiles
-    db.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor(XOO_PROFILE_1));
-    db.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor(XOO_PROFILE_2));
-    db.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor(XOO_PROFILE_3));
-    tester.get(RuleActivator.class).setParent(dbSession, XOO_PROFILE_2, XOO_PROFILE_1);
-    tester.get(RuleActivator.class).setParent(dbSession, XOO_PROFILE_3, XOO_PROFILE_2);
-    tester.get(RuleActivator.class).activate(dbSession, new RuleActivation(ActiveRuleKey.of(XOO_PROFILE_1, XOO_RULE_1)));
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1(), QProfileTesting.newXooP2(), QProfileTesting.newXooP3());
+    tester.get(RuleActivator.class).setParent(dbSession, XOO_P2_KEY, XOO_P1_KEY);
+    tester.get(RuleActivator.class).setParent(dbSession, XOO_P3_KEY, XOO_P1_KEY);
+    tester.get(RuleActivator.class).activate(dbSession, new RuleActivation(RuleTesting.XOO_X1), XOO_P1_KEY);
     dbSession.commit();
     dbSession.clearCache();
     assertThat(db.qualityProfileDao().findAll(dbSession)).hasSize(3);
     assertThat(db.activeRuleDao().findAll(dbSession)).hasSize(3);
 
-    tester.get(QProfileFactory.class).delete(XOO_PROFILE_1);
+    factory.delete(XOO_P1_KEY);
 
     dbSession.clearCache();
     assertThat(db.qualityProfileDao().findAll(dbSession)).isEmpty();
     assertThat(db.activeRuleDao().findAll(dbSession)).isEmpty();
     assertThat(db.activeRuleDao().findAllParams(dbSession)).isEmpty();
-    assertThat(index.get(ActiveRuleIndex.class).findByProfile(XOO_PROFILE_1)).isEmpty();
-  }
-
-  private void initRules() {
-    // create pre-defined rules
-    RuleDto xooRule1 = RuleTesting.newDto(XOO_RULE_1).setLanguage("xoo");
-    RuleDto xooRule2 = RuleTesting.newDto(XOO_RULE_2).setLanguage("xoo");
-    db.ruleDao().insert(dbSession, xooRule1, xooRule2);
-    db.ruleDao().addRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
-      .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
-    dbSession.commit();
-    dbSession.clearCache();
+    assertThat(index.get(ActiveRuleIndex.class).findByProfile(XOO_P1_KEY)).isEmpty();
+    assertThat(index.get(ActiveRuleIndex.class).findByProfile(XOO_P2_KEY)).isEmpty();
+    assertThat(index.get(ActiveRuleIndex.class).findByProfile(XOO_P3_KEY)).isEmpty();
   }
 
   @Test
   public void do_not_delete_default_profile() {
-    db.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor(XOO_PROFILE_1));
-    tester.get(QProfileFactory.class).setDefault(dbSession, XOO_PROFILE_1);
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
+    factory.setDefault(dbSession, XOO_P1_KEY);
     dbSession.commit();
     dbSession.clearCache();
 
     try {
-      tester.get(QProfileFactory.class).delete(XOO_PROFILE_1);
+      factory.delete(XOO_P1_KEY);
       fail();
     } catch (BadRequestException e) {
-      assertThat(e).hasMessage("The profile marked as default can not be deleted: P1:xoo");
+      assertThat(e).hasMessage("The profile marked as default can not be deleted: XOO_P1");
       assertThat(db.qualityProfileDao().findAll(dbSession)).hasSize(1);
     }
   }
 
   @Test
   public void do_not_delete_if_default_descendant() {
-    db.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor(XOO_PROFILE_1));
-    db.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor(XOO_PROFILE_2));
-    db.qualityProfileDao().insert(dbSession, QualityProfileDto.createFor(XOO_PROFILE_3));
-    tester.get(RuleActivator.class).setParent(dbSession, XOO_PROFILE_2, XOO_PROFILE_1);
-    tester.get(RuleActivator.class).setParent(dbSession, XOO_PROFILE_3, XOO_PROFILE_2);
-    tester.get(QProfileFactory.class).setDefault(dbSession, XOO_PROFILE_3);
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1(), QProfileTesting.newXooP2(), QProfileTesting.newXooP3());
+    tester.get(RuleActivator.class).setParent(dbSession, XOO_P2_KEY, XOO_P1_KEY);
+    tester.get(RuleActivator.class).setParent(dbSession, XOO_P3_KEY, XOO_P1_KEY);
+    factory.setDefault(dbSession, XOO_P3_KEY);
     dbSession.commit();
     dbSession.clearCache();
 
     try {
-      tester.get(QProfileFactory.class).delete(XOO_PROFILE_1);
+      factory.delete(XOO_P1_KEY);
       fail();
     } catch (BadRequestException e) {
-      assertThat(e).hasMessage("The profile marked as default can not be deleted: P3:xoo");
+      assertThat(e).hasMessage("The profile marked as default can not be deleted: XOO_P3");
       assertThat(db.qualityProfileDao().findAll(dbSession)).hasSize(3);
     }
   }
@@ -161,20 +267,47 @@ public class QProfileFactoryMediumTest {
   @Test
   public void fail_if_unknown_profile_to_be_deleted() {
     try {
-      tester.get(QProfileFactory.class).delete(XOO_PROFILE_1);
+      factory.delete(XOO_P1_KEY);
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Quality profile not found: P1:xoo");
+      assertThat(e).hasMessage("Quality profile not found: XOO_P1");
     }
   }
 
   @Test
   public void set_default_profile() {
-    // TODO
+    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
+    dbSession.commit();
+    dbSession.clearCache();
+
+    assertThat(db.propertiesDao().selectGlobalProperty("sonar.profile.xoo")).isNull();
+    assertThat(factory.getDefault("xoo")).isNull();
+
+    factory.setDefault(XOO_P1_KEY);
+    dbSession.clearCache();
+    assertThat(db.propertiesDao().selectGlobalProperty("sonar.profile.xoo").getValue()).isEqualTo("P1");
+    assertThat(factory.getDefault("xoo").getKey()).isEqualTo(XOO_P1_KEY);
   }
 
   @Test
   public void fail_if_unknown_profile_to_be_set_as_default() {
-    // TODO
+    try {
+      // does not exist
+      factory.setDefault(XOO_P1_KEY);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Quality profile not found: " + XOO_P1_KEY);
+    }
+  }
+
+  private void initRules() {
+    // create pre-defined rules
+    RuleDto xooRule1 = RuleTesting.newXooX1();
+    RuleDto xooRule2 = RuleTesting.newXooX2();
+    db.ruleDao().insert(dbSession, xooRule1, xooRule2);
+    db.ruleDao().addRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
+      .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
+    dbSession.commit();
+    dbSession.clearCache();
   }
 }

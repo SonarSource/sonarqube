@@ -18,24 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 /*
-* SonarQube, open source software quality management tool.
-* Copyright (C) 2008-2014 SonarSource
-* mailto:contact AT sonarsource DOT com
-*
-* SonarQube is free software; you can redistribute it and/or
-* modify it under the terms of the GNU Lesser General Public
-* License as published by the Free Software Foundation; either
-* version 3 of the License, or (at your option) any later version.
-*
-* SonarQube is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-* Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public License
-* along with this program; if not, write to the Free Software Foundation,
-* Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
+ * SonarQube, open source software quality management tool.
+ * Copyright (C) 2008-2014 SonarSource
+ * mailto:contact AT sonarsource DOT com
+ *
+ * SonarQube is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * SonarQube is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package org.sonar.server.qualityprofile.index;
 
 import com.google.common.collect.Multimap;
@@ -56,7 +56,6 @@ import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.search.BaseIndex;
@@ -146,7 +145,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
             .addIds(key.toString())
         ))
       .setRouting(key.toString())
-        // TODO replace by scrolling
+      // TODO replace by scrolling
       .setSize(Integer.MAX_VALUE);
 
     SearchResponse response = request.get();
@@ -158,11 +157,11 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
     return activeRules;
   }
 
-  public List<ActiveRule> findByProfile(QualityProfileKey key) {
+  public List<ActiveRule> findByProfile(String key) {
     SearchRequestBuilder request = getClient().prepareSearch(getIndexName())
-      .setQuery(QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), key.toString()))
-      .setRouting(key.toString())
-        // TODO replace by scrolling
+      .setQuery(QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), key))
+      .setRouting(key)
+      // TODO replace by scrolling
       .setSize(Integer.MAX_VALUE);
     SearchResponse response = request.get();
 
@@ -177,11 +176,11 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
     return IndexDefinition.RULE.getIndexType();
   }
 
-  public Long countByQualityProfileKey(QualityProfileKey key) {
+  public Long countByQualityProfileKey(String key) {
     return countByField(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY,
       FilterBuilders.hasParentFilter(IndexDefinition.RULE.getIndexType(),
         FilterBuilders.notFilter(
-          FilterBuilders.termFilter(RuleNormalizer.RuleField.STATUS.field(), "REMOVED")))).get(key.toString());
+          FilterBuilders.termFilter(RuleNormalizer.RuleField.STATUS.field(), "REMOVED")))).get(key);
   }
 
   public Map<String, Long> countAllByQualityProfileKey() {
@@ -191,19 +190,14 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
           FilterBuilders.termFilter(RuleNormalizer.RuleField.STATUS.field(), "REMOVED"))));
   }
 
-  public Multimap<String, FacetValue> getStatsByProfileKey(QualityProfileKey key) {
+  public Multimap<String, FacetValue> getStatsByProfileKey(String key) {
     return getStatsByProfileKeys(ImmutableList.of(key)).get(key);
   }
 
-  public Map<QualityProfileKey, Multimap<String, FacetValue>> getStatsByProfileKeys(List<QualityProfileKey> keys) {
-    String[] stringKeys = new String[keys.size()];
-    for (int i = 0; i < keys.size(); i++) {
-      stringKeys[i] = keys.get(i).toString();
-    }
-
+  public Map<String, Multimap<String, FacetValue>> getStatsByProfileKeys(List<String> keys) {
     SearchRequestBuilder request = getClient().prepareSearch(this.getIndexName())
       .setQuery(QueryBuilders.filteredQuery(
-        QueryBuilders.termsQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), stringKeys),
+        QueryBuilders.termsQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), keys),
         FilterBuilders.boolFilter()
           .mustNot(FilterBuilders.hasParentFilter(this.getParentType(),
             FilterBuilders.termFilter(RuleNormalizer.RuleField.STATUS.field(), RuleStatus.REMOVED.name())))))
@@ -219,10 +213,10 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
 
     System.out.println("request = " + request);
     SearchResponse response = request.get();
-    Map<QualityProfileKey, Multimap<String, FacetValue>> stats = new HashMap<QualityProfileKey, Multimap<String, FacetValue>>();
+    Map<String, Multimap<String, FacetValue>> stats = new HashMap<String, Multimap<String, FacetValue>>();
     Aggregation aggregation = response.getAggregations().get(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field());
     for (Terms.Bucket value : ((Terms) aggregation).getBuckets()) {
-      stats.put(QualityProfileKey.parse(value.getKey())
+      stats.put(value.getKey()
         , this.processAggregations(value.getAggregations()));
     }
 

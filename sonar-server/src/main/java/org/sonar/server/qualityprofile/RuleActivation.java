@@ -21,22 +21,23 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
-import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.Map;
 
 public class RuleActivation {
 
-  private final ActiveRuleKey key;
+  private final RuleKey ruleKey;
   private final Map<String, String> parameters = Maps.newHashMap();
   private String severity = null;
   private boolean cascade = false;
 
-  public RuleActivation(ActiveRuleKey key) {
-    this.key = key;
+  public RuleActivation(RuleKey ruleKey) {
+    this.ruleKey = ruleKey;
   }
 
   /**
@@ -93,8 +94,8 @@ public class RuleActivation {
     return this;
   }
 
-  public ActiveRuleKey getKey() {
-    return key;
+  public RuleKey getRuleKey() {
+    return ruleKey;
   }
 
   public Map<String, String> getParameters() {

@@ -4,7 +4,7 @@
 %>
 <ul class="tabs">
   <li>
-    <a href="<%= url_for :controller => 'profiles', :action => 'show', :id => @profile.id -%>" <%= "class='selected'" if selected_tab.nil? || selected_tab=='Rules' -%> id="tab-rules"><%= message('coding_rules') -%></a>
+    <a href="<%= url_for :controller => 'profiles', :action => 'show', :key => @profile.key() -%>" <%= "class='selected'" if selected_tab.nil? || selected_tab=='Rules' -%> id="tab-rules"><%= message('coding_rules') -%></a>
   </li>
   <li>
     <a href="<%= url_for :controller => 'profiles', :action => 'projects', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='Projects' -%> id="tab-projects"><%= message('projects') -%></a>

@@ -23,7 +23,6 @@ package org.sonar.server.qualityprofile;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -31,11 +30,10 @@ import javax.annotation.Nullable;
 public class QProfile {
 
   private int id;
+  private String key;
   private String name;
   private String language;
   private String parent;
-  private Integer version;
-  private boolean used;
 
   @Deprecated
   public int id() {
@@ -66,8 +64,13 @@ public class QProfile {
     return this;
   }
 
-  public QualityProfileKey key() {
-    return QualityProfileKey.of(name, language);
+  public String key() {
+    return key;
+  }
+
+  public QProfile setKey(String s) {
+    this.key = s;
+    return this;
   }
 
   @CheckForNull
@@ -80,25 +83,6 @@ public class QProfile {
     return this;
   }
 
-  @CheckForNull
-  public Integer version() {
-    return version;
-  }
-
-  public QProfile setVersion(Integer version) {
-    this.version = version;
-    return this;
-  }
-
-  public boolean used() {
-    return used;
-  }
-
-  public QProfile setUsed(boolean used) {
-    this.used = used;
-    return this;
-  }
-
   public boolean isInherited() {
     return parent != null;
   }
@@ -106,21 +90,10 @@ public class QProfile {
   public static QProfile from(QualityProfileDto dto) {
     return new QProfile()
       .setId(dto.getId())
+      .setKey(dto.getKey())
       .setName(dto.getName())
       .setLanguage(dto.getLanguage())
-      .setParent(dto.getParent())
-      .setVersion(dto.getVersion())
-      .setUsed(dto.isUsed());
-  }
-
-  public QualityProfileDto toDto() {
-    return new QualityProfileDto()
-      .setId(id())
-      .setName(name())
-      .setLanguage(language())
-      .setParent(parent())
-      .setVersion(version())
-      .setUsed(used());
+      .setParent(dto.getParentKee());
   }
 
   @Override

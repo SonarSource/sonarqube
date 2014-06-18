@@ -4,7 +4,7 @@
   "ps": 10,
   "rules": [
     {
-      "key": "java:S001"
+      "key": "xoo:x1"
     }
   ]
 }

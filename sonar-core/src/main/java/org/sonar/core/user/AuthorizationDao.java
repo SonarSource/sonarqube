@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.Nullable;
@@ -35,7 +36,7 @@ import java.util.Set;
 
 import static com.google.common.collect.Maps.newHashMap;
 
-public class AuthorizationDao implements ServerComponent {
+public class AuthorizationDao implements ServerComponent, DaoComponent {
 
   private final MyBatis mybatis;
 

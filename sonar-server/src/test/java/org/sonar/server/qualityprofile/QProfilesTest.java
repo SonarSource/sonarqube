@@ -57,7 +57,7 @@ public class QProfilesTest {
 
   @Before
   public void setUp() throws Exception {
-    qProfiles = new QProfiles(projectOperations, projectLookup, profileLookup, profileOperations);
+    qProfiles = new QProfiles(projectOperations, projectLookup, profileLookup);
   }
 
   @Test
@@ -85,12 +85,6 @@ public class QProfilesTest {
   }
 
   @Test
-  public void search_default_profile_by_language() throws Exception {
-    qProfiles.defaultProfile("java");
-    verify(profileLookup).defaultProfile("java");
-  }
-
-  @Test
   public void search_parent_profile() throws Exception {
     QProfile profile = new QProfile().setId(1).setParent("Parent").setLanguage("java");
     qProfiles.parent(profile);
@@ -109,29 +103,6 @@ public class QProfilesTest {
     QProfile profile = new QProfile();
     qProfiles.ancestors(profile);
     verify(profileLookup).ancestors(profile);
-  }
-
-  @Test
-  public void create_new_profile() throws Exception {
-    Map<String, String> xmlProfilesByPlugin = newHashMap();
-    qProfiles.newProfile("Default", "java", xmlProfilesByPlugin);
-    verify(profileOperations).newProfile(eq("Default"), eq("java"), eq(xmlProfilesByPlugin), any(UserSession.class));
-  }
-
-  @Test
-  public void fail_to_create_profile_without_name() throws Exception {
-    try {
-      qProfiles.newProfile("", "java", Maps.<String, String>newHashMap());
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class);
-    }
-  }
-
-  @Test
-  public void rename_profile() throws Exception {
-    qProfiles.renameProfile(1, "Default profile");
-    verify(profileOperations).renameProfile(eq(1), eq("Default profile"), any(UserSession.class));
   }
 
   @Test

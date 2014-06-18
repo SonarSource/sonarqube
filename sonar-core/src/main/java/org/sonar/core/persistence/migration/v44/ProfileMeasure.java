@@ -17,20 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.rules;
+package org.sonar.core.persistence.migration.v44;
 
-import org.sonar.api.batch.rules.QProfile;
+public class ProfileMeasure {
+  private long id;
+  private int profileId;
+  private long snapshotId;
 
-public class QProfileWithId extends QProfile {
-  private final int id;
-
-  public QProfileWithId(int id, String name, String language, Integer version) {
-    super(name, language, version);
-    this.id = id;
-  }
-
-  public int id() {
+  public long getId() {
     return id;
   }
 
+  public void setId(long id) {
+    this.id = id;
+  }
+
+  public int getProfileId() {
+    return profileId;
+  }
+
+  public void setProfileId(int profileId) {
+    this.profileId = profileId;
+  }
+
+  public long getSnapshotId() {
+    return snapshotId;
+  }
+
+  public void setSnapshotId(long snapshotId) {
+    this.snapshotId = snapshotId;
+  }
 }

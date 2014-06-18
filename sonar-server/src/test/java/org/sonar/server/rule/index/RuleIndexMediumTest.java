@@ -39,6 +39,7 @@ import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtTesting;
 import org.sonar.server.qualityprofile.ActiveRule;
+import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.rule.db.RuleDao;
@@ -496,13 +497,13 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_by_profile() throws InterruptedException {
-    QualityProfileDto qualityProfileDto1 = QualityProfileDto.createFor("profile1", "java");
-    QualityProfileDto qualityProfileDto2 = QualityProfileDto.createFor("profile2", "java");
+    QualityProfileDto qualityProfileDto1 = QProfileTesting.newXooP1();
+    QualityProfileDto qualityProfileDto2 = QProfileTesting.newXooP2();
     db.qualityProfileDao().insert(dbSession, qualityProfileDto1, qualityProfileDto2);
 
-    RuleDto rule1 = RuleTesting.newDto(RuleKey.of("java", "S001"));
-    RuleDto rule2 = RuleTesting.newDto(RuleKey.of("java", "S002"));
-    RuleDto rule3 = RuleTesting.newDto(RuleKey.of("java", "S003"));
+    RuleDto rule1 = RuleTesting.newXooX1();
+    RuleDto rule2 = RuleTesting.newXooX2();
+    RuleDto rule3 = RuleTesting.newXooX3();
     dao.insert(dbSession, rule1, rule2, rule3);
 
     db.activeRuleDao().insert(
@@ -510,8 +511,8 @@ public class RuleIndexMediumTest {
       ActiveRuleDto.createFor(qualityProfileDto1, rule1).setSeverity("BLOCKER"),
       ActiveRuleDto.createFor(qualityProfileDto2, rule1).setSeverity("BLOCKER"),
       ActiveRuleDto.createFor(qualityProfileDto1, rule2).setSeverity("BLOCKER"));
-
     dbSession.commit();
+    dbSession.clearCache();
 
     // 1. get all active rules.
     Result<Rule> result = index.search(new RuleQuery().setActivation(true),
@@ -525,14 +526,14 @@ public class RuleIndexMediumTest {
     assertThat(result.getHits().get(0).name()).isEqualTo(rule3.getName());
 
     // 3. get all rules not active on profile
-    index.search(new RuleQuery().setActivation(false).setQProfileKey(qualityProfileDto2.getKey().toString()),
+    index.search(new RuleQuery().setActivation(false).setQProfileKey(qualityProfileDto2.getKey()),
       new QueryOptions());
     // TODO
     assertThat(result.getHits()).hasSize(1);
 
     // 4. get all active rules on profile
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto2.getKey().toString()),
+      .setQProfileKey(qualityProfileDto2.getKey()),
       new QueryOptions());
     assertThat(result.getHits()).hasSize(1);
     assertThat(result.getHits().get(0).name()).isEqualTo(rule1.getName());
@@ -541,15 +542,14 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_by_profile_and_inheritance() throws InterruptedException {
-    QualityProfileDto qualityProfileDto1 = QualityProfileDto.createFor("profile1", "java");
-    QualityProfileDto qualityProfileDto2 = QualityProfileDto.createFor("profile2", "java")
-      .setParent(qualityProfileDto1.getName());
+    QualityProfileDto qualityProfileDto1 = QProfileTesting.newXooP1();
+    QualityProfileDto qualityProfileDto2 = QProfileTesting.newXooP2().setParentKee(QProfileTesting.XOO_P1_KEY);
     db.qualityProfileDao().insert(dbSession, qualityProfileDto1, qualityProfileDto2);
 
-    RuleDto rule1 = RuleTesting.newDto(RuleKey.of("java", "S001"));
-    RuleDto rule2 = RuleTesting.newDto(RuleKey.of("java", "S002"));
-    RuleDto rule3 = RuleTesting.newDto(RuleKey.of("java", "S003"));
-    RuleDto rule4 = RuleTesting.newDto(RuleKey.of("java", "S004"));
+    RuleDto rule1 = RuleTesting.newDto(RuleKey.of("xoo", "S001"));
+    RuleDto rule2 = RuleTesting.newDto(RuleKey.of("xoo", "S002"));
+    RuleDto rule3 = RuleTesting.newDto(RuleKey.of("xoo", "S003"));
+    RuleDto rule4 = RuleTesting.newDto(RuleKey.of("xoo", "S004"));
     dao.insert(dbSession, rule1, rule2, rule3, rule4);
 
     db.activeRuleDao().insert(
@@ -592,7 +592,7 @@ public class RuleIndexMediumTest {
 
     // 3. get Inherited Rules on profile1
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto1.getKey().toString())
+      .setQProfileKey(qualityProfileDto1.getKey())
       .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
       new QueryOptions()
       );
@@ -600,7 +600,7 @@ public class RuleIndexMediumTest {
 
     // 4. get Inherited Rules on profile2
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto2.getKey().toString())
+      .setQProfileKey(qualityProfileDto2.getKey())
       .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
       new QueryOptions()
       );
@@ -608,7 +608,7 @@ public class RuleIndexMediumTest {
 
     // 5. get Overridden Rules on profile1
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto1.getKey().toString())
+      .setQProfileKey(qualityProfileDto1.getKey())
       .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
       new QueryOptions()
       );
@@ -616,7 +616,7 @@ public class RuleIndexMediumTest {
 
     // 6. get Overridden Rules on profile2
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto2.getKey().toString())
+      .setQProfileKey(qualityProfileDto2.getKey())
       .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
       new QueryOptions()
       );
@@ -624,7 +624,7 @@ public class RuleIndexMediumTest {
 
     // 7. get Inherited AND Overridden Rules on profile1
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto1.getKey().toString())
+      .setQProfileKey(qualityProfileDto1.getKey())
       .setInheritance(ImmutableSet.of(
         ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
       new QueryOptions()
@@ -633,7 +633,7 @@ public class RuleIndexMediumTest {
 
     // 8. get Inherited AND Overridden Rules on profile2
     result = index.search(new RuleQuery().setActivation(true)
-      .setQProfileKey(qualityProfileDto2.getKey().toString())
+      .setQProfileKey(qualityProfileDto2.getKey())
       .setInheritance(ImmutableSet.of(
         ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
       new QueryOptions()
@@ -645,10 +645,10 @@ public class RuleIndexMediumTest {
   public void complex_param_value() throws InterruptedException {
     String value = "//expression[primary/qualifiedIdentifier[count(IDENTIFIER) = 2]/IDENTIFIER[2]/@tokenValue = 'firstOf' and primary/identifierSuffix/arguments/expression[not(primary) or primary[not(qualifiedIdentifier) or identifierSuffix]]]";
 
-    QualityProfileDto profile = QualityProfileDto.createFor("name", "Language");
+    QualityProfileDto profile = QProfileTesting.newXooP1();
     db.qualityProfileDao().insert(dbSession, profile);
 
-    RuleDto rule = RuleTesting.newDto(RuleKey.of("java", "S001"));
+    RuleDto rule = RuleTesting.newXooX1();
     dao.insert(dbSession, rule);
 
     RuleParamDto param = RuleParamDto.createFor(rule)

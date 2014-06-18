@@ -1,10 +1,8 @@
 <dataset>
 
-  <rules_profiles id="1" name="Sonar Way" language="java" parent_name="[null]" version="1"
-                  used_profile="[false]"/>
+  <rules_profiles id="1" name="Sonar Way" language="java" parent_kee="[null]" kee="java_sonar_way"/>
 
-  <rules_profiles id="2" name="Sonar Way" language="js" parent_name="[null]" version="1"
-                  used_profile="[false]"/>
+  <rules_profiles id="2" name="Sonar Way" language="js" parent_kee="[null]" kee="js_sonar_way"/>
 
   <properties id="1" prop_key="sonar.profile.java" text_value="Sonar Way" resource_id="[null]"/>
   <properties id="2" prop_key="sonar.profile.java" text_value="Sonar Way" resource_id="1"/>

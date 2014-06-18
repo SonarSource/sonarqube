@@ -20,13 +20,13 @@
 package org.sonar.api.batch.rules;
 
 public class QProfile {
-  private final String name, language;
-  private final Integer version;
 
-  public QProfile(String name, String language, Integer version) {
+  private final String key, name, language;
+
+  public QProfile(String key, String name, String language) {
+    this.key = key;
     this.name = name;
     this.language = language;
-    this.version = version;
   }
 
   public String name() {
@@ -37,7 +37,25 @@ public class QProfile {
     return language;
   }
 
-  public Integer version() {
-    return version;
+  public String key() {
+    return key;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    QProfile qProfile = (QProfile) o;
+    return key.equals(qProfile.key);
+  }
+
+  @Override
+  public int hashCode() {
+    return key.hashCode();
   }
 }

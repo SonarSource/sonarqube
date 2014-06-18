@@ -4,30 +4,27 @@
 <mapper namespace="org.sonar.core.qualityprofile.db.QualityProfileMapper">
 
   <sql id="profilesColumns">
-    p.id,
+    p.id as id,
+    p.kee as kee,
     p.name as name,
     p.language as language,
-    p.parent_name as parent,
-    p.version as version,
-    p.used_profile as used
+    p.parent_kee as parentKee
   </sql>
 
-  <insert id="insert" parameterType="QualityProfile" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO rules_profiles (name, language, parent_name, version, used_profile)
-    VALUES (#{name}, #{language}, #{parent}, #{version}, #{used})
+  <insert id="insert" parameterType="QualityProfile" keyColumn="id" useGeneratedKeys="true" keyProperty="id" lang="raw">
+    INSERT INTO rules_profiles (kee, parent_kee, name, language)
+    VALUES (#{kee}, #{parentKee}, #{name}, #{language})
   </insert>
 
-  <update id="update" parameterType="QualityProfile">
+  <update id="update" parameterType="QualityProfile" lang="raw">
     UPDATE rules_profiles SET
     name=#{name},
     language=#{language},
-    parent_name=#{parent},
-    version=#{version},
-    used_profile=#{used}
+    parent_kee=#{parentKee}
     WHERE id=#{id}
   </update>
 
-  <update id="delete" parameterType="Integer">
+  <update id="delete" parameterType="int" lang="raw">
     DELETE FROM rules_profiles WHERE id=#{id}
   </update>
 
@@ -40,54 +37,54 @@
   <select id="selectByNameAndLanguage" parameterType="map" resultType="QualityProfile">
     SELECT <include refid="profilesColumns"/>
     FROM rules_profiles p
-    <where>
-      AND p.name=#{name}
-      AND p.language=#{language}
-    </where>
+    WHERE p.name=#{name} AND p.language=#{language}
+  </select>
+
+  <select id="selectByKey" parameterType="string" resultType="QualityProfile">
+    SELECT <include refid="profilesColumns"/>
+    FROM rules_profiles p
+    WHERE p.kee=#{id}
   </select>
 
   <select id="selectByLanguage" parameterType="String" resultType="QualityProfile">
     SELECT <include refid="profilesColumns"/>
     FROM rules_profiles p
-    <where>
-      AND p.language=#{language}
-    </where>
+    WHERE p.language=#{language}
     ORDER BY p.name
   </select>
 
   <select id="selectById" parameterType="Integer" resultType="QualityProfile">
     SELECT <include refid="profilesColumns"/>
     FROM rules_profiles p
-    <where>
-      AND p.id=#{id}
-    </where>
+    WHERE p.id=#{id}
   </select>
 
-  <select id="selectParent" parameterType="Integer" resultType="QualityProfile">
+  <select id="selectParent" parameterType="string" resultType="QualityProfile">
     SELECT <include refid="profilesColumns"/>
     FROM rules_profiles p
-    INNER JOIN rules_profiles child ON child.parent_name=p.name and child.language=p.language and child.id=#{childId}
+    INNER JOIN rules_profiles child ON child.parent_kee=p.kee AND child.kee=#{id}
   </select>
 
-  <select id="selectChildren" parameterType="map" resultType="QualityProfile">
+  <select id="selectParentById" parameterType="int" resultType="QualityProfile">
     SELECT <include refid="profilesColumns"/>
     FROM rules_profiles p
-    <where>
-      AND p.parent_name=#{name}
-      AND p.language=#{language}
-    </where>
+    INNER JOIN rules_profiles child ON child.parent_kee=p.kee and child.id=#{id}
+  </select>
+
+  <select id="selectChildren" parameterType="string" resultType="QualityProfile">
+    SELECT <include refid="profilesColumns"/>
+    FROM rules_profiles p
+    WHERE p.parent_kee=#{id}
     ORDER BY p.name
   </select>
 
-  <select id="selectDefaultProfile" parameterType="Integer" resultType="QualityProfile">
+  <select id="selectDefaultProfile" parameterType="map" resultType="QualityProfile">
     SELECT <include refid="profilesColumns"/>
     FROM rules_profiles p
-    INNER JOIN properties prop ON prop.prop_key=#{key}
+    INNER JOIN properties prop ON prop.prop_key=#{propKey}
       AND prop.resource_id IS NULL
       AND prop.text_value LIKE p.name
-    <where>
       AND p.language=#{language}
-    </where>
   </select>
 
   <select id="selectProjects" parameterType="Integer" resultType="Component">
@@ -118,16 +115,8 @@
     INNER JOIN properties prop ON prop.resource_id=#{projectId}
       AND prop.prop_key LIKE #{key}
       AND prop.text_value LIKE p.name
-    <where>
-      AND p.language=#{language}
-    </where>
+    WHERE p.language=#{language}
   </select>
-
-  <update id="updatedUsedColumn" parameterType="map">
-    UPDATE rules_profiles SET
-    used_profile=#{used}
-    WHERE id=#{id}
-  </update>
 
 </mapper>
 

@@ -48,13 +48,13 @@ public class QProfileDecorator implements Decorator {
     if (!ResourceUtils.isProject(resource)) {
       return;
     }
-    UsedQProfiles profiles = UsedQProfiles.empty();
+    UsedQProfiles used = new UsedQProfiles();
     for (Measure childProfilesMeasure : context.getChildrenMeasures(CoreMetrics.QUALITY_PROFILES)) {
-      UsedQProfiles childProfiles = UsedQProfiles.fromJSON(childProfilesMeasure.getData());
-      profiles = profiles.merge(childProfiles);
+      UsedQProfiles childProfiles = UsedQProfiles.fromJson(childProfilesMeasure.getData());
+      used.add(childProfiles);
     }
 
-    Measure detailsMeasure = new Measure(CoreMetrics.QUALITY_PROFILES, profiles.toJSON());
+    Measure detailsMeasure = new Measure(CoreMetrics.QUALITY_PROFILES, used.toJson());
     context.saveMeasure(detailsMeasure);
   }
 

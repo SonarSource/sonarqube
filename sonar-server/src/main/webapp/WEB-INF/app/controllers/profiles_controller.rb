@@ -35,14 +35,14 @@ class ProfilesController < ApplicationController
     Api::Utils.insensitive_sort!(@profiles) { |profile| profile.name() }
   end
 
-  # GET /profiles/show?id=<id>
+  # GET /profiles/show?key=<key>
   def show
-    require_parameters 'id'
+    require_parameters 'key'
     call_backend do
-      @profile = Internal.quality_profiles.profile(params[:id].to_i)
+      @profile = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).getByKey(params[:key])
       not_found('Profile not found') unless @profile
-      @deprecated_active_rules = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).countDeprecatedActiveRulesByProfile(@profile.key())
-      @stats = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).getStatsByProfile(@profile.key())
+      @deprecated_active_rules = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).countDeprecatedActiveRulesByProfile(@profile.getKey())
+      @stats = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).getStatsByProfile(@profile.getKey())
     end
     set_profile_breadcrumbs
   end
@@ -65,9 +65,11 @@ class ProfilesController < ApplicationController
           end
         end
       end
-      result = Internal.quality_profiles.newProfile(params[:name], params[:language], files_by_key)
-      flash[:notice] = message('quality_profiles.profile_x_created', :params => result.profile.name)
-      flash_result(result)
+      profile_name = Java::OrgSonarServerQualityprofile::QProfileName.new(params[:language], params[:name])
+      Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).create(profile_name)
+      # TODO use files_by_key
+      #flash[:notice] = message('quality_profiles.profile_x_created', :params => result.profile.name)
+      #flash_result(result)
     end
     redirect_to :action => 'index'
   end
@@ -142,27 +144,23 @@ class ProfilesController < ApplicationController
 
     source_key=profile_id_to_key(params[:id].to_i)
     target_name = params['name']
-    target_key=Java::OrgSonarCoreQualityprofileDb::QualityProfileKey.of(target_name, source_key.lang())
 
     call_backend do
-      Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).copy(source_key, target_key)
+      Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).copyToName(source_key, target_name)
       flash[:notice]= message('quality_profiles.profile_x_not_activated', :params => target_name)
       render :text => 'ok', :status => 200
     end
   end
 
   # the backup action is allow to non-admin users : see http://jira.codehaus.org/browse/SONAR-2039
-  # POST /profiles/backup?id=<profile id>
   def backup
     verify_post_request
-    require_parameters 'id'
+    require_parameters 'key'
 
-    profile_key=profile_id_to_key(params[:id].to_i)
-
+    profile_key=params[:key]
     call_backend do
       xml = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).backup(profile_key)
-      filename = profile_key.toString().gsub(' ', '_')
-      send_data(xml, :type => 'text/xml', :disposition => "attachment; filename=#{filename}.xml")
+      send_data(xml, :type => 'text/xml', :disposition => "attachment; filename=#{profile_key}.xml")
     end
   end
 
@@ -373,7 +371,8 @@ class ProfilesController < ApplicationController
     require_parameters 'id'
 
     call_backend do
-      Internal.quality_profiles.renameProfile(params[:id].to_i, params[:new_name])
+      profile_key = profile_id_to_key(params[:id].to_i)
+      Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).rename(profile_key, params[:new_name])
     end
     render :text => 'ok', :status => 200
   end
@@ -572,6 +571,6 @@ class ProfilesController < ApplicationController
   def profile_id_to_key(profile_id)
     profile = Profile.find(profile_id)
     not_found('Profile not found') unless profile
-    Java::OrgSonarCoreQualityprofileDb::QualityProfileKey.of(profile.name, profile.language)
+    profile.kee
   end
 end

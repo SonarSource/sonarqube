@@ -20,54 +20,48 @@
 package org.sonar.batch.rule;
 
 import org.junit.Test;
-import org.sonar.batch.rules.QProfileWithId;
+import org.sonar.api.batch.rules.QProfile;
+
+import java.util.Arrays;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class UsedQProfilesTest {
 
   @Test
-  public void serialization() throws Exception {
+  public void from_and_to_json() throws Exception {
+    QProfile java = new QProfile("p1", "Sonar Way", "java");
+    QProfile php = new QProfile("p2", "Sonar Way", "php");
 
-    QProfileWithId java = new QProfileWithId(1, "Sonar Way", "java", 1);
-    QProfileWithId php = new QProfileWithId(2, "Sonar Way", "php", 1);
+    UsedQProfiles used = new UsedQProfiles().add(java).add(php);
+    String json = "[{\"key\":\"p1\",\"language\":\"java\",\"name\":\"Sonar Way\"},{\"key\":\"p2\",\"language\":\"php\",\"name\":\"Sonar Way\"}]";
+    assertThat(used.toJson()).isEqualTo(json);
 
-    UsedQProfiles used = UsedQProfiles.fromProfiles(java, php);
-    assertThat(used.toJSON()).isEqualTo(
-      "[{\"id\":1,\"name\":\"Sonar Way\",\"version\":1,\"language\":\"java\"},{\"id\":2,\"name\":\"Sonar Way\",\"version\":1,\"language\":\"php\"}]");
+    used = UsedQProfiles.fromJson(json);
+    assertThat(used.profiles()).hasSize(2);
+    assertThat(used.profiles().first().key()).isEqualTo("p1");
+    assertThat(used.profiles().last().key()).isEqualTo("p2");
   }
 
   @Test
-  public void deserialization() throws Exception {
-    UsedQProfiles used = UsedQProfiles
-      .fromJSON("[{\"id\":1,\"name\":\"Sonar Way\",\"version\":1,\"language\":\"java\"},{\"id\":2,\"name\":\"Sonar Way\",\"version\":1,\"language\":\"php\"}]");
+  public void do_not_duplicate_profiles() throws Exception {
+    QProfile java = new QProfile("p1", "Sonar Way", "java");
+    QProfile php = new QProfile("p2", "Sonar Way", "php");
 
-    assertThat(used.toJSON()).isEqualTo(
-      "[{\"id\":1,\"name\":\"Sonar Way\",\"version\":1,\"language\":\"java\"},{\"id\":2,\"name\":\"Sonar Way\",\"version\":1,\"language\":\"php\"}]");
+    UsedQProfiles used = new UsedQProfiles().addAll(Arrays.asList(java, java, php));
+    assertThat(used.profiles()).hasSize(2);
   }
 
   @Test
-  public void merge() throws Exception {
-    UsedQProfiles first = UsedQProfiles
-      .fromJSON("[{\"id\":1,\"name\":\"Sonar Way\",\"version\":1,\"language\":\"java\"}]");
+  public void group_profiles_by_key() throws Exception {
+    QProfile java = new QProfile("p1", "Sonar Way", "java");
+    QProfile php = new QProfile("p2", "Sonar Way", "php");
 
-    UsedQProfiles second = UsedQProfiles
-      .fromJSON("[{\"id\":2,\"name\":\"Sonar Way\",\"version\":1,\"language\":\"php\"}]");
-
-    assertThat(first.merge(second).toJSON()).isEqualTo(
-      "[{\"id\":1,\"name\":\"Sonar Way\",\"version\":1,\"language\":\"java\"},{\"id\":2,\"name\":\"Sonar Way\",\"version\":1,\"language\":\"php\"}]");
+    UsedQProfiles used = new UsedQProfiles().addAll(Arrays.asList(java, java, php));
+    Map<String, QProfile> map = used.profilesByKey();
+    assertThat(map).hasSize(2);
+    assertThat(map.get("p1")).isSameAs(java);
+    assertThat(map.get("p2")).isSameAs(php);
   }
-
-  @Test
-  public void merge_no_duplicate_ids() throws Exception {
-    UsedQProfiles first = UsedQProfiles
-      .fromJSON("[{\"id\":1,\"name\":\"Sonar Way\",\"version\":1,\"language\":\"java\"},{\"id\":2,\"name\":\"Sonar Way\",\"version\":2,\"language\":\"php\"}]");
-
-    UsedQProfiles second = UsedQProfiles
-      .fromJSON("[{\"id\":1,\"name\":\"Sonar Way\",\"version\":2,\"language\":\"java\"},{\"id\":2,\"name\":\"Sonar Way\",\"version\":1,\"language\":\"php\"}]");
-
-    assertThat(first.merge(second).toJSON()).isEqualTo(
-      "[{\"id\":1,\"name\":\"Sonar Way\",\"version\":2,\"language\":\"java\"},{\"id\":2,\"name\":\"Sonar Way\",\"version\":2,\"language\":\"php\"}]");
-  }
-
 }

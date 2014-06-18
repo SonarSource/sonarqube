@@ -26,36 +26,28 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
-import org.sonar.core.properties.PropertiesDao;
 import org.sonar.core.properties.PropertyDto;
-import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.resource.ResourceDao;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
 public class QProfileProjectOperations implements ServerComponent {
 
-  private final MyBatis myBatis;
-  private final QualityProfileDao qualityProfileDao;
-  private final ResourceDao resourceDao;
-  private final PropertiesDao propertiesDao;
+  private final DbClient db;
 
-  public QProfileProjectOperations(MyBatis myBatis, QualityProfileDao qualityProfileDao, ResourceDao resourceDao, PropertiesDao propertiesDao) {
-    this.myBatis = myBatis;
-    this.qualityProfileDao = qualityProfileDao;
-    this.resourceDao = resourceDao;
-    this.propertiesDao = propertiesDao;
+  public QProfileProjectOperations(DbClient db) {
+    this.db = db;
   }
 
   public void addProject(int profileId, long projectId, UserSession userSession) {
     checkPermission(userSession);
-    DbSession session = myBatis.openSession(false);
+    DbSession session = db.openSession(false);
     try {
       ComponentDto project = (ComponentDto) findProjectNotNull(projectId, session);
       QualityProfileDto qualityProfile = findNotNull(profileId, session);
 
-      propertiesDao.setProperty(new PropertyDto().setKey(
+      db.propertiesDao().setProperty(new PropertyDto().setKey(
         QProfileOperations.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage()).setValue(qualityProfile.getName()).setResourceId(project.getId()), session);
       session.commit();
     } finally {
@@ -65,12 +57,12 @@ public class QProfileProjectOperations implements ServerComponent {
 
   public void removeProject(int profileId, long projectId, UserSession userSession) {
     checkPermission(userSession);
-    DbSession session = myBatis.openSession(false);
+    DbSession session = db.openSession(false);
     try {
       ComponentDto project = (ComponentDto) findProjectNotNull(projectId, session);
       QualityProfileDto qualityProfile = findNotNull(profileId, session);
 
-      propertiesDao.deleteProjectProperty(QProfileOperations.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage(), project.getId(), session);
+      db.propertiesDao().deleteProjectProperty(QProfileOperations.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage(), project.getId(), session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -79,11 +71,11 @@ public class QProfileProjectOperations implements ServerComponent {
 
   public void removeProject(String language, long projectId, UserSession userSession) {
     checkPermission(userSession);
-    DbSession session = myBatis.openSession(false);
+    DbSession session = db.openSession(false);
     try {
       ComponentDto project = (ComponentDto) findProjectNotNull(projectId, session);
 
-      propertiesDao.deleteProjectProperty(QProfileOperations.PROFILE_PROPERTY_PREFIX + language, project.getId(), session);
+      db.propertiesDao().deleteProjectProperty(QProfileOperations.PROFILE_PROPERTY_PREFIX + language, project.getId(), session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -92,11 +84,10 @@ public class QProfileProjectOperations implements ServerComponent {
 
   public void removeAllProjects(int profileId, UserSession userSession) {
     checkPermission(userSession);
-    DbSession session = myBatis.openSession(false);
+    DbSession session = db.openSession(false);
     try {
       QualityProfileDto qualityProfile = findNotNull(profileId, session);
-
-      propertiesDao.deleteProjectProperties(QProfileOperations.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage(), qualityProfile.getName(), session);
+      db.propertiesDao().deleteProjectProperties(QProfileOperations.PROFILE_PROPERTY_PREFIX + qualityProfile.getLanguage(), qualityProfile.getName(), session);
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -104,15 +95,15 @@ public class QProfileProjectOperations implements ServerComponent {
   }
 
   private QualityProfileDto findNotNull(int id, DbSession session) {
-    QualityProfileDto qualityProfile = qualityProfileDao.selectById(id, session);
+    QualityProfileDto qualityProfile = db.qualityProfileDao().getById(id, session);
     QProfileValidations.checkProfileIsNotNull(qualityProfile);
     return qualityProfile;
   }
 
   private Component findProjectNotNull(long projectId, DbSession session) {
-    Component component = resourceDao.findById(projectId, session);
+    Component component = db.resourceDao().findById(projectId, session);
     if (component == null) {
-      throw new NotFoundException("This project does not exists.");
+      throw new NotFoundException("This project does not exist");
     }
     return component;
   }

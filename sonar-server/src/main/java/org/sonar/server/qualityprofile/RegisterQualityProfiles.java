@@ -35,14 +35,13 @@ import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.template.LoadedTemplateDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.platform.PersistentSettings;
 
 import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -61,26 +60,24 @@ public class RegisterQualityProfiles implements ServerComponent {
   private final List<ProfileDefinition> definitions;
   private final BuiltInProfiles builtInProfiles;
   private final DbClient dbClient;
+  private final QProfileFactory profileFactory;
   private final RuleActivator ruleActivator;
 
   /**
    * To be kept when no ProfileDefinition are injected
    */
-  public RegisterQualityProfiles(PersistentSettings settings,
-                                 BuiltInProfiles builtInProfiles,
-                                 DbClient dbClient,
-                                 RuleActivator ruleActivator) {
-    this(settings, builtInProfiles, dbClient, ruleActivator, Collections.<ProfileDefinition>emptyList());
+  public RegisterQualityProfiles(PersistentSettings settings, BuiltInProfiles builtInProfiles,
+    DbClient dbClient, QProfileFactory profileFactory, RuleActivator ruleActivator) {
+    this(settings, builtInProfiles, dbClient, profileFactory, ruleActivator, Collections.<ProfileDefinition>emptyList());
   }
 
-  public RegisterQualityProfiles(PersistentSettings settings,
-                                 BuiltInProfiles builtInProfiles,
-                                 DbClient dbClient,
-                                 RuleActivator ruleActivator,
-                                 List<ProfileDefinition> definitions) {
+  public RegisterQualityProfiles(PersistentSettings settings, BuiltInProfiles builtInProfiles,
+    DbClient dbClient, QProfileFactory profileFactory, RuleActivator ruleActivator,
+    List<ProfileDefinition> definitions) {
     this.settings = settings;
     this.builtInProfiles = builtInProfiles;
     this.dbClient = dbClient;
+    this.profileFactory = profileFactory;
     this.ruleActivator = ruleActivator;
     this.definitions = definitions;
   }
@@ -92,20 +89,22 @@ public class RegisterQualityProfiles implements ServerComponent {
     try {
       ListMultimap<String, RulesProfile> profilesByLanguage = profilesByLanguage();
       for (String language : profilesByLanguage.keySet()) {
-        List<RulesProfile> profileDefs = profilesByLanguage.get(language);
-        verifyLanguage(language, profileDefs);
+        List<RulesProfile> defs = profilesByLanguage.get(language);
+        verifyLanguage(language, defs);
 
-        for (Map.Entry<String, Collection<RulesProfile>> entry : profilesByName(profileDefs).entrySet()) {
-          String profileName = entry.getKey();
-          QualityProfileKey profileKey = QualityProfileKey.of(profileName, language);
-          if (shouldRegister(profileKey, session)) {
-            register(profileKey, entry.getValue(), session);
+        for (Map.Entry<String, Collection<RulesProfile>> entry : profilesByName(defs).entrySet()) {
+          String name = entry.getKey();
+          QProfileName profileName = new QProfileName(language, name);
+          if (shouldRegister(profileName, session)) {
+            register(profileName, entry.getValue(), session);
+            session.commit();
           }
-          builtInProfiles.put(language, profileName);
-          }
-        setDefault(language, profileDefs, session);
+          builtInProfiles.put(language, name);
         }
-      session.commit();
+        setDefault(language, defs, session);
+        session.commit();
+      }
+
     } finally {
       session.close();
       profiler.stop();
@@ -123,49 +122,38 @@ public class RegisterQualityProfiles implements ServerComponent {
     }
   }
 
-  private void register(QualityProfileKey key, Collection<RulesProfile> profiles, DbSession session) {
-    LOGGER.info("Register profile " + key);
+  private void register(QProfileName name, Collection<RulesProfile> profiles, DbSession session) {
+    LOGGER.info("Register profile " + name);
 
-    QualityProfileDto profileDto = dbClient.qualityProfileDao().getByKey(session, key);
+    QualityProfileDto profileDto = dbClient.qualityProfileDao().getByNameAndLanguage(name.getName(), name.getLanguage(), session);
     if (profileDto != null) {
-      cleanUp(key, profileDto, session);
+      profileFactory.delete(session, profileDto.getKey(), true);
     }
-    insertNewProfile(key, session);
+    profileFactory.create(session, name);
 
     for (RulesProfile profile : profiles) {
       for (org.sonar.api.rules.ActiveRule activeRule : profile.getActiveRules()) {
         RuleKey ruleKey = RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey());
-        RuleActivation activation = new RuleActivation(ActiveRuleKey.of(key, ruleKey));
+        RuleActivation activation = new RuleActivation(ruleKey);
         activation.setSeverity(activeRule.getSeverity() != null ? activeRule.getSeverity().name() : null);
         for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
           activation.setParameter(param.getKey(), param.getValue());
         }
-        ruleActivator.activate(session, activation);
+        ruleActivator.activate(session, activation, name);
       }
     }
 
-    LoadedTemplateDto template = new LoadedTemplateDto(templateKey(key), LoadedTemplateDto.QUALITY_PROFILE_TYPE);
+    LoadedTemplateDto template = new LoadedTemplateDto(templateKey(name), LoadedTemplateDto.QUALITY_PROFILE_TYPE);
     dbClient.loadedTemplateDao().insert(template, session);
-  }
-
-  private void cleanUp(QualityProfileKey key, QualityProfileDto profileDto, DbSession session) {
-    dbClient.activeRuleDao().deleteByProfileKey(session, key);
-    dbClient.qualityProfileDao().delete(session, profileDto);
-  }
-
-  private void insertNewProfile(QualityProfileKey key, DbSession session) {
-    QualityProfileDto profile = QualityProfileDto.createFor(key);
-    dbClient.qualityProfileDao().insert(session, profile);
   }
 
   private void setDefault(String language, List<RulesProfile> profileDefs, DbSession session) {
     String propertyKey = "sonar.profile." + language;
-
     boolean upToDate = false;
     String currentDefault = settings.getString(propertyKey);
     if (currentDefault != null) {
       // check validity
-      QualityProfileDto profile = dbClient.qualityProfileDao().getByKey(session, QualityProfileKey.of(currentDefault, language));
+      QualityProfileDto profile = dbClient.qualityProfileDao().getByNameAndLanguage(currentDefault, language, session);
       if (profile != null) {
         upToDate = true;
       }
@@ -231,12 +219,12 @@ public class RegisterQualityProfiles implements ServerComponent {
     return names;
   }
 
-  private boolean shouldRegister(QualityProfileKey key, DbSession session) {
+  private boolean shouldRegister(QProfileName key, DbSession session) {
     return dbClient.loadedTemplateDao()
       .countByTypeAndKey(LoadedTemplateDto.QUALITY_PROFILE_TYPE, templateKey(key), session) == 0;
   }
 
-  static String templateKey(QualityProfileKey key) {
-    return StringUtils.lowerCase(key.lang()) + ":" + key.name();
+  static String templateKey(QProfileName key) {
+    return StringUtils.lowerCase(key.getLanguage()) + ":" + key.getName();
   }
 }

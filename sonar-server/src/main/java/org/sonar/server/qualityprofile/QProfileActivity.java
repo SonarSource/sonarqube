@@ -22,7 +22,6 @@ package org.sonar.server.qualityprofile;
 import com.google.common.collect.ImmutableMap;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.activity.Activity;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.activity.index.ActivityDoc;
 
 import java.util.Map;
@@ -36,7 +35,7 @@ public class QProfileActivity extends ActivityDoc implements Activity {
     super(fields);
   }
 
-  public QualityProfileKey profileKey(){
+  public String profileKey(){
     // TODO
     return null;
   }

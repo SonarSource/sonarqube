@@ -28,7 +28,6 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.qualityprofile.RuleActivation;
 
@@ -105,25 +104,24 @@ public class RuleActivationActions implements ServerComponent {
       .setExampleValue("squid:AvoidCycles");
   }
 
-
   private void activate(Request request, Response response) throws Exception {
-    ActiveRuleKey key = readKey(request);
-    RuleActivation activation = new RuleActivation(key);
+    RuleKey ruleKey = readRuleKey(request);
+    RuleActivation activation = new RuleActivation(ruleKey);
     activation.setSeverity(request.param(SEVERITY));
     String params = request.param(PARAMS);
     if (params != null) {
       activation.setParameters(KeyValueFormat.parse(params));
     }
-    service.activate(activation);
+    service.activate(request.mandatoryParam(PROFILE_KEY), activation);
   }
 
   private void deactivate(Request request, Response response) throws Exception {
-    service.deactivate(readKey(request));
+    RuleKey ruleKey = readRuleKey(request);
+    service.deactivate(ActiveRuleKey.of(request.mandatoryParam(PROFILE_KEY), ruleKey));
   }
 
-  private ActiveRuleKey readKey(Request request) {
-    return ActiveRuleKey.of(
-      QualityProfileKey.parse(request.mandatoryParam(PROFILE_KEY)),
-      RuleKey.parse(request.mandatoryParam(RULE_KEY)));
+  private RuleKey readRuleKey(Request request) {
+    return RuleKey.parse(request.mandatoryParam(RULE_KEY));
   }
+
 }

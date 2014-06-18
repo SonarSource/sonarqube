@@ -1,23 +1,17 @@
 <dataset>
 
-  <rules_profiles id="1" name="Child1" language="java" parent_name="Parent" version="1"
-                  used_profile="[false]"/>
+  <rules_profiles id="1" name="Child1" language="java" parent_kee="java_parent" kee="java_child1"/>
 
-  <rules_profiles id="2" name="Child2" language="java" parent_name="Parent" version="1"
-                  used_profile="[false]"/>
+  <rules_profiles id="2" name="Child2" language="java" parent_kee="java_parent" kee="java_child2"/>
 
-  <rules_profiles id="3" name="Parent" language="java" parent_name="[null]" version="1"
-                  used_profile="[false]"/>
+  <rules_profiles id="3" name="Parent" language="java" parent_kee="[null]" kee="java_parent"/>
 
   <!-- Same profile for another language -->
 
-  <rules_profiles id="4" name="Child1" language="js" parent_name="Parent" version="1"
-                  used_profile="[false]"/>
+  <rules_profiles id="4" name="Child1" language="js" parent_kee="js_parent" kee="js_child1"/>
 
-  <rules_profiles id="5" name="Child2" language="js" parent_name="Parent" version="1"
-                  used_profile="[false]"/>
+  <rules_profiles id="5" name="Child2" language="js" parent_kee="js_parent" kee="js_child2"/>
 
-  <rules_profiles id="6" name="Parent" language="js" parent_name="[null]" version="1"
-                  used_profile="[false]"/>
+  <rules_profiles id="6" name="Parent" language="js" parent_kee="[null]" kee="js_parent"/>
 
 </dataset>

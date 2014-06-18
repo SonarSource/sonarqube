@@ -22,7 +22,7 @@
 	      </td>
 	      <td>
 	        <% permalink=url_for :controller => 'profiles', :action => 'export', :language => @profile.language(), :name => url_encode(@profile.name()), :format => exporter.getKey(), :only_path => false %>
-	        <span class="small"><%= link_to permalink, permalink, :id => "export_" + exporter.getKey().to_s + "_" + profile_key(@profile) %></span>
+	        <span class="small"><%= link_to permalink, permalink, :id => "export_" + exporter.getKey().to_s + "_" + @profile.key() %></span>
 	      </td>
 	    </tr>
 	  <% end %>

@@ -36,6 +36,8 @@ import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.qualityprofile.QProfileName;
+import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
@@ -96,9 +98,9 @@ public class QProfilesWsMediumTest {
 
   @Test
   public void deactivate_rule() throws Exception {
-    QualityProfileDto profile = getProfile("java");
-    RuleDto rule = getRule(profile.getLanguage(), "toto");
-    getActiveRule(rule, profile);
+    QualityProfileDto profile = createProfile("java");
+    RuleDto rule = createRule(profile.getLanguage(), "toto");
+    createActiveRule(rule, profile);
     session.commit();
 
     // 0. Assert No Active Rule for profile
@@ -117,15 +119,15 @@ public class QProfilesWsMediumTest {
 
   @Test
   public void bulk_deactivate_rule() throws Exception {
-    QualityProfileDto profile = getProfile("java");
-    RuleDto rule0 = getRule(profile.getLanguage(), "toto1");
-    RuleDto rule1 = getRule(profile.getLanguage(), "toto2");
-    RuleDto rule2 = getRule(profile.getLanguage(), "toto3");
-    RuleDto rule3 = getRule(profile.getLanguage(), "toto4");
-    getActiveRule(rule0, profile);
-    getActiveRule(rule2, profile);
-    getActiveRule(rule3, profile);
-    getActiveRule(rule1, profile);
+    QualityProfileDto profile = createProfile("java");
+    RuleDto rule0 = createRule(profile.getLanguage(), "toto1");
+    RuleDto rule1 = createRule(profile.getLanguage(), "toto2");
+    RuleDto rule2 = createRule(profile.getLanguage(), "toto3");
+    RuleDto rule3 = createRule(profile.getLanguage(), "toto4");
+    createActiveRule(rule0, profile);
+    createActiveRule(rule2, profile);
+    createActiveRule(rule3, profile);
+    createActiveRule(rule1, profile);
     session.commit();
 
     // 0. Assert No Active Rule for profile
@@ -143,14 +145,14 @@ public class QProfilesWsMediumTest {
 
   @Test
   public void bulk_deactivate_rule_not_all() throws Exception {
-    QualityProfileDto profile = getProfile("java");
-    QualityProfileDto php = getProfile("php");
-    RuleDto rule0 = getRule(profile.getLanguage(), "toto1");
-    RuleDto rule1 = getRule(profile.getLanguage(), "toto2");
-    getActiveRule(rule0, profile);
-    getActiveRule(rule1, profile);
-    getActiveRule(rule0, php);
-    getActiveRule(rule1, php);
+    QualityProfileDto profile = createProfile("java");
+    QualityProfileDto php = createProfile("php");
+    RuleDto rule0 = createRule(profile.getLanguage(), "toto1");
+    RuleDto rule1 = createRule(profile.getLanguage(), "toto2");
+    createActiveRule(rule0, profile);
+    createActiveRule(rule1, profile);
+    createActiveRule(rule0, php);
+    createActiveRule(rule1, php);
     session.commit();
 
     // 0. Assert No Active Rule for profile
@@ -169,11 +171,11 @@ public class QProfilesWsMediumTest {
 
   @Test
   public void bulk_deactivate_rule_by_profile() throws Exception {
-    QualityProfileDto profile = getProfile("java");
-    RuleDto rule0 = getRule(profile.getLanguage(), "hello");
-    RuleDto rule1 = getRule(profile.getLanguage(), "world");
-    getActiveRule(rule0, profile);
-    getActiveRule(rule1, profile);
+    QualityProfileDto profile = createProfile("java");
+    RuleDto rule0 = createRule(profile.getLanguage(), "hello");
+    RuleDto rule1 = createRule(profile.getLanguage(), "world");
+    createActiveRule(rule0, profile);
+    createActiveRule(rule1, profile);
     ;
     session.commit();
 
@@ -193,8 +195,8 @@ public class QProfilesWsMediumTest {
 
   @Test
   public void activate_rule() throws Exception {
-    QualityProfileDto profile = getProfile("java");
-    RuleDto rule = getRule(profile.getLanguage(), "toto");
+    QualityProfileDto profile = createProfile("java");
+    RuleDto rule = createRule(profile.getLanguage(), "toto");
     session.commit();
 
     // 0. Assert No Active Rule for profile
@@ -213,8 +215,8 @@ public class QProfilesWsMediumTest {
 
   @Test
   public void activate_rule_diff_languages() throws Exception {
-    QualityProfileDto profile = getProfile("java");
-    RuleDto rule = getRule("php", "toto");
+    QualityProfileDto profile = createProfile("java");
+    RuleDto rule = createRule("php", "toto");
     session.commit();
 
     // 0. Assert No Active Rule for profile
@@ -229,19 +231,18 @@ public class QProfilesWsMediumTest {
       session.clearCache();
       fail();
     } catch (BadRequestException e) {
-      assertThat(e.getMessage()).isEqualTo("Rule blah:toto and profile test:java have different languages");
+      assertThat(e.getMessage()).isEqualTo("Rule blah:toto and profile pjava have different languages");
     }
   }
 
   @Test
   public void activate_rule_override_severity() throws Exception {
-    QualityProfileDto profile = getProfile("java");
-    RuleDto rule = getRule(profile.getLanguage(), "toto");
+    QualityProfileDto profile = createProfile("java");
+    RuleDto rule = createRule(profile.getLanguage(), "toto");
     session.commit();
 
     // 0. Assert No Active Rule for profile
     assertThat(db.activeRuleDao().findByProfileKey(session, profile.getKey())).isEmpty();
-
 
     // 1. Activate Rule
     WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, RuleActivationActions.ACTIVATE_ACTION);
@@ -260,11 +261,11 @@ public class QProfilesWsMediumTest {
 
   @Test
   public void bulk_activate_rule() throws Exception {
-    QualityProfileDto profile = getProfile("java");
-    RuleDto rule0 = getRule(profile.getLanguage(), "toto");
-    RuleDto rule1 = getRule(profile.getLanguage(), "tata");
-    RuleDto rule2 = getRule(profile.getLanguage(), "hello");
-    RuleDto rule3 = getRule(profile.getLanguage(), "world");
+    QualityProfileDto profile = createProfile("java");
+    RuleDto rule0 = createRule(profile.getLanguage(), "toto");
+    RuleDto rule1 = createRule(profile.getLanguage(), "tata");
+    RuleDto rule2 = createRule(profile.getLanguage(), "hello");
+    RuleDto rule3 = createRule(profile.getLanguage(), "world");
     session.commit();
 
     // 0. Assert No Active Rule for profile
@@ -283,12 +284,12 @@ public class QProfilesWsMediumTest {
 
   @Test
   public void bulk_activate_rule_not_all() throws Exception {
-    QualityProfileDto java = getProfile("java");
-    QualityProfileDto php = getProfile("php");
-    RuleDto rule0 = getRule(java.getLanguage(), "toto");
-    RuleDto rule1 = getRule(java.getLanguage(), "tata");
-    RuleDto rule2 = getRule(php.getLanguage(), "hello");
-    RuleDto rule3 = getRule(php.getLanguage(), "world");
+    QualityProfileDto java = createProfile("java");
+    QualityProfileDto php = createProfile("php");
+    RuleDto rule0 = createRule(java.getLanguage(), "toto");
+    RuleDto rule1 = createRule(java.getLanguage(), "tata");
+    RuleDto rule2 = createRule(php.getLanguage(), "hello");
+    RuleDto rule3 = createRule(php.getLanguage(), "world");
     session.commit();
 
     // 0. Assert No Active Rule for profile
@@ -307,11 +308,11 @@ public class QProfilesWsMediumTest {
 
   @Test
   public void bulk_activate_rule_by_query() throws Exception {
-    QualityProfileDto profile = getProfile("java");
-    RuleDto rule0 = getRule(profile.getLanguage(), "toto");
-    RuleDto rule1 = getRule(profile.getLanguage(), "tata");
-    RuleDto rule2 = getRule(profile.getLanguage(), "hello");
-    RuleDto rule3 = getRule(profile.getLanguage(), "world");
+    QualityProfileDto profile = createProfile("java");
+    RuleDto rule0 = createRule(profile.getLanguage(), "toto");
+    RuleDto rule1 = createRule(profile.getLanguage(), "tata");
+    RuleDto rule2 = createRule(profile.getLanguage(), "hello");
+    RuleDto rule3 = createRule(profile.getLanguage(), "world");
     session.commit();
 
     // 0. Assert No Active Rule for profile
@@ -340,9 +341,9 @@ public class QProfilesWsMediumTest {
 
   @Test
   public void bulk_activate_rule_by_query_with_severity() throws Exception {
-    QualityProfileDto profile = getProfile("java");
-    RuleDto rule0 = getRule(profile.getLanguage(), "toto");
-    RuleDto rule1 = getRule(profile.getLanguage(), "tata");
+    QualityProfileDto profile = createProfile("java");
+    RuleDto rule0 = createRule(profile.getLanguage(), "toto");
+    RuleDto rule1 = createRule(profile.getLanguage(), "tata");
     session.commit();
 
     // 0. Assert No Active Rule for profile
@@ -368,14 +369,11 @@ public class QProfilesWsMediumTest {
 
   @Test
   public void reset() throws Exception {
-
-    QualityProfileDto profile = QualityProfileDto.createFor("parent", "java");
-    QualityProfileDto subProfile = QualityProfileDto.createFor("child", "java")
-      .setParent(profile.getName());
+    QualityProfileDto profile = QProfileTesting.newXooP1();
+    QualityProfileDto subProfile = QProfileTesting.newXooP2().setParentKee(QProfileTesting.XOO_P1_KEY);
     db.qualityProfileDao().insert(session, profile, subProfile);
 
-    RuleDto rule = getRule(profile.getLanguage(), "rule");
-
+    RuleDto rule = createRule(profile.getLanguage(), "rule");
     ActiveRuleDto active1 = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(rule.getSeverityString());
     ActiveRuleDto active2 = ActiveRuleDto.createFor(subProfile, rule)
@@ -389,7 +387,7 @@ public class QProfilesWsMediumTest {
 
     // 1. reset child rule
     WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, RuleActivationActions.ACTIVATE_ACTION);
-    request.setParam(RuleActivationActions.PROFILE_KEY, subProfile.getKey().toString());
+    request.setParam(RuleActivationActions.PROFILE_KEY, subProfile.getKey());
     request.setParam(RuleActivationActions.RULE_KEY, rule.getKey().toString());
     request.execute();
     session.clearCache();
@@ -398,14 +396,13 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().getByKey(session, active2.getKey()).getSeverityString()).isNotEqualTo("MINOR");
   }
 
-
-  private QualityProfileDto getProfile(String lang) {
-    QualityProfileDto profile = QualityProfileDto.createFor("test", lang);
+  private QualityProfileDto createProfile(String lang) {
+    QualityProfileDto profile = QProfileTesting.newDto(new QProfileName(lang, "P" + lang), "p" + lang);
     db.qualityProfileDao().insert(session, profile);
     return profile;
   }
 
-  private RuleDto getRule(String lang, String id) {
+  private RuleDto createRule(String lang, String id) {
     RuleDto rule = RuleDto.createFor(RuleKey.of("blah", id))
       .setLanguage(lang)
       .setSeverity(Severity.BLOCKER)
@@ -414,7 +411,7 @@ public class QProfilesWsMediumTest {
     return rule;
   }
 
-  private ActiveRuleDto getActiveRule(RuleDto rule, QualityProfileDto profile) {
+  private ActiveRuleDto createActiveRule(RuleDto rule, QualityProfileDto profile) {
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(rule.getSeverityString());
     db.activeRuleDao().insert(session, activeRule);

@@ -35,6 +35,7 @@ import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileService;
+import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
@@ -73,24 +74,23 @@ public class AppActionTest {
 
     MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    QualityProfileDto profile1 = QualityProfileDto.createFor("Profile One", "bf");
-    QualityProfileDto profile2 = QualityProfileDto.createFor("Profile Two", "bf").setParent("Profile One");
-    QualityProfileDto profile3 = QualityProfileDto.createFor("Profile Three", "polop");
-    when(qualityProfileService.findAll()).thenReturn(ImmutableList.of(profile1, profile2, profile3));
+    QualityProfileDto profile1 = QProfileTesting.newXooP1();
+    QualityProfileDto profile2 = QProfileTesting.newXooP2().setParentKee(QProfileTesting.XOO_P1_KEY);
+    when(qualityProfileService.findAll()).thenReturn(ImmutableList.of(profile1, profile2));
 
-    Language brainfsck = mock(Language.class);
-    when(brainfsck.getKey()).thenReturn("bf");
-    when(brainfsck.getName()).thenReturn("Brainf*ck");
+    Language xoo = mock(Language.class);
+    when(xoo.getKey()).thenReturn("xoo");
+    when(xoo.getName()).thenReturn("Xoo");
     Language whitespace = mock(Language.class);
     when(whitespace.getKey()).thenReturn("ws");
     when(whitespace.getName()).thenReturn("Whitespace");
-    when(languages.get("bf")).thenReturn(brainfsck);
-    when(languages.all()).thenReturn(new Language[]{brainfsck, whitespace});
+    when(languages.get("xoo")).thenReturn(xoo);
+    when(languages.all()).thenReturn(new Language[]{xoo, whitespace});
 
     RuleRepositories.Repository repo1 = mock(RuleRepositories.Repository.class);
-    when(repo1.key()).thenReturn("squid");
+    when(repo1.key()).thenReturn("xoo");
     when(repo1.name()).thenReturn("SonarQube");
-    when(repo1.language()).thenReturn("bf");
+    when(repo1.language()).thenReturn("xoo");
     RuleRepositories.Repository repo2 = mock(RuleRepositories.Repository.class);
     when(repo2.key()).thenReturn("squid");
     when(repo2.name()).thenReturn("SonarQube");

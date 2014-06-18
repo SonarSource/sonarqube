@@ -34,7 +34,7 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
   ActiveRuleDao dao;
 
   @Before
-  public void createDao() {
+  public void before() {
     dao = new ActiveRuleDao(getMyBatis());
   }
 
@@ -42,7 +42,7 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
   public void select_by_profile() {
     setupData("shared");
 
-    List<ActiveRuleDto> result = dao.selectByProfileId(2);
+    List<ActiveRuleDto> result = dao.selectByProfileKey("parent");
     assertThat(result).hasSize(2);
   }
 
@@ -67,6 +67,6 @@ public class ActiveRuleDaoTest extends AbstractDaoTestCase {
   public void select_params_by_profile_id() {
     setupData("shared");
 
-    assertThat(dao.selectParamsByProfileId(1)).hasSize(2);
+    assertThat(dao.selectParamsByProfileKey("child")).hasSize(2);
   }
 }

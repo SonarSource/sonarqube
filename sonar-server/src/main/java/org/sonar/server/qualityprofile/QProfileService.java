@@ -32,7 +32,6 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
@@ -45,6 +44,7 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -53,8 +53,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 public class QProfileService implements ServerComponent {
 
@@ -77,6 +75,18 @@ public class QProfileService implements ServerComponent {
     this.reset = reset;
   }
 
+  public QualityProfileDto create(QProfileName name) {
+    verifyAdminPermission();
+    DbSession dbSession = db.openSession(false);
+    try {
+      QualityProfileDto profile = factory.create(dbSession, name);
+      dbSession.commit();
+      return profile;
+    } finally {
+      dbSession.close();
+    }
+  }
+
   /**
    * Returns all Quality profiles as DTOs. This is a temporary solution as long as
    * profiles are not indexed and declared as a business object
@@ -91,6 +101,16 @@ public class QProfileService implements ServerComponent {
   }
 
   @CheckForNull
+  public QualityProfileDto getByKey(String key) {
+    DbSession dbSession = db.openSession(false);
+    try {
+      return db.qualityProfileDao().getByKey(dbSession, key);
+    } finally {
+      dbSession.close();
+    }
+  }
+
+  @CheckForNull
   public ActiveRule getActiveRule(ActiveRuleKey key) {
     return index.get(ActiveRuleIndex.class).getByKey(key);
   }
@@ -99,7 +119,7 @@ public class QProfileService implements ServerComponent {
     return index.get(ActiveRuleIndex.class).findByRule(key);
   }
 
-  public List<ActiveRule> findActiveRulesByProfile(QualityProfileKey key) {
+  public List<ActiveRule> findActiveRulesByProfile(String key) {
     return index.get(ActiveRuleIndex.class).findByProfile(key);
   }
 
@@ -107,9 +127,16 @@ public class QProfileService implements ServerComponent {
    * Activate a rule on a Quality profile. Update configuration (severity/parameters) if the rule is already
    * activated.
    */
-  public List<ActiveRuleChange> activate(RuleActivation activation) {
+  public List<ActiveRuleChange> activate(String profileKey, RuleActivation activation) {
     verifyAdminPermission();
-    return ruleActivator.activate(activation);
+    DbSession dbSession = db.openSession(false);
+    try {
+      List<ActiveRuleChange> changes = ruleActivator.activate(dbSession, activation, profileKey);
+      dbSession.commit();
+      return changes;
+    } finally {
+      dbSession.close();
+    }
   }
 
   /**
@@ -121,28 +148,28 @@ public class QProfileService implements ServerComponent {
     return ruleActivator.deactivate(key);
   }
 
-  public BulkChangeResult bulkActivate(RuleQuery ruleQuery, QualityProfileKey profile, @Nullable String severity) {
+  public BulkChangeResult bulkActivate(RuleQuery ruleQuery, String profile, @Nullable String severity) {
     verifyAdminPermission();
     return ruleActivator.bulkActivate(ruleQuery, profile, severity);
   }
 
-  public BulkChangeResult bulkDeactivate(RuleQuery ruleQuery, QualityProfileKey profile) {
+  public BulkChangeResult bulkDeactivate(RuleQuery ruleQuery, String profile) {
     verifyAdminPermission();
     return ruleActivator.bulkDeactivate(ruleQuery, profile);
   }
 
-  public void backup(QualityProfileKey key, Writer writer) {
+  public void backup(String profileKey, Writer writer) {
     // Allowed to non-admin users (see http://jira.codehaus.org/browse/SONAR-2039)
-    backuper.backup(key, writer);
+    backuper.backup(profileKey, writer);
   }
 
   /**
-   * @deprecated used only by Ruby on Rails. Use {@link #backup(org.sonar.core.qualityprofile.db.QualityProfileKey, java.io.Writer)}
+   * @deprecated used only by Ruby on Rails. Use {@link #backup(String, java.io.Writer)}
    */
   @Deprecated
-  public String backup(QualityProfileKey key) {
+  public String backup(String profileKey) {
     StringWriter output = new StringWriter();
-    backup(key, output);
+    backup(profileKey, output);
     return output.toString();
   }
 
@@ -171,19 +198,19 @@ public class QProfileService implements ServerComponent {
     return reset.builtInProfileNamesForLanguage(lang);
   }
 
-  public void copy(QualityProfileKey from, QualityProfileKey to) {
+  public void copyToName(String fromKey, String toName) {
     verifyAdminPermission();
-    copier.copy(from, to);
+    copier.copyToName(fromKey, toName);
   }
 
-  public void delete(QualityProfileKey key) {
+  public void delete(String key) {
     verifyAdminPermission();
     factory.delete(key);
   }
 
-  public void rename(QualityProfileKey key, String newName) {
+  public void rename(String key, String newName) {
     verifyAdminPermission();
-    // TODO
+    factory.rename(key, newName);
   }
 
   /**
@@ -192,7 +219,7 @@ public class QProfileService implements ServerComponent {
    * @param key       key of existing profile
    * @param parentKey key of parent profile to be inherited from. Or <code>null</code> to unset the parent.
    */
-  public void setParent(QualityProfileKey key, @Nullable QualityProfileKey parentKey) {
+  public void setParent(String key, @Nullable String parentKey) {
     verifyAdminPermission();
     ruleActivator.setParent(key, parentKey);
   }
@@ -200,14 +227,15 @@ public class QProfileService implements ServerComponent {
   /**
    * Set the given quality profile as default for the related language
    */
-  public void setDefault(QualityProfileKey key) {
+  public void setDefault(String key) {
     verifyAdminPermission();
     factory.setDefault(key);
   }
 
   @CheckForNull
-  public QualityProfileKey getDefault(String language) {
-    return factory.getDefault(language);
+  public String getDefault(String language) {
+    QualityProfileDto profile = factory.getDefault(language);
+    return profile != null ? profile.getKey() : null;
   }
 
   private void verifyAdminPermission() {
@@ -215,36 +243,36 @@ public class QProfileService implements ServerComponent {
     UserSession.get().checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
-  public long countActiveRulesByProfile(QualityProfileKey key) {
+  public long countActiveRulesByProfile(String key) {
     return index.get(ActiveRuleIndex.class).countByQualityProfileKey(key);
   }
 
-  public Map<QualityProfileKey, Long> countAllActiveRules() {
-    Map<QualityProfileKey, Long> counts = new HashMap<QualityProfileKey, Long>();
+  public Map<String, Long> countAllActiveRules() {
+    Map<String, Long> counts = new HashMap<String, Long>();
     for (Map.Entry<String, Long> entry : index.get(ActiveRuleIndex.class).countAllByQualityProfileKey().entrySet()) {
-      counts.put(QualityProfileKey.parse(entry.getKey()), entry.getValue());
+      counts.put(entry.getKey(), entry.getValue());
     }
     return counts;
   }
 
-  public Multimap<String, FacetValue> getStatsByProfile(QualityProfileKey key) {
+  public Multimap<String, FacetValue> getStatsByProfile(String key) {
     return index.get(ActiveRuleIndex.class).getStatsByProfileKey(key);
   }
 
-  public Map<QualityProfileKey, Multimap<String, FacetValue>> getAllProfileStats() {
-    List<QualityProfileKey> keys = newArrayList();
+  public Map<String, Multimap<String, FacetValue>> getAllProfileStats() {
+    List<String> keys = Lists.newArrayList();
     for (QualityProfileDto profile : this.findAll()) {
       keys.add(profile.getKey());
     }
     return index.get(ActiveRuleIndex.class).getStatsByProfileKeys(keys);
   }
 
-  public long countDeprecatedActiveRulesByProfile(QualityProfileKey key) {
+  public long countDeprecatedActiveRulesByProfile(String key) {
     return index.get(RuleIndex.class).search(
       new RuleQuery()
-        .setQProfileKey(key.toString())
+        .setQProfileKey(key)
         .setActivation(true)
-        .setStatuses(newArrayList(RuleStatus.DEPRECATED)),
+        .setStatuses(Lists.newArrayList(RuleStatus.DEPRECATED)),
       new QueryOptions().setLimit(0)).getTotal();
   }
 

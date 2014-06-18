@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.core.persistence.migration.v44.Migration44Mapper">
+
+  <select id="selectProfileMeasures" resultType="org.sonar.core.persistence.migration.v44.ProfileMeasure">
+    select pm.id as id, pm.value as profileId, pm.snapshot_id as snapshotId
+    from project_measures pm
+    inner join metrics m on m.id=pm.metric_id and m.name='profile'
+    inner join snapshots s on s.islast=#{_true} and pm.snapshot_id=s.id and s.scope='PRJ'
+    where pm.value is not null
+  </select>
+
+  <select id="selectProfileVersion" resultType="int" parameterType="long">
+    select pm.value from project_measures pm
+    inner join metrics m on m.id=pm.metric_id and m.name='profile_version'
+    inner join snapshots s on pm.snapshot_id=s.id
+    where pm.value is not null and s.id=#{id}
+  </select>
+
+  <select id="selectProfileVersionDate" resultType="date" parameterType="map">
+    select max(change_date) from active_rule_changes
+    where profile_id=#{profileId} and profile_version=#{profileVersion}
+  </select>
+
+  <update id="updateProfileMeasure" parameterType="map">
+    update project_measures
+    set text_value=#{json}, value=null
+    where id=#{measureId}
+  </update>
+
+  <select id="selectProfileUpdateAt" resultType="date" parameterType="long">
+    select max(change_date) from active_rule_changes
+    where profile_id=#{id}
+  </select>
+
+  <select id="selectProfileCreatedAt" resultType="date" parameterType="long">
+    select min(change_date) from active_rule_changes
+    where profile_id=#{id}
+  </select>
+</mapper>
+

@@ -111,12 +111,12 @@ public class AnalyzerMediumTester extends ExternalResource {
     }
 
     public AnalyzerMediumTesterBuilder addQProfile(String language, String name) {
-      qProfileReferential.add(new QProfile(name, language, 1));
+      qProfileReferential.add(new QProfile("TODO", name, language));
       return this;
     }
 
     public AnalyzerMediumTesterBuilder addDefaultQProfile(String language, String name) {
-      qProfileReferential.add(new QProfile(name, language, 1));
+      qProfileReferential.add(new QProfile("TODO", name, language));
       settingsReferential.globalSettings().put("sonar.profile." + language, name);
       return this;
     }
