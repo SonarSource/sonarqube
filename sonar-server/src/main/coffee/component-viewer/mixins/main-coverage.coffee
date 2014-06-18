@@ -47,11 +47,21 @@ define [], () ->
 
 
     filterByCoverage: (predicate) ->
-      @requestCoverage(@key).done => @_filterByCoverage(predicate)
+      requests = [@requestCoverage(@key)]
+      if @settings.get('issues') && !@state.get('hasIssues')
+        requests.push @requestIssues @key
+      $.when.apply($, requests).done =>
+        @filterByUnresolvedIssues()
+        @_filterByCoverage(predicate)
 
 
     filterByCoverageIT: (predicate) ->
-      @requestCoverage(@key, 'IT').done => @_filterByCoverage(predicate)
+      requests = [@requestCoverage(@key)]
+      if @settings.get('issues') && !@state.get('hasIssues')
+        requests.push @requestIssues @key
+      $.when.apply($, requests).done =>
+        @filterByUnresolvedIssues()
+        @_filterByCoverage(predicate)
 
 
     _filterByCoverage: (predicate) ->

@@ -155,14 +155,9 @@ define(
               showCallback = function () {
                 jQuery('.navigator-details').removeClass('navigator-fetching');
                 app.detailsRegion.show(componentViewer);
+                componentViewer.settings.set('issues', false);
                 componentViewer.open(that.model.get('component')).done(function() {
                   componentViewer.showIssues(false, that.model.toJSON());
-
-                  var row = componentViewer.$('.code-issue:first').closest('.row');
-                  if (row.data('line-number') > 0) {
-                    var top = row.position().top;
-                    jQuery('.navigator-details').scrollTop(top - 40);
-                  }
                 });
               };
 

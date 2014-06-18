@@ -49,9 +49,11 @@ define [], () ->
 
     # Duplications
     filterByDuplications: ->
-      unless @state.get 'hasDuplications'
-        @requestDuplications(@key).done => @_filterByDuplications()
-      else
+      requests = [@requestDuplications(@key)]
+      if @settings.get('issues') && !@state.get('hasIssues')
+        requests.push @requestIssues @key
+      $.when.apply($, requests).done =>
+        @filterByUnresolvedIssues()
         @_filterByDuplications()
 
 

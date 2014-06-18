@@ -19,7 +19,7 @@ define [
         extra_fields: 'actions,transitions,assigneeName,actionPlanName'
       $.get API_ISSUES, options, (data) =>
         @state.set 'hasIssues', true
-        @source.set issues: data.issues
+        @source.set issues: data.issues, activeIssues: data.issues
 
 
     showIssues: (store = false, issue) ->
