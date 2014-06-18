@@ -77,7 +77,7 @@ define(['handlebars', 'moment'], function (Handlebars, moment) {
     var args = Array.prototype.slice.call(arguments),
         ret = null;
     args.forEach(function(arg) {
-      if (arg != null && ret == null) {
+      if (_.isString(arg) && ret == null) {
         ret = arg;
       }
     });
