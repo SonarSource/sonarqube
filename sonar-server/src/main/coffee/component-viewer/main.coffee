@@ -60,7 +60,7 @@ define [
 
   DUPLICATIONS_METRIC_LIST = 'duplicated_lines_density,duplicated_blocks,duplicated_files,duplicated_lines'
 
-  TESTS_METRIC_LIST = 'tests,test_success_density,test_failures,test_errors,test_execution_time'
+  TESTS_METRIC_LIST = 'tests,test_success_density,test_failures,test_errors,skipped_tests,test_execution_time'
 
 
 

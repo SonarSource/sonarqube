@@ -12,6 +12,12 @@
               <span class="number">{{test_success_density}}</span>
             </span></li>
           {{/if}}
+          {{#if skipped_tests}}
+            <li><span class="item">
+              <span class="label">{{t 'metric.skipped_tests.short_name'}}</span>
+              <span class="number">{{skipped_tests}}</span>
+            </span></li>
+          {{/if}}
           {{#if test_failures}}
             <li><span class="item">
               <span class="label">{{t 'metric.test_failures.short_name'}}</span>
