@@ -29,10 +29,13 @@ define [
     LINES_AROUND_ISSUE = 4
     LINES_AROUND_COVERED_LINE = 1
     EXPAND_LINES = 20
+    HIGHLIGHTED_ROW_CLASS = 'row-highlighted'
 
 
     events:
       'click .sym': 'highlightUsages'
+
+      'click .lid': 'highlightLine'
 
       'click .coverage-tests': 'showCoveragePopup'
 
@@ -109,6 +112,11 @@ define [
 
     showSpinner: ->
       @$el.html '<div style="padding: 10px;"><i class="spinner"></i></div>'
+
+
+    highlightLine: (e) ->
+      @$(".#{HIGHLIGHTED_ROW_CLASS}").removeClass HIGHLIGHTED_ROW_CLASS
+      $(e.currentTarget).closest('.row').addClass HIGHLIGHTED_ROW_CLASS
 
 
     highlightUsages: (e) ->

@@ -150,6 +150,16 @@
     }
   }
 
+  .code .row:hover {
+    td.stat { background-color: @barBorderColor; }
+    td.line { background-color: @barBackgroundColor; }
+  }
+
+  .code .row-highlighted {
+    td.stat { background-color: #e9e94d !important; }
+    td.line { background-color: #f1f1a3 !important; }
+  }
+
   .code td.line {
     width: 100%;
     padding: 1px 5px;
@@ -172,6 +182,7 @@
     min-width: 18px;
     padding-left: 10px;
     padding-right: 10px;
+    cursor: pointer;
   }
 
   .code .coverage-tests {
