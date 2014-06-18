@@ -13,6 +13,8 @@
 
   <div class="modal-body">
     <div class="modal-error"></div>
+    <div class="modal-warning"></div>
+    <div class="modal-notice"></div>
 
     <div class="modal-field">
       <h3><label for="coding-rules-bulk-change-profile">
@@ -48,7 +50,8 @@
   </div>
 
   <div class="modal-foot">
-    <button>{{t 'apply'}}</button>
+    <button id="coding-rules-submit-bulk-change">{{t 'apply'}}</button>
     <a id="coding-rules-cancel-bulk-change" class="action">{{t 'cancel'}}</a>
+    <a id="coding-rules-close-bulk-change" class="action" style="display:none">{{t 'close'}}</a>
   </div>
 </form>

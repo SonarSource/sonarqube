@@ -278,7 +278,7 @@ h1 img, .h1 img, h2 img, .h2 img, h3 img, .h3 img, h4 img, .h4 img {
 }
 
 /* ------------------- MESSAGES ------------------- */
-.warning {
+.warning, .modal-warning {
   border: solid 1px #FFD324;
   background-color: #FFF6BF;
   color: #514721;
@@ -286,19 +286,19 @@ h1 img, .h1 img, h2 img, .h2 img, h3 img, .h3 img, h4 img, .h4 img {
   padding: 4px;
 }
 
-.error {
+.error, .modal-error {
   border: 1px solid red;
   background-color: #FF5252;
   color: #eee;
   margin: 0 0 4px;
   padding: 4px;
+
+  a {
+    color: #eee;
+  }
 }
 
-.error a {
-  color: #eee;
-}
-
-.notice {
+.notice, .modal-notice {
   border: 1px solid #9c9;
   background-color: #e2f9e3;
   color: #060;
@@ -2536,21 +2536,7 @@ ul.modal-head-metadata li {
   color: #777;
 }
 
-.modal-error {
-  border: 1px solid red;
-  background-color: #FF5252;
-  color: #eee;
-  margin: 0 0 4px;
-  padding: 4px;
-  display: none;
-}
-
-.modal-warning {
-  border: solid 1px #FFD324;
-  background-color: #FFF6BF;
-  color: #514721;
-  margin: 0 0 4px;
-  padding: 4px;
+.modal-error, .modal-warning, .modal-notice {
   display: none;
 }
 

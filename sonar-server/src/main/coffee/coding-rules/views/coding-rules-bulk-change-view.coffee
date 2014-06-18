@@ -10,10 +10,19 @@ define [
     className: 'modal'
     template: Templates['coding-rules-bulk-change']
 
+    ui:
+      modalFooter: '.modal-foot'
+      modalError: '.modal-error'
+      modalWarning: '.modal-warning'
+      modalNotice: '.modal-notice'
+      codingRulesSubmitBulkChange: '#coding-rules-submit-bulk-change'
+      codingRulesCancelBulkChange: '#coding-rules-cancel-bulk-change'
+      codingRulesCloseBulkChange: '#coding-rules-close-bulk-change'
 
     events:
       'submit form': 'onSubmit'
-      'click #coding-rules-cancel-bulk-change': 'hide'
+      'click @ui.codingRulesCancelBulkChange': 'hide'
+      'click @ui.codingRulesCloseBulkChange': 'close'
       'change select': 'enableAction'
 
 
@@ -54,6 +63,11 @@ define [
       @$el.dialog 'close'
 
 
+    close: ->
+      @options.app.fetchFirstPage(true)
+      @hide()
+
+
     prepareQuery: ->
       query = @options.app.getQuery()
 
@@ -75,18 +89,31 @@ define [
       wsAction = query.wsAction
       query = _.omit(query, 'wsAction')
 
-      origFooter = @$('.modal-foot').html()
-      @$('.modal-foot').html '<i class="spinner"></i>'
+      @ui.modalError.hide()
+      @ui.modalWarning.hide()
+      @ui.modalNotice.hide()
+
+      origFooter = @ui.modalFooter.html()
+      @ui.modalFooter.html '<i class="spinner"></i>'
 
       jQuery.ajax
         type: 'POST'
         url: "#{baseUrl}/api/qualityprofiles/#{wsAction}_rules"
         data: query
-      .done =>
-        @options.app.fetchFirstPage(true)
-        @hide()
+      .done (r) =>
+        if (r.failed)
+          @ui.modalWarning.show()
+          @ui.modalWarning.html tp('coding_rules.bulk_change.warning', r.succeeded, r.failed)
+        else
+          @ui.modalNotice.show()
+          @ui.modalNotice.html tp('coding_rules.bulk_change.success', r.succeeded)
+
+        @ui.modalFooter.html origFooter
+        @$(@ui.codingRulesSubmitBulkChange.selector).hide()
+        @$(@ui.codingRulesCancelBulkChange.selector).hide()
+        @$(@ui.codingRulesCloseBulkChange.selector).show()
       .fail =>
-        @$('.modal-foot').html origFooter
+        @ui.modalFooter.html origFooter
 
 
     onSubmit: (e) ->
