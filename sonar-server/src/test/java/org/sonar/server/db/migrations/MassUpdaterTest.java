@@ -24,7 +24,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.utils.MessageException;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.TestDatabase;
 import org.sonar.core.persistence.dialect.Dialect;
@@ -115,7 +114,7 @@ public class MassUpdaterTest {
         );
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(MessageException.class);
+      assertThat(e).isInstanceOf(IllegalStateException.class);
     }
   }
 
@@ -152,7 +151,7 @@ public class MassUpdaterTest {
         );
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(MessageException.class);
+      assertThat(e).isInstanceOf(IllegalStateException.class);
     }
   }
 

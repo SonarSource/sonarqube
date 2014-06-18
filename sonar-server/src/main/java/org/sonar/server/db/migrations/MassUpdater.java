@@ -24,7 +24,6 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.dbutils.DbUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.utils.MessageException;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.persistence.dialect.MySql;
 
@@ -153,10 +152,8 @@ public class MassUpdater {
     writeConnection.commit();
   }
 
-  private static MessageException processError(Exception e) {
-    String message = String.format("Fail to migrate data, error is : %s", e.getMessage());
-    LOGGER.error(message, e);
-    throw MessageException.of(message);
+  private static RuntimeException processError(Exception e) {
+    throw new IllegalStateException(e);
   }
 
   @VisibleForTesting
