@@ -28,6 +28,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
 import java.util.Map;
 
@@ -130,19 +131,6 @@ public class QProfiles implements ServerComponent {
 
   public void removeAllProjects(int profileId) {
     projectOperations.removeAllProjects(profileId, UserSession.get());
-  }
-
-
-  // PROFILE RULES
-  public long countProfileRules(QProfile profile) {
-    // TODO
-    return -1;
-  }
-
-  public long countOverridingProfileRules(QProfile profile) {
-    // TODO
-    return -1;
-    //return rules.countProfileRules(ProfileRuleQuery.create(profile.id()).setInheritance(QProfileRule.OVERRIDES));
   }
 
   private void checkProfileNameParam(String name) {

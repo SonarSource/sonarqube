@@ -23,12 +23,13 @@ module ProfilesHelper
     controller.java_facade.getLanguages()
   end
 
-  def label_for_rules_count(qProfile)
-    profile_rules_count = profile_rules_count(qProfile)
+  def label_for_rules_count(qProfile, all_profile_stats)
+    profile_stat = all_profile_stats[qProfile.key()]
+    profile_rules_count = profile_rules_count(qProfile, profile_stat)
     label = "#{profile_rules_count} #{message('rules').downcase}"
 
-    count_overriding = Internal.quality_profiles.countOverridingProfileRules(qProfile).to_i
-    if count_overriding>0
+    count_overriding = overriding_rules_count(profile_stat)
+    if count_overriding && count_overriding>0
       label += message('quality_profiles.including_x_overriding.suffix', :params => count_overriding)
       label += image_tag('overrides.png')
     end
@@ -55,7 +56,14 @@ module ProfilesHelper
     Internal.quality_profiles.countProjects(qProfile).to_i
   end
 
-  def profile_rules_count(qProfile)
-    Internal.quality_profiles.countProfileRules(qProfile).to_i
+  def profile_rules_count(qProfile, profile_stat)
+    count = 0
+    count = profile_stat.get('countActiveRules').get(0).getValue() if profile_stat && profile_stat.get('countActiveRules')
+    count
+  end
+
+  def overriding_rules_count(profile_stat)
+    inheritance_stats = Hash[ *profile_stat.get('inheritance').collect { |v| [ v.getKey(), v ] }.flatten ] if profile_stat
+    inheritance_stats['OVERRIDES'].getValue().to_i if inheritance_stats['OVERRIDES']
   end
 end

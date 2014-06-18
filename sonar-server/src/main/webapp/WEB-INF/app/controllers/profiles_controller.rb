@@ -222,6 +222,8 @@ class ProfilesController < ApplicationController
       profiles = Internal.quality_profiles.profilesByLanguage(@profile.language()).to_a.reject { |p| p.id == @profile.id() || p.parent() == @profile.name() }
       profiles = Api::Utils.insensitive_sort(profiles) { |p| p.name() }
       @select_parent = [[message('none'), nil]] + profiles.collect { |profile| [profile.name(), profile.id()] }
+
+      @all_profile_stats = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).getAllProfileStats()
     end
 
     set_profile_breadcrumbs
