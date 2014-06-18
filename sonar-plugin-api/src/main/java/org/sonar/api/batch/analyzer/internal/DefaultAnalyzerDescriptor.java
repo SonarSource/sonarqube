@@ -29,10 +29,10 @@ import java.util.Collection;
 public class DefaultAnalyzerDescriptor implements AnalyzerDescriptor {
 
   private String name;
-  private Metric<?>[] dependsOn;
-  private Metric<?>[] provides;
-  private String[] languages;
-  private InputFile.Type[] types;
+  private Metric<?>[] dependsOn = new Metric<?>[0];
+  private Metric<?>[] provides = new Metric<?>[0];
+  private String[] languages = new String[0];
+  private InputFile.Type[] types = new InputFile.Type[0];
 
   public String name() {
     return name;

@@ -33,6 +33,8 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.dag.DirectAcyclicGraph;
 
+import javax.annotation.Nullable;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -59,7 +61,7 @@ public class BatchExtensionDictionnary {
     return select(type, null, false);
   }
 
-  public <T> Collection<T> select(Class<T> type, Project project, boolean sort) {
+  public <T> Collection<T> select(Class<T> type, @Nullable Project project, boolean sort) {
     List<T> result = getFilteredExtensions(type, project);
     if (sort) {
       return sort(result);
@@ -69,7 +71,7 @@ public class BatchExtensionDictionnary {
 
   public Collection<MavenPluginHandler> selectMavenPluginHandlers(Project project) {
     List<DependsUponMavenPlugin> selectedExtensions = Lists.newArrayList();
-    for (Object extension : getExtensions()) {
+    for (Object extension : getExtensions(null)) {
       if (ClassUtils.isAssignable(extension.getClass(), DependsUponMavenPlugin.class)) {
         selectedExtensions.add((DependsUponMavenPlugin) extension);
       }
@@ -91,22 +93,22 @@ public class BatchExtensionDictionnary {
     return handlers;
   }
 
-  protected List<Object> getExtensions() {
+  protected List<Object> getExtensions(@Nullable Class type) {
     List<Object> extensions = Lists.newArrayList();
-    completeBatchExtensions(componentContainer, extensions);
+    completeBatchExtensions(componentContainer, extensions, type);
     return extensions;
   }
 
-  private static void completeBatchExtensions(ComponentContainer container, List<Object> extensions) {
+  private static void completeBatchExtensions(ComponentContainer container, List<Object> extensions, @Nullable Class type) {
     if (container != null) {
-      extensions.addAll(container.getComponentsByType(BatchExtension.class));
-      completeBatchExtensions(container.getParent(), extensions);
+      extensions.addAll(container.getComponentsByType(type != null ? type : BatchExtension.class));
+      completeBatchExtensions(container.getParent(), extensions, type);
     }
   }
 
-  private <T> List<T> getFilteredExtensions(Class<T> type, Project project) {
+  private <T> List<T> getFilteredExtensions(Class<T> type, @Nullable Project project) {
     List<T> result = Lists.newArrayList();
-    for (Object extension : getExtensions()) {
+    for (Object extension : getExtensions(type)) {
       if (shouldKeep(type, extension, project)) {
         result.add((T) extension);
       }
@@ -114,7 +116,7 @@ public class BatchExtensionDictionnary {
     return result;
   }
 
-  private boolean shouldKeep(Class type, Object extension, Project project) {
+  private boolean shouldKeep(Class type, Object extension, @Nullable Project project) {
     boolean keep = ClassUtils.isAssignable(extension.getClass(), type);
     if (keep && project != null && ClassUtils.isAssignable(extension.getClass(), CheckProject.class)) {
       keep = ((CheckProject) extension).shouldExecuteOnProject(project);

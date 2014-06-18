@@ -19,17 +19,18 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.api.batch.analyzer.Analyzer;
-import org.sonar.api.batch.analyzer.AnalyzerContext;
-
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.ClassUtils;
 import org.sonar.api.batch.CheckProject;
 import org.sonar.api.batch.Sensor;
+import org.sonar.api.batch.analyzer.Analyzer;
+import org.sonar.api.batch.analyzer.AnalyzerContext;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.scan.SensorWrapper;
+
+import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -48,7 +49,7 @@ public class BatchExtensionDictionnary extends org.sonar.api.batch.BatchExtensio
     this.context = context;
   }
 
-  public <T> Collection<T> select(Class<T> type, Project project, boolean sort, ExtensionMatcher matcher) {
+  public <T> Collection<T> select(Class<T> type, @Nullable Project project, boolean sort, @Nullable ExtensionMatcher matcher) {
     List<T> result = getFilteredExtensions(type, project, matcher);
     if (sort) {
       return sort(result);
@@ -56,9 +57,9 @@ public class BatchExtensionDictionnary extends org.sonar.api.batch.BatchExtensio
     return result;
   }
 
-  private <T> List<T> getFilteredExtensions(Class<T> type, Project project, ExtensionMatcher matcher) {
+  private <T> List<T> getFilteredExtensions(Class<T> type, @Nullable Project project, @Nullable ExtensionMatcher matcher) {
     List<T> result = Lists.newArrayList();
-    for (Object extension : getExtensions()) {
+    for (Object extension : getExtensions(type)) {
       if (type == Sensor.class && extension instanceof Analyzer) {
         extension = new SensorWrapper((Analyzer) extension, context, fs);
       }
@@ -69,7 +70,7 @@ public class BatchExtensionDictionnary extends org.sonar.api.batch.BatchExtensio
     return result;
   }
 
-  private boolean shouldKeep(Class type, Object extension, Project project, ExtensionMatcher matcher) {
+  private boolean shouldKeep(Class type, Object extension, @Nullable Project project, @Nullable ExtensionMatcher matcher) {
     boolean keep = (ClassUtils.isAssignable(extension.getClass(), type)
       || (type == Sensor.class && ClassUtils.isAssignable(extension.getClass(), Analyzer.class)))
       && (matcher == null || matcher.accept(extension));

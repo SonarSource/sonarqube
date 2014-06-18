@@ -25,7 +25,7 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.analyzer.Analyzer;
 import org.sonar.api.batch.analyzer.AnalyzerContext;
 import org.sonar.api.batch.analyzer.internal.DefaultAnalyzerDescriptor;
-import org.sonar.api.platform.ComponentContainer;
+import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 
 import java.util.Collection;
 
@@ -33,14 +33,14 @@ public class AnalyzersExecutor implements BatchComponent {
 
   private static final Logger LOG = LoggerFactory.getLogger(AnalyzersExecutor.class);
 
-  private ComponentContainer container;
+  private BatchExtensionDictionnary selector;
 
-  public AnalyzersExecutor(ComponentContainer container) {
-    this.container = container;
+  public AnalyzersExecutor(BatchExtensionDictionnary selector) {
+    this.selector = selector;
   }
 
   public void execute(AnalyzerContext context) {
-    Collection<Analyzer> analyzers = container.getComponentsByType(Analyzer.class);
+    Collection<Analyzer> analyzers = selector.select(Analyzer.class, null, true, null);
 
     for (Analyzer analyzer : analyzers) {
 
