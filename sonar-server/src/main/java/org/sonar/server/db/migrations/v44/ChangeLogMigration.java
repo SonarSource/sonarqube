@@ -21,6 +21,8 @@ package org.sonar.server.db.migrations.v44;
 
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.activity.db.ActivityDto;
@@ -49,6 +51,8 @@ import java.util.Date;
  */
 public class ChangeLogMigration implements DatabaseMigration {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(ChangeLogMigration.class);
+
   private static final String PARAM_VALUE = "param_value";
   private static final String PARAM_NAME = "param_name";
   private static final String RULE_NAME = "rule_name";
@@ -61,7 +65,6 @@ public class ChangeLogMigration implements DatabaseMigration {
   private final ActivityDao dao;
   private DbSession session;
   private final DbClient db;
-
 
   private final String allActivation =
     "select" +
@@ -153,30 +156,33 @@ public class ChangeLogMigration implements DatabaseMigration {
       connection = db.database().getDataSource().getConnection();
       ResultSet result = connection.createStatement().executeQuery(sql);
 
-      //startCase
-      result.next();
-      int currentId = result.getInt("id");
-      Date currentTimeStamp = result.getTimestamp(CREATED_AT);
-      String currentAuthor = getAuthor(result);
-      ActiveRuleChange ruleChange = newActiveRuleChance(type, result);
-      processRuleChange(ruleChange, result);
-
-      while (result.next()) {
-        int id = result.getInt("id");
-        if (id != currentId) {
-          saveActiveRuleChange(ruleChange, currentAuthor, currentTimeStamp);
-          currentId = id;
-          currentTimeStamp = result.getTimestamp(CREATED_AT);
-          currentAuthor = getAuthor(result);
-          ruleChange = newActiveRuleChance(type, result);
-        }
+      // startCase
+      boolean hasNext = result.next();
+      if (hasNext) {
+        int currentId = result.getInt("id");
+        Date currentTimeStamp = result.getTimestamp(CREATED_AT);
+        String currentAuthor = getAuthor(result);
+        ActiveRuleChange ruleChange = newActiveRuleChance(type, result);
         processRuleChange(ruleChange, result);
+
+        while (result.next()) {
+          int id = result.getInt("id");
+          if (id != currentId) {
+            saveActiveRuleChange(ruleChange, currentAuthor, currentTimeStamp);
+            currentId = id;
+            currentTimeStamp = result.getTimestamp(CREATED_AT);
+            currentAuthor = getAuthor(result);
+            ruleChange = newActiveRuleChance(type, result);
+          }
+          processRuleChange(ruleChange, result);
+        }
+        // save the last
+        saveActiveRuleChange(ruleChange, currentAuthor, currentTimeStamp);
       }
-      //save the last
-      saveActiveRuleChange(ruleChange, currentAuthor, currentTimeStamp);
 
     } catch (Exception e) {
-      e.printStackTrace();
+      throw new IllegalStateException(e);
+
     } finally {
       DbUtils.closeQuietly(connection);
     }
@@ -195,7 +201,6 @@ public class ChangeLogMigration implements DatabaseMigration {
     }
   }
 
-
   private void saveActiveRuleChange(ActiveRuleChange ruleChange, String author, Date currentTimeStamp) {
     ActivityDto activity = ActivityDto.createFor(ruleChange);
     activity.setType(Activity.Type.ACTIVE_RULE);
@@ -209,7 +214,7 @@ public class ChangeLogMigration implements DatabaseMigration {
     try {
       ruleChange.setSeverity(SeverityUtil.getSeverityFromOrdinal(result.getInt(SEVERITY)));
     } catch (Exception e) {
-      //System.out.println("e.getMessage() = " + e.getMessage());
+      // System.out.println("e.getMessage() = " + e.getMessage());
     }
     try {
       String param_value = result.getString(PARAM_VALUE);
@@ -218,7 +223,7 @@ public class ChangeLogMigration implements DatabaseMigration {
         ruleChange.setParameter(param_name, param_value);
       }
     } catch (Exception e) {
-      //System.out.println("e.getMessage() = " + e.getMessage());
+      // System.out.println("e.getMessage() = " + e.getMessage());
     }
   }
 

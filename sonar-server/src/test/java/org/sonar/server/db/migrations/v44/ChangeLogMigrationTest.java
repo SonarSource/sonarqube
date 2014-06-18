@@ -71,4 +71,12 @@ public class ChangeLogMigrationTest {
 
     assertThat(dao.findAll(session)).hasSize(5);
   }
+
+  @Test
+  public void migrate_when_no_changelog() throws Exception {
+    db.prepareDbUnit(getClass(), "migrate_when_no_changelog.xml");
+    migration.execute();
+
+    assertThat(dao.findAll(session)).isEmpty();
+  }
 }
