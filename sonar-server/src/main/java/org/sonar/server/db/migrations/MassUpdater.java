@@ -31,11 +31,7 @@ import org.sonar.core.persistence.dialect.MySql;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 /**
  * Update a table by iterating a sub-set of rows. For each row a SQL UPDATE request
@@ -100,12 +96,7 @@ public class MassUpdater {
       readConnection = db.getDataSource().getConnection();
       readConnection.setAutoCommit(false);
 
-      stmt = readConnection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-      if (db.getDialect().getId().equals(MySql.ID)) {
-        stmt.setFetchSize(Integer.MIN_VALUE);
-      } else {
-        stmt.setFetchSize(groupSize);
-      }
+      stmt = initStatement(readConnection);
       rs = stmt.executeQuery(convertSelectSql(inputLoader.selectSql(), db));
 
       int cursor = 0;
@@ -122,20 +113,12 @@ public class MassUpdater {
         }
 
         if (cursor == groupSize) {
-          writeStatement.executeBatch();
-          if (periodicUpdater != null) {
-            periodicUpdater.update(writeConnection);
-          }
-          writeConnection.commit();
+          commit(writeConnection, writeStatement, periodicUpdater);
           cursor = 0;
         }
       }
       if (cursor > 0) {
-        writeStatement.executeBatch();
-        if (periodicUpdater != null) {
-          periodicUpdater.update(writeConnection);
-        }
-        writeConnection.commit();
+        commit(writeConnection, writeStatement, periodicUpdater);
       }
 
     } catch (SQLException e) {
@@ -150,6 +133,24 @@ public class MassUpdater {
 
       LOGGER.info("{} rows have been updated", count);
     }
+  }
+
+  private Statement initStatement(Connection readConnection) throws SQLException {
+    Statement stmt = readConnection.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+    if (db.getDialect().getId().equals(MySql.ID)) {
+      stmt.setFetchSize(Integer.MIN_VALUE);
+    } else {
+      stmt.setFetchSize(groupSize);
+    }
+    return stmt;
+  }
+
+  private void commit(Connection writeConnection, PreparedStatement writeStatement, @Nullable PeriodicUpdater periodicUpdater) throws SQLException {
+    writeStatement.executeBatch();
+    if (periodicUpdater != null) {
+      periodicUpdater.update(writeConnection);
+    }
+    writeConnection.commit();
   }
 
   private static MessageException processError(Exception e) {
