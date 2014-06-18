@@ -43,6 +43,9 @@ import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
+import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
+
 @RunWith(MockitoJUnitRunner.class)
 public class UpdateActionMediumTest {
 
@@ -99,6 +102,34 @@ public class UpdateActionMediumTest {
       .setParam("status", "BETA")
       .setParam("params", "regex=a.*");
     request.execute().assertJson(getClass(), "update_custom_rule.json", false);
+  }
+
+  @Test
+  public void fail_to_update_custom_when_description_is_empty() throws Exception {
+    MockUserSession.set()
+      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
+      .setLogin("me");
+
+    // Template rule
+    RuleDto templateRule = ruleDao.insert(session, RuleTesting.newTemplateRule(RuleKey.of("java", "S001")));
+
+    // Custom rule
+    RuleDto customRule = RuleTesting.newCustomRule(templateRule);
+    ruleDao.insert(session, customRule);
+    session.commit();
+    session.clearCache();
+
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "update")
+      .setParam("key", customRule.getKey().toString())
+      .setParam("name", "My custom rule")
+      .setParam("html_description", "");
+
+    try {
+      request.execute();
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The description is missing");
+    }
   }
 
 }

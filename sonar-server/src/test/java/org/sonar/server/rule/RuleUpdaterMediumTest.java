@@ -426,6 +426,54 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
+  public void fail_to_update_custom_rule_when_empty_name() throws Exception {
+    // Create template rule
+    RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
+    ruleDao.insert(dbSession, templateRule);
+
+    // Create custom rule
+    RuleDto customRule = RuleTesting.newCustomRule(templateRule);
+    ruleDao.insert(dbSession, customRule);
+
+    dbSession.commit();
+
+    // Update custom rule
+    RuleUpdate update = RuleUpdate.createForCustomRule(customRule.getKey())
+      .setName("")
+      .setHtmlDescription("New desc");
+    try {
+      updater.update(update, UserSession.get());
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The name is missing");
+    }
+  }
+
+  @Test
+  public void fail_to_update_custom_rule_when_empty_description() throws Exception {
+    // Create template rule
+    RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
+    ruleDao.insert(dbSession, templateRule);
+
+    // Create custom rule
+    RuleDto customRule = RuleTesting.newCustomRule(templateRule);
+    ruleDao.insert(dbSession, customRule);
+
+    dbSession.commit();
+
+    // Update custom rule
+    RuleUpdate update = RuleUpdate.createForCustomRule(customRule.getKey())
+      .setName("New name")
+      .setHtmlDescription("");
+    try {
+      updater.update(update, UserSession.get());
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The description is missing");
+    }
+  }
+
+  @Test
   public void update_manual_rule() throws Exception {
     // Create manual rule
     RuleDto manualRule = RuleTesting.newManualRule("My manual")

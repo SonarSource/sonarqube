@@ -20,7 +20,6 @@
 package org.sonar.server.rule.ws;
 
 import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
@@ -139,23 +138,23 @@ public class UpdateAction implements RequestHandler {
     readDebt(request, update);
 
     String name = request.param(PARAM_NAME);
-    if (!Strings.isNullOrEmpty(name)) {
+    if (name != null) {
       update.setName(name);
     }
     String description = request.param(PARAM_DESCRIPTION);
-    if (!Strings.isNullOrEmpty(description)) {
+    if (description != null) {
       update.setHtmlDescription(description);
     }
     String severity = request.param(PARAM_SEVERITY);
-    if (!Strings.isNullOrEmpty(severity)) {
+    if (severity != null) {
       update.setSeverity(severity);
     }
     String status = request.param(PARAM_STATUS);
-    if (!Strings.isNullOrEmpty(status)) {
+    if (status != null) {
       update.setStatus(RuleStatus.valueOf(status));
     }
     String params = request.param(PARAMS);
-    if (!Strings.isNullOrEmpty(params)) {
+    if (params != null) {
       update.setParameters(KeyValueFormat.parse(params));
     }
     return update;
