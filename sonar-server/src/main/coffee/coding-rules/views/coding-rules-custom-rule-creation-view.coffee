@@ -103,6 +103,7 @@ define [
         data: postData
         error: () ->
       .done (r) =>
+          delete @templateRule
           @options.app.showRule r.rule.key
           @hide()
       .fail (jqXHR, textStatus, errorThrown) =>
@@ -160,9 +161,10 @@ define [
       params = {}
       if @templateRule
         params = @templateRule.get 'params'
-      else if @model
+      else if @model and @model.has 'params'
         params = @model.get('params').map (p) ->
-          _.extend p, value: p.defaultValue
+          _.extend p,
+            value: p.defaultValue
 
       _.extend super,
         change: @model && @model.has 'key'
