@@ -38,7 +38,12 @@ import org.sonar.server.search.Indexable;
 import org.sonar.server.search.es.ListUpdate;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
@@ -80,7 +85,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
     public static final IndexField NAME = addSortableAndSearchable(IndexField.Type.STRING, "name");
     public static final IndexField CREATED_AT = addSortable(IndexField.Type.DATE, "createdAt");
-    public static final IndexField UPDATED_AT = addSortable(IndexField.Type.DATE, "updatedAt");
+    public static final IndexField UPDATED_AT = addSortable(IndexField.Type.DATE, UPDATED_AT_FIELD);
     public static final IndexField HTML_DESCRIPTION = addSearchable(IndexField.Type.TEXT, "htmlDesc");
     public static final IndexField SEVERITY = add(IndexField.Type.STRING, "severity");
     public static final IndexField STATUS = add(IndexField.Type.STRING, "status");

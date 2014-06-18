@@ -37,7 +37,7 @@ public class ActivityDoc extends BaseDoc implements Activity {
 
   @Override
   public Date time() {
-    return this.getField(ActivityNormalizer.LogFields.DATE.field());
+    return this.getField(ActivityNormalizer.LogFields.CREATED_AT.field());
   }
 
   @Override

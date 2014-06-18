@@ -43,6 +43,7 @@ import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.valuecount.InternalValueCount;
+import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.cluster.WorkQueue;
@@ -220,26 +221,22 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
   /* Synchronization methods */
 
-  private void setLastSynchronization() {
-    Date time = new Date();
-    if (time.after(getLastSynchronization())) {
-      LOG.debug("Updating synchTime updating");
-      getClient().prepareUpdate()
-        .setId(indexDefinition.getIndexName())
-        .setType(indexDefinition.getManagementType())
-        .setIndex(indexDefinition.getManagementIndex())
-        .setDoc("updatedAt", time)
-        .get();
-    }
-  }
-
   @Override
   public Date getLastSynchronization() {
-    return (java.util.Date) getClient().prepareGet()
-      .setIndex(indexDefinition.getManagementIndex())
-      .setId(this.getIndexName())
-      .setType(indexDefinition.getManagementType())
-      .get().getField("updatedAt").getValue();
+    Date date;
+    try {
+      date = getClient().prepareSearch(this.getIndexName())
+        .setTypes(this.getIndexType())
+        .setQuery(QueryBuilders.matchAllQuery())
+        .setSize(1)
+        .addField(BaseNormalizer.UPDATED_AT_FIELD)
+        .addSort(BaseNormalizer.UPDATED_AT_FIELD, SortOrder.DESC)
+        .get().getHits().getAt(0).field(BaseNormalizer.UPDATED_AT_FIELD).getValue();
+    } catch (Exception e) {
+      date = new Date(0L);
+    }
+    LOG.info("Index {}:{} has last update of {}", this.getIndexName(), this.getIndexType(), date);
+    return date;
   }
 
   /* Index management methods */

@@ -28,6 +28,8 @@ import java.util.List;
 
 public abstract class BaseNormalizer<DTO extends Dto<KEY>, KEY extends Serializable> {
 
+  public static final String UPDATED_AT_FIELD = "updatedAt";
+
   protected final DbClient db;
   protected final IndexDefinition definition;
 
