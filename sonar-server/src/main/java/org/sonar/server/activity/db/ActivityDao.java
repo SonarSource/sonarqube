@@ -28,6 +28,7 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
 import org.sonar.server.search.IndexDefinition;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -70,7 +71,7 @@ public class ActivityDao extends BaseDao<ActivityMapper, ActivityDto, ActivityKe
   }
 
   @Override
-  public void synchronizeAfter(DbSession session, long timestamp) {
+  public void synchronizeAfter(DbSession session, Date time) {
 
   }
 }

@@ -35,8 +35,8 @@ import org.sonar.server.search.action.IndexAction;
 import org.sonar.server.search.action.KeyIndexAction;
 
 import javax.annotation.CheckForNull;
-
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -94,8 +94,8 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
 
 
   @Override
-  public void synchronizeAfter(final DbSession session, long timestamp) {
-    session.select("selectKeysOfRulesUpdatedSince", new Timestamp(timestamp), new ResultHandler() {
+  public void synchronizeAfter(final DbSession session, Date date) {
+    session.select("selectKeysOfRulesUpdatedSince", new Timestamp(date.getTime()), new ResultHandler() {
       @Override
       public void handleResult(ResultContext context) {
         Map<String, String> map = (Map) context.getResultObject();

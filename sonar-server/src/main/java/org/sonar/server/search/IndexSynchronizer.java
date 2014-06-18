@@ -22,7 +22,11 @@ package org.sonar.server.search;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.server.activity.index.ActivityIndex;
+import org.sonar.server.db.Dao;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
+import org.sonar.server.rule.index.RuleIndex;
 
 /**
  * @since 4.4
@@ -44,11 +48,18 @@ public class IndexSynchronizer {
     DbSession session = db.openSession(true);
     LOG.info("Starting DB to Index synchronization");
     long start = System.currentTimeMillis();
-    db.ruleDao().synchronizeAfter(session, 0);
-    db.activeRuleDao().synchronizeAfter(session, 0);
-    db.activityDao().synchronizeAfter(session, 0);
+    synchronize(session, db.ruleDao(), index.get(RuleIndex.class));
+    synchronize(session, db.activeRuleDao(), index.get(ActiveRuleIndex.class));
+    synchronize(session, db.activityDao(), index.get(ActivityIndex.class));
     session.commit();
     LOG.info("Synchronization done in {}ms...", System.currentTimeMillis()-start);
     session.close();
+  }
+
+  private void synchronize(DbSession session, Dao dao, Index index) {
+    long start = System.currentTimeMillis();
+    dao.synchronizeAfter(session,
+      index.getLastSynchronization());
+    LOG.info("-- Synchronized {} in {}ms", index.getIndexType(), (System.currentTimeMillis() - start));
   }
 }

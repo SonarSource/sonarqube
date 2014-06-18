@@ -44,6 +44,7 @@ import org.sonar.server.search.FacetValue;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -84,7 +85,7 @@ public class ActiveRuleBackendMediumTest {
     assertThat(index.getByKey(activeRule.getKey())).isNull();
 
     // 1. Synchronize since 0
-    db.activeRuleDao().synchronizeAfter(dbSession, 0);
+    db.activeRuleDao().synchronizeAfter(dbSession, new Date());
 
     // 2. Assert that we have the rule in Index
     assertThat(index.getByKey(activeRule.getKey())).isNotNull();

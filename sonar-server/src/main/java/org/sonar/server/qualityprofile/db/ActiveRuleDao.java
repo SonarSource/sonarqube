@@ -27,7 +27,12 @@ import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.core.qualityprofile.db.*;
+import org.sonar.core.qualityprofile.db.ActiveRuleDto;
+import org.sonar.core.qualityprofile.db.ActiveRuleKey;
+import org.sonar.core.qualityprofile.db.ActiveRuleMapper;
+import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
+import org.sonar.core.qualityprofile.db.QualityProfileDao;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.BaseDao;
 import org.sonar.server.rule.db.RuleDao;
@@ -36,8 +41,8 @@ import org.sonar.server.search.action.IndexAction;
 import org.sonar.server.search.action.KeyIndexAction;
 
 import javax.annotation.CheckForNull;
-
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -59,8 +64,8 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
   }
 
   @Override
-  public void synchronizeAfter(final DbSession session, long timestamp) {
-    session.select("selectAllKeysAfterTimestamp", new Timestamp(timestamp), new ResultHandler() {
+  public void synchronizeAfter(final DbSession session, Date date) {
+    session.select("selectAllKeysAfterTimestamp", new Timestamp(date.getTime()), new ResultHandler() {
       @Override
       public void handleResult(ResultContext context) {
         Map<String, Object> fields = (Map<String, Object>) context.getResultObject();
