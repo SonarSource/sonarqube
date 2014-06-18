@@ -290,6 +290,14 @@ public class Measure<G extends Serializable> implements Serializable {
   }
 
   /**
+   * For internal use
+   */
+  public Measure setRawValue(@Nullable Double v) {
+    this.value = v;
+    return this;
+  }
+
+  /**
    * Sets the measure value as an int
    *
    * @param i the value

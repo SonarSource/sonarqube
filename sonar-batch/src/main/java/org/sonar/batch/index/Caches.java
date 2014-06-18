@@ -25,6 +25,8 @@ import com.persistit.Exchange;
 import com.persistit.Persistit;
 import com.persistit.Value;
 import com.persistit.Volume;
+import com.persistit.encoding.CoderManager;
+import com.persistit.encoding.ValueCoder;
 import com.persistit.exception.PersistitException;
 import com.persistit.logging.Slf4jAdapter;
 import org.apache.commons.io.FileUtils;
@@ -76,6 +78,11 @@ public class Caches implements BatchComponent, Startable {
     } catch (Exception e) {
       throw new IllegalStateException("Fail to start caches", e);
     }
+  }
+
+  public void registerValueCoder(Class<?> clazz, ValueCoder coder) {
+    CoderManager cm = persistit.getCoderManager();
+    cm.registerValueCoder(clazz, coder);
   }
 
   public <V extends Serializable> Cache<V> createCache(String cacheName) {

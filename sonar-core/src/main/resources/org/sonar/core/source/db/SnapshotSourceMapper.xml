@@ -4,7 +4,7 @@
 
 <mapper namespace="org.sonar.core.source.db.SnapshotSourceMapper">
 
-  <select id="selectSnapshotSource" parameterType="int" resultType="string">
+  <select id="selectSnapshotSource" parameterType="long" resultType="string">
     SELECT data
     FROM snapshot_sources
     WHERE snapshot_id = #{sid}

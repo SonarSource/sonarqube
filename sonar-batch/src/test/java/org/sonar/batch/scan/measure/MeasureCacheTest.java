@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.scan.measure;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -27,6 +28,8 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric.Level;
+import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
@@ -34,6 +37,9 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.api.technicaldebt.batch.Characteristic;
+import org.sonar.api.technicaldebt.batch.Requirement;
+import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 import org.sonar.api.technicaldebt.batch.internal.DefaultCharacteristic;
 import org.sonar.batch.index.Cache.Entry;
 import org.sonar.batch.index.Caches;
@@ -43,6 +49,8 @@ import java.util.Date;
 import java.util.Iterator;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class MeasureCacheTest {
 
@@ -54,10 +62,17 @@ public class MeasureCacheTest {
 
   Caches caches;
 
+  private MetricFinder metricFinder;
+
+  private TechnicalDebtModel techDebtModel;
+
   @Before
   public void start() throws Exception {
     caches = CachesTest.createCacheOnTemp(temp);
     caches.start();
+    metricFinder = mock(MetricFinder.class);
+    when(metricFinder.findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
+    techDebtModel = mock(TechnicalDebtModel.class);
   }
 
   @After
@@ -67,7 +82,7 @@ public class MeasureCacheTest {
 
   @Test
   public void should_add_measure() throws Exception {
-    MeasureCache cache = new MeasureCache(caches);
+    MeasureCache cache = new MeasureCache(caches, metricFinder, techDebtModel);
     Project p = new Project("struts");
 
     assertThat(cache.entries()).hasSize(0);
@@ -102,7 +117,7 @@ public class MeasureCacheTest {
    */
   @Test
   public void should_add_measure_with_big_data() throws Exception {
-    MeasureCache cache = new MeasureCache(caches);
+    MeasureCache cache = new MeasureCache(caches, metricFinder, techDebtModel);
     Project p = new Project("struts");
 
     assertThat(cache.entries()).hasSize(0);
@@ -142,7 +157,7 @@ public class MeasureCacheTest {
    */
   @Test
   public void should_add_measure_with_too_big_data_for_persistit_pre_patch() throws Exception {
-    MeasureCache cache = new MeasureCache(caches);
+    MeasureCache cache = new MeasureCache(caches, metricFinder, techDebtModel);
     Project p = new Project("struts");
 
     assertThat(cache.entries()).hasSize(0);
@@ -178,7 +193,7 @@ public class MeasureCacheTest {
 
   @Test
   public void should_add_measure_with_too_big_data_for_persistit() throws Exception {
-    MeasureCache cache = new MeasureCache(caches);
+    MeasureCache cache = new MeasureCache(caches, metricFinder, techDebtModel);
     Project p = new Project("struts");
 
     assertThat(cache.entries()).hasSize(0);
@@ -201,7 +216,7 @@ public class MeasureCacheTest {
 
   @Test
   public void should_add_measure_with_same_metric() throws Exception {
-    MeasureCache cache = new MeasureCache(caches);
+    MeasureCache cache = new MeasureCache(caches, metricFinder, techDebtModel);
     Project p = new Project("struts");
 
     assertThat(cache.entries()).hasSize(0);
@@ -223,7 +238,7 @@ public class MeasureCacheTest {
 
   @Test
   public void should_get_measures() throws Exception {
-    MeasureCache cache = new MeasureCache(caches);
+    MeasureCache cache = new MeasureCache(caches, metricFinder, techDebtModel);
     Project p = new Project("struts");
     Resource dir = new Directory("foo/bar").setEffectiveKey("struts:foo/bar");
     Resource file1 = new File("foo/bar/File1.txt").setEffectiveKey("struts:foo/bar/File1.txt");
@@ -259,5 +274,47 @@ public class MeasureCacheTest {
     assertThat(cache.byResource(p).iterator().next()).isEqualTo(mProj);
     assertThat(cache.byResource(dir)).hasSize(1);
     assertThat(cache.byResource(dir).iterator().next()).isEqualTo(mDir);
+  }
+
+  @Test
+  public void test_measure_coder() throws Exception {
+    MeasureCache cache = new MeasureCache(caches, metricFinder, techDebtModel);
+    Resource file1 = new File("foo/bar/File1.txt").setEffectiveKey("struts:foo/bar/File1.txt");
+
+    Measure measure = new Measure(CoreMetrics.NCLOC, 1.786, 5);
+    cache.put(file1, measure);
+
+    Measure savedMeasure = cache.byResource(file1).iterator().next();
+
+    assertThat(EqualsBuilder.reflectionEquals(measure, savedMeasure)).isTrue();
+
+    measure = new Measure(CoreMetrics.NCLOC);
+    measure.setData("data");
+    measure.setAlertStatus(Level.ERROR);
+    measure.setAlertText("alert");
+    Characteristic c = mock(Characteristic.class);
+    when(c.id()).thenReturn(1);
+    when(techDebtModel.characteristicById(1)).thenReturn(c);
+    measure.setCharacteristic(c);
+    measure.setDate(new Date());
+    measure.setDescription("description");
+    measure.setPersistenceMode(null);
+    measure.setPersonId(3);
+    Requirement r = mock(Requirement.class);
+    when(r.id()).thenReturn(7);
+    when(techDebtModel.requirementsById(7)).thenReturn(r);
+    measure.setRequirement(r);
+    measure.setTendency(4);
+    measure.setUrl("http://foo");
+    measure.setVariation1(11.0);
+    measure.setVariation2(12.0);
+    measure.setVariation3(13.0);
+    measure.setVariation4(14.0);
+    measure.setVariation5(15.0);
+    cache.put(file1, measure);
+
+    savedMeasure = cache.byResource(file1).iterator().next();
+    assertThat(EqualsBuilder.reflectionEquals(measure, savedMeasure)).isTrue();
+
   }
 }

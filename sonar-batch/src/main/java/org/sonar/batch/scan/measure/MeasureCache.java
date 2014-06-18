@@ -22,8 +22,10 @@ package org.sonar.batch.scan.measure;
 import com.google.common.base.Preconditions;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Cache.Entry;
 import org.sonar.batch.index.Caches;
@@ -35,7 +37,8 @@ public class MeasureCache implements BatchComponent {
 
   private final Cache<Measure> cache;
 
-  public MeasureCache(Caches caches) {
+  public MeasureCache(Caches caches, MetricFinder metricFinder, TechnicalDebtModel techDebtModel) {
+    caches.registerValueCoder(Measure.class, new MeasureValueCoder(metricFinder, techDebtModel));
     cache = caches.createCache("measures");
   }
 
