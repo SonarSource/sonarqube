@@ -442,10 +442,15 @@ class Api::ResourcesController < Api::ApiController
             json_measure[:var]=measure.tendency
           end
           json_measure[:var1]=measure.variation_value_1.to_f if measure.variation_value_1
+          json_measure[:fvar1]=measure.format_numeric_value(measure.variation_value_1.to_f) if measure.variation_value_1
           json_measure[:var2]=measure.variation_value_2.to_f if measure.variation_value_2
+          json_measure[:fvar2]=measure.format_numeric_value(measure.variation_value_2.to_f) if measure.variation_value_2
           json_measure[:var3]=measure.variation_value_3.to_f if measure.variation_value_3
+          json_measure[:fvar3]=measure.format_numeric_value(measure.variation_value_3.to_f) if measure.variation_value_3
           json_measure[:var4]=measure.variation_value_4.to_f if measure.variation_value_4
+          json_measure[:fvar4]=measure.format_numeric_value(measure.variation_value_4.to_f) if measure.variation_value_4
           json_measure[:var5]=measure.variation_value_5.to_f if measure.variation_value_5
+          json_measure[:fvar5]=measure.format_numeric_value(measure.variation_value_5.to_f) if measure.variation_value_5
         end
         if measure.rule_id
           rule = rules_by_id[measure.rule_id]
@@ -528,10 +533,15 @@ class Api::ResourcesController < Api::ApiController
                 xml.var(measure.tendency)
               end
               xml.var1(measure.variation_value_1.to_f) if measure.variation_value_1
+              xml.fvar1(measure.format_numeric_value(measure.variation_value_1.to_f)) if measure.variation_value_1
               xml.var2(measure.variation_value_2.to_f) if measure.variation_value_2
+              xml.fvar2(measure.format_numeric_value(measure.variation_value_2.to_f)) if measure.variation_value_2
               xml.var3(measure.variation_value_3.to_f) if measure.variation_value_3
+              xml.fvar3(measure.format_numeric_value(measure.variation_value_3.to_f)) if measure.variation_value_3
               xml.var4(measure.variation_value_4.to_f) if measure.variation_value_4
+              xml.fvar4(measure.format_numeric_value(measure.variation_value_4.to_f)) if measure.variation_value_4
               xml.var5(measure.variation_value_5.to_f) if measure.variation_value_5
+              xml.fvar5(measure.format_numeric_value(measure.variation_value_5.to_f)) if measure.variation_value_5
             end
             if measure.rule_id
               rule = rules_by_id[measure.rule_id]
