@@ -125,43 +125,34 @@
           }
         },
 
-        debouncedKeyup = _.debounce(onKeyup, 250);
+        debouncedKeyup = _.debounce(onKeyup, 250),
 
-
-    el
-        .on('keydown', function(e) {
-          function prevent(e) {
-            e.preventDefault();
+        onKeyDown = function(e) {
+          if ([13, 38, 40, 37, 39, 16, 17, 18, 91, 20, 21].indexOf(e.keyCode) !== -1) {
             symbol = false;
           }
 
           switch (e.keyCode) {
             case 13: // return
-              prevent(e);
+              e.preventDefault();
               choose();
               return;
             case 38: // up
-              prevent(e);
+              e.preventDefault();
               selectPrev();
               return;
             case 40: // down
-              prevent(e);
+              e.preventDefault();
               selectNext();
-              return;
-            case 37: // left
-            case 39: // right
-            case 16: // shift
-            case 17: // ctrl
-            case 18: // alt
-            case 91: // cmd
-            case 20: // caps
-            case 27: // esc
-              symbol = false;
               return;
             default:
               symbol = true;
           }
-        })
+        };
+
+
+    el
+        .on('keydown', onKeyDown)
         .on('keyup', debouncedKeyup)
         .on('focus', function() {
           el.data('placeholder', el.val());

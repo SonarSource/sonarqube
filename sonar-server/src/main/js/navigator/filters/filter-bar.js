@@ -52,12 +52,11 @@ define(
             if (el.is(':input') || el.is('a')) {
               if (e.keyCode === 9 || e.keyCode === 27) {
                 return tabbableSet.index(el) >= tabbableSet.length - 1;
-              } else {
-                return false;
               }
-            } else {
-              return true;
+              return false;
             }
+
+            return true;
           };
           key('tab', 'list', function() {
             key.setScope('filters');

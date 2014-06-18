@@ -3,7 +3,7 @@
  */
 
 function loadResourceViewer(resourceId, tab, display_title, period, elt) {
-  if (display_title == undefined) {
+  if (display_title == null) {
     display_title = true;
   }
 
@@ -44,7 +44,7 @@ function collapseTests(index, elt){
 }
 
 /* Source decoration functions */
-function highlight_usages(event){
+function highlightUsages(event){
   var isAlreadyHighlighted = false;
   var selectedElementClasses = $j(this).attr("class").split(" ");
   if(selectedElementClasses.indexOf("highlighted") !== -1) {

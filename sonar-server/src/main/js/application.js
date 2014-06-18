@@ -67,7 +67,7 @@ function resourceViewerOnBulkIssues() {
 }
 
 var SelectBox = {
-  cache: new Object(),
+  cache: {},
   init: function (id) {
     var box = document.getElementById(id);
     var node;
@@ -93,10 +93,11 @@ var SelectBox = {
     // Redisplay the HTML select box, displaying only the choices containing ALL
     // the words in text. (It's an AND search.)
     var tokens = text.toLowerCase().split(/\s+/);
-    var node, token;
-    for (var i = 0; (node = SelectBox.cache[id][i]); i++) {
+    for (var i = 0, n = SelectBox.cache[id].length; i < n; i++) {
+      var node = SelectBox.cache[id][i];
       node.displayed = 1;
-      for (var j = 0; (token = tokens[j]); j++) {
+      for (var j = 0, k = tokens.length; j < k; j++) {
+        var token = tokens[j];
         if (node.text.toLowerCase().indexOf(token) == -1) {
           node.displayed = 0;
         }
@@ -105,15 +106,16 @@ var SelectBox = {
     SelectBox.redisplay(id);
   },
   delete_from_cache: function (id, value) {
-    var node, delete_index = null;
-    for (var i = 0; (node = SelectBox.cache[id][i]); i++) {
-      if (node.value == value) {
+    var delete_index = null;
+    for (var i = 0, n = SelectBox.cache[id].length; i < n; i++) {
+      var node = SelectBox.cache[id][i];
+      if (node.value === value) {
         delete_index = i;
         break;
       }
     }
     var j = SelectBox.cache[id].length - 1;
-    for (var i = delete_index; i < j; i++) {
+    for (i = delete_index; i < j; i++) {
       SelectBox.cache[id][i] = SelectBox.cache[id][i + 1];
     }
     SelectBox.cache[id].length--;
@@ -123,9 +125,9 @@ var SelectBox = {
   },
   cache_contains: function (id, value) {
     // Check if an item is contained in the cache
-    var node;
-    for (var i = 0; (node = SelectBox.cache[id][i]); i++) {
-      if (node.value == value) {
+    for (var i = 0, j = SelectBox.cache[id].length; i < j; i++) {
+      var node = SelectBox.cache[id][i];
+      if (node.value === value) {
         return true;
       }
     }
@@ -133,8 +135,8 @@ var SelectBox = {
   },
   move: function (from, to) {
     var from_box = document.getElementById(from);
-    var option;
-    for (var i = 0; (option = from_box.options[i]); i++) {
+    for (var i = 0, j = from_box.options.length; i < j; i++) {
+      var option = from_box.options[i];
       if (option.selected && SelectBox.cache_contains(from, option.value)) {
         SelectBox.add_to_cache(to, {value: option.value, text: option.text, displayed: 1});
         SelectBox.delete_from_cache(from, option.value);
@@ -145,8 +147,8 @@ var SelectBox = {
   },
   move_all: function (from, to) {
     var from_box = document.getElementById(from);
-    var option;
-    for (var i = 0; (option = from_box.options[i]); i++) {
+    for (var i = 0, j = from_box.options.length; i < j; i++) {
+      var option = from_box.options[i];
       if (SelectBox.cache_contains(from, option.value)) {
         SelectBox.add_to_cache(to, {value: option.value, text: option.text, displayed: 1});
         SelectBox.delete_from_cache(from, option.value);
@@ -247,12 +249,12 @@ Treemap.prototype.rootNode = function () {
 
 Treemap.prototype.initNodes = function () {
   var self = this;
-  $j('#tm-' + this.id).find('a').each(function (index) {
+  $j('#tm-' + this.id).find('a').each(function () {
     $j(this).on("click", function (event) {
       event.stopPropagation();
     });
   });
-  $j('#tm-' + this.id).find('[rid]').each(function (index) {
+  $j('#tm-' + this.id).find('[rid]').each(function () {
     $j(this).on("contextmenu", function (event) {
       event.stopPropagation();
       event.preventDefault();
@@ -261,13 +263,13 @@ Treemap.prototype.initNodes = function () {
       if (self.breadcrumb.length > 1) {
         self.breadcrumb.pop();
         self.load();
-      } else if (self.breadcrumb.length == 1) {
+      } else if (self.breadcrumb.length === 1) {
         $j("#tm-loading-" + self.id).show();
         location.reload();
       }
       return false;
     });
-    $j(this).on("click", function (event) {
+    $j(this).on("click", function () {
         var source = $j(this);
         var rid = source.attr('rid');
         var context = new TreemapContext(rid, source.text());
@@ -332,16 +334,16 @@ function openModalWindow(url, options) {
     modalForm: function (ajax_options) {
       return this.each(function () {
         var obj = $j(this);
-        obj.submit(function (event) {
+        obj.submit(function () {
           $j('input[type=submit]', this).attr('disabled', 'disabled');
           $j.ajax($j.extend({
             type: 'POST',
             url: obj.attr('action'),
             data: obj.serialize(),
-            success: function (data) {
+            success: function () {
               window.location.reload();
             },
-            error: function (xhr, textStatus, errorThrown) {
+            error: function (xhr) {
               // If the modal window has defined a modal-error element, then returned text must be displayed in it
               var errorElt = obj.find(".modal-error");
               if (errorElt.length) {
@@ -369,7 +371,7 @@ function closeModalWindow() {
   return false;
 }
 
-function supports_html5_storage() {
+function supportsHTML5Storage() {
   try {
     return 'localStorage' in window && window['localStorage'] !== null;
   } catch (e) {
@@ -404,14 +406,14 @@ function openAccordionItem(url, elt, updateCurrentElement) {
     // Remove all accordion items after current element
     elementToRemove.remove();
     // Display loading image only if not already displayed (if previous call was not finished)
-    if (currentElement.next('.accordion-loading').length == 0) {
+    if (currentElement.next('.accordion-loading').length === 0) {
       loading.insertAfter(currentElement);
     }
   } else {
     // Current element is not in a working view, remove all working views
     $j('.'+ htmlClass).remove();
     // Display loading image only if not already displayed (if previous call was not finished)
-    if ($j("#accordion-panel").next('.accordion-loading').length == 0) {
+    if ($j("#accordion-panel").next('.accordion-loading').length === 0) {
       loading.insertAfter($j("#accordion-panel"));
     }
   }
@@ -511,7 +513,7 @@ function showDropdownMenu(menuId) {
 function showDropdownMenuOnElement(elt) {
   var dropdownElt = $j(elt);
 
-  if (dropdownElt == currentlyDisplayedDropdownMenu) {
+  if (dropdownElt === currentlyDisplayedDropdownMenu) {
     currentlyDisplayedDropdownMenu = "";
   } else {
     currentlyDisplayedDropdownMenu = dropdownElt;

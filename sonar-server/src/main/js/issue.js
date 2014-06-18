@@ -55,7 +55,7 @@ function submitIssueForm(elt) {
       issueElt.replaceWith(replaced);
       notifyIssueChange(issueKey);
     }
-  ).fail(function (jqXHR, textStatus) {
+  ).fail(function (jqXHR) {
       closeIssueForm(elt);
       issueElt.find('.code-issue-actions').replaceWith(jqXHR.responseText);
     });
@@ -79,7 +79,7 @@ function doIssueAction(elt, action, parameters) {
       issueElt.replaceWith(replaced);
       notifyIssueChange(issueKey);
     }
-  ).fail(function (jqXHR, textStatus) {
+  ).fail(function (jqXHR) {
       issueElt.find('.code-issue-actions').replaceWith(jqXHR.responseText);
     });
   return false;
@@ -144,7 +144,7 @@ function doEditIssueComment(elt) {
       issueElt.replaceWith(replaced);
       notifyIssueChange(issueKey);
     },
-    error: function (jqXHR, textStatus) {
+    error: function (jqXHR) {
       closeIssueForm(elt);
       var commentElt = formElt.closest('[data-comment-key]');
       commentElt.replaceWith(jqXHR.responseText);
@@ -165,7 +165,6 @@ function refreshIssue(elt) {
 
 /* Open form for creating a manual issue */
 function openCIF(elt, componentId, line) {
-  // TODO check if form is already displayed (by using form id)
   $j.get(baseUrl + "/issue/create_form?component=" + componentId + "&line=" + line, function (html) {
     $j(elt).closest('tr').find('td.line').append($j(html));
   });
@@ -192,7 +191,7 @@ function submitCreateIssueForm(elt) {
       var replaced = $j(html);
       formElt.replaceWith(replaced);
     }
-  ).error(function (jqXHR, textStatus, errorThrown) {
+  ).error(function (jqXHR) {
       var errorsElt = formElt.find('.code-issue-errors');
       errorsElt.html(jqXHR.responseText);
       errorsElt.removeClass('hidden');
