@@ -70,7 +70,7 @@ public class ActivityServiceMediumTest {
   @Test
   public void find_all() throws InterruptedException {
 
-    service.write(dbSession, Activity.Type.ACTIVE_RULE, testValue);
+    service.write(dbSession, Activity.Type.QPROFILE, testValue);
     dbSession.commit();
     assertThat(index.findAll().getTotal()).isEqualTo(1);
 
@@ -81,7 +81,7 @@ public class ActivityServiceMediumTest {
 
   @Test
   public void search_message_log() throws InterruptedException {
-    service.write(dbSession, Activity.Type.ACTIVE_RULE, testValue);
+    service.write(dbSession, Activity.Type.QPROFILE, testValue);
     dbSession.commit();
     assertThat(index.findAll().getTotal()).isEqualTo(1);
 
@@ -94,7 +94,7 @@ public class ActivityServiceMediumTest {
   @Test
   public void search_activity_log() throws InterruptedException {
 
-    service.write(dbSession, Activity.Type.ACTIVE_RULE, getActivity());
+    service.write(dbSession, Activity.Type.QPROFILE, getActivity());
     dbSession.commit();
     assertThat(index.findAll().getTotal()).isEqualTo(1);
 
@@ -109,7 +109,7 @@ public class ActivityServiceMediumTest {
     service.write(dbSession, Activity.Type.NONE, getActivity());
     service.write(dbSession, Activity.Type.SERVER, getActivity());
     service.write(dbSession, Activity.Type.SERVER, testValue);
-    service.write(dbSession, Activity.Type.ACTIVE_RULE, getActivity());
+    service.write(dbSession, Activity.Type.QPROFILE, getActivity());
     dbSession.commit();
 
     assertThat(service.search(new ActivityQuery(),
@@ -120,7 +120,7 @@ public class ActivityServiceMediumTest {
       new QueryOptions()).getHits()).hasSize(2);
 
     assertThat(service.search(new ActivityQuery()
-        .setTypes(ImmutableSet.of(Activity.Type.ACTIVE_RULE)),
+        .setTypes(ImmutableSet.of(Activity.Type.QPROFILE)),
       new QueryOptions()).getHits()).hasSize(1);
   }
 
@@ -168,7 +168,7 @@ public class ActivityServiceMediumTest {
     int max = QueryOptions.DEFAULT_LIMIT + 3;
     final String testValue = "hello world";
     for (int i = 0; i < max; i++) {
-      service.write(dbSession, Activity.Type.ACTIVE_RULE, testValue + "_" + i);
+      service.write(dbSession, Activity.Type.QPROFILE, testValue + "_" + i);
     }
     dbSession.commit();
 

@@ -70,7 +70,7 @@ public class ActiveRuleChangeMediumTest {
       .setSeverity("BLOCKER")
       .setParameter("param1", "value1");
 
-    service.write(dbSession, Activity.Type.ACTIVE_RULE, change);
+    service.write(dbSession, Activity.Type.QPROFILE, change);
     dbSession.commit();
 
     // 0. AssertBase case

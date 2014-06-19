@@ -26,8 +26,8 @@ import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.persistence.DbSession;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.activity.ActivityService;
+import org.sonar.server.db.DbClient;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
@@ -71,7 +71,7 @@ public class ActivitiesWebServiceMediumTest {
 
   @Test
   public void search_logs() throws Exception {
-    service.write(session, Activity.Type.ACTIVE_RULE, "Hello World");
+    service.write(session, Activity.Type.QPROFILE, "Hello World");
     session.commit();
 
     MockUserSession.set();

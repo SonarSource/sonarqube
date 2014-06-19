@@ -211,7 +211,7 @@ public class ChangeLogMigration implements DatabaseMigration {
 
   private void saveActiveRuleChange(ActiveRuleChange ruleChange, String author, Date currentTimeStamp) {
     ActivityDto activity = ActivityDto.createFor(ruleChange);
-    activity.setType(Activity.Type.ACTIVE_RULE);
+    activity.setType(Activity.Type.QPROFILE);
     activity.setAuthor(author);
     activity.setCreatedAt(currentTimeStamp);
     dao.insert(session, activity);

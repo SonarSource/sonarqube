@@ -67,7 +67,7 @@ public class ActivityBackendMediumTest {
   @Test
   public void insert_find_text_log() throws InterruptedException {
     final String testValue = "hello world";
-    service.write(dbSession, Activity.Type.ACTIVE_RULE, testValue);
+    service.write(dbSession, Activity.Type.QPROFILE, testValue);
     dbSession.commit();
     assertThat(index.findAll().getTotal()).isEqualTo(1);
 
@@ -80,7 +80,7 @@ public class ActivityBackendMediumTest {
   public void insert_find_loggable_log() {
     final String testKey = "message";
     final String testValue = "hello world";
-    service.write(dbSession, Activity.Type.ACTIVE_RULE, new ActivityLog() {
+    service.write(dbSession, Activity.Type.QPROFILE, new ActivityLog() {
 
       @Override
       public Map<String, String> getDetails() {
@@ -109,7 +109,7 @@ public class ActivityBackendMediumTest {
     int max = 200;
     final String testValue = "hello world";
     for (int i = 0; i < max; i++) {
-      service.write(dbSession, Activity.Type.ACTIVE_RULE, testValue + "_" + i);
+      service.write(dbSession, Activity.Type.QPROFILE, testValue + "_" + i);
     }
     dbSession.commit();
 

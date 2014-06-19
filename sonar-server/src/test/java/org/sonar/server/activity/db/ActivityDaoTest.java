@@ -71,7 +71,7 @@ public class ActivityDaoTest extends AbstractDaoTestCase {
   public void fail_insert_missing_author() {
     String testValue = "hello world";
     ActivityDto log = ActivityDto.createFor(testValue)
-      .setType(Activity.Type.ACTIVE_RULE);
+      .setType(Activity.Type.QPROFILE);
     try {
       dao.insert(session, log);
     } catch (IllegalArgumentException e) {
@@ -83,7 +83,7 @@ public class ActivityDaoTest extends AbstractDaoTestCase {
   public void insert_text_log() {
     String testValue = "hello world";
     ActivityDto log = ActivityDto.createFor(testValue)
-      .setType(Activity.Type.ACTIVE_RULE)
+      .setType(Activity.Type.QPROFILE)
       .setAuthor("jUnit");
     dao.insert(session, log);
 
@@ -110,7 +110,7 @@ public class ActivityDaoTest extends AbstractDaoTestCase {
       }
     })
       .setAuthor("jUnit")
-      .setType(Activity.Type.ACTIVE_RULE);
+      .setType(Activity.Type.QPROFILE);
 
     dao.insert(session, log);
 
