@@ -24,7 +24,7 @@ module ProfilesHelper
   end
 
   def label_for_rules_count(qProfile, all_profile_stats)
-    profile_stat = all_profile_stats[qProfile.key()]
+    profile_stat = all_profile_stats[qProfile.key()] if all_profile_stats
     profile_rules_count = profile_rules_count(qProfile, profile_stat)
     label = "#{profile_rules_count} #{message('rules').downcase}"
 
@@ -64,6 +64,6 @@ module ProfilesHelper
 
   def overriding_rules_count(profile_stat)
     inheritance_stats = Hash[ *profile_stat.get('inheritance').collect { |v| [ v.getKey(), v ] }.flatten ] if profile_stat
-    inheritance_stats['OVERRIDES'].getValue().to_i if inheritance_stats['OVERRIDES']
+    inheritance_stats['OVERRIDES'].getValue().to_i if inheritance_stats && inheritance_stats['OVERRIDES']
   end
 end
