@@ -113,8 +113,8 @@ public final class ActivityDto extends Dto<ActivityKey> {
 
   public static ActivityDto createFor(ActivityLog activityLog) {
     return new ActivityDto()
-      .setMessage(activityLog.getMessage())
       .setAction(activityLog.getAction())
       .setData(KeyValueFormat.format(activityLog.getDetails()));
+
   }
 }

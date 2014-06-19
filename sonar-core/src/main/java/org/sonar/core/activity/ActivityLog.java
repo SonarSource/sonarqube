@@ -30,6 +30,4 @@ public interface ActivityLog {
 
   public String getAction();
 
-  public String getMessage();
-
 }

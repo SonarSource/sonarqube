@@ -103,6 +103,11 @@ public class ActivityDaoTest extends AbstractDaoTestCase {
       public Map<String, String> getDetails() {
         return ImmutableMap.of(testKey, testValue);
       }
+
+      @Override
+      public String getAction() {
+        return "myAction";
+      }
     })
       .setAuthor("jUnit")
       .setType(Activity.Type.ACTIVE_RULE);

@@ -87,6 +87,10 @@ public class ActivityBackendMediumTest {
         return ImmutableMap.of(testKey, testValue);
       }
 
+      @Override
+      public String getAction() {
+        return "myAction";
+      }
     });
     dbSession.commit();
 

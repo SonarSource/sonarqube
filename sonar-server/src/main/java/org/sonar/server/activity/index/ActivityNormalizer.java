@@ -50,6 +50,7 @@ public class ActivityNormalizer extends BaseNormalizer<ActivityDto, ActivityKey>
   public static final class LogFields extends Indexable {
 
     public final static IndexField TYPE = addSortable(IndexField.Type.STRING, "type");
+    public final static IndexField ACTION = addSortable(IndexField.Type.STRING, "action");
     public final static IndexField CREATED_AT = addSortable(IndexField.Type.DATE, "createdAt");
     public final static IndexField UPDATED_AT = addSortable(IndexField.Type.DATE, BaseNormalizer.UPDATED_AT_FIELD);
     public final static IndexField AUTHOR = addSearchable(IndexField.Type.STRING, "author");
@@ -94,6 +95,7 @@ public class ActivityNormalizer extends BaseNormalizer<ActivityDto, ActivityKey>
 
     Map<String, Object> logDoc = new HashMap<String, Object>();
     logDoc.put(LogFields.TYPE.field(), dto.getType());
+    logDoc.put(LogFields.ACTION.field(), dto.getAction());
     logDoc.put(LogFields.AUTHOR.field(), dto.getAuthor());
     logDoc.put(LogFields.MESSAGE.field(), dto.getMessage());
     logDoc.put(LogFields.CREATED_AT.field(), dto.getCreatedAt());

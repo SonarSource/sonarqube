@@ -94,9 +94,7 @@ public class ActiveRuleChange implements ActivityLog {
   @Override
   public Map<String, String> getDetails() {
     HashMap<String, String> details = new HashMap<String, String>();
-    if (getType() != null) {
-      details.put("type", getType().name());
-    }
+
     if (getKey() != null) {
       details.put("key", getKey().toString());
       details.put("ruleKey", getKey().ruleKey().toString());
@@ -131,5 +129,10 @@ public class ActiveRuleChange implements ActivityLog {
       .add("inheritance", inheritance)
       .add("parameters", parameters)
       .toString();
+  }
+
+  @Override
+  public String getAction() {
+    return this.type.name();
   }
 }

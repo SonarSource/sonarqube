@@ -198,6 +198,11 @@ public class ActivityServiceMediumTest {
       public Map<String, String> getDetails() {
         return ImmutableMap.of(test_key, test_value);
       }
+
+      @Override
+      public String getAction() {
+        return "myAction";
+      }
     };
   }
 }
