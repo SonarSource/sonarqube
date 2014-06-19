@@ -29,7 +29,6 @@ import org.elasticsearch.index.query.AndFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.OrFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.RangeFilterBuilder;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.activity.db.ActivityDto;
 import org.sonar.core.activity.db.ActivityKey;
@@ -113,17 +112,9 @@ public class ActivityIndex extends BaseIndex<Activity, ActivityDto, ActivityKey>
     filter.add(typeFilter);
 
     // Implement date Filter
-    if (query.getSince() != null || query.getTo() != null) {
-      RangeFilterBuilder dateFilter = FilterBuilders.rangeFilter(ActivityNormalizer.LogFields.CREATED_AT.field());
-      if (query.getSince() != null) {
-        dateFilter.from(query.getSince());
-      }
-      if (query.getTo() != null) {
-        dateFilter.to(query.getTo());
-      }
-      filter.add(dateFilter);
-    }
-
+    filter.add(FilterBuilders.rangeFilter(ActivityNormalizer.LogFields.CREATED_AT.field())
+      .from(query.getSince())
+      .to(query.getTo()));
 
     esSearch.setQuery(QueryBuilders.filteredQuery(
       QueryBuilders.matchAllQuery(), filter));

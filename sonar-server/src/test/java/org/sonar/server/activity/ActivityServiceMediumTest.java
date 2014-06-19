@@ -22,12 +22,14 @@ package org.sonar.server.activity;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.elasticsearch.common.collect.Iterables;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.activity.ActivityLog;
+import org.sonar.core.activity.db.ActivityDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.activity.index.ActivityIndex;
@@ -37,7 +39,6 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 
-import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -126,32 +127,40 @@ public class ActivityServiceMediumTest {
   @Test
   public void filter_by_date() throws InterruptedException {
 
-    Date t0 = new Date();
-    service.write(dbSession, Activity.Type.SERVER, testValue);
-    service.write(dbSession, Activity.Type.SERVER, testValue);
+    ActivityDto activity = ActivityDto.createFor(testValue)
+      .setType(Activity.Type.NONE).setAuthor("testing");
+    DateTime t0 = new DateTime();
+    activity.setCreatedAt(t0.toDate());
+    dao.insert(dbSession, activity);
+    dao.insert(dbSession, activity);
     dbSession.commit();
-    Date t1 = new Date();
-    service.write(dbSession, Activity.Type.SERVER, testValue);
+    DateTime t1 = new DateTime();
+    activity.setCreatedAt(t1.toDate());
+    dao.insert(dbSession, activity);
     dbSession.commit();
-    Date t2 = new Date();
+    DateTime t2 = new DateTime();
+
 
     assertThat(service.search(new ActivityQuery()
-        .setSince(t0),
+        .setSince(t0.minus(10L).toDate()),
       new QueryOptions()).getHits()).hasSize(3);
 
     assertThat(service.search(new ActivityQuery()
-        .setSince(t1),
+        .setSince(t1.minus(10L).toDate()),
       new QueryOptions()).getHits()).hasSize(1);
 
     assertThat(service.search(new ActivityQuery()
-        .setSince(t2),
+        .setSince(t2.minus(10L).toDate()),
       new QueryOptions()).getHits()).hasSize(0);
 
-    //FIXME bracket not working yet
-//    assertThat(service.search(new ActivityQuery()
-//        .setSince(t0)
-//        .setTo(t1),
-//      new QueryOptions()).getHits()).hasSize(2);
+    assertThat(service.search(new ActivityQuery()
+        .setTo(t1.minus(10L).toDate()),
+      new QueryOptions()).getHits()).hasSize(2);
+
+    assertThat(service.search(new ActivityQuery()
+        .setSince(t1.minus(10L).toDate())
+        .setTo(t2.plus(10L).toDate()),
+      new QueryOptions()).getHits()).hasSize(1);
   }
 
   @Test
