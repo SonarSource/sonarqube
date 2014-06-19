@@ -37,6 +37,7 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -103,7 +104,7 @@ public class ActivityServiceMediumTest {
 
 
   @Test
-  public void search_by_type() {
+  public void filter_by_type() {
     service.write(dbSession, Activity.Type.NONE, getActivity());
     service.write(dbSession, Activity.Type.SERVER, getActivity());
     service.write(dbSession, Activity.Type.SERVER, testValue);
@@ -120,6 +121,37 @@ public class ActivityServiceMediumTest {
     assertThat(service.search(new ActivityQuery()
         .setTypes(ImmutableSet.of(Activity.Type.ACTIVE_RULE)),
       new QueryOptions()).getHits()).hasSize(1);
+  }
+
+  @Test
+  public void filter_by_date() throws InterruptedException {
+
+    Date t0 = new Date();
+    service.write(dbSession, Activity.Type.SERVER, testValue);
+    service.write(dbSession, Activity.Type.SERVER, testValue);
+    dbSession.commit();
+    Date t1 = new Date();
+    service.write(dbSession, Activity.Type.SERVER, testValue);
+    dbSession.commit();
+    Date t2 = new Date();
+
+    assertThat(service.search(new ActivityQuery()
+        .setSince(t0),
+      new QueryOptions()).getHits()).hasSize(3);
+
+    assertThat(service.search(new ActivityQuery()
+        .setSince(t1),
+      new QueryOptions()).getHits()).hasSize(1);
+
+    assertThat(service.search(new ActivityQuery()
+        .setSince(t2),
+      new QueryOptions()).getHits()).hasSize(0);
+
+    //FIXME bracket not working yet
+//    assertThat(service.search(new ActivityQuery()
+//        .setSince(t0)
+//        .setTo(t1),
+//      new QueryOptions()).getHits()).hasSize(2);
   }
 
   @Test

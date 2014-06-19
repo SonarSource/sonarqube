@@ -25,9 +25,11 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.index.query.AndFilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.OrFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeFilterBuilder;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.activity.db.ActivityDto;
 import org.sonar.core.activity.db.ActivityKey;
@@ -94,17 +96,35 @@ public class ActivityIndex extends BaseIndex<Activity, ActivityDto, ActivityKey>
   }
 
   public Result<Activity> search(ActivityQuery query, QueryOptions options) {
+
+    // Prepare query
     SearchRequestBuilder esSearch = getClient()
       .prepareSearch(this.getIndexName())
       .setTypes(this.getIndexType())
       .setIndices(this.getIndexName());
 
-    OrFilterBuilder filter = FilterBuilders.orFilter();
+    AndFilterBuilder filter = FilterBuilders.andFilter();
+
+    // implement Type Filtering
+    OrFilterBuilder typeFilter = FilterBuilders.orFilter();
     for (Activity.Type type : query.getTypes()) {
-      filter.add(FilterBuilders.termFilter(ActivityNormalizer.LogFields.TYPE.field(), type));
+      typeFilter.add(FilterBuilders.termFilter(ActivityNormalizer.LogFields.TYPE.field(), type));
+    }
+    filter.add(typeFilter);
+
+    // Implement date Filter
+    if (query.getSince() != null || query.getTo() != null) {
+      RangeFilterBuilder dateFilter = FilterBuilders.rangeFilter(ActivityNormalizer.LogFields.CREATED_AT.field());
+      if (query.getSince() != null) {
+        dateFilter.from(query.getSince());
+      }
+      if (query.getTo() != null) {
+        dateFilter.to(query.getTo());
+      }
+      filter.add(dateFilter);
     }
 
-    // TODO implement query and filters based on LogQuery
+
     esSearch.setQuery(QueryBuilders.filteredQuery(
       QueryBuilders.matchAllQuery(), filter));
 
