@@ -184,7 +184,7 @@ define [
         measures = @component.get 'measures'
         measuresList.forEach (m) ->
           key = m.key.substr(4)
-          variation = "var#{period}"
+          variation = "fvar#{period}"
           measures[key] = m[variation]
         @component.set 'measures', measures
 
@@ -251,15 +251,22 @@ define [
       @sourceView.render()
 
 
+    hideAllLines: ->
+      @sourceView.resetShowBlocks()
+      @sourceView.render()
+
+
     enablePeriod: (periodKey, scope = 'scm') ->
       period = if periodKey == '' then null else @periods.findWhere key: periodKey
       @state.set 'period', period
       $.when(@requestMeasures(@key, period?.get('key')), @requestIssuesPeriod(@key, period?.get('key')), @requestSCM(@key)).done =>
-        @headerView.render()
         if scope == 'issues'
-          @filterByUnresolvedIssues() unless @state.get('activeHeaderItem')
-        else
-          @filterBySCM()
+          @state.set 'activeHeaderItem', '.js-filter-unresolved-issues'
+          @headerView.render()
+        else if scope == 'coverage'
+          @state.set 'activeHeaderItem', '.js-filter-lines-to-cover'
+          @headerView.render()
+        else @filterBySCM()
 
 
     addTransition: (transition, options) ->

@@ -48,7 +48,7 @@ define [
         triggerEl: $(e.currentTarget)
         main: @options.main
         bottom: true
-        prefix: 'Added'
+        prefix: t 'component_viewer.added'
       popup.render()
       popup.on 'change', (period) => @main.enablePeriod period, 'issues'
 
@@ -110,4 +110,6 @@ define [
 
 
     serializeData: ->
-      _.extend super, period: @state.get('period')?.toJSON()
+      _.extend super,
+        period: @state.get('period')?.toJSON()
+        hasIssues: @state.get('severities')?.length || @state.get('rules')?.length

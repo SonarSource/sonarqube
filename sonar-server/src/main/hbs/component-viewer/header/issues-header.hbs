@@ -1,6 +1,6 @@
 <div class="component-viewer-header-time-changes">
   <a class="highlighted-link js-issues-time-changes">
-    {{#if period}}Added {{period.label}}{{else}}<i class="icon-period"></i> Time Changes{{/if}}
+    {{#if period}}{{t 'component_viewer.added'}} {{period.label}}{{else}}<i class="icon-period"></i> {{t 'component_viewer.time_changes'}}{{/if}}
   </a>
 </div>
 
@@ -40,7 +40,7 @@
 
 <div class="component-viewer-header-expanded-bar-section">
   <div class="component-viewer-header-expanded-bar-section-title">
-    {{t 'component_viewer.measure_section.issues'}}
+    {{#if hasIssues}}&nbsp;{{else}}{{t 'component_viewer.no_issues'}}{{/if}}
   </div>
   <ul class="component-viewer-header-expanded-bar-section-list">
     {{#if currentIssue}}
@@ -65,13 +65,15 @@
   </ul>
 </div>
 
-<div class="component-viewer-header-expanded-bar-section component-viewer-header-expanded-bar-section-actions">
-  <div class="component-viewer-header-expanded-bar-section-title">&nbsp;</div>
-  <ul class="component-viewer-header-expanded-bar-section-list">
-    {{#if state.canBulkChange}}
-      <li><a class="link-action js-issues-bulk-change">
-        <span><i class="icon-bulk-change"></i> {{t 'bulk_change'}}</span>
-      </a></li>
-    {{/if}}
-  </ul>
-</div>
+{{#if hasIssues}}
+  <div class="component-viewer-header-expanded-bar-section component-viewer-header-expanded-bar-section-actions">
+    <div class="component-viewer-header-expanded-bar-section-title">&nbsp;</div>
+    <ul class="component-viewer-header-expanded-bar-section-list">
+      {{#if state.canBulkChange}}
+        <li><a class="link-action js-issues-bulk-change">
+          <span><i class="icon-bulk-change"></i> {{t 'bulk_change'}}</span>
+        </a></li>
+      {{/if}}
+    </ul>
+  </div>
+{{/if}}

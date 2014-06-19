@@ -138,7 +138,7 @@ define(['handlebars', 'moment'], function (Handlebars, moment) {
         notEmpty = args.reduce(function(prev, current) {
           return prev || (current && current.length > 0);
         }, false);
-    return notEmpty ? options.fn(this) : '';
+    return notEmpty ? options.fn(this) : options.inverse(this);
   });
 
   Handlebars.registerHelper('join', function(array, separator) {

@@ -131,7 +131,11 @@ define [
 
 
     enableBarItem: (item) ->
-      @$(item).click()
+      $item = @$(item)
+      if $item.length > 0
+        @$(item).click()
+      else
+        @options.main.hideAllLines()
 
 
     showExpandedBar: (e) ->
