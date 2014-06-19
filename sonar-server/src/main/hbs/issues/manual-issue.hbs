@@ -14,13 +14,10 @@
   <input type="hidden" name="component" value="{{component}}">
 
   <div class="code-issue-name">
-    {{! TODO: replace mock data }}
     <select name="rule">
-      <option value="manual:api">API</option>
-      <option value="manual:design">Design</option>
-      <option value="manual:error_handling">Error handling</option>
-      <option value="manual:performance">Performance</option>
-      <option value="manual:sql_pitfalls">SQL Pitfall</option>
+      {{#each rules}}
+        <option value="{{key}}">{{name}}</option>
+      {{/each}}
     </select>
   </div>
 

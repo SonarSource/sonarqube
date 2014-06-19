@@ -132,7 +132,7 @@ define [
       row = $(e.currentTarget).closest('.row')
       row.addClass HIGHLIGHTED_ROW_CLASS
       @highlightedLine = row.data 'line-number'
-      @showLineActionsPopup(e)
+      @showLineActionsPopup(e) if @options.main.state.get 'canCreateManualIssue'
 
 
     highlightCurrentLine: ->

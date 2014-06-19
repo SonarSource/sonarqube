@@ -28,6 +28,7 @@ define [
       manualIssueView = new ManualIssueView
         line: line
         component: component
+        rules: @options.main.state.get 'manual_rules'
       manualIssueView.render().$el.appendTo @options.row.find('.line')
       manualIssueView.on 'add', (issue) =>
         issues = @options.main.source.get('issues') || []

@@ -77,3 +77,4 @@ define [
       _.extend super,
         line: @options.line
         component: @options.component
+        rules: _.sortBy @options.rules, 'name'
