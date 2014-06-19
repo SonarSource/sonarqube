@@ -28,4 +28,8 @@ public interface ActivityLog {
 
   Map<String, String> getDetails();
 
+  public String getAction();
+
+  public String getMessage();
+
 }

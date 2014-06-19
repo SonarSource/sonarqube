@@ -28,7 +28,7 @@ import java.util.Map;
 public interface Activity {
 
   public static enum Type {
-    NONE, ACTIVE_RULE, SERVER
+    NONE, ACTIVE_RULE, SERVER, QPROFILE
   }
 
   Date time();

@@ -33,6 +33,7 @@ public final class ActivityDto extends Dto<ActivityKey> {
 
   private String message;
   private Activity.Type type;
+  private String action;
   private String author;
 
   private String data;
@@ -90,13 +91,30 @@ public final class ActivityDto extends Dto<ActivityKey> {
     return this;
   }
 
+  public String getAction() {
+    return action;
+  }
+
+  public ActivityDto setAction(String action) {
+    this.action = action;
+    return this;
+  }
+
   public static ActivityDto createFor(String message) {
     return new ActivityDto()
       .setMessage(message);
   }
 
+  public static ActivityDto createFor(String action, String message) {
+    return new ActivityDto()
+      .setAction(action)
+      .setMessage(message);
+  }
+
   public static ActivityDto createFor(ActivityLog activityLog) {
     return new ActivityDto()
+      .setMessage(activityLog.getMessage())
+      .setAction(activityLog.getAction())
       .setData(KeyValueFormat.format(activityLog.getDetails()));
   }
 }
