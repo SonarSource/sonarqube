@@ -36,6 +36,8 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Errors;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.plugins.MimeTypes;
+import org.sonar.server.user.MockUserSession;
+import org.sonar.server.user.UserSession;
 
 import javax.annotation.Nullable;
 
@@ -231,6 +233,7 @@ public class WebServiceEngineTest {
 
   @Test
   public void bad_request_with_i18n_message() throws Exception {
+    MockUserSession.set().setLocale(Locale.ENGLISH);
     ValidatingRequest request = new SimpleRequest("GET").setParam("count", "3");
     ServletResponse response = new ServletResponse();
     when(i18n.message(Locale.ENGLISH, "bad.request.reason", "bad.request.reason", 0)).thenReturn("reason #0");
@@ -262,6 +265,8 @@ public class WebServiceEngineTest {
 
   @Test
   public void bad_request_with_multiple_i18n_messages() throws Exception {
+    MockUserSession.set().setLocale(Locale.ENGLISH);
+
     ValidatingRequest request = new SimpleRequest("GET").setParam("count", "3");
     ServletResponse response = new ServletResponse();
     when(i18n.message(Locale.ENGLISH, "bad.request.reason", "bad.request.reason", 0)).thenReturn("reason #0");
