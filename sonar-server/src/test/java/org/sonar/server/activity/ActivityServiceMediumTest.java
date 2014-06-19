@@ -129,7 +129,7 @@ public class ActivityServiceMediumTest {
 
     ActivityDto activity = ActivityDto.createFor(testValue)
       .setType(Activity.Type.NONE).setAuthor("testing");
-    DateTime t0 = new DateTime();
+    DateTime t0 = new DateTime().minusHours(1);
     activity.setCreatedAt(t0.toDate());
     dao.insert(dbSession, activity);
     dao.insert(dbSession, activity);
@@ -138,28 +138,28 @@ public class ActivityServiceMediumTest {
     activity.setCreatedAt(t1.toDate());
     dao.insert(dbSession, activity);
     dbSession.commit();
-    DateTime t2 = new DateTime();
+    DateTime t2 = new DateTime().plusHours(1);
 
 
     assertThat(service.search(new ActivityQuery()
-        .setSince(t0.minus(10L).toDate()),
+        .setSince(t0.minusSeconds(5).toDate()),
       new QueryOptions()).getHits()).hasSize(3);
 
     assertThat(service.search(new ActivityQuery()
-        .setSince(t1.minus(10L).toDate()),
+        .setSince(t1.minusSeconds(5).toDate()),
       new QueryOptions()).getHits()).hasSize(1);
 
     assertThat(service.search(new ActivityQuery()
-        .setSince(t2.minus(10L).toDate()),
+        .setSince(t2.minusSeconds(5).toDate()),
       new QueryOptions()).getHits()).hasSize(0);
 
     assertThat(service.search(new ActivityQuery()
-        .setTo(t1.minus(10L).toDate()),
+        .setTo(t1.minusSeconds(5).toDate()),
       new QueryOptions()).getHits()).hasSize(2);
 
     assertThat(service.search(new ActivityQuery()
-        .setSince(t1.minus(10L).toDate())
-        .setTo(t2.plus(10L).toDate()),
+        .setSince(t1.minusSeconds(5).toDate())
+        .setTo(t2.plusSeconds(5).toDate()),
       new QueryOptions()).getHits()).hasSize(1);
   }
 
