@@ -24,7 +24,6 @@ import org.elasticsearch.action.support.replication.ReplicationType;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.activity.db.ActivityDto;
-import org.sonar.core.activity.db.ActivityKey;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.search.BaseNormalizer;
@@ -44,11 +43,12 @@ import java.util.Set;
 /**
  * @since 4.4
  */
-public class ActivityNormalizer extends BaseNormalizer<ActivityDto, ActivityKey> {
+public class ActivityNormalizer extends BaseNormalizer<ActivityDto, String> {
 
 
   public static final class LogFields extends Indexable {
 
+    public final static IndexField KEY = add(IndexField.Type.STRING, "key");
     public final static IndexField TYPE = addSortable(IndexField.Type.STRING, "type");
     public final static IndexField ACTION = addSortable(IndexField.Type.STRING, "action");
     public final static IndexField CREATED_AT = addSortable(IndexField.Type.DATE, "createdAt");
@@ -79,7 +79,7 @@ public class ActivityNormalizer extends BaseNormalizer<ActivityDto, ActivityKey>
   }
 
   @Override
-  public List<UpdateRequest> normalize(ActivityKey activityKey) {
+  public List<UpdateRequest> normalize(String activityKey) {
     DbSession dbSession = db.openSession(false);
     List<UpdateRequest> requests = new ArrayList<UpdateRequest>();
     try {
@@ -94,6 +94,7 @@ public class ActivityNormalizer extends BaseNormalizer<ActivityDto, ActivityKey>
   public List<UpdateRequest> normalize(ActivityDto dto) {
 
     Map<String, Object> logDoc = new HashMap<String, Object>();
+    logDoc.put(LogFields.KEY.field(), dto.getKey());
     logDoc.put(LogFields.TYPE.field(), dto.getType());
     logDoc.put(LogFields.ACTION.field(), dto.getAction());
     logDoc.put(LogFields.AUTHOR.field(), dto.getAuthor());
@@ -105,7 +106,7 @@ public class ActivityNormalizer extends BaseNormalizer<ActivityDto, ActivityKey>
 
    /* Creating updateRequest */
     return ImmutableList.of(new UpdateRequest()
-      //Need to make a UUID because Key does not insure unicity
+      .id(dto.getKey())
       .replicationType(ReplicationType.ASYNC)
       .doc(logDoc)
       .upsert(logDoc));

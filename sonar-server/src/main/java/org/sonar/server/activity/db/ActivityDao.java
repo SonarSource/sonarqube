@@ -22,7 +22,6 @@ package org.sonar.server.activity.db;
 import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.utils.System2;
 import org.sonar.core.activity.db.ActivityDto;
-import org.sonar.core.activity.db.ActivityKey;
 import org.sonar.core.activity.db.ActivityMapper;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.db.BaseDao;
@@ -36,7 +35,7 @@ import java.util.List;
 /**
  * @since 4.4
  */
-public class ActivityDao extends BaseDao<ActivityMapper, ActivityDto, ActivityKey> {
+public class ActivityDao extends BaseDao<ActivityMapper, ActivityDto, String> {
 
   public ActivityDao() {
     this(System2.INSTANCE);
@@ -48,8 +47,8 @@ public class ActivityDao extends BaseDao<ActivityMapper, ActivityDto, ActivityKe
   }
 
   @Override
-  protected ActivityDto doGetNullableByKey(DbSession session, ActivityKey key) {
-    return mapper(session).selectByKey(key);
+  protected ActivityDto doGetNullableByKey(DbSession session, String key) {
+    throw new IllegalStateException("Cannot execute getByKey on Activities in DB");
   }
 
   @Override
@@ -64,7 +63,7 @@ public class ActivityDao extends BaseDao<ActivityMapper, ActivityDto, ActivityKe
   }
 
   @Override
-  protected void doDeleteByKey(DbSession session, ActivityKey key) {
+  protected void doDeleteByKey(DbSession session, String key) {
     throw new IllegalStateException("Cannot delete Log!");
   }
 

@@ -31,7 +31,6 @@ import org.elasticsearch.index.query.OrFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.activity.db.ActivityDto;
-import org.sonar.core.activity.db.ActivityKey;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.server.search.BaseIndex;
@@ -48,23 +47,22 @@ import java.util.Map;
 /**
  * @since 4.4
  */
-public class ActivityIndex extends BaseIndex<Activity, ActivityDto, ActivityKey> {
+public class ActivityIndex extends BaseIndex<Activity, ActivityDto, String> {
 
   public ActivityIndex(Profiling profiling, ActivityNormalizer normalizer, WorkQueue workQueue, ESNode node) {
     super(IndexDefinition.LOG, normalizer, workQueue, node, profiling);
   }
 
   @Override
-  protected String getKeyValue(ActivityKey key) {
-    // FIXME too many collision with key.toString() due to lack of time precision
-    return null;// return key.toString();
+  protected String getKeyValue(String key) {
+    return key;
   }
 
   @Override
   protected Map mapKey() {
-    return null;
-    // Map<String, Object> mapping = new HashMap<String, Object>();
-    // return mapping;
+    Map<String, Object> mapping = new HashMap<String, Object>();
+    mapping.put("path", ActivityNormalizer.LogFields.KEY.field());
+    return mapping;
   }
 
   @Override

@@ -26,11 +26,14 @@ import org.sonar.core.activity.Activity;
 import org.sonar.core.activity.ActivityLog;
 import org.sonar.core.persistence.Dto;
 
+import java.util.UUID;
+
 /**
  * @since 4.4
  */
-public final class ActivityDto extends Dto<ActivityKey> {
+public final class ActivityDto extends Dto<String> {
 
+  private String key;
   private String message;
   private Activity.Type type;
   private String action;
@@ -39,11 +42,12 @@ public final class ActivityDto extends Dto<ActivityKey> {
   private String data;
 
   protected ActivityDto() {
+    this.key = UUID.randomUUID().toString();
   }
 
   @Override
-  public ActivityKey getKey() {
-    return ActivityKey.of(this.getCreatedAt(), type, author);
+  public String getKey() {
+    return key;
   }
 
   @Override
