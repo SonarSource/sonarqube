@@ -26,11 +26,11 @@ import static com.google.code.beanmatchers.BeanMatchers.hasValidGettersAndSetter
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 
-public class ProfileMeasureTest {
+public class ChangeLogTest {
 
   @Test
   public void test_bean() throws Exception {
-    assertThat(ProfileMeasure.class, allOf(
+    assertThat(ChangeLog.class, allOf(
       hasValidBeanConstructor(),
       hasValidGettersAndSetters()));
   }
