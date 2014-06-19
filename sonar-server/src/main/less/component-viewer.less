@@ -338,6 +338,12 @@
   font-weight: 600;
 }
 
+.component-viewer-header-favorite {
+  position: relative;
+  top: -2px;
+  margin-left: 4px;
+}
+
 .component-viewer-header-measures {
   float: right;
 }
@@ -616,6 +622,17 @@
   }
 }
 
+.component-viewer-popup-bottom-right {
+  .component-viewer-popup-bottom;
+  margin-left: 0;
+  margin-right: -8px;
+
+  .component-viewer-popup-arrow {
+    left: auto;
+    right: 15px;
+  }
+}
+
 .component-viewer-popup-container {
   max-width: 560px;
   max-height: 300px;
@@ -633,6 +650,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  &.fluid {
+    width: auto;
+    max-width: 450px;
+  }
 }
 
 .component-viewer-popup-section + .component-viewer-popup-section,

@@ -8,6 +8,7 @@ define [
   'component-viewer/header/duplications-header'
   'component-viewer/header/scm-header'
   'component-viewer/header/tests-header'
+  'component-viewer/extensions-popup'
 
   'common/handlebars-extensions'
 ], (
@@ -20,11 +21,13 @@ define [
   DuplicationsHeaderView
   SCMHeaderView
   TestsHeaderView
+  ExtensionsPopup
 ) ->
 
   $ = jQuery
 
   API_FAVORITE = "#{baseUrl}/api/favourites"
+  API_EXTENSION = "#{baseUrl}/resource/extension"
   BARS = [
     { scope: 'basic', view: BasicHeaderView }
     { scope: 'issues', view: IssuesHeaderView }
@@ -52,9 +55,9 @@ define [
 
     events:
       'click .js-favorite': 'toggleFavorite'
-
+      'click .js-extensions': 'showExtensionsPopup'
+      'click .js-extension-close': 'closeExtension'
       'click @ui.expandLinks': 'showExpandedBar'
-
       'click .js-toggle-issues': 'toggleIssues'
       'click .js-toggle-coverage': 'toggleCoverage'
       'click .js-toggle-duplications': 'toggleDuplications'
@@ -97,6 +100,28 @@ define [
           @render()
 
 
+    showExtensionsPopup: (e) ->
+      e.stopPropagation()
+      $('body').click()
+      popup = new ExtensionsPopup
+        triggerEl: $(e.currentTarget)
+        main: @options.main
+        bottomRight: true
+      popup.render()
+      popup.on 'extension', (key) => @showExtension key
+
+
+    showExtension: (key) ->
+      @ui.expandedBar.html('<i class="spinner spinner-margin"></i>').addClass 'active'
+      @ui.expandLinks.removeClass 'active'
+      $.get API_EXTENSION, id: @options.main.component.get('key'), tab: key, (r) =>
+        @ui.expandedBar.html r
+
+
+    closeExtension: ->
+      @ui.expandedBar.html('').removeClass 'active'
+
+
     showBarSpinner: ->
       @ui.spinnerBar.addClass 'active'
 
@@ -113,7 +138,7 @@ define [
 
 
     enableBar: (scope) ->
-      @ui.expandedBar.addClass 'active'
+      @ui.expandedBar.html('<i class="spinner spinner-margin"></i>').addClass 'active'
       requests = []
       unless @state.get 'hasMeasures'
         requests.push @options.main.requestMeasures @options.main.key

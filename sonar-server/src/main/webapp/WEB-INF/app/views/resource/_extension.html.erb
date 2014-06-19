@@ -7,3 +7,5 @@
 <% elsif @extension.getTarget() # ruby on rails page %>
   <%= render :inline => @extension.getTarget().getTemplate() -%>
 <% end %>
+
+<a href="#" class="js-extension-close extension-close link-action"><%= message('close') -%></a>

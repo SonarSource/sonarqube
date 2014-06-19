@@ -2,26 +2,34 @@
   <div class="component-viewer-header-component">
     {{#if component.projectName}}
       <div class="component-viewer-header-component-project">
-        {{qualifierIcon 'TRK'}} <a href="{{dashboardUrl component.project}}">{{component.projectName}}</a>
+        {{qualifierIcon 'TRK'}}
+        <a class="link-action" href="{{dashboardUrl component.project}}">{{component.projectName}}</a>
         {{#if component.subProjectName}}
-          / <a href="{{dashboardUrl component.subProject}}">{{component.subProjectName}}</a>
+          / <a class="link-action" href="{{dashboardUrl component.subProject}}">{{component.subProjectName}}</a>
         {{/if}}
       </div>
     {{/if}}
 
     <div class="component-viewer-header-component-name">
       {{qualifierIcon component.q}} {{component.path}}
+
+      {{#if state.canMarkAsFavourite}}
+        <a class="js-favorite component-viewer-header-favorite"
+           title="{{#if component.fav}}{{t 'click_to_remove_from_favorites'}}{{else}}{{t 'click_to_add_to_favorites'}}{{/if}}">
+          <i class="{{#if component.fav}}icon-favorite{{else}}icon-not-favorite{{/if}}"></i>
+        </a>
+      {{/if}}
     </div>
   </div>
 
   <div class="component-viewer-header-links">
     <a><i class="icon-link"></i></a>
-    {{#if state.canMarkAsFavourite}}
-      <a class="js-favorite"
-         title="{{#if component.fav}}{{t 'click_to_remove_from_favorites'}}{{else}}{{t 'click_to_add_to_favorites'}}{{/if}}">
-        <i class="{{#if component.fav}}icon-favorite{{else}}icon-not-favorite{{/if}}"></i>
+    {{#ifNotEmpty state.extensions}}
+      <a class="js-extensions">
+        <i class="icon-extension"></i>
+        <i class="icon-dropdown"></i>
       </a>
-    {{/if}}
+    {{/ifNotEmpty}}
   </div>
 
   <div class="component-viewer-header-measures">
@@ -128,6 +136,4 @@
   </div>
 </div>
 
-<div class="component-viewer-header-expanded-bar">
-  <i class="spinner spinner-margin"></i>
-</div>
+<div class="component-viewer-header-expanded-bar"></div>
