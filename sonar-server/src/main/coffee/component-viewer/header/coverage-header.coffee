@@ -38,7 +38,7 @@ define [
         main: @options.main
         bottom: true
       popup.render()
-      popup.on 'change', (period) => @main.enablePeriod period, 'coverage'
+      popup.on 'change', (period) => @main.enablePeriod period, '.js-filter-lines-to-cover'
 
 
     filterByLinesToCover: (e) ->

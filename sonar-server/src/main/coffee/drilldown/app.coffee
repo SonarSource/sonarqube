@@ -68,18 +68,19 @@ requirejs [
       e.preventDefault()
       key = $(e.currentTarget).data 'key'
       viewer = App.requestComponentViewer()
-      viewer.open(key).done ->
-        if activeHeaderTab? && activeHeaderItem?
+
+      f = ->
+        if drilldown.period?
+          viewer.enablePeriod drilldown.period, activeHeaderItem
+        else
           viewer.state.set activeHeaderTab: activeHeaderTab, activeHeaderItem: activeHeaderItem
           viewer.render()
-        else if activeHeaderTab?
-          viewer.state.set activeHeaderTab: activeHeaderTab
-          viewer.headerView.render()
-          viewer.showAllLines()
-        else if drilldown.period?
-          viewer.enablePeriod drilldown.period, 'issues'
-        else
-          viewer.showAllLines()
+
+      viewer.open(key).done ->
+        if activeHeaderTab?
+          viewer.headerView.enableBar(activeHeaderTab).done -> f()
+        else f()
+
 
 
   # Message bundles

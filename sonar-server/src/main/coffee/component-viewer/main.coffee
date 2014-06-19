@@ -124,7 +124,8 @@ define [
 
     requestComponent: (key, clear = false, full = true) ->
       STATE_FIELDS = ['canBulkChange', 'canMarkAsFavourite', 'canCreateManualIssue', 'tabs', 'manual_rules']
-      COMPONENT_FIELDS = ['key', 'name', 'path', 'q', 'projectName', 'subProjectName', 'measures', 'fav']
+      COMPONENT_FIELDS = ['key', 'name', 'path', 'q', 'project', 'projectName', 'subProject', 'subProjectName',
+                          'measures', 'fav']
 
       $.get API_COMPONENT, key: key, (data) =>
         # Component
@@ -256,15 +257,12 @@ define [
       @sourceView.render()
 
 
-    enablePeriod: (periodKey, scope = 'scm') ->
+    enablePeriod: (periodKey, activeHeaderItem) ->
       period = if periodKey == '' then null else @periods.findWhere key: periodKey
       @state.set 'period', period
       $.when(@requestMeasures(@key, period?.get('key')), @requestIssuesPeriod(@key, period?.get('key')), @requestSCM(@key)).done =>
-        if scope == 'issues'
-          @state.set 'activeHeaderItem', '.js-filter-unresolved-issues'
-          @headerView.render()
-        else if scope == 'coverage'
-          @state.set 'activeHeaderItem', '.js-filter-lines-to-cover'
+        if activeHeaderItem?
+          @state.set 'activeHeaderItem', activeHeaderItem
           @headerView.render()
         else @filterBySCM()
 

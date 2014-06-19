@@ -67,6 +67,9 @@ define
   'false_positive_issues':            { tab: 'issues', item: '.js-filter-false-positive-issues' }
   'sqale_index':                      { tab: 'issues', item: '.js-filter-unresolved-issues' }
   'new_technical_debt':               { tab: 'issues', item: '.js-filter-unresolved-issues' }
+  'open_issues':                      { tab: 'issues', item: '.js-filter-unresolved-issues' }
+  'reopened_issues':                  { tab: 'issues', item: '.js-filter-unresolved-issues' }
+  'confirmed_issues':                 { tab: 'issues', item: '.js-filter-unresolved-issues' }
 
 
   # Duplications

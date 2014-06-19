@@ -181,7 +181,7 @@ define(['handlebars', 'moment'], function (Handlebars, moment) {
   });
 
   Handlebars.registerHelper('dashboardUrl', function(componentKey, componentQualifier) {
-    var url = '/dashboard/index/' + decodeURIComponent(componentKey);
+    var url = baseUrl + '/dashboard/index/' + decodeURIComponent(componentKey);
     if (componentQualifier === 'FIL' || componentQualifier === 'CLA') {
       url += '?metric=sqale_index';
     }

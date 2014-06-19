@@ -2,9 +2,9 @@
   <div class="component-viewer-header-component">
     {{#if component.projectName}}
       <div class="component-viewer-header-component-project">
-        {{qualifierIcon 'TRK'}} {{component.projectName}}
+        {{qualifierIcon 'TRK'}} <a href="{{dashboardUrl component.project}}">{{component.projectName}}</a>
         {{#if component.subProjectName}}
-          / {{component.subProjectName}}
+          / <a href="{{dashboardUrl component.subProject}}">{{component.subProjectName}}</a>
         {{/if}}
       </div>
     {{/if}}

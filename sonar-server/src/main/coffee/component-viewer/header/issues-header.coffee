@@ -50,7 +50,7 @@ define [
         bottom: true
         prefix: t 'component_viewer.added'
       popup.render()
-      popup.on 'change', (period) => @main.enablePeriod period, 'issues'
+      popup.on 'change', (period) => @main.enablePeriod period, '.js-filter-unresolved-issues'
 
 
     filterByCurrentIssue: (e) ->
