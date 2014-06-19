@@ -17,5 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.api.batch.languages;
+package org.sonar.batch.languages;
+
+import java.util.Arrays;
+import java.util.Collection;
+
+public final class Language {
+
+  private final String key, name;
+  private final String[] fileSuffixes;
+
+  public Language(String key, String name, String... fileSuffixes) {
+    this.key = key;
+    this.name = name;
+    this.fileSuffixes = fileSuffixes;
+  }
+
+  /**
+   * For example "java".
+   */
+  public String key() {
+    return key;
+  }
+
+  /**
+   * For example "Java"
+   */
+  public String name() {
+    return name;
+  }
+
+  /**
+   * For example ["jav", "java"].
+   */
+  public Collection<String> fileSuffixes() {
+    return Arrays.asList(fileSuffixes);
+  }
+
+}

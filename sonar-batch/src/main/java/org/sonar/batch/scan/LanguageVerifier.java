@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.api.batch.languages.Language;
+import org.sonar.batch.languages.Language;
 
 import org.picocontainer.Startable;
 import org.slf4j.Logger;

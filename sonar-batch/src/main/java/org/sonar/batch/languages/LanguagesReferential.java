@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.languages;
 
-import org.sonar.api.batch.languages.Language;
-
 import org.sonar.api.BatchComponent;
 
 import javax.annotation.CheckForNull;
