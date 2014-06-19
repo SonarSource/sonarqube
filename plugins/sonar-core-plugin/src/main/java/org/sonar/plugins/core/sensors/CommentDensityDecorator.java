@@ -19,9 +19,6 @@
  */
 package org.sonar.plugins.core.sensors;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
@@ -33,16 +30,19 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class CommentDensityDecorator implements Decorator {
 
   @DependsUpon
   public List<Metric> dependsUponMetrics() {
-    return Arrays.asList(CoreMetrics.NCLOC, CoreMetrics.COMMENT_LINES, CoreMetrics.PUBLIC_API, CoreMetrics.PUBLIC_UNDOCUMENTED_API);
+    return Arrays.<Metric>asList(CoreMetrics.NCLOC, CoreMetrics.COMMENT_LINES, CoreMetrics.PUBLIC_API, CoreMetrics.PUBLIC_UNDOCUMENTED_API);
   }
 
   @DependedUpon
   public List<Metric> generatesMetrics() {
-    return Arrays.asList(CoreMetrics.COMMENT_LINES_DENSITY, CoreMetrics.PUBLIC_DOCUMENTED_API_DENSITY);
+    return Arrays.<Metric>asList(CoreMetrics.COMMENT_LINES_DENSITY, CoreMetrics.PUBLIC_DOCUMENTED_API_DENSITY);
   }
 
   public boolean shouldExecuteOnProject(Project project) {

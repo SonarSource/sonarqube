@@ -49,12 +49,12 @@ public interface AnalyzerIssueBuilder {
   AnalyzerIssueBuilder onProject();
 
   /**
-   * Line of the issue.
+   * Line of the issue. If no line is specified then issue is supposed to be global to the file.
    */
   AnalyzerIssueBuilder atLine(int line);
 
   /**
-   * Effort to fix for the issue.
+   * Effort to fix the issue.
    */
   AnalyzerIssueBuilder effortToFix(@Nullable Double effortToFix);
 

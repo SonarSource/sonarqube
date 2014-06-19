@@ -37,11 +37,10 @@ public final class CoverageMeasuresBuilder {
   /**
    * Metrics of generated measures
    */
-  public static final List<Metric> METRICS = Arrays.asList(
+  public static final List<Metric> METRICS = Arrays.<Metric>asList(
     CoreMetrics.LINES_TO_COVER, CoreMetrics.UNCOVERED_LINES, CoreMetrics.COVERAGE_LINE_HITS_DATA,
     CoreMetrics.CONDITIONS_TO_COVER, CoreMetrics.UNCOVERED_CONDITIONS, CoreMetrics.CONDITIONS_BY_LINE,
     CoreMetrics.COVERED_CONDITIONS_BY_LINE);
-
 
   private int totalCoveredLines = 0, totalConditions = 0, totalCoveredConditions = 0;
   private SortedMap<Integer, Integer> hitsByLine = Maps.newTreeMap();

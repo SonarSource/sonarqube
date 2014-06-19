@@ -31,8 +31,8 @@ import java.util.List;
 public final class BranchCoverageDecorator extends AbstractCoverageDecorator {
   @DependsUpon
   public List<Metric> dependsUponMetrics() {
-    return ImmutableList.of(CoreMetrics.UNCOVERED_CONDITIONS, CoreMetrics.CONDITIONS_TO_COVER,
-        CoreMetrics.NEW_UNCOVERED_CONDITIONS, CoreMetrics.NEW_CONDITIONS_TO_COVER);
+    return ImmutableList.<Metric>of(CoreMetrics.UNCOVERED_CONDITIONS, CoreMetrics.CONDITIONS_TO_COVER,
+      CoreMetrics.NEW_UNCOVERED_CONDITIONS, CoreMetrics.NEW_CONDITIONS_TO_COVER);
   }
 
   @Override

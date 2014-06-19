@@ -85,7 +85,7 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
 
   @DependedUpon
   public List<Metric> generatesIssuesMetrics() {
-    return ImmutableList.of(
+    return ImmutableList.<Metric>of(
       CoreMetrics.VIOLATIONS,
       CoreMetrics.BLOCKER_VIOLATIONS,
       CoreMetrics.CRITICAL_VIOLATIONS,

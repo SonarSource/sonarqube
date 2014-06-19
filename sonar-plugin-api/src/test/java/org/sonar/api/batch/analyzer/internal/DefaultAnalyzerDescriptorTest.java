@@ -17,39 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.cpd.decorators;
+package org.sonar.api.batch.analyzer.internal;
 
-import org.sonar.api.batch.AbstractSumChildrenDecorator;
-import org.sonar.api.batch.DependedUpon;
+import org.junit.Test;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
 
-import java.util.Arrays;
-import java.util.List;
+import static org.fest.assertions.Assertions.assertThat;
 
-public class SumDuplicationsDecorator extends AbstractSumChildrenDecorator {
+public class DefaultAnalyzerDescriptorTest {
 
-  @Override
-  @DependedUpon
-  public List<Metric> generatesMetrics() {
-    return Arrays.<Metric>asList(CoreMetrics.DUPLICATED_BLOCKS, CoreMetrics.DUPLICATED_FILES, CoreMetrics.DUPLICATED_LINES);
+  @Test
+  public void describe() {
+    DefaultAnalyzerDescriptor descriptor = new DefaultAnalyzerDescriptor();
+    descriptor
+      .name("Foo")
+      .dependsOn(CoreMetrics.NCLOC)
+      .provides(CoreMetrics.BLOCKER_VIOLATIONS)
+      .runOnLanguages("java", "php")
+      .runOnTypes(InputFile.Type.MAIN);
+
+    assertThat(descriptor.name()).isEqualTo("Foo");
+    assertThat(descriptor.dependsOn()).containsOnly(CoreMetrics.NCLOC);
+    assertThat(descriptor.provides()).containsOnly(CoreMetrics.BLOCKER_VIOLATIONS);
+    assertThat(descriptor.languages()).containsOnly("java", "php");
+    assertThat(descriptor.types()).containsOnly(InputFile.Type.MAIN);
   }
 
-  @Override
-  protected boolean shouldSaveZeroIfNoChildMeasures() {
-    return true;
-  }
-
-  @Override
-  public boolean shouldExecuteOnProject(Project project) {
-    return true;
-  }
-
-  @Override
-  public boolean shouldDecorateResource(Resource resource) {
-    return !ResourceUtils.isUnitTestClass(resource);
-  }
 }

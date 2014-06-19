@@ -40,7 +40,10 @@ import java.util.Collections;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LanguageDistributionDecoratorTest {
@@ -63,12 +66,12 @@ public class LanguageDistributionDecoratorTest {
 
   @Test
   public void depended_upon_metric() {
-    assertThat(decorator.generatesMetrics()).hasSize(1);
+    assertThat(decorator.generatesMetric()).isEqualTo(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION);
   }
 
   @Test
   public void depens_upon_metric() {
-    assertThat(decorator.dependsUponMetrics()).hasSize(1);
+    assertThat(decorator.dependsUponMetric()).isEqualTo(CoreMetrics.LINES);
   }
 
   @Test
@@ -96,7 +99,7 @@ public class LanguageDistributionDecoratorTest {
       new Measure(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION, KeyValueFormat.format(ImmutableMap.of("java", 20))),
       new Measure(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION, KeyValueFormat.format(ImmutableMap.of("xoo", 150))),
       new Measure(CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION, KeyValueFormat.format(ImmutableMap.of("xoo", 50)))
-    ));
+      ));
 
     decorator.decorate(resource, context);
 

@@ -20,11 +20,13 @@
 package org.sonar.plugins.core.timemachine;
 
 import org.junit.Test;
+import org.junit.matchers.JUnitMatchers;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.batch.TimeMachineQuery;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.Project;
@@ -36,7 +38,6 @@ import java.util.Date;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.matchers.JUnitMatchers.hasItems;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -51,13 +52,13 @@ public class TendencyDecoratorTest {
     when(project.getAnalysisDate()).thenReturn(date("2009-12-25"));
 
     MetricFinder metricFinder = mock(MetricFinder.class);
-    when(metricFinder.findAll()).thenReturn(Arrays.asList(CoreMetrics.LINES, CoreMetrics.COVERAGE, CoreMetrics.COVERAGE_LINE_HITS_DATA, CoreMetrics.PROFILE));
+    when(metricFinder.findAll()).thenReturn(Arrays.<Metric>asList(CoreMetrics.LINES, CoreMetrics.COVERAGE, CoreMetrics.COVERAGE_LINE_HITS_DATA, CoreMetrics.PROFILE));
 
     TendencyDecorator decorator = new TendencyDecorator(null, metricFinder);
 
     TimeMachineQuery query = decorator.initQuery(project);
     assertThat(query.getMetrics().size(), is(2));
-    assertThat(query.getMetrics(), hasItems(CoreMetrics.LINES, CoreMetrics.COVERAGE));
+    assertThat(query.getMetrics(), JUnitMatchers.<Metric>hasItems(CoreMetrics.LINES, CoreMetrics.COVERAGE));
     assertThat(query.getFrom(), is(date("2009-11-25")));
     assertThat(query.isToCurrentAnalysis(), is(true));
   }

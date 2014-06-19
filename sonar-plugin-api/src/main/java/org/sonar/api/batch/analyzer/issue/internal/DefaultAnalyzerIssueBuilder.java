@@ -44,19 +44,22 @@ public class DefaultAnalyzerIssueBuilder implements AnalyzerIssueBuilder {
 
   @Override
   public DefaultAnalyzerIssueBuilder onFile(InputFile file) {
-    Preconditions.checkState(onProject == null, "onFile or onProject can be called only once");
+    onProject(false);
     Preconditions.checkNotNull(file, "InputFile should be non null");
     this.file = file;
-    this.onProject = false;
     return this;
   }
 
   @Override
   public DefaultAnalyzerIssueBuilder onProject() {
-    Preconditions.checkState(onProject == null, "onFile or onProject can be called only once");
+    onProject(true);
     this.file = null;
-    this.onProject = true;
     return this;
+  }
+
+  private void onProject(boolean isOnProject) {
+    Preconditions.checkState(this.onProject == null, "onFile or onProject can be called only once");
+    this.onProject = isOnProject;
   }
 
   @Override

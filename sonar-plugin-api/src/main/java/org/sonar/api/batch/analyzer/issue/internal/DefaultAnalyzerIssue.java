@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.analyzer.issue.internal;
 
+import com.google.common.base.Preconditions;
 import org.sonar.api.batch.analyzer.issue.AnalyzerIssue;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.rule.RuleKey;
@@ -36,6 +37,7 @@ public class DefaultAnalyzerIssue implements AnalyzerIssue, Serializable {
   private final Double effortToFix;
 
   DefaultAnalyzerIssue(DefaultAnalyzerIssueBuilder builder) {
+    Preconditions.checkNotNull(builder.ruleKey, "ruleKey is mandatory on issue");
     this.inputFile = builder.file;
     this.ruleKey = builder.ruleKey;
     this.message = builder.message;

@@ -19,12 +19,11 @@
  */
 package org.sonar.api.batch.analyzer.measure.internal;
 
-import org.sonar.api.batch.measure.Metric;
-
 import com.google.common.base.Preconditions;
 import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
 import org.sonar.api.batch.analyzer.measure.AnalyzerMeasureBuilder;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.measure.Metric;
 
 import java.io.Serializable;
 
@@ -37,19 +36,22 @@ public class DefaultAnalyzerMeasureBuilder<G extends Serializable> implements An
 
   @Override
   public AnalyzerMeasureBuilder<G> onFile(InputFile inputFile) {
-    Preconditions.checkState(onProject == null, "onFile or onProject can be called only once");
+    onProject(false);
     Preconditions.checkNotNull(inputFile, "inputFile should be non null");
     this.file = inputFile;
-    this.onProject = false;
     return this;
   }
 
   @Override
   public AnalyzerMeasureBuilder<G> onProject() {
-    Preconditions.checkState(onProject == null, "onFile or onProject can be called only once");
+    onProject(true);
     this.file = null;
-    this.onProject = true;
     return this;
+  }
+
+  private void onProject(boolean isOnProject) {
+    Preconditions.checkState(this.onProject == null, "onFile or onProject can be called only once");
+    this.onProject = isOnProject;
   }
 
   @Override

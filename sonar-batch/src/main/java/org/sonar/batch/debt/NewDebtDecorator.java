@@ -21,7 +21,11 @@
 package org.sonar.batch.debt;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.batch.*;
+import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorBarriers;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
@@ -33,7 +37,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.components.Period;
 import org.sonar.batch.components.TimeMachineConfiguration;
-import org.sonar.batch.debt.IssueChangelogDebtCalculator;
 
 import javax.annotation.Nullable;
 
@@ -54,7 +57,7 @@ public final class NewDebtDecorator implements Decorator {
   private final IssueChangelogDebtCalculator issueChangelogDebtCalculator;
 
   public NewDebtDecorator(ResourcePerspectives perspectives, TimeMachineConfiguration timeMachineConfiguration,
-                          IssueChangelogDebtCalculator issueChangelogDebtCalculator) {
+    IssueChangelogDebtCalculator issueChangelogDebtCalculator) {
     this.perspectives = perspectives;
     this.timeMachineConfiguration = timeMachineConfiguration;
     this.issueChangelogDebtCalculator = issueChangelogDebtCalculator;
@@ -66,9 +69,9 @@ public final class NewDebtDecorator implements Decorator {
 
   @DependedUpon
   public List<Metric> generatesMetrics() {
-    return ImmutableList.of(
+    return ImmutableList.<Metric>of(
       CoreMetrics.NEW_TECHNICAL_DEBT
-    );
+      );
   }
 
   public void decorate(Resource resource, DecoratorContext context) {

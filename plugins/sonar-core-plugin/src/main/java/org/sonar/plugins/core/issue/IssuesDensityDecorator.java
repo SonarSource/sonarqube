@@ -19,7 +19,11 @@
  */
 package org.sonar.plugins.core.issue;
 
-import org.sonar.api.batch.*;
+import org.sonar.api.batch.Decorator;
+import org.sonar.api.batch.DecoratorBarriers;
+import org.sonar.api.batch.DecoratorContext;
+import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MeasureUtils;
@@ -42,7 +46,7 @@ public class IssuesDensityDecorator implements Decorator {
 
   @DependsUpon
   public List<Metric> dependsUponWeightedIissuesAndNcloc() {
-    return Arrays.asList(CoreMetrics.WEIGHTED_VIOLATIONS, CoreMetrics.NCLOC);
+    return Arrays.<Metric>asList(CoreMetrics.WEIGHTED_VIOLATIONS, CoreMetrics.NCLOC);
   }
 
   @DependedUpon

@@ -19,16 +19,15 @@
  */
 package org.sonar.api.measures;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class SumChildValuesFormulaTest {
   private FormulaContext context;
@@ -44,12 +43,12 @@ public class SumChildValuesFormulaTest {
   public void sumChildValues() {
     when(context.getTargetMetric()).thenReturn(CoreMetrics.NCLOC);
     when(data.getChildrenMeasures(CoreMetrics.NCLOC)).thenReturn(
-        Arrays.<Measure>asList(new Measure(CoreMetrics.NCLOC, 100.0), new Measure(CoreMetrics.NCLOC, 50.0)));
+      Arrays.<Measure>asList(new Measure(CoreMetrics.NCLOC, 100.0), new Measure(CoreMetrics.NCLOC, 50.0)));
 
     Measure measure = new SumChildValuesFormula(true).calculate(data, context);
 
-    assertThat(measure.getMetric(), is(CoreMetrics.NCLOC));
-    assertThat(measure.getValue(), is(150.0));
+    assertThat(measure.getMetric()).isEqualTo(CoreMetrics.NCLOC);
+    assertThat(measure.getValue()).isEqualTo(150.0);
   }
 
   @Test
@@ -59,7 +58,7 @@ public class SumChildValuesFormulaTest {
 
     Measure measure = new SumChildValuesFormula(false).calculate(data, context);
 
-    assertThat(measure, nullValue());
+    assertThat(measure).isNull();
   }
 
   @Test
@@ -69,7 +68,7 @@ public class SumChildValuesFormulaTest {
 
     Measure measure = new SumChildValuesFormula(true).calculate(data, context);
 
-    assertThat(measure.getMetric(), is(CoreMetrics.NCLOC));
-    assertThat(measure.getValue(), is(0.0));
+    assertThat(measure.getMetric()).isEqualTo(CoreMetrics.NCLOC);
+    assertThat(measure.getValue()).isEqualTo(0.0);
   }
 }

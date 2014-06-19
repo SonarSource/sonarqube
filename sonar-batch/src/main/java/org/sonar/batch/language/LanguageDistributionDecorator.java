@@ -20,7 +20,6 @@
 
 package org.sonar.batch.language;
 
-import com.google.common.collect.ImmutableList;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependedUpon;
@@ -34,8 +33,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 
-import java.util.List;
-
 public class LanguageDistributionDecorator implements Decorator {
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -43,15 +40,13 @@ public class LanguageDistributionDecorator implements Decorator {
   }
 
   @DependsUpon
-  public List<Metric> dependsUponMetrics() {
-    return ImmutableList.<Metric>of(CoreMetrics.LINES);
+  public Metric dependsUponMetric() {
+    return CoreMetrics.LINES;
   }
 
   @DependedUpon
-  public List<Metric> generatesMetrics() {
-    return ImmutableList.of(
-      CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION
-      );
+  public Metric generatesMetric() {
+    return CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION;
   }
 
   public void decorate(Resource resource, DecoratorContext context) {

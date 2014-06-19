@@ -43,16 +43,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-@Properties(
-  @Property(
-    key = CoreProperties.CORE_RULE_WEIGHTS_PROPERTY,
-    defaultValue = CoreProperties.CORE_RULE_WEIGHTS_DEFAULT_VALUE,
-    name = "Rules weight",
-    description = "A weight is associated to each severity to emphasize the most critical issues.",
-    project = false,
-    global = true,
-    category = CoreProperties.CATEGORY_GENERAL)
-)
+@Properties(@Property(
+  key = CoreProperties.CORE_RULE_WEIGHTS_PROPERTY,
+  defaultValue = CoreProperties.CORE_RULE_WEIGHTS_DEFAULT_VALUE,
+  name = "Rules weight",
+  description = "A weight is associated to each severity to emphasize the most critical issues.",
+  project = false,
+  global = true,
+  category = CoreProperties.CATEGORY_GENERAL))
 public class WeightedIssuesDecorator implements Decorator {
 
   private Settings settings;
@@ -64,7 +62,7 @@ public class WeightedIssuesDecorator implements Decorator {
 
   @DependsUpon
   public List<Metric> dependsUponIssues() {
-    return Arrays.asList(CoreMetrics.BLOCKER_VIOLATIONS, CoreMetrics.CRITICAL_VIOLATIONS,
+    return Arrays.<Metric>asList(CoreMetrics.BLOCKER_VIOLATIONS, CoreMetrics.CRITICAL_VIOLATIONS,
       CoreMetrics.MAJOR_VIOLATIONS, CoreMetrics.MINOR_VIOLATIONS, CoreMetrics.INFO_VIOLATIONS);
   }
 

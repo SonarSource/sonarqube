@@ -85,7 +85,7 @@ public final class DebtDecorator implements Decorator {
 
   @DependedUpon
   public List<Metric> generatesMetrics() {
-    return Arrays.asList(CoreMetrics.TECHNICAL_DEBT);
+    return Arrays.<Metric>asList(CoreMetrics.TECHNICAL_DEBT);
   }
 
   public void decorate(Resource resource, DecoratorContext context) {

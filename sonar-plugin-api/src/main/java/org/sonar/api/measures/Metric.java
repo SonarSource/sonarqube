@@ -69,7 +69,7 @@ public class Metric<G extends Serializable> implements ServerExtension, BatchExt
     STRING(String.class),
     MILLISEC(Integer.class),
     DATA(String.class),
-    LEVEL(String.class),
+    LEVEL(Metric.Level.class),
     DISTRIB(String.class),
     RATING(String.class),
     WORK_DUR(Long.class);
