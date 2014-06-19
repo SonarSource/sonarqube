@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.api.batch.measure.Metric;
-
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.analyzer.AnalyzerContext;
 import org.sonar.api.batch.analyzer.issue.AnalyzerIssue;
@@ -31,16 +29,19 @@ import org.sonar.api.batch.analyzer.measure.AnalyzerMeasureBuilder;
 import org.sonar.api.batch.analyzer.measure.internal.DefaultAnalyzerMeasureBuilder;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issuable;
+import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.core.issue.DefaultIssueBuilder;
 
 import java.io.Serializable;
 
@@ -194,12 +195,18 @@ public class AnalyzerContextAdaptor implements AnalyzerContext {
       r = project;
     }
     Issuable issuable = perspectives.as(Issuable.class, r);
-    issuable.addIssue(issuable.newIssueBuilder()
+    issuable.addIssue(toDefaultIssue(project.getKey(), r.getKey(), issue));
+  }
+
+  public static DefaultIssue toDefaultIssue(String projectKey, String componentKey, AnalyzerIssue issue) {
+    return new DefaultIssueBuilder()
+      .componentKey(componentKey)
+      .projectKey(projectKey)
       .ruleKey(RuleKey.of(issue.ruleKey().repository(), issue.ruleKey().rule()))
       .effortToFix(issue.effortToFix())
       .line(issue.line())
       .message(issue.message())
-      .build());
+      .build();
   }
 
 }

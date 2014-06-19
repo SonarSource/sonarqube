@@ -78,8 +78,8 @@ public class ModuleScanContainer extends ComponentContainer {
       ModuleSettings.class,
 
       EventBus.class,
-      Phase2Executor.class,
-      Phase2Executor.getPhaseClasses(),
+      ModuleScanExecutor.class,
+      ModuleScanExecutor.getPhaseClasses(),
       moduleDefinition.getContainerExtensions(),
       AnalyzersExecutor.class,
 
@@ -133,7 +133,7 @@ public class ModuleScanContainer extends ComponentContainer {
 
   @Override
   protected void doAfterStart() {
-    getComponentByType(Phase2Executor.class).execute(moduleDefinition);
+    getComponentByType(ModuleScanExecutor.class).execute(moduleDefinition);
   }
 
 }

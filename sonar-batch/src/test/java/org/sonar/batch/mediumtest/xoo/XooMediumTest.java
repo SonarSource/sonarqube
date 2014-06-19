@@ -66,6 +66,20 @@ public class XooMediumTest {
   }
 
   @Test
+  public void testIssueExclusion() throws Exception {
+    File projectDir = new File(XooMediumTest.class.getResource("/org/sonar/batch/mediumtest/xoo/sample").toURI());
+
+    TaskResult result = tester
+      .newScanTask(new File(projectDir, "sonar-project.properties"))
+      .property("sonar.issue.ignore.allfile", "1")
+      .property("sonar.issue.ignore.allfile.1.fileRegexp", "object")
+      .start();
+
+    assertThat(result.measures()).hasSize(13);
+    assertThat(result.issues()).hasSize(19);
+  }
+
+  @Test
   public void mediumTest() throws IOException {
 
     File baseDir = temp.newFolder();

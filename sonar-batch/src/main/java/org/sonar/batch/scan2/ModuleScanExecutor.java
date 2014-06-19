@@ -33,9 +33,9 @@ import org.sonar.batch.scan.filesystem.FileSystemLogger;
 
 import java.util.Collection;
 
-public final class Phase2Executor {
+public final class ModuleScanExecutor {
 
-  public static final Logger LOGGER = LoggerFactory.getLogger(Phase2Executor.class);
+  public static final Logger LOGGER = LoggerFactory.getLogger(ModuleScanExecutor.class);
 
   private final AnalyzersExecutor analyzersExecutor;
   private final AnalyzerContext analyzerContext;
@@ -44,7 +44,7 @@ public final class Phase2Executor {
   private final QProfileVerifier profileVerifier;
   private final IssueExclusionsLoader issueExclusionsLoader;
 
-  public Phase2Executor(AnalyzersExecutor analyzersExecutor,
+  public ModuleScanExecutor(AnalyzersExecutor analyzersExecutor,
     AnalyzerContext analyzerContext,
     FileSystemLogger fsLogger, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
     IssueExclusionsLoader issueExclusionsLoader) {

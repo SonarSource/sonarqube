@@ -106,6 +106,7 @@ public class ProjectScanContainer extends ComponentContainer {
   protected void doAfterStart() {
     ProjectReactor tree = getComponentByType(ProjectReactor.class);
     scanRecursively(tree.getRoot());
+
     getComponentByType(ScanTaskObservers.class).notifyEndOfScanTask();
   }
 

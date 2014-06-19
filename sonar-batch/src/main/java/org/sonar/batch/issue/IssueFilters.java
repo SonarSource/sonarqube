@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.issue;
 
-import org.sonar.api.BatchExtension;
+import org.sonar.api.BatchComponent;
 import org.sonar.api.issue.batch.IssueFilter;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.rules.Violation;
@@ -27,14 +27,15 @@ import org.sonar.batch.ViolationFilters;
 
 import javax.annotation.Nullable;
 
-public class IssueFilters implements BatchExtension {
+public class IssueFilters implements BatchComponent {
 
   private final ViolationFilters deprecatedFilters;
   private final DeprecatedViolations deprecatedViolations;
   private final org.sonar.api.issue.IssueFilter[] exclusionFilters;
   private final IssueFilter[] filters;
 
-  public IssueFilters(@Nullable ViolationFilters deprecatedFilters, @Nullable DeprecatedViolations deprecatedViolations, org.sonar.api.issue.IssueFilter[] exclusionFilters, IssueFilter[] filters) {
+  public IssueFilters(@Nullable ViolationFilters deprecatedFilters, @Nullable DeprecatedViolations deprecatedViolations, org.sonar.api.issue.IssueFilter[] exclusionFilters,
+    IssueFilter[] filters) {
     this.deprecatedFilters = deprecatedFilters;
     this.deprecatedViolations = deprecatedViolations;
     this.exclusionFilters = exclusionFilters;
