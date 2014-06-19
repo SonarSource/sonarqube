@@ -21,6 +21,7 @@ package org.sonar.server.activity;
 
 
 import com.google.common.collect.ImmutableMap;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.collect.Iterables;
 import org.junit.After;
 import org.junit.Before;
@@ -34,6 +35,7 @@ import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.activity.index.ActivityQuery;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.Iterator;
@@ -119,7 +121,10 @@ public class ActivityBackendMediumTest {
 
     // 2. assert scrollable
     int count = 0;
-    Iterator<Activity> logs = index.search(new ActivityQuery(), new QueryOptions().setScroll(true)).scroll();
+
+    SearchResponse result = index.search(new ActivityQuery(), new QueryOptions().setScroll(true));
+    Iterator<Activity> logs = new Result<Activity>(index, result).scroll();
+
     while (logs.hasNext()) {
       logs.next();
       count++;

@@ -21,6 +21,7 @@ package org.sonar.server.activity;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.collect.Iterables;
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -85,9 +86,10 @@ public class ActivityServiceMediumTest {
     dbSession.commit();
     assertThat(index.findAll().getTotal()).isEqualTo(1);
 
-    Result<Activity> result = index.search(service.newActivityQuery(), new QueryOptions());
-    assertThat(result.getTotal()).isEqualTo(1L);
-    assertThat(result.getHits().get(0).message()).isEqualTo(testValue);
+    SearchResponse result = index.search(service.newActivityQuery(), new QueryOptions());
+    assertThat(result.getHits().getTotalHits()).isEqualTo(1L);
+    Result<Activity> activityResult = new Result<Activity>(index, result);
+    assertThat(activityResult.getHits().get(0).message()).isEqualTo(testValue);
   }
 
 
@@ -98,9 +100,10 @@ public class ActivityServiceMediumTest {
     dbSession.commit();
     assertThat(index.findAll().getTotal()).isEqualTo(1);
 
-    Result<Activity> result = index.search(service.newActivityQuery(), new QueryOptions());
-    assertThat(result.getTotal()).isEqualTo(1L);
-    assertThat(result.getHits().get(0).details().get(test_key)).isEqualTo(test_value);
+    SearchResponse result = index.search(service.newActivityQuery(), new QueryOptions());
+    assertThat(result.getHits().getTotalHits()).isEqualTo(1L);
+    Result<Activity> activityResult = new Result<Activity>(index, result);
+    assertThat(activityResult.getHits().get(0).details().get(test_key)).isEqualTo(test_value);
   }
 
 
@@ -182,11 +185,14 @@ public class ActivityServiceMediumTest {
     // 0. assert Base case
     assertThat(dao.findAll(dbSession)).hasSize(max);
 
-    Result<Activity> result = index.search(service.newActivityQuery(), new QueryOptions().setScroll(true));
-    assertThat(result.getTotal()).isEqualTo(max);
-    assertThat(result.getHits()).hasSize(0);
+    SearchResponse result = index.search(service.newActivityQuery(), new QueryOptions().setScroll(true));
+    assertThat(result.getHits().getTotalHits()).isEqualTo(max);
+    Result<Activity> activityResult = new Result<Activity>(index, result);
+
+    assertThat(activityResult.getTotal()).isEqualTo(max);
+    assertThat(activityResult.getHits()).hasSize(0);
     int count = 0;
-    Iterator<Activity> logIterator = result.scroll();
+    Iterator<Activity> logIterator = activityResult.scroll();
     while (logIterator.hasNext()) {
       count++;
       logIterator.next();

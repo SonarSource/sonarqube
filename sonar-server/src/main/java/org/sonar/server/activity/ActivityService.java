@@ -84,6 +84,8 @@ public class ActivityService {
   }
 
   public Result<Activity> search(ActivityQuery query, QueryOptions options) {
-    return indexClient.get(ActivityIndex.class).search(query, options);
+    ActivityIndex index = indexClient.get(ActivityIndex.class);
+    return
+      new Result<Activity>(index, index.search(query, options));
   }
 }

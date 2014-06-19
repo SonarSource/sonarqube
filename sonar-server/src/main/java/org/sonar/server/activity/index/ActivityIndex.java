@@ -26,6 +26,7 @@ import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.AndFilterBuilder;
+import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.OrFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -92,7 +93,12 @@ public class ActivityIndex extends BaseIndex<Activity, ActivityDto, String> {
       .get());
   }
 
-  public Result<Activity> search(ActivityQuery query, QueryOptions options) {
+  public SearchResponse search(ActivityQuery query, QueryOptions options) {
+    return this.search(query, options, null);
+  }
+
+  public SearchResponse search(ActivityQuery query, QueryOptions options,
+                               FilterBuilder domainFilter) {
 
     // Prepare query
     SearchRequestBuilder esSearch = getClient()
@@ -114,6 +120,11 @@ public class ActivityIndex extends BaseIndex<Activity, ActivityDto, String> {
       .from(query.getSince())
       .to(query.getTo()));
 
+    //Add any additional domain filter
+    if (domainFilter != null) {
+      filter.add(domainFilter);
+    }
+
     esSearch.setQuery(QueryBuilders.filteredQuery(
       QueryBuilders.matchAllQuery(), filter));
 
@@ -122,8 +133,6 @@ public class ActivityIndex extends BaseIndex<Activity, ActivityDto, String> {
       esSearch.setScroll(TimeValue.timeValueMinutes(3));
     }
 
-    SearchResponse esResult = esSearch.get();
-
-    return new Result<Activity>(this, esResult);
+    return esSearch.get();
   }
 }
