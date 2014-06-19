@@ -124,15 +124,17 @@ define [
         .done (r) =>
           customRules.add r.rules
 
-          if customRules.isEmpty() and not @options.app.canWrite
-            @$(@customRulesRegion.el).hide()
-          else
-            @customRulesView = new CodingRulesDetailCustomRulesView
-              app: @options.app
-              collection: customRules
-              templateRule: @model
-            @$(@customRulesRegion.el).html customRulesOriginal
-            @customRulesListRegion.show @customRulesView
+          # Protect against element disappearing due to navigation
+          if @customRulesRegion
+            if customRules.isEmpty() and not @options.app.canWrite
+              @$(@customRulesRegion.el).hide()
+            else
+              @customRulesView = new CodingRulesDetailCustomRulesView
+                app: @options.app
+                collection: customRules
+                templateRule: @model
+              @$(@customRulesRegion.el).html customRulesOriginal
+              @customRulesListRegion.show @customRulesView
 
       else
         @$(@customRulesRegion.el).hide()
