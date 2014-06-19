@@ -20,12 +20,10 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Multimap;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
@@ -151,13 +149,20 @@ public class QProfileServiceMediumTest {
   }
 
   @Test
+  @Ignore
   public void search_qprofile_activity() throws InterruptedException {
-    tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE, "hello world");
-    tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE, "hello world");
-    tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE, "hello world");
+    tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE,
+      ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_PROFILE_1, XOO_RULE_1))
+      .setSeverity(Severity.MAJOR)
+      .setParameter("max", "10")
+    );
     dbSession.commit();
 
     List<QProfileActivity> activities = service.findActivities(new QProfileActivityQuery(), new QueryOptions());
-    assertThat(activities).hasSize(3);
+    assertThat(activities).hasSize(1);
+
+    QProfileActivity activity = activities.get(0);
+    assertThat(activity.ruleKey()).isEqualTo(XOO_RULE_1);
+    assertThat(activity.ruleName()).isEqualTo("Rule name");
   }
 }

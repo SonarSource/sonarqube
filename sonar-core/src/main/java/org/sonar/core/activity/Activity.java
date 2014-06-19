@@ -35,6 +35,8 @@ public interface Activity {
 
   String author();
 
+  String action();
+
   Map<String, String> details();
 
   String message();

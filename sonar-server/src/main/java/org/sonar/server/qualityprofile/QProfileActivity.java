@@ -19,7 +19,10 @@
  */
 package org.sonar.server.qualityprofile;
 
+import com.google.common.collect.ImmutableMap;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.core.activity.Activity;
+import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.server.activity.index.ActivityDoc;
 
 import java.util.Map;
@@ -32,4 +35,33 @@ public class QProfileActivity extends ActivityDoc implements Activity {
   protected QProfileActivity(Map<String, Object> fields) {
     super(fields);
   }
+
+  public QualityProfileKey profileKey(){
+    // TODO
+    return null;
+  }
+
+  public RuleKey ruleKey(){
+    return RuleKey.parse((String) getField("details.ruleKey"));
+  }
+
+  public String ruleName(){
+    // TODO
+    return null;
+  }
+
+  public String authorName(){
+    // TODO
+    return null;
+  }
+
+  public String severity(){
+    return (String) getField("details.severity");
+  }
+
+  public Map<String, String> parameters(){
+    // TODO
+    return ImmutableMap.of();
+  }
+
 }
