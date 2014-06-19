@@ -22,6 +22,7 @@ package org.sonar.server.activity.index;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.core.activity.Activity;
 import org.sonar.server.search.BaseDoc;
+import org.sonar.server.search.IndexUtils;
 
 import java.util.Date;
 import java.util.Map;
@@ -37,27 +38,27 @@ public class ActivityDoc extends BaseDoc implements Activity {
 
   @Override
   public Date time() {
-    return this.getField(ActivityNormalizer.LogFields.CREATED_AT.field());
+    return IndexUtils.parseDateTime((String) getField(ActivityNormalizer.LogFields.CREATED_AT.field()));
   }
 
   @Override
   public String author() {
-    return this.getField(ActivityNormalizer.LogFields.AUTHOR.field());
+    return this.getNullableField(ActivityNormalizer.LogFields.AUTHOR.field());
   }
 
   @Override
   public String action() {
-    return this.getField(ActivityNormalizer.LogFields.ACTION.field());
+    return this.getNullableField(ActivityNormalizer.LogFields.ACTION.field());
   }
 
   @Override
   public Map<String, String> details() {
-    return this.getField(ActivityNormalizer.LogFields.DETAILS.field());
+    return this.getNullableField(ActivityNormalizer.LogFields.DETAILS.field());
   }
 
   @Override
   public String message() {
-    return this.getField(ActivityNormalizer.LogFields.MESSAGE.field());
+    return this.getNullableField(ActivityNormalizer.LogFields.MESSAGE.field());
   }
 
   @Override

@@ -1,0 +1,41 @@
+<div class="page">
+<%= render :partial => 'profiles/tabs', :locals => {:selected_tab=>'changelog'} %>
+
+<div class="tabs-panel marginbottom10">
+  <% if @changes.empty? %>
+    <%= message('quality_profiles.changelog.empty') -%>
+  <% else %>
+    <form class="marginbottom10" method="post" action="<%= ApplicationController.root_context %>/profiles/changelog">
+      <input name="id" type="hidden" value="<%= @profile.id %>"/>
+      <%= message('quality_profiles.changelog_from') -%>
+      <input name="since" type="text" value="<%=  %>"/>
+      <%= message('to').downcase -%>
+      <input name="to" type="text" value="<%=  %>"/>
+      <input type="submit" value="<%= h message('load_verb') -%>" id="submit"/>
+    </form>
+
+    <table id="profile-changelog" class="data width100">
+      <thead>
+        <tr>
+          <th><%= message('date') -%></th>
+          <th><%= message('user') -%></th>
+          <th><%= message('action') -%></th>
+          <th><%= message('rule') -%></th>
+          <th><%= message('parameters') -%></th>
+        </tr>
+      </thead>
+      <%
+        @changes.each do |change|
+      %>
+      <tr class="<%= cycle('even', 'odd') -%>">
+        <td valign="top" width="1%" nowrap><%= change.time().to_s -%></td>
+        <td valign="top" width="1%" nowrap><%= change.author() ? change.author() : 'System' %></td>
+        <td valign="top" width="1%" nowrap><%= change.action() %></td>
+        <td valign="top"><%= change.ruleKey() %></td>
+      </tr>
+      <% end %>
+    </table>
+
+  <% end %>
+</div>
+</div>

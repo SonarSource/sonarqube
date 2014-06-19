@@ -18,6 +18,9 @@
   <li>
     <a href="<%= url_for :controller => 'profiles', :action => 'changelog', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='changelog' -%> id="tab-changelog"><%= message('changelog') -%></a>
   </li>
+  <li>
+    <a href="<%= url_for :controller => 'profiles', :action => 'changelog2', :id => @profile.id -%>" id="tab-changelog">Changelog2</a>
+  </li>
   <% if new_tab %>
   <li>
     <a href="#" class='selected'><%= new_tab -%></a>

@@ -69,7 +69,6 @@
              else %>
              <%= message('quality_profiles.parameter_changed_from_x_to_x', :params => [param_change.name, param_change.old_value, param_change.new_value]) -%>
           <% end %>
-          <%= "<br/>" unless param_change == change.parameters.last %>
         <% end%>
       </td>
     </tr>

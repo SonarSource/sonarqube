@@ -31,7 +31,6 @@ import java.util.Collection;
  */
 public class QProfileActivityQuery extends ActivityQuery {
 
-
   Collection<String> qprofileKeys;
 
   public QProfileActivityQuery() {
@@ -44,7 +43,8 @@ public class QProfileActivityQuery extends ActivityQuery {
     return qprofileKeys;
   }
 
-  public void setQprofileKeys(Collection<String> qprofileKeys) {
+  public QProfileActivityQuery setQprofileKeys(Collection<String> qprofileKeys) {
     this.qprofileKeys = qprofileKeys;
+    return this;
   }
 }

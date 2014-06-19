@@ -285,6 +285,18 @@ class ProfilesController < ApplicationController
     set_profile_breadcrumbs
   end
 
+  # GET /profiles/changelog?id=<profile id>
+  def changelog2
+    require_parameters 'id'
+
+    @profile = Internal.quality_profiles.profile(params[:id].to_i)
+    #search = {'profileKeys' => @profile.key().to_s, 'since' => params[:since], 'to' => params[:to]}
+    # search = {'profileKeys' => @profile.key().to_s}
+    @changes = Internal.component(Java::OrgSonarServerActivity::RubyActivityService.java_class).search({})
+
+    set_profile_breadcrumbs
+  end
+
   #
   #
   # GET /profiles/permalinks?id=<profile id>
