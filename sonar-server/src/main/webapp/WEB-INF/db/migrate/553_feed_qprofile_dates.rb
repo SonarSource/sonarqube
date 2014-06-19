@@ -20,12 +20,11 @@
 
 #
 # SonarQube 4.4
-# SONAR-5218
 #
-class UpdateLogsToActivities < ActiveRecord::Migration
+class FeedQprofileDates < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration('org.sonar.server.db.migrations.v44.ChangeLogMigration')
+    execute_java_migration 'org.sonar.server.db.migrations.v44.FeedQProfileDatesMigration'
   end
 
 end

@@ -1,8 +1,10 @@
 <dataset>
 
-  <rules_profiles id="1" name="New Name" language="js" parent_kee="fghij" kee="java_sonar_way"/>
+  <rules_profiles id="1" name="New Name" language="js" parent_kee="fghij" kee="java_sonar_way"
+                  rules_updated_at="[null]" created_at="[null]" updated_at="[null]"/>
 
-  <rules_profiles id="2" name="Sonar Way" language="js" parent_kee="[null]" kee="js_sonar_way"/>
+  <rules_profiles id="2" name="Sonar Way" language="js" parent_kee="[null]" kee="js_sonar_way"
+                  rules_updated_at="[null]" created_at="[null]" updated_at="[null]"/>
 
 
 </dataset>

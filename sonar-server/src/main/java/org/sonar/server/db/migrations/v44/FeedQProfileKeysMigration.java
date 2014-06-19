@@ -31,15 +31,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * Feed the new columns RULES_PROFILE.KEE and PARENT_KEE.
+ * Feed the new columns RULES_PROFILES.KEE and PARENT_KEE.
  * 
  * @since 4.4
  */
-public class QProfileKeyMigration implements DatabaseMigration {
+public class FeedQProfileKeysMigration implements DatabaseMigration {
 
   private final Database db;
 
-  public QProfileKeyMigration(Database database) {
+  public FeedQProfileKeysMigration(Database database) {
     this.db = database;
   }
 

@@ -30,12 +30,13 @@ public interface Migration44Mapper {
   // migration of measures "profile" and "profile_version"
   List<ProfileMeasure> selectProfileMeasures();
   int selectProfileVersion(long snapshotId);
-  @CheckForNull Date selectProfileVersionDate(@Param("profileId") long profileId, @Param("profileVersion") int profileVersion);
+  @CheckForNull Date selectProfileVersionDate(@Param("profileId") int profileId, @Param("profileVersion") int profileVersion);
   void updateProfileMeasure(@Param("measureId") long measureId, @Param("json") String json);
 
   // creation of columns RULES_PROFILES.CREATED_AT and UPDATED_AT
-  @CheckForNull Date selectProfileCreatedAt(long profileId);
-  @CheckForNull Date selectProfileUpdatedAt(long profileId);
+  @CheckForNull Date selectProfileCreatedAt(int profileId);
+  @CheckForNull Date selectProfileUpdatedAt(int profileId);
+  void updateProfileDates(@Param("profileId") int profileId, @Param("createdAt") Date createdAt, @Param("updatedAt") Date updatedAt);
 
   // migrate changeLog to Activities
   List<ChangeLog> selectActiveRuleChange(@Param("enabled") Boolean enabled);

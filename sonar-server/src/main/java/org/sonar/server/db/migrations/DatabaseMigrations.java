@@ -31,9 +31,10 @@ import org.sonar.server.db.migrations.v43.RequirementMeasuresMigration;
 import org.sonar.server.db.migrations.v43.TechnicalDebtMeasuresMigration;
 import org.sonar.server.db.migrations.v44.ChangeLogMigration;
 import org.sonar.server.db.migrations.v44.ConvertProfileMeasures;
+import org.sonar.server.db.migrations.v44.FeedQProfileDatesMigration;
+import org.sonar.server.db.migrations.v44.FeedQProfileKeysMigration;
 import org.sonar.server.db.migrations.v44.IssueActionPlanKeyMigration;
 import org.sonar.server.db.migrations.v44.MeasureDataMigration;
-import org.sonar.server.db.migrations.v44.QProfileKeyMigration;
 
 import java.util.List;
 
@@ -57,7 +58,8 @@ public interface DatabaseMigrations {
     // 4.4
     IssueActionPlanKeyMigration.class,
     MeasureDataMigration.class,
-    QProfileKeyMigration.class,
+    FeedQProfileKeysMigration.class,
+    FeedQProfileDatesMigration.class,
     ChangeLogMigration.class,
     ConvertProfileMeasures.class
   );

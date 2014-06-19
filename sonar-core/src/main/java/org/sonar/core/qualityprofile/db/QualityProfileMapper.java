@@ -33,7 +33,7 @@ public interface QualityProfileMapper {
 
   void update(QualityProfileDto dto);
 
-  void delete(Integer id);
+  void delete(int id);
 
   List<QualityProfileDto> selectAll();
 

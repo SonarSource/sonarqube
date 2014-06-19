@@ -20,12 +20,13 @@
 
 #
 # SonarQube 4.4
-# SONAR-5218
 #
-class UpdateLogsToActivities < ActiveRecord::Migration
+class AddQprofileDates < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration('org.sonar.server.db.migrations.v44.ChangeLogMigration')
+    add_column :rules_profiles, :rules_updated_at, :datetime, :null => true
+    add_column :rules_profiles, :created_at, :datetime, :null => true
+    add_column :rules_profiles, :updated_at, :datetime, :null => true
   end
 
 end

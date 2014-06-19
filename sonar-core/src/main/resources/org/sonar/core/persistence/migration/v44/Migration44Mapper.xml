@@ -29,15 +29,21 @@
     where id=#{measureId}
   </update>
 
-  <select id="selectProfileUpdateAt" resultType="date" parameterType="long">
+  <select id="selectProfileUpdatedAt" resultType="date" parameterType="int">
     select max(change_date) from active_rule_changes
     where profile_id=#{id}
   </select>
 
-  <select id="selectProfileCreatedAt" resultType="date" parameterType="long">
+  <select id="selectProfileCreatedAt" resultType="date" parameterType="int">
     select min(change_date) from active_rule_changes
     where profile_id=#{id}
   </select>
+
+  <update id="updateProfileDates" parameterType="map">
+    update rules_profiles
+    set created_at=#{createdAt}, updated_at=#{updatedAt}, rules_updated_at=#{updatedAt}
+    where id=#{profileId}
+  </update>
 
   <select id="selectActiveRuleChange" parameterType="Boolean"
           resultType="org.sonar.core.persistence.migration.v44.ChangeLog">

@@ -22,10 +22,10 @@
 # SonarQube 4.4
 # SONAR-5384
 #
-class SetQprofileKeys < ActiveRecord::Migration
+class FeedQprofileKeys < ActiveRecord::Migration
 
   def self.up
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().executeMigration('org.sonar.server.db.migrations.v44.QProfileKeyMigration')
+    execute_java_migration('org.sonar.server.db.migrations.v44.FeedQProfileKeysMigration')
 
     # set as non-null and unique
     change_column :rules_profiles, :kee, :string, :limit => 1000, :null => false

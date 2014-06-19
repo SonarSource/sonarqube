@@ -24,6 +24,7 @@ import org.sonar.core.persistence.Dto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import java.util.Date;
 
 public class QualityProfileDto extends Dto<String> {
 
@@ -32,6 +33,7 @@ public class QualityProfileDto extends Dto<String> {
   private String name;
   private String language;
   private String parentKee;
+  private Date createdAt, updatedAt, rulesUpdatedAt;
 
   /**
    * @deprecated use {@link #createFor(String)}
@@ -94,6 +96,22 @@ public class QualityProfileDto extends Dto<String> {
   public QualityProfileDto setParentKee(@Nullable String s) {
     this.parentKee = s;
     return this;
+  }
+
+  public Date getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(Date createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  public Date getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public void setUpdatedAt(Date updatedAt) {
+    this.updatedAt = updatedAt;
   }
 
   public static QualityProfileDto createFor(String key) {
