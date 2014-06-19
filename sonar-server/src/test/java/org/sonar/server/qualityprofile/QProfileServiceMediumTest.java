@@ -151,10 +151,11 @@ public class QProfileServiceMediumTest {
   }
 
   @Test
-  public void search_qprofile_activity() {
+  public void search_qprofile_activity() throws InterruptedException {
     tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE, "hello world");
     tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE, "hello world");
     tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE, "hello world");
+    dbSession.commit();
 
     List<QProfileActivity> activities = service.findActivities(new QProfileActivityQuery(), new QueryOptions());
     assertThat(activities).hasSize(3);

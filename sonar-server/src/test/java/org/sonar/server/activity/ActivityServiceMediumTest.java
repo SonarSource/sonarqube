@@ -146,6 +146,9 @@ public class ActivityServiceMediumTest {
     DateTime t2 = new DateTime().plusHours(1);
 
 
+    assertThat(service.search(new ActivityQuery(),
+      new QueryOptions()).getHits()).hasSize(3);
+
     assertThat(service.search(new ActivityQuery()
         .setSince(t0.minusSeconds(5).toDate()),
       new QueryOptions()).getHits()).hasSize(3);

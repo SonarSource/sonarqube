@@ -21,6 +21,7 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.OrFilterBuilder;
 import org.elasticsearch.search.SearchHit;
@@ -66,7 +67,7 @@ public class QProfileService implements ServerComponent {
   private final QProfileReset reset;
 
   public QProfileService(DbClient db, IndexClient index, RuleActivator ruleActivator, QProfileFactory factory, QProfileBackuper backuper,
-    QProfileCopier copier, QProfileReset reset) {
+                         QProfileCopier copier, QProfileReset reset) {
     this.db = db;
     this.index = index;
     this.ruleActivator = ruleActivator;
@@ -255,9 +256,10 @@ public class QProfileService implements ServerComponent {
       activityFilter.add(FilterBuilders.termFilter("details.profileKey", profileKey));
     }
 
-    for (SearchHit hit :
-      index.get(ActivityIndex.class).search(query, options, activityFilter).getHits().getHits()) {
+    SearchResponse response = index.get(ActivityIndex.class).search(query, options, activityFilter);
+    for (SearchHit hit : response.getHits().getHits()) {
       QProfileActivity profileActivity = new QProfileActivity(hit.getSource());
+      results.add(profileActivity);
     }
     return results;
   }
