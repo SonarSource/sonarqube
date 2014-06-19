@@ -19,9 +19,10 @@
  */
 package org.sonar.api.batch.analyzer.internal;
 
+import org.sonar.api.batch.measure.Metric;
+
 import org.sonar.api.batch.analyzer.AnalyzerDescriptor;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.measures.Metric;
 
 import java.util.Arrays;
 import java.util.Collection;

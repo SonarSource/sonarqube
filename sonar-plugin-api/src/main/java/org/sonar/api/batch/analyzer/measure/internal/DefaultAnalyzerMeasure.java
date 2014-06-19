@@ -19,10 +19,11 @@
  */
 package org.sonar.api.batch.analyzer.measure.internal;
 
+import org.sonar.api.batch.measure.Metric;
+
 import com.google.common.base.Preconditions;
 import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.measures.Metric;
 
 import javax.annotation.Nullable;
 
@@ -36,7 +37,8 @@ public class DefaultAnalyzerMeasure<G extends Serializable> implements AnalyzerM
 
   DefaultAnalyzerMeasure(DefaultAnalyzerMeasureBuilder<G> builder) {
     Preconditions.checkNotNull(builder.value, "Measure value can't be null");
-    Preconditions.checkNotNull(builder.metric, "Measure metricKey can't be null");
+    Preconditions.checkNotNull(builder.metric, "Measure metric can't be null");
+    Preconditions.checkState(builder.metric.valueType().equals(builder.value.getClass()), "Measure value should be of type " + builder.metric.valueType());
     this.inputFile = builder.file;
     this.metric = builder.metric;
     this.value = builder.value;

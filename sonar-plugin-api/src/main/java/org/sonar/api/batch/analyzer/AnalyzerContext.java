@@ -19,13 +19,15 @@
  */
 package org.sonar.api.batch.analyzer;
 
+import org.sonar.api.batch.measure.Metric;
+
+import com.google.common.annotations.Beta;
 import org.sonar.api.batch.analyzer.issue.AnalyzerIssue;
 import org.sonar.api.batch.analyzer.issue.AnalyzerIssueBuilder;
 import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
 import org.sonar.api.batch.analyzer.measure.AnalyzerMeasureBuilder;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.measures.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.config.Settings;
 
@@ -36,6 +38,7 @@ import java.io.Serializable;
 /**
  * @since 4.4
  */
+@Beta
 public interface AnalyzerContext {
 
   /**

@@ -46,7 +46,7 @@ import java.io.Serializable;
 @Table(name = "metrics")
 @Entity(name = "Metric")
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public class Metric<G extends Serializable> implements ServerExtension, BatchExtension, Serializable, org.sonar.api.batch.measures.Metric<G> {
+public class Metric<G extends Serializable> implements ServerExtension, BatchExtension, Serializable, org.sonar.api.batch.measure.Metric<G> {
 
   /**
    * A metric bigger value means a degradation
@@ -74,14 +74,14 @@ public class Metric<G extends Serializable> implements ServerExtension, BatchExt
     RATING(String.class),
     WORK_DUR(Long.class);
 
-    private final Class measureJavaType;
+    private final Class valueType;
 
     private ValueType(Class measureJavaType) {
-      this.measureJavaType = measureJavaType;
+      this.valueType = measureJavaType;
     }
 
-    private Class measureJavaType() {
-      return measureJavaType;
+    private Class valueType() {
+      return valueType;
     }
 
   }
@@ -802,7 +802,7 @@ public class Metric<G extends Serializable> implements ServerExtension, BatchExt
   }
 
   @Override
-  public Class<G> type() {
-    return getType().measureJavaType();
+  public Class<G> valueType() {
+    return getType().valueType();
   }
 }

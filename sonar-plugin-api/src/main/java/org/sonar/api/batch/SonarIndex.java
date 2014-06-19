@@ -120,7 +120,7 @@ public abstract class SonarIndex implements DirectedGraphAccessor<Resource, Depe
   public abstract Resource addResource(Resource resource);
 
   @CheckForNull
-  public abstract Measure getMeasure(Resource resource, org.sonar.api.batch.measures.Metric<?> metric);
+  public abstract Measure getMeasure(Resource resource, org.sonar.api.batch.measure.Metric<?> metric);
 
   @CheckForNull
   public abstract <M> M getMeasures(Resource resource, MeasuresFilter<M> filter);

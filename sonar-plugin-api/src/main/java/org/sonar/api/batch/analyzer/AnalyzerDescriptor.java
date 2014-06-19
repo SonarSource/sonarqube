@@ -19,15 +19,17 @@
  */
 package org.sonar.api.batch.analyzer;
 
+import org.sonar.api.batch.measure.Metric;
+
+import com.google.common.annotations.Beta;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.languages.Language;
-import org.sonar.api.batch.measures.Metric;
 
 /**
  * Describe what an {@link Analyzer} is doing. Information may be used by the platform
  * to log interesting information or perform some optimization.
  * @since 4.4
  */
+@Beta
 public interface AnalyzerDescriptor {
 
   /**
@@ -46,7 +48,7 @@ public interface AnalyzerDescriptor {
   AnalyzerDescriptor provides(Metric<?>... metrics);
 
   /**
-   * List {@link Language} this {@link Analyzer} work on. May be used by the platform to skip execution of the {@link Analyzer} when
+   * List languages this {@link Analyzer} work on. May be used by the platform to skip execution of the {@link Analyzer} when
    * no file for given languages are present in the project.
    * If no language is provided then it will be executed for all languages.
    */

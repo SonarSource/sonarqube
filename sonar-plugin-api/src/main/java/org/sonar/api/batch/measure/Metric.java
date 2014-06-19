@@ -17,5 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.api.batch.measures;
+package org.sonar.api.batch.measure;
+
+import com.google.common.annotations.Beta;
+
+import java.io.Serializable;
+
+/**
+ * Metric definition.
+ * @since 4.4
+ */
+@Beta
+public interface Metric<G extends Serializable> {
+
+  String key();
+
+  Class<G> valueType();
+
+}

@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.scan2;
 
+import org.sonar.api.batch.measure.Metric;
+
 import org.sonar.api.batch.analyzer.AnalyzerContext;
 import org.sonar.api.batch.analyzer.issue.AnalyzerIssue;
 import org.sonar.api.batch.analyzer.issue.AnalyzerIssueBuilder;
@@ -30,7 +32,6 @@ import org.sonar.api.batch.analyzer.measure.internal.DefaultAnalyzerMeasureBuild
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.measures.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.internal.DefaultIssue;

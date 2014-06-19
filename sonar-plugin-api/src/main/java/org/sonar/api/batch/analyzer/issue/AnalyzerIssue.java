@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.analyzer.issue;
 
+import com.google.common.annotations.Beta;
 import org.sonar.api.batch.analyzer.Analyzer;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.rule.RuleKey;
@@ -30,6 +31,7 @@ import javax.annotation.Nullable;
  *
  * @since 4.4
  */
+@Beta
 public interface AnalyzerIssue {
 
   /**

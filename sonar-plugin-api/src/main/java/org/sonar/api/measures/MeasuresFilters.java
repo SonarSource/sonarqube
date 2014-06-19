@@ -51,7 +51,7 @@ public final class MeasuresFilters {
     };
   }
 
-  public static MeasuresFilter<Measure> metric(final org.sonar.api.batch.measures.Metric<?> metric) {
+  public static MeasuresFilter<Measure> metric(final org.sonar.api.batch.measure.Metric<?> metric) {
     return metric(metric.key());
   }
 

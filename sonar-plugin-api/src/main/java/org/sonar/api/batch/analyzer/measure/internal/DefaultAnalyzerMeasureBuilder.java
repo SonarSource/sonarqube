@@ -19,11 +19,12 @@
  */
 package org.sonar.api.batch.analyzer.measure.internal;
 
+import org.sonar.api.batch.measure.Metric;
+
 import com.google.common.base.Preconditions;
 import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
 import org.sonar.api.batch.analyzer.measure.AnalyzerMeasureBuilder;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.measures.Metric;
 
 import java.io.Serializable;
 

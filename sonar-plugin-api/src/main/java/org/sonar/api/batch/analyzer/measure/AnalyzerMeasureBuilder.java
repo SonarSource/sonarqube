@@ -19,8 +19,10 @@
  */
 package org.sonar.api.batch.analyzer.measure;
 
+import org.sonar.api.batch.measure.Metric;
+
+import com.google.common.annotations.Beta;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.measures.Metric;
 
 import java.io.Serializable;
 
@@ -28,6 +30,7 @@ import java.io.Serializable;
  * Builder to create new {@link AnalyzerMeasure}
  * @since 4.4
  */
+@Beta
 public interface AnalyzerMeasureBuilder<G extends Serializable> {
 
   /**

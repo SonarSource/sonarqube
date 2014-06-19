@@ -19,9 +19,11 @@
  */
 package org.sonar.api.batch.analyzer.measure;
 
+import org.sonar.api.batch.measure.Metric;
+
+import com.google.common.annotations.Beta;
 import org.sonar.api.batch.analyzer.Analyzer;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.measures.Metric;
 
 import javax.annotation.Nullable;
 
@@ -31,6 +33,7 @@ import java.io.Serializable;
  * A measure computed by an {@link Analyzer}.
  * @since 4.4
  */
+@Beta
 public interface AnalyzerMeasure<G extends Serializable> {
 
   /**
