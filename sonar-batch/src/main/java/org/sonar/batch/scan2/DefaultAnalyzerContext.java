@@ -19,11 +19,10 @@
  */
 package org.sonar.batch.scan2;
 
-import org.sonar.api.batch.measure.Metric;
-
 import org.sonar.api.batch.analyzer.AnalyzerContext;
 import org.sonar.api.batch.analyzer.issue.AnalyzerIssue;
 import org.sonar.api.batch.analyzer.issue.AnalyzerIssueBuilder;
+import org.sonar.api.batch.analyzer.issue.internal.DefaultAnalyzerIssue;
 import org.sonar.api.batch.analyzer.issue.internal.DefaultAnalyzerIssueBuilder;
 import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
 import org.sonar.api.batch.analyzer.measure.AnalyzerMeasureBuilder;
@@ -32,30 +31,27 @@ import org.sonar.api.batch.analyzer.measure.internal.DefaultAnalyzerMeasureBuild
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.config.Settings;
-import org.sonar.api.issue.internal.DefaultIssue;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.batch.issue.ModuleIssues;
 import org.sonar.core.component.ComponentKeys;
-import org.sonar.core.issue.DefaultIssueBuilder;
 
 import java.io.Serializable;
 
 public class DefaultAnalyzerContext implements AnalyzerContext {
 
   private final AnalyzerMeasureCache measureCache;
+  private final AnalyzerIssueCache issueCache;
   private ProjectDefinition def;
-  private ModuleIssues moduleIssues;
   private Settings settings;
   private FileSystem fs;
   private ActiveRules activeRules;
 
-  public DefaultAnalyzerContext(ProjectDefinition def, AnalyzerMeasureCache measureCache,
-    ModuleIssues moduleIssues, Settings settings, FileSystem fs, ActiveRules activeRules) {
+  public DefaultAnalyzerContext(ProjectDefinition def, AnalyzerMeasureCache measureCache, AnalyzerIssueCache issueCache,
+    Settings settings, FileSystem fs, ActiveRules activeRules) {
     this.def = def;
     this.measureCache = measureCache;
-    this.moduleIssues = moduleIssues;
+    this.issueCache = issueCache;
     this.settings = settings;
     this.fs = fs;
     this.activeRules = activeRules;
@@ -117,20 +113,14 @@ public class DefaultAnalyzerContext implements AnalyzerContext {
 
   @Override
   public void addIssue(AnalyzerIssue issue) {
-    DefaultIssueBuilder builder = new DefaultIssueBuilder()
-      .projectKey(def.getKey());
+    String resourceKey;
     if (issue.inputFile() != null) {
-      builder.componentKey(ComponentKeys.createEffectiveKey(def.getKey(), issue.inputFile()));
+      resourceKey = ComponentKeys.createEffectiveKey(def.getKey(), issue.inputFile());
     } else {
-      builder.componentKey(def.getKey());
+      resourceKey = def.getKey();
     }
 
-    moduleIssues.initAndAddIssue((DefaultIssue) builder
-      .ruleKey(RuleKey.of(issue.ruleKey().repository(), issue.ruleKey().rule()))
-      .message(issue.message())
-      .line(issue.line())
-      .effortToFix(issue.effortToFix())
-      .build());
+    issueCache.put(resourceKey, (DefaultAnalyzerIssue) issue);
   }
 
 }

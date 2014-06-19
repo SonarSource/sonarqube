@@ -17,36 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.rule.internal;
+package org.sonar.batch.mediumtest.xoo.plugin;
 
-import com.google.common.collect.Maps;
-import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.rule.RuleKey;
+import org.sonar.api.SonarPlugin;
+import org.sonar.batch.mediumtest.xoo.plugin.base.Xoo;
+import org.sonar.batch.mediumtest.xoo.plugin.lang.MeasureAnalyzer;
+import org.sonar.batch.mediumtest.xoo.plugin.rule.OneIssuePerLineAnalyzer;
 
-import java.util.Map;
+import java.util.Arrays;
+import java.util.List;
 
-/**
- * Builds instances of {@link org.sonar.api.batch.rule.ActiveRules}.
- * <b>For unit testing and internal use only</b>.
- *
- * @since 4.2
- */
-public class ActiveRulesBuilder {
+public final class XooPlugin extends SonarPlugin {
 
-  private final Map<RuleKey, NewActiveRule> map = Maps.newHashMap();
+  @Override
+  public List getExtensions() {
+    return Arrays.asList(
+      // language
+      MeasureAnalyzer.class,
+      Xoo.class,
 
-  public NewActiveRule create(RuleKey ruleKey) {
-    return new NewActiveRule(this, ruleKey);
-  }
-
-  void activate(NewActiveRule newActiveRule) {
-    if (map.containsKey(newActiveRule.ruleKey)) {
-      throw new IllegalStateException(String.format("Rule '%s' is already activated", newActiveRule.ruleKey));
-    }
-    map.put(newActiveRule.ruleKey, newActiveRule);
-  }
-
-  public ActiveRules build() {
-    return new DefaultActiveRules(map.values());
+      // rules
+      OneIssuePerLineAnalyzer.class
+      );
   }
 }

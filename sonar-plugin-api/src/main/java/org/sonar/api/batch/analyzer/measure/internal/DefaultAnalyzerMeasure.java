@@ -19,11 +19,14 @@
  */
 package org.sonar.api.batch.analyzer.measure.internal;
 
-import org.sonar.api.batch.measure.Metric;
-
 import com.google.common.base.Preconditions;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.measure.Metric;
 
 import javax.annotation.Nullable;
 
@@ -62,26 +65,35 @@ public class DefaultAnalyzerMeasure<G extends Serializable> implements AnalyzerM
 
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof DefaultAnalyzerMeasure)) {
+    if (obj == null) {
       return false;
     }
-    DefaultAnalyzerMeasure<?> other = (DefaultAnalyzerMeasure<?>) obj;
-    return metric.equals(other.metric)
-      && value.equals(other.value)
-      && (inputFile == null ? other.inputFile == null : inputFile.equals(other.inputFile));
+    if (obj == this) {
+      return true;
+    }
+    if (obj.getClass() != getClass()) {
+      return false;
+    }
+    DefaultAnalyzerMeasure rhs = (DefaultAnalyzerMeasure) obj;
+    return new EqualsBuilder()
+      .append(inputFile, rhs.inputFile)
+      .append(metric, rhs.metric)
+      .append(value, rhs.value)
+      .isEquals();
   }
 
   @Override
   public int hashCode() {
-    return metric.hashCode()
-      + value.hashCode()
-      + (inputFile != null ? inputFile.hashCode() : 0);
+    return new HashCodeBuilder(27, 45).
+      append(inputFile).
+      append(metric).
+      append(value).
+      toHashCode();
   }
 
   @Override
   public String toString() {
-    return "AnalyzerMeasure[" + (inputFile != null ? "inputFile=" + inputFile.toString() : "onProject")
-      + ",metric=" + metric + ",value=" + value + "]";
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
 }

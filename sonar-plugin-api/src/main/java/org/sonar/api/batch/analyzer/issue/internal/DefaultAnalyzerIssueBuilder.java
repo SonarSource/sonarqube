@@ -29,6 +29,7 @@ import javax.annotation.Nullable;
 
 public class DefaultAnalyzerIssueBuilder implements AnalyzerIssueBuilder {
 
+  String key;
   Boolean onProject = null;
   InputFile file;
   RuleKey ruleKey;
@@ -77,6 +78,14 @@ public class DefaultAnalyzerIssueBuilder implements AnalyzerIssueBuilder {
   @Override
   public DefaultAnalyzerIssueBuilder message(String message) {
     this.message = message;
+    return this;
+  }
+
+  /**
+   * For testing only.
+   */
+  public DefaultAnalyzerIssueBuilder withKey(String key) {
+    this.key = key;
     return this;
   }
 

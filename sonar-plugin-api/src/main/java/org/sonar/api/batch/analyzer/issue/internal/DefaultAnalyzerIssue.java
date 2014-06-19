@@ -20,6 +20,9 @@
 package org.sonar.api.batch.analyzer.issue.internal;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.batch.analyzer.issue.AnalyzerIssue;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.rule.RuleKey;
@@ -27,9 +30,11 @@ import org.sonar.api.rule.RuleKey;
 import javax.annotation.Nullable;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 public class DefaultAnalyzerIssue implements AnalyzerIssue, Serializable {
 
+  private final String key;
   private final InputFile inputFile;
   private final RuleKey ruleKey;
   private final String message;
@@ -43,6 +48,12 @@ public class DefaultAnalyzerIssue implements AnalyzerIssue, Serializable {
     this.message = builder.message;
     this.line = builder.line;
     this.effortToFix = builder.effortToFix;
+    this.key = builder.key == null ? UUID.randomUUID().toString() : builder.key;
+    Preconditions.checkState(!Strings.isNullOrEmpty(key), "Fail to generate issue key");
+  }
+
+  public String key() {
+    return key;
   }
 
   @Override
@@ -70,6 +81,28 @@ public class DefaultAnalyzerIssue implements AnalyzerIssue, Serializable {
   @Nullable
   public Double effortToFix() {
     return effortToFix;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    DefaultAnalyzerIssue that = (DefaultAnalyzerIssue) o;
+    return !key.equals(that.key);
+  }
+
+  @Override
+  public int hashCode() {
+    return key.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
 }

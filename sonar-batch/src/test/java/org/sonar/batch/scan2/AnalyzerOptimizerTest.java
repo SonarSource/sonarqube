@@ -98,18 +98,18 @@ public class AnalyzerOptimizerTest {
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
 
     ActiveRules activeRules = new ActiveRulesBuilder()
-      .activate(RuleKey.of("repo1", "foo"))
-      .end()
+      .create(RuleKey.of("repo1", "foo"))
+      .activate()
       .build();
     optimizer = new AnalyzerOptimizer(fs, activeRules);
 
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
 
     activeRules = new ActiveRulesBuilder()
-      .activate(RuleKey.of("repo1", "foo"))
-      .end()
-      .activate(RuleKey.of("squid", "rule"))
-      .end()
+      .create(RuleKey.of("repo1", "foo"))
+      .activate()
+      .create(RuleKey.of("squid", "rule"))
+      .activate()
       .build();
     optimizer = new AnalyzerOptimizer(fs, activeRules);
     assertThat(optimizer.shouldExecute(descriptor)).isTrue();

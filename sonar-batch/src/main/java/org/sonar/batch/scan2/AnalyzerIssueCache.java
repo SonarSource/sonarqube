@@ -17,36 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.rule.internal;
+package org.sonar.batch.scan2;
 
-import com.google.common.collect.Maps;
-import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.rule.RuleKey;
-
-import java.util.Map;
+import org.sonar.api.BatchComponent;
+import org.sonar.api.batch.analyzer.issue.internal.DefaultAnalyzerIssue;
+import org.sonar.batch.index.Cache;
+import org.sonar.batch.index.Caches;
 
 /**
- * Builds instances of {@link org.sonar.api.batch.rule.ActiveRules}.
- * <b>For unit testing and internal use only</b>.
- *
- * @since 4.2
+ * Shared issues among all project modules
  */
-public class ActiveRulesBuilder {
+public class AnalyzerIssueCache implements BatchComponent {
 
-  private final Map<RuleKey, NewActiveRule> map = Maps.newHashMap();
+  // component key -> issue key -> issue
+  private final Cache<DefaultAnalyzerIssue> cache;
 
-  public NewActiveRule create(RuleKey ruleKey) {
-    return new NewActiveRule(this, ruleKey);
+  public AnalyzerIssueCache(Caches caches) {
+    cache = caches.createCache("issues");
   }
 
-  void activate(NewActiveRule newActiveRule) {
-    if (map.containsKey(newActiveRule.ruleKey)) {
-      throw new IllegalStateException(String.format("Rule '%s' is already activated", newActiveRule.ruleKey));
-    }
-    map.put(newActiveRule.ruleKey, newActiveRule);
+  public Iterable<DefaultAnalyzerIssue> byComponent(String resourceKey) {
+    return cache.values(resourceKey);
   }
 
-  public ActiveRules build() {
-    return new DefaultActiveRules(map.values());
+  public Iterable<DefaultAnalyzerIssue> all() {
+    return cache.values();
   }
+
+  public AnalyzerIssueCache put(String resourceKey, DefaultAnalyzerIssue issue) {
+    cache.put(resourceKey, issue.key(), issue);
+    return this;
+  }
+
 }

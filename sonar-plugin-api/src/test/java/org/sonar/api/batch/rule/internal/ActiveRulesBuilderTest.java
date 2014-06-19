@@ -39,14 +39,14 @@ public class ActiveRulesBuilderTest {
   @Test
   public void build_rules() throws Exception {
     ActiveRules activeRules = new ActiveRulesBuilder()
-      .activate(RuleKey.of("squid", "S0001"))
+      .create(RuleKey.of("squid", "S0001"))
       .setSeverity(Severity.CRITICAL)
       .setInternalKey("__S0001__")
       .setParam("min", "20")
-      .end()
+      .activate()
       // most simple rule
-      .activate(RuleKey.of("squid", "S0002")).end()
-      .activate(RuleKey.of("findbugs", "NPE")).setInternalKey(null).setSeverity(null).setParam("foo", null).end()
+      .create(RuleKey.of("squid", "S0002")).activate()
+      .create(RuleKey.of("findbugs", "NPE")).setInternalKey(null).setSeverity(null).setParam("foo", null).activate()
       .build();
 
     assertThat(activeRules.findAll()).hasSize(3);
@@ -77,9 +77,9 @@ public class ActiveRulesBuilderTest {
   @Test
   public void fail_to_add_twice_the_same_rule() throws Exception {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
-    builder.activate(RuleKey.of("squid", "S0001"));
+    builder.create(RuleKey.of("squid", "S0001")).activate();
     try {
-      builder.activate(RuleKey.of("squid", "S0001"));
+      builder.create(RuleKey.of("squid", "S0001")).activate();
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Rule 'squid:S0001' is already activated");

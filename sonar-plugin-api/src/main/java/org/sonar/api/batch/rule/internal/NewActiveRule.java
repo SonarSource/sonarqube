@@ -72,7 +72,8 @@ public class NewActiveRule {
     return params;
   }
 
-  public ActiveRulesBuilder end() {
+  public ActiveRulesBuilder activate() {
+    builder.activate(this);
     return builder;
   }
 }

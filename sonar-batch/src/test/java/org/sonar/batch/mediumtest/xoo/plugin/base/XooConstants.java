@@ -17,36 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.rule.internal;
+package org.sonar.batch.mediumtest.xoo.plugin.base;
 
-import com.google.common.collect.Maps;
-import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.rule.RuleKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Map;
+public interface XooConstants {
 
-/**
- * Builds instances of {@link org.sonar.api.batch.rule.ActiveRules}.
- * <b>For unit testing and internal use only</b>.
- *
- * @since 4.2
- */
-public class ActiveRulesBuilder {
+  String PLUGIN_KEY = "xoo";
+  String PLUGIN_NAME = "Xoo";
 
-  private final Map<RuleKey, NewActiveRule> map = Maps.newHashMap();
+  String REPOSITORY_KEY = PLUGIN_KEY;
+  String REPOSITORY_NAME = PLUGIN_NAME;
 
-  public NewActiveRule create(RuleKey ruleKey) {
-    return new NewActiveRule(this, ruleKey);
-  }
+  String[] FILE_SUFFIXES = {"xoo"};
 
-  void activate(NewActiveRule newActiveRule) {
-    if (map.containsKey(newActiveRule.ruleKey)) {
-      throw new IllegalStateException(String.format("Rule '%s' is already activated", newActiveRule.ruleKey));
-    }
-    map.put(newActiveRule.ruleKey, newActiveRule);
-  }
-
-  public ActiveRules build() {
-    return new DefaultActiveRules(map.values());
-  }
+  Logger LOG = LoggerFactory.getLogger("xoo");
 }

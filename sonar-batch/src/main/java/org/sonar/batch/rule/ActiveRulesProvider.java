@@ -19,14 +19,13 @@
  */
 package org.sonar.batch.rule;
 
-import org.sonar.api.batch.rules.QProfile;
-
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
+import org.sonar.api.batch.rules.QProfile;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleParam;
@@ -62,7 +61,7 @@ public class ActiveRulesProvider extends ProviderAdapter {
       for (ActiveRuleDto activeDto : dao.selectByProfileId(qProfileWithId.id())) {
         Rule rule = ruleFinder.findById(activeDto.getRulId());
         if (rule != null) {
-          NewActiveRule newActiveRule = builder.activate(rule.ruleKey());
+          NewActiveRule newActiveRule = builder.create(rule.ruleKey());
           newActiveRule.setSeverity(activeDto.getSeverityString());
           newActiveRule.setLanguage(rule.getLanguage());
           Rule template = rule.getTemplate();
@@ -83,6 +82,7 @@ public class ActiveRulesProvider extends ProviderAdapter {
               newActiveRule.setParam(param.getKey(), param.getDefaultValue());
             }
           }
+          newActiveRule.activate();
         }
       }
     }

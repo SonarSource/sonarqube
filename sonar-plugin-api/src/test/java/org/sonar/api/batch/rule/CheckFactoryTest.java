@@ -46,7 +46,7 @@ public class CheckFactoryTest {
   @Test
   public void class_name_as_check_key() {
     RuleKey ruleKey = RuleKey.of("squid", "org.sonar.api.batch.rule.CheckWithoutProperties");
-    builder.activate(ruleKey);
+    builder.create(ruleKey).activate();
     CheckFactory checkFactory = new CheckFactory(builder.build());
 
     Checks checks = checkFactory.create("squid").addAnnotatedChecks(CheckWithoutProperties.class);
@@ -60,7 +60,7 @@ public class CheckFactoryTest {
   @Test
   public void param_as_string_field() {
     RuleKey ruleKey = RuleKey.of("squid", "org.sonar.api.batch.rule.CheckWithStringProperty");
-    builder.activate(ruleKey).setParam("pattern", "foo");
+    builder.create(ruleKey).setParam("pattern", "foo").activate();
 
     CheckFactory checkFactory = new CheckFactory(builder.build());
     Checks checks = checkFactory.create("squid").addAnnotatedChecks(CheckWithStringProperty.class);
@@ -77,7 +77,7 @@ public class CheckFactoryTest {
     thrown.expectMessage("The field 'unknown' does not exist or is not annotated with @RuleProperty in the class org.sonar.api.batch.rule.CheckWithStringProperty");
 
     RuleKey ruleKey = RuleKey.of("squid", "org.sonar.api.batch.rule.CheckWithStringProperty");
-    builder.activate(ruleKey).setParam("unknown", "foo");
+    builder.create(ruleKey).setParam("unknown", "foo").activate();
 
     CheckFactory checkFactory = new CheckFactory(builder.build());
     checkFactory.create("squid").addAnnotatedChecks(CheckWithStringProperty.class);
@@ -86,7 +86,7 @@ public class CheckFactoryTest {
   @Test
   public void param_as_primitive_fields() {
     RuleKey ruleKey = RuleKey.of("squid", "org.sonar.api.batch.rule.CheckWithPrimitiveProperties");
-    builder.activate(ruleKey).setParam("max", "300").setParam("ignore", "true");
+    builder.create(ruleKey).setParam("max", "300").setParam("ignore", "true").activate();
 
     CheckFactory checkFactory = new CheckFactory(builder.build());
     Checks checks = checkFactory.create("squid").addAnnotatedChecks(CheckWithPrimitiveProperties.class);
@@ -103,7 +103,7 @@ public class CheckFactoryTest {
   @Test
   public void param_as_inherited_field() {
     RuleKey ruleKey = RuleKey.of("squid", "org.sonar.api.batch.rule.CheckWithPrimitiveProperties");
-    builder.activate(ruleKey).setParam("max", "300");
+    builder.create(ruleKey).setParam("max", "300").activate();
 
     CheckFactory checkFactory = new CheckFactory(builder.build());
     Checks checks = checkFactory.create("squid").addAnnotatedChecks(CheckWithPrimitiveProperties.class);
@@ -116,7 +116,7 @@ public class CheckFactoryTest {
   @Test
   public void use_engine_key() {
     RuleKey ruleKey = RuleKey.of("squid", "One");
-    builder.activate(ruleKey).setInternalKey("S0001");
+    builder.create(ruleKey).setInternalKey("S0001").activate();
 
     CheckFactory checkFactory = new CheckFactory(builder.build());
     Checks checks = checkFactory.create("squid").addAnnotatedChecks(CheckWithKey.class);
@@ -133,7 +133,7 @@ public class CheckFactoryTest {
     thrown.expect(SonarException.class);
 
     RuleKey ruleKey = RuleKey.of("squid", "org.sonar.api.batch.rule.CheckWithUnsupportedPropertyType");
-    builder.activate(ruleKey).setParam("max", "300");
+    builder.create(ruleKey).setParam("max", "300").activate();
 
     CheckFactory checkFactory = new CheckFactory(builder.build());
     checkFactory.create("squid").addAnnotatedChecks(CheckWithUnsupportedPropertyType.class);
@@ -142,7 +142,7 @@ public class CheckFactoryTest {
   @Test
   public void override_field_key() {
     RuleKey ruleKey = RuleKey.of("squid", "org.sonar.api.batch.rule.CheckWithOverriddenPropertyKey");
-    builder.activate(ruleKey).setParam("maximum", "300");
+    builder.create(ruleKey).setParam("maximum", "300").activate();
 
     CheckFactory checkFactory = new CheckFactory(builder.build());
     Checks checks = checkFactory.create("squid").addAnnotatedChecks(CheckWithOverriddenPropertyKey.class);
@@ -158,7 +158,7 @@ public class CheckFactoryTest {
   @Test
   public void checks_as_objects() {
     RuleKey ruleKey = RuleKey.of("squid", "org.sonar.api.batch.rule.CheckWithStringProperty");
-    builder.activate(ruleKey).setParam("pattern", "foo");
+    builder.create(ruleKey).setParam("pattern", "foo").activate();
     CheckFactory checkFactory = new CheckFactory(builder.build());
 
     CheckWithStringProperty check = new CheckWithStringProperty();
