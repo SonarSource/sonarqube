@@ -35,7 +35,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.api.utils.SonarException;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 
@@ -64,10 +63,8 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
   File aFile = new File("org/foo/Bar.java");
   Snapshot projectSnapshot = snapshot(PROJECT_SNAPSHOT_ID);
   Snapshot packageSnapshot = snapshot(PACKAGE_SNAPSHOT_ID);
-
-  private SnapshotCache snapshotCache;
-
-  private MeasureCache measureCache;
+  SnapshotCache snapshotCache;
+  MeasureCache measureCache;
 
   @Before
   public void mockResourcePersister() {
@@ -101,7 +98,7 @@ public class MeasurePersisterTest extends AbstractDaoTestCase {
     Measure measure = new Measure(ncloc()).setValue(1234.0).setAlertText(TOO_LONG_FOR_VARCHAR_4000);
     when(measureCache.entries()).thenReturn(Arrays.asList(new Cache.Entry<Measure>(new String[] {"foo", "ncloc"}, measure)));
 
-    thrown.expect(SonarException.class);
+    thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Unable to save some measures");
 
     measurePersister.persist();
