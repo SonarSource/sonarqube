@@ -29,6 +29,7 @@ import org.sonar.api.batch.analyzer.internal.DefaultAnalyzerDescriptor;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.measures.Metric;
 import org.sonar.api.resources.Project;
+import org.sonar.batch.scan2.AnalyzerOptimizer;
 
 import java.util.Arrays;
 import java.util.List;
@@ -39,9 +40,11 @@ public class SensorWrapper implements Sensor {
   private AnalyzerContext adaptor;
   private FileSystem fs;
   private DefaultAnalyzerDescriptor descriptor;
+  private AnalyzerOptimizer optimizer;
 
-  public SensorWrapper(Analyzer analyzer, AnalyzerContext adaptor, FileSystem fs) {
+  public SensorWrapper(Analyzer analyzer, AnalyzerContext adaptor, FileSystem fs, AnalyzerOptimizer optimizer) {
     this.analyzer = analyzer;
+    this.optimizer = optimizer;
     descriptor = new DefaultAnalyzerDescriptor();
     analyzer.describe(descriptor);
     this.adaptor = adaptor;
@@ -60,19 +63,7 @@ public class SensorWrapper implements Sensor {
 
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    if (!descriptor.languages().isEmpty()) {
-      if (project.getLanguageKey() != null && !descriptor.languages().contains(project.getLanguageKey())) {
-        return false;
-      }
-      boolean hasFile = false;
-      for (String languageKey : descriptor.languages()) {
-        hasFile |= fs.hasFiles(fs.predicates().hasLanguage(languageKey));
-      }
-      if (!hasFile) {
-        return false;
-      }
-    }
-    return true;
+    return optimizer.shouldExecute(descriptor);
   }
 
   @Override

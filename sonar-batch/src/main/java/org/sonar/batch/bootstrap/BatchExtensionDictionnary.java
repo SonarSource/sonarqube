@@ -29,6 +29,7 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.scan.SensorWrapper;
+import org.sonar.batch.scan2.AnalyzerOptimizer;
 
 import javax.annotation.Nullable;
 
@@ -42,11 +43,13 @@ public class BatchExtensionDictionnary extends org.sonar.api.batch.BatchExtensio
 
   private FileSystem fs;
   private AnalyzerContext context;
+  private AnalyzerOptimizer analyzerOptimizer;
 
-  public BatchExtensionDictionnary(ComponentContainer componentContainer, FileSystem fs, AnalyzerContext context) {
+  public BatchExtensionDictionnary(ComponentContainer componentContainer, FileSystem fs, AnalyzerContext context, AnalyzerOptimizer analyzerOptimizer) {
     super(componentContainer);
     this.fs = fs;
     this.context = context;
+    this.analyzerOptimizer = analyzerOptimizer;
   }
 
   public <T> Collection<T> select(Class<T> type, @Nullable Project project, boolean sort, @Nullable ExtensionMatcher matcher) {
@@ -61,7 +64,7 @@ public class BatchExtensionDictionnary extends org.sonar.api.batch.BatchExtensio
     List<T> result = Lists.newArrayList();
     for (Object extension : getExtensions(type)) {
       if (type == Sensor.class && extension instanceof Analyzer) {
-        extension = new SensorWrapper((Analyzer) extension, context, fs);
+        extension = new SensorWrapper((Analyzer) extension, context, fs, analyzerOptimizer);
       }
       if (shouldKeep(type, extension, project, matcher)) {
         result.add((T) extension);

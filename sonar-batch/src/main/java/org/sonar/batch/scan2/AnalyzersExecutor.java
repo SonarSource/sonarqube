@@ -34,9 +34,11 @@ public class AnalyzersExecutor implements BatchComponent {
   private static final Logger LOG = LoggerFactory.getLogger(AnalyzersExecutor.class);
 
   private BatchExtensionDictionnary selector;
+  private AnalyzerOptimizer optimizer;
 
-  public AnalyzersExecutor(BatchExtensionDictionnary selector) {
+  public AnalyzersExecutor(BatchExtensionDictionnary selector, AnalyzerOptimizer optimizer) {
     this.selector = selector;
+    this.optimizer = optimizer;
   }
 
   public void execute(AnalyzerContext context) {
@@ -46,6 +48,11 @@ public class AnalyzersExecutor implements BatchComponent {
 
       DefaultAnalyzerDescriptor descriptor = new DefaultAnalyzerDescriptor();
       analyzer.describe(descriptor);
+
+      if (!optimizer.shouldExecute(descriptor)) {
+        LOG.debug("Analyzer skipped: " + descriptor.name());
+        continue;
+      }
 
       LOG.info("Execute analyzer: " + descriptor.name());
 

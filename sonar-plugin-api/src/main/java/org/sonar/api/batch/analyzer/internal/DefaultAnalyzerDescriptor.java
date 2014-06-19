@@ -50,8 +50,8 @@ public class DefaultAnalyzerDescriptor implements AnalyzerDescriptor {
     return Arrays.asList(languages);
   }
 
-  public InputFile.Type[] types() {
-    return types;
+  public Collection<InputFile.Type> types() {
+    return Arrays.asList(types);
   }
 
   @Override

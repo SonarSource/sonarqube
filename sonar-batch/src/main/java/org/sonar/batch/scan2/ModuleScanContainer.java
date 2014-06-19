@@ -98,6 +98,8 @@ public class ModuleScanContainer extends ComponentContainer {
       ModuleFileSystemInitializer.class,
       QProfileVerifier.class,
 
+      AnalyzerOptimizer.class,
+
       DefaultAnalyzerContext.class,
       BatchExtensionDictionnary.class,
       IssueFilters.class,

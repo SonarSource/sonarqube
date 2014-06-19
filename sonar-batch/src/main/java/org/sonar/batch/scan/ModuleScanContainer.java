@@ -81,6 +81,7 @@ import org.sonar.batch.scan.filesystem.PreviousFileHashLoader;
 import org.sonar.batch.scan.filesystem.ProjectFileSystemAdapter;
 import org.sonar.batch.scan.filesystem.StatusDetectionFactory;
 import org.sonar.batch.scan.report.JsonReport;
+import org.sonar.batch.scan2.AnalyzerOptimizer;
 import org.sonar.core.component.ScanPerspectives;
 import org.sonar.core.measure.MeasurementFilters;
 
@@ -136,6 +137,8 @@ public class ModuleScanContainer extends ComponentContainer {
       ModuleFileSystemInitializer.class,
       ProjectFileSystemAdapter.class,
       QProfileVerifier.class,
+
+      AnalyzerOptimizer.class,
 
       // the Snapshot component will be removed when asynchronous measures are improved (required for AsynchronousMeasureSensor)
       getComponentByType(ResourcePersister.class).getSnapshot(module),
