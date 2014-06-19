@@ -51,13 +51,20 @@ public interface AnalyzerDescriptor {
    * no file for given languages are present in the project.
    * If no language is provided then it will be executed for all languages.
    */
-  AnalyzerDescriptor runOnLanguages(String... languageKeys);
+  AnalyzerDescriptor workOnLanguages(String... languageKeys);
 
   /**
    * List {@link InputFile.Type} this {@link Analyzer} work on. May be used by the platform to skip execution of the {@link Analyzer} when
    * no file for given type are present in the project.
    * If not type is provided then it will be executed for all types.
    */
-  AnalyzerDescriptor runOnTypes(InputFile.Type... types);
+  AnalyzerDescriptor workOnFileTypes(InputFile.Type... types);
+
+  /**
+   * List {@link InputFile.Type} this {@link Analyzer} work on. May be used by the platform to skip execution of the {@link Analyzer} when
+   * no file for given type are present in the project.
+   * If not type is provided then it will be executed for all types.
+   */
+  AnalyzerDescriptor createIssuesForRuleRepositories(String... repositoryKeys);
 
 }

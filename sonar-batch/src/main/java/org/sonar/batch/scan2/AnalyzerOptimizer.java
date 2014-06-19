@@ -23,27 +23,54 @@ import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.analyzer.internal.DefaultAnalyzerDescriptor;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.rule.ActiveRules;
 
 public class AnalyzerOptimizer implements BatchComponent {
 
-  private FileSystem fs;
+  private final FileSystem fs;
+  private final ActiveRules activeRules;
 
-  public AnalyzerOptimizer(FileSystem fs) {
+  public AnalyzerOptimizer(FileSystem fs, ActiveRules activeRules) {
     this.fs = fs;
+    this.activeRules = activeRules;
   }
 
   /**
    * Decide if the given Analyzer should be executed.
    */
   public boolean shouldExecute(DefaultAnalyzerDescriptor descriptor) {
-    FilePredicate predicate = fs.predicates().hasLanguages(descriptor.languages());
-    if (descriptor.types().size() == 1) {
-      // Size = 0 or Size = 2 means both main and test type
-      predicate = fs.predicates().and(
-        predicate,
-        fs.predicates().hasType(descriptor.types().iterator().next()));
+    // FS Conditions
+    boolean fsCondition = fsCondition(descriptor);
+    boolean activeRulesCondition = activeRulesCondition(descriptor);
+    return fsCondition && activeRulesCondition;
+  }
+
+  private boolean activeRulesCondition(DefaultAnalyzerDescriptor descriptor) {
+    if (!descriptor.ruleRepositories().isEmpty()) {
+      for (String repoKey : descriptor.ruleRepositories()) {
+        if (!activeRules.findByRepository(repoKey).isEmpty()) {
+          return true;
+        }
+      }
+      return false;
     }
-    return fs.hasFiles(predicate);
+    return true;
+  }
+
+  private boolean fsCondition(DefaultAnalyzerDescriptor descriptor) {
+    if (!descriptor.languages().isEmpty() || !descriptor.types().isEmpty()) {
+      FilePredicate langPredicate = descriptor.languages().isEmpty() ? fs.predicates().all() : fs.predicates().hasLanguages(descriptor.languages());
+
+      FilePredicate typePredicate = descriptor.types().isEmpty() ? fs.predicates().all() : fs.predicates().none();
+      for (InputFile.Type type : descriptor.types()) {
+        typePredicate = fs.predicates().or(
+          typePredicate,
+          fs.predicates().hasType(type));
+      }
+      return fs.hasFiles(fs.predicates().and(langPredicate, typePredicate));
+    }
+    return true;
   }
 
 }

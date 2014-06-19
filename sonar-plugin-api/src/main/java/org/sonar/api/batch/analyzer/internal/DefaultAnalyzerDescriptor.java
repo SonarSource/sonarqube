@@ -19,10 +19,9 @@
  */
 package org.sonar.api.batch.analyzer.internal;
 
-import org.sonar.api.batch.measure.Metric;
-
 import org.sonar.api.batch.analyzer.AnalyzerDescriptor;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.measure.Metric;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,16 +33,17 @@ public class DefaultAnalyzerDescriptor implements AnalyzerDescriptor {
   private Metric<?>[] provides = new Metric<?>[0];
   private String[] languages = new String[0];
   private InputFile.Type[] types = new InputFile.Type[0];
+  private String[] ruleRepositories = new String[0];
 
   public String name() {
     return name;
   }
 
-  public Metric<?>[] dependsOn() {
+  public Metric[] dependsOn() {
     return dependsOn;
   }
 
-  public Metric<?>[] provides() {
+  public Metric[] provides() {
     return provides;
   }
 
@@ -53,6 +53,10 @@ public class DefaultAnalyzerDescriptor implements AnalyzerDescriptor {
 
   public Collection<InputFile.Type> types() {
     return Arrays.asList(types);
+  }
+
+  public Collection<String> ruleRepositories() {
+    return Arrays.asList(ruleRepositories);
   }
 
   @Override
@@ -74,14 +78,20 @@ public class DefaultAnalyzerDescriptor implements AnalyzerDescriptor {
   }
 
   @Override
-  public DefaultAnalyzerDescriptor runOnLanguages(String... languageKeys) {
+  public DefaultAnalyzerDescriptor workOnLanguages(String... languageKeys) {
     this.languages = languageKeys;
     return this;
   }
 
   @Override
-  public DefaultAnalyzerDescriptor runOnTypes(InputFile.Type... types) {
+  public DefaultAnalyzerDescriptor workOnFileTypes(InputFile.Type... types) {
     this.types = types;
+    return this;
+  }
+
+  @Override
+  public DefaultAnalyzerDescriptor createIssuesForRuleRepositories(String... repositoryKeys) {
+    this.ruleRepositories = repositoryKeys;
     return this;
   }
 

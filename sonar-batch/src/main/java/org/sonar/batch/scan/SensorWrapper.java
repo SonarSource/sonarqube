@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.scan;
 
-import org.sonar.api.batch.measure.Metric;
-
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.batch.Sensor;
@@ -29,6 +27,7 @@ import org.sonar.api.batch.analyzer.Analyzer;
 import org.sonar.api.batch.analyzer.AnalyzerContext;
 import org.sonar.api.batch.analyzer.internal.DefaultAnalyzerDescriptor;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.scan2.AnalyzerOptimizer;
 
@@ -53,12 +52,12 @@ public class SensorWrapper implements Sensor {
   }
 
   @DependedUpon
-  public List<Metric<?>> provides() {
+  public List<Metric> provides() {
     return Arrays.asList(descriptor.provides());
   }
 
   @DependsUpon
-  public List<Metric<?>> depends() {
+  public List<Metric> depends() {
     return Arrays.asList(descriptor.dependsOn());
   }
 

@@ -34,8 +34,8 @@ public class DefaultAnalyzerDescriptorTest {
       .name("Foo")
       .dependsOn(CoreMetrics.NCLOC)
       .provides(CoreMetrics.BLOCKER_VIOLATIONS)
-      .runOnLanguages("java", "php")
-      .runOnTypes(InputFile.Type.MAIN);
+      .workOnLanguages("java", "php")
+      .workOnFileTypes(InputFile.Type.MAIN);
 
     assertThat(descriptor.name()).isEqualTo("Foo");
     assertThat(descriptor.dependsOn()).containsOnly(CoreMetrics.NCLOC);

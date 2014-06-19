@@ -28,7 +28,7 @@ import java.util.List;
 
 /**
  * @since 2.3
- * @deprecated in 4.2. Replaced by org.sonar.api.rule.RuleDefinitions
+ * @deprecated in 4.2. Replaced by org.sonar.api.server.rule.RuleDefinition
  */
 @Deprecated
 public abstract class RuleRepository implements ServerExtension {
@@ -71,9 +71,9 @@ public abstract class RuleRepository implements ServerExtension {
   @Override
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-        .append("key", key)
-        .append("language", language)
-        .append("name", name)
-        .toString();
+      .append("key", key)
+      .append("language", language)
+      .append("name", name)
+      .toString();
   }
 }

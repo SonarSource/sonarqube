@@ -38,16 +38,16 @@ public class ActiveRulesBuilderTest {
 
   @Test
   public void build_rules() throws Exception {
-    ActiveRulesBuilder builder = new ActiveRulesBuilder();
-    NewActiveRule newSquid1 = builder.activate(RuleKey.of("squid", "S0001"));
-    newSquid1.setSeverity(Severity.CRITICAL);
-    newSquid1.setInternalKey("__S0001__");
-    newSquid1.setParam("min", "20");
-    // most simple rule
-    builder.activate(RuleKey.of("squid", "S0002"));
-    builder.activate(RuleKey.of("findbugs", "NPE")).setInternalKey(null).setSeverity(null).setParam("foo", null);
-
-    ActiveRules activeRules = builder.build();
+    ActiveRules activeRules = new ActiveRulesBuilder()
+      .activate(RuleKey.of("squid", "S0001"))
+      .setSeverity(Severity.CRITICAL)
+      .setInternalKey("__S0001__")
+      .setParam("min", "20")
+      .end()
+      // most simple rule
+      .activate(RuleKey.of("squid", "S0002")).end()
+      .activate(RuleKey.of("findbugs", "NPE")).setInternalKey(null).setSeverity(null).setParam("foo", null).end()
+      .build();
 
     assertThat(activeRules.findAll()).hasSize(3);
     assertThat(activeRules.findByRepository("squid")).hasSize(2);

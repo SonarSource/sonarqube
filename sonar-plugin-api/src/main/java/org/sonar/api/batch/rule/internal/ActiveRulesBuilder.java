@@ -39,7 +39,7 @@ public class ActiveRulesBuilder {
     if (map.containsKey(ruleKey)) {
       throw new IllegalStateException(String.format("Rule '%s' is already activated", ruleKey));
     }
-    NewActiveRule newActiveRule = new NewActiveRule(ruleKey);
+    NewActiveRule newActiveRule = new NewActiveRule(this, ruleKey);
     map.put(ruleKey, newActiveRule);
     return newActiveRule;
   }
