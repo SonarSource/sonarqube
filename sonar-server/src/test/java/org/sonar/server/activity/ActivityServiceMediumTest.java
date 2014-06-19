@@ -23,7 +23,6 @@ import org.elasticsearch.common.collect.Iterables;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.persistence.DbSession;
@@ -85,8 +84,6 @@ public class ActivityServiceMediumTest {
   }
 
   @Test
-  @Ignore
-  // TODO fix missing logs in ES.
   public void iterate_all() throws InterruptedException {
     int max = QueryOptions.DEFAULT_LIMIT + 3;
     final String testValue = "hello world";
