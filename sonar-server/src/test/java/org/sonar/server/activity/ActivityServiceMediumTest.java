@@ -19,12 +19,14 @@
  */
 package org.sonar.server.activity;
 
+import com.google.common.collect.ImmutableMap;
 import org.elasticsearch.common.collect.Iterables;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.core.activity.Activity;
+import org.sonar.core.activity.ActivityLog;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.activity.index.ActivityIndex;
@@ -34,6 +36,7 @@ import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 
 import java.util.Iterator;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -73,7 +76,7 @@ public class ActivityServiceMediumTest {
   }
 
   @Test
-  public void search_all() throws InterruptedException {
+  public void search_message_log() throws InterruptedException {
     final String testValue = "hello world";
     service.write(dbSession, Activity.Type.ACTIVE_RULE, testValue);
     dbSession.commit();
@@ -81,6 +84,26 @@ public class ActivityServiceMediumTest {
 
     Result<Activity> result = index.search(service.newActivityQuery(), new QueryOptions());
     assertThat(result.getTotal()).isEqualTo(1L);
+    assertThat(result.getHits().get(0).message()).isEqualTo(testValue);
+  }
+
+  @Test
+  public void search_activity_log() throws InterruptedException {
+    final String value = "world";
+    final String key = "hello";
+    ActivityLog activity = new ActivityLog() {
+      @Override
+      public Map<String, String> getDetails() {
+        return ImmutableMap.of(key, value);
+      }
+    };
+    service.write(dbSession, Activity.Type.ACTIVE_RULE, activity);
+    dbSession.commit();
+    assertThat(index.findAll().getTotal()).isEqualTo(1);
+
+    Result<Activity> result = index.search(service.newActivityQuery(), new QueryOptions());
+    assertThat(result.getTotal()).isEqualTo(1L);
+    assertThat(result.getHits().get(0).details().get(key)).isEqualTo(value);
   }
 
   @Test
