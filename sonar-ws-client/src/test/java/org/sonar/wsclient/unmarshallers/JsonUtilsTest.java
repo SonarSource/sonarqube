@@ -26,8 +26,8 @@ import org.junit.Test;
 import java.util.Date;
 import java.util.TimeZone;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class JsonUtilsTest extends UnmarshallerTestCase {

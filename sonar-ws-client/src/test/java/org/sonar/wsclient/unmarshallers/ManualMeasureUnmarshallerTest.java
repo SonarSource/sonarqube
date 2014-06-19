@@ -24,7 +24,7 @@ import org.sonar.wsclient.services.ManualMeasure;
 
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 

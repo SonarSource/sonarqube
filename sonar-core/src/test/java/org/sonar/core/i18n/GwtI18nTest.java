@@ -27,9 +27,9 @@ import org.junit.Test;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
-import static org.junit.internal.matchers.StringContains.containsString;
 import static org.junit.matchers.JUnitMatchers.hasItems;
 import static org.mockito.Mockito.mock;
 

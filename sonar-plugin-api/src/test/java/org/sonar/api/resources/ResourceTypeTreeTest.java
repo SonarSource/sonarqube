@@ -21,7 +21,7 @@ package org.sonar.api.resources;
 
 import org.junit.Test;
 
-import static org.hamcrest.collection.IsCollectionContaining.hasItems;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.sonar.api.resources.ResourceTypesTest.qualifiers;

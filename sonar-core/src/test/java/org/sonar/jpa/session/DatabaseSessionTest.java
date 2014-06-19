@@ -20,9 +20,9 @@
 package org.sonar.jpa.session;
 
 import org.hamcrest.Matchers;
+import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.internal.matchers.IsCollectionContaining;
 import org.sonar.api.database.model.MeasureModel;
 import org.sonar.api.database.model.ResourceModel;
 import org.sonar.api.database.model.Snapshot;

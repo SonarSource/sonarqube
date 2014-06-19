@@ -29,7 +29,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 
 public class ResourceIndexerDaoTest extends AbstractDaoTestCase {

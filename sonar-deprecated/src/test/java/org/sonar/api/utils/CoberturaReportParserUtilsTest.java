@@ -35,7 +35,7 @@ import org.sonar.api.utils.CoberturaReportParserUtils.FileResolver;
 import java.io.File;
 import java.net.URISyntaxException;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.argThat;

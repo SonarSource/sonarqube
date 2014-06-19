@@ -177,7 +177,12 @@
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-all</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -193,11 +198,6 @@
     <dependency>
       <groupId>org.skyscreamer</groupId>
       <artifactId>jsonassert</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest-all</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

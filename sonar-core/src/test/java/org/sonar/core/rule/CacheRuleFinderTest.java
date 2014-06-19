@@ -25,7 +25,7 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.core.rule.CacheRuleFinder;
 import org.sonar.jpa.test.AbstractDbUnitTestCase;
 
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;

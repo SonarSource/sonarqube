@@ -36,7 +36,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.mock;

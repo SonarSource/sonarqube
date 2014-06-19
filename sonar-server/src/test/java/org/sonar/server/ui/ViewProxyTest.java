@@ -38,9 +38,9 @@ import java.util.List;
 
 import static com.google.common.collect.Iterables.getOnlyElement;
 import static org.fest.assertions.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThat;
 

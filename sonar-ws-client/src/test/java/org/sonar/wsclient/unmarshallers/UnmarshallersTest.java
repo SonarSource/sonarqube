@@ -23,15 +23,15 @@ import org.junit.Test;
 import org.sonar.wsclient.services.Metric;
 import org.sonar.wsclient.services.Model;
 
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
 
 public class UnmarshallersTest {
 
   @Test
   public void forModel() {
-    assertThat(Unmarshallers.forModel(Metric.class), is(MetricUnmarshaller.class));
+    assertThat(Unmarshallers.forModel(Metric.class), instanceOf(MetricUnmarshaller.class));
     assertThat(Unmarshallers.forModel(Model.class), nullValue());
   }
 

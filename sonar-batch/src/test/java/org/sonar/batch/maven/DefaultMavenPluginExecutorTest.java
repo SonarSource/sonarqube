@@ -28,7 +28,7 @@ import org.sonar.batch.scan.filesystem.DefaultModuleFileSystem;
 
 import java.io.File;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;

@@ -34,6 +34,7 @@ import org.junit.rules.TemporaryFolder;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
@@ -96,7 +97,7 @@ public class ClassLoaderUtilsTest {
   }
 
   @Test
-  public void copyRubyRailsApp() {
+  public void copyRubyRailsApp() throws IOException {
     File toDir = temp.newFolder("dest");
     ClassLoaderUtils.copyResources(classLoader, "org/sonar/sqale", toDir, Functions.<String>identity());
 
@@ -106,7 +107,7 @@ public class ClassLoaderUtilsTest {
   }
 
   @Test
-  public void copyRubyRailsApp_relocate_files() {
+  public void copyRubyRailsApp_relocate_files() throws IOException {
     File toDir = temp.newFolder("dest");
     ClassLoaderUtils.copyResources(classLoader, "org/sonar/sqale", toDir, new Function<String, String>() {
       public String apply(@Nullable String path) {

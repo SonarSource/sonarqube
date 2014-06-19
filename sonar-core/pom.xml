@@ -135,7 +135,7 @@
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
+      <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -153,6 +153,19 @@
       <artifactId>fest-assert</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.google.code.bean-matchers</groupId>
+      <artifactId>bean-matchers</artifactId>
+      <version>0.9</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.hamcrest</groupId>
+          <artifactId>hamcrest-core</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
 
     <!--
          JDBC drivers for MyBatis integration tests.

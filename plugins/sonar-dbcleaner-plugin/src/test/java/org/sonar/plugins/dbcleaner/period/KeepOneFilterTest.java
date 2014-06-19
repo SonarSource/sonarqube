@@ -19,8 +19,8 @@
  */
 package org.sonar.plugins.dbcleaner.period;
 
+import org.hamcrest.core.IsCollectionContaining;
 import org.junit.Test;
-import org.junit.internal.matchers.IsCollectionContaining;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.purge.PurgeableSnapshotDto;
 import org.sonar.plugins.dbcleaner.DbCleanerTestUtils;
@@ -46,7 +46,7 @@ public class KeepOneFilterTest {
       createSnapshotWithDate(4L, "2011-05-19"), // may -> to be deleted
       createSnapshotWithDate(5L, "2011-06-01"), // june -> keep
       createSnapshotWithDate(6L, "2012-01-01") // out of scope -> keep
-    ));
+      ));
 
     assertThat(toDelete.size(), is(2));
     assertThat(toDelete, IsCollectionContaining.hasItem(new DbCleanerTestUtils.SnapshotMatcher(3L)));
@@ -62,7 +62,7 @@ public class KeepOneFilterTest {
       createSnapshotWithDate(2L, "2011-05-02").setLast(true),
       createSnapshotWithDate(3L, "2011-05-19").setHasEvents(true).setLast(false),
       createSnapshotWithDate(4L, "2011-05-23") // to be deleted
-    ));
+      ));
 
     assertThat(toDelete.size(), is(2));
     assertThat(toDelete, IsCollectionContaining.hasItem(new DbCleanerTestUtils.SnapshotMatcher(1L)));

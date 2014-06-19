@@ -28,9 +28,9 @@ import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
-import static org.hamcrest.number.OrderingComparisons.greaterThanOrEqualTo;
-import static org.hamcrest.text.StringStartsWith.startsWith;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.*;
 
 public class DateUtilsTest {

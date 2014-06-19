@@ -22,7 +22,7 @@ package org.sonar.wsclient.unmarshallers;
 import org.junit.Test;
 import org.sonar.wsclient.services.Source;
 
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 

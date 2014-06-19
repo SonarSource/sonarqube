@@ -19,17 +19,17 @@
  */
 package org.sonar.duplications.detector;
 
+import org.hamcrest.CoreMatchers;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
 
 public class CloneGroupMatcher extends TypeSafeMatcher<CloneGroup> {
 
-  public static Matcher<Iterable<CloneGroup>> hasCloneGroup(int expectedLen, ClonePart... expectedParts) {
-    return Matchers.hasItem(new CloneGroupMatcher(expectedLen, expectedParts));
+  public static Matcher<Iterable<? super CloneGroup>> hasCloneGroup(int expectedLen, ClonePart... expectedParts) {
+    return CoreMatchers.hasItem(new CloneGroupMatcher(expectedLen, expectedParts));
   }
 
   private final int expectedLen;

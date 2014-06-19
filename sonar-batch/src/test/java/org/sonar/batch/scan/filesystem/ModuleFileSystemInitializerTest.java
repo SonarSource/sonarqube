@@ -21,7 +21,7 @@ package org.sonar.batch.scan.filesystem;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -36,8 +36,8 @@ import static org.mockito.Mockito.mock;
 
 public class ModuleFileSystemInitializerTest {
 
-  @ClassRule
-  public static TemporaryFolder temp = new TemporaryFolder();
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   PathResolver pathResolver = new PathResolver();
 

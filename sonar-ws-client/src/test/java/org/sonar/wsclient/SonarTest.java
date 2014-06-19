@@ -20,6 +20,7 @@
 package org.sonar.wsclient;
 
 import org.eclipse.jetty.testing.ServletTester;
+import org.hamcrest.Matchers;
 import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,17 +33,11 @@ import org.sonar.wsclient.services.MetricQuery;
 import org.sonar.wsclient.services.Query;
 import org.sonar.wsclient.services.Server;
 import org.sonar.wsclient.services.ServerQuery;
-import org.sonar.wsclient.unmarshallers.UnmarshalException;
 
 import java.util.Arrays;
 import java.util.Collection;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.number.OrderingComparisons.greaterThan;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.junit.internal.matchers.StringContains.containsString;
 
 @RunWith(value = Parameterized.class)
 public class SonarTest {
@@ -86,20 +81,20 @@ public class SonarTest {
   @Test
   public void findAll() {
     Collection<Metric> metrics = sonar.findAll(MetricQuery.all());
-    assertThat(metrics.size(), greaterThan(1));
+    assertThat(metrics.size(), Matchers.greaterThan(1));
   }
 
   @Test
   public void findEmptyResults() {
     Query<Metric> query = new EmptyQuery();
     Collection<Metric> metrics = sonar.findAll(query);
-    assertThat(metrics.size(), is(0));
+    assertThat(metrics.size(), Matchers.is(0));
   }
 
   @Test
   public void returnNullWhenSingleResultNotFound() {
     Query<Metric> query = new EmptyQuery();
-    assertThat(sonar.find(query), nullValue());
+    assertThat(sonar.find(query), Matchers.nullValue());
   }
 
   @Test(expected = ConnectionException.class)
@@ -111,8 +106,8 @@ public class SonarTest {
   @Test
   public void getVersion() {
     Server server = sonar.find(new ServerQuery());
-    assertThat(server.getId(), is("123456789"));
-    assertThat(server.getVersion(), is("2.0"));
+    assertThat(server.getId(), Matchers.is("123456789"));
+    assertThat(server.getVersion(), Matchers.is("2.0"));
   }
 
   static class EmptyQuery extends Query<Metric> {

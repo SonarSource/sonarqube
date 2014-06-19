@@ -19,24 +19,22 @@
  */
 package org.sonar.duplications.detector.suffixtree;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assert.assertThat;
-
-import java.util.Arrays;
-import java.util.Collection;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+
+import java.util.Arrays;
+import java.util.Collection;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 @RunWith(Parameterized.class)
 public class SuffixTreeTest {
 
   @Parameters
   public static Collection<Object[]> generateData() {
-    return Arrays.asList(new Object[][] { { "banana" }, { "mississippi" }, { "book" }, { "bookke" }, { "cacao" }, { "googol" }, { "abababc" }, { "aaaaa" } });
+    return Arrays.asList(new Object[][] { {"banana"}, {"mississippi"}, {"book"}, {"bookke"}, {"cacao"}, {"googol"}, {"abababc"}, {"aaaaa"}});
   }
 
   private final String data;
@@ -50,14 +48,14 @@ public class SuffixTreeTest {
     String text = this.data + "$";
     StringSuffixTree tree = StringSuffixTree.create(text);
 
-    assertThat("number of leaves", tree.getNumberOfLeafs(), is(text.length()));
-    assertThat("number of inner nodes", tree.getNumberOfInnerNodes(), lessThan(text.length() - 1));
-    assertThat("number of edges", tree.getNumberOfEdges(), is(tree.getNumberOfInnerNodes() + tree.getNumberOfLeafs()));
+    assertThat(tree.getNumberOfLeafs()).as("number of leaves").isEqualTo(text.length());
+    assertThat(tree.getNumberOfInnerNodes()).as("number of inner nodes").isLessThan(text.length() - 1);
+    assertThat(tree.getNumberOfEdges()).as("number of edges").isEqualTo(tree.getNumberOfInnerNodes() + tree.getNumberOfLeafs());
 
     for (int beginIndex = 0; beginIndex < text.length(); beginIndex++) {
       for (int endIndex = beginIndex + 1; endIndex < text.length() + 1; endIndex++) {
         String substring = text.substring(beginIndex, endIndex);
-        assertThat("index of " + substring + " in " + text, tree.indexOf(substring), is(text.indexOf(substring)));
+        assertThat(tree.indexOf(substring)).as("index of " + substring + " in " + text).isEqualTo(text.indexOf(substring));
       }
     }
   }

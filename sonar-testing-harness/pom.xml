@@ -17,10 +17,6 @@
       <artifactId>fest-assert</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest-all</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.skyscreamer</groupId>
       <artifactId>jsonassert</artifactId>
     </dependency>
@@ -31,6 +27,10 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-all</artifactId>
     </dependency>
     <dependency>
       <!-- used only for org.sonar.test.channel classes -->

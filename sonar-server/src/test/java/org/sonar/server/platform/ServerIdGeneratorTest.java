@@ -28,7 +28,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.hamcrest.text.StringStartsWith.startsWith;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 
 public class ServerIdGeneratorTest {

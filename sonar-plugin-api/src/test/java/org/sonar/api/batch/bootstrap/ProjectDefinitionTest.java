@@ -19,7 +19,7 @@
  */
 package org.sonar.api.batch.bootstrap;
 
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 

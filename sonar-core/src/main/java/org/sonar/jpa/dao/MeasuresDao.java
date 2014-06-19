@@ -31,12 +31,13 @@ import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-public class MeasuresDao extends BaseDao {
+public class MeasuresDao {
 
+  private final DatabaseSession session;
   private final Map<String, Metric> metricsByName = new HashMap<String, Metric>();
 
   public MeasuresDao(DatabaseSession session) {
-    super(session);
+    this.session = session;
   }
 
   public Metric getMetric(Metric metric) {
@@ -77,8 +78,8 @@ public class MeasuresDao extends BaseDao {
   }
 
   public void disableAutomaticMetrics() {
-    getSession().createQuery("update " + Metric.class.getSimpleName() + " m set m.enabled=false where m.userManaged=false").executeUpdate();
-    getSession().commit();
+    session.createQuery("update " + Metric.class.getSimpleName() + " m set m.enabled=false where m.userManaged=false").executeUpdate();
+    session.commit();
     metricsByName.clear();
   }
 
@@ -88,7 +89,7 @@ public class MeasuresDao extends BaseDao {
         metric.setEnabled(Boolean.TRUE);
         persistMetricWithoutClear(metric);
       }
-      getSession().commit();
+      session.commit();
     }
     metricsByName.clear();
   }
@@ -97,10 +98,10 @@ public class MeasuresDao extends BaseDao {
     Metric dbMetric = getMetric(metric);
     if (dbMetric != null) {
       dbMetric.merge(metric);
-      getSession().getEntityManager().merge(dbMetric);
+      session.getEntityManager().merge(dbMetric);
 
     } else {
-      getSession().getEntityManager().persist(new Metric().merge(metric));
+      session.getEntityManager().persist(new Metric().merge(metric));
     }
   }
 
@@ -112,14 +113,14 @@ public class MeasuresDao extends BaseDao {
   public void disabledMetrics(Collection<Metric> metrics) {
     for (Metric metric : metrics) {
       metric.setEnabled(Boolean.FALSE);
-      getSession().getEntityManager().persist(metric);
+      session.getEntityManager().persist(metric);
       metricsByName.put(metric.getName(), metric);
     }
   }
 
   private Map<String, Metric> getMetricsByName() {
     if (metricsByName.isEmpty()) {
-      List<Metric> metrics = getSession().getResults(Metric.class);
+      List<Metric> metrics = session.getResults(Metric.class);
       for (Metric metric : metrics) {
         metricsByName.put(metric.getKey(), metric);
       }

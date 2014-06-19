@@ -33,6 +33,7 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Properties;
 
 import static org.mockito.Matchers.argThat;
@@ -47,7 +48,7 @@ public class LoggingTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Before
-  public void setHome() {
+  public void setHome() throws IOException {
     File homeDir = temp.newFolder("home");
     System.setProperty("SONAR_HOME", homeDir.getAbsolutePath());
   }

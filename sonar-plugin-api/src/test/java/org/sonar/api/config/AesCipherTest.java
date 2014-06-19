@@ -34,7 +34,9 @@ import java.security.InvalidKeyException;
 import java.security.Key;
 
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.Is.isA;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -94,7 +96,7 @@ public class AesCipherTest {
       fail();
 
     } catch (RuntimeException e) {
-      assertThat(e.getCause(), is(InvalidKeyException.class));
+      assertThat(e.getCause(), instanceOf(InvalidKeyException.class));
     }
   }
 
@@ -109,7 +111,7 @@ public class AesCipherTest {
       fail();
 
     } catch (RuntimeException e) {
-      assertThat(e.getCause(), is(BadPaddingException.class));
+      assertThat(e.getCause(), instanceOf(BadPaddingException.class));
     }
   }
 

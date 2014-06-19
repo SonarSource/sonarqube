@@ -23,7 +23,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.sonar.wsclient.services.Profile;
 
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 

@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Properties;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -44,7 +45,7 @@ public class WebappTest {
   private Env env;
 
   @Before
-  public void initEnv() {
+  public void initEnv() throws IOException {
     env = mock(Env.class);
     File sonarHome = temp.newFolder("home");
     when(env.rootDir()).thenReturn(sonarHome);
