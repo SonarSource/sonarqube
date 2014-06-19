@@ -76,7 +76,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   protected final Profiling profiling;
 
   protected BaseIndex(IndexDefinition indexDefinition, BaseNormalizer<DTO, KEY> normalizer,
-    WorkQueue workQueue, ESNode node, Profiling profiling) {
+                      WorkQueue workQueue, ESNode node, Profiling profiling) {
     this.normalizer = normalizer;
     this.node = node;
     this.indexDefinition = indexDefinition;
@@ -311,8 +311,8 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
   protected boolean needMultiField(IndexField field) {
     return ((field.type() == IndexField.Type.TEXT
-    || field.type() == IndexField.Type.STRING)
-    && (field.sortable() || field.searchable()));
+      || field.type() == IndexField.Type.STRING)
+      && (field.sortable() || field.searchable()));
   }
 
   protected Map mapSortField(IndexField field) {
@@ -605,7 +605,6 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     Multimap<String, FacetValue> stats = ArrayListMultimap.create();
     if (aggregations != null) {
       for (Aggregation aggregation : aggregations.asList()) {
-        System.out.println("aggregation.getClass() = " + aggregation.getClass());
         if (aggregation.getClass().isAssignableFrom(StringTerms.class)) {
           for (Terms.Bucket value : ((Terms) aggregation).getBuckets()) {
 
