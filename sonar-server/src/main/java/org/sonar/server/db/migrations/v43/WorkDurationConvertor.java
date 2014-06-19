@@ -29,6 +29,8 @@ class WorkDurationConvertor {
 
   static final String HOURS_IN_DAY_PROPERTY = "sonar.technicalDebt.hoursInDay";
 
+  private Integer hoursInDay;
+
   private final PropertiesDao propertiesDao;
 
   WorkDurationConvertor(PropertiesDao propertiesDao) {
@@ -36,7 +38,7 @@ class WorkDurationConvertor {
   }
 
   long createFromLong(long durationInLong) {
-    int hoursInDay = hoursInDay();
+    checkHoursInDay();
 
     long durationInMinutes = 0L;
 
@@ -62,17 +64,23 @@ class WorkDurationConvertor {
   }
 
   long createFromDays(double days) {
-    return ((Double) (days * hoursInDay() * ONE_HOUR)).longValue();
+    checkHoursInDay();
+
+    return ((Double) (days * hoursInDay * ONE_HOUR)).longValue();
   }
 
-  private int hoursInDay() {
+  void init() {
     PropertyDto propertyDto = propertiesDao.selectGlobalProperty(HOURS_IN_DAY_PROPERTY);
     String value = propertyDto != null ? propertyDto.getValue() : "8";
-    int hoursInDay = Integer.valueOf(value);
+    hoursInDay = Integer.valueOf(value);
     if (hoursInDay < 0) {
       throw new IllegalArgumentException(String.format("Bad value of %s: %d", HOURS_IN_DAY_PROPERTY, hoursInDay));
     }
-    return hoursInDay;
   }
 
+  private void checkHoursInDay(){
+    if (hoursInDay == null) {
+      throw new IllegalStateException("init() has not been called");
+    }
+  }
 }

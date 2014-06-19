@@ -47,18 +47,20 @@ public class IssueChangelogMigration implements DatabaseMigration {
   private final Database db;
 
   public IssueChangelogMigration(Database database, PropertiesDao propertiesDao) {
-    this(database, propertiesDao, System2.INSTANCE);
+    this(database, new WorkDurationConvertor(propertiesDao), System2.INSTANCE);
   }
 
   @VisibleForTesting
-  IssueChangelogMigration(Database database, PropertiesDao propertiesDao, System2 system2) {
+  IssueChangelogMigration(Database database, WorkDurationConvertor convertor, System2 system2) {
     this.db = database;
-    this.workDurationConvertor = new WorkDurationConvertor(propertiesDao);
+    this.workDurationConvertor = convertor;
     this.system2 = system2;
   }
 
   @Override
   public void execute() {
+    workDurationConvertor.init();
+
     new MassUpdater(db).execute(
       new MassUpdater.InputLoader<Row>() {
         @Override

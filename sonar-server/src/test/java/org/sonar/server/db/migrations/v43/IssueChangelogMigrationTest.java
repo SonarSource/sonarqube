@@ -54,7 +54,9 @@ public class IssueChangelogMigrationTest {
     when(system2.now()).thenReturn(DateUtils.parseDateTime("2014-02-19T19:10:03+0100").getTime());
     when(propertiesDao.selectGlobalProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY)).thenReturn(new PropertyDto().setValue("8"));
 
-    migration = new IssueChangelogMigration(db.database(), propertiesDao, system2);
+    WorkDurationConvertor convertor = new WorkDurationConvertor(propertiesDao);
+    convertor.init();
+    migration = new IssueChangelogMigration(db.database(), convertor, system2);
   }
 
   @Test

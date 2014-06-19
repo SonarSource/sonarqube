@@ -48,6 +48,8 @@ public class DevelopmentCostMeasuresMigration implements DatabaseMigration {
 
   @Override
   public void execute() {
+    workDurationConvertor.init();
+
     new MassUpdater(db).execute(
       new MassUpdater.InputLoader<Row>() {
         @Override

@@ -42,6 +42,7 @@ public class WorkDurationConvertorTest {
 
   @Test
   public void convert_from_long() throws Exception {
+    convertor.init();
     when(propertiesDao.selectGlobalProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY)).thenReturn(new PropertyDto().setValue(Integer.toString(HOURS_IN_DAY)));
 
     assertThat(convertor.createFromLong(1)).isEqualTo(ONE_MINUTE);
@@ -52,14 +53,16 @@ public class WorkDurationConvertorTest {
 
   @Test
   public void convert_from_long_use_default_value_for_hours_in_day_when_no_property() throws Exception {
+    convertor.init();
     assertThat(convertor.createFromLong(1)).isEqualTo(ONE_MINUTE);
   }
 
   @Test
   public void fail_convert_from_long_on_bad_hours_in_day_property() throws Exception {
+    when(propertiesDao.selectGlobalProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY)).thenReturn(new PropertyDto().setValue("-2"));
+    WorkDurationConvertor workDurationConvertor = new WorkDurationConvertor(propertiesDao);
     try {
-      when(propertiesDao.selectGlobalProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY)).thenReturn(new PropertyDto().setValue("-2"));
-      convertor.createFromLong(1);
+      workDurationConvertor.init();
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class);
@@ -68,6 +71,7 @@ public class WorkDurationConvertorTest {
 
   @Test
   public void convert_from_days() throws Exception {
+    convertor.init();
     when(propertiesDao.selectGlobalProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY)).thenReturn(new PropertyDto().setValue(Integer.toString(HOURS_IN_DAY)));
 
     assertThat(convertor.createFromDays(1.0)).isEqualTo(ONE_DAY_IN_MINUTES);
@@ -75,6 +79,25 @@ public class WorkDurationConvertorTest {
 
     // Should be 4.8 but as it's a long it's truncated after comma
     assertThat(convertor.createFromDays(0.01)).isEqualTo(4L);
+  }
+
+  @Test
+  public void fail_it_init_has_not_been_called() throws Exception {
+    when(propertiesDao.selectGlobalProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY)).thenReturn(new PropertyDto().setValue(Integer.toString(HOURS_IN_DAY)));
+
+    try {
+      assertThat(convertor.createFromLong(1L));
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class);
+    }
+
+    try {
+      assertThat(convertor.createFromDays(1.0));
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(IllegalStateException.class);
+    }
   }
 
 }
