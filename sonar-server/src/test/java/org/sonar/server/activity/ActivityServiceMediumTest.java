@@ -20,6 +20,7 @@
 package org.sonar.server.activity;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import org.elasticsearch.common.collect.Iterables;
 import org.junit.After;
 import org.junit.Before;
@@ -30,6 +31,7 @@ import org.sonar.core.activity.ActivityLog;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.activity.index.ActivityIndex;
+import org.sonar.server.activity.index.ActivityQuery;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
@@ -65,7 +67,7 @@ public class ActivityServiceMediumTest {
 
   @Test
   public void find_all() throws InterruptedException {
-    final String testValue = "hello world";
+
     service.write(dbSession, Activity.Type.ACTIVE_RULE, testValue);
     dbSession.commit();
     assertThat(index.findAll().getTotal()).isEqualTo(1);
@@ -77,7 +79,6 @@ public class ActivityServiceMediumTest {
 
   @Test
   public void search_message_log() throws InterruptedException {
-    final String testValue = "hello world";
     service.write(dbSession, Activity.Type.ACTIVE_RULE, testValue);
     dbSession.commit();
     assertThat(index.findAll().getTotal()).isEqualTo(1);
@@ -87,23 +88,38 @@ public class ActivityServiceMediumTest {
     assertThat(result.getHits().get(0).message()).isEqualTo(testValue);
   }
 
+
   @Test
   public void search_activity_log() throws InterruptedException {
-    final String value = "world";
-    final String key = "hello";
-    ActivityLog activity = new ActivityLog() {
-      @Override
-      public Map<String, String> getDetails() {
-        return ImmutableMap.of(key, value);
-      }
-    };
-    service.write(dbSession, Activity.Type.ACTIVE_RULE, activity);
+
+    service.write(dbSession, Activity.Type.ACTIVE_RULE, getActivity());
     dbSession.commit();
     assertThat(index.findAll().getTotal()).isEqualTo(1);
 
     Result<Activity> result = index.search(service.newActivityQuery(), new QueryOptions());
     assertThat(result.getTotal()).isEqualTo(1L);
-    assertThat(result.getHits().get(0).details().get(key)).isEqualTo(value);
+    assertThat(result.getHits().get(0).details().get(test_key)).isEqualTo(test_value);
+  }
+
+
+  @Test
+  public void search_by_type() {
+    service.write(dbSession, Activity.Type.NONE, getActivity());
+    service.write(dbSession, Activity.Type.SERVER, getActivity());
+    service.write(dbSession, Activity.Type.SERVER, testValue);
+    service.write(dbSession, Activity.Type.ACTIVE_RULE, getActivity());
+    dbSession.commit();
+
+    assertThat(service.search(new ActivityQuery(),
+      new QueryOptions()).getHits()).hasSize(4);
+
+    assertThat(service.search(new ActivityQuery()
+        .setTypes(ImmutableSet.of(Activity.Type.SERVER)),
+      new QueryOptions()).getHits()).hasSize(2);
+
+    assertThat(service.search(new ActivityQuery()
+        .setTypes(ImmutableSet.of(Activity.Type.ACTIVE_RULE)),
+      new QueryOptions()).getHits()).hasSize(1);
   }
 
   @Test
@@ -128,5 +144,19 @@ public class ActivityServiceMediumTest {
       logIterator.next();
     }
     assertThat(count).isEqualTo(max);
+  }
+
+
+  final String test_key = "hello";
+  final String test_value = "world";
+  final String testValue = "hello world";
+
+  private ActivityLog getActivity() {
+    return new ActivityLog() {
+      @Override
+      public Map<String, String> getDetails() {
+        return ImmutableMap.of(test_key, test_value);
+      }
+    };
   }
 }

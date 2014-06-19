@@ -25,6 +25,8 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.OrFilterBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.activity.db.ActivityDto;
@@ -97,8 +99,14 @@ public class ActivityIndex extends BaseIndex<Activity, ActivityDto, ActivityKey>
       .setTypes(this.getIndexType())
       .setIndices(this.getIndexName());
 
+    OrFilterBuilder filter = FilterBuilders.orFilter();
+    for (Activity.Type type : query.getTypes()) {
+      filter.add(FilterBuilders.termFilter(ActivityNormalizer.LogFields.TYPE.field(), type));
+    }
+
     // TODO implement query and filters based on LogQuery
-    esSearch.setQuery(QueryBuilders.matchAllQuery());
+    esSearch.setQuery(QueryBuilders.filteredQuery(
+      QueryBuilders.matchAllQuery(), filter));
 
     if (options.isScroll()) {
       esSearch.setSearchType(SearchType.SCAN);

@@ -121,6 +121,5 @@ public class ActivityBackendMediumTest {
       count++;
     }
     assertThat(count).isEqualTo(max);
-
   }
 }

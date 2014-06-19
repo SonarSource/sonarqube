@@ -19,6 +19,7 @@
  */
 package org.sonar.server.activity.index;
 
+import com.google.common.collect.Lists;
 import org.sonar.core.activity.Activity;
 
 import java.util.Collection;
@@ -34,29 +35,33 @@ public class ActivityQuery {
   private Collection<Activity.Type> types;
 
   public ActivityQuery() {
+    types = Lists.newArrayList();
   }
 
   public Date getSince() {
     return since;
   }
 
-  public void setSince(Date since) {
+  public ActivityQuery setSince(Date since) {
     this.since = since;
+    return this;
   }
 
   public Date getTo() {
     return to;
   }
 
-  public void setTo(Date to) {
+  public ActivityQuery setTo(Date to) {
     this.to = to;
+    return this;
   }
 
   public Collection<Activity.Type> getTypes() {
     return types;
   }
 
-  public void setTypes(Collection<Activity.Type> types) {
+  public ActivityQuery setTypes(Collection<Activity.Type> types) {
     this.types = types;
+    return this;
   }
 }
