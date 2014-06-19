@@ -56,11 +56,11 @@ public class ChangeLogMigration implements DatabaseMigration {
   private static final String PARAM_VALUE = "param_value";
   private static final String PARAM_NAME = "param_name";
   private static final String RULE_NAME = "rule_name";
-  private static final String RULE_KEY = "rule_key";
   private static final String CREATED_AT = "created_at";
   private static final String SEVERITY = "severity";
   private static final String USER_LOGIN = "user_login";
-  private static final String REPOSITORY = "repository";
+  private static final String RULE_KEY = "rule_key";
+  private static final String REPOSITORY = "rule_repository";
   private static final String PROFILE_NAME = "profile_name";
   private static final String PROFILE_LANG = "profile_lang";
 
@@ -128,7 +128,7 @@ public class ChangeLogMigration implements DatabaseMigration {
       "  rule_def.plugin_name as " + RULE_KEY + "," +
       "  rule_def.plugin_rule_key as " + REPOSITORY + "," +
       "  profile.name as " + PROFILE_NAME + "," +
-      "  profile.language as " + PROFILE_LANG + "," +
+      "  profile.language as " + PROFILE_LANG +
       " from active_rule_changes rule_change" +
       "  left join users on users.name = rule_change.username" +
       "  left join rules rule_def on rule_def.id = rule_change.rule_id" +
