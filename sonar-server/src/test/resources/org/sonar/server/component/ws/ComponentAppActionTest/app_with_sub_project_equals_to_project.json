@@ -3,6 +3,7 @@
   "path": "src/main/java/org/sonar/api/Plugin.java",
   "name": "Plugin.java",
   "q": "FIL",
+  "project" : "org.codehaus.sonar:sonar",
   "projectName": "SonarQube",
   "fav": true,
   "canMarkAsFavourite": true,

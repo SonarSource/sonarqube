@@ -173,10 +173,12 @@ public class ComponentAppAction implements RequestHandler {
     ComponentDto subProject = (ComponentDto) nullableComponentById(component.subProjectId(), session);
     ComponentDto project = (ComponentDto) componentById(component.projectId(), session);
 
-    // Do not display sub project long name if sub project and project are the same
-    boolean displaySubProjectLongName = subProject != null && !subProject.getId().equals(project.getId());
+    // Do not display sub project if sub project and project are the same
+    boolean displaySubProject = subProject != null && !subProject.getId().equals(project.getId());
 
-    json.prop("subProjectName", displaySubProjectLongName ? subProject.longName() : null);
+    json.prop("subProject", displaySubProject ? subProject.key() : null);
+    json.prop("subProjectName", displaySubProject ? subProject.longName() : null);
+    json.prop("project", project.key());
     json.prop("projectName", project.longName());
 
     json.prop("fav", isFavourite);

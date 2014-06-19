@@ -81,7 +81,7 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class ComponentAppActionTest {
 
-  static final String PROJECT_KEY = "org.codehaus.sonar:sonar-plugin-api:api";
+  static final String SUB_PROJECT_KEY = "org.codehaus.sonar:sonar-plugin-api";
   static final String COMPONENT_KEY = "org.codehaus.sonar:sonar-plugin-api:src/main/java/org/sonar/api/Plugin.java";
 
   @Mock
@@ -142,13 +142,13 @@ public class ComponentAppActionTest {
 
   @Test
   public void app() throws Exception {
-    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
 
     ComponentDto file = new ComponentDto().setId(10L).setQualifier("FIL").setKey(COMPONENT_KEY).setName("Plugin.java")
       .setPath("src/main/java/org/sonar/api/Plugin.java").setSubProjectId(5L).setProjectId(1L);
     when(componentDao.getNullableByKey(session, COMPONENT_KEY)).thenReturn(file);
-    when(componentDao.getById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API"));
-    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
+    when(componentDao.getById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
+    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube").setKey("org.codehaus.sonar:sonar"));
     when(propertiesDao.selectByQuery(any(PropertyQuery.class), eq(session))).thenReturn(newArrayList(new PropertyDto()));
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
@@ -162,7 +162,7 @@ public class ComponentAppActionTest {
 
     ComponentDto file = new ComponentDto().setId(1L).setQualifier("TRK").setKey(componentKey).setName("SonarQube").setProjectId(1L);
     when(componentDao.getNullableByKey(session, componentKey)).thenReturn(file);
-    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
+    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube").setKey("org.codehaus.sonar:sonar"));
     when(propertiesDao.selectByQuery(any(PropertyQuery.class), eq(session))).thenReturn(newArrayList(new PropertyDto()));
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", componentKey);
@@ -171,12 +171,12 @@ public class ComponentAppActionTest {
 
   @Test
   public void app_with_sub_project_equals_to_project() throws Exception {
-    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().setLogin("john").addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
 
     ComponentDto file = new ComponentDto().setId(10L).setQualifier("FIL").setKey(COMPONENT_KEY).setName("Plugin.java")
       .setPath("src/main/java/org/sonar/api/Plugin.java").setSubProjectId(1L).setProjectId(1L);
     when(componentDao.getNullableByKey(session, COMPONENT_KEY)).thenReturn(file);
-    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
+    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube").setKey("org.codehaus.sonar:sonar"));
     when(propertiesDao.selectByQuery(any(PropertyQuery.class), eq(session))).thenReturn(newArrayList(new PropertyDto()));
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
@@ -185,7 +185,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app_with_tabs() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
     addComponent();
 
     addMeasure(CoreMetrics.COVERAGE_KEY, 1.0);
@@ -198,7 +198,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app_with_measures() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
     addComponent();
 
     addMeasure(CoreMetrics.NCLOC_KEY, 200);
@@ -218,7 +218,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app_with_measures_when_period_is_set() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
     addComponent();
     addPeriod();
 
@@ -239,7 +239,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app_with_issues_measures() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
     addComponent();
 
     Multiset<String> severities = LinkedHashMultiset.create();
@@ -267,7 +267,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app_with_issues_measures_when_period_is_set() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
     addComponent();
     addPeriod();
 
@@ -298,13 +298,13 @@ public class ComponentAppActionTest {
   @Test
   public void app_with_tests_measure() throws Exception {
     String componentKey = "org.codehaus.sonar:sonar-server:src/test/java/org/sonar/server/issue/PlanActionTest.java";
-    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, componentKey);
+    MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, componentKey);
 
     ComponentDto file = new ComponentDto().setId(10L).setQualifier("UTS").setKey(componentKey).setName("PlanActionTest.java")
       .setPath("src/test/java/org/sonar/server/issue/PlanActionTest.java").setSubProjectId(5L).setProjectId(1L);
     when(componentDao.getNullableByKey(session, componentKey)).thenReturn(file);
-    when(componentDao.getById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API"));
-    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
+    when(componentDao.getById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
+    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube").setKey("org.codehaus.sonar:sonar"));
 
     addMeasure(CoreMetrics.TESTS_KEY, 10);
 
@@ -317,7 +317,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app_with_periods() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
 
     addComponent();
 
@@ -332,7 +332,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app_with_severities() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
 
     addComponent();
 
@@ -347,7 +347,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app_with_severities_when_period_is_set() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
     addComponent();
     addPeriod();
 
@@ -362,7 +362,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app_with_rules() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
 
     addComponent();
     when(issueService.findRulesByComponent(COMPONENT_KEY, null, session)).thenReturn(
@@ -375,7 +375,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app_with_rules_when_period_is_set() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
 
     addComponent();
 
@@ -395,7 +395,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app_with_extension() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
     addComponent();
 
     when(views.getPages(anyString(), anyString(), anyString(), anyString(), any(String[].class))).thenReturn(
@@ -408,7 +408,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app_with_extension_having_permission() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
     addComponent();
 
     when(views.getPages(anyString(), anyString(), anyString(), anyString(), any(String[].class))).thenReturn(
@@ -420,7 +420,7 @@ public class ComponentAppActionTest {
 
   @Test
   public void app_with_manual_rules() throws Exception {
-    MockUserSession.set().addComponentPermission(UserRole.USER, PROJECT_KEY, COMPONENT_KEY);
+    MockUserSession.set().addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
     addComponent();
 
     Result<Rule> result = mock(Result.class);
@@ -438,8 +438,8 @@ public class ComponentAppActionTest {
     ComponentDto file = new ComponentDto().setId(10L).setQualifier("FIL").setKey(COMPONENT_KEY).setName("Plugin.java")
       .setPath("src/main/java/org/sonar/api/Plugin.java").setSubProjectId(5L).setProjectId(1L);
     when(componentDao.getNullableByKey(session, COMPONENT_KEY)).thenReturn(file);
-    when(componentDao.getById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API"));
-    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
+    when(componentDao.getById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
+    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube").setKey("org.codehaus.sonar:sonar"));
   }
 
   private void addPeriod(){
