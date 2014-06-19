@@ -58,7 +58,7 @@ public class PreviewDatabaseFactory implements ServerComponent {
 
     try {
       DataSource source = database.getDataSource();
-      BasicDataSource destination = create(DIALECT, DRIVER, USER, PASSWORD, URL + h2Name);
+      BasicDataSource destination = create(DIALECT, DRIVER, USER, PASSWORD, URL + h2Name + ";LOG=0;CACHE_SIZE=65536;LOCK_MODE=0;UNDO_LOG=0");
 
       copy(source, destination, projectId);
       close(destination);
