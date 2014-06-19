@@ -21,6 +21,7 @@ package org.sonar.server.activity.db;
 
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,6 +68,17 @@ public class ActivityDaoTest extends AbstractDaoTestCase {
     }
   }
 
+
+  @Test
+  public void fail_get_by_key() {
+    try {
+      dao.getByKey(session, "hello world");
+    } catch (IllegalStateException e) {
+      assertThat(e.getMessage()).isEqualTo("Cannot execute getByKey on Activities in DB");
+    }
+  }
+
+
   @Test
   public void fail_insert_missing_author() {
     String testValue = "hello world";
@@ -87,8 +99,8 @@ public class ActivityDaoTest extends AbstractDaoTestCase {
       .setAuthor("jUnit");
     dao.insert(session, log);
 
-    assertThat(dao.findAll(session)).hasSize(1);
-    ActivityDto newDto = dao.getByKey(session, log.getKey());
+    ActivityDto newDto = Iterables.getFirst(dao.findAll(session), null);
+    assertThat(newDto).isNotNull();
     assertThat(newDto.getAuthor()).isEqualTo(log.getAuthor());
     assertThat(newDto.getMessage()).isEqualTo(testValue);
   }
@@ -114,8 +126,8 @@ public class ActivityDaoTest extends AbstractDaoTestCase {
 
     dao.insert(session, log);
 
-    assertThat(dao.findAll(session)).hasSize(1);
-    ActivityDto newDto = dao.getByKey(session, log.getKey());
+    ActivityDto newDto = Iterables.getFirst(dao.findAll(session), null);
+    assertThat(newDto).isNotNull();
     assertThat(newDto.getAuthor()).isEqualTo(log.getAuthor());
     assertThat(newDto.getData()).isNotNull();
     Map<String, String> details = KeyValueFormat.parse(newDto.getData());

@@ -127,14 +127,16 @@ public class ActivityServiceMediumTest {
   @Test
   public void filter_by_date() throws InterruptedException {
 
-    ActivityDto activity = ActivityDto.createFor(testValue)
-      .setType(Activity.Type.NONE).setAuthor("testing");
     DateTime t0 = new DateTime().minusHours(1);
+    ActivityDto activity = getActivityDto();
     activity.setCreatedAt(t0.toDate());
     dao.insert(dbSession, activity);
+    activity = getActivityDto();
+    activity.setCreatedAt(t0.toDate());
     dao.insert(dbSession, activity);
     dbSession.commit();
     DateTime t1 = new DateTime();
+    activity = getActivityDto();
     activity.setCreatedAt(t1.toDate());
     dao.insert(dbSession, activity);
     dbSession.commit();
@@ -161,6 +163,11 @@ public class ActivityServiceMediumTest {
         .setSince(t1.minusSeconds(5).toDate())
         .setTo(t2.plusSeconds(5).toDate()),
       new QueryOptions()).getHits()).hasSize(1);
+  }
+
+  private ActivityDto getActivityDto() {
+    return ActivityDto.createFor(testValue)
+      .setType(Activity.Type.NONE).setAuthor("testing");
   }
 
   @Test
