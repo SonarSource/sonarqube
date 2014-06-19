@@ -22,9 +22,9 @@
 # SonarQube 4.3
 # SONAR-4996
 #
-class UpdateIssueDebtToMinutes < ActiveRecord::Migration
+class ConvertIssueDebtToMinutes < ActiveRecord::Migration
 
   def self.up
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().executeMigration('org.sonar.server.db.migrations.v43.IssueMigration')
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().executeMigration('org.sonar.server.db.migrations.v43.ConvertIssueDebtToMinutesMigration')
   end
 end

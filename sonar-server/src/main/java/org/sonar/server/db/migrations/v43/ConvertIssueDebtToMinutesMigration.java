@@ -37,18 +37,18 @@ import java.sql.Timestamp;
  * Used in the Active Record Migration 513
  * @since 4.3
  */
-public class IssueMigration implements DatabaseMigration {
+public class ConvertIssueDebtToMinutesMigration implements DatabaseMigration {
 
   private final WorkDurationConvertor workDurationConvertor;
   private final System2 system2;
   private final Database db;
 
-  public IssueMigration(Database database, PropertiesDao propertiesDao) {
+  public ConvertIssueDebtToMinutesMigration(Database database, PropertiesDao propertiesDao) {
     this(database, propertiesDao, System2.INSTANCE);
   }
 
   @VisibleForTesting
-  IssueMigration(Database database, PropertiesDao propertiesDao, System2 system2) {
+  ConvertIssueDebtToMinutesMigration(Database database, PropertiesDao propertiesDao, System2 system2) {
     this.db = database;
     this.workDurationConvertor = new WorkDurationConvertor(propertiesDao);
     this.system2 = system2;

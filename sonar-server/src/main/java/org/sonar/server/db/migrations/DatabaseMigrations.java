@@ -23,9 +23,9 @@ import com.google.common.collect.ImmutableList;
 import org.sonar.server.db.migrations.v36.ViolationMigration;
 import org.sonar.server.db.migrations.v42.CompleteIssueMessageMigration;
 import org.sonar.server.db.migrations.v42.PackageKeysMigration;
+import org.sonar.server.db.migrations.v43.ConvertIssueDebtToMinutesMigration;
 import org.sonar.server.db.migrations.v43.DevelopmentCostMeasuresMigration;
 import org.sonar.server.db.migrations.v43.IssueChangelogMigration;
-import org.sonar.server.db.migrations.v43.IssueMigration;
 import org.sonar.server.db.migrations.v43.NotResolvedIssuesOnRemovedComponentsMigration;
 import org.sonar.server.db.migrations.v43.RequirementMeasuresMigration;
 import org.sonar.server.db.migrations.v43.TechnicalDebtMeasuresMigration;
@@ -45,7 +45,7 @@ public interface DatabaseMigrations {
     PackageKeysMigration.class, CompleteIssueMessageMigration.class,
 
     // 4.3
-    IssueMigration.class,
+    ConvertIssueDebtToMinutesMigration.class,
     IssueChangelogMigration.class,
     TechnicalDebtMeasuresMigration.class,
     DevelopmentCostMeasuresMigration.class,

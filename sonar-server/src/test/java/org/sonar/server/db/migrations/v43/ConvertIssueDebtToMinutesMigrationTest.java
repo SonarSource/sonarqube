@@ -35,10 +35,10 @@ import org.sonar.core.properties.PropertyDto;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class IssueMigrationTest {
+public class ConvertIssueDebtToMinutesMigrationTest {
 
   @ClassRule
-  public static TestDatabase db = new TestDatabase().schema(IssueMigrationTest.class, "schema.sql");
+  public static TestDatabase db = new TestDatabase().schema(ConvertIssueDebtToMinutesMigrationTest.class, "schema.sql");
 
   @Mock
   System2 system2;
@@ -46,14 +46,14 @@ public class IssueMigrationTest {
   @Mock
   PropertiesDao propertiesDao;
 
-  IssueMigration migration;
+  ConvertIssueDebtToMinutesMigration migration;
 
   @Before
   public void setUp() throws Exception {
     when(system2.now()).thenReturn(DateUtils.parseDateTime("2014-02-19T19:10:03+0100").getTime());
     when(propertiesDao.selectGlobalProperty(WorkDurationConvertor.HOURS_IN_DAY_PROPERTY)).thenReturn(new PropertyDto().setValue("8"));
 
-    migration = new IssueMigration(db.database(), propertiesDao, system2);
+    migration = new ConvertIssueDebtToMinutesMigration(db.database(), propertiesDao, system2);
   }
 
   @Test
