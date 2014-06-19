@@ -17,9 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.db.migrations.v44;
-
-import org.apache.ibatis.type.Alias;
+package org.sonar.core.persistence.migration.v44;
 
 import java.util.Date;
 
@@ -31,11 +29,36 @@ import java.util.Date;
  *
  * @since 4.4
  */
-@Alias("ChangeLogMigration")
 public class ChangeLog {
 
+  private int id;
   private Date createdAt;
+  private int severity;
+  private String paramKey;
+  private String paramValue;
   private String userLogin;
+  private String ruleKey;
+  private String repository;
+  private String profileKey;
+
+  public ChangeLog() {
+  }
+
+  public int getId() {
+    return id;
+  }
+
+  public void setId(int id) {
+    this.id = id;
+  }
+
+  public int getSeverity() {
+    return severity;
+  }
+
+  public void setSeverity(int severity) {
+    this.severity = severity;
+  }
 
   public Date getCreatedAt() {
     return createdAt;
@@ -45,11 +68,51 @@ public class ChangeLog {
     this.createdAt = createdAt;
   }
 
+  public String getParamKey() {
+    return paramKey;
+  }
+
+  public void setParamKey(String paramKey) {
+    this.paramKey = paramKey;
+  }
+
+  public String getParamValue() {
+    return paramValue;
+  }
+
+  public void setParamValue(String paramValue) {
+    this.paramValue = paramValue;
+  }
+
   public String getUserLogin() {
     return userLogin;
   }
 
   public void setUserLogin(String userLogin) {
     this.userLogin = userLogin;
+  }
+
+  public String getRuleKey() {
+    return ruleKey;
+  }
+
+  public void setRuleKey(String ruleKey) {
+    this.ruleKey = ruleKey;
+  }
+
+  public String getRepository() {
+    return repository;
+  }
+
+  public void setRepository(String repository) {
+    this.repository = repository;
+  }
+
+  public String getProfileKey() {
+    return profileKey;
+  }
+
+  public void setProfileKey(String profileKey) {
+    this.profileKey = profileKey;
   }
 }

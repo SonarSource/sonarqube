@@ -36,4 +36,7 @@ public interface Migration44Mapper {
   // creation of columns RULES_PROFILES.CREATED_AT and UPDATED_AT
   @CheckForNull Date selectProfileCreatedAt(long profileId);
   @CheckForNull Date selectProfileUpdatedAt(long profileId);
+
+  // migrate changeLog to Activities
+  List<ChangeLog> selectActiveRuleChange(@Param("enabled") Boolean enabled);
 }

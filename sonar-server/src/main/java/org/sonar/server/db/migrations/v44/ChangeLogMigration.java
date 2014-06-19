@@ -19,7 +19,6 @@
  */
 package org.sonar.server.db.migrations.v44;
 
-import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +26,8 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.activity.db.ActivityDto;
 import org.sonar.core.persistence.DbSession;
+import org.sonar.core.persistence.migration.v44.ChangeLog;
+import org.sonar.core.persistence.migration.v44.Migration44Mapper;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.rule.SeverityUtil;
 import org.sonar.server.activity.ActivityService;
@@ -35,10 +36,9 @@ import org.sonar.server.db.DbClient;
 import org.sonar.server.db.migrations.DatabaseMigration;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * SONAR-5329
@@ -52,88 +52,8 @@ public class ChangeLogMigration implements DatabaseMigration {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ChangeLogMigration.class);
 
-  private static final String PARAM_VALUE = "param_value";
-  private static final String PARAM_NAME = "param_name";
-  private static final String RULE_NAME = "rule_name";
-  private static final String CREATED_AT = "created_at";
-  private static final String SEVERITY = "severity";
-  private static final String USER_LOGIN = "user_login";
-  private static final String RULE_KEY = "rule_key";
-  private static final String REPOSITORY = "rule_repository";
-  private static final String PROFILE_KEY = "profile_key";
-
   private final ActivityDao dao;
-  private DbSession session;
   private final DbClient db;
-
-  private final String allActivation =
-    "select" +
-      "   rule_change.id," +
-      "   rule_change.change_date as " + CREATED_AT + "," +
-      "   users.login as " + USER_LOGIN + "," +
-      "   rule_def.plugin_name as " + RULE_KEY + "," +
-      "   rule_def.plugin_rule_key as " + REPOSITORY + "," +
-      "   profile.kee as " + PROFILE_KEY + "," +
-      "   rule_change.new_severity as " + SEVERITY + "," +
-      "   rule_def.name as " + RULE_NAME + "," +
-      "   rule_def_param.name as " + PARAM_NAME + "," +
-      "   rule_param_change.new_value as " + PARAM_VALUE +
-      " from active_rule_changes rule_change" +
-      "   left join users on users.name = rule_change.username" +
-      "   left join rules rule_def on rule_def.id = rule_change.rule_id" +
-      "   left join rules_profiles profile on profile.id = rule_change.profile_id" +
-      "   left join active_rule_param_changes rule_param_change on rule_param_change.active_rule_change_id = rule_change.id" +
-      "   left join rules_parameters rule_def_param on rule_def_param.id = rule_param_change.rules_parameter_id" +
-      " WHERE rule_change.enabled is true" +
-      "       AND profile.name is not null" +
-      "       AND profile.language is not null" +
-      "       AND rule_def.plugin_name is not null" +
-      "       AND rule_def.plugin_name is not null" +
-      " order by rule_change.id ASC;";
-
-  private final String allUpdates =
-    "select" +
-      "   rule_change.id," +
-      "   rule_change.change_date as " + CREATED_AT + "," +
-      "   users.login as " + USER_LOGIN + "," +
-      "   rule_def.plugin_name as " + RULE_KEY + "," +
-      "   rule_def.plugin_rule_key as " + REPOSITORY + "," +
-      "   profile.kee as " + PROFILE_KEY + "," +
-      "   rule_change.new_severity as " + SEVERITY + "," +
-      "   rule_def.name as " + RULE_NAME + "," +
-      "   rule_def_param.name as " + PARAM_NAME + "," +
-      "   rule_param_change.new_value as " + PARAM_VALUE +
-      " from active_rule_changes rule_change" +
-      "   left join users on users.name = rule_change.username" +
-      "   left join rules rule_def on rule_def.id = rule_change.rule_id" +
-      "   left join rules_profiles profile on profile.id = rule_change.profile_id" +
-      "   left join active_rule_param_changes rule_param_change on rule_param_change.active_rule_change_id = rule_change.id" +
-      "   left join rules_parameters rule_def_param on rule_def_param.id = rule_param_change.rules_parameter_id" +
-      " WHERE rule_change.enabled is null" +
-      "       AND profile.name is not null" +
-      "       AND profile.language is not null" +
-      "       AND rule_def.plugin_name is not null" +
-      "       AND rule_def.plugin_name is not null" +
-      " order by rule_change.id ASC;";
-
-  private String allDeactivation =
-    "select" +
-      "  rule_change.id as id," +
-      "  rule_change.change_date as " + CREATED_AT + "," +
-      "  users.login as " + USER_LOGIN + "," +
-      "  rule_def.plugin_name as " + RULE_KEY + "," +
-      "  rule_def.plugin_rule_key as " + REPOSITORY + "," +
-      "  profile.kee as " + PROFILE_KEY +
-      " from active_rule_changes rule_change" +
-      "  left join users on users.name = rule_change.username" +
-      "  left join rules rule_def on rule_def.id = rule_change.rule_id" +
-      "  left join rules_profiles profile on profile.id = rule_change.profile_id" +
-      " WHERE rule_change.enabled is false" +
-      "      AND profile.name is not null" +
-      "      AND profile.language is not null" +
-      "      AND rule_def.plugin_name is not null" +
-      "      AND rule_def.plugin_name is not null" +
-      " order by rule_change.id ASC";
 
   public ChangeLogMigration(ActivityService service, ActivityDao dao, DbClient db) {
     this.dao = dao;
@@ -142,69 +62,49 @@ public class ChangeLogMigration implements DatabaseMigration {
 
   @Override
   public void execute() {
+    DbSession session = db.openSession(false);
+    Migration44Mapper migrationMapper = session.getMapper(Migration44Mapper.class);
     try {
-      this.session = db.openSession(false);
-      executeUpsert(ActiveRuleChange.Type.ACTIVATED, allActivation);
-      executeUpsert(ActiveRuleChange.Type.UPDATED, allUpdates);
-      executeUpsert(ActiveRuleChange.Type.DEACTIVATED, allDeactivation);
+      executeUpsert(session, ActiveRuleChange.Type.ACTIVATED, migrationMapper.selectActiveRuleChange(true));
+      executeUpsert(session, ActiveRuleChange.Type.UPDATED, migrationMapper.selectActiveRuleChange(null));
+      executeUpsert(session, ActiveRuleChange.Type.DEACTIVATED, migrationMapper.selectActiveRuleChange(false));
       session.commit();
     } finally {
       session.close();
     }
   }
 
-  private void executeUpsert(ActiveRuleChange.Type type, String sql) {
-    Connection connection = null;
-    try {
-      connection = db.database().getDataSource().getConnection();
-      ResultSet result = connection.createStatement().executeQuery(sql);
+  private void executeUpsert(DbSession session, ActiveRuleChange.Type type, List<ChangeLog> changes) {
 
+    Iterator<ChangeLog> changeLogIterator = changes.iterator();
+    if (changeLogIterator.hasNext()) {
       // startCase
-      boolean hasNext = result.next();
-      if (hasNext) {
-        int currentId = result.getInt("id");
-        Date currentTimeStamp = result.getTimestamp(CREATED_AT);
-        String currentAuthor = getAuthor(result);
-        ActiveRuleChange ruleChange = newActiveRuleChance(type, result);
-        processRuleChange(ruleChange, result);
+      ChangeLog change = changeLogIterator.next();
+      int currentId = change.getId();
+      Date currentTimeStamp = change.getCreatedAt();
+      String currentAuthor = change.getUserLogin();
+      ActiveRuleChange ruleChange = newActiveRuleChance(type, change);
+      processRuleChange(ruleChange, change);
 
-        while (result.next()) {
-          int id = result.getInt("id");
-          if (id != currentId) {
-            saveActiveRuleChange(ruleChange, currentAuthor, currentTimeStamp);
-            currentId = id;
-            currentTimeStamp = result.getTimestamp(CREATED_AT);
-            currentAuthor = getAuthor(result);
-            ruleChange = newActiveRuleChance(type, result);
-          }
-          processRuleChange(ruleChange, result);
+      while (changeLogIterator.hasNext()) {
+        change = changeLogIterator.next();
+        int id = change.getId();
+        if (id != currentId) {
+          saveActiveRuleChange(session, ruleChange, currentAuthor, currentTimeStamp);
+          currentId = id;
+          currentTimeStamp = change.getCreatedAt();
+          currentAuthor = change.getUserLogin();
+          ruleChange = newActiveRuleChance(type, change);
         }
-        // save the last
-        saveActiveRuleChange(ruleChange, currentAuthor, currentTimeStamp);
+        processRuleChange(ruleChange, change);
       }
-
-    } catch (Exception e) {
-      throw new IllegalStateException(e);
-
-    } finally {
-      DbUtils.closeQuietly(connection);
+      // save the last
+      saveActiveRuleChange(session, ruleChange, currentAuthor, currentTimeStamp);
     }
   }
 
-  private String getAuthor(ResultSet result) {
-    try {
-      String author = result.getString(USER_LOGIN);
-      if (StringUtils.isNotEmpty(author) && !author.equals("null")) {
-        return author;
-      } else {
-        return "unknown";
-      }
-    } catch (Exception e) {
-      return "unknown";
-    }
-  }
 
-  private void saveActiveRuleChange(ActiveRuleChange ruleChange, String author, Date currentTimeStamp) {
+  private void saveActiveRuleChange(DbSession session, ActiveRuleChange ruleChange, String author, Date currentTimeStamp) {
     ActivityDto activity = ActivityDto.createFor(ruleChange);
     activity.setType(Activity.Type.QPROFILE);
     activity.setAuthor(author);
@@ -212,27 +112,17 @@ public class ChangeLogMigration implements DatabaseMigration {
     dao.insert(session, activity);
   }
 
-  private void processRuleChange(ActiveRuleChange ruleChange, ResultSet result) throws SQLException {
-
-    try {
-      ruleChange.setSeverity(SeverityUtil.getSeverityFromOrdinal(result.getInt(SEVERITY)));
-    } catch (Exception e) {
-      // System.out.println("e.getMessage() = " + e.getMessage());
-    }
-    try {
-      String param_value = result.getString(PARAM_VALUE);
-      String param_name = result.getString(PARAM_NAME);
-      if (StringUtils.isNotEmpty(param_name) && !param_name.equals("null")) {
-        ruleChange.setParameter(param_name, param_value);
-      }
-    } catch (Exception e) {
-      // System.out.println("e.getMessage() = " + e.getMessage());
+  private void processRuleChange(ActiveRuleChange ruleChange, ChangeLog change) {
+    ruleChange.setSeverity(SeverityUtil.getSeverityFromOrdinal(change.getSeverity()));
+    String param_value = change.getParamKey();
+    String param_name = change.getParamValue();
+    if (StringUtils.isNotEmpty(param_name) && !param_name.equals("null")) {
+      ruleChange.setParameter(param_name, param_value);
     }
   }
 
-  private ActiveRuleChange newActiveRuleChance(ActiveRuleChange.Type type, ResultSet result) throws SQLException {
-    return ActiveRuleChange.createFor(
-      type, ActiveRuleKey.of(
-        result.getString(PROFILE_KEY), RuleKey.of(result.getString(REPOSITORY), result.getString(RULE_KEY))));
+  private ActiveRuleChange newActiveRuleChance(ActiveRuleChange.Type type, ChangeLog change) {
+    return ActiveRuleChange.createFor(type,
+      ActiveRuleKey.of(change.getProfileKey(), RuleKey.of(change.getRepository(), change.getRuleKey())));
   }
 }
