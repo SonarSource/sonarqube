@@ -1,8 +1,10 @@
-<div class="component-viewer-header-time-changes">
-  <a class="highlighted-link js-issues-time-changes">
-    {{#if period}}{{t 'component_viewer.added'}} {{period.label}}{{else}}<i class="icon-period"></i> {{t 'component_viewer.time_changes'}}{{/if}}
-  </a>
-</div>
+{{#if state.hasSource}}
+  <div class="component-viewer-header-time-changes">
+    <a class="highlighted-link js-issues-time-changes">
+      {{#if period}}{{t 'component_viewer.added'}} {{period.label}}{{else}}<i class="icon-period"></i> {{t 'component_viewer.time_changes'}}{{/if}}
+    </a>
+  </div>
+{{/if}}
 
 {{#ifNotEmpty state.severities}}
   <div class="component-viewer-header-expanded-bar-section">
@@ -11,11 +13,18 @@
     </div>
     <ul class="component-viewer-header-expanded-bar-section-list">
       {{#each state.severities}}
-        <li><a class="item js-filter-{{key}}-issues">
-          <span>{{severityIcon key}} {{name}}</span>
-          <span class="number">{{count}}</span>
-          <i class="icon-chevron-right"></i>
-        </a></li>
+        {{#if ../../state.hasSource}}
+          <li><a class="item js-filter-{{key}}-issues">
+            <span>{{severityIcon key}} {{name}}</span>
+            <span class="number">{{count}}</span>
+            <i class="icon-chevron-right"></i>
+          </a></li>
+        {{else}}
+          <li><span class="item">
+            <span>{{severityIcon key}} {{name}}</span>
+            <span class="number">{{count}}</span>
+          </span></li>
+        {{/if}}
       {{/each}}
     </ul>
   </div>
@@ -28,11 +37,18 @@
     </div>
     <ul class="component-viewer-header-expanded-bar-section-list">
       {{#each state.rules}}
-        <li><a class="item js-filter-rule" data-rule="{{key}}" title="{{name}}">
-          <span>{{name}}</span>
-          <span class="number">{{count}}</span>
-          <i class="icon-chevron-right"></i>
-        </a></li>
+        {{#if ../../state.hasSource}}
+          <li><a class="item js-filter-rule" data-rule="{{key}}" title="{{name}}">
+            <span>{{name}}</span>
+            <span class="number">{{count}}</span>
+            <i class="icon-chevron-right"></i>
+          </a></li>
+        {{else}}
+          <li><span class="item">
+            <span>{{name}}</span>
+            <span class="number">{{count}}</span>
+          </span></li>
+        {{/if}}
       {{/each}}
     </ul>
   </div>
@@ -49,19 +65,32 @@
         <i class="icon-chevron-right"></i>
       </a></li>
     {{/if}}
-    <li><a class="item js-filter-unresolved-issues">
-      <span>{{t 'component_viewer.issues.unresolved_issues'}}</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
-    <li><a class="item js-filter-fixed-issues">
-      <span>{{t 'component_viewer.issues.fixed_issues'}}</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
-    <li><a class="item js-filter-false-positive-issues">
-      <span>{{t 'component_viewer.issues.false_positive_issues'}}</span>
-      <span class="number">{{component.measures.false_positive_issues}}</span>
-      <i class="icon-chevron-right"></i>
-    </a></li>
+    {{#if state.hasSource}}
+      <li><a class="item js-filter-unresolved-issues">
+        <span>{{t 'component_viewer.issues.unresolved_issues'}}</span>
+        <i class="icon-chevron-right"></i>
+      </a></li>
+    {{/if}}
+    {{#if state.hasSource}}
+      <li><a class="item js-filter-fixed-issues">
+        <span>{{t 'component_viewer.issues.fixed_issues'}}</span>
+        <i class="icon-chevron-right"></i>
+      </a></li>
+    {{/if}}
+    {{#if state.hasSource}}
+      <li><a class="item js-filter-false-positive-issues">
+        <span>{{t 'component_viewer.issues.false_positive_issues'}}</span>
+        <span class="number">{{component.measures.false_positive_issues}}</span>
+        <i class="icon-chevron-right"></i>
+      </a></li>
+    {{else}}
+      {{#if component.measures.false_positive_issues}}
+        <li><span class="item">
+          <span>{{t 'component_viewer.issues.false_positive_issues'}}</span>
+          <span class="number">{{component.measures.false_positive_issues}}</span>
+        </span></li>
+      {{/if}}
+    {{/if}}
   </ul>
 </div>
 

@@ -18,6 +18,7 @@ define [], () ->
 
     augmentWithDuplications: (duplications) ->
       formattedSource = @source.get 'formattedSource'
+      return unless formattedSource
       formattedSource.forEach (line) ->
         lineDuplications = []
         duplications.forEach (d, i) ->

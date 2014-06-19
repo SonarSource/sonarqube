@@ -112,10 +112,11 @@ define [
 
 
     showExtension: (key) ->
-      @ui.expandedBar.html('<i class="spinner spinner-margin"></i>').addClass 'active'
+      bar = @ui.expandedBar
+      bar.html('<i class="spinner spinner-margin"></i>').addClass 'active'
       @ui.expandLinks.removeClass 'active'
       $.get API_EXTENSION, id: @options.main.component.get('key'), tab: key, (r) =>
-        @ui.expandedBar.html r
+        bar.html r
 
 
     closeExtension: ->

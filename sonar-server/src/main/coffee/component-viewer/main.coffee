@@ -132,7 +132,8 @@ define [
         # Component
         @component.clear() if clear
         COMPONENT_FIELDS.forEach (f) => @component.set f, data[f]
-        @component.set 'dir', utils.splitLongName(data.path).dir
+        if data.path?
+          @component.set 'dir', utils.splitLongName(data.path).dir
         @component.set 'isUnitTest', data.q == 'UTS'
 
 
@@ -217,15 +218,22 @@ define [
       source = @requestSource key
       component = @requestComponent key
       @currentIssue = null
-      $.when(source, component).done =>
+      component.done =>
         @workspace.where(key: key).forEach (model) =>
           model.set 'component': @component.toJSON()
+        @state.set 'removed', false
+        source.always =>
+          @state.set 'hasSource', (source.status != 404)
+          @render()
+          @showAllLines() if showFullSource
+          if @settings.get('issues') then @showIssues() else @hideIssues()
+          if @settings.get('coverage') then @showCoverage() else @hideCoverage()
+          if @settings.get('duplications') then @showDuplications() else @hideDuplications()
+          if @settings.get('scm') then @showSCM() else @hideSCM()
+      .fail =>
+        @state.set 'removed', true
+        @state.set 'hasSource', false
         @render()
-        @showAllLines() if showFullSource
-        if @settings.get('issues') then @showIssues() else @hideIssues()
-        if @settings.get('coverage') then @showCoverage() else @hideCoverage()
-        if @settings.get('duplications') then @showDuplications() else @hideDuplications()
-        if @settings.get('scm') then @showSCM() else @hideSCM()
 
 
     toggleWorkspace: (store = false) ->

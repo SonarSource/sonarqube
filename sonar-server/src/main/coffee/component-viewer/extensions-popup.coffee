@@ -20,6 +20,7 @@ define [
 
 
     showExtension: (e) ->
+      e.preventDefault()
       key = $(e.currentTarget).data 'key'
       @trigger 'extension', key
 

@@ -37,7 +37,7 @@ define [
     events:
       'click .sym': 'highlightUsages'
 
-      'click .lid': 'highlightLine'
+      'click .js-line-actions': 'highlightLine'
 
       'click .coverage-tests': 'showCoveragePopup'
 
@@ -101,6 +101,7 @@ define [
       issues = @model.get 'activeIssues'
       issues.forEach (issue) =>
         line = issue.line || 0
+        line = 0 if issue.resolution == 'FIXED' || issue.resolution == 'REMOVED'
         row = @$("[data-line-number=#{line}]")
         if row.length > 0
           row.removeClass 'row-hidden'
