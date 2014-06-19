@@ -112,13 +112,18 @@ public class ModuleScanContainer extends ComponentContainer {
       IssuableFactory.class,
       ModuleIssues.class,
 
+      // Measures
+      DefaultFileLinesContextFactory.class,
+
       // issue exclusions
       IssueInclusionPatternInitializer.class,
       IssueExclusionPatternInitializer.class,
       IssueExclusionsRegexpScanner.class,
       IssueExclusionsLoader.class,
       EnforceIssuesFilter.class,
-      IgnoreIssuesFilter.class);
+      IgnoreIssuesFilter.class,
+
+      AnalyzisPublisher.class);
   }
 
   private void addExtensions() {

@@ -20,7 +20,6 @@
 package org.sonar.api.batch.analyzer.measure.internal;
 
 import com.google.common.base.Preconditions;
-import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
 import org.sonar.api.batch.analyzer.measure.AnalyzerMeasureBuilder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.Metric;
@@ -35,7 +34,7 @@ public class DefaultAnalyzerMeasureBuilder<G extends Serializable> implements An
   G value;
 
   @Override
-  public AnalyzerMeasureBuilder<G> onFile(InputFile inputFile) {
+  public DefaultAnalyzerMeasureBuilder<G> onFile(InputFile inputFile) {
     onProject(false);
     Preconditions.checkNotNull(inputFile, "inputFile should be non null");
     this.file = inputFile;
@@ -43,7 +42,7 @@ public class DefaultAnalyzerMeasureBuilder<G extends Serializable> implements An
   }
 
   @Override
-  public AnalyzerMeasureBuilder<G> onProject() {
+  public DefaultAnalyzerMeasureBuilder<G> onProject() {
     onProject(true);
     this.file = null;
     return this;
@@ -55,7 +54,7 @@ public class DefaultAnalyzerMeasureBuilder<G extends Serializable> implements An
   }
 
   @Override
-  public AnalyzerMeasureBuilder<G> forMetric(Metric<G> metric) {
+  public DefaultAnalyzerMeasureBuilder<G> forMetric(Metric<G> metric) {
     Preconditions.checkState(metric != null, "Metric already defined");
     Preconditions.checkNotNull(metric, "metric should be non null");
     this.metric = metric;
@@ -63,7 +62,7 @@ public class DefaultAnalyzerMeasureBuilder<G extends Serializable> implements An
   }
 
   @Override
-  public AnalyzerMeasureBuilder<G> withValue(G value) {
+  public DefaultAnalyzerMeasureBuilder<G> withValue(G value) {
     Preconditions.checkState(this.value == null, "Measure value already defined");
     Preconditions.checkNotNull(value, "Measure value can't be null");
     this.value = value;
@@ -71,7 +70,7 @@ public class DefaultAnalyzerMeasureBuilder<G extends Serializable> implements An
   }
 
   @Override
-  public AnalyzerMeasure<G> build() {
+  public DefaultAnalyzerMeasure<G> build() {
     return new DefaultAnalyzerMeasure<G>(this);
   }
 }

@@ -19,11 +19,10 @@
  */
 package org.sonar.batch.scan2;
 
-import org.sonar.api.batch.analyzer.AnalyzerContext;
-
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.analyzer.AnalyzerContext;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.batch.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.batch.phases.SensorsExecutor;
@@ -44,16 +43,19 @@ public final class ModuleScanExecutor {
   private final QProfileVerifier profileVerifier;
   private final IssueExclusionsLoader issueExclusionsLoader;
 
+  private AnalyzisPublisher analyzisPublisher;
+
   public ModuleScanExecutor(AnalyzersExecutor analyzersExecutor,
     AnalyzerContext analyzerContext,
     FileSystemLogger fsLogger, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
-    IssueExclusionsLoader issueExclusionsLoader) {
+    IssueExclusionsLoader issueExclusionsLoader, AnalyzisPublisher analyzisPublisher) {
     this.analyzersExecutor = analyzersExecutor;
     this.analyzerContext = analyzerContext;
     this.fsLogger = fsLogger;
     this.fs = fs;
     this.profileVerifier = profileVerifier;
     this.issueExclusionsLoader = issueExclusionsLoader;
+    this.analyzisPublisher = analyzisPublisher;
   }
 
   public static Collection<Class> getPhaseClasses() {
@@ -76,5 +78,9 @@ public final class ModuleScanExecutor {
     issueExclusionsLoader.execute();
 
     analyzersExecutor.execute(analyzerContext);
+
+    // Export results
+    analyzisPublisher.execute();
+
   }
 }

@@ -21,6 +21,7 @@ package org.sonar.api.checks;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
@@ -37,7 +38,9 @@ import java.util.Map;
 
 /**
  * @since 2.3
+ * @deprecated since 4.2 use {@link Checks}
  */
+@Deprecated
 public final class AnnotationCheckFactory extends CheckFactory {
 
   private static final String CAN_NOT_INSTANTIATE_THE_CHECK_RELATED_TO_THE_RULE = "Can not instantiate the check related to the rule ";

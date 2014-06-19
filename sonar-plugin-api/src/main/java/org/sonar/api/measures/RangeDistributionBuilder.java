@@ -42,7 +42,7 @@ import java.util.Set;
  */
 public class RangeDistributionBuilder implements MeasureBuilder {
 
-  private Metric metric;
+  private Metric<String> metric;
   private SortedBag countBag;
   private boolean isEmpty = true;
   private Number[] bottomLimits;
@@ -55,7 +55,7 @@ public class RangeDistributionBuilder implements MeasureBuilder {
    * @param metric       the metric to record the measure against
    * @param bottomLimits the bottom limits of ranges to be used
    */
-  public RangeDistributionBuilder(Metric metric, Number[] bottomLimits) {
+  public RangeDistributionBuilder(Metric<String> metric, Number[] bottomLimits) {
     setMetric(metric);
     init(bottomLimits);
   }
@@ -72,18 +72,18 @@ public class RangeDistributionBuilder implements MeasureBuilder {
   private void changeDoublesToInts() {
     boolean onlyInts = true;
     for (Number bottomLimit : bottomLimits) {
-      if (NumberUtils.compare(bottomLimit.intValue(), bottomLimit.doubleValue())!=0) {
-        onlyInts=false;
+      if (NumberUtils.compare(bottomLimit.intValue(), bottomLimit.doubleValue()) != 0) {
+        onlyInts = false;
       }
     }
     if (onlyInts) {
-      for (int i=0 ; i<bottomLimits.length ; i++) {
+      for (int i = 0; i < bottomLimits.length; i++) {
         bottomLimits[i] = bottomLimits[i].intValue();
       }
     }
   }
 
-  public RangeDistributionBuilder(Metric metric) {
+  public RangeDistributionBuilder(Metric<String> metric) {
     this.metric = metric;
   }
 
@@ -144,7 +144,7 @@ public class RangeDistributionBuilder implements MeasureBuilder {
    * @param measure the measure to add to the current one
    * @return the current object
    */
-  public RangeDistributionBuilder add(Measure measure) {
+  public RangeDistributionBuilder add(Measure<String> measure) {
     if (measure != null && measure.getData() != null) {
       Map<Double, Double> map = KeyValueFormat.parse(measure.getData(), new KeyValueFormat.DoubleNumbersPairTransformer());
       Number[] limits = map.keySet().toArray(new Number[map.size()]);
@@ -208,7 +208,7 @@ public class RangeDistributionBuilder implements MeasureBuilder {
    *
    * @return the built measure
    */
-  public Measure build() {
+  public Measure<String> build() {
     return build(true);
   }
 
@@ -218,9 +218,9 @@ public class RangeDistributionBuilder implements MeasureBuilder {
    * @param allowEmptyData should be built if current object is empty
    * @return the built measure
    */
-  public Measure build(boolean allowEmptyData) {
+  public Measure<String> build(boolean allowEmptyData) {
     if (isValid && (!isEmpty || allowEmptyData)) {
-      return new Measure(metric, KeyValueFormat.format(countBag, -1));
+      return new Measure<String>(metric, KeyValueFormat.format(countBag, -1));
     }
     return null;
   }

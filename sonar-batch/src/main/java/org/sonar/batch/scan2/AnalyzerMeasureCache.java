@@ -31,6 +31,7 @@ import org.sonar.batch.index.Caches;
  */
 public class AnalyzerMeasureCache implements BatchComponent {
 
+  // project key -> component key -> metric key -> measure
   private final Cache<DefaultAnalyzerMeasure> cache;
 
   public AnalyzerMeasureCache(Caches caches) {
@@ -41,21 +42,27 @@ public class AnalyzerMeasureCache implements BatchComponent {
     return cache.entries();
   }
 
-  public DefaultAnalyzerMeasure<?> byMetric(String resourceKey, String metricKey) {
-    return cache.get(resourceKey, metricKey);
+  public Iterable<DefaultAnalyzerMeasure> byModule(String projectKey) {
+    return cache.values(projectKey);
   }
 
-  public AnalyzerMeasureCache put(String resourceKey, DefaultAnalyzerMeasure<?> measure) {
+  public DefaultAnalyzerMeasure<?> byMetric(String projectKey, String resourceKey, String metricKey) {
+    return cache.get(projectKey, resourceKey, metricKey);
+  }
+
+  public AnalyzerMeasureCache put(String projectKey, String resourceKey, DefaultAnalyzerMeasure<?> measure) {
+    Preconditions.checkNotNull(projectKey);
     Preconditions.checkNotNull(resourceKey);
     Preconditions.checkNotNull(measure);
-    cache.put(resourceKey, measure.metric().key(), measure);
+    cache.put(projectKey, resourceKey, measure.metric().key(), measure);
     return this;
   }
 
-  public boolean contains(String resourceKey, DefaultAnalyzerMeasure<?> measure) {
+  public boolean contains(String projectKey, String resourceKey, DefaultAnalyzerMeasure<?> measure) {
+    Preconditions.checkNotNull(projectKey);
     Preconditions.checkNotNull(resourceKey);
     Preconditions.checkNotNull(measure);
-    return cache.containsKey(resourceKey, measure.metric().key());
+    return cache.containsKey(projectKey, resourceKey, measure.metric().key());
   }
 
   public Iterable<DefaultAnalyzerMeasure> all() {

@@ -24,7 +24,6 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
-import org.junit.rules.ExternalResource;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.batch.analyzer.issue.AnalyzerIssue;
 import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
@@ -64,7 +63,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-public class AnalyzerMediumTester extends ExternalResource {
+public class AnalyzerMediumTester {
 
   private Batch batch;
 
@@ -144,13 +143,11 @@ public class AnalyzerMediumTester extends ExternalResource {
 
   }
 
-  @Override
-  protected void before() throws Throwable {
+  public void start() throws Throwable {
     batch.start();
   }
 
-  @Override
-  protected void after() {
+  public void stop() {
     batch.stop();
   }
 

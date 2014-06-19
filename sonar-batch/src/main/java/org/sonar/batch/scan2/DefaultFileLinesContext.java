@@ -17,39 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch;
+package org.sonar.batch.scan2;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import org.sonar.api.batch.SonarIndex;
+import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
+import org.sonar.api.batch.analyzer.measure.internal.DefaultAnalyzerMeasureBuilder;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.measures.FileLinesContext;
-import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.PersistenceMode;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
+import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.KeyValueFormat.Converter;
+import org.sonar.core.component.ComponentKeys;
 
 import java.util.Map;
 
 public class DefaultFileLinesContext implements FileLinesContext {
 
-  private final SonarIndex index;
-  private final Resource resource;
+  private final AnalyzerMeasureCache measureCache;
+  private final InputFile inputFile;
 
   /**
    * metric key -> line -> value
    */
   private final Map<String, Map<Integer, Object>> map = Maps.newHashMap();
+  private String projectKey;
+  private MetricFinder metricFinder;
 
-  public DefaultFileLinesContext(SonarIndex index, Resource resource) {
-    Preconditions.checkNotNull(index);
-    Preconditions.checkArgument(ResourceUtils.isFile(resource));
-    this.index = index;
-    this.resource = resource;
+  public DefaultFileLinesContext(MetricFinder metricFinder, AnalyzerMeasureCache measureCache, String projectKey, InputFile inputFile) {
+    this.metricFinder = metricFinder;
+    this.projectKey = projectKey;
+    Preconditions.checkNotNull(measureCache);
+    this.measureCache = measureCache;
+    this.inputFile = inputFile;
   }
 
   public void setIntValue(String metricKey, int line, int value) {
@@ -109,26 +112,30 @@ public class DefaultFileLinesContext implements FileLinesContext {
   public void save() {
     for (Map.Entry<String, Map<Integer, Object>> entry : map.entrySet()) {
       String metricKey = entry.getKey();
+      Metric metric = metricFinder.findByKey(metricKey);
+      if (metric == null) {
+        throw new IllegalStateException("Unable to find metric with key: " + metricKey);
+      }
       Map<Integer, Object> lines = entry.getValue();
       if (shouldSave(lines)) {
         String data = KeyValueFormat.format(lines);
-        Measure measure = new Measure(metricKey)
-          .setPersistenceMode(PersistenceMode.DATABASE)
-          .setData(data);
-        index.addMeasure(resource, measure);
+        measureCache.put(projectKey, ComponentKeys.createEffectiveKey(projectKey, inputFile), new DefaultAnalyzerMeasureBuilder<String>()
+          .forMetric(metric)
+          .onFile(inputFile)
+          .withValue(data)
+          .build());
         entry.setValue(ImmutableMap.copyOf(lines));
       }
     }
   }
 
   private Map loadData(String metricKey, Converter converter) {
-    // FIXME no way to load measure only by key
-    Measure measure = index.getMeasure(resource, new Metric(metricKey));
-    if (measure == null || measure.getData() == null) {
+    AnalyzerMeasure measure = measureCache.byMetric(projectKey, ComponentKeys.createEffectiveKey(projectKey, inputFile), metricKey);
+    if (measure == null) {
       // no such measure
       return ImmutableMap.of();
     }
-    return ImmutableMap.copyOf(KeyValueFormat.parse(measure.getData(), KeyValueFormat.newIntegerConverter(), converter));
+    return ImmutableMap.copyOf(KeyValueFormat.parse((String) measure.value(), KeyValueFormat.newIntegerConverter(), converter));
   }
 
   /**

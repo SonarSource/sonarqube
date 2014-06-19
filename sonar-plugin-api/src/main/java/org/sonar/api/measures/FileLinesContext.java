@@ -19,7 +19,6 @@
  */
 package org.sonar.api.measures;
 
-import com.google.common.annotations.Beta;
 
 /**
  * Provides access to measures for the lines of file.
@@ -39,7 +38,6 @@ import com.google.common.annotations.Beta;
  *
  * @since 2.14
  */
-@Beta
 public interface FileLinesContext {
 
   /**

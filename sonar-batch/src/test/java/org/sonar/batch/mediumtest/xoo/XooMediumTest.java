@@ -21,6 +21,8 @@ package org.sonar.batch.mediumtest.xoo;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.FileUtils;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.analyzer.issue.AnalyzerIssue;
@@ -43,7 +45,6 @@ public class XooMediumTest {
   @org.junit.Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  @org.junit.Rule
   public AnalyzerMediumTester tester = AnalyzerMediumTester.builder()
     // .registerPlugin("xoo", new File("target/sonar-xoo-plugin-2.0-SNAPSHOT.jar"))
     .registerPlugin("xoo", new XooPlugin())
@@ -53,21 +54,31 @@ public class XooMediumTest {
     .bootstrapProperties(ImmutableMap.of("sonar.analysis.mode", "sensor"))
     .build();
 
+  @Before
+  public void prepare() throws Throwable {
+    tester.start();
+  }
+
+  @After
+  public void stop() {
+    tester.stop();
+  }
+
   @Test
-  public void mediumTestOfSample() throws Exception {
-    File projectDir = new File(XooMediumTest.class.getResource("/org/sonar/batch/mediumtest/xoo/sample").toURI());
+  public void mediumTestOfSampleProject() throws Exception {
+    File projectDir = new File(XooMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
 
     TaskResult result = tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
       .start();
 
-    assertThat(result.measures()).hasSize(13);
+    assertThat(result.measures()).hasSize(19);
     assertThat(result.issues()).hasSize(24);
   }
 
   @Test
   public void testIssueExclusion() throws Exception {
-    File projectDir = new File(XooMediumTest.class.getResource("/org/sonar/batch/mediumtest/xoo/sample").toURI());
+    File projectDir = new File(XooMediumTest.class.getResource("/mediumtest/xoo/sample").toURI());
 
     TaskResult result = tester
       .newScanTask(new File(projectDir, "sonar-project.properties"))
@@ -75,12 +86,12 @@ public class XooMediumTest {
       .property("sonar.issue.ignore.allfile.1.fileRegexp", "object")
       .start();
 
-    assertThat(result.measures()).hasSize(13);
+    assertThat(result.measures()).hasSize(19);
     assertThat(result.issues()).hasSize(19);
   }
 
   @Test
-  public void mediumTest() throws IOException {
+  public void testMeasuresAndIssues() throws IOException {
 
     File baseDir = temp.newFolder();
     File srcDir = new File(baseDir, "src");
@@ -122,6 +133,54 @@ public class XooMediumTest {
       }
     }
     assertThat(foundIssueAtLine1).isTrue();
+  }
+
+  @Test
+  public void testScmActivityAnalyzer() throws IOException {
+
+    File baseDir = temp.newFolder();
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    File xooMeasureFile = new File(srcDir, "sample.xoo.measures");
+    File xooScmFile = new File(srcDir, "sample.xoo.scm");
+    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    FileUtils.write(xooMeasureFile, "lines:5");
+    FileUtils.write(xooScmFile,
+      // revision,author,dateTime
+      "1,julien,2013-01-04\n" +
+        "1,julien,2013-01-04\n" +
+        "2,julien,2013-02-03\n" +
+        "2,julien,2013-02-03\n" +
+        "3,simon,2013-03-04\n"
+      );
+
+    TaskResult result = tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.projectName", "Foo Project")
+        .put("sonar.projectVersion", "1.0-SNAPSHOT")
+        .put("sonar.projectDescription", "Description of Foo Project")
+        .put("sonar.sources", "src")
+        .build())
+      .start();
+
+    assertThat(result.measures()).hasSize(4);
+
+    assertThat(result.measures()).contains(new DefaultAnalyzerMeasureBuilder<Integer>()
+      .forMetric(CoreMetrics.LINES)
+      .onFile(new DefaultInputFile("src/sample.xoo"))
+      .withValue(5)
+      .build());
+
+    assertThat(result.measures()).contains(new DefaultAnalyzerMeasureBuilder<String>()
+      .forMetric(CoreMetrics.SCM_AUTHORS_BY_LINE)
+      .onFile(new DefaultInputFile("src/sample.xoo"))
+      .withValue("1=julien;2=julien;3=julien;4=julien;5=simon")
+      .build());
   }
 
 }

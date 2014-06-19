@@ -17,28 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.measures;
+@ParametersAreNonnullByDefault
+package org.sonar.batch.mediumtest;
 
-import org.sonar.api.BatchComponent;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.resources.Resource;
-
-/**
- * <p>This interface is not intended to be implemented by clients.</p>
- *
- * @since 2.14
- */
-public interface FileLinesContextFactory extends BatchComponent {
-
-  /**
-   * @deprecated since 4.4 use {@link #createFor(InputFile)}
-   */
-  @Deprecated
-  FileLinesContext createFor(Resource resource);
-
-  /**
-   * @since 4.2
-   */
-  FileLinesContext createFor(InputFile inputFile);
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

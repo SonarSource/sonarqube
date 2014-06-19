@@ -83,30 +83,30 @@ public class DefaultAnalyzerContext implements AnalyzerContext {
 
   @Override
   public AnalyzerMeasure getMeasure(String metricKey) {
-    return measureCache.byMetric(def.getKey(), metricKey);
+    return measureCache.byMetric(def.getKey(), def.getKey(), metricKey);
   }
 
   @Override
   public <G extends Serializable> AnalyzerMeasure<G> getMeasure(Metric<G> metric) {
-    return (AnalyzerMeasure<G>) measureCache.byMetric(def.getKey(), metric.key());
+    return (AnalyzerMeasure<G>) measureCache.byMetric(def.getKey(), def.getKey(), metric.key());
   }
 
   @Override
   public AnalyzerMeasure getMeasure(InputFile file, String metricKey) {
-    return measureCache.byMetric(ComponentKeys.createEffectiveKey(def.getKey(), file), metricKey);
+    return measureCache.byMetric(def.getKey(), ComponentKeys.createEffectiveKey(def.getKey(), file), metricKey);
   }
 
   @Override
   public <G extends Serializable> AnalyzerMeasure<G> getMeasure(InputFile file, Metric<G> metric) {
-    return (AnalyzerMeasure<G>) measureCache.byMetric(ComponentKeys.createEffectiveKey(def.getKey(), file), metric.key());
+    return (AnalyzerMeasure<G>) measureCache.byMetric(def.getKey(), ComponentKeys.createEffectiveKey(def.getKey(), file), metric.key());
   }
 
   @Override
   public void addMeasure(AnalyzerMeasure<?> measure) {
     if (measure.inputFile() != null) {
-      measureCache.put(ComponentKeys.createEffectiveKey(def.getKey(), measure.inputFile()), (DefaultAnalyzerMeasure) measure);
+      measureCache.put(def.getKey(), ComponentKeys.createEffectiveKey(def.getKey(), measure.inputFile()), (DefaultAnalyzerMeasure) measure);
     } else {
-      measureCache.put(def.getKey(), (DefaultAnalyzerMeasure) measure);
+      measureCache.put(def.getKey(), def.getKey(), (DefaultAnalyzerMeasure) measure);
     }
   }
 
@@ -125,7 +125,7 @@ public class DefaultAnalyzerContext implements AnalyzerContext {
     }
 
     if (issueFilters.accept(AnalyzerContextAdaptor.toDefaultIssue(def.getKey(), resourceKey, issue), null)) {
-      issueCache.put(resourceKey, (DefaultAnalyzerIssue) issue);
+      issueCache.put(def.getKey(), resourceKey, (DefaultAnalyzerIssue) issue);
     }
   }
 }

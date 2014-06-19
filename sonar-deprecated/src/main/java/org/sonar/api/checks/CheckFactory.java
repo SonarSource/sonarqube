@@ -28,9 +28,11 @@ import java.util.Map;
 
 /**
  * @since 2.3
+ * @deprecated since 4.2 use {@link org.sonar.api.batch.rule.CheckFactory}
  */
+@Deprecated
 public abstract class CheckFactory<C> {
-  
+
   private Map<ActiveRule, C> checkByActiveRule = Maps.newIdentityHashMap();
   private Map<C, ActiveRule> activeRuleByCheck = Maps.newIdentityHashMap();
   private RulesProfile profile;

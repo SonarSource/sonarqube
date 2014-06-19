@@ -22,6 +22,7 @@ package org.sonar.batch.mediumtest.xoo.plugin;
 import org.sonar.api.SonarPlugin;
 import org.sonar.batch.mediumtest.xoo.plugin.base.Xoo;
 import org.sonar.batch.mediumtest.xoo.plugin.lang.MeasureAnalyzer;
+import org.sonar.batch.mediumtest.xoo.plugin.lang.ScmActivityAnalyzer;
 import org.sonar.batch.mediumtest.xoo.plugin.rule.OneIssuePerLineAnalyzer;
 
 import java.util.Arrays;
@@ -34,6 +35,7 @@ public final class XooPlugin extends SonarPlugin {
     return Arrays.asList(
       // language
       MeasureAnalyzer.class,
+      ScmActivityAnalyzer.class,
       Xoo.class,
 
       // rules
