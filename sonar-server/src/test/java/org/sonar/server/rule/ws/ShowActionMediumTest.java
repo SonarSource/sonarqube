@@ -20,7 +20,6 @@
 
 package org.sonar.server.rule.ws;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -41,10 +40,9 @@ import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.ws.WsTester;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.fest.assertions.Fail.fail;
+import static com.google.common.collect.Sets.newHashSet;
 
-public class UpdateActionMediumTest {
+public class ShowActionMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
@@ -70,63 +68,76 @@ public class UpdateActionMediumTest {
   }
 
   @Test
-  public void update_custom_rule() throws Exception {
+  public void show_rule() throws Exception {
     MockUserSession.set()
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
       .setLogin("me");
 
-    // Template rule
-    RuleDto templateRule = ruleDao.insert(session, RuleTesting.newTemplateRule(RuleKey.of("java", "S001")));
-    RuleParamDto param = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
-    ruleDao.addRuleParam(session, templateRule, param);
+    RuleDto ruleDto = ruleDao.insert(session,
+      RuleTesting.newDto(RuleKey.of("java", "S001"))
+        .setName("Rule S001")
+        .setDescription("Rule S001 <b>description</b>")
+        .setSeverity(Severity.MINOR)
+        .setStatus(RuleStatus.BETA)
+        .setConfigKey("InternalKeyS001")
+        .setLanguage("xoo")
+        .setRemediationFunction("LINEAR_OFFSET")
+        .setRemediationCoefficient("5d")
+        .setRemediationOffset("10h")
+        .setTags(newHashSet("tag1", "tag2"))
+        .setSystemTags(newHashSet("systag1", "systag2"))
+    );
+    RuleParamDto param = RuleParamDto.createFor(ruleDto).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
+    ruleDao.addRuleParam(session, ruleDto, param);
     session.commit();
-
-    // Custom rule
-    NewRule newRule = NewRule.createForCustomRule("MY_CUSTOM", templateRule.getKey())
-      .setName("Old custom")
-      .setHtmlDescription("Old description")
-      .setSeverity(Severity.MINOR)
-      .setStatus(RuleStatus.BETA)
-      .setParameters(ImmutableMap.of("regex", "a"));
-    RuleKey customRuleKey = ruleService.create(newRule);
     session.clearCache();
 
-    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "update")
-      .setParam("key", customRuleKey.toString())
-      .setParam("name", "My custom rule")
-      .setParam("html_description", "Description")
-      .setParam("severity", "MAJOR")
-      .setParam("status", "BETA")
-      .setParam("params", "regex=a.*");
-    request.execute().assertJson(getClass(), "update_custom_rule.json", false);
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
+      .setParam("key", ruleDto.getKey().toString());
+    request.execute().assertJson(getClass(), "show_rule.json", false);
   }
 
   @Test
-  public void fail_to_update_custom_when_description_is_empty() throws Exception {
+  public void encode_html_description_of_custom_rule() throws Exception {
     MockUserSession.set()
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
       .setLogin("me");
 
     // Template rule
     RuleDto templateRule = ruleDao.insert(session, RuleTesting.newTemplateRule(RuleKey.of("java", "S001")));
+    session.commit();
 
     // Custom rule
-    RuleDto customRule = RuleTesting.newCustomRule(templateRule);
-    ruleDao.insert(session, customRule);
-    session.commit();
+    NewRule customRule = NewRule.createForCustomRule("MY_CUSTOM", templateRule.getKey())
+      .setName("My custom")
+      .setSeverity(Severity.MINOR)
+      .setStatus(RuleStatus.READY)
+      .setHtmlDescription("<div>line1\nline2</div>");
+    RuleKey customRuleKey = ruleService.create(customRule);
     session.clearCache();
 
-    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "update")
-      .setParam("key", customRule.getKey().toString())
-      .setParam("name", "My custom rule")
-      .setParam("html_description", "");
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
+      .setParam("key", customRuleKey.toString());
+    request.execute().assertJson(getClass(), "encode_html_description_of_custom_rule.json", false);
+  }
 
-    try {
-      request.execute();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The description is missing");
-    }
+  @Test
+  public void encode_html_description_of_manual_rule() throws Exception {
+    MockUserSession.set()
+      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
+      .setLogin("me");
+
+    // Manual rule
+    NewRule manualRule = NewRule.createForManualRule("MY_MANUAL")
+      .setName("My manual")
+      .setSeverity(Severity.MINOR)
+      .setHtmlDescription("<div>line1\nline2</div>");
+    RuleKey customRuleKey = ruleService.create(manualRule);
+    session.clearCache();
+
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
+      .setParam("key", customRuleKey.toString());
+    request.execute().assertJson(getClass(), "encode_html_description_of_manual_rule.json", false);
   }
 
 }

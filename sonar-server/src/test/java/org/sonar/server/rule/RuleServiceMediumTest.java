@@ -66,7 +66,40 @@ public class RuleServiceMediumTest {
   }
 
   @Test
-  public void test_list_tags() throws InterruptedException {
+  public void get_rule_by_key() throws Exception {
+    MockUserSession.set()
+      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
+      .setLogin("me");
+
+    RuleKey key = RuleKey.of("java", "S001");
+
+    dao.insert(dbSession, RuleTesting.newDto(key));
+    dbSession.commit();
+    dbSession.clearCache();
+
+    Rule rule = service.getByKey(key);
+    assertThat(rule).isNotNull();
+  }
+
+  @Test
+  public void get_rule_by_key_escape_description_on_manual_rule() throws Exception {
+    MockUserSession.set()
+      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
+      .setLogin("me");
+
+    RuleDto manualRule = RuleTesting.newManualRule("My manual")
+      .setDescription("<div>Manual rule desc</div>");
+    dao.insert(dbSession, manualRule);
+    dbSession.commit();
+    dbSession.clearCache();
+
+    Rule rule = service.getByKey(manualRule.getKey());
+    assertThat(rule).isNotNull();
+    assertThat(rule.htmlDescription()).isEqualTo("<div>Manual rule desc</div>");
+  }
+
+  @Test
+  public void list_tags() throws InterruptedException {
     // insert db
     RuleKey key1 = RuleKey.of("javascript", "S001");
     RuleKey key2 = RuleKey.of("java", "S001");

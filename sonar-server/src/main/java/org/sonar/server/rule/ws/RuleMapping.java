@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule.ws;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.text.JsonWriter;
@@ -124,7 +125,13 @@ public class RuleMapping extends BaseMapping {
     public void write(JsonWriter json, Rule rule) {
       String html = rule.htmlDescription();
       if (html != null) {
-        json.prop("htmlDesc", macroInterpreter.interpret(html));
+        if (rule.isManual() || rule.templateKey() != null) {
+          String desc = StringEscapeUtils.escapeHtml(html);
+          desc = desc.replaceAll("\\n", "<br/>");
+          json.prop("htmlDesc", desc);
+        } else {
+          json.prop("htmlDesc", macroInterpreter.interpret(html));
+        }
       }
     }
   }

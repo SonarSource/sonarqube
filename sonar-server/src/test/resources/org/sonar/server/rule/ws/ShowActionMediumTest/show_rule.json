@@ -1,0 +1,24 @@
+{
+  "rule": {
+    "key": "java:S001",
+    "repo": "java",
+    "name": "Rule S001",
+    "htmlDesc": "Rule S001 <b>description</b>",
+    "severity": "MINOR",
+    "status": "BETA",
+    "isTemplate": false,
+    "tags": ["tag1", "tag2"],
+    "sysTags": ["systag1", "systag2"],
+    "debtRemFnType": "LINEAR_OFFSET",
+    "debtRemFnCoeff": "5d",
+    "debtRemFnOffset": "10h",
+    "lang": "xoo",
+    "params": [
+      {
+        "key": "regex",
+        "desc": "Reg ex",
+        "defaultValue": ".*"
+      }
+    ]
+  }
+}
