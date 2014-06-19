@@ -80,7 +80,10 @@ class ResourceController < ApplicationController
                        :group_index => params[:group_index], :external => (resource.root_id != original_resource.root_id)}
   end
 
+  #
   # Call by new component viewer to display plugin extension
+  #
+  # GET /resource/extension?id=<component_key>&tab=extension_key
   def extension
     @resource = Project.by_key(params[:id])
     not_found('Resource not found') unless @resource
