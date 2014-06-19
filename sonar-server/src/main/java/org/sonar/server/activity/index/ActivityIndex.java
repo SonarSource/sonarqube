@@ -106,6 +106,10 @@ public class ActivityIndex extends BaseIndex<Activity, ActivityDto, String> {
       .setTypes(this.getIndexType())
       .setIndices(this.getIndexName());
 
+    // Integrate Pagination
+    esSearch.setFrom(options.getOffset());
+    esSearch.setSize(options.getLimit());
+
     AndFilterBuilder filter = FilterBuilders.andFilter();
 
     // implement Type Filtering
