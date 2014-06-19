@@ -19,7 +19,11 @@
  */
 package org.sonar.server.qualityprofile;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.OrFilterBuilder;
+import org.elasticsearch.search.SearchHit;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -28,9 +32,9 @@ import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
+import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
-import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.FacetValue;
@@ -40,7 +44,6 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -242,5 +245,20 @@ public class QProfileService implements ServerComponent {
         .setActivation(true)
         .setStatuses(newArrayList(RuleStatus.DEPRECATED)),
       new QueryOptions().setLimit(0)).getTotal();
+  }
+
+  public List<QProfileActivity> findActivities(QProfileActivityQuery query, QueryOptions options) {
+    List<QProfileActivity> results = Lists.newArrayList();
+
+    OrFilterBuilder activityFilter = FilterBuilders.orFilter();
+    for (String profileKey : query.getQprofileKeys()) {
+      activityFilter.add(FilterBuilders.termFilter("details.profileKey", profileKey));
+    }
+
+    for (SearchHit hit :
+      index.get(ActivityIndex.class).search(query, options, activityFilter).getHits().getHits()) {
+      QProfileActivity profileActivity = new QProfileActivity(hit.getSource());
+    }
+    return results;
   }
 }

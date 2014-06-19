@@ -26,20 +26,24 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.core.activity.Activity;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.qualityprofile.db.QualityProfileKey;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.server.activity.ActivityService;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.search.FacetValue;
+import org.sonar.server.search.QueryOptions;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -144,5 +148,15 @@ public class QProfileServiceMediumTest {
     dbSession.commit();
 
     assertThat(service.countDeprecatedActiveRulesByProfile(XOO_PROFILE_1)).isEqualTo(1);
+  }
+
+  @Test
+  public void search_qprofile_activity() {
+    tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE, "hello world");
+    tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE, "hello world");
+    tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE, "hello world");
+
+    List<QProfileActivity> activities = service.findActivities(new QProfileActivityQuery(), new QueryOptions());
+    assertThat(activities).hasSize(3);
   }
 }
