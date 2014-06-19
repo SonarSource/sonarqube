@@ -56,11 +56,13 @@ public class ChangeLogMigration implements DatabaseMigration {
   private static final String PARAM_VALUE = "param_value";
   private static final String PARAM_NAME = "param_name";
   private static final String RULE_NAME = "rule_name";
-  private static final String PROFILE_KEY = "profile_key";
   private static final String RULE_KEY = "rule_key";
   private static final String CREATED_AT = "created_at";
   private static final String SEVERITY = "severity";
   private static final String USER_LOGIN = "user_login";
+  private static final String REPOSITORY = "repository";
+  private static final String PROFILE_NAME = "profile_name";
+  private static final String PROFILE_LANG = "profile_lang";
 
   private final ActivityDao dao;
   private DbSession session;
@@ -71,8 +73,10 @@ public class ChangeLogMigration implements DatabaseMigration {
       "   rule_change.id," +
       "   rule_change.change_date as " + CREATED_AT + "," +
       "   users.login as " + USER_LOGIN + "," +
-      "   CONCAT(rule_def.plugin_name,':',rule_def.plugin_rule_key) as " + RULE_KEY + "," +
-      "   CONCAT(profile.name,':',profile.language) as " + PROFILE_KEY + "," +
+      "   rule_def.plugin_name as " + RULE_KEY + "," +
+      "   rule_def.plugin_rule_key as " + REPOSITORY + "," +
+      "   profile.name as " + PROFILE_NAME + "," +
+      "   profile.language as " + PROFILE_LANG + "," +
       "   rule_change.new_severity as " + SEVERITY + "," +
       "   rule_def.name as " + RULE_NAME + "," +
       "   rule_def_param.name as " + PARAM_NAME + "," +
@@ -95,8 +99,10 @@ public class ChangeLogMigration implements DatabaseMigration {
       "   rule_change.id," +
       "   rule_change.change_date as " + CREATED_AT + "," +
       "   users.login as " + USER_LOGIN + "," +
-      "   CONCAT(rule_def.plugin_name,':',rule_def.plugin_rule_key) as " + RULE_KEY + "," +
-      "   CONCAT(profile.name,':',profile.language) as " + PROFILE_KEY + "," +
+      "   rule_def.plugin_name as " + RULE_KEY + "," +
+      "   rule_def.plugin_rule_key as " + REPOSITORY + "," +
+      "   profile.name as " + PROFILE_NAME + "," +
+      "   profile.language as " + PROFILE_LANG + "," +
       "   rule_change.new_severity as " + SEVERITY + "," +
       "   rule_def.name as " + RULE_NAME + "," +
       "   rule_def_param.name as " + PARAM_NAME + "," +
@@ -119,8 +125,10 @@ public class ChangeLogMigration implements DatabaseMigration {
       "  rule_change.id as id," +
       "  rule_change.change_date as " + CREATED_AT + "," +
       "  users.login as " + USER_LOGIN + "," +
-      "  CONCAT(rule_def.plugin_name,':',rule_def.plugin_rule_key) as " + RULE_KEY + "," +
-      "  CONCAT(profile.name,':',profile.language) as " + PROFILE_KEY +
+      "  rule_def.plugin_name as " + RULE_KEY + "," +
+      "  rule_def.plugin_rule_key as " + REPOSITORY + "," +
+      "  profile.name as " + PROFILE_NAME + "," +
+      "  profile.language as " + PROFILE_LANG + "," +
       " from active_rule_changes rule_change" +
       "  left join users on users.name = rule_change.username" +
       "  left join rules rule_def on rule_def.id = rule_change.rule_id" +
@@ -230,7 +238,7 @@ public class ChangeLogMigration implements DatabaseMigration {
   private ActiveRuleChange newActiveRuleChance(ActiveRuleChange.Type type, ResultSet result) throws SQLException {
     return ActiveRuleChange.createFor(
       type, ActiveRuleKey.of(
-        QualityProfileKey.parse(result.getString(PROFILE_KEY)),
-        RuleKey.parse(result.getString(RULE_KEY))));
+        QualityProfileKey.of(result.getString(PROFILE_NAME), result.getString(PROFILE_LANG)),
+        RuleKey.of(result.getString(REPOSITORY), result.getString(RULE_KEY))));
   }
 }
