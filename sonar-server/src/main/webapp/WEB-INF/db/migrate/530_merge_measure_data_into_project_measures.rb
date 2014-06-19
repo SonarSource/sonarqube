@@ -34,7 +34,7 @@ class MergeMeasureDataIntoProjectMeasures < ActiveRecord::Migration
       ActiveRecord::Base.connection.commit_db_transaction
     end
     ProjectMeasure.reset_column_information
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().executeMigration('org.sonar.server.db.migrations.v44.MeasureDataMigration')
+    execute_java_migration('org.sonar.server.db.migrations.v44.MeasureDataMigration')
     drop_table(:measure_data)
   end
   

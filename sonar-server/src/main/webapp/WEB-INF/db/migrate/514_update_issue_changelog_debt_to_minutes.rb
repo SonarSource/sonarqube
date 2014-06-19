@@ -25,6 +25,6 @@
 class UpdateIssueChangelogDebtToMinutes < ActiveRecord::Migration
 
   def self.up
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().executeMigration('org.sonar.server.db.migrations.v43.IssueChangelogMigration')
+    execute_java_migration('org.sonar.server.db.migrations.v43.IssueChangelogMigration')
   end
 end

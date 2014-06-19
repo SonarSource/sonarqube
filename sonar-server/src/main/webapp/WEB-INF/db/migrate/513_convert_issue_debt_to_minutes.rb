@@ -25,6 +25,6 @@
 class ConvertIssueDebtToMinutes < ActiveRecord::Migration
 
   def self.up
-    Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().executeMigration('org.sonar.server.db.migrations.v43.ConvertIssueDebtToMinutesMigration')
+    execute_java_migration('org.sonar.server.db.migrations.v43.ConvertIssueDebtToMinutesMigration')
   end
 end

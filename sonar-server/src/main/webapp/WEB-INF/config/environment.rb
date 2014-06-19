@@ -124,6 +124,10 @@ class ActiveRecord::Migration
     super(table_name, column_name, options)
   end
 
+  def self.execute_java_migration(classname)
+    Java::OrgSonarServerUi::JRubyFacade.getInstance().databaseMigrator().executeMigration(classname)
+  end
+
   def self.alter_to_big_primary_key(tablename)
     case dialect()
       when "postgre"
