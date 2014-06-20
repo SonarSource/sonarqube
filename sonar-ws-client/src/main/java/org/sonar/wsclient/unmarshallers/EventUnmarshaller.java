@@ -33,7 +33,6 @@ public class EventUnmarshaller extends AbstractUnmarshaller<Event> {
         .setName(utils.getString(json, "n"))
         .setCategory(utils.getString(json, "c"))
         .setDate(utils.getDateTime(json, "dt"))
-        .setDescription(utils.getString(json, "ds"))
-        .setData(utils.getString(json, "data"));
+        .setDescription(utils.getString(json, "ds"));
   }
 }

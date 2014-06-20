@@ -32,7 +32,6 @@ public class Event extends Model {
   private String description;
   private String resourceKey;
   private Date date;
-  private String data;
 
   @CheckForNull
   public String getId() {
@@ -91,16 +90,6 @@ public class Event extends Model {
 
   public Event setResourceKey(@Nullable String resourceKey) {
     this.resourceKey = resourceKey;
-    return this;
-  }
-
-  @CheckForNull
-  public String getData() {
-    return data;
-  }
-
-  public Event setData(@Nullable String data) {
-    this.data = data;
     return this;
   }
 

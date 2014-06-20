@@ -38,7 +38,6 @@ public class EventCreateQuery extends CreateQuery<Event> {
     appendUrlParameter(url, "category", event.getCategory());
     appendUrlParameter(url, "name", event.getName());
     appendUrlParameter(url, "description", event.getDescription());
-    appendUrlParameter(url, "data", event.getData());
     return url.toString();
   }
 
