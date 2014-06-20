@@ -23,7 +23,6 @@
 # SONAR-5329
 #
 class CreateActivitiesTable < ActiveRecord::Migration
-
   def self.up
     create_table 'activities'do |t|
       t.column 'created_at',   :datetime, :null => false
@@ -32,8 +31,8 @@ class CreateActivitiesTable < ActiveRecord::Migration
       t.column 'log_type', :string, :limit => 50
       t.column 'log_action', :string, :limit => 50
       t.column 'log_message', :string, :limit => 4000
+      t.column 'log_key', :string
     end
-
+    add_index 'activities', :log_key, :unique => true, :name => 'activities_log_key'
   end
-
 end
