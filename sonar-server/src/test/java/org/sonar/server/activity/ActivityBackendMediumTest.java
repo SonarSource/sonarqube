@@ -131,4 +131,13 @@ public class ActivityBackendMediumTest {
     }
     assertThat(count).isEqualTo(max);
   }
+
+  @Test
+  public void current_time_zone() {
+    service.write(dbSession, Activity.Type.QPROFILE, "now");
+    dbSession.commit();
+
+    Activity activity = service.search(new ActivityQuery(), new QueryOptions()).getHits().get(0);
+    assertThat(System.currentTimeMillis() - activity.time().getTime()).isLessThan(1000L);
+  }
 }

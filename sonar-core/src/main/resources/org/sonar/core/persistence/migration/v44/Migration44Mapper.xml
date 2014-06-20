@@ -51,19 +51,19 @@
     rule_change.id as id,
     rule_change.change_date as createdAt,
     users.login as userLogin,
-    rule_def.plugin_name as ruleKey,
-    rule_def.plugin_rule_key as repository,
+    rule_def.plugin_name as repository,
+    rule_def.plugin_rule_key as ruleKey,
     profile.kee as profileKey,
     rule_change.new_severity as severity ,
     rule_def.name as ruleName,
-    rule_def_param.name as paramName,
+    rule_def_param.name as paramKey,
     rule_param_change.new_value as paramValue
     from active_rule_changes rule_change
     left join users on users.name = rule_change.username
     left join rules rule_def on rule_def.id = rule_change.rule_id
     left join rules_profiles profile on profile.id = rule_change.profile_id
     left join active_rule_param_changes rule_param_change on rule_param_change.active_rule_change_id = rule_change.id
-    left join rules_parameters rule_def_param on rule_def_param.id = rule_param_change.rules_parameter_id
+    left join rules_parameters rule_def_param on rule_param_change.rules_parameter_id = rule_def_param.id
     WHERE
     <choose>
       <when test="enabled != null">
