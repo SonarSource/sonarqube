@@ -27,6 +27,8 @@ import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 
+import javax.annotation.Nullable;
+
 import java.util.List;
 
 public final class DefaultPersistenceManager implements PersistenceManager {
@@ -51,11 +53,11 @@ public final class DefaultPersistenceManager implements PersistenceManager {
     sourcePersister.clear();
   }
 
-  public void saveProject(Project project, Project parent) {
+  public void saveProject(Project project, @Nullable Project parent) {
     resourcePersister.saveProject(project, parent);
   }
 
-  public Snapshot saveResource(Project project, Resource resource, Resource parent) {
+  public Snapshot saveResource(Project project, Resource resource, @Nullable Resource parent) {
     if (ResourceUtils.isPersistable(resource)) {
       return resourcePersister.saveResource(project, resource, parent);
     }

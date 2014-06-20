@@ -170,8 +170,12 @@ public class Measure<G extends Serializable> implements Serializable {
    * @param mode the mode
    * @return the measure object instance
    */
-  public Measure setPersistenceMode(PersistenceMode mode) {
-    this.persistenceMode = mode;
+  public Measure setPersistenceMode(@Nullable PersistenceMode mode) {
+    if (mode == null) {
+      this.persistenceMode = PersistenceMode.FULL;
+    } else {
+      this.persistenceMode = mode;
+    }
     return this;
   }
 
@@ -408,7 +412,7 @@ public class Measure<G extends Serializable> implements Serializable {
    * @param status the status
    * @return the measure object instance
    */
-  public Measure setAlertStatus(Metric.Level status) {
+  public Measure setAlertStatus(@Nullable Metric.Level status) {
     this.alertStatus = status;
     return this;
   }
@@ -426,7 +430,7 @@ public class Measure<G extends Serializable> implements Serializable {
    * @param alertText the text
    * @return the measure object instance
    */
-  public Measure setAlertText(String alertText) {
+  public Measure setAlertText(@Nullable String alertText) {
     this.alertText = alertText;
     return this;
   }
@@ -446,7 +450,7 @@ public class Measure<G extends Serializable> implements Serializable {
    * @param tendency the tendency
    * @return the measure object instance
    */
-  public Measure setTendency(Integer tendency) {
+  public Measure setTendency(@Nullable Integer tendency) {
     this.tendency = tendency;
     return this;
   }
@@ -473,7 +477,7 @@ public class Measure<G extends Serializable> implements Serializable {
    *
    * @since 2.5
    */
-  public Measure setVariation1(Double d) {
+  public Measure setVariation1(@Nullable Double d) {
     this.variation1 = d;
     return this;
   }
@@ -491,7 +495,7 @@ public class Measure<G extends Serializable> implements Serializable {
    *
    * @since 2.5
    */
-  public Measure setVariation2(Double d) {
+  public Measure setVariation2(@Nullable Double d) {
     this.variation2 = d;
     return this;
   }
@@ -509,7 +513,7 @@ public class Measure<G extends Serializable> implements Serializable {
    *
    * @since 2.5
    */
-  public Measure setVariation3(Double d) {
+  public Measure setVariation3(@Nullable Double d) {
     this.variation3 = d;
     return this;
   }
@@ -527,7 +531,7 @@ public class Measure<G extends Serializable> implements Serializable {
    *
    * @since 2.5
    */
-  public Measure setVariation4(Double d) {
+  public Measure setVariation4(@Nullable Double d) {
     this.variation4 = d;
     return this;
   }
@@ -545,7 +549,7 @@ public class Measure<G extends Serializable> implements Serializable {
    *
    * @since 2.5
    */
-  public Measure setVariation5(Double d) {
+  public Measure setVariation5(@Nullable Double d) {
     this.variation5 = d;
     return this;
   }
@@ -665,7 +669,7 @@ public class Measure<G extends Serializable> implements Serializable {
    * @since 2.14
    */
   @Beta
-  public Measure setPersonId(Integer i) {
+  public Measure setPersonId(@Nullable Integer i) {
     this.personId = i;
     return this;
   }

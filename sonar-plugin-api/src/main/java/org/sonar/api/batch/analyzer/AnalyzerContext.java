@@ -19,8 +19,6 @@
  */
 package org.sonar.api.batch.analyzer;
 
-import org.sonar.api.batch.measure.Metric;
-
 import com.google.common.annotations.Beta;
 import org.sonar.api.batch.analyzer.issue.AnalyzerIssue;
 import org.sonar.api.batch.analyzer.issue.AnalyzerIssueBuilder;
@@ -28,6 +26,7 @@ import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
 import org.sonar.api.batch.analyzer.measure.AnalyzerMeasureBuilder;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.config.Settings;
 
@@ -101,7 +100,8 @@ public interface AnalyzerContext {
 
   /**
    * Add an issue. Use {@link #issueBuilder()} to create the new issue.
+   * @return true if the new issue is registered, false if the related rule does not exist or is disabled in the Quality profile.
    */
-  void addIssue(AnalyzerIssue issue);
+  boolean addIssue(AnalyzerIssue issue);
 
 }

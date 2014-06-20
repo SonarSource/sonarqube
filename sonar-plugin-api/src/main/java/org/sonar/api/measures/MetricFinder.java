@@ -19,9 +19,10 @@
  */
 package org.sonar.api.measures;
 
+import org.sonar.api.ServerComponent;
 import org.sonar.api.task.TaskComponent;
 
-import org.sonar.api.ServerComponent;
+import javax.annotation.CheckForNull;
 
 import java.util.Collection;
 import java.util.List;
@@ -31,8 +32,10 @@ import java.util.List;
  */
 public interface MetricFinder extends TaskComponent, ServerComponent {
 
+  @CheckForNull
   Metric findById(int id);
 
+  @CheckForNull
   Metric findByKey(String key);
 
   Collection<Metric> findAll(List<String> metricKeys);

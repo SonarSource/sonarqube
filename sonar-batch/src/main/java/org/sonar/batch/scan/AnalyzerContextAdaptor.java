@@ -91,17 +91,14 @@ public class AnalyzerContextAdaptor implements AnalyzerContext {
   }
 
   @Override
-  public AnalyzerMeasure<?> getMeasure(String metricKey) {
-    Metric<?> m = metricFinder.findByKey(metricKey);
-    if (m == null) {
-      throw new IllegalStateException("Unknow metric with key: " + metricKey);
-    }
+  public AnalyzerMeasure getMeasure(String metricKey) {
+    Metric<?> m = findMetricOrFail(metricKey);
     return getMeasure(m);
   }
 
   @Override
   public <G extends Serializable> AnalyzerMeasure<G> getMeasure(Metric<G> metric) {
-    org.sonar.api.measures.Metric<G> m = metricFinder.findByKey(metric.key());
+    org.sonar.api.measures.Metric<G> m = (org.sonar.api.measures.Metric<G>) findMetricOrFail(metric.key());
     Measure<G> measure = sensorContext.getMeasure(m);
     if (measure == null) {
       return null;
@@ -114,18 +111,23 @@ public class AnalyzerContextAdaptor implements AnalyzerContext {
   }
 
   @Override
-  public AnalyzerMeasure<?> getMeasure(InputFile file, String metricKey) {
+  public AnalyzerMeasure getMeasure(InputFile file, String metricKey) {
+    Metric<?> m = findMetricOrFail(metricKey);
+    return getMeasure(file, m);
+  }
+
+  private Metric<?> findMetricOrFail(String metricKey) {
     Metric<?> m = metricFinder.findByKey(metricKey);
     if (m == null) {
       throw new IllegalStateException("Unknow metric with key: " + metricKey);
     }
-    return getMeasure(file, m);
+    return m;
   }
 
   @Override
   public <G extends Serializable> AnalyzerMeasure<G> getMeasure(InputFile file, Metric<G> metric) {
-    File fileRes = File.fromIOFile(file.file(), project);
-    org.sonar.api.measures.Metric<G> m = metricFinder.findByKey(metric.key());
+    File fileRes = File.create(file.relativePath());
+    org.sonar.api.measures.Metric<G> m = (org.sonar.api.measures.Metric<G>) findMetricOrFail(metric.key());
     Measure<G> measure = sensorContext.getMeasure(fileRes, m);
     if (measure == null) {
       return null;
@@ -174,8 +176,7 @@ public class AnalyzerContextAdaptor implements AnalyzerContext {
         }
     }
     if (measure.inputFile() != null) {
-      File fileRes = File.fromIOFile(measure.inputFile().file(), project);
-      sensorContext.saveMeasure(fileRes, measureToSave);
+      sensorContext.saveMeasure(measure.inputFile(), measureToSave);
     } else {
       sensorContext.saveMeasure(measureToSave);
     }
@@ -187,15 +188,16 @@ public class AnalyzerContextAdaptor implements AnalyzerContext {
   }
 
   @Override
-  public void addIssue(AnalyzerIssue issue) {
+  public boolean addIssue(AnalyzerIssue issue) {
     Resource r;
-    if (issue.inputFile() != null) {
-      r = File.fromIOFile(issue.inputFile().file(), project);
+    InputFile inputFile = issue.inputFile();
+    if (inputFile != null) {
+      r = File.create(inputFile.relativePath());
     } else {
       r = project;
     }
     Issuable issuable = perspectives.as(Issuable.class, r);
-    issuable.addIssue(toDefaultIssue(project.getKey(), r.getKey(), issue));
+    return issuable.addIssue(toDefaultIssue(project.getKey(), r.getKey(), issue));
   }
 
   public static DefaultIssue toDefaultIssue(String projectKey, String componentKey, AnalyzerIssue issue) {

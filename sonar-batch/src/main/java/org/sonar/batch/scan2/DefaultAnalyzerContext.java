@@ -33,6 +33,7 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.rule.ActiveRules;
+import org.sonar.api.batch.rule.Rules;
 import org.sonar.api.config.Settings;
 import org.sonar.batch.issue.IssueFilters;
 import org.sonar.batch.scan.AnalyzerContextAdaptor;
@@ -49,9 +50,10 @@ public class DefaultAnalyzerContext implements AnalyzerContext {
   private final FileSystem fs;
   private final ActiveRules activeRules;
   private final IssueFilters issueFilters;
+  private Rules rules;
 
   public DefaultAnalyzerContext(ProjectDefinition def, AnalyzerMeasureCache measureCache, AnalyzerIssueCache issueCache,
-    Settings settings, FileSystem fs, ActiveRules activeRules, IssueFilters issueFilters) {
+    Settings settings, FileSystem fs, ActiveRules activeRules, IssueFilters issueFilters, Rules rules) {
     this.def = def;
     this.measureCache = measureCache;
     this.issueCache = issueCache;
@@ -59,6 +61,7 @@ public class DefaultAnalyzerContext implements AnalyzerContext {
     this.fs = fs;
     this.activeRules = activeRules;
     this.issueFilters = issueFilters;
+    this.rules = rules;
   }
 
   @Override
@@ -116,16 +119,19 @@ public class DefaultAnalyzerContext implements AnalyzerContext {
   }
 
   @Override
-  public void addIssue(AnalyzerIssue issue) {
+  public boolean addIssue(AnalyzerIssue issue) {
     String resourceKey;
     if (issue.inputFile() != null) {
       resourceKey = ComponentKeys.createEffectiveKey(def.getKey(), issue.inputFile());
     } else {
       resourceKey = def.getKey();
     }
-
+    // TODO Lot of things to do. See ModuleIssues::initAndAddIssue
     if (issueFilters.accept(AnalyzerContextAdaptor.toDefaultIssue(def.getKey(), resourceKey, issue), null)) {
       issueCache.put(def.getKey(), resourceKey, (DefaultAnalyzerIssue) issue);
+      return true;
     }
+
+    return false;
   }
 }

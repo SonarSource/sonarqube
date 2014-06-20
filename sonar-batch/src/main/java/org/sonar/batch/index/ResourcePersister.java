@@ -24,6 +24,7 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 public interface ResourcePersister {
@@ -33,13 +34,14 @@ public interface ResourcePersister {
   /**
    * Persist a resource in database. Returns null if the resource must not be persisted (scope lower than file)
    */
-  Snapshot saveResource(Project project, Resource resource, Resource parent);
+  Snapshot saveResource(Project project, Resource resource, @Nullable Resource parent);
 
   /**
    * Persist a resource in database. Returns null if the resource must not be persisted (scope lower than file)
    */
   Snapshot saveResource(Project project, Resource resource);
 
+  @CheckForNull
   Snapshot getSnapshot(Resource resource);
 
   Snapshot getSnapshotOrFail(Resource resource);
@@ -50,6 +52,7 @@ public interface ResourcePersister {
    * The current snapshot which is flagged as "last", different than the current analysis.
    * @param onlyOlder true if the result must be anterior to the snapshot parameter
    */
+  @CheckForNull
   Snapshot getLastSnapshot(Snapshot snapshot, boolean onlyOlder);
 
   void clear();

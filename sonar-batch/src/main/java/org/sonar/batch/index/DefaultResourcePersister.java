@@ -36,6 +36,7 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.security.ResourcePermissions;
 import org.sonar.api.utils.SonarException;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
@@ -126,7 +127,8 @@ public final class DefaultResourcePersister implements ResourcePersister {
     return snapshot;
   }
 
-  public Snapshot getSnapshot(Resource reference) {
+  @CheckForNull
+  public Snapshot getSnapshot(@Nullable Resource reference) {
     return snapshotsByResource.get(reference);
   }
 
@@ -241,6 +243,7 @@ public final class DefaultResourcePersister implements ResourcePersister {
     return snapshot;
   }
 
+  @CheckForNull
   public Snapshot getLastSnapshot(Snapshot snapshot, boolean onlyOlder) {
     String hql = "SELECT s FROM " + Snapshot.class.getSimpleName() + " s WHERE s.last=:last AND s.resourceId=:resourceId";
     if (onlyOlder) {

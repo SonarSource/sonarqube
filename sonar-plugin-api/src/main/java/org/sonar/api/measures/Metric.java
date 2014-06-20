@@ -74,14 +74,14 @@ public class Metric<G extends Serializable> implements ServerExtension, BatchExt
     RATING(String.class),
     WORK_DUR(Long.class);
 
-    private final Class valueType;
+    private final Class valueClass;
 
-    private ValueType(Class measureJavaType) {
-      this.valueType = measureJavaType;
+    private ValueType(Class valueClass) {
+      this.valueClass = valueClass;
     }
 
     private Class valueType() {
-      return valueType;
+      return valueClass;
     }
 
   }
