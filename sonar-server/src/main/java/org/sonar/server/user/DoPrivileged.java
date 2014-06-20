@@ -29,9 +29,6 @@ import java.util.Locale;
  */
 public final class DoPrivileged {
 
-  private static final String SYSTEM_LOGIN = "<system>";
-  private static final String SYSTEM_NAME = "<System>";
-
   private DoPrivileged() {
     // Only static stuff
   }
@@ -70,7 +67,7 @@ public final class DoPrivileged {
         public boolean hasProjectPermission(String permission, String projectKey) {
           return true;
         }
-      }.setLocale(Locale.getDefault()).setLogin(SYSTEM_LOGIN).setName(SYSTEM_NAME));
+      }.setLocale(Locale.getDefault()));
     }
   
     private void stop() {

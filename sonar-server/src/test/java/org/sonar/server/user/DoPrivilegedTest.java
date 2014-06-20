@@ -31,7 +31,7 @@ public class DoPrivilegedTest {
       @Override
       protected void doPrivileged() {
         UserSession userSession = UserSession.get();
-        assertThat(userSession.isLoggedIn()).isTrue();
+        assertThat(userSession.isLoggedIn()).isFalse();
         assertThat(userSession.hasGlobalPermission("any permission")).isTrue();
         assertThat(userSession.hasProjectPermission("any permission", "any project")).isTrue();
       }

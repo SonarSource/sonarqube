@@ -39,11 +39,7 @@ import org.sonar.core.qualitygate.db.QualityGateConditionDto;
 import org.sonar.core.qualitygate.db.QualityGateDao;
 import org.sonar.core.qualitygate.db.QualityGateDto;
 import org.sonar.server.component.persistence.ComponentDao;
-import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.Errors;
-import org.sonar.server.exceptions.Message;
-import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.exceptions.*;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
@@ -364,7 +360,6 @@ public class QualityGates {
   }
 
   private void checkPermission(UserSession userSession) {
-    userSession.checkLoggedIn();
     userSession.checkGlobalPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 }
