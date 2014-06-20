@@ -555,6 +555,7 @@ CREATE TABLE "PERM_TEMPLATES_GROUPS" (
 
 
 CREATE TABLE "ACTIVITIES" (
+  "LOG_KEY" VARCHAR(250),
   "CREATED_AT" TIMESTAMP,
   "USER_LOGIN" VARCHAR(30),
   "LOG_TYPE" VARCHAR(250),
@@ -566,6 +567,8 @@ CREATE TABLE "ACTIVITIES" (
 -- ----------------------------------------------
 -- DDL Statements for indexes
 -- ----------------------------------------------
+
+CREATE UNIQUE INDEX "LOG_KEY_INDEX" ON "ACTIVITIES" ("LOG_KEY");
 
 CREATE INDEX "GROUP_ROLES_RESOURCE" ON "GROUP_ROLES" ("RESOURCE_ID");
 
