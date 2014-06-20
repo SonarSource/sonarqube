@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.rule;
 
-import org.sonar.api.batch.rules.QProfile;
-
 import org.junit.Test;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.config.Settings;

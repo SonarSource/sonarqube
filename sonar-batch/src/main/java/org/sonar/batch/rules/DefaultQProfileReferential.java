@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.rules;
 
-import org.sonar.api.batch.rules.QProfile;
+import org.sonar.batch.rule.QProfile;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 

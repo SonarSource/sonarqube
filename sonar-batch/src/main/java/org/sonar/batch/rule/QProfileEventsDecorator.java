@@ -25,7 +25,6 @@ import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.batch.Event;
 import org.sonar.api.batch.TimeMachine;
 import org.sonar.api.batch.TimeMachineQuery;
-import org.sonar.api.batch.rules.QProfile;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;

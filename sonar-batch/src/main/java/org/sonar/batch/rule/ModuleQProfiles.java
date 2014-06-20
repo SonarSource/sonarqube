@@ -21,7 +21,6 @@ package org.sonar.batch.rule;
 
 import org.sonar.batch.languages.Language;
 
-import org.sonar.api.batch.rules.QProfile;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.BatchComponent;

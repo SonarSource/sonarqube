@@ -20,7 +20,6 @@
 package org.sonar.batch.rule;
 
 import org.junit.Test;
-import org.sonar.api.batch.rules.QProfile;
 
 import java.util.Arrays;
 import java.util.Map;

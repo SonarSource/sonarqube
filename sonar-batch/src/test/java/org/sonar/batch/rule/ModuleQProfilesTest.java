@@ -21,7 +21,6 @@ package org.sonar.batch.rule;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
-import org.sonar.api.batch.rules.QProfile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;

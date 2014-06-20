@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.slf4j.Logger;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.rules.QProfile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 

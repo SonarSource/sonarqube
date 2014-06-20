@@ -24,7 +24,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.sonar.api.batch.rules.QProfile;
 import org.sonar.api.utils.text.JsonWriter;
 
 import javax.annotation.concurrent.Immutable;
