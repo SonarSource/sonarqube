@@ -55,7 +55,7 @@ public class XooMediumTest {
     .build();
 
   @Before
-  public void prepare() throws Throwable {
+  public void prepare() {
     tester.start();
   }
 

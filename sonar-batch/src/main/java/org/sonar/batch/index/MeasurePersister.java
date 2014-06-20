@@ -82,7 +82,10 @@ public final class MeasurePersister implements ScanPersister {
 
   @VisibleForTesting
   static boolean shouldPersistMeasure(@Nullable Resource resource, @Nullable Measure measure) {
-    return resource != null && measure != null && measure.getPersistenceMode().useDatabase() &&
+    if (resource == null || measure == null) {
+      return false;
+    }
+    return measure.getPersistenceMode().useDatabase() &&
       !(ResourceUtils.isEntity(resource) && measure.isBestValue()) && isMeasureNotEmpty(measure);
   }
 

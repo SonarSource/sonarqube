@@ -20,8 +20,6 @@
 package org.sonar.batch.scan2;
 
 import com.google.common.collect.Lists;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.analyzer.AnalyzerContext;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.batch.issue.ignore.scanner.IssueExclusionsLoader;
@@ -34,8 +32,6 @@ import java.util.Collection;
 
 public final class ModuleScanExecutor {
 
-  public static final Logger LOGGER = LoggerFactory.getLogger(ModuleScanExecutor.class);
-
   private final AnalyzersExecutor analyzersExecutor;
   private final AnalyzerContext analyzerContext;
   private final FileSystemLogger fsLogger;
@@ -43,12 +39,12 @@ public final class ModuleScanExecutor {
   private final QProfileVerifier profileVerifier;
   private final IssueExclusionsLoader issueExclusionsLoader;
 
-  private AnalyzisPublisher analyzisPublisher;
+  private AnalysisPublisher analyzisPublisher;
 
   public ModuleScanExecutor(AnalyzersExecutor analyzersExecutor,
     AnalyzerContext analyzerContext,
     FileSystemLogger fsLogger, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
-    IssueExclusionsLoader issueExclusionsLoader, AnalyzisPublisher analyzisPublisher) {
+    IssueExclusionsLoader issueExclusionsLoader, AnalysisPublisher analyzisPublisher) {
     this.analyzersExecutor = analyzersExecutor;
     this.analyzerContext = analyzerContext;
     this.fsLogger = fsLogger;

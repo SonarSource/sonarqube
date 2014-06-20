@@ -105,7 +105,8 @@ public class AnalyzerMediumTester {
     }
 
     public AnalyzerMediumTesterBuilder registerMetric(Metric<?> metric) {
-      metricFinder.add(metricId++, metric);
+      metricFinder.add(metricId, metric);
+      metricId++;
       return this;
     }
 
@@ -143,7 +144,7 @@ public class AnalyzerMediumTester {
 
   }
 
-  public void start() throws Throwable {
+  public void start() {
     batch.start();
   }
 

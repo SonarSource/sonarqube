@@ -24,9 +24,11 @@ import org.sonar.api.database.model.Snapshot;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 
+import javax.annotation.Nullable;
+
 public interface ResourcePersister {
 
-  Snapshot saveProject(Project project, Project parent);
+  Snapshot saveProject(Project project, @Nullable Project parent);
 
   /**
    * Persist a resource in database. Returns null if the resource must not be persisted (scope lower than file)

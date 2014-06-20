@@ -37,16 +37,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Properties;
 
-public final class AnalyzisPublisher {
+public final class AnalysisPublisher {
 
-  public static final Logger LOG = LoggerFactory.getLogger(AnalyzisPublisher.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AnalysisPublisher.class);
   private final Settings settings;
   private final FileSystem fs;
   private final AnalyzerMeasureCache measureCache;
   private final ProjectDefinition def;
   private AnalyzerIssueCache issueCache;
 
-  public AnalyzisPublisher(ProjectDefinition def, Settings settings, FileSystem fs, AnalyzerMeasureCache measureCache, AnalyzerIssueCache analyzerIssueCache) {
+  public AnalysisPublisher(ProjectDefinition def, Settings settings, FileSystem fs, AnalyzerMeasureCache measureCache, AnalyzerIssueCache analyzerIssueCache) {
     this.def = def;
     this.settings = settings;
     this.fs = fs;
@@ -113,7 +113,7 @@ public final class AnalyzisPublisher {
         .endObject()
         .close();
     } catch (IOException e) {
-
+      throw unableToExport(e);
     } finally {
       IOUtils.closeQuietly(issueWriter);
     }
@@ -141,7 +141,7 @@ public final class AnalyzisPublisher {
         .endObject()
         .close();
     } catch (IOException e) {
-
+      throw unableToExport(e);
     } finally {
       IOUtils.closeQuietly(measureWriter);
     }

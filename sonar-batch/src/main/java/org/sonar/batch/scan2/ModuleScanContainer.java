@@ -123,7 +123,7 @@ public class ModuleScanContainer extends ComponentContainer {
       EnforceIssuesFilter.class,
       IgnoreIssuesFilter.class,
 
-      AnalyzisPublisher.class);
+      AnalysisPublisher.class);
   }
 
   private void addExtensions() {

@@ -25,6 +25,8 @@ import org.sonar.api.batch.ProjectClasspath;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.resources.ProjectFileSystem;
 
+import javax.annotation.Nullable;
+
 import java.io.File;
 import java.util.List;
 
@@ -37,7 +39,7 @@ public class DefaultProjectClasspath extends ProjectClasspath {
     this(def, projectFileSystem, null);
   }
 
-  public DefaultProjectClasspath(ProjectDefinition def, ProjectFileSystem projectFileSystem, MavenProject pom) {
+  public DefaultProjectClasspath(ProjectDefinition def, ProjectFileSystem projectFileSystem, @Nullable MavenProject pom) {
     super(pom);
     this.def = def;
     this.projectFileSystem = projectFileSystem;

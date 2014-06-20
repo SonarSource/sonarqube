@@ -88,16 +88,6 @@ public final class PhaseExecutor {
     this.issueExclusionsLoader = issueExclusionsLoader;
   }
 
-  public PhaseExecutor(Phases phases, DecoratorsExecutor decoratorsExecutor,
-    MavenPluginsConfigurator mavenPluginsConfigurator, InitializersExecutor initializersExecutor,
-    PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
-    PersistenceManager persistenceManager, SensorContext sensorContext, DefaultIndex index,
-    EventBus eventBus, ProjectInitializer pi, ScanPersister[] persisters, FileSystemLogger fsLogger, JsonReport jsonReport,
-    DefaultModuleFileSystem fs, QProfileVerifier profileVerifier, IssueExclusionsLoader issueExclusionsLoader) {
-    this(phases, decoratorsExecutor, mavenPluginsConfigurator, initializersExecutor, postJobsExecutor,
-      sensorsExecutor, persistenceManager, sensorContext, index, eventBus, null, pi, persisters, fsLogger, jsonReport, fs, profileVerifier, issueExclusionsLoader);
-  }
-
   public static Collection<Class> getPhaseClasses() {
     return Lists.<Class>newArrayList(DecoratorsExecutor.class, MavenPluginsConfigurator.class,
       PostJobsExecutor.class, SensorsExecutor.class,

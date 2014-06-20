@@ -26,12 +26,14 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
 
+import javax.annotation.Nullable;
+
 import java.util.List;
 
 public interface PersistenceManager {
   void clear();
 
-  void saveProject(Project project, Project parent);
+  void saveProject(Project project, @Nullable Project parent);
 
   Snapshot saveResource(Project project, Resource resource, Resource parent);
 

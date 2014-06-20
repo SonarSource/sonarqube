@@ -26,7 +26,6 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.analyzer.Analyzer;
 import org.sonar.api.batch.analyzer.AnalyzerContext;
 import org.sonar.api.batch.analyzer.internal.DefaultAnalyzerDescriptor;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.scan2.AnalyzerOptimizer;
@@ -38,17 +37,15 @@ public class SensorWrapper implements Sensor {
 
   private Analyzer analyzer;
   private AnalyzerContext adaptor;
-  private FileSystem fs;
   private DefaultAnalyzerDescriptor descriptor;
   private AnalyzerOptimizer optimizer;
 
-  public SensorWrapper(Analyzer analyzer, AnalyzerContext adaptor, FileSystem fs, AnalyzerOptimizer optimizer) {
+  public SensorWrapper(Analyzer analyzer, AnalyzerContext adaptor, AnalyzerOptimizer optimizer) {
     this.analyzer = analyzer;
     this.optimizer = optimizer;
     descriptor = new DefaultAnalyzerDescriptor();
     analyzer.describe(descriptor);
     this.adaptor = adaptor;
-    this.fs = fs;
   }
 
   @DependedUpon

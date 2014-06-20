@@ -22,6 +22,8 @@ package org.sonar.batch.index;
 import com.google.common.collect.Lists;
 import org.sonar.api.resources.Resource;
 
+import javax.annotation.Nullable;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -40,7 +42,7 @@ public final class Bucket {
     return resource;
   }
 
-  public Bucket setParent(Bucket parent) {
+  public Bucket setParent(@Nullable Bucket parent) {
     this.parent = parent;
     if (parent != null) {
       parent.addChild(this);
