@@ -241,11 +241,11 @@ class ProfilesController < ApplicationController
     redirect_to :action => 'inheritance', :id => params[:id]
   end
 
-  # GET /profiles/changelog?id=<profile id>
+  # GET /profiles/changelog?key=<profile key>
   def changelog
-    require_parameters 'id'
+    require_parameters 'key'
 
-    @profile = Internal.quality_profiles.profile(params[:id].to_i)
+    @profile = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).getByKey(params[:key])
     search = {'profileKeys' => @profile.key().to_s, 'since' => params[:since], 'to' => params[:to]}
     @changes = Internal.component(Java::OrgSonarServerActivity::RubyActivityService.java_class).search(search)
 

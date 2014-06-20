@@ -6,7 +6,7 @@
     <%= message('quality_profiles.changelog.empty') -%>
   <% else %>
     <form class="marginbottom10" method="get" action="<%= ApplicationController.root_context %>/profiles/changelog">
-      <input name="id" type="hidden" value="<%= @profile.id %>"/>
+      <input name="key" type="hidden" value="<%= @profile.key() %>"/>
       <%= message('quality_profiles.changelog_from') -%>
       <input name="since" type="text" value="<%= params['since'] %>"/>
       <%= message('to').downcase -%>
@@ -44,7 +44,11 @@
             <br/>
           <% end %>
           <% change.parameters().each do |param_key, param_value| %>
-            <%= message('quality_profiles.parameter_set_to_x', :params => [param_key, param_value]) -%>
+            <% if !param_value.empty? %>
+              <%= message('quality_profiles.parameter_set_to_x', :params => [param_key, param_value]) -%>
+            <% else %>
+              <%= message('quality_profiles.changelog.parameter_reset_to_default_value_x', :params => [param_key]) -%>
+            <% end %>
             <br/>
           <% end %>
         </td>

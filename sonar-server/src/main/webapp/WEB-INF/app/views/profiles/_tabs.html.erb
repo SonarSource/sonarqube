@@ -16,7 +16,7 @@
     <a href="<%= url_for :controller => 'profiles', :action => 'inheritance', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='inheritance' -%> id="tab-inheritance"><%= message('quality_profiles.profile_inheritance') -%></a>
   </li>
   <li>
-    <a href="<%= url_for :controller => 'profiles', :action => 'changelog', :id => @profile.id -%>" <%= "class='selected'" if selected_tab=='changelog' -%> id="tab-changelog"><%= message('changelog') -%></a>
+    <a href="<%= url_for :controller => 'profiles', :action => 'changelog', :key => @profile.key() -%>" <%= "class='selected'" if selected_tab=='changelog' -%> id="tab-changelog"><%= message('changelog') -%></a>
   </li>
   <% if new_tab %>
   <li>
