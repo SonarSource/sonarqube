@@ -42,6 +42,7 @@ import org.sonar.core.technicaldebt.db.CharacteristicDao;
 import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.startup.RegisterDebtModel;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -62,8 +63,10 @@ public class RegisterRules implements Startable {
   private final DbClient dbClient;
   private final CharacteristicDao characteristicDao;
 
-  public RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator,
-    DbClient dbClient) {
+  /**
+   * @param registerDebtModel used only to be started after init of the technical debt model
+   */
+  public RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator, DbClient dbClient,  RegisterDebtModel registerDebtModel) {
     this(defLoader, ruleActivator, dbClient, System2.INSTANCE);
   }
 
