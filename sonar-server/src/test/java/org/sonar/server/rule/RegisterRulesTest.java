@@ -91,7 +91,6 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     assertThat(rule1.getStatus()).isEqualTo(RuleStatus.BETA);
     assertThat(rule1.getCreatedAt()).isEqualTo(DATE1);
     assertThat(rule1.getUpdatedAt()).isEqualTo(DATE1);
-    assertThat(rule1.getEffortToFixDescription()).isEqualTo("squid.S115.effortToFix");
     // TODO check characteristic and remediation function
 
     List<RuleParamDto> params = dbClient.ruleDao().findRuleParamsByRuleKey(dbSession, ruleKey1);
@@ -145,7 +144,7 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     assertThat(rule1.getStatus()).isEqualTo(RuleStatus.READY);
     assertThat(rule1.getCreatedAt()).isEqualTo(DATE1);
     assertThat(rule1.getUpdatedAt()).isEqualTo(DATE2);
-    assertThat(rule1.getEffortToFixDescription()).isEqualTo("squid.S115.effortToFix.v2");
+
     // TODO check characteristic and remediation function
     List<RuleParamDto> params = dbClient.ruleDao().findRuleParamsByRuleKey(dbSession, ruleKey1);
     assertThat(params).hasSize(2);
@@ -310,4 +309,3 @@ public class RegisterRulesTest extends AbstractDaoTestCase {
     }
   }
 }
-
