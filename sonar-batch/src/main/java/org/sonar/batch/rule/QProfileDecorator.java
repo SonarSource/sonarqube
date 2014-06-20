@@ -40,7 +40,7 @@ public class QProfileDecorator implements Decorator {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return project.getModules().size() > 0;
+    return !project.getModules().isEmpty();
   }
 
   @Override

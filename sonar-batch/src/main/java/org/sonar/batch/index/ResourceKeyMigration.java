@@ -183,11 +183,10 @@ public class ResourceKeyMigration implements BatchComponent {
   }
 
   private List<ResourceModel> loadEnabledResources(int moduleId, StringBuilder hql) {
-    List<ResourceModel> resources = session.createQuery(hql.toString())
+    return session.createQuery(hql.toString())
       .setParameter("rootId", moduleId)
       .setParameter("enabled", true)
       .getResultList();
-    return resources;
   }
 
   private Map<String, ResourceModel> loadDisabledResources(int moduleId, StringBuilder hql) {

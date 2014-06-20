@@ -48,7 +48,7 @@ import java.util.Set;
 public class DefaultDecoratorContext implements DecoratorContext {
 
   private static final String SAVE_MEASURE_METHOD = "saveMeasure";
-  private SonarIndex index;
+  private SonarIndex sonarIndex;
   private Resource resource;
   private MeasurementFilters measurementFilters;
   private boolean readOnly = false;
@@ -63,7 +63,7 @@ public class DefaultDecoratorContext implements DecoratorContext {
     SonarIndex index,
     List<DecoratorContext> childrenContexts,
     MeasurementFilters measurementFilters, MeasureCache measureCache, MetricFinder metricFinder) {
-    this.index = index;
+    this.sonarIndex = index;
     this.resource = resource;
     this.childrenContexts = childrenContexts;
     this.measurementFilters = measurementFilters;
@@ -88,7 +88,7 @@ public class DefaultDecoratorContext implements DecoratorContext {
   }
 
   public Project getProject() {
-    return index.getProject();
+    return sonarIndex.getProject();
   }
 
   public List<DecoratorContext> getChildren() {
@@ -181,50 +181,50 @@ public class DefaultDecoratorContext implements DecoratorContext {
   * {@inheritDoc}
   */
   public List<Violation> getViolations(ViolationQuery violationQuery) {
-    return index.getViolations(violationQuery);
+    return sonarIndex.getViolations(violationQuery);
   }
 
   /**
   * {@inheritDoc}
   */
   public List<Violation> getViolations() {
-    return index.getViolations(resource);
+    return sonarIndex.getViolations(resource);
   }
 
   public Dependency saveDependency(Dependency dependency) {
     checkReadOnly("addDependency");
-    return index.addDependency(dependency);
+    return sonarIndex.addDependency(dependency);
   }
 
   public Set<Dependency> getDependencies() {
-    return index.getDependencies();
+    return sonarIndex.getDependencies();
   }
 
   public Collection<Dependency> getIncomingDependencies() {
-    return index.getIncomingEdges(resource);
+    return sonarIndex.getIncomingEdges(resource);
   }
 
   public Collection<Dependency> getOutgoingDependencies() {
-    return index.getOutgoingEdges(resource);
+    return sonarIndex.getOutgoingEdges(resource);
   }
 
   public List<Event> getEvents() {
-    return index.getEvents(resource);
+    return sonarIndex.getEvents(resource);
   }
 
   public Event createEvent(String name, String description, String category, Date date) {
-    return index.addEvent(resource, name, description, category, date);
+    return sonarIndex.addEvent(resource, name, description, category, date);
   }
 
   public void deleteEvent(Event event) {
-    index.deleteEvent(event);
+    sonarIndex.deleteEvent(event);
   }
 
   public DefaultDecoratorContext saveViolation(Violation violation, boolean force) {
     if (violation.getResource() == null) {
       violation.setResource(resource);
     }
-    index.addViolation(violation, force);
+    sonarIndex.addViolation(violation, force);
     return this;
   }
 

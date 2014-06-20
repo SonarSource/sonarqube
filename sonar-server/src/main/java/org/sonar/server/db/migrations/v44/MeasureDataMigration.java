@@ -85,14 +85,8 @@ public class MeasureDataMigration implements DatabaseMigration {
 
         @Override
         public boolean update(Connection connection) throws SQLException {
-          if (ids.size() > 0) {
-            String deleteSql = new StringBuilder().append("DELETE FROM measure_data WHERE id IN (")
-              .append(StringUtils.repeat("?", ",", ids.size())).append(")").toString();
-            PreparedStatement s = connection.prepareStatement(deleteSql);
-            int i = 1;
-            for (Long id : ids) {
-              s.setLong(i++, id);
-            }
+          if (!ids.isEmpty()) {
+            PreparedStatement s = prepareDeleteQuery(ids, connection);
             s.executeUpdate();
             s.close();
             ids.clear();
@@ -100,9 +94,21 @@ public class MeasureDataMigration implements DatabaseMigration {
           }
           return false;
         }
+      });
+  }
 
-      }
-      );
+  private PreparedStatement prepareDeleteQuery(final List<Long> ids, Connection connection) throws SQLException {
+    String deleteSql = new StringBuilder()
+      .append("DELETE FROM measure_data WHERE id IN (")
+      .append(StringUtils.repeat("?", ",", ids.size()))
+      .append(")").toString();
+    PreparedStatement s = connection.prepareStatement(deleteSql);
+    int i = 1;
+    for (Long id : ids) {
+      s.setLong(i, id);
+      i++;
+    }
+    return s;
   }
 
   private static class Row {
