@@ -28,10 +28,13 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.core.activity.db.ActivityDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.TestDatabase;
 import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.db.DbClient;
+
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -68,8 +71,10 @@ public class ChangeLogMigrationTest {
   public void migrate() throws Exception {
     db.prepareDbUnit(getClass(), "active_rules_changes.xml");
     migration.execute();
-
     assertThat(dao.findAll(session)).hasSize(5);
+
+    List<ActivityDto> changes = dao.findAll(session);
+    assertThat(changes.get(1).getData()).contains("param_PARAM1=TODO");
   }
 
   @Test
