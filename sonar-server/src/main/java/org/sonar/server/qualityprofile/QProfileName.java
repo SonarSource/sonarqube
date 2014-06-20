@@ -19,8 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.base.Objects;
-
 import javax.annotation.Nullable;
 
 public class QProfileName {
@@ -41,7 +39,8 @@ public class QProfileName {
 
   @Override
   public boolean equals(@Nullable Object o) {
-    if (this == o) return true;
+    if (this == o)
+      return true;
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
@@ -63,9 +62,6 @@ public class QProfileName {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper("QProfile")
-      .add("lang", lang)
-      .add("name", name)
-      .toString();
+    return String.format("[%s, %s]", lang, name);
   }
 }

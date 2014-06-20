@@ -41,6 +41,6 @@ public class QProfileNameTest {
 
   @Test
   public void to_string() throws Exception {
-    assertThat(new QProfileName("xoo", "p1").toString()).isEqualTo("QProfile{lang=xoo, name=p1}");
+    assertThat(new QProfileName("xoo", "p1").toString()).isEqualTo("[xoo, p1]");
   }
 }
