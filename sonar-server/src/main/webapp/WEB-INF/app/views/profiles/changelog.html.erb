@@ -44,7 +44,7 @@
             <br/>
           <% end %>
           <% change.parameters().each do |param_key, param_value| %>
-            <% if !param_value.empty? %>
+            <% if param_value %>
               <%= message('quality_profiles.parameter_set_to_x', :params => [param_key, param_value]) -%>
             <% else %>
               <%= message('quality_profiles.changelog.parameter_reset_to_default_value_x', :params => [param_key]) -%>
