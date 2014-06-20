@@ -88,10 +88,6 @@ public class MassUpdater {
     Connection writeConnection = null;
     PreparedStatement writeStatement = null;
     try {
-      writeConnection = db.getDataSource().getConnection();
-      writeConnection.setAutoCommit(false);
-      writeStatement = writeConnection.prepareStatement(converter.updateSql());
-
       readConnection = db.getDataSource().getConnection();
       readConnection.setAutoCommit(false);
 
@@ -104,6 +100,17 @@ public class MassUpdater {
         if (row == null) {
           continue;
         }
+
+        if (writeConnection==null) {
+          // do not open the write connection too early
+          // else if the select  on read connection is long, then mysql
+          // write connection fails with communication failure error because
+          // no activity during a long period
+          writeConnection = db.getDataSource().getConnection();
+          writeConnection.setAutoCommit(false);
+          writeStatement = writeConnection.prepareStatement(converter.updateSql());
+        }
+
         if (converter.convert(row, writeStatement)) {
           writeStatement.addBatch();
           writeStatement.clearParameters();
