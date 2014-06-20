@@ -19,8 +19,6 @@
  */
 package org.sonar.plugins.dbcleaner;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.purge.PurgeableSnapshotDto;
 
@@ -37,25 +35,10 @@ public final class DbCleanerTestUtils {
   }
 
   public static PurgeableSnapshotDto createSnapshotWithDateTime(long snapshotId, String datetime) {
-      PurgeableSnapshotDto snapshot = new PurgeableSnapshotDto();
-      snapshot.setSnapshotId(snapshotId);
-      snapshot.setDate(DateUtils.parseDateTime(datetime));
-      return snapshot;
-    }
-
-  public static final class SnapshotMatcher extends BaseMatcher<PurgeableSnapshotDto> {
-    long snapshotId;
-
-    public SnapshotMatcher(long snapshotId) {
-      this.snapshotId = snapshotId;
-    }
-
-    public boolean matches(Object o) {
-      return ((PurgeableSnapshotDto) o).getSnapshotId() == snapshotId;
-    }
-
-    public void describeTo(Description description) {
-      description.appendText("snapshotId").appendValue(snapshotId);
-    }
+    PurgeableSnapshotDto snapshot = new PurgeableSnapshotDto();
+    snapshot.setSnapshotId(snapshotId);
+    snapshot.setDate(DateUtils.parseDateTime(datetime));
+    return snapshot;
   }
+
 }
