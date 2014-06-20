@@ -145,7 +145,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
             .addIds(key.toString())
         ))
       .setRouting(key.toString())
-      // TODO replace by scrolling
+        // TODO replace by scrolling
       .setSize(Integer.MAX_VALUE);
 
     SearchResponse response = request.get();
@@ -161,7 +161,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
     SearchRequestBuilder request = getClient().prepareSearch(getIndexName())
       .setQuery(QueryBuilders.termQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), key))
       .setRouting(key)
-      // TODO replace by scrolling
+        // TODO replace by scrolling
       .setSize(Integer.MAX_VALUE);
     SearchResponse response = request.get();
 
@@ -211,7 +211,6 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
       .setSize(0)
       .setTypes(this.getIndexType());
 
-    System.out.println("request = " + request);
     SearchResponse response = request.get();
     Map<String, Multimap<String, FacetValue>> stats = new HashMap<String, Multimap<String, FacetValue>>();
     Aggregation aggregation = response.getAggregations().get(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field());
