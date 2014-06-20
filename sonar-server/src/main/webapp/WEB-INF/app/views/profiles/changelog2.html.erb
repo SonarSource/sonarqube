@@ -36,7 +36,16 @@
         <td valign="top" width="1%" nowrap><%= change.authorName() ? change.authorName() : change.login() ? !change.login().emtpy? : 'System' %></td>
         <td valign="top" width="1%" nowrap><%= action_message %></td>
         <td valign="top"><%= change.ruleName() ? change.ruleName() : change.ruleKey() %></td>
-        <td valign="top"></td>
+        <td valign="top">
+          <% if change.severity() %>
+            <%= message('quality_profiles.severity_set_to_x', :params => ["<i class=\"icon-severity-#{change.severity().downcase}\"></i>", change.severity()]) -%>
+            <br/>
+          <% end %>
+          <% change.parameters().each do |param_key, param_value| %>
+            <%= message('quality_profiles.parameter_set_to_x', :params => [param_key, param_value]) -%>
+            <br/>
+          <% end %>
+        </td>
       </tr>
       <% end %>
     </table>

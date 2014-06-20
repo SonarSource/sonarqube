@@ -44,6 +44,9 @@ public class QProfileActivity extends ActivityDoc implements Activity {
     for (Map.Entry detail : details.entrySet()) {
       fields.put((String) detail.getKey(), detail.getValue());
     }
+    if (!fields.containsKey("severity")) {
+      fields.put("severity", null);
+    }
   }
 
   @CheckForNull
@@ -77,8 +80,9 @@ public class QProfileActivity extends ActivityDoc implements Activity {
     return getNullableField(ActivityNormalizer.LogFields.LOGIN.field());
   }
 
+  @CheckForNull
   public String severity(){
-    return (String) getField("severity");
+    return (String) getNullableField("severity");
   }
 
   public Map<String, String> parameters() {

@@ -154,11 +154,34 @@ public class QProfileServiceMediumTest {
     assertThat(activity.action()).isEqualTo(ActiveRuleChange.Type.ACTIVATED.name());
     assertThat(activity.ruleKey()).isEqualTo(RuleTesting.XOO_X1);
     assertThat(activity.profileKey()).isEqualTo(XOO_P1_KEY);
-    assertThat(activity.parameters().get("max")).isEqualTo("10");
     assertThat(activity.severity()).isEqualTo(Severity.MAJOR);
     assertThat(activity.ruleName()).isEqualTo(rule.getName());
     assertThat(activity.login()).isEqualTo("me");
     assertThat(activity.authorName()).isNull();
+
+    assertThat(activity.parameters()).hasSize(1);
+    assertThat(activity.parameters().get("max")).isEqualTo("10");
+  }
+
+  @Test
+  public void search_qprofile_activity_without_severity() throws InterruptedException {
+    MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("me");
+
+    RuleKey ruleKey = RuleKey.of("xoo", "deleted_rule");
+
+    tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE,
+      ActiveRuleChange.createFor(ActiveRuleChange.Type.UPDATED, ActiveRuleKey.of(XOO_P1_KEY, ruleKey))
+        .setParameter("max", "10")
+    );
+    dbSession.commit();
+
+    List<QProfileActivity> activities = service.findActivities(new QProfileActivityQuery(), new QueryOptions());
+    assertThat(activities).hasSize(1);
+
+    QProfileActivity activity = activities.get(0);
+    assertThat(activity.severity()).isNull();
+    assertThat(activity.parameters()).hasSize(1);
+    assertThat(activity.parameters().get("max")).isEqualTo("10");
   }
 
   @Test
