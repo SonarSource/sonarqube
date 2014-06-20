@@ -25,8 +25,8 @@
 class AddQprofileKeysColumns < ActiveRecord::Migration
 
   def self.up
-    add_column :rules_profiles, :kee, :string, :limit => 1000
-    add_column :rules_profiles, :parent_kee, :string, :limit => 1000
+    add_column :rules_profiles, :kee, :string, :limit => 255
+    add_column :rules_profiles, :parent_kee, :string, :limit => 255
   end
 
 end

@@ -28,7 +28,7 @@ class FeedQprofileKeys < ActiveRecord::Migration
     execute_java_migration('org.sonar.server.db.migrations.v44.FeedQProfileKeysMigration')
 
     # set as non-null and unique
-    change_column :rules_profiles, :kee, :string, :limit => 1000, :null => false
+    change_column :rules_profiles, :kee, :string, :limit => 255, :null => false
     add_index :rules_profiles, :kee, :name => 'uniq_qprof_key', :unique => true
 
     remove_column :rules_profiles, :parent_name
