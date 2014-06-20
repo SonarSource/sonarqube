@@ -32,6 +32,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TimeProfiler;
 import org.sonar.core.persistence.DbSession;
@@ -42,6 +43,7 @@ import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.RuleActivator;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.*;
@@ -60,16 +62,14 @@ public class RegisterRules implements Startable {
   private final DbClient dbClient;
   private final CharacteristicDao characteristicDao;
 
-
   public RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator,
-                       DbClient dbClient) {
+    DbClient dbClient) {
     this(defLoader, ruleActivator, dbClient, System2.INSTANCE);
   }
 
-
   @VisibleForTesting
   RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator,
-                DbClient dbClient, System2 system) {
+    DbClient dbClient, System2 system) {
     this.defLoader = defLoader;
     this.ruleActivator = ruleActivator;
     this.dbClient = dbClient;
@@ -82,6 +82,7 @@ public class RegisterRules implements Startable {
     DbSession session = dbClient.openSession(false);
     try {
       Map<RuleKey, RuleDto> allRules = loadRules(session);
+      Map<String, CharacteristicDto> allCharacteristics = loadCharacteristics(session);
 
       RulesDefinition.Context context = defLoader.load();
       for (RulesDefinition.ExtendedRepository repoDef : getRepositories(context)) {
@@ -95,11 +96,9 @@ public class RegisterRules implements Startable {
             executeUpdate = true;
           }
 
-          if (rule.getSubCharacteristicId() != null) {
-            CharacteristicDto characteristicDto = characteristicDao.selectById(rule.getSubCharacteristicId(), session);
-            if (characteristicDto != null && mergeDebtDefinitions(ruleDef, rule, characteristicDto)) {
-              executeUpdate = true;
-            }
+          CharacteristicDto subCharacteristic = characteristic(ruleDef, rule.getSubCharacteristicId(), allCharacteristics);
+          if (mergeDebtDefinitions(ruleDef, rule, subCharacteristic)) {
+            executeUpdate = true;
           }
 
           if (mergeTags(ruleDef, rule)) {
@@ -136,6 +135,36 @@ public class RegisterRules implements Startable {
       rules.put(rule.getKey(), rule);
     }
     return rules;
+  }
+
+  private Map<String, CharacteristicDto> loadCharacteristics(DbSession session) {
+    Map<String, CharacteristicDto> characteristics = new HashMap<String, CharacteristicDto>();
+    for (CharacteristicDto characteristicDto : characteristicDao.selectEnabledCharacteristics(session)) {
+      characteristics.put(characteristicDto.getKey(), characteristicDto);
+    }
+    return characteristics;
+  }
+
+  @CheckForNull
+  private CharacteristicDto characteristic(RulesDefinition.Rule ruleDef, @Nullable Integer overridingCharacteristicId, Map<String, CharacteristicDto> allCharacteristics) {
+    String subCharacteristic = ruleDef.debtSubCharacteristic();
+    String repo = ruleDef.repository().key();
+    String ruleKey = ruleDef.key();
+
+    // Rule is not linked to a default characteristic or characteristic has been disabled by user
+    if (subCharacteristic == null) {
+      return null;
+    }
+    CharacteristicDto characteristicDto = allCharacteristics.get(subCharacteristic);
+    if (characteristicDto == null) {
+      // Log a warning only if rule has not been overridden by user
+      if (overridingCharacteristicId == null) {
+        LOG.warn(String.format("Characteristic '%s' has not been found on rule '%s:%s'", subCharacteristic, repo, ruleKey));
+      }
+    } else if (characteristicDto.getParentId() == null) {
+      throw MessageException.of(String.format("Rule '%s:%s' cannot be linked on the root characteristic '%s'", repo, ruleKey, subCharacteristic));
+    }
+    return characteristicDto;
   }
 
   private List<RulesDefinition.ExtendedRepository> getRepositories(RulesDefinition.Context context) {
@@ -205,10 +234,6 @@ public class RegisterRules implements Startable {
       dto.setLanguage(def.repository().language());
       changed = true;
     }
-    if (!StringUtils.equals(dto.getEffortToFixDescription(), def.effortToFixDescription())) {
-      dto.setEffortToFixDescription(def.effortToFixDescription());
-      changed = true;
-    }
     return changed;
   }
 
@@ -228,7 +253,7 @@ public class RegisterRules implements Startable {
   }
 
   private boolean mergeDebtDefinitions(RulesDefinition.Rule def, RuleDto dto, @Nullable Integer characteristicId, @Nullable String remediationFunction,
-                                       @Nullable String remediationCoefficient, @Nullable String remediationOffset, @Nullable String effortToFixDescription) {
+    @Nullable String remediationCoefficient, @Nullable String remediationOffset, @Nullable String effortToFixDescription) {
     boolean changed = false;
 
     if (!ObjectUtils.equals(dto.getDefaultSubCharacteristicId(), characteristicId)) {
@@ -261,8 +286,8 @@ public class RegisterRules implements Startable {
     for (RuleParamDto paramDto : paramDtos) {
       RulesDefinition.Param paramDef = ruleDef.param(paramDto.getName());
       if (paramDef == null) {
-        //TODO cascade on the activeRule upon RuleDeletion
-        //activeRuleDao.removeRuleParam(paramDto, sqlSession);
+        // TODO cascade on the activeRule upon RuleDeletion
+        // activeRuleDao.removeRuleParam(paramDto, sqlSession);
         dbClient.ruleDao().removeRuleParam(session, rule, paramDto);
       } else {
         // TODO validate that existing active rules still match constraints
@@ -325,7 +350,7 @@ public class RegisterRules implements Startable {
       if (ruleDto.getTemplateId() != null) {
         RuleDto template = dbClient.ruleDao().getTemplate(ruleDto, session);
         if (template != null && RuleStatus.REMOVED != template.getStatus()) {
-          if (updateCustomRuleFromTemplateRule(ruleDto, template)){
+          if (updateCustomRuleFromTemplateRule(ruleDto, template)) {
             dbClient.ruleDao().update(session, ruleDto);
           }
           toBeRemoved = false;
@@ -396,12 +421,12 @@ public class RegisterRules implements Startable {
    */
   private void removeActiveRulesOnStillExistingRepositories(DbSession session, Collection<RuleDto> removedRules, RulesDefinition.Context context) {
     List<String> repositoryKeys = newArrayList(Iterables.transform(context.repositories(), new Function<RulesDefinition.Repository, String>() {
-        @Override
-        public String apply(RulesDefinition.Repository input) {
-          return input.key();
-        }
+      @Override
+      public String apply(RulesDefinition.Repository input) {
+        return input.key();
       }
-    ));
+    }
+      ));
 
     for (RuleDto rule : removedRules) {
       // SONAR-4642 Remove active rules only when repository still exists

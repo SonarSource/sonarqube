@@ -28,8 +28,10 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.utils.MessageException;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
@@ -50,6 +52,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.fest.assertions.Fail.fail;
 
 public class RegisterRulesMediumTest {
 
@@ -67,6 +70,7 @@ public class RegisterRulesMediumTest {
     rulesDefinition.includeX1 = true;
     rulesDefinition.includeX2 = true;
     rulesDefinition.includeTemplate1 = true;
+    rulesDefinition.includeRuleLinkedToRootCharacteristic = false;
     tester.get(Platform.class).executeStartupTasks();
     db = tester.get(DbClient.class);
     dbSession = tester.get(DbClient.class).openSession(false);
@@ -179,6 +183,74 @@ public class RegisterRulesMediumTest {
   }
 
   @Test
+  public void update_debt_rule() throws Exception {
+    verifyRulesInDb();
+
+    RuleIndex index = tester.get(RuleIndex.class);
+
+    // Update x1 rule
+    RuleDto ruleDto = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
+    db.ruleDao().update(dbSession, ruleDto
+        .setDefaultSubCharacteristicId(123456)
+        .setDefaultRemediationFunction("LINEAR_OFFSET")
+        .setDefaultRemediationCoefficient("2h")
+        .setDefaultRemediationOffset("35min")
+    );
+    dbSession.commit();
+    dbSession.clearCache();
+
+    // Re-execute startup tasks
+    tester.get(Platform.class).executeStartupTasks();
+
+    // Verify default debt has been reset to plugin definition
+    Rule ruleReloaded = index.getByKey(RuleTesting.XOO_X1);
+    assertThat(ruleReloaded.debtSubCharacteristicKey()).isEqualTo(RulesDefinition.SubCharacteristics.INTEGRATION_TESTABILITY);
+    assertThat(ruleReloaded.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
+    assertThat(ruleReloaded.debtRemediationFunction().coefficient()).isEqualTo("1h");
+    assertThat(ruleReloaded.debtRemediationFunction().offset()).isEqualTo("30min");
+  }
+
+  @Test
+  public void remove_debt_rule() throws Exception {
+    verifyRulesInDb();
+
+    RuleIndex index = tester.get(RuleIndex.class);
+
+    // Set some default debt on x2 rule, which has no debt provided by th plugin
+    RuleDto ruleDto = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X2);
+    db.ruleDao().update(dbSession, ruleDto
+        .setDefaultSubCharacteristicId(db.debtCharacteristicDao().selectByKey(RulesDefinition.SubCharacteristics.INTEGRATION_TESTABILITY, dbSession).getId())
+        .setDefaultRemediationFunction("LINEAR_OFFSET")
+        .setDefaultRemediationCoefficient("2h")
+        .setDefaultRemediationOffset("35min")
+    );
+    dbSession.commit();
+    dbSession.clearCache();
+
+    // Re-execute startup tasks
+    tester.get(Platform.class).executeStartupTasks();
+
+    // Verify default debt has been removed
+    Rule ruleReloaded = index.getByKey(RuleTesting.XOO_X2);
+    assertThat(ruleReloaded.debtSubCharacteristicKey()).isNull();
+    assertThat(ruleReloaded.debtRemediationFunction()).isNull();
+  }
+
+  @Test
+  public void fail_when_rule_is_linked_on_root_characteristic() throws Exception {
+    verifyRulesInDb();
+
+    rulesDefinition.includeRuleLinkedToRootCharacteristic = true;
+    try {
+      // Re-execute startup tasks
+      tester.get(Platform.class).executeStartupTasks();
+      fail();
+    } catch (Exception e) {
+      assertThat(e).isInstanceOf(MessageException.class).hasMessage("Rule 'xoo:RuleLinkedToRootCharacteristic' cannot be linked on the root characteristic 'REUSABILITY'");
+    }
+  }
+
+  @Test
   public void update_custom_rule_from_template() throws Exception {
     RuleIndex index = tester.get(RuleIndex.class);
     Rule templateRule = index.getByKey(RuleKey.of("xoo", "template1"));
@@ -287,28 +359,43 @@ public class RegisterRulesMediumTest {
 
   public static class XooRulesDefinition implements RulesDefinition {
 
-    boolean includeX1 = true, includeX2 = true, includeTemplate1 = true;
+    boolean includeX1 = true, includeX2 = true, includeTemplate1 = true, includeRuleLinkedToRootCharacteristic = false;
 
     @Override
     public void define(Context context) {
       if (includeX1 || includeX2 || includeTemplate1) {
         NewRepository repository = context.createRepository("xoo", "xoo").setName("Xoo Repo");
         if (includeX1) {
-          repository.createRule("x1")
+          NewRule x1Rule = repository.createRule(RuleTesting.XOO_X1.rule())
             .setName("x1 name")
             .setHtmlDescription("x1 desc")
             .setSeverity(Severity.MINOR)
-            .createParam("acceptWhitespace")
-            .setDefaultValue("false")
+            .setEffortToFixDescription("x1 effort to fix");
+          x1Rule.createParam("acceptWhitespace")
             .setType(RuleParamType.BOOLEAN)
+            .setDefaultValue("false")
             .setDescription("Accept whitespaces on the line");
+          x1Rule
+            .setDebtSubCharacteristic(SubCharacteristics.INTEGRATION_TESTABILITY)
+            .setDebtRemediationFunction(x1Rule.debtRemediationFunctions().linearWithOffset("1h", "30min"));
         }
 
         if (includeX2) {
-          repository.createRule("x2")
+          repository.createRule(RuleTesting.XOO_X2.rule())
             .setName("x2 name")
             .setHtmlDescription("x2 desc")
             .setSeverity(Severity.MAJOR);
+        }
+
+        if (includeRuleLinkedToRootCharacteristic) {
+          NewRule x1Rule = repository.createRule("RuleLinkedToRootCharacteristic")
+            .setName("RuleLinkedToRootCharacteristic name")
+            .setHtmlDescription("RuleLinkedToRootCharacteristic desc")
+            .setSeverity(Severity.MINOR);
+          x1Rule
+            // Link to a root characteristic -> fail
+            .setDebtSubCharacteristic("REUSABILITY")
+            .setDebtRemediationFunction(x1Rule.debtRemediationFunctions().linearWithOffset("1h", "30min"));
         }
 
         if (includeTemplate1) {
