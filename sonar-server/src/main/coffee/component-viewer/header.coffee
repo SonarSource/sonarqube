@@ -57,6 +57,7 @@ define [
       'click .js-favorite': 'toggleFavorite'
       'click .js-extensions': 'showExtensionsPopup'
       'click .js-extension-close': 'closeExtension'
+      'click .js-permalink': 'getPermalink'
       'click @ui.expandLinks': 'showExpandedBar'
       'click .js-toggle-issues': 'toggleIssues'
       'click .js-toggle-coverage': 'toggleCoverage'
@@ -206,6 +207,31 @@ define [
       $(e.currentTarget).addClass 'active'
       method = @options.main[methodName]
       method.call @options.main, extra
+
+
+    getPermalink: ->
+      params = []
+      params.push key: 'component', value: @options.main.component.get 'key'
+      settings = []
+      _.map @options.main.settings.toJSON(), (v, k) -> settings.push k if v
+      params.push key: 'settings', value: settings.join ','
+      activeHeaderTab = @state.get 'activeHeaderTab'
+      if activeHeaderTab
+        params.push key: 'tab', value: activeHeaderTab
+      activeHeaderItem = @state.get 'activeHeaderItem'
+      if activeHeaderItem
+        params.push key: 'item', value: activeHeaderItem
+      highlightedLine = @options.main.sourceView.highlightedLine
+      period = @state.get 'period'
+      if period?
+        params.push key: 'period', value: period.get 'key'
+      if @options.main.currentIssue
+        params.push key: 'currentIssue', value: @options.main.currentIssue
+      if highlightedLine
+        params.push key: 'line', value: highlightedLine
+      hash = params.map((d) -> "#{d.key}=#{encodeURIComponent(d.value)}" ).join '&'
+      window.open "#{baseUrl}/component_viewer/index##{hash}"
+
 
 
     serializeData: ->

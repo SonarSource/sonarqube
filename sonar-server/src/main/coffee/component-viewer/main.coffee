@@ -77,7 +77,8 @@ define [
 
     initialize: (options) ->
       @settings = new Backbone.Model @getDefaultSettings()
-      @settings.set options.settings
+      if options.settings?
+        @settings.set options.settings
 
       @state = new State()
 
@@ -230,10 +231,12 @@ define [
           if @settings.get('coverage') then @showCoverage() else @hideCoverage()
           if @settings.get('duplications') then @showDuplications() else @hideDuplications()
           if @settings.get('scm') then @showSCM() else @hideSCM()
+          @trigger 'loaded'
       .fail =>
         @state.set 'removed', true
         @state.set 'hasSource', false
         @render()
+        @trigger 'loaded'
 
 
     toggleWorkspace: (store = false) ->

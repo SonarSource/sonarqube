@@ -1,0 +1,93 @@
+requirejs.config
+  baseUrl: "#{baseUrl}/js"
+
+  paths:
+    'backbone': 'third-party/backbone'
+    'backbone.marionette': 'third-party/backbone.marionette'
+    'handlebars': 'third-party/handlebars'
+    'jquery.mockjax': 'third-party/jquery.mockjax'
+
+  shim:
+    'backbone.marionette':
+      deps: ['backbone']
+      exports: 'Marionette'
+    'backbone':
+      exports: 'Backbone'
+    'handlebars':
+      exports: 'Handlebars'
+
+
+requirejs [
+  'backbone.marionette'
+  'component-viewer/main'
+], (
+  Marionette
+  ComponentViewer
+) ->
+
+  $ = jQuery
+  API_ISSUE = "#{baseUrl}/api/issues/show"
+  App = new Marionette.Application()
+
+
+  App.addRegions
+    viewerRegion: '#component-viewer'
+
+
+  App.requestComponentViewer = (s) ->
+    if s?
+      settings = issues: false, coverage: false, duplications: false, scm: false, workspace: false
+      s.split(',').forEach (d) -> settings[d] = true
+    else settings = null
+    unless App.componentViewer?
+      App.componentViewer = new ComponentViewer settings: settings
+      App.viewerRegion.show App.componentViewer
+    App.componentViewer
+
+
+  App.addInitializer ->
+    # Define parameters
+    paramsHash = location.hash.substr(1)
+    params = {}
+    paramsHash.split('&').forEach (d) ->
+      t = d.split '='
+      params[t[0]] = decodeURIComponent t[1]
+
+    viewer = App.requestComponentViewer params.settings
+    if params.component?
+      loadIssue = (key) ->
+        $.get API_ISSUE, key: key, (r) =>
+          viewer.showIssues false, r.issue
+
+      if params.line?
+        viewer.sourceView.highlightedLine = params.line
+      viewer.open params.component
+      viewer.on 'loaded', ->
+        if params.tab? && params.item? && params.period?
+          viewer.headerView.enableBar(params.tab).done ->
+            viewer.enablePeriod +params.period, params.item
+        else if params.tab? && params.item?
+          viewer.state.set activeHeaderTab: params.tab, activeHeaderItem: params.item
+          viewer.headerView.render()
+        else if params.tab? && params.period?
+          viewer.headerView.enableBar(params.tab).done ->
+            viewer.enablePeriod params.period
+        else if params.tab? && params.currentIssue?
+          loadIssue(params.currentIssue).done ->
+            viewer.state.set activeHeaderTab: params.tab
+            viewer.headerView.render()
+        else if params.tab?
+          viewer.state.set activeHeaderTab: params.tab
+          viewer.headerView.render()
+        else if params.currentIssue?
+          loadIssue params.currentIssue
+        else viewer.showAllLines()
+
+
+  # Message bundles
+  l10nXHR = window.requestMessages()
+
+
+  $.when(l10nXHR).done ->
+    # Start the application
+    App.start()

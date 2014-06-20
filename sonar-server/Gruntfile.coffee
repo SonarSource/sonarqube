@@ -187,6 +187,10 @@ module.exports = (grunt) ->
         name: 'dashboard/file-app'
         out: '<%= pkg.assets %>build/js/dashboard/file-app.js'
 
+      componentViewer: options:
+        name: 'component-viewer/app'
+        out: '<%= pkg.assets %>build/js/component-viewer/app.js'
+
 
     handlebars:
       options:
