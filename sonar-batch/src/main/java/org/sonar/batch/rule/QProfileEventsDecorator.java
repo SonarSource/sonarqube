@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.rule;
 
-import com.google.common.collect.Maps;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependsUpon;
@@ -66,16 +65,17 @@ public class QProfileEventsDecorator implements Decorator {
       return;
     }
 
+    // Load previous profiles
+    Measure previousMeasure = getPreviousMeasure(resource, CoreMetrics.QUALITY_PROFILES);
+    if (previousMeasure == null || previousMeasure.getData() == null) {
+      // first analysis -> do not generate events
+      return;
+    }
+    Map<String, QProfile> previousProfiles = UsedQProfiles.fromJson(previousMeasure.getData()).profilesByKey();
+
     // Load current profiles
     Measure currentMeasure = context.getMeasure(CoreMetrics.QUALITY_PROFILES);
     Map<String, QProfile> currentProfiles = UsedQProfiles.fromJson(currentMeasure.getData()).profilesByKey();
-
-    // Load previous profiles
-    Map<String, QProfile> previousProfiles = Maps.newHashMap();
-    Measure previousMeasure = getPreviousMeasure(resource, CoreMetrics.QUALITY_PROFILES);
-    if (previousMeasure != null && previousMeasure.getData() != null) {
-      previousProfiles = UsedQProfiles.fromJson(previousMeasure.getData()).profilesByKey();
-    }
 
     // Detect new profiles or updated profiles
     for (QProfile profile : currentProfiles.values()) {

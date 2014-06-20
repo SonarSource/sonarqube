@@ -19,6 +19,8 @@
  */
 package org.sonar.api.batch.rules;
 
+import com.google.common.base.Objects;
+
 public class QProfile {
 
   private final String key, name, language;
@@ -57,5 +59,14 @@ public class QProfile {
   @Override
   public int hashCode() {
     return key.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this)
+      .add("key", key)
+      .add("name", name)
+      .add("language", language)
+      .toString();
   }
 }

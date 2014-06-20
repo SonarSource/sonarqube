@@ -31,7 +31,7 @@ public class PurgeableSnapshotDto implements Comparable<PurgeableSnapshotDto> {
   private boolean isLast;
 
   public Date getDate() {
-    return date;//NOSONAR May expose internal representation by returning reference to mutable object
+    return date;
   }
 
   public long getSnapshotId() {
@@ -47,7 +47,7 @@ public class PurgeableSnapshotDto implements Comparable<PurgeableSnapshotDto> {
   }
 
   public PurgeableSnapshotDto setDate(Date date) {
-    this.date = date;//NOSONAR May expose internal representation by incorporating reference to mutable object
+    this.date = date;
     return this;
   }
 
