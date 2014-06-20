@@ -47,7 +47,6 @@ import org.sonar.server.component.persistence.ComponentDao;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.MockUserSession;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserSessionTestUtils;
@@ -117,7 +116,7 @@ public class QualityGatesTest {
     assertThat(qGates.currentUserHasWritePermission()).isTrue();
   }
 
-  @Test(expected = UnauthorizedException.class)
+  @Test(expected = ForbiddenException.class)
   public void should_fail_create_on_anonymous() throws Exception {
     UserSessionTestUtils.setUserSession(unauthenticatedUserSession);
     assertThat(qGates.currentUserHasWritePermission()).isFalse();
