@@ -30,6 +30,7 @@ class CreateActivitiesTable < ActiveRecord::Migration
       t.column 'user_login', :string, :limit => 255
       t.column 'data_field', :text
       t.column 'log_type', :string, :limit => 50
+      t.column 'log_action', :string, :limit => 50
       t.column 'log_message', :string, :limit => 4000
     end
 
