@@ -30,15 +30,14 @@
     </p>
   <%
      else
-       profile_measure=@snapshot.measure(Metric::PROFILE)
+       profile_measure=@snapshot.measure('profile')
        if profile_measure
   %>
       <p class="description-widget-description">
         <%= message('widget.description.profile') -%>:
         <span id="resource_profile">
-          <%= link_to profile_measure.data, {:controller => '/profiles', :action => 'show', :id => profile_measure.value.to_i}, :class => 'widget-link', :id => 'profile_link' -%>
+          <%= link_to profile_measure.data, {:controller => 'profiles', :action => 'show', :id => profile_measure.value.to_i}, :class => 'widget-link', :id => 'profile_link' -%>
         </span>
-        <span class="subtitle">(<%= message('widget.description.profile_version_x', :params => format_measure('profile_version', :default => '1')) -%>)</span>
       </p>
     <% end
        end %>
