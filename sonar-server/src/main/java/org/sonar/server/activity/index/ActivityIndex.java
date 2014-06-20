@@ -25,13 +25,22 @@ import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.AndFilterBuilder;
+import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.OrFilterBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.activity.db.ActivityDto;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.profiling.Profiling;
-import org.sonar.server.search.*;
+import org.sonar.server.search.BaseIndex;
+import org.sonar.server.search.ESNode;
+import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.search.IndexField;
+import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.Result;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -60,7 +69,9 @@ public class ActivityIndex extends BaseIndex<Activity, ActivityDto, String> {
 
   @Override
   protected Settings getIndexSettings() throws IOException {
-    return ImmutableSettings.builder().build();
+    return ImmutableSettings.builder()
+      .put("analysis.analyzer.default.type", "keyword")
+      .build();
   }
 
   @Override
