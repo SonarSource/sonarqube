@@ -2226,6 +2226,38 @@ public final class CoreMetrics {
     .create();
 
   /**
+   * @deprecated since 4.4 doesn't support multi-language. See {@link #QUALITY_PROFILES_KEY}
+   */
+  @Deprecated
+  public static final String PROFILE_KEY = "profile";
+  /**
+   * @deprecated since 4.4 doesn't support multi-language. See {@link #QUALITY_PROFILES_KEY}
+   */
+  @Deprecated
+  public static final Metric<String> PROFILE = new Metric.Builder(PROFILE_KEY, "Profile", Metric.ValueType.DATA)
+    .setDescription("Selected quality profile")
+    .setDomain(DOMAIN_GENERAL)
+    .create();
+
+  /**
+   * @since 2.9
+   * @deprecated since 4.4 doesn't support multi-language. See {@link #QUALITY_PROFILES_KEY}
+   */
+  @Deprecated
+  public static final String PROFILE_VERSION_KEY = "profile_version";
+  /**
+   * @since 2.9
+   * @deprecated since 4.4 doesn't support multi-language. See {@link #QUALITY_PROFILES_KEY}
+   */
+  @Deprecated
+  public static final Metric<Integer> PROFILE_VERSION = new Metric.Builder(PROFILE_VERSION_KEY, "Profile version", Metric.ValueType.INT)
+    .setDescription("Selected quality profile version")
+    .setQualitative(false)
+    .setDomain(DOMAIN_GENERAL)
+    .setHidden(true)
+    .create();
+
+  /**
    * @since 4.4
    */
   public static final String QUALITY_PROFILES_KEY = "quality_profiles";
