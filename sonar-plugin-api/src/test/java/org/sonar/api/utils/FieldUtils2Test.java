@@ -26,8 +26,8 @@ import org.junit.Test;
 import java.lang.reflect.Field;
 import java.util.List;
 
+import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.JUnitMatchers.hasItem;
 
 public class FieldUtils2Test {
 

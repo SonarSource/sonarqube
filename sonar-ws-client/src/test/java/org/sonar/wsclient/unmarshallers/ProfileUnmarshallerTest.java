@@ -19,7 +19,6 @@
  */
 package org.sonar.wsclient.unmarshallers;
 
-import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.sonar.wsclient.services.Profile;
 
@@ -47,7 +46,7 @@ public class ProfileUnmarshallerTest extends UnmarshallerTestCase {
     Profile.Rule rule1 = profile.getRules().get(0);
     assertThat(rule1.getKey(), is("com.puppycrawl.tools.checkstyle.checks.coding.InnerAssignmentCheck"));
     assertThat(rule1.getRepository(), is("checkstyle"));
-    assertThat(rule1.getInheritance(), CoreMatchers.<Object>nullValue());
+    assertThat(rule1.getInheritance(), nullValue());
     assertThat(rule1.getSeverity(), is("MAJOR"));
     assertThat(rule1.getParameters().size(), is(0));
     assertThat(rule1.getParameter("foo"), nullValue());
