@@ -96,7 +96,7 @@ public class QProfileFactoryMediumTest {
       factory.create(dbSession, name);
       fail();
     } catch (BadRequestException e) {
-      assertThat(e).hasMessage("Quality profile already exists: QProfile{lang=xoo, name=P1}");
+      assertThat(e).hasMessage("Quality profile already exists: {lang=xoo, name=P1}");
     }
   }
 
