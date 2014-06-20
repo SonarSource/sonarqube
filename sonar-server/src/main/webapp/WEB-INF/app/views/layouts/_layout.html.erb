@@ -21,12 +21,7 @@
         <li>
           <a href="<%= ApplicationController.root_context -%>/issues/index" class="<%= 'selected' if selected_section==Navigation::SECTION_ISSUES -%>"><%= message('issues.page') -%></a>
         </li>
-        <li>
-          <a href="<%= ApplicationController.root_context -%>/profiles" class="<%= 'selected' if selected_section==Navigation::SECTION_QUALITY_PROFILES -%>"><%= message('quality_profiles.page') -%></a>
-        </li>
-        <li>
-          <a href="<%= ApplicationController.root_context -%>/coding_rules" class="<%= 'selected' if selected_section==Navigation::SECTION_CODING_RULES -%>"><%= message('coding_rules.page') -%></a>
-        </li>
+        <%= render :partial => 'layouts/menu_coding_rules', :locals => { :selected_section => selected_section } -%>
         <li>
           <a href="<%= ApplicationController.root_context -%>/quality_gates" class="<%= 'selected' if selected_section==Navigation::SECTION_QUALITY_GATES -%>"><%= message('quality_gates.page') -%></a>
         </li>
