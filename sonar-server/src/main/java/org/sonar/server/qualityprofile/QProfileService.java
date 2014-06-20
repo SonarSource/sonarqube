@@ -32,6 +32,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.rule.RuleDto;
 import org.sonar.core.user.UserDto;
 import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.db.DbClient;
@@ -45,6 +46,7 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -288,14 +290,14 @@ public class QProfileService implements ServerComponent {
       SearchResponse response = index.get(ActivityIndex.class).search(query, options, activityFilter);
       for (SearchHit hit : response.getHits().getHits()) {
         QProfileActivity profileActivity = new QProfileActivity(hit.getSource());
-        profileActivity.ruleName(
-          db.ruleDao().getByKey(session, profileActivity.ruleKey()).getName());
+        RuleDto ruleDto = db.ruleDao().getNullableByKey(session, profileActivity.ruleKey());
+        profileActivity.ruleName(ruleDto != null ? ruleDto.getName() : null);
 
         UserDto user = db.userDao().selectActiveUserByLogin(profileActivity.login(), session);
         if (user != null) {
           profileActivity.authorName(user.getName());
         } else {
-          profileActivity.authorName(profileActivity.login());
+          profileActivity.authorName(null);
         }
         results.add(profileActivity);
       }

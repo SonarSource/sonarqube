@@ -28,10 +28,11 @@
         @changes.each do |change|
       %>
       <tr class="<%= cycle('even', 'odd') -%>">
-        <td valign="top" width="1%" nowrap><%= change.time().to_s -%></td>
-        <td valign="top" width="1%" nowrap><%= change.author() ? change.author() : 'System' %></td>
+        <td valign="top" width="1%" nowrap><%= Api::Utils.format_date(change.time()) -%></td>
+        <td valign="top" width="1%" nowrap><%= change.authorName() ? change.authorName() : change.login() ? !change.login().emtpy? : 'System' %></td>
         <td valign="top" width="1%" nowrap><%= change.action() %></td>
-        <td valign="top"><%= change.ruleKey() %></td>
+        <td valign="top"><%= change.ruleName() ? change.ruleName() : change.ruleKey() %></td>
+        <td valign="top"></td>
       </tr>
       <% end %>
     </table>

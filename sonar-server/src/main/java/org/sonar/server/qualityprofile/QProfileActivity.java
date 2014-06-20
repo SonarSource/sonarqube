@@ -25,6 +25,9 @@ import org.sonar.core.activity.Activity;
 import org.sonar.server.activity.index.ActivityDoc;
 import org.sonar.server.activity.index.ActivityNormalizer;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
 import java.util.Map;
 
 /**
@@ -43,19 +46,21 @@ public class QProfileActivity extends ActivityDoc implements Activity {
     }
   }
 
+  @CheckForNull
   public String ruleName() {
     return ruleName;
   }
 
-  public void ruleName(String ruleName) {
+  public void ruleName(@Nullable String ruleName) {
     this.ruleName = ruleName;
   }
 
+  @CheckForNull
   public String authorName() {
     return authorName;
   }
 
-  public void authorName(String authorName) {
+  public void authorName(@Nullable String authorName) {
     this.authorName = authorName;
   }
 
@@ -67,8 +72,9 @@ public class QProfileActivity extends ActivityDoc implements Activity {
     return RuleKey.parse((String) getField("ruleKey"));
   }
 
+  @CheckForNull
   public String login() {
-    return getField(ActivityNormalizer.LogFields.LOGIN.field());
+    return getNullableField(ActivityNormalizer.LogFields.LOGIN.field());
   }
 
   public String severity(){

@@ -31,6 +31,8 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
 
+import javax.annotation.Nullable;
+
 import java.util.List;
 
 /**
@@ -49,8 +51,9 @@ public class ActivityService {
     this.indexClient = indexClient;
   }
 
+  @Nullable
   private String getAuthor() {
-    return (UserSession.get().login() != null) ? UserSession.get().login() : "UNKNOWN";
+    return (UserSession.get().login() != null) ? UserSession.get().login() : null;
   }
 
   private void save(DbSession session, ActivityDto log) {
