@@ -65,7 +65,8 @@ define [
 
     getParent: ->
       return null unless @model.get('inherit') && @model.get('inherit') != 'NONE'
-      parentKey = @model.get('parent') + ':' + @model.get('lang')
+      myProfile = _.findWhere(@options.app.qualityProfiles, key: @model.get('qProfile'))
+      parentKey = myProfile.parentKey
       parent = _.extend {}, _.findWhere(@options.app.qualityProfiles, key: parentKey)
       parentActiveInfo = @model.collection.findWhere(qProfile: parentKey) or new Backbone.Model()
       _.extend parent, parentActiveInfo.toJSON()
