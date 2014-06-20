@@ -33,6 +33,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.rule.RuleDto;
+import org.sonar.core.user.UserDto;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
@@ -42,6 +43,7 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -134,7 +136,10 @@ public class QProfileServiceMediumTest {
 
   @Test
   public void search_qprofile_activity() throws InterruptedException {
-    MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("me");
+    MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("david");
+
+    UserDto user = new UserDto().setLogin("david").setName("David").setEmail("dav@id.com").setCreatedAt(new Date()).setUpdatedAt(new Date());
+    db.userDao().insert(dbSession, user);
 
     // We need an actual rule in DB to test RuleName in Activity
     RuleDto rule = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
@@ -156,8 +161,8 @@ public class QProfileServiceMediumTest {
     assertThat(activity.profileKey()).isEqualTo(XOO_P1_KEY);
     assertThat(activity.severity()).isEqualTo(Severity.MAJOR);
     assertThat(activity.ruleName()).isEqualTo(rule.getName());
-    assertThat(activity.login()).isEqualTo("me");
-    assertThat(activity.authorName()).isNull();
+    assertThat(activity.login()).isEqualTo("david");
+    assertThat(activity.authorName()).isEqualTo("David");
 
     assertThat(activity.parameters()).hasSize(1);
     assertThat(activity.parameters().get("max")).isEqualTo("10");
@@ -182,6 +187,28 @@ public class QProfileServiceMediumTest {
     assertThat(activity.severity()).isNull();
     assertThat(activity.parameters()).hasSize(1);
     assertThat(activity.parameters().get("max")).isEqualTo("10");
+  }
+
+  @Test
+  public void search_qprofile_activity_with_user_not_found() throws InterruptedException {
+    MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("david");
+
+    // We need an actual rule in DB to test RuleName in Activity
+    db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
+
+    tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE,
+      ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1))
+        .setSeverity(Severity.MAJOR)
+        .setParameter("max", "10")
+    );
+    dbSession.commit();
+
+    List<QProfileActivity> activities = service.findActivities(new QProfileActivityQuery(), new QueryOptions());
+    assertThat(activities).hasSize(1);
+
+    QProfileActivity activity = activities.get(0);
+    assertThat(activity.login()).isEqualTo("david");
+    assertThat(activity.authorName()).isNull();
   }
 
   @Test

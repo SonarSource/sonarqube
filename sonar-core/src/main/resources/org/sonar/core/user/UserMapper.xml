@@ -101,4 +101,9 @@
     UPDATE users SET active=${_false} WHERE id=#{id}
   </update>
 
+  <insert id="insert" parameterType="User" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO users (login, name, email, active, created_at, updated_at)
+    VALUES (#{login}, #{name}, #{email}, ${_true}, #{createdAt}, #{updatedAt})
+  </insert>
+
 </mapper>

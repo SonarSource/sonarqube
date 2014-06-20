@@ -44,6 +44,8 @@ public interface UserMapper {
   @CheckForNull
   GroupDto selectGroupByName(String name);
 
+  void insert(UserDto userDto);
+
   void removeUserFromGroups(long userId);
 
   void deleteUserActiveDashboards(long userId);
@@ -63,4 +65,5 @@ public interface UserMapper {
   void deleteUserRoles(long userId);
 
   void deactivateUser(long userId);
+
 }

@@ -55,6 +55,7 @@ public class SearchAction implements RequestHandler {
       .createAction(SEARCH_ACTION)
       .setDescription("Search for a logs")
       .setSince("4.4")
+      .setInternal(true)
       .setHandler(this);
 
     // Other parameters

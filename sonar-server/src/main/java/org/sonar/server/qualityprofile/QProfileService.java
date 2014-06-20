@@ -47,6 +47,7 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -295,11 +296,7 @@ public class QProfileService implements ServerComponent {
         profileActivity.ruleName(ruleDto != null ? ruleDto.getName() : null);
 
         UserDto user = db.userDao().selectActiveUserByLogin(profileActivity.login(), session);
-        if (user != null) {
-          profileActivity.authorName(user.getName());
-        } else {
-          profileActivity.authorName(null);
-        }
+        profileActivity.authorName(user != null ? user.getName() : null);
         results.add(profileActivity);
       }
       return results;
