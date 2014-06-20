@@ -25,6 +25,14 @@ define [
       @$('[name=rule]').select2
         width: '250px'
         minimumResultsForSearch: 10
+      @$('[name=rule]').select2 'open'
+      if key?
+        @key = key.getScope()
+        key.setScope ''
+
+
+    onClose: ->
+      key.setScope @key if key? && @key?
 
 
     showSpinner: ->
@@ -69,7 +77,8 @@ define [
       @$('.code-issue-errors').removeClass('hidden').text msg
 
 
-    cancel: ->
+    cancel: (e) ->
+      e.preventDefault()
       @close()
 
 

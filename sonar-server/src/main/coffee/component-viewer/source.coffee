@@ -274,6 +274,7 @@ define [
     serializeData: ->
       source: @prepareSource()
       settings: @options.main.settings.toJSON()
+      state: @options.main.state.toJSON()
       showSettings: @showSettings
       component: @options.main.component.toJSON()
       columns: @getStatColumnsCount() + 1
