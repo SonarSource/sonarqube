@@ -98,4 +98,8 @@ public class JRubyI18n implements ServerComponent {
     return formatDuration(Duration.create(duration), format);
   }
 
+  public String formatDateTime(Date date) {
+    return i18n.formatDateTime(UserSession.get().locale(), date);
+  }
+
 }

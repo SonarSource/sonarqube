@@ -109,4 +109,11 @@ public class JRubyI18nTest {
     verify(durations).format(any(Locale.class), eq(Duration.create(10L)), eq(Durations.DurationFormat.SHORT));
   }
 
+  @Test
+  public void format_date_time() throws Exception {
+    Date date = new Date();
+    jRubyI18n.formatDateTime(date);
+    verify(i18n).formatDateTime(any(Locale.class), eq(date));
+  }
+
 }

@@ -28,9 +28,13 @@
         @changes.each do |change|
       %>
       <tr class="<%= cycle('even', 'odd') -%>">
-        <td valign="top" width="1%" nowrap><%= Api::Utils.format_date(change.time()) -%></td>
+        <%
+           action = change.action()
+           action_message = message('quality_profiles.changelog.' + action.downcase) if action
+        %>
+        <td valign="top" width="1%" nowrap><%= Internal.i18n.formatDateTime(change.time()) -%></td>
         <td valign="top" width="1%" nowrap><%= change.authorName() ? change.authorName() : change.login() ? !change.login().emtpy? : 'System' %></td>
-        <td valign="top" width="1%" nowrap><%= change.action() %></td>
+        <td valign="top" width="1%" nowrap><%= action_message %></td>
         <td valign="top"><%= change.ruleName() ? change.ruleName() : change.ruleKey() %></td>
         <td valign="top"></td>
       </tr>
