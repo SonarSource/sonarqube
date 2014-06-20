@@ -34,6 +34,7 @@ import java.io.IOException;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeFalse;
 
 public class CommandExecutorTest {
 
@@ -55,6 +56,9 @@ public class CommandExecutorTest {
 
   @Test
   public void should_consume_StdOut_and_StdErr() throws Exception {
+    // too many false-positives on MS windows
+    assumeFalse(SystemUtils.IS_OS_WINDOWS);
+
     final StringBuilder stdOutBuilder = new StringBuilder();
     StreamConsumer stdOutConsumer = new StreamConsumer() {
       public void consumeLine(String line) {
