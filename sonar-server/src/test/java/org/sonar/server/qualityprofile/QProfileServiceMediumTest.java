@@ -21,10 +21,7 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -253,6 +250,31 @@ public class QProfileServiceMediumTest {
     // 1. filter by QProfiles
     assertThat(service.findActivities(new QProfileActivityQuery()
       .setQprofileKeys(ImmutableSet.of(XOO_P1_KEY, XOO_P2_KEY))
+      , new QueryOptions())).hasSize(2);
+  }
+
+  @Test
+  @Ignore
+  public void search_activity_by_qprofile_having_dashes_in_keys() throws InterruptedException {
+
+    tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE,
+      ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of("java-default", RuleTesting.XOO_X1)));
+    tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE,
+      ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of("java-toto", RuleTesting.XOO_X1)));
+    dbSession.commit();
+
+    // 0. Base case verify 2 activities in index
+    assertThat(service.findActivities(new QProfileActivityQuery(), new QueryOptions()))
+      .hasSize(2);
+
+    // 1. filter by QProfile
+    List<QProfileActivity> result = service.findActivities(new QProfileActivityQuery()
+      .setQprofileKeys(ImmutableSet.of("java-default")), new QueryOptions());
+    assertThat(result).hasSize(1);
+
+    // 1. filter by QProfiles
+    assertThat(service.findActivities(new QProfileActivityQuery()
+      .setQprofileKeys(ImmutableSet.of("java-default", "java-toto"))
       , new QueryOptions())).hasSize(2);
   }
 
