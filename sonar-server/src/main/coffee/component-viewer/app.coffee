@@ -79,6 +79,7 @@ requirejs [
         else if params.tab?
           viewer.state.set activeHeaderTab: params.tab
           viewer.headerView.render()
+          viewer.showAllLines()
         else if params.currentIssue?
           loadIssue params.currentIssue
         else viewer.showAllLines()
