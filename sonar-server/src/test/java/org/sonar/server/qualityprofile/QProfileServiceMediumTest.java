@@ -133,6 +133,11 @@ public class QProfileServiceMediumTest {
 
   @Test
   public void search_qprofile_activity() throws InterruptedException {
+    MockUserSession.set().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN).setLogin("me");
+
+    // We need an actual rule in DB to test RuleName in Activity
+    RuleDto rule = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
+
     tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE,
       ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1))
         .setSeverity(Severity.MAJOR)
@@ -150,8 +155,7 @@ public class QProfileServiceMediumTest {
     assertThat(activity.profileKey()).isEqualTo(XOO_P1_KEY);
     assertThat(activity.parameters().get("max")).isEqualTo("10");
     assertThat(activity.severity()).isEqualTo(Severity.MAJOR);
-    //TODO Implement folding Name and Author from from service
-//    assertThat(activity.ruleName()).isEqualTo("Rule name");
-//    assertThat(activity.authorName()).isEqualTo("me");
+    assertThat(activity.ruleName()).isEqualTo(rule.getName());
+    assertThat(activity.authorName()).isEqualTo("me");
   }
 }

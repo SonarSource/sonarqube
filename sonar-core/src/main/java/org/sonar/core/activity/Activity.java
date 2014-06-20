@@ -37,7 +37,7 @@ public interface Activity {
 
   Date time();
 
-  String author();
+  String login();
 
   Map<String, String> details();
 

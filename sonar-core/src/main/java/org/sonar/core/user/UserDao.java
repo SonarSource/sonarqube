@@ -24,16 +24,16 @@ import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.user.UserQuery;
+import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
-
 import java.util.List;
 
 /**
  * @since 3.2
  */
-public class UserDao implements BatchComponent, ServerComponent {
+public class UserDao implements BatchComponent, ServerComponent, DaoComponent {
 
   private final MyBatis mybatis;
 

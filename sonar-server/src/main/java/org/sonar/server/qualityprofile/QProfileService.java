@@ -32,6 +32,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.core.user.UserDto;
 import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
@@ -44,7 +45,6 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -278,17 +278,30 @@ public class QProfileService implements ServerComponent {
 
   public List<QProfileActivity> findActivities(QProfileActivityQuery query, QueryOptions options) {
     List<QProfileActivity> results = Lists.newArrayList();
+    DbSession session = db.openSession(false);
+    try {
+      OrFilterBuilder activityFilter = FilterBuilders.orFilter();
+      for (String profileKey : query.getQprofileKeys()) {
+        activityFilter.add(FilterBuilders.termFilter("details.profileKey", profileKey));
+      }
 
-    OrFilterBuilder activityFilter = FilterBuilders.orFilter();
-    for (String profileKey : query.getQprofileKeys()) {
-      activityFilter.add(FilterBuilders.termFilter("details.profileKey", profileKey));
-    }
+      SearchResponse response = index.get(ActivityIndex.class).search(query, options, activityFilter);
+      for (SearchHit hit : response.getHits().getHits()) {
+        QProfileActivity profileActivity = new QProfileActivity(hit.getSource());
+        profileActivity.ruleName(
+          db.ruleDao().getByKey(session, profileActivity.ruleKey()).getName());
 
-    SearchResponse response = index.get(ActivityIndex.class).search(query, options, activityFilter);
-    for (SearchHit hit : response.getHits().getHits()) {
-      QProfileActivity profileActivity = new QProfileActivity(hit.getSource());
-      results.add(profileActivity);
+        UserDto user = db.userDao().selectActiveUserByLogin(profileActivity.login(), session);
+        if (user != null) {
+          profileActivity.authorName(user.getName());
+        } else {
+          profileActivity.authorName(profileActivity.login());
+        }
+        results.add(profileActivity);
+      }
+      return results;
+    } finally {
+      session.close();
     }
-    return results;
   }
 }

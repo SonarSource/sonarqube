@@ -42,8 +42,8 @@ public class ActivityDoc extends BaseDoc implements Activity {
   }
 
   @Override
-  public String author() {
-    return this.getNullableField(ActivityNormalizer.LogFields.AUTHOR.field());
+  public String login() {
+    return this.getNullableField(ActivityNormalizer.LogFields.LOGIN.field());
   }
 
   @Override

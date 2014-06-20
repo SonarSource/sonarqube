@@ -39,7 +39,7 @@ public class ActivityMapping extends BaseMapping {
     addIndexStringField("type", ActivityNormalizer.LogFields.TYPE.field());
     addIndexStringField("action", ActivityNormalizer.LogFields.ACTION.field());
     addIndexDatetimeField("createdAt", ActivityNormalizer.LogFields.CREATED_AT.field());
-    addIndexStringField("userLogin", ActivityNormalizer.LogFields.AUTHOR.field());
+    addIndexStringField("login", ActivityNormalizer.LogFields.LOGIN.field());
     addIndexStringField("message", ActivityNormalizer.LogFields.MESSAGE.field());
     addField("details", new DetailField());
   }

@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.activity.Activity;
 import org.sonar.server.activity.index.ActivityDoc;
+import org.sonar.server.activity.index.ActivityNormalizer;
 
 import java.util.Map;
 
@@ -42,6 +43,22 @@ public class QProfileActivity extends ActivityDoc implements Activity {
     }
   }
 
+  public String ruleName() {
+    return ruleName;
+  }
+
+  public void ruleName(String ruleName) {
+    this.ruleName = ruleName;
+  }
+
+  public String authorName() {
+    return authorName;
+  }
+
+  public void authorName(String authorName) {
+    this.authorName = authorName;
+  }
+
   public String profileKey(){
     return getField("profileKey");
   }
@@ -50,12 +67,8 @@ public class QProfileActivity extends ActivityDoc implements Activity {
     return RuleKey.parse((String) getField("ruleKey"));
   }
 
-  public String ruleName(){
-    return this.ruleName;
-  }
-
-  public String authorName(){
-    return this.authorName;
+  public String login() {
+    return getField(ActivityNormalizer.LogFields.LOGIN.field());
   }
 
   public String severity(){
