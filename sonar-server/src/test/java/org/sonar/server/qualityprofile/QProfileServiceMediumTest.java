@@ -20,7 +20,10 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Multimap;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -129,7 +132,6 @@ public class QProfileServiceMediumTest {
   }
 
   @Test
-  @Ignore
   public void search_qprofile_activity() throws InterruptedException {
     tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE,
       ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1))
@@ -142,7 +144,14 @@ public class QProfileServiceMediumTest {
     assertThat(activities).hasSize(1);
 
     QProfileActivity activity = activities.get(0);
+    assertThat(activity.type()).isEqualTo(Activity.Type.QPROFILE);
+    assertThat(activity.action()).isEqualTo(ActiveRuleChange.Type.ACTIVATED.name());
     assertThat(activity.ruleKey()).isEqualTo(RuleTesting.XOO_X1);
-    assertThat(activity.ruleName()).isEqualTo("Rule name");
+    assertThat(activity.profileKey()).isEqualTo(XOO_P1_KEY);
+    assertThat(activity.parameters().get("max")).isEqualTo("10");
+    assertThat(activity.severity()).isEqualTo(Severity.MAJOR);
+    //TODO Implement folding Name and Author from from service
+//    assertThat(activity.ruleName()).isEqualTo("Rule name");
+//    assertThat(activity.authorName()).isEqualTo("me");
   }
 }

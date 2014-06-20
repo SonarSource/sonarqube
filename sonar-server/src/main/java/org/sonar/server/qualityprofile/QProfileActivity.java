@@ -19,7 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.activity.Activity;
 import org.sonar.server.activity.index.ActivityDoc;
@@ -31,36 +31,45 @@ import java.util.Map;
  */
 public class QProfileActivity extends ActivityDoc implements Activity {
 
+  private String ruleName = "Not Yet Implemented";
+  private String authorName = "Not Yet Implemented";
+
   protected QProfileActivity(Map<String, Object> fields) {
     super(fields);
+    Map<String, String> details = getField("details");
+    for (Map.Entry detail : details.entrySet()) {
+      fields.put((String) detail.getKey(), detail.getValue());
+    }
   }
 
   public String profileKey(){
-    // TODO
-    return null;
+    return getField("profileKey");
   }
 
   public RuleKey ruleKey(){
-    return RuleKey.parse((String) getField("details.ruleKey"));
+    return RuleKey.parse((String) getField("ruleKey"));
   }
 
   public String ruleName(){
-    // TODO
-    return null;
+    return this.ruleName;
   }
 
   public String authorName(){
-    // TODO
-    return null;
+    return this.authorName;
   }
 
   public String severity(){
-    return (String) getField("details.severity");
+    return (String) getField("severity");
   }
 
-  public Map<String, String> parameters(){
-    // TODO
-    return ImmutableMap.of();
+  public Map<String, String> parameters() {
+    Map<String, String> params = Maps.newHashMap();
+    for (String key : fields.keySet()) {
+      if (key.startsWith("param_")) {
+        params.put(key.replace("param_", ""), (String) fields.get(key));
+      }
+    }
+    return params;
   }
 
 }

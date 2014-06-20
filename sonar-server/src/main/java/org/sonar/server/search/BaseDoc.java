@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public abstract class BaseDoc {
 
-  private final Map<String, Object> fields;
+  protected final Map<String, Object> fields;
 
   protected BaseDoc(Map<String, Object> fields) {
     this.fields = fields;

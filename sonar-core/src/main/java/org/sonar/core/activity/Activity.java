@@ -31,11 +31,13 @@ public interface Activity {
     NONE, QPROFILE, SERVER
   }
 
+  Type type();
+
+  String action();
+
   Date time();
 
   String author();
-
-  String action();
 
   Map<String, String> details();
 
