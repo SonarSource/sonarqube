@@ -78,7 +78,7 @@ public class KeepOneFilterTest {
   @Test
   public void test_isDeletable() {
     assertThat(KeepOneFilter.isDeletable(createSnapshotWithDate(1L, "2011-05-01"))).isTrue();
-    assertThat(KeepOneFilter.isDeletable(createSnapshotWithDate(1L, "2011-05-01").setLast(true))).isTrue();
+    assertThat(KeepOneFilter.isDeletable(createSnapshotWithDate(1L, "2011-05-01").setLast(true))).isFalse();
     assertThat(KeepOneFilter.isDeletable(createSnapshotWithDate(1L, "2011-05-01").setHasEvents(true))).isFalse();
   }
 
