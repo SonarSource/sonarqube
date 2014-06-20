@@ -24,6 +24,7 @@ import com.google.common.collect.Multimap;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.OrFilterBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.rule.RuleKey;
@@ -46,7 +47,6 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -284,7 +284,8 @@ public class QProfileService implements ServerComponent {
     try {
       OrFilterBuilder activityFilter = FilterBuilders.orFilter();
       for (String profileKey : query.getQprofileKeys()) {
-        activityFilter.add(FilterBuilders.termFilter("details.profileKey", profileKey));
+        activityFilter.add(FilterBuilders.nestedFilter("details",
+          QueryBuilders.matchQuery("details.profileKey", profileKey)));
       }
 
       SearchResponse response = index.get(ActivityIndex.class).search(query, options, activityFilter);

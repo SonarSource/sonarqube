@@ -293,6 +293,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   protected Map mapNestedField(IndexField field) {
     Map<String, Object> mapping = new HashMap<String, Object>();
     mapping.put("type", "nested");
+    mapping.put("dynamic", "true");
     Map<String, Object> mappings = new HashMap<String, Object>();
     for (IndexField nestedField : field.nestedFields()) {
       if (nestedField != null) {

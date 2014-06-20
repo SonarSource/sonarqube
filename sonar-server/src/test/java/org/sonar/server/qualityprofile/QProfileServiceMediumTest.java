@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import org.junit.After;
 import org.junit.Before;
@@ -179,6 +180,30 @@ public class QProfileServiceMediumTest {
     QProfileActivity activity = activities.get(0);
     assertThat(activity.ruleKey()).isEqualTo(ruleKey);
     assertThat(activity.ruleName()).isNull();
+  }
+
+  @Test
+  public void search_activity_by_qprofile() throws InterruptedException {
+
+    tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE,
+      ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1)));
+    tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE,
+      ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P2_KEY, RuleTesting.XOO_X1)));
+    dbSession.commit();
+
+    // 0. Base case verify 2 activities in index
+    assertThat(service.findActivities(new QProfileActivityQuery(), new QueryOptions()))
+      .hasSize(2);
+
+    // 1. filter by QProfile
+    List<QProfileActivity> result = service.findActivities(new QProfileActivityQuery()
+      .setQprofileKeys(ImmutableSet.of(XOO_P1_KEY)), new QueryOptions());
+    assertThat(result).hasSize(1);
+
+    // 1. filter by QProfiles
+    assertThat(service.findActivities(new QProfileActivityQuery()
+      .setQprofileKeys(ImmutableSet.of(XOO_P1_KEY, XOO_P2_KEY))
+      , new QueryOptions())).hasSize(2);
   }
 
 }
