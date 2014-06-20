@@ -21,7 +21,10 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -254,9 +257,7 @@ public class QProfileServiceMediumTest {
   }
 
   @Test
-  @Ignore
   public void search_activity_by_qprofile_having_dashes_in_keys() throws InterruptedException {
-
     tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE,
       ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of("java-default", RuleTesting.XOO_X1)));
     tester.get(ActivityService.class).write(dbSession, Activity.Type.QPROFILE,
