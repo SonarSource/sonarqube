@@ -177,17 +177,19 @@ public class DefaultIndex extends SonarIndex {
     }
   }
 
+  @CheckForNull
   @Override
   public Measure getMeasure(Resource resource, org.sonar.api.batch.measure.Metric<?> metric) {
     return getMeasures(resource, MeasuresFilters.metric(metric));
   }
 
+  @CheckForNull
   @Override
   public <M> M getMeasures(Resource resource, MeasuresFilter<M> filter) {
     // Reload resource so that effective key is populated
     Resource indexedResource = getResource(resource);
     if (indexedResource == null) {
-      throw new IllegalStateException("Resource is not indexed " + resource);
+      return null;
     }
     Iterable<Measure> unfiltered;
     if (filter instanceof MeasuresFilters.MetricFilter) {
