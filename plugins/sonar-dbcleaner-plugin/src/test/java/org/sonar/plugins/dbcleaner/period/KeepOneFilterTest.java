@@ -19,14 +19,19 @@
  */
 package org.sonar.plugins.dbcleaner.period;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.purge.PurgeableSnapshotDto;
+
+import javax.annotation.Nullable;
 
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.sonar.plugins.dbcleaner.DbCleanerTestUtils.createSnapshotWithDate;
 
@@ -36,7 +41,7 @@ public class KeepOneFilterTest {
   public void shouldOnlyOneSnapshotPerInterval() {
     Filter filter = new KeepOneFilter(DateUtils.parseDate("2011-03-25"), DateUtils.parseDate("2011-08-25"), Calendar.MONTH, "month");
 
-    List<PurgeableSnapshotDto> toDelete = filter.filter(Arrays.asList(
+    List<PurgeableSnapshotDto> toDelete = filter.filter(Arrays.<PurgeableSnapshotDto>asList(
       createSnapshotWithDate(1L, "2010-01-01"), // out of scope -> keep
       createSnapshotWithDate(2L, "2011-05-01"), // may -> keep
       createSnapshotWithDate(3L, "2011-05-02"), // may -> to be deleted
@@ -46,8 +51,10 @@ public class KeepOneFilterTest {
       ));
 
     assertThat(toDelete).hasSize(2);
-    assertThat(getById(toDelete, 3L)).isNotNull();
-    assertThat(getById(toDelete, 4L)).isNotNull();
+
+    List<Long> snapshotIds = snapshotIds(toDelete);
+    assertThat(snapshotIds).contains(3L);
+    assertThat(snapshotIds.contains(4L));
   }
 
   @Test
@@ -62,23 +69,26 @@ public class KeepOneFilterTest {
       ));
 
     assertThat(toDelete).hasSize(2);
-    assertThat(getById(toDelete, 1L)).isNotNull();
-    assertThat(getById(toDelete, 4L)).isNotNull();
+
+    List<Long> snapshotIds = snapshotIds(toDelete);
+    assertThat(snapshotIds).contains(1L);
+    assertThat(snapshotIds.contains(4L));
   }
 
   @Test
   public void test_isDeletable() {
     assertThat(KeepOneFilter.isDeletable(createSnapshotWithDate(1L, "2011-05-01"))).isTrue();
-    assertThat(KeepOneFilter.isDeletable(createSnapshotWithDate(1L, "2011-05-01").setLast(true))).isFalse();
+    assertThat(KeepOneFilter.isDeletable(createSnapshotWithDate(1L, "2011-05-01").setLast(true))).isTrue();
     assertThat(KeepOneFilter.isDeletable(createSnapshotWithDate(1L, "2011-05-01").setHasEvents(true))).isFalse();
   }
 
-  private static PurgeableSnapshotDto getById(List<PurgeableSnapshotDto> snapshots, long id) {
-    for (PurgeableSnapshotDto snapshot : snapshots) {
-      if (snapshot.getSnapshotId() == id) {
-        return snapshot;
+  private static List<Long> snapshotIds(List<PurgeableSnapshotDto> snapshotDtos){
+    return newArrayList(Iterables.transform(snapshotDtos, new Function<PurgeableSnapshotDto, Long>() {
+      @Override
+      public Long apply(@Nullable PurgeableSnapshotDto input) {
+        return input != null ? input.getSnapshotId() : null;
       }
-    }
-    return null;
+    }));
   }
+
 }
