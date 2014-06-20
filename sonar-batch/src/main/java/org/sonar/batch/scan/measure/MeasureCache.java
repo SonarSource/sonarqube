@@ -25,6 +25,7 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.measures.RuleMeasure;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.technicaldebt.batch.Characteristic;
 import org.sonar.api.technicaldebt.batch.TechnicalDebtModel;
 import org.sonar.batch.index.Cache;
 import org.sonar.batch.index.Cache.Entry;
@@ -77,12 +78,14 @@ public class MeasureCache implements BatchComponent {
       sb.append(m.getMetricKey());
     }
     sb.append("|");
-    if (m.getCharacteristic() != null) {
-      sb.append(m.getCharacteristic().key());
+    Characteristic characteristic = m.getCharacteristic();
+    if (characteristic != null) {
+      sb.append(characteristic.key());
     }
     sb.append("|");
-    if (m.getPersonId() != null) {
-      sb.append(m.getPersonId());
+    Integer personId = m.getPersonId();
+    if (personId != null) {
+      sb.append(personId);
     }
     if (m instanceof RuleMeasure) {
       sb.append("|");

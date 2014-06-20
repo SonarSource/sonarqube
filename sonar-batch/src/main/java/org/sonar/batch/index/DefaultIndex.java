@@ -186,6 +186,9 @@ public class DefaultIndex extends SonarIndex {
   public <M> M getMeasures(Resource resource, MeasuresFilter<M> filter) {
     // Reload resource so that effective key is populated
     Resource indexedResource = getResource(resource);
+    if (indexedResource == null) {
+      throw new IllegalStateException("Resource is not indexed " + resource);
+    }
     Iterable<Measure> unfiltered;
     if (filter instanceof MeasuresFilters.MetricFilter) {
       // optimization

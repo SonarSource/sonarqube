@@ -62,7 +62,7 @@ public class MeasureDataMigration implements DatabaseMigration {
         public Row load(ResultSet rs) throws SQLException {
           Row row = new Row();
           row.id = SqlUtil.getLong(rs, 1);
-          row.measure_id = SqlUtil.getLong(rs, 2);
+          row.measureId = SqlUtil.getLong(rs, 2);
           return row;
         }
       },
@@ -77,7 +77,7 @@ public class MeasureDataMigration implements DatabaseMigration {
         public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
           ids.add(row.id);
           updateStatement.setLong(1, row.id);
-          updateStatement.setLong(2, row.measure_id);
+          updateStatement.setLong(2, row.measureId);
           return true;
         }
       },
@@ -113,7 +113,7 @@ public class MeasureDataMigration implements DatabaseMigration {
 
   private static class Row {
     private Long id;
-    private Long measure_id;
+    private Long measureId;
   }
 
 }

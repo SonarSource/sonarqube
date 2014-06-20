@@ -46,7 +46,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.batch.components.Period;
@@ -228,12 +227,11 @@ public class CountUnresolvedIssuesDecorator implements Decorator {
       }
 
       for (RuleKey ruleKey : ruleKeys) {
-        Rule rule = rulefinder.findByKey(ruleKey);
-        RuleMeasure measure = RuleMeasure.createForRule(metric, rule, null);
+        RuleMeasure measure = RuleMeasure.createForRule(metric, ruleKey, null);
         measure.setSeverity(severity);
         for (Period period : timeMachineConfiguration.periods()) {
           int variationIndex = period.getIndex();
-          double sum = MeasureUtils.sumOnVariation(true, variationIndex, childMeasuresPerRuleKeys.get(rule.ruleKey())) + countIssues(issuesPerRuleKeys.get(rule.ruleKey()), period);
+          double sum = MeasureUtils.sumOnVariation(true, variationIndex, childMeasuresPerRuleKeys.get(ruleKey)) + countIssues(issuesPerRuleKeys.get(ruleKey), period);
           measure.setVariation(variationIndex, sum);
         }
         context.saveMeasure(measure);

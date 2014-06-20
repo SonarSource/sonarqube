@@ -655,6 +655,7 @@ public class Measure<G extends Serializable> implements Serializable {
   /**
    * @since 2.14
    */
+  @CheckForNull
   @Beta
   public Integer getPersonId() {
     return personId;

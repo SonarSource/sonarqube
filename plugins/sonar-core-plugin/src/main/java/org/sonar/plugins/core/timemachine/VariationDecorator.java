@@ -35,11 +35,14 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.technicaldebt.batch.Characteristic;
 import org.sonar.batch.components.PastMeasuresLoader;
 import org.sonar.batch.components.PastSnapshot;
 import org.sonar.batch.components.TimeMachineConfiguration;
+
+import javax.annotation.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -108,7 +111,13 @@ public class VariationDecorator implements Decorator {
       Characteristic characteristic = measure.getCharacteristic();
       Integer characteristicId = characteristic != null ? characteristic.id() : null;
       Integer personId = measure.getPersonId();
-      Integer ruleId = measure instanceof RuleMeasure ? ruleFinder.findByKey(((RuleMeasure) measure).ruleKey()).getId() : null;
+      Integer ruleId = null;
+      if (measure instanceof RuleMeasure) {
+        Rule rule = ruleFinder.findByKey(((RuleMeasure) measure).ruleKey());
+        if (rule != null) {
+          ruleId = rule.getId();
+        }
+      }
 
       Object[] pastMeasure = pastMeasuresByKey.get(new MeasureKey(metricId, characteristicId, personId, ruleId));
       if (updateVariation(measure, pastMeasure, index)) {
@@ -144,7 +153,7 @@ public class VariationDecorator implements Decorator {
       ruleId = PastMeasuresLoader.getRuleId(pastFields);
     }
 
-    MeasureKey(int metricId, Integer characteristicId, Integer personId, Integer ruleId) {
+    MeasureKey(int metricId, Integer characteristicId, Integer personId, @Nullable Integer ruleId) {
       this.metricId = metricId;
       this.characteristicId = characteristicId;
       this.personId = personId;

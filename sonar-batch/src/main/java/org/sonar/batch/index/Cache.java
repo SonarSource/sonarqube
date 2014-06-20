@@ -308,8 +308,12 @@ public class Cache<V extends Serializable> {
       KeyFilter filter = new KeyFilter().append(KeyFilter.simpleTerm(firstKey)).append(KeyFilter.simpleTerm(secondKey));
       return new ValueIterable<V>(iteratorExchange, filter);
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to get values from cache " + name, e);
+      throw failToGetValues(e);
     }
+  }
+
+  private IllegalStateException failToGetValues(Exception e) {
+    return new IllegalStateException("Fail to get values from cache " + name, e);
   }
 
   /**
@@ -323,7 +327,7 @@ public class Cache<V extends Serializable> {
       KeyFilter filter = new KeyFilter().append(KeyFilter.simpleTerm(firstKey));
       return new ValueIterable<V>(iteratorExchange, filter);
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to get values from cache " + name, e);
+      throw failToGetValues(e);
     }
   }
 
@@ -337,7 +341,7 @@ public class Cache<V extends Serializable> {
       KeyFilter filter = new KeyFilter().append(KeyFilter.ALL);
       return new ValueIterable<V>(iteratorExchange, filter);
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to get values from cache " + name, e);
+      throw failToGetValues(e);
     }
   }
 
