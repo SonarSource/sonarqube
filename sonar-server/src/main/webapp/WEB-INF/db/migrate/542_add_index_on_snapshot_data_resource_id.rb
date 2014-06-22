@@ -25,11 +25,7 @@
 class AddIndexOnSnapshotDataResourceId < ActiveRecord::Migration
 
   def self.up
-    begin
-      add_index :snapshot_data, :resource_id, :name => 'snap_data_resource_id'
-    rescue
-      # already exists
-    end
+    add_index :snapshot_data, :resource_id, :name => 'snap_data_resource_id'
   end
 
 end

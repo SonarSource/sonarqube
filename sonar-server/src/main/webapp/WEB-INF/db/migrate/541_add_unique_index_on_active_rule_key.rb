@@ -54,11 +54,7 @@ class AddUniqueIndexOnActiveRuleKey < ActiveRecord::Migration
       end
     end
 
-    begin
-      add_index :active_rules, [:profile_id, :rule_id], :name => 'uniq_profile_rule_ids', :unique => true
-    rescue
-      # already exists
-    end
+    add_index :active_rules, [:profile_id, :rule_id], :name => 'uniq_profile_rule_ids', :unique => true
   end
 
 end
