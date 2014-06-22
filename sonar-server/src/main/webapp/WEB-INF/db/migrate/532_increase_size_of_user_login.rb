@@ -45,8 +45,8 @@ class IncreaseSizeOfUserLogin < ActiveRecord::Migration
     change_column :users, :login, :string, :limit => 255, :unique => true
 
     if dialect()=='sqlserver'
-      add_index :users, :login, :name => 'users_login'
-      add_index :authors, :login, :unique => true, :name => 'uniq_author_logins'
+      add_index :users, :login, :name => 'users_login', :unique => true
+      add_index :authors, :login, :name => 'uniq_author_logins', :unique => true
       add_index :issue_filter_favourites, :user_login, :name => 'issue_filter_favs_user'
       add_index :issues,  :assignee, :name => 'issues_assignee'
     end

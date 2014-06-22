@@ -33,11 +33,8 @@ class CreateSnapshotData < ActiveRecord::Migration
       t.timestamps
     end
 
-    begin
-      add_index :snapshot_data, :snapshot_id, :name => 'snapshot_data_snapshot_id'
-    rescue
-      #ignore already existing index
-    end
+    add_index :snapshot_data, :snapshot_id, :name => 'snapshot_data_snapshot_id'
+
   end
 
 

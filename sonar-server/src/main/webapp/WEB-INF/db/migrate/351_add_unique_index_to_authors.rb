@@ -28,11 +28,7 @@ class AddUniqueIndexToAuthors < ActiveRecord::Migration
 
   def self.up
     delete_duplicated_authors
-    begin
-      add_index :authors, :login, :unique => true, :name => 'uniq_author_logins'
-    rescue
-      # Ignore, already exists
-    end
+    add_index :authors, :login, :unique => true, :name => 'uniq_author_logins'
   end
 
   private

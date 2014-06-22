@@ -24,11 +24,7 @@
 class AddIndexToRulesPluginRuleKeyAndPluginName < ActiveRecord::Migration
 
   def self.up
-    begin
-      add_index :rules, [:plugin_rule_key, :plugin_name], :unique => true, :name => 'rules_plugin_key_and_name'
-    rescue
-      # already exists
-    end
+    add_index :rules, [:plugin_rule_key, :plugin_name], :unique => true, :name => 'rules_plugin_key_and_name'
   end
 
 end

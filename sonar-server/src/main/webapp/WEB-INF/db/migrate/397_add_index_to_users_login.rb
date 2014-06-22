@@ -24,12 +24,7 @@
 class AddIndexToUsersLogin < ActiveRecord::Migration
 
   def self.up
-    begin
-      add_index :users, :login, :name => 'users_login', :unique => true
-    rescue
-      # already exists
-    end
-
+    add_index :users, :login, :name => 'users_login', :unique => true
   end
 
 end

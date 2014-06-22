@@ -25,11 +25,7 @@
 class AddIndexToCharacteristicsEnabled < ActiveRecord::Migration
 
   def self.up
-    begin
-      add_index :characteristics, :enabled, :name => 'characteristics_enabled'
-    rescue
-      # already exists
-    end
+    add_index :characteristics, :enabled, :name => 'characteristics_enabled'
   end
 end
 

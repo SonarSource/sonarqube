@@ -24,12 +24,7 @@
 class AddIndexToGroupRolesRole < ActiveRecord::Migration
 
   def self.up
-    begin
-      add_index :group_roles, :role, :name => 'group_roles_role'
-    rescue
-      # already exists
-    end
-
+    add_index :group_roles, :role, :name => 'group_roles_role'
   end
 
 end

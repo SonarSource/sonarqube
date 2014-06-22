@@ -19,13 +19,15 @@
 #
 
 #
-# Sonar 3.6
+# SonarQube 4.4
+# See SONAR-5405
 #
-class AddIndexToSnapshotsRootProjectId < ActiveRecord::Migration
+class AddMissingUserUniqueIndex < ActiveRecord::Migration
 
   def self.up
-    add_index :snapshots, :root_project_id, :name => 'snapshots_root_project_id'
+    unless index_exists?(:users, :login, nil)
+      add_index :users, :login, :name => 'users_login', :unique => true
+    end
   end
 
 end
-
