@@ -42,8 +42,6 @@ class Connectors {
     List<Connector> connectors = new ArrayList<Connector>();
     connectors.addAll(Arrays.asList(newHttpConnector(props), newAjpConnector(props), newHttpsConnector(props)));
     connectors.removeAll(Collections.singleton(null));
-    Engine engine = tomcat.getEngine();
-    engine.setRealm(new SonarJDBCRealm(props));
     tomcat.setConnector(connectors.get(0));
     for (Connector connector : connectors) {
       tomcat.getService().addConnector(connector);

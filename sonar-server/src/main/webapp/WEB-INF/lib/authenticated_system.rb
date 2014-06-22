@@ -8,7 +8,7 @@ module AuthenticatedSystem
   # Accesses the current user from the session.
   # Future calls avoid the database because nil is not equal to false.
   def current_user
-    @current_user ||= (login_from_session || login_from_basic_auth || login_from_cookie) unless @current_user == false
+    @current_user ||= (login_from_session || login_from_basic_auth || login_from_cookie || login_from_client_cert) unless @current_user == false
   end
 
   # Store the given user id in the session.
@@ -143,6 +143,13 @@ module AuthenticatedSystem
       self.current_user = user
       handle_remember_cookie! false # freshen cookie token (keeping date)
       self.current_user
+    end
+  end
+
+  def login_from_client_cert
+    cert = servlet_request['javax.servlet.request.X509Certificate']
+    if cert!=nil
+      self.current_user = User.authenticate(nil, nil, servlet_request)
     end
   end
 

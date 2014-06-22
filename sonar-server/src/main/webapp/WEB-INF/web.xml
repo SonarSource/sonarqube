@@ -167,23 +167,4 @@
     <extension>csv</extension>
     <mime-type>text/plain</mime-type>
   </mime-mapping>
-
-  <security-constraint>
-    <web-resource-collection>
-      <web-resource-name>
-        Entire Application
-      </web-resource-name>
-      <url-pattern>/*</url-pattern>
-    </web-resource-collection>
-    <auth-constraint>
-      <role-name>FAKE-ROLE</role-name>
-    </auth-constraint>
-  </security-constraint>
-  <login-config>
-    <auth-method>BASIC</auth-method>
-    <realm-name>Sonarqube Login</realm-name>
-  </login-config>
-  <security-role>
-    <role-name>FAKE-ROLE</role-name>
-  </security-role>
 </web-app>
