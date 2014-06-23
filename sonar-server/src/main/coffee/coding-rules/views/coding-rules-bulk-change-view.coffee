@@ -53,7 +53,7 @@ define [
 
 
     close: ->
-      @options.app.fetchFirstPage(true)
+      @options.app.fetchFirstPage()
       @hide()
 
 
