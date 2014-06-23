@@ -99,8 +99,8 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     public static final IndexField DEBT_FUNCTION_TYPE = add(IndexField.Type.STRING, "debtRemFnType");
     public static final IndexField DEBT_FUNCTION_COEFFICIENT = add(IndexField.Type.STRING, "debtRemFnCoefficient");
     public static final IndexField DEBT_FUNCTION_OFFSET = add(IndexField.Type.STRING, "debtRemFnOffset");
-    public static final IndexField DEFAULT_CHARACTERISTIC = add(IndexField.Type.STRING, "_debtChar");
-    public static final IndexField DEFAULT_SUB_CHARACTERISTIC = add(IndexField.Type.STRING, "_debtSubChar");
+    public static final IndexField DEFAULT_CHARACTERISTIC = add(IndexField.Type.STRING, "defaultDebtChar");
+    public static final IndexField DEFAULT_SUB_CHARACTERISTIC = add(IndexField.Type.STRING, "defaultDebtSubChar");
     public static final IndexField CHARACTERISTIC = add(IndexField.Type.STRING, "debtChar");
     public static final IndexField SUB_CHARACTERISTIC = add(IndexField.Type.STRING, "debtSubChar");
     public static final IndexField NOTE = add(IndexField.Type.TEXT, "markdownNote");
@@ -204,7 +204,9 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       if (rule.getDefaultSubCharacteristicId() != null) {
         characteristic = db.debtCharacteristicDao().selectById(rule.getDefaultSubCharacteristicId(), session);
         defaultCharacteristic = characteristic;
-        update.put(RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), defaultCharacteristic.getKey());
+        if (defaultCharacteristic != null) {
+          update.put(RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), defaultCharacteristic.getKey());
+        }
       }
       if (rule.getSubCharacteristicId() != null) {
         characteristic = db.debtCharacteristicDao().selectById(rule.getSubCharacteristicId(), session);
@@ -215,17 +217,21 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
           CharacteristicDto parentCharacteristic =
             db.debtCharacteristicDao().selectById(characteristic.getParentId(), session);
           update.put(RuleField.CHARACTERISTIC.field(), parentCharacteristic.getKey());
-          if (characteristic.getId() == defaultCharacteristic.getId()) {
-            update.put(RuleField.DEFAULT_CHARACTERISTIC.field(), parentCharacteristic.getKey());
-          } else {
-            update.put(RuleField.DEFAULT_CHARACTERISTIC.field(),
-              db.debtCharacteristicDao().selectById(defaultCharacteristic.getParentId(), session)
-                .getKey());
+          if (defaultCharacteristic != null) {
+            if (characteristic.getId() == defaultCharacteristic.getId()) {
+              update.put(RuleField.DEFAULT_CHARACTERISTIC.field(), parentCharacteristic.getKey());
+            } else {
+              update.put(RuleField.DEFAULT_CHARACTERISTIC.field(),
+                db.debtCharacteristicDao().selectById(defaultCharacteristic.getParentId(), session)
+                  .getKey());
+            }
           }
         }
       } else {
         update.put(RuleField.CHARACTERISTIC.field(), null);
         update.put(RuleField.SUB_CHARACTERISTIC.field(), null);
+        update.put(RuleField.DEFAULT_CHARACTERISTIC.field(), null);
+        update.put(RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), null);
       }
 
       String dType = null, dCoefficient = null, dOffset = null;

@@ -48,8 +48,8 @@ public class RuleMapping extends BaseMapping {
     addIndexStringField("templateKey", RuleNormalizer.RuleField.TEMPLATE_KEY.field());
     addIndexArrayField("tags", RuleNormalizer.RuleField.TAGS.field());
     addIndexArrayField("sysTags", RuleNormalizer.RuleField.SYSTEM_TAGS.field());
-    addIndexStringField("defaultDebtChar", RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field());
-    addIndexStringField("defaultDebtSubChar", RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field());
+    addField("defaultDebtChar", new IndexStringField("debtChar", RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field()));
+    addField("defaultDebtChar", new IndexStringField("debtSubChar", RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field()));
     addField("debtChar", new IndexStringField("debtChar", RuleNormalizer.RuleField.CHARACTERISTIC.field()));
     addField("debtChar", new IndexStringField("debtSubChar", RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()));
     addField("debtRemFn", new IndexStringField("debtRemFnType", RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field()));
