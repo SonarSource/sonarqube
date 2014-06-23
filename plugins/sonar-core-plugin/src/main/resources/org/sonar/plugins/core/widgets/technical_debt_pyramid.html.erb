@@ -46,7 +46,7 @@
     table.technicalDebtPyramid .legendValue {
       width: 10px;
       height: 10px;
-      background-color: #92B7D3;
+      background-color: #4b9fd5;
       display: inline-block;
       zoom: 1; /* IE hack to trigger hasLayout */
       *display: inline; /* IE hack to achieve inline-block behavior */
@@ -55,7 +55,7 @@
     table.technicalDebtPyramid .legendTotal {
       width: 10px;
       height: 10px;
-      background-color: #2A4269;
+      background-color: #cae3f2;
       display: inline-block;
       zoom: 1; /* IE hack to trigger hasLayout */
       *display: inline; /* IE hack to achieve inline-block behavior */
@@ -101,21 +101,21 @@
        root_characteristics.sort_by {|characteristic| characteristic.order}.each do |characteristic|
          measure=measures_by_characteristic_id[characteristic.id]
          value=(measure && measure.value ? measure.value : 0)
-         total_size=(total>0 ? (100*cumulated/total).to_i: 0)
-         value_size=(cumulated>0 ? (100*value/cumulated).to_i: 100)
+         total_size=(total>0 ? (100*cumulated/total).round(3): 0)
+         value_size=(cumulated>0 ? (100*value/cumulated).round(3): 100)
          drilldown_url = url_for_drilldown('sqale_index', :characteristic => characteristic.key)
     %>
       <tr>
         <td class="label"><%= h(characteristic.name) -%></td>
         <td class="bar">
           <a href="<%= drilldown_url -%>">
-            <div style="width: <%=total_size-%>%; height: 17px; background-color: #2A4269;">
-              <div style="width: <%=value_size-%>%; height: 11px;background-color: #92B7D3;border-top:3px solid #2A4269"></div>
+            <div style="width: <%=total_size-%>%; height: 17px;background-color: #cae3f2;">
+              <div style="width: <%=value_size-%>%; height: 17px;background-color: #4b9fd5;"></div>
             </div>
           </a>
         </td>
         <td class="val value-debt-<%= h(characteristic.key) -%>">
-          <a href="<%= drilldown_url -%>" class="link-debt-<%= h(characteristic.key) -%>"><%= Internal.i18n.formatLongDuration(value.to_i, 'SHORT') -%></a>
+          <a href="<%= drilldown_url -%>" class="underlined-link link-debt-<%= h(characteristic.key) -%>"><%= Internal.i18n.formatLongDuration(value.to_i, 'SHORT') -%></a>
           <% if should_display_diff_measures %>
             <% if diff_by_characteristic_id[characteristic.id] %>
               <%= format_variation(measure) -%>
