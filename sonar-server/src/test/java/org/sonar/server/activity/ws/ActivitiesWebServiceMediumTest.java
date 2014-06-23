@@ -80,6 +80,4 @@ public class ActivitiesWebServiceMediumTest {
     WsTester.TestRequest request = tester.wsTester().newGetRequest(ActivitiesWebService.API_ENDPOINT, SearchAction.SEARCH_ACTION);
     WsTester.Result result = request.execute();
   }
-
-
 }
