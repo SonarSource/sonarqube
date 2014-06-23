@@ -84,10 +84,10 @@
                 <% end %>
                 <%= qualifier_icon(resource) -%>&nbsp;
                 <% if resource.source_code? %>
-                  <a href="#" alt="<%= h resource.name(true) -%>" title="<%= h resource.name(true) -%>" data-key="<%= resource.key -%>"
+                  <a href="#" title="<%= h resource.name(true) -%>" data-key="<%= resource.key -%>"
                      class="js-drilldown-link chevron-link highlighted-link"><%= h resource.name(false) %></a>
                 <% else %>
-                  <%= link_to(h(resource.name), {:only_path => true, :overwrite_params => {:rids => (selected ? rids-[resource.id] : rids+[resource.id])}}) -%>
+                  <%= link_to(h(resource.name), {:only_path => true, :overwrite_params => {:rids => (selected ? rids-[resource.id] : rids+[resource.id])}}, :class => 'chevron-link highlighted-link') -%>
                 <% end %>
               </td>
               <td class="right">

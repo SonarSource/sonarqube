@@ -70,7 +70,6 @@
                                            :period => dashboard_configuration.period_index,
                                            :url => url_for_drilldown(new_coverage, :period => dashboard_configuration.period_index),
                                            :default => '-') %>
-                        <%= dashboard_configuration.selected_period? ? format_variation(new_coverage) : trend_icon(new_coverage) -%>
                       </span>
                   </div>
                 <% end %>
@@ -82,7 +81,6 @@
                         <%= format_measure(new_line_coverage,
                                            :period => dashboard_configuration.period_index,
                                            :url => url_for_drilldown(new_line_coverage, :period => dashboard_configuration.period_index)) %>
-                        <%= dashboard_configuration.selected_period? ? format_variation(new_line_coverage) : trend_icon(new_line_coverage) -%>
                       </span>
                   </div>
                 <% end %>
@@ -94,7 +92,6 @@
                         <%= format_measure(new_branch_coverage,
                                            :period => dashboard_configuration.period_index,
                                            :url => url_for_drilldown(new_branch_coverage, :period => dashboard_configuration.period_index)) %>
-                        <%= dashboard_configuration.selected_period? ? format_variation(new_branch_coverage) : trend_icon(new_branch_coverage) -%>
                       </span>
                   </div>
                 <% end %>

@@ -37,21 +37,21 @@
 
         <% if package_feedback_edges %>
           <div class="widget-measure">
+            <span class="widget-label"><%= message('widget.package_design.between_packages.suffix') -%></span>
             <span class="nowrap">
               <%= format_measure(package_feedback_edges, :default => '-', :url => url_for_drilldown(package_feedback_edges)) %>
               <%= dashboard_configuration.selected_period? ? format_variation(package_feedback_edges) : trend_icon(package_feedback_edges) -%>
             </span>
-            <span class="widget-label"><%= message('widget.package_design.between_packages.suffix') -%></span>
           </div>
         <% end %>
 
         <% if package_tangles %>
           <div class="widget-measure">
+            <span class="widget-label"><%= message('widget.package_design.between_files.suffix') -%></span>
             <span class="nowrap">
               <%= format_measure(package_tangles, :default => '-', :url => url_for_drilldown(package_tangles)) %>
               <%= dashboard_configuration.selected_period? ? format_variation(package_tangles) : trend_icon(package_tangles) -%>
             </span>
-            <span class="widget-label"><%= message('widget.package_design.between_files.suffix') -%></span>
           </div>
         <% end %>
       </div>

@@ -313,10 +313,10 @@ module ApplicationHelper
     if resource.display_dashboard?
       if options[:dashboard]
         link_to(name || resource.name, params.merge({:controller => 'dashboard', :action => 'index', :id => resource.id, :period => period_index,
-                                                     :tab => options[:tab], :rule => options[:rule]}), :title => options[:title])
+                                                     :tab => options[:tab], :rule => options[:rule]}), :title => options[:title], :class => options[:class])
       else
         # stay on the same page (for example components)
-        link_to(name || resource.name, params.merge({:id => resource.id, :period => period_index, :tab => options[:tab], :rule => options[:rule]}), :title => options[:title])
+        link_to(name || resource.name, params.merge({:id => resource.id, :period => period_index, :tab => options[:tab], :rule => options[:rule]}), :title => options[:title], :class => options[:class])
       end
     else
       if options[:line]

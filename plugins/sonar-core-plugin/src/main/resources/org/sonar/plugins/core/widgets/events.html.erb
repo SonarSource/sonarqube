@@ -89,9 +89,7 @@
     <td><%= event.name %></td>
     <td>
       <% unless event.description.blank? %>
-      <a href="#" class="nolink" title="<%= h event.description -%>" alt="<%= h event.description -%>">
-        <i class="icon-info"></i>
-      </a>
+        <i class="icon-info" title="<%= h event.description -%>"></i>
       <% end %>
     </td>
 </tr>
