@@ -46,8 +46,12 @@ import org.sonar.server.startup.RegisterDebtModel;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -349,9 +353,12 @@ public class RegisterRules implements Startable {
     List<RuleDto> removedRules = newArrayList();
     for (RuleDto ruleDto : ruleDtos) {
       boolean toBeRemoved = true;
-      // Update custom rules from template
+
+      // 0. Case Rule is a Custom rule
       if (ruleDto.getTemplateId() != null) {
         RuleDto template = dbClient.ruleDao().getTemplate(ruleDto, session);
+
+        // 0.1 CustomRule has an Active Template
         if (template != null && RuleStatus.REMOVED != template.getStatus()) {
           if (updateCustomRuleFromTemplateRule(ruleDto, template)) {
             dbClient.ruleDao().update(session, ruleDto);
@@ -406,6 +413,10 @@ public class RegisterRules implements Startable {
     }
     if (!StringUtils.equals(customRule.getEffortToFixDescription(), templateRule.getEffortToFixDescription())) {
       customRule.setEffortToFixDescription(templateRule.getEffortToFixDescription());
+      changed = true;
+    }
+    if (customRule.getStatus() != templateRule.getStatus()) {
+      customRule.setStatus(templateRule.getStatus());
       changed = true;
     }
     return changed;

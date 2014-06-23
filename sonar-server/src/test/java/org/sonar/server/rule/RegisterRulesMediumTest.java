@@ -21,7 +21,11 @@
 package org.sonar.server.rule;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -176,13 +180,13 @@ public class RegisterRulesMediumTest {
   }
 
   @Test
-  @Ignore("To be fixed")
   public void not_update_rule_if_no_change() throws Exception {
     // Store updated at date
     Date updatedAt = index.getByKey(RuleTesting.XOO_X1).updatedAt();
 
     // Re-execute startup tasks
     tester.get(Platform.class).executeStartupTasks();
+    dbSession.clearCache();
 
     // Verify rule has not been updated
     Rule customRuleReloaded = index.getByKey(RuleTesting.XOO_X1);
@@ -202,7 +206,6 @@ public class RegisterRulesMediumTest {
   }
 
   @Test
-  @Ignore("To be fixed")
   public void reactivate_disabled_rules() {
     verifyRulesInDb();
 
@@ -212,6 +215,7 @@ public class RegisterRulesMediumTest {
 
     RuleDto rule = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
     assertThat(rule.getStatus()).isEqualTo(RuleStatus.REMOVED);
+    dbSession.clearCache();
 
     // Reactivate plugin X1
     rulesDefinition.includeX1 = true;
@@ -482,7 +486,6 @@ public class RegisterRulesMediumTest {
   }
 
   @Test
-  @Ignore("To be fixed")
   public void reactivate_disabled_custom_rules() {
     Rule templateRule = index.getByKey(RuleKey.of("xoo", "template1"));
 
@@ -499,6 +502,8 @@ public class RegisterRulesMediumTest {
     // Restart without template rule
     rulesDefinition.includeTemplate1 = false;
     tester.get(Platform.class).executeStartupTasks();
+    dbSession.clearCache();
+
 
     // Verify custom rule is removed
     assertThat(index.getByKey(customRuleKey).status()).isEqualTo(RuleStatus.REMOVED);
@@ -506,6 +511,7 @@ public class RegisterRulesMediumTest {
     // Restart with template rule
     rulesDefinition.includeTemplate1 = true;
     tester.get(Platform.class).executeStartupTasks();
+    dbSession.clearCache();
 
     // Verify custom rule is reactivate
     assertThat(index.getByKey(customRuleKey).status()).isEqualTo(RuleStatus.READY);
