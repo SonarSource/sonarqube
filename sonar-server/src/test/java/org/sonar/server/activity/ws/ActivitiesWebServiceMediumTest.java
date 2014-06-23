@@ -79,7 +79,6 @@ public class ActivitiesWebServiceMediumTest {
     // 1. List single Text log
     WsTester.TestRequest request = tester.wsTester().newGetRequest(ActivitiesWebService.API_ENDPOINT, SearchAction.SEARCH_ACTION);
     WsTester.Result result = request.execute();
-    System.out.println("result = " + result.outputAsString());
   }
 
 
