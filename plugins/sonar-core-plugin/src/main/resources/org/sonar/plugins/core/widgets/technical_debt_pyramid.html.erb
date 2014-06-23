@@ -69,9 +69,15 @@
   <table class="technicalDebtPyramid">
     <thead>
     <tr>
-      <th colspan="2"><h3><%= message('widget.technical_debt_pyramid.name') -%></h3></th>
-      <th class="val"><%= message('widget.technical_debt_pyramid.technical_debt') -%> <div class="legendValue"></div></th>
-      <th class="val"><%= message('widget.technical_debt_pyramid.total') -%> <div class="legendTotal"></div></th>
+      <th colspan="2"><div class="marginbottom10">
+        <h3><%= message('widget.technical_debt_pyramid.name') -%></h3>
+      </div></th>
+      <th class="val"><div class="marginbottom10">
+        <h3><div class="legendValue"></div>&nbsp;<%= message('widget.technical_debt_pyramid.technical_debt') -%></h3>
+      </div></th>
+      <th class="val"><div class="marginbottom10">
+        <h3><%= message('widget.technical_debt_pyramid.total') -%></h3>
+      </div></th>
     </tr>
     </thead>
     <tbody>
