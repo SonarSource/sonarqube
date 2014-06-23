@@ -36,6 +36,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
+import org.sonar.api.web.GwtPage;
 import org.sonar.api.web.NavigationSection;
 import org.sonar.api.web.Page;
 import org.sonar.api.web.UserRole;
@@ -399,8 +400,8 @@ public class ComponentAppActionTest {
     addComponent();
 
     when(views.getPages(anyString(), anyString(), anyString(), anyString(), any(String[].class))).thenReturn(
-      // Issues extension will be ignore
-      newArrayList(new ViewProxy<Page>(new MyExtension()), new ViewProxy<Page>(new IssuesExtension())));
+      // Issues extension and MyGwtExtension will be ignore
+      newArrayList(new ViewProxy<Page>(new MyExtension()), new ViewProxy<Page>(new MyGwtExtension()), new ViewProxy<Page>(new IssuesExtension())));
 
     WsTester.TestRequest request = tester.newGetRequest("api/components", "app").setParam("key", COMPONENT_KEY);
     request.execute().assertJson(getClass(), "app_with_extension.json");
@@ -490,6 +491,18 @@ public class ComponentAppActionTest {
 
     public String getTitle() {
       return "My extension with permission";
+    }
+  }
+
+  @NavigationSection(NavigationSection.RESOURCE_TAB)
+  private static class MyGwtExtension extends GwtPage {
+    public String getTitle() {
+      return "My GWT extension";
+    }
+
+    @Override
+    public String getGwtId() {
+      return "my-gwt-extension";
     }
   }
 
