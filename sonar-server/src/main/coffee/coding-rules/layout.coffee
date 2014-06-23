@@ -87,3 +87,4 @@ define [
       if @isResize
         jQuery('html').attr('unselectable', 'off').css('user-select', 'text').off('selectstart')
       @isResize = false
+      true
