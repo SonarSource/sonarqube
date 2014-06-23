@@ -72,7 +72,7 @@ import org.sonar.jpa.session.DatabaseSessionProvider;
 import org.sonar.jpa.session.DefaultDatabaseConnector;
 import org.sonar.jpa.session.ThreadLocalDatabaseSessionFactory;
 import org.sonar.server.activity.ActivityService;
-import org.sonar.server.activity.RubyActivityService;
+import org.sonar.server.activity.RubyQProfileActivityService;
 import org.sonar.server.activity.db.ActivityDao;
 import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.activity.index.ActivityNormalizer;
@@ -320,7 +320,7 @@ class ServerComponents {
     pico.addSingleton(QProfileCopier.class);
     pico.addSingleton(QProfileBackuper.class);
     pico.addSingleton(QProfileReset.class);
-    pico.addSingleton(RubyActivityService.class);
+    pico.addSingleton(RubyQProfileActivityService.class);
 
     // rule
     pico.addSingleton(AnnotationRuleParser.class);

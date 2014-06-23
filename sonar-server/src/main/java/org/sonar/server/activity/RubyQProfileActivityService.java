@@ -22,10 +22,12 @@ package org.sonar.server.activity;
 
 import org.picocontainer.Startable;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.utils.Paging;
 import org.sonar.server.qualityprofile.QProfileActivity;
 import org.sonar.server.qualityprofile.QProfileActivityQuery;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.Result;
 import org.sonar.server.util.RubyUtils;
 
 import java.util.Date;
@@ -36,19 +38,20 @@ import java.util.Map;
  * @deprecated in 4.4 because Ruby on Rails is deprecated too !
  */
 @Deprecated
-public class RubyActivityService implements ServerComponent, Startable {
+public class RubyQProfileActivityService implements ServerComponent, Startable {
 
   private final QProfileService service;
 
-  public RubyActivityService(QProfileService service) {
+  public RubyQProfileActivityService(QProfileService service) {
     this.service = service;
   }
 
   /**
    * Used in profiles_controller.rb
    */
-  public List<QProfileActivity> search(Map<String, Object> params) {
+  public QProfileActivityResult search(Map<String, Object> params) {
     QProfileActivityQuery query = new QProfileActivityQuery();
+    QueryOptions queryOptions = new QueryOptions().setMaxLimit();
     List<String> profileKeys = RubyUtils.toStrings(params.get("profileKeys"));
     if (profileKeys != null) {
       query.setQprofileKeys(profileKeys);
@@ -61,7 +64,12 @@ public class RubyActivityService implements ServerComponent, Startable {
     if (to != null) {
       query.setTo(to);
     }
-    return service.findActivities(query, new QueryOptions().setMaxLimit());
+    Integer page = RubyUtils.toInteger(params.get("p"));
+    int pageIndex = page != null ? page : 1;
+    queryOptions.setPage(pageIndex, 50);
+
+    Result<QProfileActivity> result = service.searchActivities(query, queryOptions);
+    return new QProfileActivityResult(result.getHits(), Paging.create(queryOptions.getLimit(), pageIndex, Long.valueOf(result.getTotal()).intValue()));
   }
 
   @Override
@@ -72,5 +80,26 @@ public class RubyActivityService implements ServerComponent, Startable {
   @Override
   public void stop() {
     // implement startable
+  }
+
+  public static class QProfileActivityResult {
+
+    private final List<QProfileActivity> activities;
+
+    private final Paging paging;
+
+    public QProfileActivityResult(List<QProfileActivity> activities, Paging paging) {
+      this.activities = activities;
+      this.paging = paging;
+    }
+
+    public List<QProfileActivity> activities() {
+      return activities;
+    }
+
+    public Paging paging() {
+      return paging;
+    }
+
   }
 }

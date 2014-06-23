@@ -246,8 +246,10 @@ class ProfilesController < ApplicationController
     require_parameters 'key'
 
     @profile = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).getByKey(params[:key])
-    search = {'profileKeys' => @profile.key().to_s, 'since' => params[:since], 'to' => params[:to]}
-    @changes = Internal.component(Java::OrgSonarServerActivity::RubyActivityService.java_class).search(search)
+    search = {'profileKeys' => @profile.key().to_s, 'since' => params[:since], 'to' => params[:to], 'p' => params[:p]}
+    result = Internal.component(Java::OrgSonarServerActivity::RubyQProfileActivityService.java_class).search(search)
+    @changes = result.activities
+    @paging = result.paging
 
     set_profile_breadcrumbs
   end

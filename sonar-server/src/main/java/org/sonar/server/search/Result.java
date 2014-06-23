@@ -29,12 +29,9 @@ import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Result<K> {
 
@@ -45,15 +42,21 @@ public class Result<K> {
   private final String scrollId;
   private final BaseIndex<K, ?, ?> index;
 
-  public Result(BaseIndex<K, ?, ?> index, SearchResponse response) {
+  public Result(SearchResponse response) {
+    this(null, response);
+  }
+
+  public Result(@Nullable BaseIndex<K, ?, ?> index, SearchResponse response) {
     this.index = index;
     this.scrollId = response.getScrollId();
     this.facets = LinkedListMultimap.create();
     this.total = (int) response.getHits().totalHits();
     this.timeInMillis = response.getTookInMillis();
     this.hits = new ArrayList<K>();
-    for (SearchHit hit : response.getHits()) {
-      this.hits.add(index.toDoc(hit.getSource()));
+    if (index != null) {
+      for (SearchHit hit : response.getHits()) {
+        this.hits.add(index.toDoc(hit.getSource()));
+      }
     }
     if (response.getAggregations() != null) {
       for (Map.Entry<String, Aggregation> facet : response.getAggregations().asMap().entrySet()) {

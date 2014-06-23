@@ -43,6 +43,7 @@ import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
@@ -279,8 +280,7 @@ public class QProfileService implements ServerComponent {
       new QueryOptions().setLimit(0)).getTotal();
   }
 
-  public List<QProfileActivity> findActivities(QProfileActivityQuery query, QueryOptions options) {
-    List<QProfileActivity> results = Lists.newArrayList();
+  public Result<QProfileActivity> searchActivities(QProfileActivityQuery query, QueryOptions options) {
     DbSession session = db.openSession(false);
     try {
       OrFilterBuilder activityFilter = FilterBuilders.orFilter();
@@ -290,6 +290,7 @@ public class QProfileService implements ServerComponent {
       }
 
       SearchResponse response = index.get(ActivityIndex.class).search(query, options, activityFilter);
+      Result<QProfileActivity> result = new Result<QProfileActivity>(response);
       for (SearchHit hit : response.getHits().getHits()) {
         QProfileActivity profileActivity = new QProfileActivity(hit.getSource());
         RuleDto ruleDto = db.ruleDao().getNullableByKey(session, profileActivity.ruleKey());
@@ -297,9 +298,9 @@ public class QProfileService implements ServerComponent {
 
         UserDto user = db.userDao().selectActiveUserByLogin(profileActivity.login(), session);
         profileActivity.authorName(user != null ? user.getName() : null);
-        results.add(profileActivity);
+        result.getHits().add(profileActivity);
       }
-      return results;
+      return result;
     } finally {
       session.close();
     }

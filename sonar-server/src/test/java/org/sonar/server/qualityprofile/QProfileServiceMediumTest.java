@@ -40,6 +40,7 @@ import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.RuleTesting;
 import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
 
@@ -151,10 +152,10 @@ public class QProfileServiceMediumTest {
     );
     dbSession.commit();
 
-    List<QProfileActivity> activities = service.findActivities(new QProfileActivityQuery(), new QueryOptions());
-    assertThat(activities).hasSize(1);
+    Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new QueryOptions());
+    assertThat(activities.getHits()).hasSize(1);
 
-    QProfileActivity activity = activities.get(0);
+    QProfileActivity activity = activities.getHits().get(0);
     assertThat(activity.type()).isEqualTo(Activity.Type.QPROFILE);
     assertThat(activity.action()).isEqualTo(ActiveRuleChange.Type.ACTIVATED.name());
     assertThat(activity.ruleKey()).isEqualTo(RuleTesting.XOO_X1);
@@ -180,10 +181,10 @@ public class QProfileServiceMediumTest {
     );
     dbSession.commit();
 
-    List<QProfileActivity> activities = service.findActivities(new QProfileActivityQuery(), new QueryOptions());
-    assertThat(activities).hasSize(1);
+    Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new QueryOptions());
+    assertThat(activities.getHits()).hasSize(1);
 
-    QProfileActivity activity = activities.get(0);
+    QProfileActivity activity = activities.getHits().get(0);
     assertThat(activity.severity()).isNull();
     assertThat(activity.parameters()).hasSize(1);
     assertThat(activity.parameters().get("max")).isEqualTo("10");
@@ -203,10 +204,10 @@ public class QProfileServiceMediumTest {
     );
     dbSession.commit();
 
-    List<QProfileActivity> activities = service.findActivities(new QProfileActivityQuery(), new QueryOptions());
-    assertThat(activities).hasSize(1);
+    Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new QueryOptions());
+    assertThat(activities.getHits()).hasSize(1);
 
-    QProfileActivity activity = activities.get(0);
+    QProfileActivity activity = activities.getHits().get(0);
     assertThat(activity.login()).isEqualTo("david");
     assertThat(activity.authorName()).isNull();
   }
@@ -224,10 +225,10 @@ public class QProfileServiceMediumTest {
     );
     dbSession.commit();
 
-    List<QProfileActivity> activities = service.findActivities(new QProfileActivityQuery(), new QueryOptions());
-    assertThat(activities).hasSize(1);
+    Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new QueryOptions());
+    assertThat(activities.getHits()).hasSize(1);
 
-    QProfileActivity activity = activities.get(0);
+    QProfileActivity activity = activities.getHits().get(0);
     assertThat(activity.ruleKey()).isEqualTo(ruleKey);
     assertThat(activity.ruleName()).isNull();
   }
@@ -242,18 +243,18 @@ public class QProfileServiceMediumTest {
     dbSession.commit();
 
     // 0. Base case verify 2 activities in index
-    assertThat(service.findActivities(new QProfileActivityQuery(), new QueryOptions()))
+    assertThat(service.searchActivities(new QProfileActivityQuery(), new QueryOptions()).getHits())
       .hasSize(2);
 
     // 1. filter by QProfile
-    List<QProfileActivity> result = service.findActivities(new QProfileActivityQuery()
-      .setQprofileKeys(ImmutableSet.of(XOO_P1_KEY)), new QueryOptions());
+    List<QProfileActivity> result = service.searchActivities(new QProfileActivityQuery()
+      .setQprofileKeys(ImmutableSet.of(XOO_P1_KEY)), new QueryOptions()).getHits();
     assertThat(result).hasSize(1);
 
     // 1. filter by QProfiles
-    assertThat(service.findActivities(new QProfileActivityQuery()
+    assertThat(service.searchActivities(new QProfileActivityQuery()
       .setQprofileKeys(ImmutableSet.of(XOO_P1_KEY, XOO_P2_KEY))
-      , new QueryOptions())).hasSize(2);
+      , new QueryOptions()).getHits()).hasSize(2);
   }
 
   @Test
@@ -265,18 +266,18 @@ public class QProfileServiceMediumTest {
     dbSession.commit();
 
     // 0. Base case verify 2 activities in index
-    assertThat(service.findActivities(new QProfileActivityQuery(), new QueryOptions()))
+    assertThat(service.searchActivities(new QProfileActivityQuery(), new QueryOptions()).getHits())
       .hasSize(2);
 
     // 1. filter by QProfile
-    List<QProfileActivity> result = service.findActivities(new QProfileActivityQuery()
-      .setQprofileKeys(ImmutableSet.of("java-default")), new QueryOptions());
+    List<QProfileActivity> result = service.searchActivities(new QProfileActivityQuery()
+      .setQprofileKeys(ImmutableSet.of("java-default")), new QueryOptions()).getHits();
     assertThat(result).hasSize(1);
 
     // 1. filter by QProfiles
-    assertThat(service.findActivities(new QProfileActivityQuery()
+    assertThat(service.searchActivities(new QProfileActivityQuery()
       .setQprofileKeys(ImmutableSet.of("java-default", "java-toto"))
-      , new QueryOptions())).hasSize(2);
+      , new QueryOptions()).getHits()).hasSize(2);
   }
 
 }

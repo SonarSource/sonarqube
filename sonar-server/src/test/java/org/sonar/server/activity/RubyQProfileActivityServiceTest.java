@@ -21,6 +21,7 @@
 package org.sonar.server.activity;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,17 +31,20 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.activity.Activity;
+import org.sonar.server.qualityprofile.QProfileActivity;
 import org.sonar.server.qualityprofile.QProfileActivityQuery;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.Result;
 
 import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RubyActivityServiceTest {
+public class RubyQProfileActivityServiceTest {
 
   @Mock
   QProfileService service;
@@ -51,22 +55,28 @@ public class RubyActivityServiceTest {
   @Captor
   ArgumentCaptor<QueryOptions> queryOptionsArgumentCaptor;
 
-  RubyActivityService rubyActivityService;
+  RubyQProfileActivityService rubyQProfileActivityService;
 
   @Before
   public void setUp() throws Exception {
-    rubyActivityService = new RubyActivityService(service);
+    rubyQProfileActivityService = new RubyQProfileActivityService(service);
   }
 
   @Test
   public void search() throws Exception {
     Date since = DateUtils.parseDate("2014-05-19");
     Date to = DateUtils.parseDate("2014-06-19");
-    rubyActivityService.search(ImmutableMap.<String, Object>of("profileKeys", "PROFILE_KEY", "since", since, "to", to));
 
-    verify(service).findActivities(activityArgumentCaptor.capture(), queryOptionsArgumentCaptor.capture());
+    Result<QProfileActivity> result = mock(Result.class);
+    when(result.getHits()).thenReturn(Lists.<QProfileActivity>newArrayList());
+    when(result.getTotal()).thenReturn(10L);
+    when(service.searchActivities(any(QProfileActivityQuery.class), any(QueryOptions.class))).thenReturn(result);
 
-    assertThat(queryOptionsArgumentCaptor.getValue().getLimit()).isEqualTo(QueryOptions.MAX_LIMIT);
+    rubyQProfileActivityService.search(ImmutableMap.<String, Object>of("profileKeys", "PROFILE_KEY", "since", since, "to", to));
+
+    verify(service).searchActivities(activityArgumentCaptor.capture(), queryOptionsArgumentCaptor.capture());
+
+    assertThat(queryOptionsArgumentCaptor.getValue().getLimit()).isEqualTo(50);
 
     assertThat(activityArgumentCaptor.getValue().getQprofileKeys()).containsOnly("PROFILE_KEY");
     assertThat(activityArgumentCaptor.getValue().getTypes()).containsOnly(Activity.Type.QPROFILE);
@@ -76,11 +86,16 @@ public class RubyActivityServiceTest {
 
   @Test
   public void search_with_empty_fields() throws Exception {
-    rubyActivityService.search(ImmutableMap.<String, Object>of());
+    Result<QProfileActivity> result = mock(Result.class);
+    when(result.getHits()).thenReturn(Lists.<QProfileActivity>newArrayList());
+    when(result.getTotal()).thenReturn(10L);
+    when(service.searchActivities(any(QProfileActivityQuery.class), any(QueryOptions.class))).thenReturn(result);
 
-    verify(service).findActivities(activityArgumentCaptor.capture(), queryOptionsArgumentCaptor.capture());
+    rubyQProfileActivityService.search(ImmutableMap.<String, Object>of());
 
-    assertThat(queryOptionsArgumentCaptor.getValue().getLimit()).isEqualTo(QueryOptions.MAX_LIMIT);
+    verify(service).searchActivities(activityArgumentCaptor.capture(), queryOptionsArgumentCaptor.capture());
+
+    assertThat(queryOptionsArgumentCaptor.getValue().getLimit()).isEqualTo(50);
 
     assertThat(activityArgumentCaptor.getValue().getQprofileKeys()).isEmpty();
     assertThat(activityArgumentCaptor.getValue().getSince()).isNull();
