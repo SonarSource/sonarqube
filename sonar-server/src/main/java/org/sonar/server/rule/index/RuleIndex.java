@@ -313,7 +313,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
 
   public Result<Rule> search(RuleQuery query, QueryOptions options) {
-    StopWatch profile = profiling.start("es", Profiling.Level.BASIC);
+    StopWatch profile = profiling.start("es", Profiling.Level.FULL);
 
     SearchRequestBuilder esSearch = getClient()
       .prepareSearch(this.getIndexName())

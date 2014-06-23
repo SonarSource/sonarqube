@@ -37,6 +37,7 @@
     <module>plugins/sonar-l10n-en-plugin</module>
     <module>plugins/sonar-email-notifications-plugin</module>
     <module>plugins/sonar-xoo-plugin</module>
+    <module>sonar-runner</module>
   </modules>
 
   <organization>
