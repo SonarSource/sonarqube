@@ -106,6 +106,7 @@ public class RuleBackendMediumTest {
     assertThat(hit.isTemplate()).isFalse();
     assertThat(hit.tags()).containsOnly("tag1", "tag2");
     assertThat(hit.systemTags()).containsOnly("systag1", "systag2");
+    assertThat(hit.effortToFixDescription()).isEqualTo(persistedDto.getEffortToFixDescription());
   }
 
   @Test

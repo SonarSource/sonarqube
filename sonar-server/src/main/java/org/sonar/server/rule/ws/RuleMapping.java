@@ -53,6 +53,7 @@ public class RuleMapping extends BaseMapping {
     addField("debtRemFn", new IndexStringField("debtRemFnType", RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field()));
     addField("debtRemFn", new IndexStringField("debtRemFnCoeff", RuleNormalizer.RuleField.DEBT_FUNCTION_COEFFICIENT.field()));
     addField("debtRemFn", new IndexStringField("debtRemFnOffset", RuleNormalizer.RuleField.DEBT_FUNCTION_OFFSET.field()));
+    addIndexStringField("effortToFixDescription", RuleNormalizer.RuleField.FIX_DESCRIPTION.field());
     addIndexStringField("mdNote", RuleNormalizer.RuleField.NOTE.field());
     addField("htmlNote", new HtmlNoteField(macroInterpreter));
     addIndexStringField("noteLogin", RuleNormalizer.RuleField.NOTE_LOGIN.field());

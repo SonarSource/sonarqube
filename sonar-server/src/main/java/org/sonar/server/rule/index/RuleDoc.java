@@ -33,7 +33,6 @@ import org.sonar.server.search.IndexUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -90,6 +89,12 @@ public class RuleDoc extends BaseDoc implements Rule {
   @Override
   public String htmlDescription() {
     return getNullableField(RuleNormalizer.RuleField.HTML_DESCRIPTION.field());
+  }
+
+  @Override
+  @CheckForNull
+  public String effortToFixDescription() {
+    return getNullableField(RuleNormalizer.RuleField.FIX_DESCRIPTION.field());
   }
 
   @Override

@@ -89,6 +89,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     public static final IndexField HTML_DESCRIPTION = addSearchable(IndexField.Type.TEXT, "htmlDesc");
     public static final IndexField SEVERITY = add(IndexField.Type.STRING, "severity");
     public static final IndexField STATUS = add(IndexField.Type.STRING, "status");
+    public static final IndexField FIX_DESCRIPTION = add(IndexField.Type.STRING, "effortToFix");
     public static final IndexField LANGUAGE = add(IndexField.Type.STRING, "lang");
     public static final IndexField TAGS = add(IndexField.Type.STRING, "tags");
     public static final IndexField SYSTEM_TAGS = add(IndexField.Type.STRING, "sysTags");
@@ -174,6 +175,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       update.put(RuleField.CREATED_AT.field(), rule.getCreatedAt());
       update.put(RuleField.UPDATED_AT.field(), rule.getUpdatedAt());
       update.put(RuleField.HTML_DESCRIPTION.field(), rule.getDescription());
+      update.put(RuleField.FIX_DESCRIPTION.field(), rule.getEffortToFixDescription());
       update.put(RuleField.SEVERITY.field(), rule.getSeverityString());
       update.put(RuleField.STATUS.field(), rule.getStatus().name());
       update.put(RuleField.LANGUAGE.field(), rule.getLanguage());
