@@ -51,7 +51,8 @@ requirejs [
       if metricConf?
         activeHeaderTab = metricConf.tab
         activeHeaderItem = metricConf.item
-    viewer.open(window.fileKey).done ->
+    viewer.open window.fileKey
+    viewer.on 'loaded', ->
       if activeHeaderTab? && activeHeaderItem?
         viewer.state.set activeHeaderTab: activeHeaderTab, activeHeaderItem: activeHeaderItem
         viewer.headerView.render()

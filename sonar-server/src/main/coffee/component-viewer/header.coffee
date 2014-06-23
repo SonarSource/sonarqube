@@ -120,7 +120,8 @@ define [
         bar.html r
 
 
-    closeExtension: ->
+    closeExtension: (e) ->
+      e.preventDefault()
       @ui.expandedBar.html('').removeClass 'active'
 
 
