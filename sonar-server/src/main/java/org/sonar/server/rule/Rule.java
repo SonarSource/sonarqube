@@ -74,11 +74,19 @@ public interface Rule {
   @CheckForNull
   RuleParam param(final String key);
 
+  boolean debtOverloaded();
+
   @CheckForNull
   String debtCharacteristicKey();
 
   @CheckForNull
+  String defaultDebtCharacteristicKey();
+
+  @CheckForNull
   String debtSubCharacteristicKey();
+
+  @CheckForNull
+  String defaultDebtSubCharacteristicKey();
 
   @CheckForNull
   DebtRemediationFunction debtRemediationFunction();

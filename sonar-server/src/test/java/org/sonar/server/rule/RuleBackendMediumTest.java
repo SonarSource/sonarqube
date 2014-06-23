@@ -331,13 +331,19 @@ public class RuleBackendMediumTest {
 
     ruleDto.setSubCharacteristicId(char21.getId());
     dao.update(dbSession, ruleDto);
-
     dbSession.commit();
 
-    // 4. Get non-default chars from Rule
     rule = index.getByKey(ruleKey);
+
+    // 4. Get non-default chars from Rule
     assertThat(rule.debtCharacteristicKey()).isEqualTo(char2.getKey());
     assertThat(rule.debtSubCharacteristicKey()).isEqualTo(char21.getKey());
+
+    //  5 Assert still get the default one
+    assertThat(rule.debtOverloaded()).isTrue();
+    assertThat(rule.defaultDebtCharacteristicKey()).isEqualTo(char1.getKey());
+    assertThat(rule.defaultDebtSubCharacteristicKey()).isEqualTo(char11.getKey());
+
   }
 
 

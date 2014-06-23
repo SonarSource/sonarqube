@@ -182,6 +182,24 @@ public class RuleDoc extends BaseDoc implements Rule {
   }
 
   @Override
+  public boolean debtOverloaded() {
+    return !defaultDebtSubCharacteristicKey()
+      .equalsIgnoreCase(debtSubCharacteristicKey());
+  }
+
+  @Override
+  @CheckForNull
+  public String defaultDebtCharacteristicKey() {
+    return (String) getNullableField(RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field());
+  }
+
+  @Override
+  @CheckForNull
+  public String defaultDebtSubCharacteristicKey() {
+    return (String) getNullableField(RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field());
+  }
+
+  @Override
   @CheckForNull
   public String debtCharacteristicKey() {
     return (String) getNullableField(RuleNormalizer.RuleField.CHARACTERISTIC.field());
