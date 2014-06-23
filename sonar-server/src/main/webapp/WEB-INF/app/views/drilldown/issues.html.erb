@@ -101,7 +101,7 @@
                                         :rule_sev => (selected ? nil : rule_measure.severity), :sid => nil, :severity => @severity, :period => @period,
                                         :rids => (selected ? nil : @selected_rids)},
                             :title => "#{rule.plugin_name}: #{rule.plugin_rule_key}",
-                            :class => 'chevron-link highlighted-link'
+                            :class => 'underlined-link'
                     ) -%>
               </td>
               <td class="right" nowrap="nowrap">
@@ -161,9 +161,9 @@
               <%= qualifier_icon(resource) -%>&nbsp;
               <% if resource.source_code? %>
                 <a href="#" alt="<%= h resource.name(true) -%>" title="<%= h resource.name(true) -%>" data-key="<%= resource.key -%>"
-                   class="js-drilldown-link chevron-link highlighted-link"><%= h resource.name(false) %></a>
+                   class="js-drilldown-link underlined-link"><%= h resource.name(false) %></a>
               <% else %>
-                <%= link_to(h(resource.name), {:only_path => true, :overwrite_params => {:rids => (selected ? rids-[resource.id] : rids+[resource.id])}}, :class => 'chevron-link highlighted-link') -%>
+                <%= link_to(h(resource.name), {:only_path => true, :overwrite_params => {:rids => (selected ? rids-[resource.id] : rids+[resource.id])}}, :class => 'underlined-link') -%>
               <% end %>
             </td>
             <td class="right" nowrap>

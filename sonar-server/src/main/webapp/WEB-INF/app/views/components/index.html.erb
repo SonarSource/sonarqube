@@ -53,7 +53,7 @@
                 <td class="left" x="<%= u(snapshot.project.name) -%>">
                   <%= qualifier_icon(snapshot) %>
                   <% if snapshot.display_dashboard? %>
-                    <%= link_to_resource(project, h(snapshot.project.name), :class => 'chevron-link highlighted-link') %>
+                    <%= link_to_resource(project, h(snapshot.project.name), :class => 'underlined-link') %>
                   <% else %>
                     <%= h snapshot.project.name %>
                   <% end %>

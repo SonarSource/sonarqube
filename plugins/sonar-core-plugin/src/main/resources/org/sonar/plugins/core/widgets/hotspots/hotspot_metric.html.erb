@@ -40,7 +40,7 @@
 
     <div class="line-block">
       <div style="float:right">
-        <a href="<%= url_for_drilldown(metric) -%>"><%= message('widget.hotspot_metric.more') -%></a>
+        <a class="underlined-link" href="<%= url_for_drilldown(metric) -%>"><%= message('widget.hotspot_metric.more') -%></a>
       </div>
       <h3><%= title -%></h3>
     </div>
@@ -63,14 +63,14 @@
       %>
         <tr class="<%= cycle 'even', 'odd', :name => ('hotspot_metric' + widget.id.to_s) -%>">
           <td>
-            <%= link_to_resource(resource, h(resource.name), {:metric => metric.name}) -%>
+            <%= link_to_resource(resource, h(resource.name), {:metric => metric.name, :class => 'underlined-link'}) -%>
           </td>
           <td class="right nowrap">
             <%= format_measure(measure) -%>
           </td>
           <td class="barchart">
             <div class="barchart" style="width: <%= (measure.value*100/metric_max_value).round.to_i -%>%">
-              <div style="width: 100%;background-color:#777;"></div>
+              <div style="width: 100%;"></div>
             </div>
           </td>
         </tr>

@@ -2,7 +2,7 @@
 <tr class="<%= css -%> <%= 'selected' if selected -%>">
 	<td><i class="icon-severity-<%= severity.downcase -%>"></i></td>
   <td>
-    <%= link_to message("severity.#{severity}"), {:controller => :drilldown, :action => :issues, :id => @resource.id, :severity => (selected ? nil : severity), :period => @period}, :class => 'chevron-link highlighted-link' %>
+    <%= link_to message("severity.#{severity}"), {:controller => :drilldown, :action => :issues, :id => @resource.id, :severity => (selected ? nil : severity), :period => @period}, :class => 'underlined-link' %>
   </td>
   <td style="padding-left: 10px;" align="right" nowrap>
 	  <%= @period ? format_variation(measure, :index => @period, :style => 'light') : format_measure(measure) -%>

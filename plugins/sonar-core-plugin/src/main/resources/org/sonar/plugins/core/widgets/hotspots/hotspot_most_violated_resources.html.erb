@@ -40,7 +40,7 @@
 
 <div class="line-block">
   <div style="float:right">
-    <a href="<%= url_for_drilldown(metric) -%>"><%= message('widget.hotspot_metric.more') -%></a>
+    <a class="underlined-link" href="<%= url_for_drilldown(metric) -%>"><%= message('widget.hotspot_metric.more') -%></a>
   </div>
   <h3><%= title -%></h3>
 </div>
@@ -63,7 +63,7 @@
   %>
     <tr class="<%= cycle 'even', 'odd', :name => ('hotspot_most_violated_resources' + widget.id.to_s) -%>">
       <td>
-        <%= link_to_resource(resource, h(resource.name), {:tab => :violations}) -%>
+        <%= link_to_resource(resource, h(resource.name), {:tab => :violations, :class => 'underlined-link'}) -%>
       </td>
       <td class="small right">
         <i class="icon-severity-blocker"></i>

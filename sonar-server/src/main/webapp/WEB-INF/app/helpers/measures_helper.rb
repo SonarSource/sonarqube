@@ -50,7 +50,7 @@ module MeasuresHelper
       end
 
     elsif column.key=='name'
-      "#{qualifier_icon(row.snapshot)} #{link_to(h(row.snapshot.resource.name(true)), {:controller => 'dashboard', :id => row.snapshot.resource_id}, {:title => h(row.snapshot.resource.key), :class => 'highlighted-link chevron-link'})}"
+      "#{qualifier_icon(row.snapshot)} #{link_to(h(row.snapshot.resource.name(true)), {:controller => 'dashboard', :id => row.snapshot.resource_id}, {:title => h(row.snapshot.resource.key), :class => 'underlined-link'})}"
     elsif column.key=='short_name'
       "#{qualifier_icon(row.snapshot)} #{link_to(h(row.snapshot.resource.name(false)), {:controller => 'dashboard', :id => row.snapshot.resource_id}, {:title => h(row.snapshot.resource.key), :class => 'highlighted-link'})}"
     elsif column.key=='date'

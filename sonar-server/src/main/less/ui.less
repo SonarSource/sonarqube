@@ -71,10 +71,6 @@ select::-moz-focus-inner, input::-moz-focus-inner, button::-moz-focus-inner {
  * Links
  */
 
-a {
-  cursor: pointer;
-}
-
 .link() {
   outline: none;
   text-decoration: none;
@@ -87,23 +83,6 @@ a {
   }
 }
 
-.chevron-link {
-  &:after {
-    content: "\f105";
-    position: relative;
-    top: -1px;
-    vertical-align: middle;
-    margin-left: 0.4em;
-    font-family: 'sonar';
-    speak: none;
-    font-style: normal;
-    font-weight: normal;
-    font-variant: normal;
-    text-transform: none;
-    line-height: 1;
-  }
-}
-
 .base-link {
   color: @baseFontColor;
   .link;
@@ -112,6 +91,13 @@ a {
 .highlighted-link {
   color: @darkBlue;
   .link;
+}
+
+.underlined-link {
+  .highlighted-link;
+  border-bottom: 1px solid @lightBlue;
+
+  &.link-red { .widget-link-red; }
 }
 
 .icon-with-link {
@@ -132,6 +118,11 @@ a {
     color: @red;
     border-bottom-color: @red;
   }
+}
+
+a {
+  cursor: pointer;
+  .highlighted-link;
 }
 
 

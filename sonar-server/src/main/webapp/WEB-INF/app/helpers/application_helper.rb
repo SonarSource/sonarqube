@@ -323,7 +323,7 @@ module ApplicationHelper
         anchor= 'L' + options[:line].to_s
       end
       link_to(name || resource.name, {:controller => 'resource', :action => 'index', :anchor => anchor, :id => resource.id, :period => period_index, :tab => options[:tab], :rule => options[:rule],
-                                      :metric => options[:metric], :display_title => true}, :popup => ['resource', 'height=800,width=900,scrollbars=1,resizable=1'], :title => options[:title])
+                                      :metric => options[:metric], :display_title => true}, :popup => ['resource', 'height=800,width=900,scrollbars=1,resizable=1'], :title => options[:title], :class => options[:class])
     end
   end
 
