@@ -20,6 +20,7 @@
 package org.sonar.batch.rules;
 
 import org.sonar.batch.rule.QProfile;
+import org.sonar.core.UtcDateUtils;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
 
@@ -40,7 +41,12 @@ public class DefaultQProfileReferential implements QProfilesReferential {
     if (dto == null) {
       return null;
     }
-    return new QProfile(dto.getKey(), dto.getName(), dto.getLanguage());
+    QProfile profile = new QProfile();
+    profile.setKey(dto.getKey());
+    profile.setName(dto.getName());
+    profile.setLanguage(dto.getLanguage());
+    profile.setRulesUpdatedAt(UtcDateUtils.parseDateTime(dto.getRulesUpdatedAt()));
+    return profile;
   }
 
 }

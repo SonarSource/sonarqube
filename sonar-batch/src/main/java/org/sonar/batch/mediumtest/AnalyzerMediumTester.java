@@ -30,7 +30,6 @@ import org.sonar.api.batch.analyzer.measure.AnalyzerMeasure;
 import org.sonar.api.batch.debt.internal.DefaultDebtModel;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.RulesBuilder;
-import org.sonar.batch.rule.QProfile;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
@@ -44,6 +43,7 @@ import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.batch.languages.Language;
 import org.sonar.batch.languages.LanguagesReferential;
+import org.sonar.batch.rule.QProfile;
 import org.sonar.batch.rules.QProfilesReferential;
 import org.sonar.batch.scan2.AnalyzerIssueCache;
 import org.sonar.batch.scan2.AnalyzerMeasureCache;
@@ -58,6 +58,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -111,12 +112,12 @@ public class AnalyzerMediumTester {
     }
 
     public AnalyzerMediumTesterBuilder addQProfile(String language, String name) {
-      qProfileReferential.add(new QProfile("TODO", name, language));
+      qProfileReferential.add(new QProfile().setKey(name).setName(name).setLanguage(language).setRulesUpdatedAt(new Date()));
       return this;
     }
 
     public AnalyzerMediumTesterBuilder addDefaultQProfile(String language, String name) {
-      qProfileReferential.add(new QProfile("TODO", name, language));
+      addQProfile(language, name);
       settingsReferential.globalSettings().put("sonar.profile." + language, name);
       return this;
     }
@@ -381,10 +382,10 @@ public class AnalyzerMediumTester {
     }
 
     public void add(QProfile qprofile) {
-      if (!profiles.containsKey(qprofile.language())) {
-        profiles.put(qprofile.language(), new HashMap<String, QProfile>());
+      if (!profiles.containsKey(qprofile.getLanguage())) {
+        profiles.put(qprofile.getLanguage(), new HashMap<String, QProfile>());
       }
-      profiles.get(qprofile.language()).put(qprofile.name(), qprofile);
+      profiles.get(qprofile.getLanguage()).put(qprofile.getName(), qprofile);
     }
 
   }

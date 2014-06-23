@@ -24,12 +24,14 @@ import com.google.common.collect.Iterators;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.SonarException;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.NoSuchElementException;
 
 public final class DialectUtils {
 
   private DialectUtils() {
+    // only static stuff
   }
 
   private static final Dialect[] DIALECTS = new Dialect[] {new H2(), new MySql(), new Oracle(), new PostgreSql(), new MsSql()};
@@ -42,6 +44,7 @@ public final class DialectUtils {
     return match;
   }
 
+  @CheckForNull
   private static Dialect findByJdbcUrl(final String jdbcConnectionUrl) {
     return findDialect(new Predicate<Dialect>() {
       public boolean apply(@Nullable Dialect dialect) {
@@ -50,6 +53,7 @@ public final class DialectUtils {
     });
   }
 
+  @CheckForNull
   private static Dialect findById(final String dialectId) {
     return findDialect(new Predicate<Dialect>() {
       public boolean apply(@Nullable Dialect dialect) {
@@ -58,6 +62,7 @@ public final class DialectUtils {
     });
   }
 
+  @CheckForNull
   private static Dialect findDialect(Predicate<Dialect> predicate) {
     try {
       return Iterators.find(Iterators.forArray(DIALECTS), predicate);

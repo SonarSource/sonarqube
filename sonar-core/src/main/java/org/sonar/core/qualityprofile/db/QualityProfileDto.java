@@ -20,6 +20,7 @@
 
 package org.sonar.core.qualityprofile.db;
 
+import org.sonar.core.UtcDateUtils;
 import org.sonar.core.persistence.Dto;
 
 import javax.annotation.CheckForNull;
@@ -33,7 +34,8 @@ public class QualityProfileDto extends Dto<String> {
   private String name;
   private String language;
   private String parentKee;
-  private Date createdAt, updatedAt, rulesUpdatedAt;
+  private Date createdAt, updatedAt;
+  private String rulesUpdatedAt;
 
   /**
    * @deprecated use {@link #createFor(String)}
@@ -112,6 +114,24 @@ public class QualityProfileDto extends Dto<String> {
 
   public void setUpdatedAt(Date updatedAt) {
     this.updatedAt = updatedAt;
+  }
+
+  public String getRulesUpdatedAt() {
+    return rulesUpdatedAt;
+  }
+
+  public Date getRulesUpdatedAtAsDate() {
+    return UtcDateUtils.parseDateTime(rulesUpdatedAt);
+  }
+
+  public QualityProfileDto setRulesUpdatedAt(String s) {
+    this.rulesUpdatedAt = s;
+    return this;
+  }
+
+  public QualityProfileDto setRulesUpdatedAt(Date d) {
+    this.rulesUpdatedAt = UtcDateUtils.formatDateTime(d);
+    return this;
   }
 
   public static QualityProfileDto createFor(String key) {

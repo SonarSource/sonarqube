@@ -22,20 +22,26 @@ package org.sonar.core.qualityprofile.db;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.utils.System2;
+import org.sonar.core.UtcDateUtils;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.DbSession;
 
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class QualityProfileDaoTest extends AbstractDaoTestCase {
 
   QualityProfileDao dao;
+  System2 system = mock(System2.class);
 
   @Before
   public void createDao() {
-    dao = new QualityProfileDao(getMyBatis());
+    dao = new QualityProfileDao(getMyBatis(), system);
+    when(system.now()).thenReturn(UtcDateUtils.parseDateTime("2014-01-20T12:00:00+0000").getTime());
   }
 
   @Test
@@ -48,7 +54,7 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
 
     dao.insert(dto);
 
-    checkTables("insert", "rules_profiles");
+    checkTables("insert", new String[]{"created_at", "updated_at", "rules_updated_at"}, "rules_profiles");
   }
 
   @Test
@@ -63,7 +69,7 @@ public class QualityProfileDaoTest extends AbstractDaoTestCase {
 
     dao.update(dto);
 
-    checkTables("update", "rules_profiles");
+    checkTables("update", new String[]{"created_at", "updated_at", "rules_updated_at"}, "rules_profiles");
   }
 
   @Test

@@ -23,6 +23,7 @@ package org.sonar.core.qualityprofile.db;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.sonar.api.ServerComponent;
+import org.sonar.api.utils.System2;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DaoComponent;
 import org.sonar.core.persistence.DbSession;
@@ -30,14 +31,17 @@ import org.sonar.core.persistence.MyBatis;
 
 import javax.annotation.CheckForNull;
 
+import java.util.Date;
 import java.util.List;
 
 public class QualityProfileDao implements ServerComponent, DaoComponent {
 
   private final MyBatis mybatis;
+  private final System2 system;
 
-  public QualityProfileDao(MyBatis mybatis) {
+  public QualityProfileDao(MyBatis mybatis, System2 system) {
     this.mybatis = mybatis;
+    this.system = system;
   }
 
   @CheckForNull
@@ -67,6 +71,9 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
 
   private void doInsert(QualityProfileMapper mapper, QualityProfileDto profile) {
     Preconditions.checkArgument(profile.getId() == null, "Quality profile is already persisted (got id %d)", profile.getId());
+    Date now = new Date(system.now());
+    profile.setCreatedAt(now);
+    profile.setUpdatedAt(now);
     mapper.insert(profile);
   }
 
@@ -94,6 +101,7 @@ public class QualityProfileDao implements ServerComponent, DaoComponent {
 
   private void doUpdate(QualityProfileMapper mapper, QualityProfileDto profile) {
     Preconditions.checkArgument(profile.getId() != null, "Quality profile is not persisted");
+    profile.setUpdatedAt(new Date(system.now()));
     mapper.update(profile);
   }
 

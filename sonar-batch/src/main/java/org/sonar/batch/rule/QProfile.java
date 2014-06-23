@@ -21,26 +21,47 @@ package org.sonar.batch.rule;
 
 import com.google.common.base.Objects;
 
+import java.util.Date;
+
 public class QProfile {
 
-  private final String key, name, language;
+  private String key, name, language;
+  private Date rulesUpdatedAt;
 
-  public QProfile(String key, String name, String language) {
-    this.key = key;
-    this.name = name;
-    this.language = language;
+  public String getKey() {
+    return key;
   }
 
-  public String name() {
+  public QProfile setKey(String key) {
+    this.key = key;
+    return this;
+  }
+
+  public String getName() {
     return name;
   }
 
-  public String language() {
+  public QProfile setName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  public String getLanguage() {
     return language;
   }
 
-  public String key() {
-    return key;
+  public QProfile setLanguage(String language) {
+    this.language = language;
+    return this;
+  }
+
+  public Date getRulesUpdatedAt() {
+    return rulesUpdatedAt;
+  }
+
+  public QProfile setRulesUpdatedAt(Date d) {
+    this.rulesUpdatedAt = d;
+    return this;
   }
 
   @Override
@@ -67,6 +88,7 @@ public class QProfile {
       .add("key", key)
       .add("name", name)
       .add("language", language)
+      .add("rulesUpdatedAt", rulesUpdatedAt)
       .toString();
   }
 }

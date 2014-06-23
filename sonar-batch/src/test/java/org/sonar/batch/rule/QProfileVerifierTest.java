@@ -42,9 +42,9 @@ public class QProfileVerifierTest {
   @Before
   public void before() {
     profiles = mock(ModuleQProfiles.class);
-    QProfile javaProfile = new QProfile("p1", "My Java profile", "java");
+    QProfile javaProfile = new QProfile().setKey("p1").setName("My Java profile").setLanguage("java");
     when(profiles.findByLanguage("java")).thenReturn(javaProfile);
-    QProfile cobolProfile = new QProfile("p2", "My Cobol profile", "cobol");
+    QProfile cobolProfile = new QProfile().setKey("p2").setName("My Cobol profile").setLanguage("cobol");
     when(profiles.findByLanguage("cobol")).thenReturn(cobolProfile);
   }
 

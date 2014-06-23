@@ -51,11 +51,11 @@ public class ActiveRulesProvider extends ProviderAdapter {
     ActiveRulesBuilder builder = new ActiveRulesBuilder();
     for (QProfile qProfile : qProfiles.findAll()) {
       ListMultimap<Integer, ActiveRuleParamDto> paramDtosByActiveRuleId = ArrayListMultimap.create();
-      for (ActiveRuleParamDto dto : dao.selectParamsByProfileKey(qProfile.key())) {
+      for (ActiveRuleParamDto dto : dao.selectParamsByProfileKey(qProfile.getKey())) {
         paramDtosByActiveRuleId.put(dto.getActiveRuleId(), dto);
       }
 
-      for (ActiveRuleDto activeDto : dao.selectByProfileKey(qProfile.key())) {
+      for (ActiveRuleDto activeDto : dao.selectByProfileKey(qProfile.getKey())) {
         Rule rule = ruleFinder.findById(activeDto.getRulId());
         if (rule != null) {
           NewActiveRule newActiveRule = builder.create(rule.ruleKey());

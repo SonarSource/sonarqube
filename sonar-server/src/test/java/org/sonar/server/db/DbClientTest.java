@@ -21,6 +21,7 @@ package org.sonar.server.db;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.persistence.TestDatabase;
@@ -39,7 +40,7 @@ public class DbClientTest {
   public void facade() throws Exception {
     MyBatis myBatis = db.myBatis();
     RuleDao ruleDao = new RuleDao();
-    QualityProfileDao qualityProfileDao = new QualityProfileDao(myBatis);
+    QualityProfileDao qualityProfileDao = new QualityProfileDao(myBatis, System2.INSTANCE);
     ActiveRuleDao activeRuleDao = new ActiveRuleDao(qualityProfileDao, ruleDao);
 
     DbClient client = new DbClient(db.database(), myBatis, ruleDao, activeRuleDao, qualityProfileDao);

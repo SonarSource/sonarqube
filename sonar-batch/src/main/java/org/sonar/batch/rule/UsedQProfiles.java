@@ -25,6 +25,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.UtcDateUtils;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -41,9 +42,9 @@ public class UsedQProfiles {
   private final SortedSet<QProfile> profiles = Sets.newTreeSet(new Comparator<QProfile>() {
     @Override
     public int compare(QProfile o1, QProfile o2) {
-      int c = o1.language().compareTo(o2.language());
+      int c = o1.getLanguage().compareTo(o2.getLanguage());
       if (c == 0) {
-        c = o1.name().compareTo(o2.name());
+        c = o1.getName().compareTo(o2.getName());
       }
       return c;
     }
@@ -51,10 +52,15 @@ public class UsedQProfiles {
 
   public static UsedQProfiles fromJson(String json) {
     UsedQProfiles result = new UsedQProfiles();
-    JsonArray root = new JsonParser().parse(json).getAsJsonArray();
-    for (JsonElement elt : root) {
-      JsonObject profile = elt.getAsJsonObject();
-      result.add(new QProfile(profile.get("key").getAsString(), profile.get("name").getAsString(), profile.get("language").getAsString()));
+    JsonArray jsonRoot = new JsonParser().parse(json).getAsJsonArray();
+    for (JsonElement jsonElt : jsonRoot) {
+      JsonObject jsonProfile = jsonElt.getAsJsonObject();
+      QProfile profile = new QProfile();
+      profile.setKey(jsonProfile.get("key").getAsString());
+      profile.setName(jsonProfile.get("name").getAsString());
+      profile.setLanguage(jsonProfile.get("language").getAsString());
+      profile.setRulesUpdatedAt(UtcDateUtils.parseDateTime(jsonProfile.get("rulesUpdatedAt").getAsString()));
+      result.add(profile);
     }
     return result;
   }
@@ -66,9 +72,10 @@ public class UsedQProfiles {
     for (QProfile profile : profiles) {
       writer
         .beginObject()
-        .prop("key", profile.key())
-        .prop("language", profile.language())
-        .prop("name", profile.name())
+        .prop("key", profile.getKey())
+        .prop("language", profile.getLanguage())
+        .prop("name", profile.getName())
+        .prop("rulesUpdatedAt", UtcDateUtils.formatDateTime(profile.getRulesUpdatedAt()))
         .endObject();
     }
     writer.endArray();
@@ -96,9 +103,9 @@ public class UsedQProfiles {
   }
 
   public Map<String, QProfile> profilesByKey() {
-    Map<String,QProfile> map = new HashMap<String, QProfile>();
+    Map<String, QProfile> map = new HashMap<String, QProfile>();
     for (QProfile profile : profiles) {
-      map.put(profile.key(), profile);
+      map.put(profile.getKey(), profile);
     }
     return map;
   }

@@ -23,6 +23,7 @@ package org.sonar.server.db.migrations.v44;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.core.UtcDateUtils;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.migration.v44.Migration44Mapper;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
@@ -61,10 +62,10 @@ public class FeedQProfileDatesMigration implements DatabaseMigration {
       QualityProfileMapper profileMapper = session.getMapper(QualityProfileMapper.class);
       Migration44Mapper migrationMapper = session.getMapper(Migration44Mapper.class);
       for (QualityProfileDto profile : profileMapper.selectAll()) {
-        Date createdAt = migrationMapper.selectProfileCreatedAt(profile.getId());
-        Date updatedAt = migrationMapper.selectProfileUpdatedAt(profile.getId());
-        migrationMapper.updateProfileDates(profile.getId(),
-          (Date) ObjectUtils.defaultIfNull(createdAt, now), (Date) ObjectUtils.defaultIfNull(updatedAt, now));
+        Date createdAt = (Date) ObjectUtils.defaultIfNull(migrationMapper.selectProfileCreatedAt(profile.getId()), now);
+        Date updatedAt = (Date) ObjectUtils.defaultIfNull(migrationMapper.selectProfileUpdatedAt(profile.getId()), now);
+
+        migrationMapper.updateProfileDates(profile.getId(), createdAt, updatedAt, UtcDateUtils.formatDateTime(updatedAt));
         if (i % 100 == 0) {
           session.commit();
           i++;

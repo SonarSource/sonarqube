@@ -54,9 +54,9 @@ public class ActiveRulesProviderTest extends AbstractDaoTestCase {
     setupData("shared");
     when(qProfiles.findAll()).thenReturn(Arrays.asList(
       // 1 rule is enabled on java with severity INFO
-      new QProfile("java-two", "Java Two", "java"),
+      new QProfile().setKey("java-two").setName("Java Two").setLanguage("java"),
       // 1 rule is enabled on php with severity BLOCKER
-      new QProfile("php-one", "Php One", "php")
+      new QProfile().setKey("php-one").setName("Php One").setLanguage("php")
       ));
 
     ActiveRulesProvider provider = new ActiveRulesProvider();

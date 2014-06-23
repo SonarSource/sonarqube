@@ -20,6 +20,7 @@
 package org.sonar.batch.rule;
 
 import org.junit.Test;
+import org.sonar.core.UtcDateUtils;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -28,25 +29,30 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class UsedQProfilesTest {
 
+  static final String JAVA_JSON = "{\"key\":\"p1\",\"language\":\"java\",\"name\":\"Sonar Way\",\"rulesUpdatedAt\":\"2014-01-15T00:00:00+0000\"}";
+  static final String PHP_JSON = "{\"key\":\"p2\",\"language\":\"php\",\"name\":\"Sonar Way\",\"rulesUpdatedAt\":\"2014-02-20T00:00:00+0000\"}";
+
   @Test
   public void from_and_to_json() throws Exception {
-    QProfile java = new QProfile("p1", "Sonar Way", "java");
-    QProfile php = new QProfile("p2", "Sonar Way", "php");
+    QProfile java = new QProfile().setKey("p1").setName("Sonar Way").setLanguage("java")
+      .setRulesUpdatedAt(UtcDateUtils.parseDateTime("2014-01-15T00:00:00+0000"));
+    QProfile php = new QProfile().setKey("p2").setName("Sonar Way").setLanguage("php")
+      .setRulesUpdatedAt(UtcDateUtils.parseDateTime("2014-02-20T00:00:00+0000"));
 
     UsedQProfiles used = new UsedQProfiles().add(java).add(php);
-    String json = "[{\"key\":\"p1\",\"language\":\"java\",\"name\":\"Sonar Way\"},{\"key\":\"p2\",\"language\":\"php\",\"name\":\"Sonar Way\"}]";
+    String json = "[" + JAVA_JSON + "," + PHP_JSON + "]";
     assertThat(used.toJson()).isEqualTo(json);
 
     used = UsedQProfiles.fromJson(json);
     assertThat(used.profiles()).hasSize(2);
-    assertThat(used.profiles().first().key()).isEqualTo("p1");
-    assertThat(used.profiles().last().key()).isEqualTo("p2");
+    assertThat(used.profiles().first().getKey()).isEqualTo("p1");
+    assertThat(used.profiles().last().getKey()).isEqualTo("p2");
   }
 
   @Test
   public void do_not_duplicate_profiles() throws Exception {
-    QProfile java = new QProfile("p1", "Sonar Way", "java");
-    QProfile php = new QProfile("p2", "Sonar Way", "php");
+    QProfile java = new QProfile().setKey("p1").setName("Sonar Way").setLanguage("java");
+    QProfile php = new QProfile().setKey("p2").setName("Sonar Way").setLanguage("php");
 
     UsedQProfiles used = new UsedQProfiles().addAll(Arrays.asList(java, java, php));
     assertThat(used.profiles()).hasSize(2);
@@ -54,8 +60,8 @@ public class UsedQProfilesTest {
 
   @Test
   public void group_profiles_by_key() throws Exception {
-    QProfile java = new QProfile("p1", "Sonar Way", "java");
-    QProfile php = new QProfile("p2", "Sonar Way", "php");
+    QProfile java = new QProfile().setKey("p1").setName("Sonar Way").setLanguage("java");
+    QProfile php = new QProfile().setKey("p2").setName("Sonar Way").setLanguage("php");
 
     UsedQProfiles used = new UsedQProfiles().addAll(Arrays.asList(java, java, php));
     Map<String, QProfile> map = used.profilesByKey();

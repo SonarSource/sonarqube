@@ -8,19 +8,24 @@
     p.kee as kee,
     p.name as name,
     p.language as language,
-    p.parent_kee as parentKee
+    p.parent_kee as parentKee,
+    p.created_at as createdAt,
+    p.updated_at as updatedAt,
+    p.rules_updated_at as rulesUpdatedAt
   </sql>
 
   <insert id="insert" parameterType="QualityProfile" keyColumn="id" useGeneratedKeys="true" keyProperty="id" lang="raw">
-    INSERT INTO rules_profiles (kee, parent_kee, name, language)
-    VALUES (#{kee}, #{parentKee}, #{name}, #{language})
+    INSERT INTO rules_profiles (kee, parent_kee, name, language, created_at, updated_at, rules_updated_at)
+    VALUES (#{kee}, #{parentKee}, #{name}, #{language}, #{createdAt}, #{updatedAt}, #{rulesUpdatedAt,})
   </insert>
 
   <update id="update" parameterType="QualityProfile" lang="raw">
     UPDATE rules_profiles SET
     name=#{name},
     language=#{language},
-    parent_kee=#{parentKee}
+    parent_kee=#{parentKee},
+    updated_at=#{updatedAt},
+    rules_updated_at=#{rulesUpdatedAt}
     WHERE id=#{id}
   </update>
 

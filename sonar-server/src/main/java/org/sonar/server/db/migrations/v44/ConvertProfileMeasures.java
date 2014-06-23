@@ -20,13 +20,13 @@
 
 package org.sonar.server.db.migrations.v44;
 
-import org.sonar.api.utils.DateUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.UtcDateUtils;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.persistence.migration.v44.Migration44Mapper;
 import org.sonar.core.persistence.migration.v44.ProfileMeasure;
-import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.core.qualityprofile.db.QualityProfileMapper;
+import org.sonar.core.persistence.migration.v44.QProfileDto44;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.db.migrations.DatabaseMigration;
 
@@ -51,13 +51,13 @@ public class ConvertProfileMeasures implements DatabaseMigration {
     DbSession session = db.openSession(false);
     try {
       int i = 0;
-      QualityProfileMapper profileMapper = session.getMapper(QualityProfileMapper.class);
-      Migration44Mapper migrationMapper = session.getMapper(Migration44Mapper.class);
-      for (ProfileMeasure profileMeasure : migrationMapper.selectProfileMeasures()) {
-        int version = migrationMapper.selectProfileVersion(profileMeasure.getSnapshotId());
-        QualityProfileDto profile = profileMapper.selectById(profileMeasure.getProfileId());
-        Date date = migrationMapper.selectProfileVersionDate(profileMeasure.getProfileId(), version);
-        if (profile != null && date != null) {
+      Migration44Mapper mapper = session.getMapper(Migration44Mapper.class);
+      for (ProfileMeasure profileMeasure : mapper.selectProfileMeasures()) {
+        int version = mapper.selectProfileVersion(profileMeasure.getSnapshotId());
+        QProfileDto44 profile = mapper.selectProfileById(profileMeasure.getProfileId());
+        if (profile != null) {
+          Date date = (Date)ObjectUtils.defaultIfNull(mapper.selectProfileVersionDate(profileMeasure.getProfileId(), version),
+            new Date());
           // see format of JSON in org.sonar.batch.rule.UsedQProfiles
           StringWriter writer = new StringWriter();
           JsonWriter json = JsonWriter.of(writer);
@@ -67,11 +67,11 @@ public class ConvertProfileMeasures implements DatabaseMigration {
             .prop("key", profile.getKee())
             .prop("language", profile.getLanguage())
             .prop("name", profile.getName())
-            .prop("updatedAt", DateUtils.formatDateTime(date))
+            .prop("rulesUpdatedAt", UtcDateUtils.formatDateTime(date))
             .endObject()
             .endArray()
             .close();
-          migrationMapper.updateProfileMeasure(profileMeasure.getId(), writer.toString());
+          mapper.updateProfileMeasure(profileMeasure.getId(), writer.toString());
           if (i % 100 == 0) {
             session.commit();
             i++;

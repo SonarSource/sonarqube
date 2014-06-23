@@ -42,7 +42,7 @@ public class RulesProfileProviderTest {
 
   @Test
   public void merge_profiles() throws Exception {
-    QProfile qProfile = new QProfile("java-sw", "Sonar way", "java");
+    QProfile qProfile = new QProfile().setKey("java-sw").setName("Sonar way").setLanguage("java");
     when(qProfiles.findAll()).thenReturn(Arrays.asList(qProfile));
 
     RulesProfile profile = provider.provide(qProfiles, activeRules, ruleFinder, settings);
@@ -64,7 +64,7 @@ public class RulesProfileProviderTest {
   public void keep_compatibility_with_single_language_projects() throws Exception {
     settings.setProperty("sonar.language", "java");
 
-    QProfile qProfile = new QProfile("java-sw", "Sonar way", "java");
+    QProfile qProfile = new QProfile().setKey("java-sw").setName("Sonar way").setLanguage("java");
     when(qProfiles.findByLanguage("java")).thenReturn(qProfile);
 
     RulesProfile profile = provider.provide(qProfiles, activeRules, ruleFinder, settings);

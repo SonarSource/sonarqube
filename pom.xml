@@ -917,6 +917,18 @@
         </exclusions>
       </dependency>
       <dependency>
+        <groupId>com.google.code.bean-matchers</groupId>
+        <artifactId>bean-matchers</artifactId>
+        <version>0.9</version>
+        <scope>test</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
         <groupId>org.easytesting</groupId>
         <artifactId>fest-assert</artifactId>
         <version>1.4</version>

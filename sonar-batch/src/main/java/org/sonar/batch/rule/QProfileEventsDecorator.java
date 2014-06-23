@@ -78,36 +78,34 @@ public class QProfileEventsDecorator implements Decorator {
 
     // Detect new profiles or updated profiles
     for (QProfile profile : currentProfiles.values()) {
-      QProfile previousProfile = previousProfiles.get(profile.key());
+      QProfile previousProfile = previousProfiles.get(profile.getKey());
       if (previousProfile != null) {
-        // TODO compare date
+        if (profile.getRulesUpdatedAt().after(previousProfile.getRulesUpdatedAt())) {
+          markAsUsed(context, profile);
+        }
       } else {
-        usedProfile(context, profile);
+        markAsUsed(context, profile);
       }
     }
 
     // Detect profiles that are not used anymore
     for (QProfile previousProfile : previousProfiles.values()) {
-      if (!currentProfiles.containsKey(previousProfile.key())) {
-        stopUsedProfile(context, previousProfile);
+      if (!currentProfiles.containsKey(previousProfile.getKey())) {
+        markAsUnused(context, previousProfile);
       }
     }
   }
 
-  private void stopUsedProfile(DecoratorContext context, QProfile profile) {
-    Language language = languages.get(profile.language());
-    String languageName = language != null ? language.getName() : profile.language();
-    context.createEvent("Stop using " + format(profile) + " (" + languageName + ")", format(profile) + " no more used for " + languageName, Event.CATEGORY_PROFILE, null);
+  private void markAsUnused(DecoratorContext context, QProfile profile) {
+    Language language = languages.get(profile.getLanguage());
+    String languageName = language != null ? language.getName() : profile.getLanguage();
+    context.createEvent("Stop using " + profile.getName() + " (" + languageName + ")", profile.getName() + " no more used for " + languageName, Event.CATEGORY_PROFILE, null);
   }
 
-  private void usedProfile(DecoratorContext context, QProfile profile) {
-    Language language = languages.get(profile.language());
-    String languageName = language != null ? language.getName() : profile.language();
-    context.createEvent("Use " + format(profile) + " (" + languageName + ")", format(profile) + " used for " + languageName, Event.CATEGORY_PROFILE, null);
-  }
-
-  private String format(QProfile profile) {
-    return profile.name();
+  private void markAsUsed(DecoratorContext context, QProfile profile) {
+    Language language = languages.get(profile.getLanguage());
+    String languageName = language != null ? language.getName() : profile.getLanguage();
+    context.createEvent("Use " + profile.getName() + " (" + languageName + ")", profile.getName() + " used for " + languageName, Event.CATEGORY_PROFILE, null);
   }
 
   @CheckForNull

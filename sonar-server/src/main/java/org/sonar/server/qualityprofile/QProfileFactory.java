@@ -35,6 +35,7 @@ import org.sonar.server.util.Slug;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -71,9 +72,13 @@ public class QProfileFactory implements ServerComponent {
   }
 
   private QualityProfileDto doCreate(DbSession dbSession, QProfileName name) {
+    Date now = new Date();
     for (int i = 0; i < 20; i++) {
       String key = Slug.slugify(String.format("%s %s %s", name.getLanguage(), name.getName(), RandomStringUtils.randomNumeric(5)));
-      QualityProfileDto dto = QualityProfileDto.createFor(key).setName(name.getName()).setLanguage(name.getLanguage());
+      QualityProfileDto dto = QualityProfileDto.createFor(key)
+        .setName(name.getName())
+        .setLanguage(name.getLanguage())
+        .setRulesUpdatedAt(now);
       if (db.qualityProfileDao().getByKey(dbSession, dto.getKey()) == null) {
         db.qualityProfileDao().insert(dbSession, dto);
         return dto;

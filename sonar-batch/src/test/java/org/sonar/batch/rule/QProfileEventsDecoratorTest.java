@@ -38,7 +38,6 @@
  */
 package org.sonar.batch.rule;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.Event;
@@ -58,15 +57,13 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class QProfileEventsDecoratorTest {
 
-  static final String JAVA_V1_JSON = "{\"key\":\"J1\",\"language\":\"java\",\"name\":\"Java One\"}";
-  static final String JAVA_V2_JSON = "{\"key\":\"J1\",\"language\":\"java\",\"name\":\"Java One\"}";
+  static final String JAVA_V1_JSON = "{\"key\":\"J1\",\"language\":\"java\",\"name\":\"Java One\",\"rulesUpdatedAt\":\"2014-01-15T12:00:00+0000\"}";
+  static final String JAVA_V2_JSON = "{\"key\":\"J1\",\"language\":\"java\",\"name\":\"Java One\",\"rulesUpdatedAt\":\"2014-02-20T12:00:00+0000\"}";
+  static final String JAVA_OTHER_JSON = "{\"key\":\"J2\",\"language\":\"java\",\"name\":\"Java Two\",\"rulesUpdatedAt\":\"2014-02-20T12:00:00+0000\"}";
 
   Project project = new Project("myProject");
   DecoratorContext decoratorContext = mock(DecoratorContext.class);
@@ -75,12 +72,12 @@ public class QProfileEventsDecoratorTest {
   QProfileEventsDecorator decorator = new QProfileEventsDecorator(timeMachine, languages);
 
   @Test
-  public void shouldExecuteOnProjects() {
+  public void execute_on_all_projects() {
     assertThat(decorator.shouldExecuteOnProject(project)).isTrue();
   }
 
   @Test
-  public void shouldDoNothingIfNoProfileChange() {
+  public void do_not_generate_event_if_no_changes() {
     Measure previousMeasure = new Measure(CoreMetrics.QUALITY_PROFILES, "[" + JAVA_V1_JSON + "]");
     Measure newMeasure = new Measure(CoreMetrics.QUALITY_PROFILES, "[" + JAVA_V1_JSON + "]");
 
@@ -94,8 +91,7 @@ public class QProfileEventsDecoratorTest {
   }
 
   @Test
-  @Ignore
-  public void shouldCreateEventIfProfileChange() {
+  public void generate_event_if_profile_change() {
     Measure previousMeasure = new Measure(CoreMetrics.QUALITY_PROFILES, "[" + JAVA_V1_JSON + "]");
     // Different profile
     Measure newMeasure = new Measure(CoreMetrics.QUALITY_PROFILES, "[" + JAVA_V2_JSON + "]");
@@ -109,13 +105,33 @@ public class QProfileEventsDecoratorTest {
     decorator.decorate(project, decoratorContext);
 
     verify(decoratorContext).createEvent(
-      eq("Use Java Other version 1 (Java)"),
-      eq("Java Other version 1 used for Java"),
+      eq("Use Java One (Java)"),
+      eq("Java One used for Java"),
       same(Event.CATEGORY_PROFILE), any(Date.class));
   }
 
   @Test
-  public void shouldNotCreateEventIfFirstAnalysis() {
+  public void generate_event_if_profile_not_used_anymore() {
+    Measure previousMeasure = new Measure(CoreMetrics.QUALITY_PROFILES, "[" + JAVA_V1_JSON + "]");
+    // Different profile
+    Measure newMeasure = new Measure(CoreMetrics.QUALITY_PROFILES, "[" +  JAVA_OTHER_JSON + "]");
+
+    when(timeMachine.getMeasures(any(TimeMachineQuery.class)))
+      .thenReturn(Arrays.asList(previousMeasure));
+    when(decoratorContext.getMeasure(CoreMetrics.QUALITY_PROFILES)).thenReturn(newMeasure);
+
+    when(languages.get("java")).thenReturn(Java.INSTANCE);
+
+    decorator.decorate(project, decoratorContext);
+
+    verify(decoratorContext).createEvent(
+      eq("Stop using Java One (Java)"),
+      eq("Java One no more used for Java"),
+      same(Event.CATEGORY_PROFILE), any(Date.class));
+  }
+
+  @Test
+  public void do_not_generate_event_on_first_analysis() {
     Measure newMeasure = new Measure(CoreMetrics.QUALITY_PROFILES, "[" + JAVA_V1_JSON + "]");
 
     when(decoratorContext.getMeasure(CoreMetrics.QUALITY_PROFILES)).thenReturn(newMeasure);

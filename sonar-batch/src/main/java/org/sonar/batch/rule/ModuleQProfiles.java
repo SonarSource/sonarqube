@@ -56,7 +56,7 @@ public class ModuleQProfiles implements BatchComponent {
         profile = loadQProfile(qProfileRef, settings, language.key());
       }
       if (profile != null) {
-        builder.put(profile.language(), profile);
+        builder.put(profile.getLanguage(), profile);
       }
     }
     byLanguage = builder.build();

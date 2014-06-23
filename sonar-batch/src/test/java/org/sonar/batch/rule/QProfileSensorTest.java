@@ -25,14 +25,22 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Project;
 import org.sonar.api.test.IsMeasure;
+import org.sonar.core.UtcDateUtils;
 
 import java.util.Collections;
+import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
 
 public class QProfileSensorTest {
+
+  static final Date DATE = UtcDateUtils.parseDateTime("2014-01-15T12:00:00+0000");
+  static final QProfile JAVA_PROFILE = new QProfile().setKey("java-two").setName("Java Two").setLanguage("java")
+    .setRulesUpdatedAt(DATE);
+  static final QProfile PHP_PROFILE = new QProfile().setKey("php-one").setName("Php One").setLanguage("php")
+    .setRulesUpdatedAt(DATE);
 
   ModuleQProfiles moduleQProfiles = mock(ModuleQProfiles.class);
   Project project = mock(Project.class);
@@ -59,8 +67,8 @@ public class QProfileSensorTest {
 
   @Test
   public void mark_profiles_as_used() throws Exception {
-    when(moduleQProfiles.findByLanguage("java")).thenReturn(new QProfile("java-two", "Java Two", "java"));
-    when(moduleQProfiles.findByLanguage("php")).thenReturn(new QProfile("php-one", "Php One", "php"));
+    when(moduleQProfiles.findByLanguage("java")).thenReturn(JAVA_PROFILE);
+    when(moduleQProfiles.findByLanguage("php")).thenReturn(PHP_PROFILE);
     when(moduleQProfiles.findByLanguage("abap")).thenReturn(null);
     fs.addLanguages("java", "php", "abap");
 
@@ -71,8 +79,8 @@ public class QProfileSensorTest {
 
   @Test
   public void store_measures_on_single_lang_module() throws Exception {
-    when(moduleQProfiles.findByLanguage("java")).thenReturn(new QProfile("java-two", "Java Two", "java"));
-    when(moduleQProfiles.findByLanguage("php")).thenReturn(new QProfile("php-one", "Php One", "php"));
+    when(moduleQProfiles.findByLanguage("java")).thenReturn(JAVA_PROFILE);
+    when(moduleQProfiles.findByLanguage("php")).thenReturn(PHP_PROFILE);
     when(moduleQProfiles.findByLanguage("abap")).thenReturn(null);
     fs.addLanguages("java");
 
@@ -81,13 +89,14 @@ public class QProfileSensorTest {
     sensor.analyse(project, sensorContext);
 
     verify(sensorContext).saveMeasure(
-      argThat(new IsMeasure(CoreMetrics.QUALITY_PROFILES, "[{\"key\":\"java-two\",\"language\":\"java\",\"name\":\"Java Two\"}]")));
+      argThat(new IsMeasure(CoreMetrics.QUALITY_PROFILES,
+        "[{\"key\":\"java-two\",\"language\":\"java\",\"name\":\"Java Two\",\"rulesUpdatedAt\":\"2014-01-15T12:00:00+0000\"}]")));
   }
 
   @Test
   public void store_measures_on_multi_lang_module() throws Exception {
-    when(moduleQProfiles.findByLanguage("java")).thenReturn(new QProfile("java-two", "Java Two", "java"));
-    when(moduleQProfiles.findByLanguage("php")).thenReturn(new QProfile("php-one", "Php One", "php"));
+    when(moduleQProfiles.findByLanguage("java")).thenReturn(JAVA_PROFILE);
+    when(moduleQProfiles.findByLanguage("php")).thenReturn(PHP_PROFILE);
     when(moduleQProfiles.findByLanguage("abap")).thenReturn(null);
     fs.addLanguages("java", "php");
 
@@ -97,6 +106,7 @@ public class QProfileSensorTest {
 
     verify(sensorContext).saveMeasure(
       argThat(new IsMeasure(CoreMetrics.QUALITY_PROFILES,
-        "[{\"key\":\"java-two\",\"language\":\"java\",\"name\":\"Java Two\"},{\"key\":\"php-one\",\"language\":\"php\",\"name\":\"Php One\"}]")));
+        "[{\"key\":\"java-two\",\"language\":\"java\",\"name\":\"Java Two\",\"rulesUpdatedAt\":\"2014-01-15T12:00:00+0000\"}," +
+          "{\"key\":\"php-one\",\"language\":\"php\",\"name\":\"Php One\",\"rulesUpdatedAt\":\"2014-01-15T12:00:00+0000\"}]")));
   }
 }

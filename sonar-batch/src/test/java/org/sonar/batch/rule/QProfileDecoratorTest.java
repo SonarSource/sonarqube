@@ -36,9 +36,9 @@ import static org.mockito.Mockito.*;
 
 public class QProfileDecoratorTest {
 
-  static final String JAVA_JSON = "{\"key\":\"J1\",\"language\":\"java\",\"name\":\"Java One\"}";
-  static final String JAVA2_JSON = "{\"key\":\"J2\",\"language\":\"java\",\"name\":\"Java Two\"}";
-  static final String PHP_JSON = "{\"key\":\"P1\",\"language\":\"php\",\"name\":\"Php One\"}";
+  static final String JAVA_JSON = "{\"key\":\"J1\",\"language\":\"java\",\"name\":\"Java One\",\"rulesUpdatedAt\":\"2014-01-15T10:00:00+0000\"}";
+  static final String JAVA2_JSON = "{\"key\":\"J2\",\"language\":\"java\",\"name\":\"Java Two\",\"rulesUpdatedAt\":\"2014-01-15T10:00:00+0000\"}";
+  static final String PHP_JSON = "{\"key\":\"P1\",\"language\":\"php\",\"name\":\"Php One\",\"rulesUpdatedAt\":\"2014-01-15T10:00:00+0000\"}";
 
   Project project = mock(Project.class);
   Project moduleA = mock(Project.class);
