@@ -34,10 +34,12 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 
 class RuleActivatorContext {
 
+  private final Date initDate = new Date();
   private RuleDto rule;
   private final Map<String, RuleParamDto> ruleParams = Maps.newHashMap();
   private QualityProfileDto profile;
@@ -58,6 +60,10 @@ class RuleActivatorContext {
   RuleActivatorContext setRule(RuleDto rule) {
     this.rule = rule;
     return this;
+  }
+
+  Date getInitDate() {
+    return initDate;
   }
 
   Map<String, RuleParamDto> ruleParamsByKeys() {

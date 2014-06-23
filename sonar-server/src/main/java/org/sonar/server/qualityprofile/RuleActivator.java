@@ -66,8 +66,8 @@ public class RuleActivator implements ServerComponent {
   private final ActivityService log;
 
   public RuleActivator(DbClient db, IndexClient index,
-                       RuleActivatorContextFactory contextFactory, TypeValidations typeValidations,
-                       PreviewCache previewCache, ActivityService log) {
+    RuleActivatorContextFactory contextFactory, TypeValidations typeValidations,
+    PreviewCache previewCache, ActivityService log) {
     this.db = db;
     this.index = index;
     this.contextFactory = contextFactory;
@@ -136,10 +136,16 @@ public class RuleActivator implements ServerComponent {
     }
 
     if (!changes.isEmpty()) {
+      updateProfileDate(dbSession, context);
       log.write(dbSession, Activity.Type.QPROFILE, changes);
       previewCache.reportGlobalModification(dbSession);
     }
     return changes;
+  }
+
+  private void updateProfileDate(DbSession dbSession, RuleActivatorContext context) {
+    context.profile().setRulesUpdatedAt(context.getInitDate());
+    db.qualityProfileDao().update(dbSession, context.profile());
   }
 
   /**
@@ -196,7 +202,8 @@ public class RuleActivator implements ServerComponent {
   }
 
   private ActiveRuleDto doInsert(ActiveRuleChange change, RuleActivatorContext context, DbSession dbSession) {
-    ActiveRuleDto activeRule;ActiveRuleDao dao = db.activeRuleDao();
+    ActiveRuleDto activeRule;
+    ActiveRuleDao dao = db.activeRuleDao();
     activeRule = ActiveRuleDto.createFor(context.profile(), context.rule());
     activeRule.setSeverity(change.getSeverity());
     if (change.getInheritance() != null) {
@@ -214,7 +221,8 @@ public class RuleActivator implements ServerComponent {
   }
 
   private ActiveRuleDto doUpdate(ActiveRuleChange change, RuleActivatorContext context, DbSession dbSession) {
-    ActiveRuleDto activeRule;ActiveRuleDao dao = db.activeRuleDao();
+    ActiveRuleDto activeRule;
+    ActiveRuleDao dao = db.activeRuleDao();
     activeRule = context.activeRule();
     activeRule.setSeverity(change.getSeverity());
     if (change.getInheritance() != null) {
@@ -307,6 +315,7 @@ public class RuleActivator implements ServerComponent {
     }
 
     if (!changes.isEmpty()) {
+      updateProfileDate(dbSession, context);
       log.write(dbSession, Activity.Type.QPROFILE, changes);
       previewCache.reportGlobalModification(dbSession);
     }
