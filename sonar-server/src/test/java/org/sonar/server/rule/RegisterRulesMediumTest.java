@@ -21,10 +21,7 @@
 package org.sonar.server.rule;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -47,10 +44,12 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.user.MockUserSession;
+import org.sonar.server.user.UserSession;
 
 import java.util.Date;
 import java.util.List;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
@@ -61,6 +60,8 @@ public class RegisterRulesMediumTest {
   @ClassRule
   public static ServerTester tester = new ServerTester().addComponents(rulesDefinition);
 
+  RuleIndex index;
+
   DbClient db;
   DbSession dbSession;
 
@@ -68,6 +69,7 @@ public class RegisterRulesMediumTest {
   public void before() {
     tester.clearDbAndIndexes();
     rulesDefinition.includeX1 = true;
+    rulesDefinition.includeX1bis = false;
     rulesDefinition.includeX2 = true;
     rulesDefinition.includeTemplate1 = true;
     rulesDefinition.includeRuleLinkedToRootCharacteristic = false;
@@ -75,6 +77,8 @@ public class RegisterRulesMediumTest {
     db = tester.get(DbClient.class);
     dbSession = tester.get(DbClient.class).openSession(false);
     dbSession.clearCache();
+
+    index = tester.get(RuleIndex.class);
   }
 
   @After
@@ -86,11 +90,25 @@ public class RegisterRulesMediumTest {
   public void register_rules_at_startup() throws Exception {
     verifyRulesInDb();
 
-    RuleIndex index = tester.get(RuleIndex.class);
-
     Result<Rule> searchResult = index.search(new RuleQuery(), new QueryOptions());
     assertThat(searchResult.getTotal()).isEqualTo(3);
     assertThat(searchResult.getHits()).hasSize(3);
+
+    Rule rule = index.getByKey(RuleTesting.XOO_X1);
+    assertThat(rule.severity()).isEqualTo(Severity.MINOR);
+    assertThat(rule.name()).isEqualTo("x1 name");
+    assertThat(rule.htmlDescription()).isEqualTo("x1 desc");
+    assertThat(rule.systemTags()).contains("tag1");
+
+    assertThat(rule.params()).hasSize(1);
+    assertThat(rule.param("acceptWhitespace").type()).isEqualTo(RuleParamType.BOOLEAN);
+    assertThat(rule.param("acceptWhitespace").defaultValue()).isEqualTo("false");
+    assertThat(rule.param("acceptWhitespace").description()).isEqualTo("Accept whitespaces on the line");
+
+    assertThat(rule.debtSubCharacteristicKey()).isEqualTo(RulesDefinition.SubCharacteristics.INTEGRATION_TESTABILITY);
+    assertThat(rule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
+    assertThat(rule.debtRemediationFunction().coefficient()).isEqualTo("1h");
+    assertThat(rule.debtRemediationFunction().offset()).isEqualTo("30min");
   }
 
   /**
@@ -102,8 +120,6 @@ public class RegisterRulesMediumTest {
    */
   @Test
   public void index_even_if_no_changes() throws Exception {
-    RuleIndex index = tester.get(RuleIndex.class);
-
     verifyRulesInDb();
 
     // clear ES but keep db
@@ -126,6 +142,52 @@ public class RegisterRulesMediumTest {
   }
 
   @Test
+  public void update_rule() {
+    verifyRulesInDb();
+
+    // The plugin X1 will be updated
+    rulesDefinition.includeX1 = false;
+    rulesDefinition.includeX1bis = true;
+    tester.get(Platform.class).executeStartupTasks();
+
+    Rule rule = index.getByKey(RuleTesting.XOO_X1);
+    assertThat(rule.severity()).isEqualTo(Severity.INFO);
+    assertThat(rule.name()).isEqualTo("x1 name updated");
+    assertThat(rule.htmlDescription()).isEqualTo("x1 desc updated");
+    assertThat(rule.systemTags()).contains("tag1", "tag2");
+
+    assertThat(rule.params()).hasSize(2);
+
+    assertThat(rule.param("acceptWhitespace").type()).isEqualTo(RuleParamType.BOOLEAN);
+    assertThat(rule.param("acceptWhitespace").defaultValue()).isEqualTo("true");
+    assertThat(rule.param("acceptWhitespace").description()).isEqualTo("Accept whitespaces on the line updated");
+
+    // New parameter
+    assertThat(rule.param("format").type()).isEqualTo(RuleParamType.TEXT);
+    assertThat(rule.param("format").defaultValue()).isEqualTo("txt");
+    assertThat(rule.param("format").description()).isEqualTo("Format");
+
+    assertThat(rule.debtSubCharacteristicKey()).isEqualTo(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY);
+    assertThat(rule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
+    assertThat(rule.debtRemediationFunction().coefficient()).isEqualTo("2h");
+    assertThat(rule.debtRemediationFunction().offset()).isNull();
+  }
+
+  @Test
+  @Ignore("To be fixed")
+  public void not_update_rule_if_no_change() throws Exception {
+    // Store updated at date
+    Date updatedAt = index.getByKey(RuleTesting.XOO_X1).updatedAt();
+
+    // Re-execute startup tasks
+    tester.get(Platform.class).executeStartupTasks();
+
+    // Verify rule has not been updated
+    Rule customRuleReloaded = index.getByKey(RuleTesting.XOO_X1);
+    assertThat(customRuleReloaded.updatedAt()).isEqualTo(updatedAt);
+  }
+
+  @Test
   public void mark_rule_as_removed() throws Exception {
     verifyRulesInDb();
 
@@ -135,6 +197,26 @@ public class RegisterRulesMediumTest {
     verifyRulesInDb();
     RuleDto rule = db.ruleDao().getByKey(dbSession, RuleKey.of("xoo", "x2"));
     assertThat(rule.getStatus()).isEqualTo(RuleStatus.REMOVED);
+  }
+
+  @Test
+  @Ignore("To be fixed")
+  public void reactivate_disabled_rules() {
+    verifyRulesInDb();
+
+    // Disable plugin X1
+    rulesDefinition.includeX1 = false;
+    tester.get(Platform.class).executeStartupTasks();
+
+    RuleDto rule = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
+    assertThat(rule.getStatus()).isEqualTo(RuleStatus.REMOVED);
+
+    // Reactivate plugin X1
+    rulesDefinition.includeX1 = true;
+    tester.get(Platform.class).executeStartupTasks();
+
+    RuleDto ruleReloaded = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
+    assertThat(ruleReloaded.getStatus()).isEqualTo(RuleStatus.READY);
   }
 
   @Test
@@ -183,19 +265,49 @@ public class RegisterRulesMediumTest {
   }
 
   @Test
-  public void update_debt_rule() throws Exception {
+  @Ignore("To be fixed")
+  public void remove_end_user_tags_that_are_declared_as_system() {
     verifyRulesInDb();
 
-    RuleIndex index = tester.get(RuleIndex.class);
+    Rule rule = index.getByKey(RuleTesting.XOO_X1);
+    assertThat(rule.systemTags()).contains("tag1");
+    assertThat(rule.tags()).isEmpty();
+
+    // Add a user tag
+    tester.get(RuleUpdater.class).update(RuleUpdate.createForPluginRule(rule.key())
+      .setTags(newHashSet("tag2")),
+      UserSession.get());
+    dbSession.clearCache();
+
+    // Verify tags
+    Rule ruleUpdated = index.getByKey(RuleTesting.XOO_X1);
+    assertThat(ruleUpdated.systemTags()).contains("tag1");
+    assertThat(ruleUpdated.tags()).contains("tag2");
+
+    // The plugin X1 will be updated
+    rulesDefinition.includeX1 = false;
+    rulesDefinition.includeX1bis = true;
+    tester.get(Platform.class).executeStartupTasks();
+    dbSession.clearCache();
+
+    // User tag should become a system tag
+    Rule ruleReloaded = index.getByKey(RuleTesting.XOO_X1);
+    assertThat(ruleReloaded.systemTags()).contains("tag1", "tag2");
+    assertThat(ruleUpdated.tags()).isEmpty();
+  }
+
+  @Test
+  public void update_debt_rule() throws Exception {
+    verifyRulesInDb();
 
     // Update x1 rule
     RuleDto ruleDto = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
     db.ruleDao().update(dbSession, ruleDto
-        .setDefaultSubCharacteristicId(123456)
-        .setDefaultRemediationFunction("LINEAR_OFFSET")
-        .setDefaultRemediationCoefficient("2h")
-        .setDefaultRemediationOffset("35min")
-    );
+      .setDefaultSubCharacteristicId(123456)
+      .setDefaultRemediationFunction("LINEAR_OFFSET")
+      .setDefaultRemediationCoefficient("2h")
+      .setDefaultRemediationOffset("35min")
+      );
     dbSession.commit();
     dbSession.clearCache();
 
@@ -214,16 +326,14 @@ public class RegisterRulesMediumTest {
   public void remove_debt_rule() throws Exception {
     verifyRulesInDb();
 
-    RuleIndex index = tester.get(RuleIndex.class);
-
     // Set some default debt on x2 rule, which has no debt provided by th plugin
     RuleDto ruleDto = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X2);
     db.ruleDao().update(dbSession, ruleDto
-        .setDefaultSubCharacteristicId(db.debtCharacteristicDao().selectByKey(RulesDefinition.SubCharacteristics.INTEGRATION_TESTABILITY, dbSession).getId())
-        .setDefaultRemediationFunction("LINEAR_OFFSET")
-        .setDefaultRemediationCoefficient("2h")
-        .setDefaultRemediationOffset("35min")
-    );
+      .setDefaultSubCharacteristicId(db.debtCharacteristicDao().selectByKey(RulesDefinition.SubCharacteristics.INTEGRATION_TESTABILITY, dbSession).getId())
+      .setDefaultRemediationFunction("LINEAR_OFFSET")
+      .setDefaultRemediationCoefficient("2h")
+      .setDefaultRemediationOffset("35min")
+      );
     dbSession.commit();
     dbSession.clearCache();
 
@@ -252,7 +362,6 @@ public class RegisterRulesMediumTest {
 
   @Test
   public void update_custom_rule_from_template() throws Exception {
-    RuleIndex index = tester.get(RuleIndex.class);
     Rule templateRule = index.getByKey(RuleKey.of("xoo", "template1"));
 
     // Create custom rule
@@ -290,7 +399,6 @@ public class RegisterRulesMediumTest {
 
   @Test
   public void not_update_custom_rule_from_template_if_no_change() throws Exception {
-    RuleIndex index = tester.get(RuleIndex.class);
     Rule templateRule = index.getByKey(RuleKey.of("xoo", "template1"));
 
     // Create custom rule
@@ -316,7 +424,6 @@ public class RegisterRulesMediumTest {
 
   @Test
   public void not_update_custom_rule_params_from_template() throws Exception {
-    RuleIndex index = tester.get(RuleIndex.class);
     Rule templateRule = index.getByKey(RuleKey.of("xoo", "template1"));
 
     // Create custom rule
@@ -350,6 +457,75 @@ public class RegisterRulesMediumTest {
     assertThat(customRuleReloaded.params().get(0).key()).isEqualTo("format2");
   }
 
+  @Test
+  public void disable_custom_rules_if_template_is_disabled() {
+    Rule templateRule = index.getByKey(RuleKey.of("xoo", "template1"));
+
+    // Create custom rule
+    RuleKey customRuleKey = tester.get(RuleCreator.class).create(NewRule.createForCustomRule("CUSTOM_RULE", templateRule.key())
+      .setName("My custom")
+      .setHtmlDescription("Some description")
+      .setSeverity(Severity.MAJOR)
+      .setStatus(RuleStatus.READY));
+    dbSession.commit();
+    dbSession.clearCache();
+    assertThat(index.getByKey(customRuleKey).status()).isEqualTo(RuleStatus.READY);
+
+    // Restart without template rule
+    rulesDefinition.includeTemplate1 = false;
+    tester.get(Platform.class).executeStartupTasks();
+
+    // Verify custom rule is removed
+    assertThat(index.getByKey(customRuleKey).status()).isEqualTo(RuleStatus.REMOVED);
+  }
+
+  @Test
+  @Ignore("To be fixed")
+  public void reactivate_disabled_custom_rules() {
+    Rule templateRule = index.getByKey(RuleKey.of("xoo", "template1"));
+
+    // Create custom rule
+    RuleKey customRuleKey = tester.get(RuleCreator.class).create(NewRule.createForCustomRule("CUSTOM_RULE", templateRule.key())
+      .setName("My custom")
+      .setHtmlDescription("Some description")
+      .setSeverity(Severity.MAJOR)
+      .setStatus(RuleStatus.READY));
+    dbSession.commit();
+    dbSession.clearCache();
+    assertThat(index.getByKey(customRuleKey).status()).isEqualTo(RuleStatus.READY);
+
+    // Restart without template rule
+    rulesDefinition.includeTemplate1 = false;
+    tester.get(Platform.class).executeStartupTasks();
+
+    // Verify custom rule is removed
+    assertThat(index.getByKey(customRuleKey).status()).isEqualTo(RuleStatus.REMOVED);
+
+    // Restart with template rule
+    rulesDefinition.includeTemplate1 = true;
+    tester.get(Platform.class).executeStartupTasks();
+
+    // Verify custom rule is reactivate
+    assertThat(index.getByKey(customRuleKey).status()).isEqualTo(RuleStatus.READY);
+  }
+
+  @Test
+  public void not_disable_manual_rules() {
+    // Create manual rule
+    RuleKey manualRuleKey = tester.get(RuleCreator.class).create(NewRule.createForManualRule("MANUAL_RULE")
+      .setName("My manual")
+      .setHtmlDescription("Some description"));
+    dbSession.commit();
+    dbSession.clearCache();
+    assertThat(index.getByKey(manualRuleKey).status()).isEqualTo(RuleStatus.READY);
+
+    // Restart
+    tester.get(Platform.class).executeStartupTasks();
+
+    // Verify manual rule is still ready
+    assertThat(index.getByKey(manualRuleKey).status()).isEqualTo(RuleStatus.READY);
+  }
+
   private void verifyRulesInDb() {
     List<RuleDto> rules = db.ruleDao().findAll(dbSession);
     assertThat(rules).hasSize(3);
@@ -359,18 +535,19 @@ public class RegisterRulesMediumTest {
 
   public static class XooRulesDefinition implements RulesDefinition {
 
-    boolean includeX1 = true, includeX2 = true, includeTemplate1 = true, includeRuleLinkedToRootCharacteristic = false;
+    boolean includeX1 = true, includeX1bis = false, includeX2 = true, includeTemplate1 = true, includeRuleLinkedToRootCharacteristic = false;
 
     @Override
     public void define(Context context) {
-      if (includeX1 || includeX2 || includeTemplate1) {
+      if (includeX1 || includeX1bis || includeX2 || includeTemplate1 || includeRuleLinkedToRootCharacteristic) {
         NewRepository repository = context.createRepository("xoo", "xoo").setName("Xoo Repo");
         if (includeX1) {
           NewRule x1Rule = repository.createRule(RuleTesting.XOO_X1.rule())
             .setName("x1 name")
             .setHtmlDescription("x1 desc")
             .setSeverity(Severity.MINOR)
-            .setEffortToFixDescription("x1 effort to fix");
+            .setEffortToFixDescription("x1 effort to fix")
+            .setTags("tag1");
           x1Rule.createParam("acceptWhitespace")
             .setType(RuleParamType.BOOLEAN)
             .setDefaultValue("false")
@@ -378,6 +555,28 @@ public class RegisterRulesMediumTest {
           x1Rule
             .setDebtSubCharacteristic(SubCharacteristics.INTEGRATION_TESTABILITY)
             .setDebtRemediationFunction(x1Rule.debtRemediationFunctions().linearWithOffset("1h", "30min"));
+        }
+
+        // X1 having fields updated to simulate an update from the plugin
+        if (includeX1bis) {
+          NewRule x1Rule = repository.createRule(RuleTesting.XOO_X1.rule())
+            .setName("x1 name updated")
+            .setHtmlDescription("x1 desc updated")
+            .setSeverity(Severity.INFO)
+            .setEffortToFixDescription("x1 effort to fix updated")
+            .setTags("tag1", "tag2");
+          x1Rule.createParam("acceptWhitespace")
+            .setType(RuleParamType.BOOLEAN)
+            .setDefaultValue("true")
+            .setDescription("Accept whitespaces on the line updated");
+          // New param
+          x1Rule.createParam("format")
+            .setType(RuleParamType.TEXT)
+            .setDefaultValue("txt")
+            .setDescription("Format");
+          x1Rule
+            .setDebtSubCharacteristic(SubCharacteristics.INSTRUCTION_RELIABILITY)
+            .setDebtRemediationFunction(x1Rule.debtRemediationFunctions().linear("2h"));
         }
 
         if (includeX2) {
