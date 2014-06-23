@@ -48,5 +48,6 @@ public class XooRulesDefinitionTest {
     assertThat(x1.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
     assertThat(x1.debtRemediationFunction().coefficient()).isEqualTo("1h");
     assertThat(x1.debtRemediationFunction().offset()).isEqualTo("30min");
+    assertThat(x1.effortToFixDescription()).isEqualTo("Effort to fix issue on one line");
   }
 }

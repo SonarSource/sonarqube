@@ -109,6 +109,7 @@ public class RegisterRulesMediumTest {
     assertThat(rule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
     assertThat(rule.debtRemediationFunction().coefficient()).isEqualTo("1h");
     assertThat(rule.debtRemediationFunction().offset()).isEqualTo("30min");
+    assertThat(rule.effortToFixDescription()).isEqualTo("x1 effort to fix");
   }
 
   /**
@@ -171,6 +172,7 @@ public class RegisterRulesMediumTest {
     assertThat(rule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
     assertThat(rule.debtRemediationFunction().coefficient()).isEqualTo("2h");
     assertThat(rule.debtRemediationFunction().offset()).isNull();
+    assertThat(rule.effortToFixDescription()).isEqualTo("x1 effort to fix updated");
   }
 
   @Test
@@ -275,14 +277,14 @@ public class RegisterRulesMediumTest {
 
     // Add a user tag
     tester.get(RuleUpdater.class).update(RuleUpdate.createForPluginRule(rule.key())
-      .setTags(newHashSet("tag2")),
+      .setTags(newHashSet("user-tag")),
       UserSession.get());
     dbSession.clearCache();
 
     // Verify tags
     Rule ruleUpdated = index.getByKey(RuleTesting.XOO_X1);
     assertThat(ruleUpdated.systemTags()).contains("tag1");
-    assertThat(ruleUpdated.tags()).contains("tag2");
+    assertThat(ruleUpdated.tags()).contains("user-tag");
 
     // The plugin X1 will be updated
     rulesDefinition.includeX1 = false;
@@ -292,7 +294,7 @@ public class RegisterRulesMediumTest {
 
     // User tag should become a system tag
     Rule ruleReloaded = index.getByKey(RuleTesting.XOO_X1);
-    assertThat(ruleReloaded.systemTags()).contains("tag1", "tag2");
+    assertThat(ruleReloaded.systemTags()).contains("tag1", "tag2", "user-tag");
     assertThat(ruleUpdated.tags()).isEmpty();
   }
 
@@ -564,7 +566,7 @@ public class RegisterRulesMediumTest {
             .setHtmlDescription("x1 desc updated")
             .setSeverity(Severity.INFO)
             .setEffortToFixDescription("x1 effort to fix updated")
-            .setTags("tag1", "tag2");
+            .setTags("tag1", "tag2", "user-tag");
           x1Rule.createParam("acceptWhitespace")
             .setType(RuleParamType.BOOLEAN)
             .setDefaultValue("true")

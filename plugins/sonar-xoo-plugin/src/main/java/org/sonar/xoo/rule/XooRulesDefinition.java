@@ -54,7 +54,8 @@ public class XooRulesDefinition implements RulesDefinition {
     // debt-related information
     x1Rule
       .setDebtSubCharacteristic(SubCharacteristics.INTEGRATION_TESTABILITY)
-      .setDebtRemediationFunction(x1Rule.debtRemediationFunctions().linearWithOffset("1h", "30min"));
+      .setDebtRemediationFunction(x1Rule.debtRemediationFunctions().linearWithOffset("1h", "30min"))
+      .setEffortToFixDescription("Effort to fix issue on one line");
 
     x1Rule.createParam("acceptWhitespace")
       .setDefaultValue("false")
