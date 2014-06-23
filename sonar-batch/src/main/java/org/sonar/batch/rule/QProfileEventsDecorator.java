@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.rule;
 
+import com.google.common.collect.ImmutableSortedMap;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependsUpon;
@@ -33,6 +34,9 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.batch.index.PersistenceManager;
+import org.sonar.core.UtcDateUtils;
 
 import javax.annotation.CheckForNull;
 
@@ -43,10 +47,12 @@ public class QProfileEventsDecorator implements Decorator {
 
   private final TimeMachine timeMachine;
   private final Languages languages;
+  private final PersistenceManager persistenceManager;
 
-  public QProfileEventsDecorator(TimeMachine timeMachine, Languages languages) {
+  public QProfileEventsDecorator(TimeMachine timeMachine, Languages languages, PersistenceManager pm) {
     this.timeMachine = timeMachine;
     this.languages = languages;
+    this.persistenceManager = pm;
   }
 
   @DependsUpon
@@ -81,31 +87,40 @@ public class QProfileEventsDecorator implements Decorator {
       QProfile previousProfile = previousProfiles.get(profile.getKey());
       if (previousProfile != null) {
         if (profile.getRulesUpdatedAt().after(previousProfile.getRulesUpdatedAt())) {
-          markAsUsed(context, profile);
+          markAsChanged(context, previousProfile, profile);
         }
       } else {
-        markAsUsed(context, profile);
+        markAsAdded(context, profile);
       }
     }
 
     // Detect profiles that are not used anymore
     for (QProfile previousProfile : previousProfiles.values()) {
       if (!currentProfiles.containsKey(previousProfile.getKey())) {
-        markAsUnused(context, previousProfile);
+        markAsRemoved(context, previousProfile);
       }
     }
   }
 
-  private void markAsUnused(DecoratorContext context, QProfile profile) {
-    Language language = languages.get(profile.getLanguage());
-    String languageName = language != null ? language.getName() : profile.getLanguage();
-    context.createEvent("Stop using " + profile.getName() + " (" + languageName + ")", profile.getName() + " no more used for " + languageName, Event.CATEGORY_PROFILE, null);
+  private void markAsChanged(DecoratorContext context, QProfile previousProfile, QProfile profile) {
+    // DecoratorContext does not allow to set event data, so SonarIndex must be used
+    Event event = new Event();
+    event.setName(String.format("Changes in %s", profileLabel(profile)));
+    event.setCategory(Event.CATEGORY_PROFILE);
+    String data = KeyValueFormat.format(ImmutableSortedMap.of(
+      "key", profile.getKey(),
+      "from", UtcDateUtils.formatDateTime(previousProfile.getRulesUpdatedAt()),
+      "to", UtcDateUtils.formatDateTime(profile.getRulesUpdatedAt())));
+    event.setData(data);
+    persistenceManager.saveEvent(context.getResource(), event);
   }
 
-  private void markAsUsed(DecoratorContext context, QProfile profile) {
-    Language language = languages.get(profile.getLanguage());
-    String languageName = language != null ? language.getName() : profile.getLanguage();
-    context.createEvent("Use " + profile.getName() + " (" + languageName + ")", profile.getName() + " used for " + languageName, Event.CATEGORY_PROFILE, null);
+  private void markAsRemoved(DecoratorContext context, QProfile profile) {
+    context.createEvent(String.format("Stop using %s", profileLabel(profile)), null, Event.CATEGORY_PROFILE, null);
+  }
+
+  private void markAsAdded(DecoratorContext context, QProfile profile) {
+    context.createEvent(String.format("Use %s", profileLabel(profile)), null, Event.CATEGORY_PROFILE, null);
   }
 
   @CheckForNull
@@ -118,6 +133,12 @@ public class QProfileEventsDecorator implements Decorator {
       return null;
     }
     return measures.get(0);
+  }
+
+  private String profileLabel(QProfile profile) {
+    Language language = languages.get(profile.getLanguage());
+    String languageName = language != null ? language.getName() : profile.getLanguage();
+    return String.format("'%s' (%s)", profile.getName(), languageName);
   }
 
   @Override

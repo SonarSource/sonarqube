@@ -52,6 +52,9 @@ public class Event extends BaseIdentifiable {
   @Column(name = "created_at", updatable = true, nullable = true)
   private Date createdAt;
 
+  @Column(name = "event_data", updatable = true, nullable = true)
+  private String data;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "snapshot_id", updatable = true, nullable = true)
   private Snapshot snapshot;
@@ -160,6 +163,14 @@ public class Event extends BaseIdentifiable {
     return this;
   }
 
+  public String getData() {
+    return data;
+  }
+
+  public void setData(String data) {
+    this.data = data;
+  }
+
   @Override
   public String toString() {
     return new ToStringBuilder(this)
@@ -169,9 +180,5 @@ public class Event extends BaseIdentifiable {
         .append("snapshot", snapshot)
         .append("resource", resourceId)
         .toString();
-  }
-
-  public boolean isLinkedToSnapshot() {
-    return snapshot != null;
   }
 }
