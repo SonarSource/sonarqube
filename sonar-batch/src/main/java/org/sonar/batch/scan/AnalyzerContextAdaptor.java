@@ -35,11 +35,15 @@ import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.internal.DefaultIssue;
+import org.sonar.api.measures.Formula;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.MetricFinder;
+import org.sonar.api.measures.PersistenceMode;
+import org.sonar.api.measures.SumChildDistributionFormula;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.DefaultIssueBuilder;
 
@@ -176,6 +180,13 @@ public class AnalyzerContextAdaptor implements AnalyzerContext {
         }
     }
     if (measure.inputFile() != null) {
+      Formula formula = measure.metric() instanceof org.sonar.api.measures.Metric ?
+        ((org.sonar.api.measures.Metric) measure.metric()).getFormula() : null;
+      if (formula instanceof SumChildDistributionFormula) {
+        if (!Scopes.isHigherThanOrEquals(Scopes.FILE, ((SumChildDistributionFormula) formula).getMinimumScopeToPersist())) {
+          measureToSave.setPersistenceMode(PersistenceMode.MEMORY);
+        }
+      }
       sensorContext.saveMeasure(measure.inputFile(), measureToSave);
     } else {
       sensorContext.saveMeasure(measureToSave);

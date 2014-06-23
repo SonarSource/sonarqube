@@ -19,11 +19,10 @@
  */
 package org.sonar.api.batch.analyzer.measure;
 
-import org.sonar.api.batch.measure.Metric;
-
 import com.google.common.annotations.Beta;
 import org.sonar.api.batch.analyzer.Analyzer;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.measure.Metric;
 
 import javax.annotation.Nullable;
 

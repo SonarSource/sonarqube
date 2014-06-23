@@ -50,7 +50,7 @@ public class DefaultAnalyzerContext implements AnalyzerContext {
   private final FileSystem fs;
   private final ActiveRules activeRules;
   private final IssueFilters issueFilters;
-  private Rules rules;
+  private final Rules rules;
 
   public DefaultAnalyzerContext(ProjectDefinition def, AnalyzerMeasureCache measureCache, AnalyzerIssueCache issueCache,
     Settings settings, FileSystem fs, ActiveRules activeRules, IssueFilters issueFilters, Rules rules) {

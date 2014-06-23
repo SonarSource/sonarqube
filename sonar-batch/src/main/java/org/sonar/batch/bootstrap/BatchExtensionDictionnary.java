@@ -67,6 +67,15 @@ public class BatchExtensionDictionnary extends org.sonar.api.batch.BatchExtensio
         result.add((T) extension);
       }
     }
+    if (type == Sensor.class) {
+      // Retrieve Analyzer and wrap then in SensorWrapper
+      for (Object extension : getExtensions(Analyzer.class)) {
+        extension = new SensorWrapper((Analyzer) extension, context, analyzerOptimizer);
+        if (shouldKeep(type, extension, project, matcher)) {
+          result.add((T) extension);
+        }
+      }
+    }
     return result;
   }
 
