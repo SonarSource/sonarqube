@@ -144,7 +144,7 @@ public class RuleActivator implements ServerComponent {
   }
 
   private void updateProfileDate(DbSession dbSession, RuleActivatorContext context) {
-    context.profile().setRulesUpdatedAt(context.getInitDate());
+    context.profile().setRulesUpdatedAtAsDate(context.getInitDate());
     db.qualityProfileDao().update(dbSession, context.profile());
   }
 

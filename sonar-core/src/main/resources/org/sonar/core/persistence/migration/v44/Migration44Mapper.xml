@@ -47,7 +47,7 @@
 
   <update id="updateProfileDates" parameterType="map">
     update rules_profiles
-    set created_at=#{createdAt}, updated_at=#{updatedAt}, rules_updated_at=#{updatedAt}
+    set created_at=#{createdAt}, updated_at=#{updatedAt}, rules_updated_at=#{rulesUpdatedAt}
     where id=#{profileId}
   </update>
 

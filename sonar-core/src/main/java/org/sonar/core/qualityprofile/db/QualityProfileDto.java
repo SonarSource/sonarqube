@@ -120,16 +120,12 @@ public class QualityProfileDto extends Dto<String> {
     return rulesUpdatedAt;
   }
 
-  public Date getRulesUpdatedAtAsDate() {
-    return UtcDateUtils.parseDateTime(rulesUpdatedAt);
-  }
-
   public QualityProfileDto setRulesUpdatedAt(String s) {
     this.rulesUpdatedAt = s;
     return this;
   }
 
-  public QualityProfileDto setRulesUpdatedAt(Date d) {
+  public QualityProfileDto setRulesUpdatedAtAsDate(Date d) {
     this.rulesUpdatedAt = UtcDateUtils.formatDateTime(d);
     return this;
   }

@@ -2,7 +2,7 @@
 <dataset>
 
   <rules_profiles id="10" name="Sonar Way" language="java" kee="java-sw" parent_kee="[null]"
-                  rules_updated_at="2014-01-24 20:20:05.158" created_at="2011-12-25 20:20:05.158" updated_at="2014-01-24 20:20:05.158"/>
+                  rules_updated_at="2014-01-24T19:20:05+0000" created_at="2011-12-25 20:20:05.158" updated_at="2014-01-24 20:20:05.158"/>
 
   <!-- oldest to newest changes -->
   <active_rule_changes id="122" profile_id="10" profile_version="2" rule_id="1" change_date="2011-12-25 20:20:05.158"

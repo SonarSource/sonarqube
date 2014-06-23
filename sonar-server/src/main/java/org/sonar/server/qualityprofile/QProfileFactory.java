@@ -78,7 +78,7 @@ public class QProfileFactory implements ServerComponent {
       QualityProfileDto dto = QualityProfileDto.createFor(key)
         .setName(name.getName())
         .setLanguage(name.getLanguage())
-        .setRulesUpdatedAt(now);
+        .setRulesUpdatedAtAsDate(now);
       if (db.qualityProfileDao().getByKey(dbSession, dto.getKey()) == null) {
         db.qualityProfileDao().insert(dbSession, dto);
         return dto;

@@ -25,6 +25,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.core.UtcDateUtils;
 import org.sonar.core.persistence.TestDatabase;
 import org.sonar.server.db.DbClient;
 
@@ -42,7 +43,7 @@ public class FeedQProfileDatesMigrationTest {
   public void setUp() throws Exception {
     DbClient dbClient = new DbClient(db.database(), db.myBatis());
     System2 system = mock(System2.class);
-    when(system.now()).thenReturn(DateUtils.parseDate("2014-07-03").getTime());
+    when(system.now()).thenReturn(UtcDateUtils.parseDateTime("2014-07-03T12:00:00+0000").getTime());
     migration = new FeedQProfileDatesMigration(dbClient, system);
   }
 
