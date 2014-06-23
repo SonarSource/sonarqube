@@ -24,7 +24,7 @@
 class AddQprofileDates < ActiveRecord::Migration
 
   def self.up
-    add_column :rules_profiles, :rules_updated_at, :datetime, :null => true
+    add_column :rules_profiles, :rules_updated_at, :string, :limit => 24
     add_column :rules_profiles, :created_at, :datetime, :null => true
     add_column :rules_profiles, :updated_at, :datetime, :null => true
   end
