@@ -231,7 +231,9 @@ define [
       if highlightedLine
         params.push key: 'line', value: highlightedLine
       hash = params.map((d) -> "#{d.key}=#{encodeURIComponent(d.value)}" ).join '&'
-      window.open "#{baseUrl}/component_viewer/index##{hash}"
+
+      windowParams = 'resizable=1,scrollbars=1,status=1'
+      window.open "#{baseUrl}/resource/index##{hash}", @options.main.component.get('name'), windowParams
 
 
 
