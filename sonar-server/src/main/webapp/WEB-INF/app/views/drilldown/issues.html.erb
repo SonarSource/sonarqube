@@ -154,7 +154,7 @@
                                      :rule => @rule ? @rule.id : @severity -%>"
                    onclick="window.open(this.href,'resource-<%= resource.key.parameterize -%>','scrollbars=1,resizable=1');return false;"
                    id="popup-<%= resource.key.parameterize -%>"
-                   target="_blank"><%= image_tag 'new-window-16.gif', :alt => message('new_window') -%></a>
+                   target="_blank"><i class="icon-detach" title="<%= message('new_window') -%>"></i></a>
               <% else %>
                 <%= link_to(image_tag('zoom.png'), {:id => resource.id}, {:class => 'nolink'}) %>
               <% end %>
