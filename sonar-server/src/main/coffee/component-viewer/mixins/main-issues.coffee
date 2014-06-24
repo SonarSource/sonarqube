@@ -32,11 +32,15 @@ define [
         @source.set 'issues', [issue]
         @filterByCurrentIssue()
         @headerView.render()
+        @trigger 'sized'
       else
         unless @state.get 'hasIssues'
-          @requestIssues(@key).done => @sourceView.render()
+          @requestIssues(@key).done =>
+            @sourceView.render()
+            @trigger 'sized'
         else
           @sourceView.render()
+          @trigger 'sized'
 
 
     hideIssues: (store = false) ->

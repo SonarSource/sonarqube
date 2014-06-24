@@ -23,6 +23,7 @@ define [
 
     goToFile: (e) ->
       key = $(e.currentTarget).data 'key'
+      line = $(e.currentTarget).data 'line'
       return if key == @options.main.component.get 'key'
       files = @options.main.source.get('duplicationFiles')
       @options.main.addTransition 'duplication', @collection.map (item) ->
@@ -33,6 +34,9 @@ define [
         subname: x.dir
         active: file.key == key
       @options.main._open key
+      @options.main.on 'sized', =>
+        @options.main.off 'sized'
+        @options.main.scrollToLine line
 
 
     serializeData: ->

@@ -9,7 +9,7 @@
       <div class="component-viewer-popup-duplications">
         Lines:
         {{#joinEach blocks ','}}
-          <a class="link-action" data-key="{{../file.key}}">
+          <a class="link-action" data-key="{{../file.key}}" data-line="{{from}}">
             {{from}} – {{sum from size}}
           </a>
         {{/joinEach}}

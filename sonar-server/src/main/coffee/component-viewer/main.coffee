@@ -62,6 +62,8 @@ define [
 
   TESTS_METRIC_LIST = 'tests,test_success_density,test_failures,test_errors,skipped_tests,test_execution_time'
 
+  SCROLL_OFFSET = 10
+
 
 
   class ComponentViewer extends utils.mixOf Marionette.Layout, IssuesMixin, CoverageMixin, DuplicationsMixin, SCMMixin
@@ -227,7 +229,11 @@ define [
           @state.set 'hasSource', (source.status != 404)
           @render()
           @showAllLines() if showFullSource
-          if @settings.get('issues') then @showIssues() else @hideIssues()
+          if @settings.get('issues')
+            @showIssues()
+          else
+            @hideIssues()
+            @trigger 'sized'
           if @settings.get('coverage') then @showCoverage() else @hideCoverage()
           if @settings.get('duplications') then @showDuplications() else @hideDuplications()
           if @settings.get('scm') then @showSCM() else @hideSCM()
@@ -286,3 +292,16 @@ define [
         transition: transition
         options: options
         active: false
+
+
+    scrollToLine: (line) ->
+      @scrolled = line
+      row = @sourceView.$(".row[data-line-number=#{line}]")
+      return unless row.length > 0
+      d = row.offset().top - @$el.offset().top - SCROLL_OFFSET
+      @scrollPlusDelta d
+
+
+    scrollPlusDelta: (delta) ->
+      parent = @$el.scrollParent()
+      parent.scrollTop delta
