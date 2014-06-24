@@ -22,7 +22,17 @@ class ResourceController < ApplicationController
   SECTION=Navigation::SECTION_RESOURCE
 
   def index
-    anchor = "component=#{params[:id]}"
+    require_parameters 'id'
+
+    component_key = params[:id]
+    if Api::Utils.is_number?(component_key)
+      component=Project.by_key(component_key)
+      not_found unless component
+      access_denied unless has_role?(:user, component)
+      component_key = component.key
+    end
+
+    anchor = "component=#{component_key}"
     anchor += "&tab=#{params[:tab]}" if params[:tab]
     redirect_to :controller => 'component', :action => 'index', :anchor => anchor
   end

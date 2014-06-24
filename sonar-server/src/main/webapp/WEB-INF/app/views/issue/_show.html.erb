@@ -13,7 +13,7 @@
     <span class="h1">
       <% if component %>
       <%= qualifier_icon(component) %>
-      <a href="<%= ApplicationController.root_context -%>/resource/index/<%= component.key() -%>?layout=false&tab=issues" class="issue-component-link"
+      <a href="<%= ApplicationController.root_context -%>/component/index#component=<%= component.key() -%>&tab=issues" class="issue-component-link"
          onclick="window.open(this.href,'resource-<%= component.key().parameterize -%>','height=800,width=900,scrollbars=1,resizable=1');return false;"><%= h component.longName() -%></a>
       <% else %>
         <%= h @issue.componentKey() %> [<del><%= message('issue.component_deleted') %></del>]

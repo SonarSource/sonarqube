@@ -8,7 +8,7 @@
     <% @test_case_by_test_plan.sort_by { |test_plan, test_cases| test_plan.component.longName }.each do |test_plan, test_cases| %>
       <p style="padding: 0 0 2px 5px">
         <% resource_key = test_plan.component.key %>
-        <a href="<%= ApplicationController.root_context -%>/resource/index/<%= h resource_key -%>?display_title=true&tab=source"
+        <a href="<%= ApplicationController.root_context -%>/component/index#component=<%= resource_key -%>"
            class="testable-testplan-link" onclick="openAccordionItem(this.href, this); return false;"><%= h test_plan.component.longName %>
         </a>
       </p>
