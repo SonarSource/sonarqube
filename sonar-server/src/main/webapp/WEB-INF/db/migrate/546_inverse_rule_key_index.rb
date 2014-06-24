@@ -22,7 +22,22 @@
 # SQ 4.4
 # SONAR-5001
 #
+require 'set'
 class InverseRuleKeyIndex < ActiveRecord::Migration
+
+  class Rule < ActiveRecord::Base
+  end
+
+  class ActiveRule < ActiveRecord::Base
+  end
+
+  class ProjectMeasure < ActiveRecord::Base
+    set_table_name 'project_measures'
+  end
+
+  class RuleParameter < ActiveRecord::Base
+    set_table_name 'rules_parameters'
+  end
 
   def self.up
     begin
@@ -30,7 +45,35 @@ class InverseRuleKeyIndex < ActiveRecord::Migration
     rescue
       #ignore
     end
+
+    # rows can be duplicated because the unique index was sometimes missing
+    delete_duplicated_rules
+
     add_index :rules, [:plugin_name, :plugin_rule_key], :unique => true, :name => 'rules_repo_key'
   end
 
+  private
+  def self.delete_duplicated_rules
+    Rule.reset_column_information
+    ActiveRule.reset_column_information
+    ProjectMeasure.reset_column_information
+    RuleParameter.reset_column_information
+
+    say_with_time 'Delete duplicated rules' do
+      existing_keys = Set.new
+      rules=Rule.find(:all, :select => 'id,plugin_name,plugin_rule_key', :order => 'id')
+      rules.each do |rule|
+        key = "#{rule.plugin_name}:#{rule.plugin_rule_key}"
+        if existing_keys.include?(key)
+          say "Delete duplicated rule '#{key}' (id=#{rule.id})"
+          rule.destroy
+          ActiveRule.delete_all(['rule_id=?', rule.id])
+          ProjectMeasure.delete_all(['rule_id=?', rule.id])
+          RuleParameter.delete_all(['rule_id=?', rule.id])
+        else
+          existing_keys.add(key)
+        end
+      end
+    end
+  end
 end

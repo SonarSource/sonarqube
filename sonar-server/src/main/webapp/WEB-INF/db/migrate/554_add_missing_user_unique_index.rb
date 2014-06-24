@@ -22,11 +22,63 @@
 # SonarQube 4.4
 # See SONAR-5405
 #
+require 'set'
+
 class AddMissingUserUniqueIndex < ActiveRecord::Migration
+
+  class User < ActiveRecord::Base
+  end
+
+  class UserRole < ActiveRecord::Base
+  end
+
+  class Property < ActiveRecord::Base
+    set_table_name 'properties'
+  end
+
+  class GroupsUsers < ActiveRecord::Base
+    set_table_name 'groups_users'
+  end
+
+  class ActiveDashboard < ActiveRecord::Base
+  end
+
+  class PermTemplatesUser < ActiveRecord::Base
+    set_table_name 'perm_templates_users'
+  end
 
   def self.up
     unless index_exists?(:users, :login, nil)
+      delete_duplicated_users
       add_index :users, :login, :name => 'users_login', :unique => true
+    end
+  end
+
+  private
+  def self.delete_duplicated_users
+    User.reset_column_information
+    UserRole.reset_column_information
+    Property.reset_column_information
+    GroupsUsers.reset_column_information
+    ActiveDashboard.reset_column_information
+    PermTemplatesUser.reset_column_information
+
+    say_with_time 'Delete duplicated users' do
+      existing_logins = Set.new
+      users=User.find(:all, :select => 'id,login', :order => 'id')
+      users.each do |user|
+        if existing_logins.include?(user.login)
+          say "Delete duplicated login '#{user.login}' (id=#{user.id})"
+          UserRole.delete_all(['user_id=?', user.id])
+          Property.delete_all(['user_id=?', user.id])
+          GroupsUsers.delete_all(['user_id=?', user.id])
+          ActiveDashboard.delete_all(['user_id=?', user.id])
+          PermTemplatesUser.delete_all(['user_id=?', user.id])
+          user.destroy
+        else
+          existing_logins.add(user.login)
+        end
+      end
     end
   end
 
