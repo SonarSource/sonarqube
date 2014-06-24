@@ -79,7 +79,8 @@ define [
       if activeHeaderTab
         @enableBar(activeHeaderTab).done =>
           if activeHeaderItem
-            @enableBarItem activeHeaderItem
+            @enableBarItem activeHeaderItem, @silentUpdate
+      @silentUpdate = false
 
 
     toggleFavorite: ->
@@ -158,10 +159,10 @@ define [
           @$(activeHeaderItem).addClass 'active'
 
 
-    enableBarItem: (item) ->
+    enableBarItem: (item, silent = false) ->
       $item = @$(item)
       if $item.length > 0
-        @$(item).click()
+        if silent then @$(item).addClass('active') else  @$(item).click()
       else
         @options.main.hideAllLines()
 

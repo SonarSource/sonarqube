@@ -111,6 +111,7 @@ define [
           issueView.render().$el.appendTo container
           issueView.on 'reset', =>
             @options.main.requestComponent(@options.main.key, false, false).done =>
+              @options.main.headerView.silentUpdate = true
               @options.main.headerView.render()
 
 
