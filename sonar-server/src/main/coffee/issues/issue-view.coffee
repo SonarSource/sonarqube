@@ -251,4 +251,4 @@ define [
       componentKey = encodeURIComponent @model.get 'component'
       issueKey = encodeURIComponent @model.get 'key'
       _.extend super,
-        permalink: "#{baseUrl}/resource/index#component=#{componentKey}&currentIssue=#{issueKey}"
+        permalink: "#{baseUrl}/component/index#component=#{componentKey}&currentIssue=#{issueKey}"
