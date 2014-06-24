@@ -234,7 +234,7 @@ define [
       hash = params.map((d) -> "#{d.key}=#{encodeURIComponent(d.value)}" ).join '&'
 
       windowParams = 'resizable=1,scrollbars=1,status=1'
-      window.open "#{baseUrl}/resource/index##{hash}", @options.main.component.get('name'), windowParams
+      window.open "#{baseUrl}/component/index##{hash}", @options.main.component.get('name'), windowParams
 
 
 

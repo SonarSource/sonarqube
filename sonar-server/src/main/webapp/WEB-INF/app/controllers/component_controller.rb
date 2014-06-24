@@ -17,14 +17,18 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-class ResourceController < ApplicationController
+class ComponentController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
 
   def index
-    anchor = "component=#{params[:id]}"
-    anchor += "&tab=#{params[:tab]}" if params[:tab]
-    redirect_to :controller => 'component', :action => 'index', :anchor => anchor
+    if request.xhr?
+      render :action => 'index'
+    else
+      # popup mode, title will always be displayed
+      params[:layout] = 'false'
+      render :action => 'index'
+    end
   end
 
 end
