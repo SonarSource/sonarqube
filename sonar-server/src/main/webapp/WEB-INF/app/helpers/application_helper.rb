@@ -319,10 +319,11 @@ module ApplicationHelper
         link_to(name || resource.name, params.merge({:id => resource.id, :period => period_index, :tab => options[:tab], :rule => options[:rule]}), :title => options[:title], :class => options[:class])
       end
     else
+      anchor="component=#{resource.key}"
       if options[:line]
-        anchor= 'L' + options[:line].to_s
+        anchor+= '&line=' + options[:line].to_i
       end
-      link_to(name || resource.name, {:controller => 'dashboard', :action => 'index', :anchor => anchor, :id => resource.id, :period => period_index, :tab => options[:tab], :rule => options[:rule],
+      link_to(name || resource.name, {:controller => 'component', :action => 'index', :anchor => anchor, :period => period_index, :tab => options[:tab], :rule => options[:rule],
                                       :metric => options[:metric]}, :popup => ['resource', 'scrollbars=1,resizable=1'], :title => options[:title], :class => options[:class])
     end
   end
