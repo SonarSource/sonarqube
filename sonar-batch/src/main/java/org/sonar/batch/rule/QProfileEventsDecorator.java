@@ -20,6 +20,7 @@
 package org.sonar.batch.rule;
 
 import com.google.common.collect.ImmutableSortedMap;
+import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.batch.Decorator;
 import org.sonar.api.batch.DecoratorContext;
 import org.sonar.api.batch.DependsUpon;
@@ -40,6 +41,7 @@ import org.sonar.core.UtcDateUtils;
 
 import javax.annotation.CheckForNull;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -107,9 +109,15 @@ public class QProfileEventsDecorator implements Decorator {
     Event event = new Event();
     event.setName(String.format("Changes in %s", profileLabel(profile)));
     event.setCategory(Event.CATEGORY_PROFILE);
+    Date from = previousProfile.getRulesUpdatedAt();
+
+    // strictly greater than previous date
+    // This hack must be done because date precision is millisecond in db/es and date format is select only
+    from = DateUtils.addSeconds(from, 1);
+
     String data = KeyValueFormat.format(ImmutableSortedMap.of(
       "key", profile.getKey(),
-      "from", UtcDateUtils.formatDateTime(previousProfile.getRulesUpdatedAt()),
+      "from", UtcDateUtils.formatDateTime(from),
       "to", UtcDateUtils.formatDateTime(profile.getRulesUpdatedAt())));
     event.setData(data);
     persistenceManager.saveEvent(context.getResource(), event);

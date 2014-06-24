@@ -122,7 +122,8 @@ public class QProfileEventsDecoratorTest {
         Event event = (Event) item;
         return event.getCategory().equals(Event.CATEGORY_PROFILE) &&
           "Changes in 'Java One' (Java)".equals(event.getName()) &&
-          "from=2014-01-15T12:00:00+0000;key=J1;to=2014-02-20T12:00:00+0000".equals(event.getData());
+          // "from" is one second more !
+          "from=2014-01-15T12:00:01+0000;key=J1;to=2014-02-20T12:00:00+0000".equals(event.getData());
       }
     }));
   }
