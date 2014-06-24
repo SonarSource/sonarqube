@@ -245,3 +245,10 @@ define [
       .fail (r) =>
         alert  _.pluck(r.responseJSON.errors, 'msg').join(' ')
         @hideActionSpinner()
+
+
+    serializeData: ->
+      componentKey = encodeURIComponent @model.get 'component'
+      issueKey = encodeURIComponent @model.get 'key'
+      _.extend super,
+        permalink: "#{baseUrl}/resource/index#component=#{componentKey}&currentIssue=#{issueKey}"
