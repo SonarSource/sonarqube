@@ -111,16 +111,19 @@ public class QProfileEventsDecorator implements Decorator {
     event.setCategory(Event.CATEGORY_PROFILE);
     Date from = previousProfile.getRulesUpdatedAt();
 
-    // strictly greater than previous date
-    // This hack must be done because date precision is millisecond in db/es and date format is select only
-    from = DateUtils.addSeconds(from, 1);
-
     String data = KeyValueFormat.format(ImmutableSortedMap.of(
       "key", profile.getKey(),
-      "from", UtcDateUtils.formatDateTime(from),
-      "to", UtcDateUtils.formatDateTime(profile.getRulesUpdatedAt())));
+      "from", UtcDateUtils.formatDateTime(fixDate(from)),
+      "to", UtcDateUtils.formatDateTime(fixDate(profile.getRulesUpdatedAt()))));
     event.setData(data);
     persistenceManager.saveEvent(context.getResource(), event);
+  }
+
+  /**
+   * This hack must be done because date precision is millisecond in db/es and date format is select only
+   */
+  private Date fixDate(Date date) {
+    return DateUtils.addSeconds(date, 1);
   }
 
   private void markAsRemoved(DecoratorContext context, QProfile profile) {
