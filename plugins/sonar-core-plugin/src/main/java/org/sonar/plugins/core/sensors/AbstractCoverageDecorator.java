@@ -34,7 +34,7 @@ import java.util.Collection;
 public abstract class AbstractCoverageDecorator implements Decorator {
 
   public boolean shouldExecuteOnProject(Project project) {
-    return project.getAnalysisType().isDynamic(true);
+    return true;
   }
 
   @DependedUpon

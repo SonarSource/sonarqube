@@ -56,18 +56,6 @@ public class OverallLineCoverageDecoratorTest {
   }
 
   @Test
-  public void noCoverageWhenStaticAnalysis() {
-    when(project.getAnalysisType()).thenReturn(Project.AnalysisType.STATIC);
-    assertThat(decorator.shouldExecuteOnProject(project)).isFalse();
-
-    when(project.getAnalysisType()).thenReturn(Project.AnalysisType.REUSE_REPORTS);
-    assertThat(decorator.shouldExecuteOnProject(project)).isTrue();
-
-    when(project.getAnalysisType()).thenReturn(Project.AnalysisType.DYNAMIC);
-    assertThat(decorator.shouldExecuteOnProject(project)).isTrue();
-  }
-
-  @Test
   public void lineCoverage() {
     DecoratorContext context = mockContext(50, 10);
 
