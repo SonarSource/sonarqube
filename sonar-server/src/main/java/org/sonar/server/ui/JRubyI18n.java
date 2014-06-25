@@ -35,6 +35,8 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
+ * Used through ruby code <pre>Internal.i18n</pre>
+ *
  * Bridge between JRuby webapp and Java I18n component
  */
 public class JRubyI18n implements ServerComponent {

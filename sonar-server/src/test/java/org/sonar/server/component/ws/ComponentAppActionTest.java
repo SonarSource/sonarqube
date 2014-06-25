@@ -146,6 +146,7 @@ public class ComponentAppActionTest {
     MockUserSession.set().setLogin("john").addComponentPermission(UserRole.USER, SUB_PROJECT_KEY, COMPONENT_KEY);
 
     ComponentDto file = new ComponentDto().setId(10L).setQualifier("FIL").setKey(COMPONENT_KEY).setName("Plugin.java")
+      .setLongName("src/main/java/org/sonar/api/Plugin.java")
       .setPath("src/main/java/org/sonar/api/Plugin.java").setSubProjectId(5L).setProjectId(1L);
     when(componentDao.getNullableByKey(session, COMPONENT_KEY)).thenReturn(file);
     when(componentDao.getById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
@@ -437,6 +438,7 @@ public class ComponentAppActionTest {
 
   private void addComponent() {
     ComponentDto file = new ComponentDto().setId(10L).setQualifier("FIL").setKey(COMPONENT_KEY).setName("Plugin.java")
+      .setLongName("src/main/java/org/sonar/api/Plugin.java")
       .setPath("src/main/java/org/sonar/api/Plugin.java").setSubProjectId(5L).setProjectId(1L);
     when(componentDao.getNullableByKey(session, COMPONENT_KEY)).thenReturn(file);
     when(componentDao.getById(5L, session)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));

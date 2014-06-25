@@ -168,6 +168,7 @@ public class ComponentAppAction implements RequestHandler {
     json.prop("key", component.key());
     json.prop("path", component.path());
     json.prop("name", component.name());
+    json.prop("longName", component.longName());
     json.prop("q", component.qualifier());
 
     ComponentDto subProject = (ComponentDto) nullableComponentById(component.subProjectId(), session);
