@@ -40,7 +40,7 @@
     <div class="component-viewer-header-measures">
       {{#if component.isUnitTest}}
         <div class="component-viewer-header-measures-scope">
-          <a data-scope="tests" class="component-viewer-header-measures-expand">
+          <a data-scope="tests" class="component-viewer-header-measures-expand js-header-tab-tests">
             <div class="component-viewer-header-measure">
               <span class="component-viewer-header-measure-value">{{component.measures.fTests}}</span>
               <span class="component-viewer-header-measure-label">{{t 'metric.tests.name'}}</span>
@@ -53,7 +53,7 @@
       {{#unless component.isUnitTest}}
         <div class="component-viewer-header-measures-scope">
           <span data-scope="basic" class="js-toggle-coverage component-viewer-header-measures-toggle-scope inactive"></span>
-          <a data-scope="basic" class="component-viewer-header-measures-expand">
+          <a data-scope="basic" class="component-viewer-header-measures-expand js-header-tab-basic">
             <div class="component-viewer-header-measure">
               <span class="component-viewer-header-measure-value">{{default component.measures.fNcloc '–'}}</span>
               <span class="component-viewer-header-measure-label">{{t 'metric.ncloc.name'}}</span>
@@ -64,7 +64,7 @@
       {{/unless}}
 
       <div class="component-viewer-header-measures-scope">
-        <a data-scope="issues" class="component-viewer-header-measures-expand">
+        <a data-scope="issues" class="component-viewer-header-measures-expand js-header-tab-issues">
             <div class="component-viewer-header-measure">
               <span class="component-viewer-header-measure-value">{{default component.measures.fDebt '–'}}</span>
               <span class="component-viewer-header-measure-label">{{t 'component_viewer.header.debt'}}</span>
@@ -99,7 +99,7 @@
 
       {{#inArray state.tabs 'coverage'}}
         <div class="component-viewer-header-measures-scope">
-          <a data-scope="coverage" class="component-viewer-header-measures-expand">
+          <a data-scope="coverage" class="component-viewer-header-measures-expand js-header-tab-coverage">
               <div class="component-viewer-header-measure">
                 <span class="component-viewer-header-measure-value">{{default component.measures.fCoverage '–'}}</span>
                 <span class="component-viewer-header-measure-label">{{t 'metric.coverage.name'}}</span>
@@ -113,7 +113,7 @@
 
       {{#inArray state.tabs 'duplications'}}
         <div class="component-viewer-header-measures-scope">
-          <a data-scope="duplications" class="component-viewer-header-measures-expand">
+          <a data-scope="duplications" class="component-viewer-header-measures-expand js-header-tab-duplications">
               <div class="component-viewer-header-measure">
                 <span class="component-viewer-header-measure-value">{{default component.measures.fDuplicationDensity '–'}}</span>
                 <span class="component-viewer-header-measure-label">{{t 'metric.duplicated_lines_density.name'}}</span>
@@ -127,7 +127,7 @@
 
       {{#inArray state.tabs 'scm'}}
         <div class="component-viewer-header-measures-scope">
-          <a data-scope="scm" class="component-viewer-header-measures-expand">
+          <a data-scope="scm" class="component-viewer-header-measures-expand js-header-tab-scm">
             <div class="component-viewer-header-measure">
               <span class="component-viewer-header-measure-value"><i class="icon-calendar"></i></span>
               <span class="component-viewer-header-measure-label">SCM</span>
