@@ -61,7 +61,12 @@ requirejs [
 
       if params.line?
         viewer.sourceView.highlightedLine = params.line
+        viewer.on 'sized', ->
+          viewer.off 'sized'
+          viewer.scrollToLine params.line
+
       viewer.open params.component
+
       viewer.on 'loaded', ->
         if params.tab? && params.item? && params.period?
           viewer.headerView.enableBar(params.tab).done ->
@@ -83,6 +88,7 @@ requirejs [
         else if params.currentIssue?
           loadIssue params.currentIssue
         else viewer.showAllLines()
+
 
 
   # Message bundles

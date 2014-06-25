@@ -295,9 +295,12 @@ define [
 
 
     scrollToLine: (line) ->
-      @scrolled = line
       row = @sourceView.$(".row[data-line-number=#{line}]")
-      return unless row.length > 0
+      unless row.length > 0
+        unless @scrolled
+          setTimeout (=> @scrollToLine(line)), 100
+        return
+      @scrolled = line
       d = row.offset().top - @$el.offset().top - SCROLL_OFFSET
       @scrollPlusDelta d
 

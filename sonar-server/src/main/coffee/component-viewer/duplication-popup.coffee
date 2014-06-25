@@ -24,7 +24,8 @@ define [
     goToFile: (e) ->
       key = $(e.currentTarget).data 'key'
       line = $(e.currentTarget).data 'line'
-      return if key == @options.main.component.get 'key'
+      if key == @options.main.component.get 'key'
+        return @options.main.scrollToLine line
       files = @options.main.source.get('duplicationFiles')
       @options.main.addTransition 'duplication', @collection.map (item) ->
         file = files[item.get('_ref')]
