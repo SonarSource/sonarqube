@@ -199,6 +199,11 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       }
 
       //TODO Legacy ID in DTO should be Key
+      update.put(RuleField.CHARACTERISTIC.field(), null);
+      update.put(RuleField.SUB_CHARACTERISTIC.field(), null);
+      update.put(RuleField.DEFAULT_CHARACTERISTIC.field(), null);
+      update.put(RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), null);
+
       CharacteristicDto characteristic = null;
       CharacteristicDto defaultCharacteristic = null;
       if (rule.getDefaultSubCharacteristicId() != null) {
@@ -218,7 +223,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
             db.debtCharacteristicDao().selectById(characteristic.getParentId(), session);
           update.put(RuleField.CHARACTERISTIC.field(), parentCharacteristic.getKey());
           if (defaultCharacteristic != null) {
-            if (characteristic.getId() == defaultCharacteristic.getId()) {
+            if (characteristic.getId().equals(defaultCharacteristic.getId())) {
               update.put(RuleField.DEFAULT_CHARACTERISTIC.field(), parentCharacteristic.getKey());
             } else {
               update.put(RuleField.DEFAULT_CHARACTERISTIC.field(),
@@ -227,11 +232,6 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
             }
           }
         }
-      } else {
-        update.put(RuleField.CHARACTERISTIC.field(), null);
-        update.put(RuleField.SUB_CHARACTERISTIC.field(), null);
-        update.put(RuleField.DEFAULT_CHARACTERISTIC.field(), null);
-        update.put(RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), null);
       }
 
       String dType = null, dCoefficient = null, dOffset = null;

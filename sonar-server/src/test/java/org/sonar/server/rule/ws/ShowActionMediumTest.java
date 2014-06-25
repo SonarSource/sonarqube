@@ -134,8 +134,7 @@ public class ShowActionMediumTest {
   }
 
   @Test
-  @Ignore
-  public void show_rule_with_overridden_debt_infos() throws Exception {
+  public void show_rule_with_overridden_debt() throws Exception {
     MockUserSession.set()
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
       .setLogin("me");
