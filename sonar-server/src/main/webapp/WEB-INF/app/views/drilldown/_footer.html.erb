@@ -1,11 +1,7 @@
 <div id="resource_container"> </div>
 
-<% if @display_viewers %>
+<% if @display_viewers && @drilldown.highlighted_resource %>
 <script>
-  <% if @drilldown.highlighted_resource %>
-    d(<%= @drilldown.highlighted_resource.id -%>, true);
-  <% else %>
-    d(<%= @drilldown.resource.id -%>, false);
-  <% end %>
+  d(<%= @drilldown.highlighted_resource.id -%>, true);
 </script>
 <% end %>

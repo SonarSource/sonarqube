@@ -63,7 +63,7 @@
   %>
     <tr class="<%= cycle 'even', 'odd', :name => ('hotspot_most_violated_resources' + widget.id.to_s) -%>">
       <td>
-        <%= link_to_resource(resource, h(resource.name), {:tab => 'issues', :settings => 'issues', :class => 'underlined-link'}) -%>
+        <%= link_to_resource(resource, h(resource.name), {:metric => 'violations', :class => 'underlined-link'}) -%>
       </td>
       <td class="small right">
         <i class="icon-severity-blocker"></i>
