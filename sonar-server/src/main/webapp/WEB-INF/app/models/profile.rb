@@ -98,14 +98,14 @@ class Profile < ActiveRecord::Base
   end
 
   def inherited?
-    parent_name.present?
+    parent_kee.present?
   end
 
   def parent
     @parent||=
       begin
-        if parent_name.present?
-          Profile.first(:conditions => ['language=? and name=?', language, parent_name])
+        if parent_kee.present?
+          Profile.first(:conditions => ['language=? and kee=?', language, parent_kee])
         else
           nil
         end
@@ -115,7 +115,7 @@ class Profile < ActiveRecord::Base
   def children
     @children ||=
       begin
-        Profile.all(:conditions => ['parent_name=? and language=?', name, language])
+        Profile.all(:conditions => ['parent_kee=? and language=?', kee, language])
       end
   end
 
@@ -143,13 +143,8 @@ class Profile < ActiveRecord::Base
   def rename(new_name)
     old_name=self.name
     Profile.transaction do
-      children_to_be_renamed=children()
       self.name=new_name
       if save
-        children_to_be_renamed.each do |child|
-          child.parent_name=new_name
-          child.save
-        end
         Property.with_key("sonar.profile.#{language}").each do |prop|
           if prop.text_value==old_name
             prop.text_value=new_name

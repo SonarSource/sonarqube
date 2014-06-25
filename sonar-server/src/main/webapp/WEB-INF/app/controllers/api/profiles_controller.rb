@@ -199,7 +199,7 @@ class Api::ProfilesController < Api::ApiController
     result={}
     result[:name]=@profile.name
     result[:language]=@profile.language
-    result[:parent]=@profile.parent_name if @profile.parent_name.present?
+    result[:parent]=@profile.parent_kee if @profile.parent_kee.present?
     result[:default]=@profile.default_profile?
 
     rules=[]
