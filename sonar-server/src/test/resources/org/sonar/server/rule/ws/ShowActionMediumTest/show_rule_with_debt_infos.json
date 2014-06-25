@@ -9,6 +9,11 @@
     "isTemplate": false,
     "tags": ["tag1", "tag2"],
     "sysTags": ["systag1", "systag2"],
+    "debtChar": "API",
+    "debtSubChar": "API Abuse",
+    "debtRemFnType": "LINEAR_OFFSET",
+    "debtRemFnCoeff": "5d",
+    "debtRemFnOffset": "10h",
     "lang": "xoo",
     "params": [
       {
@@ -19,3 +24,4 @@
     ]
   }
 }
+

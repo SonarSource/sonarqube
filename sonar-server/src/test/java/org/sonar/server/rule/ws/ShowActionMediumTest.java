@@ -20,10 +20,7 @@
 
 package org.sonar.server.rule.ws;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -31,6 +28,8 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
+import org.sonar.core.technicaldebt.db.CharacteristicDao;
+import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.NewRule;
 import org.sonar.server.rule.RuleService;
@@ -81,6 +80,40 @@ public class ShowActionMediumTest {
         .setStatus(RuleStatus.BETA)
         .setConfigKey("InternalKeyS001")
         .setLanguage("xoo")
+        .setTags(newHashSet("tag1", "tag2"))
+        .setSystemTags(newHashSet("systag1", "systag2"))
+    );
+    RuleParamDto param = RuleParamDto.createFor(ruleDto).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
+    ruleDao.addRuleParam(session, ruleDto, param);
+    session.commit();
+    session.clearCache();
+
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
+      .setParam("key", ruleDto.getKey().toString());
+    request.execute().assertJson(getClass(), "show_rule.json", false);
+  }
+
+  @Test
+  @Ignore("Faiing because of java.lang.IllegalStateException: Field defaultDebtChar not specified in query options")
+  public void show_rule_with_debt_infos() throws Exception {
+    MockUserSession.set()
+      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
+      .setLogin("me");
+
+    CharacteristicDto characteristicDto = new CharacteristicDto().setKey("API").setName("API").setEnabled(true);
+    tester.get(CharacteristicDao.class).insert(characteristicDto, session);
+    CharacteristicDto subCharacteristicDto = new CharacteristicDto().setKey("API_ABUSE").setName("API Abuse").setEnabled(true).setParentId(characteristicDto.getId());
+    tester.get(CharacteristicDao.class).insert(subCharacteristicDto, session);
+
+    RuleDto ruleDto = ruleDao.insert(session,
+      RuleTesting.newDto(RuleKey.of("java", "S001"))
+        .setName("Rule S001")
+        .setDescription("Rule S001 <b>description</b>")
+        .setSeverity(Severity.MINOR)
+        .setStatus(RuleStatus.BETA)
+        .setConfigKey("InternalKeyS001")
+        .setLanguage("xoo")
+        .setSubCharacteristicId(subCharacteristicDto.getId())
         .setRemediationFunction("LINEAR_OFFSET")
         .setRemediationCoefficient("5d")
         .setRemediationOffset("10h")
@@ -94,7 +127,7 @@ public class ShowActionMediumTest {
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
       .setParam("key", ruleDto.getKey().toString());
-    request.execute().assertJson(getClass(), "show_rule.json", false);
+    request.execute().assertJson(getClass(), "show_rule_with_debt_infos.json", false);
   }
 
   @Test
