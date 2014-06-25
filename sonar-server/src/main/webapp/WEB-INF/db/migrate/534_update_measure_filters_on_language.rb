@@ -28,6 +28,7 @@ class UpdateMeasureFiltersOnLanguage < ActiveRecord::Migration
   end
 
   def self.up
+    MeasureFilter.reset_column_information
     MeasureFilter.all(:conditions => "data LIKE '%language%'").each do |filter|
       # Remove sort on language
       filter.data = filter.data.sub('sort=language', '')
