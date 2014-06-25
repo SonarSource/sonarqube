@@ -103,6 +103,9 @@ define [
         line = issue.line || 0
         line = 0 if issue.resolution == 'FIXED' || issue.resolution == 'REMOVED'
         row = @$("[data-line-number=#{line}]")
+        unless row.length > 0
+          line = 0
+          row = @$("[data-line-number=#{line}]")
         if row.length > 0
           row.removeClass 'row-hidden'
           container = row.children('.line')
