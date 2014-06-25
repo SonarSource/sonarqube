@@ -228,6 +228,7 @@ define [
         source.always =>
           if source.status == 403
             @state.set 'sourceSecurity', true
+          @state.set 'hasSource', (source.status != 404)
           @render()
           @showAllLines() if showFullSource
           if @settings.get('issues')
