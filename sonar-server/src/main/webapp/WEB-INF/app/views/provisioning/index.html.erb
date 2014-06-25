@@ -27,7 +27,7 @@
 
       <tr id="entry-<%= resource.key.parameterize -%>" class="<%= cycle 'even', 'odd' -%>">
         <td>
-          <%= link_to h(resource.key), {:controller => :project, :id => resource.id},
+          <%= link_to h(resource.key), {:controller => 'dashboard', :action => 'index', :id => resource.id},
               :id => "view-#{resource.key.parameterize}" %>
         </td>
         <td><%= h resource.name -%></td>

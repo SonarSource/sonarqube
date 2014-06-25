@@ -24,6 +24,10 @@ class ProjectController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
 
+  def index
+    # this URL should not be called. Replaced by dashboard/index
+    redirect_to :overwrite_params => {:controller => :dashboard, :action => 'index'}
+  end
 
   def delete_form
     access_denied unless (is_admin?(@project))

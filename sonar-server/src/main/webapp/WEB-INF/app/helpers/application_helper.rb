@@ -323,8 +323,13 @@ module ApplicationHelper
       if options[:line]
         anchor+= '&line=' + options[:line].to_i
       end
-      link_to(name || resource.name, {:controller => 'component', :action => 'index', :anchor => anchor, :period => period_index, :tab => options[:tab], :rule => options[:rule],
-                                      :metric => options[:metric]}, :popup => ['resource', 'scrollbars=1,resizable=1'], :title => options[:title], :class => options[:class])
+      if options[:tab]
+        anchor+= '&tab=' + options[:tab]
+      end
+      if options[:settings]
+        anchor+= '&settings=' + options[:settings]
+      end
+      link_to(name || resource.name, {:controller => 'component', :action => 'index', :anchor => anchor, :period => period_index}, :popup => ['resource', 'scrollbars=1,resizable=1'], :title => options[:title], :class => options[:class])
     end
   end
 
