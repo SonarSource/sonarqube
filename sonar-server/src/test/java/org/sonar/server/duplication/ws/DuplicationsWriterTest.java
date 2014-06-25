@@ -109,6 +109,52 @@ public class DuplicationsWriterTest {
   }
 
   @Test
+  public void write_duplications_with_a_removed_component() throws Exception {
+    String key1 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java";
+    ComponentDto file1 = new ComponentDto().setId(10L).setQualifier("FIL").setKey(key1).setLongName("PropertyDeleteQuery").setProjectId(1L);
+    String key2 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyUpdateQuery.java";
+    ComponentDto file2 = new ComponentDto().setId(11L).setQualifier("FIL").setKey(key2).setLongName("PropertyUpdateQuery").setProjectId(1L);
+
+    when(componentDao.getNullableByKey(session, key1)).thenReturn(file1);
+    // File2 is removed
+    when(componentDao.getNullableByKey(session, key2)).thenReturn(null);
+    when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
+
+    List<DuplicationsParser.Block> blocks = newArrayList();
+    blocks.add(new DuplicationsParser.Block(newArrayList(
+      new DuplicationsParser.Duplication(file1, 57, 12),
+      new DuplicationsParser.Duplication(file2, 73, 12)
+    )));
+
+    test(blocks,
+      "{\n" +
+        "  \"duplications\": [\n" +
+        "    {\n" +
+        "      \"blocks\": [\n" +
+        "        {\n" +
+        "          \"from\": 57, \"size\": 12, \"_ref\": \"1\"\n" +
+        "        },\n" +
+        "        {\n" +
+        "          \"from\": 73, \"size\": 12, \"_ref\": \"2\"\n" +
+        "        }\n" +
+        "      ]\n" +
+        "    }," +
+        "  ],\n" +
+        "  \"files\": {\n" +
+        "    \"1\": {\n" +
+        "      \"key\": \"org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java\",\n" +
+        "      \"name\": \"PropertyDeleteQuery\",\n" +
+        "      \"projectName\": \"SonarQube\"\n" +
+        "    }\n" +
+        "  }" +
+        "}"
+    );
+
+    verify(componentDao, times(2)).getNullableByKey(eq(session), anyString());
+    verify(componentDao, times(1)).getById(anyLong(), eq(session));
+  }
+
+  @Test
   public void write_nothing_when_no_data() throws Exception {
     test(Collections.<DuplicationsParser.Block>emptyList(), "{\"duplications\": [], \"files\": {}}");
   }
