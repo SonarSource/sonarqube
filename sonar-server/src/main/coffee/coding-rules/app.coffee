@@ -93,6 +93,8 @@ requirejs [
       errorBox = jQuery('.modal-error')
       if jqXHR.responseJSON?.errors?
         text = _.pluck(jqXHR.responseJSON.errors, 'msg').join '. '
+      else
+        text = t 'default_error_message'
       if errorBox.length > 0
         errorBox.show().text text
       else
