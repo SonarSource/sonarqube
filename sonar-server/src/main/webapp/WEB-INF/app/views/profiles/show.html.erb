@@ -51,10 +51,10 @@
                   <td>
                     <i class="icon-severity-<%= severity %>"></i><%= message(severity) -%>
                   </td>
-                  <td class="thin left">
+                  <td class="thin right">
                     <%= value -%>
                   </td>
-                  <td class="nowrap">
+                  <td class="nowrap ">
                     <% if max > 0 %>
                       <%= barchart(:width => 70, :percent => (100 * value / max).to_i) %>
                     <% end %>
