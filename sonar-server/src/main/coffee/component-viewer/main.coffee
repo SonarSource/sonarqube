@@ -226,6 +226,8 @@ define [
           model.set 'component': @component.toJSON()
         @state.set 'removed', false
         source.always =>
+          if source.status == 403
+            @state.set 'sourceSecurity', true
           @render()
           @showAllLines() if showFullSource
           if @settings.get('issues')
@@ -239,6 +241,7 @@ define [
           @trigger 'loaded'
       .fail =>
         @state.set 'removed', true
+        @state.set 'hasSource', false
         @render()
         @trigger 'loaded'
 
