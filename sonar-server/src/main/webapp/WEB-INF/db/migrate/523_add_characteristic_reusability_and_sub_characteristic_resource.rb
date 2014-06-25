@@ -28,9 +28,10 @@ class AddCharacteristicReusabilityAndSubCharacteristicResource < ActiveRecord::M
   end
 
   def self.up
+    Characteristic.reset_column_information
+
     # On an empty DB, there are no characteristics, they're all gonna be created after
     if Characteristic.all.size > 0
-      Characteristic.reset_column_information
       create_characteristic_reusability_and_its_sub_characteristics
       create_sub_characteristic_resource
     end
