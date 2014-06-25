@@ -34,6 +34,14 @@ define [
       'click .js-filter-INFO-issues': 'filterByInfoIssues'
 
 
+    initialize: (options) ->
+      super
+      window.onBulkIssues = =>
+        $('#modal').dialog 'close'
+        options.main.requestIssues(options.main.key).done ->
+          options.main.render()
+
+
     issuesBulkChange: ->
       issues = @source.get('activeIssues')?.map (issue) -> issue.key
       if issues.length > 0
