@@ -13,7 +13,17 @@ define [], () ->
         @state.set 'hasDuplications', true
         @source.set duplications: data.duplications
         @source.set duplicationFiles: data.files
+        @skipRemovedFiles()
         @augmentWithDuplications data.duplications
+
+
+    skipRemovedFiles: ->
+      duplications = @source.get 'duplications'
+      files = @source.get 'duplicationFiles'
+      duplications = _.map duplications, (d) ->
+        blocks = _.filter d.blocks, (b) -> files[b._ref]
+        blocks: blocks
+      @source.set 'duplications', duplications
 
 
     augmentWithDuplications: (duplications) ->
