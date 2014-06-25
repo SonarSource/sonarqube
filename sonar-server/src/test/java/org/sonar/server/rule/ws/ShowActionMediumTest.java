@@ -94,8 +94,7 @@ public class ShowActionMediumTest {
   }
 
   @Test
-  @Ignore("Faiing because of java.lang.IllegalStateException: Field defaultDebtChar not specified in query options")
-  public void show_rule_with_debt_infos() throws Exception {
+  public void show_rule_with_default_debt_infos() throws Exception {
     MockUserSession.set()
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
       .setLogin("me");
@@ -113,6 +112,51 @@ public class ShowActionMediumTest {
         .setStatus(RuleStatus.BETA)
         .setConfigKey("InternalKeyS001")
         .setLanguage("xoo")
+        .setDefaultSubCharacteristicId(subCharacteristicDto.getId())
+        .setDefaultRemediationFunction("LINEAR_OFFSET")
+        .setDefaultRemediationCoefficient("5d")
+        .setDefaultRemediationOffset("10h")
+        .setSubCharacteristicId(null)
+        .setRemediationFunction(null)
+        .setRemediationCoefficient(null)
+        .setRemediationOffset(null)
+        .setTags(newHashSet("tag1", "tag2"))
+        .setSystemTags(newHashSet("systag1", "systag2"))
+    );
+    RuleParamDto param = RuleParamDto.createFor(ruleDto).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
+    ruleDao.addRuleParam(session, ruleDto, param);
+    session.commit();
+    session.clearCache();
+
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
+      .setParam("key", ruleDto.getKey().toString());
+    request.execute().assertJson(getClass(), "show_rule_with_default_debt_infos.json", false);
+  }
+
+  @Test
+  @Ignore
+  public void show_rule_with_overridden_debt_infos() throws Exception {
+    MockUserSession.set()
+      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
+      .setLogin("me");
+
+    CharacteristicDto characteristicDto = new CharacteristicDto().setKey("API").setName("API").setEnabled(true);
+    tester.get(CharacteristicDao.class).insert(characteristicDto, session);
+    CharacteristicDto subCharacteristicDto = new CharacteristicDto().setKey("API_ABUSE").setName("API Abuse").setEnabled(true).setParentId(characteristicDto.getId());
+    tester.get(CharacteristicDao.class).insert(subCharacteristicDto, session);
+
+    RuleDto ruleDto = ruleDao.insert(session,
+      RuleTesting.newDto(RuleKey.of("java", "S001"))
+        .setName("Rule S001")
+        .setDescription("Rule S001 <b>description</b>")
+        .setSeverity(Severity.MINOR)
+        .setStatus(RuleStatus.BETA)
+        .setConfigKey("InternalKeyS001")
+        .setLanguage("xoo")
+        .setDefaultSubCharacteristicId(null)
+        .setDefaultRemediationFunction(null)
+        .setDefaultRemediationCoefficient(null)
+        .setDefaultRemediationOffset(null)
         .setSubCharacteristicId(subCharacteristicDto.getId())
         .setRemediationFunction("LINEAR_OFFSET")
         .setRemediationCoefficient("5d")
@@ -127,7 +171,52 @@ public class ShowActionMediumTest {
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
       .setParam("key", ruleDto.getKey().toString());
-    request.execute().assertJson(getClass(), "show_rule_with_debt_infos.json", false);
+    request.execute().assertJson(getClass(), "show_rule_with_overridden_debt_infos.json", false);
+  }
+
+  @Test
+  public void show_rule_with_default_and_overridden_debt_infos() throws Exception {
+    MockUserSession.set()
+      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
+      .setLogin("me");
+
+    CharacteristicDto characteristicDto = new CharacteristicDto().setKey("API").setName("API").setEnabled(true);
+    tester.get(CharacteristicDao.class).insert(characteristicDto, session);
+    CharacteristicDto subCharacteristicDto = new CharacteristicDto().setKey("API_ABUSE").setName("API Abuse").setEnabled(true).setParentId(characteristicDto.getId());
+    tester.get(CharacteristicDao.class).insert(subCharacteristicDto, session);
+
+    CharacteristicDto characteristicDto2 = new CharacteristicDto().setKey("OS").setName("OS").setEnabled(true);
+    tester.get(CharacteristicDao.class).insert(characteristicDto2, session);
+    CharacteristicDto subCharacteristicDto2 = new CharacteristicDto().setKey("OS_RELATED_PORTABILITY").setName("Portability").setEnabled(true).setParentId(characteristicDto2.getId());
+    tester.get(CharacteristicDao.class).insert(subCharacteristicDto2, session);
+
+    RuleDto ruleDto = ruleDao.insert(session,
+      RuleTesting.newDto(RuleKey.of("java", "S001"))
+        .setName("Rule S001")
+        .setDescription("Rule S001 <b>description</b>")
+        .setSeverity(Severity.MINOR)
+        .setStatus(RuleStatus.BETA)
+        .setConfigKey("InternalKeyS001")
+        .setLanguage("xoo")
+        .setDefaultSubCharacteristicId(subCharacteristicDto.getId())
+        .setDefaultRemediationFunction("LINEAR")
+        .setDefaultRemediationCoefficient("5min")
+        .setDefaultRemediationOffset(null)
+        .setSubCharacteristicId(subCharacteristicDto2.getId())
+        .setRemediationFunction("LINEAR_OFFSET")
+        .setRemediationCoefficient("5d")
+        .setRemediationOffset("10h")
+        .setTags(newHashSet("tag1", "tag2"))
+        .setSystemTags(newHashSet("systag1", "systag2"))
+    );
+    RuleParamDto param = RuleParamDto.createFor(ruleDto).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
+    ruleDao.addRuleParam(session, ruleDto, param);
+    session.commit();
+    session.clearCache();
+
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
+      .setParam("key", ruleDto.getKey().toString());
+    request.execute().assertJson(getClass(), "show_rule_with_default_and_overridden_debt_infos.json", false);
   }
 
   @Test
