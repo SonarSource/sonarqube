@@ -28,10 +28,10 @@ class UpdateSubCharacteristicNetworkUseKey < ActiveRecord::Migration
   end
 
   def self.up
+    Characteristic.reset_column_information
+
     # On an empty DB, there are no characteristics, they're all gonna be created after
     if Characteristic.all.size > 0
-      Characteristic.reset_column_information
-
       # NETWORK_USE was created with a bad key in the migration 466
       network_use = Characteristic.first(:conditions => ['kee=? AND enabled=?', 'NETWORK_USE_EFFICIENCY', true])
       if network_use

@@ -28,11 +28,14 @@ class UpdateMeasureFiltersOnDebtToMinutes < ActiveRecord::Migration
 
   end
 
-  class MeasureFilters < ActiveRecord::Base
+  class MeasureFilter < ActiveRecord::Base
 
   end
 
   def self.up
+    Property.reset_column_information
+    MeasureFilter.reset_column_information
+
     hours_in_day_prop = Property.find_by_prop_key('sonar.technicalDebt.hoursInDay')
     hours_in_day = hours_in_day_prop && hours_in_day_prop.text_value ? hours_in_day_prop.text_value.to_i : 8
 
@@ -64,4 +67,3 @@ class UpdateMeasureFiltersOnDebtToMinutes < ActiveRecord::Migration
     result.ceil
   end
 end
-

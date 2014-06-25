@@ -32,7 +32,15 @@ class UpdateConditionsOnDebtToMinutes < ActiveRecord::Migration
 
   end
 
+  class Metric < ActiveRecord::Base
+
+  end
+
   def self.up
+    Property.reset_column_information
+    Metric.reset_column_information
+    QualityGateCondition.reset_column_information
+
     hours_in_day_prop = Property.find_by_prop_key('sonar.technicalDebt.hoursInDay')
     hours_in_day = hours_in_day_prop && hours_in_day_prop.text_value ? hours_in_day_prop.text_value.to_i : 8
 
