@@ -19,7 +19,7 @@
       <tr id="dashboard-<%= dashboard.id -%>" class="<%= cycle('even', 'odd', :name => 'shared') -%>">
         <td>
           <%= link_to h(dashboard.name(true)), {:controller => :dashboard, :action => :index, :did => dashboard.id, :id => (resource_id unless dashboard.global?)},
-                      :id => "view-#{u dashboard.name}" %>
+                      :id => "view-#{u dashboard.name}", :class => 'underlined-link' %>
           <div class="description"><%= h dashboard.description -%></div>
         </td>
         <td class="shared">

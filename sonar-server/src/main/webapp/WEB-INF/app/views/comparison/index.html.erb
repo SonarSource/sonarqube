@@ -194,12 +194,14 @@
                @snapshots.each_with_index do |s, index|
                  event = s.event(EventCategory::KEY_VERSION)
             %>
-              <th style="text-align: center; vertical-align: top;">
-                <a href="<%= ApplicationController.root_context -%>/dashboard/index/<%= s.resource.key -%>"><%= h s.resource.name(true) -%></a>
-                <br/>
-                <span class="note"><b><%= event ? event.name : message('comparison.version.latest') -%></b></span>
-                <br/>
-                <span class="note"><%= human_short_date s.created_at -%></span>
+              <th style="text-align: center; vertical-align: top; line-height: 1.5;">
+                <span class="no-transform">
+                  <a class="underlined-link" href="<%= ApplicationController.root_context -%>/dashboard/index/<%= s.resource.key -%>"><%= h s.resource.name(true) -%></a>
+                  <br/>
+                  <span class="note"><b><%= event ? event.name : message('comparison.version.latest') -%></b></span>
+                  <br/>
+                  <span class="note"><%= human_short_date s.created_at -%></span>
+                </span>
               </th>
             <% end %>
             <th></th>

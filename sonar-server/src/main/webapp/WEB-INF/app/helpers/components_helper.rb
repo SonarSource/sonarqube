@@ -53,7 +53,7 @@ module ComponentsHelper
       content = format_measure(measure) + trend_icon(measure, :empty => true)
     end
 
-    "<#{html_node} #{"nowrap='nowrap'" if nowrap} #{"x='#{measure_param}'" if measure_param} class='right'>" + content + "</#{html_node}>"
+    "<#{html_node} #{"nowrap='nowrap'" if nowrap} #{"x='#{measure_param}'" if measure_param} class='right'><span class='no-transform'>" + content + "</span></#{html_node}>"
   end
 
 
