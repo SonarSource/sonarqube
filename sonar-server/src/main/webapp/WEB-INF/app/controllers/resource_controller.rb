@@ -17,9 +17,13 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
+
 class ResourceController < ApplicationController
 
   SECTION=Navigation::SECTION_RESOURCE
+
+  helper :dashboard
+  helper SourceHelper, UsersHelper, IssuesHelper
 
   def index
     require_parameters 'id'
@@ -35,6 +39,54 @@ class ResourceController < ApplicationController
     anchor = "component=#{component_key}"
     anchor += "&tab=#{params[:tab]}" if params[:tab]
     redirect_to :controller => 'component', :action => 'index', :anchor => anchor
+  end
+
+  #
+  # Call by new component viewer to display plugin extension
+  #
+  # GET /resource/extension?id=<component_key>&tab=extension_key
+  def extension
+    @resource = Project.by_key(params[:id])
+    not_found('Resource not found') unless @resource
+    @resource = @resource.permanent_resource
+    access_denied unless has_role?(:user, @resource)
+
+    @snapshot = @resource.last_snapshot
+    load_extensions() if @snapshot
+    if @extension
+      render :partial => 'extension'
+    else
+      not_found('Extension not found')
+    end
+  end
+
+  private
+
+  def load_extensions
+    @extensions=[]
+    java_facade.getResourceTabs(@resource.scope, @resource.qualifier, @resource.language, @snapshot.metric_keys.to_java(:string)).each do |tab|
+      if tab.getUserRoles().empty?
+        @extensions<<tab
+      else
+        tab.getUserRoles().each do |role|
+          if has_role?(role, @resource)
+            @extensions<<tab
+            break
+          end
+        end
+      end
+    end
+
+    if params[:tab].present?
+      # Hack to manage violations as issues.
+      params[:tab] = 'issues' if params[:tab] == 'violations'
+      @extension=@extensions.find { |extension| extension.getId()==params[:tab] }
+
+    elsif !params[:metric].blank?
+      metric = Metric.by_key(params[:metric])
+      @extension=@extensions.find { |extension| extension.getDefaultTabForMetrics().include?(metric.key) }
+    end
+    @extension=@extensions.find { |extension| extension.isDefaultTab() } if @extension==nil
   end
 
 end
