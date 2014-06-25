@@ -40,7 +40,8 @@ module ComponentsHelper
       links = links_by_project_id[project.id]
       if links
         links.each do |link|
-          content << link_to(image_tag(link.icon, :alt => link.name), link.href, :class => 'nolink', :popup => true) unless link.custom?
+          content << link_to("<i class='icon-#{link.link_type}' alt='#{link.name}'></i>", link.href, :popup => true) unless link.custom?
+          content << '&nbsp;&nbsp;'
         end
       end
     elsif column.build_time_column?
