@@ -96,11 +96,14 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     public static final IndexField INTERNAL_KEY = add(IndexField.Type.STRING, "internalKey");
     public static final IndexField IS_TEMPLATE = add(IndexField.Type.BOOLEAN, "isTemplate");
     public static final IndexField TEMPLATE_KEY = add(IndexField.Type.STRING, "templateKey");
+    public static final IndexField DEFAULT_DEBT_FUNCTION_TYPE = add(IndexField.Type.STRING, "_debtRemFnType");
+    public static final IndexField DEFAULT_DEBT_FUNCTION_COEFFICIENT = add(IndexField.Type.STRING, "_debtRemFnCoefficient");
+    public static final IndexField DEFAULT_DEBT_FUNCTION_OFFSET = add(IndexField.Type.STRING, "_debtRemFnOffset");
     public static final IndexField DEBT_FUNCTION_TYPE = add(IndexField.Type.STRING, "debtRemFnType");
     public static final IndexField DEBT_FUNCTION_COEFFICIENT = add(IndexField.Type.STRING, "debtRemFnCoefficient");
     public static final IndexField DEBT_FUNCTION_OFFSET = add(IndexField.Type.STRING, "debtRemFnOffset");
-    public static final IndexField DEFAULT_CHARACTERISTIC = add(IndexField.Type.STRING, "defaultDebtChar");
-    public static final IndexField DEFAULT_SUB_CHARACTERISTIC = add(IndexField.Type.STRING, "defaultDebtSubChar");
+    public static final IndexField DEFAULT_CHARACTERISTIC = add(IndexField.Type.STRING, "_debtChar");
+    public static final IndexField DEFAULT_SUB_CHARACTERISTIC = add(IndexField.Type.STRING, "_debtSubChar");
     public static final IndexField CHARACTERISTIC = add(IndexField.Type.STRING, "debtChar");
     public static final IndexField SUB_CHARACTERISTIC = add(IndexField.Type.STRING, "debtSubChar");
     public static final IndexField NOTE = add(IndexField.Type.TEXT, "markdownNote");
@@ -204,50 +207,53 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       update.put(RuleField.DEFAULT_CHARACTERISTIC.field(), null);
       update.put(RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), null);
 
-      CharacteristicDto characteristic = null;
-      CharacteristicDto defaultCharacteristic = null;
+
       if (rule.getDefaultSubCharacteristicId() != null) {
-        characteristic = db.debtCharacteristicDao().selectById(rule.getDefaultSubCharacteristicId(), session);
-        defaultCharacteristic = characteristic;
-        if (defaultCharacteristic != null) {
-          update.put(RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), defaultCharacteristic.getKey());
-        }
-      }
-      if (rule.getSubCharacteristicId() != null) {
-        characteristic = db.debtCharacteristicDao().selectById(rule.getSubCharacteristicId(), session);
-      }
-      if (characteristic != null && characteristic.getId() != -1) {
-        update.put(RuleField.SUB_CHARACTERISTIC.field(), characteristic.getKey());
-        if (characteristic.getParentId() != null) {
-          CharacteristicDto parentCharacteristic =
-            db.debtCharacteristicDao().selectById(characteristic.getParentId(), session);
-          update.put(RuleField.CHARACTERISTIC.field(), parentCharacteristic.getKey());
-          if (defaultCharacteristic != null) {
-            if (characteristic.getId().equals(defaultCharacteristic.getId())) {
-              update.put(RuleField.DEFAULT_CHARACTERISTIC.field(), parentCharacteristic.getKey());
-            } else {
-              update.put(RuleField.DEFAULT_CHARACTERISTIC.field(),
-                db.debtCharacteristicDao().selectById(defaultCharacteristic.getParentId(), session)
-                  .getKey());
-            }
-          }
-        }
+        CharacteristicDto characteristic = null;
+        CharacteristicDto subCharacteristic = null;
+        subCharacteristic = db.debtCharacteristicDao().selectById(rule.getDefaultSubCharacteristicId(), session);
+        characteristic = db.debtCharacteristicDao().selectById(subCharacteristic.getParentId());
+        update.put(RuleField.DEFAULT_CHARACTERISTIC.field(), characteristic.getKey());
+        update.put(RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), subCharacteristic.getKey());
+      } else {
+        update.put(RuleField.DEFAULT_CHARACTERISTIC.field(), null);
+        update.put(RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), null);
       }
 
-      String dType = null, dCoefficient = null, dOffset = null;
+      if (rule.getSubCharacteristicId() != null) {
+        CharacteristicDto characteristic = null;
+        CharacteristicDto subCharacteristic = null;
+        subCharacteristic = db.debtCharacteristicDao().selectById(rule.getSubCharacteristicId(), session);
+        characteristic = db.debtCharacteristicDao().selectById(subCharacteristic.getParentId());
+        update.put(RuleField.CHARACTERISTIC.field(), characteristic.getKey());
+        update.put(RuleField.SUB_CHARACTERISTIC.field(), subCharacteristic.getKey());
+      } else {
+        update.put(RuleField.CHARACTERISTIC.field(), null);
+        update.put(RuleField.SUB_CHARACTERISTIC.field(), null);
+      }
+
+
       if (rule.getDefaultRemediationFunction() != null) {
-        dType = rule.getDefaultRemediationFunction();
-        dCoefficient = rule.getDefaultRemediationCoefficient();
-        dOffset = rule.getDefaultRemediationOffset();
+        update.put(RuleField.DEFAULT_DEBT_FUNCTION_TYPE.field(), rule.getDefaultRemediationFunction());
+        update.put(RuleField.DEFAULT_DEBT_FUNCTION_COEFFICIENT.field(), rule.getDefaultRemediationCoefficient());
+        update.put(RuleField.DEFAULT_DEBT_FUNCTION_OFFSET.field(), rule.getDefaultRemediationOffset());
+      } else {
+        update.put(RuleField.DEFAULT_DEBT_FUNCTION_TYPE.field(), null);
+        update.put(RuleField.DEFAULT_DEBT_FUNCTION_COEFFICIENT.field(), null);
+        update.put(RuleField.DEFAULT_DEBT_FUNCTION_OFFSET.field(), null);
       }
+
       if (rule.getRemediationFunction() != null) {
-        dType = rule.getRemediationFunction();
-        dCoefficient = rule.getRemediationCoefficient();
-        dOffset = rule.getRemediationOffset();
+        update.put(RuleField.DEBT_FUNCTION_TYPE.field(), rule.getRemediationFunction());
+        update.put(RuleField.DEBT_FUNCTION_COEFFICIENT.field(), rule.getRemediationCoefficient());
+        update.put(RuleField.DEBT_FUNCTION_OFFSET.field(), rule.getRemediationOffset());
+      } else {
+        update.put(RuleField.DEBT_FUNCTION_TYPE.field(), null);
+        update.put(RuleField.DEBT_FUNCTION_COEFFICIENT.field(), null);
+        update.put(RuleField.DEBT_FUNCTION_OFFSET.field(), null);
       }
-      update.put(RuleField.DEBT_FUNCTION_TYPE.field(), dType);
-      update.put(RuleField.DEBT_FUNCTION_COEFFICIENT.field(), dCoefficient);
-      update.put(RuleField.DEBT_FUNCTION_OFFSET.field(), dOffset);
+
+
       update.put(RuleField.TAGS.field(), rule.getTags());
       update.put(RuleField.SYSTEM_TAGS.field(), rule.getSystemTags());
       update.put(RuleField._TAGS.field(), Sets.union(rule.getSystemTags(), rule.getTags()));

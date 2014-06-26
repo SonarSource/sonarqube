@@ -25,10 +25,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rule.Severity;
-import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
@@ -75,45 +72,46 @@ public class RuleBackendMediumTest {
   @Test
   public void insert_in_db_and_index_in_es() throws InterruptedException {
     // insert db
-    RuleKey ruleKey = RuleKey.of("javascript", "S001");
-    dao.insert(dbSession, newRuleDto(ruleKey));
+    RuleDto ruleDto = RuleTesting.newXooX1();
+    dao.insert(dbSession, ruleDto);
     dbSession.commit();
 
     // verify that rule is persisted in db
-    RuleDto persistedDto = dao.getNullableByKey(dbSession, ruleKey);
+    RuleDto persistedDto = dao.getNullableByKey(dbSession, RuleTesting.XOO_X1);
     assertThat(persistedDto).isNotNull();
     assertThat(persistedDto.getId()).isGreaterThanOrEqualTo(0);
-    assertThat(persistedDto.getRuleKey()).isEqualTo(ruleKey.rule());
-    assertThat(persistedDto.getLanguage()).isEqualTo("js");
-    assertThat(persistedDto.getTags()).containsOnly("tag1", "tag2");
-    assertThat(persistedDto.getSystemTags()).containsOnly("systag1", "systag2");
+    assertThat(persistedDto.getRuleKey()).isEqualTo(ruleDto.getRuleKey());
+    assertThat(persistedDto.getLanguage()).isEqualTo(ruleDto.getLanguage());
+//FIXME
+//    assertThat(persistedDto.getTags()).containsOnly(ruleDto.getTags());
+//    assertThat(persistedDto.getSystemTags()).containsOnly(ruleDto.getSystemTags());
     assertThat(persistedDto.getCreatedAt()).isNotNull();
     assertThat(persistedDto.getUpdatedAt()).isNotNull();
 
     // verify that rule is indexed in es
-    Rule hit = index.getByKey(ruleKey);
+    Rule hit = index.getByKey(RuleTesting.XOO_X1);
     assertThat(hit).isNotNull();
-    assertThat(hit.key().repository()).isEqualTo(ruleKey.repository());
-    assertThat(hit.key().rule()).isEqualTo(ruleKey.rule());
-    assertThat(hit.language()).isEqualTo("js");
-    assertThat(hit.name()).isEqualTo("Rule S001");
-    assertThat(hit.htmlDescription()).isEqualTo("Description S001");
+    assertThat(hit.key().repository()).isEqualTo(ruleDto.getRepositoryKey());
+    assertThat(hit.key().rule()).isEqualTo(ruleDto.getRuleKey());
+    assertThat(hit.language()).isEqualTo(ruleDto.getLanguage());
+    assertThat(hit.name()).isEqualTo(ruleDto.getName());
+    assertThat(hit.htmlDescription()).isEqualTo(ruleDto.getDescription());
     assertThat(hit.status()).isEqualTo(RuleStatus.READY);
     assertThat(hit.createdAt()).isNotNull();
     assertThat(hit.updatedAt()).isNotNull();
-    assertThat(hit.internalKey()).isEqualTo("InternalKeyS001");
-    assertThat(hit.severity()).isEqualTo("INFO");
+    assertThat(hit.internalKey()).isEqualTo(ruleDto.getConfigKey());
+    assertThat(hit.severity()).isEqualTo(ruleDto.getSeverityString());
     assertThat(hit.isTemplate()).isFalse();
-    assertThat(hit.tags()).containsOnly("tag1", "tag2");
-    assertThat(hit.systemTags()).containsOnly("systag1", "systag2");
-    assertThat(hit.effortToFixDescription()).isEqualTo(persistedDto.getEffortToFixDescription());
+//FIXME
+//    assertThat(hit.tags()).containsOnly(ruleDto.getTags());
+//    assertThat(hit.systemTags()).containsOnly(ruleDto.getSystemTags());
+    assertThat(hit.effortToFixDescription()).isEqualTo(ruleDto.getEffortToFixDescription());
   }
 
   @Test
   public void insert_and_index_rule_parameters() {
     // insert db
-    RuleKey ruleKey = RuleKey.of("javascript", "S001");
-    RuleDto ruleDto = newRuleDto(ruleKey);
+    RuleDto ruleDto = RuleTesting.newXooX1();
     dao.insert(dbSession, ruleDto);
     dbSession.commit();
 
@@ -132,7 +130,7 @@ public class RuleBackendMediumTest {
     dbSession.commit();
 
     //Verify that RuleDto has date from insertion
-    RuleDto theRule = dao.getNullableByKey(dbSession, ruleKey);
+    RuleDto theRule = dao.getNullableByKey(dbSession, RuleTesting.XOO_X1);
     assertThat(theRule.getCreatedAt()).isNotNull();
     assertThat(theRule.getUpdatedAt()).isNotNull();
 
@@ -142,12 +140,12 @@ public class RuleBackendMediumTest {
 
     // verify that parameters are indexed in es
 
-    Rule hit = index.getByKey(ruleKey);
+    Rule hit = index.getByKey(RuleTesting.XOO_X1);
     assertThat(hit).isNotNull();
     assertThat(hit.key()).isNotNull();
 
     RuleService service = tester.get(RuleService.class);
-    Rule rule = service.getByKey(ruleKey);
+    Rule rule = service.getByKey(RuleTesting.XOO_X1);
 
     assertThat(rule.params()).hasSize(2);
     assertThat(Iterables.getLast(rule.params(), null).key()).isEqualTo("max");
@@ -156,8 +154,7 @@ public class RuleBackendMediumTest {
   @Test
   public void insert_and_delete_rule_parameters() {
     // insert db
-    RuleKey ruleKey = RuleKey.of("javascript", "S001");
-    RuleDto ruleDto = newRuleDto(ruleKey);
+    RuleDto ruleDto = RuleTesting.newXooX1();
     dao.insert(dbSession, ruleDto);
     dbSession.commit();
 
@@ -176,24 +173,23 @@ public class RuleBackendMediumTest {
     dbSession.commit();
 
     // 0. Verify that RuleDto has date from insertion
-    assertThat(dao.findRuleParamsByRuleKey(dbSession, ruleKey)).hasSize(2);
-    assertThat(index.getByKey(ruleKey).params()).hasSize(2);
+    assertThat(dao.findRuleParamsByRuleKey(dbSession, RuleTesting.XOO_X1)).hasSize(2);
+    assertThat(index.getByKey(RuleTesting.XOO_X1).params()).hasSize(2);
 
     // 1. Delete parameter
     dao.removeRuleParam(dbSession, ruleDto, maxParamDto);
     dbSession.commit();
 
     // 2. assert only one param left
-    assertThat(dao.findRuleParamsByRuleKey(dbSession, ruleKey)).hasSize(1);
-    assertThat(index.getByKey(ruleKey).params()).hasSize(1);
+    assertThat(dao.findRuleParamsByRuleKey(dbSession, RuleTesting.XOO_X1)).hasSize(1);
+    assertThat(index.getByKey(RuleTesting.XOO_X1).params()).hasSize(1);
   }
 
 
   @Test
   public void insert_and_update_rule() {
     // insert db
-    RuleKey ruleKey = RuleKey.of("javascript", "S001");
-    RuleDto ruleDto = newRuleDto(ruleKey)
+    RuleDto ruleDto = RuleTesting.newXooX1()
       .setTags(ImmutableSet.of("hello"))
       .setName("first name");
     dao.insert(dbSession, ruleDto);
@@ -201,7 +197,7 @@ public class RuleBackendMediumTest {
 
     // verify that parameters are indexed in es
 
-    Rule hit = index.getByKey(ruleKey);
+    Rule hit = index.getByKey(RuleTesting.XOO_X1);
     assertThat(hit.tags()).containsExactly("hello");
     assertThat(hit.name()).isEqualTo("first name");
 
@@ -213,7 +209,7 @@ public class RuleBackendMediumTest {
 
     // verify that parameters are updated in es
 
-    hit = index.getByKey(ruleKey);
+    hit = index.getByKey(RuleTesting.XOO_X1);
     assertThat(hit.tags()).containsExactly("world");
     assertThat(hit.name()).isEqualTo("second name");
   }
@@ -222,10 +218,7 @@ public class RuleBackendMediumTest {
   public void insert_and_update_rule_param() throws InterruptedException {
 
     // insert db
-    RuleKey ruleKey = RuleKey.of("javascript", "S001");
-    RuleDto ruleDto = newRuleDto(ruleKey)
-      .setTags(ImmutableSet.of("hello"))
-      .setName("first name");
+    RuleDto ruleDto = RuleTesting.newXooX1();
     dao.insert(dbSession, ruleDto);
     dbSession.commit();
 
@@ -246,7 +239,7 @@ public class RuleBackendMediumTest {
 
     // verify that parameters are indexed in es
 
-    Rule hit = index.getByKey(ruleKey);
+    Rule hit = index.getByKey(RuleTesting.XOO_X1);
     assertThat(hit.params()).hasSize(2);
 
     RuleParam param = hit.params().get(0);
@@ -264,7 +257,7 @@ public class RuleBackendMediumTest {
 
     // verify that parameters are updated in es
 
-    hit = index.getByKey(ruleKey);
+    hit = index.getByKey(RuleTesting.XOO_X1);
     assertThat(hit.params()).hasSize(2);
 
     param = null;
@@ -283,12 +276,11 @@ public class RuleBackendMediumTest {
   @Deprecated
   public void has_id() throws Exception {
 
-    RuleDto ruleDto = newRuleDto(RuleKey.of("test", "r1"));
+    RuleDto ruleDto = RuleTesting.newXooX1();
     dao.insert(dbSession, ruleDto);
     dbSession.commit();
 
-    assertThat(((RuleDoc) index.getByKey(RuleKey.of("test", "r1"))).id()).isEqualTo(ruleDto.getId());
-
+    assertThat(((RuleDoc) index.getByKey(RuleTesting.XOO_X1)).id()).isEqualTo(ruleDto.getId());
   }
 
 
@@ -303,10 +295,12 @@ public class RuleBackendMediumTest {
       .setParentId(char1.getId());
     db.debtCharacteristicDao().insert(char11, dbSession);
 
-    RuleKey ruleKey = RuleKey.of("test", "r1");
-    RuleDto ruleDto = newRuleDto(ruleKey)
-      .setDefaultSubCharacteristicId(char11.getId());
-    dao.insert(dbSession, ruleDto);
+    dao.insert(dbSession,
+      RuleTesting.newXooX1()
+        .setDefaultSubCharacteristicId(char11.getId())
+        .setRemediationFunction(null)
+        .setRemediationCoefficient(null)
+        .setRemediationOffset(null));
     dbSession.commit();
 
 
@@ -317,11 +311,14 @@ public class RuleBackendMediumTest {
     assertThat(db.debtCharacteristicDao().selectByKey("c11", dbSession).getParentId()).isEqualTo(char1.getId());
 
     // 1. find char and subChar from rule
-    Rule rule = index.getByKey(ruleKey);
+    Rule rule = index.getByKey(RuleTesting.XOO_X1);
     assertThat(rule.debtCharacteristicKey()).isEqualTo(char1.getKey());
     assertThat(rule.debtSubCharacteristicKey()).isEqualTo(char11.getKey());
+    assertThat(rule.debtOverloaded()).isFalse();
+
 
     // 3. set Non-default characteristics
+    RuleDto ruleDto = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
     CharacteristicDto char2 = DebtTesting.newCharacteristicDto("c2");
     db.debtCharacteristicDao().insert(char2, dbSession);
 
@@ -333,7 +330,10 @@ public class RuleBackendMediumTest {
     dao.update(dbSession, ruleDto);
     dbSession.commit();
 
-    rule = index.getByKey(ruleKey);
+    rule = index.getByKey(RuleTesting.XOO_X1);
+
+    // Assert rule has debt Overloaded Char
+    assertThat(rule.debtOverloaded()).isTrue();
 
     // 4. Get non-default chars from Rule
     assertThat(rule.debtCharacteristicKey()).isEqualTo(char2.getKey());
@@ -346,48 +346,59 @@ public class RuleBackendMediumTest {
 
   }
 
+  @Test
+  public void insert_update_debt_overload() throws Exception {
+
+    RuleDto ruleDto = RuleTesting.newXooX1()
+      .setRemediationFunction(null)
+      .setRemediationCoefficient(null)
+      .setRemediationOffset(null);
+
+    RuleDto overloadedRuleDto = RuleTesting.newXooX2();
+
+    dao.insert(dbSession, ruleDto, overloadedRuleDto);
+    dbSession.commit();
+
+    // Assert is overloaded or not
+    assertThat(index.getByKey(RuleTesting.XOO_X1).debtOverloaded()).isFalse();
+    assertThat(index.getByKey(RuleTesting.XOO_X2).debtOverloaded()).isTrue();
+
+    // Assert overloaded value
+    Rule base = index.getByKey(RuleTesting.XOO_X1);
+    Rule overloaded = index.getByKey(RuleTesting.XOO_X2);
+
+    assertThat(base.debtRemediationFunction().type().toString())
+      .isEqualTo(ruleDto.getDefaultRemediationFunction());
+    assertThat(base.debtRemediationFunction().coefficient())
+      .isEqualTo(ruleDto.getDefaultRemediationCoefficient());
+    assertThat(base.debtRemediationFunction().offset())
+      .isEqualTo(ruleDto.getDefaultRemediationOffset());
+
+    assertThat(overloaded.debtRemediationFunction().type().toString())
+      .isEqualTo(overloadedRuleDto.getRemediationFunction());
+    assertThat(overloaded.debtRemediationFunction().coefficient())
+      .isEqualTo(overloadedRuleDto.getRemediationCoefficient());
+    assertThat(overloaded.debtRemediationFunction().offset())
+      .isEqualTo(overloadedRuleDto.getRemediationOffset());
+  }
 
   @Test
   public void should_not_find_removed() {
     // insert db
-    RuleKey readyKey = RuleKey.of("javascript", "S001");
-    RuleDto readyDto = RuleTesting.newDto(readyKey).setStatus(RuleStatus.READY);
-    RuleKey removedKey = RuleKey.of("javascript", "S002");
-    RuleDto removedDto = RuleTesting.newDto(removedKey).setStatus(RuleStatus.REMOVED);
-    dao.insert(dbSession, readyDto, removedDto);
+    dao.insert(dbSession,
+      RuleTesting.newXooX1(),
+      RuleTesting.newXooX2().setStatus(RuleStatus.REMOVED));
     dbSession.commit();
 
     // 0. Assert rules are in DB
     assertThat(dao.findAll(dbSession)).hasSize(2);
 
     // 1. assert getBy for removed
-    assertThat(index.getByKey(removedKey)).isNotNull();
+    assertThat(index.getByKey(RuleTesting.XOO_X2)).isNotNull();
 
     // 2. assert find does not get REMOVED
     List<Rule> rules = index.search(new RuleQuery(), new QueryOptions()).getHits();
     assertThat(rules).hasSize(1);
-    assertThat(rules.get(0).key()).isEqualTo(readyKey);
-  }
-
-  private RuleDto newRuleDto(RuleKey ruleKey) {
-    return new RuleDto()
-      .setRuleKey(ruleKey.rule())
-      .setRepositoryKey(ruleKey.repository())
-      .setName("Rule " + ruleKey.rule())
-      .setDescription("Description " + ruleKey.rule())
-      .setStatus(RuleStatus.READY)
-      .setConfigKey("InternalKey" + ruleKey.rule())
-      .setSeverity(Severity.INFO)
-      .setIsTemplate(false)
-      .setLanguage("js")
-      .setTags(ImmutableSet.of("tag1", "tag2"))
-      .setSystemTags(ImmutableSet.of("systag1", "systag2"))
-      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
-      .setRemediationCoefficient("1h")
-      .setDefaultRemediationCoefficient("5d")
-      .setRemediationOffset("5min")
-      .setDefaultRemediationOffset("10h")
-      .setEffortToFixDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix");
+    assertThat(rules.get(0).key()).isEqualTo(RuleTesting.XOO_X1);
   }
 }

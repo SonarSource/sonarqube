@@ -44,7 +44,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Ignore
-//TODO fix tempFolder
 public class BaseIndexTest {
 
   @Rule
@@ -73,11 +72,11 @@ public class BaseIndexTest {
   }
 
   @Test
-  public void creates_management_index() {
+  public void creates_domain_index() {
     BaseIndex index = getIndex(this.node);
 
     IndicesExistsResponse indexExistsResponse = index.getClient().admin().indices()
-      .prepareExists(IndexDefinition.TEST.getManagementIndex()).execute().actionGet();
+      .prepareExists(IndexDefinition.TEST.getIndexName()).execute().actionGet();
 
     assertThat(indexExistsResponse.isExists()).isTrue();
   }

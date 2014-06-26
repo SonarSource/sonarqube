@@ -91,6 +91,9 @@ public interface Rule {
   @CheckForNull
   DebtRemediationFunction debtRemediationFunction();
 
+  @CheckForNull
+  DebtRemediationFunction defaultDebtRemediationFunction();
+
   Date createdAt();
 
   Date updatedAt();

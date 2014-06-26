@@ -183,8 +183,9 @@ public class RuleDoc extends BaseDoc implements Rule {
 
   @Override
   public boolean debtOverloaded() {
-    return !defaultDebtSubCharacteristicKey()
-      .equalsIgnoreCase(debtSubCharacteristicKey());
+    return getNullableField(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()) != null ||
+      getNullableField(RuleNormalizer.RuleField.CHARACTERISTIC.field()) != null ||
+      getNullableField(RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field()) != null;
   }
 
   @Override
@@ -202,13 +203,21 @@ public class RuleDoc extends BaseDoc implements Rule {
   @Override
   @CheckForNull
   public String debtCharacteristicKey() {
-    return (String) getNullableField(RuleNormalizer.RuleField.CHARACTERISTIC.field());
+    if (getNullableField(RuleNormalizer.RuleField.CHARACTERISTIC.field()) != null) {
+      return (String) getNullableField(RuleNormalizer.RuleField.CHARACTERISTIC.field());
+    } else {
+      return defaultDebtCharacteristicKey();
+    }
   }
 
   @Override
   @CheckForNull
   public String debtSubCharacteristicKey() {
-    return (String) getNullableField(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field());
+    if (getNullableField(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()) != null) {
+      return (String) getNullableField(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field());
+    } else {
+      return defaultDebtSubCharacteristicKey();
+    }
   }
 
   @Override
@@ -216,7 +225,7 @@ public class RuleDoc extends BaseDoc implements Rule {
   public DebtRemediationFunction debtRemediationFunction() {
     final String function = getNullableField(RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field());
     if (function == null || function.isEmpty()) {
-      return null;
+      return defaultDebtRemediationFunction();
     } else {
       return new DebtRemediationFunction() {
         @Override
@@ -232,6 +241,31 @@ public class RuleDoc extends BaseDoc implements Rule {
         @Override
         public String offset() {
           return (String) getNullableField(RuleNormalizer.RuleField.DEBT_FUNCTION_OFFSET.field());
+        }
+      };
+    }
+  }
+
+  @Override
+  public DebtRemediationFunction defaultDebtRemediationFunction() {
+    final String function = getNullableField(RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_TYPE.field());
+    if (function == null || function.isEmpty()) {
+      return null;
+    } else {
+      return new DebtRemediationFunction() {
+        @Override
+        public Type type() {
+          return Type.valueOf(function.toUpperCase());
+        }
+
+        @Override
+        public String coefficient() {
+          return (String) getNullableField(RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_COEFFICIENT.field());
+        }
+
+        @Override
+        public String offset() {
+          return (String) getNullableField(RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_OFFSET.field());
         }
       };
     }

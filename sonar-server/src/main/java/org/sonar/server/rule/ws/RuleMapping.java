@@ -52,9 +52,15 @@ public class RuleMapping extends BaseMapping {
     addField("defaultDebtChar", new IndexStringField("defaultDebtSubChar", RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field()));
     addField("debtChar", new IndexStringField("debtChar", RuleNormalizer.RuleField.CHARACTERISTIC.field()));
     addField("debtChar", new IndexStringField("debtSubChar", RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()));
-    addField("debtRemFn", new IndexStringField("debtRemFnType", RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field()));
-    addField("debtRemFn", new IndexStringField("debtRemFnCoeff", RuleNormalizer.RuleField.DEBT_FUNCTION_COEFFICIENT.field()));
-    addField("debtRemFn", new IndexStringField("debtRemFnOffset", RuleNormalizer.RuleField.DEBT_FUNCTION_OFFSET.field()));
+    addField("debtRemFn", new IndexStringField("debtRemFnType", RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field(),
+      RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_TYPE.field()));
+    addField("debtRemFn", new IndexStringField("debtRemFnCoeff", RuleNormalizer.RuleField.DEBT_FUNCTION_COEFFICIENT.field(),
+      RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_COEFFICIENT.field()));
+    addField("debtRemFn", new IndexStringField("debtRemFnOffset", RuleNormalizer.RuleField.DEBT_FUNCTION_OFFSET.field(),
+      RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_OFFSET.field()));
+    addField("defaultDebtRemFn", new IndexStringField("defaultDebtRemFnType", RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_TYPE.field()));
+    addField("defaultDebtRemFn", new IndexStringField("defaultDebtRemFnCoeff", RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_COEFFICIENT.field()));
+    addField("defaultDebtRemFn", new IndexStringField("defaultDebtRemFnOffset", RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_OFFSET.field()));
     addIndexStringField("effortToFixDescription", RuleNormalizer.RuleField.FIX_DESCRIPTION.field());
     addIndexStringField("mdNote", RuleNormalizer.RuleField.NOTE.field());
     addField("htmlNote", new HtmlNoteField(macroInterpreter));

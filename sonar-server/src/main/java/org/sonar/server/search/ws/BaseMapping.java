@@ -125,6 +125,11 @@ public abstract class BaseMapping implements ServerComponent {
   public static class IndexStringField extends IndexField<BaseDoc> {
     private final String key;
 
+    public IndexStringField(String key, String indexKey, String defaultIndexKey) {
+      super(indexKey, defaultIndexKey);
+      this.key = key;
+    }
+
     public IndexStringField(String key, String indexKey) {
       super(indexKey);
       this.key = key;
@@ -133,6 +138,9 @@ public abstract class BaseMapping implements ServerComponent {
     @Override
     public void write(JsonWriter json, BaseDoc doc) {
       Object val = doc.getNullableField(indexFields[0]);
+      if (val == null && indexFields.length == 2) { // There is an alternative value
+        val = doc.getNullableField(indexFields[1]);
+      }
       json.prop(key, val != null ? val.toString() : null);
     }
   }
