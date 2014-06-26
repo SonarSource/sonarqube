@@ -20,6 +20,7 @@
 
 package org.sonar.server.db.migrations.v44;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.DatabaseMigration;
 import org.sonar.server.db.migrations.MassUpdater;
@@ -75,7 +76,7 @@ public class FeedQProfileKeysMigration implements DatabaseMigration {
 
         @Override
         public boolean convert(Row row, PreparedStatement updateStatement) throws SQLException {
-          updateStatement.setString(1, Slug.slugify(String.format("%s %s", row.lang, row.name)));
+          updateStatement.setString(1, Slug.slugify(String.format("%s %s %s", row.lang, row.name, RandomStringUtils.randomNumeric(5))));
           updateStatement.setLong(2, row.id);
           return true;
         }

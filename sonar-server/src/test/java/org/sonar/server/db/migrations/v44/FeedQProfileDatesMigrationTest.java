@@ -23,7 +23,6 @@ package org.sonar.server.db.migrations.v44;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.UtcDateUtils;
 import org.sonar.core.persistence.TestDatabase;
