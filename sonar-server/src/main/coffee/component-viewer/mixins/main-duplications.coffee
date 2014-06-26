@@ -25,7 +25,7 @@ define [], () ->
         deletedFiles = true if blocks.length != d.blocks.length
         blocks: blocks
       @source.set 'duplications', duplications
-      @source.set 'duplicationsInDeletedFiles', deletedFiles
+      @state.set 'duplicationsInDeletedFiles', deletedFiles
 
 
     augmentWithDuplications: (duplications) ->
