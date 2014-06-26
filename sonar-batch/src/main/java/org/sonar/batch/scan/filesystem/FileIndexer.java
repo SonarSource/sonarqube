@@ -31,7 +31,6 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFileFilter;
 import org.sonar.api.batch.fs.internal.DeprecatedDefaultInputFile;
-import org.sonar.api.resources.Project;
 import org.sonar.api.utils.MessageException;
 
 import java.io.File;
@@ -39,6 +38,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Index input files into {@link InputFileCache}.
@@ -56,14 +58,8 @@ public class FileIndexer implements BatchComponent {
   private final ExclusionFilters exclusionFilters;
   private final InputFileBuilderFactory inputFileBuilderFactory;
 
-  public FileIndexer(List<InputFileFilter> filters, ExclusionFilters exclusionFilters, InputFileBuilderFactory inputFileBuilderFactory,
-    InputFileCache cache, Project module, ProjectDefinition def) {
-    this(filters, exclusionFilters, inputFileBuilderFactory, cache, !module.getModules().isEmpty());
-  }
+  private ExecutorService executor;
 
-  /**
-   * Used by scan2
-   */
   public FileIndexer(List<InputFileFilter> filters, ExclusionFilters exclusionFilters, InputFileBuilderFactory inputFileBuilderFactory,
     InputFileCache cache, ProjectDefinition def) {
     this(filters, exclusionFilters, inputFileBuilderFactory, cache, !def.getSubProjects().isEmpty());
@@ -88,6 +84,8 @@ public class FileIndexer implements BatchComponent {
 
     Progress progress = new Progress(fileCache.byModule(fileSystem.moduleKey()));
 
+    executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
+
     InputFileBuilder inputFileBuilder = inputFileBuilderFactory.create(fileSystem);
     if (!fileSystem.sourceFiles().isEmpty() || !fileSystem.testFiles().isEmpty()) {
       // Index only provided files
@@ -101,6 +99,18 @@ public class FileIndexer implements BatchComponent {
         indexDirectory(inputFileBuilder, fileSystem, progress, testDir, InputFile.Type.TEST);
       }
 
+    }
+
+    executor.shutdown();
+    try {
+      executor.awaitTermination(10, TimeUnit.SECONDS);
+    } catch (InterruptedException e) {
+      throw new IllegalStateException("FileIndexer was interrupted", e);
+    }
+
+    // Populate FS in a synchronous way because PersistIt Exchange is not concurrent
+    for (InputFile indexed : progress.indexed) {
+      fileSystem.add(indexed);
     }
 
     // Remove files that have been removed since previous indexation
@@ -131,13 +141,21 @@ public class FileIndexer implements BatchComponent {
     }
   }
 
-  private void indexFile(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fs,
-    Progress status, DeprecatedDefaultInputFile inputFile, InputFile.Type type) {
-    InputFile completedFile = inputFileBuilder.complete(inputFile, type);
-    if (completedFile != null && accept(completedFile)) {
-      fs.add(completedFile);
-      status.markAsIndexed(completedFile);
-    }
+  private void indexFile(final InputFileBuilder inputFileBuilder, final DefaultModuleFileSystem fs,
+    final Progress status, final DeprecatedDefaultInputFile inputFile, final InputFile.Type type) {
+
+    Runnable worker = new Runnable() {
+
+      @Override
+      public void run() {
+        InputFile completedFile = inputFileBuilder.complete(inputFile, type);
+        if (completedFile != null && accept(completedFile)) {
+          status.markAsIndexed(completedFile);
+        }
+      }
+    };
+    executor.execute(worker);
+
   }
 
   private boolean accept(InputFile inputFile) {
@@ -159,7 +177,7 @@ public class FileIndexer implements BatchComponent {
       this.indexed = new HashSet<InputFile>();
     }
 
-    void markAsIndexed(InputFile inputFile) {
+    synchronized void markAsIndexed(InputFile inputFile) {
       if (indexed.contains(inputFile)) {
         throw MessageException.of("File " + inputFile + " can't be indexed twice. Please check that inclusion/exclusion patterns produce "
           + "disjoint sets for main and test files");
