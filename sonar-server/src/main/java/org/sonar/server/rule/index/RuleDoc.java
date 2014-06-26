@@ -24,6 +24,7 @@ import com.google.common.collect.Iterables;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.server.rule.Rule;
@@ -33,6 +34,7 @@ import org.sonar.server.search.IndexUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -231,6 +233,9 @@ public class RuleDoc extends BaseDoc implements Rule {
   @Override
   @CheckForNull
   public DebtRemediationFunction debtRemediationFunction() {
+    if (DebtCharacteristic.NONE.equals(getNullableField(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()))) {
+      return null;
+    }
     final String function = getNullableField(RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field());
     if (function == null || function.isEmpty()) {
       return defaultDebtRemediationFunction();
@@ -255,6 +260,7 @@ public class RuleDoc extends BaseDoc implements Rule {
   }
 
   @Override
+  @CheckForNull
   public DebtRemediationFunction defaultDebtRemediationFunction() {
     final String function = getNullableField(RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_TYPE.field());
     if (function == null || function.isEmpty()) {

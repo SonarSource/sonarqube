@@ -334,12 +334,11 @@ public class RuleUpdaterMediumTest {
     assertThat(rule.getDefaultRemediationCoefficient()).isNotNull();
     assertThat(rule.getDefaultRemediationOffset()).isNotNull();
 
-
-
     // verify index
     Rule indexedRule = tester.get(RuleIndex.class).getByKey(RULE_KEY);
-    assertThat(indexedRule.debtCharacteristicKey()).isNull();
-    assertThat(indexedRule.debtSubCharacteristicKey()).isNull();
+    assertThat(indexedRule.debtCharacteristicKey()).isEqualTo("NONE");
+    assertThat(indexedRule.debtSubCharacteristicKey()).isEqualTo("NONE");
+    assertThat(indexedRule.debtRemediationFunction()).isNull();
     assertThat(indexedRule.debtOverloaded()).isTrue();
   }
 

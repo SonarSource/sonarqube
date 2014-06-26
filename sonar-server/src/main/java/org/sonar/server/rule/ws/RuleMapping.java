@@ -50,8 +50,10 @@ public class RuleMapping extends BaseMapping {
     addIndexArrayField("sysTags", RuleNormalizer.RuleField.SYSTEM_TAGS.field());
     addField("defaultDebtChar", new IndexStringField("defaultDebtChar", RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field()));
     addField("defaultDebtChar", new IndexStringField("defaultDebtSubChar", RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field()));
-    addField("debtChar", new IndexStringField("debtChar", RuleNormalizer.RuleField.CHARACTERISTIC.field()));
-    addField("debtChar", new IndexStringField("debtSubChar", RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()));
+    addField("debtChar", new IndexStringField("debtChar", RuleNormalizer.RuleField.CHARACTERISTIC.field(),
+      RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field()));
+    addField("debtChar", new IndexStringField("debtSubChar", RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(),
+      RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field()));
     addField("debtRemFn", new IndexStringField("debtRemFnType", RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field(),
       RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_TYPE.field()));
     addField("debtRemFn", new IndexStringField("debtRemFnCoeff", RuleNormalizer.RuleField.DEBT_FUNCTION_COEFFICIENT.field(),
@@ -67,6 +69,9 @@ public class RuleMapping extends BaseMapping {
     addIndexStringField("noteLogin", RuleNormalizer.RuleField.NOTE_LOGIN.field());
     addIndexStringField("lang", RuleNormalizer.RuleField.LANGUAGE.field());
     addField("langName", new LangNameField(languages));
+    addField("debtCharName", new CharacteristicNameField());
+    addField("debtSubCharName", new SubCharacteristicNameField());
+    addField("debtOverloaded", new OverriddenField());
     addField("params", new ParamsField());
   }
 
@@ -142,6 +147,29 @@ public class RuleMapping extends BaseMapping {
           json.prop("htmlDesc", macroInterpreter.interpret(html));
         }
       }
+    }
+  }
+
+  private static class CharacteristicNameField implements Field<Rule> {
+    @Override
+    public void write(JsonWriter json, Rule rule) {
+      // TODO set characteristic name
+      json.prop("debtCharName", rule.debtCharacteristicKey());
+    }
+  }
+
+  private static class SubCharacteristicNameField implements Field<Rule> {
+    @Override
+    public void write(JsonWriter json, Rule rule) {
+      // TODO set characteristic name
+      json.prop("debtSubCharName", rule.debtSubCharacteristicKey());
+    }
+  }
+
+  private static class OverriddenField implements Field<Rule> {
+    @Override
+    public void write(JsonWriter json, Rule rule) {
+      json.prop("debtOverloaded", rule.debtOverloaded());
     }
   }
 }

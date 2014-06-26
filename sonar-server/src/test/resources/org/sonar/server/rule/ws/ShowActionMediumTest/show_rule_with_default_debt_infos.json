@@ -1,13 +1,18 @@
 {
   "rule": {
+    "debtChar": "API",
+    "debtCharName": "API",
+    "debtSubChar": "API_ABUSE",
+    "debtSubCharName": "API_ABUSE",
+    "debtRemFnType": "LINEAR_OFFSET",
     "debtRemFnCoeff": "5d",
     "debtRemFnOffset": "10h",
-    "debtRemFnType": "LINEAR_OFFSET",
     "defaultDebtChar": "API",
+    "defaultDebtSubChar": "API_ABUSE",
+    "defaultDebtRemFnType": "LINEAR_OFFSET",
     "defaultDebtRemFnCoeff": "5d",
     "defaultDebtRemFnOffset": "10h",
-    "defaultDebtRemFnType": "LINEAR_OFFSET",
-    "defaultDebtSubChar": "API_ABUSE",
+    "debtOverloaded": false,
     "effortToFixDescription": "java.S001.effortToFix",
     "htmlDesc": "Rule S001 <b>description</b>",
     "internalKey": "InternalKeyS001",
@@ -15,23 +20,8 @@
     "key": "java:S001",
     "lang": "xoo",
     "name": "Rule S001",
-    "params": [
-      {
-        "defaultValue": ".*",
-        "desc": "Reg ex",
-        "key": "regex"
-      }
-    ],
     "repo": "java",
     "severity": "MINOR",
-    "status": "BETA",
-    "sysTags": [
-      "systag1",
-      "systag2"
-    ],
-    "tags": [
-      "tag1",
-      "tag2"
-    ]
+    "status": "BETA"
   }
 }

@@ -7,21 +7,19 @@
     "severity": "MINOR",
     "status": "BETA",
     "isTemplate": false,
-    "tags": ["tag1", "tag2"],
-    "sysTags": ["systag1", "systag2"],
     "debtChar": "OS",
+    "debtCharName": "OS",
     "debtSubChar": "OS_RELATED_PORTABILITY",
+    "debtSubCharName": "OS_RELATED_PORTABILITY",
     "debtRemFnType": "LINEAR_OFFSET",
     "debtRemFnCoeff": "5d",
     "debtRemFnOffset": "10h",
-    "lang": "xoo",
-    "params": [
-      {
-        "key": "regex",
-        "desc": "Reg ex",
-        "defaultValue": ".*"
-      }
-    ]
+    "defaultDebtChar": "API",
+    "defaultDebtSubChar": "API_ABUSE",
+    "defaultDebtRemFnType": "LINEAR",
+    "defaultDebtRemFnCoeff": "5min",
+    "debtOverloaded": true,
+    "lang": "xoo"
   }
 }
 

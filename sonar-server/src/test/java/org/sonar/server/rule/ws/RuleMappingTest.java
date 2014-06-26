@@ -114,6 +114,8 @@ public class RuleMappingTest {
 
     assertThat(queryOptions.getFieldsToReturn()).containsOnly(
       RuleNormalizer.RuleField.CHARACTERISTIC.field(),
-      RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field());
+      RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(),
+      RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field(),
+      RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field());
   }
 }

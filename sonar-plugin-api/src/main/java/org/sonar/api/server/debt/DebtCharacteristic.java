@@ -27,6 +27,11 @@ import javax.annotation.CheckForNull;
  */
 public interface DebtCharacteristic {
 
+  /**
+   * Only used when a characteristic is disabled (id is -1 in dto) by the user. see {@link org.sonar.server.rule.index.RuleNormalizer}
+   */
+  static String NONE = "NONE";
+
   String key();
 
   String name();

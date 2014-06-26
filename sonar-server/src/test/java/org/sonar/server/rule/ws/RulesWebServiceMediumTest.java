@@ -51,7 +51,7 @@ import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class RulesWebServiceTest {
+public class RulesWebServiceMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester();

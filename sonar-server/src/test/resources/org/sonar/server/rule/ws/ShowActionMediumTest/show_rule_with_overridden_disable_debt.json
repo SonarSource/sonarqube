@@ -7,13 +7,8 @@
     "severity": "MINOR",
     "status": "BETA",
     "isTemplate": false,
-    "debtChar": "API",
-    "debtCharName": "API",
-    "debtSubChar": "API_ABUSE",
-    "debtSubCharName": "API_ABUSE",
-    "debtRemFnType": "LINEAR_OFFSET",
-    "debtRemFnCoeff": "5d",
-    "debtRemFnOffset": "10h",
+    "debtChar": "NONE",
+    "debtSubChar": "NONE",
     "debtOverloaded": true,
     "lang": "xoo"
   }

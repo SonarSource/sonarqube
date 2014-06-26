@@ -123,11 +123,7 @@ public class ShowActionMediumTest {
         .setRemediationFunction(null)
         .setRemediationCoefficient(null)
         .setRemediationOffset(null)
-        .setTags(newHashSet("tag1", "tag2"))
-        .setSystemTags(newHashSet("systag1", "systag2"))
     );
-    RuleParamDto param = RuleParamDto.createFor(ruleDto).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
-    ruleDao.addRuleParam(session, ruleDto, param);
     session.commit();
     session.clearCache();
 
@@ -166,11 +162,7 @@ public class ShowActionMediumTest {
         .setRemediationFunction("LINEAR_OFFSET")
         .setRemediationCoefficient("5d")
         .setRemediationOffset("10h")
-        .setTags(newHashSet("tag1", "tag2"))
-        .setSystemTags(newHashSet("systag1", "systag2"))
     );
-    RuleParamDto param = RuleParamDto.createFor(ruleDto).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
-    ruleDao.addRuleParam(session, ruleDto, param);
     session.commit();
     session.clearCache();
 
@@ -185,15 +177,15 @@ public class ShowActionMediumTest {
       .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
       .setLogin("me");
 
-    CharacteristicDto characteristicDto = new CharacteristicDto().setKey("API").setName("API").setEnabled(true);
-    tester.get(CharacteristicDao.class).insert(characteristicDto, session);
-    CharacteristicDto subCharacteristicDto = new CharacteristicDto().setKey("API_ABUSE").setName("API Abuse").setEnabled(true).setParentId(characteristicDto.getId());
-    tester.get(CharacteristicDao.class).insert(subCharacteristicDto, session);
+    CharacteristicDto defaultCharacteristic = new CharacteristicDto().setKey("API").setName("API").setEnabled(true);
+    tester.get(CharacteristicDao.class).insert(defaultCharacteristic, session);
+    CharacteristicDto defaultSubCharacteristic = new CharacteristicDto().setKey("API_ABUSE").setName("API Abuse").setEnabled(true).setParentId(defaultCharacteristic.getId());
+    tester.get(CharacteristicDao.class).insert(defaultSubCharacteristic, session);
 
-    CharacteristicDto characteristicDto2 = new CharacteristicDto().setKey("OS").setName("OS").setEnabled(true);
-    tester.get(CharacteristicDao.class).insert(characteristicDto2, session);
-    CharacteristicDto subCharacteristicDto2 = new CharacteristicDto().setKey("OS_RELATED_PORTABILITY").setName("Portability").setEnabled(true).setParentId(characteristicDto2.getId());
-    tester.get(CharacteristicDao.class).insert(subCharacteristicDto2, session);
+    CharacteristicDto characteristic = new CharacteristicDto().setKey("OS").setName("OS").setEnabled(true);
+    tester.get(CharacteristicDao.class).insert(characteristic, session);
+    CharacteristicDto subCharacteristic = new CharacteristicDto().setKey("OS_RELATED_PORTABILITY").setName("Portability").setEnabled(true).setParentId(characteristic.getId());
+    tester.get(CharacteristicDao.class).insert(subCharacteristic, session);
 
     RuleDto ruleDto = ruleDao.insert(session,
       RuleTesting.newDto(RuleKey.of("java", "S001"))
@@ -203,25 +195,83 @@ public class ShowActionMediumTest {
         .setStatus(RuleStatus.BETA)
         .setConfigKey("InternalKeyS001")
         .setLanguage("xoo")
-        .setDefaultSubCharacteristicId(subCharacteristicDto.getId())
+        .setDefaultSubCharacteristicId(defaultSubCharacteristic.getId())
         .setDefaultRemediationFunction("LINEAR")
         .setDefaultRemediationCoefficient("5min")
         .setDefaultRemediationOffset(null)
-        .setSubCharacteristicId(subCharacteristicDto2.getId())
+        .setSubCharacteristicId(subCharacteristic.getId())
         .setRemediationFunction("LINEAR_OFFSET")
         .setRemediationCoefficient("5d")
         .setRemediationOffset("10h")
-        .setTags(newHashSet("tag1", "tag2"))
-        .setSystemTags(newHashSet("systag1", "systag2"))
     );
-    RuleParamDto param = RuleParamDto.createFor(ruleDto).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
-    ruleDao.addRuleParam(session, ruleDto, param);
     session.commit();
     session.clearCache();
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
       .setParam("key", ruleDto.getKey().toString());
     request.execute().assertJson(getClass(), "show_rule_with_default_and_overridden_debt_infos.json", false);
+  }
+
+  @Test
+  public void show_rule_with_no_default_and_no_overridden_debt() throws Exception {
+    MockUserSession.set()
+      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
+      .setLogin("me");
+
+    RuleDto ruleDto = ruleDao.insert(session,
+      RuleTesting.newDto(RuleKey.of("java", "S001"))
+        .setName("Rule S001")
+        .setDescription("Rule S001 <b>description</b>")
+        .setSeverity(Severity.MINOR)
+        .setStatus(RuleStatus.BETA)
+        .setConfigKey("InternalKeyS001")
+        .setLanguage("xoo")
+        .setDefaultSubCharacteristicId(null)
+        .setDefaultRemediationFunction(null)
+        .setDefaultRemediationCoefficient(null)
+        .setDefaultRemediationOffset(null)
+        .setSubCharacteristicId(null)
+        .setRemediationFunction(null)
+        .setRemediationCoefficient(null)
+        .setRemediationOffset(null)
+    );
+    session.commit();
+    session.clearCache();
+
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
+      .setParam("key", ruleDto.getKey().toString());
+    request.execute().assertJson(getClass(), "show_rule_with_no_default_and_no_overridden_debt.json", false);
+  }
+
+  @Test
+  public void show_rule_with_overridden_disable_debt() throws Exception {
+    MockUserSession.set()
+      .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN)
+      .setLogin("me");
+
+    RuleDto ruleDto = ruleDao.insert(session,
+      RuleTesting.newDto(RuleKey.of("java", "S001"))
+        .setName("Rule S001")
+        .setDescription("Rule S001 <b>description</b>")
+        .setSeverity(Severity.MINOR)
+        .setStatus(RuleStatus.BETA)
+        .setConfigKey("InternalKeyS001")
+        .setLanguage("xoo")
+        .setDefaultSubCharacteristicId(null)
+        .setDefaultRemediationFunction(null)
+        .setDefaultRemediationCoefficient(null)
+        .setDefaultRemediationOffset(null)
+        .setSubCharacteristicId(-1)
+        .setRemediationFunction(null)
+        .setRemediationCoefficient(null)
+        .setRemediationOffset(null)
+    );
+    session.commit();
+    session.clearCache();
+
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
+      .setParam("key", ruleDto.getKey().toString());
+    request.execute().assertJson(getClass(), "show_rule_with_overridden_disable_debt.json", false);
   }
 
   @Test

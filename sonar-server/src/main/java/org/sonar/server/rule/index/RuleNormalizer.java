@@ -26,6 +26,7 @@ import org.elasticsearch.action.WriteConsistencyLevel;
 import org.elasticsearch.action.support.replication.ReplicationType;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.core.rule.RuleParamDto;
@@ -38,12 +39,7 @@ import org.sonar.server.search.Indexable;
 import org.sonar.server.search.es.ListUpdate;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
@@ -222,8 +218,8 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
       if (rule.getSubCharacteristicId() != null) {
         if (rule.getSubCharacteristicId() == -1) {
-          update.put(RuleField.CHARACTERISTIC.field(), "");
-          update.put(RuleField.SUB_CHARACTERISTIC.field(), "");
+          update.put(RuleField.CHARACTERISTIC.field(), DebtCharacteristic.NONE);
+          update.put(RuleField.SUB_CHARACTERISTIC.field(), DebtCharacteristic.NONE);
         } else {
           CharacteristicDto characteristic = null;
           CharacteristicDto subCharacteristic = null;
