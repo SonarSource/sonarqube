@@ -4,6 +4,10 @@
 
 {{else}}
 
+  {{#if source.duplicationsInDeletedFiles}}
+      <p>{{t 'duplications.dups_found_on_deleted_resource'}}</p>
+  {{/if}}
+
   <table class="code">
     {{#if showZeroLine}}
       <tr class="row row-hidden" data-line-number="0">

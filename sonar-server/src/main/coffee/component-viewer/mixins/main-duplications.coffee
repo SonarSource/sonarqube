@@ -20,10 +20,13 @@ define [], () ->
     skipRemovedFiles: ->
       duplications = @source.get 'duplications'
       files = @source.get 'duplicationFiles'
+      deletedFiles = false
       duplications = _.map duplications, (d) ->
         blocks = _.filter d.blocks, (b) -> files[b._ref]
+        deletedFiles = true if blocks.length != d.blocks.length
         blocks: blocks
       @source.set 'duplications', duplications
+      @source.set 'duplicationsInDeletedFiles', deletedFiles
 
 
     augmentWithDuplications: (duplications) ->
