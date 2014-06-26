@@ -40,9 +40,6 @@ import org.sonar.api.utils.ZipUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -158,6 +155,7 @@ public class ESNodeTest {
 
     node.stop();
   }
+
   @Test
   public void check_gram_analyzer() throws Exception {
     ESNode node = new ESNode(fs, new Settings());
@@ -214,29 +212,6 @@ public class ESNodeTest {
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("Elasticsearch is not started");
-    }
-  }
-
-  @Test
-  public void should_enable_rest_console() throws Exception {
-    Settings settings = new Settings();
-    int httpPort = NetworkUtils.freePort();
-    settings.setProperty("sonar.es.http.port", httpPort);
-    ESNode node = new ESNode(fs, settings);
-    node.start();
-
-    URL url = URI.create("http://localhost:" + httpPort).toURL();
-    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-    connection.connect();
-    assertThat(connection.getResponseCode()).isEqualTo(200);
-
-    node.stop();
-    connection = (HttpURLConnection) url.openConnection();
-    try {
-      connection.connect();
-      fail();
-    } catch (Exception e) {
-      // ok, console is down
     }
   }
 }
