@@ -21,6 +21,8 @@
 package org.sonar.server.duplication.ws;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
 import org.junit.Before;
@@ -31,6 +33,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.component.persistence.ComponentDao;
+
+import javax.annotation.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -170,12 +174,12 @@ public class DuplicationsParserTest {
     assertThat(duplications).hasSize(2);
 
     // Duplications on removed file
-    DuplicationsParser.Duplication duplication1 = duplications.get(0);
+    DuplicationsParser.Duplication duplication1 = duplication(duplications, null);
     assertThat(duplication1.file()).isNull();
     assertThat(duplication1.from()).isEqualTo(31);
     assertThat(duplication1.size()).isEqualTo(5);
 
-    DuplicationsParser.Duplication duplication2 = duplications.get(1);
+    DuplicationsParser.Duplication duplication2 = duplication(duplications, fileOnSameProject.key());
     assertThat(duplication2.file()).isEqualTo(fileOnSameProject);
     assertThat(duplication2.from()).isEqualTo(20);
     assertThat(duplication2.size()).isEqualTo(5);
@@ -213,6 +217,15 @@ public class DuplicationsParserTest {
 
   private String getData(String file) throws IOException {
     return Files.toString(new File(Resources.getResource(this.getClass(), "DuplicationsParserTest/" + file).getFile()), Charsets.UTF_8);
+  }
+
+  private static DuplicationsParser.Duplication duplication(List<DuplicationsParser.Duplication> duplications, @Nullable final String componentKey){
+    return Iterables.find(duplications, new Predicate<DuplicationsParser.Duplication>() {
+      @Override
+      public boolean apply(@Nullable DuplicationsParser.Duplication input) {
+        return input != null && (componentKey == null ? input.file() == null : input.file() != null && componentKey.equals(input.file().key()));
+      }
+    });
   }
 
 }
