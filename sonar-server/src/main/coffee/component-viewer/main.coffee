@@ -42,6 +42,7 @@ define [
 
   API_COMPONENT = "#{baseUrl}/api/components/app"
   API_SOURCES = "#{baseUrl}/api/sources/show"
+  API_RAW_SOURCES = "#{baseUrl}/api/sources"
   API_MEASURES = "#{baseUrl}/api/resources"
   API_TESTS = "#{baseUrl}/api/tests/show"
 
@@ -275,6 +276,12 @@ define [
     hideAllLines: ->
       @sourceView.resetShowBlocks()
       @sourceView.render()
+
+
+    showRawSources: ->
+      key = encodeURIComponent @component.get 'key'
+      url = "#{API_RAW_SOURCES}?resource=#{key}&format=txt"
+      location.href = url
 
 
     enablePeriod: (periodKey, activeHeaderItem) ->

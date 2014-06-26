@@ -22,20 +22,14 @@
         {{/if}}
       </div>
     {{else}}
-    <div class="component-viewer-header-component-project removed">{{t 'issue.component_deleted'}}</div>
+      <div class="component-viewer-header-component-project removed">{{t 'issue.component_deleted'}}</div>
     {{/unless}}
   </div>
 
   {{#unless state.removed}}
-    <div class="component-viewer-header-links">
-      <a class="js-permalink" title="{{t 'new_window'}}"><i class="icon-detach"></i></a>
-      {{#ifNotEmpty state.extensions}}
-        <a class="js-extensions">
-          <i class="icon-extension"></i>
-          <i class="icon-dropdown"></i>
-        </a>
-      {{/ifNotEmpty}}
-    </div>
+    <a class="js-actions component-viewer-header-actions" title="{{t 'component_viewer.more_actions'}}">
+      <i class="icon-list"></i>
+    </a>
 
     <div class="component-viewer-header-measures">
       {{#if component.isUnitTest}}

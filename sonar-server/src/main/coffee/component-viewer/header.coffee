@@ -8,7 +8,7 @@ define [
   'component-viewer/header/duplications-header'
   'component-viewer/header/scm-header'
   'component-viewer/header/tests-header'
-  'component-viewer/extensions-popup'
+  'component-viewer/header/more-actions'
 
   'common/handlebars-extensions'
 ], (
@@ -21,7 +21,7 @@ define [
   DuplicationsHeaderView
   SCMHeaderView
   TestsHeaderView
-  ExtensionsPopup
+  MoreActionsView
 ) ->
 
   $ = jQuery
@@ -55,7 +55,7 @@ define [
 
     events:
       'click .js-favorite': 'toggleFavorite'
-      'click .js-extensions': 'showExtensionsPopup'
+      'click .js-actions': 'showMoreActions'
       'click .js-extension-close': 'closeExtension'
       'click .js-permalink': 'getPermalink'
       'click @ui.expandLinks': 'showExpandedBar'
@@ -102,15 +102,11 @@ define [
           @render()
 
 
-    showExtensionsPopup: (e) ->
+    showMoreActions: (e) ->
       e.stopPropagation()
       $('body').click()
-      popup = new ExtensionsPopup
-        triggerEl: $(e.currentTarget)
-        main: @options.main
-        bottomRight: true
-      popup.render()
-      popup.on 'extension', (key) => @showExtension key
+      view = new MoreActionsView main: @options.main
+      view.render().$el.appendTo @$el
 
 
     showExtension: (key) ->
