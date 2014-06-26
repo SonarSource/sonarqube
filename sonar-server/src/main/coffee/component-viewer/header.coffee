@@ -77,9 +77,12 @@ define [
       activeHeaderTab = @state.get 'activeHeaderTab'
       activeHeaderItem = @state.get 'activeHeaderItem'
       if activeHeaderTab
-        @enableBar(activeHeaderTab).done =>
-          if activeHeaderItem
-            @enableBarItem activeHeaderItem, @silentUpdate
+        if _.findWhere(BARS, scope: activeHeaderTab)?
+          @enableBar(activeHeaderTab).done =>
+            if activeHeaderItem
+              @enableBarItem activeHeaderItem, @silentUpdate
+        else
+          @showExtension activeHeaderTab
       @silentUpdate = false
 
 
