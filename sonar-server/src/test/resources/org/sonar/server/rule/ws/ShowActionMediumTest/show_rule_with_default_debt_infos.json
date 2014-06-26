@@ -1,27 +1,37 @@
 {
   "rule": {
-    "key": "java:S001",
-    "repo": "java",
-    "name": "Rule S001",
-    "htmlDesc": "Rule S001 <b>description</b>",
-    "severity": "MINOR",
-    "status": "BETA",
-    "isTemplate": false,
-    "tags": ["tag1", "tag2"],
-    "sysTags": ["systag1", "systag2"],
-    "debtChar": "API",
-    "debtSubChar": "API_ABUSE",
-    "debtRemFnType": "LINEAR_OFFSET",
     "debtRemFnCoeff": "5d",
     "debtRemFnOffset": "10h",
+    "debtRemFnType": "LINEAR_OFFSET",
+    "defaultDebtChar": "API",
+    "defaultDebtRemFnCoeff": "5d",
+    "defaultDebtRemFnOffset": "10h",
+    "defaultDebtRemFnType": "LINEAR_OFFSET",
+    "defaultDebtSubChar": "API_ABUSE",
+    "effortToFixDescription": "java.S001.effortToFix",
+    "htmlDesc": "Rule S001 <b>description</b>",
+    "internalKey": "InternalKeyS001",
+    "isTemplate": false,
+    "key": "java:S001",
     "lang": "xoo",
+    "name": "Rule S001",
     "params": [
       {
-        "key": "regex",
+        "defaultValue": ".*",
         "desc": "Reg ex",
-        "defaultValue": ".*"
+        "key": "regex"
       }
+    ],
+    "repo": "java",
+    "severity": "MINOR",
+    "status": "BETA",
+    "sysTags": [
+      "systag1",
+      "systag2"
+    ],
+    "tags": [
+      "tag1",
+      "tag2"
     ]
   }
 }
-

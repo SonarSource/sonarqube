@@ -20,7 +20,10 @@
 
 package org.sonar.server.rule.ws;
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -130,7 +133,10 @@ public class ShowActionMediumTest {
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
       .setParam("key", ruleDto.getKey().toString());
-    request.execute().assertJson(getClass(), "show_rule_with_default_debt_infos.json", false);
+    WsTester.Result response = request.execute();
+
+    System.out.println("response = " + response.outputAsString());
+    response.assertJson(getClass(), "show_rule_with_default_debt_infos.json", false);
   }
 
   @Test

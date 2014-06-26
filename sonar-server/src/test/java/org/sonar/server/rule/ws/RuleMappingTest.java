@@ -85,7 +85,10 @@ public class RuleMappingTest {
     assertThat(queryOptions.getFieldsToReturn()).containsOnly(
       RuleNormalizer.RuleField.DEBT_FUNCTION_COEFFICIENT.field(),
       RuleNormalizer.RuleField.DEBT_FUNCTION_OFFSET.field(),
-      RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field());
+      RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field(),
+      RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_COEFFICIENT.field(),
+      RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_OFFSET.field(),
+      RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_TYPE.field());
   }
 
   @Test
