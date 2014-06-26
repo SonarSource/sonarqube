@@ -137,7 +137,6 @@ public class RuleActivator implements ServerComponent {
 
     if (!changes.isEmpty()) {
       updateProfileDate(dbSession, context);
-      log.write(dbSession, Activity.Type.QPROFILE, changes);
       previewCache.reportGlobalModification(dbSession);
     }
     return changes;
@@ -197,7 +196,7 @@ public class RuleActivator implements ServerComponent {
     } else if (change.getType() == ActiveRuleChange.Type.UPDATED) {
       activeRule = doUpdate(change, context, dbSession);
     }
-
+    log.write(dbSession, Activity.Type.QPROFILE, change);
     return activeRule;
   }
 
@@ -316,7 +315,6 @@ public class RuleActivator implements ServerComponent {
 
     if (!changes.isEmpty()) {
       updateProfileDate(dbSession, context);
-      log.write(dbSession, Activity.Type.QPROFILE, changes);
       previewCache.reportGlobalModification(dbSession);
     }
 
