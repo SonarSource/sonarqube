@@ -13,6 +13,7 @@
      qprofiles_measure = measure(Metric::QUALITY_PROFILES)
      if qprofiles_measure && !qprofiles_measure.data.blank?
        qprofiles = JSON.parse qprofiles_measure.data
+       if qprofiles.size>0
   %>
     <p class="description-widget-description">
       <%= message('widget.description.profiles') -%>:
@@ -26,7 +27,8 @@
           </span>
           <% if i < (qprofiles.size - 1) %>,<% end %>
         </span>
-      <% end %>
+      <%   end
+         end %>
     </p>
   <%
      else
