@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -289,7 +288,6 @@ public class ActiveRuleBackendMediumTest {
   }
 
   @Test
-  @Ignore
   public void stats_for_all() {
     QualityProfileDto profileDto1 = QProfileTesting.newXooP1();
     QualityProfileDto profileDto2 = QProfileTesting.newXooP2();
@@ -312,7 +310,7 @@ public class ActiveRuleBackendMediumTest {
       ActiveRuleDto.createFor(profileDto2, ruleDto2)
         .setInheritance(ActiveRule.Inheritance.INHERITED.name())
         .setSeverity(Severity.BLOCKER)
-      );
+    );
     dbSession.commit();
     dbSession.clearCache();
 
