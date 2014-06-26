@@ -123,7 +123,7 @@ public class DuplicationsWriterTest {
     List<DuplicationsParser.Block> blocks = newArrayList();
     blocks.add(new DuplicationsParser.Block(newArrayList(
       new DuplicationsParser.Duplication(file1, 57, 12),
-      new DuplicationsParser.Duplication(file2, 73, 12)
+      new DuplicationsParser.Duplication(null, 73, 12)
     )));
 
     test(blocks,
@@ -135,7 +135,7 @@ public class DuplicationsWriterTest {
         "          \"from\": 57, \"size\": 12, \"_ref\": \"1\"\n" +
         "        },\n" +
         "        {\n" +
-        "          \"from\": 73, \"size\": 12, \"_ref\": \"2\"\n" +
+        "          \"from\": 73, \"size\": 12\n" +
         "        }\n" +
         "      ]\n" +
         "    }," +
@@ -150,7 +150,7 @@ public class DuplicationsWriterTest {
         "}"
     );
 
-    verify(componentDao, times(2)).getNullableByKey(eq(session), anyString());
+    verify(componentDao, times(1)).getNullableByKey(eq(session), anyString());
     verify(componentDao, times(1)).getById(anyLong(), eq(session));
   }
 

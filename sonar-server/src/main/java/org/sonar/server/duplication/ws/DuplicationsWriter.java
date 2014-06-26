@@ -63,11 +63,15 @@ public class DuplicationsWriter implements ServerComponent {
   }
 
   private void writeDuplication(Map<String, String> refByComponentKey, DuplicationsParser.Duplication duplication, JsonWriter json) {
-    String componentKey = duplication.file().key();
-    String ref = refByComponentKey.get(componentKey);
-    if (ref == null) {
-      ref = Integer.toString(refByComponentKey.size() + 1);
-      refByComponentKey.put(componentKey, ref);
+    String ref = null;
+    ComponentDto componentDto = duplication.file();
+    if (componentDto != null) {
+      String componentKey = componentDto.key();
+      ref = refByComponentKey.get(componentKey);
+      if (ref == null) {
+        ref = Integer.toString(refByComponentKey.size() + 1);
+        refByComponentKey.put(componentKey, ref);
+      }
     }
 
     json.beginObject();

@@ -29,6 +29,7 @@ import org.sonar.core.component.ComponentDto;
 import org.sonar.core.persistence.DbSession;
 import org.sonar.server.component.persistence.ComponentDao;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -116,9 +117,13 @@ public class DuplicationsParser implements ServerComponent {
       if (d1 == null || d2 == null) {
         return -1;
       }
-
       ComponentDto file1 = d1.file();
       ComponentDto file2 = d2.file();
+
+      if (file1 == null || file2 == null) {
+        return -1;
+      }
+
       if (file1.equals(d2.file())) {
         // if duplication on same file => order by starting line
         return d1.from().compareTo(d2.from());
@@ -161,12 +166,16 @@ public class DuplicationsParser implements ServerComponent {
     private final ComponentDto file;
     private final Integer from, size;
 
-    Duplication(ComponentDto file, Integer from, Integer size) {
+    Duplication(@Nullable ComponentDto file, Integer from, Integer size) {
       this.file = file;
       this.from = from;
       this.size = size;
     }
 
+    /**
+     * File can be null when duplication is linked on a removed file
+     */
+    @CheckForNull
     ComponentDto file() {
       return file;
     }

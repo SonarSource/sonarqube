@@ -162,6 +162,26 @@ public class DuplicationsParserTest {
   }
 
   @Test
+  public void duplication_on_removed_file() throws Exception {
+    List<DuplicationsParser.Block> blocks = parser.parse(currentFile, getData("duplication_on_removed_file.xml"), session);
+    assertThat(blocks).hasSize(1);
+
+    List<DuplicationsParser.Duplication> duplications = blocks.get(0).duplications();
+    assertThat(duplications).hasSize(2);
+
+    // Duplications on removed file
+    DuplicationsParser.Duplication duplication1 = duplications.get(0);
+    assertThat(duplication1.file()).isNull();
+    assertThat(duplication1.from()).isEqualTo(31);
+    assertThat(duplication1.size()).isEqualTo(5);
+
+    DuplicationsParser.Duplication duplication2 = duplications.get(1);
+    assertThat(duplication2.file()).isEqualTo(fileOnSameProject);
+    assertThat(duplication2.from()).isEqualTo(20);
+    assertThat(duplication2.size()).isEqualTo(5);
+  }
+
+  @Test
   public void compare_duplications() throws Exception {
     ComponentDto currentFile = new ComponentDto().setId(11L).setProjectId(1L);
     ComponentDto fileOnSameProject = new ComponentDto().setId(12L).setProjectId(1L);
@@ -181,10 +201,14 @@ public class DuplicationsParserTest {
     assertThat(comparator.compare(new DuplicationsParser.Duplication(fileOnDifferentProject, 5, 2),
       new DuplicationsParser.Duplication(new ComponentDto().setId(30L).setProjectId(3L), 2, 2))).isEqualTo(1);
 
-    // At leat one null files
+    // With null duplications
     assertThat(comparator.compare(null, new DuplicationsParser.Duplication(fileOnSameProject, 2, 2))).isEqualTo(-1);
     assertThat(comparator.compare(new DuplicationsParser.Duplication(fileOnSameProject, 2, 2), null)).isEqualTo(-1);
     assertThat(comparator.compare(null, null)).isEqualTo(-1);
+
+    // On some removed file
+    assertThat(comparator.compare(new DuplicationsParser.Duplication(currentFile, 2, 2), new DuplicationsParser.Duplication(null, 5, 2))).isEqualTo(-1);
+    assertThat(comparator.compare(new DuplicationsParser.Duplication(null, 2, 2), new DuplicationsParser.Duplication(currentFile, 5, 2))).isEqualTo(-1);
   }
 
   private String getData(String file) throws IOException {
