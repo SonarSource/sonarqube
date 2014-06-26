@@ -112,17 +112,15 @@ public class DuplicationsWriterTest {
   public void write_duplications_with_a_removed_component() throws Exception {
     String key1 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java";
     ComponentDto file1 = new ComponentDto().setId(10L).setQualifier("FIL").setKey(key1).setLongName("PropertyDeleteQuery").setProjectId(1L);
-    String key2 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyUpdateQuery.java";
-    ComponentDto file2 = new ComponentDto().setId(11L).setQualifier("FIL").setKey(key2).setLongName("PropertyUpdateQuery").setProjectId(1L);
 
     when(componentDao.getNullableByKey(session, key1)).thenReturn(file1);
-    // File2 is removed
-    when(componentDao.getNullableByKey(session, key2)).thenReturn(null);
     when(componentDao.getById(1L, session)).thenReturn(new ComponentDto().setId(1L).setLongName("SonarQube"));
 
     List<DuplicationsParser.Block> blocks = newArrayList();
+
     blocks.add(new DuplicationsParser.Block(newArrayList(
       new DuplicationsParser.Duplication(file1, 57, 12),
+      // Duplication on a removed file
       new DuplicationsParser.Duplication(null, 73, 12)
     )));
 
