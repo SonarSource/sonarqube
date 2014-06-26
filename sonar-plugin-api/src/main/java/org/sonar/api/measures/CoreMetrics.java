@@ -435,8 +435,6 @@ public final class CoreMetrics {
   /**
    * Value of measure for this metric can be saved from Sensor, taking into account following rules:
    * <ul>
-   * <li>If tool (like Maven Surefire Plugin) has not been activated to run unit tests, then Sensor should not save anything. For example there is no such tool for COBOL.</li>
-   * <li>If tool has been activated, but there was no unit tests to run, then zero value should be saved for project.</li>
    * <li>Non-zero value should be saved for resources representing tests. And Sonar provides default Decorator, which will decorate parent resources.</li>
    * <li>Should include {@link #TEST_FAILURES} and {@link #TEST_ERRORS}, but should not include {@link #SKIPPED_TESTS}.</li>
    * </ul>
