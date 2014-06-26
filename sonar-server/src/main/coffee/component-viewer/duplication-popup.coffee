@@ -46,4 +46,5 @@ define [
       duplications = _.map groupedBlocks, (blocks, fileRef) ->
         blocks: blocks
         file: files[fileRef]
+      component: @options.main.component.toJSON()
       duplications: duplications
