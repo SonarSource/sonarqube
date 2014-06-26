@@ -22,7 +22,10 @@ package org.sonar.server.rule;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -244,7 +247,6 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  @Ignore("debtOverloaded return false as it only check is characteristic key is different from sub characteristic")
   public void override_debt_only_offset() throws Exception {
     insertDebtCharacteristics(dbSession);
     ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
@@ -327,11 +329,18 @@ public class RuleUpdaterMediumTest {
     assertThat(rule.getRemediationCoefficient()).isNull();
     assertThat(rule.getRemediationOffset()).isNull();
 
+    assertThat(rule.getDefaultSubCharacteristicId()).isNotNull();
+    assertThat(rule.getDefaultRemediationFunction()).isNotNull();
+    assertThat(rule.getDefaultRemediationCoefficient()).isNotNull();
+    assertThat(rule.getDefaultRemediationOffset()).isNotNull();
+
+
+
     // verify index
     Rule indexedRule = tester.get(RuleIndex.class).getByKey(RULE_KEY);
     assertThat(indexedRule.debtCharacteristicKey()).isNull();
     assertThat(indexedRule.debtSubCharacteristicKey()).isNull();
-    //TODO pb with db code -1 ? assertThat(indexedRule.debtRemediationFunction()).isNull();
+    assertThat(indexedRule.debtOverloaded()).isTrue();
   }
 
   @Test

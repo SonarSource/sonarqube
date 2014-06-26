@@ -207,7 +207,6 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       update.put(RuleField.DEFAULT_CHARACTERISTIC.field(), null);
       update.put(RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), null);
 
-
       if (rule.getDefaultSubCharacteristicId() != null) {
         CharacteristicDto characteristic = null;
         CharacteristicDto subCharacteristic = null;
@@ -220,7 +219,10 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
         update.put(RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), null);
       }
 
-      if (rule.getSubCharacteristicId() != null) {
+      if (rule.getSubCharacteristicId() == -1) {
+        update.put(RuleField.CHARACTERISTIC.field(), "");
+        update.put(RuleField.SUB_CHARACTERISTIC.field(), "");
+      } else if (rule.getSubCharacteristicId() != null) {
         CharacteristicDto characteristic = null;
         CharacteristicDto subCharacteristic = null;
         subCharacteristic = db.debtCharacteristicDao().selectById(rule.getSubCharacteristicId(), session);

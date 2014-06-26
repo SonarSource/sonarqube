@@ -204,7 +204,11 @@ public class RuleDoc extends BaseDoc implements Rule {
   @CheckForNull
   public String debtCharacteristicKey() {
     if (getNullableField(RuleNormalizer.RuleField.CHARACTERISTIC.field()) != null) {
-      return (String) getNullableField(RuleNormalizer.RuleField.CHARACTERISTIC.field());
+      if (((String) getNullableField(RuleNormalizer.RuleField.CHARACTERISTIC.field())).isEmpty()) {
+        return null;
+      } else {
+        return (String) getNullableField(RuleNormalizer.RuleField.CHARACTERISTIC.field());
+      }
     } else {
       return defaultDebtCharacteristicKey();
     }
@@ -214,7 +218,11 @@ public class RuleDoc extends BaseDoc implements Rule {
   @CheckForNull
   public String debtSubCharacteristicKey() {
     if (getNullableField(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()) != null) {
-      return (String) getNullableField(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field());
+      if (((String) getNullableField(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field())).isEmpty()) {
+        return null;
+      } else {
+        return (String) getNullableField(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field());
+      }
     } else {
       return defaultDebtSubCharacteristicKey();
     }
