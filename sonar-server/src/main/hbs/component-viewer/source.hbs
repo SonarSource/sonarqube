@@ -66,11 +66,7 @@
             </td>
           {{/if}}
 
-          {{#if ../../state.canCreateManualIssue}}
-            <td class="stat lid js-line-actions" title="{{t 'component_viewer.line_actions'}}">{{lineNumber}}</td>
-          {{else}}
-            <td class="stat lid js-line-actions">{{lineNumber}}</td>
-          {{/if}}
+          <td class="stat lid js-line-actions" title="{{t 'component_viewer.line_actions'}}">{{lineNumber}}</td>
 
           <td class="line"><pre>{{{code}}}</pre></td>
         </tr>

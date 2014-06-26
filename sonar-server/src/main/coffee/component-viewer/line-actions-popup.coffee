@@ -18,7 +18,13 @@ define [
 
 
     events:
+      'click .js-get-permalink': 'getPermalink'
       'click .js-add-manual-issue': 'addManualIssue'
+
+
+    getPermalink: (e) ->
+      e.preventDefault()
+      @options.main.headerView.getPermalink()
 
 
     addManualIssue: (e) ->
@@ -42,3 +48,6 @@ define [
         @options.main.sourceView.render()
 
 
+    serializeData: ->
+      _.extend super,
+        state: @options.main.state.toJSON()

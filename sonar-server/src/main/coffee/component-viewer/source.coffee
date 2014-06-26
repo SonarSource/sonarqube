@@ -58,6 +58,7 @@ define [
 
     resetShowBlocks: ->
       @showBlocks = []
+      @options.main.trigger 'resetShowBlocks'
 
 
     addShowBlock: (from, to, forceIncludeZero = false) ->

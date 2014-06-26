@@ -207,12 +207,18 @@ define [
       method.call @options.main, extra
 
 
+    serializeShowBlocks: ->
+      blocks = @options.main.sourceView.showBlocks.map (b) -> "#{b.from},#{b.to}"
+      blocks.join ';'
+
+
     getPermalink: ->
       params = []
       params.push key: 'component', value: @options.main.component.get 'key'
       settings = []
       _.map @options.main.settings.toJSON(), (v, k) -> settings.push k if v
       params.push key: 'settings', value: settings.join ','
+      params.push key: 'blocks', value: @serializeShowBlocks()
       activeHeaderTab = @state.get 'activeHeaderTab'
       if activeHeaderTab
         params.push key: 'tab', value: activeHeaderTab
