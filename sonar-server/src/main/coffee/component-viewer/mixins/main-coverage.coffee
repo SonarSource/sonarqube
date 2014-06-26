@@ -55,7 +55,7 @@ define [], () ->
 
 
     filterByCoverageIT: (predicate) ->
-      requests = [@requestCoverage(@key)]
+      requests = [@requestCoverage(@key, 'IT')]
       if @settings.get('issues') && !@state.get('hasIssues')
         requests.push @requestIssues @key
       $.when.apply($, requests).done =>
