@@ -31,14 +31,11 @@ import org.sonar.api.platform.PluginRepository;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.test.MutableTestPlan;
-import org.sonar.api.test.MutableTestable;
-import org.sonar.api.test.TestPlan;
-import org.sonar.api.test.Testable;
-import org.sonar.api.web.*;
-import org.sonar.core.component.SnapshotPerspectives;
-import org.sonar.server.measure.MeasureFilterEngine;
-import org.sonar.server.measure.MeasureFilterResult;
+import org.sonar.api.web.Footer;
+import org.sonar.api.web.NavigationSection;
+import org.sonar.api.web.Page;
+import org.sonar.api.web.RubyRailsWebservice;
+import org.sonar.api.web.Widget;
 import org.sonar.core.persistence.Database;
 import org.sonar.core.preview.PreviewCache;
 import org.sonar.core.purge.PurgeDao;
@@ -46,11 +43,17 @@ import org.sonar.core.resource.ResourceIndexerDao;
 import org.sonar.core.resource.ResourceKeyUpdaterDao;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.server.db.migrations.DatabaseMigrator;
+import org.sonar.server.measure.MeasureFilterEngine;
+import org.sonar.server.measure.MeasureFilterResult;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.platform.SettingsChangeNotifier;
-import org.sonar.server.plugins.*;
+import org.sonar.server.plugins.InstalledPluginReferentialFactory;
+import org.sonar.server.plugins.PluginDownloader;
+import org.sonar.server.plugins.ServerPluginJarsInstaller;
+import org.sonar.server.plugins.ServerPluginRepository;
+import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.source.CodeColorizers;
 import org.sonar.server.user.NewUserNotifier;
@@ -417,21 +420,5 @@ public final class JRubyFacade {
 
   public String getPeriodAbbreviation(int periodIndex) {
     return get(Periods.class).abbreviation(periodIndex);
-  }
-
-  public TestPlan testPlan(long snapshotId) {
-    return get(SnapshotPerspectives.class).as(MutableTestPlan.class, snapshotId);
-  }
-
-  public TestPlan testPlan(String componentKey) {
-    return get(SnapshotPerspectives.class).as(MutableTestPlan.class, componentKey);
-  }
-
-  public Testable testable(long snapshotId) {
-    return get(SnapshotPerspectives.class).as(MutableTestable.class, snapshotId);
-  }
-
-  public Testable testable(String componentKey) {
-    return get(SnapshotPerspectives.class).as(MutableTestable.class, componentKey);
   }
 }

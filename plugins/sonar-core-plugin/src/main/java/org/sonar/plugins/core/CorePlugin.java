@@ -81,7 +81,6 @@ import org.sonar.plugins.core.timemachine.NewOverallCoverageFileAnalyzer;
 import org.sonar.plugins.core.timemachine.TendencyDecorator;
 import org.sonar.plugins.core.timemachine.TimeMachineConfigurationPersister;
 import org.sonar.plugins.core.timemachine.VariationDecorator;
-import org.sonar.plugins.core.web.TestsViewer;
 import org.sonar.plugins.core.widgets.AlertsWidget;
 import org.sonar.plugins.core.widgets.BubbleChartWidget;
 import org.sonar.plugins.core.widgets.ComplexityWidget;
@@ -270,9 +269,6 @@ public final class CorePlugin extends SonarPlugin {
       DefaultResourceTypes.class,
       UserManagedMetrics.class,
       Periods.class,
-
-      // pages
-      TestsViewer.class,
 
       // measure filters
       ProjectFilter.class,

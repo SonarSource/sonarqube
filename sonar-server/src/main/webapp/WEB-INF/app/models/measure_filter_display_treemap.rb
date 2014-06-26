@@ -140,8 +140,8 @@ class Sonar::HtmlOutput < Treemap::HtmlOutput
 
   def draw_label(node)
     if node.leaf
-      "<a onclick=\"window.open(this.href,'resource','height=800,width=900,scrollbars=1,resizable=1');return false;\" " +
-        "href=\"#{ApplicationController.root_context}/resource/index/#{node.rid}\">#{node_label(node)}</a>"
+      "<a onclick=\"window.open(this.href,'resource-#{node.rid}','height=800,width=900,scrollbars=1,resizable=1');return false;\" " +
+        "href=\"#{ApplicationController.root_context}/dashboard/index/#{node.rid}\">#{node_label(node)}</a>"
     else
       "<a href='#{ApplicationController.root_context}/dashboard/index/#{node.rid}'>#{node_label(node)}</a>"
     end

@@ -44,9 +44,6 @@ public class Views implements ServerComponent {
   }
 
   public Views(View[] views) {
-    for (View view : DefaultPages.getPages()) {
-      register(view);
-    }
     for (View view : views) {
       register(view);
     }
@@ -84,7 +81,7 @@ public class Views implements ServerComponent {
   }
 
   public List<ViewProxy<Page>> getPagesForMetric(String section, String resourceScope, String resourceQualifier, String resourceLanguage,
-                                                 String[] availableMeasures, String metric) {
+    String[] availableMeasures, String metric) {
     List<ViewProxy<Page>> result = Lists.newArrayList();
     for (ViewProxy<Page> proxy : pages) {
       if (accept(proxy, section, resourceScope, resourceQualifier, resourceLanguage, availableMeasures) && proxy.supportsMetric(metric)) {

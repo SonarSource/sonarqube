@@ -63,14 +63,6 @@ public class ViewsTest {
   }
 
   @Test
-  public void should_get_resource_viewers() {
-    final Views views = new Views(VIEWS);
-    List resourceViewers = views.getPages(NavigationSection.RESOURCE_TAB);
-    assertThat(resourceViewers.size()).isEqualTo(1 + 4 /* default */);
-    assertThat(resourceViewers.contains(new ViewProxy<FakeResourceViewer>(FAKE_TAB))).isEqualTo(true);
-  }
-
-  @Test
   public void should_get_widgets() {
     final Views views = new Views(VIEWS);
     List<ViewProxy<Widget>> widgets = views.getWidgets(null, null, null, null);
