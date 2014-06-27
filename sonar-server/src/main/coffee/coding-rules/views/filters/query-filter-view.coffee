@@ -20,6 +20,7 @@ define [
     className: 'navigator-filter navigator-filter-query'
 
     events:
+      'keypress input': 'checkSubmit'
       'change input': 'change'
       'click': 'focus'
       'blur': 'blur'
@@ -52,6 +53,16 @@ define [
     initialize: ->
       super detailsView: null
       @model.set('size', 25) unless @model.get 'size'
+
+
+    checkSubmit: (e) ->
+      if (e.which == 13)
+        e.preventDefault()
+        console.log e
+        @change(e)
+        @blur()
+        @options.app.filterBarView.$('.navigator-filter-submit').focus()
+        @options.app.filterBarView.$('.navigator-filter-submit').click()
 
 
     renderInput: ->
