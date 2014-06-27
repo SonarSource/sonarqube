@@ -41,7 +41,7 @@ import org.sonar.core.issue.db.IssueDao;
 import org.sonar.core.issue.db.IssueDto;
 import org.sonar.core.persistence.MyBatis;
 import org.sonar.core.resource.ResourceDao;
-import org.sonar.core.rule.DefaultRuleFinder;
+import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.user.UserSession;
 

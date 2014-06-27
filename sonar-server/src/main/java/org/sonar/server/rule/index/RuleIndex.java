@@ -20,6 +20,7 @@
 package org.sonar.server.rule.index;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -35,6 +36,7 @@ import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.sort.FieldSortBuilder;
@@ -56,12 +58,14 @@ import org.sonar.server.search.IndexField;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -392,5 +396,35 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       }
     }
     return tags;
+  }
+
+  @Deprecated
+  @CheckForNull
+  public Rule getById(int id) {
+    SearchResponse response = getClient().prepareSearch(this.getIndexName())
+      .setTypes(this.getIndexType())
+      .setQuery(QueryBuilders.termQuery(RuleNormalizer.RuleField.ID.field(),id))
+      .setSize(1)
+      .get();
+    SearchHit hit = response.getHits().getAt(0);
+    if(hit == null){
+      return null;
+    } else {
+      return toDoc(hit.getSource());
+    }
+  }
+
+  @Deprecated
+  public List<Rule> getByIds(Collection<Integer> ids) {
+    SearchResponse response = getClient().prepareSearch(this.getIndexName())
+      .setTypes(this.getIndexType())
+      .setQuery(QueryBuilders.termQuery(RuleNormalizer.RuleField.ID.field(),ids))
+      .setSize(1)
+      .get();
+    List<Rule> rules = Lists.newArrayList();
+    for (SearchHit hit : response.getHits()) {
+      rules.add(toDoc(hit.getSource()));
+    }
+    return rules;
   }
 }
