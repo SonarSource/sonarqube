@@ -48,3 +48,15 @@ define [
           test: test
           main: @main
         popup.render()
+
+
+    hasCoveragePerTestData: ->
+      hasData = false
+      @component.get('tests').forEach (test) ->
+        hasData = true if test.coveredLines
+      hasData
+
+
+    serializeData: ->
+      _.extend super,
+        hasCoveragePerTestData: @hasCoveragePerTestData()

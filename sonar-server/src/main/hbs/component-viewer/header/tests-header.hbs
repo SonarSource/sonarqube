@@ -45,7 +45,9 @@
 <div class="component-viewer-header-expanded-bar-section large">
   <div class="component-viewer-header-expanded-bar-section-title justify">
     <span class="ib">{{t 'component_viewer.measure_section.test_names'}}</span>
-    <span class="ib">Covered Lines</span>
+    {{#if hasCoveragePerTestData}}
+      <span class="ib">{{t 'component_viewer.covered_lines'}}</span>
+    {{/if}}
   </div>
   <ul class="component-viewer-header-expanded-bar-section-list">
     {{#each component.tests}}
@@ -56,15 +58,20 @@
           {{name}}</span>
         </span></li>
       {{else}}
-        <li><a class="item js-unit-test" data-name="{{name}}" data-status="{{status}}" title="{{name}}">
-        <span class="label">{{testStatusIcon status}}
-          <span class="duration subtitle">{{durationInMs}}ms</span>
-          {{name}}</span>
-          {{#if coveredLines}}
+        {{#if coveredLines}}
+          <li><a class="item js-unit-test" data-name="{{name}}" data-status="{{status}}" title="{{name}}">
+          <span class="label">{{testStatusIcon status}}
+            <span class="duration subtitle">{{durationInMs}}ms</span>
+            {{name}}</span>
             <span class="number">{{coveredLines}}</span>
-          {{/if}}
-          <i class="icon-chevron-right"></i>
-        </a></li>
+            <i class="icon-chevron-right"></i>
+          </a></li>
+        {{else}}
+          <li><span class="item" data-name="{{name}}" data-status="{{status}}" title="{{name}}">
+          <span class="label">{{testStatusIcon status}}
+            <span class="duration subtitle">{{durationInMs}}ms</span> {{name}}</span>
+          </span></li>
+        {{/if}}
       {{/eq}}
     {{/each}}
   </ul>
