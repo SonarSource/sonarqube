@@ -224,6 +224,7 @@ public class RuleUpdaterMediumTest {
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefaultRemediationCoefficient("1d")
       .setDefaultRemediationOffset("5min")
+      .setSubCharacteristicId(null)
       .setRemediationFunction(null)
       .setRemediationCoefficient(null)
       .setRemediationOffset(null));

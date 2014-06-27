@@ -19,14 +19,12 @@
  */
 package org.sonar.server.rule.index;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.time.DateUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -48,13 +46,11 @@ import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import javax.annotation.Nullable;
 
+import java.util.*;
+
+import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 
@@ -363,10 +359,10 @@ public class RuleIndexMediumTest {
 
   @Test
   public void search_by_characteristics() throws InterruptedException {
-    CharacteristicDto char1 = DebtTesting.newCharacteristicDto("char1");
+    CharacteristicDto char1 = DebtTesting.newCharacteristicDto("RELIABILITY");
     db.debtCharacteristicDao().insert(char1, dbSession);
 
-    CharacteristicDto char11 = DebtTesting.newCharacteristicDto("char11")
+    CharacteristicDto char11 = DebtTesting.newCharacteristicDto("SOFT_RELIABILITY")
       .setParentId(char1.getId());
     db.debtCharacteristicDao().insert(char11, dbSession);
     dbSession.commit();
@@ -377,6 +373,7 @@ public class RuleIndexMediumTest {
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("javascript", "S002")));
 
     dbSession.commit();
+    dbSession.clearCache();
 
     RuleQuery query;
     Result<Rule> results;
@@ -412,6 +409,74 @@ public class RuleIndexMediumTest {
     // match by SubChar & Char
     query = new RuleQuery().setQueryText(char11.getKey() + " " + char1.getKey());
     assertThat(index.search(query, new QueryOptions()).getHits()).hasSize(1);
+  }
+
+  @Test
+  @Ignore("To be fixed")
+  public void search_by_characteristics_with_default_and_overridden_char() throws InterruptedException {
+    CharacteristicDto char1 = DebtTesting.newCharacteristicDto("RELIABILITY");
+    db.debtCharacteristicDao().insert(char1, dbSession);
+
+    CharacteristicDto char11 = DebtTesting.newCharacteristicDto("SOFT_RELIABILITY")
+      .setParentId(char1.getId());
+    db.debtCharacteristicDao().insert(char11, dbSession);
+    dbSession.commit();
+
+    CharacteristicDto char2 = DebtTesting.newCharacteristicDto("TESTABILITY");
+    db.debtCharacteristicDao().insert(char2, dbSession);
+
+    CharacteristicDto char21 = DebtTesting.newCharacteristicDto("UNIT_TESTABILITY")
+      .setParentId(char2.getId());
+    db.debtCharacteristicDao().insert(char21, dbSession);
+    dbSession.commit();
+
+    // Rule with only default sub characteristic -> should be find by char11 and char1
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S001"))
+      .setSubCharacteristicId(char11.getId())
+      .setDefaultSubCharacteristicId(null));
+
+    // Rule with only sub characteristic -> should be find by char11 and char1
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S002"))
+      .setSubCharacteristicId(null)
+      .setDefaultSubCharacteristicId(char11.getId()));
+
+    // Rule with both default sub characteristic and overridden sub characteristic -> should only be find by char21 and char2
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S003"))
+      .setSubCharacteristicId(char21.getId()))
+      .setDefaultSubCharacteristicId(char11.getId());
+
+    // Rule with both default sub characteristic and overridden sub characteristic and with same values -> should be find by char11 and char1
+    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S004"))
+      .setSubCharacteristicId(char11.getId()))
+      .setDefaultSubCharacteristicId(char11.getId());
+
+    dbSession.commit();
+    dbSession.clearCache();
+
+    RuleQuery query;
+    Result<Rule> results;
+
+    // 0. we have 4 rules in index
+    results = index.search(new RuleQuery(), new QueryOptions());
+    assertThat(results.getHits()).hasSize(4);
+
+    // filter by subChar
+    query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char11.getKey()));
+    assertThat(ruleKeys(index.search(query, new QueryOptions()).getHits())).containsOnly("S001", "S002", "S004"); // FIXME S002 is missing
+
+    query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char21.getKey()));
+    assertThat(ruleKeys(index.search(query, new QueryOptions()).getHits())).containsOnly("S003");
+
+    // filter by Char
+    query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char1.getKey()));
+    assertThat(ruleKeys(index.search(query, new QueryOptions()).getHits())).containsOnly("S001", "S002", "S004"); // FIXME S002 is missing
+
+    query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char2.getKey()));
+    assertThat(ruleKeys(index.search(query, new QueryOptions()).getHits())).containsOnly("S003");
+
+    // filter by Char and SubChar
+    query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char11.getKey(), char1.getKey(), char2.getKey(), char21.getKey()));
+    assertThat(ruleKeys(index.search(query, new QueryOptions()).getHits())).containsOnly("S001", "S002", "S003", "S004"); // FIXME S002 is missing
   }
 
   @Test
@@ -848,5 +913,14 @@ public class RuleIndexMediumTest {
     RuleQuery availableSinceNowQuery = new RuleQuery()
       .setAvailableSince(DateUtils.addDays(since, 1));
     assertThat(index.search(availableSinceNowQuery, new QueryOptions()).getHits()).hasSize(0);
+  }
+
+  private static List<String> ruleKeys(List<Rule> rules){
+    return newArrayList(Iterables.transform(rules, new Function<Rule, String>() {
+      @Override
+      public String apply(@Nullable Rule input) {
+        return input != null ? input.key().rule() : null;
+      }
+    }));
   }
 }
