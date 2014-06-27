@@ -58,7 +58,6 @@ define [
     checkSubmit: (e) ->
       if (e.which == 13)
         e.preventDefault()
-        console.log e
         @change(e)
         @blur()
         @options.app.filterBarView.$('.navigator-filter-submit').focus()
