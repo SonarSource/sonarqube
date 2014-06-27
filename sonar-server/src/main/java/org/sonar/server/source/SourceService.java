@@ -51,15 +51,17 @@ public class SourceService implements ServerComponent {
     this.deprecatedSourceDecorator = deprecatedSourceDecorator;
   }
 
+  @CheckForNull
   public List<String> getLinesAsHtml(String fileKey) {
     return getLinesAsHtml(fileKey, null, null);
   }
 
+  @CheckForNull
   public List<String> getLinesAsHtml(String fileKey, @Nullable Integer from, @Nullable Integer to) {
     checkPermission(fileKey);
 
     List<String> decoratedSource = sourceDecorator.getDecoratedSourceAsHtml(fileKey, from, to);
-    if (!decoratedSource.isEmpty()) {
+    if (decoratedSource != null) {
       return decoratedSource;
     }
     return deprecatedSourceDecorator.getSourceAsHtml(fileKey, from, to);

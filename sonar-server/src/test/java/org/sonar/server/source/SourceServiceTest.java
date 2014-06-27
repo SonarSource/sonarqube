@@ -34,8 +34,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.measure.persistence.MeasureDao;
 import org.sonar.server.user.MockUserSession;
 
-import java.util.Collections;
-
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Mockito.*;
@@ -89,7 +87,7 @@ public class SourceServiceTest {
   @Test
   public void get_lines_from_deprecated_source_decorator_when_no_data_from_new_decorator() throws Exception {
     MockUserSession.set().addComponentPermission(UserRole.CODEVIEWER, PROJECT_KEY, COMPONENT_KEY);
-    when(sourceDecorator.getDecoratedSourceAsHtml(eq(COMPONENT_KEY), anyInt(), anyInt())).thenReturn(Collections.<String>emptyList());
+    when(sourceDecorator.getDecoratedSourceAsHtml(eq(COMPONENT_KEY), anyInt(), anyInt())).thenReturn(null);
 
     service.getLinesAsHtml(COMPONENT_KEY, 1, 2);
 

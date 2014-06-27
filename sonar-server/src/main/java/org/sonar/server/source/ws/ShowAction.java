@@ -76,7 +76,7 @@ public class ShowAction implements RequestHandler {
     int to = (Integer) ObjectUtils.defaultIfNull(request.paramAsInt("to"), Integer.MAX_VALUE);
 
     List<String> sourceHtml = sourceService.getLinesAsHtml(fileKey, from, to);
-    if (sourceHtml.isEmpty()) {
+    if (sourceHtml == null) {
       throw new NotFoundException("File '" + fileKey + "' has no sources");
     }
 

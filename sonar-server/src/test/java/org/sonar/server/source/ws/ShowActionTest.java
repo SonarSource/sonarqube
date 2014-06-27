@@ -25,8 +25,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.source.SourceService;
 import org.sonar.server.ws.WsTester;
 
-import java.util.Collections;
-
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
@@ -65,7 +63,7 @@ public class ShowActionTest {
   @Test
   public void fail_to_show_source_if_no_source_found() throws Exception {
     String componentKey = "src/Foo.java";
-    when(sourceService.getLinesAsHtml(anyString(), anyInt(), anyInt())).thenReturn(Collections.<String>emptyList());
+    when(sourceService.getLinesAsHtml(anyString(), anyInt(), anyInt())).thenReturn(null);
 
     try {
       WsTester.TestRequest request = tester.newGetRequest("api/sources", "show").setParam("key", componentKey);
