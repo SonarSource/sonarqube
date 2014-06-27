@@ -333,4 +333,12 @@ define(['handlebars', 'moment'], function (Handlebars, moment) {
     return changed ? options.fn(this) : options.inverse(this);
   });
 
+  Handlebars.registerHelper('ifTestData', function(test, options) {
+    if ((test.status !== 'OK') || ((test.status === 'OK') && test.coveredLines)) {
+      return options.fn(this);
+    } else {
+      return options.inverse(this);
+    }
+  });
+
 });

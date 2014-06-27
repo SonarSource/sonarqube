@@ -58,7 +58,7 @@
           {{name}}</span>
         </span></li>
       {{else}}
-        {{#if coveredLines}}
+        {{#ifTestData this}}
           <li><a class="item js-unit-test" data-name="{{name}}" data-status="{{status}}" title="{{name}}">
           <span class="label">{{testStatusIcon status}}
             <span class="duration subtitle">{{durationInMs}}ms</span>
@@ -71,7 +71,7 @@
           <span class="label">{{testStatusIcon status}}
             <span class="duration subtitle">{{durationInMs}}ms</span> {{name}}</span>
           </span></li>
-        {{/if}}
+        {{/ifTestData}}
       {{/eq}}
     {{/each}}
   </ul>
