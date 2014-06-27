@@ -82,9 +82,6 @@ public class RuleBackendMediumTest {
     assertThat(persistedDto.getId()).isGreaterThanOrEqualTo(0);
     assertThat(persistedDto.getRuleKey()).isEqualTo(ruleDto.getRuleKey());
     assertThat(persistedDto.getLanguage()).isEqualTo(ruleDto.getLanguage());
-//FIXME
-//    assertThat(persistedDto.getTags()).containsOnly(ruleDto.getTags());
-//    assertThat(persistedDto.getSystemTags()).containsOnly(ruleDto.getSystemTags());
     assertThat(persistedDto.getCreatedAt()).isNotNull();
     assertThat(persistedDto.getUpdatedAt()).isNotNull();
 
@@ -102,10 +99,23 @@ public class RuleBackendMediumTest {
     assertThat(hit.internalKey()).isEqualTo(ruleDto.getConfigKey());
     assertThat(hit.severity()).isEqualTo(ruleDto.getSeverityString());
     assertThat(hit.isTemplate()).isFalse();
-//FIXME
-//    assertThat(hit.tags()).containsOnly(ruleDto.getTags());
-//    assertThat(hit.systemTags()).containsOnly(ruleDto.getSystemTags());
     assertThat(hit.effortToFixDescription()).isEqualTo(ruleDto.getEffortToFixDescription());
+  }
+
+  @Test
+  public void insert_rule_tags_in_db_and_index_in_es() throws InterruptedException {
+    // insert db
+    RuleDto ruleDto = RuleTesting.newXooX1();
+    dao.insert(dbSession, ruleDto);
+    dbSession.commit();
+
+    RuleDto persistedDto = dao.getNullableByKey(dbSession, RuleTesting.XOO_X1);
+    assertThat(persistedDto.getTags().containsAll(ruleDto.getTags())).isTrue();
+    assertThat(persistedDto.getSystemTags().containsAll(ruleDto.getSystemTags())).isTrue();
+
+    Rule hit = index.getByKey(RuleTesting.XOO_X1);
+    assertThat(hit.tags().containsAll(ruleDto.getTags())).isTrue();
+    assertThat(hit.systemTags().containsAll(ruleDto.getSystemTags())).isTrue();
   }
 
   @Test
