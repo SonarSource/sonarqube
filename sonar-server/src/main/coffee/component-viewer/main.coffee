@@ -133,8 +133,8 @@ define [
     requestComponent: (key, clear = false, full = true) ->
       STATE_FIELDS = ['canBulkChange', 'canMarkAsFavourite', 'canCreateManualIssue',
                       'tabs', 'manual_rules', 'extensions']
-      COMPONENT_FIELDS = ['key', 'name', 'path', 'q', 'project', 'projectName', 'subProject', 'subProjectName',
-                          'measures', 'fav']
+      COMPONENT_FIELDS = ['key', 'longName', 'name', 'path', 'q', 'project', 'projectName', 'subProject',
+                          'subProjectName', 'measures', 'fav']
 
       $.get API_COMPONENT, key: key, (data) =>
         # Component
