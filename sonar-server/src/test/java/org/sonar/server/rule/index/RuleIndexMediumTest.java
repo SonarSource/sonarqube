@@ -24,7 +24,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang.time.DateUtils;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -47,8 +50,12 @@ import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
 
 import javax.annotation.Nullable;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.fest.assertions.Assertions.assertThat;
@@ -412,7 +419,6 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  @Ignore("To be fixed")
   public void search_by_characteristics_with_default_and_overridden_char() throws InterruptedException {
     CharacteristicDto char1 = DebtTesting.newCharacteristicDto("RELIABILITY");
     db.debtCharacteristicDao().insert(char1, dbSession);
@@ -462,21 +468,21 @@ public class RuleIndexMediumTest {
 
     // filter by subChar
     query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char11.getKey()));
-    assertThat(ruleKeys(index.search(query, new QueryOptions()).getHits())).containsOnly("S001", "S002", "S004"); // FIXME S002 is missing
+    assertThat(ruleKeys(index.search(query, new QueryOptions()).getHits())).containsOnly("S001", "S002", "S004");
 
     query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char21.getKey()));
     assertThat(ruleKeys(index.search(query, new QueryOptions()).getHits())).containsOnly("S003");
 
     // filter by Char
     query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char1.getKey()));
-    assertThat(ruleKeys(index.search(query, new QueryOptions()).getHits())).containsOnly("S001", "S002", "S004"); // FIXME S002 is missing
+    assertThat(ruleKeys(index.search(query, new QueryOptions()).getHits())).containsOnly("S001", "S002", "S004");
 
     query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char2.getKey()));
     assertThat(ruleKeys(index.search(query, new QueryOptions()).getHits())).containsOnly("S003");
 
     // filter by Char and SubChar
     query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char11.getKey(), char1.getKey(), char2.getKey(), char21.getKey()));
-    assertThat(ruleKeys(index.search(query, new QueryOptions()).getHits())).containsOnly("S001", "S002", "S003", "S004"); // FIXME S002 is missing
+    assertThat(ruleKeys(index.search(query, new QueryOptions()).getHits())).containsOnly("S001", "S002", "S003", "S004");
   }
 
   @Test

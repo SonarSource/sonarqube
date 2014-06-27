@@ -42,6 +42,7 @@ import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.core.cluster.WorkQueue;
 import org.sonar.core.profiling.Profiling;
 import org.sonar.core.profiling.StopWatch;
@@ -219,15 +220,36 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       .termFilter(RuleNormalizer.RuleField.STATUS.field(),
         RuleStatus.REMOVED.toString()));
 
-    this.addMultiFieldTermFilter(fb, query.getDebtCharacteristics(),
-      RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(),
-      RuleNormalizer.RuleField.CHARACTERISTIC.field());
     this.addTermFilter(fb, RuleNormalizer.RuleField.LANGUAGE.field(), query.getLanguages());
     this.addTermFilter(fb, RuleNormalizer.RuleField.REPOSITORY.field(), query.getRepositories());
     this.addTermFilter(fb, RuleNormalizer.RuleField.SEVERITY.field(), query.getSeverities());
     this.addTermFilter(fb, RuleNormalizer.RuleField.KEY.field(), query.getKey());
     this.addTermFilter(fb, RuleNormalizer.RuleField._TAGS.field(), query.getTags());
 
+    // Construct the debt filter on effective char and subChar
+    if (query.getDebtCharacteristics() != null && !query.getDebtCharacteristics().isEmpty()) {
+      fb.must(
+        FilterBuilders.orFilter(
+          // Match only when NOT NONE overriden
+          FilterBuilders.andFilter(
+            FilterBuilders.notFilter(
+              FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), DebtCharacteristic.NONE)),
+            FilterBuilders.orFilter(
+              FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), query.getDebtCharacteristics()),
+              FilterBuilders.termsFilter(RuleNormalizer.RuleField.CHARACTERISTIC.field(), query.getDebtCharacteristics()))
+          ),
+
+          // Match only when NOT NONE overriden
+          FilterBuilders.andFilter(
+            FilterBuilders.orFilter(
+              FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), ""),
+              FilterBuilders.notFilter(FilterBuilders.existsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()))),
+            FilterBuilders.orFilter(
+              FilterBuilders.termsFilter(RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), query.getDebtCharacteristics()),
+              FilterBuilders.termsFilter(RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field(), query.getDebtCharacteristics())))
+        )
+      );
+    }
 
     //Debt char exist filter
     if (query.getHasDebtCharacteristic() != null && query.getHasDebtCharacteristic()) {
