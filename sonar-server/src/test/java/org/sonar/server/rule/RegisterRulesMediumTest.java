@@ -24,7 +24,6 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -271,7 +270,6 @@ public class RegisterRulesMediumTest {
   }
 
   @Test
-  @Ignore("To be fixed")
   public void remove_end_user_tags_that_are_declared_as_system() {
     verifyRulesInDb();
 
@@ -297,9 +295,14 @@ public class RegisterRulesMediumTest {
     dbSession.clearCache();
 
     // User tag should become a system tag
+    RuleDto ruleDtoReloaded = db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
+    assertThat(ruleDtoReloaded.getSystemTags()).contains("tag1", "tag2", "user-tag");
+    assertThat(ruleDtoReloaded.getTags()).isEmpty();
+
+    // User tag should become a system tag
     Rule ruleReloaded = index.getByKey(RuleTesting.XOO_X1);
     assertThat(ruleReloaded.systemTags()).contains("tag1", "tag2", "user-tag");
-    assertThat(ruleUpdated.tags()).isEmpty();
+    assertThat(ruleReloaded.tags()).isEmpty();
   }
 
   @Test

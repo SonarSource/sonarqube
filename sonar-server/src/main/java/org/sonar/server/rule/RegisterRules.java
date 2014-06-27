@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
@@ -340,7 +341,8 @@ public class RegisterRules implements Startable {
     if (RuleStatus.REMOVED == ruleDef.status()) {
       dto.setSystemTags(Collections.<String>emptySet());
       changed = true;
-    } else if (!dto.getSystemTags().containsAll(ruleDef.tags())) {
+    } else if (!dto.getSystemTags().containsAll(ruleDef.tags())
+      || !Sets.intersection(dto.getTags(), ruleDef.tags()).isEmpty()) {
       dto.setSystemTags(ruleDef.tags());
       // remove end-user tags that are now declared as system
       RuleTagHelper.applyTags(dto, ImmutableSet.copyOf(dto.getTags()));
