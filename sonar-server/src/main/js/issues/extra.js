@@ -146,7 +146,10 @@ define(
 
           var that = this,
               app = this.options.app,
+              settings = localStorage.getItem('componentViewerSettings'),
               componentViewer = new ComponentViewer({
+                settings: settings,
+                shouldStoreSettings: true,
                 component: {
                   project: this.model.get('project'),
                   projectLongName: this.model.get('projectLongName')

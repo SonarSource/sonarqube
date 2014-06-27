@@ -81,7 +81,9 @@ define [
     initialize: (options) ->
       @settings = new Backbone.Model @getDefaultSettings()
       if options.settings?
+        options.settings = JSON.parse(options.settings) if typeof options.settings == 'string'
         @settings.set options.settings
+      @shouldStoreSettings = options.shouldStoreSettings
 
       @state = new State()
 
@@ -106,17 +108,19 @@ define [
 
 
     getDefaultSettings: ->
-      componentViewerSettings = localStorage.getItem 'componentViewerSettings'
-      if componentViewerSettings? then JSON.parse componentViewerSettings else
-        issues: false
-        coverage: false
-        duplications: false
-        scm: false
-        workspace: false
+      scm = !!localStorage.getItem('componentViewerSCM')
+      issues: false
+      coverage: false
+      duplications: false
+      scm: scm
+      workspace: false
 
 
     storeSettings: ->
-      localStorage.setItem 'componentViewerSettings', JSON.stringify @settings.toJSON()
+      scm = if @settings.get('scm') then 'scm' else ''
+      localStorage.setItem 'componentViewerSCM', scm
+      if @shouldStoreSettings
+        localStorage.setItem 'componentViewerSettings', JSON.stringify @settings.toJSON()
 
 
     onRender: ->
