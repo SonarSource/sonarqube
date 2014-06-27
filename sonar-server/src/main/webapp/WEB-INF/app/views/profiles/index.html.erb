@@ -54,16 +54,24 @@
        projects_count = projects_count(profile)
        is_default_profile = default_profile && default_profile==profile.key()
     %>
-      <tr class="<%= cycle 'even', 'odd', :name => language.getKey() -%>" id="<%= u profile.key() %>">
+      <tr class="<%= cycle 'even', 'odd', :name => language.getKey() -%> hoverable" id="<%= u profile.key() %>">
         <td  width="40%">
           <a href="<%= url_for :controller => 'profiles', :action => 'show', :key => profile.key() -%>"
              id="rules-<%= profile.key() -%>"><%= h profile.name() -%></a>
         </td>
 
         <td align="right" width="10%">
-          <span id="activated_rules_<%= u profile.key() -%>">
+          <%
+             rules_tooltip = message('quality_profiles.see_rules_tooltip_x_profile', :params => [profile.name()])
+             rules_tooltip = message('quality_profiles.manage_rules_tooltip_x_profile', :params => [profile.name()]) if profiles_administrator?
+          %>
+          <a class="widget-link"
+             href="<%= "#{ApplicationController.root_context}/coding_rules#qprofile=#{profile.key()}|activation=true|languages=#{profile.language()}" -%>"
+             title="<%= rules_tooltip %>">
+            <span id="activated_rules_<%= u profile.key() -%>">
             <%= @active_rule_counts[profile.key()] || 0 -%>
           </span>
+          </a>
         </td>
 
         <td align="right" width="10%" nowrap>
