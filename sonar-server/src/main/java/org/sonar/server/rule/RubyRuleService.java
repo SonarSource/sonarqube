@@ -32,6 +32,7 @@ import org.sonar.server.rule.index.RuleDoc;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 
@@ -59,7 +60,7 @@ public class RubyRuleService implements ServerComponent, Startable {
   }
 
   /**
-   * Used in issues_controller.rb and in manual_rules_controller.rb
+   * Used in issues_controller.rb and in manual_rules_controller.rb and in SQALE
    */
   @CheckForNull
   public Rule findByKey(String ruleKey) {
@@ -82,9 +83,14 @@ public class RubyRuleService implements ServerComponent, Startable {
     query.setHasDebtCharacteristic(RubyUtils.toBoolean(params.get("hasDebtCharacteristic")));
     query.setSortField(RuleNormalizer.RuleField.NAME);
 
-    QueryOptions options = new QueryOptions().setScroll(true);
-    List<Rule> rules = newArrayList(service.search(query, options).scroll());
-    return new PagedResult<Rule>(rules, PagingResult.create(Integer.MAX_VALUE, 1, rules.size()));
+    QueryOptions options = new QueryOptions();
+    Integer page = RubyUtils.toInteger(params.get("p"));
+    int pageIndex = page != null ? page : 1;
+    Integer pageSize = RubyUtils.toInteger(params.get("pageSize"));
+    options.setPage(pageIndex, pageSize != null ? pageSize : 50);
+
+    Result<Rule> result = service.search(query, options);
+    return new PagedResult<Rule>(result.getHits(), PagingResult.create(options.getLimit(), pageIndex, result.getTotal()));
   }
 
   /**
