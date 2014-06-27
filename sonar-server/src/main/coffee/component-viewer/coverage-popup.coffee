@@ -32,7 +32,10 @@ define [
         name: x.name
         subname: x.dir
         active: file.key == key
-      @options.main._open(key).done =>
+      @options.main.state.unset 'activeHeaderTab'
+      @options.main.state.unset 'activeHeaderItem'
+      @options.main._open key
+      @options.main.on 'loaded', =>
         @options.main.headerView.enableBar('tests').done =>
           if method?
             @options.main.headerView.enableUnitTest method
