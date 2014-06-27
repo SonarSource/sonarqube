@@ -81,17 +81,17 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
     switch (type) {
       case LINEAR:
         if (this.coefficient == null || this.offset != null) {
-          throw new IllegalArgumentException(String.format("Only coefficient must be set on %s", this));
+          throw new IllegalArgumentException("Linear functions must only have a non empty coefficient");
         }
         break;
       case LINEAR_OFFSET:
         if (this.coefficient == null || this.offset == null) {
-          throw new IllegalArgumentException(String.format("Both coefficient and offset are required on %s", this));
+          throw new IllegalArgumentException("Linear with offset functions must have both non null coefficient and offset");
         }
         break;
       case CONSTANT_ISSUE:
         if (this.coefficient != null || this.offset == null) {
-          throw new IllegalArgumentException(String.format("Only offset must be set on %s", this));
+          throw new IllegalArgumentException("Constant/issue functions must only have a non empty offset");
         }
         break;
       default:

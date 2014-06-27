@@ -76,7 +76,7 @@ public class DefaultDebtRemediationFunctionTest {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, null, "10h");
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Only coefficient must be set on DebtRemediationFunction{type=LINEAR, coefficient=null, offset=10h}");
+      assertThat(e).hasMessage("Linear functions must only have a non empty coefficient");
     }
   }
 
@@ -86,7 +86,7 @@ public class DefaultDebtRemediationFunctionTest {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, "5min", "10h");
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Only coefficient must be set on DebtRemediationFunction{type=LINEAR, coefficient=5min, offset=10h}");
+      assertThat(e).hasMessage("Linear functions must only have a non empty coefficient");
     }
   }
 
@@ -96,7 +96,7 @@ public class DefaultDebtRemediationFunctionTest {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, "10h", null);
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Only offset must be set on DebtRemediationFunction{type=CONSTANT_ISSUE, coefficient=10h, offset=null}");
+      assertThat(e).hasMessage("Constant/issue functions must only have a non empty offset");
     }
   }
 
@@ -106,7 +106,7 @@ public class DefaultDebtRemediationFunctionTest {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, "5min", "10h");
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Only offset must be set on DebtRemediationFunction{type=CONSTANT_ISSUE, coefficient=5min, offset=10h}");
+      assertThat(e).hasMessage("Constant/issue functions must only have a non empty offset");
     }
   }
 
@@ -116,7 +116,7 @@ public class DefaultDebtRemediationFunctionTest {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "", "10h");
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Both coefficient and offset are required on DebtRemediationFunction{type=LINEAR_OFFSET, coefficient=null, offset=10h}");
+      assertThat(e).hasMessage("Linear with offset functions must have both non null coefficient and offset");
     }
   }
 
@@ -126,7 +126,7 @@ public class DefaultDebtRemediationFunctionTest {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "5min", "");
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Both coefficient and offset are required on DebtRemediationFunction{type=LINEAR_OFFSET, coefficient=5min, offset=null}");
+      assertThat(e).hasMessage("Linear with offset functions must have both non null coefficient and offset");
     }
   }
 
