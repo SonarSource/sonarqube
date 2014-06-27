@@ -80,6 +80,7 @@ define
 
 
   # Tests
+  'tests':                            { tab: 'tests', item: null }
   'test_success_density':             { tab: 'tests', item: null }
   'skipped_tests':                    { tab: 'tests', item: null }
   'test_failures':                    { tab: 'tests', item: null }

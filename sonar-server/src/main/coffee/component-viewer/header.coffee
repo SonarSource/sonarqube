@@ -152,6 +152,7 @@ define [
         bar = _.findWhere BARS, scope: scope
         @barRegion.show new bar.view
           main: @options.main, state: @state, component: @component, settings: @settings, source: @model, header: @
+        @ui.expandedBar.addClass 'active'
         @ui.expandLinks.filter("[data-scope=#{scope}]").addClass 'active'
         activeHeaderItem = @state.get 'activeHeaderItem'
         if activeHeaderItem
