@@ -112,6 +112,47 @@ class RuleActivatorContext {
   }
 
   @CheckForNull
+  String requestParamValue(RuleActivation request, String key) {
+    if (rule.getTemplateId() != null) {
+      return null;
+    }
+    return request.getParameters().get(key);
+  }
+
+  @CheckForNull
+  String currentParamValue(String key) {
+    ActiveRuleParamDto param = activeRuleParams.get(key);
+    return param != null ? param.getValue() : null;
+  }
+
+  @CheckForNull
+  String parentParamValue(String key) {
+    ActiveRuleParamDto param = parentActiveRuleParams.get(key);
+    return param != null ? param.getValue() : null;
+  }
+
+  @CheckForNull
+  String defaultParamValue(String key) {
+    RuleParamDto param = ruleParams.get(key);
+    return param != null ? param.getDefaultValue() : null;
+  }
+
+  @CheckForNull
+  String currentSeverity() {
+    return activeRule != null ? activeRule.getSeverityString() : null;
+  }
+
+  @CheckForNull
+  String parentSeverity() {
+    return parentActiveRule != null ? parentActiveRule.getSeverityString() : null;
+  }
+
+  @CheckForNull
+  String defaultSeverity() {
+    return rule.getSeverityString();
+  }
+
+  @CheckForNull
   Map<String, ActiveRuleParamDto> activeRuleParamsAsMap() {
     return activeRuleParams;
   }
@@ -119,14 +160,6 @@ class RuleActivatorContext {
   Map<String, String> activeRuleParamsAsStringMap() {
     Map<String, String> params = Maps.newHashMap();
     for (Map.Entry<String, ActiveRuleParamDto> param : activeRuleParams.entrySet()) {
-      params.put(param.getKey(), param.getValue().getValue());
-    }
-    return params;
-  }
-
-  Map<String, String> parentActiveRuleParamsAsStringMap() {
-    Map<String, String> params = Maps.newHashMap();
-    for (Map.Entry<String, ActiveRuleParamDto> param : parentActiveRuleParams.entrySet()) {
       params.put(param.getKey(), param.getValue().getValue());
     }
     return params;
@@ -152,37 +185,22 @@ class RuleActivatorContext {
     return this;
   }
 
-  String defaultSeverity() {
-    return parentActiveRule != null ? parentActiveRule.getSeverityString() : rule.getSeverityString();
-  }
-
-  @CheckForNull
-  String defaultParam(String paramKey) {
-    ActiveRuleParamDto parentParam = parentActiveRuleParams.get(paramKey);
-    if (parentParam != null) {
-      return parentParam.getValue();
-    }
-    RuleParamDto ruleParam = ruleParams.get(paramKey);
-    if (ruleParam == null) {
-      throw new BadRequestException(String.format("Rule parameter %s does not exist", paramKey));
-    }
-    return ruleParam.getDefaultValue();
-  }
-
   /**
    * True if trying to override an inherited rule but with exactly the same values
    */
-  boolean isSameAsParent(RuleActivation activation) {
+  boolean isSameAsParent(ActiveRuleChange change) {
     if (parentActiveRule == null) {
       return false;
     }
-    if (activation.useDefaults()) {
-      return true;
+    if (!StringUtils.equals(change.getSeverity(), parentActiveRule.getSeverityString())) {
+      return false;
     }
-    if (StringUtils.equals(activation.getSeverity(), parentActiveRule.getSeverityString())) {
-      return Maps.difference(activation.getParameters(), parentActiveRuleParamsAsStringMap()).areEqual();
+    for (Map.Entry<String, String> entry : change.getParameters().entrySet()) {
+      if (entry.getValue() != null && !entry.getValue().equals(parentParamValue(entry.getKey()))) {
+        return false;
+      }
     }
-    return false;
+    return true;
   }
 
   boolean isSame(ActiveRuleChange change) {

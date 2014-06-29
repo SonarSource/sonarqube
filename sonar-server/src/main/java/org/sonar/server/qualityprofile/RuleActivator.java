@@ -39,14 +39,17 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.search.QueryOptions;
 import org.sonar.server.search.Result;
 import org.sonar.server.util.TypeValidations;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -93,16 +96,18 @@ public class RuleActivator implements ServerComponent {
     boolean stopPropagation = false;
 
     if (context.activeRule() == null) {
+      if (activation.isReset()) {
+        // ignore reset when rule is not activated
+        return changes;
+      }
       // new activation
       change = ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, context.activeRuleKey());
-      if (activation.isCascade() || context.isSameAsParent(activation)) {
+      applySeverityAndParamToChange(activation, context, change);
+      if (activation.isCascade() || context.isSameAsParent(change)) {
         change.setInheritance(ActiveRule.Inheritance.INHERITED);
       }
-      applySeverityAndParamToChange(activation, context, change);
-
     } else {
       // already activated
-
       if (activation.isCascade() && context.activeRule().doesOverride()) {
         // propagating to descendants, but child profile already overrides rule -> stop propagation
         return changes;
@@ -111,14 +116,14 @@ public class RuleActivator implements ServerComponent {
       if (activation.isCascade() && context.activeRule().getInheritance() == null) {
         // activate on child, then on parent -> mark child as overriding parent
         change.setInheritance(ActiveRule.Inheritance.OVERRIDES);
-        change.setSeverity(context.activeRule().getSeverityString());
+        change.setSeverity(context.currentSeverity());
         change.setParameters(context.activeRuleParamsAsStringMap());
         stopPropagation = true;
       } else {
         applySeverityAndParamToChange(activation, context, change);
         if (!activation.isCascade() && context.parentActiveRule() != null) {
           // override rule which is already declared on parents
-          change.setInheritance(context.isSameAsParent(activation) ? ActiveRule.Inheritance.INHERITED : ActiveRule.Inheritance.OVERRIDES);
+          change.setInheritance(context.isSameAsParent(change) ? ActiveRule.Inheritance.INHERITED : ActiveRule.Inheritance.OVERRIDES);
         }
       }
       if (context.isSame(change)) {
@@ -155,18 +160,58 @@ public class RuleActivator implements ServerComponent {
    * <p/>
    * On custom rules, it's always rule parameters that are used
    */
-  private void applySeverityAndParamToChange(RuleActivation activation, RuleActivatorContext context, ActiveRuleChange change) {
-    change.setSeverity(StringUtils.defaultIfEmpty(activation.getSeverity(), context.defaultSeverity()));
-    for (RuleParamDto ruleParamDto : context.ruleParams()) {
-      String value = null;
-      if (context.rule().getTemplateId() == null) {
-        value = StringUtils.defaultIfEmpty(
-          activation.getParameters().get(ruleParamDto.getName()),
-          context.defaultParam(ruleParamDto.getName()));
-        verifyParam(ruleParamDto, value);
+  private void applySeverityAndParamToChange(RuleActivation request, RuleActivatorContext context, ActiveRuleChange change) {
+    if (request.isReset()) {
+      // load severity and params from parent profile, else from default values
+      change.setSeverity(firstNonEmpty(
+        context.parentSeverity(), context.defaultSeverity()));
+      for (RuleParamDto ruleParamDto : context.ruleParams()) {
+        String paramKey = ruleParamDto.getName();
+        change.setParameter(paramKey, validateParam(ruleParamDto, firstNonEmpty(
+          context.parentParamValue(paramKey), context.defaultParamValue(paramKey))));
       }
-      change.setParameter(ruleParamDto.getName(), StringUtils.defaultIfEmpty(value, ruleParamDto.getDefaultValue()));
+
+    } else if (context.activeRule() != null) {
+      // already activated -> load severity and parameters from request, else keep existing ones, else from parent,
+      // else from default
+      change.setSeverity(firstNonEmpty(
+        request.getSeverity(),
+        context.currentSeverity(),
+        context.parentSeverity(),
+        context.defaultSeverity()));
+      for (RuleParamDto ruleParamDto : context.ruleParams()) {
+        String paramKey = ruleParamDto.getName();
+        change.setParameter(paramKey, validateParam(ruleParamDto, firstNonEmpty(
+          context.requestParamValue(request, paramKey),
+          context.currentParamValue(paramKey),
+          context.parentParamValue(paramKey),
+          context.defaultParamValue(paramKey))));
+      }
+
+    } else if (context.activeRule() == null) {
+      // not activated -> load severity and parameters from request, else from parent, else from defaults
+      change.setSeverity(firstNonEmpty(
+        request.getSeverity(),
+        context.parentSeverity(),
+        context.defaultSeverity()));
+      for (RuleParamDto ruleParamDto : context.ruleParams()) {
+        String paramKey = ruleParamDto.getName();
+        change.setParameter(paramKey, validateParam(ruleParamDto, firstNonEmpty(
+          context.requestParamValue(request, paramKey),
+          context.parentParamValue(paramKey),
+          context.defaultParamValue(paramKey))));
+      }
     }
+  }
+
+  @CheckForNull
+  String firstNonEmpty(String... strings) {
+    for (String s : strings) {
+      if (StringUtils.isNotEmpty(s)) {
+        return s;
+      }
+    }
+    return null;
   }
 
   private List<ActiveRuleChange> cascadeActivation(DbSession session, RuleActivation activation, String profileKey) {
@@ -175,10 +220,7 @@ public class RuleActivator implements ServerComponent {
     // get all inherited profiles
     List<QualityProfileDto> children = db.qualityProfileDao().findChildren(session, profileKey);
     for (QualityProfileDto child : children) {
-      RuleActivation childActivation = new RuleActivation(activation.getRuleKey())
-        .isCascade(true)
-        .setParameters(activation.getParameters())
-        .setSeverity(activation.getSeverity());
+      RuleActivation childActivation = new RuleActivation(activation).setCascade(true);
       changes.addAll(activate(session, childActivation, child.getKey()));
     }
     return changes;
@@ -299,7 +341,7 @@ public class RuleActivator implements ServerComponent {
       return changes;
     }
     if (!force && !isCascade && context.activeRule().getInheritance() != null) {
-      throw new IllegalStateException("Cannot deactivate inherited rule '" + key.ruleKey() + "'");
+      throw new BadRequestException("Cannot deactivate inherited rule '" + key.ruleKey() + "'");
     }
     change = ActiveRuleChange.createFor(ActiveRuleChange.Type.DEACTIVATED, key);
     changes.add(change);
@@ -321,7 +363,8 @@ public class RuleActivator implements ServerComponent {
     return changes;
   }
 
-  private void verifyParam(RuleParamDto ruleParam, @Nullable String value) {
+  @CheckForNull
+  private String validateParam(RuleParamDto ruleParam, @Nullable String value) {
     if (value != null) {
       RuleParamType ruleParamType = RuleParamType.parse(ruleParam.getType());
       if (ruleParamType.multiple()) {
@@ -331,6 +374,7 @@ public class RuleActivator implements ServerComponent {
         typeValidations.validate(value, ruleParamType.type(), ruleParamType.values());
       }
     }
+    return value;
   }
 
   BulkChangeResult bulkActivate(RuleQuery ruleQuery, String profileKey, @Nullable String severity) {
@@ -338,7 +382,8 @@ public class RuleActivator implements ServerComponent {
     RuleIndex ruleIndex = index.get(RuleIndex.class);
     DbSession dbSession = db.openSession(false);
     try {
-      Result<Rule> ruleSearchResult = ruleIndex.search(ruleQuery, new QueryOptions().setScroll(true));
+      Result<Rule> ruleSearchResult = ruleIndex.search(ruleQuery, new QueryOptions().setScroll(true)
+        .setFieldsToReturn(Arrays.asList(RuleNormalizer.RuleField.KEY.field())));
       Iterator<Rule> rules = ruleSearchResult.scroll();
       while (rules.hasNext()) {
         Rule rule = rules.next();
@@ -347,7 +392,9 @@ public class RuleActivator implements ServerComponent {
           activation.setSeverity(severity);
           List<ActiveRuleChange> changes = activate(dbSession, activation, profileKey);
           result.addChanges(changes);
-          result.incrementSucceeded();
+          if (!changes.isEmpty()) {
+            result.incrementSucceeded();
+          }
 
         } catch (BadRequestException e) {
           // other exceptions stop the bulk activation
@@ -367,14 +414,23 @@ public class RuleActivator implements ServerComponent {
     try {
       RuleIndex ruleIndex = index.get(RuleIndex.class);
       BulkChangeResult result = new BulkChangeResult();
-      Result<Rule> ruleSearchResult = ruleIndex.search(ruleQuery, new QueryOptions().setScroll(true));
+      Result<Rule> ruleSearchResult = ruleIndex.search(ruleQuery, new QueryOptions().setScroll(true)
+        .setFieldsToReturn(Arrays.asList(RuleNormalizer.RuleField.KEY.field())));
       Iterator<Rule> rules = ruleSearchResult.scroll();
       while (rules.hasNext()) {
-        Rule rule = rules.next();
-        ActiveRuleKey key = ActiveRuleKey.of(profile, rule.key());
-        List<ActiveRuleChange> changes = deactivate(dbSession, key);
-        result.addChanges(changes);
-        result.incrementSucceeded();
+        try {
+          Rule rule = rules.next();
+          ActiveRuleKey key = ActiveRuleKey.of(profile, rule.key());
+          List<ActiveRuleChange> changes = deactivate(dbSession, key);
+          result.addChanges(changes);
+          if (!changes.isEmpty()) {
+            result.incrementSucceeded();
+          }
+        } catch (BadRequestException e) {
+          // other exceptions stop the bulk activation
+          result.incrementFailed();
+          result.getErrors().add(e.errors());
+        }
       }
       dbSession.commit();
       return result;

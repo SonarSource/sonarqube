@@ -36,6 +36,7 @@ public class RuleActivationActions implements ServerComponent {
   public static final String PROFILE_KEY = "profile_key";
   public static final String RULE_KEY = "rule_key";
   public static final String SEVERITY = "severity";
+  public static final String RESET = "reset";
   public static final String PARAMS = "params";
 
   public static final String ACTIVATE_ACTION = "activate_rule";
@@ -68,13 +69,17 @@ public class RuleActivationActions implements ServerComponent {
     defineActiveRuleKeyParameters(activate);
 
     activate.createParam(SEVERITY)
-      .setDescription("Severity. An empty value resets to the severity inherited from parent profile or to " +
-        "the default rule severity.")
+      .setDescription(String.format("Severity. Ignored if parameter %s is true.", RESET))
       .setPossibleValues(Severity.ALL);
 
     activate.createParam(PARAMS)
-      .setDescription("Parameters as semi-colon list of <key>=<value>, for example 'params=key1=v1;key2=v2'. A parameter " +
-        "with empty value is reset to the value inherited from parent profile or to the parameter default value.");
+      .setDescription(String.format("Parameters as semi-colon list of <key>=<value>, for example " +
+        "'params=key1=v1;key2=v2'. Ignored if parameter %s is true.", RESET));
+
+    activate.createParam(RESET)
+      .setDescription("Reset severity and parameters of activated rule. Set the values defined on parent profile " +
+        "or from rule default values.")
+      .setBooleanPossibleValues();
   }
 
   private void defineDeactivateAction(WebService.NewController controller) {
@@ -112,6 +117,7 @@ public class RuleActivationActions implements ServerComponent {
     if (params != null) {
       activation.setParameters(KeyValueFormat.parse(params));
     }
+    activation.setReset(request.paramAsBoolean(RESET) == Boolean.TRUE);
     service.activate(request.mandatoryParam(PROFILE_KEY), activation);
   }
 

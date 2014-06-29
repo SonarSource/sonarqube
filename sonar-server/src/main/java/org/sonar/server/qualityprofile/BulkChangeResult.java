@@ -54,4 +54,8 @@ public class BulkChangeResult {
   void addChanges(Collection<ActiveRuleChange> c) {
     this.changes.addAll(c);
   }
+
+  public List<ActiveRuleChange> getChanges() {
+    return changes;
+  }
 }

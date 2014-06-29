@@ -32,12 +32,22 @@ import java.util.Map;
 public class RuleActivation {
 
   private final RuleKey ruleKey;
-  private final Map<String, String> parameters = Maps.newHashMap();
+  private final Map<String, String> parameters;
   private String severity = null;
   private boolean cascade = false;
+  private boolean reset = false;
 
   public RuleActivation(RuleKey ruleKey) {
     this.ruleKey = ruleKey;
+    this.parameters = Maps.newHashMap();
+  }
+
+  public RuleActivation(RuleActivation other) {
+    this.ruleKey = other.ruleKey;
+    this.parameters = Maps.newHashMap(other.parameters);
+    this.severity = other.severity;
+    this.reset = other.reset;
+    this.cascade = other.cascade;
   }
 
   /**
@@ -50,7 +60,7 @@ public class RuleActivation {
   /**
    * For internal use
    */
-  RuleActivation isCascade(boolean b) {
+  RuleActivation setCascade(boolean b) {
     this.cascade = b;
     return this;
   }
@@ -100,5 +110,14 @@ public class RuleActivation {
 
   public Map<String, String> getParameters() {
     return parameters;
+  }
+
+  public boolean isReset() {
+    return reset;
+  }
+
+  public RuleActivation setReset(boolean b) {
+    this.reset = b;
+    return this;
   }
 }

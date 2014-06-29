@@ -387,8 +387,9 @@ public class QProfilesWsMediumTest {
 
     // 1. reset child rule
     WsTester.TestRequest request = wsTester.newGetRequest(QProfilesWs.API_ENDPOINT, RuleActivationActions.ACTIVATE_ACTION);
-    request.setParam(RuleActivationActions.PROFILE_KEY, subProfile.getKey());
-    request.setParam(RuleActivationActions.RULE_KEY, rule.getKey().toString());
+    request.setParam("profile_key", subProfile.getKey());
+    request.setParam("rule_key", rule.getKey().toString());
+    request.setParam("reset", "true");
     request.execute();
     session.clearCache();
 
