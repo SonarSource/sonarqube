@@ -44,12 +44,7 @@ public class IssueActionPlanKeyMigration implements DatabaseMigration {
   private final System2 system2;
   private final Database db;
 
-  public IssueActionPlanKeyMigration(Database database) {
-    this(database, System2.INSTANCE);
-  }
-
-  @VisibleForTesting
-  IssueActionPlanKeyMigration(Database database, System2 system2) {
+  public IssueActionPlanKeyMigration(Database database, System2 system2) {
     this.db = database;
     this.system2 = system2;
   }

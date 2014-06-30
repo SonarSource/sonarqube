@@ -30,7 +30,7 @@ import org.sonar.server.db.migrations.v43.NotResolvedIssuesOnRemovedComponentsMi
 import org.sonar.server.db.migrations.v43.RequirementMeasuresMigration;
 import org.sonar.server.db.migrations.v43.TechnicalDebtMeasuresMigration;
 import org.sonar.server.db.migrations.v44.ChangeLogMigration;
-import org.sonar.server.db.migrations.v44.ConvertProfileMeasures;
+import org.sonar.server.db.migrations.v44.ConvertProfileMeasuresMigration;
 import org.sonar.server.db.migrations.v44.FeedQProfileDatesMigration;
 import org.sonar.server.db.migrations.v44.FeedQProfileKeysMigration;
 import org.sonar.server.db.migrations.v44.IssueActionPlanKeyMigration;
@@ -61,7 +61,7 @@ public interface DatabaseMigrations {
     FeedQProfileKeysMigration.class,
     FeedQProfileDatesMigration.class,
     ChangeLogMigration.class,
-    ConvertProfileMeasures.class
+    ConvertProfileMeasuresMigration.class
   );
 
 }

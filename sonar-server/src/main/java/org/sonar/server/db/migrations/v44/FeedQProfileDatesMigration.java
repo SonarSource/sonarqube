@@ -43,14 +43,9 @@ public class FeedQProfileDatesMigration implements DatabaseMigration {
   private final DbClient db;
   private final System2 system;
 
-  @VisibleForTesting
-  FeedQProfileDatesMigration(DbClient db, System2 system) {
+  public FeedQProfileDatesMigration(DbClient db, System2 system) {
     this.db = db;
     this.system = system;
-  }
-
-  public FeedQProfileDatesMigration(DbClient db) {
-    this(db, System2.INSTANCE);
   }
 
   @Override

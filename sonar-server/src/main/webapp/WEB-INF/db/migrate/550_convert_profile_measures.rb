@@ -28,7 +28,7 @@ class ConvertProfileMeasures < ActiveRecord::Migration
   end
 
   def self.up
-    execute_java_migration('org.sonar.server.db.migrations.v44.ConvertProfileMeasures')
+    execute_java_migration('org.sonar.server.db.migrations.v44.ConvertProfileMeasuresMigration')
 
     Metric.reset_column_information
     metric = Metric.find_by_name('profile')

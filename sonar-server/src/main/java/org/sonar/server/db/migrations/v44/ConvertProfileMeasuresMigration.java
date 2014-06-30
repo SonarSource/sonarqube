@@ -38,11 +38,11 @@ import java.util.Date;
  * 
  * @since 4.4
  */
-public class ConvertProfileMeasures implements DatabaseMigration {
+public class ConvertProfileMeasuresMigration implements DatabaseMigration {
 
   private final DbClient db;
 
-  public ConvertProfileMeasures(DbClient db) {
+  public ConvertProfileMeasuresMigration(DbClient db) {
     this.db = db;
   }
 
