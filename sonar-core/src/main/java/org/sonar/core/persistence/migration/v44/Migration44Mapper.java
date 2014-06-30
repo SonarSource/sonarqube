@@ -22,6 +22,7 @@ package org.sonar.core.persistence.migration.v44;
 import org.apache.ibatis.annotations.Param;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import java.util.Date;
 import java.util.List;
@@ -53,5 +54,5 @@ public interface Migration44Mapper {
     @Param("rulesUpdatedAt") String rulesUpdatedAt);
 
   // migrate changeLog to Activities
-  List<ChangeLog> selectActiveRuleChange(@Param("enabled") Boolean enabled);
+  List<ChangeLog> selectActiveRuleChange(@Nullable @Param("enabled") Boolean enabled);
 }

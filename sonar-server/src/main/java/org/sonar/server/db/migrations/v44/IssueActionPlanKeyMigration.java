@@ -20,7 +20,6 @@
 
 package org.sonar.server.db.migrations.v44;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
 import org.sonar.server.db.migrations.DatabaseMigration;
@@ -81,7 +80,7 @@ public class IssueActionPlanKeyMigration implements DatabaseMigration {
           return true;
         }
       }
-    );
+      );
   }
 
   private static class Row {

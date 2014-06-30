@@ -20,7 +20,6 @@
 
 package org.sonar.server.db.migrations.v44;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.ObjectUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.UtcDateUtils;

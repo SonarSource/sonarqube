@@ -20,8 +20,6 @@
 package org.sonar.server.db.migrations.v44;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.activity.Activity;
 import org.sonar.core.activity.db.ActivityDto;
@@ -49,8 +47,6 @@ import java.util.List;
  * @since 4.4
  */
 public class ChangeLogMigration implements DatabaseMigration {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(ChangeLogMigration.class);
 
   private final ActivityDao dao;
   private final DbClient db;
@@ -102,7 +98,6 @@ public class ChangeLogMigration implements DatabaseMigration {
       saveActiveRuleChange(session, ruleChange, currentAuthor, currentTimeStamp);
     }
   }
-
 
   private void saveActiveRuleChange(DbSession session, ActiveRuleChange ruleChange, String author, Date currentTimeStamp) {
     ActivityDto activity = ActivityDto.createFor(ruleChange);
