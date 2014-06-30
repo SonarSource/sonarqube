@@ -235,6 +235,7 @@
 
 .navigator-facets-list-item {
   font-size: 0;
+  margin-bottom: -6px;
 }
 
 .navigator-facets-list-item + .navigator-facets-list-item {
@@ -242,9 +243,9 @@
 }
 
 .navigator-facets-list-item-name {
-  display: inline-block;
-  vertical-align: middle;
-  min-width: 100px;
+  float: left;
+  line-height: 22px;
+  min-width: 120px;
   margin-right: @navigatorPadding;
   font-size: @smallFontSize;
   font-weight: normal;
@@ -252,15 +253,14 @@
 }
 
 .navigator-facets-list-item-options {
-  display: inline-block;
-  vertical-align: middle;
+  overflow: hidden;
 }
 
 .navigator-facets-list-item-option {
   display: inline-block;
   vertical-align: middle;
   line-height: 1;
-  margin: 0 6px;
+  margin: 0 6px 6px 6px;
   padding: 4px 5px;
   border: 1px solid @barBorderColor;
   border-radius: 2px;
