@@ -20,7 +20,6 @@
 package org.sonar.server.rule.index;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -68,6 +67,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
@@ -224,6 +225,8 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       .termFilter(RuleNormalizer.RuleField.STATUS.field(),
         RuleStatus.REMOVED.toString()));
 
+    this.addTermFilter(fb, RuleNormalizer.RuleField.INTERNAL_KEY.field(), query.getInternalKey());
+    this.addTermFilter(fb, RuleNormalizer.RuleField.RULE_KEY.field(), query.getRuleKey());
     this.addTermFilter(fb, RuleNormalizer.RuleField.LANGUAGE.field(), query.getLanguages());
     this.addTermFilter(fb, RuleNormalizer.RuleField.REPOSITORY.field(), query.getRepositories());
     this.addTermFilter(fb, RuleNormalizer.RuleField.SEVERITY.field(), query.getSeverities());
@@ -418,10 +421,9 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   public List<Rule> getByIds(Collection<Integer> ids) {
     SearchResponse response = getClient().prepareSearch(this.getIndexName())
       .setTypes(this.getIndexType())
-      .setQuery(QueryBuilders.termQuery(RuleNormalizer.RuleField.ID.field(),ids))
-      .setSize(1)
+      .setQuery(QueryBuilders.termsQuery(RuleNormalizer.RuleField.ID.field(), ids))
       .get();
-    List<Rule> rules = Lists.newArrayList();
+    List<Rule> rules = newArrayList();
     for (SearchHit hit : response.getHits()) {
       rules.add(toDoc(hit.getSource()));
     }

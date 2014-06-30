@@ -119,7 +119,8 @@ public class DefaultRuleFinderMediumTest {
     Assertions.assertThat(finder.findAll(RuleQuery.create().withRepositoryKey("checkstyle"))).hasSize(2);
 
     // find_all_enabled
-    Assertions.assertThat(finder.findAll(RuleQuery.create())).onProperty("id").containsOnly(1, 3, 4);
+    //Assertions.assertThat(finder.findAll(RuleQuery.create())).onProperty("id").containsOnly(1, 3, 4);
+    Assertions.assertThat(finder.findAll(RuleQuery.create())).hasSize(3);
 
     // do_not_find_disabled_rules
     Assertions.assertThat(finder.findByKey("checkstyle", "DisabledCheck")).isNull();

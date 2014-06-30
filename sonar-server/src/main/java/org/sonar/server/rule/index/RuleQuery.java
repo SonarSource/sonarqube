@@ -26,7 +26,6 @@ import org.sonar.server.search.IndexField;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Date;
 
@@ -49,6 +48,8 @@ public class RuleQuery {
   private Date availableSince;
   private IndexField sortField;
   private boolean ascendingSort = true;
+  private String internalKey;
+  private String ruleKey;
 
 
   /**
@@ -212,8 +213,8 @@ public class RuleQuery {
   }
 
   public RuleQuery setSortField(@Nullable IndexField sf) {
-    if(sf != null && !sf.sortable()){
-      throw new IllegalStateException("Field '"+sf.field()+"' is not sortable!");
+    if (sf != null && !sf.sortable()) {
+      throw new IllegalStateException("Field '" + sf.field() + "' is not sortable!");
     }
     this.sortField = sf;
     return this;
@@ -235,5 +236,23 @@ public class RuleQuery {
 
   public Date getAvailableSince() {
     return this.availableSince;
+  }
+
+  public RuleQuery setInternalKey(String internalKey) {
+    this.internalKey = internalKey;
+    return this;
+  }
+
+  public String getInternalKey() {
+    return internalKey;
+  }
+
+  public RuleQuery setRuleKey(String ruleKey) {
+    this.ruleKey = ruleKey;
+    return this;
+  }
+
+  public String getRuleKey() {
+    return ruleKey;
   }
 }

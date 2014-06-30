@@ -39,7 +39,12 @@ import org.sonar.server.search.Indexable;
 import org.sonar.server.search.es.ListUpdate;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
@@ -78,6 +83,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     public static final IndexField KEY = addSortable(IndexField.Type.STRING, "key");
     public static final IndexField _KEY = add(IndexField.Type.STRING, "_key");
     public static final IndexField REPOSITORY = add(IndexField.Type.STRING, "repo");
+    public static final IndexField RULE_KEY = add(IndexField.Type.STRING, "ruleKey");
 
     public static final IndexField NAME = addSortableAndSearchable(IndexField.Type.STRING, "name");
     public static final IndexField CREATED_AT = addSortable(IndexField.Type.DATE, "createdAt");
@@ -172,6 +178,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       update.put(RuleField._KEY.field(), ImmutableList.of(rule.getKey().repository(), rule.getKey().rule()));
 
       update.put(RuleField.REPOSITORY.field(), rule.getRepositoryKey());
+      update.put(RuleField.RULE_KEY.field(), rule.getRuleKey());
       update.put(RuleField.NAME.field(), rule.getName());
       update.put(RuleField.CREATED_AT.field(), rule.getCreatedAt());
       update.put(RuleField.UPDATED_AT.field(), rule.getUpdatedAt());

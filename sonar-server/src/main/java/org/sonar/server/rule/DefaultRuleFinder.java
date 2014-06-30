@@ -20,17 +20,22 @@
 
 package org.sonar.server.rule;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.rules.RulePriority;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.search.QueryOptions;
+import org.sonar.server.search.Result;
 
 import javax.annotation.CheckForNull;
 import java.util.Collection;
 import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 @Deprecated
 /**
@@ -46,12 +51,17 @@ public class DefaultRuleFinder implements RuleFinder {
 
   @CheckForNull
   public org.sonar.api.rules.Rule findById(int ruleId) {
-    return toRule(index.getById(ruleId));
+    Rule rule = index.getById(ruleId);
+    if (rule.status() != RuleStatus.REMOVED) {
+      return toRule(rule);
+    } else {
+      return null;
+    }
   }
 
   @CheckForNull
   public Collection<org.sonar.api.rules.Rule> findByIds(Collection<Integer> ruleIds) {
-    List<org.sonar.api.rules.Rule> rules = Lists.newArrayList();
+    List<org.sonar.api.rules.Rule> rules = newArrayList();
     if (ruleIds.isEmpty()) {
       return rules;
     }
@@ -63,7 +73,12 @@ public class DefaultRuleFinder implements RuleFinder {
 
   @CheckForNull
   public org.sonar.api.rules.Rule findByKey(RuleKey key) {
-    return toRule(index.getByKey(key));
+    Rule rule = index.getByKey(key);
+    if (rule != null && rule.status() != RuleStatus.REMOVED) {
+      return toRule(rule);
+    } else {
+      return null;
+    }
   }
 
   @CheckForNull
@@ -72,11 +87,16 @@ public class DefaultRuleFinder implements RuleFinder {
   }
 
   public final org.sonar.api.rules.Rule find(org.sonar.api.rules.RuleQuery query) {
-    return toRule(index.search(toQuery(query), new QueryOptions()).getHits().get(0));
+    Result<Rule> result = index.search(toQuery(query), new QueryOptions());
+    if (!result.getHits().isEmpty()) {
+      return toRule(result.getHits().get(0));
+    } else {
+      return null;
+    }
   }
 
   public final Collection<org.sonar.api.rules.Rule> findAll(org.sonar.api.rules.RuleQuery query) {
-    List<org.sonar.api.rules.Rule> rules = Lists.newArrayList();
+    List<org.sonar.api.rules.Rule> rules = newArrayList();
     for(Rule rule:index.search(toQuery(query), new QueryOptions()).getHits()){
       rules.add(toRule(rule));
     }
@@ -85,36 +105,40 @@ public class DefaultRuleFinder implements RuleFinder {
 
   private org.sonar.api.rules.Rule toRule(Rule rule) {
     org.sonar.api.rules.Rule apiRule = new org.sonar.api.rules.Rule();
-    apiRule.setCharacteristicId(rule.)
-    System.out.println("rule = " + rule);
-    return null;
+    apiRule.setName(rule.name())
+      .setLanguage(rule.language())
+      .setKey(rule.key().rule())
+      .setConfigKey(rule.internalKey())
+      .setIsTemplate(rule.isTemplate())
+      .setCreatedAt(rule.createdAt())
+      .setUpdatedAt(rule.updatedAt())
+      .setDescription(rule.htmlDescription())
+      .setRepositoryKey(rule.key().repository())
+      .setSeverity(RulePriority.valueOf(rule.severity()))
+      .setStatus(rule.status().name())
+      .setTags(rule.tags().toArray(new String[rule.tags().size()]));
+
+    List<org.sonar.api.rules.RuleParam> apiParams = newArrayList();
+    for (RuleParam param : rule.params()) {
+      apiParams.add(new org.sonar.api.rules.RuleParam(apiRule, param.key(), param.description(), param.type().type())
+        .setDefaultValue(param.defaultValue()));
+    }
+    apiRule.setParams(apiParams);
+
+    return apiRule;
   }
 
-  private RuleQuery toQuery(org.sonar.api.rules.RuleQuery query) {
-    return null;
+  private RuleQuery toQuery(org.sonar.api.rules.RuleQuery apiQuery) {
+    RuleQuery query = new RuleQuery();
+    if (apiQuery.getConfigKey() != null) {
+      query.setInternalKey(apiQuery.getConfigKey());
+    }
+    if (apiQuery.getKey() != null) {
+      query.setRuleKey(apiQuery.getKey());
+    }
+    if (apiQuery.getRepositoryKey() != null) {
+      query.setRepositories(ImmutableList.of(apiQuery.getRepositoryKey()));
+    }
+    return query;
   }
-//
-//  private Query createHqlQuery(DatabaseSession session, org.sonar.api.rules.RuleQuery query) {
-//    StringBuilder hql = new StringBuilder().append("from ").append(Rule.class.getSimpleName()).append(" where status<>:status ");
-//    Map<String, Object> params = new HashMap<String, Object>();
-//    params.put("status", Rule.STATUS_REMOVED);
-//    if (StringUtils.isNotBlank(query.getRepositoryKey())) {
-//      hql.append("AND pluginName=:repositoryKey ");
-//      params.put("repositoryKey", query.getRepositoryKey());
-//    }
-//    if (StringUtils.isNotBlank(query.getKey())) {
-//      hql.append("AND key=:key ");
-//      params.put("key", query.getKey());
-//    }
-//    if (StringUtils.isNotBlank(query.getConfigKey())) {
-//      hql.append("AND configKey=:configKey ");
-//      params.put("configKey", query.getConfigKey());
-//    }
-//
-//    Query hqlQuery = session.createQuery(hql.toString());
-//    for (Map.Entry<String, Object> entry : params.entrySet()) {
-//      hqlQuery.setParameter(entry.getKey(), entry.getValue());
-//    }
-//    return hqlQuery;
-//  }
 }
