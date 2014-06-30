@@ -22,6 +22,7 @@ define [
   $ = jQuery
 
   API_COVERAGE_TESTS = "#{baseUrl}/api/tests/test_cases"
+  ISSUES_LIMIT = 50
 
 
   class SourceView extends Marionette.ItemView
@@ -100,6 +101,7 @@ define [
 
     renderIssues: ->
       issues = @model.get 'activeIssues'
+      issues = _.sortBy(issues, 'line').slice 0, ISSUES_LIMIT
       issues.forEach (issue) =>
         line = issue.line || 0
         line = 0 if issue.resolution == 'FIXED' || issue.resolution == 'REMOVED'
