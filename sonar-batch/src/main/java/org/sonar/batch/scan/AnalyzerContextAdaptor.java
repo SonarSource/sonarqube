@@ -146,6 +146,9 @@ public class AnalyzerContextAdaptor implements AnalyzerContext {
   @Override
   public void addMeasure(AnalyzerMeasure<?> measure) {
     org.sonar.api.measures.Metric<?> m = metricFinder.findByKey(measure.metric().key());
+    if (m == null) {
+      throw new IllegalStateException("Unknow metric with key: " + measure.metric().key());
+    }
 
     Measure measureToSave = new Measure(m);
     switch (m.getType()) {

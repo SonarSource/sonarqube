@@ -62,7 +62,7 @@ public final class Batch {
    * @deprecated since 4.4 use {@link #start()}, {@link #executeTask(Map)} and then {@link #stop()}
    */
   @Deprecated
-  public Batch execute() {
+  public synchronized Batch execute() {
     configureLogging();
     start().executeTask(bootstrapProperties).stop();
     return this;
@@ -105,6 +105,8 @@ public final class Batch {
     }
 
     bootstrapContainer.stopComponents();
+
+    this.started = false;
   }
 
   private void configureLogging() {

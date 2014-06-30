@@ -107,7 +107,14 @@ public class VariationDecorator implements Decorator {
     // for each measure, search equivalent past measure
     for (Measure measure : context.getMeasures(MeasuresFilters.all())) {
       // compare with past measure
-      Integer metricId = measure.getMetric().getId() != null ? measure.getMetric().getId() : metricFinder.findByKey(measure.getMetric().getKey()).getId();
+      Integer metricId = measure.getMetric().getId();
+      if (metricId == null) {
+        Metric metric = metricFinder.findByKey(measure.getMetric().getKey());
+        if (metric == null) {
+          throw new IllegalStateException("Unknow metric with key: " + measure.getMetric().getKey());
+        }
+        metricId = metric.getId();
+      }
       Characteristic characteristic = measure.getCharacteristic();
       Integer characteristicId = characteristic != null ? characteristic.id() : null;
       Integer personId = measure.getPersonId();

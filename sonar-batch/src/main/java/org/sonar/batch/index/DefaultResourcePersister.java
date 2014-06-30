@@ -19,6 +19,8 @@
  */
 package org.sonar.batch.index;
 
+import org.sonar.api.resources.Language;
+
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -294,8 +296,9 @@ public final class DefaultResourcePersister implements ResourcePersister {
     model.setDescription(resource.getDescription());
     model.setKey(resource.getEffectiveKey());
     model.setPath(resource.getPath());
-    if (resource.getLanguage() != null) {
-      model.setLanguageKey(resource.getLanguage().getKey());
+    Language language = resource.getLanguage();
+    if (language != null) {
+      model.setLanguageKey(language.getKey());
     }
     if (StringUtils.isNotBlank(resource.getName())) {
       model.setName(resource.getName());
@@ -327,8 +330,9 @@ public final class DefaultResourcePersister implements ResourcePersister {
       model.setScope(resource.getScope());
       model.setQualifier(resource.getQualifier());
     }
-    if (resource.getLanguage() != null) {
-      model.setLanguageKey(resource.getLanguage().getKey());
+    Language language = resource.getLanguage();
+    if (language != null) {
+      model.setLanguageKey(language.getKey());
     }
   }
 }
