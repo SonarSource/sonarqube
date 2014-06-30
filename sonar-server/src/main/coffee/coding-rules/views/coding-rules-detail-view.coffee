@@ -235,9 +235,11 @@ define [
 
 
     removeExtendedDescription: ->
-      if confirm(t 'coding_rules.remove_extended_description.confirm')
-        @ui.extendDescriptionText.val ''
-        @submitExtendDescription()
+      confirmDialog
+        html: t 'coding_rules.remove_extended_description.confirm'
+        yesHandler: =>
+          @ui.extendDescriptionText.val ''
+          @submitExtendDescription()
 
 
     activateQualityProfile: ->
@@ -261,16 +263,19 @@ define [
 
 
     deleteCustomRule: ->
-      if confirm(t 'are_you_sure')
-        jQuery.ajax
-          type: 'POST'
-          url: "#{baseUrl}/api/rules/delete"
-          data:
-            key: @model.get 'key'
-        .done =>
-          @options.app.fetchFirstPage()
-        .fail =>
-          @options.app.showRule @model.get('key')
+      confirmDialog
+        title: t 'delete'
+        html: t 'are_you_sure'
+        yesHandler: =>
+          jQuery.ajax
+            type: 'POST'
+            url: "#{baseUrl}/api/rules/delete"
+            data:
+              key: @model.get 'key'
+          .done =>
+            @options.app.fetchFirstPage()
+          .fail =>
+            @options.app.showRule @model.get('key')
 
 
     serializeData: ->

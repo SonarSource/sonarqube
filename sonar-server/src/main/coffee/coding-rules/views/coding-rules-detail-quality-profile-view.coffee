@@ -34,30 +34,36 @@ define [
 
     revert: ->
       ruleKey = @options.rule.get('key')
-      if confirm t 'are_you_sure'
-        that = @
-        jQuery.ajax
-          type: 'POST'
-          url: "#{baseUrl}/api/qualityprofiles/activate_rule"
-          data:
+      confirmDialog
+        title: t 'coding_rules.revert_to_parent_definition'
+        html: tp 'coding_rules.revert_to_parent_definition.confirm', @getParent().name
+        yesHandler: =>
+          jQuery.ajax
+            type: 'POST'
+            url: "#{baseUrl}/api/qualityprofiles/activate_rule"
+            data:
               profile_key: @model.get('qProfile')
               rule_key: ruleKey
               reset: true
-        .done =>
-          @options.app.showRule ruleKey
+          .done =>
+            @options.app.showRule ruleKey
 
 
     deactivate: ->
       ruleKey = @options.rule.get('key')
-      if confirm t 'are_you_sure'
-        jQuery.ajax
-          type: 'POST'
-          url: "#{baseUrl}/api/qualityprofiles/deactivate_rule"
-          data:
-            profile_key: @model.get('qProfile')
-            rule_key: ruleKey
-        .done =>
-          @options.app.showRule ruleKey
+      myProfile = _.findWhere(@options.app.qualityProfiles, key: @model.get('qProfile'))
+      confirmDialog
+        title: t 'coding_rules.deactivate'
+        html: tp 'coding_rules.deactivate.confirm', myProfile.name
+        yesHandler: =>
+          jQuery.ajax
+            type: 'POST'
+            url: "#{baseUrl}/api/qualityprofiles/deactivate_rule"
+            data:
+              profile_key: @model.get('qProfile')
+              rule_key: ruleKey
+          .done =>
+            @options.app.showRule ruleKey
 
 
     enableUpdate: ->

@@ -18,20 +18,23 @@ define [
       'click @ui.delete': 'delete'
 
     delete: ->
-      if confirm(t 'are_you_sure')
-        origEl = @$el.html()
-        @$el.html '<i class="spinner"></i>'
+      confirmDialog
+        title: t 'delete'
+        html: t 'are_you_sure'
+        yesHandler: =>
+          origEl = @$el.html()
+          @$el.html '<i class="spinner"></i>'
 
-        jQuery.ajax
-          type: 'POST'
-          url: "#{baseUrl}/api/rules/delete"
-          data:
-            key: @model.get 'key'
-        .done =>
-          templateKey = @options.templateKey or @options.templateRule.get 'key'
-          @options.app.showRule templateKey
-        .fail =>
-          @$el.html origEl
+          jQuery.ajax
+            type: 'POST'
+            url: "#{baseUrl}/api/rules/delete"
+            data:
+              key: @model.get 'key'
+          .done =>
+            templateKey = @options.templateKey or @options.templateRule.get 'key'
+            @options.app.showRule templateKey
+          .fail =>
+            @$el.html origEl
 
     serializeData: ->
       _.extend super,
