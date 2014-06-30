@@ -31,6 +31,7 @@ import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.ComponentContainer;
 import org.sonar.api.task.TaskExtension;
+import org.sonar.api.utils.System2;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.profiling.PhasesSumUpTimeProfiler;
 import org.sonar.batch.scan.maven.MavenPluginExecutor;
@@ -53,6 +54,7 @@ public class ProjectScanContainerTest {
     settings = new Settings();
     parentContainer = new ComponentContainer();
     parentContainer.add(settings);
+    parentContainer.add(System2.INSTANCE);
     container = new ProjectScanContainer(parentContainer);
   }
 

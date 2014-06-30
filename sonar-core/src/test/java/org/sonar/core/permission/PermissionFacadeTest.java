@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.persistence.AbstractDaoTestCase;
 import org.sonar.core.persistence.MyBatis;
@@ -49,7 +50,7 @@ public class PermissionFacadeTest extends AbstractDaoTestCase {
   public void setUp() {
     RoleDao roleDao = new RoleDao(getMyBatis());
     UserDao userDao = new UserDao(getMyBatis());
-    permissionTemplateDao = new PermissionTemplateDao(getMyBatis());
+    permissionTemplateDao = new PermissionTemplateDao(getMyBatis(), System2.INSTANCE);
     Settings settings = new Settings();
     permissionFacade = new PermissionFacade(getMyBatis(), roleDao, userDao, new ResourceDao(getMyBatis()), permissionTemplateDao, settings);
   }

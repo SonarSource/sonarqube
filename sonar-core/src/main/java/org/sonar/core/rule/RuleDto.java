@@ -305,8 +305,8 @@ public final class RuleDto extends Dto<RuleKey> {
     return effortToFixDescription;
   }
 
-  public RuleDto setEffortToFixDescription(@Nullable String effortToFixDescription) {
-    this.effortToFixDescription = effortToFixDescription;
+  public RuleDto setEffortToFixDescription(@Nullable String s) {
+    this.effortToFixDescription = s;
     return this;
   }
 

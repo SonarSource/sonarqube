@@ -60,10 +60,6 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
 
   private final System2 system;
 
-  public PhasesSumUpTimeProfiler() {
-    this(System2.INSTANCE);
-  }
-
   static void println(String msg) {
     LOG.info(msg);
   }
@@ -77,8 +73,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
     println(sb.toString());
   }
 
-  @VisibleForTesting
-  PhasesSumUpTimeProfiler(System2 system) {
+  public PhasesSumUpTimeProfiler(System2 system) {
     this.totalProfiling = new ModuleProfiling(null, system);
     this.system = system;
   }

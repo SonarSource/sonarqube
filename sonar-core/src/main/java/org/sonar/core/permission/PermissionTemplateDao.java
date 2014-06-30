@@ -46,13 +46,9 @@ public class PermissionTemplateDao implements TaskComponent, ServerComponent {
   private final MyBatis myBatis;
   private final System2 system;
 
-  PermissionTemplateDao(MyBatis myBatis, System2 system) {
+  public PermissionTemplateDao(MyBatis myBatis, System2 system) {
     this.myBatis = myBatis;
     this.system = system;
-  }
-
-  public PermissionTemplateDao(MyBatis myBatis) {
-    this(myBatis, System2.INSTANCE);
   }
 
   /**
