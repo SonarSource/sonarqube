@@ -60,9 +60,9 @@ class ConditionUtils {
   private static boolean doesReachThresholds(Comparable measureValue, Comparable criteriaValue, ResolvedCondition condition) {
     int comparison = measureValue.compareTo(criteriaValue);
     return !(isNotEquals(comparison, condition)
-        || isGreater(comparison, condition)
-        || isSmaller(comparison, condition)
-        || isEquals(comparison, condition));
+      || isGreater(comparison, condition)
+      || isSmaller(comparison, condition)
+      || isEquals(comparison, condition));
   }
 
   private static boolean isNotEquals(int comparison, ResolvedCondition condition) {
@@ -156,18 +156,18 @@ class ConditionUtils {
 
   private static boolean isADouble(Metric metric) {
     return metric.getType() == Metric.ValueType.FLOAT ||
-        metric.getType() == Metric.ValueType.PERCENT ||
-        metric.getType() == Metric.ValueType.RATING;
+      metric.getType() == Metric.ValueType.PERCENT ||
+      metric.getType() == Metric.ValueType.RATING;
   }
 
   private static boolean isAInteger(Metric metric) {
     return metric.getType() == Metric.ValueType.INT ||
-        metric.getType() == Metric.ValueType.MILLISEC;
+      metric.getType() == Metric.ValueType.MILLISEC;
   }
 
   private static boolean isAString(Metric metric) {
     return metric.getType() == Metric.ValueType.STRING ||
-        metric.getType() == Metric.ValueType.LEVEL;
+      metric.getType() == Metric.ValueType.LEVEL;
   }
 
   private static boolean isABoolean(Metric metric) {
@@ -183,18 +183,26 @@ class ConditionUtils {
     Double value;
     if (period == null) {
       value = measure.getValue();
-    } else if (period == 1) {
-      value = measure.getVariation1();
-    } else if (period == 2) {
-      value = measure.getVariation2();
-    } else if (period == 3) {
-      value = measure.getVariation3();
-    } else if (period == 4) {
-      value = measure.getVariation4();
-    } else if (period == 5) {
-      value = measure.getVariation5();
     } else {
-      throw new IllegalStateException("Following index period is not allowed : " + Double.toString(period));
+      switch (period.intValue()) {
+        case 1:
+          value = measure.getVariation1();
+          break;
+        case 2:
+          value = measure.getVariation2();
+          break;
+        case 3:
+          value = measure.getVariation3();
+          break;
+        case 4:
+          value = measure.getVariation4();
+          break;
+        case 5:
+          value = measure.getVariation5();
+          break;
+        default:
+          throw new IllegalStateException("Following index period is not allowed : " + Double.toString(period));
+      }
     }
     return value;
   }

@@ -26,7 +26,6 @@ import org.sonar.wsclient.permissions.internal.DefaultPermissionClient;
 import org.sonar.wsclient.project.internal.DefaultProjectClient;
 import org.sonar.wsclient.qprofile.internal.DefaultQProfileClient;
 import org.sonar.wsclient.qualitygate.internal.DefaultQualityGateClient;
-import org.sonar.wsclient.rule.internal.DefaultRuleClient;
 import org.sonar.wsclient.system.internal.DefaultSystemClient;
 import org.sonar.wsclient.user.internal.DefaultUserClient;
 
@@ -42,7 +41,6 @@ public class SonarClientTest {
     assertThat(client.userClient()).isNotNull().isInstanceOf(DefaultUserClient.class);
     assertThat(client.permissionClient()).isNotNull().isInstanceOf(DefaultPermissionClient.class);
     assertThat(client.projectClient()).isNotNull().isInstanceOf(DefaultProjectClient.class);
-    assertThat(client.ruleClient()).isNotNull().isInstanceOf(DefaultRuleClient.class);
     assertThat(client.qualityGateClient()).isNotNull().isInstanceOf(DefaultQualityGateClient.class);
     assertThat(client.qProfileClient()).isNotNull().isInstanceOf(DefaultQProfileClient.class);
     assertThat(client.systemClient()).isNotNull().isInstanceOf(DefaultSystemClient.class);

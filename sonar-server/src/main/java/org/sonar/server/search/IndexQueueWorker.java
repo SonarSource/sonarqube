@@ -51,9 +51,6 @@ public class IndexQueueWorker extends ThreadPoolExecutor
   }
 
   protected void afterExecute(Runnable r, Throwable t) {
-//    LOG.info("Current active thread number: " + this.getActiveCount() +
-//      " queue size:" + this.getQueue().size()  +
-//      " scheduled task number:" + this.getTaskCount());
     super.afterExecute(r, t);
     if (t != null) {
       throw new IllegalStateException(t);

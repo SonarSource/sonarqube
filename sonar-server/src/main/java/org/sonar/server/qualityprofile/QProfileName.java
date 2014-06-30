@@ -39,14 +39,13 @@ public class QProfileName {
 
   @Override
   public boolean equals(@Nullable Object o) {
-    if (this == o)
+    if (this == o) {
       return true;
+    }
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-
     QProfileName that = (QProfileName) o;
-
     if (!lang.equals(that.lang)) {
       return false;
     }

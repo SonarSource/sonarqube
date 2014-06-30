@@ -35,7 +35,11 @@ import org.sonar.server.platform.Platform;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -188,7 +192,7 @@ public class UserSession {
     if (projectKey == null) {
       ResourceDto project = resourceDao().getRootProjectByComponentKey(componentKey);
       if (project == null) {
-       return false;
+        return false;
       }
       projectKey = project.getKey();
     }

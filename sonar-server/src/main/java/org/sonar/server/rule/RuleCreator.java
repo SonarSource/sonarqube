@@ -196,13 +196,13 @@ public class RuleCreator implements ServerComponent {
   private void updateExistingRule(RuleDto ruleDto, NewRule newRule, DbSession dbSession){
     if (ruleDto.getStatus().equals(RuleStatus.REMOVED)) {
       if (newRule.isPreventReactivation()) {
-        throw new ReactivationException(String.format("A removed rule with the key '%s' already exits", ruleDto.getKey().rule()), ruleDto.getKey());
+        throw new ReactivationException(String.format("A removed rule with the key '%s' already exists", ruleDto.getKey().rule()), ruleDto.getKey());
       } else {
         ruleDto.setStatus(RuleStatus.READY);
         dbClient.ruleDao().update(dbSession, ruleDto);
       }
     } else {
-      throw new IllegalArgumentException(String.format("A rule with the key '%s' already exits", ruleDto.getKey().rule()));
+      throw new IllegalArgumentException(String.format("A rule with the key '%s' already exists", ruleDto.getKey().rule()));
     }
   }
 

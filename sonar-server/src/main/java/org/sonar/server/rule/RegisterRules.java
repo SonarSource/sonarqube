@@ -295,7 +295,6 @@ public class RegisterRules implements Startable {
       RulesDefinition.Param paramDef = ruleDef.param(paramDto.getName());
       if (paramDef == null) {
         // TODO cascade on the activeRule upon RuleDeletion
-        // activeRuleDao.removeRuleParam(paramDto, sqlSession);
         dbClient.ruleDao().removeRuleParam(session, rule, paramDto);
       } else {
         // TODO validate that existing active rules still match constraints

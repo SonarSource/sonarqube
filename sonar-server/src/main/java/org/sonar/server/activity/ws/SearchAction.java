@@ -72,7 +72,7 @@ public class SearchAction implements RequestHandler {
 
   @Override
   public void handle(Request request, Response response) {
-    ActivityQuery query = createLogQuery(logService.newActivityQuery(), request);
+    ActivityQuery query = logService.newActivityQuery();
     SearchOptions searchOptions = SearchOptions.create(request);
     QueryOptions queryOptions = mapping.newQueryOptions(searchOptions);
 
@@ -82,11 +82,6 @@ public class SearchAction implements RequestHandler {
     searchOptions.writeStatistics(json, results);
     writeLogs(results, json, searchOptions);
     json.endObject().close();
-  }
-
-  public static ActivityQuery createLogQuery(ActivityQuery query, Request request) {
-    // query.setTypes(request.param(SearchOptions.PARAM_TEXT_QUERY));
-    return query;
   }
 
   private void writeLogs(Result<Activity> result, JsonWriter json, SearchOptions options) {

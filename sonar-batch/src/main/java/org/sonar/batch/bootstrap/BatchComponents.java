@@ -30,6 +30,10 @@ import java.util.Collection;
 import java.util.List;
 
 public class BatchComponents {
+  private BatchComponents() {
+    // only static stuff
+  }
+
   public static Collection all() {
     List components = Lists.newArrayList(
       // Maven

@@ -21,6 +21,9 @@ package org.sonar.jpa.session;
 
 import org.sonar.api.database.DatabaseSession;
 
+/**
+ * @deprecated replaced by mybatis
+ */
 @Deprecated
 public interface DatabaseSessionFactory {
 

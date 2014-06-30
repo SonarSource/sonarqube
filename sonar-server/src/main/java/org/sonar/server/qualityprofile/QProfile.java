@@ -35,11 +35,17 @@ public class QProfile {
   private String language;
   private String parent;
 
+  /**
+   * @deprecated in 4.4
+   */
   @Deprecated
   public int id() {
     return id;
   }
 
+  /**
+   * @deprecated in 4.4
+   */
   @Deprecated
   QProfile setId(int id) {
     this.id = id;

@@ -113,7 +113,7 @@ public class DuplicationsParser implements ServerComponent {
 
     @Override
     public int compare(@Nullable Duplication d1,
-                       @Nullable Duplication d2) {
+      @Nullable Duplication d2) {
       if (d1 == null || d2 == null) {
         return -1;
       }
@@ -145,10 +145,10 @@ public class DuplicationsParser implements ServerComponent {
     }
   }
 
-  private class BlockComparator implements Comparator<Block>, Serializable {
+  private static class BlockComparator implements Comparator<Block> {
     @Override
     public int compare(@Nullable Block b1,
-                       @Nullable Block b2) {
+      @Nullable Block b2) {
       if (b1 == null || b2 == null) {
         return -1;
       }
@@ -160,7 +160,6 @@ public class DuplicationsParser implements ServerComponent {
       return duplications1.get(0).from().compareTo(duplications2.get(0).from());
     }
   }
-
 
   public static class Duplication {
     private final ComponentDto file;

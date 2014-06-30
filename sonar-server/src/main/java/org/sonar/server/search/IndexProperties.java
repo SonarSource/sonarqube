@@ -19,10 +19,11 @@
  */
 package org.sonar.server.search;
 
-/**
- * @since 4.4
- */
 public final class IndexProperties {
+
+  private IndexProperties() {
+    // only static stuff
+  }
 
   public static enum ES_TYPE {
     MEMORY, TRANSPORT, DATA

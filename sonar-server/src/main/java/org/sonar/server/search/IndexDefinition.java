@@ -26,8 +26,8 @@ public class IndexDefinition {
   private final String indexName;
   private final String indexType;
 
-  private final String MANAGEMENT_INDEX = "sonarindex";
-  private final String MANAGEMENT_TYPE = "index";
+  private static final String MANAGEMENT_INDEX = "sonarindex";
+  private static final String MANAGEMENT_TYPE = "index";
 
   private IndexDefinition(String indexName, String indexType) {
     this.indexName = indexName;

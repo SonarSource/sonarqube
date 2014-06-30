@@ -59,6 +59,7 @@ import org.sonar.server.search.Result;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -105,7 +106,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   }
 
   private void setFields(QueryOptions options, SearchRequestBuilder esSearch) {
-  /* integrate Option's Fields */
+    /* integrate Option's Fields */
     Set<String> fields = new HashSet<String>();
     if (!options.getFieldsToReturn().isEmpty()) {
       for (String fieldToReturn : options.getFieldsToReturn()) {
@@ -125,14 +126,14 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   }
 
   private void setFacets(QueryOptions options, SearchRequestBuilder esSearch) {
-  /* Integrate Facets */
+    /* Integrate Facets */
     if (options.isFacet()) {
       this.setFacets(esSearch);
     }
   }
 
   private void setSorting(RuleQuery query, SearchRequestBuilder esSearch) {
-  /* integrate Query Sort */
+    /* integrate Query Sort */
     if (query.getSortField() != null) {
       FieldSortBuilder sort = SortBuilders.fieldSort(query.getSortField().sortField());
       if (query.isAscendingSort()) {
@@ -152,15 +153,8 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   }
 
   protected void setPagination(QueryOptions options, SearchRequestBuilder esSearch) {
-  /* integrate Option's Pagination */
     esSearch.setFrom(options.getOffset());
     esSearch.setSize(options.getLimit());
-  }
-
-  private QueryBuilder phraseQuery(IndexField field, String query, float boost) {
-    return QueryBuilders.matchPhraseQuery(field.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, query)
-      .boost(boost)
-      .operator(MatchQueryBuilder.Operator.AND);
   }
 
   private QueryBuilder termQuery(IndexField field, String query, float boost) {
@@ -189,7 +183,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     BoolQueryBuilder qb = QueryBuilders.boolQuery();
     String queryString = query.getQueryText();
 
-    //Human readable type of querying
+    // Human readable type of querying
     qb.should(QueryBuilders.queryString(query.getQueryText())
       .field(RuleNormalizer.RuleField.NAME.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 20f)
       .field(RuleNormalizer.RuleField.HTML_DESCRIPTION.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 3f)
@@ -244,7 +238,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
             FilterBuilders.orFilter(
               FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), query.getDebtCharacteristics()),
               FilterBuilders.termsFilter(RuleNormalizer.RuleField.CHARACTERISTIC.field(), query.getDebtCharacteristics()))
-          ),
+            ),
 
           // Match only when NOT NONE overriden
           FilterBuilders.andFilter(
@@ -254,15 +248,14 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
             FilterBuilders.orFilter(
               FilterBuilders.termsFilter(RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), query.getDebtCharacteristics()),
               FilterBuilders.termsFilter(RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field(), query.getDebtCharacteristics())))
-        )
-      );
+          )
+        );
     }
 
-    //Debt char exist filter
+    // Debt char exist filter
     if (query.getHasDebtCharacteristic() != null && query.getHasDebtCharacteristic()) {
       fb.must(FilterBuilders.existsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()));
     }
-
 
     if (query.getAvailableSince() != null) {
       fb.must(FilterBuilders.rangeFilter(RuleNormalizer.RuleField.CREATED_AT.field())
@@ -322,7 +315,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       .size(10)
       .minDocCount(1));
 
-     /* the Tag facet */
+    /* the Tag facet */
     query.addAggregation(AggregationBuilders
       .terms("tags")
       .field(RuleNormalizer.RuleField._TAGS.field())
@@ -330,7 +323,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       .size(10)
       .minDocCount(1));
 
-     /* the Repo facet */
+    /* the Repo facet */
     query.addAggregation(AggregationBuilders
       .terms("repositories")
       .field(RuleNormalizer.RuleField.REPOSITORY.field())
@@ -339,7 +332,6 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       .minDocCount(1));
 
   }
-
 
   public Result<Rule> search(RuleQuery query, QueryOptions options) {
     StopWatch profile = profiling.start("es", Profiling.Level.FULL);
@@ -369,13 +361,11 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     return new Result<Rule>(this, esResult);
   }
 
-
   @Override
   protected Rule toDoc(@Nullable Map<String, Object> fields) {
     Preconditions.checkArgument(fields != null, "Cannot construct Rule with null response!!!");
     return new RuleDoc(fields);
   }
-
 
   public Set<String> terms(String fields) {
     Set<String> tags = new HashSet<String>();
@@ -406,11 +396,11 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
   public Rule getById(int id) {
     SearchResponse response = getClient().prepareSearch(this.getIndexName())
       .setTypes(this.getIndexType())
-      .setQuery(QueryBuilders.termQuery(RuleNormalizer.RuleField.ID.field(),id))
+      .setQuery(QueryBuilders.termQuery(RuleNormalizer.RuleField.ID.field(), id))
       .setSize(1)
       .get();
     SearchHit hit = response.getHits().getAt(0);
-    if(hit == null){
+    if (hit == null) {
       return null;
     } else {
       return toDoc(hit.getSource());

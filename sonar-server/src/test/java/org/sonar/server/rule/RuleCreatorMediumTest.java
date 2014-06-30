@@ -248,7 +248,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void fail_to_create_custom_rule_when_rule_key_already_exits() throws Exception {
+  public void fail_to_create_custom_rule_when_rule_key_already_exists() throws Exception {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
@@ -272,7 +272,7 @@ public class RuleCreatorMediumTest {
       creator.create(newRule);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("A rule with the key 'CUSTOM_RULE' already exits");
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("A rule with the key 'CUSTOM_RULE' already exists");
     }
   }
 
@@ -507,7 +507,7 @@ public class RuleCreatorMediumTest {
   }
 
   @Test
-  public void fail_to_create_manual_rule_when_rule_key_already_exits() throws Exception {
+  public void fail_to_create_manual_rule_when_rule_key_already_exists() throws Exception {
     NewRule newRule = NewRule.createForManualRule("MANUAL_RULE")
       .setName("My manual")
       .setHtmlDescription("Some description");
@@ -521,7 +521,7 @@ public class RuleCreatorMediumTest {
       creator.create(newRule);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("A rule with the key 'MANUAL_RULE' already exits");
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("A rule with the key 'MANUAL_RULE' already exists");
     }
   }
 

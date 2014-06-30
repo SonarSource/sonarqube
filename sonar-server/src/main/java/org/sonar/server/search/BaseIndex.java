@@ -97,10 +97,6 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     return node.client();
   }
 
-  private ESNode getNode() {
-    return this.node;
-  }
-
   /* Component Methods */
 
   @Override
@@ -112,7 +108,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
   @Override
   public void stop() {
-
+    // nothing to do
   }
 
   // Scrolling within the index
@@ -157,29 +153,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
 
   /* Cluster And ES Stats/Client methods */
 
-  private void initializeManagementIndex() {
-    LOG.debug("Setup of Management Index for ES");
-
-    // String index = indexDefinition.getManagementIndex();
-    //
-    // IndicesExistsResponse indexExistsResponse = getClient().admin().indices()
-    // .prepareExists(index).execute().actionGet();
-    //
-    // if (!indexExistsResponse.isExists()) {
-    // getClient().admin().indices().prepareCreate(index)
-    // .setSettings(ImmutableSettings.builder()
-    // .put("mapper.dynamic", true)
-    // .put("number_of_replicas", 1)
-    // .put("number_of_shards", 1)
-    // .build())
-    // .get();
-    // }
-  }
-
   protected void initializeIndex() {
-
-    initializeManagementIndex();
-
     String index = this.getIndexName();
 
     IndicesExistsResponse indexExistsResponse = getClient().admin().indices()

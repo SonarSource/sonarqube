@@ -32,8 +32,6 @@ import org.sonar.wsclient.qprofile.QProfileClient;
 import org.sonar.wsclient.qprofile.internal.DefaultQProfileClient;
 import org.sonar.wsclient.qualitygate.QualityGateClient;
 import org.sonar.wsclient.qualitygate.internal.DefaultQualityGateClient;
-import org.sonar.wsclient.rule.RuleClient;
-import org.sonar.wsclient.rule.internal.DefaultRuleClient;
 import org.sonar.wsclient.system.SystemClient;
 import org.sonar.wsclient.system.internal.DefaultSystemClient;
 import org.sonar.wsclient.user.UserClient;
@@ -107,13 +105,6 @@ public class SonarClient {
    */
   public ProjectClient projectClient() {
     return new DefaultProjectClient(requestFactory);
-  }
-
-  /**
-   * New client to interact with web services related to rules
-   */
-  public RuleClient ruleClient() {
-    return new DefaultRuleClient(requestFactory);
   }
 
   /**
