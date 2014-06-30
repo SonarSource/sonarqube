@@ -66,7 +66,9 @@ public class DefaultRuleFinder implements RuleFinder {
       return rules;
     }
     for (Rule rule : index.getByIds(ruleIds)) {
-      rules.add(toRule(rule));
+      if (rule.status() != RuleStatus.REMOVED) {
+        rules.add(toRule(rule));
+      }
     }
     return rules;
   }
@@ -97,7 +99,7 @@ public class DefaultRuleFinder implements RuleFinder {
 
   public final Collection<org.sonar.api.rules.Rule> findAll(org.sonar.api.rules.RuleQuery query) {
     List<org.sonar.api.rules.Rule> rules = newArrayList();
-    for(Rule rule:index.search(toQuery(query), new QueryOptions()).getHits()){
+    for (Rule rule : index.search(toQuery(query), new QueryOptions()).getHits()) {
       rules.add(toRule(rule));
     }
     return rules;
