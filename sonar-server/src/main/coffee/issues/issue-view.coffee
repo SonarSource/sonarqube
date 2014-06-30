@@ -57,8 +57,8 @@ define [
 
       'click .code-issue-toggle': 'toggleCollapsed',
 
-      'click [href=#tab-issue-rule]': 'fetchRule',
-      'click [href=#tab-issue-changelog]': 'fetchChangeLog',
+      'click [href=#tab-issue-rule]': 'showRuleTab',
+      'click [href=#tab-issue-changelog]': 'showChangeLogTab',
 
       'click #issue-comment': 'comment',
       'click .issue-comment-edit': 'editComment',
@@ -72,8 +72,6 @@ define [
 
 
     onRender: ->
-      @$('.code-issue-details').tabs()
-      @$('.code-issue-form').hide()
       @rule = new Rule key: this.model.get('rule')
       @ruleRegion.show new RuleView model: @rule, issue: @model
       @changeLog = new ChangeLog()
@@ -97,17 +95,34 @@ define [
 
     toggleCollapsed: ->
       @$('.code-issue').toggleClass 'code-issue-collapsed'
-      @fetchRule()
+      unless @$('.code-issue').is '.code-issue-collapsed'
+        @showRuleTab()
 
 
-    fetchRule: ->
+    hideTabs: ->
+      @$('.js-tab-link').removeClass 'active-link'
+      @$('.js-tab').hide()
+
+
+    showTab: (tab) ->
+      @hideTabs()
+      s = "#tab-issue-#{tab}"
+      @$(s).show()
+      @$("[href=#{s}]").addClass 'active-link'
+
+
+    showRuleTab: (e) ->
+      e?.preventDefault()
+      @showTab 'rule'
       unless @rule.has 'name'
         @$('#tab-issue-rule').addClass 'navigator-fetching'
         @rule.fetch
           success: => @$('#tab-issue-rule').removeClass 'navigator-fetching'
 
 
-    fetchChangeLog: ->
+    showChangeLogTab: (e) ->
+      e?.preventDefault()
+      @showTab 'changelog'
       unless @changeLog.length > 0
         @$('#tab-issue-changeLog').addClass 'navigator-fetching'
         @changeLog.fetch

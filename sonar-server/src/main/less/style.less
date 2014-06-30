@@ -917,33 +917,26 @@ th.operations, td.operations {
 }
 
 .code-issue-details {
-  padding: 0 0 5px;
+  padding: 0 10px 5px;
   border-left: 1px solid #DDD;
   border-right: 1px solid #DDD;
   border-bottom: 1px solid #DDD;
   background-color: #EFEFEF;
-}
-
-.code-issue-details .ui-tabs-panel {
-  padding: 5px 10px 0;
   line-height: 1.3;
 }
 
-.code-issue-details .tabs {
-  height: auto;
-  padding: 5px 10px;
-  border-bottom: 1px solid #DDD;
-}
+.code-issue-tabs {
+  margin-bottom: 5px;
+  font-size: 0;
 
-.code-issue-details .tabs li + li {
-  margin-left: 10px;
-}
+  & > li {
+    display: inline-block;
+    padding: 4px 0;
+    color: @secondFontColor;
+    font-size: @smallFontSize;
+  }
 
-.code-issue-details .tabs li a:link,
-.code-issue-details .tabs li a:visited {
-  float: none;
-  margin: 0;
-  padding: 0;
+  & > li + li { margin-left: 15px; }
 }
 
 .code-issue-details-list {

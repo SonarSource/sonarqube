@@ -103,10 +103,10 @@ define [
       issues.forEach (issue) =>
         line = issue.line || 0
         line = 0 if issue.resolution == 'FIXED' || issue.resolution == 'REMOVED'
-        row = @$("[data-line-number=#{line}]")
+        row = @$("##{@cid}-#{line}")
         unless row.length > 0
           line = 0
-          row = @$("[data-line-number=#{line}]")
+          row = @$("##{@cid}-#{line}")
         if row.length > 0
           row.removeClass 'row-hidden'
           container = row.children('.line')
@@ -277,6 +277,7 @@ define [
 
 
     serializeData: ->
+      uid: @cid
       source: @prepareSource()
       settings: @options.main.settings.toJSON()
       state: @options.main.state.toJSON()

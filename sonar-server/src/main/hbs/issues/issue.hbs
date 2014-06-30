@@ -99,24 +99,24 @@
     {{#if author}}<li>{{t 'author'}}: {{author}}</li>{{/if}}
   </ul>
 
-  <div class="code-issue-form"></div>
+  <div class="code-issue-form" style="display: none;"></div>
 
 
   <div class="code-issue-details">
-    <ul class="tabs">
+    <ul class="code-issue-tabs">
       <li>
-        <a href="#tab-issue-rule">{{t 'rule'}}</a>
+        <a class="js-tab-link underlined-link" href="#tab-issue-rule">{{t 'rule'}}</a>
       </li>
       <li>
-        <a href="#tab-issue-changelog">{{t 'changelog'}}</a>
+        <a class="js-tab-link underlined-link" href="#tab-issue-changelog">{{t 'changelog'}}</a>
       </li>
     </ul>
 
-    <div id="tab-issue-rule">
+    <div id="tab-issue-rule" class="js-tab">
       <div class="rule-desc"></div>
     </div>
 
-    <div id="tab-issue-changelog"></div>
+    <div id="tab-issue-changelog" class="js-tab"></div>
   </div>
 
 
