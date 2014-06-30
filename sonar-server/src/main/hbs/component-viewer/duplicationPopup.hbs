@@ -2,15 +2,13 @@
   <div class="component-viewer-popup-title">{{t 'component_viewer.transition.duplication'}}</div>
   {{#each duplications}}
     <div class="component-viewer-popup-section">
-      {{#eq file.projectName ../component.projectName}}
-        <a class="link-action" data-key="{{file.key}}" title="{{file.name}}">
-          {{file.name}}
-        </a>
-      {{else}}
-        <a class="link-action" data-key="{{file.key}}" title="{{file.projectName}}:{{file.name}}">
-          {{file.projectName}}:{{file.name}}
-        </a>
-      {{/eq}}
+      {{#notEq file.projectName ../component.projectName}}
+        <span class="component-viewer-popup-label">{{file.projectName}}</span>
+      {{/notEq}}
+      <a class="link-action" data-key="{{file.key}}" title="{{file.name}}">
+        {{file.name}}
+      </a>
+
       <div class="component-viewer-popup-duplications">
         Lines:
         {{#joinEach blocks ','}}
