@@ -15,6 +15,7 @@ define [
       modalError: '.modal-error'
       modalWarning: '.modal-warning'
       modalNotice: '.modal-notice'
+      modalField: '.modal-field'
       codingRulesSubmitBulkChange: '#coding-rules-submit-bulk-change'
       codingRulesCancelBulkChange: '#coding-rules-cancel-bulk-change'
       codingRulesCloseBulkChange: '#coding-rules-close-bulk-change'
@@ -79,6 +80,7 @@ define [
         url: "#{baseUrl}/api/qualityprofiles/#{wsAction}_rules"
         data: query
       .done (r) =>
+        @ui.modalField.hide()
         if (r.failed)
           @ui.modalWarning.show()
           @ui.modalWarning.html tp('coding_rules.bulk_change.warning', r.succeeded, r.failed)
