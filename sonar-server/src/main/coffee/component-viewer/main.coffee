@@ -83,6 +83,7 @@ define [
       if options.settings?
         options.settings = JSON.parse(options.settings) if typeof options.settings == 'string'
         @settings.set options.settings
+      @settings.set 'scm', !!localStorage.getItem('componentViewerSCM')
       @shouldStoreSettings = options.shouldStoreSettings
 
       @state = new State()
@@ -108,11 +109,10 @@ define [
 
 
     getDefaultSettings: ->
-      scm = !!localStorage.getItem('componentViewerSCM')
       issues: false
       coverage: false
       duplications: false
-      scm: scm
+      scm: false
       workspace: false
 
 
