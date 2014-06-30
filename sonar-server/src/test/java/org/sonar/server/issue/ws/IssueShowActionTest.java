@@ -322,9 +322,10 @@ public class IssueShowActionTest {
     Issue issue = createStandardIssue().setDebt(Duration.create(7260L));
     issues.add(issue);
 
-    result.rule(issue).setCharacteristicId(2);
-    when(debtModel.characteristicById(1)).thenReturn(new DefaultDebtCharacteristic().setId(1).setName("Maintainability"));
-    when(debtModel.characteristicById(2)).thenReturn(new DefaultDebtCharacteristic().setId(2).setName("Readability").setParentId(1));
+    result.rule(issue).setCharacteristicKey("K2");
+    when(debtModel.characteristicById(1)).thenReturn(new DefaultDebtCharacteristic().setKey("K1").setId(1).setName("Maintainability"));
+    when(debtModel.characteristicById(2)).thenReturn(new DefaultDebtCharacteristic().setKey("K2").setId(2).setName("Readability").setParentId(1));
+    when(debtModel.characteristicByKey("K2")).thenReturn(new DefaultDebtCharacteristic().setKey("K2").setId(2).setName("Readability").setParentId(1));
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
@@ -336,12 +337,14 @@ public class IssueShowActionTest {
     Issue issue = createStandardIssue().setDebt(Duration.create(7260L));
     issues.add(issue);
 
-    result.rule(issue).setDefaultCharacteristicId(2);
-    when(debtModel.characteristicById(1)).thenReturn(new DefaultDebtCharacteristic().setId(1).setName("Maintainability"));
-    when(debtModel.characteristicById(2)).thenReturn(new DefaultDebtCharacteristic().setId(2).setName("Readability").setParentId(1));
+    result.rule(issue).setDefaultCharacteristicKey("K2");
+    when(debtModel.characteristicById(1)).thenReturn(new DefaultDebtCharacteristic().setKey("K1").setId(1).setName("Maintainability"));
+    when(debtModel.characteristicById(2)).thenReturn(new DefaultDebtCharacteristic().setKey("K2").setId(2).setName("Readability").setParentId(1));
+    when(debtModel.characteristicByKey("K2")).thenReturn(new DefaultDebtCharacteristic().setKey("K2").setId(2).setName("Readability").setParentId(1));
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
+    System.out.println("request.execute().outputAsString() = " + request.execute().outputAsString());
     request.execute().assertJson(getClass(), "show_issue_with_characteristics.json");
   }
 
@@ -350,13 +353,15 @@ public class IssueShowActionTest {
     Issue issue = createStandardIssue().setDebt(Duration.create(7260L));
     issues.add(issue);
 
-    result.rule(issue).setCharacteristicId(2);
-    when(debtModel.characteristicById(1)).thenReturn(new DefaultDebtCharacteristic().setId(1).setName("Maintainability"));
-    when(debtModel.characteristicById(2)).thenReturn(new DefaultDebtCharacteristic().setId(2).setName("Readability").setParentId(1));
+    result.rule(issue).setCharacteristicKey("K2");
+    when(debtModel.characteristicById(1)).thenReturn(new DefaultDebtCharacteristic().setKey("K1").setId(1).setName("Maintainability"));
+    when(debtModel.characteristicById(2)).thenReturn(new DefaultDebtCharacteristic().setKey("K2").setId(2).setName("Readability").setParentId(1));
+    when(debtModel.characteristicByKey("K2")).thenReturn(new DefaultDebtCharacteristic().setKey("K2").setId(2).setName("Readability").setParentId(1));
 
-    result.rule(issue).setDefaultCharacteristicId(20);
-    when(debtModel.characteristicById(10)).thenReturn(new DefaultDebtCharacteristic().setId(10).setName("Default Maintainability"));
-    when(debtModel.characteristicById(20)).thenReturn(new DefaultDebtCharacteristic().setId(20).setName("Default Readability").setParentId(10));
+    result.rule(issue).setDefaultCharacteristicKey("K20");
+    when(debtModel.characteristicById(10)).thenReturn(new DefaultDebtCharacteristic().setKey("K10").setId(10).setName("Default Maintainability"));
+    when(debtModel.characteristicById(20)).thenReturn(new DefaultDebtCharacteristic().setKey("K20").setId(20).setName("Default Readability").setParentId(10));
+    when(debtModel.characteristicByKey("K20")).thenReturn(new DefaultDebtCharacteristic().setKey("K20").setId(20).setName("Default Readability").setParentId(10));
 
     MockUserSession.set();
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());

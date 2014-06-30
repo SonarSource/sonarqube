@@ -151,13 +151,13 @@ public class Rule {
   private Date updatedAt;
 
   @Transient
-  private String defaultCharacteristic;
+  private String defaultCharacteristicKey;
   @Transient
-  private String defaultSubCharacteristic;
+  private String defaultSubCharacteristicKey;
   @Transient
-  private String characteristic;
+  private String characteristicKey;
   @Transient
-  private String subCharacteristic;
+  private String subCharacteristicKey;
 
   private transient String[] tags = DEFAULT_TAGS;
 
@@ -518,7 +518,7 @@ public class Rule {
   /**
    * For internal use only.
    *
-   * @deprecated since 4.4, use {@link #getCharacteristic()}
+   * @deprecated since 4.4, use {@link #getCharacteristicKey()}
    * @since 4.3
    */
   @CheckForNull
@@ -530,7 +530,7 @@ public class Rule {
   /**
    * For internal use only.
    *
-   * @deprecated since 4.4, use {@link #setCharacteristic(@Nullable String characteristic)}
+   * @deprecated since 4.4, use {@link #setCharacteristicKey(@Nullable String characteristicKey)}
    * @since 4.3
    */
   @Deprecated
@@ -542,7 +542,7 @@ public class Rule {
   /**
    * For internal use only.
    *
-   * @deprecated since 4.4, use {@link #getDefaultCharacteristic()}
+   * @deprecated since 4.4, use {@link #getDefaultCharacteristicKey()}
    * @since 4.3
    */
   @CheckForNull
@@ -554,7 +554,7 @@ public class Rule {
   /**
    * For internal use only.
    *
-   * @deprecated since 4.4, use {@link #setDefaultCharacteristic(@Nullable String defaultCharacteristic)}
+   * @deprecated since 4.4, use {@link #setDefaultCharacteristicKey(@Nullable String defaultCharacteristicKey)}
    * @since 4.3
    */
   @Deprecated
@@ -643,15 +643,15 @@ public class Rule {
    * @since 4.4
    */
   @CheckForNull
-  public String getDefaultCharacteristic() {
-    return defaultCharacteristic;
+  public String getDefaultCharacteristicKey() {
+    return defaultCharacteristicKey;
   }
 
   /**
    * @since 4.4
    */
-  public Rule setDefaultCharacteristic(@Nullable String defaultCharacteristic) {
-    this.defaultCharacteristic = defaultCharacteristic;
+  public Rule setDefaultCharacteristicKey(@Nullable String defaultCharacteristicKey) {
+    this.defaultCharacteristicKey = defaultCharacteristicKey;
     return this;
   }
 
@@ -659,15 +659,15 @@ public class Rule {
    * @since 4.4
    */
   @CheckForNull
-  public String getDefaultSubCharacteristic() {
-    return defaultSubCharacteristic;
+  public String getDefaultSubCharacteristicKey() {
+    return defaultSubCharacteristicKey;
   }
 
   /**
    * @since 4.4
    */
-  public Rule setDefaultSubCharacteristic(@Nullable String defaultSubCharacteristic) {
-    this.defaultSubCharacteristic = defaultSubCharacteristic;
+  public Rule setDefaultSubCharacteristicKey(@Nullable String defaultSubCharacteristicKey) {
+    this.defaultSubCharacteristicKey = defaultSubCharacteristicKey;
     return this;
   }
 
@@ -675,15 +675,15 @@ public class Rule {
    * @since 4.4
    */
   @CheckForNull
-  public String getCharacteristic() {
-    return characteristic;
+  public String getCharacteristicKey() {
+    return characteristicKey;
   }
 
   /**
    * @since 4.4
    */
-  public Rule setCharacteristic(@Nullable String characteristic) {
-    this.characteristic = characteristic;
+  public Rule setCharacteristicKey(@Nullable String characteristicKey) {
+    this.characteristicKey = characteristicKey;
     return this;
   }
 
@@ -691,15 +691,15 @@ public class Rule {
    * @since 4.4
    */
   @CheckForNull
-  public String getSubCharacteristic() {
-    return subCharacteristic;
+  public String getSubCharacteristicKey() {
+    return subCharacteristicKey;
   }
 
   /**
    * @since 4.4
    */
-  public Rule setSubCharacteristic(@Nullable String subCharacteristic) {
-    this.subCharacteristic = subCharacteristic;
+  public Rule setSubCharacteristicKey(@Nullable String subCharacteristicKey) {
+    this.subCharacteristicKey = subCharacteristicKey;
     return this;
   }
 }

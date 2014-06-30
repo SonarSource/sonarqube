@@ -32,6 +32,8 @@ import org.sonar.api.issue.IssueQuery;
 import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
+import org.sonar.api.server.debt.DebtCharacteristic;
+import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -273,12 +275,28 @@ public class IssueShowAction implements RequestHandler {
   }
 
   private void addCharacteristics(IssueQueryResult result, DefaultIssue issue, JsonWriter json) {
-    String subCharacteristic = result.rule(issue).getSubCharacteristic() != null ? result.rule(issue).getSubCharacteristic() : result.rule(issue).getDefaultSubCharacteristic();
-    String characteristic = result.rule(issue).getCharacteristic() != null ? result.rule(issue).getCharacteristic() : result.rule(issue).getDefaultCharacteristic();
-
+    String subCharacteristicKey = result.rule(issue).getCharacteristicKey() != null ? result.rule(issue).getCharacteristicKey() : result.rule(issue).getDefaultCharacteristicKey();
+    DebtCharacteristic subCharacteristic = characteristicByKey(subCharacteristicKey);
     if (subCharacteristic != null) {
-      json.prop("subCharacteristic", subCharacteristic);
-      json.prop("characteristic", characteristic != null ? characteristic : null);
+      json.prop("subCharacteristic", subCharacteristic.name());
+      DebtCharacteristic characteristic = characteristicById(((DefaultDebtCharacteristic) subCharacteristic).parentId());
+      json.prop("characteristic", characteristic != null ? characteristic.name() : null);
     }
+  }
+
+  @CheckForNull
+  private DebtCharacteristic characteristicById(@Nullable Integer id) {
+    if (id != null) {
+      return debtModel.characteristicById(id);
+    }
+    return null;
+  }
+
+  @CheckForNull
+  private DebtCharacteristic characteristicByKey(@Nullable String key) {
+    if (key != null) {
+      return debtModel.characteristicByKey(key);
+    }
+    return null;
   }
 }
