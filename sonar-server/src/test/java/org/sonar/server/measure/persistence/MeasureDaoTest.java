@@ -23,6 +23,7 @@ package org.sonar.server.measure.persistence;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.utils.System2;
 import org.sonar.core.measure.db.MeasureDto;
 import org.sonar.core.measure.db.MeasureKey;
 import org.sonar.core.persistence.AbstractDaoTestCase;
@@ -42,7 +43,7 @@ public class MeasureDaoTest extends AbstractDaoTestCase {
   @Before
   public void createDao() {
     session = getMyBatis().openSession(false);
-    dao = new MeasureDao();
+    dao = new MeasureDao(System2.INSTANCE);
   }
 
   @After

@@ -43,12 +43,7 @@ public class NotResolvedIssuesOnRemovedComponentsMigration implements DatabaseMi
   private final System2 system2;
   private final Database db;
 
-  public NotResolvedIssuesOnRemovedComponentsMigration(Database database) {
-    this(database, System2.INSTANCE);
-  }
-
-  @VisibleForTesting
-  NotResolvedIssuesOnRemovedComponentsMigration(Database database, System2 system2) {
+  public NotResolvedIssuesOnRemovedComponentsMigration(Database database, System2 system2) {
     this.db = database;
     this.system2 = system2;
   }

@@ -64,10 +64,8 @@ public class RulesProfile implements Cloneable {
   @Deprecated
   public static final String SUN_CONVENTIONS_NAME = "Sun checks";
 
-  private Integer id;
   private String name;
   private Boolean defaultProfile = Boolean.FALSE;
-  private Boolean used = Boolean.FALSE;
   private String language;
   private String parentName;
   private List<ActiveRule> activeRules = Lists.newArrayList();
@@ -99,7 +97,7 @@ public class RulesProfile implements Cloneable {
   }
 
   public Integer getId() {
-    return id;
+    return null;
   }
 
   /**
@@ -139,7 +137,7 @@ public class RulesProfile implements Cloneable {
    */
   @Deprecated
   public Boolean getUsed() {
-    return used;
+    return null;
   }
 
   /**
@@ -147,7 +145,6 @@ public class RulesProfile implements Cloneable {
    */
   @Deprecated
   public RulesProfile setUsed(Boolean used) {
-    this.used = used;
     return this;
   }
 

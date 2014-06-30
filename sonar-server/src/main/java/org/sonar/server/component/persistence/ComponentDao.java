@@ -19,7 +19,6 @@
  */
 package org.sonar.server.component.persistence;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
 import org.sonar.api.utils.System2;
@@ -36,11 +35,6 @@ import java.util.Date;
  */
 public class ComponentDao extends BaseDao<ComponentMapper, ComponentDto, String> implements ServerComponent, DaoComponent {
 
-  public ComponentDao() {
-    this(System2.INSTANCE);
-  }
-
-  @VisibleForTesting
   public ComponentDao(System2 system) {
     super(ComponentMapper.class, system);
   }

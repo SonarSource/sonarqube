@@ -39,9 +39,9 @@ public class DbClientTest {
   @Test
   public void facade() throws Exception {
     MyBatis myBatis = db.myBatis();
-    RuleDao ruleDao = new RuleDao();
+    RuleDao ruleDao = new RuleDao(System2.INSTANCE);
     QualityProfileDao qualityProfileDao = new QualityProfileDao(myBatis, System2.INSTANCE);
-    ActiveRuleDao activeRuleDao = new ActiveRuleDao(qualityProfileDao, ruleDao);
+    ActiveRuleDao activeRuleDao = new ActiveRuleDao(qualityProfileDao, ruleDao, System2.INSTANCE);
 
     DbClient client = new DbClient(db.database(), myBatis, ruleDao, activeRuleDao, qualityProfileDao);
 

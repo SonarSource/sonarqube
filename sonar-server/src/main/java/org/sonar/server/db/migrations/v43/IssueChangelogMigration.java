@@ -46,12 +46,12 @@ public class IssueChangelogMigration implements DatabaseMigration {
   private final System2 system2;
   private final Database db;
 
-  public IssueChangelogMigration(Database database, PropertiesDao propertiesDao) {
-    this(database, new WorkDurationConvertor(propertiesDao), System2.INSTANCE);
+  public IssueChangelogMigration(Database database, System2 system2, PropertiesDao propertiesDao) {
+    this(database, system2, new WorkDurationConvertor(propertiesDao));
   }
 
   @VisibleForTesting
-  IssueChangelogMigration(Database database, WorkDurationConvertor convertor, System2 system2) {
+  IssueChangelogMigration(Database database, System2 system2, WorkDurationConvertor convertor) {
     this.db = database;
     this.workDurationConvertor = convertor;
     this.system2 = system2;

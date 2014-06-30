@@ -19,7 +19,6 @@
  */
 package org.sonar.server.activity.db;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.utils.System2;
 import org.sonar.core.activity.db.ActivityDto;
 import org.sonar.core.activity.db.ActivityMapper;
@@ -37,11 +36,6 @@ import java.util.List;
  */
 public class ActivityDao extends BaseDao<ActivityMapper, ActivityDto, String> {
 
-  public ActivityDao() {
-    this(System2.INSTANCE);
-  }
-
-  @VisibleForTesting
   public ActivityDao(System2 system) {
     super(IndexDefinition.LOG, ActivityMapper.class, system);
   }
@@ -59,7 +53,7 @@ public class ActivityDao extends BaseDao<ActivityMapper, ActivityDto, String> {
 
   @Override
   protected ActivityDto doUpdate(DbSession session, ActivityDto item) {
-   throw new IllegalStateException("Cannot update Log!");
+    throw new IllegalStateException("Cannot update Log!");
   }
 
   @Override
@@ -73,7 +67,7 @@ public class ActivityDao extends BaseDao<ActivityMapper, ActivityDto, String> {
 
   @Override
   public void synchronizeAfter(DbSession session, Date time) {
-    for(ActivityDto activity:this.findAll(session)){
+    for (ActivityDto activity : this.findAll(session)) {
       session.enqueue(new DtoIndexAction<ActivityDto>(this.getIndexType(), IndexAction.Method.UPSERT, activity));
     }
     session.commit();

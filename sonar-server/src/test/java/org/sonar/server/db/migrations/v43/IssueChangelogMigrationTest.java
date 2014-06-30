@@ -56,7 +56,7 @@ public class IssueChangelogMigrationTest {
 
     WorkDurationConvertor convertor = new WorkDurationConvertor(propertiesDao);
     convertor.init();
-    migration = new IssueChangelogMigration(db.database(), convertor, system2);
+    migration = new IssueChangelogMigration(db.database(), system2, convertor);
   }
 
   @Test

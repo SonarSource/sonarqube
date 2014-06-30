@@ -21,6 +21,7 @@
 package org.sonar.server.rule;
 
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang.time.DateUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -189,7 +190,7 @@ public class RegisterRulesMediumTest {
 
     // Verify rule has not been updated
     Rule customRuleReloaded = index.getByKey(RuleTesting.XOO_X1);
-    assertThat(customRuleReloaded.updatedAt()).isEqualTo(updatedAt);
+    assertThat(DateUtils.isSameInstant(customRuleReloaded.updatedAt(), updatedAt));
   }
 
   @Test
