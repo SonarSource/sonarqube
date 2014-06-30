@@ -34,8 +34,20 @@ import org.sonar.check.Cardinality;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import javax.persistence.*;
-
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -137,6 +149,15 @@ public class Rule {
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "updated_at", updatable = true, nullable = true)
   private Date updatedAt;
+
+  @Transient
+  private String defaultCharacteristic;
+  @Transient
+  private String defaultSubCharacteristic;
+  @Transient
+  private String characteristic;
+  @Transient
+  private String subCharacteristic;
 
   private transient String[] tags = DEFAULT_TAGS;
 
@@ -497,9 +518,11 @@ public class Rule {
   /**
    * For internal use only.
    *
+   * @deprecated since 4.4, use {@link #getCharacteristic()}
    * @since 4.3
    */
   @CheckForNull
+  @Deprecated
   public Integer getCharacteristicId() {
     return characteristicId;
   }
@@ -507,8 +530,10 @@ public class Rule {
   /**
    * For internal use only.
    *
+   * @deprecated since 4.4, use {@link #setCharacteristic(@Nullable String characteristic)}
    * @since 4.3
    */
+  @Deprecated
   public Rule setCharacteristicId(@Nullable Integer characteristicId) {
     this.characteristicId = characteristicId;
     return this;
@@ -517,9 +542,11 @@ public class Rule {
   /**
    * For internal use only.
    *
+   * @deprecated since 4.4, use {@link #getDefaultCharacteristic()}
    * @since 4.3
    */
   @CheckForNull
+  @Deprecated
   public Integer getDefaultCharacteristicId() {
     return defaultCharacteristicId;
   }
@@ -527,8 +554,10 @@ public class Rule {
   /**
    * For internal use only.
    *
+   * @deprecated since 4.4, use {@link #setDefaultCharacteristic(@Nullable String defaultCharacteristic)}
    * @since 4.3
    */
+  @Deprecated
   public Rule setDefaultCharacteristicId(@Nullable Integer defaultCharacteristicId) {
     this.defaultCharacteristicId = defaultCharacteristicId;
     return this;
@@ -608,5 +637,69 @@ public class Rule {
    */
   public RuleKey ruleKey() {
     return RuleKey.of(getRepositoryKey(), getKey());
+  }
+
+  /**
+   * @since 4.4
+   */
+  @CheckForNull
+  public String getDefaultCharacteristic() {
+    return defaultCharacteristic;
+  }
+
+  /**
+   * @since 4.4
+   */
+  public Rule setDefaultCharacteristic(@Nullable String defaultCharacteristic) {
+    this.defaultCharacteristic = defaultCharacteristic;
+    return this;
+  }
+
+  /**
+   * @since 4.4
+   */
+  @CheckForNull
+  public String getDefaultSubCharacteristic() {
+    return defaultSubCharacteristic;
+  }
+
+  /**
+   * @since 4.4
+   */
+  public Rule setDefaultSubCharacteristic(@Nullable String defaultSubCharacteristic) {
+    this.defaultSubCharacteristic = defaultSubCharacteristic;
+    return this;
+  }
+
+  /**
+   * @since 4.4
+   */
+  @CheckForNull
+  public String getCharacteristic() {
+    return characteristic;
+  }
+
+  /**
+   * @since 4.4
+   */
+  public Rule setCharacteristic(@Nullable String characteristic) {
+    this.characteristic = characteristic;
+    return this;
+  }
+
+  /**
+   * @since 4.4
+   */
+  @CheckForNull
+  public String getSubCharacteristic() {
+    return subCharacteristic;
+  }
+
+  /**
+   * @since 4.4
+   */
+  public Rule setSubCharacteristic(@Nullable String subCharacteristic) {
+    this.subCharacteristic = subCharacteristic;
+    return this;
   }
 }

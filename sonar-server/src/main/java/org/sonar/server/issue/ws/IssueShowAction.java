@@ -24,11 +24,14 @@ import com.google.common.collect.Iterables;
 import com.google.common.io.Resources;
 import org.sonar.api.component.Component;
 import org.sonar.api.i18n.I18n;
-import org.sonar.api.issue.*;
+import org.sonar.api.issue.ActionPlan;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueComment;
+import org.sonar.api.issue.IssueFinder;
+import org.sonar.api.issue.IssueQuery;
+import org.sonar.api.issue.IssueQueryResult;
 import org.sonar.api.issue.internal.DefaultIssue;
 import org.sonar.api.issue.internal.FieldDiffs;
-import org.sonar.api.server.debt.DebtCharacteristic;
-import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
@@ -49,7 +52,6 @@ import org.sonar.server.user.UserSession;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -271,20 +273,12 @@ public class IssueShowAction implements RequestHandler {
   }
 
   private void addCharacteristics(IssueQueryResult result, DefaultIssue issue, JsonWriter json) {
-    Integer subCharacteristicId = result.rule(issue).getCharacteristicId() != null ? result.rule(issue).getCharacteristicId() : result.rule(issue).getDefaultCharacteristicId();
-    DebtCharacteristic subCharacteristic = characteristicById(subCharacteristicId);
-    if (subCharacteristic != null) {
-      json.prop("subCharacteristic", subCharacteristic.name());
-      DebtCharacteristic characteristic = characteristicById(((DefaultDebtCharacteristic) subCharacteristic).parentId());
-      json.prop("characteristic", characteristic != null ? characteristic.name() : null);
-    }
-  }
+    String subCharacteristic = result.rule(issue).getSubCharacteristic() != null ? result.rule(issue).getSubCharacteristic() : result.rule(issue).getDefaultSubCharacteristic();
+    String characteristic = result.rule(issue).getCharacteristic() != null ? result.rule(issue).getCharacteristic() : result.rule(issue).getDefaultCharacteristic();
 
-  @CheckForNull
-  private DebtCharacteristic characteristicById(@Nullable Integer id) {
-    if (id != null) {
-      return debtModel.characteristicById(id);
+    if (subCharacteristic != null) {
+      json.prop("subCharacteristic", subCharacteristic);
+      json.prop("characteristic", characteristic != null ? characteristic : null);
     }
-    return null;
   }
 }

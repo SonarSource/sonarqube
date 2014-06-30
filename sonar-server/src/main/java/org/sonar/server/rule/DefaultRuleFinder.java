@@ -116,6 +116,10 @@ public class DefaultRuleFinder implements RuleFinder {
       .setRepositoryKey(rule.key().repository())
       .setSeverity(RulePriority.valueOf(rule.severity()))
       .setStatus(rule.status().name())
+      .setDefaultCharacteristic(rule.defaultDebtCharacteristicKey())
+      .setDefaultSubCharacteristic(rule.defaultDebtSubCharacteristicKey())
+      .setCharacteristic(rule.debtCharacteristicKey())
+      .setSubCharacteristic(rule.debtSubCharacteristicKey())
       .setTags(rule.tags().toArray(new String[rule.tags().size()]));
 
     List<org.sonar.api.rules.RuleParam> apiParams = newArrayList();
