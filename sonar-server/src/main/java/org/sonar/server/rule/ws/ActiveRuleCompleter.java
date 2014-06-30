@@ -24,7 +24,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.server.qualityprofile.ActiveRule;
-import org.sonar.server.qualityprofile.QProfileService;
+import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.index.RuleQuery;
 
@@ -37,10 +37,10 @@ import java.util.Map;
  * web services.
  */
 public class ActiveRuleCompleter implements ServerComponent {
-  private final QProfileService service;
+  private final QProfileLoader loader;
 
-  public ActiveRuleCompleter(QProfileService service) {
-    this.service = service;
+  public ActiveRuleCompleter(QProfileLoader loader) {
+    this.loader = loader;
   }
 
   void completeSearch(RuleQuery query, Collection<Rule> rules, JsonWriter json) {
@@ -49,7 +49,7 @@ public class ActiveRuleCompleter implements ServerComponent {
     if (query.getQProfileKey() != null) {
       // Load details of active rules on the selected profile
       for (Rule rule : rules) {
-        ActiveRule activeRule = service.getActiveRule(ActiveRuleKey.of(query.getQProfileKey(), rule.key()));
+        ActiveRule activeRule = loader.getActiveRule(ActiveRuleKey.of(query.getQProfileKey(), rule.key()));
         if (activeRule != null) {
           writeActiveRules(rule.key(), Arrays.asList(activeRule), json);
         }
@@ -57,7 +57,7 @@ public class ActiveRuleCompleter implements ServerComponent {
     } else {
       // Load details of all active rules
       for (Rule rule : rules) {
-        writeActiveRules(rule.key(), service.findActiveRulesByRule(rule.key()), json);
+        writeActiveRules(rule.key(), loader.findActiveRulesByRule(rule.key()), json);
       }
     }
     json.endObject();
@@ -65,7 +65,7 @@ public class ActiveRuleCompleter implements ServerComponent {
 
   void completeShow(Rule rule, JsonWriter json) {
     json.name("actives").beginArray();
-    for (ActiveRule activeRule : service.findActiveRulesByRule(rule.key())) {
+    for (ActiveRule activeRule : loader.findActiveRulesByRule(rule.key())) {
       writeActiveRule(activeRule, json);
     }
     json.endArray();

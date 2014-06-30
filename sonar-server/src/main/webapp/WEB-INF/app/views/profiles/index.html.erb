@@ -50,7 +50,7 @@
     </tr>
     </thead>
     <tbody>
-    <% @profiles.select { |p| p.language == language.getKey() }.each do |profile| 
+    <% @profiles.select { |p| p.language == language.getKey() }.each do |profile|
        projects_count = projects_count(profile)
        is_default_profile = default_profile && default_profile==profile.key()
     %>

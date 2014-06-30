@@ -30,7 +30,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rule.Severity;
@@ -41,12 +40,9 @@ import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 
 import java.io.Reader;
-import java.io.Writer;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -54,11 +50,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.fest.assertions.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QProfileRepositoryExporterTest {
@@ -67,16 +59,12 @@ public class QProfileRepositoryExporterTest {
   SqlSession session;
 
   @Mock
-  DatabaseSessionFactory sessionFactory;
-
-  @Mock
   DatabaseSession hibernateSession;
 
   @Mock
   ActiveRuleDao activeRuleDao;
 
   List<ProfileImporter> importers = newArrayList();
-  List<ProfileExporter> exporters = newArrayList();
 
   Integer currentId = 1;
 
@@ -84,8 +72,6 @@ public class QProfileRepositoryExporterTest {
 
   @Before
   public void setUp() throws Exception {
-    when(sessionFactory.getSession()).thenReturn(hibernateSession);
-
     // Associate an id when inserting an object to simulate the db id generator
     doAnswer(new Answer() {
       public Object answer(InvocationOnMock invocation) {
@@ -96,7 +82,7 @@ public class QProfileRepositoryExporterTest {
       }
     }).when(activeRuleDao).insert(any(ActiveRuleDto.class), any(SqlSession.class));
 
-    operations = new QProfileRepositoryExporter(sessionFactory, activeRuleDao, importers, exporters);
+    operations = new QProfileRepositoryExporter(activeRuleDao, importers);
   }
 
   @Test
@@ -150,7 +136,8 @@ public class QProfileRepositoryExporterTest {
     }).when(importer).importProfile(any(Reader.class), any(ValidationMessages.class));
     importers.add(importer);
 
-    QProfileResult result = operations.importXml(new QProfile().setId(1), "pmd", "<xml/>", session);;
+    QProfileResult result = operations.importXml(new QProfile().setId(1), "pmd", "<xml/>", session);
+    ;
     assertThat(result.infos()).hasSize(1);
     assertThat(result.warnings()).hasSize(1);
   }
@@ -210,107 +197,21 @@ public class QProfileRepositoryExporterTest {
   }
 
   @Test
-  public void export_to_plugin_xml() throws Exception {
-    RulesProfile profile = mock(RulesProfile.class);
-    when(profile.getId()).thenReturn(1);
-    when(hibernateSession.getSingleResult(any(Class.class), eq("id"), eq(1))).thenReturn(profile);
-
-    ProfileExporter exporter = mock(ProfileExporter.class);
-    when(exporter.getKey()).thenReturn("pmd");
-    exporters.add(exporter);
-
-    operations.exportToXml(new QProfile().setId(1), "pmd");
-
-    verify(exporter).exportProfile(eq(profile), any(Writer.class));
-  }
-
-  @Test
-  public void fail_to_export_profile_when_missing_exporter() throws Exception {
-    RulesProfile profile = mock(RulesProfile.class);
-    when(profile.getId()).thenReturn(1);
-    when(hibernateSession.getSingleResult(any(Class.class), eq("id"), eq(1))).thenReturn(profile);
-
-    ProfileExporter exporter = mock(ProfileExporter.class);
-    when(exporter.getKey()).thenReturn("pmd");
-    exporters.add(exporter);
-
-    try {
-      operations.exportToXml(new QProfile().setId(1), "unknown");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("No such exporter : unknown");
-    }
-
-    verify(exporter, never()).exportProfile(any(RulesProfile.class), any(Writer.class));
-  }
-
-  @Test
-  public void fail_to_export_profile_when_profile_is_missing() throws Exception {
-    RulesProfile profile = mock(RulesProfile.class);
-    when(profile.getId()).thenReturn(1);
-    when(hibernateSession.getSingleResult(any(Class.class), eq("id"), eq(1))).thenReturn(null);
-
-    ProfileExporter exporter = mock(ProfileExporter.class);
-    when(exporter.getKey()).thenReturn("pmd");
-    exporters.add(exporter);
-
-    try {
-      operations.exportToXml(new QProfile().setId(1), "pmd");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("This profile does not exist");
-    }
-
-    verify(exporter, never()).exportProfile(any(RulesProfile.class), any(Writer.class));
-  }
-
-  @Test
-  public void get_profile_exporter_mime_type() throws Exception {
-    ProfileExporter exporter = mock(ProfileExporter.class);
-    when(exporter.getKey()).thenReturn("pmd");
-    when(exporter.getMimeType()).thenReturn("mime");
-    exporters.add(exporter);
-
-    assertThat(operations.getProfileExporterMimeType("pmd")).isEqualTo("mime");
-  }
-
-  @Test
-  public void get_profile_exporters_for_language() throws Exception {
-    // 2 exporters not declaring supported languages -> match all languages -> to be include in result
-    ProfileExporter exporterWithEmptySupportedLanguagesList = mock(ProfileExporter.class);
-    when(exporterWithEmptySupportedLanguagesList.getSupportedLanguages()).thenReturn(new String[]{});
-    exporters.add(exporterWithEmptySupportedLanguagesList);
-    exporters.add(mock(ProfileExporter.class));
-
-    // 1 exporter supporting the java language -> to be include in result
-    ProfileExporter exporterSupportingJava = mock(ProfileExporter.class);
-    when(exporterSupportingJava.getSupportedLanguages()).thenReturn(new String[]{"java"});
-    exporters.add(exporterSupportingJava);
-
-    // 1 exporter supporting another language -> not to be include in result
-    ProfileExporter exporterSupportingAnotherLanguage = mock(ProfileExporter.class);
-    when(exporterSupportingAnotherLanguage.getSupportedLanguages()).thenReturn(new String[]{"js"});
-    exporters.add(exporterSupportingAnotherLanguage);
-
-    assertThat(operations.getProfileExportersForLanguage("java")).hasSize(3);
-  }
-
-  @Test
   public void get_profile_importers_for_language() throws Exception {
     // 2 importers not declaring supported languages -> match all languages -> to be include in result
     ProfileImporter importersWithEmptySupportedLanguagesList = mock(ProfileImporter.class);
-    when(importersWithEmptySupportedLanguagesList.getSupportedLanguages()).thenReturn(new String[]{});
+    when(importersWithEmptySupportedLanguagesList.getSupportedLanguages()).thenReturn(new String[] {});
     importers.add(importersWithEmptySupportedLanguagesList);
     importers.add(mock(ProfileImporter.class));
 
     // 1 importers supporting the java language -> to be include in result
     ProfileImporter importerSupportingJava = mock(ProfileImporter.class);
-    when(importerSupportingJava.getSupportedLanguages()).thenReturn(new String[]{"java"});
+    when(importerSupportingJava.getSupportedLanguages()).thenReturn(new String[] {"java"});
     importers.add(importerSupportingJava);
 
     // 1 importers supporting another language -> not to be include in result
     ProfileImporter importerSupportingAnotherLanguage = mock(ProfileImporter.class);
-    when(importerSupportingAnotherLanguage.getSupportedLanguages()).thenReturn(new String[]{"js"});
+    when(importerSupportingAnotherLanguage.getSupportedLanguages()).thenReturn(new String[] {"js"});
     importers.add(importerSupportingAnotherLanguage);
 
     assertThat(operations.getProfileImportersForLanguage("java")).hasSize(3);

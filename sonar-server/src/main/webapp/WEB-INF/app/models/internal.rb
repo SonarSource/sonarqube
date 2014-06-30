@@ -66,12 +66,20 @@ class Internal
     component(Java::OrgSonarServerQualityprofile::QProfiles.java_class)
   end
 
-  def self.quality_gates
-    component(Java::OrgSonarServerQualitygate::QualityGates.java_class)
+  def self.qprofile_service
+    component(Java::OrgSonarServerQualityprofile::QProfileService.java_class)
   end
 
-  def self.profile_exporter
-    component(Java::OrgSonarServerQualityprofile::QProfileRepositoryExporter.java_class)
+  def self.qprofile_loader
+    component(Java::OrgSonarServerQualityprofile::QProfileLoader.java_class)
+  end
+
+  def self.qprofile_exporters
+    component(Java::OrgSonarServerQualityprofile::QProfileExporters.java_class)
+  end
+
+  def self.quality_gates
+    component(Java::OrgSonarServerQualitygate::QualityGates.java_class)
   end
 
   def self.rules

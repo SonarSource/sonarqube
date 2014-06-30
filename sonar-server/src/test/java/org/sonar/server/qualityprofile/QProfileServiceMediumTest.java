@@ -60,6 +60,7 @@ public class QProfileServiceMediumTest {
   DbClient db;
   DbSession dbSession;
   QProfileService service;
+  QProfileLoader loader;
   RuleActivator activator;
 
   @Before
@@ -68,6 +69,7 @@ public class QProfileServiceMediumTest {
     db = tester.get(DbClient.class);
     dbSession = db.openSession(false);
     service = tester.get(QProfileService.class);
+    loader = tester.get(QProfileLoader.class);
     activator = tester.get(RuleActivator.class);
 
     // create pre-defined rules
@@ -94,7 +96,7 @@ public class QProfileServiceMediumTest {
 
     dbSession.clearCache();
 
-    Map<String, Long> counts = service.countAllActiveRules();
+    Map<String, Long> counts = loader.countAllActiveRules();
     assertThat(counts).hasSize(2);
     assertThat(counts.keySet()).containsOnly(XOO_P1_KEY, XOO_P2_KEY);
     assertThat(counts.values()).containsOnly(1L, 1L);
@@ -108,7 +110,7 @@ public class QProfileServiceMediumTest {
     service.activate(XOO_P2_KEY, new RuleActivation(RuleTesting.XOO_X1).setSeverity("BLOCKER"));
     dbSession.clearCache();
 
-    Map<String, Multimap<String, FacetValue>> stats = service.getAllProfileStats();
+    Map<String, Multimap<String, FacetValue>> stats = loader.getAllProfileStats();
 
     assertThat(stats.size()).isEqualTo(2);
     assertThat(stats.get(XOO_P1_KEY).size()).isEqualTo(3);
@@ -132,7 +134,7 @@ public class QProfileServiceMediumTest {
     service.activate(XOO_P1_KEY, new RuleActivation(RuleTesting.XOO_X1).setSeverity("BLOCKER"));
     dbSession.commit();
 
-    assertThat(service.countDeprecatedActiveRulesByProfile(XOO_P1_KEY)).isEqualTo(1);
+    assertThat(loader.countDeprecatedActiveRulesByProfile(XOO_P1_KEY)).isEqualTo(1);
   }
 
   @Test

@@ -27,8 +27,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.ServerComponent;
-import org.sonar.api.database.DatabaseSession;
-import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
@@ -38,13 +36,9 @@ import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.qualityprofile.db.ActiveRuleDao;
 import org.sonar.core.qualityprofile.db.ActiveRuleDto;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
-import org.sonar.jpa.session.DatabaseSessionFactory;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 
 import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,24 +49,19 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class QProfileRepositoryExporter implements ServerComponent {
 
-  private final DatabaseSessionFactory sessionFactory;
   private final ActiveRuleDao activeRuleDao;
-  private final List<ProfileExporter> exporters;
   private final List<ProfileImporter> importers;
 
   /**
    * Used by pico when no plugin provide profile exporter / importer
    */
-  public QProfileRepositoryExporter(DatabaseSessionFactory sessionFactory, ActiveRuleDao activeRuleDao) {
-    this(sessionFactory, activeRuleDao, Lists.<ProfileImporter>newArrayList(), Lists.<ProfileExporter>newArrayList());
+  public QProfileRepositoryExporter(ActiveRuleDao activeRuleDao) {
+    this(activeRuleDao, Lists.<ProfileImporter>newArrayList());
   }
 
-  public QProfileRepositoryExporter(DatabaseSessionFactory sessionFactory, ActiveRuleDao activeRuleDao,
-    List<ProfileImporter> importers, List<ProfileExporter> exporters) {
-    this.sessionFactory = sessionFactory;
+  public QProfileRepositoryExporter(ActiveRuleDao activeRuleDao, List<ProfileImporter> importers) {
     this.activeRuleDao = activeRuleDao;
     this.importers = importers;
-    this.exporters = exporters;
   }
 
   public QProfileResult importXml(QProfile profile, String pluginKey, String xml, SqlSession session) {
@@ -83,22 +72,6 @@ public class QProfileRepositoryExporter implements ServerComponent {
     importProfile(profile.id(), rulesProfile, session);
     processValidationMessages(messages, result);
     return result;
-  }
-
-  public String exportToXml(QProfile profile, String pluginKey) {
-    DatabaseSession session = sessionFactory.getSession();
-    RulesProfile rulesProfile = session.getSingleResult(RulesProfile.class, "id", profile.id());
-    if (rulesProfile == null) {
-      throw new NotFoundException("This profile does not exist");
-    }
-    ProfileExporter exporter = getProfileExporter(pluginKey);
-    Writer writer = new StringWriter();
-    exporter.exportProfile(rulesProfile, writer);
-    return writer.toString();
-  }
-
-  public String getProfileExporterMimeType(String pluginKey) {
-    return getProfileExporter(pluginKey).getMimeType();
   }
 
   private void importProfile(int profileId, RulesProfile rulesProfile, SqlSession sqlSession) {
@@ -151,25 +124,6 @@ public class QProfileRepositoryExporter implements ServerComponent {
       }
     }
     throw new BadRequestException("No such importer : " + importerKey);
-  }
-
-  private ProfileExporter getProfileExporter(String exporterKey) {
-    for (ProfileExporter exporter : exporters) {
-      if (StringUtils.equals(exporterKey, exporter.getKey())) {
-        return exporter;
-      }
-    }
-    throw new BadRequestException("No such exporter : " + exporterKey);
-  }
-
-  public List<ProfileExporter> getProfileExportersForLanguage(String language) {
-    List<ProfileExporter> result = new ArrayList<ProfileExporter>();
-    for (ProfileExporter exporter : exporters) {
-      if (exporter.getSupportedLanguages() == null || exporter.getSupportedLanguages().length == 0 || ArrayUtils.contains(exporter.getSupportedLanguages(), language)) {
-        result.add(exporter);
-      }
-    }
-    return result;
   }
 
   public List<ProfileImporter> getProfileImportersForLanguage(String language) {

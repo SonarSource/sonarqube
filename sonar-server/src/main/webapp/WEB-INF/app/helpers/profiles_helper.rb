@@ -25,7 +25,7 @@ module ProfilesHelper
 
   def label_for_rules_count(qProfile, all_profile_stats)
     profile_stat = all_profile_stats[qProfile.key()] if all_profile_stats
-    profile_rules_count = profile_rules_count(qProfile, profile_stat)
+    profile_rules_count = profile_rules_count(profile_stat)
     label = "#{profile_rules_count} #{message('rules').downcase}"
 
     count_overriding = overriding_rules_count(profile_stat)
@@ -52,7 +52,7 @@ module ProfilesHelper
     Internal.quality_profiles.countProjects(qProfile).to_i
   end
 
-  def profile_rules_count(qProfile, profile_stat)
+  def profile_rules_count(profile_stat)
     count = 0
     count = profile_stat.get('countActiveRules').get(0).getValue() if profile_stat && profile_stat.get('countActiveRules')
     count

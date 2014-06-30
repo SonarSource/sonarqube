@@ -34,7 +34,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
-import org.sonar.server.qualityprofile.QProfileService;
+import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.rule.RuleRepositories.Repository;
 import org.sonar.server.user.UserSession;
@@ -51,15 +51,15 @@ public class AppAction implements RequestHandler {
   private final RuleRepositories ruleRepositories;
   private final I18n i18n;
   private final DebtModel debtModel;
-  private final QProfileService qualityProfileService;
+  private final QProfileLoader profileLoader;
 
   public AppAction(Languages languages, RuleRepositories ruleRepositories, I18n i18n,
-    DebtModel debtModel, QProfileService qualityProfileService) {
+    DebtModel debtModel, QProfileLoader profileLoader) {
     this.languages = languages;
     this.ruleRepositories = ruleRepositories;
     this.i18n = i18n;
     this.debtModel = debtModel;
-    this.qualityProfileService = qualityProfileService;
+    this.profileLoader = profileLoader;
   }
 
   @Override
@@ -81,7 +81,7 @@ public class AppAction implements RequestHandler {
 
   private void addProfiles(JsonWriter json) {
     json.name("qualityprofiles").beginArray();
-    for (QualityProfileDto profile : qualityProfileService.findAll()) {
+    for (QualityProfileDto profile : profileLoader.findAll()) {
       if (languageIsSupported(profile)) {
         json
           .beginObject()

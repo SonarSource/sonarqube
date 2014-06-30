@@ -65,13 +65,6 @@ public class RuleActivation {
     return this;
   }
 
-  /**
-   * For internal use
-   */
-  boolean useDefaults() {
-    return severity == null && parameters.isEmpty();
-  }
-
   public RuleActivation setSeverity(@Nullable String s) {
     if (s != null && !Severity.ALL.contains(s)) {
       throw new IllegalArgumentException("Unknown severity: " + s);

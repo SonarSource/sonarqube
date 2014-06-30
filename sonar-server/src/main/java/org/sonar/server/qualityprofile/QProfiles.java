@@ -28,8 +28,8 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
 import javax.annotation.CheckForNull;
+
 import java.util.List;
-import java.util.Map;
 
 public class QProfiles implements ServerComponent {
 
@@ -40,7 +40,7 @@ public class QProfiles implements ServerComponent {
   private final QProfileLookup profileLookup;
 
   public QProfiles(QProfileProjectOperations projectOperations, QProfileProjectLookup projectLookup,
-                   QProfileLookup profileLookup) {
+    QProfileLookup profileLookup) {
     this.projectOperations = projectOperations;
     this.projectLookup = projectLookup;
     this.profileLookup = profileLookup;
@@ -79,7 +79,6 @@ public class QProfiles implements ServerComponent {
     return profileLookup.ancestors(profile);
   }
 
-
   // PROJECTS
 
   public List<Component> projects(int profileId) {
@@ -113,7 +112,6 @@ public class QProfiles implements ServerComponent {
   public void removeAllProjects(int profileId) {
     projectOperations.removeAllProjects(profileId, UserSession.get());
   }
-
 
   private void checkProfileNameParam(String name) {
     if (Strings.isNullOrEmpty(name)) {

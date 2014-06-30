@@ -30,7 +30,7 @@ class ProfilesController < ApplicationController
     add_breadcrumbs ProfilesController::root_breadcrumb
     call_backend do
       @profiles = Internal.quality_profiles.allProfiles().to_a
-      @active_rule_counts = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).countAllActiveRules()
+      @active_rule_counts = Internal.qprofile_loader.countAllActiveRules()
     end
     Api::Utils.insensitive_sort!(@profiles) { |profile| profile.name() }
   end
@@ -39,10 +39,10 @@ class ProfilesController < ApplicationController
   def show
     require_parameters 'key'
     call_backend do
-      @profile = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).getByKey(params[:key])
+      @profile = Internal.qprofile_loader.getByKey(params[:key])
       not_found('Profile not found') unless @profile
-      @deprecated_active_rules = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).countDeprecatedActiveRulesByProfile(@profile.getKey())
-      @stats = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).getStatsByProfile(@profile.getKey())
+      @deprecated_active_rules = Internal.qprofile_loader.countDeprecatedActiveRulesByProfile(@profile.getKey())
+      @stats = Internal.qprofile_loader.getStatsByProfile(@profile.getKey())
     end
     set_profile_breadcrumbs
   end
@@ -66,7 +66,7 @@ class ProfilesController < ApplicationController
         end
       end
       profile_name = Java::OrgSonarServerQualityprofile::QProfileName.new(params[:language], params[:name])
-      Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).create(profile_name)
+      Internal.qprofile_service.create(profile_name)
       # TODO use files_by_key
       #flash[:notice] = message('quality_profiles.profile_x_created', :params => result.profile.name)
       #flash_result(result)
@@ -81,7 +81,7 @@ class ProfilesController < ApplicationController
     require_parameters 'language'
     @language = java_facade.getLanguages().find { |l| l.getKey()==params[:language].to_s }
     call_backend do
-      @builtin_profile_names = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).builtInProfileNamesForLanguage(params[:language].to_s)
+      @builtin_profile_names = Internal.qprofile_service.builtInProfileNamesForLanguage(params[:language].to_s)
     end
     render :partial => 'profiles/restore_built_in_form'
   end
@@ -91,7 +91,7 @@ class ProfilesController < ApplicationController
     verify_post_request
     require_parameters 'language'
     call_backend do
-      Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).restoreBuiltInProfilesForLanguage(params[:language].to_s)
+      Internal.qprofile_service.restoreBuiltInProfilesForLanguage(params[:language].to_s)
     end
     redirect_to :action => 'index'
   end
@@ -103,7 +103,7 @@ class ProfilesController < ApplicationController
 
     profile_key = profile_id_to_key(params[:id].to_i)
     call_backend do
-      Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).delete(profile_key)
+      Internal.qprofile_service.delete(profile_key)
     end
 
     redirect_to(:controller => 'profiles', :action => 'index')
@@ -117,7 +117,7 @@ class ProfilesController < ApplicationController
 
     profile_key = profile_id_to_key(params[:id].to_i)
     call_backend do
-      Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).setDefault(profile_key)
+      Internal.qprofile_service.setDefault(profile_key)
     end
     redirect_to :action => 'index'
   end
@@ -146,7 +146,7 @@ class ProfilesController < ApplicationController
     target_name = params['name']
 
     call_backend do
-      Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).copyToName(source_key, target_name)
+      Internal.qprofile_service.copyToName(source_key, target_name)
       flash[:notice]= message('quality_profiles.profile_x_not_activated', :params => target_name)
       render :text => 'ok', :status => 200
     end
@@ -159,7 +159,7 @@ class ProfilesController < ApplicationController
 
     profile_key=params[:key]
     call_backend do
-      xml = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).backup(profile_key)
+      xml = Internal.qprofile_service.backup(profile_key)
       send_data(xml, :type => 'text/xml', :disposition => "attachment; filename=#{profile_key}.xml")
     end
   end
@@ -179,7 +179,7 @@ class ProfilesController < ApplicationController
     else
       call_backend do
         xml=Api::Utils.read_post_request_param(params[:backup])
-        Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).restore(xml)
+        Internal.qprofile_service.restore(xml)
       end
     end
     redirect_to :action => 'index'
@@ -189,21 +189,21 @@ class ProfilesController < ApplicationController
   # GET /profiles/export?name=<profile name>&language=<language>&format<exporter key>
   def export
     language = params[:language]
-    if (params[:name].blank?)
-      profile = Internal.quality_profiles.defaultProfile(language)
+    if params[:name].blank?
+      profile = Internal.qprofile_service.getDefault(language)
     else
-      profile = Internal.quality_profiles.profile(CGI::unescape(params[:name]), language)
+      profile = Internal.qprofile_loader.getByLangAndName(language, CGI::unescape(params[:name]))
     end
     not_found('Profile not found') unless profile
 
-    if (params[:format].blank?)
+    if params[:format].blank?
       # standard sonar format
-      result = Internal.profile_backup.backupProfile(profile)
+      result = Internal.qprofile_service.backup(profile.getKee())
       send_data(result, :type => 'text/xml', :disposition => 'inline')
     else
       exporter_key = params[:format]
-      result = Internal.profile_exporter.exportToXml(profile, exporter_key)
-      send_data(result, :type => Internal.profile_exporter.getProfileExporterMimeType(exporter_key), :disposition => 'inline')
+      result = Internal.qprofile_exporters.export(profile.getKee(), exporter_key)
+      send_data(result, :type => Internal.qprofile_exporters.mimeType(exporter_key), :disposition => 'inline')
     end
   end
 
@@ -221,7 +221,7 @@ class ProfilesController < ApplicationController
       profiles = Api::Utils.insensitive_sort(profiles) { |p| p.name() }
       @select_parent = [[message('none'), nil]] + profiles.collect { |profile| [profile.name(), profile.id()] }
 
-      @all_profile_stats = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).getAllProfileStats()
+      @all_profile_stats = Internal.qprofile_loader.getAllProfileStats()
     end
 
     set_profile_breadcrumbs
@@ -236,7 +236,7 @@ class ProfilesController < ApplicationController
     profile_key = profile_id_to_key(params[:id].to_i)
     parent_key = profile_id_to_key(params[:parent_id].to_i) unless params[:parent_id].empty?
     call_backend do
-      Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).setParent(profile_key, parent_key)
+      Internal.qprofile_service.setParent(profile_key, parent_key)
     end
     redirect_to :action => 'inheritance', :id => params[:id]
   end
@@ -245,7 +245,7 @@ class ProfilesController < ApplicationController
   def changelog
     require_parameters 'key'
 
-    @profile = Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).getByKey(params[:key])
+    @profile = Internal.qprofile_loader.getByKey(params[:key])
     search = {'profileKeys' => @profile.key().to_s, 'since' => params[:since], 'to' => params[:to], 'p' => params[:p]}
     result = Internal.component(Java::OrgSonarServerActivity::RubyQProfileActivityService.java_class).search(search)
     @changes = result.activities
@@ -341,7 +341,7 @@ class ProfilesController < ApplicationController
 
     call_backend do
       profile_key = profile_id_to_key(params[:id].to_i)
-      Internal.component(Java::OrgSonarServerQualityprofile::QProfileService.java_class).rename(profile_key, params[:new_name])
+      Internal.qprofile_service.rename(profile_key, params[:new_name])
     end
     render :text => 'ok', :status => 200
   end

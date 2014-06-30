@@ -34,6 +34,7 @@ import org.sonar.api.server.debt.DebtModel;
 import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.qualityprofile.db.QualityProfileDto;
+import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.rule.RuleRepositories;
@@ -63,11 +64,11 @@ public class AppActionTest {
   DebtModel debtModel;
 
   @Mock
-  QProfileService qualityProfileService;
+  QProfileLoader profileLoader;
 
   @Test
   public void should_generate_app_init_info() throws Exception {
-    AppAction app = new AppAction(languages, ruleRepositories, i18n, debtModel, qualityProfileService);
+    AppAction app = new AppAction(languages, ruleRepositories, i18n, debtModel, profileLoader);
     WsTester tester = new WsTester(new RulesWebService(
       mock(SearchAction.class), mock(ShowAction.class), mock(TagsAction.class), mock(CreateAction.class),
       app, mock(UpdateAction.class), mock(DeleteAction.class)));
@@ -76,7 +77,7 @@ public class AppActionTest {
 
     QualityProfileDto profile1 = QProfileTesting.newXooP1();
     QualityProfileDto profile2 = QProfileTesting.newXooP2().setParentKee(QProfileTesting.XOO_P1_KEY);
-    when(qualityProfileService.findAll()).thenReturn(ImmutableList.of(profile1, profile2));
+    when(profileLoader.findAll()).thenReturn(ImmutableList.of(profile1, profile2));
 
     Language xoo = mock(Language.class);
     when(xoo.getKey()).thenReturn("xoo");
