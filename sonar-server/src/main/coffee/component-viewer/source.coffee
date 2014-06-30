@@ -104,7 +104,6 @@ define [
         line = issue.line || 0
         line = 0 if issue.resolution == 'FIXED' || issue.resolution == 'REMOVED'
         row = @$("##{@cid}-#{line}")
-        console.log "##{@cid}-#{line}"
         unless row.length > 0
           line = 0
           row = @$("##{@cid}-#{line}")
