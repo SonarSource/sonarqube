@@ -42,6 +42,7 @@ define [
           data:
               profile_key: @model.get('qProfile')
               rule_key: ruleKey
+              reset: true
         .done =>
           @options.app.showRule ruleKey
 
