@@ -25,6 +25,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.annotations.BatchSize;
 import org.sonar.api.database.BaseIdentifiable;
+import org.sonar.api.resources.Language;
 import org.sonar.api.resources.ProjectLink;
 import org.sonar.api.resources.Resource;
 
@@ -384,8 +385,9 @@ public class ResourceModel extends BaseIdentifiable implements Cloneable {
     model.setDescription(resource.getDescription());
     model.setKey(resource.getEffectiveKey());
     model.setPath(resource.getPath());
-    if (resource.getLanguage() != null) {
-      model.setLanguageKey(resource.getLanguage().getKey());
+    Language lang = resource.getLanguage();
+    if (lang != null) {
+      model.setLanguageKey(lang.getKey());
     }
     if (StringUtils.isNotBlank(resource.getName())) {
       model.setName(resource.getName());

@@ -159,7 +159,7 @@ public class ESNode implements Startable {
   }
 
   private void addIndexTemplates() {
-    PutIndexTemplateResponse response = node.client().admin().indices()
+    node.client().admin().indices()
       .preparePutTemplate("default")
       .setTemplate("*")
       .addMapping("_default_", "{\"dynamic\": \"strict\"}")
