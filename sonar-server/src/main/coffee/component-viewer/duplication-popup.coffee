@@ -46,5 +46,7 @@ define [
       duplications = _.map groupedBlocks, (blocks, fileRef) ->
         blocks: blocks
         file: files[fileRef]
+      duplications = _.sortBy duplications, (d) =>
+        d.file.projectName != @options.main.component.get 'projectName'
       component: @options.main.component.toJSON()
       duplications: duplications
