@@ -139,8 +139,10 @@
       var $window = jQuery(window),
           topOffset = $sidebar.offset().top;
       $window.on('scroll', function () {
-        var scrollTop = $window.scrollTop();
+        var scrollTop = $window.scrollTop(),
+            scrollLeft = $window.scrollLeft();
         $sidebar.toggleClass('sticky', scrollTop > topOffset);
+        $sidebar.css('left', -scrollLeft + 10);
       });
     }
   });
