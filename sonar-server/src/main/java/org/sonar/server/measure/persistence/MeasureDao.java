@@ -57,7 +57,7 @@ public class MeasureDao extends BaseDao<MeasureMapper, MeasureDto, MeasureKey> i
     return session.getMapper(MeasureMapper.class).countByKey(key) > 0;
   }
 
-  public List<MeasureDto> findByComponentKeyAndMetricKeys(String componentKey, List<String> metricKeys, DbSession session){
+  public List<MeasureDto> findByComponentKeyAndMetricKeys(String componentKey, List<String> metricKeys, DbSession session) {
     if (metricKeys.isEmpty()) {
       return Collections.emptyList();
     }
@@ -71,7 +71,7 @@ public class MeasureDao extends BaseDao<MeasureMapper, MeasureDto, MeasureKey> i
 
   @Override
   protected MeasureDto doInsert(DbSession session, MeasureDto item) {
-   throw notImplemented();
+    throw notImplemented();
   }
 
   @Override
@@ -89,7 +89,7 @@ public class MeasureDao extends BaseDao<MeasureMapper, MeasureDto, MeasureKey> i
     throw notImplemented();
   }
 
-  private static RuntimeException notImplemented(){
+  private static RuntimeException notImplemented() {
     throw new IllegalStateException("Not implemented yet");
   }
 }

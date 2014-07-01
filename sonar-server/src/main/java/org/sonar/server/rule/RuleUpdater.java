@@ -39,7 +39,11 @@ import org.sonar.core.technicaldebt.db.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 public class RuleUpdater implements ServerComponent {
 
@@ -51,6 +55,9 @@ public class RuleUpdater implements ServerComponent {
     this.system = system;
   }
 
+  /**
+   * Update manual rules and custom rules (rules instantiated from templates)
+   */
   public boolean update(RuleUpdate update, UserSession userSession) {
     if (update.isEmpty()) {
       return false;
@@ -258,6 +265,10 @@ public class RuleUpdater implements ServerComponent {
     if (update.isChangeParameters() && update.isCustomRule()) {
       RuleDto customRule = context.rule;
       RuleDto templateRule = dbClient.ruleDao().getTemplate(customRule, dbSession);
+      if (templateRule == null) {
+        throw new IllegalStateException(String.format("Template %s of rule %s does not exist",
+          customRule.getTemplateId(), customRule.getKey()));
+      }
       List<RuleParamDto> templateRuleParams = dbClient.ruleDao().findRuleParamsByRuleKey(dbSession, templateRule.getKey());
       List<String> paramKeys = new ArrayList<String>();
 
@@ -280,7 +291,7 @@ public class RuleUpdater implements ServerComponent {
   }
 
   private void deleteOrUpdateParameters(DbSession dbSession, RuleUpdate update, RuleDto customRule, List<String> paramKeys,
-                                   Multimap<RuleDto, ActiveRuleDto> activeRules, Multimap<ActiveRuleDto, ActiveRuleParamDto> activeRuleParams){
+    Multimap<RuleDto, ActiveRuleDto> activeRules, Multimap<ActiveRuleDto, ActiveRuleParamDto> activeRuleParams) {
     for (RuleParamDto ruleParamDto : dbClient.ruleDao().findRuleParamsByRuleKey(dbSession, update.getRuleKey())) {
       String key = ruleParamDto.getName();
       String value = update.parameter(key);
@@ -315,7 +326,7 @@ public class RuleUpdater implements ServerComponent {
   }
 
   private void createNewParameters(DbSession dbSession, RuleUpdate update, RuleDto customRule, List<RuleParamDto> templateRuleParams, List<String> paramKeys,
-                                   Multimap<RuleDto, ActiveRuleDto> activeRules){
+    Multimap<RuleDto, ActiveRuleDto> activeRules) {
     for (RuleParamDto templateRuleParam : templateRuleParams) {
       String key = templateRuleParam.getName();
       if (!paramKeys.contains(key)) {

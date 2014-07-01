@@ -247,9 +247,13 @@ public class RuleActivator implements ServerComponent {
     ActiveRuleDto activeRule;
     ActiveRuleDao dao = db.activeRuleDao();
     activeRule = ActiveRuleDto.createFor(context.profile(), context.rule());
-    activeRule.setSeverity(change.getSeverity());
-    if (change.getInheritance() != null) {
-      activeRule.setInheritance(change.getInheritance().name());
+    String severity = change.getSeverity();
+    if (severity != null) {
+      activeRule.setSeverity(severity);
+    }
+    ActiveRule.Inheritance inheritance = change.getInheritance();
+    if (inheritance != null) {
+      activeRule.setInheritance(inheritance.name());
     }
     dao.insert(dbSession, activeRule);
     for (Map.Entry<String, String> param : change.getParameters().entrySet()) {
@@ -263,9 +267,8 @@ public class RuleActivator implements ServerComponent {
   }
 
   private ActiveRuleDto doUpdate(ActiveRuleChange change, RuleActivatorContext context, DbSession dbSession) {
-    ActiveRuleDto activeRule;
     ActiveRuleDao dao = db.activeRuleDao();
-    activeRule = context.activeRule();
+    ActiveRuleDto activeRule = context.activeRule();
     String severity = change.getSeverity();
     if (severity != null) {
       activeRule.setSeverity(severity);

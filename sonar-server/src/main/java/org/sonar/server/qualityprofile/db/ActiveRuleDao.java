@@ -32,6 +32,7 @@ import org.sonar.core.qualityprofile.db.ActiveRuleKey;
 import org.sonar.core.qualityprofile.db.ActiveRuleMapper;
 import org.sonar.core.qualityprofile.db.ActiveRuleParamDto;
 import org.sonar.core.qualityprofile.db.QualityProfileDao;
+import org.sonar.core.qualityprofile.db.QualityProfileDto;
 import org.sonar.core.rule.RuleDto;
 import org.sonar.server.db.BaseDao;
 import org.sonar.server.rule.db.RuleDao;
@@ -95,13 +96,15 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
   @Deprecated
   public ActiveRuleDto getById(DbSession session, int activeRuleId) {
     ActiveRuleDto activeRule = mapper(session).selectById(activeRuleId);
-
     if (activeRule != null) {
-      activeRule.setKey(ActiveRuleKey.of(
-        profileDao.getById(activeRule.getProfileId(), session).getKey(),
-        ruleDao.getById(session, activeRule.getRulId()).getKey()));
+      QualityProfileDto profile = profileDao.getById(activeRule.getProfileId(), session);
+      RuleDto rule = ruleDao.getById(session, activeRule.getRulId());
+      if (profile != null && rule != null) {
+        activeRule.setKey(ActiveRuleKey.of(profile.getKey(), rule.getKey()));
+        return activeRule;
+      }
     }
-    return activeRule;
+    return null;
   }
 
   @Override
@@ -129,9 +132,11 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
 
   @Override
   protected void doDeleteByKey(DbSession session, ActiveRuleKey key) {
-    ActiveRuleDto rule = this.getNullableByKey(session, key);
-    mapper(session).deleteParameters(rule.getId());
-    mapper(session).delete(rule.getId());
+    ActiveRuleDto activeRule = getNullableByKey(session, key);
+    if (activeRule != null) {
+      mapper(session).deleteParameters(activeRule.getId());
+      mapper(session).delete(activeRule.getId());
+    }
   }
 
   /**
@@ -169,9 +174,12 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
   public void removeParamByKeyAndName(DbSession session, ActiveRuleKey key, String param) {
     //TODO SQL rewrite to delete by key
     ActiveRuleDto activeRule = getNullableByKey(session, key);
-    ActiveRuleParamDto activeRuleParam = mapper(session).selectParamByActiveRuleAndKey(activeRule.getId(), param);
-    Preconditions.checkNotNull(activeRuleParam.getId(), ACTIVE_RULE_PARAM_IS_NOT_PERSISTED);
-    mapper(session).deleteParameter(activeRuleParam.getId());
+    if (activeRule != null) {
+      ActiveRuleParamDto activeRuleParam = mapper(session).selectParamByActiveRuleAndKey(activeRule.getId(), param);
+      if (activeRuleParam != null) {
+        mapper(session).deleteParameter(activeRuleParam.getId());
+      }
+    }
   }
 
   public void updateParam(DbSession session, ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam) {
@@ -209,10 +217,14 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
     return mapper(session).selectParamsByActiveRuleId(activeRule.getId());
   }
 
+  @CheckForNull
   public ActiveRuleParamDto getParamByKeyAndName(ActiveRuleKey key, String name, DbSession session) {
     Preconditions.checkNotNull(key, ACTIVE_RULE_KEY_CANNOT_BE_NULL);
     Preconditions.checkNotNull(name, PARAMETER_NAME_CANNOT_BE_NULL);
     ActiveRuleDto activeRule = getNullableByKey(session, key);
-    return mapper(session).selectParamByActiveRuleAndKey(activeRule.getId(), name);
+    if (activeRule!=null) {
+      return mapper(session).selectParamByActiveRuleAndKey(activeRule.getId(), name);
+    }
+    return null;
   }
 }

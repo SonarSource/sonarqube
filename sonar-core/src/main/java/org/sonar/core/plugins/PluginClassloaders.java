@@ -131,10 +131,11 @@ public class PluginClassloaders {
       }
       return realm;
     } catch (UnsupportedClassVersionError e) {
-      throw new SonarException("The plugin " + plugin.getKey() + " is not supported with Java " + SystemUtils.JAVA_VERSION_TRIMMED, e);
+      throw new SonarException(String.format("The plugin %s is not supported with Java %s", plugin.getKey(),
+        SystemUtils.JAVA_VERSION_TRIMMED), e);
 
     } catch (Exception e) {
-      throw new SonarException("Fail to build the classloader of " + plugin.getKey(), e);
+      throw new SonarException(String.format("Fail to build the classloader of %s", plugin.getKey()), e);
     }
   }
 
@@ -146,7 +147,8 @@ public class PluginClassloaders {
       ClassRealm base = world.getRealm(plugin.getBasePlugin());
       if (base == null) {
         // Ignored, because base plugin is not installed
-        LOG.warn("Plugin " + plugin.getKey() + " is ignored because base plugin is not installed: " + plugin.getBasePlugin());
+        LOG.warn(String.format("Plugin %s is ignored because base plugin is not installed: %s",
+          plugin.getKey(), plugin.getBasePlugin()));
         return false;
       }
       // we create new realm to be able to return it by key without conversion to baseKey
@@ -156,10 +158,12 @@ public class PluginClassloaders {
       }
       return true;
     } catch (UnsupportedClassVersionError e) {
-      throw new SonarException("The plugin " + plugin.getKey() + " is not supported with Java " + SystemUtils.JAVA_VERSION_TRIMMED, e);
+      throw new SonarException(String.format("The plugin %s is not supported with Java %s",
+        plugin.getKey(), SystemUtils.JAVA_VERSION_TRIMMED), e);
 
     } catch (Exception e) {
-      throw new SonarException("Fail to extend the plugin " + plugin.getBasePlugin() + " for " + plugin.getKey(), e);
+      throw new SonarException(String.format("Fail to extend the plugin %s for %s",
+        plugin.getBasePlugin(), plugin.getKey()), e);
     }
   }
 
@@ -223,10 +227,11 @@ public class PluginClassloaders {
       return (Plugin) clazz.newInstance();
 
     } catch (UnsupportedClassVersionError e) {
-      throw new SonarException("The plugin " + plugin.getKey() + " is not supported with Java " + SystemUtils.JAVA_VERSION_TRIMMED, e);
+      throw new SonarException(String.format("The plugin %s is not supported with Java %s",
+        plugin.getKey(), SystemUtils.JAVA_VERSION_TRIMMED), e);
 
     } catch (Exception e) {
-      throw new SonarException("Fail to load plugin " + plugin.getKey(), e);
+      throw new SonarException(String.format("Fail to load plugin %s", plugin.getKey()), e);
     }
   }
 
