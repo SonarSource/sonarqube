@@ -54,7 +54,8 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     public static final IndexField TYPE = add(IndexField.Type.STRING, "type");
     public static final IndexField DESCRIPTION = addSearchable(IndexField.Type.TEXT, "description");
     public static final IndexField DEFAULT_VALUE = add(IndexField.Type.STRING, "defaultValue");
-    public static final Set<IndexField> ALL_FIELDS = getAllFields();
+
+    public static Set<IndexField> ALL_FIELDS = getAllFields();
 
     private static final Set<IndexField> getAllFields() {
       Set<IndexField> fields = new HashSet<IndexField>();

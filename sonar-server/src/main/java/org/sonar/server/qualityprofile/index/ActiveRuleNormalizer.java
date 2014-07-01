@@ -55,7 +55,8 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
     public static final IndexField PARENT_KEY = add(IndexField.Type.STRING, "parentKey");
     public static final IndexField RULE_KEY = add(IndexField.Type.STRING, "ruleKey");
     public static final IndexField PARAMS = addEmbedded("params", ActiveRuleParamField.ALL_FIELDS);
-    public static final Set<IndexField> ALL_FIELDS = getAllFields();
+
+    public static Set<IndexField> ALL_FIELDS = getAllFields();
 
     private static Set<IndexField> getAllFields() {
       Set<IndexField> fields = new HashSet<IndexField>();

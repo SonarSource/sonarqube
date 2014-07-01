@@ -57,7 +57,7 @@ public class ActivityNormalizer extends BaseNormalizer<ActivityDto, String> {
     public static final IndexField DETAILS = addSearchable(IndexField.Type.OBJECT, "details");
     public static final IndexField MESSAGE = addSearchable(IndexField.Type.STRING, "message");
 
-    public static final Set<IndexField> ALL_FIELDS = getAllFields();
+    public static Set<IndexField> ALL_FIELDS = getAllFields();
 
     private static final Set<IndexField> getAllFields() {
       Set<IndexField> fields = new HashSet<IndexField>();
