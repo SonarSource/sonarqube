@@ -35,10 +35,6 @@ public abstract class IndexAction extends QueueAction {
   protected Method method;
   protected Index index;
 
-  public IndexAction(String indexType) {
-    this(indexType, null);
-  }
-
   public IndexAction(String indexType, Method method) {
     super();
     this.indexType = indexType;
