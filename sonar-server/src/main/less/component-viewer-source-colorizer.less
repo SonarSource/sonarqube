@@ -21,13 +21,13 @@
 
   /* keyword */
   .code .k {
-    color: @darkBlue;
-    font-weight: normal;
+    color: saturate(@darkBlue, 50%);
+    font-weight: 600;
   }
 
   /* string */
   .code .s {
-    color: darken(@red, 10%);
+    color: saturate(@red, 0%);
     font-weight: normal;
   }
 
@@ -37,7 +37,7 @@
   }
 
   .sym {
-    color: darken(@green, 10%);
+    color: darken(saturate(@green, 10%), 15%);
   }
 
 }
