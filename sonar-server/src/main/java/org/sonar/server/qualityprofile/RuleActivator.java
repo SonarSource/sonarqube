@@ -95,7 +95,8 @@ public class RuleActivator implements ServerComponent {
     ActiveRuleChange change;
     boolean stopPropagation = false;
 
-    if (context.activeRule() == null) {
+    ActiveRuleDto activeRule = context.activeRule();
+    if (activeRule == null) {
       if (activation.isReset()) {
         // ignore reset when rule is not activated
         return changes;
@@ -108,12 +109,12 @@ public class RuleActivator implements ServerComponent {
       }
     } else {
       // already activated
-      if (activation.isCascade() && context.activeRule().doesOverride()) {
+      if (activation.isCascade() && activeRule.doesOverride()) {
         // propagating to descendants, but child profile already overrides rule -> stop propagation
         return changes;
       }
       change = ActiveRuleChange.createFor(ActiveRuleChange.Type.UPDATED, context.activeRuleKey());
-      if (activation.isCascade() && context.activeRule().getInheritance() == null) {
+      if (activation.isCascade() && activeRule.getInheritance() == null) {
         // activate on child, then on parent -> mark child as overriding parent
         change.setInheritance(ActiveRule.Inheritance.OVERRIDES);
         change.setSeverity(context.currentSeverity());
@@ -265,9 +266,13 @@ public class RuleActivator implements ServerComponent {
     ActiveRuleDto activeRule;
     ActiveRuleDao dao = db.activeRuleDao();
     activeRule = context.activeRule();
-    activeRule.setSeverity(change.getSeverity());
-    if (change.getInheritance() != null) {
-      activeRule.setInheritance(change.getInheritance().name());
+    String severity = change.getSeverity();
+    if (severity != null) {
+      activeRule.setSeverity(severity);
+    }
+    ActiveRule.Inheritance inheritance = change.getInheritance();
+    if (inheritance != null) {
+      activeRule.setInheritance(inheritance.name());
     }
     dao.update(dbSession, activeRule);
 
@@ -456,7 +461,7 @@ public class RuleActivator implements ServerComponent {
       // unset if parent is defined, else nothing to do
       removeParent(dbSession, profile);
 
-    } else if (profile.getParentKee() == null || !profile.getParentKee().equals(parentKey)) {
+    } else if (profile.getParentKee() == null || !parentKey.equals(profile.getParentKee())) {
       QualityProfileDto parentProfile = db.qualityProfileDao().getNonNullByKey(dbSession, parentKey);
       if (isDescendant(dbSession, profile, parentProfile)) {
         throw new BadRequestException(String.format("Descendant profile '%s' can not be selected as parent of '%s'", parentKey, profileKey));
@@ -502,8 +507,9 @@ public class RuleActivator implements ServerComponent {
       if (childProfile.getName().equals(currentParent.getName())) {
         return true;
       }
-      if (currentParent.getParentKee() != null) {
-        currentParent = db.qualityProfileDao().getByKey(dbSession, currentParent.getParentKee());
+      String parentKey = currentParent.getParentKee();
+      if (parentKey != null) {
+        currentParent = db.qualityProfileDao().getByKey(dbSession, parentKey);
       } else {
         currentParent = null;
       }

@@ -82,10 +82,9 @@ public class MassUpdater {
 
   public <S> void execute(InputLoader<S> inputLoader, InputConverter<S> converter, @Nullable PeriodicUpdater periodicUpdater) {
     long count = 0;
-    Connection readConnection = null;
+    Connection readConnection = null, writeConnection = null;
     Statement stmt = null;
     ResultSet rs = null;
-    Connection writeConnection = null;
     PreparedStatement writeStatement = null;
     try {
       readConnection = db.getDataSource().getConnection();
@@ -136,7 +135,6 @@ public class MassUpdater {
       DbUtils.closeQuietly(writeStatement);
       DbUtils.closeQuietly(writeConnection);
       DbUtils.closeQuietly(readConnection, stmt, rs);
-
       LOGGER.info("{} rows have been updated", count);
     }
   }
