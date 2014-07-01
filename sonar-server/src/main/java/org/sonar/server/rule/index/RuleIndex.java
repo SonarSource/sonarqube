@@ -176,7 +176,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     // No contextual query case
     String queryText = query.getQueryText();
-    if (query.getQueryText() == null || query.getQueryText().isEmpty()) {
+    if (queryText == null || queryText.isEmpty()) {
       return QueryBuilders.matchAllQuery();
     }
 
