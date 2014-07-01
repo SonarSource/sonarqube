@@ -35,6 +35,7 @@ import org.sonar.server.search.action.IndexAction;
 import org.sonar.server.search.action.KeyIndexAction;
 
 import javax.annotation.CheckForNull;
+
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
@@ -91,7 +92,6 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
     Preconditions.checkNotNull(rule.getTemplateId(), "Rule has no persisted template!");
     return mapper(session).selectById(rule.getTemplateId());
   }
-
 
   @Override
   public void synchronizeAfter(final DbSession session, Date date) {

@@ -71,21 +71,25 @@ public class MeasureDao extends BaseDao<MeasureMapper, MeasureDto, MeasureKey> i
 
   @Override
   protected MeasureDto doInsert(DbSession session, MeasureDto item) {
-    throw new IllegalStateException("Not implemented yet");
+   throw notImplemented();
   }
 
   @Override
   protected MeasureDto doUpdate(DbSession session, MeasureDto item) {
-    throw new IllegalStateException("Not implemented yet");
+    throw notImplemented();
   }
 
   @Override
   protected void doDeleteByKey(DbSession session, MeasureKey key) {
-    throw new IllegalStateException("Not implemented yet");
+    throw notImplemented();
   }
 
   @Override
   public void synchronizeAfter(DbSession session, Date date) {
+    throw notImplemented();
+  }
+
+  private static RuntimeException notImplemented(){
     throw new IllegalStateException("Not implemented yet");
   }
 }

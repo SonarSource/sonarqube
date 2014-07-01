@@ -254,11 +254,10 @@ public class RuleUpdater implements ServerComponent {
       .isEquals();
   }
 
-
   private void updateParameters(DbSession dbSession, RuleUpdate update, Context context) {
     if (update.isChangeParameters() && update.isCustomRule()) {
       RuleDto customRule = context.rule;
-      RuleDto templateRule = dbClient.ruleDao().getById(dbSession, customRule.getTemplateId());
+      RuleDto templateRule = dbClient.ruleDao().getTemplate(customRule, dbSession);
       List<RuleParamDto> templateRuleParams = dbClient.ruleDao().findRuleParamsByRuleKey(dbSession, templateRule.getKey());
       List<String> paramKeys = new ArrayList<String>();
 
@@ -273,57 +272,67 @@ public class RuleUpdater implements ServerComponent {
       }
 
       // Browse custom rule parameters to update or delete them
-      for (RuleParamDto ruleParamDto : dbClient.ruleDao().findRuleParamsByRuleKey(dbSession, update.getRuleKey())) {
-        String key = ruleParamDto.getName();
-        String value = update.parameter(key);
-        if (!Strings.isNullOrEmpty(value)) {
-          // Update rule param
-          ruleParamDto.setDefaultValue(value);
-          dbClient.ruleDao().updateRuleParam(dbSession, customRule, ruleParamDto);
+      deleteOrUpdateParameters(dbSession, update, customRule, paramKeys, activeRules, activeRuleParams);
 
-          // Update linked active rule params
-          for (ActiveRuleDto activeRuleDto : activeRules.get(customRule)) {
-            for (ActiveRuleParamDto activeRuleParamDto : activeRuleParams.get(activeRuleDto)) {
-              if (activeRuleParamDto.getKey().equals(key)) {
-                dbClient.activeRuleDao().updateParam(dbSession, activeRuleDto, activeRuleParamDto.setValue(value));
-              }
-            }
-          }
-        } else {
-          // Delete rule param
-          dbClient.ruleDao().removeRuleParam(dbSession, customRule, ruleParamDto);
+      // Browse template rule parameters to create new parameters
+      createNewParameters(dbSession, update, customRule, templateRuleParams, paramKeys, activeRules);
+    }
+  }
 
-          // Delete linked active rule params
-          for (ActiveRuleDto activeRuleDto : activeRules.get(customRule)) {
-            for (ActiveRuleParamDto activeRuleParamDto : activeRuleParams.get(activeRuleDto)) {
-              if (activeRuleParamDto.getKey().equals(key)) {
-                dbClient.activeRuleDao().deleteParam(dbSession, activeRuleDto, activeRuleParamDto);
-              }
+  private void deleteOrUpdateParameters(DbSession dbSession, RuleUpdate update, RuleDto customRule, List<String> paramKeys,
+                                   Multimap<RuleDto, ActiveRuleDto> activeRules, Multimap<ActiveRuleDto, ActiveRuleParamDto> activeRuleParams){
+    for (RuleParamDto ruleParamDto : dbClient.ruleDao().findRuleParamsByRuleKey(dbSession, update.getRuleKey())) {
+      String key = ruleParamDto.getName();
+      String value = update.parameter(key);
+      if (!Strings.isNullOrEmpty(value)) {
+        // Update rule param
+        ruleParamDto.setDefaultValue(value);
+        dbClient.ruleDao().updateRuleParam(dbSession, customRule, ruleParamDto);
+
+        // Update linked active rule params
+        for (ActiveRuleDto activeRuleDto : activeRules.get(customRule)) {
+          for (ActiveRuleParamDto activeRuleParamDto : activeRuleParams.get(activeRuleDto)) {
+            if (activeRuleParamDto.getKey().equals(key)) {
+              dbClient.activeRuleDao().updateParam(dbSession, activeRuleDto, activeRuleParamDto.setValue(value));
             }
           }
         }
-        paramKeys.add(key);
-      }
+      } else {
+        // Delete rule param
+        dbClient.ruleDao().removeRuleParam(dbSession, customRule, ruleParamDto);
 
-      // Browse template rule parameters to create new parameters
-      for (RuleParamDto templateRuleParam : templateRuleParams) {
-        String key = templateRuleParam.getName();
-        if (!paramKeys.contains(key)) {
-          String value = update.parameter(key);
-          if (!Strings.isNullOrEmpty(value)) {
-
-            // Create new param
-            RuleParamDto paramDto = RuleParamDto.createFor(customRule)
-              .setName(key)
-              .setDescription(templateRuleParam.getDescription())
-              .setDefaultValue(value)
-              .setType(templateRuleParam.getType());
-            dbClient.ruleDao().addRuleParam(dbSession, customRule, paramDto);
-
-            // Create new active rule param
-            for (ActiveRuleDto activeRuleDto : activeRules.get(customRule)) {
-              dbClient.activeRuleDao().addParam(dbSession, activeRuleDto, ActiveRuleParamDto.createFor(paramDto).setValue(value));
+        // Delete linked active rule params
+        for (ActiveRuleDto activeRuleDto : activeRules.get(customRule)) {
+          for (ActiveRuleParamDto activeRuleParamDto : activeRuleParams.get(activeRuleDto)) {
+            if (activeRuleParamDto.getKey().equals(key)) {
+              dbClient.activeRuleDao().deleteParam(dbSession, activeRuleDto, activeRuleParamDto);
             }
+          }
+        }
+      }
+      paramKeys.add(key);
+    }
+  }
+
+  private void createNewParameters(DbSession dbSession, RuleUpdate update, RuleDto customRule, List<RuleParamDto> templateRuleParams, List<String> paramKeys,
+                                   Multimap<RuleDto, ActiveRuleDto> activeRules){
+    for (RuleParamDto templateRuleParam : templateRuleParams) {
+      String key = templateRuleParam.getName();
+      if (!paramKeys.contains(key)) {
+        String value = update.parameter(key);
+        if (!Strings.isNullOrEmpty(value)) {
+
+          // Create new param
+          RuleParamDto paramDto = RuleParamDto.createFor(customRule)
+            .setName(key)
+            .setDescription(templateRuleParam.getDescription())
+            .setDefaultValue(value)
+            .setType(templateRuleParam.getType());
+          dbClient.ruleDao().addRuleParam(dbSession, customRule, paramDto);
+
+          // Create new active rule param
+          for (ActiveRuleDto activeRuleDto : activeRules.get(customRule)) {
+            dbClient.activeRuleDao().addParam(dbSession, activeRuleDto, ActiveRuleParamDto.createFor(paramDto).setValue(value));
           }
         }
       }

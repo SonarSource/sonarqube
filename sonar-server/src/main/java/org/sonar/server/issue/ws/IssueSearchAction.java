@@ -191,7 +191,7 @@ public class IssueSearchAction implements RequestHandler {
 
   private void checkFormatParameter(Request request) {
     String format = request.param("format");
-    if (!Strings.isNullOrEmpty(format) && !format.equals("json")){
+    if (!Strings.isNullOrEmpty(format) && !"json".equals(format)){
       throw new BadRequestException("Only json format is supported.");
     }
   }
