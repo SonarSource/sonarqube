@@ -273,6 +273,7 @@ define [
 
     showZeroLine: ->
       r = false
+      r = true unless @options.main.state.get 'hasSource'
       @showBlocks.forEach (block) ->
         r = true if block.from <= 0
       r

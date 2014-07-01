@@ -13,7 +13,7 @@
     </div>
     <ul class="component-viewer-header-expanded-bar-section-list">
       {{#each state.severities}}
-        {{#if ../../state.hasSource}}
+        {{#unless ../../state.removed}}
           <li><a class="item js-filter-{{key}}-issues">
             <span>{{severityIcon key}} {{name}}</span>
             <span class="number">{{count}}</span>
@@ -24,7 +24,7 @@
             <span>{{severityIcon key}} {{name}}</span>
             <span class="number">{{count}}</span>
           </span></li>
-        {{/if}}
+        {{/unless}}
       {{/each}}
     </ul>
   </div>
@@ -37,7 +37,7 @@
     </div>
     <ul class="component-viewer-header-expanded-bar-section-list">
       {{#each state.rules}}
-        {{#if ../../state.hasSource}}
+        {{#unless ../../state.removed}}
           <li><a class="item js-filter-rule" data-rule="{{key}}" title="{{name}}">
             <span>{{name}}</span>
             <span class="number">{{count}}</span>
@@ -48,7 +48,7 @@
             <span>{{name}}</span>
             <span class="number">{{count}}</span>
           </span></li>
-        {{/if}}
+        {{/unless}}
       {{/each}}
     </ul>
   </div>
@@ -65,19 +65,19 @@
         <i class="icon-chevron-right"></i>
       </a></li>
     {{/if}}
-    {{#if state.hasSource}}
+    {{#unless state.removed}}
       <li><a class="item js-filter-unresolved-issues">
         <span>{{t 'component_viewer.issues.unresolved_issues'}}</span>
         <i class="icon-chevron-right"></i>
       </a></li>
-    {{/if}}
-    {{#if state.hasSource}}
+    {{/unless}}
+    {{#unless state.removed}}
       <li><a class="item js-filter-fixed-issues">
         <span>{{t 'component_viewer.issues.fixed_issues'}}</span>
         <i class="icon-chevron-right"></i>
       </a></li>
-    {{/if}}
-    {{#if state.hasSource}}
+    {{/unless}}
+    {{#unless state.removed}}
       <li><a class="item js-filter-false-positive-issues">
         <span>{{t 'component_viewer.issues.false_positive_issues'}}</span>
         <span class="number">{{component.measures.false_positive_issues}}</span>
@@ -90,7 +90,7 @@
           <span class="number">{{component.measures.false_positive_issues}}</span>
         </span></li>
       {{/if}}
-    {{/if}}
+    {{/unless}}
   </ul>
 </div>
 
