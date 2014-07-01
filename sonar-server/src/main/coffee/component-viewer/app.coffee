@@ -74,6 +74,7 @@ requirejs [
       viewer.open params.component
 
       viewer.on 'loaded', ->
+        viewer.off 'loaded'
         if params.tab? && params.item? && params.period?
           viewer.headerView.enableBar(params.tab).done ->
             viewer.enablePeriod +params.period, params.item
