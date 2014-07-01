@@ -82,9 +82,6 @@ public class RulesAggregation {
 
       Rule rule = (Rule) o;
 
-      if (!name.equals(rule.name)) {
-        return false;
-      }
       if (!ruleKey.equals(rule.ruleKey)) {
         return false;
       }
@@ -94,9 +91,7 @@ public class RulesAggregation {
 
     @Override
     public int hashCode() {
-      int result = ruleKey.hashCode();
-      result = 31 * result + name.hashCode();
-      return result;
+      return ruleKey.hashCode();
     }
   }
 }
