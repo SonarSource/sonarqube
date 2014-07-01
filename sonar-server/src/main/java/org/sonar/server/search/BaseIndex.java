@@ -285,9 +285,9 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
   }
 
   protected boolean needMultiField(IndexField field) {
-    return ((field.type() == IndexField.Type.TEXT
+    return (field.type() == IndexField.Type.TEXT
       || field.type() == IndexField.Type.STRING)
-      && (field.sortable() || field.searchable()));
+      && (field.sortable() || field.searchable());
   }
 
   protected Map mapSortField(IndexField field) {
@@ -386,7 +386,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
     return null;
   }
 
-  protected void updateDocument(Collection<UpdateRequest> requests, KEY key) throws Exception {
+  protected void updateDocument(Collection<UpdateRequest> requests, KEY key) {
     LOG.debug("UPDATE _id:{} in index {}", key, this.getIndexName());
     BulkRequestBuilder bulkRequest = getClient().prepareBulk();
     for (UpdateRequest request : requests) {
@@ -481,8 +481,8 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
         this.deleteDocument(additionalKey);
       }
     } catch (Exception e) {
-      LOG.error("Could not DELETE _id = '{}' for index '{}': {}",
-        this.getKeyValue(key), this.getIndexName(), e.getMessage());
+      throw new IllegalStateException("Could not DELETE _id = '" + this.getKeyValue(key) + "' " +
+        "for index '" + this.getIndexName() + "': " + e.getMessage());
     }
   }
 
@@ -494,8 +494,8 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
         this.deleteDocument(additionalItem.getKey());
       }
     } catch (Exception e) {
-      LOG.error("Could not DELETE _id:{} for index {}: {}",
-        this.getKeyValue(item.getKey()), this.getIndexName(), e.getMessage());
+      throw new IllegalStateException("Could not DELETE _id = '" + this.getKeyValue(item.getKey()) + "' " +
+        "for index '" + this.getIndexName() + "': " + e.getMessage());
     }
   }
 
@@ -588,7 +588,7 @@ public abstract class BaseIndex<DOMAIN, DTO extends Dto<KEY>, KEY extends Serial
             stats.put(aggregation.getName(), facetValue);
           }
         } else if (aggregation.getClass().isAssignableFrom(InternalValueCount.class)) {
-          InternalValueCount count = ((InternalValueCount) aggregation);
+          InternalValueCount count = (InternalValueCount) aggregation;
           FacetValue facetValue = new FacetValue(count.getName(), (int) count.getValue());
           stats.put(count.getName(), facetValue);
         }
