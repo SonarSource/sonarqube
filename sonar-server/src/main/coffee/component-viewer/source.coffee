@@ -101,7 +101,8 @@ define [
 
     renderIssues: ->
       issues = @model.get 'activeIssues'
-      issues = _.sortBy(issues, 'line').slice 0, ISSUES_LIMIT
+      issues = _.sortBy issues, 'line'
+      rendered = 0
       issues.forEach (issue) =>
         line = issue.line || 0
         line = 0 if issue.resolution == 'FIXED' || issue.resolution == 'REMOVED'
@@ -110,15 +111,17 @@ define [
           line = 0
           row = @$("##{@cid}-#{line}")
         if row.length > 0
+          rendered += 1
           row.removeClass 'row-hidden'
           container = row.children('.line')
           container.addClass 'issue' if line > 0
-          issueView = new IssueView model: new Issue issue
-          issueView.render().$el.appendTo container
-          issueView.on 'reset', =>
-            @options.main.requestComponent(@options.main.key, false, false).done =>
-              @options.main.headerView.silentUpdate = true
-              @options.main.headerView.render()
+          if rendered < ISSUES_LIMIT
+            issueView = new IssueView model: new Issue issue
+            issueView.render().$el.appendTo container
+            issueView.on 'reset', =>
+              @options.main.requestComponent(@options.main.key, false, false).done =>
+                @options.main.headerView.silentUpdate = true
+                @options.main.headerView.render()
 
 
     showSpinner: ->
