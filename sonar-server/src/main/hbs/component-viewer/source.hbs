@@ -8,6 +8,10 @@
     <p class="marginbottom10">{{t 'duplications.dups_found_on_deleted_resource'}}</p>
   {{/if}}
 
+  {{#if issuesLimitReached}}
+    <p class="marginbottom10">{{tp 'component_viewer.issues_limit_reached' issuesLimit}}</p>
+  {{/if}}
+
   <table class="code">
     {{#if showZeroLine}}
       <tr class="row row-hidden" data-line-number="0" id="{{uid}}-0">

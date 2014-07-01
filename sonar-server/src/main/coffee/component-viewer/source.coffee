@@ -22,7 +22,7 @@ define [
   $ = jQuery
 
   API_COVERAGE_TESTS = "#{baseUrl}/api/tests/test_cases"
-  ISSUES_LIMIT = 50
+  ISSUES_LIMIT = 100
 
 
   class SourceView extends Marionette.ItemView
@@ -288,3 +288,5 @@ define [
       component: @options.main.component.toJSON()
       columns: @getStatColumnsCount() + 1
       showZeroLine: @showZeroLine()
+      issuesLimit: ISSUES_LIMIT
+      issuesLimitReached: @model.get('activeIssues')?.length > ISSUES_LIMIT
