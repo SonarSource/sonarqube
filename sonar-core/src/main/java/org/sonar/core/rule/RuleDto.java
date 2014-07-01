@@ -30,8 +30,11 @@ import org.sonar.core.persistence.Dto;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
 
 public final class RuleDto extends Dto<RuleKey> {
 
@@ -165,6 +168,7 @@ public final class RuleDto extends Dto<RuleKey> {
     return this;
   }
 
+  @CheckForNull
   public String getLanguage() {
     return language;
   }

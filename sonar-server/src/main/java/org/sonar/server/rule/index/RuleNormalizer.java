@@ -56,14 +56,14 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     public static final IndexField DEFAULT_VALUE = add(IndexField.Type.STRING, "defaultValue");
     public static final Set<IndexField> ALL_FIELDS = getAllFields();
 
-    private static Set<IndexField> getAllFields() {
+    private static final Set<IndexField> getAllFields() {
       Set<IndexField> fields = new HashSet<IndexField>();
       for (Field classField : RuleParamField.class.getDeclaredFields()) {
         if (classField.getType().isAssignableFrom(IndexField.class)) {
           try {
             fields.add(IndexField.class.cast(classField.get(null)));
           } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Can not introspect rule index fields", e);
+            throw new IllegalStateException("Could not access Field '" + classField.getName() + "'");
           }
         }
       }
@@ -116,29 +116,29 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
     public static final IndexField PARAMS = addEmbedded("params", RuleParamField.ALL_FIELDS);
 
 
-    public static Set<IndexField> ALL_FIELDS = getAllFields();
+    public static final Set<IndexField> ALL_FIELDS = getAllFields();
 
-    private static Set<IndexField> getAllFields() {
+    private static final Set<IndexField> getAllFields() {
       Set<IndexField> fields = new HashSet<IndexField>();
       for (Field classField : RuleField.class.getDeclaredFields()) {
         if (classField.getType().isAssignableFrom(IndexField.class)) {
           try {
             fields.add(IndexField.class.cast(classField.get(null)));
           } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            throw new IllegalStateException("Could not access Field '" + classField.getName() + "'");
           }
         }
       }
       return fields;
     }
 
-    public static IndexField of(String fieldName) {
+    public static final IndexField of(String fieldName) {
       for (IndexField field : ALL_FIELDS) {
         if (field.field().equals(fieldName)) {
           return field;
         }
       }
-      return null;
+      throw new IllegalStateException("Could not find an IndexField for '" + fieldName + "'");
     }
   }
 
@@ -151,16 +151,17 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
   @Override
   public List<UpdateRequest> normalize(RuleKey key) {
     DbSession dbSession = db.openSession(false);
+    List<UpdateRequest> requests = new ArrayList<UpdateRequest>();
     try {
-      List<UpdateRequest> requests = new ArrayList<UpdateRequest>();
-      requests.addAll(normalize(db.ruleDao().getNullableByKey(dbSession, key)));
+      RuleDto rule = db.ruleDao().getByKey(dbSession, key);
+      requests.addAll(normalize(rule));
       for (RuleParamDto param : db.ruleDao().findRuleParamsByRuleKey(dbSession, key)) {
         requests.addAll(normalizeNested(param, key));
       }
-      return requests;
     } finally {
       dbSession.close();
     }
+    return requests;
   }
 
   @Override
@@ -213,8 +214,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       update.put(RuleField.DEFAULT_CHARACTERISTIC.field(), null);
       update.put(RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), null);
       if (rule.getDefaultSubCharacteristicId() != null) {
-        CharacteristicDto characteristic = null;
-        CharacteristicDto subCharacteristic = null;
+        CharacteristicDto characteristic, subCharacteristic = null;
         subCharacteristic = db.debtCharacteristicDao().selectById(rule.getDefaultSubCharacteristicId(), session);
         if (subCharacteristic != null) {
           characteristic = db.debtCharacteristicDao().selectById(subCharacteristic.getParentId());
@@ -228,8 +228,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
           update.put(RuleField.CHARACTERISTIC.field(), DebtCharacteristic.NONE);
           update.put(RuleField.SUB_CHARACTERISTIC.field(), DebtCharacteristic.NONE);
         } else {
-          CharacteristicDto characteristic = null;
-          CharacteristicDto subCharacteristic = null;
+          CharacteristicDto characteristic, subCharacteristic = null;
           subCharacteristic = db.debtCharacteristicDao().selectById(rule.getSubCharacteristicId(), session);
           characteristic = db.debtCharacteristicDao().selectById(subCharacteristic.getParentId());
           update.put(RuleField.CHARACTERISTIC.field(), characteristic.getKey());
