@@ -34,7 +34,6 @@ import org.sonar.server.search.IndexUtils;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -198,11 +197,13 @@ public class RuleDoc extends BaseDoc implements Rule {
   @Override
   @CheckForNull
   public String debtCharacteristicKey() {
-    if (getNullableField(RuleNormalizer.RuleField.CHARACTERISTIC.field()) != null) {
-      if (((String) getNullableField(RuleNormalizer.RuleField.CHARACTERISTIC.field())).isEmpty()) {
+    String field = RuleNormalizer.RuleField.CHARACTERISTIC.field();
+    String value = (String) getNullableField(field);
+    if (value != null) {
+      if (value.isEmpty()) {
         return null;
       } else {
-        return (String) getNullableField(RuleNormalizer.RuleField.CHARACTERISTIC.field());
+        return value;
       }
     } else {
       return defaultDebtCharacteristicKey();
@@ -212,11 +213,13 @@ public class RuleDoc extends BaseDoc implements Rule {
   @Override
   @CheckForNull
   public String debtSubCharacteristicKey() {
-    if (getNullableField(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()) != null) {
-      if (((String) getNullableField(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field())).isEmpty()) {
+    String field = RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field();
+    String value = (String) getNullableField(field);
+    if (value != null) {
+      if (value.isEmpty()) {
         return null;
       } else {
-        return (String) getNullableField(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field());
+        return value;
       }
     } else {
       return defaultDebtSubCharacteristicKey();
