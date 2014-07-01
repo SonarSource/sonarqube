@@ -28,6 +28,7 @@ import org.sonar.server.search.IndexUtils;
 import org.sonar.server.search.QueryOptions;
 
 import javax.annotation.Nullable;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -107,7 +108,7 @@ public abstract class BaseMapping implements ServerComponent {
     void write(JsonWriter json, D doc);
   }
 
-  public static abstract class IndexField<D> implements Field<D> {
+  public abstract static class IndexField<D> implements Field<D> {
     protected final String[] indexFields;
 
     protected IndexField(String... indexFields) {
@@ -138,7 +139,8 @@ public abstract class BaseMapping implements ServerComponent {
     @Override
     public void write(JsonWriter json, BaseDoc doc) {
       Object val = doc.getNullableField(indexFields[0]);
-      if (val == null && indexFields.length == 2) { // There is an alternative value
+      if (val == null && indexFields.length == 2) {
+        // There is an alternative value
         val = doc.getNullableField(indexFields[1]);
       }
       json.prop(key, val != null ? val.toString() : null);

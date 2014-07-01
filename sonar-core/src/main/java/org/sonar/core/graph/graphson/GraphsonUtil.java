@@ -77,12 +77,12 @@ class GraphsonUtil {
    * A GraphSONUtility that includes the specified properties.
    */
   GraphsonUtil(GraphsonMode mode, ElementFactory factory,
-               Set<String> vertexPropertyKeys, Set<String> edgePropertyKeys) {
+    Set<String> vertexPropertyKeys, Set<String> edgePropertyKeys) {
     this(mode, factory, ElementPropertyConfig.includeProperties(vertexPropertyKeys, edgePropertyKeys));
   }
 
   GraphsonUtil(GraphsonMode mode, ElementFactory factory,
-               ElementPropertyConfig config) {
+    ElementPropertyConfig config) {
     this.vertexPropertyKeys = config.getVertexPropertyKeys();
     this.edgePropertyKeys = config.getEdgePropertyKeys();
     this.vertexPropertiesRule = config.getVertexPropertiesRule();
@@ -110,7 +110,7 @@ class GraphsonUtil {
    */
   static JSONObject jsonFromElement(Element element, @Nullable Set<String> propertyKeys, GraphsonMode mode) {
     GraphsonUtil graphson = element instanceof Edge ? new GraphsonUtil(mode, null, null, propertyKeys)
-        : new GraphsonUtil(mode, null, propertyKeys, null);
+      : new GraphsonUtil(mode, null, propertyKeys, null);
     return graphson.jsonFromElement(element);
   }
 
@@ -123,7 +123,7 @@ class GraphsonUtil {
    * @param propertyKeys a list of keys to include on reading of element properties
    */
   static Vertex vertexFromJson(JSONObject json, ElementFactory factory, GraphsonMode mode,
-                               Set<String> propertyKeys) throws IOException {
+    Set<String> propertyKeys) throws IOException {
     GraphsonUtil graphson = new GraphsonUtil(mode, factory, propertyKeys, null);
     return graphson.vertexFromJson(json);
   }
@@ -137,7 +137,7 @@ class GraphsonUtil {
    * @param propertyKeys a list of keys to include on reading of element properties
    */
   static Vertex vertexFromJson(String json, ElementFactory factory, GraphsonMode mode,
-                               Set<String> propertyKeys) throws ParseException {
+    Set<String> propertyKeys) throws ParseException {
     GraphsonUtil graphson = new GraphsonUtil(mode, factory, propertyKeys, null);
     return graphson.vertexFromJson(json);
   }
@@ -151,39 +151,35 @@ class GraphsonUtil {
    * @param propertyKeys a list of keys to include on reading of element properties
    */
   static Vertex vertexFromJson(InputStream json, ElementFactory factory, GraphsonMode mode,
-                               Set<String> propertyKeys) throws IOException, ParseException {
+    Set<String> propertyKeys) throws IOException, ParseException {
     GraphsonUtil graphson = new GraphsonUtil(mode, factory, propertyKeys, null);
     return graphson.vertexFromJson(json);
   }
 
   private static boolean includeReservedKey(GraphsonMode mode, String key,
-                                            Set<String> propertyKeys,
-                                            ElementPropertiesRule rule) {
-    // the key is always included in modes other than compact.  if it is compact, then validate that the
+    Set<String> propertyKeys,
+    ElementPropertiesRule rule) {
+    // the key is always included in modes other than compact. if it is compact, then validate that the
     // key is in the property key list
     return mode != GraphsonMode.COMPACT || includeKey(key, propertyKeys, rule);
   }
 
   private static boolean includeKey(String key, Set<String> propertyKeys,
-                                    ElementPropertiesRule rule) {
+    ElementPropertiesRule rule) {
     if (propertyKeys == null) {
       // when null always include the key and shortcut this piece
       return true;
     }
 
-    // default the key situation.  if it's included then it should be explicitly defined in the
+    // default the key situation. if it's included then it should be explicitly defined in the
     // property keys list to be included or the reverse otherwise
     boolean keySituation = rule == ElementPropertiesRule.INCLUDE;
 
-    switch (rule) {
-      case INCLUDE:
-        keySituation = propertyKeys.contains(key);
-        break;
-      case EXCLUDE:
-        keySituation = !propertyKeys.contains(key);
-        break;
+    if (rule == ElementPropertiesRule.INCLUDE) {
+      keySituation = propertyKeys.contains(key);
+    } else if (rule == ElementPropertiesRule.EXCLUDE) {
+      keySituation = !propertyKeys.contains(key);
     }
-
     return keySituation;
   }
 
@@ -196,8 +192,8 @@ class GraphsonUtil {
    * @param propertyKeys a list of keys to include when reading of element properties
    */
   static Edge edgeFromJson(String json, Vertex out, Vertex in,
-                           ElementFactory factory, GraphsonMode mode,
-                           Set<String> propertyKeys) throws IOException, ParseException {
+    ElementFactory factory, GraphsonMode mode,
+    Set<String> propertyKeys) throws IOException, ParseException {
     GraphsonUtil graphson = new GraphsonUtil(mode, factory, null, propertyKeys);
     return graphson.edgeFromJson(json, out, in);
   }
@@ -211,8 +207,8 @@ class GraphsonUtil {
    * @param propertyKeys a list of keys to include when reading of element properties
    */
   static Edge edgeFromJson(InputStream json, Vertex out, Vertex in,
-                           ElementFactory factory, GraphsonMode mode,
-                           Set<String> propertyKeys) throws IOException, ParseException {
+    ElementFactory factory, GraphsonMode mode,
+    Set<String> propertyKeys) throws IOException, ParseException {
     GraphsonUtil graphson = new GraphsonUtil(mode, factory, null, propertyKeys);
     return graphson.edgeFromJson(json, out, in);
   }
@@ -226,8 +222,8 @@ class GraphsonUtil {
    * @param propertyKeys a list of keys to include when reading of element properties
    */
   static Edge edgeFromJson(JSONObject json, Vertex out, Vertex in,
-                           ElementFactory factory, GraphsonMode mode,
-                           Set<String> propertyKeys) throws IOException {
+    ElementFactory factory, GraphsonMode mode,
+    Set<String> propertyKeys) throws IOException {
     GraphsonUtil graphson = new GraphsonUtil(mode, factory, null, propertyKeys);
     return graphson.edgeFromJson(json, out, in);
   }
@@ -249,7 +245,7 @@ class GraphsonUtil {
 
   private static boolean isReservedKey(String key) {
     return key.equals(GraphsonTokens._ID) || key.equals(GraphsonTokens._TYPE) || key.equals(GraphsonTokens._LABEL)
-        || key.equals(GraphsonTokens._OUT_V) || key.equals(GraphsonTokens._IN_V);
+      || key.equals(GraphsonTokens._OUT_V) || key.equals(GraphsonTokens._IN_V);
   }
 
   private static JSONArray createJSONList(List list, Set<String> propertyKeys, boolean showTypes) {
@@ -285,7 +281,7 @@ class GraphsonUtil {
           value = createJSONMap((Map) value, propertyKeys, showTypes);
         } else if (value instanceof Element) {
           value = jsonFromElement((Element) value, propertyKeys,
-              showTypes ? GraphsonMode.EXTENDED : GraphsonMode.NORMAL);
+            showTypes ? GraphsonMode.EXTENDED : GraphsonMode.NORMAL);
         } else if (value.getClass().isArray()) {
           value = createJSONList(convertArrayToList(value), propertyKeys, showTypes);
         }
@@ -466,7 +462,7 @@ class GraphsonUtil {
 
       } else if (type.equals(GraphsonTokens.TYPE_MAP)) {
 
-        // maps are converted to a ObjectNode.  called recursively to traverse
+        // maps are converted to a ObjectNode. called recursively to traverse
         // the entire object graph within the map.
         JSONObject convertedMap = new JSONObject();
         JSONObject jsonObject = (JSONObject) value;
@@ -482,7 +478,7 @@ class GraphsonUtil {
 
       } else {
 
-        // this must be a primitive value or a complex object.  if a complex
+        // this must be a primitive value or a complex object. if a complex
         // object it will be handled by a call to toString and stored as a
         // string value
         putObject(valueAndType, GraphsonTokens.VALUE, value);
@@ -637,7 +633,7 @@ class GraphsonUtil {
       putObject(jsonElement, GraphsonTokens._ID, element.getId());
     }
 
-    // it's important to keep the order of these straight.  check Edge first and then Vertex because there
+    // it's important to keep the order of these straight. check Edge first and then Vertex because there
     // are graph implementations that have Edge extend from Vertex
     if (element instanceof Edge) {
       Edge edge = (Edge) element;

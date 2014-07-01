@@ -31,10 +31,9 @@ public class ServerSetupUnmarshaller implements Unmarshaller<ServerSetup> {
   public ServerSetup toModel(String json) {
     WSUtils utils = WSUtils.getINSTANCE();
     Object map = utils.parse(json);
-    ServerSetup server = new ServerSetup()
-        .setStatus(utils.getString(map, "status"))
-        .setMessage(utils.getString(map, "msg"));
-    return server;
+    return new ServerSetup()
+      .setStatus(utils.getString(map, "status"))
+      .setMessage(utils.getString(map, "msg"));
   }
 
   public List<ServerSetup> toModels(String json) {

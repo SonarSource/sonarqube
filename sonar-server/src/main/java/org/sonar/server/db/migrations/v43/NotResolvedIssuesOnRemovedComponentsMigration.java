@@ -20,7 +20,6 @@
 
 package org.sonar.server.db.migrations.v43;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.System2;
 import org.sonar.core.persistence.Database;
@@ -81,7 +80,7 @@ public class NotResolvedIssuesOnRemovedComponentsMigration implements DatabaseMi
           return true;
         }
       }
-    );
+      );
   }
 
   private static class Row {

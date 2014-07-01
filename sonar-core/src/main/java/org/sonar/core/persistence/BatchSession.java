@@ -29,7 +29,6 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.core.cluster.WorkQueue;
 
-import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +39,6 @@ public class BatchSession extends DbSession {
   private final int batchSize;
   private int count = 0;
 
-
   BatchSession(WorkQueue queue, SqlSession session) {
     this(queue, session, MAX_BATCH_SIZE);
   }
@@ -50,67 +48,80 @@ public class BatchSession extends DbSession {
     this.batchSize = batchSize;
   }
 
+  @Override
   public void select(String statement, Object parameter, ResultHandler handler) {
     reset();
     super.select(statement, parameter, handler);
   }
 
+  @Override
   public void select(String statement, ResultHandler handler) {
     reset();
     super.select(statement, handler);
   }
 
+  @Override
   public <T> T selectOne(String statement) {
     reset();
     return (T) super.selectOne(statement);
   }
 
+  @Override
   public <T> T selectOne(String statement, Object parameter) {
     reset();
     return (T) super.selectOne(statement, parameter);
   }
 
+  @Override
   public <E> List<E> selectList(String statement) {
     reset();
     return super.selectList(statement);
   }
 
+  @Override
   public <E> List<E> selectList(String statement, Object parameter) {
     reset();
     return super.selectList(statement, parameter);
   }
 
+  @Override
   public <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds) {
     reset();
     return super.selectList(statement, parameter, rowBounds);
   }
 
+  @Override
   public <K, V> Map<K, V> selectMap(String statement, String mapKey) {
     reset();
     return super.selectMap(statement, mapKey);
   }
 
+  @Override
   public <K, V> Map<K, V> selectMap(String statement, Object parameter, String mapKey) {
     reset();
     return super.selectMap(statement, parameter, mapKey);
   }
 
+  @Override
   public <K, V> Map<K, V> selectMap(String statement, Object parameter, String mapKey, RowBounds rowBounds) {
     reset();
     return super.selectMap(statement, parameter, mapKey, rowBounds);
   }
 
+  @Override
   public void select(String statement, Object parameter, RowBounds rowBounds, ResultHandler handler) {
     reset();
     super.select(statement, parameter, rowBounds, handler);
   }
 
+  @Override
   public int insert(String statement) {
     makeSureGeneratedKeysAreNotUsedInBatchInserts(statement);
     increment();
     return super.insert(statement);
   }
 
+  @Override
   public int insert(String statement, Object parameter) {
     makeSureGeneratedKeysAreNotUsedInBatchInserts(statement);
     increment();
@@ -130,70 +141,64 @@ public class BatchSession extends DbSession {
     }
   }
 
+  @Override
   public int update(String statement) {
     increment();
     return super.update(statement);
   }
 
+  @Override
   public int update(String statement, Object parameter) {
     increment();
     return super.update(statement, parameter);
   }
 
+  @Override
   public int delete(String statement) {
     increment();
     return super.delete(statement);
   }
 
+  @Override
   public int delete(String statement, Object parameter) {
     increment();
     return super.delete(statement, parameter);
   }
 
+  @Override
   public void commit() {
     super.commit();
     reset();
   }
 
+  @Override
   public void commit(boolean force) {
     super.commit(force);
     reset();
   }
 
+  @Override
   public void rollback() {
     super.rollback();
     reset();
   }
 
+  @Override
   public void rollback(boolean force) {
     super.rollback(force);
     reset();
   }
 
+  @Override
   public List<BatchResult> flushStatements() {
     List<BatchResult> batchResults = super.flushStatements();
     reset();
     return batchResults;
   }
 
-  public void close() {
-    super.close();
-  }
-
-  public void clearCache() {
-    super.clearCache();
-  }
-
-  public Configuration getConfiguration() {
-    return super.getConfiguration();
-  }
-
+  @Override
   public <T> T getMapper(Class<T> type) {
     return getConfiguration().getMapper(type, this);
-  }
-
-  public Connection getConnection() {
-    return super.getConnection();
   }
 
   private BatchSession increment() {

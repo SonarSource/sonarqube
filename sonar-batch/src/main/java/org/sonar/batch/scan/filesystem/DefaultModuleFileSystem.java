@@ -70,17 +70,20 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
   /**
    * Used by scan2 
    */
-  public DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, ProjectDefinition def, Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer) {
+  public DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, ProjectDefinition def, Settings settings,
+                                 FileIndexer indexer, ModuleFileSystemInitializer initializer) {
     this(moduleInputFileCache, def.getKey(), settings, indexer, initializer, null);
   }
 
-  public DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, ProjectDefinition def, Project project, Settings settings, FileIndexer indexer,
+  public DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, ProjectDefinition def, Project project,
+                                 Settings settings, FileIndexer indexer,
     ModuleFileSystemInitializer initializer,
     ComponentIndexer componentIndexer) {
     this(moduleInputFileCache, project.getKey(), settings, indexer, initializer, componentIndexer);
   }
 
-  private DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, String moduleKey, Settings settings, FileIndexer indexer, ModuleFileSystemInitializer initializer,
+  private DefaultModuleFileSystem(ModuleInputFileCache moduleInputFileCache, String moduleKey, Settings settings,
+                                  FileIndexer indexer, ModuleFileSystemInitializer initializer,
     @Nullable ComponentIndexer componentIndexer) {
     super(moduleInputFileCache);
     this.componentIndexer = componentIndexer;

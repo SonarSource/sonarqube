@@ -64,10 +64,10 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
     sb.append("Project: ").append(projectName).append("\n\n");
     sb.append(notification.getFieldValue("count")).append(" new issues").append("\n\n");
     sb.append("   ");
-    for (Iterator<String> severityIterator = Lists.reverse(Severity.ALL).iterator(); severityIterator.hasNext(); ) {
+    for (Iterator<String> severityIterator = Lists.reverse(Severity.ALL).iterator(); severityIterator.hasNext();) {
       String severity = severityIterator.next();
-      String severityLabel = i18n.message(getLocale(), "severity."+ severity, severity);
-      sb.append(severityLabel).append(": ").append(notification.getFieldValue("count-"+ severity));
+      String severityLabel = i18n.message(getLocale(), "severity." + severity, severity);
+      sb.append(severityLabel).append(": ").append(notification.getFieldValue("count-" + severity));
       if (severityIterator.hasNext()) {
         sb.append("   ");
       }
@@ -76,12 +76,10 @@ public class NewIssuesEmailTemplate extends EmailTemplate {
 
     appendFooter(sb, notification);
 
-    EmailMessage message = new EmailMessage()
+    return new EmailMessage()
       .setMessageId("new-issues/" + notification.getFieldValue(FIELD_PROJECT_KEY))
       .setSubject(projectName + ": new issues")
       .setMessage(sb.toString());
-
-    return message;
   }
 
   private void appendFooter(StringBuilder sb, Notification notification) {

@@ -48,14 +48,14 @@ public class ActivityNormalizer extends BaseNormalizer<ActivityDto, String> {
 
   public static final class LogFields extends Indexable {
 
-    public final static IndexField KEY = add(IndexField.Type.STRING, "key");
-    public final static IndexField TYPE = addSortable(IndexField.Type.STRING, "type");
-    public final static IndexField ACTION = addSortable(IndexField.Type.STRING, "action");
-    public final static IndexField CREATED_AT = addSortable(IndexField.Type.DATE, "createdAt");
-    public final static IndexField UPDATED_AT = addSortable(IndexField.Type.DATE, BaseNormalizer.UPDATED_AT_FIELD);
-    public final static IndexField LOGIN = addSearchable(IndexField.Type.STRING, "login");
-    public final static IndexField DETAILS = addSearchable(IndexField.Type.OBJECT, "details");
-    public final static IndexField MESSAGE = addSearchable(IndexField.Type.STRING, "message");
+    public static final IndexField KEY = add(IndexField.Type.STRING, "key");
+    public static final IndexField TYPE = addSortable(IndexField.Type.STRING, "type");
+    public static final IndexField ACTION = addSortable(IndexField.Type.STRING, "action");
+    public static final IndexField CREATED_AT = addSortable(IndexField.Type.DATE, "createdAt");
+    public static final IndexField UPDATED_AT = addSortable(IndexField.Type.DATE, BaseNormalizer.UPDATED_AT_FIELD);
+    public static final IndexField LOGIN = addSearchable(IndexField.Type.STRING, "login");
+    public static final IndexField DETAILS = addSearchable(IndexField.Type.OBJECT, "details");
+    public static final IndexField MESSAGE = addSearchable(IndexField.Type.STRING, "message");
 
     public static Set<IndexField> ALL_FIELDS = getAllFields();
 

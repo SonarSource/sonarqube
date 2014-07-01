@@ -45,7 +45,7 @@ import java.util.Map;
  */
 public class RuleDoc extends BaseDoc implements Rule {
 
-  public final static String MANUAL_REPOSITORY = "manual";
+  public static final String MANUAL_REPOSITORY = "manual";
 
   RuleDoc(@Nullable Map<String, Object> fields) {
     super(fields);

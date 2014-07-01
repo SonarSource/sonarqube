@@ -204,7 +204,7 @@ public class DefaultFileSystem implements FileSystem {
     // nothing to do by default
   }
 
-  public static abstract class Cache {
+  public abstract static class Cache {
     protected abstract Iterable<InputFile> inputFiles();
 
     @CheckForNull

@@ -384,7 +384,7 @@ class ServerComponents {
    * when its schema is up-to-date.
    */
   Collection level3Components() {
-    List components = Lists.newArrayList(
+    return Lists.newArrayList(
       PersistentSettings.class,
       DefaultDatabaseConnector.class,
       ThreadLocalDatabaseSessionFactory.class,
@@ -394,7 +394,6 @@ class ServerComponents {
       UriReader.class,
       ServerIdGenerator.class
     );
-    return components;
   }
 
 
