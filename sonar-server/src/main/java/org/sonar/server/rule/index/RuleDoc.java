@@ -136,16 +136,10 @@ public class RuleDoc extends BaseDoc implements Rule {
   @Override
   public List<RuleParam> params() {
     List<RuleParam> params = new ArrayList<RuleParam>();
-    List<Map<String, Object>> esParams = getNullableField(RuleNormalizer.RuleField.PARAMS.field());
+    final List<Map<String, Object>> esParams = getNullableField(RuleNormalizer.RuleField.PARAMS.field());
     if (esParams != null) {
       for (final Map<String, Object> esParam : esParams) {
         params.add(new RuleParam() {
-          {
-            this.fields = esParam;
-          }
-
-          Map<String, Object> fields;
-
           @Override
           public String key() {
             return (String) esParam.get(RuleNormalizer.RuleParamField.NAME.field());
@@ -163,8 +157,7 @@ public class RuleDoc extends BaseDoc implements Rule {
 
           @Override
           public RuleParamType type() {
-            return RuleParamType
-              .parse((String) esParam.get(RuleNormalizer.RuleParamField.TYPE.field()));
+            return RuleParamType.parse((String) esParam.get(RuleNormalizer.RuleParamField.TYPE.field()));
           }
         });
       }

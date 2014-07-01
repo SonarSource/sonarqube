@@ -149,11 +149,11 @@ public final class RegisterNewMeasureFilters {
   private static void appendColumns(Filter filter, List<String> fields) {
     List<String> columnFields = Lists.newArrayList();
     for (FilterColumn column : filter.getColumns()) {
-      String columnKey = column.getFamily();
+      StringBuilder columnKey = new StringBuilder().append(column.getFamily());
       if (StringUtils.isNotBlank(column.getKey()) && !column.isVariation()) {
-        columnKey += ":" + column.getKey();
+        columnKey.append(":").append(column.getKey());
       }
-      columnFields.add(columnKey);
+      columnFields.add(columnKey.toString());
     }
     if (!columnFields.isEmpty()) {
       fields.add("cols=" + Joiner.on(",").join(columnFields));

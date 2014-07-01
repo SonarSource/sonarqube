@@ -145,7 +145,7 @@ public class DuplicationsParser implements ServerComponent {
     }
   }
 
-  private static class BlockComparator implements Comparator<Block> {
+  private static class BlockComparator implements Comparator<Block>, Serializable {
     @Override
     public int compare(@Nullable Block b1,
       @Nullable Block b2) {

@@ -162,6 +162,8 @@ public class RequestTest {
   @Test
   public void param_as_long() throws Exception {
     assertThat(request.setParam("a_number", "123").paramAsLong("a_number")).isEqualTo(123L);
+    assertThat(request.setParam("a_number", "123").paramAsLong("a_number", 42L)).isEqualTo(123L);
+    assertThat(request.setParam("a_number", null).paramAsLong("a_number", 42L)).isEqualTo(123L);
   }
 
   @Test

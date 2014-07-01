@@ -48,7 +48,7 @@ public class DefaultPeriodCleaner implements TaskExtension {
   }
 
   public void clean(long projectId) {
-    doClean(projectId, new Filters(settings).getFilters());
+    doClean(projectId, new Filters(settings).all());
   }
 
   @VisibleForTesting

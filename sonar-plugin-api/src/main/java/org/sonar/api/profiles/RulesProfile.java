@@ -135,6 +135,7 @@ public class RulesProfile implements Cloneable {
   /**
    * @deprecated profile versioning is dropped in 4.4. Always returns -1.
    */
+  @CheckForNull
   @Deprecated
   public Boolean getUsed() {
     return null;

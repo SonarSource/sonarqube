@@ -29,7 +29,7 @@ import java.util.Date;
 import java.util.List;
 
 class Filters {
-  private final List<Filter> filters = Lists.newArrayList();
+  private final List<Filter> all = Lists.newArrayList();
 
   Filters(Settings settings) {
     Date dateToStartKeepingOneSnapshotByDay = getDateFromHours(settings, DbCleanerConstants.HOURS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_DAY);
@@ -37,14 +37,14 @@ class Filters {
     Date dateToStartKeepingOneSnapshotByMonth = getDateFromWeeks(settings, DbCleanerConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH);
     Date dateToStartDeletingAllSnapshots = getDateFromWeeks(settings, DbCleanerConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS);
 
-    filters.add(new KeepOneFilter(dateToStartKeepingOneSnapshotByWeek, dateToStartKeepingOneSnapshotByDay, Calendar.DAY_OF_YEAR, "day"));
-    filters.add(new KeepOneFilter(dateToStartKeepingOneSnapshotByMonth, dateToStartKeepingOneSnapshotByWeek, Calendar.WEEK_OF_YEAR, "week"));
-    filters.add(new KeepOneFilter(dateToStartDeletingAllSnapshots, dateToStartKeepingOneSnapshotByMonth, Calendar.MONTH, "month"));
-    filters.add(new DeleteAllFilter(dateToStartDeletingAllSnapshots));
+    all.add(new KeepOneFilter(dateToStartKeepingOneSnapshotByWeek, dateToStartKeepingOneSnapshotByDay, Calendar.DAY_OF_YEAR, "day"));
+    all.add(new KeepOneFilter(dateToStartKeepingOneSnapshotByMonth, dateToStartKeepingOneSnapshotByWeek, Calendar.WEEK_OF_YEAR, "week"));
+    all.add(new KeepOneFilter(dateToStartDeletingAllSnapshots, dateToStartKeepingOneSnapshotByMonth, Calendar.MONTH, "month"));
+    all.add(new DeleteAllFilter(dateToStartDeletingAllSnapshots));
   }
 
-  List<Filter> getFilters() {
-    return filters;
+  List<Filter> all() {
+    return all;
   }
 
   static Date getDateFromWeeks(Settings settings, String propertyKey) {

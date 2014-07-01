@@ -109,10 +109,10 @@ public class ChangeLogMigration implements DatabaseMigration {
 
   private void processRuleChange(ActiveRuleChange ruleChange, ChangeLog change) {
     ruleChange.setSeverity(SeverityUtil.getSeverityFromOrdinal(change.getSeverity()));
-    String param_name = change.getParamKey();
-    String param_value = change.getParamValue();
-    if (StringUtils.isNotEmpty(param_name)) {
-      ruleChange.setParameter(param_name, param_value);
+    String paramName = change.getParamKey();
+    String paramValue = change.getParamValue();
+    if (StringUtils.isNotEmpty(paramName)) {
+      ruleChange.setParameter(paramName, paramValue);
     }
   }
 

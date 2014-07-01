@@ -28,7 +28,7 @@ import org.sonar.core.purge.PurgeableSnapshotDto;
 import java.util.Date;
 import java.util.List;
 
-class KeepOneFilter extends Filter {
+class KeepOneFilter implements Filter {
 
   private final Date start;
   private final Date end;
@@ -43,7 +43,7 @@ class KeepOneFilter extends Filter {
   }
 
   @Override
-  List<PurgeableSnapshotDto> filter(List<PurgeableSnapshotDto> history) {
+  public List<PurgeableSnapshotDto> filter(List<PurgeableSnapshotDto> history) {
     List<Interval> intervals = Interval.group(history, start, end, dateField);
     List<PurgeableSnapshotDto> result = Lists.newArrayList();
     for (Interval interval : intervals) {
@@ -54,7 +54,7 @@ class KeepOneFilter extends Filter {
   }
 
   @Override
-  void log() {
+  public void log() {
     LoggerFactory.getLogger(getClass()).info("-> Keep one snapshot per " + label + " between " + DateUtils.formatDate(start) + " and " + DateUtils.formatDate(end));
   }
 

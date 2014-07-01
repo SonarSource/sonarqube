@@ -60,6 +60,6 @@ public class IndexSynchronizer {
     long start = System.currentTimeMillis();
     dao.synchronizeAfter(session,
       index.getLastSynchronization());
-    LOG.info("-- Synchronized {} in {}ms", index.getIndexType(), (System.currentTimeMillis() - start));
+    LOG.info("-- Synchronized {} in {}ms", index.getIndexType(), System.currentTimeMillis() - start);
   }
 }

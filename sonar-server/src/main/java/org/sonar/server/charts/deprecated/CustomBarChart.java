@@ -115,7 +115,7 @@ public class CustomBarChart extends BarChart {
       } else {
         categoriesSplit = new String[nbValues];
         for (int i = 0; i < nbValues; i++) {
-          categoriesSplit[i] = DEFAULT_NAME_CATEGORY + i;
+          categoriesSplit[i] = new StringBuilder().append(DEFAULT_NAME_CATEGORY).append(i).toString();
         }
       }
 

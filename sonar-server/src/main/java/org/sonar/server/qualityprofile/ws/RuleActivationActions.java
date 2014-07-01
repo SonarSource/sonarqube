@@ -117,7 +117,7 @@ public class RuleActivationActions implements ServerComponent {
     if (params != null) {
       activation.setParameters(KeyValueFormat.parse(params));
     }
-    activation.setReset(request.paramAsBoolean(RESET) == Boolean.TRUE);
+    activation.setReset(Boolean.TRUE.equals(request.paramAsBoolean(RESET)));
     service.activate(request.mandatoryParam(PROFILE_KEY), activation);
   }
 

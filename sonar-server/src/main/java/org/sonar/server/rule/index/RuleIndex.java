@@ -228,7 +228,8 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     this.addTermFilter(fb, RuleNormalizer.RuleField._TAGS.field(), query.getTags());
 
     // Construct the debt filter on effective char and subChar
-    if (query.getDebtCharacteristics() != null && !query.getDebtCharacteristics().isEmpty()) {
+    Collection<String> characteristics = query.getDebtCharacteristics();
+    if (characteristics != null && !characteristics.isEmpty()) {
       fb.must(
         FilterBuilders.orFilter(
           // Match only when NOT NONE overriden
@@ -236,8 +237,8 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
             FilterBuilders.notFilter(
               FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), DebtCharacteristic.NONE)),
             FilterBuilders.orFilter(
-              FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), query.getDebtCharacteristics()),
-              FilterBuilders.termsFilter(RuleNormalizer.RuleField.CHARACTERISTIC.field(), query.getDebtCharacteristics()))
+              FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), characteristics),
+              FilterBuilders.termsFilter(RuleNormalizer.RuleField.CHARACTERISTIC.field(), characteristics))
             ),
 
           // Match only when NOT NONE overriden
@@ -246,14 +247,14 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
               FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), ""),
               FilterBuilders.notFilter(FilterBuilders.existsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()))),
             FilterBuilders.orFilter(
-              FilterBuilders.termsFilter(RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), query.getDebtCharacteristics()),
-              FilterBuilders.termsFilter(RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field(), query.getDebtCharacteristics())))
+              FilterBuilders.termsFilter(RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), characteristics),
+              FilterBuilders.termsFilter(RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field(), characteristics)))
           )
         );
     }
 
     // Debt char exist filter
-    if (query.getHasDebtCharacteristic() != null && query.getHasDebtCharacteristic()) {
+    if (Boolean.TRUE.equals(query.getHasDebtCharacteristic())) {
       fb.must(FilterBuilders.existsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()));
     }
 
@@ -262,9 +263,10 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
         .gte(query.getAvailableSince()));
     }
 
-    if (query.getStatuses() != null && !query.getStatuses().isEmpty()) {
+    Collection<RuleStatus> statuses = query.getStatuses();
+    if (statuses != null && !statuses.isEmpty()) {
       Collection<String> stringStatus = new ArrayList<String>();
-      for (RuleStatus status : query.getStatuses()) {
+      for (RuleStatus status : statuses) {
         stringStatus.add(status.name());
       }
       this.addTermFilter(fb, RuleNormalizer.RuleField.STATUS.field(), stringStatus);
@@ -391,6 +393,9 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     return tags;
   }
 
+  /**
+   * @deprecated do not use ids but keys
+   */
   @Deprecated
   @CheckForNull
   public Rule getById(int id) {
@@ -407,6 +412,9 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     }
   }
 
+  /**
+   * @deprecated do not use ids but keys
+   */
   @Deprecated
   public List<Rule> getByIds(Collection<Integer> ids) {
     SearchResponse response = getClient().prepareSearch(this.getIndexName())

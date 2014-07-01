@@ -40,8 +40,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * TODO should be an interface
- *
  * @since 2.3
  */
 public class XMLProfileParser implements ServerComponent {

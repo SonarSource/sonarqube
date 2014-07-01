@@ -171,13 +171,13 @@ public class AnalyzerContextAdaptor implements AnalyzerContext {
         measureToSave.setData(((String) measure.value()));
         break;
       case WORK_DUR:
-        measureToSave.setValue(Double.valueOf(((Long) measure.value())));
+        measureToSave.setValue(Double.valueOf((Long) measure.value()));
         break;
       default:
         if (m.isNumericType()) {
-          measureToSave.setValue(((Double) measure.value()));
+          measureToSave.setValue((Double) measure.value());
         } else if (m.isDataType()) {
-          measureToSave.setData(((String) measure.value()));
+          measureToSave.setData((String) measure.value());
         } else {
           throw new UnsupportedOperationException("Unsupported type :" + m.getType());
         }
