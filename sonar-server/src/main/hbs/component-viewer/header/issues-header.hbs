@@ -32,16 +32,8 @@
     {{#unless state.removed}}
       <li><a class="item js-filter-false-positive-issues">
         <span>{{t 'component_viewer.issues.false_positive_issues'}}</span>
-        <span class="number">{{component.measures.false_positive_issues}}</span>
         <i class="icon-chevron-right"></i>
       </a></li>
-    {{else}}
-      {{#if component.measures.false_positive_issues}}
-        <li><span class="item">
-          <span>{{t 'component_viewer.issues.false_positive_issues'}}</span>
-          <span class="number">{{component.measures.false_positive_issues}}</span>
-        </span></li>
-      {{/if}}
     {{/unless}}
   </ul>
 </div>
