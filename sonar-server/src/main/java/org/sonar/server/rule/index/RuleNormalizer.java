@@ -200,7 +200,8 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       Integer templateId = rule.getTemplateId();
       if (templateId != null) {
         RuleDto templateRule = db.ruleDao().getById(session, templateId);
-        update.put(RuleField.TEMPLATE_KEY.field(), templateRule.getKey().toString());
+        RuleKey templateKey = templateRule.getKey();
+        update.put(RuleField.TEMPLATE_KEY.field(), templateKey != null ? templateKey.toString() : null);
       } else {
         update.put(RuleField.TEMPLATE_KEY.field(), null);
       }
@@ -213,26 +214,36 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
       update.put(RuleField.DEFAULT_CHARACTERISTIC.field(), null);
       update.put(RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), null);
-      if (rule.getDefaultSubCharacteristicId() != null) {
+
+      Integer defaultSubCharacteristicId = rule.getDefaultSubCharacteristicId();
+      if (defaultSubCharacteristicId != null) {
         CharacteristicDto characteristic, subCharacteristic = null;
-        subCharacteristic = db.debtCharacteristicDao().selectById(rule.getDefaultSubCharacteristicId(), session);
+        subCharacteristic = db.debtCharacteristicDao().selectById(defaultSubCharacteristicId, session);
+
         if (subCharacteristic != null) {
-          characteristic = db.debtCharacteristicDao().selectById(subCharacteristic.getParentId());
-          update.put(RuleField.DEFAULT_CHARACTERISTIC.field(), characteristic.getKey());
-          update.put(RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), subCharacteristic.getKey());
+          Integer characteristicId = subCharacteristic.getParentId();
+          characteristic = db.debtCharacteristicDao().selectById(characteristicId);
+          if (characteristic != null) {
+            update.put(RuleField.DEFAULT_CHARACTERISTIC.field(), characteristic.getKey());
+            update.put(RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), subCharacteristic.getKey());
+          }
         }
       }
 
-      if (rule.getSubCharacteristicId() != null) {
-        if (rule.getSubCharacteristicId() == -1) {
+      Integer subCharacteristicId = rule.getSubCharacteristicId();
+      if (subCharacteristicId != null) {
+        if (subCharacteristicId == -1) {
           update.put(RuleField.CHARACTERISTIC.field(), DebtCharacteristic.NONE);
           update.put(RuleField.SUB_CHARACTERISTIC.field(), DebtCharacteristic.NONE);
         } else {
           CharacteristicDto characteristic, subCharacteristic = null;
-          subCharacteristic = db.debtCharacteristicDao().selectById(rule.getSubCharacteristicId(), session);
-          characteristic = db.debtCharacteristicDao().selectById(subCharacteristic.getParentId());
-          update.put(RuleField.CHARACTERISTIC.field(), characteristic.getKey());
-          update.put(RuleField.SUB_CHARACTERISTIC.field(), subCharacteristic.getKey());
+          subCharacteristic = db.debtCharacteristicDao().selectById(subCharacteristicId, session);
+          Integer characteristicId = subCharacteristic.getParentId();
+          characteristic = db.debtCharacteristicDao().selectById(characteristicId);
+          if (characteristic != null) {
+            update.put(RuleField.CHARACTERISTIC.field(), characteristic.getKey());
+            update.put(RuleField.SUB_CHARACTERISTIC.field(), subCharacteristic.getKey());
+          }
         }
       } else {
         update.put(RuleField.CHARACTERISTIC.field(), null);

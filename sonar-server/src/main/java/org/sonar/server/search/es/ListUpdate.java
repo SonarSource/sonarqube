@@ -119,7 +119,7 @@ public class ListUpdate extends AbstractExecutableScript {
         }
       } else {
         // 3. field is a list
-        Collection items = ((Collection) fieldValue);
+        Collection items = (Collection) fieldValue;
         Object target = null;
         for (Object item : items) {
           Map<String, Object> fields = (Map<String, Object>) item;
