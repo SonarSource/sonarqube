@@ -46,7 +46,7 @@ public class RuleDoc extends BaseDoc implements Rule {
 
   public static final String MANUAL_REPOSITORY = "manual";
 
-  RuleDoc(@Nullable Map<String, Object> fields) {
+  RuleDoc(Map<String, Object> fields) {
     super(fields);
   }
 
