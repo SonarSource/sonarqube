@@ -947,7 +947,7 @@ module ApplicationHelper
     total = pagination.total.to_i
     page_index = pagination.pageIndex() ? pagination.pageIndex().to_i : 1
     pages = pagination.pages().to_i
-    results_html = options[:url_results] ? message('x_results', :params => "<a href='#{options[:url_results]}'>#{total}</a>") : message('x_results', :params => [total])
+    results_html = options[:url_results] ? message('x_results', :params => "<a class='underlined-link' href='#{options[:url_results]}'>#{total}</a>") : message('x_results', :params => [total])
 
     html = '<tfoot'
     html += " id='#{options[:id]}'" if options[:id]
