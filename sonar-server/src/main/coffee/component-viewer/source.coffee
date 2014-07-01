@@ -122,6 +122,8 @@ define [
               @options.main.requestComponent(@options.main.key, false, false).done =>
                 @options.main.headerView.silentUpdate = true
                 @options.main.headerView.render()
+          else
+            row.prop 'title', tp('component_viewer.issues_limit_reached_tooltip', issue.message)
 
 
     showSpinner: ->
