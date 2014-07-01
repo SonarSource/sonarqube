@@ -22,7 +22,6 @@ package org.sonar.application;
 import org.apache.catalina.LifecycleException;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 public final class StartServer {
 
@@ -46,7 +45,7 @@ public final class StartServer {
     tomcat.stop();
   }
 
-  public static void main(String[] args) throws URISyntaxException, IOException, LifecycleException {
+  public static void main(String[] args) throws Exception {
     new StartServer(new Env()).start();
   }
 }

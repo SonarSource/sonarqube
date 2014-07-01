@@ -90,29 +90,19 @@ public final class CacheRuleFinder implements RuleFinder {
   }
 
 
+  @Override
   @CheckForNull
   public Rule findByKey(RuleKey key) {
     return findByKey(key.repository(), key.rule());
   }
 
-
-  @CheckForNull
-  protected final Rule doFindByKey(String repositoryKey, String key) {
-    DatabaseSession session = sessionFactory.getSession();
-    return session.getSingleResult(
-      session.createQuery("FROM " + Rule.class.getSimpleName() + " r WHERE r.key=:key and r.pluginName=:pluginName and r.status<>:status")
-        .setParameter("key", key)
-        .setParameter("pluginName", repositoryKey)
-        .setParameter("status", Rule.STATUS_REMOVED
-        ),
-      null);
-  }
-
+  @Override
   public final Rule find(RuleQuery query) {
     DatabaseSession session = sessionFactory.getSession();
     return session.getSingleResult(createHqlQuery(session, query), null);
   }
 
+  @Override
   public final Collection<Rule> findAll(RuleQuery query) {
     DatabaseSession session = sessionFactory.getSession();
     return createHqlQuery(session, query).getResultList();

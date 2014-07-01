@@ -53,11 +53,10 @@ public class DefaultRuleFinder implements RuleFinder {
   @CheckForNull
   public org.sonar.api.rules.Rule findById(int ruleId) {
     Rule rule = index.getById(ruleId);
-    if (rule.status() != RuleStatus.REMOVED) {
+    if (rule != null && rule.status() != RuleStatus.REMOVED) {
       return toRule(rule);
-    } else {
-      return null;
     }
+    return null;
   }
 
   @CheckForNull
